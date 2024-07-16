@@ -1,0 +1,27 @@
+{
+  "NAVIGATION": {
+    "HOME": "Heim",
+    "PROJECTS": "Projekte",
+    "CONTACT": "Kontakt",
+    "RESUME": "Wieder aufnehmen",
+    "BLOG": "Blog",
+    "GITHUB": "GitHub",
+    "LOGIN": "Anmeldung",
+    "LOGOUT": "Ausloggen"
+  },
+  "LANGUAGES": {
+    "EN": "Englisch",
+    "TR": "Türkisch",
+    "DE": "Deutsch",
+    "TH": "Thai"
+  },
+  "SITE": {
+    "TITLE": "kuray karaaslan – autodidaktischer Full-Stack-Entwickler",
+    "DESCRIPTION": "Ich bin ein autodidaktischer Full-Stack-Entwickler mit Erfahrung in React, Java und mehr. "
+  },
+  "COOKIES": {
+    "MESSAGE": "Diese Website verwendet Cookies, um sicherzustellen, dass Sie das beste Erlebnis auf unserer Website erhalten.",
+    "AGREE": "Habe es!",
+    "DISAGREE": "Abfall"
+  }
+}

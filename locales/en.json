@@ -1,0 +1,27 @@
+{
+  "NAVIGATION": {
+    "HOME": "Home",
+    "PROJECTS": "Projects",
+    "CONTACT": "Contact",
+    "RESUME": "Resume",
+    "BLOG": "Blog",
+    "GITHUB": "GitHub",
+    "LOGIN": "Login",
+    "LOGOUT": "Logout"
+  },
+  "LANGUAGES": {
+    "EN": "English",
+    "TR": "Turkish",
+    "DE": "Deutsch",
+    "TH": "Thai"
+  },
+  "SITE": {
+    "TITLE": "kuray karaaslan - self-taught full-stack developer",
+    "DESCRIPTION": "i'm a self-taught full-stack developer with experience in react , java and more. I'm open for new opportunities."
+  },
+  "COOKIES": {
+    "MESSAGE": "This website uses cookies to ensure you get the best experience on our website.",
+    "AGREE": "Got it!",
+    "DISAGREE": "Decline"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "HELLO": "Merhaba",
+  "NAVIGATION": {
+    "HOME": "Anasayfa",
+    "PROJECTS": "Projeler",
+    "CONTACT": "İletişim",
+    "RESUME": "Özgeçmiş",
+    "BLOG": "Blog",
+    "GITHUB": "GitHub",
+    "LOGIN": "Giriş yap",
+    "LOGOUT": "Çıkış yap"
+  },
+  "LANGUAGES": {
+    "EN": "İngilizce",
+    "TR": "Türkçe",
+    "DE": "Almanca",
+    "TH": "Tayca"
+  },
+  "SITE": {
+    "TITLE": "kuray karaaslan - kendi kendini yetiştirmiş tam yığın geliştirici",
+    "DESCRIPTION": "react , Java ve daha birçok konuda deneyimi olan, kendi kendini yetiştirmiş bir full-stack geliştiricisiyim. "
+  },
+  "COOKIES": {
+    "MESSAGE": "Bu site, hizmetlerimizi sunmak ve iyileştirmek için çerezler kullanır.",
+    "AGREE": "Kabul et",
+    "DISAGREE": "Reddet"
+  }
+}
