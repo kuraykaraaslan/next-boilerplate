@@ -41,3 +41,8 @@ next-env.d.ts
 /prisma/.env.test
 /prisma/migration-lock.toml
 /prisma/migrations/
+
+# Env
+.env
+.env.local
+.env.development.local
