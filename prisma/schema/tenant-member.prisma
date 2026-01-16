@@ -1,0 +1,24 @@
+enum TenantMemberRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+model TenantMember {
+  tenantMemberId String @id @default(cuid())
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [tenantId], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  role TenantMemberRole @default(MEMBER)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([tenantId, userId])
+  @@index([tenantId])
+  @@index([userId])
+}

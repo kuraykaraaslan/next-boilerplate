@@ -1,0 +1,29 @@
+model UserSession {
+  userSessionId String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  accessToken  String @unique
+  refreshToken String @unique
+
+  sessionExpiry DateTime
+
+  otpVerifyNeeded Boolean   @default(false)
+  otpVerifiedAt   DateTime?
+
+  ip      String?
+  os      String?
+  device  String?
+  browser String?
+  city    String?
+  state   String?
+  country String?
+
+  deviceFingerprint String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}

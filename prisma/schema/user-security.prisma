@@ -1,0 +1,24 @@
+enum OTPMethod {
+  EMAIL
+  SMS
+  TOTP_APP
+}
+
+model UserSecurity {
+  userSecurityId String @id @default(cuid())
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  otpMethods          OTPMethod[]
+  otpSecret           String?
+  otpBackupCodes      String[]
+  lastLoginAt         DateTime?
+  lastLoginIp         String?
+  lastLoginDevice     String?
+  failedLoginAttempts Int       @default(0)
+  lockedUntil         DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
