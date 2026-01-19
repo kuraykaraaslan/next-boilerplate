@@ -1,4 +1,9 @@
 import { z } from 'zod';
+import { OTPMethodEnum, OTPActionEnum } from '../user_security/user_security.enums';
+
+// ============================================================================
+// Authentication DTOs
+// ============================================================================
 
 export const LoginDTO = z.object({
   email: z.string().email(),
@@ -15,13 +20,31 @@ export const LogoutDTO = z.object({
   accessToken: z.string()
 });
 
+export const VerifyEmailDTO = z.object({
+  token: z.string()
+});
+
+// ============================================================================
+// Password DTOs
+// ============================================================================
+
 export const ForgotPasswordDTO = z.object({
   email: z.string().email()
 });
 
 export const ResetPasswordDTO = z.object({
-  token: z.string(),
-  password: z.string().min(8, "Password must be at least 8 characters")
+  email: z.string().email(),
+  resetToken: z.string(),
+  newPassword: z.string().min(8, "Password must be at least 8 characters")
+});
+
+export const ValidateResetTokenDTO = z.object({
+  email: z.string().email(),
+  resetToken: z.string()
+});
+
+export const InvalidateResetTokenDTO = z.object({
+  email: z.string().email()
 });
 
 export const ChangePasswordDTO = z.object({
@@ -29,14 +52,70 @@ export const ChangePasswordDTO = z.object({
   newPassword: z.string().min(8, "Password must be at least 8 characters")
 });
 
-export const VerifyEmailDTO = z.object({
-  token: z.string()
+// ============================================================================
+// OTP DTOs
+// ============================================================================
+
+export const RequestOTPDTO = z.object({
+  method: OTPMethodEnum,
+  action: OTPActionEnum
 });
+
+export const VerifyOTPDTO = z.object({
+  method: OTPMethodEnum,
+  action: OTPActionEnum,
+  otpToken: z.string().min(4)
+});
+
+// ============================================================================
+// TOTP DTOs
+// ============================================================================
+
+export const TOTPRequestSetupDTO = z.object({
+  // No additional fields needed - user/session from context
+});
+
+export const TOTPVerifyAndEnableDTO = z.object({
+  otpToken: z.string().min(6).max(6)
+});
+
+export const TOTPVerifyAuthenticateDTO = z.object({
+  otpToken: z.string().min(6).max(8) // 6 for TOTP, 8 for backup codes
+});
+
+export const TOTPDisableDTO = z.object({
+  otpToken: z.string().min(6).max(6)
+});
+
+export const TOTPGenerateBackupCodesDTO = z.object({
+  count: z.number().int().min(1).max(20).optional().default(4)
+});
+
+export const TOTPConsumeBackupCodeDTO = z.object({
+  code: z.string()
+});
+
+// ============================================================================
+// Type Exports
+// ============================================================================
 
 export type LoginInput = z.infer<typeof LoginDTO>;
 export type RegisterInput = z.infer<typeof RegisterDTO>;
 export type LogoutInput = z.infer<typeof LogoutDTO>;
+export type VerifyEmailInput = z.infer<typeof VerifyEmailDTO>;
+
 export type ForgotPasswordInput = z.infer<typeof ForgotPasswordDTO>;
 export type ResetPasswordInput = z.infer<typeof ResetPasswordDTO>;
+export type ValidateResetTokenInput = z.infer<typeof ValidateResetTokenDTO>;
+export type InvalidateResetTokenInput = z.infer<typeof InvalidateResetTokenDTO>;
 export type ChangePasswordInput = z.infer<typeof ChangePasswordDTO>;
-export type VerifyEmailInput = z.infer<typeof VerifyEmailDTO>;
+
+export type RequestOTPInput = z.infer<typeof RequestOTPDTO>;
+export type VerifyOTPInput = z.infer<typeof VerifyOTPDTO>;
+
+export type TOTPRequestSetupInput = z.infer<typeof TOTPRequestSetupDTO>;
+export type TOTPVerifyAndEnableInput = z.infer<typeof TOTPVerifyAndEnableDTO>;
+export type TOTPVerifyAuthenticateInput = z.infer<typeof TOTPVerifyAuthenticateDTO>;
+export type TOTPDisableInput = z.infer<typeof TOTPDisableDTO>;
+export type TOTPGenerateBackupCodesInput = z.infer<typeof TOTPGenerateBackupCodesDTO>;
+export type TOTPConsumeBackupCodeInput = z.infer<typeof TOTPConsumeBackupCodeDTO>;

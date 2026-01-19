@@ -1,9 +1,9 @@
 
 
 import { NextResponse } from "next/server";
-import UserService from "@/services/UserService";
-import UserSessionService from "@/services/AuthService/UserSessionService";
-import { CreateUserRequestSchema } from "@/dtos/UserDTO";
+import UserService from "@/modules/user/user.service";
+import { CreateUserRequestSchema } from "@/modules/user/user.dto";
+import UserSessionNextService from "@/modules/user_session/user_session.service.next";
 
 /**
  * GET handler for retrieving all users.
@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
 
     try {
 
-       await UserSessionService.authenticateUserByRequest({ request, requiredUserRole: "USER" });
+       const { user } = await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "USER" });
 
 
         const { searchParams } = new URL(request.url);
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
             search
         });      
 
-        if (request?.user?.userRole !== "ADMIN") {
+        if (user.userRole !== "ADMIN") {
             //omit user data only id and name
             users.forEach((user: any) => {
                 delete user.email;
@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
     try {
 
-        await UserSessionService.authenticateUserByRequest({ request, requiredUserRole: "ADMIN" });
+        await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "ADMIN" });
 
         const body = await request.json();
         
@@ -69,16 +69,15 @@ export async function POST(request: NextRequest) {
         
         if (!parsedData.success) {
             return NextResponse.json({
-                error: parsedData.error.errors.map(err => err.message).join(", ")
+                error: parsedData.error
             }, { status: 400 });
         }
 
-        const { email, password, name, phone, userRole } = parsedData.data;
+        const { email, password, phone, userRole } = parsedData.data;
 
         const user = await UserService.create({
             email,
             password,
-            name,
             phone,
             userRole
         });

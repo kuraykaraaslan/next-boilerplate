@@ -32,7 +32,7 @@ export default class UserSecurityService {
     return SafeUserSecuritySchema.parse(security);
   }
 
-  static async create(userId: string): Promise<UserSecurity> {
+  static async createUserSecurity(userId: string): Promise<UserSecurity> {
     const existing = await this.repository.findOne({
       where: { userId }
     });
@@ -52,7 +52,7 @@ export default class UserSecurityService {
     return UserSecuritySchema.parse(saved);
   }
 
-  static async update(userId: string, data: Partial<UserSecurity>): Promise<UserSecurity> {
+  static async updateUserSecurity(userId: string, data: Partial<UserSecurity>): Promise<UserSecurity> {
     const security = await this.repository.findOne({
       where: { userId }
     });
@@ -70,13 +70,13 @@ export default class UserSecurityService {
     return UserSecuritySchema.parse(updated);
   }
 
-  static async upsert(userId: string, data: Partial<UserSecurity>): Promise<UserSecurity> {
+  static async upsertUserSecurity(userId: string, data: Partial<UserSecurity>): Promise<UserSecurity> {
     const existing = await this.repository.findOne({
       where: { userId }
     });
 
     if (existing) {
-      return this.update(userId, data);
+      return this.updateUserSecurity(userId, data);
     }
 
     const security = this.repository.create({
