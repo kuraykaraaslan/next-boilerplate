@@ -2,7 +2,8 @@
 import { useMemo, useCallback } from 'react'
 import axiosInstance from '@/libs/axios'
 import { toast } from 'react-toastify'
-import { useTranslation } from 'react-i18next'
+import { useModuleDictionary } from '../hooks/useModuleDictionary'
+import type { SSOLocale } from '../dictionaries'
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
@@ -45,10 +46,11 @@ type SSOLoginMode = 'modal' | 'pins' | 'list'
 
 interface SSOLoginProps {
   mode?: SSOLoginMode
+  locale?: SSOLocale
 }
 
-const SSOLoginContent = ({ mode }: { mode: SSOLoginMode }) => {
-  const { t } = useTranslation()
+const SSOLoginContent = ({ mode, locale = 'en' }: { mode: SSOLoginMode; locale?: SSOLocale }) => {
+  const { t } = useModuleDictionary(locale)
 
   const allowedProviders = useMemo(() => {
     return (process.env.SSO_ALLOWED_PROVIDERS || '')
@@ -60,14 +62,14 @@ const SSOLoginContent = ({ mode }: { mode: SSOLoginMode }) => {
   const handleLogin = useCallback(
     async (provider: string) => {
       if (!allowedProviders.includes(provider)) {
-        toast.error(t('auth.sso.provider_not_allowed', { provider }))
+        toast.error(t('provider_not_allowed', { provider }))
         return
       }
       try {
         const res = await axiosInstance.get(`/api/auth/sso/${provider}`)
         window.location.href = res.data.url
       } catch (e) {
-        toast.error(t('auth.sso.redirect_error'))
+        toast.error(t('redirect_error'))
         console.error(e)
       }
     },
@@ -77,7 +79,7 @@ const SSOLoginContent = ({ mode }: { mode: SSOLoginMode }) => {
   if (allowedProviders.length === 0) {
     return (
       <div className='text-center text-sm text-gray-500'>
-        {t('auth.sso.no_providers')}
+        {t('no_providers')}
       </div>
     )
   }
@@ -90,7 +92,7 @@ const SSOLoginContent = ({ mode }: { mode: SSOLoginMode }) => {
         <FontAwesomeIcon icon={config?.icon || faPeopleGroup} className='h-4 w-4' />
         {!circle && (
           <span className='ml-2'>
-            {t('auth.sso.button_label', { provider: provider.charAt(0).toUpperCase() + provider.slice(1) })}
+            {t('button_label', { provider: provider.charAt(0).toUpperCase() + provider.slice(1) })}
           </span>
         )}
       </button>
@@ -104,9 +106,9 @@ const SSOLoginContent = ({ mode }: { mode: SSOLoginMode }) => {
   )
 }
 
-const SSOLogin = ({ mode = 'list' }: SSOLoginProps) => {
-  const { t } = useTranslation()
-  
+const SSOLogin = ({ mode = 'list', locale = 'en' }: SSOLoginProps) => {
+  const { t } = useModuleDictionary(locale)
+
   if (mode === 'modal') {
     return (
       <>
@@ -115,15 +117,15 @@ const SSOLogin = ({ mode = 'list' }: SSOLoginProps) => {
           onClick={() => (document?.getElementById('sso_modal') as HTMLDialogElement)?.showModal()}
         >
           <FontAwesomeIcon icon={faPeopleGroup} className='h-4 w-4' />
-          <span className='ml-2'>{t('auth.sso.modal_button')}</span>
+          <span className='ml-2'>{t('modal_button')}</span>
         </button>
         <dialog id='sso_modal' className='modal'>
           <div className='modal-box'>
-            <h3 className='font-bold text-lg mb-4'>{t('auth.sso.modal_title')}</h3>
-            <SSOLoginContent mode='list' />
+            <h3 className='font-bold text-lg mb-4'>{t('modal_title')}</h3>
+            <SSOLoginContent mode='list' locale={locale} />
             <div className='modal-action'>
               <form method='dialog'>
-                <button className='btn'>{t('auth.sso.close')}</button>
+                <button className='btn'>{t('close')}</button>
               </form>
             </div>
           </div>
@@ -132,7 +134,7 @@ const SSOLogin = ({ mode = 'list' }: SSOLoginProps) => {
     )
   }
 
-  return <SSOLoginContent mode={mode} />
+  return <SSOLoginContent mode={mode} locale={locale} />
 }
 
 export default SSOLogin

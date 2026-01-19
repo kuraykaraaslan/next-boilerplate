@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { SSOProviderEnum } from './sso.enums';
+import { SSOProviderEnum } from './auth_sso.enums';
 
 export const SSOProfileSchema = z.object({
   sub: z.string(),

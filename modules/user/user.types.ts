@@ -6,8 +6,6 @@ export const UserSchema = z.object({
   email: z.string().email(),
   phone: z.string().optional(),
   password: z.string().min(8, "Password must be at least 8 characters long"),
-  name: z.string().optional(),
-  lastName: z.string().optional(),
   userRole: UserRoleEnum.default('USER'),
   userStatus: UserStatusEnum.default('ACTIVE'),
   createdAt: z.date().optional(),
@@ -23,7 +21,6 @@ export const SafeUserSchema = UserSchema.omit({
 export const UpdateUserSchema = z.object({
   email: z.string().email().optional(),
   phone: z.string().optional(),
-  name: z.string().optional(),
   lastName: z.string().optional(),
   userRole: UserRoleEnum.optional(),
   userStatus: UserStatusEnum.optional()

@@ -1,0 +1,9 @@
+{
+  "provider_not_allowed": "{{provider}} is not allowed",
+  "redirect_error": "Failed to redirect to SSO provider",
+  "no_providers": "No SSO providers configured",
+  "button_label": "Continue with {{provider}}",
+  "modal_button": "Sign in with SSO",
+  "modal_title": "Choose a provider",
+  "close": "Close"
+}

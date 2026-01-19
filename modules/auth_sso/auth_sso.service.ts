@@ -1,8 +1,8 @@
-import type { SSOProvider } from './sso.enums';
-import type { SSOProfile, SSOTokens } from './sso.types';
+import type { SSOProvider } from './auth_sso.enums';
+import type { SSOProfile, SSOTokens } from './auth_sso.types';
 import { getProvider } from './providers';
-import { getAllowedProviders, isProviderConfigured } from './sso.config';
-import SSOMessages from './sso.messages';
+import { getAllowedProviders, isProviderConfigured } from './auth_sso.config';
+import SSOMessages from './auth_sso.messages';
 import UserSocialAccountService from '../user_social_account/user_social_account.service';
 import UserService from '../user/user.service';
 import type { SafeUser } from '../user/user.types';
@@ -99,7 +99,7 @@ export default class SSOService {
     const newUser = await UserService.create({
       email: profile.email,
       password: randomPassword,
-      name: profile.name || profile.email.split('@')[0]
+      //name: profile.name || profile.email.split('@')[0]
     });
 
     // Link social account

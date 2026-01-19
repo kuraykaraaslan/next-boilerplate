@@ -24,12 +24,7 @@ export class UserEntity {
   @Column()
   password!: string;
 
-  @Column({ nullable: true })
-  name?: string;
-
-  @Column({ nullable: true })
-  lastName?: string;
-
+  
   @Column({ default: 'USER' })
   userRole!: UserRole;
 

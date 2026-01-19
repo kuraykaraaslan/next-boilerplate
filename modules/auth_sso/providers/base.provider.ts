@@ -1,8 +1,8 @@
 import axios from 'axios';
-import type { SSOProvider } from '../sso.enums';
-import type { SSOProfile, SSOTokens, SSOProviderConfig, SSOProviderService } from '../sso.types';
-import { SSO_CONFIGS, getCallbackUrl } from '../sso.config';
-import SSOMessages from '../sso.messages';
+import type { SSOProvider } from '../auth_sso.enums';
+import type { SSOProfile, SSOTokens, SSOProviderConfig, SSOProviderService } from '../auth_sso.types';
+import { SSO_CONFIGS, getCallbackUrl } from '../auth_sso.config';
+import SSOMessages from '../auth_sso.messages';
 
 export abstract class BaseSSOProvider implements SSOProviderService {
   protected provider: SSOProvider;

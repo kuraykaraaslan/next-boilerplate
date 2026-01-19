@@ -1,5 +1,5 @@
 import { BaseSSOProvider } from './base.provider';
-import type { SSOProfile } from '../sso.types';
+import type { SSOProfile } from '../auth_sso.types';
 
 export class GithubProvider extends BaseSSOProvider {
   constructor() {

@@ -11,10 +11,9 @@ export default class UserService {
     return AppDataSource.getRepository(UserEntity);
   }
 
-  static async create({ email, password, name, phone, userRole }: {
+  static async create({ email, password, phone, userRole }: {
     email: string,
     password: string,
-    name: string,
     phone?: string,
     userRole?: UserRole
   }): Promise<SafeUser> {
@@ -40,7 +39,6 @@ export default class UserService {
     const user = this.repository.create({
       email: email.toLowerCase(),
       password: hashedPassword,
-      name,
       phone,
       userRole: userRole ?? 'USER',
       userStatus: 'ACTIVE'
@@ -109,8 +107,6 @@ export default class UserService {
     await this.repository.update({ userId }, {
       email: data.email,
       phone: data.phone,
-      name: data.name,
-      lastName: data.lastName,
       userRole: data.userRole as UserRole | undefined,
       userStatus: data.userStatus as UserStatus | undefined
     });

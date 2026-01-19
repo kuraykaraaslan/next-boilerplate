@@ -1,0 +1,9 @@
+{
+  "provider_not_allowed": "{{provider}} no está permitido",
+  "redirect_error": "Error al redirigir al proveedor SSO",
+  "no_providers": "No hay proveedores SSO configurados",
+  "button_label": "Continuar con {{provider}}",
+  "modal_button": "Iniciar sesión con SSO",
+  "modal_title": "Elige un proveedor",
+  "close": "Cerrar"
+}

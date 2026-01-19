@@ -1,5 +1,5 @@
-import type { SSOProvider } from './sso.enums';
-import type { SSOProviderConfig } from './sso.types';
+import type { SSOProvider } from './auth_sso.enums';
+import type { SSOProviderConfig } from './auth_sso.types';
 
 const APP_HOST = process.env.APPLICATION_HOST || 'http://localhost:3000';
 

@@ -1,0 +1,9 @@
+{
+  "provider_not_allowed": "{{provider}} sağlayıcısına izin verilmiyor",
+  "redirect_error": "SSO sağlayıcısına yönlendirme başarısız",
+  "no_providers": "Yapılandırılmış SSO sağlayıcısı yok",
+  "button_label": "{{provider}} ile devam et",
+  "modal_button": "SSO ile giriş yap",
+  "modal_title": "Bir sağlayıcı seçin",
+  "close": "Kapat"
+}
