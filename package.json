@@ -6,22 +6,35 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "typeorm": "ts-node ./node_modules/typeorm/cli",
+    "typeorm:migrate": "npm run typeorm migration:run -- -d libs/typeorm/index.ts",
+    "typeorm:generate": "npm run typeorm -- -d libs/typeorm/index.ts migration:generate ./migrations/$npm_config_name",
+    "typeorm:revert": "npm run typeorm -- -d libs/typeorm/index.ts migration:revert"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^7.1.0",
+    "@fortawesome/free-brands-svg-icons": "^7.1.0",
+    "@fortawesome/free-solid-svg-icons": "^7.1.0",
+    "@fortawesome/react-fontawesome": "^3.1.1",
     "@prisma/adapter-pg": "^7.2.0",
     "@prisma/client": "^7.2.0",
     "axios": "^1.13.2",
+    "bcrypt": "^6.0.0",
     "dotenv": "^17.2.3",
     "jsonwebtoken": "^9.0.3",
     "next": "16.1.2",
     "pg": "^8.17.1",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "react-i18next": "^16.5.3",
+    "react-toastify": "^11.0.5",
+    "typeorm": "^0.4.0-alpha.1",
     "zod": "^4.3.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/bcrypt": "^6.0.0",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^20.19.29",
     "@types/pg": "^8.16.0",
@@ -31,6 +44,7 @@
     "eslint-config-next": "16.1.2",
     "prisma": "^7.2.0",
     "tailwindcss": "^4",
+    "typeorm-ts-node-commonjs": "^0.3.20",
     "typescript": "^5"
   }
 }

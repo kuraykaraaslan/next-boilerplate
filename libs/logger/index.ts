@@ -1,9 +1,10 @@
-import winston from 'winston';
+import { Request, Response, NextFunction } from "express";
+import winston from "winston";
 
 const { combine, timestamp, json, printf } = winston.format;
-const timestampFormat = 'MMM-DD-YYYY HH:mm:ss';
+const timestampFormat = "MMM-DD-YYYY HH:mm:ss"
 
-const NODE_ENV : string = process.env.NODE_ENV || 'development' || 'vercel';
+const NODE_ENV = process.env.NODE_ENV || "development"
 
 export default class Logger {
   private static infoLogger = winston.createLogger({
@@ -15,7 +16,8 @@ export default class Logger {
         return `[${timestamp}] [${level}]: ${message}`;
       })
     ),
-    transports: (NODE_ENV === 'vercel' || NODE_ENV === 'development') ? [
+    // Disable logging to file when running on Vercel platform
+    transports: (NODE_ENV === 'vercel') ? [
       new winston.transports.Console(), // Add a console transport to log information to console
     ] : [
       new winston.transports.File({
@@ -34,8 +36,7 @@ export default class Logger {
         return `[${timestamp}] [${level}]: ${message}`;
       })
     ),
-
-    transports: (NODE_ENV === 'vercel' || NODE_ENV === 'development') ? [
+    transports: (NODE_ENV === 'vercel') ? [
       new winston.transports.Console(), // Add a console transport to log information to console
     ] : [
       new winston.transports.File({
@@ -54,7 +55,7 @@ export default class Logger {
         return `[${timestamp}] [${level}]: ${message}`;
       })
     ),
-    transports: (NODE_ENV === 'vercel' || NODE_ENV === 'development') ? [
+    transports: (NODE_ENV === 'vercel') ? [
       new winston.transports.Console(), // Add a console transport to log information to console
     ] : [
       new winston.transports.File({
@@ -77,7 +78,7 @@ export default class Logger {
     Logger.warnLogger.warn(message);
   }
 
-  /* Disabled on NEXTJS
+
   static useLogger(request: Request, response: Response, next: NextFunction) {
     const ip = request.headers['x-forwarded-for'] || request.connection.remoteAddress;
     const method = request.method;
@@ -99,7 +100,6 @@ export default class Logger {
 
     next();
   }
-  */
 }
 
 
