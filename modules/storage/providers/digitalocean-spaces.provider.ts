@@ -1,0 +1,192 @@
+import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
+import BaseStorageProvider, { UploadOptions, UploadFromUrlOptions, UploadResult } from './base.provider'
+import Logger from '@/libs/logger'
+import { v4 as uuidv4 } from 'uuid'
+
+export default class DigitalOceanSpacesProvider extends BaseStorageProvider {
+  private static readonly BUCKET_NAME = process.env.DO_SPACES_BUCKET_NAME!
+  private static readonly REGION = process.env.DO_SPACES_REGION || 'nyc3'
+  private static readonly ACCESS_KEY_ID = process.env.DO_SPACES_ACCESS_KEY_ID!
+  private static readonly SECRET_ACCESS_KEY = process.env.DO_SPACES_SECRET_ACCESS_KEY!
+  private static readonly CDN_ENDPOINT = process.env.DO_SPACES_CDN_ENDPOINT // Optional CDN endpoint
+
+  private static readonly s3Client = new S3Client({
+    region: DigitalOceanSpacesProvider.REGION,
+    endpoint: `https://${DigitalOceanSpacesProvider.REGION}.digitaloceanspaces.com`,
+    credentials: {
+      accessKeyId: DigitalOceanSpacesProvider.ACCESS_KEY_ID,
+      secretAccessKey: DigitalOceanSpacesProvider.SECRET_ACCESS_KEY,
+    },
+  })
+
+  static allowedFolders = [
+    'general',
+    'categories',
+    'users',
+    'posts',
+    'projects',
+    'comments',
+    'images',
+    'videos',
+    'audios',
+    'files',
+    'content',
+  ]
+
+  static allowedExtensions = ['jpeg', 'jpg', 'png', 'webp', 'avif']
+  static allowedMimeTypes = [
+    'image/jpeg',
+    'image/png',
+    'image/webp',
+    'image/avif',
+  ]
+
+  /** Validate MIME type and extension consistency */
+  private validateFile(file: File, folder: string) {
+    if (!file) throw new Error('No file provided')
+    if (!DigitalOceanSpacesProvider.allowedFolders.includes(folder)) {
+      throw new Error('INVALID_FOLDER_NAME')
+    }
+
+    const extension = file.name.split('.').pop()?.toLowerCase()
+    if (!extension || !DigitalOceanSpacesProvider.allowedExtensions.includes(extension)) {
+      throw new Error(`Invalid file extension: .${extension}`)
+    }
+
+    const mimeType = file.type
+    if (!mimeType || !DigitalOceanSpacesProvider.allowedMimeTypes.includes(mimeType)) {
+      throw new Error(`Invalid MIME type: ${mimeType}`)
+    }
+  }
+
+  /** Validate folder name */
+  private validateFolder(folder: string) {
+    if (!DigitalOceanSpacesProvider.allowedFolders.includes(folder)) {
+      throw new Error('INVALID_FOLDER_NAME')
+    }
+  }
+
+  /** Generate unique file key */
+  private generateFileKey(folder: string, filename: string, extension?: string): string {
+    const timestamp = Date.now()
+    const uuid = uuidv4().slice(0, 8)
+    const ext = extension || filename.split('.').pop()?.toLowerCase() || ''
+    const baseName = filename.split('.')[0] || 'file'
+    return `${folder}/${timestamp}-${uuid}-${baseName}.${ext}`
+  }
+
+  /** Get public URL for file */
+  private getPublicUrl(fileKey: string): string {
+    if (DigitalOceanSpacesProvider.CDN_ENDPOINT) {
+      return `${DigitalOceanSpacesProvider.CDN_ENDPOINT}/${fileKey}`
+    }
+    return `https://${DigitalOceanSpacesProvider.BUCKET_NAME}.${DigitalOceanSpacesProvider.REGION}.digitaloceanspaces.com/${fileKey}`
+  }
+
+  async uploadFile(file: File, options?: UploadOptions): Promise<UploadResult> {
+    const folder = options?.folder || 'general'
+    this.validateFile(file, folder)
+
+    try {
+      const fileBuffer = Buffer.from(await file.arrayBuffer())
+      const extension = file.name.split('.').pop()?.toLowerCase()
+      const fileKey = options?.filename 
+        ? `${folder}/${options.filename}`
+        : this.generateFileKey(folder, file.name, extension)
+
+      const command = new PutObjectCommand({
+        Bucket: DigitalOceanSpacesProvider.BUCKET_NAME,
+        Key: fileKey,
+        Body: fileBuffer,
+        ContentType: options?.contentType || file.type,
+        ACL: 'public-read', // DigitalOcean Spaces requires explicit ACL
+      })
+
+      await DigitalOceanSpacesProvider.s3Client.send(command)
+
+      const url = this.getPublicUrl(fileKey)
+
+      Logger.info(`File uploaded successfully to DigitalOcean Spaces: ${fileKey}`)
+
+      return {
+        url,
+        key: fileKey,
+        bucket: DigitalOceanSpacesProvider.BUCKET_NAME,
+        size: file.size,
+      }
+    } catch (error) {
+      Logger.error(`Failed to upload file to DigitalOcean Spaces: ${error instanceof Error ? error.message : String(error)}`)
+      throw new Error('Failed to upload file to DigitalOcean Spaces')
+    }
+  }
+
+  async uploadFromUrl(url: string, options?: UploadFromUrlOptions): Promise<UploadResult> {
+    const folder = options?.folder || 'general'
+    this.validateFolder(folder)
+
+    try {
+      const response = await fetch(url)
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch file from URL: ${response.statusText}`)
+      }
+
+      const mimeType = response.headers.get('content-type') || 'application/octet-stream'
+
+      if (!DigitalOceanSpacesProvider.allowedMimeTypes.includes(mimeType)) {
+        throw new Error(`Invalid MIME type from URL: ${mimeType}`)
+      }
+
+      const arrayBuffer = await response.arrayBuffer()
+      const fileBuffer = Buffer.from(arrayBuffer)
+      
+      const filename = options?.filename || url.split('?')[0].split('/').pop() || 'file'
+      const fileKey = options?.filename
+        ? `${folder}/${options.filename}`
+        : this.generateFileKey(folder, filename)
+
+      const command = new PutObjectCommand({
+        Bucket: DigitalOceanSpacesProvider.BUCKET_NAME,
+        Key: fileKey,
+        Body: fileBuffer,
+        ContentType: options?.contentType || mimeType,
+        ACL: 'public-read',
+      })
+
+      await DigitalOceanSpacesProvider.s3Client.send(command)
+
+      const fileUrl = this.getPublicUrl(fileKey)
+
+      Logger.info(`File uploaded from URL successfully to DigitalOcean Spaces: ${fileKey}`)
+
+      return {
+        url: fileUrl,
+        key: fileKey,
+        bucket: DigitalOceanSpacesProvider.BUCKET_NAME,
+        size: arrayBuffer.byteLength,
+      }
+    } catch (error) {
+      Logger.error(`Failed to upload file from URL to DigitalOcean Spaces: ${error instanceof Error ? error.message : String(error)}`)
+      throw new Error('Failed to upload file from URL to DigitalOcean Spaces')
+    }
+  }
+
+  async deleteFile(key: string): Promise<void> {
+    try {
+      const command = new DeleteObjectCommand({
+        Bucket: DigitalOceanSpacesProvider.BUCKET_NAME,
+        Key: key,
+      })
+
+      await DigitalOceanSpacesProvider.s3Client.send(command)
+      Logger.info(`File deleted successfully from DigitalOcean Spaces: ${key}`)
+    } catch (error) {
+      Logger.error(`Failed to delete file from DigitalOcean Spaces: ${error instanceof Error ? error.message : String(error)}`)
+      throw new Error('Failed to delete file from DigitalOcean Spaces')
+    }
+  }
+
+  getFileUrl(key: string): string {
+    return this.getPublicUrl(key)
+  }
+}

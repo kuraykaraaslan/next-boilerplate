@@ -70,7 +70,7 @@ export function useTOTP(
 
       const updated = {
         ...userSecurity,
-        otpMethods: [...new Set([...userSecurity.otpMethods, OTPMethodEnum.Enum.TOTP_APP])],
+        otpMethods: [...new Set([...userSecurity.otpMethods, OTPMethodEnum.enum.TOTP_APP])],
       };
 
       onUserSecurityUpdate(updated);
@@ -91,7 +91,7 @@ export function useTOTP(
 
       const updated = {
         ...userSecurity,
-        otpMethods: userSecurity.otpMethods.filter(m => m !== OTPMethodEnum.Enum.TOTP_APP),
+        otpMethods: userSecurity.otpMethods.filter(m => m !== OTPMethodEnum.enum.TOTP_APP),
       };
 
       onUserSecurityUpdate(updated);

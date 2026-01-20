@@ -68,7 +68,7 @@ export default class TOTPService {
       throw new Error(AuthMessages.INVALID_OTP);
     }
 
-    const userSecurity = await UserSecurityService.getByUserId(user.userId) || await UserSecurityService.createUserSecurity(user.userId);
+    const userSecurity = await UserSecurityService.getByUserId(user.userId);
 
     const newMethods = Array.from(new Set([...(userSecurity.otpMethods || []), 'TOTP_APP']));
 
@@ -187,7 +187,7 @@ export default class TOTPService {
   // Consume a backup code: verify and remove it from stored list
   static async consumeBackupCode({ user, code }: { user: SafeUser; code: string }) {
 
-    const userSecurity = await UserSecurityService.getByUserId(user.userId) || await UserSecurityService.createUserSecurity(user.userId);
+    const userSecurity = await UserSecurityService.getByUserId(user.userId);
     
     const list = userSecurity.otpBackupCodes || [];
     if (!list.length) {

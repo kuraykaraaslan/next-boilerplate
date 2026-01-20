@@ -1,6 +1,7 @@
 import { AppDataSource } from "@/libs/typeorm";
 import { UserProfileEntity } from "./user_profile.entity";
 import { UserProfile, UserProfileSchema, SocialLinkItem } from "./user_profile.types";
+import { DeepPartial } from "typeorm";
 
 export default class UserProfileService {
 
@@ -29,14 +30,14 @@ export default class UserProfileService {
       throw new Error("Profile already exists for this user");
     }
 
-    const profile = this.repository.create({
-      userId,
-      name: data?.name ?? null,
-      biography: data?.biography ?? null,
-      profilePicture: data?.profilePicture ?? null,
-      headerImage: data?.headerImage ?? null,
-      socialLinks: data?.socialLinks ?? []
-    });
+const profile = this.repository.create({
+  userId,
+  name: data?.name ?? null,
+  biography: data?.biography ?? null,
+  profilePicture: data?.profilePicture ?? null,
+  headerImage: data?.headerImage ?? null,
+  socialLinks: data?.socialLinks ?? []
+} as DeepPartial<UserProfileEntity>);
 
     const saved = await this.repository.save(profile);
     return UserProfileSchema.parse(saved);
@@ -52,10 +53,10 @@ export default class UserProfileService {
     }
 
     await this.repository.update({ userId }, {
-      name: data.name,
-      biography: data.biography,
-      profilePicture: data.profilePicture,
-      headerImage: data.headerImage,
+      name: data.name ? data.name : undefined,
+      biography: data.biography ? data.biography : undefined,
+      profilePicture: data.profilePicture ? data.profilePicture : undefined,
+      headerImage: data.headerImage ? data.headerImage : undefined,
       socialLinks: data.socialLinks
     });
 

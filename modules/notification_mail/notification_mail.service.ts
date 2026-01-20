@@ -2,7 +2,7 @@ import Logger from "@/libs/logger";
 import ejs from "ejs";
 import path from "path";
 import { Queue, Worker, Job } from "bullmq";
-import { getBullMQConnection } from "@/libs/redis";
+import { getBullMQConnection } from "@/libs/redis/bullmq";
 
 // Providers
 import BaseMailProvider, { MailOptions, MailResult } from "./providers/base.provider";

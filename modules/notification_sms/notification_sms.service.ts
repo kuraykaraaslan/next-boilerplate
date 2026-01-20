@@ -1,6 +1,7 @@
 import Logger from "@/libs/logger";
 import { Queue, Worker, Job } from "bullmq";
-import redis, { getBullMQConnection } from "@/libs/redis";
+import { getBullMQConnection } from "@/libs/redis/bullmq";
+import redis from "@/libs/redis";
 import { PhoneNumberUtil, PhoneNumberFormat } from "google-libphonenumber";
 
 // Providers

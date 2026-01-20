@@ -8,7 +8,7 @@ export default class UserSecurityService {
     return AppDataSource.getRepository(UserSecurityEntity);
   }
 
-  static async getByUserId(userId: string): Promise<UserSecurity | null> {
+  static async getByUserId(userId: string): Promise<UserSecurity> {
     const security = await this.repository.findOne({
       where: { userId }
     });
