@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import PostService from "@/services/PostService";
-import UserSessionService from "@/services/AuthService/UserSessionService";
+import UserSessionNextService from "@/modules/user_session/user_session.service.next";
 import PostMessages from "@/messages/PostMessages";
 
 /**
@@ -50,7 +50,7 @@ export async function DELETE(
 ) {
   try {
 
-    await UserSessionService.authenticateUserByRequest({ request, requiredUserRole: "ADMIN" });
+    await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "ADMIN" });
 
     const { postId } = await params;
     const post = await PostService.getPostById(postId);

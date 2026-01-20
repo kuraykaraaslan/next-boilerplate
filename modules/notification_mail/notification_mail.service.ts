@@ -254,14 +254,14 @@ export default class MailService {
     email,
     name,
     device,
-    ip,
+    ipAddress,
     location,
     loginTime,
   }: {
     email: string;
     name?: string;
     device?: string;
-    ip?: string;
+    ipAddress?: string;
     location?: string;
     loginTime?: string;
   }): Promise<void> {
@@ -272,7 +272,7 @@ export default class MailService {
       subject,
       user: { name: name || email },
       device: device || "Unknown",
-      ip: ip || "Unknown",
+      ipAddress: ipAddress || "Unknown",
       location: location || "Unknown",
       loginTime: loginTime || new Date().toLocaleString(),
     });

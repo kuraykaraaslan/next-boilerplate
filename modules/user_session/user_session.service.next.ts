@@ -221,6 +221,10 @@ export default class UserSessionNextService {
       return null as any;
     }
   }
+
+  static async deleteSession(userSession: SafeUserSession): Promise<void> {
+    await UserSessionService.deleteSession(userSession.userSessionId);
+  }
 }
 
 

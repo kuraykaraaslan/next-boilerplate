@@ -22,6 +22,11 @@ export default class SSOService {
     return providerService.generateAuthUrl(state);
   }
 
+  static isProviderEnabled(provider: string): boolean {
+    const allowedProviders = this.getAllowedProviders();
+    return allowedProviders.includes(provider as SSOProvider);
+  }
+
   static async handleCallback(provider: SSOProvider, code: string): Promise<{
     profile: SSOProfile;
     tokens: SSOTokens;

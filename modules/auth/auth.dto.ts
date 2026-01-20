@@ -71,15 +71,15 @@ export const VerifyOTPDTO = z.object({
 // TOTP DTOs
 // ============================================================================
 
-export const TOTPRequestSetupDTO = z.object({
+export const TOTPSetupDTO = z.object({
   // No additional fields needed - user/session from context
 });
 
-export const TOTPVerifyAndEnableDTO = z.object({
+export const TOTPEnableDTO = z.object({
   otpToken: z.string().min(6).max(6)
 });
 
-export const TOTPVerifyAuthenticateDTO = z.object({
+export const TOTPVerifyDTO = z.object({
   otpToken: z.string().min(6).max(8) // 6 for TOTP, 8 for backup codes
 });
 
@@ -87,12 +87,20 @@ export const TOTPDisableDTO = z.object({
   otpToken: z.string().min(6).max(6)
 });
 
-export const TOTPGenerateBackupCodesDTO = z.object({
+export const TOTPBackupCodesDTO = z.object({
   count: z.number().int().min(1).max(20).optional().default(4)
 });
 
 export const TOTPConsumeBackupCodeDTO = z.object({
   code: z.string()
+});
+
+// ============================================================================
+// Session DTOs
+// ============================================================================
+
+export const RefreshTokenDTO = z.object({
+  refreshToken: z.string()
 });
 
 // ============================================================================
@@ -113,9 +121,10 @@ export type ChangePasswordInput = z.infer<typeof ChangePasswordDTO>;
 export type RequestOTPInput = z.infer<typeof RequestOTPDTO>;
 export type VerifyOTPInput = z.infer<typeof VerifyOTPDTO>;
 
-export type TOTPRequestSetupInput = z.infer<typeof TOTPRequestSetupDTO>;
-export type TOTPVerifyAndEnableInput = z.infer<typeof TOTPVerifyAndEnableDTO>;
-export type TOTPVerifyAuthenticateInput = z.infer<typeof TOTPVerifyAuthenticateDTO>;
+export type TOTPSetupInput = z.infer<typeof TOTPSetupDTO>;
+export type TOTPEnableInput = z.infer<typeof TOTPEnableDTO>;
+export type TOTPVerifyInput = z.infer<typeof TOTPVerifyDTO>;
 export type TOTPDisableInput = z.infer<typeof TOTPDisableDTO>;
-export type TOTPGenerateBackupCodesInput = z.infer<typeof TOTPGenerateBackupCodesDTO>;
+export type TOTPBackupCodesInput = z.infer<typeof TOTPBackupCodesDTO>;
 export type TOTPConsumeBackupCodeInput = z.infer<typeof TOTPConsumeBackupCodeDTO>;
+export type RefreshTokenInput = z.infer<typeof RefreshTokenDTO>;

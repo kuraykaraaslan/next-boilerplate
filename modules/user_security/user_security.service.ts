@@ -14,25 +14,25 @@ export default class UserSecurityService {
     });
 
     if (!security) {
-      return null;
+      return await this.createDefaultUserSecurity(userId);
     }
 
     return UserSecuritySchema.parse(security);
   }
 
-  static async getSafeByUserId(userId: string): Promise<SafeUserSecurity | null> {
+  static async getSafeByUserId(userId: string): Promise<SafeUserSecurity> {
     const security = await this.repository.findOne({
       where: { userId }
     });
 
     if (!security) {
-      return null;
+      return await this.createDefaultUserSecurity(userId);
     }
 
     return SafeUserSecuritySchema.parse(security);
   }
 
-  static async createUserSecurity(userId: string): Promise<UserSecurity> {
+  static async createDefaultUserSecurity(userId: string): Promise<UserSecurity> {
     const existing = await this.repository.findOne({
       where: { userId }
     });

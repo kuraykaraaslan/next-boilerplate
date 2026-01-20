@@ -1,46 +1,48 @@
 import { NextResponse } from "next/server";
-import UserSessionService from "@/services/AuthService/UserSessionService";
-import OTPService from "@/services/AuthService/OTPService";
-import AuthMessages from "@/messages/AuthMessages";
-import AuthService from "@/services/AuthService";
-import { OTPVerifyRequestSchema } from "@/dtos/AuthDTO";
-import { OTPActionEnum } from "@/types/user/UserSecurityTypes";
+import UserSessionNextService from "@/modules/user_session/user_session.service.next";
+import OTPService from "@/modules/auth/auth.otp.service";
+import UserSessionMessages from "@/modules/user_session/user_session.messages";
+import AuthService from "@/modules/auth/auth.service";
+import { VerifyOTPDTO } from "@/modules/auth/auth.dto";
+import { OTPActionEnum } from "@/modules/user_security/user_security.enums";
+import AuthMessages from "@/modules/auth/auth.messages";
+import UserSecurityService from "@/modules/user_security/user_security.service";
 
 export async function POST(request: NextRequest) {
   try {
     // Authenticate the user
-    const { user, userSession } = await UserSessionService.authenticateUserByRequest({ request, requiredUserRole: "USER" });
+    const { user, userSession } = await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "USER" });
 
     const body = await request.json();
 
-    const parsedData = OTPVerifyRequestSchema.safeParse(body);
+    const parsedData = VerifyOTPDTO.safeParse(body);
 
     if (!parsedData.success) {
       return NextResponse.json(
-        { message: parsedData.error.errors.map(err => err.message).join(", ") },
+        { message: parsedData.error.issues.map(err => err.message).join(", ") },
         { status: 400 }
       );
     }
 
     const { method, action, otpToken } = parsedData.data;
 
-    const { userSecurity } = await AuthService.getUserSecurity(user.userId);
+    const userSecurity = await UserSecurityService.getSafeByUserId(user.userId);
 
     const userOTPMethods = userSecurity.otpMethods;
 
     await OTPService.verifyOTP({ user, userSession, method, action, otpToken });
     // Update user security settings based on action
 
-    if (action === OTPActionEnum.Enum.enable && !userOTPMethods.includes(method)) {
+    if (action === OTPActionEnum.enum.enable && !userOTPMethods.includes(method)) {
 
       const updatedMethods = [...userOTPMethods, method];
-      await AuthService.updateUserSecurity(user.userId, { otpMethods: updatedMethods });
+      await UserSecurityService.updateUserSecurity(user.userId, { otpMethods: updatedMethods });
     }
 
-    if (action === OTPActionEnum.Enum.disable && userOTPMethods.includes(method)) {
+    if (action === OTPActionEnum.enum.disable && userOTPMethods.includes(method)) {
 
       const updatedMethods = userOTPMethods.filter(m => m !== method);
-      await AuthService.updateUserSecurity(user.userId, { otpMethods: updatedMethods });
+      await UserSecurityService.updateUserSecurity(user.userId, { otpMethods: updatedMethods });
     }
 
     return NextResponse.json({ message: AuthMessages.OTP_VERIFIED_SUCCESSFULLY }, { status: 200 });

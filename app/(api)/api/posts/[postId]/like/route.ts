@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server';
 import PostLikeService from '@/services/PostService/LikeService';
-import UserSessionService from '@/services/AuthService/UserSessionService';
+import UserSessionNextService from '@/modules/user_session/user_session.service.next';
 import PostMessages from '@/messages/PostMessages';
 import { LikePostRequestSchema } from '@/dtos/PostInteractionDTO';
 
 export async function POST(request: NextRequest, { params }: { params: { postId: string } }) {
   try {
 
-    await UserSessionService.authenticateUserByRequest({ request, requiredUserRole: "GUEST" });
+    await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "GUEST" });
     
     const { postId } = await params;
     
@@ -16,7 +16,7 @@ export async function POST(request: NextRequest, { params }: { params: { postId:
     if (!parsedData.success) {
       return NextResponse.json({
         
-        message: parsedData.error.errors.map(err => err.message).join(", ")
+        message: parsedData.error.issues.map(err => err.message).join(", ")
       }, { status: 400 });
     }
     

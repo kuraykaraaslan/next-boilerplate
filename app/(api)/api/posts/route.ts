@@ -1,7 +1,7 @@
 
 import { NextResponse } from "next/server";
 import PostService from "@/services/PostService";
-import UserSessionService from "@/services/AuthService/UserSessionService";
+import UserSessionNextService from "@/modules/user_session/user_session.service.next";
 import KnowledgeGraphService from "@/services/KnowledgeGraphService";
 import PostCoverService from "@/services/PostService/PostCoverService";
 import { CreatePostRequestSchema, UpdatePostRequestSchema } from "@/dtos/PostDTO";
@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
     try {
 
-        UserSessionService.authenticateUserByRequest({ request, requiredUserRole: "ADMIN" });
+        UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "ADMIN" });
 
         const body = await request.json();
         
@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
         
         if (!parsedData.success) {
             return NextResponse.json({
-                error: parsedData.error.errors.map(err => err.message).join(", ")
+                error: parsedData.error.issues.map(err => err.message).join(", ")
             }, { status: 400 });
         }
 
@@ -101,16 +101,16 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
     try {
 
-        await UserSessionService.authenticateUserByRequest({ request, requiredUserRole: "ADMIN" });
+        await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "ADMIN" });
 
         const data = await request.json();
         
         const parsedData = UpdatePostRequestSchema.safeParse(data);
         
         if (!parsedData.success) {
-            console.log("Validation errors:", parsedData.error.errors);
+            console.log("Validation errors:", parsedData.error.issues);
             return NextResponse.json({
-                error: parsedData.error.errors.map(err => err.message).join(", ")
+                error: parsedData.error.issues.map(err => err.message).join(", ")
             }, { status: 400 });
         }
 
@@ -142,7 +142,7 @@ export async function PUT(request: NextRequest) {
  */
 export async function DELETE(request: NextRequest) {
     try {
-        await UserSessionService.authenticateUserByRequest({ request, requiredUserRole: "ADMIN" });
+        await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "ADMIN" });
 
         await PostService.deleteAllPosts();
 

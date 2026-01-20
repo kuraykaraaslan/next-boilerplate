@@ -1,33 +1,29 @@
 import { NextResponse } from "next/server";
-import UserSessionService from "@/services/AuthService/UserSessionService";
-import OTPService from "@/services/AuthService/OTPService";
-import AuthMessages from "@/messages/AuthMessages";
-import AuthService from "@/services/AuthService";
-import MailService from "@/services/NotificationService/MailService";
-import SMSService from "@/services/NotificationService/SMSService";
-import { OTPSendRequestSchema } from "@/dtos/AuthDTO";
+import UserSessionNextService from "@/modules/user_session/user_session.service.next";
+import OTPService from "@/modules/auth/auth.otp.service";
+import AuthService from "@/modules/auth/auth.service";
+import AuthMessages from "@/modules/auth/auth.messages";
+import { RequestOTPDTO } from "@/modules/auth/auth.dto";
+import UserSecurityService from "@/modules/user_security/user_security.service";
 
 export async function POST(request: NextRequest) {
   try {
     // Authenticate the user
-    const { user, userSession } = await UserSessionService.authenticateUserByRequest({ request, requiredUserRole: "USER" });
+    const { user, userSession } = await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "USER" });
 
     const body = await request.json();
     
-    const parsedData = OTPSendRequestSchema.safeParse(body);
+    const parsedData = RequestOTPDTO.safeParse(body);
     
     if (!parsedData.success) {
       return NextResponse.json({
-        message: parsedData.error.errors.map(err => err.message).join(", ")
+        message: parsedData.error.issues.map((err: any) => err.message).join(", ")
       }, { status: 400 });
     }
 
     const { method, action } = parsedData.data;
 
-    const { userSecurity } = await AuthService.getUserSecurity(user.userId);
- 
-    const { otpToken } = await OTPService.requestOTP({ user, userSession, method, action });
-
+    const userSecurity = await UserSecurityService.getSafeByUserId(user.userId);
     const userOTPMethods = userSecurity.otpMethods;
 
     if (action === "enable" && userOTPMethods.includes(method)) {
@@ -46,20 +42,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (method === "EMAIL") {
-      console.log("Sending OTP via Email to:", user.email);
-      await MailService.sendOTPEmail({
-        email: user.email,
-        name: user.userProfile?.name,
-        otpToken,
-      });
-    } else if (method === "SMS") {
-      console.log("Sending OTP via SMS to:", user.phone);
-      await SMSService.sendShortMessage({
-        to: user.phone!,
-        body: "Your OTP code for " + action + " " + method + " is: " + otpToken
-      });
-    }
+    await OTPService.requestOTP({ user, userSession, method, action });
 
     return NextResponse.json({  message: AuthMessages.OTP_SENT_SUCCESSFULLY });
 

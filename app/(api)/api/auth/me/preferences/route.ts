@@ -1,18 +1,19 @@
 // path: app/api/auth/me/preferences/route.ts
 import { NextResponse } from "next/server";
-import UserSessionService from "@/services/AuthService/UserSessionService";
-import UserService from "@/services/UserService";
-import RateLimiter from "@/libs/rateLimit";
-import { UpdatePreferencesRequestSchema } from "@/dtos/AuthDTO";
-import AuthMessages from "@/messages/AuthMessages";
+import UserSessionNextService from "@/modules/user_session/user_session.service.next";
+import UserPreferencesService from "@/modules/user_preferences/user_preferences.service";
+import Limiter from "@/libs/limiter";
+import { UpdatePreferencesRequestSchema } from "@/modules/user_preferences/user_preferences.dto";
+import UserSessionMessages from "@/modules/user_session/user_session.messages";
+import AuthMessages from "@/modules/auth/auth.messages";
 
 // NextRequest is declared globally in global.d.ts
 
 export async function PUT(request: NextRequest) {
     try {
 
-        await RateLimiter.checkRateLimit(request);
-        await UserSessionService.authenticateUserByRequest({ request, requiredUserRole: "USER" });
+        await Limiter.checkRateLimit(request);
+        await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "USER" });
 
         const userId = request.user?.userId;
         if (!userId) {
@@ -29,22 +30,18 @@ export async function PUT(request: NextRequest) {
         if (!parsedData.success) {
             return NextResponse.json(
                 { 
-                    message: parsedData.error.errors.map(err => err.message).join(", ")
+                    message: parsedData.error.issues.map((err: any) => err.message).join(", ")
                 },
                 { status: 400 }
             );
         }
 
         // Update user preferences
-        const updatedUser = await UserService.update({
-            userId,
-            data: parsedData.data
-        });
-
+        const updatedPreferences = await UserPreferencesService.update(userId, parsedData.data);
         return NextResponse.json(
             { 
                 message: AuthMessages.PREFERENCES_UPDATED_SUCCESSFULLY,
-                userPreferences: updatedUser.userPreferences
+                userPreferences: updatedPreferences
             },
             { status: 200 }
         );
@@ -58,18 +55,11 @@ export async function PUT(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
     try {
-        await RateLimiter.checkRateLimit(request);
-        await UserSessionService.authenticateUserByRequest({ request, requiredUserRole: "USER" });
-
+        await Limiter.checkRateLimit(request);
+        await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "USER" });
+        
         const userId = request.user?.userId;
-        if (!userId) {
-            return NextResponse.json(
-                { message: "Unauthorized" },
-                { status: 401 }
-            );
-        }
-
-        const {userPreferences} = await UserService.getById(userId);
+        const userPreferences = await UserPreferencesService.getByUserId(userId);
         
         return NextResponse.json(
             { userPreferences: userPreferences},

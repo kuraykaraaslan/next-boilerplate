@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
-import UserSessionService from "@/services/AuthService/UserSessionService";
-import AuthService from "@/services/AuthService";
-import AuthMessages from "@/messages/AuthMessages";
+import UserSessionNextService from "@/modules/user_session/user_session.service.next";
+import AuthMessages from "@/modules/auth/auth.messages";
+import UserSecurityService from "@/modules/user_security/user_security.service";
 
 export async function GET(request: NextRequest) {
   try {
     // Authenticate the user
-    const { user } = await UserSessionService.authenticateUserByRequest({ request, requiredUserRole: "USER" });
+    const { user } = await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "USER" });
 
-    const { userSecurity } = await AuthService.getUserSecurity(user.userId);
+    const userSecurity = await UserSecurityService.getSafeByUserId(user.userId); // HAD TO BE SAFE
 
     console.log("User Security:", userSecurity);
 

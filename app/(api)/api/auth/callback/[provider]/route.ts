@@ -1,10 +1,13 @@
 // Original path: app/api/auth/callback/route.ts
 
 import { NextResponse } from "next/server";
-import UserSessionService from "@/services/AuthService/UserSessionService";
-import SSOService from "@/services/AuthService/SSOService";
-import MailService from "@/services/NotificationService/MailService";
-import { SSOMessages } from "@/messages/SSOMessages";
+import UserSessionNextService from "@/modules/user_session/user_session.service.next";
+import SSOService from "@/modules/auth_sso/auth_sso.service";
+import MailService from "@/modules/notification_mail/notification_mail.service";
+import SSOMessages from "@/modules/auth_sso/auth_sso.messages";
+import { SSOProvider, SSOProviderEnum } from "@/modules/auth_sso/auth_sso.enums";
+import UserSecurityService from "@/modules/user_security/user_security.service";
+import UserAgentService from "@/modules/user_agent/user_agent.service";
 
 export async function GET(
     request: NextRequest,
@@ -22,25 +25,45 @@ export async function GET(
         NextResponse.redirect(`${process.env.APPLICATION_HOST}/auth/login?error=${SSOMessages.CODE_NOT_FOUND}`);
     }
 
-    const { user, userSecurity, newUser } = await SSOService.authCallback(provider, code as string);
+    //check if provider is valid
+    if (!Object.values(SSOProviderEnum).includes(provider as SSOProvider)) {
+        //redirect to frontend
+        return NextResponse.redirect(`${process.env.APPLICATION_HOST}/auth/login?error=${SSOMessages.INVALID_PROVIDER}`);
+    }
+
+    const { user, isNewUser } = await SSOService.authenticateOrRegister(provider as SSOProvider, code as string);
 
     if (!user) {
         //redirect to frontend
-        return NextResponse.redirect(`${process.env.APPLICATION_HOST}/auth/login?error=${SSOMessages.AUTHENTICATION_FAILED}`);
+        return NextResponse.redirect(`${process.env.APPLICATION_HOST}/auth/login?error=${SSOMessages.OAUTH_ERROR}`);
 
     }
 
-    const { userSession, rawAccessToken, rawRefreshToken } = await UserSessionService.createSession({ user, userSecurity, request });
+    const userSecurity = await UserSecurityService.getSafeByUserId(user.userId);
 
-    if (newUser) {
+    const { userSession, rawAccessToken, rawRefreshToken } = await UserSessionNextService.createSession({ user, request, userSecurity });
+
+    if (isNewUser) {
         await MailService.sendWelcomeEmail(user);
     } else {
-        await MailService.sendNewLoginEmail(user, userSession);
+        const { deviceInfo, location } = await UserAgentService.getDeviceAndLocation(
+            request.headers.get('user-agent'),
+            request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || userSession.ipAddress || ''
+        );
+        
+        await MailService.sendNewLoginEmail({
+            email: user.email,
+            name: user.email,
+            device: deviceInfo.deviceName || 'Unknown',
+            ipAddress: userSession.ipAddress,
+            location: location,
+            loginTime: new Date().toLocaleString()
+        });
     }
 
     if (!userSession) {
         //redirect to frontend
-        return NextResponse.redirect(`${process.env.APPLICATION_HOST}/auth/login?error=${SSOMessages.AUTHENTICATION_FAILED}`);
+        return NextResponse.redirect(`${process.env.APPLICATION_HOST}/auth/login?error=${SSOMessages.OAUTH_ERROR}`);
     }
 
     const response = NextResponse.redirect(
@@ -86,24 +109,44 @@ export async function POST(
         NextResponse.redirect(`${process.env.APPLICATION_HOST}/auth/login?error=${SSOMessages.CODE_NOT_FOUND}`);
     }
 
-    const { user, userSecurity, newUser } = await SSOService.authCallback(provider, code as string);
+    //check if provider is valid
+    if (!Object.values(SSOProviderEnum).includes(provider as SSOProvider)) {
+        //redirect to frontend
+        return NextResponse.redirect(`${process.env.APPLICATION_HOST}/auth/login?error=${SSOMessages.INVALID_PROVIDER}`);
+    }
+
+    const { user, isNewUser} = await SSOService.authenticateOrRegister(provider as SSOProvider, code as string);
 
     if (!user) {
         //redirect to frontend
-        return NextResponse.redirect(`${process.env.APPLICATION_HOST}/auth/login?error=${SSOMessages.AUTHENTICATION_FAILED}`);
+        return NextResponse.redirect(`${process.env.APPLICATION_HOST}/auth/login?error=${SSOMessages.OAUTH_ERROR}`);
     }
 
-    const { userSession, rawAccessToken, rawRefreshToken } = await UserSessionService.createSession({ user, userSecurity, request });
+    const userSecurity = await UserSecurityService.getSafeByUserId(user.userId);
 
-    if (newUser) {
+    const { userSession, rawAccessToken, rawRefreshToken } = await UserSessionNextService.createSession({ user, request, userSecurity });
+
+    if (isNewUser) {
         await MailService.sendWelcomeEmail(user);
     } else {
-        await MailService.sendNewLoginEmail(user, userSession);
+        const { deviceInfo, location } = await UserAgentService.getDeviceAndLocation(
+            request.headers.get('user-agent'),
+            request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || userSession.ipAddress || ''
+        );
+        
+        await MailService.sendNewLoginEmail({
+            email: user.email,
+            name: user.email,
+            device: deviceInfo.deviceName || 'Unknown',
+            ipAddress: userSession.ipAddress,
+            location: location,
+            loginTime: new Date().toLocaleString()
+        });
     }
 
     if (!userSession) {
         //redirect to frontend
-        return NextResponse.redirect(`${process.env.APPLICATION_HOST}/auth/login?error=${SSOMessages.AUTHENTICATION_FAILED}`);
+        return NextResponse.redirect(`${process.env.APPLICATION_HOST}/auth/login?error=${SSOMessages.OAUTH_ERROR}`);
     }
 
     //redirect to frontend

@@ -1,28 +1,27 @@
 // Original path: app/api/auth/register/route.ts
 
-import { NextResponse } from "next/server";
-import RateLimiter from "@/libs/rateLimit";
-import AuthService from "@/services/AuthService";
-import { RegisterRequestSchema } from "@/dtos/AuthDTO";
-import AuthMessages from "@/messages/AuthMessages";
+import {NextResponse } from "next/server";
+import Limiter from "@/libs/limiter";
+import AuthService from "@/modules/auth/auth.service";
+import { RegisterDTO } from "@/modules/auth/auth.dto";
+import AuthMessages from "@/modules/auth/auth.messages";
 
 export async function POST(request: NextRequest) {
     try {
 
-        await RateLimiter.checkRateLimit(request);
+        await Limiter.checkRateLimit(request);
 
-        const parsedData = RegisterRequestSchema.safeParse(await request.json());
+        const parsedData = RegisterDTO.safeParse(await request.json());
 
         if (!parsedData.success) {
             return NextResponse.json({
-                error: parsedData.error.errors.map(err => err.message).join(", ")
+                error: parsedData.error.issues.map((err: any) => err.message).join(", ")
             }, { status: 400 });
         }
 
-        const { name, email, password, phone } = parsedData.data;
+        const { email, password, phone } = parsedData.data;
         
         const user = await AuthService.register({
-            name,
             email,
             password,
             phone,

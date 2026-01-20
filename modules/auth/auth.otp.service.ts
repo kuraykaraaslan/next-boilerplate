@@ -67,7 +67,7 @@ export default class OTPService {
     userSession: SafeUserSession;
     method: OTPMethod;
     action: OTPAction;
-  }): Promise<void> {
+  }): Promise<{ otpToken: string }> {
     if (method === "TOTP_APP") {
       throw new Error(AuthMessages.USE_AUTHENTICATOR_APP);
     }
@@ -125,6 +125,8 @@ export default class OTPService {
     }
 
     Logger.info(`OTP sent via ${method} to user ${user.userId}`);
+    
+    return { otpToken };
   }
 
   /**

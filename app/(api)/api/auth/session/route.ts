@@ -1,14 +1,15 @@
 // path: app/api/auth/me/route.ts
 import { NextResponse } from "next/server";
-import UserSessionService from "@/services/AuthService/UserSessionService";
-import RateLimiter from "@/libs/rateLimit";
-import AuthMessages from "@/messages/AuthMessages";
+import UserSessionNextService from "@/modules/user_session/user_session.service.next";
+import Limiter from "@/libs/limiter";
+import UserSessionMessages from "@/modules/user_session/user_session.messages";
+import AuthMessages from "@/modules/auth/auth.messages";
 
 export async function GET(request: NextRequest) {
     try {
-        await RateLimiter.checkRateLimit(request);
+        await Limiter.checkRateLimit(request);
 
-        await UserSessionService.authenticateUserByRequest({ request, requiredUserRole: "USER" });
+        await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "USER" });
 
         return NextResponse.json({ 
             user: request.user,

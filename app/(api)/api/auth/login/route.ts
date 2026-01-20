@@ -1,37 +1,41 @@
 // Original path: app/api/auth/login/route.ts
 
 import { NextResponse } from "next/server";
-import AuthService from "@/services/AuthService";
-import AuthMessages from "@/messages/AuthMessages";
-import UserSessionService from "@/services/AuthService/UserSessionService";
-import RateLimiter from "@/libs/rateLimit";
-import { LoginRequestSchema } from "@/dtos/AuthDTO";
-import MailService from "@/services/NotificationService/MailService";
-import { SafeUserSecuritySchema } from '@/types/user/UserSecurityTypes';
+import AuthService from "@/modules/auth/auth.service";
+import UserSessionNextService from "@/modules/user_session/user_session.service.next";
+import Limiter from "@/libs/limiter";
+import { LoginDTO } from "@/modules/auth/auth.dto";
+import MailService from "@/modules/notification_mail/notification_mail.service";
+import { SafeUserSecuritySchema } from '@/modules/user_security/user_security.types';
+import UserSessionMessages from "@/modules/user_session/user_session.messages";
+import AuthMessages from "@/modules/auth/auth.messages";
+import UserSecurityService from "@/modules/user_security/user_security.service";
 
 export async function POST(request: NextRequest) {
     try {
 
-        await RateLimiter.checkRateLimit(request);
+        await Limiter.useRateLimit(request);
 
 
-        const parsedData = LoginRequestSchema.safeParse(await request.json());
+        const parsedData = LoginDTO.safeParse(await request.json());
 
         if (!parsedData.success) {
             return NextResponse.json({
-                error: parsedData.error.errors.map(err => err.message).join(", ")
+                error: parsedData.error.issues.map((err: any) => err.message).join(", ")
             }, { status: 400 });
         }
 
         const { email, password } = parsedData.data;
 
-        const {user, userSecurity} = await AuthService.login({ email, password });
+        const { user } = await AuthService.login({ email, password });
 
         if (!user) {
             throw new Error(AuthMessages.INVALID_CREDENTIALS);
         }
 
-        const { userSession, rawAccessToken, rawRefreshToken } = await UserSessionService.createSession({
+        const userSecurity = await UserSecurityService.getSafeByUserId(user.userId);
+
+        const { userSession, rawAccessToken, rawRefreshToken } = await UserSessionNextService.createSession({
             user,
             request,
             userSecurity,
@@ -80,7 +84,7 @@ export async function POST(request: NextRequest) {
 
 
         try {
-            await MailService.sendNewLoginEmail(user, userSession);
+            await MailService.sendNewLoginEmail({ email: user.email });
         } catch (emailError) {
             console.error('Error sending new login email:', emailError);
         }

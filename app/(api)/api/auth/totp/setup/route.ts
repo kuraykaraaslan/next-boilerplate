@@ -1,26 +1,27 @@
 import { NextResponse } from "next/server";
-import UserSessionService from "@/services/AuthService/UserSessionService";
-import TOTPService from "@/services/AuthService/TOTPService";
-import AuthService from "@/services/AuthService";
-import AuthMessages from "@/messages/AuthMessages";
-import { TOTPSetupRequestSchema } from "@/dtos/AuthDTO";
+import UserSessionNextService from "@/modules/user_session/user_session.service.next";
+import TOTPService from "@/modules/auth/auth.totp.service";
+import AuthMessages from "@/modules/auth/auth.messages";
+import { TOTPSetupDTO } from "@/modules/auth/auth.dto";
+import UserSecurityService from "@/modules/user_security/user_security.service";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     
-    const parsedData = TOTPSetupRequestSchema.safeParse(body);
+    const parsedData = TOTPSetupDTO.safeParse(body);
     
     if (!parsedData.success) {
       return NextResponse.json(
-        { message: parsedData.error.errors.map(err => err.message).join(", ") },
+        { message: parsedData.error.issues.map((err: any) => err.message).join(", ") },
         { status: 400 }
       );
     }
 
-    const { user, userSession } = await UserSessionService.authenticateUserByRequest({ request, requiredUserRole: "USER" });
+    const { user, userSession } = await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "USER" });
 
-    const { userSecurity } = await AuthService.getUserSecurity(user.userId);
+    const userSecurity = await UserSecurityService.getSafeByUserId(user.userId);
+
     if (userSecurity.otpMethods.includes("TOTP_APP" as any)) {
       return NextResponse.json({ message: "TOTP already enabled" }, { status: 400 });
     }

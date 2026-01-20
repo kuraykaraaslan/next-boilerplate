@@ -1,18 +1,18 @@
 // path: app/api/auth/me/preferences/route.ts
 import { NextResponse } from "next/server";
-import UserSessionService from "@/services/AuthService/UserSessionService";
-import UserService from "@/services/UserService";
-import RateLimiter from "@/libs/rateLimit";
-import { UpdateProfileRequestSchema } from "@/dtos/AuthDTO";
-import AuthMessages from "@/messages/AuthMessages";
+import UserSessionNextService from "@/modules/user_session/user_session.service.next";
+import UserProfileService from "@/modules/user_profile/user_profile.service";
+import Limiter from "@/libs/limiter";
+import { UpdateProfileRequestSchema } from "@/modules/user_profile/user_profile.dto";
+import AuthMessages from "@/modules/auth/auth.messages";
 
 // NextRequest is declared globally in global.d.ts
 
 export async function PUT(request: NextRequest) {
     try {
 
-        await RateLimiter.checkRateLimit(request);
-        await UserSessionService.authenticateUserByRequest({ request, requiredUserRole: "USER" });
+        await Limiter.checkRateLimit(request);
+        await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "USER" });
 
         const userId = request.user?.userId;
         
@@ -33,23 +33,19 @@ export async function PUT(request: NextRequest) {
         if (!parsedData.success) {
             return NextResponse.json(
                 { 
-                    message: parsedData.error.errors.map(err => err.message).join(", ")
+                    message: parsedData.error.issues.map((err: any) => err.message).join(", ")
                 },
                 { status: 400 }
             );
         }
 
-        // Update user preferences
-        const updatedUser = await UserService.update({
-            userId,
-            data: { userProfile: parsedData.data }
-        });
-
+        // Update user profile
+        const updatedProfile = await UserProfileService.update(userId, parsedData.data);
 
         return NextResponse.json(
             { 
                 message: AuthMessages.PROFILE_UPDATED_SUCCESSFULLY,
-                userProfile: updatedUser.userProfile
+                userProfile: updatedProfile
             },
             { status: 200 }
         );
@@ -63,8 +59,8 @@ export async function PUT(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
     try {
-        await RateLimiter.checkRateLimit(request);
-        await UserSessionService.authenticateUserByRequest({ request, requiredUserRole: "USER" });
+        await Limiter.checkRateLimit(request);
+        await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "USER" });
 
         const userId = request.user?.userId;
         if (!userId) {
@@ -74,7 +70,7 @@ export async function GET(request: NextRequest) {
             );
         }
 
-        const {userProfile} = await UserService.getById(userId);
+        const userProfile = await UserProfileService.getByUserId(userId);
         
         return NextResponse.json(
             { userProfile },

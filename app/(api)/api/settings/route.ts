@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import SettingService from "@/services/SettingService";
-import UserSessionService from "@/services/AuthService/UserSessionService";
+import UserSessionNextService from "@/modules/user_session/user_session.service.next";
 import { UpdateSettingsRequestSchema, GetSettingsResponseSchema, UpdateSettingsResponseSchema, GetSettingsByKeysRequestSchema, GetSettingsByKeysResponseSchema } from "@/dtos/SettingsDTO";
 /**
  * GET handler for retrieving all settings.
@@ -10,7 +10,7 @@ import { UpdateSettingsRequestSchema, GetSettingsResponseSchema, UpdateSettingsR
 
 export async function GET(request: NextRequest) {
     try {
-        await UserSessionService.authenticateUserByRequest({ request, requiredUserRole: "ADMIN" });
+        await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "ADMIN" });
         const body = await request.json();
         const parsedData = GetSettingsByKeysRequestSchema.safeParse(body);
         let settings: Record<string, any> = {};
@@ -42,13 +42,13 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
     try {
-        await UserSessionService.authenticateUserByRequest({ request, requiredUserRole: "ADMIN" });
+        await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "ADMIN" });
         const body = await request.json();
         const parsedData = UpdateSettingsRequestSchema.safeParse(body);
         if (!parsedData.success) {
             return NextResponse.json({
                 success: false,
-                message: parsedData.error.errors.map(err => err.message).join(", ")
+                message: parsedData.error.issues.map(err => err.message).join(", ")
             }, { status: 400 });
         }
         const { settings } = parsedData.data;
@@ -76,13 +76,13 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
     try {
-        await UserSessionService.authenticateUserByRequest({ request, requiredUserRole: "ADMIN" });
+        await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "ADMIN" });
         const body = await request.json();
         const parsedData = GetSettingsByKeysRequestSchema.safeParse(body);
         if (!parsedData.success) {
             return NextResponse.json({
                 success: false,
-                message: parsedData.error.errors.map(err => err.message).join(", ")
+                message: parsedData.error.issues.map(err => err.message).join(", ")
             }, { status: 400 });
         }
         const { keys } = parsedData.data;

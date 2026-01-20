@@ -12,7 +12,7 @@ export async function GET(_: NextRequest, { params }: { params: { postId: string
     if (!parsedData.success) {
       return NextResponse.json({
         
-        message: parsedData.error.errors.map(err => err.message).join(", ")
+        message: parsedData.error.issues.map(err => err.message).join(", ")
       }, { status: 400 });
     }
     

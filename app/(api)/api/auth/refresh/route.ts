@@ -1,28 +1,27 @@
 import { NextResponse } from "next/server";
-import UserSessionService from "@/services/AuthService/UserSessionService";
-import AuthMessages from "@/messages/AuthMessages";
-import { RefreshTokenRequestSchema } from "@/dtos/AuthDTO";
+import UserSessionService from "@/modules/user_session/user_session.service";
+import UserSessionMessages from "@/modules/user_session/user_session.messages";
+import AuthMessages from "@/modules/auth/auth.messages";
+import { RefreshTokenDTO } from "@/modules/auth/auth.dto";
 
 export async function POST(request: NextRequest) {
 
   const refreshToken = request.cookies.get("refreshToken")?.value;
 
-  console.log("Refresh token request received.");
-
   if (!refreshToken) {
     return NextResponse.json({ message: AuthMessages.INVALID_TOKEN }, { status: 401 });
   }
   
-  const parsedData = RefreshTokenRequestSchema.safeParse({ refreshToken });
+  const parsedData = RefreshTokenDTO.safeParse({ refreshToken });
   
   if (!parsedData.success) {
     return NextResponse.json({
-      message: parsedData.error.errors.map(err => err.message).join(", ")
+      message: parsedData.error.issues.map((err: any) => err.message).join(", ")
     }, { status: 400 });
   }
 
   try {
-    const { rawAccessToken, rawRefreshToken } = await UserSessionService.rotateTokens(refreshToken);
+    const { rawAccessToken, rawRefreshToken } = await UserSessionService.refreshTokens(refreshToken);
 
     const response = NextResponse.json({ message: AuthMessages.TOKENS_REFRESHED_SUCCESSFULLY });
 

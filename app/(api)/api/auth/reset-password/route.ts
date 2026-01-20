@@ -2,23 +2,24 @@
 
  
 import { NextResponse } from "next/server";
-import AuthMessages from "@/messages/AuthMessages";
-import RateLimiter from "@/libs/rateLimit";
-import PasswordService from "@/services/AuthService/PasswordService";
-import { ResetPasswordRequestSchema } from "@/dtos/AuthDTO";
+import UserSessionMessages from "@/modules/user_session/user_session.messages";
+import Limiter from "@/libs/limiter";
+import PasswordService from "@/modules/auth/auth.password.service";
+import { ResetPasswordDTO } from "@/modules/auth/auth.dto";
+import AuthMessages from "@/modules/auth/auth.messages";
 
 export async function POST(request: NextRequest) {
     try {
 
-        await RateLimiter.checkRateLimit(request);
+        await Limiter.checkRateLimit(request);
 
         const { email , resetToken, password } = await request.json();
 
-        const parsedData = ResetPasswordRequestSchema.safeParse({ email, resetToken, password });
+        const parsedData = ResetPasswordDTO.safeParse({ email, resetToken, newPassword: password });
 
         if (!parsedData.success) {
             return NextResponse.json({
-                error: parsedData.error.errors.map(err => err.message).join(", ")
+                error: parsedData.error.issues.map(err => err.message).join(", ")
             }, { status: 400 });
         }
 

@@ -1,67 +1,65 @@
-import { rateLimit } from "express-rate-limit";
-import { Request, Response } from "express";
+// libs/RateLimiter.ts
 
-const RATE_LIMIT_WINDOW_MS = process.env.RATE_LIMIT_WINDOW_MS ?? 15 * 60 * 1000; // 15 minutes
+import { NextResponse } from 'next/server';
+import redisInstance from '../redis';
 
-const RATE_LIMIT_AUTH_WINDOW_MS = process.env.RATE_LIMIT_AUTH_WINDOW_MS ?? 5 * 60 * 1000; // 5 minutes
+const RATE_LIMIT = 10;
+const RATE_DURATION = 60; // seconds
 
+export default class Limiter {
+  static getIpFromRequest(request: NextRequest): string {
+    return (
+      request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+      request.headers.get('x-real-ip')?.trim() ||
+      'unknown'
+    );
+  }
 
-const RATE_LIMIT_MAX = Math.max(1, Number(process.env.RATE_LIMIT_MAX) || 100);
-const RATE_LIMIT_AUTH_MAX = Math.max(1, Number(process.env.RATE_LIMIT_AUTH_MAX) || 10);
+  static async check(ip: string): Promise<{ success: boolean; remaining: number }> {
+    const key = `rate_limit:${ip}`;
+    const current = await redisInstance.get(key);
+    const currentCount = current ? parseInt(current, 10) : 0;
+    const newCount = currentCount + 1;
+    await redisInstance.set(key, newCount.toString(), 'EX', RATE_DURATION);
+    return { success: newCount <= RATE_LIMIT, remaining: Math.max(RATE_LIMIT - newCount, 0) };
+  }
 
+  /**
+   * Applies rate limiting. If limit exceeded, returns 429 response.
+   * Otherwise, returns modified response with headers.
+   */
+  static async useRateLimit(request: NextRequest): Promise<NextResponse | null> {
+    const ip = this.getIpFromRequest(request);
+    const { success, remaining } = await this.check(ip);
 
-class Limiter {
-	public static readonly limiter = rateLimit({
-		windowMs: Number(RATE_LIMIT_WINDOW_MS),
-		max: Number(RATE_LIMIT_MAX),
-		handler: (req: Request, res: Response, next, options) => {
-			res.status(options.statusCode).json({ error: 'RATE_LIMIT_EXCEEDED' });
-		},	
-		message: (request: Request, response: Response) => {
-			return { error: 'RATE_LIMIT_EXCEEDED' };
-		},
-		headers: true,
-		keyGenerator: function (request: Request): string {
-			const ip =
-				request.headers["x-real-ip"]?.toString() ??
-				request.headers["x-forwarded-for"]?.toString() ??
-				request.socket.remoteAddress?.toString() ??
-				"default-ip";
-			return ip;
-		}
+    const res = NextResponse.next();
+    res.headers.set('X-RateLimit-Limit', RATE_LIMIT.toString());
+    res.headers.set('X-RateLimit-Remaining', remaining.toString());
 
-	});
+    if (!success) {
+      return new NextResponse(JSON.stringify({ message: 'Too many requests' }), {
+        status: 429,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
 
-	public static readonly authLimiter = rateLimit({
-		windowMs: Number(RATE_LIMIT_AUTH_WINDOW_MS),
-		handler: (req: Request, res: Response, next, options) => {
-			res.status(options.statusCode).json({ error: 'RATE_LIMIT_EXCEEDED' });
-		},		
-		message: (request: Request, response: Response) => {
-			return { error: 'RATE_LIMIT_EXCEEDED_AUTH' };
-		},
-		headers: true,
-		keyGenerator: function (request: Request): string {
-			const ip =
-				request.headers["x-real-ip"]?.toString() ??
-				request.headers["x-forwarded-for"]?.toString() ??
-				request.socket.remoteAddress?.toString() ??
-				"default-ip";
-			return ip;
-		}
-	
+    return res;
+  }
 
-	});
+  static async checkRateLimit(request: NextRequest): Promise<NextResponse | null> {
+    const ip = this.getIpFromRequest(request);
+    const { success, remaining } = await this.check(ip);
 
+    const res = NextResponse.next();
+    res.headers.set('X-RateLimit-Limit', RATE_LIMIT.toString());
+    res.headers.set('X-RateLimit-Remaining', remaining.toString());
 
-	static useLimiter(request: any, response: any, next: any) {
-		Limiter.limiter(request, response, next);
-	}
-
-	static useAuthLimiter(request: any, response: any, next: any) {
-		Limiter.authLimiter(request, response, next);
-	}
+    if (!success) {
+      return new NextResponse(JSON.stringify({ message: 'Too many requests' }), {
+        status: 429,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+    return res;
+  }
 }
-
-
-export default Limiter;

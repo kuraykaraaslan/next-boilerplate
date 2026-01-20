@@ -2,7 +2,7 @@
 
 import { NextResponse } from 'next/server'
 import AWSService from '@/services/StorageService/AWSService'
-import UserSessionService from '@/services/AuthService/UserSessionService'
+import UserSessionNextService from '@/modules/user_session/user_session.service.next'
 import AIMessages from '@/messages/AIMessages';
 
 /**
@@ -13,7 +13,7 @@ import AIMessages from '@/messages/AIMessages';
 export async function POST(request: NextRequest) {
     try {
 
-        await UserSessionService.authenticateUserByRequest({ request });
+        await UserSessionNextService.authenticateUserByRequest({ request });
         
         const formData = await request.formData();
 

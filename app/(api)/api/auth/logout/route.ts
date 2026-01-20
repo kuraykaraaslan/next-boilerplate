@@ -2,13 +2,14 @@
 
  
 import { NextResponse } from "next/server";
-import AuthMessages from "@/messages/AuthMessages";
-import UserSessionService from "@/services/AuthService/UserSessionService";
+import UserSessionMessages from "@/modules/user_session/user_session.messages";
+import UserSessionNextService from "@/modules/user_session/user_session.service.next";
+import AuthMessages from "@/modules/auth/auth.messages";
 
 export async function POST(request: NextRequest) {
     try {
 
-        const { userSession } = await UserSessionService.authenticateUserByRequest({ request, requiredUserRole: "USER", otpVerifyBypass: true });
+        const { userSession } = await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "USER", otpVerifyBypass: true });
 
         const response = NextResponse.json({
             
@@ -38,7 +39,7 @@ export async function POST(request: NextRequest) {
             maxAge: 0,
         });
 
-        await UserSessionService.deleteSession(userSession);
+        await UserSessionNextService.deleteSession(userSession);
 
         return response;
 

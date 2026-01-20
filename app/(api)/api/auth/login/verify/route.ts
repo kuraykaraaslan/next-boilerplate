@@ -1,22 +1,24 @@
 import { NextResponse } from "next/server";
-import UserSessionService from "@/services/AuthService/UserSessionService";
-import OTPService from "@/services/AuthService/OTPService";
-import TOTPService from "@/services/AuthService/TOTPService";
-import AuthMessages from "@/messages/AuthMessages";
-import { LoginVerifyRequestSchema } from "@/dtos/AuthDTO";
+import UserSessionNextService from "@/modules/user_session/user_session.service.next";
+import OTPService from "@/modules/auth/auth.otp.service";
+import TOTPService from "@/modules/auth/auth.totp.service";
+import UserSessionMessages from "@/modules/user_session/user_session.messages";
+import AuthMessages from "@/modules/auth/auth.messages";
+import { VerifyOTPDTO } from "@/modules/auth/auth.dto";
+import UserSessionService from "@/modules/user_session/user_session.service";
 
 export async function POST(request: NextRequest) {
   try {
     // Authenticate the user
-    const { user, userSession } = await UserSessionService.authenticateUserByRequest({ request, requiredUserRole: "USER", otpVerifyBypass: true });
+    const { user, userSession } = await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "USER", otpVerifyBypass: true });
 
     const body = await request.json();
     
-    const parsedData = LoginVerifyRequestSchema.safeParse(body);
+    const parsedData = VerifyOTPDTO.safeParse(body);
     
     if (!parsedData.success) {
       return NextResponse.json({
-        message: parsedData.error.errors.map(err => err.message).join(", ")
+        message: parsedData.error.issues.map((err: any) => err.message).join(", ")
       }, { status: 400 });
     }
 

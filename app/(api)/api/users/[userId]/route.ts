@@ -1,9 +1,9 @@
 
 import { NextResponse } from "next/server";
-import UserService from "@/services/UserService";
-import UserSessionService from "@/services/AuthService/UserSessionService";
-import { UpdateUserRequestSchema } from "@/dtos/UserDTO";
-import UserMessages from "@/messages/UserMessages";
+import UserService from "@/modules/user/user.service";
+import UserSessionNextService from "@/modules/user_session/user_session.service.next";
+import { UpdateUserRequestSchema } from "@/modules/user/user.dto";
+import UserMessages from "@/modules/user/user.messages";
 
 /**
  * GET handler for retrieving a user by its ID.
@@ -21,7 +21,7 @@ export async function GET(
 
     const { userId } = await params
 
-    await UserSessionService.authenticateUserByRequest({ request, requiredUserRole: "USER" });
+    await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "USER" });
 
     const user = await UserService.getById(userId);
 
@@ -55,7 +55,7 @@ export async function DELETE(
 ) {
   try {
 
-    await UserSessionService.authenticateUserByRequest({ request, requiredUserRole: "ADMIN" });
+    await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "ADMIN" });
 
     const { userId } = await params
 
@@ -94,7 +94,7 @@ export async function PUT(
 ) {
   try {
 
-    await UserSessionService.authenticateUserByRequest({ request, requiredUserRole: "ADMIN" });
+    await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "ADMIN" });
 
     const { userId } = await params
 
@@ -106,7 +106,7 @@ export async function PUT(
 
     if (!parsedData.success) {
       return NextResponse.json(
-        { message: parsedData.error.errors.map(err => err.message).join(", ") },
+        { message: parsedData.error
         { status: 400 }
       );
     }
