@@ -20,4 +20,17 @@ export const UserPreferencesSchema = z.object({
   firstDayOfWeek: FirstDayOfWeekEnum.default('MON')
 });
 
+export const UserPreferencesDefault: UserPreferences = {
+  theme: 'SYSTEM',
+  language: 'EN',
+  emailNotifications: true,
+  smsNotifications: false,
+  pushNotifications: true,
+  newsletter: true,
+  timezone: 'UTC',
+  dateFormat: 'DD/MM/YYYY',
+  timeFormat: '24H',
+  firstDayOfWeek: 'MON'
+};
+
 export type UserPreferences = z.infer<typeof UserPreferencesSchema>;

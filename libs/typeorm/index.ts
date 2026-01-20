@@ -25,7 +25,7 @@ export const AppDataSource = new DataSource({
   logging: false,
 
   entities: [
-    path.join(projectRoot, "libs/modules/**/**/*.entity.{ts,js}"),
+    path.join(projectRoot, "modules/**/*.entity.{ts,js}"),
   ],
 
   migrations: [

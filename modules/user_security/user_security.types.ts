@@ -17,5 +17,14 @@ export const SafeUserSecuritySchema = UserSecuritySchema.omit({
   otpBackupCodes: true
 });
 
+export const SafeUserSecurityDefault: z.infer<typeof SafeUserSecuritySchema> = {
+  otpMethods: [],
+  lastLoginAt: undefined,
+  lastLoginIp: undefined,
+  lastLoginDevice: undefined,
+  failedLoginAttempts: 0,
+  lockedUntil: undefined
+};
+
 export type UserSecurity = z.infer<typeof UserSecuritySchema>;
 export type SafeUserSecurity = z.infer<typeof SafeUserSecuritySchema>;

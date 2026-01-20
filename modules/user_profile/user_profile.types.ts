@@ -18,5 +18,14 @@ export const UserProfileSchema = z.object({
   socialLinks: SocialLinksSchema
 });
 
+
+export const UserProfileDefault: z.infer<typeof UserProfileSchema> = {
+  name: null,
+  biography: null,
+  profilePicture: null,
+  headerImage: null,
+  socialLinks: []
+};
+
 export type UserProfile = z.infer<typeof UserProfileSchema>;
 export type SocialLinkItem = z.infer<typeof SocialLinkItemSchema>;
