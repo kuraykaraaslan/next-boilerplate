@@ -26,24 +26,24 @@ export class UserSocialAccountEntity {
   @JoinColumn({ name: 'userId' })
   user!: UserEntity;
 
-  @Column()
+  @Column({ type: 'varchar' })
   provider!: SocialAccountProvider;
 
-  @Column()
+  @Column({ type: 'varchar' })
   providerId!: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'text', nullable: true })
   accessToken?: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'text', nullable: true })
   refreshToken?: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   profilePicture?: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamp' })
   createdAt!: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamp' })
   updatedAt!: Date;
 }

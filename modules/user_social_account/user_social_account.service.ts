@@ -1,4 +1,4 @@
-import { AppDataSource } from "@/libs/typeorm";
+import AppDataSource from "@/libs/typeorm";
 import { UserSocialAccountEntity } from "./user_social_account.entity";
 import { SafeUserSocialAccount, SafeUserSocialAccountSchema } from "./user_social_account.types";
 import UserSocialAccountMessages from "./user_social_account.messages";

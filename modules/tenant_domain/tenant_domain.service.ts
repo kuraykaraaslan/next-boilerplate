@@ -1,4 +1,4 @@
-import { AppDataSource } from "@/libs/typeorm";
+import AppDataSource from "@/libs/typeorm";
 import { TenantDomainEntity } from "./tenant_domain.entity";
 import { SafeTenantDomain, SafeTenantDomainSchema, DomainVerificationInfo } from "./tenant_domain.types";
 import { CreateTenantDomainInput, UpdateTenantDomainInput, GetTenantDomainsInput, InitiateVerificationInput } from "./tenant_domain.dto";

@@ -1,6 +1,6 @@
 import jwt, { Secret } from "jsonwebtoken";
 import crypto from "crypto";
-import { AppDataSource } from "@/libs/typeorm";
+import AppDataSource from "@/libs/typeorm";
 import redis from "@/libs/redis";
 import { UserSessionEntity } from "./user_session.entity";
 import { SafeUserSession, SafeUserSessionSchema } from "./user_session.types";

@@ -7,7 +7,7 @@ import UserSessionMessages from "./user_session.messages";
 import redis from "@/libs/redis";
 import { SafeUserSecurity } from '@/modules/user_security/user_security.types';
 import UserSessionService from './user_session.service';
-import { AppDataSource } from '@/libs/typeorm';
+import AppDataSource from '@/libs/typeorm';
 import { UserEntity } from '../user/user.entity';
 
 const SESSION_CACHE_TTL = parseInt(process.env.SESSION_CACHE_TTL || `${60 * 30}`); // 30 min default

@@ -14,21 +14,21 @@ export class TenantEntity {
   @PrimaryGeneratedColumn('uuid')
   tenantId!: string;
 
-  @Column()
+  @Column({ type: 'varchar' })
   name!: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'text', nullable: true })
   description?: string;
 
-  @Column({ default: 'ACTIVE' })
+  @Column({ type: 'varchar', default: 'ACTIVE' })
   tenantStatus!: TenantStatus;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamp' })
   createdAt!: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamp' })
   updatedAt!: Date;
 
-  @DeleteDateColumn()
+  @DeleteDateColumn({ type: 'timestamp' })
   deletedAt?: Date;
 }

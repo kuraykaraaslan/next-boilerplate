@@ -7,11 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "typeorm": "ts-node ./node_modules/typeorm/cli",
-    "typeorm:migrate": "npm run typeorm migration:run -- -d libs/typeorm/index.ts",
-    "typeorm:migration:create": "npm run typeorm -- -d libs/typeorm/index.ts migration:create ./migrations/$npm_config_name",
-    "typeorm:generate": "npm run typeorm -- -d libs/typeorm/index.ts migration:generate ./migrations/$npm_config_name",
-    "typeorm:revert": "npm run typeorm -- -d libs/typeorm/index.ts migration:revert"
+    "typeorm": "node --import tsx ./node_modules/typeorm/cli.js",
+    "typeorm:migrate": "npm run typeorm -- migration:run -d ./libs/typeorm/index.ts",
+    "typeorm:revert": "npm run typeorm -- migration:revert -d ./libs/typeorm/index.ts",
+    "typeorm:create": "npm run typeorm -- migration:create ./migrations/$npm_config_name",
+    "typeorm:generate": "npm run typeorm -- migration:generate -d ./libs/typeorm/index.ts ./migrations/$npm_config_name"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.971.0",
@@ -44,6 +44,7 @@
     "react-i18next": "^16.5.3",
     "react-phone-number-input": "^3.4.14",
     "react-toastify": "^11.0.5",
+    "reflect-metadata": "^0.2.2",
     "typeorm": "^0.4.0-alpha.1",
     "uuid": "^13.0.0",
     "winston": "^3.19.0",
@@ -67,7 +68,10 @@
     "eslint-config-next": "16.1.2",
     "prisma": "^7.2.0",
     "tailwindcss": "^4",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
     "typeorm-ts-node-commonjs": "^0.3.20",
+    "typeorm-ts-node-esm": "^0.3.20",
     "typescript": "^5"
   }
 }

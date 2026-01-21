@@ -1,4 +1,4 @@
-import { AppDataSource } from "@/libs/typeorm";
+import AppDataSource from "@/libs/typeorm";
 import { UserProfileEntity } from "./user_profile.entity";
 import { UserProfile, UserProfileSchema, SocialLinkItem } from "./user_profile.types";
 import { DeepPartial } from "typeorm";

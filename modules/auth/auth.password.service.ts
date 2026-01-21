@@ -1,7 +1,7 @@
 import crypto from "crypto";
 import bcrypt from "bcrypt";
 import redis from "@/libs/redis";
-import { AppDataSource } from "@/libs/typeorm";
+import AppDataSource from "@/libs/typeorm";
 import { UserEntity } from "../user/user.entity";
 import UserService from "../user/user.service";
 import MailService from "../notification_mail/notification_mail.service";

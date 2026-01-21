@@ -1,4 +1,4 @@
-import { AppDataSource } from "@/libs/typeorm";
+import AppDataSource from "@/libs/typeorm";
 import { In } from "typeorm";
 import { SettingEntity } from './setting.entity';
 import { Setting, SettingSchema } from './setting.types';

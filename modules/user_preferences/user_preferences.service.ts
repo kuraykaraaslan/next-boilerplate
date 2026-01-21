@@ -1,4 +1,4 @@
-import { AppDataSource } from "@/libs/typeorm";
+import AppDataSource from "@/libs/typeorm";
 import { UserPreferencesEntity } from "./user_preferences.entity";
 import { UserPreferences, UserPreferencesSchema } from "./user_preferences.types";
 

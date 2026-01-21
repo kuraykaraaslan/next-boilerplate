@@ -25,7 +25,7 @@ export class UserSecurityEntity {
   @Column({ type: 'jsonb', default: [] })
   otpMethods!: OTPMethod[];
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   otpSecret?: string;
 
   @Column({ type: 'jsonb', default: [] })
@@ -34,21 +34,21 @@ export class UserSecurityEntity {
   @Column({ type: 'timestamp', nullable: true })
   lastLoginAt?: Date;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   lastLoginIp?: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   lastLoginDevice?: string;
 
-  @Column({ default: 0 })
+  @Column({ type: 'int', default: 0 })
   failedLoginAttempts!: number;
 
   @Column({ type: 'timestamp', nullable: true })
   lockedUntil?: Date;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamp' })
   createdAt!: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamp' })
   updatedAt!: Date;
 }

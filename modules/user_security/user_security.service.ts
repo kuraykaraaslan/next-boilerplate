@@ -1,4 +1,4 @@
-import { AppDataSource } from "@/libs/typeorm";
+import AppDataSource from "@/libs/typeorm";
 import { UserSecurityEntity } from "./user_security.entity";
 import { UserSecurity, UserSecuritySchema, SafeUserSecurity, SafeUserSecuritySchema } from "./user_security.types";
 

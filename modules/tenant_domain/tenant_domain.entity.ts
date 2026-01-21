@@ -25,24 +25,24 @@ export class TenantDomainEntity {
   @JoinColumn({ name: 'tenantId' })
   tenant!: TenantEntity;
 
-  @Column({ unique: true })
+  @Column({ type: 'varchar', unique: true })
   domain!: string;
 
-  @Column({ default: false })
+  @Column({ type: 'boolean', default: false })
   isPrimary!: boolean;
 
-  @Column({ default: 'PENDING' })
+  @Column({ type: 'varchar', default: 'PENDING' })
   domainStatus!: DomainStatus;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   verificationToken?: string;
 
   @Column({ type: 'timestamp', nullable: true })
   verifiedAt?: Date;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamp' })
   createdAt!: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamp' })
   updatedAt!: Date;
 }

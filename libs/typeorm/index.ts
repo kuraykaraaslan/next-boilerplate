@@ -1,34 +1,36 @@
+import "reflect-metadata";
+import "dotenv/config";
 import { DataSource } from "typeorm";
 import path from "path";
 import { fileURLToPath } from "url";
 
-/**
- * ESM-safe __dirname
- */
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-/**
- * Proje root'u (next-boilerplate)
- */
-const projectRoot = path.resolve(__dirname, "..", "..", "..");
+const rootDir = path.resolve(__dirname, "../../");
 
-export const AppDataSource = new DataSource({
+const AppDataSource = new DataSource({
   type: "postgres",
-  host: process.env.DB_HOST || "localhost",
-  port: Number(process.env.DB_PORT) || 5432,
-  username: process.env.DB_USER || "postgres",
-  password: process.env.DB_PASSWORD || "postgres",
-  database: process.env.DB_NAME || "next-boilerplate",
-
+  host: process.env.DATABASE_HOST || "localhost",
+  port: Number(process.env.DATABASE_PORT) || 5432,
+  username: process.env.DATABASE_USERNAME || "postgres",
+  password: process.env.DATABASE_PASSWORD || "postgres",
+  database: process.env.DATABASE_NAME || "next-boilerplate",
   synchronize: false,
-  logging: false,
+  logging: process.env.NODE_ENV === "development",
 
   entities: [
-    path.join(projectRoot, "modules/**/*.entity.{ts,js}"),
+    path.join(rootDir, "modules", "**", "*.entity.{ts,js}"),
   ],
 
   migrations: [
-    path.join(__dirname, "migrations/*.{ts,js}"),
+    path.join(rootDir, "migrations", "*.{ts,js}")
   ],
 });
+
+if (!AppDataSource.isInitialized) {
+    await AppDataSource.initialize();
+}
+
+
+export default AppDataSource;

@@ -15,26 +15,25 @@ export class UserEntity {
   @PrimaryGeneratedColumn('uuid')
   userId!: string;
 
-  @Column({ unique: true })
+  @Column({ type: 'varchar', unique: true })
   email!: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   phone?: string;
 
-  @Column()
+  @Column({ type: 'varchar' })
   password!: string;
 
-  
-  @Column({ default: 'USER' })
+  @Column({ type: 'varchar', default: 'USER' })
   userRole!: UserRole;
 
-  @Column({ default: 'ACTIVE' })
+  @Column({ type: 'varchar', default: 'ACTIVE' })
   userStatus!: UserStatus;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamp' })
   createdAt!: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamp' })
   updatedAt!: Date;
 
   @Column({ type: 'timestamp', nullable: true })

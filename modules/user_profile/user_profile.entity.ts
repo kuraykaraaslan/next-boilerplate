@@ -22,24 +22,24 @@ export class UserProfileEntity {
   @JoinColumn({ name: 'userId' })
   user!: UserEntity;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   name?: string;
 
   @Column({ type: 'text', nullable: true })
   biography?: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   profilePicture?: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   headerImage?: string;
 
   @Column({ type: 'jsonb', default: [] })
   socialLinks!: SocialLinkItem[];
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamp' })
   createdAt!: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamp' })
   updatedAt!: Date;
 }

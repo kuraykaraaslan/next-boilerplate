@@ -36,18 +36,18 @@ export class TenantMemberEntity {
   @JoinColumn({ name: 'userId' })
   user!: UserEntity;
 
-  @Column({ default: 'USER' })
+  @Column({ type: 'varchar', default: 'USER' })
   memberRole!: TenantMemberRole;
 
-  @Column({ default: 'ACTIVE' })
+  @Column({ type: 'varchar', default: 'ACTIVE' })
   memberStatus!: TenantMemberStatus;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamp' })
   createdAt!: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamp' })
   updatedAt!: Date;
 
-  @DeleteDateColumn()
+  @DeleteDateColumn({ type: 'timestamp' })
   deletedAt?: Date;
 }

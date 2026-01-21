@@ -1,4 +1,4 @@
-import { AppDataSource } from "@/libs/typeorm";
+import AppDataSource from "@/libs/typeorm";
 import { TenantMemberEntity } from "./tenant_member.entity";
 import { SafeTenantMember, SafeTenantMemberSchema } from "./tenant_member.types";
 import { CreateTenantMemberInput, UpdateTenantMemberInput, GetTenantMembersInput, GetTenantMemberInput } from "./tenant_member.dto";

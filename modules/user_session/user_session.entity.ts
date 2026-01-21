@@ -19,40 +19,40 @@ export class UserSessionEntity {
   @PrimaryGeneratedColumn("uuid")
   userSessionId!: string;
 
-  @Column()
+  @Column({ type: 'uuid' })
   userId!: string;
 
   @ManyToOne(() => UserEntity, { onDelete: "CASCADE" })
   @JoinColumn({ name: "userId" })
   user!: UserEntity;
 
-  @Column()
+  @Column({ type: 'text' })
   accessToken!: string;
 
-  @Column()
+  @Column({ type: 'text' })
   refreshToken!: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   deviceFingerprint?: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'text', nullable: true })
   userAgent?: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   ipAddress?: string;
 
-  @Column({ default: "ACTIVE" })
+  @Column({ type: 'varchar', default: "ACTIVE" })
   sessionStatus!: SessionStatus;
 
-  @Column({ default: false })
+  @Column({ type: 'boolean', default: false })
   otpVerifyNeeded!: boolean;
 
   @Column({ type: "timestamp" })
   sessionExpiry!: Date;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamp' })
   createdAt!: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamp' })
   updatedAt!: Date;
 }

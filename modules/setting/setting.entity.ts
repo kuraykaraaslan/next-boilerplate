@@ -10,21 +10,21 @@ import {
 @Entity('settings')
 @Index(["group"])
 export class SettingEntity {
-  @PrimaryColumn()
+  @PrimaryColumn({ type: 'varchar' })
   key!: string;
 
   @Column({ type: 'text' })
   value!: string;
 
-  @Column({ default: 'general' })
+  @Column({ type: 'varchar', default: 'general' })
   group!: string;
 
-  @Column({ default: 'string' })
+  @Column({ type: 'varchar', default: 'string' })
   type!: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamp' })
   createdAt!: Date;
 
-  @UpdateDateColumn({ nullable: true })
+  @UpdateDateColumn({ type: 'timestamp', nullable: true })
   updatedAt!: Date | null;
 }

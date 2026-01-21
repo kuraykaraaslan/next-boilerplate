@@ -1,4 +1,4 @@
-import { AppDataSource } from "@/libs/typeorm";
+import AppDataSource from "@/libs/typeorm";
 import { UserEntity } from "../user/user.entity";
 import bcrypt from "bcrypt";
 
@@ -11,7 +11,7 @@ import AuthMessages from "./auth.messages";
 
 export default class AuthService {
 
-    private static get userRepository() {
+    private static async getUserRepository() {
         return AppDataSource.getRepository(UserEntity);
     }
 
@@ -39,9 +39,10 @@ export default class AuthService {
      * @returns The authenticated user.
      */
     static async login({ email, password }: { email: string, password: string }): Promise<{ user: SafeUser }> {
+        const userRepository = await this.getUserRepository();
 
         // Get the user by email
-        const user = await this.userRepository.findOne({
+        const user = await userRepository.findOne({
             where: { email: email.toLowerCase() },
         });
 
@@ -83,6 +84,7 @@ export default class AuthService {
      * @returns The registered user.
      */
     static async register({ email, password, phone }: { email: string, password: string, phone?: string }): Promise<SafeUser> {
+        const userRepository = await this.getUserRepository();
 
         // TODO: Validate the input data
 
@@ -94,13 +96,13 @@ export default class AuthService {
         }
 
         // Create the user
-        const user = this.userRepository.create({
+        const user = userRepository.create({
             phone,
             email: email.toLowerCase(),
             password: await AuthService.hashPassword(password)
         });
 
-        const createdUser = await this.userRepository.save(user);
+        const createdUser = await userRepository.save(user);
 
         const parsedUser = SafeUserSchema.parse(createdUser);
 

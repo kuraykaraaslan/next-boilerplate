@@ -22,39 +22,39 @@ export class UserPreferencesEntity {
   @JoinColumn({ name: 'userId' })
   user!: UserEntity;
 
-  @Column({ default: 'SYSTEM' })
+  @Column({ type: 'varchar', default: 'SYSTEM' })
   theme!: Theme;
 
-  @Column({ default: 'EN' })
+  @Column({ type: 'varchar', default: 'EN' })
   language!: Language;
 
-  @Column({ default: true })
+  @Column({ type: 'boolean', default: true })
   emailNotifications!: boolean;
 
-  @Column({ default: false })
+  @Column({ type: 'boolean', default: false })
   smsNotifications!: boolean;
 
-  @Column({ default: true })
+  @Column({ type: 'boolean', default: true })
   pushNotifications!: boolean;
 
-  @Column({ default: true })
+  @Column({ type: 'boolean', default: true })
   newsletter!: boolean;
 
-  @Column({ default: 'UTC' })
+  @Column({ type: 'varchar', default: 'UTC' })
   timezone!: string;
 
-  @Column({ default: 'DD/MM/YYYY' })
+  @Column({ type: 'varchar', default: 'DD/MM/YYYY' })
   dateFormat!: DateFormat;
 
-  @Column({ default: '24H' })
+  @Column({ type: 'varchar', default: '24H' })
   timeFormat!: TimeFormat;
 
-  @Column({ default: 'MON' })
+  @Column({ type: 'varchar', default: 'MON' })
   firstDayOfWeek!: FirstDayOfWeek;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamp' })
   createdAt!: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamp' })
   updatedAt!: Date;
 }
