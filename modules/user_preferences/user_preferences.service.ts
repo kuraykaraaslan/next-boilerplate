@@ -4,9 +4,7 @@ import { UserPreferences, UserPreferencesSchema } from "./user_preferences.types
 
 export default class UserPreferencesService {
 
-  private static get repository() {
-    return AppDataSource.getRepository(UserPreferencesEntity);
-  }
+  private static readonly repository = AppDataSource.getRepository(UserPreferencesEntity);
 
   static async getByUserId(userId: string): Promise<UserPreferences | null> {
     const preferences = await this.repository.findOne({

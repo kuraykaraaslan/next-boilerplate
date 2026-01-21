@@ -9,10 +9,13 @@ import { SafeUserSecurity } from '@/modules/user_security/user_security.types';
 import UserSessionService from './user_session.service';
 import AppDataSource from '@/libs/typeorm';
 import { UserEntity } from '../user/user.entity';
+import { UserSessionEntity } from './user_session.entity';
 
 const SESSION_CACHE_TTL = parseInt(process.env.SESSION_CACHE_TTL || `${60 * 30}`); // 30 min default
 
 export default class UserSessionNextService {
+
+  static readonly repository = AppDataSource.getRepository(UserSessionEntity);
 
   /**
    * Generates a device fingerprint based on the request headers.
@@ -115,8 +118,7 @@ export default class UserSessionNextService {
     });
 
     // Get user from database
-    const userRepository = AppDataSource.getRepository(UserEntity);
-    const user = await userRepository.findOne({ where: { userId: userSession.userId } });
+    const user = await this.repository.findOne({ where: { userId: userSession.userId } });
     
     if (!user) {
       throw new Error(UserSessionMessages.USER_NOT_FOUND);

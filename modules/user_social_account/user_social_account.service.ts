@@ -6,9 +6,7 @@ import type { SocialAccountProvider } from "./user_social_account.enums";
 
 export default class UserSocialAccountService {
 
-  private static get repository() {
-    return AppDataSource.getRepository(UserSocialAccountEntity);
-  }
+  private static readonly repository = AppDataSource.getRepository(UserSocialAccountEntity);
 
   static async getByUserId(userId: string): Promise<SafeUserSocialAccount[]> {
     const accounts = await this.repository.find({

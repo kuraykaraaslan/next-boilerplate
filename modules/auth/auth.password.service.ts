@@ -8,6 +8,10 @@ import MailService from "../notification_mail/notification_mail.service";
 import AuthMessages from "./auth.messages";
 
 export default class PasswordService {
+
+  private static readonly repository = AppDataSource.getRepository(UserEntity);
+
+  
   private static readonly RESET_TOKEN_EXPIRY_SECONDS = parseInt(
     process.env.RESET_TOKEN_EXPIRY_SECONDS || "3600"
   ); // 1 hour
@@ -20,9 +24,7 @@ export default class PasswordService {
   private static readonly RATE_LIMIT_MAX_ATTEMPTS = 5;
   private static readonly RATE_LIMIT_WINDOW_SECONDS = 60;
 
-  private static get userRepository() {
-    return AppDataSource.getRepository(UserEntity);
-  }
+
 
   /**
    * Generates a numeric reset token
@@ -62,7 +64,7 @@ export default class PasswordService {
    * @returns The reset token (to be sent via email/SMS)
    */
   static async forgotPassword({ email }: { email: string }): Promise<{ resetToken: string }> {
-    const user = await UserService.getByEmail(email);
+    const user = await this.repository.findOne({ where: { email } });
     if (!user) {
       throw new Error(AuthMessages.USER_NOT_FOUND);
     }
@@ -131,7 +133,7 @@ export default class PasswordService {
 
     // Update password
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    await this.userRepository.update(
+    await this.repository.update(
       { userId: user.userId },
       { password: hashedPassword }
     );

@@ -28,9 +28,5 @@ const AppDataSource = new DataSource({
   ],
 });
 
-if (!AppDataSource.isInitialized) {
-    await AppDataSource.initialize();
-}
-
 
 export default AppDataSource;

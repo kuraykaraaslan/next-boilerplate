@@ -7,9 +7,7 @@ import type { TenantMemberRole } from "./tenant_member.enums";
 
 export default class TenantMemberService {
 
-  private static get repository() {
-    return AppDataSource.getRepository(TenantMemberEntity);
-  }
+  private static readonly repository = AppDataSource.getRepository(TenantMemberEntity);
 
   private static readonly ROLE_HIERARCHY: TenantMemberRole[] = ['OWNER', 'ADMIN', 'USER'];
 

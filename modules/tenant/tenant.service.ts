@@ -6,9 +6,7 @@ import TenantMessages from "./tenant.messages";
 
 export default class TenantService {
 
-  private static get repository() {
-    return AppDataSource.getRepository(TenantEntity);
-  }
+  private static readonly repository = AppDataSource.getRepository(TenantEntity);
 
   static async getAll({ page, pageSize, search, tenantId }: GetTenantsInput): Promise<{ tenants: SafeTenant[], total: number }> {
     const queryBuilder = this.repository.createQueryBuilder('tenant');

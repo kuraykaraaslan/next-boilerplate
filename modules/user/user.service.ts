@@ -1,4 +1,4 @@
-import AppDataSource from "@/libs/typeorm";
+import AppDataSource from '@/libs/typeorm';
 import { UserEntity } from './user.entity';
 import { User, SafeUser, UpdateUser, SafeUserSchema, UserSchema } from './user.types';
 import type { UserRole, UserStatus } from './user.enums';
@@ -7,9 +7,7 @@ import UserMessages from './user.messages';
 
 export default class UserService {
 
-  private static async getRepository() {
-    return AppDataSource.getRepository(UserEntity);
-  }
+  private static readonly repository = AppDataSource.getRepository(UserEntity);
 
   static async create({ email, password, phone, userRole }: {
     email: string,
@@ -17,13 +15,13 @@ export default class UserService {
     phone?: string,
     userRole?: UserRole
   }): Promise<SafeUser> {
-    const repository = await this.getRepository();
+    
 
     if (!email) {
       throw new Error(UserMessages.INVALID_EMAIL);
     }
 
-    const existingUser = await repository.findOne({
+    const existingUser = await this.repository.findOne({
       where: { email: email.toLowerCase() }
     });
 
@@ -37,7 +35,7 @@ export default class UserService {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = repository.create({
+    const user = this.repository.create({
       email: email.toLowerCase(),
       password: hashedPassword,
       phone,
@@ -45,7 +43,7 @@ export default class UserService {
       userStatus: 'ACTIVE'
     });
 
-    const savedUser = await repository.save(user);
+    const savedUser = await this.repository.save(user);
     return SafeUserSchema.parse(savedUser);
   }
 
@@ -55,9 +53,9 @@ export default class UserService {
     search?: string,
     userId?: string
   }): Promise<{ users: SafeUser[], total: number }> {
-    const repository = await this.getRepository();
+    
 
-    const queryBuilder = repository.createQueryBuilder('user');
+    const queryBuilder = this.repository.createQueryBuilder('user');
 
     if (userId) {
       queryBuilder.andWhere('user.userId = :userId', { userId });
@@ -82,9 +80,9 @@ export default class UserService {
   }
 
   static async getById(userId: string): Promise<SafeUser> {
-    const repository = await this.getRepository();
+    
 
-    const user = await repository.findOne({
+    const user = await this.repository.findOne({
       where: { userId }
     });
 
@@ -96,13 +94,13 @@ export default class UserService {
   }
 
   static async update({ userId, data }: { userId: string, data: UpdateUser }): Promise<SafeUser> {
-    const repository = await this.getRepository();
+    
 
     if (!userId) {
       throw new Error(UserMessages.USER_NOT_FOUND);
     }
 
-    const user = await repository.findOne({
+    const user = await this.repository.findOne({
       where: { userId }
     });
 
@@ -110,14 +108,14 @@ export default class UserService {
       throw new Error(UserMessages.USER_NOT_FOUND);
     }
 
-    await repository.update({ userId }, {
+    await this.repository.update({ userId }, {
       email: data.email,
       phone: data.phone,
       userRole: data.userRole as UserRole | undefined,
       userStatus: data.userStatus as UserStatus | undefined
     });
 
-    const updatedUser = await repository.findOne({
+    const updatedUser = await this.repository.findOne({
       where: { userId }
     });
 
@@ -125,9 +123,9 @@ export default class UserService {
   }
 
   static async delete(userId: string): Promise<void> {
-    const repository = await this.getRepository();
+    
 
-    const user = await repository.findOne({
+    const user = await this.repository.findOne({
       where: { userId }
     });
 
@@ -135,13 +133,13 @@ export default class UserService {
       throw new Error(UserMessages.USER_NOT_FOUND);
     }
 
-    await repository.delete({ userId });
+    await this.repository.delete({ userId });
   }
 
   static async getByEmail(email: string): Promise<User | null> {
-    const repository = await this.getRepository();
+    
 
-    const user = await repository.findOne({
+    const user = await this.repository.findOne({
       where: { email: email.toLowerCase() }
     });
 

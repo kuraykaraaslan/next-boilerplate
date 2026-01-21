@@ -1,19 +1,17 @@
-import AppDataSource from "@/libs/typeorm";
 import { In } from "typeorm";
 import { SettingEntity } from './setting.entity';
 import { Setting, SettingSchema } from './setting.types';
 import redis from '@/libs/redis';
 import SettingMessages from './setting.messages';
+import AppDataSource from '@/libs/typeorm';
 
 export default class SettingService {
+
+  private static readonly repository = AppDataSource.getRepository(SettingEntity);
 
   private static REDIS_KEY_ALL = 'settings:all';
   private static REDIS_KEY_PREFIX = 'settings:';
   private static REDIS_TTL = 600; // 10 minutes
-
-  private static get repository() {
-    return AppDataSource.getRepository(SettingEntity);
-  }
 
   // ============================================================================
   // Cache Helpers

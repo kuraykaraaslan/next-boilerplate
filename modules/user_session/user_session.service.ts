@@ -37,9 +37,8 @@ interface TokenPayload {
 }
 
 export default class UserSessionService {
-  private static get repository() {
-    return AppDataSource.getRepository(UserSessionEntity);
-  }
+
+  private static  repository = AppDataSource.getRepository(UserSessionEntity);
 
   /**
    * Hash a token using SHA-256

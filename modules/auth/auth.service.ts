@@ -11,9 +11,7 @@ import AuthMessages from "./auth.messages";
 
 export default class AuthService {
 
-    private static async getUserRepository() {
-        return AppDataSource.getRepository(UserEntity);
-    }
+    private static readonly repository = AppDataSource.getRepository(UserEntity);
 
     /**
      * Token Generation
@@ -39,10 +37,10 @@ export default class AuthService {
      * @returns The authenticated user.
      */
     static async login({ email, password }: { email: string, password: string }): Promise<{ user: SafeUser }> {
-        const userRepository = await this.getUserRepository();
+
 
         // Get the user by email
-        const user = await userRepository.findOne({
+        const user = await this.repository.findOne({
             where: { email: email.toLowerCase() },
         });
 
@@ -84,7 +82,7 @@ export default class AuthService {
      * @returns The registered user.
      */
     static async register({ email, password, phone }: { email: string, password: string, phone?: string }): Promise<SafeUser> {
-        const userRepository = await this.getUserRepository();
+
 
         // TODO: Validate the input data
 
@@ -96,13 +94,13 @@ export default class AuthService {
         }
 
         // Create the user
-        const user = userRepository.create({
+        const user = this.repository.create({
             phone,
             email: email.toLowerCase(),
             password: await AuthService.hashPassword(password)
         });
 
-        const createdUser = await userRepository.save(user);
+        const createdUser = await this.repository.save(user);
 
         const parsedUser = SafeUserSchema.parse(createdUser);
 

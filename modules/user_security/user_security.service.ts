@@ -4,9 +4,7 @@ import { UserSecurity, UserSecuritySchema, SafeUserSecurity, SafeUserSecuritySch
 
 export default class UserSecurityService {
 
-  private static get repository() {
-    return AppDataSource.getRepository(UserSecurityEntity);
-  }
+  private static readonly repository = AppDataSource.getRepository(UserSecurityEntity);
 
   static async getByUserId(userId: string): Promise<UserSecurity> {
     const security = await this.repository.findOne({

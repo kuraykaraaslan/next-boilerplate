@@ -2,12 +2,11 @@ import AppDataSource from "@/libs/typeorm";
 import { UserProfileEntity } from "./user_profile.entity";
 import { UserProfile, UserProfileSchema, SocialLinkItem } from "./user_profile.types";
 import { DeepPartial } from "typeorm";
+import AppDataSource from "@/libs/typeorm";
 
 export default class UserProfileService {
 
-  private static get repository() {
-    return AppDataSource.getRepository(UserProfileEntity);
-  }
+  private static readonly repository = AppDataSource.getRepository(UserProfileEntity);
 
   static async getByUserId(userId: string): Promise<UserProfile | null> {
     const profile = await this.repository.findOne({

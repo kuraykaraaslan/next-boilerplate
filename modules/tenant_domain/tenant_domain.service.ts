@@ -7,9 +7,7 @@ import DNSVerificationService from "./dns_verification.service";
 
 export default class TenantDomainService {
 
-  private static get repository() {
-    return AppDataSource.getRepository(TenantDomainEntity);
-  }
+  private static readonly repository = AppDataSource.getRepository(TenantDomainEntity);
 
   static async getByTenantId({ tenantId, page, pageSize }: GetTenantDomainsInput): Promise<{ domains: SafeTenantDomain[], total: number }> {
     const [domains, total] = await this.repository.findAndCount({
