@@ -3,14 +3,12 @@ import { faBars, faCode } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 import Link from "next/link";
-import ThemeButton from "./Partials/ThemeButton";
 import { useRouter } from "next/navigation";
-import Logo from "@/components/common/Layout/Logo";
-
+import Logo from "@/components/common/layout/logo";
 import dynamic from "next/dynamic";
 
-const NavbarAuthButton = dynamic(
-    () => import('@/components/common/UI/Navigation/NavbarAuthButton'),
+const AuthButton = dynamic(
+    () => import('@/modules/auth/ui/auth.button'),
     { ssr: false }
 );
 
@@ -68,7 +66,6 @@ const Navbar = () => {
                 <nav className="relative mx-auto h-16 flex items-stretch items-center justify-between lg:px-8 from-base-100 to-base-300 bg-gradient-to-b shadow-lg text-primary" aria-label="Global">
                     <div className="py-4 pl-4 lg:pl-0 flex items-center gap-2">
                         <Logo href="/admin" />
-                        <ThemeButton />
                     </div>
                     <div className="flex lg:hidden">
                         <button type="button" className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 p-6 mr-2" aria-controls="mobile-menu" aria-expanded="false" onClick={toggleMobileMenu}>
@@ -88,7 +85,7 @@ const Navbar = () => {
                         ))}
                     </div>
                     <div className="hidden lg:flex lg:justify-end justify-center items-center">
-                        <NavbarAuthButton />
+                        <AuthButton />
                     </div>
                 </nav>
             </div>

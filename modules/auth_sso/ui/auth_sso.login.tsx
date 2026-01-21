@@ -77,11 +77,7 @@ const SSOLoginContent = ({ mode, locale = 'en' }: { mode: SSOLoginMode; locale?:
   )
 
   if (allowedProviders.length === 0) {
-    return (
-      <div className='text-center text-sm text-gray-500'>
-        {t('no_providers')}
-      </div>
-    )
+    return null
   }
 
   const renderButton = (provider: string, circle = false) => {

@@ -8,7 +8,7 @@ import axiosInstance from "@/libs/axios";
 import useGlobalStore from "@/libs/zustand";
 
 // Make sure to import the Navbar component from the correct path
-const Navbar = dynamic(() => import('@/components/admin/Layout/Navbar'), { ssr: false });
+const Navbar = dynamic(() => import('@/components/admin/layout/navbar'), { ssr: false });
 
 const Layout = ({
     children,
