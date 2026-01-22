@@ -1,0 +1,104 @@
+// User Enums
+enum UserRole {
+  GUEST
+  USER
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+// Tenant Enums
+enum TenantStatus {
+  ACTIVE
+  INACTIVE
+  PENDING
+  SUSPENDED
+  DELETED
+  ARCHIVED
+}
+
+// Tenant Member Enums
+enum TenantMemberRole {
+  OWNER
+  ADMIN
+  USER
+}
+
+enum TenantMemberStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING
+}
+
+// Domain Enums
+enum DomainStatus {
+  ACTIVE
+  INACTIVE
+  PENDING
+  VERIFIED
+}
+
+// User Security Enums
+enum OTPMethod {
+  EMAIL
+  SMS
+  TOTP_APP
+}
+
+// User Preferences Enums
+enum Theme {
+  LIGHT
+  DARK
+  SYSTEM
+}
+
+enum Language {
+  EN
+  ES
+  FR
+  DE
+  CN
+  JP
+}
+
+enum DateFormat {
+  DD_MM_YYYY @map("DD/MM/YYYY")
+  MM_DD_YYYY @map("MM/DD/YYYY")
+}
+
+enum TimeFormat {
+  H24 @map("24H")
+  H12 @map("12H")
+}
+
+enum FirstDayOfWeek {
+  MON
+  SUN
+}
+
+// Social Account Enums
+enum SocialAccountProvider {
+  google
+  apple
+  facebook
+  github
+  linkedin
+  microsoft
+  twitter
+  slack
+  tiktok
+  wechat
+  autodesk
+}
+
+// Session Enums
+enum SessionStatus {
+  ACTIVE
+  EXPIRED
+  REVOKED
+}

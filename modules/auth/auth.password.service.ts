@@ -1,17 +1,13 @@
 import crypto from "crypto";
 import bcrypt from "bcrypt";
 import redis from "@/libs/redis";
-import AppDataSource from "@/libs/typeorm";
-import { UserEntity } from "../user/user.entity";
+import { prisma } from "@/libs/prisma";
 import UserService from "../user/user.service";
 import MailService from "../notification_mail/notification_mail.service";
 import AuthMessages from "./auth.messages";
 
 export default class PasswordService {
 
-  private static readonly repository = AppDataSource.getRepository(UserEntity);
-
-  
   private static readonly RESET_TOKEN_EXPIRY_SECONDS = parseInt(
     process.env.RESET_TOKEN_EXPIRY_SECONDS || "3600"
   ); // 1 hour
@@ -23,8 +19,6 @@ export default class PasswordService {
 
   private static readonly RATE_LIMIT_MAX_ATTEMPTS = 5;
   private static readonly RATE_LIMIT_WINDOW_SECONDS = 60;
-
-
 
   /**
    * Generates a numeric reset token
@@ -64,7 +58,7 @@ export default class PasswordService {
    * @returns The reset token (to be sent via email/SMS)
    */
   static async forgotPassword({ email }: { email: string }): Promise<{ resetToken: string }> {
-    const user = await this.repository.findOne({ where: { email } });
+    const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
       throw new Error(AuthMessages.USER_NOT_FOUND);
     }
@@ -133,10 +127,10 @@ export default class PasswordService {
 
     // Update password
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    await this.repository.update(
-      { userId: user.userId },
-      { password: hashedPassword }
-    );
+    await prisma.user.update({
+      where: { userId: user.userId },
+      data: { password: hashedPassword }
+    });
 
     // Invalidate the token (one-time use)
     await redis.del(tokenKey);

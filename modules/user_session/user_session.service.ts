@@ -1,14 +1,14 @@
 import jwt, { Secret } from "jsonwebtoken";
 import crypto from "crypto";
-import AppDataSource from "@/libs/typeorm";
+import { prisma } from "@/libs/prisma";
 import redis from "@/libs/redis";
-import { UserSessionEntity } from "./user_session.entity";
 import { SafeUserSession, SafeUserSessionSchema } from "./user_session.types";
 import { SafeUser } from "../user/user.types";
 import { SafeUserSecurity } from "../user_security/user_security.types";
 import UserSessionMessages from "./user_session.messages";
 import Logger from "@/libs/logger";
 import { v4 as uuidv4 } from "uuid";
+import type { SessionStatus } from "./user_session.enums";
 
 const APPLICATION_DOMAIN = process.env.APPLICATION_DOMAIN || "kuray.dev";
 const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET || "your-default-access-token-secret";
@@ -37,8 +37,6 @@ interface TokenPayload {
 }
 
 export default class UserSessionService {
-
-  private static  repository = AppDataSource.getRepository(UserSessionEntity);
 
   /**
    * Hash a token using SHA-256
@@ -180,22 +178,22 @@ export default class UserSessionService {
 
     const otpVerifyNeeded = !otpIgnore && userSecurity.otpMethods.length > 0;
 
-    const session = this.repository.create({
-      userSessionId,
-      userId: user.userId,
-      accessToken: this.hashToken(rawAccessToken),
-      refreshToken: this.hashToken(rawRefreshToken),
-      deviceFingerprint,
-      userAgent,
-      ipAddress,
-      otpVerifyNeeded,
-      sessionExpiry: new Date(Date.now() + SESSION_EXPIRY_MS),
+    const session = await prisma.userSession.create({
+      data: {
+        userSessionId,
+        userId: user.userId,
+        accessToken: this.hashToken(rawAccessToken),
+        refreshToken: this.hashToken(rawRefreshToken),
+        deviceFingerprint,
+        userAgent,
+        ipAddress,
+        otpVerifyNeeded,
+        sessionExpiry: new Date(Date.now() + SESSION_EXPIRY_MS),
+      }
     });
 
-    const savedSession = await this.repository.save(session);
-
     return {
-      userSession: SafeUserSessionSchema.parse(savedSession),
+      userSession: SafeUserSessionSchema.parse(session),
       rawAccessToken,
       rawRefreshToken,
     };
@@ -229,7 +227,7 @@ export default class UserSessionService {
     }
 
     // Query database
-    const session = await this.repository.findOne({
+    const session = await prisma.userSession.findFirst({
       where: {
         accessToken: hashedToken,
         userId: decoded.userId,
@@ -275,7 +273,7 @@ export default class UserSessionService {
     const decoded = this.verifyRefreshToken(refreshToken);
     const hashedRefreshToken = this.hashToken(refreshToken);
 
-    const session = await this.repository.findOne({
+    const session = await prisma.userSession.findFirst({
       where: {
         refreshToken: hashedRefreshToken,
         userId: decoded.userId,
@@ -297,7 +295,7 @@ export default class UserSessionService {
     // Reuse detection
     if (session.refreshToken !== hashedRefreshToken) {
       // Token reuse detected - invalidate all sessions
-      await this.repository.delete({ userId: session.userId });
+      await prisma.userSession.deleteMany({ where: { userId: session.userId } });
       await this.clearUserSessionCache(session.userId);
       throw new Error(UserSessionMessages.REFRESH_TOKEN_REUSED);
     }
@@ -306,21 +304,24 @@ export default class UserSessionService {
     const newAccessToken = this.generateAccessToken({
       userId: session.userId,
       userSessionId: session.userSessionId,
-      deviceFingerprint: session.deviceFingerprint,
+      deviceFingerprint: session.deviceFingerprint ?? undefined,
     });
 
     const newRefreshToken = this.generateRefreshToken({
       userId: session.userId,
       userSessionId: session.userSessionId,
-      deviceFingerprint: session.deviceFingerprint,
+      deviceFingerprint: session.deviceFingerprint ?? undefined,
     });
 
     // Update session
-    session.accessToken = this.hashToken(newAccessToken);
-    session.refreshToken = this.hashToken(newRefreshToken);
-    session.sessionExpiry = new Date(Date.now() + SESSION_EXPIRY_MS);
-
-    const updatedSession = await this.repository.save(session);
+    const updatedSession = await prisma.userSession.update({
+      where: { userSessionId: session.userSessionId },
+      data: {
+        accessToken: this.hashToken(newAccessToken),
+        refreshToken: this.hashToken(newRefreshToken),
+        sessionExpiry: new Date(Date.now() + SESSION_EXPIRY_MS),
+      }
+    });
 
     // Clear old cache
     await this.clearUserSessionCache(session.userId);
@@ -337,9 +338,9 @@ export default class UserSessionService {
    */
   static async updateSession(
     userSessionId: string,
-    updates: Partial<Pick<UserSessionEntity, "otpVerifyNeeded" | "sessionStatus">>
+    updates: Partial<Pick<{ otpVerifyNeeded: boolean; sessionStatus: SessionStatus }, "otpVerifyNeeded" | "sessionStatus">>
   ): Promise<SafeUserSession> {
-    const session = await this.repository.findOne({
+    const session = await prisma.userSession.findUnique({
       where: { userSessionId },
     });
 
@@ -347,8 +348,10 @@ export default class UserSessionService {
       throw new Error(UserSessionMessages.SESSION_NOT_FOUND);
     }
 
-    Object.assign(session, updates);
-    const updatedSession = await this.repository.save(session);
+    const updatedSession = await prisma.userSession.update({
+      where: { userSessionId },
+      data: updates
+    });
 
     // Clear cache
     await this.clearUserSessionCache(session.userId);
@@ -360,12 +363,12 @@ export default class UserSessionService {
    * Delete session (logout)
    */
   static async deleteSession(userSessionId: string): Promise<void> {
-    const session = await this.repository.findOne({
+    const session = await prisma.userSession.findUnique({
       where: { userSessionId },
     });
 
     if (session) {
-      await this.repository.delete({ userSessionId });
+      await prisma.userSession.delete({ where: { userSessionId } });
       await this.clearUserSessionCache(session.userId);
     }
   }
@@ -374,18 +377,12 @@ export default class UserSessionService {
    * Delete all other sessions for user
    */
   static async deleteOtherSessions(userId: string, currentSessionId: string): Promise<void> {
-    await this.repository.delete({
-      userId,
-      userSessionId: currentSessionId ? undefined : undefined, // TypeORM doesn't support NOT directly
+    await prisma.userSession.deleteMany({
+      where: {
+        userId,
+        NOT: { userSessionId: currentSessionId }
+      }
     });
-
-    // Manual delete with query builder
-    await this.repository
-      .createQueryBuilder()
-      .delete()
-      .where("userId = :userId", { userId })
-      .andWhere("userSessionId != :currentSessionId", { currentSessionId })
-      .execute();
 
     await this.clearUserSessionCache(userId);
   }
@@ -394,7 +391,7 @@ export default class UserSessionService {
    * Delete all sessions for user
    */
   static async deleteAllSessions(userId: string): Promise<void> {
-    await this.repository.delete({ userId });
+    await prisma.userSession.deleteMany({ where: { userId } });
     await this.clearUserSessionCache(userId);
   }
 
@@ -402,17 +399,16 @@ export default class UserSessionService {
    * Get all active sessions for user
    */
   static async getUserSessions(userId: string): Promise<SafeUserSession[]> {
-    const sessions = await this.repository.find({
+    const sessions = await prisma.userSession.findMany({
       where: {
         userId,
         sessionStatus: "ACTIVE",
+        sessionExpiry: { gt: new Date() }
       },
-      order: { createdAt: "DESC" },
+      orderBy: { createdAt: "desc" },
     });
 
-    return sessions
-      .filter((s) => s.sessionExpiry > new Date())
-      .map((s) => SafeUserSessionSchema.parse(s));
+    return sessions.map((s) => SafeUserSessionSchema.parse(s));
   }
 
   /**

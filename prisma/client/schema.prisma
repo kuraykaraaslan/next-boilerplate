@@ -1,0 +1,296 @@
+// User Enums
+enum UserRole {
+  GUEST
+  USER
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+// Tenant Enums
+enum TenantStatus {
+  ACTIVE
+  INACTIVE
+  PENDING
+  SUSPENDED
+  DELETED
+  ARCHIVED
+}
+
+// Tenant Member Enums
+enum TenantMemberRole {
+  OWNER
+  ADMIN
+  USER
+}
+
+enum TenantMemberStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING
+}
+
+// Domain Enums
+enum DomainStatus {
+  ACTIVE
+  INACTIVE
+  PENDING
+  VERIFIED
+}
+
+// User Security Enums
+enum OTPMethod {
+  EMAIL
+  SMS
+  TOTP_APP
+}
+
+// User Preferences Enums
+enum Theme {
+  LIGHT
+  DARK
+  SYSTEM
+}
+
+enum Language {
+  EN
+  ES
+  FR
+  DE
+  CN
+  JP
+}
+
+enum DateFormat {
+  DD_MM_YYYY @map("DD/MM/YYYY")
+  MM_DD_YYYY @map("MM/DD/YYYY")
+}
+
+enum TimeFormat {
+  H24 @map("24H")
+  H12 @map("12H")
+}
+
+enum FirstDayOfWeek {
+  MON
+  SUN
+}
+
+// Social Account Enums
+enum SocialAccountProvider {
+  google
+  apple
+  facebook
+  github
+  linkedin
+  microsoft
+  twitter
+  slack
+  tiktok
+  wechat
+  autodesk
+}
+
+// Session Enums
+enum SessionStatus {
+  ACTIVE
+  EXPIRED
+  REVOKED
+}
+
+generator client {
+  provider   = "prisma-client-js"
+  accelerate = "true"
+  output     = "../client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Setting {
+  key       String    @id @db.VarChar
+  value     String    @db.Text
+  group     String    @default("general") @db.VarChar
+  type      String    @default("string") @db.VarChar
+  createdAt DateTime  @default(now()) @db.Timestamp
+  updatedAt DateTime? @updatedAt @db.Timestamp
+
+  @@index([group])
+  @@map("settings")
+}
+
+model Tenant {
+  tenantId     String       @id @default(uuid()) @db.Uuid
+  name         String       @db.VarChar
+  description  String?      @db.Text
+  tenantStatus TenantStatus @default(ACTIVE)
+  createdAt    DateTime     @default(now()) @db.Timestamp
+  updatedAt    DateTime     @updatedAt @db.Timestamp
+  deletedAt    DateTime?    @db.Timestamp
+
+  domains TenantDomain[]
+  members TenantMember[]
+
+  @@map("tenants")
+}
+
+model TenantDomain {
+  tenantDomainId    String       @id @default(uuid()) @db.Uuid
+  tenantId          String       @db.Uuid
+  domain            String       @unique @db.VarChar
+  isPrimary         Boolean      @default(false)
+  domainStatus      DomainStatus @default(PENDING)
+  verificationToken String?      @db.VarChar
+  verifiedAt        DateTime?    @db.Timestamp
+  createdAt         DateTime     @default(now()) @db.Timestamp
+  updatedAt         DateTime     @updatedAt @db.Timestamp
+
+  tenant Tenant @relation(fields: [tenantId], references: [tenantId], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@map("tenant_domains")
+}
+
+model TenantMember {
+  tenantMemberId String             @id @default(uuid()) @db.Uuid
+  tenantId       String             @db.Uuid
+  userId         String             @db.Uuid
+  memberRole     TenantMemberRole   @default(USER)
+  memberStatus   TenantMemberStatus @default(ACTIVE)
+  createdAt      DateTime           @default(now()) @db.Timestamp
+  updatedAt      DateTime           @updatedAt @db.Timestamp
+  deletedAt      DateTime?          @db.Timestamp
+
+  tenant Tenant @relation(fields: [tenantId], references: [tenantId], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@unique([tenantId, userId])
+  @@index([tenantId])
+  @@index([userId])
+  @@map("tenant_members")
+}
+
+model User {
+  userId     String     @id @default(uuid()) @db.Uuid
+  email      String     @unique @db.VarChar
+  phone      String?    @db.VarChar
+  password   String     @db.VarChar
+  userRole   UserRole   @default(USER)
+  userStatus UserStatus @default(ACTIVE)
+  createdAt  DateTime   @default(now()) @db.Timestamp
+  updatedAt  DateTime   @updatedAt @db.Timestamp
+  deletedAt  DateTime?  @db.Timestamp
+
+  profile        UserProfile?
+  security       UserSecurity?
+  preferences    UserPreferences?
+  socialAccounts UserSocialAccount[]
+  sessions       UserSession[]
+  tenantMembers  TenantMember[]
+
+  @@index([email])
+  @@index([phone])
+  @@map("users")
+}
+
+model UserPreferences {
+  userPreferencesId  String         @id @default(uuid()) @db.Uuid
+  userId             String         @unique @db.Uuid
+  theme              Theme          @default(SYSTEM)
+  language           Language       @default(EN)
+  emailNotifications Boolean        @default(true)
+  smsNotifications   Boolean        @default(false)
+  pushNotifications  Boolean        @default(true)
+  newsletter         Boolean        @default(true)
+  timezone           String         @default("UTC") @db.VarChar
+  dateFormat         DateFormat     @default(DD_MM_YYYY)
+  timeFormat         TimeFormat     @default(H24)
+  firstDayOfWeek     FirstDayOfWeek @default(MON)
+  createdAt          DateTime       @default(now()) @db.Timestamp
+  updatedAt          DateTime       @updatedAt @db.Timestamp
+
+  user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@map("user_preferences")
+}
+
+model UserProfile {
+  userProfileId  String   @id @default(uuid()) @db.Uuid
+  userId         String   @unique @db.Uuid
+  name           String?  @db.VarChar
+  biography      String?  @db.Text
+  profilePicture String?  @db.VarChar
+  headerImage    String?  @db.VarChar
+  socialLinks    Json     @default("[]") @db.JsonB
+  createdAt      DateTime @default(now()) @db.Timestamp
+  updatedAt      DateTime @updatedAt @db.Timestamp
+
+  user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@map("user_profiles")
+}
+
+model UserSecurity {
+  userSecurityId      String      @id @default(uuid()) @db.Uuid
+  userId              String      @unique @db.Uuid
+  otpMethods          OTPMethod[] @default([])
+  otpSecret           String?     @db.VarChar
+  otpBackupCodes      Json        @default("[]") @db.JsonB
+  lastLoginAt         DateTime?   @db.Timestamp
+  lastLoginIp         String?     @db.VarChar
+  lastLoginDevice     String?     @db.VarChar
+  failedLoginAttempts Int         @default(0)
+  lockedUntil         DateTime?   @db.Timestamp
+  createdAt           DateTime    @default(now()) @db.Timestamp
+  updatedAt           DateTime    @updatedAt @db.Timestamp
+
+  user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@map("user_securities")
+}
+
+model UserSession {
+  userSessionId     String        @id @default(uuid()) @db.Uuid
+  userId            String        @db.Uuid
+  accessToken       String        @db.Text
+  refreshToken      String        @db.Text
+  deviceFingerprint String?       @db.VarChar
+  userAgent         String?       @db.Text
+  ipAddress         String?       @db.VarChar
+  sessionStatus     SessionStatus @default(ACTIVE)
+  otpVerifyNeeded   Boolean       @default(false)
+  sessionExpiry     DateTime      @db.Timestamp
+  createdAt         DateTime      @default(now()) @db.Timestamp
+  updatedAt         DateTime      @updatedAt @db.Timestamp
+
+  user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([accessToken])
+  @@index([refreshToken])
+  @@map("user_sessions")
+}
+
+model UserSocialAccount {
+  userSocialAccountId String                @id @default(uuid()) @db.Uuid
+  userId              String                @db.Uuid
+  provider            SocialAccountProvider
+  providerId          String                @db.VarChar
+  accessToken         String?               @db.Text
+  refreshToken        String?               @db.Text
+  profilePicture      String?               @db.VarChar
+  createdAt           DateTime              @default(now()) @db.Timestamp
+  updatedAt           DateTime              @updatedAt @db.Timestamp
+
+  user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@unique([provider, providerId])
+  @@index([userId])
+  @@map("user_social_accounts")
+}

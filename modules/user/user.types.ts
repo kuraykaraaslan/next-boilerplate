@@ -4,13 +4,13 @@ import { UserRoleEnum, UserStatusEnum } from './user.enums';
 export const UserSchema = z.object({
   userId: z.string(),
   email: z.string().email(),
-  phone: z.string().optional(),
+  phone: z.string().nullable(),
   password: z.string().min(8, "Password must be at least 8 characters long"),
   userRole: UserRoleEnum.default('USER'),
   userStatus: UserStatusEnum.default('ACTIVE'),
-  createdAt: z.date().optional(),
-  updatedAt: z.date().optional(),
-  deletedAt: z.date().optional()
+  createdAt: z.date().nullable(),
+  updatedAt: z.date().nullable(),
+  deletedAt: z.date().nullable()
 });
 
 export const SafeUserSchema = UserSchema.omit({

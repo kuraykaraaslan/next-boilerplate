@@ -1,5 +1,4 @@
-import AppDataSource from "@/libs/typeorm";
-import { UserEntity } from "../user/user.entity";
+import { prisma } from "@/libs/prisma";
 import bcrypt from "bcrypt";
 
 // Other Services
@@ -10,8 +9,6 @@ import { SafeUser, SafeUserSchema } from '../user/user.types';
 import AuthMessages from "./auth.messages";
 
 export default class AuthService {
-
-    private static readonly repository = AppDataSource.getRepository(UserEntity);
 
     /**
      * Token Generation
@@ -38,9 +35,8 @@ export default class AuthService {
      */
     static async login({ email, password }: { email: string, password: string }): Promise<{ user: SafeUser }> {
 
-
         // Get the user by email
-        const user = await this.repository.findOne({
+        const user = await prisma.user.findUnique({
             where: { email: email.toLowerCase() },
         });
 
@@ -83,7 +79,6 @@ export default class AuthService {
      */
     static async register({ email, password, phone }: { email: string, password: string, phone?: string }): Promise<SafeUser> {
 
-
         // TODO: Validate the input data
 
         // Check if the user already exists
@@ -94,13 +89,13 @@ export default class AuthService {
         }
 
         // Create the user
-        const user = this.repository.create({
-            phone,
-            email: email.toLowerCase(),
-            password: await AuthService.hashPassword(password)
+        const createdUser = await prisma.user.create({
+            data: {
+                phone,
+                email: email.toLowerCase(),
+                password: await AuthService.hashPassword(password)
+            }
         });
-
-        const createdUser = await this.repository.save(user);
 
         const parsedUser = SafeUserSchema.parse(createdUser);
 
@@ -128,5 +123,3 @@ export default class AuthService {
         return userRoleIndex <= requiredRoleIndex;
     }
 }
-
-

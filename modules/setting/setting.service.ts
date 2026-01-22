@@ -1,13 +1,9 @@
-import { In } from "typeorm";
-import { SettingEntity } from './setting.entity';
+import { prisma } from "@/libs/prisma";
 import { Setting, SettingSchema } from './setting.types';
 import redis from '@/libs/redis';
 import SettingMessages from './setting.messages';
-import AppDataSource from '@/libs/typeorm';
 
 export default class SettingService {
-
-  private static readonly repository = AppDataSource.getRepository(SettingEntity);
 
   private static REDIS_KEY_ALL = 'settings:all';
   private static REDIS_KEY_PREFIX = 'settings:';
@@ -61,7 +57,7 @@ export default class SettingService {
     }
 
     // Fetch from DB
-    const settings = await this.repository.find();
+    const settings = await prisma.setting.findMany();
     const parsedSettings = settings.map(s => SettingSchema.parse(s));
 
     // Cache result
@@ -84,7 +80,7 @@ export default class SettingService {
     }
 
     // Fetch from DB
-    const setting = await this.repository.findOne({ where: { key } });
+    const setting = await prisma.setting.findUnique({ where: { key } });
 
     if (!setting) {
       return null;
@@ -135,8 +131,8 @@ export default class SettingService {
 
     // Fetch missing keys from DB
     if (missingKeys.length > 0) {
-      const settings = await this.repository.find({
-        where: { key: In(missingKeys) }
+      const settings = await prisma.setting.findMany({
+        where: { key: { in: missingKeys } }
       });
 
       for (const setting of settings) {
@@ -162,26 +158,20 @@ export default class SettingService {
   // ============================================================================
 
   static async create(key: string, value: string, group?: string, type?: string): Promise<Setting> {
-    const existingSetting = await this.repository.findOne({ where: { key } });
-
-    let setting: SettingEntity;
-
-    if (existingSetting) {
-      // Update existing
-      existingSetting.value = value;
-      if (group) existingSetting.group = group;
-      if (type) existingSetting.type = type;
-      setting = await this.repository.save(existingSetting);
-    } else {
-      // Create new
-      setting = this.repository.create({
+    const setting = await prisma.setting.upsert({
+      where: { key },
+      update: {
+        value,
+        ...(group && { group }),
+        ...(type && { type })
+      },
+      create: {
         key,
         value,
         group: group ?? 'general',
         type: type ?? 'string'
-      });
-      setting = await this.repository.save(setting);
-    }
+      }
+    });
 
     const parsedSetting = SettingSchema.parse(setting);
 
@@ -193,14 +183,17 @@ export default class SettingService {
   }
 
   static async update(key: string, value: string): Promise<Setting> {
-    const setting = await this.repository.findOne({ where: { key } });
+    const setting = await prisma.setting.findUnique({ where: { key } });
 
     if (!setting) {
       throw new Error(SettingMessages.SETTING_NOT_FOUND);
     }
 
-    setting.value = value;
-    const updatedSetting = await this.repository.save(setting);
+    const updatedSetting = await prisma.setting.update({
+      where: { key },
+      data: { value }
+    });
+
     const parsedSetting = SettingSchema.parse(updatedSetting);
 
     // Update cache
@@ -214,26 +207,22 @@ export default class SettingService {
     const updatedSettings: Setting[] = [];
 
     for (const key in settings) {
-      const setting = await this.repository.upsert(
-        {
+      const upsertedSetting = await prisma.setting.upsert({
+        where: { key },
+        update: { value: settings[key] },
+        create: {
           key,
           value: settings[key],
           group: 'general',
           type: 'string'
-        },
-        ['key']
-      );
+        }
+      });
 
-      // Fetch the upserted setting
-      const upsertedSetting = await this.repository.findOne({ where: { key } });
+      const parsedSetting = SettingSchema.parse(upsertedSetting);
+      updatedSettings.push(parsedSetting);
 
-      if (upsertedSetting) {
-        const parsedSetting = SettingSchema.parse(upsertedSetting);
-        updatedSettings.push(parsedSetting);
-
-        // Update individual cache
-        await this.setCache(this.REDIS_KEY_PREFIX + key, JSON.stringify(parsedSetting));
-      }
+      // Update individual cache
+      await this.setCache(this.REDIS_KEY_PREFIX + key, JSON.stringify(parsedSetting));
     }
 
     // Invalidate all cache
@@ -243,14 +232,14 @@ export default class SettingService {
   }
 
   static async delete(key: string): Promise<Setting | null> {
-    const setting = await this.repository.findOne({ where: { key } });
+    const setting = await prisma.setting.findUnique({ where: { key } });
 
     if (!setting) {
       return null;
     }
 
     const parsedSetting = SettingSchema.parse(setting);
-    await this.repository.delete({ key });
+    await prisma.setting.delete({ where: { key } });
 
     // Clear cache
     await this.deleteCache(this.REDIS_KEY_PREFIX + key);
@@ -275,13 +264,13 @@ export default class SettingService {
   }
 
   static async getByGroup(group: string): Promise<Setting[]> {
-    const settings = await this.repository.find({ where: { group } });
+    const settings = await prisma.setting.findMany({ where: { group } });
     return settings.map(s => SettingSchema.parse(s));
   }
 
   static async clearCache(): Promise<void> {
     // Clear all settings cache
-    const settings = await this.repository.find({ select: ['key'] });
+    const settings = await prisma.setting.findMany({ select: { key: true } });
 
     for (const setting of settings) {
       await this.deleteCache(this.REDIS_KEY_PREFIX + setting.key);

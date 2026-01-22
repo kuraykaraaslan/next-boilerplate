@@ -1,0 +1,14 @@
+model Tenant {
+  tenantId     String       @id @default(uuid()) @db.Uuid
+  name         String       @db.VarChar
+  description  String?      @db.Text
+  tenantStatus TenantStatus @default(ACTIVE)
+  createdAt    DateTime     @default(now()) @db.Timestamp
+  updatedAt    DateTime     @updatedAt @db.Timestamp
+  deletedAt    DateTime?    @db.Timestamp
+
+  domains TenantDomain[]
+  members TenantMember[]
+
+  @@map("tenants")
+}

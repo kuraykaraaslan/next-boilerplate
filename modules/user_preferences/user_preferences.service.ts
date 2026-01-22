@@ -1,13 +1,10 @@
-import AppDataSource from "@/libs/typeorm";
-import { UserPreferencesEntity } from "./user_preferences.entity";
+import { prisma } from "@/libs/prisma";
 import { UserPreferences, UserPreferencesSchema } from "./user_preferences.types";
 
 export default class UserPreferencesService {
 
-  private static readonly repository = AppDataSource.getRepository(UserPreferencesEntity);
-
   static async getByUserId(userId: string): Promise<UserPreferences | null> {
-    const preferences = await this.repository.findOne({
+    const preferences = await prisma.userPreferences.findUnique({
       where: { userId }
     });
 
@@ -19,7 +16,7 @@ export default class UserPreferencesService {
   }
 
   static async create(userId: string, data?: Partial<UserPreferences>): Promise<UserPreferences> {
-    const existing = await this.repository.findOne({
+    const existing = await prisma.userPreferences.findUnique({
       where: { userId }
     });
 
@@ -29,18 +26,19 @@ export default class UserPreferencesService {
 
     const defaults = UserPreferencesSchema.parse({});
 
-    const preferences = this.repository.create({
-      userId,
-      ...defaults,
-      ...data
+    const preferences = await prisma.userPreferences.create({
+      data: {
+        userId,
+        ...defaults,
+        ...data
+      }
     });
 
-    const saved = await this.repository.save(preferences);
-    return UserPreferencesSchema.parse(saved);
+    return UserPreferencesSchema.parse(preferences);
   }
 
   static async update(userId: string, data: Partial<UserPreferences>): Promise<UserPreferences> {
-    const preferences = await this.repository.findOne({
+    const preferences = await prisma.userPreferences.findUnique({
       where: { userId }
     });
 
@@ -48,29 +46,32 @@ export default class UserPreferencesService {
       throw new Error("Preferences not found");
     }
 
-    await this.repository.update({ userId }, data);
-
-    const updated = await this.repository.findOne({
-      where: { userId }
+    const updated = await prisma.userPreferences.update({
+      where: { userId },
+      data
     });
 
     return UserPreferencesSchema.parse(updated);
   }
 
   static async upsert(userId: string, data: Partial<UserPreferences>): Promise<UserPreferences> {
-    const existing = await this.repository.findOne({
-      where: { userId }
+    const defaults = UserPreferencesSchema.parse({});
+
+    const preferences = await prisma.userPreferences.upsert({
+      where: { userId },
+      update: data,
+      create: {
+        userId,
+        ...defaults,
+        ...data
+      }
     });
 
-    if (existing) {
-      return this.update(userId, data);
-    }
-
-    return this.create(userId, data);
+    return UserPreferencesSchema.parse(preferences);
   }
 
   static async delete(userId: string): Promise<void> {
-    const preferences = await this.repository.findOne({
+    const preferences = await prisma.userPreferences.findUnique({
       where: { userId }
     });
 
@@ -78,11 +79,11 @@ export default class UserPreferencesService {
       throw new Error("Preferences not found");
     }
 
-    await this.repository.delete({ userId });
+    await prisma.userPreferences.delete({ where: { userId } });
   }
 
   static async getOrCreateDefault(userId: string): Promise<UserPreferences> {
-    const existing = await this.repository.findOne({
+    const existing = await prisma.userPreferences.findUnique({
       where: { userId }
     });
 

@@ -1,32 +1,33 @@
-import AppDataSource from "@/libs/typeorm";
-import { TenantEntity } from "./tenant.entity";
+import { prisma } from "@/libs/prisma";
+import type { Prisma } from "@/prisma/client";
 import { SafeTenant, SafeTenantSchema } from "./tenant.types";
 import { CreateTenantInput, UpdateTenantInput, GetTenantsInput } from "./tenant.dto";
 import TenantMessages from "./tenant.messages";
 
 export default class TenantService {
 
-  private static readonly repository = AppDataSource.getRepository(TenantEntity);
-
   static async getAll({ page, pageSize, search, tenantId }: GetTenantsInput): Promise<{ tenants: SafeTenant[], total: number }> {
-    const queryBuilder = this.repository.createQueryBuilder('tenant');
+    const where: Prisma.TenantWhereInput = {
+      deletedAt: null
+    };
 
     if (tenantId) {
-      queryBuilder.andWhere('tenant.tenantId = :tenantId', { tenantId });
+      where.tenantId = tenantId;
     }
 
     if (search) {
-      queryBuilder.andWhere(
-        'tenant.name ILIKE :search',
-        { search: `%${search}%` }
-      );
+      where.name = { contains: search, mode: 'insensitive' };
     }
 
-    const [tenants, total] = await queryBuilder
-      .skip((page - 1) * pageSize)
-      .take(pageSize)
-      .orderBy('tenant.createdAt', 'DESC')
-      .getManyAndCount();
+    const [tenants, total] = await Promise.all([
+      prisma.tenant.findMany({
+        where,
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        orderBy: { createdAt: 'desc' }
+      }),
+      prisma.tenant.count({ where })
+    ]);
 
     return {
       tenants: tenants.map(tenant => SafeTenantSchema.parse(tenant)),
@@ -35,8 +36,8 @@ export default class TenantService {
   }
 
   static async getById(tenantId: string): Promise<SafeTenant> {
-    const tenant = await this.repository.findOne({
-      where: { tenantId }
+    const tenant = await prisma.tenant.findFirst({
+      where: { tenantId, deletedAt: null }
     });
 
     if (!tenant) {
@@ -47,43 +48,46 @@ export default class TenantService {
   }
 
   static async create(data: CreateTenantInput): Promise<SafeTenant> {
-
-    const tenant = this.repository.create({
-      ...data,
-      tenantStatus: 'ACTIVE'
+    const tenant = await prisma.tenant.create({
+      data: {
+        ...data,
+        tenantStatus: 'ACTIVE'
+      }
     });
 
-    const saved = await this.repository.save(tenant);
-    return SafeTenantSchema.parse(saved);
+    return SafeTenantSchema.parse(tenant);
   }
 
   static async update(tenantId: string, data: UpdateTenantInput): Promise<SafeTenant> {
-    const tenant = await this.repository.findOne({
-      where: { tenantId }
+    const tenant = await prisma.tenant.findFirst({
+      where: { tenantId, deletedAt: null }
     });
 
     if (!tenant) {
       throw new Error(TenantMessages.TENANT_NOT_FOUND);
     }
 
-    await this.repository.update({ tenantId }, data);
-
-    const updated = await this.repository.findOne({
-      where: { tenantId }
+    const updated = await prisma.tenant.update({
+      where: { tenantId },
+      data
     });
 
     return SafeTenantSchema.parse(updated);
   }
 
   static async delete(tenantId: string): Promise<void> {
-    const tenant = await this.repository.findOne({
-      where: { tenantId }
+    const tenant = await prisma.tenant.findFirst({
+      where: { tenantId, deletedAt: null }
     });
 
     if (!tenant) {
       throw new Error(TenantMessages.TENANT_NOT_FOUND);
     }
 
-    await this.repository.softDelete({ tenantId });
+    // Soft delete
+    await prisma.tenant.update({
+      where: { tenantId },
+      data: { deletedAt: new Date() }
+    });
   }
 }

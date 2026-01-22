@@ -1,15 +1,12 @@
-import AppDataSource from "@/libs/typeorm";
-import { UserSocialAccountEntity } from "./user_social_account.entity";
+import { prisma } from "@/libs/prisma";
 import { SafeUserSocialAccount, SafeUserSocialAccountSchema } from "./user_social_account.types";
 import UserSocialAccountMessages from "./user_social_account.messages";
 import type { SocialAccountProvider } from "./user_social_account.enums";
 
 export default class UserSocialAccountService {
 
-  private static readonly repository = AppDataSource.getRepository(UserSocialAccountEntity);
-
   static async getByUserId(userId: string): Promise<SafeUserSocialAccount[]> {
-    const accounts = await this.repository.find({
+    const accounts = await prisma.userSocialAccount.findMany({
       where: { userId }
     });
 
@@ -20,8 +17,8 @@ export default class UserSocialAccountService {
     provider: SocialAccountProvider,
     providerId: string
   ): Promise<SafeUserSocialAccount | null> {
-    const account = await this.repository.findOne({
-      where: { provider, providerId }
+    const account = await prisma.userSocialAccount.findUnique({
+      where: { provider_providerId: { provider, providerId } }
     });
 
     return account ? SafeUserSocialAccountSchema.parse(account) : null;
@@ -35,8 +32,8 @@ export default class UserSocialAccountService {
     refreshToken?: string,
     profilePicture?: string
   ): Promise<SafeUserSocialAccount> {
-    const existing = await this.repository.findOne({
-      where: { provider, providerId }
+    const existing = await prisma.userSocialAccount.findUnique({
+      where: { provider_providerId: { provider, providerId } }
     });
 
     if (existing && existing.userId !== userId) {
@@ -44,29 +41,26 @@ export default class UserSocialAccountService {
     }
 
     if (existing) {
-      await this.repository.update(
-        { userSocialAccountId: existing.userSocialAccountId },
-        { accessToken, refreshToken, profilePicture }
-      );
-
-      const updated = await this.repository.findOne({
-        where: { userSocialAccountId: existing.userSocialAccountId }
+      const updated = await prisma.userSocialAccount.update({
+        where: { userSocialAccountId: existing.userSocialAccountId },
+        data: { accessToken, refreshToken, profilePicture }
       });
 
       return SafeUserSocialAccountSchema.parse(updated);
     }
 
-    const account = this.repository.create({
-      userId,
-      provider,
-      providerId,
-      accessToken,
-      refreshToken,
-      profilePicture
+    const account = await prisma.userSocialAccount.create({
+      data: {
+        userId,
+        provider,
+        providerId,
+        accessToken,
+        refreshToken,
+        profilePicture
+      }
     });
 
-    const saved = await this.repository.save(account);
-    return SafeUserSocialAccountSchema.parse(saved);
+    return SafeUserSocialAccountSchema.parse(account);
   }
 
   static async updateTokens(
@@ -74,14 +68,14 @@ export default class UserSocialAccountService {
     accessToken: string,
     refreshToken?: string
   ): Promise<void> {
-    await this.repository.update(
-      { userSocialAccountId },
-      { accessToken, refreshToken }
-    );
+    await prisma.userSocialAccount.update({
+      where: { userSocialAccountId },
+      data: { accessToken, refreshToken }
+    });
   }
 
   static async unlink(userId: string, provider: SocialAccountProvider): Promise<void> {
-    const account = await this.repository.findOne({
+    const account = await prisma.userSocialAccount.findFirst({
       where: { userId, provider }
     });
 
@@ -89,15 +83,17 @@ export default class UserSocialAccountService {
       throw new Error(UserSocialAccountMessages.ACCOUNT_NOT_FOUND);
     }
 
-    await this.repository.delete({ userSocialAccountId: account.userSocialAccountId });
+    await prisma.userSocialAccount.delete({
+      where: { userSocialAccountId: account.userSocialAccountId }
+    });
   }
 
   static async findUserIdByProvider(
     provider: SocialAccountProvider,
     providerId: string
   ): Promise<string | null> {
-    const account = await this.repository.findOne({
-      where: { provider, providerId }
+    const account = await prisma.userSocialAccount.findUnique({
+      where: { provider_providerId: { provider, providerId } }
     });
 
     return account?.userId ?? null;

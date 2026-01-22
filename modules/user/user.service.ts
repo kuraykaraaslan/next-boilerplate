@@ -1,5 +1,5 @@
-import AppDataSource from '@/libs/typeorm';
-import { UserEntity } from './user.entity';
+import { prisma } from "@/libs/prisma";
+import type { Prisma } from '@/prisma/client';
 import { User, SafeUser, UpdateUser, SafeUserSchema, UserSchema } from './user.types';
 import type { UserRole, UserStatus } from './user.enums';
 import bcrypt from "bcrypt";
@@ -7,21 +7,18 @@ import UserMessages from './user.messages';
 
 export default class UserService {
 
-  private static readonly repository = AppDataSource.getRepository(UserEntity);
-
   static async create({ email, password, phone, userRole }: {
     email: string,
     password: string,
     phone?: string,
     userRole?: UserRole
   }): Promise<SafeUser> {
-    
 
     if (!email) {
       throw new Error(UserMessages.INVALID_EMAIL);
     }
 
-    const existingUser = await this.repository.findOne({
+    const existingUser = await prisma.user.findUnique({
       where: { email: email.toLowerCase() }
     });
 
@@ -35,16 +32,17 @@ export default class UserService {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = this.repository.create({
-      email: email.toLowerCase(),
-      password: hashedPassword,
-      phone,
-      userRole: userRole ?? 'USER',
-      userStatus: 'ACTIVE'
+    const user = await prisma.user.create({
+      data: {
+        email: email.toLowerCase(),
+        password: hashedPassword,
+        phone,
+        userRole: userRole ?? 'USER',
+        userStatus: 'ACTIVE'
+      }
     });
 
-    const savedUser = await this.repository.save(user);
-    return SafeUserSchema.parse(savedUser);
+    return SafeUserSchema.parse(user);
   }
 
   static async getAll({ page, pageSize, search, userId }: {
@@ -53,25 +51,27 @@ export default class UserService {
     search?: string,
     userId?: string
   }): Promise<{ users: SafeUser[], total: number }> {
-    
 
-    const queryBuilder = this.repository.createQueryBuilder('user');
+    const where: Prisma.UserWhereInput = {};
 
     if (userId) {
-      queryBuilder.andWhere('user.userId = :userId', { userId });
+      where.userId = userId;
     }
 
     if (search) {
-      queryBuilder.andWhere(
-        '(user.email ILIKE :search OR user.name ILIKE :search)',
-        { search: `%${search}%` }
-      );
+      where.OR = [
+        { email: { contains: search, mode: 'insensitive' } }
+      ];
     }
 
-    const [users, total] = await queryBuilder
-      .skip(page * pageSize)
-      .take(pageSize)
-      .getManyAndCount();
+    const [users, total] = await Promise.all([
+      prisma.user.findMany({
+        where,
+        skip: page * pageSize,
+        take: pageSize
+      }),
+      prisma.user.count({ where })
+    ]);
 
     return {
       users: users.map((user) => SafeUserSchema.parse(user)),
@@ -80,9 +80,8 @@ export default class UserService {
   }
 
   static async getById(userId: string): Promise<SafeUser> {
-    
 
-    const user = await this.repository.findOne({
+    const user = await prisma.user.findUnique({
       where: { userId }
     });
 
@@ -94,13 +93,12 @@ export default class UserService {
   }
 
   static async update({ userId, data }: { userId: string, data: UpdateUser }): Promise<SafeUser> {
-    
 
     if (!userId) {
       throw new Error(UserMessages.USER_NOT_FOUND);
     }
 
-    const user = await this.repository.findOne({
+    const user = await prisma.user.findUnique({
       where: { userId }
     });
 
@@ -108,24 +106,22 @@ export default class UserService {
       throw new Error(UserMessages.USER_NOT_FOUND);
     }
 
-    await this.repository.update({ userId }, {
-      email: data.email,
-      phone: data.phone,
-      userRole: data.userRole as UserRole | undefined,
-      userStatus: data.userStatus as UserStatus | undefined
-    });
-
-    const updatedUser = await this.repository.findOne({
-      where: { userId }
+    const updatedUser = await prisma.user.update({
+      where: { userId },
+      data: {
+        email: data.email,
+        phone: data.phone,
+        userRole: data.userRole as UserRole | undefined,
+        userStatus: data.userStatus as UserStatus | undefined
+      }
     });
 
     return SafeUserSchema.parse(updatedUser);
   }
 
   static async delete(userId: string): Promise<void> {
-    
 
-    const user = await this.repository.findOne({
+    const user = await prisma.user.findUnique({
       where: { userId }
     });
 
@@ -133,13 +129,12 @@ export default class UserService {
       throw new Error(UserMessages.USER_NOT_FOUND);
     }
 
-    await this.repository.delete({ userId });
+    await prisma.user.delete({ where: { userId } });
   }
 
   static async getByEmail(email: string): Promise<User | null> {
-    
 
-    const user = await this.repository.findOne({
+    const user = await prisma.user.findUnique({
       where: { email: email.toLowerCase() }
     });
 

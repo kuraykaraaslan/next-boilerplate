@@ -1,0 +1,22 @@
+model User {
+  userId     String     @id @default(uuid()) @db.Uuid
+  email      String     @unique @db.VarChar
+  phone      String?    @db.VarChar
+  password   String     @db.VarChar
+  userRole   UserRole   @default(USER)
+  userStatus UserStatus @default(ACTIVE)
+  createdAt  DateTime   @default(now()) @db.Timestamp
+  updatedAt  DateTime   @updatedAt @db.Timestamp
+  deletedAt  DateTime?  @db.Timestamp
+
+  profile        UserProfile?
+  security       UserSecurity?
+  preferences    UserPreferences?
+  socialAccounts UserSocialAccount[]
+  sessions       UserSession[]
+  tenantMembers  TenantMember[]
+
+  @@index([email])
+  @@index([phone])
+  @@map("users")
+}
