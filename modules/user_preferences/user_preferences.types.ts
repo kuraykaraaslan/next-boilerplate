@@ -15,8 +15,8 @@ export const UserPreferencesSchema = z.object({
   pushNotifications: z.boolean().default(true),
   newsletter: z.boolean().default(true),
   timezone: z.string().default('UTC'),
-  dateFormat: DateFormatEnum.default('DD/MM/YYYY'),
-  timeFormat: TimeFormatEnum.default('24H'),
+  dateFormat: DateFormatEnum.default('YYYY_MM_DD'),
+  timeFormat: TimeFormatEnum.default('H24'),
   firstDayOfWeek: FirstDayOfWeekEnum.default('MON')
 });
 
@@ -28,8 +28,8 @@ export const UserPreferencesDefault: UserPreferences = {
   pushNotifications: true,
   newsletter: true,
   timezone: 'UTC',
-  dateFormat: 'DD/MM/YYYY',
-  timeFormat: '24H',
+  dateFormat: 'YYYY_MM_DD',
+  timeFormat: 'H24',
   firstDayOfWeek: 'MON'
 };
 

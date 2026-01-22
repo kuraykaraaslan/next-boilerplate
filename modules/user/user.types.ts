@@ -26,7 +26,6 @@ export const SafeUserSchema = UserSchema.omit({
 export const UpdateUserSchema = z.object({
   email: z.string().email().nullable(),
   phone: z.string().nullable(),
-  lastName: z.string().nullable(),
   userRole: UserRoleEnum.nullable(),
   userStatus: UserStatusEnum.nullable()
 });

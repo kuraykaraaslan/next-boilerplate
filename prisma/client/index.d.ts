@@ -159,7 +159,8 @@ export type Language = (typeof Language)[keyof typeof Language]
 
 export const DateFormat: {
   DD_MM_YYYY: 'DD_MM_YYYY',
-  MM_DD_YYYY: 'MM_DD_YYYY'
+  MM_DD_YYYY: 'MM_DD_YYYY',
+  YYYY_MM_DD: 'YYYY_MM_DD'
 };
 
 export type DateFormat = (typeof DateFormat)[keyof typeof DateFormat]

@@ -69,6 +69,7 @@ enum Language {
 enum DateFormat {
   DD_MM_YYYY @map("DD/MM/YYYY")
   MM_DD_YYYY @map("MM/DD/YYYY")
+  YYYY_MM_DD @map("YYYY-MM-DD")
 }
 
 enum TimeFormat {
@@ -209,7 +210,7 @@ model UserPreferences {
   pushNotifications  Boolean        @default(true)
   newsletter         Boolean        @default(true)
   timezone           String         @default("UTC") @db.VarChar
-  dateFormat         DateFormat     @default(DD_MM_YYYY)
+  dateFormat         DateFormat     @default(YYYY_MM_DD)
   timeFormat         TimeFormat     @default(H24)
   firstDayOfWeek     FirstDayOfWeek @default(MON)
   createdAt          DateTime       @default(now()) @db.Timestamp

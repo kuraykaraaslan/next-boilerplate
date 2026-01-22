@@ -58,12 +58,24 @@ export default class TenantMemberService {
     return SafeTenantMemberSchema.parse(member);
   }
 
-  static async getByTenantAndUser({ tenantMemberId, tenantId, userId }: GetTenantMemberInput): Promise<SafeTenantMember | null> {
+  static async getByTenantAndUser({ tenantMemberId,tenantId, userId }: GetTenantMemberInput): Promise<SafeTenantMember | null> {
     if (tenantMemberId) {
       const member = await prisma.tenantMember.findFirst({
         where: { tenantMemberId, deletedAt: null }
       });
+
+      if (!member) {
+        return null;
+      }
+
+      if (member.tenantId !== tenantId || member.userId !== userId) {
+        return null;
+      }
       return member ? SafeTenantMemberSchema.parse(member) : null;
+    }
+
+    if (!tenantId || !userId) {
+      return null;
     }
 
     const member = await prisma.tenantMember.findFirst({
@@ -108,9 +120,13 @@ export default class TenantMemberService {
       }
     }
 
+    const updateData = Object.fromEntries(
+      Object.entries(data).filter(([_, value]) => value !== null)
+    ) as Prisma.TenantMemberUpdateInput;
+
     const updated = await prisma.tenantMember.update({
       where: { tenantMemberId },
-      data
+      data: updateData
     });
 
     return SafeTenantMemberSchema.parse(updated);

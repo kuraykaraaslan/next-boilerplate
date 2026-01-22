@@ -327,7 +327,8 @@ exports.Language = exports.$Enums.Language = {
 
 exports.DateFormat = exports.$Enums.DateFormat = {
   DD_MM_YYYY: 'DD_MM_YYYY',
-  MM_DD_YYYY: 'MM_DD_YYYY'
+  MM_DD_YYYY: 'MM_DD_YYYY',
+  YYYY_MM_DD: 'YYYY_MM_DD'
 };
 
 exports.TimeFormat = exports.$Enums.TimeFormat = {

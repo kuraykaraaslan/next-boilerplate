@@ -69,6 +69,7 @@ enum Language {
 enum DateFormat {
   DD_MM_YYYY @map("DD/MM/YYYY")
   MM_DD_YYYY @map("MM/DD/YYYY")
+  YYYY_MM_DD @map("YYYY-MM-DD")
 }
 
 enum TimeFormat {

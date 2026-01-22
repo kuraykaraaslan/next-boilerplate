@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
         const user = await UserService.create({
             email,
             password,
-            phone,
+            phone: phone === null ? undefined : phone,
             userRole
         });
 
