@@ -176,7 +176,7 @@ export default class UserSessionService {
       deviceFingerprint,
     });
 
-    const otpVerifyNeeded = !otpIgnore && userSecurity.otpMethods.length > 0;
+    const otpVerifyNeeded = !otpIgnore && (userSecurity?.otpMethods?.length ?? 0) > 0;
 
     const session = await prisma.userSession.create({
       data: {

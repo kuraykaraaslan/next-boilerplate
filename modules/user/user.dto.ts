@@ -8,24 +8,24 @@ import { UserRoleEnum, UserStatusEnum } from './user.enums';
 export const CreateUserRequestSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8, "Password must be at least 8 characters"),
-  name: z.string().optional(),
-  phone: z.string().optional(),
-  userRole: UserRoleEnum.optional()
+  name: z.string().nullable(),
+  phone: z.string().nullable(),
+  userRole: UserRoleEnum.nullable()
 });
 
 export const UpdateUserRequestSchema = z.object({
-  email: z.string().email().optional(),
-  phone: z.string().optional(),
-  name: z.string().optional(),
-  userRole: UserRoleEnum.optional(),
-  userStatus: UserStatusEnum.optional()
+  email: z.string().email().nullable(),
+  phone: z.string().nullable(),
+  name: z.string().nullable(),
+  userRole: UserRoleEnum.nullable(),
+  userStatus: UserStatusEnum.nullable()
 });
 
 export const GetAllUsersQuerySchema = z.object({
   page: z.number().int().nonnegative().default(0),
   pageSize: z.number().int().positive().max(100).default(10),
-  search: z.string().optional(),
-  userId: z.string().optional()
+  search: z.string().nullable(),
+  userId: z.string().nullable()
 });
 
 export const GetUserByIdSchema = z.object({

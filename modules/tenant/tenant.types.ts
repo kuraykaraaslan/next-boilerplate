@@ -4,11 +4,11 @@ import { TenantStatusEnum } from './tenant.enums';
 export const TenantSchema = z.object({
   tenantId: z.string().uuid(),
   name: z.string(),
-  description: z.string().optional(),
+  description: z.string().nullable(),
   tenantStatus: TenantStatusEnum.default('ACTIVE'),
-  createdAt: z.date().optional(),
-  updatedAt: z.date().optional(),
-  deletedAt: z.date().optional()
+  createdAt: z.date().nullable(),
+  updatedAt: z.date().nullable(),
+  deletedAt: z.date().nullable()
 });
 
 export const SafeTenantSchema = TenantSchema.omit({

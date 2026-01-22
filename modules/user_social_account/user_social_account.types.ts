@@ -6,11 +6,11 @@ export const UserSocialAccountSchema = z.object({
   userId: z.string().uuid(),
   provider: SocialAccountProviderEnum,
   providerId: z.string(),
-  accessToken: z.string().optional(),
-  refreshToken: z.string().optional(),
-  profilePicture: z.string().optional(),
-  createdAt: z.date().optional(),
-  updatedAt: z.date().optional()
+  accessToken: z.string().nullable(),
+  refreshToken: z.string().nullable(),
+  profilePicture: z.string().nullable(),
+  createdAt: z.date().nullable(),
+  updatedAt: z.date().nullable()
 });
 
 export const SafeUserSocialAccountSchema = UserSocialAccountSchema.omit({

@@ -5,9 +5,9 @@ export const GeoLocationSchema = z.object({
     city: z.string().nullable(),
     state: z.string().nullable(),
     country: z.string().nullable(),
-    countryCode: z.string().nullable().optional(),
-    latitude: z.number().nullable().optional(),
-    longitude: z.number().nullable().optional(),
+    countryCode: z.string().nullable().nullable(),
+    latitude: z.number().nullable().nullable(),
+    longitude: z.number().nullable().nullable(),
 });
 
 export const DeviceInfoSchema = z.object({

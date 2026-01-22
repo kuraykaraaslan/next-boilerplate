@@ -2,14 +2,14 @@ import { z } from 'zod';
 import { OTPMethodEnum } from './user_security.enums';
 
 export const UserSecuritySchema = z.object({
-  otpMethods: z.array(OTPMethodEnum).default([]),
-  otpSecret: z.string().optional(),
-  otpBackupCodes: z.array(z.string()).default([]),
-  lastLoginAt: z.date().optional(),
-  lastLoginIp: z.string().optional(),
-  lastLoginDevice: z.string().optional(),
-  failedLoginAttempts: z.number().default(0),
-  lockedUntil: z.date().optional()
+  otpMethods: z.array(OTPMethodEnum).nullish().transform(val => val ?? []),
+  otpSecret: z.string().nullable(),
+  otpBackupCodes: z.array(z.string()).nullish().transform(val => val ?? []),
+  lastLoginAt: z.date().nullable(),
+  lastLoginIp: z.string().nullable(),
+  lastLoginDevice: z.string().nullable(),
+  failedLoginAttempts: z.number().nullish().transform(val => val ?? 0),
+  lockedUntil: z.date().nullable()
 });
 
 export const SafeUserSecuritySchema = UserSecuritySchema.omit({
@@ -19,11 +19,11 @@ export const SafeUserSecuritySchema = UserSecuritySchema.omit({
 
 export const SafeUserSecurityDefault: z.infer<typeof SafeUserSecuritySchema> = {
   otpMethods: [],
-  lastLoginAt: undefined,
-  lastLoginIp: undefined,
-  lastLoginDevice: undefined,
+  lastLoginAt: null,
+  lastLoginIp: null,
+  lastLoginDevice: null,
   failedLoginAttempts: 0,
-  lockedUntil: undefined
+  lockedUntil: null
 };
 
 export type UserSecurity = z.infer<typeof UserSecuritySchema>;

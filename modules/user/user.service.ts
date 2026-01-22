@@ -109,8 +109,8 @@ export default class UserService {
     const updatedUser = await prisma.user.update({
       where: { userId },
       data: {
-        email: data.email,
-        phone: data.phone,
+        email: data.email || undefined,
+        phone: data.phone || undefined,
         userRole: data.userRole as UserRole | undefined,
         userStatus: data.userStatus as UserStatus | undefined
       }

@@ -3,19 +3,19 @@ import { TenantStatusEnum } from './tenant.enums';
 
 export const CreateTenantDTO = z.object({
   name: z.string().min(1).max(100),
-  description: z.string().optional(),
+  description: z.string().nullable(),
   region: z.string().default('TR')
 });
 
 export const UpdateTenantDTO = z.object({
-  name: z.string().min(1).max(100).optional(),
-  description: z.string().optional(),
-  region: z.string().optional(),
-  tenantStatus: TenantStatusEnum.optional()
+  name: z.string().min(1).max(100).nullable(),
+  description: z.string().nullable(),
+  region: z.string().nullable(),
+  tenantStatus: TenantStatusEnum.nullable()
 });
 
 export const GetTenantDTO = z.object({
-  tenantId: z.string().uuid().optional()
+  tenantId: z.string().uuid().nullable()
 }).refine((data) => data.tenantId, {
   message: "tenantId must be provided"
 });
@@ -23,8 +23,8 @@ export const GetTenantDTO = z.object({
 export const GetTenantsDTO = z.object({
   page: z.number().default(1),
   pageSize: z.number().default(10),
-  search: z.string().optional(),
-  tenantId: z.string().uuid().optional()
+  search: z.string().nullable(),
+  tenantId: z.string().uuid().nullable()
 });
 
 export type CreateTenantInput = z.infer<typeof CreateTenantDTO>;

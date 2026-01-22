@@ -7,10 +7,10 @@ export const TenantDomainSchema = z.object({
   domain: z.string(),
   isPrimary: z.boolean().default(false),
   domainStatus: DomainStatusEnum.default('PENDING'),
-  verificationToken: z.string().optional(),
-  verifiedAt: z.date().optional(),
-  createdAt: z.date().optional(),
-  updatedAt: z.date().optional()
+  verificationToken: z.string().nullable(),
+  verifiedAt: z.date().nullable(),
+  createdAt: z.date().nullable(),
+  updatedAt: z.date().nullable()
 });
 
 export const SafeTenantDomainSchema = TenantDomainSchema.omit({

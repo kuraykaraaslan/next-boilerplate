@@ -7,7 +7,7 @@ import { SSOProviderEnum } from './auth_sso.enums';
 
 export const GenerateAuthUrlDTO = z.object({
   provider: SSOProviderEnum,
-  state: z.string().optional()
+  state: z.string().nullable()
 });
 
 export const HandleCallbackDTO = z.object({

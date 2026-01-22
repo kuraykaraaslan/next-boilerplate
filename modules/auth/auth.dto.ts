@@ -13,7 +13,7 @@ export const LoginDTO = z.object({
 export const RegisterDTO = z.object({
   email: z.string().email(),
   password: z.string().min(8, "Password must be at least 8 characters"),
-  phone: z.string().nullable().optional()
+  phone: z.string().nullable().nullable()
 });
 
 export const LogoutDTO = z.object({
@@ -88,7 +88,7 @@ export const TOTPDisableDTO = z.object({
 });
 
 export const TOTPBackupCodesDTO = z.object({
-  count: z.number().int().min(1).max(20).optional().default(4)
+  count: z.number().int().min(1).max(20).nullable().default(4)
 });
 
 export const TOTPConsumeBackupCodeDTO = z.object({

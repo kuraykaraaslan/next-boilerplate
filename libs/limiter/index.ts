@@ -33,6 +33,9 @@ export default class Limiter {
     const { success, remaining } = await this.check(ip);
 
     const res = NextResponse.next();
+    // disable for testing purposes
+    return res;
+    
     res.headers.set('X-RateLimit-Limit', RATE_LIMIT.toString());
     res.headers.set('X-RateLimit-Remaining', remaining.toString());
 

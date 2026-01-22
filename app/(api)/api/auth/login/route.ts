@@ -14,26 +14,38 @@ import UserSecurityService from "@/modules/user_security/user_security.service";
 export async function POST(request: NextRequest) {
     try {
 
+        console.log("[LOGIN] Checking rate limit");
+
         await Limiter.useRateLimit(request);
 
+        console.log("[LOGIN] Parsing login data");
 
         const parsedData = LoginDTO.safeParse(await request.json());
 
+        console.log("[LOGIN] Received login request");
+
         if (!parsedData.success) {
+            console.error("[LOGIN] Invalid login data:", parsedData.error.issues);
             return NextResponse.json({
-                error: parsedData.error.issues.map((err: any) => err.message).join(", ")
+                error: parsedData.error.issues
             }, { status: 400 });
         }
 
         const { email, password } = parsedData.data;
 
+        console.log(`[LOGIN] Attempting login for email: ${email}`);
+
         const { user } = await AuthService.login({ email, password });
+
+        console.log(`[LOGIN] User authenticated: ${user.userId}`);
 
         if (!user) {
             throw new Error(AuthMessages.INVALID_CREDENTIALS);
         }
 
         const userSecurity = await UserSecurityService.getSafeByUserId(user.userId);
+        
+        console.log('[LOGIN] UserSecurity data:', JSON.stringify(userSecurity, null, 2));
 
         const { userSession, rawAccessToken, rawRefreshToken } = await UserSessionNextService.createSession({
             user,

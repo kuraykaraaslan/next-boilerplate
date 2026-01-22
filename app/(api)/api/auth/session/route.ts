@@ -9,6 +9,7 @@ export async function GET(request: NextRequest) {
     try {
         await Limiter.checkRateLimit(request);
 
+        console.log("[SESSION GET] Authenticating user from request");  
         await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "USER" });
 
         return NextResponse.json({ 
@@ -17,6 +18,7 @@ export async function GET(request: NextRequest) {
         }, { status: 200 });
 
     } catch (error: any) {
+        console.error("[SESSION GET ERROR]", error);
         return NextResponse.json(
             { message: error.message },
             { status: 500 }

@@ -1,5 +1,5 @@
 // Utils
-import { SafeUserSession } from '@/modules/user_session/user_session.types';
+import { SafeUserSession, SafeUserSessionSchema } from '@/modules/user_session/user_session.types';
 import { NextRequest } from 'next/server';
 import { SafeUser, SafeUserSchema } from '@/modules/user/user.types';
 import crypto from "crypto";
@@ -10,12 +10,12 @@ import UserSessionService from './user_session.service';
 import AppDataSource from '@/libs/typeorm';
 import { UserEntity } from '../user/user.entity';
 import { UserSessionEntity } from './user_session.entity';
+import { prisma } from "@/libs/prisma";
 
 const SESSION_CACHE_TTL = parseInt(process.env.SESSION_CACHE_TTL || `${60 * 30}`); // 30 min default
 
 export default class UserSessionNextService {
 
-  static readonly repository = AppDataSource.getRepository(UserSessionEntity);
 
   /**
    * Generates a device fingerprint based on the request headers.
@@ -103,11 +103,26 @@ export default class UserSessionNextService {
 
     const cached = await redis.get(cacheKey);
     if (cached) {
-      const { user, userSession } = JSON.parse(cached);
-      if (!otpVerifyBypass && userSession.otpVerifyNeeded) {
-        throw new Error(UserSessionMessages.OTP_REQUIRED);
+      try {
+        const cachedData = JSON.parse(cached);
+        // Validate cached data structure before parsing
+        if (cachedData && cachedData.user && cachedData.userSession) {
+          const user = SafeUserSchema.parse(cachedData.user);
+          const userSession = SafeUserSessionSchema.parse(cachedData.userSession);
+          if (!otpVerifyBypass && userSession.otpVerifyNeeded) {
+            throw new Error(UserSessionMessages.OTP_REQUIRED);
+          }
+          return { user, userSession };
+        } else {
+          // Invalid cache structure, delete it and fall through to DB lookup
+          console.warn('[UserSessionNextService] Invalid cache structure, deleting:', cacheKey);
+          await redis.del(cacheKey);
+        }
+      } catch (error) {
+        // Cache parsing failed, delete it and fall through to DB lookup
+        console.error('[UserSessionNextService] Cache parsing failed:', error);
+        await redis.del(cacheKey);
       }
-      return { user, userSession };
     }
 
     // Get session from service
@@ -118,7 +133,7 @@ export default class UserSessionNextService {
     });
 
     // Get user from database
-    const user = await this.repository.findOne({ where: { userId: userSession.userId } });
+    const user = await prisma.user.findUnique({ where: { userId: userSession.userId } });
     
     if (!user) {
       throw new Error(UserSessionMessages.USER_NOT_FOUND);
@@ -179,6 +194,10 @@ export default class UserSessionNextService {
       const accessToken = request.cookies.get("accessToken")?.value;
       const refreshToken = request.cookies.get("refreshToken")?.value;
 
+      console.log("[AUTHENTICATE] Access Token:", accessToken);
+      console.log("[AUTHENTICATE] Refresh Token:", refreshToken);
+      console.log("[AUTHENTICATE] Required User Role:", requiredUserRole);
+
       if (!accessToken || !refreshToken) {
         throw new Error(UserSessionMessages.USER_NOT_AUTHENTICATED);
       }
@@ -215,7 +234,9 @@ export default class UserSessionNextService {
       request.user = user;
       return requiredUserRole === "GUEST" ? (null as any) : ({ user, userSession } as any);
     } catch (error: any) {
+      console.error("[AUTHENTICATE ERROR]", error);
       if (requiredUserRole !== "GUEST") {
+
         throw new Error(UserSessionMessages.USER_NOT_AUTHENTICATED);
       }
       // @ts-ignore

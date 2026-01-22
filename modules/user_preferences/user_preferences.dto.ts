@@ -8,16 +8,16 @@ import {
 } from './user_preferences.enums';
 
 export const UpdatePreferencesRequestSchema = z.object({
-  theme: ThemeEnum.optional(),
-  language: LanguageEnum.optional(),
-  emailNotifications: z.boolean().optional(),
-  smsNotifications: z.boolean().optional(),
-  pushNotifications: z.boolean().optional(),
-  newsletter: z.boolean().optional(),
-  timezone: z.string().optional(),
-  dateFormat: DateFormatEnum.optional(),
-  timeFormat: TimeFormatEnum.optional(),
-  firstDayOfWeek: FirstDayOfWeekEnum.optional()
+  theme: ThemeEnum.nullable(),
+  language: LanguageEnum.nullable(),
+  emailNotifications: z.boolean().nullable(),
+  smsNotifications: z.boolean().nullable(),
+  pushNotifications: z.boolean().nullable(),
+  newsletter: z.boolean().nullable(),
+  timezone: z.string().nullable(),
+  dateFormat: DateFormatEnum.nullable(),
+  timeFormat: TimeFormatEnum.nullable(),
+  firstDayOfWeek: FirstDayOfWeekEnum.nullable()
 });
 
 export type UpdatePreferencesRequest = z.infer<typeof UpdatePreferencesRequestSchema>;

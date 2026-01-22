@@ -8,8 +8,8 @@ export const CreateTenantDomainDTO = z.object({
 });
 
 export const UpdateTenantDomainDTO = z.object({
-  isPrimary: z.boolean().optional(),
-  domainStatus: DomainStatusEnum.optional()
+  isPrimary: z.boolean().nullable(),
+  domainStatus: DomainStatusEnum.nullable()
 });
 
 export const GetTenantDomainsDTO = z.object({

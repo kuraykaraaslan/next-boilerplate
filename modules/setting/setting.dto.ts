@@ -19,8 +19,8 @@ export const GetSettingsByKeysDTO = z.object({
 export const CreateSettingDTO = z.object({
   key: z.string().min(1),
   value: z.string(),
-  group: z.string().optional(),
-  type: z.string().optional()
+  group: z.string().nullable(),
+  type: z.string().nullable()
 });
 
 export const UpdateSettingDTO = z.object({

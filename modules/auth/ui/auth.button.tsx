@@ -37,7 +37,7 @@ const NavbarAuthButton = () => {
 
     useEffect(() => {
         if (user) {
-            axiosInstance.get('/api/user/profile').then(res => {
+            axiosInstance.get('/api/auth/me/profile').then(res => {
                 setUserProfile({ profilePicture: res.data.profilePicture });
             }).catch(err => {
                 console.error('Failed to fetch user profile:', err);

@@ -3,15 +3,15 @@ import { SSOProviderEnum } from './auth_sso.enums';
 
 export const SSOProfileSchema = z.object({
   sub: z.string(),
-  email: z.string().email().optional(),
-  name: z.string().optional(),
-  picture: z.string().optional(),
+  email: z.string().email().nullable(),
+  name: z.string().nullable(),
+  picture: z.string().nullable(),
   provider: SSOProviderEnum
 });
 
 export const SSOTokensSchema = z.object({
   accessToken: z.string(),
-  refreshToken: z.string().optional()
+  refreshToken: z.string().nullable()
 });
 
 export const SSOCallbackResultSchema = z.object({

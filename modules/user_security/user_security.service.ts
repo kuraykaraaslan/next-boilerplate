@@ -20,11 +20,15 @@ export default class UserSecurityService {
       where: { userId }
     });
 
+    console.log('[UserSecurityService] Raw security data from DB:', JSON.stringify(security, null, 2));
+
     if (!security) {
       return await this.createDefaultUserSecurity(userId);
     }
 
-    return SafeUserSecuritySchema.parse(security);
+    const parsed = SafeUserSecuritySchema.parse(security);
+    console.log('[UserSecurityService] Parsed safe security:', JSON.stringify(parsed, null, 2));
+    return parsed;
   }
 
   static async createDefaultUserSecurity(userId: string): Promise<UserSecurity> {

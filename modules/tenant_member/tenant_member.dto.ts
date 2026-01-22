@@ -9,14 +9,14 @@ export const CreateTenantMemberDTO = z.object({
 });
 
 export const UpdateTenantMemberDTO = z.object({
-  memberRole: TenantMemberRoleEnum.optional(),
-  memberStatus: TenantMemberStatusEnum.optional()
+  memberRole: TenantMemberRoleEnum.nullable(),
+  memberStatus: TenantMemberStatusEnum.nullable()
 });
 
 export const GetTenantMemberDTO = z.object({
-  tenantMemberId: z.string().uuid().optional(),
-  tenantId: z.string().uuid().optional(),
-  userId: z.string().uuid().optional()
+  tenantMemberId: z.string().uuid().nullable(),
+  tenantId: z.string().uuid().nullable(),
+  userId: z.string().uuid().nullable()
 }).refine((data) => {
   return data.tenantMemberId || (data.tenantId && data.userId);
 }, {
@@ -27,9 +27,9 @@ export const GetTenantMembersDTO = z.object({
   tenantId: z.string().uuid(),
   page: z.number().default(1),
   pageSize: z.number().default(10),
-  search: z.string().optional(),
-  memberRole: TenantMemberRoleEnum.optional(),
-  memberStatus: TenantMemberStatusEnum.optional()
+  search: z.string().nullable(),
+  memberRole: TenantMemberRoleEnum.nullable(),
+  memberStatus: TenantMemberStatusEnum.nullable()
 });
 
 export type CreateTenantMemberInput = z.infer<typeof CreateTenantMemberDTO>;

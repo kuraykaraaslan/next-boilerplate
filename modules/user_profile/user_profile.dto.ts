@@ -9,11 +9,11 @@ export const UpdateSocialLinkItemSchema = z.object({
 });
 
 export const UpdateProfileRequestSchema = z.object({
-  name: z.string().nullable().optional(),
-  biography: z.string().nullable().optional(),
-  profilePicture: z.string().nullable().optional(),
-  headerImage: z.string().nullable().optional(),
-  socialLinks: z.array(UpdateSocialLinkItemSchema).optional()
+  name: z.string().nullable().nullable(),
+  biography: z.string().nullable().nullable(),
+  profilePicture: z.string().nullable().nullable(),
+  headerImage: z.string().nullable().nullable(),
+  socialLinks: z.array(UpdateSocialLinkItemSchema).nullable()
 });
 
 export type UpdateProfileRequest = z.infer<typeof UpdateProfileRequestSchema>;
