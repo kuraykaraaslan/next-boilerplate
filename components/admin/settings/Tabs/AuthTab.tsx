@@ -1,8 +1,8 @@
 'use client';
 
-import DynamicText from '@/components/admin/UI/Forms/DynamicText';
-import DynamicToggle from '@/components/admin/UI/Forms/DynamicToggle';
-import { SettingsTabProps } from '@/types/common/SettingTypes';
+import DynamicText from '@/components/common/forms/DynamicText';
+import DynamicToggle from '@/components/common/forms/DynamicToggle';
+import { SettingsTabProps } from '@/modules/setting/setting.types';
 
 export default function AuthTab({ settings, setSettings, loading, saving }: SettingsTabProps) {
     const isDisabled = loading || saving;

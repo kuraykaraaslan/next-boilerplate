@@ -27,7 +27,7 @@ export const UpdateUserSchema = z.object({
   email: z.string().email().nullable(),
   phone: z.string().nullable(),
   userRole: UserRoleEnum.nullable(),
-  userStatus: UserStatusEnum.nullable()
+  userStatus: UserStatusEnum.nullable(),
 });
 
 export type User = z.infer<typeof UserSchema>;

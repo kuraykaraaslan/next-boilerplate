@@ -56,12 +56,14 @@ export default class TenantSessionNextService {
 
   /**
    * Authenticate user and verify tenant membership with required role
+   * Global admins (userRole === 'ADMIN') bypass tenant membership check
    * @param request - The Next.js request object
    * @param requiredTenantRole - The required tenant role
    * @param tenantIdSource - Where to extract tenant ID from
    * @param tenantId - Optional direct tenant ID (overrides source extraction)
    * @param otpVerifyBypass - Whether to bypass OTP verification for user auth
-   * @returns The authenticated user, session, tenant, and tenant member
+   * @param allowGlobalAdmin - Whether to allow global admins to bypass tenant membership (default: true)
+   * @returns The authenticated user, session, tenant, and tenant member (or virtual member for global admin)
    */
   static async authenticateTenantByRequest({
     request,
@@ -69,17 +71,20 @@ export default class TenantSessionNextService {
     tenantIdSource = 'header',
     tenantId: directTenantId,
     otpVerifyBypass = false,
+    allowGlobalAdmin = true,
   }: {
     request: NextRequest;
     requiredTenantRole?: TenantMemberRole;
     tenantIdSource?: TenantIdSource;
     tenantId?: string;
     otpVerifyBypass?: boolean;
+    allowGlobalAdmin?: boolean;
   }): Promise<{
     user: SafeUser;
     userSession: SafeUserSession;
     tenant: SafeTenant;
     tenantMember: SafeTenantMember;
+    isGlobalAdmin?: boolean;
   }> {
     // Step 1: Authenticate user first
     const { user, userSession } = await UserSessionNextService.authenticateUserByRequest({
@@ -95,20 +100,51 @@ export default class TenantSessionNextService {
       throw new Error(TenantAuthMessages.TENANT_ID_REQUIRED);
     }
 
-    // Step 3: Authenticate tenant membership using core service
+    // Step 3: Check if user is global admin
+    const isGlobalAdmin = allowGlobalAdmin && user.userRole === 'ADMIN';
+
+    if (isGlobalAdmin) {
+      // Global admin bypass - just get the tenant without membership check
+      const tenant = await TenantSessionService.getTenantById(tenantId);
+
+      if (!tenant) {
+        throw new Error(TenantAuthMessages.TENANT_NOT_FOUND);
+      }
+
+      // Create a virtual tenant member for global admin with OWNER privileges
+      const virtualTenantMember: SafeTenantMember = {
+        tenantMemberId: `global-admin-${user.userId}`,
+        tenantId: tenant.tenantId,
+        userId: user.userId,
+        memberRole: 'OWNER',
+        memberStatus: 'ACTIVE',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      // Attach to request
+      // @ts-ignore
+      request.tenant = tenant;
+      // @ts-ignore
+      request.tenantMember = virtualTenantMember;
+
+      return { user, userSession, tenant, tenantMember: virtualTenantMember, isGlobalAdmin: true };
+    }
+
+    // Step 4: Authenticate tenant membership using core service (for non-global-admins)
     const { tenant, tenantMember } = await TenantSessionService.authenticateTenantMembership({
       user,
       tenantId,
       requiredRole: requiredTenantRole,
     });
 
-    // Step 4: Attach to request
+    // Step 5: Attach to request
     // @ts-ignore
     request.tenant = tenant;
     // @ts-ignore
     request.tenantMember = tenantMember;
 
-    return { user, userSession, tenant, tenantMember };
+    return { user, userSession, tenant, tenantMember, isGlobalAdmin: false };
   }
 
   /**

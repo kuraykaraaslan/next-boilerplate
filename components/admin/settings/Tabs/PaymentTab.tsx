@@ -1,9 +1,9 @@
 'use client';
 
-import DynamicText from '@/components/admin/UI/Forms/DynamicText';
-import DynamicToggle from '@/components/admin/UI/Forms/DynamicToggle';
-import DynamicSelect from '@/components/admin/UI/Forms/DynamicSelect';
-import { SettingsTabProps } from '@/types/common/SettingTypes';
+import DynamicText from '@/components/common/forms/DynamicText';
+import DynamicToggle from '@/components/common/forms/DynamicToggle';
+import DynamicSelect from '@/components/common/forms/DynamicSelect';
+import { SettingsTabProps } from '@/modules/setting/setting.types';
 
 export default function PaymentTab({ settings, setSettings, loading, saving }: SettingsTabProps) {
     const isDisabled = loading || saving;

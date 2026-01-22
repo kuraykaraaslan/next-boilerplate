@@ -1,35 +1,37 @@
 // path: app/api/tenant/[tenantId]/settings/route.ts
-import { NextResponse } from "next/server";
-import TenantAuthNextService from "@/modules/tenant_auth/tenant_auth.service.next";
-import TenantService from "@/modules/tenant/tenant.service";
+import { NextRequest, NextResponse } from "next/server";
+import TenantSessionNextService from "@/modules/tenant_auth/tenant_session.service.next";
+import TenantSettingService from "@/modules/tenant_setting/tenant_setting.service";
+import TenantSettingMessages from "@/modules/tenant_setting/tenant_setting.messages";
 import Limiter from "@/libs/limiter";
 
 /**
  * GET /api/tenant/[tenantId]/settings
- * Get tenant settings (requires USER role)
+ * Get all tenant settings (requires ADMIN role)
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { tenantId: string } }
+  { params }: { params: Promise<{ tenantId: string }> }
 ) {
   try {
     await Limiter.checkRateLimit(request);
-    
-    await TenantAuthNextService.authenticateTenantByRequest({ 
-      request, 
-      requiredTenantRole: "USER",
-      tenantId: params.tenantId
+    const { tenantId } = await params;
+
+    await TenantSessionNextService.authenticateTenantByRequest({
+      request,
+      requiredTenantRole: "ADMIN",
+      tenantId
     });
 
-    // Tenant is already loaded and available on request
-    const tenant = request.tenant!;
+    const settings = await TenantSettingService.getAllAsRecord(tenantId);
 
-    return NextResponse.json({ 
-      tenant
+    return NextResponse.json({
+      success: true,
+      settings
     }, { status: 200 });
   } catch (error: any) {
     return NextResponse.json(
-      { message: error.message },
+      { success: false, message: error.message || TenantSettingMessages.FETCH_FAILED },
       { status: 500 }
     );
   }
@@ -37,43 +39,89 @@ export async function GET(
 
 /**
  * PUT /api/tenant/[tenantId]/settings
- * Update tenant settings (requires ADMIN role)
+ * Get tenant settings by keys (requires ADMIN role)
  */
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { tenantId: string } }
+  { params }: { params: Promise<{ tenantId: string }> }
 ) {
   try {
     await Limiter.checkRateLimit(request);
-    
-    // Only ADMIN and OWNER can update tenant settings
-    await TenantAuthNextService.authenticateTenantByRequest({ 
-      request, 
+    const { tenantId } = await params;
+
+    await TenantSessionNextService.authenticateTenantByRequest({
+      request,
       requiredTenantRole: "ADMIN",
-      tenantId: params.tenantId
+      tenantId
     });
 
     const body = await request.json();
-    
-    // Update tenant
-    const updatedTenant = await TenantService.update(params.tenantId, {
-      name: body.name,
-      description: body.description,
-    });
+    const { keys } = body;
 
-    // Clear cache after update
-    await TenantAuthNextService.clearTenantCache(
-      request.user!.userId, 
-      params.tenantId
-    );
+    if (!keys || !Array.isArray(keys)) {
+      return NextResponse.json({
+        success: false,
+        message: "Keys array is required"
+      }, { status: 400 });
+    }
 
-    return NextResponse.json({ 
-      message: "Tenant updated successfully",
-      tenant: updatedTenant
+    const settings = await TenantSettingService.getByKeys(tenantId, keys);
+
+    return NextResponse.json({
+      success: true,
+      settings
     }, { status: 200 });
   } catch (error: any) {
     return NextResponse.json(
-      { message: error.message },
+      { success: false, message: error.message || TenantSettingMessages.FETCH_FAILED },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * POST /api/tenant/[tenantId]/settings
+ * Update tenant settings (requires ADMIN role)
+ */
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ tenantId: string }> }
+) {
+  try {
+    await Limiter.checkRateLimit(request);
+    const { tenantId } = await params;
+
+    await TenantSessionNextService.authenticateTenantByRequest({
+      request,
+      requiredTenantRole: "ADMIN",
+      tenantId
+    });
+
+    const body = await request.json();
+    const { settings } = body;
+
+    if (!settings || typeof settings !== 'object') {
+      return NextResponse.json({
+        success: false,
+        message: "Settings object is required"
+      }, { status: 400 });
+    }
+
+    const updatedArr = await TenantSettingService.updateMany(tenantId, settings);
+
+    // Convert to key-value object
+    const updatedSettings: Record<string, string> = {};
+    for (const s of updatedArr) {
+      updatedSettings[s.key] = s.value;
+    }
+
+    return NextResponse.json({
+      success: true,
+      settings: updatedSettings
+    }, { status: 200 });
+  } catch (error: any) {
+    return NextResponse.json(
+      { success: false, message: error.message || TenantSettingMessages.UPDATE_FAILED },
       { status: 500 }
     );
   }
@@ -81,33 +129,48 @@ export async function PUT(
 
 /**
  * DELETE /api/tenant/[tenantId]/settings
- * Delete tenant (requires OWNER role only)
+ * Delete a tenant setting (requires OWNER role)
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { tenantId: string } }
+  { params }: { params: Promise<{ tenantId: string }> }
 ) {
   try {
     await Limiter.checkRateLimit(request);
-    
-    // Only OWNER can delete tenant
-    await TenantAuthNextService.authenticateTenantByRequest({ 
-      request, 
+    const { tenantId } = await params;
+
+    await TenantSessionNextService.authenticateTenantByRequest({
+      request,
       requiredTenantRole: "OWNER",
-      tenantId: params.tenantId
+      tenantId
     });
 
-    await TenantService.delete(params.tenantId);
+    const body = await request.json();
+    const { key } = body;
 
-    // Clear all caches for this user
-    await TenantAuthNextService.clearUserTenantCaches(request.user!.userId);
+    if (!key) {
+      return NextResponse.json({
+        success: false,
+        message: "Setting key is required"
+      }, { status: 400 });
+    }
 
-    return NextResponse.json({ 
-      message: "Tenant deleted successfully"
+    const deleted = await TenantSettingService.delete(tenantId, key);
+
+    if (!deleted) {
+      return NextResponse.json({
+        success: false,
+        message: TenantSettingMessages.SETTING_NOT_FOUND
+      }, { status: 404 });
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: TenantSettingMessages.SETTING_DELETED
     }, { status: 200 });
   } catch (error: any) {
     return NextResponse.json(
-      { message: error.message },
+      { success: false, message: error.message || TenantSettingMessages.DELETE_FAILED },
       { status: 500 }
     );
   }

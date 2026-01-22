@@ -7,7 +7,6 @@ export { default as AITab } from './AITab';
 export { default as SecurityTab } from './SecurityTab';
 export { default as IntegrationsTab } from './IntegrationsTab';
 export { default as AnalyticsTab } from './AnalyticsTab';
-export { default as SeoTab } from './SeoTab';
 export { default as SocialTab } from './SocialTab';
 export { default as PaymentTab } from './PaymentTab';
 export { default as NotificationTab } from './NotificationTab';

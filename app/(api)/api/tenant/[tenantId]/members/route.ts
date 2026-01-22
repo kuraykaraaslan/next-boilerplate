@@ -1,9 +1,8 @@
 // path: app/api/tenant/[tenantId]/members/route.ts
-import { NextResponse } from "next/server";
-import TenantAuthNextService from "@/modules/tenant_auth/tenant_auth.service.next";
+import { NextRequest, NextResponse } from "next/server";
 import TenantMemberService from "@/modules/tenant_member/tenant_member.service";
 import Limiter from "@/libs/limiter";
-import { request } from "https";
+import TenantSessionNextService from "@/modules/tenant_auth/tenant_session.service.next";
 
 /**
  * GET /api/tenant/[tenantId]/members
@@ -20,7 +19,7 @@ export async function GET(
     const { tenantId } = await params;
     
     // Authenticate and verify tenant membership (USER role minimum)
-    await TenantAuthNextService.authenticateTenantByRequest({ 
+    await TenantSessionNextService.authenticateTenantByRequest({ 
       request, 
       requiredTenantRole: "USER",
       tenantId: tenantId
@@ -65,29 +64,30 @@ export async function GET(
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: { tenantId: string } }
+  { params }: { params: Promise<{ tenantId: string }> }
 ) {
   try {
     await Limiter.checkRateLimit(request);
-    
+    const { tenantId } = await params;
+
     // Only ADMIN and OWNER can add members
-    await TenantAuthNextService.authenticateTenantByRequest({ 
-      request, 
+    await TenantSessionNextService.authenticateTenantByRequest({
+      request,
       requiredTenantRole: "ADMIN",
-      tenantId: params.tenantId
+      tenantId
     });
 
     const body = await request.json();
-    
+
     // Create new member
     const newMember = await TenantMemberService.create({
-      tenantId: params.tenantId,
+      tenantId,
       userId: body.userId,
       memberRole: body.memberRole || 'USER',
-      memberStatus: body.memberStatus || 'ACTIVE'   
+      memberStatus: body.memberStatus || 'ACTIVE'
     });
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       message: "Member added successfully",
       member: newMember
     }, { status: 201 });

@@ -7,10 +7,11 @@ import Table, {
     ImageCell,
     ColumnDef,
     ActionButton
-} from '@/components/admin/UI/Forms/DynamicTable';
-import { SafeUser } from '@/types/user/UserTypes';
+} from '@/components/common/forms/DynamicTable';
+import { SafeUser } from '@/modules/user/user.types';
 import axiosInstance from '@/libs/axios';
 import { useTranslation } from 'react-i18next';
+import { TenantSettingsTabProps } from '@/modules/tenant_setting/tenant_setting.types';
 
 const UserPage = () => {
     const { t } = useTranslation();

@@ -1,7 +1,7 @@
 'use client';
 
-import DynamicText from '@/components/admin/UI/Forms/DynamicText';
-import { SettingsTabProps } from '@/types/common/SettingTypes';
+import DynamicText from '@/components/common/forms/DynamicText';
+import { SettingsTabProps } from '@/modules/setting/setting.types';
 
 export default function AnalyticsTab({ settings, setSettings, loading, saving }: SettingsTabProps) {
     const isDisabled = loading || saving;

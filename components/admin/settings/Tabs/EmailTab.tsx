@@ -1,8 +1,8 @@
 'use client';
 
-import DynamicText from '@/components/admin/UI/Forms/DynamicText';
-import DynamicSelect from '@/components/admin/UI/Forms/DynamicSelect';
-import { SettingsTabProps } from '@/types/common/SettingTypes';
+import DynamicText from '@/components/common/forms/DynamicText';
+import DynamicSelect from '@/components/common/forms/DynamicSelect';
+import { SettingsTabProps } from '@/modules/setting/setting.types';
 
 export default function EmailTab({ settings, setSettings, loading, saving }: SettingsTabProps) {
     const isDisabled = loading || saving;

@@ -32,7 +32,17 @@ export default class TenantMemberService {
     const [members, total] = await Promise.all([
       prisma.tenantMember.findMany({
         where,
-        include: { user: true },
+        include: {
+          user: {
+            select: {
+              userId: true,
+              email: true,
+              userRole: true,
+              userStatus: true,
+              createdAt: true,
+            }
+          }
+        },
         skip: (page - 1) * pageSize,
         take: pageSize,
         orderBy: { createdAt: 'desc' }
@@ -41,7 +51,10 @@ export default class TenantMemberService {
     ]);
 
     return {
-      members: members.map(member => SafeTenantMemberSchema.parse(member)),
+      members: members.map(member => ({
+        ...SafeTenantMemberSchema.parse(member),
+        user: member.user
+      })),
       total
     };
   }

@@ -162,6 +162,17 @@ exports.Prisma.TenantMemberScalarFieldEnum = {
   deletedAt: 'deletedAt'
 };
 
+exports.Prisma.TenantSettingScalarFieldEnum = {
+  tenantSettingId: 'tenantSettingId',
+  tenantId: 'tenantId',
+  key: 'key',
+  value: 'value',
+  group: 'group',
+  type: 'type',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.UserScalarFieldEnum = {
   userId: 'userId',
   email: 'email',
@@ -372,6 +383,7 @@ exports.Prisma.ModelName = {
   Tenant: 'Tenant',
   TenantDomain: 'TenantDomain',
   TenantMember: 'TenantMember',
+  TenantSetting: 'TenantSetting',
   User: 'User',
   UserPreferences: 'UserPreferences',
   UserProfile: 'UserProfile',

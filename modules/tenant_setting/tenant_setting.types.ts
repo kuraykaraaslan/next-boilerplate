@@ -85,5 +85,16 @@ export const TENANT_INTEGRATION_KEYS = TenantIntegrationSettingKeySchema.options
 // Tenant Settings State (for frontend)
 // ============================================================================
 
+
+export interface TenantSettingsTabProps {
+    settings: TenantSettingsState;
+    setSettings: React.Dispatch<React.SetStateAction<TenantSettingsState>>;
+    loading: boolean;
+    saving: boolean;
+    error: string | null;
+    isDirty: boolean;
+    saveSettings: () => Promise<void>;
+}
+
 export const TenantSettingsStateSchema = z.record(z.string(), z.string());
 export type TenantSettingsState = z.infer<typeof TenantSettingsStateSchema>;
