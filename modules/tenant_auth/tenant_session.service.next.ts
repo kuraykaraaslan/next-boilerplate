@@ -1,0 +1,152 @@
+import { NextRequest } from 'next/server';
+import { SafeUser } from '@/modules/user/user.types';
+import { SafeTenant } from '@/modules/tenant/tenant.types';
+import { SafeTenantMember } from '@/modules/tenant_member/tenant_member.types';
+import { SafeUserSession } from '@/modules/user_session/user_session.types';
+import UserSessionNextService from '@/modules/user_session/user_session.service.next';
+import TenantSessionService from './tenant_session.service';
+import TenantAuthMessages from './tenant_auth.messages';
+import type { TenantMemberRole } from '@/modules/tenant_member/tenant_member.enums';
+
+type TenantIdSource = 'header' | 'subdomain' | 'query' | 'body' | 'param';
+
+export default class TenantSessionNextService {
+
+  /**
+   * Extract tenant ID from various sources in the request
+   * @param request - The Next.js request object
+   * @param source - The source to extract tenant ID from
+   * @param paramKey - Optional parameter key for query/body/param extraction
+   * @returns The tenant ID or null
+   */
+  static extractTenantId(
+    request: NextRequest,
+    source: TenantIdSource = 'header',
+    paramKey: string = 'tenantId'
+  ): string | null {
+    switch (source) {
+      case 'header':
+        return request.headers.get('x-tenant-id');
+
+      case 'subdomain':
+        const host = request.headers.get('host');
+        if (!host) return null;
+        const subdomain = host.split('.')[0];
+        // Avoid matching localhost, www, api, etc.
+        if (['localhost', 'www', 'api', '127'].includes(subdomain)) return null;
+        return subdomain;
+
+      case 'query':
+        const url = new URL(request.url);
+        return url.searchParams.get(paramKey);
+
+      case 'param':
+        // For dynamic routes like /api/tenant/[tenantId]
+        // The calling code should pass this via paramKey
+        return paramKey;
+
+      case 'body':
+        // Body extraction needs to be done by caller since we can't read body here
+        return null;
+
+      default:
+        throw new Error(TenantAuthMessages.INVALID_TENANT_ID_SOURCE);
+    }
+  }
+
+  /**
+   * Authenticate user and verify tenant membership with required role
+   * @param request - The Next.js request object
+   * @param requiredTenantRole - The required tenant role
+   * @param tenantIdSource - Where to extract tenant ID from
+   * @param tenantId - Optional direct tenant ID (overrides source extraction)
+   * @param otpVerifyBypass - Whether to bypass OTP verification for user auth
+   * @returns The authenticated user, session, tenant, and tenant member
+   */
+  static async authenticateTenantByRequest({
+    request,
+    requiredTenantRole = 'USER',
+    tenantIdSource = 'header',
+    tenantId: directTenantId,
+    otpVerifyBypass = false,
+  }: {
+    request: NextRequest;
+    requiredTenantRole?: TenantMemberRole;
+    tenantIdSource?: TenantIdSource;
+    tenantId?: string;
+    otpVerifyBypass?: boolean;
+  }): Promise<{
+    user: SafeUser;
+    userSession: SafeUserSession;
+    tenant: SafeTenant;
+    tenantMember: SafeTenantMember;
+  }> {
+    // Step 1: Authenticate user first
+    const { user, userSession } = await UserSessionNextService.authenticateUserByRequest({
+      request,
+      requiredUserRole: 'USER',
+      otpVerifyBypass,
+    });
+
+    // Step 2: Get tenant ID
+    const tenantId = directTenantId || this.extractTenantId(request, tenantIdSource);
+
+    if (!tenantId) {
+      throw new Error(TenantAuthMessages.TENANT_ID_REQUIRED);
+    }
+
+    // Step 3: Authenticate tenant membership using core service
+    const { tenant, tenantMember } = await TenantSessionService.authenticateTenantMembership({
+      user,
+      tenantId,
+      requiredRole: requiredTenantRole,
+    });
+
+    // Step 4: Attach to request
+    // @ts-ignore
+    request.tenant = tenant;
+    // @ts-ignore
+    request.tenantMember = tenantMember;
+
+    return { user, userSession, tenant, tenantMember };
+  }
+
+  /**
+   * Helper method to get all user's tenants (wrapper for core service)
+   * @param userId - The user ID
+   * @returns List of tenants the user is a member of
+   */
+  static async getUserTenants(userId: string): Promise<Array<{
+    tenant: SafeTenant;
+    tenantMember: SafeTenantMember;
+  }>> {
+    return TenantSessionService.getUserTenants(userId);
+  }
+
+  /**
+   * Clear tenant cache for a specific user and tenant (wrapper for core service)
+   * @param userId - The user ID
+   * @param tenantId - The tenant ID
+   */
+  static async clearTenantCache(userId: string, tenantId: string): Promise<void> {
+    return TenantSessionService.clearTenantCache(userId, tenantId);
+  }
+
+  /**
+   * Clear all tenant caches for a user (wrapper for core service)
+   * @param userId - The user ID
+   */
+  static async clearUserTenantCaches(userId: string): Promise<void> {
+    return TenantSessionService.clearUserTenantCaches(userId);
+  }
+
+  /**
+   * Check if user has required role in tenant (wrapper for core service)
+   * @param memberRole - The user's role in the tenant
+   * @param requiredRole - The required role
+   * @returns true if user has required role or higher
+   */
+  static hasRequiredRole(memberRole: TenantMemberRole, requiredRole: TenantMemberRole): boolean {
+    return TenantSessionService.hasRequiredRole(memberRole, requiredRole);
+  }
+}

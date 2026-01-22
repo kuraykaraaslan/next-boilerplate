@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
-import Tabs from '@/components/common/Layout/Tabs';
+import Tabs from '@/components/common/tabs';
 import {
     GeneralTab,
     AuthTab,
@@ -17,14 +17,15 @@ import {
     PaymentTab,
     NotificationTab,
     LocalizationTab
-} from '@/components/admin/Settings/Tabs';
+} from '@/components/admin/settings/Tabs';
 import axios from '@/libs/axios';
 import {
     GENERAL_KEYS, AUTH_KEYS, EMAIL_KEYS, SMS_KEYS, STORAGE_KEYS, AI_KEYS, SECURITY_KEYS,
-    INTEGRATIONS_KEYS, ANALYTICS_KEYS, SEO_KEYS, SOCIAL_KEYS,
+    INTEGRATIONS_KEYS, ANALYTICS_KEYS, SOCIAL_KEYS,
     PAYMENT_KEYS, NOTIFICATION_KEYS, LOCALIZATION_KEYS,
-    SettingsState, SettingsTabProps
-} from '@/types/common/SettingTypes';
+    SettingsState,
+    SettingsTabProps
+} from '@/modules/setting/setting.types';
 import {
     faCog,
     faUserShield,
@@ -56,7 +57,6 @@ const ALL_KEYS = [
     ...SECURITY_KEYS,
     ...INTEGRATIONS_KEYS,
     ...ANALYTICS_KEYS,
-    ...SEO_KEYS,
     ...SOCIAL_KEYS,
     ...PAYMENT_KEYS,
     ...NOTIFICATION_KEYS,
