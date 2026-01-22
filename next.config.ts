@@ -34,14 +34,6 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'via.placeholder.com'
-      },
-      {
-        protocol: 'https',
-        hostname: 'kuray.dev'
-      },
-      {
-        protocol: 'https',
-        hostname: 'www.kuray.dev'
       }
     ]
   }

@@ -98,10 +98,7 @@ const Navbar = () => {
                     <div className="relative flex-1 flex flex-col max-w-xs w-full bg-base-100">
                         <div className="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
                             <div className="flex items-center justify-center">
-                                <Link href="/admin" className="flex items-center">
-                                    <FontAwesomeIcon icon={faCode} className="text-primary w-8 h-8 mr-2" />
-                                    <span className="text-primary text-2xl font-bold">kuray.dev</span>
-                                </Link>
+                                <Logo href="/admin" />
                             </div>
                             <nav className="mt-5 px-2 space-y-1">
                                 {menu.map((item, index) => (

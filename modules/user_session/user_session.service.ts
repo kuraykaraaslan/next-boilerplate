@@ -10,7 +10,7 @@ import Logger from "@/libs/logger";
 import { v4 as uuidv4 } from "uuid";
 import type { SessionStatus } from "./user_session.enums";
 
-const APPLICATION_DOMAIN = process.env.APPLICATION_DOMAIN || "kuray.dev";
+const APPLICATION_DOMAIN = process.env.APPLICATION_DOMAIN || "localhost";
 const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET || "your-default-access-token-secret";
 const ACCESS_TOKEN_EXPIRES_IN = process.env.ACCESS_TOKEN_EXPIRES_IN || "1h";
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || "your-default-refresh-token-secret";

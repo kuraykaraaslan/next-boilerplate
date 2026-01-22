@@ -7,7 +7,7 @@ interface LogoProps {
   textClassName?: string
   href?: string
 }
-const APPLICATION_LOGO_TEXT = process.env.APPLICATION_LOGO_TEXT || "Kuray.dev"
+const APPLICATION_LOGO_TEXT = process.env.APPLICATION_LOGO_TEXT || "NextBoilerplate"
 
 const Logo = ({
   href = "/",

@@ -49,7 +49,6 @@
     "react-phone-number-input": "^3.4.14",
     "react-toastify": "^11.0.5",
     "reflect-metadata": "^0.2.2",
-    "typeorm": "^0.4.0-alpha.1",
     "uuid": "^13.0.0",
     "winston": "^3.19.0",
     "zod": "^4.3.5",
@@ -74,8 +73,6 @@
     "tailwindcss": "^4",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
-    "typeorm-ts-node-commonjs": "^0.3.20",
-    "typeorm-ts-node-esm": "^0.3.20",
     "typescript": "^5"
   }
 }
