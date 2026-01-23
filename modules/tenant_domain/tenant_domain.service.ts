@@ -41,9 +41,12 @@ export default class TenantDomainService {
     });
 
     if (!found) {
+      console.log(`TenantDomainService.getByDomain: Domain not found: ${domain}`);
       return null;
     }
 
+
+    console.log(`TenantDomainService.getByDomain: Found domain: ${domain} → tenantId: ${found.tenantId}`);
     return SafeTenantDomainSchema.parse(found);
   }
 
