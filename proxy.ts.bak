@@ -7,9 +7,12 @@ const DEFAULT_LANG = "en";
 
 const EXCLUDED_PATHS = [
     /^\/api\/?/,
+    /^\/auth\/?/,
+    /^\/admin\/?/,
     /^\/_next\/?/,
     /^\/favicon\.ico$/,
     /^\/robots\.txt$/,
+    /^\/sitemap\.xml$/,
     /^\/maintenance\/?/,
     /\.(png|jpg|jpeg|gif|svg|webp|ico|css|js|map|woff|woff2|ttf|eot)$/i,
 ];

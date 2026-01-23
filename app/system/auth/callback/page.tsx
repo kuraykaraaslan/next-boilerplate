@@ -3,9 +3,7 @@ import axiosInstance from '@/libs/axios';
 import { useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { useGlobalStore } from '@/libs/zustand';
-import { useRouter } from 'next/navigation';
-import { useSearchParams } from 'next/navigation';
-
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function CallbackPage() {
     const searchParams = useSearchParams();
@@ -17,9 +15,7 @@ export default function CallbackPage() {
     const { setUser } = useGlobalStore();
 
     useEffect(() => {
-        
         const fetchSession = async () => {
-
             await axiosInstance.get('/api/auth/session').then(res => {
                 if (res.status === 200) {
                     setUser(res.data.user);
@@ -29,16 +25,13 @@ export default function CallbackPage() {
                 }
             }).catch(err => {
                 toast.error(err.response.data.error);
-            }
-            ).finally(() => {
+            }).finally(() => {
                 router.push('/');
             });
-        }
+        };
 
         fetchSession();
-
     }, [accessToken, refreshToken]);
-
 
     return (
         <div>
@@ -46,4 +39,3 @@ export default function CallbackPage() {
         </div>
     );
 }
-

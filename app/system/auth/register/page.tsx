@@ -6,9 +6,7 @@ import Link from 'next/link';
 import { useState, MouseEvent } from 'react';
 import { toast } from 'react-toastify';
 
-
-const RegisterPage = () => {    
-    
+const RegisterPage = () => {
     const emailRegex = /\S+@\S+\.\S+/;
     const passwordRegex = /^.{6,}$/;
 
@@ -16,11 +14,9 @@ const RegisterPage = () => {
     const [password, setPassword] = useState<string>("");
     const [confirmpassword, setConfirmpassword] = useState<string>("");
 
-
-
     const handleSubmit = async (e: MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
-        
+
         if (!email) {
             return;
         }
@@ -71,24 +67,21 @@ const RegisterPage = () => {
             } else {
                 toast.success(res.data.message);
             }
-        }
-        ).catch((err) => {
+        }).catch((err) => {
             toast.error(err.response.data.error);
         });
-
-        
-    }
+    };
 
     return (
         <>
             <div className="space-y-3">
                 <div>
-                    <Link href="/auth/login"
+                    <Link href="/system/auth/login"
                         type="button"
                         className="block w-full py-2.5 bg-primary font-semibold rounded-lg shadow-md text-white"
                     >
                         <span className="flex items-center justify-center">
-                           Login
+                            Login
                         </span>
                     </Link>
                 </div>
@@ -115,7 +108,7 @@ const RegisterPage = () => {
                     <div className="flex items-center justify-between">
                     </div>
                     <div className="relative">
-                        <Link className="absolute inset-y-0 right-2 pl-3 flex items-center pointer-events-none" href="/auth/forgot-password">
+                        <Link className="absolute inset-y-0 right-2 pl-3 flex items-center pointer-events-none" href="/system/auth/forgot-password">
                             <FontAwesomeIcon icon={faQuestion} className="h-5 w-5 text-primary" aria-hidden="true" />
                         </Link>
                         <input
@@ -131,7 +124,7 @@ const RegisterPage = () => {
                         />
                     </div>
                 </div>
-                 
+
                 <div>
                     <div className="flex items-center justify-between">
                     </div>
@@ -159,13 +152,9 @@ const RegisterPage = () => {
                         Create Account
                     </button>
                 </div>
-
-            
             </div>
         </>
     );
 };
-
-RegisterPage.layout = "auth";
 
 export default RegisterPage;

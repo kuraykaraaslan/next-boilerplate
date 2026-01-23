@@ -6,11 +6,14 @@ import Link from 'next/link';
 import { MouseEvent, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useGlobalStore } from '@/libs/zustand';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { OTPAction, OTPActionEnum, OTPMethod } from '@/modules/user_security/user_security.enums';
+import { useRouter, useSearchParams, useParams } from 'next/navigation';
+import { OTPActionEnum, OTPMethod } from '@/modules/user_security/user_security.enums';
 import OTPConfirmModal from '@/modules/user_security/ui/partials/otp-confirm-modal';
 
-const LoginPage = () => {
+const TenantLoginPage = () => {
+    const params = useParams();
+    const tenantId = params.tenantId as string;
+    const basePath = `/tenant/${tenantId}/auth`;
 
     const emailRegex = /\S+@\S+\.\S+/;
     const passwordRegex = /^.{6,}$/;
@@ -32,10 +35,7 @@ const LoginPage = () => {
     const [sendingOtp, setSendingOtp] = useState(false);
     const [verifyingOtp, setVerifyingOtp] = useState(false);
 
-
     const otpInputRef = useRef<HTMLInputElement>(null);
-
-
 
     const handleSubmit = async (e: MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
@@ -68,25 +68,19 @@ const LoginPage = () => {
             return;
         }
 
-        await axiosInstance.post(`/api/auth/login`, {
+        await axiosInstance.post(`/api/tenants/${tenantId}/auth`, {
             email,
             password,
+            action: 'login',
         }).then(async (res) => {
-
             const { user } = res.data;
             setUser(user);
-
             toast.success('Login successful');
-            router.push('/');
-
+            router.push(`/tenant/${tenantId}`);
         }).catch((err) => {
             toast.error(err.response?.data?.error || 'Login failed');
         });
-
-
-
-
-    }
+    };
 
     const onSentOtp = async () => {
         if (!selectedMethod) return;
@@ -96,6 +90,7 @@ const LoginPage = () => {
             await axiosInstance.post('/api/auth/login/send', {
                 method: selectedMethod,
                 action: OTPActionEnum.enum.authenticate,
+                tenantId,
             });
             setOtpSent(true);
             toast.success('OTP gönderildi');
@@ -105,35 +100,34 @@ const LoginPage = () => {
         } finally {
             setSendingOtp(false);
         }
-    }
+    };
 
     const onVerifyOtp = async () => {
         if (!selectedMethod) return;
 
         try {
             setVerifyingOtp(true);
-
             await axiosInstance.post('/api/auth/login/verify', {
                 method: selectedMethod,
                 otpToken: otpCode,
                 action: OTPActionEnum.enum.authenticate,
+                tenantId,
             }).then(() => {
                 toast.success('OTP doğrulandı');
-                router.push(searchParams.get('redirect') || '/');
+                router.push(searchParams.get('redirect') || `/tenant/${tenantId}`);
             });
-
         } catch (err: any) {
             toast.error(err?.response?.data?.message || 'OTP doğrulanamadı');
         } finally {
             setVerifyingOtp(false);
         }
-    }
+    };
 
     return (
         <>
             <div className="space-y-6">
                 <div>
-                    <Link href="/auth/register"
+                    <Link href={`${basePath}/register`}
                         type="button"
                         className="block w-full py-2.5 bg-primary font-semibold rounded-lg shadow-md text-white"
                     >
@@ -166,7 +160,7 @@ const LoginPage = () => {
                     <div className="flex items-center justify-between">
                     </div>
                     <div className="relative mt-2">
-                        <Link className="absolute inset-y-0 right-2 pl-3 flex items-center" href="/auth/forgot-password">
+                        <Link className="absolute inset-y-0 right-2 pl-3 flex items-center" href={`${basePath}/forgot-password`}>
                             <button
                                 type="button"
                                 className="text-primary hover:text-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary rounded-md text-sm font-medium"
@@ -197,7 +191,6 @@ const LoginPage = () => {
                         Sign in
                     </button>
                 </div>
-
             </div>
 
             <OTPConfirmModal
@@ -207,19 +200,13 @@ const LoginPage = () => {
                 sendingOtp={sendingOtp}
                 verifying={verifyingOtp}
                 otpInputRef={otpInputRef as React.RefObject<HTMLInputElement>}
-
                 onSendOtp={onSentOtp}
                 onVerify={onVerifyOtp}
                 onChangeCode={setOtpCode}
                 onClose={() => setOtpModalOpen(false)}
-
             />
-
-
         </>
     );
 };
 
-LoginPage.layout = "auth";
-
-export default LoginPage;
+export default TenantLoginPage;

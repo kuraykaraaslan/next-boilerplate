@@ -241,6 +241,33 @@ export default class UserSessionNextService {
     }
   }
 
+  static async logout({ request }: { request: NextRequest }): Promise<void> {
+    const accessToken = request.cookies.get("accessToken")?.value;
+    if (accessToken) {
+      const { userId } = UserSessionService.verifyAccessToken(accessToken, this.generateDeviceFingerprint(request));
+      const hashedToken = UserSessionService.hashToken(accessToken);
+      const cacheKey = `session:${userId}:${hashedToken}`;
+
+      // Delete from cache
+      const userSessionId = await redis.get(cacheKey).then(data => {
+        if (data) {
+          try {
+            const parsed = JSON.parse(data);
+            if (parsed && parsed.userSession && parsed.userSession.userSessionId) {
+              return parsed.userSession.userSessionId;
+            }
+          } catch (e) {
+            console.error('[UserSessionNextService.logout] Cache parsing error:', e);
+          }
+        }
+        return null;
+      });
+      
+      // Delete from database
+      await UserSessionService.deleteSession(userSessionId!);
+    }
+  }
+
   static async deleteSession(userSession: SafeUserSession): Promise<void> {
     await UserSessionService.deleteSession(userSession.userSessionId);
   }

@@ -5,18 +5,16 @@ import { toast } from 'react-toastify';
 import { useSearchParams } from 'next/navigation';
 
 const ForgotPasswordPage = () => {
-
     const searchParams = useSearchParams();
-
     const emailRegex = /\S+@\S+\.\S+/;
 
     const [email, setEmail] = useState('');
     const [resetToken, setResetToken] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [step, setStep] = useState(1);
 
     useEffect(() => {
-        //resetToken and email are passed as query params
         const resetToken = searchParams.get('resetToken');
         const email = searchParams.get('email');
 
@@ -26,25 +24,17 @@ const ForgotPasswordPage = () => {
 
         setResetToken(resetToken);
         setEmail(email);
-
-        //set step to 2 if resetToken is present
         setStep(2);
     }, [searchParams]);
-
-
-
-    const [step, setStep] = useState(1);
 
     async function handleSubmit(e: MouseEvent<HTMLButtonElement>) {
         e.preventDefault();
 
         if (step === 1) {
-
             if (!email || emailRegex.test(email) === false) {
                 toast.error('Email is required.');
                 return;
             }
-
 
             await axiosInstance.post(`/api/auth/forgot-password`, {
                 email: email,
@@ -61,7 +51,6 @@ const ForgotPasswordPage = () => {
 
             setStep(2);
         } else {
-            // Reset password
             if (password !== confirmPassword) {
                 console.error('Passwords do not match');
                 return;
@@ -81,8 +70,7 @@ const ForgotPasswordPage = () => {
                 toast.error(error.response.data.error);
             });
         }
-    };
-
+    }
 
     return (
         <>
@@ -184,12 +172,9 @@ const ForgotPasswordPage = () => {
                         </button>
                     </div>
                 </div>
-
             )}
-
         </>
     );
 };
-
 
 export default ForgotPasswordPage;

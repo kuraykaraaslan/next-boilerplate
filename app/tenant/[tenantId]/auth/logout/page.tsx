@@ -3,10 +3,11 @@ import axiosInstance from '@/libs/axios';
 import { useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { useGlobalStore } from '@/libs/zustand';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 
-
-const LogoutPage = () => {
+const TenantLogoutPage = () => {
+    const params = useParams();
+    const tenantId = params.tenantId as string;
 
     const { setUser } = useGlobalStore();
     const router = useRouter();
@@ -16,8 +17,7 @@ const LogoutPage = () => {
             if (res.status === 200) {
                 toast.success(res.data.message);
             }
-        }
-        ).catch(err => {
+        }).catch(err => {
             toast.error(err.response.data.message);
         }).finally(() => {
             setUser(null);
@@ -25,9 +25,9 @@ const LogoutPage = () => {
             localStorage.removeItem('accessToken');
             localStorage.removeItem('refreshToken');
             localStorage.removeItem('userSession');
-            router.push('/');
+            router.push(`/tenant/${tenantId}/auth/login`);
         });
-    }
+    };
 
     useEffect(() => {
         handleLogout();
@@ -35,9 +35,8 @@ const LogoutPage = () => {
 
     return (
         <>
-
         </>
-    )
-}
+    );
+};
 
-export default LogoutPage;
+export default TenantLogoutPage;

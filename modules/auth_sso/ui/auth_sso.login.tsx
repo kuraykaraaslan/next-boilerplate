@@ -46,10 +46,11 @@ type SSOLoginMode = 'modal' | 'pins' | 'list'
 
 interface SSOLoginProps {
   mode?: SSOLoginMode
-  locale?: SSOLocale
+  locale?: SSOLocale,
+  tenantId?: string
 }
 
-const SSOLoginContent = ({ mode, locale = 'en' }: { mode: SSOLoginMode; locale?: SSOLocale }) => {
+const SSOLoginContent = ({ mode, locale = 'en', tenantId }: { mode: SSOLoginMode; locale?: SSOLocale; tenantId?: string }) => {
   const { t } = useModuleDictionary(locale)
 
   const allowedProviders = useMemo(() => {
@@ -66,7 +67,7 @@ const SSOLoginContent = ({ mode, locale = 'en' }: { mode: SSOLoginMode; locale?:
         return
       }
       try {
-        const res = await axiosInstance.get(`/api/auth/sso/${provider}`)
+        const res = await axiosInstance.get(`/api/auth/sso/${provider}?tenantId=${tenantId}`)
         window.location.href = res.data.url
       } catch (e) {
         toast.error(t('redirect_error'))
@@ -102,7 +103,7 @@ const SSOLoginContent = ({ mode, locale = 'en' }: { mode: SSOLoginMode; locale?:
   )
 }
 
-const SSOLogin = ({ mode = 'list', locale = 'en' }: SSOLoginProps) => {
+const SSOLogin = ({ mode = 'list', locale = 'en', tenantId }: SSOLoginProps) => {
   const { t } = useModuleDictionary(locale)
 
   if (mode === 'modal') {
@@ -118,7 +119,7 @@ const SSOLogin = ({ mode = 'list', locale = 'en' }: SSOLoginProps) => {
         <dialog id='sso_modal' className='modal'>
           <div className='modal-box'>
             <h3 className='font-bold text-lg mb-4'>{t('modal_title')}</h3>
-            <SSOLoginContent mode='list' locale={locale} />
+            <SSOLoginContent mode='list' locale={locale} tenantId={tenantId} />
             <div className='modal-action'>
               <form method='dialog'>
                 <button className='btn'>{t('close')}</button>
