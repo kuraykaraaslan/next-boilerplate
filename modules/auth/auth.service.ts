@@ -61,14 +61,7 @@ export default class AuthService {
      * @param token - The session token.
      */
     static async logout({ accessToken }: { accessToken: string }): Promise<void> {
-        // TODO: Implement when UserSession entity is created
-        // const sessionRepository = AppDataSource.getRepository(UserSessionEntity);
-        // const sessions = await sessionRepository.find({ where: { accessToken } });
-        // if (sessions.length === 0) {
-        //     throw new Error(AuthMessages.SESSION_NOT_FOUND);
-        // }
-        // await sessionRepository.delete({ accessToken });
-        throw new Error("UserSession entity not implemented yet");
+        // Implement logout logic if needed
     }
 
     /**

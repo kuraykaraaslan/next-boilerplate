@@ -1,9 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Turbopack has issues with TypeORM decorators, use webpack instead
-  // Run: npm run dev -- --turbopack=false
-  // Or simply: next dev (without --turbo)
     images: {
     remotePatterns: [
       {

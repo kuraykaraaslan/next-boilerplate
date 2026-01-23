@@ -23,7 +23,7 @@ export const SafeUserSchema = UserSchema.omit({
   password: true,
   deletedAt: true
 }).extend({
-  userProfile: z.object(UserProfileSchema).nullable().optional()
+  userProfile: z.object(UserProfileSchema.shape).nullable().optional()
 });
 
 export const UpdateUserSchema = z.object({
