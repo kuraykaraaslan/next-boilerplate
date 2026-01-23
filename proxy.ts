@@ -6,7 +6,6 @@ import TenantDomainService from "@/modules/tenant_domain/tenant_domain.service";
 const DEFAULT_LANG = "en";
 
 const EXCLUDED_PATHS = [
-    /^\/api\/?/,
     /^\/_next\/?/,
     /^\/favicon\.ico$/,
     /^\/robots\.txt$/,

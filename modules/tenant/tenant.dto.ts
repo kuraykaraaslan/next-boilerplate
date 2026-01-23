@@ -8,10 +8,10 @@ export const CreateTenantDTO = z.object({
 });
 
 export const UpdateTenantDTO = z.object({
-  name: z.string().min(1).max(100).nullable(),
+  name: z.string().min(1).max(100).optional(),
   description: z.string().nullable(),
   region: z.string().nullable(),
-  tenantStatus: TenantStatusEnum.nullable()
+  tenantStatus: TenantStatusEnum.optional()
 });
 
 export const GetTenantDTO = z.object({

@@ -29,8 +29,20 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
         {
             path: '/system/auth/logout',
             title: 'Logging out...'
+        },
+        {
+            path: '/system/auth/select-tenant',
+            title: 'Select Organization'
+        },
+        {
+            path: '/system/auth/create-tenant',
+            title: 'Create Organization'
         }
     ];
+
+    // Hide SSO buttons on select-tenant and create-tenant pages
+    const hideSSOPages = ['/system/auth/select-tenant', '/system/auth/create-tenant'];
+    const showSSO = !hideSSOPages.some(p => pathname?.startsWith(p));
 
     return (
         <Suspense>
@@ -52,9 +64,13 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
                         </h1>
                         <div className="w-full">
                             {children}
-                            <div className="flex items-center justify-center mt-4 mb-4">
-                            </div>
-                            <SSOLogin mode="pins" />
+                            {showSSO && (
+                                <>
+                                    <div className="flex items-center justify-center mt-4 mb-4">
+                                    </div>
+                                    <SSOLogin mode="pins" />
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>

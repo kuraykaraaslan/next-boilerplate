@@ -19,10 +19,12 @@ export default class TenantService {
       where.name = { contains: search, mode: 'insensitive' };
     }
 
+    console.log('Querying tenants with where clause:', where);
+
     const [tenants, total] = await Promise.all([
       prisma.tenant.findMany({
         where,
-        skip: (page - 1) * pageSize,
+        skip: (page) * pageSize,
         take: pageSize,
         orderBy: { createdAt: 'desc' }
       }),

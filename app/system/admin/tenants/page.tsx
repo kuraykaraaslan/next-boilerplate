@@ -30,12 +30,12 @@ const TenantsPage = () => {
     const actions: ActionButton<SafeTenant>[] = [
         {
             label: 'Members',
-            href: (tenant) => `/system/admin/tenants/${tenant.tenantId}/members`,
+            href: (tenant) => `/admin/tenants/${tenant.tenantId}/members`,
             className: 'btn-secondary'
         },
         {
             label: 'Edit',
-            href: (tenant) => `/system/admin/tenants/${tenant.tenantId}`,
+            href: (tenant) => `/admin/tenants/${tenant.tenantId}`,
             className: 'btn-primary'
         },
         {
@@ -62,7 +62,7 @@ const TenantsPage = () => {
                     title="Tenants"
                     searchPlaceholder="Search tenants..."
                     buttonText="Create Tenant"
-                    buttonLink="/system/admin/tenants/create"
+                    buttonLink="/admin/tenants/create"
                 />
                 <TableBody />
                 <TableFooter

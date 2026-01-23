@@ -71,7 +71,16 @@ const LoginPage = () => {
             const { user } = res.data;
             setUser(user);
             toast.success('Login successful');
-            router.push('/');
+
+            // Redirect based on user role
+            const redirectUrl = searchParams.get('redirect');
+            if (redirectUrl) {
+                router.push(redirectUrl);
+            } else if (user.userRole === 'ADMIN' || user.userRole === 'SUPER_ADMIN') {
+                router.push('/admin');
+            } else {
+                router.push('/auth/select-tenant');
+            }
         }).catch((err) => {
             toast.error(err.response?.data?.error || 'Login failed');
         });
@@ -120,7 +129,7 @@ const LoginPage = () => {
         <>
             <div className="space-y-6">
                 <div>
-                    <Link href="/system/auth/register"
+                    <Link href="/auth/register"
                         type="button"
                         className="block w-full py-2.5 bg-primary font-semibold rounded-lg shadow-md text-white"
                     >
