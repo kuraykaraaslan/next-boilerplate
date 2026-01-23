@@ -43,6 +43,10 @@ const Page = () => {
     const tenantId = params.tenantId as string;
     const { t } = useTranslation();
 
+    // If the path doesn't start with /tenant/, base is empty (we are on a custom domain)
+    const isProxied = typeof window !== 'undefined' && !window.location.pathname.startsWith('/tenant/');
+    const tenantBase = isProxied ? '' : `/tenant/${tenantId}`;
+
     const columns: ColumnDef<SafeTenantMember>[] = [
         { 
             key: 'user', 
@@ -102,14 +106,15 @@ const Page = () => {
     const actions: ActionButton<SafeTenantMember>[] = [
         { 
             label: 'Edit', 
-            href: (member) => `/tenant/${tenantId}/admin/members/${member.tenantMemberId}`, 
+            href: (member) => `${tenantBase}/admin/members/${member.tenantMemberId}`, 
             className: 'btn-primary' 
         },
         { 
             label: 'Remove', 
             onClick: async (member) => {
                 if (!confirm(`Are you sure you want to remove ${member.user?.email}?`)) return;
-                await axiosInstance.delete(`/api/tenants/${tenantId}/members/${member.tenantMemberId}`);
+                // Use relative API path which proxy rewrites
+                await axiosInstance.delete(`${tenantBase}/api/members/${member.tenantMemberId}`);
             },
             className: 'text-error',
             hideOnMobile: true,
@@ -118,7 +123,7 @@ const Page = () => {
 
     return (
         <TableProvider<SafeTenantMember>
-            apiEndpoint={`/api/tenants/${tenantId}/members`}
+            apiEndpoint={`${tenantBase}/api/members`}
             dataKey="members"
             idKey="tenantMemberId"
             columns={columns}
@@ -129,7 +134,7 @@ const Page = () => {
                     title="Members"
                     searchPlaceholder="Search members..."
                     buttonText="Add Member"
-                    buttonLink={`/tenant/${tenantId}/admin/members/create`}
+                    buttonLink={`${tenantBase}/admin/members/create`}
                 />
                 <TableBody />
                 <TableFooter

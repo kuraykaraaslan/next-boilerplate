@@ -45,7 +45,9 @@ export default function TenantAuthLayout({ children }: { children: ReactNode }) 
         }
     }, [tenantId]);
 
-    const basePath = `/tenant/${tenantId}/auth`;
+    const isProxied = typeof window !== 'undefined' && !window.location.pathname.startsWith('/tenant/');
+    const tenantBase = isProxied ? '' : `/tenant/${tenantId}`;
+    const basePath = `${tenantBase}/auth`;
 
     const titles = [
         {

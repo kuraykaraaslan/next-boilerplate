@@ -10,7 +10,11 @@ import { useParams } from 'next/navigation';
 const TenantRegisterPage = () => {
     const params = useParams();
     const tenantId = params.tenantId as string;
-    const basePath = `/tenant/${tenantId}/auth`;
+
+    // If the path doesn't start with /tenant/, base is empty (we are on a custom domain)
+    const isProxied = typeof window !== 'undefined' && !window.location.pathname.startsWith('/tenant/');
+    const tenantBase = isProxied ? '' : `/tenant/${tenantId}`;
+    const basePath = `${tenantBase}/auth`;
 
     const emailRegex = /\S+@\S+\.\S+/;
     const passwordRegex = /^.{6,}$/;
@@ -63,7 +67,7 @@ const TenantRegisterPage = () => {
 
         toast.success("Registering...");
 
-        await axiosInstance.post(`/api/tenants/${tenantId}/auth`, {
+        await axiosInstance.post(`${tenantBase}/api/auth`, {
             email: email,
             password: password,
             action: 'register',

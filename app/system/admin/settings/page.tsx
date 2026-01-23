@@ -12,7 +12,6 @@ import {
     SecurityTab,
     IntegrationsTab,
     AnalyticsTab,
-    SeoTab,
     SocialTab,
     PaymentTab,
     NotificationTab,
@@ -188,12 +187,6 @@ const Page = () => {
             label: 'Analytics',
             icon: faChartLine,
             content: <AnalyticsTab {...tabProps} />
-        },
-        {
-            id: 'seo',
-            label: 'SEO',
-            icon: faSearch,
-            content: <SeoTab {...tabProps} />
         },
         {
             id: 'social',

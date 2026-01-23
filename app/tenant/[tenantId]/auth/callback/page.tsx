@@ -47,12 +47,9 @@ export default function TenantCallbackPage() {
                     setUser(res.data.user);
                     toast.success('Logged in successfully.');
                     
-                    // On custom domains, we should redirect to / instead of /tenant/[id]
-                    // This creates a cleaner URL and works better with proxying.
-                    const isCustomDomain = !window.location.hostname.includes('localhost') && 
-                                          !window.location.hostname.endsWith('example.com'); // Adapt if needed
-                    
-                    if (isCustomDomain) {
+                    // If the current path doesn't start with /tenant/, it means we are being proxied
+                    // via a custom domain. In that case, we should redirect to / for a clean URL.
+                    if (!window.location.pathname.startsWith('/tenant/')) {
                         router.push('/');
                     } else {
                         router.push(`/tenant/${tenantId}`);

@@ -54,6 +54,10 @@ const Page = () => {
     const params = useParams();
     const tenantId = params.tenantId as string;
 
+    // If the path doesn't start with /tenant/, base is empty (we are on a custom domain)
+    const isProxied = typeof window !== 'undefined' && !window.location.pathname.startsWith('/tenant/');
+    const tenantBase = isProxied ? '' : `/tenant/${tenantId}`;
+
     const [settings, setSettings] = useState<TenantSettingsState>({});
     const [initialSettings, setInitialSettings] = useState<TenantSettingsState>({});
     const [loading, setLoading] = useState(true);
@@ -68,7 +72,7 @@ const Page = () => {
         setLoading(true);
         setError(null);
         try {
-            const res = await axios.put(`/api/tenant/${tenantId}/settings`, { keys: keysRef.current });
+            const res = await axios.put(`${tenantBase}/api/settings`, { keys: keysRef.current });
             if (res.data.success) {
                 setSettings(res.data.settings);
                 setInitialSettings(res.data.settings);
@@ -80,7 +84,7 @@ const Page = () => {
         } finally {
             setLoading(false);
         }
-    }, [tenantId]);
+    }, [tenantId, tenantBase]);
 
     const saveSettings = useCallback(async () => {
         if (!isDirty) return;
@@ -89,7 +93,7 @@ const Page = () => {
         setError(null);
         setSuccess(null);
         try {
-            const res = await axios.post(`/api/tenant/${tenantId}/settings`, { settings });
+            const res = await axios.post(`${tenantBase}/api/settings`, { settings });
             if (res.data.success) {
                 setSettings(res.data.settings);
                 setInitialSettings(res.data.settings);
@@ -103,7 +107,7 @@ const Page = () => {
         } finally {
             setSaving(false);
         }
-    }, [tenantId, settings, isDirty]);
+    }, [tenantId, settings, isDirty, tenantBase]);
 
     const resetSettings = useCallback(() => {
         setSettings(initialSettings);

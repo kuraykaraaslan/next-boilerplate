@@ -13,7 +13,11 @@ import OTPConfirmModal from '@/modules/user_security/ui/partials/otp-confirm-mod
 const TenantLoginPage = () => {
     const params = useParams();
     const tenantId = params.tenantId as string;
-    const basePath = `/tenant/${tenantId}/auth`;
+    
+    // If the path doesn't start with /tenant/, base is empty (we are on a custom domain)
+    const isProxied = typeof window !== 'undefined' && !window.location.pathname.startsWith('/tenant/');
+    const tenantBase = isProxied ? '' : `/tenant/${tenantId}`;
+    const basePath = `${tenantBase}/auth`;
 
     const emailRegex = /\S+@\S+\.\S+/;
     const passwordRegex = /^.{6,}$/;
@@ -68,7 +72,12 @@ const TenantLoginPage = () => {
             return;
         }
 
-        await axiosInstance.post(`/api/tenants/${tenantId}/auth`, {
+        // Use the tenant-specific API which is located at /tenant/[id]/api/auth
+        // On proxied domains, this resolves to /api/auth which the proxy rewrites.
+        // On localhost, this resolves to /tenant/[id]/api/auth.
+        const apiPath = `${tenantBase}/api/auth`;
+
+        await axiosInstance.post(apiPath, {
             email,
             password,
             action: 'login',
@@ -76,7 +85,7 @@ const TenantLoginPage = () => {
             const { user } = res.data;
             setUser(user);
             toast.success('Login successful');
-            router.push(`/tenant/${tenantId}`);
+            router.push(tenantBase || '/');
         }).catch((err) => {
             toast.error(err.response?.data?.error || 'Login failed');
         });
@@ -114,7 +123,7 @@ const TenantLoginPage = () => {
                 tenantId,
             }).then(() => {
                 toast.success('OTP doğrulandı');
-                router.push(searchParams.get('redirect') || `/tenant/${tenantId}`);
+                router.push(searchParams.get('redirect') || (tenantBase || '/'));
             });
         } catch (err: any) {
             toast.error(err?.response?.data?.message || 'OTP doğrulanamadı');

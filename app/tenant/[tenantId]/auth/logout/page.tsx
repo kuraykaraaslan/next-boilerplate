@@ -12,6 +12,9 @@ const TenantLogoutPage = () => {
     const { setUser } = useGlobalStore();
     const router = useRouter();
 
+    const isProxied = typeof window !== 'undefined' && !window.location.pathname.startsWith('/tenant/');
+    const tenantBase = isProxied ? '' : `/tenant/${tenantId}`;
+
     const handleLogout = async () => {
         await axiosInstance.post(`/api/auth/logout`).then(res => {
             if (res.status === 200) {
@@ -25,7 +28,7 @@ const TenantLogoutPage = () => {
             localStorage.removeItem('accessToken');
             localStorage.removeItem('refreshToken');
             localStorage.removeItem('userSession');
-            router.push(`/tenant/${tenantId}/auth/login`);
+            router.push(`${tenantBase}/auth/login`);
         });
     };
 

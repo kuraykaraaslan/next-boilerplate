@@ -1,10 +1,31 @@
 import { prisma } from "@/libs/prisma";
+import redis from "@/libs/redis";
 import { SafeTenantDomain, SafeTenantDomainSchema, DomainVerificationInfo } from "./tenant_domain.types";
 import { CreateTenantDomainInput, UpdateTenantDomainInput, GetTenantDomainsInput, InitiateVerificationInput } from "./tenant_domain.dto";
 import TenantDomainMessages from "./tenant_domain.messages";
 import DNSVerificationService from "./dns_verification.service";
 
+const DOMAIN_CACHE_TTL = parseInt(process.env.TENANT_CACHE_TTL || `${60 * 5}`); // 5 min default
+
 export default class TenantDomainService {
+
+  /**
+   * Helper to clear domain related cache
+   */
+  private static async clearCache(tenantDomain: SafeTenantDomain | string) {
+    if (typeof tenantDomain === 'string') {
+      // Try to get domain by ID to find the domain string if needed, 
+      // but usually we want to clear multiple keys
+      await redis.del(`tenant:domain:id:${tenantDomain}`);
+      return;
+    }
+
+    await Promise.all([
+      redis.del(`tenant:domain:name:${tenantDomain.domain}`),
+      redis.del(`tenant:domain:id:${tenantDomain.tenantDomainId}`),
+      redis.del(`tenant:domain:primary:${tenantDomain.tenantId}`)
+    ]);
+  }
 
   static async getByTenantId({ tenantId, page, pageSize }: GetTenantDomainsInput): Promise<{ domains: SafeTenantDomain[], total: number }> {
     const [domains, total] = await Promise.all([
@@ -24,6 +45,17 @@ export default class TenantDomainService {
   }
 
   static async getById(tenantDomainId: string): Promise<SafeTenantDomain> {
+    const cacheKey = `tenant:domain:id:${tenantDomainId}`;
+    const cached = await redis.get(cacheKey);
+
+    if (cached) {
+      try {
+        return SafeTenantDomainSchema.parse(JSON.parse(cached));
+      } catch (e) {
+        await redis.del(cacheKey);
+      }
+    }
+
     const domain = await prisma.tenantDomain.findUnique({
       where: { tenantDomainId }
     });
@@ -32,10 +64,23 @@ export default class TenantDomainService {
       throw new Error(TenantDomainMessages.DOMAIN_NOT_FOUND);
     }
 
-    return SafeTenantDomainSchema.parse(domain);
+    const parsed = SafeTenantDomainSchema.parse(domain);
+    await redis.setex(cacheKey, DOMAIN_CACHE_TTL, JSON.stringify(parsed));
+    return parsed;
   }
 
   static async getByDomain(domain: string): Promise<SafeTenantDomain | null> {
+    const cacheKey = `tenant:domain:name:${domain}`;
+    const cached = await redis.get(cacheKey);
+
+    if (cached) {
+      try {
+        return SafeTenantDomainSchema.parse(JSON.parse(cached));
+      } catch (e) {
+        await redis.del(cacheKey);
+      }
+    }
+
     const found = await prisma.tenantDomain.findUnique({
       where: { domain }
     });
@@ -45,12 +90,25 @@ export default class TenantDomainService {
       return null;
     }
 
-
     console.log(`TenantDomainService.getByDomain: Found domain: ${domain} → tenantId: ${found.tenantId}`);
-    return SafeTenantDomainSchema.parse(found);
+    
+    const parsed = SafeTenantDomainSchema.parse(found);
+    await redis.setex(cacheKey, DOMAIN_CACHE_TTL, JSON.stringify(parsed));
+    return parsed;
   }
 
   static async getPrimaryByTenantId(tenantId: string): Promise<SafeTenantDomain | null> {
+    const cacheKey = `tenant:domain:primary:${tenantId}`;
+    const cached = await redis.get(cacheKey);
+
+    if (cached) {
+      try {
+        return SafeTenantDomainSchema.parse(JSON.parse(cached));
+      } catch (e) {
+        await redis.del(cacheKey);
+      }
+    }
+
     const domain = await prisma.tenantDomain.findFirst({
       where: { tenantId, isPrimary: true }
     });
@@ -59,7 +117,9 @@ export default class TenantDomainService {
       return null;
     }
 
-    return SafeTenantDomainSchema.parse(domain);
+    const parsed = SafeTenantDomainSchema.parse(domain);
+    await redis.setex(cacheKey, DOMAIN_CACHE_TTL, JSON.stringify(parsed));
+    return parsed;
   }
 
   static async create(data: CreateTenantDomainInput): Promise<SafeTenantDomain> {
@@ -85,7 +145,9 @@ export default class TenantDomainService {
       }
     });
 
-    return SafeTenantDomainSchema.parse(domain);
+    const parsed = SafeTenantDomainSchema.parse(domain);
+    await this.clearCache(parsed);
+    return parsed;
   }
 
   static async update(tenantDomainId: string, data: UpdateTenantDomainInput): Promise<SafeTenantDomain> {
@@ -109,7 +171,12 @@ export default class TenantDomainService {
       data
     });
 
-    return SafeTenantDomainSchema.parse(updated);
+    const parsed = SafeTenantDomainSchema.parse(updated);
+    // Clear cache for both the old and new state (domain name might have changed)
+    await this.clearCache(SafeTenantDomainSchema.parse(domain));
+    await this.clearCache(parsed);
+    
+    return parsed;
   }
 
   static async initiateVerification({ tenantDomainId, method }: InitiateVerificationInput): Promise<DomainVerificationInfo> {
@@ -135,6 +202,8 @@ export default class TenantDomainService {
       where: { tenantDomainId },
       data: { verificationToken: verification.token }
     });
+
+    await this.clearCache(SafeTenantDomainSchema.parse(domain));
 
     return {
       domain: domain.domain,
@@ -176,7 +245,9 @@ export default class TenantDomainService {
       }
     });
 
-    return SafeTenantDomainSchema.parse(updated);
+    const parsed = SafeTenantDomainSchema.parse(updated);
+    await this.clearCache(parsed);
+    return parsed;
   }
 
   static async delete(tenantDomainId: string): Promise<void> {
@@ -194,5 +265,6 @@ export default class TenantDomainService {
 
     await DNSVerificationService.deleteStoredToken(tenantDomainId);
     await prisma.tenantDomain.delete({ where: { tenantDomainId } });
+    await this.clearCache(SafeTenantDomainSchema.parse(domain));
   }
 }

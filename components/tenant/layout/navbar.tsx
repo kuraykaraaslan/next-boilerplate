@@ -29,22 +29,26 @@ const Navbar = ({ tenant, tenantMember }: NavbarProps) => {
         setIsMobileMenuOpen(!isMobileMenuOpen);
     };
 
+    // If the path starts with /tenant/, use it as base. Otherwise (custom domain), base is empty.
+    const isProxied = typeof window !== 'undefined' && !window.location.pathname.startsWith('/tenant/');
+    const tenantBase = isProxied ? '' : `/tenant/${tenantId}`;
+
     const menu = [
         {
             name: "Dashboard",
-            href: `/tenant/${tenantId}/admin`,
+            href: `${tenantBase}/admin`,
         },
         {
             name: "Members",
-            href: `/tenant/${tenantId}/admin/members`,
+            href: `${tenantBase}/admin/members`,
         },
         {
             name: "Settings",
-            href: `/tenant/${tenantId}/admin/settings`,
+            href: `${tenantBase}/admin/settings`,
         },
         {
             name: "Back to App",
-            href: `/tenant/${tenantId}`,
+            href: `${tenantBase}`,
         },
     ];
 
@@ -53,7 +57,7 @@ const Navbar = ({ tenant, tenantMember }: NavbarProps) => {
             <div className="">
                 <nav className="relative mx-auto h-16 flex items-stretch items-center justify-between lg:px-8 from-base-100 to-base-300 bg-gradient-to-b shadow-lg text-primary" aria-label="Global">
                     <div className="py-4 pl-4 lg:pl-0 flex items-center gap-2">
-                        <Logo href={`/tenant/${tenantId}/admin`} />
+                        <Logo href={`${tenantBase}/admin`} />
                         <span className="text-sm font-medium text-base-content/60 hidden sm:inline">
                             / {tenant?.name}
                         </span>
@@ -92,7 +96,7 @@ const Navbar = ({ tenant, tenantMember }: NavbarProps) => {
                     <div className="relative flex-1 flex flex-col max-w-xs w-full bg-base-100">
                         <div className="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
                             <div className="flex items-center justify-center flex-col gap-2">
-                                <Logo href={`/tenant/${tenantId}/admin`} />
+                                <Logo href={`${tenantBase}/admin`} />
                                 <span className="text-sm text-base-content/60">{tenant?.name}</span>
                             </div>
                             <nav className="mt-5 px-2 space-y-1">

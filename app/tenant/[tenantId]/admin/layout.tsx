@@ -22,21 +22,26 @@ const Layout = ({
     const [tenant, setTenant] = useState<any>(null);
     const [tenantMember, setTenantMember] = useState<any>(null);
 
+    // If the path doesn't start with /tenant/, it means we are being proxied (custom domain)
+    const isProxied = typeof window !== 'undefined' && !window.location.pathname.startsWith('/tenant/');
+    const tenantBase = isProxied ? '' : `/tenant/${tenantId}`;
+
     useEffect(() => {
         const checkAuth = async () => {
             try {
+                // Root session check
                 const response = await axiosInstance.get('/api/auth/session');
                 if (response.status === 200 && response.data.user) {
                     setUser(response.data.user);
 
-                    // Check tenant membership
-                    const tenantResponse = await axiosInstance.get(`/api/tenant/${tenantId}/auth`);
+                    // Tenant specific auth check using the computed base
+                    const tenantResponse = await axiosInstance.get(`${tenantBase}/api/auth`);
                     if (tenantResponse.status === 200 && tenantResponse.data.success) {
                         const { tenant, tenantMember } = tenantResponse.data;
 
                         // Check if user has admin role in tenant
                         if (tenantMember.memberRole !== 'OWNER' && tenantMember.memberRole !== 'ADMIN') {
-                            router.push(`/tenant/${tenantId}?error=Access denied`);
+                            router.push(`${tenantBase}?error=Access denied`);
                             return;
                         }
 
@@ -54,7 +59,7 @@ const Layout = ({
         if (!isAuthChecked && tenantId) {
             checkAuth();
         }
-    }, [isAuthChecked, router, setUser, tenantId]);
+    }, [isAuthChecked, router, setUser, tenantId, tenantBase]);
 
     if (!isAuthChecked) {
         return (
