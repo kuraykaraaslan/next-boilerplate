@@ -51,9 +51,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
         <div className="rounded-none shadow-md w-full md:max-w-md grid grid-cols-1 min-h-screen md:min-h-[600px] rounded-lg shadow-md bg-base-100 md:bg-base-100/70 border border-base-300">
           <div className="col-span-1 flex flex-col items-center justify-center w-full p-8 pt-0">
             <div className="flex items-center justify-center mb-3">
-              <Link href="/" className="flex items-center justify-center space-x-2 font-bold text-4xl">
                 <Logo />
-              </Link>
             </div>
             <h1 className="text-2xl font-bold text-center mb-4">{titles?.find((item) => pathname?.startsWith(item.path))?.title}</h1>
             <div className="w-full">

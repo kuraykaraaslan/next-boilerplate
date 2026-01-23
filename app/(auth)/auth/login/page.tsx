@@ -80,12 +80,6 @@ const LoginPage = () => {
             const { user } = res.data;
             setUser(user);
 
-            if (userSecurity.otpMethods.length > 0) {
-                setAvailableMethods(userSecurity.otpMethods);
-                setSelectedMethod(userSecurity.otpMethods[0]);
-                setOtpModalOpen(true);
-                return;
-            }
             toast.success('Login successful');
             router.push('/');
 

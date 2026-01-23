@@ -12,15 +12,20 @@ import AuthMessages from "@/modules/auth/auth.messages";
 import UserSecurityService from "@/modules/user_security/user_security.service";
 
 export async function POST(request: NextRequest) {
+
+    console.log("[LOGIN] Received login request");
     try {
 
+        const body = await request.json();
+
+        console.log("[LOGIN] Login request body:", JSON.stringify(body));
         console.log("[LOGIN] Checking rate limit");
 
         await Limiter.useRateLimit(request);
 
         console.log("[LOGIN] Parsing login data");
 
-        const parsedData = LoginDTO.safeParse(await request.json());
+        const parsedData = LoginDTO.safeParse(body);
 
         console.log("[LOGIN] Received login request");
 

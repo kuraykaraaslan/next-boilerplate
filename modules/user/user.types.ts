@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { UserRoleEnum, UserStatusEnum } from './user.enums';
+import { UserProfileSchema } from '../user_profile/user_profile.types';
 
 // Helper to coerce dates from JSON (handles both Date and string)
 const dateOrString = z.union([z.date(), z.string().datetime()]).transform(val => 
@@ -21,6 +22,8 @@ export const UserSchema = z.object({
 export const SafeUserSchema = UserSchema.omit({
   password: true,
   deletedAt: true
+}).extend({
+  userProfile: z.object(UserProfileSchema).nullable().optional()
 });
 
 export const UpdateUserSchema = z.object({

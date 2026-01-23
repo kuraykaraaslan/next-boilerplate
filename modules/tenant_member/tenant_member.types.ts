@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { TenantMemberRoleEnum, TenantMemberStatusEnum } from './tenant_member.enums';
+import { SafeUserSchema } from '../user/user.types';
 
 export const TenantMemberSchema = z.object({
   tenantMemberId: z.string().uuid(),
@@ -14,6 +15,8 @@ export const TenantMemberSchema = z.object({
 
 export const SafeTenantMemberSchema = TenantMemberSchema.omit({
   deletedAt: true
+}).extend({
+  user: z.object(SafeUserSchema.shape).nullable()
 });
 
 export type TenantMember = z.infer<typeof TenantMemberSchema>;

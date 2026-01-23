@@ -23,10 +23,20 @@ export default class UserSecurityService {
     console.log('[UserSecurityService] Raw security data from DB:', JSON.stringify(security, null, 2));
 
     if (!security) {
-      return await this.createDefaultUserSecurity(userId);
+      const created = await this.createDefaultUserSecurity(userId);
+      return SafeUserSecuritySchema.parse(created);
     }
 
-    const parsed = SafeUserSecuritySchema.parse(security);
+    // Ensure otpMethods is always an array (fix for null/undefined from DB)
+    const securityWithDefaults = {
+      ...security,
+      otpMethods: security.otpMethods ?? [],
+      otpBackupCodes: security.otpBackupCodes ?? [],
+    };
+
+    console.log('[UserSecurityService] Security data with defaults:', JSON.stringify(securityWithDefaults, null, 2));
+
+    const parsed = SafeUserSecuritySchema.parse(securityWithDefaults);
     console.log('[UserSecurityService] Parsed safe security:', JSON.stringify(parsed, null, 2));
     return parsed;
   }

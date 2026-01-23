@@ -38,7 +38,7 @@ const STATUS_COLORS = {
     PENDING: 'badge-info',
 };
 
-const Page = () => {
+const TenantMembersPage = () => {
     const params = useParams();
     const tenantId = params.tenantId as string;
     const { t } = useTranslation();
@@ -102,14 +102,14 @@ const Page = () => {
     const actions: ActionButton<SafeTenantMember>[] = [
         { 
             label: 'Edit', 
-            href: (member) => `/tenant/${tenantId}/admin/members/${member.tenantMemberId}`, 
+            href: (member) => `/admin/tenants/${tenantId}/members/${member.tenantMemberId}`, 
             className: 'btn-primary' 
         },
         { 
             label: 'Remove', 
             onClick: async (member) => {
                 if (!confirm(`Are you sure you want to remove ${member.user?.email}?`)) return;
-                await axiosInstance.delete(`/api/tenants/${tenantId}/members/${member.tenantMemberId}`);
+                await axiosInstance.delete(`/api/tenant/${tenantId}/members/${member.tenantMemberId}`);
             },
             className: 'text-error',
             hideOnMobile: true,
@@ -117,29 +117,36 @@ const Page = () => {
     ];
 
     return (
-        <TableProvider<SafeTenantMember>
-            apiEndpoint={`/api/tenants/${tenantId}/members`}
-            dataKey="members"
-            idKey="tenantMemberId"
-            columns={columns}
-            actions={actions}
-        >
-            <Table>
-                <TableHeader
-                    title="Members"
-                    searchPlaceholder="Search members..."
-                    buttonText="Add Member"
-                    buttonLink={`/tenant/${tenantId}/admin/members/create`}
-                />
-                <TableBody />
-                <TableFooter
-                    showingText="Showing"
-                    previousText="Previous"
-                    nextText="Next"
-                />
-            </Table>
-        </TableProvider>
+        <div>
+            <div className="mb-4">
+                <a href="/admin/tenants" className="btn btn-ghost btn-sm">
+                    ← Back to Tenants
+                </a>
+            </div>
+            <TableProvider<SafeTenantMember>
+                apiEndpoint={`/api/tenant/${tenantId}/members`}
+                dataKey="members"
+                idKey="tenantMemberId"
+                columns={columns}
+                actions={actions}
+            >
+                <Table>
+                    <TableHeader
+                        title="Tenant Members"
+                        searchPlaceholder="Search members..."
+                        buttonText="Add Member"
+                        buttonLink={`/admin/tenants/${tenantId}/members/create`}
+                    />
+                    <TableBody />
+                    <TableFooter
+                        showingText="Showing"
+                        previousText="Previous"
+                        nextText="Next"
+                    />
+                </Table>
+            </TableProvider>
+        </div>
     );
 };
 
-export default Page;
+export default TenantMembersPage;

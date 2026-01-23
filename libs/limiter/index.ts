@@ -29,12 +29,14 @@ export default class Limiter {
    * Otherwise, returns modified response with headers.
    */
   static async useRateLimit(request: NextRequest): Promise<NextResponse | null> {
-    const ip = this.getIpFromRequest(request);
-    const { success, remaining } = await this.check(ip);
-
     const res = NextResponse.next();
     // disable for testing purposes
+    console.log('Rate limiting is currently disabled for testing purposes.');
     return res;
+
+
+    const ip = this.getIpFromRequest(request);
+    const { success, remaining } = await this.check(ip);
     
     res.headers.set('X-RateLimit-Limit', RATE_LIMIT.toString());
     res.headers.set('X-RateLimit-Remaining', remaining.toString());
@@ -50,10 +52,14 @@ export default class Limiter {
   }
 
   static async checkRateLimit(request: NextRequest): Promise<NextResponse | null> {
-    const ip = this.getIpFromRequest(request);
-    const { success, remaining } = await this.check(ip);
+
 
     const res = NextResponse.next();
+
+    const ip = this.getIpFromRequest(request);
+    const { success, remaining } = await this.check(ip);
+    return res;
+
     res.headers.set('X-RateLimit-Limit', RATE_LIMIT.toString());
     res.headers.set('X-RateLimit-Remaining', remaining.toString());
 

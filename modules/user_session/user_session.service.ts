@@ -219,11 +219,16 @@ export default class UserSessionService {
     const cached = await redis.get(cacheKey);
 
     if (cached) {
-      const session = JSON.parse(cached) as SafeUserSession;
-      if (!otpVerifyBypass && session.otpVerifyNeeded) {
-        throw new Error(UserSessionMessages.OTP_REQUIRED);
+      try {
+        const session = SafeUserSessionSchema.parse(JSON.parse(cached));
+        if (!otpVerifyBypass && session.otpVerifyNeeded) {
+          throw new Error(UserSessionMessages.OTP_REQUIRED);
+        }
+        return session;
+      } catch (parseError) {
+        // Cache data is invalid, clear it and fetch from DB
+        await redis.del(cacheKey);
       }
-      return session;
     }
 
     // Query database
