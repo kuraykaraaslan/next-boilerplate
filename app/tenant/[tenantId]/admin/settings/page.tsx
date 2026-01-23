@@ -11,6 +11,7 @@ import {
     SecurityTab,
     BillingTab,
     IntegrationTab,
+    DomainsTab,
 } from '@/components/tenant/settings/Tabs';
 import axios from '@/libs/axios';
 import {
@@ -34,6 +35,7 @@ import {
     faSpinner,
     faCheck,
     faRotateRight,
+    faGlobe,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -136,6 +138,12 @@ const Page = () => {
             label: 'General',
             icon: faCog,
             content: <GeneralTab {...tabProps} />
+        },
+        {
+            id: 'domains',
+            label: 'Domains',
+            icon: faGlobe,
+            content: <DomainsTab {...tabProps} />
         },
         {
             id: 'branding',

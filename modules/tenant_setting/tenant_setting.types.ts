@@ -42,7 +42,7 @@ export const TenantFeatureSettingKeySchema = z.enum([
   'featureChat', 'featureNotifications', 'featureAnalytics',
   'featureExport', 'featureImport', 'featureApi',
   'featureWebhooks', 'featureIntegrations',
-  'maxUsers', 'maxStorage', 'maxProjects',
+  'maxUsers', 'maxStorage', 'maxProjects', 'maxDomains', 'maxSubdomains',
 ]);
 export type TenantFeatureSettingKey = z.infer<typeof TenantFeatureSettingKeySchema>;
 export const TENANT_FEATURE_KEYS = TenantFeatureSettingKeySchema.options;
