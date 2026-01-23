@@ -28,18 +28,18 @@ const TenantsPage = () => {
     ];
 
     const actions: ActionButton<SafeTenant>[] = [
-        { 
-            label: 'Members', 
-            href: (tenant) => `/admin/tenants/${tenant.tenantId}/members`, 
-            className: 'btn-secondary' 
+        {
+            label: 'Members',
+            href: (tenant) => `/system/admin/tenants/${tenant.tenantId}/members`,
+            className: 'btn-secondary'
         },
-        { 
-            label: 'Edit', 
-            href: (tenant) => `/admin/tenants/${tenant.tenantId}`, 
-            className: 'btn-primary' 
+        {
+            label: 'Edit',
+            href: (tenant) => `/system/admin/tenants/${tenant.tenantId}`,
+            className: 'btn-primary'
         },
-        { 
-            label: 'Delete', 
+        {
+            label: 'Delete',
             onClick: async (tenant) => {
                 if (!confirm(`Are you sure you want to delete ${tenant.name}?`)) return;
                 await axiosInstance.delete(`/api/tenants/${tenant.tenantId}`);
@@ -62,7 +62,7 @@ const TenantsPage = () => {
                     title="Tenants"
                     searchPlaceholder="Search tenants..."
                     buttonText="Create Tenant"
-                    buttonLink="/admin/tenants/create"
+                    buttonLink="/system/admin/tenants/create"
                 />
                 <TableBody />
                 <TableFooter

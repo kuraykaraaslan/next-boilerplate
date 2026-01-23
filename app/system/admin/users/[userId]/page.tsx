@@ -71,7 +71,7 @@ const UpdateUser = () => {
             profilePicture: imageUrl,
         }).then(() => {
             toast.success('User updated successfully');
-            router.push('/admin/users');
+            router.push('/system/admin/users');
         }).catch((error) => {
             toast.error(error.response.data.message);
         });
@@ -99,7 +99,7 @@ const UpdateUser = () => {
                 <div className="flex justify-between items-center flex-row">
                     <h1 className="text-3xl font-bold h-16 items-center">Update User</h1>
                     <div className="flex gap-2 h-16">
-                        <Link className="btn btn-primary btn-sm h-12" href="/admin/users">
+                        <Link className="btn btn-primary btn-sm h-12" href="/system/admin/users">
                             Back to Users
                         </Link>
                     </div>

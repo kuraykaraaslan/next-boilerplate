@@ -8,7 +8,7 @@ import axiosInstance from "@/libs/axios";
 import useGlobalStore from "@/libs/zustand";
 
 // Make sure to import the Navbar component from the correct path
-const Navbar = dynamic(() => import('@/components/admin/layout/navbar'), { ssr: false });
+const Navbar = dynamic(() => import('@/components/system/layout/navbar'), { ssr: false });
 
 const Layout = ({
     children,
@@ -25,13 +25,13 @@ const Layout = ({
                 const response = await axiosInstance.get('/api/auth/session');
                 if (response.status === 200 && response.data.user) {
                     setUser(response.data.user);
-                    
+
                     // Check if user has admin role
                     if (response.data.user.userRole !== 'ADMIN' && response.data.user.userRole !== 'SUPER_ADMIN') {
                         router.push('/auth/login?error=Access denied');
                         return;
                     }
-                    
+
                     setIsAuthChecked(true);
                 }
             } catch (error) {

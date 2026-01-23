@@ -17,7 +17,7 @@ import {
     PaymentTab,
     NotificationTab,
     LocalizationTab
-} from '@/components/admin/settings/Tabs';
+} from '@/components/system/settings/Tabs';
 import axios from '@/libs/axios';
 import {
     GENERAL_KEYS, AUTH_KEYS, EMAIL_KEYS, SMS_KEYS, STORAGE_KEYS, AI_KEYS, SECURITY_KEYS,
@@ -241,7 +241,7 @@ const Page = () => {
                         </span>
                     )}
                     {isDirty && (
-                        <button 
+                        <button
                             className="btn btn-ghost btn-sm"
                             onClick={resetSettings}
                             disabled={saving}
@@ -250,9 +250,9 @@ const Page = () => {
                             Reset
                         </button>
                     )}
-                    <button 
-                        className="btn btn-primary" 
-                        onClick={saveSettings} 
+                    <button
+                        className="btn btn-primary"
+                        onClick={saveSettings}
                         disabled={saving || !isDirty}
                     >
                         {saving ? (

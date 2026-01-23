@@ -25,9 +25,9 @@ const UserPage = () => {
     ];
 
     const actions: ActionButton<SafeUser>[] = [
-        { label: 'admin.users.edit', href: (u) => `/admin/users/${u.userId}`, className: 'btn-primary' },
-        { 
-            label: 'admin.users.delete', 
+        { label: 'admin.users.edit', href: (u) => `/system/admin/users/${u.userId}`, className: 'btn-primary' },
+        {
+            label: 'admin.users.delete',
             onClick: async (u) => {
                 if (!confirm(t('admin.users.confirm_delete'))) return;
                 await axiosInstance.delete(`/api/users/${u.userId}`);
@@ -50,7 +50,7 @@ const UserPage = () => {
                     title="admin.users.title"
                     searchPlaceholder="admin.users.search_placeholder"
                     buttonText="admin.users.create_user"
-                    buttonLink="/admin/users/create"
+                    buttonLink="/system/admin/users/create"
                 />
                 <TableBody />
                 <TableFooter

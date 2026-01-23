@@ -72,7 +72,7 @@ const CreateUser = () => {
 
         await axiosInstance.post('/api/users', { user }).then(() => {
             toast.success('User created successfully');
-            // router.push('/admin/posts');
+            // router.push('/system/admin/posts');
         }).catch((error) => {
             toast.error(error.response.data.message);
         });
@@ -102,7 +102,7 @@ const CreateUser = () => {
                 <div className="flex justify-between items-center flex-row">
                     <h1 className="text-3xl font-bold h-16 items-center">Create User</h1>
                     <div className="flex gap-2 h-16">
-                        <Link className="btn btn-primary btn-sm h-12" href="/admin/users">
+                        <Link className="btn btn-primary btn-sm h-12" href="/system/admin/users">
                             Back to Users
                         </Link>
                     </div>

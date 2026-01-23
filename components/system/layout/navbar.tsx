@@ -24,35 +24,35 @@ const Navbar = () => {
     const menu = [
         {
             name: "Home",
-            href: "/admin",
+            href: "/system/admin",
         },
         {
             name: "Projects",
-            href: "/admin/projects",
+            href: "/system/admin/projects",
         },
         {
             name: "Categories",
-            href: "/admin/categories",
+            href: "/system/admin/categories",
         },
         {
             name: "Posts",
-            href: "/admin/posts",
+            href: "/system/admin/posts",
         },
         {
             name: "Comments",
-            href: "/admin/comments",
+            href: "/system/admin/comments",
         },
         {
             name: "Users",
-            href: "/admin/users",
+            href: "/system/admin/users",
         },
         {
-            name: "Slots",
-            href: "/admin/slots",
+            name: "Tenants",
+            href: "/system/admin/tenants",
         },
         {
             name: "Settings",
-            href: "/admin/settings",
+            href: "/system/admin/settings",
         },
         {
             name: "Logout",
@@ -65,7 +65,7 @@ const Navbar = () => {
             <div className="">
                 <nav className="relative mx-auto h-16 flex items-stretch items-center justify-between lg:px-8 from-base-100 to-base-300 bg-gradient-to-b shadow-lg text-primary" aria-label="Global">
                     <div className="py-4 pl-4 lg:pl-0 flex items-center gap-2">
-                        <Logo href="/admin" />
+                        <Logo href="/system/admin" />
                     </div>
                     <div className="flex lg:hidden">
                         <button type="button" className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 p-6 mr-2" aria-controls="mobile-menu" aria-expanded="false" onClick={toggleMobileMenu}>
@@ -98,7 +98,7 @@ const Navbar = () => {
                     <div className="relative flex-1 flex flex-col max-w-xs w-full bg-base-100">
                         <div className="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
                             <div className="flex items-center justify-center">
-                                <Logo href="/admin" />
+                                <Logo href="/system/admin" />
                             </div>
                             <nav className="mt-5 px-2 space-y-1">
                                 {menu.map((item, index) => (

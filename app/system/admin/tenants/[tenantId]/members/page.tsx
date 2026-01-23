@@ -44,9 +44,9 @@ const TenantMembersPage = () => {
     const { t } = useTranslation();
 
     const columns: ColumnDef<SafeTenantMember>[] = [
-        { 
-            key: 'user', 
-            header: 'User', 
+        {
+            key: 'user',
+            header: 'User',
             accessor: (member) => (
                 <div className="flex items-center gap-3">
                     <div className="avatar placeholder">
@@ -69,9 +69,9 @@ const TenantMembersPage = () => {
                 </div>
             )
         },
-        { 
-            key: 'role', 
-            header: 'Role', 
+        {
+            key: 'role',
+            header: 'Role',
             accessor: (member) => (
                 <span className={`badge ${ROLE_COLORS[member.memberRole]} gap-1`}>
                     <FontAwesomeIcon icon={ROLE_ICONS[member.memberRole]} size="xs" />
@@ -79,18 +79,18 @@ const TenantMembersPage = () => {
                 </span>
             )
         },
-        { 
-            key: 'status', 
-            header: 'Status', 
+        {
+            key: 'status',
+            header: 'Status',
             accessor: (member) => (
                 <span className={`badge ${STATUS_COLORS[member.memberStatus]}`}>
                     {member.memberStatus}
                 </span>
             )
         },
-        { 
-            key: 'createdAt', 
-            header: 'Joined', 
+        {
+            key: 'createdAt',
+            header: 'Joined',
             accessor: (member) => (
                 <span className="text-sm text-base-content/60">
                     {member.createdAt ? new Date(member.createdAt).toLocaleDateString() : 'N/A'}
@@ -100,13 +100,13 @@ const TenantMembersPage = () => {
     ];
 
     const actions: ActionButton<SafeTenantMember>[] = [
-        { 
-            label: 'Edit', 
-            href: (member) => `/admin/tenants/${tenantId}/members/${member.tenantMemberId}`, 
-            className: 'btn-primary' 
+        {
+            label: 'Edit',
+            href: (member) => `/system/admin/tenants/${tenantId}/members/${member.tenantMemberId}`,
+            className: 'btn-primary'
         },
-        { 
-            label: 'Remove', 
+        {
+            label: 'Remove',
             onClick: async (member) => {
                 if (!confirm(`Are you sure you want to remove ${member.user?.email}?`)) return;
                 await axiosInstance.delete(`/api/tenant/${tenantId}/members/${member.tenantMemberId}`);
@@ -119,7 +119,7 @@ const TenantMembersPage = () => {
     return (
         <div>
             <div className="mb-4">
-                <a href="/admin/tenants" className="btn btn-ghost btn-sm">
+                <a href="/system/admin/tenants" className="btn btn-ghost btn-sm">
                     ← Back to Tenants
                 </a>
             </div>
@@ -135,7 +135,7 @@ const TenantMembersPage = () => {
                         title="Tenant Members"
                         searchPlaceholder="Search members..."
                         buttonText="Add Member"
-                        buttonLink={`/admin/tenants/${tenantId}/members/create`}
+                        buttonLink={`/system/admin/tenants/${tenantId}/members/create`}
                     />
                     <TableBody />
                     <TableFooter
