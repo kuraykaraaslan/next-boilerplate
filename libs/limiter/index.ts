@@ -31,7 +31,6 @@ export default class Limiter {
   static async useRateLimit(request: NextRequest): Promise<NextResponse | null> {
     const res = NextResponse.next();
     // disable for testing purposes
-    console.log('Rate limiting is currently disabled for testing purposes.');
     return res;
 
 

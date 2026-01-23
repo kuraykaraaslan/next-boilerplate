@@ -10,7 +10,6 @@ export async function GET(request: NextRequest) {
 
     const userSecurity = await UserSecurityService.getSafeByUserId(user.userId); // HAD TO BE SAFE
 
-    console.log("User Security:", userSecurity);
 
     return NextResponse.json({ 
        

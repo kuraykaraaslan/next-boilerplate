@@ -170,11 +170,6 @@ export async function exampleFullUsage(request: NextRequest) {
         requiredTenantRole: "ADMIN" 
       });
 
-    console.log('User:', user.email);
-    console.log('Tenant:', tenant.name);
-    console.log('Member role:', tenantMember.memberRole);
-    console.log('Session expiry:', userSession.sessionExpiry);
-
     return NextResponse.json({ 
       user: {
         userId: user.userId,

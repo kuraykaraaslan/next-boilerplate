@@ -20,8 +20,6 @@ export default class UserSecurityService {
       where: { userId }
     });
 
-    console.log('[UserSecurityService] Raw security data from DB:', JSON.stringify(security, null, 2));
-
     if (!security) {
       const created = await this.createDefaultUserSecurity(userId);
       return SafeUserSecuritySchema.parse(created);
@@ -34,10 +32,7 @@ export default class UserSecurityService {
       otpBackupCodes: security.otpBackupCodes ?? [],
     };
 
-    console.log('[UserSecurityService] Security data with defaults:', JSON.stringify(securityWithDefaults, null, 2));
-
     const parsed = SafeUserSecuritySchema.parse(securityWithDefaults);
-    console.log('[UserSecurityService] Parsed safe security:', JSON.stringify(parsed, null, 2));
     return parsed;
   }
 

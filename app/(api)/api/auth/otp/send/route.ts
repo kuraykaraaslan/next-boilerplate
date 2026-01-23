@@ -27,7 +27,6 @@ export async function POST(request: NextRequest) {
     const userOTPMethods = userSecurity.otpMethods;
 
     if (action === "enable" && userOTPMethods.includes(method)) {
-      console.log("OTP method already enabled:", method);
       return NextResponse.json(
         { message: AuthMessages.OTP_METHOD_ALREADY_ENABLED },
         { status: 400 }
@@ -35,7 +34,6 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === "disable" && !userOTPMethods.includes(method)) {
-      console.log("OTP method not enabled:", method);
       return NextResponse.json(
         { message: AuthMessages.OTP_METHOD_NOT_ENABLED },
         { status: 400 }

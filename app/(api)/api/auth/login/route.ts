@@ -13,24 +13,15 @@ import UserSecurityService from "@/modules/user_security/user_security.service";
 
 export async function POST(request: NextRequest) {
 
-    console.log("[LOGIN] Received login request");
     try {
 
         const body = await request.json();
 
-        console.log("[LOGIN] Login request body:", JSON.stringify(body));
-        console.log("[LOGIN] Checking rate limit");
-
         await Limiter.useRateLimit(request);
-
-        console.log("[LOGIN] Parsing login data");
 
         const parsedData = LoginDTO.safeParse(body);
 
-        console.log("[LOGIN] Received login request");
-
         if (!parsedData.success) {
-            console.error("[LOGIN] Invalid login data:", parsedData.error.issues);
             return NextResponse.json({
                 error: parsedData.error.issues
             }, { status: 400 });
@@ -38,11 +29,7 @@ export async function POST(request: NextRequest) {
 
         const { email, password } = parsedData.data;
 
-        console.log(`[LOGIN] Attempting login for email: ${email}`);
-
         const { user } = await AuthService.login({ email, password });
-
-        console.log(`[LOGIN] User authenticated: ${user.userId}`);
 
         if (!user) {
             throw new Error(AuthMessages.INVALID_CREDENTIALS);
@@ -50,8 +37,6 @@ export async function POST(request: NextRequest) {
 
         const userSecurity = await UserSecurityService.getSafeByUserId(user.userId);
         
-        console.log('[LOGIN] UserSecurity data:', JSON.stringify(userSecurity, null, 2));
-
         const { userSession, rawAccessToken, rawRefreshToken } = await UserSessionNextService.createSession({
             user,
             request,
@@ -72,14 +57,6 @@ export async function POST(request: NextRequest) {
         const protocol = request.headers.get('x-forwarded-proto') || request.headers.get('x-scheme') || 'http';
         const isSecure = origin.startsWith('https://') || protocol === 'https';
 
-        console.log('[LOGIN] Setting cookies - isSecure:', isSecure, 'protocol:', protocol, 'origin:', origin);
-        console.log('[LOGIN] Request headers:', {
-            host: request.headers.get('host'),
-            origin: request.headers.get('origin'),
-            'x-forwarded-host': request.headers.get('x-forwarded-host'),
-            'x-forwarded-proto': request.headers.get('x-forwarded-proto'),
-        });
-
         // Set cookies - Use SameSite=None with Secure for HTTPS cross-origin
         const cookieOptions = isSecure ? {
             httpOnly: true,
@@ -97,20 +74,17 @@ export async function POST(request: NextRequest) {
         response.cookies.set('accessToken', rawAccessToken, cookieOptions);
         response.cookies.set('refreshToken', rawRefreshToken, cookieOptions);
 
-        console.log('[LOGIN] Cookies set successfully with options:', cookieOptions);
-
 
         try {
             await MailService.sendNewLoginEmail({ email: user.email });
         } catch (emailError) {
-            console.error('Error sending new login email:', emailError);
+            // Ignored error for sending login email
         }
 
         return response;
 
     }
     catch (error: any) {
-        console.error(error);
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }

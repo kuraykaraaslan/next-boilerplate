@@ -194,10 +194,6 @@ export default class UserSessionNextService {
       const accessToken = request.cookies.get("accessToken")?.value;
       const refreshToken = request.cookies.get("refreshToken")?.value;
 
-      console.log("[AUTHENTICATE] Access Token:", accessToken);
-      console.log("[AUTHENTICATE] Refresh Token:", refreshToken);
-      console.log("[AUTHENTICATE] Required User Role:", requiredUserRole);
-
       if (!accessToken || !refreshToken) {
         throw new Error(UserSessionMessages.USER_NOT_AUTHENTICATED);
       }

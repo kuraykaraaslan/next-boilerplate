@@ -203,8 +203,7 @@ const { user, tenant, tenantMember } =
     requiredTenantRole: "USER" 
   });
 
-console.log(`${user.email} - ${tenant.name} - ${tenantMember.memberRole}`);
-```
+
 
 ### Example 5: Cache Clearing
 ```typescript

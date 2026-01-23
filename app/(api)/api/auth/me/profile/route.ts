@@ -25,10 +25,8 @@ export async function PUT(request: NextRequest) {
 
         const { userProfile } = await request.json();
 
-        console.log('Received userProfile:', userProfile);
         
         const parsedData = UpdateProfileRequestSchema.safeParse(userProfile);
-        console.log('Parsed data:', parsedData);
 
         if (!parsedData.success) {
             return NextResponse.json(

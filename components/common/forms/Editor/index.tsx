@@ -7,7 +7,6 @@ const NEXT_PUBLIC_TINYMCE_API_KEY = process.env.NEXT_PUBLIC_TINYMCE_API_KEY;
 const TinyMCEEditor = ({ value, onChange }: { value: string, onChange: (value: string) => void }) => {
     
     function onInit() {
-        console.log('TinyMCE Editor initialized');
     }
 
     const image_upload_handler = (blobInfo: any) => new Promise(async (resolve, reject) => {
