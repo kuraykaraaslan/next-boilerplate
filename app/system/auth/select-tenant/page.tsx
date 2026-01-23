@@ -16,6 +16,10 @@ interface TenantMembership {
         name: string;
         description?: string;
         tenantStatus: string;
+        domains?: {
+            domain: string;
+            isPrimary: boolean;
+        }[];
     };
 }
 
@@ -47,8 +51,39 @@ const SelectTenantPage = () => {
         fetchTenants();
     }, [router]);
 
-    const handleSelectTenant = (tenantId: string) => {
-        router.push(`/tenant/${tenantId}`);
+    const handleSelectTenant = async (membership: TenantMembership) => {
+        const tenant = membership.tenant;
+        const primaryDomain = tenant.domains?.find(d => d.isPrimary) || tenant.domains?.[0];
+
+        if (primaryDomain) {
+            try {
+                // Get tokens for session transfer
+                const res = await axiosInstance.get('/api/auth/session/tokens');
+                if (res.data.success) {
+                    const { accessToken, refreshToken } = res.data;
+                    const domain = primaryDomain.domain;
+                    // Use https in production, but for now we'll assume the protocol and port from current window
+                    const protocol = window.location.protocol;
+                    const host = window.location.host;
+                    
+                    // If the current host has a port, and the domain doesn't, we might need to append it for local dev
+                    let targetHost = domain;
+                    if (host.includes(':') && !domain.includes(':')) {
+                        const port = host.split(':')[1];
+                        targetHost = `${domain}:${port}`;
+                    }
+
+                    const callbackUrl = `${protocol}//${targetHost}/auth/callback?accessToken=${accessToken}&refreshToken=${refreshToken}`;
+                    window.location.href = callbackUrl;
+                    return;
+                }
+            } catch (error) {
+                console.error('Failed to get session tokens:', error);
+                toast.error('Failed to transfer session to domain');
+            }
+        }
+
+        router.push(`/tenant/${tenant.tenantId}`);
     };
 
     const handleCreateTenant = () => {
@@ -90,7 +125,7 @@ const SelectTenantPage = () => {
                     {tenants.map((membership) => (
                         <button
                             key={membership.tenantMemberId}
-                            onClick={() => handleSelectTenant(membership.tenant.tenantId)}
+                            onClick={() => handleSelectTenant(membership)}
                             className="w-full p-4 bg-base-200 hover:bg-base-300 rounded-lg transition-colors flex items-center justify-between group"
                         >
                             <div className="flex items-center gap-3">
@@ -104,8 +139,15 @@ const SelectTenantPage = () => {
                                             {membership.tenant.description}
                                         </div>
                                     )}
-                                    <div className="text-xs text-base-content/50">
-                                        {membership.memberRole}
+                                    <div className="flex items-center gap-2 mt-1">
+                                        <div className="badge badge-outline badge-xs opacity-50">
+                                            {membership.memberRole}
+                                        </div>
+                                        {membership.tenant.domains && membership.tenant.domains.length > 0 && (
+                                            <div className="text-xs text-primary/70 font-mono">
+                                                {membership.tenant.domains.find(d => d.isPrimary)?.domain || membership.tenant.domains[0].domain}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>

@@ -55,7 +55,7 @@ export async function GET(
             email: user.email,
             name: user.email,
             device: deviceInfo.deviceName || 'Unknown',
-            ipAddress: userSession.ipAddress,
+            ipAddress: userSession.ipAddress ?? 'Unknown',
             location: location,
             loginTime: new Date().toLocaleString()
         });
@@ -138,7 +138,7 @@ export async function POST(
             email: user.email,
             name: user.email,
             device: deviceInfo.deviceName || 'Unknown',
-            ipAddress: userSession.ipAddress,
+            ipAddress: userSession.ipAddress ?? 'Unknown',
             location: location,
             loginTime: new Date().toLocaleString()
         });

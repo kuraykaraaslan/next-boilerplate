@@ -16,7 +16,7 @@ export const TenantMemberSchema = z.object({
 export const SafeTenantMemberSchema = TenantMemberSchema.omit({
   deletedAt: true
 }).extend({
-  user: z.object(SafeUserSchema.shape).nullable()
+  user: z.lazy(() => SafeUserSchema).nullable().optional()
 });
 
 export type TenantMember = z.infer<typeof TenantMemberSchema>;

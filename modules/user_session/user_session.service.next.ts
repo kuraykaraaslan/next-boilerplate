@@ -227,9 +227,15 @@ export default class UserSessionNextService {
       request.user = user;
       return requiredUserRole === "GUEST" ? (null as any) : ({ user, userSession } as any);
     } catch (error: any) {
-      console.error("[AUTHENTICATE ERROR]", error);
+      console.error("[AUTHENTICATE ERROR]", {
+        message: error.message,
+        stack: error.stack,
+        cookies: {
+            hasAccessToken: !!request.cookies.get("accessToken"),
+            hasRefreshToken: !!request.cookies.get("refreshToken")
+        }
+      });
       if (requiredUserRole !== "GUEST") {
-
         throw new Error(UserSessionMessages.USER_NOT_AUTHENTICATED);
       }
       // @ts-ignore

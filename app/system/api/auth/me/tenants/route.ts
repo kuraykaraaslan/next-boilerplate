@@ -35,6 +35,13 @@ export async function GET(request: NextRequest) {
                         name: true,
                         description: true,
                         tenantStatus: true,
+                        domains: {
+                            where: {
+                                domainStatus: {
+                                    in: ['ACTIVE', 'VERIFIED']
+                                }
+                            },
+                        }
                     }
                 }
             },
