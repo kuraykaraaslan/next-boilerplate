@@ -46,7 +46,7 @@ export async function POST(
     }
 
     // Check if user is a member of this tenant
-    const tenantMember = await TenantMemberService.getByTenantAndUser(tenantId, user.userId);
+    const tenantMember = await TenantMemberService.getByTenantAndUser({ tenantMemberId: null, tenantId, userId: user.userId });
     if (!tenantMember || tenantMember.memberStatus !== 'ACTIVE') {
       return NextResponse.json({
         error: 'You are not a member of this organization'

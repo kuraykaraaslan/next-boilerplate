@@ -29,6 +29,9 @@ export default class TenantMemberService {
       };
     }
 
+    // Ensure page is at least 1 for 1-indexed pagination
+    const safePage = Math.max(1, page);
+
     const [members, total] = await Promise.all([
       prisma.tenantMember.findMany({
         where,
@@ -37,13 +40,15 @@ export default class TenantMemberService {
             select: {
               userId: true,
               email: true,
+              phone: true,
               userRole: true,
               userStatus: true,
               createdAt: true,
+              updatedAt: true,
             }
           }
         },
-        skip: (page - 1) * pageSize,
+        skip: (safePage - 1) * pageSize,
         take: pageSize,
         orderBy: { createdAt: 'desc' }
       }),

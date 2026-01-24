@@ -72,15 +72,14 @@ const TenantLoginPage = () => {
             return;
         }
 
-        // Use the tenant-specific API which is located at /tenant/[id]/api/auth
-        // On proxied domains, this resolves to /api/auth which the proxy rewrites.
-        // On localhost, this resolves to /tenant/[id]/api/auth.
-        const apiPath = `${tenantBase}/api/auth`;
+        // Use the tenant-specific login API
+        // On proxied domains, this resolves to /api/auth/login which the proxy rewrites.
+        // On localhost, this resolves to /tenant/[id]/api/auth/login.
+        const apiPath = `${tenantBase}/api/auth/login`;
 
         await axiosInstance.post(apiPath, {
             email,
             password,
-            action: 'login',
         }).then(async (res) => {
             const { user } = res.data;
             setUser(user);

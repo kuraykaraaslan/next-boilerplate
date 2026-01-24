@@ -4,7 +4,6 @@ import { ReactNode, Suspense, useEffect, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import SSOLogin from '@/modules/auth_sso/ui/auth_sso.login';
-import axiosInstance from '@/libs/axios';
 
 interface TenantBranding {
     logo?: string;
@@ -24,13 +23,15 @@ export default function TenantAuthLayout({ children }: { children: ReactNode }) 
     useEffect(() => {
         const fetchTenantBranding = async () => {
             try {
-                const res = await axiosInstance.get(`/api/settings`);
-                if (res.data.success) {
+                // Use fetch instead of axiosInstance to avoid auth interceptor loop
+                const res = await fetch(`/api/settings/public`);
+                const data = await res.json();
+                if (data.success) {
                     setBranding({
-                        logo: res.data.settings?.logo,
-                        name: res.data.settings?.name,
-                        primaryColor: res.data.settings?.primaryColor,
-                        backgroundImage: res.data.settings?.backgroundImage,
+                        logo: data.settings?.logo,
+                        name: data.settings?.name,
+                        primaryColor: data.settings?.primaryColor,
+                        backgroundImage: data.settings?.backgroundImage,
                     });
                 }
             } catch (error) {

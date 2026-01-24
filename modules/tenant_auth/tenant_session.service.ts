@@ -51,7 +51,7 @@ export default class TenantSessionService {
    */
   static async getTenantMembership(tenantId: string, userId: string): Promise<SafeTenantMember | null> {
     const tenantMember = await prisma.tenantMember.findFirst({
-      where: { tenantId, userId },
+      where: { tenantId, userId, deletedAt: null },
     });
 
     if (!tenantMember) {

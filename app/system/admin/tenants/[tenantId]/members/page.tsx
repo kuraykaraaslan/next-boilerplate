@@ -117,12 +117,6 @@ const TenantMembersPage = () => {
     ];
 
     return (
-        <div>
-            <div className="mb-4">
-                <a href="/system/admin/tenants" className="btn btn-ghost btn-sm">
-                    ← Back to Tenants
-                </a>
-            </div>
             <TableProvider<SafeTenantMember>
                 apiEndpoint={`/api/tenant/${tenantId}/members`}
                 dataKey="members"
@@ -145,7 +139,6 @@ const TenantMembersPage = () => {
                     />
                 </Table>
             </TableProvider>
-        </div>
     );
 };
 

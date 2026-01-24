@@ -157,7 +157,7 @@ axiosInstance.interceptors.response.use(
 
     try {
       await axios.post(
-        `${process.env.APPLICATION_HOST}/api/auth/refresh`,
+        `/api/auth/refresh`,
         {},
         { withCredentials: true }
       );

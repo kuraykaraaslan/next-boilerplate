@@ -1,42 +1,37 @@
-// path: app/tenant/[tenantId]/api/members/route.ts
+// path: app/system/api/tenant/[tenantId]/members/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import TenantMemberService from "@/modules/tenant_member/tenant_member.service";
+import UserSessionNextService from "@/modules/user_session/user_session.service.next";
 import Limiter from "@/libs/limiter";
-import TenantSessionNextService from "@/modules/tenant_auth/tenant_session.service.next";
 
 /**
- * GET /tenant/[tenantId]/api/members
- * Get all members of a tenant (requires USER role)
+ * GET /system/api/tenant/[tenantId]/members
+ * Get all members of a tenant (requires global ADMIN role)
  */
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ tenantId: string }> }
 ) {
-
   try {
     await Limiter.checkRateLimit(request);
-
     const { tenantId } = await params;
 
-    // Authenticate and verify tenant membership (USER role minimum)
-    await TenantSessionNextService.authenticateTenantByRequest({
+    // Require global admin role
+    await UserSessionNextService.authenticateUserByRequest({
       request,
-      requiredTenantRole: "USER",
-      tenantId: tenantId
+      requiredUserRole: "ADMIN",
     });
 
     const { searchParams } = new URL(request.url);
 
-    // Extract query parameters
-    const page = searchParams.get('page') ? parseInt(searchParams.get('page') || '0', 10) : 0;
+    const page = searchParams.get('page') ? parseInt(searchParams.get('page') || '1', 10) : 1;
     const pageSize = searchParams.get('pageSize') ? parseInt(searchParams.get('pageSize') || '10', 10) : 10;
     const search = searchParams.get('search') || null;
     const memberRole = searchParams.get('memberRole') as "USER" | "OWNER" | "ADMIN" | null || null;
     const memberStatus = searchParams.get('memberStatus') as "ACTIVE" | "INACTIVE" | "SUSPENDED" | "PENDING" | null || null;
 
-    // Get members
     const { members, total } = await TenantMemberService.getByTenantId({
-      tenantId: tenantId,
+      tenantId,
       page,
       pageSize,
       search,
@@ -51,17 +46,16 @@ export async function GET(
       pageSize
     }, { status: 200 });
   } catch (error: any) {
-    console.error('[MEMBERS API] Error:', error.message, error.stack);
     return NextResponse.json(
       { message: error.message },
-      { status: error.message.includes('not a member') ? 403 : 500 }
+      { status: error.message.includes('not authenticated') ? 401 : 500 }
     );
   }
 }
 
 /**
- * POST /tenant/[tenantId]/api/members
- * Add a new member to the tenant (requires ADMIN role)
+ * POST /system/api/tenant/[tenantId]/members
+ * Add a new member to the tenant (requires global ADMIN role)
  */
 export async function POST(
   request: NextRequest,
@@ -71,16 +65,13 @@ export async function POST(
     await Limiter.checkRateLimit(request);
     const { tenantId } = await params;
 
-    // Only ADMIN and OWNER can add members
-    await TenantSessionNextService.authenticateTenantByRequest({
+    await UserSessionNextService.authenticateUserByRequest({
       request,
-      requiredTenantRole: "ADMIN",
-      tenantId
+      requiredUserRole: "ADMIN",
     });
 
     const body = await request.json();
 
-    // Create new member
     const newMember = await TenantMemberService.create({
       tenantId,
       userId: body.userId,
