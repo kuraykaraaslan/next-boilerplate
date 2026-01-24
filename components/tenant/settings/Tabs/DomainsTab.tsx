@@ -22,9 +22,14 @@ import {
 import { SafeTenantDomain, DomainVerificationInfo } from "@/modules/tenant_domain/tenant_domain.types";
 import { DomainStatus } from "@/modules/tenant_domain/tenant_domain.enums";
 import { TenantSettingsTabProps } from "@/modules/tenant_setting/tenant_setting.types";
+import DynamicTable, { ColumnDef } from "@/components/common/forms/DynamicTable";
+import DynamicText from "@/components/common/forms/DynamicText";
+import DynamicSelect from "@/components/common/forms/DynamicSelect";
 
 const DomainsTab = ({ settings }: Partial<TenantSettingsTabProps>) => {
   const { tenantId } = useParams() as { tenantId: string };
+
+  const WILDCARD_DOMAIN = process.env.NEXT_PUBLIC_TENANT_WILDCARD_DOMAIN || "example.com";
 
   // Handle tenant base for proxied domains
   const isProxied = typeof window !== 'undefined' && !window.location.pathname.startsWith('/tenant/');
@@ -34,6 +39,7 @@ const DomainsTab = ({ settings }: Partial<TenantSettingsTabProps>) => {
   const [loading, setLoading] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
   const [newDomain, setNewDomain] = useState("");
+  const [domainType, setDomainType] = useState<"subdomain" | "custom">("subdomain");
   const [verifyingId, setVerifyingId] = useState<string | null>(null);
   const [selectedDomain, setSelectedDomain] = useState<DomainVerificationInfo | null>(null);
 
@@ -59,10 +65,14 @@ const DomainsTab = ({ settings }: Partial<TenantSettingsTabProps>) => {
     e.preventDefault();
     if (!newDomain) return;
 
+    const domainToSubmit = domainType === "subdomain" 
+        ? `${newDomain}.${WILDCARD_DOMAIN}` 
+        : newDomain;
+
     try {
       setIsAdding(true);
       const response = await axiosInstance.post(`${tenantBase}/api/domains`, {
-        domain: newDomain
+        domain: domainToSubmit
       });
 
       if (response.data.success) {
@@ -140,8 +150,71 @@ const DomainsTab = ({ settings }: Partial<TenantSettingsTabProps>) => {
     };
   }, [domains, settings]);
 
-  const isNewDomainSubdomain = newDomain.split('.').length > 2;
-  const canAdd = newDomain && (isNewDomainSubdomain ? !limits.subdomain.reached : !limits.custom.reached);
+  const columns: ColumnDef<SafeTenantDomain>[] = useMemo(() => [
+    {
+        key: 'domain',
+        header: 'Domain',
+        accessor: (domain) => (
+            <div className="flex items-center gap-2">
+                <span className="font-medium">{domain.domain}</span>
+                {domain.isPrimary && (
+                    <span className="badge badge-primary badge-sm">Primary</span>
+                )}
+            </div>
+        )
+    },
+    {
+        key: 'status',
+        header: 'Status',
+        accessor: (domain) => (
+            domain.domainStatus === "VERIFIED" || domain.domainStatus === "ACTIVE" ? (
+                <div className="flex items-center gap-1 text-success font-medium">
+                    <FontAwesomeIcon icon={faCircleCheck} /> {domain.domainStatus}
+                </div>
+            ) : (
+                <div className="flex items-center gap-1 text-warning font-medium">
+                    <FontAwesomeIcon icon={faClock} /> {domain.domainStatus}
+                </div>
+            )
+        )
+    },
+    {
+        key: 'type',
+        header: 'Type',
+        accessor: (domain) => (
+            <span className="badge badge-ghost badge-sm">
+                {domain.domain.split('.').length > 2 ? 'SUBDOMAIN' : 'CUSTOM'}
+            </span>
+        )
+    },
+    {
+        key: 'actions',
+        header: 'Actions',
+        className: 'text-right',
+        accessor: (domain) => (
+            <div className="flex justify-end gap-2">
+                {domain.domainStatus !== "VERIFIED" && domain.domainStatus !== "ACTIVE" && (
+                    <button 
+                        className="btn btn-ghost btn-sm text-primary"
+                        onClick={() => showVerificationInfo(domain)}
+                        title="Verify"
+                    >
+                        <FontAwesomeIcon icon={faInfoCircle} className="mr-1" /> Verify
+                    </button>
+                )}
+                <button 
+                    className="btn btn-ghost btn-sm text-error"
+                    onClick={() => handleDeleteDomain(domain.tenantDomainId, domain.domain)}
+                    title="Delete"
+                >
+                    <FontAwesomeIcon icon={faTrash} />
+                </button>
+            </div>
+        )
+    }
+  ], [showVerificationInfo, handleDeleteDomain]);
+
+  const canAdd = newDomain && (domainType === "subdomain" ? !limits.subdomain.reached : !limits.custom.reached);
 
   return (
     <div className="space-y-6">
@@ -155,28 +228,54 @@ const DomainsTab = ({ settings }: Partial<TenantSettingsTabProps>) => {
       {/* Add Domain Form */}
       <div className="card bg-base-200 shadow-sm">
         <div className="card-body p-4">
-          <form onSubmit={handleAddDomain} className="flex flex-col sm:flex-row gap-2">
-            <div className="relative flex-grow">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-base-content/50">
-                <FontAwesomeIcon icon={faGlobe} />
-              </div>
-              <input
-                type="text"
-                placeholder="example.com or app.example.com"
-                className="input input-bordered w-full pl-10"
-                value={newDomain}
-                onChange={(e) => setNewDomain(e.target.value.toLowerCase().trim())}
-                disabled={isAdding}
+          <form onSubmit={handleAddDomain} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+            <div className="md:col-span-3">
+              <DynamicSelect
+                label="Type"
+                selectedValue={domainType}
+                onValueChange={(val) => {
+                    setDomainType(val as any);
+                    setNewDomain("");
+                }}
+                options={[
+                  { value: "subdomain", label: "Subdomain" },
+                  { value: "custom", label: "Custom Domain" }
+                ]}
               />
             </div>
-            <button 
-              type="submit" 
-              className="btn btn-primary"
-              disabled={isAdding || !canAdd}
-            >
-              {isAdding ? <span className="loading loading-spinner"></span> : <FontAwesomeIcon icon={faPlus} className="mr-2" />}
-              Add Domain
-            </button>
+            <div className="md:col-span-7">
+              <div className="relative">
+                <DynamicText
+                   label={domainType === "subdomain" ? "Prefix" : "Domain"}
+                   placeholder={domainType === "subdomain" ? "e.g. app" : "e.g. example.com"}
+                   value={newDomain}
+                   setValue={(val) => {
+                       const cleaned = val.toLowerCase().trim();
+                       if (domainType === "subdomain") {
+                           setNewDomain(cleaned.replace(/[^a-z0-9-]/g, ''));
+                       } else {
+                           setNewDomain(cleaned);
+                       }
+                   }}
+                   disabled={isAdding}
+                />
+                {domainType === "subdomain" && (
+                  <div className="absolute right-3 bottom-[11px] text-base-content/40 font-mono text-sm pointer-events-none">
+                    .{WILDCARD_DOMAIN}
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="md:col-span-2">
+                <button 
+                  type="submit" 
+                  className="btn btn-primary w-full"
+                  disabled={isAdding || !canAdd}
+                >
+                  {isAdding ? <span className="loading loading-spinner"></span> : <FontAwesomeIcon icon={faPlus} className="mr-2" />}
+                  Add
+                </button>
+            </div>
           </form>
           <div className="mt-2 flex items-center gap-4 text-xs text-base-content/60">
             <span className={`flex items-center gap-1 ${limits.custom.reached ? 'text-error font-bold' : ''}`}>
@@ -192,78 +291,13 @@ const DomainsTab = ({ settings }: Partial<TenantSettingsTabProps>) => {
       </div>
 
       {/* Domains List */}
-      <div className="overflow-x-auto bg-base-100 rounded-xl border border-base-300">
-        <table className="table w-full">
-          <thead>
-            <tr>
-              <th>Domain</th>
-              <th>Status</th>
-              <th>Type</th>
-              <th className="text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr>
-                <td colSpan={4} className="text-center py-8">
-                  <span className="loading loading-dots loading-lg"></span>
-                </td>
-              </tr>
-            ) : !Array.isArray(domains) || domains.length === 0 ? (
-              <tr>
-                <td colSpan={4} className="text-center py-8 text-base-content/50 italic">
-                  No domains added yet.
-                </td>
-              </tr>
-            ) : (
-              domains.map((domain) => (
-                <tr key={domain.tenantDomainId} className="hover">
-                  <td>
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">{domain.domain}</span>
-                      {domain.isPrimary && (
-                        <span className="badge badge-primary badge-sm">Primary</span>
-                      )}
-                    </div>
-                  </td>
-                  <td>
-                    {domain.domainStatus === "VERIFIED" || domain.domainStatus === "ACTIVE" ? (
-                      <div className="flex items-center gap-1 text-success font-medium">
-                        <FontAwesomeIcon icon={faCircleCheck} /> {domain.domainStatus}
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-1 text-warning font-medium">
-                        <FontAwesomeIcon icon={faClock} /> {domain.domainStatus}
-                      </div>
-                    )}
-                  </td>
-                  <td>
-                    <span className="badge badge-ghost badge-sm">
-                      {domain.domain.split('.').length > 2 ? 'SUBDOMAIN' : 'CUSTOM'}
-                    </span>
-                  </td>
-                  <td className="text-right space-x-2">
-                    {domain.domainStatus !== "VERIFIED" && domain.domainStatus !== "ACTIVE" && (
-                      <button 
-                        className="btn btn-ghost btn-sm text-primary"
-                        onClick={() => showVerificationInfo(domain)}
-                      >
-                        <FontAwesomeIcon icon={faInfoCircle} className="mr-1" /> Verify
-                      </button>
-                    )}
-                    <button 
-                      className="btn btn-ghost btn-sm text-error"
-                      onClick={() => handleDeleteDomain(domain.tenantDomainId, domain.domain)}
-                    >
-                      <FontAwesomeIcon icon={faTrash} />
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      <DynamicTable.Provider
+        idKey="tenantDomainId"
+        columns={columns}
+        localData={domains}
+      >
+        <DynamicTable.Body emptyText="No domains added yet." />
+      </DynamicTable.Provider>
 
       {/* Verification Modal */}
       <dialog id="verification_modal" className="modal">
