@@ -1,10 +1,17 @@
 import { z } from 'zod';
 
 // ============================================================================
+// Constants
+// ============================================================================
+
+export const SYSTEM_TENANT_ID = '00000000-0000-0000-0000-000000000000';
+
+// ============================================================================
 // Setting Schema
 // ============================================================================
 
 export const SettingSchema = z.object({
+  tenantId: z.string().uuid().default(SYSTEM_TENANT_ID),
   key: z.string(),
   value: z.string(),
   group: z.string().default("general"),
@@ -19,71 +26,81 @@ export type Setting = z.infer<typeof SettingSchema>;
 // Setting Key Schemas by Group
 // ============================================================================
 
-export const GeneralSettingKeySchema = z.enum([
-  'siteName', 'siteUrl', 'siteDescription', 'logoUrl', 'faviconUrl',
-  'applicationHost', 'applicationDomain', 'i18nLanguages',
-  'contactName', 'contactTitle', 'contactEmail', 'contactPhone',
-  'maintenanceMode', 'maintenanceMessage',
-]);
-export type GeneralSettingKey = z.infer<typeof GeneralSettingKeySchema>;
-export const GENERAL_KEYS = GeneralSettingKeySchema.options;
+// Re-export from auth module
+export {
+  GeneralSettingKeySchema,
+  GENERAL_KEYS,
+  AuthSettingKeySchema,
+  AUTH_KEYS,
+} from '@/modules/auth/auth.setting.keys';
 
-export const AuthSettingKeySchema = z.enum([
-  'allowRegistration', 'emailVerificationRequired', 'sessionDuration', 'maxLoginAttempts',
-  'ssoAllowedProviders',
-  'jwtAccessTokenSecret', 'jwtAccessTokenExpiresIn', 'jwtRefreshTokenSecret', 'jwtRefreshTokenExpiresIn',
-  'oauthGoogle', 'oauthGitHub', 'oauthMicrosoft', 'oauthLinkedIn', 'oauthApple', 'oauthTwitter', 'oauthMeta', 'oauthAutodesk',
-  'googleClientId', 'googleClientSecret',
-  'githubClientId', 'githubClientSecret',
-  'appleClientId', 'appleTeamId', 'appleKeyId', 'applePrivateKey',
-  'metaClientId', 'metaClientSecret',
-  'autodeskClientId', 'autodeskClientSecret',
-  'gitlabToken', 'gitlabUser',
-]);
-export type AuthSettingKey = z.infer<typeof AuthSettingKeySchema>;
-export const AUTH_KEYS = AuthSettingKeySchema.options;
+export type {
+  GeneralSettingKey,
+  AuthSettingKey,
+} from '@/modules/auth/auth.setting.keys';
 
-export const EmailSettingKeySchema = z.enum([
-  'smtpHost', 'smtpPort', 'smtpUsername', 'smtpPassword', 'smtpEncryption',
-  'fromEmail', 'fromName',
-]);
-export type EmailSettingKey = z.infer<typeof EmailSettingKeySchema>;
-export const EMAIL_KEYS = EmailSettingKeySchema.options;
+// Re-export from notification_mail module
+export {
+  EmailSettingKeySchema,
+  EMAIL_KEYS,
+  NotificationSettingKeySchema,
+  NOTIFICATION_KEYS,
+} from '@/modules/notification_mail/notification_mail.setting.keys';
 
-export const SmsSettingKeySchema = z.enum([
-  'smsProvider', 'smsEnabled',
-  'twilioAccountSid', 'twilioAuthToken', 'twilioPhoneNumber',
-  'netgsmUserCode', 'netgsmPassword', 'netgsmPhoneNumber',
-]);
-export type SmsSettingKey = z.infer<typeof SmsSettingKeySchema>;
-export const SMS_KEYS = SmsSettingKeySchema.options;
+export type {
+  EmailSettingKey,
+  NotificationSettingKey,
+} from '@/modules/notification_mail/notification_mail.setting.keys';
 
-export const StorageSettingKeySchema = z.enum([
-  'storageProvider', 's3Bucket', 's3Region', 's3AccessKey', 's3SecretKey', 's3Endpoint',
-  'maxFileSizeMb', 'allowedExtensions',
-]);
-export type StorageSettingKey = z.infer<typeof StorageSettingKeySchema>;
-export const STORAGE_KEYS = StorageSettingKeySchema.options;
+// Re-export from notification_sms module
+export {
+  SmsSettingKeySchema,
+  SMS_KEYS,
+} from '@/modules/notification_sms/notification_sms.setting.keys';
 
-export const AiSettingKeySchema = z.enum([
-  'aiEnabled', 'aiDailyLimit', 'aiMonthlyBudget',
-  'openaiApiKey', 'openaiDefaultModel', 'openaiMaxTokens',
-  'anthropicApiKey', 'anthropicDefaultModel',
-  'huggingfaceToken',
-  'tinymceApiKey',
-]);
-export type AiSettingKey = z.infer<typeof AiSettingKeySchema>;
-export const AI_KEYS = AiSettingKeySchema.options;
+export type {
+  SmsSettingKey,
+} from '@/modules/notification_sms/notification_sms.setting.keys';
 
-export const SecuritySettingKeySchema = z.enum([
-  'rateLimitPerMinute', 'rateLimitPerHour', 'rateLimitEnabled',
-  'corsAllowedOrigins', 'hstsEnabled', 'xContentTypeOptions', 'xFrameOptions', 'blockedIps',
-  'recaptchaEnabled', 'recaptchaClientKey', 'recaptchaServerKey',
-  'maxmindAccountId', 'maxmindApiKey',
-  'cronSecret',
-]);
-export type SecuritySettingKey = z.infer<typeof SecuritySettingKeySchema>;
-export const SECURITY_KEYS = SecuritySettingKeySchema.options;
+// Re-export from storage module
+export {
+  StorageSettingKeySchema,
+  STORAGE_KEYS,
+} from '@/modules/storage/storage.setting.keys';
+
+export type {
+  StorageSettingKey,
+} from '@/modules/storage/storage.setting.keys';
+
+// Re-export from ai module
+export {
+  AiSettingKeySchema,
+  AI_KEYS,
+} from '@/modules/ai/ai.setting.keys';
+
+export type {
+  AiSettingKey,
+} from '@/modules/ai/ai.setting.keys';
+
+// Re-export from user_security module
+export {
+  SecuritySettingKeySchema,
+  SECURITY_KEYS,
+} from '@/modules/user_security/user_security.setting.keys';
+
+export type {
+  SecuritySettingKey,
+} from '@/modules/user_security/user_security.setting.keys';
+
+// Re-export from payment module
+export {
+  PaymentSettingKeySchema,
+  PAYMENT_KEYS,
+} from '@/modules/payment/payment.setting.keys';
+
+export type {
+  PaymentSettingKey,
+} from '@/modules/payment/payment.setting.keys';
 
 export const IntegrationsSettingKeySchema = z.enum([
   'discordWebhookUrl', 'discordDoormanWebhookUrl',
@@ -113,24 +130,6 @@ export const SocialSettingKeySchema = z.enum([
 export type SocialSettingKey = z.infer<typeof SocialSettingKeySchema>;
 export const SOCIAL_KEYS = SocialSettingKeySchema.options;
 
-export const PaymentSettingKeySchema = z.enum([
-  'stripeEnabled', 'stripePublicKey', 'stripeSecretKey', 'stripeWebhookSecret',
-  'paypalEnabled', 'paypalClientId', 'paypalClientSecret', 'paypalSandboxMode',
-  'iyzicoEnabled', 'iyzicoApiKey', 'iyzicoSecretKey', 'iyzicoSandboxMode',
-  'currency', 'taxRate', 'taxEnabled',
-]);
-export type PaymentSettingKey = z.infer<typeof PaymentSettingKeySchema>;
-export const PAYMENT_KEYS = PaymentSettingKeySchema.options;
-
-export const NotificationSettingKeySchema = z.enum([
-  'pushNotificationsEnabled', 'vapidPublicKey', 'vapidPrivateKey',
-  'emailOnNewUser', 'emailOnNewComment', 'emailOnNewOrder', 'emailOnNewContact',
-  'slackWebhookUrl', 'slackNotificationsEnabled',
-  'adminNotificationEmail',
-]);
-export type NotificationSettingKey = z.infer<typeof NotificationSettingKeySchema>;
-export const NOTIFICATION_KEYS = NotificationSettingKeySchema.options;
-
 export const LocalizationSettingKeySchema = z.enum([
   'defaultTimezone', 'defaultLanguage',
   'dateFormat', 'timeFormat', 'datetimeFormat',
@@ -156,3 +155,4 @@ export interface SettingsTabProps {
 
 export const SettingsStateSchema = z.record(z.string(), z.string());
 export type SettingsState = z.infer<typeof SettingsStateSchema>;
+

@@ -44,11 +44,6 @@ export type TenantDomain = $Result.DefaultSelection<Prisma.$TenantDomainPayload>
  */
 export type TenantMember = $Result.DefaultSelection<Prisma.$TenantMemberPayload>
 /**
- * Model TenantSetting
- * 
- */
-export type TenantSetting = $Result.DefaultSelection<Prisma.$TenantSettingPayload>
-/**
  * Model User
  * 
  */
@@ -532,16 +527,6 @@ export class PrismaClient<
     * ```
     */
   get tenantMember(): Prisma.TenantMemberDelegate<ExtArgs, ClientOptions>;
-
-  /**
-   * `prisma.tenantSetting`: Exposes CRUD operations for the **TenantSetting** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more TenantSettings
-    * const tenantSettings = await prisma.tenantSetting.findMany()
-    * ```
-    */
-  get tenantSetting(): Prisma.TenantSettingDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.user`: Exposes CRUD operations for the **User** model.
@@ -1042,7 +1027,6 @@ export namespace Prisma {
     Tenant: 'Tenant',
     TenantDomain: 'TenantDomain',
     TenantMember: 'TenantMember',
-    TenantSetting: 'TenantSetting',
     User: 'User',
     UserPreferences: 'UserPreferences',
     UserProfile: 'UserProfile',
@@ -1064,7 +1048,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "payment" | "paymentTransaction" | "setting" | "tenant" | "tenantDomain" | "tenantMember" | "tenantSetting" | "user" | "userPreferences" | "userProfile" | "userSecurity" | "userSession" | "userSocialAccount"
+      modelProps: "payment" | "paymentTransaction" | "setting" | "tenant" | "tenantDomain" | "tenantMember" | "user" | "userPreferences" | "userProfile" | "userSecurity" | "userSession" | "userSocialAccount"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1509,80 +1493,6 @@ export namespace Prisma {
           count: {
             args: Prisma.TenantMemberCountArgs<ExtArgs>
             result: $Utils.Optional<TenantMemberCountAggregateOutputType> | number
-          }
-        }
-      }
-      TenantSetting: {
-        payload: Prisma.$TenantSettingPayload<ExtArgs>
-        fields: Prisma.TenantSettingFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.TenantSettingFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TenantSettingPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.TenantSettingFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TenantSettingPayload>
-          }
-          findFirst: {
-            args: Prisma.TenantSettingFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TenantSettingPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.TenantSettingFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TenantSettingPayload>
-          }
-          findMany: {
-            args: Prisma.TenantSettingFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TenantSettingPayload>[]
-          }
-          create: {
-            args: Prisma.TenantSettingCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TenantSettingPayload>
-          }
-          createMany: {
-            args: Prisma.TenantSettingCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          createManyAndReturn: {
-            args: Prisma.TenantSettingCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TenantSettingPayload>[]
-          }
-          delete: {
-            args: Prisma.TenantSettingDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TenantSettingPayload>
-          }
-          update: {
-            args: Prisma.TenantSettingUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TenantSettingPayload>
-          }
-          deleteMany: {
-            args: Prisma.TenantSettingDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.TenantSettingUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateManyAndReturn: {
-            args: Prisma.TenantSettingUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TenantSettingPayload>[]
-          }
-          upsert: {
-            args: Prisma.TenantSettingUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TenantSettingPayload>
-          }
-          aggregate: {
-            args: Prisma.TenantSettingAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateTenantSetting>
-          }
-          groupBy: {
-            args: Prisma.TenantSettingGroupByArgs<ExtArgs>
-            result: $Utils.Optional<TenantSettingGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.TenantSettingCountArgs<ExtArgs>
-            result: $Utils.Optional<TenantSettingCountAggregateOutputType> | number
           }
         }
       }
@@ -2144,7 +2054,6 @@ export namespace Prisma {
     tenant?: TenantOmit
     tenantDomain?: TenantDomainOmit
     tenantMember?: TenantMemberOmit
-    tenantSetting?: TenantSettingOmit
     user?: UserOmit
     userPreferences?: UserPreferencesOmit
     userProfile?: UserProfileOmit
@@ -2295,14 +2204,12 @@ export namespace Prisma {
   export type TenantCountOutputType = {
     domains: number
     members: number
-    settings: number
     payments: number
   }
 
   export type TenantCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     domains?: boolean | TenantCountOutputTypeCountDomainsArgs
     members?: boolean | TenantCountOutputTypeCountMembersArgs
-    settings?: boolean | TenantCountOutputTypeCountSettingsArgs
     payments?: boolean | TenantCountOutputTypeCountPaymentsArgs
   }
 
@@ -2329,13 +2236,6 @@ export namespace Prisma {
    */
   export type TenantCountOutputTypeCountMembersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: TenantMemberWhereInput
-  }
-
-  /**
-   * TenantCountOutputType without action
-   */
-  export type TenantCountOutputTypeCountSettingsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: TenantSettingWhereInput
   }
 
   /**
@@ -5178,6 +5078,7 @@ export namespace Prisma {
   }
 
   export type SettingMinAggregateOutputType = {
+    tenantId: string | null
     key: string | null
     value: string | null
     group: string | null
@@ -5187,6 +5088,7 @@ export namespace Prisma {
   }
 
   export type SettingMaxAggregateOutputType = {
+    tenantId: string | null
     key: string | null
     value: string | null
     group: string | null
@@ -5196,6 +5098,7 @@ export namespace Prisma {
   }
 
   export type SettingCountAggregateOutputType = {
+    tenantId: number
     key: number
     value: number
     group: number
@@ -5207,6 +5110,7 @@ export namespace Prisma {
 
 
   export type SettingMinAggregateInputType = {
+    tenantId?: true
     key?: true
     value?: true
     group?: true
@@ -5216,6 +5120,7 @@ export namespace Prisma {
   }
 
   export type SettingMaxAggregateInputType = {
+    tenantId?: true
     key?: true
     value?: true
     group?: true
@@ -5225,6 +5130,7 @@ export namespace Prisma {
   }
 
   export type SettingCountAggregateInputType = {
+    tenantId?: true
     key?: true
     value?: true
     group?: true
@@ -5307,6 +5213,7 @@ export namespace Prisma {
   }
 
   export type SettingGroupByOutputType = {
+    tenantId: string
     key: string
     value: string
     group: string
@@ -5333,6 +5240,7 @@ export namespace Prisma {
 
 
   export type SettingSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    tenantId?: boolean
     key?: boolean
     value?: boolean
     group?: boolean
@@ -5342,6 +5250,7 @@ export namespace Prisma {
   }, ExtArgs["result"]["setting"]>
 
   export type SettingSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    tenantId?: boolean
     key?: boolean
     value?: boolean
     group?: boolean
@@ -5351,6 +5260,7 @@ export namespace Prisma {
   }, ExtArgs["result"]["setting"]>
 
   export type SettingSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    tenantId?: boolean
     key?: boolean
     value?: boolean
     group?: boolean
@@ -5360,6 +5270,7 @@ export namespace Prisma {
   }, ExtArgs["result"]["setting"]>
 
   export type SettingSelectScalar = {
+    tenantId?: boolean
     key?: boolean
     value?: boolean
     group?: boolean
@@ -5368,12 +5279,13 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type SettingOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"key" | "value" | "group" | "type" | "createdAt" | "updatedAt", ExtArgs["result"]["setting"]>
+  export type SettingOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"tenantId" | "key" | "value" | "group" | "type" | "createdAt" | "updatedAt", ExtArgs["result"]["setting"]>
 
   export type $SettingPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Setting"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
+      tenantId: string
       key: string
       value: string
       group: string
@@ -5463,8 +5375,8 @@ export namespace Prisma {
      * // Get first 10 Settings
      * const settings = await prisma.setting.findMany({ take: 10 })
      * 
-     * // Only select the `key`
-     * const settingWithKeyOnly = await prisma.setting.findMany({ select: { key: true } })
+     * // Only select the `tenantId`
+     * const settingWithTenantIdOnly = await prisma.setting.findMany({ select: { tenantId: true } })
      * 
      */
     findMany<T extends SettingFindManyArgs>(args?: SelectSubset<T, SettingFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SettingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
@@ -5508,9 +5420,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many Settings and only return the `key`
-     * const settingWithKeyOnly = await prisma.setting.createManyAndReturn({
-     *   select: { key: true },
+     * // Create many Settings and only return the `tenantId`
+     * const settingWithTenantIdOnly = await prisma.setting.createManyAndReturn({
+     *   select: { tenantId: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -5599,9 +5511,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Update zero or more Settings and only return the `key`
-     * const settingWithKeyOnly = await prisma.setting.updateManyAndReturn({
-     *   select: { key: true },
+     * // Update zero or more Settings and only return the `tenantId`
+     * const settingWithTenantIdOnly = await prisma.setting.updateManyAndReturn({
+     *   select: { tenantId: true },
      *   where: {
      *     // ... provide filter here
      *   },
@@ -5803,6 +5715,7 @@ export namespace Prisma {
    * Fields of the Setting model
    */
   interface SettingFieldRefs {
+    readonly tenantId: FieldRef<"Setting", 'String'>
     readonly key: FieldRef<"Setting", 'String'>
     readonly value: FieldRef<"Setting", 'String'>
     readonly group: FieldRef<"Setting", 'String'>
@@ -6357,7 +6270,6 @@ export namespace Prisma {
     deletedAt?: boolean
     domains?: boolean | Tenant$domainsArgs<ExtArgs>
     members?: boolean | Tenant$membersArgs<ExtArgs>
-    settings?: boolean | Tenant$settingsArgs<ExtArgs>
     payments?: boolean | Tenant$paymentsArgs<ExtArgs>
     _count?: boolean | TenantCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["tenant"]>
@@ -6396,7 +6308,6 @@ export namespace Prisma {
   export type TenantInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     domains?: boolean | Tenant$domainsArgs<ExtArgs>
     members?: boolean | Tenant$membersArgs<ExtArgs>
-    settings?: boolean | Tenant$settingsArgs<ExtArgs>
     payments?: boolean | Tenant$paymentsArgs<ExtArgs>
     _count?: boolean | TenantCountOutputTypeDefaultArgs<ExtArgs>
   }
@@ -6408,7 +6319,6 @@ export namespace Prisma {
     objects: {
       domains: Prisma.$TenantDomainPayload<ExtArgs>[]
       members: Prisma.$TenantMemberPayload<ExtArgs>[]
-      settings: Prisma.$TenantSettingPayload<ExtArgs>[]
       payments: Prisma.$PaymentPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -6815,7 +6725,6 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     domains<T extends Tenant$domainsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$domainsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TenantDomainPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     members<T extends Tenant$membersArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$membersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TenantMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    settings<T extends Tenant$settingsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$settingsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TenantSettingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     payments<T extends Tenant$paymentsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$paymentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -7286,30 +7195,6 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: TenantMemberScalarFieldEnum | TenantMemberScalarFieldEnum[]
-  }
-
-  /**
-   * Tenant.settings
-   */
-  export type Tenant$settingsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TenantSetting
-     */
-    select?: TenantSettingSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TenantSetting
-     */
-    omit?: TenantSettingOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TenantSettingInclude<ExtArgs> | null
-    where?: TenantSettingWhereInput
-    orderBy?: TenantSettingOrderByWithRelationInput | TenantSettingOrderByWithRelationInput[]
-    cursor?: TenantSettingWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: TenantSettingScalarFieldEnum | TenantSettingScalarFieldEnum[]
   }
 
   /**
@@ -9567,1103 +9452,6 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: TenantMemberInclude<ExtArgs> | null
-  }
-
-
-  /**
-   * Model TenantSetting
-   */
-
-  export type AggregateTenantSetting = {
-    _count: TenantSettingCountAggregateOutputType | null
-    _min: TenantSettingMinAggregateOutputType | null
-    _max: TenantSettingMaxAggregateOutputType | null
-  }
-
-  export type TenantSettingMinAggregateOutputType = {
-    tenantSettingId: string | null
-    tenantId: string | null
-    key: string | null
-    value: string | null
-    group: string | null
-    type: string | null
-    createdAt: Date | null
-    updatedAt: Date | null
-  }
-
-  export type TenantSettingMaxAggregateOutputType = {
-    tenantSettingId: string | null
-    tenantId: string | null
-    key: string | null
-    value: string | null
-    group: string | null
-    type: string | null
-    createdAt: Date | null
-    updatedAt: Date | null
-  }
-
-  export type TenantSettingCountAggregateOutputType = {
-    tenantSettingId: number
-    tenantId: number
-    key: number
-    value: number
-    group: number
-    type: number
-    createdAt: number
-    updatedAt: number
-    _all: number
-  }
-
-
-  export type TenantSettingMinAggregateInputType = {
-    tenantSettingId?: true
-    tenantId?: true
-    key?: true
-    value?: true
-    group?: true
-    type?: true
-    createdAt?: true
-    updatedAt?: true
-  }
-
-  export type TenantSettingMaxAggregateInputType = {
-    tenantSettingId?: true
-    tenantId?: true
-    key?: true
-    value?: true
-    group?: true
-    type?: true
-    createdAt?: true
-    updatedAt?: true
-  }
-
-  export type TenantSettingCountAggregateInputType = {
-    tenantSettingId?: true
-    tenantId?: true
-    key?: true
-    value?: true
-    group?: true
-    type?: true
-    createdAt?: true
-    updatedAt?: true
-    _all?: true
-  }
-
-  export type TenantSettingAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which TenantSetting to aggregate.
-     */
-    where?: TenantSettingWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of TenantSettings to fetch.
-     */
-    orderBy?: TenantSettingOrderByWithRelationInput | TenantSettingOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: TenantSettingWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` TenantSettings from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` TenantSettings.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned TenantSettings
-    **/
-    _count?: true | TenantSettingCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: TenantSettingMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: TenantSettingMaxAggregateInputType
-  }
-
-  export type GetTenantSettingAggregateType<T extends TenantSettingAggregateArgs> = {
-        [P in keyof T & keyof AggregateTenantSetting]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateTenantSetting[P]>
-      : GetScalarType<T[P], AggregateTenantSetting[P]>
-  }
-
-
-
-
-  export type TenantSettingGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: TenantSettingWhereInput
-    orderBy?: TenantSettingOrderByWithAggregationInput | TenantSettingOrderByWithAggregationInput[]
-    by: TenantSettingScalarFieldEnum[] | TenantSettingScalarFieldEnum
-    having?: TenantSettingScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: TenantSettingCountAggregateInputType | true
-    _min?: TenantSettingMinAggregateInputType
-    _max?: TenantSettingMaxAggregateInputType
-  }
-
-  export type TenantSettingGroupByOutputType = {
-    tenantSettingId: string
-    tenantId: string
-    key: string
-    value: string
-    group: string
-    type: string
-    createdAt: Date
-    updatedAt: Date | null
-    _count: TenantSettingCountAggregateOutputType | null
-    _min: TenantSettingMinAggregateOutputType | null
-    _max: TenantSettingMaxAggregateOutputType | null
-  }
-
-  type GetTenantSettingGroupByPayload<T extends TenantSettingGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<TenantSettingGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof TenantSettingGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], TenantSettingGroupByOutputType[P]>
-            : GetScalarType<T[P], TenantSettingGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type TenantSettingSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    tenantSettingId?: boolean
-    tenantId?: boolean
-    key?: boolean
-    value?: boolean
-    group?: boolean
-    type?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    tenant?: boolean | TenantDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["tenantSetting"]>
-
-  export type TenantSettingSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    tenantSettingId?: boolean
-    tenantId?: boolean
-    key?: boolean
-    value?: boolean
-    group?: boolean
-    type?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    tenant?: boolean | TenantDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["tenantSetting"]>
-
-  export type TenantSettingSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    tenantSettingId?: boolean
-    tenantId?: boolean
-    key?: boolean
-    value?: boolean
-    group?: boolean
-    type?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    tenant?: boolean | TenantDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["tenantSetting"]>
-
-  export type TenantSettingSelectScalar = {
-    tenantSettingId?: boolean
-    tenantId?: boolean
-    key?: boolean
-    value?: boolean
-    group?: boolean
-    type?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-  }
-
-  export type TenantSettingOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"tenantSettingId" | "tenantId" | "key" | "value" | "group" | "type" | "createdAt" | "updatedAt", ExtArgs["result"]["tenantSetting"]>
-  export type TenantSettingInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    tenant?: boolean | TenantDefaultArgs<ExtArgs>
-  }
-  export type TenantSettingIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    tenant?: boolean | TenantDefaultArgs<ExtArgs>
-  }
-  export type TenantSettingIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    tenant?: boolean | TenantDefaultArgs<ExtArgs>
-  }
-
-  export type $TenantSettingPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "TenantSetting"
-    objects: {
-      tenant: Prisma.$TenantPayload<ExtArgs>
-    }
-    scalars: $Extensions.GetPayloadResult<{
-      tenantSettingId: string
-      tenantId: string
-      key: string
-      value: string
-      group: string
-      type: string
-      createdAt: Date
-      updatedAt: Date | null
-    }, ExtArgs["result"]["tenantSetting"]>
-    composites: {}
-  }
-
-  type TenantSettingGetPayload<S extends boolean | null | undefined | TenantSettingDefaultArgs> = $Result.GetResult<Prisma.$TenantSettingPayload, S>
-
-  type TenantSettingCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<TenantSettingFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: TenantSettingCountAggregateInputType | true
-    }
-
-  export interface TenantSettingDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TenantSetting'], meta: { name: 'TenantSetting' } }
-    /**
-     * Find zero or one TenantSetting that matches the filter.
-     * @param {TenantSettingFindUniqueArgs} args - Arguments to find a TenantSetting
-     * @example
-     * // Get one TenantSetting
-     * const tenantSetting = await prisma.tenantSetting.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends TenantSettingFindUniqueArgs>(args: SelectSubset<T, TenantSettingFindUniqueArgs<ExtArgs>>): Prisma__TenantSettingClient<$Result.GetResult<Prisma.$TenantSettingPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find one TenantSetting that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {TenantSettingFindUniqueOrThrowArgs} args - Arguments to find a TenantSetting
-     * @example
-     * // Get one TenantSetting
-     * const tenantSetting = await prisma.tenantSetting.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends TenantSettingFindUniqueOrThrowArgs>(args: SelectSubset<T, TenantSettingFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TenantSettingClient<$Result.GetResult<Prisma.$TenantSettingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first TenantSetting that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {TenantSettingFindFirstArgs} args - Arguments to find a TenantSetting
-     * @example
-     * // Get one TenantSetting
-     * const tenantSetting = await prisma.tenantSetting.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends TenantSettingFindFirstArgs>(args?: SelectSubset<T, TenantSettingFindFirstArgs<ExtArgs>>): Prisma__TenantSettingClient<$Result.GetResult<Prisma.$TenantSettingPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first TenantSetting that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {TenantSettingFindFirstOrThrowArgs} args - Arguments to find a TenantSetting
-     * @example
-     * // Get one TenantSetting
-     * const tenantSetting = await prisma.tenantSetting.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends TenantSettingFindFirstOrThrowArgs>(args?: SelectSubset<T, TenantSettingFindFirstOrThrowArgs<ExtArgs>>): Prisma__TenantSettingClient<$Result.GetResult<Prisma.$TenantSettingPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more TenantSettings that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {TenantSettingFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all TenantSettings
-     * const tenantSettings = await prisma.tenantSetting.findMany()
-     * 
-     * // Get first 10 TenantSettings
-     * const tenantSettings = await prisma.tenantSetting.findMany({ take: 10 })
-     * 
-     * // Only select the `tenantSettingId`
-     * const tenantSettingWithTenantSettingIdOnly = await prisma.tenantSetting.findMany({ select: { tenantSettingId: true } })
-     * 
-     */
-    findMany<T extends TenantSettingFindManyArgs>(args?: SelectSubset<T, TenantSettingFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TenantSettingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
-
-    /**
-     * Create a TenantSetting.
-     * @param {TenantSettingCreateArgs} args - Arguments to create a TenantSetting.
-     * @example
-     * // Create one TenantSetting
-     * const TenantSetting = await prisma.tenantSetting.create({
-     *   data: {
-     *     // ... data to create a TenantSetting
-     *   }
-     * })
-     * 
-     */
-    create<T extends TenantSettingCreateArgs>(args: SelectSubset<T, TenantSettingCreateArgs<ExtArgs>>): Prisma__TenantSettingClient<$Result.GetResult<Prisma.$TenantSettingPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Create many TenantSettings.
-     * @param {TenantSettingCreateManyArgs} args - Arguments to create many TenantSettings.
-     * @example
-     * // Create many TenantSettings
-     * const tenantSetting = await prisma.tenantSetting.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends TenantSettingCreateManyArgs>(args?: SelectSubset<T, TenantSettingCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many TenantSettings and returns the data saved in the database.
-     * @param {TenantSettingCreateManyAndReturnArgs} args - Arguments to create many TenantSettings.
-     * @example
-     * // Create many TenantSettings
-     * const tenantSetting = await prisma.tenantSetting.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many TenantSettings and only return the `tenantSettingId`
-     * const tenantSettingWithTenantSettingIdOnly = await prisma.tenantSetting.createManyAndReturn({
-     *   select: { tenantSettingId: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends TenantSettingCreateManyAndReturnArgs>(args?: SelectSubset<T, TenantSettingCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TenantSettingPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Delete a TenantSetting.
-     * @param {TenantSettingDeleteArgs} args - Arguments to delete one TenantSetting.
-     * @example
-     * // Delete one TenantSetting
-     * const TenantSetting = await prisma.tenantSetting.delete({
-     *   where: {
-     *     // ... filter to delete one TenantSetting
-     *   }
-     * })
-     * 
-     */
-    delete<T extends TenantSettingDeleteArgs>(args: SelectSubset<T, TenantSettingDeleteArgs<ExtArgs>>): Prisma__TenantSettingClient<$Result.GetResult<Prisma.$TenantSettingPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Update one TenantSetting.
-     * @param {TenantSettingUpdateArgs} args - Arguments to update one TenantSetting.
-     * @example
-     * // Update one TenantSetting
-     * const tenantSetting = await prisma.tenantSetting.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends TenantSettingUpdateArgs>(args: SelectSubset<T, TenantSettingUpdateArgs<ExtArgs>>): Prisma__TenantSettingClient<$Result.GetResult<Prisma.$TenantSettingPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Delete zero or more TenantSettings.
-     * @param {TenantSettingDeleteManyArgs} args - Arguments to filter TenantSettings to delete.
-     * @example
-     * // Delete a few TenantSettings
-     * const { count } = await prisma.tenantSetting.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends TenantSettingDeleteManyArgs>(args?: SelectSubset<T, TenantSettingDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more TenantSettings.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {TenantSettingUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many TenantSettings
-     * const tenantSetting = await prisma.tenantSetting.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends TenantSettingUpdateManyArgs>(args: SelectSubset<T, TenantSettingUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more TenantSettings and returns the data updated in the database.
-     * @param {TenantSettingUpdateManyAndReturnArgs} args - Arguments to update many TenantSettings.
-     * @example
-     * // Update many TenantSettings
-     * const tenantSetting = await prisma.tenantSetting.updateManyAndReturn({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Update zero or more TenantSettings and only return the `tenantSettingId`
-     * const tenantSettingWithTenantSettingIdOnly = await prisma.tenantSetting.updateManyAndReturn({
-     *   select: { tenantSettingId: true },
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    updateManyAndReturn<T extends TenantSettingUpdateManyAndReturnArgs>(args: SelectSubset<T, TenantSettingUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TenantSettingPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Create or update one TenantSetting.
-     * @param {TenantSettingUpsertArgs} args - Arguments to update or create a TenantSetting.
-     * @example
-     * // Update or create a TenantSetting
-     * const tenantSetting = await prisma.tenantSetting.upsert({
-     *   create: {
-     *     // ... data to create a TenantSetting
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the TenantSetting we want to update
-     *   }
-     * })
-     */
-    upsert<T extends TenantSettingUpsertArgs>(args: SelectSubset<T, TenantSettingUpsertArgs<ExtArgs>>): Prisma__TenantSettingClient<$Result.GetResult<Prisma.$TenantSettingPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-
-    /**
-     * Count the number of TenantSettings.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {TenantSettingCountArgs} args - Arguments to filter TenantSettings to count.
-     * @example
-     * // Count the number of TenantSettings
-     * const count = await prisma.tenantSetting.count({
-     *   where: {
-     *     // ... the filter for the TenantSettings we want to count
-     *   }
-     * })
-    **/
-    count<T extends TenantSettingCountArgs>(
-      args?: Subset<T, TenantSettingCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], TenantSettingCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a TenantSetting.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {TenantSettingAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends TenantSettingAggregateArgs>(args: Subset<T, TenantSettingAggregateArgs>): Prisma.PrismaPromise<GetTenantSettingAggregateType<T>>
-
-    /**
-     * Group by TenantSetting.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {TenantSettingGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends TenantSettingGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: TenantSettingGroupByArgs['orderBy'] }
-        : { orderBy?: TenantSettingGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, TenantSettingGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTenantSettingGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the TenantSetting model
-   */
-  readonly fields: TenantSettingFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for TenantSetting.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__TenantSettingClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    tenant<T extends TenantDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TenantDefaultArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the TenantSetting model
-   */
-  interface TenantSettingFieldRefs {
-    readonly tenantSettingId: FieldRef<"TenantSetting", 'String'>
-    readonly tenantId: FieldRef<"TenantSetting", 'String'>
-    readonly key: FieldRef<"TenantSetting", 'String'>
-    readonly value: FieldRef<"TenantSetting", 'String'>
-    readonly group: FieldRef<"TenantSetting", 'String'>
-    readonly type: FieldRef<"TenantSetting", 'String'>
-    readonly createdAt: FieldRef<"TenantSetting", 'DateTime'>
-    readonly updatedAt: FieldRef<"TenantSetting", 'DateTime'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * TenantSetting findUnique
-   */
-  export type TenantSettingFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TenantSetting
-     */
-    select?: TenantSettingSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TenantSetting
-     */
-    omit?: TenantSettingOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TenantSettingInclude<ExtArgs> | null
-    /**
-     * Filter, which TenantSetting to fetch.
-     */
-    where: TenantSettingWhereUniqueInput
-  }
-
-  /**
-   * TenantSetting findUniqueOrThrow
-   */
-  export type TenantSettingFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TenantSetting
-     */
-    select?: TenantSettingSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TenantSetting
-     */
-    omit?: TenantSettingOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TenantSettingInclude<ExtArgs> | null
-    /**
-     * Filter, which TenantSetting to fetch.
-     */
-    where: TenantSettingWhereUniqueInput
-  }
-
-  /**
-   * TenantSetting findFirst
-   */
-  export type TenantSettingFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TenantSetting
-     */
-    select?: TenantSettingSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TenantSetting
-     */
-    omit?: TenantSettingOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TenantSettingInclude<ExtArgs> | null
-    /**
-     * Filter, which TenantSetting to fetch.
-     */
-    where?: TenantSettingWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of TenantSettings to fetch.
-     */
-    orderBy?: TenantSettingOrderByWithRelationInput | TenantSettingOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for TenantSettings.
-     */
-    cursor?: TenantSettingWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` TenantSettings from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` TenantSettings.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of TenantSettings.
-     */
-    distinct?: TenantSettingScalarFieldEnum | TenantSettingScalarFieldEnum[]
-  }
-
-  /**
-   * TenantSetting findFirstOrThrow
-   */
-  export type TenantSettingFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TenantSetting
-     */
-    select?: TenantSettingSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TenantSetting
-     */
-    omit?: TenantSettingOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TenantSettingInclude<ExtArgs> | null
-    /**
-     * Filter, which TenantSetting to fetch.
-     */
-    where?: TenantSettingWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of TenantSettings to fetch.
-     */
-    orderBy?: TenantSettingOrderByWithRelationInput | TenantSettingOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for TenantSettings.
-     */
-    cursor?: TenantSettingWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` TenantSettings from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` TenantSettings.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of TenantSettings.
-     */
-    distinct?: TenantSettingScalarFieldEnum | TenantSettingScalarFieldEnum[]
-  }
-
-  /**
-   * TenantSetting findMany
-   */
-  export type TenantSettingFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TenantSetting
-     */
-    select?: TenantSettingSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TenantSetting
-     */
-    omit?: TenantSettingOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TenantSettingInclude<ExtArgs> | null
-    /**
-     * Filter, which TenantSettings to fetch.
-     */
-    where?: TenantSettingWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of TenantSettings to fetch.
-     */
-    orderBy?: TenantSettingOrderByWithRelationInput | TenantSettingOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing TenantSettings.
-     */
-    cursor?: TenantSettingWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` TenantSettings from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` TenantSettings.
-     */
-    skip?: number
-    distinct?: TenantSettingScalarFieldEnum | TenantSettingScalarFieldEnum[]
-  }
-
-  /**
-   * TenantSetting create
-   */
-  export type TenantSettingCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TenantSetting
-     */
-    select?: TenantSettingSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TenantSetting
-     */
-    omit?: TenantSettingOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TenantSettingInclude<ExtArgs> | null
-    /**
-     * The data needed to create a TenantSetting.
-     */
-    data: XOR<TenantSettingCreateInput, TenantSettingUncheckedCreateInput>
-  }
-
-  /**
-   * TenantSetting createMany
-   */
-  export type TenantSettingCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many TenantSettings.
-     */
-    data: TenantSettingCreateManyInput | TenantSettingCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * TenantSetting createManyAndReturn
-   */
-  export type TenantSettingCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TenantSetting
-     */
-    select?: TenantSettingSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the TenantSetting
-     */
-    omit?: TenantSettingOmit<ExtArgs> | null
-    /**
-     * The data used to create many TenantSettings.
-     */
-    data: TenantSettingCreateManyInput | TenantSettingCreateManyInput[]
-    skipDuplicates?: boolean
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TenantSettingIncludeCreateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * TenantSetting update
-   */
-  export type TenantSettingUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TenantSetting
-     */
-    select?: TenantSettingSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TenantSetting
-     */
-    omit?: TenantSettingOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TenantSettingInclude<ExtArgs> | null
-    /**
-     * The data needed to update a TenantSetting.
-     */
-    data: XOR<TenantSettingUpdateInput, TenantSettingUncheckedUpdateInput>
-    /**
-     * Choose, which TenantSetting to update.
-     */
-    where: TenantSettingWhereUniqueInput
-  }
-
-  /**
-   * TenantSetting updateMany
-   */
-  export type TenantSettingUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update TenantSettings.
-     */
-    data: XOR<TenantSettingUpdateManyMutationInput, TenantSettingUncheckedUpdateManyInput>
-    /**
-     * Filter which TenantSettings to update
-     */
-    where?: TenantSettingWhereInput
-    /**
-     * Limit how many TenantSettings to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * TenantSetting updateManyAndReturn
-   */
-  export type TenantSettingUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TenantSetting
-     */
-    select?: TenantSettingSelectUpdateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the TenantSetting
-     */
-    omit?: TenantSettingOmit<ExtArgs> | null
-    /**
-     * The data used to update TenantSettings.
-     */
-    data: XOR<TenantSettingUpdateManyMutationInput, TenantSettingUncheckedUpdateManyInput>
-    /**
-     * Filter which TenantSettings to update
-     */
-    where?: TenantSettingWhereInput
-    /**
-     * Limit how many TenantSettings to update.
-     */
-    limit?: number
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TenantSettingIncludeUpdateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * TenantSetting upsert
-   */
-  export type TenantSettingUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TenantSetting
-     */
-    select?: TenantSettingSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TenantSetting
-     */
-    omit?: TenantSettingOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TenantSettingInclude<ExtArgs> | null
-    /**
-     * The filter to search for the TenantSetting to update in case it exists.
-     */
-    where: TenantSettingWhereUniqueInput
-    /**
-     * In case the TenantSetting found by the `where` argument doesn't exist, create a new TenantSetting with this data.
-     */
-    create: XOR<TenantSettingCreateInput, TenantSettingUncheckedCreateInput>
-    /**
-     * In case the TenantSetting was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<TenantSettingUpdateInput, TenantSettingUncheckedUpdateInput>
-  }
-
-  /**
-   * TenantSetting delete
-   */
-  export type TenantSettingDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TenantSetting
-     */
-    select?: TenantSettingSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TenantSetting
-     */
-    omit?: TenantSettingOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TenantSettingInclude<ExtArgs> | null
-    /**
-     * Filter which TenantSetting to delete.
-     */
-    where: TenantSettingWhereUniqueInput
-  }
-
-  /**
-   * TenantSetting deleteMany
-   */
-  export type TenantSettingDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which TenantSettings to delete
-     */
-    where?: TenantSettingWhereInput
-    /**
-     * Limit how many TenantSettings to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * TenantSetting without action
-   */
-  export type TenantSettingDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the TenantSetting
-     */
-    select?: TenantSettingSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the TenantSetting
-     */
-    omit?: TenantSettingOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TenantSettingInclude<ExtArgs> | null
   }
 
 
@@ -17728,6 +16516,7 @@ export namespace Prisma {
 
 
   export const SettingScalarFieldEnum: {
+    tenantId: 'tenantId',
     key: 'key',
     value: 'value',
     group: 'group',
@@ -17779,20 +16568,6 @@ export namespace Prisma {
   };
 
   export type TenantMemberScalarFieldEnum = (typeof TenantMemberScalarFieldEnum)[keyof typeof TenantMemberScalarFieldEnum]
-
-
-  export const TenantSettingScalarFieldEnum: {
-    tenantSettingId: 'tenantSettingId',
-    tenantId: 'tenantId',
-    key: 'key',
-    value: 'value',
-    group: 'group',
-    type: 'type',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  };
-
-  export type TenantSettingScalarFieldEnum = (typeof TenantSettingScalarFieldEnum)[keyof typeof TenantSettingScalarFieldEnum]
 
 
   export const UserScalarFieldEnum: {
@@ -18609,6 +17384,7 @@ export namespace Prisma {
     AND?: SettingWhereInput | SettingWhereInput[]
     OR?: SettingWhereInput[]
     NOT?: SettingWhereInput | SettingWhereInput[]
+    tenantId?: UuidFilter<"Setting"> | string
     key?: StringFilter<"Setting"> | string
     value?: StringFilter<"Setting"> | string
     group?: StringFilter<"Setting"> | string
@@ -18618,6 +17394,7 @@ export namespace Prisma {
   }
 
   export type SettingOrderByWithRelationInput = {
+    tenantId?: SortOrder
     key?: SortOrder
     value?: SortOrder
     group?: SortOrder
@@ -18627,18 +17404,21 @@ export namespace Prisma {
   }
 
   export type SettingWhereUniqueInput = Prisma.AtLeast<{
-    key?: string
+    tenantId_key?: SettingTenantIdKeyCompoundUniqueInput
     AND?: SettingWhereInput | SettingWhereInput[]
     OR?: SettingWhereInput[]
     NOT?: SettingWhereInput | SettingWhereInput[]
+    tenantId?: UuidFilter<"Setting"> | string
+    key?: StringFilter<"Setting"> | string
     value?: StringFilter<"Setting"> | string
     group?: StringFilter<"Setting"> | string
     type?: StringFilter<"Setting"> | string
     createdAt?: DateTimeFilter<"Setting"> | Date | string
     updatedAt?: DateTimeNullableFilter<"Setting"> | Date | string | null
-  }, "key">
+  }, "tenantId_key">
 
   export type SettingOrderByWithAggregationInput = {
+    tenantId?: SortOrder
     key?: SortOrder
     value?: SortOrder
     group?: SortOrder
@@ -18654,6 +17434,7 @@ export namespace Prisma {
     AND?: SettingScalarWhereWithAggregatesInput | SettingScalarWhereWithAggregatesInput[]
     OR?: SettingScalarWhereWithAggregatesInput[]
     NOT?: SettingScalarWhereWithAggregatesInput | SettingScalarWhereWithAggregatesInput[]
+    tenantId?: UuidWithAggregatesFilter<"Setting"> | string
     key?: StringWithAggregatesFilter<"Setting"> | string
     value?: StringWithAggregatesFilter<"Setting"> | string
     group?: StringWithAggregatesFilter<"Setting"> | string
@@ -18675,7 +17456,6 @@ export namespace Prisma {
     deletedAt?: DateTimeNullableFilter<"Tenant"> | Date | string | null
     domains?: TenantDomainListRelationFilter
     members?: TenantMemberListRelationFilter
-    settings?: TenantSettingListRelationFilter
     payments?: PaymentListRelationFilter
   }
 
@@ -18689,7 +17469,6 @@ export namespace Prisma {
     deletedAt?: SortOrderInput | SortOrder
     domains?: TenantDomainOrderByRelationAggregateInput
     members?: TenantMemberOrderByRelationAggregateInput
-    settings?: TenantSettingOrderByRelationAggregateInput
     payments?: PaymentOrderByRelationAggregateInput
   }
 
@@ -18706,7 +17485,6 @@ export namespace Prisma {
     deletedAt?: DateTimeNullableFilter<"Tenant"> | Date | string | null
     domains?: TenantDomainListRelationFilter
     members?: TenantMemberListRelationFilter
-    settings?: TenantSettingListRelationFilter
     payments?: PaymentListRelationFilter
   }, "tenantId">
 
@@ -18883,77 +17661,6 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"TenantMember"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"TenantMember"> | Date | string
     deletedAt?: DateTimeNullableWithAggregatesFilter<"TenantMember"> | Date | string | null
-  }
-
-  export type TenantSettingWhereInput = {
-    AND?: TenantSettingWhereInput | TenantSettingWhereInput[]
-    OR?: TenantSettingWhereInput[]
-    NOT?: TenantSettingWhereInput | TenantSettingWhereInput[]
-    tenantSettingId?: UuidFilter<"TenantSetting"> | string
-    tenantId?: UuidFilter<"TenantSetting"> | string
-    key?: StringFilter<"TenantSetting"> | string
-    value?: StringFilter<"TenantSetting"> | string
-    group?: StringFilter<"TenantSetting"> | string
-    type?: StringFilter<"TenantSetting"> | string
-    createdAt?: DateTimeFilter<"TenantSetting"> | Date | string
-    updatedAt?: DateTimeNullableFilter<"TenantSetting"> | Date | string | null
-    tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
-  }
-
-  export type TenantSettingOrderByWithRelationInput = {
-    tenantSettingId?: SortOrder
-    tenantId?: SortOrder
-    key?: SortOrder
-    value?: SortOrder
-    group?: SortOrder
-    type?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrderInput | SortOrder
-    tenant?: TenantOrderByWithRelationInput
-  }
-
-  export type TenantSettingWhereUniqueInput = Prisma.AtLeast<{
-    tenantSettingId?: string
-    tenantId_key?: TenantSettingTenantIdKeyCompoundUniqueInput
-    AND?: TenantSettingWhereInput | TenantSettingWhereInput[]
-    OR?: TenantSettingWhereInput[]
-    NOT?: TenantSettingWhereInput | TenantSettingWhereInput[]
-    tenantId?: UuidFilter<"TenantSetting"> | string
-    key?: StringFilter<"TenantSetting"> | string
-    value?: StringFilter<"TenantSetting"> | string
-    group?: StringFilter<"TenantSetting"> | string
-    type?: StringFilter<"TenantSetting"> | string
-    createdAt?: DateTimeFilter<"TenantSetting"> | Date | string
-    updatedAt?: DateTimeNullableFilter<"TenantSetting"> | Date | string | null
-    tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
-  }, "tenantSettingId" | "tenantId_key">
-
-  export type TenantSettingOrderByWithAggregationInput = {
-    tenantSettingId?: SortOrder
-    tenantId?: SortOrder
-    key?: SortOrder
-    value?: SortOrder
-    group?: SortOrder
-    type?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrderInput | SortOrder
-    _count?: TenantSettingCountOrderByAggregateInput
-    _max?: TenantSettingMaxOrderByAggregateInput
-    _min?: TenantSettingMinOrderByAggregateInput
-  }
-
-  export type TenantSettingScalarWhereWithAggregatesInput = {
-    AND?: TenantSettingScalarWhereWithAggregatesInput | TenantSettingScalarWhereWithAggregatesInput[]
-    OR?: TenantSettingScalarWhereWithAggregatesInput[]
-    NOT?: TenantSettingScalarWhereWithAggregatesInput | TenantSettingScalarWhereWithAggregatesInput[]
-    tenantSettingId?: UuidWithAggregatesFilter<"TenantSetting"> | string
-    tenantId?: UuidWithAggregatesFilter<"TenantSetting"> | string
-    key?: StringWithAggregatesFilter<"TenantSetting"> | string
-    value?: StringWithAggregatesFilter<"TenantSetting"> | string
-    group?: StringWithAggregatesFilter<"TenantSetting"> | string
-    type?: StringWithAggregatesFilter<"TenantSetting"> | string
-    createdAt?: DateTimeWithAggregatesFilter<"TenantSetting"> | Date | string
-    updatedAt?: DateTimeNullableWithAggregatesFilter<"TenantSetting"> | Date | string | null
   }
 
   export type UserWhereInput = {
@@ -19837,6 +18544,7 @@ export namespace Prisma {
   }
 
   export type SettingCreateInput = {
+    tenantId?: string
     key: string
     value: string
     group?: string
@@ -19846,6 +18554,7 @@ export namespace Prisma {
   }
 
   export type SettingUncheckedCreateInput = {
+    tenantId?: string
     key: string
     value: string
     group?: string
@@ -19855,6 +18564,7 @@ export namespace Prisma {
   }
 
   export type SettingUpdateInput = {
+    tenantId?: StringFieldUpdateOperationsInput | string
     key?: StringFieldUpdateOperationsInput | string
     value?: StringFieldUpdateOperationsInput | string
     group?: StringFieldUpdateOperationsInput | string
@@ -19864,6 +18574,7 @@ export namespace Prisma {
   }
 
   export type SettingUncheckedUpdateInput = {
+    tenantId?: StringFieldUpdateOperationsInput | string
     key?: StringFieldUpdateOperationsInput | string
     value?: StringFieldUpdateOperationsInput | string
     group?: StringFieldUpdateOperationsInput | string
@@ -19873,6 +18584,7 @@ export namespace Prisma {
   }
 
   export type SettingCreateManyInput = {
+    tenantId?: string
     key: string
     value: string
     group?: string
@@ -19882,6 +18594,7 @@ export namespace Prisma {
   }
 
   export type SettingUpdateManyMutationInput = {
+    tenantId?: StringFieldUpdateOperationsInput | string
     key?: StringFieldUpdateOperationsInput | string
     value?: StringFieldUpdateOperationsInput | string
     group?: StringFieldUpdateOperationsInput | string
@@ -19891,6 +18604,7 @@ export namespace Prisma {
   }
 
   export type SettingUncheckedUpdateManyInput = {
+    tenantId?: StringFieldUpdateOperationsInput | string
     key?: StringFieldUpdateOperationsInput | string
     value?: StringFieldUpdateOperationsInput | string
     group?: StringFieldUpdateOperationsInput | string
@@ -19909,7 +18623,6 @@ export namespace Prisma {
     deletedAt?: Date | string | null
     domains?: TenantDomainCreateNestedManyWithoutTenantInput
     members?: TenantMemberCreateNestedManyWithoutTenantInput
-    settings?: TenantSettingCreateNestedManyWithoutTenantInput
     payments?: PaymentCreateNestedManyWithoutTenantInput
   }
 
@@ -19923,7 +18636,6 @@ export namespace Prisma {
     deletedAt?: Date | string | null
     domains?: TenantDomainUncheckedCreateNestedManyWithoutTenantInput
     members?: TenantMemberUncheckedCreateNestedManyWithoutTenantInput
-    settings?: TenantSettingUncheckedCreateNestedManyWithoutTenantInput
     payments?: PaymentUncheckedCreateNestedManyWithoutTenantInput
   }
 
@@ -19937,7 +18649,6 @@ export namespace Prisma {
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     domains?: TenantDomainUpdateManyWithoutTenantNestedInput
     members?: TenantMemberUpdateManyWithoutTenantNestedInput
-    settings?: TenantSettingUpdateManyWithoutTenantNestedInput
     payments?: PaymentUpdateManyWithoutTenantNestedInput
   }
 
@@ -19951,7 +18662,6 @@ export namespace Prisma {
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     domains?: TenantDomainUncheckedUpdateManyWithoutTenantNestedInput
     members?: TenantMemberUncheckedUpdateManyWithoutTenantNestedInput
-    settings?: TenantSettingUncheckedUpdateManyWithoutTenantNestedInput
     payments?: PaymentUncheckedUpdateManyWithoutTenantNestedInput
   }
 
@@ -20141,82 +18851,6 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
-  export type TenantSettingCreateInput = {
-    tenantSettingId?: string
-    key: string
-    value: string
-    group?: string
-    type?: string
-    createdAt?: Date | string
-    updatedAt?: Date | string | null
-    tenant: TenantCreateNestedOneWithoutSettingsInput
-  }
-
-  export type TenantSettingUncheckedCreateInput = {
-    tenantSettingId?: string
-    tenantId: string
-    key: string
-    value: string
-    group?: string
-    type?: string
-    createdAt?: Date | string
-    updatedAt?: Date | string | null
-  }
-
-  export type TenantSettingUpdateInput = {
-    tenantSettingId?: StringFieldUpdateOperationsInput | string
-    key?: StringFieldUpdateOperationsInput | string
-    value?: StringFieldUpdateOperationsInput | string
-    group?: StringFieldUpdateOperationsInput | string
-    type?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    tenant?: TenantUpdateOneRequiredWithoutSettingsNestedInput
-  }
-
-  export type TenantSettingUncheckedUpdateInput = {
-    tenantSettingId?: StringFieldUpdateOperationsInput | string
-    tenantId?: StringFieldUpdateOperationsInput | string
-    key?: StringFieldUpdateOperationsInput | string
-    value?: StringFieldUpdateOperationsInput | string
-    group?: StringFieldUpdateOperationsInput | string
-    type?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
-  export type TenantSettingCreateManyInput = {
-    tenantSettingId?: string
-    tenantId: string
-    key: string
-    value: string
-    group?: string
-    type?: string
-    createdAt?: Date | string
-    updatedAt?: Date | string | null
-  }
-
-  export type TenantSettingUpdateManyMutationInput = {
-    tenantSettingId?: StringFieldUpdateOperationsInput | string
-    key?: StringFieldUpdateOperationsInput | string
-    value?: StringFieldUpdateOperationsInput | string
-    group?: StringFieldUpdateOperationsInput | string
-    type?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
-  export type TenantSettingUncheckedUpdateManyInput = {
-    tenantSettingId?: StringFieldUpdateOperationsInput | string
-    tenantId?: StringFieldUpdateOperationsInput | string
-    key?: StringFieldUpdateOperationsInput | string
-    value?: StringFieldUpdateOperationsInput | string
-    group?: StringFieldUpdateOperationsInput | string
-    type?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type UserCreateInput = {
@@ -21382,7 +20016,13 @@ export namespace Prisma {
     _max?: NestedEnumTransactionStatusFilter<$PrismaModel>
   }
 
+  export type SettingTenantIdKeyCompoundUniqueInput = {
+    tenantId: string
+    key: string
+  }
+
   export type SettingCountOrderByAggregateInput = {
+    tenantId?: SortOrder
     key?: SortOrder
     value?: SortOrder
     group?: SortOrder
@@ -21392,6 +20032,7 @@ export namespace Prisma {
   }
 
   export type SettingMaxOrderByAggregateInput = {
+    tenantId?: SortOrder
     key?: SortOrder
     value?: SortOrder
     group?: SortOrder
@@ -21401,6 +20042,7 @@ export namespace Prisma {
   }
 
   export type SettingMinOrderByAggregateInput = {
+    tenantId?: SortOrder
     key?: SortOrder
     value?: SortOrder
     group?: SortOrder
@@ -21428,12 +20070,6 @@ export namespace Prisma {
     none?: TenantMemberWhereInput
   }
 
-  export type TenantSettingListRelationFilter = {
-    every?: TenantSettingWhereInput
-    some?: TenantSettingWhereInput
-    none?: TenantSettingWhereInput
-  }
-
   export type PaymentListRelationFilter = {
     every?: PaymentWhereInput
     some?: PaymentWhereInput
@@ -21445,10 +20081,6 @@ export namespace Prisma {
   }
 
   export type TenantMemberOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
-  export type TenantSettingOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -21642,44 +20274,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumTenantMemberStatusFilter<$PrismaModel>
     _max?: NestedEnumTenantMemberStatusFilter<$PrismaModel>
-  }
-
-  export type TenantSettingTenantIdKeyCompoundUniqueInput = {
-    tenantId: string
-    key: string
-  }
-
-  export type TenantSettingCountOrderByAggregateInput = {
-    tenantSettingId?: SortOrder
-    tenantId?: SortOrder
-    key?: SortOrder
-    value?: SortOrder
-    group?: SortOrder
-    type?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type TenantSettingMaxOrderByAggregateInput = {
-    tenantSettingId?: SortOrder
-    tenantId?: SortOrder
-    key?: SortOrder
-    value?: SortOrder
-    group?: SortOrder
-    type?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type TenantSettingMinOrderByAggregateInput = {
-    tenantSettingId?: SortOrder
-    tenantId?: SortOrder
-    key?: SortOrder
-    value?: SortOrder
-    group?: SortOrder
-    type?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
   }
 
   export type EnumUserRoleFilter<$PrismaModel = never> = {
@@ -22422,13 +21016,6 @@ export namespace Prisma {
     connect?: TenantMemberWhereUniqueInput | TenantMemberWhereUniqueInput[]
   }
 
-  export type TenantSettingCreateNestedManyWithoutTenantInput = {
-    create?: XOR<TenantSettingCreateWithoutTenantInput, TenantSettingUncheckedCreateWithoutTenantInput> | TenantSettingCreateWithoutTenantInput[] | TenantSettingUncheckedCreateWithoutTenantInput[]
-    connectOrCreate?: TenantSettingCreateOrConnectWithoutTenantInput | TenantSettingCreateOrConnectWithoutTenantInput[]
-    createMany?: TenantSettingCreateManyTenantInputEnvelope
-    connect?: TenantSettingWhereUniqueInput | TenantSettingWhereUniqueInput[]
-  }
-
   export type PaymentCreateNestedManyWithoutTenantInput = {
     create?: XOR<PaymentCreateWithoutTenantInput, PaymentUncheckedCreateWithoutTenantInput> | PaymentCreateWithoutTenantInput[] | PaymentUncheckedCreateWithoutTenantInput[]
     connectOrCreate?: PaymentCreateOrConnectWithoutTenantInput | PaymentCreateOrConnectWithoutTenantInput[]
@@ -22448,13 +21035,6 @@ export namespace Prisma {
     connectOrCreate?: TenantMemberCreateOrConnectWithoutTenantInput | TenantMemberCreateOrConnectWithoutTenantInput[]
     createMany?: TenantMemberCreateManyTenantInputEnvelope
     connect?: TenantMemberWhereUniqueInput | TenantMemberWhereUniqueInput[]
-  }
-
-  export type TenantSettingUncheckedCreateNestedManyWithoutTenantInput = {
-    create?: XOR<TenantSettingCreateWithoutTenantInput, TenantSettingUncheckedCreateWithoutTenantInput> | TenantSettingCreateWithoutTenantInput[] | TenantSettingUncheckedCreateWithoutTenantInput[]
-    connectOrCreate?: TenantSettingCreateOrConnectWithoutTenantInput | TenantSettingCreateOrConnectWithoutTenantInput[]
-    createMany?: TenantSettingCreateManyTenantInputEnvelope
-    connect?: TenantSettingWhereUniqueInput | TenantSettingWhereUniqueInput[]
   }
 
   export type PaymentUncheckedCreateNestedManyWithoutTenantInput = {
@@ -22494,20 +21074,6 @@ export namespace Prisma {
     update?: TenantMemberUpdateWithWhereUniqueWithoutTenantInput | TenantMemberUpdateWithWhereUniqueWithoutTenantInput[]
     updateMany?: TenantMemberUpdateManyWithWhereWithoutTenantInput | TenantMemberUpdateManyWithWhereWithoutTenantInput[]
     deleteMany?: TenantMemberScalarWhereInput | TenantMemberScalarWhereInput[]
-  }
-
-  export type TenantSettingUpdateManyWithoutTenantNestedInput = {
-    create?: XOR<TenantSettingCreateWithoutTenantInput, TenantSettingUncheckedCreateWithoutTenantInput> | TenantSettingCreateWithoutTenantInput[] | TenantSettingUncheckedCreateWithoutTenantInput[]
-    connectOrCreate?: TenantSettingCreateOrConnectWithoutTenantInput | TenantSettingCreateOrConnectWithoutTenantInput[]
-    upsert?: TenantSettingUpsertWithWhereUniqueWithoutTenantInput | TenantSettingUpsertWithWhereUniqueWithoutTenantInput[]
-    createMany?: TenantSettingCreateManyTenantInputEnvelope
-    set?: TenantSettingWhereUniqueInput | TenantSettingWhereUniqueInput[]
-    disconnect?: TenantSettingWhereUniqueInput | TenantSettingWhereUniqueInput[]
-    delete?: TenantSettingWhereUniqueInput | TenantSettingWhereUniqueInput[]
-    connect?: TenantSettingWhereUniqueInput | TenantSettingWhereUniqueInput[]
-    update?: TenantSettingUpdateWithWhereUniqueWithoutTenantInput | TenantSettingUpdateWithWhereUniqueWithoutTenantInput[]
-    updateMany?: TenantSettingUpdateManyWithWhereWithoutTenantInput | TenantSettingUpdateManyWithWhereWithoutTenantInput[]
-    deleteMany?: TenantSettingScalarWhereInput | TenantSettingScalarWhereInput[]
   }
 
   export type PaymentUpdateManyWithoutTenantNestedInput = {
@@ -22550,20 +21116,6 @@ export namespace Prisma {
     update?: TenantMemberUpdateWithWhereUniqueWithoutTenantInput | TenantMemberUpdateWithWhereUniqueWithoutTenantInput[]
     updateMany?: TenantMemberUpdateManyWithWhereWithoutTenantInput | TenantMemberUpdateManyWithWhereWithoutTenantInput[]
     deleteMany?: TenantMemberScalarWhereInput | TenantMemberScalarWhereInput[]
-  }
-
-  export type TenantSettingUncheckedUpdateManyWithoutTenantNestedInput = {
-    create?: XOR<TenantSettingCreateWithoutTenantInput, TenantSettingUncheckedCreateWithoutTenantInput> | TenantSettingCreateWithoutTenantInput[] | TenantSettingUncheckedCreateWithoutTenantInput[]
-    connectOrCreate?: TenantSettingCreateOrConnectWithoutTenantInput | TenantSettingCreateOrConnectWithoutTenantInput[]
-    upsert?: TenantSettingUpsertWithWhereUniqueWithoutTenantInput | TenantSettingUpsertWithWhereUniqueWithoutTenantInput[]
-    createMany?: TenantSettingCreateManyTenantInputEnvelope
-    set?: TenantSettingWhereUniqueInput | TenantSettingWhereUniqueInput[]
-    disconnect?: TenantSettingWhereUniqueInput | TenantSettingWhereUniqueInput[]
-    delete?: TenantSettingWhereUniqueInput | TenantSettingWhereUniqueInput[]
-    connect?: TenantSettingWhereUniqueInput | TenantSettingWhereUniqueInput[]
-    update?: TenantSettingUpdateWithWhereUniqueWithoutTenantInput | TenantSettingUpdateWithWhereUniqueWithoutTenantInput[]
-    updateMany?: TenantSettingUpdateManyWithWhereWithoutTenantInput | TenantSettingUpdateManyWithWhereWithoutTenantInput[]
-    deleteMany?: TenantSettingScalarWhereInput | TenantSettingScalarWhereInput[]
   }
 
   export type PaymentUncheckedUpdateManyWithoutTenantNestedInput = {
@@ -22636,20 +21188,6 @@ export namespace Prisma {
     upsert?: UserUpsertWithoutTenantMembersInput
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutTenantMembersInput, UserUpdateWithoutTenantMembersInput>, UserUncheckedUpdateWithoutTenantMembersInput>
-  }
-
-  export type TenantCreateNestedOneWithoutSettingsInput = {
-    create?: XOR<TenantCreateWithoutSettingsInput, TenantUncheckedCreateWithoutSettingsInput>
-    connectOrCreate?: TenantCreateOrConnectWithoutSettingsInput
-    connect?: TenantWhereUniqueInput
-  }
-
-  export type TenantUpdateOneRequiredWithoutSettingsNestedInput = {
-    create?: XOR<TenantCreateWithoutSettingsInput, TenantUncheckedCreateWithoutSettingsInput>
-    connectOrCreate?: TenantCreateOrConnectWithoutSettingsInput
-    upsert?: TenantUpsertWithoutSettingsInput
-    connect?: TenantWhereUniqueInput
-    update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutSettingsInput, TenantUpdateWithoutSettingsInput>, TenantUncheckedUpdateWithoutSettingsInput>
   }
 
   export type UserProfileCreateNestedOneWithoutUserInput = {
@@ -23720,7 +22258,6 @@ export namespace Prisma {
     deletedAt?: Date | string | null
     domains?: TenantDomainCreateNestedManyWithoutTenantInput
     members?: TenantMemberCreateNestedManyWithoutTenantInput
-    settings?: TenantSettingCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutPaymentsInput = {
@@ -23733,7 +22270,6 @@ export namespace Prisma {
     deletedAt?: Date | string | null
     domains?: TenantDomainUncheckedCreateNestedManyWithoutTenantInput
     members?: TenantMemberUncheckedCreateNestedManyWithoutTenantInput
-    settings?: TenantSettingUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutPaymentsInput = {
@@ -23863,7 +22399,6 @@ export namespace Prisma {
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     domains?: TenantDomainUpdateManyWithoutTenantNestedInput
     members?: TenantMemberUpdateManyWithoutTenantNestedInput
-    settings?: TenantSettingUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutPaymentsInput = {
@@ -23876,7 +22411,6 @@ export namespace Prisma {
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     domains?: TenantDomainUncheckedUpdateManyWithoutTenantNestedInput
     members?: TenantMemberUncheckedUpdateManyWithoutTenantNestedInput
-    settings?: TenantSettingUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type PaymentTransactionUpsertWithWhereUniqueWithoutPaymentInput = {
@@ -24284,36 +22818,6 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type TenantSettingCreateWithoutTenantInput = {
-    tenantSettingId?: string
-    key: string
-    value: string
-    group?: string
-    type?: string
-    createdAt?: Date | string
-    updatedAt?: Date | string | null
-  }
-
-  export type TenantSettingUncheckedCreateWithoutTenantInput = {
-    tenantSettingId?: string
-    key: string
-    value: string
-    group?: string
-    type?: string
-    createdAt?: Date | string
-    updatedAt?: Date | string | null
-  }
-
-  export type TenantSettingCreateOrConnectWithoutTenantInput = {
-    where: TenantSettingWhereUniqueInput
-    create: XOR<TenantSettingCreateWithoutTenantInput, TenantSettingUncheckedCreateWithoutTenantInput>
-  }
-
-  export type TenantSettingCreateManyTenantInputEnvelope = {
-    data: TenantSettingCreateManyTenantInput | TenantSettingCreateManyTenantInput[]
-    skipDuplicates?: boolean
-  }
-
   export type PaymentCreateWithoutTenantInput = {
     paymentId?: string
     provider: $Enums.PaymentProvider
@@ -24441,36 +22945,6 @@ export namespace Prisma {
     deletedAt?: DateTimeNullableFilter<"TenantMember"> | Date | string | null
   }
 
-  export type TenantSettingUpsertWithWhereUniqueWithoutTenantInput = {
-    where: TenantSettingWhereUniqueInput
-    update: XOR<TenantSettingUpdateWithoutTenantInput, TenantSettingUncheckedUpdateWithoutTenantInput>
-    create: XOR<TenantSettingCreateWithoutTenantInput, TenantSettingUncheckedCreateWithoutTenantInput>
-  }
-
-  export type TenantSettingUpdateWithWhereUniqueWithoutTenantInput = {
-    where: TenantSettingWhereUniqueInput
-    data: XOR<TenantSettingUpdateWithoutTenantInput, TenantSettingUncheckedUpdateWithoutTenantInput>
-  }
-
-  export type TenantSettingUpdateManyWithWhereWithoutTenantInput = {
-    where: TenantSettingScalarWhereInput
-    data: XOR<TenantSettingUpdateManyMutationInput, TenantSettingUncheckedUpdateManyWithoutTenantInput>
-  }
-
-  export type TenantSettingScalarWhereInput = {
-    AND?: TenantSettingScalarWhereInput | TenantSettingScalarWhereInput[]
-    OR?: TenantSettingScalarWhereInput[]
-    NOT?: TenantSettingScalarWhereInput | TenantSettingScalarWhereInput[]
-    tenantSettingId?: UuidFilter<"TenantSetting"> | string
-    tenantId?: UuidFilter<"TenantSetting"> | string
-    key?: StringFilter<"TenantSetting"> | string
-    value?: StringFilter<"TenantSetting"> | string
-    group?: StringFilter<"TenantSetting"> | string
-    type?: StringFilter<"TenantSetting"> | string
-    createdAt?: DateTimeFilter<"TenantSetting"> | Date | string
-    updatedAt?: DateTimeNullableFilter<"TenantSetting"> | Date | string | null
-  }
-
   export type PaymentUpsertWithWhereUniqueWithoutTenantInput = {
     where: PaymentWhereUniqueInput
     update: XOR<PaymentUpdateWithoutTenantInput, PaymentUncheckedUpdateWithoutTenantInput>
@@ -24527,7 +23001,6 @@ export namespace Prisma {
     updatedAt?: Date | string
     deletedAt?: Date | string | null
     members?: TenantMemberCreateNestedManyWithoutTenantInput
-    settings?: TenantSettingCreateNestedManyWithoutTenantInput
     payments?: PaymentCreateNestedManyWithoutTenantInput
   }
 
@@ -24540,7 +23013,6 @@ export namespace Prisma {
     updatedAt?: Date | string
     deletedAt?: Date | string | null
     members?: TenantMemberUncheckedCreateNestedManyWithoutTenantInput
-    settings?: TenantSettingUncheckedCreateNestedManyWithoutTenantInput
     payments?: PaymentUncheckedCreateNestedManyWithoutTenantInput
   }
 
@@ -24569,7 +23041,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     members?: TenantMemberUpdateManyWithoutTenantNestedInput
-    settings?: TenantSettingUpdateManyWithoutTenantNestedInput
     payments?: PaymentUpdateManyWithoutTenantNestedInput
   }
 
@@ -24582,7 +23053,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     members?: TenantMemberUncheckedUpdateManyWithoutTenantNestedInput
-    settings?: TenantSettingUncheckedUpdateManyWithoutTenantNestedInput
     payments?: PaymentUncheckedUpdateManyWithoutTenantNestedInput
   }
 
@@ -24595,7 +23065,6 @@ export namespace Prisma {
     updatedAt?: Date | string
     deletedAt?: Date | string | null
     domains?: TenantDomainCreateNestedManyWithoutTenantInput
-    settings?: TenantSettingCreateNestedManyWithoutTenantInput
     payments?: PaymentCreateNestedManyWithoutTenantInput
   }
 
@@ -24608,7 +23077,6 @@ export namespace Prisma {
     updatedAt?: Date | string
     deletedAt?: Date | string | null
     domains?: TenantDomainUncheckedCreateNestedManyWithoutTenantInput
-    settings?: TenantSettingUncheckedCreateNestedManyWithoutTenantInput
     payments?: PaymentUncheckedCreateNestedManyWithoutTenantInput
   }
 
@@ -24678,7 +23146,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     domains?: TenantDomainUpdateManyWithoutTenantNestedInput
-    settings?: TenantSettingUpdateManyWithoutTenantNestedInput
     payments?: PaymentUpdateManyWithoutTenantNestedInput
   }
 
@@ -24691,7 +23158,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     domains?: TenantDomainUncheckedUpdateManyWithoutTenantNestedInput
-    settings?: TenantSettingUncheckedUpdateManyWithoutTenantNestedInput
     payments?: PaymentUncheckedUpdateManyWithoutTenantNestedInput
   }
 
@@ -24740,74 +23206,6 @@ export namespace Prisma {
     socialAccounts?: UserSocialAccountUncheckedUpdateManyWithoutUserNestedInput
     sessions?: UserSessionUncheckedUpdateManyWithoutUserNestedInput
     payments?: PaymentUncheckedUpdateManyWithoutUserNestedInput
-  }
-
-  export type TenantCreateWithoutSettingsInput = {
-    tenantId?: string
-    name: string
-    description?: string | null
-    tenantStatus?: $Enums.TenantStatus
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    domains?: TenantDomainCreateNestedManyWithoutTenantInput
-    members?: TenantMemberCreateNestedManyWithoutTenantInput
-    payments?: PaymentCreateNestedManyWithoutTenantInput
-  }
-
-  export type TenantUncheckedCreateWithoutSettingsInput = {
-    tenantId?: string
-    name: string
-    description?: string | null
-    tenantStatus?: $Enums.TenantStatus
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    deletedAt?: Date | string | null
-    domains?: TenantDomainUncheckedCreateNestedManyWithoutTenantInput
-    members?: TenantMemberUncheckedCreateNestedManyWithoutTenantInput
-    payments?: PaymentUncheckedCreateNestedManyWithoutTenantInput
-  }
-
-  export type TenantCreateOrConnectWithoutSettingsInput = {
-    where: TenantWhereUniqueInput
-    create: XOR<TenantCreateWithoutSettingsInput, TenantUncheckedCreateWithoutSettingsInput>
-  }
-
-  export type TenantUpsertWithoutSettingsInput = {
-    update: XOR<TenantUpdateWithoutSettingsInput, TenantUncheckedUpdateWithoutSettingsInput>
-    create: XOR<TenantCreateWithoutSettingsInput, TenantUncheckedCreateWithoutSettingsInput>
-    where?: TenantWhereInput
-  }
-
-  export type TenantUpdateToOneWithWhereWithoutSettingsInput = {
-    where?: TenantWhereInput
-    data: XOR<TenantUpdateWithoutSettingsInput, TenantUncheckedUpdateWithoutSettingsInput>
-  }
-
-  export type TenantUpdateWithoutSettingsInput = {
-    tenantId?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    tenantStatus?: EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    domains?: TenantDomainUpdateManyWithoutTenantNestedInput
-    members?: TenantMemberUpdateManyWithoutTenantNestedInput
-    payments?: PaymentUpdateManyWithoutTenantNestedInput
-  }
-
-  export type TenantUncheckedUpdateWithoutSettingsInput = {
-    tenantId?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    tenantStatus?: EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    domains?: TenantDomainUncheckedUpdateManyWithoutTenantNestedInput
-    members?: TenantMemberUncheckedUpdateManyWithoutTenantNestedInput
-    payments?: PaymentUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type UserProfileCreateWithoutUserInput = {
@@ -25918,16 +24316,6 @@ export namespace Prisma {
     deletedAt?: Date | string | null
   }
 
-  export type TenantSettingCreateManyTenantInput = {
-    tenantSettingId?: string
-    key: string
-    value: string
-    group?: string
-    type?: string
-    createdAt?: Date | string
-    updatedAt?: Date | string | null
-  }
-
   export type PaymentCreateManyTenantInput = {
     paymentId?: string
     userId?: string | null
@@ -26016,36 +24404,6 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
-  export type TenantSettingUpdateWithoutTenantInput = {
-    tenantSettingId?: StringFieldUpdateOperationsInput | string
-    key?: StringFieldUpdateOperationsInput | string
-    value?: StringFieldUpdateOperationsInput | string
-    group?: StringFieldUpdateOperationsInput | string
-    type?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
-  export type TenantSettingUncheckedUpdateWithoutTenantInput = {
-    tenantSettingId?: StringFieldUpdateOperationsInput | string
-    key?: StringFieldUpdateOperationsInput | string
-    value?: StringFieldUpdateOperationsInput | string
-    group?: StringFieldUpdateOperationsInput | string
-    type?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
-  export type TenantSettingUncheckedUpdateManyWithoutTenantInput = {
-    tenantSettingId?: StringFieldUpdateOperationsInput | string
-    key?: StringFieldUpdateOperationsInput | string
-    value?: StringFieldUpdateOperationsInput | string
-    group?: StringFieldUpdateOperationsInput | string
-    type?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type PaymentUpdateWithoutTenantInput = {

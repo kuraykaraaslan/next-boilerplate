@@ -1,8 +1,8 @@
 // path: app/tenant/[tenantId]/api/settings/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import TenantSessionNextService from "@/modules/tenant_session/tenant_session.service.next";
-import TenantSettingService from "@/modules/tenant_setting/tenant_setting.service";
-import TenantSettingMessages from "@/modules/tenant_setting/tenant_setting.messages";
+import SettingService from "@/modules/setting/setting.service";
+import SettingMessages from "@/modules/setting/setting.messages";
 import Limiter from "@/libs/limiter";
 
 /**
@@ -23,7 +23,7 @@ export async function GET(
       tenantId
     });
 
-    const settings = await TenantSettingService.getAllAsRecord(tenantId);
+    const settings = await SettingService.getAllAsRecord(tenantId);
 
     return NextResponse.json({
       success: true,
@@ -31,7 +31,7 @@ export async function GET(
     }, { status: 200 });
   } catch (error: any) {
     return NextResponse.json(
-      { success: false, message: error.message || TenantSettingMessages.FETCH_FAILED },
+      { success: false, message: error.message || SettingMessages.FETCH_FAILED },
       { status: 500 }
     );
   }
@@ -65,7 +65,7 @@ export async function PUT(
       }, { status: 400 });
     }
 
-    const settings = await TenantSettingService.getByKeys(tenantId, keys);
+    const settings = await SettingService.getByKeys(keys, tenantId);
 
     return NextResponse.json({
       success: true,
@@ -73,7 +73,7 @@ export async function PUT(
     }, { status: 200 });
   } catch (error: any) {
     return NextResponse.json(
-      { success: false, message: error.message || TenantSettingMessages.FETCH_FAILED },
+      { success: false, message: error.message || SettingMessages.FETCH_FAILED },
       { status: 500 }
     );
   }
@@ -107,7 +107,7 @@ export async function POST(
       }, { status: 400 });
     }
 
-    const updatedArr = await TenantSettingService.updateMany(tenantId, settings);
+    const updatedArr = await SettingService.updateMany(settings, tenantId);
 
     // Convert to key-value object
     const updatedSettings: Record<string, string> = {};
@@ -121,7 +121,7 @@ export async function POST(
     }, { status: 200 });
   } catch (error: any) {
     return NextResponse.json(
-      { success: false, message: error.message || TenantSettingMessages.UPDATE_FAILED },
+      { success: false, message: error.message || SettingMessages.UPDATE_FAILED },
       { status: 500 }
     );
   }
@@ -155,22 +155,22 @@ export async function DELETE(
       }, { status: 400 });
     }
 
-    const deleted = await TenantSettingService.delete(tenantId, key);
+    const deleted = await SettingService.delete(key, tenantId);
 
     if (!deleted) {
       return NextResponse.json({
         success: false,
-        message: TenantSettingMessages.SETTING_NOT_FOUND
+        message: SettingMessages.SETTING_NOT_FOUND
       }, { status: 404 });
     }
 
     return NextResponse.json({
       success: true,
-      message: TenantSettingMessages.SETTING_DELETED
+      message: SettingMessages.SETTING_DELETED
     }, { status: 200 });
   } catch (error: any) {
     return NextResponse.json(
-      { success: false, message: error.message || TenantSettingMessages.DELETE_FAILED },
+      { success: false, message: error.message || SettingMessages.DELETE_FAILED },
       { status: 500 }
     );
   }

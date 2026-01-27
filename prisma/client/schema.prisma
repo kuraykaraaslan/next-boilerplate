@@ -260,14 +260,16 @@ datasource db {
 }
 
 model Setting {
-  key       String    @id @db.VarChar
+  tenantId  String    @default("00000000-0000-0000-0000-000000000000") @db.Uuid
+  key       String    @db.VarChar
   value     String    @db.Text
   group     String    @default("general") @db.VarChar
   type      String    @default("string") @db.VarChar
   createdAt DateTime  @default(now()) @db.Timestamp
   updatedAt DateTime? @updatedAt @db.Timestamp
 
-  @@index([group])
+  @@id([tenantId, key])
+  @@index([tenantId, group])
   @@map("settings")
 }
 
@@ -282,7 +284,6 @@ model Tenant {
 
   domains  TenantDomain[]
   members  TenantMember[]
-  settings TenantSetting[]
   payments Payment[]
 
   @@map("tenants")
@@ -322,24 +323,6 @@ model TenantMember {
   @@index([tenantId])
   @@index([userId])
   @@map("tenant_members")
-}
-
-model TenantSetting {
-  tenantSettingId String    @id @default(uuid()) @db.Uuid
-  tenantId        String    @db.Uuid
-  key             String    @db.VarChar
-  value           String    @db.Text
-  group           String    @default("general") @db.VarChar
-  type            String    @default("string") @db.VarChar
-  createdAt       DateTime  @default(now()) @db.Timestamp
-  updatedAt       DateTime? @updatedAt @db.Timestamp
-
-  tenant Tenant @relation(fields: [tenantId], references: [tenantId], onDelete: Cascade)
-
-  @@unique([tenantId, key])
-  @@index([tenantId])
-  @@index([tenantId, group])
-  @@map("tenant_settings")
 }
 
 model User {

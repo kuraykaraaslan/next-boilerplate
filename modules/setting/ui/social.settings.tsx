@@ -1,6 +1,6 @@
 'use client';
 
-import DynamicText from '@/components/common/forms/DynamicText';
+import DynamicText from '@/modules/ui/forms/DynamicText';
 import { SettingsTabProps } from '@/modules/setting/setting.types';
 
 export default function SocialTab({ settings, setSettings, loading, saving }: SettingsTabProps) {
@@ -10,7 +10,7 @@ export default function SocialTab({ settings, setSettings, loading, saving }: Se
         <div className="space-y-6">
             <div className="card bg-base-100 shadow">
                 <div className="card-body">
-                    <h3 className="card-title text-lg">Social Media Profiles</h3>
+                    <h3 className="card-title text-lg">Social Media Links</h3>
                     <p className="text-sm text-base-content/60 mb-4">Your social media profile URLs</p>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -44,7 +44,7 @@ export default function SocialTab({ settings, setSettings, loading, saving }: Se
                         <DynamicText
                             label="LinkedIn"
                             type="url"
-                            placeholder="https://linkedin.com/in/yourprofile"
+                            placeholder="https://linkedin.com/company/yourcompany"
                             value={settings.linkedinUrl || ''}
                             setValue={v => setSettings(s => ({ ...s, linkedinUrl: v }))}
                             disabled={isDisabled}
@@ -62,7 +62,7 @@ export default function SocialTab({ settings, setSettings, loading, saving }: Se
                         <DynamicText
                             label="GitHub"
                             type="url"
-                            placeholder="https://github.com/yourusername"
+                            placeholder="https://github.com/yourprofile"
                             value={settings.githubProfileUrl || ''}
                             setValue={v => setSettings(s => ({ ...s, githubProfileUrl: v }))}
                             disabled={isDisabled}
@@ -80,7 +80,7 @@ export default function SocialTab({ settings, setSettings, loading, saving }: Se
                         <DynamicText
                             label="Pinterest"
                             type="url"
-                            placeholder="https://pinterest.com/yourprofile"
+                            placeholder="https://pinterest.com/yourhandle"
                             value={settings.pinterestUrl || ''}
                             setValue={v => setSettings(s => ({ ...s, pinterestUrl: v }))}
                             disabled={isDisabled}

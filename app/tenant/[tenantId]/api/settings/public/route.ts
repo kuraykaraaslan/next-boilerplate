@@ -1,6 +1,6 @@
 // path: app/tenant/[tenantId]/api/settings/public/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import TenantSettingService from "@/modules/tenant_setting/tenant_setting.service";
+import SettingService from "@/modules/setting/setting.service";
 
 // Public settings keys that don't require authentication
 const PUBLIC_SETTINGS_KEYS = [
@@ -23,7 +23,7 @@ export async function GET(
 ) {
   try {
     const { tenantId } = await params;
-    const settings = await TenantSettingService.getByKeys(tenantId, PUBLIC_SETTINGS_KEYS);
+    const settings = await SettingService.getByKeys(PUBLIC_SETTINGS_KEYS, tenantId);
 
     return NextResponse.json({
       success: true,

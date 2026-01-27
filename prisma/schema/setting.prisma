@@ -1,11 +1,13 @@
 model Setting {
-  key       String    @id @db.VarChar
+  tenantId  String    @default("00000000-0000-0000-0000-000000000000") @db.Uuid
+  key       String    @db.VarChar
   value     String    @db.Text
   group     String    @default("general") @db.VarChar
   type      String    @default("string") @db.VarChar
   createdAt DateTime  @default(now()) @db.Timestamp
   updatedAt DateTime? @updatedAt @db.Timestamp
 
-  @@index([group])
+  @@id([tenantId, key])
+  @@index([tenantId, group])
   @@map("settings")
 }

@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import Tabs from '@/components/common/tabs';
 import GeneralTab from '@/modules/tenant/ui/tenant.tenant';
-import BrandingTab from '@/modules/tenant/ui/branding.tenant';
+import BrandingTab from '@/modules/tenant_branding/ui/branding.tenant';
 import FeatureTab from '@/modules/tenant/ui/feature.tenant';
 import NotificationTab from '@/modules/tenant/ui/notification.tenant';
 import SecurityTab from '@/modules/tenant_session/ui/tenant_session.tenant';

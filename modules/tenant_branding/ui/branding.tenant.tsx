@@ -1,9 +1,9 @@
 'use client';
 
 import DynamicText from '@/modules/ui/forms/DynamicText';
-import { TenantSettingsTabProps } from '@/modules/tenant_setting/tenant_setting.types';
+import { SettingsTabProps } from '@/modules/setting/setting.types';
 
-export default function BrandingTab({ settings, setSettings, loading, saving }: TenantSettingsTabProps) {
+export default function BrandingTab({ settings, setSettings, loading, saving }: SettingsTabProps) {
     const isDisabled = loading || saving;
 
     return (

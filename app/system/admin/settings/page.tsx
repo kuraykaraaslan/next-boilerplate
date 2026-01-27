@@ -9,7 +9,7 @@ import SocialTab from '@/modules/setting/ui/social.settings';
 import AnalyticsTab from '@/modules/setting/ui/analytics.settings';
 import IntegrationsTab from '@/modules/setting/ui/integrations.settings';
 import NotificationTab from '@/modules/setting/ui/notification.settings';
-import AITab from '@/modules/setting/ui/ai.settings';
+import AITab from '@/modules/ai/ui/ai.settings';
 import AuthTab from '@/modules/auth/ui/auth.settings';
 import EmailTab from '@/modules/notification_mail/ui/notification_mail.settings';
 import SmsTab from '@/modules/notification_sms/ui/notification_sms.settings';
