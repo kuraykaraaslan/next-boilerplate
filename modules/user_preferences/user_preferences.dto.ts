@@ -15,8 +15,8 @@ export const UpdatePreferencesRequestSchema = z.object({
   pushNotifications: z.boolean().nullable().transform(val => val ?? false),
   newsletter: z.boolean().nullable().transform(val => val ?? true),
   timezone: z.string().nullable().transform(val => val ?? 'UTC'),
-  dateFormat: DateFormatEnum.nullable().transform(val => val ?? 'YYYY_MM_DD'),
-  timeFormat: TimeFormatEnum.nullable().transform(val => val ?? 'H24'),
+  dateFormat: DateFormatEnum.nullable().optional().transform(val => val ?? 'DD_MM_YYYY'),
+  timeFormat: TimeFormatEnum.nullable().optional().transform(val => val ?? 'H24'),
   firstDayOfWeek: FirstDayOfWeekEnum.nullable().transform(val => val ?? 'MON')
 });
 

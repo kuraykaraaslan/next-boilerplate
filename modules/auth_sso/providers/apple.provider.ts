@@ -83,7 +83,7 @@ export class AppleProvider implements SSOProviderService {
       return {
         sub: decodedToken.sub,
         email: decodedToken.email,
-        provider: 'apple',
+        provider: 'apple' as SSOProvider
       };
     } catch {
       throw new Error(SSOMessages.USER_INFO_FAILED);

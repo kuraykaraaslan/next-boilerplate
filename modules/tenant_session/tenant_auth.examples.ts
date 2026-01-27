@@ -2,7 +2,7 @@
 // This file demonstrates different ways to use the tenant authentication service
 
 import { NextResponse } from "next/server";
-import TenantAuthNextService from "@/modules/tenant_auth/tenant_auth.service.next";
+import TenantAuthNextService from "./tenant_session.service.next";
 import Limiter from "@/libs/limiter";
 
 /**

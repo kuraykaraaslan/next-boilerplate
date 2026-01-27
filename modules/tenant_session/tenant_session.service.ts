@@ -3,7 +3,7 @@ import redis from '@/libs/redis';
 import { SafeTenant, SafeTenantSchema } from '@/modules/tenant/tenant.types';
 import { SafeTenantMember, SafeTenantMemberSchema } from '@/modules/tenant_member/tenant_member.types';
 import { SafeUser } from '@/modules/user/user.types';
-import TenantAuthMessages from './tenant_auth.messages';
+import TenantAuthMessages from './tenant_session.messages';
 import type { TenantMemberRole } from '@/modules/tenant_member/tenant_member.enums';
 
 const TENANT_CACHE_TTL = parseInt(process.env.TENANT_CACHE_TTL || `${60 * 5}`); // 5 min default

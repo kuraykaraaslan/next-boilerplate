@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useState, useRef, useEffect } from 'react';
-import { HeadlessModal } from '@/components/common/Layout/Modal';
+import { HeadlessModal } from '@/modules/ui/modal';
 
 export type TranslationStatus = 'complete' | 'partial' | 'empty';
 

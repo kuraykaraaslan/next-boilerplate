@@ -1,6 +1,6 @@
 // path: app/tenant/[tenantId]/api/auth/me/profile/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import TenantSessionNextService from "@/modules/tenant_auth/tenant_session.service.next";
+import TenantSessionNextService from "@/modules/tenant_session/tenant_session.service.next";
 import UserProfileService from "@/modules/user_profile/user_profile.service";
 import Limiter from "@/libs/limiter";
 import { UpdateProfileRequestSchema } from "@/modules/user_profile/user_profile.dto";

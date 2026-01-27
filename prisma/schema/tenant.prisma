@@ -10,6 +10,7 @@ model Tenant {
   domains  TenantDomain[]
   members  TenantMember[]
   settings TenantSetting[]
+  payments Payment[]
 
   @@map("tenants")
 }

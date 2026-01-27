@@ -61,7 +61,7 @@ export class TwitterProvider extends BaseSSOProvider {
   protected mapUserInfo(data: Record<string, unknown>): SSOProfile {
     return {
       sub: data.id as string,
-      email: (data.email as string) || undefined,
+      email: (data.email as string),
       name: data.name as string | undefined,
       picture: data.profile_image_url as string | undefined,
       provider: 'twitter',

@@ -171,13 +171,13 @@ const SelectTenantPage = () => {
             )}
 
             {/* Admin shortcut if user has admin role */}
-            {user && (user.userRole === 'ADMIN' || user.userRole === 'SUPER_ADMIN') && (
+            {user && (user.userRole === 'ADMIN') && (
                 <div className="pt-4 border-t border-base-300">
                     <button
                         onClick={() => router.push('/system/admin')}
                         className="w-full btn btn-ghost btn-sm"
                     >
-                        Go to System Admin
+                        Go to System Admin Panel
                     </button>
                 </div>
             )}

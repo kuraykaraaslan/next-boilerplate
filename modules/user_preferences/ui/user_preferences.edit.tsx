@@ -8,19 +8,8 @@ import { faGlobe, faMoon } from '@fortawesome/free-solid-svg-icons';
 import { UserPreferences } from '../user_preferences.types';
 import { ThemeEnum, LanguageEnum } from '../user_preferences.enums';
 import * as countriesAndTimezones from 'countries-and-timezones';
+import { UserPreferencesDefault } from '../user_preferences.types';
 
-const UserPreferencesDefault: UserPreferences = {
-  theme: 'SYSTEM',
-  language: 'EN',
-  emailNotifications: true,
-  smsNotifications: false,
-  pushNotifications: true,
-  newsletter: true,
-  timezone: 'UTC',
-  dateFormat: 'DD/MM/YYYY',
-  timeFormat: '24H',
-  firstDayOfWeek: 'MON'
-};
 
 export default function UserPreferencesEditTab() {
   const [userPreferences, setUserPreferences] = useState<UserPreferences>(

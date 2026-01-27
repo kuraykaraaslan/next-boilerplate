@@ -13,7 +13,7 @@ export const LoginDTO = z.object({
 export const RegisterDTO = z.object({
   email: z.string().email(),
   password: z.string().min(8, "Password must be at least 8 characters"),
-  phone: z.string().nullable().nullable()
+  phone: z.string().optional()
 });
 
 export const LogoutDTO = z.object({

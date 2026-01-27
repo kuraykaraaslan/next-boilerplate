@@ -8,7 +8,7 @@ model UserPreferences {
   pushNotifications  Boolean        @default(true)
   newsletter         Boolean        @default(true)
   timezone           String         @default("UTC") @db.VarChar
-  dateFormat         DateFormat     @default(YYYY_MM_DD)
+  dateFormat         DateFormat     @default(DD_MM_YYYY)
   timeFormat         TimeFormat     @default(H24)
   firstDayOfWeek     FirstDayOfWeek @default(MON)
   createdAt          DateTime       @default(now()) @db.Timestamp

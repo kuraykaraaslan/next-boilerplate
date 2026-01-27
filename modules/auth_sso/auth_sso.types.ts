@@ -4,8 +4,8 @@ import { SSOProviderEnum } from './auth_sso.enums';
 export const SSOProfileSchema = z.object({
   sub: z.string(),
   email: z.string().email().nullable(),
-  name: z.string().nullable(),
-  picture: z.string().nullable(),
+  name: z.string().nullable().optional(),
+  picture: z.string().nullable().optional(),
   provider: SSOProviderEnum
 });
 

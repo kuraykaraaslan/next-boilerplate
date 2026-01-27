@@ -70,7 +70,7 @@ export default class AuthService {
      * @param password - The user's password.
      * @returns The registered user.
      */
-    static async register({ email, password, phone }: { email: string, password: string, phone?: string }): Promise<SafeUser> {
+    static async register({ email, password, phone }: { email: string, password: string, phone?: string }): Promise<{ user: SafeUser }> {
 
         // TODO: Validate the input data
 
@@ -92,7 +92,7 @@ export default class AuthService {
 
         const parsedUser = SafeUserSchema.parse(createdUser);
 
-        return parsedUser;
+        return { user: parsedUser };
     }
 
     /**

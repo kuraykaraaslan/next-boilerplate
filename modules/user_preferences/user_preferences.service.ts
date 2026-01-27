@@ -1,5 +1,5 @@
 import { prisma } from "@/libs/prisma";
-import { UserPreferences, UserPreferencesSchema } from "./user_preferences.types";
+import { UserPreferences, UserPreferencesDefault, UserPreferencesSchema } from "./user_preferences.types";
 
 export default class UserPreferencesService {
 
@@ -24,12 +24,10 @@ export default class UserPreferencesService {
       throw new Error("Preferences already exist for this user");
     }
 
-    const defaults = UserPreferencesSchema.parse({});
-
     const preferences = await prisma.userPreferences.create({
       data: {
         userId,
-        ...defaults,
+        ...UserPreferencesDefault,
         ...data
       }
     });

@@ -15,6 +15,7 @@ model User {
   socialAccounts UserSocialAccount[]
   sessions       UserSession[]
   tenantMembers  TenantMember[]
+  payments       Payment[]
 
   @@index([email])
   @@index([phone])

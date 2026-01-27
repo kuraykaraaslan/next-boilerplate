@@ -120,6 +120,56 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
+exports.Prisma.PaymentScalarFieldEnum = {
+  paymentId: 'paymentId',
+  userId: 'userId',
+  tenantId: 'tenantId',
+  provider: 'provider',
+  providerPaymentId: 'providerPaymentId',
+  amount: 'amount',
+  currency: 'currency',
+  status: 'status',
+  paymentMethod: 'paymentMethod',
+  description: 'description',
+  metadata: 'metadata',
+  customerEmail: 'customerEmail',
+  customerName: 'customerName',
+  customerPhone: 'customerPhone',
+  billingAddress: 'billingAddress',
+  refundedAmount: 'refundedAmount',
+  failureCode: 'failureCode',
+  failureMessage: 'failureMessage',
+  paidAt: 'paidAt',
+  cancelledAt: 'cancelledAt',
+  refundedAt: 'refundedAt',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  deletedAt: 'deletedAt'
+};
+
+exports.Prisma.PaymentTransactionScalarFieldEnum = {
+  transactionId: 'transactionId',
+  paymentId: 'paymentId',
+  provider: 'provider',
+  providerTransactionId: 'providerTransactionId',
+  type: 'type',
+  status: 'status',
+  amount: 'amount',
+  currency: 'currency',
+  fee: 'fee',
+  net: 'net',
+  providerResponse: 'providerResponse',
+  errorCode: 'errorCode',
+  errorMessage: 'errorMessage',
+  parentTransactionId: 'parentTransactionId',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  processedAt: 'processedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SettingScalarFieldEnum = {
   key: 'key',
   value: 'value',
@@ -261,6 +311,11 @@ exports.Prisma.SortOrder = {
   desc: 'desc'
 };
 
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
+};
+
 exports.Prisma.JsonNullValueInput = {
   JsonNull: Prisma.JsonNull
 };
@@ -270,16 +325,58 @@ exports.Prisma.QueryMode = {
   insensitive: 'insensitive'
 };
 
-exports.Prisma.NullsOrder = {
-  first: 'first',
-  last: 'last'
-};
-
 exports.Prisma.JsonNullValueFilter = {
   DbNull: Prisma.DbNull,
   JsonNull: Prisma.JsonNull,
   AnyNull: Prisma.AnyNull
 };
+
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
+};
+exports.PaymentProvider = exports.$Enums.PaymentProvider = {
+  STRIPE: 'STRIPE',
+  PAYPAL: 'PAYPAL',
+  IYZICO: 'IYZICO'
+};
+
+exports.PaymentStatus = exports.$Enums.PaymentStatus = {
+  PENDING: 'PENDING',
+  PROCESSING: 'PROCESSING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED',
+  REFUNDED: 'REFUNDED',
+  PARTIALLY_REFUNDED: 'PARTIALLY_REFUNDED',
+  CANCELLED: 'CANCELLED',
+  EXPIRED: 'EXPIRED'
+};
+
+exports.PaymentMethod = exports.$Enums.PaymentMethod = {
+  CREDIT_CARD: 'CREDIT_CARD',
+  DEBIT_CARD: 'DEBIT_CARD',
+  BANK_TRANSFER: 'BANK_TRANSFER',
+  PAYPAL: 'PAYPAL',
+  APPLE_PAY: 'APPLE_PAY',
+  GOOGLE_PAY: 'GOOGLE_PAY',
+  OTHER: 'OTHER'
+};
+
+exports.TransactionType = exports.$Enums.TransactionType = {
+  PAYMENT: 'PAYMENT',
+  REFUND: 'REFUND',
+  CHARGEBACK: 'CHARGEBACK',
+  PAYOUT: 'PAYOUT'
+};
+
+exports.TransactionStatus = exports.$Enums.TransactionStatus = {
+  PENDING: 'PENDING',
+  PROCESSING: 'PROCESSING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED',
+  CANCELLED: 'CANCELLED'
+};
+
 exports.TenantStatus = exports.$Enums.TenantStatus = {
   ACTIVE: 'ACTIVE',
   INACTIVE: 'INACTIVE',
@@ -338,8 +435,7 @@ exports.Language = exports.$Enums.Language = {
 
 exports.DateFormat = exports.$Enums.DateFormat = {
   DD_MM_YYYY: 'DD_MM_YYYY',
-  MM_DD_YYYY: 'MM_DD_YYYY',
-  YYYY_MM_DD: 'YYYY_MM_DD'
+  MM_DD_YYYY: 'MM_DD_YYYY'
 };
 
 exports.TimeFormat = exports.$Enums.TimeFormat = {
@@ -379,6 +475,8 @@ exports.SocialAccountProvider = exports.$Enums.SocialAccountProvider = {
 };
 
 exports.Prisma.ModelName = {
+  Payment: 'Payment',
+  PaymentTransaction: 'PaymentTransaction',
   Setting: 'Setting',
   Tenant: 'Tenant',
   TenantDomain: 'TenantDomain',

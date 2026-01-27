@@ -72,7 +72,7 @@ export default class SSOService {
         await UserSocialAccountService.updateTokens(
           account.userSocialAccountId,
           tokens.accessToken,
-          tokens.refreshToken
+          tokens.refreshToken ? tokens.refreshToken : undefined
         );
       }
 
@@ -90,8 +90,6 @@ export default class SSOService {
         provider,
         profile.sub,
         tokens.accessToken,
-        tokens.refreshToken,
-        profile.picture
       );
 
       const user = await UserService.getById(existingUser.userId);
@@ -113,8 +111,8 @@ export default class SSOService {
       provider,
       profile.sub,
       tokens.accessToken,
-      tokens.refreshToken,
-      profile.picture
+      tokens.refreshToken ? tokens.refreshToken : undefined,
+      profile.picture ? profile.picture : undefined
     );
 
     return { user: newUser, isNewUser: true };
@@ -132,8 +130,8 @@ export default class SSOService {
       provider,
       profile.sub,
       tokens.accessToken,
-      tokens.refreshToken,
-      profile.picture
+      tokens.refreshToken ? tokens.refreshToken : undefined,
+      profile.picture ? profile.picture : undefined
     );
   }
 

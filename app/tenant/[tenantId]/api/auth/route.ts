@@ -1,6 +1,6 @@
 // path: app/tenant/[tenantId]/api/auth/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import TenantSessionNextService from "@/modules/tenant_auth/tenant_session.service.next";
+import TenantSessionNextService from "@/modules/tenant_session/tenant_session.service.next";
 import Limiter from "@/libs/limiter";
 
 /**
@@ -27,9 +27,7 @@ export async function GET(
       user: {
         userId: user.userId,
         email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        userRole: user.userRole,
+        userRole: user.userRole
       },
       tenant: {
         tenantId: tenant.tenantId,

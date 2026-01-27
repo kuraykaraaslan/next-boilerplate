@@ -60,6 +60,7 @@ export class WeChatProvider implements SSOProviderService {
       return {
         sub: response.data.unionid || response.data.openid,
         name: response.data.nickname,
+        email: response.data.email,
         picture: response.data.headimgurl,
         provider: 'wechat',
       };

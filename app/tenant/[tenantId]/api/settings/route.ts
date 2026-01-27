@@ -1,6 +1,6 @@
 // path: app/tenant/[tenantId]/api/settings/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import TenantSessionNextService from "@/modules/tenant_auth/tenant_session.service.next";
+import TenantSessionNextService from "@/modules/tenant_session/tenant_session.service.next";
 import TenantSettingService from "@/modules/tenant_setting/tenant_setting.service";
 import TenantSettingMessages from "@/modules/tenant_setting/tenant_setting.messages";
 import Limiter from "@/libs/limiter";

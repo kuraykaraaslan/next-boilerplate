@@ -27,7 +27,7 @@ export class SlackProvider extends BaseSSOProvider {
 
       return {
         accessToken: response.data.authed_user.access_token,
-        refreshToken: undefined,
+        refreshToken: null,
       };
     } catch {
       throw new Error(SSOMessages.TOKEN_EXCHANGE_FAILED);

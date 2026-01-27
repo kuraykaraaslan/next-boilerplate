@@ -9,9 +9,9 @@ export class GithubProvider extends BaseSSOProvider {
   protected mapUserInfo(data: Record<string, unknown>): SSOProfile {
     return {
       sub: String(data.id),
-      email: data.email as string | undefined,
-      name: data.name as string | undefined,
-      picture: data.avatar_url as string | undefined,
+      email: data.email as string,
+      name: data.name as string,
+      picture: data.avatar_url as string,
       provider: 'github'
     };
   }

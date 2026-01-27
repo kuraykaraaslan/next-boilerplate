@@ -67,14 +67,13 @@ enum Language {
 }
 
 enum DateFormat {
-  DD_MM_YYYY @map("DD/MM/YYYY")
-  MM_DD_YYYY @map("MM/DD/YYYY")
-  YYYY_MM_DD @map("YYYY-MM-DD")
+  DD_MM_YYYY
+  MM_DD_YYYY
 }
 
 enum TimeFormat {
-  H24 @map("24H")
-  H12 @map("12H")
+  H24 
+  H12
 }
 
 enum FirstDayOfWeek {
@@ -102,4 +101,47 @@ enum SessionStatus {
   ACTIVE
   EXPIRED
   REVOKED
+}
+
+// Payment Enums
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+  CANCELLED
+  EXPIRED
+}
+
+enum PaymentProvider {
+  STRIPE
+  PAYPAL
+  IYZICO
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  DEBIT_CARD
+  BANK_TRANSFER
+  PAYPAL
+  APPLE_PAY
+  GOOGLE_PAY
+  OTHER
+}
+
+enum TransactionType {
+  PAYMENT
+  REFUND
+  CHARGEBACK
+  PAYOUT
+}
+
+enum TransactionStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
 }

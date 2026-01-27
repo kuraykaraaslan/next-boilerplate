@@ -13,7 +13,7 @@ export const UpdateProfileRequestSchema = z.object({
   biography: z.string().nullable().nullable(),
   profilePicture: z.string().nullable().nullable(),
   headerImage: z.string().nullable().nullable(),
-  socialLinks: z.array(UpdateSocialLinkItemSchema).nullable()
+  socialLinks: z.array(UpdateSocialLinkItemSchema).nullable().transform((val) => val ?? []),
 });
 
 export type UpdateProfileRequest = z.infer<typeof UpdateProfileRequestSchema>;

@@ -80,7 +80,7 @@ export class TikTokProvider extends BaseSSOProvider {
   protected mapUserInfo(data: Record<string, unknown>): SSOProfile {
     return {
       sub: data.open_id as string,
-      email: (data.email as string) || undefined,
+      email: (data.email as string),
       name: data.nickname as string | undefined,
       picture: data.avatar as string | undefined,
       provider: 'tiktok',

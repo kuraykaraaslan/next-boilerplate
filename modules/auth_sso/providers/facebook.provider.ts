@@ -21,7 +21,7 @@ export class FacebookProvider extends BaseSSOProvider {
 
       return {
         accessToken: response.data.access_token,
-        refreshToken: undefined,
+        refreshToken: null,
       };
     } catch {
       throw new Error(SSOMessages.TOKEN_EXCHANGE_FAILED);
@@ -51,7 +51,7 @@ export class FacebookProvider extends BaseSSOProvider {
   protected mapUserInfo(data: Record<string, unknown>): SSOProfile {
     return {
       sub: data.id as string,
-      email: (data.email as string) || undefined,
+      email: (data.email as string),
       name: data.name as string | undefined,
       picture: (data.picture as { data?: { url?: string } })?.data?.url,
       provider: 'facebook',
