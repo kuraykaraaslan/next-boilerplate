@@ -2,21 +2,19 @@
 
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import Tabs from '@/components/common/tabs';
-import {
-    GeneralTab,
-    AuthTab,
-    EmailTab,
-    SmsTab,
-    StorageTab,
-    AITab,
-    SecurityTab,
-    IntegrationsTab,
-    AnalyticsTab,
-    SocialTab,
-    PaymentTab,
-    NotificationTab,
-    LocalizationTab
-} from '@/components/system/settings/Tabs';
+import GeneralTab from '@/modules/setting/ui/general.settings';
+import SecurityTab from '@/modules/setting/ui/security.settings';
+import LocalizationTab from '@/modules/setting/ui/localization.settings';
+import SocialTab from '@/modules/setting/ui/social.settings';
+import AnalyticsTab from '@/modules/setting/ui/analytics.settings';
+import IntegrationsTab from '@/modules/setting/ui/integrations.settings';
+import NotificationTab from '@/modules/setting/ui/notification.settings';
+import AITab from '@/modules/setting/ui/ai.settings';
+import AuthTab from '@/modules/auth/ui/auth.settings';
+import EmailTab from '@/modules/notification_mail/ui/notification_mail.settings';
+import SmsTab from '@/modules/notification_sms/ui/notification_sms.settings';
+import StorageTab from '@/modules/storage/ui/storage.settings';
+import PaymentTab from '@/modules/payment/ui/payment.settings';
 import axios from '@/libs/axios';
 import {
     GENERAL_KEYS, AUTH_KEYS, EMAIL_KEYS, SMS_KEYS, STORAGE_KEYS, AI_KEYS, SECURITY_KEYS,

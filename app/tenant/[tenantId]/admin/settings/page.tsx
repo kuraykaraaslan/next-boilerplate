@@ -3,16 +3,14 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import Tabs from '@/components/common/tabs';
-import {
-    GeneralTab,
-    BrandingTab,
-    FeatureTab,
-    NotificationTab,
-    SecurityTab,
-    BillingTab,
-    IntegrationTab,
-    DomainsTab,
-} from '@/components/tenant/settings/Tabs';
+import GeneralTab from '@/modules/tenant/ui/tenant.tenant';
+import BrandingTab from '@/modules/tenant/ui/branding.tenant';
+import FeatureTab from '@/modules/tenant/ui/feature.tenant';
+import NotificationTab from '@/modules/tenant/ui/notification.tenant';
+import SecurityTab from '@/modules/tenant_session/ui/tenant_session.tenant';
+import BillingTab from '@/modules/payment/ui/payment.tenant';
+import IntegrationTab from '@/modules/tenant/ui/integration.tenant';
+import DomainsTab from '@/modules/tenant_domain/ui/tenant_domain.tenant';
 import axios from '@/libs/axios';
 import {
     TENANT_GENERAL_KEYS,
