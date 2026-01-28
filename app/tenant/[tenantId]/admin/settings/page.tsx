@@ -8,6 +8,7 @@ import {
   getTenantSettingsTabs,
   getAllTenantKeys,
   TenantSettingsTabProps,
+  SettingsTab,
 } from '@/modules/setting/settings.loader';
 import {
   faSpinner,
@@ -15,6 +16,17 @@ import {
   faRotateRight,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+// Wrapper component to prevent unnecessary re-renders
+const TabContent = ({ 
+  Component, 
+  tabProps 
+}: { 
+  Component: SettingsTab['component']; 
+  tabProps: TenantSettingsTabProps;
+}) => {
+  return <Component {...tabProps} />;
+};
 
 const Page = () => {
   const params = useParams();
@@ -24,8 +36,8 @@ const Page = () => {
   const isProxied = typeof window !== 'undefined' && !window.location.pathname.startsWith('/tenant/');
   const tenantBase = isProxied ? '' : `/tenant/${tenantId}`;
 
-  // Get registered tabs and keys from registry
-  const registeredTabs = getTenantSettingsTabs();
+  // Get registered tabs and keys from registry - memoize to prevent recreation
+  const registeredTabs = useMemo(() => getTenantSettingsTabs(), []);
   const allKeys = useMemo(() => getAllTenantKeys(), []);
 
   const {
@@ -40,29 +52,33 @@ const Page = () => {
     resetSettings,
   } = useTenantSettings(allKeys, tenantId, tenantBase);
 
-  const tabProps: TenantSettingsTabProps = useMemo(
-    () => ({
-      settings,
-      setSettings,
-      loading,
-      saving,
-      error,
-      isDirty,
-      saveSettings,
-    }),
-    [settings, setSettings, loading, saving, error, isDirty, saveSettings]
-  );
+  const tabProps: TenantSettingsTabProps = {
+    settings,
+    setSettings,
+    loading,
+    saving,
+    error,
+    isDirty,
+    saveSettings,
+  };
 
+  // Only recreate tabs array when registeredTabs changes (which is never after mount)
   const tabs = useMemo(
     () =>
       registeredTabs.map((tab) => ({
         id: tab.id,
         label: tab.label,
         icon: tab.icon,
-        content: <tab.component {...tabProps} />,
+        component: tab.component,
       })),
-    [registeredTabs, tabProps]
+    [registeredTabs]
   );
+
+  // Create tab content dynamically based on active tab
+  const tabsWithContent = tabs.map((tab) => ({
+    ...tab,
+    content: <TabContent Component={tab.component} tabProps={tabProps} />,
+  }));
 
   if (loading) {
     return (
@@ -120,7 +136,7 @@ const Page = () => {
       )}
 
       <Tabs
-        tabs={tabs}
+        tabs={tabsWithContent}
         defaultTab="general"
         variant="boxed"
         size="md"

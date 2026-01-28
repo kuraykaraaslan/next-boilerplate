@@ -13,7 +13,7 @@ export const GetSettingByKeyDTO = z.object({
 });
 
 export const GetSettingsByKeysDTO = z.object({
-  keys: z.array(z.string().min(1)).min(1)
+  keys: z.array(z.string().min(1))
 });
 
 export const CreateSettingDTO = z.object({
