@@ -9,17 +9,14 @@
   "tags": ["notification", "sms"],
   "enabled": true,
   "priority": 31,
+  "settingKeys": [
+    "smsProvider", "smsEnabled",
+    "twilioAccountSid", "twilioAuthToken", "twilioPhoneNumber",
+    "netgsmUserCode", "netgsmPassword", "netgsmPhoneNumber"
+  ],
   "settings": {
     "tabs": [
-      {
-        "id": "sms",
-        "label": "SMS",
-        "icon": "faComment",
-        "component": "ui/notification_sms.settings",
-        "order": 30,
-        "scope": "system",
-        "keys": "SMS_KEYS"
-      }
+      { "id": "sms", "label": "SMS", "icon": "faComment", "component": "ui/notification_sms.settings", "order": 30, "scope": "system" }
     ]
   },
   "permissions": [

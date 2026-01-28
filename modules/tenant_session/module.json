@@ -12,17 +12,15 @@
   "dependencies": {
     "requires": ["tenant"]
   },
+  "settingKeys": [
+    "twoFactorRequired", "passwordMinLength", "passwordRequireUppercase",
+    "passwordRequireNumbers", "passwordRequireSymbols",
+    "sessionTimeout", "maxLoginAttempts", "ipWhitelist", "ipBlacklist",
+    "ssoEnabled", "ssoProvider", "ssoConfig"
+  ],
   "settings": {
     "tabs": [
-      {
-        "id": "security",
-        "label": "Security",
-        "icon": "faShield",
-        "component": "ui/tenant_session.tenant",
-        "order": 50,
-        "scope": "tenant",
-        "keys": "TENANT_SECURITY_KEYS"
-      }
+      { "id": "security", "label": "Security", "icon": "faShield", "component": "ui/tenant_session.tenant", "order": 50, "scope": "tenant" }
     ]
   },
   "permissions": [

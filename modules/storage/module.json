@@ -9,17 +9,13 @@
   "tags": ["storage", "files", "media"],
   "enabled": true,
   "priority": 40,
+  "settingKeys": [
+    "storageProvider", "s3Bucket", "s3Region", "s3AccessKey", "s3SecretKey", "s3Endpoint",
+    "maxFileSizeMb", "allowedExtensions"
+  ],
   "settings": {
     "tabs": [
-      {
-        "id": "storage",
-        "label": "Storage",
-        "icon": "faDatabase",
-        "component": "ui/storage.settings",
-        "order": 40,
-        "scope": "system",
-        "keys": "STORAGE_KEYS"
-      }
+      { "id": "storage", "label": "Storage", "icon": "faDatabase", "component": "ui/storage.settings", "order": 40, "scope": "system" }
     ]
   },
   "permissions": [

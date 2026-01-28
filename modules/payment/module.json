@@ -9,26 +9,19 @@
   "tags": ["payment", "billing"],
   "enabled": true,
   "priority": 50,
+  "settingKeys": [
+    "stripeEnabled", "stripePublicKey", "stripeSecretKey", "stripeWebhookSecret",
+    "paypalEnabled", "paypalClientId", "paypalClientSecret", "paypalSandboxMode",
+    "iyzicoEnabled", "iyzicoApiKey", "iyzicoSecretKey", "iyzicoSandboxMode",
+    "currency", "taxRate", "taxEnabled",
+    "billingEmail", "billingName", "billingAddress",
+    "taxId", "vatNumber",
+    "invoicePrefix", "invoiceFooter"
+  ],
   "settings": {
     "tabs": [
-      {
-        "id": "payment",
-        "label": "Payment",
-        "icon": "faCreditCard",
-        "component": "ui/payment.settings",
-        "order": 100,
-        "scope": "system",
-        "keys": "PAYMENT_KEYS"
-      },
-      {
-        "id": "billing",
-        "label": "Billing",
-        "icon": "faCreditCard",
-        "component": "ui/payment.tenant",
-        "order": 60,
-        "scope": "tenant",
-        "keys": "TENANT_BILLING_KEYS"
-      }
+      { "id": "payment", "label": "Payment", "icon": "faCreditCard", "component": "ui/payment.settings", "order": 100, "scope": "system" },
+      { "id": "billing", "label": "Billing", "icon": "faCreditCard", "component": "ui/payment.tenant", "order": 60, "scope": "tenant" }
     ]
   },
   "permissions": [

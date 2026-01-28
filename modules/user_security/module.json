@@ -12,6 +12,13 @@
   "dependencies": {
     "requires": ["user", "auth"]
   },
+  "settingKeys": [
+    "rateLimitPerMinute", "rateLimitPerHour", "rateLimitEnabled",
+    "corsAllowedOrigins", "hstsEnabled", "xContentTypeOptions", "xFrameOptions", "blockedIps",
+    "recaptchaEnabled", "recaptchaClientKey", "recaptchaServerKey",
+    "maxmindAccountId", "maxmindApiKey",
+    "cronSecret"
+  ],
   "permissions": [
     { "id": "security.2fa.enable", "name": "Enable 2FA", "group": "security" },
     { "id": "security.2fa.disable", "name": "Disable 2FA", "group": "security" },

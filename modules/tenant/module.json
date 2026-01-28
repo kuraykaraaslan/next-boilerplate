@@ -9,61 +9,23 @@
   "tags": ["core", "tenant", "organization"],
   "enabled": true,
   "priority": 5,
+  "settingKeys": [
+    "tenantName", "tenantDescription", "logoUrl", "faviconUrl",
+    "primaryColor", "secondaryColor", "accentColor",
+    "contactEmail", "contactPhone", "contactAddress",
+    "timezone", "language", "dateFormat", "timeFormat"
+  ],
   "settings": {
     "tabs": [
-      {
-        "id": "general",
-        "label": "General",
-        "icon": "faCog",
-        "component": "ui/tenant.tenant",
-        "order": 0,
-        "scope": "tenant",
-        "keys": "TENANT_GENERAL_KEYS"
-      }
+      { "id": "general", "label": "General", "icon": "faCog", "component": "ui/tenant.tenant", "order": 0, "scope": "tenant" }
     ]
   },
   "menu": [
-    {
-      "id": "tenants",
-      "label": "Tenants",
-      "href": "/system/admin/tenants",
-      "icon": "faBuilding",
-      "order": 700,
-      "scope": "system",
-      "permissions": ["tenants.view"]
-    },
-    {
-      "id": "dashboard",
-      "label": "Dashboard",
-      "href": "{tenantBase}/admin",
-      "icon": "faTachometerAlt",
-      "order": 0,
-      "scope": "tenant"
-    },
-    {
-      "id": "members",
-      "label": "Members",
-      "href": "{tenantBase}/admin/members",
-      "icon": "faUsers",
-      "order": 100,
-      "scope": "tenant"
-    },
-    {
-      "id": "tenant-settings",
-      "label": "Settings",
-      "href": "{tenantBase}/admin/settings",
-      "icon": "faCog",
-      "order": 900,
-      "scope": "tenant"
-    },
-    {
-      "id": "back-to-app",
-      "label": "Back to App",
-      "href": "{tenantBase}",
-      "icon": "faArrowLeft",
-      "order": 1000,
-      "scope": "tenant"
-    }
+    { "id": "tenants", "label": "Tenants", "href": "/system/admin/tenants", "icon": "faBuilding", "order": 700, "scope": "system", "permissions": ["tenants.view"] },
+    { "id": "dashboard", "label": "Dashboard", "href": "{tenantBase}/admin", "icon": "faTachometerAlt", "order": 0, "scope": "tenant" },
+    { "id": "members", "label": "Members", "href": "{tenantBase}/admin/members", "icon": "faUsers", "order": 100, "scope": "tenant" },
+    { "id": "tenant-settings", "label": "Settings", "href": "{tenantBase}/admin/settings", "icon": "faCog", "order": 900, "scope": "tenant" },
+    { "id": "back-to-app", "label": "Back to App", "href": "{tenantBase}", "icon": "faArrowLeft", "order": 1000, "scope": "tenant" }
   ],
   "permissions": [
     { "id": "tenants.view", "name": "View Tenants", "group": "tenants" },

@@ -12,17 +12,14 @@
   "dependencies": {
     "requires": ["tenant"]
   },
+  "settingKeys": [
+    "brandName", "brandTagline", "brandLogoLight", "brandLogoDark",
+    "brandFavicon", "brandPrimaryColor", "brandSecondaryColor",
+    "customCss", "customJs"
+  ],
   "settings": {
     "tabs": [
-      {
-        "id": "branding",
-        "label": "Branding",
-        "icon": "faPalette",
-        "component": "ui/branding.tenant",
-        "order": 20,
-        "scope": "tenant",
-        "keys": "TENANT_BRANDING_KEYS"
-      }
+      { "id": "branding", "label": "Branding", "icon": "faPalette", "component": "ui/branding.tenant", "order": 20, "scope": "tenant" }
     ]
   },
   "permissions": [

@@ -9,6 +9,18 @@
   "tags": ["core", "auth", "security"],
   "enabled": true,
   "priority": 10,
+  "settingKeys": [
+    "allowRegistration", "emailVerificationRequired", "sessionDuration", "maxLoginAttempts",
+    "ssoAllowedProviders",
+    "jwtAccessTokenSecret", "jwtAccessTokenExpiresIn", "jwtRefreshTokenSecret", "jwtRefreshTokenExpiresIn",
+    "oauthGoogle", "oauthGitHub", "oauthMicrosoft", "oauthLinkedIn", "oauthApple", "oauthTwitter", "oauthMeta", "oauthAutodesk",
+    "googleClientId", "googleClientSecret",
+    "githubClientId", "githubClientSecret",
+    "appleClientId", "appleTeamId", "appleKeyId", "applePrivateKey",
+    "metaClientId", "metaClientSecret",
+    "autodeskClientId", "autodeskClientSecret",
+    "gitlabToken", "gitlabUser"
+  ],
   "settings": {
     "tabs": [
       {
@@ -17,8 +29,7 @@
         "icon": "faUserShield",
         "component": "ui/auth.settings",
         "order": 10,
-        "scope": "system",
-        "keys": "AUTH_KEYS"
+        "scope": "system"
       }
     ]
   },

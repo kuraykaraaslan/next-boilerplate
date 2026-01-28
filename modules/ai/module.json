@@ -9,6 +9,13 @@
   "tags": ["ai", "ml", "integration"],
   "enabled": true,
   "priority": 60,
+  "settingKeys": [
+    "aiEnabled", "aiDefaultProvider", "aiDailyLimit", "aiMonthlyBudget",
+    "openaiApiKey", "openaiDefaultModel", "openaiMaxTokens", "openaiBaseUrl",
+    "anthropicApiKey", "anthropicDefaultModel", "anthropicMaxTokens",
+    "googleAiApiKey", "googleDefaultModel", "googleMaxTokens",
+    "huggingfaceToken", "tinymceApiKey"
+  ],
   "settings": {
     "tabs": [
       {
@@ -17,8 +24,7 @@
         "icon": "faRobot",
         "component": "ui/ai.settings",
         "order": 50,
-        "scope": "system",
-        "keys": "AI_KEYS"
+        "scope": "system"
       }
     ]
   },

@@ -9,17 +9,17 @@
   "tags": ["notification", "email"],
   "enabled": true,
   "priority": 30,
+  "settingKeys": [
+    "smtpHost", "smtpPort", "smtpUsername", "smtpPassword", "smtpEncryption",
+    "fromEmail", "fromName",
+    "pushNotificationsEnabled", "vapidPublicKey", "vapidPrivateKey",
+    "emailOnNewUser", "emailOnNewComment", "emailOnNewOrder", "emailOnNewContact",
+    "slackWebhookUrl", "slackNotificationsEnabled",
+    "adminNotificationEmail"
+  ],
   "settings": {
     "tabs": [
-      {
-        "id": "email",
-        "label": "Email",
-        "icon": "faEnvelope",
-        "component": "ui/notification_mail.settings",
-        "order": 20,
-        "scope": "system",
-        "keys": "EMAIL_KEYS"
-      }
+      { "id": "email", "label": "Email", "icon": "faEnvelope", "component": "ui/notification_mail.settings", "order": 20, "scope": "system" }
     ]
   },
   "permissions": [
