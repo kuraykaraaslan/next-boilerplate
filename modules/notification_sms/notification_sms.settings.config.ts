@@ -14,3 +14,5 @@ export const SETTINGS_TABS: SettingsTabEntry[] = [
     type: 'system',
   },
 ];
+
+registerModule({ settingsTabs: SETTINGS_TABS });

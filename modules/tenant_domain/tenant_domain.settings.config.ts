@@ -13,3 +13,5 @@ export const SETTINGS_TABS: SettingsTabEntry[] = [
     type: 'tenant',
   },
 ];
+
+registerModule({ settingsTabs: SETTINGS_TABS });

@@ -68,3 +68,5 @@ export const MENU_ITEMS: NavMenuEntry[] = [
     type: 'tenant',
   },
 ];
+
+registerModule({ settingsTabs: SETTINGS_TABS, menuItems: MENU_ITEMS });
