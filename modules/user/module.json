@@ -1,0 +1,32 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "user",
+  "name": "User Management",
+  "description": "User account management",
+  "version": "1.0.0",
+  "author": "System",
+  "icon": "faUsers",
+  "tags": ["core", "users"],
+  "enabled": true,
+  "priority": 20,
+  "dependencies": {
+    "requires": ["auth"]
+  },
+  "menu": [
+    {
+      "id": "users",
+      "label": "Users",
+      "href": "/system/admin/users",
+      "icon": "faUsers",
+      "order": 600,
+      "scope": "system",
+      "permissions": ["users.view"]
+    }
+  ],
+  "permissions": [
+    { "id": "users.view", "name": "View Users", "group": "users" },
+    { "id": "users.create", "name": "Create Users", "group": "users" },
+    { "id": "users.edit", "name": "Edit Users", "group": "users" },
+    { "id": "users.delete", "name": "Delete Users", "group": "users" }
+  ]
+}

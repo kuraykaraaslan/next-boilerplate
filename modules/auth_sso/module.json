@@ -1,0 +1,15 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "auth_sso",
+  "name": "SSO Authentication",
+  "description": "Single Sign-On authentication providers (Google, GitHub, etc.)",
+  "version": "1.0.0",
+  "author": "System",
+  "icon": "faKey",
+  "tags": ["auth", "sso", "oauth"],
+  "enabled": true,
+  "priority": 15,
+  "dependencies": {
+    "requires": ["auth"]
+  }
+}

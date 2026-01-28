@@ -1,0 +1,15 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "user_profile",
+  "name": "User Profile",
+  "description": "User profile management",
+  "version": "1.0.0",
+  "author": "System",
+  "icon": "faIdCard",
+  "tags": ["user", "profile"],
+  "enabled": true,
+  "priority": 82,
+  "dependencies": {
+    "requires": ["user"]
+  }
+}

@@ -1,0 +1,256 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Module Configuration",
+  "description": "Configuration schema for application modules",
+  "type": "object",
+  "required": ["id", "name", "version"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema reference"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "description": "Unique module identifier (lowercase, underscores)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable module name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Brief description of the module"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semantic version (e.g., 1.0.0)"
+    },
+    "author": {
+      "type": "string",
+      "description": "Module author or team"
+    },
+    "license": {
+      "type": "string",
+      "description": "License type"
+    },
+    "icon": {
+      "type": "string",
+      "description": "FontAwesome icon name for the module"
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Categorization tags"
+    },
+    "enabled": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether the module is active"
+    },
+    "priority": {
+      "type": "integer",
+      "default": 100,
+      "description": "Load order priority (lower = earlier)"
+    },
+    "dependencies": {
+      "type": "object",
+      "properties": {
+        "requires": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Required module IDs"
+        },
+        "optional": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Optional module IDs for enhanced features"
+        },
+        "conflicts": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Incompatible module IDs"
+        }
+      }
+    },
+    "settings": {
+      "type": "object",
+      "properties": {
+        "tabs": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/settingsTab" },
+          "description": "Settings page tabs"
+        },
+        "keys": {
+          "type": "string",
+          "description": "Reference to keys export (e.g., 'AUTH_KEYS')"
+        }
+      }
+    },
+    "menu": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/menuItem" },
+      "description": "Navigation menu items"
+    },
+    "routes": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/route" },
+      "description": "Custom routes/pages"
+    },
+    "api": {
+      "type": "object",
+      "properties": {
+        "endpoints": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/apiEndpoint" }
+        },
+        "middleware": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "permissions": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/permission" },
+      "description": "Module-specific permissions"
+    },
+    "hooks": {
+      "type": "object",
+      "properties": {
+        "onInstall": { "type": "string" },
+        "onUninstall": { "type": "string" },
+        "onEnable": { "type": "string" },
+        "onDisable": { "type": "string" },
+        "onUpgrade": { "type": "string" }
+      },
+      "description": "Lifecycle hook handlers"
+    },
+    "widgets": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/widget" },
+      "description": "Dashboard widgets"
+    },
+    "exports": {
+      "type": "object",
+      "additionalProperties": { "type": "string" },
+      "description": "Named exports from this module (e.g., components, utilities)"
+    }
+  },
+  "definitions": {
+    "settingsTab": {
+      "type": "object",
+      "required": ["id", "label", "component"],
+      "properties": {
+        "id": { "type": "string" },
+        "label": { "type": "string" },
+        "icon": { "type": "string" },
+        "component": { "type": "string", "description": "Relative path to component" },
+        "order": { "type": "integer", "default": 100 },
+        "scope": {
+          "type": "string",
+          "enum": ["system", "tenant", "both"],
+          "default": "system"
+        },
+        "keys": {
+          "oneOf": [
+            { "type": "string" },
+            { "type": "array", "items": { "type": "string" } }
+          ]
+        },
+        "permissions": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "menuItem": {
+      "type": "object",
+      "required": ["id", "label", "href"],
+      "properties": {
+        "id": { "type": "string" },
+        "label": { "type": "string" },
+        "href": { "type": "string" },
+        "icon": { "type": "string" },
+        "order": { "type": "integer", "default": 100 },
+        "scope": {
+          "type": "string",
+          "enum": ["system", "tenant", "both"],
+          "default": "system"
+        },
+        "permissions": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "children": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/menuItem" }
+        },
+        "badge": {
+          "type": "object",
+          "properties": {
+            "type": { "type": "string", "enum": ["count", "dot", "text"] },
+            "source": { "type": "string" }
+          }
+        }
+      }
+    },
+    "route": {
+      "type": "object",
+      "required": ["path", "component"],
+      "properties": {
+        "path": { "type": "string" },
+        "component": { "type": "string" },
+        "layout": { "type": "string" },
+        "middleware": { "type": "array", "items": { "type": "string" } },
+        "permissions": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "apiEndpoint": {
+      "type": "object",
+      "required": ["path", "handler"],
+      "properties": {
+        "path": { "type": "string" },
+        "method": {
+          "type": "string",
+          "enum": ["GET", "POST", "PUT", "PATCH", "DELETE"],
+          "default": "GET"
+        },
+        "handler": { "type": "string" },
+        "middleware": { "type": "array", "items": { "type": "string" } },
+        "permissions": { "type": "array", "items": { "type": "string" } },
+        "rateLimit": {
+          "type": "object",
+          "properties": {
+            "requests": { "type": "integer" },
+            "window": { "type": "string" }
+          }
+        }
+      }
+    },
+    "permission": {
+      "type": "object",
+      "required": ["id", "name"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "group": { "type": "string" }
+      }
+    },
+    "widget": {
+      "type": "object",
+      "required": ["id", "component"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "component": { "type": "string" },
+        "scope": { "type": "string", "enum": ["system", "tenant", "both"] },
+        "size": { "type": "string", "enum": ["small", "medium", "large", "full"] },
+        "order": { "type": "integer" },
+        "permissions": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "notification_mail",
+  "name": "Email Notifications",
+  "description": "Email notification system",
+  "version": "1.0.0",
+  "author": "System",
+  "icon": "faEnvelope",
+  "tags": ["notification", "email"],
+  "enabled": true,
+  "priority": 30,
+  "settings": {
+    "tabs": [
+      {
+        "id": "email",
+        "label": "Email",
+        "icon": "faEnvelope",
+        "component": "ui/notification_mail.settings",
+        "order": 20,
+        "scope": "system",
+        "keys": "EMAIL_KEYS"
+      }
+    ]
+  },
+  "permissions": [
+    { "id": "email.view", "name": "View Email Settings", "group": "notifications" },
+    { "id": "email.send", "name": "Send Emails", "group": "notifications" }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "user_security",
+  "name": "User Security",
+  "description": "User security settings (2FA, password, sessions)",
+  "version": "1.0.0",
+  "author": "System",
+  "icon": "faLock",
+  "tags": ["user", "security", "2fa"],
+  "enabled": true,
+  "priority": 83,
+  "dependencies": {
+    "requires": ["user", "auth"]
+  },
+  "permissions": [
+    { "id": "security.2fa.enable", "name": "Enable 2FA", "group": "security" },
+    { "id": "security.2fa.disable", "name": "Disable 2FA", "group": "security" },
+    { "id": "security.sessions.view", "name": "View Sessions", "group": "security" },
+    { "id": "security.sessions.revoke", "name": "Revoke Sessions", "group": "security" }
+  ]
+}

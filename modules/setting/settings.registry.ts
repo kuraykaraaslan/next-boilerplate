@@ -87,27 +87,3 @@ export function getSystemMenu(items: NavMenuEntry[]): NavMenuEntry[] {
 export function getTenantMenu(items: NavMenuEntry[]): NavMenuEntry[] {
   return getMenuSorted(items.filter(item => item.type === 'tenant' || item.type === 'both'));
 }
-
-// ============================================================================
-// Auto-Registry
-// ============================================================================
-
-const registeredTabs: SettingsTabEntry[] = [];
-const registeredMenuItems: NavMenuEntry[] = [];
-
-export function registerModule(config: ModuleConfig): void {
-  if (config.settingsTabs) {
-    registeredTabs.push(...config.settingsTabs);
-  }
-  if (config.menuItems) {
-    registeredMenuItems.push(...config.menuItems);
-  }
-}
-
-export function getRegisteredTabs(): SettingsTabEntry[] {
-  return registeredTabs;
-}
-
-export function getRegisteredMenuItems(): NavMenuEntry[] {
-  return registeredMenuItems;
-}

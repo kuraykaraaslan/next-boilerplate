@@ -1,0 +1,15 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "user_preferences",
+  "name": "User Preferences",
+  "description": "User preference settings (theme, language, etc.)",
+  "version": "1.0.0",
+  "author": "System",
+  "icon": "faSliders",
+  "tags": ["user", "preferences", "settings"],
+  "enabled": true,
+  "priority": 81,
+  "dependencies": {
+    "requires": ["user"]
+  }
+}

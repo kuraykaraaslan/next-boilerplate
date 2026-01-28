@@ -1,0 +1,38 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "auth",
+  "name": "Authentication",
+  "description": "User authentication and authorization",
+  "version": "1.0.0",
+  "author": "System",
+  "icon": "faUserShield",
+  "tags": ["core", "auth", "security"],
+  "enabled": true,
+  "priority": 10,
+  "settings": {
+    "tabs": [
+      {
+        "id": "auth",
+        "label": "Authentication",
+        "icon": "faUserShield",
+        "component": "ui/auth.settings",
+        "order": 10,
+        "scope": "system",
+        "keys": "AUTH_KEYS"
+      }
+    ]
+  },
+  "menu": [
+    {
+      "id": "logout",
+      "label": "Logout",
+      "href": "/auth/logout",
+      "icon": "faSignOutAlt",
+      "order": 1000,
+      "scope": "system"
+    }
+  ],
+  "permissions": [
+    { "id": "auth.manage", "name": "Manage Authentication", "group": "auth" }
+  ]
+}

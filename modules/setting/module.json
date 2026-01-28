@@ -1,0 +1,101 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "setting",
+  "name": "Settings",
+  "description": "Core settings management module",
+  "version": "1.0.0",
+  "author": "System",
+  "icon": "faCog",
+  "tags": ["core", "settings"],
+  "enabled": true,
+  "priority": 0,
+  "settings": {
+    "tabs": [
+      {
+        "id": "general",
+        "label": "General",
+        "icon": "faCog",
+        "component": "ui/general.settings",
+        "order": 0,
+        "scope": "system",
+        "keys": "GENERAL_KEYS"
+      },
+      {
+        "id": "security",
+        "label": "Security",
+        "icon": "faShield",
+        "component": "ui/security.settings",
+        "order": 60,
+        "scope": "system",
+        "keys": "SECURITY_KEYS"
+      },
+      {
+        "id": "integrations",
+        "label": "Integrations",
+        "icon": "faPlug",
+        "component": "ui/integrations.settings",
+        "order": 70,
+        "scope": "system",
+        "keys": "INTEGRATIONS_KEYS"
+      },
+      {
+        "id": "analytics",
+        "label": "Analytics",
+        "icon": "faChartLine",
+        "component": "ui/analytics.settings",
+        "order": 80,
+        "scope": "system",
+        "keys": "ANALYTICS_KEYS"
+      },
+      {
+        "id": "social",
+        "label": "Social",
+        "icon": "faShareNodes",
+        "component": "ui/social.settings",
+        "order": 90,
+        "scope": "system",
+        "keys": "SOCIAL_KEYS"
+      },
+      {
+        "id": "notifications",
+        "label": "Notifications",
+        "icon": "faBell",
+        "component": "ui/notification.settings",
+        "order": 110,
+        "scope": "system",
+        "keys": "NOTIFICATION_KEYS"
+      },
+      {
+        "id": "localization",
+        "label": "Localization",
+        "icon": "faGlobe",
+        "component": "ui/localization.settings",
+        "order": 120,
+        "scope": "system",
+        "keys": "LOCALIZATION_KEYS"
+      }
+    ]
+  },
+  "menu": [
+    {
+      "id": "home",
+      "label": "Home",
+      "href": "/system/admin",
+      "icon": "faHome",
+      "order": 0,
+      "scope": "system"
+    },
+    {
+      "id": "settings",
+      "label": "Settings",
+      "href": "/system/admin/settings",
+      "icon": "faCog",
+      "order": 900,
+      "scope": "system"
+    }
+  ],
+  "permissions": [
+    { "id": "settings.view", "name": "View Settings", "group": "settings" },
+    { "id": "settings.edit", "name": "Edit Settings", "group": "settings" }
+  ]
+}

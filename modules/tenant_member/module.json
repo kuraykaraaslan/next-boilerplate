@@ -1,0 +1,21 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "tenant_member",
+  "name": "Tenant Members",
+  "description": "Tenant membership management",
+  "version": "1.0.0",
+  "author": "System",
+  "icon": "faUserGroup",
+  "tags": ["tenant", "members"],
+  "enabled": true,
+  "priority": 73,
+  "dependencies": {
+    "requires": ["tenant", "user"]
+  },
+  "permissions": [
+    { "id": "members.view", "name": "View Members", "group": "members" },
+    { "id": "members.invite", "name": "Invite Members", "group": "members" },
+    { "id": "members.remove", "name": "Remove Members", "group": "members" },
+    { "id": "members.manage_roles", "name": "Manage Member Roles", "group": "members" }
+  ]
+}

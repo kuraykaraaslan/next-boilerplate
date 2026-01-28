@@ -1,0 +1,32 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "tenant_domain",
+  "name": "Custom Domains",
+  "description": "Custom domain management for tenants",
+  "version": "1.0.0",
+  "author": "System",
+  "icon": "faGlobe",
+  "tags": ["tenant", "domain"],
+  "enabled": true,
+  "priority": 70,
+  "dependencies": {
+    "requires": ["tenant"]
+  },
+  "settings": {
+    "tabs": [
+      {
+        "id": "domains",
+        "label": "Domains",
+        "icon": "faGlobe",
+        "component": "ui/tenant_domain.tenant",
+        "order": 10,
+        "scope": "tenant",
+        "keys": []
+      }
+    ]
+  },
+  "permissions": [
+    { "id": "domains.view", "name": "View Domains", "group": "domains" },
+    { "id": "domains.manage", "name": "Manage Domains", "group": "domains" }
+  ]
+}

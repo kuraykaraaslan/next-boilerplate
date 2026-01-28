@@ -1,0 +1,32 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "tenant_branding",
+  "name": "Branding",
+  "description": "Tenant branding and customization",
+  "version": "1.0.0",
+  "author": "System",
+  "icon": "faPalette",
+  "tags": ["tenant", "branding", "customization"],
+  "enabled": true,
+  "priority": 71,
+  "dependencies": {
+    "requires": ["tenant"]
+  },
+  "settings": {
+    "tabs": [
+      {
+        "id": "branding",
+        "label": "Branding",
+        "icon": "faPalette",
+        "component": "ui/branding.tenant",
+        "order": 20,
+        "scope": "tenant",
+        "keys": "TENANT_BRANDING_KEYS"
+      }
+    ]
+  },
+  "permissions": [
+    { "id": "branding.view", "name": "View Branding", "group": "branding" },
+    { "id": "branding.edit", "name": "Edit Branding", "group": "branding" }
+  ]
+}

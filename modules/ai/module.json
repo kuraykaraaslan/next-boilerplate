@@ -1,0 +1,29 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "ai",
+  "name": "AI",
+  "description": "AI and machine learning integrations",
+  "version": "1.0.0",
+  "author": "System",
+  "icon": "faRobot",
+  "tags": ["ai", "ml", "integration"],
+  "enabled": true,
+  "priority": 60,
+  "settings": {
+    "tabs": [
+      {
+        "id": "ai",
+        "label": "AI",
+        "icon": "faRobot",
+        "component": "ui/ai.settings",
+        "order": 50,
+        "scope": "system",
+        "keys": "AI_KEYS"
+      }
+    ]
+  },
+  "permissions": [
+    { "id": "ai.view", "name": "View AI Settings", "group": "ai" },
+    { "id": "ai.manage", "name": "Manage AI Settings", "group": "ai" }
+  ]
+}

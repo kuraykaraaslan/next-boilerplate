@@ -1,0 +1,40 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "payment",
+  "name": "Payment",
+  "description": "Payment processing and billing",
+  "version": "1.0.0",
+  "author": "System",
+  "icon": "faCreditCard",
+  "tags": ["payment", "billing"],
+  "enabled": true,
+  "priority": 50,
+  "settings": {
+    "tabs": [
+      {
+        "id": "payment",
+        "label": "Payment",
+        "icon": "faCreditCard",
+        "component": "ui/payment.settings",
+        "order": 100,
+        "scope": "system",
+        "keys": "PAYMENT_KEYS"
+      },
+      {
+        "id": "billing",
+        "label": "Billing",
+        "icon": "faCreditCard",
+        "component": "ui/payment.tenant",
+        "order": 60,
+        "scope": "tenant",
+        "keys": "TENANT_BILLING_KEYS"
+      }
+    ]
+  },
+  "permissions": [
+    { "id": "payment.view", "name": "View Payments", "group": "payment" },
+    { "id": "payment.manage", "name": "Manage Payments", "group": "payment" },
+    { "id": "billing.view", "name": "View Billing", "group": "billing" },
+    { "id": "billing.manage", "name": "Manage Billing", "group": "billing" }
+  ]
+}

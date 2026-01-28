@@ -1,0 +1,12 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "user_agent",
+  "name": "User Agent Detection",
+  "description": "Browser and device detection service",
+  "version": "1.0.0",
+  "author": "System",
+  "icon": "faDesktop",
+  "tags": ["user", "detection", "service"],
+  "enabled": true,
+  "priority": 80
+}

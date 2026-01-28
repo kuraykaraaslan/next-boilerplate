@@ -1,0 +1,74 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "tenant",
+  "name": "Multi-Tenancy",
+  "description": "Multi-tenant organization management",
+  "version": "1.0.0",
+  "author": "System",
+  "icon": "faBuilding",
+  "tags": ["core", "tenant", "organization"],
+  "enabled": true,
+  "priority": 5,
+  "settings": {
+    "tabs": [
+      {
+        "id": "general",
+        "label": "General",
+        "icon": "faCog",
+        "component": "ui/tenant.tenant",
+        "order": 0,
+        "scope": "tenant",
+        "keys": "TENANT_GENERAL_KEYS"
+      }
+    ]
+  },
+  "menu": [
+    {
+      "id": "tenants",
+      "label": "Tenants",
+      "href": "/system/admin/tenants",
+      "icon": "faBuilding",
+      "order": 700,
+      "scope": "system",
+      "permissions": ["tenants.view"]
+    },
+    {
+      "id": "dashboard",
+      "label": "Dashboard",
+      "href": "{tenantBase}/admin",
+      "icon": "faTachometerAlt",
+      "order": 0,
+      "scope": "tenant"
+    },
+    {
+      "id": "members",
+      "label": "Members",
+      "href": "{tenantBase}/admin/members",
+      "icon": "faUsers",
+      "order": 100,
+      "scope": "tenant"
+    },
+    {
+      "id": "tenant-settings",
+      "label": "Settings",
+      "href": "{tenantBase}/admin/settings",
+      "icon": "faCog",
+      "order": 900,
+      "scope": "tenant"
+    },
+    {
+      "id": "back-to-app",
+      "label": "Back to App",
+      "href": "{tenantBase}",
+      "icon": "faArrowLeft",
+      "order": 1000,
+      "scope": "tenant"
+    }
+  ],
+  "permissions": [
+    { "id": "tenants.view", "name": "View Tenants", "group": "tenants" },
+    { "id": "tenants.create", "name": "Create Tenants", "group": "tenants" },
+    { "id": "tenants.edit", "name": "Edit Tenants", "group": "tenants" },
+    { "id": "tenants.delete", "name": "Delete Tenants", "group": "tenants" }
+  ]
+}

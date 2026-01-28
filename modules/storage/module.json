@@ -1,0 +1,30 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "storage",
+  "name": "Storage",
+  "description": "File storage and media management",
+  "version": "1.0.0",
+  "author": "System",
+  "icon": "faDatabase",
+  "tags": ["storage", "files", "media"],
+  "enabled": true,
+  "priority": 40,
+  "settings": {
+    "tabs": [
+      {
+        "id": "storage",
+        "label": "Storage",
+        "icon": "faDatabase",
+        "component": "ui/storage.settings",
+        "order": 40,
+        "scope": "system",
+        "keys": "STORAGE_KEYS"
+      }
+    ]
+  },
+  "permissions": [
+    { "id": "storage.view", "name": "View Storage", "group": "storage" },
+    { "id": "storage.upload", "name": "Upload Files", "group": "storage" },
+    { "id": "storage.delete", "name": "Delete Files", "group": "storage" }
+  ]
+}
