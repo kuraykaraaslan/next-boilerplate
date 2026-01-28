@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { TenantStatusEnum } from './tenant.enums';
+import { TenantDomainSchema } from '../tenant_domain/tenant_domain.types';
 
 export const TenantSchema = z.object({
   tenantId: z.string().uuid(),
@@ -8,7 +9,9 @@ export const TenantSchema = z.object({
   tenantStatus: TenantStatusEnum.default('ACTIVE'),
   createdAt: z.date().nullable(),
   updatedAt: z.date().nullable(),
-  deletedAt: z.date().nullable()
+  deletedAt: z.date().nullable(),
+
+  domains: TenantDomainSchema.array().nullable().optional()
 });
 
 export const SafeTenantSchema = TenantSchema.omit({

@@ -5,10 +5,9 @@ import "react-toastify/dist/ReactToastify.css";
 import { useRouter, useParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import axiosInstance from "@/libs/axios";
-import useGlobalStore from "@/libs/zustand";
+import useGlobalStore from "@/libs/zustand/global";
 
-const Navbar = dynamic(() => import('@/components/common/layout/navbar'), { ssr: false });
-
+const Navbar = dynamic(() => import('@/components/tenant/layout/navbar'), { ssr: false });
 const Layout = ({
     children,
 }: {
@@ -71,7 +70,7 @@ const Layout = ({
 
     return (
         <>
-            <Navbar variant="tenant" tenant={tenant} tenantMember={tenantMember} />
+            <Navbar tenant={tenant} tenantMember={tenantMember} />
             <div style={{ flex: 1 }} className="container mx-auto px-4 pt-4 md:pt-12 lg:px-8 max-w-8xl mb-8 flex flex-col md:flex-row gap-4">
                 {children}
             </div>

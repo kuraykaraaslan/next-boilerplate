@@ -16,6 +16,8 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
+
+
 // Wrapper component to prevent unnecessary re-renders
 const TabContent = ({ 
   Component, 

@@ -9,9 +9,11 @@ import type { AuthLocale } from '../dictionaries';
 
 interface AuthLogoutProps {
   locale?: AuthLocale;
+  basePath?: string;
+  tenantId?: string;
 }
 
-const AuthLogout = ({ locale = 'en' }: AuthLogoutProps) => {
+const AuthLogout = ({ locale = 'en', basePath = '/auth', tenantId }: AuthLogoutProps) => {
   const { t } = useModuleDictionary(locale);
   const { clearUser } = useAuthStore();
   const router = useRouter();
@@ -28,7 +30,11 @@ const AuthLogout = ({ locale = 'en' }: AuthLogoutProps) => {
       })
       .finally(() => {
         clearUser();
-        router.push('/');
+        localStorage.removeItem('user');
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('userSession');
+        router.push(`${basePath}/login`);
       });
   };
 

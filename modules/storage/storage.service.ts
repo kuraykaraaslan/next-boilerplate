@@ -6,58 +6,74 @@ import DigitalOceanSpacesProvider from './providers/digitalocean-spaces.provider
 import MinIOProvider from './providers/minio.provider'
 import { StorageProviderType } from './storage.enums'
 import { UploadFileDTO, UploadFromUrlDTO, DeleteFileDTO, GetFileUrlDTO } from './storage.dto'
-import { UploadResult } from './storage.types'
+import { UploadResult, S3Config } from './storage.types'
 import { STORAGE_MESSAGES } from './storage.messages'
+import SettingService, { SYSTEM_TENANT_ID } from '@/modules/setting/setting.service'
+import { STORAGE_KEYS } from './storage.setting.keys'
 
 export default class StorageService {
-  // Provider instances
-  private static readonly awsS3Provider = new AWSS3Provider()
-  private static readonly cloudflareR2Provider = new CloudflareR2Provider()
-  private static readonly digitalOceanSpacesProvider = new DigitalOceanSpacesProvider()
-  private static readonly minioProvider = new MinIOProvider()
-
-  // Provider name to instance mapping
-  private static readonly PROVIDERS = new Map<StorageProviderType, BaseStorageProvider>([
-    ['aws-s3', StorageService.awsS3Provider],
-    ['cloudflare-r2', StorageService.cloudflareR2Provider],
-    ['digitalocean-spaces', StorageService.digitalOceanSpacesProvider],
-    ['minio', StorageService.minioProvider],
-  ])
-
-  // Default provider from env or fallback to aws-s3
-  private static readonly DEFAULT_PROVIDER_NAME: StorageProviderType =
-    (process.env.STORAGE_DEFAULT_PROVIDER as StorageProviderType) || 'aws-s3'
 
   /**
-   * Get a specific provider instance
+   * Read storage settings from SettingService and build S3Config
    */
-  private static getProvider(providerName?: StorageProviderType): BaseStorageProvider {
-    const name = providerName || StorageService.DEFAULT_PROVIDER_NAME
-    const provider = StorageService.PROVIDERS.get(name)
+  private static async getStorageSettings(): Promise<{ providerName: StorageProviderType; config: S3Config }> {
+    const settings = await SettingService.getByKeys([...STORAGE_KEYS])
 
-    if (!provider) {
-      Logger.error(`${STORAGE_MESSAGES.PROVIDER_NOT_FOUND}: ${name}`)
-      throw new Error(`${STORAGE_MESSAGES.PROVIDER_NOT_FOUND}: ${name}`)
+    const providerName = (settings.storageProvider || 'aws-s3') as StorageProviderType
+
+    const config: S3Config = {
+      bucket: settings.s3Bucket || '',
+      region: settings.s3Region || 'us-east-1',
+      accessKeyId: settings.s3AccessKey || '',
+      secretAccessKey: settings.s3SecretKey || '',
+      endpoint: settings.s3Endpoint || undefined,
     }
 
-    return provider
+    return { providerName, config }
+  }
+
+  /**
+   * Create a provider instance from config
+   */
+  private static createProvider(providerName: StorageProviderType, config: S3Config): BaseStorageProvider {
+    switch (providerName) {
+      case 'aws-s3':
+        return new AWSS3Provider(config)
+      case 'cloudflare-r2':
+        return new CloudflareR2Provider(config)
+      case 'digitalocean-spaces':
+        return new DigitalOceanSpacesProvider(config)
+      case 'minio':
+        return new MinIOProvider(config)
+      default:
+        Logger.error(`${STORAGE_MESSAGES.PROVIDER_NOT_FOUND}: ${providerName}`)
+        throw new Error(`${STORAGE_MESSAGES.PROVIDER_NOT_FOUND}: ${providerName}`)
+    }
+  }
+
+  /**
+   * Get a configured provider instance
+   */
+  private static async getProvider(providerName?: StorageProviderType): Promise<{ provider: BaseStorageProvider; resolvedName: StorageProviderType }> {
+    const { providerName: defaultName, config } = await StorageService.getStorageSettings()
+    const resolvedName = providerName || defaultName
+    const provider = StorageService.createProvider(resolvedName, config)
+    return { provider, resolvedName }
   }
 
   /**
    * Upload a file to storage
-   * @param data - Upload file data
-   * @returns Upload result with URL and metadata
    */
   static async uploadFile(data: UploadFileDTO): Promise<UploadResult> {
-    const { file, folder, filename, provider } = data
+    const { file, folder, filename, provider: requestedProvider, tenantId = SYSTEM_TENANT_ID } = data
 
     try {
-      const storageProvider = StorageService.getProvider(provider)
-      const result = await storageProvider.uploadFile(file, { folder, filename })
+      const { provider, resolvedName } = await StorageService.getProvider(requestedProvider)
+      const result = await provider.uploadFile(file, { folder, filename, tenantId })
 
       return {
         ...result,
-        provider: provider || StorageService.DEFAULT_PROVIDER_NAME,
+        provider: resolvedName,
       }
     } catch (error) {
       Logger.error(`${STORAGE_MESSAGES.UPLOAD_FAILED}: ${error instanceof Error ? error.message : String(error)}`)
@@ -67,19 +83,17 @@ export default class StorageService {
 
   /**
    * Upload a file from URL to storage
-   * @param data - Upload from URL data
-   * @returns Upload result with URL and metadata
    */
   static async uploadFromUrl(data: UploadFromUrlDTO): Promise<UploadResult> {
-    const { url, folder, filename, provider } = data
+    const { url, folder, filename, provider: requestedProvider, tenantId = SYSTEM_TENANT_ID } = data
 
     try {
-      const storageProvider = StorageService.getProvider(provider)
-      const result = await storageProvider.uploadFromUrl(url, { url, folder, filename })
+      const { provider, resolvedName } = await StorageService.getProvider(requestedProvider)
+      const result = await provider.uploadFromUrl(url, { url, folder, filename, tenantId })
 
       return {
         ...result,
-        provider: provider || StorageService.DEFAULT_PROVIDER_NAME,
+        provider: resolvedName,
       }
     } catch (error) {
       Logger.error(`${STORAGE_MESSAGES.UPLOAD_FAILED}: ${error instanceof Error ? error.message : String(error)}`)
@@ -89,14 +103,13 @@ export default class StorageService {
 
   /**
    * Delete a file from storage
-   * @param data - Delete file data
    */
   static async deleteFile(data: DeleteFileDTO): Promise<void> {
-    const { key, provider } = data
+    const { key, provider: requestedProvider } = data
 
     try {
-      const storageProvider = StorageService.getProvider(provider)
-      await storageProvider.deleteFile(key)
+      const { provider } = await StorageService.getProvider(requestedProvider)
+      await provider.deleteFile(key)
     } catch (error) {
       Logger.error(`${STORAGE_MESSAGES.DELETE_FAILED}: ${error instanceof Error ? error.message : String(error)}`)
       throw error
@@ -105,32 +118,16 @@ export default class StorageService {
 
   /**
    * Get file URL from storage
-   * @param data - Get file URL data
-   * @returns File URL
    */
-  static getFileUrl(data: GetFileUrlDTO): string {
-    const { key, provider } = data
+  static async getFileUrl(data: GetFileUrlDTO): Promise<string> {
+    const { key, provider: requestedProvider } = data
 
     try {
-      const storageProvider = StorageService.getProvider(provider)
-      return storageProvider.getFileUrl(key)
+      const { provider } = await StorageService.getProvider(requestedProvider)
+      return provider.getFileUrl(key)
     } catch (error) {
       Logger.error(`Failed to get file URL: ${error instanceof Error ? error.message : String(error)}`)
       throw error
     }
-  }
-
-  /**
-   * Get available providers
-   */
-  static getAvailableProviders(): StorageProviderType[] {
-    return Array.from(StorageService.PROVIDERS.keys())
-  }
-
-  /**
-   * Get default provider name
-   */
-  static getDefaultProvider(): StorageProviderType {
-    return StorageService.DEFAULT_PROVIDER_NAME
   }
 }

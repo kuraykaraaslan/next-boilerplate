@@ -6,16 +6,19 @@ import axiosInstance from '@/libs/axios';
 import { useTranslation } from 'react-i18next';
 import { getCroppedImg } from './cropImage';
 
+
 interface ImageLoadProps {
     image: string;
     setImage: (value: string) => void;
     uploadFolder?: string;
     toast?: any;
-
     aspect?: number;
     outputQuality?: number;
     width?: number;
     height?: number;
+    outputWidth?: number;
+    outputHeight?: number;
+    apiPath?: string;
 }
 
 const ImageLoad = ({
@@ -26,7 +29,10 @@ const ImageLoad = ({
     aspect = 3 / 2,
     outputQuality = 1,
     width = 384,
-    height = 256
+    height = 256,
+    outputWidth,
+    outputHeight,
+    apiPath = '/system/api/storage',
 }: ImageLoadProps) => {
 
     const { t } = useTranslation();
@@ -72,7 +78,9 @@ const ImageLoad = ({
             rawImage,
             croppedAreaPixels,
             'image/jpeg',
-            outputQuality
+            outputQuality,
+            outputWidth,
+            outputHeight
         );
 
         const previewUrl = URL.createObjectURL(blob);
@@ -99,7 +107,7 @@ const ImageLoad = ({
             formData.append('file', file);
             formData.append('folder', uploadFolder);
 
-            const res = await axiosInstance.post('/api/aws', formData, {
+            const res = await axiosInstance.post(apiPath, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
 
@@ -151,10 +159,11 @@ const ImageLoad = ({
         <>
             {/* PREVIEW */}
             <img
-                src={image || 'https://placehold.co/384x256'}
+                src={image || `https://placehold.co/${width}x${height}`}
                 width={width}
                 height={height}
-                className="h-64 w-96 object-cover rounded-lg cursor-pointer"
+                style={{ width, height, objectFit: 'cover' }}
+                className="rounded-lg cursor-pointer"
                 onClick={openCrop}
                 alt="Image"
             />

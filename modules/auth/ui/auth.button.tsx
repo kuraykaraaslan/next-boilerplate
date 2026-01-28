@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import useGlobalStore from "@/libs/zustand";
+import useGlobalStore from "@/libs/zustand/global";
 import Image from "next/image";
 import { createHash } from "crypto";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";

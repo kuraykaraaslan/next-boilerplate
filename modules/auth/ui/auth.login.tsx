@@ -12,9 +12,11 @@ import type { AuthLocale } from '../dictionaries';
 
 interface AuthLoginProps {
   locale?: AuthLocale;
+  basePath?: string;
+  tenantId?: string;
 }
 
-const AuthLogin = ({ locale = 'en' }: AuthLoginProps) => {
+const AuthLogin = ({ locale = 'en', basePath = '/auth', tenantId }: AuthLoginProps) => {
   const { t } = useModuleDictionary(locale);
 
   const emailRegex = /\S+@\S+\.\S+/;
@@ -43,14 +45,17 @@ const AuthLogin = ({ locale = 'en' }: AuthLoginProps) => {
       return;
     }
 
-    await axiosInstance.post('/api/auth/login', {
+    const apiPath = tenantId ? `${basePath.replace('/auth', '')}/api/auth/login` : '/api/auth/login';
+    const homePath = tenantId ? basePath.replace('/auth', '') || '/' : '/';
+
+    await axiosInstance.post(apiPath, {
       email,
       password,
     }).then((res) => {
       const { user } = res.data;
       setUser(user);
       toast.success(t('login_successful'));
-      router.push('/');
+      router.push(homePath);
     }).catch((err) => {
       toast.error(err.response?.data?.error || t('login_failed'));
     });
@@ -60,7 +65,7 @@ const AuthLogin = ({ locale = 'en' }: AuthLoginProps) => {
     <div className="space-y-6">
       <div>
         <Link
-          href="/auth/register"
+          href={`${basePath}/register`}
           className="block w-full py-2.5 bg-primary font-semibold rounded-lg shadow-md text-white text-center"
         >
           {t('create_account')}
@@ -85,7 +90,7 @@ const AuthLogin = ({ locale = 'en' }: AuthLoginProps) => {
       <div className="relative">
         <Link
           className="absolute inset-y-0 right-2 pl-3 flex items-center"
-          href="/auth/forgot-password"
+          href={`${basePath}/forgot-password`}
         >
           <FontAwesomeIcon icon={faQuestion} className="text-primary" />
         </Link>

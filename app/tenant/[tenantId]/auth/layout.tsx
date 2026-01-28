@@ -1,109 +1,52 @@
-'use client';
-import { usePathname, useParams } from 'next/navigation';
-import { ReactNode, Suspense, useEffect, useState } from 'react';
-import { ToastContainer } from 'react-toastify';
+import { ReactNode, Suspense } from 'react';
 import 'react-toastify/dist/ReactToastify.css';
+import TenantSettingService from '@/modules/tenant_setting/tenant_setting.service';
+import { TENANT_BRANDING_KEYS } from '@/modules/tenant_branding/tenant_branding.setting.keys';
 import SSOLogin from '@/modules/auth_sso/ui/auth_sso.login';
 
-interface TenantBranding {
-    logo?: string;
-    name?: string;
-    primaryColor?: string;
-    backgroundImage?: string;
+interface LayoutProps {
+    children: ReactNode;
+    params: Promise<{ tenantId: string }>;
 }
 
-export default function TenantAuthLayout({ children }: { children: ReactNode }) {
-    const pathname = usePathname();
-    const params = useParams();
-    const tenantId = params.tenantId as string;
 
-    const [branding, setBranding] = useState<TenantBranding>({});
-    const [loading, setLoading] = useState(true);
+export default async function TenantAuthLayout({ children, params }: LayoutProps) {
+    const { tenantId } = await params;
+    
+    const branding = await TenantSettingService.getByKeys(tenantId, [...TENANT_BRANDING_KEYS]);
 
-    useEffect(() => {
-        const fetchTenantBranding = async () => {
-            try {
-                // Use fetch instead of axiosInstance to avoid auth interceptor loop
-                const res = await fetch(`/api/settings/public`);
-                const data = await res.json();
-                if (data.success) {
-                    setBranding({
-                        logo: data.settings?.logo,
-                        name: data.settings?.name,
-                        primaryColor: data.settings?.primaryColor,
-                        backgroundImage: data.settings?.backgroundImage,
-                    });
-                }
-            } catch (error) {
-                console.error('Failed to fetch tenant branding:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        if (tenantId) {
-            fetchTenantBranding();
-        }
-    }, [tenantId]);
-
-    const isProxied = typeof window !== 'undefined' && !window.location.pathname.startsWith('/tenant/');
-    const tenantBase = isProxied ? '' : `/tenant/${tenantId}`;
-    const basePath = `${tenantBase}/auth`;
-
-    const titles = [
-        {
-            path: `${basePath}/login`,
-            title: 'Welcome back!'
-        },
-        {
-            path: `${basePath}/register`,
-            title: 'Create an account'
-        },
-        {
-            path: `${basePath}/forgot-password`,
-            title: 'Forgot Password'
-        },
-        {
-            path: `${basePath}/reset-password`,
-            title: 'Reset Password'
-        },
-        {
-            path: `${basePath}/logout`,
-            title: 'Logging out...'
-        }
-    ];
-
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="loading loading-spinner loading-lg"></div>
-            </div>
-        );
-    }
+    const brandName = branding.brandName || 'Welcome';
+    const brandLogoLight = branding.brandLogoLight;
+    const brandLogoDark = branding.brandLogoDark;
+    const brandPrimaryColor = branding.brandPrimaryColor;
+    const authWallpaper = branding.authWallpaper || '/assets/img/auth-background.jpg';
 
     return (
         <Suspense>
             <div
                 className="flex flex-col items-center justify-center min-h-screen bg-base-200 relative"
                 style={{
-                    backgroundImage: `url(${branding.backgroundImage || '/assets/img/auth-background.jpg'})`,
+                    backgroundImage: `url(${authWallpaper})`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                     height: '100%',
-                    ...(branding.primaryColor && { '--primary': branding.primaryColor } as any)
+                    ...(brandPrimaryColor && { '--primary': brandPrimaryColor } as any)
                 }}
             >
                 <div className="rounded-none shadow-md w-full md:max-w-md grid grid-cols-1 min-h-screen md:min-h-[600px] rounded-lg shadow-md bg-base-100 md:bg-base-100/70 border border-base-300">
                     <div className="col-span-1 flex flex-col items-center justify-center w-full p-8 pt-0">
                         <div className="flex items-center justify-center mb-3">
-                            {branding.logo ? (
-                                <img src={branding.logo} alt={branding.name || 'Logo'} className="h-12" />
+                            {brandLogoLight ? (
+                                <>
+                                    <img src={brandLogoLight} alt={brandName} className="h-12 dark:hidden" />
+                                    <img src={brandLogoDark || brandLogoLight} alt={brandName} className="h-12 hidden dark:block" />
+                                </>
                             ) : (
-                                <span className="text-2xl font-bold">{branding.name || 'Welcome'}</span>
+                                <span className="text-2xl font-bold">{brandName}</span>
                             )}
                         </div>
                         <h1 className="text-2xl font-bold text-center mb-4">
-                            {titles?.find((item) => pathname?.startsWith(item.path))?.title}
+                            {/* Title will be set by each page's metadata */}
                         </h1>
                         <div className="w-full">
                             {children}
@@ -114,7 +57,12 @@ export default function TenantAuthLayout({ children }: { children: ReactNode }) 
                     </div>
                 </div>
             </div>
-            <ToastContainer />
+            <div className="hidden md:flex absolute bottom-2 right-2 text-center text-xs text-white">
+                <span className="mr-1">Background image by </span>
+                <a href="https://unsplash.com/@jadestephens" target="_blank" rel="noopener noreferrer" className="underline">
+                    Jade Stephens
+                </a>
+            </div>
         </Suspense>
     );
 }

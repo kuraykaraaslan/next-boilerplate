@@ -1,25 +1,34 @@
-import { StorageProviderType } from './storage.enums'
+import { z } from 'zod'
+import { StorageProviderTypeSchema } from './storage.enums'
 
-export interface UploadFileDTO {
-  file: File
-  folder?: string
-  filename?: string
-  provider?: StorageProviderType
-}
+export const UploadFileDTOSchema = z.object({
+  file: z.instanceof(File),
+  folder: z.string().optional(),
+  filename: z.string().optional(),
+  provider: StorageProviderTypeSchema.optional(),
+  tenantId: z.string().optional(),
+})
+export type UploadFileDTO = z.infer<typeof UploadFileDTOSchema>
 
-export interface UploadFromUrlDTO {
-  url: string
-  folder?: string
-  filename?: string
-  provider?: StorageProviderType
-}
+export const UploadFromUrlDTOSchema = z.object({
+  url: z.string(),
+  folder: z.string().optional(),
+  filename: z.string().optional(),
+  provider: StorageProviderTypeSchema.optional(),
+  tenantId: z.string().optional(),
+})
+export type UploadFromUrlDTO = z.infer<typeof UploadFromUrlDTOSchema>
 
-export interface DeleteFileDTO {
-  key: string
-  provider?: StorageProviderType
-}
+export const DeleteFileDTOSchema = z.object({
+  key: z.string(),
+  provider: StorageProviderTypeSchema.optional(),
+  tenantId: z.string().optional(),
+})
+export type DeleteFileDTO = z.infer<typeof DeleteFileDTOSchema>
 
-export interface GetFileUrlDTO {
-  key: string
-  provider?: StorageProviderType
-}
+export const GetFileUrlDTOSchema = z.object({
+  key: z.string(),
+  provider: StorageProviderTypeSchema.optional(),
+  tenantId: z.string().optional(),
+})
+export type GetFileUrlDTO = z.infer<typeof GetFileUrlDTOSchema>

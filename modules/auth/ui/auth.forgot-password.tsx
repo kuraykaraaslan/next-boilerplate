@@ -8,9 +8,11 @@ import type { AuthLocale } from '../dictionaries';
 
 interface AuthForgotPasswordProps {
   locale?: AuthLocale;
+  basePath?: string;
+  tenantId?: string;
 }
 
-const AuthForgotPassword = ({ locale = 'en' }: AuthForgotPasswordProps) => {
+const AuthForgotPassword = ({ locale = 'en', basePath = '/auth', tenantId }: AuthForgotPasswordProps) => {
   const { t } = useModuleDictionary(locale);
   const searchParams = useSearchParams();
 
@@ -42,7 +44,9 @@ const AuthForgotPassword = ({ locale = 'en' }: AuthForgotPasswordProps) => {
         return;
       }
 
-      await axiosInstance.post('/api/auth/forgot-password', { email })
+      const forgotApiPath = tenantId ? `${basePath.replace('/auth', '')}/api/auth/forgot-password` : '/api/auth/forgot-password';
+
+      await axiosInstance.post(forgotApiPath, { email, tenantId })
         .then((res) => {
           if (res.data.error) {
             console.error(res.data.error);
@@ -60,10 +64,13 @@ const AuthForgotPassword = ({ locale = 'en' }: AuthForgotPasswordProps) => {
         return;
       }
 
-      await axiosInstance.post('/api/auth/reset-password', {
+      const resetApiPath = tenantId ? `${basePath.replace('/auth', '')}/api/auth/reset-password` : '/api/auth/reset-password';
+
+      await axiosInstance.post(resetApiPath, {
         email,
         resetToken,
         password,
+        tenantId,
       })
         .then((res) => {
           if (res.data.error) {

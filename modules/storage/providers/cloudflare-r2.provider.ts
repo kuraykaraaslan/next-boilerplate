@@ -1,107 +1,84 @@
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
-import BaseStorageProvider, { UploadOptions, UploadFromUrlOptions, UploadResult } from './base.provider'
+import BaseStorageProvider from './base.provider'
+import type { UploadOptions, UploadFromUrlOptions, ProviderUploadResult, S3Config } from '../storage.types'
 import Logger from '@/libs/logger'
 import { v4 as uuidv4 } from 'uuid'
+import { StorageFolderSchema, StorageExtensionSchema, StorageMimeTypeSchema } from '../storage.enums'
 
 export default class CloudflareR2Provider extends BaseStorageProvider {
-  private static readonly BUCKET_NAME = process.env.CLOUDFLARE_R2_BUCKET_NAME!
-  private static readonly ACCOUNT_ID = process.env.CLOUDFLARE_R2_ACCOUNT_ID!
-  private static readonly ACCESS_KEY_ID = process.env.CLOUDFLARE_R2_ACCESS_KEY_ID!
-  private static readonly SECRET_ACCESS_KEY = process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY!
-  private static readonly PUBLIC_DOMAIN = process.env.CLOUDFLARE_R2_PUBLIC_DOMAIN // Optional custom domain
+  private s3Client: S3Client
 
-  private static readonly s3Client = new S3Client({
-    region: 'auto',
-    endpoint: `https://${CloudflareR2Provider.ACCOUNT_ID}.r2.cloudflarestorage.com`,
-    credentials: {
-      accessKeyId: CloudflareR2Provider.ACCESS_KEY_ID,
-      secretAccessKey: CloudflareR2Provider.SECRET_ACCESS_KEY,
-    },
-  })
-
-  static allowedFolders = [
-    'general',
-    'categories',
-    'users',
-    'posts',
-    'projects',
-    'comments',
-    'images',
-    'videos',
-    'audios',
-    'files',
-    'content',
-  ]
-
-  static allowedExtensions = ['jpeg', 'jpg', 'png', 'webp', 'avif']
-  static allowedMimeTypes = [
-    'image/jpeg',
-    'image/png',
-    'image/webp',
-    'image/avif',
-  ]
+  constructor(config: S3Config) {
+    super(config)
+    this.s3Client = new S3Client({
+      region: 'auto',
+      endpoint: config.endpoint,
+      credentials: {
+        accessKeyId: config.accessKeyId,
+        secretAccessKey: config.secretAccessKey,
+      },
+    })
+  }
 
   /** Validate MIME type and extension consistency */
   private validateFile(file: File, folder: string) {
     if (!file) throw new Error('No file provided')
-    if (!CloudflareR2Provider.allowedFolders.includes(folder)) {
+    if (!StorageFolderSchema.safeParse(folder).success) {
       throw new Error('INVALID_FOLDER_NAME')
     }
 
     const extension = file.name.split('.').pop()?.toLowerCase()
-    if (!extension || !CloudflareR2Provider.allowedExtensions.includes(extension)) {
+    if (!extension || !StorageExtensionSchema.safeParse(extension).success) {
       throw new Error(`Invalid file extension: .${extension}`)
     }
 
     const mimeType = file.type
-    if (!mimeType || !CloudflareR2Provider.allowedMimeTypes.includes(mimeType)) {
+    if (!mimeType || !StorageMimeTypeSchema.safeParse(mimeType).success) {
       throw new Error(`Invalid MIME type: ${mimeType}`)
     }
   }
 
   /** Validate folder name */
   private validateFolder(folder: string) {
-    if (!CloudflareR2Provider.allowedFolders.includes(folder)) {
+    if (!StorageFolderSchema.safeParse(folder).success) {
       throw new Error('INVALID_FOLDER_NAME')
     }
   }
 
   /** Generate unique file key */
-  private generateFileKey(folder: string, filename: string, extension?: string): string {
+  private generateFileKey(tenantId: string, folder: string, filename: string, extension?: string): string {
     const timestamp = Date.now()
     const uuid = uuidv4().slice(0, 8)
     const ext = extension || filename.split('.').pop()?.toLowerCase() || ''
     const baseName = filename.split('.')[0] || 'file'
-    return `${folder}/${timestamp}-${uuid}-${baseName}.${ext}`
+    return `${tenantId}/${folder}/${timestamp}-${uuid}-${baseName}.${ext}`
   }
 
   /** Get public URL for file */
   private getPublicUrl(fileKey: string): string {
-    if (CloudflareR2Provider.PUBLIC_DOMAIN) {
-      return `https://${CloudflareR2Provider.PUBLIC_DOMAIN}/${fileKey}`
-    }
-    return `https://${CloudflareR2Provider.BUCKET_NAME}.${CloudflareR2Provider.ACCOUNT_ID}.r2.cloudflarestorage.com/${fileKey}`
+    return `${this.config.endpoint}/${fileKey}`
   }
 
-  async uploadFile(file: File, options?: UploadOptions): Promise<UploadResult> {
+  async uploadFile(file: File, options?: UploadOptions): Promise<ProviderUploadResult> {
     const folder = options?.folder || 'general'
+    const tenantId = options?.tenantId || 'system'
     this.validateFile(file, folder)
 
     try {
       const fileBuffer = Buffer.from(await file.arrayBuffer())
       const extension = file.name.split('.').pop()?.toLowerCase()
-      const fileKey = options?.filename 
-        ? `${folder}/${options.filename}`
-        : this.generateFileKey(folder, file.name, extension)
+      const fileKey = options?.filename
+        ? `${tenantId}/${folder}/${options.filename}`
+        : this.generateFileKey(tenantId, folder, file.name, extension)
 
       const command = new PutObjectCommand({
-        Bucket: CloudflareR2Provider.BUCKET_NAME,
+        Bucket: this.config.bucket,
         Key: fileKey,
         Body: fileBuffer,
         ContentType: options?.contentType || file.type,
       })
 
-      await CloudflareR2Provider.s3Client.send(command)
+      await this.s3Client.send(command)
 
       const url = this.getPublicUrl(fileKey)
 
@@ -110,7 +87,7 @@ export default class CloudflareR2Provider extends BaseStorageProvider {
       return {
         url,
         key: fileKey,
-        bucket: CloudflareR2Provider.BUCKET_NAME,
+        bucket: this.config.bucket,
         size: file.size,
       }
     } catch (error) {
@@ -119,39 +96,40 @@ export default class CloudflareR2Provider extends BaseStorageProvider {
     }
   }
 
-  async uploadFromUrl(url: string, options?: UploadFromUrlOptions): Promise<UploadResult> {
+  async uploadFromUrl(url: string, options?: UploadFromUrlOptions): Promise<ProviderUploadResult> {
     const folder = options?.folder || 'general'
+    const tenantId = options?.tenantId || 'system'
     this.validateFolder(folder)
 
     try {
       const response = await fetch(url)
-      
+
       if (!response.ok) {
         throw new Error(`Failed to fetch file from URL: ${response.statusText}`)
       }
 
       const mimeType = response.headers.get('content-type') || 'application/octet-stream'
 
-      if (!CloudflareR2Provider.allowedMimeTypes.includes(mimeType)) {
+      if (!StorageMimeTypeSchema.safeParse(mimeType).success) {
         throw new Error(`Invalid MIME type from URL: ${mimeType}`)
       }
 
       const arrayBuffer = await response.arrayBuffer()
       const fileBuffer = Buffer.from(arrayBuffer)
-      
+
       const filename = options?.filename || url.split('?')[0].split('/').pop() || 'file'
       const fileKey = options?.filename
-        ? `${folder}/${options.filename}`
-        : this.generateFileKey(folder, filename)
+        ? `${tenantId}/${folder}/${options.filename}`
+        : this.generateFileKey(tenantId, folder, filename)
 
       const command = new PutObjectCommand({
-        Bucket: CloudflareR2Provider.BUCKET_NAME,
+        Bucket: this.config.bucket,
         Key: fileKey,
         Body: fileBuffer,
         ContentType: options?.contentType || mimeType,
       })
 
-      await CloudflareR2Provider.s3Client.send(command)
+      await this.s3Client.send(command)
 
       const fileUrl = this.getPublicUrl(fileKey)
 
@@ -160,7 +138,7 @@ export default class CloudflareR2Provider extends BaseStorageProvider {
       return {
         url: fileUrl,
         key: fileKey,
-        bucket: CloudflareR2Provider.BUCKET_NAME,
+        bucket: this.config.bucket,
         size: arrayBuffer.byteLength,
       }
     } catch (error) {
@@ -172,11 +150,11 @@ export default class CloudflareR2Provider extends BaseStorageProvider {
   async deleteFile(key: string): Promise<void> {
     try {
       const command = new DeleteObjectCommand({
-        Bucket: CloudflareR2Provider.BUCKET_NAME,
+        Bucket: this.config.bucket,
         Key: key,
       })
 
-      await CloudflareR2Provider.s3Client.send(command)
+      await this.s3Client.send(command)
       Logger.info(`File deleted successfully from Cloudflare R2: ${key}`)
     } catch (error) {
       Logger.error(`Failed to delete file from Cloudflare R2: ${error instanceof Error ? error.message : String(error)}`)

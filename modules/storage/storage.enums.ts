@@ -1,30 +1,28 @@
-export type StorageProviderType = 'aws-s3' | 'cloudflare-r2' | 'digitalocean-spaces' | 'minio'
+import { z } from 'zod'
 
-export enum StorageFolder {
-  GENERAL = 'general',
-  CATEGORIES = 'categories',
-  USERS = 'users',
-  POSTS = 'posts',
-  PROJECTS = 'projects',
-  COMMENTS = 'comments',
-  IMAGES = 'images',
-  VIDEOS = 'videos',
-  AUDIOS = 'audios',
-  FILES = 'files',
-  CONTENT = 'content',
-}
+export const StorageProviderTypeSchema = z.enum(['aws-s3', 's3', 'cloudflare-r2', 'digitalocean-spaces', 'minio'])
+export type StorageProviderType = z.infer<typeof StorageProviderTypeSchema>
 
-export enum StorageExtension {
-  JPEG = 'jpeg',
-  JPG = 'jpg',
-  PNG = 'png',
-  WEBP = 'webp',
-  AVIF = 'avif',
-}
+export const StorageFolderSchema = z.enum([
+  'general',
+  'categories',
+  'users',
+  'posts',
+  'projects',
+  'comments',
+  'images',
+  'videos',
+  'audios',
+  'files',
+  'content',
+  'branding/logos',
+  'branding/favicon',
+  'branding/wallpapers',
+])
+export type StorageFolder = z.infer<typeof StorageFolderSchema>
 
-export enum StorageMimeType {
-  JPEG = 'image/jpeg',
-  PNG = 'image/png',
-  WEBP = 'image/webp',
-  AVIF = 'image/avif',
-}
+export const StorageExtensionSchema = z.enum(['jpeg', 'jpg', 'png', 'webp', 'avif','ico'])
+export type StorageExtension = z.infer<typeof StorageExtensionSchema>
+
+export const StorageMimeTypeSchema = z.enum(['image/jpeg', 'image/png', 'image/webp', 'image/avif'])
+export type StorageMimeType = z.infer<typeof StorageMimeTypeSchema>

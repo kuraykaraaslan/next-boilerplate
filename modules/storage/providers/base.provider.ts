@@ -1,23 +1,14 @@
-export interface UploadOptions {
-  folder?: string
-  filename?: string
-  contentType?: string
-}
-
-export interface UploadFromUrlOptions extends UploadOptions {
-  url: string
-}
-
-export interface UploadResult {
-  url: string
-  key: string
-  bucket: string
-  size?: number
-}
+import type { UploadOptions, UploadFromUrlOptions, ProviderUploadResult, S3Config } from '../storage.types'
 
 export default abstract class BaseStorageProvider {
-  abstract uploadFile(file: File, options?: UploadOptions): Promise<UploadResult>
-  abstract uploadFromUrl(url: string, options?: UploadFromUrlOptions): Promise<UploadResult>
+  protected config: S3Config
+
+  constructor(config: S3Config) {
+    this.config = config
+  }
+
+  abstract uploadFile(file: File, options?: UploadOptions): Promise<ProviderUploadResult>
+  abstract uploadFromUrl(url: string, options?: UploadFromUrlOptions): Promise<ProviderUploadResult>
   abstract deleteFile(key: string): Promise<void>
   abstract getFileUrl(key: string): string
 }

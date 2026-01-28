@@ -1,106 +1,87 @@
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
-import BaseStorageProvider, { UploadOptions, UploadFromUrlOptions, UploadResult } from './base.provider'
+import BaseStorageProvider from './base.provider'
+import type { UploadOptions, UploadFromUrlOptions, ProviderUploadResult, S3Config } from '../storage.types'
 import Logger from '@/libs/logger'
 import { v4 as uuidv4 } from 'uuid'
+import { StorageFolderSchema, StorageExtensionSchema, StorageMimeTypeSchema } from '../storage.enums'
 
 export default class AWSS3Provider extends BaseStorageProvider {
-  private static readonly BUCKET_NAME = process.env.AWS_S3_BUCKET_NAME!
-  private static readonly REGION = process.env.AWS_S3_REGION || 'us-east-1'
-  private static readonly ACCESS_KEY_ID = process.env.AWS_S3_ACCESS_KEY_ID!
-  private static readonly SECRET_ACCESS_KEY = process.env.AWS_S3_SECRET_ACCESS_KEY!
+  private s3Client: S3Client
 
-  private static readonly s3Client = new S3Client({
-    region: AWSS3Provider.REGION,
-    credentials: {
-      accessKeyId: AWSS3Provider.ACCESS_KEY_ID,
-      secretAccessKey: AWSS3Provider.SECRET_ACCESS_KEY,
-    },
-  })
-
-  static allowedFolders = [
-    'general',
-    'categories',
-    'users',
-    'posts',
-    'projects',
-    'comments',
-    'images',
-    'videos',
-    'audios',
-    'files',
-    'content',
-  ]
-
-  static allowedExtensions = ['jpeg', 'jpg', 'png', 'webp', 'avif']
-  static allowedMimeTypes = [
-    'image/jpeg',
-    'image/png',
-    'image/webp',
-    'image/avif',
-  ]
+  constructor(config: S3Config) {
+    super(config)
+    this.s3Client = new S3Client({
+      region: config.region,
+      credentials: {
+        accessKeyId: config.accessKeyId,
+        secretAccessKey: config.secretAccessKey,
+      },
+    })
+  }
 
   /** Validate MIME type and extension consistency */
   private validateFile(file: File, folder: string) {
     if (!file) throw new Error('No file provided')
-    if (!AWSS3Provider.allowedFolders.includes(folder)) {
+    if (!StorageFolderSchema.safeParse(folder).success) {
       throw new Error('INVALID_FOLDER_NAME')
     }
 
     const extension = file.name.split('.').pop()?.toLowerCase()
-    if (!extension || !AWSS3Provider.allowedExtensions.includes(extension)) {
+    if (!extension || !StorageExtensionSchema.safeParse(extension).success) {
       throw new Error(`Invalid file extension: .${extension}`)
     }
 
     const mimeType = file.type
-    if (!mimeType || !AWSS3Provider.allowedMimeTypes.includes(mimeType)) {
+    if (!mimeType || !StorageMimeTypeSchema.safeParse(mimeType).success) {
       throw new Error(`Invalid MIME type: ${mimeType}`)
     }
   }
 
   /** Validate folder name */
   private validateFolder(folder: string) {
-    if (!AWSS3Provider.allowedFolders.includes(folder)) {
+    if (!StorageFolderSchema.safeParse(folder).success) {
       throw new Error('INVALID_FOLDER_NAME')
     }
   }
 
   /** Generate unique file key */
-  private generateFileKey(folder: string, filename: string, extension?: string): string {
+  private generateFileKey(tenantId: string, folder: string, filename: string, extension?: string): string {
     const timestamp = Date.now()
     const uuid = uuidv4().slice(0, 8)
     const ext = extension || filename.split('.').pop()?.toLowerCase() || ''
     const baseName = filename.split('.')[0] || 'file'
-    return `${folder}/${timestamp}-${uuid}-${baseName}.${ext}`
+    return `${tenantId}/${folder}/${timestamp}-${uuid}-${baseName}.${ext}`
   }
 
-  async uploadFile(file: File, options?: UploadOptions): Promise<UploadResult> {
+  async uploadFile(file: File, options?: UploadOptions): Promise<ProviderUploadResult> {
     const folder = options?.folder || 'general'
+    const tenantId = options?.tenantId || 'system'
     this.validateFile(file, folder)
 
     try {
       const fileBuffer = Buffer.from(await file.arrayBuffer())
       const extension = file.name.split('.').pop()?.toLowerCase()
-      const fileKey = options?.filename 
-        ? `${folder}/${options.filename}`
-        : this.generateFileKey(folder, file.name, extension)
+      const fileKey = options?.filename
+        ? `${tenantId}/${folder}/${options.filename}`
+        : this.generateFileKey(tenantId, folder, file.name, extension)
 
       const command = new PutObjectCommand({
-        Bucket: AWSS3Provider.BUCKET_NAME,
+        Bucket: this.config.bucket,
         Key: fileKey,
         Body: fileBuffer,
         ContentType: options?.contentType || file.type,
       })
 
-      await AWSS3Provider.s3Client.send(command)
+      await this.s3Client.send(command)
 
-      const url = `https://${AWSS3Provider.BUCKET_NAME}.s3.${AWSS3Provider.REGION}.amazonaws.com/${fileKey}`
+      const url = `https://${this.config.bucket}.s3.${this.config.region}.amazonaws.com/${fileKey}`
 
       Logger.info(`File uploaded successfully to AWS S3: ${fileKey}`)
 
       return {
         url,
         key: fileKey,
-        bucket: AWSS3Provider.BUCKET_NAME,
+        bucket: this.config.bucket,
         size: file.size,
       }
     } catch (error) {
@@ -109,48 +90,49 @@ export default class AWSS3Provider extends BaseStorageProvider {
     }
   }
 
-  async uploadFromUrl(url: string, options?: UploadFromUrlOptions): Promise<UploadResult> {
+  async uploadFromUrl(url: string, options?: UploadFromUrlOptions): Promise<ProviderUploadResult> {
     const folder = options?.folder || 'general'
+    const tenantId = options?.tenantId || 'system'
     this.validateFolder(folder)
 
     try {
       const response = await fetch(url)
-      
+
       if (!response.ok) {
         throw new Error(`Failed to fetch file from URL: ${response.statusText}`)
       }
 
       const mimeType = response.headers.get('content-type') || 'application/octet-stream'
 
-      if (!AWSS3Provider.allowedMimeTypes.includes(mimeType)) {
+      if (!StorageMimeTypeSchema.safeParse(mimeType).success) {
         throw new Error(`Invalid MIME type from URL: ${mimeType}`)
       }
 
       const arrayBuffer = await response.arrayBuffer()
       const fileBuffer = Buffer.from(arrayBuffer)
-      
+
       const filename = options?.filename || url.split('?')[0].split('/').pop() || 'file'
       const fileKey = options?.filename
-        ? `${folder}/${options.filename}`
-        : this.generateFileKey(folder, filename)
+        ? `${tenantId}/${folder}/${options.filename}`
+        : this.generateFileKey(tenantId, folder, filename)
 
       const command = new PutObjectCommand({
-        Bucket: AWSS3Provider.BUCKET_NAME,
+        Bucket: this.config.bucket,
         Key: fileKey,
         Body: fileBuffer,
         ContentType: options?.contentType || mimeType,
       })
 
-      await AWSS3Provider.s3Client.send(command)
+      await this.s3Client.send(command)
 
-      const fileUrl = `https://${AWSS3Provider.BUCKET_NAME}.s3.${AWSS3Provider.REGION}.amazonaws.com/${fileKey}`
+      const fileUrl = `https://${this.config.bucket}.s3.${this.config.region}.amazonaws.com/${fileKey}`
 
       Logger.info(`File uploaded from URL successfully to AWS S3: ${fileKey}`)
 
       return {
         url: fileUrl,
         key: fileKey,
-        bucket: AWSS3Provider.BUCKET_NAME,
+        bucket: this.config.bucket,
         size: arrayBuffer.byteLength,
       }
     } catch (error) {
@@ -162,11 +144,11 @@ export default class AWSS3Provider extends BaseStorageProvider {
   async deleteFile(key: string): Promise<void> {
     try {
       const command = new DeleteObjectCommand({
-        Bucket: AWSS3Provider.BUCKET_NAME,
+        Bucket: this.config.bucket,
         Key: key,
       })
 
-      await AWSS3Provider.s3Client.send(command)
+      await this.s3Client.send(command)
       Logger.info(`File deleted successfully from AWS S3: ${key}`)
     } catch (error) {
       Logger.error(`Failed to delete file from AWS S3: ${error instanceof Error ? error.message : String(error)}`)
@@ -175,6 +157,6 @@ export default class AWSS3Provider extends BaseStorageProvider {
   }
 
   getFileUrl(key: string): string {
-    return `https://${AWSS3Provider.BUCKET_NAME}.s3.${AWSS3Provider.REGION}.amazonaws.com/${key}`
+    return `https://${this.config.bucket}.s3.${this.config.region}.amazonaws.com/${key}`
   }
 }

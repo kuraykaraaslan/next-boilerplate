@@ -3,6 +3,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import StorageService from '@/modules/storage/storage.service'
 import UserSessionNextService from '@/modules/user_session/user_session.service.next'
+import { SYSTEM_TENANT_ID } from '@/modules/setting/setting.service'
 
 /**
  * POST /api/storage
@@ -33,6 +34,7 @@ export async function POST(request: NextRequest) {
       file,
       folder,
       provider,
+      tenantId: SYSTEM_TENANT_ID,
     })
 
     return NextResponse.json({

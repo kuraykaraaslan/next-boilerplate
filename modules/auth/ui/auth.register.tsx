@@ -8,9 +8,11 @@ import type { AuthLocale } from '../dictionaries';
 
 interface AuthRegisterProps {
   locale?: AuthLocale;
+  basePath?: string;
+  tenantId?: string;
 }
 
-const AuthRegister = ({ locale = 'en' }: AuthRegisterProps) => {
+const AuthRegister = ({ locale = 'en', basePath = '/auth', tenantId }: AuthRegisterProps) => {
   const { t } = useModuleDictionary(locale);
 
   const emailRegex = /\S+@\S+\.\S+/;
@@ -49,7 +51,9 @@ const AuthRegister = ({ locale = 'en' }: AuthRegisterProps) => {
 
     toast.info(t('registering'));
 
-    await axiosInstance.post('/api/auth/register', {
+    const apiPath = tenantId ? `${basePath.replace('/auth', '')}/api/auth/register` : '/api/auth/register';
+
+    await axiosInstance.post(apiPath, {
       email,
       password,
     }).then((res) => {
@@ -67,7 +71,7 @@ const AuthRegister = ({ locale = 'en' }: AuthRegisterProps) => {
     <div className="space-y-3">
       <div>
         <Link
-          href="/auth/login"
+          href={`${basePath}/login`}
           className="block w-full py-2.5 bg-primary font-semibold rounded-lg shadow-md text-white text-center"
         >
           {t('login')}

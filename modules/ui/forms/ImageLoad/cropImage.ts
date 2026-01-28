@@ -3,7 +3,9 @@ export const getCroppedImg = (
   imageSrc: string,
   pixelCrop: any,
   outputType: 'image/jpeg' | 'image/png' = 'image/jpeg',
-  quality = 0.92
+  quality = 0.92,
+  outputWidth?: number,
+  outputHeight?: number
 ): Promise<Blob> => {
   return new Promise((resolve, reject) => {
     const image = new Image();
@@ -15,8 +17,12 @@ export const getCroppedImg = (
 
       if (!ctx) return reject(new Error('Canvas context missing'));
 
-      canvas.width = pixelCrop.width;
-      canvas.height = pixelCrop.height;
+      // Use output dimensions if provided, otherwise use crop dimensions
+      const finalWidth = outputWidth || pixelCrop.width;
+      const finalHeight = outputHeight || pixelCrop.height;
+
+      canvas.width = finalWidth;
+      canvas.height = finalHeight;
 
       ctx.drawImage(
         image,
@@ -26,8 +32,8 @@ export const getCroppedImg = (
         pixelCrop.height,
         0,
         0,
-        pixelCrop.width,
-        pixelCrop.height
+        finalWidth,
+        finalHeight
       );
 
       canvas.toBlob(

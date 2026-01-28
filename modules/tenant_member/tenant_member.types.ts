@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { TenantMemberRoleEnum, TenantMemberStatusEnum } from './tenant_member.enums';
 import { SafeUserSchema } from '../user/user.types';
+import { SafeTenantSchema } from '../tenant/tenant.types';
 
 export const TenantMemberSchema = z.object({
   tenantMemberId: z.string().uuid(),
@@ -10,7 +11,10 @@ export const TenantMemberSchema = z.object({
   memberStatus: TenantMemberStatusEnum.default('ACTIVE'),
   createdAt: z.date().nullable(),
   updatedAt: z.date().nullable(),
-  deletedAt: z.date().nullable()
+  deletedAt: z.date().nullable(),
+
+  tenant: SafeTenantSchema.extend({}).nullable().optional(),
+  user: SafeUserSchema.extend({}).nullable().optional()
 });
 
 export const SafeTenantMemberSchema = TenantMemberSchema.omit({

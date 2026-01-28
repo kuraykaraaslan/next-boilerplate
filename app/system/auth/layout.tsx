@@ -1,48 +1,11 @@
 'use client';
-import { usePathname } from 'next/navigation';
 import { ReactNode, Suspense } from 'react';
-import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import SSOLogin from '@/modules/auth_sso/ui/auth_sso.login';
 import Logo from '@/components/common/layout/logo';
 
+
+
 export default function AuthLayout({ children }: { children: ReactNode }) {
-    const pathname = usePathname();
-
-    const titles = [
-        {
-            path: '/system/auth/login',
-            title: 'Welcome back!'
-        },
-        {
-            path: '/system/auth/register',
-            title: 'Create an account'
-        },
-        {
-            path: '/system/auth/forgot-password',
-            title: 'Forgot Password'
-        },
-        {
-            path: '/system/auth/reset-password',
-            title: 'Reset Password'
-        },
-        {
-            path: '/system/auth/logout',
-            title: 'Logging out...'
-        },
-        {
-            path: '/system/auth/select-tenant',
-            title: 'Select Organization'
-        },
-        {
-            path: '/system/auth/create-tenant',
-            title: 'Create Organization'
-        }
-    ];
-
-    // Hide SSO buttons on select-tenant and create-tenant pages
-    const hideSSOPages = ['/system/auth/select-tenant', '/system/auth/create-tenant'];
-    const showSSO = !hideSSOPages.some(p => pathname?.startsWith(p));
 
     return (
         <Suspense>
@@ -60,17 +23,11 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
                             <Logo />
                         </div>
                         <h1 className="text-2xl font-bold text-center mb-4">
-                            {titles?.find((item) => pathname?.startsWith(item.path))?.title}
+                            
                         </h1>
                         <div className="w-full">
                             {children}
-                            {showSSO && (
-                                <>
-                                    <div className="flex items-center justify-center mt-4 mb-4">
-                                    </div>
-                                    <SSOLogin mode="pins" />
-                                </>
-                            )}
+
                         </div>
                     </div>
                 </div>
@@ -81,7 +38,6 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
                     Jade Stephens
                 </a>
             </div>
-            <ToastContainer />
         </Suspense>
     );
 }

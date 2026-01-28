@@ -20,7 +20,7 @@ export default function StorageTab({ settings, setSettings, loading, saving }: S
                         onValueChange={v => setSettings(s => ({ ...s, storageProvider: v }))}
                         options={[
                             { value: 'local', label: 'Local' },
-                            { value: 's3', label: 'AWS S3' },
+                            { value: 'aws-s3', label: 'AWS S3' },
                             { value: 'gcs', label: 'Google Cloud Storage' },
                             { value: 'azure', label: 'Azure Blob' },
                             { value: 'r2', label: 'Cloudflare R2' },

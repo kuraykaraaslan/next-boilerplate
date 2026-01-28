@@ -1,45 +1,17 @@
-'use client';
-import axiosInstance from '@/libs/axios';
-import { useEffect } from 'react';
-import { toast } from 'react-toastify';
-import { useGlobalStore } from '@/libs/zustand';
-import { useRouter, useParams } from 'next/navigation';
+import AuthLogout from '@/modules/auth/ui/auth.logout';
+import { Metadata } from 'next';
 
-const TenantLogoutPage = () => {
-    const params = useParams();
-    const tenantId = params.tenantId as string;
-
-    const { setUser } = useGlobalStore();
-    const router = useRouter();
-
-    const isProxied = typeof window !== 'undefined' && !window.location.pathname.startsWith('/tenant/');
-    const tenantBase = isProxied ? '' : `/tenant/${tenantId}`;
-
-    const handleLogout = async () => {
-        await axiosInstance.post(`/api/auth/logout`).then(res => {
-            if (res.status === 200) {
-                toast.success(res.data.message);
-            }
-        }).catch(err => {
-            toast.error(err.response.data.message);
-        }).finally(() => {
-            setUser(null);
-            localStorage.removeItem('user');
-            localStorage.removeItem('accessToken');
-            localStorage.removeItem('refreshToken');
-            localStorage.removeItem('userSession');
-            router.push(`${tenantBase}/auth/login`);
-        });
-    };
-
-    useEffect(() => {
-        handleLogout();
-    }, []);
-
-    return (
-        <>
-        </>
-    );
+export const metadata: Metadata = {
+    title: 'Logout',
 };
 
-export default TenantLogoutPage;
+interface PageProps {
+    params: Promise<{ tenantId: string }>;
+}
+
+export default async function TenantLogoutPage({ params }: PageProps) {
+    const { tenantId } = await params;
+    const basePath = `/tenant/${tenantId}/auth`;
+
+    return <AuthLogout basePath={basePath} tenantId={tenantId} />;
+}
