@@ -7,8 +7,7 @@ import dynamic from "next/dynamic";
 import axiosInstance from "@/libs/axios";
 import useGlobalStore from "@/libs/zustand";
 
-// Make sure to import the Navbar component from the correct path
-const Navbar = dynamic(() => import('@/components/system/layout/navbar'), { ssr: false });
+const Navbar = dynamic(() => import('@/components/common/layout/navbar'), { ssr: false });
 
 const Layout = ({
     children,
@@ -56,7 +55,7 @@ const Layout = ({
 
     return (
         <>
-            <Navbar />
+            <Navbar variant="system" />
             <div style={{ flex: 1 }} className="container mx-auto px-4 pt-4 md:pt-12 lg:px-8 max-w-8xl mb-8 mt- flex flex-col md:flex-row gap-4">
                 {/* [children] */}
                 {children}

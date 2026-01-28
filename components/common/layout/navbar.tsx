@@ -8,43 +8,59 @@ import Logo from "@/components/common/layout/logo";
 import dynamic from "next/dynamic";
 import { SafeTenant } from "@/modules/tenant/tenant.types";
 import { SafeTenantMember } from "@/modules/tenant_member/tenant_member.types";
-import { getTenantMenuItems } from "@/modules/setting/settings.loader";
+import { getSystemMenuItems, getTenantMenuItems } from "@/modules/setting/settings.loader";
 
 const AuthButton = dynamic(
     () => import('@/modules/auth/ui/auth.button'),
     { ssr: false }
 );
 
-interface NavbarProps {
+interface SystemNavbarProps {
+    variant: 'system';
+}
+
+interface TenantNavbarProps {
+    variant: 'tenant';
     tenant: SafeTenant;
     tenantMember: SafeTenantMember;
 }
 
-const Navbar = ({ tenant, tenantMember }: NavbarProps) => {
+type NavbarProps = SystemNavbarProps | TenantNavbarProps;
+
+const Navbar = (props: NavbarProps) => {
     const router = useRouter();
     const params = useParams();
-    const tenantId = params.tenantId as string;
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const toggleMobileMenu = () => {
         setIsMobileMenuOpen(!isMobileMenuOpen);
     };
 
-    // If the path starts with /tenant/, use it as base. Otherwise (custom domain), base is empty.
-    const isProxied = typeof window !== 'undefined' && !window.location.pathname.startsWith('/tenant/');
-    const tenantBase = isProxied ? '' : `/tenant/${tenantId}`;
+    const isSystem = props.variant === 'system';
+    const tenant = isSystem ? null : props.tenant;
+    const tenantMember = isSystem ? null : props.tenantMember;
+    const tenantId = params.tenantId as string;
 
-    const menu = useMemo(() => getTenantMenuItems(tenantBase), [tenantBase]);
+    // Determine base path
+    const isProxied = !isSystem && typeof window !== 'undefined' && !window.location.pathname.startsWith('/tenant/');
+    const basePath = isSystem ? '/system/admin' : (isProxied ? '' : `/tenant/${tenantId}`);
+    const logoHref = isSystem ? '/system/admin' : `${basePath}/admin`;
+
+    const menu = useMemo(() => {
+        return isSystem ? getSystemMenuItems() : getTenantMenuItems(basePath);
+    }, [isSystem, basePath]);
 
     return (
         <>
             <div className="">
                 <nav className="relative mx-auto h-16 flex items-stretch items-center justify-between lg:px-8 from-base-100 to-base-300 bg-gradient-to-b shadow-lg text-primary" aria-label="Global">
                     <div className="py-4 pl-4 lg:pl-0 flex items-center gap-2">
-                        <Logo href={`${tenantBase}/admin`} />
-                        <span className="text-sm font-medium text-base-content/60 hidden sm:inline">
-                            / {tenant?.name}
-                        </span>
+                        <Logo href={logoHref} />
+                        {tenant && (
+                            <span className="text-sm font-medium text-base-content/60 hidden sm:inline">
+                                / {tenant.name}
+                            </span>
+                        )}
                     </div>
                     <div className="flex lg:hidden">
                         <button type="button" className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 p-6 mr-2" aria-controls="mobile-menu" aria-expanded="false" onClick={toggleMobileMenu}>
@@ -64,9 +80,11 @@ const Navbar = ({ tenant, tenantMember }: NavbarProps) => {
                         ))}
                     </div>
                     <div className="hidden lg:flex lg:justify-end justify-center items-center gap-2">
-                        <span className="badge badge-primary badge-outline text-xs">
-                            {tenantMember?.memberRole}
-                        </span>
+                        {tenantMember && (
+                            <span className="badge badge-primary badge-outline text-xs">
+                                {tenantMember.memberRole}
+                            </span>
+                        )}
                         <AuthButton />
                     </div>
                 </nav>
@@ -80,8 +98,10 @@ const Navbar = ({ tenant, tenantMember }: NavbarProps) => {
                     <div className="relative flex-1 flex flex-col max-w-xs w-full bg-base-100">
                         <div className="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
                             <div className="flex items-center justify-center flex-col gap-2">
-                                <Logo href={`${tenantBase}/admin`} />
-                                <span className="text-sm text-base-content/60">{tenant?.name}</span>
+                                <Logo href={logoHref} />
+                                {tenant && (
+                                    <span className="text-sm text-base-content/60">{tenant.name}</span>
+                                )}
                             </div>
                             <nav className="mt-5 px-2 space-y-1">
                                 {menu.map((item, index) => (

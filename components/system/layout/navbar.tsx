@@ -1,11 +1,12 @@
 'use client';
-import { faBars, faCode } from "@fortawesome/free-solid-svg-icons";
+import { faBars } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Logo from "@/components/common/layout/logo";
 import dynamic from "next/dynamic";
+import { getSystemMenuItems } from "@/modules/setting/settings.loader";
 
 const AuthButton = dynamic(
     () => import('@/modules/auth/ui/auth.button'),
@@ -21,44 +22,7 @@ const Navbar = () => {
         setIsMobileMenuOpen(!isMobileMenuOpen);
     };
 
-    const menu = [
-        {
-            name: "Home",
-            href: "/system/admin",
-        },
-        {
-            name: "Projects",
-            href: "/system/admin/projects",
-        },
-        {
-            name: "Categories",
-            href: "/system/admin/categories",
-        },
-        {
-            name: "Posts",
-            href: "/system/admin/posts",
-        },
-        {
-            name: "Comments",
-            href: "/system/admin/comments",
-        },
-        {
-            name: "Users",
-            href: "/system/admin/users",
-        },
-        {
-            name: "Tenants",
-            href: "/system/admin/tenants",
-        },
-        {
-            name: "Settings",
-            href: "/system/admin/settings",
-        },
-        {
-            name: "Logout",
-            href: "/auth/logout",
-        }
-    ];
+    const menu = useMemo(() => getSystemMenuItems(), []);
 
     return (
         <>
@@ -80,7 +44,7 @@ const Navbar = () => {
                     <div className="hidden lg:flex lg:flex-1 lg:justify-center">
                         {menu.map((item, index) => (
                             <Link key={index} href={item.href} className="relative group inline-flex items-center justify-center text-base font-medium px-6">
-                                <div className="text-sm leading-6">{item.name}</div>
+                                <div className="text-sm leading-6">{item.label}</div>
                             </Link>
                         ))}
                     </div>
@@ -107,7 +71,7 @@ const Navbar = () => {
                                             router.push(item.href);
                                             toggleMobileMenu();
                                         }}>
-                                        {item.name}
+                                        {item.label}
                                     </button>
                                 ))}
                             </nav>
