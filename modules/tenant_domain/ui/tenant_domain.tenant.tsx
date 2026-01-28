@@ -26,7 +26,7 @@ import DynamicTable, { ColumnDef } from "@/components/common/forms/DynamicTable"
 import DynamicText from "@/components/common/forms/DynamicText";
 import DynamicSelect from "@/components/common/forms/DynamicSelect";
 
-const DomainsTab = ({ settings }: Partial<TenantSettingsTabProps>) => {
+const DomainsTab = (_props: TenantSettingsTabProps) => {
   const { tenantId } = useParams() as { tenantId: string };
 
   const WILDCARD_DOMAIN = process.env.NEXT_PUBLIC_TENANT_WILDCARD_DOMAIN || "example.com";

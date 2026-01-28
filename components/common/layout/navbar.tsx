@@ -8,7 +8,8 @@ import Logo from "@/components/common/layout/logo";
 import dynamic from "next/dynamic";
 import { SafeTenant } from "@/modules/tenant/tenant.types";
 import { SafeTenantMember } from "@/modules/tenant_member/tenant_member.types";
-import { getSystemMenuItems, getTenantMenuItems } from "@/modules/setting/settings.loader";
+import { getSystemMenuItems } from "@/modules/setting/system.settings";
+import { getTenantMenuItems } from "@/modules/tenant_setting/tenant.settings";
 
 const AuthButton = dynamic(
     () => import('@/modules/auth/ui/auth.button'),

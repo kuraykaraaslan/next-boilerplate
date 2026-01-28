@@ -8,8 +8,8 @@ import {
   getTenantSettingsTabs,
   getAllTenantKeys,
   TenantSettingsTabProps,
-  SettingsTab,
-} from '@/modules/setting/settings.loader';
+  TenantSettingsTab,
+} from '@/modules/tenant_setting/tenant.settings';
 import {
   faSpinner,
   faCheck,
@@ -22,7 +22,7 @@ const TabContent = ({
   Component, 
   tabProps 
 }: { 
-  Component: SettingsTab['component']; 
+  Component: TenantSettingsTab['component']; 
   tabProps: TenantSettingsTabProps;
 }) => {
   return <Component {...tabProps} />;

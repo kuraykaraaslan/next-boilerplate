@@ -6,8 +6,8 @@ import { useSettings } from '@/modules/setting/hooks/useSettings';
 import {
   getSystemSettingsTabs,
   getAllSystemKeys,
-  SettingsTab,
-} from '@/modules/setting/settings.loader';
+  SystemSettingsTab,
+} from '@/modules/setting/system.settings';
 import { SettingsTabProps } from '@/modules/setting/setting.types';
 import {
   faSpinner,
@@ -21,7 +21,7 @@ const TabContent = ({
   Component, 
   tabProps 
 }: { 
-  Component: SettingsTab['component']; 
+  Component: SystemSettingsTab['component']; 
   tabProps: SettingsTabProps;
 }) => {
   return <Component {...tabProps} />;

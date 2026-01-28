@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Logo from "@/components/common/layout/logo";
 import dynamic from "next/dynamic";
-import { getSystemMenuItems } from "@/modules/setting/settings.loader";
+import { getSystemMenuItems } from "@/modules/setting/system.settings";
 
 const AuthButton = dynamic(
     () => import('@/modules/auth/ui/auth.button'),

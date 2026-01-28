@@ -2,12 +2,12 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 import axios from '@/libs/axios';
-import { TenantSettingsState } from '../settings.loader';
+import { SettingsState } from '../setting.types';
 
 interface UseTenantSettingsReturn {
-  settings: TenantSettingsState;
-  setSettings: React.Dispatch<React.SetStateAction<TenantSettingsState>>;
-  initialSettings: TenantSettingsState;
+  settings: SettingsState;
+  setSettings: React.Dispatch<React.SetStateAction<SettingsState>>;
+  initialSettings: SettingsState;
   loading: boolean;
   saving: boolean;
   error: string | null;
@@ -23,8 +23,8 @@ export function useTenantSettings(
   tenantId: string,
   tenantBase: string
 ): UseTenantSettingsReturn {
-  const [settings, setSettings] = useState<TenantSettingsState>({});
-  const [initialSettings, setInitialSettings] = useState<TenantSettingsState>({});
+  const [settings, setSettings] = useState<SettingsState>({});
+  const [initialSettings, setInitialSettings] = useState<SettingsState>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
