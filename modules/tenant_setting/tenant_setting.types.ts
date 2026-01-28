@@ -1,13 +1,13 @@
 import { z } from 'zod';
 
 // ============================================================================
-// Re-export from settings.registry for backwards compatibility
+// Re-export from settings.loader for backwards compatibility
 // ============================================================================
 
 export type {
   TenantSettingsState,
   TenantSettingsTabProps,
-} from '@/modules/setting/settings.registry';
+} from '@/modules/setting/settings.loader';
 
 // ============================================================================
 // Re-export tenant setting keys from their respective modules

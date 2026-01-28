@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "npm run generate:modules && next dev -H 0.0.0.0 -p 3000",
-    "build": "npm run generate:modules && next build",
+    "dev": "next dev -H 0.0.0.0 -p 3000",
+    "build": "next build",
     "generate:modules": "npx tsx scripts/generate-modules.ts",
     "start": "next start -H 0.0.0.0 -p 3000",
     "lint": "eslint",

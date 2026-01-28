@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 import axios from '@/libs/axios';
-import { TenantSettingsState } from '../settings.registry';
+import { TenantSettingsState } from '../settings.loader';
 
 interface UseTenantSettingsReturn {
   settings: TenantSettingsState;

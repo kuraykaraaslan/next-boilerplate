@@ -28,6 +28,18 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { SettingsTabProps, SettingsState } from './setting.types';
 
+// Import setting keys from each module
+import { GENERAL_KEYS, AUTH_KEYS } from '@/modules/auth/auth.setting.keys';
+import { EMAIL_KEYS, NOTIFICATION_KEYS } from '@/modules/notification_mail/notification_mail.setting.keys';
+import { SMS_KEYS } from '@/modules/notification_sms/notification_sms.setting.keys';
+import { STORAGE_KEYS } from '@/modules/storage/storage.setting.keys';
+import { AI_KEYS } from '@/modules/ai/ai.setting.keys';
+import { PAYMENT_KEYS, TENANT_BILLING_KEYS } from '@/modules/payment/payment.setting.keys';
+import { SECURITY_KEYS } from '@/modules/user_security/user_security.setting.keys';
+import { TENANT_GENERAL_KEYS } from '@/modules/tenant/tenant.setting.keys';
+import { TENANT_BRANDING_KEYS } from '@/modules/tenant_branding/tenant_branding.setting.keys';
+import { TENANT_SECURITY_KEYS } from '@/modules/tenant_session/tenant_session.setting.keys';
+
 // Lazy imports for settings components
 import dynamic from 'next/dynamic';
 
@@ -93,50 +105,28 @@ export type NavMenuEntry = MenuItem;
 // Static Settings Tabs
 // ============================================================================
 
-// Setting keys per module
-const SETTING_KEYS = {
-  general: ['siteName', 'siteUrl', 'siteDescription', 'logoUrl', 'faviconUrl', 'applicationHost', 'applicationDomain', 'i18nLanguages', 'contactName', 'contactTitle', 'contactEmail', 'contactPhone', 'maintenanceMode', 'maintenanceMessage'],
-  auth: ['allowRegistration', 'emailVerificationRequired', 'sessionDuration', 'maxLoginAttempts', 'ssoAllowedProviders', 'jwtAccessTokenSecret', 'jwtAccessTokenExpiresIn', 'jwtRefreshTokenSecret', 'jwtRefreshTokenExpiresIn', 'oauthGoogle', 'oauthGitHub', 'oauthMicrosoft', 'oauthLinkedIn', 'oauthApple', 'oauthTwitter', 'oauthMeta', 'oauthAutodesk', 'googleClientId', 'googleClientSecret', 'githubClientId', 'githubClientSecret', 'appleClientId', 'appleTeamId', 'appleKeyId', 'applePrivateKey', 'metaClientId', 'metaClientSecret', 'autodeskClientId', 'autodeskClientSecret', 'gitlabToken', 'gitlabUser'],
-  email: ['smtpHost', 'smtpPort', 'smtpUsername', 'smtpPassword', 'smtpEncryption', 'fromEmail', 'fromName', 'pushNotificationsEnabled', 'vapidPublicKey', 'vapidPrivateKey', 'emailOnNewUser', 'emailOnNewComment', 'emailOnNewOrder', 'emailOnNewContact', 'slackWebhookUrl', 'slackNotificationsEnabled', 'adminNotificationEmail'],
-  sms: ['smsProvider', 'smsEnabled', 'twilioAccountSid', 'twilioAuthToken', 'twilioPhoneNumber', 'netgsmUserCode', 'netgsmPassword', 'netgsmPhoneNumber'],
-  storage: ['storageProvider', 's3Bucket', 's3Region', 's3AccessKey', 's3SecretKey', 's3Endpoint', 'maxFileSizeMb', 'allowedExtensions'],
-  ai: ['aiEnabled', 'aiDefaultProvider', 'aiDailyLimit', 'aiMonthlyBudget', 'openaiApiKey', 'openaiDefaultModel', 'openaiMaxTokens', 'openaiBaseUrl', 'anthropicApiKey', 'anthropicDefaultModel', 'anthropicMaxTokens', 'googleAiApiKey', 'googleDefaultModel', 'googleMaxTokens', 'huggingfaceToken', 'tinymceApiKey'],
-  security: ['rateLimitPerMinute', 'rateLimitPerHour', 'rateLimitEnabled', 'corsAllowedOrigins', 'hstsEnabled', 'xContentTypeOptions', 'xFrameOptions', 'blockedIps', 'recaptchaEnabled', 'recaptchaClientKey', 'recaptchaServerKey', 'maxmindAccountId', 'maxmindApiKey', 'cronSecret'],
-  integrations: ['discordWebhookUrl', 'discordDoormanWebhookUrl', 'githubTreeUrl', 'githubToken', 'githubUser'],
-  analytics: ['googleTagId'],
-  social: ['facebookUrl', 'twitterUrl', 'instagramUrl', 'linkedinUrl', 'youtubeUrl', 'githubProfileUrl', 'tiktokUrl', 'pinterestUrl'],
-  payment: ['stripeEnabled', 'stripePublicKey', 'stripeSecretKey', 'stripeWebhookSecret', 'paypalEnabled', 'paypalClientId', 'paypalClientSecret', 'paypalSandboxMode', 'iyzicoEnabled', 'iyzicoApiKey', 'iyzicoSecretKey', 'iyzicoSandboxMode', 'currency', 'taxRate', 'taxEnabled', 'billingEmail', 'billingName', 'billingAddress', 'taxId', 'vatNumber', 'invoicePrefix', 'invoiceFooter'],
-  notifications: ['pushNotificationsEnabled', 'vapidPublicKey', 'vapidPrivateKey', 'emailOnNewUser', 'emailOnNewComment', 'emailOnNewOrder', 'emailOnNewContact', 'slackWebhookUrl', 'slackNotificationsEnabled', 'adminNotificationEmail'],
-  localization: ['defaultTimezone', 'defaultLanguage', 'dateFormat', 'timeFormat', 'datetimeFormat', 'weekStartsOn', 'currencySymbol', 'currencyPosition', 'thousandSeparator', 'decimalSeparator'],
-  // Tenant keys
-  tenantGeneral: ['tenantName', 'tenantDescription', 'logoUrl', 'faviconUrl', 'primaryColor', 'secondaryColor', 'accentColor', 'contactEmail', 'contactPhone', 'contactAddress', 'timezone', 'language', 'dateFormat', 'timeFormat'],
-  tenantBranding: ['brandName', 'brandTagline', 'brandLogoLight', 'brandLogoDark', 'brandFavicon', 'brandPrimaryColor', 'brandSecondaryColor', 'customCss', 'customJs'],
-  tenantSecurity: ['twoFactorRequired', 'passwordMinLength', 'passwordRequireUppercase', 'passwordRequireNumbers', 'passwordRequireSymbols', 'sessionTimeout', 'maxLoginAttempts', 'ipWhitelist', 'ipBlacklist', 'ssoEnabled', 'ssoProvider', 'ssoConfig'],
-  tenantBilling: ['billingEmail', 'billingName', 'billingAddress', 'taxId', 'vatNumber'],
-};
-
 const SYSTEM_SETTINGS_TABS: SettingsTab[] = [
-  { id: 'general', label: 'General', icon: faCog, component: GeneralSettings, order: 0, scope: 'system', keys: SETTING_KEYS.general, moduleId: 'setting' },
-  { id: 'auth', label: 'Authentication', icon: faUserShield, component: AuthSettings, order: 10, scope: 'system', keys: SETTING_KEYS.auth, moduleId: 'auth' },
-  { id: 'email', label: 'Email', icon: faEnvelope, component: EmailSettings, order: 20, scope: 'system', keys: SETTING_KEYS.email, moduleId: 'notification_mail' },
-  { id: 'sms', label: 'SMS', icon: faComment, component: SmsSettings, order: 30, scope: 'system', keys: SETTING_KEYS.sms, moduleId: 'notification_sms' },
-  { id: 'storage', label: 'Storage', icon: faDatabase, component: StorageSettings, order: 40, scope: 'system', keys: SETTING_KEYS.storage, moduleId: 'storage' },
-  { id: 'ai', label: 'AI', icon: faRobot, component: AiSettings, order: 50, scope: 'system', keys: SETTING_KEYS.ai, moduleId: 'ai' },
-  { id: 'security', label: 'Security', icon: faShield, component: SecuritySettings, order: 60, scope: 'system', keys: SETTING_KEYS.security, moduleId: 'setting' },
-  { id: 'integrations', label: 'Integrations', icon: faPlug, component: IntegrationsSettings, order: 70, scope: 'system', keys: SETTING_KEYS.integrations, moduleId: 'setting' },
-  { id: 'analytics', label: 'Analytics', icon: faChartLine, component: AnalyticsSettings, order: 80, scope: 'system', keys: SETTING_KEYS.analytics, moduleId: 'setting' },
-  { id: 'social', label: 'Social', icon: faShareNodes, component: SocialSettings, order: 90, scope: 'system', keys: SETTING_KEYS.social, moduleId: 'setting' },
-  { id: 'payment', label: 'Payment', icon: faCreditCard, component: PaymentSettings, order: 100, scope: 'system', keys: SETTING_KEYS.payment, moduleId: 'payment' },
-  { id: 'notifications', label: 'Notifications', icon: faBell, component: NotificationSettings, order: 110, scope: 'system', keys: SETTING_KEYS.notifications, moduleId: 'setting' },
-  { id: 'localization', label: 'Localization', icon: faGlobe, component: LocalizationSettings, order: 120, scope: 'system', keys: SETTING_KEYS.localization, moduleId: 'setting' },
+  { id: 'general', label: 'General', icon: faCog, component: GeneralSettings, order: 0, scope: 'system', keys: GENERAL_KEYS, moduleId: 'setting' },
+  { id: 'auth', label: 'Authentication', icon: faUserShield, component: AuthSettings, order: 10, scope: 'system', keys: AUTH_KEYS, moduleId: 'auth' },
+  { id: 'email', label: 'Email', icon: faEnvelope, component: EmailSettings, order: 20, scope: 'system', keys: EMAIL_KEYS, moduleId: 'notification_mail' },
+  { id: 'sms', label: 'SMS', icon: faComment, component: SmsSettings, order: 30, scope: 'system', keys: SMS_KEYS, moduleId: 'notification_sms' },
+  { id: 'storage', label: 'Storage', icon: faDatabase, component: StorageSettings, order: 40, scope: 'system', keys: STORAGE_KEYS, moduleId: 'storage' },
+  { id: 'ai', label: 'AI', icon: faRobot, component: AiSettings, order: 50, scope: 'system', keys: AI_KEYS, moduleId: 'ai' },
+  { id: 'security', label: 'Security', icon: faShield, component: SecuritySettings, order: 60, scope: 'system', keys: SECURITY_KEYS, moduleId: 'setting' },
+  { id: 'integrations', label: 'Integrations', icon: faPlug, component: IntegrationsSettings, order: 70, scope: 'system', keys: [], moduleId: 'setting' },
+  { id: 'analytics', label: 'Analytics', icon: faChartLine, component: AnalyticsSettings, order: 80, scope: 'system', keys: [], moduleId: 'setting' },
+  { id: 'social', label: 'Social', icon: faShareNodes, component: SocialSettings, order: 90, scope: 'system', keys: [], moduleId: 'setting' },
+  { id: 'payment', label: 'Payment', icon: faCreditCard, component: PaymentSettings, order: 100, scope: 'system', keys: PAYMENT_KEYS, moduleId: 'payment' },
+  { id: 'notifications', label: 'Notifications', icon: faBell, component: NotificationSettings, order: 110, scope: 'system', keys: NOTIFICATION_KEYS, moduleId: 'setting' },
+  { id: 'localization', label: 'Localization', icon: faGlobe, component: LocalizationSettings, order: 120, scope: 'system', keys: [], moduleId: 'setting' },
 ];
 
 const TENANT_SETTINGS_TABS: SettingsTab[] = [
-  { id: 'general', label: 'General', icon: faCog, component: TenantGeneralSettings, order: 0, scope: 'tenant', keys: SETTING_KEYS.tenantGeneral, moduleId: 'tenant' },
+  { id: 'general', label: 'General', icon: faCog, component: TenantGeneralSettings, order: 0, scope: 'tenant', keys: TENANT_GENERAL_KEYS, moduleId: 'tenant' },
   { id: 'domains', label: 'Domains', icon: faGlobe, component: TenantDomainsSettings, order: 10, scope: 'tenant', keys: [], moduleId: 'tenant_domain' },
-  { id: 'branding', label: 'Branding', icon: faPalette, component: TenantBrandingSettings, order: 20, scope: 'tenant', keys: SETTING_KEYS.tenantBranding, moduleId: 'tenant_branding' },
-  { id: 'security', label: 'Security', icon: faShield, component: TenantSecuritySettings, order: 50, scope: 'tenant', keys: SETTING_KEYS.tenantSecurity, moduleId: 'tenant_session' },
-  { id: 'billing', label: 'Billing', icon: faCreditCard, component: TenantBillingSettings, order: 60, scope: 'tenant', keys: SETTING_KEYS.tenantBilling, moduleId: 'payment' },
+  { id: 'branding', label: 'Branding', icon: faPalette, component: TenantBrandingSettings, order: 20, scope: 'tenant', keys: TENANT_BRANDING_KEYS, moduleId: 'tenant_branding' },
+  { id: 'security', label: 'Security', icon: faShield, component: TenantSecuritySettings, order: 50, scope: 'tenant', keys: TENANT_SECURITY_KEYS, moduleId: 'tenant_session' },
+  { id: 'billing', label: 'Billing', icon: faCreditCard, component: TenantBillingSettings, order: 60, scope: 'tenant', keys: TENANT_BILLING_KEYS, moduleId: 'payment' },
 ];
 
 // ============================================================================
