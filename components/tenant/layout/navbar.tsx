@@ -1,10 +1,10 @@
 'use client'
 import { faBars } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter, useParams } from 'next/navigation'
-import BrandingLogo from './branding-logo'
+import BrandingLogo, { BrandingData } from './branding-logo'
 import dynamic from 'next/dynamic'
 import { SafeTenant } from '@/modules/tenant/tenant.types'
 import { SafeTenantMember } from '@/modules/tenant_member/tenant_member.types'
@@ -19,22 +19,25 @@ const AuthButton = dynamic(
 interface TenantNavbarProps {
   tenant: SafeTenant
   tenantMember: SafeTenantMember
+  branding?: BrandingData
 }
 
-const TenantNavbar = ({ tenant, tenantMember }: TenantNavbarProps) => {
+const TenantNavbar = ({ tenant, tenantMember, branding: brandingProp }: TenantNavbarProps) => {
   const router = useRouter()
   const params = useParams()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
-  const branding = useTenantBrandingStore((state) => state.branding)
+  const brandingFromStore = useTenantBrandingStore((state) => state.branding)
+  const branding = brandingProp || brandingFromStore
 
-  if (branding?.brandPrimaryColor) {
-    document.documentElement.style.setProperty('--brand-primary-color', branding.brandPrimaryColor)
-  }
-
-  if (branding?.brandSecondaryColor) {
-    document.documentElement.style.setProperty('--brand-secondary-color', branding.brandSecondaryColor)
-  }
+  useEffect(() => {
+    if (branding?.brandPrimaryColor) {
+      document.documentElement.style.setProperty('--brand-primary-color', branding.brandPrimaryColor)
+    }
+    if (branding?.brandSecondaryColor) {
+      document.documentElement.style.setProperty('--brand-secondary-color', branding.brandSecondaryColor)
+    }
+  }, [branding?.brandPrimaryColor, branding?.brandSecondaryColor])
 
   const tenantId = params.tenantId as string
 
@@ -53,7 +56,7 @@ const TenantNavbar = ({ tenant, tenantMember }: TenantNavbarProps) => {
       <div className="" style={{ backgroundColor: branding?.brandPrimaryColor }}>
         <nav className="relative mx-auto h-16 flex items-stretch items-center justify-between lg:px-8 from-base-100 to-base-300 bg-gradient-to-b shadow-lg text-primary" aria-label="Global">
           <div className="py-4 pl-4 lg:pl-0 flex items-center gap-2">
-            <BrandingLogo href={logoHref} height={40} width={120} />
+            <BrandingLogo href={logoHref} height={40} width={120} branding={branding} />
             <span className="text-sm font-medium text-base-content/60 hidden sm:inline">
               / {tenant.name}
             </span>
@@ -92,7 +95,7 @@ const TenantNavbar = ({ tenant, tenantMember }: TenantNavbarProps) => {
           <div className="relative flex-1 flex flex-col max-w-xs w-full bg-base-100">
             <div className="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
               <div className="flex items-center justify-center flex-col gap-2">
-                <BrandingLogo href={logoHref} height={40} width={120} />
+                <BrandingLogo href={logoHref} height={40} width={120} branding={branding} />
                 <span className="text-sm text-base-content/60">{tenant.name}</span>
               </div>
               <nav className="mt-5 px-2 space-y-1">

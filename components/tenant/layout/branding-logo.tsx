@@ -3,15 +3,25 @@ import Image from "next/image";
 import Link from "next/link";
 import useTenantBrandingStore from "@/libs/zustand/tenant-branding";
 
+export interface BrandingData {
+  brandName?: string;
+  brandLogoLight?: string;
+  brandLogoDark?: string;
+  brandPrimaryColor?: string;
+  brandSecondaryColor?: string;
+}
+
 interface BrandingLogoProps {
   href?: string;
   className?: string;
   height?: number;
   width?: number;
+  branding?: BrandingData;
 }
 
-const BrandingLogo = ({ href = "/", className = "", height = 40, width = 120 }: BrandingLogoProps) => {
-  const branding = useTenantBrandingStore((state) => state.branding);
+const BrandingLogo = ({ href = "/", className = "", height = 40, width = 120, branding: brandingProp }: BrandingLogoProps) => {
+  const brandingFromStore = useTenantBrandingStore((state) => state.branding);
+  const branding = brandingProp || brandingFromStore;
   const alt = branding?.brandName || "Logo";
   const hasLight = !!branding?.brandLogoLight;
   const hasDark = !!branding?.brandLogoDark;
