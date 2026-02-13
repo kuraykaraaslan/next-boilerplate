@@ -1,0 +1,781 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Next Boilerplate API",
+    "description": "Multi-tenant SaaS boilerplate API documentation",
+    "version": "1.0.0",
+    "contact": {
+      "name": "API Support"
+    }
+  },
+  "servers": [
+    {
+      "url": "/",
+      "description": "Current server"
+    }
+  ],
+  "tags": [
+    { "name": "Auth", "description": "Authentication endpoints" },
+    { "name": "Users", "description": "User management" },
+    { "name": "Tenants", "description": "Tenant management" },
+    { "name": "Settings", "description": "System/Tenant settings" },
+    { "name": "Subscriptions", "description": "Subscription plan management" },
+    { "name": "Storage", "description": "File storage operations" }
+  ],
+  "paths": {
+    "/system/api/auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "User login",
+        "description": "Authenticate user with email and password",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password"],
+                "properties": {
+                  "email": { "type": "string", "format": "email" },
+                  "password": { "type": "string", "minLength": 6 }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "401": { "description": "Invalid credentials" }
+        }
+      }
+    },
+    "/system/api/auth/register": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "User registration",
+        "description": "Register a new user account",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password", "name"],
+                "properties": {
+                  "email": { "type": "string", "format": "email" },
+                  "password": { "type": "string", "minLength": 6 },
+                  "name": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Registration successful" },
+          "400": { "description": "Validation error" },
+          "409": { "description": "Email already exists" }
+        }
+      }
+    },
+    "/system/api/auth/logout": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "User logout",
+        "description": "Invalidate current session",
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Logout successful" }
+        }
+      }
+    },
+    "/system/api/auth/refresh": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Refresh token",
+        "description": "Get new access token using refresh token",
+        "responses": {
+          "200": {
+            "description": "Token refreshed",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AuthResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/system/api/auth/me/profile": {
+      "get": {
+        "tags": ["Auth"],
+        "summary": "Get current user profile",
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "User profile",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UserProfile" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Auth"],
+        "summary": "Update current user profile",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateProfileRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Profile updated" }
+        }
+      }
+    },
+    "/system/api/users": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "List all users",
+        "description": "Admin only - List all users with pagination",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 0 } },
+          { "name": "pageSize", "in": "query", "schema": { "type": "integer", "default": 10 } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Users list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "users": { "type": "array", "items": { "$ref": "#/components/schemas/User" } },
+                    "total": { "type": "integer" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/system/api/users/{userId}": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Get user by ID",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "name": "userId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "200": { "description": "User details" },
+          "404": { "description": "User not found" }
+        }
+      },
+      "put": {
+        "tags": ["Users"],
+        "summary": "Update user",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "name": "userId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "200": { "description": "User updated" }
+        }
+      },
+      "delete": {
+        "tags": ["Users"],
+        "summary": "Delete user",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "name": "userId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "200": { "description": "User deleted" }
+        }
+      }
+    },
+    "/system/api/tenants": {
+      "get": {
+        "tags": ["Tenants"],
+        "summary": "List all tenants",
+        "description": "Admin only - List all tenants",
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Tenants list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "tenants": { "type": "array", "items": { "$ref": "#/components/schemas/Tenant" } }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/system/api/tenants/create": {
+      "post": {
+        "tags": ["Tenants"],
+        "summary": "Create new tenant",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateTenantRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Tenant created" },
+          "400": { "description": "Validation error" }
+        }
+      }
+    },
+    "/system/api/tenants/{tenantId}": {
+      "get": {
+        "tags": ["Tenants"],
+        "summary": "Get tenant by ID",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "name": "tenantId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "200": { "description": "Tenant details" },
+          "404": { "description": "Tenant not found" }
+        }
+      },
+      "put": {
+        "tags": ["Tenants"],
+        "summary": "Update tenant",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "name": "tenantId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "200": { "description": "Tenant updated" }
+        }
+      },
+      "delete": {
+        "tags": ["Tenants"],
+        "summary": "Delete tenant",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "name": "tenantId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "200": { "description": "Tenant deleted" }
+        }
+      }
+    },
+    "/system/api/settings": {
+      "get": {
+        "tags": ["Settings"],
+        "summary": "Get system settings",
+        "description": "Admin only - Get all system settings",
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Settings object",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SettingsResponse" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Settings"],
+        "summary": "Update system settings",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": { "type": "string" }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Settings updated" }
+        }
+      }
+    },
+    "/system/api/subscriptions/plans": {
+      "get": {
+        "tags": ["Subscriptions"],
+        "summary": "List subscription plans",
+        "description": "Admin only - List all subscription plans",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "name": "status", "in": "query", "schema": { "type": "string", "enum": ["ACTIVE", "INACTIVE", "ARCHIVED"] } },
+          { "name": "includeFeatures", "in": "query", "schema": { "type": "boolean", "default": false } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Plans list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "plans": { "type": "array", "items": { "$ref": "#/components/schemas/SubscriptionPlan" } }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Subscriptions"],
+        "summary": "Create subscription plan",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreatePlanRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Plan created" }
+        }
+      }
+    },
+    "/system/api/subscriptions/plans/public": {
+      "get": {
+        "tags": ["Subscriptions"],
+        "summary": "List public plans",
+        "description": "No auth required - List active plans for subscription selection",
+        "responses": {
+          "200": {
+            "description": "Active plans with features",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "plans": { "type": "array", "items": { "$ref": "#/components/schemas/SubscriptionPlan" } }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/system/api/subscriptions/plans/{planId}": {
+      "get": {
+        "tags": ["Subscriptions"],
+        "summary": "Get plan details",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "name": "planId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "200": { "description": "Plan with features" }
+        }
+      },
+      "put": {
+        "tags": ["Subscriptions"],
+        "summary": "Update plan",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "name": "planId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdatePlanRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Plan updated" }
+        }
+      },
+      "delete": {
+        "tags": ["Subscriptions"],
+        "summary": "Delete plan",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "name": "planId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "200": { "description": "Plan deleted" },
+          "400": { "description": "Plan has active subscriptions" }
+        }
+      }
+    },
+    "/system/api/subscriptions/plans/{planId}/features": {
+      "get": {
+        "tags": ["Subscriptions"],
+        "summary": "List plan features",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "name": "planId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Features list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "features": { "type": "array", "items": { "$ref": "#/components/schemas/PlanFeature" } }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Subscriptions"],
+        "summary": "Add feature to plan",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "name": "planId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateFeatureRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Feature added" }
+        }
+      }
+    },
+    "/tenant/{tenantId}/api/subscription": {
+      "get": {
+        "tags": ["Subscriptions"],
+        "summary": "Get tenant subscription",
+        "description": "Tenant admin - Get current subscription details",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "name": "tenantId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Subscription with plan details",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/TenantSubscription" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Subscriptions"],
+        "summary": "Purchase subscription",
+        "description": "Initiate subscription purchase - returns payment checkout URL",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "name": "tenantId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["planId", "billingInterval"],
+                "properties": {
+                  "planId": { "type": "string", "format": "uuid" },
+                  "billingInterval": { "type": "string", "enum": ["MONTHLY", "YEARLY"] },
+                  "provider": { "type": "string", "enum": ["STRIPE", "PAYPAL", "IYZICO"] }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Checkout URL",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "paymentId": { "type": "string" },
+                    "checkoutUrl": { "type": "string", "format": "uri" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Subscriptions"],
+        "summary": "Cancel subscription",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "name": "tenantId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "200": { "description": "Subscription cancelled" }
+        }
+      }
+    },
+    "/tenant/{tenantId}/api/subscription/confirm": {
+      "post": {
+        "tags": ["Subscriptions"],
+        "summary": "Confirm payment",
+        "description": "Confirm payment and activate subscription after successful checkout",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "name": "tenantId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["paymentId"],
+                "properties": {
+                  "paymentId": { "type": "string", "format": "uuid" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Subscription activated" }
+        }
+      }
+    },
+    "/system/api/storage": {
+      "post": {
+        "tags": ["Storage"],
+        "summary": "Upload file",
+        "description": "Upload file to storage",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": { "type": "string", "format": "binary" },
+                  "folder": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Upload successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "url": { "type": "string", "format": "uri" },
+                    "key": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "AuthResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "accessToken": { "type": "string" },
+          "refreshToken": { "type": "string" },
+          "user": { "$ref": "#/components/schemas/User" }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "userId": { "type": "string", "format": "uuid" },
+          "email": { "type": "string", "format": "email" },
+          "name": { "type": "string" },
+          "role": { "type": "string", "enum": ["USER", "ADMIN"] },
+          "status": { "type": "string", "enum": ["ACTIVE", "INACTIVE", "SUSPENDED"] },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "UserProfile": {
+        "type": "object",
+        "properties": {
+          "userId": { "type": "string", "format": "uuid" },
+          "email": { "type": "string" },
+          "name": { "type": "string" },
+          "avatar": { "type": "string" },
+          "bio": { "type": "string" },
+          "phone": { "type": "string" }
+        }
+      },
+      "UpdateProfileRequest": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "avatar": { "type": "string" },
+          "bio": { "type": "string" },
+          "phone": { "type": "string" }
+        }
+      },
+      "Tenant": {
+        "type": "object",
+        "properties": {
+          "tenantId": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" },
+          "slug": { "type": "string" },
+          "status": { "type": "string", "enum": ["ACTIVE", "INACTIVE", "SUSPENDED"] },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "CreateTenantRequest": {
+        "type": "object",
+        "required": ["name", "slug"],
+        "properties": {
+          "name": { "type": "string" },
+          "slug": { "type": "string", "pattern": "^[a-z0-9-]+$" }
+        }
+      },
+      "SettingsResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "settings": {
+            "type": "object",
+            "additionalProperties": { "type": "string" }
+          }
+        }
+      },
+      "SubscriptionPlan": {
+        "type": "object",
+        "properties": {
+          "planId": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "monthlyPrice": { "type": "number" },
+          "yearlyPrice": { "type": "number" },
+          "currency": { "type": "string" },
+          "trialDays": { "type": "integer" },
+          "isDefault": { "type": "boolean" },
+          "status": { "type": "string", "enum": ["ACTIVE", "INACTIVE", "ARCHIVED"] },
+          "features": { "type": "array", "items": { "$ref": "#/components/schemas/PlanFeature" } }
+        }
+      },
+      "CreatePlanRequest": {
+        "type": "object",
+        "required": ["name", "monthlyPrice", "yearlyPrice"],
+        "properties": {
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "monthlyPrice": { "type": "number" },
+          "yearlyPrice": { "type": "number" },
+          "currency": { "type": "string", "default": "USD" },
+          "trialDays": { "type": "integer", "default": 0 },
+          "isDefault": { "type": "boolean", "default": false },
+          "status": { "type": "string", "enum": ["ACTIVE", "INACTIVE"], "default": "ACTIVE" }
+        }
+      },
+      "UpdatePlanRequest": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "monthlyPrice": { "type": "number" },
+          "yearlyPrice": { "type": "number" },
+          "currency": { "type": "string" },
+          "trialDays": { "type": "integer" },
+          "isDefault": { "type": "boolean" },
+          "status": { "type": "string", "enum": ["ACTIVE", "INACTIVE", "ARCHIVED"] }
+        }
+      },
+      "PlanFeature": {
+        "type": "object",
+        "properties": {
+          "featureId": { "type": "string", "format": "uuid" },
+          "key": { "type": "string" },
+          "label": { "type": "string" },
+          "type": { "type": "string", "enum": ["BOOLEAN", "LIMIT"] },
+          "value": { "type": "string" },
+          "sortOrder": { "type": "integer" }
+        }
+      },
+      "CreateFeatureRequest": {
+        "type": "object",
+        "required": ["key", "label", "value"],
+        "properties": {
+          "key": { "type": "string" },
+          "label": { "type": "string" },
+          "type": { "type": "string", "enum": ["BOOLEAN", "LIMIT"], "default": "BOOLEAN" },
+          "value": { "type": "string" },
+          "sortOrder": { "type": "integer", "default": 0 }
+        }
+      },
+      "TenantSubscription": {
+        "type": "object",
+        "properties": {
+          "subscriptionId": { "type": "string", "format": "uuid" },
+          "tenantId": { "type": "string", "format": "uuid" },
+          "planId": { "type": "string", "format": "uuid" },
+          "status": { "type": "string", "enum": ["ACTIVE", "TRIALING", "PAST_DUE", "CANCELLED", "EXPIRED"] },
+          "billingInterval": { "type": "string", "enum": ["MONTHLY", "YEARLY"] },
+          "currentPeriodStart": { "type": "string", "format": "date-time" },
+          "currentPeriodEnd": { "type": "string", "format": "date-time" },
+          "plan": { "$ref": "#/components/schemas/SubscriptionPlan" }
+        }
+      }
+    }
+  }
+}

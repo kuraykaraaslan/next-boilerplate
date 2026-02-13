@@ -1,0 +1,484 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Tenant API",
+    "description": "Tenant-specific API endpoints for multi-tenant SaaS application",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/tenant/{tenantId}",
+      "description": "Tenant API server",
+      "variables": {
+        "tenantId": {
+          "default": "your-tenant-id",
+          "description": "Your tenant UUID"
+        }
+      }
+    }
+  ],
+  "tags": [
+    { "name": "Auth", "description": "Tenant authentication" },
+    { "name": "Members", "description": "Tenant member management" },
+    { "name": "Settings", "description": "Tenant settings" },
+    { "name": "Subscription", "description": "Subscription management" },
+    { "name": "Branding", "description": "Tenant branding" },
+    { "name": "Storage", "description": "File storage" }
+  ],
+  "paths": {
+    "/api/auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Tenant member login",
+        "description": "Authenticate as a tenant member",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password"],
+                "properties": {
+                  "email": { "type": "string", "format": "email" },
+                  "password": { "type": "string", "minLength": 6 }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AuthResponse" }
+              }
+            }
+          },
+          "401": { "description": "Invalid credentials" }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Logout",
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Logout successful" }
+        }
+      }
+    },
+    "/api/auth/me": {
+      "get": {
+        "tags": ["Auth"],
+        "summary": "Get current member",
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Current member info",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/TenantMember" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/members": {
+      "get": {
+        "tags": ["Members"],
+        "summary": "List tenant members",
+        "description": "Admin only - List all members of the tenant",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 0 } },
+          { "name": "pageSize", "in": "query", "schema": { "type": "integer", "default": 10 } },
+          { "name": "role", "in": "query", "schema": { "type": "string", "enum": ["OWNER", "ADMIN", "MEMBER"] } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Members list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "members": { "type": "array", "items": { "$ref": "#/components/schemas/TenantMember" } },
+                    "total": { "type": "integer" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Members"],
+        "summary": "Invite member",
+        "description": "Admin only - Invite a new member to the tenant",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "role"],
+                "properties": {
+                  "email": { "type": "string", "format": "email" },
+                  "role": { "type": "string", "enum": ["ADMIN", "MEMBER"] }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Invitation sent" },
+          "400": { "description": "Validation error" },
+          "409": { "description": "Member already exists" }
+        }
+      }
+    },
+    "/api/members/{memberId}": {
+      "get": {
+        "tags": ["Members"],
+        "summary": "Get member details",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "name": "memberId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "200": { "description": "Member details" },
+          "404": { "description": "Member not found" }
+        }
+      },
+      "put": {
+        "tags": ["Members"],
+        "summary": "Update member",
+        "description": "Admin only - Update member role or status",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "name": "memberId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "role": { "type": "string", "enum": ["ADMIN", "MEMBER"] },
+                  "status": { "type": "string", "enum": ["ACTIVE", "INACTIVE"] }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Member updated" }
+        }
+      },
+      "delete": {
+        "tags": ["Members"],
+        "summary": "Remove member",
+        "description": "Admin only - Remove member from tenant",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "name": "memberId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "200": { "description": "Member removed" }
+        }
+      }
+    },
+    "/api/settings": {
+      "get": {
+        "tags": ["Settings"],
+        "summary": "Get tenant settings",
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Settings object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "settings": { "type": "object", "additionalProperties": { "type": "string" } }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Settings"],
+        "summary": "Update tenant settings",
+        "description": "Admin only - Update tenant settings",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": { "type": "string" }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Settings updated" }
+        }
+      }
+    },
+    "/api/subscription": {
+      "get": {
+        "tags": ["Subscription"],
+        "summary": "Get current subscription",
+        "description": "Get tenant's current subscription details",
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Subscription details",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/TenantSubscription" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Subscription"],
+        "summary": "Purchase subscription",
+        "description": "Admin only - Initiate subscription purchase",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["planId", "billingInterval"],
+                "properties": {
+                  "planId": { "type": "string", "format": "uuid" },
+                  "billingInterval": { "type": "string", "enum": ["MONTHLY", "YEARLY"] },
+                  "provider": { "type": "string", "enum": ["STRIPE", "PAYPAL", "IYZICO"] }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Checkout URL returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "paymentId": { "type": "string" },
+                    "checkoutUrl": { "type": "string", "format": "uri" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Subscription"],
+        "summary": "Cancel subscription",
+        "description": "Admin only - Cancel current subscription",
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Subscription cancelled" }
+        }
+      }
+    },
+    "/api/subscription/confirm": {
+      "post": {
+        "tags": ["Subscription"],
+        "summary": "Confirm payment",
+        "description": "Confirm successful payment and activate subscription",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["paymentId"],
+                "properties": {
+                  "paymentId": { "type": "string", "format": "uuid" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Subscription activated" }
+        }
+      }
+    },
+    "/api/branding": {
+      "get": {
+        "tags": ["Branding"],
+        "summary": "Get branding settings",
+        "responses": {
+          "200": {
+            "description": "Branding configuration",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/TenantBranding" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Branding"],
+        "summary": "Update branding",
+        "description": "Admin only - Update tenant branding",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/TenantBranding" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Branding updated" }
+        }
+      }
+    },
+    "/api/storage": {
+      "post": {
+        "tags": ["Storage"],
+        "summary": "Upload file",
+        "description": "Upload file to tenant storage",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": { "type": "string", "format": "binary" },
+                  "folder": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Upload successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "url": { "type": "string", "format": "uri" },
+                    "key": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "AuthResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "accessToken": { "type": "string" },
+          "refreshToken": { "type": "string" },
+          "member": { "$ref": "#/components/schemas/TenantMember" }
+        }
+      },
+      "TenantMember": {
+        "type": "object",
+        "properties": {
+          "memberId": { "type": "string", "format": "uuid" },
+          "userId": { "type": "string", "format": "uuid" },
+          "tenantId": { "type": "string", "format": "uuid" },
+          "role": { "type": "string", "enum": ["OWNER", "ADMIN", "MEMBER"] },
+          "status": { "type": "string", "enum": ["ACTIVE", "INACTIVE", "PENDING"] },
+          "user": {
+            "type": "object",
+            "properties": {
+              "email": { "type": "string" },
+              "name": { "type": "string" }
+            }
+          },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "TenantSubscription": {
+        "type": "object",
+        "properties": {
+          "subscriptionId": { "type": "string", "format": "uuid" },
+          "tenantId": { "type": "string", "format": "uuid" },
+          "planId": { "type": "string", "format": "uuid" },
+          "status": { "type": "string", "enum": ["ACTIVE", "TRIALING", "PAST_DUE", "CANCELLED", "EXPIRED"] },
+          "billingInterval": { "type": "string", "enum": ["MONTHLY", "YEARLY"] },
+          "currentPeriodStart": { "type": "string", "format": "date-time" },
+          "currentPeriodEnd": { "type": "string", "format": "date-time" },
+          "plan": {
+            "type": "object",
+            "properties": {
+              "planId": { "type": "string", "format": "uuid" },
+              "name": { "type": "string" },
+              "description": { "type": "string" },
+              "monthlyPrice": { "type": "number" },
+              "yearlyPrice": { "type": "number" },
+              "features": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "key": { "type": "string" },
+                    "label": { "type": "string" },
+                    "type": { "type": "string" },
+                    "value": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "TenantBranding": {
+        "type": "object",
+        "properties": {
+          "brandingId": { "type": "string", "format": "uuid" },
+          "tenantId": { "type": "string", "format": "uuid" },
+          "logoUrl": { "type": "string" },
+          "faviconUrl": { "type": "string" },
+          "primaryColor": { "type": "string" },
+          "secondaryColor": { "type": "string" },
+          "companyName": { "type": "string" }
+        }
+      }
+    }
+  }
+}

@@ -7,6 +7,7 @@ const DEFAULT_LANG = "en";
 
 const EXCLUDED_PATHS = [
     /^\/_next\/?/,
+    /^\/assets\/?/,
     /^\/favicon\.ico$/,
     /^\/robots\.txt$/,
     /^\/maintenance\/?/,
