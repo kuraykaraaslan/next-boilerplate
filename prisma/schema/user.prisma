@@ -3,7 +3,7 @@ model User {
   email      String     @unique @db.VarChar
   phone      String?    @db.VarChar
   password   String     @db.VarChar
-  userRole   UserRole   @default(USER)
+
   userStatus UserStatus @default(ACTIVE)
   createdAt  DateTime   @default(now()) @db.Timestamp
   updatedAt  DateTime   @updatedAt @db.Timestamp

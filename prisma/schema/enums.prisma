@@ -1,8 +1,9 @@
 // User Enums
 enum UserRole {
-  GUEST
-  USER
-  ADMIN
+  SYSTEM_ADMIN
+  SYSTEM_USER
+  TENANT_ADMIN
+  TENANT_USER
 }
 
 enum UserStatus {
@@ -23,9 +24,8 @@ enum TenantStatus {
 
 // Tenant Member Enums
 enum TenantMemberRole {
-  OWNER
-  ADMIN
-  USER
+  TENANT_ADMIN
+  TENANT_USER
 }
 
 enum TenantMemberStatus {
