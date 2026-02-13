@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient } from '../prisma/client';
+import { PrismaClient, TenantMemberRole } from '../prisma/client';
 import bcrypt from "bcrypt";
 
 const connectionString = `${process.env.DATABASE_URL}`;
@@ -55,12 +55,13 @@ async function main() {
       },
     },
     update: {
-      memberRole: 'ADMIN',
+      memberRole: TenantMemberRole.ADMIN,
+      memberStatus: 'ACTIVE',
     },
     create: {
       tenantId: tenant.tenantId,
       userId: user.userId,
-      memberRole: 'ADMIN',
+      memberRole: TenantMemberRole.ADMIN,
       memberStatus: 'ACTIVE',
     },
   });
@@ -71,6 +72,18 @@ async function main() {
   console.log('User ID:', user.userId);
   console.log('Login Email:', email);
   console.log('Login Password:', password);
+
+  // 5. Create a default domain for the tenant
+  const defaultDomain = `acme.${process.env.TENANT_WILDCARD_DOMAIN}`;
+  const tenantDomain = await prisma.tenantDomain.create({
+    data: {
+      tenantId: tenant.tenantId,
+      domain: defaultDomain,
+      isPrimary: true,
+      domainStatus: 'ACTIVE',
+    },
+  });
+  console.log('Created tenant domain:', tenantDomain.domain);
 }
 
 main()

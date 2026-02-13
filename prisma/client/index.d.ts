@@ -123,8 +123,9 @@ export type TenantStatus = (typeof TenantStatus)[keyof typeof TenantStatus]
 
 
 export const TenantMemberRole: {
-  TENANT_ADMIN: 'TENANT_ADMIN',
-  TENANT_USER: 'TENANT_USER'
+  OWNER: 'OWNER',
+  ADMIN: 'ADMIN',
+  USER: 'USER'
 };
 
 export type TenantMemberRole = (typeof TenantMemberRole)[keyof typeof TenantMemberRole]

@@ -8,19 +8,20 @@ import {
   faCheck,
   faTimes,
   faInfinity,
-  faExchangeAlt,
+  faCrown,
+  faBan,
 } from '@fortawesome/free-solid-svg-icons';
-import DynamicSelect from '@/components/common/forms/DynamicSelect';
 import type { TenantSubscriptionWithPlan, PlanWithFeatures } from '../tenant_subscription.types';
 
 export default function SubscriptionTenantTab({ settings, setSettings, loading, saving, tenantId }: SettingsTabProps & { tenantId?: string }) {
   const [subscription, setSubscription] = useState<TenantSubscriptionWithPlan | null>(null);
   const [plans, setPlans] = useState<PlanWithFeatures[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
-  const [changingPlan, setChangingPlan] = useState(false);
-  const [selectedPlanId, setSelectedPlanId] = useState('');
-  const [selectedInterval, setSelectedInterval] = useState('MONTHLY');
-  const [assigning, setAssigning] = useState(false);
+  const [billingInterval, setBillingInterval] = useState<'MONTHLY' | 'YEARLY'>('MONTHLY');
+  const [subscribing, setSubscribing] = useState<string | null>(null);
+  const [cancelling, setCancelling] = useState(false);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const apiBase = tenantId ? `/tenant/${tenantId}/api` : '';
 
@@ -29,7 +30,7 @@ export default function SubscriptionTenantTab({ settings, setSettings, loading, 
       setDataLoading(true);
       const [subRes, plansRes] = await Promise.all([
         fetch(`${apiBase}/subscription`),
-        fetch('/system/api/subscriptions/plans?includeFeatures=true'),
+        fetch('/system/api/subscriptions/plans/public'),
       ]);
 
       const subData = await subRes.json();
@@ -37,9 +38,10 @@ export default function SubscriptionTenantTab({ settings, setSettings, loading, 
 
       if (subData.success && subData.subscription) {
         setSubscription(subData.subscription);
+        setBillingInterval(subData.subscription.billingInterval);
       }
       if (plansData.success) {
-        setPlans(plansData.plans.filter((p: PlanWithFeatures) => p.status === 'ACTIVE'));
+        setPlans(plansData.plans);
       }
     } catch {
       // silently fail
@@ -52,25 +54,47 @@ export default function SubscriptionTenantTab({ settings, setSettings, loading, 
     fetchData();
   }, [fetchData]);
 
-  const assignPlan = async () => {
-    if (!selectedPlanId) return;
-    setAssigning(true);
+  // Subscribe / Change plan
+  const handleSubscribe = async (planId: string) => {
+    setSubscribing(planId);
+    setError(null);
     try {
       const res = await fetch(`${apiBase}/subscription`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          planId: selectedPlanId,
-          billingInterval: selectedInterval,
-        }),
+        body: JSON.stringify({ planId, billingInterval }),
       });
 
-      if (res.ok) {
-        setChangingPlan(false);
+      const data = await res.json();
+      if (data.success) {
         fetchData();
+      } else {
+        setError(data.message || 'Failed to subscribe');
       }
+    } catch {
+      setError('Failed to subscribe');
     } finally {
-      setAssigning(false);
+      setSubscribing(null);
+    }
+  };
+
+  // Cancel subscription
+  const handleCancel = async () => {
+    setCancelling(true);
+    setError(null);
+    try {
+      const res = await fetch(`${apiBase}/subscription`, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        setShowCancelConfirm(false);
+        fetchData();
+      } else {
+        setError(data.message || 'Failed to cancel subscription');
+      }
+    } catch {
+      setError('Failed to cancel subscription');
+    } finally {
+      setCancelling(false);
     }
   };
 
@@ -93,180 +117,236 @@ export default function SubscriptionTenantTab({ settings, setSettings, loading, 
     return map[status] || 'badge-ghost';
   };
 
+  const getPriceLabel = (plan: PlanWithFeatures) =>
+    billingInterval === 'MONTHLY'
+      ? `${plan.currency} ${plan.monthlyPrice}`
+      : `${plan.currency} ${plan.yearlyPrice}`;
+
+  const isCurrentPlan = (planId: string) =>
+    subscription?.planId === planId && subscription?.status !== 'CANCELLED' && subscription?.status !== 'EXPIRED';
+
   return (
     <div className="space-y-6">
-      {/* Current Subscription */}
-      <div className="card bg-base-100 shadow">
-        <div className="card-body">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="card-title text-lg">Current Subscription</h3>
-              <p className="text-sm text-base-content/60">Your current plan and billing details</p>
-            </div>
-            {subscription && (
-              <button
-                className="btn btn-ghost btn-sm"
-                onClick={() => {
-                  setSelectedPlanId(subscription.planId);
-                  setSelectedInterval(subscription.billingInterval);
-                  setChangingPlan(true);
-                }}
-              >
-                <FontAwesomeIcon icon={faExchangeAlt} className="mr-1" />
-                Change Plan
-              </button>
-            )}
-          </div>
-
-          {subscription ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="stat bg-base-200 rounded-lg p-4">
-                <div className="stat-title text-xs">Plan</div>
-                <div className="stat-value text-lg">{subscription.plan.name}</div>
-              </div>
-              <div className="stat bg-base-200 rounded-lg p-4">
-                <div className="stat-title text-xs">Status</div>
-                <div className="stat-value text-lg">
-                  <span className={`badge ${statusBadge(subscription.status)}`}>
-                    {subscription.status}
-                  </span>
-                </div>
-              </div>
-              <div className="stat bg-base-200 rounded-lg p-4">
-                <div className="stat-title text-xs">Billing</div>
-                <div className="stat-value text-lg">
-                  {subscription.billingInterval === 'MONTHLY'
-                    ? `${subscription.plan.currency} ${subscription.plan.monthlyPrice}/mo`
-                    : `${subscription.plan.currency} ${subscription.plan.yearlyPrice}/yr`}
-                </div>
-              </div>
-              <div className="stat bg-base-200 rounded-lg p-4">
-                <div className="stat-title text-xs">Period End</div>
-                <div className="stat-value text-lg text-sm">
-                  {new Date(subscription.currentPeriodEnd).toLocaleDateString()}
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="text-center py-6">
-              <p className="text-base-content/50 mb-4">No active subscription</p>
-              <button
-                className="btn btn-primary btn-sm"
-                onClick={() => setChangingPlan(true)}
-              >
-                Select a Plan
-              </button>
-            </div>
-          )}
+      {/* Error Alert */}
+      {error && (
+        <div className="alert alert-error">
+          <span>{error}</span>
+          <button className="btn btn-ghost btn-xs" onClick={() => setError(null)}>
+            <FontAwesomeIcon icon={faTimes} />
+          </button>
         </div>
-      </div>
+      )}
 
-      {/* Plan Features */}
-      {subscription && subscription.plan.features.length > 0 && (
+      {/* Current Subscription Info */}
+      {subscription && subscription.status !== 'CANCELLED' && subscription.status !== 'EXPIRED' && (
         <div className="card bg-base-100 shadow">
           <div className="card-body">
-            <h3 className="card-title text-lg">Plan Features</h3>
-            <p className="text-sm text-base-content/60 mb-4">Features included in your current plan</p>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-              {subscription.plan.features.map(feature => (
-                <div key={feature.featureId} className="flex items-center gap-3 p-3 bg-base-200/50 rounded-lg">
-                  {feature.type === 'BOOLEAN' ? (
-                    <FontAwesomeIcon
-                      icon={feature.value === 'true' ? faCheck : faTimes}
-                      className={feature.value === 'true' ? 'text-success' : 'text-error'}
-                    />
-                  ) : (
-                    <span className="font-bold text-primary min-w-[3rem] text-center">
-                      {feature.value === '-1' ? (
-                        <FontAwesomeIcon icon={faInfinity} />
-                      ) : (
-                        feature.value
-                      )}
-                    </span>
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="card-title text-lg">
+                  <FontAwesomeIcon icon={faCrown} className="text-warning mr-2" />
+                  Current Plan: {subscription.plan.name}
+                </h3>
+                <p className="text-sm text-base-content/60 mt-1">
+                  <span className={`badge ${statusBadge(subscription.status)} mr-2`}>
+                    {subscription.status}
+                  </span>
+                  {subscription.billingInterval === 'MONTHLY' ? 'Monthly' : 'Yearly'} billing
+                  &middot; Renews {new Date(subscription.currentPeriodEnd).toLocaleDateString()}
+                  {subscription.trialEndsAt && (
+                    <> &middot; Trial ends {new Date(subscription.trialEndsAt).toLocaleDateString()}</>
                   )}
-                  <span className="text-sm">{feature.label}</span>
-                </div>
-              ))}
+                </p>
+              </div>
+              <button
+                className="btn btn-error btn-outline btn-sm"
+                onClick={() => setShowCancelConfirm(true)}
+              >
+                <FontAwesomeIcon icon={faBan} className="mr-1" />
+                Cancel
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Change Plan Modal */}
-      {changingPlan && (
-        <dialog className="modal modal-open">
-          <div className="modal-box max-w-md">
-            <h3 className="font-bold text-lg mb-4">
-              {subscription ? 'Change Plan' : 'Select a Plan'}
-            </h3>
-            <div className="space-y-3">
-              <DynamicSelect
-                label="Plan"
-                selectedValue={selectedPlanId}
-                onValueChange={v => setSelectedPlanId(v)}
-                options={plans.map(p => ({
-                  value: p.planId,
-                  label: `${p.name} - ${p.currency} ${p.monthlyPrice}/mo`,
-                }))}
-                disabled={assigning}
-              />
-              <DynamicSelect
-                label="Billing Interval"
-                selectedValue={selectedInterval}
-                onValueChange={v => setSelectedInterval(v)}
-                options={[
-                  { value: 'MONTHLY', label: 'Monthly' },
-                  { value: 'YEARLY', label: 'Yearly' },
-                ]}
-                disabled={assigning}
-              />
+      {/* Billing Interval Toggle */}
+      <div className="flex justify-center">
+        <div className="join">
+          <button
+            className={`join-item btn btn-sm ${billingInterval === 'MONTHLY' ? 'btn-primary' : 'btn-ghost'}`}
+            onClick={() => setBillingInterval('MONTHLY')}
+          >
+            Monthly
+          </button>
+          <button
+            className={`join-item btn btn-sm ${billingInterval === 'YEARLY' ? 'btn-primary' : 'btn-ghost'}`}
+            onClick={() => setBillingInterval('YEARLY')}
+          >
+            Yearly
+            {plans.length > 0 && plans.some(p => Number(p.yearlyPrice) < Number(p.monthlyPrice) * 12) && (
+              <span className="badge badge-success badge-xs ml-1">Save</span>
+            )}
+          </button>
+        </div>
+      </div>
 
-              {/* Selected plan preview */}
-              {selectedPlanId && (() => {
-                const plan = plans.find(p => p.planId === selectedPlanId);
-                if (!plan) return null;
-                return (
-                  <div className="bg-base-200 rounded-lg p-4">
-                    <div className="text-sm font-medium mb-2">
-                      {plan.name} - {selectedInterval === 'MONTHLY'
-                        ? `${plan.currency} ${plan.monthlyPrice}/mo`
-                        : `${plan.currency} ${plan.yearlyPrice}/yr`}
+      {/* Pricing Cards */}
+      {plans.length === 0 ? (
+        <div className="text-center py-12 text-base-content/50">
+          No plans available at the moment.
+        </div>
+      ) : (
+        <div className={`grid gap-6 ${plans.length === 1 ? 'grid-cols-1 max-w-md mx-auto' : plans.length === 2 ? 'grid-cols-1 md:grid-cols-2 max-w-2xl mx-auto' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
+          {plans.map(plan => {
+            const current = isCurrentPlan(plan.planId);
+            const isSubscribing = subscribing === plan.planId;
+
+            return (
+              <div
+                key={plan.planId}
+                className={`card bg-base-100 shadow-lg border-2 transition-all ${
+                  current
+                    ? 'border-primary ring-2 ring-primary/20'
+                    : plan.isDefault
+                      ? 'border-primary/50'
+                      : 'border-base-300 hover:border-primary/30'
+                }`}
+              >
+                <div className="card-body">
+                  {/* Plan Header */}
+                  <div className="text-center mb-4">
+                    {(current || plan.isDefault) && (
+                      <span className={`badge ${current ? 'badge-primary' : 'badge-outline badge-primary'} badge-sm mb-2`}>
+                        {current ? 'Current Plan' : 'Popular'}
+                      </span>
+                    )}
+                    <h3 className="text-xl font-bold">{plan.name}</h3>
+                    {plan.description && (
+                      <p className="text-sm text-base-content/60 mt-1">{plan.description}</p>
+                    )}
+                  </div>
+
+                  {/* Price */}
+                  <div className="text-center mb-6">
+                    <div className="flex items-baseline justify-center gap-1">
+                      <span className="text-3xl font-bold">
+                        {getPriceLabel(plan)}
+                      </span>
+                      <span className="text-base-content/50 text-sm">
+                        /{billingInterval === 'MONTHLY' ? 'mo' : 'yr'}
+                      </span>
                     </div>
-                    {plan.features.length > 0 && (
-                      <ul className="text-xs space-y-1">
-                        {plan.features.map(f => (
-                          <li key={f.featureId} className="flex items-center gap-2">
-                            {f.type === 'BOOLEAN' ? (
-                              <FontAwesomeIcon
-                                icon={f.value === 'true' ? faCheck : faTimes}
-                                className={`text-xs ${f.value === 'true' ? 'text-success' : 'text-error'}`}
-                              />
+                    {billingInterval === 'YEARLY' && Number(plan.yearlyPrice) < Number(plan.monthlyPrice) * 12 && (
+                      <p className="text-xs text-success mt-1">
+                        Save {plan.currency} {(Number(plan.monthlyPrice) * 12 - Number(plan.yearlyPrice)).toFixed(2)}/yr
+                      </p>
+                    )}
+                    {plan.trialDays > 0 && !subscription && (
+                      <p className="text-xs text-info mt-1">{plan.trialDays} day free trial</p>
+                    )}
+                  </div>
+
+                  {/* Features */}
+                  {plan.features.length > 0 && (
+                    <div className="flex-1 mb-6">
+                      <ul className="space-y-2">
+                        {plan.features.map(feature => (
+                          <li key={feature.featureId} className="flex items-center gap-2 text-sm">
+                            {feature.type === 'BOOLEAN' ? (
+                              <>
+                                <FontAwesomeIcon
+                                  icon={feature.value === 'true' ? faCheck : faTimes}
+                                  className={`w-4 ${feature.value === 'true' ? 'text-success' : 'text-base-content/30'}`}
+                                />
+                                <span className={feature.value !== 'true' ? 'text-base-content/40 line-through' : ''}>
+                                  {feature.label}
+                                </span>
+                              </>
                             ) : (
-                              <span className="font-bold text-primary">
-                                {f.value === '-1' ? 'Unlimited' : f.value}
-                              </span>
+                              <>
+                                <FontAwesomeIcon icon={faCheck} className="w-4 text-success" />
+                                <span>
+                                  {feature.value === '-1' ? (
+                                    <><FontAwesomeIcon icon={faInfinity} className="text-primary mx-1" /> {feature.label}</>
+                                  ) : (
+                                    <><strong className="text-primary">{feature.value}</strong> {feature.label}</>
+                                  )}
+                                </span>
+                              </>
                             )}
-                            {f.label}
                           </li>
                         ))}
                       </ul>
+                    </div>
+                  )}
+
+                  {/* Action Button */}
+                  <div className="card-actions justify-center mt-auto">
+                    {current ? (
+                      <button className="btn btn-primary btn-block" disabled>
+                        <FontAwesomeIcon icon={faCheck} className="mr-1" />
+                        Current Plan
+                      </button>
+                    ) : (
+                      <button
+                        className={`btn btn-block ${plan.isDefault ? 'btn-primary' : 'btn-outline btn-primary'}`}
+                        onClick={() => handleSubscribe(plan.planId)}
+                        disabled={isSubscribing || subscribing !== null}
+                      >
+                        {isSubscribing ? (
+                          <FontAwesomeIcon icon={faSpinner} className="animate-spin" />
+                        ) : subscription && subscription.status !== 'CANCELLED' && subscription.status !== 'EXPIRED' ? (
+                          'Switch to This Plan'
+                        ) : plan.trialDays > 0 ? (
+                          'Start Free Trial'
+                        ) : (
+                          'Subscribe'
+                        )}
+                      </button>
                     )}
                   </div>
-                );
-              })()}
-            </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Cancel Confirmation Modal */}
+      {showCancelConfirm && (
+        <dialog className="modal modal-open">
+          <div className="modal-box max-w-sm">
+            <h3 className="font-bold text-lg mb-2">Cancel Subscription</h3>
+            <p className="text-base-content/70 mb-1">
+              Are you sure you want to cancel your subscription?
+            </p>
+            <p className="text-sm text-base-content/50 mb-4">
+              You will lose access to your current plan features at the end of the billing period.
+            </p>
             <div className="modal-action">
-              <button className="btn btn-ghost" onClick={() => setChangingPlan(false)} disabled={assigning}>
-                Cancel
+              <button
+                className="btn btn-ghost"
+                onClick={() => setShowCancelConfirm(false)}
+                disabled={cancelling}
+              >
+                Keep Plan
               </button>
-              <button className="btn btn-primary" onClick={assignPlan} disabled={assigning || !selectedPlanId}>
-                {assigning ? <FontAwesomeIcon icon={faSpinner} className="animate-spin" /> : 'Confirm'}
+              <button
+                className="btn btn-error"
+                onClick={handleCancel}
+                disabled={cancelling}
+              >
+                {cancelling ? (
+                  <FontAwesomeIcon icon={faSpinner} className="animate-spin" />
+                ) : (
+                  'Yes, Cancel'
+                )}
               </button>
             </div>
           </div>
           <form method="dialog" className="modal-backdrop">
-            <button onClick={() => setChangingPlan(false)}>close</button>
+            <button onClick={() => setShowCancelConfirm(false)}>close</button>
           </form>
         </dialog>
       )}

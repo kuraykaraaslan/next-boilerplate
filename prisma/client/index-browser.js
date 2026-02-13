@@ -436,8 +436,9 @@ exports.DomainStatus = exports.$Enums.DomainStatus = {
 };
 
 exports.TenantMemberRole = exports.$Enums.TenantMemberRole = {
-  TENANT_ADMIN: 'TENANT_ADMIN',
-  TENANT_USER: 'TENANT_USER'
+  OWNER: 'OWNER',
+  ADMIN: 'ADMIN',
+  USER: 'USER'
 };
 
 exports.TenantMemberStatus = exports.$Enums.TenantMemberStatus = {

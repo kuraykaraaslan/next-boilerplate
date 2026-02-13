@@ -1,50 +1,37 @@
 import CryptoJS from 'crypto-js'
 import axios, { AxiosInstance } from 'axios'
-import BasePaymentProvider from './base.provider'
+import BasePaymentProvider, { CheckoutSessionParams, CheckoutSessionResult } from './base.provider'
 import { PAYMENT_MESSAGES } from '../payment.messages'
+import SettingService from '@/modules/setting/setting.service'
 
 export default class IyzicoProvider extends BasePaymentProvider {
   readonly name = 'iyzico'
 
-  private static readonly API_KEY = process.env.IYZICO_API_KEY!
-  private static readonly SECRET_KEY = process.env.IYZICO_SECRET_KEY!
-  private static readonly BASE_URL = process.env.IYZICO_BASE_URL || 'https://sandbox-api.iyzipay.com'
+  private static async getConfig() {
+    const [apiKey, secretKey, sandbox] = await Promise.all([
+      SettingService.getValue('iyzicoApiKey'),
+      SettingService.getValue('iyzicoSecretKey'),
+      SettingService.getValue('iyzicoSandboxMode'),
+    ])
+    if (!apiKey || !secretKey) throw new Error(PAYMENT_MESSAGES.PROVIDER_NOT_CONFIGURED)
 
-  private static axiosInstance: AxiosInstance = IyzicoProvider.initializeAxios()
+    const baseUrl = sandbox === 'true'
+      ? 'https://sandbox-api.iyzipay.com'
+      : 'https://api.iyzipay.com'
 
-  private static initializeAxios(): AxiosInstance {
-    const instance = axios.create({
-      baseURL: IyzicoProvider.BASE_URL,
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-    })
-
-    instance.interceptors.request.use(
-      (config) => {
-        const uri_path = config.url!
-        const payload = config.data ? JSON.stringify(config.data) : ''
-        const { authorization, 'x-iyzi-rnd': rnd } = IyzicoProvider.generateAuthorizationString(payload, uri_path)
-        config.headers['authorization'] = authorization
-        config.headers['x-iyzi-rnd'] = rnd
-        config.headers['content-type'] = 'application/json'
-        return config
-      },
-      (error) => Promise.reject(error)
-    )
-
-    return instance
+    return { apiKey, secretKey, baseUrl }
   }
 
   private static generateAuthorizationString(
+    apiKey: string,
+    secretKey: string,
     payload: string,
     uriPath: string
   ): { authorization: string; 'x-iyzi-rnd': string } {
     const randomKey = `${Date.now()}123456789`
     const fullPayload = randomKey + uriPath + payload
-    const signature = CryptoJS.HmacSHA256(fullPayload, this.SECRET_KEY).toString()
-    const authStr = `apiKey:${this.API_KEY}&randomKey:${randomKey}&signature:${signature}`
+    const signature = CryptoJS.HmacSHA256(fullPayload, secretKey).toString()
+    const authStr = `apiKey:${apiKey}&randomKey:${randomKey}&signature:${signature}`
     const encoded = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(authStr))
 
     return {
@@ -53,27 +40,106 @@ export default class IyzicoProvider extends BasePaymentProvider {
     }
   }
 
+  private async getAuthenticatedAxios(): Promise<AxiosInstance> {
+    const config = await IyzicoProvider.getConfig()
+    const client = axios.create({
+      baseURL: config.baseUrl,
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+    })
+
+    client.interceptors.request.use((reqConfig) => {
+      const uriPath = reqConfig.url!
+      const payload = reqConfig.data ? JSON.stringify(reqConfig.data) : ''
+      const auth = IyzicoProvider.generateAuthorizationString(config.apiKey, config.secretKey, payload, uriPath)
+      reqConfig.headers['authorization'] = auth.authorization
+      reqConfig.headers['x-iyzi-rnd'] = auth['x-iyzi-rnd']
+      return reqConfig
+    })
+
+    return client
+  }
+
   getAxiosInstance(): AxiosInstance {
-    if (!IyzicoProvider.axiosInstance) {
-      IyzicoProvider.axiosInstance = IyzicoProvider.initializeAxios()
-    }
-    return IyzicoProvider.axiosInstance
+    return axios.create({
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    })
   }
 
   async getPaymentStatus(token: string): Promise<any> {
     try {
+      const client = await this.getAuthenticatedAxios()
       const path = '/payment/iyzipos/checkoutform/auth/ecom/detail'
 
-      const requestBody = {
+      const response = await client.post(path, {
         locale: 'tr',
-        conversationId: '123456789',
-        token: token,
-      }
-
-      const response = await this.getAxiosInstance().post(path, requestBody)
+        conversationId: token,
+        token,
+      })
       return response.data.status
     } catch (error) {
       throw new Error(PAYMENT_MESSAGES.IYZICO_GET_STATUS_FAILED)
+    }
+  }
+
+  async createCheckoutSession(params: CheckoutSessionParams): Promise<CheckoutSessionResult> {
+    try {
+      const client = await this.getAuthenticatedAxios()
+      const path = '/payment/iyzipos/checkoutform/initialize/auth/ecom'
+
+      const conversationId = params.metadata?.paymentId || `${Date.now()}`
+      const body = {
+        locale: 'tr',
+        conversationId,
+        price: params.amount.toFixed(2),
+        paidPrice: params.amount.toFixed(2),
+        currency: params.currency.toUpperCase() === 'TRY' ? 'TRY' : 'USD',
+        basketId: conversationId,
+        paymentGroup: 'SUBSCRIPTION',
+        callbackUrl: params.successUrl,
+        buyer: {
+          id: params.metadata?.tenantId || 'BUYER',
+          name: 'Tenant',
+          surname: 'Admin',
+          email: params.metadata?.email || 'buyer@example.com',
+          identityNumber: '00000000000',
+          registrationAddress: 'N/A',
+          city: 'Istanbul',
+          country: 'Turkey',
+          ip: '127.0.0.1',
+        },
+        shippingAddress: {
+          contactName: 'Tenant Admin',
+          city: 'Istanbul',
+          country: 'Turkey',
+          address: 'N/A',
+        },
+        billingAddress: {
+          contactName: 'Tenant Admin',
+          city: 'Istanbul',
+          country: 'Turkey',
+          address: 'N/A',
+        },
+        basketItems: [{
+          id: params.metadata?.planId || 'PLAN',
+          name: params.description,
+          category1: 'Subscription',
+          itemType: 'VIRTUAL',
+          price: params.amount.toFixed(2),
+        }],
+      }
+
+      const response = await client.post(path, body)
+
+      return {
+        sessionId: response.data.token || conversationId,
+        checkoutUrl: response.data.paymentPageUrl || response.data.checkoutFormContent || '',
+        providerData: { token: response.data.token },
+      }
+    } catch (error) {
+      throw new Error(PAYMENT_MESSAGES.IYZICO_CREATE_PAYMENT_FAILED)
     }
   }
 }

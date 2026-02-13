@@ -33,7 +33,7 @@ export async function GET(
 
 /**
  * POST /tenant/[tenantId]/api/subscription
- * Assign or change tenant subscription
+ * Subscribe to a plan or change subscription
  */
 export async function POST(
   request: NextRequest,
@@ -63,6 +63,33 @@ export async function POST(
   } catch (error: any) {
     return NextResponse.json(
       { success: false, message: error.message || SUBSCRIPTION_MESSAGES.SUBSCRIPTION_ASSIGN_FAILED },
+      { status: 500 }
+    )
+  }
+}
+
+/**
+ * DELETE /tenant/[tenantId]/api/subscription
+ * Cancel tenant subscription
+ */
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ tenantId: string }> }
+) {
+  try {
+    const { tenantId } = await params
+
+    await TenantSessionNextService.authenticateTenantByRequest({
+      request,
+      requiredTenantRole: 'ADMIN',
+      tenantId,
+    })
+
+    const subscription = await TenantSubscriptionService.cancelSubscription(tenantId)
+    return NextResponse.json({ success: true, subscription })
+  } catch (error: any) {
+    return NextResponse.json(
+      { success: false, message: error.message || SUBSCRIPTION_MESSAGES.SUBSCRIPTION_CANCEL_FAILED },
       { status: 500 }
     )
   }

@@ -1,7 +1,7 @@
 import { prisma } from '@/libs/prisma'
 import type { Prisma } from '@/prisma/client'
 import Logger from '@/libs/logger'
-import BasePaymentProvider from './providers/base.provider'
+import BasePaymentProvider, { CheckoutSessionParams, CheckoutSessionResult } from './providers/base.provider'
 import StripeProvider from './providers/stripe.provider'
 import PaypalProvider from './providers/paypal.provider'
 import IyzicoProvider from './providers/iyzico.provider'
@@ -329,6 +329,23 @@ export default class PaymentService {
     try {
       const paymentProvider = PaymentService.getProvider(provider)
       return await paymentProvider.getPaymentStatus(token)
+    } catch (error) {
+      Logger.error(`${PAYMENT_MESSAGES.GET_STATUS_FAILED}: ${error instanceof Error ? error.message : String(error)}`)
+      throw error
+    }
+  }
+
+  // ============================================================================
+  // Checkout Session Operations
+  // ============================================================================
+
+  static async createCheckoutSession(
+    provider: PaymentProvider,
+    params: CheckoutSessionParams,
+  ): Promise<CheckoutSessionResult> {
+    try {
+      const paymentProvider = PaymentService.getProvider(provider)
+      return await paymentProvider.createCheckoutSession(params)
     } catch (error) {
       Logger.error(`${PAYMENT_MESSAGES.GET_STATUS_FAILED}: ${error instanceof Error ? error.message : String(error)}`)
       throw error
