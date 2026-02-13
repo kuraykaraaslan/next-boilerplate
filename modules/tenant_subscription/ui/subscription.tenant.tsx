@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { SettingsTabProps } from '@/modules/setting/setting.types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -10,10 +11,13 @@ import {
   faInfinity,
   faCrown,
   faBan,
+  faCheckCircle,
+  faExclamationCircle,
 } from '@fortawesome/free-solid-svg-icons';
 import type { TenantSubscriptionWithPlan, PlanWithFeatures } from '../tenant_subscription.types';
 
-export default function SubscriptionTenantTab({ settings, setSettings, loading, saving, tenantId }: SettingsTabProps & { tenantId?: string }) {
+export default function SubscriptionTenantTab({ tenantId }: SettingsTabProps & { tenantId?: string }) {
+  const searchParams = useSearchParams();
   const [subscription, setSubscription] = useState<TenantSubscriptionWithPlan | null>(null);
   const [plans, setPlans] = useState<PlanWithFeatures[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
@@ -22,6 +26,8 @@ export default function SubscriptionTenantTab({ settings, setSettings, loading, 
   const [cancelling, setCancelling] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [confirmingPayment, setConfirmingPayment] = useState(false);
 
   const apiBase = tenantId ? `/tenant/${tenantId}/api` : '';
 
@@ -50,14 +56,62 @@ export default function SubscriptionTenantTab({ settings, setSettings, loading, 
     }
   }, [apiBase]);
 
+  // Handle payment callback on mount
+  useEffect(() => {
+    const paymentSuccess = searchParams.get('paymentSuccess');
+    const paymentCancelled = searchParams.get('paymentCancelled');
+    const paymentId = searchParams.get('paymentId');
+
+    if (paymentSuccess === 'true' && paymentId) {
+      // Confirm the payment
+      setConfirmingPayment(true);
+      fetch(`${apiBase}/subscription/confirm`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paymentId }),
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            setSuccessMessage('Subscription activated successfully!');
+            fetchData();
+          } else {
+            setError(data.message || 'Failed to confirm payment');
+          }
+        })
+        .catch(() => {
+          setError('Failed to confirm payment');
+        })
+        .finally(() => {
+          setConfirmingPayment(false);
+          // Clean up URL params
+          if (typeof window !== 'undefined') {
+            const url = new URL(window.location.href);
+            url.searchParams.delete('paymentSuccess');
+            url.searchParams.delete('paymentId');
+            window.history.replaceState({}, '', url.toString());
+          }
+        });
+    } else if (paymentCancelled === 'true') {
+      setError('Payment was cancelled');
+      // Clean up URL params
+      if (typeof window !== 'undefined') {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('paymentCancelled');
+        window.history.replaceState({}, '', url.toString());
+      }
+    }
+  }, [searchParams, apiBase, fetchData]);
+
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
-  // Subscribe / Change plan
+  // Subscribe / Change plan - initiates payment checkout
   const handleSubscribe = async (planId: string) => {
     setSubscribing(planId);
     setError(null);
+    setSuccessMessage(null);
     try {
       const res = await fetch(`${apiBase}/subscription`, {
         method: 'POST',
@@ -66,14 +120,15 @@ export default function SubscriptionTenantTab({ settings, setSettings, loading, 
       });
 
       const data = await res.json();
-      if (data.success) {
-        fetchData();
+      if (data.success && data.checkoutUrl) {
+        // Redirect to payment provider checkout
+        window.location.href = data.checkoutUrl;
       } else {
-        setError(data.message || 'Failed to subscribe');
+        setError(data.message || 'Failed to initiate subscription');
+        setSubscribing(null);
       }
     } catch {
-      setError('Failed to subscribe');
-    } finally {
+      setError('Failed to initiate subscription');
       setSubscribing(null);
     }
   };
@@ -98,10 +153,11 @@ export default function SubscriptionTenantTab({ settings, setSettings, loading, 
     }
   };
 
-  if (dataLoading) {
+  if (dataLoading || confirmingPayment) {
     return (
-      <div className="flex justify-center p-8">
+      <div className="flex flex-col items-center justify-center p-8 gap-2">
         <FontAwesomeIcon icon={faSpinner} className="animate-spin text-2xl" />
+        {confirmingPayment && <p className="text-sm text-base-content/60">Confirming payment...</p>}
       </div>
     );
   }
@@ -127,9 +183,21 @@ export default function SubscriptionTenantTab({ settings, setSettings, loading, 
 
   return (
     <div className="space-y-6">
+      {/* Success Alert */}
+      {successMessage && (
+        <div className="alert alert-success">
+          <FontAwesomeIcon icon={faCheckCircle} />
+          <span>{successMessage}</span>
+          <button className="btn btn-ghost btn-xs" onClick={() => setSuccessMessage(null)}>
+            <FontAwesomeIcon icon={faTimes} />
+          </button>
+        </div>
+      )}
+
       {/* Error Alert */}
       {error && (
         <div className="alert alert-error">
+          <FontAwesomeIcon icon={faExclamationCircle} />
           <span>{error}</span>
           <button className="btn btn-ghost btn-xs" onClick={() => setError(null)}>
             <FontAwesomeIcon icon={faTimes} />

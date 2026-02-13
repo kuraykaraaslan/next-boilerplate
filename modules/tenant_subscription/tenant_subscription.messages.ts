@@ -20,6 +20,13 @@ export const SUBSCRIPTION_MESSAGES = {
   SUBSCRIPTION_CANCEL_FAILED: 'Failed to cancel subscription',
   SUBSCRIPTION_ALREADY_CANCELLED: 'Subscription is already cancelled',
 
+  // Payment
+  PAYMENT_INITIATION_FAILED: 'Failed to initiate subscription payment',
+  PAYMENT_CONFIRMATION_FAILED: 'Failed to confirm subscription payment',
+  PAYMENT_NOT_FOUND: 'Payment record not found',
+  PAYMENT_ALREADY_PROCESSED: 'Payment has already been processed',
+  PAYMENT_INVALID_STATUS: 'Invalid payment status',
+
   // General
   FETCH_FAILED: 'Failed to fetch subscription data',
   UNAUTHORIZED: 'Unauthorized access',

@@ -336,23 +336,6 @@ export default class PaymentService {
   }
 
   // ============================================================================
-  // Checkout Session Operations
-  // ============================================================================
-
-  static async createCheckoutSession(
-    provider: PaymentProvider,
-    params: CheckoutSessionParams,
-  ): Promise<CheckoutSessionResult> {
-    try {
-      const paymentProvider = PaymentService.getProvider(provider)
-      return await paymentProvider.createCheckoutSession(params)
-    } catch (error) {
-      Logger.error(`${PAYMENT_MESSAGES.GET_STATUS_FAILED}: ${error instanceof Error ? error.message : String(error)}`)
-      throw error
-    }
-  }
-
-  // ============================================================================
   // Refund Operations
   // ============================================================================
 
@@ -435,5 +418,17 @@ export default class PaymentService {
     return PaymentService.update(paymentId, {
       status: 'CANCELLED',
     })
+  }
+
+  // ============================================================================
+  // Checkout Session
+  // ============================================================================
+
+  static async createCheckoutSession(
+    params: CheckoutSessionParams,
+    providerName?: PaymentProvider
+  ): Promise<CheckoutSessionResult> {
+    const provider = PaymentService.getProvider(providerName)
+    return provider.createCheckoutSession(params)
   }
 }

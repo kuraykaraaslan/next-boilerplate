@@ -1,6 +1,8 @@
 import { prisma } from '@/libs/prisma'
 import type { Prisma } from '@/prisma/client'
 import Logger from '@/libs/logger'
+import PaymentService from '@/modules/payment/payment.service'
+import type { PaymentProvider, PaymentCurrency } from '@/modules/payment/payment.enums'
 import {
   SubscriptionPlanSchema,
   PlanWithFeaturesSchema,
@@ -189,8 +191,8 @@ export default class TenantSubscriptionService {
       })
 
       return PlanFeatureSchema.parse(feature)
-    } catch (error: any) {
-      if (error.code === 'P2002') {
+    } catch (error: unknown) {
+      if (error && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
         throw new Error(SUBSCRIPTION_MESSAGES.FEATURE_KEY_EXISTS)
       }
       Logger.error(`${SUBSCRIPTION_MESSAGES.FEATURE_CREATE_FAILED}: ${error instanceof Error ? error.message : String(error)}`)
@@ -217,8 +219,8 @@ export default class TenantSubscriptionService {
       })
 
       return PlanFeatureSchema.parse(feature)
-    } catch (error: any) {
-      if (error.code === 'P2002') {
+    } catch (error: unknown) {
+      if (error && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
         throw new Error(SUBSCRIPTION_MESSAGES.FEATURE_KEY_EXISTS)
       }
       Logger.error(`${SUBSCRIPTION_MESSAGES.FEATURE_UPDATE_FAILED}: ${error instanceof Error ? error.message : String(error)}`)
@@ -339,6 +341,148 @@ export default class TenantSubscriptionService {
     } catch (error) {
       Logger.error(`${SUBSCRIPTION_MESSAGES.SUBSCRIPTION_CANCEL_FAILED}: ${error instanceof Error ? error.message : String(error)}`)
       throw new Error(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_CANCEL_FAILED)
+    }
+  }
+
+  // ============================================================================
+  // Payment Integration
+  // ============================================================================
+
+  static async purchaseSubscription(params: {
+    tenantId: string
+    planId: string
+    billingInterval: 'MONTHLY' | 'YEARLY'
+    successUrl: string
+    cancelUrl: string
+    provider?: PaymentProvider
+    customerEmail?: string
+    customerName?: string
+  }): Promise<{ paymentId: string; checkoutUrl: string }> {
+    const { tenantId, planId, billingInterval, successUrl, cancelUrl, provider, customerEmail, customerName } = params
+
+    // Get plan details
+    const plan = await prisma.subscriptionPlan.findUnique({ where: { planId } })
+    if (!plan) {
+      throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND)
+    }
+
+    // Calculate amount based on billing interval
+    const amount = billingInterval === 'MONTHLY'
+      ? Number(plan.monthlyPrice)
+      : Number(plan.yearlyPrice)
+
+    const currency = plan.currency as PaymentCurrency
+
+    try {
+      // Create payment record
+      const payment = await PaymentService.create({
+        tenantId,
+        provider: provider || 'STRIPE',
+        amount,
+        currency,
+        description: `${plan.name} Subscription - ${billingInterval === 'MONTHLY' ? 'Monthly' : 'Yearly'}`,
+        customerEmail,
+        customerName,
+        metadata: {
+          type: 'subscription',
+          planId,
+          billingInterval,
+          tenantId,
+        },
+      })
+
+      // Create checkout session with provider
+      const checkout = await PaymentService.createCheckoutSession(
+        {
+          amount,
+          currency,
+          description: `${plan.name} Subscription`,
+          successUrl: `${successUrl}?paymentId=${payment.paymentId}`,
+          cancelUrl,
+          metadata: {
+            paymentId: payment.paymentId,
+            planId,
+            tenantId,
+            billingInterval,
+          },
+        },
+        provider
+      )
+
+      // Update payment with provider session ID
+      await PaymentService.update(payment.paymentId, {
+        providerPaymentId: checkout.sessionId,
+        metadata: {
+          ...(payment.metadata as object || {}),
+          checkoutSessionId: checkout.sessionId,
+        },
+      })
+
+      return {
+        paymentId: payment.paymentId,
+        checkoutUrl: checkout.checkoutUrl,
+      }
+    } catch (error) {
+      Logger.error(`${SUBSCRIPTION_MESSAGES.PAYMENT_INITIATION_FAILED}: ${error instanceof Error ? error.message : String(error)}`)
+      throw new Error(SUBSCRIPTION_MESSAGES.PAYMENT_INITIATION_FAILED)
+    }
+  }
+
+  static async confirmPayment(paymentId: string): Promise<TenantSubscription> {
+    try {
+      // Get payment record
+      const payment = await PaymentService.getById(paymentId)
+      
+      if (!payment) {
+        throw new Error(SUBSCRIPTION_MESSAGES.PAYMENT_NOT_FOUND)
+      }
+
+      if (payment.status === 'COMPLETED') {
+        // Already processed - return existing subscription
+        const existing = await this.getSubscription(payment.tenantId!)
+        if (existing) {
+          return TenantSubscriptionSchema.parse({
+            subscriptionId: existing.subscriptionId,
+            tenantId: existing.tenantId,
+            planId: existing.planId,
+            status: existing.status,
+            billingInterval: existing.billingInterval,
+            currentPeriodStart: existing.currentPeriodStart,
+            currentPeriodEnd: existing.currentPeriodEnd,
+            trialEndsAt: existing.trialEndsAt,
+            cancelledAt: existing.cancelledAt,
+            createdAt: existing.createdAt,
+            updatedAt: existing.updatedAt,
+          })
+        }
+        throw new Error(SUBSCRIPTION_MESSAGES.PAYMENT_ALREADY_PROCESSED)
+      }
+
+      if (payment.status !== 'PENDING' && payment.status !== 'PROCESSING') {
+        throw new Error(SUBSCRIPTION_MESSAGES.PAYMENT_INVALID_STATUS)
+      }
+
+      // Extract metadata
+      const metadata = payment.metadata as { planId?: string; billingInterval?: string; tenantId?: string } || {}
+      const { planId, billingInterval, tenantId } = metadata
+
+      if (!planId || !billingInterval || !tenantId) {
+        throw new Error(SUBSCRIPTION_MESSAGES.INVALID_REQUEST)
+      }
+
+      // Mark payment as completed
+      await PaymentService.markAsCompleted(paymentId)
+
+      // Assign the subscription
+      const subscription = await this.assignPlan(tenantId, {
+        planId,
+        billingInterval: billingInterval as 'MONTHLY' | 'YEARLY',
+      })
+
+      return subscription
+    } catch (error) {
+      Logger.error(`${SUBSCRIPTION_MESSAGES.PAYMENT_CONFIRMATION_FAILED}: ${error instanceof Error ? error.message : String(error)}`)
+      throw error
     }
   }
 }

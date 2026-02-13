@@ -1,8 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import TenantSessionNextService from '@/modules/tenant_session/tenant_session.service.next'
 import TenantSubscriptionService from '@/modules/tenant_subscription/tenant_subscription.service'
-import { AssignSubscriptionRequestSchema } from '@/modules/tenant_subscription/tenant_subscription.dto'
 import { SUBSCRIPTION_MESSAGES } from '@/modules/tenant_subscription/tenant_subscription.messages'
+import { z } from 'zod'
+
+// Schema for purchase request
+const PurchaseSubscriptionRequestSchema = z.object({
+  planId: z.string().uuid('Invalid plan ID'),
+  billingInterval: z.enum(['MONTHLY', 'YEARLY']),
+  provider: z.enum(['STRIPE', 'PAYPAL', 'IYZICO']).optional(),
+  customerEmail: z.string().email().optional(),
+  customerName: z.string().optional(),
+})
 
 /**
  * GET /tenant/[tenantId]/api/subscription
@@ -33,7 +42,7 @@ export async function GET(
 
 /**
  * POST /tenant/[tenantId]/api/subscription
- * Subscribe to a plan or change subscription
+ * Initiate subscription purchase - returns checkout URL
  */
 export async function POST(
   request: NextRequest,
@@ -49,7 +58,7 @@ export async function POST(
     })
 
     const body = await request.json()
-    const parsed = AssignSubscriptionRequestSchema.safeParse(body)
+    const parsed = PurchaseSubscriptionRequestSchema.safeParse(body)
 
     if (!parsed.success) {
       return NextResponse.json(
@@ -58,11 +67,25 @@ export async function POST(
       )
     }
 
-    const subscription = await TenantSubscriptionService.assignPlan(tenantId, parsed.data)
-    return NextResponse.json({ success: true, subscription })
+    // Build base URL from request
+    const url = new URL(request.url)
+    const baseUrl = `${url.protocol}//${url.host}`
+
+    const result = await TenantSubscriptionService.purchaseSubscription({
+      tenantId,
+      planId: parsed.data.planId,
+      billingInterval: parsed.data.billingInterval,
+      successUrl: `${baseUrl}/tenant/${tenantId}/admin/settings?tab=subscription&paymentSuccess=true`,
+      cancelUrl: `${baseUrl}/tenant/${tenantId}/admin/settings?tab=subscription&paymentCancelled=true`,
+      provider: parsed.data.provider,
+      customerEmail: parsed.data.customerEmail,
+      customerName: parsed.data.customerName,
+    })
+
+    return NextResponse.json({ success: true, ...result })
   } catch (error: any) {
     return NextResponse.json(
-      { success: false, message: error.message || SUBSCRIPTION_MESSAGES.SUBSCRIPTION_ASSIGN_FAILED },
+      { success: false, message: error.message || SUBSCRIPTION_MESSAGES.PAYMENT_INITIATION_FAILED },
       { status: 500 }
     )
   }

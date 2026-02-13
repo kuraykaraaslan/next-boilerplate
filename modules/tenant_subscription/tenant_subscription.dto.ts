@@ -1,7 +1,6 @@
 import { z } from 'zod'
 import {
   SubscriptionPlanStatusEnum,
-  SubscriptionStatusEnum,
   BillingIntervalEnum,
   PlanFeatureTypeEnum,
 } from './tenant_subscription.enums'
