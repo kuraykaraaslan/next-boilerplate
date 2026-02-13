@@ -1,0 +1,21 @@
+model TenantSubscription {
+  subscriptionId     String             @id @default(uuid()) @db.Uuid
+  tenantId           String             @db.Uuid
+  planId             String             @db.Uuid
+  status             SubscriptionStatus @default(ACTIVE)
+  billingInterval    BillingInterval    @default(MONTHLY)
+  currentPeriodStart DateTime           @db.Timestamp
+  currentPeriodEnd   DateTime           @db.Timestamp
+  trialEndsAt        DateTime?          @db.Timestamp
+  cancelledAt        DateTime?          @db.Timestamp
+  createdAt          DateTime           @default(now()) @db.Timestamp
+  updatedAt          DateTime           @updatedAt @db.Timestamp
+
+  tenant Tenant           @relation(fields: [tenantId], references: [tenantId], onDelete: Cascade)
+  plan   SubscriptionPlan @relation(fields: [planId], references: [planId], onDelete: Restrict)
+
+  @@unique([tenantId])
+  @@index([planId])
+  @@index([status])
+  @@map("tenant_subscriptions")
+}

@@ -7,9 +7,10 @@ model Tenant {
   updatedAt    DateTime     @updatedAt @db.Timestamp
   deletedAt    DateTime?    @db.Timestamp
 
-  domains  TenantDomain[]
-  members  TenantMember[]
-  payments Payment[]
+  domains      TenantDomain[]
+  members      TenantMember[]
+  payments     Payment[]
+  subscription TenantSubscription?
 
   @@map("tenants")
 }

@@ -22,6 +22,7 @@ import {
   faBuilding,
   faUsers,
   faSignOutAlt,
+  faBoxOpen,
 } from '@fortawesome/free-solid-svg-icons';
 import { SettingsTabProps } from './setting.types';
 
@@ -33,6 +34,7 @@ import { STORAGE_KEYS } from '@/modules/storage/storage.setting.keys';
 import { AI_KEYS } from '@/modules/ai/ai.setting.keys';
 import { PAYMENT_KEYS } from '@/modules/payment/payment.setting.keys';
 import { SECURITY_KEYS } from '@/modules/user_security/user_security.setting.keys';
+import { SUBSCRIPTION_KEYS } from '@/modules/tenant_subscription/tenant_subscription.setting.keys';
 
 // Lazy imports for settings components
 import dynamic from 'next/dynamic';
@@ -55,6 +57,7 @@ const SmsSettings = dynamic(() => import('@/modules/notification_sms/ui/notifica
 const PaymentSettings = dynamic(() => import('@/modules/payment/ui/payment.settings'), { ssr: false, loading: LoadingSpinner });
 const StorageSettings = dynamic(() => import('@/modules/storage/ui/storage.settings'), { ssr: false, loading: LoadingSpinner });
 const AiSettings = dynamic(() => import('@/modules/ai/ui/ai.settings'), { ssr: false, loading: LoadingSpinner });
+const SubscriptionSettings = dynamic(() => import('@/modules/tenant_subscription/ui/subscription.settings'), { ssr: false, loading: LoadingSpinner });
 
 // ============================================================================
 // Types
@@ -92,6 +95,7 @@ const SYSTEM_SETTINGS_TABS: SystemSettingsTab[] = [
   { id: 'security', label: 'Security', icon: faShield, component: SecuritySettings, order: 60, keys: SECURITY_KEYS },
   { id: 'integrations', label: 'Integrations', icon: faPlug, component: IntegrationsSettings, order: 70, keys: [] },
   { id: 'analytics', label: 'Analytics', icon: faChartLine, component: AnalyticsSettings, order: 80, keys: [] },
+  { id: 'subscriptions', label: 'Subscriptions', icon: faBoxOpen, component: SubscriptionSettings, order: 90, keys: SUBSCRIPTION_KEYS },
   { id: 'payment', label: 'Payment', icon: faCreditCard, component: PaymentSettings, order: 100, keys: PAYMENT_KEYS },
   { id: 'notifications', label: 'Notifications', icon: faBell, component: NotificationSettings, order: 110, keys: NOTIFICATION_KEYS },
   { id: 'localization', label: 'Localization', icon: faGlobe, component: LocalizationSettings, order: 120, keys: [] },

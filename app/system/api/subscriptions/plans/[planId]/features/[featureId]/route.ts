@@ -1,0 +1,59 @@
+import { NextRequest, NextResponse } from 'next/server'
+import UserSessionNextService from '@/modules/user_session/user_session.service.next'
+import TenantSubscriptionService from '@/modules/tenant_subscription/tenant_subscription.service'
+import { UpdateFeatureRequestSchema } from '@/modules/tenant_subscription/tenant_subscription.dto'
+import { SUBSCRIPTION_MESSAGES } from '@/modules/tenant_subscription/tenant_subscription.messages'
+
+/**
+ * PUT /system/api/subscriptions/plans/[planId]/features/[featureId]
+ * Update a plan feature (admin only)
+ */
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ planId: string; featureId: string }> }
+) {
+  try {
+    await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: 'ADMIN' })
+    const { featureId } = await params
+
+    const body = await request.json()
+    const parsed = UpdateFeatureRequestSchema.safeParse(body)
+
+    if (!parsed.success) {
+      return NextResponse.json(
+        { success: false, message: parsed.error.issues.map(e => e.message).join(', ') },
+        { status: 400 }
+      )
+    }
+
+    const feature = await TenantSubscriptionService.updateFeature(featureId, parsed.data)
+    return NextResponse.json({ success: true, feature })
+  } catch (error: any) {
+    return NextResponse.json(
+      { success: false, message: error.message || SUBSCRIPTION_MESSAGES.FEATURE_UPDATE_FAILED },
+      { status: 500 }
+    )
+  }
+}
+
+/**
+ * DELETE /system/api/subscriptions/plans/[planId]/features/[featureId]
+ * Remove a feature from a plan (admin only)
+ */
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ planId: string; featureId: string }> }
+) {
+  try {
+    await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: 'ADMIN' })
+    const { featureId } = await params
+
+    await TenantSubscriptionService.removeFeature(featureId)
+    return NextResponse.json({ success: true })
+  } catch (error: any) {
+    return NextResponse.json(
+      { success: false, message: error.message || SUBSCRIPTION_MESSAGES.FEATURE_DELETE_FAILED },
+      { status: 500 }
+    )
+  }
+}

@@ -1,9 +1,7 @@
 // User Enums
 enum UserRole {
-  SYSTEM_ADMIN
-  SYSTEM_USER
-  TENANT_ADMIN
-  TENANT_USER
+  USER
+  ADMIN
 }
 
 enum UserStatus {
@@ -24,8 +22,9 @@ enum TenantStatus {
 
 // Tenant Member Enums
 enum TenantMemberRole {
-  TENANT_ADMIN
-  TENANT_USER
+  OWNER
+  ADMIN
+  USER
 }
 
 enum TenantMemberStatus {
@@ -144,4 +143,29 @@ enum TransactionStatus {
   COMPLETED
   FAILED
   CANCELLED
+}
+
+// Subscription Enums
+enum SubscriptionPlanStatus {
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+  EXPIRED
+  TRIALING
+}
+
+enum BillingInterval {
+  MONTHLY
+  YEARLY
+}
+
+enum PlanFeatureType {
+  BOOLEAN
+  LIMIT
 }

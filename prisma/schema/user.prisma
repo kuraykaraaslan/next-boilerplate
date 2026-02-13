@@ -5,6 +5,7 @@ model User {
   password   String     @db.VarChar
 
   userStatus UserStatus @default(ACTIVE)
+  userRole   UserRole   @default(USER)
   createdAt  DateTime   @default(now()) @db.Timestamp
   updatedAt  DateTime   @updatedAt @db.Timestamp
   deletedAt  DateTime?  @db.Timestamp

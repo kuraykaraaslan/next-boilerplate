@@ -102,6 +102,16 @@ export type {
   PaymentSettingKey,
 } from '@/modules/payment/payment.setting.keys';
 
+// Re-export from tenant_subscription module
+export {
+  SubscriptionSettingKeySchema,
+  SUBSCRIPTION_KEYS,
+} from '@/modules/tenant_subscription/tenant_subscription.setting.keys';
+
+export type {
+  SubscriptionSettingKey,
+} from '@/modules/tenant_subscription/tenant_subscription.setting.keys';
+
 export const IntegrationsSettingKeySchema = z.enum([
   'discordWebhookUrl', 'discordDoormanWebhookUrl',
   'githubTreeUrl', 'githubToken', 'githubUser',

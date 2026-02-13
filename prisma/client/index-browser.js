@@ -170,12 +170,39 @@ exports.Prisma.PaymentTransactionScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.PlanFeatureScalarFieldEnum = {
+  featureId: 'featureId',
+  planId: 'planId',
+  key: 'key',
+  label: 'label',
+  type: 'type',
+  value: 'value',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SettingScalarFieldEnum = {
   tenantId: 'tenantId',
   key: 'key',
   value: 'value',
   group: 'group',
   type: 'type',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.SubscriptionPlanScalarFieldEnum = {
+  planId: 'planId',
+  name: 'name',
+  description: 'description',
+  monthlyPrice: 'monthlyPrice',
+  yearlyPrice: 'yearlyPrice',
+  currency: 'currency',
+  trialDays: 'trialDays',
+  sortOrder: 'sortOrder',
+  isDefault: 'isDefault',
+  status: 'status',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -213,13 +240,27 @@ exports.Prisma.TenantMemberScalarFieldEnum = {
   deletedAt: 'deletedAt'
 };
 
+exports.Prisma.TenantSubscriptionScalarFieldEnum = {
+  subscriptionId: 'subscriptionId',
+  tenantId: 'tenantId',
+  planId: 'planId',
+  status: 'status',
+  billingInterval: 'billingInterval',
+  currentPeriodStart: 'currentPeriodStart',
+  currentPeriodEnd: 'currentPeriodEnd',
+  trialEndsAt: 'trialEndsAt',
+  cancelledAt: 'cancelledAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.UserScalarFieldEnum = {
   userId: 'userId',
   email: 'email',
   phone: 'phone',
   password: 'password',
-  userRole: 'userRole',
   userStatus: 'userStatus',
+  userRole: 'userRole',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   deletedAt: 'deletedAt'
@@ -367,6 +408,17 @@ exports.TransactionStatus = exports.$Enums.TransactionStatus = {
   CANCELLED: 'CANCELLED'
 };
 
+exports.PlanFeatureType = exports.$Enums.PlanFeatureType = {
+  BOOLEAN: 'BOOLEAN',
+  LIMIT: 'LIMIT'
+};
+
+exports.SubscriptionPlanStatus = exports.$Enums.SubscriptionPlanStatus = {
+  ACTIVE: 'ACTIVE',
+  INACTIVE: 'INACTIVE',
+  ARCHIVED: 'ARCHIVED'
+};
+
 exports.TenantStatus = exports.$Enums.TenantStatus = {
   ACTIVE: 'ACTIVE',
   INACTIVE: 'INACTIVE',
@@ -384,9 +436,8 @@ exports.DomainStatus = exports.$Enums.DomainStatus = {
 };
 
 exports.TenantMemberRole = exports.$Enums.TenantMemberRole = {
-  OWNER: 'OWNER',
-  ADMIN: 'ADMIN',
-  USER: 'USER'
+  TENANT_ADMIN: 'TENANT_ADMIN',
+  TENANT_USER: 'TENANT_USER'
 };
 
 exports.TenantMemberStatus = exports.$Enums.TenantMemberStatus = {
@@ -396,16 +447,28 @@ exports.TenantMemberStatus = exports.$Enums.TenantMemberStatus = {
   PENDING: 'PENDING'
 };
 
-exports.UserRole = exports.$Enums.UserRole = {
-  GUEST: 'GUEST',
-  USER: 'USER',
-  ADMIN: 'ADMIN'
+exports.SubscriptionStatus = exports.$Enums.SubscriptionStatus = {
+  ACTIVE: 'ACTIVE',
+  PAST_DUE: 'PAST_DUE',
+  CANCELLED: 'CANCELLED',
+  EXPIRED: 'EXPIRED',
+  TRIALING: 'TRIALING'
+};
+
+exports.BillingInterval = exports.$Enums.BillingInterval = {
+  MONTHLY: 'MONTHLY',
+  YEARLY: 'YEARLY'
 };
 
 exports.UserStatus = exports.$Enums.UserStatus = {
   ACTIVE: 'ACTIVE',
   INACTIVE: 'INACTIVE',
   SUSPENDED: 'SUSPENDED'
+};
+
+exports.UserRole = exports.$Enums.UserRole = {
+  USER: 'USER',
+  ADMIN: 'ADMIN'
 };
 
 exports.Theme = exports.$Enums.Theme = {
@@ -467,10 +530,13 @@ exports.SocialAccountProvider = exports.$Enums.SocialAccountProvider = {
 exports.Prisma.ModelName = {
   Payment: 'Payment',
   PaymentTransaction: 'PaymentTransaction',
+  PlanFeature: 'PlanFeature',
   Setting: 'Setting',
+  SubscriptionPlan: 'SubscriptionPlan',
   Tenant: 'Tenant',
   TenantDomain: 'TenantDomain',
   TenantMember: 'TenantMember',
+  TenantSubscription: 'TenantSubscription',
   User: 'User',
   UserPreferences: 'UserPreferences',
   UserProfile: 'UserProfile',

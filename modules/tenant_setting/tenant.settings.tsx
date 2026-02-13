@@ -13,6 +13,7 @@ import {
   faTachometerAlt,
   faUsers,
   faArrowLeft,
+  faBoxOpen,
 } from '@fortawesome/free-solid-svg-icons';
 import { SettingsTabProps, SettingsState } from '@/modules/setting/setting.types';
 
@@ -36,6 +37,7 @@ const TenantDomainsSettings = dynamic(() => import('@/modules/tenant_domain/ui/t
 const TenantBrandingSettings = dynamic(() => import('@/modules/tenant_branding/ui/branding.tenant'), { ssr: false, loading: LoadingSpinner });
 const TenantSecuritySettings = dynamic(() => import('@/modules/tenant_session/ui/tenant_session.tenant'), { ssr: false, loading: LoadingSpinner });
 const TenantBillingSettings = dynamic(() => import('@/modules/payment/ui/payment.tenant'), { ssr: false, loading: LoadingSpinner });
+const TenantSubscriptionSettings = dynamic(() => import('@/modules/tenant_subscription/ui/subscription.tenant'), { ssr: false, loading: LoadingSpinner });
 
 // ============================================================================
 // Types
@@ -70,6 +72,7 @@ const TENANT_SETTINGS_TABS: TenantSettingsTab[] = [
   { id: 'general', label: 'General', icon: faCog, component: TenantGeneralSettings, order: 0, keys: TENANT_GENERAL_KEYS },
   { id: 'domains', label: 'Domains', icon: faGlobe, component: TenantDomainsSettings, order: 10, keys: [] },
   { id: 'branding', label: 'Branding', icon: faPalette, component: TenantBrandingSettings, order: 20, keys: TENANT_BRANDING_KEYS },
+  { id: 'subscription', label: 'Subscription', icon: faBoxOpen, component: TenantSubscriptionSettings, order: 30, keys: [] },
   { id: 'security', label: 'Security', icon: faShield, component: TenantSecuritySettings, order: 50, keys: TENANT_SECURITY_KEYS },
   { id: 'billing', label: 'Billing', icon: faCreditCard, component: TenantBillingSettings, order: 60, keys: TENANT_BILLING_KEYS },
 ];

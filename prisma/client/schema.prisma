@@ -1,6 +1,5 @@
 // User Enums
 enum UserRole {
-  GUEST
   USER
   ADMIN
 }
@@ -23,9 +22,8 @@ enum TenantStatus {
 
 // Tenant Member Enums
 enum TenantMemberRole {
-  OWNER
-  ADMIN
-  USER
+  TENANT_ADMIN
+  TENANT_USER
 }
 
 enum TenantMemberStatus {
@@ -146,6 +144,31 @@ enum TransactionStatus {
   CANCELLED
 }
 
+// Subscription Enums
+enum SubscriptionPlanStatus {
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+  EXPIRED
+  TRIALING
+}
+
+enum BillingInterval {
+  MONTHLY
+  YEARLY
+}
+
+enum PlanFeatureType {
+  BOOLEAN
+  LIMIT
+}
+
 model Payment {
   paymentId         String          @id @default(uuid()) @db.Uuid
   userId            String?         @db.Uuid
@@ -249,6 +272,24 @@ model PaymentTransaction {
   @@map("payment_transactions")
 }
 
+model PlanFeature {
+  featureId String          @id @default(uuid()) @db.Uuid
+  planId    String          @db.Uuid
+  key       String          @db.VarChar
+  label     String          @db.VarChar
+  type      PlanFeatureType @default(BOOLEAN)
+  value     String          @db.VarChar // "true"/"false" for BOOLEAN, "10", "100", "-1" (unlimited) for LIMIT
+  sortOrder Int             @default(0)
+  createdAt DateTime        @default(now()) @db.Timestamp
+  updatedAt DateTime        @updatedAt @db.Timestamp
+
+  plan SubscriptionPlan @relation(fields: [planId], references: [planId], onDelete: Cascade)
+
+  @@unique([planId, key])
+  @@index([planId])
+  @@map("plan_features")
+}
+
 generator client {
   provider   = "prisma-client-js"
   accelerate = "true"
@@ -273,6 +314,28 @@ model Setting {
   @@map("settings")
 }
 
+model SubscriptionPlan {
+  planId       String                 @id @default(uuid()) @db.Uuid
+  name         String                 @db.VarChar
+  description  String?                @db.Text
+  monthlyPrice Decimal                @db.Decimal(12, 2)
+  yearlyPrice  Decimal                @db.Decimal(12, 2)
+  currency     String                 @default("USD") @db.VarChar(3)
+  trialDays    Int                    @default(0)
+  sortOrder    Int                    @default(0)
+  isDefault    Boolean                @default(false)
+  status       SubscriptionPlanStatus @default(ACTIVE)
+  createdAt    DateTime               @default(now()) @db.Timestamp
+  updatedAt    DateTime               @updatedAt @db.Timestamp
+
+  features      PlanFeature[]
+  subscriptions TenantSubscription[]
+
+  @@index([status])
+  @@index([sortOrder])
+  @@map("subscription_plans")
+}
+
 model Tenant {
   tenantId     String       @id @default(uuid()) @db.Uuid
   name         String       @db.VarChar
@@ -282,9 +345,10 @@ model Tenant {
   updatedAt    DateTime     @updatedAt @db.Timestamp
   deletedAt    DateTime?    @db.Timestamp
 
-  domains  TenantDomain[]
-  members  TenantMember[]
-  payments Payment[]
+  domains      TenantDomain[]
+  members      TenantMember[]
+  payments     Payment[]
+  subscription TenantSubscription?
 
   @@map("tenants")
 }
@@ -310,7 +374,7 @@ model TenantMember {
   tenantMemberId String             @id @default(uuid()) @db.Uuid
   tenantId       String             @db.Uuid
   userId         String             @db.Uuid
-  memberRole     TenantMemberRole   @default(USER)
+  memberRole     TenantMemberRole   @default(TENANT_USER)
   memberStatus   TenantMemberStatus @default(ACTIVE)
   createdAt      DateTime           @default(now()) @db.Timestamp
   updatedAt      DateTime           @updatedAt @db.Timestamp
@@ -325,13 +389,36 @@ model TenantMember {
   @@map("tenant_members")
 }
 
+model TenantSubscription {
+  subscriptionId     String             @id @default(uuid()) @db.Uuid
+  tenantId           String             @db.Uuid
+  planId             String             @db.Uuid
+  status             SubscriptionStatus @default(ACTIVE)
+  billingInterval    BillingInterval    @default(MONTHLY)
+  currentPeriodStart DateTime           @db.Timestamp
+  currentPeriodEnd   DateTime           @db.Timestamp
+  trialEndsAt        DateTime?          @db.Timestamp
+  cancelledAt        DateTime?          @db.Timestamp
+  createdAt          DateTime           @default(now()) @db.Timestamp
+  updatedAt          DateTime           @updatedAt @db.Timestamp
+
+  tenant Tenant           @relation(fields: [tenantId], references: [tenantId], onDelete: Cascade)
+  plan   SubscriptionPlan @relation(fields: [planId], references: [planId], onDelete: Restrict)
+
+  @@unique([tenantId])
+  @@index([planId])
+  @@index([status])
+  @@map("tenant_subscriptions")
+}
+
 model User {
-  userId     String     @id @default(uuid()) @db.Uuid
-  email      String     @unique @db.VarChar
-  phone      String?    @db.VarChar
-  password   String     @db.VarChar
-  userRole   UserRole   @default(USER)
+  userId   String  @id @default(uuid()) @db.Uuid
+  email    String  @unique @db.VarChar
+  phone    String? @db.VarChar
+  password String  @db.VarChar
+
   userStatus UserStatus @default(ACTIVE)
+  userRole   UserRole   @default(USER)
   createdAt  DateTime   @default(now()) @db.Timestamp
   updatedAt  DateTime   @updatedAt @db.Timestamp
   deletedAt  DateTime?  @db.Timestamp
