@@ -156,7 +156,8 @@ export default class SMSService {
   }
 
   /**
-   * Queue an SMS message for delivery
+   * Queue an SMS message for delivery.
+   * Delivery failures are logged but never propagated to the caller.
    */
   static async sendShortMessage({
     to,
@@ -167,24 +168,26 @@ export default class SMSService {
     body: string;
     provider?: SMSProviderType;
   }): Promise<void> {
-    if (!to?.trim() || !body?.trim()) {
-      Logger.warn("SMSService: Missing phone number or message body.");
-      return;
+    try {
+      if (!to?.trim() || !body?.trim()) {
+        Logger.warn("SMSService: Missing phone number or message body.");
+        return;
+      }
+
+      const rateLimitKey = `${SMSService.RATE_LIMIT_PREFIX}${to}`;
+      const existing = await redis.get(rateLimitKey);
+
+      if (existing) {
+        Logger.warn(`SMSService: Rate limit hit for ${to}. Message not queued.`);
+        return;
+      }
+
+      await redis.set(rateLimitKey, "1", "EX", SMSService.RATE_LIMIT_SECONDS);
+      await SMSService.QUEUE.add("sendShortMessage", { to, body, provider });
+      Logger.info(`SMSService: Queued SMS to ${to}`);
+    } catch (error: unknown) {
+      Logger.error(`SMSService.sendShortMessage error: ${error instanceof Error ? error.message : error}`);
     }
-
-    const rateLimitKey = `${SMSService.RATE_LIMIT_PREFIX}${to}`;
-    const existing = await redis.get(rateLimitKey);
-
-    if (existing) {
-      Logger.warn(`SMSService: Rate limit hit for ${to}. Message not queued.`);
-      return;
-    }
-
-    // Set rate-limit key with expiration
-    await redis.set(rateLimitKey, "1", "EX", SMSService.RATE_LIMIT_SECONDS);
-
-    await SMSService.QUEUE.add("sendShortMessage", { to, body, provider });
-    Logger.info(`SMSService: Queued SMS to ${to}`);
   }
 
   /**

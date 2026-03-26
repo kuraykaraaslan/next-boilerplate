@@ -4,11 +4,12 @@ model User {
   phone      String?    @db.VarChar
   password   String     @db.VarChar
 
-  userStatus UserStatus @default(ACTIVE)
-  userRole   UserRole   @default(USER)
-  createdAt  DateTime   @default(now()) @db.Timestamp
-  updatedAt  DateTime   @updatedAt @db.Timestamp
-  deletedAt  DateTime?  @db.Timestamp
+  userStatus      UserStatus @default(ACTIVE)
+  userRole        UserRole   @default(USER)
+  emailVerifiedAt DateTime?  @db.Timestamp
+  createdAt       DateTime   @default(now()) @db.Timestamp
+  updatedAt       DateTime   @updatedAt @db.Timestamp
+  deletedAt       DateTime?  @db.Timestamp
 
   profile           UserProfile?
   security          UserSecurity?

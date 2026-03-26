@@ -2,6 +2,7 @@ import crypto from "crypto";
 import bcrypt from "bcrypt";
 import redis from "@/libs/redis";
 import { prisma } from "@/libs/prisma";
+import Logger from "@/libs/logger";
 import UserService from "../user/user.service";
 import MailService from "../notification_mail/notification_mail.service";
 import AuthMessages from "./auth.messages";
@@ -87,10 +88,9 @@ export default class PasswordService {
     const hashedToken = await this.hashToken(resetToken);
     await redis.set(tokenKey, hashedToken, "EX", this.RESET_TOKEN_EXPIRY_SECONDS);
 
-    // Send forgot password email
-    await MailService.sendForgotPasswordEmail({
-      email: user.email,
-      resetToken,
+    // Send forgot password email (fire-and-forget — delivery failure must not block the flow)
+    MailService.sendForgotPasswordEmail({ email: user.email, resetToken }).catch((err: unknown) => {
+      Logger.warn(`PasswordService: sendForgotPasswordEmail failed: ${err instanceof Error ? err.message : err}`);
     });
 
     return { resetToken };
@@ -135,9 +135,9 @@ export default class PasswordService {
     // Invalidate the token (one-time use)
     await redis.del(tokenKey);
 
-    // Send password reset success email
-    await MailService.sendPasswordResetSuccessEmail({
-      email: user.email,
+    // Send password reset success email (fire-and-forget)
+    MailService.sendPasswordResetSuccessEmail({ email: user.email }).catch((err: unknown) => {
+      Logger.warn(`PasswordService: sendPasswordResetSuccessEmail failed: ${err instanceof Error ? err.message : err}`);
     });
   }
 

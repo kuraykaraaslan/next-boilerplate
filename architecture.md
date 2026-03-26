@@ -148,6 +148,7 @@
 | `password` | String | bcrypt hashed |
 | `userRole` | `UserRole` | |
 | `userStatus` | `UserStatus` | |
+| `emailVerifiedAt` | DateTime? | Null until email is verified |
 | `createdAt` / `updatedAt` / `deletedAt` | DateTime | Soft delete |
 
 Relations: `profile`, `security`, `preferences`, `socialAccounts`, `sessions`, `tenantMembers`, `payments`
@@ -382,6 +383,8 @@ Unique constraint: `[planId, key]`
 | POST | `/system/api/auth/csrf` | Get CSRF token |
 | POST | `/system/api/auth/forgot-password` | Initiate password reset |
 | POST | `/system/api/auth/reset-password` | Complete password reset |
+| POST | `/system/api/auth/verify-email/send` | Send email verification link (auth required) |
+| POST | `/system/api/auth/verify-email/verify` | Verify email token (auth required) |
 | POST | `/system/api/auth/login/send` | Send login OTP |
 | POST | `/system/api/auth/login/verify` | Verify login OTP |
 | POST | `/system/api/auth/otp/send` | Send OTP |
@@ -481,6 +484,11 @@ Unique constraint: `[planId, key]`
 | `hashPassword(password)` | bcrypt hash (salt: 10) |
 | `generateToken()` | Generate 6-digit random token |
 | `checkIfUserHasRole(user, role)` | Role hierarchy check |
+| `sendEmailVerification({userId, email, name?})` | Generate token, store in Redis (TTL: 24h), send verify email |
+| `verifyEmail({userId, token})` | Validate token, set `emailVerifiedAt`, delete from Redis |
+
+Email verification token: 32-byte random hex (SHA-256 stored in Redis).
+Rate limit: 1 send / 5 min per user.
 
 #### `PasswordService` (`auth.password.service.ts`)
 | Method | Description |

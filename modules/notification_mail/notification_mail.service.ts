@@ -236,15 +236,17 @@ export default class MailService {
    * Welcome email for new users
    */
   static async sendWelcomeEmail({ email, name }: { email: string; name?: string }): Promise<void> {
-    const subject = `Welcome to ${MailService.APPLICATION_NAME}`;
-
-    const emailContent = await MailService.renderTemplate("welcome.ejs", {
-      ...MailService.getBaseTemplateVars(),
-      subject,
-      user: { name: name || email },
-    });
-
-    await MailService.sendMail(email, subject, emailContent);
+    try {
+      const subject = `Welcome to ${MailService.APPLICATION_NAME}`;
+      const emailContent = await MailService.renderTemplate("welcome.ejs", {
+        ...MailService.getBaseTemplateVars(),
+        subject,
+        user: { name: name || email },
+      });
+      await MailService.sendMail(email, subject, emailContent);
+    } catch (error: unknown) {
+      Logger.error(`MailService.sendWelcomeEmail error: ${error instanceof Error ? error.message : error}`);
+    }
   }
 
   /**
@@ -265,19 +267,21 @@ export default class MailService {
     location?: string;
     loginTime?: string;
   }): Promise<void> {
-    const subject = "New Login Detected";
-
-    const emailContent = await MailService.renderTemplate("new_login.ejs", {
-      ...MailService.getBaseTemplateVars(),
-      subject,
-      user: { name: name || email },
-      device: device || "Unknown",
-      ipAddress: ipAddress || "Unknown",
-      location: location || "Unknown",
-      loginTime: loginTime || new Date().toLocaleString(),
-    });
-
-    await MailService.sendMail(email, subject, emailContent);
+    try {
+      const subject = "New Login Detected";
+      const emailContent = await MailService.renderTemplate("new_login.ejs", {
+        ...MailService.getBaseTemplateVars(),
+        subject,
+        user: { name: name || email },
+        device: device || "Unknown",
+        ipAddress: ipAddress || "Unknown",
+        location: location || "Unknown",
+        loginTime: loginTime || new Date().toLocaleString(),
+      });
+      await MailService.sendMail(email, subject, emailContent);
+    } catch (error: unknown) {
+      Logger.error(`MailService.sendNewLoginEmail error: ${error instanceof Error ? error.message : error}`);
+    }
   }
 
   /**
@@ -292,26 +296,27 @@ export default class MailService {
     name?: string;
     resetToken: string;
   }): Promise<void> {
-    const subject = "Reset Your Password";
-
-    const resetLink =
-      MailService.FRONTEND_URL +
-      MailService.FRONTEND_FORGOT_PASSWORD_PATH +
-      "?resetToken=" +
-      resetToken +
-      "&email=" +
-      email;
-
-    const emailContent = await MailService.renderTemplate("forgot_password.ejs", {
-      ...MailService.getBaseTemplateVars(),
-      subject,
-      user: { name: name || email },
-      resetToken,
-      resetLink,
-      expiryTime: 1,
-    });
-
-    await MailService.sendMail(email, subject, emailContent);
+    try {
+      const subject = "Reset Your Password";
+      const resetLink =
+        MailService.FRONTEND_URL +
+        MailService.FRONTEND_FORGOT_PASSWORD_PATH +
+        "?resetToken=" +
+        resetToken +
+        "&email=" +
+        email;
+      const emailContent = await MailService.renderTemplate("forgot_password.ejs", {
+        ...MailService.getBaseTemplateVars(),
+        subject,
+        user: { name: name || email },
+        resetToken,
+        resetLink,
+        expiryTime: 1,
+      });
+      await MailService.sendMail(email, subject, emailContent);
+    } catch (error: unknown) {
+      Logger.error(`MailService.sendForgotPasswordEmail error: ${error instanceof Error ? error.message : error}`);
+    }
   }
 
   /**
@@ -324,15 +329,17 @@ export default class MailService {
     email: string;
     name?: string;
   }): Promise<void> {
-    const subject = "Password Reset Successful";
-
-    const emailContent = await MailService.renderTemplate("password_reset.ejs", {
-      ...MailService.getBaseTemplateVars(),
-      subject,
-      user: { name: name || email },
-    });
-
-    await MailService.sendMail(email, subject, emailContent);
+    try {
+      const subject = "Password Reset Successful";
+      const emailContent = await MailService.renderTemplate("password_reset.ejs", {
+        ...MailService.getBaseTemplateVars(),
+        subject,
+        user: { name: name || email },
+      });
+      await MailService.sendMail(email, subject, emailContent);
+    } catch (error: unknown) {
+      Logger.error(`MailService.sendPasswordResetSuccessEmail error: ${error instanceof Error ? error.message : error}`);
+    }
   }
 
   /**
@@ -347,63 +354,70 @@ export default class MailService {
     name?: string | null;
     otpToken: string;
   }): Promise<void> {
-    if (!otpToken) throw new Error("OTP token is required");
-
-    const subject = "Your OTP Code";
-
-    const emailContent = await MailService.renderTemplate("otp.ejs", {
-      ...MailService.getBaseTemplateVars(),
-      subject,
-      user: { name: name || email },
-      otpToken,
-    });
-
-    await MailService.sendMail(email, subject, emailContent);
+    try {
+      if (!otpToken) throw new Error("OTP token is required");
+      const subject = "Your OTP Code";
+      const emailContent = await MailService.renderTemplate("otp.ejs", {
+        ...MailService.getBaseTemplateVars(),
+        subject,
+        user: { name: name || email },
+        otpToken,
+      });
+      await MailService.sendMail(email, subject, emailContent);
+    } catch (error: unknown) {
+      Logger.error(`MailService.sendOTPEmail error: ${error instanceof Error ? error.message : error}`);
+    }
   }
 
   /**
    * OTP enabled notification
    */
   static async sendOTPEnabledEmail({ email, name }: { email: string; name?: string }): Promise<void> {
-    const subject = "OTP Enabled";
-
-    const emailContent = await MailService.renderTemplate("otp_enabled.ejs", {
-      ...MailService.getBaseTemplateVars(),
-      subject,
-      user: { name: name || email },
-    });
-
-    await MailService.sendMail(email, subject, emailContent);
+    try {
+      const subject = "OTP Enabled";
+      const emailContent = await MailService.renderTemplate("otp_enabled.ejs", {
+        ...MailService.getBaseTemplateVars(),
+        subject,
+        user: { name: name || email },
+      });
+      await MailService.sendMail(email, subject, emailContent);
+    } catch (error: unknown) {
+      Logger.error(`MailService.sendOTPEnabledEmail error: ${error instanceof Error ? error.message : error}`);
+    }
   }
 
   /**
    * OTP disabled notification
    */
   static async sendOTPDisabledEmail({ email, name }: { email: string; name?: string }): Promise<void> {
-    const subject = "OTP Disabled";
-
-    const emailContent = await MailService.renderTemplate("otp_disabled.ejs", {
-      ...MailService.getBaseTemplateVars(),
-      subject,
-      user: { name: name || email },
-    });
-
-    await MailService.sendMail(email, subject, emailContent);
+    try {
+      const subject = "OTP Disabled";
+      const emailContent = await MailService.renderTemplate("otp_disabled.ejs", {
+        ...MailService.getBaseTemplateVars(),
+        subject,
+        user: { name: name || email },
+      });
+      await MailService.sendMail(email, subject, emailContent);
+    } catch (error: unknown) {
+      Logger.error(`MailService.sendOTPDisabledEmail error: ${error instanceof Error ? error.message : error}`);
+    }
   }
 
   /**
    * Email changed notification
    */
   static async sendEmailChangedEmail({ email, name }: { email: string; name?: string }): Promise<void> {
-    const subject = "Your Email Was Updated";
-
-    const emailContent = await MailService.renderTemplate("email_change.ejs", {
-      ...MailService.getBaseTemplateVars(),
-      subject,
-      user: { name: name || email },
-    });
-
-    await MailService.sendMail(email, subject, emailContent);
+    try {
+      const subject = "Your Email Was Updated";
+      const emailContent = await MailService.renderTemplate("email_change.ejs", {
+        ...MailService.getBaseTemplateVars(),
+        subject,
+        user: { name: name || email },
+      });
+      await MailService.sendMail(email, subject, emailContent);
+    } catch (error: unknown) {
+      Logger.error(`MailService.sendEmailChangedEmail error: ${error instanceof Error ? error.message : error}`);
+    }
   }
 
   /**
@@ -418,34 +432,37 @@ export default class MailService {
     name?: string;
     verifyToken: string;
   }): Promise<void> {
-    const subject = "Verify Your Email";
-
-    const verifyLink =
-      MailService.FRONTEND_URL + "/auth/verify-email?token=" + verifyToken + "&email=" + email;
-
-    const emailContent = await MailService.renderTemplate("verify_email.ejs", {
-      ...MailService.getBaseTemplateVars(),
-      subject,
-      user: { name: name || email },
-      verifyLink,
-    });
-
-    await MailService.sendMail(email, subject, emailContent);
+    try {
+      const subject = "Verify Your Email";
+      const verifyLink =
+        MailService.FRONTEND_URL + "/auth/verify-email?token=" + verifyToken + "&email=" + email;
+      const emailContent = await MailService.renderTemplate("verify_email.ejs", {
+        ...MailService.getBaseTemplateVars(),
+        subject,
+        user: { name: name || email },
+        verifyLink,
+      });
+      await MailService.sendMail(email, subject, emailContent);
+    } catch (error: unknown) {
+      Logger.error(`MailService.sendVerifyEmail error: ${error instanceof Error ? error.message : error}`);
+    }
   }
 
   /**
    * Password changed notification
    */
   static async sendPasswordChangedEmail({ email, name }: { email: string; name?: string }): Promise<void> {
-    const subject = "Your Password Was Changed";
-
-    const emailContent = await MailService.renderTemplate("password_changed.ejs", {
-      ...MailService.getBaseTemplateVars(),
-      subject,
-      user: { name: name || email },
-    });
-
-    await MailService.sendMail(email, subject, emailContent);
+    try {
+      const subject = "Your Password Was Changed";
+      const emailContent = await MailService.renderTemplate("password_changed.ejs", {
+        ...MailService.getBaseTemplateVars(),
+        subject,
+        user: { name: name || email },
+      });
+      await MailService.sendMail(email, subject, emailContent);
+    } catch (error: unknown) {
+      Logger.error(`MailService.sendPasswordChangedEmail error: ${error instanceof Error ? error.message : error}`);
+    }
   }
 
   /**
@@ -466,19 +483,21 @@ export default class MailService {
     location: string;
     attemptTime: string;
   }): Promise<void> {
-    const subject = "Suspicious Activity Detected";
-
-    const emailContent = await MailService.renderTemplate("suspicious_activity.ejs", {
-      ...MailService.getBaseTemplateVars(),
-      subject,
-      user: { name: name || email },
-      eventType,
-      ip,
-      location,
-      attemptTime,
-    });
-
-    await MailService.sendMail(email, subject, emailContent);
+    try {
+      const subject = "Suspicious Activity Detected";
+      const emailContent = await MailService.renderTemplate("suspicious_activity.ejs", {
+        ...MailService.getBaseTemplateVars(),
+        subject,
+        user: { name: name || email },
+        eventType,
+        ip,
+        location,
+        attemptTime,
+      });
+      await MailService.sendMail(email, subject, emailContent);
+    } catch (error: unknown) {
+      Logger.error(`MailService.sendSuspiciousActivityEmail error: ${error instanceof Error ? error.message : error}`);
+    }
   }
 
   /**
@@ -499,19 +518,21 @@ export default class MailService {
     location: string;
     loginTime: string;
   }): Promise<void> {
-    const subject = "New Device Login Detected";
-
-    const emailContent = await MailService.renderTemplate("new_device_alert.ejs", {
-      ...MailService.getBaseTemplateVars(),
-      subject,
-      user: { name: name || email },
-      device,
-      ip,
-      location,
-      loginTime,
-    });
-
-    await MailService.sendMail(email, subject, emailContent);
+    try {
+      const subject = "New Device Login Detected";
+      const emailContent = await MailService.renderTemplate("new_device_alert.ejs", {
+        ...MailService.getBaseTemplateVars(),
+        subject,
+        user: { name: name || email },
+        device,
+        ip,
+        location,
+        loginTime,
+      });
+      await MailService.sendMail(email, subject, emailContent);
+    } catch (error: unknown) {
+      Logger.error(`MailService.sendNewDeviceAlertEmail error: ${error instanceof Error ? error.message : error}`);
+    }
   }
 
   /**
@@ -530,29 +551,29 @@ export default class MailService {
     rawToken: string;
     tenantId: string;
   }): Promise<void> {
-    const subject = `You've been invited to join ${tenantName}`;
-
-    const INVITATION_TTL_SECONDS = parseInt(
-      process.env.INVITATION_TTL_SECONDS || `${60 * 60 * 24 * 7}`
-    );
-    const expiryDays = Math.round(INVITATION_TTL_SECONDS / (60 * 60 * 24));
-
-    const invitationLink =
-      `${MailService.FRONTEND_URL}/tenant/${tenantId}/auth/invitation/accept?token=${rawToken}`;
-    const declineLink =
-      `${MailService.FRONTEND_URL}/tenant/${tenantId}/auth/invitation/decline?token=${rawToken}`;
-
-    const emailContent = await MailService.renderTemplate("tenant_invitation.ejs", {
-      ...MailService.getBaseTemplateVars(),
-      subject,
-      tenantName,
-      memberRole,
-      expiryDays,
-      invitationLink,
-      declineLink,
-    });
-
-    await MailService.sendMail(email, subject, emailContent);
+    try {
+      const subject = `You've been invited to join ${tenantName}`;
+      const INVITATION_TTL_SECONDS = parseInt(
+        process.env.INVITATION_TTL_SECONDS || `${60 * 60 * 24 * 7}`
+      );
+      const expiryDays = Math.round(INVITATION_TTL_SECONDS / (60 * 60 * 24));
+      const invitationLink =
+        `${MailService.FRONTEND_URL}/tenant/${tenantId}/auth/invitation/accept?token=${rawToken}`;
+      const declineLink =
+        `${MailService.FRONTEND_URL}/tenant/${tenantId}/auth/invitation/decline?token=${rawToken}`;
+      const emailContent = await MailService.renderTemplate("tenant_invitation.ejs", {
+        ...MailService.getBaseTemplateVars(),
+        subject,
+        tenantName,
+        memberRole,
+        expiryDays,
+        invitationLink,
+        declineLink,
+      });
+      await MailService.sendMail(email, subject, emailContent);
+    } catch (error: unknown) {
+      Logger.error(`MailService.sendTenantInvitationEmail error: ${error instanceof Error ? error.message : error}`);
+    }
   }
 
   /**
@@ -570,33 +591,36 @@ export default class MailService {
     phone: string;
   }): Promise<void> {
     if (!MailService.INFORM_MAIL) return;
-
-    const subject = "New Contact Form Message";
-
-    const emailContent = await MailService.renderTemplate("contact_form_admin.ejs", {
-      ...MailService.getBaseTemplateVars(),
-      subject,
-      message,
-      name,
-      email,
-      phone,
-    });
-
-    await MailService.sendMail(MailService.INFORM_MAIL, subject, emailContent);
+    try {
+      const subject = "New Contact Form Message";
+      const emailContent = await MailService.renderTemplate("contact_form_admin.ejs", {
+        ...MailService.getBaseTemplateVars(),
+        subject,
+        message,
+        name,
+        email,
+        phone,
+      });
+      await MailService.sendMail(MailService.INFORM_MAIL, subject, emailContent);
+    } catch (error: unknown) {
+      Logger.error(`MailService.sendContactFormAdminEmail error: ${error instanceof Error ? error.message : error}`);
+    }
   }
 
   /**
    * Contact form submission - User confirmation
    */
   static async sendContactFormUserEmail({ name, email }: { name: string; email: string }): Promise<void> {
-    const subject = "We Received Your Message";
-
-    const emailContent = await MailService.renderTemplate("contact_form_user.ejs", {
-      ...MailService.getBaseTemplateVars(),
-      subject,
-      user: { name },
-    });
-
-    await MailService.sendMail(email, subject, emailContent);
+    try {
+      const subject = "We Received Your Message";
+      const emailContent = await MailService.renderTemplate("contact_form_user.ejs", {
+        ...MailService.getBaseTemplateVars(),
+        subject,
+        user: { name },
+      });
+      await MailService.sendMail(email, subject, emailContent);
+    } catch (error: unknown) {
+      Logger.error(`MailService.sendContactFormUserEmail error: ${error instanceof Error ? error.message : error}`);
+    }
   }
 }

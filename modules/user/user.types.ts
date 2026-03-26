@@ -14,6 +14,7 @@ export const UserSchema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters long"),
   userRole: UserRoleEnum.default('USER'),
   userStatus: UserStatusEnum.default('ACTIVE'),
+  emailVerifiedAt: dateOrString,
   createdAt: dateOrString,
   updatedAt: dateOrString,
   deletedAt: dateOrString

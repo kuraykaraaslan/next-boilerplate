@@ -1,10 +1,14 @@
+import crypto from "crypto";
 import { prisma } from "@/libs/prisma";
 import bcrypt from "bcrypt";
+import redis from "@/libs/redis";
+import Logger from "@/libs/logger";
 
 // Other Services
 import UserService from "../user/user.service";
 import TenantService from "../tenant/tenant.service";
 import TenantInvitationService from "../tenant_invitation/tenant_invitation.service";
+import MailService from "../notification_mail/notification_mail.service";
 
 // Utils
 import { SafeUser, SafeUserSchema } from '../user/user.types';
@@ -101,6 +105,84 @@ export default class AuthService {
         await TenantInvitationService.autoAcceptForEmail(parsedUser.userId, parsedUser.email);
 
         return { user: parsedUser };
+    }
+
+    private static readonly EMAIL_VERIFY_TTL_SECONDS = parseInt(
+        process.env.EMAIL_VERIFY_TTL_SECONDS || `${60 * 60 * 24}`
+    );
+    private static readonly EMAIL_VERIFY_RATE_LIMIT_SECONDS = parseInt(
+        process.env.EMAIL_VERIFY_RATE_LIMIT_SECONDS || "300"
+    );
+
+    private static getEmailVerifyKey(userId: string): string {
+        return `email:verify:${userId}`;
+    }
+
+    private static getEmailVerifyRateKey(userId: string): string {
+        return `email:verify:rate:${userId}`;
+    }
+
+    /**
+     * Generates a verification token, stores it in Redis, and sends the verification email.
+     */
+    static async sendEmailVerification({
+        userId,
+        email,
+        name,
+    }: {
+        userId: string;
+        email: string;
+        name?: string;
+    }): Promise<void> {
+        const user = await prisma.user.findUnique({ where: { userId } });
+        if (!user) throw new Error(AuthMessages.USER_NOT_FOUND);
+        if (user.emailVerifiedAt) throw new Error(AuthMessages.EMAIL_ALREADY_VERIFIED);
+
+        const rateKey = AuthService.getEmailVerifyRateKey(userId);
+        const isRateLimited = await redis.get(rateKey);
+        if (isRateLimited) throw new Error(AuthMessages.RATE_LIMIT_EXCEEDED);
+
+        const rawToken = crypto.randomBytes(32).toString("hex");
+        const hashedToken = crypto.createHash("sha256").update(rawToken).digest("hex");
+
+        const verifyKey = AuthService.getEmailVerifyKey(userId);
+        await redis.set(verifyKey, hashedToken, "EX", AuthService.EMAIL_VERIFY_TTL_SECONDS);
+        await redis.set(rateKey, "1", "EX", AuthService.EMAIL_VERIFY_RATE_LIMIT_SECONDS);
+
+        await MailService.sendVerifyEmail({ email, name, verifyToken: rawToken });
+        Logger.info(`Email verification sent for user ${userId}`);
+    }
+
+    /**
+     * Verifies the email verification token and marks the email as verified.
+     */
+    static async verifyEmail({
+        userId,
+        token,
+    }: {
+        userId: string;
+        token: string;
+    }): Promise<void> {
+        const user = await prisma.user.findUnique({ where: { userId } });
+        if (!user) throw new Error(AuthMessages.USER_NOT_FOUND);
+        if (user.emailVerifiedAt) throw new Error(AuthMessages.EMAIL_ALREADY_VERIFIED);
+
+        const verifyKey = AuthService.getEmailVerifyKey(userId);
+        const storedHash = await redis.get(verifyKey);
+        if (!storedHash) throw new Error(AuthMessages.VERIFICATION_TOKEN_EXPIRED);
+
+        const inputHash = crypto.createHash("sha256").update(token).digest("hex");
+        if (inputHash !== storedHash) throw new Error(AuthMessages.INVALID_VERIFICATION_TOKEN);
+
+        await prisma.user.update({
+            where: { userId },
+            data: { emailVerifiedAt: new Date() },
+        });
+
+        await redis.del(verifyKey);
+        await redis.del(AuthService.getEmailVerifyRateKey(userId));
+
+        Logger.info(`Email verified for user ${userId}`);
     }
 
     /**

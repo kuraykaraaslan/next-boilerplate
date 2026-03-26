@@ -87,6 +87,11 @@ export default class OTPService {
       await redis.setex(rateKey, this.OTP_RATE_LIMIT_SECONDS, "1");
     }
 
+    // Validate delivery prerequisites before generating the OTP
+    if (method === "SMS" && !user.phone) {
+      throw new Error(AuthMessages.USER_HAS_NO_PHONE_NUMBER);
+    }
+
     // Generate OTP
     const otpToken = this.generateToken();
     const hashedToken = this.hashToken(otpToken);
@@ -95,33 +100,25 @@ export default class OTPService {
     const otpKey = this.getOTPKey(userSession.userSessionId, method, action);
     await redis.setex(otpKey, this.OTP_EXPIRY_SECONDS, hashedToken);
 
-    // Send OTP
-    try {
-      switch (method) {
-        case "EMAIL":
-          await MailService.sendOTPEmail({
-            email: user.email,
-            otpToken,
-          });
-          break;
+    // Send OTP — delivery failures are logged but must NOT propagate to the frontend
+    switch (method) {
+      case "EMAIL":
+        MailService.sendOTPEmail({ email: user.email, otpToken }).catch((err: unknown) => {
+          Logger.error(`OTPService: sendOTPEmail failed for user ${user.userId}: ${err instanceof Error ? err.message : err}`);
+        });
+        break;
 
-        case "SMS":
-          if (!user.phone) {
-            throw new Error(AuthMessages.USER_HAS_NO_PHONE_NUMBER);
-          }
-          await SMSService.sendShortMessage({
-            to: user.phone,
-            body: `Your verification code is ${otpToken}. Valid for ${this.OTP_EXPIRY_SECONDS / 60} minutes.`,
-          });
-          break;
+      case "SMS":
+        SMSService.sendShortMessage({
+          to: user.phone!,
+          body: `Your verification code is ${otpToken}. Valid for ${this.OTP_EXPIRY_SECONDS / 60} minutes.`,
+        }).catch((err: unknown) => {
+          Logger.error(`OTPService: sendShortMessage failed for user ${user.userId}: ${err instanceof Error ? err.message : err}`);
+        });
+        break;
 
-        default:
-          throw new Error(AuthMessages.INVALID_OTP_METHOD);
-      }
-    } catch (error) {
-      // Clean up on send failure
-      await redis.del(otpKey);
-      throw error;
+      default:
+        throw new Error(AuthMessages.INVALID_OTP_METHOD);
     }
 
     Logger.info(`OTP sent via ${method} to user ${user.userId}`);
