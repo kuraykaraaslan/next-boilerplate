@@ -178,3 +178,9 @@ enum PlanFeatureType {
   BOOLEAN
   LIMIT
 }
+
+// Audit Log Enums
+enum AuditActorType {
+  USER
+  SYSTEM
+}

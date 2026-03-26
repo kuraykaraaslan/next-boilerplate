@@ -3,8 +3,6 @@ import { NextRequest, NextResponse } from "next/server";
 import SettingService from "@/modules/setting/setting.service";
 import TenantDomainService from "@/modules/tenant_domain/tenant_domain.service";
 
-const DEFAULT_LANG = "en";
-
 const EXCLUDED_PATHS = [
     /^\/_next\/?/,
     /^\/assets\/?/,
@@ -17,6 +15,11 @@ const EXCLUDED_PATHS = [
 const isDev = process.env.NODE_ENV !== "production";
 const DEFAULT_SUBDOMAIN = process.env.TENANT_DEFAULT_SUBDOMAIN || "system";
 const WILDCARD_DOMAIN = process.env.TENANT_WILDCARD_DOMAIN || "example.com";
+
+// "domain" (default) | "path"
+const TENANCY_MODE = (process.env.TENANCY_MODE || "domain") as "domain" | "path";
+// Path-based modda tenant prefix: /{prefix}/{tenantId}/...
+const TENANT_PATH_PREFIX = process.env.TENANT_PATH_PREFIX || "t";
 
 function log(...args: any[]) {
     if (isDev) {
@@ -37,38 +40,22 @@ function isLocalhost(host: string) {
     );
 }
 
-export async function proxy(req: NextRequest) {
-    const { pathname } = req.nextUrl;
-    let host = req.headers.get("host") || "";
-    host = host.replace(/:\d+$/, ""); // Portu kaldır
-
-    //log("request", { host, pathname });
-
-    // ❌ Hariç path
-    if (isExcluded(pathname)) {
-        return NextResponse.next();
-    }
-
-    // ❌ Zaten /tenant/ veya /system/ altındaysa (sonsuz döngüyü önle)
-    if (pathname.startsWith("/tenant/") || pathname.startsWith("/system/")) {
-        return NextResponse.next();
-    }
-
-    // Bakım Modu Kontrolü
-    if (pathname !== '/maintenance') {
-        try {
-            const maintenanceSetting = await SettingService.getByKey('maintenanceMode');
-            if (maintenanceSetting?.value === 'true') {
-                log("maintenance mode active → redirect to /maintenance");
-                return NextResponse.rewrite(new URL('/maintenance', req.url));
-            }
-        } catch (error) {
-            log("Maintenance check failed", error);
+async function checkMaintenance(req: NextRequest, pathname: string): Promise<NextResponse | null> {
+    if (pathname === '/maintenance') return null;
+    try {
+        const setting = await SettingService.getByKey('maintenanceMode');
+        if (setting?.value === 'true') {
+            log("maintenance mode active → redirect to /maintenance");
+            return NextResponse.rewrite(new URL('/maintenance', req.url));
         }
+    } catch (error) {
+        log("Maintenance check failed", error);
     }
+    return null;
+}
 
-    // Tenant veya System Belirleme
-    let tenantId = null;
+async function handleDomainMode(req: NextRequest, host: string, pathname: string): Promise<NextResponse> {
+    let tenantId: string | null = null;
     let isSystemDomain = false;
 
     if (isLocalhost(host) || host === `${DEFAULT_SUBDOMAIN}.${WILDCARD_DOMAIN}`) {
@@ -87,16 +74,73 @@ export async function proxy(req: NextRequest) {
     const url = req.nextUrl.clone();
 
     if (tenantId) {
-        // Tenant bulundu, rewrite yap
         url.pathname = `/tenant/${tenantId}${pathname}`;
-        log(`Rewriting to tenant: ${tenantId}`);
-    } else if (isSystemDomain) {
-        // System domaini, /system altına rewrite yap
+        log(`[domain] Rewriting to tenant: ${tenantId}`);
+        return NextResponse.rewrite(url);
+    }
+
+    if (isSystemDomain) {
         url.pathname = `/system${pathname}`;
-        log("Rewriting to system domain");
-    } else {
+        log("[domain] Rewriting to system");
+        return NextResponse.rewrite(url);
+    }
+
+    return NextResponse.next();
+}
+
+function handlePathMode(req: NextRequest, pathname: string): NextResponse {
+    const tenantPrefix = `/${TENANT_PATH_PREFIX}/`;
+
+    if (pathname.startsWith(tenantPrefix)) {
+        // /{prefix}/{tenantId}/rest  →  /tenant/{tenantId}/rest
+        const withoutPrefix = pathname.slice(tenantPrefix.length); // "{tenantId}/rest"
+        const slashIndex = withoutPrefix.indexOf("/");
+        const tenantId = slashIndex === -1 ? withoutPrefix : withoutPrefix.slice(0, slashIndex);
+        const rest = slashIndex === -1 ? "" : withoutPrefix.slice(slashIndex);
+
+        if (!tenantId) {
+            // /{prefix}/ ile biten istek → system
+            const url = req.nextUrl.clone();
+            url.pathname = `/system${pathname}`;
+            log("[path] No tenantId in path → rewriting to system");
+            return NextResponse.rewrite(url);
+        }
+
+        const url = req.nextUrl.clone();
+        url.pathname = `/tenant/${tenantId}${rest || "/"}`;
+        log(`[path] Rewriting to tenant: ${tenantId}`);
+        return NextResponse.rewrite(url);
+    }
+
+    // Tenant prefix yoksa → system
+    const url = req.nextUrl.clone();
+    url.pathname = `/system${pathname}`;
+    log("[path] Rewriting to system");
+    return NextResponse.rewrite(url);
+}
+
+export async function proxy(req: NextRequest) {
+    const { pathname } = req.nextUrl;
+    let host = req.headers.get("host") || "";
+    host = host.replace(/:\d+$/, ""); // Portu kaldır
+
+    // ❌ Hariç path
+    if (isExcluded(pathname)) {
         return NextResponse.next();
     }
 
-    return NextResponse.rewrite(url);
+    // ❌ Zaten /tenant/ veya /system/ altındaysa (sonsuz döngüyü önle)
+    if (pathname.startsWith("/tenant/") || pathname.startsWith("/system/")) {
+        return NextResponse.next();
+    }
+
+    // Bakım Modu Kontrolü
+    const maintenanceResponse = await checkMaintenance(req, pathname);
+    if (maintenanceResponse) return maintenanceResponse;
+
+    if (TENANCY_MODE === "path") {
+        return handlePathMode(req, pathname);
+    }
+
+    return handleDomainMode(req, host, pathname);
 }

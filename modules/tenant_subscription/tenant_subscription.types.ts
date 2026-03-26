@@ -66,3 +66,25 @@ export type SubscriptionPlan = z.infer<typeof SubscriptionPlanSchema>
 export type PlanWithFeatures = z.infer<typeof PlanWithFeaturesSchema>
 export type TenantSubscription = z.infer<typeof TenantSubscriptionSchema>
 export type TenantSubscriptionWithPlan = z.infer<typeof TenantSubscriptionWithPlanSchema>
+
+// Feature Access Result
+export type FeatureAccessResult =
+  | {
+      allowed: boolean
+      featureKey: string
+      type: 'BOOLEAN'
+      limit: null
+      unlimited: null
+      current: null
+    }
+  | {
+      allowed: boolean
+      featureKey: string
+      type: 'LIMIT'
+      limit: number           // -1 means unlimited
+      unlimited: boolean
+      current: number | null  // null when currentCount not provided
+      gracePercent: number    // 0 = hard limit
+      effectiveLimit: number  // limit + grace ceiling (-1 when unlimited)
+      inGrace: boolean        // true when limit < current <= effectiveLimit
+    }

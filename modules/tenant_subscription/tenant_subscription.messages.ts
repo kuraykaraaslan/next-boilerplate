@@ -27,6 +27,11 @@ export const SUBSCRIPTION_MESSAGES = {
   PAYMENT_ALREADY_PROCESSED: 'Payment has already been processed',
   PAYMENT_INVALID_STATUS: 'Invalid payment status',
 
+  // Feature Access
+  FEATURE_ACCESS_DENIED: 'This feature is not available on your current plan',
+  FEATURE_LIMIT_REACHED: 'You have reached the limit for this feature on your current plan',
+  FEATURE_CHECK_FAILED: 'Failed to check feature access',
+
   // General
   FETCH_FAILED: 'Failed to fetch subscription data',
   UNAUTHORIZED: 'Unauthorized access',

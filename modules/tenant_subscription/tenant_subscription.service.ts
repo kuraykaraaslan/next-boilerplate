@@ -1,6 +1,7 @@
 import { prisma } from '@/libs/prisma'
 import type { Prisma } from '@/prisma/client'
 import Logger from '@/libs/logger'
+import redis from '@/libs/redis'
 import PaymentService from '@/modules/payment/payment.service'
 import type { PaymentProvider, PaymentCurrency } from '@/modules/payment/payment.enums'
 import {
@@ -16,6 +17,7 @@ import type {
   PlanFeature,
   TenantSubscription,
   TenantSubscriptionWithPlan,
+  FeatureAccessResult,
 } from './tenant_subscription.types'
 import type {
   CreatePlanDTO,
@@ -296,6 +298,7 @@ export default class TenantSubscriptionService {
         },
       })
 
+      await this.invalidateFeatureCache(tenantId)
       return TenantSubscriptionSchema.parse(subscription)
     } catch (error) {
       Logger.error(`${SUBSCRIPTION_MESSAGES.SUBSCRIPTION_ASSIGN_FAILED}: ${error instanceof Error ? error.message : String(error)}`)
@@ -337,6 +340,7 @@ export default class TenantSubscriptionService {
         },
       })
 
+      await this.invalidateFeatureCache(tenantId)
       return TenantSubscriptionSchema.parse(subscription)
     } catch (error) {
       Logger.error(`${SUBSCRIPTION_MESSAGES.SUBSCRIPTION_CANCEL_FAILED}: ${error instanceof Error ? error.message : String(error)}`)
@@ -426,6 +430,206 @@ export default class TenantSubscriptionService {
       Logger.error(`${SUBSCRIPTION_MESSAGES.PAYMENT_INITIATION_FAILED}: ${error instanceof Error ? error.message : String(error)}`)
       throw new Error(SUBSCRIPTION_MESSAGES.PAYMENT_INITIATION_FAILED)
     }
+  }
+
+  // ============================================================================
+  // Feature Gating — Redis cache + AuditLog
+  // ============================================================================
+
+  private static readonly FEATURE_CACHE_PREFIX = 'feature:sub:'
+  private static readonly FEATURE_CACHE_TTL = 300 // seconds
+
+  /** Serialisable shape stored in Redis — only the fields needed for gating. */
+  private static featureCacheKey(tenantId: string): string {
+    return `${this.FEATURE_CACHE_PREFIX}${tenantId}`
+  }
+
+  private static async getFeatureCache(tenantId: string): Promise<{
+    status: string
+    features: Array<{ key: string; type: string; value: string }>
+  } | null> {
+    try {
+      const raw = await redis.get(this.featureCacheKey(tenantId))
+      return raw ? JSON.parse(raw) : null
+    } catch {
+      return null // cache miss on any Redis error — fall through to DB
+    }
+  }
+
+  private static async setFeatureCache(
+    tenantId: string,
+    status: string,
+    features: Array<{ key: string; type: string; value: string }>,
+  ): Promise<void> {
+    try {
+      await redis.set(
+        this.featureCacheKey(tenantId),
+        JSON.stringify({ status, features }),
+        'EX',
+        this.FEATURE_CACHE_TTL,
+      )
+    } catch (err) {
+      Logger.warn(`Feature cache set failed for tenant ${tenantId}: ${err instanceof Error ? err.message : String(err)}`)
+    }
+  }
+
+  /** Call after assignPlan / cancelSubscription so stale cache is evicted. */
+  static async invalidateFeatureCache(tenantId: string): Promise<void> {
+    try {
+      await redis.del(this.featureCacheKey(tenantId))
+    } catch (err) {
+      Logger.warn(`Feature cache invalidation failed for tenant ${tenantId}: ${err instanceof Error ? err.message : String(err)}`)
+    }
+  }
+
+  /** Fire-and-forget write to AuditLog — never blocks the caller. */
+  private static logFeatureAccess(tenantId: string, result: FeatureAccessResult): void {
+    prisma.auditLog.create({
+      data: {
+        tenantId,
+        actorType: 'SYSTEM',
+        action: 'feature.access.checked',
+        resourceType: 'PlanFeature',
+        resourceId: result.featureKey,
+        metadata: result as object,
+      },
+    }).catch((err) =>
+      Logger.error(`Feature access audit log failed: ${err instanceof Error ? err.message : String(err)}`)
+    )
+  }
+
+  /**
+   * Check whether a tenant has access to a specific plan feature.
+   *
+   * Flow: Redis cache → DB (+ re-populate cache) → compute result → AuditLog (async)
+   *
+   * - BOOLEAN feature: `allowed` is true when the feature value is `"true"`.
+   * - LIMIT feature: `allowed` is true when `currentCount < limit` (or unlimited).
+   *   Omit `currentCount` to retrieve limit metadata without an access decision.
+   *
+   * Returns `allowed: false` when the tenant has no active subscription or the
+   * feature key is not present on their plan.
+   */
+  static async checkFeatureAccess(
+    tenantId: string,
+    featureKey: string,
+    currentCount?: number,
+    options?: { gracePercent?: number },
+  ): Promise<FeatureAccessResult> {
+    const ACTIVE_STATUSES = ['ACTIVE', 'TRIALING']
+
+    const DENIED_BOOLEAN: FeatureAccessResult = {
+      allowed: false,
+      featureKey,
+      type: 'BOOLEAN',
+      limit: null,
+      unlimited: null,
+      current: null,
+    }
+
+    try {
+      // 1. Redis cache lookup
+      let cached = await this.getFeatureCache(tenantId)
+
+      if (!cached) {
+        // 2. Cache miss → DB query
+        const sub = await prisma.tenantSubscription.findUnique({
+          where: { tenantId },
+          include: {
+            plan: {
+              include: { features: { select: { key: true, type: true, value: true } } },
+            },
+          },
+        })
+
+        if (!sub) {
+          this.logFeatureAccess(tenantId, DENIED_BOOLEAN)
+          return DENIED_BOOLEAN
+        }
+
+        // 3. Populate cache for next calls
+        await this.setFeatureCache(tenantId, sub.status, sub.plan.features)
+        cached = { status: sub.status, features: sub.plan.features }
+      }
+
+      // 4. Subscription status check
+      if (!ACTIVE_STATUSES.includes(cached.status)) {
+        this.logFeatureAccess(tenantId, DENIED_BOOLEAN)
+        return DENIED_BOOLEAN
+      }
+
+      // 5. Feature lookup
+      const feature = cached.features.find((f) => f.key === featureKey)
+      if (!feature) {
+        this.logFeatureAccess(tenantId, DENIED_BOOLEAN)
+        return DENIED_BOOLEAN
+      }
+
+      // 6. Compute result
+      let result: FeatureAccessResult
+
+      if (feature.type === 'BOOLEAN') {
+        result = {
+          allowed: feature.value === 'true',
+          featureKey,
+          type: 'BOOLEAN',
+          limit: null,
+          unlimited: null,
+          current: null,
+        }
+      } else {
+        const gracePercent = options?.gracePercent ?? 0
+        const limit = parseInt(feature.value, 10)
+        const unlimited = limit === -1
+        const current = currentCount ?? null
+        const graceCeiling = unlimited ? -1 : limit + Math.floor(limit * gracePercent / 100)
+        const inGrace = !unlimited && current !== null && current >= limit && current < graceCeiling
+        const allowed = currentCount !== undefined
+          ? unlimited || currentCount < graceCeiling
+          : true // caller uses `limit`/`effectiveLimit` to decide
+        result = {
+          allowed,
+          featureKey,
+          type: 'LIMIT',
+          limit,
+          unlimited,
+          current,
+          gracePercent,
+          effectiveLimit: graceCeiling,
+          inGrace,
+        }
+      }
+
+      // 7. Fire-and-forget audit log
+      this.logFeatureAccess(tenantId, result)
+
+      return result
+    } catch (error) {
+      Logger.error(`${SUBSCRIPTION_MESSAGES.FEATURE_CHECK_FAILED}: ${error instanceof Error ? error.message : String(error)}`)
+      throw new Error(SUBSCRIPTION_MESSAGES.FEATURE_CHECK_FAILED)
+    }
+  }
+
+  /**
+   * Like `checkFeatureAccess` but throws if access is denied.
+   * Use this directly in API routes or service calls that should hard-fail.
+   */
+  static async assertFeatureAccess(
+    tenantId: string,
+    featureKey: string,
+    currentCount?: number,
+    options?: { gracePercent?: number },
+  ): Promise<FeatureAccessResult> {
+    const result = await this.checkFeatureAccess(tenantId, featureKey, currentCount, options)
+
+    if (!result.allowed) {
+      const message = result.type === 'LIMIT'
+        ? SUBSCRIPTION_MESSAGES.FEATURE_LIMIT_REACHED
+        : SUBSCRIPTION_MESSAGES.FEATURE_ACCESS_DENIED
+      throw new Error(message)
+    }
+
+    return result
   }
 
   static async confirmPayment(paymentId: string): Promise<TenantSubscription> {
