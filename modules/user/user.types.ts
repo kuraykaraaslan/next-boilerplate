@@ -27,10 +27,10 @@ export const SafeUserSchema = UserSchema.omit({
 });
 
 export const UpdateUserSchema = z.object({
-  email: z.string().email().nullable(),
-  phone: z.string().nullable(),
-  userRole: UserRoleEnum.nullable(),
-  userStatus: UserStatusEnum.nullable(),
+  email: z.string().email().nullable().optional(),
+  phone: z.string().nullable().optional(),
+  userRole: UserRoleEnum.nullable().optional(),
+  userStatus: UserStatusEnum.nullable().optional(),
 });
 
 export type User = z.infer<typeof UserSchema>;
