@@ -55,7 +55,7 @@ const Layout = ({
 
     return (
         <>
-            <Navbar variant="system"/>
+            <Navbar />
             <div style={{ flex: 1 }} className="container mx-auto px-4 pt-4 md:pt-12 lg:px-8 max-w-8xl mb-8 mt- flex flex-col md:flex-row gap-4">
                 {/* [children] */}
                 {children}

@@ -49,8 +49,7 @@ const UserPage = () => {
                 <TableHeader
                     title="admin.users.title"
                     searchPlaceholder="admin.users.search_placeholder"
-                    buttonText="admin.users.create_user"
-                    buttonLink="/system/admin/users/create"
+                    buttons={[{ label: "admin.users.create_user", href: "/system/admin/users/create" }]}
                 />
                 <TableBody />
                 <TableFooter

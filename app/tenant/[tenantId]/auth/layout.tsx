@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { ReactNode, Suspense } from 'react';
 import 'react-toastify/dist/ReactToastify.css';
 import TenantSettingService from '@/modules/tenant_setting/tenant_setting.service';

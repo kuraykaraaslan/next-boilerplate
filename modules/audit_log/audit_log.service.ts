@@ -16,7 +16,8 @@ export default class AuditLogService {
       const data = CreateAuditLogDTO.parse(input);
 
       if (data.tenantId) {
-        await tenantPrisma.auditLog.create({ data });
+        const { tenantId, ...rest } = data;
+        await tenantPrisma.auditLog.create({ data: { ...rest, tenantId } });
       } else {
         const { tenantId: _tenantId, ...systemData } = data;
         await systemPrisma.auditLog.create({ data: systemData });

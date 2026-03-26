@@ -1,7 +1,7 @@
 'use client'
 import { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import Link from '@/libs/i18n/Link'
+import Link from 'next/link'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faRefresh } from '@fortawesome/free-solid-svg-icons'
 import { useTableContext } from '../core/TableContext'

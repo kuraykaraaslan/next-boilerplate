@@ -8,7 +8,7 @@ import { StorageProviderType } from './storage.enums'
 import { UploadFileDTO, UploadFromUrlDTO, DeleteFileDTO, GetFileUrlDTO } from './storage.dto'
 import { UploadResult, S3Config } from './storage.types'
 import { STORAGE_MESSAGES } from './storage.messages'
-import SettingService, { SYSTEM_TENANT_ID } from '@/modules/setting/setting.service'
+import SettingService from '@/modules/setting/setting.service'
 import { STORAGE_KEYS } from './storage.setting.keys'
 
 export default class StorageService {
@@ -65,7 +65,7 @@ export default class StorageService {
    * Upload a file to storage
    */
   static async uploadFile(data: UploadFileDTO): Promise<UploadResult> {
-    const { file, folder, filename, provider: requestedProvider, tenantId = SYSTEM_TENANT_ID } = data
+    const { file, folder, filename, provider: requestedProvider, tenantId = 'system' } = data
 
     try {
       const { provider, resolvedName } = await StorageService.getProvider(requestedProvider)
@@ -85,7 +85,7 @@ export default class StorageService {
    * Upload a file from URL to storage
    */
   static async uploadFromUrl(data: UploadFromUrlDTO): Promise<UploadResult> {
-    const { url, folder, filename, provider: requestedProvider, tenantId = SYSTEM_TENANT_ID } = data
+    const { url, folder, filename, provider: requestedProvider, tenantId = 'system' } = data
 
     try {
       const { provider, resolvedName } = await StorageService.getProvider(requestedProvider)

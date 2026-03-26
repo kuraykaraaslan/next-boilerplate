@@ -1,6 +1,6 @@
 // path: app/tenant/[tenantId]/api/settings/public/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import SettingService from "@/modules/setting/setting.service";
+import TenantSettingService from "@/modules/tenant_setting/tenant_setting.service";
 import { TENANT_BRANDING_KEYS } from '@/modules/tenant_branding/tenant_branding.setting.keys'
 
 
@@ -20,7 +20,7 @@ export async function GET(
   
   try {
     const { tenantId } = await params;
-    const settings = await SettingService.getByKeys(PUBLIC_SETTINGS_KEYS, tenantId);
+    const settings = await TenantSettingService.getByKeys(tenantId, PUBLIC_SETTINGS_KEYS);
 
     return NextResponse.json({
       success: true,

@@ -1,4 +1,4 @@
-import GenericElement from '@/components/admin/UI/Forms/GenericElement'
+import GenericElement from '@/components/common/forms/GenericElement'
 
 interface CheckboxGroupProps {
   label: string

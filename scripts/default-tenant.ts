@@ -1,21 +1,23 @@
 import 'dotenv/config';
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient, TenantMemberRole } from '../prisma/client';
+import { PrismaClient as SystemPrismaClient } from '../prisma/system/client';
+import { PrismaClient as TenantPrismaClient, TenantMemberRole } from '../prisma/tenant/client';
 import bcrypt from "bcrypt";
 
-const connectionString = `${process.env.DATABASE_URL}`;
-const adapter = new PrismaPg({ connectionString });
-const prisma = new PrismaClient({ adapter });
+const systemAdapter = new PrismaPg({ connectionString: `${process.env.SYSTEM_DATABASE_URL}` });
+const tenantAdapter = new PrismaPg({ connectionString: `${process.env.TENANT_DATABASE_URL}` });
+const systemPrisma = new SystemPrismaClient({ adapter: systemAdapter });
+const tenantPrisma = new TenantPrismaClient({ adapter: tenantAdapter });
 
 async function main() {
   const email = 'eneskuray@gmail.com';
   const password = 'qwerty20';
 
   // 1. Get or Create the first tenant
-  let tenant = await prisma.tenant.findFirst();
-  
+  let tenant = await tenantPrisma.tenant.findFirst();
+
   if (!tenant) {
-    tenant = await prisma.tenant.create({
+    tenant = await tenantPrisma.tenant.create({
       data: {
         name: 'Default Tenant',
         description: 'First tenant created by setup script',
@@ -31,7 +33,7 @@ async function main() {
   const hashedPassword = await bcrypt.hash(password, 10);
 
   // 3. Create or update the user
-  const user = await prisma.user.upsert({
+  const user = await systemPrisma.user.upsert({
     where: { email },
     update: {
       password: hashedPassword,
@@ -47,7 +49,7 @@ async function main() {
   console.log('User processed:', user.email);
 
   // 4. Associate user with tenant if not already a member
-  const member = await prisma.tenantMember.upsert({
+  const member = await tenantPrisma.tenantMember.upsert({
     where: {
       tenantId_userId: {
         tenantId: tenant.tenantId,
@@ -75,7 +77,7 @@ async function main() {
 
   // 5. Create a default domain for the tenant
   const defaultDomain = `acme.${process.env.TENANT_WILDCARD_DOMAIN}`;
-  const tenantDomain = await prisma.tenantDomain.create({
+  const tenantDomain = await tenantPrisma.tenantDomain.create({
     data: {
       tenantId: tenant.tenantId,
       domain: defaultDomain,
@@ -92,5 +94,6 @@ main()
     process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect();
+    await systemPrisma.$disconnect();
+    await tenantPrisma.$disconnect();
   });

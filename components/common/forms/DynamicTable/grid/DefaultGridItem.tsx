@@ -1,4 +1,4 @@
-import Link from '@/libs/i18n/Link'
+import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
 import type { ActionButton, ColumnDef, GridItemRenderProps } from '../core/types'
 

@@ -45,7 +45,7 @@ export default class TenantMemberService {
     const userIds = members.map(m => m.userId);
     const users = await systemPrisma.user.findMany({
       where: { userId: { in: userIds } },
-      select: { userId: true, email: true, phone: true, userRole: true, userStatus: true, createdAt: true, updatedAt: true }
+      select: { userId: true, email: true, phone: true, userRole: true, userStatus: true, emailVerifiedAt: true, createdAt: true, updatedAt: true }
     });
     const userMap = Object.fromEntries(users.map(u => [u.userId, u]));
 

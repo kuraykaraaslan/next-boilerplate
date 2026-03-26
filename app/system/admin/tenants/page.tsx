@@ -61,8 +61,7 @@ const TenantsPage = () => {
                 <TableHeader
                     title="Tenants"
                     searchPlaceholder="Search tenants..."
-                    buttonText="Create Tenant"
-                    buttonLink="/admin/tenants/create"
+                    buttons={[{ label: "Create Tenant", href: "/admin/tenants/create" }]}
                 />
                 <TableBody />
                 <TableFooter

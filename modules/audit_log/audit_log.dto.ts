@@ -8,7 +8,7 @@ export const CreateAuditLogDTO = z.object({
   action:       z.string().min(1),
   resourceType: z.string().nullable().optional(),
   resourceId:   z.string().nullable().optional(),
-  metadata:     z.record(z.string(), z.unknown()).nullable().optional(),
+  metadata:     z.record(z.string(), z.any()).optional(),
   ipAddress:    z.string().nullable().optional(),
   userAgent:    z.string().nullable().optional(),
 });

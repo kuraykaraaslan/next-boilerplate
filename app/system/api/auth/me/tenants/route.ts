@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import UserSessionNextService from "@/modules/user_session/user_session.service.next";
 import Limiter from "@/libs/limiter";
-import { prisma } from "@/libs/prisma";
+import { tenantPrisma } from "@/libs/prisma";
 
 /**
  * GET /system/api/auth/me/tenants
@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
         });
 
         // Get all tenant memberships for this user with tenant details
-        const memberships = await prisma.tenantMember.findMany({
+        const memberships = await tenantPrisma.tenantMember.findMany({
             where: {
                 userId: user.userId,
                 memberStatus: 'ACTIVE',
@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
 
         // Get pending invitations for this user's email
         const now = new Date();
-        const pendingInvitations = await prisma.tenantInvitation.findMany({
+        const pendingInvitations = await tenantPrisma.tenantInvitation.findMany({
             where: {
                 email: user.email.toLowerCase(),
                 status: 'PENDING',
