@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import { prisma } from "@/libs/prisma";
+import { systemPrisma } from "@/libs/prisma";
 import bcrypt from "bcrypt";
 import redis from "@/libs/redis";
 import Logger from "@/libs/logger";
@@ -42,7 +42,7 @@ export default class AuthService {
     static async login({ email, password }: { email: string, password: string }): Promise<{ user: SafeUser }> {
 
         // Get the user by email
-        const user = await prisma.user.findUnique({
+        const user = await systemPrisma.user.findUnique({
             where: { email: email.toLowerCase() },
         });
 
@@ -88,7 +88,7 @@ export default class AuthService {
         }
 
         // Create the user
-        const createdUser = await prisma.user.create({
+        const createdUser = await systemPrisma.user.create({
             data: {
                 phone,
                 email: email.toLowerCase(),
@@ -134,7 +134,7 @@ export default class AuthService {
         email: string;
         name?: string;
     }): Promise<void> {
-        const user = await prisma.user.findUnique({ where: { userId } });
+        const user = await systemPrisma.user.findUnique({ where: { userId } });
         if (!user) throw new Error(AuthMessages.USER_NOT_FOUND);
         if (user.emailVerifiedAt) throw new Error(AuthMessages.EMAIL_ALREADY_VERIFIED);
 
@@ -163,7 +163,7 @@ export default class AuthService {
         userId: string;
         token: string;
     }): Promise<void> {
-        const user = await prisma.user.findUnique({ where: { userId } });
+        const user = await systemPrisma.user.findUnique({ where: { userId } });
         if (!user) throw new Error(AuthMessages.USER_NOT_FOUND);
         if (user.emailVerifiedAt) throw new Error(AuthMessages.EMAIL_ALREADY_VERIFIED);
 
@@ -174,7 +174,7 @@ export default class AuthService {
         const inputHash = crypto.createHash("sha256").update(token).digest("hex");
         if (inputHash !== storedHash) throw new Error(AuthMessages.INVALID_VERIFICATION_TOKEN);
 
-        await prisma.user.update({
+        await systemPrisma.user.update({
             where: { userId },
             data: { emailVerifiedAt: new Date() },
         });

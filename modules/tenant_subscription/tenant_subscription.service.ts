@@ -1,5 +1,5 @@
-import { prisma } from '@/libs/prisma'
-import type { Prisma } from '@/prisma/client'
+import { systemPrisma, tenantPrisma } from '@/libs/prisma'
+import type { Prisma as SystemPrisma } from '@/prisma/system/client'
 import Logger from '@/libs/logger'
 import redis from '@/libs/redis'
 import PaymentService from '@/modules/payment/payment.service'
@@ -38,13 +38,13 @@ export default class TenantSubscriptionService {
     try {
       // If this plan is set as default, unset other defaults
       if (data.isDefault) {
-        await prisma.subscriptionPlan.updateMany({
+        await systemPrisma.subscriptionPlan.updateMany({
           where: { isDefault: true },
           data: { isDefault: false },
         })
       }
 
-      const plan = await prisma.subscriptionPlan.create({
+      const plan = await systemPrisma.subscriptionPlan.create({
         data: {
           name: data.name,
           description: data.description,
@@ -66,7 +66,7 @@ export default class TenantSubscriptionService {
   }
 
   static async updatePlan(planId: string, data: UpdatePlanDTO): Promise<SubscriptionPlan> {
-    const existing = await prisma.subscriptionPlan.findUnique({ where: { planId } })
+    const existing = await systemPrisma.subscriptionPlan.findUnique({ where: { planId } })
     if (!existing) {
       throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND)
     }
@@ -74,13 +74,13 @@ export default class TenantSubscriptionService {
     try {
       // If setting as default, unset other defaults
       if (data.isDefault) {
-        await prisma.subscriptionPlan.updateMany({
+        await systemPrisma.subscriptionPlan.updateMany({
           where: { isDefault: true, planId: { not: planId } },
           data: { isDefault: false },
         })
       }
 
-      const plan = await prisma.subscriptionPlan.update({
+      const plan = await systemPrisma.subscriptionPlan.update({
         where: { planId },
         data: {
           name: data.name,
@@ -103,21 +103,23 @@ export default class TenantSubscriptionService {
   }
 
   static async deletePlan(planId: string): Promise<void> {
-    const existing = await prisma.subscriptionPlan.findUnique({
-      where: { planId },
-      include: { subscriptions: { where: { status: 'ACTIVE' }, take: 1 } },
-    })
+    const existing = await systemPrisma.subscriptionPlan.findUnique({ where: { planId } })
 
     if (!existing) {
       throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND)
     }
 
-    if (existing.subscriptions.length > 0) {
+    // Cross-DB: check active subscriptions in tenant DB
+    const activeCount = await tenantPrisma.tenantSubscription.count({
+      where: { planId, status: 'ACTIVE' },
+    })
+
+    if (activeCount > 0) {
       throw new Error(SUBSCRIPTION_MESSAGES.PLAN_HAS_SUBSCRIPTIONS)
     }
 
     try {
-      await prisma.subscriptionPlan.delete({ where: { planId } })
+      await systemPrisma.subscriptionPlan.delete({ where: { planId } })
     } catch (error) {
       Logger.error(`${SUBSCRIPTION_MESSAGES.PLAN_DELETE_FAILED}: ${error instanceof Error ? error.message : String(error)}`)
       throw new Error(SUBSCRIPTION_MESSAGES.PLAN_DELETE_FAILED)
@@ -125,10 +127,10 @@ export default class TenantSubscriptionService {
   }
 
   static async getPlans(status?: SubscriptionPlanStatus): Promise<SubscriptionPlan[]> {
-    const where: Prisma.SubscriptionPlanWhereInput = {}
+    const where: SystemPrisma.SubscriptionPlanWhereInput = {}
     if (status) where.status = status
 
-    const plans = await prisma.subscriptionPlan.findMany({
+    const plans = await systemPrisma.subscriptionPlan.findMany({
       where,
       orderBy: { sortOrder: 'asc' },
     })
@@ -137,7 +139,7 @@ export default class TenantSubscriptionService {
   }
 
   static async getPlanById(planId: string): Promise<SubscriptionPlan> {
-    const plan = await prisma.subscriptionPlan.findUnique({ where: { planId } })
+    const plan = await systemPrisma.subscriptionPlan.findUnique({ where: { planId } })
     if (!plan) {
       throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND)
     }
@@ -145,7 +147,7 @@ export default class TenantSubscriptionService {
   }
 
   static async getPlanWithFeatures(planId: string): Promise<PlanWithFeatures> {
-    const plan = await prisma.subscriptionPlan.findUnique({
+    const plan = await systemPrisma.subscriptionPlan.findUnique({
       where: { planId },
       include: { features: { orderBy: { sortOrder: 'asc' } } },
     })
@@ -158,10 +160,10 @@ export default class TenantSubscriptionService {
   }
 
   static async getPlansWithFeatures(status?: SubscriptionPlanStatus): Promise<PlanWithFeatures[]> {
-    const where: Prisma.SubscriptionPlanWhereInput = {}
+    const where: SystemPrisma.SubscriptionPlanWhereInput = {}
     if (status) where.status = status
 
-    const plans = await prisma.subscriptionPlan.findMany({
+    const plans = await systemPrisma.subscriptionPlan.findMany({
       where,
       include: { features: { orderBy: { sortOrder: 'asc' } } },
       orderBy: { sortOrder: 'asc' },
@@ -175,13 +177,13 @@ export default class TenantSubscriptionService {
   // ============================================================================
 
   static async addFeature(planId: string, data: CreateFeatureDTO): Promise<PlanFeature> {
-    const plan = await prisma.subscriptionPlan.findUnique({ where: { planId } })
+    const plan = await systemPrisma.subscriptionPlan.findUnique({ where: { planId } })
     if (!plan) {
       throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND)
     }
 
     try {
-      const feature = await prisma.planFeature.create({
+      const feature = await systemPrisma.planFeature.create({
         data: {
           planId,
           key: data.key,
@@ -203,13 +205,13 @@ export default class TenantSubscriptionService {
   }
 
   static async updateFeature(featureId: string, data: UpdateFeatureDTO): Promise<PlanFeature> {
-    const existing = await prisma.planFeature.findUnique({ where: { featureId } })
+    const existing = await systemPrisma.planFeature.findUnique({ where: { featureId } })
     if (!existing) {
       throw new Error(SUBSCRIPTION_MESSAGES.FEATURE_NOT_FOUND)
     }
 
     try {
-      const feature = await prisma.planFeature.update({
+      const feature = await systemPrisma.planFeature.update({
         where: { featureId },
         data: {
           key: data.key,
@@ -231,13 +233,13 @@ export default class TenantSubscriptionService {
   }
 
   static async removeFeature(featureId: string): Promise<void> {
-    const existing = await prisma.planFeature.findUnique({ where: { featureId } })
+    const existing = await systemPrisma.planFeature.findUnique({ where: { featureId } })
     if (!existing) {
       throw new Error(SUBSCRIPTION_MESSAGES.FEATURE_NOT_FOUND)
     }
 
     try {
-      await prisma.planFeature.delete({ where: { featureId } })
+      await systemPrisma.planFeature.delete({ where: { featureId } })
     } catch (error) {
       Logger.error(`${SUBSCRIPTION_MESSAGES.FEATURE_DELETE_FAILED}: ${error instanceof Error ? error.message : String(error)}`)
       throw new Error(SUBSCRIPTION_MESSAGES.FEATURE_DELETE_FAILED)
@@ -245,7 +247,7 @@ export default class TenantSubscriptionService {
   }
 
   static async getFeaturesByPlan(planId: string): Promise<PlanFeature[]> {
-    const features = await prisma.planFeature.findMany({
+    const features = await systemPrisma.planFeature.findMany({
       where: { planId },
       orderBy: { sortOrder: 'asc' },
     })
@@ -258,7 +260,7 @@ export default class TenantSubscriptionService {
   // ============================================================================
 
   static async assignPlan(tenantId: string, data: AssignSubscriptionDTO): Promise<TenantSubscription> {
-    const plan = await prisma.subscriptionPlan.findUnique({ where: { planId: data.planId } })
+    const plan = await systemPrisma.subscriptionPlan.findUnique({ where: { planId: data.planId } })
     if (!plan) {
       throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND)
     }
@@ -276,7 +278,7 @@ export default class TenantSubscriptionService {
       : null
 
     try {
-      const subscription = await prisma.tenantSubscription.upsert({
+      const subscription = await tenantPrisma.tenantSubscription.upsert({
         where: { tenantId },
         update: {
           planId: data.planId,
@@ -307,22 +309,21 @@ export default class TenantSubscriptionService {
   }
 
   static async getSubscription(tenantId: string): Promise<TenantSubscriptionWithPlan | null> {
-    const subscription = await prisma.tenantSubscription.findUnique({
-      where: { tenantId },
-      include: {
-        plan: {
-          include: { features: { orderBy: { sortOrder: 'asc' } } },
-        },
-      },
-    })
-
+    const subscription = await tenantPrisma.tenantSubscription.findUnique({ where: { tenantId } })
     if (!subscription) return null
 
-    return TenantSubscriptionWithPlanSchema.parse(subscription)
+    // Cross-DB: fetch plan + features from system DB
+    const plan = await systemPrisma.subscriptionPlan.findUnique({
+      where: { planId: subscription.planId },
+      include: { features: { orderBy: { sortOrder: 'asc' } } },
+    })
+    if (!plan) return null
+
+    return TenantSubscriptionWithPlanSchema.parse({ ...subscription, plan })
   }
 
   static async cancelSubscription(tenantId: string): Promise<TenantSubscription> {
-    const existing = await prisma.tenantSubscription.findUnique({ where: { tenantId } })
+    const existing = await tenantPrisma.tenantSubscription.findUnique({ where: { tenantId } })
     if (!existing) {
       throw new Error(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_NOT_FOUND)
     }
@@ -332,7 +333,7 @@ export default class TenantSubscriptionService {
     }
 
     try {
-      const subscription = await prisma.tenantSubscription.update({
+      const subscription = await tenantPrisma.tenantSubscription.update({
         where: { tenantId },
         data: {
           status: 'CANCELLED',
@@ -365,7 +366,7 @@ export default class TenantSubscriptionService {
     const { tenantId, planId, billingInterval, successUrl, cancelUrl, provider, customerEmail, customerName } = params
 
     // Get plan details
-    const plan = await prisma.subscriptionPlan.findUnique({ where: { planId } })
+    const plan = await systemPrisma.subscriptionPlan.findUnique({ where: { planId } })
     if (!plan) {
       throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND)
     }
@@ -484,7 +485,7 @@ export default class TenantSubscriptionService {
 
   /** Fire-and-forget write to AuditLog — never blocks the caller. */
   private static logFeatureAccess(tenantId: string, result: FeatureAccessResult): void {
-    prisma.auditLog.create({
+    tenantPrisma.auditLog.create({
       data: {
         tenantId,
         actorType: 'SYSTEM',
@@ -532,24 +533,23 @@ export default class TenantSubscriptionService {
       let cached = await this.getFeatureCache(tenantId)
 
       if (!cached) {
-        // 2. Cache miss → DB query
-        const sub = await prisma.tenantSubscription.findUnique({
-          where: { tenantId },
-          include: {
-            plan: {
-              include: { features: { select: { key: true, type: true, value: true } } },
-            },
-          },
-        })
+        // 2. Cache miss → two DB queries (subscription from tenant DB, features from system DB)
+        const sub = await tenantPrisma.tenantSubscription.findUnique({ where: { tenantId } })
 
         if (!sub) {
           this.logFeatureAccess(tenantId, DENIED_BOOLEAN)
           return DENIED_BOOLEAN
         }
 
+        const plan = await systemPrisma.subscriptionPlan.findUnique({
+          where: { planId: sub.planId },
+          include: { features: { select: { key: true, type: true, value: true } } },
+        })
+        const features = plan?.features ?? []
+
         // 3. Populate cache for next calls
-        await this.setFeatureCache(tenantId, sub.status, sub.plan.features)
-        cached = { status: sub.status, features: sub.plan.features }
+        await this.setFeatureCache(tenantId, sub.status, features)
+        cached = { status: sub.status, features }
       }
 
       // 4. Subscription status check

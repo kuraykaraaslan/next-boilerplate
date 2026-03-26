@@ -1,5 +1,5 @@
-import { prisma } from "@/libs/prisma";
-import type { Prisma } from '@/prisma/client';
+import { systemPrisma } from "@/libs/prisma";
+import type { Prisma } from '@/prisma/system/client';
 import { User, SafeUser, UpdateUser, SafeUserSchema, UserSchema } from './user.types';
 import type { UserRole, UserStatus } from './user.enums';
 import bcrypt from "bcrypt";
@@ -18,7 +18,7 @@ export default class UserService {
       throw new Error(UserMessages.INVALID_EMAIL);
     }
 
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await systemPrisma.user.findUnique({
       where: { email: email.toLowerCase() }
     });
 
@@ -32,7 +32,7 @@ export default class UserService {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await prisma.user.create({
+    const user = await systemPrisma.user.create({
       data: {
         email: email.toLowerCase(),
         password: hashedPassword,
@@ -65,12 +65,12 @@ export default class UserService {
     }
 
     const [users, total] = await Promise.all([
-      prisma.user.findMany({
+      systemPrisma.user.findMany({
         where,
         skip: page * pageSize,
         take: pageSize
       }),
-      prisma.user.count({ where })
+      systemPrisma.user.count({ where })
     ]);
 
     return {
@@ -81,7 +81,7 @@ export default class UserService {
 
   static async getById(userId: string): Promise<SafeUser> {
 
-    const user = await prisma.user.findUnique({
+    const user = await systemPrisma.user.findUnique({
       where: { userId }
     });
 
@@ -98,7 +98,7 @@ export default class UserService {
       throw new Error(UserMessages.USER_NOT_FOUND);
     }
 
-    const user = await prisma.user.findUnique({
+    const user = await systemPrisma.user.findUnique({
       where: { userId }
     });
 
@@ -106,7 +106,7 @@ export default class UserService {
       throw new Error(UserMessages.USER_NOT_FOUND);
     }
 
-    const updatedUser = await prisma.user.update({
+    const updatedUser = await systemPrisma.user.update({
       where: { userId },
       data: {
         email: data.email || undefined,
@@ -121,7 +121,7 @@ export default class UserService {
 
   static async delete(userId: string): Promise<void> {
 
-    const user = await prisma.user.findUnique({
+    const user = await systemPrisma.user.findUnique({
       where: { userId }
     });
 
@@ -129,12 +129,12 @@ export default class UserService {
       throw new Error(UserMessages.USER_NOT_FOUND);
     }
 
-    await prisma.user.delete({ where: { userId } });
+    await systemPrisma.user.delete({ where: { userId } });
   }
 
   static async getByEmail(email: string): Promise<User | null> {
 
-    const user = await prisma.user.findUnique({
+    const user = await systemPrisma.user.findUnique({
       where: { email: email.toLowerCase() }
     });
 

@@ -1,6 +1,6 @@
 import crypto from "crypto";
-import { prisma } from "@/libs/prisma";
-import type { Prisma } from "@/prisma/client";
+import { systemPrisma, tenantPrisma } from "@/libs/prisma";
+import type { Prisma } from "@/prisma/tenant/client";
 import { SafeTenantInvitation, SafeTenantInvitationSchema } from "./tenant_invitation.types";
 import { SendInvitationInput, GetInvitationsInput } from "./tenant_invitation.dto";
 import TenantInvitationMessages from "./tenant_invitation.messages";
@@ -36,13 +36,13 @@ export default class TenantInvitationService {
     const safePage = Math.max(1, page);
 
     const [rows, total] = await Promise.all([
-      prisma.tenantInvitation.findMany({
+      tenantPrisma.tenantInvitation.findMany({
         where,
         skip: (safePage - 1) * pageSize,
         take: pageSize,
         orderBy: { createdAt: "desc" },
       }),
-      prisma.tenantInvitation.count({ where }),
+      tenantPrisma.tenantInvitation.count({ where }),
     ]);
 
     return {
@@ -52,7 +52,7 @@ export default class TenantInvitationService {
   }
 
   static async getById(invitationId: string): Promise<SafeTenantInvitation> {
-    const invitation = await prisma.tenantInvitation.findFirst({
+    const invitation = await tenantPrisma.tenantInvitation.findFirst({
       where: { invitationId },
     });
 
@@ -66,7 +66,7 @@ export default class TenantInvitationService {
   static async getByToken(rawToken: string): Promise<SafeTenantInvitation> {
     const hashed = TenantInvitationService.hashToken(rawToken);
 
-    const invitation = await prisma.tenantInvitation.findFirst({
+    const invitation = await tenantPrisma.tenantInvitation.findFirst({
       where: { token: hashed },
     });
 
@@ -88,7 +88,7 @@ export default class TenantInvitationService {
     const normalizedEmail = email.toLowerCase();
 
     // Check that the email isn't already an active member
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await systemPrisma.user.findUnique({
       where: { email: normalizedEmail },
     });
 
@@ -105,7 +105,7 @@ export default class TenantInvitationService {
     }
 
     // Auto-revoke any existing PENDING invite for same tenant+email
-    await prisma.tenantInvitation.updateMany({
+    await tenantPrisma.tenantInvitation.updateMany({
       where: { tenantId, email: normalizedEmail, status: "PENDING" },
       data: { status: "REVOKED" },
     });
@@ -114,7 +114,7 @@ export default class TenantInvitationService {
     const hashedToken = TenantInvitationService.hashToken(rawToken);
     const expiresAt = new Date(Date.now() + INVITATION_TTL_SECONDS * 1000);
 
-    const invitation = await prisma.tenantInvitation.create({
+    const invitation = await tenantPrisma.tenantInvitation.create({
       data: {
         tenantId,
         email: normalizedEmail,
@@ -138,7 +138,7 @@ export default class TenantInvitationService {
   ): Promise<{ invitation: SafeTenantInvitation; tenant: { tenantId: string; name: string } }> {
     const hashed = TenantInvitationService.hashToken(rawToken);
 
-    const invitation = await prisma.tenantInvitation.findFirst({
+    const invitation = await tenantPrisma.tenantInvitation.findFirst({
       where: { token: hashed, tenantId },
       include: { tenant: true },
     });
@@ -161,7 +161,7 @@ export default class TenantInvitationService {
   static async accept(tenantId: string, userId: string, userEmail: string, rawToken: string): Promise<void> {
     const hashed = TenantInvitationService.hashToken(rawToken);
 
-    const invitation = await prisma.tenantInvitation.findFirst({
+    const invitation = await tenantPrisma.tenantInvitation.findFirst({
       where: { token: hashed, tenantId },
     });
 
@@ -183,7 +183,7 @@ export default class TenantInvitationService {
       memberStatus: "ACTIVE",
     });
 
-    await prisma.tenantInvitation.update({
+    await tenantPrisma.tenantInvitation.update({
       where: { invitationId: invitation.invitationId },
       data: { status: "ACCEPTED" },
     });
@@ -195,7 +195,7 @@ export default class TenantInvitationService {
   static async decline(tenantId: string, userEmail: string, rawToken: string): Promise<void> {
     const hashed = TenantInvitationService.hashToken(rawToken);
 
-    const invitation = await prisma.tenantInvitation.findFirst({
+    const invitation = await tenantPrisma.tenantInvitation.findFirst({
       where: { token: hashed, tenantId },
     });
 
@@ -209,7 +209,7 @@ export default class TenantInvitationService {
 
     TenantInvitationService.assertUsable(invitation);
 
-    await prisma.tenantInvitation.update({
+    await tenantPrisma.tenantInvitation.update({
       where: { invitationId: invitation.invitationId },
       data: { status: "DECLINED" },
     });
@@ -219,7 +219,7 @@ export default class TenantInvitationService {
    * Revoke an invitation (admin action).
    */
   static async revoke(invitationId: string, tenantId: string): Promise<void> {
-    const invitation = await prisma.tenantInvitation.findFirst({
+    const invitation = await tenantPrisma.tenantInvitation.findFirst({
       where: { invitationId, tenantId },
     });
 
@@ -231,7 +231,7 @@ export default class TenantInvitationService {
       throw new Error(TenantInvitationMessages.INVITATION_NOT_FOUND);
     }
 
-    await prisma.tenantInvitation.update({
+    await tenantPrisma.tenantInvitation.update({
       where: { invitationId },
       data: { status: "REVOKED" },
     });
@@ -244,7 +244,7 @@ export default class TenantInvitationService {
     const normalizedEmail = email.toLowerCase();
     const now = new Date();
 
-    const pending = await prisma.tenantInvitation.findMany({
+    const pending = await tenantPrisma.tenantInvitation.findMany({
       where: {
         email: normalizedEmail,
         status: "PENDING",
@@ -269,7 +269,7 @@ export default class TenantInvitationService {
           });
         }
 
-        await prisma.tenantInvitation.update({
+        await tenantPrisma.tenantInvitation.update({
           where: { invitationId: invitation.invitationId },
           data: { status: "ACCEPTED" },
         });

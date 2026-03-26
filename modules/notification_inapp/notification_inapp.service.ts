@@ -1,6 +1,6 @@
 import { Redis } from "ioredis";
 import redis, { createRedisConnection } from "@/libs/redis";
-import { prisma } from "@/libs/prisma";
+import { systemPrisma } from "@/libs/prisma";
 import { v4 as uuid } from "uuid";
 import type { Notification, NotificationPayload } from "./notification_inapp.types";
 import type { UserRole } from "../user/user.enums";
@@ -77,7 +77,7 @@ export default class NotificationInAppService {
 
   /** Push to all users with a specific role (e.g. 'ADMIN', 'USER') */
   static async pushToRole(role: UserRole, data: NotificationPayload): Promise<void> {
-    const users = await prisma.user.findMany({
+    const users = await systemPrisma.user.findMany({
       where: { userRole: role },
       select: { userId: true },
     });
@@ -91,7 +91,7 @@ export default class NotificationInAppService {
 
   /** Push to all active users in the database */
   static async pushToAll(data: NotificationPayload): Promise<void> {
-    const users = await prisma.user.findMany({
+    const users = await systemPrisma.user.findMany({
       where: { userStatus: "ACTIVE" },
       select: { userId: true },
     });

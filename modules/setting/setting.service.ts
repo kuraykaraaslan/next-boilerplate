@@ -1,10 +1,7 @@
-import { prisma } from "@/libs/prisma";
+import { systemPrisma } from "@/libs/prisma";
 import { Setting, SettingSchema } from './setting.types';
 import redis from '@/libs/redis';
 import SettingMessages from './setting.messages';
-
-// System-wide settings use this tenant ID
-export const SYSTEM_TENANT_ID = '00000000-0000-0000-0000-000000000000';
 
 export default class SettingService {
 
@@ -15,11 +12,9 @@ export default class SettingService {
   // Cache Helpers
   // ============================================================================
 
-  private static getCacheKey(tenantId: string, key?: string): string {
-    if (key) {
-      return `${this.REDIS_KEY_PREFIX}${tenantId}:${key}`;
-    }
-    return `${this.REDIS_KEY_PREFIX}${tenantId}:all`;
+  private static getCacheKey(key?: string): string {
+    if (key) return `${this.REDIS_KEY_PREFIX}${key}`;
+    return `${this.REDIS_KEY_PREFIX}all`;
   }
 
   private static async getFromCache(cacheKey: string): Promise<string | null> {
@@ -46,18 +41,17 @@ export default class SettingService {
     }
   }
 
-  private static async invalidateAllCache(tenantId: string): Promise<void> {
-    await this.deleteCache(this.getCacheKey(tenantId));
+  private static async invalidateAllCache(): Promise<void> {
+    await this.deleteCache(this.getCacheKey());
   }
 
   // ============================================================================
   // Read Operations
   // ============================================================================
 
-  static async getAll(tenantId: string = SYSTEM_TENANT_ID): Promise<Setting[]> {
-    const cacheKey = this.getCacheKey(tenantId);
+  static async getAll(): Promise<Setting[]> {
+    const cacheKey = this.getCacheKey();
 
-    // Check cache first
     const cached = await this.getFromCache(cacheKey);
     if (cached) {
       try {
@@ -67,22 +61,16 @@ export default class SettingService {
       }
     }
 
-    // Fetch from DB
-    const settings = await prisma.setting.findMany({
-      where: { tenantId }
-    });
+    const settings = await systemPrisma.setting.findMany();
     const parsedSettings = settings.map(s => SettingSchema.parse(s));
 
-    // Cache result
     await this.setCache(cacheKey, JSON.stringify(parsedSettings));
-
     return parsedSettings;
   }
 
-  static async getByKey(key: string, tenantId: string = SYSTEM_TENANT_ID): Promise<Setting | null> {
-    const cacheKey = this.getCacheKey(tenantId, key);
+  static async getByKey(key: string): Promise<Setting | null> {
+    const cacheKey = this.getCacheKey(key);
 
-    // Check cache first
     const cached = await this.getFromCache(cacheKey);
     if (cached) {
       try {
@@ -92,34 +80,20 @@ export default class SettingService {
       }
     }
 
-    // Fetch from DB
-    const setting = await prisma.setting.findUnique({
-      where: { tenantId_key: { tenantId, key } }
-    });
-
-    if (!setting) {
-      return null;
-    }
+    const setting = await systemPrisma.setting.findUnique({ where: { key } });
+    if (!setting) return null;
 
     const parsedSetting = SettingSchema.parse(setting);
-
-    // Cache result
     await this.setCache(cacheKey, JSON.stringify(parsedSetting));
-
     return parsedSetting;
   }
 
-  static async getByKeys(keys: string[], tenantId: string = SYSTEM_TENANT_ID): Promise<Record<string, string>> {
+  static async getByKeys(keys: string[]): Promise<Record<string, string>> {
     const result: Record<string, string> = {};
+    if (!Array.isArray(keys) || keys.length === 0) return result;
 
-    if (!Array.isArray(keys) || keys.length === 0) {
-      return result;
-    }
-
-    // Try to get from Redis cache (batch)
-    const cacheKeys = keys.map(k => this.getCacheKey(tenantId, k));
+    const cacheKeys = keys.map(k => this.getCacheKey(k));
     let cachedArr: (string | null)[] = [];
-
     try {
       cachedArr = await redis.mget(...cacheKeys);
     } catch {
@@ -127,178 +101,93 @@ export default class SettingService {
     }
 
     const missingKeys: string[] = [];
-
     for (let i = 0; i < keys.length; i++) {
-      const key = keys[i];
       const cached = cachedArr[i];
-
       if (cached) {
         try {
-          const parsed = JSON.parse(cached);
-          result[key] = parsed.value;
+          result[keys[i]] = JSON.parse(cached).value;
           continue;
         } catch {
-          // Invalid cache, will fetch from DB
+          // fall through
         }
       }
-      missingKeys.push(key);
+      missingKeys.push(keys[i]);
     }
 
-    // Fetch missing keys from DB
     if (missingKeys.length > 0) {
-      const settings = await prisma.setting.findMany({
-        where: {
-          tenantId,
-          key: { in: missingKeys }
-        }
+      const settings = await systemPrisma.setting.findMany({
+        where: { key: { in: missingKeys } }
       });
-
       for (const setting of settings) {
         result[setting.key] = setting.value;
-        // Cache individual setting
-        await this.setCache(
-          this.getCacheKey(tenantId, setting.key),
-          JSON.stringify(SettingSchema.parse(setting))
-        );
+        await this.setCache(this.getCacheKey(setting.key), JSON.stringify(SettingSchema.parse(setting)));
       }
     }
 
     return result;
   }
 
-  static async getValue(key: string, tenantId: string = SYSTEM_TENANT_ID): Promise<string | null> {
-    const setting = await this.getByKey(key, tenantId);
+  static async getValue(key: string): Promise<string | null> {
+    const setting = await this.getByKey(key);
     return setting?.value ?? null;
-  }
-
-  /**
-   * Get value with fallback to system settings if tenant setting not found
-   */
-  static async getValueWithFallback(key: string, tenantId: string): Promise<string | null> {
-    // First try tenant-specific setting
-    const tenantSetting = await this.getByKey(key, tenantId);
-    if (tenantSetting) {
-      return tenantSetting.value;
-    }
-
-    // Fallback to system setting
-    if (tenantId !== SYSTEM_TENANT_ID) {
-      const systemSetting = await this.getByKey(key, SYSTEM_TENANT_ID);
-      return systemSetting?.value ?? null;
-    }
-
-    return null;
   }
 
   // ============================================================================
   // Write Operations
   // ============================================================================
 
-  static async create(
-    key: string,
-    value: string,
-    tenantId: string = SYSTEM_TENANT_ID,
-    group?: string,
-    type?: string
-  ): Promise<Setting> {
-    const setting = await prisma.setting.upsert({
-      where: { tenantId_key: { tenantId, key } },
-      update: {
-        value,
-        ...(group && { group }),
-        ...(type && { type })
-      },
-      create: {
-        tenantId,
-        key,
-        value,
-        group: group ?? 'general',
-        type: type ?? 'string'
-      }
+  static async create(key: string, value: string, group?: string, type?: string): Promise<Setting> {
+    const setting = await systemPrisma.setting.upsert({
+      where: { key },
+      update: { value, ...(group && { group }), ...(type && { type }) },
+      create: { key, value, group: group ?? 'general', type: type ?? 'string' }
     });
 
     const parsedSetting = SettingSchema.parse(setting);
-
-    // Update cache
-    await this.setCache(this.getCacheKey(tenantId, key), JSON.stringify(parsedSetting));
-    await this.invalidateAllCache(tenantId);
-
+    await this.setCache(this.getCacheKey(key), JSON.stringify(parsedSetting));
+    await this.invalidateAllCache();
     return parsedSetting;
   }
 
-  static async update(key: string, value: string, tenantId: string = SYSTEM_TENANT_ID): Promise<Setting> {
-    const setting = await prisma.setting.findUnique({
-      where: { tenantId_key: { tenantId, key } }
-    });
+  static async update(key: string, value: string): Promise<Setting> {
+    const existing = await systemPrisma.setting.findUnique({ where: { key } });
+    if (!existing) throw new Error(SettingMessages.SETTING_NOT_FOUND);
 
-    if (!setting) {
-      throw new Error(SettingMessages.SETTING_NOT_FOUND);
-    }
+    const updated = await systemPrisma.setting.update({ where: { key }, data: { value } });
+    const parsedSetting = SettingSchema.parse(updated);
 
-    const updatedSetting = await prisma.setting.update({
-      where: { tenantId_key: { tenantId, key } },
-      data: { value }
-    });
-
-    const parsedSetting = SettingSchema.parse(updatedSetting);
-
-    // Update cache
-    await this.setCache(this.getCacheKey(tenantId, key), JSON.stringify(parsedSetting));
-    await this.invalidateAllCache(tenantId);
-
+    await this.setCache(this.getCacheKey(key), JSON.stringify(parsedSetting));
+    await this.invalidateAllCache();
     return parsedSetting;
   }
 
-  static async updateMany(
-    settings: Record<string, string>,
-    tenantId: string = SYSTEM_TENANT_ID
-  ): Promise<Setting[]> {
+  static async updateMany(settings: Record<string, string>): Promise<Setting[]> {
     const updatedSettings: Setting[] = [];
 
     for (const key in settings) {
-      const upsertedSetting = await prisma.setting.upsert({
-        where: { tenantId_key: { tenantId, key } },
+      const upserted = await systemPrisma.setting.upsert({
+        where: { key },
         update: { value: settings[key] },
-        create: {
-          tenantId,
-          key,
-          value: settings[key],
-          group: 'general',
-          type: 'string'
-        }
+        create: { key, value: settings[key], group: 'general', type: 'string' }
       });
-
-      const parsedSetting = SettingSchema.parse(upsertedSetting);
-      updatedSettings.push(parsedSetting);
-
-      // Update individual cache
-      await this.setCache(this.getCacheKey(tenantId, key), JSON.stringify(parsedSetting));
+      const parsed = SettingSchema.parse(upserted);
+      updatedSettings.push(parsed);
+      await this.setCache(this.getCacheKey(key), JSON.stringify(parsed));
     }
 
-    // Invalidate all cache
-    await this.invalidateAllCache(tenantId);
-
+    await this.invalidateAllCache();
     return updatedSettings;
   }
 
-  static async delete(key: string, tenantId: string = SYSTEM_TENANT_ID): Promise<Setting | null> {
-    const setting = await prisma.setting.findUnique({
-      where: { tenantId_key: { tenantId, key } }
-    });
-
-    if (!setting) {
-      return null;
-    }
+  static async delete(key: string): Promise<Setting | null> {
+    const setting = await systemPrisma.setting.findUnique({ where: { key } });
+    if (!setting) return null;
 
     const parsedSetting = SettingSchema.parse(setting);
-    await prisma.setting.delete({
-      where: { tenantId_key: { tenantId, key } }
-    });
+    await systemPrisma.setting.delete({ where: { key } });
 
-    // Clear cache
-    await this.deleteCache(this.getCacheKey(tenantId, key));
-    await this.invalidateAllCache(tenantId);
-
+    await this.deleteCache(this.getCacheKey(key));
+    await this.invalidateAllCache();
     return parsedSetting;
   }
 
@@ -306,35 +195,21 @@ export default class SettingService {
   // Utility Methods
   // ============================================================================
 
-  static async getAllAsRecord(tenantId: string = SYSTEM_TENANT_ID): Promise<Record<string, string>> {
-    const settings = await this.getAll(tenantId);
-    const result: Record<string, string> = {};
-
-    for (const setting of settings) {
-      result[setting.key] = setting.value;
-    }
-
-    return result;
+  static async getAllAsRecord(): Promise<Record<string, string>> {
+    const settings = await this.getAll();
+    return Object.fromEntries(settings.map(s => [s.key, s.value]));
   }
 
-  static async getByGroup(group: string, tenantId: string = SYSTEM_TENANT_ID): Promise<Setting[]> {
-    const settings = await prisma.setting.findMany({
-      where: { tenantId, group }
-    });
+  static async getByGroup(group: string): Promise<Setting[]> {
+    const settings = await systemPrisma.setting.findMany({ where: { group } });
     return settings.map(s => SettingSchema.parse(s));
   }
 
-  static async clearCache(tenantId: string = SYSTEM_TENANT_ID): Promise<void> {
-    // Clear all settings cache for tenant
-    const settings = await prisma.setting.findMany({
-      where: { tenantId },
-      select: { key: true }
-    });
-
-    for (const setting of settings) {
-      await this.deleteCache(this.getCacheKey(tenantId, setting.key));
+  static async clearCache(): Promise<void> {
+    const settings = await systemPrisma.setting.findMany({ select: { key: true } });
+    for (const s of settings) {
+      await this.deleteCache(this.getCacheKey(s.key));
     }
-
-    await this.invalidateAllCache(tenantId);
+    await this.invalidateAllCache();
   }
 }

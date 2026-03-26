@@ -1,10 +1,10 @@
-import { prisma } from "@/libs/prisma";
+import { systemPrisma } from "@/libs/prisma";
 import { UserPreferences, UserPreferencesDefault, UserPreferencesSchema } from "./user_preferences.types";
 
 export default class UserPreferencesService {
 
   static async getByUserId(userId: string): Promise<UserPreferences | null> {
-    const preferences = await prisma.userPreferences.findUnique({
+    const preferences = await systemPrisma.userPreferences.findUnique({
       where: { userId }
     });
 
@@ -16,7 +16,7 @@ export default class UserPreferencesService {
   }
 
   static async create(userId: string, data?: Partial<UserPreferences>): Promise<UserPreferences> {
-    const existing = await prisma.userPreferences.findUnique({
+    const existing = await systemPrisma.userPreferences.findUnique({
       where: { userId }
     });
 
@@ -24,7 +24,7 @@ export default class UserPreferencesService {
       throw new Error("Preferences already exist for this user");
     }
 
-    const preferences = await prisma.userPreferences.create({
+    const preferences = await systemPrisma.userPreferences.create({
       data: {
         userId,
         ...UserPreferencesDefault,
@@ -36,7 +36,7 @@ export default class UserPreferencesService {
   }
 
   static async update(userId: string, data: Partial<UserPreferences>): Promise<UserPreferences> {
-    const preferences = await prisma.userPreferences.findUnique({
+    const preferences = await systemPrisma.userPreferences.findUnique({
       where: { userId }
     });
 
@@ -44,7 +44,7 @@ export default class UserPreferencesService {
       throw new Error("Preferences not found");
     }
 
-    const updated = await prisma.userPreferences.update({
+    const updated = await systemPrisma.userPreferences.update({
       where: { userId },
       data
     });
@@ -55,7 +55,7 @@ export default class UserPreferencesService {
   static async upsert(userId: string, data: Partial<UserPreferences>): Promise<UserPreferences> {
     const defaults = UserPreferencesSchema.parse({});
 
-    const preferences = await prisma.userPreferences.upsert({
+    const preferences = await systemPrisma.userPreferences.upsert({
       where: { userId },
       update: data,
       create: {
@@ -69,7 +69,7 @@ export default class UserPreferencesService {
   }
 
   static async delete(userId: string): Promise<void> {
-    const preferences = await prisma.userPreferences.findUnique({
+    const preferences = await systemPrisma.userPreferences.findUnique({
       where: { userId }
     });
 
@@ -77,11 +77,11 @@ export default class UserPreferencesService {
       throw new Error("Preferences not found");
     }
 
-    await prisma.userPreferences.delete({ where: { userId } });
+    await systemPrisma.userPreferences.delete({ where: { userId } });
   }
 
   static async getOrCreateDefault(userId: string): Promise<UserPreferences> {
-    const existing = await prisma.userPreferences.findUnique({
+    const existing = await systemPrisma.userPreferences.findUnique({
       where: { userId }
     });
 

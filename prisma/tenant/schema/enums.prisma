@@ -1,0 +1,103 @@
+// Tenant Enums
+enum TenantStatus {
+  ACTIVE
+  INACTIVE
+  PENDING
+  SUSPENDED
+  DELETED
+  ARCHIVED
+}
+
+// Tenant Invitation Enums
+enum TenantInvitationStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  EXPIRED
+  REVOKED
+}
+
+// Tenant Member Enums
+enum TenantMemberRole {
+  OWNER
+  ADMIN
+  USER
+}
+
+enum TenantMemberStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING
+}
+
+// Domain Enums
+enum DomainStatus {
+  ACTIVE
+  INACTIVE
+  PENDING
+  VERIFIED
+}
+
+// Subscription Enums
+enum BillingInterval {
+  MONTHLY
+  YEARLY
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+  EXPIRED
+  TRIALING
+}
+
+// Payment Enums
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+  CANCELLED
+  EXPIRED
+}
+
+enum PaymentProvider {
+  STRIPE
+  PAYPAL
+  IYZICO
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  DEBIT_CARD
+  BANK_TRANSFER
+  PAYPAL
+  APPLE_PAY
+  GOOGLE_PAY
+  OTHER
+}
+
+enum TransactionType {
+  PAYMENT
+  REFUND
+  CHARGEBACK
+  PAYOUT
+}
+
+enum TransactionStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+// Audit Log Enums
+enum AuditActorType {
+  USER
+  SYSTEM
+}

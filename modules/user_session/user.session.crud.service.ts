@@ -1,4 +1,4 @@
-import { prisma } from "@/libs/prisma";
+import { systemPrisma } from "@/libs/prisma";
 import redis from "@/libs/redis";
 import { v4 as uuidv4 } from "uuid";
 import { SafeUserSession, SafeUserSessionSchema } from "./user_session.types";
@@ -56,7 +56,7 @@ export default class UserSessionCrudService {
 
     const otpVerifyNeeded = !otpIgnore && (userSecurity?.otpMethods?.length ?? 0) > 0;
 
-    const session = await prisma.userSession.create({
+    const session = await systemPrisma.userSession.create({
       data: {
         userSessionId,
         userId: user.userId,
@@ -104,7 +104,7 @@ export default class UserSessionCrudService {
       }
     }
 
-    const session = await prisma.userSession.findFirst({
+    const session = await systemPrisma.userSession.findFirst({
       where: {
         accessToken: hashedToken,
         userId: decoded.userId,
@@ -145,7 +145,7 @@ export default class UserSessionCrudService {
     const decoded = UserSessionTokenService.verifyRefreshToken(refreshToken);
     const hashedRefreshToken = UserSessionTokenService.hashToken(refreshToken);
 
-    const session = await prisma.userSession.findFirst({
+    const session = await systemPrisma.userSession.findFirst({
       where: {
         refreshToken: hashedRefreshToken,
         userId: decoded.userId,
@@ -166,7 +166,7 @@ export default class UserSessionCrudService {
 
     // Reuse detection
     if (session.refreshToken !== hashedRefreshToken) {
-      await prisma.userSession.deleteMany({ where: { userId: session.userId } });
+      await systemPrisma.userSession.deleteMany({ where: { userId: session.userId } });
       await UserSessionCacheService.clearUserSessionCache(session.userId);
       throw new Error(UserSessionMessages.REFRESH_TOKEN_REUSED);
     }
@@ -183,7 +183,7 @@ export default class UserSessionCrudService {
       deviceFingerprint: session.deviceFingerprint ?? undefined,
     });
 
-    const updatedSession = await prisma.userSession.update({
+    const updatedSession = await systemPrisma.userSession.update({
       where: { userSessionId: session.userSessionId },
       data: {
         accessToken: UserSessionTokenService.hashToken(newAccessToken),
@@ -205,7 +205,7 @@ export default class UserSessionCrudService {
     userSessionId: string,
     updates: Partial<Pick<{ otpVerifyNeeded: boolean; sessionStatus: SessionStatus }, "otpVerifyNeeded" | "sessionStatus">>
   ): Promise<SafeUserSession> {
-    const session = await prisma.userSession.findUnique({
+    const session = await systemPrisma.userSession.findUnique({
       where: { userSessionId },
     });
 
@@ -213,7 +213,7 @@ export default class UserSessionCrudService {
       throw new Error(UserSessionMessages.SESSION_NOT_FOUND);
     }
 
-    const updatedSession = await prisma.userSession.update({
+    const updatedSession = await systemPrisma.userSession.update({
       where: { userSessionId },
       data: updates,
     });
@@ -224,18 +224,18 @@ export default class UserSessionCrudService {
   }
 
   static async deleteSession(userSessionId: string): Promise<void> {
-    const session = await prisma.userSession.findUnique({
+    const session = await systemPrisma.userSession.findUnique({
       where: { userSessionId },
     });
 
     if (session) {
-      await prisma.userSession.delete({ where: { userSessionId } });
+      await systemPrisma.userSession.delete({ where: { userSessionId } });
       await UserSessionCacheService.clearUserSessionCache(session.userId);
     }
   }
 
   static async deleteOtherSessions(userId: string, currentSessionId: string): Promise<void> {
-    await prisma.userSession.deleteMany({
+    await systemPrisma.userSession.deleteMany({
       where: {
         userId,
         NOT: { userSessionId: currentSessionId },
@@ -246,12 +246,12 @@ export default class UserSessionCrudService {
   }
 
   static async deleteAllSessions(userId: string): Promise<void> {
-    await prisma.userSession.deleteMany({ where: { userId } });
+    await systemPrisma.userSession.deleteMany({ where: { userId } });
     await UserSessionCacheService.clearUserSessionCache(userId);
   }
 
   static async getUserSessions(userId: string): Promise<SafeUserSession[]> {
-    const sessions = await prisma.userSession.findMany({
+    const sessions = await systemPrisma.userSession.findMany({
       where: {
         userId,
         sessionStatus: "ACTIVE",

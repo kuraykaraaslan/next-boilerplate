@@ -1,10 +1,10 @@
-import { prisma } from "@/libs/prisma";
+import { systemPrisma } from "@/libs/prisma";
 import { UserProfile, UserProfileSchema, SocialLinkItem } from "./user_profile.types";
 
 export default class UserProfileService {
 
   static async getByUserId(userId: string): Promise<UserProfile | null> {
-    const profile = await prisma.userProfile.findUnique({
+    const profile = await systemPrisma.userProfile.findUnique({
       where: { userId }
     });
 
@@ -16,7 +16,7 @@ export default class UserProfileService {
   }
 
   static async create(userId: string, data?: Partial<UserProfile>): Promise<UserProfile> {
-    const existing = await prisma.userProfile.findUnique({
+    const existing = await systemPrisma.userProfile.findUnique({
       where: { userId }
     });
 
@@ -24,7 +24,7 @@ export default class UserProfileService {
       throw new Error("Profile already exists for this user");
     }
 
-    const profile = await prisma.userProfile.create({
+    const profile = await systemPrisma.userProfile.create({
       data: {
         userId,
         name: data?.name ?? null,
@@ -39,7 +39,7 @@ export default class UserProfileService {
   }
 
   static async update(userId: string, data: Partial<UserProfile>): Promise<UserProfile> {
-    const profile = await prisma.userProfile.findUnique({
+    const profile = await systemPrisma.userProfile.findUnique({
       where: { userId }
     });
 
@@ -47,7 +47,7 @@ export default class UserProfileService {
       throw new Error("Profile not found");
     }
 
-    const updated = await prisma.userProfile.update({
+    const updated = await systemPrisma.userProfile.update({
       where: { userId },
       data: {
         name: data.name ? data.name : undefined,
@@ -62,7 +62,7 @@ export default class UserProfileService {
   }
 
   static async upsert(userId: string, data: Partial<UserProfile>): Promise<UserProfile> {
-    const profile = await prisma.userProfile.upsert({
+    const profile = await systemPrisma.userProfile.upsert({
       where: { userId },
       update: {
         name: data.name ? data.name : undefined,
@@ -85,7 +85,7 @@ export default class UserProfileService {
   }
 
   static async delete(userId: string): Promise<void> {
-    const profile = await prisma.userProfile.findUnique({
+    const profile = await systemPrisma.userProfile.findUnique({
       where: { userId }
     });
 
@@ -93,11 +93,11 @@ export default class UserProfileService {
       throw new Error("Profile not found");
     }
 
-    await prisma.userProfile.delete({ where: { userId } });
+    await systemPrisma.userProfile.delete({ where: { userId } });
   }
 
   static async addSocialLink(userId: string, link: SocialLinkItem): Promise<UserProfile> {
-    const profile = await prisma.userProfile.findUnique({
+    const profile = await systemPrisma.userProfile.findUnique({
       where: { userId }
     });
 
@@ -107,7 +107,7 @@ export default class UserProfileService {
 
     const socialLinks = [...(profile.socialLinks as SocialLinkItem[]), link];
 
-    const updated = await prisma.userProfile.update({
+    const updated = await systemPrisma.userProfile.update({
       where: { userId },
       data: { socialLinks }
     });
@@ -116,7 +116,7 @@ export default class UserProfileService {
   }
 
   static async removeSocialLink(userId: string, linkId: string): Promise<UserProfile> {
-    const profile = await prisma.userProfile.findUnique({
+    const profile = await systemPrisma.userProfile.findUnique({
       where: { userId }
     });
 
@@ -126,7 +126,7 @@ export default class UserProfileService {
 
     const socialLinks = (profile.socialLinks as SocialLinkItem[]).filter(link => link.id !== linkId);
 
-    const updated = await prisma.userProfile.update({
+    const updated = await systemPrisma.userProfile.update({
       where: { userId },
       data: { socialLinks }
     });
@@ -135,7 +135,7 @@ export default class UserProfileService {
   }
 
   static async updateSocialLink(userId: string, linkId: string, data: Partial<SocialLinkItem>): Promise<UserProfile> {
-    const profile = await prisma.userProfile.findUnique({
+    const profile = await systemPrisma.userProfile.findUnique({
       where: { userId }
     });
 
@@ -147,7 +147,7 @@ export default class UserProfileService {
       link.id === linkId ? { ...link, ...data } : link
     );
 
-    const updated = await prisma.userProfile.update({
+    const updated = await systemPrisma.userProfile.update({
       where: { userId },
       data: { socialLinks }
     });

@@ -1,5 +1,5 @@
-import { prisma } from "@/libs/prisma";
-import type { Prisma } from "@/prisma/client";
+import { systemPrisma, tenantPrisma } from "@/libs/prisma";
+import type { Prisma } from "@/prisma/tenant/client";
 import { SafeTenantMember, SafeTenantMemberSchema } from "./tenant_member.types";
 import { CreateTenantMemberInput, UpdateTenantMemberInput, GetTenantMembersInput, GetTenantMemberInput } from "./tenant_member.dto";
 import TenantMemberMessages from "./tenant_member.messages";
@@ -15,134 +15,106 @@ export default class TenantMemberService {
       deletedAt: null
     };
 
-    if (memberRole) {
-      where.memberRole = memberRole;
-    }
+    if (memberRole) where.memberRole = memberRole;
+    if (memberStatus) where.memberStatus = memberStatus;
 
-    if (memberStatus) {
-      where.memberStatus = memberStatus;
-    }
-
+    // Cross-DB: resolve email search via system DB
     if (search) {
-      where.user = {
-        email: { contains: search, mode: 'insensitive' }
-      };
+      const matchingUsers = await systemPrisma.user.findMany({
+        where: { email: { contains: search, mode: 'insensitive' } },
+        select: { userId: true }
+      });
+      const matchingIds = matchingUsers.map(u => u.userId);
+      if (matchingIds.length === 0) return { members: [], total: 0 };
+      where.userId = { in: matchingIds };
     }
 
-    // Ensure page is at least 1 for 1-indexed pagination
     const safePage = Math.max(1, page);
 
     const [members, total] = await Promise.all([
-      prisma.tenantMember.findMany({
+      tenantPrisma.tenantMember.findMany({
         where,
-        include: {
-          user: {
-            select: {
-              userId: true,
-              email: true,
-              phone: true,
-              userRole: true,
-              userStatus: true,
-              createdAt: true,
-              updatedAt: true,
-            }
-          }
-        },
         skip: (safePage - 1) * pageSize,
         take: pageSize,
         orderBy: { createdAt: 'desc' }
       }),
-      prisma.tenantMember.count({ where })
+      tenantPrisma.tenantMember.count({ where })
     ]);
+
+    // Hydrate user data from system DB
+    const userIds = members.map(m => m.userId);
+    const users = await systemPrisma.user.findMany({
+      where: { userId: { in: userIds } },
+      select: { userId: true, email: true, phone: true, userRole: true, userStatus: true, createdAt: true, updatedAt: true }
+    });
+    const userMap = Object.fromEntries(users.map(u => [u.userId, u]));
 
     return {
       members: members.map(member => ({
         ...SafeTenantMemberSchema.parse(member),
-        user: member.user
+        user: userMap[member.userId]
       })),
       total
     };
   }
 
   static async getById(tenantMemberId: string): Promise<SafeTenantMember> {
-    const member = await prisma.tenantMember.findFirst({
+    const member = await tenantPrisma.tenantMember.findFirst({
       where: { tenantMemberId, deletedAt: null }
     });
 
-    if (!member) {
-      throw new Error(TenantMemberMessages.MEMBER_NOT_FOUND);
-    }
-
+    if (!member) throw new Error(TenantMemberMessages.MEMBER_NOT_FOUND);
     return SafeTenantMemberSchema.parse(member);
   }
 
-  static async getByTenantAndUser({ tenantMemberId,tenantId, userId }: GetTenantMemberInput): Promise<SafeTenantMember | null> {
+  static async getByTenantAndUser({ tenantMemberId, tenantId, userId }: GetTenantMemberInput): Promise<SafeTenantMember | null> {
     if (tenantMemberId) {
-      const member = await prisma.tenantMember.findFirst({
+      const member = await tenantPrisma.tenantMember.findFirst({
         where: { tenantMemberId, deletedAt: null }
       });
-
-      if (!member) {
-        return null;
-      }
-
-      if (member.tenantId !== tenantId || member.userId !== userId) {
-        return null;
-      }
-      return member ? SafeTenantMemberSchema.parse(member) : null;
+      if (!member) return null;
+      if (member.tenantId !== tenantId || member.userId !== userId) return null;
+      return SafeTenantMemberSchema.parse(member);
     }
 
-    if (!tenantId || !userId) {
-      return null;
-    }
+    if (!tenantId || !userId) return null;
 
-    const member = await prisma.tenantMember.findFirst({
+    const member = await tenantPrisma.tenantMember.findFirst({
       where: { tenantId, userId, deletedAt: null }
     });
-
     return member ? SafeTenantMemberSchema.parse(member) : null;
   }
 
   static async create(data: CreateTenantMemberInput): Promise<SafeTenantMember> {
-    const existing = await prisma.tenantMember.findFirst({
+    const existing = await tenantPrisma.tenantMember.findFirst({
       where: { tenantId: data.tenantId, userId: data.userId, deletedAt: null }
     });
 
-    if (existing) {
-      throw new Error(TenantMemberMessages.MEMBER_ALREADY_EXISTS);
-    }
+    if (existing) throw new Error(TenantMemberMessages.MEMBER_ALREADY_EXISTS);
 
-    const member = await prisma.tenantMember.create({
-      data
-    });
-
+    const member = await tenantPrisma.tenantMember.create({ data });
     return SafeTenantMemberSchema.parse(member);
   }
 
   static async update(tenantMemberId: string, data: UpdateTenantMemberInput): Promise<SafeTenantMember> {
-    const member = await prisma.tenantMember.findFirst({
+    const member = await tenantPrisma.tenantMember.findFirst({
       where: { tenantMemberId, deletedAt: null }
     });
 
-    if (!member) {
-      throw new Error(TenantMemberMessages.MEMBER_NOT_FOUND);
-    }
+    if (!member) throw new Error(TenantMemberMessages.MEMBER_NOT_FOUND);
 
     if (member.memberRole === 'OWNER' && data.memberRole && data.memberRole !== 'OWNER') {
-      const ownerCount = await prisma.tenantMember.count({
+      const ownerCount = await tenantPrisma.tenantMember.count({
         where: { tenantId: member.tenantId, memberRole: 'OWNER', deletedAt: null }
       });
-
-      if (ownerCount <= 1) {
-        throw new Error(TenantMemberMessages.CANNOT_DEMOTE_OWNER);
-      }
+      if (ownerCount <= 1) throw new Error(TenantMemberMessages.CANNOT_DEMOTE_OWNER);
     }
 
     const updateData = Object.fromEntries(
       Object.entries(data).filter(([_, value]) => value !== null)
     ) as Prisma.TenantMemberUpdateInput;
 
-    const updated = await prisma.tenantMember.update({
+    const updated = await tenantPrisma.tenantMember.update({
       where: { tenantMemberId },
       data: updateData
     });
@@ -151,56 +123,44 @@ export default class TenantMemberService {
   }
 
   static async delete(tenantMemberId: string): Promise<void> {
-    const member = await prisma.tenantMember.findFirst({
+    const member = await tenantPrisma.tenantMember.findFirst({
       where: { tenantMemberId, deletedAt: null }
     });
 
-    if (!member) {
-      throw new Error(TenantMemberMessages.MEMBER_NOT_FOUND);
-    }
+    if (!member) throw new Error(TenantMemberMessages.MEMBER_NOT_FOUND);
 
     if (member.memberRole === 'OWNER') {
-      const ownerCount = await prisma.tenantMember.count({
+      const ownerCount = await tenantPrisma.tenantMember.count({
         where: { tenantId: member.tenantId, memberRole: 'OWNER', deletedAt: null }
       });
-
-      if (ownerCount <= 1) {
-        throw new Error(TenantMemberMessages.LAST_OWNER);
-      }
+      if (ownerCount <= 1) throw new Error(TenantMemberMessages.LAST_OWNER);
     }
 
-    // Soft delete
-    await prisma.tenantMember.update({
+    await tenantPrisma.tenantMember.update({
       where: { tenantMemberId },
       data: { deletedAt: new Date() }
     });
   }
 
   static async getUserTenants(userId: string): Promise<SafeTenantMember[]> {
-    const members = await prisma.tenantMember.findMany({
+    const members = await tenantPrisma.tenantMember.findMany({
       where: { userId, memberStatus: 'ACTIVE', deletedAt: null },
       include: { tenant: true }
     });
-
     return members.map(member => SafeTenantMemberSchema.parse(member));
   }
 
   static hasRole(member: SafeTenantMember, requiredRole: TenantMemberRole): boolean {
     const memberRoleIndex = this.ROLE_HIERARCHY.indexOf(member.memberRole);
     const requiredRoleIndex = this.ROLE_HIERARCHY.indexOf(requiredRole);
-
     return memberRoleIndex <= requiredRoleIndex;
   }
 
   static async checkPermission(tenantId: string, userId: string, requiredRole: TenantMemberRole): Promise<boolean> {
-    const member = await prisma.tenantMember.findFirst({
+    const member = await tenantPrisma.tenantMember.findFirst({
       where: { tenantId, userId, memberStatus: 'ACTIVE', deletedAt: null }
     });
-
-    if (!member) {
-      return false;
-    }
-
+    if (!member) return false;
     return this.hasRole(SafeTenantMemberSchema.parse(member), requiredRole);
   }
 }

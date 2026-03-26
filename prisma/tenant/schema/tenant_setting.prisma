@@ -1,0 +1,15 @@
+model TenantSetting {
+  tenantId  String   @db.Uuid
+  key       String   @db.VarChar
+  value     String   @db.Text
+  group     String   @default("general") @db.VarChar
+  type      String   @default("string") @db.VarChar
+  createdAt DateTime @default(now()) @db.Timestamp
+  updatedAt DateTime @updatedAt @db.Timestamp
+
+  tenant Tenant @relation(fields: [tenantId], references: [tenantId], onDelete: Cascade)
+
+  @@id([tenantId, key])
+  @@index([tenantId, group])
+  @@map("tenant_settings")
+}

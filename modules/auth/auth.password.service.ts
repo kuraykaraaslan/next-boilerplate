@@ -1,7 +1,7 @@
 import crypto from "crypto";
 import bcrypt from "bcrypt";
 import redis from "@/libs/redis";
-import { prisma } from "@/libs/prisma";
+import { systemPrisma } from "@/libs/prisma";
 import Logger from "@/libs/logger";
 import UserService from "../user/user.service";
 import MailService from "../notification_mail/notification_mail.service";
@@ -59,7 +59,7 @@ export default class PasswordService {
    * @returns The reset token (to be sent via email/SMS)
    */
   static async forgotPassword({ email }: { email: string }): Promise<{ resetToken: string }> {
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await systemPrisma.user.findUnique({ where: { email } });
     if (!user) {
       throw new Error(AuthMessages.USER_NOT_FOUND);
     }
@@ -127,7 +127,7 @@ export default class PasswordService {
 
     // Update password
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    await prisma.user.update({
+    await systemPrisma.user.update({
       where: { userId: user.userId },
       data: { password: hashedPassword }
     });

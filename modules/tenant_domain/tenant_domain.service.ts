@@ -1,4 +1,4 @@
-import { prisma } from "@/libs/prisma";
+import { tenantPrisma } from "@/libs/prisma";
 import redis from "@/libs/redis";
 import { SafeTenantDomain, SafeTenantDomainSchema, DomainVerificationInfo } from "./tenant_domain.types";
 import { CreateTenantDomainInput, UpdateTenantDomainInput, GetTenantDomainsInput, InitiateVerificationInput } from "./tenant_domain.dto";
@@ -30,13 +30,13 @@ export default class TenantDomainService {
 
   static async getByTenantId({ tenantId, page, pageSize }: GetTenantDomainsInput): Promise<{ domains: SafeTenantDomain[], total: number }> {
     const [domains, total] = await Promise.all([
-      prisma.tenantDomain.findMany({
+      tenantPrisma.tenantDomain.findMany({
         where: { tenantId },
         skip: (page - 1) * pageSize,
         take: pageSize,
         orderBy: [{ isPrimary: 'desc' }, { createdAt: 'desc' }]
       }),
-      prisma.tenantDomain.count({ where: { tenantId } })
+      tenantPrisma.tenantDomain.count({ where: { tenantId } })
     ]);
 
     return {
@@ -57,7 +57,7 @@ export default class TenantDomainService {
       }
     }
 
-    const domain = await prisma.tenantDomain.findUnique({
+    const domain = await tenantPrisma.tenantDomain.findUnique({
       where: { tenantDomainId }
     });
 
@@ -82,7 +82,7 @@ export default class TenantDomainService {
       }
     }
 
-    const found = await prisma.tenantDomain.findUnique({
+    const found = await tenantPrisma.tenantDomain.findUnique({
       where: { domain }
     });
 
@@ -110,7 +110,7 @@ export default class TenantDomainService {
       }
     }
 
-    const domain = await prisma.tenantDomain.findFirst({
+    const domain = await tenantPrisma.tenantDomain.findFirst({
       where: { tenantId, isPrimary: true }
     });
 
@@ -128,7 +128,7 @@ export default class TenantDomainService {
     const isSubdomain = data.domain.endsWith(`.${wildcardDomain}`);
 
     // Check existing domain
-    const existing = await prisma.tenantDomain.findUnique({
+    const existing = await tenantPrisma.tenantDomain.findUnique({
       where: { domain: data.domain }
     });
 
@@ -138,13 +138,13 @@ export default class TenantDomainService {
 
     // Check limits
     const [domainCount, subdomainCount, maxDomainsSetting, maxSubdomainsSetting] = await Promise.all([
-      prisma.tenantDomain.count({ 
+      tenantPrisma.tenantDomain.count({ 
         where: { 
           tenantId: data.tenantId,
           NOT: { domain: { endsWith: `.${wildcardDomain}` } }
         } 
       }),
-      prisma.tenantDomain.count({ 
+      tenantPrisma.tenantDomain.count({ 
         where: { 
           tenantId: data.tenantId,
           domain: { endsWith: `.${wildcardDomain}` }
@@ -168,13 +168,13 @@ export default class TenantDomainService {
     }
 
     if (data.isPrimary) {
-      await prisma.tenantDomain.updateMany({
+      await tenantPrisma.tenantDomain.updateMany({
         where: { tenantId: data.tenantId, isPrimary: true },
         data: { isPrimary: false }
       });
     }
 
-    const domain = await prisma.tenantDomain.create({
+    const domain = await tenantPrisma.tenantDomain.create({
       data: {
         ...data,
         domainStatus: 'PENDING'
@@ -187,7 +187,7 @@ export default class TenantDomainService {
   }
 
   static async update(tenantDomainId: string, data: UpdateTenantDomainInput): Promise<SafeTenantDomain> {
-    const domain = await prisma.tenantDomain.findUnique({
+    const domain = await tenantPrisma.tenantDomain.findUnique({
       where: { tenantDomainId }
     });
 
@@ -196,13 +196,13 @@ export default class TenantDomainService {
     }
 
     if (data.isPrimary) {
-      await prisma.tenantDomain.updateMany({
+      await tenantPrisma.tenantDomain.updateMany({
         where: { tenantId: domain.tenantId, isPrimary: true },
         data: { isPrimary: false }
       });
     }
 
-    const updated = await prisma.tenantDomain.update({
+    const updated = await tenantPrisma.tenantDomain.update({
       where: { tenantDomainId },
       data
     });
@@ -216,7 +216,7 @@ export default class TenantDomainService {
   }
 
   static async getVerificationInfo(tenantDomainId: string): Promise<DomainVerificationInfo> {
-    const domain = await prisma.tenantDomain.findUnique({
+    const domain = await tenantPrisma.tenantDomain.findUnique({
       where: { tenantDomainId }
     });
 
@@ -247,7 +247,7 @@ export default class TenantDomainService {
   }
 
   static async initiateVerification({ tenantDomainId, method }: InitiateVerificationInput): Promise<DomainVerificationInfo> {
-    const domain = await prisma.tenantDomain.findUnique({
+    const domain = await tenantPrisma.tenantDomain.findUnique({
       where: { tenantDomainId }
     });
 
@@ -265,7 +265,7 @@ export default class TenantDomainService {
       method
     );
 
-    await prisma.tenantDomain.update({
+    await tenantPrisma.tenantDomain.update({
       where: { tenantDomainId },
       data: { verificationToken: verification.token }
     });
@@ -282,7 +282,7 @@ export default class TenantDomainService {
   }
 
   static async verifyDomain(tenantDomainId: string): Promise<SafeTenantDomain> {
-    const domain = await prisma.tenantDomain.findUnique({
+    const domain = await tenantPrisma.tenantDomain.findUnique({
       where: { tenantDomainId }
     });
 
@@ -303,7 +303,7 @@ export default class TenantDomainService {
       throw new Error(TenantDomainMessages.DNS_VERIFICATION_FAILED);
     }
 
-    const updated = await prisma.tenantDomain.update({
+    const updated = await tenantPrisma.tenantDomain.update({
       where: { tenantDomainId },
       data: {
         domainStatus: 'VERIFIED',
@@ -318,7 +318,7 @@ export default class TenantDomainService {
   }
 
   static async delete(tenantDomainId: string): Promise<void> {
-    const domain = await prisma.tenantDomain.findUnique({
+    const domain = await tenantPrisma.tenantDomain.findUnique({
       where: { tenantDomainId }
     });
 
@@ -331,7 +331,7 @@ export default class TenantDomainService {
     }
 
     await DNSVerificationService.deleteStoredToken(tenantDomainId);
-    await prisma.tenantDomain.delete({ where: { tenantDomainId } });
+    await tenantPrisma.tenantDomain.delete({ where: { tenantDomainId } });
     await this.clearCache(SafeTenantDomainSchema.parse(domain));
   }
 }

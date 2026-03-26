@@ -1,5 +1,5 @@
 import webpush from "web-push";
-import { prisma } from "@/libs/prisma";
+import { systemPrisma } from "@/libs/prisma";
 import Logger from "@/libs/logger";
 import type { UserRole } from "../user/user.enums";
 
@@ -32,7 +32,7 @@ export default class NotificationPushService {
     userId: string,
     subscription: { endpoint: string; keys: { p256dh: string; auth: string } }
   ): Promise<void> {
-    await prisma.pushSubscription.upsert({
+    await systemPrisma.pushSubscription.upsert({
       where: { endpoint: subscription.endpoint },
       update: {
         userId,
@@ -50,12 +50,12 @@ export default class NotificationPushService {
 
   /** Remove all subscriptions for a user. */
   static async unsubscribe(userId: string): Promise<void> {
-    await prisma.pushSubscription.deleteMany({ where: { userId } });
+    await systemPrisma.pushSubscription.deleteMany({ where: { userId } });
   }
 
   /** Remove a single subscription by endpoint. */
   static async unsubscribeByEndpoint(endpoint: string): Promise<void> {
-    await prisma.pushSubscription.deleteMany({ where: { endpoint } });
+    await systemPrisma.pushSubscription.deleteMany({ where: { endpoint } });
   }
 
   // ── Sending ──────────────────────────────────────────────────────────────
@@ -63,14 +63,14 @@ export default class NotificationPushService {
   /** Send to a specific user (all their devices). */
   static async sendToUser(userId: string, payload: PushPayload): Promise<void> {
     ensureVapid();
-    const subs = await prisma.pushSubscription.findMany({ where: { userId } });
+    const subs = await systemPrisma.pushSubscription.findMany({ where: { userId } });
     await Promise.allSettled(subs.map((sub) => this.sendToSubscription(sub, payload)));
   }
 
   /** Send to multiple specific users. */
   static async sendToUsers(userIds: string[], payload: PushPayload): Promise<void> {
     ensureVapid();
-    const subs = await prisma.pushSubscription.findMany({
+    const subs = await systemPrisma.pushSubscription.findMany({
       where: { userId: { in: userIds } },
     });
     await Promise.allSettled(subs.map((sub) => this.sendToSubscription(sub, payload)));
@@ -79,11 +79,11 @@ export default class NotificationPushService {
   /** Send to all users with a specific role (e.g. 'ADMIN', 'USER'). */
   static async sendToRole(role: UserRole, payload: PushPayload): Promise<void> {
     ensureVapid();
-    const users = await prisma.user.findMany({
+    const users = await systemPrisma.user.findMany({
       where: { userRole: role },
       select: { userId: true },
     });
-    const subs = await prisma.pushSubscription.findMany({
+    const subs = await systemPrisma.pushSubscription.findMany({
       where: { userId: { in: users.map((u) => u.userId) } },
     });
     await Promise.allSettled(subs.map((sub) => this.sendToSubscription(sub, payload)));
@@ -97,7 +97,7 @@ export default class NotificationPushService {
   /** Send to all active subscribers. */
   static async sendToAll(payload: PushPayload): Promise<void> {
     ensureVapid();
-    const subs = await prisma.pushSubscription.findMany();
+    const subs = await systemPrisma.pushSubscription.findMany();
     await Promise.allSettled(subs.map((sub) => this.sendToSubscription(sub, payload)));
   }
 
@@ -116,7 +116,7 @@ export default class NotificationPushService {
       // 410 Gone / 404 = expired subscription, clean it up
       if (error.statusCode === 410 || error.statusCode === 404) {
         Logger.warn(`Push subscription ${sub.id} expired (${error.statusCode}), removing.`);
-        await prisma.pushSubscription.delete({ where: { id: sub.id } }).catch(() => {});
+        await systemPrisma.pushSubscription.delete({ where: { id: sub.id } }).catch(() => {});
       } else {
         Logger.error(`Push notification failed for ${sub.id}: ${error.message}`);
       }

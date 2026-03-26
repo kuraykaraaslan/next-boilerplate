@@ -6,7 +6,7 @@
 |---|---|
 | **Framework** | Next.js 16.1.2 (App Router) |
 | **Language** | TypeScript (strict mode) |
-| **Database** | PostgreSQL + Prisma ORM 7.3 |
+| **Database** | PostgreSQL × 2 (System DB + Tenant DB) + Prisma ORM 7.3 |
 | **Cache / Queue** | Redis + BullMQ |
 | **Auth** | JWT + bcrypt + OTP/TOTP/SSO |
 | **Architecture** | Multi-tenant SaaS (path-based & subdomain tenancy) |
@@ -57,7 +57,10 @@
 │   ├── ui/
 │   └── module.types.ts
 ├── libs/                              # Shared infrastructure libraries
-│   ├── prisma/                        # Prisma client singleton
+│   ├── prisma/                        # Prisma client singletons
+│   │   ├── system.ts                  # systemPrisma (system DB)
+│   │   ├── tenant.ts                  # tenantPrisma (tenant DB)
+│   │   └── index.ts                   # Re-exports both clients
 │   ├── logger/                        # Winston logger
 │   ├── redis/                         # Redis / ioredis client
 │   ├── limiter/                       # Rate limiter
@@ -65,16 +68,24 @@
 │   ├── axios/                         # HTTP client
 │   └── zustand/                       # Frontend state stores
 ├── prisma/
-│   ├── schema/                        # Modular Prisma schema files
-│   ├── migrations/
-│   └── seed.ts
+│   ├── system/                        # System DB (users, settings, plans, audit)
+│   │   ├── schema/                    # Modular schema files
+│   │   ├── migrations/
+│   │   ├── client/                    # Generated Prisma client (system)
+│   │   └── seed.ts
+│   └── tenant/                        # Tenant DB (tenants, members, subscriptions, payments)
+│       ├── schema/                    # Modular schema files
+│       ├── migrations/
+│       ├── client/                    # Generated Prisma client (tenant)
+│       └── seed.ts
 ├── components/                        # Shared React components
 ├── public/                            # Static assets
 ├── scripts/                           # Build / utility scripts
 ├── logs/                              # Winston log files (auto-created)
 ├── proxy.ts                           # Multi-tenancy proxy middleware
 ├── next.config.ts
-├── prisma.config.ts
+├── prisma.system.config.ts            # Prisma config for system DB
+├── prisma.tenant.config.ts            # Prisma config for tenant DB
 ├── tsconfig.json
 └── global.d.ts
 ```
@@ -83,21 +94,21 @@
 
 ## 3. Prisma Data Models
 
-### 3.1 Enums (`prisma/schema/enums.prisma`)
+Two separate PostgreSQL databases each have their own generated Prisma client:
+- **System DB** (`prisma/system/`) — users, auth, settings, subscription plans, audit. Client: `systemPrisma`
+- **Tenant DB** (`prisma/tenant/`) — tenants, members, invitations, subscriptions, payments, audit. Client: `tenantPrisma`
+
+Cross-DB references are **soft references** (plain `String @db.Uuid` fields, no Prisma FK constraint). Application code performs any cross-DB joins explicitly.
+
+---
+
+### 3.1 System DB — Enums (`prisma/system/schema/enums.prisma`)
 
 #### User Enums
 | Enum | Values |
 |---|---|
 | `UserRole` | `USER`, `ADMIN` |
 | `UserStatus` | `ACTIVE`, `INACTIVE`, `SUSPENDED` |
-
-#### Tenant Enums
-| Enum | Values |
-|---|---|
-| `TenantStatus` | `ACTIVE`, `INACTIVE`, `PENDING`, `SUSPENDED`, `DELETED`, `ARCHIVED` |
-| `TenantMemberRole` | `OWNER`, `ADMIN`, `USER` |
-| `TenantMemberStatus` | `ACTIVE`, `INACTIVE`, `SUSPENDED`, `PENDING` |
-| `DomainStatus` | `ACTIVE`, `INACTIVE`, `PENDING`, `VERIFIED` |
 
 #### User Preferences Enums
 | Enum | Values |
@@ -113,9 +124,28 @@
 |---|---|
 | `OTPMethod` | `EMAIL`, `SMS`, `TOTP_APP` |
 | `SessionStatus` | `ACTIVE`, `EXPIRED`, `REVOKED` |
+| `SocialAccountProvider` | `google`, `apple`, `facebook`, `github`, `linkedin`, `microsoft`, `twitter`, `slack`, `tiktok`, `wechat`, `autodesk` |
+
+#### Subscription Plan Enums
+| Enum | Values |
+|---|---|
+| `SubscriptionPlanStatus` | `ACTIVE`, `INACTIVE`, `ARCHIVED` |
+| `PlanFeatureType` | `BOOLEAN`, `LIMIT` |
+
+---
+
+### 3.2 Tenant DB — Enums (`prisma/tenant/schema/enums.prisma`)
+
+#### Tenant Enums
+| Enum | Values |
+|---|---|
+| `TenantStatus` | `ACTIVE`, `INACTIVE`, `PENDING`, `SUSPENDED`, `DELETED`, `ARCHIVED` |
+| `TenantMemberRole` | `OWNER`, `ADMIN`, `USER` |
+| `TenantMemberStatus` | `ACTIVE`, `INACTIVE`, `SUSPENDED`, `PENDING` |
+| `DomainStatus` | `ACTIVE`, `INACTIVE`, `PENDING`, `VERIFIED` |
 | `TenantInvitationStatus` | `PENDING`, `ACCEPTED`, `DECLINED`, `EXPIRED`, `REVOKED` |
 
-#### Payment Enums
+#### Payment & Subscription Enums
 | Enum | Values |
 |---|---|
 | `PaymentStatus` | `PENDING`, `PROCESSING`, `COMPLETED`, `FAILED`, `REFUNDED`, `PARTIALLY_REFUNDED`, `CANCELLED`, `EXPIRED` |
@@ -123,21 +153,12 @@
 | `PaymentMethod` | `CREDIT_CARD`, `DEBIT_CARD`, `BANK_TRANSFER`, `PAYPAL`, `APPLE_PAY`, `GOOGLE_PAY`, `OTHER` |
 | `TransactionType` | `PAYMENT`, `REFUND`, `CHARGEBACK`, `PAYOUT` |
 | `TransactionStatus` | `PENDING`, `PROCESSING`, `COMPLETED`, `FAILED`, `CANCELLED` |
-
-#### Subscription Enums
-| Enum | Values |
-|---|---|
-| `SubscriptionPlanStatus` | `ACTIVE`, `INACTIVE`, `ARCHIVED` |
 | `SubscriptionStatus` | `ACTIVE`, `PAST_DUE`, `CANCELLED`, `EXPIRED`, `TRIALING` |
 | `BillingInterval` | `MONTHLY`, `YEARLY` |
-| `PlanFeatureType` | `BOOLEAN`, `LIMIT` |
-
-#### Social Provider Enum
-`SocialAccountProvider`: `google`, `apple`, `facebook`, `github`, `linkedin`, `microsoft`, `twitter`, `slack`, `tiktok`, `wechat`, `autodesk`
 
 ---
 
-### 3.2 Core Models
+### 3.3 System DB — Core Models
 
 #### `User` (`user.prisma`)
 | Field | Type | Notes |
@@ -151,7 +172,8 @@
 | `emailVerifiedAt` | DateTime? | Null until email is verified |
 | `createdAt` / `updatedAt` / `deletedAt` | DateTime | Soft delete |
 
-Relations: `profile`, `security`, `preferences`, `socialAccounts`, `sessions`, `tenantMembers`, `payments`
+Relations (same DB): `profile`, `security`, `preferences`, `socialAccounts`, `sessions`, `auditLogs`
+Cross-DB soft refs (not Prisma relations): `tenantMembers`, `payments` use `userId` as String in tenant DB
 
 ---
 
@@ -224,6 +246,65 @@ Unique constraint: `[provider, providerId]`
 
 ---
 
+#### `Setting` (`setting.prisma`)
+| Field | Type | Notes |
+|---|---|---|
+| `key` | String (PK) | Sole primary key — no `tenantId` |
+| `value` | Text | |
+| `group` | String | Default: `"general"` |
+| `type` | String | Default: `"string"` |
+
+System-wide settings only. No magic tenant ID needed.
+
+---
+
+#### `SubscriptionPlan` (`subscription_plan.prisma`)
+| Field | Type | Notes |
+|---|---|---|
+| `planId` | UUID (PK) | |
+| `name` | String | |
+| `monthlyPrice` / `yearlyPrice` | Decimal(12,2) | |
+| `currency` | String | Default: `"USD"` |
+| `trialDays` | Int | |
+| `isDefault` | Boolean | |
+| `sortOrder` | Int | |
+| `status` | `SubscriptionPlanStatus` | |
+
+Relations: `features PlanFeature[]`
+
+---
+
+#### `PlanFeature` (`plan_feature.prisma`)
+| Field | Type | Notes |
+|---|---|---|
+| `featureId` | UUID (PK) | |
+| `planId` | UUID (FK → SubscriptionPlan) | |
+| `key` / `label` | String | |
+| `type` | `PlanFeatureType` | `BOOLEAN` or `LIMIT` |
+| `value` | String | `"true"/"false"` or number / `"-1"` for unlimited |
+| `sortOrder` | Int | |
+
+Unique constraint: `[planId, key]`
+
+---
+
+#### `AuditLog` — System DB (`audit_log.prisma`)
+| Field | Type | Notes |
+|---|---|---|
+| `auditLogId` | UUID (PK) | |
+| `actorType` | `AuditActorType` | `USER`, `SYSTEM` |
+| `actorId` | UUID? (FK → User) | Same DB — real FK |
+| `action` | String | e.g. `user.login`, `plan.created` |
+| `resourceType` | String? | e.g. `user`, `plan` |
+| `resourceId` | String? | |
+| `metadata` | JSONB? | |
+| `ipAddress` / `userAgent` | String? | |
+| `createdAt` | DateTime | |
+
+---
+
+### 3.4 Tenant DB — Core Models
+
 #### `Tenant` (`tenant.prisma`)
 | Field | Type | Notes |
 |---|---|---|
@@ -233,7 +314,7 @@ Unique constraint: `[provider, providerId]`
 | `tenantStatus` | `TenantStatus` | |
 | `createdAt` / `updatedAt` / `deletedAt` | DateTime | Soft delete |
 
-Relations: `domains`, `members`, `payments`, `subscription`
+Relations (same DB): `domains`, `members`, `payments`, `subscription`, `settings`, `auditLogs`
 
 ---
 
@@ -241,13 +322,15 @@ Relations: `domains`, `members`, `payments`, `subscription`
 | Field | Type | Notes |
 |---|---|---|
 | `tenantMemberId` | UUID (PK) | |
-| `tenantId` | UUID (FK) | |
-| `userId` | UUID (FK) | |
+| `tenantId` | UUID (FK → Tenant) | |
+| `userId` | UUID (soft ref → User in system DB) | No Prisma FK |
 | `memberRole` | `TenantMemberRole` | OWNER > ADMIN > USER |
 | `memberStatus` | `TenantMemberStatus` | |
 | `deletedAt` | DateTime? | Soft delete |
 
 Unique constraint: `[tenantId, userId]`
+
+User data is hydrated via a second `systemPrisma.user.findMany()` query in the service layer.
 
 ---
 
@@ -255,16 +338,14 @@ Unique constraint: `[tenantId, userId]`
 | Field | Type | Notes |
 |---|---|---|
 | `invitationId` | UUID (PK) | |
-| `tenantId` | UUID (FK) | |
+| `tenantId` | UUID (FK → Tenant) | |
 | `email` | String | Invited email (may not have an account) |
-| `invitedByUserId` | UUID (FK) | User who sent the invitation |
+| `invitedByUserId` | UUID (soft ref → User in system DB) | No Prisma FK |
 | `memberRole` | `TenantMemberRole` | Role to assign on acceptance |
 | `token` | String (unique) | SHA-256 hashed — never exposed |
 | `status` | `TenantInvitationStatus` | `PENDING`, `ACCEPTED`, `DECLINED`, `EXPIRED`, `REVOKED` |
 | `expiresAt` | DateTime | Default: 7 days (`INVITATION_TTL_SECONDS` env) |
 | `createdAt` / `updatedAt` | DateTime | |
-
-Relations: `tenant` (→ `Tenant`), `invitedBy` (→ `User`)
 
 Token is stored as SHA-256 hash — raw token only returned at send time and delivered via email link.
 Expiry TTL configurable via `INVITATION_TTL_SECONDS` env (default: 7 days).
@@ -275,7 +356,7 @@ Expiry TTL configurable via `INVITATION_TTL_SECONDS` env (default: 7 days).
 | Field | Type | Notes |
 |---|---|---|
 | `tenantDomainId` | UUID (PK) | |
-| `tenantId` | UUID (FK) | |
+| `tenantId` | UUID (FK → Tenant) | |
 | `domain` | String (unique) | |
 | `isPrimary` | Boolean | |
 | `domainStatus` | `DomainStatus` | |
@@ -284,7 +365,7 @@ Expiry TTL configurable via `INVITATION_TTL_SECONDS` env (default: 7 days).
 
 ---
 
-#### `Setting` (`setting.prisma`)
+#### `TenantSetting` (`tenant_setting.prisma`)
 | Field | Type | Notes |
 |---|---|---|
 | `tenantId` + `key` | Composite PK | |
@@ -292,7 +373,22 @@ Expiry TTL configurable via `INVITATION_TTL_SECONDS` env (default: 7 days).
 | `group` | String | Default: `"general"` |
 | `type` | String | Default: `"string"` |
 
-System tenant ID: `00000000-0000-0000-0000-000000000000`
+Composite PK: `[tenantId, key]`. Each tenant has its own isolated settings namespace.
+
+---
+
+#### `TenantSubscription` (`tenant_subscription.prisma`)
+| Field | Type | Notes |
+|---|---|---|
+| `subscriptionId` | UUID (PK) | |
+| `tenantId` | UUID (FK → Tenant, unique) | One subscription per tenant |
+| `planId` | UUID (soft ref → SubscriptionPlan in system DB) | No Prisma FK |
+| `status` | `SubscriptionStatus` | |
+| `billingInterval` | `BillingInterval` | |
+| `currentPeriodStart` / `currentPeriodEnd` | DateTime | |
+| `trialEndsAt` / `cancelledAt` | DateTime? | |
+
+Plan data is hydrated via a second `systemPrisma.subscriptionPlan.findUnique()` query in the service layer.
 
 ---
 
@@ -300,7 +396,8 @@ System tenant ID: `00000000-0000-0000-0000-000000000000`
 | Field | Type | Notes |
 |---|---|---|
 | `paymentId` | UUID (PK) | |
-| `userId` / `tenantId` | UUID? (FK) | Optional association |
+| `userId` | UUID? (soft ref → User in system DB) | No Prisma FK |
+| `tenantId` | UUID? (FK → Tenant) | |
 | `provider` | `PaymentProvider` | |
 | `providerPaymentId` | String | |
 | `amount` / `refundedAmount` | Decimal(12,2) | |
@@ -317,7 +414,7 @@ System tenant ID: `00000000-0000-0000-0000-000000000000`
 | Field | Type | Notes |
 |---|---|---|
 | `transactionId` | UUID (PK) | |
-| `paymentId` | UUID (FK) | |
+| `paymentId` | UUID (FK → Payment) | |
 | `provider` / `type` / `status` | enums | |
 | `providerTransactionId` | String | |
 | `amount` / `fee` / `net` | Decimal(12,2) | |
@@ -328,44 +425,19 @@ System tenant ID: `00000000-0000-0000-0000-000000000000`
 
 ---
 
-#### `SubscriptionPlan` (`subscription_plan.prisma`)
+#### `AuditLog` — Tenant DB (`audit_log.prisma`)
 | Field | Type | Notes |
 |---|---|---|
-| `planId` | UUID (PK) | |
-| `name` | String | |
-| `monthlyPrice` / `yearlyPrice` | Decimal(12,2) | |
-| `currency` | String | Default: `"USD"` |
-| `trialDays` | Int | |
-| `isDefault` | Boolean | |
-| `sortOrder` | Int | |
-| `status` | `SubscriptionPlanStatus` | |
-
----
-
-#### `PlanFeature` (`plan_feature.prisma`)
-| Field | Type | Notes |
-|---|---|---|
-| `featureId` | UUID (PK) | |
-| `planId` | UUID (FK) | |
-| `key` / `label` | String | |
-| `type` | `PlanFeatureType` | `BOOLEAN` or `LIMIT` |
-| `value` | String | `"true"/"false"` or number / `"-1"` for unlimited |
-| `sortOrder` | Int | |
-
-Unique constraint: `[planId, key]`
-
----
-
-#### `TenantSubscription` (`tenant_subscription.prisma`)
-| Field | Type | Notes |
-|---|---|---|
-| `subscriptionId` | UUID (PK) | |
-| `tenantId` | UUID (FK, unique) | One subscription per tenant |
-| `planId` | UUID (FK) | |
-| `status` | `SubscriptionStatus` | |
-| `billingInterval` | `BillingInterval` | |
-| `currentPeriodStart` / `currentPeriodEnd` | DateTime | |
-| `trialEndsAt` / `cancelledAt` | DateTime? | |
+| `auditLogId` | UUID (PK) | |
+| `tenantId` | UUID (FK → Tenant) | |
+| `actorType` | `AuditActorType` | `USER`, `SYSTEM` |
+| `actorId` | UUID? (soft ref → User in system DB) | No Prisma FK |
+| `action` | String | e.g. `member.invited`, `subscription.cancelled` |
+| `resourceType` | String? | |
+| `resourceId` | String? | |
+| `metadata` | JSONB? | |
+| `ipAddress` / `userAgent` | String? | |
+| `createdAt` | DateTime | |
 
 ---
 
@@ -717,16 +789,41 @@ Supported providers: Stripe, PayPal, Iyzico
 
 ### 5.8 Setting Service (`modules/setting/setting.service.ts`)
 
+Manages **system-wide** settings in the system DB. No `tenantId` parameter — `key` is the sole identifier.
+
 | Method | Description |
 |---|---|
-| `getAll(tenantId)` | Get all settings |
-| `getByKey(key, tenantId)` | Single setting (Redis cached 10 min) |
-| `getByKeys(keys, tenantId)` | Multi-key fetch |
-| `set(key, value, tenantId)` | Write setting |
+| `getAll()` | Get all system settings |
+| `getByKey(key)` | Single setting (Redis cached 10 min) |
+| `getByKeys(keys)` | Multi-key fetch |
+| `getValue(key)` | Get string value or null |
+| `set(key, value)` | Write setting |
 | `updateMany(settings)` | Batch update |
-| `delete(key, tenantId)` | Delete setting |
+| `delete(key)` | Delete setting |
 
-System tenant ID: `00000000-0000-0000-0000-000000000000`
+Cache key pattern: `settings:{key}`
+
+---
+
+### 5.9 Tenant Setting Service (`modules/tenant_setting/tenant_setting.service.ts`)
+
+Manages **per-tenant** settings in the tenant DB. Falls back to system settings when a tenant override is absent.
+
+| Method | Description |
+|---|---|
+| `getAll(tenantId)` | Get all settings for tenant |
+| `getByKey(tenantId, key)` | Single tenant setting (Redis cached 10 min) |
+| `getByKeys(tenantId, keys)` | Multi-key fetch |
+| `getValue(tenantId, key)` | Get string value or null |
+| `getValueWithFallback(tenantId, key)` | Tenant value → falls back to `SettingService.getValue(key)` |
+| `create(tenantId, key, value, group?, type?)` | Upsert setting |
+| `update(tenantId, key, value)` | Update existing setting |
+| `updateMany(tenantId, settings)` | Batch upsert |
+| `delete(tenantId, key)` | Delete setting |
+| `getAllAsRecord(tenantId)` | Return `Record<string, string>` map |
+| `getByGroup(tenantId, group)` | Filter by group |
+
+Cache key pattern: `tenant_settings:{tenantId}:{key}` (all: `tenant_settings:{tenantId}:all`)
 
 ---
 
@@ -870,7 +967,9 @@ Flow:
 |---|---|---|
 | User session | `session:{accessTokenHash}` | 30 min |
 | Tenant domain lookup | `tenant_domain:{domain}` | 5 min |
-| Global settings | `setting:{tenantId}:{key}` | 10 min |
+| System settings | `settings:{key}` | 10 min |
+| Tenant settings (single) | `tenant_settings:{tenantId}:{key}` | 10 min |
+| Tenant settings (all) | `tenant_settings:{tenantId}:all` | 10 min |
 
 Invalidation: manual `redis.del()` after writes.
 
@@ -908,7 +1007,8 @@ Provider: **BullMQ** backed by Redis.
 ### Core
 ```env
 NODE_ENV=development|production
-DATABASE_URL=postgresql://user:pass@host:5432/db
+SYSTEM_DATABASE_URL=postgresql://user:password@localhost:5432/myapp_system
+TENANT_DATABASE_URL=postgresql://user:password@localhost:5432/myapp_tenant
 REDIS_URL=redis://localhost:6379
 ```
 
@@ -995,7 +1095,8 @@ GOOGLE_AI_API_KEY=
 | **Multi-Tenancy** | System scope (`/system`) + Tenant scope (`/tenant/[id]`) |
 | **RBAC** | User roles (USER/ADMIN) + Tenant member roles (USER/ADMIN/OWNER) |
 | **Device Fingerprinting** | SHA-256 of IP+UA+Language bound to JWT sessions |
-| **Modular Prisma Schema** | Schema split per module in `prisma/schema/` |
+| **Dual-DB Architecture** | System DB (`systemPrisma`) for users/settings/plans; Tenant DB (`tenantPrisma`) for tenants/members/payments. Cross-DB references are soft (String fields, app-level joins) |
+| **Modular Prisma Schema** | Schema split per module in `prisma/system/schema/` and `prisma/tenant/schema/` |
 | **Module Registry** | JSON-based module config drives UI menus and settings tabs |
 
 ---
@@ -1054,7 +1155,11 @@ POST /system/api/storage  (multipart/form-data)
 
 ### Build Command
 ```bash
-npx prisma generate && npx prisma db push && next build
+npx prisma generate --config prisma.system.config.ts && \
+npx prisma generate --config prisma.tenant.config.ts && \
+npx prisma db push --config prisma.system.config.ts && \
+npx prisma db push --config prisma.tenant.config.ts && \
+next build
 ```
 
 ### Supported Environments

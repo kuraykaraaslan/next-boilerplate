@@ -7,7 +7,7 @@ import UserSessionMessages from "./user_session.messages";
 import redis from "@/libs/redis";
 import { SafeUserSecurity } from '@/modules/user_security/user_security.types';
 import UserSessionService from './user_session.service';
-import { prisma } from "@/libs/prisma";
+import { systemPrisma } from "@/libs/prisma";
 
 const SESSION_CACHE_TTL = parseInt(process.env.SESSION_CACHE_TTL || `${60 * 30}`); // 30 min default
 
@@ -130,7 +130,7 @@ export default class UserSessionNextService {
     });
 
     // Get user from database
-    const user = await prisma.user.findUnique({ where: { userId: userSession.userId } });
+    const user = await systemPrisma.user.findUnique({ where: { userId: userSession.userId } });
     
     if (!user) {
       throw new Error(UserSessionMessages.USER_NOT_FOUND);

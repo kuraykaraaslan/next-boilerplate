@@ -1,0 +1,19 @@
+model TenantInvitation {
+  invitationId    String                 @id @default(uuid()) @db.Uuid
+  tenantId        String                 @db.Uuid
+  email           String                 @db.VarChar
+  invitedByUserId String                 @db.Uuid // soft ref → User in system DB
+  memberRole      TenantMemberRole       @default(USER)
+  token           String                 @unique @db.VarChar
+  status          TenantInvitationStatus @default(PENDING)
+  expiresAt       DateTime               @db.Timestamp
+  createdAt       DateTime               @default(now()) @db.Timestamp
+  updatedAt       DateTime               @updatedAt @db.Timestamp
+
+  tenant Tenant @relation(fields: [tenantId], references: [tenantId], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([email])
+  @@index([token])
+  @@map("tenant_invitations")
+}

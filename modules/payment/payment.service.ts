@@ -1,5 +1,5 @@
-import { prisma } from '@/libs/prisma'
-import type { Prisma } from '@/prisma/client'
+import { tenantPrisma } from '@/libs/prisma'
+import type { Prisma } from '@/prisma/tenant/client'
 import Logger from '@/libs/logger'
 import BasePaymentProvider, { CheckoutSessionParams, CheckoutSessionResult } from './providers/base.provider'
 import StripeProvider from './providers/stripe.provider'
@@ -70,7 +70,7 @@ export default class PaymentService {
 
   static async create(data: CreatePaymentDTO): Promise<SafePayment> {
     try {
-      const payment = await prisma.payment.create({
+      const payment = await tenantPrisma.payment.create({
         data: {
           userId: data.userId,
           tenantId: data.tenantId,
@@ -97,7 +97,7 @@ export default class PaymentService {
   }
 
   static async getById(paymentId: string): Promise<SafePayment> {
-    const payment = await prisma.payment.findUnique({
+    const payment = await tenantPrisma.payment.findUnique({
       where: { paymentId },
     })
 
@@ -109,7 +109,7 @@ export default class PaymentService {
   }
 
   static async getByIdWithTransactions(paymentId: string): Promise<PaymentWithTransactions> {
-    const payment = await prisma.payment.findUnique({
+    const payment = await tenantPrisma.payment.findUnique({
       where: { paymentId },
       include: { transactions: true },
     })
@@ -140,13 +140,13 @@ export default class PaymentService {
     }
 
     const [payments, total] = await Promise.all([
-      prisma.payment.findMany({
+      tenantPrisma.payment.findMany({
         where,
         skip: page * pageSize,
         take: pageSize,
         orderBy: { createdAt: 'desc' },
       }),
-      prisma.payment.count({ where }),
+      tenantPrisma.payment.count({ where }),
     ])
 
     return {
@@ -156,7 +156,7 @@ export default class PaymentService {
   }
 
   static async update(paymentId: string, data: UpdatePaymentDTO): Promise<SafePayment> {
-    const existing = await prisma.payment.findUnique({
+    const existing = await tenantPrisma.payment.findUnique({
       where: { paymentId },
     })
 
@@ -165,7 +165,7 @@ export default class PaymentService {
     }
 
     try {
-      const payment = await prisma.payment.update({
+      const payment = await tenantPrisma.payment.update({
         where: { paymentId },
         data: {
           status: data.status,
@@ -192,7 +192,7 @@ export default class PaymentService {
   }
 
   static async delete(paymentId: string): Promise<void> {
-    const existing = await prisma.payment.findUnique({
+    const existing = await tenantPrisma.payment.findUnique({
       where: { paymentId },
     })
 
@@ -200,7 +200,7 @@ export default class PaymentService {
       throw new Error(PAYMENT_MESSAGES.PAYMENT_NOT_FOUND)
     }
 
-    await prisma.payment.update({
+    await tenantPrisma.payment.update({
       where: { paymentId },
       data: { deletedAt: new Date() },
     })
@@ -211,7 +211,7 @@ export default class PaymentService {
   // ============================================================================
 
   static async createTransaction(data: CreateTransactionDTO): Promise<PaymentTransaction> {
-    const payment = await prisma.payment.findUnique({
+    const payment = await tenantPrisma.payment.findUnique({
       where: { paymentId: data.paymentId },
     })
 
@@ -220,7 +220,7 @@ export default class PaymentService {
     }
 
     try {
-      const transaction = await prisma.paymentTransaction.create({
+      const transaction = await tenantPrisma.paymentTransaction.create({
         data: {
           paymentId: data.paymentId,
           provider: data.provider,
@@ -246,7 +246,7 @@ export default class PaymentService {
   }
 
   static async getTransactionById(transactionId: string): Promise<PaymentTransaction> {
-    const transaction = await prisma.paymentTransaction.findUnique({
+    const transaction = await tenantPrisma.paymentTransaction.findUnique({
       where: { transactionId },
     })
 
@@ -273,13 +273,13 @@ export default class PaymentService {
     }
 
     const [transactions, total] = await Promise.all([
-      prisma.paymentTransaction.findMany({
+      tenantPrisma.paymentTransaction.findMany({
         where,
         skip: page * pageSize,
         take: pageSize,
         orderBy: { createdAt: 'desc' },
       }),
-      prisma.paymentTransaction.count({ where }),
+      tenantPrisma.paymentTransaction.count({ where }),
     ])
 
     return {
@@ -289,7 +289,7 @@ export default class PaymentService {
   }
 
   static async updateTransaction(transactionId: string, data: UpdateTransactionDTO): Promise<PaymentTransaction> {
-    const existing = await prisma.paymentTransaction.findUnique({
+    const existing = await tenantPrisma.paymentTransaction.findUnique({
       where: { transactionId },
     })
 
@@ -298,7 +298,7 @@ export default class PaymentService {
     }
 
     try {
-      const transaction = await prisma.paymentTransaction.update({
+      const transaction = await tenantPrisma.paymentTransaction.update({
         where: { transactionId },
         data: {
           status: data.status,
@@ -340,7 +340,7 @@ export default class PaymentService {
   // ============================================================================
 
   static async refund(data: RefundPaymentDTO): Promise<PaymentTransaction> {
-    const payment = await prisma.payment.findUnique({
+    const payment = await tenantPrisma.payment.findUnique({
       where: { paymentId: data.paymentId },
     })
 
@@ -375,7 +375,7 @@ export default class PaymentService {
     const newRefundedAmount = alreadyRefunded + refundAmount
     const isFullyRefunded = newRefundedAmount >= Number(payment.amount)
 
-    await prisma.payment.update({
+    await tenantPrisma.payment.update({
       where: { paymentId: data.paymentId },
       data: {
         refundedAmount: newRefundedAmount,

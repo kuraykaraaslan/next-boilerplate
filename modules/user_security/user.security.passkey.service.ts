@@ -10,7 +10,7 @@ import type {
   AuthenticatorTransportFuture,
 } from "@simplewebauthn/server";
 
-import { prisma } from "@/libs/prisma";
+import { systemPrisma } from "@/libs/prisma";
 import redis from "@/libs/redis";
 import UserSecurityService from "./user_security.service";
 import PasskeyMessages from "./user_security.passkey.messages";
@@ -132,7 +132,7 @@ export default class UserSecurityPasskeyService {
     let cacheKey: string;
 
     if (email) {
-      const user = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
+      const user = await systemPrisma.user.findUnique({ where: { email: email.toLowerCase() } });
       if (!user) throw new Error(PasskeyMessages.USER_NOT_FOUND);
 
       const userSecurity = await UserSecurityService.getByUserId(user.userId);
@@ -170,7 +170,7 @@ export default class UserSecurityPasskeyService {
     email?: string;
   }): Promise<SafeUser> {
     // Find the user that owns this credential via JSONB query
-    const rows = await prisma.$queryRawUnsafe<{ userId: string }[]>(
+    const rows = await systemPrisma.$queryRawUnsafe<{ userId: string }[]>(
       `
       SELECT "userId"
       FROM "users"
@@ -186,11 +186,11 @@ export default class UserSecurityPasskeyService {
 
     let matchedUser =
       rows.length > 0
-        ? await prisma.user.findUnique({ where: { userId: rows[0].userId } })
+        ? await systemPrisma.user.findUnique({ where: { userId: rows[0].userId } })
         : null;
 
     if (!matchedUser && email) {
-      matchedUser = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
+      matchedUser = await systemPrisma.user.findUnique({ where: { email: email.toLowerCase() } });
     }
 
     if (!matchedUser) throw new Error(PasskeyMessages.USER_NOT_FOUND);

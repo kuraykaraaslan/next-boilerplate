@@ -1,4 +1,4 @@
-import { prisma } from "@/libs/prisma";
+import { systemPrisma } from "@/libs/prisma";
 import { SafeUserSocialAccount, SafeUserSocialAccountSchema } from "./user_social_account.types";
 import UserSocialAccountMessages from "./user_social_account.messages";
 import type { SocialAccountProvider } from "./user_social_account.enums";
@@ -6,7 +6,7 @@ import type { SocialAccountProvider } from "./user_social_account.enums";
 export default class UserSocialAccountService {
 
   static async getByUserId(userId: string): Promise<SafeUserSocialAccount[]> {
-    const accounts = await prisma.userSocialAccount.findMany({
+    const accounts = await systemPrisma.userSocialAccount.findMany({
       where: { userId }
     });
 
@@ -17,7 +17,7 @@ export default class UserSocialAccountService {
     provider: SocialAccountProvider,
     providerId: string
   ): Promise<SafeUserSocialAccount | null> {
-    const account = await prisma.userSocialAccount.findUnique({
+    const account = await systemPrisma.userSocialAccount.findUnique({
       where: { provider_providerId: { provider, providerId } }
     });
 
@@ -32,7 +32,7 @@ export default class UserSocialAccountService {
     refreshToken?: string,
     profilePicture?: string
   ): Promise<SafeUserSocialAccount> {
-    const existing = await prisma.userSocialAccount.findUnique({
+    const existing = await systemPrisma.userSocialAccount.findUnique({
       where: { provider_providerId: { provider, providerId } }
     });
 
@@ -41,7 +41,7 @@ export default class UserSocialAccountService {
     }
 
     if (existing) {
-      const updated = await prisma.userSocialAccount.update({
+      const updated = await systemPrisma.userSocialAccount.update({
         where: { userSocialAccountId: existing.userSocialAccountId },
         data: { accessToken, refreshToken, profilePicture }
       });
@@ -49,7 +49,7 @@ export default class UserSocialAccountService {
       return SafeUserSocialAccountSchema.parse(updated);
     }
 
-    const account = await prisma.userSocialAccount.create({
+    const account = await systemPrisma.userSocialAccount.create({
       data: {
         userId,
         provider,
@@ -68,14 +68,14 @@ export default class UserSocialAccountService {
     accessToken: string,
     refreshToken?: string
   ): Promise<void> {
-    await prisma.userSocialAccount.update({
+    await systemPrisma.userSocialAccount.update({
       where: { userSocialAccountId },
       data: { accessToken, refreshToken }
     });
   }
 
   static async unlink(userId: string, provider: SocialAccountProvider): Promise<void> {
-    const account = await prisma.userSocialAccount.findFirst({
+    const account = await systemPrisma.userSocialAccount.findFirst({
       where: { userId, provider }
     });
 
@@ -83,7 +83,7 @@ export default class UserSocialAccountService {
       throw new Error(UserSocialAccountMessages.ACCOUNT_NOT_FOUND);
     }
 
-    await prisma.userSocialAccount.delete({
+    await systemPrisma.userSocialAccount.delete({
       where: { userSocialAccountId: account.userSocialAccountId }
     });
   }
@@ -92,7 +92,7 @@ export default class UserSocialAccountService {
     provider: SocialAccountProvider,
     providerId: string
   ): Promise<string | null> {
-    const account = await prisma.userSocialAccount.findUnique({
+    const account = await systemPrisma.userSocialAccount.findUnique({
       where: { provider_providerId: { provider, providerId } }
     });
 

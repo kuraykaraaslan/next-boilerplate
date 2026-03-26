@@ -1,10 +1,10 @@
-import { prisma } from "@/libs/prisma";
+import { systemPrisma } from "@/libs/prisma";
 import { UserSecurity, UserSecuritySchema, SafeUserSecurity, SafeUserSecuritySchema } from "./user_security.types";
 
 export default class UserSecurityService {
 
   static async getByUserId(userId: string): Promise<UserSecurity> {
-    const security = await prisma.userSecurity.findUnique({
+    const security = await systemPrisma.userSecurity.findUnique({
       where: { userId }
     });
 
@@ -16,7 +16,7 @@ export default class UserSecurityService {
   }
 
   static async getSafeByUserId(userId: string): Promise<SafeUserSecurity> {
-    const security = await prisma.userSecurity.findUnique({
+    const security = await systemPrisma.userSecurity.findUnique({
       where: { userId }
     });
 
@@ -37,7 +37,7 @@ export default class UserSecurityService {
   }
 
   static async createDefaultUserSecurity(userId: string): Promise<UserSecurity> {
-    const existing = await prisma.userSecurity.findUnique({
+    const existing = await systemPrisma.userSecurity.findUnique({
       where: { userId }
     });
 
@@ -45,7 +45,7 @@ export default class UserSecurityService {
       throw new Error("Security record already exists for this user");
     }
 
-    const security = await prisma.userSecurity.create({
+    const security = await systemPrisma.userSecurity.create({
       data: {
         userId,
         otpMethods: [],
@@ -58,7 +58,7 @@ export default class UserSecurityService {
   }
 
   static async updateUserSecurity(userId: string, data: Partial<UserSecurity>): Promise<UserSecurity> {
-    const security = await prisma.userSecurity.findUnique({
+    const security = await systemPrisma.userSecurity.findUnique({
       where: { userId }
     });
 
@@ -66,7 +66,7 @@ export default class UserSecurityService {
       throw new Error("Security record not found");
     }
 
-    const updated = await prisma.userSecurity.update({
+    const updated = await systemPrisma.userSecurity.update({
       where: { userId },
       data
     });
@@ -75,7 +75,7 @@ export default class UserSecurityService {
   }
 
   static async upsertUserSecurity(userId: string, data: Partial<UserSecurity>): Promise<UserSecurity> {
-    const security = await prisma.userSecurity.upsert({
+    const security = await systemPrisma.userSecurity.upsert({
       where: { userId },
       update: data,
       create: {
@@ -91,7 +91,7 @@ export default class UserSecurityService {
   }
 
   static async recordLoginAttempt(userId: string, success: boolean, ip?: string, device?: string): Promise<void> {
-    const security = await prisma.userSecurity.findUnique({
+    const security = await systemPrisma.userSecurity.findUnique({
       where: { userId }
     });
 
@@ -100,7 +100,7 @@ export default class UserSecurityService {
     }
 
     if (success) {
-      await prisma.userSecurity.update({
+      await systemPrisma.userSecurity.update({
         where: { userId },
         data: {
           lastLoginAt: new Date(),
@@ -116,7 +116,7 @@ export default class UserSecurityService {
         ? new Date(Date.now() + 15 * 60 * 1000)
         : null;
 
-      await prisma.userSecurity.update({
+      await systemPrisma.userSecurity.update({
         where: { userId },
         data: {
           failedLoginAttempts: attempts,
@@ -127,7 +127,7 @@ export default class UserSecurityService {
   }
 
   static async isLocked(userId: string): Promise<boolean> {
-    const security = await prisma.userSecurity.findUnique({
+    const security = await systemPrisma.userSecurity.findUnique({
       where: { userId }
     });
 

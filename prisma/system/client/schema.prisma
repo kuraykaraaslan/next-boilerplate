@@ -1,0 +1,318 @@
+model AuditLog {
+  auditLogId String @id @default(uuid()) @db.Uuid
+
+  // Actor — null means automated system action
+  actorId   String?        @db.Uuid
+  actorType AuditActorType @default(SYSTEM)
+
+  // What happened
+  action String // e.g. "user.created", "settings.updated"
+
+  // What was affected
+  resourceType String? // e.g. "User", "Setting", "SubscriptionPlan"
+  resourceId   String?
+
+  // Extra context
+  metadata  Json? // { before: {}, after: {}, extra: {} }
+  ipAddress String?
+  userAgent String?
+
+  createdAt DateTime @default(now()) @db.Timestamp
+
+  actor User? @relation(fields: [actorId], references: [userId], onDelete: SetNull)
+
+  @@index([actorId])
+  @@index([action])
+  @@index([resourceType])
+  @@map("audit_logs")
+}
+
+// User Enums
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+// User Security Enums
+enum OTPMethod {
+  EMAIL
+  SMS
+  TOTP_APP
+}
+
+// User Preferences Enums
+enum Theme {
+  LIGHT
+  DARK
+  SYSTEM
+}
+
+enum Language {
+  EN
+  ES
+  FR
+  DE
+  CN
+  JP
+}
+
+enum DateFormat {
+  DD_MM_YYYY
+  MM_DD_YYYY
+}
+
+enum TimeFormat {
+  H24
+  H12
+}
+
+enum FirstDayOfWeek {
+  MON
+  SUN
+}
+
+// Social Account Enums
+enum SocialAccountProvider {
+  google
+  apple
+  facebook
+  github
+  linkedin
+  microsoft
+  twitter
+  slack
+  tiktok
+  wechat
+  autodesk
+}
+
+// Session Enums
+enum SessionStatus {
+  ACTIVE
+  EXPIRED
+  REVOKED
+}
+
+// Subscription Plan Enums
+enum SubscriptionPlanStatus {
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+}
+
+enum PlanFeatureType {
+  BOOLEAN
+  LIMIT
+}
+
+// Audit Log Enums
+enum AuditActorType {
+  USER
+  SYSTEM
+}
+
+model PlanFeature {
+  featureId String          @id @default(uuid()) @db.Uuid
+  planId    String          @db.Uuid
+  key       String          @db.VarChar
+  label     String          @db.VarChar
+  type      PlanFeatureType @default(BOOLEAN)
+  value     String          @db.VarChar // "true"/"false" for BOOLEAN, "10", "100", "-1" (unlimited) for LIMIT
+  sortOrder Int             @default(0)
+  createdAt DateTime        @default(now()) @db.Timestamp
+  updatedAt DateTime        @updatedAt @db.Timestamp
+
+  plan SubscriptionPlan @relation(fields: [planId], references: [planId], onDelete: Cascade)
+
+  @@unique([planId, key])
+  @@index([planId])
+  @@map("plan_features")
+}
+
+model PushSubscription {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  endpoint  String   @unique @db.VarChar
+  p256dh    String   @db.VarChar
+  auth      String   @db.VarChar
+  createdAt DateTime @default(now()) @db.Timestamp
+  updatedAt DateTime @updatedAt @db.Timestamp
+
+  user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("push_subscriptions")
+}
+
+generator client {
+  provider   = "prisma-client-js"
+  accelerate = "true"
+  output     = "../client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Setting {
+  key       String   @id @db.VarChar
+  value     String   @db.Text
+  group     String   @default("general") @db.VarChar
+  type      String   @default("string") @db.VarChar
+  createdAt DateTime @default(now()) @db.Timestamp
+  updatedAt DateTime @updatedAt @db.Timestamp
+
+  @@index([group])
+  @@map("settings")
+}
+
+model SubscriptionPlan {
+  planId       String                 @id @default(uuid()) @db.Uuid
+  name         String                 @db.VarChar
+  description  String?                @db.Text
+  monthlyPrice Decimal                @db.Decimal(12, 2)
+  yearlyPrice  Decimal                @db.Decimal(12, 2)
+  currency     String                 @default("USD") @db.VarChar(3)
+  trialDays    Int                    @default(0)
+  sortOrder    Int                    @default(0)
+  isDefault    Boolean                @default(false)
+  status       SubscriptionPlanStatus @default(ACTIVE)
+  createdAt    DateTime               @default(now()) @db.Timestamp
+  updatedAt    DateTime               @updatedAt @db.Timestamp
+
+  features PlanFeature[]
+
+  @@index([status])
+  @@index([sortOrder])
+  @@map("subscription_plans")
+}
+
+model User {
+  userId   String  @id @default(uuid()) @db.Uuid
+  email    String  @unique @db.VarChar
+  phone    String? @db.VarChar
+  password String  @db.VarChar
+
+  userStatus      UserStatus @default(ACTIVE)
+  userRole        UserRole   @default(USER)
+  emailVerifiedAt DateTime?  @db.Timestamp
+  createdAt       DateTime   @default(now()) @db.Timestamp
+  updatedAt       DateTime   @updatedAt @db.Timestamp
+  deletedAt       DateTime?  @db.Timestamp
+
+  profile           UserProfile?
+  security          UserSecurity?
+  preferences       UserPreferences?
+  socialAccounts    UserSocialAccount[]
+  sessions          UserSession[]
+  pushSubscriptions PushSubscription[]
+  auditLogs         AuditLog[]
+
+  @@index([email])
+  @@index([phone])
+  @@map("users")
+}
+
+model UserPreferences {
+  userPreferencesId  String         @id @default(uuid()) @db.Uuid
+  userId             String         @unique @db.Uuid
+  theme              Theme          @default(SYSTEM)
+  language           Language       @default(EN)
+  emailNotifications Boolean        @default(true)
+  smsNotifications   Boolean        @default(false)
+  pushNotifications  Boolean        @default(true)
+  newsletter         Boolean        @default(true)
+  timezone           String         @default("UTC") @db.VarChar
+  dateFormat         DateFormat     @default(DD_MM_YYYY)
+  timeFormat         TimeFormat     @default(H24)
+  firstDayOfWeek     FirstDayOfWeek @default(MON)
+  createdAt          DateTime       @default(now()) @db.Timestamp
+  updatedAt          DateTime       @updatedAt @db.Timestamp
+
+  user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@map("user_preferences")
+}
+
+model UserProfile {
+  userProfileId  String   @id @default(uuid()) @db.Uuid
+  userId         String   @unique @db.Uuid
+  name           String?  @db.VarChar
+  biography      String?  @db.Text
+  profilePicture String?  @db.VarChar
+  headerImage    String?  @db.VarChar
+  socialLinks    Json     @default("[]") @db.JsonB
+  createdAt      DateTime @default(now()) @db.Timestamp
+  updatedAt      DateTime @updatedAt @db.Timestamp
+
+  user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@map("user_profiles")
+}
+
+model UserSecurity {
+  userSecurityId      String      @id @default(uuid()) @db.Uuid
+  userId              String      @unique @db.Uuid
+  otpMethods          OTPMethod[] @default([])
+  otpSecret           String?     @db.VarChar
+  otpBackupCodes      Json        @default("[]") @db.JsonB
+  lastLoginAt         DateTime?   @db.Timestamp
+  lastLoginIp         String?     @db.VarChar
+  lastLoginDevice     String?     @db.VarChar
+  failedLoginAttempts Int         @default(0)
+  lockedUntil         DateTime?   @db.Timestamp
+  passkeyEnabled      Boolean     @default(false)
+  passkeys            Json        @default("[]") @db.JsonB
+  createdAt           DateTime    @default(now()) @db.Timestamp
+  updatedAt           DateTime    @updatedAt @db.Timestamp
+
+  user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@map("user_securities")
+}
+
+model UserSession {
+  userSessionId     String        @id @default(uuid()) @db.Uuid
+  userId            String        @db.Uuid
+  accessToken       String        @db.Text
+  refreshToken      String        @db.Text
+  deviceFingerprint String?       @db.VarChar
+  userAgent         String?       @db.Text
+  ipAddress         String?       @db.VarChar
+  sessionStatus     SessionStatus @default(ACTIVE)
+  otpVerifyNeeded   Boolean       @default(false)
+  sessionExpiry     DateTime      @db.Timestamp
+  createdAt         DateTime      @default(now()) @db.Timestamp
+  updatedAt         DateTime      @updatedAt @db.Timestamp
+
+  user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([accessToken])
+  @@index([refreshToken])
+  @@map("user_sessions")
+}
+
+model UserSocialAccount {
+  userSocialAccountId String                @id @default(uuid()) @db.Uuid
+  userId              String                @db.Uuid
+  provider            SocialAccountProvider
+  providerId          String                @db.VarChar
+  accessToken         String?               @db.Text
+  refreshToken        String?               @db.Text
+  profilePicture      String?               @db.VarChar
+  createdAt           DateTime              @default(now()) @db.Timestamp
+  updatedAt           DateTime              @updatedAt @db.Timestamp
+
+  user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@unique([provider, providerId])
+  @@index([userId])
+  @@map("user_social_accounts")
+}
