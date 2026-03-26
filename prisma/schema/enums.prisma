@@ -20,6 +20,15 @@ enum TenantStatus {
   ARCHIVED
 }
 
+// Tenant Invitation Enums
+enum TenantInvitationStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  EXPIRED
+  REVOKED
+}
+
 // Tenant Member Enums
 enum TenantMemberRole {
   OWNER

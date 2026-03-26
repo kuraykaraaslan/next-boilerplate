@@ -9,6 +9,7 @@ model Tenant {
 
   domains      TenantDomain[]
   members      TenantMember[]
+  invitations  TenantInvitation[]
   payments     Payment[]
   subscription TenantSubscription?
 

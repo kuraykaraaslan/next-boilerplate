@@ -10,13 +10,15 @@ model User {
   updatedAt  DateTime   @updatedAt @db.Timestamp
   deletedAt  DateTime?  @db.Timestamp
 
-  profile        UserProfile?
-  security       UserSecurity?
-  preferences    UserPreferences?
-  socialAccounts UserSocialAccount[]
-  sessions       UserSession[]
-  tenantMembers  TenantMember[]
-  payments       Payment[]
+  profile           UserProfile?
+  security          UserSecurity?
+  preferences       UserPreferences?
+  socialAccounts    UserSocialAccount[]
+  sessions          UserSession[]
+  tenantMembers     TenantMember[]
+  sentInvitations   TenantInvitation[]
+  payments          Payment[]
+  pushSubscriptions PushSubscription[]
 
   @@index([email])
   @@index([phone])
