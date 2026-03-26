@@ -3,6 +3,7 @@ import type { Prisma } from "@/prisma/client";
 import { SafeTenant, SafeTenantSchema } from "./tenant.types";
 import { CreateTenantInput, UpdateTenantInput, GetTenantsInput } from "./tenant.dto";
 import TenantMessages from "./tenant.messages";
+import TenantMemberService from "../tenant_member/tenant_member.service";
 
 export default class TenantService {
 
@@ -75,6 +76,29 @@ export default class TenantService {
     });
 
     return SafeTenantSchema.parse(updated);
+  }
+
+  /**
+   * Create a personal tenant for a newly registered user and assign them as OWNER.
+   */
+  static async provisionPersonal(userId: string, email: string): Promise<SafeTenant> {
+    const name = email.split("@")[0];
+
+    const tenant = await prisma.tenant.create({
+      data: {
+        name,
+        tenantStatus: "ACTIVE",
+      },
+    });
+
+    await TenantMemberService.create({
+      tenantId: tenant.tenantId,
+      userId,
+      memberRole: "OWNER",
+      memberStatus: "ACTIVE",
+    });
+
+    return SafeTenantSchema.parse(tenant);
   }
 
   static async delete(tenantId: string): Promise<void> {

@@ -515,6 +515,47 @@ export default class MailService {
   }
 
   /**
+   * Tenant invitation email
+   */
+  static async sendTenantInvitationEmail({
+    email,
+    tenantName,
+    memberRole,
+    rawToken,
+    tenantId,
+  }: {
+    email: string;
+    tenantName: string;
+    memberRole: string;
+    rawToken: string;
+    tenantId: string;
+  }): Promise<void> {
+    const subject = `You've been invited to join ${tenantName}`;
+
+    const INVITATION_TTL_SECONDS = parseInt(
+      process.env.INVITATION_TTL_SECONDS || `${60 * 60 * 24 * 7}`
+    );
+    const expiryDays = Math.round(INVITATION_TTL_SECONDS / (60 * 60 * 24));
+
+    const invitationLink =
+      `${MailService.FRONTEND_URL}/tenant/${tenantId}/auth/invitation/accept?token=${rawToken}`;
+    const declineLink =
+      `${MailService.FRONTEND_URL}/tenant/${tenantId}/auth/invitation/decline?token=${rawToken}`;
+
+    const emailContent = await MailService.renderTemplate("tenant_invitation.ejs", {
+      ...MailService.getBaseTemplateVars(),
+      subject,
+      tenantName,
+      memberRole,
+      expiryDays,
+      invitationLink,
+      declineLink,
+    });
+
+    await MailService.sendMail(email, subject, emailContent);
+  }
+
+  /**
    * Contact form submission - Admin notification
    */
   static async sendContactFormAdminEmail({

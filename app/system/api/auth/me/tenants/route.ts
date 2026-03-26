@@ -6,7 +6,7 @@ import { prisma } from "@/libs/prisma";
 
 /**
  * GET /system/api/auth/me/tenants
- * Get all tenants the current user is a member of
+ * Get all tenants the current user is a member of, plus pending invitations
  */
 export async function GET(request: NextRequest) {
     try {
@@ -55,9 +55,41 @@ export async function GET(request: NextRequest) {
             tenant: m.tenant
         }));
 
+        // Get pending invitations for this user's email
+        const now = new Date();
+        const pendingInvitations = await prisma.tenantInvitation.findMany({
+            where: {
+                email: user.email.toLowerCase(),
+                status: 'PENDING',
+                expiresAt: { gt: now },
+            },
+            include: {
+                tenant: {
+                    select: {
+                        tenantId: true,
+                        name: true,
+                        description: true,
+                        tenantStatus: true,
+                    }
+                }
+            },
+            orderBy: { createdAt: 'desc' }
+        });
+
+        const invitations = pendingInvitations.map(inv => ({
+            invitationId: inv.invitationId,
+            tenantId: inv.tenantId,
+            memberRole: inv.memberRole,
+            status: inv.status,
+            expiresAt: inv.expiresAt,
+            createdAt: inv.createdAt,
+            tenant: inv.tenant
+        }));
+
         return NextResponse.json({
             success: true,
-            tenants
+            tenants,
+            invitations
         }, { status: 200 });
 
     } catch (error: any) {

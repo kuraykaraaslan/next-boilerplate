@@ -3,6 +3,8 @@ import bcrypt from "bcrypt";
 
 // Other Services
 import UserService from "../user/user.service";
+import TenantService from "../tenant/tenant.service";
+import TenantInvitationService from "../tenant_invitation/tenant_invitation.service";
 
 // Utils
 import { SafeUser, SafeUserSchema } from '../user/user.types';
@@ -91,6 +93,12 @@ export default class AuthService {
         });
 
         const parsedUser = SafeUserSchema.parse(createdUser);
+
+        // Provision a personal tenant for this user
+        await TenantService.provisionPersonal(parsedUser.userId, parsedUser.email);
+
+        // Auto-accept all pending invitations for this email
+        await TenantInvitationService.autoAcceptForEmail(parsedUser.userId, parsedUser.email);
 
         return { user: parsedUser };
     }
