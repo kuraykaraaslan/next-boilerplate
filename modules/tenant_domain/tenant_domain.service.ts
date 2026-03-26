@@ -1,4 +1,4 @@
-import { tenantPrisma } from "@/libs/prisma";
+import { tenantPrisma, tenantPrismaFor } from "@/libs/prisma";
 import redis from "@/libs/redis";
 import { SafeTenantDomain, SafeTenantDomainSchema, DomainVerificationInfo } from "./tenant_domain.types";
 import { CreateTenantDomainInput, UpdateTenantDomainInput, GetTenantDomainsInput, InitiateVerificationInput } from "./tenant_domain.dto";
@@ -29,14 +29,15 @@ export default class TenantDomainService {
   }
 
   static async getByTenantId({ tenantId, page, pageSize }: GetTenantDomainsInput): Promise<{ domains: SafeTenantDomain[], total: number }> {
+    const db = await tenantPrismaFor(tenantId);
     const [domains, total] = await Promise.all([
-      tenantPrisma.tenantDomain.findMany({
+      db.tenantDomain.findMany({
         where: { tenantId },
         skip: (page - 1) * pageSize,
         take: pageSize,
         orderBy: [{ isPrimary: 'desc' }, { createdAt: 'desc' }]
       }),
-      tenantPrisma.tenantDomain.count({ where: { tenantId } })
+      db.tenantDomain.count({ where: { tenantId } })
     ]);
 
     return {
@@ -110,7 +111,8 @@ export default class TenantDomainService {
       }
     }
 
-    const domain = await tenantPrisma.tenantDomain.findFirst({
+    const db = await tenantPrismaFor(tenantId);
+    const domain = await db.tenantDomain.findFirst({
       where: { tenantId, isPrimary: true }
     });
 
@@ -126,9 +128,10 @@ export default class TenantDomainService {
   static async create(data: CreateTenantDomainInput): Promise<SafeTenantDomain> {
     const wildcardDomain = process.env.TENANT_WILDCARD_DOMAIN || "example.com";
     const isSubdomain = data.domain.endsWith(`.${wildcardDomain}`);
+    const db = await tenantPrismaFor(data.tenantId);
 
     // Check existing domain
-    const existing = await tenantPrisma.tenantDomain.findUnique({
+    const existing = await db.tenantDomain.findUnique({
       where: { domain: data.domain }
     });
 
@@ -138,17 +141,17 @@ export default class TenantDomainService {
 
     // Check limits
     const [domainCount, subdomainCount, maxDomainsSetting, maxSubdomainsSetting] = await Promise.all([
-      tenantPrisma.tenantDomain.count({ 
-        where: { 
+      db.tenantDomain.count({
+        where: {
           tenantId: data.tenantId,
           NOT: { domain: { endsWith: `.${wildcardDomain}` } }
-        } 
+        }
       }),
-      tenantPrisma.tenantDomain.count({ 
-        where: { 
+      db.tenantDomain.count({
+        where: {
           tenantId: data.tenantId,
           domain: { endsWith: `.${wildcardDomain}` }
-        } 
+        }
       }),
       TenantSettingService.getByKey(data.tenantId, 'maxDomains'),
       TenantSettingService.getByKey(data.tenantId, 'maxSubdomains')
@@ -168,13 +171,13 @@ export default class TenantDomainService {
     }
 
     if (data.isPrimary) {
-      await tenantPrisma.tenantDomain.updateMany({
+      await db.tenantDomain.updateMany({
         where: { tenantId: data.tenantId, isPrimary: true },
         data: { isPrimary: false }
       });
     }
 
-    const domain = await tenantPrisma.tenantDomain.create({
+    const domain = await db.tenantDomain.create({
       data: {
         ...data,
         domainStatus: 'PENDING'
@@ -195,14 +198,16 @@ export default class TenantDomainService {
       throw new Error(TenantDomainMessages.DOMAIN_NOT_FOUND);
     }
 
+    const db = await tenantPrismaFor(domain.tenantId);
+
     if (data.isPrimary) {
-      await tenantPrisma.tenantDomain.updateMany({
+      await db.tenantDomain.updateMany({
         where: { tenantId: domain.tenantId, isPrimary: true },
         data: { isPrimary: false }
       });
     }
 
-    const updated = await tenantPrisma.tenantDomain.update({
+    const updated = await db.tenantDomain.update({
       where: { tenantDomainId },
       data
     });
@@ -265,7 +270,8 @@ export default class TenantDomainService {
       method
     );
 
-    await tenantPrisma.tenantDomain.update({
+    const db = await tenantPrismaFor(domain.tenantId);
+    await db.tenantDomain.update({
       where: { tenantDomainId },
       data: { verificationToken: verification.token }
     });
@@ -303,7 +309,8 @@ export default class TenantDomainService {
       throw new Error(TenantDomainMessages.DNS_VERIFICATION_FAILED);
     }
 
-    const updated = await tenantPrisma.tenantDomain.update({
+    const db = await tenantPrismaFor(domain.tenantId);
+    const updated = await db.tenantDomain.update({
       where: { tenantDomainId },
       data: {
         domainStatus: 'VERIFIED',
@@ -330,8 +337,9 @@ export default class TenantDomainService {
       throw new Error(TenantDomainMessages.CANNOT_DELETE_PRIMARY);
     }
 
+    const db = await tenantPrismaFor(domain.tenantId);
     await DNSVerificationService.deleteStoredToken(tenantDomainId);
-    await tenantPrisma.tenantDomain.delete({ where: { tenantDomainId } });
+    await db.tenantDomain.delete({ where: { tenantDomainId } });
     await this.clearCache(SafeTenantDomainSchema.parse(domain));
   }
 }

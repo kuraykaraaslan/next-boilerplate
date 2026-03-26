@@ -39,6 +39,12 @@ export type Setting = $Result.DefaultSelection<Prisma.$SettingPayload>
  */
 export type SubscriptionPlan = $Result.DefaultSelection<Prisma.$SubscriptionPlanPayload>
 /**
+ * Model TenantDatabase
+ * Registry of tenants that have a dedicated database.
+ * When present, tenantPrismaFor() will use this URL instead of the shared TENANT_DATABASE_URL.
+ */
+export type TenantDatabase = $Result.DefaultSelection<Prisma.$TenantDatabasePayload>
+/**
  * Model User
  * 
  */
@@ -414,6 +420,16 @@ export class PrismaClient<
     * ```
     */
   get subscriptionPlan(): Prisma.SubscriptionPlanDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.tenantDatabase`: Exposes CRUD operations for the **TenantDatabase** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more TenantDatabases
+    * const tenantDatabases = await prisma.tenantDatabase.findMany()
+    * ```
+    */
+  get tenantDatabase(): Prisma.TenantDatabaseDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.user`: Exposes CRUD operations for the **User** model.
@@ -913,6 +929,7 @@ export namespace Prisma {
     PushSubscription: 'PushSubscription',
     Setting: 'Setting',
     SubscriptionPlan: 'SubscriptionPlan',
+    TenantDatabase: 'TenantDatabase',
     User: 'User',
     UserPreferences: 'UserPreferences',
     UserProfile: 'UserProfile',
@@ -934,7 +951,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "auditLog" | "planFeature" | "pushSubscription" | "setting" | "subscriptionPlan" | "user" | "userPreferences" | "userProfile" | "userSecurity" | "userSession" | "userSocialAccount"
+      modelProps: "auditLog" | "planFeature" | "pushSubscription" | "setting" | "subscriptionPlan" | "tenantDatabase" | "user" | "userPreferences" | "userProfile" | "userSecurity" | "userSession" | "userSocialAccount"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1305,6 +1322,80 @@ export namespace Prisma {
           count: {
             args: Prisma.SubscriptionPlanCountArgs<ExtArgs>
             result: $Utils.Optional<SubscriptionPlanCountAggregateOutputType> | number
+          }
+        }
+      }
+      TenantDatabase: {
+        payload: Prisma.$TenantDatabasePayload<ExtArgs>
+        fields: Prisma.TenantDatabaseFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.TenantDatabaseFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TenantDatabasePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.TenantDatabaseFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TenantDatabasePayload>
+          }
+          findFirst: {
+            args: Prisma.TenantDatabaseFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TenantDatabasePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.TenantDatabaseFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TenantDatabasePayload>
+          }
+          findMany: {
+            args: Prisma.TenantDatabaseFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TenantDatabasePayload>[]
+          }
+          create: {
+            args: Prisma.TenantDatabaseCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TenantDatabasePayload>
+          }
+          createMany: {
+            args: Prisma.TenantDatabaseCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.TenantDatabaseCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TenantDatabasePayload>[]
+          }
+          delete: {
+            args: Prisma.TenantDatabaseDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TenantDatabasePayload>
+          }
+          update: {
+            args: Prisma.TenantDatabaseUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TenantDatabasePayload>
+          }
+          deleteMany: {
+            args: Prisma.TenantDatabaseDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.TenantDatabaseUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.TenantDatabaseUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TenantDatabasePayload>[]
+          }
+          upsert: {
+            args: Prisma.TenantDatabaseUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TenantDatabasePayload>
+          }
+          aggregate: {
+            args: Prisma.TenantDatabaseAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTenantDatabase>
+          }
+          groupBy: {
+            args: Prisma.TenantDatabaseGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TenantDatabaseGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.TenantDatabaseCountArgs<ExtArgs>
+            result: $Utils.Optional<TenantDatabaseCountAggregateOutputType> | number
           }
         }
       }
@@ -1865,6 +1956,7 @@ export namespace Prisma {
     pushSubscription?: PushSubscriptionOmit
     setting?: SettingOmit
     subscriptionPlan?: SubscriptionPlanOmit
+    tenantDatabase?: TenantDatabaseOmit
     user?: UserOmit
     userPreferences?: UserPreferencesOmit
     userProfile?: UserProfileOmit
@@ -7617,6 +7709,988 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: SubscriptionPlanInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model TenantDatabase
+   */
+
+  export type AggregateTenantDatabase = {
+    _count: TenantDatabaseCountAggregateOutputType | null
+    _min: TenantDatabaseMinAggregateOutputType | null
+    _max: TenantDatabaseMaxAggregateOutputType | null
+  }
+
+  export type TenantDatabaseMinAggregateOutputType = {
+    tenantId: string | null
+    databaseUrl: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type TenantDatabaseMaxAggregateOutputType = {
+    tenantId: string | null
+    databaseUrl: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type TenantDatabaseCountAggregateOutputType = {
+    tenantId: number
+    databaseUrl: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type TenantDatabaseMinAggregateInputType = {
+    tenantId?: true
+    databaseUrl?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type TenantDatabaseMaxAggregateInputType = {
+    tenantId?: true
+    databaseUrl?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type TenantDatabaseCountAggregateInputType = {
+    tenantId?: true
+    databaseUrl?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type TenantDatabaseAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TenantDatabase to aggregate.
+     */
+    where?: TenantDatabaseWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TenantDatabases to fetch.
+     */
+    orderBy?: TenantDatabaseOrderByWithRelationInput | TenantDatabaseOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: TenantDatabaseWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TenantDatabases from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TenantDatabases.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned TenantDatabases
+    **/
+    _count?: true | TenantDatabaseCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: TenantDatabaseMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: TenantDatabaseMaxAggregateInputType
+  }
+
+  export type GetTenantDatabaseAggregateType<T extends TenantDatabaseAggregateArgs> = {
+        [P in keyof T & keyof AggregateTenantDatabase]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateTenantDatabase[P]>
+      : GetScalarType<T[P], AggregateTenantDatabase[P]>
+  }
+
+
+
+
+  export type TenantDatabaseGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TenantDatabaseWhereInput
+    orderBy?: TenantDatabaseOrderByWithAggregationInput | TenantDatabaseOrderByWithAggregationInput[]
+    by: TenantDatabaseScalarFieldEnum[] | TenantDatabaseScalarFieldEnum
+    having?: TenantDatabaseScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: TenantDatabaseCountAggregateInputType | true
+    _min?: TenantDatabaseMinAggregateInputType
+    _max?: TenantDatabaseMaxAggregateInputType
+  }
+
+  export type TenantDatabaseGroupByOutputType = {
+    tenantId: string
+    databaseUrl: string
+    createdAt: Date
+    updatedAt: Date
+    _count: TenantDatabaseCountAggregateOutputType | null
+    _min: TenantDatabaseMinAggregateOutputType | null
+    _max: TenantDatabaseMaxAggregateOutputType | null
+  }
+
+  type GetTenantDatabaseGroupByPayload<T extends TenantDatabaseGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<TenantDatabaseGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof TenantDatabaseGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], TenantDatabaseGroupByOutputType[P]>
+            : GetScalarType<T[P], TenantDatabaseGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type TenantDatabaseSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    tenantId?: boolean
+    databaseUrl?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["tenantDatabase"]>
+
+  export type TenantDatabaseSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    tenantId?: boolean
+    databaseUrl?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["tenantDatabase"]>
+
+  export type TenantDatabaseSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    tenantId?: boolean
+    databaseUrl?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["tenantDatabase"]>
+
+  export type TenantDatabaseSelectScalar = {
+    tenantId?: boolean
+    databaseUrl?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type TenantDatabaseOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"tenantId" | "databaseUrl" | "createdAt" | "updatedAt", ExtArgs["result"]["tenantDatabase"]>
+
+  export type $TenantDatabasePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "TenantDatabase"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      tenantId: string
+      databaseUrl: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["tenantDatabase"]>
+    composites: {}
+  }
+
+  type TenantDatabaseGetPayload<S extends boolean | null | undefined | TenantDatabaseDefaultArgs> = $Result.GetResult<Prisma.$TenantDatabasePayload, S>
+
+  type TenantDatabaseCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<TenantDatabaseFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: TenantDatabaseCountAggregateInputType | true
+    }
+
+  export interface TenantDatabaseDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TenantDatabase'], meta: { name: 'TenantDatabase' } }
+    /**
+     * Find zero or one TenantDatabase that matches the filter.
+     * @param {TenantDatabaseFindUniqueArgs} args - Arguments to find a TenantDatabase
+     * @example
+     * // Get one TenantDatabase
+     * const tenantDatabase = await prisma.tenantDatabase.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends TenantDatabaseFindUniqueArgs>(args: SelectSubset<T, TenantDatabaseFindUniqueArgs<ExtArgs>>): Prisma__TenantDatabaseClient<$Result.GetResult<Prisma.$TenantDatabasePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one TenantDatabase that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {TenantDatabaseFindUniqueOrThrowArgs} args - Arguments to find a TenantDatabase
+     * @example
+     * // Get one TenantDatabase
+     * const tenantDatabase = await prisma.tenantDatabase.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends TenantDatabaseFindUniqueOrThrowArgs>(args: SelectSubset<T, TenantDatabaseFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TenantDatabaseClient<$Result.GetResult<Prisma.$TenantDatabasePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TenantDatabase that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TenantDatabaseFindFirstArgs} args - Arguments to find a TenantDatabase
+     * @example
+     * // Get one TenantDatabase
+     * const tenantDatabase = await prisma.tenantDatabase.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends TenantDatabaseFindFirstArgs>(args?: SelectSubset<T, TenantDatabaseFindFirstArgs<ExtArgs>>): Prisma__TenantDatabaseClient<$Result.GetResult<Prisma.$TenantDatabasePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TenantDatabase that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TenantDatabaseFindFirstOrThrowArgs} args - Arguments to find a TenantDatabase
+     * @example
+     * // Get one TenantDatabase
+     * const tenantDatabase = await prisma.tenantDatabase.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends TenantDatabaseFindFirstOrThrowArgs>(args?: SelectSubset<T, TenantDatabaseFindFirstOrThrowArgs<ExtArgs>>): Prisma__TenantDatabaseClient<$Result.GetResult<Prisma.$TenantDatabasePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more TenantDatabases that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TenantDatabaseFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all TenantDatabases
+     * const tenantDatabases = await prisma.tenantDatabase.findMany()
+     * 
+     * // Get first 10 TenantDatabases
+     * const tenantDatabases = await prisma.tenantDatabase.findMany({ take: 10 })
+     * 
+     * // Only select the `tenantId`
+     * const tenantDatabaseWithTenantIdOnly = await prisma.tenantDatabase.findMany({ select: { tenantId: true } })
+     * 
+     */
+    findMany<T extends TenantDatabaseFindManyArgs>(args?: SelectSubset<T, TenantDatabaseFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TenantDatabasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a TenantDatabase.
+     * @param {TenantDatabaseCreateArgs} args - Arguments to create a TenantDatabase.
+     * @example
+     * // Create one TenantDatabase
+     * const TenantDatabase = await prisma.tenantDatabase.create({
+     *   data: {
+     *     // ... data to create a TenantDatabase
+     *   }
+     * })
+     * 
+     */
+    create<T extends TenantDatabaseCreateArgs>(args: SelectSubset<T, TenantDatabaseCreateArgs<ExtArgs>>): Prisma__TenantDatabaseClient<$Result.GetResult<Prisma.$TenantDatabasePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many TenantDatabases.
+     * @param {TenantDatabaseCreateManyArgs} args - Arguments to create many TenantDatabases.
+     * @example
+     * // Create many TenantDatabases
+     * const tenantDatabase = await prisma.tenantDatabase.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends TenantDatabaseCreateManyArgs>(args?: SelectSubset<T, TenantDatabaseCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many TenantDatabases and returns the data saved in the database.
+     * @param {TenantDatabaseCreateManyAndReturnArgs} args - Arguments to create many TenantDatabases.
+     * @example
+     * // Create many TenantDatabases
+     * const tenantDatabase = await prisma.tenantDatabase.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many TenantDatabases and only return the `tenantId`
+     * const tenantDatabaseWithTenantIdOnly = await prisma.tenantDatabase.createManyAndReturn({
+     *   select: { tenantId: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends TenantDatabaseCreateManyAndReturnArgs>(args?: SelectSubset<T, TenantDatabaseCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TenantDatabasePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a TenantDatabase.
+     * @param {TenantDatabaseDeleteArgs} args - Arguments to delete one TenantDatabase.
+     * @example
+     * // Delete one TenantDatabase
+     * const TenantDatabase = await prisma.tenantDatabase.delete({
+     *   where: {
+     *     // ... filter to delete one TenantDatabase
+     *   }
+     * })
+     * 
+     */
+    delete<T extends TenantDatabaseDeleteArgs>(args: SelectSubset<T, TenantDatabaseDeleteArgs<ExtArgs>>): Prisma__TenantDatabaseClient<$Result.GetResult<Prisma.$TenantDatabasePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one TenantDatabase.
+     * @param {TenantDatabaseUpdateArgs} args - Arguments to update one TenantDatabase.
+     * @example
+     * // Update one TenantDatabase
+     * const tenantDatabase = await prisma.tenantDatabase.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends TenantDatabaseUpdateArgs>(args: SelectSubset<T, TenantDatabaseUpdateArgs<ExtArgs>>): Prisma__TenantDatabaseClient<$Result.GetResult<Prisma.$TenantDatabasePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more TenantDatabases.
+     * @param {TenantDatabaseDeleteManyArgs} args - Arguments to filter TenantDatabases to delete.
+     * @example
+     * // Delete a few TenantDatabases
+     * const { count } = await prisma.tenantDatabase.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends TenantDatabaseDeleteManyArgs>(args?: SelectSubset<T, TenantDatabaseDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TenantDatabases.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TenantDatabaseUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many TenantDatabases
+     * const tenantDatabase = await prisma.tenantDatabase.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends TenantDatabaseUpdateManyArgs>(args: SelectSubset<T, TenantDatabaseUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TenantDatabases and returns the data updated in the database.
+     * @param {TenantDatabaseUpdateManyAndReturnArgs} args - Arguments to update many TenantDatabases.
+     * @example
+     * // Update many TenantDatabases
+     * const tenantDatabase = await prisma.tenantDatabase.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more TenantDatabases and only return the `tenantId`
+     * const tenantDatabaseWithTenantIdOnly = await prisma.tenantDatabase.updateManyAndReturn({
+     *   select: { tenantId: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends TenantDatabaseUpdateManyAndReturnArgs>(args: SelectSubset<T, TenantDatabaseUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TenantDatabasePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one TenantDatabase.
+     * @param {TenantDatabaseUpsertArgs} args - Arguments to update or create a TenantDatabase.
+     * @example
+     * // Update or create a TenantDatabase
+     * const tenantDatabase = await prisma.tenantDatabase.upsert({
+     *   create: {
+     *     // ... data to create a TenantDatabase
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the TenantDatabase we want to update
+     *   }
+     * })
+     */
+    upsert<T extends TenantDatabaseUpsertArgs>(args: SelectSubset<T, TenantDatabaseUpsertArgs<ExtArgs>>): Prisma__TenantDatabaseClient<$Result.GetResult<Prisma.$TenantDatabasePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of TenantDatabases.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TenantDatabaseCountArgs} args - Arguments to filter TenantDatabases to count.
+     * @example
+     * // Count the number of TenantDatabases
+     * const count = await prisma.tenantDatabase.count({
+     *   where: {
+     *     // ... the filter for the TenantDatabases we want to count
+     *   }
+     * })
+    **/
+    count<T extends TenantDatabaseCountArgs>(
+      args?: Subset<T, TenantDatabaseCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], TenantDatabaseCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a TenantDatabase.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TenantDatabaseAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends TenantDatabaseAggregateArgs>(args: Subset<T, TenantDatabaseAggregateArgs>): Prisma.PrismaPromise<GetTenantDatabaseAggregateType<T>>
+
+    /**
+     * Group by TenantDatabase.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TenantDatabaseGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends TenantDatabaseGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: TenantDatabaseGroupByArgs['orderBy'] }
+        : { orderBy?: TenantDatabaseGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, TenantDatabaseGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTenantDatabaseGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the TenantDatabase model
+   */
+  readonly fields: TenantDatabaseFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for TenantDatabase.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__TenantDatabaseClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the TenantDatabase model
+   */
+  interface TenantDatabaseFieldRefs {
+    readonly tenantId: FieldRef<"TenantDatabase", 'String'>
+    readonly databaseUrl: FieldRef<"TenantDatabase", 'String'>
+    readonly createdAt: FieldRef<"TenantDatabase", 'DateTime'>
+    readonly updatedAt: FieldRef<"TenantDatabase", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * TenantDatabase findUnique
+   */
+  export type TenantDatabaseFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TenantDatabase
+     */
+    select?: TenantDatabaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TenantDatabase
+     */
+    omit?: TenantDatabaseOmit<ExtArgs> | null
+    /**
+     * Filter, which TenantDatabase to fetch.
+     */
+    where: TenantDatabaseWhereUniqueInput
+  }
+
+  /**
+   * TenantDatabase findUniqueOrThrow
+   */
+  export type TenantDatabaseFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TenantDatabase
+     */
+    select?: TenantDatabaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TenantDatabase
+     */
+    omit?: TenantDatabaseOmit<ExtArgs> | null
+    /**
+     * Filter, which TenantDatabase to fetch.
+     */
+    where: TenantDatabaseWhereUniqueInput
+  }
+
+  /**
+   * TenantDatabase findFirst
+   */
+  export type TenantDatabaseFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TenantDatabase
+     */
+    select?: TenantDatabaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TenantDatabase
+     */
+    omit?: TenantDatabaseOmit<ExtArgs> | null
+    /**
+     * Filter, which TenantDatabase to fetch.
+     */
+    where?: TenantDatabaseWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TenantDatabases to fetch.
+     */
+    orderBy?: TenantDatabaseOrderByWithRelationInput | TenantDatabaseOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TenantDatabases.
+     */
+    cursor?: TenantDatabaseWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TenantDatabases from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TenantDatabases.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TenantDatabases.
+     */
+    distinct?: TenantDatabaseScalarFieldEnum | TenantDatabaseScalarFieldEnum[]
+  }
+
+  /**
+   * TenantDatabase findFirstOrThrow
+   */
+  export type TenantDatabaseFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TenantDatabase
+     */
+    select?: TenantDatabaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TenantDatabase
+     */
+    omit?: TenantDatabaseOmit<ExtArgs> | null
+    /**
+     * Filter, which TenantDatabase to fetch.
+     */
+    where?: TenantDatabaseWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TenantDatabases to fetch.
+     */
+    orderBy?: TenantDatabaseOrderByWithRelationInput | TenantDatabaseOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TenantDatabases.
+     */
+    cursor?: TenantDatabaseWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TenantDatabases from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TenantDatabases.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TenantDatabases.
+     */
+    distinct?: TenantDatabaseScalarFieldEnum | TenantDatabaseScalarFieldEnum[]
+  }
+
+  /**
+   * TenantDatabase findMany
+   */
+  export type TenantDatabaseFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TenantDatabase
+     */
+    select?: TenantDatabaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TenantDatabase
+     */
+    omit?: TenantDatabaseOmit<ExtArgs> | null
+    /**
+     * Filter, which TenantDatabases to fetch.
+     */
+    where?: TenantDatabaseWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TenantDatabases to fetch.
+     */
+    orderBy?: TenantDatabaseOrderByWithRelationInput | TenantDatabaseOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing TenantDatabases.
+     */
+    cursor?: TenantDatabaseWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TenantDatabases from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TenantDatabases.
+     */
+    skip?: number
+    distinct?: TenantDatabaseScalarFieldEnum | TenantDatabaseScalarFieldEnum[]
+  }
+
+  /**
+   * TenantDatabase create
+   */
+  export type TenantDatabaseCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TenantDatabase
+     */
+    select?: TenantDatabaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TenantDatabase
+     */
+    omit?: TenantDatabaseOmit<ExtArgs> | null
+    /**
+     * The data needed to create a TenantDatabase.
+     */
+    data: XOR<TenantDatabaseCreateInput, TenantDatabaseUncheckedCreateInput>
+  }
+
+  /**
+   * TenantDatabase createMany
+   */
+  export type TenantDatabaseCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many TenantDatabases.
+     */
+    data: TenantDatabaseCreateManyInput | TenantDatabaseCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * TenantDatabase createManyAndReturn
+   */
+  export type TenantDatabaseCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TenantDatabase
+     */
+    select?: TenantDatabaseSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TenantDatabase
+     */
+    omit?: TenantDatabaseOmit<ExtArgs> | null
+    /**
+     * The data used to create many TenantDatabases.
+     */
+    data: TenantDatabaseCreateManyInput | TenantDatabaseCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * TenantDatabase update
+   */
+  export type TenantDatabaseUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TenantDatabase
+     */
+    select?: TenantDatabaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TenantDatabase
+     */
+    omit?: TenantDatabaseOmit<ExtArgs> | null
+    /**
+     * The data needed to update a TenantDatabase.
+     */
+    data: XOR<TenantDatabaseUpdateInput, TenantDatabaseUncheckedUpdateInput>
+    /**
+     * Choose, which TenantDatabase to update.
+     */
+    where: TenantDatabaseWhereUniqueInput
+  }
+
+  /**
+   * TenantDatabase updateMany
+   */
+  export type TenantDatabaseUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update TenantDatabases.
+     */
+    data: XOR<TenantDatabaseUpdateManyMutationInput, TenantDatabaseUncheckedUpdateManyInput>
+    /**
+     * Filter which TenantDatabases to update
+     */
+    where?: TenantDatabaseWhereInput
+    /**
+     * Limit how many TenantDatabases to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * TenantDatabase updateManyAndReturn
+   */
+  export type TenantDatabaseUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TenantDatabase
+     */
+    select?: TenantDatabaseSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TenantDatabase
+     */
+    omit?: TenantDatabaseOmit<ExtArgs> | null
+    /**
+     * The data used to update TenantDatabases.
+     */
+    data: XOR<TenantDatabaseUpdateManyMutationInput, TenantDatabaseUncheckedUpdateManyInput>
+    /**
+     * Filter which TenantDatabases to update
+     */
+    where?: TenantDatabaseWhereInput
+    /**
+     * Limit how many TenantDatabases to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * TenantDatabase upsert
+   */
+  export type TenantDatabaseUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TenantDatabase
+     */
+    select?: TenantDatabaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TenantDatabase
+     */
+    omit?: TenantDatabaseOmit<ExtArgs> | null
+    /**
+     * The filter to search for the TenantDatabase to update in case it exists.
+     */
+    where: TenantDatabaseWhereUniqueInput
+    /**
+     * In case the TenantDatabase found by the `where` argument doesn't exist, create a new TenantDatabase with this data.
+     */
+    create: XOR<TenantDatabaseCreateInput, TenantDatabaseUncheckedCreateInput>
+    /**
+     * In case the TenantDatabase was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<TenantDatabaseUpdateInput, TenantDatabaseUncheckedUpdateInput>
+  }
+
+  /**
+   * TenantDatabase delete
+   */
+  export type TenantDatabaseDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TenantDatabase
+     */
+    select?: TenantDatabaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TenantDatabase
+     */
+    omit?: TenantDatabaseOmit<ExtArgs> | null
+    /**
+     * Filter which TenantDatabase to delete.
+     */
+    where: TenantDatabaseWhereUniqueInput
+  }
+
+  /**
+   * TenantDatabase deleteMany
+   */
+  export type TenantDatabaseDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TenantDatabases to delete
+     */
+    where?: TenantDatabaseWhereInput
+    /**
+     * Limit how many TenantDatabases to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * TenantDatabase without action
+   */
+  export type TenantDatabaseDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TenantDatabase
+     */
+    select?: TenantDatabaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TenantDatabase
+     */
+    omit?: TenantDatabaseOmit<ExtArgs> | null
   }
 
 
@@ -14733,6 +15807,16 @@ export namespace Prisma {
   export type SubscriptionPlanScalarFieldEnum = (typeof SubscriptionPlanScalarFieldEnum)[keyof typeof SubscriptionPlanScalarFieldEnum]
 
 
+  export const TenantDatabaseScalarFieldEnum: {
+    tenantId: 'tenantId',
+    databaseUrl: 'databaseUrl',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type TenantDatabaseScalarFieldEnum = (typeof TenantDatabaseScalarFieldEnum)[keyof typeof TenantDatabaseScalarFieldEnum]
+
+
   export const UserScalarFieldEnum: {
     userId: 'userId',
     email: 'email',
@@ -15536,6 +16620,53 @@ export namespace Prisma {
     status?: EnumSubscriptionPlanStatusWithAggregatesFilter<"SubscriptionPlan"> | $Enums.SubscriptionPlanStatus
     createdAt?: DateTimeWithAggregatesFilter<"SubscriptionPlan"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"SubscriptionPlan"> | Date | string
+  }
+
+  export type TenantDatabaseWhereInput = {
+    AND?: TenantDatabaseWhereInput | TenantDatabaseWhereInput[]
+    OR?: TenantDatabaseWhereInput[]
+    NOT?: TenantDatabaseWhereInput | TenantDatabaseWhereInput[]
+    tenantId?: UuidFilter<"TenantDatabase"> | string
+    databaseUrl?: StringFilter<"TenantDatabase"> | string
+    createdAt?: DateTimeFilter<"TenantDatabase"> | Date | string
+    updatedAt?: DateTimeFilter<"TenantDatabase"> | Date | string
+  }
+
+  export type TenantDatabaseOrderByWithRelationInput = {
+    tenantId?: SortOrder
+    databaseUrl?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TenantDatabaseWhereUniqueInput = Prisma.AtLeast<{
+    tenantId?: string
+    AND?: TenantDatabaseWhereInput | TenantDatabaseWhereInput[]
+    OR?: TenantDatabaseWhereInput[]
+    NOT?: TenantDatabaseWhereInput | TenantDatabaseWhereInput[]
+    databaseUrl?: StringFilter<"TenantDatabase"> | string
+    createdAt?: DateTimeFilter<"TenantDatabase"> | Date | string
+    updatedAt?: DateTimeFilter<"TenantDatabase"> | Date | string
+  }, "tenantId">
+
+  export type TenantDatabaseOrderByWithAggregationInput = {
+    tenantId?: SortOrder
+    databaseUrl?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: TenantDatabaseCountOrderByAggregateInput
+    _max?: TenantDatabaseMaxOrderByAggregateInput
+    _min?: TenantDatabaseMinOrderByAggregateInput
+  }
+
+  export type TenantDatabaseScalarWhereWithAggregatesInput = {
+    AND?: TenantDatabaseScalarWhereWithAggregatesInput | TenantDatabaseScalarWhereWithAggregatesInput[]
+    OR?: TenantDatabaseScalarWhereWithAggregatesInput[]
+    NOT?: TenantDatabaseScalarWhereWithAggregatesInput | TenantDatabaseScalarWhereWithAggregatesInput[]
+    tenantId?: UuidWithAggregatesFilter<"TenantDatabase"> | string
+    databaseUrl?: StringWithAggregatesFilter<"TenantDatabase"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"TenantDatabase"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"TenantDatabase"> | Date | string
   }
 
   export type UserWhereInput = {
@@ -16489,6 +17620,55 @@ export namespace Prisma {
     sortOrder?: IntFieldUpdateOperationsInput | number
     isDefault?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumSubscriptionPlanStatusFieldUpdateOperationsInput | $Enums.SubscriptionPlanStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TenantDatabaseCreateInput = {
+    tenantId: string
+    databaseUrl: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TenantDatabaseUncheckedCreateInput = {
+    tenantId: string
+    databaseUrl: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TenantDatabaseUpdateInput = {
+    tenantId?: StringFieldUpdateOperationsInput | string
+    databaseUrl?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TenantDatabaseUncheckedUpdateInput = {
+    tenantId?: StringFieldUpdateOperationsInput | string
+    databaseUrl?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TenantDatabaseCreateManyInput = {
+    tenantId: string
+    databaseUrl: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TenantDatabaseUpdateManyMutationInput = {
+    tenantId?: StringFieldUpdateOperationsInput | string
+    databaseUrl?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TenantDatabaseUncheckedUpdateManyInput = {
+    tenantId?: StringFieldUpdateOperationsInput | string
+    databaseUrl?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -17660,6 +18840,27 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumSubscriptionPlanStatusFilter<$PrismaModel>
     _max?: NestedEnumSubscriptionPlanStatusFilter<$PrismaModel>
+  }
+
+  export type TenantDatabaseCountOrderByAggregateInput = {
+    tenantId?: SortOrder
+    databaseUrl?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TenantDatabaseMaxOrderByAggregateInput = {
+    tenantId?: SortOrder
+    databaseUrl?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TenantDatabaseMinOrderByAggregateInput = {
+    tenantId?: SortOrder
+    databaseUrl?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type EnumUserStatusFilter<$PrismaModel = never> = {

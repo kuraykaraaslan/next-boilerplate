@@ -1,4 +1,4 @@
-import { systemPrisma, tenantPrisma } from '@/libs/prisma'
+import { systemPrisma, tenantPrisma, tenantPrismaFor } from '@/libs/prisma'
 import type { Prisma as SystemPrisma } from '@/prisma/system/client'
 import Logger from '@/libs/logger'
 import redis from '@/libs/redis'
@@ -278,7 +278,8 @@ export default class TenantSubscriptionService {
       : null
 
     try {
-      const subscription = await tenantPrisma.tenantSubscription.upsert({
+      const db = await tenantPrismaFor(tenantId);
+      const subscription = await db.tenantSubscription.upsert({
         where: { tenantId },
         update: {
           planId: data.planId,
@@ -309,7 +310,8 @@ export default class TenantSubscriptionService {
   }
 
   static async getSubscription(tenantId: string): Promise<TenantSubscriptionWithPlan | null> {
-    const subscription = await tenantPrisma.tenantSubscription.findUnique({ where: { tenantId } })
+    const db = await tenantPrismaFor(tenantId);
+    const subscription = await db.tenantSubscription.findUnique({ where: { tenantId } })
     if (!subscription) return null
 
     // Cross-DB: fetch plan + features from system DB
@@ -323,7 +325,8 @@ export default class TenantSubscriptionService {
   }
 
   static async cancelSubscription(tenantId: string): Promise<TenantSubscription> {
-    const existing = await tenantPrisma.tenantSubscription.findUnique({ where: { tenantId } })
+    const db = await tenantPrismaFor(tenantId);
+    const existing = await db.tenantSubscription.findUnique({ where: { tenantId } })
     if (!existing) {
       throw new Error(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_NOT_FOUND)
     }
@@ -333,7 +336,7 @@ export default class TenantSubscriptionService {
     }
 
     try {
-      const subscription = await tenantPrisma.tenantSubscription.update({
+      const subscription = await db.tenantSubscription.update({
         where: { tenantId },
         data: {
           status: 'CANCELLED',
@@ -485,7 +488,7 @@ export default class TenantSubscriptionService {
 
   /** Fire-and-forget write to AuditLog — never blocks the caller. */
   private static logFeatureAccess(tenantId: string, result: FeatureAccessResult): void {
-    tenantPrisma.auditLog.create({
+    tenantPrismaFor(tenantId).then(db => db.auditLog.create({
       data: {
         tenantId,
         actorType: 'SYSTEM',
@@ -494,7 +497,7 @@ export default class TenantSubscriptionService {
         resourceId: result.featureKey,
         metadata: result as object,
       },
-    }).catch((err) =>
+    })).catch((err) =>
       Logger.error(`Feature access audit log failed: ${err instanceof Error ? err.message : String(err)}`)
     )
   }
@@ -534,7 +537,8 @@ export default class TenantSubscriptionService {
 
       if (!cached) {
         // 2. Cache miss → two DB queries (subscription from tenant DB, features from system DB)
-        const sub = await tenantPrisma.tenantSubscription.findUnique({ where: { tenantId } })
+        const db = await tenantPrismaFor(tenantId);
+        const sub = await db.tenantSubscription.findUnique({ where: { tenantId } })
 
         if (!sub) {
           this.logFeatureAccess(tenantId, DENIED_BOOLEAN)

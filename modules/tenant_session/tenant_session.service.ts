@@ -1,4 +1,4 @@
-import { tenantPrisma } from '@/libs/prisma';
+import { tenantPrisma, tenantPrismaFor } from '@/libs/prisma';
 import redis from '@/libs/redis';
 import { SafeTenant, SafeTenantSchema } from '@/modules/tenant/tenant.types';
 import { SafeTenantMember, SafeTenantMemberSchema } from '@/modules/tenant_member/tenant_member.types';
@@ -32,7 +32,8 @@ export default class TenantSessionService {
    * @returns The tenant or null
    */
   static async getTenantById(tenantId: string): Promise<SafeTenant | null> {
-    const tenant = await tenantPrisma.tenant.findUnique({
+    const db = await tenantPrismaFor(tenantId);
+    const tenant = await db.tenant.findUnique({
       where: { tenantId },
     });
 
@@ -50,7 +51,8 @@ export default class TenantSessionService {
    * @returns The tenant member or null
    */
   static async getTenantMembership(tenantId: string, userId: string): Promise<SafeTenantMember | null> {
-    const tenantMember = await tenantPrisma.tenantMember.findFirst({
+    const db = await tenantPrismaFor(tenantId);
+    const tenantMember = await db.tenantMember.findFirst({
       where: { tenantId, userId, deletedAt: null },
     });
 

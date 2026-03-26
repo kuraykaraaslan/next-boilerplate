@@ -193,6 +193,17 @@ model SubscriptionPlan {
   @@map("subscription_plans")
 }
 
+/// Registry of tenants that have a dedicated database.
+/// When present, tenantPrismaFor() will use this URL instead of the shared TENANT_DATABASE_URL.
+model TenantDatabase {
+  tenantId    String   @id @db.Uuid // soft ref → Tenant in tenant DB
+  databaseUrl String   @db.Text
+  createdAt   DateTime @default(now()) @db.Timestamp
+  updatedAt   DateTime @updatedAt @db.Timestamp
+
+  @@map("tenant_databases")
+}
+
 model User {
   userId   String  @id @default(uuid()) @db.Uuid
   email    String  @unique @db.VarChar

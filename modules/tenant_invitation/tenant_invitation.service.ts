@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import { systemPrisma, tenantPrisma } from "@/libs/prisma";
+import { systemPrisma, tenantPrisma, tenantPrismaFor } from "@/libs/prisma";
 import type { Prisma } from "@/prisma/tenant/client";
 import { SafeTenantInvitation, SafeTenantInvitationSchema } from "./tenant_invitation.types";
 import { SendInvitationInput, GetInvitationsInput } from "./tenant_invitation.dto";
@@ -35,14 +35,15 @@ export default class TenantInvitationService {
 
     const safePage = Math.max(1, page);
 
+    const db = await tenantPrismaFor(tenantId);
     const [rows, total] = await Promise.all([
-      tenantPrisma.tenantInvitation.findMany({
+      db.tenantInvitation.findMany({
         where,
         skip: (safePage - 1) * pageSize,
         take: pageSize,
         orderBy: { createdAt: "desc" },
       }),
-      tenantPrisma.tenantInvitation.count({ where }),
+      db.tenantInvitation.count({ where }),
     ]);
 
     return {
@@ -105,7 +106,8 @@ export default class TenantInvitationService {
     }
 
     // Auto-revoke any existing PENDING invite for same tenant+email
-    await tenantPrisma.tenantInvitation.updateMany({
+    const db = await tenantPrismaFor(tenantId);
+    await db.tenantInvitation.updateMany({
       where: { tenantId, email: normalizedEmail, status: "PENDING" },
       data: { status: "REVOKED" },
     });
@@ -114,7 +116,7 @@ export default class TenantInvitationService {
     const hashedToken = TenantInvitationService.hashToken(rawToken);
     const expiresAt = new Date(Date.now() + INVITATION_TTL_SECONDS * 1000);
 
-    const invitation = await tenantPrisma.tenantInvitation.create({
+    const invitation = await db.tenantInvitation.create({
       data: {
         tenantId,
         email: normalizedEmail,
@@ -138,7 +140,8 @@ export default class TenantInvitationService {
   ): Promise<{ invitation: SafeTenantInvitation; tenant: { tenantId: string; name: string } }> {
     const hashed = TenantInvitationService.hashToken(rawToken);
 
-    const invitation = await tenantPrisma.tenantInvitation.findFirst({
+    const db = await tenantPrismaFor(tenantId);
+    const invitation = await db.tenantInvitation.findFirst({
       where: { token: hashed, tenantId },
       include: { tenant: true },
     });
@@ -160,8 +163,9 @@ export default class TenantInvitationService {
    */
   static async accept(tenantId: string, userId: string, userEmail: string, rawToken: string): Promise<void> {
     const hashed = TenantInvitationService.hashToken(rawToken);
+    const db = await tenantPrismaFor(tenantId);
 
-    const invitation = await tenantPrisma.tenantInvitation.findFirst({
+    const invitation = await db.tenantInvitation.findFirst({
       where: { token: hashed, tenantId },
     });
 
@@ -183,7 +187,7 @@ export default class TenantInvitationService {
       memberStatus: "ACTIVE",
     });
 
-    await tenantPrisma.tenantInvitation.update({
+    await db.tenantInvitation.update({
       where: { invitationId: invitation.invitationId },
       data: { status: "ACCEPTED" },
     });
@@ -194,8 +198,9 @@ export default class TenantInvitationService {
    */
   static async decline(tenantId: string, userEmail: string, rawToken: string): Promise<void> {
     const hashed = TenantInvitationService.hashToken(rawToken);
+    const db = await tenantPrismaFor(tenantId);
 
-    const invitation = await tenantPrisma.tenantInvitation.findFirst({
+    const invitation = await db.tenantInvitation.findFirst({
       where: { token: hashed, tenantId },
     });
 
@@ -209,7 +214,7 @@ export default class TenantInvitationService {
 
     TenantInvitationService.assertUsable(invitation);
 
-    await tenantPrisma.tenantInvitation.update({
+    await db.tenantInvitation.update({
       where: { invitationId: invitation.invitationId },
       data: { status: "DECLINED" },
     });
@@ -219,7 +224,8 @@ export default class TenantInvitationService {
    * Revoke an invitation (admin action).
    */
   static async revoke(invitationId: string, tenantId: string): Promise<void> {
-    const invitation = await tenantPrisma.tenantInvitation.findFirst({
+    const db = await tenantPrismaFor(tenantId);
+    const invitation = await db.tenantInvitation.findFirst({
       where: { invitationId, tenantId },
     });
 
@@ -231,7 +237,7 @@ export default class TenantInvitationService {
       throw new Error(TenantInvitationMessages.INVITATION_NOT_FOUND);
     }
 
-    await tenantPrisma.tenantInvitation.update({
+    await db.tenantInvitation.update({
       where: { invitationId },
       data: { status: "REVOKED" },
     });
@@ -269,7 +275,8 @@ export default class TenantInvitationService {
           });
         }
 
-        await tenantPrisma.tenantInvitation.update({
+        const invDb = await tenantPrismaFor(invitation.tenantId);
+        await invDb.tenantInvitation.update({
           where: { invitationId: invitation.invitationId },
           data: { status: "ACCEPTED" },
         });

@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { systemPrisma, tenantPrisma } from '@/libs/prisma';
+import { systemPrisma, tenantPrismaFor } from '@/libs/prisma';
 import Logger from '@/libs/logger';
 import { AuditLogSchema, type AuditLog } from './audit_log.types';
 import { CreateAuditLogDTO, GetAuditLogsDTO, type CreateAuditLogInput, type GetAuditLogsInput } from './audit_log.dto';
@@ -17,7 +17,8 @@ export default class AuditLogService {
 
       if (data.tenantId) {
         const { tenantId, ...rest } = data;
-        await tenantPrisma.auditLog.create({ data: { ...rest, tenantId } });
+        const db = await tenantPrismaFor(tenantId);
+        await db.auditLog.create({ data: { ...rest, tenantId } });
       } else {
         const { tenantId: _tenantId, ...systemData } = data;
         await systemPrisma.auditLog.create({ data: systemData });
@@ -48,14 +49,15 @@ export default class AuditLogService {
 
     if (tenantId) {
       where.tenantId = tenantId;
+      const db = await tenantPrismaFor(tenantId);
       const [rows, total] = await Promise.all([
-        tenantPrisma.auditLog.findMany({
+        db.auditLog.findMany({
           where,
           orderBy: { createdAt: 'desc' },
           skip: (page - 1) * pageSize,
           take: pageSize,
         }),
-        tenantPrisma.auditLog.count({ where }),
+        db.auditLog.count({ where }),
       ]);
       return { logs: rows.map((row: Record<string, unknown>) => AuditLogSchema.parse(row)), total };
     }

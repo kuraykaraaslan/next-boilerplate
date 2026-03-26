@@ -1,4 +1,4 @@
-import { systemPrisma, tenantPrisma } from "@/libs/prisma";
+import { systemPrisma, tenantPrisma, tenantPrismaFor } from "@/libs/prisma";
 import type { Prisma } from "@/prisma/tenant/client";
 import { SafeTenantMember, SafeTenantMemberSchema } from "./tenant_member.types";
 import { CreateTenantMemberInput, UpdateTenantMemberInput, GetTenantMembersInput, GetTenantMemberInput } from "./tenant_member.dto";
@@ -31,14 +31,15 @@ export default class TenantMemberService {
 
     const safePage = Math.max(1, page);
 
+    const db = await tenantPrismaFor(tenantId);
     const [members, total] = await Promise.all([
-      tenantPrisma.tenantMember.findMany({
+      db.tenantMember.findMany({
         where,
         skip: (safePage - 1) * pageSize,
         take: pageSize,
         orderBy: { createdAt: 'desc' }
       }),
-      tenantPrisma.tenantMember.count({ where })
+      db.tenantMember.count({ where })
     ]);
 
     // Hydrate user data from system DB
@@ -79,20 +80,22 @@ export default class TenantMemberService {
 
     if (!tenantId || !userId) return null;
 
-    const member = await tenantPrisma.tenantMember.findFirst({
+    const db = await tenantPrismaFor(tenantId);
+    const member = await db.tenantMember.findFirst({
       where: { tenantId, userId, deletedAt: null }
     });
     return member ? SafeTenantMemberSchema.parse(member) : null;
   }
 
   static async create(data: CreateTenantMemberInput): Promise<SafeTenantMember> {
-    const existing = await tenantPrisma.tenantMember.findFirst({
+    const db = await tenantPrismaFor(data.tenantId);
+    const existing = await db.tenantMember.findFirst({
       where: { tenantId: data.tenantId, userId: data.userId, deletedAt: null }
     });
 
     if (existing) throw new Error(TenantMemberMessages.MEMBER_ALREADY_EXISTS);
 
-    const member = await tenantPrisma.tenantMember.create({ data });
+    const member = await db.tenantMember.create({ data });
     return SafeTenantMemberSchema.parse(member);
   }
 
@@ -103,8 +106,10 @@ export default class TenantMemberService {
 
     if (!member) throw new Error(TenantMemberMessages.MEMBER_NOT_FOUND);
 
+    const db = await tenantPrismaFor(member.tenantId);
+
     if (member.memberRole === 'OWNER' && data.memberRole && data.memberRole !== 'OWNER') {
-      const ownerCount = await tenantPrisma.tenantMember.count({
+      const ownerCount = await db.tenantMember.count({
         where: { tenantId: member.tenantId, memberRole: 'OWNER', deletedAt: null }
       });
       if (ownerCount <= 1) throw new Error(TenantMemberMessages.CANNOT_DEMOTE_OWNER);
@@ -114,7 +119,7 @@ export default class TenantMemberService {
       Object.entries(data).filter(([_, value]) => value !== null)
     ) as Prisma.TenantMemberUpdateInput;
 
-    const updated = await tenantPrisma.tenantMember.update({
+    const updated = await db.tenantMember.update({
       where: { tenantMemberId },
       data: updateData
     });
@@ -129,14 +134,16 @@ export default class TenantMemberService {
 
     if (!member) throw new Error(TenantMemberMessages.MEMBER_NOT_FOUND);
 
+    const db = await tenantPrismaFor(member.tenantId);
+
     if (member.memberRole === 'OWNER') {
-      const ownerCount = await tenantPrisma.tenantMember.count({
+      const ownerCount = await db.tenantMember.count({
         where: { tenantId: member.tenantId, memberRole: 'OWNER', deletedAt: null }
       });
       if (ownerCount <= 1) throw new Error(TenantMemberMessages.LAST_OWNER);
     }
 
-    await tenantPrisma.tenantMember.update({
+    await db.tenantMember.update({
       where: { tenantMemberId },
       data: { deletedAt: new Date() }
     });
@@ -157,7 +164,8 @@ export default class TenantMemberService {
   }
 
   static async checkPermission(tenantId: string, userId: string, requiredRole: TenantMemberRole): Promise<boolean> {
-    const member = await tenantPrisma.tenantMember.findFirst({
+    const db = await tenantPrismaFor(tenantId);
+    const member = await db.tenantMember.findFirst({
       where: { tenantId, userId, memberStatus: 'ACTIVE', deletedAt: null }
     });
     if (!member) return false;

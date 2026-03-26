@@ -1,4 +1,4 @@
-import { tenantPrisma } from '@/libs/prisma'
+import { tenantPrisma, tenantPrismaFor } from '@/libs/prisma'
 import type { Prisma } from '@/prisma/tenant/client'
 import Logger from '@/libs/logger'
 import BasePaymentProvider, { CheckoutSessionParams, CheckoutSessionResult } from './providers/base.provider'
@@ -70,7 +70,8 @@ export default class PaymentService {
 
   static async create(data: CreatePaymentDTO): Promise<SafePayment> {
     try {
-      const payment = await tenantPrisma.payment.create({
+      const db = data.tenantId ? await tenantPrismaFor(data.tenantId) : tenantPrisma;
+      const payment = await db.payment.create({
         data: {
           userId: data.userId,
           tenantId: data.tenantId,
@@ -164,8 +165,10 @@ export default class PaymentService {
       throw new Error(PAYMENT_MESSAGES.PAYMENT_NOT_FOUND)
     }
 
+    const db = existing.tenantId ? await tenantPrismaFor(existing.tenantId) : tenantPrisma;
+
     try {
-      const payment = await tenantPrisma.payment.update({
+      const payment = await db.payment.update({
         where: { paymentId },
         data: {
           status: data.status,
@@ -200,7 +203,8 @@ export default class PaymentService {
       throw new Error(PAYMENT_MESSAGES.PAYMENT_NOT_FOUND)
     }
 
-    await tenantPrisma.payment.update({
+    const db = existing.tenantId ? await tenantPrismaFor(existing.tenantId) : tenantPrisma;
+    await db.payment.update({
       where: { paymentId },
       data: { deletedAt: new Date() },
     })
@@ -375,7 +379,8 @@ export default class PaymentService {
     const newRefundedAmount = alreadyRefunded + refundAmount
     const isFullyRefunded = newRefundedAmount >= Number(payment.amount)
 
-    await tenantPrisma.payment.update({
+    const refundDb = payment.tenantId ? await tenantPrismaFor(payment.tenantId) : tenantPrisma;
+    await refundDb.payment.update({
       where: { paymentId: data.paymentId },
       data: {
         refundedAmount: newRefundedAmount,

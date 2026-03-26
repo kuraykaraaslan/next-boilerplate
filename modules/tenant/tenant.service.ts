@@ -1,4 +1,4 @@
-import { tenantPrisma } from "@/libs/prisma";
+import { tenantPrisma, tenantPrismaFor } from "@/libs/prisma";
 import type { Prisma } from "@/prisma/tenant/client";
 import { SafeTenant, SafeTenantSchema } from "./tenant.types";
 import { CreateTenantInput, UpdateTenantInput, GetTenantsInput } from "./tenant.dto";
@@ -39,7 +39,8 @@ export default class TenantService {
   }
 
   static async getById(tenantId: string): Promise<SafeTenant> {
-    const tenant = await tenantPrisma.tenant.findFirst({
+    const db = await tenantPrismaFor(tenantId);
+    const tenant = await db.tenant.findFirst({
       where: { tenantId, deletedAt: null }
     });
 
@@ -62,7 +63,8 @@ export default class TenantService {
   }
 
   static async update(tenantId: string, data: UpdateTenantInput): Promise<SafeTenant> {
-    const tenant = await tenantPrisma.tenant.findFirst({
+    const db = await tenantPrismaFor(tenantId);
+    const tenant = await db.tenant.findFirst({
       where: { tenantId, deletedAt: null }
     });
 
@@ -70,7 +72,7 @@ export default class TenantService {
       throw new Error(TenantMessages.TENANT_NOT_FOUND);
     }
 
-    const updated = await tenantPrisma.tenant.update({
+    const updated = await db.tenant.update({
       where: { tenantId },
       data
     });
@@ -102,7 +104,8 @@ export default class TenantService {
   }
 
   static async delete(tenantId: string): Promise<void> {
-    const tenant = await tenantPrisma.tenant.findFirst({
+    const db = await tenantPrismaFor(tenantId);
+    const tenant = await db.tenant.findFirst({
       where: { tenantId, deletedAt: null }
     });
 
@@ -111,7 +114,7 @@ export default class TenantService {
     }
 
     // Soft delete
-    await tenantPrisma.tenant.update({
+    await db.tenant.update({
       where: { tenantId },
       data: { deletedAt: new Date() }
     });

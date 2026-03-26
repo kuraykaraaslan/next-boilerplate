@@ -1,2 +1,2 @@
 export { systemPrisma } from "./system";
-export { tenantPrisma } from "./tenant";
+export { tenantPrisma, tenantPrismaFor, clearTenantDbCache } from "./tenant";

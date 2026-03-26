@@ -179,6 +179,13 @@ exports.Prisma.SubscriptionPlanScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.TenantDatabaseScalarFieldEnum = {
+  tenantId: 'tenantId',
+  databaseUrl: 'databaseUrl',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.UserScalarFieldEnum = {
   userId: 'userId',
   email: 'email',
@@ -383,6 +390,7 @@ exports.Prisma.ModelName = {
   PushSubscription: 'PushSubscription',
   Setting: 'Setting',
   SubscriptionPlan: 'SubscriptionPlan',
+  TenantDatabase: 'TenantDatabase',
   User: 'User',
   UserPreferences: 'UserPreferences',
   UserProfile: 'UserProfile',
