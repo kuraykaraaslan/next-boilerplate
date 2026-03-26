@@ -96,8 +96,3 @@ enum TransactionStatus {
   CANCELLED
 }
 
-// Audit Log Enums
-enum AuditActorType {
-  USER
-  SYSTEM
-}

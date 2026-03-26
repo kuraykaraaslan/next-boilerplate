@@ -63,7 +63,15 @@ export type TenantSubscription = $Result.DefaultSelection<Prisma.$TenantSubscrip
  * Enums
  */
 export namespace $Enums {
-  export const TenantStatus: {
+  export const AuditActorType: {
+  USER: 'USER',
+  SYSTEM: 'SYSTEM'
+};
+
+export type AuditActorType = (typeof AuditActorType)[keyof typeof AuditActorType]
+
+
+export const TenantStatus: {
   ACTIVE: 'ACTIVE',
   INACTIVE: 'INACTIVE',
   PENDING: 'PENDING',
@@ -190,15 +198,11 @@ export const TransactionStatus: {
 
 export type TransactionStatus = (typeof TransactionStatus)[keyof typeof TransactionStatus]
 
-
-export const AuditActorType: {
-  USER: 'USER',
-  SYSTEM: 'SYSTEM'
-};
-
-export type AuditActorType = (typeof AuditActorType)[keyof typeof AuditActorType]
-
 }
+
+export type AuditActorType = $Enums.AuditActorType
+
+export const AuditActorType: typeof $Enums.AuditActorType
 
 export type TenantStatus = $Enums.TenantStatus
 
@@ -247,10 +251,6 @@ export const TransactionType: typeof $Enums.TransactionType
 export type TransactionStatus = $Enums.TransactionStatus
 
 export const TransactionStatus: typeof $Enums.TransactionStatus
-
-export type AuditActorType = $Enums.AuditActorType
-
-export const AuditActorType: typeof $Enums.AuditActorType
 
 /**
  * ##  Prisma Client ʲˢ

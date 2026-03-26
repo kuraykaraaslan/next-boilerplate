@@ -73,7 +73,15 @@ export type UserSocialAccount = $Result.DefaultSelection<Prisma.$UserSocialAccou
  * Enums
  */
 export namespace $Enums {
-  export const UserRole: {
+  export const AuditActorType: {
+  USER: 'USER',
+  SYSTEM: 'SYSTEM'
+};
+
+export type AuditActorType = (typeof AuditActorType)[keyof typeof AuditActorType]
+
+
+export const UserRole: {
   USER: 'USER',
   ADMIN: 'ADMIN'
 };
@@ -186,15 +194,11 @@ export const PlanFeatureType: {
 
 export type PlanFeatureType = (typeof PlanFeatureType)[keyof typeof PlanFeatureType]
 
-
-export const AuditActorType: {
-  USER: 'USER',
-  SYSTEM: 'SYSTEM'
-};
-
-export type AuditActorType = (typeof AuditActorType)[keyof typeof AuditActorType]
-
 }
+
+export type AuditActorType = $Enums.AuditActorType
+
+export const AuditActorType: typeof $Enums.AuditActorType
 
 export type UserRole = $Enums.UserRole
 
@@ -243,10 +247,6 @@ export const SubscriptionPlanStatus: typeof $Enums.SubscriptionPlanStatus
 export type PlanFeatureType = $Enums.PlanFeatureType
 
 export const PlanFeatureType: typeof $Enums.PlanFeatureType
-
-export type AuditActorType = $Enums.AuditActorType
-
-export const AuditActorType: typeof $Enums.AuditActorType
 
 /**
  * ##  Prisma Client ʲˢ

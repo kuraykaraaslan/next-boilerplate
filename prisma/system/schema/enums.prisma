@@ -82,8 +82,3 @@ enum PlanFeatureType {
   LIMIT
 }
 
-// Audit Log Enums
-enum AuditActorType {
-  USER
-  SYSTEM
-}

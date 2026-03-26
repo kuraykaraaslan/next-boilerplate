@@ -31,6 +31,12 @@ model AuditLog {
   @@map("audit_logs")
 }
 
+// Shared across system and tenant databases
+enum AuditActorType {
+  USER
+  SYSTEM
+}
+
 // Tenant Enums
 enum TenantStatus {
   ACTIVE
@@ -127,12 +133,6 @@ enum TransactionStatus {
   COMPLETED
   FAILED
   CANCELLED
-}
-
-// Audit Log Enums
-enum AuditActorType {
-  USER
-  SYSTEM
 }
 
 model Payment {

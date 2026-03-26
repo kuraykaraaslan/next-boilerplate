@@ -27,6 +27,12 @@ model AuditLog {
   @@map("audit_logs")
 }
 
+// Shared across system and tenant databases
+enum AuditActorType {
+  USER
+  SYSTEM
+}
+
 // User Enums
 enum UserRole {
   USER
@@ -109,12 +115,6 @@ enum SubscriptionPlanStatus {
 enum PlanFeatureType {
   BOOLEAN
   LIMIT
-}
-
-// Audit Log Enums
-enum AuditActorType {
-  USER
-  SYSTEM
 }
 
 model PlanFeature {
