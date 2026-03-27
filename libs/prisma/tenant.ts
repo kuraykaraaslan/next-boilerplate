@@ -3,7 +3,9 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../../prisma/tenant/client";
 
 // ─── Shared default client ────────────────────────────────────────────────────
-const defaultAdapter = new PrismaPg({ connectionString: process.env.TENANT_DATABASE_URL! });
+const defaultConnectionString = process.env.TENANT_DATABASE_URL!;
+const defaultSchema = new URL(defaultConnectionString).searchParams.get("schema") ?? undefined;
+const defaultAdapter = new PrismaPg({ connectionString: defaultConnectionString }, { schema: defaultSchema });
 export const tenantPrisma = new PrismaClient({ adapter: defaultAdapter });
 
 // ─── Per-tenant dedicated client cache ───────────────────────────────────────
@@ -46,7 +48,8 @@ export async function tenantPrismaFor(tenantId: string): Promise<PrismaClient> {
     evictOldest();
   }
 
-  const adapter = new PrismaPg({ connectionString: row.databaseUrl });
+  const dedicatedSchema = new URL(row.databaseUrl).searchParams.get("schema") ?? undefined;
+  const adapter = new PrismaPg({ connectionString: row.databaseUrl }, { schema: dedicatedSchema });
   const client = new PrismaClient({ adapter });
   dedicatedClients.set(tenantId, client);
   return client;
