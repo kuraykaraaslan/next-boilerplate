@@ -16,6 +16,12 @@ export interface TokenPayload {
   userId: string;
   userSessionId: string;
   deviceFingerprint?: string;
+  impersonation?: {
+    impersonatorUserId: string;
+    impersonatorSessionId: string;
+    tenantId?: string;
+    targetTenantRole?: string;
+  };
 }
 
 export default class UserSessionTokenService {

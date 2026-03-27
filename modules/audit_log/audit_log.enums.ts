@@ -52,6 +52,10 @@ export const AuditActions = {
   // Storage
   FILE_UPLOADED: 'file.uploaded',
   FILE_DELETED:  'file.deleted',
+
+  // Impersonation
+  IMPERSONATION_STARTED: 'impersonation.started',
+  IMPERSONATION_ENDED:   'impersonation.ended',
 } as const;
 
 export type AuditAction = typeof AuditActions[keyof typeof AuditActions];

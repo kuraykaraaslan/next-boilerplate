@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import { SafeUser } from '@/modules/user/user.types';
 import { SafeTenant } from '@/modules/tenant/tenant.types';
 import { SafeTenantMember } from '@/modules/tenant_member/tenant_member.types';
-import { SafeUserSession } from '@/modules/user_session/user_session.types';
+import { SafeUserSession, type SessionMeta } from '@/modules/user_session/user_session.types';
 import UserSessionNextService from '@/modules/user_session/user_session.service.next';
 import TenantSessionService from './tenant_session.service';
 import TenantAuthMessages from './tenant_session.messages';
@@ -85,8 +85,10 @@ export default class TenantSessionNextService {
     tenant: SafeTenant;
     tenantMember: SafeTenantMember;
     isGlobalAdmin?: boolean;
+    isImpersonating?: boolean;
+    impersonatedBy?: SafeUser;
   }> {
-    // Step 1: Authenticate user first
+    // Step 1: Authenticate user first (also populates request.isImpersonating / request.impersonatedBy)
     const { user, userSession } = await UserSessionNextService.authenticateUserByRequest({
       request,
       requiredUserRole: 'USER',
@@ -100,7 +102,42 @@ export default class TenantSessionNextService {
       throw new Error(TenantAuthMessages.TENANT_ID_REQUIRED);
     }
 
-    // Step 3: Check if user is global admin
+    // Step 3: Impersonation takes precedence — use targetTenantRole from session metadata
+    const meta = userSession.metadata as SessionMeta | null | undefined;
+    const impersonation = meta?.impersonation;
+
+    if (impersonation && impersonation.tenantId === tenantId && impersonation.targetTenantRole) {
+      const tenant = await TenantSessionService.getTenantById(tenantId);
+      if (!tenant) throw new Error(TenantAuthMessages.TENANT_NOT_FOUND);
+      TenantSessionService.validateTenantStatus(tenant);
+
+      const role = impersonation.targetTenantRole as TenantMemberRole;
+      if (!TenantSessionService.hasRequiredRole(role, requiredTenantRole)) {
+        throw new Error(TenantAuthMessages.INSUFFICIENT_TENANT_PERMISSIONS);
+      }
+
+      const virtualMember: SafeTenantMember = {
+        tenantMemberId: `impersonation-${userSession.userSessionId}`,
+        tenantId,
+        userId: user.userId,
+        memberRole: role,
+        memberStatus: 'ACTIVE',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      // @ts-ignore
+      request.tenant = tenant;
+      // @ts-ignore
+      request.tenantMember = virtualMember;
+
+      const isImpersonating = !!(request as any).isImpersonating;
+      const impersonatedBy = (request as any).impersonatedBy as SafeUser | undefined;
+
+      return { user, userSession, tenant, tenantMember: virtualMember, isGlobalAdmin: false, isImpersonating, impersonatedBy };
+    }
+
+    // Step 4: Check if user is global admin
     const isGlobalAdmin = allowGlobalAdmin && user.userRole === 'ADMIN';
 
     if (isGlobalAdmin) {

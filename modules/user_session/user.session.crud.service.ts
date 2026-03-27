@@ -1,13 +1,15 @@
 import { systemPrisma } from "@/libs/prisma";
 import redis from "@/libs/redis";
 import { v4 as uuidv4 } from "uuid";
-import { SafeUserSession, SafeUserSessionSchema } from "./user_session.types";
+import { SafeUserSession, SafeUserSessionSchema, type SessionMeta } from "./user_session.types";
 import { SafeUser } from "../user/user.types";
 import { SafeUserSecurity } from "../user_security/user_security.types";
 import UserSessionMessages from "./user_session.messages";
-import UserSessionTokenService from "./user.session.token.service";
+import UserSessionTokenService, { type TokenPayload } from "./user.session.token.service";
 import UserSessionCacheService from "./user.session.cache.service";
 import type { SessionStatus } from "./user_session.enums";
+
+const IMPERSONATION_SESSION_TTL_MS = 60 * 60 * 1000; // 1 hour
 
 const SESSION_EXPIRY_MS = parseInt(process.env.SESSION_EXPIRY_MS || `${1000 * 60 * 60 * 24 * 7}`); // 7 days
 const SESSION_CACHE_TTL = parseInt(process.env.SESSION_CACHE_TTL || `${60 * 30}`); // 30 min
@@ -67,6 +69,54 @@ export default class UserSessionCrudService {
         ipAddress,
         otpVerifyNeeded,
         sessionExpiry: new Date(Date.now() + SESSION_EXPIRY_MS),
+      },
+    });
+
+    return {
+      userSession: SafeUserSessionSchema.parse(session),
+      rawAccessToken,
+      rawRefreshToken,
+    };
+  }
+
+  static async createImpersonationSession({
+    targetUser,
+    impersonationMeta,
+    userAgent,
+    ipAddress,
+  }: {
+    targetUser: SafeUser;
+    impersonationMeta: NonNullable<SessionMeta["impersonation"]>;
+    userAgent?: string;
+    ipAddress?: string;
+  }): Promise<{
+    userSession: SafeUserSession;
+    rawAccessToken: string;
+    rawRefreshToken: string;
+  }> {
+    const userSessionId = uuidv4();
+
+    const jwtPayload: TokenPayload = {
+      userId: targetUser.userId,
+      userSessionId,
+      impersonation: impersonationMeta,
+    };
+
+    const rawAccessToken = UserSessionTokenService.generateAccessToken(jwtPayload);
+    const rawRefreshToken = UserSessionTokenService.generateRefreshToken(jwtPayload);
+
+    const metadata: SessionMeta = { impersonation: impersonationMeta };
+
+    const session = await systemPrisma.userSession.create({
+      data: {
+        userSessionId,
+        userId: targetUser.userId,
+        accessToken: UserSessionTokenService.hashToken(rawAccessToken),
+        refreshToken: UserSessionTokenService.hashToken(rawRefreshToken),
+        userAgent,
+        ipAddress,
+        sessionExpiry: new Date(Date.now() + IMPERSONATION_SESSION_TTL_MS),
+        metadata: metadata as any,
       },
     });
 
@@ -162,6 +212,11 @@ export default class UserSessionCrudService {
 
     if (session.otpVerifyNeeded) {
       throw new Error(UserSessionMessages.OTP_REQUIRED);
+    }
+
+    // Block refresh of impersonation sessions
+    if ((session.metadata as any)?.impersonation) {
+      throw new Error(UserSessionMessages.INVALID_TOKEN);
     }
 
     // Reuse detection

@@ -1,5 +1,5 @@
 // Utils
-import { SafeUserSession, SafeUserSessionSchema } from '@/modules/user_session/user_session.types';
+import { SafeUserSession, SafeUserSessionSchema, type SessionMeta } from '@/modules/user_session/user_session.types';
 import { NextRequest } from 'next/server';
 import { SafeUser, SafeUserSchema } from '@/modules/user/user.types';
 import crypto from "crypto";
@@ -225,6 +225,27 @@ export default class UserSessionNextService {
 
       // @ts-ignore
       request.user = user;
+      // @ts-ignore
+      request.userSession = userSession;
+
+      // Detect and attach impersonation context
+      const meta = userSession.metadata as SessionMeta | null | undefined;
+      if (meta?.impersonation) {
+        // @ts-ignore
+        request.isImpersonating = true;
+        try {
+          const impersonatorUser = await systemPrisma.user.findUnique({
+            where: { userId: meta.impersonation.impersonatorUserId },
+          });
+          if (impersonatorUser) {
+            // @ts-ignore
+            request.impersonatedBy = SafeUserSchema.parse(impersonatorUser);
+          }
+        } catch {
+          // Non-critical — best effort
+        }
+      }
+
       return requiredUserRole === "GUEST" ? (null as any) : ({ user, userSession } as any);
     } catch (error: any) {
       console.error("[AUTHENTICATE ERROR]", {

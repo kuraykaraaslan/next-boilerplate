@@ -15,6 +15,7 @@ export default class UserSessionService {
 
   // CRUD
   static createSession = UserSessionCrudService.createSession.bind(UserSessionCrudService);
+  static createImpersonationSession = UserSessionCrudService.createImpersonationSession.bind(UserSessionCrudService);
   static getSession = UserSessionCrudService.getSession.bind(UserSessionCrudService);
   static refreshTokens = UserSessionCrudService.refreshTokens.bind(UserSessionCrudService);
   static updateSession = UserSessionCrudService.updateSession.bind(UserSessionCrudService);
