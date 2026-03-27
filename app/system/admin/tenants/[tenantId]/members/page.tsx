@@ -1,6 +1,6 @@
 'use client';
 
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Table, {
     TableProvider,
     TableHeader,
@@ -13,6 +13,7 @@ import {
     faCrown,
     faUserShield,
     faUser,
+    faUserSecret,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type { SafeTenantMember } from '@/modules/tenant_member/tenant_member.types';
@@ -40,6 +41,7 @@ const STATUS_COLORS = {
 
 const TenantMembersPage = () => {
     const params = useParams();
+    const router = useRouter();
     const tenantId = params.tenantId as string;
     const { t } = useTranslation();
 
@@ -104,6 +106,29 @@ const TenantMembersPage = () => {
             label: 'Edit',
             href: (member) => `/system/admin/tenants/${tenantId}/members/${member.tenantMemberId}`,
             className: 'btn-primary'
+        },
+        {
+            label: (
+                <span className="flex items-center gap-1">
+                    <FontAwesomeIcon icon={faUserSecret} />
+                    Impersonate
+                </span>
+            ),
+            className: 'btn-warning btn-sm',
+            confirm: {
+                title: 'Impersonate User',
+                description: 'You will temporarily act as this user. Your original session will be restored when you exit.',
+                confirmText: 'Start Impersonation',
+                confirmButtonClassName: 'btn-warning',
+            },
+            onClick: async (member) => {
+                await axiosInstance.post('/system/api/auth/impersonate', {
+                    targetUserId: member.userId,
+                    tenantId,
+                });
+                router.push(`/tenant/${tenantId}/`);
+            },
+            hideOnMobile: true,
         },
         {
             label: 'Remove',
