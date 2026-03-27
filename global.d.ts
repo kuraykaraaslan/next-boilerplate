@@ -34,5 +34,7 @@ declare global {
         userSession?: SafeUserSession
         tenant?: SafeTenant
         tenantMember?: SafeTenantMember
+        isImpersonating?: boolean
+        impersonatedBy?: SafeUser
     }
 }
