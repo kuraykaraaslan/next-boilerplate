@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import UserSessionNextService from "@/modules/user_session/user_session.service.next";
 import { systemPrisma } from "@/libs/prisma";
+import { Prisma } from "@/prisma/system/client";
 import { SafeUserSessionSchema } from "@/modules/user_session/user_session.types";
 
 // GET /system/api/users/[userId]/impersonation-sessions
@@ -25,7 +26,7 @@ export async function GET(
 
     const where = {
       userId,
-      metadata: { path: ["impersonation"], not: null },
+      metadata: { not: Prisma.JsonNull },
       ...(activeOnly ? { sessionExpiry: { gt: new Date() } } : {}),
     };
 

@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import UserSessionNextService from "@/modules/user_session/user_session.service.next";
-import ImpersonationService from "@/modules/impersonation/impersonation.service";
-import ImpersonationMessages from "@/modules/impersonation/impersonation.messages";
-import { StartSystemImpersonationDTO } from "@/modules/impersonation/impersonation.dto";
+import ImpersonationService from "@/modules/auth_impersonation/impersonation.service";
+import ImpersonationMessages from "@/modules/auth_impersonation/impersonation.messages";
+import { StartSystemImpersonationDTO } from "@/modules/auth_impersonation/impersonation.dto";
 import Limiter from "@/libs/limiter";
 
 function getCookieOptions(request: NextRequest, maxAge: number) {
