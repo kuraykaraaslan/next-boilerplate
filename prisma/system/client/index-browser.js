@@ -257,7 +257,8 @@ exports.Prisma.UserSessionScalarFieldEnum = {
   otpVerifyNeeded: 'otpVerifyNeeded',
   sessionExpiry: 'sessionExpiry',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  metadata: 'metadata'
 };
 
 exports.Prisma.UserSocialAccountScalarFieldEnum = {

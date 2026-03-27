@@ -13513,6 +13513,7 @@ export namespace Prisma {
     sessionExpiry: number
     createdAt: number
     updatedAt: number
+    metadata: number
     _all: number
   }
 
@@ -13560,6 +13561,7 @@ export namespace Prisma {
     sessionExpiry?: true
     createdAt?: true
     updatedAt?: true
+    metadata?: true
     _all?: true
   }
 
@@ -13648,6 +13650,7 @@ export namespace Prisma {
     sessionExpiry: Date
     createdAt: Date
     updatedAt: Date
+    metadata: JsonValue | null
     _count: UserSessionCountAggregateOutputType | null
     _min: UserSessionMinAggregateOutputType | null
     _max: UserSessionMaxAggregateOutputType | null
@@ -13680,6 +13683,7 @@ export namespace Prisma {
     sessionExpiry?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    metadata?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["userSession"]>
 
@@ -13696,6 +13700,7 @@ export namespace Prisma {
     sessionExpiry?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    metadata?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["userSession"]>
 
@@ -13712,6 +13717,7 @@ export namespace Prisma {
     sessionExpiry?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    metadata?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["userSession"]>
 
@@ -13728,9 +13734,10 @@ export namespace Prisma {
     sessionExpiry?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    metadata?: boolean
   }
 
-  export type UserSessionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"userSessionId" | "userId" | "accessToken" | "refreshToken" | "deviceFingerprint" | "userAgent" | "ipAddress" | "sessionStatus" | "otpVerifyNeeded" | "sessionExpiry" | "createdAt" | "updatedAt", ExtArgs["result"]["userSession"]>
+  export type UserSessionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"userSessionId" | "userId" | "accessToken" | "refreshToken" | "deviceFingerprint" | "userAgent" | "ipAddress" | "sessionStatus" | "otpVerifyNeeded" | "sessionExpiry" | "createdAt" | "updatedAt" | "metadata", ExtArgs["result"]["userSession"]>
   export type UserSessionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
@@ -13759,6 +13766,7 @@ export namespace Prisma {
       sessionExpiry: Date
       createdAt: Date
       updatedAt: Date
+      metadata: Prisma.JsonValue | null
     }, ExtArgs["result"]["userSession"]>
     composites: {}
   }
@@ -14195,6 +14203,7 @@ export namespace Prisma {
     readonly sessionExpiry: FieldRef<"UserSession", 'DateTime'>
     readonly createdAt: FieldRef<"UserSession", 'DateTime'>
     readonly updatedAt: FieldRef<"UserSession", 'DateTime'>
+    readonly metadata: FieldRef<"UserSession", 'Json'>
   }
     
 
@@ -15900,7 +15909,8 @@ export namespace Prisma {
     otpVerifyNeeded: 'otpVerifyNeeded',
     sessionExpiry: 'sessionExpiry',
     createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
+    updatedAt: 'updatedAt',
+    metadata: 'metadata'
   };
 
   export type UserSessionScalarFieldEnum = (typeof UserSessionScalarFieldEnum)[keyof typeof UserSessionScalarFieldEnum]
@@ -17060,6 +17070,7 @@ export namespace Prisma {
     sessionExpiry?: DateTimeFilter<"UserSession"> | Date | string
     createdAt?: DateTimeFilter<"UserSession"> | Date | string
     updatedAt?: DateTimeFilter<"UserSession"> | Date | string
+    metadata?: JsonNullableFilter<"UserSession">
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }
 
@@ -17076,6 +17087,7 @@ export namespace Prisma {
     sessionExpiry?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    metadata?: SortOrderInput | SortOrder
     user?: UserOrderByWithRelationInput
   }
 
@@ -17095,6 +17107,7 @@ export namespace Prisma {
     sessionExpiry?: DateTimeFilter<"UserSession"> | Date | string
     createdAt?: DateTimeFilter<"UserSession"> | Date | string
     updatedAt?: DateTimeFilter<"UserSession"> | Date | string
+    metadata?: JsonNullableFilter<"UserSession">
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }, "userSessionId">
 
@@ -17111,6 +17124,7 @@ export namespace Prisma {
     sessionExpiry?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    metadata?: SortOrderInput | SortOrder
     _count?: UserSessionCountOrderByAggregateInput
     _max?: UserSessionMaxOrderByAggregateInput
     _min?: UserSessionMinOrderByAggregateInput
@@ -17132,6 +17146,7 @@ export namespace Prisma {
     sessionExpiry?: DateTimeWithAggregatesFilter<"UserSession"> | Date | string
     createdAt?: DateTimeWithAggregatesFilter<"UserSession"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"UserSession"> | Date | string
+    metadata?: JsonNullableWithAggregatesFilter<"UserSession">
   }
 
   export type UserSocialAccountWhereInput = {
@@ -18123,6 +18138,7 @@ export namespace Prisma {
     sessionExpiry: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     user: UserCreateNestedOneWithoutSessionsInput
   }
 
@@ -18139,6 +18155,7 @@ export namespace Prisma {
     sessionExpiry: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type UserSessionUpdateInput = {
@@ -18153,6 +18170,7 @@ export namespace Prisma {
     sessionExpiry?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     user?: UserUpdateOneRequiredWithoutSessionsNestedInput
   }
 
@@ -18169,6 +18187,7 @@ export namespace Prisma {
     sessionExpiry?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type UserSessionCreateManyInput = {
@@ -18184,6 +18203,7 @@ export namespace Prisma {
     sessionExpiry: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type UserSessionUpdateManyMutationInput = {
@@ -18198,6 +18218,7 @@ export namespace Prisma {
     sessionExpiry?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type UserSessionUncheckedUpdateManyInput = {
@@ -18213,6 +18234,7 @@ export namespace Prisma {
     sessionExpiry?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type UserSocialAccountCreateInput = {
@@ -19316,6 +19338,7 @@ export namespace Prisma {
     sessionExpiry?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    metadata?: SortOrder
   }
 
   export type UserSessionMaxOrderByAggregateInput = {
@@ -20898,6 +20921,7 @@ export namespace Prisma {
     sessionExpiry: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type UserSessionUncheckedCreateWithoutUserInput = {
@@ -20912,6 +20936,7 @@ export namespace Prisma {
     sessionExpiry: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type UserSessionCreateOrConnectWithoutUserInput = {
@@ -21168,6 +21193,7 @@ export namespace Prisma {
     sessionExpiry?: DateTimeFilter<"UserSession"> | Date | string
     createdAt?: DateTimeFilter<"UserSession"> | Date | string
     updatedAt?: DateTimeFilter<"UserSession"> | Date | string
+    metadata?: JsonNullableFilter<"UserSession">
   }
 
   export type PushSubscriptionUpsertWithWhereUniqueWithoutUserInput = {
@@ -21758,6 +21784,7 @@ export namespace Prisma {
     sessionExpiry: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type PushSubscriptionCreateManyUserInput = {
@@ -21826,6 +21853,7 @@ export namespace Prisma {
     sessionExpiry?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type UserSessionUncheckedUpdateWithoutUserInput = {
@@ -21840,6 +21868,7 @@ export namespace Prisma {
     sessionExpiry?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type UserSessionUncheckedUpdateManyWithoutUserInput = {
@@ -21854,6 +21883,7 @@ export namespace Prisma {
     sessionExpiry?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type PushSubscriptionUpdateWithoutUserInput = {

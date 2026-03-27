@@ -12,6 +12,9 @@ model UserSession {
   createdAt         DateTime      @default(now()) @db.Timestamp
   updatedAt         DateTime      @updatedAt @db.Timestamp
 
+  // Extensible metadata (e.g. impersonation context)
+  metadata          Json?
+
   user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
   @@index([userId])
