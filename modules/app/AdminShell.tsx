@@ -42,7 +42,7 @@ export function AdminShell({ children, variant, tenantId }: AdminShellProps) {
       label: 'System',
       items: [
         { id: 'fleet',    label: 'Fleet',      href: '/system/fleet',          icon: <FontAwesomeIcon icon={faServer} /> },
-        { id: 'api-docs', label: 'API Docs',   href: '/system/api-docs',        icon: <FontAwesomeIcon icon={faBook} /> },
+        { id: 'api-docs', label: 'API Docs',   href: '/system/admin/api-docs',  icon: <FontAwesomeIcon icon={faBook} /> },
         { id: 'settings', label: 'Settings',   href: '/system/admin/settings',  icon: <FontAwesomeIcon icon={faGear} /> },
         { id: 'me',       label: 'My Profile', href: '/system/admin/me',         icon: <FontAwesomeIcon icon={faCircleUser} /> },
       ],
