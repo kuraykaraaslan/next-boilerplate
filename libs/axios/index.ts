@@ -1,7 +1,6 @@
 'use client';
 
 import axios from 'axios';
-import { env } from '@/libs/env';
 import { AuthMessages } from '@/modules/auth/auth.messages';
 
 const CSRF_HEADER_NAME = 'x-csrf-token';
@@ -47,7 +46,7 @@ async function ensureCSRFToken(): Promise<string | null> {
  * Configured Axios instance with credentials support
  */
 const axiosInstance = axios.create({
-  baseURL: env.NEXT_PUBLIC_API_URL,
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
   withCredentials: true,
 });
 

@@ -1,0 +1,158 @@
+@import "tailwindcss";
+
+:root {
+  --primary:         #3b82f6;
+  --primary-hover:   #2563eb;
+  --primary-active:  #1d4ed8;
+  --primary-subtle:  #eff6ff;
+  --primary-fg:      #ffffff;
+
+  --secondary:       #8b5cf6;
+  --secondary-hover: #7c3aed;
+  --secondary-fg:    #ffffff;
+
+  --surface-base:    #ffffff;
+  --surface-raised:  #f9fafb;
+  --surface-overlay: #f3f4f6;
+  --surface-sunken:  #e5e7eb;
+
+  --text-primary:    #111827;
+  --text-secondary:  #6b7280;
+  --text-disabled:   #9ca3af;
+  --text-inverse:    #ffffff;
+
+  --border:          #e5e7eb;
+  --border-strong:   #d1d5db;
+  --border-focus:    #3b82f6;
+
+  --success:         #22c55e;
+  --success-subtle:  #f0fdf4;
+  --success-fg:      #14532d;
+
+  --warning:         #f59e0b;
+  --warning-subtle:  #fffbeb;
+  --warning-fg:      #78350f;
+
+  --error:           #ef4444;
+  --error-subtle:    #fef2f2;
+  --error-fg:        #7f1d1d;
+
+  --info:            #06b6d4;
+  --info-subtle:     #ecfeff;
+  --info-fg:         #164e63;
+}
+
+.dark {
+  --primary:         #60a5fa;
+  --primary-hover:   #93c5fd;
+  --primary-subtle:  #1e3a5f;
+
+  --surface-base:    #0f172a;
+  --surface-raised:  #1e293b;
+  --surface-overlay: #334155;
+  --surface-sunken:  #1e293b;
+
+  --text-primary:    #f1f5f9;
+  --text-secondary:  #94a3b8;
+  --text-disabled:   #475569;
+
+  --border:          #334155;
+  --border-strong:   #475569;
+  --border-focus:    #60a5fa;
+
+  --success:         #4ade80;
+  --success-subtle:  #052e16;
+  --success-fg:      #bbf7d0;
+
+  --warning:         #fbbf24;
+  --warning-subtle:  #451a03;
+  --warning-fg:      #fef3c7;
+
+  --error:           #f87171;
+  --error-subtle:    #450a0a;
+  --error-fg:        #fee2e2;
+
+  --info:            #22d3ee;
+  --info-subtle:     #083344;
+  --info-fg:         #cffafe;
+}
+
+@theme inline {
+  --color-primary:         var(--primary);
+  --color-primary-hover:   var(--primary-hover);
+  --color-primary-active:  var(--primary-active);
+  --color-primary-subtle:  var(--primary-subtle);
+  --color-primary-fg:      var(--primary-fg);
+
+  --color-secondary:       var(--secondary);
+  --color-secondary-hover: var(--secondary-hover);
+  --color-secondary-fg:    var(--secondary-fg);
+
+  --color-surface-base:    var(--surface-base);
+  --color-surface-raised:  var(--surface-raised);
+  --color-surface-overlay: var(--surface-overlay);
+  --color-surface-sunken:  var(--surface-sunken);
+
+  --color-text-primary:    var(--text-primary);
+  --color-text-secondary:  var(--text-secondary);
+  --color-text-disabled:   var(--text-disabled);
+  --color-text-inverse:    var(--text-inverse);
+
+  --color-border:          var(--border);
+  --color-border-strong:   var(--border-strong);
+  --color-border-focus:    var(--border-focus);
+
+  --color-success:         var(--success);
+  --color-success-subtle:  var(--success-subtle);
+  --color-success-fg:      var(--success-fg);
+
+  --color-warning:         var(--warning);
+  --color-warning-subtle:  var(--warning-subtle);
+  --color-warning-fg:      var(--warning-fg);
+
+  --color-error:           var(--error);
+  --color-error-subtle:    var(--error-subtle);
+  --color-error-fg:        var(--error-fg);
+
+  --color-info:            var(--info);
+  --color-info-subtle:     var(--info-subtle);
+  --color-info-fg:         var(--info-fg);
+}
+
+.sidebar-scrollbar-hover {
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.sidebar-scrollbar-hover:hover,
+.sidebar-scrollbar-hover:focus-visible,
+.sidebar-scrollbar-hover:focus-within {
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+.sidebar-scrollbar-hover::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.sidebar-scrollbar-hover::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-scrollbar-hover::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 9999px;
+}
+
+.sidebar-scrollbar-hover:hover::-webkit-scrollbar-thumb,
+.sidebar-scrollbar-hover:focus-visible::-webkit-scrollbar-thumb,
+.sidebar-scrollbar-hover:focus-within::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+}
+
+.sidebar-scrollbar-hover:hover::-webkit-scrollbar-thumb:hover,
+.sidebar-scrollbar-hover:focus-visible::-webkit-scrollbar-thumb:hover,
+.sidebar-scrollbar-hover:focus-within::-webkit-scrollbar-thumb:hover {
+  background: var(--text-disabled);
+}

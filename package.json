@@ -8,7 +8,6 @@
     "generate:modules": "npx tsx scripts/generate-modules.ts",
     "start": "next start",
     "lint": "eslint",
-
     "generate:prisma:system": "npx prisma generate --config=prisma.system.config.ts",
     "generate:prisma:tenant": "npx prisma generate --config=prisma.tenant.config.ts",
     "generate": "npm run generate:prisma:system && npm run generate:prisma:tenant",
@@ -18,7 +17,6 @@
     "db-push:system": "npx prisma db push --config=prisma.system.config.ts",
     "db-push:tenant": "npx prisma db push --config=prisma.tenant.config.ts",
     "db-push": "npm run db-push:system && npm run db-push:tenant",
-
     "postinstall": "npx prisma generate",
     "vercel-build": "npx prisma generate && npx prisma migrate deploy && npm run build",
     "analyze": "ANALYZE=true next build"
@@ -42,6 +40,7 @@
     "axios": "^1.13.2",
     "bcrypt": "^6.0.0",
     "bullmq": "5.66.2",
+    "clsx": "^2.1.1",
     "countries-and-timezones": "^3.8.0",
     "crypto-js": "^4.2.0",
     "currency-codes-ts": "^3.0.0",
@@ -66,6 +65,7 @@
     "react-phone-number-input": "^3.4.14",
     "react-toastify": "^11.0.5",
     "swagger-ui-react": "^5.31.0",
+    "tailwind-merge": "^2.6.1",
     "uuid": "^13.0.0",
     "web-push": "^3.6.7",
     "winston": "^3.19.0",
@@ -86,7 +86,6 @@
     "@types/qs": "^6.14.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "daisyui": "^5.5.14",
     "eslint": "^9",
     "eslint-config-next": "16.1.2",
     "prisma": "^7.3.0",
