@@ -1,3 +1,4 @@
+import { env } from '@/libs/env';
 import { tenantPrisma, tenantPrismaFor } from "@/libs/prisma";
 import redis from "@/libs/redis";
 import { SafeTenantDomain, SafeTenantDomainSchema, DomainVerificationInfo } from "./tenant_domain.types";
@@ -6,7 +7,7 @@ import TenantDomainMessages from "./tenant_domain.messages";
 import DNSVerificationService from "./dns_verification.service";
 import TenantSettingService from "@/modules/tenant_setting/tenant_setting.service";
 
-const DOMAIN_CACHE_TTL = parseInt(process.env.TENANT_CACHE_TTL || `${60 * 5}`); // 5 min default
+const DOMAIN_CACHE_TTL = parseInt(env.TENANT_CACHE_TTL || `${60 * 5}`); // 5 min default
 
 export default class TenantDomainService {
 
@@ -126,7 +127,7 @@ export default class TenantDomainService {
   }
 
   static async create(data: CreateTenantDomainInput): Promise<SafeTenantDomain> {
-    const wildcardDomain = process.env.TENANT_WILDCARD_DOMAIN || "example.com";
+    const wildcardDomain = env.TENANT_WILDCARD_DOMAIN || "example.com";
     const isSubdomain = data.domain.endsWith(`.${wildcardDomain}`);
     const db = await tenantPrismaFor(data.tenantId);
 

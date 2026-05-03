@@ -1,3 +1,4 @@
+import { env } from '@/libs/env';
 import { Resolver } from 'dns/promises';
 import crypto from 'crypto';
 import redis from '@/libs/redis';
@@ -7,7 +8,7 @@ const DNS_VERIFICATION_PREFIX = 'dns_verify:';
 const DNS_VERIFICATION_TTL = 60 * 60 * 24; // 24 saat
 const TXT_RECORD_PREFIX = '_verification';
 const CNAME_RECORD_PREFIX = '_verify';
-const CNAME_TARGET_DOMAIN = process.env.VERIFICATION_DOMAIN || 'verify.example.com';
+const CNAME_TARGET_DOMAIN = env.VERIFICATION_DOMAIN || 'verify.example.com';
 
 export default class DNSVerificationService {
 

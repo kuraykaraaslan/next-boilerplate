@@ -8,7 +8,7 @@ import axiosInstance from "@/libs/axios";
 import useGlobalStore from "@/libs/zustand/global";
 import { TenantBranding } from "@/modules/tenant_branding/tenant_branding.types";
 
-const Navbar = dynamic(() => import('@/components/tenant/layout/navbar'), { ssr: false });
+const Navbar = dynamic(() => import('@/modules/ui/layout/tenant.navbar'), { ssr: false });
 
 interface AdminLayoutClientProps {
     children: ReactNode;

@@ -1,4 +1,5 @@
 'use client'
+import { env } from '@/libs/env';
 import { useMemo, useCallback } from 'react'
 import axiosInstance from '@/libs/axios'
 import { toast } from 'react-toastify'
@@ -54,7 +55,7 @@ const SSOLoginContent = ({ mode, locale = 'en', tenantId }: { mode: SSOLoginMode
   const { t } = useModuleDictionary(locale)
 
   const allowedProviders = useMemo(() => {
-    return (process.env.SSO_ALLOWED_PROVIDERS || '')
+    return (env.SSO_ALLOWED_PROVIDERS || '')
       .split(',')
       .map(p => p.trim())
       .filter(Boolean)

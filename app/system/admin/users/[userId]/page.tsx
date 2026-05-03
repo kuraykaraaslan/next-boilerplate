@@ -4,10 +4,10 @@ import { useParams, useRouter } from 'next/navigation'
 import axiosInstance from '@/libs/axios'
 import { toast } from 'react-toastify'
 import ImageLoad from '@/modules/ui/forms/ImageLoad'
-import DynamicSelect from '@/components/common/forms/DynamicSelect'
-import FormHeader from '@/components/common/forms/FormHeader'
+import DynamicSelect from '@/modules/ui/forms/DynamicSelect'
+import FormHeader from '@/modules/ui/forms/FormHeader'
 import DynamicText from '@/modules/ui/forms/DynamicText'
-import Form from '@/components/common/forms/Form'
+import Form from '@/modules/ui/forms/Form'
 import { UserRole, UserStatus } from '@/modules/user/user.enums'
 
 

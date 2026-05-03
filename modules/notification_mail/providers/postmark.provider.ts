@@ -1,3 +1,4 @@
+import { env } from '@/libs/env';
 import axios, { AxiosInstance } from "axios";
 import Logger from "@/libs/logger";
 import BaseMailProvider, { MailOptions, MailResult } from "./base.provider";
@@ -5,7 +6,7 @@ import BaseMailProvider, { MailOptions, MailResult } from "./base.provider";
 export default class PostmarkProvider extends BaseMailProvider {
   readonly name = "Postmark";
 
-  private static readonly POSTMARK_API_KEY = process.env.POSTMARK_API_KEY;
+  private static readonly POSTMARK_API_KEY = env.POSTMARK_API_KEY;
   private static readonly POSTMARK_BASE_URL = "https://api.postmarkapp.com";
 
   private axiosInstance: AxiosInstance | null = null;

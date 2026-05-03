@@ -1,4 +1,5 @@
 "use client";
+import { env } from '@/libs/env';
 
 import { useEffect, useState, useMemo } from "react";
 import { useParams } from "next/navigation";
@@ -22,14 +23,14 @@ import {
 import { SafeTenantDomain, DomainVerificationInfo } from "@/modules/tenant_domain/tenant_domain.types";
 import { DomainStatus } from "@/modules/tenant_domain/tenant_domain.enums";
 import { TenantSettingsTabProps } from "@/modules/tenant_setting/tenant_setting.types";
-import DynamicTable, { ColumnDef } from "@/components/common/forms/DynamicTable";
-import DynamicText from "@/components/common/forms/DynamicText";
-import DynamicSelect from "@/components/common/forms/DynamicSelect";
+import DynamicTable, { ColumnDef } from "@/modules/ui/forms/DynamicTable";
+import DynamicText from "@/modules/ui/forms/DynamicText";
+import DynamicSelect from "@/modules/ui/forms/DynamicSelect";
 
 const DomainsTab = ({ settings }: TenantSettingsTabProps) => {
   const { tenantId } = useParams() as { tenantId: string };
 
-  const WILDCARD_DOMAIN = process.env.NEXT_PUBLIC_TENANT_WILDCARD_DOMAIN || "example.com";
+  const WILDCARD_DOMAIN = env.NEXT_PUBLIC_TENANT_WILDCARD_DOMAIN || "example.com";
 
   // Handle tenant base for proxied domains
   const isProxied = typeof window !== 'undefined' && !window.location.pathname.startsWith('/tenant/');

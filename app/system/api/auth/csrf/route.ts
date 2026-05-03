@@ -1,3 +1,4 @@
+import { env } from '@/libs/env';
 import { NextResponse } from 'next/server';
 
 const CSRF_COOKIE_NAME = 'csrf-token';
@@ -18,7 +19,7 @@ async function generateCSRFToken(): Promise<string> {
   const data = `${timestamp}-${randomHex}`;
   
   // HMAC signature
-  const secret = process.env.CSRF_SECRET || process.env.ACCESS_TOKEN_SECRET || 'default-secret';
+  const secret = env.CSRF_SECRET || env.ACCESS_TOKEN_SECRET || 'default-secret';
   const encoder = new TextEncoder();
   const keyData = encoder.encode(secret);
   const messageData = encoder.encode(data);
@@ -46,7 +47,7 @@ async function generateCSRFToken(): Promise<string> {
 export async function GET() {
   try {
     const token = await generateCSRFToken();
-    const isProduction = process.env.NODE_ENV === 'production';
+    const isProduction = env.NODE_ENV === 'production';
 
     const response = NextResponse.json({
       success: true,

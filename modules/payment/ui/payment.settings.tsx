@@ -1,8 +1,8 @@
 'use client';
 
-import DynamicText from '@/components/common/forms/DynamicText';
-import DynamicToggle from '@/components/common/forms/DynamicToggle';
-import DynamicSelect from '@/components/common/forms/DynamicSelect';
+import DynamicText from '@/modules/ui/forms/DynamicText';
+import DynamicToggle from '@/modules/ui/forms/DynamicToggle';
+import DynamicSelect from '@/modules/ui/forms/DynamicSelect';
 import { SettingsTabProps } from '@/modules/setting/setting.types';
 
 export default function PaymentTab({ settings, setSettings, loading, saving }: SettingsTabProps) {

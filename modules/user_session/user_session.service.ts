@@ -1,6 +1,6 @@
-import UserSessionTokenService from "./user.session.token.service";
-import UserSessionCacheService from "./user.session.cache.service";
-import UserSessionCrudService from "./user.session.crud.service";
+import UserSessionTokenService from "./user_session.token.service";
+import UserSessionCacheService from "./user_session.cache.service";
+import UserSessionCrudService from "./user_session.crud.service";
 
 export { UserSessionTokenService, UserSessionCacheService, UserSessionCrudService };
 

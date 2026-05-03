@@ -7,7 +7,7 @@ import dynamic from "next/dynamic";
 import axiosInstance from "@/libs/axios";
 import useGlobalStore from "@/libs/zustand/global";
 
-const Navbar = dynamic(() => import('@/components/system/layout/navbar'), { ssr: false });
+const Navbar = dynamic(() => import('@/modules/ui/layout/system.navbar'), { ssr: false });
 
 const Layout = ({
     children,

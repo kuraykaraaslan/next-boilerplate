@@ -1,11 +1,12 @@
+import { env } from '@/libs/env';
 import 'dotenv/config';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient as SystemPrismaClient } from '../prisma/system/client';
 import { PrismaClient as TenantPrismaClient, TenantMemberRole } from '../prisma/tenant/client';
 import bcrypt from "bcrypt";
 
-const systemAdapter = new PrismaPg({ connectionString: `${process.env.SYSTEM_DATABASE_URL}` });
-const tenantAdapter = new PrismaPg({ connectionString: `${process.env.TENANT_DATABASE_URL}` });
+const systemAdapter = new PrismaPg({ connectionString: `${env.SYSTEM_DATABASE_URL}` });
+const tenantAdapter = new PrismaPg({ connectionString: `${env.TENANT_DATABASE_URL}` });
 const systemPrisma = new SystemPrismaClient({ adapter: systemAdapter });
 const tenantPrisma = new TenantPrismaClient({ adapter: tenantAdapter });
 
@@ -76,7 +77,7 @@ async function main() {
   console.log('Login Password:', password);
 
   // 5. Create a default domain for the tenant
-  const defaultDomain = `acme.${process.env.TENANT_WILDCARD_DOMAIN}`;
+  const defaultDomain = `acme.${env.TENANT_WILDCARD_DOMAIN}`;
   const tenantDomain = await tenantPrisma.tenantDomain.create({
     data: {
       tenantId: tenant.tenantId,

@@ -1,3 +1,4 @@
+import { env } from '@/libs/env';
 import webpush from "web-push";
 import { systemPrisma } from "@/libs/prisma";
 import Logger from "@/libs/logger";
@@ -17,9 +18,9 @@ let vapidInitialised = false;
 function ensureVapid() {
   if (vapidInitialised) return;
   webpush.setVapidDetails(
-    `mailto:${process.env.VAPID_CONTACT_EMAIL ?? "info@example.com"}`,
-    process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
-    process.env.VAPID_PRIVATE_KEY!
+    `mailto:${env.VAPID_CONTACT_EMAIL ?? "info@example.com"}`,
+    env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
+    env.VAPID_PRIVATE_KEY!
   );
   vapidInitialised = true;
 }

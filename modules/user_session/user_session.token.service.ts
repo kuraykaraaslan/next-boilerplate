@@ -1,12 +1,13 @@
+import { env } from '@/libs/env';
 import jwt, { Secret } from "jsonwebtoken";
 import crypto from "crypto";
 import UserSessionMessages from "./user_session.messages";
 
-const APPLICATION_DOMAIN = process.env.APPLICATION_DOMAIN || "localhost";
-const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET || "your-default-access-token-secret";
-const ACCESS_TOKEN_EXPIRES_IN = process.env.ACCESS_TOKEN_EXPIRES_IN || "1h";
-const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || "your-default-refresh-token-secret";
-const REFRESH_TOKEN_EXPIRES_IN = process.env.REFRESH_TOKEN_EXPIRES_IN || "7d";
+const APPLICATION_DOMAIN = env.APPLICATION_DOMAIN || "localhost";
+const ACCESS_TOKEN_SECRET = env.ACCESS_TOKEN_SECRET || "your-default-access-token-secret";
+const ACCESS_TOKEN_EXPIRES_IN = env.ACCESS_TOKEN_EXPIRES_IN || "1h";
+const REFRESH_TOKEN_SECRET = env.REFRESH_TOKEN_SECRET || "your-default-refresh-token-secret";
+const REFRESH_TOKEN_EXPIRES_IN = env.REFRESH_TOKEN_EXPIRES_IN || "7d";
 
 if (!ACCESS_TOKEN_SECRET || !REFRESH_TOKEN_SECRET) {
   throw new Error("Missing JWT secrets in environment variables");

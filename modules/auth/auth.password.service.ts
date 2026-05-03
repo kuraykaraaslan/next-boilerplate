@@ -1,3 +1,4 @@
+import { env } from '@/libs/env';
 import crypto from "crypto";
 import bcrypt from "bcrypt";
 import redis from "@/libs/redis";
@@ -10,12 +11,12 @@ import AuthMessages from "./auth.messages";
 export default class PasswordService {
 
   private static readonly RESET_TOKEN_EXPIRY_SECONDS = parseInt(
-    process.env.RESET_TOKEN_EXPIRY_SECONDS || "3600"
+    env.RESET_TOKEN_EXPIRY_SECONDS || "3600"
   ); // 1 hour
 
   private static readonly RESET_TOKEN_LENGTH = Math.max(
     4,
-    parseInt(process.env.RESET_TOKEN_LENGTH || "6")
+    parseInt(env.RESET_TOKEN_LENGTH || "6")
   );
 
   private static readonly RATE_LIMIT_MAX_ATTEMPTS = 5;

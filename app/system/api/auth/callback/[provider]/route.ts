@@ -1,3 +1,4 @@
+import { env } from '@/libs/env';
 // Original path: app/api/auth/callback/route.ts
 
 import { NextResponse } from "next/server";
@@ -22,20 +23,20 @@ export async function GET(
 
     if (!code) {
         //redirect to frontend
-        NextResponse.redirect(`${process.env.APPLICATION_HOST}/auth/login?error=${SSOMessages.CODE_NOT_FOUND}`);
+        NextResponse.redirect(`${env.APPLICATION_HOST}/auth/login?error=${SSOMessages.CODE_NOT_FOUND}`);
     }
 
     //check if provider is valid
     if (!Object.values(SSOProviderEnum).includes(provider as SSOProvider)) {
         //redirect to frontend
-        return NextResponse.redirect(`${process.env.APPLICATION_HOST}/auth/login?error=${SSOMessages.INVALID_PROVIDER}`);
+        return NextResponse.redirect(`${env.APPLICATION_HOST}/auth/login?error=${SSOMessages.INVALID_PROVIDER}`);
     }
 
     const { user, isNewUser } = await SSOService.authenticateOrRegister(provider as SSOProvider, code as string);
 
     if (!user) {
         //redirect to frontend
-        return NextResponse.redirect(`${process.env.APPLICATION_HOST}/auth/login?error=${SSOMessages.OAUTH_ERROR}`);
+        return NextResponse.redirect(`${env.APPLICATION_HOST}/auth/login?error=${SSOMessages.OAUTH_ERROR}`);
 
     }
 
@@ -63,11 +64,11 @@ export async function GET(
 
     if (!userSession) {
         //redirect to frontend
-        return NextResponse.redirect(`${process.env.APPLICATION_HOST}/auth/login?error=${SSOMessages.OAUTH_ERROR}`);
+        return NextResponse.redirect(`${env.APPLICATION_HOST}/auth/login?error=${SSOMessages.OAUTH_ERROR}`);
     }
 
     const response = NextResponse.redirect(
-        `${process.env.APPLICATION_HOST}/auth/callback?rawAccessToken=${rawAccessToken}&rawRefreshToken=${rawRefreshToken}`
+        `${env.APPLICATION_HOST}/auth/callback?rawAccessToken=${rawAccessToken}&rawRefreshToken=${rawRefreshToken}`
     )
 
     // Determine if we're in a secure context (HTTPS)
@@ -106,20 +107,20 @@ export async function POST(
 
     if (!code) {
         //redirect to frontend
-        NextResponse.redirect(`${process.env.APPLICATION_HOST}/auth/login?error=${SSOMessages.CODE_NOT_FOUND}`);
+        NextResponse.redirect(`${env.APPLICATION_HOST}/auth/login?error=${SSOMessages.CODE_NOT_FOUND}`);
     }
 
     //check if provider is valid
     if (!Object.values(SSOProviderEnum).includes(provider as SSOProvider)) {
         //redirect to frontend
-        return NextResponse.redirect(`${process.env.APPLICATION_HOST}/auth/login?error=${SSOMessages.INVALID_PROVIDER}`);
+        return NextResponse.redirect(`${env.APPLICATION_HOST}/auth/login?error=${SSOMessages.INVALID_PROVIDER}`);
     }
 
     const { user, isNewUser} = await SSOService.authenticateOrRegister(provider as SSOProvider, code as string);
 
     if (!user) {
         //redirect to frontend
-        return NextResponse.redirect(`${process.env.APPLICATION_HOST}/auth/login?error=${SSOMessages.OAUTH_ERROR}`);
+        return NextResponse.redirect(`${env.APPLICATION_HOST}/auth/login?error=${SSOMessages.OAUTH_ERROR}`);
     }
 
     const userSecurity = await UserSecurityService.getSafeByUserId(user.userId);
@@ -146,11 +147,11 @@ export async function POST(
 
     if (!userSession) {
         //redirect to frontend
-        return NextResponse.redirect(`${process.env.APPLICATION_HOST}/auth/login?error=${SSOMessages.OAUTH_ERROR}`);
+        return NextResponse.redirect(`${env.APPLICATION_HOST}/auth/login?error=${SSOMessages.OAUTH_ERROR}`);
     }
 
     //redirect to frontend
-    return NextResponse.redirect(`${process.env.APPLICATION_HOST}/auth/callback?rawAccessToken=${rawAccessToken}&rawRefreshToken=${rawRefreshToken}`);
+    return NextResponse.redirect(`${env.APPLICATION_HOST}/auth/callback?rawAccessToken=${rawAccessToken}&rawRefreshToken=${rawRefreshToken}`);
 
 }
 

@@ -1,3 +1,4 @@
+import { env } from '@/libs/env';
 import axios, { AxiosInstance } from "axios";
 import Logger from "@/libs/logger";
 import BaseMailProvider, { MailOptions, MailResult } from "./base.provider";
@@ -5,7 +6,7 @@ import BaseMailProvider, { MailOptions, MailResult } from "./base.provider";
 export default class ResendProvider extends BaseMailProvider {
   readonly name = "Resend";
 
-  private static readonly RESEND_API_KEY = process.env.RESEND_API_KEY;
+  private static readonly RESEND_API_KEY = env.RESEND_API_KEY;
   private static readonly RESEND_BASE_URL = "https://api.resend.com";
 
   private axiosInstance: AxiosInstance | null = null;

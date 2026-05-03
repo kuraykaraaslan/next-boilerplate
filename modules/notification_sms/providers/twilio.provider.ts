@@ -1,12 +1,13 @@
+import { env } from '@/libs/env';
 import BaseProvider from "./base.provider";
 import axios, { AxiosInstance } from "axios";
 import qs from "qs";
 import Logger from "@/libs/logger";
 
 export default class TwilioProvider extends BaseProvider {
-  private static readonly TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID!;
-  private static readonly TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN!;
-  private static readonly TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER!;
+  private static readonly TWILIO_ACCOUNT_SID = env.TWILIO_ACCOUNT_SID!;
+  private static readonly TWILIO_AUTH_TOKEN = env.TWILIO_AUTH_TOKEN!;
+  private static readonly TWILIO_PHONE_NUMBER = env.TWILIO_PHONE_NUMBER!;
   private static readonly TWILIO_BASE_URL = `https://api.twilio.com/2010-04-01/Accounts/${TwilioProvider.TWILIO_ACCOUNT_SID}`;
 
   private static readonly axiosInstance: AxiosInstance = axios.create({

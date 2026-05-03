@@ -1,9 +1,10 @@
+import { env } from '@/libs/env';
 import BaseProvider from "./base.provider";
 import axios, { AxiosInstance } from "axios";
 import Logger from "@/libs/logger";
 
 export default class ClickatellProvider extends BaseProvider {
-  private static readonly CLICKATELL_API_KEY = process.env.CLICKATELL_API_KEY!;
+  private static readonly CLICKATELL_API_KEY = env.CLICKATELL_API_KEY!;
   private static readonly CLICKATELL_BASE_URL = "https://platform.clickatell.com/messages";
 
   private static readonly axiosInstance: AxiosInstance = axios.create({

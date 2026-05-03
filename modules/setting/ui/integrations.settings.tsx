@@ -1,6 +1,6 @@
 'use client';
 
-import DynamicText from '@/components/common/forms/DynamicText';
+import DynamicText from '@/modules/ui/forms/DynamicText';
 import { SettingsTabProps } from '@/modules/setting/setting.types';
 
 export default function IntegrationsTab({ settings, setSettings, loading, saving }: SettingsTabProps) {

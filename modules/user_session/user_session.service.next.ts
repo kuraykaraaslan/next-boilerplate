@@ -1,3 +1,4 @@
+import { env } from '@/libs/env';
 // Utils
 import { SafeUserSession, SafeUserSessionSchema, type SessionMeta } from '@/modules/user_session/user_session.types';
 import { NextRequest } from 'next/server';
@@ -9,7 +10,7 @@ import { SafeUserSecurity } from '@/modules/user_security/user_security.types';
 import UserSessionService from './user_session.service';
 import { systemPrisma } from "@/libs/prisma";
 
-const SESSION_CACHE_TTL = parseInt(process.env.SESSION_CACHE_TTL || `${60 * 30}`); // 30 min default
+const SESSION_CACHE_TTL = parseInt(env.SESSION_CACHE_TTL || `${60 * 30}`); // 30 min default
 
 export default class UserSessionNextService {
 

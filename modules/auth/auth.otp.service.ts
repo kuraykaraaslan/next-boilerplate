@@ -1,3 +1,4 @@
+import { env } from '@/libs/env';
 import crypto from "crypto";
 import redis from "@/libs/redis";
 import { SafeUser } from "../user/user.types";
@@ -10,10 +11,10 @@ import AuthMessages from "./auth.messages";
 import Logger from "@/libs/logger";
 
 export default class OTPService {
-  private static readonly OTP_LENGTH = parseInt(process.env.OTP_LENGTH || "6");
-  private static readonly OTP_EXPIRY_SECONDS = parseInt(process.env.OTP_EXPIRY_SECONDS || "600"); // 10 min
-  private static readonly OTP_RATE_LIMIT_SECONDS = parseInt(process.env.OTP_RATE_LIMIT_SECONDS || "60");
-  private static readonly OTP_MAX_ATTEMPTS = parseInt(process.env.OTP_MAX_ATTEMPTS || "5");
+  private static readonly OTP_LENGTH = parseInt(env.OTP_LENGTH || "6");
+  private static readonly OTP_EXPIRY_SECONDS = parseInt(env.OTP_EXPIRY_SECONDS || "600"); // 10 min
+  private static readonly OTP_RATE_LIMIT_SECONDS = parseInt(env.OTP_RATE_LIMIT_SECONDS || "60");
+  private static readonly OTP_MAX_ATTEMPTS = parseInt(env.OTP_MAX_ATTEMPTS || "5");
 
   /**
    * Generate a numeric OTP token

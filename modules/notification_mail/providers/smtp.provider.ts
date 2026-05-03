@@ -1,3 +1,4 @@
+import { env } from '@/libs/env';
 import nodemailer, { Transporter } from "nodemailer";
 import Logger from "@/libs/logger";
 import BaseMailProvider, { MailOptions, MailResult } from "./base.provider";
@@ -5,11 +6,11 @@ import BaseMailProvider, { MailOptions, MailResult } from "./base.provider";
 export default class SMTPProvider extends BaseMailProvider {
   readonly name = "SMTP";
 
-  private static readonly SMTP_HOST = process.env.SMTP_HOST || process.env.MAIL_HOST;
-  private static readonly SMTP_PORT = process.env.SMTP_PORT || process.env.MAIL_PORT || "587";
-  private static readonly SMTP_USER = process.env.SMTP_USER || process.env.MAIL_USER;
-  private static readonly SMTP_PASS = process.env.SMTP_PASS || process.env.MAIL_PASS;
-  private static readonly SMTP_SECURE = process.env.SMTP_SECURE === "true";
+  private static readonly SMTP_HOST = env.SMTP_HOST || env.MAIL_HOST;
+  private static readonly SMTP_PORT = env.SMTP_PORT || env.MAIL_PORT || "587";
+  private static readonly SMTP_USER = env.SMTP_USER || env.MAIL_USER;
+  private static readonly SMTP_PASS = env.SMTP_PASS || env.MAIL_PASS;
+  private static readonly SMTP_SECURE = env.SMTP_SECURE === "true";
 
   private transporter: Transporter | null = null;
 

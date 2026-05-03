@@ -1,3 +1,4 @@
+import { env } from '@/libs/env';
 import crypto from "crypto";
 import { systemPrisma, tenantPrisma, tenantPrismaFor } from "@/libs/prisma";
 import type { Prisma } from "@/prisma/tenant/client";
@@ -8,7 +9,7 @@ import TenantMemberService from "../tenant_member/tenant_member.service";
 import type { TenantMemberRole } from "../tenant_member/tenant_member.enums";
 
 const INVITATION_TTL_SECONDS = parseInt(
-  process.env.INVITATION_TTL_SECONDS || `${60 * 60 * 24 * 7}` // 7 days default
+  env.INVITATION_TTL_SECONDS || `${60 * 60 * 24 * 7}` // 7 days default
 );
 
 export default class TenantInvitationService {

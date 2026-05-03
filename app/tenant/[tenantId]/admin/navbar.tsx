@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
-import Logo from "@/components/common/layout/logo";
+import Logo from "@/modules/ui/layout/logo";
 import dynamic from "next/dynamic";
 import { SafeTenant } from "@/modules/tenant/tenant.types";
 import { SafeTenantMember } from "@/modules/tenant_member/tenant_member.types";

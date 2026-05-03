@@ -1,3 +1,4 @@
+import { env } from '@/libs/env';
 import { authenticator } from 'otplib';
 import bcrypt from 'bcrypt';
 import redis from '@/libs/redis';
@@ -9,11 +10,11 @@ import { OTPAction } from '../user_security/user_security.enums';
 import UserSecurityService from '../user_security/user_security.service';
 
 export default class TOTPService {
-  static TOTP_STEP_SECONDS = parseInt(process.env.TOTP_STEP_SECONDS || '30');
-  static TOTP_WINDOW = parseInt(process.env.TOTP_WINDOW || '1');
-  static TOTP_DIGITS = parseInt(process.env.OTP_LENGTH || '6');
-  static SETUP_EXPIRY_SECONDS = parseInt(process.env.TOTP_SETUP_EXPIRY_SECONDS || '600');
-  static ISSUER = process.env.TOTP_ISSUER || 'Relatia';
+  static TOTP_STEP_SECONDS = parseInt(env.TOTP_STEP_SECONDS || '30');
+  static TOTP_WINDOW = parseInt(env.TOTP_WINDOW || '1');
+  static TOTP_DIGITS = parseInt(env.OTP_LENGTH || '6');
+  static SETUP_EXPIRY_SECONDS = parseInt(env.TOTP_SETUP_EXPIRY_SECONDS || '600');
+  static ISSUER = env.TOTP_ISSUER || 'Relatia';
 
   static setupOtpLib() {
     authenticator.options = {

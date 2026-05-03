@@ -1,3 +1,4 @@
+import { env } from '@/libs/env';
 import axios, { AxiosInstance } from "axios";
 import FormData from "form-data";
 import Logger from "@/libs/logger";
@@ -6,9 +7,9 @@ import BaseMailProvider, { MailOptions, MailResult } from "./base.provider";
 export default class MailgunProvider extends BaseMailProvider {
   readonly name = "Mailgun";
 
-  private static readonly MAILGUN_API_KEY = process.env.MAILGUN_API_KEY;
-  private static readonly MAILGUN_DOMAIN = process.env.MAILGUN_DOMAIN;
-  private static readonly MAILGUN_REGION = process.env.MAILGUN_REGION || "us"; // "us" or "eu"
+  private static readonly MAILGUN_API_KEY = env.MAILGUN_API_KEY;
+  private static readonly MAILGUN_DOMAIN = env.MAILGUN_DOMAIN;
+  private static readonly MAILGUN_REGION = env.MAILGUN_REGION || "us"; // "us" or "eu"
 
   private getBaseUrl(): string {
     return MailgunProvider.MAILGUN_REGION === "eu"

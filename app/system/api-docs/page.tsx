@@ -1,6 +1,6 @@
 'use client';
 
-import { SwaggerDocs } from '@/components/common/swagger';
+import { SwaggerDocs } from '@/modules/ui/swagger';
 
 export default function SystemApiDocsPage() {
   return (

@@ -1,3 +1,4 @@
+import { env } from '@/libs/env';
 import Logger from '@/libs/logger';
 import redis from '@/libs/redis';
 
@@ -29,7 +30,7 @@ export default class AIService {
 
   // Default provider from env or fallback
   private static readonly DEFAULT_PROVIDER: AIProviderType =
-    (process.env.AI_DEFAULT_PROVIDER as AIProviderType) || 'openai';
+    (env.AI_DEFAULT_PROVIDER as AIProviderType) || 'openai';
 
   // ============================================================================
   // Provider Instances (lazy loaded)
@@ -42,9 +43,9 @@ export default class AIService {
   private static get openaiProvider(): OpenAIProvider {
     if (!this._openaiProvider) {
       this._openaiProvider = new OpenAIProvider({
-        apiKey: process.env.OPENAI_API_KEY || '',
-        defaultModel: process.env.OPENAI_DEFAULT_MODEL || 'gpt-4o-mini',
-        maxTokens: parseInt(process.env.OPENAI_MAX_TOKENS || '4096', 10),
+        apiKey: env.OPENAI_API_KEY || '',
+        defaultModel: env.OPENAI_DEFAULT_MODEL || 'gpt-4o-mini',
+        maxTokens: parseInt(env.OPENAI_MAX_TOKENS || '4096', 10),
       });
     }
     return this._openaiProvider;
@@ -53,9 +54,9 @@ export default class AIService {
   private static get anthropicProvider(): AnthropicProvider {
     if (!this._anthropicProvider) {
       this._anthropicProvider = new AnthropicProvider({
-        apiKey: process.env.ANTHROPIC_API_KEY || '',
-        defaultModel: process.env.ANTHROPIC_DEFAULT_MODEL || 'claude-3-5-sonnet-20241022',
-        maxTokens: parseInt(process.env.ANTHROPIC_MAX_TOKENS || '4096', 10),
+        apiKey: env.ANTHROPIC_API_KEY || '',
+        defaultModel: env.ANTHROPIC_DEFAULT_MODEL || 'claude-3-5-sonnet-20241022',
+        maxTokens: parseInt(env.ANTHROPIC_MAX_TOKENS || '4096', 10),
       });
     }
     return this._anthropicProvider;
@@ -64,9 +65,9 @@ export default class AIService {
   private static get googleProvider(): GoogleProvider {
     if (!this._googleProvider) {
       this._googleProvider = new GoogleProvider({
-        apiKey: process.env.GOOGLE_AI_API_KEY || '',
-        defaultModel: process.env.GOOGLE_DEFAULT_MODEL || 'gemini-2.0-flash',
-        maxTokens: parseInt(process.env.GOOGLE_MAX_TOKENS || '4096', 10),
+        apiKey: env.GOOGLE_AI_API_KEY || '',
+        defaultModel: env.GOOGLE_DEFAULT_MODEL || 'gemini-2.0-flash',
+        maxTokens: parseInt(env.GOOGLE_MAX_TOKENS || '4096', 10),
       });
     }
     return this._googleProvider;

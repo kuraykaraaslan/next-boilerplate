@@ -1,3 +1,4 @@
+import { env } from '@/libs/env';
 import { tenantPrisma, tenantPrismaFor } from '@/libs/prisma';
 import redis from '@/libs/redis';
 import { SafeTenant, SafeTenantSchema } from '@/modules/tenant/tenant.types';
@@ -6,7 +7,7 @@ import { SafeUser } from '@/modules/user/user.types';
 import TenantAuthMessages from './tenant_session.messages';
 import type { TenantMemberRole } from '@/modules/tenant_member/tenant_member.enums';
 
-const TENANT_CACHE_TTL = parseInt(process.env.TENANT_CACHE_TTL || `${60 * 5}`); // 5 min default
+const TENANT_CACHE_TTL = parseInt(env.TENANT_CACHE_TTL || `${60 * 5}`); // 5 min default
 
 export default class TenantSessionService {
 

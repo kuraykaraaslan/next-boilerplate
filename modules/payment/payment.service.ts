@@ -1,3 +1,4 @@
+import { env } from '@/libs/env';
 import { tenantPrisma, tenantPrismaFor } from '@/libs/prisma'
 import type { Prisma } from '@/prisma/tenant/client'
 import Logger from '@/libs/logger'
@@ -42,7 +43,7 @@ export default class PaymentService {
   ])
 
   private static readonly DEFAULT_PROVIDER: PaymentProvider =
-    (process.env.PAYMENT_DEFAULT_PROVIDER?.toUpperCase() as PaymentProvider) || 'STRIPE'
+    (env.PAYMENT_DEFAULT_PROVIDER?.toUpperCase() as PaymentProvider) || 'STRIPE'
 
   private static getProvider(providerName?: PaymentProvider): BasePaymentProvider {
     const name = providerName || PaymentService.DEFAULT_PROVIDER

@@ -8,7 +8,7 @@ import Table, {
     TableFooter,
     ColumnDef,
     ActionButton
-} from '@/components/common/forms/DynamicTable';
+} from '@/modules/ui/forms/DynamicTable';
 import {
     faCrown,
     faUserShield,

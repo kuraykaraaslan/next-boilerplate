@@ -1,3 +1,4 @@
+import { env } from '@/libs/env';
 import crypto from "crypto";
 import { systemPrisma } from "@/libs/prisma";
 import bcrypt from "bcrypt";
@@ -108,10 +109,10 @@ export default class AuthService {
     }
 
     private static readonly EMAIL_VERIFY_TTL_SECONDS = parseInt(
-        process.env.EMAIL_VERIFY_TTL_SECONDS || `${60 * 60 * 24}`
+        env.EMAIL_VERIFY_TTL_SECONDS || `${60 * 60 * 24}`
     );
     private static readonly EMAIL_VERIFY_RATE_LIMIT_SECONDS = parseInt(
-        process.env.EMAIL_VERIFY_RATE_LIMIT_SECONDS || "300"
+        env.EMAIL_VERIFY_RATE_LIMIT_SECONDS || "300"
     );
 
     private static getEmailVerifyKey(userId: string): string {

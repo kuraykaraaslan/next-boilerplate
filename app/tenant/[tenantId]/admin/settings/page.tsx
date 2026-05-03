@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import { useParams } from 'next/navigation';
-import Tabs from '@/components/common/tabs';
+import Tabs from '@/modules/ui/tabs';
 import { useTenantSettings } from '@/modules/setting/hooks/useTenantSettings';
 import {
   getTenantSettingsTabs,

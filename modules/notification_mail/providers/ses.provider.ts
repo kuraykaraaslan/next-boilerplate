@@ -1,3 +1,4 @@
+import { env } from '@/libs/env';
 import axios from "axios";
 import crypto from "crypto";
 import Logger from "@/libs/logger";
@@ -6,9 +7,9 @@ import BaseMailProvider, { MailOptions, MailResult } from "./base.provider";
 export default class SESProvider extends BaseMailProvider {
   readonly name = "AWS SES";
 
-  private static readonly AWS_ACCESS_KEY_ID = process.env.AWS_SES_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID;
-  private static readonly AWS_SECRET_ACCESS_KEY = process.env.AWS_SES_SECRET_ACCESS_KEY || process.env.AWS_SECRET_ACCESS_KEY;
-  private static readonly AWS_REGION = process.env.AWS_SES_REGION || process.env.AWS_REGION || "us-east-1";
+  private static readonly AWS_ACCESS_KEY_ID = env.AWS_SES_ACCESS_KEY_ID || env.AWS_ACCESS_KEY_ID;
+  private static readonly AWS_SECRET_ACCESS_KEY = env.AWS_SES_SECRET_ACCESS_KEY || env.AWS_SECRET_ACCESS_KEY;
+  private static readonly AWS_REGION = env.AWS_SES_REGION || env.AWS_REGION || "us-east-1";
 
   isConfigured(): boolean {
     return !!(SESProvider.AWS_ACCESS_KEY_ID && SESProvider.AWS_SECRET_ACCESS_KEY);

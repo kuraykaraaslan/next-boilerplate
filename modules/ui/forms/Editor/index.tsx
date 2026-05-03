@@ -1,8 +1,9 @@
 'use client';
+import { env } from '@/libs/env';
 import { Editor } from '@tinymce/tinymce-react';
 import axiosInstance from '@/libs/axios';
 
-const NEXT_PUBLIC_TINYMCE_API_KEY = process.env.NEXT_PUBLIC_TINYMCE_API_KEY;
+const NEXT_PUBLIC_TINYMCE_API_KEY = env.NEXT_PUBLIC_TINYMCE_API_KEY;
 
 const TinyMCEEditor = ({ value, onChange }: { value: string, onChange: (value: string) => void }) => {
     

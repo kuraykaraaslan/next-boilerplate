@@ -124,9 +124,31 @@ export async function proxy(req: NextRequest) {
     let host = req.headers.get("host") || "";
     host = host.replace(/:\d+$/, ""); // Portu kaldır
 
-    // ❌ Hariç path
+    // ❌ Hariç path (static assets, _next)
     if (isExcluded(pathname)) {
         return NextResponse.next();
+    }
+
+    // ✅ /api/v1/system/[...] → /system/api/[...]
+    // External API standard. Internal Next.js file stays at app/system/api/...
+    if (pathname.startsWith("/api/v1/system/")) {
+        const rest = pathname.slice("/api/v1/system".length); // /auth/login
+        const url = req.nextUrl.clone();
+        url.pathname = `/system/api${rest}`;
+        log(`[api-v1] system: ${pathname} → ${url.pathname}`);
+        return NextResponse.rewrite(url);
+    }
+
+    // ✅ /api/v1/tenant/[tenantId]/[...] → /tenant/[tenantId]/api/[...]
+    if (pathname.startsWith("/api/v1/tenant/")) {
+        const withoutPrefix = pathname.slice("/api/v1/tenant/".length); // {tenantId}/auth/login
+        const slashIndex = withoutPrefix.indexOf("/");
+        const tenantId = slashIndex === -1 ? withoutPrefix : withoutPrefix.slice(0, slashIndex);
+        const rest = slashIndex === -1 ? "" : withoutPrefix.slice(slashIndex); // /auth/login
+        const url = req.nextUrl.clone();
+        url.pathname = `/tenant/${tenantId}/api${rest}`;
+        log(`[api-v1] tenant(${tenantId}): ${pathname} → ${url.pathname}`);
+        return NextResponse.rewrite(url);
     }
 
     // ❌ Zaten /tenant/ veya /system/ altındaysa (sonsuz döngüyü önle)

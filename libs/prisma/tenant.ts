@@ -1,9 +1,10 @@
 import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../../prisma/tenant/client";
+import { env } from "@/libs/env";
 
 // ─── Shared default client ────────────────────────────────────────────────────
-const defaultConnectionString = process.env.TENANT_DATABASE_URL!;
+const defaultConnectionString = env.TENANT_DATABASE_URL;
 const defaultSchema = new URL(defaultConnectionString).searchParams.get("schema") ?? undefined;
 const defaultAdapter = new PrismaPg({ connectionString: defaultConnectionString }, { schema: defaultSchema });
 export const tenantPrisma = new PrismaClient({ adapter: defaultAdapter });

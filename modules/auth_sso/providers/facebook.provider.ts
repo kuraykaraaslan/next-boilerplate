@@ -1,3 +1,4 @@
+import { env } from '@/libs/env';
 import { BaseSSOProvider } from './base.provider';
 import type { SSOProfile } from '../auth_sso.types';
 import axios from 'axios';
@@ -29,7 +30,7 @@ export class FacebookProvider extends BaseSSOProvider {
   }
 
   private getCallbackUrl(): string {
-    const APP_HOST = process.env.APPLICATION_HOST || 'http://localhost:3000';
+    const APP_HOST = env.APPLICATION_HOST || 'http://localhost:3000';
     return `${APP_HOST}${this.config.callbackPath}`;
   }
 

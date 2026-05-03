@@ -1,3 +1,4 @@
+import { env } from '@/libs/env';
 import Logger from "@/libs/logger";
 import ejs from "ejs";
 import path from "path";
@@ -45,7 +46,7 @@ export default class MailService {
 
   // Default provider from env or fallback to smtp
   private static readonly DEFAULT_PROVIDER: MailProviderType =
-    (process.env.MAIL_PROVIDER as MailProviderType) || "smtp";
+    (env.MAIL_PROVIDER as MailProviderType) || "smtp";
 
   // Queue + Worker
   static readonly QUEUE_NAME = "mailQueue";
@@ -82,23 +83,23 @@ export default class MailService {
   static readonly TEMPLATE_PATH = path.join(__dirname, "templates");
 
   // Application config
-  static readonly APPLICATION_NAME = process.env.APPLICATION_NAME || "Next Boilerplate";
-  static readonly APPLICATION_HOST = process.env.APPLICATION_HOST || "http://localhost:3000";
-  static readonly MAIL_FROM = process.env.MAIL_FROM || `${MailService.APPLICATION_NAME} <noreply@example.com>`;
+  static readonly APPLICATION_NAME = env.APPLICATION_NAME || "Next Boilerplate";
+  static readonly APPLICATION_HOST = env.APPLICATION_HOST || "http://localhost:3000";
+  static readonly MAIL_FROM = env.MAIL_FROM || `${MailService.APPLICATION_NAME} <noreply@example.com>`;
 
   // Frontend URLs
   static readonly FRONTEND_URL = MailService.APPLICATION_HOST;
-  static readonly FRONTEND_LOGIN_PATH = process.env.FRONTEND_LOGIN_PATH || "/auth/login";
-  static readonly FRONTEND_REGISTER_PATH = process.env.FRONTEND_REGISTER_PATH || "/auth/register";
-  static readonly FRONTEND_PRIVACY_PATH = process.env.FRONTEND_PRIVACY_PATH || "/privacy";
-  static readonly FRONTEND_TERMS_PATH = process.env.FRONTEND_TERMS_PATH || "/terms-of-use";
-  static readonly FRONTEND_RESET_PASSWORD_PATH = process.env.FRONTEND_RESET_PASSWORD_PATH || "/auth/reset-password";
-  static readonly FRONTEND_FORGOT_PASSWORD_PATH = process.env.FRONTEND_FORGOT_PASSWORD_PATH || "/auth/forgot-password";
-  static readonly FRONTEND_SUPPORT_EMAIL = process.env.FRONTEND_SUPPORT_EMAIL || "support@example.com";
+  static readonly FRONTEND_LOGIN_PATH = env.FRONTEND_LOGIN_PATH || "/auth/login";
+  static readonly FRONTEND_REGISTER_PATH = env.FRONTEND_REGISTER_PATH || "/auth/register";
+  static readonly FRONTEND_PRIVACY_PATH = env.FRONTEND_PRIVACY_PATH || "/privacy";
+  static readonly FRONTEND_TERMS_PATH = env.FRONTEND_TERMS_PATH || "/terms-of-use";
+  static readonly FRONTEND_RESET_PASSWORD_PATH = env.FRONTEND_RESET_PASSWORD_PATH || "/auth/reset-password";
+  static readonly FRONTEND_FORGOT_PASSWORD_PATH = env.FRONTEND_FORGOT_PASSWORD_PATH || "/auth/forgot-password";
+  static readonly FRONTEND_SUPPORT_EMAIL = env.FRONTEND_SUPPORT_EMAIL || "support@example.com";
 
   // Admin notify
-  static readonly INFORM_MAIL = process.env.INFORM_MAIL;
-  static readonly INFORM_NAME = process.env.INFORM_NAME;
+  static readonly INFORM_MAIL = env.INFORM_MAIL;
+  static readonly INFORM_NAME = env.INFORM_NAME;
 
   /**
    * Get the provider instance by name
@@ -554,7 +555,7 @@ export default class MailService {
     try {
       const subject = `You've been invited to join ${tenantName}`;
       const INVITATION_TTL_SECONDS = parseInt(
-        process.env.INVITATION_TTL_SECONDS || `${60 * 60 * 24 * 7}`
+        env.INVITATION_TTL_SECONDS || `${60 * 60 * 24 * 7}`
       );
       const expiryDays = Math.round(INVITATION_TTL_SECONDS / (60 * 60 * 24));
       const invitationLink =

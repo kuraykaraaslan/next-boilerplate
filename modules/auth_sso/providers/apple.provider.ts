@@ -1,3 +1,4 @@
+import { env } from '@/libs/env';
 import jwt from 'jsonwebtoken';
 import axios from 'axios';
 import type { SSOProvider } from '../auth_sso.enums';
@@ -9,9 +10,9 @@ export class AppleProvider implements SSOProviderService {
   protected provider: SSOProvider = 'apple';
   protected config: SSOProviderConfig;
 
-  private static APPLE_TEAM_ID = process.env.APPLE_TEAM_ID!;
-  private static APPLE_KEY_ID = process.env.APPLE_KEY_ID!;
-  private static APPLE_PRIVATE_KEY = process.env.APPLE_PRIVATE_KEY!;
+  private static APPLE_TEAM_ID = env.APPLE_TEAM_ID!;
+  private static APPLE_KEY_ID = env.APPLE_KEY_ID!;
+  private static APPLE_PRIVATE_KEY = env.APPLE_PRIVATE_KEY!;
 
   constructor() {
     this.config = SSO_CONFIGS[this.provider];

@@ -1,12 +1,13 @@
+import { env } from '@/libs/env';
 import BaseProvider from "./base.provider";
 import axios, { AxiosInstance } from "axios";
 import qs from "qs";
 import Logger from "@/libs/logger";
 
 export default class NexmoProvider extends BaseProvider {
-  private static readonly NEXMO_API_KEY = process.env.NEXMO_API_KEY!;
-  private static readonly NEXMO_API_SECRET = process.env.NEXMO_API_SECRET!;
-  private static readonly NEXMO_PHONE_NUMBER = process.env.NEXMO_PHONE_NUMBER!;
+  private static readonly NEXMO_API_KEY = env.NEXMO_API_KEY!;
+  private static readonly NEXMO_API_SECRET = env.NEXMO_API_SECRET!;
+  private static readonly NEXMO_PHONE_NUMBER = env.NEXMO_PHONE_NUMBER!;
   private static readonly NEXMO_BASE_URL = "https://rest.nexmo.com/sms/json";
 
   private static readonly axiosInstance: AxiosInstance = axios.create({

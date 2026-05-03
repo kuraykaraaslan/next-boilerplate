@@ -1,3 +1,4 @@
+import { env } from '@/libs/env';
 import axios, { AxiosInstance } from "axios";
 import Logger from "@/libs/logger";
 import BaseMailProvider, { MailOptions, MailResult } from "./base.provider";
@@ -5,7 +6,7 @@ import BaseMailProvider, { MailOptions, MailResult } from "./base.provider";
 export default class SendGridProvider extends BaseMailProvider {
   readonly name = "SendGrid";
 
-  private static readonly SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
+  private static readonly SENDGRID_API_KEY = env.SENDGRID_API_KEY;
   private static readonly SENDGRID_BASE_URL = "https://api.sendgrid.com/v3";
 
   private axiosInstance: AxiosInstance | null = null;

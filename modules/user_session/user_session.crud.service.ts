@@ -1,3 +1,4 @@
+import { env } from '@/libs/env';
 import { systemPrisma } from "@/libs/prisma";
 import redis from "@/libs/redis";
 import { v4 as uuidv4 } from "uuid";
@@ -5,14 +6,14 @@ import { SafeUserSession, SafeUserSessionSchema, type SessionMeta } from "./user
 import { SafeUser } from "../user/user.types";
 import { SafeUserSecurity } from "../user_security/user_security.types";
 import UserSessionMessages from "./user_session.messages";
-import UserSessionTokenService, { type TokenPayload } from "./user.session.token.service";
-import UserSessionCacheService from "./user.session.cache.service";
+import UserSessionTokenService, { type TokenPayload } from "./user_session.token.service";
+import UserSessionCacheService from "./user_session.cache.service";
 import type { SessionStatus } from "./user_session.enums";
 
 const IMPERSONATION_SESSION_TTL_MS = 60 * 60 * 1000; // 1 hour
 
-const SESSION_EXPIRY_MS = parseInt(process.env.SESSION_EXPIRY_MS || `${1000 * 60 * 60 * 24 * 7}`); // 7 days
-const SESSION_CACHE_TTL = parseInt(process.env.SESSION_CACHE_TTL || `${60 * 30}`); // 30 min
+const SESSION_EXPIRY_MS = parseInt(env.SESSION_EXPIRY_MS || `${1000 * 60 * 60 * 24 * 7}`); // 7 days
+const SESSION_CACHE_TTL = parseInt(env.SESSION_CACHE_TTL || `${60 * 30}`); // 30 min
 
 if (isNaN(SESSION_EXPIRY_MS)) {
   throw new Error("Invalid SESSION_EXPIRY_MS value in environment variables");

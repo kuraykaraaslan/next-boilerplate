@@ -1,7 +1,7 @@
 'use client';
 import { ReactNode, Suspense } from 'react';
 import 'react-toastify/dist/ReactToastify.css';
-import Logo from '@/components/common/layout/logo';
+import Logo from '@/modules/ui/layout/logo';
 
 
 

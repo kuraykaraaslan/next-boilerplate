@@ -1,3 +1,4 @@
+import { env } from '@/libs/env';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCode } from '@fortawesome/free-solid-svg-icons'
 import Link from 'next/link'
@@ -7,7 +8,7 @@ interface LogoProps {
   textClassName?: string
   href?: string
 }
-const APPLICATION_LOGO_TEXT = process.env.APPLICATION_LOGO_TEXT || "NextBoilerplate"
+const APPLICATION_LOGO_TEXT = env.APPLICATION_LOGO_TEXT || "NextBoilerplate"
 
 const Logo = ({
   href = "/",

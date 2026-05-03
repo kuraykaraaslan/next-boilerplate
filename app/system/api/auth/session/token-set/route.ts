@@ -1,3 +1,4 @@
+import { env } from '@/libs/env';
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
@@ -8,7 +9,7 @@ export async function POST(request: NextRequest) {
 
         const origin = request.headers.get('origin') || '';
         const protocol = request.headers.get('x-forwarded-proto') || request.headers.get('x-scheme') || 'http';
-        const isDev = process.env.NODE_ENV === 'development';
+        const isDev = env.NODE_ENV === 'development';
         const isSecure = (origin.startsWith('https://') || protocol === 'https') && !isDev;
 
         const cookieOptions = isSecure ? {

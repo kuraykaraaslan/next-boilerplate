@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useCallback } from 'react';
-import Tabs from '@/components/common/tabs';
+import Tabs from '@/modules/ui/tabs';
 import { useSettings } from '@/modules/setting/hooks/useSettings';
 import {
   getSystemSettingsTabs,

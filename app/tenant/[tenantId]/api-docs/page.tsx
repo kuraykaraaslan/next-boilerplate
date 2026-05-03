@@ -1,7 +1,7 @@
 'use client';
 
 import { useParams } from 'next/navigation';
-import { SwaggerDocs } from '@/components/common/swagger';
+import { SwaggerDocs } from '@/modules/ui/swagger';
 
 export default function TenantApiDocsPage() {
   const params = useParams();

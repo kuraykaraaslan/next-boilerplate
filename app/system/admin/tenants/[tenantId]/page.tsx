@@ -4,10 +4,10 @@ import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import axiosInstance from '@/libs/axios';
-import Form from '@/components/common/forms/Form';
-import DynamicText from '@/components/common/forms/DynamicText';
-import DynamicSelect from '@/components/common/forms/DynamicSelect';
-import Tabs from '@/components/common/tabs';
+import Form from '@/modules/ui/forms/Form';
+import DynamicText from '@/modules/ui/forms/DynamicText';
+import DynamicSelect from '@/modules/ui/forms/DynamicSelect';
+import Tabs from '@/modules/ui/tabs';
 import Table, {
     TableProvider,
     TableHeader,
@@ -15,7 +15,7 @@ import Table, {
     TableFooter,
     ColumnDef,
     ActionButton
-} from '@/components/common/forms/DynamicTable';
+} from '@/modules/ui/forms/DynamicTable';
 import { faBuilding, faUsers, faCrown, faUserShield, faUser } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type { SafeTenant } from '@/modules/tenant/tenant.types';

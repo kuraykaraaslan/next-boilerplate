@@ -1,3 +1,4 @@
+import { env } from '@/libs/env';
 import Logger from "@/libs/logger";
 import { Queue, Worker, Job } from "bullmq";
 import { getBullMQConnection } from "@/libs/redis/bullmq";
@@ -25,10 +26,10 @@ export default class SMSService {
   static readonly phoneLibInstance = PhoneNumberUtil.getInstance();
 
   static readonly QUEUE_NAME = "smsQueue";
-  static readonly RATE_LIMIT_SECONDS = parseInt(process.env.SMS_RATE_LIMIT_SECONDS || "60", 10);
+  static readonly RATE_LIMIT_SECONDS = parseInt(env.SMS_RATE_LIMIT_SECONDS || "60", 10);
   static readonly RATE_LIMIT_PREFIX = "sms:rate-limit:";
 
-  static readonly ALLOWED_COUNTRIES = process.env.SMS_ALLOWED_COUNTRIES?.split(",").map(c => c.trim());
+  static readonly ALLOWED_COUNTRIES = env.SMS_ALLOWED_COUNTRIES?.split(",").map(c => c.trim());
 
   // Provider instances
   private static readonly twilioProvider = new TwilioProvider();
@@ -46,7 +47,7 @@ export default class SMSService {
 
   // Default provider from env or fallback to twilio
   private static readonly DEFAULT_PROVIDER_NAME: SMSProviderType =
-    (process.env.SMS_DEFAULT_PROVIDER as SMSProviderType) || "twilio";
+    (env.SMS_DEFAULT_PROVIDER as SMSProviderType) || "twilio";
 
   /**
    * Region code to provider mapping
@@ -56,7 +57,7 @@ export default class SMSService {
 
   private static buildRegionProviderMap(): Map<string, SMSProviderType> {
     const map = new Map<string, SMSProviderType>();
-    const envMap = process.env.SMS_PROVIDER_MAP;
+    const envMap = env.SMS_PROVIDER_MAP;
 
     if (envMap) {
       // Parse from env: "TR:netgsm,US:twilio,GB:twilio,DE:twilio"
@@ -83,7 +84,7 @@ export default class SMSService {
     return ["twilio", "netgsm", "clickatell", "nexmo"].includes(name.toLowerCase());
   }
 
-  static readonly APPLICATION_NAME = process.env.APPLICATION_NAME || "Next Boilerplate";
+  static readonly APPLICATION_NAME = env.APPLICATION_NAME || "Next Boilerplate";
 
   static readonly QUEUE = new Queue<SMSJobData>(SMSService.QUEUE_NAME, {
     connection: getBullMQConnection(),

@@ -1,3 +1,4 @@
+import { env } from '@/libs/env';
 import {
   generateRegistrationOptions,
   verifyRegistrationResponse,
@@ -24,16 +25,16 @@ import {
 import { StoredPasskey } from "./user_security.types";
 import { SafeUser } from "../user/user.types";
 
-const APPLICATION_DOMAIN = (process.env.NEXT_PUBLIC_APPLICATION_HOST ?? "localhost")
+const APPLICATION_DOMAIN = (env.NEXT_PUBLIC_APPLICATION_HOST ?? "localhost")
   .replace(/^https?:\/\//, "")
   .replace(/\/$/, "");
-const isDev = process.env.NODE_ENV === "development";
-const RP_NAME = process.env.NEXT_PUBLIC_APPLICATION_NAME!;
-const RP_ID = process.env.WEBAUTHN_RP_ID || APPLICATION_DOMAIN;
+const isDev = env.NODE_ENV === "development";
+const RP_NAME = env.NEXT_PUBLIC_APPLICATION_NAME!;
+const RP_ID = env.WEBAUTHN_RP_ID || APPLICATION_DOMAIN;
 const ORIGIN =
-  process.env.WEBAUTHN_ORIGIN ??
+  env.WEBAUTHN_ORIGIN ??
   (isDev
-    ? `http://localhost:${process.env.PORT ?? 3000}`
+    ? `http://localhost:${env.PORT ?? 3000}`
     : `https://${APPLICATION_DOMAIN}`);
 
 export default class UserSecurityPasskeyService {

@@ -1,7 +1,7 @@
 'use client';
 
-import DynamicText from '@/components/common/forms/DynamicText';
-import DynamicToggle from '@/components/common/forms/DynamicToggle';
+import DynamicText from '@/modules/ui/forms/DynamicText';
+import DynamicToggle from '@/modules/ui/forms/DynamicToggle';
 import { SettingsTabProps } from '@/modules/setting/setting.types';
 
 export default function SecurityTab({ settings, setSettings, loading, saving }: SettingsTabProps) {

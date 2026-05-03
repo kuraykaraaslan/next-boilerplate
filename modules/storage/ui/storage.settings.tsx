@@ -1,7 +1,7 @@
 'use client';
 
-import DynamicText from '@/components/common/forms/DynamicText';
-import DynamicSelect from '@/components/common/forms/DynamicSelect';
+import DynamicText from '@/modules/ui/forms/DynamicText';
+import DynamicSelect from '@/modules/ui/forms/DynamicSelect';
 import { SettingsTabProps } from '@/modules/setting/setting.types';
 
 export default function StorageTab({ settings, setSettings, loading, saving }: SettingsTabProps) {

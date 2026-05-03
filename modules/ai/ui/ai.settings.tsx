@@ -1,8 +1,8 @@
 'use client';
 
-import DynamicText from '@/components/common/forms/DynamicText';
-import DynamicSelect from '@/components/common/forms/DynamicSelect';
-import DynamicToggle from '@/components/common/forms/DynamicToggle';
+import DynamicText from '@/modules/ui/forms/DynamicText';
+import DynamicSelect from '@/modules/ui/forms/DynamicSelect';
+import DynamicToggle from '@/modules/ui/forms/DynamicToggle';
 import { SettingsTabProps } from '@/modules/setting/setting.types';
 
 export default function AITab({ settings, setSettings, loading, saving }: SettingsTabProps) {
