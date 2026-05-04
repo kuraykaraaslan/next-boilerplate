@@ -7,8 +7,8 @@ import { Card } from '@/modules/ui/Card';
 import { Badge } from '@/modules/ui/Badge';
 import { Spinner } from '@/modules/ui/Spinner';
 import { AlertBanner } from '@/modules/ui/AlertBanner';
-import { UserProfileForm, type UserProfileValues } from '@/modules/domains/common/user/UserProfileForm';
-import { UserPreferencesForm, type UserPreferencesValues } from '@/modules/domains/common/user/UserPreferencesForm';
+import { UserProfileForm, type UserProfileValues } from '@/modules/user/ui/user.profile-form';
+import { UserPreferencesForm, type UserPreferencesValues } from '@/modules/user/ui/user.preferences-form';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faClock, faLayerGroup } from '@fortawesome/free-solid-svg-icons';
 

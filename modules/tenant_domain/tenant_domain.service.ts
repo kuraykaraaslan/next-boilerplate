@@ -1,23 +1,22 @@
+import 'reflect-metadata';
+import { Not, Like } from 'typeorm';
 import { env } from '@/libs/env';
-import { tenantPrisma, tenantPrismaFor } from "@/libs/prisma";
-import redis from "@/libs/redis";
-import { SafeTenantDomain, SafeTenantDomainSchema, DomainVerificationInfo } from "./tenant_domain.types";
-import { CreateTenantDomainInput, UpdateTenantDomainInput, GetTenantDomainsInput, InitiateVerificationInput } from "./tenant_domain.dto";
-import TenantDomainMessages from "./tenant_domain.messages";
-import DNSVerificationService from "./dns_verification.service";
-import TenantSettingService from "@/modules/tenant_setting/tenant_setting.service";
+import { getDefaultTenantDataSource, tenantDataSourceFor } from '@/libs/typeorm';
+import { TenantDomain as TenantDomainEntity } from './entities/tenant_domain.entity';
+import redis from '@/libs/redis';
+import Logger from '@/libs/logger';
+import { SafeTenantDomain, SafeTenantDomainSchema, DomainVerificationInfo } from './tenant_domain.types';
+import { CreateTenantDomainInput, UpdateTenantDomainInput, GetTenantDomainsInput, InitiateVerificationInput } from './tenant_domain.dto';
+import TenantDomainMessages from './tenant_domain.messages';
+import DNSVerificationService from './dns_verification.service';
+import TenantSettingService from '@/modules/tenant_setting/tenant_setting.service';
 
 const DOMAIN_CACHE_TTL = env.TENANT_CACHE_TTL ?? (60 * 5);
 
 export default class TenantDomainService {
 
-  /**
-   * Helper to clear domain related cache
-   */
   private static async clearCache(tenantDomain: SafeTenantDomain | string) {
     if (typeof tenantDomain === 'string') {
-      // Try to get domain by ID to find the domain string if needed, 
-      // but usually we want to clear multiple keys
       await redis.del(`tenant:domain:id:${tenantDomain}`);
       return;
     }
@@ -25,26 +24,24 @@ export default class TenantDomainService {
     await Promise.all([
       redis.del(`tenant:domain:name:${tenantDomain.domain}`),
       redis.del(`tenant:domain:id:${tenantDomain.tenantDomainId}`),
-      redis.del(`tenant:domain:primary:${tenantDomain.tenantId}`)
+      redis.del(`tenant:domain:primary:${tenantDomain.tenantId}`),
     ]);
   }
 
-  static async getByTenantId({ tenantId, page, pageSize }: GetTenantDomainsInput): Promise<{ domains: SafeTenantDomain[], total: number }> {
-    const db = await tenantPrismaFor(tenantId);
+  static async getByTenantId({ tenantId, page, pageSize }: GetTenantDomainsInput): Promise<{ domains: SafeTenantDomain[]; total: number }> {
+    const ds = await tenantDataSourceFor(tenantId);
+    const repo = ds.getRepository(TenantDomainEntity);
     const [domains, total] = await Promise.all([
-      db.tenantDomain.findMany({
+      repo.find({
         where: { tenantId },
         skip: (page - 1) * pageSize,
         take: pageSize,
-        orderBy: [{ isPrimary: 'desc' }, { createdAt: 'desc' }]
+        order: { isPrimary: 'DESC', createdAt: 'DESC' },
       }),
-      db.tenantDomain.count({ where: { tenantId } })
+      repo.count({ where: { tenantId } }),
     ]);
 
-    return {
-      domains: domains.map(domain => SafeTenantDomainSchema.parse(domain)),
-      total
-    };
+    return { domains: domains.map((d) => SafeTenantDomainSchema.parse(d)), total };
   }
 
   static async getById(tenantDomainId: string): Promise<SafeTenantDomain> {
@@ -54,18 +51,14 @@ export default class TenantDomainService {
     if (cached) {
       try {
         return SafeTenantDomainSchema.parse(JSON.parse(cached));
-      } catch (e) {
+      } catch {
         await redis.del(cacheKey);
       }
     }
 
-    const domain = await tenantPrisma.tenantDomain.findUnique({
-      where: { tenantDomainId }
-    });
-
-    if (!domain) {
-      throw new Error(TenantDomainMessages.DOMAIN_NOT_FOUND);
-    }
+    const ds = await getDefaultTenantDataSource();
+    const domain = await ds.getRepository(TenantDomainEntity).findOne({ where: { tenantDomainId } });
+    if (!domain) throw new Error(TenantDomainMessages.DOMAIN_NOT_FOUND);
 
     const parsed = SafeTenantDomainSchema.parse(domain);
     await redis.setex(cacheKey, DOMAIN_CACHE_TTL, JSON.stringify(parsed));
@@ -79,22 +72,21 @@ export default class TenantDomainService {
     if (cached) {
       try {
         return SafeTenantDomainSchema.parse(JSON.parse(cached));
-      } catch (e) {
+      } catch {
         await redis.del(cacheKey);
       }
     }
 
-    const found = await tenantPrisma.tenantDomain.findUnique({
-      where: { domain }
-    });
+    const ds = await getDefaultTenantDataSource();
+    const found = await ds.getRepository(TenantDomainEntity).findOne({ where: { domain } });
 
     if (!found) {
-      console.log(`TenantDomainService.getByDomain: Domain not found: ${domain}`);
+      Logger.debug(`TenantDomainService.getByDomain: Domain not found: ${domain}`);
       return null;
     }
 
-    console.log(`TenantDomainService.getByDomain: Found domain: ${domain} → tenantId: ${found.tenantId}`);
-    
+    Logger.debug(`TenantDomainService.getByDomain: Found domain: ${domain} → tenantId: ${found.tenantId}`);
+
     const parsed = SafeTenantDomainSchema.parse(found);
     await redis.setex(cacheKey, DOMAIN_CACHE_TTL, JSON.stringify(parsed));
     return parsed;
@@ -107,19 +99,14 @@ export default class TenantDomainService {
     if (cached) {
       try {
         return SafeTenantDomainSchema.parse(JSON.parse(cached));
-      } catch (e) {
+      } catch {
         await redis.del(cacheKey);
       }
     }
 
-    const db = await tenantPrismaFor(tenantId);
-    const domain = await db.tenantDomain.findFirst({
-      where: { tenantId, isPrimary: true }
-    });
-
-    if (!domain) {
-      return null;
-    }
+    const ds = await tenantDataSourceFor(tenantId);
+    const domain = await ds.getRepository(TenantDomainEntity).findOne({ where: { tenantId, isPrimary: true } });
+    if (!domain) return null;
 
     const parsed = SafeTenantDomainSchema.parse(domain);
     await redis.setex(cacheKey, DOMAIN_CACHE_TTL, JSON.stringify(parsed));
@@ -127,35 +114,19 @@ export default class TenantDomainService {
   }
 
   static async create(data: CreateTenantDomainInput): Promise<SafeTenantDomain> {
-    const wildcardDomain = env.TENANT_WILDCARD_DOMAIN || "example.com";
+    const wildcardDomain = env.TENANT_WILDCARD_DOMAIN || 'example.com';
     const isSubdomain = data.domain.endsWith(`.${wildcardDomain}`);
-    const db = await tenantPrismaFor(data.tenantId);
+    const ds = await tenantDataSourceFor(data.tenantId);
+    const repo = ds.getRepository(TenantDomainEntity);
 
-    // Check existing domain
-    const existing = await db.tenantDomain.findUnique({
-      where: { domain: data.domain }
-    });
+    const existing = await repo.findOne({ where: { domain: data.domain } });
+    if (existing) throw new Error(TenantDomainMessages.DOMAIN_ALREADY_EXISTS);
 
-    if (existing) {
-      throw new Error(TenantDomainMessages.DOMAIN_ALREADY_EXISTS);
-    }
-
-    // Check limits
     const [domainCount, subdomainCount, maxDomainsSetting, maxSubdomainsSetting] = await Promise.all([
-      db.tenantDomain.count({
-        where: {
-          tenantId: data.tenantId,
-          NOT: { domain: { endsWith: `.${wildcardDomain}` } }
-        }
-      }),
-      db.tenantDomain.count({
-        where: {
-          tenantId: data.tenantId,
-          domain: { endsWith: `.${wildcardDomain}` }
-        }
-      }),
+      repo.count({ where: { tenantId: data.tenantId, domain: Not(Like(`%.${wildcardDomain}`)) } }),
+      repo.count({ where: { tenantId: data.tenantId, domain: Like(`%.${wildcardDomain}`) } }),
       TenantSettingService.getByKey(data.tenantId, 'maxDomains'),
-      TenantSettingService.getByKey(data.tenantId, 'maxSubdomains')
+      TenantSettingService.getByKey(data.tenantId, 'maxSubdomains'),
     ]);
 
     const maxDomains = maxDomainsSetting ? parseInt(maxDomainsSetting.value) : 3;
@@ -172,94 +143,68 @@ export default class TenantDomainService {
     }
 
     if (data.isPrimary) {
-      await db.tenantDomain.updateMany({
-        where: { tenantId: data.tenantId, isPrimary: true },
-        data: { isPrimary: false }
-      });
+      await repo.update({ tenantId: data.tenantId, isPrimary: true }, { isPrimary: false });
     }
 
-    const domain = await db.tenantDomain.create({
-      data: {
-        ...data,
-        domainStatus: 'PENDING'
-      }
-    });
+    const domain = repo.create({ ...data, domainStatus: 'PENDING' });
+    const saved = await repo.save(domain);
 
-    const parsed = SafeTenantDomainSchema.parse(domain);
+    const parsed = SafeTenantDomainSchema.parse(saved);
     await this.clearCache(parsed);
     return parsed;
   }
 
   static async update(tenantDomainId: string, data: UpdateTenantDomainInput): Promise<SafeTenantDomain> {
-    const domain = await tenantPrisma.tenantDomain.findUnique({
-      where: { tenantDomainId }
-    });
+    const defaultDs = await getDefaultTenantDataSource();
+    const domain = await defaultDs.getRepository(TenantDomainEntity).findOne({ where: { tenantDomainId } });
+    if (!domain) throw new Error(TenantDomainMessages.DOMAIN_NOT_FOUND);
 
-    if (!domain) {
-      throw new Error(TenantDomainMessages.DOMAIN_NOT_FOUND);
-    }
-
-    const db = await tenantPrismaFor(domain.tenantId);
+    const ds = await tenantDataSourceFor(domain.tenantId);
+    const repo = ds.getRepository(TenantDomainEntity);
 
     if (data.isPrimary) {
-      await db.tenantDomain.updateMany({
-        where: { tenantId: domain.tenantId, isPrimary: true },
-        data: { isPrimary: false }
-      });
+      await repo.update({ tenantId: domain.tenantId, isPrimary: true }, { isPrimary: false });
     }
 
-    const updated = await db.tenantDomain.update({
-      where: { tenantDomainId },
-      data
-    });
+    await repo.update({ tenantDomainId }, data as any);
+    const updated = await repo.findOne({ where: { tenantDomainId } });
 
-    const parsed = SafeTenantDomainSchema.parse(updated);
-    // Clear cache for both the old and new state (domain name might have changed)
+    const parsed = SafeTenantDomainSchema.parse(updated!);
     await this.clearCache(SafeTenantDomainSchema.parse(domain));
     await this.clearCache(parsed);
-    
     return parsed;
   }
 
   static async getVerificationInfo(tenantDomainId: string): Promise<DomainVerificationInfo> {
-    const domain = await tenantPrisma.tenantDomain.findUnique({
-      where: { tenantDomainId }
-    });
-
-    if (!domain) {
-      throw new Error(TenantDomainMessages.DOMAIN_NOT_FOUND);
-    }
+    const ds = await getDefaultTenantDataSource();
+    const domain = await ds.getRepository(TenantDomainEntity).findOne({ where: { tenantDomainId } });
+    if (!domain) throw new Error(TenantDomainMessages.DOMAIN_NOT_FOUND);
 
     const verificationData = await DNSVerificationService.getStoredData(tenantDomainId);
-    
+
     if (!verificationData) {
-      // If no stored data exists, we initiate a default TXT verification
       return this.initiateVerification({ tenantDomainId, method: 'TXT' });
     }
 
     const { token, method } = verificationData;
-    
+
     return {
       domain: domain.domain,
-      method: method,
-      recordName: method === 'TXT' 
+      method,
+      recordName: method === 'TXT'
         ? DNSVerificationService.getTxtRecordName(domain.domain)
         : DNSVerificationService.getCnameRecordName(domain.domain, token),
       recordValue: method === 'TXT'
         ? DNSVerificationService.getTxtRecordValue(token)
         : DNSVerificationService.getCnameRecordTarget(),
-      domainStatus: domain.domainStatus
+      domainStatus: domain.domainStatus,
     };
   }
 
   static async initiateVerification({ tenantDomainId, method }: InitiateVerificationInput): Promise<DomainVerificationInfo> {
-    const domain = await tenantPrisma.tenantDomain.findUnique({
-      where: { tenantDomainId }
-    });
-
-    if (!domain) {
-      throw new Error(TenantDomainMessages.DOMAIN_NOT_FOUND);
-    }
+    const ds = await getDefaultTenantDataSource();
+    const domain = await ds.getRepository(TenantDomainEntity).findOne({ where: { tenantDomainId } });
+    if (!domain) throw new Error(TenantDomainMessages.DOMAIN_NOT_FOUND);
 
     if (domain.domainStatus === 'VERIFIED') {
       throw new Error(TenantDomainMessages.DOMAIN_ALREADY_VERIFIED);
@@ -271,11 +216,11 @@ export default class TenantDomainService {
       method
     );
 
-    const db = await tenantPrismaFor(domain.tenantId);
-    await db.tenantDomain.update({
-      where: { tenantDomainId },
-      data: { verificationToken: verification.token }
-    });
+    const tenantDs = await tenantDataSourceFor(domain.tenantId);
+    await tenantDs.getRepository(TenantDomainEntity).update(
+      { tenantDomainId },
+      { verificationToken: verification.token }
+    );
 
     await this.clearCache(SafeTenantDomainSchema.parse(domain));
 
@@ -284,63 +229,44 @@ export default class TenantDomainService {
       method: verification.method,
       recordName: verification.recordName,
       recordValue: verification.recordValue,
-      domainStatus: domain.domainStatus
+      domainStatus: domain.domainStatus,
     };
   }
 
   static async verifyDomain(tenantDomainId: string): Promise<SafeTenantDomain> {
-    const domain = await tenantPrisma.tenantDomain.findUnique({
-      where: { tenantDomainId }
-    });
-
-    if (!domain) {
-      throw new Error(TenantDomainMessages.DOMAIN_NOT_FOUND);
-    }
+    const ds = await getDefaultTenantDataSource();
+    const domain = await ds.getRepository(TenantDomainEntity).findOne({ where: { tenantDomainId } });
+    if (!domain) throw new Error(TenantDomainMessages.DOMAIN_NOT_FOUND);
 
     if (domain.domainStatus === 'VERIFIED') {
       throw new Error(TenantDomainMessages.DOMAIN_ALREADY_VERIFIED);
     }
 
-    const isVerified = await DNSVerificationService.checkVerification(
-      tenantDomainId,
-      domain.domain
+    const isVerified = await DNSVerificationService.checkVerification(tenantDomainId, domain.domain);
+    if (!isVerified) throw new Error(TenantDomainMessages.DNS_VERIFICATION_FAILED);
+
+    const tenantDs = await tenantDataSourceFor(domain.tenantId);
+    await tenantDs.getRepository(TenantDomainEntity).update(
+      { tenantDomainId },
+      { domainStatus: 'VERIFIED', verifiedAt: new Date(), verificationToken: undefined }
     );
+    const updated = await tenantDs.getRepository(TenantDomainEntity).findOne({ where: { tenantDomainId } });
 
-    if (!isVerified) {
-      throw new Error(TenantDomainMessages.DNS_VERIFICATION_FAILED);
-    }
-
-    const db = await tenantPrismaFor(domain.tenantId);
-    const updated = await db.tenantDomain.update({
-      where: { tenantDomainId },
-      data: {
-        domainStatus: 'VERIFIED',
-        verifiedAt: new Date(),
-        verificationToken: null
-      }
-    });
-
-    const parsed = SafeTenantDomainSchema.parse(updated);
+    const parsed = SafeTenantDomainSchema.parse(updated!);
     await this.clearCache(parsed);
     return parsed;
   }
 
   static async delete(tenantDomainId: string): Promise<void> {
-    const domain = await tenantPrisma.tenantDomain.findUnique({
-      where: { tenantDomainId }
-    });
+    const ds = await getDefaultTenantDataSource();
+    const domain = await ds.getRepository(TenantDomainEntity).findOne({ where: { tenantDomainId } });
+    if (!domain) throw new Error(TenantDomainMessages.DOMAIN_NOT_FOUND);
 
-    if (!domain) {
-      throw new Error(TenantDomainMessages.DOMAIN_NOT_FOUND);
-    }
+    if (domain.isPrimary) throw new Error(TenantDomainMessages.CANNOT_DELETE_PRIMARY);
 
-    if (domain.isPrimary) {
-      throw new Error(TenantDomainMessages.CANNOT_DELETE_PRIMARY);
-    }
-
-    const db = await tenantPrismaFor(domain.tenantId);
+    const tenantDs = await tenantDataSourceFor(domain.tenantId);
     await DNSVerificationService.deleteStoredToken(tenantDomainId);
-    await db.tenantDomain.delete({ where: { tenantDomainId } });
+    await tenantDs.getRepository(TenantDomainEntity).delete({ tenantDomainId });
     await this.clearCache(SafeTenantDomainSchema.parse(domain));
   }
 }

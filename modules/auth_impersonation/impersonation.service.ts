@@ -1,21 +1,22 @@
-import { systemPrisma, tenantPrismaFor } from "@/libs/prisma";
-import { SafeUser } from "@/modules/user/user.types";
-import { SafeUserSession, SafeUserSessionSchema } from "@/modules/user_session/user_session.types";
-import UserSessionService from "@/modules/user_session/user_session.service";
-import { SafeTenantMember } from "@/modules/tenant_member/tenant_member.types";
-import type { TenantMemberRole } from "@/modules/tenant_member/tenant_member.enums";
-import AuditLogService from "@/modules/audit_log/audit_log.service";
-import { AuditActions } from "@/modules/audit_log/audit_log.enums";
-import ImpersonationMessages from "./impersonation.messages";
+import 'reflect-metadata';
+import { IsNull } from 'typeorm';
+import { getSystemDataSource, tenantDataSourceFor } from '@/libs/typeorm';
+import { User as UserEntity } from '../user/entities/user.entity';
+import { UserSession as UserSessionEntity } from '../user_session/entities/user_session.entity';
+import { TenantMember as TenantMemberEntity } from '../tenant_member/entities/tenant_member.entity';
+import { SafeUser } from '@/modules/user/user.types';
+import { SafeUserSession, SafeUserSessionSchema } from '@/modules/user_session/user_session.types';
+import UserSessionService from '@/modules/user_session/user_session.service';
+import { SafeTenantMember } from '@/modules/tenant_member/tenant_member.types';
+import type { TenantMemberRole } from '@/modules/tenant_member/tenant_member.enums';
+import AuditLogService from '@/modules/audit_log/audit_log.service';
+import { AuditActions } from '@/modules/audit_log/audit_log.enums';
+import ImpersonationMessages from './impersonation.messages';
 
 const GLOBAL_ROLE_ORDER: Record<string, number> = { USER: 0, ADMIN: 1 };
 
 export default class ImpersonationService {
 
-  /**
-   * Flow 1: System ADMIN impersonates any user in a specific tenant.
-   * targetTenantRole defaults to the target's actual membership role (or 'USER').
-   */
   static async startSystemImpersonation({
     impersonatorUser,
     impersonatorSession,
@@ -39,19 +40,19 @@ export default class ImpersonationService {
   }> {
     this.assertNotSelf(impersonatorUser.userId, targetUserId);
 
-    const targetUser = await systemPrisma.user.findUnique({ where: { userId: targetUserId } });
+    const sysDs = await getSystemDataSource();
+    const targetUser = await sysDs.getRepository(UserEntity).findOne({ where: { userId: targetUserId } });
     if (!targetUser) throw new Error(ImpersonationMessages.TARGET_USER_NOT_FOUND);
 
     this.assertGlobalRoleDominance(impersonatorUser.userRole, targetUser.userRole);
 
-    // Resolve role to assume in the tenant
     let resolvedRole = targetTenantRole;
     if (!resolvedRole) {
-      const db = await tenantPrismaFor(tenantId);
-      const membership = await db.tenantMember.findFirst({
-        where: { tenantId, userId: targetUserId, deletedAt: null },
+      const ds = await tenantDataSourceFor(tenantId);
+      const membership = await ds.getRepository(TenantMemberEntity).findOne({
+        where: { tenantId, userId: targetUserId, deletedAt: IsNull() },
       });
-      resolvedRole = (membership?.memberRole as TenantMemberRole | undefined) ?? "USER";
+      resolvedRole = (membership?.memberRole as TenantMemberRole | undefined) ?? 'USER';
     }
 
     const result = await UserSessionService.createImpersonationSession({
@@ -76,21 +77,17 @@ export default class ImpersonationService {
     });
 
     AuditLogService.log({
-      actorType: "USER",
+      actorType: 'USER',
       actorId: impersonatorUser.userId,
       action: AuditActions.IMPERSONATION_STARTED,
-      resourceType: "user",
+      resourceType: 'user',
       resourceId: targetUserId,
-      metadata: { tenantId, targetTenantRole: resolvedRole, flow: "system", ipAddress, userAgent },
+      metadata: { tenantId, targetTenantRole: resolvedRole, flow: 'system', ipAddress, userAgent },
     });
 
     return result;
   }
 
-  /**
-   * Flow 2: Tenant OWNER or ADMIN impersonates a tenant USER.
-   * Target must have memberRole === 'USER'.
-   */
   static async startTenantImpersonation({
     impersonatorUser,
     impersonatorMember,
@@ -114,16 +111,17 @@ export default class ImpersonationService {
   }> {
     this.assertNotSelf(impersonatorUser.userId, targetUserId);
 
-    const targetUser = await systemPrisma.user.findUnique({ where: { userId: targetUserId } });
+    const sysDs = await getSystemDataSource();
+    const targetUser = await sysDs.getRepository(UserEntity).findOne({ where: { userId: targetUserId } });
     if (!targetUser) throw new Error(ImpersonationMessages.TARGET_USER_NOT_FOUND);
 
-    const db = await tenantPrismaFor(tenantId);
-    const targetMembership = await db.tenantMember.findFirst({
-      where: { tenantId, userId: targetUserId, deletedAt: null },
+    const ds = await tenantDataSourceFor(tenantId);
+    const targetMembership = await ds.getRepository(TenantMemberEntity).findOne({
+      where: { tenantId, userId: targetUserId, deletedAt: IsNull() },
     });
     if (!targetMembership) throw new Error(ImpersonationMessages.TARGET_NOT_MEMBER_OF_TENANT);
 
-    if (targetMembership.memberRole !== "USER") {
+    if (targetMembership.memberRole !== 'USER') {
       throw new Error(ImpersonationMessages.TARGET_MUST_BE_TENANT_USER);
     }
 
@@ -142,27 +140,24 @@ export default class ImpersonationService {
         impersonatorUserId: impersonatorUser.userId,
         impersonatorSessionId: impersonatorSession.userSessionId,
         tenantId,
-        targetTenantRole: "USER",
+        targetTenantRole: 'USER',
       },
       userAgent,
       ipAddress,
     });
 
     AuditLogService.log({
-      actorType: "USER",
+      actorType: 'USER',
       actorId: impersonatorUser.userId,
       action: AuditActions.IMPERSONATION_STARTED,
-      resourceType: "user",
+      resourceType: 'user',
       resourceId: targetUserId,
-      metadata: { tenantId, targetTenantRole: "USER", flow: "tenant", ipAddress, userAgent },
+      metadata: { tenantId, targetTenantRole: 'USER', flow: 'tenant', ipAddress, userAgent },
     });
 
     return result;
   }
 
-  /**
-   * End an active impersonation session.
-   */
   static async endImpersonationSession(
     userSessionId: string,
     context?: { actorId?: string; targetUserId?: string; tenantId?: string }
@@ -171,22 +166,20 @@ export default class ImpersonationService {
 
     if (context?.actorId) {
       AuditLogService.log({
-        actorType: "USER",
+        actorType: 'USER',
         actorId: context.actorId,
         action: AuditActions.IMPERSONATION_ENDED,
-        resourceType: "user",
+        resourceType: 'user',
         resourceId: context.targetUserId,
         metadata: { tenantId: context.tenantId },
       });
     }
   }
 
-  /**
-   * Get an active impersonation session by raw access token. Returns null if not found or not impersonation.
-   */
   static async getActiveImpersonationSession(rawAccessToken: string): Promise<SafeUserSession | null> {
     const hashedToken = UserSessionService.hashToken(rawAccessToken);
-    const session = await systemPrisma.userSession.findFirst({
+    const ds = await getSystemDataSource();
+    const session = await ds.getRepository(UserSessionEntity).findOne({
       where: { accessToken: hashedToken },
     });
 
@@ -196,8 +189,6 @@ export default class ImpersonationService {
 
     return SafeUserSessionSchema.parse(session);
   }
-
-  // ── Security guards ────────────────────────────────────────────────────
 
   private static assertNotSelf(impersonatorUserId: string, targetUserId: string): void {
     if (impersonatorUserId === targetUserId) {

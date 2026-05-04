@@ -1,34 +1,35 @@
-import { env } from '@/libs/env';
+import 'reflect-metadata';
 import 'dotenv/config';
-import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient, UserRole } from '../prisma/system/client';
-import brcypt from 'bcrypt';
+import { env } from '@/libs/env';
+import { DataSource } from 'typeorm';
+import bcrypt from 'bcrypt';
+import { User } from '../modules/user/entities/user.entity';
 
-const connectionString = `${env.SYSTEM_DATABASE_URL}`;
-const adapter = new PrismaPg({ connectionString });
-const prisma = new PrismaClient({ adapter });
+const ds = new DataSource({
+  type: 'postgres',
+  url: env.SYSTEM_DATABASE_URL,
+  synchronize: false,
+  entities: [User],
+});
 
 async function main() {
-    const adminEmail = 'admin@kuray.dev';
-    const adminPassword = 'demo123456';
+  await ds.initialize();
+  const repo = ds.getRepository(User);
 
+  const adminEmail = 'admin@kuray.dev';
+  const adminPassword = 'demo123456';
+  const hashed = await bcrypt.hash(adminPassword, 10);
 
-    // Create admin user
-    const adminUser = await prisma.user.upsert({
-        where: { email: adminEmail },
-        update: {
-            userRole: UserRole.ADMIN,
-            password: await brcypt.hash(adminPassword, 10),
-        },
-        create: {
-            email: adminEmail,
-            password: await brcypt.hash(adminPassword, 10),
-            userRole: 'ADMIN',
-        },
-    });
-    console.log('Created admin user:', adminUser.email);
+  const existing = await repo.findOne({ where: { email: adminEmail } });
+  if (existing) {
+    await repo.update({ email: adminEmail }, { userRole: 'ADMIN', password: hashed } as any);
+    console.log('Updated admin user:', adminEmail);
+  } else {
+    await repo.save(repo.create({ email: adminEmail, password: hashed, userRole: 'ADMIN' }));
+    console.log('Created admin user:', adminEmail);
+  }
 }
 
 main()
-    .catch(e => console.error(e))
-    .finally(() => prisma.$disconnect());
+  .catch((e) => console.error(e))
+  .finally(() => ds.destroy());

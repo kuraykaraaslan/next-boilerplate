@@ -1,7 +1,7 @@
 'use client';
 import api from '@/libs/axios';
 import { BrandLogo } from '@/modules/ui/BrandLogo';
-import { ForgotPasswordForm } from '@/modules/domains/common/auth/ForgotPasswordForm';
+import { ForgotPasswordForm } from '@/modules/auth/ui/auth.forgot-password';
 
 export default function SystemForgotPasswordPage() {
   async function handleSubmit(email: string) {

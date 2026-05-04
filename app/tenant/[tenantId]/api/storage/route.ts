@@ -1,3 +1,4 @@
+import Logger from '@/libs/logger';
 import { NextRequest, NextResponse } from 'next/server';
 import StorageService from '@/modules/storage/storage.service';
 import UserSessionNextService from '@/modules/user_session/user_session.service.next';
@@ -44,7 +45,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       provider: result.provider,
     });
   } catch (error: any) {
-    console.error(error.message);
+    Logger.error(error.message);
     return NextResponse.json(
       { message: error.message || 'Failed to upload file' },
       { status: 500 }

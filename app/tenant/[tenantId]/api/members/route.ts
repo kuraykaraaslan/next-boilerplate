@@ -1,3 +1,4 @@
+import Logger from '@/libs/logger';
 // path: app/tenant/[tenantId]/api/members/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import TenantMemberService from "@/modules/tenant_member/tenant_member.service";
@@ -51,7 +52,7 @@ export async function GET(
       pageSize
     }, { status: 200 });
   } catch (error: any) {
-    console.error('[MEMBERS API] Error:', error.message, error.stack);
+    Logger.error('[MEMBERS API] Error:', error.message, error.stack);
     return NextResponse.json(
       { message: error.message },
       { status: error.message.includes('not a member') ? 403 : 500 }

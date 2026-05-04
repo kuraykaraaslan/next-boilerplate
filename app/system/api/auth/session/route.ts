@@ -1,3 +1,4 @@
+import Logger from '@/libs/logger';
 // path: app/api/auth/me/route.ts
 import { NextResponse } from "next/server";
 import UserSessionNextService from "@/modules/user_session/user_session.service.next";
@@ -17,7 +18,7 @@ export async function GET(request: NextRequest) {
         }, { status: 200 });
 
     } catch (error: any) {
-        console.error("[SESSION GET ERROR]", error);
+        Logger.error("[SESSION GET ERROR]", error);
         return NextResponse.json(
             { message: error.message },
             { status: 500 }

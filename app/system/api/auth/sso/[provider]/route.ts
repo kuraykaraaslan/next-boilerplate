@@ -1,3 +1,4 @@
+import Logger from '@/libs/logger';
 // Original path: app/api/auth/callback/route.ts
 import { NextResponse } from "next/server";
 import SSOService from "@/modules/auth_sso/auth_sso.service";
@@ -16,7 +17,7 @@ export async function GET(
   const parsedData = GenerateAuthUrlDTO.safeParse({ provider });
   
   if (!parsedData.success) {
-    console.error("Invalid provider parameter:", parsedData.error);
+    Logger.error("Invalid provider parameter:", parsedData.error);
     return NextResponse.json({
       message: parsedData.error.issues.map((err: any) => err.message).join(", ")
     }, { status: 400 });
@@ -38,7 +39,7 @@ export async function GET(
 
   } catch (error: any) {
 
-    console.error(`Error generating SSO link for ${provider}:`, error);
+    Logger.error(`Error generating SSO link for ${provider}:`, error);
     
     return NextResponse.json(
       { message: AuthMessages.SSO_GENERATION_FAILED },

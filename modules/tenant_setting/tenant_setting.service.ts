@@ -1,15 +1,16 @@
-import { tenantPrismaFor } from '@/libs/prisma';
+import 'reflect-metadata';
+import { In } from 'typeorm';
+import { tenantDataSourceFor } from '@/libs/typeorm';
+import { TenantSetting as TenantSettingEntity } from './entities/tenant_setting.entity';
 import redis from '@/libs/redis';
 import SettingService from '@/modules/setting/setting.service';
 import { SettingSchema } from '@/modules/setting/setting.types';
 import type { Setting } from '@/modules/setting/setting.types';
 
-type TenantSettingRow = { tenantId: string; key: string; value: string; group: string; type: string; createdAt: Date; updatedAt: Date };
-
 export default class TenantSettingService {
 
   private static REDIS_KEY_PREFIX = 'tenant_settings:';
-  private static REDIS_TTL = 600; // 10 minutes
+  private static REDIS_TTL = 600;
 
   private static getCacheKey(tenantId: string, key?: string): string {
     if (key) return `${this.REDIS_KEY_PREFIX}${tenantId}:${key}`;
@@ -32,10 +33,6 @@ export default class TenantSettingService {
     await this.deleteCache(this.getCacheKey(tenantId));
   }
 
-  // ============================================================================
-  // Read Operations
-  // ============================================================================
-
   static async getAll(tenantId: string): Promise<Setting[]> {
     const cacheKey = this.getCacheKey(tenantId);
     const cached = await this.getFromCache(cacheKey);
@@ -43,9 +40,9 @@ export default class TenantSettingService {
       try { return JSON.parse(cached); } catch { await this.deleteCache(cacheKey); }
     }
 
-    const db = await tenantPrismaFor(tenantId);
-    const settings = await db.tenantSetting.findMany({ where: { tenantId } });
-    const parsed = settings.map((s: TenantSettingRow) => SettingSchema.parse(s));
+    const ds = await tenantDataSourceFor(tenantId);
+    const settings = await ds.getRepository(TenantSettingEntity).find({ where: { tenantId } });
+    const parsed = settings.map((s) => SettingSchema.parse(s));
     await this.setCache(cacheKey, JSON.stringify(parsed));
     return parsed;
   }
@@ -57,10 +54,8 @@ export default class TenantSettingService {
       try { return JSON.parse(cached); } catch { await this.deleteCache(cacheKey); }
     }
 
-    const db = await tenantPrismaFor(tenantId);
-    const setting = await db.tenantSetting.findUnique({
-      where: { tenantId_key: { tenantId, key } }
-    });
+    const ds = await tenantDataSourceFor(tenantId);
+    const setting = await ds.getRepository(TenantSettingEntity).findOne({ where: { tenantId, key } });
     if (!setting) return null;
 
     const parsed = SettingSchema.parse(setting);
@@ -86,9 +81,9 @@ export default class TenantSettingService {
     }
 
     if (missingKeys.length > 0) {
-      const db = await tenantPrismaFor(tenantId);
-      const settings = await db.tenantSetting.findMany({
-        where: { tenantId, key: { in: missingKeys } }
+      const ds = await tenantDataSourceFor(tenantId);
+      const settings = await ds.getRepository(TenantSettingEntity).find({
+        where: { tenantId, key: In(missingKeys) },
       });
       for (const s of settings) {
         result[s.key] = s.value;
@@ -104,44 +99,46 @@ export default class TenantSettingService {
     return setting?.value ?? null;
   }
 
-  /** Try tenant setting first, fall back to system setting */
   static async getValueWithFallback(tenantId: string, key: string): Promise<string | null> {
     const tenantValue = await this.getValue(tenantId, key);
     if (tenantValue !== null) return tenantValue;
     return SettingService.getValue(key);
   }
 
-  // ============================================================================
-  // Write Operations
-  // ============================================================================
-
   static async create(tenantId: string, key: string, value: string, group?: string, type?: string): Promise<Setting> {
-    const db = await tenantPrismaFor(tenantId);
-    const setting = await db.tenantSetting.upsert({
-      where: { tenantId_key: { tenantId, key } },
-      update: { value, ...(group && { group }), ...(type && { type }) },
-      create: { tenantId, key, value, group: group ?? 'general', type: type ?? 'string' }
-    });
+    const ds = await tenantDataSourceFor(tenantId);
+    const repo = ds.getRepository(TenantSettingEntity);
+    const existing = await repo.findOne({ where: { tenantId, key } });
 
-    const parsed = SettingSchema.parse(setting);
+    let saved: TenantSettingEntity;
+    if (existing) {
+      await repo.update({ tenantId, key }, {
+        value,
+        ...(group && { group }),
+        ...(type && { type }),
+      });
+      saved = (await repo.findOne({ where: { tenantId, key } }))!;
+    } else {
+      const entity = repo.create({ tenantId, key, value, group: group ?? 'general', type: type ?? 'string' });
+      saved = await repo.save(entity);
+    }
+
+    const parsed = SettingSchema.parse(saved);
     await this.setCache(this.getCacheKey(tenantId, key), JSON.stringify(parsed));
     await this.invalidateAllCache(tenantId);
     return parsed;
   }
 
   static async update(tenantId: string, key: string, value: string): Promise<Setting> {
-    const db = await tenantPrismaFor(tenantId);
-    const existing = await db.tenantSetting.findUnique({
-      where: { tenantId_key: { tenantId, key } }
-    });
+    const ds = await tenantDataSourceFor(tenantId);
+    const repo = ds.getRepository(TenantSettingEntity);
+    const existing = await repo.findOne({ where: { tenantId, key } });
     if (!existing) throw new Error('Setting not found');
 
-    const updated = await db.tenantSetting.update({
-      where: { tenantId_key: { tenantId, key } },
-      data: { value }
-    });
+    await repo.update({ tenantId, key }, { value });
+    const updated = await repo.findOne({ where: { tenantId, key } });
 
-    const parsed = SettingSchema.parse(updated);
+    const parsed = SettingSchema.parse(updated!);
     await this.setCache(this.getCacheKey(tenantId, key), JSON.stringify(parsed));
     await this.invalidateAllCache(tenantId);
     return parsed;
@@ -149,15 +146,20 @@ export default class TenantSettingService {
 
   static async updateMany(tenantId: string, settings: Record<string, string>): Promise<Setting[]> {
     const updated: Setting[] = [];
-    const db = await tenantPrismaFor(tenantId);
+    const ds = await tenantDataSourceFor(tenantId);
+    const repo = ds.getRepository(TenantSettingEntity);
 
     for (const key in settings) {
-      const upserted = await db.tenantSetting.upsert({
-        where: { tenantId_key: { tenantId, key } },
-        update: { value: settings[key] },
-        create: { tenantId, key, value: settings[key], group: 'general', type: 'string' }
-      });
-      const parsed = SettingSchema.parse(upserted);
+      const existing = await repo.findOne({ where: { tenantId, key } });
+      let saved: TenantSettingEntity;
+      if (existing) {
+        await repo.update({ tenantId, key }, { value: settings[key] });
+        saved = (await repo.findOne({ where: { tenantId, key } }))!;
+      } else {
+        const entity = repo.create({ tenantId, key, value: settings[key], group: 'general', type: 'string' });
+        saved = await repo.save(entity);
+      }
+      const parsed = SettingSchema.parse(saved);
       updated.push(parsed);
       await this.setCache(this.getCacheKey(tenantId, key), JSON.stringify(parsed));
     }
@@ -167,23 +169,18 @@ export default class TenantSettingService {
   }
 
   static async delete(tenantId: string, key: string): Promise<Setting | null> {
-    const db = await tenantPrismaFor(tenantId);
-    const existing = await db.tenantSetting.findUnique({
-      where: { tenantId_key: { tenantId, key } }
-    });
+    const ds = await tenantDataSourceFor(tenantId);
+    const repo = ds.getRepository(TenantSettingEntity);
+    const existing = await repo.findOne({ where: { tenantId, key } });
     if (!existing) return null;
 
     const parsed = SettingSchema.parse(existing);
-    await db.tenantSetting.delete({ where: { tenantId_key: { tenantId, key } } });
+    await repo.delete({ tenantId, key });
 
     await this.deleteCache(this.getCacheKey(tenantId, key));
     await this.invalidateAllCache(tenantId);
     return parsed;
   }
-
-  // ============================================================================
-  // Utility Methods
-  // ============================================================================
 
   static async getAllAsRecord(tenantId: string): Promise<Record<string, string>> {
     const settings = await this.getAll(tenantId);
@@ -191,16 +188,16 @@ export default class TenantSettingService {
   }
 
   static async getByGroup(tenantId: string, group: string): Promise<Setting[]> {
-    const db = await tenantPrismaFor(tenantId);
-    const settings = await db.tenantSetting.findMany({ where: { tenantId, group } });
-    return settings.map((s: TenantSettingRow) => SettingSchema.parse(s));
+    const ds = await tenantDataSourceFor(tenantId);
+    const settings = await ds.getRepository(TenantSettingEntity).find({ where: { tenantId, group } });
+    return settings.map((s) => SettingSchema.parse(s));
   }
 
   static async clearCache(tenantId: string): Promise<void> {
-    const db = await tenantPrismaFor(tenantId);
-    const settings = await db.tenantSetting.findMany({
+    const ds = await tenantDataSourceFor(tenantId);
+    const settings = await ds.getRepository(TenantSettingEntity).find({
       where: { tenantId },
-      select: { key: true }
+      select: ['key'],
     });
     for (const s of settings) {
       await this.deleteCache(this.getCacheKey(tenantId, s.key));

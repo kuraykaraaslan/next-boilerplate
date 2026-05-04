@@ -1,3 +1,4 @@
+import Logger from '@/libs/logger';
 import { NextResponse } from "next/server";
 import UserSessionNextService from "@/modules/user_session/user_session.service.next";
 import AuthMessages from "@/modules/auth/auth.messages";
@@ -18,7 +19,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (err: any) {
-    console.error("Get Security Error:", err);
+    Logger.error("Get Security Error:", err);
     
     return NextResponse.json({
       message: err.message || AuthMessages.SECURITY_SETTINGS_RETRIEVED

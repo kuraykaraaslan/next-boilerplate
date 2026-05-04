@@ -8,9 +8,9 @@ import { Spinner } from '@/modules/ui/Spinner';
 import { AlertBanner } from '@/modules/ui/AlertBanner';
 import { Badge } from '@/modules/ui/Badge';
 import { Button } from '@/modules/ui/Button';
-import { UserProfileForm, type UserProfileValues } from '@/modules/domains/common/user/UserProfileForm';
-import { UserPreferencesForm, type UserPreferencesValues } from '@/modules/domains/common/user/UserPreferencesForm';
-import { UserRoleBadge } from '@/modules/domains/common/user/UserRoleBadge';
+import { UserProfileForm, type UserProfileValues } from '@/modules/user/ui/user.profile-form';
+import { UserPreferencesForm, type UserPreferencesValues } from '@/modules/user/ui/user.preferences-form';
+import { UserRoleBadge } from '@/modules/user/ui/user.role-badge';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faEnvelope, faShieldHalved, faClock, faCircleCheck, faCircleXmark,

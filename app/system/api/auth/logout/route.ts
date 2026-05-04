@@ -1,3 +1,4 @@
+import Logger from '@/libs/logger';
 // Original path: app/api/auth/logout/route.ts
 
  
@@ -45,7 +46,7 @@ export async function POST(request: NextRequest) {
 
     }
     catch (error: any) {
-        console.error(error);
+        Logger.error(error);
         return NextResponse.json({ 
             
             message: error.message || AuthMessages.LOGOUT_FAILED 

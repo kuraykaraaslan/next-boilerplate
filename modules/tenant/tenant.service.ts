@@ -1,122 +1,87 @@
-import { tenantPrisma, tenantPrismaFor } from "@/libs/prisma";
-import type { Prisma } from "@/prisma/tenant/client";
-import { SafeTenant, SafeTenantSchema } from "./tenant.types";
-import { CreateTenantInput, UpdateTenantInput, GetTenantsInput } from "./tenant.dto";
-import TenantMessages from "./tenant.messages";
-import TenantMemberService from "../tenant_member/tenant_member.service";
+import 'reflect-metadata';
+import { IsNull, ILike } from 'typeorm';
+import { tenantDataSourceFor, getDefaultTenantDataSource } from '@/libs/typeorm';
+import { Tenant as TenantEntity } from './entities/tenant.entity';
+import { SafeTenant, SafeTenantSchema } from './tenant.types';
+import { CreateTenantInput, UpdateTenantInput, GetTenantsInput } from './tenant.dto';
+import TenantMessages from './tenant.messages';
+import TenantMemberService from '../tenant_member/tenant_member.service';
+import Logger from '@/libs/logger';
 
 export default class TenantService {
 
-  static async getAll({ page, pageSize, search, tenantId }: GetTenantsInput): Promise<{ tenants: SafeTenant[], total: number }> {
-    const where: Prisma.TenantWhereInput = {
-      deletedAt: null
-    };
+  static async getAll({ page, pageSize, search, tenantId }: GetTenantsInput): Promise<{ tenants: SafeTenant[]; total: number }> {
+    const ds = await getDefaultTenantDataSource();
+    const repo = ds.getRepository(TenantEntity);
 
-    if (tenantId) {
-      where.tenantId = tenantId;
-    }
+    const baseWhere: Record<string, unknown> = { deletedAt: IsNull() };
+    if (tenantId) baseWhere.tenantId = tenantId;
 
+    let whereConditions: Record<string, unknown>[];
     if (search) {
-      where.name = { contains: search, mode: 'insensitive' };
+      whereConditions = [{ ...baseWhere, name: ILike(`%${search}%`) }];
+    } else {
+      whereConditions = [baseWhere];
     }
 
-    console.log('Querying tenants with where clause:', where);
+    Logger.info(`[TenantService] Querying tenants`);
 
     const [tenants, total] = await Promise.all([
-      tenantPrisma.tenant.findMany({
-        where,
-        skip: (page) * pageSize,
-        take: pageSize,
-        orderBy: { createdAt: 'desc' }
-      }),
-      tenantPrisma.tenant.count({ where })
+      repo.find({ where: whereConditions as any, skip: page * pageSize, take: pageSize, order: { createdAt: 'DESC' } }),
+      repo.count({ where: whereConditions as any }),
     ]);
 
-    return {
-      tenants: tenants.map(tenant => SafeTenantSchema.parse(tenant)),
-      total
-    };
+    return { tenants: tenants.map((t) => SafeTenantSchema.parse(t)), total };
   }
 
   static async getById(tenantId: string): Promise<SafeTenant> {
-    const db = await tenantPrismaFor(tenantId);
-    const tenant = await db.tenant.findFirst({
-      where: { tenantId, deletedAt: null }
-    });
-
-    if (!tenant) {
-      throw new Error(TenantMessages.TENANT_NOT_FOUND);
-    }
-
+    const ds = await tenantDataSourceFor(tenantId);
+    const tenant = await ds.getRepository(TenantEntity).findOne({ where: { tenantId, deletedAt: IsNull() } });
+    if (!tenant) throw new Error(TenantMessages.TENANT_NOT_FOUND);
     return SafeTenantSchema.parse(tenant);
   }
 
   static async create(data: CreateTenantInput): Promise<SafeTenant> {
-    const tenant = await tenantPrisma.tenant.create({
-      data: {
-        ...data,
-        tenantStatus: 'ACTIVE'
-      }
-    });
-
-    return SafeTenantSchema.parse(tenant);
+    const ds = await getDefaultTenantDataSource();
+    const repo = ds.getRepository(TenantEntity);
+    const tenant = repo.create({ ...data, tenantStatus: 'ACTIVE' });
+    const saved = await repo.save(tenant);
+    return SafeTenantSchema.parse(saved);
   }
 
   static async update(tenantId: string, data: UpdateTenantInput): Promise<SafeTenant> {
-    const db = await tenantPrismaFor(tenantId);
-    const tenant = await db.tenant.findFirst({
-      where: { tenantId, deletedAt: null }
-    });
+    const ds = await tenantDataSourceFor(tenantId);
+    const repo = ds.getRepository(TenantEntity);
+    const tenant = await repo.findOne({ where: { tenantId, deletedAt: IsNull() } });
+    if (!tenant) throw new Error(TenantMessages.TENANT_NOT_FOUND);
 
-    if (!tenant) {
-      throw new Error(TenantMessages.TENANT_NOT_FOUND);
-    }
-
-    const updated = await db.tenant.update({
-      where: { tenantId },
-      data
-    });
-
-    return SafeTenantSchema.parse(updated);
+    await repo.update({ tenantId }, data as any);
+    const updated = await repo.findOne({ where: { tenantId } });
+    return SafeTenantSchema.parse(updated!);
   }
 
-  /**
-   * Create a personal tenant for a newly registered user and assign them as OWNER.
-   */
   static async provisionPersonal(userId: string, email: string): Promise<SafeTenant> {
-    const name = email.split("@")[0];
-
-    const tenant = await tenantPrisma.tenant.create({
-      data: {
-        name,
-        tenantStatus: "ACTIVE",
-      },
-    });
+    const name = email.split('@')[0];
+    const ds = await getDefaultTenantDataSource();
+    const repo = ds.getRepository(TenantEntity);
+    const tenant = repo.create({ name, tenantStatus: 'ACTIVE' });
+    const saved = await repo.save(tenant);
 
     await TenantMemberService.create({
-      tenantId: tenant.tenantId,
+      tenantId: saved.tenantId,
       userId,
-      memberRole: "OWNER",
-      memberStatus: "ACTIVE",
+      memberRole: 'OWNER',
+      memberStatus: 'ACTIVE',
     });
 
-    return SafeTenantSchema.parse(tenant);
+    return SafeTenantSchema.parse(saved);
   }
 
   static async delete(tenantId: string): Promise<void> {
-    const db = await tenantPrismaFor(tenantId);
-    const tenant = await db.tenant.findFirst({
-      where: { tenantId, deletedAt: null }
-    });
-
-    if (!tenant) {
-      throw new Error(TenantMessages.TENANT_NOT_FOUND);
-    }
-
-    // Soft delete
-    await db.tenant.update({
-      where: { tenantId },
-      data: { deletedAt: new Date() }
-    });
+    const ds = await tenantDataSourceFor(tenantId);
+    const repo = ds.getRepository(TenantEntity);
+    const tenant = await repo.findOne({ where: { tenantId, deletedAt: IsNull() } });
+    if (!tenant) throw new Error(TenantMessages.TENANT_NOT_FOUND);
+    await repo.update({ tenantId }, { deletedAt: new Date() });
   }
 }

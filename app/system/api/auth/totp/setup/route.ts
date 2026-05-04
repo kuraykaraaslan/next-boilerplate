@@ -1,3 +1,4 @@
+import Logger from '@/libs/logger';
 import { NextResponse } from "next/server";
 import UserSessionNextService from "@/modules/user_session/user_session.service.next";
 import TOTPService from "@/modules/auth/auth.totp.service";
@@ -30,7 +31,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({  message: AuthMessages.TOTP_SETUP_INITIATED, secret, otpauthUrl });
   } catch (err: any) {
-    console.error("TOTP Setup Error:", err);
+    Logger.error("TOTP Setup Error:", err);
     return NextResponse.json({ message: err.message || AuthMessages.INVALID_OTP }, { status: 400 });
   }
 }

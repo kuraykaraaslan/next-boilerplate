@@ -1,3 +1,4 @@
+import Logger from '@/libs/logger';
 import { env } from '@/libs/env';
 import { NextResponse } from 'next/server';
 
@@ -61,7 +62,7 @@ export async function GET() {
     return response;
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Failed to generate CSRF token';
-    console.error('[CSRF] Token generation error:', errorMessage);
+    Logger.error('[CSRF] Token generation error:', errorMessage);
     
     return NextResponse.json(
       {

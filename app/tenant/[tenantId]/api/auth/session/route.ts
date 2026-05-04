@@ -1,3 +1,4 @@
+import Logger from '@/libs/logger';
 // path: app/tenant/[tenantId]/api/auth/session/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import TenantSessionNextService from "@/modules/tenant_session/tenant_session.service.next";
@@ -18,7 +19,7 @@ export async function GET(
       tenantId
     });
 
-    console.log("[SESSION-API] Authenticated successfully:", user.email);
+    Logger.info("[SESSION-API] Authenticated successfully:", user.email);
 
     return NextResponse.json({
       success: true,
@@ -41,7 +42,7 @@ export async function GET(
       message: AuthMessages.SESSION_RETRIEVED_SUCCESSFULLY
     }, { status: 200 });
   } catch (error: any) {
-    console.error("[SESSION-API] Auth failed:", error.message);
+    Logger.error("[SESSION-API] Auth failed:", error.message);
     return NextResponse.json(
       { success: false, message: error.message },
       { status: 401 }

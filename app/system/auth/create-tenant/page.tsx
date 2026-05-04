@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import api from '@/libs/axios';
 import { BrandLogo } from '@/modules/ui/BrandLogo';
-import { Form } from '@/modules/app/Form';
+import { Form } from '@/modules/ui/Form';
 import { Input } from '@/modules/ui/Input';
 import { Button } from '@/modules/ui/Button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';

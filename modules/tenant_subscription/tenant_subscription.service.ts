@@ -1,16 +1,21 @@
-import { systemPrisma, tenantPrisma, tenantPrismaFor } from '@/libs/prisma'
-import type { Prisma as SystemPrisma } from '@/prisma/system/client'
-import Logger from '@/libs/logger'
-import redis from '@/libs/redis'
-import PaymentService from '@/modules/payment/payment.service'
-import type { PaymentProvider, PaymentCurrency } from '@/modules/payment/payment.enums'
+import 'reflect-metadata';
+import { Not } from 'typeorm';
+import { getSystemDataSource, getDefaultTenantDataSource, tenantDataSourceFor } from '@/libs/typeorm';
+import { SubscriptionPlan as SubscriptionPlanEntity } from '../payment/entities/subscription_plan.entity';
+import { PlanFeature as PlanFeatureEntity } from '../payment/entities/plan_feature.entity';
+import { TenantSubscription as TenantSubscriptionEntity } from './entities/tenant_subscription.entity';
+import Logger from '@/libs/logger';
+import redis from '@/libs/redis';
+import PaymentService from '@/modules/payment/payment.service';
+import AuditLogService from '@/modules/audit_log/audit_log.service';
+import type { PaymentProvider, PaymentCurrency } from '@/modules/payment/payment.enums';
 import {
   SubscriptionPlanSchema,
   PlanWithFeaturesSchema,
   PlanFeatureSchema,
   TenantSubscriptionSchema,
   TenantSubscriptionWithPlanSchema,
-} from './tenant_subscription.types'
+} from './tenant_subscription.types';
 import type {
   SubscriptionPlan,
   PlanWithFeatures,
@@ -18,158 +23,137 @@ import type {
   TenantSubscription,
   TenantSubscriptionWithPlan,
   FeatureAccessResult,
-} from './tenant_subscription.types'
+} from './tenant_subscription.types';
 import type {
   CreatePlanDTO,
   UpdatePlanDTO,
   CreateFeatureDTO,
   UpdateFeatureDTO,
   AssignSubscriptionDTO,
-} from './tenant_subscription.dto'
-import { SUBSCRIPTION_MESSAGES } from './tenant_subscription.messages'
-import type { SubscriptionPlanStatus } from './tenant_subscription.enums'
+} from './tenant_subscription.dto';
+import { SUBSCRIPTION_MESSAGES } from './tenant_subscription.messages';
+import type { SubscriptionPlanStatus } from './tenant_subscription.enums';
 
 export default class TenantSubscriptionService {
+
   // ============================================================================
   // Plan CRUD Operations
   // ============================================================================
 
   static async createPlan(data: CreatePlanDTO): Promise<SubscriptionPlan> {
     try {
-      // If this plan is set as default, unset other defaults
+      const ds = await getSystemDataSource();
+      const repo = ds.getRepository(SubscriptionPlanEntity);
+
       if (data.isDefault) {
-        await systemPrisma.subscriptionPlan.updateMany({
-          where: { isDefault: true },
-          data: { isDefault: false },
-        })
+        await repo.update({ isDefault: true }, { isDefault: false });
       }
 
-      const plan = await systemPrisma.subscriptionPlan.create({
-        data: {
-          name: data.name,
-          description: data.description,
-          monthlyPrice: data.monthlyPrice,
-          yearlyPrice: data.yearlyPrice,
-          currency: data.currency,
-          trialDays: data.trialDays,
-          sortOrder: data.sortOrder,
-          isDefault: data.isDefault,
-          status: data.status,
-        },
-      })
-
-      return SubscriptionPlanSchema.parse(plan)
+      const plan = repo.create({
+        name: data.name,
+        description: data.description,
+        monthlyPrice: data.monthlyPrice,
+        yearlyPrice: data.yearlyPrice,
+        currency: data.currency,
+        trialDays: data.trialDays,
+        sortOrder: data.sortOrder,
+        isDefault: data.isDefault,
+        status: data.status,
+      });
+      const saved = await repo.save(plan);
+      return SubscriptionPlanSchema.parse(saved);
     } catch (error) {
-      Logger.error(`${SUBSCRIPTION_MESSAGES.PLAN_CREATE_FAILED}: ${error instanceof Error ? error.message : String(error)}`)
-      throw new Error(SUBSCRIPTION_MESSAGES.PLAN_CREATE_FAILED)
+      Logger.error(`${SUBSCRIPTION_MESSAGES.PLAN_CREATE_FAILED}: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(SUBSCRIPTION_MESSAGES.PLAN_CREATE_FAILED);
     }
   }
 
   static async updatePlan(planId: string, data: UpdatePlanDTO): Promise<SubscriptionPlan> {
-    const existing = await systemPrisma.subscriptionPlan.findUnique({ where: { planId } })
-    if (!existing) {
-      throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND)
-    }
+    const ds = await getSystemDataSource();
+    const repo = ds.getRepository(SubscriptionPlanEntity);
+    const existing = await repo.findOne({ where: { planId } });
+    if (!existing) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND);
 
     try {
-      // If setting as default, unset other defaults
       if (data.isDefault) {
-        await systemPrisma.subscriptionPlan.updateMany({
-          where: { isDefault: true, planId: { not: planId } },
-          data: { isDefault: false },
-        })
+        await repo.update({ isDefault: true, planId: Not(planId) }, { isDefault: false });
       }
 
-      const plan = await systemPrisma.subscriptionPlan.update({
-        where: { planId },
-        data: {
-          name: data.name,
-          description: data.description,
-          monthlyPrice: data.monthlyPrice,
-          yearlyPrice: data.yearlyPrice,
-          currency: data.currency,
-          trialDays: data.trialDays,
-          sortOrder: data.sortOrder,
-          isDefault: data.isDefault,
-          status: data.status,
-        },
-      })
+      await repo.update({ planId }, {
+        name: data.name,
+        description: data.description,
+        monthlyPrice: data.monthlyPrice,
+        yearlyPrice: data.yearlyPrice,
+        currency: data.currency,
+        trialDays: data.trialDays,
+        sortOrder: data.sortOrder,
+        isDefault: data.isDefault,
+        status: data.status,
+      } as any);
 
-      return SubscriptionPlanSchema.parse(plan)
+      const updated = await repo.findOne({ where: { planId } });
+      return SubscriptionPlanSchema.parse(updated!);
     } catch (error) {
-      Logger.error(`${SUBSCRIPTION_MESSAGES.PLAN_UPDATE_FAILED}: ${error instanceof Error ? error.message : String(error)}`)
-      throw new Error(SUBSCRIPTION_MESSAGES.PLAN_UPDATE_FAILED)
+      Logger.error(`${SUBSCRIPTION_MESSAGES.PLAN_UPDATE_FAILED}: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(SUBSCRIPTION_MESSAGES.PLAN_UPDATE_FAILED);
     }
   }
 
   static async deletePlan(planId: string): Promise<void> {
-    const existing = await systemPrisma.subscriptionPlan.findUnique({ where: { planId } })
+    const sysDs = await getSystemDataSource();
+    const existing = await sysDs.getRepository(SubscriptionPlanEntity).findOne({ where: { planId } });
+    if (!existing) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND);
 
-    if (!existing) {
-      throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND)
-    }
-
-    // Cross-DB: check active subscriptions in tenant DB
-    const activeCount = await tenantPrisma.tenantSubscription.count({
+    const tenantDs = await getDefaultTenantDataSource();
+    const activeCount = await tenantDs.getRepository(TenantSubscriptionEntity).count({
       where: { planId, status: 'ACTIVE' },
-    })
-
-    if (activeCount > 0) {
-      throw new Error(SUBSCRIPTION_MESSAGES.PLAN_HAS_SUBSCRIPTIONS)
-    }
+    });
+    if (activeCount > 0) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_HAS_SUBSCRIPTIONS);
 
     try {
-      await systemPrisma.subscriptionPlan.delete({ where: { planId } })
+      await sysDs.getRepository(SubscriptionPlanEntity).delete({ planId });
     } catch (error) {
-      Logger.error(`${SUBSCRIPTION_MESSAGES.PLAN_DELETE_FAILED}: ${error instanceof Error ? error.message : String(error)}`)
-      throw new Error(SUBSCRIPTION_MESSAGES.PLAN_DELETE_FAILED)
+      Logger.error(`${SUBSCRIPTION_MESSAGES.PLAN_DELETE_FAILED}: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(SUBSCRIPTION_MESSAGES.PLAN_DELETE_FAILED);
     }
   }
 
   static async getPlans(status?: SubscriptionPlanStatus): Promise<SubscriptionPlan[]> {
-    const where: SystemPrisma.SubscriptionPlanWhereInput = {}
-    if (status) where.status = status
-
-    const plans = await systemPrisma.subscriptionPlan.findMany({
-      where,
-      orderBy: { sortOrder: 'asc' },
-    })
-
-    return plans.map((p) => SubscriptionPlanSchema.parse(p))
+    const ds = await getSystemDataSource();
+    const where: Record<string, unknown> = {};
+    if (status) where.status = status;
+    const plans = await ds.getRepository(SubscriptionPlanEntity).find({ where: where as any, order: { sortOrder: 'ASC' } });
+    return plans.map((p) => SubscriptionPlanSchema.parse(p));
   }
 
   static async getPlanById(planId: string): Promise<SubscriptionPlan> {
-    const plan = await systemPrisma.subscriptionPlan.findUnique({ where: { planId } })
-    if (!plan) {
-      throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND)
-    }
-    return SubscriptionPlanSchema.parse(plan)
+    const ds = await getSystemDataSource();
+    const plan = await ds.getRepository(SubscriptionPlanEntity).findOne({ where: { planId } });
+    if (!plan) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND);
+    return SubscriptionPlanSchema.parse(plan);
   }
 
   static async getPlanWithFeatures(planId: string): Promise<PlanWithFeatures> {
-    const plan = await systemPrisma.subscriptionPlan.findUnique({
-      where: { planId },
-      include: { features: { orderBy: { sortOrder: 'asc' } } },
-    })
-
-    if (!plan) {
-      throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND)
-    }
-
-    return PlanWithFeaturesSchema.parse(plan)
+    const ds = await getSystemDataSource();
+    const plan = await ds.getRepository(SubscriptionPlanEntity).findOne({ where: { planId } });
+    if (!plan) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND);
+    const features = await ds.getRepository(PlanFeatureEntity).find({ where: { planId }, order: { sortOrder: 'ASC' } });
+    return PlanWithFeaturesSchema.parse({ ...plan, features });
   }
 
   static async getPlansWithFeatures(status?: SubscriptionPlanStatus): Promise<PlanWithFeatures[]> {
-    const where: SystemPrisma.SubscriptionPlanWhereInput = {}
-    if (status) where.status = status
+    const ds = await getSystemDataSource();
+    const where: Record<string, unknown> = {};
+    if (status) where.status = status;
+    const plans = await ds.getRepository(SubscriptionPlanEntity).find({ where: where as any, order: { sortOrder: 'ASC' } });
+    const planIds = plans.map((p) => p.planId);
+    const allFeatures = planIds.length > 0
+      ? await ds.getRepository(PlanFeatureEntity).find({ where: planIds.map((id) => ({ planId: id })), order: { sortOrder: 'ASC' } })
+      : [];
 
-    const plans = await systemPrisma.subscriptionPlan.findMany({
-      where,
-      include: { features: { orderBy: { sortOrder: 'asc' } } },
-      orderBy: { sortOrder: 'asc' },
-    })
-
-    return plans.map((p) => PlanWithFeaturesSchema.parse(p))
+    return plans.map((plan) =>
+      PlanWithFeaturesSchema.parse({ ...plan, features: allFeatures.filter((f) => f.planId === plan.planId) })
+    );
   }
 
   // ============================================================================
@@ -177,82 +161,73 @@ export default class TenantSubscriptionService {
   // ============================================================================
 
   static async addFeature(planId: string, data: CreateFeatureDTO): Promise<PlanFeature> {
-    const plan = await systemPrisma.subscriptionPlan.findUnique({ where: { planId } })
-    if (!plan) {
-      throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND)
-    }
+    const ds = await getSystemDataSource();
+    const plan = await ds.getRepository(SubscriptionPlanEntity).findOne({ where: { planId } });
+    if (!plan) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND);
 
     try {
-      const feature = await systemPrisma.planFeature.create({
-        data: {
-          planId,
-          key: data.key,
-          label: data.label,
-          type: data.type,
-          value: data.value,
-          sortOrder: data.sortOrder,
-        },
-      })
-
-      return PlanFeatureSchema.parse(feature)
+      const repo = ds.getRepository(PlanFeatureEntity);
+      const feature = repo.create({
+        planId,
+        key: data.key,
+        label: data.label,
+        type: data.type,
+        value: data.value,
+        sortOrder: data.sortOrder,
+      });
+      const saved = await repo.save(feature);
+      return PlanFeatureSchema.parse(saved);
     } catch (error: unknown) {
-      if (error && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
-        throw new Error(SUBSCRIPTION_MESSAGES.FEATURE_KEY_EXISTS)
+      if (error && typeof error === 'object' && 'code' in error && (error as any).code === '23505') {
+        throw new Error(SUBSCRIPTION_MESSAGES.FEATURE_KEY_EXISTS);
       }
-      Logger.error(`${SUBSCRIPTION_MESSAGES.FEATURE_CREATE_FAILED}: ${error instanceof Error ? error.message : String(error)}`)
-      throw new Error(SUBSCRIPTION_MESSAGES.FEATURE_CREATE_FAILED)
+      Logger.error(`${SUBSCRIPTION_MESSAGES.FEATURE_CREATE_FAILED}: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(SUBSCRIPTION_MESSAGES.FEATURE_CREATE_FAILED);
     }
   }
 
   static async updateFeature(featureId: string, data: UpdateFeatureDTO): Promise<PlanFeature> {
-    const existing = await systemPrisma.planFeature.findUnique({ where: { featureId } })
-    if (!existing) {
-      throw new Error(SUBSCRIPTION_MESSAGES.FEATURE_NOT_FOUND)
-    }
+    const ds = await getSystemDataSource();
+    const repo = ds.getRepository(PlanFeatureEntity);
+    const existing = await repo.findOne({ where: { featureId } });
+    if (!existing) throw new Error(SUBSCRIPTION_MESSAGES.FEATURE_NOT_FOUND);
 
     try {
-      const feature = await systemPrisma.planFeature.update({
-        where: { featureId },
-        data: {
-          key: data.key,
-          label: data.label,
-          type: data.type,
-          value: data.value,
-          sortOrder: data.sortOrder,
-        },
-      })
-
-      return PlanFeatureSchema.parse(feature)
+      await repo.update({ featureId }, {
+        key: data.key,
+        label: data.label,
+        type: data.type,
+        value: data.value,
+        sortOrder: data.sortOrder,
+      } as any);
+      const updated = await repo.findOne({ where: { featureId } });
+      return PlanFeatureSchema.parse(updated!);
     } catch (error: unknown) {
-      if (error && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
-        throw new Error(SUBSCRIPTION_MESSAGES.FEATURE_KEY_EXISTS)
+      if (error && typeof error === 'object' && 'code' in error && (error as any).code === '23505') {
+        throw new Error(SUBSCRIPTION_MESSAGES.FEATURE_KEY_EXISTS);
       }
-      Logger.error(`${SUBSCRIPTION_MESSAGES.FEATURE_UPDATE_FAILED}: ${error instanceof Error ? error.message : String(error)}`)
-      throw new Error(SUBSCRIPTION_MESSAGES.FEATURE_UPDATE_FAILED)
+      Logger.error(`${SUBSCRIPTION_MESSAGES.FEATURE_UPDATE_FAILED}: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(SUBSCRIPTION_MESSAGES.FEATURE_UPDATE_FAILED);
     }
   }
 
   static async removeFeature(featureId: string): Promise<void> {
-    const existing = await systemPrisma.planFeature.findUnique({ where: { featureId } })
-    if (!existing) {
-      throw new Error(SUBSCRIPTION_MESSAGES.FEATURE_NOT_FOUND)
-    }
+    const ds = await getSystemDataSource();
+    const existing = await ds.getRepository(PlanFeatureEntity).findOne({ where: { featureId } });
+    if (!existing) throw new Error(SUBSCRIPTION_MESSAGES.FEATURE_NOT_FOUND);
 
     try {
-      await systemPrisma.planFeature.delete({ where: { featureId } })
+      await ds.getRepository(PlanFeatureEntity).delete({ featureId });
     } catch (error) {
-      Logger.error(`${SUBSCRIPTION_MESSAGES.FEATURE_DELETE_FAILED}: ${error instanceof Error ? error.message : String(error)}`)
-      throw new Error(SUBSCRIPTION_MESSAGES.FEATURE_DELETE_FAILED)
+      Logger.error(`${SUBSCRIPTION_MESSAGES.FEATURE_DELETE_FAILED}: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(SUBSCRIPTION_MESSAGES.FEATURE_DELETE_FAILED);
     }
   }
 
   static async getFeaturesByPlan(planId: string): Promise<PlanFeature[]> {
-    const features = await systemPrisma.planFeature.findMany({
-      where: { planId },
-      orderBy: { sortOrder: 'asc' },
-    })
-
-    return features.map((f) => PlanFeatureSchema.parse(f))
+    const ds = await getSystemDataSource();
+    const features = await ds.getRepository(PlanFeatureEntity).find({ where: { planId }, order: { sortOrder: 'ASC' } });
+    return features.map((f) => PlanFeatureSchema.parse(f));
   }
 
   // ============================================================================
@@ -260,95 +235,88 @@ export default class TenantSubscriptionService {
   // ============================================================================
 
   static async assignPlan(tenantId: string, data: AssignSubscriptionDTO): Promise<TenantSubscription> {
-    const plan = await systemPrisma.subscriptionPlan.findUnique({ where: { planId: data.planId } })
-    if (!plan) {
-      throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND)
-    }
+    const sysDs = await getSystemDataSource();
+    const plan = await sysDs.getRepository(SubscriptionPlanEntity).findOne({ where: { planId: data.planId } });
+    if (!plan) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND);
 
-    const now = new Date()
-    const periodEnd = new Date(now)
+    const now = new Date();
+    const periodEnd = new Date(now);
     if (data.billingInterval === 'MONTHLY') {
-      periodEnd.setMonth(periodEnd.getMonth() + 1)
+      periodEnd.setMonth(periodEnd.getMonth() + 1);
     } else {
-      periodEnd.setFullYear(periodEnd.getFullYear() + 1)
+      periodEnd.setFullYear(periodEnd.getFullYear() + 1);
     }
 
     const trialEndsAt = plan.trialDays > 0
       ? new Date(now.getTime() + plan.trialDays * 24 * 60 * 60 * 1000)
-      : null
+      : null;
 
     try {
-      const db = await tenantPrismaFor(tenantId);
-      const subscription = await db.tenantSubscription.upsert({
-        where: { tenantId },
-        update: {
+      const ds = await tenantDataSourceFor(tenantId);
+      const repo = ds.getRepository(TenantSubscriptionEntity);
+      const existing = await repo.findOne({ where: { tenantId } });
+
+      let saved: TenantSubscriptionEntity;
+      if (existing) {
+        await repo.update({ tenantId }, {
           planId: data.planId,
           billingInterval: data.billingInterval,
           status: trialEndsAt ? 'TRIALING' : 'ACTIVE',
           currentPeriodStart: now,
           currentPeriodEnd: periodEnd,
-          trialEndsAt,
-          cancelledAt: null,
-        },
-        create: {
+          trialEndsAt: trialEndsAt ?? undefined,
+          cancelledAt: undefined,
+        } as any);
+        saved = (await repo.findOne({ where: { tenantId } }))!;
+      } else {
+        const entity = repo.create({
           tenantId,
           planId: data.planId,
           billingInterval: data.billingInterval,
           status: trialEndsAt ? 'TRIALING' : 'ACTIVE',
           currentPeriodStart: now,
           currentPeriodEnd: periodEnd,
-          trialEndsAt,
-        },
-      })
+          trialEndsAt: trialEndsAt ?? undefined,
+        });
+        saved = await repo.save(entity);
+      }
 
-      await this.invalidateFeatureCache(tenantId)
-      return TenantSubscriptionSchema.parse(subscription)
+      await this.invalidateFeatureCache(tenantId);
+      return TenantSubscriptionSchema.parse(saved);
     } catch (error) {
-      Logger.error(`${SUBSCRIPTION_MESSAGES.SUBSCRIPTION_ASSIGN_FAILED}: ${error instanceof Error ? error.message : String(error)}`)
-      throw new Error(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_ASSIGN_FAILED)
+      Logger.error(`${SUBSCRIPTION_MESSAGES.SUBSCRIPTION_ASSIGN_FAILED}: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_ASSIGN_FAILED);
     }
   }
 
   static async getSubscription(tenantId: string): Promise<TenantSubscriptionWithPlan | null> {
-    const db = await tenantPrismaFor(tenantId);
-    const subscription = await db.tenantSubscription.findUnique({ where: { tenantId } })
-    if (!subscription) return null
+    const ds = await tenantDataSourceFor(tenantId);
+    const subscription = await ds.getRepository(TenantSubscriptionEntity).findOne({ where: { tenantId } });
+    if (!subscription) return null;
 
-    // Cross-DB: fetch plan + features from system DB
-    const plan = await systemPrisma.subscriptionPlan.findUnique({
-      where: { planId: subscription.planId },
-      include: { features: { orderBy: { sortOrder: 'asc' } } },
-    })
-    if (!plan) return null
+    const sysDs = await getSystemDataSource();
+    const plan = await sysDs.getRepository(SubscriptionPlanEntity).findOne({ where: { planId: subscription.planId } });
+    if (!plan) return null;
 
-    return TenantSubscriptionWithPlanSchema.parse({ ...subscription, plan })
+    const features = await sysDs.getRepository(PlanFeatureEntity).find({ where: { planId: plan.planId }, order: { sortOrder: 'ASC' } });
+    return TenantSubscriptionWithPlanSchema.parse({ ...subscription, plan: { ...plan, features } });
   }
 
   static async cancelSubscription(tenantId: string): Promise<TenantSubscription> {
-    const db = await tenantPrismaFor(tenantId);
-    const existing = await db.tenantSubscription.findUnique({ where: { tenantId } })
-    if (!existing) {
-      throw new Error(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_NOT_FOUND)
-    }
-
-    if (existing.status === 'CANCELLED') {
-      throw new Error(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_ALREADY_CANCELLED)
-    }
+    const ds = await tenantDataSourceFor(tenantId);
+    const repo = ds.getRepository(TenantSubscriptionEntity);
+    const existing = await repo.findOne({ where: { tenantId } });
+    if (!existing) throw new Error(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_NOT_FOUND);
+    if (existing.status === 'CANCELLED') throw new Error(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_ALREADY_CANCELLED);
 
     try {
-      const subscription = await db.tenantSubscription.update({
-        where: { tenantId },
-        data: {
-          status: 'CANCELLED',
-          cancelledAt: new Date(),
-        },
-      })
-
-      await this.invalidateFeatureCache(tenantId)
-      return TenantSubscriptionSchema.parse(subscription)
+      await repo.update({ tenantId }, { status: 'CANCELLED', cancelledAt: new Date() });
+      const updated = await repo.findOne({ where: { tenantId } });
+      await this.invalidateFeatureCache(tenantId);
+      return TenantSubscriptionSchema.parse(updated!);
     } catch (error) {
-      Logger.error(`${SUBSCRIPTION_MESSAGES.SUBSCRIPTION_CANCEL_FAILED}: ${error instanceof Error ? error.message : String(error)}`)
-      throw new Error(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_CANCEL_FAILED)
+      Logger.error(`${SUBSCRIPTION_MESSAGES.SUBSCRIPTION_CANCEL_FAILED}: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_CANCEL_FAILED);
     }
   }
 
@@ -357,32 +325,25 @@ export default class TenantSubscriptionService {
   // ============================================================================
 
   static async purchaseSubscription(params: {
-    tenantId: string
-    planId: string
-    billingInterval: 'MONTHLY' | 'YEARLY'
-    successUrl: string
-    cancelUrl: string
-    provider?: PaymentProvider
-    customerEmail?: string
-    customerName?: string
+    tenantId: string;
+    planId: string;
+    billingInterval: 'MONTHLY' | 'YEARLY';
+    successUrl: string;
+    cancelUrl: string;
+    provider?: PaymentProvider;
+    customerEmail?: string;
+    customerName?: string;
   }): Promise<{ paymentId: string; checkoutUrl: string }> {
-    const { tenantId, planId, billingInterval, successUrl, cancelUrl, provider, customerEmail, customerName } = params
+    const { tenantId, planId, billingInterval, successUrl, cancelUrl, provider, customerEmail, customerName } = params;
 
-    // Get plan details
-    const plan = await systemPrisma.subscriptionPlan.findUnique({ where: { planId } })
-    if (!plan) {
-      throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND)
-    }
+    const sysDs = await getSystemDataSource();
+    const plan = await sysDs.getRepository(SubscriptionPlanEntity).findOne({ where: { planId } });
+    if (!plan) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND);
 
-    // Calculate amount based on billing interval
-    const amount = billingInterval === 'MONTHLY'
-      ? Number(plan.monthlyPrice)
-      : Number(plan.yearlyPrice)
-
-    const currency = plan.currency as PaymentCurrency
+    const amount = billingInterval === 'MONTHLY' ? Number(plan.monthlyPrice) : Number(plan.yearlyPrice);
+    const currency = plan.currency as PaymentCurrency;
 
     try {
-      // Create payment record
       const payment = await PaymentService.create({
         tenantId,
         provider: provider || 'STRIPE',
@@ -391,15 +352,9 @@ export default class TenantSubscriptionService {
         description: `${plan.name} Subscription - ${billingInterval === 'MONTHLY' ? 'Monthly' : 'Yearly'}`,
         customerEmail,
         customerName,
-        metadata: {
-          type: 'subscription',
-          planId,
-          billingInterval,
-          tenantId,
-        },
-      })
+        metadata: { type: 'subscription', planId, billingInterval, tenantId },
+      });
 
-      // Create checkout session with provider
       const checkout = await PaymentService.createCheckoutSession(
         {
           amount,
@@ -407,32 +362,20 @@ export default class TenantSubscriptionService {
           description: `${plan.name} Subscription`,
           successUrl: `${successUrl}?paymentId=${payment.paymentId}`,
           cancelUrl,
-          metadata: {
-            paymentId: payment.paymentId,
-            planId,
-            tenantId,
-            billingInterval,
-          },
+          metadata: { paymentId: payment.paymentId, planId, tenantId, billingInterval },
         },
         provider
-      )
+      );
 
-      // Update payment with provider session ID
       await PaymentService.update(payment.paymentId, {
         providerPaymentId: checkout.sessionId,
-        metadata: {
-          ...(payment.metadata as object || {}),
-          checkoutSessionId: checkout.sessionId,
-        },
-      })
+        metadata: { ...(payment.metadata as object || {}), checkoutSessionId: checkout.sessionId },
+      });
 
-      return {
-        paymentId: payment.paymentId,
-        checkoutUrl: checkout.checkoutUrl,
-      }
+      return { paymentId: payment.paymentId, checkoutUrl: checkout.checkoutUrl };
     } catch (error) {
-      Logger.error(`${SUBSCRIPTION_MESSAGES.PAYMENT_INITIATION_FAILED}: ${error instanceof Error ? error.message : String(error)}`)
-      throw new Error(SUBSCRIPTION_MESSAGES.PAYMENT_INITIATION_FAILED)
+      Logger.error(`${SUBSCRIPTION_MESSAGES.PAYMENT_INITIATION_FAILED}: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(SUBSCRIPTION_MESSAGES.PAYMENT_INITIATION_FAILED);
     }
   }
 
@@ -440,23 +383,22 @@ export default class TenantSubscriptionService {
   // Feature Gating — Redis cache + AuditLog
   // ============================================================================
 
-  private static readonly FEATURE_CACHE_PREFIX = 'feature:sub:'
-  private static readonly FEATURE_CACHE_TTL = 300 // seconds
+  private static readonly FEATURE_CACHE_PREFIX = 'feature:sub:';
+  private static readonly FEATURE_CACHE_TTL = 300;
 
-  /** Serialisable shape stored in Redis — only the fields needed for gating. */
   private static featureCacheKey(tenantId: string): string {
-    return `${this.FEATURE_CACHE_PREFIX}${tenantId}`
+    return `${this.FEATURE_CACHE_PREFIX}${tenantId}`;
   }
 
   private static async getFeatureCache(tenantId: string): Promise<{
-    status: string
-    features: Array<{ key: string; type: string; value: string }>
+    status: string;
+    features: Array<{ key: string; type: string; value: string }>;
   } | null> {
     try {
-      const raw = await redis.get(this.featureCacheKey(tenantId))
-      return raw ? JSON.parse(raw) : null
+      const raw = await redis.get(this.featureCacheKey(tenantId));
+      return raw ? JSON.parse(raw) : null;
     } catch {
-      return null // cache miss on any Redis error — fall through to DB
+      return null;
     }
   }
 
@@ -471,56 +413,40 @@ export default class TenantSubscriptionService {
         JSON.stringify({ status, features }),
         'EX',
         this.FEATURE_CACHE_TTL,
-      )
+      );
     } catch (err) {
-      Logger.warn(`Feature cache set failed for tenant ${tenantId}: ${err instanceof Error ? err.message : String(err)}`)
+      Logger.warn(`Feature cache set failed for tenant ${tenantId}: ${err instanceof Error ? err.message : String(err)}`);
     }
   }
 
-  /** Call after assignPlan / cancelSubscription so stale cache is evicted. */
   static async invalidateFeatureCache(tenantId: string): Promise<void> {
     try {
-      await redis.del(this.featureCacheKey(tenantId))
+      await redis.del(this.featureCacheKey(tenantId));
     } catch (err) {
-      Logger.warn(`Feature cache invalidation failed for tenant ${tenantId}: ${err instanceof Error ? err.message : String(err)}`)
+      Logger.warn(`Feature cache invalidation failed for tenant ${tenantId}: ${err instanceof Error ? err.message : String(err)}`);
     }
   }
 
-  /** Fire-and-forget write to AuditLog — never blocks the caller. */
   private static logFeatureAccess(tenantId: string, result: FeatureAccessResult): void {
-    tenantPrismaFor(tenantId).then(db => db.auditLog.create({
-      data: {
-        tenantId,
-        actorType: 'SYSTEM',
-        action: 'feature.access.checked',
-        resourceType: 'PlanFeature',
-        resourceId: result.featureKey,
-        metadata: result as object,
-      },
-    })).catch((err) =>
+    AuditLogService.log({
+      tenantId,
+      actorType: 'SYSTEM',
+      action: 'feature.access.checked',
+      resourceType: 'PlanFeature',
+      resourceId: result.featureKey,
+      metadata: result as object,
+    }).catch((err) =>
       Logger.error(`Feature access audit log failed: ${err instanceof Error ? err.message : String(err)}`)
-    )
+    );
   }
 
-  /**
-   * Check whether a tenant has access to a specific plan feature.
-   *
-   * Flow: Redis cache → DB (+ re-populate cache) → compute result → AuditLog (async)
-   *
-   * - BOOLEAN feature: `allowed` is true when the feature value is `"true"`.
-   * - LIMIT feature: `allowed` is true when `currentCount < limit` (or unlimited).
-   *   Omit `currentCount` to retrieve limit metadata without an access decision.
-   *
-   * Returns `allowed: false` when the tenant has no active subscription or the
-   * feature key is not present on their plan.
-   */
   static async checkFeatureAccess(
     tenantId: string,
     featureKey: string,
     currentCount?: number,
     options?: { gracePercent?: number },
   ): Promise<FeatureAccessResult> {
-    const ACTIVE_STATUSES = ['ACTIVE', 'TRIALING']
+    const ACTIVE_STATUSES = ['ACTIVE', 'TRIALING'];
 
     const DENIED_BOOLEAN: FeatureAccessResult = {
       allowed: false,
@@ -529,48 +455,42 @@ export default class TenantSubscriptionService {
       limit: null,
       unlimited: null,
       current: null,
-    }
+    };
 
     try {
-      // 1. Redis cache lookup
-      let cached = await this.getFeatureCache(tenantId)
+      let cached = await this.getFeatureCache(tenantId);
 
       if (!cached) {
-        // 2. Cache miss → two DB queries (subscription from tenant DB, features from system DB)
-        const db = await tenantPrismaFor(tenantId);
-        const sub = await db.tenantSubscription.findUnique({ where: { tenantId } })
+        const ds = await tenantDataSourceFor(tenantId);
+        const sub = await ds.getRepository(TenantSubscriptionEntity).findOne({ where: { tenantId } });
 
         if (!sub) {
-          this.logFeatureAccess(tenantId, DENIED_BOOLEAN)
-          return DENIED_BOOLEAN
+          this.logFeatureAccess(tenantId, DENIED_BOOLEAN);
+          return DENIED_BOOLEAN;
         }
 
-        const plan = await systemPrisma.subscriptionPlan.findUnique({
+        const sysDs = await getSystemDataSource();
+        const features = await sysDs.getRepository(PlanFeatureEntity).find({
           where: { planId: sub.planId },
-          include: { features: { select: { key: true, type: true, value: true } } },
-        })
-        const features = plan?.features ?? []
+          select: ['key', 'type', 'value'],
+        });
 
-        // 3. Populate cache for next calls
-        await this.setFeatureCache(tenantId, sub.status, features)
-        cached = { status: sub.status, features }
+        await this.setFeatureCache(tenantId, sub.status, features);
+        cached = { status: sub.status, features };
       }
 
-      // 4. Subscription status check
       if (!ACTIVE_STATUSES.includes(cached.status)) {
-        this.logFeatureAccess(tenantId, DENIED_BOOLEAN)
-        return DENIED_BOOLEAN
+        this.logFeatureAccess(tenantId, DENIED_BOOLEAN);
+        return DENIED_BOOLEAN;
       }
 
-      // 5. Feature lookup
-      const feature = cached.features.find((f) => f.key === featureKey)
+      const feature = cached.features.find((f) => f.key === featureKey);
       if (!feature) {
-        this.logFeatureAccess(tenantId, DENIED_BOOLEAN)
-        return DENIED_BOOLEAN
+        this.logFeatureAccess(tenantId, DENIED_BOOLEAN);
+        return DENIED_BOOLEAN;
       }
 
-      // 6. Compute result
-      let result: FeatureAccessResult
+      let result: FeatureAccessResult;
 
       if (feature.type === 'BOOLEAN') {
         result = {
@@ -580,17 +500,17 @@ export default class TenantSubscriptionService {
           limit: null,
           unlimited: null,
           current: null,
-        }
+        };
       } else {
-        const gracePercent = options?.gracePercent ?? 0
-        const limit = parseInt(feature.value, 10)
-        const unlimited = limit === -1
-        const current = currentCount ?? null
-        const graceCeiling = unlimited ? -1 : limit + Math.floor(limit * gracePercent / 100)
-        const inGrace = !unlimited && current !== null && current >= limit && current < graceCeiling
+        const gracePercent = options?.gracePercent ?? 0;
+        const limit = parseInt(feature.value, 10);
+        const unlimited = limit === -1;
+        const current = currentCount ?? null;
+        const graceCeiling = unlimited ? -1 : limit + Math.floor(limit * gracePercent / 100);
+        const inGrace = !unlimited && current !== null && current >= limit && current < graceCeiling;
         const allowed = currentCount !== undefined
           ? unlimited || currentCount < graceCeiling
-          : true // caller uses `limit`/`effectiveLimit` to decide
+          : true;
         result = {
           allowed,
           featureKey,
@@ -601,53 +521,45 @@ export default class TenantSubscriptionService {
           gracePercent,
           effectiveLimit: graceCeiling,
           inGrace,
-        }
+        };
       }
 
-      // 7. Fire-and-forget audit log
-      this.logFeatureAccess(tenantId, result)
-
-      return result
+      this.logFeatureAccess(tenantId, result);
+      return result;
     } catch (error) {
-      Logger.error(`${SUBSCRIPTION_MESSAGES.FEATURE_CHECK_FAILED}: ${error instanceof Error ? error.message : String(error)}`)
-      throw new Error(SUBSCRIPTION_MESSAGES.FEATURE_CHECK_FAILED)
+      Logger.error(`${SUBSCRIPTION_MESSAGES.FEATURE_CHECK_FAILED}: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(SUBSCRIPTION_MESSAGES.FEATURE_CHECK_FAILED);
     }
   }
 
-  /**
-   * Like `checkFeatureAccess` but throws if access is denied.
-   * Use this directly in API routes or service calls that should hard-fail.
-   */
   static async assertFeatureAccess(
     tenantId: string,
     featureKey: string,
     currentCount?: number,
     options?: { gracePercent?: number },
   ): Promise<FeatureAccessResult> {
-    const result = await this.checkFeatureAccess(tenantId, featureKey, currentCount, options)
+    const result = await this.checkFeatureAccess(tenantId, featureKey, currentCount, options);
 
     if (!result.allowed) {
       const message = result.type === 'LIMIT'
         ? SUBSCRIPTION_MESSAGES.FEATURE_LIMIT_REACHED
-        : SUBSCRIPTION_MESSAGES.FEATURE_ACCESS_DENIED
-      throw new Error(message)
+        : SUBSCRIPTION_MESSAGES.FEATURE_ACCESS_DENIED;
+      throw new Error(message);
     }
 
-    return result
+    return result;
   }
 
   static async confirmPayment(paymentId: string): Promise<TenantSubscription> {
     try {
-      // Get payment record
-      const payment = await PaymentService.getById(paymentId)
-      
+      const payment = await PaymentService.getById(paymentId);
+
       if (!payment) {
-        throw new Error(SUBSCRIPTION_MESSAGES.PAYMENT_NOT_FOUND)
+        throw new Error(SUBSCRIPTION_MESSAGES.PAYMENT_NOT_FOUND);
       }
 
       if (payment.status === 'COMPLETED') {
-        // Already processed - return existing subscription
-        const existing = await this.getSubscription(payment.tenantId!)
+        const existing = await this.getSubscription(payment.tenantId!);
         if (existing) {
           return TenantSubscriptionSchema.parse({
             subscriptionId: existing.subscriptionId,
@@ -661,36 +573,31 @@ export default class TenantSubscriptionService {
             cancelledAt: existing.cancelledAt,
             createdAt: existing.createdAt,
             updatedAt: existing.updatedAt,
-          })
+          });
         }
-        throw new Error(SUBSCRIPTION_MESSAGES.PAYMENT_ALREADY_PROCESSED)
+        throw new Error(SUBSCRIPTION_MESSAGES.PAYMENT_ALREADY_PROCESSED);
       }
 
       if (payment.status !== 'PENDING' && payment.status !== 'PROCESSING') {
-        throw new Error(SUBSCRIPTION_MESSAGES.PAYMENT_INVALID_STATUS)
+        throw new Error(SUBSCRIPTION_MESSAGES.PAYMENT_INVALID_STATUS);
       }
 
-      // Extract metadata
-      const metadata = payment.metadata as { planId?: string; billingInterval?: string; tenantId?: string } || {}
-      const { planId, billingInterval, tenantId } = metadata
+      const metadata = payment.metadata as { planId?: string; billingInterval?: string; tenantId?: string } || {};
+      const { planId, billingInterval, tenantId } = metadata;
 
       if (!planId || !billingInterval || !tenantId) {
-        throw new Error(SUBSCRIPTION_MESSAGES.INVALID_REQUEST)
+        throw new Error(SUBSCRIPTION_MESSAGES.INVALID_REQUEST);
       }
 
-      // Mark payment as completed
-      await PaymentService.markAsCompleted(paymentId)
+      await PaymentService.markAsCompleted(paymentId);
 
-      // Assign the subscription
-      const subscription = await this.assignPlan(tenantId, {
+      return await this.assignPlan(tenantId, {
         planId,
         billingInterval: billingInterval as 'MONTHLY' | 'YEARLY',
-      })
-
-      return subscription
+      });
     } catch (error) {
-      Logger.error(`${SUBSCRIPTION_MESSAGES.PAYMENT_CONFIRMATION_FAILED}: ${error instanceof Error ? error.message : String(error)}`)
-      throw error
+      Logger.error(`${SUBSCRIPTION_MESSAGES.PAYMENT_CONFIRMATION_FAILED}: ${error instanceof Error ? error.message : String(error)}`);
+      throw error;
     }
   }
 }

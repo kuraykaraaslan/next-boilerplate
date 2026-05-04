@@ -1,3 +1,4 @@
+import Logger from '@/libs/logger';
 // Original path: app/api/auth/login/route.ts
 
 import { NextResponse } from "next/server";
@@ -85,7 +86,7 @@ export async function POST(request: NextRequest) {
 
     }
     catch (error: any) {
-        console.error(error);
+        Logger.error(error);
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }

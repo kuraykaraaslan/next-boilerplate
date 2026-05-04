@@ -1,3 +1,4 @@
+import Logger from '@/libs/logger';
 import { env } from '@/libs/env';
 // Utils
 import { SafeUserSession, SafeUserSessionSchema, type SessionMeta } from '@/modules/user_session/user_session.types';
@@ -8,9 +9,10 @@ import UserSessionMessages from "./user_session.messages";
 import redis from "@/libs/redis";
 import { SafeUserSecurity } from '@/modules/user_security/user_security.types';
 import UserSessionService from './user_session.service';
-import { systemPrisma } from "@/libs/prisma";
+import { getSystemDataSource } from '@/libs/typeorm';
+import { User as UserEntity } from '../user/entities/user.entity';
 
-const SESSION_CACHE_TTL = env.SESSION_CACHE_TTL ?? (60 * 30);
+const SESSION_CACHE_TTL = env.SESSION_CACHE_TTL;
 
 export default class UserSessionNextService {
 
@@ -113,12 +115,12 @@ export default class UserSessionNextService {
           return { user, userSession };
         } else {
           // Invalid cache structure, delete it and fall through to DB lookup
-          console.warn('[UserSessionNextService] Invalid cache structure, deleting:', cacheKey);
+          Logger.warn('[UserSessionNextService] Invalid cache structure, deleting:', cacheKey);
           await redis.del(cacheKey);
         }
       } catch (error) {
         // Cache parsing failed, delete it and fall through to DB lookup
-        console.error('[UserSessionNextService] Cache parsing failed:', error);
+        Logger.error('[UserSessionNextService] Cache parsing failed:', error);
         await redis.del(cacheKey);
       }
     }
@@ -131,7 +133,8 @@ export default class UserSessionNextService {
     });
 
     // Get user from database
-    const user = await systemPrisma.user.findUnique({ where: { userId: userSession.userId } });
+    const ds = await getSystemDataSource();
+    const user = await ds.getRepository(UserEntity).findOne({ where: { userId: userSession.userId } });
     
     if (!user) {
       throw new Error(UserSessionMessages.USER_NOT_FOUND);
@@ -224,22 +227,19 @@ export default class UserSessionNextService {
         throw new Error(UserSessionMessages.USER_DOES_NOT_HAVE_REQUIRED_ROLE);
       }
 
-      // @ts-ignore
       request.user = user;
-      // @ts-ignore
       request.userSession = userSession;
 
       // Detect and attach impersonation context
       const meta = userSession.metadata as SessionMeta | null | undefined;
       if (meta?.impersonation) {
-        // @ts-ignore
         request.isImpersonating = true;
         try {
-          const impersonatorUser = await systemPrisma.user.findUnique({
+          const ds2 = await getSystemDataSource();
+          const impersonatorUser = await ds2.getRepository(UserEntity).findOne({
             where: { userId: meta.impersonation.impersonatorUserId },
           });
           if (impersonatorUser) {
-            // @ts-ignore
             request.impersonatedBy = SafeUserSchema.parse(impersonatorUser);
           }
         } catch {
@@ -249,7 +249,7 @@ export default class UserSessionNextService {
 
       return requiredUserRole === "GUEST" ? (null as any) : ({ user, userSession } as any);
     } catch (error: any) {
-      console.error("[AUTHENTICATE ERROR]", {
+      Logger.error("[AUTHENTICATE ERROR]", {
         message: error.message,
         stack: error.stack,
         cookies: {
@@ -260,7 +260,6 @@ export default class UserSessionNextService {
       if (requiredUserRole !== "GUEST") {
         throw new Error(UserSessionMessages.USER_NOT_AUTHENTICATED);
       }
-      // @ts-ignore
       request.user = null;
       return null as any;
     }
@@ -282,7 +281,7 @@ export default class UserSessionNextService {
               return parsed.userSession.userSessionId;
             }
           } catch (e) {
-            console.error('[UserSessionNextService.logout] Cache parsing error:', e);
+            Logger.error('[UserSessionNextService.logout] Cache parsing error:', e);
           }
         }
         return null;

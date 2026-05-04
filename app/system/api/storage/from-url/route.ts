@@ -1,3 +1,4 @@
+import Logger from '@/libs/logger';
 'use server'
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -54,7 +55,7 @@ export async function POST(request: NextRequest) {
       provider: result.provider,
     })
   } catch (error: any) {
-    console.error(error.message)
+    Logger.error(error.message)
     return NextResponse.json(
       { message: error.message || 'Failed to upload file from URL' },
       { status: 500 }

@@ -1,140 +1,101 @@
-import { systemPrisma } from "@/libs/prisma";
-import { UserSecurity, UserSecuritySchema, SafeUserSecurity, SafeUserSecuritySchema } from "./user_security.types";
+import 'reflect-metadata';
+import { getSystemDataSource } from '@/libs/typeorm';
+import { UserSecurity as UserSecurityEntity } from './entities/user_security.entity';
+import { UserSecurity, UserSecuritySchema, SafeUserSecurity, SafeUserSecuritySchema } from './user_security.types';
 
 export default class UserSecurityService {
 
   static async getByUserId(userId: string): Promise<UserSecurity> {
-    const security = await systemPrisma.userSecurity.findUnique({
-      where: { userId }
-    });
-
-    if (!security) {
-      return await this.createDefaultUserSecurity(userId);
-    }
-
+    const ds = await getSystemDataSource();
+    const security = await ds.getRepository(UserSecurityEntity).findOne({ where: { userId } });
+    if (!security) return this.createDefaultUserSecurity(userId);
     return UserSecuritySchema.parse(security);
   }
 
   static async getSafeByUserId(userId: string): Promise<SafeUserSecurity> {
-    const security = await systemPrisma.userSecurity.findUnique({
-      where: { userId }
-    });
-
+    const ds = await getSystemDataSource();
+    const security = await ds.getRepository(UserSecurityEntity).findOne({ where: { userId } });
     if (!security) {
       const created = await this.createDefaultUserSecurity(userId);
       return SafeUserSecuritySchema.parse(created);
     }
-
-    // Ensure otpMethods is always an array (fix for null/undefined from DB)
     const securityWithDefaults = {
       ...security,
       otpMethods: security.otpMethods ?? [],
       otpBackupCodes: security.otpBackupCodes ?? [],
     };
-
-    const parsed = SafeUserSecuritySchema.parse(securityWithDefaults);
-    return parsed;
+    return SafeUserSecuritySchema.parse(securityWithDefaults);
   }
 
   static async createDefaultUserSecurity(userId: string): Promise<UserSecurity> {
-    const existing = await systemPrisma.userSecurity.findUnique({
-      where: { userId }
-    });
+    const ds = await getSystemDataSource();
+    const repo = ds.getRepository(UserSecurityEntity);
+    const existing = await repo.findOne({ where: { userId } });
+    if (existing) throw new Error('Security record already exists for this user');
 
-    if (existing) {
-      throw new Error("Security record already exists for this user");
-    }
-
-    const security = await systemPrisma.userSecurity.create({
-      data: {
-        userId,
-        otpMethods: [],
-        otpBackupCodes: [],
-        failedLoginAttempts: 0
-      }
-    });
-
-    return UserSecuritySchema.parse(security);
+    const security = repo.create({ userId, otpMethods: [], otpBackupCodes: [], failedLoginAttempts: 0 });
+    const saved = await repo.save(security);
+    return UserSecuritySchema.parse(saved);
   }
 
   static async updateUserSecurity(userId: string, data: Partial<UserSecurity>): Promise<UserSecurity> {
-    const security = await systemPrisma.userSecurity.findUnique({
-      where: { userId }
-    });
+    const ds = await getSystemDataSource();
+    const repo = ds.getRepository(UserSecurityEntity);
+    const security = await repo.findOne({ where: { userId } });
+    if (!security) throw new Error('Security record not found');
 
-    if (!security) {
-      throw new Error("Security record not found");
-    }
-
-    const updated = await systemPrisma.userSecurity.update({
-      where: { userId },
-      data
-    });
-
-    return UserSecuritySchema.parse(updated);
+    await repo.update({ userId }, data as any);
+    const updated = await repo.findOne({ where: { userId } });
+    return UserSecuritySchema.parse(updated!);
   }
 
   static async upsertUserSecurity(userId: string, data: Partial<UserSecurity>): Promise<UserSecurity> {
-    const security = await systemPrisma.userSecurity.upsert({
-      where: { userId },
-      update: data,
-      create: {
-        userId,
-        ...data,
-        otpMethods: data.otpMethods ?? [],
-        otpBackupCodes: data.otpBackupCodes ?? [],
-        failedLoginAttempts: data.failedLoginAttempts ?? 0
-      }
-    });
+    const ds = await getSystemDataSource();
+    const repo = ds.getRepository(UserSecurityEntity);
+    const existing = await repo.findOne({ where: { userId } });
 
-    return UserSecuritySchema.parse(security);
+    if (existing) {
+      await repo.update({ userId }, data as any);
+      const updated = await repo.findOne({ where: { userId } });
+      return UserSecuritySchema.parse(updated!);
+    }
+
+    const security = repo.create({
+      userId,
+      ...data,
+      otpMethods: data.otpMethods ?? [],
+      otpBackupCodes: data.otpBackupCodes ?? [],
+      failedLoginAttempts: data.failedLoginAttempts ?? 0,
+    });
+    const saved = await repo.save(security);
+    return UserSecuritySchema.parse(saved);
   }
 
   static async recordLoginAttempt(userId: string, success: boolean, ip?: string, device?: string): Promise<void> {
-    const security = await systemPrisma.userSecurity.findUnique({
-      where: { userId }
-    });
-
-    if (!security) {
-      throw new Error("Security record not found");
-    }
+    const ds = await getSystemDataSource();
+    const repo = ds.getRepository(UserSecurityEntity);
+    const security = await repo.findOne({ where: { userId } });
+    if (!security) throw new Error('Security record not found');
 
     if (success) {
-      await systemPrisma.userSecurity.update({
-        where: { userId },
-        data: {
-          lastLoginAt: new Date(),
-          lastLoginIp: ip,
-          lastLoginDevice: device,
-          failedLoginAttempts: 0,
-          lockedUntil: null
-        }
+      await repo.update({ userId }, {
+        lastLoginAt: new Date(),
+        lastLoginIp: ip,
+        lastLoginDevice: device,
+        failedLoginAttempts: 0,
+        lockedUntil: undefined,
       });
     } else {
       const attempts = security.failedLoginAttempts + 1;
-      const lockedUntil = attempts >= 5
-        ? new Date(Date.now() + 15 * 60 * 1000)
-        : null;
-
-      await systemPrisma.userSecurity.update({
-        where: { userId },
-        data: {
-          failedLoginAttempts: attempts,
-          lockedUntil
-        }
-      });
+      const lockedUntil = attempts >= 5 ? new Date(Date.now() + 15 * 60 * 1000) : undefined;
+      await repo.update({ userId }, { failedLoginAttempts: attempts, lockedUntil });
     }
   }
 
   static async isLocked(userId: string): Promise<boolean> {
-    const security = await systemPrisma.userSecurity.findUnique({
-      where: { userId }
-    });
-
-    if (!security || !security.lockedUntil) {
-      return false;
-    }
-
+    const ds = await getSystemDataSource();
+    const security = await ds.getRepository(UserSecurityEntity).findOne({ where: { userId } });
+    if (!security || !security.lockedUntil) return false;
     return new Date() < security.lockedUntil;
   }
 }

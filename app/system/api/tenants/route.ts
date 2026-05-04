@@ -1,3 +1,4 @@
+import Logger from '@/libs/logger';
 import { NextResponse } from "next/server";
 import TenantService from "@/modules/tenant/tenant.service";
 import UserSessionNextService from "@/modules/user_session/user_session.service.next";
@@ -25,7 +26,7 @@ export async function GET(request: NextRequest) {
     const pageSize = searchParams.get('pageSize') ? parseInt(searchParams.get('pageSize') || '10', 10) : 10;
     const search = searchParams.get('search') || null;
 
-    console.log('Fetching tenants with', { page, pageSize, search });
+    Logger.info('Fetching tenants with', { page, pageSize, search });
 
     const { tenants, total } = await TenantService.getAll({
       page,
@@ -34,11 +35,11 @@ export async function GET(request: NextRequest) {
       tenantId: null
     });
 
-    console.log(`Fetched ${tenants.length} tenants (total: ${total})`);
+    Logger.info(`Fetched ${tenants.length} tenants (total: ${total})`);
 
     return NextResponse.json({ tenants, total, page, pageSize });
   } catch (error: any) {
-    console.error('Error fetching tenants:', error);
+    Logger.error('Error fetching tenants:', error);
     return NextResponse.json(
       { message: error.message },
       { status: 500 }

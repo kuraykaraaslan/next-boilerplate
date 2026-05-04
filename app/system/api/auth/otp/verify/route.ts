@@ -1,3 +1,4 @@
+import Logger from '@/libs/logger';
 import { NextResponse } from "next/server";
 import UserSessionNextService from "@/modules/user_session/user_session.service.next";
 import OTPService from "@/modules/auth/auth.otp.service";
@@ -49,7 +50,7 @@ export async function POST(request: NextRequest) {
 
 
   } catch (err: any) {
-    console.error("Verify OTP Error:", err);
+    Logger.error("Verify OTP Error:", err);
     return NextResponse.json(
       {
         message: err.message || AuthMessages.OTP_VERIFICATION_FAILED,

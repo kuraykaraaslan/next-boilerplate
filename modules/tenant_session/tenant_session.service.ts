@@ -1,5 +1,9 @@
+import 'reflect-metadata';
 import { env } from '@/libs/env';
-import { tenantPrisma, tenantPrismaFor } from '@/libs/prisma';
+import { IsNull } from 'typeorm';
+import { tenantDataSourceFor, getDefaultTenantDataSource } from '@/libs/typeorm';
+import { Tenant as TenantEntity } from '@/modules/tenant/entities/tenant.entity';
+import { TenantMember as TenantMemberEntity } from '@/modules/tenant_member/entities/tenant_member.entity';
 import redis from '@/libs/redis';
 import { SafeTenant, SafeTenantSchema } from '@/modules/tenant/tenant.types';
 import { SafeTenantMember, SafeTenantMemberSchema } from '@/modules/tenant_member/tenant_member.types';
@@ -13,217 +17,94 @@ export default class TenantSessionService {
 
   private static readonly ROLE_HIERARCHY: TenantMemberRole[] = ['OWNER', 'ADMIN', 'USER'];
 
-  /**
-   * Check if user has required role in tenant based on role hierarchy
-   * @param memberRole - The user's role in the tenant
-   * @param requiredRole - The required role
-   * @returns true if user has required role or higher
-   */
   static hasRequiredRole(memberRole: TenantMemberRole, requiredRole: TenantMemberRole): boolean {
-    const memberRoleIndex = this.ROLE_HIERARCHY.indexOf(memberRole);
-    const requiredRoleIndex = this.ROLE_HIERARCHY.indexOf(requiredRole);
-
-    // Lower index = higher role (OWNER = 0, ADMIN = 1, USER = 2)
-    return memberRoleIndex <= requiredRoleIndex;
+    return TenantSessionService.ROLE_HIERARCHY.indexOf(memberRole) <= TenantSessionService.ROLE_HIERARCHY.indexOf(requiredRole);
   }
 
-  /**
-   * Get tenant by ID
-   * @param tenantId - The tenant ID
-   * @returns The tenant or null
-   */
   static async getTenantById(tenantId: string): Promise<SafeTenant | null> {
-    const db = await tenantPrismaFor(tenantId);
-    const tenant = await db.tenant.findUnique({
-      where: { tenantId },
-    });
-
-    if (!tenant) {
-      return null;
-    }
-
-    return SafeTenantSchema.parse(tenant);
+    const ds = await tenantDataSourceFor(tenantId);
+    const tenant = await ds.getRepository(TenantEntity).findOne({ where: { tenantId } });
+    return tenant ? SafeTenantSchema.parse(tenant) : null;
   }
 
-  /**
-   * Get tenant membership for a user
-   * @param tenantId - The tenant ID
-   * @param userId - The user ID
-   * @returns The tenant member or null
-   */
   static async getTenantMembership(tenantId: string, userId: string): Promise<SafeTenantMember | null> {
-    const db = await tenantPrismaFor(tenantId);
-    const tenantMember = await db.tenantMember.findFirst({
-      where: { tenantId, userId, deletedAt: null },
-    });
-
-    if (!tenantMember) {
-      return null;
-    }
-
-    return SafeTenantMemberSchema.parse(tenantMember);
+    const ds = await tenantDataSourceFor(tenantId);
+    const member = await ds.getRepository(TenantMemberEntity).findOne({ where: { tenantId, userId, deletedAt: IsNull() } });
+    return member ? SafeTenantMemberSchema.parse(member) : null;
   }
 
-  /**
-   * Validate tenant status
-   * @param tenant - The tenant to validate
-   * @throws Error if tenant is inactive or suspended
-   */
   static validateTenantStatus(tenant: SafeTenant): void {
-    if (tenant.tenantStatus === 'INACTIVE') {
-      throw new Error(TenantAuthMessages.TENANT_INACTIVE);
-    }
-
-    if (tenant.tenantStatus === 'SUSPENDED') {
-      throw new Error(TenantAuthMessages.TENANT_SUSPENDED);
-    }
+    if (tenant.tenantStatus === 'INACTIVE') throw new Error(TenantAuthMessages.TENANT_INACTIVE);
+    if (tenant.tenantStatus === 'SUSPENDED') throw new Error(TenantAuthMessages.TENANT_SUSPENDED);
   }
 
-  /**
-   * Validate tenant member status
-   * @param tenantMember - The tenant member to validate
-   * @throws Error if member is inactive, suspended, or pending
-   */
   static validateMemberStatus(tenantMember: SafeTenantMember): void {
-    if (tenantMember.memberStatus === 'INACTIVE') {
-      throw new Error(TenantAuthMessages.MEMBER_INACTIVE);
-    }
-
-    if (tenantMember.memberStatus === 'SUSPENDED') {
-      throw new Error(TenantAuthMessages.MEMBER_SUSPENDED);
-    }
-
-    if (tenantMember.memberStatus === 'PENDING') {
-      throw new Error(TenantAuthMessages.MEMBER_PENDING);
-    }
+    if (tenantMember.memberStatus === 'INACTIVE') throw new Error(TenantAuthMessages.MEMBER_INACTIVE);
+    if (tenantMember.memberStatus === 'SUSPENDED') throw new Error(TenantAuthMessages.MEMBER_SUSPENDED);
+    if (tenantMember.memberStatus === 'PENDING') throw new Error(TenantAuthMessages.MEMBER_PENDING);
   }
 
-  /**
-   * Authenticate user's tenant membership with caching
-   * @param user - The authenticated user
-   * @param tenantId - The tenant ID
-   * @param requiredRole - The required tenant role
-   * @returns The tenant and tenant member
-   */
-  static async authenticateTenantMembership({
-    user,
-    tenantId,
-    requiredRole = 'USER',
-  }: {
+  static async authenticateTenantMembership({ user, tenantId, requiredRole = 'USER' }: {
     user: SafeUser;
     tenantId: string;
     requiredRole?: TenantMemberRole;
-  }): Promise<{
-    tenant: SafeTenant;
-    tenantMember: SafeTenantMember;
-  }> {
-    // Try cache first
+  }): Promise<{ tenant: SafeTenant; tenantMember: SafeTenantMember }> {
     const cacheKey = `tenant:member:${user.userId}:${tenantId}`;
     const cached = await redis.get(cacheKey);
 
     if (cached) {
       try {
         const cachedData = JSON.parse(cached);
-        if (cachedData && cachedData.tenant && cachedData.tenantMember) {
-          const { tenant, tenantMember } = cachedData;
-
-          // Verify role requirement
-          if (!this.hasRequiredRole(tenantMember.memberRole, requiredRole)) {
+        if (cachedData?.tenant && cachedData?.tenantMember) {
+          if (!this.hasRequiredRole(cachedData.tenantMember.memberRole, requiredRole)) {
             throw new Error(TenantAuthMessages.INSUFFICIENT_TENANT_PERMISSIONS);
           }
-
-          return { tenant, tenantMember };
-        } else {
-          // Invalid cache, delete it
-          await redis.del(cacheKey);
+          return { tenant: cachedData.tenant, tenantMember: cachedData.tenantMember };
         }
-      } catch (error) {
-        // Cache parsing failed, delete and continue
+      } catch {
         await redis.del(cacheKey);
       }
     }
 
-    // Get tenant from database
     const tenant = await this.getTenantById(tenantId);
-
-    if (!tenant) {
-      throw new Error(TenantAuthMessages.TENANT_NOT_FOUND);
-    }
-
-    // Validate tenant status
+    if (!tenant) throw new Error(TenantAuthMessages.TENANT_NOT_FOUND);
     this.validateTenantStatus(tenant);
 
-    // Get tenant membership
     const tenantMember = await this.getTenantMembership(tenantId, user.userId);
-
-    if (!tenantMember) {
-      throw new Error(TenantAuthMessages.USER_NOT_MEMBER_OF_TENANT);
-    }
-
-    // Validate member status
+    if (!tenantMember) throw new Error(TenantAuthMessages.USER_NOT_MEMBER_OF_TENANT);
     this.validateMemberStatus(tenantMember);
 
-    // Check role requirement
     if (!this.hasRequiredRole(tenantMember.memberRole, requiredRole)) {
       throw new Error(TenantAuthMessages.INSUFFICIENT_TENANT_PERMISSIONS);
     }
 
-    // Cache the result
-    await redis.setex(
-      cacheKey,
-      TENANT_CACHE_TTL,
-      JSON.stringify({ tenant, tenantMember })
-    );
-
+    await redis.setex(cacheKey, TENANT_CACHE_TTL, JSON.stringify({ tenant, tenantMember }));
     return { tenant, tenantMember };
   }
 
-  /**
-   * Get all tenants for a user
-   * @param userId - The user ID
-   * @returns List of tenants the user is a member of
-   */
-  static async getUserTenants(userId: string): Promise<Array<{
-    tenant: SafeTenant;
-    tenantMember: SafeTenantMember;
-  }>> {
-    const memberships = await tenantPrisma.tenantMember.findMany({
-      where: {
-        userId,
-        memberStatus: 'ACTIVE',
-      },
-      include: {
-        tenant: true,
-      },
+  static async getUserTenants(userId: string): Promise<Array<{ tenant: SafeTenant; tenantMember: SafeTenantMember }>> {
+    const ds = await getDefaultTenantDataSource();
+    const members = await ds.getRepository(TenantMemberEntity).find({
+      where: { userId, memberStatus: 'ACTIVE', deletedAt: IsNull() },
     });
 
-    return memberships
-      .filter(m => m.tenant.tenantStatus === 'ACTIVE')
-      .map(m => ({
-        tenant: SafeTenantSchema.parse(m.tenant),
-        tenantMember: SafeTenantMemberSchema.parse(m),
-      }));
-  }
-
-  /**
-   * Clear tenant cache for a specific user and tenant
-   * @param userId - The user ID
-   * @param tenantId - The tenant ID
-   */
-  static async clearTenantCache(userId: string, tenantId: string): Promise<void> {
-    const cacheKey = `tenant:member:${userId}:${tenantId}`;
-    await redis.del(cacheKey);
-  }
-
-  /**
-   * Clear all tenant caches for a user
-   * @param userId - The user ID
-   */
-  static async clearUserTenantCaches(userId: string): Promise<void> {
-    const pattern = `tenant:member:${userId}:*`;
-    const keys = await redis.keys(pattern);
-    if (keys.length > 0) {
-      await redis.del(...keys);
+    const results: Array<{ tenant: SafeTenant; tenantMember: SafeTenantMember }> = [];
+    for (const m of members) {
+      const tDs = await tenantDataSourceFor(m.tenantId);
+      const tenant = await tDs.getRepository(TenantEntity).findOne({ where: { tenantId: m.tenantId } });
+      if (tenant && tenant.tenantStatus === 'ACTIVE') {
+        results.push({ tenant: SafeTenantSchema.parse(tenant), tenantMember: SafeTenantMemberSchema.parse(m) });
+      }
     }
+    return results;
+  }
+
+  static async clearTenantCache(userId: string, tenantId: string): Promise<void> {
+    await redis.del(`tenant:member:${userId}:${tenantId}`);
+  }
+
+  static async clearUserTenantCaches(userId: string): Promise<void> {
+    const keys = await redis.keys(`tenant:member:${userId}:*`);
+    if (keys.length > 0) await redis.del(...keys);
   }
 }

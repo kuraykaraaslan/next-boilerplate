@@ -1,3 +1,4 @@
+import Logger from '@/libs/logger';
 import { NextResponse } from "next/server";
 import UserSessionNextService from "@/modules/user_session/user_session.service.next";
 import TOTPService from "@/modules/auth/auth.totp.service";
@@ -25,7 +26,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ message: AuthMessages.TOTP_DISABLED_SUCCESSFULLY });
   } catch (err: any) {
-    console.error("TOTP Disable Error:", err);
+    Logger.error("TOTP Disable Error:", err);
     return NextResponse.json({ message: err.message || AuthMessages.TOTP_DISABLE_FAILED }, { status: 500 });
   }
 }

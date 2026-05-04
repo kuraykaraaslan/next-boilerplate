@@ -1,101 +1,109 @@
-// path: app/system/api/auth/me/tenants/route.ts
-import { NextRequest, NextResponse } from "next/server";
-import UserSessionNextService from "@/modules/user_session/user_session.service.next";
-import Limiter from "@/libs/limiter";
-import { tenantPrisma } from "@/libs/prisma";
+import 'reflect-metadata';
+import { IsNull, In, MoreThan } from 'typeorm';
+import { NextRequest, NextResponse } from 'next/server';
+import UserSessionNextService from '@/modules/user_session/user_session.service.next';
+import Limiter from '@/libs/limiter';
+import { getDefaultTenantDataSource, tenantDataSourceFor } from '@/libs/typeorm';
+import { TenantMember as TenantMemberEntity } from '@/modules/tenant_member/entities/tenant_member.entity';
+import { Tenant as TenantEntity } from '@/modules/tenant/entities/tenant.entity';
+import { TenantDomain as TenantDomainEntity } from '@/modules/tenant_domain/entities/tenant_domain.entity';
+import { TenantInvitation as TenantInvitationEntity } from '@/modules/tenant_invitation/entities/tenant_invitation.entity';
 
 /**
  * GET /system/api/auth/me/tenants
- * Get all tenants the current user is a member of, plus pending invitations
+ * Get all tenants the current user is a member of, plus pending invitations.
  */
 export async function GET(request: NextRequest) {
-    try {
-        await Limiter.checkRateLimit(request);
+  try {
+    await Limiter.checkRateLimit(request);
 
-        const { user } = await UserSessionNextService.authenticateUserByRequest({
-            request,
-            requiredUserRole: "USER"
+    const { user } = await UserSessionNextService.authenticateUserByRequest({
+      request,
+      requiredUserRole: 'USER',
+    });
+
+    const ds = await getDefaultTenantDataSource();
+
+    const memberships = await ds.getRepository(TenantMemberEntity).find({
+      where: { userId: user.userId, memberStatus: 'ACTIVE', deletedAt: IsNull() },
+      order: { createdAt: 'DESC' },
+    });
+
+    const tenants = await Promise.all(
+      memberships.map(async (m) => {
+        const tDs = await tenantDataSourceFor(m.tenantId);
+        const tenant = await tDs.getRepository(TenantEntity).findOne({
+          where: { tenantId: m.tenantId, tenantStatus: 'ACTIVE', deletedAt: IsNull() },
+        });
+        if (!tenant) return null;
+
+        const domains = await tDs.getRepository(TenantDomainEntity).find({
+          where: [
+            { tenantId: m.tenantId, domainStatus: 'ACTIVE' },
+            { tenantId: m.tenantId, domainStatus: 'VERIFIED' },
+          ],
         });
 
-        // Get all tenant memberships for this user with tenant details
-        const memberships = await tenantPrisma.tenantMember.findMany({
-            where: {
-                userId: user.userId,
-                memberStatus: 'ACTIVE',
-                deletedAt: null,
-                tenant: {
-                    tenantStatus: 'ACTIVE',
-                    deletedAt: null
-                }
-            },
-            include: {
-                tenant: {
-                    select: {
-                        tenantId: true,
-                        name: true,
-                        description: true,
-                        tenantStatus: true,
-                        domains: {
-                            where: {
-                                domainStatus: {
-                                    in: ['ACTIVE', 'VERIFIED']
-                                }
-                            },
-                        }
-                    }
-                }
-            },
-            orderBy: { createdAt: 'desc' }
+        return {
+          tenantMemberId: m.tenantMemberId,
+          memberRole: m.memberRole,
+          memberStatus: m.memberStatus,
+          tenant: {
+            tenantId: tenant.tenantId,
+            name: tenant.name,
+            description: tenant.description,
+            tenantStatus: tenant.tenantStatus,
+            domains,
+          },
+        };
+      })
+    );
+
+    const now = new Date();
+    const pendingInvitations = await ds.getRepository(TenantInvitationEntity).find({
+      where: { email: user.email.toLowerCase(), status: 'PENDING', expiresAt: MoreThan(now) },
+      order: { createdAt: 'DESC' },
+    });
+
+    const tenantIds = [...new Set(pendingInvitations.map((i) => i.tenantId))];
+    const invitationTenants: Record<string, any> = {};
+    await Promise.all(
+      tenantIds.map(async (tenantId) => {
+        const tDs = await tenantDataSourceFor(tenantId);
+        const t = await tDs.getRepository(TenantEntity).findOne({
+          where: { tenantId },
         });
+        if (t) {
+          invitationTenants[tenantId] = {
+            tenantId: t.tenantId,
+            name: t.name,
+            description: t.description,
+            tenantStatus: t.tenantStatus,
+          };
+        }
+      })
+    );
 
-        const tenants = memberships.map(m => ({
-            tenantMemberId: m.tenantMemberId,
-            memberRole: m.memberRole,
-            memberStatus: m.memberStatus,
-            tenant: m.tenant
-        }));
+    const invitations = pendingInvitations.map((inv) => ({
+      invitationId: inv.invitationId,
+      tenantId: inv.tenantId,
+      memberRole: inv.memberRole,
+      status: inv.status,
+      expiresAt: inv.expiresAt,
+      createdAt: inv.createdAt,
+      tenant: invitationTenants[inv.tenantId] ?? null,
+    }));
 
-        // Get pending invitations for this user's email
-        const now = new Date();
-        const pendingInvitations = await tenantPrisma.tenantInvitation.findMany({
-            where: {
-                email: user.email.toLowerCase(),
-                status: 'PENDING',
-                expiresAt: { gt: now },
-            },
-            include: {
-                tenant: {
-                    select: {
-                        tenantId: true,
-                        name: true,
-                        description: true,
-                        tenantStatus: true,
-                    }
-                }
-            },
-            orderBy: { createdAt: 'desc' }
-        });
-
-        const invitations = pendingInvitations.map(inv => ({
-            invitationId: inv.invitationId,
-            tenantId: inv.tenantId,
-            memberRole: inv.memberRole,
-            status: inv.status,
-            expiresAt: inv.expiresAt,
-            createdAt: inv.createdAt,
-            tenant: inv.tenant
-        }));
-
-        return NextResponse.json({
-            success: true,
-            tenants,
-            invitations
-        }, { status: 200 });
-
-    } catch (error: any) {
-        return NextResponse.json(
-            { success: false, message: error.message },
-            { status: error.message.includes('Unauthorized') ? 401 : 500 }
-        );
-    }
+    return NextResponse.json({
+      success: true,
+      tenants: tenants.filter(Boolean),
+      invitations,
+    }, { status: 200 });
+  } catch (error: any) {
+    console.error('Error in GET /system/api/auth/me/tenants:', error);
+    return NextResponse.json(
+      { success: false, message: error.message },
+      { status: error.message.includes('Unauthorized') ? 401 : 500 }
+    );
+  }
 }

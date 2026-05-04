@@ -1,157 +1,114 @@
-import { systemPrisma } from "@/libs/prisma";
-import { UserProfile, UserProfileSchema, SocialLinkItem } from "./user_profile.types";
+import 'reflect-metadata';
+import { getSystemDataSource } from '@/libs/typeorm';
+import { UserProfile as UserProfileEntity } from './entities/user_profile.entity';
+import { UserProfile, UserProfileSchema, SocialLinkItem } from './user_profile.types';
 
 export default class UserProfileService {
 
   static async getByUserId(userId: string): Promise<UserProfile | null> {
-    const profile = await systemPrisma.userProfile.findUnique({
-      where: { userId }
-    });
-
-    if (!profile) {
-      return null;
-    }
-
-    return UserProfileSchema.parse(profile);
+    const ds = await getSystemDataSource();
+    const profile = await ds.getRepository(UserProfileEntity).findOne({ where: { userId } });
+    return profile ? UserProfileSchema.parse(profile) : null;
   }
 
   static async create(userId: string, data?: Partial<UserProfile>): Promise<UserProfile> {
-    const existing = await systemPrisma.userProfile.findUnique({
-      where: { userId }
+    const ds = await getSystemDataSource();
+    const repo = ds.getRepository(UserProfileEntity);
+    const existing = await repo.findOne({ where: { userId } });
+    if (existing) throw new Error('Profile already exists for this user');
+
+    const profile = repo.create({
+      userId,
+      name: data?.name ?? undefined,
+      biography: data?.biography ?? undefined,
+      profilePicture: data?.profilePicture ?? undefined,
+      headerImage: data?.headerImage ?? undefined,
+      socialLinks: data?.socialLinks ?? [],
     });
-
-    if (existing) {
-      throw new Error("Profile already exists for this user");
-    }
-
-    const profile = await systemPrisma.userProfile.create({
-      data: {
-        userId,
-        name: data?.name ?? null,
-        biography: data?.biography ?? null,
-        profilePicture: data?.profilePicture ?? null,
-        headerImage: data?.headerImage ?? null,
-        socialLinks: data?.socialLinks ?? []
-      }
-    });
-
-    return UserProfileSchema.parse(profile);
+    const saved = await repo.save(profile);
+    return UserProfileSchema.parse(saved);
   }
 
   static async update(userId: string, data: Partial<UserProfile>): Promise<UserProfile> {
-    const profile = await systemPrisma.userProfile.findUnique({
-      where: { userId }
+    const ds = await getSystemDataSource();
+    const repo = ds.getRepository(UserProfileEntity);
+    const profile = await repo.findOne({ where: { userId } });
+    if (!profile) throw new Error('Profile not found');
+
+    await repo.update({ userId }, {
+      name: data.name || undefined,
+      biography: data.biography || undefined,
+      profilePicture: data.profilePicture || undefined,
+      headerImage: data.headerImage || undefined,
+      socialLinks: data.socialLinks,
     });
-
-    if (!profile) {
-      throw new Error("Profile not found");
-    }
-
-    const updated = await systemPrisma.userProfile.update({
-      where: { userId },
-      data: {
-        name: data.name ? data.name : undefined,
-        biography: data.biography ? data.biography : undefined,
-        profilePicture: data.profilePicture ? data.profilePicture : undefined,
-        headerImage: data.headerImage ? data.headerImage : undefined,
-        socialLinks: data.socialLinks
-      }
-    });
-
-    return UserProfileSchema.parse(updated);
+    const updated = await repo.findOne({ where: { userId } });
+    return UserProfileSchema.parse(updated!);
   }
 
   static async upsert(userId: string, data: Partial<UserProfile>): Promise<UserProfile> {
-    const profile = await systemPrisma.userProfile.upsert({
-      where: { userId },
-      update: {
-        name: data.name ? data.name : undefined,
-        biography: data.biography ? data.biography : undefined,
-        profilePicture: data.profilePicture ? data.profilePicture : undefined,
-        headerImage: data.headerImage ? data.headerImage : undefined,
-        socialLinks: data.socialLinks
-      },
-      create: {
-        userId,
-        name: data?.name ?? null,
-        biography: data?.biography ?? null,
-        profilePicture: data?.profilePicture ?? null,
-        headerImage: data?.headerImage ?? null,
-        socialLinks: data?.socialLinks ?? []
-      }
-    });
+    const ds = await getSystemDataSource();
+    const repo = ds.getRepository(UserProfileEntity);
+    const existing = await repo.findOne({ where: { userId } });
 
-    return UserProfileSchema.parse(profile);
+    if (existing) {
+      await repo.update({ userId }, {
+        name: data.name || undefined,
+        biography: data.biography || undefined,
+        profilePicture: data.profilePicture || undefined,
+        headerImage: data.headerImage || undefined,
+        socialLinks: data.socialLinks,
+      });
+      const updated = await repo.findOne({ where: { userId } });
+      return UserProfileSchema.parse(updated!);
+    }
+
+    return this.create(userId, data);
   }
 
   static async delete(userId: string): Promise<void> {
-    const profile = await systemPrisma.userProfile.findUnique({
-      where: { userId }
-    });
-
-    if (!profile) {
-      throw new Error("Profile not found");
-    }
-
-    await systemPrisma.userProfile.delete({ where: { userId } });
+    const ds = await getSystemDataSource();
+    const repo = ds.getRepository(UserProfileEntity);
+    const profile = await repo.findOne({ where: { userId } });
+    if (!profile) throw new Error('Profile not found');
+    await repo.delete({ userId });
   }
 
   static async addSocialLink(userId: string, link: SocialLinkItem): Promise<UserProfile> {
-    const profile = await systemPrisma.userProfile.findUnique({
-      where: { userId }
-    });
-
-    if (!profile) {
-      throw new Error("Profile not found");
-    }
+    const ds = await getSystemDataSource();
+    const repo = ds.getRepository(UserProfileEntity);
+    const profile = await repo.findOne({ where: { userId } });
+    if (!profile) throw new Error('Profile not found');
 
     const socialLinks = [...(profile.socialLinks as SocialLinkItem[]), link];
-
-    const updated = await systemPrisma.userProfile.update({
-      where: { userId },
-      data: { socialLinks }
-    });
-
-    return UserProfileSchema.parse(updated);
+    await repo.update({ userId }, { socialLinks });
+    const updated = await repo.findOne({ where: { userId } });
+    return UserProfileSchema.parse(updated!);
   }
 
   static async removeSocialLink(userId: string, linkId: string): Promise<UserProfile> {
-    const profile = await systemPrisma.userProfile.findUnique({
-      where: { userId }
-    });
+    const ds = await getSystemDataSource();
+    const repo = ds.getRepository(UserProfileEntity);
+    const profile = await repo.findOne({ where: { userId } });
+    if (!profile) throw new Error('Profile not found');
 
-    if (!profile) {
-      throw new Error("Profile not found");
-    }
-
-    const socialLinks = (profile.socialLinks as SocialLinkItem[]).filter(link => link.id !== linkId);
-
-    const updated = await systemPrisma.userProfile.update({
-      where: { userId },
-      data: { socialLinks }
-    });
-
-    return UserProfileSchema.parse(updated);
+    const socialLinks = (profile.socialLinks as SocialLinkItem[]).filter((l) => l.id !== linkId);
+    await repo.update({ userId }, { socialLinks });
+    const updated = await repo.findOne({ where: { userId } });
+    return UserProfileSchema.parse(updated!);
   }
 
   static async updateSocialLink(userId: string, linkId: string, data: Partial<SocialLinkItem>): Promise<UserProfile> {
-    const profile = await systemPrisma.userProfile.findUnique({
-      where: { userId }
-    });
+    const ds = await getSystemDataSource();
+    const repo = ds.getRepository(UserProfileEntity);
+    const profile = await repo.findOne({ where: { userId } });
+    if (!profile) throw new Error('Profile not found');
 
-    if (!profile) {
-      throw new Error("Profile not found");
-    }
-
-    const socialLinks = (profile.socialLinks as SocialLinkItem[]).map(link =>
-      link.id === linkId ? { ...link, ...data } : link
+    const socialLinks = (profile.socialLinks as SocialLinkItem[]).map((l) =>
+      l.id === linkId ? { ...l, ...data } : l
     );
-
-    const updated = await systemPrisma.userProfile.update({
-      where: { userId },
-      data: { socialLinks }
-    });
-
-    return UserProfileSchema.parse(updated);
+    await repo.update({ userId }, { socialLinks });
+    const updated = await repo.findOne({ where: { userId } });
+    return UserProfileSchema.parse(updated!);
   }
 }

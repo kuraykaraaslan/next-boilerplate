@@ -126,9 +126,7 @@ export default class TenantSessionNextService {
         updatedAt: new Date(),
       };
 
-      // @ts-ignore
       request.tenant = tenant;
-      // @ts-ignore
       request.tenantMember = virtualMember;
 
       const isImpersonating = !!(request as any).isImpersonating;
@@ -160,9 +158,7 @@ export default class TenantSessionNextService {
       };
 
       // Attach to request
-      // @ts-ignore
       request.tenant = tenant;
-      // @ts-ignore
       request.tenantMember = virtualTenantMember;
 
       return { user, userSession, tenant, tenantMember: virtualTenantMember, isGlobalAdmin: true };
@@ -176,9 +172,7 @@ export default class TenantSessionNextService {
     });
 
     // Step 5: Attach to request
-    // @ts-ignore
     request.tenant = tenant;
-    // @ts-ignore
     request.tenantMember = tenantMember;
 
     return { user, userSession, tenant, tenantMember, isGlobalAdmin: false };

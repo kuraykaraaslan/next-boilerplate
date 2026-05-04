@@ -27,7 +27,7 @@ const EnvSchema = z.object({
   CSRF_SECRET: z.string().min(1),
 
   // ── Session / Token TTLs ────────────────────────────────────────────────────
-  SESSION_CACHE_TTL: z.coerce.number().optional(),
+  SESSION_CACHE_TTL: z.coerce.number().default(1800),
   SESSION_EXPIRY_MS: z.coerce.number().optional(),
   RESET_TOKEN_EXPIRY_SECONDS: z.coerce.number().optional(),
   RESET_TOKEN_LENGTH: z.coerce.number().optional(),

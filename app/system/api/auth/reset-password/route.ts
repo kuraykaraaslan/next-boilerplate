@@ -1,3 +1,4 @@
+import Logger from '@/libs/logger';
 // Original path: app/api/auth/login/route.ts
 
  
@@ -56,7 +57,7 @@ export async function POST(request: NextRequest) {
 
     }
     catch (error: any) {
-        console.error(error);
+        Logger.error(error);
         return NextResponse.json({ error: AuthMessages.PASSWORD_RESET_FAILED }, { status: 500 });
     }
 }

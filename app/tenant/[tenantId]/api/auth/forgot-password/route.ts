@@ -1,3 +1,4 @@
+import Logger from '@/libs/logger';
 import { NextRequest, NextResponse } from "next/server";
 import Limiter from "@/libs/limiter";
 import PasswordService from "@/modules/auth/auth.password.service";
@@ -30,7 +31,7 @@ export async function POST(
 
     return NextResponse.json({ message: AuthMessages.FORGOT_PASSWORD_SUCCESSFUL }, { status: 200 });
   } catch (error: any) {
-    console.error(error);
+    Logger.error(error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

@@ -1,12 +1,12 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-import UserSessionNextService from "@/modules/user_session/user_session.service.next";
-import { systemPrisma } from "@/libs/prisma";
-import { Prisma } from "@/prisma/system/client";
-import { SafeUserSessionSchema } from "@/modules/user_session/user_session.types";
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { Not, IsNull, MoreThan } from 'typeorm';
+import UserSessionNextService from '@/modules/user_session/user_session.service.next';
+import { getSystemDataSource } from '@/libs/typeorm';
+import { UserSession as UserSessionEntity } from '@/modules/user_session/entities/user_session.entity';
+import { SafeUserSessionSchema } from '@/modules/user_session/user_session.types';
 
 // GET /system/api/users/[userId]/impersonation-sessions
-// Audit history of impersonation sessions targeting a user (system admin only)
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ userId: string }> }
@@ -14,30 +14,28 @@ export async function GET(
   try {
     await UserSessionNextService.authenticateUserByRequest({
       request,
-      requiredUserRole: "ADMIN",
+      requiredUserRole: 'ADMIN',
     });
 
     const { userId } = await params;
 
-    const url      = new URL(request.url);
-    const page     = Math.max(1, parseInt(url.searchParams.get("page") ?? "1"));
-    const pageSize = Math.min(100, Math.max(1, parseInt(url.searchParams.get("pageSize") ?? "20")));
-    const activeOnly = url.searchParams.get("activeOnly") === "true";
+    const url = new URL(request.url);
+    const page = Math.max(1, parseInt(url.searchParams.get('page') ?? '1'));
+    const pageSize = Math.min(100, Math.max(1, parseInt(url.searchParams.get('pageSize') ?? '20')));
+    const activeOnly = url.searchParams.get('activeOnly') === 'true';
 
-    const where = {
+    const where: Record<string, unknown> = {
       userId,
-      metadata: { not: Prisma.JsonNull },
-      ...(activeOnly ? { sessionExpiry: { gt: new Date() } } : {}),
+      metadata: Not(IsNull()),
     };
+    if (activeOnly) where.sessionExpiry = MoreThan(new Date());
+
+    const ds = await getSystemDataSource();
+    const repo = ds.getRepository(UserSessionEntity);
 
     const [sessions, total] = await Promise.all([
-      systemPrisma.userSession.findMany({
-        where,
-        orderBy: { createdAt: "desc" },
-        skip: (page - 1) * pageSize,
-        take: pageSize,
-      }),
-      systemPrisma.userSession.count({ where }),
+      repo.find({ where: where as any, order: { createdAt: 'DESC' }, skip: (page - 1) * pageSize, take: pageSize }),
+      repo.count({ where: where as any }),
     ]);
 
     return NextResponse.json({

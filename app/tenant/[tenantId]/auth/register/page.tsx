@@ -2,8 +2,8 @@
 import { use, useState } from 'react';
 import api from '@/libs/axios';
 import { BrandLogo } from '@/modules/ui/BrandLogo';
-import { RegisterForm } from '@/modules/domains/common/auth/RegisterForm';
-import { OAuthButtons } from '@/modules/domains/common/auth/OAuthButtons';
+import { RegisterForm } from '@/modules/auth/ui/auth.register';
+import { OAuthButtons } from '@/modules/auth/ui/auth.oauth-buttons';
 
 export default function TenantRegisterPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = use(params);
