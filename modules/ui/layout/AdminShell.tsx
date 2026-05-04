@@ -6,6 +6,8 @@ import { AppShell } from '@/modules/ui/layout/AppShell';
 import { AppSidebar } from '@/modules/ui/layout/AppSidebar';
 import { AppTopBar } from '@/modules/ui/layout/AppTopBar';
 import { UserMenu } from '@/modules/user/ui/user.menu';
+import { NotificationMenu } from '@/modules/ui/NotificationMenu';
+import { useNotifications } from '@/modules/notification_inapp/use-notifications.hook';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faUsers,
@@ -33,6 +35,9 @@ export function AdminShell({ children, variant, tenantId }: AdminShellProps) {
 
   const [userEmail, setUserEmail] = useState('');
   const [userName, setUserName]   = useState('');
+
+  const notifBase = variant === 'system' ? '/system/api/auth/me' : null;
+  const { items: notifications, markAllRead } = useNotifications(notifBase ?? '/system/api/auth/me');
 
   useEffect(() => {
     const sessionUrl = variant === 'system'
@@ -137,6 +142,11 @@ export function AdminShell({ children, variant, tenantId }: AdminShellProps) {
   const topbar = (
     <AppTopBar>
       <div className="flex-1" />
+      <NotificationMenu
+        items={notifications}
+        onMarkAllRead={markAllRead}
+        align="right"
+      />
       {userEmail && (
         <UserMenu
           user={{ name: userName || userEmail, email: userEmail }}
