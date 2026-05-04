@@ -10,7 +10,7 @@ import AuthMessages from "@/modules/auth/auth.messages";
 export async function POST(request: NextRequest) {
     try {
 
-        const { userSession } = await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "USER", otpVerifyBypass: true });
+        const { userSession } = await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:read"], otpVerifyBypass: true });
 
         const response = NextResponse.json({
             

@@ -12,7 +12,7 @@ import UserSecurityService from "@/modules/user_security/user_security.service";
 export async function POST(request: NextRequest) {
   try {
     // Authenticate the user
-    const { user, userSession } = await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "USER" });
+    const { user, userSession } = await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:read"] });
 
     const body = await request.json();
 

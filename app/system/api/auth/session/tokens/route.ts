@@ -6,7 +6,7 @@ export async function GET(request: NextRequest) {
     try {
         await Limiter.checkRateLimit(request);
 
-        await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "USER" });
+        await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:read"] });
 
         const accessToken = request.cookies.get('accessToken')?.value;
         const refreshToken = request.cookies.get('refreshToken')?.value;

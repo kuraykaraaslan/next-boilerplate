@@ -8,7 +8,7 @@ import AuthMessages from "@/modules/auth/auth.messages";
 export async function POST(request: NextRequest) {
     try {
         await Limiter.checkRateLimit(request);
-        await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "USER" });
+        await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:read"] });
 
         const userId = request.user?.userId;
 

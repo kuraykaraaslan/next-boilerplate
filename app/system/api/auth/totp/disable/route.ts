@@ -8,7 +8,7 @@ import { TOTPDisableDTO } from "@/modules/auth/auth.dto";
 
 export async function POST(request: NextRequest) {
   try {
-    const { user } = await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "USER" });
+    const { user } = await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:read"] });
 
     const body = await request.json();
 

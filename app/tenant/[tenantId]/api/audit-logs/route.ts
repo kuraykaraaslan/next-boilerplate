@@ -21,7 +21,7 @@ export async function GET(
 
     await TenantSessionNextService.authenticateTenantByRequest({
       request,
-      requiredTenantRole: 'ADMIN',
+      requiredScopes: ["tenant:admin"],
       tenantId,
     });
 

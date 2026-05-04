@@ -29,7 +29,7 @@ export async function POST(
     const { user, userSession, tenantMember } =
       await TenantSessionNextService.authenticateTenantByRequest({
         request,
-        requiredTenantRole: "ADMIN",
+        requiredScopes: ["tenant:admin"],
         tenantIdSource: "param",
         tenantId,
       });

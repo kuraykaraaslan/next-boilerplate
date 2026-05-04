@@ -13,7 +13,7 @@ export async function PUT(
   { params }: { params: Promise<{ planId: string; featureId: string }> }
 ) {
   try {
-    await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: 'ADMIN' })
+    await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:admin"] })
     const { featureId } = await params
 
     const body = await request.json()
@@ -45,7 +45,7 @@ export async function DELETE(
   { params }: { params: Promise<{ planId: string; featureId: string }> }
 ) {
   try {
-    await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: 'ADMIN' })
+    await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:admin"] })
     const { featureId } = await params
 
     await TenantSubscriptionService.removeFeature(featureId)

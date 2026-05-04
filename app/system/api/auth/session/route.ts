@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
     try {
         await Limiter.checkRateLimit(request);
 
-        await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "USER" });
+        await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:read"] });
 
         return NextResponse.json({ 
             user: request.user,

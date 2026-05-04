@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
         // Any authenticated user can create a tenant
         const { user } = await UserSessionNextService.authenticateUserByRequest({
             request,
-            requiredUserRole: "USER"
+            requiredScopes: ["system:read"]
         });
 
         const body = await request.json();

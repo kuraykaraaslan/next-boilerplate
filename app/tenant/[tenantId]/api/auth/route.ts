@@ -18,7 +18,7 @@ export async function GET(
 
     const { user, userSession, tenant, tenantMember } = await TenantSessionNextService.authenticateTenantByRequest({
       request,
-      requiredTenantRole: "USER",
+      requiredScopes: ["tenant:read"],
       tenantId
     });
 

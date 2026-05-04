@@ -13,7 +13,7 @@ export async function GET(
   { params }: { params: Promise<{ planId: string }> }
 ) {
   try {
-    await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: 'ADMIN' })
+    await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:admin"] })
     const { planId } = await params
 
     const features = await TenantSubscriptionService.getFeaturesByPlan(planId)
@@ -35,7 +35,7 @@ export async function POST(
   { params }: { params: Promise<{ planId: string }> }
 ) {
   try {
-    await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: 'ADMIN' })
+    await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:admin"] })
     const { planId } = await params
 
     const body = await request.json()

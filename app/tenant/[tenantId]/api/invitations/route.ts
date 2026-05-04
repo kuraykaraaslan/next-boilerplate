@@ -20,7 +20,7 @@ export async function GET(
 
     await TenantSessionNextService.authenticateTenantByRequest({
       request,
-      requiredTenantRole: "ADMIN",
+      requiredScopes: ["tenant:admin"],
       tenantId,
     });
 
@@ -56,7 +56,7 @@ export async function POST(
 
     const { user } = await TenantSessionNextService.authenticateTenantByRequest({
       request,
-      requiredTenantRole: "ADMIN",
+      requiredScopes: ["tenant:admin"],
       tenantId,
     });
 

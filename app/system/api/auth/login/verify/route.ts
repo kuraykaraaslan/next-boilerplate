@@ -11,7 +11,7 @@ import UserSessionService from "@/modules/user_session/user_session.service";
 export async function POST(request: NextRequest) {
   try {
     // Authenticate the user
-    const { user, userSession } = await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "USER", otpVerifyBypass: true });
+    const { user, userSession } = await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:read"], otpVerifyBypass: true });
 
     const body = await request.json();
     

@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
 
     await UserSessionNextService.authenticateUserByRequest({
       request,
-      requiredUserRole: 'ADMIN',
+      requiredScopes: ["system:admin"],
     });
 
     const { searchParams } = new URL(request.url);

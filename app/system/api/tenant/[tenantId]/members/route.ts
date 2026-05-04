@@ -19,7 +19,7 @@ export async function GET(
     // Require global admin role
     await UserSessionNextService.authenticateUserByRequest({
       request,
-      requiredUserRole: "ADMIN",
+      requiredScopes: ["system:admin"],
     });
 
     const { searchParams } = new URL(request.url);
@@ -67,7 +67,7 @@ export async function POST(
 
     await UserSessionNextService.authenticateUserByRequest({
       request,
-      requiredUserRole: "ADMIN",
+      requiredScopes: ["system:admin"],
     });
 
     const body = await request.json();

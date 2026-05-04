@@ -14,7 +14,7 @@ export async function GET(
   try {
     await UserSessionNextService.authenticateUserByRequest({
       request,
-      requiredUserRole: 'ADMIN',
+      requiredScopes: ["system:admin"],
     });
 
     const { userId } = await params;

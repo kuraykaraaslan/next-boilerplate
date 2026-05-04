@@ -21,7 +21,7 @@ export async function GET(
 
     const { userId } = await params
 
-    await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "USER" });
+    await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:read"] });
 
     const user = await UserService.getById(userId);
 
@@ -55,7 +55,7 @@ export async function DELETE(
 ) {
   try {
 
-    await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "ADMIN" });
+    await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:admin"] });
 
     const { userId } = await params
 
@@ -94,7 +94,7 @@ export async function PUT(
 ) {
   try {
 
-    await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "ADMIN" });
+    await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:admin"] });
 
     const { userId } = await params
 

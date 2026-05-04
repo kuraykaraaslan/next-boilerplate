@@ -22,7 +22,7 @@ export async function GET(
     // Authenticate and verify tenant membership (USER role minimum)
     await TenantSessionNextService.authenticateTenantByRequest({
       request,
-      requiredTenantRole: "USER",
+      requiredScopes: ["tenant:read"],
       tenantId: tenantId
     });
 
@@ -75,7 +75,7 @@ export async function POST(
     // Only ADMIN and OWNER can add members
     await TenantSessionNextService.authenticateTenantByRequest({
       request,
-      requiredTenantRole: "ADMIN",
+      requiredScopes: ["tenant:admin"],
       tenantId
     });
 

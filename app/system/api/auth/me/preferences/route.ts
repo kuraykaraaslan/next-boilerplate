@@ -13,7 +13,7 @@ export async function PUT(request: NextRequest) {
     try {
 
         await Limiter.checkRateLimit(request);
-        await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "USER" });
+        await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:read"] });
 
         const userId = request.user?.userId;
         if (!userId) {
@@ -57,7 +57,7 @@ export async function PUT(request: NextRequest) {
 export async function GET(request: NextRequest) {
     try {
         await Limiter.checkRateLimit(request);
-        await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "USER" });
+        await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:read"] });
         
         const userId = request.user?.userId;
         const userPreferences = await UserPreferencesService.getByUserId(userId);

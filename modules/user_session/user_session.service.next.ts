@@ -11,6 +11,7 @@ import { SafeUserSecurity } from '@/modules/user_security/user_security.types';
 import UserSessionService from './user_session.service';
 import { getSystemDataSource } from '@/libs/typeorm';
 import { User as UserEntity } from '../user/entities/user.entity';
+import { type AuthScope, resolveSystemScopes, hasRequiredScopes } from '@/modules/auth/auth.scopes';
 
 const SESSION_CACHE_TTL = env.SESSION_CACHE_TTL;
 
@@ -181,10 +182,12 @@ export default class UserSessionNextService {
   static async authenticateUserByRequest<T extends string = "USER">({
     request,
     requiredUserRole = "USER" as T,
+    requiredScopes,
     otpVerifyBypass = false,
   }: {
     request: NextRequest;
     requiredUserRole?: T;
+    requiredScopes?: AuthScope[];
     otpVerifyBypass?: boolean;
   }): Promise<
     T extends "GUEST"
@@ -218,13 +221,24 @@ export default class UserSessionNextService {
         throw new Error(UserSessionMessages.SESSION_EXPIRED);
       }
 
-      // Check user role
-      const userRoleKeys = ["GUEST", "USER", "ADMIN"];
-      const requiredUserRoleKeyIndex = userRoleKeys.indexOf(requiredUserRole);
-      const userRoleKeyIndex = userRoleKeys.indexOf(user.userRole);
+      // Resolve and attach granted scopes
+      const grantedScopes = resolveSystemScopes(user.userRole);
+      request.grantedScopes = grantedScopes;
 
-      if (userRoleKeyIndex < requiredUserRoleKeyIndex) {
-        throw new Error(UserSessionMessages.USER_DOES_NOT_HAVE_REQUIRED_ROLE);
+      if (requiredScopes && requiredScopes.length > 0) {
+        // Scope-based check
+        if (!hasRequiredScopes(grantedScopes, requiredScopes)) {
+          throw new Error(UserSessionMessages.USER_DOES_NOT_HAVE_REQUIRED_SCOPE);
+        }
+      } else {
+        // Legacy role-based check
+        const userRoleKeys = ["GUEST", "USER", "ADMIN"];
+        const requiredUserRoleKeyIndex = userRoleKeys.indexOf(requiredUserRole);
+        const userRoleKeyIndex = userRoleKeys.indexOf(user.userRole);
+
+        if (userRoleKeyIndex < requiredUserRoleKeyIndex) {
+          throw new Error(UserSessionMessages.USER_DOES_NOT_HAVE_REQUIRED_ROLE);
+        }
       }
 
       request.user = user;

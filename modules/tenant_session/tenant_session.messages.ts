@@ -8,6 +8,7 @@ const TenantAuthMessages = {
   MEMBER_SUSPENDED: "Tenant membership is suspended",
   MEMBER_PENDING: "Tenant membership is pending approval",
   INSUFFICIENT_TENANT_PERMISSIONS: "Insufficient permissions for this tenant operation",
+  INSUFFICIENT_TENANT_SCOPE: "Insufficient scope for this tenant operation",
   INVALID_TENANT_ID_SOURCE: "Invalid tenant ID source",
 } as const;
 

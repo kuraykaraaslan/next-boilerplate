@@ -7,6 +7,7 @@ import UserSessionNextService from '@/modules/user_session/user_session.service.
 import TenantSessionService from './tenant_session.service';
 import TenantAuthMessages from './tenant_session.messages';
 import type { TenantMemberRole } from '@/modules/tenant_member/tenant_member.enums';
+import { type AuthScope, resolveTenantScopes, hasRequiredScopes } from '@/modules/auth/auth.scopes';
 
 type TenantIdSource = 'header' | 'subdomain' | 'query' | 'body' | 'param';
 
@@ -68,6 +69,7 @@ export default class TenantSessionNextService {
   static async authenticateTenantByRequest({
     request,
     requiredTenantRole = 'USER',
+    requiredScopes,
     tenantIdSource = 'header',
     tenantId: directTenantId,
     otpVerifyBypass = false,
@@ -75,6 +77,7 @@ export default class TenantSessionNextService {
   }: {
     request: NextRequest;
     requiredTenantRole?: TenantMemberRole;
+    requiredScopes?: AuthScope[];
     tenantIdSource?: TenantIdSource;
     tenantId?: string;
     otpVerifyBypass?: boolean;
@@ -112,7 +115,16 @@ export default class TenantSessionNextService {
       TenantSessionService.validateTenantStatus(tenant);
 
       const role = impersonation.targetTenantRole as TenantMemberRole;
-      if (!TenantSessionService.hasRequiredRole(role, requiredTenantRole)) {
+
+      const tenantScopes = resolveTenantScopes(role);
+      const allScopes: AuthScope[] = [...(request.grantedScopes ?? []), ...tenantScopes];
+      request.grantedScopes = allScopes;
+
+      if (requiredScopes && requiredScopes.length > 0) {
+        if (!hasRequiredScopes(allScopes, requiredScopes)) {
+          throw new Error(TenantAuthMessages.INSUFFICIENT_TENANT_SCOPE);
+        }
+      } else if (!TenantSessionService.hasRequiredRole(role, requiredTenantRole)) {
         throw new Error(TenantAuthMessages.INSUFFICIENT_TENANT_PERMISSIONS);
       }
 
@@ -157,6 +169,10 @@ export default class TenantSessionNextService {
         updatedAt: new Date(),
       };
 
+      // Resolve and attach all tenant scopes (OWNER → all 4 tenant scopes)
+      const tenantScopes = resolveTenantScopes('OWNER');
+      request.grantedScopes = [...(request.grantedScopes ?? []), ...tenantScopes];
+
       // Attach to request
       request.tenant = tenant;
       request.tenantMember = virtualTenantMember;
@@ -168,8 +184,19 @@ export default class TenantSessionNextService {
     const { tenant, tenantMember } = await TenantSessionService.authenticateTenantMembership({
       user,
       tenantId,
-      requiredRole: requiredTenantRole,
+      requiredRole: requiredScopes && requiredScopes.length > 0 ? 'USER' : requiredTenantRole,
     });
+
+    // Resolve and attach tenant scopes
+    const tenantScopes = resolveTenantScopes(tenantMember.memberRole as TenantMemberRole);
+    const allScopes: AuthScope[] = [...(request.grantedScopes ?? []), ...tenantScopes];
+    request.grantedScopes = allScopes;
+
+    if (requiredScopes && requiredScopes.length > 0) {
+      if (!hasRequiredScopes(allScopes, requiredScopes)) {
+        throw new Error(TenantAuthMessages.INSUFFICIENT_TENANT_SCOPE);
+      }
+    }
 
     // Step 5: Attach to request
     request.tenant = tenant;

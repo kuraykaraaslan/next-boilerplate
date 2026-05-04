@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
 
     const { user } = await UserSessionNextService.authenticateUserByRequest({
       request,
-      requiredUserRole: 'USER',
+      requiredScopes: ["system:read"],
     });
 
     const ds = await getDefaultTenantDataSource();

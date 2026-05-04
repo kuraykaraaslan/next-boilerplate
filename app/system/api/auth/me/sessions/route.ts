@@ -4,7 +4,7 @@ import UserSessionCrudService from "@/modules/user_session/user_session.crud.ser
 
 export async function GET(request: NextRequest) {
   try {
-    const { user } = await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "USER" });
+    const { user } = await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:read"] });
     const sessions = await UserSessionCrudService.getUserSessions(user.userId);
     return NextResponse.json({ sessions });
   } catch (err: any) {

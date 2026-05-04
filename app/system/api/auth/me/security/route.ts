@@ -7,7 +7,7 @@ import UserSecurityService from "@/modules/user_security/user_security.service";
 export async function GET(request: NextRequest) {
   try {
     // Authenticate the user
-    const { user } = await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "USER" });
+    const { user } = await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:read"] });
 
     const userSecurity = await UserSecurityService.getSafeByUserId(user.userId); // HAD TO BE SAFE
 
