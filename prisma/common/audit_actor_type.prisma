@@ -1,5 +1,0 @@
-// Shared across system and tenant databases
-enum AuditActorType {
-  USER
-  SYSTEM
-}

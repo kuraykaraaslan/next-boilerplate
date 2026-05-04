@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import FontAwesomeConfig from '@/modules/app/FontAwesomeConfig';
+import FontAwesomeConfig from '@/modules/ui/layout/FontAwesomeConfig';
 import { Providers } from './providers';
 import './globals.css';
 

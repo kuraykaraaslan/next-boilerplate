@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { IsNull, In, MoreThan } from 'typeorm';
 import { NextRequest, NextResponse } from 'next/server';
+import Logger from '@/libs/logger';
 import UserSessionNextService from '@/modules/user_session/user_session.service.next';
 import Limiter from '@/libs/limiter';
 import { getDefaultTenantDataSource, tenantDataSourceFor } from '@/libs/typeorm';
@@ -100,7 +101,7 @@ export async function GET(request: NextRequest) {
       invitations,
     }, { status: 200 });
   } catch (error: any) {
-    console.error('Error in GET /system/api/auth/me/tenants:', error);
+    Logger.error(`[GET /system/api/auth/me/tenants] ${error.message}`);
     return NextResponse.json(
       { success: false, message: error.message },
       { status: error.message.includes('Unauthorized') ? 401 : 500 }
