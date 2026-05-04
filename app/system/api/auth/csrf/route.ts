@@ -1,6 +1,6 @@
 import Logger from '@/libs/logger';
 import { env } from '@/libs/env';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 const CSRF_COOKIE_NAME = 'csrf-token';
 const CSRF_HEADER_NAME = 'x-csrf-token';
@@ -71,7 +71,7 @@ export async function GET() {
     return response;
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Failed to generate CSRF token';
-    Logger.error('[CSRF] Token generation error:', errorMessage);
+    Logger.error('[CSRF] Token generation error');
     
     return NextResponse.json(
       {

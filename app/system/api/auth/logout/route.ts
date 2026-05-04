@@ -2,7 +2,7 @@ import Logger from '@/libs/logger';
 // Original path: app/api/auth/logout/route.ts
 
  
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import UserSessionMessages from "@/modules/user_session/user_session.messages";
 import UserSessionNextService from "@/modules/user_session/user_session.service.next";
 import AuthMessages from "@/modules/auth/auth.messages";

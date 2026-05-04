@@ -40,7 +40,7 @@ export default class UserSessionTokenService {
   }
 
   static generateAccessToken(payload: TokenPayload): string {
-    return jwt.sign(payload, ACCESS_TOKEN_SECRET as Secret, {
+    return (jwt.sign as Function)(payload, ACCESS_TOKEN_SECRET, {
       subject: payload.userId,
       issuer: APPLICATION_DOMAIN,
       audience: "web",
@@ -49,7 +49,7 @@ export default class UserSessionTokenService {
   }
 
   static generateRefreshToken(payload: TokenPayload): string {
-    return jwt.sign(payload, REFRESH_TOKEN_SECRET as Secret, {
+    return (jwt.sign as Function)(payload, REFRESH_TOKEN_SECRET, {
       subject: payload.userId,
       issuer: APPLICATION_DOMAIN,
       audience: "web",

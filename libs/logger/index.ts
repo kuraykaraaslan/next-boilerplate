@@ -64,16 +64,24 @@ export default class Logger {
   });
 
 
-  static info(message: string) {
-    Logger.infoLogger.info(message);
+  private static serialize(...args: any[]): string {
+    return args.map(a => (typeof a === 'object' && a !== null) ? JSON.stringify(a) : String(a)).join(' ');
   }
 
-  static error(message: string) {
-    Logger.errorLogger.error(message);
+  static info(message: string, ...args: any[]) {
+    Logger.infoLogger.info(args.length > 0 ? `${message} ${Logger.serialize(...args)}` : message);
   }
 
-  static warn(message: string) {
-    Logger.warnLogger.warn(message);
+  static error(message: string, ...args: any[]) {
+    Logger.errorLogger.error(args.length > 0 ? `${message} ${Logger.serialize(...args)}` : message);
+  }
+
+  static warn(message: string, ...args: any[]) {
+    Logger.warnLogger.warn(args.length > 0 ? `${message} ${Logger.serialize(...args)}` : message);
+  }
+
+  static debug(message: string, ...args: any[]) {
+    Logger.infoLogger.info(args.length > 0 ? `[DEBUG] ${message} ${Logger.serialize(...args)}` : `[DEBUG] ${message}`);
   }
 
   /* Disabled on NEXTJS

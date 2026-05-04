@@ -59,8 +59,8 @@ export default class ImpersonationService {
       targetUser: {
         userId: targetUser.userId,
         email: targetUser.email,
-        emailVerifiedAt: targetUser.emailVerifiedAt,
-        phone: targetUser.phone,
+        emailVerifiedAt: targetUser.emailVerifiedAt ?? null,
+        phone: targetUser.phone ?? null,
         userRole: targetUser.userRole as any,
         userStatus: targetUser.userStatus as any,
         createdAt: targetUser.createdAt,
@@ -129,8 +129,8 @@ export default class ImpersonationService {
       targetUser: {
         userId: targetUser.userId,
         email: targetUser.email,
-        emailVerifiedAt: targetUser.emailVerifiedAt,
-        phone: targetUser.phone,
+        emailVerifiedAt: targetUser.emailVerifiedAt ?? null,
+        phone: targetUser.phone ?? null,
         userRole: targetUser.userRole as any,
         userStatus: targetUser.userStatus as any,
         createdAt: targetUser.createdAt,

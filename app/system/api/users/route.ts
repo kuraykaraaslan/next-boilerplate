@@ -1,6 +1,6 @@
 
 
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import UserService from "@/modules/user/user.service";
 import { CreateUserRequestSchema } from "@/modules/user/user.dto";
 import UserSessionNextService from "@/modules/user_session/user_session.service.next";

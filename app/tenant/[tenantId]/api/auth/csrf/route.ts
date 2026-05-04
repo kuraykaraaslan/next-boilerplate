@@ -1,6 +1,6 @@
 import Logger from '@/libs/logger';
 import { env } from '@/libs/env';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 const CSRF_COOKIE_NAME = 'csrf-token';
 const CSRF_HEADER_NAME = 'x-csrf-token';

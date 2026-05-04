@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import SettingService from "@/modules/setting/setting.service";
 
 // Public olarak erişilebilir ayarlar (auth gerektirmez)

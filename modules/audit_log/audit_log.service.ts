@@ -18,7 +18,7 @@ export default class AuditLogService {
         const { tenantId, ...rest } = data;
         const ds = await tenantDataSourceFor(tenantId);
         const repo = ds.getRepository(TenantAuditLogEntity);
-        await repo.save(repo.create({ ...rest, tenantId }));
+        await repo.save(repo.create({ ...rest, tenantId } as any));
       } else {
         const { tenantId: _t, ...systemData } = data;
         const ds = await getSystemDataSource();

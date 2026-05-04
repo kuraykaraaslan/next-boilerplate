@@ -1,6 +1,6 @@
 import Logger from '@/libs/logger';
 // Original path: app/api/auth/callback/route.ts
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import SSOService from "@/modules/auth_sso/auth_sso.service";
 import Limiter from "@/libs/limiter";
 import { GenerateAuthUrlDTO } from "@/modules/auth_sso/auth_sso.dto";

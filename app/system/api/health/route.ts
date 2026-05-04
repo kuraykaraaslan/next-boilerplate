@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { SystemDataSource } from '@/libs/typeorm';
 import redis from '@/libs/redis';
 

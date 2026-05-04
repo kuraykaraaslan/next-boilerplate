@@ -1,5 +1,5 @@
 // path: app/api/auth/me/preferences/route.ts
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import UserSessionNextService from "@/modules/user_session/user_session.service.next";
 import UserPreferencesService from "@/modules/user_preferences/user_preferences.service";
 import Limiter from "@/libs/limiter";
@@ -60,6 +60,12 @@ export async function GET(request: NextRequest) {
         await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:read"] });
         
         const userId = request.user?.userId;
+        if (!userId) {
+            return NextResponse.json(
+                { message: AuthMessages.USER_NOT_AUTHENTICATED },
+                { status: 401 }
+            );
+        }
         const userPreferences = await UserPreferencesService.getByUserId(userId);
         
         return NextResponse.json(

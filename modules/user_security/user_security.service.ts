@@ -66,7 +66,7 @@ export default class UserSecurityService {
       otpMethods: data.otpMethods ?? [],
       otpBackupCodes: data.otpBackupCodes ?? [],
       failedLoginAttempts: data.failedLoginAttempts ?? 0,
-    });
+    } as any);
     const saved = await repo.save(security);
     return UserSecuritySchema.parse(saved);
   }

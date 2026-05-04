@@ -197,7 +197,7 @@ export default class TenantDomainService {
       recordValue: method === 'TXT'
         ? DNSVerificationService.getTxtRecordValue(token)
         : DNSVerificationService.getCnameRecordTarget(),
-      domainStatus: domain.domainStatus,
+      domainStatus: domain.domainStatus as "ACTIVE" | "INACTIVE" | "PENDING" | "VERIFIED",
     };
   }
 
@@ -229,7 +229,7 @@ export default class TenantDomainService {
       method: verification.method,
       recordName: verification.recordName,
       recordValue: verification.recordValue,
-      domainStatus: domain.domainStatus,
+      domainStatus: domain.domainStatus as "ACTIVE" | "INACTIVE" | "PENDING" | "VERIFIED",
     };
   }
 

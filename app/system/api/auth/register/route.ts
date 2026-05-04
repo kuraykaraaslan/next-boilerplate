@@ -1,7 +1,7 @@
 import Logger from '@/libs/logger';
 // Original path: app/api/auth/register/route.ts
 
-import {NextResponse } from "next/server";
+import {NextRequest, NextResponse } from "next/server";
 import Limiter from "@/libs/limiter";
 import AuthService from "@/modules/auth/auth.service";
 import { RegisterDTO } from "@/modules/auth/auth.dto";

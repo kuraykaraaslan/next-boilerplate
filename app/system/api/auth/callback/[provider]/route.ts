@@ -1,7 +1,7 @@
 import { env } from '@/libs/env';
 // Original path: app/api/auth/callback/route.ts
 
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import UserSessionNextService from "@/modules/user_session/user_session.service.next";
 import SSOService from "@/modules/auth_sso/auth_sso.service";
 import MailService from "@/modules/notification_mail/notification_mail.service";
@@ -23,7 +23,7 @@ export async function GET(
 
     if (!code) {
         //redirect to frontend
-        NextResponse.redirect(`${env.APPLICATION_HOST}/auth/login?error=${SSOMessages.CODE_NOT_FOUND}`);
+        return NextResponse.redirect(`${env.APPLICATION_HOST}/auth/login?error=${SSOMessages.CODE_NOT_FOUND}`);
     }
 
     //check if provider is valid
@@ -107,7 +107,7 @@ export async function POST(
 
     if (!code) {
         //redirect to frontend
-        NextResponse.redirect(`${env.APPLICATION_HOST}/auth/login?error=${SSOMessages.CODE_NOT_FOUND}`);
+        return NextResponse.redirect(`${env.APPLICATION_HOST}/auth/login?error=${SSOMessages.CODE_NOT_FOUND}`);
     }
 
     //check if provider is valid

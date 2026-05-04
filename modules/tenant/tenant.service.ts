@@ -44,7 +44,7 @@ export default class TenantService {
   static async create(data: CreateTenantInput): Promise<SafeTenant> {
     const ds = await getDefaultTenantDataSource();
     const repo = ds.getRepository(TenantEntity);
-    const tenant = repo.create({ ...data, tenantStatus: 'ACTIVE' });
+    const tenant = repo.create({ ...data, tenantStatus: 'ACTIVE' } as any);
     const saved = await repo.save(tenant);
     return SafeTenantSchema.parse(saved);
   }

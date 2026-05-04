@@ -115,7 +115,7 @@ export function ServerDataTable<T extends Record<string, unknown>>({
                   <th
                     key={String(col.key)}
                     scope="col"
-                    aria-sort={col.sortable ? (col.sortDir ?? 'none') : undefined}
+                    aria-sort={col.sortable ? (col.sortDir ?? 'none') as any : undefined}
                     className={cn(
                       'px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider',
                       col.sortable && 'cursor-pointer select-none hover:text-text-primary',

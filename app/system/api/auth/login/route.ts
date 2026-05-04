@@ -1,14 +1,13 @@
 import Logger from '@/libs/logger';
 // Original path: app/api/auth/login/route.ts
 
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import AuthService from "@/modules/auth/auth.service";
 import UserSessionNextService from "@/modules/user_session/user_session.service.next";
 import Limiter from "@/libs/limiter";
 import { LoginDTO } from "@/modules/auth/auth.dto";
 import MailService from "@/modules/notification_mail/notification_mail.service";
 import { SafeUserSecuritySchema } from '@/modules/user_security/user_security.types';
-import UserSessionMessages from "@/modules/user_session/user_session.messages";
 import AuthMessages from "@/modules/auth/auth.messages";
 import UserSecurityService from "@/modules/user_security/user_security.service";
 

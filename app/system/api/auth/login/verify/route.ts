@@ -1,5 +1,5 @@
 import Logger from '@/libs/logger';
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import UserSessionNextService from "@/modules/user_session/user_session.service.next";
 import OTPService from "@/modules/auth/auth.otp.service";
 import TOTPService from "@/modules/auth/auth.totp.service";
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({  message: AuthMessages.OTP_VERIFIED_SUCCESSFULLY });
 
   } catch (err: any) {
-    Logger.error("Send OTP Error:", err);
+    Logger.error("Send OTP Error:");
     return NextResponse.json(
       {
         message: err.message || "OTP could not be sent",

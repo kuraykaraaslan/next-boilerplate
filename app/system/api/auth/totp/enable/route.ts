@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import UserSessionNextService from "@/modules/user_session/user_session.service.next";
 import TOTPService from "@/modules/auth/auth.totp.service";
 import UserSessionMessages from "@/modules/user_session/user_session.messages";
