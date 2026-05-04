@@ -1,0 +1,41 @@
+// path: app/system/api/ai/embed/route.ts
+import { NextRequest, NextResponse } from "next/server";
+import UserSessionNextService from "@/modules/user_session/user_session.service.next";
+import AIService from "@/modules/ai/ai.service";
+import Limiter from "@/libs/limiter";
+import { z } from "zod";
+
+const EmbedDTO = z.object({
+  input: z.union([z.string().min(1), z.array(z.string().min(1)).min(1)]),
+  model: z.string().optional(),
+  provider: z.enum(["openai", "anthropic", "google"]).optional(),
+});
+
+/**
+ * POST /system/api/ai/embed
+ * Generate embeddings (system:read)
+ */
+export async function POST(request: NextRequest) {
+  try {
+    await Limiter.checkRateLimit(request);
+
+    await UserSessionNextService.authenticateUserByRequest({
+      request,
+      requiredScopes: ["system:read"],
+    });
+
+    const body = await request.json();
+    const parsed = EmbedDTO.safeParse(body);
+
+    if (!parsed.success) {
+      return NextResponse.json({ message: parsed.error.issues.map((i) => i.message).join(", ") }, { status: 400 });
+    }
+
+    const response = await AIService.embed(parsed.data as any);
+
+    return NextResponse.json(response, { status: 200 });
+  } catch (error: any) {
+    const status = error.code === "NOT_CONFIGURED" ? 503 : error.statusCode ?? 500;
+    return NextResponse.json({ message: error.message }, { status });
+  }
+}

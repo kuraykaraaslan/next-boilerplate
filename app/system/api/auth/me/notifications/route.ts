@@ -1,0 +1,47 @@
+// path: app/system/api/auth/me/notifications/route.ts
+import { NextRequest, NextResponse } from "next/server";
+import UserSessionNextService from "@/modules/user_session/user_session.service.next";
+import NotificationInAppService from "@/modules/notification_inapp/notification_inapp.service";
+import Limiter from "@/libs/limiter";
+
+/**
+ * GET /system/api/auth/me/notifications
+ * Get all notifications for the current user
+ */
+export async function GET(request: NextRequest) {
+  try {
+    await Limiter.checkRateLimit(request);
+
+    const { user } = await UserSessionNextService.authenticateUserByRequest({
+      request,
+      requiredScopes: ["system:read"],
+    });
+
+    const notifications = await NotificationInAppService.getAll(user.userId);
+
+    return NextResponse.json({ notifications }, { status: 200 });
+  } catch (error: any) {
+    return NextResponse.json({ message: error.message }, { status: 500 });
+  }
+}
+
+/**
+ * DELETE /system/api/auth/me/notifications
+ * Clear all notifications for the current user
+ */
+export async function DELETE(request: NextRequest) {
+  try {
+    await Limiter.checkRateLimit(request);
+
+    const { user } = await UserSessionNextService.authenticateUserByRequest({
+      request,
+      requiredScopes: ["system:read"],
+    });
+
+    await NotificationInAppService.clearAll(user.userId);
+
+    return NextResponse.json({ message: "All notifications cleared" }, { status: 200 });
+  } catch (error: any) {
+    return NextResponse.json({ message: error.message }, { status: 500 });
+  }
+}

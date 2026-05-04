@@ -1,0 +1,91 @@
+// path: app/tenant/[tenantId]/api/settings/branding/route.ts
+import { NextRequest, NextResponse } from "next/server";
+import TenantSessionNextService from "@/modules/tenant_session/tenant_session.service.next";
+import TenantBrandingService from "@/modules/tenant_branding/tenant_branding.service";
+import { TenantBrandingSchema } from "@/modules/tenant_branding/tenant_branding.types";
+import Limiter from "@/libs/limiter";
+
+/**
+ * GET /tenant/[tenantId]/api/settings/branding
+ * Get branding settings for the tenant (tenant:admin)
+ */
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ tenantId: string }> }
+) {
+  try {
+    await Limiter.checkRateLimit(request);
+    const { tenantId } = await params;
+
+    await TenantSessionNextService.authenticateTenantByRequest({
+      request,
+      requiredScopes: ["tenant:admin"],
+      tenantId,
+    });
+
+    const branding = await TenantBrandingService.get(tenantId);
+
+    return NextResponse.json({ branding }, { status: 200 });
+  } catch (error: any) {
+    return NextResponse.json({ message: error.message }, { status: 500 });
+  }
+}
+
+/**
+ * PUT /tenant/[tenantId]/api/settings/branding
+ * Update branding settings for the tenant (tenant:admin)
+ */
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ tenantId: string }> }
+) {
+  try {
+    await Limiter.checkRateLimit(request);
+    const { tenantId } = await params;
+
+    await TenantSessionNextService.authenticateTenantByRequest({
+      request,
+      requiredScopes: ["tenant:admin"],
+      tenantId,
+    });
+
+    const body = await request.json();
+    const parsed = TenantBrandingSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return NextResponse.json({ message: parsed.error.issues.map((i) => i.message).join(", ") }, { status: 400 });
+    }
+
+    const branding = await TenantBrandingService.update(tenantId, parsed.data);
+
+    return NextResponse.json({ message: "Branding updated", branding }, { status: 200 });
+  } catch (error: any) {
+    return NextResponse.json({ message: error.message }, { status: 500 });
+  }
+}
+
+/**
+ * DELETE /tenant/[tenantId]/api/settings/branding
+ * Reset all branding settings to defaults (tenant:owner)
+ */
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ tenantId: string }> }
+) {
+  try {
+    await Limiter.checkRateLimit(request);
+    const { tenantId } = await params;
+
+    await TenantSessionNextService.authenticateTenantByRequest({
+      request,
+      requiredScopes: ["tenant:owner"],
+      tenantId,
+    });
+
+    await TenantBrandingService.reset(tenantId);
+
+    return NextResponse.json({ message: "Branding reset to defaults" }, { status: 200 });
+  } catch (error: any) {
+    return NextResponse.json({ message: error.message }, { status: 500 });
+  }
+}
