@@ -10,7 +10,7 @@ export default class SMTPProvider extends BaseMailProvider {
   private static readonly SMTP_PORT = env.SMTP_PORT || env.MAIL_PORT || "587";
   private static readonly SMTP_USER = env.SMTP_USER || env.MAIL_USER;
   private static readonly SMTP_PASS = env.SMTP_PASS || env.MAIL_PASS;
-  private static readonly SMTP_SECURE = env.SMTP_SECURE === "true";
+  private static readonly SMTP_SECURE = env.SMTP_SECURE ?? false;
 
   private transporter: Transporter | null = null;
 

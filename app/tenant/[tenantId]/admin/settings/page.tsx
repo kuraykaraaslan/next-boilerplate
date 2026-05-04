@@ -15,7 +15,7 @@ export default function TenantSettingsPage({ params }: { params: Promise<{ tenan
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
-    await api.patch(`/tenant/${tenantId}/api/settings`, general);
+    await api.put(`/tenant/${tenantId}/api/settings`, general);
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
   }

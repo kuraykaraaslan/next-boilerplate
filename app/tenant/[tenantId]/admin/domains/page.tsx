@@ -10,6 +10,8 @@ import { Spinner } from '@/modules/ui/Spinner';
 import { Modal } from '@/modules/ui/Modal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faTrash, faCheckCircle, faGlobe, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
+import { PageHeader } from '@/modules/ui/PageHeader';
+import { EmptyState } from '@/modules/ui/EmptyState';
 
 type MemberRole = 'USER' | 'ADMIN' | 'OWNER';
 
@@ -171,24 +173,14 @@ export default function TenantDomainsPage({ params }: { params: Promise<{ tenant
 
   return (
     <div className="space-y-6">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-xl font-semibold text-text-primary">Domains</h1>
-          <p className="text-sm text-text-secondary mt-0.5">
-            {loading ? '…' : `${domains.length} domain${domains.length !== 1 ? 's' : ''} configured`}
-          </p>
-        </div>
-        {isOwner && (
-          <Button
-            variant="primary"
-            size="sm"
-            iconLeft={<FontAwesomeIcon icon={faPlus} />}
-            onClick={() => { setAddOpen(true); setAddError(''); setNewDomain(''); }}
-          >
-            Add Domain
-          </Button>
-        )}
-      </div>
+      <PageHeader
+        title="Domains"
+        subtitle="Custom domains connected to this organization"
+        actions={isOwner ? [{
+          label: 'Add Domain',
+          onClick: () => { setAddOpen(true); setAddError(''); setNewDomain(''); },
+        }] : []}
+      />
 
       {fetchError && <AlertBanner variant="error" message={fetchError} />}
       {addSuccess && <AlertBanner variant="success" message={addSuccess} dismissible />}
@@ -241,20 +233,28 @@ export default function TenantDomainsPage({ params }: { params: Promise<{ tenant
           <div className="flex justify-center py-10">
             <Spinner size="lg" />
           </div>
+        ) : domains.length === 0 ? (
+          <EmptyState
+            icon={<FontAwesomeIcon icon={faGlobe} className="w-5 h-5" />}
+            title="No domains configured"
+            description="Add a custom domain to use with this organization."
+            action={isOwner ? (
+              <Button
+                onClick={() => { setAddOpen(true); setAddError(''); setNewDomain(''); }}
+                iconLeft={<FontAwesomeIcon icon={faPlus} />}
+              >
+                Add Domain
+              </Button>
+            ) : undefined}
+          />
         ) : (
           <div className="overflow-x-auto -mx-6 -mb-4">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border">
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary">
-                    Domain
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary">
-                    Added
-                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary">Domain</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary">Added</th>
                   <th className="px-6 py-3" />
                 </tr>
               </thead>
@@ -272,7 +272,7 @@ export default function TenantDomainsPage({ params }: { params: Promise<{ tenant
                           )}
                         </div>
                         {msg && (
-                          <p className={`mt-1 text-xs ${msg.ok ? 'text-green-600' : 'text-red-500'}`}>
+                          <p className={`mt-1 text-xs ${msg.ok ? 'text-success' : 'text-error'}`}>
                             {msg.text}
                           </p>
                         )}
@@ -313,21 +313,6 @@ export default function TenantDomainsPage({ params }: { params: Promise<{ tenant
                     </tr>
                   );
                 })}
-                {domains.length === 0 && (
-                  <tr>
-                    <td colSpan={4} className="px-6 py-10 text-center text-sm text-text-secondary">
-                      No domains configured yet.{' '}
-                      {isOwner && (
-                        <button
-                          className="text-primary underline-offset-2 hover:underline"
-                          onClick={() => { setAddOpen(true); setAddError(''); setNewDomain(''); }}
-                        >
-                          Add your first domain
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                )}
               </tbody>
             </table>
           </div>

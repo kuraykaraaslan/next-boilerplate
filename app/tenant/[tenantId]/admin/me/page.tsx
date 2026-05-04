@@ -1,138 +1,164 @@
 'use client';
 import { use, useEffect, useState } from 'react';
 import api from '@/libs/axios';
+import { PageHeader } from '@/modules/ui/PageHeader';
+import { TabGroup } from '@/modules/ui/TabGroup';
 import { Card } from '@/modules/ui/Card';
-import { Input } from '@/modules/ui/Input';
-import { Button } from '@/modules/ui/Button';
+import { Badge } from '@/modules/ui/Badge';
 import { Spinner } from '@/modules/ui/Spinner';
 import { AlertBanner } from '@/modules/ui/AlertBanner';
-import { Badge } from '@/modules/ui/Badge';
+import { UserProfileForm, type UserProfileValues } from '@/modules/domains/common/user/UserProfileForm';
+import { UserPreferencesForm, type UserPreferencesValues } from '@/modules/domains/common/user/UserPreferencesForm';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSave, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faEnvelope, faClock, faLayerGroup } from '@fortawesome/free-solid-svg-icons';
 
-interface UserProfile {
-  name: string | null;
-  biography: string | null;
-  profilePicture: string | null;
-  headerImage: string | null;
+interface SecurityInfo {
+  email?: string;
+  lastLoginAt?: string | null;
+  activeSessions?: number;
 }
+
+const ROLE_VARIANT: Record<string, 'success' | 'warning' | 'neutral' | 'primary'> = {
+  OWNER: 'success',
+  ADMIN: 'warning',
+  USER:  'neutral',
+};
 
 export default function TenantMePage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = use(params);
-
-  const [profile, setProfile] = useState<UserProfile>({
-    name: '',
-    biography: '',
-    profilePicture: '',
-    headerImage: '',
-  });
+  const [profile, setProfile] = useState<UserProfileValues>({ name: null, biography: null, profilePicture: null });
   const [memberRole, setMemberRole] = useState<string | null>(null);
+  const [security, setSecurity] = useState<SecurityInfo>({});
+  const [preferences, setPreferences] = useState<Partial<UserPreferencesValues>>({});
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
-    async function fetchData() {
-      try {
-        const [sessionRes, profileRes] = await Promise.all([
-          api.get(`/tenant/${tenantId}/api/auth/session`),
-          api.get(`/tenant/${tenantId}/api/auth/me/profile`),
-        ]);
+    Promise.all([
+      api.get(`/tenant/${tenantId}/api/auth/session`),
+      api.get(`/tenant/${tenantId}/api/auth/me/profile`),
+      api.get('/system/api/auth/me/preferences').catch(() => ({ data: {} })),
+    ])
+      .then(([sessionRes, profileRes, prefsRes]) => {
         setMemberRole(sessionRes.data.tenantMember?.memberRole ?? null);
+        setSecurity({ email: sessionRes.data.user?.email, lastLoginAt: sessionRes.data.user?.lastLoginAt });
         const p = profileRes.data.userProfile ?? {};
-        setProfile({
-          name: p.name ?? '',
-          biography: p.biography ?? '',
-          profilePicture: p.profilePicture ?? '',
-          headerImage: p.headerImage ?? '',
-        });
-      } catch (err: any) {
-        setErrorMsg(err.response?.data?.message ?? err.message);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchData();
+        setProfile({ name: p.name ?? null, biography: p.biography ?? null, profilePicture: p.profilePicture ?? null });
+        setPreferences(prefsRes.data.userPreferences ?? {});
+      })
+      .catch((err) => setErrorMsg(err.response?.data?.message ?? 'Failed to load profile.'))
+      .finally(() => setLoading(false));
   }, [tenantId]);
 
-  async function handleSave(e: React.FormEvent) {
-    e.preventDefault();
-    setSaving(true);
-    setSuccessMsg(null);
-    setErrorMsg(null);
+  async function handleProfileSave(values: UserProfileValues) {
+    setSuccessMsg(null); setErrorMsg(null);
     try {
-      await api.put(`/tenant/${tenantId}/api/auth/me/profile`, { userProfile: profile });
+      await api.put(`/tenant/${tenantId}/api/auth/me/profile`, { userProfile: values });
+      setProfile(values);
       setSuccessMsg('Profile updated successfully.');
       setTimeout(() => setSuccessMsg(null), 4000);
     } catch (err: any) {
-      setErrorMsg(err.response?.data?.message ?? err.message);
-    } finally {
-      setSaving(false);
+      setErrorMsg(err.response?.data?.message ?? 'Failed to update profile.');
+    }
+  }
+
+  async function handlePrefsSave(values: UserPreferencesValues) {
+    setSuccessMsg(null); setErrorMsg(null);
+    try {
+      await api.put('/system/api/auth/me/preferences', { userPreferences: values });
+      setPreferences(values);
+      setSuccessMsg('Preferences updated.');
+      setTimeout(() => setSuccessMsg(null), 4000);
+    } catch (err: any) {
+      setErrorMsg(err.response?.data?.message ?? 'Failed to update preferences.');
     }
   }
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-24">
-        <Spinner size="lg" />
-      </div>
-    );
+    return <div className="flex items-center justify-center py-24"><Spinner size="lg" /></div>;
   }
 
-  const roleBadgeVariant =
-    memberRole === 'OWNER' ? 'success' : memberRole === 'ADMIN' ? 'warning' : 'default';
+  const lastLogin = security.lastLoginAt ? new Date(security.lastLoginAt).toLocaleString() : 'Never';
 
   return (
     <div className="space-y-6">
-      <div className="flex items-start justify-between gap-4 flex-wrap">
-        <div>
-          <h1 className="text-xl font-semibold text-text-primary">My Profile</h1>
-          <p className="text-sm text-text-secondary mt-0.5">
-            Manage your personal information for this organization
-          </p>
-        </div>
-        {memberRole && (
-          <Badge variant={roleBadgeVariant}>{memberRole}</Badge>
-        )}
-      </div>
+      <PageHeader
+        title="My Profile"
+        subtitle="Manage your personal information for this organization"
+        badge={memberRole
+          ? <Badge variant={ROLE_VARIANT[memberRole] ?? 'neutral'}>{memberRole}</Badge>
+          : undefined
+        }
+      />
 
-      {successMsg && (
-        <AlertBanner variant="success" message={successMsg} dismissible />
-      )}
-      {errorMsg && (
-        <AlertBanner variant="error" message={errorMsg} dismissible />
-      )}
+      {successMsg && <AlertBanner variant="success" message={successMsg} dismissible />}
+      {errorMsg && <AlertBanner variant="error" message={errorMsg} dismissible />}
 
-      <Card title="Profile Information" subtitle="Update your display name and biography">
-        <form onSubmit={handleSave} className="space-y-4">
-          <Input
-            id="name"
-            label="Display Name"
-            prefixIcon={<FontAwesomeIcon icon={faUser} className="w-3.5 h-3.5" />}
-            value={profile.name ?? ''}
-            onChange={(e) => setProfile((v) => ({ ...v, name: e.target.value }))}
-            placeholder="Your full name"
-          />
-          <Input
-            id="biography"
-            label="Biography"
-            value={profile.biography ?? ''}
-            onChange={(e) => setProfile((v) => ({ ...v, biography: e.target.value }))}
-            placeholder="A short bio about yourself"
-          />
-          <div className="flex justify-end">
-            <Button
-              type="submit"
-              variant="primary"
-              loading={saving}
-              iconLeft={<FontAwesomeIcon icon={faSave} />}
-            >
-              Save Profile
-            </Button>
-          </div>
-        </form>
-      </Card>
+      <TabGroup
+        label="Profile sections"
+        tabs={[
+          {
+            id: 'profile',
+            label: 'Profile',
+            content: (
+              <Card title="Profile Information" subtitle="Update your display name and bio">
+                <UserProfileForm
+                  initial={profile}
+                  onSubmit={handleProfileSave}
+                  uploadEndpoint={`/tenant/${tenantId}/api/storage`}
+                />
+              </Card>
+            ),
+          },
+          {
+            id: 'security',
+            label: 'Security',
+            content: (
+              <Card title="Account Security" subtitle="Read-only account details">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between gap-4 border-b border-border pb-4">
+                    <div className="flex items-center gap-2 text-sm text-text-secondary">
+                      <FontAwesomeIcon icon={faEnvelope} className="w-3.5 h-3.5" aria-hidden="true" />
+                      <span className="font-medium text-text-primary">Email</span>
+                    </div>
+                    <span className="text-sm text-text-primary">{security.email ?? '—'}</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-4 border-b border-border pb-4">
+                    <div className="flex items-center gap-2 text-sm text-text-secondary">
+                      <FontAwesomeIcon icon={faClock} className="w-3.5 h-3.5" aria-hidden="true" />
+                      <span className="font-medium text-text-primary">Last Login</span>
+                    </div>
+                    <span className="text-sm text-text-primary">{lastLogin}</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-2 text-sm text-text-secondary">
+                      <FontAwesomeIcon icon={faLayerGroup} className="w-3.5 h-3.5" aria-hidden="true" />
+                      <span className="font-medium text-text-primary">Tenant Role</span>
+                    </div>
+                    {memberRole
+                      ? <Badge variant={ROLE_VARIANT[memberRole] ?? 'neutral'}>{memberRole}</Badge>
+                      : <span className="text-sm text-text-primary">—</span>
+                    }
+                  </div>
+                </div>
+              </Card>
+            ),
+          },
+          {
+            id: 'preferences',
+            label: 'Preferences',
+            content: (
+              <Card title="Preferences" subtitle="Notification and display settings">
+                <UserPreferencesForm
+                  initial={preferences}
+                  onSubmit={handlePrefsSave}
+                />
+              </Card>
+            ),
+          },
+        ]}
+      />
     </div>
   );
 }

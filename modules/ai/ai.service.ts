@@ -45,7 +45,7 @@ export default class AIService {
       this._openaiProvider = new OpenAIProvider({
         apiKey: env.OPENAI_API_KEY || '',
         defaultModel: env.OPENAI_DEFAULT_MODEL || 'gpt-4o-mini',
-        maxTokens: parseInt(env.OPENAI_MAX_TOKENS || '4096', 10),
+        maxTokens: env.OPENAI_MAX_TOKENS ?? 4096,
       });
     }
     return this._openaiProvider;
@@ -56,7 +56,7 @@ export default class AIService {
       this._anthropicProvider = new AnthropicProvider({
         apiKey: env.ANTHROPIC_API_KEY || '',
         defaultModel: env.ANTHROPIC_DEFAULT_MODEL || 'claude-3-5-sonnet-20241022',
-        maxTokens: parseInt(env.ANTHROPIC_MAX_TOKENS || '4096', 10),
+        maxTokens: env.ANTHROPIC_MAX_TOKENS ?? 4096,
       });
     }
     return this._anthropicProvider;
@@ -67,7 +67,7 @@ export default class AIService {
       this._googleProvider = new GoogleProvider({
         apiKey: env.GOOGLE_AI_API_KEY || '',
         defaultModel: env.GOOGLE_DEFAULT_MODEL || 'gemini-2.0-flash',
-        maxTokens: parseInt(env.GOOGLE_MAX_TOKENS || '4096', 10),
+        maxTokens: env.GOOGLE_MAX_TOKENS ?? 4096,
       });
     }
     return this._googleProvider;

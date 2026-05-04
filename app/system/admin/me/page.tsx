@@ -1,212 +1,251 @@
 'use client';
 import { useEffect, useState } from 'react';
 import api from '@/libs/axios';
+import { PageHeader } from '@/modules/ui/PageHeader';
+import { TabGroup } from '@/modules/ui/TabGroup';
 import { Card } from '@/modules/ui/Card';
-import { Input } from '@/modules/ui/Input';
-import { Button } from '@/modules/ui/Button';
 import { Spinner } from '@/modules/ui/Spinner';
 import { AlertBanner } from '@/modules/ui/AlertBanner';
 import { Badge } from '@/modules/ui/Badge';
+import { Button } from '@/modules/ui/Button';
+import { UserProfileForm, type UserProfileValues } from '@/modules/domains/common/user/UserProfileForm';
+import { UserPreferencesForm, type UserPreferencesValues } from '@/modules/domains/common/user/UserPreferencesForm';
+import { UserRoleBadge } from '@/modules/domains/common/user/UserRoleBadge';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  faSave,
-  faUser,
-  faShieldHalved,
-  faEnvelope,
-  faCircleCheck,
-  faCircleXmark,
-  faClock,
-  faLayerGroup,
+  faEnvelope, faShieldHalved, faClock, faCircleCheck, faCircleXmark,
+  faDesktop, faRightFromBracket,
 } from '@fortawesome/free-solid-svg-icons';
+import type { SafeUserSession } from '@/modules/user_session/user_session.types';
 
-interface UserProfile {
-  name: string | null;
-  biography: string | null;
-  profilePicture: string | null;
-  headerImage: string | null;
-}
-
-interface UserSecurity {
+interface SecurityInfo {
   email?: string;
-  userRole?: string;
+  userRole?: 'ADMIN' | 'USER';
   emailVerifiedAt?: string | null;
   lastLoginAt?: string | null;
   lastLoginIp?: string | null;
-  lastLoginDevice?: string | null;
-  activeSessions?: number;
-  passkeyEnabled?: boolean;
-  otpMethods?: string[];
 }
 
 export default function SystemMePage() {
-  const [profile, setProfile] = useState<UserProfile>({
-    name: '',
-    biography: '',
-    profilePicture: '',
-    headerImage: '',
-  });
-  const [security, setSecurity] = useState<UserSecurity>({});
+  const [profile, setProfile] = useState<UserProfileValues>({ name: null, biography: null, profilePicture: null });
+  const [security, setSecurity] = useState<SecurityInfo>({});
+  const [preferences, setPreferences] = useState<Partial<UserPreferencesValues>>({});
+  const [sessions, setSessions] = useState<SafeUserSession[]>([]);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [revoking, setRevoking] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
-    async function fetchData() {
-      try {
-        const [profileRes, securityRes] = await Promise.all([
-          api.get('/system/api/auth/me/profile'),
-          api.get('/system/api/auth/me/security'),
-        ]);
+    Promise.all([
+      api.get('/system/api/auth/me/profile'),
+      api.get('/system/api/auth/me/security'),
+      api.get('/system/api/auth/me/preferences').catch(() => ({ data: {} })),
+      api.get('/system/api/auth/me/sessions').catch(() => ({ data: { sessions: [] } })),
+      api.get('/system/api/auth/session').catch(() => ({ data: {} })),
+    ])
+      .then(([profileRes, securityRes, prefsRes, sessionsRes, sessionRes]) => {
         const p = profileRes.data.userProfile ?? {};
-        setProfile({
-          name: p.name ?? '',
-          biography: p.biography ?? '',
-          profilePicture: p.profilePicture ?? '',
-          headerImage: p.headerImage ?? '',
-        });
+        setProfile({ name: p.name ?? null, biography: p.biography ?? null, profilePicture: p.profilePicture ?? null });
         setSecurity(securityRes.data.userSecurity ?? {});
-      } catch (err: any) {
-        setErrorMsg(err.response?.data?.message ?? err.message);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchData();
+        setPreferences(prefsRes.data.userPreferences ?? {});
+        setSessions(sessionsRes.data.sessions ?? []);
+        setCurrentSessionId(sessionRes.data.userSession?.userSessionId ?? null);
+      })
+      .catch((err) => setErrorMsg(err.response?.data?.message ?? 'Failed to load profile.'))
+      .finally(() => setLoading(false));
   }, []);
 
-  async function handleSave(e: React.FormEvent) {
-    e.preventDefault();
-    setSaving(true);
-    setSuccessMsg(null);
-    setErrorMsg(null);
+  async function handleProfileSave(values: UserProfileValues) {
+    setSuccessMsg(null); setErrorMsg(null);
     try {
-      await api.put('/system/api/auth/me/profile', { userProfile: profile });
+      await api.put('/system/api/auth/me/profile', { userProfile: values });
+      setProfile(values);
       setSuccessMsg('Profile updated successfully.');
       setTimeout(() => setSuccessMsg(null), 4000);
     } catch (err: any) {
-      setErrorMsg(err.response?.data?.message ?? err.message);
+      setErrorMsg(err.response?.data?.message ?? 'Failed to update profile.');
+    }
+  }
+
+  async function handlePrefsSave(values: UserPreferencesValues) {
+    setSuccessMsg(null); setErrorMsg(null);
+    try {
+      await api.put('/system/api/auth/me/preferences', { userPreferences: values });
+      setPreferences(values);
+      setSuccessMsg('Preferences updated.');
+      setTimeout(() => setSuccessMsg(null), 4000);
+    } catch (err: any) {
+      setErrorMsg(err.response?.data?.message ?? 'Failed to update preferences.');
+    }
+  }
+
+  async function handleRevokeSession(sessionId: string) {
+    setRevoking(sessionId);
+    try {
+      const res = await api.delete(`/system/api/auth/me/sessions/${sessionId}`);
+      setSessions((prev) => prev.filter((s) => s.userSessionId !== sessionId));
+      if (res.data.isCurrentSession) {
+        window.location.href = '/system/auth/logout';
+      }
+    } catch (err: any) {
+      setErrorMsg(err.response?.data?.message ?? 'Failed to revoke session.');
     } finally {
-      setSaving(false);
+      setRevoking(null);
     }
   }
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-24">
-        <Spinner size="lg" />
-      </div>
+      <div className="flex items-center justify-center py-24"><Spinner size="lg" /></div>
     );
   }
 
   const isEmailVerified = Boolean(security.emailVerifiedAt);
-  const lastLogin = security.lastLoginAt
-    ? new Date(security.lastLoginAt).toLocaleString()
-    : 'Never';
+  const lastLogin = security.lastLoginAt ? new Date(security.lastLoginAt).toLocaleString() : 'Never';
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-semibold text-text-primary">My Profile</h1>
-        <p className="text-sm text-text-secondary mt-0.5">
-          Manage your personal information and account details
-        </p>
+      <PageHeader title="My Profile" subtitle="Manage your personal information and account settings" />
+
+      {successMsg && <AlertBanner variant="success" message={successMsg} dismissible />}
+      {errorMsg && <AlertBanner variant="error" message={errorMsg} dismissible />}
+
+      <TabGroup
+        label="Profile sections"
+        tabs={[
+          {
+            id: 'profile',
+            label: 'Profile',
+            content: (
+              <Card title="Profile Information" subtitle="Update your display name and bio">
+                <UserProfileForm
+                  initial={profile}
+                  onSubmit={handleProfileSave}
+                  uploadEndpoint="/system/api/storage"
+                />
+              </Card>
+            ),
+          },
+          {
+            id: 'security',
+            label: 'Security',
+            content: (
+              <div className="space-y-4">
+                <Card title="Account Security" subtitle="Overview of your account">
+                  <div className="space-y-4">
+                    <SecurityRow icon={faEnvelope} label="Email" value={security.email ?? '—'} />
+                    <SecurityRow
+                      icon={faShieldHalved}
+                      label="Role"
+                      value={security.userRole
+                        ? <UserRoleBadge role={security.userRole} />
+                        : <span className="text-sm text-text-secondary">—</span>
+                      }
+                    />
+                    <SecurityRow
+                      icon={isEmailVerified ? faCircleCheck : faCircleXmark}
+                      label="Email Verified"
+                      value={
+                        <Badge variant={isEmailVerified ? 'success' : 'warning'}>
+                          {isEmailVerified ? 'Verified' : 'Not verified'}
+                        </Badge>
+                      }
+                    />
+                    <SecurityRow icon={faClock} label="Last Login" value={lastLogin} border={false} />
+                  </div>
+                </Card>
+
+                <Card title="Active Sessions" subtitle={`${sessions.length} active session${sessions.length !== 1 ? 's' : ''}`}>
+                  {sessions.length === 0 ? (
+                    <p className="text-sm text-text-secondary py-2">No active sessions found.</p>
+                  ) : (
+                    <div className="divide-y divide-border">
+                      {sessions.map((s) => {
+                        const isCurrent = s.userSessionId === currentSessionId;
+                        const ua = s.userAgent ?? 'Unknown device';
+                        const ip = s.ipAddress ?? 'Unknown IP';
+                        const created = s.createdAt ? new Date(s.createdAt).toLocaleString() : '—';
+                        const expiry = new Date(s.sessionExpiry).toLocaleString();
+
+                        return (
+                          <div key={s.userSessionId} className="flex items-start justify-between gap-4 py-3 flex-wrap">
+                            <div className="flex items-start gap-3 min-w-0">
+                              <FontAwesomeIcon
+                                icon={faDesktop}
+                                className="w-4 h-4 text-text-secondary mt-0.5 shrink-0"
+                                aria-hidden="true"
+                              />
+                              <div className="space-y-0.5 min-w-0">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="text-sm font-medium text-text-primary truncate max-w-xs">{ua}</span>
+                                  {isCurrent && (
+                                    <Badge variant="success" dot>Current</Badge>
+                                  )}
+                                </div>
+                                <p className="text-xs text-text-secondary">{ip} · Started {created}</p>
+                                <p className="text-xs text-text-disabled">Expires {expiry}</p>
+                              </div>
+                            </div>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              loading={revoking === s.userSessionId}
+                              onClick={() => handleRevokeSession(s.userSessionId)}
+                              className="text-error border-error hover:bg-error-subtle shrink-0"
+                            >
+                              <FontAwesomeIcon icon={faRightFromBracket} className="w-3 h-3 mr-1.5" aria-hidden="true" />
+                              {isCurrent ? 'Sign out' : 'Revoke'}
+                            </Button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </Card>
+              </div>
+            ),
+          },
+          {
+            id: 'preferences',
+            label: 'Preferences',
+            content: (
+              <Card title="Preferences" subtitle="Notification and language settings">
+                <UserPreferencesForm
+                  initial={preferences}
+                  onSubmit={handlePrefsSave}
+                />
+              </Card>
+            ),
+          },
+        ]}
+      />
+    </div>
+  );
+}
+
+function SecurityRow({
+  icon,
+  label,
+  value,
+  border = true,
+}: {
+  icon: any;
+  label: string;
+  value: React.ReactNode;
+  border?: boolean;
+}) {
+  return (
+    <div className={`flex items-center justify-between gap-4 flex-wrap ${border ? 'border-b border-border pb-4' : ''}`}>
+      <div className="flex items-center gap-2 text-sm text-text-secondary">
+        <FontAwesomeIcon icon={icon} className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+        <span className="font-medium text-text-primary">{label}</span>
       </div>
-
-      {successMsg && (
-        <AlertBanner variant="success" message={successMsg} dismissible />
-      )}
-      {errorMsg && (
-        <AlertBanner variant="error" message={errorMsg} dismissible />
-      )}
-
-      <Card title="Profile Information" subtitle="Update your display name and biography">
-        <form onSubmit={handleSave} className="space-y-4">
-          <Input
-            id="name"
-            label="Display Name"
-            prefixIcon={<FontAwesomeIcon icon={faUser} className="w-3.5 h-3.5" />}
-            value={profile.name ?? ''}
-            onChange={(e) => setProfile((v) => ({ ...v, name: e.target.value }))}
-            placeholder="Your full name"
-          />
-          <Input
-            id="biography"
-            label="Biography"
-            value={profile.biography ?? ''}
-            onChange={(e) => setProfile((v) => ({ ...v, biography: e.target.value }))}
-            placeholder="A short bio about yourself"
-          />
-          <div className="flex justify-end">
-            <Button
-              type="submit"
-              variant="primary"
-              loading={saving}
-              iconLeft={<FontAwesomeIcon icon={faSave} />}
-            >
-              Save Profile
-            </Button>
-          </div>
-        </form>
-      </Card>
-
-      <Card
-        title="Security Information"
-        subtitle="Read-only overview of your account security"
-      >
-        <div className="space-y-4">
-          <div className="flex items-center justify-between gap-4 flex-wrap border-b border-border pb-4">
-            <div className="flex items-center gap-2 text-sm text-text-secondary">
-              <FontAwesomeIcon icon={faEnvelope} className="w-3.5 h-3.5 shrink-0" />
-              <span className="font-medium text-text-primary">Email</span>
-            </div>
-            <span className="text-sm text-text-primary">{security.email ?? '—'}</span>
-          </div>
-
-          <div className="flex items-center justify-between gap-4 flex-wrap border-b border-border pb-4">
-            <div className="flex items-center gap-2 text-sm text-text-secondary">
-              <FontAwesomeIcon icon={faShieldHalved} className="w-3.5 h-3.5 shrink-0" />
-              <span className="font-medium text-text-primary">Role</span>
-            </div>
-            {security.userRole ? (
-              <Badge variant="default">{security.userRole}</Badge>
-            ) : (
-              <span className="text-sm text-text-secondary">—</span>
-            )}
-          </div>
-
-          <div className="flex items-center justify-between gap-4 flex-wrap border-b border-border pb-4">
-            <div className="flex items-center gap-2 text-sm text-text-secondary">
-              <FontAwesomeIcon
-                icon={isEmailVerified ? faCircleCheck : faCircleXmark}
-                className="w-3.5 h-3.5 shrink-0"
-              />
-              <span className="font-medium text-text-primary">Email Verified</span>
-            </div>
-            <Badge variant={isEmailVerified ? 'success' : 'warning'}>
-              {isEmailVerified ? 'Verified' : 'Not Verified'}
-            </Badge>
-          </div>
-
-          <div className="flex items-center justify-between gap-4 flex-wrap border-b border-border pb-4">
-            <div className="flex items-center gap-2 text-sm text-text-secondary">
-              <FontAwesomeIcon icon={faClock} className="w-3.5 h-3.5 shrink-0" />
-              <span className="font-medium text-text-primary">Last Login</span>
-            </div>
-            <span className="text-sm text-text-primary">{lastLogin}</span>
-          </div>
-
-          <div className="flex items-center justify-between gap-4 flex-wrap">
-            <div className="flex items-center gap-2 text-sm text-text-secondary">
-              <FontAwesomeIcon icon={faLayerGroup} className="w-3.5 h-3.5 shrink-0" />
-              <span className="font-medium text-text-primary">Active Sessions</span>
-            </div>
-            <span className="text-sm text-text-primary">
-              {security.activeSessions ?? '—'}
-            </span>
-          </div>
-        </div>
-      </Card>
+      {typeof value === 'string'
+        ? <span className="text-sm text-text-primary">{value}</span>
+        : value
+      }
     </div>
   );
 }

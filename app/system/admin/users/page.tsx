@@ -9,8 +9,11 @@ import { Spinner } from '@/modules/ui/Spinner';
 import { AlertBanner } from '@/modules/ui/AlertBanner';
 import { Modal } from '@/modules/ui/Modal';
 import { Pagination } from '@/modules/ui/Pagination';
+import { PageHeader } from '@/modules/ui/PageHeader';
+import { EmptyState } from '@/modules/ui/EmptyState';
+import { Avatar } from '@/modules/ui/Avatar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faSearch, faUser, faBuilding, faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faSearch, faUser, faBuilding, faArrowUpRightFromSquare, faUsers } from '@fortawesome/free-solid-svg-icons';
 
 type UserRole    = 'USER' | 'ADMIN';
 type UserStatus  = 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
@@ -217,17 +220,11 @@ export default function UsersPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div>
-          <h1 className="text-xl font-semibold text-text-primary">Users</h1>
-          <p className="text-sm text-text-secondary mt-0.5">
-            {loading ? '…' : `${total} user${total !== 1 ? 's' : ''} total`}
-          </p>
-        </div>
-        <Button iconLeft={<FontAwesomeIcon icon={faPlus} />} onClick={() => setShowCreate(true)}>
-          Create User
-        </Button>
-      </div>
+      <PageHeader
+        title="Users"
+        subtitle="Manage system accounts"
+        actions={[{ label: 'Create User', onClick: () => setShowCreate(true) }]}
+      />
 
       {fetchError && <AlertBanner variant="error" message={fetchError} />}
 
@@ -267,9 +264,7 @@ export default function UsersPage() {
                     >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-subtle text-primary text-xs font-semibold shrink-0">
-                            <FontAwesomeIcon icon={faUser} />
-                          </span>
+                          <Avatar name={user.email} size="sm" />
                           <div>
                             <p className="font-medium text-text-primary">{user.email}</p>
                             {user.phone && <p className="text-xs text-text-secondary">{user.phone}</p>}
@@ -290,10 +285,19 @@ export default function UsersPage() {
                       </td>
                     </tr>
                   ))}
-                  {users.length === 0 && (
+                  {users.length === 0 && !loading && (
                     <tr>
-                      <td colSpan={5} className="px-6 py-10 text-center text-sm text-text-secondary">
-                        No users found.
+                      <td colSpan={5} className="p-0">
+                        <EmptyState
+                          icon={<FontAwesomeIcon icon={faUsers} className="w-5 h-5" />}
+                          title={search ? 'No users match your search' : 'No users yet'}
+                          description={search ? 'Try a different search term.' : 'Create the first user to get started.'}
+                          action={!search ? (
+                            <Button onClick={() => setShowCreate(true)} iconLeft={<FontAwesomeIcon icon={faPlus} />}>
+                              Create User
+                            </Button>
+                          ) : undefined}
+                        />
                       </td>
                     </tr>
                   )}

@@ -1,14 +1,17 @@
 'use client';
 import { use, useEffect, useState } from 'react';
 import api from '@/libs/axios';
+import { PageHeader } from '@/modules/ui/PageHeader';
 import { Card } from '@/modules/ui/Card';
 import { Badge } from '@/modules/ui/Badge';
 import { Button } from '@/modules/ui/Button';
+import { Input } from '@/modules/ui/Input';
 import { AlertBanner } from '@/modules/ui/AlertBanner';
 import { Spinner } from '@/modules/ui/Spinner';
 import { Modal } from '@/modules/ui/Modal';
+import { EmptyState } from '@/modules/ui/EmptyState';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEnvelope, faBan } from '@fortawesome/free-solid-svg-icons';
+import { faEnvelope, faBan, faPlus } from '@fortawesome/free-solid-svg-icons';
 
 type MemberRole = 'USER' | 'ADMIN' | 'OWNER';
 
@@ -32,18 +35,21 @@ type SessionData = {
 };
 
 const STATUS_BADGE: Record<InvitationStatus, 'warning' | 'success' | 'error' | 'neutral'> = {
-  PENDING: 'warning',
+  PENDING:  'warning',
   ACCEPTED: 'success',
   DECLINED: 'error',
-  EXPIRED: 'neutral',
-  REVOKED: 'neutral',
+  EXPIRED:  'neutral',
+  REVOKED:  'neutral',
 };
 
 const ROLE_BADGE: Record<MemberRole, 'primary' | 'warning' | 'neutral'> = {
   OWNER: 'primary',
   ADMIN: 'warning',
-  USER: 'neutral',
+  USER:  'neutral',
 };
+
+const selectClass =
+  'h-9 rounded-lg border border-border bg-surface-base px-3 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-border-focus w-full';
 
 export default function TenantInvitationsPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = use(params);
@@ -56,6 +62,12 @@ export default function TenantInvitationsPage({ params }: { params: Promise<{ te
   const [confirmRevoke, setConfirmRevoke] = useState<Invitation | null>(null);
   const [revoking, setRevoking] = useState(false);
   const [revokeError, setRevokeError] = useState('');
+
+  const [showInvite, setShowInvite] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteRole, setInviteRole] = useState<MemberRole>('USER');
+  const [inviting, setInviting] = useState(false);
+  const [inviteError, setInviteError] = useState('');
 
   useEffect(() => {
     Promise.all([
@@ -91,14 +103,42 @@ export default function TenantInvitationsPage({ params }: { params: Promise<{ te
     }
   }
 
+  async function handleInvite(e: React.FormEvent) {
+    e.preventDefault();
+    if (!inviteEmail.trim()) return;
+    setInviting(true);
+    setInviteError('');
+    try {
+      const res = await api.post(`/tenant/${tenantId}/api/invitations`, {
+        email: inviteEmail.trim(),
+        memberRole: inviteRole,
+      });
+      const created: Invitation = res.data.invitation;
+      setInvitations((prev) => [created, ...prev]);
+      setShowInvite(false);
+      setInviteEmail('');
+      setInviteRole('USER');
+    } catch (err: any) {
+      setInviteError(err.response?.data?.message ?? err.message ?? 'Failed to send invitation.');
+    } finally {
+      setInviting(false);
+    }
+  }
+
+  function closeInvite() {
+    setShowInvite(false);
+    setInviteEmail('');
+    setInviteRole('USER');
+    setInviteError('');
+  }
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-semibold text-text-primary">Invitations</h1>
-        <p className="text-sm text-text-secondary mt-0.5">
-          {loading ? '…' : `${invitations.length} pending invitation${invitations.length !== 1 ? 's' : ''}`}
-        </p>
-      </div>
+      <PageHeader
+        title="Invitations"
+        subtitle="Pending invitations sent to new members"
+        actions={canManage ? [{ label: 'New Invitation', onClick: () => setShowInvite(true) }] : []}
+      />
 
       {fetchError && <AlertBanner variant="error" message={fetchError} />}
 
@@ -107,26 +147,27 @@ export default function TenantInvitationsPage({ params }: { params: Promise<{ te
           <div className="flex justify-center py-10">
             <Spinner size="lg" />
           </div>
+        ) : invitations.length === 0 ? (
+          <EmptyState
+            icon={<FontAwesomeIcon icon={faEnvelope} className="w-5 h-5" />}
+            title="No pending invitations"
+            description="Invite new members to join this organization."
+            action={canManage ? (
+              <Button onClick={() => setShowInvite(true)} iconLeft={<FontAwesomeIcon icon={faPlus} />}>
+                New Invitation
+              </Button>
+            ) : undefined}
+          />
         ) : (
           <div className="overflow-x-auto -mx-6 -mb-4">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border">
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">
-                    Email
-                  </th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">
-                    Role
-                  </th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">
-                    Sent
-                  </th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">
-                    Expires
-                  </th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">
-                    Status
-                  </th>
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Email</th>
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Role</th>
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Sent</th>
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Expires</th>
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Status</th>
                   {canManage && <th className="px-6 py-3" />}
                 </tr>
               </thead>
@@ -167,21 +208,54 @@ export default function TenantInvitationsPage({ params }: { params: Promise<{ te
                     )}
                   </tr>
                 ))}
-                {invitations.length === 0 && (
-                  <tr>
-                    <td
-                      colSpan={canManage ? 6 : 5}
-                      className="px-6 py-10 text-center text-sm text-text-secondary"
-                    >
-                      No pending invitations.
-                    </td>
-                  </tr>
-                )}
               </tbody>
             </table>
           </div>
         )}
       </Card>
+
+      <Modal
+        open={showInvite}
+        onClose={closeInvite}
+        title="New Invitation"
+        description="Send an invitation email to add someone to this organization."
+        footer={
+          <>
+            <Button variant="ghost" onClick={closeInvite} disabled={inviting}>Cancel</Button>
+            <Button form="invite-form" type="submit" loading={inviting} iconLeft={<FontAwesomeIcon icon={faEnvelope} />}>
+              Send Invitation
+            </Button>
+          </>
+        }
+      >
+        <form id="invite-form" onSubmit={handleInvite} className="space-y-4">
+          {inviteError && <AlertBanner variant="error" message={inviteError} />}
+          <Input
+            id="inv-email"
+            label="Email address"
+            type="email"
+            required
+            placeholder="colleague@example.com"
+            value={inviteEmail}
+            onChange={(e) => setInviteEmail(e.target.value)}
+          />
+          <div className="flex flex-col gap-1">
+            <label htmlFor="inv-role" className="text-xs font-medium text-text-secondary">Role</label>
+            <select
+              id="inv-role"
+              value={inviteRole}
+              onChange={(e) => setInviteRole(e.target.value as MemberRole)}
+              className={selectClass}
+            >
+              <option value="USER">User</option>
+              <option value="ADMIN">Admin</option>
+              {session?.tenantMember.memberRole === 'OWNER' && (
+                <option value="OWNER">Owner</option>
+              )}
+            </select>
+          </div>
+        </form>
+      </Modal>
 
       <Modal
         open={confirmRevoke !== null}

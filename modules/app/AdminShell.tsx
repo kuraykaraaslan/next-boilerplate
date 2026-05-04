@@ -1,8 +1,11 @@
 'use client';
+import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
+import api from '@/libs/axios';
 import { AppShell } from '@/modules/app/AppShell';
 import { AppSidebar } from '@/modules/app/AppSidebar';
 import { AppTopBar } from '@/modules/app/AppTopBar';
+import { UserMenu } from '@/modules/domains/common/user/UserMenu';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faUsers,
@@ -27,6 +30,32 @@ type AdminShellProps = {
 
 export function AdminShell({ children, variant, tenantId }: AdminShellProps) {
   const pathname = usePathname();
+
+  const [userEmail, setUserEmail] = useState('');
+  const [userName, setUserName]   = useState('');
+
+  useEffect(() => {
+    const sessionUrl = variant === 'system'
+      ? '/system/api/auth/session'
+      : `/tenant/${tenantId}/api/auth/session`;
+
+    api.get(sessionUrl)
+      .then((res) => {
+        const user = res.data?.user ?? res.data;
+        setUserEmail(user?.email ?? '');
+        setUserName(user?.email ?? '');
+      })
+      .catch(() => {});
+
+    if (variant === 'system') {
+      api.get('/system/api/auth/me/profile')
+        .then((res) => {
+          const name = res.data?.userProfile?.name;
+          if (name) setUserName(name);
+        })
+        .catch(() => {});
+    }
+  }, [variant, tenantId]);
 
   const systemNavGroups = [
     {
@@ -79,6 +108,14 @@ export function AdminShell({ children, variant, tenantId }: AdminShellProps) {
     .flatMap((g) => g.items)
     .find((item) => item.href && pathname.startsWith(item.href))?.id;
 
+  const profileHref = variant === 'system'
+    ? '/system/admin/me'
+    : `/tenant/${tenantId}/admin/me`;
+
+  const logoutHref = variant === 'system'
+    ? '/system/auth/logout'
+    : `/tenant/${tenantId}/auth/logout`;
+
   const logo = (
     <div className="flex items-center gap-2">
       <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-fg text-xs font-bold shrink-0">
@@ -100,9 +137,13 @@ export function AdminShell({ children, variant, tenantId }: AdminShellProps) {
   const topbar = (
     <AppTopBar>
       <div className="flex-1" />
-      <span className="text-xs text-text-secondary hidden sm:block">
-        {variant === 'system' ? 'System Administration' : `Tenant: ${tenantId}`}
-      </span>
+      {userEmail && (
+        <UserMenu
+          user={{ name: userName || userEmail, email: userEmail }}
+          profileHref={profileHref}
+          logoutHref={logoutHref}
+        />
+      )}
     </AppTopBar>
   );
 

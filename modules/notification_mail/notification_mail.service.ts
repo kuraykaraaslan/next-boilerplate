@@ -554,9 +554,7 @@ export default class MailService {
   }): Promise<void> {
     try {
       const subject = `You've been invited to join ${tenantName}`;
-      const INVITATION_TTL_SECONDS = parseInt(
-        env.INVITATION_TTL_SECONDS || `${60 * 60 * 24 * 7}`
-      );
+      const INVITATION_TTL_SECONDS = env.INVITATION_TTL_SECONDS ?? (60 * 60 * 24 * 7);
       const expiryDays = Math.round(INVITATION_TTL_SECONDS / (60 * 60 * 24));
       const invitationLink =
         `${MailService.FRONTEND_URL}/tenant/${tenantId}/auth/invitation/accept?token=${rawToken}`;

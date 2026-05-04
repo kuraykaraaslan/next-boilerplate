@@ -8,9 +8,7 @@ import TenantInvitationMessages from "./tenant_invitation.messages";
 import TenantMemberService from "../tenant_member/tenant_member.service";
 import type { TenantMemberRole } from "../tenant_member/tenant_member.enums";
 
-const INVITATION_TTL_SECONDS = parseInt(
-  env.INVITATION_TTL_SECONDS || `${60 * 60 * 24 * 7}` // 7 days default
-);
+const INVITATION_TTL_SECONDS = env.INVITATION_TTL_SECONDS ?? (60 * 60 * 24 * 7);
 
 export default class TenantInvitationService {
 

@@ -108,12 +108,8 @@ export default class AuthService {
         return { user: parsedUser };
     }
 
-    private static readonly EMAIL_VERIFY_TTL_SECONDS = parseInt(
-        env.EMAIL_VERIFY_TTL_SECONDS || `${60 * 60 * 24}`
-    );
-    private static readonly EMAIL_VERIFY_RATE_LIMIT_SECONDS = parseInt(
-        env.EMAIL_VERIFY_RATE_LIMIT_SECONDS || "300"
-    );
+    private static readonly EMAIL_VERIFY_TTL_SECONDS = env.EMAIL_VERIFY_TTL_SECONDS ?? (60 * 60 * 24);
+    private static readonly EMAIL_VERIFY_RATE_LIMIT_SECONDS = env.EMAIL_VERIFY_RATE_LIMIT_SECONDS ?? 300;
 
     private static getEmailVerifyKey(userId: string): string {
         return `email:verify:${userId}`;

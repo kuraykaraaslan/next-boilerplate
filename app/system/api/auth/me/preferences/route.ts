@@ -24,8 +24,9 @@ export async function PUT(request: NextRequest) {
         }
 
         const body = await request.json();
-        
-        const parsedData = UpdatePreferencesRequestSchema.safeParse(body);
+        const prefsData = body.userPreferences ?? body;
+
+        const parsedData = UpdatePreferencesRequestSchema.safeParse(prefsData);
 
         if (!parsedData.success) {
             return NextResponse.json(

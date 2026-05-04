@@ -2,15 +2,16 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import api from '@/libs/axios';
+import { PageHeader } from '@/modules/ui/PageHeader';
 import { Card } from '@/modules/ui/Card';
 import { Badge } from '@/modules/ui/Badge';
 import { Button } from '@/modules/ui/Button';
 import { Spinner } from '@/modules/ui/Spinner';
 import { AlertBanner } from '@/modules/ui/AlertBanner';
-import { Input } from '@/modules/ui/Input';
+import { EmptyState } from '@/modules/ui/EmptyState';
+import { AuditLogFilters, type AuditLogFilterValues } from '@/modules/domains/common/audit/AuditLogFilters';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  faSearch,
   faChevronLeft,
   faChevronRight,
   faClipboardList,
@@ -107,22 +108,12 @@ function deriveStatus(action: string): 'success' | 'error' {
 // ---------------------------------------------------------------------------
 
 export default function AuditLogsPage() {
-  const [logs,        setLogs]        = useState<AuditLog[]>([]);
-  const [total,       setTotal]       = useState(0);
-  const [page,        setPage]        = useState(1);
-  const [search,      setSearch]      = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [loading,     setLoading]     = useState(false);
-  const [error,       setError]       = useState<string | null>(null);
-
-  // Debounce the search input so we don't fire a request on every keystroke.
-  useEffect(() => {
-    const id = setTimeout(() => {
-      setDebouncedSearch(search);
-      setPage(1); // reset to page 1 on new search
-    }, 400);
-    return () => clearTimeout(id);
-  }, [search]);
+  const [logs,    setLogs]    = useState<AuditLog[]>([]);
+  const [total,   setTotal]   = useState(0);
+  const [page,    setPage]    = useState(1);
+  const [filters, setFilters] = useState<AuditLogFilterValues>({ actor: '', action: '', dateFrom: '', dateTo: '' });
+  const [loading, setLoading] = useState(false);
+  const [error,   setError]   = useState<string | null>(null);
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
@@ -130,19 +121,11 @@ export default function AuditLogsPage() {
     setLoading(true);
     setError(null);
     try {
-      const params: Record<string, string | number> = {
-        page,
-        pageSize: PAGE_SIZE,
-      };
-
-      // The API exposes `actorId` and `action` filters separately.
-      // We map the free-text search to both fields — the back-end
-      // will apply whichever matches (or you can extend the route).
-      if (debouncedSearch.trim()) {
-        // Pass the raw search string; the server will match against actorId / action.
-        params.actorId = debouncedSearch.trim();
-        params.action  = debouncedSearch.trim();
-      }
+      const params: Record<string, string | number> = { page, pageSize: PAGE_SIZE };
+      if (filters.actor.trim())    params.actorId   = filters.actor.trim();
+      if (filters.action.trim())   params.action    = filters.action.trim();
+      if (filters.dateFrom.trim()) params.dateFrom  = filters.dateFrom.trim();
+      if (filters.dateTo.trim())   params.dateTo    = filters.dateTo.trim();
 
       const res = await api.get<ApiResponse>('/system/api/audit-logs', { params });
       setLogs(res.data.logs);
@@ -154,99 +137,61 @@ export default function AuditLogsPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, debouncedSearch]);
+  }, [page, filters]);
 
   useEffect(() => {
     fetchLogs();
   }, [fetchLogs]);
 
+  function handleFiltersChange(next: AuditLogFilterValues) {
+    setFilters(next);
+    setPage(1);
+  }
+
   // ---------------------------------------------------------------------------
   // Render
   // ---------------------------------------------------------------------------
 
+  const hasFilters = Object.values(filters).some(Boolean);
+
   return (
     <div className="space-y-6">
-      {/* Page header */}
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div>
-          <h1 className="text-xl font-semibold text-text-primary">Audit Logs</h1>
-          <p className="text-sm text-text-secondary mt-0.5">
-            System-wide activity log across all tenants
-          </p>
-        </div>
-        {total > 0 && !loading && (
-          <span className="text-sm text-text-secondary">
-            {total.toLocaleString()} event{total !== 1 ? 's' : ''}
-          </span>
-        )}
-      </div>
+      <PageHeader
+        title="Audit Logs"
+        subtitle="System-wide activity log across all tenants"
+      />
 
-      {/* Error banner */}
-      {error && (
-        <AlertBanner variant="error" message={error} />
-      )}
+      {error && <AlertBanner variant="error" message={error} />}
+
+      <AuditLogFilters onChange={handleFiltersChange} />
 
       <Card>
-        {/* Search bar */}
-        <div className="pb-4">
-          <Input
-            id="audit-search"
-            label="Search"
-            placeholder="Filter by actor ID or action…"
-            prefixIcon={<FontAwesomeIcon icon={faSearch} className="w-3.5 h-3.5" />}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-
-        {/* Table */}
         <div className="overflow-x-auto -mx-6 -mb-4">
           {loading ? (
             <div className="flex items-center justify-center py-16">
               <Spinner size="lg" />
             </div>
+          ) : logs.length === 0 ? (
+            <EmptyState
+              icon={<FontAwesomeIcon icon={faClipboardList} className="w-5 h-5" />}
+              title={hasFilters ? 'No audit logs match your filters' : 'No audit logs found'}
+              description={hasFilters ? 'Try adjusting the filters.' : 'Activity will appear here as users interact with the system.'}
+            />
           ) : (
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border">
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider whitespace-nowrap">
-                    Timestamp
-                  </th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider whitespace-nowrap">
-                    Actor
-                  </th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">
-                    Action
-                  </th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider whitespace-nowrap">
-                    Resource Type
-                  </th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider whitespace-nowrap">
-                    Resource ID
-                  </th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider whitespace-nowrap">
-                    IP Address
-                  </th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">
-                    Status
-                  </th>
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider whitespace-nowrap">Timestamp</th>
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider whitespace-nowrap">Actor</th>
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Action</th>
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider whitespace-nowrap">Resource Type</th>
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider whitespace-nowrap">Resource ID</th>
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider whitespace-nowrap">IP Address</th>
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Status</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {logs.length === 0 ? (
-                  <tr>
-                    <td colSpan={7} className="px-6 py-16 text-center">
-                      <div className="flex flex-col items-center gap-3 text-text-disabled">
-                        <FontAwesomeIcon icon={faClipboardList} className="w-8 h-8" />
-                        <p className="text-sm">
-                          {debouncedSearch
-                            ? 'No audit logs match your search.'
-                            : 'No audit logs found.'}
-                        </p>
-                      </div>
-                    </td>
-                  </tr>
-                ) : (
+                {(
                   logs.map((log) => {
                     const { absolute, relative } = formatTimestamp(log.createdAt);
                     const status = deriveStatus(log.action);

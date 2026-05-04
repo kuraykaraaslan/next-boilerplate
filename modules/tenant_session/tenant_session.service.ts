@@ -7,7 +7,7 @@ import { SafeUser } from '@/modules/user/user.types';
 import TenantAuthMessages from './tenant_session.messages';
 import type { TenantMemberRole } from '@/modules/tenant_member/tenant_member.enums';
 
-const TENANT_CACHE_TTL = parseInt(env.TENANT_CACHE_TTL || `${60 * 5}`); // 5 min default
+const TENANT_CACHE_TTL = env.TENANT_CACHE_TTL ?? (60 * 5);
 
 export default class TenantSessionService {
 

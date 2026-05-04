@@ -1,4 +1,5 @@
 'use client';
+import { PageHeader } from '@/modules/ui/PageHeader';
 import { Card } from '@/modules/ui/Card';
 import { Badge } from '@/modules/ui/Badge';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -13,17 +14,23 @@ type Service = {
 };
 
 const services: Service[] = [
-  { name: 'API Gateway',       status: 'HEALTHY',  uptime: '99.98%', version: 'v2.1.4', region: 'us-east-1' },
-  { name: 'Auth Service',      status: 'HEALTHY',  uptime: '99.95%', version: 'v1.8.2', region: 'us-east-1' },
+  { name: 'API Gateway',        status: 'HEALTHY',  uptime: '99.98%', version: 'v2.1.4', region: 'us-east-1' },
+  { name: 'Auth Service',       status: 'HEALTHY',  uptime: '99.95%', version: 'v1.8.2', region: 'us-east-1' },
   { name: 'Notification Queue', status: 'DEGRADED', uptime: '97.20%', version: 'v1.2.0', region: 'eu-west-1' },
-  { name: 'Storage Service',   status: 'HEALTHY',  uptime: '100%',   version: 'v3.0.1', region: 'us-east-1' },
-  { name: 'Worker Cluster',    status: 'DOWN',     uptime: '0%',     version: 'v1.5.0', region: 'ap-south-1' },
+  { name: 'Storage Service',    status: 'HEALTHY',  uptime: '100%',   version: 'v3.0.1', region: 'us-east-1' },
+  { name: 'Worker Cluster',     status: 'DOWN',     uptime: '0%',     version: 'v1.5.0', region: 'ap-south-1' },
 ];
 
 const statusVariant: Record<Service['status'], 'success' | 'warning' | 'error'> = {
   HEALTHY:  'success',
   DEGRADED: 'warning',
   DOWN:     'error',
+};
+
+const statColor: Record<Service['status'], string> = {
+  HEALTHY:  'text-success',
+  DEGRADED: 'text-warning',
+  DOWN:     'text-error',
 };
 
 export default function FleetPage() {
@@ -33,15 +40,12 @@ export default function FleetPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-semibold text-text-primary">Fleet</h1>
-        <p className="text-sm text-text-secondary mt-0.5">Monitor all infrastructure services</p>
-      </div>
+      <PageHeader title="Fleet" subtitle="Monitor all infrastructure services" />
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card>
           <div className="flex items-center gap-3">
-            <FontAwesomeIcon icon={faCircle} className="text-success w-3 h-3" />
+            <FontAwesomeIcon icon={faCircle} className={`${statColor.HEALTHY} w-3 h-3`} />
             <div>
               <p className="text-2xl font-bold text-text-primary">{healthy}</p>
               <p className="text-xs text-text-secondary">Healthy</p>
@@ -50,7 +54,7 @@ export default function FleetPage() {
         </Card>
         <Card>
           <div className="flex items-center gap-3">
-            <FontAwesomeIcon icon={faCircle} className="text-warning w-3 h-3" />
+            <FontAwesomeIcon icon={faCircle} className={`${statColor.DEGRADED} w-3 h-3`} />
             <div>
               <p className="text-2xl font-bold text-text-primary">{degraded}</p>
               <p className="text-xs text-text-secondary">Degraded</p>
@@ -59,7 +63,7 @@ export default function FleetPage() {
         </Card>
         <Card>
           <div className="flex items-center gap-3">
-            <FontAwesomeIcon icon={faCircle} className="text-error w-3 h-3" />
+            <FontAwesomeIcon icon={faCircle} className={`${statColor.DOWN} w-3 h-3`} />
             <div>
               <p className="text-2xl font-bold text-text-primary">{down}</p>
               <p className="text-xs text-text-secondary">Down</p>

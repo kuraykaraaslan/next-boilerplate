@@ -10,6 +10,8 @@ import { Spinner } from '@/modules/ui/Spinner';
 import { AlertBanner } from '@/modules/ui/AlertBanner';
 import { Modal } from '@/modules/ui/Modal';
 import { Pagination } from '@/modules/ui/Pagination';
+import { Breadcrumb } from '@/modules/ui/Breadcrumb';
+import { PageHeader } from '@/modules/ui/PageHeader';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faArrowLeft, faGlobe, faPeopleGroup, faGear,
@@ -226,9 +228,7 @@ export default function TenantDetailPage({ params }: { params: Promise<{ tenantI
   if (pageError || !tenant) {
     return (
       <div className="space-y-4">
-        <a href="/system/admin/tenants" className="inline-flex items-center gap-2 text-sm text-text-secondary hover:text-text-primary">
-          <FontAwesomeIcon icon={faArrowLeft} className="w-4 h-4" /> Back to Tenants
-        </a>
+        <Breadcrumb items={[{ label: 'Tenants', href: '/system/admin/tenants' }, { label: 'Tenant' }]} />
         <AlertBanner variant="error" message={pageError || 'Tenant not found.'} />
       </div>
     );
@@ -236,22 +236,14 @@ export default function TenantDetailPage({ params }: { params: Promise<{ tenantI
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-3 flex-wrap">
-        <a href="/system/admin/tenants" className="text-text-secondary hover:text-text-primary transition-colors shrink-0">
-          <FontAwesomeIcon icon={faArrowLeft} className="w-4 h-4" />
-        </a>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h1 className="text-xl font-semibold text-text-primary">{tenant.name}</h1>
-            <Badge variant={statusVariant[tenant.tenantStatus]} dot>{tenant.tenantStatus}</Badge>
-          </div>
-          <p className="text-xs text-text-secondary mt-0.5 font-mono">{tenant.tenantId}</p>
-        </div>
-        <Button variant="outline" size="sm" onClick={openEdit}>
-          Edit
-        </Button>
-      </div>
+      <Breadcrumb items={[{ label: 'Tenants', href: '/system/admin/tenants' }, { label: tenant.name }]} />
+
+      <PageHeader
+        title={tenant.name}
+        subtitle={tenant.tenantId}
+        badge={<Badge variant={statusVariant[tenant.tenantStatus]} dot>{tenant.tenantStatus}</Badge>}
+        actions={[{ label: 'Edit', variant: 'outline', onClick: openEdit }]}
+      />
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Left — main content */}

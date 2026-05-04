@@ -12,8 +12,8 @@ import type { SessionStatus } from "./user_session.enums";
 
 const IMPERSONATION_SESSION_TTL_MS = 60 * 60 * 1000; // 1 hour
 
-const SESSION_EXPIRY_MS = parseInt(env.SESSION_EXPIRY_MS || `${1000 * 60 * 60 * 24 * 7}`); // 7 days
-const SESSION_CACHE_TTL = parseInt(env.SESSION_CACHE_TTL || `${60 * 30}`); // 30 min
+const SESSION_EXPIRY_MS = env.SESSION_EXPIRY_MS ?? (1000 * 60 * 60 * 24 * 7);
+const SESSION_CACHE_TTL = env.SESSION_CACHE_TTL ?? (60 * 30);
 
 if (isNaN(SESSION_EXPIRY_MS)) {
   throw new Error("Invalid SESSION_EXPIRY_MS value in environment variables");

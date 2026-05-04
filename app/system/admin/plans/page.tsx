@@ -8,8 +8,10 @@ import { Spinner } from '@/modules/ui/Spinner';
 import { AlertBanner } from '@/modules/ui/AlertBanner';
 import { Modal } from '@/modules/ui/Modal';
 import { Input } from '@/modules/ui/Input';
+import { PageHeader } from '@/modules/ui/PageHeader';
+import { EmptyState } from '@/modules/ui/EmptyState';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faTag } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faTag, faCreditCard } from '@fortawesome/free-solid-svg-icons';
 import api from '@/libs/axios';
 
 type Plan = {
@@ -117,21 +119,12 @@ export default function PlansPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div>
-          <h1 className="text-xl font-semibold text-text-primary">Subscription Plans</h1>
-          <p className="text-sm text-text-secondary mt-0.5">Manage all subscription plans</p>
-        </div>
-        <Button
-          iconLeft={<FontAwesomeIcon icon={faPlus} />}
-          onClick={() => { resetForm(); setCreateOpen(true); }}
-        >
-          Create Plan
-        </Button>
-      </div>
+      <PageHeader
+        title="Subscription Plans"
+        subtitle="Manage all subscription plans"
+        actions={[{ label: 'Create Plan', onClick: () => { resetForm(); setCreateOpen(true); } }]}
+      />
 
-      {/* Error banner */}
       {error && (
         <AlertBanner variant="error" message={error} dismissible />
       )}
@@ -209,8 +202,17 @@ export default function PlansPage() {
                 ))}
                 {!loading && plans.length === 0 && (
                   <tr>
-                    <td colSpan={8} className="px-6 py-10 text-center text-sm text-text-secondary">
-                      No subscription plans found.
+                    <td colSpan={8} className="p-0">
+                      <EmptyState
+                        icon={<FontAwesomeIcon icon={faCreditCard} className="w-5 h-5" />}
+                        title="No subscription plans"
+                        description="Create a plan to start offering subscriptions."
+                        action={
+                          <Button onClick={() => { resetForm(); setCreateOpen(true); }} iconLeft={<FontAwesomeIcon icon={faPlus} />}>
+                            Create Plan
+                          </Button>
+                        }
+                      />
                     </td>
                   </tr>
                 )}

@@ -26,7 +26,7 @@ export default class SMSService {
   static readonly phoneLibInstance = PhoneNumberUtil.getInstance();
 
   static readonly QUEUE_NAME = "smsQueue";
-  static readonly RATE_LIMIT_SECONDS = parseInt(env.SMS_RATE_LIMIT_SECONDS || "60", 10);
+  static readonly RATE_LIMIT_SECONDS = env.SMS_RATE_LIMIT_SECONDS ?? 60;
   static readonly RATE_LIMIT_PREFIX = "sms:rate-limit:";
 
   static readonly ALLOWED_COUNTRIES = env.SMS_ALLOWED_COUNTRIES?.split(",").map(c => c.trim());

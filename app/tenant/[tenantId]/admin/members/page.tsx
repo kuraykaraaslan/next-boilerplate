@@ -1,6 +1,7 @@
 'use client';
 import { use, useEffect, useState } from 'react';
 import api from '@/libs/axios';
+import { PageHeader } from '@/modules/ui/PageHeader';
 import { Card } from '@/modules/ui/Card';
 import { Badge } from '@/modules/ui/Badge';
 import { Button } from '@/modules/ui/Button';
@@ -8,8 +9,10 @@ import { Input } from '@/modules/ui/Input';
 import { AlertBanner } from '@/modules/ui/AlertBanner';
 import { Spinner } from '@/modules/ui/Spinner';
 import { Modal } from '@/modules/ui/Modal';
+import { EmptyState } from '@/modules/ui/EmptyState';
+import { Avatar } from '@/modules/ui/Avatar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUserPlus, faSearch, faUser, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faUserPlus, faSearch, faUser, faTrash, faPeopleGroup } from '@fortawesome/free-solid-svg-icons';
 
 type MemberRole = 'USER' | 'ADMIN' | 'OWNER';
 
@@ -29,8 +32,11 @@ type SessionData = {
 const ROLE_BADGE: Record<MemberRole, 'primary' | 'warning' | 'neutral'> = {
   OWNER: 'primary',
   ADMIN: 'warning',
-  USER: 'neutral',
+  USER:  'neutral',
 };
+
+const selectClass =
+  'h-9 rounded-lg border border-border bg-surface-base px-3 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-border-focus w-full';
 
 export default function TenantMembersPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = use(params);
@@ -41,6 +47,7 @@ export default function TenantMembersPage({ params }: { params: Promise<{ tenant
   const [fetchError, setFetchError] = useState('');
   const [search, setSearch] = useState('');
 
+  const [showInvite, setShowInvite] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRole, setInviteRole] = useState<MemberRole>('USER');
   const [inviting, setInviting] = useState(false);
@@ -70,6 +77,13 @@ export default function TenantMembersPage({ params }: { params: Promise<{ tenant
     m.user.email.toLowerCase().includes(search.toLowerCase())
   );
 
+  function closeInvite() {
+    setShowInvite(false);
+    setInviteEmail('');
+    setInviteRole('USER');
+    setInviteError('');
+  }
+
   async function handleInvite(e: React.FormEvent) {
     e.preventDefault();
     if (!inviteEmail) return;
@@ -77,9 +91,8 @@ export default function TenantMembersPage({ params }: { params: Promise<{ tenant
     setInviteError('');
     try {
       await api.post(`/tenant/${tenantId}/api/invitations`, { email: inviteEmail, memberRole: inviteRole });
+      closeInvite();
       setInviteSent(true);
-      setInviteEmail('');
-      setInviteRole('USER');
       setTimeout(() => setInviteSent(false), 4000);
     } catch (err: any) {
       setInviteError(err.response?.data?.message ?? err.message ?? 'Failed to send invitation.');
@@ -112,55 +125,14 @@ export default function TenantMembersPage({ params }: { params: Promise<{ tenant
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-semibold text-text-primary">Members</h1>
-        <p className="text-sm text-text-secondary mt-0.5">
-          {loading ? '…' : `${members.length} member${members.length !== 1 ? 's' : ''} in this organization`}
-        </p>
-      </div>
+      <PageHeader
+        title="Members"
+        subtitle="People with access to this organization"
+        actions={canManage ? [{ label: 'Invite Member', onClick: () => setShowInvite(true) }] : []}
+      />
 
       {fetchError && <AlertBanner variant="error" message={fetchError} />}
       {inviteSent && <AlertBanner variant="success" message="Invitation sent successfully." dismissible />}
-
-      {canManage && (
-        <Card title="Invite Member" subtitle="Send an invitation email to add someone to this organization">
-          <form onSubmit={handleInvite} className="space-y-3">
-            {inviteError && <AlertBanner variant="error" message={inviteError} />}
-            <div className="flex gap-3 flex-wrap items-end">
-              <div className="flex-1 min-w-48">
-                <Input
-                  id="invite-email"
-                  label="Email address"
-                  type="email"
-                  required
-                  placeholder="colleague@example.com"
-                  prefixIcon={<FontAwesomeIcon icon={faUser} className="w-3.5 h-3.5" />}
-                  value={inviteEmail}
-                  onChange={(e) => setInviteEmail(e.target.value)}
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label htmlFor="invite-role" className="text-xs font-medium text-text-secondary">Role</label>
-                <select
-                  id="invite-role"
-                  value={inviteRole}
-                  onChange={(e) => setInviteRole(e.target.value as MemberRole)}
-                  className="h-9 rounded-lg border border-border bg-surface-base px-3 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-border-focus"
-                >
-                  <option value="USER">User</option>
-                  <option value="ADMIN">Admin</option>
-                  {session?.tenantMember.memberRole === 'OWNER' && (
-                    <option value="OWNER">Owner</option>
-                  )}
-                </select>
-              </div>
-              <Button type="submit" loading={inviting} iconLeft={<FontAwesomeIcon icon={faUserPlus} />}>
-                Send Invite
-              </Button>
-            </div>
-          </form>
-        </Card>
-      )}
 
       <Card>
         <div className="pb-4">
@@ -176,6 +148,17 @@ export default function TenantMembersPage({ params }: { params: Promise<{ tenant
 
         {loading ? (
           <div className="flex justify-center py-10"><Spinner size="lg" /></div>
+        ) : filtered.length === 0 ? (
+          <EmptyState
+            icon={<FontAwesomeIcon icon={faPeopleGroup} className="w-5 h-5" />}
+            title={search ? 'No members match your search' : 'No members yet'}
+            description={search ? 'Try a different search term.' : 'Invite people to join this organization.'}
+            action={!search && canManage ? (
+              <Button onClick={() => setShowInvite(true)} iconLeft={<FontAwesomeIcon icon={faUserPlus} />}>
+                Invite Member
+              </Button>
+            ) : undefined}
+          />
         ) : (
           <div className="overflow-x-auto -mx-6 -mb-4">
             <table className="w-full text-sm">
@@ -192,9 +175,7 @@ export default function TenantMembersPage({ params }: { params: Promise<{ tenant
                   <tr key={member.tenantMemberId} className="hover:bg-surface-overlay transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-subtle text-primary text-xs font-semibold shrink-0">
-                          {member.user.email.charAt(0).toUpperCase()}
-                        </span>
+                        <Avatar name={member.user.email} size="sm" />
                         <p className="font-medium text-text-primary truncate">{member.user.email}</p>
                       </div>
                     </td>
@@ -220,18 +201,60 @@ export default function TenantMembersPage({ params }: { params: Promise<{ tenant
                     )}
                   </tr>
                 ))}
-                {filtered.length === 0 && (
-                  <tr>
-                    <td colSpan={canManage ? 4 : 3} className="px-6 py-10 text-center text-sm text-text-secondary">
-                      No members found.
-                    </td>
-                  </tr>
-                )}
               </tbody>
             </table>
           </div>
         )}
       </Card>
+
+      <Modal
+        open={showInvite}
+        onClose={closeInvite}
+        title="Invite Member"
+        description="Send an invitation email to add someone to this organization."
+        footer={
+          <>
+            <Button variant="ghost" onClick={closeInvite} disabled={inviting}>Cancel</Button>
+            <Button
+              form="invite-member-form"
+              type="submit"
+              loading={inviting}
+              iconLeft={<FontAwesomeIcon icon={faUserPlus} />}
+            >
+              Send Invite
+            </Button>
+          </>
+        }
+      >
+        <form id="invite-member-form" onSubmit={handleInvite} className="space-y-4">
+          {inviteError && <AlertBanner variant="error" message={inviteError} />}
+          <Input
+            id="invite-email"
+            label="Email address"
+            type="email"
+            required
+            placeholder="colleague@example.com"
+            prefixIcon={<FontAwesomeIcon icon={faUser} className="w-3.5 h-3.5" />}
+            value={inviteEmail}
+            onChange={(e) => setInviteEmail(e.target.value)}
+          />
+          <div className="flex flex-col gap-1">
+            <label htmlFor="invite-role" className="text-xs font-medium text-text-secondary">Role</label>
+            <select
+              id="invite-role"
+              value={inviteRole}
+              onChange={(e) => setInviteRole(e.target.value as MemberRole)}
+              className={selectClass}
+            >
+              <option value="USER">User</option>
+              <option value="ADMIN">Admin</option>
+              {session?.tenantMember.memberRole === 'OWNER' && (
+                <option value="OWNER">Owner</option>
+              )}
+            </select>
+          </div>
+        </form>
+      </Modal>
 
       <Modal
         open={confirmDelete !== null}

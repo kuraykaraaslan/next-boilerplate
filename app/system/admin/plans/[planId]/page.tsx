@@ -8,6 +8,8 @@ import { Spinner } from '@/modules/ui/Spinner';
 import { AlertBanner } from '@/modules/ui/AlertBanner';
 import { Modal } from '@/modules/ui/Modal';
 import { Input } from '@/modules/ui/Input';
+import { Breadcrumb } from '@/modules/ui/Breadcrumb';
+import { PageHeader } from '@/modules/ui/PageHeader';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faArrowLeft,
@@ -309,43 +311,26 @@ export default function PlanDetailPage({ params }: { params: Promise<{ planId: s
   if (planError || !plan || !editForm) {
     return (
       <div className="space-y-4">
-        <a
-          href="/system/admin/plans"
-          className="inline-flex items-center gap-2 text-sm text-text-secondary hover:text-text-primary transition-colors"
-        >
-          <FontAwesomeIcon icon={faArrowLeft} className="w-4 h-4" />
-          Back to Plans
-        </a>
+        <Breadcrumb items={[{ label: 'Plans', href: '/system/admin/plans' }, { label: 'Plan' }]} />
         <AlertBanner variant="error" message={planError ?? 'Plan not found.'} />
       </div>
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // Render: main
-  // ---------------------------------------------------------------------------
-
   return (
     <div className="space-y-6">
-      {/* Page header */}
-      <div className="flex items-center gap-3 flex-wrap">
-        <a
-          href="/system/admin/plans"
-          className="text-text-secondary hover:text-text-primary transition-colors focus-visible:outline-none"
-        >
-          <FontAwesomeIcon icon={faArrowLeft} className="w-4 h-4" />
-        </a>
-        <div>
-          <h1 className="text-xl font-semibold text-text-primary">{plan.name}</h1>
-          <p className="text-sm text-text-secondary mt-0.5">Plan ID: {planId}</p>
-        </div>
-        <Badge variant={statusVariant(plan.status)} dot className="ml-2">
-          {plan.status}
-        </Badge>
-        {plan.isDefault && (
-          <Badge variant="primary">Default</Badge>
-        )}
-      </div>
+      <Breadcrumb items={[{ label: 'Plans', href: '/system/admin/plans' }, { label: plan.name }]} />
+
+      <PageHeader
+        title={plan.name}
+        subtitle={`Plan ID: ${planId}`}
+        badge={
+          <div className="flex items-center gap-2">
+            <Badge variant={statusVariant(plan.status)} dot>{plan.status}</Badge>
+            {plan.isDefault && <Badge variant="primary">Default</Badge>}
+          </div>
+        }
+      />
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Left column: edit form + features */}

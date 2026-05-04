@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "@fortawesome/fontawesome-svg-core/styles.css";
 
 :root {
   --primary:         #3b82f6;

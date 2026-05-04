@@ -7,7 +7,7 @@ import TenantDomainMessages from "./tenant_domain.messages";
 import DNSVerificationService from "./dns_verification.service";
 import TenantSettingService from "@/modules/tenant_setting/tenant_setting.service";
 
-const DOMAIN_CACHE_TTL = parseInt(env.TENANT_CACHE_TTL || `${60 * 5}`); // 5 min default
+const DOMAIN_CACHE_TTL = env.TENANT_CACHE_TTL ?? (60 * 5);
 
 export default class TenantDomainService {
 

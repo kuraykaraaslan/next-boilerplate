@@ -10,7 +10,7 @@ import { SafeUserSecurity } from '@/modules/user_security/user_security.types';
 import UserSessionService from './user_session.service';
 import { systemPrisma } from "@/libs/prisma";
 
-const SESSION_CACHE_TTL = parseInt(env.SESSION_CACHE_TTL || `${60 * 30}`); // 30 min default
+const SESSION_CACHE_TTL = env.SESSION_CACHE_TTL ?? (60 * 30);
 
 export default class UserSessionNextService {
 

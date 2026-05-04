@@ -10,14 +10,9 @@ import AuthMessages from "./auth.messages";
 
 export default class PasswordService {
 
-  private static readonly RESET_TOKEN_EXPIRY_SECONDS = parseInt(
-    env.RESET_TOKEN_EXPIRY_SECONDS || "3600"
-  ); // 1 hour
+  private static readonly RESET_TOKEN_EXPIRY_SECONDS = env.RESET_TOKEN_EXPIRY_SECONDS ?? 3600;
 
-  private static readonly RESET_TOKEN_LENGTH = Math.max(
-    4,
-    parseInt(env.RESET_TOKEN_LENGTH || "6")
-  );
+  private static readonly RESET_TOKEN_LENGTH = Math.max(4, env.RESET_TOKEN_LENGTH ?? 6);
 
   private static readonly RATE_LIMIT_MAX_ATTEMPTS = 5;
   private static readonly RATE_LIMIT_WINDOW_SECONDS = 60;
