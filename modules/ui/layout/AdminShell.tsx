@@ -24,6 +24,7 @@ import {
   faGlobe,
   faRobot,
   faKey,
+  faHeartPulse,
 } from '@fortawesome/free-solid-svg-icons';
 
 type AdminShellProps = {
@@ -78,6 +79,7 @@ export function AdminShell({ children, variant, tenantId }: AdminShellProps) {
     {
       label: 'System',
       items: [
+        { id: 'health',   label: 'Health',     href: '/system/admin/health',     icon: <FontAwesomeIcon icon={faHeartPulse} aria-hidden /> },
         { id: 'fleet',    label: 'Fleet',      href: '/system/fleet',          icon: <FontAwesomeIcon icon={faServer} aria-hidden /> },
         { id: 'ai',       label: 'AI',         href: '/system/admin/ai',         icon: <FontAwesomeIcon icon={faRobot} aria-hidden /> },
         { id: 'api-docs', label: 'API Docs',   href: '/system/admin/api-docs',  icon: <FontAwesomeIcon icon={faBook} aria-hidden /> },
