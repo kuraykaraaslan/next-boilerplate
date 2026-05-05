@@ -15,6 +15,7 @@ import { ApiKey } from '@/modules/api_key/entities/api_key.entity';
 import { CouponRedemption } from '@/modules/coupon/entities/coupon_redemption.entity';
 import { Webhook } from '@/modules/webhook/entities/webhook.entity';
 import { WebhookDelivery } from '@/modules/webhook/entities/webhook_delivery.entity';
+import { SamlConfig } from '@/modules/auth_saml/entities/saml_config.entity';
 
 const TENANT_ENTITIES = [
   Tenant,
@@ -30,6 +31,7 @@ const TENANT_ENTITIES = [
   CouponRedemption,
   Webhook,
   WebhookDelivery,
+  SamlConfig,
 ];
 
 function parseDbUrl(raw: string): { url: string; schema?: string } {

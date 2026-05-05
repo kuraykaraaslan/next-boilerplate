@@ -13,7 +13,7 @@ import { EmptyState } from '@/modules/ui/EmptyState';
 import { Toggle } from '@/modules/ui/Toggle';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  faWebhook,
+  faLink,
   faPlus,
   faTrash,
   faFlask,
@@ -274,28 +274,28 @@ export default function WebhooksPage({ params }: { params: Promise<{ tenantId: s
     <div className="p-6 space-y-6">
       <PageHeader
         title="Webhooks"
-        description="Receive real-time HTTP notifications when events occur in your tenant."
-        actions={
-          <Button variant="primary" onClick={openCreate}>
-            <FontAwesomeIcon icon={faPlus} className="mr-2 h-4 w-4" />
-            New Webhook
-          </Button>
-        }
+        subtitle="Receive real-time HTTP notifications when events occur in your tenant."
+        actions={[{
+          label: 'New Webhook',
+          variant: 'primary',
+          onClick: openCreate,
+        }]}
       />
 
       {error && <AlertBanner variant="error" message={error} />}
 
       {testResult && (
         <AlertBanner
+          key={testResult.webhookId}
           variant={testResult.success ? 'success' : 'error'}
           message={testResult.message}
-          onDismiss={() => setTestResult(null)}
+          dismissible
         />
       )}
 
       {webhooks.length === 0 ? (
         <EmptyState
-          icon={faWebhook}
+          icon={<FontAwesomeIcon icon={faLink} className="h-8 w-8" />}
           title="No webhooks yet"
           description="Create a webhook to start receiving event notifications at your endpoint."
           action={
@@ -336,9 +336,10 @@ export default function WebhooksPage({ params }: { params: Promise<{ tenantId: s
 
                 <div className="flex items-center gap-2 shrink-0">
                   <Toggle
+                    id={`toggle-${webhook.webhookId}`}
+                    label=""
                     checked={webhook.isActive}
                     onChange={() => handleToggleActive(webhook)}
-                    aria-label={webhook.isActive ? 'Disable webhook' : 'Enable webhook'}
                   />
                   <Button
                     variant="ghost"
@@ -455,18 +456,21 @@ export default function WebhooksPage({ params }: { params: Promise<{ tenantId: s
           {createError && <AlertBanner variant="error" message={createError} />}
 
           <Input
+            id="webhook-name"
             label="Name"
             placeholder="My webhook"
             value={createForm.name}
             onChange={(e) => setCreateForm((p) => ({ ...p, name: e.target.value }))}
           />
           <Input
+            id="webhook-url"
             label="URL"
             placeholder="https://your-service.com/webhook"
             value={createForm.url}
             onChange={(e) => setCreateForm((p) => ({ ...p, url: e.target.value }))}
           />
           <Input
+            id="webhook-description"
             label="Description (optional)"
             placeholder="What is this webhook for?"
             value={createForm.description}

@@ -13,7 +13,7 @@ import { EmptyState } from '@/modules/ui/EmptyState';
 import { Toggle } from '@/modules/ui/Toggle';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  faWebhook,
+  faLink,
   faPlus,
   faTrash,
   faFlask,
@@ -235,28 +235,28 @@ export default function SystemWebhooksPage() {
     <div className="p-6 space-y-6">
       <PageHeader
         title="System Webhooks"
-        description="Send real-time HTTP notifications for system-wide events (user registration, tenant creation, plan changes, etc.)."
-        actions={
-          <Button variant="primary" onClick={() => { setCreateForm({ name: '', description: '', url: '', events: [] }); setCreateError(''); setCreateOpen(true); }}>
-            <FontAwesomeIcon icon={faPlus} className="mr-2 h-4 w-4" />
-            New Webhook
-          </Button>
-        }
+        subtitle="Send real-time HTTP notifications for system-wide events (user registration, tenant creation, plan changes, etc.)."
+        actions={[{
+          label: 'New Webhook',
+          variant: 'primary',
+          onClick: () => { setCreateForm({ name: '', description: '', url: '', events: [] }); setCreateError(''); setCreateOpen(true); },
+        }]}
       />
 
       {error && <AlertBanner variant="error" message={error} />}
 
       {testResult && (
         <AlertBanner
+          key={testResult.webhookId}
           variant={testResult.success ? 'success' : 'error'}
           message={testResult.message}
-          onDismiss={() => setTestResult(null)}
+          dismissible
         />
       )}
 
       {webhooks.length === 0 ? (
         <EmptyState
-          icon={faWebhook}
+          icon={<FontAwesomeIcon icon={faLink} className="h-8 w-8" />}
           title="No system webhooks yet"
           description="Create a system webhook to notify external services about user and tenant lifecycle events."
           action={
@@ -296,9 +296,10 @@ export default function SystemWebhooksPage() {
 
                 <div className="flex items-center gap-2 shrink-0">
                   <Toggle
+                    id={`toggle-${webhook.webhookId}`}
+                    label=""
                     checked={webhook.isActive}
                     onChange={() => handleToggleActive(webhook)}
-                    aria-label={webhook.isActive ? 'Disable' : 'Enable'}
                   />
                   <Button
                     variant="ghost"
@@ -386,18 +387,21 @@ export default function SystemWebhooksPage() {
           {createError && <AlertBanner variant="error" message={createError} />}
 
           <Input
+            id="webhook-name"
             label="Name"
             placeholder="My system webhook"
             value={createForm.name}
             onChange={(e) => setCreateForm((p) => ({ ...p, name: e.target.value }))}
           />
           <Input
+            id="webhook-url"
             label="URL"
             placeholder="https://your-service.com/webhook"
             value={createForm.url}
             onChange={(e) => setCreateForm((p) => ({ ...p, url: e.target.value }))}
           />
           <Input
+            id="webhook-description"
             label="Description (optional)"
             placeholder="What is this webhook for?"
             value={createForm.description}

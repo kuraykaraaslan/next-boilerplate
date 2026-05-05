@@ -25,6 +25,8 @@ import {
   faRobot,
   faKey,
   faHeartPulse,
+  faIdCard,
+  faPlug,
 } from '@fortawesome/free-solid-svg-icons';
 
 type AdminShellProps = {
@@ -77,14 +79,22 @@ export function AdminShell({ children, variant, tenantId }: AdminShellProps) {
       ],
     },
     {
+      label: 'Security',
+      items: [
+        { id: 'saml',     label: 'SAML SSO',   href: '/system/admin/saml',     icon: <FontAwesomeIcon icon={faIdCard} aria-hidden /> },
+        { id: 'webhooks', label: 'Webhooks',   href: '/system/admin/webhooks', icon: <FontAwesomeIcon icon={faPlug} aria-hidden /> },
+        { id: 'coupons',  label: 'Coupons',    href: '/system/admin/coupons',  icon: <FontAwesomeIcon icon={faKey} aria-hidden /> },
+      ],
+    },
+    {
       label: 'System',
       items: [
-        { id: 'health',   label: 'Health',     href: '/system/admin/health',     icon: <FontAwesomeIcon icon={faHeartPulse} aria-hidden /> },
-        { id: 'fleet',    label: 'Fleet',      href: '/system/fleet',          icon: <FontAwesomeIcon icon={faServer} aria-hidden /> },
-        { id: 'ai',       label: 'AI',         href: '/system/admin/ai',         icon: <FontAwesomeIcon icon={faRobot} aria-hidden /> },
+        { id: 'health',   label: 'Health',     href: '/system/admin/health',    icon: <FontAwesomeIcon icon={faHeartPulse} aria-hidden /> },
+        { id: 'fleet',    label: 'Fleet',      href: '/system/fleet',           icon: <FontAwesomeIcon icon={faServer} aria-hidden /> },
+        { id: 'ai',       label: 'AI',         href: '/system/admin/ai',        icon: <FontAwesomeIcon icon={faRobot} aria-hidden /> },
         { id: 'api-docs', label: 'API Docs',   href: '/system/admin/api-docs',  icon: <FontAwesomeIcon icon={faBook} aria-hidden /> },
         { id: 'settings', label: 'Settings',   href: '/system/admin/settings',  icon: <FontAwesomeIcon icon={faGear} aria-hidden /> },
-        { id: 'me',       label: 'My Profile', href: '/system/admin/me',         icon: <FontAwesomeIcon icon={faCircleUser} aria-hidden /> },
+        { id: 'me',       label: 'My Profile', href: '/system/admin/me',        icon: <FontAwesomeIcon icon={faCircleUser} aria-hidden /> },
       ],
     },
   ];
@@ -93,18 +103,31 @@ export function AdminShell({ children, variant, tenantId }: AdminShellProps) {
     {
       label: 'Management',
       items: [
-        { id: 'members',      label: 'Members',      href: `/tenant/${tenantId}/admin/members`,             icon: <FontAwesomeIcon icon={faPeopleGroup} aria-hidden /> },
-        { id: 'settings',    label: 'Settings',    href: `/tenant/${tenantId}/admin/settings`,           icon: <FontAwesomeIcon icon={faGear} aria-hidden /> },
-        { id: 'invitations', label: 'Invitations', href: `/tenant/${tenantId}/admin/invitations`,        icon: <FontAwesomeIcon icon={faEnvelope} aria-hidden /> },
-        { id: 'domains',     label: 'Domains',     href: `/tenant/${tenantId}/admin/domains`,            icon: <FontAwesomeIcon icon={faGlobe} aria-hidden /> },
-        { id: 'subscription',label: 'Subscription',href: `/tenant/${tenantId}/admin/subscription`,      icon: <FontAwesomeIcon icon={faCreditCard} aria-hidden /> },
+        { id: 'members',      label: 'Members',      href: `/tenant/${tenantId}/admin/members`,      icon: <FontAwesomeIcon icon={faPeopleGroup} aria-hidden /> },
+        { id: 'invitations',  label: 'Invitations',  href: `/tenant/${tenantId}/admin/invitations`,  icon: <FontAwesomeIcon icon={faEnvelope} aria-hidden /> },
+        { id: 'domains',      label: 'Domains',      href: `/tenant/${tenantId}/admin/domains`,      icon: <FontAwesomeIcon icon={faGlobe} aria-hidden /> },
+        { id: 'subscription', label: 'Subscription', href: `/tenant/${tenantId}/admin/subscription`, icon: <FontAwesomeIcon icon={faCreditCard} aria-hidden /> },
+      ],
+    },
+    {
+      label: 'Security',
+      items: [
+        { id: 'saml',     label: 'SAML SSO', href: `/tenant/${tenantId}/admin/settings/saml`,  icon: <FontAwesomeIcon icon={faIdCard} aria-hidden /> },
+        { id: 'webhooks', label: 'Webhooks', href: `/tenant/${tenantId}/admin/webhooks`,        icon: <FontAwesomeIcon icon={faPlug} aria-hidden /> },
       ],
     },
     {
       label: 'Developer',
       items: [
         { id: 'api-keys', label: 'API Keys', href: `/tenant/${tenantId}/admin/api-keys`, icon: <FontAwesomeIcon icon={faKey} aria-hidden /> },
-        { id: 'api-docs', label: 'API Docs', href: `/tenant/${tenantId}/api-docs`, icon: <FontAwesomeIcon icon={faBook} aria-hidden /> },
+        { id: 'api-docs', label: 'API Docs', href: `/tenant/${tenantId}/api-docs`,       icon: <FontAwesomeIcon icon={faBook} aria-hidden /> },
+      ],
+    },
+    {
+      label: 'Configuration',
+      items: [
+        { id: 'settings', label: 'Settings', href: `/tenant/${tenantId}/admin/settings`, icon: <FontAwesomeIcon icon={faGear} aria-hidden /> },
+        { id: 'branding', label: 'Branding', href: `/tenant/${tenantId}/admin/settings/branding`, icon: <FontAwesomeIcon icon={faShieldHalved} aria-hidden /> },
       ],
     },
     {
