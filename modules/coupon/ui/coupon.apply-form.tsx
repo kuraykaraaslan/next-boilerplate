@@ -2,7 +2,6 @@
 import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTag, faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
-import { Input } from '@/modules/ui/Input';
 import { Button } from '@/modules/ui/Button';
 import { Spinner } from '@/modules/ui/Spinner';
 import api from '@/libs/axios';
@@ -105,11 +104,9 @@ export function CouponApplyForm({
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <div className="text-right">
-            <p className="text-sm text-success font-medium">
-              -{applied.discountAmount?.toFixed(2)} {currency}
-            </p>
-          </div>
+          <p className="text-sm text-success font-medium">
+            -{applied.discountAmount?.toFixed(2)} {currency}
+          </p>
           <button
             type="button"
             onClick={handleRemove}
@@ -129,14 +126,16 @@ export function CouponApplyForm({
         <div className="relative flex-1">
           <FontAwesomeIcon
             icon={faTag}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40 text-sm"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40 text-sm pointer-events-none"
           />
-          <Input
+          <input
+            type="text"
             placeholder="Promo code"
             value={code}
             onChange={(e) => { setCode(e.target.value.toUpperCase()); setError(null); }}
-            className="pl-9 font-mono uppercase"
+            className="input input-bordered w-full pl-9 font-mono uppercase"
             disabled={loading}
+            aria-label="Promo code"
           />
         </div>
         <Button type="submit" variant="outline" disabled={loading || !code.trim()}>

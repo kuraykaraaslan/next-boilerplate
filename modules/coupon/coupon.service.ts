@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { ILike, Like } from 'typeorm';
+import { ILike } from 'typeorm';
 import { getSystemDataSource, tenantDataSourceFor } from '@/libs/typeorm';
 import { Coupon as CouponEntity } from './entities/coupon.entity';
 import { CouponRedemption as CouponRedemptionEntity } from './entities/coupon_redemption.entity';
@@ -33,25 +33,24 @@ export default class CouponService {
       const existing = await repo.findOne({ where: { code: data.code } });
       if (existing) throw new Error(COUPON_MESSAGES.CODE_EXISTS);
 
-      const coupon = repo.create({
-        code: data.code,
-        name: data.name,
-        description: data.description,
-        discountType: data.discountType,
-        discountValue: data.discountValue,
-        currency: data.currency,
-        applicablePlanIds: data.applicablePlanIds ?? null,
-        applicableProviders: data.applicableProviders ?? null,
-        maxUses: data.maxUses ?? null,
-        maxUsesPerTenant: data.maxUsesPerTenant ?? null,
-        minimumAmount: data.minimumAmount ?? null,
-        status: data.status,
-        startsAt: data.startsAt ?? null,
-        expiresAt: data.expiresAt ?? null,
-        usedCount: 0,
-      });
+      const coupon = new CouponEntity();
+      coupon.code = data.code;
+      coupon.name = data.name;
+      coupon.discountType = data.discountType;
+      coupon.discountValue = data.discountValue;
+      coupon.status = data.status;
+      coupon.usedCount = 0;
+      if (data.description) coupon.description = data.description;
+      if (data.currency) coupon.currency = data.currency;
+      if (data.applicablePlanIds) coupon.applicablePlanIds = data.applicablePlanIds;
+      if (data.applicableProviders) coupon.applicableProviders = data.applicableProviders;
+      if (data.maxUses) coupon.maxUses = data.maxUses;
+      if (data.maxUsesPerTenant) coupon.maxUsesPerTenant = data.maxUsesPerTenant;
+      if (data.minimumAmount) coupon.minimumAmount = data.minimumAmount;
+      if (data.startsAt) coupon.startsAt = data.startsAt;
+      if (data.expiresAt) coupon.expiresAt = data.expiresAt;
 
-      const saved = await repo.save(coupon);
+      const saved = await repo.save(coupon as CouponEntity);
       return CouponSchema.parse(saved);
     } catch (error) {
       if (error instanceof Error && error.message === COUPON_MESSAGES.CODE_EXISTS) throw error;

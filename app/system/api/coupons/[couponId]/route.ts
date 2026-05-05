@@ -1,3 +1,4 @@
+import Limiter from '@/libs/limiter';
 import { NextRequest, NextResponse } from 'next/server'
 import UserSessionNextService from '@/modules/user_session/user_session.service.next'
 import CouponService from '@/modules/coupon/coupon.service'
@@ -11,6 +12,9 @@ type Params = { params: Promise<{ couponId: string }> }
  */
 export async function GET(request: NextRequest, { params }: Params) {
   try {
+  const _rl = await Limiter.checkRateLimit(request, 'api');
+  if (_rl) return _rl;
+
     await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ['system:admin'] })
     const { couponId } = await params
     const coupon = await CouponService.getById(couponId)

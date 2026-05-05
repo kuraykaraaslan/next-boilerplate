@@ -15,7 +15,6 @@ import {
   faPlus,
   faTag,
   faTrash,
-  faPen,
   faPercent,
   faDollarSign,
 } from '@fortawesome/free-solid-svg-icons';
@@ -37,7 +36,6 @@ type Coupon = {
   usedCount: number;
   minimumAmount?: number | null;
   status: CouponStatus;
-  startsAt?: string | null;
   expiresAt?: string | null;
   createdAt: string;
 };
@@ -79,12 +77,10 @@ export default function CouponsPage() {
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
   const [createOpen, setCreateOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
   const [form, setForm] = useState<CreateForm>(EMPTY_FORM);
-
   const [archiving, setArchiving] = useState<string | null>(null);
 
   const fetchCoupons = useCallback(async () => {
@@ -149,13 +145,19 @@ export default function CouponsPage() {
     <div className="space-y-6">
       <PageHeader
         title="Coupons"
-        description="Create and manage discount codes for subscription plans."
-        actions={
-          <Button onClick={() => setCreateOpen(true)}>
-            <FontAwesomeIcon icon={faPlus} className="mr-2" />
-            New Coupon
-          </Button>
-        }
+        subtitle="Create and manage discount codes for subscription plans."
+        actions={[
+          {
+            label: (
+              <>
+                <FontAwesomeIcon icon={faPlus} className="mr-2" />
+                New Coupon
+              </>
+            ),
+            onClick: () => setCreateOpen(true),
+            variant: 'primary',
+          },
+        ]}
       />
 
       {error && <AlertBanner variant="error" message={error} />}
@@ -164,7 +166,7 @@ export default function CouponsPage() {
         <div className="flex justify-center py-16"><Spinner /></div>
       ) : coupons.length === 0 ? (
         <EmptyState
-          icon={faTag}
+          icon={<FontAwesomeIcon icon={faTag} />}
           title="No coupons yet"
           description="Create your first discount coupon to start offering promotions."
           action={
@@ -222,11 +224,9 @@ export default function CouponsPage() {
                       onClick={() => handleArchive(coupon.couponId)}
                       disabled={archiving === coupon.couponId}
                     >
-                      {archiving === coupon.couponId ? (
-                        <Spinner size="sm" />
-                      ) : (
-                        <FontAwesomeIcon icon={faTrash} className="text-error" />
-                      )}
+                      {archiving === coupon.couponId
+                        ? <Spinner size="sm" />
+                        : <FontAwesomeIcon icon={faTrash} className="text-error" />}
                     </Button>
                   )}
                 </div>
@@ -238,7 +238,7 @@ export default function CouponsPage() {
                     <span>Min. amount: {coupon.minimumAmount} {coupon.currency ?? ''}</span>
                   )}
                   {coupon.maxUsesPerTenant && (
-                    <span>Max {coupon.maxUsesPerTenant}x per tenant</span>
+                    <span>Max {coupon.maxUsesPerTenant}× per tenant</span>
                   )}
                 </div>
               )}
@@ -247,7 +247,6 @@ export default function CouponsPage() {
         </div>
       )}
 
-      {/* Create Modal */}
       <Modal
         open={createOpen}
         onClose={() => { setCreateOpen(false); setForm(EMPTY_FORM); setCreateError(null); }}
@@ -266,6 +265,7 @@ export default function CouponsPage() {
         <form id="coupon-form" onSubmit={handleCreate} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <Input
+              id="coupon-code"
               label="Code"
               placeholder="SUMMER25"
               value={form.code}
@@ -274,6 +274,7 @@ export default function CouponsPage() {
               className="font-mono uppercase"
             />
             <Input
+              id="coupon-name"
               label="Name"
               placeholder="Summer sale 25%"
               value={form.name}
@@ -283,6 +284,7 @@ export default function CouponsPage() {
           </div>
 
           <Input
+            id="coupon-description"
             label="Description"
             placeholder="Optional description"
             value={form.description}
@@ -291,6 +293,7 @@ export default function CouponsPage() {
 
           <div className="grid grid-cols-2 gap-4">
             <Select
+              id="coupon-discount-type"
               label="Discount Type"
               value={form.discountType}
               onChange={(e) => handleField('discountType', e.target.value as DiscountType)}
@@ -300,6 +303,7 @@ export default function CouponsPage() {
               ]}
             />
             <Input
+              id="coupon-discount-value"
               label={form.discountType === 'PERCENTAGE' ? 'Discount (%)' : 'Discount Amount'}
               type="number"
               min="0"
@@ -314,6 +318,7 @@ export default function CouponsPage() {
 
           {form.discountType === 'FIXED_AMOUNT' && (
             <Input
+              id="coupon-currency"
               label="Currency"
               placeholder="USD"
               maxLength={3}
@@ -325,6 +330,7 @@ export default function CouponsPage() {
 
           <div className="grid grid-cols-2 gap-4">
             <Input
+              id="coupon-max-uses"
               label="Max Total Uses"
               type="number"
               min="1"
@@ -333,6 +339,7 @@ export default function CouponsPage() {
               onChange={(e) => handleField('maxUses', e.target.value)}
             />
             <Input
+              id="coupon-max-uses-per-tenant"
               label="Max Uses per Tenant"
               type="number"
               min="1"
@@ -344,6 +351,7 @@ export default function CouponsPage() {
 
           <div className="grid grid-cols-2 gap-4">
             <Input
+              id="coupon-min-amount"
               label="Minimum Amount"
               type="number"
               min="0"
@@ -353,6 +361,7 @@ export default function CouponsPage() {
               onChange={(e) => handleField('minimumAmount', e.target.value)}
             />
             <Input
+              id="coupon-expires-at"
               label="Expires At"
               type="datetime-local"
               value={form.expiresAt}

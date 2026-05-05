@@ -4,6 +4,7 @@ import { Spinner } from '@/modules/ui/Spinner';
 import { AlertBanner } from '@/modules/ui/AlertBanner';
 import { EmptyState } from '@/modules/ui/EmptyState';
 import { CouponBadge } from './coupon.badge';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTag } from '@fortawesome/free-solid-svg-icons';
 import api from '@/libs/axios';
 
@@ -41,7 +42,7 @@ export function CouponRedemptionsList({ tenantId }: { tenantId: string }) {
   if (redemptions.length === 0) {
     return (
       <EmptyState
-        icon={faTag}
+        icon={<FontAwesomeIcon icon={faTag} />}
         title="No redemptions yet"
         description="Applied coupons will appear here."
       />
