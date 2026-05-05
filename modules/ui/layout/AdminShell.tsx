@@ -23,6 +23,7 @@ import {
   faEnvelope,
   faGlobe,
   faRobot,
+  faKey,
 } from '@fortawesome/free-solid-svg-icons';
 
 type AdminShellProps = {
@@ -100,6 +101,7 @@ export function AdminShell({ children, variant, tenantId }: AdminShellProps) {
     {
       label: 'Developer',
       items: [
+        { id: 'api-keys', label: 'API Keys', href: `/tenant/${tenantId}/admin/api-keys`, icon: <FontAwesomeIcon icon={faKey} aria-hidden /> },
         { id: 'api-docs', label: 'API Docs', href: `/tenant/${tenantId}/api-docs`, icon: <FontAwesomeIcon icon={faBook} aria-hidden /> },
       ],
     },

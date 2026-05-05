@@ -51,8 +51,16 @@ export const TenantSubscriptionSchema = z.object({
   currentPeriodEnd: z.date(),
   trialEndsAt: z.date().nullable(),
   cancelledAt: z.date().nullable(),
+  gracePeriodEndsAt: z.date().nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),
+})
+
+// Grace Period Status
+export const GracePeriodStatusSchema = z.object({
+  inGrace: z.boolean(),
+  gracePeriodEndsAt: z.date().nullable(),
+  daysRemaining: z.number().nullable(),
 })
 
 // Tenant Subscription with Plan details
@@ -66,6 +74,7 @@ export type SubscriptionPlan = z.infer<typeof SubscriptionPlanSchema>
 export type PlanWithFeatures = z.infer<typeof PlanWithFeaturesSchema>
 export type TenantSubscription = z.infer<typeof TenantSubscriptionSchema>
 export type TenantSubscriptionWithPlan = z.infer<typeof TenantSubscriptionWithPlanSchema>
+export type GracePeriodStatus = z.infer<typeof GracePeriodStatusSchema>
 
 // Feature Access Result
 export type FeatureAccessResult =

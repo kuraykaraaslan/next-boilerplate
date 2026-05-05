@@ -12,6 +12,7 @@ import { Setting } from '@/modules/setting/entities/setting.entity';
 import { SubscriptionPlan } from '@/modules/payment/entities/subscription_plan.entity';
 import { PlanFeature } from '@/modules/payment/entities/plan_feature.entity';
 import { AuditLog } from '@/modules/audit_log/entities/audit_log.entity';
+import { Coupon } from '@/modules/coupon/entities/coupon.entity';
 import { TenantDatabase } from './entities/tenant_database.entity';
 
 function parseDbUrl(raw: string): { url: string; schema?: string } {
@@ -41,6 +42,7 @@ export const SystemDataSource = new DataSource({
     SubscriptionPlan,
     PlanFeature,
     AuditLog,
+    Coupon,
     TenantDatabase,
   ],
   migrations: [],

@@ -33,6 +33,9 @@ export class TenantSubscription {
   @Column({ nullable: true, type: 'timestamp' })
   cancelledAt?: Date;
 
+  @Column({ nullable: true, type: 'timestamp' })
+  gracePeriodEndsAt?: Date;
+
   @CreateDateColumn({ type: 'timestamp' })
   createdAt!: Date;
 

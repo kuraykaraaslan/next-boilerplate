@@ -32,6 +32,14 @@ export const SUBSCRIPTION_MESSAGES = {
   FEATURE_LIMIT_REACHED: 'You have reached the limit for this feature on your current plan',
   FEATURE_CHECK_FAILED: 'Failed to check feature access',
 
+  // Grace Period
+  GRACE_PERIOD_STARTED: 'Subscription grace period started',
+  GRACE_PERIOD_EXPIRED: 'Subscription grace period has expired',
+  GRACE_PERIOD_START_FAILED: 'Failed to start subscription grace period',
+  SUBSCRIPTION_EXPIRED: 'Subscription has expired',
+  SUBSCRIPTION_EXPIRE_FAILED: 'Failed to expire subscription',
+  SUBSCRIPTION_NOT_PAST_DUE: 'Subscription is not in past-due state',
+
   // General
   FETCH_FAILED: 'Failed to fetch subscription data',
   UNAUTHORIZED: 'Unauthorized access',

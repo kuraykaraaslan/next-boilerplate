@@ -4,6 +4,8 @@ import { NextRequest, NextResponse } from "next/server";
 import TenantMemberService from "@/modules/tenant_member/tenant_member.service";
 import Limiter from "@/libs/limiter";
 import TenantSessionNextService from "@/modules/tenant_session/tenant_session.service.next";
+import TenantSubscriptionService from "@/modules/tenant_subscription/tenant_subscription.service";
+import { FEATURE_KEYS } from "@/modules/tenant_subscription/tenant_subscription.feature-keys";
 
 /**
  * GET /tenant/[tenantId]/api/members
@@ -78,6 +80,21 @@ export async function POST(
       requiredScopes: ["tenant:admin"],
       tenantId
     });
+
+    const { total: currentMemberCount } = await TenantMemberService.getByTenantId({
+      tenantId,
+      page: 1,
+      pageSize: 1,
+      search: null,
+      memberRole: null,
+      memberStatus: 'ACTIVE',
+    });
+
+    await TenantSubscriptionService.assertFeatureAccess(
+      tenantId,
+      FEATURE_KEYS.MAX_MEMBERS,
+      currentMemberCount,
+    );
 
     const body = await request.json();
 

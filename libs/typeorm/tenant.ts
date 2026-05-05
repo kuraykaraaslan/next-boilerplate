@@ -11,6 +11,8 @@ import { TenantSubscription } from '@/modules/tenant_subscription/entities/tenan
 import { Payment } from '@/modules/payment/entities/payment.entity';
 import { PaymentTransaction } from '@/modules/payment/entities/payment_transaction.entity';
 import { TenantAuditLog } from '@/modules/audit_log/entities/audit_log_tenant.entity';
+import { ApiKey } from '@/modules/api_key/entities/api_key.entity';
+import { CouponRedemption } from '@/modules/coupon/entities/coupon_redemption.entity';
 
 const TENANT_ENTITIES = [
   Tenant,
@@ -22,6 +24,8 @@ const TENANT_ENTITIES = [
   Payment,
   PaymentTransaction,
   TenantAuditLog,
+  ApiKey,
+  CouponRedemption,
 ];
 
 function parseDbUrl(raw: string): { url: string; schema?: string } {

@@ -15,6 +15,7 @@ import {
   PlanFeatureSchema,
   TenantSubscriptionSchema,
   TenantSubscriptionWithPlanSchema,
+  GracePeriodStatusSchema,
 } from './tenant_subscription.types';
 import type {
   SubscriptionPlan,
@@ -23,6 +24,7 @@ import type {
   TenantSubscription,
   TenantSubscriptionWithPlan,
   FeatureAccessResult,
+  GracePeriodStatus,
 } from './tenant_subscription.types';
 import type {
   CreatePlanDTO,
@@ -321,6 +323,76 @@ export default class TenantSubscriptionService {
   }
 
   // ============================================================================
+  // Grace Period Management
+  // ============================================================================
+
+  static async startGracePeriod(tenantId: string): Promise<TenantSubscription> {
+    const ds = await tenantDataSourceFor(tenantId);
+    const repo = ds.getRepository(TenantSubscriptionEntity);
+    const existing = await repo.findOne({ where: { tenantId } });
+    if (!existing) throw new Error(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_NOT_FOUND);
+    if (existing.status !== 'PAST_DUE') throw new Error(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_NOT_PAST_DUE);
+
+    const gracePeriodDays = await this.getGracePeriodDays();
+    const gracePeriodEndsAt = new Date(Date.now() + gracePeriodDays * 24 * 60 * 60 * 1000);
+
+    try {
+      await repo.update({ tenantId }, { gracePeriodEndsAt } as any);
+      const updated = await repo.findOne({ where: { tenantId } });
+      await this.invalidateFeatureCache(tenantId);
+      Logger.info(`Grace period started for tenant ${tenantId} — ends ${gracePeriodEndsAt.toISOString()}`);
+      return TenantSubscriptionSchema.parse(updated!);
+    } catch (error) {
+      Logger.error(`${SUBSCRIPTION_MESSAGES.GRACE_PERIOD_START_FAILED}: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(SUBSCRIPTION_MESSAGES.GRACE_PERIOD_START_FAILED);
+    }
+  }
+
+  static async getGracePeriodStatus(tenantId: string): Promise<GracePeriodStatus> {
+    const ds = await tenantDataSourceFor(tenantId);
+    const sub = await ds.getRepository(TenantSubscriptionEntity).findOne({ where: { tenantId } });
+
+    if (!sub || sub.status !== 'PAST_DUE' || !sub.gracePeriodEndsAt) {
+      return GracePeriodStatusSchema.parse({ inGrace: false, gracePeriodEndsAt: null, daysRemaining: null });
+    }
+
+    const now = new Date();
+    const endsAt = new Date(sub.gracePeriodEndsAt);
+    const inGrace = endsAt > now;
+    const daysRemaining = inGrace
+      ? Math.ceil((endsAt.getTime() - now.getTime()) / (24 * 60 * 60 * 1000))
+      : 0;
+
+    return GracePeriodStatusSchema.parse({ inGrace, gracePeriodEndsAt: endsAt, daysRemaining });
+  }
+
+  static async expireOverdueSubscriptions(): Promise<number> {
+    try {
+      const ds = await getDefaultTenantDataSource();
+      const repo = ds.getRepository(TenantSubscriptionEntity);
+      const now = new Date();
+
+      const overdue = await repo
+        .createQueryBuilder('sub')
+        .where('sub.status = :status', { status: 'PAST_DUE' })
+        .andWhere('sub.gracePeriodEndsAt IS NOT NULL')
+        .andWhere('sub.gracePeriodEndsAt <= :now', { now })
+        .getMany();
+
+      for (const sub of overdue) {
+        await repo.update({ tenantId: sub.tenantId }, { status: 'EXPIRED' } as any);
+        await this.invalidateFeatureCache(sub.tenantId);
+        Logger.info(`Subscription expired for tenant ${sub.tenantId} — grace period ended`);
+      }
+
+      return overdue.length;
+    } catch (error) {
+      Logger.error(`${SUBSCRIPTION_MESSAGES.SUBSCRIPTION_EXPIRE_FAILED}: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_EXPIRE_FAILED);
+    }
+  }
+
+  // ============================================================================
   // Payment Integration
   // ============================================================================
 
@@ -390,8 +462,22 @@ export default class TenantSubscriptionService {
     return `${this.FEATURE_CACHE_PREFIX}${tenantId}`;
   }
 
+  private static readonly GRACE_PERIOD_DAYS_DEFAULT = 7;
+
+  private static async getGracePeriodDays(): Promise<number> {
+    try {
+      const SettingService = (await import('@/modules/setting/setting.service')).default;
+      const val = await SettingService.getValue('subscriptionGracePeriodDays');
+      const parsed = val ? parseInt(val, 10) : NaN;
+      return isNaN(parsed) || parsed < 0 ? this.GRACE_PERIOD_DAYS_DEFAULT : parsed;
+    } catch {
+      return this.GRACE_PERIOD_DAYS_DEFAULT;
+    }
+  }
+
   private static async getFeatureCache(tenantId: string): Promise<{
     status: string;
+    gracePeriodEndsAt: string | null;
     features: Array<{ key: string; type: string; value: string }>;
   } | null> {
     try {
@@ -405,12 +491,13 @@ export default class TenantSubscriptionService {
   private static async setFeatureCache(
     tenantId: string,
     status: string,
+    gracePeriodEndsAt: Date | null | undefined,
     features: Array<{ key: string; type: string; value: string }>,
   ): Promise<void> {
     try {
       await redis.set(
         this.featureCacheKey(tenantId),
-        JSON.stringify({ status, features }),
+        JSON.stringify({ status, gracePeriodEndsAt: gracePeriodEndsAt?.toISOString() ?? null, features }),
         'EX',
         this.FEATURE_CACHE_TTL,
       );
@@ -475,11 +562,16 @@ export default class TenantSubscriptionService {
           select: ['key', 'type', 'value'],
         });
 
-        await this.setFeatureCache(tenantId, sub.status, features);
-        cached = { status: sub.status, features };
+        await this.setFeatureCache(tenantId, sub.status, sub.gracePeriodEndsAt ?? null, features);
+        cached = { status: sub.status, gracePeriodEndsAt: sub.gracePeriodEndsAt?.toISOString() ?? null, features };
       }
 
-      if (!ACTIVE_STATUSES.includes(cached.status)) {
+      const isInGracePeriod =
+        cached.status === 'PAST_DUE' &&
+        cached.gracePeriodEndsAt !== null &&
+        new Date(cached.gracePeriodEndsAt) > new Date();
+
+      if (!ACTIVE_STATUSES.includes(cached.status) && !isInGracePeriod) {
         this.logFeatureAccess(tenantId, DENIED_BOOLEAN);
         return DENIED_BOOLEAN;
       }

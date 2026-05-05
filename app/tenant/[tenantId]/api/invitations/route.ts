@@ -5,6 +5,9 @@ import { SendInvitationDTO, GetInvitationsDTO } from "@/modules/tenant_invitatio
 import TenantSessionNextService from "@/modules/tenant_session/tenant_session.service.next";
 import MailService from "@/modules/notification_mail/notification_mail.service";
 import Limiter from "@/libs/limiter";
+import TenantMemberService from "@/modules/tenant_member/tenant_member.service";
+import TenantSubscriptionService from "@/modules/tenant_subscription/tenant_subscription.service";
+import { FEATURE_KEYS } from "@/modules/tenant_subscription/tenant_subscription.feature-keys";
 
 /**
  * GET /tenant/[tenantId]/api/invitations
@@ -59,6 +62,21 @@ export async function POST(
       requiredScopes: ["tenant:admin"],
       tenantId,
     });
+
+    const { total: currentMemberCount } = await TenantMemberService.getByTenantId({
+      tenantId,
+      page: 1,
+      pageSize: 1,
+      search: null,
+      memberRole: null,
+      memberStatus: 'ACTIVE',
+    });
+
+    await TenantSubscriptionService.assertFeatureAccess(
+      tenantId,
+      FEATURE_KEYS.MAX_MEMBERS,
+      currentMemberCount,
+    );
 
     const body = await request.json();
     const parsed = SendInvitationDTO.safeParse(body);
