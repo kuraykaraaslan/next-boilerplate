@@ -13,6 +13,8 @@ import { PaymentTransaction } from '@/modules/payment/entities/payment_transacti
 import { TenantAuditLog } from '@/modules/audit_log/entities/audit_log_tenant.entity';
 import { ApiKey } from '@/modules/api_key/entities/api_key.entity';
 import { CouponRedemption } from '@/modules/coupon/entities/coupon_redemption.entity';
+import { Webhook } from '@/modules/webhook/entities/webhook.entity';
+import { WebhookDelivery } from '@/modules/webhook/entities/webhook_delivery.entity';
 
 const TENANT_ENTITIES = [
   Tenant,
@@ -26,6 +28,8 @@ const TENANT_ENTITIES = [
   TenantAuditLog,
   ApiKey,
   CouponRedemption,
+  Webhook,
+  WebhookDelivery,
 ];
 
 function parseDbUrl(raw: string): { url: string; schema?: string } {

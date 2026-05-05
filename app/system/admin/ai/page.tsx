@@ -12,6 +12,25 @@ import { AIChatBox } from '@/modules/ai/ui/ai.chat-box';
 import { Badge } from '@/modules/ui/Badge';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRobot, faChartBar, faServer } from '@fortawesome/free-solid-svg-icons';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  LineElement,
+  PointElement,
+  Filler,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+import { Line } from 'react-chartjs-2';
+
+ChartJS.register(CategoryScale, LinearScale, LineElement, PointElement, Filler, Tooltip, Legend);
+
+const PROVIDER_COLORS: Record<string, string> = {
+  openai:    'rgb(16, 163, 127)',
+  anthropic: 'rgb(209, 94, 56)',
+  google:    'rgb(59, 130, 246)',
+};
 
 type ModelInfo = { model: string; provider: string };
 type ProviderInfo = { provider: string; configured: boolean };
@@ -77,28 +96,29 @@ export default function AIPage() {
                 {Object.entries(usage).map(([provider, u]) => {
                   const days = Object.entries(u.daily ?? {}).sort(([a], [b]) => a.localeCompare(b)).slice(-14);
                   if (!days.length) return null;
+                  const color = PROVIDER_COLORS[provider] ?? 'rgb(107, 114, 128)';
+                  const chartData = {
+                    labels: days.map(([date]) => date),
+                    datasets: [{
+                      label: 'Tokens',
+                      data: days.map(([, tokens]) => tokens as number),
+                      borderColor: color,
+                      backgroundColor: color.replace('rgb(', 'rgba(').replace(')', ', 0.1)'),
+                      fill: true,
+                      tension: 0.4,
+                      pointRadius: 3,
+                    }],
+                  };
                   return (
                     <Card key={provider} title={`${provider} — Daily tokens (last 14 days)`}>
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-sm">
-                          <thead>
-                            <tr className="border-b border-border">
-                              <th className="text-left px-4 py-2 text-xs text-text-secondary font-semibold">Date</th>
-                              <th className="text-right px-4 py-2 text-xs text-text-secondary font-semibold">Tokens</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-border">
-                            {days.map(([date, tokens]) => (
-                              <tr key={date} className="hover:bg-surface-overlay">
-                                <td className="px-4 py-2 text-text-secondary">{date}</td>
-                                <td className="px-4 py-2 text-right tabular-nums font-medium text-text-primary">
-                                  {(tokens as number).toLocaleString()}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
+                      <Line
+                        data={chartData}
+                        options={{
+                          responsive: true,
+                          plugins: { legend: { display: false } },
+                          scales: { y: { beginAtZero: true } },
+                        }}
+                      />
                     </Card>
                   );
                 })}

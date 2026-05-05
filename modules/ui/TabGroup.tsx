@@ -52,7 +52,7 @@ export function TabGroup({
 
   return (
     <div className={cn('w-full', className)}>
-      <div role="tablist" aria-label={label} className="flex border-b border-border">
+      <div role="tablist" aria-label={label} className="flex border-b border-border pb-3">
         {tabs.map((tab, i) => {
           const isActive = tab.id === active;
           return (

@@ -13,6 +13,8 @@ import { SubscriptionPlan } from '@/modules/payment/entities/subscription_plan.e
 import { PlanFeature } from '@/modules/payment/entities/plan_feature.entity';
 import { AuditLog } from '@/modules/audit_log/entities/audit_log.entity';
 import { Coupon } from '@/modules/coupon/entities/coupon.entity';
+import { SystemWebhook } from '@/modules/webhook/entities/system_webhook.entity';
+import { SystemWebhookDelivery } from '@/modules/webhook/entities/system_webhook_delivery.entity';
 import { TenantDatabase } from './entities/tenant_database.entity';
 
 function parseDbUrl(raw: string): { url: string; schema?: string } {
@@ -43,6 +45,8 @@ export const SystemDataSource = new DataSource({
     PlanFeature,
     AuditLog,
     Coupon,
+    SystemWebhook,
+    SystemWebhookDelivery,
     TenantDatabase,
   ],
   migrations: [],

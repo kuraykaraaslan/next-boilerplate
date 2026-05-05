@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
     const configured = AIService.listConfiguredProviders();
 
     const providers = all.map((type) => ({
-      type,
+      provider: type,
       configured: configured.includes(type),
     }));
 

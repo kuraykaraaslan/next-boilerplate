@@ -17,7 +17,10 @@ export async function GET(request: NextRequest) {
       requiredScopes: ["system:read"],
     });
 
-    const models = AIService.listAllModels();
+    const modelsByProvider = AIService.listAllModels();
+    const models = Object.entries(modelsByProvider).flatMap(([provider, names]) =>
+      names.map((model) => ({ model, provider }))
+    );
 
     return NextResponse.json({ models }, { status: 200 });
   } catch (error: any) {
