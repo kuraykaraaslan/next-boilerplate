@@ -1,6 +1,4 @@
 'use client';
-// AI playground + usage stats
-// Uses AIChatBox from next_components (adapted)
 import { useEffect, useState } from 'react';
 import api from '@/libs/axios';
 import { PageHeader } from '@/modules/ui/PageHeader';
@@ -10,6 +8,7 @@ import { AlertBanner } from '@/modules/ui/AlertBanner';
 import { TabGroup } from '@/modules/ui/TabGroup';
 import { AIChatBox } from '@/modules/ai/ui/ai.chat-box';
 import { Badge } from '@/modules/ui/Badge';
+import { DateRangePicker, DateRange } from '@/modules/ui/DateRangePicker';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRobot, faChartBar, faServer } from '@fortawesome/free-solid-svg-icons';
 import {
@@ -23,25 +22,55 @@ import {
   Legend,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
+import { cn } from '@/libs/utils/cn';
 
 ChartJS.register(CategoryScale, LinearScale, LineElement, PointElement, Filler, Tooltip, Legend);
 
-const PROVIDER_COLORS: Record<string, string> = {
-  openai:    'rgb(16, 163, 127)',
-  anthropic: 'rgb(209, 94, 56)',
-  google:    'rgb(59, 130, 246)',
-};
-
-type ModelInfo = { model: string; provider: string };
+type ModelInfo    = { model: string; provider: string };
 type ProviderInfo = { provider: string; configured: boolean };
-type UsageEntry = { daily: Record<string, number>; total: number };
+type UsageEntry   = { daily: Record<string, number>; total: number };
+
+type Preset = '1d' | '7d' | '30d' | 'custom';
+
+const PROVIDER_COLORS: Record<string, { border: string; bg: string }> = {
+  openai:    { border: 'rgb(16, 163, 127)',  bg: 'rgba(16, 163, 127, 0.1)'  },
+  anthropic: { border: 'rgb(209, 94, 56)',   bg: 'rgba(209, 94, 56, 0.1)'   },
+  google:    { border: 'rgb(59, 130, 246)',  bg: 'rgba(59, 130, 246, 0.1)'  },
+};
+const FALLBACK_COLOR = { border: 'rgb(107, 114, 128)', bg: 'rgba(107, 114, 128, 0.1)' };
+
+const PRESETS: { id: Preset; label: string }[] = [
+  { id: '1d',  label: '1G'  },
+  { id: '7d',  label: '7G'  },
+  { id: '30d', label: '30G' },
+  { id: 'custom', label: 'Aralık' },
+];
+
+function filterDates(dates: string[], preset: Preset, custom: DateRange): string[] {
+  const today = new Date().toISOString().split('T')[0];
+  if (preset === '1d') return dates.filter((d) => d === today);
+  if (preset === '7d') {
+    const cutoff = new Date(Date.now() - 6 * 86_400_000).toISOString().split('T')[0];
+    return dates.filter((d) => d >= cutoff);
+  }
+  if (preset === '30d') return dates;
+  if (preset === 'custom' && custom.start && custom.end) {
+    const s = custom.start.toISOString().split('T')[0];
+    const e = custom.end.toISOString().split('T')[0];
+    return dates.filter((d) => d >= s && d <= e);
+  }
+  return dates;
+}
 
 export default function AIPage() {
-  const [models, setModels]       = useState<ModelInfo[]>([]);
+  const [models,    setModels]    = useState<ModelInfo[]>([]);
   const [providers, setProviders] = useState<ProviderInfo[]>([]);
-  const [usage, setUsage]         = useState<Record<string, UsageEntry>>({});
-  const [loading, setLoading]     = useState(true);
-  const [error, setError]         = useState('');
+  const [usage,     setUsage]     = useState<Record<string, UsageEntry>>({});
+  const [loading,   setLoading]   = useState(true);
+  const [error,     setError]     = useState('');
+
+  const [preset,      setPreset]      = useState<Preset>('30d');
+  const [customRange, setCustomRange] = useState<DateRange>({ start: null, end: null });
 
   useEffect(() => {
     Promise.all([
@@ -62,6 +91,29 @@ export default function AIPage() {
 
   const totalTokens = Object.values(usage).reduce((sum, u) => sum + (u.total ?? 0), 0);
 
+  // Build combined chart data
+  const allDates = [...new Set(
+    Object.values(usage).flatMap((u) => Object.keys(u.daily ?? {}))
+  )].sort();
+
+  const visibleDates = filterDates(allDates, preset, customRange);
+
+  const chartData = {
+    labels: visibleDates,
+    datasets: Object.entries(usage).map(([provider, u]) => {
+      const color = PROVIDER_COLORS[provider] ?? FALLBACK_COLOR;
+      return {
+        label: provider,
+        data: visibleDates.map((d) => (u.daily?.[d] as number) ?? 0),
+        borderColor: color.border,
+        backgroundColor: color.bg,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 3,
+      };
+    }),
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader title="AI" subtitle="Playground and usage statistics" />
@@ -77,11 +129,7 @@ export default function AIPage() {
               <div className="space-y-4">
                 {/* Summary row */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  <StatCard
-                    label="Total Tokens (30d)"
-                    value={totalTokens.toLocaleString()}
-                    icon={faChartBar}
-                  />
+                  <StatCard label="Total Tokens (30d)" value={totalTokens.toLocaleString()} icon={faChartBar} />
                   {Object.entries(usage).map(([provider, u]) => (
                     <StatCard
                       key={provider}
@@ -92,36 +140,53 @@ export default function AIPage() {
                   ))}
                 </div>
 
-                {/* Per-provider daily breakdown */}
-                {Object.entries(usage).map(([provider, u]) => {
-                  const days = Object.entries(u.daily ?? {}).sort(([a], [b]) => a.localeCompare(b)).slice(-14);
-                  if (!days.length) return null;
-                  const color = PROVIDER_COLORS[provider] ?? 'rgb(107, 114, 128)';
-                  const chartData = {
-                    labels: days.map(([date]) => date),
-                    datasets: [{
-                      label: 'Tokens',
-                      data: days.map(([, tokens]) => tokens as number),
-                      borderColor: color,
-                      backgroundColor: color.replace('rgb(', 'rgba(').replace(')', ', 0.1)'),
-                      fill: true,
-                      tension: 0.4,
-                      pointRadius: 3,
-                    }],
-                  };
-                  return (
-                    <Card key={provider} title={`${provider} — Daily tokens (last 14 days)`}>
-                      <Line
-                        data={chartData}
-                        options={{
-                          responsive: true,
-                          plugins: { legend: { display: false } },
-                          scales: { y: { beginAtZero: true } },
-                        }}
+                {/* Range selector */}
+                <Card>
+                  <div className="flex flex-wrap items-end gap-4">
+                    <div className="flex rounded-lg overflow-hidden border border-border">
+                      {PRESETS.map((p) => (
+                        <button
+                          key={p.id}
+                          onClick={() => setPreset(p.id)}
+                          className={cn(
+                            'px-4 py-2 text-sm font-medium transition-colors',
+                            preset === p.id
+                              ? 'bg-primary text-white'
+                              : 'bg-surface-base text-text-secondary hover:bg-surface-overlay'
+                          )}
+                        >
+                          {p.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    {preset === 'custom' && (
+                      <DateRangePicker
+                        id="usage-range"
+                        label="Tarih Aralığı"
+                        value={customRange}
+                        onChange={setCustomRange}
+                        className="flex-1 min-w-[280px]"
                       />
-                    </Card>
-                  );
-                })}
+                    )}
+                  </div>
+                </Card>
+
+                {/* Combined line chart */}
+                <Card title="Daily Token Usage">
+                  {visibleDates.length === 0 ? (
+                    <p className="text-sm text-text-secondary py-4">Bu aralıkta veri yok.</p>
+                  ) : (
+                    <Line
+                      data={chartData}
+                      options={{
+                        responsive: true,
+                        plugins: { legend: { position: 'top' } },
+                        scales: { y: { beginAtZero: true } },
+                      }}
+                    />
+                  )}
+                </Card>
               </div>
             ),
           },
@@ -168,7 +233,6 @@ export default function AIPage() {
         ]}
       />
 
-      {/* Floating AI Chat — next_components ChatBox adapted */}
       <AIChatBox title="AI Playground" subtitle="Test your AI configuration" />
     </div>
   );
