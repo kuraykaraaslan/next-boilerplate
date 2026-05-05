@@ -11,6 +11,8 @@ import { Button } from '@/modules/ui/Button';
 import { UserProfileForm, type UserProfileValues } from '@/modules/user/ui/user.profile-form';
 import { UserPreferencesForm, type UserPreferencesValues } from '@/modules/user/ui/user.preferences-form';
 import { UserRoleBadge } from '@/modules/user/ui/user.role-badge';
+import { PasskeysPanel } from '@/modules/user_security/ui/user.passkeys-panel';
+import { SocialAccountsPanel } from '@/modules/user/ui/user.social-accounts-panel';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faEnvelope, faShieldHalved, faClock, faCircleCheck, faCircleXmark,
@@ -218,6 +220,16 @@ export default function SystemMePage() {
                 />
               </Card>
             ),
+          },
+          {
+            id: 'passkeys',
+            label: 'Passkeys',
+            content: <PasskeysPanel />,
+          },
+          {
+            id: 'connected',
+            label: 'Connected Accounts',
+            content: <SocialAccountsPanel />,
           },
         ]}
       />

@@ -15,7 +15,7 @@ import { PageHeader } from '@/modules/ui/PageHeader';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faArrowLeft, faGlobe, faPeopleGroup, faGear,
-  faPlus, faTrash, faCheck, faBan, faUser,
+  faPlus, faTrash, faCheck, faBan, faUser, faCreditCard,
 } from '@fortawesome/free-solid-svg-icons';
 
 type TenantStatus = 'ACTIVE' | 'INACTIVE' | 'PENDING' | 'SUSPENDED' | 'DELETED' | 'ARCHIVED';
@@ -393,6 +393,16 @@ export default function TenantDetailPage({ params }: { params: Promise<{ tenantI
               <a href={`/tenant/${tenantId}/admin/settings`}>
                 <Button variant="outline" fullWidth iconLeft={<FontAwesomeIcon icon={faGear} />}>
                   Tenant Settings
+                </Button>
+              </a>
+              <a href={`/tenant/${tenantId}/admin/subscription`}>
+                <Button variant="outline" fullWidth iconLeft={<FontAwesomeIcon icon={faCreditCard} />}>
+                  Subscription
+                </Button>
+              </a>
+              <a href={`/system/admin/payments?tenantId=${tenantId}`}>
+                <Button variant="outline" fullWidth iconLeft={<FontAwesomeIcon icon={faGlobe} />}>
+                  View Payments
                 </Button>
               </a>
             </div>

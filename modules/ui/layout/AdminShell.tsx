@@ -22,6 +22,7 @@ import {
   faCircleUser,
   faEnvelope,
   faGlobe,
+  faRobot,
 } from '@fortawesome/free-solid-svg-icons';
 
 type AdminShellProps = {
@@ -70,12 +71,14 @@ export function AdminShell({ children, variant, tenantId }: AdminShellProps) {
         { id: 'tenants',    label: 'Tenants',    href: '/system/admin/tenants',    icon: <FontAwesomeIcon icon={faBuilding} aria-hidden /> },
         { id: 'audit-logs', label: 'Audit Logs', href: '/system/admin/audit-logs', icon: <FontAwesomeIcon icon={faClockRotateLeft} aria-hidden /> },
         { id: 'plans',      label: 'Plans',      href: '/system/admin/plans',      icon: <FontAwesomeIcon icon={faCreditCard} aria-hidden /> },
+        { id: 'payments',   label: 'Payments',   href: '/system/admin/payments',   icon: <FontAwesomeIcon icon={faCreditCard} aria-hidden /> },
       ],
     },
     {
       label: 'System',
       items: [
         { id: 'fleet',    label: 'Fleet',      href: '/system/fleet',          icon: <FontAwesomeIcon icon={faServer} aria-hidden /> },
+        { id: 'ai',       label: 'AI',         href: '/system/admin/ai',         icon: <FontAwesomeIcon icon={faRobot} aria-hidden /> },
         { id: 'api-docs', label: 'API Docs',   href: '/system/admin/api-docs',  icon: <FontAwesomeIcon icon={faBook} aria-hidden /> },
         { id: 'settings', label: 'Settings',   href: '/system/admin/settings',  icon: <FontAwesomeIcon icon={faGear} aria-hidden /> },
         { id: 'me',       label: 'My Profile', href: '/system/admin/me',         icon: <FontAwesomeIcon icon={faCircleUser} aria-hidden /> },
@@ -87,10 +90,11 @@ export function AdminShell({ children, variant, tenantId }: AdminShellProps) {
     {
       label: 'Management',
       items: [
-        { id: 'members',     label: 'Members',     href: `/tenant/${tenantId}/admin/members`,     icon: <FontAwesomeIcon icon={faPeopleGroup} aria-hidden /> },
-        { id: 'settings',    label: 'Settings',    href: `/tenant/${tenantId}/admin/settings`,    icon: <FontAwesomeIcon icon={faGear} aria-hidden /> },
-        { id: 'invitations', label: 'Invitations', href: `/tenant/${tenantId}/admin/invitations`, icon: <FontAwesomeIcon icon={faEnvelope} aria-hidden /> },
-        { id: 'domains',     label: 'Domains',     href: `/tenant/${tenantId}/admin/domains`,     icon: <FontAwesomeIcon icon={faGlobe} aria-hidden /> },
+        { id: 'members',      label: 'Members',      href: `/tenant/${tenantId}/admin/members`,             icon: <FontAwesomeIcon icon={faPeopleGroup} aria-hidden /> },
+        { id: 'settings',    label: 'Settings',    href: `/tenant/${tenantId}/admin/settings`,           icon: <FontAwesomeIcon icon={faGear} aria-hidden /> },
+        { id: 'invitations', label: 'Invitations', href: `/tenant/${tenantId}/admin/invitations`,        icon: <FontAwesomeIcon icon={faEnvelope} aria-hidden /> },
+        { id: 'domains',     label: 'Domains',     href: `/tenant/${tenantId}/admin/domains`,            icon: <FontAwesomeIcon icon={faGlobe} aria-hidden /> },
+        { id: 'subscription',label: 'Subscription',href: `/tenant/${tenantId}/admin/subscription`,      icon: <FontAwesomeIcon icon={faCreditCard} aria-hidden /> },
       ],
     },
     {
