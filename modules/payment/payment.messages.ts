@@ -47,4 +47,14 @@ export const PAYMENT_MESSAGES = {
   IYZICO_GET_STATUS_FAILED: 'Failed to get Iyzico payment status',
   IYZICO_CREATE_PAYMENT_FAILED: 'Failed to create Iyzico payment',
   IYZICO_REFUND_FAILED: 'Failed to process Iyzico refund',
+
+  // Webhooks
+  WEBHOOK_INVALID_SIGNATURE: 'Invalid webhook signature',
+  WEBHOOK_UNKNOWN_EVENT: 'Unknown or unhandled webhook event type',
+  WEBHOOK_PROCESSING_FAILED: 'Failed to process webhook event',
+  WEBHOOK_PAYMENT_NOT_FOUND: 'Payment not found for webhook event',
+  STRIPE_WEBHOOK_VERIFICATION_FAILED: 'Stripe webhook signature verification failed',
+  PAYPAL_WEBHOOK_VERIFICATION_FAILED: 'PayPal webhook verification failed',
+  IYZICO_CALLBACK_VERIFICATION_FAILED: 'Iyzico callback verification failed',
+  IYZICO_CALLBACK_TOKEN_MISSING: 'Iyzico callback token is missing',
 } as const

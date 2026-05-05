@@ -6,7 +6,7 @@ import { z } from 'zod';
 
 export const PaymentSettingKeySchema = z.enum([
   'stripeEnabled', 'stripePublicKey', 'stripeSecretKey', 'stripeWebhookSecret',
-  'paypalEnabled', 'paypalClientId', 'paypalClientSecret', 'paypalSandboxMode',
+  'paypalEnabled', 'paypalClientId', 'paypalClientSecret', 'paypalSandboxMode', 'paypalWebhookId',
   'iyzicoEnabled', 'iyzicoApiKey', 'iyzicoSecretKey', 'iyzicoSandboxMode',
   'currency', 'taxRate', 'taxEnabled',
 ]);
