@@ -1,3 +1,4 @@
+import Limiter from '@/libs/limiter';
 // path: app/tenant/[tenantId]/api/settings/public/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import TenantSettingService from "@/modules/tenant_setting/tenant_setting.service";
@@ -19,6 +20,9 @@ export async function GET(
   ];  
   
   try {
+  const _rl = await Limiter.checkRateLimit(request, 'api');
+  if (_rl) return _rl;
+
     const { tenantId } = await params;
     const settings = await TenantSettingService.getByKeys(tenantId, PUBLIC_SETTINGS_KEYS);
 

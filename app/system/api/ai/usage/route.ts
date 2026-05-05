@@ -16,7 +16,8 @@ const UsageQuerySchema = z.object({
  */
 export async function GET(request: NextRequest) {
   try {
-    await Limiter.checkRateLimit(request);
+    const _rl = await Limiter.checkRateLimit(request);
+    if (_rl) return _rl;
     await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:admin"] });
 
     const { searchParams } = new URL(request.url);

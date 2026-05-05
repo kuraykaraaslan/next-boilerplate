@@ -14,7 +14,8 @@ export async function GET(
   { params }: { params: Promise<{ transactionId: string }> }
 ) {
   try {
-    await Limiter.checkRateLimit(request);
+    const _rl = await Limiter.checkRateLimit(request);
+    if (_rl) return _rl;
     await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:admin"] });
 
     const { transactionId } = await params;
@@ -34,7 +35,8 @@ export async function PUT(
   { params }: { params: Promise<{ transactionId: string }> }
 ) {
   try {
-    await Limiter.checkRateLimit(request);
+    const _rl = await Limiter.checkRateLimit(request);
+    if (_rl) return _rl;
     await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:admin"] });
 
     const { transactionId } = await params;

@@ -19,8 +19,8 @@ function getCookieOptions(request: NextRequest, maxAge: number) {
 // Flow 1: System ADMIN starts impersonating a user in a tenant
 export async function POST(request: NextRequest) {
   try {
-    await Limiter.useRateLimit(request);
-
+    const _rl = await Limiter.useRateLimit(request, 'auth');
+    if (_rl) return _rl;
     const { user, userSession } = await UserSessionNextService.authenticateUserByRequest({
       request,
       requiredScopes: ["system:admin"],

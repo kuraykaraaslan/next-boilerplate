@@ -1,10 +1,14 @@
-// libs/RateLimiter.ts
-
 import { NextRequest, NextResponse } from 'next/server';
 import redisInstance from '../redis';
 
-const RATE_LIMIT = 10;
-const RATE_DURATION = 60; // seconds
+const WINDOW = 60; // seconds
+
+const LIMITS = {
+  auth: 5,  // strict: login, register, OTP, TOTP, forgot-password
+  api: 30,  // general API endpoints
+} as const;
+
+type LimiterScope = keyof typeof LIMITS;
 
 export default class Limiter {
   static getIpFromRequest(request: NextRequest): string {
@@ -15,59 +19,44 @@ export default class Limiter {
     );
   }
 
-  static async check(ip: string): Promise<{ success: boolean; remaining: number }> {
-    const key = `rate_limit:${ip}`;
+  static async check(ip: string, scope: LimiterScope = 'api'): Promise<{ success: boolean; remaining: number; limit: number }> {
+    const limit = LIMITS[scope];
+    const key = `rate_limit:${scope}:${ip}`;
     const current = await redisInstance.get(key);
     const currentCount = current ? parseInt(current, 10) : 0;
     const newCount = currentCount + 1;
-    await redisInstance.set(key, newCount.toString(), 'EX', RATE_DURATION);
-    return { success: newCount <= RATE_LIMIT, remaining: Math.max(RATE_LIMIT - newCount, 0) };
+    await redisInstance.set(key, newCount.toString(), 'EX', WINDOW);
+    return {
+      success: newCount <= limit,
+      remaining: Math.max(limit - newCount, 0),
+      limit,
+    };
   }
 
-  /**
-   * Applies rate limiting. If limit exceeded, returns 429 response.
-   * Otherwise, returns modified response with headers.
-   */
-  static async useRateLimit(request: NextRequest): Promise<NextResponse | null> {
-    const res = NextResponse.next();
-    // disable for testing purposes
-    return res;
-
-
+  // Returns null when OK, NextResponse 429 when rate limited.
+  // Usage: const rl = await Limiter.checkRateLimit(request); if (rl) return rl;
+  static async checkRateLimit(request: NextRequest, scope: LimiterScope = 'api'): Promise<NextResponse | null> {
     const ip = this.getIpFromRequest(request);
-    const { success, remaining } = await this.check(ip);
-    
-    res.headers.set('X-RateLimit-Limit', RATE_LIMIT.toString());
-    res.headers.set('X-RateLimit-Remaining', remaining.toString());
+    const { success, limit } = await this.check(ip, scope);
 
     if (!success) {
-      return new NextResponse(JSON.stringify({ message: 'Too many requests' }), {
-        status: 429,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again later.' },
+        {
+          status: 429,
+          headers: {
+            'X-RateLimit-Limit': limit.toString(),
+            'X-RateLimit-Remaining': '0',
+            'Retry-After': WINDOW.toString(),
+          },
+        },
+      );
     }
 
-    return res;
+    return null;
   }
 
-  static async checkRateLimit(request: NextRequest): Promise<NextResponse | null> {
-
-
-    const res = NextResponse.next();
-
-    const ip = this.getIpFromRequest(request);
-    const { success, remaining } = await this.check(ip);
-    return res;
-
-    res.headers.set('X-RateLimit-Limit', RATE_LIMIT.toString());
-    res.headers.set('X-RateLimit-Remaining', remaining.toString());
-
-    if (!success) {
-      return new NextResponse(JSON.stringify({ message: 'Too many requests' }), {
-        status: 429,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-    return res;
+  static async useRateLimit(request: NextRequest, scope: LimiterScope = 'api'): Promise<NextResponse | null> {
+    return this.checkRateLimit(request, scope);
   }
 }

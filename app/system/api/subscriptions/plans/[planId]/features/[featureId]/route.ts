@@ -1,3 +1,4 @@
+import Limiter from '@/libs/limiter';
 import { NextRequest, NextResponse } from 'next/server'
 import UserSessionNextService from '@/modules/user_session/user_session.service.next'
 import TenantSubscriptionService from '@/modules/tenant_subscription/tenant_subscription.service'
@@ -13,6 +14,9 @@ export async function PUT(
   { params }: { params: Promise<{ planId: string; featureId: string }> }
 ) {
   try {
+  const _rl = await Limiter.checkRateLimit(request, 'api');
+  if (_rl) return _rl;
+
     await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:admin"] })
     const { featureId } = await params
 

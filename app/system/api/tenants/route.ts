@@ -11,8 +11,8 @@ import Limiter from "@/libs/limiter";
  */
 export async function GET(request: NextRequest) {
   try {
-    await Limiter.checkRateLimit(request);
-
+    const _rl = await Limiter.checkRateLimit(request);
+    if (_rl) return _rl;
     // Only admins can view all tenants
     await UserSessionNextService.authenticateUserByRequest({ 
       request, 
@@ -54,8 +54,8 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    await Limiter.checkRateLimit(request);
-
+    const _rl = await Limiter.checkRateLimit(request);
+    if (_rl) return _rl;
     // Only admins can create tenants
     await UserSessionNextService.authenticateUserByRequest({ 
       request, 

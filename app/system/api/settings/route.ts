@@ -1,3 +1,4 @@
+import Limiter from '@/libs/limiter';
 import { NextRequest, NextResponse } from "next/server";
 import SettingService from "@/modules/setting/setting.service";
 import UserSessionNextService from "@/modules/user_session/user_session.service.next";
@@ -17,6 +18,9 @@ export async function GET(request: NextRequest) {
 
     // Check if request has body with keys
     try {
+    const _rl = await Limiter.checkRateLimit(request, 'api');
+    if (_rl) return _rl;
+
       const body = await request.json();
       const parsedData = GetSettingsByKeysDTO.safeParse(body);
 

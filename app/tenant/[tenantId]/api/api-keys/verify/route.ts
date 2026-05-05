@@ -1,3 +1,4 @@
+import Limiter from '@/libs/limiter';
 import { NextRequest, NextResponse } from 'next/server';
 import ApiKeyService from '@/modules/api_key/api_key.service';
 import type { ApiKeyScope } from '@/modules/api_key/api_key.enums';
@@ -13,6 +14,9 @@ export async function POST(
   { params }: { params: Promise<{ tenantId: string }> },
 ) {
   try {
+  const _rl = await Limiter.checkRateLimit(request, 'api');
+  if (_rl) return _rl;
+
     const { tenantId } = await params;
     const rawKey = request.headers.get('x-api-key');
 

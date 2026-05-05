@@ -14,7 +14,8 @@ export async function GET(
   { params }: { params: Promise<{ tenantId: string; memberId: string }> }
 ) {
   try {
-    await Limiter.checkRateLimit(request);
+    const _rl = await Limiter.checkRateLimit(request);
+    if (_rl) return _rl;
     const { tenantId, memberId } = await params;
 
     await UserSessionNextService.authenticateUserByRequest({
@@ -43,7 +44,8 @@ export async function PUT(
   { params }: { params: Promise<{ tenantId: string; memberId: string }> }
 ) {
   try {
-    await Limiter.checkRateLimit(request);
+    const _rl = await Limiter.checkRateLimit(request);
+    if (_rl) return _rl;
     const { tenantId, memberId } = await params;
 
     await UserSessionNextService.authenticateUserByRequest({
@@ -81,7 +83,8 @@ export async function DELETE(
   { params }: { params: Promise<{ tenantId: string; memberId: string }> }
 ) {
   try {
-    await Limiter.checkRateLimit(request);
+    const _rl = await Limiter.checkRateLimit(request);
+    if (_rl) return _rl;
     const { tenantId, memberId } = await params;
 
     await UserSessionNextService.authenticateUserByRequest({

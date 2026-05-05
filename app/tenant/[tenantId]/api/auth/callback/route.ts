@@ -1,8 +1,12 @@
+import Limiter from '@/libs/limiter';
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
     try {
-        const { accessToken, refreshToken } = await request.json();
+    const _rl = await Limiter.checkRateLimit(request, 'api');
+    if (_rl) return _rl;
+
+            const { accessToken, refreshToken } = await request.json();
         
         const response = NextResponse.json({ success: true });
 

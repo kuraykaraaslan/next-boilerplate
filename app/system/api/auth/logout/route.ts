@@ -1,3 +1,4 @@
+import Limiter from '@/libs/limiter';
 import Logger from '@/libs/logger';
 // Original path: app/api/auth/logout/route.ts
 
@@ -9,7 +10,10 @@ import AuthMessages from "@/modules/auth/auth.messages";
 
 export async function POST(request: NextRequest) {
     try {
+    const _rl = await Limiter.checkRateLimit(request, 'api');
+    if (_rl) return _rl;
 
+    
         const { userSession } = await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:read"], otpVerifyBypass: true });
 
         const response = NextResponse.json({

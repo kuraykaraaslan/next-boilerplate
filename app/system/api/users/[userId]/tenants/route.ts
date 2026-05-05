@@ -1,3 +1,4 @@
+import Limiter from '@/libs/limiter';
 import { NextRequest, NextResponse } from "next/server";
 import UserSessionNextService from "@/modules/user_session/user_session.service.next";
 import TenantMemberService from "@/modules/tenant_member/tenant_member.service";
@@ -7,6 +8,9 @@ export async function GET(
   { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
+  const _rl = await Limiter.checkRateLimit(request, 'api');
+  if (_rl) return _rl;
+
     const { userId } = await params;
 
     await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:admin"] });

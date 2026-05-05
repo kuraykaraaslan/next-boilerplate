@@ -13,7 +13,8 @@ export async function POST(
   { params }: { params: Promise<{ tenantId: string, domainId: string }> }
 ) {
   try {
-    await Limiter.checkRateLimit(request);
+    const _rl = await Limiter.checkRateLimit(request);
+    if (_rl) return _rl;
     const { tenantId, domainId } = await params;
 
     await TenantSessionNextService.authenticateTenantByRequest({

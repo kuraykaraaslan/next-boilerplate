@@ -11,8 +11,9 @@ export async function POST(
     
     const { tenantId } = await params;
 
-    await Limiter.checkRateLimit(request);
+    const _rl = await Limiter.checkRateLimit(request);
 
+    if (_rl) return _rl;
     await UserSessionNextService.logout({ request });
 
     const response = NextResponse.json({

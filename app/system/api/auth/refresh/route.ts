@@ -1,3 +1,4 @@
+import Limiter from '@/libs/limiter';
 import { NextRequest, NextResponse } from "next/server";
 import UserSessionService from "@/modules/user_session/user_session.service";
 import UserSessionMessages from "@/modules/user_session/user_session.messages";
@@ -21,7 +22,10 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { rawAccessToken, rawRefreshToken } = await UserSessionService.refreshTokens(refreshToken);
+    const _rl = await Limiter.checkRateLimit(request, 'api');
+    if (_rl) return _rl;
+
+        const { rawAccessToken, rawRefreshToken } = await UserSessionService.refreshTokens(refreshToken);
 
     const response = NextResponse.json({ message: AuthMessages.TOKENS_REFRESHED_SUCCESSFULLY });
 

@@ -18,7 +18,8 @@ export async function GET(
   { params }: { params: Promise<{ tenantId: string }> }
 ) {
   try {
-    await Limiter.checkRateLimit(request);
+    const _rl = await Limiter.checkRateLimit(request);
+    if (_rl) return _rl;
     const { tenantId } = await params;
 
     await TenantSessionNextService.authenticateTenantByRequest({
@@ -54,7 +55,8 @@ export async function POST(
   { params }: { params: Promise<{ tenantId: string }> }
 ) {
   try {
-    await Limiter.checkRateLimit(request);
+    const _rl = await Limiter.checkRateLimit(request);
+    if (_rl) return _rl;
     const { tenantId } = await params;
 
     const { user } = await TenantSessionNextService.authenticateTenantByRequest({

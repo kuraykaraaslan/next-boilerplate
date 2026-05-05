@@ -1,3 +1,4 @@
+import Limiter from '@/libs/limiter';
 import { NextRequest, NextResponse } from 'next/server'
 import UserSessionNextService from '@/modules/user_session/user_session.service.next'
 import TenantSubscriptionService from '@/modules/tenant_subscription/tenant_subscription.service'
@@ -10,6 +11,9 @@ import { SUBSCRIPTION_MESSAGES } from '@/modules/tenant_subscription/tenant_subs
  */
 export async function GET(request: NextRequest) {
   try {
+  const _rl = await Limiter.checkRateLimit(request, 'api');
+  if (_rl) return _rl;
+
     await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:admin"] })
 
     const { searchParams } = new URL(request.url)

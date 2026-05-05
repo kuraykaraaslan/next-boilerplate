@@ -16,8 +16,8 @@ import { TenantInvitation as TenantInvitationEntity } from '@/modules/tenant_inv
  */
 export async function GET(request: NextRequest) {
   try {
-    await Limiter.checkRateLimit(request);
-
+    const _rl = await Limiter.checkRateLimit(request);
+    if (_rl) return _rl;
     const { user } = await UserSessionNextService.authenticateUserByRequest({
       request,
       requiredScopes: ["system:read"],

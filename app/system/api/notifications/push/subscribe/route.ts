@@ -19,8 +19,8 @@ const SubscribeDTO = z.object({
  */
 export async function POST(request: NextRequest) {
   try {
-    await Limiter.checkRateLimit(request);
-
+    const _rl = await Limiter.checkRateLimit(request);
+    if (_rl) return _rl;
     const { user } = await UserSessionNextService.authenticateUserByRequest({
       request,
       requiredScopes: ["system:read"],
@@ -47,8 +47,8 @@ export async function POST(request: NextRequest) {
  */
 export async function DELETE(request: NextRequest) {
   try {
-    await Limiter.checkRateLimit(request);
-
+    const _rl = await Limiter.checkRateLimit(request);
+    if (_rl) return _rl;
     const { user } = await UserSessionNextService.authenticateUserByRequest({
       request,
       requiredScopes: ["system:read"],

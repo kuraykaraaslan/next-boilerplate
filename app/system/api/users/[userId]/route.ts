@@ -1,3 +1,4 @@
+import Limiter from '@/libs/limiter';
 
 import { NextRequest, NextResponse } from "next/server";
 import UserService from "@/modules/user/user.service";
@@ -18,6 +19,9 @@ export async function GET(
 
 
   try {
+  const _rl = await Limiter.checkRateLimit(request, 'api');
+  if (_rl) return _rl;
+
 
     const { userId } = await params
 

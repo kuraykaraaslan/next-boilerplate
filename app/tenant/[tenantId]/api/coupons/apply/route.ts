@@ -1,3 +1,4 @@
+import Limiter from '@/libs/limiter';
 import { NextRequest, NextResponse } from 'next/server'
 import TenantSessionNextService from '@/modules/tenant_session/tenant_session.service.next'
 import CouponService from '@/modules/coupon/coupon.service'
@@ -13,8 +14,11 @@ type Params = { params: Promise<{ tenantId: string }> }
  */
 export async function POST(request: NextRequest, { params }: Params) {
   try {
+  const _rl = await Limiter.checkRateLimit(request, 'api');
+  if (_rl) return _rl;
+
     const { tenantId } = await params
-    const { user } = await TenantSessionNextService.authenticateUserByRequest({ request, tenantId })
+    const { user } = await TenantSessionNextService.authenticateTenantByRequest({ request, tenantId, requiredTenantRole: 'USER' })
 
     const body = await request.json()
     const parsed = ApplyCouponRequestSchema.safeParse({

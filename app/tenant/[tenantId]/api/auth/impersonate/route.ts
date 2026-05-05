@@ -22,8 +22,8 @@ export async function POST(
   { params }: { params: Promise<{ tenantId: string }> }
 ) {
   try {
-    await Limiter.useRateLimit(request);
-
+    const _rl = await Limiter.useRateLimit(request);
+    if (_rl) return _rl;
     const { tenantId } = await params;
 
     const { user, userSession, tenantMember } =

@@ -12,8 +12,8 @@ import Limiter from "@/libs/limiter";
  */
 export async function POST(request: NextRequest) {
     try {
-        await Limiter.checkRateLimit(request);
-
+        const _rl = await Limiter.checkRateLimit(request);
+        if (_rl) return _rl;
         // Any authenticated user can create a tenant
         const { user } = await UserSessionNextService.authenticateUserByRequest({
             request,

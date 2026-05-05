@@ -1,3 +1,4 @@
+import Limiter from '@/libs/limiter';
 import Logger from '@/libs/logger';
 import { NextRequest, NextResponse } from 'next/server';
 import StorageService from '@/modules/storage/storage.service';
@@ -14,6 +15,9 @@ import UserSessionNextService from '@/modules/user_session/user_session.service.
  */
 export async function POST(request: NextRequest, { params }: { params: Promise<{ tenantId: string }> }) {
   try {
+  const _rl = await Limiter.checkRateLimit(request, 'api');
+  if (_rl) return _rl;
+
     await UserSessionNextService.authenticateUserByRequest({ request });
 
     const { tenantId } = await params;

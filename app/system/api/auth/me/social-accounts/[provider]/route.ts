@@ -14,8 +14,8 @@ export async function DELETE(
   { params }: { params: Promise<{ provider: string }> }
 ) {
   try {
-    await Limiter.checkRateLimit(request);
-
+    const _rl = await Limiter.checkRateLimit(request);
+    if (_rl) return _rl;
     const { user } = await UserSessionNextService.authenticateUserByRequest({
       request,
       requiredScopes: ["system:read"],

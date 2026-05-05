@@ -1,3 +1,4 @@
+import Limiter from '@/libs/limiter';
 import { NextRequest, NextResponse } from "next/server";
 import UserSessionNextService from "@/modules/user_session/user_session.service.next";
 import TOTPService from "@/modules/auth/auth.totp.service";
@@ -7,7 +8,10 @@ import { TOTPEnableDTO } from "@/modules/auth/auth.dto";
 
 export async function POST(request: NextRequest) {
   try {
-    const { user, userSession } = await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:read"] });
+    const _rl = await Limiter.checkRateLimit(request, 'auth');
+    if (_rl) return _rl;
+
+        const { user, userSession } = await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:read"] });
 
     const body = await request.json();
 

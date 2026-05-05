@@ -1,3 +1,4 @@
+import Limiter from '@/libs/limiter';
 import { NextRequest, NextResponse } from "next/server";
 import SettingService from "@/modules/setting/setting.service";
 
@@ -13,6 +14,9 @@ const PUBLIC_SETTINGS_KEYS = [
 
 export async function GET() {
     try {
+    const _rl = await Limiter.checkRateLimit(request, 'api');
+    if (_rl) return _rl;
+
         const settings = await SettingService.getByKeys(PUBLIC_SETTINGS_KEYS);
         return NextResponse.json({ success: true, settings });
     } catch (error: any) {

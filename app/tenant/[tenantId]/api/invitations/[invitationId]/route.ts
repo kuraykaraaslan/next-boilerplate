@@ -13,7 +13,8 @@ export async function GET(
   { params }: { params: Promise<{ tenantId: string; invitationId: string }> }
 ) {
   try {
-    await Limiter.checkRateLimit(request);
+    const _rl = await Limiter.checkRateLimit(request);
+    if (_rl) return _rl;
     const { tenantId, invitationId } = await params;
 
     await TenantSessionNextService.authenticateTenantByRequest({
@@ -43,7 +44,8 @@ export async function DELETE(
   { params }: { params: Promise<{ tenantId: string; invitationId: string }> }
 ) {
   try {
-    await Limiter.checkRateLimit(request);
+    const _rl = await Limiter.checkRateLimit(request);
+    if (_rl) return _rl;
     const { tenantId, invitationId } = await params;
 
     await TenantSessionNextService.authenticateTenantByRequest({

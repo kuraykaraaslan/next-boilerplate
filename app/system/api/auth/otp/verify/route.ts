@@ -1,3 +1,4 @@
+import Limiter from '@/libs/limiter';
 import Logger from '@/libs/logger';
 import { NextRequest, NextResponse } from "next/server";
 import UserSessionNextService from "@/modules/user_session/user_session.service.next";
@@ -11,7 +12,10 @@ import UserSecurityService from "@/modules/user_security/user_security.service";
 
 export async function POST(request: NextRequest) {
   try {
-    // Authenticate the user
+    const _rl = await Limiter.checkRateLimit(request, 'auth');
+    if (_rl) return _rl;
+
+        // Authenticate the user
     const { user, userSession } = await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:read"] });
 
     const body = await request.json();

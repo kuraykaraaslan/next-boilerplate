@@ -24,8 +24,8 @@ export async function GET(
   }
 
   try {
-    await Limiter.checkRateLimit(request);
-
+    const _rl = await Limiter.checkRateLimit(request);
+    if (_rl) return _rl;
     if (!SSOService.isProviderEnabled(provider)) {
       return NextResponse.json(
         { message: SSOMessages.INVALID_PROVIDER },

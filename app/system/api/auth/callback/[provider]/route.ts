@@ -1,3 +1,4 @@
+import Limiter from '@/libs/limiter';
 import { env } from '@/libs/env';
 // Original path: app/api/auth/callback/route.ts
 
@@ -14,6 +15,9 @@ export async function GET(
     request: NextRequest,
     { params }: { params: Promise<{ provider: string }> }
 ) {
+    const _rl = await Limiter.checkRateLimit(request, 'auth');
+    if (_rl) return _rl;
+
     const { provider } = await params;
 
     const searchParams = request.nextUrl.searchParams;

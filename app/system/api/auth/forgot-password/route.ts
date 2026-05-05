@@ -10,8 +10,9 @@ import AuthMessages from "@/modules/auth/auth.messages";
 export async function POST(request: NextRequest) {
     try {
 
-        await Limiter.checkRateLimit(request);
+        const _rl = await Limiter.checkRateLimit(request, 'auth');
 
+        if (_rl) return _rl;
         const parsedData = ForgotPasswordDTO.safeParse(await request.json());
 
         if (!parsedData.success) {

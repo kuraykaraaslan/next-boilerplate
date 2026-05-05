@@ -17,8 +17,8 @@ export async function GET(
 ) {
 
   try {
-    await Limiter.checkRateLimit(request);
-
+    const _rl = await Limiter.checkRateLimit(request);
+    if (_rl) return _rl;
     const { tenantId } = await params;
 
     // Authenticate and verify tenant membership (USER role minimum)
@@ -71,7 +71,8 @@ export async function POST(
   { params }: { params: Promise<{ tenantId: string }> }
 ) {
   try {
-    await Limiter.checkRateLimit(request);
+    const _rl = await Limiter.checkRateLimit(request);
+    if (_rl) return _rl;
     const { tenantId } = await params;
 
     // Only ADMIN and OWNER can add members

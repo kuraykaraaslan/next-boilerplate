@@ -13,8 +13,9 @@ export async function POST(
   try {
     const { tenantId } = await params;
 
-    await Limiter.useRateLimit(request);
+    const _rl = await Limiter.useRateLimit(request, 'auth');
 
+    if (_rl) return _rl;
     const tenant = await TenantService.getById(tenantId);
     if (!tenant || tenant.tenantStatus !== 'ACTIVE') {
       return NextResponse.json({ error: 'Tenant not found or inactive' }, { status: 404 });

@@ -13,7 +13,8 @@ export async function PUT(
   { params }: { params: Promise<{ tenantId: string; apiKeyId: string }> },
 ) {
   try {
-    await Limiter.checkRateLimit(request);
+    const _rl = await Limiter.checkRateLimit(request);
+    if (_rl) return _rl;
     const { tenantId, apiKeyId } = await params;
 
     await TenantSessionNextService.authenticateTenantByRequest({
@@ -48,7 +49,8 @@ export async function DELETE(
   { params }: { params: Promise<{ tenantId: string; apiKeyId: string }> },
 ) {
   try {
-    await Limiter.checkRateLimit(request);
+    const _rl = await Limiter.checkRateLimit(request);
+    if (_rl) return _rl;
     const { tenantId, apiKeyId } = await params;
 
     await TenantSessionNextService.authenticateTenantByRequest({

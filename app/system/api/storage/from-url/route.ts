@@ -1,3 +1,4 @@
+import Limiter from '@/libs/limiter';
 'use server'
 import Logger from '@/libs/logger';
 import { NextRequest, NextResponse } from 'next/server'
@@ -29,6 +30,9 @@ export async function POST(request: NextRequest) {
 
     // Validate URL format
     try {
+    const _rl = await Limiter.checkRateLimit(request, 'api');
+    if (_rl) return _rl;
+
       new URL(url)
     } catch {
       return NextResponse.json(

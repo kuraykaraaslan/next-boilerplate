@@ -11,7 +11,8 @@ import Limiter from '@/libs/limiter'
  */
 export async function GET(request: NextRequest) {
   try {
-    await Limiter.checkRateLimit(request)
+    const _rl = await Limiter.checkRateLimit(request);
+    if (_rl) return _rl;
     await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:read"] })
 
     const key = new URL(request.url).searchParams.get('key')
@@ -38,7 +39,8 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    await Limiter.checkRateLimit(request)
+    const _rl = await Limiter.checkRateLimit(request);
+    if (_rl) return _rl;
     await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:read"] })
 
     const formData = await request.formData()
@@ -74,7 +76,8 @@ export async function POST(request: NextRequest) {
  */
 export async function DELETE(request: NextRequest) {
   try {
-    await Limiter.checkRateLimit(request)
+    const _rl = await Limiter.checkRateLimit(request);
+    if (_rl) return _rl;
     await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:admin"] })
 
     const body = await request.json()

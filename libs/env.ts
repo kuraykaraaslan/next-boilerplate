@@ -176,6 +176,9 @@ const EnvSchema = z.object({
   // ── Payment ──────────────────────────────────────────────────────────────────
   PAYMENT_DEFAULT_PROVIDER: z.string().optional(),
 
+  // ── Cron ─────────────────────────────────────────────────────────────────────
+  CRON_SECRET: z.string().optional(),
+
   // ── Misc ─────────────────────────────────────────────────────────────────────
   BOOK_LANG: z.string().optional(),
   DOTENV_KEY: z.string().optional(),

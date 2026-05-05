@@ -1,3 +1,4 @@
+import Limiter from '@/libs/limiter';
 import { NextRequest, NextResponse } from 'next/server'
 import TenantSubscriptionService from '@/modules/tenant_subscription/tenant_subscription.service'
 import { SUBSCRIPTION_MESSAGES } from '@/modules/tenant_subscription/tenant_subscription.messages'
@@ -8,6 +9,9 @@ import { SUBSCRIPTION_MESSAGES } from '@/modules/tenant_subscription/tenant_subs
  */
 export async function GET(request: NextRequest) {
   try {
+  const _rl = await Limiter.checkRateLimit(request, 'api');
+  if (_rl) return _rl;
+
     const plans = await TenantSubscriptionService.getPlansWithFeatures('ACTIVE')
     return NextResponse.json({ success: true, plans })
   } catch (error: any) {

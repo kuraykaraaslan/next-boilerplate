@@ -17,8 +17,9 @@ export async function POST(request: NextRequest) {
 
         const body = await request.json();
 
-        await Limiter.useRateLimit(request);
+        const _rl = await Limiter.useRateLimit(request, 'auth');
 
+        if (_rl) return _rl;
         const parsedData = LoginDTO.safeParse(body);
 
         if (!parsedData.success) {

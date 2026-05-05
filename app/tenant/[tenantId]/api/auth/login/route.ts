@@ -19,8 +19,9 @@ export async function POST(
     const { tenantId } = await params;
     const body = await request.json();
 
-    await Limiter.useRateLimit(request);
+    const _rl = await Limiter.useRateLimit(request, 'auth');
 
+    if (_rl) return _rl;
     // Verify tenant exists and is active
     const tenant = await TenantService.getById(tenantId);
     if (!tenant || tenant.tenantStatus !== 'ACTIVE') {

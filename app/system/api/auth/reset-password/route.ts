@@ -12,8 +12,9 @@ import AuthMessages from "@/modules/auth/auth.messages";
 export async function POST(request: NextRequest) {
     try {
 
-        await Limiter.checkRateLimit(request);
+        const _rl = await Limiter.checkRateLimit(request, 'auth');
 
+        if (_rl) return _rl;
         const { email , resetToken, password } = await request.json();
 
         const parsedData = ResetPasswordDTO.safeParse({ email, resetToken, newPassword: password });

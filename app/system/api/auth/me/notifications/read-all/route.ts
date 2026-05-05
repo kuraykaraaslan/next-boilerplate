@@ -10,8 +10,8 @@ import Limiter from "@/libs/limiter";
  */
 export async function PUT(request: NextRequest) {
   try {
-    await Limiter.checkRateLimit(request);
-
+    const _rl = await Limiter.checkRateLimit(request);
+    if (_rl) return _rl;
     const { user } = await UserSessionNextService.authenticateUserByRequest({
       request,
       requiredScopes: ["system:read"],

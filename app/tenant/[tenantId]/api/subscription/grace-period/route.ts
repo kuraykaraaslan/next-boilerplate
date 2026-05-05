@@ -1,3 +1,4 @@
+import Limiter from '@/libs/limiter';
 import { NextRequest, NextResponse } from 'next/server';
 import TenantSubscriptionService from '@/modules/tenant_subscription/tenant_subscription.service';
 import TenantSessionNextService from '@/modules/tenant_session/tenant_session.service.next';
@@ -9,6 +10,9 @@ export async function GET(
   const { tenantId } = await params;
 
   try {
+  const _rl = await Limiter.checkRateLimit(request, 'api');
+  if (_rl) return _rl;
+
     await TenantSessionNextService.authenticateTenantByRequest({ request, tenantId });
     const status = await TenantSubscriptionService.getGracePeriodStatus(tenantId);
     return NextResponse.json({ success: true, status });
