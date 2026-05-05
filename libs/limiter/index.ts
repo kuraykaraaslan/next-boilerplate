@@ -4,8 +4,8 @@ import redisInstance from '../redis';
 const WINDOW = 60; // seconds
 
 const LIMITS = {
-  auth: 5,  // strict: login, register, OTP, TOTP, forgot-password
-  api: 30,  // general API endpoints
+  auth: 20,  // login, register, OTP, TOTP, forgot-password
+  api: 120,  // general API endpoints
 } as const;
 
 type LimiterScope = keyof typeof LIMITS;
@@ -22,13 +22,16 @@ export default class Limiter {
   static async check(ip: string, scope: LimiterScope = 'api'): Promise<{ success: boolean; remaining: number; limit: number }> {
     const limit = LIMITS[scope];
     const key = `rate_limit:${scope}:${ip}`;
-    const current = await redisInstance.get(key);
-    const currentCount = current ? parseInt(current, 10) : 0;
-    const newCount = currentCount + 1;
-    await redisInstance.set(key, newCount.toString(), 'EX', WINDOW);
+
+    // INCR + EXPIRE on first request — TTL is set once, not reset on every hit
+    const count = await redisInstance.incr(key);
+    if (count === 1) {
+      await redisInstance.expire(key, WINDOW);
+    }
+
     return {
-      success: newCount <= limit,
-      remaining: Math.max(limit - newCount, 0),
+      success: count <= limit,
+      remaining: Math.max(limit - count, 0),
       limit,
     };
   }
