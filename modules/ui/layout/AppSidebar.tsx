@@ -176,6 +176,7 @@ export function AppSidebar({
                       <a
                         key={item.id}
                         href={item.href}
+                        aria-current={item.id === activeId ? 'page' : undefined}
                         title={effectiveCollapsed ? item.label : undefined}
                         className={itemClassName}
                       >

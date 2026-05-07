@@ -1,27 +1,35 @@
 'use client';
+import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/libs/utils/cn';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 
-type BadgeVariant = 'success' | 'error' | 'warning' | 'info' | 'neutral' | 'primary';
-type BadgeSize = 'sm' | 'md' | 'lg';
+const badge = cva(
+  'inline-flex items-center gap-1 rounded-full font-medium',
+  {
+    variants: {
+      variant: {
+        success: 'bg-success-subtle text-success-fg',
+        error:   'bg-error-subtle text-error-fg',
+        warning: 'bg-warning-subtle text-warning-fg',
+        info:    'bg-info-subtle text-info-fg',
+        neutral: 'bg-surface-sunken text-text-secondary',
+        primary: 'bg-primary-subtle text-primary',
+      },
+      size: {
+        sm: 'px-1.5 py-0 text-[10px]',
+        md: 'px-2 py-0.5 text-xs',
+        lg: 'px-3 py-1 text-sm',
+      },
+    },
+    defaultVariants: {
+      variant: 'neutral',
+      size: 'md',
+    },
+  }
+);
 
-const variantMap: Record<BadgeVariant, string> = {
-  success: 'bg-success-subtle text-success-fg',
-  error:   'bg-error-subtle text-error-fg',
-  warning: 'bg-warning-subtle text-warning-fg',
-  info:    'bg-info-subtle text-info-fg',
-  neutral: 'bg-surface-sunken text-text-secondary',
-  primary: 'bg-primary-subtle text-primary',
-};
-
-const sizeMap: Record<BadgeSize, string> = {
-  sm: 'px-1.5 py-0 text-[10px]',
-  md: 'px-2 py-0.5 text-xs',
-  lg: 'px-3 py-1 text-sm',
-};
-
-const dotColorMap: Record<BadgeVariant, string> = {
+const dotColorMap: Record<NonNullable<VariantProps<typeof badge>['variant']>, string> = {
   success: 'bg-success',
   error:   'bg-error',
   warning: 'bg-warning',
@@ -30,35 +38,20 @@ const dotColorMap: Record<BadgeVariant, string> = {
   primary: 'bg-primary',
 };
 
-export function Badge({
-  children,
-  variant = 'neutral',
-  size = 'md',
-  dot = false,
-  dismissible = false,
-  onDismiss,
-  className,
-}: {
+type BadgeProps = VariantProps<typeof badge> & {
   children: React.ReactNode;
-  variant?: BadgeVariant;
-  size?: BadgeSize;
   dot?: boolean;
   dismissible?: boolean;
   onDismiss?: () => void;
   className?: string;
-}) {
+};
+
+export function Badge({ children, variant = 'neutral', size, dot, dismissible, onDismiss, className }: BadgeProps) {
   return (
-    <span
-      className={cn(
-        'inline-flex items-center gap-1 rounded-full font-medium',
-        variantMap[variant],
-        sizeMap[size],
-        className
-      )}
-    >
+    <span className={cn(badge({ variant, size }), className)}>
       {dot && (
         <span
-          className={cn('h-1.5 w-1.5 rounded-full shrink-0', dotColorMap[variant])}
+          className={cn('h-1.5 w-1.5 rounded-full shrink-0', dotColorMap[variant ?? 'neutral'])}
           aria-hidden="true"
         />
       )}

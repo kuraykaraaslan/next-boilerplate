@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import FontAwesomeConfig from '@/modules/ui/layout/FontAwesomeConfig';
+import { SkipToContent } from '@/modules/ui/SkipToContent';
 import { Providers } from './providers';
 import './globals.css';
 
@@ -19,8 +20,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning className={inter.variable}>
       <body className="min-h-screen bg-surface-base text-text-primary antialiased font-sans">
+        <SkipToContent />
         <FontAwesomeConfig />
-        <Providers>{children}</Providers>
+        <Providers>
+          <main id="main-content">{children}</main>
+        </Providers>
       </body>
     </html>
   );
