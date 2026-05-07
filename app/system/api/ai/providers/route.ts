@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     if (_rl) return _rl;
     await UserSessionNextService.authenticateUserByRequest({
       request,
-      requiredScopes: ["system:admin"],
+      requiredUserRole: "ADMIN",
     });
 
     const all = AIService.listProviders();

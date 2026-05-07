@@ -17,7 +17,6 @@ export async function GET(
 
     const { user } = await TenantSessionNextService.authenticateTenantByRequest({
       request,
-      requiredScopes: ["tenant:read"],
       tenantId
     });
 
@@ -46,7 +45,6 @@ export async function PUT(
 
     const { user } = await TenantSessionNextService.authenticateTenantByRequest({
       request,
-      requiredScopes: ["tenant:read"],
       tenantId
     });
 

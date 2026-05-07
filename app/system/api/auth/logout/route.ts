@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
     if (_rl) return _rl;
 
     
-        const { userSession } = await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:read"], otpVerifyBypass: true });
+        const { userSession } = await UserSessionNextService.authenticateUserByRequest({ request, otpVerifyBypass: true });
 
         const response = NextResponse.json({
             

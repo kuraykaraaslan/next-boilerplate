@@ -12,7 +12,7 @@ import SettingMessages from "@/modules/setting/setting.messages";
 
 export async function GET(request: NextRequest) {
   try {
-    await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:admin"] });
+    await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "ADMIN" });
 
     let settings: Record<string, string> = {};
 
@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:admin"] });
+    await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "ADMIN" });
 
     const body = await request.json();
     const parsedData = UpdateSettingsDTO.safeParse(body);
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:admin"] });
+    await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "ADMIN" });
 
     const body = await request.json();
     const parsedData = GetSettingsByKeysDTO.safeParse(body);

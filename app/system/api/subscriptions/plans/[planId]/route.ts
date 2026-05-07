@@ -17,7 +17,7 @@ export async function GET(
   const _rl = await Limiter.checkRateLimit(request, 'api');
   if (_rl) return _rl;
 
-    await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:admin"] })
+    await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "ADMIN" })
     const { planId } = await params
 
     const plan = await TenantSubscriptionService.getPlanWithFeatures(planId)
@@ -39,7 +39,7 @@ export async function PUT(
   { params }: { params: Promise<{ planId: string }> }
 ) {
   try {
-    await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:admin"] })
+    await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "ADMIN" })
     const { planId } = await params
 
     const body = await request.json()
@@ -71,7 +71,7 @@ export async function DELETE(
   { params }: { params: Promise<{ planId: string }> }
 ) {
   try {
-    await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:admin"] })
+    await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "ADMIN" })
     const { planId } = await params
 
     await TenantSubscriptionService.deletePlan(planId)

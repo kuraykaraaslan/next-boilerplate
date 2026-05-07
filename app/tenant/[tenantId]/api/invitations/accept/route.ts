@@ -47,7 +47,6 @@ export async function POST(
 
     const { user } = await UserSessionNextService.authenticateUserByRequest({
       request,
-      requiredScopes: ["system:read"],
     });
 
     const body = await request.json();

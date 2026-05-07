@@ -17,7 +17,6 @@ export async function DELETE(
     if (_rl) return _rl;
     const { user } = await UserSessionNextService.authenticateUserByRequest({
       request,
-      requiredScopes: ["system:read"],
     });
 
     const { notificationId } = await params;

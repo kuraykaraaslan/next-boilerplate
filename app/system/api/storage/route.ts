@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
   try {
     const _rl = await Limiter.checkRateLimit(request);
     if (_rl) return _rl;
-    await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:read"] })
+    await UserSessionNextService.authenticateUserByRequest({ request })
 
     const key = new URL(request.url).searchParams.get('key')
     if (!key) {
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
   try {
     const _rl = await Limiter.checkRateLimit(request);
     if (_rl) return _rl;
-    await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:read"] })
+    await UserSessionNextService.authenticateUserByRequest({ request })
 
     const formData = await request.formData()
     const file = formData.get('file') as File
@@ -78,7 +78,7 @@ export async function DELETE(request: NextRequest) {
   try {
     const _rl = await Limiter.checkRateLimit(request);
     if (_rl) return _rl;
-    await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:admin"] })
+    await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "ADMIN" })
 
     const body = await request.json()
     const { key, provider } = body

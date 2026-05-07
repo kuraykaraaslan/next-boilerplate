@@ -16,7 +16,7 @@ export async function GET(
   try {
     const _rl = await Limiter.checkRateLimit(request);
     if (_rl) return _rl;
-    await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:admin"] });
+    await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "ADMIN" });
 
     const { paymentId } = await params;
     const payment = await PaymentService.getByIdWithTransactions(paymentId);
@@ -37,7 +37,7 @@ export async function PUT(
   try {
     const _rl = await Limiter.checkRateLimit(request);
     if (_rl) return _rl;
-    await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:admin"] });
+    await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "ADMIN" });
 
     const { paymentId } = await params;
     const body = await request.json();
@@ -65,7 +65,7 @@ export async function DELETE(
   try {
     const _rl = await Limiter.checkRateLimit(request);
     if (_rl) return _rl;
-    await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:admin"] });
+    await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "ADMIN" });
 
     const { paymentId } = await params;
     await PaymentService.delete(paymentId);

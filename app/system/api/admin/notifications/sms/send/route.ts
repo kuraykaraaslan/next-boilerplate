@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     if (_rl) return _rl;
     await UserSessionNextService.authenticateUserByRequest({
       request,
-      requiredScopes: ["system:admin"],
+      requiredUserRole: "ADMIN",
     });
 
     const body = await request.json();
@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
     if (_rl) return _rl;
     await UserSessionNextService.authenticateUserByRequest({
       request,
-      requiredScopes: ["system:admin"],
+      requiredUserRole: "ADMIN",
     });
 
     return NextResponse.json({

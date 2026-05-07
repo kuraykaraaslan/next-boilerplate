@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
     try {
         const _rl = await Limiter.checkRateLimit(request);
         if (_rl) return _rl;
-        await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:read"] });
+        await UserSessionNextService.authenticateUserByRequest({ request });
 
         const userId = request.user?.userId;
 

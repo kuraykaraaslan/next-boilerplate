@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { user, userSession } = await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:read"] });
+    const { user, userSession } = await UserSessionNextService.authenticateUserByRequest({ request });
 
     const userSecurity = await UserSecurityService.getSafeByUserId(user.userId);
 

@@ -12,7 +12,7 @@ export async function DELETE(
   const _rl = await Limiter.checkRateLimit(request, 'api');
   if (_rl) return _rl;
 
-    const { user, userSession } = await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:read"] });
+    const { user, userSession } = await UserSessionNextService.authenticateUserByRequest({ request });
     const { sessionId } = await params;
 
     const sessions = await UserSessionCrudService.getUserSessions(user.userId);

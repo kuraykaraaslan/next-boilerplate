@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     // Only admins can view all tenants
     await UserSessionNextService.authenticateUserByRequest({ 
       request, 
-      requiredScopes: ["system:admin"] 
+      requiredUserRole: "ADMIN" 
     });
 
     const { searchParams } = new URL(request.url);
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
     // Only admins can create tenants
     await UserSessionNextService.authenticateUserByRequest({ 
       request, 
-      requiredScopes: ["system:admin"] 
+      requiredUserRole: "ADMIN" 
     });
 
     const body = await request.json();

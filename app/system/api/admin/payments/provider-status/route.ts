@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
   try {
     const _rl = await Limiter.checkRateLimit(request);
     if (_rl) return _rl;
-    await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:admin"] });
+    await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "ADMIN" });
 
     const body = await request.json();
     const parsed = GetProviderStatusRequestSchema.safeParse(body);

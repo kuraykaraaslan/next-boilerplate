@@ -14,7 +14,6 @@ export async function GET(request: NextRequest) {
     if (_rl) return _rl;
     const { user } = await UserSessionNextService.authenticateUserByRequest({
       request,
-      requiredScopes: ["system:read"],
     });
 
     const options = await UserSecurityPasskeyService.generateRegistrationOptions(user);

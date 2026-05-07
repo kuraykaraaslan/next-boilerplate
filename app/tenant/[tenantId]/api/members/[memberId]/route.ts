@@ -19,7 +19,6 @@ export async function GET(
 
     await TenantSessionNextService.authenticateTenantByRequest({
       request,
-      requiredScopes: ["tenant:read"],
       tenantId
     });
 
@@ -57,7 +56,7 @@ export async function PUT(
 
     const { tenantMember: currentMember } = await TenantSessionNextService.authenticateTenantByRequest({
       request,
-      requiredScopes: ["tenant:admin"],
+      requiredTenantRole: "ADMIN",
       tenantId
     });
 
@@ -117,7 +116,7 @@ export async function DELETE(
 
     const { tenantMember: currentMember } = await TenantSessionNextService.authenticateTenantByRequest({
       request,
-      requiredScopes: ["tenant:admin"],
+      requiredTenantRole: "ADMIN",
       tenantId
     });
 

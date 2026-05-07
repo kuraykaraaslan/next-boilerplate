@@ -14,7 +14,6 @@ export async function GET(request: NextRequest) {
     if (_rl) return _rl;
     await UserSessionNextService.authenticateUserByRequest({
       request,
-      requiredScopes: ["system:read"],
     });
 
     const userAgent = request.headers.get("user-agent");

@@ -19,7 +19,7 @@ export async function PUT(
 
     await TenantSessionNextService.authenticateTenantByRequest({
       request,
-      requiredScopes: ['tenant:admin'],
+      requiredTenantRole: "ADMIN",
       tenantId,
     });
 
@@ -55,7 +55,7 @@ export async function DELETE(
 
     await TenantSessionNextService.authenticateTenantByRequest({
       request,
-      requiredScopes: ['tenant:admin'],
+      requiredTenantRole: "ADMIN",
       tenantId,
     });
 

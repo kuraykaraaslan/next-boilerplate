@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     if (_rl) return _rl;
 
 
-       const { user } = await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:read"] });
+       const { user } = await UserSessionNextService.authenticateUserByRequest({ request });
 
 
         const { searchParams } = new URL(request.url);
@@ -65,7 +65,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
     try {
 
-        await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:admin"] });
+        await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "ADMIN" });
 
         const body = await request.json();
         

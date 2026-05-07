@@ -25,7 +25,7 @@ export async function POST(
 
     await TenantSessionNextService.authenticateTenantByRequest({
       request,
-      requiredScopes: ["tenant:admin"],
+      requiredTenantRole: "ADMIN",
       tenantId,
     })
 

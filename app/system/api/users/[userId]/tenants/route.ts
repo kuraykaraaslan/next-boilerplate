@@ -13,7 +13,7 @@ export async function GET(
 
     const { userId } = await params;
 
-    await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:admin"] });
+    await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "ADMIN" });
 
     const memberships = await TenantMemberService.getUserTenants(userId);
 

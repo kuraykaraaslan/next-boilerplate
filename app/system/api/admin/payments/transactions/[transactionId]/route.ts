@@ -16,7 +16,7 @@ export async function GET(
   try {
     const _rl = await Limiter.checkRateLimit(request);
     if (_rl) return _rl;
-    await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:admin"] });
+    await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "ADMIN" });
 
     const { transactionId } = await params;
     const transaction = await PaymentService.getTransactionById(transactionId);
@@ -37,7 +37,7 @@ export async function PUT(
   try {
     const _rl = await Limiter.checkRateLimit(request);
     if (_rl) return _rl;
-    await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:admin"] });
+    await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "ADMIN" });
 
     const { transactionId } = await params;
     const body = await request.json();

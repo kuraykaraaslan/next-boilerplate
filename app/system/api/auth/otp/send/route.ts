@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
     if (_rl) return _rl;
 
         // Authenticate the user
-    const { user, userSession } = await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:read"] });
+    const { user, userSession } = await UserSessionNextService.authenticateUserByRequest({ request });
 
     const body = await request.json();
     

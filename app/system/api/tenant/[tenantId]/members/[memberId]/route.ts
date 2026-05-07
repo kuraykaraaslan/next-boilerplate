@@ -20,7 +20,7 @@ export async function GET(
 
     await UserSessionNextService.authenticateUserByRequest({
       request,
-      requiredScopes: ["system:admin"],
+      requiredUserRole: "ADMIN",
     });
 
     const member = await TenantMemberService.getById(memberId);
@@ -50,7 +50,7 @@ export async function PUT(
 
     await UserSessionNextService.authenticateUserByRequest({
       request,
-      requiredScopes: ["system:admin"],
+      requiredUserRole: "ADMIN",
     });
 
     const memberToUpdate = await TenantMemberService.getById(memberId);
@@ -89,7 +89,7 @@ export async function DELETE(
 
     await UserSessionNextService.authenticateUserByRequest({
       request,
-      requiredScopes: ["system:admin"],
+      requiredUserRole: "ADMIN",
     });
 
     const memberToDelete = await TenantMemberService.getById(memberId);

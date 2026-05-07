@@ -15,7 +15,7 @@ export async function GET(request: NextRequest, { params }: Params) {
   const _rl = await Limiter.checkRateLimit(request, 'api');
   if (_rl) return _rl;
 
-    await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ['system:admin'] })
+    await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "ADMIN" })
     const { couponId } = await params
     const coupon = await CouponService.getById(couponId)
     return NextResponse.json({ success: true, coupon })
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest, { params }: Params) {
  */
 export async function PUT(request: NextRequest, { params }: Params) {
   try {
-    await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ['system:admin'] })
+    await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "ADMIN" })
     const { couponId } = await params
 
     const body = await request.json()
@@ -63,7 +63,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
  */
 export async function DELETE(request: NextRequest, { params }: Params) {
   try {
-    await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ['system:admin'] })
+    await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "ADMIN" })
     const { couponId } = await params
     await CouponService.archive(couponId)
     return NextResponse.json({ success: true })

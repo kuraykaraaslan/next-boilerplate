@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
   const _rl = await Limiter.checkRateLimit(request, 'api');
   if (_rl) return _rl;
 
-    const { user } = await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:read"] });
+    const { user } = await UserSessionNextService.authenticateUserByRequest({ request });
     const sessions = await UserSessionCrudService.getUserSessions(user.userId);
     return NextResponse.json({ sessions });
   } catch (err: any) {

@@ -25,7 +25,6 @@ export async function PUT(
     if (_rl) return _rl;
     const { user } = await UserSessionNextService.authenticateUserByRequest({
       request,
-      requiredScopes: ["system:read"],
     });
 
     const { linkId } = await params;
@@ -56,7 +55,6 @@ export async function DELETE(
     if (_rl) return _rl;
     const { user } = await UserSessionNextService.authenticateUserByRequest({
       request,
-      requiredScopes: ["system:read"],
     });
 
     const { linkId } = await params;

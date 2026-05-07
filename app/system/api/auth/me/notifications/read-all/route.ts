@@ -14,7 +14,6 @@ export async function PUT(request: NextRequest) {
     if (_rl) return _rl;
     const { user } = await UserSessionNextService.authenticateUserByRequest({
       request,
-      requiredScopes: ["system:read"],
     });
 
     await NotificationInAppService.markAllAsRead(user.userId);

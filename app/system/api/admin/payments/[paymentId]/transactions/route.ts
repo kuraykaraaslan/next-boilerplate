@@ -16,7 +16,7 @@ export async function GET(
   try {
     const _rl = await Limiter.checkRateLimit(request);
     if (_rl) return _rl;
-    await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:admin"] });
+    await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "ADMIN" });
 
     const { paymentId } = await params;
     const { searchParams } = new URL(request.url);
@@ -52,7 +52,7 @@ export async function POST(
   try {
     const _rl = await Limiter.checkRateLimit(request);
     if (_rl) return _rl;
-    await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:admin"] });
+    await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "ADMIN" });
 
     const { paymentId } = await params;
     const body = await request.json();

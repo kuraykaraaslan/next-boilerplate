@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
   try {
     const _rl = await Limiter.checkRateLimit(request);
     if (_rl) return _rl;
-    await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:admin"] });
+    await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "ADMIN" });
 
     return NextResponse.json({
       providers: PaymentService.getAvailableProviders(),

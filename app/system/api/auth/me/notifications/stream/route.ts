@@ -15,7 +15,6 @@ export async function GET(request: NextRequest) {
   try {
     const auth = await UserSessionNextService.authenticateUserByRequest({
       request,
-      requiredScopes: ["system:read"],
     });
     user = auth.user;
   } catch {

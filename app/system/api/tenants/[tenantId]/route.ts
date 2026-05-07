@@ -19,7 +19,7 @@ export async function GET(
 
     await UserSessionNextService.authenticateUserByRequest({
       request,
-      requiredScopes: ["system:admin"],
+      requiredUserRole: "ADMIN",
     });
 
     const tenant = await TenantService.getById(tenantId);
@@ -48,7 +48,7 @@ export async function PUT(
 
     await UserSessionNextService.authenticateUserByRequest({
       request,
-      requiredScopes: ["system:admin"],
+      requiredUserRole: "ADMIN",
     });
 
     const body = await request.json();
@@ -84,7 +84,7 @@ export async function DELETE(
 
     await UserSessionNextService.authenticateUserByRequest({
       request,
-      requiredScopes: ["system:admin"],
+      requiredUserRole: "ADMIN",
     });
 
     await TenantService.delete(tenantId);

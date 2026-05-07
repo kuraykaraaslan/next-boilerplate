@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     if (_rl) return _rl;
     const { user, userSession } = await UserSessionNextService.authenticateUserByRequest({
       request,
-      requiredScopes: ["system:admin"],
+      requiredUserRole: "ADMIN",
     });
 
     const body = await request.json();

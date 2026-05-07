@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     const _rl = await Limiter.checkRateLimit(request, 'auth');
     if (_rl) return _rl;
 
-        const { user } = await UserSessionNextService.authenticateUserByRequest({ request, requiredScopes: ["system:read"] });
+        const { user } = await UserSessionNextService.authenticateUserByRequest({ request });
 
     const body = await request.json();
 

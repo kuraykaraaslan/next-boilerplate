@@ -2,7 +2,6 @@ import type { SafeUser } from '@/modules/user/user.types';
 import type { SafeUserSession } from '@/modules/user_session/user_session.types';
 import type { SafeTenant } from '@/modules/tenant/tenant.types';
 import type { SafeTenantMember } from '@/modules/tenant_member/tenant_member.types';
-import type { AuthScope } from '@/modules/auth/auth.scopes';
 
 declare module 'swagger-ui-react' {
   import { ComponentType } from 'react';
@@ -35,6 +34,5 @@ declare module 'next/server' {
     tenantMember?: SafeTenantMember;
     isImpersonating?: boolean;
     impersonatedBy?: SafeUser;
-    grantedScopes?: AuthScope[];
   }
 }
