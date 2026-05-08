@@ -59,7 +59,7 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have
 - **Why:** Manual `tenantId` filtering in every service is a human error problem. One missed filter = cross-tenant data leak.
 - **Implementation:** Use Prisma Client Extensions (`$extends`) to create a `tenantPrisma(tenantId)` factory. Every tenant API route calls this factory instead of raw `prisma`. Models without `tenantId` (e.g. `User`) are not wrapped.
 - **Priority:** 🔴 Must-have
-- **Coverage:** ❌ Missing — all services manually filter by `tenantId`. No `$extends` factory. Each service is a potential cross-tenant leak if a `where` clause is forgotten.
+- **Coverage:** ✅ Covered — project uses TypeORM (not Prisma). `tenantDataSourceFor(tenantId)` in `libs/typeorm/tenant.ts` returns a fully isolated per-tenant `DataSource` (separate DB/schema per tenant, LRU-cached up to 100 connections). Stronger than query-level filtering — cross-tenant leaks are structurally impossible at the DB layer.
 
 ---
 
@@ -133,7 +133,7 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have
 - **Why:** Free trials are the primary acquisition mechanism for SaaS. Without this, you can't offer one without manual provisioning.
 - **Implementation:** `trialEndsAt: DateTime` on `TenantSubscription`. In subscription middleware, check `trialEndsAt > now` before checking payment status. CRON checks trials expiring in 1/3/7 days and dispatches reminder emails.
 - **Priority:** 🔴 Must-have
-- **Coverage:** 🟡 Partial — `trialDays` on plan, `trialEndsAt` on subscription, `TRIALING` status all confirmed. Missing: trial expiry reminder emails, CRON-based trial-to-expired transition.
+- **Coverage:** 🟡 Partial — `trialDays` on plan, `trialEndsAt` on subscription, `TRIALING` status confirmed. `subscription-expire` BullMQ queue + worker in `modules/tenant_subscription/tenant_subscription.job.ts` runs hourly via repeatable job (calls `expireOverdueSubscriptions()`). Missing: trial expiry reminder emails at D-7, D-3, D-1.
 
 ---
 
@@ -200,7 +200,7 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have
 - **Why:** Frontend and third-party integrators need to branch on specific error codes, not guess from status codes. `402` alone doesn't tell you `SEAT_LIMIT_REACHED` vs `SUBSCRIPTION_EXPIRED`.
 - **Implementation:** Create `lib/api-error.ts` with a typed `ApiError` class and an exhaustive enum of error codes. All route handlers catch `ApiError` and serialize it. Document codes in the API docs module.
 - **Priority:** 🔴 Must-have
-- **Coverage:** ❌ Missing — errors are thrown as plain strings caught by generic handlers. No typed `{ code, message }` response envelope across the API surface.
+- **Coverage:** 🟡 Partial — `AppError` class exists at `libs/app-error.ts` with `statusCode`. Missing: typed string `code` field (e.g. `SEAT_LIMIT_REACHED`), exhaustive code enum, and consistent serialization to `{ code, message }` envelope across all routes.
 
 ---
 
@@ -247,7 +247,7 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have
 - **Why:** Running these synchronously in API routes causes timeouts, retries on re-request, and user-facing latency.
 - **Implementation:** Named queues: `webhook-delivery`, `email`, `data-export`, `usage-flush`. Workers run in a separate Next.js instrumentation hook or a standalone `worker.ts` process started alongside the app.
 - **Priority:** 🔴 Must-have
-- **Coverage:** 🟡 Partial — BullMQ is used for webhook delivery with a dedicated worker. No general-purpose queue registry. Email, data export, and usage flush are not queued.
+- **Coverage:** 🟡 Partial — BullMQ queues confirmed: `mailQueue` (email sending via 6 providers), `webhookDeliveryQueue`, `systemWebhookDeliveryQueue`, `subscription-expire` (hourly CRON). Missing: `data-export` and `usage-flush` queues. No central queue registry file — queue names are scattered across modules.
 
 ---
 
@@ -369,16 +369,16 @@ Priority key: 🔴 Must-have · 🟠 Should-have · 🟢 Nice-to-have
 
 | Status | Count | Items |
 |---|---|---|
-| ✅ Covered | 8 | #9, #12, #19, #22, #24, #25, #33 + #14 (data model only) |
-| 🟡 Partial | 13 | #1, #5, #7, #8, #13, #15, #16, #17, #18, #26, #27, #28, #31 |
-| ❌ Missing | 17 | #2, #3, #4, #6, #10, #11, #20, #21, #23, #29, #30, #32, #34, #35, #36, #37, #38 |
+| ✅ Covered | 9 | #6, #9, #12, #19, #22, #24, #25, #33 + #14 (data model only) |
+| 🟡 Partial | 14 | #1, #5, #7, #8, #13, #14, #15, #16, #17, #18, #21, #26, #27, #28, #31 |
+| ❌ Missing | 15 | #2, #3, #4, #10, #11, #20, #23, #29, #30, #32, #34, #35, #36, #37, #38 |
 
 ### Critical gaps (fix before launch)
 
 | # | Item | Risk |
 |---|---|---|
-| #6 | Tenant-Aware Prisma Middleware | Cross-tenant data leak if any service forgets a `where` clause |
 | #35 | Tenant Isolation Test Suite | No automated proof that isolation holds |
 | #37 | Tenant-Level Rate Limiting | Free tenants can starve paid tenants |
-| #21 | Machine-Readable Error Codes | Integrators can't reliably handle errors |
+| #21 | Machine-Readable Error Codes | Integrators can't reliably handle errors — `AppError` exists but no typed `code` enum |
 | #2 | Session Invalidation on Role Change | Demoted admins keep elevated access until JWT expires |
+| #10 | Tenant Deletion Workflow | Accidental or immediate deletes without staged grace period |
