@@ -23,4 +23,10 @@ export class Tenant {
 
   @DeleteDateColumn({ type: 'timestamp', nullable: true })
   deletedAt?: Date;
+
+  @Column({ nullable: true, type: 'timestamp' })
+  deletionRequestedAt?: Date;
+
+  @Column({ nullable: true, type: 'timestamp' })
+  deleteAfter?: Date;
 }
