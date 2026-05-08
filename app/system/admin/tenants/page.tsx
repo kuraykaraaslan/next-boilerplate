@@ -12,11 +12,14 @@ import { faPlus, faSearch } from '@fortawesome/free-solid-svg-icons';
 
 type TenantStatus = 'ACTIVE' | 'INACTIVE' | 'PENDING' | 'SUSPENDED' | 'DELETED' | 'ARCHIVED';
 
+type HealthStatus = 'active' | 'trialing' | 'past_due' | 'grace_period' | 'suspended' | 'pending_deletion' | 'no_subscription' | 'expired';
+
 type Tenant = {
   tenantId: string;
   name: string;
   description: string | null;
   tenantStatus: TenantStatus;
+  healthStatus: HealthStatus;
   createdAt: string;
 };
 
@@ -29,6 +32,17 @@ const statusVariant: Record<TenantStatus, 'success' | 'warning' | 'error' | 'neu
   SUSPENDED:'warning',
   DELETED:  'error',
   ARCHIVED: 'neutral',
+};
+
+const healthVariant: Record<HealthStatus, 'success' | 'info' | 'warning' | 'error' | 'neutral'> = {
+  active:            'success',
+  trialing:          'info',
+  grace_period:      'warning',
+  past_due:          'warning',
+  suspended:         'error',
+  pending_deletion:  'error',
+  no_subscription:   'neutral',
+  expired:           'error',
 };
 
 const columns: TableColumn<Tenant>[] = [
@@ -68,6 +82,15 @@ const columns: TableColumn<Tenant>[] = [
     ),
   },
   {
+    key: 'healthStatus',
+    header: 'Health',
+    render: (t) => (
+      <Badge variant={healthVariant[t.healthStatus ?? 'no_subscription']} dot>
+        {(t.healthStatus ?? 'no_subscription').replace(/_/g, ' ')}
+      </Badge>
+    ),
+  },
+  {
     key: '_actions',
     header: '',
     align: 'right',
@@ -101,8 +124,9 @@ export default function TenantsPage() {
       });
       setTenants(res.data.tenants ?? []);
       setTotal(res.data.total ?? 0);
-    } catch (err: any) {
-      setFetchError(err.response?.data?.message ?? err.message ?? 'Failed to load tenants.');
+    } catch (err: unknown) {
+      const e = err as { response?: { data?: { message?: string } }; message?: string };
+      setFetchError(e.response?.data?.message ?? e.message ?? 'Failed to load tenants.');
     } finally {
       setLoading(false);
     }
@@ -129,8 +153,9 @@ export default function TenantsPage() {
       setShowCreate(false);
       setCreateValues({ name: '', description: '' });
       fetchTenants(1, search);
-    } catch (err: any) {
-      setCreateError(err.response?.data?.message ?? err.message ?? 'Failed to create tenant.');
+    } catch (err: unknown) {
+      const e = err as { response?: { data?: { message?: string } }; message?: string };
+      setCreateError(e.response?.data?.message ?? e.message ?? 'Failed to create tenant.');
     } finally {
       setCreating(false);
     }

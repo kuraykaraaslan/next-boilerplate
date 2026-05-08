@@ -3,6 +3,9 @@ import { NextRequest, NextResponse } from "next/server";
 import TenantService from "@/modules/tenant/tenant.service";
 import UserSessionNextService from "@/modules/user_session/user_session.service.next";
 import Limiter from "@/libs/limiter";
+import { getDefaultTenantDataSource } from '@/libs/typeorm';
+import { TenantSubscription } from '@/modules/tenant_subscription/entities/tenant_subscription.entity';
+import { In } from 'typeorm';
 
 /**
  * GET handler for retrieving all tenants.
@@ -37,11 +40,40 @@ export async function GET(request: NextRequest) {
 
     Logger.info(`Fetched ${tenants.length} tenants (total: ${total})`);
 
-    return NextResponse.json({ tenants, total, page, pageSize });
-  } catch (error: any) {
+    // Enrich with subscription health
+    const ds = await getDefaultTenantDataSource();
+    const subRepo = ds.getRepository(TenantSubscription);
+    const tenantIds = tenants.map((t: { tenantId: string }) => t.tenantId);
+
+    const subscriptions = tenantIds.length > 0
+      ? await subRepo.find({ where: { tenantId: In(tenantIds) } })
+      : [];
+
+    const subMap = Object.fromEntries(subscriptions.map((s) => [s.tenantId, s]));
+
+    const now = new Date();
+
+    function computeHealthStatus(tenant: { tenantStatus: string }, sub: TenantSubscription | undefined): string {
+      if (tenant.tenantStatus === 'SUSPENDED') return 'suspended';
+      if (tenant.tenantStatus === 'PENDING_DELETION') return 'pending_deletion';
+      if (!sub) return 'no_subscription';
+      if (sub.status === 'TRIALING') return 'trialing';
+      if (sub.status === 'ACTIVE') return 'active';
+      if ((sub.status === 'PAST_DUE' || sub.status === 'CANCELLED') && sub.gracePeriodEndsAt && sub.gracePeriodEndsAt > now) return 'grace_period';
+      if (sub.status === 'PAST_DUE') return 'past_due';
+      return 'expired';
+    }
+
+    const enrichedTenants = tenants.map((t: { tenantId: string; tenantStatus: string }) => ({
+      ...t,
+      healthStatus: computeHealthStatus(t, subMap[t.tenantId]),
+    }));
+
+    return NextResponse.json({ tenants: enrichedTenants, total, page, pageSize });
+  } catch (error: unknown) {
     Logger.error('Error fetching tenants:', error);
     return NextResponse.json(
-      { message: error.message },
+      { message: error instanceof Error ? error.message : 'Internal error' },
       { status: 500 }
     );
   }
@@ -71,9 +103,9 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({ tenant }, { status: 201 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     return NextResponse.json(
-      { message: error.message },
+      { message: error instanceof Error ? error.message : 'Internal error' },
       { status: 500 }
     );
   }
