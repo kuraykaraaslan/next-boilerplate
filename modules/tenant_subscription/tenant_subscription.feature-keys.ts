@@ -14,6 +14,9 @@ export const FEATURE_KEYS = {
   AI_FEATURES: 'ai_features',
   ADVANCED_ANALYTICS: 'advanced_analytics',
   PRIORITY_SUPPORT: 'priority_support',
+
+  // Rate limit — requests per minute, -1 = unlimited
+  API_RATE_LIMIT: 'api_rate_limit',
 } as const;
 
 export type FeatureKey = (typeof FEATURE_KEYS)[keyof typeof FEATURE_KEYS];
