@@ -21,6 +21,9 @@ export class TenantMember {
   @Column({ type: 'varchar', default: 'ACTIVE' })
   memberStatus!: string;
 
+  @Column({ type: 'int', default: 0 })
+  sessionVersion!: number;
+
   @CreateDateColumn({ type: 'timestamp' })
   createdAt!: Date;
 

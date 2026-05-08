@@ -1,6 +1,8 @@
 import 'reflect-metadata';
 import { IsNull, ILike, In } from 'typeorm';
+import type { FindOptionsWhere } from 'typeorm';
 import { getSystemDataSource, tenantDataSourceFor, getDefaultTenantDataSource } from '@/libs/typeorm';
+import redis from '@/libs/redis';
 import { User as UserEntity } from '../user/entities/user.entity';
 import { TenantMember as TenantMemberEntity } from './entities/tenant_member.entity';
 import { SafeTenantMember, SafeTenantMemberSchema } from './tenant_member.types';
@@ -21,7 +23,7 @@ export default class TenantMemberService {
       const sysDs = await getSystemDataSource();
       const matchingUsers = await sysDs.getRepository(UserEntity).find({
         where: { email: ILike(`%${search}%`) },
-        select: { userId: true } as any,
+        select: { userId: true },
       });
       const matchingIds = matchingUsers.map((u) => u.userId);
       if (!matchingIds.length) return { members: [], total: 0 };
@@ -33,8 +35,8 @@ export default class TenantMemberService {
     const repo = tenantDs.getRepository(TenantMemberEntity);
 
     const [members, total] = await Promise.all([
-      repo.find({ where: whereBase as any, skip: (safePage - 1) * pageSize, take: pageSize, order: { createdAt: 'DESC' } }),
-      repo.count({ where: whereBase as any }),
+      repo.find({ where: whereBase as FindOptionsWhere<TenantMemberEntity>, skip: (safePage - 1) * pageSize, take: pageSize, order: { createdAt: 'DESC' } }),
+      repo.count({ where: whereBase as FindOptionsWhere<TenantMemberEntity> }),
     ]);
 
     const userIds = members.map((m) => m.userId);
@@ -43,7 +45,7 @@ export default class TenantMemberService {
     const userMap = Object.fromEntries(users.map((u) => [u.userId, u]));
 
     return {
-      members: members.map((member) => ({ ...SafeTenantMemberSchema.parse(member), user: userMap[member.userId] as any })),
+      members: members.map((member) => ({ ...SafeTenantMemberSchema.parse(member), user: userMap[member.userId] as (typeof userMap)[string] | undefined })),
       total,
     };
   }
@@ -74,7 +76,7 @@ export default class TenantMemberService {
     const existing = await repo.findOne({ where: { tenantId: data.tenantId, userId: data.userId, deletedAt: IsNull() } });
     if (existing) throw new Error(TenantMemberMessages.MEMBER_ALREADY_EXISTS);
 
-    const member = repo.create(data as any);
+    const member = repo.create(data as Partial<TenantMemberEntity>);
     const saved = await repo.save(member);
     return SafeTenantMemberSchema.parse(saved);
   }
@@ -93,8 +95,10 @@ export default class TenantMemberService {
       if (ownerCount <= 1) throw new Error(TenantMemberMessages.CANNOT_DEMOTE_OWNER);
     }
 
-    const updateData = Object.fromEntries(Object.entries(data).filter(([_, v]) => v !== null));
-    await tenantRepo.update({ tenantMemberId }, updateData as any);
+    const updateData = Object.fromEntries(Object.entries(data).filter(([, v]) => v !== null));
+    await tenantRepo.update({ tenantMemberId }, updateData as Partial<TenantMemberEntity>);
+    await tenantRepo.increment({ tenantMemberId }, 'sessionVersion', 1);
+    await redis.del(`tenant:member:${member.userId}:${member.tenantId}`).catch(() => {});
     const updated = await tenantRepo.findOne({ where: { tenantMemberId } });
     return SafeTenantMemberSchema.parse(updated!);
   }

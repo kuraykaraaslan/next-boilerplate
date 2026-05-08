@@ -56,12 +56,22 @@ export default class TenantSessionService {
       try {
         const cachedData = JSON.parse(cached);
         if (cachedData?.tenant && cachedData?.tenantMember) {
-          if (!this.hasRequiredRole(cachedData.tenantMember.memberRole, requiredRole)) {
-            throw new Error(TenantAuthMessages.INSUFFICIENT_TENANT_PERMISSIONS);
+          // Quick sessionVersion check to detect role/status changes
+          const ds = await tenantDataSourceFor(tenantId);
+          const dbMember = await ds.getRepository(TenantMemberEntity)
+            .findOne({ where: { tenantId, userId: user.userId }, select: { sessionVersion: true } });
+          if (dbMember && dbMember.sessionVersion !== cachedData.tenantMember.sessionVersion) {
+            // Cache is stale — evict and fall through to full re-fetch below
+            await redis.del(cacheKey);
+          } else {
+            if (!this.hasRequiredRole(cachedData.tenantMember.memberRole, requiredRole)) {
+              throw new Error(TenantAuthMessages.INSUFFICIENT_TENANT_PERMISSIONS);
+            }
+            return { tenant: cachedData.tenant, tenantMember: cachedData.tenantMember };
           }
-          return { tenant: cachedData.tenant, tenantMember: cachedData.tenantMember };
         }
-      } catch {
+      } catch (e: unknown) {
+        if (e instanceof Error && e.message === TenantAuthMessages.INSUFFICIENT_TENANT_PERMISSIONS) throw e;
         await redis.del(cacheKey);
       }
     }
