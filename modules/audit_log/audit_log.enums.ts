@@ -56,6 +56,10 @@ export const AuditActions = {
   // Impersonation
   IMPERSONATION_STARTED: 'impersonation.started',
   IMPERSONATION_ENDED:   'impersonation.ended',
+
+  // Access control
+  PERMISSION_DENIED:   'permission.denied',
+  SESSION_INVALIDATED: 'auth.session_invalidated',
 } as const;
 
 export type AuditAction = typeof AuditActions[keyof typeof AuditActions];

@@ -7,6 +7,8 @@ import UserSessionNextService from '@/modules/user_session/user_session.service.
 import TenantSessionService from './tenant_session.service';
 import TenantAuthMessages from './tenant_session.messages';
 import type { TenantMemberRole } from '@/modules/tenant_member/tenant_member.enums';
+import AuditLogService from '@/modules/audit_log/audit_log.service';
+import { AuditActions } from '@/modules/audit_log/audit_log.enums';
 
 type TenantIdSource = 'header' | 'subdomain' | 'query' | 'body' | 'param';
 
@@ -123,6 +125,7 @@ export default class TenantSessionNextService {
         userId: user.userId,
         memberRole: role,
         memberStatus: 'ACTIVE',
+        sessionVersion: 0,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -130,8 +133,9 @@ export default class TenantSessionNextService {
       request.tenant = tenant;
       request.tenantMember = virtualMember;
 
-      const isImpersonating = !!(request as any).isImpersonating;
-      const impersonatedBy = (request as any).impersonatedBy as SafeUser | undefined;
+      const extReq = request as NextRequest & { isImpersonating?: boolean; impersonatedBy?: SafeUser };
+      const isImpersonating = !!extReq.isImpersonating;
+      const impersonatedBy = extReq.impersonatedBy;
 
       return { user, userSession, tenant, tenantMember: virtualMember, isGlobalAdmin: false, isImpersonating, impersonatedBy };
     }
@@ -154,6 +158,7 @@ export default class TenantSessionNextService {
         userId: user.userId,
         memberRole: 'OWNER',
         memberStatus: 'ACTIVE',
+        sessionVersion: 0,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -165,11 +170,38 @@ export default class TenantSessionNextService {
     }
 
     // Step 4: Authenticate tenant membership using core service (for non-global-admins)
-    const { tenant, tenantMember } = await TenantSessionService.authenticateTenantMembership({
-      user,
-      tenantId,
-      requiredRole: requiredTenantRole,
-    });
+    let tenant: SafeTenant;
+    let tenantMember: SafeTenantMember;
+    try {
+      const result = await TenantSessionService.authenticateTenantMembership({
+        user,
+        tenantId,
+        requiredRole: requiredTenantRole,
+      });
+      tenant = result.tenant;
+      tenantMember = result.tenantMember;
+    } catch (authError: unknown) {
+      const errorMessage = authError instanceof Error ? authError.message : String(authError);
+      const isPermissionError =
+        errorMessage.includes('INSUFFICIENT') ||
+        errorMessage.includes('NOT_MEMBER') ||
+        errorMessage.includes('permissions');
+      if (isPermissionError) {
+        // Fire-and-forget — never block auth flow due to logging failure
+        AuditLogService.log({
+          tenantId,
+          actorId: user.userId,
+          actorType: 'USER',
+          action: AuditActions.PERMISSION_DENIED,
+          metadata: {
+            requiredRole: requiredTenantRole,
+            userId: user.userId,
+            reason: errorMessage,
+          },
+        }).catch(() => {});
+      }
+      throw authError;
+    }
 
     // Step 5: Attach to request
     request.tenant = tenant;
