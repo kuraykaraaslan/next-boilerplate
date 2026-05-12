@@ -1,6 +1,6 @@
 // path: app/system/api/notifications/push/subscribe/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import UserSessionNextService from "@/modules/user_session/user_session.service.next";
+import UserSessionNextService from "@/modules_next/user_session/user_session.service.next";
 import NotificationPushService from "@/modules/notification_push/notification_push.service";
 import Limiter from "@/libs/limiter";
 import { z } from "zod";

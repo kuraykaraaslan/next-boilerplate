@@ -1,7 +1,7 @@
 import Logger from '@/libs/logger';
 // path: app/api/auth/me/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import UserSessionNextService from "@/modules/user_session/user_session.service.next";
+import UserSessionNextService from "@/modules_next/user_session/user_session.service.next";
 import Limiter from "@/libs/limiter";
 import UserSessionMessages from "@/modules/user_session/user_session.messages";
 import AuthMessages from "@/modules/auth/auth.messages";

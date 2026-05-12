@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import { IsNull, In, MoreThan } from 'typeorm';
 import { NextRequest, NextResponse } from 'next/server';
 import Logger from '@/libs/logger';
-import UserSessionNextService from '@/modules/user_session/user_session.service.next';
+import UserSessionNextService from '@/modules_next/user_session/user_session.service.next';
 import Limiter from '@/libs/limiter';
 import { getDefaultTenantDataSource, tenantDataSourceFor } from '@/libs/typeorm';
 import { TenantMember as TenantMemberEntity } from '@/modules/tenant_member/entities/tenant_member.entity';

@@ -1,6 +1,6 @@
 // path: app/system/api/admin/notifications/sms/send/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import UserSessionNextService from "@/modules/user_session/user_session.service.next";
+import UserSessionNextService from "@/modules_next/user_session/user_session.service.next";
 import SMSService from "@/modules/notification_sms/notification_sms.service";
 import Limiter from "@/libs/limiter";
 import { z } from "zod";

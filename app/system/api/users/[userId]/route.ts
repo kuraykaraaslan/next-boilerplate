@@ -2,7 +2,7 @@ import Limiter from '@/libs/limiter';
 
 import { NextRequest, NextResponse } from "next/server";
 import UserService from "@/modules/user/user.service";
-import UserSessionNextService from "@/modules/user_session/user_session.service.next";
+import UserSessionNextService from "@/modules_next/user_session/user_session.service.next";
 import { UpdateUserRequestSchema } from "@/modules/user/user.dto";
 import UserMessages from "@/modules/user/user.messages";
 

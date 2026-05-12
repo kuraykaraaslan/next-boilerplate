@@ -1,6 +1,6 @@
 // path: app/system/api/admin/payments/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import UserSessionNextService from "@/modules/user_session/user_session.service.next";
+import UserSessionNextService from "@/modules_next/user_session/user_session.service.next";
 import PaymentService from "@/modules/payment/payment.service";
 import { CreatePaymentRequestSchema, GetPaymentsQuerySchema } from "@/modules/payment/payment.dto";
 import Limiter from "@/libs/limiter";

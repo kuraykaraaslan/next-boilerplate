@@ -1,6 +1,6 @@
 import Limiter from '@/libs/limiter';
 import { NextRequest, NextResponse } from 'next/server'
-import TenantSessionNextService from '@/modules/tenant_session/tenant_session.service.next'
+import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next'
 import CouponService from '@/modules/coupon/coupon.service'
 import { COUPON_MESSAGES } from '@/modules/coupon/coupon.messages'
 

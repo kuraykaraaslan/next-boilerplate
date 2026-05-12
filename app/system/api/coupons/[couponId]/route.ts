@@ -1,6 +1,6 @@
 import Limiter from '@/libs/limiter';
 import { NextRequest, NextResponse } from 'next/server'
-import UserSessionNextService from '@/modules/user_session/user_session.service.next'
+import UserSessionNextService from '@/modules_next/user_session/user_session.service.next'
 import CouponService from '@/modules/coupon/coupon.service'
 import { UpdateCouponRequestSchema } from '@/modules/coupon/coupon.dto'
 import { COUPON_MESSAGES } from '@/modules/coupon/coupon.messages'

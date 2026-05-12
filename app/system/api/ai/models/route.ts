@@ -1,6 +1,6 @@
 // path: app/system/api/ai/models/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import UserSessionNextService from "@/modules/user_session/user_session.service.next";
+import UserSessionNextService from "@/modules_next/user_session/user_session.service.next";
 import AIService from "@/modules/ai/ai.service";
 import Limiter from "@/libs/limiter";
 

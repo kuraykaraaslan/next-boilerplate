@@ -4,7 +4,7 @@ import Limiter from '@/libs/limiter';
 import { NextRequest, NextResponse } from "next/server";
 import UserService from "@/modules/user/user.service";
 import { CreateUserRequestSchema } from "@/modules/user/user.dto";
-import UserSessionNextService from "@/modules/user_session/user_session.service.next";
+import UserSessionNextService from "@/modules_next/user_session/user_session.service.next";
 
 /**
  * GET handler for retrieving all users.

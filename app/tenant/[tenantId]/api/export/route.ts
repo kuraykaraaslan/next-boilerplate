@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import TenantSessionNextService from '@/modules/tenant_session/tenant_session.service.next';
+import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next';
 import TenantExportService from '@/modules/tenant_export/tenant_export.service';
 import Limiter from '@/libs/limiter';
 import Logger from '@/libs/logger';

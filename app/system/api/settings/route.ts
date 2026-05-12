@@ -1,7 +1,7 @@
 import Limiter from '@/libs/limiter';
 import { NextRequest, NextResponse } from "next/server";
 import SettingService from "@/modules/setting/setting.service";
-import UserSessionNextService from "@/modules/user_session/user_session.service.next";
+import UserSessionNextService from "@/modules_next/user_session/user_session.service.next";
 import {
   GetSettingsByKeysDTO,
   UpdateSettingsDTO,

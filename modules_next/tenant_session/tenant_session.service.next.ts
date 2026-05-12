@@ -3,7 +3,7 @@ import { SafeUser } from '@/modules/user/user.types';
 import { SafeTenant } from '@/modules/tenant/tenant.types';
 import { SafeTenantMember } from '@/modules/tenant_member/tenant_member.types';
 import { SafeUserSession, type SessionMeta } from '@/modules/user_session/user_session.types';
-import UserSessionNextService from '@/modules/user_session/user_session.service.next';
+import UserSessionNextService from '@/modules_next/user_session/user_session.service.next';
 import TenantSessionService from './tenant_session.service';
 import TenantAuthMessages from './tenant_session.messages';
 import type { TenantMemberRole } from '@/modules/tenant_member/tenant_member.enums';

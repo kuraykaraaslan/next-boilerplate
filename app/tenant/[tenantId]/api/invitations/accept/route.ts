@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import TenantInvitationService from "@/modules/tenant_invitation/tenant_invitation.service";
 import { AcceptInvitationDTO } from "@/modules/tenant_invitation/tenant_invitation.dto";
-import UserSessionNextService from "@/modules/user_session/user_session.service.next";
+import UserSessionNextService from "@/modules_next/user_session/user_session.service.next";
 import Limiter from "@/libs/limiter";
 
 /**

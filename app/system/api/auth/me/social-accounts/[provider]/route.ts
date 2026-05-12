@@ -1,6 +1,6 @@
 // path: app/system/api/auth/me/social-accounts/[provider]/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import UserSessionNextService from "@/modules/user_session/user_session.service.next";
+import UserSessionNextService from "@/modules_next/user_session/user_session.service.next";
 import UserSocialAccountService from "@/modules/user_social_account/user_social_account.service";
 import { SocialAccountProviderEnum } from "@/modules/user_social_account/user_social_account.enums";
 import Limiter from "@/libs/limiter";

@@ -1,6 +1,6 @@
 // path: app/system/api/auth/me/device-info/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import UserSessionNextService from "@/modules/user_session/user_session.service.next";
+import UserSessionNextService from "@/modules_next/user_session/user_session.service.next";
 import UserAgentService from "@/modules/user_agent/user_agent.service";
 import Limiter from "@/libs/limiter";
 

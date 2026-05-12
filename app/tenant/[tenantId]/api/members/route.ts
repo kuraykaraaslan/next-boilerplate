@@ -3,7 +3,7 @@ import Logger from '@/libs/logger';
 import { NextRequest, NextResponse } from "next/server";
 import TenantMemberService from "@/modules/tenant_member/tenant_member.service";
 import Limiter from "@/libs/limiter";
-import TenantSessionNextService from "@/modules/tenant_session/tenant_session.service.next";
+import TenantSessionNextService from "@/modules_next/tenant_session/tenant_session.service.next";
 import TenantSubscriptionService from "@/modules/tenant_subscription/tenant_subscription.service";
 import { FEATURE_KEYS } from "@/modules/tenant_subscription/tenant_subscription.feature-keys";
 

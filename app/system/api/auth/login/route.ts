@@ -3,7 +3,7 @@ import Logger from '@/libs/logger';
 
 import { NextRequest, NextResponse } from "next/server";
 import AuthService from "@/modules/auth/auth.service";
-import UserSessionNextService from "@/modules/user_session/user_session.service.next";
+import UserSessionNextService from "@/modules_next/user_session/user_session.service.next";
 import Limiter from "@/libs/limiter";
 import { LoginDTO } from "@/modules/auth/auth.dto";
 import MailService from "@/modules/notification_mail/notification_mail.service";

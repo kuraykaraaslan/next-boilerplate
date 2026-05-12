@@ -3,7 +3,7 @@ import { env } from '@/libs/env';
 // Original path: app/api/auth/callback/route.ts
 
 import { NextRequest, NextResponse } from "next/server";
-import UserSessionNextService from "@/modules/user_session/user_session.service.next";
+import UserSessionNextService from "@/modules_next/user_session/user_session.service.next";
 import SSOService from "@/modules/auth_sso/auth_sso.service";
 import MailService from "@/modules/notification_mail/notification_mail.service";
 import SSOMessages from "@/modules/auth_sso/auth_sso.messages";

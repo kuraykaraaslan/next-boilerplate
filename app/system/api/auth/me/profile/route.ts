@@ -1,6 +1,6 @@
 // path: app/api/auth/me/preferences/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import UserSessionNextService from "@/modules/user_session/user_session.service.next";
+import UserSessionNextService from "@/modules_next/user_session/user_session.service.next";
 import UserProfileService from "@/modules/user_profile/user_profile.service";
 import Limiter from "@/libs/limiter";
 import { UpdateProfileRequestSchema } from "@/modules/user_profile/user_profile.dto";

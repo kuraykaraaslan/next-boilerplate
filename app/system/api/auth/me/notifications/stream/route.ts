@@ -1,6 +1,6 @@
 // path: app/system/api/auth/me/notifications/stream/route.ts
 import { NextRequest } from "next/server";
-import UserSessionNextService from "@/modules/user_session/user_session.service.next";
+import UserSessionNextService from "@/modules_next/user_session/user_session.service.next";
 import NotificationInAppService from "@/modules/notification_inapp/notification_inapp.service";
 
 export const dynamic = "force-dynamic";

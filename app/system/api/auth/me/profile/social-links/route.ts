@@ -1,6 +1,6 @@
 // path: app/system/api/auth/me/profile/social-links/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import UserSessionNextService from "@/modules/user_session/user_session.service.next";
+import UserSessionNextService from "@/modules_next/user_session/user_session.service.next";
 import UserProfileService from "@/modules/user_profile/user_profile.service";
 import { SocialLinkItemSchema } from "@/modules/user_profile/user_profile.types";
 import Limiter from "@/libs/limiter";

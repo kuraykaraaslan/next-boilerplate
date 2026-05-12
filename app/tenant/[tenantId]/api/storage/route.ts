@@ -2,7 +2,7 @@ import Limiter from '@/libs/limiter';
 import Logger from '@/libs/logger';
 import { NextRequest, NextResponse } from 'next/server';
 import StorageService from '@/modules/storage/storage.service';
-import UserSessionNextService from '@/modules/user_session/user_session.service.next';
+import UserSessionNextService from '@/modules_next/user_session/user_session.service.next';
 
 /**
  * POST /tenant/[tenantId]/api/storage

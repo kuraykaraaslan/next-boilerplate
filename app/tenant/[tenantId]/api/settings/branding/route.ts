@@ -1,6 +1,6 @@
 // path: app/tenant/[tenantId]/api/settings/branding/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import TenantSessionNextService from "@/modules/tenant_session/tenant_session.service.next";
+import TenantSessionNextService from "@/modules_next/tenant_session/tenant_session.service.next";
 import TenantBrandingService from "@/modules/tenant_branding/tenant_branding.service";
 import { TenantBrandingSchema } from "@/modules/tenant_branding/tenant_branding.types";
 import Limiter from "@/libs/limiter";

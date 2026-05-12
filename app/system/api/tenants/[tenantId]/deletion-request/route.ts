@@ -1,6 +1,6 @@
 // path: app/system/api/tenants/[tenantId]/deletion-request/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import UserSessionNextService from '@/modules/user_session/user_session.service.next';
+import UserSessionNextService from '@/modules_next/user_session/user_session.service.next';
 import TenantDeletionService from '@/modules/tenant/tenant.deletion.service';
 import Limiter from '@/libs/limiter';
 import Logger from '@/libs/logger';

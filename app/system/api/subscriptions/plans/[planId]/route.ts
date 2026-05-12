@@ -1,6 +1,6 @@
 import Limiter from '@/libs/limiter';
 import { NextRequest, NextResponse } from 'next/server'
-import UserSessionNextService from '@/modules/user_session/user_session.service.next'
+import UserSessionNextService from '@/modules_next/user_session/user_session.service.next'
 import TenantSubscriptionService from '@/modules/tenant_subscription/tenant_subscription.service'
 import { UpdatePlanRequestSchema } from '@/modules/tenant_subscription/tenant_subscription.dto'
 import { SUBSCRIPTION_MESSAGES } from '@/modules/tenant_subscription/tenant_subscription.messages'

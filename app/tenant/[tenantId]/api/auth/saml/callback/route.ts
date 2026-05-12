@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import SamlService from '@/modules/auth_saml/auth_saml.service';
 import UserService from '@/modules/user/user.service';
 import { SafeUserSchema } from '@/modules/user/user.types';
-import UserSessionNextService from '@/modules/user_session/user_session.service.next';
+import UserSessionNextService from '@/modules_next/user_session/user_session.service.next';
 import UserSecurityService from '@/modules/user_security/user_security.service';
 import TenantMemberService from '@/modules/tenant_member/tenant_member.service';
 import TenantService from '@/modules/tenant/tenant.service';

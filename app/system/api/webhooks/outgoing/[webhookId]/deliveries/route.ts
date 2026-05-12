@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Limiter from '@/libs/limiter';
-import UserSessionNextService from '@/modules/user_session/user_session.service.next';
+import UserSessionNextService from '@/modules_next/user_session/user_session.service.next';
 import SystemWebhookService from '@/modules/webhook/webhook.system.service';
 
 /**

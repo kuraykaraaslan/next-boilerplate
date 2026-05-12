@@ -1,7 +1,7 @@
 import Limiter from '@/libs/limiter';
 import Logger from '@/libs/logger';
 import { NextRequest, NextResponse } from "next/server";
-import UserSessionNextService from "@/modules/user_session/user_session.service.next";
+import UserSessionNextService from "@/modules_next/user_session/user_session.service.next";
 import TOTPService from "@/modules/auth/auth.totp.service";
 import AuthMessages from "@/modules/auth/auth.messages";
 import { TOTPSetupDTO } from "@/modules/auth/auth.dto";

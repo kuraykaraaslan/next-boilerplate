@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Limiter from '@/libs/limiter';
-import TenantSessionNextService from '@/modules/tenant_session/tenant_session.service.next';
+import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next';
 import WebhookService from '@/modules/webhook/webhook.service';
 import { UpdateWebhookDTO } from '@/modules/webhook/webhook.dto';
 
