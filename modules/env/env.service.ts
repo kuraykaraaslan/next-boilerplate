@@ -178,6 +178,7 @@ const EnvSchema = z.object({
 
   // ── Cron ─────────────────────────────────────────────────────────────────────
   CRON_SECRET: z.string().optional(),
+  CORS_ORIGIN: z.string().optional(),
 
   // ── Misc ─────────────────────────────────────────────────────────────────────
   BOOK_LANG: z.string().optional(),
@@ -187,6 +188,12 @@ const EnvSchema = z.object({
   NODE_UNIQUE_ID: z.string().optional(),
   UNIX: z.string().optional(),
   PATH: z.string().optional(),
+
+  // ── Rate Limiting ───────────────────────────────────────────────────────────
+  RATE_LIMIT_WINDOW_MS: z.coerce.number().default(15 * 60 * 1000), // 15 minutes
+  RATE_LIMIT_MAX: z.coerce.number().default(100), // limit each IP to 100 requests per windowMs
+  RATE_LIMIT_AUTH_WINDOW_MS: z.coerce.number().default(60 * 60 * 1000), // 1 hour
+  RATE_LIMIT_AUTH_MAX: z.coerce.number().default(500), // limit each IP to 500 requests per auth windowMs
 });
 
 export const env = EnvSchema.parse(process.env);
