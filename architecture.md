@@ -30,7 +30,8 @@
 │       ├── auth/                      # Tenant auth pages
 │       ├── admin/                     # Tenant admin pages
 │       └── api-docs/                  # API documentation
-├── modules/                           # Business logic layer (services, DTOs, types)
+├── modules/                           # Framework-agnostic business logic (services, DTOs, types, entities)
+│   │                                  # No next/*, react, or browser API imports — usable from Express or any runtime
 │   ├── auth/
 │   ├── auth_sso/
 │   ├── user/
@@ -54,8 +55,27 @@
 │   ├── storage/
 │   ├── setting/
 │   ├── ai/
-│   ├── ui/
-│   └── module.types.ts
+│   └── module.types.ts                # JSON-based module system types (no React dependency)
+├── modules_next/                      # Next.js-specific layer — extends modules/ with framework coupling
+│   │                                  # Dependency direction: app/ → modules_next/ → modules/
+│   ├── common/
+│   │   ├── ui/                        # Shared React components (Button, Modal, AdminShell, etc.)
+│   │   └── module.types.ts            # Runtime module types using ComponentType (SettingsTab, Widget, LoadedModule)
+│   ├── <module>/
+│   │   ├── ui/                        # Module-scoped React components
+│   │   ├── hooks/                     # Module-scoped React hooks
+│   │   └── <module>.service.next.ts   # NextRequest/NextResponse service extension
+│   ├── audit_log/
+│   │   ├── audit_log.service.next.ts  # Extends AuditLogService with extractRequestContext(NextRequest)
+│   │   └── ui/
+│   ├── tenant_session/
+│   │   └── tenant_session.service.next.ts
+│   ├── user_session/
+│   │   └── user_session.service.next.ts
+│   ├── notification_inapp/
+│   │   └── hooks/use-notifications.hook.ts
+│   └── tenant_subscription/
+│       └── hooks/                     # use-feature-access.ts, use-grace-period.ts
 ├── libs/                              # Shared infrastructure libraries
 │   ├── prisma/                        # Prisma client singletons
 │   │   ├── system.ts                  # systemPrisma (system DB)
@@ -1098,6 +1118,7 @@ GOOGLE_AI_API_KEY=
 | **Dual-DB Architecture** | System DB (`systemPrisma`) for users/settings/plans; Tenant DB (`tenantPrisma`) for tenants/members/payments. Cross-DB references are soft (String fields, app-level joins) |
 | **Modular Prisma Schema** | Schema split per module in `prisma/system/schema/` and `prisma/tenant/schema/` |
 | **Module Registry** | JSON-based module config drives UI menus and settings tabs |
+| **Framework Separation** | `modules/` is framework-agnostic (usable from Express or any runtime); `modules_next/` holds all Next.js/React coupling (`NextRequest`, hooks, UI components). Dependency direction: `app/ → modules_next/ → modules/` |
 
 ---
 

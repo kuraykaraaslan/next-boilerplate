@@ -83,7 +83,8 @@ app/                     # Next.js App Router
     api/                 # Tenant API handlers
     auth/                # Tenant auth pages
 
-modules/                 # Feature modules (service + DTO + UI)
+modules/                 # Framework-agnostic business logic (service + DTO + types + entities)
+                         # No next/*, react, or browser API imports — shared with Express or any runtime
   ai/                    # AI provider integrations
   auth/                  # Authentication (login, register, OTP, TOTP)
   auth_saml/             # SAML SSO
@@ -91,16 +92,23 @@ modules/                 # Feature modules (service + DTO + UI)
   notification_mail/     # Email notifications
   notification_push/     # Web push notifications
   notification_sms/      # SMS notifications
-  payment/               # Stripe billing
+  payment/               # Payment processing
   setting/               # System settings
-  storage/               # File uploads (S3)
+  storage/               # File uploads
   tenant/                # Tenant management
   tenant_member/         # Tenant membership
   tenant_subscription/   # Subscription plans
-  ui/                    # Shared UI components
   user/                  # User management
   user_session/          # Session management
   webhook/               # Outgoing webhooks
+
+modules_next/            # Next.js-specific layer — extends modules/ with framework coupling
+                         # Dependency: app/ → modules_next/ → modules/
+  common/ui/             # Shared React components (Button, Modal, AdminShell, etc.)
+  common/module.types.ts # Runtime module types using React.ComponentType
+  <module>/ui/           # Module-scoped React components
+  <module>/hooks/        # Module-scoped React hooks
+  <module>/*.service.next.ts  # NextRequest/NextResponse service extensions
 
 libs/                    # Cross-cutting utilities
   axios/                 # axiosInstance with withCredentials
