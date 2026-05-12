@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import FontAwesomeConfig from '@/modules/ui/layout/FontAwesomeConfig';
-import { SkipToContent } from '@/modules/ui/SkipToContent';
+import FontAwesomeConfig from '@/modules_next/common/ui/layout/FontAwesomeConfig';
+import { SkipToContent } from '@/modules_next/common/ui/SkipToContent';
 import { Providers } from './providers';
 import './globals.css';
 

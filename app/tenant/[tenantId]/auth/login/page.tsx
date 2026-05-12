@@ -1,9 +1,9 @@
 'use client';
 import { use, useState } from 'react';
 import api from '@/libs/axios';
-import { BrandLogo } from '@/modules/ui/BrandLogo';
-import { LoginForm } from '@/modules/auth/ui/auth.login';
-import { OAuthButtons } from '@/modules/auth/ui/auth.oauth-buttons';
+import { BrandLogo } from '@/modules_next/common/ui/BrandLogo';
+import { LoginForm } from '@/modules_next/auth/ui/auth.login';
+import { OAuthButtons } from '@/modules_next/auth/ui/auth.oauth-buttons';
 
 export default function TenantLoginPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = use(params);

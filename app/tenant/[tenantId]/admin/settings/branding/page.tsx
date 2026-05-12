@@ -1,14 +1,14 @@
 'use client';
 import { use, useEffect, useState } from 'react';
 import api from '@/libs/axios';
-import { PageHeader } from '@/modules/ui/PageHeader';
-import { Card } from '@/modules/ui/Card';
-import { Input } from '@/modules/ui/Input';
-import { Button } from '@/modules/ui/Button';
-import { Spinner } from '@/modules/ui/Spinner';
-import { AlertBanner } from '@/modules/ui/AlertBanner';
-import { AvatarUpload } from '@/modules/ui/AvatarUpload';
-import { Breadcrumb } from '@/modules/ui/Breadcrumb';
+import { PageHeader } from '@/modules_next/common/ui/PageHeader';
+import { Card } from '@/modules_next/common/ui/Card';
+import { Input } from '@/modules_next/common/ui/Input';
+import { Button } from '@/modules_next/common/ui/Button';
+import { Spinner } from '@/modules_next/common/ui/Spinner';
+import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
+import { AvatarUpload } from '@/modules_next/common/ui/AvatarUpload';
+import { Breadcrumb } from '@/modules_next/common/ui/Breadcrumb';
 
 type Branding = {
   logoUrl?: string | null;

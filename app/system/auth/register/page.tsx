@@ -1,9 +1,9 @@
 'use client';
 import { useState } from 'react';
 import api from '@/libs/axios';
-import { BrandLogo } from '@/modules/ui/BrandLogo';
-import { RegisterForm } from '@/modules/auth/ui/auth.register';
-import { OAuthButtons } from '@/modules/auth/ui/auth.oauth-buttons';
+import { BrandLogo } from '@/modules_next/common/ui/BrandLogo';
+import { RegisterForm } from '@/modules_next/auth/ui/auth.register';
+import { OAuthButtons } from '@/modules_next/auth/ui/auth.oauth-buttons';
 
 export default function SystemRegisterPage() {
   const [successMsg, setSuccessMsg] = useState('');

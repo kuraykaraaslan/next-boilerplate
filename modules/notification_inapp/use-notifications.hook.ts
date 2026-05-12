@@ -1,7 +1,7 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import api from '@/libs/axios';
-import type { NotificationItem } from '@/modules/ui/NotificationMenu';
+import type { NotificationItem } from '@/modules_next/common/ui/NotificationMenu';
 
 interface RawNotification {
   notificationId: string;

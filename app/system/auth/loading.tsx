@@ -1,4 +1,4 @@
-import { Skeleton } from '@/modules/ui/Skeleton';
+import { Skeleton } from '@/modules_next/common/ui/Skeleton';
 
 export default function AuthLoading() {
   return (

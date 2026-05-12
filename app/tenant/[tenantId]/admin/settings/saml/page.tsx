@@ -1,16 +1,16 @@
 'use client';
 import { use, useCallback, useEffect, useState } from 'react';
 import api from '@/libs/axios';
-import { TabGroup } from '@/modules/ui/TabGroup';
-import { PageHeader } from '@/modules/ui/PageHeader';
-import { Spinner } from '@/modules/ui/Spinner';
-import { AlertBanner } from '@/modules/ui/AlertBanner';
-import { Breadcrumb } from '@/modules/ui/Breadcrumb';
+import { TabGroup } from '@/modules_next/common/ui/TabGroup';
+import { PageHeader } from '@/modules_next/common/ui/PageHeader';
+import { Spinner } from '@/modules_next/common/ui/Spinner';
+import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
+import { Breadcrumb } from '@/modules_next/common/ui/Breadcrumb';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShieldHalved, faSliders, faCode } from '@fortawesome/free-solid-svg-icons';
-import { SamlConfigForm } from '@/modules/auth_saml/ui/saml.config-form';
-import { SamlAttributeForm } from '@/modules/auth_saml/ui/saml.attribute-form';
-import { SamlMetadataCard } from '@/modules/auth_saml/ui/saml.metadata-card';
+import { SamlConfigForm } from '@/modules_next/auth_saml/ui/saml.config-form';
+import { SamlAttributeForm } from '@/modules_next/auth_saml/ui/saml.attribute-form';
+import { SamlMetadataCard } from '@/modules_next/auth_saml/ui/saml.metadata-card';
 import type { SafeSamlConfig, SamlMetadata } from '@/modules/auth_saml/auth_saml.types';
 import type { UpsertSamlConfigInput } from '@/modules/auth_saml/auth_saml.dto';
 

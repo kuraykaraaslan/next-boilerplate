@@ -1,6 +1,5 @@
 import 'reflect-metadata';
 import { ILike } from 'typeorm';
-import { NextRequest } from 'next/server';
 import { getSystemDataSource, tenantDataSourceFor } from '@/libs/typeorm';
 import { AuditLog as AuditLogEntity } from './entities/audit_log.entity';
 import { TenantAuditLog as TenantAuditLogEntity } from './entities/audit_log_tenant.entity';
@@ -65,12 +64,4 @@ export default class AuditLogService {
     return { logs: rows.map((r) => AuditLogSchema.parse(r)), total };
   }
 
-  static extractRequestContext(req: NextRequest): { ipAddress: string | null; userAgent: string | null } {
-    const ipAddress =
-      req.headers.get('x-forwarded-for')?.split(',')[0].trim() ??
-      req.headers.get('x-real-ip') ??
-      null;
-    const userAgent = req.headers.get('user-agent') ?? null;
-    return { ipAddress, userAgent };
-  }
 }

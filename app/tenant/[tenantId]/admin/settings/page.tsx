@@ -2,16 +2,16 @@
 
 import { use, useEffect, useState, useCallback } from 'react';
 import api from '@/libs/axios';
-import { TabGroup } from '@/modules/ui/TabGroup';
-import { PageHeader } from '@/modules/ui/PageHeader';
-import { Card } from '@/modules/ui/Card';
-import { Input } from '@/modules/ui/Input';
-import { Button } from '@/modules/ui/Button';
-import { Toggle } from '@/modules/ui/Toggle';
-import { Select } from '@/modules/ui/Select';
-import { Spinner } from '@/modules/ui/Spinner';
-import { AlertBanner } from '@/modules/ui/AlertBanner';
-import { AvatarUpload } from '@/modules/ui/AvatarUpload';
+import { TabGroup } from '@/modules_next/common/ui/TabGroup';
+import { PageHeader } from '@/modules_next/common/ui/PageHeader';
+import { Card } from '@/modules_next/common/ui/Card';
+import { Input } from '@/modules_next/common/ui/Input';
+import { Button } from '@/modules_next/common/ui/Button';
+import { Toggle } from '@/modules_next/common/ui/Toggle';
+import { Select } from '@/modules_next/common/ui/Select';
+import { Spinner } from '@/modules_next/common/ui/Spinner';
+import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
+import { AvatarUpload } from '@/modules_next/common/ui/AvatarUpload';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faBuilding, faPalette, faFileInvoice, faTriangleExclamation,

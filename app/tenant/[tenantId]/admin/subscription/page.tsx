@@ -2,16 +2,16 @@
 import { use, useEffect, useState, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import api from '@/libs/axios';
-import { PageHeader } from '@/modules/ui/PageHeader';
-import { Spinner } from '@/modules/ui/Spinner';
-import { AlertBanner } from '@/modules/ui/AlertBanner';
-import { Card } from '@/modules/ui/Card';
-import { Button } from '@/modules/ui/Button';
-import { Badge } from '@/modules/ui/Badge';
-import { Modal } from '@/modules/ui/Modal';
-import { RadioGroup } from '@/modules/ui/RadioGroup';
-import { SubscriptionPlanCard } from '@/modules/tenant_subscription/ui/subscription.plan-card';
-import { GracePeriodBanner } from '@/modules/tenant_subscription/ui/subscription.grace-banner';
+import { PageHeader } from '@/modules_next/common/ui/PageHeader';
+import { Spinner } from '@/modules_next/common/ui/Spinner';
+import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
+import { Card } from '@/modules_next/common/ui/Card';
+import { Button } from '@/modules_next/common/ui/Button';
+import { Badge } from '@/modules_next/common/ui/Badge';
+import { Modal } from '@/modules_next/common/ui/Modal';
+import { RadioGroup } from '@/modules_next/common/ui/RadioGroup';
+import { SubscriptionPlanCard } from '@/modules_next/tenant_subscription/ui/subscription.plan-card';
+import { GracePeriodBanner } from '@/modules_next/tenant_subscription/ui/subscription.grace-banner';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faCreditCard, faWarning, faCalendar, faFlask,

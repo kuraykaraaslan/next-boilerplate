@@ -1,7 +1,7 @@
 'use client';
 import { useEffect } from 'react';
 import api from '@/libs/axios';
-import { Spinner } from '@/modules/ui/Spinner';
+import { Spinner } from '@/modules_next/common/ui/Spinner';
 
 export default function SystemLogoutPage() {
   useEffect(() => {

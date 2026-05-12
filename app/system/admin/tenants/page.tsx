@@ -1,12 +1,12 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
 import api from '@/libs/axios';
-import { ServerDataTable, type TableColumn } from '@/modules/ui/ServerDataTable';
-import { Badge } from '@/modules/ui/Badge';
-import { Button } from '@/modules/ui/Button';
-import { Input } from '@/modules/ui/Input';
-import { AlertBanner } from '@/modules/ui/AlertBanner';
-import { Modal } from '@/modules/ui/Modal';
+import { ServerDataTable, type TableColumn } from '@/modules_next/common/ui/ServerDataTable';
+import { Badge } from '@/modules_next/common/ui/Badge';
+import { Button } from '@/modules_next/common/ui/Button';
+import { Input } from '@/modules_next/common/ui/Input';
+import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
+import { Modal } from '@/modules_next/common/ui/Modal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faSearch } from '@fortawesome/free-solid-svg-icons';
 

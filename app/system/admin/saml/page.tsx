@@ -1,14 +1,14 @@
 'use client';
 import { useEffect, useState, useCallback } from 'react';
 import api from '@/libs/axios';
-import { PageHeader } from '@/modules/ui/PageHeader';
-import { Card } from '@/modules/ui/Card';
-import { Badge } from '@/modules/ui/Badge';
-import { Spinner } from '@/modules/ui/Spinner';
-import { EmptyState } from '@/modules/ui/EmptyState';
-import { TabGroup } from '@/modules/ui/TabGroup';
-import { AlertBanner } from '@/modules/ui/AlertBanner';
-import { Pagination } from '@/modules/ui/Pagination';
+import { PageHeader } from '@/modules_next/common/ui/PageHeader';
+import { Card } from '@/modules_next/common/ui/Card';
+import { Badge } from '@/modules_next/common/ui/Badge';
+import { Spinner } from '@/modules_next/common/ui/Spinner';
+import { EmptyState } from '@/modules_next/common/ui/EmptyState';
+import { TabGroup } from '@/modules_next/common/ui/TabGroup';
+import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
+import { Pagination } from '@/modules_next/common/ui/Pagination';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faShieldHalved, faList, faBook, faExternalLink, faBuilding,

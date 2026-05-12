@@ -1,7 +1,7 @@
 'use client';
 import { use, useEffect } from 'react';
 import api from '@/libs/axios';
-import { Spinner } from '@/modules/ui/Spinner';
+import { Spinner } from '@/modules_next/common/ui/Spinner';
 
 export default function TenantLogoutPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = use(params);

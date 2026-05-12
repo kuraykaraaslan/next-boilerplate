@@ -1,4 +1,4 @@
-import { SkeletonCard, SkeletonTable } from '@/modules/ui/Skeleton';
+import { SkeletonCard, SkeletonTable } from '@/modules_next/common/ui/Skeleton';
 
 export default function AdminLoading() {
   return (

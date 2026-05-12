@@ -1,17 +1,17 @@
 'use client';
 import { use, useEffect, useState } from 'react';
 import api from '@/libs/axios';
-import { Card } from '@/modules/ui/Card';
-import { Badge } from '@/modules/ui/Badge';
-import { Button } from '@/modules/ui/Button';
-import { Spinner } from '@/modules/ui/Spinner';
-import { AlertBanner } from '@/modules/ui/AlertBanner';
-import { Breadcrumb } from '@/modules/ui/Breadcrumb';
-import { Modal } from '@/modules/ui/Modal';
-import { Input } from '@/modules/ui/Input';
-import { PageHeader } from '@/modules/ui/PageHeader';
-import { PaymentSummaryCard } from '@/modules/payment/ui/payment.summary-card';
-import { PaymentStatusBadge, type PaymentStatus } from '@/modules/payment/ui/payment.status-badge';
+import { Card } from '@/modules_next/common/ui/Card';
+import { Badge } from '@/modules_next/common/ui/Badge';
+import { Button } from '@/modules_next/common/ui/Button';
+import { Spinner } from '@/modules_next/common/ui/Spinner';
+import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
+import { Breadcrumb } from '@/modules_next/common/ui/Breadcrumb';
+import { Modal } from '@/modules_next/common/ui/Modal';
+import { Input } from '@/modules_next/common/ui/Input';
+import { PageHeader } from '@/modules_next/common/ui/PageHeader';
+import { PaymentSummaryCard } from '@/modules_next/payment/ui/payment.summary-card';
+import { PaymentStatusBadge, type PaymentStatus } from '@/modules_next/payment/ui/payment.status-badge';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowRotateLeft, faMoneyBill } from '@fortawesome/free-solid-svg-icons';
 

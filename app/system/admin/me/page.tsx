@@ -1,18 +1,18 @@
 'use client';
 import { useEffect, useState } from 'react';
 import api from '@/libs/axios';
-import { PageHeader } from '@/modules/ui/PageHeader';
-import { TabGroup } from '@/modules/ui/TabGroup';
-import { Card } from '@/modules/ui/Card';
-import { Spinner } from '@/modules/ui/Spinner';
-import { AlertBanner } from '@/modules/ui/AlertBanner';
-import { Badge } from '@/modules/ui/Badge';
-import { Button } from '@/modules/ui/Button';
-import { UserProfileForm, type UserProfileValues } from '@/modules/user/ui/user.profile-form';
-import { UserPreferencesForm, type UserPreferencesValues } from '@/modules/user/ui/user.preferences-form';
-import { UserRoleBadge } from '@/modules/user/ui/user.role-badge';
-import { PasskeysPanel } from '@/modules/user_security/ui/user.passkeys-panel';
-import { SocialAccountsPanel } from '@/modules/user/ui/user.social-accounts-panel';
+import { PageHeader } from '@/modules_next/common/ui/PageHeader';
+import { TabGroup } from '@/modules_next/common/ui/TabGroup';
+import { Card } from '@/modules_next/common/ui/Card';
+import { Spinner } from '@/modules_next/common/ui/Spinner';
+import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
+import { Badge } from '@/modules_next/common/ui/Badge';
+import { Button } from '@/modules_next/common/ui/Button';
+import { UserProfileForm, type UserProfileValues } from '@/modules_next/user/ui/user.profile-form';
+import { UserPreferencesForm, type UserPreferencesValues } from '@/modules_next/user/ui/user.preferences-form';
+import { UserRoleBadge } from '@/modules_next/user/ui/user.role-badge';
+import { PasskeysPanel } from '@/modules_next/user_security/ui/user.passkeys-panel';
+import { SocialAccountsPanel } from '@/modules_next/user/ui/user.social-accounts-panel';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faEnvelope, faShieldHalved, faClock, faCircleCheck, faCircleXmark,

@@ -1,14 +1,14 @@
 'use client';
 import { use, useEffect, useState } from 'react';
 import api from '@/libs/axios';
-import { PageHeader } from '@/modules/ui/PageHeader';
-import { TabGroup } from '@/modules/ui/TabGroup';
-import { Card } from '@/modules/ui/Card';
-import { Badge } from '@/modules/ui/Badge';
-import { Spinner } from '@/modules/ui/Spinner';
-import { AlertBanner } from '@/modules/ui/AlertBanner';
-import { UserProfileForm, type UserProfileValues } from '@/modules/user/ui/user.profile-form';
-import { UserPreferencesForm, type UserPreferencesValues } from '@/modules/user/ui/user.preferences-form';
+import { PageHeader } from '@/modules_next/common/ui/PageHeader';
+import { TabGroup } from '@/modules_next/common/ui/TabGroup';
+import { Card } from '@/modules_next/common/ui/Card';
+import { Badge } from '@/modules_next/common/ui/Badge';
+import { Spinner } from '@/modules_next/common/ui/Spinner';
+import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
+import { UserProfileForm, type UserProfileValues } from '@/modules_next/user/ui/user.profile-form';
+import { UserPreferencesForm, type UserPreferencesValues } from '@/modules_next/user/ui/user.preferences-form';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faClock, faLayerGroup } from '@fortawesome/free-solid-svg-icons';
 

@@ -1,12 +1,12 @@
 'use client';
 import { useEffect, useState } from 'react';
 import api from '@/libs/axios';
-import { BrandLogo } from '@/modules/ui/BrandLogo';
-import { Button } from '@/modules/ui/Button';
-import { Spinner } from '@/modules/ui/Spinner';
-import { Modal } from '@/modules/ui/Modal';
-import { Input } from '@/modules/ui/Input';
-import { AlertBanner } from '@/modules/ui/AlertBanner';
+import { BrandLogo } from '@/modules_next/common/ui/BrandLogo';
+import { Button } from '@/modules_next/common/ui/Button';
+import { Spinner } from '@/modules_next/common/ui/Spinner';
+import { Modal } from '@/modules_next/common/ui/Modal';
+import { Input } from '@/modules_next/common/ui/Input';
+import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBuilding, faPlus, faCog, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 

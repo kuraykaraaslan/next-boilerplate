@@ -1,15 +1,15 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
-import { Card } from '@/modules/ui/Card';
-import { Badge } from '@/modules/ui/Badge';
-import { Button } from '@/modules/ui/Button';
-import { Spinner } from '@/modules/ui/Spinner';
-import { AlertBanner } from '@/modules/ui/AlertBanner';
-import { Modal } from '@/modules/ui/Modal';
-import { Input } from '@/modules/ui/Input';
-import { Select } from '@/modules/ui/Select';
-import { PageHeader } from '@/modules/ui/PageHeader';
-import { EmptyState } from '@/modules/ui/EmptyState';
+import { Card } from '@/modules_next/common/ui/Card';
+import { Badge } from '@/modules_next/common/ui/Badge';
+import { Button } from '@/modules_next/common/ui/Button';
+import { Spinner } from '@/modules_next/common/ui/Spinner';
+import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
+import { Modal } from '@/modules_next/common/ui/Modal';
+import { Input } from '@/modules_next/common/ui/Input';
+import { Select } from '@/modules_next/common/ui/Select';
+import { PageHeader } from '@/modules_next/common/ui/PageHeader';
+import { EmptyState } from '@/modules_next/common/ui/EmptyState';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faPlus,

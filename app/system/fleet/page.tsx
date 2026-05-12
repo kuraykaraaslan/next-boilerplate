@@ -1,7 +1,7 @@
 'use client';
-import { PageHeader } from '@/modules/ui/PageHeader';
-import { Card } from '@/modules/ui/Card';
-import { Badge } from '@/modules/ui/Badge';
+import { PageHeader } from '@/modules_next/common/ui/PageHeader';
+import { Card } from '@/modules_next/common/ui/Card';
+import { Badge } from '@/modules_next/common/ui/Badge';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faServer, faCircle } from '@fortawesome/free-solid-svg-icons';
 
