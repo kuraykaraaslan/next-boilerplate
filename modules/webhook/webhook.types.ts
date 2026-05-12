@@ -49,7 +49,7 @@ export const WebhookDeliverySchema = z.object({
   webhookId: z.string().uuid(),
   tenantId: z.string().uuid().nullable().optional(),
   event: z.string(),
-  payload: z.record(z.unknown()),
+  payload: z.record(z.string(), z.unknown()),
   status: WebhookDeliveryStatusEnum,
   attempts: z.number().int(),
   maxAttempts: z.number().int(),

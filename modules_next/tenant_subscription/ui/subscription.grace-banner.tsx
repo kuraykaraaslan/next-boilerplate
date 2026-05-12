@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTriangleExclamation, faXmark, faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
 import { cn } from '@/libs/utils/cn';
-import type { GracePeriodStatus } from '../tenant_subscription.types';
+import type { GracePeriodStatus } from '@/modules/tenant_subscription/tenant_subscription.types';
 
 type Props = {
   status: GracePeriodStatus;

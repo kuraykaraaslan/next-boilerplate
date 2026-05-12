@@ -12,7 +12,7 @@ const PUBLIC_SETTINGS_KEYS = [
     'faviconUrl',
 ];
 
-export async function GET() {
+export async function GET(request: NextRequest) {
     try {
     const _rl = await Limiter.checkRateLimit(request, 'api');
     if (_rl) return _rl;

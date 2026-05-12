@@ -1,5 +1,4 @@
 import Limiter from '@/libs/limiter';
-'use server'
 import Logger from '@/libs/logger';
 import { NextRequest, NextResponse } from 'next/server'
 import StorageService from '@/modules/storage/storage.service'

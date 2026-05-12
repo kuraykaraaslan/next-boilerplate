@@ -4,7 +4,7 @@ import { Card } from '@/modules_next/common/ui/Card';
 import { Button } from '@/modules_next/common/ui/Button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCopy, faCheck, faDownload, faExternalLink } from '@fortawesome/free-solid-svg-icons';
-import type { SamlMetadata } from '../auth_saml.types';
+import type { SamlMetadata } from '@/modules/auth_saml/auth_saml.types';
 
 type Props = {
   tenantId: string;

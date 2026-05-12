@@ -41,7 +41,7 @@ export default class TenantExportService {
 
     // Strip HMAC signing secrets from webhooks before export
     const safeWebhooks = webhooks.map((w) => {
-      const safe = { ...(w as Record<string, unknown>) };
+      const safe = { ...(w as unknown as Record<string, unknown>) };
       delete safe['secret'];
       return safe;
     });

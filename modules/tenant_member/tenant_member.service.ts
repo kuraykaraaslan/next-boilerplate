@@ -45,7 +45,7 @@ export default class TenantMemberService {
     const userMap = Object.fromEntries(users.map((u) => [u.userId, u]));
 
     return {
-      members: members.map((member) => ({ ...SafeTenantMemberSchema.parse(member), user: userMap[member.userId] as (typeof userMap)[string] | undefined })),
+      members: members.map((member) => ({ ...SafeTenantMemberSchema.parse(member), user: userMap[member.userId] as any })),
       total,
     };
   }

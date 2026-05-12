@@ -4,7 +4,7 @@ import { Badge } from '@/modules_next/common/ui/Badge';
 import { Button } from '@/modules_next/common/ui/Button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck, faStar, faInfinity } from '@fortawesome/free-solid-svg-icons';
-import type { BillingInterval } from '../tenant_subscription.enums';
+import type { BillingInterval } from '@/modules/tenant_subscription/tenant_subscription.enums';
 
 type PlanFeature = {
   featureId: string;

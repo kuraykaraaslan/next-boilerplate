@@ -10,7 +10,7 @@ import { TENANT_BRANDING_KEYS } from '@/modules/tenant_branding/tenant_branding.
  * Get public tenant settings (no authentication required)
  */
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ tenantId: string }> }
 ) {
 

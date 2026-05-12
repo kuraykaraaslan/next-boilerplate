@@ -7,9 +7,9 @@ import { Toggle } from '@/modules_next/common/ui/Toggle';
 import { Select } from '@/modules_next/common/ui/Select';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave } from '@fortawesome/free-solid-svg-icons';
-import { SAML_NAME_ID_FORMATS } from '../auth_saml.enums';
-import type { SafeSamlConfig } from '../auth_saml.types';
-import type { UpsertSamlConfigInput } from '../auth_saml.dto';
+import { SAML_NAME_ID_FORMATS } from '@/modules/auth_saml/auth_saml.enums';
+import type { SafeSamlConfig } from '@/modules/auth_saml/auth_saml.types';
+import type { UpsertSamlConfigInput } from '@/modules/auth_saml/auth_saml.dto';
 
 type Props = {
   config: SafeSamlConfig | null;

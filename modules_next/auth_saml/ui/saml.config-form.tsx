@@ -7,8 +7,8 @@ import { Toggle } from '@/modules_next/common/ui/Toggle';
 import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave, faShieldHalved } from '@fortawesome/free-solid-svg-icons';
-import type { SafeSamlConfig } from '../auth_saml.types';
-import type { UpsertSamlConfigInput } from '../auth_saml.dto';
+import type { SafeSamlConfig } from '@/modules/auth_saml/auth_saml.types';
+import type { UpsertSamlConfigInput } from '@/modules/auth_saml/auth_saml.dto';
 
 type Props = {
   tenantId: string;

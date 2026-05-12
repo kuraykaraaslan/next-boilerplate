@@ -2,7 +2,7 @@
 import { cn } from '@/libs/utils/cn';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLock, faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
-import type { FeatureAccessResult } from '../tenant_subscription.types';
+import type { FeatureAccessResult } from '@/modules/tenant_subscription/tenant_subscription.types';
 
 type Props = {
   result: FeatureAccessResult;
