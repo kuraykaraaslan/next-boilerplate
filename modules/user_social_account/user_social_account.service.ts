@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { getSystemDataSource } from '@/libs/typeorm';
+import { getSystemDataSource } from '@/modules/db';
 import { UserSocialAccount as UserSocialAccountEntity } from './entities/user_social_account.entity';
 import { SafeUserSocialAccount, SafeUserSocialAccountSchema } from './user_social_account.types';
 import UserSocialAccountMessages from './user_social_account.messages';

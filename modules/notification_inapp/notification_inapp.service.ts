@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { Redis } from 'ioredis';
-import redis, { createRedisConnection } from '@/libs/redis';
-import { getSystemDataSource } from '@/libs/typeorm';
+import redis, { createRedisConnection } from '@/modules/redis';
+import { getSystemDataSource } from '@/modules/db';
 import { User as UserEntity } from '../user/entities/user.entity';
 import { v4 as uuid } from 'uuid';
 import type { Notification, NotificationPayload } from './notification_inapp.types';

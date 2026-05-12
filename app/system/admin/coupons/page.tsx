@@ -18,7 +18,7 @@ import {
   faPercent,
   faDollarSign,
 } from '@fortawesome/free-solid-svg-icons';
-import api from '@/libs/axios';
+import api from '@/modules_next/common/axios';
 
 type CouponStatus = 'ACTIVE' | 'INACTIVE' | 'EXPIRED' | 'ARCHIVED';
 type DiscountType = 'PERCENTAGE' | 'FIXED_AMOUNT';

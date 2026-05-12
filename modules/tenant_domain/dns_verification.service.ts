@@ -1,7 +1,7 @@
-import { env } from '@/libs/env';
+import { env } from '@/modules/env';
 import { Resolver } from 'dns/promises';
 import crypto from 'crypto';
-import redis from '@/libs/redis';
+import redis from '@/modules/redis';
 import type { VerificationMethod } from './tenant_domain.enums';
 
 const DNS_VERIFICATION_PREFIX = 'dns_verify:';

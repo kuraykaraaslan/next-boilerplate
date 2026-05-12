@@ -1,5 +1,5 @@
 'use client';
-import { cn } from '@/libs/utils/cn';
+import { cn } from '@/modules_next/common/utils/cn';
 import { useRef, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFolderOpen, faXmark } from '@fortawesome/free-solid-svg-icons';

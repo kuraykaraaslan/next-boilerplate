@@ -1,4 +1,4 @@
-import redis from "@/libs/redis";
+import redis from "@/modules/redis";
 import Logger from "@/modules/logger";
 
 export default class UserSessionCacheService {

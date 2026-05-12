@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import AuthService from './auth.service';
 
-vi.mock('@/libs/env', () => ({
+vi.mock('@/modules/env', () => ({
   env: {
     SYSTEM_DATABASE_URL: 'postgresql://test',
     TENANT_DATABASE_URL: 'postgresql://test',
@@ -14,7 +14,7 @@ vi.mock('@/libs/env', () => ({
   },
 }));
 
-vi.mock('@/libs/typeorm', () => ({
+vi.mock('@/modules/db', () => ({
   getSystemDataSource: vi.fn(),
 }));
 
@@ -25,14 +25,14 @@ vi.mock('bcrypt', () => ({
   },
 }));
 
-vi.mock('@/libs/redis', () => ({ default: { get: vi.fn(), set: vi.fn(), del: vi.fn() } }));
+vi.mock('@/modules/redis', () => ({ default: { get: vi.fn(), set: vi.fn(), del: vi.fn() } }));
 vi.mock('@/modules/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
 vi.mock('../notification_mail/notification_mail.service', () => ({ default: { sendEmail: vi.fn() } }));
 vi.mock('../tenant/tenant.service', () => ({ default: { provisionPersonal: vi.fn() } }));
 vi.mock('../tenant_invitation/tenant_invitation.service', () => ({ default: { autoAcceptForEmail: vi.fn() } }));
 vi.mock('../user/user.service', () => ({ default: { getByEmail: vi.fn(async () => null) } }));
 
-import { getSystemDataSource } from '@/libs/typeorm';
+import { getSystemDataSource } from '@/modules/db';
 import UserService from '../user/user.service';
 import AuthMessages from './auth.messages';
 

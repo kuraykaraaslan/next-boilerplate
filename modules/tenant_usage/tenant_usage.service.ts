@@ -1,5 +1,5 @@
-import redis from '@/libs/redis';
-import { tenantDataSourceFor } from '@/libs/typeorm';
+import redis from '@/modules/redis';
+import { tenantDataSourceFor } from '@/modules/db';
 import { TenantUsage } from './entities/tenant_usage.entity';
 
 const TTL_SECONDS = 32 * 24 * 60 * 60; // 32 days

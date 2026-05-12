@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('@/libs/env', () => ({
+vi.mock('@/modules/env', () => ({
   env: {
     SYSTEM_DATABASE_URL: 'postgresql://test',
     TENANT_DATABASE_URL: 'postgresql://test',
@@ -12,14 +12,14 @@ vi.mock('@/libs/env', () => ({
   },
 }));
 
-vi.mock('@/libs/typeorm', () => ({
+vi.mock('@/modules/db', () => ({
   getSystemDataSource: vi.fn(),
   tenantDataSourceFor: vi.fn(),
   getDefaultTenantDataSource: vi.fn(),
   SystemDataSource: { isInitialized: false, initialize: vi.fn(), getRepository: vi.fn() },
 }));
 
-vi.mock('@/libs/redis', () => ({ default: { get: vi.fn(), set: vi.fn(), del: vi.fn(), ping: vi.fn() } }));
+vi.mock('@/modules/redis', () => ({ default: { get: vi.fn(), set: vi.fn(), del: vi.fn(), ping: vi.fn() } }));
 vi.mock('@/modules/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
 vi.mock('../tenant_member/tenant_member.service', () => ({
   default: {
@@ -28,7 +28,7 @@ vi.mock('../tenant_member/tenant_member.service', () => ({
   },
 }));
 
-import { getSystemDataSource, tenantDataSourceFor, getDefaultTenantDataSource } from '@/libs/typeorm';
+import { getSystemDataSource, tenantDataSourceFor, getDefaultTenantDataSource } from '@/modules/db';
 import TenantInvitationService from './tenant_invitation.service';
 import TenantInvitationMessages from './tenant_invitation.messages';
 import TenantMemberService from '../tenant_member/tenant_member.service';

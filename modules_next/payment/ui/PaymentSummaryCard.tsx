@@ -1,6 +1,6 @@
 'use client';
 // Adapted from next_components: PaymentSummaryCard + PriceDisplay
-import { cn } from '@/libs/utils/cn';
+import { cn } from '@/modules_next/common/utils/cn';
 import { PaymentStatusBadge, type PaymentStatus } from './PaymentStatusBadge';
 
 type PaymentSummaryCardProps = {

@@ -1,6 +1,6 @@
-import { env } from '@/libs/env';
+import { env } from '@/modules/env';
 import crypto from "crypto";
-import redis from "@/libs/redis";
+import redis from "@/modules/redis";
 import { SafeUser } from "../user/user.types";
 import { SafeUserSession } from "../user_session/user_session.types";
 import { OTPMethod, OTPAction } from "../user_security/user_security.enums";

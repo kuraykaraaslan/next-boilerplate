@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { IsNull, LessThan } from 'typeorm';
-import { tenantDataSourceFor, getDefaultTenantDataSource } from '@/libs/typeorm';
+import { tenantDataSourceFor, getDefaultTenantDataSource } from '@/modules/db';
 import { Tenant } from './entities/tenant.entity';
 import Logger from '@/modules/logger';
 

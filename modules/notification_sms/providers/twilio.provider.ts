@@ -1,4 +1,4 @@
-import { env } from '@/libs/env';
+import { env } from '@/modules/env';
 import BaseProvider from "./base.provider";
 import axios, { AxiosInstance } from "axios";
 import qs from "qs";

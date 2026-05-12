@@ -1,8 +1,8 @@
-import { env } from '@/libs/env';
+import { env } from '@/modules/env';
 import Logger from "@/modules/logger";
 import { Queue, Worker, Job } from "bullmq";
-import { getBullMQConnection } from "@/libs/redis/bullmq";
-import redis from "@/libs/redis";
+import { getBullMQConnection } from "@/modules/redis/redis.bullmq";
+import redis from "@/modules/redis";
 import { PhoneNumberUtil, PhoneNumberFormat } from "google-libphonenumber";
 
 // Providers

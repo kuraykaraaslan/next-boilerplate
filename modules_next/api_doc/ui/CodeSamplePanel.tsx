@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { cn } from '@/libs/utils/cn';
+import { cn } from '@/modules_next/common/utils/cn';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCode } from '@fortawesome/free-solid-svg-icons';
 import type { CodeSample } from './types';

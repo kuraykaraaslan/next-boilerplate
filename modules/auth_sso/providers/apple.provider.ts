@@ -1,4 +1,4 @@
-import { env } from '@/libs/env';
+import { env } from '@/modules/env';
 import jwt from 'jsonwebtoken';
 import axios from 'axios';
 import type { SSOProvider } from '../auth_sso.enums';

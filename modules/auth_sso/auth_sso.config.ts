@@ -1,4 +1,4 @@
-import { env } from '@/libs/env';
+import { env } from '@/modules/env';
 import type { SSOProvider } from './auth_sso.enums';
 import type { SSOProviderConfig } from './auth_sso.types';
 

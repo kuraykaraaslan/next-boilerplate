@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('@/libs/env', () => ({
+vi.mock('@/modules/env', () => ({
   env: {
     SYSTEM_DATABASE_URL: 'postgresql://test',
     TENANT_DATABASE_URL: 'postgresql://test',
@@ -14,14 +14,14 @@ vi.mock('@/libs/env', () => ({
   },
 }));
 
-vi.mock('@/libs/typeorm', () => ({
+vi.mock('@/modules/db', () => ({
   getSystemDataSource: vi.fn(),
   tenantDataSourceFor: vi.fn(),
   getDefaultTenantDataSource: vi.fn(),
   SystemDataSource: { isInitialized: false, initialize: vi.fn(), getRepository: vi.fn() },
 }));
 
-vi.mock('@/libs/redis', () => ({
+vi.mock('@/modules/redis', () => ({
   default: { get: vi.fn(async () => null), set: vi.fn(), del: vi.fn(), setex: vi.fn(), ping: vi.fn() },
 }));
 vi.mock('@/modules/logger', () => ({
@@ -45,8 +45,8 @@ vi.mock('@/modules/tenant_setting/tenant_setting.service', () => ({
   },
 }));
 
-import { tenantDataSourceFor, getDefaultTenantDataSource } from '@/libs/typeorm';
-import redis from '@/libs/redis';
+import { tenantDataSourceFor, getDefaultTenantDataSource } from '@/modules/db';
+import redis from '@/modules/redis';
 import TenantDomainService from './tenant_domain.service';
 import TenantDomainMessages from './tenant_domain.messages';
 import DNSVerificationService from './dns_verification.service';

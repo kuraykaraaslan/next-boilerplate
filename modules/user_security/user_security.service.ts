@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { getSystemDataSource } from '@/libs/typeorm';
+import { getSystemDataSource } from '@/modules/db';
 import { UserSecurity as UserSecurityEntity } from './entities/user_security.entity';
 import { UserSecurity, UserSecuritySchema, SafeUserSecurity, SafeUserSecuritySchema } from './user_security.types';
 

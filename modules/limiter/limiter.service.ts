@@ -1,4 +1,4 @@
-import redis from '@/libs/redis';
+import redis from '@/modules/redis';
 
 export const RATE_LIMIT_WINDOW = 60; // seconds
 

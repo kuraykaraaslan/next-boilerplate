@@ -1,4 +1,4 @@
-import { env } from '@/libs/env';
+import { env } from '@/modules/env';
 import { BaseSSOProvider } from './base.provider';
 import type { SSOProfile } from '../auth_sso.types';
 import axios from 'axios';

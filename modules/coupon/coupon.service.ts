@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { ILike } from 'typeorm';
-import { getSystemDataSource, tenantDataSourceFor } from '@/libs/typeorm';
+import { getSystemDataSource, tenantDataSourceFor } from '@/modules/db';
 import { Coupon as CouponEntity } from './entities/coupon.entity';
 import { CouponRedemption as CouponRedemptionEntity } from './entities/coupon_redemption.entity';
 import Logger from '@/modules/logger';

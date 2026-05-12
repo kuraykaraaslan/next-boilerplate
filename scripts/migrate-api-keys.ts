@@ -5,7 +5,7 @@
 import 'reflect-metadata';
 import 'dotenv/config';
 import { DataSource, Table, TableIndex } from 'typeorm';
-import { env } from '@/libs/env';
+import { env } from '@/modules/env';
 
 function parseDbUrl(raw: string): { url: string; schema?: string } {
   const match = raw.match(/[?&]schema=([^&]+)/);

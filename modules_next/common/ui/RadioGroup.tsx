@@ -1,6 +1,6 @@
 'use client';
 import type { ReactNode } from 'react';
-import { cn } from '@/libs/utils/cn';
+import { cn } from '@/modules_next/common/utils/cn';
 
 export type RadioOption = {
   value: string;

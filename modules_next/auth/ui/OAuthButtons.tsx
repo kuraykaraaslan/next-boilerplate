@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGoogle, faGithub, faDiscord, faMicrosoft } from '@fortawesome/free-brands-svg-icons';
 import { Button } from '@/modules_next/common/ui/Button';
-import { cn } from '@/libs/utils/cn';
+import { cn } from '@/modules_next/common/utils/cn';
 
 type OAuthProvider = 'GOOGLE' | 'GITHUB' | 'DISCORD' | 'MICROSOFT';
 

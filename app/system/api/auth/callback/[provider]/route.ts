@@ -1,5 +1,5 @@
 import Limiter from '@/modules_next/limiter/limiter.service.next';
-import { env } from '@/libs/env';
+import { env } from '@/modules/env';
 // Original path: app/api/auth/callback/route.ts
 
 import { NextRequest, NextResponse } from "next/server";

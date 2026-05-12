@@ -1,4 +1,4 @@
-import redis from '@/libs/redis';
+import redis from '@/modules/redis';
 
 const TTL_SECONDS = 86400; // 24 hours
 

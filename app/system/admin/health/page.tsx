@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import api from '@/libs/axios';
+import api from '@/modules_next/common/axios';
 import { PageHeader } from '@/modules_next/common/ui/PageHeader';
 import { Card } from '@/modules_next/common/ui/Card';
 import { Badge } from '@/modules_next/common/ui/Badge';
@@ -19,7 +19,7 @@ import {
   faTriangleExclamation,
   faCircle,
 } from '@fortawesome/free-solid-svg-icons';
-import { cn } from '@/libs/utils/cn';
+import { cn } from '@/modules_next/common/utils/cn';
 
 // ---------------------------------------------------------------------------
 // Types

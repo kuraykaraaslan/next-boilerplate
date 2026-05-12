@@ -17,7 +17,7 @@ import {
   faTrash,
   faSave,
 } from '@fortawesome/free-solid-svg-icons';
-import api from '@/libs/axios';
+import api from '@/modules_next/common/axios';
 
 // ---------------------------------------------------------------------------
 // Types

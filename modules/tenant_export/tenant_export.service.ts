@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { tenantDataSourceFor } from '@/libs/typeorm';
+import { tenantDataSourceFor } from '@/modules/db';
 import { TenantMember } from '@/modules/tenant_member/entities/tenant_member.entity';
 import { TenantDomain } from '@/modules/tenant_domain/entities/tenant_domain.entity';
 import { TenantAuditLog } from '@/modules/audit_log/entities/audit_log_tenant.entity';

@@ -1,9 +1,9 @@
 import 'reflect-metadata';
-import { env } from '@/libs/env';
+import { env } from '@/modules/env';
 import { Not } from 'typeorm';
-import { getSystemDataSource } from '@/libs/typeorm';
+import { getSystemDataSource } from '@/modules/db';
 import { UserSession as UserSessionEntity } from './entities/user_session.entity';
-import redis from '@/libs/redis';
+import redis from '@/modules/redis';
 import { v4 as uuidv4 } from 'uuid';
 import { SafeUserSession, SafeUserSessionSchema, type SessionMeta } from './user_session.types';
 import { SafeUser } from '../user/user.types';

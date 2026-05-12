@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
-import { env } from '@/libs/env';
+import { env } from '@/modules/env';
 import { User } from '@/modules/user/entities/user.entity';
 import { UserProfile } from '@/modules/user_profile/entities/user_profile.entity';
 import { UserSecurity } from '@/modules/user_security/entities/user_security.entity';

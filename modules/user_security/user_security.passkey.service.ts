@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { env } from '@/libs/env';
+import { env } from '@/modules/env';
 import {
   generateRegistrationOptions,
   verifyRegistrationResponse,
@@ -12,9 +12,9 @@ import type {
   AuthenticatorTransportFuture,
 } from '@simplewebauthn/server';
 
-import { getSystemDataSource } from '@/libs/typeorm';
+import { getSystemDataSource } from '@/modules/db';
 import { User as UserEntity } from '../user/entities/user.entity';
-import redis from '@/libs/redis';
+import redis from '@/modules/redis';
 import UserSecurityService from './user_security.service';
 import PasskeyMessages from './user_security.passkey.messages';
 import {

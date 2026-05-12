@@ -1,7 +1,7 @@
-import { env } from '@/libs/env';
+import { env } from '@/modules/env';
 import { authenticator } from 'otplib';
 import bcrypt from 'bcrypt';
-import redis from '@/libs/redis';
+import redis from '@/modules/redis';
 import AuthMessages from './auth.messages';
 import AuthService from './auth.service';
 import { SafeUser } from '../user/user.types';

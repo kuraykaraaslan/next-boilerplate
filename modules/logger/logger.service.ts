@@ -1,5 +1,5 @@
 import winston from 'winston';
-import { env } from '@/libs/env';
+import { env } from '@/modules/env';
 
 const { combine, timestamp, json, printf } = winston.format;
 const timestampFormat = 'MMM-DD-YYYY HH:mm:ss';

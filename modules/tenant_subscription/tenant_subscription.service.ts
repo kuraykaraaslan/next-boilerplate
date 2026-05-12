@@ -1,11 +1,11 @@
 import 'reflect-metadata';
 import { Not } from 'typeorm';
-import { getSystemDataSource, getDefaultTenantDataSource, tenantDataSourceFor } from '@/libs/typeorm';
+import { getSystemDataSource, getDefaultTenantDataSource, tenantDataSourceFor } from '@/modules/db';
 import { SubscriptionPlan as SubscriptionPlanEntity } from '../payment/entities/subscription_plan.entity';
 import { PlanFeature as PlanFeatureEntity } from '../payment/entities/plan_feature.entity';
 import { TenantSubscription as TenantSubscriptionEntity } from './entities/tenant_subscription.entity';
 import Logger from '@/modules/logger';
-import redis from '@/libs/redis';
+import redis from '@/modules/redis';
 import PaymentService from '@/modules/payment/payment.service';
 import AuditLogService from '@/modules/audit_log/audit_log.service';
 import type { PaymentProvider, PaymentCurrency } from '@/modules/payment/payment.enums';

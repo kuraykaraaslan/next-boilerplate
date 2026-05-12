@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import api from '@/libs/axios';
+import api from '@/modules_next/common/axios';
 import { AppShell } from '@/modules_next/common/ui/layout/AppShell';
 import { AppSidebar } from '@/modules_next/common/ui/layout/AppSidebar';
 import { AppTopBar } from '@/modules_next/common/ui/layout/AppTopBar';

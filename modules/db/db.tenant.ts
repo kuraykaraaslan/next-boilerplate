@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
-import { env } from '@/libs/env';
+import { env } from '@/modules/env';
 import { TenantDatabase } from './entities/tenant_database.entity';
 import { Tenant } from '@/modules/tenant/entities/tenant.entity';
 import { TenantDomain } from '@/modules/tenant_domain/entities/tenant_domain.entity';
@@ -55,7 +55,7 @@ function evictOldest(): void {
 export async function tenantDataSourceFor(tenantId: string): Promise<DataSource> {
   if (tenantCache.has(tenantId)) return tenantCache.get(tenantId)!;
 
-  const { getSystemDataSource } = await import('./system');
+  const { getSystemDataSource } = await import('./db.system');
   const sys = await getSystemDataSource();
   const row = await sys.getRepository(TenantDatabase).findOne({ where: { tenantId } });
 

@@ -1,8 +1,8 @@
 import 'reflect-metadata';
 import { IsNull, ILike, In } from 'typeorm';
 import type { FindOptionsWhere } from 'typeorm';
-import { getSystemDataSource, tenantDataSourceFor, getDefaultTenantDataSource } from '@/libs/typeorm';
-import redis from '@/libs/redis';
+import { getSystemDataSource, tenantDataSourceFor, getDefaultTenantDataSource } from '@/modules/db';
+import redis from '@/modules/redis';
 import { User as UserEntity } from '../user/entities/user.entity';
 import { TenantMember as TenantMemberEntity } from './entities/tenant_member.entity';
 import { SafeTenantMember, SafeTenantMemberSchema } from './tenant_member.types';

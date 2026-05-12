@@ -1,9 +1,9 @@
 import 'reflect-metadata';
 import { In } from 'typeorm';
-import { getSystemDataSource } from '@/libs/typeorm';
+import { getSystemDataSource } from '@/modules/db';
 import { Setting as SettingEntity } from './entities/setting.entity';
 import { Setting, SettingSchema } from './setting.types';
-import redis from '@/libs/redis';
+import redis from '@/modules/redis';
 import SettingMessages from './setting.messages';
 
 export default class SettingService {

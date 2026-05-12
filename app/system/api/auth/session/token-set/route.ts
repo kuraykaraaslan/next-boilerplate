@@ -1,4 +1,4 @@
-import { env } from '@/libs/env';
+import { env } from '@/modules/env';
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {

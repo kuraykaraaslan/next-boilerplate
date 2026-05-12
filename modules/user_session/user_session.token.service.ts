@@ -1,4 +1,4 @@
-import { env } from '@/libs/env';
+import { env } from '@/modules/env';
 import jwt, { Secret } from "jsonwebtoken";
 import crypto from "crypto";
 import UserSessionMessages from "./user_session.messages";

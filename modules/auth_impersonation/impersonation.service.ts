@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { IsNull } from 'typeorm';
-import { getSystemDataSource, tenantDataSourceFor } from '@/libs/typeorm';
+import { getSystemDataSource, tenantDataSourceFor } from '@/modules/db';
 import { User as UserEntity } from '../user/entities/user.entity';
 import { UserSession as UserSessionEntity } from '../user_session/entities/user_session.entity';
 import { TenantMember as TenantMemberEntity } from '../tenant_member/entities/tenant_member.entity';

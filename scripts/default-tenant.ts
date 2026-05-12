@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import 'dotenv/config';
-import { env } from '@/libs/env';
+import { env } from '@/modules/env';
 import { DataSource } from 'typeorm';
 import bcrypt from 'bcrypt';
 import { User } from '../modules/user/entities/user.entity';

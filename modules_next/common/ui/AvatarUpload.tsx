@@ -1,6 +1,6 @@
 'use client';
 import { useRef, useState } from 'react';
-import { cn } from '@/libs/utils/cn';
+import { cn } from '@/modules_next/common/utils/cn';
 import { Avatar } from '@/modules_next/common/ui/Avatar';
 import { Spinner } from '@/modules_next/common/ui/Spinner';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import api from '@/libs/axios';
+import api from '@/modules_next/common/axios';
 import { TabGroup } from '@/modules_next/common/ui/TabGroup';
 import { PageHeader } from '@/modules_next/common/ui/PageHeader';
 import { Card } from '@/modules_next/common/ui/Card';

@@ -1,5 +1,5 @@
 import { Queue, Worker, Job } from 'bullmq';
-import { getBullMQConnection } from '@/libs/redis/bullmq';
+import { getBullMQConnection } from '@/modules/redis/redis.bullmq';
 import TenantSubscriptionService from './tenant_subscription.service';
 import Logger from '@/modules/logger';
 

@@ -1,6 +1,6 @@
 'use client';
 import { use, useEffect, useState } from 'react';
-import api from '@/libs/axios';
+import api from '@/modules_next/common/axios';
 import { PageHeader } from '@/modules_next/common/ui/PageHeader';
 import { Card } from '@/modules_next/common/ui/Card';
 import { Input } from '@/modules_next/common/ui/Input';

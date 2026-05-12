@@ -1,6 +1,6 @@
 'use client';
 import { useRef, useState, useEffect } from 'react';
-import { cn } from '@/libs/utils/cn';
+import { cn } from '@/modules_next/common/utils/cn';
 import { Avatar } from '@/modules_next/common/ui/Avatar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleUser, faArrowRightFromBracket, faChevronDown } from '@fortawesome/free-solid-svg-icons';

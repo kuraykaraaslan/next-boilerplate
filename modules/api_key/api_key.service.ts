@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import crypto from 'crypto';
-import { tenantDataSourceFor } from '@/libs/typeorm';
+import { tenantDataSourceFor } from '@/modules/db';
 import { ApiKey as ApiKeyEntity } from './entities/api_key.entity';
 import { SafeApiKey, SafeApiKeySchema } from './api_key.types';
 import type { CreateApiKeyInput, UpdateApiKeyInput, ListApiKeysInput } from './api_key.dto';
@@ -112,7 +112,7 @@ export default class ApiKeyService {
     const hash = ApiKeyService.hashKey(rawKey);
 
     // We need to search across the default tenant DS since we don't know tenantId yet
-    const { getDefaultTenantDataSource } = await import('@/libs/typeorm');
+    const { getDefaultTenantDataSource } = await import('@/modules/db');
     const ds = await getDefaultTenantDataSource();
     const repo = ds.getRepository(ApiKeyEntity);
 

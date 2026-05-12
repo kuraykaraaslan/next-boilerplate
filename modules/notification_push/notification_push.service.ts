@@ -1,8 +1,8 @@
 import 'reflect-metadata';
 import { In } from 'typeorm';
-import { env } from '@/libs/env';
+import { env } from '@/modules/env';
 import webpush from 'web-push';
-import { getSystemDataSource } from '@/libs/typeorm';
+import { getSystemDataSource } from '@/modules/db';
 import { PushSubscription as PushSubscriptionEntity } from './entities/push_subscription.entity';
 import { User as UserEntity } from '../user/entities/user.entity';
 import Logger from '@/modules/logger';

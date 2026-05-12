@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import UserSessionNextService from '@/modules_next/user_session/user_session.service.next';
-import { getDefaultTenantDataSource } from '@/libs/typeorm';
+import { getDefaultTenantDataSource } from '@/modules/db';
 import { SamlConfig } from '@/modules/auth_saml/entities/saml_config.entity';
 import TenantService from '@/modules/tenant/tenant.service';
 

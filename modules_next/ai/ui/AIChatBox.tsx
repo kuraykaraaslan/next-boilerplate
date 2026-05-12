@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faCommentDots, faTimes, faPaperPlane, faUser, faRobot, faMinus,
 } from '@fortawesome/free-solid-svg-icons';
-import { cn } from '@/libs/utils/cn';
+import { cn } from '@/modules_next/common/utils/cn';
 
 export type ChatMessage = { id: string; role: 'user' | 'agent'; text: string; timestamp?: string };
 

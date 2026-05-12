@@ -1,9 +1,9 @@
-import { env } from '@/libs/env';
+import { env } from '@/modules/env';
 import Logger from "@/modules/logger";
 import ejs from "ejs";
 import path from "path";
 import { Queue, Worker, Job } from "bullmq";
-import { getBullMQConnection } from "@/libs/redis/bullmq";
+import { getBullMQConnection } from "@/modules/redis/redis.bullmq";
 
 // Providers
 import BaseMailProvider, { MailOptions, MailResult } from "./providers/base.provider";

@@ -1,5 +1,5 @@
 'use client';
-import { cn } from '@/libs/utils/cn';
+import { cn } from '@/modules_next/common/utils/cn';
 import { Avatar } from '@/modules_next/common/ui/Avatar';
 import { UserRoleBadge } from './UserRoleBadge';
 import { UserStatusBadge } from './UserStatusBadge';

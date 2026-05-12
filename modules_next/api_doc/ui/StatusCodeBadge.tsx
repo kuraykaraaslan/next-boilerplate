@@ -1,4 +1,4 @@
-import { cn } from '@/libs/utils/cn';
+import { cn } from '@/modules_next/common/utils/cn';
 
 const STATUS_LABELS: Record<string, string> = {
   '200': 'OK', '201': 'Created', '202': 'Accepted', '204': 'No Content',

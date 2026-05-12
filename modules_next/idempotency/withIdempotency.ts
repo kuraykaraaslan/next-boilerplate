@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { IdempotencyKey } from '@/modules/idempotency';
+import { IdempotencyKey } from '@/modules/redis_idempotency';
 
 type Handler = (request: NextRequest) => Promise<NextResponse>;
 

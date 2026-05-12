@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTag, faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { Button } from '@/modules_next/common/ui/Button';
 import { Spinner } from '@/modules_next/common/ui/Spinner';
-import api from '@/libs/axios';
+import api from '@/modules_next/common/axios';
 
 type ValidationResult = {
   valid: boolean;

@@ -1,4 +1,4 @@
-import redis from '@/libs/redis';
+import redis from '@/modules/redis';
 
 const WINDOW_MS = 60_000; // 1 minute
 

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('@/libs/env', () => ({
+vi.mock('@/modules/env', () => ({
   env: {
     SYSTEM_DATABASE_URL: 'postgresql://test',
     TENANT_DATABASE_URL: 'postgresql://test',
@@ -11,14 +11,14 @@ vi.mock('@/libs/env', () => ({
   },
 }));
 
-vi.mock('@/libs/typeorm', () => ({
+vi.mock('@/modules/db', () => ({
   getSystemDataSource: vi.fn(),
 }));
 
-vi.mock('@/libs/redis', () => ({ default: { get: vi.fn(), set: vi.fn(), del: vi.fn(), ping: vi.fn() } }));
+vi.mock('@/modules/redis', () => ({ default: { get: vi.fn(), set: vi.fn(), del: vi.fn(), ping: vi.fn() } }));
 vi.mock('@/modules/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
 
-import { getSystemDataSource } from '@/libs/typeorm';
+import { getSystemDataSource } from '@/modules/db';
 import UserProfileService from './user_profile.service';
 
 const USER_ID = '00000000-0000-1000-8000-000000000001';

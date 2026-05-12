@@ -1,5 +1,5 @@
 'use client';
-import { cn } from '@/libs/utils/cn';
+import { cn } from '@/modules_next/common/utils/cn';
 import { useState } from 'react';
 
 type PaginationSize = 'sm' | 'md' | 'lg';

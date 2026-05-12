@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { getSystemDataSource } from '@/libs/typeorm';
+import { getSystemDataSource } from '@/modules/db';
 import { UserProfile as UserProfileEntity } from './entities/user_profile.entity';
 import { UserProfile, UserProfileSchema, SocialLinkItem } from './user_profile.types';
 

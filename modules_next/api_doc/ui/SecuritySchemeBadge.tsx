@@ -1,4 +1,4 @@
-import { cn } from '@/libs/utils/cn';
+import { cn } from '@/modules_next/common/utils/cn';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faKey, faLock, faShield, faFingerprint, faUserShield } from '@fortawesome/free-solid-svg-icons';
 import type { SecuritySchemeType } from './types';

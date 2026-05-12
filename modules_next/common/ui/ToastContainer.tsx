@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useToastStore } from './toast.store';
-import { cn } from '@/libs/utils/cn';
+import { cn } from '@/modules_next/common/utils/cn';
 
 const variantClass: Record<string, string> = {
   success: 'bg-success text-success-fg border-success',

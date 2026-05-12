@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('@/libs/env', () => ({
+vi.mock('@/modules/env', () => ({
   env: {
     SYSTEM_DATABASE_URL: 'postgresql://test',
     TENANT_DATABASE_URL: 'postgresql://test',
@@ -13,14 +13,14 @@ vi.mock('@/libs/env', () => ({
   },
 }));
 
-vi.mock('@/libs/typeorm', () => ({
+vi.mock('@/modules/db', () => ({
   getSystemDataSource: vi.fn(),
   tenantDataSourceFor: vi.fn(),
   getDefaultTenantDataSource: vi.fn(),
   SystemDataSource: { isInitialized: false, initialize: vi.fn(), getRepository: vi.fn() },
 }));
 
-vi.mock('@/libs/redis', () => ({
+vi.mock('@/modules/redis', () => ({
   default: {
     get: vi.fn(async () => null),
     set: vi.fn(),
@@ -53,8 +53,8 @@ vi.mock('@/modules/setting/setting.service', () => ({
 }));
 
 import TenantSubscriptionService from './tenant_subscription.service';
-import { getSystemDataSource, tenantDataSourceFor, getDefaultTenantDataSource } from '@/libs/typeorm';
-import redis from '@/libs/redis';
+import { getSystemDataSource, tenantDataSourceFor, getDefaultTenantDataSource } from '@/modules/db';
+import redis from '@/modules/redis';
 import { SUBSCRIPTION_MESSAGES } from './tenant_subscription.messages';
 
 // ─── Fixtures ────────────────────────────────────────────────────────────────

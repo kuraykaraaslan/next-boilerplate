@@ -1,6 +1,6 @@
 'use client';
 import { use } from 'react';
-import api from '@/libs/axios';
+import api from '@/modules_next/common/axios';
 import { BrandLogo } from '@/modules_next/common/ui/BrandLogo';
 import { ForgotPasswordForm } from '@/modules_next/auth/ui/ForgotPasswordForm';
 

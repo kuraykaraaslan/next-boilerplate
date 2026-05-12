@@ -1,15 +1,15 @@
 import Logger from '@/modules/logger';
-import { env } from '@/libs/env';
+import { env } from '@/modules/env';
 // Utils
 import { SafeUserSession, SafeUserSessionSchema, type SessionMeta } from '@/modules/user_session/user_session.types';
 import { NextRequest } from 'next/server';
 import { SafeUser, SafeUserSchema } from '@/modules/user/user.types';
 import crypto from "crypto";
 import UserSessionMessages from "@/modules/user_session/user_session.messages";
-import redis from "@/libs/redis";
+import redis from "@/modules/redis";
 import { SafeUserSecurity } from '@/modules/user_security/user_security.types';
 import UserSessionService from '@/modules/user_session/user_session.service';
-import { getSystemDataSource } from '@/libs/typeorm';
+import { getSystemDataSource } from '@/modules/db';
 import { User as UserEntity } from '@/modules/user/entities/user.entity';
 
 const SESSION_CACHE_TTL = env.SESSION_CACHE_TTL;

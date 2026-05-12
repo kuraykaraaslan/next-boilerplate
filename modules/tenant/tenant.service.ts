@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { IsNull, ILike } from 'typeorm';
-import { tenantDataSourceFor, getDefaultTenantDataSource } from '@/libs/typeorm';
+import { tenantDataSourceFor, getDefaultTenantDataSource } from '@/modules/db';
 import { Tenant as TenantEntity } from './entities/tenant.entity';
 import { SafeTenant, SafeTenantSchema } from './tenant.types';
 import { CreateTenantInput, UpdateTenantInput, GetTenantsInput } from './tenant.dto';

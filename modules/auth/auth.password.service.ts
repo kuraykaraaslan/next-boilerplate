@@ -1,9 +1,9 @@
 import 'reflect-metadata';
-import { env } from '@/libs/env';
+import { env } from '@/modules/env';
 import crypto from 'crypto';
 import bcrypt from 'bcrypt';
-import redis from '@/libs/redis';
-import { getSystemDataSource } from '@/libs/typeorm';
+import redis from '@/modules/redis';
+import { getSystemDataSource } from '@/modules/db';
 import { User as UserEntity } from '../user/entities/user.entity';
 import Logger from '@/modules/logger';
 import UserService from '../user/user.service';

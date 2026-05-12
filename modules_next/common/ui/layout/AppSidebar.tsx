@@ -1,5 +1,5 @@
 'use client';
-import { cn } from '@/libs/utils/cn';
+import { cn } from '@/modules_next/common/utils/cn';
 import { useEffect, useState } from 'react';
 import { Badge } from '@/modules_next/common/ui/Badge';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';

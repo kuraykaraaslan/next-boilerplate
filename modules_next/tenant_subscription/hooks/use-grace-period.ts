@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import axiosInstance from '@/libs/axios';
+import axiosInstance from '@/modules_next/common/axios';
 import type { GracePeriodStatus } from '@/modules/tenant_subscription/tenant_subscription.types';
 
 type UseGracePeriodState = {

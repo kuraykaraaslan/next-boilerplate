@@ -1,6 +1,6 @@
-import { env } from '@/libs/env';
+import { env } from '@/modules/env';
 import Logger from '@/modules/logger';
-import redis from '@/libs/redis';
+import redis from '@/modules/redis';
 
 // Providers
 import BaseAIProvider from './providers/base.provider';

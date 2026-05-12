@@ -1,10 +1,10 @@
-import { Redis } from "ioredis";
-import { env } from "@/libs/env";
+import { Redis } from 'ioredis';
+import { env } from '@/modules/env';
 
 export const redisConnectionOptions = {
   host: env.REDIS_HOST,
   port: env.REDIS_PORT,
-  password: env.REDIS_PASSWORD || "",
+  password: env.REDIS_PASSWORD || '',
   maxRetriesPerRequest: null as null, // Required by BullMQ
 };
 

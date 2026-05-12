@@ -1,8 +1,8 @@
 import 'reflect-metadata';
 import crypto from 'crypto';
 import { Queue, Worker, Job } from 'bullmq';
-import { getBullMQConnection } from '@/libs/redis/bullmq';
-import { getSystemDataSource } from '@/libs/typeorm';
+import { getBullMQConnection } from '@/modules/redis/redis.bullmq';
+import { getSystemDataSource } from '@/modules/db';
 import { SystemWebhook as SystemWebhookEntity } from './entities/system_webhook.entity';
 import { SystemWebhookDelivery as SystemWebhookDeliveryEntity } from './entities/system_webhook_delivery.entity';
 import { SafeSystemWebhookSchema, WebhookDeliverySchema } from './webhook.types';

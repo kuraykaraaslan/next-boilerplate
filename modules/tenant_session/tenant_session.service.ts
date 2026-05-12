@@ -1,10 +1,10 @@
 import 'reflect-metadata';
-import { env } from '@/libs/env';
+import { env } from '@/modules/env';
 import { IsNull } from 'typeorm';
-import { tenantDataSourceFor, getDefaultTenantDataSource } from '@/libs/typeorm';
+import { tenantDataSourceFor, getDefaultTenantDataSource } from '@/modules/db';
 import { Tenant as TenantEntity } from '@/modules/tenant/entities/tenant.entity';
 import { TenantMember as TenantMemberEntity } from '@/modules/tenant_member/entities/tenant_member.entity';
-import redis from '@/libs/redis';
+import redis from '@/modules/redis';
 import { SafeTenant, SafeTenantSchema } from '@/modules/tenant/tenant.types';
 import { SafeTenantMember, SafeTenantMemberSchema } from '@/modules/tenant_member/tenant_member.types';
 import { SafeUser } from '@/modules/user/user.types';

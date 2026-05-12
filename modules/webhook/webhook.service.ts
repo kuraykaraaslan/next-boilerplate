@@ -1,8 +1,8 @@
 import 'reflect-metadata';
 import crypto from 'crypto';
 import { Queue, Worker, Job } from 'bullmq';
-import { getBullMQConnection } from '@/libs/redis/bullmq';
-import { tenantDataSourceFor } from '@/libs/typeorm';
+import { getBullMQConnection } from '@/modules/redis/redis.bullmq';
+import { tenantDataSourceFor } from '@/modules/db';
 import { Webhook as WebhookEntity } from './entities/webhook.entity';
 import { WebhookDelivery as WebhookDeliveryEntity } from './entities/webhook_delivery.entity';
 import { SafeWebhookSchema, WebhookDeliverySchema } from './webhook.types';

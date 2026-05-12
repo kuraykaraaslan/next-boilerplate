@@ -1,4 +1,4 @@
-import { env } from '@/libs/env';
+import { env } from '@/modules/env';
 import nodemailer, { Transporter } from "nodemailer";
 import Logger from "@/modules/logger";
 import BaseMailProvider, { MailOptions, MailResult } from "./base.provider";

@@ -12,7 +12,7 @@ import { PageHeader } from '@/modules_next/common/ui/PageHeader';
 import { EmptyState } from '@/modules_next/common/ui/EmptyState';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faTag, faCreditCard } from '@fortawesome/free-solid-svg-icons';
-import api from '@/libs/axios';
+import api from '@/modules_next/common/axios';
 
 type Plan = {
   planId: string;

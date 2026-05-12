@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { ILike } from 'typeorm';
-import { getSystemDataSource } from '@/libs/typeorm';
+import { getSystemDataSource } from '@/modules/db';
 import { User as UserEntity } from './entities/user.entity';
 import { User, SafeUser, UpdateUser, SafeUserSchema, UserSchema } from './user.types';
 import type { UserRole, UserStatus } from './user.enums';

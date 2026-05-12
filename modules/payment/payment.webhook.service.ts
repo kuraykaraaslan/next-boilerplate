@@ -9,7 +9,7 @@ import SettingService from '@/modules/setting/setting.service';
 import TenantSubscriptionService from '@/modules/tenant_subscription/tenant_subscription.service';
 import AuditLogService from '@/modules/audit_log/audit_log.service';
 import Logger from '@/modules/logger';
-import { getDefaultTenantDataSource, tenantDataSourceFor } from '@/libs/typeorm';
+import { getDefaultTenantDataSource, tenantDataSourceFor } from '@/modules/db';
 import { Payment as PaymentEntity } from './entities/payment.entity';
 import { TenantSubscription as TenantSubscriptionEntity } from '../tenant_subscription/entities/tenant_subscription.entity';
 

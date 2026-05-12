@@ -1,8 +1,8 @@
 import 'reflect-metadata';
-import { env } from '@/libs/env';
+import { env } from '@/modules/env';
 import crypto from 'crypto';
 import { IsNull, LessThan, MoreThan } from 'typeorm';
-import { getSystemDataSource, tenantDataSourceFor, getDefaultTenantDataSource } from '@/libs/typeorm';
+import { getSystemDataSource, tenantDataSourceFor, getDefaultTenantDataSource } from '@/modules/db';
 import { User as UserEntity } from '../user/entities/user.entity';
 import { TenantInvitation as TenantInvitationEntity } from './entities/tenant_invitation.entity';
 import { Tenant as TenantEntity } from '../tenant/entities/tenant.entity';

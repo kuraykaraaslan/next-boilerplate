@@ -1,4 +1,4 @@
-import { cn } from '@/libs/utils/cn';
+import { cn } from '@/modules_next/common/utils/cn';
 
 type BrandLogoProps = {
   children?: React.ReactNode;

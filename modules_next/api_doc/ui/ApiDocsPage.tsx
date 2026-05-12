@@ -1,6 +1,6 @@
 'use client';
 import { useMemo } from 'react';
-import { cn } from '@/libs/utils/cn';
+import { cn } from '@/modules_next/common/utils/cn';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faFileContract, faArrowUpRightFromSquare, faShield } from '@fortawesome/free-solid-svg-icons';
 import { SecuritySchemeBadge } from './SecuritySchemeBadge';

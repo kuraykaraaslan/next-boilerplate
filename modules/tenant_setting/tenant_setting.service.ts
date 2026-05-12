@@ -1,8 +1,8 @@
 import 'reflect-metadata';
 import { In } from 'typeorm';
-import { tenantDataSourceFor } from '@/libs/typeorm';
+import { tenantDataSourceFor } from '@/modules/db';
 import { TenantSetting as TenantSettingEntity } from './entities/tenant_setting.entity';
-import redis from '@/libs/redis';
+import redis from '@/modules/redis';
 import SettingService from '@/modules/setting/setting.service';
 import { SettingSchema } from '@/modules/setting/setting.types';
 import type { Setting } from '@/modules/setting/setting.types';

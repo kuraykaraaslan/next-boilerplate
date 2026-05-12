@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { Not, IsNull, MoreThan } from 'typeorm';
 import UserSessionNextService from '@/modules_next/user_session/user_session.service.next';
-import { getSystemDataSource } from '@/libs/typeorm';
+import { getSystemDataSource } from '@/modules/db';
 import { UserSession as UserSessionEntity } from '@/modules/user_session/entities/user_session.entity';
 import { SafeUserSessionSchema } from '@/modules/user_session/user_session.types';
 

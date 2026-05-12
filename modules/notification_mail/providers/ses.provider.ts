@@ -1,4 +1,4 @@
-import { env } from '@/libs/env';
+import { env } from '@/modules/env';
 import axios from "axios";
 import crypto from "crypto";
 import Logger from "@/modules/logger";

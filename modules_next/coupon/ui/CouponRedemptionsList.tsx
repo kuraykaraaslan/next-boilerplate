@@ -6,7 +6,7 @@ import { EmptyState } from '@/modules_next/common/ui/EmptyState';
 import { CouponBadge } from './CouponBadge';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTag } from '@fortawesome/free-solid-svg-icons';
-import api from '@/libs/axios';
+import api from '@/modules_next/common/axios';
 
 type Redemption = {
   redemptionId: string;

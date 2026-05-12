@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { env } from '@/libs/env';
+import { env } from '@/modules/env';
 import TenantSubscriptionService from '@/modules/tenant_subscription/tenant_subscription.service';
 import Logger from '@/modules/logger';
 

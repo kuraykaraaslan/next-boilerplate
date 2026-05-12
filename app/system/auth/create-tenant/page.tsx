@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import api from '@/libs/axios';
+import api from '@/modules_next/common/axios';
 import { BrandLogo } from '@/modules_next/common/ui/BrandLogo';
 import { Form } from '@/modules_next/common/ui/Form';
 import { Input } from '@/modules_next/common/ui/Input';

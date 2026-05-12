@@ -1,6 +1,6 @@
 import { SAML } from '@node-saml/node-saml';
-import { tenantDataSourceFor } from '@/libs/typeorm';
-import { env } from '@/libs/env';
+import { tenantDataSourceFor } from '@/modules/db';
+import { env } from '@/modules/env';
 import { SamlConfig } from './entities/saml_config.entity';
 import { SafeSamlConfigSchema, type SafeSamlConfig, type SamlProfile, type SamlMetadata } from './auth_saml.types';
 import type { UpsertSamlConfigInput } from './auth_saml.dto';

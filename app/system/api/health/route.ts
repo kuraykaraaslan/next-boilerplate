@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
-import { SystemDataSource, getDefaultTenantDataSource } from '@/libs/typeorm';
-import redis from '@/libs/redis';
+import { SystemDataSource, getDefaultTenantDataSource } from '@/modules/db';
+import redis from '@/modules/redis';
 import { Queue } from 'bullmq';
-import { getBullMQConnection } from '@/libs/redis/bullmq';
+import { getBullMQConnection } from '@/modules/redis/redis.bullmq';
 
 type CheckStatus = 'ok' | 'error';
 

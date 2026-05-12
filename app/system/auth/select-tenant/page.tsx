@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import api from '@/libs/axios';
+import api from '@/modules_next/common/axios';
 import { BrandLogo } from '@/modules_next/common/ui/BrandLogo';
 import { Button } from '@/modules_next/common/ui/Button';
 import { Spinner } from '@/modules_next/common/ui/Spinner';

@@ -1,6 +1,5 @@
-// libs/redis/bullmq.ts
-import { ConnectionOptions } from "bullmq";
-import { env } from "@/libs/env";
+import { ConnectionOptions } from 'bullmq';
+import { env } from '@/modules/env';
 
 export function getBullMQConnection(): ConnectionOptions {
   return {

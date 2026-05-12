@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { getSystemDataSource } from '@/libs/typeorm';
+import { getSystemDataSource } from '@/modules/db';
 import { UserPreferences as UserPreferencesEntity } from './entities/user_preferences.entity';
 import { UserPreferences, UserPreferencesDefault, UserPreferencesSchema } from './user_preferences.types';
 
