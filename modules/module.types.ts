@@ -3,7 +3,6 @@
 // ============================================================================
 
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
-import { ComponentType } from 'react';
 
 // ============================================================================
 // Scope Type
@@ -24,18 +23,6 @@ export interface SettingsTabJson {
   scope?: ModuleScope;
   keys?: string | string[];
   permissions?: string[];
-}
-
-export interface SettingsTab {
-  id: string;
-  label: string;
-  icon: IconDefinition;
-  component: ComponentType<any>;
-  order: number;
-  scope: ModuleScope;
-  keys: readonly string[];
-  permissions: string[];
-  moduleId: string;
 }
 
 // ============================================================================
@@ -85,15 +72,6 @@ export interface RouteJson {
   permissions?: string[];
 }
 
-export interface Route {
-  path: string;
-  component: ComponentType<any>;
-  layout?: string;
-  middleware: string[];
-  permissions: string[];
-  moduleId: string;
-}
-
 // ============================================================================
 // API Endpoint
 // ============================================================================
@@ -134,17 +112,6 @@ export interface WidgetJson {
   size?: 'small' | 'medium' | 'large' | 'full';
   order?: number;
   permissions?: string[];
-}
-
-export interface Widget {
-  id: string;
-  name: string;
-  component: ComponentType<any>;
-  scope: ModuleScope;
-  size: 'small' | 'medium' | 'large' | 'full';
-  order: number;
-  permissions: string[];
-  moduleId: string;
 }
 
 // ============================================================================
@@ -205,42 +172,4 @@ export interface ModuleJson {
   hooks?: ModuleHooks;
   widgets?: WidgetJson[];
   exports?: Record<string, string>;
-}
-
-// ============================================================================
-// Loaded Module (runtime structure)
-// ============================================================================
-
-export interface LoadedModule {
-  id: string;
-  name: string;
-  description: string;
-  version: string;
-  author: string;
-  license: string;
-  icon?: IconDefinition;
-  tags: string[];
-  enabled: boolean;
-  priority: number;
-  path: string;
-  dependencies: ModuleDependencies;
-  settingsTabs: SettingsTab[];
-  menuItems: MenuItem[];
-  permissions: Permission[];
-  widgets: Widget[];
-}
-
-// ============================================================================
-// Module Registry
-// ============================================================================
-
-export interface ModuleRegistry {
-  modules: Map<string, LoadedModule>;
-  getModule(id: string): LoadedModule | undefined;
-  getEnabledModules(): LoadedModule[];
-  isModuleEnabled(id: string): boolean;
-  getSettingsTabs(scope?: ModuleScope): SettingsTab[];
-  getMenuItems(scope?: ModuleScope): MenuItem[];
-  getPermissions(): Permission[];
-  getWidgets(scope?: ModuleScope): Widget[];
 }

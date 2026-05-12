@@ -7,7 +7,7 @@ import { AppSidebar } from '@/modules_next/common/ui/layout/AppSidebar';
 import { AppTopBar } from '@/modules_next/common/ui/layout/AppTopBar';
 import { UserMenu } from '@/modules/user/ui/user.menu';
 import { NotificationMenu } from '@/modules_next/common/ui/NotificationMenu';
-import { useNotifications } from '@/modules/notification_inapp/use-notifications.hook';
+import { useNotifications } from '@/modules_next/notification_inapp/hooks/use-notifications.hook';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faUsers,
