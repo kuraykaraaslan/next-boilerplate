@@ -17,7 +17,7 @@ Production-ready multi-tenant SaaS starter built with Next.js 16, TypeScript, Po
 | Testing | Vitest + @testing-library/react |
 | File Storage | AWS S3 |
 | Email | Nodemailer |
-| Payments | Stripe |
+| Payments | Stripe, PayPal, Iyzico |
 
 ## Getting Started
 
@@ -73,49 +73,77 @@ See `.env.example` for the full list.
 ## Project Structure
 
 ```
-app/                     # Next.js App Router
-  system/                # System-scoped pages + API routes
-    admin/               # Admin dashboard
-    api/                 # System API handlers
-    auth/                # Auth pages (login, register, etc.)
-  tenant/[tenantId]/     # Tenant-scoped pages + API routes
-    admin/               # Tenant admin dashboard
-    api/                 # Tenant API handlers
-    auth/                # Tenant auth pages
+app/                          # Next.js App Router
+  system/                     # System-scoped pages + API routes
+    admin/                    # Admin dashboard (ai, api-docs, audit-logs, coupons,
+                              #   health, me, payments, plans, saml, settings, tenants, users, webhooks)
+    api/                      # System API handlers (auth, ai, audit-logs, coupons,
+                              #   cron, health, notifications, saml, settings, storage,
+                              #   subscriptions, tenant, tenants, users, webhooks)
+    auth/                     # Auth pages (login, register, forgot-password, callback,
+                              #   create-tenant, select-tenant, logout)
+    fleet/                    # Fleet management panel
+  tenant/[tenantId]/          # Tenant-scoped pages + API routes
+    admin/                    # Tenant admin dashboard
+    api/                      # Tenant API handlers
+    api-docs/                 # Tenant-scoped API documentation
+    auth/                     # Tenant auth pages
 
-modules/                 # Framework-agnostic business logic (service + DTO + types + entities)
-                         # No next/*, react, or browser API imports — shared with Express or any runtime
-  ai/                    # AI provider integrations
-  auth/                  # Authentication (login, register, OTP, TOTP)
-  auth_saml/             # SAML SSO
-  auth_sso/              # OAuth (Google, GitHub, etc.)
-  notification_mail/     # Email notifications
-  notification_push/     # Web push notifications
-  notification_sms/      # SMS notifications
-  payment/               # Payment processing
-  setting/               # System settings
-  storage/               # File uploads
-  tenant/                # Tenant management
-  tenant_member/         # Tenant membership
-  tenant_subscription/   # Subscription plans
-  user/                  # User management
-  user_session/          # Session management
-  webhook/               # Outgoing webhooks
+modules/                      # Framework-agnostic business logic
+                              # No next/*, react, or browser API imports
+  ai/                         # AI provider integrations (Anthropic, OpenAI, Google)
+  api_doc/                    # OpenAPI/Swagger spec helpers
+  api_key/                    # API key management
+  audit_log/                  # Audit log (system + tenant entities)
+  auth/                       # Authentication (login, register, OTP, TOTP, password)
+  auth_impersonation/         # Admin impersonation of users
+  auth_saml/                  # SAML SSO
+  auth_sso/                   # OAuth (Google, GitHub, Apple, Microsoft, Facebook,
+                              #   LinkedIn, Twitter, Slack, TikTok, WeChat, Autodesk)
+  common/                     # Shared utilities (AppError)
+  coupon/                     # Coupon & redemption (Stripe, PayPal, Iyzico providers)
+  db/                         # TypeORM DataSource setup (system + tenant)
+  env/                        # Typed env var access
+  limiter/                    # Rate limiting + tenant-plan limits
+  logger/                     # Winston logger
+  notification_inapp/         # In-app notifications
+  notification_mail/          # Email (SMTP, SES, Mailgun, Postmark, Resend, SendGrid)
+  notification_push/          # Web push notifications
+  notification_sms/           # SMS (Twilio, Nexmo, Clickatell, NetGSM)
+  payment/                    # Payment processing (Stripe, PayPal, Iyzico)
+  redis/                      # Redis client + BullMQ
+  redis_idempotency/          # Idempotency keys via Redis
+  setting/                    # System settings (key-value store)
+  storage/                    # File uploads (S3, R2, DigitalOcean Spaces, MinIO)
+  tenant/                     # Tenant management
+  tenant_branding/            # Tenant branding/white-label settings
+  tenant_domain/              # Custom domain management + DNS verification
+  tenant_export/              # Tenant data export
+  tenant_invitation/          # Tenant invitation flow
+  tenant_member/              # Tenant membership & roles
+  tenant_session/             # Tenant-scoped session handling
+  tenant_setting/             # Per-tenant settings
+  tenant_subscription/        # Subscription plans + feature keys
+  tenant_usage/               # Usage tracking
+  user/                       # User management
+  user_agent/                 # User-agent parsing
+  user_preferences/           # User preferences
+  user_profile/               # User profile
+  user_security/              # Security settings + passkeys
+  user_session/               # Session management (CRUD, cache, tokens)
+  user_social_account/        # Linked social accounts
+  webhook/                    # Outgoing webhooks (system + tenant)
 
-modules_next/            # Next.js-specific layer — extends modules/ with framework coupling
-                         # Dependency: app/ → modules_next/ → modules/
-  common/ui/             # Shared React components (Button, Modal, AdminShell, etc.)
-  common/module.types.ts # Runtime module types using React.ComponentType
-  <module>/ui/           # Module-scoped React components
-  <module>/hooks/        # Module-scoped React hooks
+modules_next/                 # Next.js-specific layer — extends modules/ with framework coupling
+                              # Dependency: app/ → modules_next/ → modules/
+  common/axios/               # axiosInstance with withCredentials
+  common/ui/                  # Shared React components (Button, Modal, Table, Toast, etc.)
+  common/utils/               # cn() and other client utilities
+  common/module.types.ts      # Runtime module types using React.ComponentType
+  module.types.ts             # Top-level module type exports
+  <module>/ui/                # Module-scoped React components
+  <module>/hooks/             # Module-scoped React hooks
   <module>/*.service.next.ts  # NextRequest/NextResponse service extensions
-
-libs/                    # Cross-cutting utilities
-  axios/                 # axiosInstance with withCredentials
-  logger/                # Winston logger
-  redis/                 # Redis client + BullMQ
-  typeorm/               # DataSource setup (system + tenant)
-  utils/                 # cn(), AppError, etc.
 ```
 
 ## Multi-Tenancy

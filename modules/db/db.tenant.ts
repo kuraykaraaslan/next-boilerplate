@@ -1,6 +1,8 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
 import { env } from '@/modules/env';
+import { parseDbUrl } from './db.utils';
+import { getSystemDataSource } from './db.system';
 import { TenantDatabase } from './entities/tenant_database.entity';
 import { Tenant } from '@/modules/tenant/entities/tenant.entity';
 import { TenantDomain } from '@/modules/tenant_domain/entities/tenant_domain.entity';
@@ -34,14 +36,27 @@ const TENANT_ENTITIES = [
   SamlConfig,
 ];
 
-function parseDbUrl(raw: string): { url: string; schema?: string } {
-  const match = raw.match(/[?&]schema=([^&]+)/);
-  const schema = match?.[1];
-  const url = raw.replace(/[?&]schema=[^&]+/, '').replace(/[?&]$/, '');
-  return { url, schema };
-}
-
 const { url: DEFAULT_TENANT_DB_URL, schema: DEFAULT_TENANT_SCHEMA } = parseDbUrl(env.TENANT_DATABASE_URL);
+
+export const defaultTenantDataSource = new DataSource({
+  type: 'postgres',
+  url: DEFAULT_TENANT_DB_URL,
+  schema: DEFAULT_TENANT_SCHEMA,
+  synchronize: false,
+  logging: env.NODE_ENV === 'development',
+  entities: TENANT_ENTITIES,
+  migrations: [],
+});
+
+let defaultInitialized = false;
+
+export async function getDefaultTenantDataSource(): Promise<DataSource> {
+  if (!defaultInitialized) {
+    await defaultTenantDataSource.initialize();
+    defaultInitialized = true;
+  }
+  return defaultTenantDataSource;
+}
 
 const MAX_CACHED = 100;
 const tenantCache = new Map<string, DataSource>();
@@ -55,7 +70,6 @@ function evictOldest(): void {
 export async function tenantDataSourceFor(tenantId: string): Promise<DataSource> {
   if (tenantCache.has(tenantId)) return tenantCache.get(tenantId)!;
 
-  const { getSystemDataSource } = await import('./db.system');
   const sys = await getSystemDataSource();
   const row = await sys.getRepository(TenantDatabase).findOne({ where: { tenantId } });
 
@@ -68,6 +82,7 @@ export async function tenantDataSourceFor(tenantId: string): Promise<DataSource>
     url,
     schema,
     synchronize: false,
+    logging: env.NODE_ENV === 'development',
     entities: TENANT_ENTITIES,
     migrations: [],
   });
@@ -80,23 +95,4 @@ export function clearTenantDsCache(tenantId: string): void {
   const ds = tenantCache.get(tenantId);
   tenantCache.delete(tenantId);
   ds?.destroy().catch(() => {});
-}
-
-export const defaultTenantDataSource = new DataSource({
-  type: 'postgres',
-  url: DEFAULT_TENANT_DB_URL,
-  schema: DEFAULT_TENANT_SCHEMA,
-  synchronize: false,
-  entities: TENANT_ENTITIES,
-  migrations: [],
-});
-
-let defaultInitialized = false;
-
-export async function getDefaultTenantDataSource(): Promise<DataSource> {
-  if (!defaultInitialized) {
-    await defaultTenantDataSource.initialize();
-    defaultInitialized = true;
-  }
-  return defaultTenantDataSource;
 }

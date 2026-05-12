@@ -149,18 +149,8 @@ export const LocalizationSettingKeySchema = z.enum([
 export type LocalizationSettingKey = z.infer<typeof LocalizationSettingKeySchema>;
 export const LOCALIZATION_KEYS = LocalizationSettingKeySchema.options;
 
-export interface SettingsTabProps {
-  settings: SettingsState;
-  setSettings: React.Dispatch<React.SetStateAction<SettingsState>>;
-  loading: boolean;
-  saving: boolean;
-  error: string | null;
-  isDirty: boolean;
-  saveSettings: () => Promise<void>;
-}
-
 // ============================================================================
-// Settings State (for frontend)
+// Settings State
 // ============================================================================
 
 export const SettingsStateSchema = z.record(z.string(), z.string());

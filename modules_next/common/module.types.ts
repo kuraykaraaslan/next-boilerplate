@@ -1,6 +1,6 @@
 import { ComponentType } from 'react';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
-import type { ModuleScope, MenuItem, Permission } from '@/modules/module.types';
+import type { ModuleScope, MenuItem, Permission } from '@/modules_next/module.types';
 
 export type { ModuleScope, MenuItem, Permission };
 
@@ -64,7 +64,7 @@ export interface LoadedModule {
   enabled: boolean;
   priority: number;
   path: string;
-  dependencies: import('@/modules/module.types').ModuleDependencies;
+  dependencies: import('@/modules_next/module.types').ModuleDependencies;
   settingsTabs: SettingsTab[];
   menuItems: MenuItem[];
   permissions: Permission[];
