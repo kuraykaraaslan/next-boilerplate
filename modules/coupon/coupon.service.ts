@@ -3,7 +3,7 @@ import { ILike } from 'typeorm';
 import { getSystemDataSource, tenantDataSourceFor } from '@/libs/typeorm';
 import { Coupon as CouponEntity } from './entities/coupon.entity';
 import { CouponRedemption as CouponRedemptionEntity } from './entities/coupon_redemption.entity';
-import Logger from '@/libs/logger';
+import Logger from '@/modules/logger';
 import { COUPON_MESSAGES } from './coupon.messages';
 import {
   CouponSchema,

@@ -19,7 +19,7 @@ vi.mock('@/libs/typeorm', () => ({
 }));
 
 vi.mock('@/libs/redis', () => ({ default: { get: vi.fn(), set: vi.fn(), del: vi.fn(), ping: vi.fn() } }));
-vi.mock('@/libs/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
+vi.mock('@/modules/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
 
 import ApiKeyService from './api_key.service';
 import { tenantDataSourceFor, getDefaultTenantDataSource } from '@/libs/typeorm';
@@ -37,10 +37,10 @@ const mockApiKey = {
   description: null,
   keyHash: 'abc123hash',
   keyPrefix: 'sk_live_abcd1234_5',
-  scopes: ['read'] as const,
+  scopes: ['read'] as ('read' | 'write' | 'admin')[],
   isActive: true,
   lastUsedAt: null,
-  expiresAt: null,
+  expiresAt: null as Date | null,
   createdAt: new Date('2024-01-01'),
   updatedAt: new Date('2024-01-01'),
 };

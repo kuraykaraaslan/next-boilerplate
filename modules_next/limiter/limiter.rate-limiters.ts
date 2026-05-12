@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Limiter from './limiter';
-import { checkTenantPlanRateLimit } from './limiter/tenant-plan-limiter';
-
-// Returns null when OK, NextResponse 429 when rate limited.
-// Usage: const rl = await apiRateLimiter(request); if (rl) return rl;
+import Limiter from './limiter.service.next';
+import { checkTenantPlanRateLimit } from '@/modules/limiter';
 
 export async function apiRateLimiter(request: NextRequest): Promise<NextResponse | null> {
   return Limiter.checkRateLimit(request, 'api');

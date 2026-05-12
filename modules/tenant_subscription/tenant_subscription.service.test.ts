@@ -30,7 +30,7 @@ vi.mock('@/libs/redis', () => ({
   },
 }));
 
-vi.mock('@/libs/logger', () => ({
+vi.mock('@/modules/logger', () => ({
   default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() },
 }));
 
@@ -100,7 +100,7 @@ const mockSubscription = {
   billingInterval: 'MONTHLY',
   currentPeriodStart: now,
   currentPeriodEnd: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000),
-  trialEndsAt: null,
+  trialEndsAt: null as Date | null,
   cancelledAt: null,
   gracePeriodEndsAt: null,
   createdAt: now,

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next';
 import TenantExportService from '@/modules/tenant_export/tenant_export.service';
-import Limiter from '@/libs/limiter';
-import Logger from '@/libs/logger';
+import Limiter from '@/modules_next/limiter/limiter.service.next';
+import Logger from '@/modules/logger';
 
 /**
  * POST /tenant/[tenantId]/api/export

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import SamlService from '@/modules/auth_saml/auth_saml.service';
-import Limiter from '@/libs/limiter';
+import Limiter from '@/modules_next/limiter/limiter.service.next';
 
 type Params = { params: Promise<{ tenantId: string }> };
 

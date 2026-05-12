@@ -26,7 +26,7 @@ vi.mock('bcrypt', () => ({
 }));
 
 vi.mock('@/libs/redis', () => ({ default: { get: vi.fn(), set: vi.fn(), del: vi.fn() } }));
-vi.mock('@/libs/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
+vi.mock('@/modules/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
 vi.mock('../notification_mail/notification_mail.service', () => ({ default: { sendEmail: vi.fn() } }));
 vi.mock('../tenant/tenant.service', () => ({ default: { provisionPersonal: vi.fn() } }));
 vi.mock('../tenant_invitation/tenant_invitation.service', () => ({ default: { autoAcceptForEmail: vi.fn() } }));

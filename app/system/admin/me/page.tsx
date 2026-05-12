@@ -8,11 +8,11 @@ import { Spinner } from '@/modules_next/common/ui/Spinner';
 import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
 import { Badge } from '@/modules_next/common/ui/Badge';
 import { Button } from '@/modules_next/common/ui/Button';
-import { UserProfileForm, type UserProfileValues } from '@/modules_next/user/ui/user.profile-form';
-import { UserPreferencesForm, type UserPreferencesValues } from '@/modules_next/user/ui/user.preferences-form';
-import { UserRoleBadge } from '@/modules_next/user/ui/user.role-badge';
-import { PasskeysPanel } from '@/modules_next/user_security/ui/user.passkeys-panel';
-import { SocialAccountsPanel } from '@/modules_next/user/ui/user.social-accounts-panel';
+import { UserProfileForm, type UserProfileValues } from '@/modules_next/user/ui/UserProfileForm';
+import { UserPreferencesForm, type UserPreferencesValues } from '@/modules_next/user/ui/UserPreferencesForm';
+import { UserRoleBadge } from '@/modules_next/user/ui/UserRoleBadge';
+import { PasskeysPanel } from '@/modules_next/user_security/ui/PasskeysPanel';
+import { SocialAccountsPanel } from '@/modules_next/user/ui/SocialAccountsPanel';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faEnvelope, faShieldHalved, faClock, faCircleCheck, faCircleXmark,

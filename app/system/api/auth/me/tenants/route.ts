@@ -1,9 +1,9 @@
 import 'reflect-metadata';
 import { IsNull, In, MoreThan } from 'typeorm';
 import { NextRequest, NextResponse } from 'next/server';
-import Logger from '@/libs/logger';
+import Logger from '@/modules/logger';
 import UserSessionNextService from '@/modules_next/user_session/user_session.service.next';
-import Limiter from '@/libs/limiter';
+import Limiter from '@/modules_next/limiter/limiter.service.next';
 import { getDefaultTenantDataSource, tenantDataSourceFor } from '@/libs/typeorm';
 import { TenantMember as TenantMemberEntity } from '@/modules/tenant_member/entities/tenant_member.entity';
 import { Tenant as TenantEntity } from '@/modules/tenant/entities/tenant.entity';

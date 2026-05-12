@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import PaymentWebhookService from '@/modules/payment/payment.webhook.service';
 import { PAYMENT_MESSAGES } from '@/modules/payment/payment.messages';
-import Logger from '@/libs/logger';
+import Logger from '@/modules/logger';
 
 /**
  * POST /system/api/webhooks/paypal

@@ -1,5 +1,5 @@
 import { env } from '@/libs/env';
-import Logger from "@/libs/logger";
+import Logger from "@/modules/logger";
 import ejs from "ejs";
 import path from "path";
 import { Queue, Worker, Job } from "bullmq";

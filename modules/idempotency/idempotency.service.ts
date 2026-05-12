@@ -27,7 +27,7 @@ export class IdempotencyKey {
 
   static async setCompleted(
     idempotencyKey: string,
-    response: { body: unknown; statusCode: number }
+    response: { body: unknown; statusCode: number },
   ): Promise<void> {
     const record: IdempotencyRecord = { status: 'completed', response };
     await redis.set(IdempotencyKey.key(idempotencyKey), JSON.stringify(record), 'EX', TTL_SECONDS);

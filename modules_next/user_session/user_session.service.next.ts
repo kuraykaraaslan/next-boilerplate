@@ -1,4 +1,4 @@
-import Logger from '@/libs/logger';
+import Logger from '@/modules/logger';
 import { env } from '@/libs/env';
 // Utils
 import { SafeUserSession, SafeUserSessionSchema, type SessionMeta } from '@/modules/user_session/user_session.types';

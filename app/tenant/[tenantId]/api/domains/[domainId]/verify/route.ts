@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import TenantDomainService from "@/modules/tenant_domain/tenant_domain.service";
 import TenantSessionNextService from "@/modules_next/tenant_session/tenant_session.service.next";
-import Limiter from "@/libs/limiter";
+import Limiter from "@/modules_next/limiter/limiter.service.next";
 
 /**
  * POST /tenant/[tenantId]/api/domains/[domainId]/verify

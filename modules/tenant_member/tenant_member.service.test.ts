@@ -19,7 +19,7 @@ vi.mock('@/libs/typeorm', () => ({
 }));
 
 vi.mock('@/libs/redis', () => ({ default: { get: vi.fn(), set: vi.fn(), del: vi.fn(), ping: vi.fn() } }));
-vi.mock('@/libs/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
+vi.mock('@/modules/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
 
 import { getSystemDataSource, tenantDataSourceFor, getDefaultTenantDataSource } from '@/libs/typeorm';
 import TenantMemberService from './tenant_member.service';

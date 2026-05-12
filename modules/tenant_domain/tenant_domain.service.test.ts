@@ -24,7 +24,7 @@ vi.mock('@/libs/typeorm', () => ({
 vi.mock('@/libs/redis', () => ({
   default: { get: vi.fn(async () => null), set: vi.fn(), del: vi.fn(), setex: vi.fn(), ping: vi.fn() },
 }));
-vi.mock('@/libs/logger', () => ({
+vi.mock('@/modules/logger', () => ({
   default: { info: vi.fn(), error: vi.fn(), warn: vi.fn(), debug: vi.fn() },
 }));
 vi.mock('./dns_verification.service', () => ({

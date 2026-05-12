@@ -23,7 +23,7 @@ vi.mock('bcrypt', () => ({
 }));
 
 vi.mock('@/libs/redis', () => ({ default: { get: vi.fn(), set: vi.fn(), del: vi.fn(), ping: vi.fn() } }));
-vi.mock('@/libs/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
+vi.mock('@/modules/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
 
 import { getSystemDataSource } from '@/libs/typeorm';
 import UserService from './user.service';
@@ -51,8 +51,8 @@ function clean(obj: any) {
 }
 
 function buildRepoMock(overrides: Record<string, any> = {}) {
-  const findOne = vi.fn(async () => null);
-  const find = vi.fn(async () => []);
+  const findOne = vi.fn(async () => null as typeof mockUserEntity | null);
+  const find = vi.fn(async () => [] as typeof mockUserEntity[]);
   const count = vi.fn(async () => 0);
   const save = vi.fn(async (u: any) => ({ ...mockUserEntity, ...clean(u) }));
   const create = vi.fn((data: any) => ({ ...mockUserEntity, ...clean(data) }));

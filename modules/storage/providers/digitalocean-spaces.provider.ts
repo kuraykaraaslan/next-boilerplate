@@ -1,7 +1,7 @@
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
 import BaseStorageProvider from './base.provider'
 import type { UploadOptions, UploadFromUrlOptions, ProviderUploadResult, S3Config } from '../storage.types'
-import Logger from '@/libs/logger'
+import Logger from '@/modules/logger'
 import { v4 as uuidv4 } from 'uuid'
 import { StorageFolderSchema, StorageExtensionSchema, StorageMimeTypeSchema } from '../storage.enums'
 

@@ -9,7 +9,7 @@ import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
 import { Pagination } from '@/modules_next/common/ui/Pagination';
 import { PageHeader } from '@/modules_next/common/ui/PageHeader';
 import { EmptyState } from '@/modules_next/common/ui/EmptyState';
-import { PaymentStatusBadge, type PaymentStatus } from '@/modules_next/payment/ui/payment.status-badge';
+import { PaymentStatusBadge, type PaymentStatus } from '@/modules_next/payment/ui/PaymentStatusBadge';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faCreditCard } from '@fortawesome/free-solid-svg-icons';
 

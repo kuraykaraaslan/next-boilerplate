@@ -1,4 +1,4 @@
-import Limiter from '@/libs/limiter';
+import Limiter from '@/modules_next/limiter/limiter.service.next';
 // path: app/tenant/[tenantId]/api/auth/refresh/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import UserSessionService from "@/modules/user_session/user_session.service";

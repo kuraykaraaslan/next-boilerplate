@@ -1,4 +1,4 @@
-import Limiter from '@/libs/limiter';
+import Limiter from '@/modules_next/limiter/limiter.service.next';
 import { env } from '@/libs/env';
 // Original path: app/api/auth/callback/route.ts
 

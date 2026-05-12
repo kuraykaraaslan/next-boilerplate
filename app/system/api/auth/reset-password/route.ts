@@ -1,10 +1,10 @@
-import Logger from '@/libs/logger';
+import Logger from '@/modules/logger';
 // Original path: app/api/auth/login/route.ts
 
  
 import { NextRequest, NextResponse } from "next/server";
 import UserSessionMessages from "@/modules/user_session/user_session.messages";
-import Limiter from "@/libs/limiter";
+import Limiter from "@/modules_next/limiter/limiter.service.next";
 import PasswordService from "@/modules/auth/auth.password.service";
 import { ResetPasswordDTO } from "@/modules/auth/auth.dto";
 import AuthMessages from "@/modules/auth/auth.messages";

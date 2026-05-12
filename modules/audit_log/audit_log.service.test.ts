@@ -18,11 +18,11 @@ vi.mock('@/libs/typeorm', () => ({
 }));
 
 vi.mock('@/libs/redis', () => ({ default: { get: vi.fn(), set: vi.fn(), del: vi.fn(), ping: vi.fn() } }));
-vi.mock('@/libs/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
+vi.mock('@/modules/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
 
 import AuditLogService from './audit_log.service';
 import { getSystemDataSource, tenantDataSourceFor } from '@/libs/typeorm';
-import Logger from '@/libs/logger';
+import Logger from '@/modules/logger';
 
 const TENANT_ID = '550e8400-e29b-41d4-a716-446655440000';
 const ACTOR_ID = '660e8400-e29b-41d4-a716-446655440001';
@@ -71,7 +71,7 @@ describe('AuditLogService.log', () => {
 
   it('does not throw even when DB save fails (swallows errors)', async () => {
     (getSystemDataSource as any).mockRejectedValue(new Error('DB down'));
-    await expect(AuditLogService.log({ action: 'auth.login' })).resolves.toBeUndefined();
+    await expect(AuditLogService.log({ action: 'auth.login', actorType: 'SYSTEM' })).resolves.toBeUndefined();
     expect((Logger as any).error).toHaveBeenCalled();
   });
 
@@ -119,7 +119,7 @@ describe('AuditLogService.getAll', () => {
     (getSystemDataSource as any).mockResolvedValue({ getRepository: () => repo });
 
     await AuditLogService.getAll({ actorId: ACTOR_ID, page: 1, pageSize: 20 });
-    const findCall = repo.find.mock.calls[0][0];
+    const findCall = (repo.find.mock.calls as any[][])[0]![0];
     expect(findCall.where.actorId).toBe(ACTOR_ID);
   });
 });

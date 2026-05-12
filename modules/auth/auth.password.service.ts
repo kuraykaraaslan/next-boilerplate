@@ -5,7 +5,7 @@ import bcrypt from 'bcrypt';
 import redis from '@/libs/redis';
 import { getSystemDataSource } from '@/libs/typeorm';
 import { User as UserEntity } from '../user/entities/user.entity';
-import Logger from '@/libs/logger';
+import Logger from '@/modules/logger';
 import UserService from '../user/user.service';
 import MailService from '../notification_mail/notification_mail.service';
 import AuthMessages from './auth.messages';

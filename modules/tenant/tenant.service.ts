@@ -6,7 +6,7 @@ import { SafeTenant, SafeTenantSchema } from './tenant.types';
 import { CreateTenantInput, UpdateTenantInput, GetTenantsInput } from './tenant.dto';
 import TenantMessages from './tenant.messages';
 import TenantMemberService from '../tenant_member/tenant_member.service';
-import Logger from '@/libs/logger';
+import Logger from '@/modules/logger';
 
 export default class TenantService {
 

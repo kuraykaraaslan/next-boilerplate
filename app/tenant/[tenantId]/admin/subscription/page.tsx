@@ -10,8 +10,8 @@ import { Button } from '@/modules_next/common/ui/Button';
 import { Badge } from '@/modules_next/common/ui/Badge';
 import { Modal } from '@/modules_next/common/ui/Modal';
 import { RadioGroup } from '@/modules_next/common/ui/RadioGroup';
-import { SubscriptionPlanCard } from '@/modules_next/tenant_subscription/ui/subscription.plan-card';
-import { GracePeriodBanner } from '@/modules_next/tenant_subscription/ui/subscription.grace-banner';
+import { SubscriptionPlanCard } from '@/modules_next/tenant_subscription/ui/SubscriptionPlanCard';
+import { GracePeriodBanner } from '@/modules_next/tenant_subscription/ui/GracePeriodBanner';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faCreditCard, faWarning, faCalendar, faFlask,

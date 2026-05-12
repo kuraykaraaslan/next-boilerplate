@@ -1,5 +1,5 @@
-import Limiter from '@/libs/limiter';
-import Logger from '@/libs/logger';
+import Limiter from '@/modules_next/limiter/limiter.service.next';
+import Logger from '@/modules/logger';
 // Original path: app/api/auth/logout/route.ts
 
  

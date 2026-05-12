@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Spinner } from '@/modules_next/common/ui/Spinner';
 import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
 import { EmptyState } from '@/modules_next/common/ui/EmptyState';
-import { CouponBadge } from './coupon.badge';
+import { CouponBadge } from './CouponBadge';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTag } from '@fortawesome/free-solid-svg-icons';
 import api from '@/libs/axios';

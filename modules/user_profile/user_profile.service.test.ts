@@ -16,7 +16,7 @@ vi.mock('@/libs/typeorm', () => ({
 }));
 
 vi.mock('@/libs/redis', () => ({ default: { get: vi.fn(), set: vi.fn(), del: vi.fn(), ping: vi.fn() } }));
-vi.mock('@/libs/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
+vi.mock('@/modules/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
 
 import { getSystemDataSource } from '@/libs/typeorm';
 import UserProfileService from './user_profile.service';
@@ -26,8 +26,8 @@ const LINK_ID = '00000000-0000-1000-8000-000000000002';
 
 const mockSocialLink = {
   id: LINK_ID,
-  platform: 'GITHUB',
-  url: 'https://github.com/johndoe',
+  platform: 'GITHUB' as const,
+  url: 'https://github.com/johndoe' as string | null,
   order: 0,
 };
 
@@ -45,7 +45,7 @@ function clean(obj: any) {
 }
 
 function buildRepoMock(overrides: Record<string, any> = {}) {
-  const findOne = vi.fn(async () => null);
+  const findOne = vi.fn(async () => null as typeof mockProfileEntity | null);
   const save = vi.fn(async (data: any) => ({ ...mockProfileEntity, ...clean(data) }));
   const create = vi.fn((data: any) => ({ ...mockProfileEntity, ...clean(data) }));
   const update = vi.fn(async () => ({ affected: 1 }));
@@ -182,8 +182,8 @@ describe('UserProfileService.addSocialLink', () => {
 
   it('appends the new link and returns updated profile', async () => {
     const repo = buildRepoMock();
-    const newLink = { id: '550e8400-e29b-41d4-a716-446655440001', platform: 'LINKEDIN', url: 'https://linkedin.com/in/john', order: 1 };
-    const updatedProfile = { ...mockProfileEntity, socialLinks: [mockSocialLink, newLink] };
+    const newLink = { id: '550e8400-e29b-41d4-a716-446655440001', platform: 'LINKEDIN' as const, url: 'https://linkedin.com/in/john' as string | null, order: 1 };
+    const updatedProfile = { ...mockProfileEntity, socialLinks: [mockSocialLink, newLink] as typeof mockProfileEntity['socialLinks'] };
 
     repo.findOne
       .mockResolvedValueOnce(mockProfileEntity)

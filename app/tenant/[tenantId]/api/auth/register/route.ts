@@ -4,7 +4,7 @@ import AuthService from "@/modules/auth/auth.service";
 import TenantMemberService from "@/modules/tenant_member/tenant_member.service";
 import TenantService from "@/modules/tenant/tenant.service";
 import TenantSettingService from "@/modules/tenant_setting/tenant_setting.service";
-import Limiter from "@/libs/limiter";
+import Limiter from "@/modules_next/limiter/limiter.service.next";
 import { RegisterDTO } from "@/modules/auth/auth.dto";
 
 export async function POST(

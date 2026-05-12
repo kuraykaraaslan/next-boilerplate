@@ -1,5 +1,5 @@
 import redis from "@/libs/redis";
-import Logger from "@/libs/logger";
+import Logger from "@/modules/logger";
 
 export default class UserSessionCacheService {
   static async clearUserSessionCache(userId: string): Promise<void> {

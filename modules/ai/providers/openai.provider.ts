@@ -1,5 +1,5 @@
 import BaseAIProvider from './base.provider';
-import Logger from '@/libs/logger';
+import Logger from '@/modules/logger';
 import type {
   ChatCompletionOptions,
   ChatCompletionResponse,

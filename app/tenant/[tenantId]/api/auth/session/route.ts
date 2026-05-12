@@ -1,8 +1,8 @@
-import Logger from '@/libs/logger';
+import Logger from '@/modules/logger';
 // path: app/tenant/[tenantId]/api/auth/session/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import TenantSessionNextService from "@/modules_next/tenant_session/tenant_session.service.next";
-import Limiter from "@/libs/limiter";
+import Limiter from "@/modules_next/limiter/limiter.service.next";
 import AuthMessages from "@/modules/auth/auth.messages";
 
 export async function GET(

@@ -4,7 +4,7 @@ import BaseCouponProvider, { CouponProviderSyncResult } from './base.coupon.prov
 import SettingService from '@/modules/setting/setting.service'
 import { COUPON_MESSAGES } from '../coupon.messages'
 import type { Coupon, CouponValidationResult } from '../coupon.types'
-import Logger from '@/libs/logger'
+import Logger from '@/modules/logger'
 
 export default class StripeCouponProvider extends BaseCouponProvider {
   readonly name = 'stripe'

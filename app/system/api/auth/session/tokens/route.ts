@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import UserSessionNextService from "@/modules_next/user_session/user_session.service.next";
-import Limiter from "@/libs/limiter";
+import Limiter from "@/modules_next/limiter/limiter.service.next";
 
 export async function GET(request: NextRequest) {
     try {

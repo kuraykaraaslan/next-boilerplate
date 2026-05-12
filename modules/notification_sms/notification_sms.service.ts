@@ -1,5 +1,5 @@
 import { env } from '@/libs/env';
-import Logger from "@/libs/logger";
+import Logger from "@/modules/logger";
 import { Queue, Worker, Job } from "bullmq";
 import { getBullMQConnection } from "@/libs/redis/bullmq";
 import redis from "@/libs/redis";

@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import UserSessionNextService from "@/modules_next/user_session/user_session.service.next";
 import UserPreferencesService from "@/modules/user_preferences/user_preferences.service";
-import Limiter from "@/libs/limiter";
+import Limiter from "@/modules_next/limiter/limiter.service.next";
 import { UpdatePreferencesRequestSchema } from "@/modules/user_preferences/user_preferences.dto";
 import UserSessionMessages from "@/modules/user_session/user_session.messages";
 import AuthMessages from "@/modules/auth/auth.messages";

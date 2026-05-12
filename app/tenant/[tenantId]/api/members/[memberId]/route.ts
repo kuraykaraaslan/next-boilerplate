@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import TenantMemberService from "@/modules/tenant_member/tenant_member.service";
 import TenantSessionNextService from "@/modules_next/tenant_session/tenant_session.service.next";
-import Limiter from "@/libs/limiter";
+import Limiter from "@/modules_next/limiter/limiter.service.next";
 
 /**
  * GET /tenant/[tenantId]/api/members/[memberId]

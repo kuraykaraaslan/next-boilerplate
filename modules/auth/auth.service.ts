@@ -5,7 +5,7 @@ import { getSystemDataSource } from '@/libs/typeorm';
 import { User as UserEntity } from '../user/entities/user.entity';
 import bcrypt from 'bcrypt';
 import redis from '@/libs/redis';
-import Logger from '@/libs/logger';
+import Logger from '@/modules/logger';
 import UserService from '../user/user.service';
 import TenantService from '../tenant/tenant.service';
 import TenantInvitationService from '../tenant_invitation/tenant_invitation.service';

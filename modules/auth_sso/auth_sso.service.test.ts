@@ -34,7 +34,7 @@ vi.mock('@/libs/redis', () => ({
   default: { get: vi.fn(), set: vi.fn(), del: vi.fn(), ping: vi.fn() },
 }));
 
-vi.mock('@/libs/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
+vi.mock('@/modules/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
 
 // Mock SSO config
 vi.mock('./auth_sso.config', () => ({
@@ -53,8 +53,8 @@ const mockProviderInstance = {
   getTokens: vi.fn(async () => ({ accessToken: 'access-token-123', refreshToken: 'refresh-token-456' })),
   getUserInfo: vi.fn(async () => ({
     sub: 'provider-user-id',
-    email: 'sso@example.com',
-    name: 'SSO User',
+    email: 'sso@example.com' as string | null,
+    name: 'SSO User' as string | null,
     picture: null,
     provider: 'google',
   })),
@@ -241,6 +241,8 @@ describe('SSOService.authenticateOrRegister', () => {
     mockProviderInstance.getUserInfo.mockResolvedValue({
       sub: 'provider-user-id',
       email: null,
+      name: null,
+      picture: null,
       provider: 'google',
     });
 

@@ -1,6 +1,6 @@
 import { env } from '@/libs/env';
 import axios, { AxiosInstance } from "axios";
-import Logger from "@/libs/logger";
+import Logger from "@/modules/logger";
 import BaseMailProvider, { MailOptions, MailResult } from "./base.provider";
 
 export default class PostmarkProvider extends BaseMailProvider {

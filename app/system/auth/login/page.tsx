@@ -2,8 +2,8 @@
 import { useState } from 'react';
 import api from '@/libs/axios';
 import { BrandLogo } from '@/modules_next/common/ui/BrandLogo';
-import { LoginForm } from '@/modules_next/auth/ui/auth.login';
-import { OAuthButtons } from '@/modules_next/auth/ui/auth.oauth-buttons';
+import { LoginForm } from '@/modules_next/auth/ui/LoginForm';
+import { OAuthButtons } from '@/modules_next/auth/ui/OAuthButtons';
 
 export default function SystemLoginPage() {
   const [successMsg, setSuccessMsg] = useState('');

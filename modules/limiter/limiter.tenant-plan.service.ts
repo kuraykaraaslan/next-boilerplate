@@ -15,7 +15,6 @@ export async function checkTenantPlanRateLimit(
   const key = `tenant:${tenantId}:ratelimit`;
   const member = `${now}:${Math.random().toString(36).slice(2)}`;
 
-  // Use pipeline: remove old entries, add current, count, set TTL
   const pipe = redis.pipeline();
   pipe.zremrangebyscore(key, '-inf', windowStart);
   pipe.zadd(key, now, member);
@@ -23,7 +22,6 @@ export async function checkTenantPlanRateLimit(
   pipe.expire(key, 61);
   const results = await pipe.exec();
 
-  // results[2] is the ZCARD result — [error, count]
   const count = (results?.[2]?.[1] as number) ?? 0;
 
   return {

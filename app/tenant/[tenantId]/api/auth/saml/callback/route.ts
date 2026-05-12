@@ -7,7 +7,7 @@ import UserSecurityService from '@/modules/user_security/user_security.service';
 import TenantMemberService from '@/modules/tenant_member/tenant_member.service';
 import TenantService from '@/modules/tenant/tenant.service';
 import MailService from '@/modules/notification_mail/notification_mail.service';
-import Limiter from '@/libs/limiter';
+import Limiter from '@/modules_next/limiter/limiter.service.next';
 import { env } from '@/libs/env';
 
 type Params = { params: Promise<{ tenantId: string }> };

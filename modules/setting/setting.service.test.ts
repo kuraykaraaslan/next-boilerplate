@@ -26,7 +26,7 @@ vi.mock('@/libs/redis', () => ({
   },
 }));
 
-vi.mock('@/libs/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
+vi.mock('@/modules/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
 
 import SettingService from './setting.service';
 import { getSystemDataSource } from '@/libs/typeorm';

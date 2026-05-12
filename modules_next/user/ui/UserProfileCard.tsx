@@ -1,8 +1,8 @@
 'use client';
 import { cn } from '@/libs/utils/cn';
 import { Avatar } from '@/modules_next/common/ui/Avatar';
-import { UserRoleBadge } from './user.role-badge';
-import { UserStatusBadge } from './user.status-badge';
+import { UserRoleBadge } from './UserRoleBadge';
+import { UserStatusBadge } from './UserStatusBadge';
 import type { SafeUser } from '@/modules/user/user.types';
 
 export function UserProfileCard({

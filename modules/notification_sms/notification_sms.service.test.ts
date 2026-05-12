@@ -36,7 +36,7 @@ vi.mock('@/libs/redis', () => ({
   },
 }));
 
-vi.mock('@/libs/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
+vi.mock('@/modules/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
 
 vi.mock('bullmq', () => ({
   Queue: class MockQueue {

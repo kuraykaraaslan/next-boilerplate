@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import { IsNull, LessThan } from 'typeorm';
 import { tenantDataSourceFor, getDefaultTenantDataSource } from '@/libs/typeorm';
 import { Tenant } from './entities/tenant.entity';
-import Logger from '@/libs/logger';
+import Logger from '@/modules/logger';
 
 const DELETION_GRACE_DAYS = 30;
 

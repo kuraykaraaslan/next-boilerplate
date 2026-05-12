@@ -6,7 +6,7 @@ import { Card } from '@/modules_next/common/ui/Card';
 import { Spinner } from '@/modules_next/common/ui/Spinner';
 import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
 import { TabGroup } from '@/modules_next/common/ui/TabGroup';
-import { AIChatBox } from '@/modules_next/ai/ui/ai.chat-box';
+import { AIChatBox } from '@/modules_next/ai/ui/AIChatBox';
 import { Badge } from '@/modules_next/common/ui/Badge';
 import { DateRangePicker, DateRange } from '@/modules_next/common/ui/DateRangePicker';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';

@@ -1,6 +1,6 @@
 import { OSName, DeviceType, BrowserName } from './user_agent.enums';
 import { GeoLocation, DeviceInfo } from './user_agent.types';
-import Logger from '@/libs/logger';
+import Logger from '@/modules/logger';
 
 export default class UserAgentService {
   /**

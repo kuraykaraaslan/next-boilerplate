@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import UserSessionNextService from "@/modules_next/user_session/user_session.service.next";
 import SMSService from "@/modules/notification_sms/notification_sms.service";
-import Limiter from "@/libs/limiter";
+import Limiter from "@/modules_next/limiter/limiter.service.next";
 import { z } from "zod";
 
 const SendSMSDTO = z.object({

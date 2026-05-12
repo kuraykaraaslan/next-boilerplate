@@ -10,7 +10,7 @@ import type { SafeSystemWebhook, WebhookDelivery } from './webhook.types';
 import type { CreateWebhookInput, UpdateWebhookInput, ListWebhooksInput, ListDeliveriesInput } from './webhook.dto';
 import type { SystemWebhookEvent } from './webhook.enums';
 import WebhookMessages from './webhook.messages';
-import Logger from '@/libs/logger';
+import Logger from '@/modules/logger';
 
 interface SystemDeliveryJobData {
   deliveryId: string;

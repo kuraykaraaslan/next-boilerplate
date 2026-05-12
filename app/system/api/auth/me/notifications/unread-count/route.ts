@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import UserSessionNextService from "@/modules_next/user_session/user_session.service.next";
 import NotificationInAppService from "@/modules/notification_inapp/notification_inapp.service";
-import Limiter from "@/libs/limiter";
+import Limiter from "@/modules_next/limiter/limiter.service.next";
 
 /**
  * GET /system/api/auth/me/notifications/unread-count

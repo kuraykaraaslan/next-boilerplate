@@ -4,7 +4,7 @@ import { env } from '@/libs/env';
 import { getDefaultTenantDataSource, tenantDataSourceFor } from '@/libs/typeorm';
 import { TenantDomain as TenantDomainEntity } from './entities/tenant_domain.entity';
 import redis from '@/libs/redis';
-import Logger from '@/libs/logger';
+import Logger from '@/modules/logger';
 import { SafeTenantDomain, SafeTenantDomainSchema, DomainVerificationInfo } from './tenant_domain.types';
 import { CreateTenantDomainInput, UpdateTenantDomainInput, GetTenantDomainsInput, InitiateVerificationInput } from './tenant_domain.dto';
 import TenantDomainMessages from './tenant_domain.messages';

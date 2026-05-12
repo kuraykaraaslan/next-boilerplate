@@ -18,7 +18,7 @@ vi.mock('@/libs/typeorm', () => ({
 }));
 
 vi.mock('@/libs/redis', () => ({ default: { get: vi.fn(), set: vi.fn(), del: vi.fn(), ping: vi.fn() } }));
-vi.mock('@/libs/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
+vi.mock('@/modules/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
 
 import CouponService from './coupon.service';
 import { getSystemDataSource, tenantDataSourceFor } from '@/libs/typeorm';
@@ -36,15 +36,15 @@ const mockCoupon = {
   discountType: 'PERCENTAGE' as const,
   discountValue: 20,
   currency: null,
-  applicablePlanIds: null,
+  applicablePlanIds: null as string[] | null,
   applicableProviders: null,
-  maxUses: null,
-  maxUsesPerTenant: null,
+  maxUses: null as number | null,
+  maxUsesPerTenant: null as number | null,
   usedCount: 0,
-  minimumAmount: null,
-  status: 'ACTIVE' as const,
-  startsAt: null,
-  expiresAt: null,
+  minimumAmount: null as number | null,
+  status: 'ACTIVE' as 'ACTIVE' | 'INACTIVE',
+  startsAt: null as Date | null,
+  expiresAt: null as Date | null,
   createdAt: new Date('2024-01-01'),
   updatedAt: new Date('2024-01-01'),
 };

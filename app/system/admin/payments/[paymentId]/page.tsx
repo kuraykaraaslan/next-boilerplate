@@ -10,8 +10,8 @@ import { Breadcrumb } from '@/modules_next/common/ui/Breadcrumb';
 import { Modal } from '@/modules_next/common/ui/Modal';
 import { Input } from '@/modules_next/common/ui/Input';
 import { PageHeader } from '@/modules_next/common/ui/PageHeader';
-import { PaymentSummaryCard } from '@/modules_next/payment/ui/payment.summary-card';
-import { PaymentStatusBadge, type PaymentStatus } from '@/modules_next/payment/ui/payment.status-badge';
+import { PaymentSummaryCard } from '@/modules_next/payment/ui/PaymentSummaryCard';
+import { PaymentStatusBadge, type PaymentStatus } from '@/modules_next/payment/ui/PaymentStatusBadge';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowRotateLeft, faMoneyBill } from '@fortawesome/free-solid-svg-icons';
 

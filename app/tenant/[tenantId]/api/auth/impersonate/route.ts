@@ -4,7 +4,7 @@ import TenantSessionNextService from "@/modules_next/tenant_session/tenant_sessi
 import ImpersonationService from "@/modules/auth_impersonation/impersonation.service";
 import ImpersonationMessages from "@/modules/auth_impersonation/impersonation.messages";
 import { StartTenantImpersonationDTO } from "@/modules/auth_impersonation/impersonation.dto";
-import Limiter from "@/libs/limiter";
+import Limiter from "@/modules_next/limiter/limiter.service.next";
 
 function getCookieOptions(request: NextRequest, maxAge: number) {
   const origin = request.headers.get("origin") || "";

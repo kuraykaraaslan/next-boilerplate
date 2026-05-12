@@ -46,7 +46,7 @@ vi.mock('@/libs/redis', () => ({
   })),
 }));
 
-vi.mock('@/libs/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
+vi.mock('@/modules/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
 
 vi.mock('../notification_push/notification_push.service', () => ({
   default: {

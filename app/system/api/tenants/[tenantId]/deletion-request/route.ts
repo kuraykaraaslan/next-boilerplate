@@ -2,8 +2,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import UserSessionNextService from '@/modules_next/user_session/user_session.service.next';
 import TenantDeletionService from '@/modules/tenant/tenant.deletion.service';
-import Limiter from '@/libs/limiter';
-import Logger from '@/libs/logger';
+import Limiter from '@/modules_next/limiter/limiter.service.next';
+import Logger from '@/modules/logger';
 
 /**
  * POST /system/api/tenants/[tenantId]/deletion-request

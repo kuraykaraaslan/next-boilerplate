@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import Limiter from "@/libs/limiter";
+import Limiter from "@/modules_next/limiter/limiter.service.next";
 import UserSessionNextService from "@/modules_next/user_session/user_session.service.next";
 import AuthService from "@/modules/auth/auth.service";
 import AuthMessages from "@/modules/auth/auth.messages";

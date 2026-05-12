@@ -4,7 +4,7 @@ import TenantInvitationService from "@/modules/tenant_invitation/tenant_invitati
 import { SendInvitationDTO, GetInvitationsDTO } from "@/modules/tenant_invitation/tenant_invitation.dto";
 import TenantSessionNextService from "@/modules_next/tenant_session/tenant_session.service.next";
 import MailService from "@/modules/notification_mail/notification_mail.service";
-import Limiter from "@/libs/limiter";
+import Limiter from "@/modules_next/limiter/limiter.service.next";
 import TenantMemberService from "@/modules/tenant_member/tenant_member.service";
 import TenantSubscriptionService from "@/modules/tenant_subscription/tenant_subscription.service";
 import { FEATURE_KEYS } from "@/modules/tenant_subscription/tenant_subscription.feature-keys";

@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import UserSessionNextService from "@/modules_next/user_session/user_session.service.next";
 import UserSecurityPasskeyService from "@/modules/user_security/user_security.passkey.service";
-import Limiter from "@/libs/limiter";
+import Limiter from "@/modules_next/limiter/limiter.service.next";
 
 /**
  * DELETE /system/api/auth/me/security/passkeys/[credentialId]

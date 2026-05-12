@@ -1,4 +1,4 @@
-import Logger from '@/libs/logger'
+import Logger from '@/modules/logger'
 import BaseStorageProvider from './providers/base.provider'
 import AWSS3Provider from './providers/aws-s3.provider'
 import CloudflareR2Provider from './providers/cloudflare-r2.provider'

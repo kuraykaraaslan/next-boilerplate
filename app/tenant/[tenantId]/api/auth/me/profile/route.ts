@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import TenantSessionNextService from "@/modules_next/tenant_session/tenant_session.service.next";
 import UserProfileService from "@/modules/user_profile/user_profile.service";
-import Limiter from "@/libs/limiter";
+import Limiter from "@/modules_next/limiter/limiter.service.next";
 import { UpdateProfileRequestSchema } from "@/modules/user_profile/user_profile.dto";
 import AuthMessages from "@/modules/auth/auth.messages";
 

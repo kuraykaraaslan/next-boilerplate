@@ -1,4 +1,4 @@
-import Logger from '@/libs/logger';
+import Logger from '@/modules/logger';
 import { env } from '@/libs/env';
 import { NextRequest, NextResponse } from 'next/server';
 

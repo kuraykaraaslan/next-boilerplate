@@ -5,7 +5,7 @@ import { TenantDomain } from '@/modules/tenant_domain/entities/tenant_domain.ent
 import { TenantAuditLog } from '@/modules/audit_log/entities/audit_log_tenant.entity';
 import { Webhook } from '@/modules/webhook/entities/webhook.entity';
 import { TenantSetting } from '@/modules/tenant_setting/entities/tenant_setting.entity';
-import Logger from '@/libs/logger';
+import Logger from '@/modules/logger';
 
 export interface TenantExportData {
   exportedAt: string;

@@ -1,6 +1,6 @@
-import Logger from '@/libs/logger';
+import Logger from '@/modules/logger';
 import { NextRequest, NextResponse } from "next/server";
-import Limiter from "@/libs/limiter";
+import Limiter from "@/modules_next/limiter/limiter.service.next";
 import PasswordService from "@/modules/auth/auth.password.service";
 import TenantService from "@/modules/tenant/tenant.service";
 import { ForgotPasswordDTO } from "@/modules/auth/auth.dto";

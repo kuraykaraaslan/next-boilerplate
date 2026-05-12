@@ -1,9 +1,9 @@
 // path: app/system/api/storage/route.ts
-import Logger from '@/libs/logger';
+import Logger from '@/modules/logger';
 import { NextRequest, NextResponse } from 'next/server'
 import StorageService from '@/modules/storage/storage.service'
 import UserSessionNextService from '@/modules_next/user_session/user_session.service.next'
-import Limiter from '@/libs/limiter'
+import Limiter from '@/modules_next/limiter/limiter.service.next'
 
 /**
  * GET /system/api/storage?key=...

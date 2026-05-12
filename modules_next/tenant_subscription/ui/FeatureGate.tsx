@@ -1,6 +1,6 @@
 'use client';
 import type { FeatureAccessResult } from '@/modules/tenant_subscription/tenant_subscription.types';
-import { UpgradePrompt } from './subscription.upgrade-prompt';
+import { UpgradePrompt } from './UpgradePrompt';
 
 type Props = {
   result: FeatureAccessResult | null | undefined;

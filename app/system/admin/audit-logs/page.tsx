@@ -9,7 +9,7 @@ import { Button } from '@/modules_next/common/ui/Button';
 import { Spinner } from '@/modules_next/common/ui/Spinner';
 import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
 import { EmptyState } from '@/modules_next/common/ui/EmptyState';
-import { AuditLogFilters, type AuditLogFilterValues } from '@/modules_next/audit_log/ui/audit_log.filters';
+import { AuditLogFilters, type AuditLogFilterValues } from '@/modules_next/audit_log/ui/AuditLogFilters';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faChevronLeft,

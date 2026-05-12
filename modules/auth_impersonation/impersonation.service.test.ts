@@ -28,7 +28,7 @@ vi.mock('@/libs/redis', () => ({
   default: { get: vi.fn(), set: vi.fn(), del: vi.fn(), ping: vi.fn() },
 }));
 
-vi.mock('@/libs/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
+vi.mock('@/modules/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
 
 vi.mock('@/modules/user_session/user_session.service', () => ({
   default: {

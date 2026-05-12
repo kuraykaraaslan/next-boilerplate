@@ -8,7 +8,7 @@ import UserSessionService from "../user_session/user_session.service";
 import MailService from "../notification_mail/notification_mail.service";
 import SMSService from "../notification_sms/notification_sms.service";
 import AuthMessages from "./auth.messages";
-import Logger from "@/libs/logger";
+import Logger from "@/modules/logger";
 
 export default class OTPService {
   private static readonly OTP_LENGTH = env.OTP_LENGTH ?? 6;

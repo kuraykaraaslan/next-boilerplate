@@ -4,7 +4,7 @@ import AuthService from "@/modules/auth/auth.service";
 import UserSessionNextService from "@/modules_next/user_session/user_session.service.next";
 import TenantMemberService from "@/modules/tenant_member/tenant_member.service";
 import TenantService from "@/modules/tenant/tenant.service";
-import Limiter from "@/libs/limiter";
+import Limiter from "@/modules_next/limiter/limiter.service.next";
 import { LoginDTO } from "@/modules/auth/auth.dto";
 import MailService from "@/modules/notification_mail/notification_mail.service";
 import { SafeUserSecuritySchema } from '@/modules/user_security/user_security.types';
