@@ -68,3 +68,14 @@ npx web-push generate-vapid-keys
 ```
 
 Expired subscriptions are cleaned up automatically on send failure (410 Gone).
+
+---
+
+## Caching
+
+Per-user subscription lists are cached in Redis under `push_subscription:user:{userId}` (TTL = `SESSION_CACHE_TTL`, default 30 min). Only `sendToUser` reads from the cache — it's the transactional hot path. Bulk paths (`sendToUsers`, `sendToRole`, `sendToAll`) go straight to the DB because they aren't repeated lookups.
+
+Invalidation:
+- `subscribe` clears cache for the new owner (and the previous owner if the endpoint moves between users)
+- `unsubscribe` and `unsubscribeByEndpoint` clear cache
+- 410/404 cleanup inside `sendToSubscription` (expired browser subscription) clears cache for the affected user

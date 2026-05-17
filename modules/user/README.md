@@ -84,3 +84,22 @@ DELETE /system/api/users/[id]
 ```
 
 Requires `system:admin` scope.
+
+---
+
+## Caching
+
+Users are cached in Redis (TTL = `SESSION_CACHE_TTL`, default 30 min):
+
+| Key | Returns | Used by |
+|---|---|---|
+| `user:id:{userId}` | `SafeUser` | `getById` |
+| `user:email:{email}` | `User` (with hashed password) | `getByEmail` — login hot path |
+
+`update`, `delete`, and `invalidate()` clear both keys. When email changes during `update`, **both** the old-email and new-email keys are invalidated.
+
+### Cross-module invalidation
+
+Password changes happen outside this module. Any service that mutates `user.password` (e.g. `auth.password.service.ts`) **must** call `UserService.invalidate({ userId, email })` afterward — otherwise the cached `getByEmail` row will still authenticate against the old password until TTL expires.
+
+Already wired: `auth.password.service.resetPassword`. New writers must follow the same pattern.

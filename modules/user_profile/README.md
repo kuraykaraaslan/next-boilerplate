@@ -70,3 +70,9 @@ await UserProfileService.update(userId, {
 GET /api/user/profile
 PUT /api/user/profile
 ```
+
+---
+
+## Caching
+
+`getByUserId(userId)` is cached in Redis under `user_profile:user:{userId}` (TTL = `SESSION_CACHE_TTL`, default 30 min). Null results are cached too — repeated lookups for users without a profile don't re-hit the DB. Every mutation (`create`, `update`, `upsert`, `delete`, `addSocialLink`, `removeSocialLink`, `updateSocialLink`) invalidates the key.

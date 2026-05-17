@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import { Between, IsNull, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
 import { env } from '@/modules/env';
 import { getDefaultTenantDataSource, tenantDataSourceFor } from '@/modules/db';
+import redis from '@/modules/redis';
 import { Payment as PaymentEntity } from './entities/payment.entity';
 import { PaymentTransaction as PaymentTransactionEntity } from './entities/payment_transaction.entity';
 import Logger from '@/modules/logger';
@@ -30,6 +31,8 @@ import {
 } from './payment.dto';
 import { PAYMENT_MESSAGES } from './payment.messages';
 
+const PAYMENT_CACHE_TTL = env.TENANT_CACHE_TTL ?? (60 * 5);
+
 export default class PaymentService {
 
   private static readonly stripeProvider = new StripeProvider();
@@ -44,6 +47,19 @@ export default class PaymentService {
 
   private static readonly DEFAULT_PROVIDER: PaymentProvider =
     (env.PAYMENT_DEFAULT_PROVIDER?.toUpperCase() as PaymentProvider) || 'STRIPE';
+
+  private static async clearPaymentCache(paymentId: string): Promise<void> {
+    await Promise.all([
+      redis.del(`payment:id:${paymentId}`).catch(() => {}),
+      redis.del(`payment:tx:${paymentId}`).catch(() => {}),
+    ]);
+  }
+
+  private static async clearTransactionCache(transactionId: string, paymentId?: string): Promise<void> {
+    const ops: Promise<unknown>[] = [redis.del(`payment_tx:id:${transactionId}`)];
+    if (paymentId) ops.push(redis.del(`payment:tx:${paymentId}`));
+    await Promise.all(ops.map((p) => p.catch(() => {})));
+  }
 
   private static getProvider(providerName?: PaymentProvider): BasePaymentProvider {
     const name = providerName || PaymentService.DEFAULT_PROVIDER;
@@ -94,18 +110,36 @@ export default class PaymentService {
   }
 
   static async getById(paymentId: string): Promise<SafePayment> {
+    const cacheKey = `payment:id:${paymentId}`;
+    const cached = await redis.get(cacheKey).catch(() => null);
+    if (cached) {
+      try { return SafePaymentSchema.parse(JSON.parse(cached)); } catch { await redis.del(cacheKey).catch(() => {}); }
+    }
+
     const ds = await getDefaultTenantDataSource();
     const payment = await ds.getRepository(PaymentEntity).findOne({ where: { paymentId, deletedAt: IsNull() } });
     if (!payment) throw new Error(PAYMENT_MESSAGES.PAYMENT_NOT_FOUND);
-    return SafePaymentSchema.parse(payment);
+
+    const parsed = SafePaymentSchema.parse(payment);
+    await redis.setex(cacheKey, PAYMENT_CACHE_TTL, JSON.stringify(parsed)).catch(() => {});
+    return parsed;
   }
 
   static async getByIdWithTransactions(paymentId: string): Promise<PaymentWithTransactions> {
+    const cacheKey = `payment:tx:${paymentId}`;
+    const cached = await redis.get(cacheKey).catch(() => null);
+    if (cached) {
+      try { return PaymentWithTransactionsSchema.parse(JSON.parse(cached)); } catch { await redis.del(cacheKey).catch(() => {}); }
+    }
+
     const ds = await getDefaultTenantDataSource();
     const payment = await ds.getRepository(PaymentEntity).findOne({ where: { paymentId, deletedAt: IsNull() } });
     if (!payment) throw new Error(PAYMENT_MESSAGES.PAYMENT_NOT_FOUND);
     const transactions = await ds.getRepository(PaymentTransactionEntity).find({ where: { paymentId } });
-    return PaymentWithTransactionsSchema.parse({ ...payment, transactions });
+
+    const parsed = PaymentWithTransactionsSchema.parse({ ...payment, transactions });
+    await redis.setex(cacheKey, PAYMENT_CACHE_TTL, JSON.stringify(parsed)).catch(() => {});
+    return parsed;
   }
 
   static async getAll(query: GetPaymentsQuery): Promise<{ payments: SafePayment[]; total: number }> {
@@ -157,6 +191,7 @@ export default class PaymentService {
         cancelledAt: data.status === 'CANCELLED' && !existing.cancelledAt ? new Date() : undefined,
       } as any);
       const updated = await ds.getRepository(PaymentEntity).findOne({ where: { paymentId } });
+      await this.clearPaymentCache(paymentId);
       return SafePaymentSchema.parse(updated!);
     } catch (error) {
       Logger.error(`${PAYMENT_MESSAGES.PAYMENT_UPDATE_FAILED}: ${error instanceof Error ? error.message : String(error)}`);
@@ -171,6 +206,7 @@ export default class PaymentService {
 
     const ds = existing.tenantId ? await tenantDataSourceFor(existing.tenantId) : defaultDs;
     await ds.getRepository(PaymentEntity).update({ paymentId }, { deletedAt: new Date() });
+    await this.clearPaymentCache(paymentId);
   }
 
   static async createTransaction(data: CreateTransactionDTO): Promise<PaymentTransaction> {
@@ -196,6 +232,7 @@ export default class PaymentService {
         userAgent: data.userAgent,
       });
       const saved = await repo.save(transaction);
+      await redis.del(`payment:tx:${data.paymentId}`).catch(() => {});
       return PaymentTransactionSchema.parse(saved);
     } catch (error) {
       Logger.error(`${PAYMENT_MESSAGES.TRANSACTION_CREATE_FAILED}: ${error instanceof Error ? error.message : String(error)}`);
@@ -204,10 +241,19 @@ export default class PaymentService {
   }
 
   static async getTransactionById(transactionId: string): Promise<PaymentTransaction> {
+    const cacheKey = `payment_tx:id:${transactionId}`;
+    const cached = await redis.get(cacheKey).catch(() => null);
+    if (cached) {
+      try { return PaymentTransactionSchema.parse(JSON.parse(cached)); } catch { await redis.del(cacheKey).catch(() => {}); }
+    }
+
     const ds = await getDefaultTenantDataSource();
     const transaction = await ds.getRepository(PaymentTransactionEntity).findOne({ where: { transactionId } });
     if (!transaction) throw new Error(PAYMENT_MESSAGES.TRANSACTION_NOT_FOUND);
-    return PaymentTransactionSchema.parse(transaction);
+
+    const parsed = PaymentTransactionSchema.parse(transaction);
+    await redis.setex(cacheKey, PAYMENT_CACHE_TTL, JSON.stringify(parsed)).catch(() => {});
+    return parsed;
   }
 
   static async getTransactions(query: GetTransactionsQuery): Promise<{ transactions: PaymentTransaction[]; total: number }> {
@@ -250,6 +296,7 @@ export default class PaymentService {
         processedAt: data.processedAt || (data.status === 'COMPLETED' ? new Date() : undefined),
       } as any);
       const updated = await repo.findOne({ where: { transactionId } });
+      await this.clearTransactionCache(transactionId, existing.paymentId);
       return PaymentTransactionSchema.parse(updated!);
     } catch (error) {
       Logger.error(`${PAYMENT_MESSAGES.TRANSACTION_UPDATE_FAILED}: ${error instanceof Error ? error.message : String(error)}`);
@@ -297,6 +344,8 @@ export default class PaymentService {
       status: isFullyRefunded ? 'REFUNDED' : 'PARTIALLY_REFUNDED',
       refundedAt: isFullyRefunded ? new Date() : payment.refundedAt,
     } as any);
+
+    await this.clearPaymentCache(data.paymentId);
 
     return transaction;
   }

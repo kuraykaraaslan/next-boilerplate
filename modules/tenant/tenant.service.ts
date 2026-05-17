@@ -1,6 +1,8 @@
 import 'reflect-metadata';
 import { IsNull, ILike } from 'typeorm';
 import { tenantDataSourceFor, getDefaultTenantDataSource } from '@/modules/db';
+import redis from '@/modules/redis';
+import { env } from '@/modules/env';
 import { Tenant as TenantEntity } from './entities/tenant.entity';
 import { SafeTenant, SafeTenantSchema } from './tenant.types';
 import { CreateTenantInput, UpdateTenantInput, GetTenantsInput } from './tenant.dto';
@@ -8,7 +10,13 @@ import TenantMessages from './tenant.messages';
 import TenantMemberService from '../tenant_member/tenant_member.service';
 import Logger from '@/modules/logger';
 
+const TENANT_CACHE_TTL = env.TENANT_CACHE_TTL ?? (60 * 5);
+
 export default class TenantService {
+
+  private static async clearCache(tenantId: string) {
+    await redis.del(`tenant:id:${tenantId}`).catch(() => {});
+  }
 
   static async getAll({ page, pageSize, search, tenantId }: GetTenantsInput): Promise<{ tenants: SafeTenant[]; total: number }> {
     const ds = await getDefaultTenantDataSource();
@@ -35,10 +43,19 @@ export default class TenantService {
   }
 
   static async getById(tenantId: string): Promise<SafeTenant> {
+    const cacheKey = `tenant:id:${tenantId}`;
+    const cached = await redis.get(cacheKey).catch(() => null);
+    if (cached) {
+      try { return SafeTenantSchema.parse(JSON.parse(cached)); } catch { await redis.del(cacheKey).catch(() => {}); }
+    }
+
     const ds = await tenantDataSourceFor(tenantId);
     const tenant = await ds.getRepository(TenantEntity).findOne({ where: { tenantId, deletedAt: IsNull() } });
     if (!tenant) throw new Error(TenantMessages.TENANT_NOT_FOUND);
-    return SafeTenantSchema.parse(tenant);
+
+    const parsed = SafeTenantSchema.parse(tenant);
+    await redis.setex(cacheKey, TENANT_CACHE_TTL, JSON.stringify(parsed)).catch(() => {});
+    return parsed;
   }
 
   static async create(data: CreateTenantInput): Promise<SafeTenant> {
@@ -57,6 +74,7 @@ export default class TenantService {
 
     await repo.update({ tenantId }, data as any);
     const updated = await repo.findOne({ where: { tenantId } });
+    await this.clearCache(tenantId);
     return SafeTenantSchema.parse(updated!);
   }
 
@@ -83,5 +101,6 @@ export default class TenantService {
     const tenant = await repo.findOne({ where: { tenantId, deletedAt: IsNull() } });
     if (!tenant) throw new Error(TenantMessages.TENANT_NOT_FOUND);
     await repo.update({ tenantId }, { deletedAt: new Date() });
+    await this.clearCache(tenantId);
   }
 }

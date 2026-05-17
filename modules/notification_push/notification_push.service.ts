@@ -3,6 +3,7 @@ import { In } from 'typeorm';
 import { env } from '@/modules/env';
 import webpush from 'web-push';
 import { getSystemDataSource } from '@/modules/db';
+import redis from '@/modules/redis';
 import { PushSubscription as PushSubscriptionEntity } from './entities/push_subscription.entity';
 import { User as UserEntity } from '../user/entities/user.entity';
 import Logger from '@/modules/logger';
@@ -14,6 +15,8 @@ export interface PushPayload {
   icon?: string;
   url?: string;
 }
+
+const PUSH_CACHE_TTL = env.SESSION_CACHE_TTL ?? (60 * 5);
 
 let vapidInitialised = false;
 
@@ -29,6 +32,28 @@ function ensureVapid() {
 
 export default class NotificationPushService {
 
+  private static cacheKeyForUser(userId: string): string {
+    return `push_subscription:user:${userId}`;
+  }
+
+  private static async clearCacheForUser(userId: string): Promise<void> {
+    await redis.del(this.cacheKeyForUser(userId)).catch(() => {});
+  }
+
+  private static async getUserSubscriptions(userId: string): Promise<PushSubscriptionEntity[]> {
+    const cacheKey = this.cacheKeyForUser(userId);
+    const cached = await redis.get(cacheKey).catch(() => null);
+    if (cached) {
+      try { return JSON.parse(cached) as PushSubscriptionEntity[]; }
+      catch { await redis.del(cacheKey).catch(() => {}); }
+    }
+
+    const ds = await getSystemDataSource();
+    const subs = await ds.getRepository(PushSubscriptionEntity).find({ where: { userId } });
+    await redis.setex(cacheKey, PUSH_CACHE_TTL, JSON.stringify(subs)).catch(() => {});
+    return subs;
+  }
+
   static async subscribe(
     userId: string,
     subscription: { endpoint: string; keys: { p256dh: string; auth: string } }
@@ -42,6 +67,7 @@ export default class NotificationPushService {
         p256dh: subscription.keys.p256dh,
         auth: subscription.keys.auth,
       });
+      if (existing.userId !== userId) await this.clearCacheForUser(existing.userId);
     } else {
       await repo.save(repo.create({
         userId,
@@ -50,22 +76,26 @@ export default class NotificationPushService {
         auth: subscription.keys.auth,
       }));
     }
+    await this.clearCacheForUser(userId);
   }
 
   static async unsubscribe(userId: string): Promise<void> {
     const ds = await getSystemDataSource();
     await ds.getRepository(PushSubscriptionEntity).delete({ userId });
+    await this.clearCacheForUser(userId);
   }
 
   static async unsubscribeByEndpoint(endpoint: string): Promise<void> {
     const ds = await getSystemDataSource();
-    await ds.getRepository(PushSubscriptionEntity).delete({ endpoint });
+    const repo = ds.getRepository(PushSubscriptionEntity);
+    const existing = await repo.findOne({ where: { endpoint } });
+    await repo.delete({ endpoint });
+    if (existing) await this.clearCacheForUser(existing.userId);
   }
 
   static async sendToUser(userId: string, payload: PushPayload): Promise<void> {
     ensureVapid();
-    const ds = await getSystemDataSource();
-    const subs = await ds.getRepository(PushSubscriptionEntity).find({ where: { userId } });
+    const subs = await this.getUserSubscriptions(userId);
     await Promise.allSettled(subs.map((sub) => this.sendToSubscription(sub, payload)));
   }
 
@@ -101,7 +131,7 @@ export default class NotificationPushService {
   }
 
   private static async sendToSubscription(
-    sub: { id: string; endpoint: string; p256dh: string; auth: string },
+    sub: { id: string; endpoint: string; p256dh: string; auth: string; userId?: string },
     payload: PushPayload
   ): Promise<void> {
     try {
@@ -114,6 +144,7 @@ export default class NotificationPushService {
         Logger.warn(`Push subscription ${sub.id} expired (${error.statusCode}), removing.`);
         const ds = await getSystemDataSource();
         await ds.getRepository(PushSubscriptionEntity).delete({ id: sub.id }).catch(() => {});
+        if (sub.userId) await this.clearCacheForUser(sub.userId);
       } else {
         Logger.error(`Push notification failed for ${sub.id}: ${error.message}`);
       }

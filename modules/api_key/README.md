@@ -63,3 +63,16 @@ GET    /tenant/[tenantId]/api/api-keys
 POST   /tenant/[tenantId]/api/api-keys
 DELETE /tenant/[tenantId]/api/api-keys/[id]
 ```
+
+---
+
+## Caching
+
+API key lookups are cached in Redis (TTL = `TENANT_CACHE_TTL`, default 5 min):
+
+| Key | Used by |
+|---|---|
+| `api_key:hash:{sha256(rawKey)}` | `verify(rawKey)` — hot path on every authenticated API request |
+| `api_key:tenant:{tenantId}:{apiKeyId}` | `getById(tenantId, apiKeyId)` |
+
+`update`, `delete`, and `verify` (on lookup miss) trigger invalidation by `apiKeyId`, `keyHash`, and `tenantId+apiKeyId`. `lastUsedAt` writes are intentionally fire-and-forget and do **not** invalidate — the value isn't security-critical and refreshing it would defeat the cache.

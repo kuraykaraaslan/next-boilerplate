@@ -1,13 +1,23 @@
 import 'reflect-metadata';
 import { ILike } from 'typeorm';
 import { getSystemDataSource } from '@/modules/db';
+import redis from '@/modules/redis';
+import { env } from '@/modules/env';
 import { User as UserEntity } from './entities/user.entity';
 import { User, SafeUser, UpdateUser, SafeUserSchema, UserSchema } from './user.types';
 import type { UserRole, UserStatus } from './user.enums';
 import bcrypt from 'bcrypt';
 import UserMessages from './user.messages';
 
+const USER_CACHE_TTL = env.SESSION_CACHE_TTL ?? (60 * 5);
+
 export default class UserService {
+
+  static async invalidate(user: { userId: string; email?: string }): Promise<void> {
+    const ops: Promise<unknown>[] = [redis.del(`user:id:${user.userId}`)];
+    if (user.email) ops.push(redis.del(`user:email:${user.email.toLowerCase()}`));
+    await Promise.all(ops.map((p) => p.catch(() => {})));
+  }
 
   static async create({ email, password, phone, userRole }: {
     email: string;
@@ -66,10 +76,19 @@ export default class UserService {
   }
 
   static async getById(userId: string): Promise<SafeUser> {
+    const cacheKey = `user:id:${userId}`;
+    const cached = await redis.get(cacheKey).catch(() => null);
+    if (cached) {
+      try { return SafeUserSchema.parse(JSON.parse(cached)); } catch { await redis.del(cacheKey).catch(() => {}); }
+    }
+
     const ds = await getSystemDataSource();
     const user = await ds.getRepository(UserEntity).findOne({ where: { userId } });
     if (!user) throw new Error(UserMessages.USER_NOT_FOUND);
-    return SafeUserSchema.parse(user);
+
+    const parsed = SafeUserSchema.parse(user);
+    await redis.setex(cacheKey, USER_CACHE_TTL, JSON.stringify(parsed)).catch(() => {});
+    return parsed;
   }
 
   static async update({ userId, data }: { userId: string; data: UpdateUser }): Promise<SafeUser> {
@@ -86,6 +105,12 @@ export default class UserService {
       userStatus: data.userStatus as UserStatus | undefined,
     });
     const updated = await repo.findOne({ where: { userId } });
+
+    await this.invalidate({ userId, email: user.email });
+    if (updated && updated.email !== user.email) {
+      await this.invalidate({ userId, email: updated.email });
+    }
+
     return SafeUserSchema.parse(updated!);
   }
 
@@ -95,13 +120,23 @@ export default class UserService {
     const user = await repo.findOne({ where: { userId } });
     if (!user) throw new Error(UserMessages.USER_NOT_FOUND);
     await repo.delete({ userId });
+    await this.invalidate({ userId, email: user.email });
   }
 
   static async getByEmail(email: string): Promise<User | null> {
+    const normalized = email.toLowerCase();
+    const cacheKey = `user:email:${normalized}`;
+    const cached = await redis.get(cacheKey).catch(() => null);
+    if (cached) {
+      try { return UserSchema.parse(JSON.parse(cached)); } catch { await redis.del(cacheKey).catch(() => {}); }
+    }
+
     const ds = await getSystemDataSource();
-    const user = await ds.getRepository(UserEntity).findOne({
-      where: { email: email.toLowerCase() },
-    });
-    return user ? UserSchema.parse(user) : null;
+    const user = await ds.getRepository(UserEntity).findOne({ where: { email: normalized } });
+    if (!user) return null;
+
+    const parsed = UserSchema.parse(user);
+    await redis.setex(cacheKey, USER_CACHE_TTL, JSON.stringify(parsed)).catch(() => {});
+    return parsed;
   }
 }

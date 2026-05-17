@@ -27,17 +27,21 @@ import {
 import { StoredPasskey } from './user_security.types';
 import { SafeUser } from '../user/user.types';
 
-const APPLICATION_DOMAIN = (env.NEXT_PUBLIC_APPLICATION_HOST ?? 'localhost')
-  .replace(/^https?:\/\//, '')
-  .replace(/\/$/, '');
 const isDev = env.NODE_ENV === 'development';
+
+function parseHost(raw: string): { hostname: string; origin: string } {
+  const withProto = /^https?:\/\//.test(raw) ? raw : `https://${raw}`;
+  const u = new URL(withProto);
+  return { hostname: u.hostname, origin: u.origin };
+}
+
+const { hostname: APPLICATION_HOSTNAME, origin: APPLICATION_ORIGIN } = parseHost(
+  env.NEXT_PUBLIC_APPLICATION_HOST ?? (isDev ? `http://localhost:${env.PORT ?? 3000}` : 'localhost'),
+);
+
 const RP_NAME = env.NEXT_PUBLIC_APPLICATION_NAME!;
-const RP_ID = env.WEBAUTHN_RP_ID || APPLICATION_DOMAIN;
-const ORIGIN =
-  env.WEBAUTHN_ORIGIN ??
-  (isDev
-    ? `http://localhost:${env.PORT ?? 3000}`
-    : `https://${APPLICATION_DOMAIN}`);
+const RP_ID = env.WEBAUTHN_RP_ID || APPLICATION_HOSTNAME;
+const ORIGIN = env.WEBAUTHN_ORIGIN ?? APPLICATION_ORIGIN;
 
 export default class UserSecurityPasskeyService {
 

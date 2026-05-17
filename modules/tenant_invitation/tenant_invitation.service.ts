@@ -1,8 +1,9 @@
 import 'reflect-metadata';
 import { env } from '@/modules/env';
 import crypto from 'crypto';
-import { IsNull, LessThan, MoreThan } from 'typeorm';
+import { MoreThan } from 'typeorm';
 import { getSystemDataSource, tenantDataSourceFor, getDefaultTenantDataSource } from '@/modules/db';
+import redis from '@/modules/redis';
 import { User as UserEntity } from '../user/entities/user.entity';
 import { TenantInvitation as TenantInvitationEntity } from './entities/tenant_invitation.entity';
 import { Tenant as TenantEntity } from '../tenant/entities/tenant.entity';
@@ -13,8 +14,15 @@ import TenantMemberService from '../tenant_member/tenant_member.service';
 import type { TenantMemberRole } from '../tenant_member/tenant_member.enums';
 
 const INVITATION_TTL_SECONDS = env.INVITATION_TTL_SECONDS ?? (60 * 60 * 24 * 7);
+const INVITATION_CACHE_TTL = env.TENANT_CACHE_TTL ?? (60 * 5);
 
 export default class TenantInvitationService {
+
+  private static async clearCache(invitation: { invitationId: string; token?: string }) {
+    const ops: Promise<unknown>[] = [redis.del(`tenant_invitation:id:${invitation.invitationId}`)];
+    if (invitation.token) ops.push(redis.del(`tenant_invitation:token:${invitation.token}`));
+    await Promise.all(ops.map((p) => p.catch(() => {})));
+  }
 
   static hashToken(rawToken: string): string {
     return crypto.createHash('sha256').update(rawToken).digest('hex');
@@ -41,18 +49,36 @@ export default class TenantInvitationService {
   }
 
   static async getById(invitationId: string): Promise<SafeTenantInvitation> {
+    const cacheKey = `tenant_invitation:id:${invitationId}`;
+    const cached = await redis.get(cacheKey).catch(() => null);
+    if (cached) {
+      try { return SafeTenantInvitationSchema.parse(JSON.parse(cached)); } catch { await redis.del(cacheKey).catch(() => {}); }
+    }
+
     const ds = await getDefaultTenantDataSource();
     const invitation = await ds.getRepository(TenantInvitationEntity).findOne({ where: { invitationId } });
     if (!invitation) throw new Error(TenantInvitationMessages.INVITATION_NOT_FOUND);
-    return SafeTenantInvitationSchema.parse(invitation);
+
+    const parsed = SafeTenantInvitationSchema.parse(invitation);
+    await redis.setex(cacheKey, INVITATION_CACHE_TTL, JSON.stringify(parsed)).catch(() => {});
+    return parsed;
   }
 
   static async getByToken(rawToken: string): Promise<SafeTenantInvitation> {
     const hashed = TenantInvitationService.hashToken(rawToken);
+    const cacheKey = `tenant_invitation:token:${hashed}`;
+    const cached = await redis.get(cacheKey).catch(() => null);
+    if (cached) {
+      try { return SafeTenantInvitationSchema.parse(JSON.parse(cached)); } catch { await redis.del(cacheKey).catch(() => {}); }
+    }
+
     const ds = await getDefaultTenantDataSource();
     const invitation = await ds.getRepository(TenantInvitationEntity).findOne({ where: { token: hashed } });
     if (!invitation) throw new Error(TenantInvitationMessages.INVITATION_INVALID_TOKEN);
-    return SafeTenantInvitationSchema.parse(invitation);
+
+    const parsed = SafeTenantInvitationSchema.parse(invitation);
+    await redis.setex(cacheKey, INVITATION_CACHE_TTL, JSON.stringify(parsed)).catch(() => {});
+    return parsed;
   }
 
   static async send(tenantId: string, invitedByUserId: string, { email, memberRole }: SendInvitationInput): Promise<{ invitation: SafeTenantInvitation; rawToken: string }> {
@@ -68,7 +94,11 @@ export default class TenantInvitationService {
     const ds = await tenantDataSourceFor(tenantId);
     const repo = ds.getRepository(TenantInvitationEntity);
 
-    await repo.update({ tenantId, email: normalizedEmail, status: 'PENDING' }, { status: 'REVOKED' });
+    const stalePending = await repo.find({ where: { tenantId, email: normalizedEmail, status: 'PENDING' } });
+    if (stalePending.length > 0) {
+      await repo.update({ tenantId, email: normalizedEmail, status: 'PENDING' }, { status: 'REVOKED' });
+      await Promise.all(stalePending.map((inv) => this.clearCache({ invitationId: inv.invitationId, token: inv.token })));
+    }
 
     const rawToken = TenantInvitationService.generateRawToken();
     const hashedToken = TenantInvitationService.hashToken(rawToken);
@@ -106,6 +136,7 @@ export default class TenantInvitationService {
 
     await TenantMemberService.create({ tenantId, userId, memberRole: invitation.memberRole as TenantMemberRole, memberStatus: 'ACTIVE' });
     await repo.update({ invitationId: invitation.invitationId }, { status: 'ACCEPTED' });
+    await this.clearCache({ invitationId: invitation.invitationId, token: invitation.token });
   }
 
   static async decline(tenantId: string, userEmail: string, rawToken: string): Promise<void> {
@@ -119,6 +150,7 @@ export default class TenantInvitationService {
     TenantInvitationService.assertUsable(invitation);
 
     await repo.update({ invitationId: invitation.invitationId }, { status: 'DECLINED' });
+    await this.clearCache({ invitationId: invitation.invitationId, token: invitation.token });
   }
 
   static async revoke(invitationId: string, tenantId: string): Promise<void> {
@@ -128,6 +160,7 @@ export default class TenantInvitationService {
     if (!invitation) throw new Error(TenantInvitationMessages.INVITATION_NOT_FOUND);
     if (invitation.status !== 'PENDING') throw new Error(TenantInvitationMessages.INVITATION_NOT_FOUND);
     await repo.update({ invitationId }, { status: 'REVOKED' });
+    await this.clearCache({ invitationId, token: invitation.token });
   }
 
   static async autoAcceptForEmail(userId: string, email: string): Promise<void> {
@@ -147,6 +180,7 @@ export default class TenantInvitationService {
         }
         const invDs = await tenantDataSourceFor(invitation.tenantId);
         await invDs.getRepository(TenantInvitationEntity).update({ invitationId: invitation.invitationId }, { status: 'ACCEPTED' });
+        await this.clearCache({ invitationId: invitation.invitationId, token: invitation.token });
       } catch {}
     }
   }

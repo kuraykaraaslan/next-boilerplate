@@ -363,6 +363,30 @@ export default class PaymentService {
 }
 ```
 
+## Caching
+
+Single-record lookups are cached in Redis (TTL = `TENANT_CACHE_TTL`, default 5 min):
+
+| Key | Returns | Used by |
+|---|---|---|
+| `payment:id:{paymentId}` | `SafePayment` | `getById` |
+| `payment:tx:{paymentId}` | `PaymentWithTransactions` | `getByIdWithTransactions` |
+| `payment_tx:id:{transactionId}` | `PaymentTransaction` | `getTransactionById` |
+
+List queries (`getAll`, `getTransactions`, `getPaymentsByUser`, `getPaymentsByTenant`) are **not** cached — too many filter combinations and they're usually requested fresh from admin UIs.
+
+Invalidation map:
+
+| Mutation | Clears |
+|---|---|
+| `update`, `markAsCompleted/Failed/Cancelled` | `payment:id:` + `payment:tx:` |
+| `delete` (soft) | `payment:id:` + `payment:tx:` |
+| `refund` | `payment:id:` + `payment:tx:` |
+| `createTransaction` | `payment:tx:` (parent payment's transactions list changed) |
+| `updateTransaction` | `payment_tx:id:` + `payment:tx:` (parent) |
+
+Webhook flow (`payment.webhook.service.ts`) writes through `PaymentService.update` / `markAsFailed` / etc., so webhooks inherit cache invalidation for free.
+
 ## Module Structure
 
 ```

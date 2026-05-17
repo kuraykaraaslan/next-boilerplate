@@ -66,3 +66,16 @@ DELETE /api/user/social-accounts/[provider]
 ```
 
 Linking happens automatically through the SSO callback — see `auth_sso` module.
+
+---
+
+## Caching
+
+Social account lookups are cached in Redis (TTL = `SESSION_CACHE_TTL`, default 30 min):
+
+| Key | Used by |
+|---|---|
+| `user_social_account:user:{userId}` | `getByUserId` (lists user's accounts) |
+| `user_social_account:provider:{provider}:{providerId}` | `getByProviderAndProviderId`, `findUserIdByProvider` — OAuth callback hot path |
+
+`link` and `unlink` clear both keys for the affected user+provider. `updateTokens` does **not** invalidate because tokens are stripped from `SafeUserSocialAccount` (and thus aren't in the cached value).

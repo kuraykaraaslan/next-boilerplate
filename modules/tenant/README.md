@@ -71,3 +71,9 @@ GET    /tenant/[tenantId]/api/info
 PUT    /tenant/[tenantId]/api/info
 DELETE /tenant/[tenantId]/api/info
 ```
+
+---
+
+## Caching
+
+`getById(tenantId)` is cached in Redis under `tenant:id:{tenantId}` (TTL = `TENANT_CACHE_TTL`, default 5 min). `update` and `delete` clear the key. Tenant lookup runs on nearly every request, so this drops a hot DB query down to a Redis GET.

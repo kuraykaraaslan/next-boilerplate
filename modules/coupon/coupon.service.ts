@@ -1,6 +1,8 @@
 import 'reflect-metadata';
 import { ILike } from 'typeorm';
 import { getSystemDataSource, tenantDataSourceFor } from '@/modules/db';
+import redis from '@/modules/redis';
+import { env } from '@/modules/env';
 import { Coupon as CouponEntity } from './entities/coupon.entity';
 import { CouponRedemption as CouponRedemptionEntity } from './entities/coupon_redemption.entity';
 import Logger from '@/modules/logger';
@@ -19,7 +21,16 @@ import type {
   ApplyCouponDTO,
 } from './coupon.dto';
 
+const COUPON_CACHE_TTL = env.TENANT_CACHE_TTL ?? (60 * 5);
+
 export default class CouponService {
+
+  private static async clearCache(coupon: { couponId: string; code: string }) {
+    await Promise.all([
+      redis.del(`coupon:id:${coupon.couponId}`).catch(() => {}),
+      redis.del(`coupon:code:${coupon.code.toUpperCase()}`).catch(() => {}),
+    ]);
+  }
 
   // ============================================================================
   // Admin CRUD
@@ -83,18 +94,35 @@ export default class CouponService {
   }
 
   static async getById(couponId: string): Promise<Coupon> {
+    const cacheKey = `coupon:id:${couponId}`;
+    const cached = await redis.get(cacheKey).catch(() => null);
+    if (cached) {
+      try { return CouponSchema.parse(JSON.parse(cached)); } catch { await redis.del(cacheKey).catch(() => {}); }
+    }
+
     const ds = await getSystemDataSource();
-    const repo = ds.getRepository(CouponEntity);
-    const coupon = await repo.findOne({ where: { couponId } });
+    const coupon = await ds.getRepository(CouponEntity).findOne({ where: { couponId } });
     if (!coupon) throw new Error(COUPON_MESSAGES.NOT_FOUND);
-    return CouponSchema.parse(coupon);
+
+    const parsed = CouponSchema.parse(coupon);
+    await redis.setex(cacheKey, COUPON_CACHE_TTL, JSON.stringify(parsed)).catch(() => {});
+    return parsed;
   }
 
   static async getByCode(code: string): Promise<Coupon | null> {
+    const cacheKey = `coupon:code:${code.toUpperCase()}`;
+    const cached = await redis.get(cacheKey).catch(() => null);
+    if (cached) {
+      try { return CouponSchema.parse(JSON.parse(cached)); } catch { await redis.del(cacheKey).catch(() => {}); }
+    }
+
     const ds = await getSystemDataSource();
-    const repo = ds.getRepository(CouponEntity);
-    const coupon = await repo.findOne({ where: { code: code.toUpperCase() } });
-    return coupon ? CouponSchema.parse(coupon) : null;
+    const coupon = await ds.getRepository(CouponEntity).findOne({ where: { code: code.toUpperCase() } });
+    if (!coupon) return null;
+
+    const parsed = CouponSchema.parse(coupon);
+    await redis.setex(cacheKey, COUPON_CACHE_TTL, JSON.stringify(parsed)).catch(() => {});
+    return parsed;
   }
 
   static async update(couponId: string, data: UpdateCouponDTO): Promise<Coupon> {
@@ -120,6 +148,10 @@ export default class CouponService {
         ...(data.expiresAt !== undefined && { expiresAt: data.expiresAt ?? undefined }),
       });
       const updated = await repo.findOne({ where: { couponId } });
+      await this.clearCache({ couponId: existing.couponId, code: existing.code });
+      if (updated && updated.code !== existing.code) {
+        await this.clearCache({ couponId: updated.couponId, code: updated.code });
+      }
       return CouponSchema.parse(updated!);
     } catch (error) {
       Logger.error(`${COUPON_MESSAGES.UPDATE_FAILED}: ${error}`);
@@ -133,6 +165,7 @@ export default class CouponService {
     const existing = await repo.findOne({ where: { couponId } });
     if (!existing) throw new Error(COUPON_MESSAGES.NOT_FOUND);
     await repo.update({ couponId }, { status: 'ARCHIVED' });
+    await this.clearCache({ couponId: existing.couponId, code: existing.code });
   }
 
   // ============================================================================
@@ -176,7 +209,6 @@ export default class CouponService {
       return CouponValidationResultSchema.parse({ valid: false, message: COUPON_MESSAGES.MINIMUM_AMOUNT_NOT_MET });
     }
 
-    // Check per-tenant usage
     if (coupon.maxUsesPerTenant !== null) {
       const tenantUses = await CouponService.getTenantRedemptionCount(dto.tenantId, coupon.couponId);
       if (tenantUses >= coupon.maxUsesPerTenant) {
@@ -200,7 +232,6 @@ export default class CouponService {
     if (coupon.discountType === 'PERCENTAGE') {
       return parseFloat(((amount * coupon.discountValue) / 100).toFixed(2));
     }
-    // FIXED_AMOUNT — only apply if currencies match or coupon has no specific currency
     if (!coupon.currency || !currency || coupon.currency === currency.toUpperCase()) {
       return Math.min(coupon.discountValue, amount);
     }
@@ -229,7 +260,6 @@ export default class CouponService {
     const finalAmount = validation.finalAmount!;
 
     try {
-      // Create redemption in tenant DB
       const tenantDs = await tenantDataSourceFor(dto.tenantId);
       const redemptionRepo = tenantDs.getRepository(CouponRedemptionEntity);
 
@@ -246,11 +276,12 @@ export default class CouponService {
       });
       const saved = await redemptionRepo.save(redemption);
 
-      // Increment usedCount in system DB (optimistic, best-effort)
       const sysDs = await getSystemDataSource();
       await sysDs
         .getRepository(CouponEntity)
         .increment({ couponId: validation.coupon.couponId }, 'usedCount', 1);
+
+      await this.clearCache({ couponId: validation.coupon.couponId, code: validation.coupon.code });
 
       return CouponRedemptionSchema.parse(saved);
     } catch (error) {

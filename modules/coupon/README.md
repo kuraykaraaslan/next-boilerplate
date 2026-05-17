@@ -95,3 +95,14 @@ CouponService.getRedemptionsByTenant(tenantId, page, pageSize)
 ## Stripe Sync
 
 Call `StripeCouponProvider.syncCoupon(coupon)` after creating a coupon to push it to the Stripe dashboard. The Stripe Coupon ID is `coupon_{couponId without dashes}`.
+
+## Caching
+
+Coupons are cached in Redis (TTL = `TENANT_CACHE_TTL`, default 5 min):
+
+| Key | Used by |
+|---|---|
+| `coupon:id:{couponId}` | `getById` |
+| `coupon:code:{CODE}` (uppercase) | `getByCode` → drives `validate` / `apply` lookups |
+
+Invalidation on **update**, **archive**, and **apply** (which increments `usedCount`) clears both keys. Apply is critical: stale `usedCount` could allow `maxUses` overspend, so the cache is invalidated even though the row is only incremented.

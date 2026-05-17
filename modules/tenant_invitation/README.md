@@ -71,3 +71,16 @@ POST   /api/invitations/accept
 ```
 
 Invitation limit enforced via `tenant_subscription` feature `max_invitations`.
+
+---
+
+## Caching
+
+Invitations are cached in Redis (TTL = `TENANT_CACHE_TTL`, default 5 min):
+
+| Key | Used by |
+|---|---|
+| `tenant_invitation:id:{invitationId}` | `getById` |
+| `tenant_invitation:token:{sha256(rawToken)}` | `getByToken` |
+
+`send` (when revoking stale PENDING invites for the same email), `accept`, `decline`, `revoke`, and `autoAcceptForEmail` all invalidate both keys for the affected invitation. Stale cache of an already-revoked or expired token would defeat the security guarantees, so any status transition clears the cache.

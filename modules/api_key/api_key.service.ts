@@ -1,13 +1,26 @@
 import 'reflect-metadata';
 import crypto from 'crypto';
-import { tenantDataSourceFor } from '@/modules/db';
+import { tenantDataSourceFor, getDefaultTenantDataSource } from '@/modules/db';
+import redis from '@/modules/redis';
+import { env } from '@/modules/env';
 import { ApiKey as ApiKeyEntity } from './entities/api_key.entity';
 import { SafeApiKey, SafeApiKeySchema } from './api_key.types';
 import type { CreateApiKeyInput, UpdateApiKeyInput, ListApiKeysInput } from './api_key.dto';
 import ApiKeyMessages from './api_key.messages';
 import type { ApiKeyScope } from './api_key.enums';
 
+const API_KEY_CACHE_TTL = env.TENANT_CACHE_TTL ?? (60 * 5);
+
 export default class ApiKeyService {
+
+  private static async clearCache(apiKey: { apiKeyId: string; keyHash?: string; tenantId?: string }) {
+    const ops: Promise<unknown>[] = [
+      redis.del(`api_key:id:${apiKey.apiKeyId}`),
+    ];
+    if (apiKey.keyHash) ops.push(redis.del(`api_key:hash:${apiKey.keyHash}`));
+    if (apiKey.tenantId) ops.push(redis.del(`api_key:tenant:${apiKey.tenantId}:${apiKey.apiKeyId}`));
+    await Promise.all(ops.map((p) => p.catch(() => {})));
+  }
 
   static generateRawKey(tenantId: string): string {
     const prefix = tenantId.replace(/-/g, '').slice(0, 8);
@@ -20,7 +33,6 @@ export default class ApiKeyService {
   }
 
   static extractPrefix(rawKey: string): string {
-    // "sk_live_abcd1234_..." → display first 20 chars + "..."
     return rawKey.slice(0, 20);
   }
 
@@ -40,10 +52,19 @@ export default class ApiKeyService {
   }
 
   static async getById(tenantId: string, apiKeyId: string): Promise<SafeApiKey> {
+    const cacheKey = `api_key:tenant:${tenantId}:${apiKeyId}`;
+    const cached = await redis.get(cacheKey).catch(() => null);
+    if (cached) {
+      try { return SafeApiKeySchema.parse(JSON.parse(cached)); } catch { await redis.del(cacheKey).catch(() => {}); }
+    }
+
     const ds = await tenantDataSourceFor(tenantId);
     const row = await ds.getRepository(ApiKeyEntity).findOne({ where: { apiKeyId, tenantId } });
     if (!row) throw new Error(ApiKeyMessages.NOT_FOUND);
-    return SafeApiKeySchema.parse(row);
+
+    const parsed = SafeApiKeySchema.parse(row);
+    await redis.setex(cacheKey, API_KEY_CACHE_TTL, JSON.stringify(parsed)).catch(() => {});
+    return parsed;
   }
 
   static async create(
@@ -85,11 +106,14 @@ export default class ApiKeyService {
     const row = await repo.findOne({ where: { apiKeyId, tenantId } });
     if (!row) throw new Error(ApiKeyMessages.NOT_FOUND);
 
+    const beforeHash = row.keyHash;
+
     if (input.name !== undefined) row.name = input.name;
     if (input.description !== undefined) row.description = input.description ?? null;
     if (input.isActive !== undefined) row.isActive = input.isActive;
 
     const saved = await repo.save(row);
+    await this.clearCache({ apiKeyId: saved.apiKeyId, tenantId: saved.tenantId, keyHash: beforeHash });
     return SafeApiKeySchema.parse(saved);
   }
 
@@ -101,6 +125,7 @@ export default class ApiKeyService {
     if (!row) throw new Error(ApiKeyMessages.NOT_FOUND);
 
     await repo.remove(row);
+    await this.clearCache({ apiKeyId, tenantId, keyHash: row.keyHash });
   }
 
   /**
@@ -111,17 +136,24 @@ export default class ApiKeyService {
   static async verify(rawKey: string, requiredScope?: ApiKeyScope): Promise<SafeApiKey> {
     const hash = ApiKeyService.hashKey(rawKey);
 
-    // We need to search across the default tenant DS since we don't know tenantId yet
-    const { getDefaultTenantDataSource } = await import('@/modules/db');
-    const ds = await getDefaultTenantDataSource();
-    const repo = ds.getRepository(ApiKeyEntity);
+    const cacheKey = `api_key:hash:${hash}`;
+    let row: ApiKeyEntity | null = null;
+    const cached = await redis.get(cacheKey).catch(() => null);
+    if (cached) {
+      try { row = JSON.parse(cached) as ApiKeyEntity; } catch { await redis.del(cacheKey).catch(() => {}); }
+    }
 
-    const row = await repo.findOne({ where: { keyHash: hash } });
-    if (!row) throw new Error(ApiKeyMessages.INVALID_KEY);
+    if (!row) {
+      const ds = await getDefaultTenantDataSource();
+      const repo = ds.getRepository(ApiKeyEntity);
+      row = await repo.findOne({ where: { keyHash: hash } });
+      if (!row) throw new Error(ApiKeyMessages.INVALID_KEY);
+      await redis.setex(cacheKey, API_KEY_CACHE_TTL, JSON.stringify(row)).catch(() => {});
+    }
 
     if (!row.isActive) throw new Error(ApiKeyMessages.KEY_INACTIVE);
 
-    if (row.expiresAt && row.expiresAt < new Date()) {
+    if (row.expiresAt && new Date(row.expiresAt) < new Date()) {
       throw new Error(ApiKeyMessages.KEY_EXPIRED);
     }
 
@@ -129,8 +161,10 @@ export default class ApiKeyService {
       throw new Error(ApiKeyMessages.INSUFFICIENT_SCOPE);
     }
 
-    // Fire-and-forget lastUsedAt update
-    repo.update({ apiKeyId: row.apiKeyId }, { lastUsedAt: new Date() }).catch(() => {});
+    const ds = await getDefaultTenantDataSource();
+    ds.getRepository(ApiKeyEntity)
+      .update({ apiKeyId: row.apiKeyId }, { lastUsedAt: new Date() })
+      .catch(() => {});
 
     return SafeApiKeySchema.parse(row);
   }

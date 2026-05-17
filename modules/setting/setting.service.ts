@@ -93,7 +93,16 @@ export default class SettingService {
   static async create(key: string, value: string, group?: string, type?: string): Promise<Setting> {
     const ds = await getSystemDataSource();
     const repo = ds.getRepository(SettingEntity);
-    await repo.upsert({ key, value, group: group ?? 'general', type: type ?? 'string' }, ['key']);
+    const now = new Date();
+    const existing = await repo.findOne({ where: { key } });
+    if (existing) {
+      await repo.update(
+        { key },
+        { value, group: group ?? existing.group, type: type ?? existing.type, updatedAt: now },
+      );
+    } else {
+      await repo.insert({ key, value, group: group ?? 'general', type: type ?? 'string', createdAt: now, updatedAt: now });
+    }
     const saved = await repo.findOne({ where: { key } });
     const parsed = SettingSchema.parse(saved!);
     await this.setCache(this.getCacheKey(key), JSON.stringify(parsed));
@@ -107,7 +116,7 @@ export default class SettingService {
     const existing = await repo.findOne({ where: { key } });
     if (!existing) throw new Error(SettingMessages.SETTING_NOT_FOUND);
 
-    await repo.update({ key }, { value });
+    await repo.update({ key }, { value, updatedAt: new Date() });
     const updated = await repo.findOne({ where: { key } });
     const parsed = SettingSchema.parse(updated!);
     await this.setCache(this.getCacheKey(key), JSON.stringify(parsed));
@@ -119,9 +128,22 @@ export default class SettingService {
     const updatedSettings: Setting[] = [];
     const ds = await getSystemDataSource();
     const repo = ds.getRepository(SettingEntity);
+    const now = new Date();
 
     for (const key in settings) {
-      await repo.upsert({ key, value: settings[key], group: 'general', type: 'string' }, ['key']);
+      const existing = await repo.findOne({ where: { key } });
+      if (existing) {
+        await repo.update({ key }, { value: settings[key], updatedAt: now });
+      } else {
+        await repo.insert({
+          key,
+          value: settings[key],
+          group: 'general',
+          type: 'string',
+          createdAt: now,
+          updatedAt: now,
+        });
+      }
       const saved = await repo.findOne({ where: { key } });
       const parsed = SettingSchema.parse(saved!);
       updatedSettings.push(parsed);

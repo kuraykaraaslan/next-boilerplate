@@ -78,3 +78,20 @@ POST   /api/user/security/passkeys/authenticate/options
 POST   /api/user/security/passkeys/authenticate/verify
 DELETE /api/user/security/passkeys/[id]
 ```
+
+---
+
+## Caching
+
+Security records are cached in Redis (TTL = `SESSION_CACHE_TTL`, default 30 min):
+
+| Key | Returns | Used by |
+|---|---|---|
+| `user_security:user:{userId}` | `UserSecurity` (includes `otpSecret`, backup codes) | `getByUserId` — TOTP/passkey flows |
+| `user_security:safe:{userId}` | `SafeUserSecurity` (secrets stripped) | `getSafeByUserId` — UI/admin |
+
+`createDefaultUserSecurity`, `updateUserSecurity`, `upsertUserSecurity`, and `recordLoginAttempt` clear both keys. `recordLoginAttempt` invalidates even on success because it updates `lastLoginAt`, `failedLoginAttempts`, and (on lockout) `lockedUntil`.
+
+**Not cached:** `isLocked(userId)` always reads the DB. Stale lockout state must never authorize a login, so this query stays uncached — its cost is acceptable for the correctness guarantee.
+
+OTP secrets are stored in Redis the same way passwords already are (hashed at rest in the source DB, briefly held in Redis with a short TTL). If Redis is compromised, OTP secrets are exposed — the existing trust boundary applies.

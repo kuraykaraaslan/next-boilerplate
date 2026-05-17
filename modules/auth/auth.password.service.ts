@@ -85,6 +85,7 @@ export default class PasswordService {
     const ds = await getSystemDataSource();
     await ds.getRepository(UserEntity).update({ userId: user.userId }, { password: hashedPassword });
 
+    await UserService.invalidate({ userId: user.userId, email: user.email });
     await redis.del(tokenKey);
 
     MailService.sendPasswordResetSuccessEmail({ email: user.email }).catch((err: unknown) => {
