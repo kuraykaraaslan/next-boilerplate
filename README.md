@@ -2,7 +2,7 @@
 
 Production-ready multi-tenant SaaS starter built with Next.js 16, TypeScript, PostgreSQL, and Redis.
 
-> **🤖 AI agents:** read [AGENTS.md](AGENTS.md) first. It's the canonical map of the codebase — architecture rules, where every module lives, file-naming conventions, and how to add new things. Module index: [modules/MODULES.md](modules/MODULES.md). UI catalog: [modules_next/COMPONENTS.md](modules_next/COMPONENTS.md).
+> **🤖 AI agents:** read [AGENTS.md](AGENTS.md) first — canonical orientation guide. Then pull the machine-readable catalog from `public/registry/` (modules, routes, entities, components, conventions) or talk to the MCP server in [.mcp.json](.mcp.json). Editor-native rule mirrors: [.cursor/rules/next-boilerplate.mdc](.cursor/rules/next-boilerplate.mdc), [.cursorrules](.cursorrules), [.windsurfrules](.windsurfrules), [.github/copilot-instructions.md](.github/copilot-instructions.md), [.clinerules](.clinerules). Module index: [modules/MODULES.md](modules/MODULES.md). UI catalog: [modules_next/COMPONENTS.md](modules_next/COMPONENTS.md). Rebuild the catalog after any change: `npm run registry:snapshot`.
 
 ## Tech Stack
 

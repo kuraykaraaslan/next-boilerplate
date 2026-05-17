@@ -2,6 +2,35 @@
 
 > **Read this first.** This file is the AI-readable map of the entire project: what lives where, what the rules are, and which file to open for any given task. It is the canonical entry point for any AI coding assistant (Claude Code, Cursor, Copilot, Aider, OpenCode, etc.) working in this repo.
 
+## 0. Machine-readable catalog + MCP server
+
+Before grepping or guessing — fetch the catalog. Static snapshots live under `public/` (rebuild with `npm run registry:snapshot`):
+
+| Surface | Path | What's in it |
+|---|---|---|
+| Full registry | [`public/registry/registry.json`](public/registry/registry.json) | Modules + routes + entities + components + conventions |
+| Slim index | [`public/registry/registry.index.json`](public/registry/registry.index.json) | Same shape, no inlined READMEs |
+| Modules | [`public/registry/modules.json`](public/registry/modules.json) | 41 modules with dependencies, exports, READMEs |
+| Routes | [`public/registry/routes.json`](public/registry/routes.json) | ~151 API route handlers (scope, methods, owning module) |
+| Entities | [`public/registry/entities.json`](public/registry/entities.json) | ~31 TypeORM entities (columns, relations, schema) |
+| Components | [`public/registry/components.json`](public/registry/components.json) | ~97 `modules_next/` surface entries |
+| Per-module | `public/modules/<id>.md` | One markdown file per module — README + dependency map + owned routes/entities/UI |
+| Module index | [`public/modules/_index.json`](public/modules/_index.json) | `{ id → { tier, hasNextLayer, routeCount, … } }` |
+| Schema | [`public/schemas/registry-v1.json`](public/schemas/registry-v1.json) | JSON Schema for the registry shape |
+| llms.txt | [`public/llms.txt`](public/llms.txt) | llms.txt-convention summary for AI agents |
+
+**MCP server** in [`.mcp.json`](.mcp.json) (script: [`scripts/mcp-server.mjs`](scripts/mcp-server.mjs)). Tools: `list_modules`, `get_module`, `search_modules`, `list_routes`, `search_routes`, `list_entities`, `get_entity`, `list_components`, `get_conventions`, `get_module_readme`, `read_file`. Zero-dependency, stdio JSON-RPC, works with Claude Desktop / Cursor / Cline / Windsurf / Zed.
+
+**Editor-native rule mirrors** of this file: [`.cursor/rules/next-boilerplate.mdc`](.cursor/rules/next-boilerplate.mdc), [`.cursorrules`](.cursorrules), [`.windsurfrules`](.windsurfrules), [`.github/copilot-instructions.md`](.github/copilot-instructions.md), [`.clinerules`](.clinerules).
+
+> ⚠️ **Keep the catalog in sync (REQUIRED).** Any time you **add, rename, or remove** a module, route handler, TypeORM entity, `modules_next/` component, hook, provider, or BullMQ job, you **must** rebuild the catalog before committing:
+>
+> ```bash
+> npm run registry:snapshot
+> ```
+>
+> This regenerates `public/registry/*.json` and `public/modules/*.md` from filesystem state. The script also runs automatically via the `prebuild` npm hook before `npm run build`, but commit the regenerated files so the catalog stays in lockstep with the code. A stale catalog is worse than no catalog — it misleads every AI agent that reads it.
+
 ## 1. What this project is
 
 A **production-grade, multi-tenant SaaS starter** built on Next.js 16 (App Router + RSC) with a strict three-layer architecture: framework-agnostic business logic, a Next.js binding layer, and the app routes themselves.
