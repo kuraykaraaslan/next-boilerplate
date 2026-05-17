@@ -1,0 +1,114 @@
+---
+description: Project-wide rules for the next-boilerplate (Next.js 16 multi-tenant SaaS starter). Always-on.
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+# next-boilerplate — Cursor rules
+
+Canonical source: [AGENTS.md](mdc:AGENTS.md). When this file and AGENTS.md disagree, AGENTS.md wins.
+
+## Before writing code, fetch the catalog
+
+Static snapshots live under `public/` (rebuild with `npm run registry:snapshot`):
+
+1. `public/registry/registry.json` — full catalog: modules + routes + entities + components + conventions.
+2. `public/registry/registry.index.json` — same shape, slimmer (no inlined READMEs).
+3. `public/registry/modules.json`, `routes.json`, `entities.json`, `components.json` — surface-by-surface.
+4. `public/modules/<id>.md` — per-module markdown chunk (README + dependency map + owned routes/entities/UI).
+5. `public/modules/_index.json` — `{ id → { tier, hasNextLayer, routeCount, … } }`.
+6. `public/schemas/registry-v1.json` — JSON Schema for validation / codegen.
+
+Or use the MCP server in `.mcp.json` (`scripts/mcp-server.mjs`). Tools: `list_modules`, `get_module`, `search_modules`, `list_routes`, `search_routes`, `list_entities`, `get_entity`, `list_components`, `get_conventions`, `get_module_readme`, `read_file`.
+
+Recipe (offline):
+
+```ts
+import fs from 'node:fs/promises';
+const reg = JSON.parse(await fs.readFile('public/registry/registry.index.json', 'utf8'));
+const billing = reg.modules.filter(m => m.tier === 'billing');
+const refundRoutes = reg.routes.filter(r => r.urlPath.includes('refund'));
+```
+
+## ⚠️ Catalog sync — REQUIRED
+
+**Any time you add, rename, or remove a module / API route / TypeORM entity / `modules_next/` component / hook / provider / BullMQ job, run:**
+
+```bash
+npm run registry:snapshot
+```
+
+**before committing.** This regenerates `public/registry/*.json` + `public/modules/*.md` from filesystem state. The same script runs automatically via the `prebuild` npm hook before `npm run build`, but you must still commit the regenerated files so the catalog stays in lockstep with the code. A stale catalog misleads every AI agent that reads it — treat it as broken-build severity.
+
+## Hard rules
+
+1. **Three layers, one-way dependency.**
+   - `app/` → `modules_next/` → `modules/`.
+   - `modules/` **never** imports `next/*`, `react`, `modules_next/*`, or `app/*`. Violations break the Express / other-runtime story and are rejected in review.
+2. **Path alias.** Only one is configured: `@/* → ./*`. Use it for all cross-module imports: `@/modules/auth/auth.service`, `@/modules_next/common/ui/Button`.
+3. **File-naming convention.**
+
+   | Suffix | Role |
+   |---|---|
+   | `*.service.ts` | Business logic |
+   | `*.dto.ts` | Zod input schemas |
+   | `*.types.ts` | TS types |
+   | `*.enums.ts` | Enums |
+   | `*.messages.ts` | i18n / user-facing message keys |
+   | `*.setting.keys.ts` | Setting key Zod enum |
+   | `*.entity.ts` | TypeORM `@Entity` (under `entities/`) |
+   | `*.provider.ts` | Pluggable backend implementation |
+   | `*.job.ts` | BullMQ job processor |
+   | `*.service.next.ts` | (modules_next/ only) Next-specific extension |
+   | `*.test.ts` / `*.test.tsx` | Vitest tests, colocated |
+4. **Multi-tenant scope.** Two top-level scopes:
+   - System (`app/system/...`) — super-admin, no tenant context. Routes: `/system/api/*`.
+   - Tenant (`app/tenant/[tenantId]/...`) — per-tenant. Routes: `/tenant/[tenantId]/api/*`. Resolution + URL rewrite happens in [proxy.ts](mdc:proxy.ts).
+   - When adding an API endpoint, **decide the scope first** — most things are tenant-scoped.
+5. **Auth.** JWT (httpOnly cookies), OTP, TOTP, SAML, OAuth (12+ providers via `modules/auth_sso`), WebAuthn/Passkeys via `modules/user_security`. Session issuance lives in `modules/user_session` (4 sub-services: token, cache, crud, service). Impersonation always goes through `modules/auth_impersonation` and is audited.
+6. **Database access.** Get a DataSource via `modules/db` — `getSystemDataSource()` or `tenantDataSourceFor(tenantId)`. Every new `*.entity.ts` must be registered there. Per-tenant entities are isolated by schema; **never share a DataSource between scopes**.
+7. **Settings & messages.** Per-module `*.setting.keys.ts` declares the key enum; `setting.service` is the read/write path. `*.messages.ts` enumerates i18n keys — never inline literal user-facing strings in service code.
+8. **Forms & validation.** `react-hook-form` + Zod. DTO schemas live in `*.dto.ts` and are reused server-side; the Next layer imports them from `modules/<x>/<x>.dto`.
+9. **UI primitives.** Tailwind 4 + Radix + CVA + FontAwesome. Buttons / Inputs / Forms / Tables / Modals all come from `modules_next/common/ui/`. Don't add a new UI primitive without checking that surface first.
+10. **State.** Zustand 5 for shared client state. No Redux, no Recoil. Server state stays on the server (RSC) where possible.
+11. **Logging.** Use `@/modules/logger` (Winston). Never `console.*` in service code.
+12. **Tests.** Vitest + `@testing-library/react`. Colocate as `*.test.ts(x)` beside the file under test. Run `npm test`.
+
+## Where new code goes
+
+| What you're building | Where |
+| --- | --- |
+| Pure business logic / entity / DTO | `modules/<id>/` (+ `module.json` + `README.md`) |
+| TypeORM entity | `modules/<id>/entities/<x>.entity.ts` (and register in `modules/db`) |
+| BullMQ processor | `modules/<id>/<x>.job.ts` |
+| Pluggable provider (email / sms / storage / payment) | `modules/<id>/<x>.provider.ts` |
+| Next-only service extension (uses `NextRequest` / cookies) | `modules_next/<id>/<x>.service.next.ts` |
+| Shared React UI primitive | `modules_next/common/ui/<X>.tsx` |
+| Module-specific React UI | `modules_next/<id>/ui/<X>.tsx` |
+| React hook | `modules_next/<id>/hooks/use<X>.ts` |
+| Page / layout | `app/system/...` or `app/tenant/[tenantId]/...` |
+| API route handler | `app/system/api/.../route.ts` or `app/tenant/[tenantId]/api/.../route.ts` |
+| One-off CLI | `scripts/<name>.ts` (run with `tsx`) |
+
+## Adding a new module — required order
+
+1. Create `modules/<id>/` with `module.json` (validated against `modules/module.schema.json`) and `README.md`.
+2. Add the matching tier entry to `modules/MODULES.md`.
+3. Implement `*.service.ts`, `*.dto.ts`, `*.types.ts`, `*.enums.ts`, `*.messages.ts` as needed.
+4. If it owns entities: `modules/<id>/entities/*.entity.ts` and register the entity in `modules/db`.
+5. If it has UI: matching `modules_next/<id>/{ui,hooks}/...`.
+6. Tests: `*.service.test.ts` colocated.
+7. Rebuild the AI catalog: `npm run registry:snapshot`.
+
+## Don't
+
+- Don't import `next/*` or `react` from anywhere under `modules/`.
+- Don't import from `modules_next/*` or `app/*` from `modules/*` (one-way only).
+- Don't introduce new path aliases — `@/* → ./*` is the only one.
+- Don't hand-roll a DataSource — go through `modules/db`.
+- Don't inline user-facing strings in service code — add a message key to `*.messages.ts`.
+- Don't use `console.*` in service code — use `logger`.
+- Don't mock the database in cross-module tests when an integration path makes sense.
+- Don't add a new auth strategy outside the `modules/auth*` family — keep them grouped.
+- Don't break tenant isolation: never reuse a system DataSource for tenant data or vice versa.
