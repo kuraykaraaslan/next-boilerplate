@@ -1,0 +1,146 @@
+# next-boilerplate
+
+> A production-grade, multi-tenant SaaS starter built on Next.js 16 (App
+> Router + RSC) with a strict three-layer architecture: framework-agnostic
+> business logic (`modules/`), a Next.js binding layer (`modules_next/`),
+> and the app routes themselves (`app/`).
+
+This file follows the llms.txt convention so AI agents can quickly orient
+without grepping the codebase. A full, machine-readable catalog of every
+module, API route, TypeORM entity, and Next-layer surface entry is served
+from `public/registry/`.
+
+## Machine-readable catalog
+
+- **Full registry (JSON):** `/registry/registry.json`
+- **Lightweight index (JSON, no inlined READMEs):** `/registry/registry.index.json`
+- **Surface-by-surface:** `/registry/modules.json`, `/registry/routes.json`, `/registry/entities.json`, `/registry/components.json`
+- **JSON Schema for validation:** `/schemas/registry-v1.json`
+- **Per-module markdown chunks:** `/modules/<id>.md` (one file per module — fetch just what you need)
+- **Markdown chunk index:** `/modules/_index.json`
+
+Rebuild any time the codebase changes:
+
+```bash
+npm run registry:snapshot
+```
+
+The full registry includes for every:
+
+- **Module** (41): `id`, `name`, `version`, `description`, `dir`, `tier`,
+  `tags`, `dependencies.{requires,optional,conflicts}`, `exports.*`
+  (services, dtos, entities, enums, messageKeys, settingKeys, providers,
+  jobs), `hasNextLayer`, and inlined `README.md`.
+- **Route** (~151): `filePath`, `scope` (system|tenant), `urlPath`,
+  `methods[]`, best-guess owning `module`, `dynamic` flag.
+- **Entity** (~31 TypeORM `@Entity` classes): `name`, `filePath`,
+  owning `module`, `schema` (system|tenant), `tableName`, `columns[]`,
+  `relations[]`.
+- **Component** (~97 Next-layer surface entries): `id`, owning `module`,
+  `filePath`, `kind` (`ui` | `hook` | `service.next` | `axios` | `util` | `type`),
+  named `exports[]`, `isClient`, `isServer`.
+
+## MCP server (Claude Desktop / Cursor / Cline / Windsurf / Zed)
+
+Zero-dependency stdio MCP server. Config in `.mcp.json` at the repo root.
+Tools:
+
+- `list_modules` — filter by tier or tag
+- `get_module` — by id, returns description, dependencies, exports, README
+- `search_modules` — substring search across id + name + description + README
+- `list_routes` — filter by scope (system|tenant), method, or module id
+- `search_routes` — substring search over urlPath + filePath
+- `list_entities` — filter by schema or module
+- `get_entity` — by TypeORM class name
+- `list_components` — filter by module id or kind
+- `get_conventions` — layer rules + naming + scopes + auth + testing + security
+- `get_module_readme` — pre-rendered per-module markdown chunk
+- `read_file` — read any repo file (sandboxed to the repository root)
+
+Reads from `public/registry/registry.json`. Refresh with `npm run registry:snapshot`.
+
+## Editor-native rule files (mirror of AGENTS.md)
+
+- `.cursor/rules/next-boilerplate.mdc` — Cursor (modern)
+- `.cursorrules` — Cursor (legacy)
+- `.windsurfrules` — Windsurf
+- `.github/copilot-instructions.md` — GitHub Copilot
+- `.clinerules` — Cline / Continue.dev
+
+## The three layers
+
+- `app/` — Next.js App Router pages, layouts, route handlers. Thin glue.
+- `modules_next/` — Next.js binding layer: React components, hooks,
+  `NextRequest`/`NextResponse` service extensions, axios client.
+- `modules/` — framework-agnostic business logic (services, DTOs,
+  entities, types, enums, messages). **No `next/*`, no `react`, no
+  browser APIs.** Importable from any runtime (Express, CLI scripts).
+
+Strict one-way dependency: `app/ → modules_next/ → modules/`. The reverse
+is enforced by review.
+
+## Multi-tenant scopes
+
+Two top-level URL scopes:
+
+- **System** (`app/system/...`) — super-admin, no tenant context. Routes
+  under `/system/api/*`.
+- **Tenant** (`app/tenant/[tenantId]/...`) — per-tenant. Routes under
+  `/tenant/[tenantId]/api/*`. Resolution + URL rewriting happens in
+  [proxy.ts](/proxy.ts), supporting both `domain` (subdomain per tenant)
+  and `path` (`/t/{tenantId}/...`) tenancy modes.
+
+Per-tenant data lives in a per-tenant TypeORM `DataSource` via
+`modules/db`. **Never share a DataSource across scopes.**
+
+## Conventions (must follow)
+
+- **File naming:** `*.service.ts`, `*.dto.ts`, `*.types.ts`, `*.enums.ts`,
+  `*.messages.ts`, `*.setting.keys.ts`, `*.entity.ts` (under `entities/`),
+  `*.provider.ts`, `*.job.ts`, `*.service.next.ts` (modules_next/ only),
+  `*.test.ts(x)` colocated.
+- **Path alias:** only `@/* → ./*` is configured.
+- **Auth:** JWT (httpOnly cookies), OTP, TOTP, SAML, OAuth (12+ providers),
+  WebAuthn/Passkeys. Session issuance lives in `modules/user_session`.
+- **Database:** TypeORM, dual-schema (system + per-tenant). Get a
+  DataSource via `modules/db`.
+- **Cache / queue:** Redis (`modules/redis`) + BullMQ.
+- **Settings:** Per-module `*.setting.keys.ts` declares the key enum;
+  `modules/setting` is the read/write path.
+- **Logging:** `@/modules/logger` (Winston). Never `console.*` in service code.
+- **Tests:** Vitest + `@testing-library/react`, colocated as `*.test.ts(x)`.
+- **UI:** Tailwind 4 + Radix + CVA + FontAwesome.
+- **Forms:** `react-hook-form` + Zod (DTO reuse).
+- **State:** Zustand 5 for shared client state.
+
+## Where to put new code
+
+- Pure business logic / entity / DTO → `modules/<id>/`
+- TypeORM entity → `modules/<id>/entities/<x>.entity.ts` (register in `modules/db`)
+- BullMQ job processor → `modules/<id>/<x>.job.ts`
+- Pluggable provider → `modules/<id>/<x>.provider.ts`
+- Next-only service extension → `modules_next/<id>/<x>.service.next.ts`
+- Shared React UI primitive → `modules_next/common/ui/<X>.tsx`
+- Module-specific React UI → `modules_next/<id>/ui/<X>.tsx`
+- React hook → `modules_next/<id>/hooks/use<X>.ts`
+- Page / layout → `app/system/...` or `app/tenant/[tenantId]/...`
+- API route handler → `app/<scope>/api/.../route.ts`
+- One-off CLI → `scripts/<name>.ts` (run via `tsx`)
+
+## How to use this catalog from an AI agent
+
+1. Fetch `/registry/registry.index.json` for a fast scan of every module + route + entity + component.
+2. Filter `modules[]` by `tier` / `tags` to find the right module.
+3. Fetch `/modules/<id>.md` for the per-module deep dive (README + dependency map + owned routes/entities/UI surface).
+4. Fetch `/registry/registry.json` (or read the file at `filePath`) when you need full source-of-truth content.
+5. Follow `dependencies.requires[]` to discover what else you must import.
+
+## More
+
+- `AGENTS.md` — canonical AI-readable orientation guide.
+- `README.md` — human-facing intro.
+- `SECURITY.md` — security model & threat scenarios.
+- `CRON.md` — scheduled jobs reference.
+- `modules/MODULES.md` — single-page index of every module.
+- `modules_next/COMPONENTS.md` — UI component catalog.
+- `modules/module.schema.json` — per-module `module.json` schema.

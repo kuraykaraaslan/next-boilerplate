@@ -1,0 +1,1220 @@
+{
+  "name": "next-boilerplate",
+  "registryVersion": "1.0",
+  "generatedAt": "2026-05-17T16:17:31.330Z",
+  "components": [
+    {
+      "id": "ai/ui/AIChatBox",
+      "module": "ai",
+      "filePath": "modules_next/ai/ui/AIChatBox.tsx",
+      "kind": "ui",
+      "exports": [
+        "ChatMessage",
+        "AIChatBox"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "AIChatBox"
+    },
+    {
+      "id": "api_doc/ui/ApiDocsPage",
+      "module": "api_doc",
+      "filePath": "modules_next/api_doc/ui/ApiDocsPage.tsx",
+      "kind": "ui",
+      "exports": [
+        "ApiDocsPage"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ApiDocsPage"
+    },
+    {
+      "id": "api_doc/ui/ApiTagSection",
+      "module": "api_doc",
+      "filePath": "modules_next/api_doc/ui/ApiTagSection.tsx",
+      "kind": "ui",
+      "exports": [
+        "ApiTagSection"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ApiTagSection"
+    },
+    {
+      "id": "api_doc/ui/CodeSamplePanel",
+      "module": "api_doc",
+      "filePath": "modules_next/api_doc/ui/CodeSamplePanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "CodeSamplePanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CodeSamplePanel"
+    },
+    {
+      "id": "api_doc/ui/EndpointRow",
+      "module": "api_doc",
+      "filePath": "modules_next/api_doc/ui/EndpointRow.tsx",
+      "kind": "ui",
+      "exports": [
+        "EndpointRow"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "EndpointRow"
+    },
+    {
+      "id": "api_doc/ui/HttpMethodBadge",
+      "module": "api_doc",
+      "filePath": "modules_next/api_doc/ui/HttpMethodBadge.tsx",
+      "kind": "ui",
+      "exports": [
+        "HttpMethodBadge"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "HttpMethodBadge"
+    },
+    {
+      "id": "api_doc/ui/mockSpec",
+      "module": "api_doc",
+      "filePath": "modules_next/api_doc/ui/mockSpec.ts",
+      "kind": "ui",
+      "exports": [
+        "SYSTEM_SPEC",
+        "TENANT_SPEC"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "mockSpec"
+    },
+    {
+      "id": "api_doc/ui/OperationPanel",
+      "module": "api_doc",
+      "filePath": "modules_next/api_doc/ui/OperationPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "OperationPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "OperationPanel"
+    },
+    {
+      "id": "api_doc/ui/ParameterTable",
+      "module": "api_doc",
+      "filePath": "modules_next/api_doc/ui/ParameterTable.tsx",
+      "kind": "ui",
+      "exports": [
+        "ParameterTable"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "ParameterTable"
+    },
+    {
+      "id": "api_doc/ui/ResponseCard",
+      "module": "api_doc",
+      "filePath": "modules_next/api_doc/ui/ResponseCard.tsx",
+      "kind": "ui",
+      "exports": [
+        "ResponseCard"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ResponseCard"
+    },
+    {
+      "id": "api_doc/ui/SchemaViewer",
+      "module": "api_doc",
+      "filePath": "modules_next/api_doc/ui/SchemaViewer.tsx",
+      "kind": "ui",
+      "exports": [
+        "SchemaViewer"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SchemaViewer"
+    },
+    {
+      "id": "api_doc/ui/SecuritySchemeBadge",
+      "module": "api_doc",
+      "filePath": "modules_next/api_doc/ui/SecuritySchemeBadge.tsx",
+      "kind": "ui",
+      "exports": [
+        "SecuritySchemeBadge"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "SecuritySchemeBadge"
+    },
+    {
+      "id": "api_doc/ui/ServerSelector",
+      "module": "api_doc",
+      "filePath": "modules_next/api_doc/ui/ServerSelector.tsx",
+      "kind": "ui",
+      "exports": [
+        "ServerSelector"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ServerSelector"
+    },
+    {
+      "id": "api_doc/ui/StatusCodeBadge",
+      "module": "api_doc",
+      "filePath": "modules_next/api_doc/ui/StatusCodeBadge.tsx",
+      "kind": "ui",
+      "exports": [
+        "StatusCodeBadge"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "StatusCodeBadge"
+    },
+    {
+      "id": "api_doc/ui/types",
+      "module": "api_doc",
+      "filePath": "modules_next/api_doc/ui/types.ts",
+      "kind": "ui",
+      "exports": [
+        "ApiSpecStatus",
+        "SecuritySchemeType",
+        "SecurityScheme",
+        "Server",
+        "Tag",
+        "SchemaObject",
+        "Parameter",
+        "MediaTypeObject",
+        "RequestBody",
+        "ResponseHeader",
+        "ApiResponse",
+        "CodeSample",
+        "Operation",
+        "PathItem",
+        "ApiSpec"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "types"
+    },
+    {
+      "id": "audit_log/audit_log.service.next",
+      "module": "audit_log",
+      "filePath": "modules_next/audit_log/audit_log.service.next.ts",
+      "kind": "service.next",
+      "exports": [],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "audit_log.service.next"
+    },
+    {
+      "id": "audit_log/ui/AuditLogFilters",
+      "module": "audit_log",
+      "filePath": "modules_next/audit_log/ui/AuditLogFilters.tsx",
+      "kind": "ui",
+      "exports": [
+        "AuditLogFilterValues",
+        "AuditLogFilters"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "AuditLogFilters"
+    },
+    {
+      "id": "auth_saml/ui/SamlAttributeForm",
+      "module": "auth_saml",
+      "filePath": "modules_next/auth_saml/ui/SamlAttributeForm.tsx",
+      "kind": "ui",
+      "exports": [
+        "SamlAttributeForm"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SamlAttributeForm"
+    },
+    {
+      "id": "auth_saml/ui/SamlConfigForm",
+      "module": "auth_saml",
+      "filePath": "modules_next/auth_saml/ui/SamlConfigForm.tsx",
+      "kind": "ui",
+      "exports": [
+        "SamlConfigFormValues",
+        "SamlConfigForm"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SamlConfigForm"
+    },
+    {
+      "id": "auth_saml/ui/SamlMetadataCard",
+      "module": "auth_saml",
+      "filePath": "modules_next/auth_saml/ui/SamlMetadataCard.tsx",
+      "kind": "ui",
+      "exports": [
+        "SamlMetadataCard"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SamlMetadataCard"
+    },
+    {
+      "id": "auth/ui/ForgotPasswordForm",
+      "module": "auth",
+      "filePath": "modules_next/auth/ui/ForgotPasswordForm.tsx",
+      "kind": "ui",
+      "exports": [
+        "ForgotPasswordForm"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ForgotPasswordForm"
+    },
+    {
+      "id": "auth/ui/LoginForm",
+      "module": "auth",
+      "filePath": "modules_next/auth/ui/LoginForm.tsx",
+      "kind": "ui",
+      "exports": [
+        "LoginForm"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "LoginForm"
+    },
+    {
+      "id": "auth/ui/OAuthButtons",
+      "module": "auth",
+      "filePath": "modules_next/auth/ui/OAuthButtons.tsx",
+      "kind": "ui",
+      "exports": [
+        "SSO_PROVIDERS",
+        "OAuthProvider",
+        "OAuthButtons"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "OAuthButtons"
+    },
+    {
+      "id": "auth/ui/RegisterForm",
+      "module": "auth",
+      "filePath": "modules_next/auth/ui/RegisterForm.tsx",
+      "kind": "ui",
+      "exports": [
+        "RegisterForm"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "RegisterForm"
+    },
+    {
+      "id": "auth/ui/SessionExpiredBanner",
+      "module": "auth",
+      "filePath": "modules_next/auth/ui/SessionExpiredBanner.tsx",
+      "kind": "ui",
+      "exports": [
+        "SessionExpiredBanner"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SessionExpiredBanner"
+    },
+    {
+      "id": "common/axios/axios.client",
+      "module": "common",
+      "filePath": "modules_next/common/axios/axios.client.ts",
+      "kind": "axios",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "axios.client"
+    },
+    {
+      "id": "common/axios/index",
+      "module": "common",
+      "filePath": "modules_next/common/axios/index.ts",
+      "kind": "axios",
+      "exports": [
+        "default"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "index"
+    },
+    {
+      "id": "common/module.types",
+      "module": "common",
+      "filePath": "modules_next/common/module.types.ts",
+      "kind": "type",
+      "exports": [
+        "SettingsTab",
+        "Route",
+        "Widget",
+        "LoadedModule",
+        "ModuleRegistry"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "module.types"
+    },
+    {
+      "id": "common/ui/AlertBanner",
+      "module": "common",
+      "filePath": "modules_next/common/ui/AlertBanner.tsx",
+      "kind": "ui",
+      "exports": [
+        "AlertAction",
+        "AlertBanner"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "AlertBanner"
+    },
+    {
+      "id": "common/ui/Avatar",
+      "module": "common",
+      "filePath": "modules_next/common/ui/Avatar.tsx",
+      "kind": "ui",
+      "exports": [
+        "Avatar",
+        "AvatarGroup"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Avatar"
+    },
+    {
+      "id": "common/ui/AvatarUpload",
+      "module": "common",
+      "filePath": "modules_next/common/ui/AvatarUpload.tsx",
+      "kind": "ui",
+      "exports": [
+        "AvatarUpload"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "AvatarUpload"
+    },
+    {
+      "id": "common/ui/Badge",
+      "module": "common",
+      "filePath": "modules_next/common/ui/Badge.tsx",
+      "kind": "ui",
+      "exports": [
+        "Badge"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Badge"
+    },
+    {
+      "id": "common/ui/BrandLogo",
+      "module": "common",
+      "filePath": "modules_next/common/ui/BrandLogo.tsx",
+      "kind": "ui",
+      "exports": [
+        "BrandLogo"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "BrandLogo"
+    },
+    {
+      "id": "common/ui/Breadcrumb",
+      "module": "common",
+      "filePath": "modules_next/common/ui/Breadcrumb.tsx",
+      "kind": "ui",
+      "exports": [
+        "BreadcrumbItem",
+        "Breadcrumb"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Breadcrumb"
+    },
+    {
+      "id": "common/ui/Button",
+      "module": "common",
+      "filePath": "modules_next/common/ui/Button.tsx",
+      "kind": "ui",
+      "exports": [
+        "Button"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Button"
+    },
+    {
+      "id": "common/ui/Card",
+      "module": "common",
+      "filePath": "modules_next/common/ui/Card.tsx",
+      "kind": "ui",
+      "exports": [
+        "Card"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Card"
+    },
+    {
+      "id": "common/ui/DateRangePicker",
+      "module": "common",
+      "filePath": "modules_next/common/ui/DateRangePicker.tsx",
+      "kind": "ui",
+      "exports": [
+        "DateRange",
+        "DateRangePicker"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "DateRangePicker"
+    },
+    {
+      "id": "common/ui/Drawer",
+      "module": "common",
+      "filePath": "modules_next/common/ui/Drawer.tsx",
+      "kind": "ui",
+      "exports": [
+        "Drawer"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Drawer"
+    },
+    {
+      "id": "common/ui/EmptyState",
+      "module": "common",
+      "filePath": "modules_next/common/ui/EmptyState.tsx",
+      "kind": "ui",
+      "exports": [
+        "EmptyState"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "EmptyState"
+    },
+    {
+      "id": "common/ui/FileInput",
+      "module": "common",
+      "filePath": "modules_next/common/ui/FileInput.tsx",
+      "kind": "ui",
+      "exports": [
+        "FileInput"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "FileInput"
+    },
+    {
+      "id": "common/ui/Form",
+      "module": "common",
+      "filePath": "modules_next/common/ui/Form.tsx",
+      "kind": "ui",
+      "exports": [
+        "Form"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Form"
+    },
+    {
+      "id": "common/ui/Input",
+      "module": "common",
+      "filePath": "modules_next/common/ui/Input.tsx",
+      "kind": "ui",
+      "exports": [
+        "Input"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Input"
+    },
+    {
+      "id": "common/ui/layout/AdminShell",
+      "module": "common",
+      "filePath": "modules_next/common/ui/layout/AdminShell.tsx",
+      "kind": "ui",
+      "exports": [
+        "AdminShell"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "AdminShell"
+    },
+    {
+      "id": "common/ui/layout/AppShell",
+      "module": "common",
+      "filePath": "modules_next/common/ui/layout/AppShell.tsx",
+      "kind": "ui",
+      "exports": [
+        "AppShell"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "AppShell"
+    },
+    {
+      "id": "common/ui/layout/AppSidebar",
+      "module": "common",
+      "filePath": "modules_next/common/ui/layout/AppSidebar.tsx",
+      "kind": "ui",
+      "exports": [
+        "AppSidebarNavItem",
+        "AppSidebarNavGroup",
+        "AppSidebarFooterRenderContext",
+        "AppSidebar"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "AppSidebar"
+    },
+    {
+      "id": "common/ui/layout/AppTopBar",
+      "module": "common",
+      "filePath": "modules_next/common/ui/layout/AppTopBar.tsx",
+      "kind": "ui",
+      "exports": [
+        "AppTopBar"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "AppTopBar"
+    },
+    {
+      "id": "common/ui/layout/FontAwesomeConfig",
+      "module": "common",
+      "filePath": "modules_next/common/ui/layout/FontAwesomeConfig.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "FontAwesomeConfig"
+    },
+    {
+      "id": "common/ui/Modal",
+      "module": "common",
+      "filePath": "modules_next/common/ui/Modal.tsx",
+      "kind": "ui",
+      "exports": [
+        "Modal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Modal"
+    },
+    {
+      "id": "common/ui/NotificationMenu",
+      "module": "common",
+      "filePath": "modules_next/common/ui/NotificationMenu.tsx",
+      "kind": "ui",
+      "exports": [
+        "NotificationItem",
+        "NotificationMenu"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "NotificationMenu"
+    },
+    {
+      "id": "common/ui/PageHeader",
+      "module": "common",
+      "filePath": "modules_next/common/ui/PageHeader.tsx",
+      "kind": "ui",
+      "exports": [
+        "PageHeaderAction",
+        "PageHeader"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PageHeader"
+    },
+    {
+      "id": "common/ui/Pagination",
+      "module": "common",
+      "filePath": "modules_next/common/ui/Pagination.tsx",
+      "kind": "ui",
+      "exports": [
+        "Pagination"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Pagination"
+    },
+    {
+      "id": "common/ui/RadioGroup",
+      "module": "common",
+      "filePath": "modules_next/common/ui/RadioGroup.tsx",
+      "kind": "ui",
+      "exports": [
+        "RadioOption",
+        "RadioGroup"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "RadioGroup"
+    },
+    {
+      "id": "common/ui/RowActionsMenu",
+      "module": "common",
+      "filePath": "modules_next/common/ui/RowActionsMenu.tsx",
+      "kind": "ui",
+      "exports": [
+        "RowActionsMenu"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "RowActionsMenu"
+    },
+    {
+      "id": "common/ui/SearchBar",
+      "module": "common",
+      "filePath": "modules_next/common/ui/SearchBar.tsx",
+      "kind": "ui",
+      "exports": [
+        "SearchBar"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SearchBar"
+    },
+    {
+      "id": "common/ui/Select",
+      "module": "common",
+      "filePath": "modules_next/common/ui/Select.tsx",
+      "kind": "ui",
+      "exports": [
+        "SelectOption",
+        "Select"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Select"
+    },
+    {
+      "id": "common/ui/ServerDataTable",
+      "module": "common",
+      "filePath": "modules_next/common/ui/ServerDataTable.tsx",
+      "kind": "ui",
+      "exports": [
+        "TableColumn",
+        "ServerDataTable"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ServerDataTable"
+    },
+    {
+      "id": "common/ui/Skeleton",
+      "module": "common",
+      "filePath": "modules_next/common/ui/Skeleton.tsx",
+      "kind": "ui",
+      "exports": [
+        "Skeleton",
+        "SkeletonText",
+        "SkeletonCard",
+        "SkeletonTable"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Skeleton"
+    },
+    {
+      "id": "common/ui/SkipToContent",
+      "module": "common",
+      "filePath": "modules_next/common/ui/SkipToContent.tsx",
+      "kind": "ui",
+      "exports": [
+        "SkipToContent"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SkipToContent"
+    },
+    {
+      "id": "common/ui/Spinner",
+      "module": "common",
+      "filePath": "modules_next/common/ui/Spinner.tsx",
+      "kind": "ui",
+      "exports": [
+        "Spinner"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Spinner"
+    },
+    {
+      "id": "common/ui/TabGroup",
+      "module": "common",
+      "filePath": "modules_next/common/ui/TabGroup.tsx",
+      "kind": "ui",
+      "exports": [
+        "Tab",
+        "TabGroup"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "TabGroup"
+    },
+    {
+      "id": "common/ui/ThemeToggle",
+      "module": "common",
+      "filePath": "modules_next/common/ui/ThemeToggle.tsx",
+      "kind": "ui",
+      "exports": [
+        "ThemeToggle"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ThemeToggle"
+    },
+    {
+      "id": "common/ui/toast.store",
+      "module": "common",
+      "filePath": "modules_next/common/ui/toast.store.ts",
+      "kind": "ui",
+      "exports": [
+        "useToastStore",
+        "toast"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "toast.store"
+    },
+    {
+      "id": "common/ui/ToastContainer",
+      "module": "common",
+      "filePath": "modules_next/common/ui/ToastContainer.tsx",
+      "kind": "ui",
+      "exports": [
+        "ToastContainer"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ToastContainer"
+    },
+    {
+      "id": "common/ui/Toggle",
+      "module": "common",
+      "filePath": "modules_next/common/ui/Toggle.tsx",
+      "kind": "ui",
+      "exports": [
+        "Toggle"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Toggle"
+    },
+    {
+      "id": "common/ui/Tooltip",
+      "module": "common",
+      "filePath": "modules_next/common/ui/Tooltip.tsx",
+      "kind": "ui",
+      "exports": [
+        "Tooltip"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Tooltip"
+    },
+    {
+      "id": "common/utils/cn",
+      "module": "common",
+      "filePath": "modules_next/common/utils/cn.ts",
+      "kind": "util",
+      "exports": [
+        "cn"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "cn"
+    },
+    {
+      "id": "coupon/ui/CouponApplyForm",
+      "module": "coupon",
+      "filePath": "modules_next/coupon/ui/CouponApplyForm.tsx",
+      "kind": "ui",
+      "exports": [
+        "CouponApplyForm"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CouponApplyForm"
+    },
+    {
+      "id": "coupon/ui/CouponBadge",
+      "module": "coupon",
+      "filePath": "modules_next/coupon/ui/CouponBadge.tsx",
+      "kind": "ui",
+      "exports": [
+        "CouponBadge"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "CouponBadge"
+    },
+    {
+      "id": "coupon/ui/CouponRedemptionsList",
+      "module": "coupon",
+      "filePath": "modules_next/coupon/ui/CouponRedemptionsList.tsx",
+      "kind": "ui",
+      "exports": [
+        "CouponRedemptionsList"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CouponRedemptionsList"
+    },
+    {
+      "id": "limiter/limiter.rate-limiters",
+      "module": "limiter",
+      "filePath": "modules_next/limiter/limiter.rate-limiters.ts",
+      "kind": "ui",
+      "exports": [
+        "apiRateLimiter",
+        "authRateLimiter",
+        "tenantPlanRateLimiter"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "limiter.rate-limiters"
+    },
+    {
+      "id": "limiter/limiter.service.next",
+      "module": "limiter",
+      "filePath": "modules_next/limiter/limiter.service.next.ts",
+      "kind": "service.next",
+      "exports": [],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "limiter.service.next"
+    },
+    {
+      "id": "module.types.ts/",
+      "module": "module.types.ts",
+      "filePath": "modules_next/module.types.ts",
+      "kind": "type",
+      "exports": [
+        "ModuleScope",
+        "SettingsTabJson",
+        "MenuItemJson",
+        "MenuItem",
+        "RouteJson",
+        "ApiEndpointJson",
+        "Permission",
+        "WidgetJson",
+        "ModuleHooks",
+        "ModuleDependencies",
+        "ModuleJson"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "module.types"
+    },
+    {
+      "id": "notification_inapp/hooks/use-notifications.hook",
+      "module": "notification_inapp",
+      "filePath": "modules_next/notification_inapp/hooks/use-notifications.hook.ts",
+      "kind": "hook",
+      "exports": [
+        "useNotifications"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "use-notifications.hook"
+    },
+    {
+      "id": "payment/ui/PaymentStatusBadge",
+      "module": "payment",
+      "filePath": "modules_next/payment/ui/PaymentStatusBadge.tsx",
+      "kind": "ui",
+      "exports": [
+        "PaymentStatus",
+        "PaymentStatusBadge"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PaymentStatusBadge"
+    },
+    {
+      "id": "payment/ui/PaymentSummaryCard",
+      "module": "payment",
+      "filePath": "modules_next/payment/ui/PaymentSummaryCard.tsx",
+      "kind": "ui",
+      "exports": [
+        "PaymentSummaryCard"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PaymentSummaryCard"
+    },
+    {
+      "id": "redis_idempotency/withIdempotency",
+      "module": "redis_idempotency",
+      "filePath": "modules_next/redis_idempotency/withIdempotency.ts",
+      "kind": "ui",
+      "exports": [
+        "withIdempotency"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "withIdempotency"
+    },
+    {
+      "id": "setting/setting.types",
+      "module": "setting",
+      "filePath": "modules_next/setting/setting.types.ts",
+      "kind": "ui",
+      "exports": [
+        "SettingsTabProps"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "setting.types"
+    },
+    {
+      "id": "tenant_session/tenant_session.service.next",
+      "module": "tenant_session",
+      "filePath": "modules_next/tenant_session/tenant_session.service.next.ts",
+      "kind": "service.next",
+      "exports": [],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "tenant_session.service.next"
+    },
+    {
+      "id": "tenant_subscription/hooks/use-feature-access",
+      "module": "tenant_subscription",
+      "filePath": "modules_next/tenant_subscription/hooks/use-feature-access.ts",
+      "kind": "hook",
+      "exports": [
+        "useFeatureAccess"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "use-feature-access"
+    },
+    {
+      "id": "tenant_subscription/hooks/use-grace-period",
+      "module": "tenant_subscription",
+      "filePath": "modules_next/tenant_subscription/hooks/use-grace-period.ts",
+      "kind": "hook",
+      "exports": [
+        "useGracePeriod"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "use-grace-period"
+    },
+    {
+      "id": "tenant_subscription/tenant_subscription.grace-period",
+      "module": "tenant_subscription",
+      "filePath": "modules_next/tenant_subscription/tenant_subscription.grace-period.ts",
+      "kind": "ui",
+      "exports": [
+        "checkGracePeriod",
+        "isInGracePeriod"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "tenant_subscription.grace-period"
+    },
+    {
+      "id": "tenant_subscription/ui/FeatureGate",
+      "module": "tenant_subscription",
+      "filePath": "modules_next/tenant_subscription/ui/FeatureGate.tsx",
+      "kind": "ui",
+      "exports": [
+        "FeatureGate"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "FeatureGate"
+    },
+    {
+      "id": "tenant_subscription/ui/GracePeriodBanner",
+      "module": "tenant_subscription",
+      "filePath": "modules_next/tenant_subscription/ui/GracePeriodBanner.tsx",
+      "kind": "ui",
+      "exports": [
+        "GracePeriodBanner"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "GracePeriodBanner"
+    },
+    {
+      "id": "tenant_subscription/ui/PlanUsageMeter",
+      "module": "tenant_subscription",
+      "filePath": "modules_next/tenant_subscription/ui/PlanUsageMeter.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlanUsageMeter"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PlanUsageMeter"
+    },
+    {
+      "id": "tenant_subscription/ui/SubscriptionPlanCard",
+      "module": "tenant_subscription",
+      "filePath": "modules_next/tenant_subscription/ui/SubscriptionPlanCard.tsx",
+      "kind": "ui",
+      "exports": [
+        "SubscriptionPlanCard"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SubscriptionPlanCard"
+    },
+    {
+      "id": "tenant_subscription/ui/UpgradePrompt",
+      "module": "tenant_subscription",
+      "filePath": "modules_next/tenant_subscription/ui/UpgradePrompt.tsx",
+      "kind": "ui",
+      "exports": [
+        "UpgradePrompt"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "UpgradePrompt"
+    },
+    {
+      "id": "tenant/ui/CreateTenantForm",
+      "module": "tenant",
+      "filePath": "modules_next/tenant/ui/CreateTenantForm.tsx",
+      "kind": "ui",
+      "exports": [
+        "CreateTenantValues",
+        "CreateTenantForm"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CreateTenantForm"
+    },
+    {
+      "id": "tenant/ui/TenantSelectorCard",
+      "module": "tenant",
+      "filePath": "modules_next/tenant/ui/TenantSelectorCard.tsx",
+      "kind": "ui",
+      "exports": [
+        "TenantSummary",
+        "TenantSelectorCard"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "TenantSelectorCard"
+    },
+    {
+      "id": "user_security/ui/PasskeysPanel",
+      "module": "user_security",
+      "filePath": "modules_next/user_security/ui/PasskeysPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "PasskeysPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PasskeysPanel"
+    },
+    {
+      "id": "user_session/user_session.service.next",
+      "module": "user_session",
+      "filePath": "modules_next/user_session/user_session.service.next.ts",
+      "kind": "service.next",
+      "exports": [],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "user_session.service.next"
+    },
+    {
+      "id": "user/ui/SocialAccountsPanel",
+      "module": "user",
+      "filePath": "modules_next/user/ui/SocialAccountsPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "SocialAccountsPanelProps",
+        "SocialAccountsPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SocialAccountsPanel"
+    },
+    {
+      "id": "user/ui/UserMenu",
+      "module": "user",
+      "filePath": "modules_next/user/ui/UserMenu.tsx",
+      "kind": "ui",
+      "exports": [
+        "UserMenuUser",
+        "UserMenu"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "UserMenu"
+    },
+    {
+      "id": "user/ui/UserPreferencesForm",
+      "module": "user",
+      "filePath": "modules_next/user/ui/UserPreferencesForm.tsx",
+      "kind": "ui",
+      "exports": [
+        "UserPreferencesValues",
+        "UserPreferencesForm"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "UserPreferencesForm"
+    },
+    {
+      "id": "user/ui/UserProfileCard",
+      "module": "user",
+      "filePath": "modules_next/user/ui/UserProfileCard.tsx",
+      "kind": "ui",
+      "exports": [
+        "UserProfileCard"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "UserProfileCard"
+    },
+    {
+      "id": "user/ui/UserProfileForm",
+      "module": "user",
+      "filePath": "modules_next/user/ui/UserProfileForm.tsx",
+      "kind": "ui",
+      "exports": [
+        "UserProfileValues",
+        "UserProfileForm"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "UserProfileForm"
+    },
+    {
+      "id": "user/ui/UserRoleBadge",
+      "module": "user",
+      "filePath": "modules_next/user/ui/UserRoleBadge.tsx",
+      "kind": "ui",
+      "exports": [
+        "UserRoleBadge"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "UserRoleBadge"
+    },
+    {
+      "id": "user/ui/UserStatusBadge",
+      "module": "user",
+      "filePath": "modules_next/user/ui/UserStatusBadge.tsx",
+      "kind": "ui",
+      "exports": [
+        "UserStatusBadge"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "UserStatusBadge"
+    }
+  ]
+}

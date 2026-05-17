@@ -1,0 +1,135 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://next-boilerplate.local/schemas/registry-v1.json",
+  "title": "next-boilerplate registry",
+  "description": "Machine-readable catalog of every business-logic module, API route, TypeORM entity, and React UI component in the next-boilerplate. Built by scripts/build-registry-snapshot.mjs; served from public/registry/.",
+  "type": "object",
+  "required": [
+    "$schema",
+    "name",
+    "version",
+    "registryVersion",
+    "generatedAt",
+    "description",
+    "layers",
+    "conventions",
+    "modules",
+    "routes",
+    "entities",
+    "components"
+  ],
+  "properties": {
+    "$schema":         { "type": "string", "format": "uri" },
+    "name":            { "type": "string" },
+    "version":         { "type": "string" },
+    "registryVersion": { "type": "string" },
+    "generatedAt":     { "type": "string", "format": "date-time" },
+    "description":     { "type": "string" },
+    "layers": {
+      "type": "object",
+      "required": ["app", "modules_next", "modules"],
+      "properties": {
+        "app":          { "type": "string" },
+        "modules_next": { "type": "string" },
+        "modules":      { "type": "string" }
+      }
+    },
+    "conventions": {
+      "type": "object",
+      "required": ["architecture", "fileNaming", "scopes", "auth", "testing", "security"],
+      "properties": {
+        "architecture": { "type": "string" },
+        "fileNaming":   { "type": "string" },
+        "scopes":       { "type": "string" },
+        "auth":         { "type": "string" },
+        "testing":      { "type": "string" },
+        "security":     { "type": "string" }
+      }
+    },
+    "modules":    { "type": "array", "items": { "$ref": "#/definitions/Module" } },
+    "routes":     { "type": "array", "items": { "$ref": "#/definitions/Route" } },
+    "entities":   { "type": "array", "items": { "$ref": "#/definitions/Entity" } },
+    "components": { "type": "array", "items": { "$ref": "#/definitions/Component" } }
+  },
+  "definitions": {
+    "Module": {
+      "type": "object",
+      "required": ["id", "name", "version", "description", "dir"],
+      "properties": {
+        "id":          { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+        "name":        { "type": "string" },
+        "version":     { "type": "string" },
+        "description": { "type": "string" },
+        "dir":         { "type": "string", "description": "Repo-relative directory, e.g. modules/auth" },
+        "icon":        { "type": "string" },
+        "tags":        { "type": "array", "items": { "type": "string" } },
+        "priority":    { "type": "integer" },
+        "tier":        { "type": "string", "enum": ["infrastructure", "identity", "tenancy", "notifications", "billing", "platform", "ai", "other"] },
+        "dependencies": {
+          "type": "object",
+          "properties": {
+            "requires":  { "type": "array", "items": { "type": "string" } },
+            "optional":  { "type": "array", "items": { "type": "string" } },
+            "conflicts": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "exports": {
+          "type": "object",
+          "description": "What the module surfaces — services, DTOs, entities, message-key namespaces, setting-key namespaces.",
+          "properties": {
+            "services":    { "type": "array", "items": { "type": "string" } },
+            "dtos":        { "type": "array", "items": { "type": "string" } },
+            "entities":    { "type": "array", "items": { "type": "string" } },
+            "enums":       { "type": "array", "items": { "type": "string" } },
+            "messageKeys": { "type": "array", "items": { "type": "string" } },
+            "settingKeys": { "type": "array", "items": { "type": "string" } },
+            "providers":   { "type": "array", "items": { "type": "string" } },
+            "jobs":        { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "hasReadme":     { "type": "boolean" },
+        "hasModuleJson": { "type": "boolean" },
+        "hasNextLayer":  { "type": "boolean", "description": "True when a matching modules_next/<id>/ directory exists." },
+        "readme":        { "type": "string", "description": "Inlined README markdown. Omitted in the index file." }
+      }
+    },
+    "Route": {
+      "type": "object",
+      "required": ["filePath", "scope", "urlPath", "methods"],
+      "properties": {
+        "filePath": { "type": "string", "description": "Repo-relative path to the route.ts file." },
+        "scope":    { "type": "string", "enum": ["system", "tenant"], "description": "Which top-level scope the route belongs to (app/system/... vs app/tenant/[tenantId]/...)." },
+        "urlPath":  { "type": "string", "description": "Logical URL path after proxy rewriting." },
+        "methods":  { "type": "array", "items": { "type": "string", "enum": ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"] } },
+        "module":   { "type": "string", "description": "Best-guess owning module id, derived from path." },
+        "dynamic":  { "type": "boolean", "description": "True when the path contains a [param] segment." }
+      }
+    },
+    "Entity": {
+      "type": "object",
+      "required": ["name", "filePath", "module", "schema"],
+      "properties": {
+        "name":      { "type": "string", "description": "TypeORM @Entity class name." },
+        "filePath":  { "type": "string" },
+        "module":    { "type": "string", "description": "Owning module id." },
+        "schema":    { "type": "string", "enum": ["system", "tenant", "unknown"], "description": "Heuristic: derived from the @Entity({ schema }) argument or path conventions." },
+        "tableName": { "type": "string" },
+        "columns":   { "type": "array", "items": { "type": "string" }, "description": "Property names of @Column / @PrimaryGeneratedColumn / @PrimaryColumn." },
+        "relations": { "type": "array", "items": { "type": "string" }, "description": "Property names of @ManyToOne / @OneToMany / @OneToOne / @ManyToMany." }
+      }
+    },
+    "Component": {
+      "type": "object",
+      "required": ["id", "module", "filePath", "kind"],
+      "properties": {
+        "id":         { "type": "string", "description": "module_id/Component or module_id/hooks/useX" },
+        "module":     { "type": "string" },
+        "filePath":   { "type": "string" },
+        "kind":       { "type": "string", "enum": ["ui", "hook", "service.next", "axios", "util", "type"] },
+        "exports":    { "type": "array", "items": { "type": "string" }, "description": "Named exports parsed from the file." },
+        "isClient":   { "type": "boolean", "description": "True when the file begins with 'use client'." },
+        "isServer":   { "type": "boolean", "description": "True when the file begins with 'use server'." }
+      }
+    }
+  }
+}

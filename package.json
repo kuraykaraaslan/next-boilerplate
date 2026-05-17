@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "npm run registry:snapshot",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -13,7 +14,9 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "db:reset": "tsx scripts/db-reset.ts",
-    "db:fix-enums": "tsx scripts/db-fix-enums.ts"
+    "db:fix-enums": "tsx scripts/db-fix-enums.ts",
+    "registry:snapshot": "node scripts/build-registry-snapshot.mjs",
+    "mcp:server": "node scripts/mcp-server.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.971.0",

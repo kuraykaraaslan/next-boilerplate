@@ -1,0 +1,5178 @@
+{
+  "$schema": "/schemas/registry-v1.json",
+  "name": "next-boilerplate",
+  "version": "0.1.0",
+  "registryVersion": "1.0",
+  "generatedAt": "2026-05-17T16:17:31.330Z",
+  "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
+  "layers": {
+    "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
+    "modules_next": "Next.js binding layer — React components, hooks, *.service.next.ts extensions. Imports modules/* + Next/React.",
+    "modules": "Framework-agnostic business logic — services, DTOs, entities. No next/*, no react, no browser APIs."
+  },
+  "conventions": {
+    "architecture": "Three layers, strict one-way dependency: app/ -> modules_next/ -> modules/. modules/ NEVER imports modules_next/ or app/.",
+    "fileNaming": "*.service.ts (logic), *.dto.ts (Zod), *.types.ts, *.enums.ts, *.messages.ts (i18n keys), *.setting.keys.ts, *.entity.ts (TypeORM), *.provider.ts (pluggable), *.job.ts (BullMQ), *.service.next.ts (Next-only extension), *.test.ts colocated.",
+    "scopes": "Two URL scopes: system (super-admin, no tenant) under /system/... and tenant (per-tenant, resolved by proxy.ts) under /tenant/[tenantId]/.... Each has its own /admin, /api, /auth subtrees.",
+    "auth": "JWT (httpOnly cookies), OTP, TOTP, SAML, OAuth (12+ providers via auth_sso), WebAuthn/Passkeys (user_security). Sessions: user_session (4 sub-services). Impersonation: always audited.",
+    "testing": "Vitest + @testing-library/react. Tests colocated as *.test.ts / *.test.tsx beside the file under test. Run `npm test`.",
+    "security": "Read SECURITY.md for the full threat model. Path alias is the single `@/*` -> `./*`. Multi-tenant data isolation enforced by per-tenant TypeORM DataSource (modules/db)."
+  },
+  "modules": [
+    {
+      "id": "common",
+      "name": "Common Primitives",
+      "version": "1.0.0",
+      "description": "AppError + ErrorCode enum + error-response helper. Dependency-free leaf module loaded by every other module.",
+      "dir": "modules/common",
+      "icon": "fas fa-cube",
+      "tags": [
+        "infrastructure",
+        "core",
+        "leaf"
+      ],
+      "priority": 1,
+      "tier": "infrastructure",
+      "dependencies": {
+        "requires": []
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true
+    },
+    {
+      "id": "env",
+      "name": "Environment",
+      "version": "1.0.0",
+      "description": "Zod-validated env var access. Single source of truth — never read process.env directly outside this module.",
+      "dir": "modules/env",
+      "icon": "fas fa-gear",
+      "tags": [
+        "infrastructure",
+        "core",
+        "leaf"
+      ],
+      "priority": 1,
+      "tier": "infrastructure",
+      "dependencies": {
+        "requires": []
+      },
+      "exports": {
+        "services": [
+          "env.service.ts"
+        ],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "logger",
+      "name": "Logger",
+      "version": "1.0.0",
+      "description": "Winston-based structured logger. Use instead of console.* across the codebase.",
+      "dir": "modules/logger",
+      "icon": "fas fa-file-lines",
+      "tags": [
+        "infrastructure",
+        "core"
+      ],
+      "priority": 2,
+      "tier": "infrastructure",
+      "dependencies": {
+        "requires": [
+          "env"
+        ]
+      },
+      "exports": {
+        "services": [
+          "logger.service.ts"
+        ],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "redis",
+      "name": "Redis",
+      "version": "1.0.0",
+      "description": "Shared ioredis client + BullMQ connection helpers + Pub/Sub-safe createRedisConnection().",
+      "dir": "modules/redis",
+      "icon": "fas fa-database",
+      "tags": [
+        "infrastructure",
+        "core",
+        "cache",
+        "queue"
+      ],
+      "priority": 2,
+      "tier": "infrastructure",
+      "dependencies": {
+        "requires": [
+          "env"
+        ]
+      },
+      "exports": {
+        "services": [
+          "redis.service.ts"
+        ],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "db",
+      "name": "Database",
+      "version": "1.0.0",
+      "description": "TypeORM DataSource factories for the dual-schema model (system + per-tenant). All entities are registered here.",
+      "dir": "modules/db",
+      "icon": "fas fa-database",
+      "tags": [
+        "infrastructure",
+        "core",
+        "database"
+      ],
+      "priority": 3,
+      "tier": "infrastructure",
+      "dependencies": {
+        "requires": [
+          "env"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "tenant_database.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "limiter",
+      "name": "Rate Limiter",
+      "version": "1.0.0",
+      "description": "Sliding-window rate limiter + tenant-plan-based quota enforcement (seat/feature/usage limits).",
+      "dir": "modules/limiter",
+      "icon": "fas fa-gauge-high",
+      "tags": [
+        "infrastructure",
+        "security",
+        "billing"
+      ],
+      "priority": 5,
+      "tier": "infrastructure",
+      "dependencies": {
+        "requires": [
+          "redis",
+          "env"
+        ],
+        "optional": [
+          "tenant_subscription"
+        ]
+      },
+      "exports": {
+        "services": [
+          "limiter.service.ts",
+          "limiter.tenant-plan.service.ts"
+        ],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true
+    },
+    {
+      "id": "redis_idempotency",
+      "name": "Idempotency Keys",
+      "version": "1.0.0",
+      "description": "Redis-backed idempotency-key store for safely retryable POST/PATCH operations.",
+      "dir": "modules/redis_idempotency",
+      "icon": "fas fa-key",
+      "tags": [
+        "infrastructure",
+        "reliability"
+      ],
+      "priority": 5,
+      "tier": "infrastructure",
+      "dependencies": {
+        "requires": [
+          "redis",
+          "env"
+        ]
+      },
+      "exports": {
+        "services": [
+          "redis_idempotency.service.ts"
+        ],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true
+    },
+    {
+      "id": "setting",
+      "name": "Setting",
+      "version": "1.0.0",
+      "description": "System-wide key-value settings store. Modules declare their keys in *.setting.keys.ts; the setting service stores/reads them.",
+      "dir": "modules/setting",
+      "icon": "fas fa-gear",
+      "tags": [
+        "platform",
+        "configuration"
+      ],
+      "priority": 5,
+      "tier": "platform",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env"
+        ]
+      },
+      "exports": {
+        "services": [
+          "setting.service.ts"
+        ],
+        "dtos": [
+          "setting.dto.ts"
+        ],
+        "enums": [],
+        "messageKeys": [
+          "setting.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "setting.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true
+    },
+    {
+      "id": "user_agent",
+      "name": "User Agent Parser",
+      "version": "1.0.0",
+      "description": "Parse User-Agent header into device/OS/browser metadata. Used to annotate sessions and audit logs.",
+      "dir": "modules/user_agent",
+      "icon": "fas fa-mobile-screen",
+      "tags": [
+        "identity",
+        "utility"
+      ],
+      "priority": 5,
+      "tier": "identity",
+      "dependencies": {
+        "requires": []
+      },
+      "exports": {
+        "services": [
+          "user_agent.service.ts"
+        ],
+        "dtos": [],
+        "enums": [
+          "user_agent.enums.ts"
+        ],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "storage",
+      "name": "File Storage",
+      "version": "1.0.0",
+      "description": "Pluggable S3-compatible file storage (AWS S3, Cloudflare R2, DigitalOcean Spaces, MinIO).",
+      "dir": "modules/storage",
+      "icon": "fas fa-cloud-arrow-up",
+      "tags": [
+        "platform",
+        "storage"
+      ],
+      "priority": 10,
+      "tier": "platform",
+      "dependencies": {
+        "requires": [
+          "env",
+          "setting"
+        ]
+      },
+      "exports": {
+        "services": [
+          "storage.service.ts"
+        ],
+        "dtos": [
+          "storage.dto.ts"
+        ],
+        "enums": [
+          "storage.enums.ts"
+        ],
+        "messageKeys": [
+          "storage.messages.ts"
+        ],
+        "settingKeys": [
+          "storage.setting.keys.ts"
+        ],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "user",
+      "name": "User",
+      "version": "1.0.0",
+      "description": "Core user CRUD: create, find, update, deactivate. Foundation for every auth and tenancy flow.",
+      "dir": "modules/user",
+      "icon": "fas fa-user",
+      "tags": [
+        "identity",
+        "core"
+      ],
+      "priority": 10,
+      "tier": "identity",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "logger",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [
+          "user.service.ts"
+        ],
+        "dtos": [
+          "user.dto.ts"
+        ],
+        "enums": [
+          "user.enums.ts"
+        ],
+        "messageKeys": [
+          "user.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "user.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true
+    },
+    {
+      "id": "user_preferences",
+      "name": "User Preferences",
+      "version": "1.0.0",
+      "description": "Per-user preferences: theme, language, timezone, notification opt-ins.",
+      "dir": "modules/user_preferences",
+      "icon": "fas fa-sliders",
+      "tags": [
+        "identity",
+        "ux"
+      ],
+      "priority": 11,
+      "tier": "identity",
+      "dependencies": {
+        "requires": [
+          "db",
+          "user"
+        ]
+      },
+      "exports": {
+        "services": [
+          "user_preferences.service.ts"
+        ],
+        "dtos": [
+          "user_preferences.dto.ts"
+        ],
+        "enums": [
+          "user_preferences.enums.ts"
+        ],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "user_preferences.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "user_profile",
+      "name": "User Profile",
+      "version": "1.0.0",
+      "description": "Profile fields (avatar, bio, locale, timezone) — separated from the user entity for read scalability.",
+      "dir": "modules/user_profile",
+      "icon": "fas fa-id-card",
+      "tags": [
+        "identity"
+      ],
+      "priority": 11,
+      "tier": "identity",
+      "dependencies": {
+        "requires": [
+          "db",
+          "user"
+        ]
+      },
+      "exports": {
+        "services": [
+          "user_profile.service.ts"
+        ],
+        "dtos": [
+          "user_profile.dto.ts"
+        ],
+        "enums": [
+          "user_profile.enums.ts"
+        ],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "user_profile.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "user_security",
+      "name": "User Security",
+      "version": "1.0.0",
+      "description": "Password hashing, account lock, TOTP secret, WebAuthn/Passkey credentials.",
+      "dir": "modules/user_security",
+      "icon": "fas fa-lock",
+      "tags": [
+        "identity",
+        "security"
+      ],
+      "priority": 11,
+      "tier": "identity",
+      "dependencies": {
+        "requires": [
+          "db",
+          "user",
+          "env"
+        ]
+      },
+      "exports": {
+        "services": [
+          "user_security.passkey.service.ts",
+          "user_security.service.ts"
+        ],
+        "dtos": [],
+        "enums": [
+          "user_security.enums.ts"
+        ],
+        "messageKeys": [
+          "user_security.passkey.messages.ts"
+        ],
+        "settingKeys": [
+          "user_security.setting.keys.ts"
+        ],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "user_security.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true
+    },
+    {
+      "id": "user_session",
+      "name": "User Session",
+      "version": "1.0.0",
+      "description": "JWT access/refresh issuance + revocation, Redis-backed session cache, CRUD on UserSession rows.",
+      "dir": "modules/user_session",
+      "icon": "fas fa-id-badge",
+      "tags": [
+        "identity",
+        "auth",
+        "core"
+      ],
+      "priority": 12,
+      "tier": "identity",
+      "dependencies": {
+        "requires": [
+          "db",
+          "redis",
+          "env",
+          "user",
+          "user_agent"
+        ]
+      },
+      "exports": {
+        "services": [
+          "user_session.cache.service.ts",
+          "user_session.crud.service.ts",
+          "user_session.service.ts",
+          "user_session.token.service.ts"
+        ],
+        "dtos": [],
+        "enums": [
+          "user_session.enums.ts"
+        ],
+        "messageKeys": [
+          "user_session.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "user_session.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true
+    },
+    {
+      "id": "user_social_account",
+      "name": "Linked Social Accounts",
+      "version": "1.0.0",
+      "description": "Per-user linked OAuth provider accounts (provider id, external user id, tokens).",
+      "dir": "modules/user_social_account",
+      "icon": "fas fa-link",
+      "tags": [
+        "identity",
+        "auth"
+      ],
+      "priority": 12,
+      "tier": "identity",
+      "dependencies": {
+        "requires": [
+          "db",
+          "user"
+        ]
+      },
+      "exports": {
+        "services": [
+          "user_social_account.service.ts"
+        ],
+        "dtos": [],
+        "enums": [
+          "user_social_account.enums.ts"
+        ],
+        "messageKeys": [
+          "user_social_account.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "user_social_account.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "auth",
+      "name": "Authentication",
+      "version": "1.0.0",
+      "description": "Credential auth: login, register, password reset, email verify, OTP, TOTP. Coordinates user, user_session, user_security, notification_mail.",
+      "dir": "modules/auth",
+      "icon": "fas fa-shield-halved",
+      "tags": [
+        "identity",
+        "auth",
+        "core"
+      ],
+      "priority": 15,
+      "tier": "identity",
+      "dependencies": {
+        "requires": [
+          "user",
+          "user_session",
+          "user_security",
+          "notification_mail",
+          "env",
+          "redis",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [
+          "auth.otp.service.ts",
+          "auth.password.service.ts",
+          "auth.service.ts",
+          "auth.totp.service.ts"
+        ],
+        "dtos": [
+          "auth.dto.ts"
+        ],
+        "enums": [],
+        "messageKeys": [
+          "auth.messages.ts"
+        ],
+        "settingKeys": [
+          "auth.setting.keys.ts"
+        ],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true
+    },
+    {
+      "id": "auth_saml",
+      "name": "SAML SSO",
+      "version": "1.0.0",
+      "description": "SAML 2.0 SSO with per-tenant IdP configuration (SamlConfig entity).",
+      "dir": "modules/auth_saml",
+      "icon": "fas fa-building-shield",
+      "tags": [
+        "identity",
+        "auth",
+        "sso",
+        "enterprise"
+      ],
+      "priority": 16,
+      "tier": "identity",
+      "dependencies": {
+        "requires": [
+          "db",
+          "user",
+          "user_session",
+          "tenant",
+          "env"
+        ]
+      },
+      "exports": {
+        "services": [
+          "auth_saml.service.ts"
+        ],
+        "dtos": [
+          "auth_saml.dto.ts"
+        ],
+        "enums": [
+          "auth_saml.enums.ts"
+        ],
+        "messageKeys": [
+          "auth_saml.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "saml_config.entity.ts",
+          "system_saml_config.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true
+    },
+    {
+      "id": "auth_sso",
+      "name": "OAuth SSO",
+      "version": "1.0.0",
+      "description": "OAuth 2.0 SSO with 12 providers: Google, GitHub, Apple, Microsoft, Facebook, LinkedIn, Twitter, Slack, TikTok, WeChat, Autodesk.",
+      "dir": "modules/auth_sso",
+      "icon": "fas fa-right-to-bracket",
+      "tags": [
+        "identity",
+        "auth",
+        "sso"
+      ],
+      "priority": 16,
+      "tier": "identity",
+      "dependencies": {
+        "requires": [
+          "user",
+          "user_session",
+          "user_social_account",
+          "env"
+        ]
+      },
+      "exports": {
+        "services": [
+          "auth_sso.service.ts"
+        ],
+        "dtos": [
+          "auth_sso.dto.ts"
+        ],
+        "enums": [
+          "auth_sso.enums.ts"
+        ],
+        "messageKeys": [
+          "auth_sso.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "auth_impersonation",
+      "name": "Admin Impersonation",
+      "version": "1.0.0",
+      "description": "Allow a system admin to assume a target user's session (always audited).",
+      "dir": "modules/auth_impersonation",
+      "icon": "fas fa-user-secret",
+      "tags": [
+        "identity",
+        "auth",
+        "admin"
+      ],
+      "priority": 17,
+      "tier": "identity",
+      "dependencies": {
+        "requires": [
+          "user",
+          "user_session",
+          "audit_log",
+          "env"
+        ]
+      },
+      "exports": {
+        "services": [
+          "impersonation.service.ts"
+        ],
+        "dtos": [
+          "impersonation.dto.ts"
+        ],
+        "enums": [],
+        "messageKeys": [
+          "impersonation.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "tenant",
+      "name": "Tenant",
+      "version": "1.0.0",
+      "description": "Tenant CRUD, lifecycle (active/suspended/deleted), soft-deletion service. Foundation of multi-tenancy.",
+      "dir": "modules/tenant",
+      "icon": "fas fa-building",
+      "tags": [
+        "tenant",
+        "core"
+      ],
+      "priority": 20,
+      "tier": "tenancy",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "logger",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [
+          "tenant.deletion.service.ts",
+          "tenant.service.ts"
+        ],
+        "dtos": [
+          "tenant.dto.ts"
+        ],
+        "enums": [
+          "tenant.enums.ts"
+        ],
+        "messageKeys": [
+          "tenant.messages.ts"
+        ],
+        "settingKeys": [
+          "tenant.setting.keys.ts"
+        ],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "tenant.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true
+    },
+    {
+      "id": "tenant_member",
+      "name": "Tenant Member",
+      "version": "1.0.0",
+      "description": "Tenant-scoped membership join table with roles (owner/admin/member) and per-member permissions.",
+      "dir": "modules/tenant_member",
+      "icon": "fas fa-users",
+      "tags": [
+        "tenant"
+      ],
+      "priority": 21,
+      "tier": "tenancy",
+      "dependencies": {
+        "requires": [
+          "db",
+          "tenant",
+          "user"
+        ]
+      },
+      "exports": {
+        "services": [
+          "tenant_member.service.ts"
+        ],
+        "dtos": [
+          "tenant_member.dto.ts"
+        ],
+        "enums": [
+          "tenant_member.enums.ts"
+        ],
+        "messageKeys": [
+          "tenant_member.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "tenant_member.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "tenant_invitation",
+      "name": "Tenant Invitation",
+      "version": "1.0.0",
+      "description": "Email invitation flow: create / accept / decline / revoke. Bound to tenant_member on acceptance.",
+      "dir": "modules/tenant_invitation",
+      "icon": "fas fa-envelope-open",
+      "tags": [
+        "tenant",
+        "onboarding"
+      ],
+      "priority": 22,
+      "tier": "tenancy",
+      "dependencies": {
+        "requires": [
+          "db",
+          "tenant",
+          "tenant_member",
+          "notification_mail",
+          "user",
+          "env"
+        ]
+      },
+      "exports": {
+        "services": [
+          "tenant_invitation.service.ts"
+        ],
+        "dtos": [
+          "tenant_invitation.dto.ts"
+        ],
+        "enums": [
+          "tenant_invitation.enums.ts"
+        ],
+        "messageKeys": [
+          "tenant_invitation.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "tenant_invitation.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "tenant_session",
+      "name": "Tenant Session",
+      "version": "1.0.0",
+      "description": "Tenant-scoped session handling: bind a user session to a specific tenant, resolve tenant from request.",
+      "dir": "modules/tenant_session",
+      "icon": "fas fa-id-badge",
+      "tags": [
+        "tenant",
+        "auth"
+      ],
+      "priority": 22,
+      "tier": "tenancy",
+      "dependencies": {
+        "requires": [
+          "db",
+          "redis",
+          "user_session",
+          "tenant",
+          "env"
+        ]
+      },
+      "exports": {
+        "services": [
+          "tenant_session.service.ts"
+        ],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [
+          "tenant_session.messages.ts"
+        ],
+        "settingKeys": [
+          "tenant_session.setting.keys.ts"
+        ],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true
+    },
+    {
+      "id": "tenant_setting",
+      "name": "Tenant Setting",
+      "version": "1.0.0",
+      "description": "Per-tenant key-value settings store (overrides system defaults).",
+      "dir": "modules/tenant_setting",
+      "icon": "fas fa-sliders",
+      "tags": [
+        "tenant",
+        "configuration"
+      ],
+      "priority": 22,
+      "tier": "tenancy",
+      "dependencies": {
+        "requires": [
+          "db",
+          "tenant"
+        ]
+      },
+      "exports": {
+        "services": [
+          "tenant_setting.service.ts"
+        ],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "tenant_setting.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "tenant_branding",
+      "name": "Tenant Branding",
+      "version": "1.0.0",
+      "description": "White-label branding: logo, favicon, colors, font, custom CSS — read by the proxy/shell to render per-tenant chrome.",
+      "dir": "modules/tenant_branding",
+      "icon": "fas fa-palette",
+      "tags": [
+        "tenant",
+        "branding",
+        "white-label"
+      ],
+      "priority": 23,
+      "tier": "tenancy",
+      "dependencies": {
+        "requires": [
+          "db",
+          "tenant_setting",
+          "storage"
+        ]
+      },
+      "exports": {
+        "services": [
+          "tenant_branding.service.ts"
+        ],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [
+          "tenant_branding.setting.keys.ts"
+        ],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "tenant_domain",
+      "name": "Tenant Domain",
+      "version": "1.0.0",
+      "description": "Custom domain mapping per tenant + DNS verification (TXT/CNAME challenge).",
+      "dir": "modules/tenant_domain",
+      "icon": "fas fa-globe",
+      "tags": [
+        "tenant",
+        "domain",
+        "infrastructure"
+      ],
+      "priority": 23,
+      "tier": "tenancy",
+      "dependencies": {
+        "requires": [
+          "db",
+          "tenant",
+          "env"
+        ]
+      },
+      "exports": {
+        "services": [
+          "dns_verification.service.ts",
+          "tenant_domain.service.ts"
+        ],
+        "dtos": [
+          "tenant_domain.dto.ts"
+        ],
+        "enums": [
+          "tenant_domain.enums.ts"
+        ],
+        "messageKeys": [
+          "tenant_domain.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "tenant_domain.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "tenant_subscription",
+      "name": "Tenant Subscription",
+      "version": "1.0.0",
+      "description": "Tenant subscription state, plan + feature key resolution, grace period, expiry job.",
+      "dir": "modules/tenant_subscription",
+      "icon": "fas fa-credit-card",
+      "tags": [
+        "tenant",
+        "billing"
+      ],
+      "priority": 24,
+      "tier": "tenancy",
+      "dependencies": {
+        "requires": [
+          "db",
+          "tenant",
+          "payment",
+          "redis",
+          "env"
+        ]
+      },
+      "exports": {
+        "services": [
+          "tenant_subscription.service.ts"
+        ],
+        "dtos": [
+          "tenant_subscription.dto.ts"
+        ],
+        "enums": [
+          "tenant_subscription.enums.ts"
+        ],
+        "messageKeys": [
+          "tenant_subscription.messages.ts"
+        ],
+        "settingKeys": [
+          "tenant_subscription.setting.keys.ts"
+        ],
+        "providers": [],
+        "jobs": [
+          "tenant_subscription.job.ts"
+        ],
+        "entities": [
+          "tenant_subscription.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true
+    },
+    {
+      "id": "tenant_usage",
+      "name": "Tenant Usage",
+      "version": "1.0.0",
+      "description": "Usage metric tracking per tenant (API calls, storage GB, seats). Source for plan-limit enforcement.",
+      "dir": "modules/tenant_usage",
+      "icon": "fas fa-chart-line",
+      "tags": [
+        "tenant",
+        "metrics",
+        "billing"
+      ],
+      "priority": 24,
+      "tier": "tenancy",
+      "dependencies": {
+        "requires": [
+          "db",
+          "tenant"
+        ]
+      },
+      "exports": {
+        "services": [
+          "tenant_usage.service.ts"
+        ],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "tenant_usage.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "payment",
+      "name": "Payment",
+      "version": "1.0.0",
+      "description": "Pluggable payment processing (Stripe, PayPal, Iyzico) + subscription plans, plan features, payment transactions, webhook handling.",
+      "dir": "modules/payment",
+      "icon": "fas fa-credit-card",
+      "tags": [
+        "billing",
+        "payment"
+      ],
+      "priority": 25,
+      "tier": "billing",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "setting",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [
+          "payment.service.ts",
+          "payment.webhook.service.ts"
+        ],
+        "dtos": [
+          "payment.dto.ts"
+        ],
+        "enums": [
+          "payment.enums.ts"
+        ],
+        "messageKeys": [
+          "payment.messages.ts"
+        ],
+        "settingKeys": [
+          "payment.setting.keys.ts"
+        ],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "payment.entity.ts",
+          "payment_transaction.entity.ts",
+          "plan_feature.entity.ts",
+          "subscription_plan.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true
+    },
+    {
+      "id": "tenant_export",
+      "name": "Tenant Export",
+      "version": "1.0.0",
+      "description": "Export all per-tenant data into a downloadable archive (GDPR-friendly).",
+      "dir": "modules/tenant_export",
+      "icon": "fas fa-file-export",
+      "tags": [
+        "tenant",
+        "compliance",
+        "gdpr"
+      ],
+      "priority": 25,
+      "tier": "tenancy",
+      "dependencies": {
+        "requires": [
+          "db",
+          "tenant",
+          "storage"
+        ]
+      },
+      "exports": {
+        "services": [
+          "tenant_export.service.ts"
+        ],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "coupon",
+      "name": "Coupon",
+      "version": "1.0.0",
+      "description": "Discount coupons + redemption tracking. Provider-aware (Stripe / PayPal / Iyzico) so codes sync with the payment processor.",
+      "dir": "modules/coupon",
+      "icon": "fas fa-ticket",
+      "tags": [
+        "billing",
+        "marketing"
+      ],
+      "priority": 26,
+      "tier": "billing",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "payment",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [
+          "coupon.service.ts"
+        ],
+        "dtos": [
+          "coupon.dto.ts"
+        ],
+        "enums": [
+          "coupon.enums.ts"
+        ],
+        "messageKeys": [
+          "coupon.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "coupon.entity.ts",
+          "coupon_redemption.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true
+    },
+    {
+      "id": "notification_inapp",
+      "name": "In-App Notifications",
+      "version": "1.0.0",
+      "description": "In-app notification feed with unread counts. Consumed by the notification menu in the app shell.",
+      "dir": "modules/notification_inapp",
+      "icon": "fas fa-bell",
+      "tags": [
+        "notifications",
+        "in-app"
+      ],
+      "priority": 30,
+      "tier": "notifications",
+      "dependencies": {
+        "requires": [
+          "db",
+          "user"
+        ]
+      },
+      "exports": {
+        "services": [
+          "notification_inapp.service.ts"
+        ],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [
+          "notification_inapp.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true
+    },
+    {
+      "id": "notification_mail",
+      "name": "Email Notifications",
+      "version": "1.0.0",
+      "description": "Pluggable email sender (SMTP, SES, Mailgun, Postmark, Resend, SendGrid). EJS templates. BullMQ-backed queue.",
+      "dir": "modules/notification_mail",
+      "icon": "fas fa-envelope",
+      "tags": [
+        "notifications",
+        "email"
+      ],
+      "priority": 30,
+      "tier": "notifications",
+      "dependencies": {
+        "requires": [
+          "redis",
+          "env",
+          "setting"
+        ]
+      },
+      "exports": {
+        "services": [
+          "notification_mail.service.ts"
+        ],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [
+          "notification_mail.setting.keys.ts"
+        ],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "notification_push",
+      "name": "Web Push Notifications",
+      "version": "1.0.0",
+      "description": "Web Push (VAPID) — subscription storage + send.",
+      "dir": "modules/notification_push",
+      "icon": "fas fa-bell",
+      "tags": [
+        "notifications",
+        "push"
+      ],
+      "priority": 30,
+      "tier": "notifications",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env"
+        ]
+      },
+      "exports": {
+        "services": [
+          "notification_push.service.ts"
+        ],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [
+          "notification_push.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "push_subscription.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "notification_sms",
+      "name": "SMS Notifications",
+      "version": "1.0.0",
+      "description": "Pluggable SMS sender (Twilio, Nexmo, Clickatell, NetGSM).",
+      "dir": "modules/notification_sms",
+      "icon": "fas fa-message",
+      "tags": [
+        "notifications",
+        "sms"
+      ],
+      "priority": 30,
+      "tier": "notifications",
+      "dependencies": {
+        "requires": [
+          "redis",
+          "env",
+          "setting"
+        ]
+      },
+      "exports": {
+        "services": [
+          "notification_sms.service.ts"
+        ],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [
+          "notification_sms.setting.keys.ts"
+        ],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "api_key",
+      "name": "API Key",
+      "version": "1.0.0",
+      "description": "Tenant-scoped API keys for programmatic access (hashed at rest, scope-bound).",
+      "dir": "modules/api_key",
+      "icon": "fas fa-key",
+      "tags": [
+        "platform",
+        "security"
+      ],
+      "priority": 40,
+      "tier": "platform",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [
+          "api_key.service.ts"
+        ],
+        "dtos": [
+          "api_key.dto.ts"
+        ],
+        "enums": [
+          "api_key.enums.ts"
+        ],
+        "messageKeys": [
+          "api_key.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "api_key.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "audit_log",
+      "name": "Audit Log",
+      "version": "1.0.0",
+      "description": "Append-only audit trail for sensitive actions (system AuditLog + per-tenant TenantAuditLog).",
+      "dir": "modules/audit_log",
+      "icon": "fas fa-clipboard-list",
+      "tags": [
+        "platform",
+        "security",
+        "compliance"
+      ],
+      "priority": 40,
+      "tier": "platform",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "logger"
+        ]
+      },
+      "exports": {
+        "services": [
+          "audit_log.service.ts"
+        ],
+        "dtos": [
+          "audit_log.dto.ts"
+        ],
+        "enums": [
+          "audit_log.enums.ts"
+        ],
+        "messageKeys": [
+          "audit_log.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "audit_log.entity.ts",
+          "audit_log_tenant.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true
+    },
+    {
+      "id": "webhook",
+      "name": "Outgoing Webhooks",
+      "version": "1.0.0",
+      "description": "Subscriber-configured outbound webhooks (system + tenant scope), signed deliveries, retry+redelivery.",
+      "dir": "modules/webhook",
+      "icon": "fas fa-rss",
+      "tags": [
+        "platform",
+        "integration"
+      ],
+      "priority": 40,
+      "tier": "platform",
+      "dependencies": {
+        "requires": [
+          "db",
+          "redis",
+          "env"
+        ]
+      },
+      "exports": {
+        "services": [
+          "webhook.service.ts",
+          "webhook.system.service.ts"
+        ],
+        "dtos": [
+          "webhook.dto.ts"
+        ],
+        "enums": [
+          "webhook.enums.ts"
+        ],
+        "messageKeys": [
+          "webhook.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "system_webhook.entity.ts",
+          "system_webhook_delivery.entity.ts",
+          "webhook.entity.ts",
+          "webhook_delivery.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "ai",
+      "name": "AI",
+      "version": "1.0.0",
+      "description": "Pluggable AI providers (Anthropic, OpenAI, Google). Chat, embeddings, streaming, usage tracking.",
+      "dir": "modules/ai",
+      "icon": "fas fa-robot",
+      "tags": [
+        "platform",
+        "ai"
+      ],
+      "priority": 50,
+      "tier": "ai",
+      "dependencies": {
+        "requires": [
+          "env",
+          "setting"
+        ]
+      },
+      "exports": {
+        "services": [
+          "ai.service.ts"
+        ],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [
+          "ai.setting.keys.ts"
+        ],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true
+    },
+    {
+      "id": "api_doc",
+      "name": "API Documentation",
+      "version": "1.0.0",
+      "description": "OpenAPI/Swagger spec builder + helpers for serving per-tenant API docs.",
+      "dir": "modules/api_doc",
+      "icon": "fas fa-book",
+      "tags": [
+        "platform",
+        "documentation"
+      ],
+      "priority": 100,
+      "tier": "infrastructure",
+      "dependencies": {
+        "requires": [
+          "env"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true
+    }
+  ],
+  "routes": [
+    {
+      "filePath": "app/system/api/admin/notifications/sms/send/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/admin/notifications/sms/send",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "notification_inapp",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/admin/payments/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/admin/payments",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "payment",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/admin/payments/[paymentId]/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/admin/payments/[paymentId]",
+      "methods": [
+        "GET",
+        "PUT",
+        "DELETE"
+      ],
+      "module": "payment",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/admin/payments/[paymentId]/refund/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/admin/payments/[paymentId]/refund",
+      "methods": [
+        "POST"
+      ],
+      "module": "payment",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/admin/payments/[paymentId]/transactions/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/admin/payments/[paymentId]/transactions",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "payment",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/admin/payments/provider-status/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/admin/payments/provider-status",
+      "methods": [
+        "POST"
+      ],
+      "module": "payment",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/admin/payments/providers/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/admin/payments/providers",
+      "methods": [
+        "GET"
+      ],
+      "module": "payment",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/admin/payments/transactions/[transactionId]/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/admin/payments/transactions/[transactionId]",
+      "methods": [
+        "GET",
+        "PUT"
+      ],
+      "module": "payment",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/ai/chat/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/ai/chat",
+      "methods": [
+        "POST"
+      ],
+      "module": "ai",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/ai/embed/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/ai/embed",
+      "methods": [
+        "POST"
+      ],
+      "module": "ai",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/ai/models/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/ai/models",
+      "methods": [
+        "GET"
+      ],
+      "module": "ai",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/ai/providers/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/ai/providers",
+      "methods": [
+        "GET"
+      ],
+      "module": "ai",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/ai/stream/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/ai/stream",
+      "methods": [
+        "POST"
+      ],
+      "module": "ai",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/ai/usage/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/ai/usage",
+      "methods": [
+        "GET"
+      ],
+      "module": "ai",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/audit-logs/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/audit-logs",
+      "methods": [
+        "GET"
+      ],
+      "module": "audit_log",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/callback/[provider]/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/callback/[provider]",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/auth/csrf/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/csrf",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/forgot-password/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/forgot-password",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/impersonate/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/impersonate",
+      "methods": [
+        "GET",
+        "POST",
+        "DELETE"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/login/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/login",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/login/send/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/login/send",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/login/verify/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/login/verify",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/logout/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/logout",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/me/device-info/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/device-info",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/me/notifications/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/notifications",
+      "methods": [
+        "GET",
+        "DELETE"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/me/notifications/[notificationId]/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/notifications/[notificationId]",
+      "methods": [
+        "DELETE"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/auth/me/notifications/[notificationId]/read/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/notifications/[notificationId]/read",
+      "methods": [
+        "PUT"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/auth/me/notifications/read-all/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/notifications/read-all",
+      "methods": [
+        "PUT"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/me/notifications/stream/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/notifications/stream",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/me/notifications/unread-count/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/notifications/unread-count",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/me/preferences/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/preferences",
+      "methods": [
+        "GET",
+        "PUT"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/me/profile/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/profile",
+      "methods": [
+        "GET",
+        "PUT"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/me/profile/social-links/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/profile/social-links",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/me/profile/social-links/[linkId]/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/profile/social-links/[linkId]",
+      "methods": [
+        "PUT",
+        "DELETE"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/auth/me/security/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/security",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/me/security/passkeys/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/security/passkeys",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/me/security/passkeys/[credentialId]/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/security/passkeys/[credentialId]",
+      "methods": [
+        "DELETE"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/auth/me/security/passkeys/register/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/security/passkeys/register",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/me/security/passkeys/register/verify/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/security/passkeys/register/verify",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/me/sessions/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/sessions",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/me/sessions/[sessionId]/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/sessions/[sessionId]",
+      "methods": [
+        "DELETE"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/auth/me/social-accounts/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/social-accounts",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/me/social-accounts/[provider]/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/social-accounts/[provider]",
+      "methods": [
+        "DELETE"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/auth/me/social-accounts/connect/[provider]/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/social-accounts/connect/[provider]",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/auth/me/social-accounts/connect/saml/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/social-accounts/connect/saml",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/me/tenants/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/tenants",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/otp/send/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/otp/send",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/otp/verify/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/otp/verify",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/refresh/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/refresh",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/register/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/register",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/reset-password/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/reset-password",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/saml/callback/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/saml/callback",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/saml/metadata/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/saml/metadata",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/saml/status/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/saml/status",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/session/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/session",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/session/token-set/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/session/token-set",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/session/tokens/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/session/tokens",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/sso/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/sso",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/sso/[provider]/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/sso/[provider]",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/auth/totp/disable/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/totp/disable",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/totp/enable/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/totp/enable",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/totp/setup/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/totp/setup",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/verify-email/send/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/verify-email/send",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/verify-email/verify/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/verify-email/verify",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/coupons/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/coupons",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "coupon",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/coupons/[couponId]/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/coupons/[couponId]",
+      "methods": [
+        "GET",
+        "PUT",
+        "DELETE"
+      ],
+      "module": "coupon",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/cron/expire-subscriptions/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/cron/expire-subscriptions",
+      "methods": [
+        "POST"
+      ],
+      "module": "cron",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/health/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/health",
+      "methods": [
+        "GET"
+      ],
+      "module": "health",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/notifications/push/subscribe/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/notifications/push/subscribe",
+      "methods": [
+        "POST",
+        "DELETE"
+      ],
+      "module": "notification_inapp",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/saml-system/config/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/saml-system/config",
+      "methods": [
+        "GET",
+        "PUT"
+      ],
+      "module": "saml_system",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/saml/tenants/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/saml/tenants",
+      "methods": [
+        "GET"
+      ],
+      "module": "saml",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/settings/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/settings",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT"
+      ],
+      "module": "setting",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/settings/public/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/settings/public",
+      "methods": [
+        "GET"
+      ],
+      "module": "setting",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/storage/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/storage",
+      "methods": [
+        "GET",
+        "POST",
+        "DELETE"
+      ],
+      "module": "storage",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/storage/from-url/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/storage/from-url",
+      "methods": [
+        "POST"
+      ],
+      "module": "storage",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/subscriptions/plans/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/subscriptions/plans",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "tenant_subscription",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/subscriptions/plans/[planId]/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/subscriptions/plans/[planId]",
+      "methods": [
+        "GET",
+        "PUT",
+        "DELETE"
+      ],
+      "module": "tenant_subscription",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/subscriptions/plans/[planId]/features/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/subscriptions/plans/[planId]/features",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "tenant_subscription",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/subscriptions/plans/[planId]/features/[featureId]/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/subscriptions/plans/[planId]/features/[featureId]",
+      "methods": [
+        "PUT",
+        "DELETE"
+      ],
+      "module": "tenant_subscription",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/subscriptions/plans/public/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/subscriptions/plans/public",
+      "methods": [
+        "GET"
+      ],
+      "module": "tenant_subscription",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/tenant/[tenantId]/members/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/tenant/[tenantId]/members",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "tenant",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/tenant/[tenantId]/members/[memberId]/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/tenant/[tenantId]/members/[memberId]",
+      "methods": [
+        "GET",
+        "PUT",
+        "DELETE"
+      ],
+      "module": "tenant",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/tenants/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/tenants",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "tenant",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/tenants/[tenantId]/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/tenants/[tenantId]",
+      "methods": [
+        "GET",
+        "PUT",
+        "DELETE"
+      ],
+      "module": "tenant",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/tenants/[tenantId]/deletion-request/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/tenants/[tenantId]/deletion-request",
+      "methods": [
+        "POST"
+      ],
+      "module": "tenant",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/tenants/create/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/tenants/create",
+      "methods": [
+        "POST"
+      ],
+      "module": "tenant",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/users/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/users",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "user",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/users/[userId]/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/users/[userId]",
+      "methods": [
+        "GET",
+        "PUT",
+        "DELETE"
+      ],
+      "module": "user",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/users/[userId]/impersonation-sessions/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/users/[userId]/impersonation-sessions",
+      "methods": [
+        "GET"
+      ],
+      "module": "user",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/users/[userId]/tenants/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/users/[userId]/tenants",
+      "methods": [
+        "GET"
+      ],
+      "module": "user",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/webhooks/iyzico/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/webhooks/iyzico",
+      "methods": [
+        "POST"
+      ],
+      "module": "webhook",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/webhooks/outgoing/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/webhooks/outgoing",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "webhook",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/webhooks/outgoing/[webhookId]/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/webhooks/outgoing/[webhookId]",
+      "methods": [
+        "GET",
+        "PATCH",
+        "DELETE"
+      ],
+      "module": "webhook",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/webhooks/outgoing/[webhookId]/deliveries/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/webhooks/outgoing/[webhookId]/deliveries",
+      "methods": [
+        "GET"
+      ],
+      "module": "webhook",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/webhooks/outgoing/[webhookId]/deliveries/[deliveryId]/redeliver/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/webhooks/outgoing/[webhookId]/deliveries/[deliveryId]/redeliver",
+      "methods": [
+        "POST"
+      ],
+      "module": "webhook",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/webhooks/outgoing/[webhookId]/test/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/webhooks/outgoing/[webhookId]/test",
+      "methods": [
+        "POST"
+      ],
+      "module": "webhook",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/webhooks/paypal/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/webhooks/paypal",
+      "methods": [
+        "POST"
+      ],
+      "module": "webhook",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/webhooks/stripe/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/webhooks/stripe",
+      "methods": [
+        "POST"
+      ],
+      "module": "webhook",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/api-keys/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/api-keys",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "api_key",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/api-keys/[apiKeyId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/api-keys/[apiKeyId]",
+      "methods": [
+        "PUT",
+        "DELETE"
+      ],
+      "module": "api_key",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/api-keys/verify/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/api-keys/verify",
+      "methods": [
+        "POST"
+      ],
+      "module": "api_key",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/audit-logs/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/audit-logs",
+      "methods": [
+        "GET"
+      ],
+      "module": "audit_log",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/callback/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/callback",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/csrf/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/csrf",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/forgot-password/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/forgot-password",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/impersonate/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/impersonate",
+      "methods": [
+        "GET",
+        "POST",
+        "DELETE"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/login/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/login",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/logout/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/logout",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/me/profile/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/me/profile",
+      "methods": [
+        "GET",
+        "PUT"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/me/social-accounts/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/me/social-accounts",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/me/social-accounts/[provider]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/me/social-accounts/[provider]",
+      "methods": [
+        "DELETE"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/me/social-accounts/connect/[provider]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/me/social-accounts/connect/[provider]",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/me/social-accounts/connect/saml/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/me/social-accounts/connect/saml",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/refresh/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/refresh",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/register/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/register",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/saml/callback/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/saml/callback",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/saml/initiate/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/saml/initiate",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/saml/metadata/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/saml/metadata",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/saml/status/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/saml/status",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/session/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/session",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/session/token-set/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/session/token-set",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/sso/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/sso",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/sso/[provider]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/sso/[provider]",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/coupons/apply/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/coupons/apply",
+      "methods": [
+        "POST"
+      ],
+      "module": "coupon",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/coupons/redemptions/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/coupons/redemptions",
+      "methods": [
+        "GET"
+      ],
+      "module": "coupon",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/coupons/validate/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/coupons/validate",
+      "methods": [
+        "POST"
+      ],
+      "module": "coupon",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/domains/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/domains",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "tenant_domain",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/domains/[domainId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/domains/[domainId]",
+      "methods": [
+        "GET",
+        "DELETE"
+      ],
+      "module": "tenant_domain",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/domains/[domainId]/verify/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/domains/[domainId]/verify",
+      "methods": [
+        "POST"
+      ],
+      "module": "tenant_domain",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/export/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/export",
+      "methods": [
+        "POST"
+      ],
+      "module": "tenant_export",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/invitations/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/invitations",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "tenant_invitation",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/invitations/[invitationId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/invitations/[invitationId]",
+      "methods": [
+        "GET",
+        "DELETE"
+      ],
+      "module": "tenant_invitation",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/invitations/accept/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/invitations/accept",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "tenant_invitation",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/invitations/decline/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/invitations/decline",
+      "methods": [
+        "POST"
+      ],
+      "module": "tenant_invitation",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/members/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/members",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "tenant_member",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/members/[memberId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/members/[memberId]",
+      "methods": [
+        "GET",
+        "PUT",
+        "DELETE"
+      ],
+      "module": "tenant_member",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/saml/config/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/saml/config",
+      "methods": [
+        "GET",
+        "PUT",
+        "DELETE"
+      ],
+      "module": "saml",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/settings/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/settings",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "module": "setting",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/settings/branding/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/settings/branding",
+      "methods": [
+        "GET",
+        "PUT",
+        "DELETE"
+      ],
+      "module": "setting",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/settings/public/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/settings/public",
+      "methods": [
+        "GET"
+      ],
+      "module": "setting",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/storage/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/storage",
+      "methods": [
+        "POST"
+      ],
+      "module": "storage",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/subscription/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/subscription",
+      "methods": [
+        "GET",
+        "POST",
+        "DELETE"
+      ],
+      "module": "subscription",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/subscription/confirm/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/subscription/confirm",
+      "methods": [
+        "POST"
+      ],
+      "module": "subscription",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/subscription/features/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/subscription/features",
+      "methods": [
+        "GET"
+      ],
+      "module": "subscription",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/subscription/grace-period/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/subscription/grace-period",
+      "methods": [
+        "GET"
+      ],
+      "module": "subscription",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/webhooks/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/webhooks",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "webhook",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/webhooks/[webhookId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/webhooks/[webhookId]",
+      "methods": [
+        "GET",
+        "PATCH",
+        "DELETE"
+      ],
+      "module": "webhook",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/webhooks/[webhookId]/deliveries/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/webhooks/[webhookId]/deliveries",
+      "methods": [
+        "GET"
+      ],
+      "module": "webhook",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/webhooks/[webhookId]/deliveries/[deliveryId]/redeliver/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/webhooks/[webhookId]/deliveries/[deliveryId]/redeliver",
+      "methods": [
+        "POST"
+      ],
+      "module": "webhook",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/webhooks/[webhookId]/test/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/webhooks/[webhookId]/test",
+      "methods": [
+        "POST"
+      ],
+      "module": "webhook",
+      "dynamic": true
+    }
+  ],
+  "entities": [
+    {
+      "name": "ApiKey",
+      "filePath": "modules/api_key/entities/api_key.entity.ts",
+      "module": "api_key",
+      "schema": "tenant",
+      "tableName": "api_keys",
+      "columns": [
+        "apiKeyId",
+        "tenantId",
+        "createdByUserId",
+        "name",
+        "description",
+        "keyHash",
+        "keyPrefix",
+        "scopes",
+        "isActive",
+        "lastUsedAt",
+        "expiresAt",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "AuditLog",
+      "filePath": "modules/audit_log/entities/audit_log.entity.ts",
+      "module": "audit_log",
+      "schema": "tenant",
+      "tableName": "audit_logs",
+      "columns": [
+        "auditLogId",
+        "actorId",
+        "actorType",
+        "action",
+        "resourceType",
+        "resourceId",
+        "metadata",
+        "ipAddress",
+        "userAgent",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "Coupon",
+      "filePath": "modules/coupon/entities/coupon.entity.ts",
+      "module": "coupon",
+      "schema": "system",
+      "tableName": "coupons",
+      "columns": [
+        "couponId",
+        "code",
+        "name",
+        "description",
+        "discountType",
+        "discountValue",
+        "currency",
+        "applicablePlanIds",
+        "applicableProviders",
+        "maxUses",
+        "maxUsesPerTenant",
+        "usedCount",
+        "minimumAmount",
+        "status",
+        "startsAt",
+        "expiresAt",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "CouponRedemption",
+      "filePath": "modules/coupon/entities/coupon_redemption.entity.ts",
+      "module": "coupon",
+      "schema": "system",
+      "tableName": "coupon_redemptions",
+      "columns": [
+        "redemptionId",
+        "couponId",
+        "couponCode",
+        "tenantId",
+        "paymentId",
+        "userId",
+        "discountAmount",
+        "currency",
+        "originalAmount",
+        "finalAmount",
+        "appliedAt"
+      ],
+      "relations": [
+        "tenant"
+      ]
+    },
+    {
+      "name": "Payment",
+      "filePath": "modules/payment/entities/payment.entity.ts",
+      "module": "payment",
+      "schema": "system",
+      "tableName": "payments",
+      "columns": [
+        "paymentId",
+        "userId",
+        "tenantId",
+        "provider",
+        "providerPaymentId",
+        "amount",
+        "currency",
+        "status",
+        "paymentMethod",
+        "description",
+        "metadata",
+        "customerEmail",
+        "customerName",
+        "customerPhone",
+        "billingAddress",
+        "refundedAmount",
+        "failureCode",
+        "failureMessage",
+        "paidAt",
+        "cancelledAt",
+        "refundedAt",
+        "expiresAt",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "PaymentTransaction",
+      "filePath": "modules/payment/entities/payment_transaction.entity.ts",
+      "module": "payment",
+      "schema": "system",
+      "tableName": "payment_transactions",
+      "columns": [
+        "transactionId",
+        "paymentId",
+        "provider",
+        "providerTransactionId",
+        "type",
+        "status",
+        "amount",
+        "currency",
+        "fee",
+        "net",
+        "providerResponse",
+        "errorCode",
+        "errorMessage",
+        "parentTransactionId",
+        "ipAddress",
+        "userAgent",
+        "processedAt",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "PlanFeature",
+      "filePath": "modules/payment/entities/plan_feature.entity.ts",
+      "module": "payment",
+      "schema": "system",
+      "tableName": "plan_features",
+      "columns": [
+        "featureId",
+        "planId",
+        "key",
+        "label",
+        "type",
+        "value",
+        "sortOrder",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "PushSubscription",
+      "filePath": "modules/notification_push/entities/push_subscription.entity.ts",
+      "module": "notification_push",
+      "schema": "system",
+      "tableName": "push_subscriptions",
+      "columns": [
+        "id",
+        "userId",
+        "endpoint",
+        "p256dh",
+        "auth",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "SamlConfig",
+      "filePath": "modules/auth_saml/entities/saml_config.entity.ts",
+      "module": "auth_saml",
+      "schema": "system",
+      "tableName": "saml_configs",
+      "columns": [
+        "samlConfigId",
+        "tenantId",
+        "isEnabled",
+        "idpEntityId",
+        "idpSsoUrl",
+        "idpCertificate",
+        "spPrivateKey",
+        "spCertificate",
+        "emailAttribute",
+        "nameAttribute",
+        "allowIdpInitiated",
+        "signRequests",
+        "nameIdFormat",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "Setting",
+      "filePath": "modules/setting/entities/setting.entity.ts",
+      "module": "setting",
+      "schema": "system",
+      "tableName": "settings",
+      "columns": [
+        "key",
+        "value",
+        "group",
+        "type",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "SubscriptionPlan",
+      "filePath": "modules/payment/entities/subscription_plan.entity.ts",
+      "module": "payment",
+      "schema": "system",
+      "tableName": "subscription_plans",
+      "columns": [
+        "planId",
+        "name",
+        "description",
+        "monthlyPrice",
+        "yearlyPrice",
+        "currency",
+        "trialDays",
+        "sortOrder",
+        "isDefault",
+        "status",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "SystemSamlConfig",
+      "filePath": "modules/auth_saml/entities/system_saml_config.entity.ts",
+      "module": "auth_saml",
+      "schema": "system",
+      "tableName": "system_saml_configs",
+      "columns": [
+        "systemSamlConfigId",
+        "isEnabled",
+        "idpEntityId",
+        "idpSsoUrl",
+        "idpCertificate",
+        "spPrivateKey",
+        "spCertificate",
+        "emailAttribute",
+        "nameAttribute",
+        "allowIdpInitiated",
+        "signRequests",
+        "nameIdFormat",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "SystemWebhook",
+      "filePath": "modules/webhook/entities/system_webhook.entity.ts",
+      "module": "webhook",
+      "schema": "tenant",
+      "tableName": "system_webhooks",
+      "columns": [
+        "webhookId",
+        "createdByUserId",
+        "name",
+        "description",
+        "url",
+        "secret",
+        "events",
+        "isActive",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "SystemWebhookDelivery",
+      "filePath": "modules/webhook/entities/system_webhook_delivery.entity.ts",
+      "module": "webhook",
+      "schema": "tenant",
+      "tableName": "system_webhook_deliveries",
+      "columns": [
+        "deliveryId",
+        "webhookId",
+        "event",
+        "payload",
+        "status",
+        "attempts",
+        "maxAttempts",
+        "requestBody",
+        "responseStatus",
+        "responseBody",
+        "errorMessage",
+        "duration",
+        "nextRetryAt",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "Tenant",
+      "filePath": "modules/tenant/entities/tenant.entity.ts",
+      "module": "tenant",
+      "schema": "tenant",
+      "tableName": "tenants",
+      "columns": [
+        "tenantId",
+        "name",
+        "description",
+        "tenantStatus",
+        "createdAt",
+        "updatedAt",
+        "deletedAt",
+        "deletionRequestedAt",
+        "deleteAfter"
+      ],
+      "relations": []
+    },
+    {
+      "name": "TenantAuditLog",
+      "filePath": "modules/audit_log/entities/audit_log_tenant.entity.ts",
+      "module": "audit_log",
+      "schema": "tenant",
+      "tableName": "audit_logs",
+      "columns": [
+        "auditLogId",
+        "tenantId",
+        "actorId",
+        "actorType",
+        "action",
+        "resourceType",
+        "resourceId",
+        "metadata",
+        "ipAddress",
+        "userAgent",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "TenantDatabase",
+      "filePath": "modules/db/entities/tenant_database.entity.ts",
+      "module": "db",
+      "schema": "system",
+      "tableName": "tenant_databases",
+      "columns": [
+        "tenantId",
+        "databaseUrl",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "TenantDomain",
+      "filePath": "modules/tenant_domain/entities/tenant_domain.entity.ts",
+      "module": "tenant_domain",
+      "schema": "tenant",
+      "tableName": "tenant_domains",
+      "columns": [
+        "tenantDomainId",
+        "tenantId",
+        "domain",
+        "isPrimary",
+        "domainStatus",
+        "verificationToken",
+        "verifiedAt",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "TenantInvitation",
+      "filePath": "modules/tenant_invitation/entities/tenant_invitation.entity.ts",
+      "module": "tenant_invitation",
+      "schema": "tenant",
+      "tableName": "tenant_invitations",
+      "columns": [
+        "invitationId",
+        "tenantId",
+        "email",
+        "invitedByUserId",
+        "memberRole",
+        "token",
+        "status",
+        "expiresAt",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "TenantMember",
+      "filePath": "modules/tenant_member/entities/tenant_member.entity.ts",
+      "module": "tenant_member",
+      "schema": "tenant",
+      "tableName": "tenant_members",
+      "columns": [
+        "tenantMemberId",
+        "tenantId",
+        "userId",
+        "memberRole",
+        "memberStatus",
+        "sessionVersion",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "TenantSetting",
+      "filePath": "modules/tenant_setting/entities/tenant_setting.entity.ts",
+      "module": "tenant_setting",
+      "schema": "tenant",
+      "tableName": "tenant_settings",
+      "columns": [
+        "tenantId",
+        "key",
+        "value",
+        "group",
+        "type",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "TenantSubscription",
+      "filePath": "modules/tenant_subscription/entities/tenant_subscription.entity.ts",
+      "module": "tenant_subscription",
+      "schema": "tenant",
+      "tableName": "tenant_subscriptions",
+      "columns": [
+        "subscriptionId",
+        "tenantId",
+        "planId",
+        "status",
+        "billingInterval",
+        "currentPeriodStart",
+        "currentPeriodEnd",
+        "trialEndsAt",
+        "cancelledAt",
+        "gracePeriodEndsAt",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "TenantUsage",
+      "filePath": "modules/tenant_usage/entities/tenant_usage.entity.ts",
+      "module": "tenant_usage",
+      "schema": "tenant",
+      "tableName": "tenant_usage",
+      "columns": [
+        "usageId",
+        "tenantId",
+        "month",
+        "apiCalls",
+        "aiTokens",
+        "storageBytes",
+        "emailSends",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "User",
+      "filePath": "modules/user/entities/user.entity.ts",
+      "module": "user",
+      "schema": "system",
+      "tableName": "users",
+      "columns": [
+        "userId",
+        "email",
+        "phone",
+        "password",
+        "userStatus",
+        "userRole",
+        "emailVerifiedAt",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "UserPreferences",
+      "filePath": "modules/user_preferences/entities/user_preferences.entity.ts",
+      "module": "user_preferences",
+      "schema": "system",
+      "tableName": "user_preferences",
+      "columns": [
+        "userPreferencesId",
+        "userId",
+        "theme",
+        "language",
+        "emailNotifications",
+        "smsNotifications",
+        "pushNotifications",
+        "newsletter",
+        "timezone",
+        "dateFormat",
+        "timeFormat",
+        "firstDayOfWeek",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "UserProfile",
+      "filePath": "modules/user_profile/entities/user_profile.entity.ts",
+      "module": "user_profile",
+      "schema": "system",
+      "tableName": "user_profiles",
+      "columns": [
+        "userProfileId",
+        "userId",
+        "name",
+        "biography",
+        "profilePicture",
+        "headerImage",
+        "socialLinks",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "UserSecurity",
+      "filePath": "modules/user_security/entities/user_security.entity.ts",
+      "module": "user_security",
+      "schema": "system",
+      "tableName": "user_securities",
+      "columns": [
+        "userSecurityId",
+        "userId",
+        "otpMethods",
+        "otpSecret",
+        "otpBackupCodes",
+        "lastLoginAt",
+        "lastLoginIp",
+        "lastLoginDevice",
+        "failedLoginAttempts",
+        "lockedUntil",
+        "passkeyEnabled",
+        "passkeys",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "UserSession",
+      "filePath": "modules/user_session/entities/user_session.entity.ts",
+      "module": "user_session",
+      "schema": "system",
+      "tableName": "user_sessions",
+      "columns": [
+        "userSessionId",
+        "userId",
+        "accessToken",
+        "refreshToken",
+        "deviceFingerprint",
+        "userAgent",
+        "ipAddress",
+        "sessionStatus",
+        "otpVerifyNeeded",
+        "sessionExpiry",
+        "metadata",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "UserSocialAccount",
+      "filePath": "modules/user_social_account/entities/user_social_account.entity.ts",
+      "module": "user_social_account",
+      "schema": "system",
+      "tableName": "user_social_accounts",
+      "columns": [
+        "userSocialAccountId",
+        "userId",
+        "provider",
+        "providerId",
+        "accessToken",
+        "refreshToken",
+        "profilePicture",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "Webhook",
+      "filePath": "modules/webhook/entities/webhook.entity.ts",
+      "module": "webhook",
+      "schema": "tenant",
+      "tableName": "webhooks",
+      "columns": [
+        "webhookId",
+        "tenantId",
+        "createdByUserId",
+        "name",
+        "description",
+        "url",
+        "secret",
+        "events",
+        "isActive",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "WebhookDelivery",
+      "filePath": "modules/webhook/entities/webhook_delivery.entity.ts",
+      "module": "webhook",
+      "schema": "tenant",
+      "tableName": "webhook_deliveries",
+      "columns": [
+        "deliveryId",
+        "webhookId",
+        "tenantId",
+        "event",
+        "payload",
+        "status",
+        "attempts",
+        "maxAttempts",
+        "requestBody",
+        "responseStatus",
+        "responseBody",
+        "errorMessage",
+        "duration",
+        "nextRetryAt",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    }
+  ],
+  "components": [
+    {
+      "id": "ai/ui/AIChatBox",
+      "module": "ai",
+      "filePath": "modules_next/ai/ui/AIChatBox.tsx",
+      "kind": "ui",
+      "exports": [
+        "ChatMessage",
+        "AIChatBox"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "AIChatBox"
+    },
+    {
+      "id": "api_doc/ui/ApiDocsPage",
+      "module": "api_doc",
+      "filePath": "modules_next/api_doc/ui/ApiDocsPage.tsx",
+      "kind": "ui",
+      "exports": [
+        "ApiDocsPage"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ApiDocsPage"
+    },
+    {
+      "id": "api_doc/ui/ApiTagSection",
+      "module": "api_doc",
+      "filePath": "modules_next/api_doc/ui/ApiTagSection.tsx",
+      "kind": "ui",
+      "exports": [
+        "ApiTagSection"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ApiTagSection"
+    },
+    {
+      "id": "api_doc/ui/CodeSamplePanel",
+      "module": "api_doc",
+      "filePath": "modules_next/api_doc/ui/CodeSamplePanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "CodeSamplePanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CodeSamplePanel"
+    },
+    {
+      "id": "api_doc/ui/EndpointRow",
+      "module": "api_doc",
+      "filePath": "modules_next/api_doc/ui/EndpointRow.tsx",
+      "kind": "ui",
+      "exports": [
+        "EndpointRow"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "EndpointRow"
+    },
+    {
+      "id": "api_doc/ui/HttpMethodBadge",
+      "module": "api_doc",
+      "filePath": "modules_next/api_doc/ui/HttpMethodBadge.tsx",
+      "kind": "ui",
+      "exports": [
+        "HttpMethodBadge"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "HttpMethodBadge"
+    },
+    {
+      "id": "api_doc/ui/mockSpec",
+      "module": "api_doc",
+      "filePath": "modules_next/api_doc/ui/mockSpec.ts",
+      "kind": "ui",
+      "exports": [
+        "SYSTEM_SPEC",
+        "TENANT_SPEC"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "mockSpec"
+    },
+    {
+      "id": "api_doc/ui/OperationPanel",
+      "module": "api_doc",
+      "filePath": "modules_next/api_doc/ui/OperationPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "OperationPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "OperationPanel"
+    },
+    {
+      "id": "api_doc/ui/ParameterTable",
+      "module": "api_doc",
+      "filePath": "modules_next/api_doc/ui/ParameterTable.tsx",
+      "kind": "ui",
+      "exports": [
+        "ParameterTable"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "ParameterTable"
+    },
+    {
+      "id": "api_doc/ui/ResponseCard",
+      "module": "api_doc",
+      "filePath": "modules_next/api_doc/ui/ResponseCard.tsx",
+      "kind": "ui",
+      "exports": [
+        "ResponseCard"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ResponseCard"
+    },
+    {
+      "id": "api_doc/ui/SchemaViewer",
+      "module": "api_doc",
+      "filePath": "modules_next/api_doc/ui/SchemaViewer.tsx",
+      "kind": "ui",
+      "exports": [
+        "SchemaViewer"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SchemaViewer"
+    },
+    {
+      "id": "api_doc/ui/SecuritySchemeBadge",
+      "module": "api_doc",
+      "filePath": "modules_next/api_doc/ui/SecuritySchemeBadge.tsx",
+      "kind": "ui",
+      "exports": [
+        "SecuritySchemeBadge"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "SecuritySchemeBadge"
+    },
+    {
+      "id": "api_doc/ui/ServerSelector",
+      "module": "api_doc",
+      "filePath": "modules_next/api_doc/ui/ServerSelector.tsx",
+      "kind": "ui",
+      "exports": [
+        "ServerSelector"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ServerSelector"
+    },
+    {
+      "id": "api_doc/ui/StatusCodeBadge",
+      "module": "api_doc",
+      "filePath": "modules_next/api_doc/ui/StatusCodeBadge.tsx",
+      "kind": "ui",
+      "exports": [
+        "StatusCodeBadge"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "StatusCodeBadge"
+    },
+    {
+      "id": "api_doc/ui/types",
+      "module": "api_doc",
+      "filePath": "modules_next/api_doc/ui/types.ts",
+      "kind": "ui",
+      "exports": [
+        "ApiSpecStatus",
+        "SecuritySchemeType",
+        "SecurityScheme",
+        "Server",
+        "Tag",
+        "SchemaObject",
+        "Parameter",
+        "MediaTypeObject",
+        "RequestBody",
+        "ResponseHeader",
+        "ApiResponse",
+        "CodeSample",
+        "Operation",
+        "PathItem",
+        "ApiSpec"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "types"
+    },
+    {
+      "id": "audit_log/audit_log.service.next",
+      "module": "audit_log",
+      "filePath": "modules_next/audit_log/audit_log.service.next.ts",
+      "kind": "service.next",
+      "exports": [],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "audit_log.service.next"
+    },
+    {
+      "id": "audit_log/ui/AuditLogFilters",
+      "module": "audit_log",
+      "filePath": "modules_next/audit_log/ui/AuditLogFilters.tsx",
+      "kind": "ui",
+      "exports": [
+        "AuditLogFilterValues",
+        "AuditLogFilters"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "AuditLogFilters"
+    },
+    {
+      "id": "auth_saml/ui/SamlAttributeForm",
+      "module": "auth_saml",
+      "filePath": "modules_next/auth_saml/ui/SamlAttributeForm.tsx",
+      "kind": "ui",
+      "exports": [
+        "SamlAttributeForm"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SamlAttributeForm"
+    },
+    {
+      "id": "auth_saml/ui/SamlConfigForm",
+      "module": "auth_saml",
+      "filePath": "modules_next/auth_saml/ui/SamlConfigForm.tsx",
+      "kind": "ui",
+      "exports": [
+        "SamlConfigFormValues",
+        "SamlConfigForm"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SamlConfigForm"
+    },
+    {
+      "id": "auth_saml/ui/SamlMetadataCard",
+      "module": "auth_saml",
+      "filePath": "modules_next/auth_saml/ui/SamlMetadataCard.tsx",
+      "kind": "ui",
+      "exports": [
+        "SamlMetadataCard"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SamlMetadataCard"
+    },
+    {
+      "id": "auth/ui/ForgotPasswordForm",
+      "module": "auth",
+      "filePath": "modules_next/auth/ui/ForgotPasswordForm.tsx",
+      "kind": "ui",
+      "exports": [
+        "ForgotPasswordForm"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ForgotPasswordForm"
+    },
+    {
+      "id": "auth/ui/LoginForm",
+      "module": "auth",
+      "filePath": "modules_next/auth/ui/LoginForm.tsx",
+      "kind": "ui",
+      "exports": [
+        "LoginForm"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "LoginForm"
+    },
+    {
+      "id": "auth/ui/OAuthButtons",
+      "module": "auth",
+      "filePath": "modules_next/auth/ui/OAuthButtons.tsx",
+      "kind": "ui",
+      "exports": [
+        "SSO_PROVIDERS",
+        "OAuthProvider",
+        "OAuthButtons"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "OAuthButtons"
+    },
+    {
+      "id": "auth/ui/RegisterForm",
+      "module": "auth",
+      "filePath": "modules_next/auth/ui/RegisterForm.tsx",
+      "kind": "ui",
+      "exports": [
+        "RegisterForm"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "RegisterForm"
+    },
+    {
+      "id": "auth/ui/SessionExpiredBanner",
+      "module": "auth",
+      "filePath": "modules_next/auth/ui/SessionExpiredBanner.tsx",
+      "kind": "ui",
+      "exports": [
+        "SessionExpiredBanner"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SessionExpiredBanner"
+    },
+    {
+      "id": "common/axios/axios.client",
+      "module": "common",
+      "filePath": "modules_next/common/axios/axios.client.ts",
+      "kind": "axios",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "axios.client"
+    },
+    {
+      "id": "common/axios/index",
+      "module": "common",
+      "filePath": "modules_next/common/axios/index.ts",
+      "kind": "axios",
+      "exports": [
+        "default"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "index"
+    },
+    {
+      "id": "common/module.types",
+      "module": "common",
+      "filePath": "modules_next/common/module.types.ts",
+      "kind": "type",
+      "exports": [
+        "SettingsTab",
+        "Route",
+        "Widget",
+        "LoadedModule",
+        "ModuleRegistry"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "module.types"
+    },
+    {
+      "id": "common/ui/AlertBanner",
+      "module": "common",
+      "filePath": "modules_next/common/ui/AlertBanner.tsx",
+      "kind": "ui",
+      "exports": [
+        "AlertAction",
+        "AlertBanner"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "AlertBanner"
+    },
+    {
+      "id": "common/ui/Avatar",
+      "module": "common",
+      "filePath": "modules_next/common/ui/Avatar.tsx",
+      "kind": "ui",
+      "exports": [
+        "Avatar",
+        "AvatarGroup"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Avatar"
+    },
+    {
+      "id": "common/ui/AvatarUpload",
+      "module": "common",
+      "filePath": "modules_next/common/ui/AvatarUpload.tsx",
+      "kind": "ui",
+      "exports": [
+        "AvatarUpload"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "AvatarUpload"
+    },
+    {
+      "id": "common/ui/Badge",
+      "module": "common",
+      "filePath": "modules_next/common/ui/Badge.tsx",
+      "kind": "ui",
+      "exports": [
+        "Badge"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Badge"
+    },
+    {
+      "id": "common/ui/BrandLogo",
+      "module": "common",
+      "filePath": "modules_next/common/ui/BrandLogo.tsx",
+      "kind": "ui",
+      "exports": [
+        "BrandLogo"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "BrandLogo"
+    },
+    {
+      "id": "common/ui/Breadcrumb",
+      "module": "common",
+      "filePath": "modules_next/common/ui/Breadcrumb.tsx",
+      "kind": "ui",
+      "exports": [
+        "BreadcrumbItem",
+        "Breadcrumb"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Breadcrumb"
+    },
+    {
+      "id": "common/ui/Button",
+      "module": "common",
+      "filePath": "modules_next/common/ui/Button.tsx",
+      "kind": "ui",
+      "exports": [
+        "Button"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Button"
+    },
+    {
+      "id": "common/ui/Card",
+      "module": "common",
+      "filePath": "modules_next/common/ui/Card.tsx",
+      "kind": "ui",
+      "exports": [
+        "Card"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Card"
+    },
+    {
+      "id": "common/ui/DateRangePicker",
+      "module": "common",
+      "filePath": "modules_next/common/ui/DateRangePicker.tsx",
+      "kind": "ui",
+      "exports": [
+        "DateRange",
+        "DateRangePicker"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "DateRangePicker"
+    },
+    {
+      "id": "common/ui/Drawer",
+      "module": "common",
+      "filePath": "modules_next/common/ui/Drawer.tsx",
+      "kind": "ui",
+      "exports": [
+        "Drawer"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Drawer"
+    },
+    {
+      "id": "common/ui/EmptyState",
+      "module": "common",
+      "filePath": "modules_next/common/ui/EmptyState.tsx",
+      "kind": "ui",
+      "exports": [
+        "EmptyState"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "EmptyState"
+    },
+    {
+      "id": "common/ui/FileInput",
+      "module": "common",
+      "filePath": "modules_next/common/ui/FileInput.tsx",
+      "kind": "ui",
+      "exports": [
+        "FileInput"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "FileInput"
+    },
+    {
+      "id": "common/ui/Form",
+      "module": "common",
+      "filePath": "modules_next/common/ui/Form.tsx",
+      "kind": "ui",
+      "exports": [
+        "Form"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Form"
+    },
+    {
+      "id": "common/ui/Input",
+      "module": "common",
+      "filePath": "modules_next/common/ui/Input.tsx",
+      "kind": "ui",
+      "exports": [
+        "Input"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Input"
+    },
+    {
+      "id": "common/ui/layout/AdminShell",
+      "module": "common",
+      "filePath": "modules_next/common/ui/layout/AdminShell.tsx",
+      "kind": "ui",
+      "exports": [
+        "AdminShell"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "AdminShell"
+    },
+    {
+      "id": "common/ui/layout/AppShell",
+      "module": "common",
+      "filePath": "modules_next/common/ui/layout/AppShell.tsx",
+      "kind": "ui",
+      "exports": [
+        "AppShell"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "AppShell"
+    },
+    {
+      "id": "common/ui/layout/AppSidebar",
+      "module": "common",
+      "filePath": "modules_next/common/ui/layout/AppSidebar.tsx",
+      "kind": "ui",
+      "exports": [
+        "AppSidebarNavItem",
+        "AppSidebarNavGroup",
+        "AppSidebarFooterRenderContext",
+        "AppSidebar"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "AppSidebar"
+    },
+    {
+      "id": "common/ui/layout/AppTopBar",
+      "module": "common",
+      "filePath": "modules_next/common/ui/layout/AppTopBar.tsx",
+      "kind": "ui",
+      "exports": [
+        "AppTopBar"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "AppTopBar"
+    },
+    {
+      "id": "common/ui/layout/FontAwesomeConfig",
+      "module": "common",
+      "filePath": "modules_next/common/ui/layout/FontAwesomeConfig.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "FontAwesomeConfig"
+    },
+    {
+      "id": "common/ui/Modal",
+      "module": "common",
+      "filePath": "modules_next/common/ui/Modal.tsx",
+      "kind": "ui",
+      "exports": [
+        "Modal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Modal"
+    },
+    {
+      "id": "common/ui/NotificationMenu",
+      "module": "common",
+      "filePath": "modules_next/common/ui/NotificationMenu.tsx",
+      "kind": "ui",
+      "exports": [
+        "NotificationItem",
+        "NotificationMenu"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "NotificationMenu"
+    },
+    {
+      "id": "common/ui/PageHeader",
+      "module": "common",
+      "filePath": "modules_next/common/ui/PageHeader.tsx",
+      "kind": "ui",
+      "exports": [
+        "PageHeaderAction",
+        "PageHeader"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PageHeader"
+    },
+    {
+      "id": "common/ui/Pagination",
+      "module": "common",
+      "filePath": "modules_next/common/ui/Pagination.tsx",
+      "kind": "ui",
+      "exports": [
+        "Pagination"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Pagination"
+    },
+    {
+      "id": "common/ui/RadioGroup",
+      "module": "common",
+      "filePath": "modules_next/common/ui/RadioGroup.tsx",
+      "kind": "ui",
+      "exports": [
+        "RadioOption",
+        "RadioGroup"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "RadioGroup"
+    },
+    {
+      "id": "common/ui/RowActionsMenu",
+      "module": "common",
+      "filePath": "modules_next/common/ui/RowActionsMenu.tsx",
+      "kind": "ui",
+      "exports": [
+        "RowActionsMenu"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "RowActionsMenu"
+    },
+    {
+      "id": "common/ui/SearchBar",
+      "module": "common",
+      "filePath": "modules_next/common/ui/SearchBar.tsx",
+      "kind": "ui",
+      "exports": [
+        "SearchBar"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SearchBar"
+    },
+    {
+      "id": "common/ui/Select",
+      "module": "common",
+      "filePath": "modules_next/common/ui/Select.tsx",
+      "kind": "ui",
+      "exports": [
+        "SelectOption",
+        "Select"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Select"
+    },
+    {
+      "id": "common/ui/ServerDataTable",
+      "module": "common",
+      "filePath": "modules_next/common/ui/ServerDataTable.tsx",
+      "kind": "ui",
+      "exports": [
+        "TableColumn",
+        "ServerDataTable"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ServerDataTable"
+    },
+    {
+      "id": "common/ui/Skeleton",
+      "module": "common",
+      "filePath": "modules_next/common/ui/Skeleton.tsx",
+      "kind": "ui",
+      "exports": [
+        "Skeleton",
+        "SkeletonText",
+        "SkeletonCard",
+        "SkeletonTable"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Skeleton"
+    },
+    {
+      "id": "common/ui/SkipToContent",
+      "module": "common",
+      "filePath": "modules_next/common/ui/SkipToContent.tsx",
+      "kind": "ui",
+      "exports": [
+        "SkipToContent"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SkipToContent"
+    },
+    {
+      "id": "common/ui/Spinner",
+      "module": "common",
+      "filePath": "modules_next/common/ui/Spinner.tsx",
+      "kind": "ui",
+      "exports": [
+        "Spinner"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Spinner"
+    },
+    {
+      "id": "common/ui/TabGroup",
+      "module": "common",
+      "filePath": "modules_next/common/ui/TabGroup.tsx",
+      "kind": "ui",
+      "exports": [
+        "Tab",
+        "TabGroup"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "TabGroup"
+    },
+    {
+      "id": "common/ui/ThemeToggle",
+      "module": "common",
+      "filePath": "modules_next/common/ui/ThemeToggle.tsx",
+      "kind": "ui",
+      "exports": [
+        "ThemeToggle"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ThemeToggle"
+    },
+    {
+      "id": "common/ui/toast.store",
+      "module": "common",
+      "filePath": "modules_next/common/ui/toast.store.ts",
+      "kind": "ui",
+      "exports": [
+        "useToastStore",
+        "toast"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "toast.store"
+    },
+    {
+      "id": "common/ui/ToastContainer",
+      "module": "common",
+      "filePath": "modules_next/common/ui/ToastContainer.tsx",
+      "kind": "ui",
+      "exports": [
+        "ToastContainer"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ToastContainer"
+    },
+    {
+      "id": "common/ui/Toggle",
+      "module": "common",
+      "filePath": "modules_next/common/ui/Toggle.tsx",
+      "kind": "ui",
+      "exports": [
+        "Toggle"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Toggle"
+    },
+    {
+      "id": "common/ui/Tooltip",
+      "module": "common",
+      "filePath": "modules_next/common/ui/Tooltip.tsx",
+      "kind": "ui",
+      "exports": [
+        "Tooltip"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Tooltip"
+    },
+    {
+      "id": "common/utils/cn",
+      "module": "common",
+      "filePath": "modules_next/common/utils/cn.ts",
+      "kind": "util",
+      "exports": [
+        "cn"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "cn"
+    },
+    {
+      "id": "coupon/ui/CouponApplyForm",
+      "module": "coupon",
+      "filePath": "modules_next/coupon/ui/CouponApplyForm.tsx",
+      "kind": "ui",
+      "exports": [
+        "CouponApplyForm"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CouponApplyForm"
+    },
+    {
+      "id": "coupon/ui/CouponBadge",
+      "module": "coupon",
+      "filePath": "modules_next/coupon/ui/CouponBadge.tsx",
+      "kind": "ui",
+      "exports": [
+        "CouponBadge"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "CouponBadge"
+    },
+    {
+      "id": "coupon/ui/CouponRedemptionsList",
+      "module": "coupon",
+      "filePath": "modules_next/coupon/ui/CouponRedemptionsList.tsx",
+      "kind": "ui",
+      "exports": [
+        "CouponRedemptionsList"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CouponRedemptionsList"
+    },
+    {
+      "id": "limiter/limiter.rate-limiters",
+      "module": "limiter",
+      "filePath": "modules_next/limiter/limiter.rate-limiters.ts",
+      "kind": "ui",
+      "exports": [
+        "apiRateLimiter",
+        "authRateLimiter",
+        "tenantPlanRateLimiter"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "limiter.rate-limiters"
+    },
+    {
+      "id": "limiter/limiter.service.next",
+      "module": "limiter",
+      "filePath": "modules_next/limiter/limiter.service.next.ts",
+      "kind": "service.next",
+      "exports": [],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "limiter.service.next"
+    },
+    {
+      "id": "module.types.ts/",
+      "module": "module.types.ts",
+      "filePath": "modules_next/module.types.ts",
+      "kind": "type",
+      "exports": [
+        "ModuleScope",
+        "SettingsTabJson",
+        "MenuItemJson",
+        "MenuItem",
+        "RouteJson",
+        "ApiEndpointJson",
+        "Permission",
+        "WidgetJson",
+        "ModuleHooks",
+        "ModuleDependencies",
+        "ModuleJson"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "module.types"
+    },
+    {
+      "id": "notification_inapp/hooks/use-notifications.hook",
+      "module": "notification_inapp",
+      "filePath": "modules_next/notification_inapp/hooks/use-notifications.hook.ts",
+      "kind": "hook",
+      "exports": [
+        "useNotifications"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "use-notifications.hook"
+    },
+    {
+      "id": "payment/ui/PaymentStatusBadge",
+      "module": "payment",
+      "filePath": "modules_next/payment/ui/PaymentStatusBadge.tsx",
+      "kind": "ui",
+      "exports": [
+        "PaymentStatus",
+        "PaymentStatusBadge"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PaymentStatusBadge"
+    },
+    {
+      "id": "payment/ui/PaymentSummaryCard",
+      "module": "payment",
+      "filePath": "modules_next/payment/ui/PaymentSummaryCard.tsx",
+      "kind": "ui",
+      "exports": [
+        "PaymentSummaryCard"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PaymentSummaryCard"
+    },
+    {
+      "id": "redis_idempotency/withIdempotency",
+      "module": "redis_idempotency",
+      "filePath": "modules_next/redis_idempotency/withIdempotency.ts",
+      "kind": "ui",
+      "exports": [
+        "withIdempotency"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "withIdempotency"
+    },
+    {
+      "id": "setting/setting.types",
+      "module": "setting",
+      "filePath": "modules_next/setting/setting.types.ts",
+      "kind": "ui",
+      "exports": [
+        "SettingsTabProps"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "setting.types"
+    },
+    {
+      "id": "tenant_session/tenant_session.service.next",
+      "module": "tenant_session",
+      "filePath": "modules_next/tenant_session/tenant_session.service.next.ts",
+      "kind": "service.next",
+      "exports": [],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "tenant_session.service.next"
+    },
+    {
+      "id": "tenant_subscription/hooks/use-feature-access",
+      "module": "tenant_subscription",
+      "filePath": "modules_next/tenant_subscription/hooks/use-feature-access.ts",
+      "kind": "hook",
+      "exports": [
+        "useFeatureAccess"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "use-feature-access"
+    },
+    {
+      "id": "tenant_subscription/hooks/use-grace-period",
+      "module": "tenant_subscription",
+      "filePath": "modules_next/tenant_subscription/hooks/use-grace-period.ts",
+      "kind": "hook",
+      "exports": [
+        "useGracePeriod"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "use-grace-period"
+    },
+    {
+      "id": "tenant_subscription/tenant_subscription.grace-period",
+      "module": "tenant_subscription",
+      "filePath": "modules_next/tenant_subscription/tenant_subscription.grace-period.ts",
+      "kind": "ui",
+      "exports": [
+        "checkGracePeriod",
+        "isInGracePeriod"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "tenant_subscription.grace-period"
+    },
+    {
+      "id": "tenant_subscription/ui/FeatureGate",
+      "module": "tenant_subscription",
+      "filePath": "modules_next/tenant_subscription/ui/FeatureGate.tsx",
+      "kind": "ui",
+      "exports": [
+        "FeatureGate"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "FeatureGate"
+    },
+    {
+      "id": "tenant_subscription/ui/GracePeriodBanner",
+      "module": "tenant_subscription",
+      "filePath": "modules_next/tenant_subscription/ui/GracePeriodBanner.tsx",
+      "kind": "ui",
+      "exports": [
+        "GracePeriodBanner"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "GracePeriodBanner"
+    },
+    {
+      "id": "tenant_subscription/ui/PlanUsageMeter",
+      "module": "tenant_subscription",
+      "filePath": "modules_next/tenant_subscription/ui/PlanUsageMeter.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlanUsageMeter"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PlanUsageMeter"
+    },
+    {
+      "id": "tenant_subscription/ui/SubscriptionPlanCard",
+      "module": "tenant_subscription",
+      "filePath": "modules_next/tenant_subscription/ui/SubscriptionPlanCard.tsx",
+      "kind": "ui",
+      "exports": [
+        "SubscriptionPlanCard"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SubscriptionPlanCard"
+    },
+    {
+      "id": "tenant_subscription/ui/UpgradePrompt",
+      "module": "tenant_subscription",
+      "filePath": "modules_next/tenant_subscription/ui/UpgradePrompt.tsx",
+      "kind": "ui",
+      "exports": [
+        "UpgradePrompt"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "UpgradePrompt"
+    },
+    {
+      "id": "tenant/ui/CreateTenantForm",
+      "module": "tenant",
+      "filePath": "modules_next/tenant/ui/CreateTenantForm.tsx",
+      "kind": "ui",
+      "exports": [
+        "CreateTenantValues",
+        "CreateTenantForm"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CreateTenantForm"
+    },
+    {
+      "id": "tenant/ui/TenantSelectorCard",
+      "module": "tenant",
+      "filePath": "modules_next/tenant/ui/TenantSelectorCard.tsx",
+      "kind": "ui",
+      "exports": [
+        "TenantSummary",
+        "TenantSelectorCard"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "TenantSelectorCard"
+    },
+    {
+      "id": "user_security/ui/PasskeysPanel",
+      "module": "user_security",
+      "filePath": "modules_next/user_security/ui/PasskeysPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "PasskeysPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PasskeysPanel"
+    },
+    {
+      "id": "user_session/user_session.service.next",
+      "module": "user_session",
+      "filePath": "modules_next/user_session/user_session.service.next.ts",
+      "kind": "service.next",
+      "exports": [],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "user_session.service.next"
+    },
+    {
+      "id": "user/ui/SocialAccountsPanel",
+      "module": "user",
+      "filePath": "modules_next/user/ui/SocialAccountsPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "SocialAccountsPanelProps",
+        "SocialAccountsPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SocialAccountsPanel"
+    },
+    {
+      "id": "user/ui/UserMenu",
+      "module": "user",
+      "filePath": "modules_next/user/ui/UserMenu.tsx",
+      "kind": "ui",
+      "exports": [
+        "UserMenuUser",
+        "UserMenu"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "UserMenu"
+    },
+    {
+      "id": "user/ui/UserPreferencesForm",
+      "module": "user",
+      "filePath": "modules_next/user/ui/UserPreferencesForm.tsx",
+      "kind": "ui",
+      "exports": [
+        "UserPreferencesValues",
+        "UserPreferencesForm"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "UserPreferencesForm"
+    },
+    {
+      "id": "user/ui/UserProfileCard",
+      "module": "user",
+      "filePath": "modules_next/user/ui/UserProfileCard.tsx",
+      "kind": "ui",
+      "exports": [
+        "UserProfileCard"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "UserProfileCard"
+    },
+    {
+      "id": "user/ui/UserProfileForm",
+      "module": "user",
+      "filePath": "modules_next/user/ui/UserProfileForm.tsx",
+      "kind": "ui",
+      "exports": [
+        "UserProfileValues",
+        "UserProfileForm"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "UserProfileForm"
+    },
+    {
+      "id": "user/ui/UserRoleBadge",
+      "module": "user",
+      "filePath": "modules_next/user/ui/UserRoleBadge.tsx",
+      "kind": "ui",
+      "exports": [
+        "UserRoleBadge"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "UserRoleBadge"
+    },
+    {
+      "id": "user/ui/UserStatusBadge",
+      "module": "user",
+      "filePath": "modules_next/user/ui/UserStatusBadge.tsx",
+      "kind": "ui",
+      "exports": [
+        "UserStatusBadge"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "UserStatusBadge"
+    }
+  ]
+}

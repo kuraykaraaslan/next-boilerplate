@@ -1,0 +1,104 @@
+# User Preferences
+
+- **id:** `user_preferences`
+- **tier:** identity
+- **version:** 1.0.0
+- **dir:** `modules/user_preferences/`
+- **tags:** identity, ux
+- **icon:** `fas fa-sliders`
+- **hasNextLayer:** false
+
+Per-user preferences: theme, language, timezone, notification opt-ins.
+
+## Dependencies
+
+- **requires:** `db`, `user`
+
+## Services
+
+- `user_preferences.service.ts`
+
+## DTOs
+
+- `user_preferences.dto.ts`
+
+## Entities
+
+- `user_preferences.entity.ts`
+
+## Enums
+
+- `user_preferences.enums.ts`
+
+## TypeORM entities
+
+- `UserPreferences` (system) — `modules/user_preferences/entities/user_preferences.entity.ts`
+
+## README
+
+# user_preferences module
+
+User UI/UX preferences: theme, language, timezone, date/time formats, notification channels, and week start day.
+
+---
+
+## Files
+
+| File | Purpose |
+|---|---|
+| `user_preferences.service.ts` | Core: get, create, update |
+| `user_preferences.types.ts` | `UserPreferences` type |
+| `user_preferences.dto.ts` | Zod DTO |
+| `user_preferences.enums.ts` | All preference enums |
+| `entities/user_preferences.entity.ts` | TypeORM entity |
+
+---
+
+## Preference Options
+
+| Preference | Options |
+|---|---|
+| `theme` | `LIGHT`, `DARK`, `SYSTEM` |
+| `language` | `EN`, `ES`, `TR`, `FR`, `DE` |
+| `dateFormat` | `DD_MM_YYYY`, `MM_DD_YYYY`, `YYYY_MM_DD` |
+| `timeFormat` | `H24`, `H12` |
+| `firstDayOfWeek` | `MON`–`SUN` |
+| `emailNotifications` | `boolean` |
+| `smsNotifications` | `boolean` |
+| `pushNotifications` | `boolean` |
+| `newsletter` | `boolean` |
+
+---
+
+## Usage
+
+```typescript
+import UserPreferencesService from '@/modules/user_preferences/user_preferences.service';
+
+// Get (creates with defaults if missing)
+const prefs = await UserPreferencesService.getOrCreate(userId);
+
+// Update
+await UserPreferencesService.update(userId, {
+  theme: 'DARK',
+  language: 'TR',
+  timeFormat: 'H24',
+});
+```
+
+---
+
+## API Routes
+
+```
+GET /api/user/preferences
+PUT /api/user/preferences
+```
+
+---
+
+## Caching
+
+`getByUserId(userId)` is cached in Redis under `user_preferences:user:{userId}` (TTL = `SESSION_CACHE_TTL`, default 30 min). Null results are cached. Every mutation (`create`, `update`, `upsert`, `delete`) invalidates the key.
+
+TTL is jittered ±10% and reads are wrapped in in-process single-flight.

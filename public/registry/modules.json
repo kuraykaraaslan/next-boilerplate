@@ -1,0 +1,1738 @@
+{
+  "name": "next-boilerplate",
+  "registryVersion": "1.0",
+  "generatedAt": "2026-05-17T16:17:31.330Z",
+  "modules": [
+    {
+      "id": "common",
+      "name": "Common Primitives",
+      "version": "1.0.0",
+      "description": "AppError + ErrorCode enum + error-response helper. Dependency-free leaf module loaded by every other module.",
+      "dir": "modules/common",
+      "icon": "fas fa-cube",
+      "tags": [
+        "infrastructure",
+        "core",
+        "leaf"
+      ],
+      "priority": 1,
+      "tier": "infrastructure",
+      "dependencies": {
+        "requires": []
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true,
+      "readme": "# common\n\nCross-module primitives that every other module is allowed to depend on.\n\nCurrently exposes the canonical error class and error-response helper. Anything added here must be **dependency-free** (no DB, no Redis, no env) so it can be imported safely from the deepest leaf modules without creating cycles.\n\n## Public API\n\n| Export | Source | Use |\n|---|---|---|\n| `AppError` | [app-error.ts](app-error.ts) | Throw inside services. Carries `statusCode` and an `ErrorCode`. |\n| `ErrorCode` | [app-error.ts](app-error.ts) | Enum of every well-known error code (`UNAUTHORIZED`, `TENANT_NOT_FOUND`, `QUOTA_EXCEEDED`, …). |\n| `toErrorResponse(error)` | [app-error.ts](app-error.ts) | Normalize an unknown error into `{ code, message }` for API responses. |\n\n## Usage\n\n```ts\nimport { AppError, ErrorCode } from \"@/modules/common/app-error\";\n\nif (!user) {\n  throw new AppError(\"User not found\", 404, ErrorCode.NOT_FOUND);\n}\n```\n\nIn a route handler:\n\n```ts\nimport { toErrorResponse } from \"@/modules/common/app-error\";\n\ntry {\n  return NextResponse.json(await userService.get(id));\n} catch (err) {\n  return NextResponse.json(toErrorResponse(err), { status: err instanceof AppError ? err.statusCode : 500 });\n}\n```\n\n## Error-code groups\n\n`ErrorCode` is grouped into: Authentication, Authorization, Tenant, Billing, Rate-limiting, Resource, Server. When you need a new code, add it under the matching group in [app-error.ts](app-error.ts) and use it from the throw site — don't reuse `INTERNAL_ERROR` as a catch-all.\n\n## Rules\n\n- No imports from `@/modules/*` except other items in `common/`.\n- No `next/*`, no `react`, no browser APIs.\n- Keep this module tiny — it is loaded by everything.\n"
+    },
+    {
+      "id": "env",
+      "name": "Environment",
+      "version": "1.0.0",
+      "description": "Zod-validated env var access. Single source of truth — never read process.env directly outside this module.",
+      "dir": "modules/env",
+      "icon": "fas fa-gear",
+      "tags": [
+        "infrastructure",
+        "core",
+        "leaf"
+      ],
+      "priority": 1,
+      "tier": "infrastructure",
+      "dependencies": {
+        "requires": []
+      },
+      "exports": {
+        "services": [
+          "env.service.ts"
+        ],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": "# env\n\nSingle source of truth for environment-variable access. Parses `process.env` once at module load through a Zod schema and exports a strongly-typed `env` object — typos and missing required values fail fast at boot.\n\n## Public API\n\n| Export | Source | Use |\n|---|---|---|\n| `env` | [env.service.ts](env.service.ts) | Typed accessor: `env.SYSTEM_DATABASE_URL`, `env.REDIS_PORT` (already a number), etc. |\n\n## Usage\n\n```ts\nimport { env } from \"@/modules/env\";\n\nconst pool = new Pool({ connectionString: env.SYSTEM_DATABASE_URL });\nconst ttl = env.SESSION_CACHE_TTL; // number, already coerced\n```\n\n## Variable groups\n\n`env.service.ts` groups variables in commented sections — extend the matching section when you add a new key:\n\n- Core (`NODE_ENV`, `PORT`, `DEBUG*`)\n- Databases (`SYSTEM_DATABASE_URL`, `TENANT_DATABASE_URL`)\n- Redis (`REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`)\n- Auth / Secrets (`ACCESS_TOKEN_SECRET`, `REFRESH_TOKEN_SECRET`, `CSRF_SECRET`)\n- Session / Token TTLs\n- OTP / TOTP / WebAuthn\n- Multi-tenancy (`TENANCY_MODE`, `TENANT_WILDCARD_DOMAIN`, …)\n- Storage, Payments, AI, Notifications, Webhooks — see schema for the full list\n\n## Rules\n\n- **Never** read `process.env.XXX` directly outside this module. Always go through `env.XXX`. This keeps validation centralised and the `.env.example` file authoritative.\n- Required values use `z.string().min(1)`; optional values use `.optional()` or `.default(...)`.\n- Use `z.coerce.number()` / `z.coerce.boolean()` for non-string types — env vars arrive as strings.\n- When you add a key, update [.env.example](../../.env.example) with a documented placeholder.\n- No `next/*`, no `react`.\n"
+    },
+    {
+      "id": "logger",
+      "name": "Logger",
+      "version": "1.0.0",
+      "description": "Winston-based structured logger. Use instead of console.* across the codebase.",
+      "dir": "modules/logger",
+      "icon": "fas fa-file-lines",
+      "tags": [
+        "infrastructure",
+        "core"
+      ],
+      "priority": 2,
+      "tier": "infrastructure",
+      "dependencies": {
+        "requires": [
+          "env"
+        ]
+      },
+      "exports": {
+        "services": [
+          "logger.service.ts"
+        ],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": "# logger\n\nWinston tabanlı framework-agnostic logger servisi.\n\n## Exports\n\n- `Logger` (default) — `info`, `error`, `warn`, `debug` static metodları\n\n## Kullanım\n\n```ts\nimport Logger from '@/modules/logger';\n\nLogger.info('User created', { userId });\nLogger.error('DB failure', error);\n```\n\n`libs/logger` backward compat için bu modülü re-export eder.\n"
+    },
+    {
+      "id": "redis",
+      "name": "Redis",
+      "version": "1.0.0",
+      "description": "Shared ioredis client + BullMQ connection helpers + Pub/Sub-safe createRedisConnection().",
+      "dir": "modules/redis",
+      "icon": "fas fa-database",
+      "tags": [
+        "infrastructure",
+        "core",
+        "cache",
+        "queue"
+      ],
+      "priority": 2,
+      "tier": "infrastructure",
+      "dependencies": {
+        "requires": [
+          "env"
+        ]
+      },
+      "exports": {
+        "services": [
+          "redis.service.ts"
+        ],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": "# redis\n\nShared Redis client (ioredis) and BullMQ connection factory. One pooled client for application reads/writes, helpers for creating independent connections (Pub/Sub) and BullMQ queues.\n\n## Public API\n\n| Export | Source | Use |\n|---|---|---|\n| `redis` (default export) | [redis.service.ts](redis.service.ts) | The shared `ioredis` connection. Use for `get`/`set`/`incr`/etc. |\n| `redisConnectionOptions` | [redis.service.ts](redis.service.ts) | Plain options object — useful when building a new `Redis` instance. |\n| `createRedisConnection()` | [redis.service.ts](redis.service.ts) | New independent connection (required for Pub/Sub subscribers — they can't share the main client). |\n| `getBullMQConnection()` | [redis.bullmq.ts](redis.bullmq.ts) | `ConnectionOptions` for BullMQ workers and queues. |\n| `createQueue<T>(name)` | [redis.bullmq.ts](redis.bullmq.ts) | Convenience factory: `new Queue(name, { connection: getBullMQConnection() })`. |\n| `jitter(ttl, factor?)` | [redis.cache.ts](redis.cache.ts) | Returns `ttl ± factor%` (default 10%). Apply to every `setex` TTL so co-written keys don't expire on the same second. |\n| `singleFlight(key, loader)` | [redis.cache.ts](redis.cache.ts) | In-process dedup of concurrent loaders for the same key. Process-local — does not deduplicate across pods. |\n\n## Usage\n\n### Plain Redis\n\n```ts\nimport redis from \"@/modules/redis\";\n\nawait redis.set(`session:${id}`, JSON.stringify(payload), \"EX\", 1800);\nconst raw = await redis.get(`session:${id}`);\n```\n\n### BullMQ queue\n\n```ts\nimport { createQueue } from \"@/modules/redis/redis.bullmq\";\n\nconst mailQueue = createQueue<MailJob>(\"notification_mail\");\nawait mailQueue.add(\"welcome\", { userId, template: \"welcome\" });\n```\n\n### Pub/Sub subscriber\n\n```ts\nimport { createRedisConnection } from \"@/modules/redis\";\n\nconst sub = createRedisConnection();\nawait sub.subscribe(\"tenant-events\");\nsub.on(\"message\", (channel, msg) => { /* … */ });\n```\n\n### Cached read with stampede protection\n\n```ts\nimport redis, { jitter, singleFlight } from \"@/modules/redis\";\n\nasync function getUserById(userId: string) {\n  const cacheKey = `user:id:${userId}`;\n  const cached = await redis.get(cacheKey).catch(() => null);\n  if (cached) return JSON.parse(cached);\n\n  return singleFlight(cacheKey, async () => {\n    const row = await db.user.findUnique({ where: { id: userId } });\n    if (row) await redis.setex(cacheKey, jitter(300), JSON.stringify(row));\n    return row;\n  });\n}\n```\n\n`singleFlight` keeps an in-process `Map<key, Promise>` — when N concurrent callers miss on the same key, only one DB query runs and the rest await its result. It does **not** dedupe across separate Node processes; for cross-pod single-flight you'd need a Redis `SET NX` lock layered on top.\n\n## Connection options\n\nDriven by `env.REDIS_HOST`, `env.REDIS_PORT`, `env.REDIS_PASSWORD`. `maxRetriesPerRequest: null` is set explicitly — it's required by BullMQ.\n\n## Where Redis is used in this project\n\n- Session cache ([modules/user_session](../user_session/))\n- Idempotency keys ([modules/redis_idempotency](../redis_idempotency/))\n- Rate limiting ([modules/limiter](../limiter/))\n- Mail / push / sms queues (BullMQ — see notification modules)\n- OAuth state, OTP, password-reset tokens (TTL keys)\n\n## Rules\n\n- No `next/*`, no `react`.\n- **Don't** create one-off `new Redis(...)` instances scattered across modules — go through this module's helpers so connection options stay consistent.\n- For Pub/Sub subscribers, always use `createRedisConnection()` — subscribed connections cannot serve other commands.\n"
+    },
+    {
+      "id": "db",
+      "name": "Database",
+      "version": "1.0.0",
+      "description": "TypeORM DataSource factories for the dual-schema model (system + per-tenant). All entities are registered here.",
+      "dir": "modules/db",
+      "icon": "fas fa-database",
+      "tags": [
+        "infrastructure",
+        "core",
+        "database"
+      ],
+      "priority": 3,
+      "tier": "infrastructure",
+      "dependencies": {
+        "requires": [
+          "env"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "tenant_database.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": "# db\n\nTypeORM `DataSource` factory for the two-schema multi-tenant model: a single **system** schema plus one **tenant** schema per tenant (cached, lazily initialised).\n\n## Public API\n\n| Export | Source | Use |\n|---|---|---|\n| `getSystemDataSource()` | [db.system.ts](db.system.ts) | Returns the initialised system DataSource. Idempotent. |\n| `SystemDataSource` | [db.system.ts](db.system.ts) | The raw DataSource instance (rarely needed — prefer the getter). |\n| `tenantDataSourceFor(tenantId)` | [db.tenant.ts](db.tenant.ts) | Returns the DataSource for a specific tenant. Cached per tenant. |\n| `getDefaultTenantDataSource()` | [db.tenant.ts](db.tenant.ts) | DataSource for the wildcard/default tenant DB (used in single-DB setups). |\n| `clearTenantDsCache(tenantId?)` | [db.tenant.ts](db.tenant.ts) | Drop one tenant from the cache or clear it entirely. |\n| `TenantDatabase` | [entities/tenant_database.entity.ts](entities/tenant_database.entity.ts) | Entity that maps `tenantId → { connectionUrl, schema }`. |\n| `parseDbUrl(url)` | [db.utils.ts](db.utils.ts) | Splits a Postgres URL into `{ url, schema }`. |\n\n## Schema split\n\n- **System schema** ([db.system.ts](db.system.ts)) owns: `User`, `UserProfile`, `UserSecurity`, `UserPreferences`, `UserSession`, `UserSocialAccount`, `PushSubscription`, `Setting`, `SubscriptionPlan`, `PlanFeature`, `AuditLog` (system), `Coupon`, `SystemWebhook`, `SystemWebhookDelivery`, `TenantDatabase`.\n- **Tenant schema** ([db.tenant.ts](db.tenant.ts)) owns: `Tenant`, `TenantDomain`, `TenantMember`, `TenantInvitation`, `TenantSetting`, `TenantSubscription`, `Payment`, `PaymentTransaction`, `TenantAuditLog`, `ApiKey`, `CouponRedemption`, `Webhook`, `WebhookDelivery`, `SamlConfig`.\n\nWhen you add a new entity, register it in the appropriate file's `SYSTEM_ENTITIES` or `TENANT_ENTITIES` array.\n\n## Usage\n\n```ts\nimport { getSystemDataSource, tenantDataSourceFor } from \"@/modules/db\";\n\n// system scope\nconst ds = await getSystemDataSource();\nconst users = await ds.getRepository(User).find();\n\n// tenant scope\nconst tds = await tenantDataSourceFor(tenantId);\nconst members = await tds.getRepository(TenantMember).find();\n```\n\n## Connection URLs\n\nDriven by `SYSTEM_DATABASE_URL` and `TENANT_DATABASE_URL` env vars. Per-tenant override URLs are stored in the `TenantDatabase` row (system schema).\n\n## Rules\n\n- No `next/*`, no `react`. Service-layer only.\n- Always **await** the data-source helpers — they perform lazy `initialize()` on first call.\n- Tests mock these helpers; production code never instantiates `new DataSource()` directly.\n"
+    },
+    {
+      "id": "limiter",
+      "name": "Rate Limiter",
+      "version": "1.0.0",
+      "description": "Sliding-window rate limiter + tenant-plan-based quota enforcement (seat/feature/usage limits).",
+      "dir": "modules/limiter",
+      "icon": "fas fa-gauge-high",
+      "tags": [
+        "infrastructure",
+        "security",
+        "billing"
+      ],
+      "priority": 5,
+      "tier": "infrastructure",
+      "dependencies": {
+        "requires": [
+          "redis",
+          "env"
+        ],
+        "optional": [
+          "tenant_subscription"
+        ]
+      },
+      "exports": {
+        "services": [
+          "limiter.service.ts",
+          "limiter.tenant-plan.service.ts"
+        ],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true,
+      "readme": "# limiter\n\nFramework-agnostic rate limiting servisleri.\n\n## Dosyalar\n\n| Dosya | İçerik |\n|-------|--------|\n| `limiter.service.ts` | Redis INCR tabanlı IP rate limit (`check`) |\n| `limiter.tenant-plan.service.ts` | Redis sorted set tabanlı tenant plan rate limit |\n\n## Exports\n\n- `check(ip, scope)` — IP bazlı rate limit kontrolü\n- `LIMITS` — `{ auth: 20, api: 120 }`\n- `RATE_LIMIT_WINDOW` — 60 saniye\n- `LimiterScope` — `'auth' | 'api'`\n- `checkTenantPlanRateLimit(tenantId, limitPerMinute)` — plan bazlı limit\n\nNext.js'e özgü `Limiter` sınıfı (request parsing, 429 response) → `modules_next/limiter`.\n"
+    },
+    {
+      "id": "redis_idempotency",
+      "name": "Idempotency Keys",
+      "version": "1.0.0",
+      "description": "Redis-backed idempotency-key store for safely retryable POST/PATCH operations.",
+      "dir": "modules/redis_idempotency",
+      "icon": "fas fa-key",
+      "tags": [
+        "infrastructure",
+        "reliability"
+      ],
+      "priority": 5,
+      "tier": "infrastructure",
+      "dependencies": {
+        "requires": [
+          "redis",
+          "env"
+        ]
+      },
+      "exports": {
+        "services": [
+          "redis_idempotency.service.ts"
+        ],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true,
+      "readme": "# idempotency\n\nRedis tabanlı idempotency key yönetimi.\n\n## Exports\n\n- `IdempotencyKey` — `get`, `setPending`, `setCompleted` static metodları\n- `IdempotencyRecord` — `{ status, response? }` tipi\n- `IdempotencyStatus` — `'pending' | 'completed'`\n\nTTL: 24 saat.\n\nNext.js `withIdempotency` middleware HOC → `modules_next/idempotency`.\n"
+    },
+    {
+      "id": "setting",
+      "name": "Setting",
+      "version": "1.0.0",
+      "description": "System-wide key-value settings store. Modules declare their keys in *.setting.keys.ts; the setting service stores/reads them.",
+      "dir": "modules/setting",
+      "icon": "fas fa-gear",
+      "tags": [
+        "platform",
+        "configuration"
+      ],
+      "priority": 5,
+      "tier": "platform",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env"
+        ]
+      },
+      "exports": {
+        "services": [
+          "setting.service.ts"
+        ],
+        "dtos": [
+          "setting.dto.ts"
+        ],
+        "enums": [],
+        "messageKeys": [
+          "setting.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "setting.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true,
+      "readme": "# setting module\n\nSystem-wide key-value settings with Redis caching (10-min TTL). Aggregates and re-exports setting keys from all other modules.\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `setting.service.ts` | Core: get, set, bulk update, group query |\n| `setting.types.ts` | `Setting` type + re-exports from all module setting key files |\n| `setting.dto.ts` | `UpdateSettingDTO`, `BulkUpdateSettingsDTO` |\n| `setting.messages.ts` | Error/success message strings |\n| `entities/setting.entity.ts` | TypeORM entity |\n\n---\n\n## Setting Groups\n\nSettings are organized into groups for the admin UI:\n\n`General` · `Auth` · `Email` · `SMS` · `Storage` · `AI` · `Security` · `Payment` · `Subscription` · `Integrations` · `Analytics` · `SEO` · `Social` · `Localization`\n\n---\n\n## Usage\n\n```typescript\nimport SettingService from '@/modules/setting/setting.service';\n\n// Read a single value\nconst value = await SettingService.get('MAIL_FROM_ADDRESS');\n\n// Read as typed (returns null if not set)\nconst maxSize = await SettingService.getNumber('STORAGE_MAX_FILE_SIZE_MB');\nconst enabled = await SettingService.getBoolean('AUTH_REGISTRATION_ENABLED');\n\n// Write\nawait SettingService.set('MAIL_FROM_ADDRESS', 'noreply@example.com');\n\n// Bulk update\nawait SettingService.bulkUpdate([\n  { key: 'MAIL_PROVIDER', value: 'sendgrid' },\n  { key: 'MAIL_SENDGRID_API_KEY', value: 'SG.xxx' },\n]);\n\n// Get all settings in a group\nconst emailSettings = await SettingService.getGroup('Email');\n```\n\n---\n\n## Setting Keys\n\nEach module defines its own setting keys file (e.g. `auth.setting.keys.ts`, `ai.setting.keys.ts`). `setting.types.ts` re-exports them all. Always import keys from the module that owns them — never hard-code key strings.\n\n---\n\n## API Routes\n\n```\nGET  /system/api/settings\nGET  /system/api/settings?group=Email\nPUT  /system/api/settings\nPUT  /system/api/settings/[key]\n```\n\nRequires `system:admin` scope.\n"
+    },
+    {
+      "id": "user_agent",
+      "name": "User Agent Parser",
+      "version": "1.0.0",
+      "description": "Parse User-Agent header into device/OS/browser metadata. Used to annotate sessions and audit logs.",
+      "dir": "modules/user_agent",
+      "icon": "fas fa-mobile-screen",
+      "tags": [
+        "identity",
+        "utility"
+      ],
+      "priority": 5,
+      "tier": "identity",
+      "dependencies": {
+        "requires": []
+      },
+      "exports": {
+        "services": [
+          "user_agent.service.ts"
+        ],
+        "dtos": [],
+        "enums": [
+          "user_agent.enums.ts"
+        ],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": "# user_agent module\n\nUser-Agent string parsing and geo-location lookup. Detects OS, browser, device type via regex patterns. Uses ip-api.com for geo-location with local IP filtering.\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `user_agent.service.ts` | Core: parse UA string, lookup geo-location |\n| `user_agent.types.ts` | `DeviceInfo`, `GeoLocation` |\n| `user_agent.enums.ts` | `DeviceType`, `OSName`, `BrowserName` enums |\n\n---\n\n## Types\n\n```typescript\ntype DeviceInfo = {\n  osName: string;\n  osVersion: string;\n  browserName: string;\n  browserVersion: string;\n  deviceType: 'Desktop' | 'Mobile' | 'Tablet';\n  deviceName: string;\n};\n\ntype GeoLocation = {\n  city: string;\n  state: string;\n  country: string;\n  lat: number;\n  lon: number;\n};\n```\n\n---\n\n## Usage\n\n```typescript\nimport UserAgentService from '@/modules/user_agent/user_agent.service';\n\n// Parse UA string\nconst device = UserAgentService.parse(request.headers['user-agent'] ?? '');\n// { osName: 'macOS', browserName: 'Chrome', deviceType: 'Desktop', ... }\n\n// Geo-locate an IP (returns null for local/private IPs)\nconst geo = await UserAgentService.geolocate(request.ip);\n// { city: 'Istanbul', country: 'Turkey', ... } or null\n```\n\n---\n\n## Usage in Auth\n\nThis module is used by `auth.service.ts` and `user_session` to populate `DeviceInfo` and `GeoLocation` on every login, which is then shown in the active sessions panel.\n"
+    },
+    {
+      "id": "storage",
+      "name": "File Storage",
+      "version": "1.0.0",
+      "description": "Pluggable S3-compatible file storage (AWS S3, Cloudflare R2, DigitalOcean Spaces, MinIO).",
+      "dir": "modules/storage",
+      "icon": "fas fa-cloud-arrow-up",
+      "tags": [
+        "platform",
+        "storage"
+      ],
+      "priority": 10,
+      "tier": "platform",
+      "dependencies": {
+        "requires": [
+          "env",
+          "setting"
+        ]
+      },
+      "exports": {
+        "services": [
+          "storage.service.ts"
+        ],
+        "dtos": [
+          "storage.dto.ts"
+        ],
+        "enums": [
+          "storage.enums.ts"
+        ],
+        "messageKeys": [
+          "storage.messages.ts"
+        ],
+        "settingKeys": [
+          "storage.setting.keys.ts"
+        ],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": "# storage module\n\nMulti-provider cloud storage abstraction. Unified S3-compatible API for upload (multipart or from URL), delete, and URL generation. Provider is selected from system settings.\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `storage.service.ts` | Core: upload, delete, generateUrl, provider selection |\n| `storage.types.ts` | `UploadOptions`, `UploadResult`, `S3Config` |\n| `storage.dto.ts` | `UploadFileDTO` |\n| `storage.enums.ts` | `StorageProvider` enum |\n| `storage.messages.ts` | Error/success message strings |\n| `storage.setting.keys.ts` | Setting key constants |\n| `providers/base.provider.ts` | Abstract base class |\n| `providers/aws-s3.provider.ts` | AWS S3 |\n| `providers/cloudflare-r2.provider.ts` | Cloudflare R2 |\n| `providers/digitalocean-spaces.provider.ts` | DigitalOcean Spaces |\n| `providers/minio.provider.ts` | MinIO (self-hosted) |\n\n---\n\n## Providers\n\nActive provider is selected from settings key `STORAGE_PROVIDER`. Supported values: `aws-s3`, `cloudflare-r2`, `digitalocean-spaces`, `minio`.\n\n---\n\n## Usage\n\n```typescript\nimport StorageService from '@/modules/storage/storage.service';\n\n// Upload a file\nconst result = await StorageService.upload(file, {\n  folder: 'avatars',\n  filename: `${userId}.webp`,\n  tenantId,\n});\n// result.url, result.key, result.bucket, result.size, result.provider\n\n// Delete a file\nawait StorageService.delete(result.key);\n\n// Generate a signed URL (for private files)\nconst url = await StorageService.getSignedUrl(result.key, { expiresIn: 3600 });\n```\n\n---\n\n## Upload Result\n\n```typescript\ntype UploadResult = {\n  url: string;\n  key: string;\n  bucket: string;\n  size: number;\n  provider: StorageProvider;\n};\n```\n\n---\n\n## Adding a New Provider\n\n1. Extend `BaseStorageProvider` in `providers/`\n2. Add to `StorageProvider` enum in `storage.enums.ts`\n3. Register in `storage.service.ts` provider map\n4. Add setting keys in `storage.setting.keys.ts`\n"
+    },
+    {
+      "id": "user",
+      "name": "User",
+      "version": "1.0.0",
+      "description": "Core user CRUD: create, find, update, deactivate. Foundation for every auth and tenancy flow.",
+      "dir": "modules/user",
+      "icon": "fas fa-user",
+      "tags": [
+        "identity",
+        "core"
+      ],
+      "priority": 10,
+      "tier": "identity",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "logger",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [
+          "user.service.ts"
+        ],
+        "dtos": [
+          "user.dto.ts"
+        ],
+        "enums": [
+          "user.enums.ts"
+        ],
+        "messageKeys": [
+          "user.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "user.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true,
+      "readme": "# user module\n\nSystem user management: CRUD operations, password hashing with bcrypt, role-based access, and soft deletion.\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `user.service.ts` | Core: create, get, update, delete, list |\n| `user.types.ts` | `User`, `SafeUser` types |\n| `user.dto.ts` | Zod DTOs |\n| `user.enums.ts` | `UserRole`, `UserStatus` enums |\n| `user.messages.ts` | Error/success message strings |\n| `entities/user.entity.ts` | TypeORM entity |\n| `ui/user.menu.tsx` | User dropdown menu |\n| `ui/user.profile-card.tsx` | Profile display card |\n| `ui/user.profile-form.tsx` | Profile edit form |\n| `ui/user.preferences-form.tsx` | Preferences edit form |\n| `ui/user.role-badge.tsx` | Role label badge |\n| `ui/user.status-badge.tsx` | Status label badge |\n| `ui/user.social-accounts-panel.tsx` | Linked social accounts list |\n\n---\n\n## Roles\n\n| Role | Access level |\n|---|---|\n| `SUPER_ADMIN` | Full system access |\n| `ADMIN` | System admin, cannot manage super admins |\n| `USER` | Standard user |\n| `GUEST` | Read-only limited access |\n\n## Status\n\n| Status | Meaning |\n|---|---|\n| `ACTIVE` | Normal access |\n| `INACTIVE` | Disabled |\n\n---\n\n## SafeUser vs User\n\n`User` includes the hashed password and soft-delete date — never return this from API responses. `SafeUser` omits both and is safe to serialize.\n\n---\n\n## Usage\n\n```typescript\nimport UserService from '@/modules/user/user.service';\n\n// Create\nconst user = await UserService.create({\n  email: 'alice@example.com',\n  password: 'secret123',  // hashed automatically\n  role: 'USER',\n});\n\n// Get (returns SafeUser)\nconst user = await UserService.getById(userId);\nconst user = await UserService.getByEmail(email);\n\n// Update\nawait UserService.update(userId, { phone: '+905551234567' });\n\n// Soft delete\nawait UserService.delete(userId);\n```\n\n---\n\n## API Routes\n\n```\nGET    /system/api/users\nGET    /system/api/users/[id]\nPOST   /system/api/users\nPUT    /system/api/users/[id]\nDELETE /system/api/users/[id]\n```\n\nRequires `system:admin` scope.\n\n---\n\n## Caching\n\nUsers are cached in Redis (TTL = `SESSION_CACHE_TTL`, default 30 min):\n\n| Key | Returns | Used by |\n|---|---|---|\n| `user:id:{userId}` | `SafeUser` | `getById` |\n| `user:email:{email}` | `User` (with hashed password) | `getByEmail` — login hot path |\n\n`update`, `delete`, and `invalidate()` clear both keys. When email changes during `update`, **both** the old-email and new-email keys are invalidated.\n\n### Cross-module invalidation\n\nPassword changes happen outside this module. Any service that mutates `user.password` (e.g. `auth.password.service.ts`) **must** call `UserService.invalidate({ userId, email })` afterward — otherwise the cached `getByEmail` row will still authenticate against the old password until TTL expires.\n\nAlready wired: `auth.password.service.resetPassword`. New writers must follow the same pattern.\n\n### Stampede + negative cache\n\n- **TTL jitter (±10%)** on every cache write.\n- **In-process single-flight** dedupes concurrent loaders for the same user.\n- **Negative cache** on `getByEmail`: unknown emails are cached as `__not_found__` for up to 60s — blunts email-enumeration / login-stuffing. `create` clears the negative key so a brand-new user can log in immediately.\n"
+    },
+    {
+      "id": "user_preferences",
+      "name": "User Preferences",
+      "version": "1.0.0",
+      "description": "Per-user preferences: theme, language, timezone, notification opt-ins.",
+      "dir": "modules/user_preferences",
+      "icon": "fas fa-sliders",
+      "tags": [
+        "identity",
+        "ux"
+      ],
+      "priority": 11,
+      "tier": "identity",
+      "dependencies": {
+        "requires": [
+          "db",
+          "user"
+        ]
+      },
+      "exports": {
+        "services": [
+          "user_preferences.service.ts"
+        ],
+        "dtos": [
+          "user_preferences.dto.ts"
+        ],
+        "enums": [
+          "user_preferences.enums.ts"
+        ],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "user_preferences.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": "# user_preferences module\n\nUser UI/UX preferences: theme, language, timezone, date/time formats, notification channels, and week start day.\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `user_preferences.service.ts` | Core: get, create, update |\n| `user_preferences.types.ts` | `UserPreferences` type |\n| `user_preferences.dto.ts` | Zod DTO |\n| `user_preferences.enums.ts` | All preference enums |\n| `entities/user_preferences.entity.ts` | TypeORM entity |\n\n---\n\n## Preference Options\n\n| Preference | Options |\n|---|---|\n| `theme` | `LIGHT`, `DARK`, `SYSTEM` |\n| `language` | `EN`, `ES`, `TR`, `FR`, `DE` |\n| `dateFormat` | `DD_MM_YYYY`, `MM_DD_YYYY`, `YYYY_MM_DD` |\n| `timeFormat` | `H24`, `H12` |\n| `firstDayOfWeek` | `MON`–`SUN` |\n| `emailNotifications` | `boolean` |\n| `smsNotifications` | `boolean` |\n| `pushNotifications` | `boolean` |\n| `newsletter` | `boolean` |\n\n---\n\n## Usage\n\n```typescript\nimport UserPreferencesService from '@/modules/user_preferences/user_preferences.service';\n\n// Get (creates with defaults if missing)\nconst prefs = await UserPreferencesService.getOrCreate(userId);\n\n// Update\nawait UserPreferencesService.update(userId, {\n  theme: 'DARK',\n  language: 'TR',\n  timeFormat: 'H24',\n});\n```\n\n---\n\n## API Routes\n\n```\nGET /api/user/preferences\nPUT /api/user/preferences\n```\n\n---\n\n## Caching\n\n`getByUserId(userId)` is cached in Redis under `user_preferences:user:{userId}` (TTL = `SESSION_CACHE_TTL`, default 30 min). Null results are cached. Every mutation (`create`, `update`, `upsert`, `delete`) invalidates the key.\n\nTTL is jittered ±10% and reads are wrapped in in-process single-flight.\n"
+    },
+    {
+      "id": "user_profile",
+      "name": "User Profile",
+      "version": "1.0.0",
+      "description": "Profile fields (avatar, bio, locale, timezone) — separated from the user entity for read scalability.",
+      "dir": "modules/user_profile",
+      "icon": "fas fa-id-card",
+      "tags": [
+        "identity"
+      ],
+      "priority": 11,
+      "tier": "identity",
+      "dependencies": {
+        "requires": [
+          "db",
+          "user"
+        ]
+      },
+      "exports": {
+        "services": [
+          "user_profile.service.ts"
+        ],
+        "dtos": [
+          "user_profile.dto.ts"
+        ],
+        "enums": [
+          "user_profile.enums.ts"
+        ],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "user_profile.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": "# user_profile module\n\nUser profile information: name, biography, profile picture, header image, and platform-based social links.\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `user_profile.service.ts` | Core: get, create, update |\n| `user_profile.types.ts` | `UserProfile`, `SocialLinkItem` |\n| `user_profile.dto.ts` | Zod DTOs |\n| `user_profile.enums.ts` | `SocialPlatform` enum |\n| `entities/user_profile.entity.ts` | TypeORM entity |\n\n---\n\n## Social Platforms\n\n`github` · `twitter` · `linkedin` · `instagram` · `facebook` · `youtube` · `website` · `dribbble` · `behance`\n\n---\n\n## Types\n\n```typescript\ntype SocialLinkItem = {\n  id: string;\n  platform: SocialPlatform;\n  url: string;\n  order: number;\n};\n\ntype UserProfile = {\n  firstName: string;\n  lastName: string;\n  biography?: string;\n  profilePicture?: string;   // URL\n  headerImage?: string;      // URL\n  socialLinks: SocialLinkItem[];\n};\n```\n\n---\n\n## Usage\n\n```typescript\nimport UserProfileService from '@/modules/user_profile/user_profile.service';\n\n// Get (creates empty profile if missing)\nconst profile = await UserProfileService.getOrCreate(userId);\n\n// Update\nawait UserProfileService.update(userId, {\n  firstName: 'Alice',\n  biography: 'Software engineer at Acme.',\n  socialLinks: [\n    { platform: 'github', url: 'https://github.com/alice', order: 0 },\n  ],\n});\n```\n\n---\n\n## API Routes\n\n```\nGET /api/user/profile\nPUT /api/user/profile\n```\n\n---\n\n## Caching\n\n`getByUserId(userId)` is cached in Redis under `user_profile:user:{userId}` (TTL = `SESSION_CACHE_TTL`, default 30 min). Null results are cached too — repeated lookups for users without a profile don't re-hit the DB. Every mutation (`create`, `update`, `upsert`, `delete`, `addSocialLink`, `removeSocialLink`, `updateSocialLink`) invalidates the key.\n\nTTL is jittered ±10% and reads are wrapped in in-process single-flight.\n"
+    },
+    {
+      "id": "user_security",
+      "name": "User Security",
+      "version": "1.0.0",
+      "description": "Password hashing, account lock, TOTP secret, WebAuthn/Passkey credentials.",
+      "dir": "modules/user_security",
+      "icon": "fas fa-lock",
+      "tags": [
+        "identity",
+        "security"
+      ],
+      "priority": 11,
+      "tier": "identity",
+      "dependencies": {
+        "requires": [
+          "db",
+          "user",
+          "env"
+        ]
+      },
+      "exports": {
+        "services": [
+          "user_security.passkey.service.ts",
+          "user_security.service.ts"
+        ],
+        "dtos": [],
+        "enums": [
+          "user_security.enums.ts"
+        ],
+        "messageKeys": [
+          "user_security.passkey.messages.ts"
+        ],
+        "settingKeys": [
+          "user_security.setting.keys.ts"
+        ],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "user_security.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true,
+      "readme": "# user_security module\n\nUser security and MFA management. Tracks OTP methods, TOTP secret, backup codes, last login metadata, failed attempts with auto-lockout, and WebAuthn passkeys.\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `user_security.service.ts` | Core: get, update OTP/TOTP state, lockout logic |\n| `user_security.passkey.service.ts` | WebAuthn registration and authentication |\n| `user_security.passkey.constants.ts` | RP name, RP ID, expected origins |\n| `user_security.passkey.messages.ts` | Passkey error/success strings |\n| `user_security.types.ts` | `UserSecurity`, `SafeUserSecurity`, `StoredPasskey` |\n| `user_security.enums.ts` | `OTPMethod`, `MFAStatus`, `OTPAction` enums |\n| `user_security.setting.keys.ts` | Setting keys for lockout config |\n| `entities/user_security.entity.ts` | TypeORM entity |\n| `ui/user.passkeys-panel.tsx` | Passkey management UI |\n\n---\n\n## Lockout\n\nAfter **5 consecutive failed login attempts**, the account is locked for **15 minutes**. Both thresholds are configurable via settings.\n\n```typescript\nimport UserSecurityService from '@/modules/user_security/user_security.service';\n\n// Record a failed attempt (auto-locks if threshold reached)\nawait UserSecurityService.recordFailedAttempt(userId);\n\n// Check if locked\nconst { locked, lockedUntil } = await UserSecurityService.getLockoutStatus(userId);\n\n// Clear after successful login\nawait UserSecurityService.clearFailedAttempts(userId);\n```\n\n---\n\n## OTP Methods\n\n```typescript\n// Enable an OTP method\nawait UserSecurityService.enableOTPMethod(userId, 'EMAIL');\n\n// Disable\nawait UserSecurityService.disableOTPMethod(userId, 'SMS');\n```\n\n---\n\n## Passkeys (WebAuthn)\n\n```typescript\nimport PasskeyService from '@/modules/user_security/user_security.passkey.service';\n\n// Registration\nconst options = await PasskeyService.generateRegistrationOptions(userId);\nconst passkey = await PasskeyService.verifyRegistration(userId, response);\n\n// Authentication\nconst options = await PasskeyService.generateAuthenticationOptions(userId);\nawait PasskeyService.verifyAuthentication(userId, response);\n```\n\n---\n\n## API Routes\n\n```\nGET    /api/user/security\nPUT    /api/user/security/otp\nPOST   /api/user/security/passkeys/register/options\nPOST   /api/user/security/passkeys/register/verify\nPOST   /api/user/security/passkeys/authenticate/options\nPOST   /api/user/security/passkeys/authenticate/verify\nDELETE /api/user/security/passkeys/[id]\n```\n\n---\n\n## Caching\n\nSecurity records are cached in Redis (TTL = `SESSION_CACHE_TTL`, default 30 min):\n\n| Key | Returns | Used by |\n|---|---|---|\n| `user_security:user:{userId}` | `UserSecurity` (includes `otpSecret`, backup codes) | `getByUserId` — TOTP/passkey flows |\n| `user_security:safe:{userId}` | `SafeUserSecurity` (secrets stripped) | `getSafeByUserId` — UI/admin |\n\n`createDefaultUserSecurity`, `updateUserSecurity`, `upsertUserSecurity`, and `recordLoginAttempt` clear both keys. `recordLoginAttempt` invalidates even on success because it updates `lastLoginAt`, `failedLoginAttempts`, and (on lockout) `lockedUntil`.\n\n**Not cached:** `isLocked(userId)` always reads the DB. Stale lockout state must never authorize a login, so this query stays uncached — its cost is acceptable for the correctness guarantee.\n\nOTP secrets are stored in Redis the same way passwords already are (hashed at rest in the source DB, briefly held in Redis with a short TTL). If Redis is compromised, OTP secrets are exposed — the existing trust boundary applies.\n\nTTL is jittered ±10% and reads are wrapped in in-process single-flight.\n"
+    },
+    {
+      "id": "user_session",
+      "name": "User Session",
+      "version": "1.0.0",
+      "description": "JWT access/refresh issuance + revocation, Redis-backed session cache, CRUD on UserSession rows.",
+      "dir": "modules/user_session",
+      "icon": "fas fa-id-badge",
+      "tags": [
+        "identity",
+        "auth",
+        "core"
+      ],
+      "priority": 12,
+      "tier": "identity",
+      "dependencies": {
+        "requires": [
+          "db",
+          "redis",
+          "env",
+          "user",
+          "user_agent"
+        ]
+      },
+      "exports": {
+        "services": [
+          "user_session.cache.service.ts",
+          "user_session.crud.service.ts",
+          "user_session.service.ts",
+          "user_session.token.service.ts"
+        ],
+        "dtos": [],
+        "enums": [
+          "user_session.enums.ts"
+        ],
+        "messageKeys": [
+          "user_session.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "user_session.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true,
+      "readme": "# user_session module\n\nSession management with access/refresh token lifecycle. Supports device fingerprinting, multi-session tracking, impersonation metadata, and OTP verification flags.\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `user_session.service.ts` | Facade: delegates to sub-services |\n| `user_session.token.service.ts` | JWT generation, rotation, verification |\n| `user_session.cache.service.ts` | Redis session caching |\n| `user_session.crud.service.ts` | Database CRUD for persistent sessions |\n| `user_session.service.next.ts` | Next.js server action wrappers |\n| `user_session.types.ts` | `UserSession`, `SafeUserSession` |\n| `user_session.enums.ts` | `SessionStatus` enum |\n| `user_session.messages.ts` | Error/success message strings |\n| `entities/user_session.entity.ts` | TypeORM entity |\n\n---\n\n## Session Status\n\n| Status | Meaning |\n|---|---|\n| `ACTIVE` | Valid and usable |\n| `EXPIRED` | Past expiry time |\n| `REVOKED` | Manually invalidated |\n| `REFRESHED` | Superseded by a new session after token rotation |\n\n---\n\n## Usage\n\n```typescript\nimport UserSessionService from '@/modules/user_session/user_session.service';\n\n// Create a new session after login\nconst session = await UserSessionService.create(userId, {\n  ip: '1.2.3.4',\n  userAgent: request.headers['user-agent'],\n  fingerprint: deviceFingerprint,\n});\n// session.accessToken, session.refreshToken\n\n// Verify an access token\nconst { userId, sessionId } = await UserSessionService.verifyAccessToken(token);\n\n// Rotate tokens (refresh flow)\nconst newSession = await UserSessionService.refresh(refreshToken);\n\n// Revoke (logout)\nawait UserSessionService.revoke(sessionId);\n\n// Revoke all sessions for a user (force logout everywhere)\nawait UserSessionService.revokeAll(userId);\n```\n\n---\n\n## Next.js Wrappers\n\n```typescript\nimport { getSession, requireSession } from '@/modules/user_session/user_session.service.next';\n\n// Returns session or null\nconst session = await getSession();\n\n// Throws redirect to login if unauthenticated\nconst session = await requireSession();\n```\n\n---\n\n## API Routes\n\n```\nGET    /api/user/sessions       — list active sessions\nDELETE /api/user/sessions/[id]  — revoke a session\nDELETE /api/user/sessions       — revoke all sessions\nPOST   /api/auth/refresh        — rotate tokens\n```\n"
+    },
+    {
+      "id": "user_social_account",
+      "name": "Linked Social Accounts",
+      "version": "1.0.0",
+      "description": "Per-user linked OAuth provider accounts (provider id, external user id, tokens).",
+      "dir": "modules/user_social_account",
+      "icon": "fas fa-link",
+      "tags": [
+        "identity",
+        "auth"
+      ],
+      "priority": 12,
+      "tier": "identity",
+      "dependencies": {
+        "requires": [
+          "db",
+          "user"
+        ]
+      },
+      "exports": {
+        "services": [
+          "user_social_account.service.ts"
+        ],
+        "dtos": [],
+        "enums": [
+          "user_social_account.enums.ts"
+        ],
+        "messageKeys": [
+          "user_social_account.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "user_social_account.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": "# user_social_account module\n\nExternal OAuth account linking. Links and unlinks social provider accounts, manages access/refresh tokens, and prevents duplicate account linking across users.\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `user_social_account.service.ts` | Core: link, unlink, get, list |\n| `user_social_account.types.ts` | `UserSocialAccount`, `SafeUserSocialAccount` |\n| `user_social_account.enums.ts` | `SocialProvider` enum |\n| `user_social_account.messages.ts` | Error/success message strings |\n| `entities/user_social_account.entity.ts` | TypeORM entity |\n\n---\n\n## Supported Providers\n\n`google` · `github` · `microsoft` · `apple` · `facebook` · `linkedin` · `slack` · `tiktok` · `twitter` · `wechat` · `autodesk`\n\n---\n\n## SafeUserSocialAccount vs UserSocialAccount\n\n`UserSocialAccount` includes raw access and refresh tokens — never serialize these in API responses. `SafeUserSocialAccount` omits them.\n\n---\n\n## Usage\n\n```typescript\nimport UserSocialAccountService from '@/modules/user_social_account/user_social_account.service';\n\n// Link after successful OAuth callback\nawait UserSocialAccountService.link(userId, {\n  provider: 'github',\n  providerId: '12345',\n  accessToken: 'gho_xxx',\n  refreshToken: 'ghr_xxx',\n  profilePicture: 'https://avatars.githubusercontent.com/u/12345',\n});\n\n// Get all linked accounts\nconst accounts = await UserSocialAccountService.listByUser(userId);\n// Returns SafeUserSocialAccount[]\n\n// Unlink\nawait UserSocialAccountService.unlink(userId, 'github');\n```\n\n---\n\n## Duplicate Prevention\n\nIf another user has already linked the same provider + provider ID, `link()` throws an error. A provider account can only be linked to one user at a time.\n\n---\n\n## API Routes\n\n```\nGET    /api/user/social-accounts\nDELETE /api/user/social-accounts/[provider]\n```\n\nLinking happens automatically through the SSO callback — see `auth_sso` module.\n\n---\n\n## Caching\n\nSocial account lookups are cached in Redis (TTL = `SESSION_CACHE_TTL`, default 30 min):\n\n| Key | Used by |\n|---|---|\n| `user_social_account:user:{userId}` | `getByUserId` (lists user's accounts) |\n| `user_social_account:provider:{provider}:{providerId}` | `getByProviderAndProviderId`, `findUserIdByProvider` — OAuth callback hot path |\n\n`link` and `unlink` clear both keys for the affected user+provider. `updateTokens` does **not** invalidate because tokens are stripped from `SafeUserSocialAccount` (and thus aren't in the cached value).\n\nTTL is jittered ±10% and reads are wrapped in in-process single-flight — important on the OAuth callback path where many concurrent provider lookups for popular providers can collide.\n"
+    },
+    {
+      "id": "auth",
+      "name": "Authentication",
+      "version": "1.0.0",
+      "description": "Credential auth: login, register, password reset, email verify, OTP, TOTP. Coordinates user, user_session, user_security, notification_mail.",
+      "dir": "modules/auth",
+      "icon": "fas fa-shield-halved",
+      "tags": [
+        "identity",
+        "auth",
+        "core"
+      ],
+      "priority": 15,
+      "tier": "identity",
+      "dependencies": {
+        "requires": [
+          "user",
+          "user_session",
+          "user_security",
+          "notification_mail",
+          "env",
+          "redis",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [
+          "auth.otp.service.ts",
+          "auth.password.service.ts",
+          "auth.service.ts",
+          "auth.totp.service.ts"
+        ],
+        "dtos": [
+          "auth.dto.ts"
+        ],
+        "enums": [],
+        "messageKeys": [
+          "auth.messages.ts"
+        ],
+        "settingKeys": [
+          "auth.setting.keys.ts"
+        ],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true,
+      "readme": "# auth module\n\nCore authentication: login, registration, email verification, password management, OTP, and TOTP/2FA. Uses bcrypt and Redis for token TTLs.\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `auth.service.ts` | Main orchestrator: login, register, email verify |\n| `auth.otp.service.ts` | OTP generation, sending, and verification |\n| `auth.password.service.ts` | Forgot password, reset password flows |\n| `auth.totp.service.ts` | TOTP (authenticator app) setup and validation |\n| `auth.dto.ts` | Zod DTOs for all auth flows |\n| `auth.messages.ts` | Error/success message strings |\n| `auth.scopes.ts` | Permission scope constants |\n| `auth.setting.keys.ts` | Setting keys (OTP TTL, max attempts, etc.) |\n| `dictionaries/en.json` | English localization |\n| `dictionaries/es.json` | Spanish localization |\n| `dictionaries/tr.json` | Turkish localization |\n| `ui/auth.login.tsx` | Login form component |\n| `ui/auth.register.tsx` | Registration form component |\n| `ui/auth.forgot-password.tsx` | Forgot password form |\n| `ui/auth.oauth-buttons.tsx` | SSO provider buttons |\n| `ui/auth.session-expired.tsx` | Session expired modal |\n\n---\n\n## Auth Flows\n\n### Login\n```typescript\nimport AuthService from '@/modules/auth/auth.service';\n\nconst session = await AuthService.login({ email, password }, { ip, userAgent });\n// Returns UserSession with access + refresh tokens\n```\n\n### Register\n```typescript\nconst user = await AuthService.register({ email, password, name });\n// Sends verification email automatically\n```\n\n### OTP (email/SMS one-time code)\n```typescript\nimport AuthOTPService from '@/modules/auth/auth.otp.service';\n\nawait AuthOTPService.send(userId, 'LOGIN');\nawait AuthOTPService.verify(userId, code, 'LOGIN');\n```\n\n### TOTP (authenticator app)\n```typescript\nimport AuthTOTPService from '@/modules/auth/auth.totp.service';\n\nconst { secret, qrCode } = await AuthTOTPService.setup(userId);\nawait AuthTOTPService.enable(userId, totpCode);\nawait AuthTOTPService.verify(userId, totpCode);\n```\n\n---\n\n## API Routes\n\n```\nPOST /api/auth/login\nPOST /api/auth/register\nPOST /api/auth/forgot-password\nPOST /api/auth/reset-password\nPOST /api/auth/verify-email\nPOST /api/auth/otp/request\nPOST /api/auth/otp/verify\nPOST /api/auth/totp/setup\nPOST /api/auth/totp/enable\nPOST /api/auth/totp/verify\n```\n"
+    },
+    {
+      "id": "auth_saml",
+      "name": "SAML SSO",
+      "version": "1.0.0",
+      "description": "SAML 2.0 SSO with per-tenant IdP configuration (SamlConfig entity).",
+      "dir": "modules/auth_saml",
+      "icon": "fas fa-building-shield",
+      "tags": [
+        "identity",
+        "auth",
+        "sso",
+        "enterprise"
+      ],
+      "priority": 16,
+      "tier": "identity",
+      "dependencies": {
+        "requires": [
+          "db",
+          "user",
+          "user_session",
+          "tenant",
+          "env"
+        ]
+      },
+      "exports": {
+        "services": [
+          "auth_saml.service.ts"
+        ],
+        "dtos": [
+          "auth_saml.dto.ts"
+        ],
+        "enums": [
+          "auth_saml.enums.ts"
+        ],
+        "messageKeys": [
+          "auth_saml.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "saml_config.entity.ts",
+          "system_saml_config.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true,
+      "readme": "# auth_saml\n\nSAML 2.0 SSO per-tenant module.\n\n## Flow\n\n**SP-Initiated (recommended):**\n1. User navigates to `/tenant/{tenantId}/api/auth/saml/initiate`\n2. App generates signed SAMLRequest, redirects to IdP SSO URL\n3. IdP authenticates user, POSTs SAMLResponse to ACS URL\n4. ACS endpoint (`/tenant/{tenantId}/api/auth/saml/callback`) verifies signature, creates session\n\n**IdP-Initiated (optional):**\n- IdP POSTs SAMLResponse directly to ACS without prior request\n- Requires `allowIdpInitiated: true` in the tenant config\n\n## Endpoints\n\n| Method | Path | Description |\n|--------|------|-------------|\n| GET | `/tenant/{id}/api/auth/saml/metadata` | SP Metadata XML (public) |\n| GET | `/tenant/{id}/api/auth/saml/initiate` | Start SP-initiated login |\n| POST | `/tenant/{id}/api/auth/saml/callback` | ACS — IdP posts SAMLResponse here |\n| GET | `/tenant/{id}/api/saml/config` | Get config + metadata (ADMIN) |\n| PUT | `/tenant/{id}/api/saml/config` | Save config (ADMIN) |\n| DELETE | `/tenant/{id}/api/saml/config` | Delete config (ADMIN) |\n| GET | `/system/api/saml/tenants` | List all tenants with SAML (SYSTEM ADMIN) |\n\n## Admin Pages\n\n- **Tenant:** `/tenant/{id}/admin/settings/saml` — 3 tabs: Identity Provider · Attribute Mapping · SP Metadata\n- **System:** `/system/admin/saml` — 2 tabs: Tenant Overview · Setup Guide\n\n## Database\n\nEntity `SamlConfig` lives in the **tenant DB** (`saml_configs` table).  \nRegistered in `libs/typeorm/tenant.ts`.\n\n## Library\n\nUses `@node-saml/node-saml` for SAMLRequest generation, SAMLResponse validation, and metadata generation.\n\n## Caching\n\nThe full `SamlConfig` row (including `spPrivateKey`) is cached in Redis under `auth_saml:config:{tenantId}` (TTL = `TENANT_CACHE_TTL`, default 5 min). `upsertConfig` and `deleteConfig` invalidate the key. All read paths — `getConfig`, `generateAuthUrl`, `validateCallback`, `generateMetadata` — funnel through `loadConfig` so they share the same cache entry.\n\nSAML configs are accessed on every SSO request but change rarely, so this is a high-hit-rate cache. The cached value contains the SP private key; the trust boundary is the same as for SAML metadata in the DB.\n\nThe system-scope SAML config (`auth_saml:system_config`) follows the same pattern. TTL is jittered ±10%; both `loadConfig` and `loadSystemConfig` are wrapped in in-process single-flight so a burst of concurrent SSO callbacks for the same tenant runs only one DB query.\n"
+    },
+    {
+      "id": "auth_sso",
+      "name": "OAuth SSO",
+      "version": "1.0.0",
+      "description": "OAuth 2.0 SSO with 12 providers: Google, GitHub, Apple, Microsoft, Facebook, LinkedIn, Twitter, Slack, TikTok, WeChat, Autodesk.",
+      "dir": "modules/auth_sso",
+      "icon": "fas fa-right-to-bracket",
+      "tags": [
+        "identity",
+        "auth",
+        "sso"
+      ],
+      "priority": 16,
+      "tier": "identity",
+      "dependencies": {
+        "requires": [
+          "user",
+          "user_session",
+          "user_social_account",
+          "env"
+        ]
+      },
+      "exports": {
+        "services": [
+          "auth_sso.service.ts"
+        ],
+        "dtos": [
+          "auth_sso.dto.ts"
+        ],
+        "enums": [
+          "auth_sso.enums.ts"
+        ],
+        "messageKeys": [
+          "auth_sso.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": "# auth_sso module\n\nOAuth2 SSO integration with 11 providers. Handles auth URL generation, callback processing, token management, automatic user creation/linking, and account management.\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `auth_sso.service.ts` | Core: auth URL generation, callback handling, user linking |\n| `auth_sso.types.ts` | `SSOProfile`, `SSOTokens`, `SSOProviderConfig` |\n| `auth_sso.dto.ts` | `SSOCallbackDTO` |\n| `auth_sso.enums.ts` | `SSOProvider` enum |\n| `auth_sso.config.ts` | Per-provider OAuth config builder |\n| `auth_sso.messages.ts` | Error/success message strings |\n| `providers/base.provider.ts` | Abstract base class |\n| `providers/google.provider.ts` | Google OAuth2 |\n| `providers/github.provider.ts` | GitHub OAuth2 |\n| `providers/microsoft.provider.ts` | Microsoft OAuth2 |\n| `providers/apple.provider.ts` | Sign in with Apple |\n| `providers/facebook.provider.ts` | Facebook Login |\n| `providers/linkedin.provider.ts` | LinkedIn OAuth2 |\n| `providers/slack.provider.ts` | Slack OAuth2 |\n| `providers/tiktok.provider.ts` | TikTok Login |\n| `providers/twitter.provider.ts` | Twitter OAuth2 |\n| `providers/wechat.provider.ts` | WeChat OAuth |\n| `providers/autodesk.provider.ts` | Autodesk OAuth2 |\n| `dictionaries/` | Localization (EN, ES, TR) |\n\n---\n\n## Supported Providers\n\n`google` · `github` · `microsoft` · `apple` · `facebook` · `linkedin` · `slack` · `tiktok` · `twitter` · `wechat` · `autodesk`\n\n---\n\n## Flow\n\n```typescript\nimport AuthSSOService from '@/modules/auth_sso/auth_sso.service';\n\n// 1. Generate the redirect URL\nconst { url, state } = await AuthSSOService.getAuthUrl('google');\n// Redirect user to `url`\n\n// 2. Handle the callback (in the OAuth callback route)\nconst session = await AuthSSOService.handleCallback('google', { code, state });\n// Returns UserSession — user is created or linked automatically\n```\n\n---\n\n## Adding a New Provider\n\n1. Create `providers/<name>.provider.ts` extending `BaseSSOProvider`\n2. Add the provider name to `SSOProvider` enum in `auth_sso.enums.ts`\n3. Add config in `auth_sso.config.ts`\n4. Register in `auth_sso.service.ts` provider map\n\n---\n\n## API Routes\n\n```\nGET /api/auth/sso/[provider]           — initiates OAuth flow\nGET /api/auth/sso/[provider]/callback  — handles provider callback\n```\n"
+    },
+    {
+      "id": "auth_impersonation",
+      "name": "Admin Impersonation",
+      "version": "1.0.0",
+      "description": "Allow a system admin to assume a target user's session (always audited).",
+      "dir": "modules/auth_impersonation",
+      "icon": "fas fa-user-secret",
+      "tags": [
+        "identity",
+        "auth",
+        "admin"
+      ],
+      "priority": 17,
+      "tier": "identity",
+      "dependencies": {
+        "requires": [
+          "user",
+          "user_session",
+          "audit_log",
+          "env"
+        ]
+      },
+      "exports": {
+        "services": [
+          "impersonation.service.ts"
+        ],
+        "dtos": [
+          "impersonation.dto.ts"
+        ],
+        "enums": [],
+        "messageKeys": [
+          "impersonation.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": "# auth_impersonation module\n\nEnables admins and super-admins to impersonate other users for testing and support. Validates role hierarchy, creates tracked sessions, and logs all impersonation actions to the audit log.\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `impersonation.service.ts` | Core logic: start/stop impersonation, role validation |\n| `impersonation.dto.ts` | `StartImpersonationDTO` |\n| `impersonation.messages.ts` | Error/success message strings |\n\n---\n\n## Role Hierarchy\n\n- `SUPER_ADMIN` can impersonate `ADMIN`, `USER`, `GUEST`\n- `ADMIN` can impersonate `USER`, `GUEST`\n- No one can impersonate a peer or superior role\n\n---\n\n## Usage\n\n```typescript\nimport ImpersonationService from '@/modules/auth_impersonation/impersonation.service';\n\n// Start impersonation\nconst session = await ImpersonationService.start({\n  adminId: currentUserId,\n  targetUserId: userToImpersonate,\n  reason: 'Support ticket #1234',\n});\n// Returns a session with impersonation metadata\n\n// Stop impersonation (reverts to original session)\nawait ImpersonationService.stop(sessionId);\n```\n\n---\n\n## Audit Trail\n\nEvery impersonation start/stop is logged to the audit log with `actorId`, `targetUserId`, and `reason`. Logs are queryable via the audit log API.\n\n---\n\n## API Routes\n\n```\nPOST /api/auth/impersonation/start\nPOST /api/auth/impersonation/stop\n```\n\nRequires `system:admin` scope.\n"
+    },
+    {
+      "id": "tenant",
+      "name": "Tenant",
+      "version": "1.0.0",
+      "description": "Tenant CRUD, lifecycle (active/suspended/deleted), soft-deletion service. Foundation of multi-tenancy.",
+      "dir": "modules/tenant",
+      "icon": "fas fa-building",
+      "tags": [
+        "tenant",
+        "core"
+      ],
+      "priority": 20,
+      "tier": "tenancy",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "logger",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [
+          "tenant.deletion.service.ts",
+          "tenant.service.ts"
+        ],
+        "dtos": [
+          "tenant.dto.ts"
+        ],
+        "enums": [
+          "tenant.enums.ts"
+        ],
+        "messageKeys": [
+          "tenant.messages.ts"
+        ],
+        "settingKeys": [
+          "tenant.setting.keys.ts"
+        ],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "tenant.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true,
+      "readme": "# tenant module\n\nMulti-tenant organization management. Creates, updates, deletes tenants. Auto-provisions a personal tenant for every new user.\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `tenant.service.ts` | Core: CRUD operations, personal tenant provisioning |\n| `tenant.types.ts` | `Tenant`, `CreateTenantInput`, `UpdateTenantInput` |\n| `tenant.dto.ts` | Zod DTOs |\n| `tenant.enums.ts` | `TenantStatus` enum |\n| `tenant.messages.ts` | Error/success message strings |\n| `tenant.setting.keys.ts` | Setting key constants |\n| `entities/tenant.entity.ts` | TypeORM entity |\n| `dictionaries/` | Localization (EN, ES, TR) |\n| `ui/` | Tenant switcher and management UI components |\n\n---\n\n## Tenant Status\n\n| Status | Meaning |\n|---|---|\n| `ACTIVE` | Fully operational |\n| `INACTIVE` | Disabled, members cannot access |\n| `SUSPENDED` | Admin-suspended, same as inactive |\n\n---\n\n## Usage\n\n```typescript\nimport TenantService from '@/modules/tenant/tenant.service';\n\n// Create a tenant\nconst tenant = await TenantService.create({\n  name: 'Acme Corp',\n  description: 'Our main workspace',\n}, creatorUserId);\n\n// Get by ID\nconst tenant = await TenantService.getById(tenantId);\n\n// Update\nawait TenantService.update(tenantId, { name: 'Acme Inc' });\n\n// Delete\nawait TenantService.delete(tenantId);\n\n// List tenants for a user\nconst tenants = await TenantService.getByUserId(userId);\n```\n\n---\n\n## Personal Tenant\n\nWhen a new user registers, a personal tenant is automatically created for them. This tenant cannot be deleted.\n\n---\n\n## API Routes\n\n```\nGET    /api/tenants\nPOST   /api/tenants\nGET    /tenant/[tenantId]/api/info\nPUT    /tenant/[tenantId]/api/info\nDELETE /tenant/[tenantId]/api/info\n```\n\n---\n\n## Caching\n\n`getById(tenantId)` is cached in Redis under `tenant:id:{tenantId}` (TTL = `TENANT_CACHE_TTL`, default 5 min). `update` and `delete` clear the key. Tenant lookup runs on nearly every request, so this drops a hot DB query down to a Redis GET.\n\nTTL is jittered ±10% and reads are wrapped in in-process single-flight (`modules/redis/redis.cache.ts`) so a wave of cold-cache requests for the same tenant runs only one DB query.\n"
+    },
+    {
+      "id": "tenant_member",
+      "name": "Tenant Member",
+      "version": "1.0.0",
+      "description": "Tenant-scoped membership join table with roles (owner/admin/member) and per-member permissions.",
+      "dir": "modules/tenant_member",
+      "icon": "fas fa-users",
+      "tags": [
+        "tenant"
+      ],
+      "priority": 21,
+      "tier": "tenancy",
+      "dependencies": {
+        "requires": [
+          "db",
+          "tenant",
+          "user"
+        ]
+      },
+      "exports": {
+        "services": [
+          "tenant_member.service.ts"
+        ],
+        "dtos": [
+          "tenant_member.dto.ts"
+        ],
+        "enums": [
+          "tenant_member.enums.ts"
+        ],
+        "messageKeys": [
+          "tenant_member.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "tenant_member.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": "# tenant_member module\n\nTenant membership management with role-based access control. Enforces role hierarchy, prevents demoting the last owner, supports search by email, and soft deletion.\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `tenant_member.service.ts` | Core: add, update role, remove, list, get |\n| `tenant_member.types.ts` | `TenantMember`, `CreateTenantMemberInput` |\n| `tenant_member.dto.ts` | Zod DTOs |\n| `tenant_member.enums.ts` | `MemberRole`, `MemberStatus` enums |\n| `tenant_member.messages.ts` | Error/success message strings |\n| `entities/tenant_member.entity.ts` | TypeORM entity |\n\n---\n\n## Roles\n\n| Role | Permissions |\n|---|---|\n| `OWNER` | Full control, can manage admins |\n| `ADMIN` | Manage members, settings, billing |\n| `USER` | Standard access |\n\nRole changes are restricted by hierarchy — you cannot promote someone to a role equal to or above your own.\n\n## Member Status\n\n| Status | Meaning |\n|---|---|\n| `ACTIVE` | Normal access |\n| `INACTIVE` | Disabled by admin |\n| `SUSPENDED` | Policy violation |\n| `PENDING` | Invited but not yet accepted |\n\n---\n\n## Usage\n\n```typescript\nimport TenantMemberService from '@/modules/tenant_member/tenant_member.service';\n\n// List members\nconst { members, total } = await TenantMemberService.getByTenantId({\n  tenantId,\n  page: 1,\n  pageSize: 20,\n  search: 'alice',\n  memberRole: 'ADMIN',\n  memberStatus: 'ACTIVE',\n});\n\n// Change role\nawait TenantMemberService.updateRole(tenantId, memberId, 'ADMIN', requestingUserId);\n\n// Remove member\nawait TenantMemberService.remove(tenantId, memberId, requestingUserId);\n```\n\n---\n\n## API Routes\n\n```\nGET    /tenant/[tenantId]/api/members\nPUT    /tenant/[tenantId]/api/members/[id]\nDELETE /tenant/[tenantId]/api/members/[id]\n```\n\nMember limit enforced via `tenant_subscription` feature `max_members`.\n"
+    },
+    {
+      "id": "tenant_invitation",
+      "name": "Tenant Invitation",
+      "version": "1.0.0",
+      "description": "Email invitation flow: create / accept / decline / revoke. Bound to tenant_member on acceptance.",
+      "dir": "modules/tenant_invitation",
+      "icon": "fas fa-envelope-open",
+      "tags": [
+        "tenant",
+        "onboarding"
+      ],
+      "priority": 22,
+      "tier": "tenancy",
+      "dependencies": {
+        "requires": [
+          "db",
+          "tenant",
+          "tenant_member",
+          "notification_mail",
+          "user",
+          "env"
+        ]
+      },
+      "exports": {
+        "services": [
+          "tenant_invitation.service.ts"
+        ],
+        "dtos": [
+          "tenant_invitation.dto.ts"
+        ],
+        "enums": [
+          "tenant_invitation.enums.ts"
+        ],
+        "messageKeys": [
+          "tenant_invitation.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "tenant_invitation.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": "# tenant_invitation module\n\nTenant membership invitations via email token. Auto-accepts pending invitations when a new user registers with a matching email. Tracks status and expiration.\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `tenant_invitation.service.ts` | Core: create, accept, decline, revoke, list |\n| `tenant_invitation.types.ts` | `TenantInvitation`, `CreateTenantInvitationInput` |\n| `tenant_invitation.dto.ts` | Zod DTOs |\n| `tenant_invitation.enums.ts` | `InvitationStatus` enum |\n| `tenant_invitation.messages.ts` | Error/success message strings |\n| `entities/tenant_invitation.entity.ts` | TypeORM entity |\n\n---\n\n## Invitation Status\n\n| Status | Meaning |\n|---|---|\n| `PENDING` | Sent, awaiting response |\n| `ACCEPTED` | Invitee accepted and is now a member |\n| `DECLINED` | Invitee declined |\n| `REVOKED` | Admin cancelled the invitation |\n| `EXPIRED` | Past expiration date (default: 7 days) |\n\n---\n\n## Usage\n\n```typescript\nimport TenantInvitationService from '@/modules/tenant_invitation/tenant_invitation.service';\n\n// Send an invitation\nconst invitation = await TenantInvitationService.create(tenantId, {\n  email: 'alice@example.com',\n  role: 'USER',\n});\n// Sends an email automatically via notification_mail\n\n// Accept via token (from email link)\nawait TenantInvitationService.accept(token, userId);\n\n// Revoke\nawait TenantInvitationService.revoke(tenantId, invitationId);\n\n// List pending invitations\nconst { invitations, total } = await TenantInvitationService.list(tenantId, {\n  page: 1, pageSize: 20, status: 'PENDING',\n});\n```\n\n---\n\n## Auto-Accept on Registration\n\nWhen a new user registers, `AuthService` calls `TenantInvitationService.acceptPendingForEmail(email, userId)` to auto-accept any open invitations matching that email.\n\n---\n\n## API Routes\n\n```\nGET    /tenant/[tenantId]/api/invitations\nPOST   /tenant/[tenantId]/api/invitations\nDELETE /tenant/[tenantId]/api/invitations/[id]\nPOST   /api/invitations/accept\n```\n\nInvitation limit enforced via `tenant_subscription` feature `max_invitations`.\n\n---\n\n## Caching\n\nInvitations are cached in Redis (TTL = `TENANT_CACHE_TTL`, default 5 min):\n\n| Key | Used by |\n|---|---|\n| `tenant_invitation:id:{invitationId}` | `getById` |\n| `tenant_invitation:token:{sha256(rawToken)}` | `getByToken` |\n\n`send` (when revoking stale PENDING invites for the same email), `accept`, `decline`, `revoke`, and `autoAcceptForEmail` all invalidate both keys for the affected invitation. Stale cache of an already-revoked or expired token would defeat the security guarantees, so any status transition clears the cache. `send` additionally clears any negative cache entry for the freshly-minted token.\n\n### Stampede + negative cache\n\n- **TTL jitter (±10%)** on every cache write.\n- **In-process single-flight** dedupes concurrent loaders.\n- **Negative cache** on `getByToken`: unknown tokens are cached as `__not_found__` for up to 60s — protects against token-guessing attacks on the public invite link endpoint.\n"
+    },
+    {
+      "id": "tenant_session",
+      "name": "Tenant Session",
+      "version": "1.0.0",
+      "description": "Tenant-scoped session handling: bind a user session to a specific tenant, resolve tenant from request.",
+      "dir": "modules/tenant_session",
+      "icon": "fas fa-id-badge",
+      "tags": [
+        "tenant",
+        "auth"
+      ],
+      "priority": 22,
+      "tier": "tenancy",
+      "dependencies": {
+        "requires": [
+          "db",
+          "redis",
+          "user_session",
+          "tenant",
+          "env"
+        ]
+      },
+      "exports": {
+        "services": [
+          "tenant_session.service.ts"
+        ],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [
+          "tenant_session.messages.ts"
+        ],
+        "settingKeys": [
+          "tenant_session.setting.keys.ts"
+        ],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true,
+      "readme": "# tenant_session module\n\nTenant authentication and authorization for API routes and server actions. Validates tenant status and membership, checks role permissions, caches membership for 5 minutes.\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `tenant_session.service.ts` | Core: validate, authorize, list user tenants |\n| `tenant_session.service.next.ts` | Next.js server action wrappers |\n| `tenant_session.messages.ts` | Error/success message strings |\n| `tenant_session.setting.keys.ts` | Setting key constants |\n\n---\n\n## Usage in API Routes\n\n```typescript\nimport TenantSessionService from '@/modules/tenant_session/tenant_session.service';\n\n// Validate that the current user has at least USER access to this tenant\nconst { member, tenant } = await TenantSessionService.authorize(tenantId, userId, 'USER');\n\n// Require admin access\nconst { member, tenant } = await TenantSessionService.authorize(tenantId, userId, 'ADMIN');\n```\n\n## Usage in Server Actions (Next.js)\n\n```typescript\nimport { withTenantSession } from '@/modules/tenant_session/tenant_session.service.next';\n\nexport const myAction = withTenantSession(async ({ tenant, member }, data) => {\n  // tenant and member are guaranteed to be valid\n});\n```\n\n---\n\n## Caching\n\nMembership data is cached in Redis for 5 minutes per `(tenantId, userId)` pair. Cache is invalidated when membership changes.\n\n---\n\n## List User Tenants\n\n```typescript\nconst tenants = await TenantSessionService.listForUser(userId);\n// Returns all tenants the user is an ACTIVE member of\n```\n"
+    },
+    {
+      "id": "tenant_setting",
+      "name": "Tenant Setting",
+      "version": "1.0.0",
+      "description": "Per-tenant key-value settings store (overrides system defaults).",
+      "dir": "modules/tenant_setting",
+      "icon": "fas fa-sliders",
+      "tags": [
+        "tenant",
+        "configuration"
+      ],
+      "priority": 22,
+      "tier": "tenancy",
+      "dependencies": {
+        "requires": [
+          "db",
+          "tenant"
+        ]
+      },
+      "exports": {
+        "services": [
+          "tenant_setting.service.ts"
+        ],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "tenant_setting.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": "# tenant_setting module\n\nPer-tenant key-value settings mirroring the system settings structure. Redis-cached with 10-min TTL. Falls back to global system settings when a tenant-specific value is not set.\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `tenant_setting.service.ts` | Core: get, set, bulk update, fallback to global |\n| `tenant_setting.types.ts` | `TenantSetting` type |\n| `entities/tenant_setting.entity.ts` | TypeORM entity |\n\n---\n\n## Usage\n\n```typescript\nimport TenantSettingService from '@/modules/tenant_setting/tenant_setting.service';\n\n// Read a value (falls back to global setting if not overridden)\nconst value = await TenantSettingService.get(tenantId, 'MAIL_FROM_ADDRESS');\n\n// Write a tenant-specific override\nawait TenantSettingService.set(tenantId, 'MAIL_FROM_ADDRESS', 'hello@acme.com');\n\n// Bulk update\nawait TenantSettingService.bulkUpdate(tenantId, [\n  { key: 'MAIL_FROM_ADDRESS', value: 'hello@acme.com' },\n  { key: 'MAIL_FROM_NAME', value: 'Acme Support' },\n]);\n\n// Remove tenant override (revert to global)\nawait TenantSettingService.delete(tenantId, 'MAIL_FROM_ADDRESS');\n```\n\n---\n\n## Fallback Behavior\n\n`get(tenantId, key)` checks tenant-specific settings first. If the key is not set at the tenant level, it reads from the global system settings. This allows platform-wide defaults with per-tenant overrides.\n\n---\n\n## Caching\n\nSettings are cached in Redis under `tenant:settings:{tenantId}:{key}` with a 10-minute TTL. Writes invalidate the cache immediately.\n"
+    },
+    {
+      "id": "tenant_branding",
+      "name": "Tenant Branding",
+      "version": "1.0.0",
+      "description": "White-label branding: logo, favicon, colors, font, custom CSS — read by the proxy/shell to render per-tenant chrome.",
+      "dir": "modules/tenant_branding",
+      "icon": "fas fa-palette",
+      "tags": [
+        "tenant",
+        "branding",
+        "white-label"
+      ],
+      "priority": 23,
+      "tier": "tenancy",
+      "dependencies": {
+        "requires": [
+          "db",
+          "tenant_setting",
+          "storage"
+        ]
+      },
+      "exports": {
+        "services": [
+          "tenant_branding.service.ts"
+        ],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [
+          "tenant_branding.setting.keys.ts"
+        ],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": "# tenant_branding module\n\nPer-tenant branding settings: colors, logos, favicon, custom CSS/JS, and auth wallpaper. Built on top of `tenant_setting`.\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `tenant_branding.service.ts` | Core: get and update branding settings |\n| `tenant_branding.types.ts` | `TenantBranding` type |\n| `tenant_branding.setting.keys.ts` | Setting key constants scoped to branding |\n\n---\n\n## Branding Fields\n\n```typescript\ntype TenantBranding = {\n  logoLight?: string;     // URL — logo for light mode\n  logoDark?: string;      // URL — logo for dark mode\n  favicon?: string;       // URL\n  primaryColor?: string;  // hex color\n  secondaryColor?: string;\n  tagline?: string;\n  customCss?: string;     // injected into <head>\n  customJs?: string;      // injected before </body>\n  authWallpaper?: string; // URL — background on auth pages\n};\n```\n\n---\n\n## Usage\n\n```typescript\nimport TenantBrandingService from '@/modules/tenant_branding/tenant_branding.service';\n\n// Read branding\nconst branding = await TenantBrandingService.get(tenantId);\n\n// Update branding\nawait TenantBrandingService.update(tenantId, {\n  primaryColor: '#6366f1',\n  logoLight: 'https://cdn.example.com/logo-light.svg',\n});\n```\n\n---\n\n## API Routes\n\n```\nGET /tenant/[tenantId]/api/branding\nPUT /tenant/[tenantId]/api/branding\n```\n\nRequires `tenant:admin` scope.\n"
+    },
+    {
+      "id": "tenant_domain",
+      "name": "Tenant Domain",
+      "version": "1.0.0",
+      "description": "Custom domain mapping per tenant + DNS verification (TXT/CNAME challenge).",
+      "dir": "modules/tenant_domain",
+      "icon": "fas fa-globe",
+      "tags": [
+        "tenant",
+        "domain",
+        "infrastructure"
+      ],
+      "priority": 23,
+      "tier": "tenancy",
+      "dependencies": {
+        "requires": [
+          "db",
+          "tenant",
+          "env"
+        ]
+      },
+      "exports": {
+        "services": [
+          "dns_verification.service.ts",
+          "tenant_domain.service.ts"
+        ],
+        "dtos": [
+          "tenant_domain.dto.ts"
+        ],
+        "enums": [
+          "tenant_domain.enums.ts"
+        ],
+        "messageKeys": [
+          "tenant_domain.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "tenant_domain.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": "# tenant_domain module\n\nCustom domain management with DNS verification (TXT or CNAME). Enforces domain limits, caches in Redis, supports primary domain designation and status tracking.\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `tenant_domain.service.ts` | Core: create, verify, activate, delete, list |\n| `dns_verification.service.ts` | DNS lookup for TXT and CNAME verification |\n| `tenant_domain.types.ts` | `TenantDomain`, `CreateTenantDomainInput` |\n| `tenant_domain.dto.ts` | Zod DTOs |\n| `tenant_domain.enums.ts` | `DomainStatus`, `VerificationMethod` enums |\n| `tenant_domain.messages.ts` | Error/success message strings |\n| `entities/tenant_domain.entity.ts` | TypeORM entity |\n\n---\n\n## Domain Status\n\n| Status | Meaning |\n|---|---|\n| `PENDING` | Added, awaiting DNS verification |\n| `VERIFIED` | DNS check passed |\n| `ACTIVE` | Verified and serving traffic |\n| `INACTIVE` | Manually disabled |\n\n---\n\n## Verification Methods\n\n| Method | What to add in DNS |\n|---|---|\n| `TXT` | `_verify.yourdomain.com` → `TXT \"<token>\"` |\n| `CNAME` | `yourdomain.com` → `CNAME tenants.yoursaas.com` |\n\n---\n\n## Usage\n\n```typescript\nimport TenantDomainService from '@/modules/tenant_domain/tenant_domain.service';\n\n// Add a domain\nconst domain = await TenantDomainService.create(tenantId, {\n  domain: 'app.acme.com',\n  verificationMethod: 'TXT',\n});\n// domain.verificationToken — show this to the user\n\n// Trigger DNS verification\nawait TenantDomainService.verify(tenantId, domain.id);\n\n// Set as primary\nawait TenantDomainService.setPrimary(tenantId, domain.id);\n```\n\n---\n\n## API Routes\n\n```\nGET    /tenant/[tenantId]/api/domains\nPOST   /tenant/[tenantId]/api/domains\nPOST   /tenant/[tenantId]/api/domains/[id]/verify\nPUT    /tenant/[tenantId]/api/domains/[id]\nDELETE /tenant/[tenantId]/api/domains/[id]\n```\n\nRequires `tenant:admin` scope. Domain limits enforced via `tenant_subscription` feature `max_domains`.\n"
+    },
+    {
+      "id": "tenant_subscription",
+      "name": "Tenant Subscription",
+      "version": "1.0.0",
+      "description": "Tenant subscription state, plan + feature key resolution, grace period, expiry job.",
+      "dir": "modules/tenant_subscription",
+      "icon": "fas fa-credit-card",
+      "tags": [
+        "tenant",
+        "billing"
+      ],
+      "priority": 24,
+      "tier": "tenancy",
+      "dependencies": {
+        "requires": [
+          "db",
+          "tenant",
+          "payment",
+          "redis",
+          "env"
+        ]
+      },
+      "exports": {
+        "services": [
+          "tenant_subscription.service.ts"
+        ],
+        "dtos": [
+          "tenant_subscription.dto.ts"
+        ],
+        "enums": [
+          "tenant_subscription.enums.ts"
+        ],
+        "messageKeys": [
+          "tenant_subscription.messages.ts"
+        ],
+        "settingKeys": [
+          "tenant_subscription.setting.keys.ts"
+        ],
+        "providers": [],
+        "jobs": [
+          "tenant_subscription.job.ts"
+        ],
+        "entities": [
+          "tenant_subscription.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true,
+      "readme": "# tenant_subscription module\n\nManages subscription plans, plan features, and feature enforcement for tenants.\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `tenant_subscription.service.ts` | Core logic: plan CRUD, subscription lifecycle, feature gating |\n| `tenant_subscription.feature-keys.ts` | Canonical feature key constants (`FEATURE_KEYS`) |\n| `tenant_subscription.types.ts` | Zod schemas + TypeScript types |\n| `tenant_subscription.dto.ts` | Zod DTOs for API input validation |\n| `tenant_subscription.enums.ts` | Enums: `SubscriptionStatus`, `BillingInterval`, `PlanFeatureType` |\n| `tenant_subscription.messages.ts` | Error/success message strings |\n| `ui/subscription.plan-card.tsx` | Plan selection card |\n| `ui/subscription.usage-meter.tsx` | Progress bar for LIMIT feature usage |\n| `ui/subscription.upgrade-prompt.tsx` | Upgrade CTA shown when access is denied |\n| `ui/subscription.feature-gate.tsx` | Wrapper that blocks UI based on feature access |\n| `hooks/use-feature-access.ts` | Client-side hook: fetches feature access via axios |\n\n---\n\n## Feature Types\n\n| Type | DB value | Meaning |\n|---|---|---|\n| `BOOLEAN` | `\"true\"` / `\"false\"` | Feature on/off switch |\n| `LIMIT` | `\"5\"`, `\"100\"`, `\"-1\"` | Max count; `-1` = unlimited |\n\n---\n\n## Feature Keys\n\nAll keys are defined in `tenant_subscription.feature-keys.ts`. Always import from there — never hard-code strings.\n\n```typescript\nimport { FEATURE_KEYS } from '@/modules/tenant_subscription/tenant_subscription.feature-keys';\n```\n\n| Constant | Key | Type |\n|---|---|---|\n| `FEATURE_KEYS.MAX_MEMBERS` | `max_members` | LIMIT |\n| `FEATURE_KEYS.MAX_INVITATIONS` | `max_invitations` | LIMIT |\n| `FEATURE_KEYS.STORAGE_GB` | `storage_gb` | LIMIT |\n| `FEATURE_KEYS.MAX_DOMAINS` | `max_domains` | LIMIT |\n| `FEATURE_KEYS.MAX_AI_REQUESTS` | `max_ai_requests` | LIMIT |\n| `FEATURE_KEYS.CUSTOM_DOMAIN` | `custom_domain` | BOOLEAN |\n| `FEATURE_KEYS.API_ACCESS` | `api_access` | BOOLEAN |\n| `FEATURE_KEYS.SSO_LOGIN` | `sso_login` | BOOLEAN |\n| `FEATURE_KEYS.AUDIT_LOGS` | `audit_logs` | BOOLEAN |\n| `FEATURE_KEYS.AI_FEATURES` | `ai_features` | BOOLEAN |\n| `FEATURE_KEYS.ADVANCED_ANALYTICS` | `advanced_analytics` | BOOLEAN |\n| `FEATURE_KEYS.PRIORITY_SUPPORT` | `priority_support` | BOOLEAN |\n\nTo add a new feature key: add it to `FEATURE_KEYS` in `tenant_subscription.feature-keys.ts`, then create the matching `PlanFeature` row in the plan admin UI or seed script.\n\n---\n\n## Enforcing a Feature in an API Route\n\nUse `assertFeatureAccess` — it throws with a user-facing message when denied.\n\n### BOOLEAN feature (on/off)\n\n```typescript\n// app/tenant/[tenantId]/api/ai/route.ts\nimport TenantSubscriptionService from '@/modules/tenant_subscription/tenant_subscription.service';\nimport { FEATURE_KEYS } from '@/modules/tenant_subscription/tenant_subscription.feature-keys';\n\nawait TenantSubscriptionService.assertFeatureAccess(tenantId, FEATURE_KEYS.AI_FEATURES);\n```\n\n### LIMIT feature (count-based)\n\nGet the current count first, then assert. The service compares `currentCount < limit`.\n\n```typescript\n// app/tenant/[tenantId]/api/members/route.ts\nconst { total: currentMemberCount } = await TenantMemberService.getByTenantId({\n  tenantId, page: 1, pageSize: 1, search: null, memberRole: null, memberStatus: 'ACTIVE',\n});\n\nawait TenantSubscriptionService.assertFeatureAccess(\n  tenantId,\n  FEATURE_KEYS.MAX_MEMBERS,\n  currentMemberCount,\n);\n```\n\n### With grace period\n\nPass `gracePercent` to allow a soft overflow (e.g., 10% over limit before hard block):\n\n```typescript\nawait TenantSubscriptionService.assertFeatureAccess(\n  tenantId,\n  FEATURE_KEYS.MAX_MEMBERS,\n  currentMemberCount,\n  { gracePercent: 10 },\n);\n```\n\n### Non-throwing check (read result without throwing)\n\nUse `checkFeatureAccess` when you need the result object (e.g., to show a UI meter):\n\n```typescript\nconst result = await TenantSubscriptionService.checkFeatureAccess(\n  tenantId,\n  FEATURE_KEYS.MAX_MEMBERS,\n  currentMemberCount,\n);\n// result.allowed, result.type, result.limit, result.current, result.inGrace\n```\n\n---\n\n## Feature Check API Endpoint\n\n```\nGET /tenant/[tenantId]/api/subscription/features?key=max_members&count=5\n```\n\nRequires `tenant:read` scope. Returns `{ success: true, result: FeatureAccessResult }`.\n\n`count` is optional — omit it when checking a BOOLEAN feature or when current usage is unknown.\n\n---\n\n## UI Components\n\n### FeatureGate — block UI when access is denied\n\nPass a pre-fetched `FeatureAccessResult`. If `result.allowed` is false, shows `UpgradePrompt` by default.\n\n```tsx\n// Server component — fetch on the server, pass result as prop\nimport TenantSubscriptionService from '@/modules/tenant_subscription/tenant_subscription.service';\nimport { FeatureGate } from '@/modules/tenant_subscription/ui/subscription.feature-gate';\nimport { FEATURE_KEYS } from '@/modules/tenant_subscription/tenant_subscription.feature-keys';\n\nconst result = await TenantSubscriptionService.checkFeatureAccess(tenantId, FEATURE_KEYS.CUSTOM_DOMAIN);\n\n<FeatureGate result={result} tenantId={tenantId}>\n  <CustomDomainSettings />\n</FeatureGate>\n```\n\nCustom fallback:\n\n```tsx\n<FeatureGate result={result} tenantId={tenantId} fallback={<p>Not available on your plan.</p>}>\n  <AdvancedAnalytics />\n</FeatureGate>\n```\n\nSilent mode (renders nothing when denied):\n\n```tsx\n<FeatureGate result={result} tenantId={tenantId} silent>\n  <PremiumBadge />\n</FeatureGate>\n```\n\n### PlanUsageMeter — show current / limit bar\n\nOnly for `LIMIT` features. Color: green < 80%, yellow 80–99%, red ≥ 100%.\n\n```tsx\nimport { PlanUsageMeter } from '@/modules/tenant_subscription/ui/subscription.usage-meter';\n\n// result must be FeatureAccessResult with type === 'LIMIT'\n<PlanUsageMeter result={result} label=\"Team Members\" />\n```\n\n### UpgradePrompt — standalone upgrade CTA\n\n```tsx\nimport { UpgradePrompt } from '@/modules/tenant_subscription/ui/subscription.upgrade-prompt';\n\n// Full card\n<UpgradePrompt result={result} tenantId={tenantId} />\n\n// Inline compact version\n<UpgradePrompt result={result} tenantId={tenantId} compact />\n\n// Custom text\n<UpgradePrompt\n  result={result}\n  tenantId={tenantId}\n  title=\"Storage limit reached\"\n  description=\"Upgrade to Pro for 100 GB of storage.\"\n/>\n```\n\n### useFeatureAccess — client-side hook\n\nUses `axiosInstance` + `useState/useEffect`. No React Query.\n\n```tsx\n'use client';\nimport { useFeatureAccess } from '@/modules/tenant_subscription/hooks/use-feature-access';\nimport { PlanUsageMeter } from '@/modules/tenant_subscription/ui/subscription.usage-meter';\nimport { FEATURE_KEYS } from '@/modules/tenant_subscription/tenant_subscription.feature-keys';\n\nfunction MembersSection({ tenantId, memberCount }: { tenantId: string; memberCount: number }) {\n  const { result, loading } = useFeatureAccess(tenantId, FEATURE_KEYS.MAX_MEMBERS, memberCount);\n\n  if (loading || !result || result.type !== 'LIMIT') return null;\n\n  return <PlanUsageMeter result={result} label=\"Team Members\" />;\n}\n```\n\n---\n\n## Caching\n\nFeature access results are cached in Redis with a 5-minute TTL per tenant:\n\n```\nfeature:sub:{tenantId}\n```\n\nThe cache is invalidated automatically when:\n- A subscription is assigned (`assignPlan`)\n- A subscription is cancelled (`cancelSubscription`)\n\nTo manually invalidate (e.g., after plan feature edits):\n\n```typescript\nawait TenantSubscriptionService.invalidateFeatureCache(tenantId);\n```\n"
+    },
+    {
+      "id": "tenant_usage",
+      "name": "Tenant Usage",
+      "version": "1.0.0",
+      "description": "Usage metric tracking per tenant (API calls, storage GB, seats). Source for plan-limit enforcement.",
+      "dir": "modules/tenant_usage",
+      "icon": "fas fa-chart-line",
+      "tags": [
+        "tenant",
+        "metrics",
+        "billing"
+      ],
+      "priority": 24,
+      "tier": "tenancy",
+      "dependencies": {
+        "requires": [
+          "db",
+          "tenant"
+        ]
+      },
+      "exports": {
+        "services": [
+          "tenant_usage.service.ts"
+        ],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "tenant_usage.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": "# tenant_usage\n\nTracks per-tenant usage counters (API calls, AI tokens, storage bytes, email sends) by month. Counters are stored in Redis for low-latency O(1) increments and flushed to the `tenant_usage` PostgreSQL table by a background CRON job for durable reporting and plan-limit enforcement.\n\n## What it does\n\n- Provides `TenantUsageService` with static methods to increment counters and read/flush usage.\n- The `TenantUsage` TypeORM entity persists monthly aggregates with a `UNIQUE(tenantId, month)` constraint.\n- Redis keys expire automatically after 32 days so stale data is cleaned up.\n\n## Redis key pattern\n\n```\ntenant:{tenantId}:usage:{metric}:{YYYY-MM}\n```\n\nExample: `tenant:abc-123:usage:apiCalls:2026-05`\n\nMetrics: `apiCalls`, `aiTokens`, `storageBytes`, `emailSends`\n\n## Incrementing counters\n\n```typescript\nimport { TenantUsageService } from '@/modules/tenant_usage/tenant_usage.service';\n\n// In an API route or middleware:\nawait TenantUsageService.incrementApiCall(tenantId);\n\n// After an AI completion:\nawait TenantUsageService.incrementAiTokens(tenantId, tokensUsed);\n\n// After a file upload:\nawait TenantUsageService.incrementStorageBytes(tenantId, fileSizeBytes);\n```\n\n## Reading usage\n\n```typescript\nconst usage = await TenantUsageService.getUsage(tenantId);\n// { apiCalls: 42, aiTokens: 8000, storageBytes: 1048576, emailSends: 0 }\n\n// For a specific past month:\nconst lastMonth = await TenantUsageService.getUsage(tenantId, '2026-04');\n```\n\n`getUsage` reads from Redis first and falls back to the DB when Redis has no data (e.g. after a restart or for historical months).\n\n## Flushing to the database\n\nCall `flushToDb` from a CRON job (e.g. hourly) to persist counters durably:\n\n```typescript\n// In a CRON handler:\nconst month = TenantUsageService.currentMonth();\nawait TenantUsageService.flushToDb(tenantId, month);\n```\n\n`flushToDb` reads all 4 Redis counters and upserts the `TenantUsage` row for the given tenant+month. If all counters are zero, it skips the DB write.\n\n## Entity registration\n\n`TenantUsage` must be added to the tenant DataSource entity list separately (out of scope here). See `libs/typeorm/tenant.ts`.\n"
+    },
+    {
+      "id": "payment",
+      "name": "Payment",
+      "version": "1.0.0",
+      "description": "Pluggable payment processing (Stripe, PayPal, Iyzico) + subscription plans, plan features, payment transactions, webhook handling.",
+      "dir": "modules/payment",
+      "icon": "fas fa-credit-card",
+      "tags": [
+        "billing",
+        "payment"
+      ],
+      "priority": 25,
+      "tier": "billing",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "setting",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [
+          "payment.service.ts",
+          "payment.webhook.service.ts"
+        ],
+        "dtos": [
+          "payment.dto.ts"
+        ],
+        "enums": [
+          "payment.enums.ts"
+        ],
+        "messageKeys": [
+          "payment.messages.ts"
+        ],
+        "settingKeys": [
+          "payment.setting.keys.ts"
+        ],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "payment.entity.ts",
+          "payment_transaction.entity.ts",
+          "plan_feature.entity.ts",
+          "subscription_plan.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true,
+      "readme": "# Payment Module\n\nA multi-provider payment gateway module supporting Stripe, PayPal, and Iyzico with full TypeScript support and Zod validation.\n\n## Table of Contents\n\n- [Features](#features)\n- [Installation](#installation)\n- [Configuration](#configuration)\n- [Usage](#usage)\n- [Providers](#providers)\n- [API Reference](#api-reference)\n- [Types & Schemas](#types--schemas)\n- [Currency Support](#currency-support)\n- [Error Handling](#error-handling)\n- [Adding New Providers](#adding-new-providers)\n\n## Features\n\n- **Multi-Provider Support**: Seamlessly switch between Stripe, PayPal, and Iyzico\n- **Type Safety**: Full TypeScript support with Zod schema validation\n- **ISO 4217 Currencies**: Support for 180+ currencies via `currency-codes-ts`\n- **Provider Abstraction**: Unified interface across all payment providers\n- **Centralized Error Messages**: All error messages defined in one place\n- **Environment-Based Configuration**: Easy provider switching via environment variables\n\n## Installation\n\nThe module is already included in the project. Ensure you have the required dependencies:\n\n```bash\nnpm install axios crypto-js zod currency-codes-ts\n```\n\n## Configuration\n\n### Environment Variables\n\n```env\n# Default payment provider (stripe | paypal | iyzico)\nPAYMENT_DEFAULT_PROVIDER=stripe\n\n# Stripe Configuration\nSTRIPE_SECRET_KEY=sk_test_...\n\n# PayPal Configuration\nPAYPAL_API_URL=https://api-m.sandbox.paypal.com\nPAYPAL_CLIENT_ID=your_client_id\nPAYPAL_CLIENT_SECRET=your_client_secret\n\n# Iyzico Configuration\nIYZICO_API_KEY=your_api_key\nIYZICO_SECRET_KEY=your_secret_key\nIYZICO_BASE_URL=https://sandbox-api.iyzipay.com\n```\n\n### Production URLs\n\n| Provider | Sandbox URL | Production URL |\n|----------|-------------|----------------|\n| Stripe | https://api.stripe.com/v1 | https://api.stripe.com/v1 |\n| PayPal | https://api-m.sandbox.paypal.com | https://api-m.paypal.com |\n| Iyzico | https://sandbox-api.iyzipay.com | https://api.iyzipay.com |\n\n## Usage\n\n### Basic Usage\n\n```typescript\nimport { PaymentService } from '@/modules/payment'\n\n// Get payment status using default provider\nconst status = await PaymentService.getPaymentStatus({\n  token: 'payment_token_here'\n})\n\n// Get payment status using specific provider\nconst stripeStatus = await PaymentService.getPaymentStatus({\n  token: 'pi_1234567890',\n  provider: 'stripe'\n})\n\nconst paypalStatus = await PaymentService.getPaymentStatus({\n  token: 'ORDER-1234567890',\n  provider: 'paypal'\n})\n\nconst iyzicoStatus = await PaymentService.getPaymentStatus({\n  token: 'iyzico_token',\n  provider: 'iyzico'\n})\n```\n\n### Get Available Providers\n\n```typescript\nimport { PaymentService } from '@/modules/payment'\n\n// List all available providers\nconst providers = PaymentService.getAvailableProviders()\n// ['stripe', 'paypal', 'iyzico']\n\n// Get the default provider\nconst defaultProvider = PaymentService.getDefaultProvider()\n// 'stripe' (or whatever is set in PAYMENT_DEFAULT_PROVIDER)\n```\n\n### Validation with Zod Schemas\n\n```typescript\nimport { GetPaymentStatusRequestSchema } from '@/modules/payment'\n\n// Validate request data\nconst result = GetPaymentStatusRequestSchema.safeParse({\n  token: 'some_token',\n  provider: 'stripe'\n})\n\nif (result.success) {\n  const validatedData = result.data\n  // Process payment\n} else {\n  console.error(result.error.issues)\n}\n```\n\n## Providers\n\n### Stripe\n\nStripe provider uses the Stripe REST API with Bearer token authentication.\n\n**Token Format**: Payment Intent ID (e.g., `pi_1234567890`)\n\n**Response**: Returns the payment intent status string.\n\n```typescript\nconst status = await PaymentService.getPaymentStatus({\n  token: 'pi_1234567890',\n  provider: 'stripe'\n})\n// Returns: 'succeeded' | 'processing' | 'requires_payment_method' | ...\n```\n\n### PayPal\n\nPayPal provider uses OAuth 2.0 authentication with automatic token refresh.\n\n**Token Format**: Order ID (e.g., `ORDER-1234567890`)\n\n**Response**: Returns the full order object.\n\n```typescript\nconst order = await PaymentService.getPaymentStatus({\n  token: 'ORDER-1234567890',\n  provider: 'paypal'\n})\n// Returns: { id, status, purchase_units, ... }\n```\n\n### Iyzico\n\nIyzico provider uses HMAC-SHA256 signature authentication.\n\n**Token Format**: Checkout form token\n\n**Response**: Returns the payment status string.\n\n```typescript\nconst status = await PaymentService.getPaymentStatus({\n  token: 'iyzico_checkout_token',\n  provider: 'iyzico'\n})\n// Returns: 'success' | 'failure' | ...\n```\n\n## API Reference\n\n### PaymentService\n\n| Method | Parameters | Returns | Description |\n|--------|------------|---------|-------------|\n| `getPaymentStatus` | `GetPaymentStatusDTO` | `Promise<any>` | Get payment status from provider |\n| `getAvailableProviders` | - | `PaymentProviderType[]` | List all available providers |\n| `getDefaultProvider` | - | `PaymentProviderType` | Get default provider name |\n\n### GetPaymentStatusDTO\n\n```typescript\ninterface GetPaymentStatusDTO {\n  token: string           // Required: Payment token/ID\n  provider?: PaymentProviderType  // Optional: Override default provider\n}\n```\n\n## Types & Schemas\n\n### Enums\n\n```typescript\nimport {\n  PaymentProviderEnum,    // z.enum(['stripe', 'paypal', 'iyzico'])\n  PaymentStatusEnum,      // z.enum(['pending', 'completed', 'failed', 'refunded', 'cancelled'])\n  PaymentCurrencyEnum,    // z.enum([...180+ ISO 4217 codes])\n} from '@/modules/payment'\n\n// Type inference\ntype PaymentProviderType = 'stripe' | 'paypal' | 'iyzico'\ntype PaymentStatus = 'pending' | 'completed' | 'failed' | 'refunded' | 'cancelled'\ntype PaymentCurrency = 'USD' | 'EUR' | 'TRY' | ... // 180+ currencies\n```\n\n### Schemas\n\n```typescript\nimport {\n  GetPaymentStatusRequestSchema,\n  PaymentResultSchema,\n  PaymentConfigSchema,\n} from '@/modules/payment'\n```\n\n## Currency Support\n\nThe module uses `currency-codes-ts` package for ISO 4217 currency support.\n\n### Available Utilities\n\n```typescript\nimport {\n  PaymentCurrencyEnum,\n  getCurrencyByCode,\n  getCurrencyByCountry,\n  getAllCurrencyCodes,\n  type CurrencyCode,\n  type CurrencyCodeRecord,\n} from '@/modules/payment'\n\n// Validate currency code\nPaymentCurrencyEnum.parse('USD') // Valid\nPaymentCurrencyEnum.parse('XXX') // Throws ZodError\n\n// Get currency details\nconst usd = getCurrencyByCode('USD')\n// {\n//   code: 'USD',\n//   number: '840',\n//   digits: 2,\n//   currency: 'US Dollar',\n//   countries: ['United States of America (The)', ...]\n// }\n\n// Get currencies by country\nconst currencies = getCurrencyByCountry('Germany')\n// [{ code: 'EUR', currency: 'Euro', ... }]\n\n// Get all currency codes\nconst allCodes = getAllCurrencyCodes()\n// ['AED', 'AFN', 'ALL', ... 180+ codes]\n```\n\n## Error Handling\n\nAll error messages are centralized in `payment.messages.ts`:\n\n```typescript\nimport { PAYMENT_MESSAGES } from '@/modules/payment'\n\n// Available messages:\nPAYMENT_MESSAGES.PROVIDER_NOT_FOUND        // 'Payment provider not found'\nPAYMENT_MESSAGES.PROVIDER_NOT_CONFIGURED   // 'Payment provider not configured'\nPAYMENT_MESSAGES.GET_STATUS_FAILED         // 'Failed to get payment status'\nPAYMENT_MESSAGES.INVALID_TOKEN             // 'Invalid payment token'\nPAYMENT_MESSAGES.TRANSACTION_FAILED        // 'Transaction failed'\nPAYMENT_MESSAGES.PAYPAL_ACCESS_TOKEN_FAILED // 'Failed to obtain PayPal access token'\nPAYMENT_MESSAGES.PAYPAL_GET_STATUS_FAILED  // 'Failed to get PayPal payment status'\nPAYMENT_MESSAGES.STRIPE_GET_STATUS_FAILED  // 'Failed to get Stripe payment status'\nPAYMENT_MESSAGES.IYZICO_GET_STATUS_FAILED  // 'Failed to get Iyzico payment status'\n```\n\n### Error Handling Example\n\n```typescript\nimport { PaymentService, PAYMENT_MESSAGES } from '@/modules/payment'\n\ntry {\n  const status = await PaymentService.getPaymentStatus({\n    token: 'invalid_token',\n    provider: 'stripe'\n  })\n} catch (error) {\n  if (error.message === PAYMENT_MESSAGES.STRIPE_GET_STATUS_FAILED) {\n    // Handle Stripe-specific error\n  }\n  // Handle general error\n}\n```\n\n## Adding New Providers\n\nTo add a new payment provider:\n\n### 1. Create Provider Class\n\nCreate a new file `providers/newprovider.provider.ts`:\n\n```typescript\nimport { AxiosInstance } from 'axios'\nimport BasePaymentProvider from './base.provider'\nimport { PAYMENT_MESSAGES } from '../payment.messages'\n\nexport default class NewProvider extends BasePaymentProvider {\n  readonly name = 'newprovider'\n\n  // Implement required methods\n  getAxiosInstance(): AxiosInstance {\n    // Return configured axios instance\n  }\n\n  async getPaymentStatus(token: string): Promise<any> {\n    try {\n      // Implement payment status retrieval\n    } catch (error) {\n      throw new Error(PAYMENT_MESSAGES.NEWPROVIDER_GET_STATUS_FAILED)\n    }\n  }\n}\n```\n\n### 2. Update Enums\n\nAdd the new provider to `payment.enums.ts`:\n\n```typescript\nexport const PaymentProviderEnum = z.enum(['stripe', 'paypal', 'iyzico', 'newprovider'])\n```\n\n### 3. Update Messages\n\nAdd error messages to `payment.messages.ts`:\n\n```typescript\nexport const PAYMENT_MESSAGES = {\n  // ... existing messages\n  NEWPROVIDER_GET_STATUS_FAILED: 'Failed to get NewProvider payment status',\n} as const\n```\n\n### 4. Register Provider\n\nUpdate `payment.service.ts`:\n\n```typescript\nimport NewProvider from './providers/newprovider.provider'\n\nexport default class PaymentService {\n  private static readonly newProvider = new NewProvider()\n\n  private static readonly PROVIDERS = new Map<PaymentProviderType, BasePaymentProvider>([\n    // ... existing providers\n    ['newprovider', PaymentService.newProvider],\n  ])\n}\n```\n\n## Caching\n\nSingle-record lookups are cached in Redis (TTL = `TENANT_CACHE_TTL`, default 5 min):\n\n| Key | Returns | Used by |\n|---|---|---|\n| `payment:id:{paymentId}` | `SafePayment` | `getById` |\n| `payment:tx:{paymentId}` | `PaymentWithTransactions` | `getByIdWithTransactions` |\n| `payment_tx:id:{transactionId}` | `PaymentTransaction` | `getTransactionById` |\n\nList queries (`getAll`, `getTransactions`, `getPaymentsByUser`, `getPaymentsByTenant`) are **not** cached — too many filter combinations and they're usually requested fresh from admin UIs.\n\nInvalidation map:\n\n| Mutation | Clears |\n|---|---|\n| `update`, `markAsCompleted/Failed/Cancelled` | `payment:id:` + `payment:tx:` |\n| `delete` (soft) | `payment:id:` + `payment:tx:` |\n| `refund` | `payment:id:` + `payment:tx:` |\n| `createTransaction` | `payment:tx:` (parent payment's transactions list changed) |\n| `updateTransaction` | `payment_tx:id:` + `payment:tx:` (parent) |\n\nWebhook flow (`payment.webhook.service.ts`) writes through `PaymentService.update` / `markAsFailed` / etc., so webhooks inherit cache invalidation for free.\n\nTTL is jittered ±10% and reads are wrapped in in-process single-flight — useful on payment-status polling where many client requests may hit the same `paymentId` simultaneously.\n\n## Module Structure\n\n```\nmodules/payment/\n├── index.ts                 # Module exports\n├── payment.service.ts       # Main service class\n├── payment.dto.ts           # Data Transfer Objects (Zod schemas)\n├── payment.enums.ts         # Enums and currency utilities\n├── payment.types.ts         # TypeScript types and schemas\n├── payment.messages.ts      # Centralized error messages\n├── providers/\n│   ├── base.provider.ts     # Abstract base provider\n│   ├── stripe.provider.ts   # Stripe implementation\n│   ├── paypal.provider.ts   # PayPal implementation\n│   └── iyzico.provider.ts   # Iyzico implementation\n└── README.md                # This file\n```\n\n## License\n\nMIT\n"
+    },
+    {
+      "id": "tenant_export",
+      "name": "Tenant Export",
+      "version": "1.0.0",
+      "description": "Export all per-tenant data into a downloadable archive (GDPR-friendly).",
+      "dir": "modules/tenant_export",
+      "icon": "fas fa-file-export",
+      "tags": [
+        "tenant",
+        "compliance",
+        "gdpr"
+      ],
+      "priority": 25,
+      "tier": "tenancy",
+      "dependencies": {
+        "requires": [
+          "db",
+          "tenant",
+          "storage"
+        ]
+      },
+      "exports": {
+        "services": [
+          "tenant_export.service.ts"
+        ],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": "# tenant_export\n\nGDPR Article 20 (data portability) — allows a tenant OWNER to download all tenant data as a structured JSON file.\n\n## What it does\n\n`TenantExportService.exportTenantData(tenantId)` queries the tenant's own database via `tenantDataSourceFor(tenantId)` and returns a `Buffer` containing a formatted JSON document with the following collections:\n\n| Field        | Source entity      | Notes                                      |\n|--------------|--------------------|--------------------------------------------|\n| `members`    | `TenantMember`     | All member rows (role, status, timestamps) |\n| `domains`    | `TenantDomain`     | All custom domains and their verification status |\n| `auditLogs`  | `TenantAuditLog`   | Last 1 000 entries, ordered newest-first   |\n| `webhooks`   | `Webhook`          | Endpoint config; **signing secret omitted** |\n| `settings`   | `TenantSetting`    | All key/value settings rows; `null` if none |\n\n## What it omits\n\n- **Webhook signing secrets** (`secret` column) — HMAC-SHA256 secrets are stripped before serialisation.\n- **User passwords** — passwords live on the `User` entity in the system database, not in the tenant DB.\n\n## Response format\n\n```json\n{\n  \"exportedAt\": \"2026-05-08T12:00:00.000Z\",\n  \"tenantId\": \"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx\",\n  \"members\": [ ... ],\n  \"domains\": [ ... ],\n  \"auditLogs\": [ ... ],\n  \"webhooks\": [ ... ],\n  \"settings\": [ ... ]\n}\n```\n\n## HTTP endpoint\n\n```\nPOST /tenant/:tenantId/api/export\n```\n\n- **Auth required:** Yes — tenant session cookie with `OWNER` role.\n- **Rate limited:** Yes (shared `api` bucket via `Limiter`).\n- **Response:** `200 application/json` with `Content-Disposition: attachment` so browsers prompt a file download.\n- **Filename pattern:** `tenant-export-{tenantId}-{YYYY-MM-DD}.json`\n\n## Usage (server-side)\n\n```typescript\nimport TenantExportService from '@/modules/tenant_export/tenant_export.service';\n\nconst buffer = await TenantExportService.exportTenantData(tenantId);\n// buffer is a UTF-8 JSON Buffer ready to stream or write to storage\n```\n"
+    },
+    {
+      "id": "coupon",
+      "name": "Coupon",
+      "version": "1.0.0",
+      "description": "Discount coupons + redemption tracking. Provider-aware (Stripe / PayPal / Iyzico) so codes sync with the payment processor.",
+      "dir": "modules/coupon",
+      "icon": "fas fa-ticket",
+      "tags": [
+        "billing",
+        "marketing"
+      ],
+      "priority": 26,
+      "tier": "billing",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "payment",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [
+          "coupon.service.ts"
+        ],
+        "dtos": [
+          "coupon.dto.ts"
+        ],
+        "enums": [
+          "coupon.enums.ts"
+        ],
+        "messageKeys": [
+          "coupon.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "coupon.entity.ts",
+          "coupon_redemption.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true,
+      "readme": "# coupon\n\nCoupon / promo code system for subscription plans and payments.\n\n## Overview\n\nCoupons are created in the **system DB** by admins. Redemptions are stored per-tenant in the **tenant DB**. Discount calculation is always server-side — providers (Stripe, PayPal, Iyzico) receive the already-discounted amount.\n\n## Architecture\n\n```\nSystem DB (global)\n  └── coupons           — coupon definitions (code, discount, limits, expiry)\n\nTenant DB (per-tenant)\n  └── coupon_redemptions — usage history per tenant\n```\n\n## Discount Types\n\n| Type | Behavior |\n|---|---|\n| `PERCENTAGE` | Reduces amount by N% |\n| `FIXED_AMOUNT` | Reduces amount by exact value (currency-matched) |\n\n## Provider Sync\n\n| Provider | Native coupon API | Sync support |\n|---|---|---|\n| Stripe | Yes — Coupon + Promotion Code | `StripeCouponProvider.syncCoupon()` creates the coupon and promo code in Stripe |\n| PayPal | No | Discount applied by reducing order amount |\n| Iyzico | No | Discount applied by reducing basket total |\n\n## Service API\n\n```typescript\n// Admin\nCouponService.create(dto)\nCouponService.getAll(query)\nCouponService.getById(couponId)\nCouponService.update(couponId, dto)\nCouponService.archive(couponId)\n\n// Checkout flow\nCouponService.validate({ code, tenantId, amount, currency, planId, provider })\nCouponService.apply({ code, tenantId, paymentId, userId, amount, currency })\n\n// History\nCouponService.getRedemptionsByTenant(tenantId, page, pageSize)\n```\n\n## API Routes\n\n| Method | Path | Auth | Description |\n|---|---|---|---|\n| GET | `/system/api/coupons` | system:admin | List all coupons |\n| POST | `/system/api/coupons` | system:admin | Create coupon |\n| GET | `/system/api/coupons/[couponId]` | system:admin | Get coupon |\n| PUT | `/system/api/coupons/[couponId]` | system:admin | Update coupon |\n| DELETE | `/system/api/coupons/[couponId]` | system:admin | Archive coupon |\n| POST | `/tenant/[tenantId]/api/coupons/validate` | tenant member | Validate + preview discount |\n| POST | `/tenant/[tenantId]/api/coupons/apply` | tenant member | Apply + record redemption |\n| GET | `/tenant/[tenantId]/api/coupons/redemptions` | ADMIN+ | Redemption history |\n\n## UI Components\n\n```tsx\n// Checkout form — lets user enter and validate a promo code\n<CouponApplyForm\n  tenantId={tenantId}\n  amount={total}\n  currency=\"USD\"\n  planId={planId}\n  provider=\"STRIPE\"\n  onApplied={({ discountAmount, finalAmount, code }) => { ... }}\n  onRemoved={() => { ... }}\n/>\n\n// Small badge showing applied coupon\n<CouponBadge code=\"SUMMER25\" discountType=\"PERCENTAGE\" discountValue={25} />\n\n// Tenant admin redemption history\n<CouponRedemptionsList tenantId={tenantId} />\n```\n\n## Validation Rules\n\n- Coupon must be `ACTIVE`\n- `startsAt` and `expiresAt` windows enforced\n- `maxUses` (global) and `maxUsesPerTenant` checked atomically\n- `minimumAmount` checked against order amount\n- `applicablePlanIds` — null means all plans\n- `applicableProviders` — null means all providers\n\n## Stripe Sync\n\nCall `StripeCouponProvider.syncCoupon(coupon)` after creating a coupon to push it to the Stripe dashboard. The Stripe Coupon ID is `coupon_{couponId without dashes}`.\n\n## Caching\n\nCoupons are cached in Redis (TTL = `TENANT_CACHE_TTL`, default 5 min):\n\n| Key | Used by |\n|---|---|\n| `coupon:id:{couponId}` | `getById` |\n| `coupon:code:{CODE}` (uppercase) | `getByCode` → drives `validate` / `apply` lookups |\n\nInvalidation on **update**, **archive**, and **apply** (which increments `usedCount`) clears both keys. Apply is critical: stale `usedCount` could allow `maxUses` overspend, so the cache is invalidated even though the row is only incremented. `create` clears any negative cache for the new code.\n\n### Stampede + negative cache\n\n- **TTL jitter (±10%)** on every cache write.\n- **In-process single-flight** dedupes concurrent loaders for the same code/id.\n- **Negative cache** on `getByCode`: unknown codes are cached as `__not_found__` for up to 60s — protects against guessing/brute-forcing coupon codes.\n"
+    },
+    {
+      "id": "notification_inapp",
+      "name": "In-App Notifications",
+      "version": "1.0.0",
+      "description": "In-app notification feed with unread counts. Consumed by the notification menu in the app shell.",
+      "dir": "modules/notification_inapp",
+      "icon": "fas fa-bell",
+      "tags": [
+        "notifications",
+        "in-app"
+      ],
+      "priority": 30,
+      "tier": "notifications",
+      "dependencies": {
+        "requires": [
+          "db",
+          "user"
+        ]
+      },
+      "exports": {
+        "services": [
+          "notification_inapp.service.ts"
+        ],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [
+          "notification_inapp.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true,
+      "readme": "# notification_inapp module\n\nReal-time in-app notifications using Redis pub/sub. Stores up to 50 notifications per user, tracks read/unread status, and streams updates via SSE. Auto-triggers push notifications.\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `notification_inapp.service.ts` | Core: create, list, mark-read, Redis pub/sub |\n| `notification_inapp.types.ts` | `Notification`, `NotificationPayload` |\n| `notification_inapp.messages.ts` | Error/success message strings |\n| `use-notifications.hook.ts` | React hook for client-side subscription via SSE |\n\n---\n\n## Notification Shape\n\n```typescript\ntype Notification = {\n  id: string;\n  title: string;\n  message: string;\n  path?: string;     // link to navigate on click\n  isRead: boolean;\n  createdAt: string;\n};\n```\n\n---\n\n## Sending a Notification\n\n```typescript\nimport NotificationInAppService from '@/modules/notification_inapp/notification_inapp.service';\n\nawait NotificationInAppService.send(userId, {\n  title: 'Invitation accepted',\n  message: 'John Doe joined your workspace.',\n  path: `/tenant/${tenantId}/admin/members`,\n});\n```\n\n---\n\n## Client-Side Hook\n\n```tsx\n'use client';\nimport { useNotifications } from '@/modules/notification_inapp/use-notifications.hook';\n\nfunction NotificationBell({ userId }: { userId: string }) {\n  const { notifications, unreadCount, markRead } = useNotifications(userId);\n\n  return (\n    <button onClick={() => markRead(notifications[0].id)}>\n      {unreadCount} unread\n    </button>\n  );\n}\n```\n\n---\n\n## Storage\n\n- Redis list per user: `notifications:{userId}` — capped at 50 items, 7-day TTL\n- Real-time delivery via Redis pub/sub channel `notifications:{userId}`\n- SSE endpoint streams to connected clients\n\n---\n\n## API Routes\n\n```\nGET  /api/notifications/stream   — SSE stream\nGET  /api/notifications          — list notifications\nPOST /api/notifications/read     — mark as read\n```\n"
+    },
+    {
+      "id": "notification_mail",
+      "name": "Email Notifications",
+      "version": "1.0.0",
+      "description": "Pluggable email sender (SMTP, SES, Mailgun, Postmark, Resend, SendGrid). EJS templates. BullMQ-backed queue.",
+      "dir": "modules/notification_mail",
+      "icon": "fas fa-envelope",
+      "tags": [
+        "notifications",
+        "email"
+      ],
+      "priority": 30,
+      "tier": "notifications",
+      "dependencies": {
+        "requires": [
+          "redis",
+          "env",
+          "setting"
+        ]
+      },
+      "exports": {
+        "services": [
+          "notification_mail.service.ts"
+        ],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [
+          "notification_mail.setting.keys.ts"
+        ],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": "# notification_mail module\n\nMulti-provider email service with BullMQ queue and 15+ pre-built EJS templates. Supports direct and queued sending.\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `notification_mail.service.ts` | Core: send, queue, template rendering, provider selection |\n| `notification_mail.setting.keys.ts` | Setting key constants for provider config |\n| `providers/base.provider.ts` | Abstract base class |\n| `providers/smtp.provider.ts` | SMTP (Nodemailer) |\n| `providers/sendgrid.provider.ts` | SendGrid |\n| `providers/mailgun.provider.ts` | Mailgun |\n| `providers/ses.provider.ts` | AWS SES |\n| `providers/postmark.provider.ts` | Postmark |\n| `providers/resend.provider.ts` | Resend |\n| `templates/welcome.ejs` | Welcome email |\n| `templates/new_login.ejs` | New login alert |\n| `templates/forgot_password.ejs` | Password reset request |\n| `templates/password_reset.ejs` | Password reset confirmation |\n| `templates/password_changed.ejs` | Password changed alert |\n| `templates/verify_email.ejs` | Email verification |\n| `templates/otp.ejs` | OTP code |\n| `templates/otp_enabled.ejs` | OTP enabled confirmation |\n| `templates/otp_disabled.ejs` | OTP disabled confirmation |\n| `templates/email_change.ejs` | Email change verification |\n| `templates/new_device_alert.ejs` | New device login alert |\n| `templates/suspicious_activity.ejs` | Suspicious activity alert |\n| `templates/tenant_invitation.ejs` | Tenant member invitation |\n\n---\n\n## Sending an Email\n\n```typescript\nimport MailService from '@/modules/notification_mail/notification_mail.service';\n\n// Send immediately\nawait MailService.send({\n  to: 'user@example.com',\n  subject: 'Welcome!',\n  template: 'welcome',\n  data: { name: 'Alice' },\n});\n\n// Queue for async sending\nawait MailService.queue({\n  to: 'user@example.com',\n  template: 'tenant_invitation',\n  data: { inviterName: 'Bob', tenantName: 'Acme', token: inviteToken },\n});\n```\n\n---\n\n## Providers\n\nActive provider is selected from settings key `MAIL_PROVIDER`. Supported values: `smtp`, `sendgrid`, `mailgun`, `ses`, `postmark`, `resend`.\n\n---\n\n## Adding a New Template\n\n1. Create `templates/<name>.ejs`\n2. Add the template name to the service's template map\n3. Call `MailService.send({ template: '<name>', data: {...} })`\n"
+    },
+    {
+      "id": "notification_push",
+      "name": "Web Push Notifications",
+      "version": "1.0.0",
+      "description": "Web Push (VAPID) — subscription storage + send.",
+      "dir": "modules/notification_push",
+      "icon": "fas fa-bell",
+      "tags": [
+        "notifications",
+        "push"
+      ],
+      "priority": 30,
+      "tier": "notifications",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env"
+        ]
+      },
+      "exports": {
+        "services": [
+          "notification_push.service.ts"
+        ],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [
+          "notification_push.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "push_subscription.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": "# notification_push module\n\nWeb Push notifications using the Web Push API with VAPID keys. Manages browser subscriptions and sends push messages to users or roles.\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `notification_push.service.ts` | Core: subscribe, unsubscribe, send, cleanup expired |\n| `notification_push.messages.ts` | Error/success message strings |\n| `entities/push_subscription.entity.ts` | TypeORM entity for storing subscriptions |\n\n---\n\n## Push Payload\n\n```typescript\ntype PushPayload = {\n  title: string;\n  body: string;\n  icon?: string;\n  url?: string;   // navigate on click\n};\n```\n\n---\n\n## Sending a Push\n\n```typescript\nimport PushService from '@/modules/notification_push/notification_push.service';\n\n// To a specific user (all their subscribed devices)\nawait PushService.sendToUser(userId, {\n  title: 'New message',\n  body: 'You have a new message from Alice.',\n  url: '/messages',\n});\n\n// To all members with a given role\nawait PushService.sendToRole(tenantId, 'ADMIN', {\n  title: 'Action required',\n  body: 'A new member needs approval.',\n});\n```\n\n---\n\n## Browser-Side Subscription\n\nOn the client, subscribe using the standard `PushManager` API and POST the `PushSubscription` object to:\n\n```\nPOST /api/notifications/push/subscribe\nDELETE /api/notifications/push/unsubscribe\n```\n\n---\n\n## VAPID Keys\n\nSet in system settings under `PUSH_VAPID_PUBLIC_KEY` and `PUSH_VAPID_PRIVATE_KEY`. Generate with:\n\n```bash\nnpx web-push generate-vapid-keys\n```\n\nExpired subscriptions are cleaned up automatically on send failure (410 Gone).\n\n---\n\n## Caching\n\nPer-user subscription lists are cached in Redis under `push_subscription:user:{userId}` (TTL = `SESSION_CACHE_TTL`, default 30 min). Only `sendToUser` reads from the cache — it's the transactional hot path. Bulk paths (`sendToUsers`, `sendToRole`, `sendToAll`) go straight to the DB because they aren't repeated lookups.\n\nInvalidation:\n- `subscribe` clears cache for the new owner (and the previous owner if the endpoint moves between users)\n- `unsubscribe` and `unsubscribeByEndpoint` clear cache\n- 410/404 cleanup inside `sendToSubscription` (expired browser subscription) clears cache for the affected user\n\nTTL is jittered ±10% and reads are wrapped in in-process single-flight.\n"
+    },
+    {
+      "id": "notification_sms",
+      "name": "SMS Notifications",
+      "version": "1.0.0",
+      "description": "Pluggable SMS sender (Twilio, Nexmo, Clickatell, NetGSM).",
+      "dir": "modules/notification_sms",
+      "icon": "fas fa-message",
+      "tags": [
+        "notifications",
+        "sms"
+      ],
+      "priority": 30,
+      "tier": "notifications",
+      "dependencies": {
+        "requires": [
+          "redis",
+          "env",
+          "setting"
+        ]
+      },
+      "exports": {
+        "services": [
+          "notification_sms.service.ts"
+        ],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [
+          "notification_sms.setting.keys.ts"
+        ],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": "# notification_sms module\n\nMulti-provider SMS with BullMQ queue, region-based provider routing, phone number validation (libphonenumber), rate limiting, and country allowlists.\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `notification_sms.service.ts` | Core: send, queue, provider selection, rate limiting |\n| `notification_sms.setting.keys.ts` | Setting key constants |\n| `providers/base.provider.ts` | Abstract base class |\n| `providers/twilio.provider.ts` | Twilio |\n| `providers/netgsm.provider.ts` | NetGSM (Turkey) |\n| `providers/clickatell.provider.ts` | Clickatell |\n| `providers/nexmo.provider.ts` | Vonage (Nexmo) |\n\n---\n\n## Sending an SMS\n\n```typescript\nimport SMSService from '@/modules/notification_sms/notification_sms.service';\n\n// Send immediately (validates phone number format)\nawait SMSService.send({\n  to: '+905551234567',\n  message: 'Your verification code is 123456',\n});\n\n// Queue for async processing\nawait SMSService.queue({\n  to: '+905551234567',\n  message: 'Your one-time password is 987654',\n});\n```\n\n---\n\n## Providers\n\nActive provider is selected from settings key `SMS_PROVIDER`. Supported values: `twilio`, `netgsm`, `clickatell`, `nexmo`.\n\nRegion-based routing: configure different providers per country code via settings.\n\n---\n\n## Phone Number Validation\n\nUses Google's `libphonenumber` — all numbers must be in E.164 format (`+{countryCode}{number}`). Invalid numbers throw before sending.\n\n---\n\n## Rate Limiting\n\nPer-phone-number rate limits are enforced via Redis. Limits are configurable via settings.\n"
+    },
+    {
+      "id": "api_key",
+      "name": "API Key",
+      "version": "1.0.0",
+      "description": "Tenant-scoped API keys for programmatic access (hashed at rest, scope-bound).",
+      "dir": "modules/api_key",
+      "icon": "fas fa-key",
+      "tags": [
+        "platform",
+        "security"
+      ],
+      "priority": 40,
+      "tier": "platform",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [
+          "api_key.service.ts"
+        ],
+        "dtos": [
+          "api_key.dto.ts"
+        ],
+        "enums": [
+          "api_key.enums.ts"
+        ],
+        "messageKeys": [
+          "api_key.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "api_key.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": "# api_key module\n\nManages API keys for tenant authentication. Generates, validates, and hashes keys with scopes and expiration tracking.\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `api_key.service.ts` | Core logic: create, validate, revoke, list API keys |\n| `api_key.types.ts` | `ApiKey`, `SafeApiKey` types |\n| `api_key.dto.ts` | `CreateApiKeyDTO`, `ListApiKeysDTO` |\n| `api_key.enums.ts` | `ApiKeyScope` enum |\n| `api_key.messages.ts` | Error/success message strings |\n| `entities/api_key.entity.ts` | TypeORM entity |\n\n---\n\n## Key Concepts\n\n- The raw key is shown **once** at creation — only its hash is stored\n- `SafeApiKey` omits the hash and is safe to return in API responses\n- Scopes control what the key can access\n\n## Scopes\n\n| Scope | Access |\n|---|---|\n| `READ` | GET endpoints only |\n| `WRITE` | Create/update operations |\n| `ADMIN` | Full tenant admin access |\n\n---\n\n## Usage\n\n```typescript\nimport ApiKeyService from '@/modules/api_key/api_key.service';\n\n// Create a key\nconst { key, apiKey } = await ApiKeyService.create(tenantId, {\n  name: 'CI Bot',\n  scopes: ['READ', 'WRITE'],\n  expiresAt: new Date('2027-01-01'),\n});\n// key is the raw secret — show once, never store\n\n// Validate an incoming key\nconst apiKey = await ApiKeyService.validate(rawKey);\n// throws if invalid or expired\n\n// Revoke\nawait ApiKeyService.revoke(tenantId, apiKeyId);\n```\n\n---\n\n## API Routes\n\n```\nGET    /tenant/[tenantId]/api/api-keys\nPOST   /tenant/[tenantId]/api/api-keys\nDELETE /tenant/[tenantId]/api/api-keys/[id]\n```\n\n---\n\n## Caching\n\nAPI key lookups are cached in Redis (TTL = `TENANT_CACHE_TTL`, default 5 min):\n\n| Key | Used by |\n|---|---|\n| `api_key:hash:{sha256(rawKey)}` | `verify(rawKey)` — hot path on every authenticated API request |\n| `api_key:tenant:{tenantId}:{apiKeyId}` | `getById(tenantId, apiKeyId)` |\n\n`update` and `delete` invalidate by `apiKeyId`, `keyHash`, and `tenantId+apiKeyId`. `create` clears the negative cache for the freshly-minted hash. `lastUsedAt` writes are intentionally fire-and-forget and do **not** invalidate — the value isn't security-critical and refreshing it would defeat the cache.\n\n### Stampede + negative cache\n\n- **TTL jitter (±10%)** spreads expirations so a burst of keys minted in the same second don't refill simultaneously.\n- **In-process single-flight** (`modules/redis/redis.cache.ts`) dedupes concurrent loaders for the same key — if 100 requests miss on the same hash at the same time, only one DB query runs.\n- **Negative cache** on `verify`: an unknown hash is cached as `__not_found__` for up to 60s. Credential-stuffing attempts against random hashes hit Redis, not the DB. `create` clears the negative key for the new hash, so freshly-minted keys are immediately usable.\n"
+    },
+    {
+      "id": "audit_log",
+      "name": "Audit Log",
+      "version": "1.0.0",
+      "description": "Append-only audit trail for sensitive actions (system AuditLog + per-tenant TenantAuditLog).",
+      "dir": "modules/audit_log",
+      "icon": "fas fa-clipboard-list",
+      "tags": [
+        "platform",
+        "security",
+        "compliance"
+      ],
+      "priority": 40,
+      "tier": "platform",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "logger"
+        ]
+      },
+      "exports": {
+        "services": [
+          "audit_log.service.ts"
+        ],
+        "dtos": [
+          "audit_log.dto.ts"
+        ],
+        "enums": [
+          "audit_log.enums.ts"
+        ],
+        "messageKeys": [
+          "audit_log.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "audit_log.entity.ts",
+          "audit_log_tenant.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true,
+      "readme": "# audit_log module\n\nImmutable event logging for system and tenant-level actions. Records actor, action, resource, metadata, IP, and user agent. Supports querying with pagination.\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `audit_log.service.ts` | Core logic: write and query audit logs |\n| `audit_log.types.ts` | `AuditLog`, `CreateAuditLogInput`, `GetAuditLogsInput` |\n| `audit_log.dto.ts` | Zod DTOs for API input validation |\n| `audit_log.enums.ts` | `ActorType`, `AuditAction` enums |\n| `audit_log.messages.ts` | Error/success message strings |\n| `entities/` | TypeORM entities (system & tenant logs) |\n| `ui/audit_log.filters.tsx` | Filter UI component for admin pages |\n\n---\n\n## Writing a Log\n\n```typescript\nimport AuditLogService from '@/modules/audit_log/audit_log.service';\n\nawait AuditLogService.log({\n  actorId: userId,\n  actorType: 'USER',\n  action: 'INVITE_MEMBER',\n  resource: 'tenant_invitation',\n  resourceId: invitation.id,\n  tenantId,\n  ip: request.ip,\n  userAgent: request.headers['user-agent'],\n  metadata: { invitedEmail: dto.email },\n});\n```\n\n---\n\n## Querying Logs\n\n```typescript\nconst { logs, total } = await AuditLogService.getByTenant({\n  tenantId,\n  page: 1,\n  pageSize: 20,\n  actorId: userId,       // optional\n  action: 'INVITE_MEMBER', // optional\n});\n```\n\n---\n\n## API Routes\n\n```\nGET /tenant/[tenantId]/api/audit-logs\nGET /system/api/audit-logs\n```\n\nRequires `tenant:admin` or `system:admin` scope.\n"
+    },
+    {
+      "id": "webhook",
+      "name": "Outgoing Webhooks",
+      "version": "1.0.0",
+      "description": "Subscriber-configured outbound webhooks (system + tenant scope), signed deliveries, retry+redelivery.",
+      "dir": "modules/webhook",
+      "icon": "fas fa-rss",
+      "tags": [
+        "platform",
+        "integration"
+      ],
+      "priority": 40,
+      "tier": "platform",
+      "dependencies": {
+        "requires": [
+          "db",
+          "redis",
+          "env"
+        ]
+      },
+      "exports": {
+        "services": [
+          "webhook.service.ts",
+          "webhook.system.service.ts"
+        ],
+        "dtos": [
+          "webhook.dto.ts"
+        ],
+        "enums": [
+          "webhook.enums.ts"
+        ],
+        "messageKeys": [
+          "webhook.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "system_webhook.entity.ts",
+          "system_webhook_delivery.entity.ts",
+          "webhook.entity.ts",
+          "webhook_delivery.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": "# Webhook Module\n\nOutgoing webhook system. Tenant admins configure HTTP endpoints and subscribe to events. When an event fires, the system signs and delivers a JSON payload to all matching endpoints.\n\n---\n\n## Entities\n\n| Entity | Table | Description |\n|---|---|---|\n| `Webhook` | `webhooks` | Endpoint configuration per tenant |\n| `WebhookDelivery` | `webhook_deliveries` | Delivery attempt log |\n\nBoth live in the **tenant DB**.\n\n---\n\n## Events\n\n| Event | Fired when |\n|---|---|\n| `tenant.updated` | Tenant name/settings change |\n| `member.created/updated/deleted` | Tenant membership changes |\n| `invitation.sent/accepted/declined/revoked` | Invitation lifecycle |\n| `subscription.created/updated/cancelled` | Subscription lifecycle |\n| `payment.completed/failed/refunded` | Payment lifecycle |\n| `api_key.created/deleted` | API key management |\n\n---\n\n## API Routes (tenant-scoped, ADMIN+)\n\n| Method | Path | Description |\n|---|---|---|\n| GET | `/tenant/[id]/api/webhooks` | List endpoints |\n| POST | `/tenant/[id]/api/webhooks` | Create endpoint |\n| GET | `/tenant/[id]/api/webhooks/[wid]` | Get endpoint |\n| PATCH | `/tenant/[id]/api/webhooks/[wid]` | Update endpoint |\n| DELETE | `/tenant/[id]/api/webhooks/[wid]` | Delete endpoint |\n| POST | `/tenant/[id]/api/webhooks/[wid]/test` | Send test delivery (sync) |\n| GET | `/tenant/[id]/api/webhooks/[wid]/deliveries` | List deliveries |\n| POST | `/tenant/[id]/api/webhooks/[wid]/deliveries/[did]/redeliver` | Re-queue failed delivery |\n\n---\n\n## Security\n\nEvery request carries an `X-Webhook-Signature: sha256=<hmac>` header.\nThe HMAC is computed as `HMAC-SHA256(secret, requestBody)`.\nThe secret is generated per endpoint and never returned via the API.\n\n### Verification example (Node.js)\n\n```typescript\nimport crypto from 'crypto';\n\nfunction verifyWebhook(body: string, signature: string, secret: string): boolean {\n  const expected = 'sha256=' + crypto.createHmac('sha256', secret).update(body).digest('hex');\n  return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(signature));\n}\n```\n\n---\n\n## Delivery\n\n- Queue: BullMQ (`webhookDeliveryQueue`), concurrency 10\n- Timeout: 15 seconds per attempt\n- Max attempts: 3\n- Backoff: exponential — 60s → 5min → 15min\n- Delivery record updated after each attempt with status, HTTP code, response body (truncated to 4 KB), and duration\n\n---\n\n## Dispatching from other modules\n\n```typescript\nimport WebhookService from '@/modules/webhook/webhook.service';\n\n// Call after a member is created:\nawait WebhookService.dispatchEvent(tenantId, 'member.created', {\n  tenantMemberId: member.tenantMemberId,\n  userId: member.userId,\n  role: member.memberRole,\n});\n```\n\n`dispatchEvent` is fire-and-forget safe — it catches internal errors and logs them without throwing.\n"
+    },
+    {
+      "id": "ai",
+      "name": "AI",
+      "version": "1.0.0",
+      "description": "Pluggable AI providers (Anthropic, OpenAI, Google). Chat, embeddings, streaming, usage tracking.",
+      "dir": "modules/ai",
+      "icon": "fas fa-robot",
+      "tags": [
+        "platform",
+        "ai"
+      ],
+      "priority": 50,
+      "tier": "ai",
+      "dependencies": {
+        "requires": [
+          "env",
+          "setting"
+        ]
+      },
+      "exports": {
+        "services": [
+          "ai.service.ts"
+        ],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [
+          "ai.setting.keys.ts"
+        ],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true,
+      "readme": "# ai module\n\nMulti-provider AI service supporting OpenAI, Anthropic, and Google. Handles chat completions, embeddings, streaming, usage tracking, and rate limiting.\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `ai.service.ts` | Core service: provider selection, chat completions, embeddings, usage tracking |\n| `ai.types.ts` | TypeScript types: `AIProviderType`, `ChatCompletionOptions`, `ChatCompletionResponse`, `AIModel` |\n| `ai.setting.keys.ts` | Setting key constants for API keys and model configuration |\n| `providers/base.provider.ts` | Abstract base class all providers extend |\n| `providers/openai.provider.ts` | OpenAI implementation (GPT-4, GPT-4o, etc.) |\n| `providers/anthropic.provider.ts` | Anthropic implementation (Claude 3.x, Claude 4.x) |\n| `providers/google.provider.ts` | Google implementation (Gemini) |\n| `ui/ai.chat-box.tsx` | Chat UI component |\n\n---\n\n## Providers\n\n| Provider | Key in settings | Models |\n|---|---|---|\n| `openai` | `AI_OPENAI_API_KEY` | gpt-4o, gpt-4-turbo, gpt-3.5-turbo |\n| `anthropic` | `AI_ANTHROPIC_API_KEY` | claude-opus-4-7, claude-sonnet-4-6, claude-haiku-4-5 |\n| `google` | `AI_GOOGLE_API_KEY` | gemini-1.5-pro, gemini-1.5-flash |\n\n---\n\n## Basic Usage\n\n```typescript\nimport AIService from '@/modules/ai/ai.service';\n\n// Chat completion\nconst response = await AIService.chat({\n  messages: [{ role: 'user', content: 'Hello' }],\n  provider: 'anthropic',\n  model: 'claude-sonnet-4-6',\n  maxTokens: 1024,\n});\n\n// response.content, response.model, response.provider, response.usage\n```\n\n---\n\n## Rate Limiting\n\nRate limits are enforced via Redis per user. Exceeding the limit throws `AIRateLimitError`.\n\n---\n\n## Adding a New Provider\n\n1. Extend `BaseAIProvider` in `providers/`\n2. Register in `ai.service.ts` provider map\n3. Add setting keys in `ai.setting.keys.ts`\n"
+    },
+    {
+      "id": "api_doc",
+      "name": "API Documentation",
+      "version": "1.0.0",
+      "description": "OpenAPI/Swagger spec builder + helpers for serving per-tenant API docs.",
+      "dir": "modules/api_doc",
+      "icon": "fas fa-book",
+      "tags": [
+        "platform",
+        "documentation"
+      ],
+      "priority": 100,
+      "tier": "infrastructure",
+      "dependencies": {
+        "requires": [
+          "env"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true,
+      "readme": "# api_doc module\n\nUI-only module for rendering interactive API documentation pages. Displays OpenAPI-style operation details, parameters, responses, and code samples. No backend service.\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `ui/types.ts` | Types for spec structure |\n| `ui/*.tsx` | 14 UI components for API doc rendering |\n| `mockSpec.ts` | Mock OpenAPI spec for development/preview |\n\n---\n\n## Usage\n\nThis module is consumed by the API documentation admin page. Pass an OpenAPI spec object to the root component:\n\n```tsx\nimport { ApiDocViewer } from '@/modules/api_doc/ui/api-doc-viewer';\nimport { mockSpec } from '@/modules/api_doc/mockSpec';\n\n<ApiDocViewer spec={mockSpec} />\n```\n\n---\n\n## Notes\n\n- No service, no database entity, no API routes\n- Uses the mock spec during development; in production, swap with a real spec fetched from `/api/spec` or loaded from file\n"
+    }
+  ]
+}

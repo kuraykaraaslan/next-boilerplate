@@ -1,0 +1,550 @@
+{
+  "common": {
+    "name": "Common Primitives",
+    "tier": "infrastructure",
+    "tags": [
+      "infrastructure",
+      "core",
+      "leaf"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 0,
+    "entityCount": 0,
+    "componentCount": 41,
+    "file": "common.md"
+  },
+  "env": {
+    "name": "Environment",
+    "tier": "infrastructure",
+    "tags": [
+      "infrastructure",
+      "core",
+      "leaf"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 0,
+    "componentCount": 0,
+    "file": "env.md"
+  },
+  "logger": {
+    "name": "Logger",
+    "tier": "infrastructure",
+    "tags": [
+      "infrastructure",
+      "core"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 0,
+    "componentCount": 0,
+    "file": "logger.md"
+  },
+  "redis": {
+    "name": "Redis",
+    "tier": "infrastructure",
+    "tags": [
+      "infrastructure",
+      "core",
+      "cache",
+      "queue"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 0,
+    "componentCount": 0,
+    "file": "redis.md"
+  },
+  "db": {
+    "name": "Database",
+    "tier": "infrastructure",
+    "tags": [
+      "infrastructure",
+      "core",
+      "database"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 1,
+    "componentCount": 0,
+    "file": "db.md"
+  },
+  "limiter": {
+    "name": "Rate Limiter",
+    "tier": "infrastructure",
+    "tags": [
+      "infrastructure",
+      "security",
+      "billing"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 0,
+    "entityCount": 0,
+    "componentCount": 2,
+    "file": "limiter.md"
+  },
+  "redis_idempotency": {
+    "name": "Idempotency Keys",
+    "tier": "infrastructure",
+    "tags": [
+      "infrastructure",
+      "reliability"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 0,
+    "entityCount": 0,
+    "componentCount": 1,
+    "file": "redis_idempotency.md"
+  },
+  "setting": {
+    "name": "Setting",
+    "tier": "platform",
+    "tags": [
+      "platform",
+      "configuration"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 5,
+    "entityCount": 1,
+    "componentCount": 1,
+    "file": "setting.md"
+  },
+  "user_agent": {
+    "name": "User Agent Parser",
+    "tier": "identity",
+    "tags": [
+      "identity",
+      "utility"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 0,
+    "componentCount": 0,
+    "file": "user_agent.md"
+  },
+  "storage": {
+    "name": "File Storage",
+    "tier": "platform",
+    "tags": [
+      "platform",
+      "storage"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 3,
+    "entityCount": 0,
+    "componentCount": 0,
+    "file": "storage.md"
+  },
+  "user": {
+    "name": "User",
+    "tier": "identity",
+    "tags": [
+      "identity",
+      "core"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 4,
+    "entityCount": 1,
+    "componentCount": 7,
+    "file": "user.md"
+  },
+  "user_preferences": {
+    "name": "User Preferences",
+    "tier": "identity",
+    "tags": [
+      "identity",
+      "ux"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 1,
+    "componentCount": 0,
+    "file": "user_preferences.md"
+  },
+  "user_profile": {
+    "name": "User Profile",
+    "tier": "identity",
+    "tags": [
+      "identity"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 1,
+    "componentCount": 0,
+    "file": "user_profile.md"
+  },
+  "user_security": {
+    "name": "User Security",
+    "tier": "identity",
+    "tags": [
+      "identity",
+      "security"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 0,
+    "entityCount": 1,
+    "componentCount": 1,
+    "file": "user_security.md"
+  },
+  "user_session": {
+    "name": "User Session",
+    "tier": "identity",
+    "tags": [
+      "identity",
+      "auth",
+      "core"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 0,
+    "entityCount": 1,
+    "componentCount": 1,
+    "file": "user_session.md"
+  },
+  "user_social_account": {
+    "name": "Linked Social Accounts",
+    "tier": "identity",
+    "tags": [
+      "identity",
+      "auth"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 1,
+    "componentCount": 0,
+    "file": "user_social_account.md"
+  },
+  "auth": {
+    "name": "Authentication",
+    "tier": "identity",
+    "tags": [
+      "identity",
+      "auth",
+      "core"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 71,
+    "entityCount": 0,
+    "componentCount": 5,
+    "file": "auth.md"
+  },
+  "auth_saml": {
+    "name": "SAML SSO",
+    "tier": "identity",
+    "tags": [
+      "identity",
+      "auth",
+      "sso",
+      "enterprise"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 0,
+    "entityCount": 2,
+    "componentCount": 3,
+    "file": "auth_saml.md"
+  },
+  "auth_sso": {
+    "name": "OAuth SSO",
+    "tier": "identity",
+    "tags": [
+      "identity",
+      "auth",
+      "sso"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 0,
+    "componentCount": 0,
+    "file": "auth_sso.md"
+  },
+  "auth_impersonation": {
+    "name": "Admin Impersonation",
+    "tier": "identity",
+    "tags": [
+      "identity",
+      "auth",
+      "admin"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 0,
+    "componentCount": 0,
+    "file": "auth_impersonation.md"
+  },
+  "tenant": {
+    "name": "Tenant",
+    "tier": "tenancy",
+    "tags": [
+      "tenant",
+      "core"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 6,
+    "entityCount": 1,
+    "componentCount": 2,
+    "file": "tenant.md"
+  },
+  "tenant_member": {
+    "name": "Tenant Member",
+    "tier": "tenancy",
+    "tags": [
+      "tenant"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 2,
+    "entityCount": 1,
+    "componentCount": 0,
+    "file": "tenant_member.md"
+  },
+  "tenant_invitation": {
+    "name": "Tenant Invitation",
+    "tier": "tenancy",
+    "tags": [
+      "tenant",
+      "onboarding"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 4,
+    "entityCount": 1,
+    "componentCount": 0,
+    "file": "tenant_invitation.md"
+  },
+  "tenant_session": {
+    "name": "Tenant Session",
+    "tier": "tenancy",
+    "tags": [
+      "tenant",
+      "auth"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 0,
+    "entityCount": 0,
+    "componentCount": 1,
+    "file": "tenant_session.md"
+  },
+  "tenant_setting": {
+    "name": "Tenant Setting",
+    "tier": "tenancy",
+    "tags": [
+      "tenant",
+      "configuration"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 1,
+    "componentCount": 0,
+    "file": "tenant_setting.md"
+  },
+  "tenant_branding": {
+    "name": "Tenant Branding",
+    "tier": "tenancy",
+    "tags": [
+      "tenant",
+      "branding",
+      "white-label"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 0,
+    "componentCount": 0,
+    "file": "tenant_branding.md"
+  },
+  "tenant_domain": {
+    "name": "Tenant Domain",
+    "tier": "tenancy",
+    "tags": [
+      "tenant",
+      "domain",
+      "infrastructure"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 3,
+    "entityCount": 1,
+    "componentCount": 0,
+    "file": "tenant_domain.md"
+  },
+  "tenant_subscription": {
+    "name": "Tenant Subscription",
+    "tier": "tenancy",
+    "tags": [
+      "tenant",
+      "billing"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 5,
+    "entityCount": 1,
+    "componentCount": 8,
+    "file": "tenant_subscription.md"
+  },
+  "tenant_usage": {
+    "name": "Tenant Usage",
+    "tier": "tenancy",
+    "tags": [
+      "tenant",
+      "metrics",
+      "billing"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 1,
+    "componentCount": 0,
+    "file": "tenant_usage.md"
+  },
+  "payment": {
+    "name": "Payment",
+    "tier": "billing",
+    "tags": [
+      "billing",
+      "payment"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 7,
+    "entityCount": 4,
+    "componentCount": 2,
+    "file": "payment.md"
+  },
+  "tenant_export": {
+    "name": "Tenant Export",
+    "tier": "tenancy",
+    "tags": [
+      "tenant",
+      "compliance",
+      "gdpr"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 1,
+    "entityCount": 0,
+    "componentCount": 0,
+    "file": "tenant_export.md"
+  },
+  "coupon": {
+    "name": "Coupon",
+    "tier": "billing",
+    "tags": [
+      "billing",
+      "marketing"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 5,
+    "entityCount": 2,
+    "componentCount": 3,
+    "file": "coupon.md"
+  },
+  "notification_inapp": {
+    "name": "In-App Notifications",
+    "tier": "notifications",
+    "tags": [
+      "notifications",
+      "in-app"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 2,
+    "entityCount": 0,
+    "componentCount": 1,
+    "file": "notification_inapp.md"
+  },
+  "notification_mail": {
+    "name": "Email Notifications",
+    "tier": "notifications",
+    "tags": [
+      "notifications",
+      "email"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 0,
+    "componentCount": 0,
+    "file": "notification_mail.md"
+  },
+  "notification_push": {
+    "name": "Web Push Notifications",
+    "tier": "notifications",
+    "tags": [
+      "notifications",
+      "push"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 1,
+    "componentCount": 0,
+    "file": "notification_push.md"
+  },
+  "notification_sms": {
+    "name": "SMS Notifications",
+    "tier": "notifications",
+    "tags": [
+      "notifications",
+      "sms"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 0,
+    "componentCount": 0,
+    "file": "notification_sms.md"
+  },
+  "api_key": {
+    "name": "API Key",
+    "tier": "platform",
+    "tags": [
+      "platform",
+      "security"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 3,
+    "entityCount": 1,
+    "componentCount": 0,
+    "file": "api_key.md"
+  },
+  "audit_log": {
+    "name": "Audit Log",
+    "tier": "platform",
+    "tags": [
+      "platform",
+      "security",
+      "compliance"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 2,
+    "entityCount": 2,
+    "componentCount": 2,
+    "file": "audit_log.md"
+  },
+  "webhook": {
+    "name": "Outgoing Webhooks",
+    "tier": "platform",
+    "tags": [
+      "platform",
+      "integration"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 13,
+    "entityCount": 4,
+    "componentCount": 0,
+    "file": "webhook.md"
+  },
+  "ai": {
+    "name": "AI",
+    "tier": "ai",
+    "tags": [
+      "platform",
+      "ai"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 6,
+    "entityCount": 0,
+    "componentCount": 1,
+    "file": "ai.md"
+  },
+  "api_doc": {
+    "name": "API Documentation",
+    "tier": "infrastructure",
+    "tags": [
+      "platform",
+      "documentation"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 0,
+    "entityCount": 0,
+    "componentCount": 14,
+    "file": "api_doc.md"
+  }
+}

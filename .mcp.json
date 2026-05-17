@@ -1,0 +1,10 @@
+{
+  "$schema": "https://modelcontextprotocol.io/schemas/v1/mcp.json",
+  "mcpServers": {
+    "next-boilerplate-registry": {
+      "command": "node",
+      "args": ["scripts/mcp-server.mjs"],
+      "description": "Exposes the next-boilerplate registry (modules, API routes, TypeORM entities, modules_next/ components, conventions) as MCP tools. Reads from public/registry/registry.json — rebuild via `npm run registry:snapshot`."
+    }
+  }
+}

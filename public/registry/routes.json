@@ -1,0 +1,1581 @@
+{
+  "name": "next-boilerplate",
+  "registryVersion": "1.0",
+  "generatedAt": "2026-05-17T16:17:31.330Z",
+  "routes": [
+    {
+      "filePath": "app/system/api/admin/notifications/sms/send/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/admin/notifications/sms/send",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "notification_inapp",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/admin/payments/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/admin/payments",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "payment",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/admin/payments/[paymentId]/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/admin/payments/[paymentId]",
+      "methods": [
+        "GET",
+        "PUT",
+        "DELETE"
+      ],
+      "module": "payment",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/admin/payments/[paymentId]/refund/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/admin/payments/[paymentId]/refund",
+      "methods": [
+        "POST"
+      ],
+      "module": "payment",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/admin/payments/[paymentId]/transactions/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/admin/payments/[paymentId]/transactions",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "payment",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/admin/payments/provider-status/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/admin/payments/provider-status",
+      "methods": [
+        "POST"
+      ],
+      "module": "payment",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/admin/payments/providers/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/admin/payments/providers",
+      "methods": [
+        "GET"
+      ],
+      "module": "payment",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/admin/payments/transactions/[transactionId]/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/admin/payments/transactions/[transactionId]",
+      "methods": [
+        "GET",
+        "PUT"
+      ],
+      "module": "payment",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/ai/chat/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/ai/chat",
+      "methods": [
+        "POST"
+      ],
+      "module": "ai",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/ai/embed/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/ai/embed",
+      "methods": [
+        "POST"
+      ],
+      "module": "ai",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/ai/models/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/ai/models",
+      "methods": [
+        "GET"
+      ],
+      "module": "ai",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/ai/providers/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/ai/providers",
+      "methods": [
+        "GET"
+      ],
+      "module": "ai",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/ai/stream/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/ai/stream",
+      "methods": [
+        "POST"
+      ],
+      "module": "ai",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/ai/usage/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/ai/usage",
+      "methods": [
+        "GET"
+      ],
+      "module": "ai",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/audit-logs/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/audit-logs",
+      "methods": [
+        "GET"
+      ],
+      "module": "audit_log",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/callback/[provider]/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/callback/[provider]",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/auth/csrf/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/csrf",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/forgot-password/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/forgot-password",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/impersonate/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/impersonate",
+      "methods": [
+        "GET",
+        "POST",
+        "DELETE"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/login/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/login",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/login/send/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/login/send",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/login/verify/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/login/verify",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/logout/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/logout",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/me/device-info/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/device-info",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/me/notifications/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/notifications",
+      "methods": [
+        "GET",
+        "DELETE"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/me/notifications/[notificationId]/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/notifications/[notificationId]",
+      "methods": [
+        "DELETE"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/auth/me/notifications/[notificationId]/read/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/notifications/[notificationId]/read",
+      "methods": [
+        "PUT"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/auth/me/notifications/read-all/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/notifications/read-all",
+      "methods": [
+        "PUT"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/me/notifications/stream/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/notifications/stream",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/me/notifications/unread-count/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/notifications/unread-count",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/me/preferences/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/preferences",
+      "methods": [
+        "GET",
+        "PUT"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/me/profile/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/profile",
+      "methods": [
+        "GET",
+        "PUT"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/me/profile/social-links/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/profile/social-links",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/me/profile/social-links/[linkId]/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/profile/social-links/[linkId]",
+      "methods": [
+        "PUT",
+        "DELETE"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/auth/me/security/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/security",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/me/security/passkeys/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/security/passkeys",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/me/security/passkeys/[credentialId]/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/security/passkeys/[credentialId]",
+      "methods": [
+        "DELETE"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/auth/me/security/passkeys/register/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/security/passkeys/register",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/me/security/passkeys/register/verify/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/security/passkeys/register/verify",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/me/sessions/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/sessions",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/me/sessions/[sessionId]/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/sessions/[sessionId]",
+      "methods": [
+        "DELETE"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/auth/me/social-accounts/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/social-accounts",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/me/social-accounts/[provider]/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/social-accounts/[provider]",
+      "methods": [
+        "DELETE"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/auth/me/social-accounts/connect/[provider]/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/social-accounts/connect/[provider]",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/auth/me/social-accounts/connect/saml/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/social-accounts/connect/saml",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/me/tenants/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/me/tenants",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/otp/send/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/otp/send",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/otp/verify/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/otp/verify",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/refresh/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/refresh",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/register/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/register",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/reset-password/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/reset-password",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/saml/callback/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/saml/callback",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/saml/metadata/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/saml/metadata",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/saml/status/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/saml/status",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/session/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/session",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/session/token-set/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/session/token-set",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/session/tokens/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/session/tokens",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/sso/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/sso",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/sso/[provider]/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/sso/[provider]",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/auth/totp/disable/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/totp/disable",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/totp/enable/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/totp/enable",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/totp/setup/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/totp/setup",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/verify-email/send/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/verify-email/send",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/auth/verify-email/verify/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/verify-email/verify",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/coupons/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/coupons",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "coupon",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/coupons/[couponId]/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/coupons/[couponId]",
+      "methods": [
+        "GET",
+        "PUT",
+        "DELETE"
+      ],
+      "module": "coupon",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/cron/expire-subscriptions/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/cron/expire-subscriptions",
+      "methods": [
+        "POST"
+      ],
+      "module": "cron",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/health/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/health",
+      "methods": [
+        "GET"
+      ],
+      "module": "health",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/notifications/push/subscribe/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/notifications/push/subscribe",
+      "methods": [
+        "POST",
+        "DELETE"
+      ],
+      "module": "notification_inapp",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/saml-system/config/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/saml-system/config",
+      "methods": [
+        "GET",
+        "PUT"
+      ],
+      "module": "saml_system",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/saml/tenants/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/saml/tenants",
+      "methods": [
+        "GET"
+      ],
+      "module": "saml",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/settings/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/settings",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT"
+      ],
+      "module": "setting",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/settings/public/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/settings/public",
+      "methods": [
+        "GET"
+      ],
+      "module": "setting",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/storage/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/storage",
+      "methods": [
+        "GET",
+        "POST",
+        "DELETE"
+      ],
+      "module": "storage",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/storage/from-url/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/storage/from-url",
+      "methods": [
+        "POST"
+      ],
+      "module": "storage",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/subscriptions/plans/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/subscriptions/plans",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "tenant_subscription",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/subscriptions/plans/[planId]/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/subscriptions/plans/[planId]",
+      "methods": [
+        "GET",
+        "PUT",
+        "DELETE"
+      ],
+      "module": "tenant_subscription",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/subscriptions/plans/[planId]/features/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/subscriptions/plans/[planId]/features",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "tenant_subscription",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/subscriptions/plans/[planId]/features/[featureId]/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/subscriptions/plans/[planId]/features/[featureId]",
+      "methods": [
+        "PUT",
+        "DELETE"
+      ],
+      "module": "tenant_subscription",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/subscriptions/plans/public/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/subscriptions/plans/public",
+      "methods": [
+        "GET"
+      ],
+      "module": "tenant_subscription",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/tenant/[tenantId]/members/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/tenant/[tenantId]/members",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "tenant",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/tenant/[tenantId]/members/[memberId]/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/tenant/[tenantId]/members/[memberId]",
+      "methods": [
+        "GET",
+        "PUT",
+        "DELETE"
+      ],
+      "module": "tenant",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/tenants/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/tenants",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "tenant",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/tenants/[tenantId]/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/tenants/[tenantId]",
+      "methods": [
+        "GET",
+        "PUT",
+        "DELETE"
+      ],
+      "module": "tenant",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/tenants/[tenantId]/deletion-request/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/tenants/[tenantId]/deletion-request",
+      "methods": [
+        "POST"
+      ],
+      "module": "tenant",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/tenants/create/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/tenants/create",
+      "methods": [
+        "POST"
+      ],
+      "module": "tenant",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/users/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/users",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "user",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/users/[userId]/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/users/[userId]",
+      "methods": [
+        "GET",
+        "PUT",
+        "DELETE"
+      ],
+      "module": "user",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/users/[userId]/impersonation-sessions/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/users/[userId]/impersonation-sessions",
+      "methods": [
+        "GET"
+      ],
+      "module": "user",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/users/[userId]/tenants/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/users/[userId]/tenants",
+      "methods": [
+        "GET"
+      ],
+      "module": "user",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/webhooks/iyzico/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/webhooks/iyzico",
+      "methods": [
+        "POST"
+      ],
+      "module": "webhook",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/webhooks/outgoing/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/webhooks/outgoing",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "webhook",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/webhooks/outgoing/[webhookId]/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/webhooks/outgoing/[webhookId]",
+      "methods": [
+        "GET",
+        "PATCH",
+        "DELETE"
+      ],
+      "module": "webhook",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/webhooks/outgoing/[webhookId]/deliveries/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/webhooks/outgoing/[webhookId]/deliveries",
+      "methods": [
+        "GET"
+      ],
+      "module": "webhook",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/webhooks/outgoing/[webhookId]/deliveries/[deliveryId]/redeliver/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/webhooks/outgoing/[webhookId]/deliveries/[deliveryId]/redeliver",
+      "methods": [
+        "POST"
+      ],
+      "module": "webhook",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/webhooks/outgoing/[webhookId]/test/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/webhooks/outgoing/[webhookId]/test",
+      "methods": [
+        "POST"
+      ],
+      "module": "webhook",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/webhooks/paypal/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/webhooks/paypal",
+      "methods": [
+        "POST"
+      ],
+      "module": "webhook",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/system/api/webhooks/stripe/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/webhooks/stripe",
+      "methods": [
+        "POST"
+      ],
+      "module": "webhook",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/api-keys/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/api-keys",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "api_key",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/api-keys/[apiKeyId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/api-keys/[apiKeyId]",
+      "methods": [
+        "PUT",
+        "DELETE"
+      ],
+      "module": "api_key",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/api-keys/verify/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/api-keys/verify",
+      "methods": [
+        "POST"
+      ],
+      "module": "api_key",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/audit-logs/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/audit-logs",
+      "methods": [
+        "GET"
+      ],
+      "module": "audit_log",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/callback/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/callback",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/csrf/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/csrf",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/forgot-password/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/forgot-password",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/impersonate/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/impersonate",
+      "methods": [
+        "GET",
+        "POST",
+        "DELETE"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/login/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/login",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/logout/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/logout",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/me/profile/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/me/profile",
+      "methods": [
+        "GET",
+        "PUT"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/me/social-accounts/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/me/social-accounts",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/me/social-accounts/[provider]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/me/social-accounts/[provider]",
+      "methods": [
+        "DELETE"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/me/social-accounts/connect/[provider]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/me/social-accounts/connect/[provider]",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/me/social-accounts/connect/saml/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/me/social-accounts/connect/saml",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/refresh/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/refresh",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/register/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/register",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/saml/callback/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/saml/callback",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/saml/initiate/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/saml/initiate",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/saml/metadata/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/saml/metadata",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/saml/status/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/saml/status",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/session/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/session",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/session/token-set/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/session/token-set",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/sso/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/sso",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/sso/[provider]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/sso/[provider]",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/coupons/apply/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/coupons/apply",
+      "methods": [
+        "POST"
+      ],
+      "module": "coupon",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/coupons/redemptions/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/coupons/redemptions",
+      "methods": [
+        "GET"
+      ],
+      "module": "coupon",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/coupons/validate/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/coupons/validate",
+      "methods": [
+        "POST"
+      ],
+      "module": "coupon",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/domains/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/domains",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "tenant_domain",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/domains/[domainId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/domains/[domainId]",
+      "methods": [
+        "GET",
+        "DELETE"
+      ],
+      "module": "tenant_domain",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/domains/[domainId]/verify/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/domains/[domainId]/verify",
+      "methods": [
+        "POST"
+      ],
+      "module": "tenant_domain",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/export/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/export",
+      "methods": [
+        "POST"
+      ],
+      "module": "tenant_export",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/invitations/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/invitations",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "tenant_invitation",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/invitations/[invitationId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/invitations/[invitationId]",
+      "methods": [
+        "GET",
+        "DELETE"
+      ],
+      "module": "tenant_invitation",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/invitations/accept/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/invitations/accept",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "tenant_invitation",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/invitations/decline/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/invitations/decline",
+      "methods": [
+        "POST"
+      ],
+      "module": "tenant_invitation",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/members/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/members",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "tenant_member",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/members/[memberId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/members/[memberId]",
+      "methods": [
+        "GET",
+        "PUT",
+        "DELETE"
+      ],
+      "module": "tenant_member",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/saml/config/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/saml/config",
+      "methods": [
+        "GET",
+        "PUT",
+        "DELETE"
+      ],
+      "module": "saml",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/settings/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/settings",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "module": "setting",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/settings/branding/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/settings/branding",
+      "methods": [
+        "GET",
+        "PUT",
+        "DELETE"
+      ],
+      "module": "setting",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/settings/public/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/settings/public",
+      "methods": [
+        "GET"
+      ],
+      "module": "setting",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/storage/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/storage",
+      "methods": [
+        "POST"
+      ],
+      "module": "storage",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/subscription/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/subscription",
+      "methods": [
+        "GET",
+        "POST",
+        "DELETE"
+      ],
+      "module": "subscription",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/subscription/confirm/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/subscription/confirm",
+      "methods": [
+        "POST"
+      ],
+      "module": "subscription",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/subscription/features/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/subscription/features",
+      "methods": [
+        "GET"
+      ],
+      "module": "subscription",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/subscription/grace-period/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/subscription/grace-period",
+      "methods": [
+        "GET"
+      ],
+      "module": "subscription",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/webhooks/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/webhooks",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "webhook",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/webhooks/[webhookId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/webhooks/[webhookId]",
+      "methods": [
+        "GET",
+        "PATCH",
+        "DELETE"
+      ],
+      "module": "webhook",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/webhooks/[webhookId]/deliveries/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/webhooks/[webhookId]/deliveries",
+      "methods": [
+        "GET"
+      ],
+      "module": "webhook",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/webhooks/[webhookId]/deliveries/[deliveryId]/redeliver/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/webhooks/[webhookId]/deliveries/[deliveryId]/redeliver",
+      "methods": [
+        "POST"
+      ],
+      "module": "webhook",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/webhooks/[webhookId]/test/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/webhooks/[webhookId]/test",
+      "methods": [
+        "POST"
+      ],
+      "module": "webhook",
+      "dynamic": true
+    }
+  ]
+}
