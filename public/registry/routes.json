@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-05-17T16:17:31.330Z",
+  "generatedAt": "2026-05-17T20:17:46.545Z",
   "routes": [
     {
       "filePath": "app/system/api/admin/notifications/sms/send/route.ts",
@@ -169,6 +169,16 @@
       ],
       "module": "auth",
       "dynamic": true
+    },
+    {
+      "filePath": "app/system/api/auth/change-password/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/change-password",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": false
     },
     {
       "filePath": "app/system/api/auth/csrf/route.ts",
@@ -680,6 +690,16 @@
       "dynamic": true
     },
     {
+      "filePath": "app/system/api/cron/dormant-sweep/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/cron/dormant-sweep",
+      "methods": [
+        "POST"
+      ],
+      "module": "cron",
+      "dynamic": false
+    },
+    {
       "filePath": "app/system/api/cron/expire-subscriptions/route.ts",
       "scope": "system",
       "urlPath": "/system/api/cron/expire-subscriptions",
@@ -1078,6 +1098,16 @@
       "filePath": "app/tenant/[tenantId]/api/auth/callback/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/auth/callback",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/change-password/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/change-password",
       "methods": [
         "POST"
       ],

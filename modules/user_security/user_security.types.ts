@@ -25,11 +25,17 @@ export const UserSecuritySchema = z.object({
   lockedUntil: z.date().nullable(),
   passkeyEnabled: z.boolean().nullish().transform(val => val ?? false),
   passkeys: z.array(StoredPasskeySchema).nullish().transform(val => val ?? []),
+  // ── KD-7: rotation history (bcrypt hashes, most recent first) ─────────
+  passwordHistory: z.array(z.string()).nullish().transform(val => val ?? []),
+  passwordChangedAt: z.date().nullable().optional(),
+  // ── KD-4: force-change on first/next login ────────────────────────────
+  mustChangePassword: z.boolean().nullish().transform(val => val ?? false),
 });
 
 export const SafeUserSecuritySchema = UserSecuritySchema.omit({
   otpSecret: true,
   otpBackupCodes: true,
+  passwordHistory: true,
 });
 
 export const SafeUserSecurityDefault: z.infer<typeof SafeUserSecuritySchema> = {
@@ -41,6 +47,8 @@ export const SafeUserSecurityDefault: z.infer<typeof SafeUserSecuritySchema> = {
   lockedUntil: null,
   passkeyEnabled: false,
   passkeys: [],
+  passwordChangedAt: null,
+  mustChangePassword: false,
 };
 
 export type UserSecurity = z.infer<typeof UserSecuritySchema>;

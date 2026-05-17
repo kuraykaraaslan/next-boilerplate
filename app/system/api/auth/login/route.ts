@@ -30,7 +30,12 @@ export async function POST(request: NextRequest) {
 
         const { email, password } = parsedData.data;
 
-        const { user } = await AuthService.login({ email, password });
+        const ipAddress = request.headers.get('x-forwarded-for')
+            || request.headers.get('x-real-ip')
+            || undefined;
+        const userAgent = request.headers.get('user-agent') || undefined;
+
+        const { user, mustChangePassword } = await AuthService.login({ email, password, ipAddress, userAgent });
 
         if (!user) {
             throw new Error(AuthMessages.INVALID_CREDENTIALS);
@@ -48,6 +53,7 @@ export async function POST(request: NextRequest) {
         const response = NextResponse.json({
             user,
             userSecurity: SafeUserSecuritySchema.parse(userSecurity),
+            mustChangePassword,
         }, {
             status: 200,
         });

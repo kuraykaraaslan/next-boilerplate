@@ -30,7 +30,43 @@ vi.mock('@/modules/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), w
 vi.mock('../notification_mail/notification_mail.service', () => ({ default: { sendEmail: vi.fn() } }));
 vi.mock('../tenant/tenant.service', () => ({ default: { provisionPersonal: vi.fn() } }));
 vi.mock('../tenant_invitation/tenant_invitation.service', () => ({ default: { autoAcceptForEmail: vi.fn() } }));
-vi.mock('../user/user.service', () => ({ default: { getByEmail: vi.fn(async () => null) } }));
+vi.mock('../user/user.service', () => ({ default: { getByEmail: vi.fn(async () => null), invalidate: vi.fn() } }));
+vi.mock('../audit_log/audit_log.service', () => ({ default: { log: vi.fn(async () => {}) } }));
+vi.mock('./auth.captcha.service', () => ({
+  default: {
+    isRequired: vi.fn(async () => false),
+    recordFailure: vi.fn(async () => {}),
+    clear: vi.fn(async () => {}),
+    verify: vi.fn(async () => true),
+  },
+}));
+vi.mock('../user_security/user_security.service', () => ({
+  default: {
+    isLocked: vi.fn(async () => false),
+    recordLoginAttempt: vi.fn(async () => {}),
+    getPasswordChangedAt: vi.fn(async () => null),
+    pushPasswordHistory: vi.fn(async () => {}),
+    getPasswordHistory: vi.fn(async () => []),
+  },
+}));
+vi.mock('./auth.policy.service', () => ({
+  default: {
+    getPasswordPolicy: vi.fn(async () => ({
+      minLength: 8, requireUppercase: true, requireLowercase: true,
+      requireDigit: true, requireSpecial: true, historyCount: 3, maxAgeDays: 42,
+    })),
+    getLockoutPolicy: vi.fn(async () => ({ maxAttempts: 5, lockDurationMinutes: 15 })),
+    getSessionPolicy: vi.fn(async () => ({ absoluteMaxHours: 8, idleTimeoutMinutes: 30 })),
+    getDormantPolicy: vi.fn(async () => ({ days: 90, autoDisable: true })),
+    getAccessPolicy: vi.fn(async () => ({
+      externalRequireMfa: false, disableSocialLogin: false,
+      captchaTriggerAttempts: 0, singleSessionOnly: false,
+    })),
+    getAdminPolicy: vi.fn(async () => ({ ipAllowlist: [], requireMfa: true })),
+    validatePassword: vi.fn(() => null),
+    isAdminIpAllowed: vi.fn(() => true),
+  },
+}));
 
 import { getSystemDataSource } from '@/modules/db';
 import UserService from '../user/user.service';

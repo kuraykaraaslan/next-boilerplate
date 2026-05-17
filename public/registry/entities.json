@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-05-17T16:17:31.330Z",
+  "generatedAt": "2026-05-17T20:17:46.545Z",
   "entities": [
     {
       "name": "ApiKey",
@@ -581,6 +581,9 @@
         "lockedUntil",
         "passkeyEnabled",
         "passkeys",
+        "passwordHistory",
+        "passwordChangedAt",
+        "mustChangePassword",
         "createdAt",
         "updatedAt"
       ],

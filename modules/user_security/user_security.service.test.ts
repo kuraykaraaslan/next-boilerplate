@@ -15,7 +15,17 @@ vi.mock('@/modules/db', () => ({
   getSystemDataSource: vi.fn(),
 }));
 
-vi.mock('@/modules/redis', () => ({ default: { get: vi.fn(), set: vi.fn(), del: vi.fn(), ping: vi.fn() } }));
+vi.mock('@/modules/redis', () => ({
+  default: {
+    get: vi.fn(async () => null),
+    set: vi.fn(async () => 'OK'),
+    setex: vi.fn(async () => 'OK'),
+    del: vi.fn(async () => 1),
+    ping: vi.fn(async () => 'PONG'),
+  },
+  jitter: (n: number) => n,
+  singleFlight: async (_key: string, fn: () => Promise<any>) => fn(),
+}));
 vi.mock('@/modules/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
 
 import { getSystemDataSource } from '@/modules/db';

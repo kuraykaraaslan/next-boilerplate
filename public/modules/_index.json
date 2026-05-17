@@ -222,9 +222,9 @@
       "core"
     ],
     "hasNextLayer": true,
-    "routeCount": 71,
+    "routeCount": 73,
     "entityCount": 0,
-    "componentCount": 5,
+    "componentCount": 6,
     "file": "auth.md"
   },
   "auth_saml": {

@@ -17,6 +17,18 @@ Finds all `PAST_DUE` subscriptions whose grace period has ended and marks them `
 | BullMQ queue | `subscription-expire` |
 | HTTP endpoint | `POST /system/api/cron/expire-subscriptions` |
 
+### `dormant-sweep` (KD-15)
+
+Marks user accounts `INACTIVE` when their last successful login is older than the configured `dormantAccountDays` (default 90). Honours the `dormantAccountAutoDisable` flag — when `false` the job runs in dry-run mode and only reports.
+
+| Property | Value |
+|---|---|
+| Service method | `AuthService.disableDormantAccounts()` |
+| Default schedule | Daily at 03:00 (`0 3 * * *`) |
+| BullMQ queue | `auth-dormant-sweep` |
+| BullMQ scheduler | `scheduleDormantSweepJob()` from `modules/auth/auth.dormant.job.ts` |
+| HTTP endpoint | `POST /system/api/cron/dormant-sweep` |
+
 ---
 
 ## Option A — BullMQ (Self-hosted / Always-on)

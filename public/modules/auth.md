@@ -16,8 +16,10 @@ Credential auth: login, register, password reset, email verify, OTP, TOTP. Coord
 
 ## Services
 
+- `auth.captcha.service.ts`
 - `auth.otp.service.ts`
 - `auth.password.service.ts`
+- `auth.policy.service.ts`
 - `auth.service.ts`
 - `auth.totp.service.ts`
 
@@ -33,9 +35,14 @@ Credential auth: login, register, password reset, email verify, OTP, TOTP. Coord
 
 - `auth.setting.keys.ts`
 
+## Jobs
+
+- `auth.dormant.job.ts`
+
 ## Owned API routes
 
 - `system` GET/POST `/system/api/auth/callback/[provider]`
+- `system` POST `/system/api/auth/change-password`
 - `system` GET `/system/api/auth/csrf`
 - `system` POST `/system/api/auth/forgot-password`
 - `system` GET/POST/DELETE `/system/api/auth/impersonate`
@@ -86,6 +93,7 @@ Credential auth: login, register, password reset, email verify, OTP, TOTP. Coord
 - `system` POST `/system/api/auth/verify-email/verify`
 - `tenant` GET `/tenant/[tenantId]/api/auth`
 - `tenant` POST `/tenant/[tenantId]/api/auth/callback`
+- `tenant` POST `/tenant/[tenantId]/api/auth/change-password`
 - `tenant` GET `/tenant/[tenantId]/api/auth/csrf`
 - `tenant` POST `/tenant/[tenantId]/api/auth/forgot-password`
 - `tenant` GET/POST/DELETE `/tenant/[tenantId]/api/auth/impersonate`
@@ -109,6 +117,7 @@ Credential auth: login, register, password reset, email verify, OTP, TOTP. Coord
 
 ## Next layer (modules_next/) surface
 
+- `auth/auth.admin-guard.next` _(ui)_
 - `auth/ui/ForgotPasswordForm` _(ui, client)_
 - `auth/ui/LoginForm` _(ui, client)_
 - `auth/ui/OAuthButtons` _(ui, client)_

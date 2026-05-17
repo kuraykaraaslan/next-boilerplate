@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-05-17T16:17:31.330Z",
+  "generatedAt": "2026-05-17T20:17:46.545Z",
   "components": [
     {
       "id": "ai/ui/AIChatBox",
@@ -258,6 +258,20 @@
       "isClient": true,
       "isServer": false,
       "baseName": "SamlMetadataCard"
+    },
+    {
+      "id": "auth/auth.admin-guard.next",
+      "module": "auth",
+      "filePath": "modules_next/auth/auth.admin-guard.next.ts",
+      "kind": "ui",
+      "exports": [
+        "enforceAdminAccess",
+        "AdminAuthResult",
+        "authenticateAdminRequest"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "auth.admin-guard.next"
     },
     {
       "id": "auth/ui/ForgotPasswordForm",

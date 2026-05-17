@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-05-17T16:17:31.330Z",
+  "generatedAt": "2026-05-17T20:17:46.545Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -668,8 +668,10 @@
       },
       "exports": {
         "services": [
+          "auth.captcha.service.ts",
           "auth.otp.service.ts",
           "auth.password.service.ts",
+          "auth.policy.service.ts",
           "auth.service.ts",
           "auth.totp.service.ts"
         ],
@@ -684,7 +686,9 @@
           "auth.setting.keys.ts"
         ],
         "providers": [],
-        "jobs": [],
+        "jobs": [
+          "auth.dormant.job.ts"
+        ],
         "entities": []
       },
       "hasReadme": true,
@@ -1879,6 +1883,16 @@
       "dynamic": true
     },
     {
+      "filePath": "app/system/api/auth/change-password/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/auth/change-password",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
       "filePath": "app/system/api/auth/csrf/route.ts",
       "scope": "system",
       "urlPath": "/system/api/auth/csrf",
@@ -2388,6 +2402,16 @@
       "dynamic": true
     },
     {
+      "filePath": "app/system/api/cron/dormant-sweep/route.ts",
+      "scope": "system",
+      "urlPath": "/system/api/cron/dormant-sweep",
+      "methods": [
+        "POST"
+      ],
+      "module": "cron",
+      "dynamic": false
+    },
+    {
       "filePath": "app/system/api/cron/expire-subscriptions/route.ts",
       "scope": "system",
       "urlPath": "/system/api/cron/expire-subscriptions",
@@ -2786,6 +2810,16 @@
       "filePath": "app/tenant/[tenantId]/api/auth/callback/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/auth/callback",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/change-password/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/change-password",
       "methods": [
         "POST"
       ],
@@ -3865,6 +3899,9 @@
         "lockedUntil",
         "passkeyEnabled",
         "passkeys",
+        "passwordHistory",
+        "passwordChangedAt",
+        "mustChangePassword",
         "createdAt",
         "updatedAt"
       ],
@@ -4216,6 +4253,20 @@
       "isClient": true,
       "isServer": false,
       "baseName": "SamlMetadataCard"
+    },
+    {
+      "id": "auth/auth.admin-guard.next",
+      "module": "auth",
+      "filePath": "modules_next/auth/auth.admin-guard.next.ts",
+      "kind": "ui",
+      "exports": [
+        "enforceAdminAccess",
+        "AdminAuthResult",
+        "authenticateAdminRequest"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "auth.admin-guard.next"
     },
     {
       "id": "auth/ui/ForgotPasswordForm",

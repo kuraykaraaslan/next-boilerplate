@@ -15,6 +15,7 @@
     "test:coverage": "vitest run --coverage",
     "db:reset": "tsx scripts/db-reset.ts",
     "db:fix-enums": "tsx scripts/db-fix-enums.ts",
+    "db:migrate:user-security-policy": "tsx scripts/migrate-user-security-policy.ts",
     "registry:snapshot": "node scripts/build-registry-snapshot.mjs",
     "mcp:server": "node scripts/mcp-server.mjs"
   },

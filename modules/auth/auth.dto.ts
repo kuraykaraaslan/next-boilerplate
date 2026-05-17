@@ -7,7 +7,9 @@ import { OTPMethodEnum, OTPActionEnum } from '../user_security/user_security.enu
 
 export const LoginDTO = z.object({
   email: z.string().email(),
-  password: z.string().min(1)
+  password: z.string().min(1),
+  /** KD-19: required once the brute-force threshold is reached. */
+  captchaToken: z.string().optional(),
 });
 
 export const RegisterDTO = z.object({

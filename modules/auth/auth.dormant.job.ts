@@ -1,0 +1,60 @@
+import { Queue, Worker, Job } from 'bullmq';
+import { getBullMQConnection } from '@/modules/redis/redis.bullmq';
+import AuthService from './auth.service';
+import Logger from '@/modules/logger';
+
+/**
+ * KD-15: scheduled sweep that marks accounts dormant (INACTIVE) when the
+ * last successful login is older than `dormantAccountDays` (default 90).
+ *
+ * Two trigger paths, pick one per deployment:
+ *  - Self-hosted: call `scheduleDormantSweepJob()` once at app startup
+ *  - Serverless: hit POST /system/api/cron/dormant-sweep with the
+ *    `CRON_SECRET` bearer token
+ */
+const QUEUE_NAME = 'auth-dormant-sweep';
+
+export const dormantSweepQueue = new Queue(QUEUE_NAME, {
+  connection: getBullMQConnection(),
+  defaultJobOptions: {
+    removeOnComplete: 10,
+    removeOnFail: 50,
+  },
+});
+
+export const dormantSweepWorker = new Worker(
+  QUEUE_NAME,
+  async (_job: Job) => {
+    const { scanned, disabled } = await AuthService.disableDormantAccounts();
+    Logger.info(`[CronJob:auth-dormant-sweep] scanned=${scanned} disabled=${disabled}`);
+    return { scanned, disabled };
+  },
+  {
+    connection: getBullMQConnection(),
+    concurrency: 1,
+  },
+);
+
+dormantSweepWorker.on('failed', (job, err) => {
+  Logger.error(`[CronJob:auth-dormant-sweep] Job ${job?.id} failed: ${err.message}`);
+});
+
+let _scheduled = false;
+
+export async function scheduleDormantSweepJob(
+  cronPattern = '0 3 * * *', // default: daily 03:00
+): Promise<void> {
+  if (_scheduled) return;
+  _scheduled = true;
+
+  await dormantSweepQueue.add(
+    'sweep-dormant',
+    {},
+    {
+      repeat: { pattern: cronPattern },
+      jobId: 'auth-dormant-sweep-recurring',
+    },
+  );
+
+  Logger.info(`[CronJob:auth-dormant-sweep] Scheduled with pattern: ${cronPattern}`);
+}

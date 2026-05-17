@@ -10,6 +10,8 @@ import SSOMessages from "@/modules/auth_sso/auth_sso.messages";
 import { SSOProvider, SSOProviderEnum } from "@/modules/auth_sso/auth_sso.enums";
 import UserSecurityService from "@/modules/user_security/user_security.service";
 import UserAgentService from "@/modules/user_agent/user_agent.service";
+import AuthPolicyService from "@/modules/auth/auth.policy.service";
+import AuthMessages from "@/modules/auth/auth.messages";
 
 export async function GET(
     request: NextRequest,
@@ -17,6 +19,12 @@ export async function GET(
 ) {
     const _rl = await Limiter.checkRateLimit(request, 'auth');
     if (_rl) return _rl;
+
+    // KD-18: hard block for corporate tenants that disable social/OAuth login.
+    const accessPolicy = await AuthPolicyService.getAccessPolicy();
+    if (accessPolicy.disableSocialLogin) {
+        return NextResponse.redirect(`${env.APPLICATION_HOST}/auth/login?error=${AuthMessages.SOCIAL_LOGIN_DISABLED}`);
+    }
 
     const { provider } = await params;
 

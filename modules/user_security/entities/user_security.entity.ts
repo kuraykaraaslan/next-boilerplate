@@ -39,6 +39,17 @@ export class UserSecurity {
   @Column({ type: 'jsonb', default: '[]' })
   passkeys!: unknown[];
 
+  // ── KD-7: password rotation history ─────────────────────────────────────
+  @Column({ type: 'jsonb', default: '[]' })
+  passwordHistory!: unknown[];
+
+  @Column({ nullable: true, type: 'timestamp' })
+  passwordChangedAt?: Date;
+
+  // ── KD-4: force password change on next login ──────────────────────────
+  @Column({ type: 'boolean', default: false })
+  mustChangePassword!: boolean;
+
   @CreateDateColumn({ type: 'timestamp' })
   createdAt!: Date;
 

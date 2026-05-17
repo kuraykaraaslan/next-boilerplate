@@ -7,6 +7,7 @@ export type AuditActorType = z.infer<typeof AuditActorTypeEnum>;
 export const AuditActions = {
   // Auth
   AUTH_LOGIN:            'auth.login',
+  AUTH_LOGIN_FAILED:     'auth.login_failed',
   AUTH_LOGOUT:           'auth.logout',
   AUTH_REGISTER:         'auth.register',
   AUTH_PASSWORD_CHANGED: 'auth.password_changed',
@@ -14,6 +15,8 @@ export const AuditActions = {
   AUTH_OTP_VERIFIED:     'auth.otp_verified',
   AUTH_TOTP_ENABLED:     'auth.totp_enabled',
   AUTH_TOTP_DISABLED:    'auth.totp_disabled',
+  AUTH_ACCOUNT_LOCKED:   'auth.account_locked',
+  AUTH_ACCOUNT_DISABLED: 'auth.account_disabled',
 
   // Tenant
   TENANT_CREATED: 'tenant.created',

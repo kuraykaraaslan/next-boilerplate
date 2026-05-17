@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 import UserService from "@/modules/user/user.service";
 import { CreateUserRequestSchema } from "@/modules/user/user.dto";
 import UserSessionNextService from "@/modules_next/user_session/user_session.service.next";
+import { authenticateAdminRequest } from "@/modules_next/auth/auth.admin-guard.next";
 
 /**
  * GET handler for retrieving all users.
@@ -65,7 +66,9 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
     try {
 
-        await UserSessionNextService.authenticateUserByRequest({ request, requiredUserRole: "ADMIN" });
+        // KD-13: admin POST also goes through IP allowlist + MFA enrolment guard.
+        const auth = await authenticateAdminRequest(request);
+        if (!auth.ok) return auth.response;
 
         const body = await request.json();
         

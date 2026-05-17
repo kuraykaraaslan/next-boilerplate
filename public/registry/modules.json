@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-05-17T16:17:31.330Z",
+  "generatedAt": "2026-05-17T20:17:46.545Z",
   "modules": [
     {
       "id": "common",
@@ -668,8 +668,10 @@
       },
       "exports": {
         "services": [
+          "auth.captcha.service.ts",
           "auth.otp.service.ts",
           "auth.password.service.ts",
+          "auth.policy.service.ts",
           "auth.service.ts",
           "auth.totp.service.ts"
         ],
@@ -684,7 +686,9 @@
           "auth.setting.keys.ts"
         ],
         "providers": [],
-        "jobs": [],
+        "jobs": [
+          "auth.dormant.job.ts"
+        ],
         "entities": []
       },
       "hasReadme": true,

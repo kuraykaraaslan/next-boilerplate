@@ -12,6 +12,7 @@ import UserSessionMessages from './user_session.messages';
 import UserSessionTokenService, { type TokenPayload } from './user_session.token.service';
 import UserSessionCacheService from './user_session.cache.service';
 import type { SessionStatus } from './user_session.enums';
+import AuthPolicyService from '@/modules/auth/auth.policy.service';
 
 const IMPERSONATION_SESSION_TTL_MS = 60 * 60 * 1000;
 const SESSION_EXPIRY_MS = env.SESSION_EXPIRY_MS ?? (1000 * 60 * 60 * 24 * 7);
@@ -19,20 +20,37 @@ const SESSION_CACHE_TTL = env.SESSION_CACHE_TTL;
 
 export default class UserSessionCrudService {
 
-  static async createSession({ user, userSecurity, deviceFingerprint, userAgent, ipAddress, otpIgnore = false }: {
+  static async createSession({ user, userSecurity, deviceFingerprint, userAgent, ipAddress, otpIgnore = false, tenantId }: {
     user: SafeUser;
     userSecurity: SafeUserSecurity;
     deviceFingerprint?: string;
     userAgent?: string;
     ipAddress?: string;
     otpIgnore?: boolean;
+    tenantId?: string;
   }): Promise<{ userSession: SafeUserSession; rawAccessToken: string; rawRefreshToken: string }> {
     const userSessionId = uuidv4();
     const rawAccessToken = UserSessionTokenService.generateAccessToken({ userId: user.userId, userSessionId, deviceFingerprint });
     const rawRefreshToken = UserSessionTokenService.generateRefreshToken({ userId: user.userId, userSessionId, deviceFingerprint });
     const otpVerifyNeeded = !otpIgnore && (userSecurity?.otpMethods?.length ?? 0) > 0;
 
+    // KD-12: cap the absolute session lifetime at the policy ceiling. The
+    // refresh-token TTL stays available for axios-style silent refresh, but
+    // the *session record* cannot outlive `sessionAbsoluteMaxHours`.
+    const sessionPolicy = await AuthPolicyService.getSessionPolicy(tenantId);
+    const absoluteCapMs = sessionPolicy.absoluteMaxHours * 60 * 60 * 1000;
+    const expiryMs = Math.min(SESSION_EXPIRY_MS, absoluteCapMs);
+
     const ds = await getSystemDataSource();
+
+    // KD-21: when single-session-only is enabled (sysadmin > tenant), drop all
+    // prior active sessions for the user before issuing the new one.
+    const accessPolicy = await AuthPolicyService.getAccessPolicy(tenantId);
+    if (accessPolicy.singleSessionOnly) {
+      await ds.getRepository(UserSessionEntity).delete({ userId: user.userId });
+      await UserSessionCacheService.clearUserSessionCache(user.userId);
+    }
+
     const repo = ds.getRepository(UserSessionEntity);
     const session = repo.create({
       userSessionId,
@@ -43,9 +61,16 @@ export default class UserSessionCrudService {
       userAgent,
       ipAddress,
       otpVerifyNeeded,
-      sessionExpiry: new Date(Date.now() + SESSION_EXPIRY_MS),
+      sessionExpiry: new Date(Date.now() + expiryMs),
     });
     const saved = await repo.save(session);
+
+    // KD-11: seed the idle key so the very first authenticated request after
+    // login finds the session alive.
+    await redis
+      .setex(`session:idle:${userSessionId}`, Math.max(60, sessionPolicy.idleTimeoutMinutes * 60), '1')
+      .catch(() => {});
+
     return { userSession: SafeUserSessionSchema.parse(saved), rawAccessToken, rawRefreshToken };
   }
 
@@ -77,22 +102,36 @@ export default class UserSessionCrudService {
     return { userSession: SafeUserSessionSchema.parse(saved), rawAccessToken, rawRefreshToken };
   }
 
-  static async getSession({ accessToken, deviceFingerprint, otpVerifyBypass = false }: {
+  static async getSession({ accessToken, deviceFingerprint, otpVerifyBypass = false, tenantId }: {
     accessToken: string;
     deviceFingerprint?: string;
     otpVerifyBypass?: boolean;
+    tenantId?: string;
   }): Promise<SafeUserSession> {
     const decoded = UserSessionTokenService.verifyAccessToken(accessToken, deviceFingerprint);
     const hashedToken = UserSessionTokenService.hashToken(accessToken);
     const cacheKey = `session:${decoded.userId}:${hashedToken}`;
+    const idleKey = `session:idle:${decoded.userSessionId}`;
+
+    // KD-11: idle-timeout enforcement. We track the "still-alive" flag in
+    // Redis with a TTL equal to `idleTimeoutMinutes` so refresh is a single
+    // SET; no DB write on every request.
+    const sessionPolicy = await AuthPolicyService.getSessionPolicy(tenantId);
+    const idleTtl = Math.max(60, sessionPolicy.idleTimeoutMinutes * 60);
+
     const cached = await redis.get(cacheKey);
 
     if (cached) {
       try {
         const session = SafeUserSessionSchema.parse(JSON.parse(cached));
+        // Idle key absent → user was away longer than the timeout.
+        const alive = await redis.get(idleKey);
+        if (!alive) throw new Error(UserSessionMessages.SESSION_EXPIRED);
         if (!otpVerifyBypass && session.otpVerifyNeeded) throw new Error(UserSessionMessages.OTP_REQUIRED);
+        await redis.expire(idleKey, idleTtl).catch(() => {});
         return session;
-      } catch {
+      } catch (err: unknown) {
+        if (err instanceof Error && err.message === UserSessionMessages.SESSION_EXPIRED) throw err;
         await redis.del(cacheKey);
       }
     }
@@ -110,8 +149,17 @@ export default class UserSessionCrudService {
     }
     if (!otpVerifyBypass && session.otpVerifyNeeded) throw new Error(UserSessionMessages.OTP_REQUIRED);
 
+    // KD-11: also check DB-level idle when cache missed. We compare against
+    // the session row's `updatedAt` so existing sessions without a Redis idle
+    // key still get a fair grace window (their last DB touch).
+    const lastActivityMs = (session.updatedAt ?? session.createdAt).getTime();
+    if (Date.now() - lastActivityMs > idleTtl * 1000) {
+      throw new Error(UserSessionMessages.SESSION_EXPIRED);
+    }
+
     const safeSession = SafeUserSessionSchema.parse(session);
     await redis.setex(cacheKey, SESSION_CACHE_TTL, JSON.stringify(safeSession));
+    await redis.setex(idleKey, idleTtl, '1').catch(() => {});
     return safeSession;
   }
 
@@ -148,10 +196,21 @@ export default class UserSessionCrudService {
       deviceFingerprint: session.deviceFingerprint ?? undefined,
     });
 
+    // KD-12: the renewed expiry can never exceed the original session's
+    // absolute lifetime ceiling (createdAt + absoluteMaxHours).
+    const sessionPolicy = await AuthPolicyService.getSessionPolicy();
+    const absoluteDeadline = session.createdAt.getTime() + sessionPolicy.absoluteMaxHours * 60 * 60 * 1000;
+    if (Date.now() >= absoluteDeadline) {
+      await repo.delete({ userSessionId: session.userSessionId });
+      await UserSessionCacheService.clearUserSessionCache(session.userId);
+      throw new Error(UserSessionMessages.SESSION_EXPIRED);
+    }
+    const renewedExpiryMs = Math.min(Date.now() + SESSION_EXPIRY_MS, absoluteDeadline);
+
     await repo.update({ userSessionId: session.userSessionId }, {
       accessToken: UserSessionTokenService.hashToken(newAccessToken),
       refreshToken: UserSessionTokenService.hashToken(newRefreshToken),
-      sessionExpiry: new Date(Date.now() + SESSION_EXPIRY_MS),
+      sessionExpiry: new Date(renewedExpiryMs),
     });
     await UserSessionCacheService.clearUserSessionCache(session.userId);
     const updated = await repo.findOne({ where: { userSessionId: session.userSessionId } });

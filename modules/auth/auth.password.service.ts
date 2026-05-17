@@ -7,8 +7,10 @@ import { getSystemDataSource } from '@/modules/db';
 import { User as UserEntity } from '../user/entities/user.entity';
 import Logger from '@/modules/logger';
 import UserService from '../user/user.service';
+import UserSecurityService from '../user_security/user_security.service';
 import MailService from '../notification_mail/notification_mail.service';
 import AuthMessages from './auth.messages';
+import AuthPolicyService from './auth.policy.service';
 
 export default class PasswordService {
 
@@ -18,9 +20,10 @@ export default class PasswordService {
   private static readonly RATE_LIMIT_WINDOW_SECONDS = 60;
 
   static generateResetToken(length = PasswordService.RESET_TOKEN_LENGTH): string {
+    // KD-3: crypto-safe random — Math.random is predictable and unsuitable for tokens.
     const min = Math.pow(10, length - 1);
-    const max = Math.pow(10, length) - 1;
-    return Math.floor(min + Math.random() * (max - min)).toString().padStart(length, '0');
+    const max = Math.pow(10, length);
+    return crypto.randomInt(min, max).toString().padStart(length, '0');
   }
 
   static async hashToken(token: string): Promise<string> {
@@ -66,10 +69,11 @@ export default class PasswordService {
     return { resetToken };
   }
 
-  static async resetPassword({ email, resetToken, newPassword }: {
+  static async resetPassword({ email, resetToken, newPassword, tenantId }: {
     email: string;
     resetToken: string;
     newPassword: string;
+    tenantId?: string;
   }): Promise<void> {
     const user = await UserService.getByEmail(email);
     if (!user) throw new Error(AuthMessages.USER_NOT_FOUND);
@@ -81,9 +85,24 @@ export default class PasswordService {
     const hashedInputToken = await PasswordService.hashToken(resetToken);
     if (hashedInputToken !== storedHashedToken) throw new Error(AuthMessages.INVALID_TOKEN);
 
+    // KD-5 / KD-7: enforce password policy + rotation history
+    const policy = await AuthPolicyService.getPasswordPolicy(tenantId);
+    const policyError = AuthPolicyService.validatePassword(newPassword, policy, { email: user.email });
+    if (policyError) throw new Error(policyError);
+
+    const history = await UserSecurityService.getPasswordHistory(user.userId);
+    for (const oldHash of history) {
+      if (await bcrypt.compare(newPassword, oldHash)) {
+        throw new Error(AuthMessages.PASSWORD_REUSED);
+      }
+    }
+
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     const ds = await getSystemDataSource();
     await ds.getRepository(UserEntity).update({ userId: user.userId }, { password: hashedPassword });
+    await UserSecurityService.pushPasswordHistory(user.userId, hashedPassword, policy.historyCount).catch(
+      (err: unknown) => Logger.warn(`PasswordService: pushPasswordHistory failed: ${err instanceof Error ? err.message : err}`),
+    );
 
     await UserService.invalidate({ userId: user.userId, email: user.email });
     await redis.del(tokenKey);
