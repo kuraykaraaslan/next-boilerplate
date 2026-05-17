@@ -79,3 +79,5 @@ Social account lookups are cached in Redis (TTL = `SESSION_CACHE_TTL`, default 3
 | `user_social_account:provider:{provider}:{providerId}` | `getByProviderAndProviderId`, `findUserIdByProvider` — OAuth callback hot path |
 
 `link` and `unlink` clear both keys for the affected user+provider. `updateTokens` does **not** invalidate because tokens are stripped from `SafeUserSocialAccount` (and thus aren't in the cached value).
+
+TTL is jittered ±10% and reads are wrapped in in-process single-flight — important on the OAuth callback path where many concurrent provider lookups for popular providers can collide.

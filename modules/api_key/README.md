@@ -75,4 +75,10 @@ API key lookups are cached in Redis (TTL = `TENANT_CACHE_TTL`, default 5 min):
 | `api_key:hash:{sha256(rawKey)}` | `verify(rawKey)` — hot path on every authenticated API request |
 | `api_key:tenant:{tenantId}:{apiKeyId}` | `getById(tenantId, apiKeyId)` |
 
-`update`, `delete`, and `verify` (on lookup miss) trigger invalidation by `apiKeyId`, `keyHash`, and `tenantId+apiKeyId`. `lastUsedAt` writes are intentionally fire-and-forget and do **not** invalidate — the value isn't security-critical and refreshing it would defeat the cache.
+`update` and `delete` invalidate by `apiKeyId`, `keyHash`, and `tenantId+apiKeyId`. `create` clears the negative cache for the freshly-minted hash. `lastUsedAt` writes are intentionally fire-and-forget and do **not** invalidate — the value isn't security-critical and refreshing it would defeat the cache.
+
+### Stampede + negative cache
+
+- **TTL jitter (±10%)** spreads expirations so a burst of keys minted in the same second don't refill simultaneously.
+- **In-process single-flight** (`modules/redis/redis.cache.ts`) dedupes concurrent loaders for the same key — if 100 requests miss on the same hash at the same time, only one DB query runs.
+- **Negative cache** on `verify`: an unknown hash is cached as `__not_found__` for up to 60s. Credential-stuffing attempts against random hashes hit Redis, not the DB. `create` clears the negative key for the new hash, so freshly-minted keys are immediately usable.

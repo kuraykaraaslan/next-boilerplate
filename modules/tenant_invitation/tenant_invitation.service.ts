@@ -3,7 +3,7 @@ import { env } from '@/modules/env';
 import crypto from 'crypto';
 import { MoreThan } from 'typeorm';
 import { getSystemDataSource, tenantDataSourceFor, getDefaultTenantDataSource } from '@/modules/db';
-import redis from '@/modules/redis';
+import redis, { jitter, singleFlight } from '@/modules/redis';
 import { User as UserEntity } from '../user/entities/user.entity';
 import { TenantInvitation as TenantInvitationEntity } from './entities/tenant_invitation.entity';
 import { Tenant as TenantEntity } from '../tenant/entities/tenant.entity';
@@ -15,6 +15,8 @@ import type { TenantMemberRole } from '../tenant_member/tenant_member.enums';
 
 const INVITATION_TTL_SECONDS = env.INVITATION_TTL_SECONDS ?? (60 * 60 * 24 * 7);
 const INVITATION_CACHE_TTL = env.TENANT_CACHE_TTL ?? (60 * 5);
+const NEGATIVE_CACHE_TTL = Math.min(60, INVITATION_CACHE_TTL);
+const NEG = '__not_found__';
 
 export default class TenantInvitationService {
 
@@ -55,30 +57,38 @@ export default class TenantInvitationService {
       try { return SafeTenantInvitationSchema.parse(JSON.parse(cached)); } catch { await redis.del(cacheKey).catch(() => {}); }
     }
 
-    const ds = await getDefaultTenantDataSource();
-    const invitation = await ds.getRepository(TenantInvitationEntity).findOne({ where: { invitationId } });
-    if (!invitation) throw new Error(TenantInvitationMessages.INVITATION_NOT_FOUND);
+    return singleFlight(cacheKey, async () => {
+      const ds = await getDefaultTenantDataSource();
+      const invitation = await ds.getRepository(TenantInvitationEntity).findOne({ where: { invitationId } });
+      if (!invitation) throw new Error(TenantInvitationMessages.INVITATION_NOT_FOUND);
 
-    const parsed = SafeTenantInvitationSchema.parse(invitation);
-    await redis.setex(cacheKey, INVITATION_CACHE_TTL, JSON.stringify(parsed)).catch(() => {});
-    return parsed;
+      const parsed = SafeTenantInvitationSchema.parse(invitation);
+      await redis.setex(cacheKey, jitter(INVITATION_CACHE_TTL), JSON.stringify(parsed)).catch(() => {});
+      return parsed;
+    });
   }
 
   static async getByToken(rawToken: string): Promise<SafeTenantInvitation> {
     const hashed = TenantInvitationService.hashToken(rawToken);
     const cacheKey = `tenant_invitation:token:${hashed}`;
     const cached = await redis.get(cacheKey).catch(() => null);
+    if (cached === NEG) throw new Error(TenantInvitationMessages.INVITATION_INVALID_TOKEN);
     if (cached) {
       try { return SafeTenantInvitationSchema.parse(JSON.parse(cached)); } catch { await redis.del(cacheKey).catch(() => {}); }
     }
 
-    const ds = await getDefaultTenantDataSource();
-    const invitation = await ds.getRepository(TenantInvitationEntity).findOne({ where: { token: hashed } });
-    if (!invitation) throw new Error(TenantInvitationMessages.INVITATION_INVALID_TOKEN);
+    return singleFlight(cacheKey, async () => {
+      const ds = await getDefaultTenantDataSource();
+      const invitation = await ds.getRepository(TenantInvitationEntity).findOne({ where: { token: hashed } });
+      if (!invitation) {
+        await redis.setex(cacheKey, jitter(NEGATIVE_CACHE_TTL), NEG).catch(() => {});
+        throw new Error(TenantInvitationMessages.INVITATION_INVALID_TOKEN);
+      }
 
-    const parsed = SafeTenantInvitationSchema.parse(invitation);
-    await redis.setex(cacheKey, INVITATION_CACHE_TTL, JSON.stringify(parsed)).catch(() => {});
-    return parsed;
+      const parsed = SafeTenantInvitationSchema.parse(invitation);
+      await redis.setex(cacheKey, jitter(INVITATION_CACHE_TTL), JSON.stringify(parsed)).catch(() => {});
+      return parsed;
+    });
   }
 
   static async send(tenantId: string, invitedByUserId: string, { email, memberRole }: SendInvitationInput): Promise<{ invitation: SafeTenantInvitation; rawToken: string }> {
@@ -106,6 +116,7 @@ export default class TenantInvitationService {
 
     const invitation = repo.create({ tenantId, email: normalizedEmail, invitedByUserId, memberRole, token: hashedToken, status: 'PENDING', expiresAt });
     const saved = await repo.save(invitation);
+    await redis.del(`tenant_invitation:token:${hashedToken}`).catch(() => {});
 
     return { invitation: SafeTenantInvitationSchema.parse(saved), rawToken };
   }

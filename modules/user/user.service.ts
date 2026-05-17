@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { ILike } from 'typeorm';
 import { getSystemDataSource } from '@/modules/db';
-import redis from '@/modules/redis';
+import redis, { jitter, singleFlight } from '@/modules/redis';
 import { env } from '@/modules/env';
 import { User as UserEntity } from './entities/user.entity';
 import { User, SafeUser, UpdateUser, SafeUserSchema, UserSchema } from './user.types';
@@ -10,6 +10,8 @@ import bcrypt from 'bcrypt';
 import UserMessages from './user.messages';
 
 const USER_CACHE_TTL = env.SESSION_CACHE_TTL ?? (60 * 5);
+const NEGATIVE_CACHE_TTL = Math.min(60, USER_CACHE_TTL);
+const NEG = '__not_found__';
 
 export default class UserService {
 
@@ -43,6 +45,7 @@ export default class UserService {
       userStatus: 'ACTIVE',
     });
     const saved = await repo.save(user);
+    await redis.del(`user:email:${saved.email.toLowerCase()}`).catch(() => {});
     return SafeUserSchema.parse(saved);
   }
 
@@ -82,13 +85,15 @@ export default class UserService {
       try { return SafeUserSchema.parse(JSON.parse(cached)); } catch { await redis.del(cacheKey).catch(() => {}); }
     }
 
-    const ds = await getSystemDataSource();
-    const user = await ds.getRepository(UserEntity).findOne({ where: { userId } });
-    if (!user) throw new Error(UserMessages.USER_NOT_FOUND);
+    return singleFlight(cacheKey, async () => {
+      const ds = await getSystemDataSource();
+      const user = await ds.getRepository(UserEntity).findOne({ where: { userId } });
+      if (!user) throw new Error(UserMessages.USER_NOT_FOUND);
 
-    const parsed = SafeUserSchema.parse(user);
-    await redis.setex(cacheKey, USER_CACHE_TTL, JSON.stringify(parsed)).catch(() => {});
-    return parsed;
+      const parsed = SafeUserSchema.parse(user);
+      await redis.setex(cacheKey, jitter(USER_CACHE_TTL), JSON.stringify(parsed)).catch(() => {});
+      return parsed;
+    });
   }
 
   static async update({ userId, data }: { userId: string; data: UpdateUser }): Promise<SafeUser> {
@@ -127,16 +132,22 @@ export default class UserService {
     const normalized = email.toLowerCase();
     const cacheKey = `user:email:${normalized}`;
     const cached = await redis.get(cacheKey).catch(() => null);
+    if (cached === NEG) return null;
     if (cached) {
       try { return UserSchema.parse(JSON.parse(cached)); } catch { await redis.del(cacheKey).catch(() => {}); }
     }
 
-    const ds = await getSystemDataSource();
-    const user = await ds.getRepository(UserEntity).findOne({ where: { email: normalized } });
-    if (!user) return null;
+    return singleFlight(cacheKey, async () => {
+      const ds = await getSystemDataSource();
+      const user = await ds.getRepository(UserEntity).findOne({ where: { email: normalized } });
+      if (!user) {
+        await redis.setex(cacheKey, jitter(NEGATIVE_CACHE_TTL), NEG).catch(() => {});
+        return null;
+      }
 
-    const parsed = UserSchema.parse(user);
-    await redis.setex(cacheKey, USER_CACHE_TTL, JSON.stringify(parsed)).catch(() => {});
-    return parsed;
+      const parsed = UserSchema.parse(user);
+      await redis.setex(cacheKey, jitter(USER_CACHE_TTL), JSON.stringify(parsed)).catch(() => {});
+      return parsed;
+    });
   }
 }

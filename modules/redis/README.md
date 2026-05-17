@@ -11,6 +11,8 @@ Shared Redis client (ioredis) and BullMQ connection factory. One pooled client f
 | `createRedisConnection()` | [redis.service.ts](redis.service.ts) | New independent connection (required for Pub/Sub subscribers — they can't share the main client). |
 | `getBullMQConnection()` | [redis.bullmq.ts](redis.bullmq.ts) | `ConnectionOptions` for BullMQ workers and queues. |
 | `createQueue<T>(name)` | [redis.bullmq.ts](redis.bullmq.ts) | Convenience factory: `new Queue(name, { connection: getBullMQConnection() })`. |
+| `jitter(ttl, factor?)` | [redis.cache.ts](redis.cache.ts) | Returns `ttl ± factor%` (default 10%). Apply to every `setex` TTL so co-written keys don't expire on the same second. |
+| `singleFlight(key, loader)` | [redis.cache.ts](redis.cache.ts) | In-process dedup of concurrent loaders for the same key. Process-local — does not deduplicate across pods. |
 
 ## Usage
 
@@ -41,6 +43,26 @@ const sub = createRedisConnection();
 await sub.subscribe("tenant-events");
 sub.on("message", (channel, msg) => { /* … */ });
 ```
+
+### Cached read with stampede protection
+
+```ts
+import redis, { jitter, singleFlight } from "@/modules/redis";
+
+async function getUserById(userId: string) {
+  const cacheKey = `user:id:${userId}`;
+  const cached = await redis.get(cacheKey).catch(() => null);
+  if (cached) return JSON.parse(cached);
+
+  return singleFlight(cacheKey, async () => {
+    const row = await db.user.findUnique({ where: { id: userId } });
+    if (row) await redis.setex(cacheKey, jitter(300), JSON.stringify(row));
+    return row;
+  });
+}
+```
+
+`singleFlight` keeps an in-process `Map<key, Promise>` — when N concurrent callers miss on the same key, only one DB query runs and the rest await its result. It does **not** dedupe across separate Node processes; for cross-pod single-flight you'd need a Redis `SET NX` lock layered on top.
 
 ## Connection options
 

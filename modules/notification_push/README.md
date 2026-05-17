@@ -79,3 +79,5 @@ Invalidation:
 - `subscribe` clears cache for the new owner (and the previous owner if the endpoint moves between users)
 - `unsubscribe` and `unsubscribeByEndpoint` clear cache
 - 410/404 cleanup inside `sendToSubscription` (expired browser subscription) clears cache for the affected user
+
+TTL is jittered ±10% and reads are wrapped in in-process single-flight.

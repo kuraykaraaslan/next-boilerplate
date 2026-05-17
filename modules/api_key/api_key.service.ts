@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import crypto from 'crypto';
 import { tenantDataSourceFor, getDefaultTenantDataSource } from '@/modules/db';
-import redis from '@/modules/redis';
+import redis, { jitter, singleFlight } from '@/modules/redis';
 import { env } from '@/modules/env';
 import { ApiKey as ApiKeyEntity } from './entities/api_key.entity';
 import { SafeApiKey, SafeApiKeySchema } from './api_key.types';
@@ -10,6 +10,8 @@ import ApiKeyMessages from './api_key.messages';
 import type { ApiKeyScope } from './api_key.enums';
 
 const API_KEY_CACHE_TTL = env.TENANT_CACHE_TTL ?? (60 * 5);
+const NEGATIVE_CACHE_TTL = Math.min(60, API_KEY_CACHE_TTL);
+const NEG = '__not_found__';
 
 export default class ApiKeyService {
 
@@ -58,13 +60,15 @@ export default class ApiKeyService {
       try { return SafeApiKeySchema.parse(JSON.parse(cached)); } catch { await redis.del(cacheKey).catch(() => {}); }
     }
 
-    const ds = await tenantDataSourceFor(tenantId);
-    const row = await ds.getRepository(ApiKeyEntity).findOne({ where: { apiKeyId, tenantId } });
-    if (!row) throw new Error(ApiKeyMessages.NOT_FOUND);
+    return singleFlight(cacheKey, async () => {
+      const ds = await tenantDataSourceFor(tenantId);
+      const row = await ds.getRepository(ApiKeyEntity).findOne({ where: { apiKeyId, tenantId } });
+      if (!row) throw new Error(ApiKeyMessages.NOT_FOUND);
 
-    const parsed = SafeApiKeySchema.parse(row);
-    await redis.setex(cacheKey, API_KEY_CACHE_TTL, JSON.stringify(parsed)).catch(() => {});
-    return parsed;
+      const parsed = SafeApiKeySchema.parse(row);
+      await redis.setex(cacheKey, jitter(API_KEY_CACHE_TTL), JSON.stringify(parsed)).catch(() => {});
+      return parsed;
+    });
   }
 
   static async create(
@@ -92,6 +96,7 @@ export default class ApiKeyService {
     });
 
     const saved = await repo.save(entity);
+    await redis.del(`api_key:hash:${keyHash}`).catch(() => {});
     return { key: SafeApiKeySchema.parse(saved), rawKey };
   }
 
@@ -132,23 +137,35 @@ export default class ApiKeyService {
    * Verify a raw API key from an incoming request.
    * Updates lastUsedAt on success.
    * Throws with a descriptive message on any failure.
+   *
+   * Negative cache: an unknown hash is cached as `__not_found__` for a short window to blunt
+   * credential-stuffing — repeated guesses hit Redis, not the DB.
    */
   static async verify(rawKey: string, requiredScope?: ApiKeyScope): Promise<SafeApiKey> {
     const hash = ApiKeyService.hashKey(rawKey);
-
     const cacheKey = `api_key:hash:${hash}`;
-    let row: ApiKeyEntity | null = null;
+
     const cached = await redis.get(cacheKey).catch(() => null);
+    if (cached === NEG) throw new Error(ApiKeyMessages.INVALID_KEY);
+
+    let row: ApiKeyEntity | null = null;
     if (cached) {
       try { row = JSON.parse(cached) as ApiKeyEntity; } catch { await redis.del(cacheKey).catch(() => {}); }
     }
 
     if (!row) {
-      const ds = await getDefaultTenantDataSource();
-      const repo = ds.getRepository(ApiKeyEntity);
-      row = await repo.findOne({ where: { keyHash: hash } });
+      row = await singleFlight(cacheKey, async () => {
+        const ds = await getDefaultTenantDataSource();
+        const repo = ds.getRepository(ApiKeyEntity);
+        const found = await repo.findOne({ where: { keyHash: hash } });
+        if (!found) {
+          await redis.setex(cacheKey, jitter(NEGATIVE_CACHE_TTL), NEG).catch(() => {});
+          return null;
+        }
+        await redis.setex(cacheKey, jitter(API_KEY_CACHE_TTL), JSON.stringify(found)).catch(() => {});
+        return found;
+      });
       if (!row) throw new Error(ApiKeyMessages.INVALID_KEY);
-      await redis.setex(cacheKey, API_KEY_CACHE_TTL, JSON.stringify(row)).catch(() => {});
     }
 
     if (!row.isActive) throw new Error(ApiKeyMessages.KEY_INACTIVE);

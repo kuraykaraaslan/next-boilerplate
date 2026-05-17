@@ -21,12 +21,15 @@ vi.mock('@/modules/db', () => ({
 
 vi.mock('@/modules/redis', () => ({
   default: {
-    get: vi.fn(),
-    set: vi.fn(),
-    del: vi.fn(),
-    ping: vi.fn(),
+    get: vi.fn(async () => null),
+    set: vi.fn(async () => 'OK'),
+    setex: vi.fn(async () => 'OK'),
+    del: vi.fn(async () => 1),
+    ping: vi.fn(async () => 'PONG'),
     keys: vi.fn(async () => []),
   },
+  jitter: (ttl: number) => ttl,
+  singleFlight: async <T,>(_key: string, loader: () => Promise<T>) => loader(),
 }));
 
 vi.mock('@/modules/logger', () => ({

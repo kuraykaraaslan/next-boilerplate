@@ -95,3 +95,5 @@ Security records are cached in Redis (TTL = `SESSION_CACHE_TTL`, default 30 min)
 **Not cached:** `isLocked(userId)` always reads the DB. Stale lockout state must never authorize a login, so this query stays uncached — its cost is acceptable for the correctness guarantee.
 
 OTP secrets are stored in Redis the same way passwords already are (hashed at rest in the source DB, briefly held in Redis with a short TTL). If Redis is compromised, OTP secrets are exposed — the existing trust boundary applies.
+
+TTL is jittered ±10% and reads are wrapped in in-process single-flight.

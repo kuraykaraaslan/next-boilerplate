@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { getSystemDataSource } from '@/modules/db';
-import redis from '@/modules/redis';
+import redis, { jitter, singleFlight } from '@/modules/redis';
 import { env } from '@/modules/env';
 import { UserPreferences as UserPreferencesEntity } from './entities/user_preferences.entity';
 import { UserPreferences, UserPreferencesDefault, UserPreferencesSchema } from './user_preferences.types';
@@ -23,11 +23,13 @@ export default class UserPreferencesService {
       } catch { await redis.del(cacheKey).catch(() => {}); }
     }
 
-    const ds = await getSystemDataSource();
-    const prefs = await ds.getRepository(UserPreferencesEntity).findOne({ where: { userId } });
-    const result = prefs ? UserPreferencesSchema.parse(prefs) : null;
-    await redis.setex(cacheKey, USER_PREFERENCES_CACHE_TTL, JSON.stringify(result)).catch(() => {});
-    return result;
+    return singleFlight(cacheKey, async () => {
+      const ds = await getSystemDataSource();
+      const prefs = await ds.getRepository(UserPreferencesEntity).findOne({ where: { userId } });
+      const result = prefs ? UserPreferencesSchema.parse(prefs) : null;
+      await redis.setex(cacheKey, jitter(USER_PREFERENCES_CACHE_TTL), JSON.stringify(result)).catch(() => {});
+      return result;
+    });
   }
 
   static async create(userId: string, data?: Partial<UserPreferences>): Promise<UserPreferences> {

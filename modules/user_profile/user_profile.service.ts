@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { getSystemDataSource } from '@/modules/db';
-import redis from '@/modules/redis';
+import redis, { jitter, singleFlight } from '@/modules/redis';
 import { env } from '@/modules/env';
 import { UserProfile as UserProfileEntity } from './entities/user_profile.entity';
 import { UserProfile, UserProfileSchema, SocialLinkItem } from './user_profile.types';
@@ -23,11 +23,13 @@ export default class UserProfileService {
       } catch { await redis.del(cacheKey).catch(() => {}); }
     }
 
-    const ds = await getSystemDataSource();
-    const profile = await ds.getRepository(UserProfileEntity).findOne({ where: { userId } });
-    const result = profile ? UserProfileSchema.parse(profile) : null;
-    await redis.setex(cacheKey, USER_PROFILE_CACHE_TTL, JSON.stringify(result)).catch(() => {});
-    return result;
+    return singleFlight(cacheKey, async () => {
+      const ds = await getSystemDataSource();
+      const profile = await ds.getRepository(UserProfileEntity).findOne({ where: { userId } });
+      const result = profile ? UserProfileSchema.parse(profile) : null;
+      await redis.setex(cacheKey, jitter(USER_PROFILE_CACHE_TTL), JSON.stringify(result)).catch(() => {});
+      return result;
+    });
   }
 
   static async create(userId: string, data?: Partial<UserProfile>): Promise<UserProfile> {

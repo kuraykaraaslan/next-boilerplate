@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { ILike } from 'typeorm';
 import { getSystemDataSource, tenantDataSourceFor } from '@/modules/db';
-import redis from '@/modules/redis';
+import redis, { jitter, singleFlight } from '@/modules/redis';
 import { env } from '@/modules/env';
 import { Coupon as CouponEntity } from './entities/coupon.entity';
 import { CouponRedemption as CouponRedemptionEntity } from './entities/coupon_redemption.entity';
@@ -22,6 +22,8 @@ import type {
 } from './coupon.dto';
 
 const COUPON_CACHE_TTL = env.TENANT_CACHE_TTL ?? (60 * 5);
+const NEGATIVE_CACHE_TTL = Math.min(60, COUPON_CACHE_TTL);
+const NEG = '__not_found__';
 
 export default class CouponService {
 
@@ -62,6 +64,7 @@ export default class CouponService {
       if (data.expiresAt) coupon.expiresAt = data.expiresAt;
 
       const saved = await repo.save(coupon as CouponEntity);
+      await redis.del(`coupon:code:${data.code.toUpperCase()}`).catch(() => {});
       return CouponSchema.parse(saved);
     } catch (error) {
       if (error instanceof Error && error.message === COUPON_MESSAGES.CODE_EXISTS) throw error;
@@ -100,29 +103,37 @@ export default class CouponService {
       try { return CouponSchema.parse(JSON.parse(cached)); } catch { await redis.del(cacheKey).catch(() => {}); }
     }
 
-    const ds = await getSystemDataSource();
-    const coupon = await ds.getRepository(CouponEntity).findOne({ where: { couponId } });
-    if (!coupon) throw new Error(COUPON_MESSAGES.NOT_FOUND);
+    return singleFlight(cacheKey, async () => {
+      const ds = await getSystemDataSource();
+      const coupon = await ds.getRepository(CouponEntity).findOne({ where: { couponId } });
+      if (!coupon) throw new Error(COUPON_MESSAGES.NOT_FOUND);
 
-    const parsed = CouponSchema.parse(coupon);
-    await redis.setex(cacheKey, COUPON_CACHE_TTL, JSON.stringify(parsed)).catch(() => {});
-    return parsed;
+      const parsed = CouponSchema.parse(coupon);
+      await redis.setex(cacheKey, jitter(COUPON_CACHE_TTL), JSON.stringify(parsed)).catch(() => {});
+      return parsed;
+    });
   }
 
   static async getByCode(code: string): Promise<Coupon | null> {
     const cacheKey = `coupon:code:${code.toUpperCase()}`;
     const cached = await redis.get(cacheKey).catch(() => null);
+    if (cached === NEG) return null;
     if (cached) {
       try { return CouponSchema.parse(JSON.parse(cached)); } catch { await redis.del(cacheKey).catch(() => {}); }
     }
 
-    const ds = await getSystemDataSource();
-    const coupon = await ds.getRepository(CouponEntity).findOne({ where: { code: code.toUpperCase() } });
-    if (!coupon) return null;
+    return singleFlight(cacheKey, async () => {
+      const ds = await getSystemDataSource();
+      const coupon = await ds.getRepository(CouponEntity).findOne({ where: { code: code.toUpperCase() } });
+      if (!coupon) {
+        await redis.setex(cacheKey, jitter(NEGATIVE_CACHE_TTL), NEG).catch(() => {});
+        return null;
+      }
 
-    const parsed = CouponSchema.parse(coupon);
-    await redis.setex(cacheKey, COUPON_CACHE_TTL, JSON.stringify(parsed)).catch(() => {});
-    return parsed;
+      const parsed = CouponSchema.parse(coupon);
+      await redis.setex(cacheKey, jitter(COUPON_CACHE_TTL), JSON.stringify(parsed)).catch(() => {});
+      return parsed;
+    });
   }
 
   static async update(couponId: string, data: UpdateCouponDTO): Promise<Coupon> {

@@ -3,7 +3,7 @@ import { In } from 'typeorm';
 import { env } from '@/modules/env';
 import webpush from 'web-push';
 import { getSystemDataSource } from '@/modules/db';
-import redis from '@/modules/redis';
+import redis, { jitter, singleFlight } from '@/modules/redis';
 import { PushSubscription as PushSubscriptionEntity } from './entities/push_subscription.entity';
 import { User as UserEntity } from '../user/entities/user.entity';
 import Logger from '@/modules/logger';
@@ -48,10 +48,12 @@ export default class NotificationPushService {
       catch { await redis.del(cacheKey).catch(() => {}); }
     }
 
-    const ds = await getSystemDataSource();
-    const subs = await ds.getRepository(PushSubscriptionEntity).find({ where: { userId } });
-    await redis.setex(cacheKey, PUSH_CACHE_TTL, JSON.stringify(subs)).catch(() => {});
-    return subs;
+    return singleFlight(cacheKey, async () => {
+      const ds = await getSystemDataSource();
+      const subs = await ds.getRepository(PushSubscriptionEntity).find({ where: { userId } });
+      await redis.setex(cacheKey, jitter(PUSH_CACHE_TTL), JSON.stringify(subs)).catch(() => {});
+      return subs;
+    });
   }
 
   static async subscribe(

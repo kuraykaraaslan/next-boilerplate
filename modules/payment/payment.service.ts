@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import { Between, IsNull, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
 import { env } from '@/modules/env';
 import { getDefaultTenantDataSource, tenantDataSourceFor } from '@/modules/db';
-import redis from '@/modules/redis';
+import redis, { jitter, singleFlight } from '@/modules/redis';
 import { Payment as PaymentEntity } from './entities/payment.entity';
 import { PaymentTransaction as PaymentTransactionEntity } from './entities/payment_transaction.entity';
 import Logger from '@/modules/logger';
@@ -116,13 +116,15 @@ export default class PaymentService {
       try { return SafePaymentSchema.parse(JSON.parse(cached)); } catch { await redis.del(cacheKey).catch(() => {}); }
     }
 
-    const ds = await getDefaultTenantDataSource();
-    const payment = await ds.getRepository(PaymentEntity).findOne({ where: { paymentId, deletedAt: IsNull() } });
-    if (!payment) throw new Error(PAYMENT_MESSAGES.PAYMENT_NOT_FOUND);
+    return singleFlight(cacheKey, async () => {
+      const ds = await getDefaultTenantDataSource();
+      const payment = await ds.getRepository(PaymentEntity).findOne({ where: { paymentId, deletedAt: IsNull() } });
+      if (!payment) throw new Error(PAYMENT_MESSAGES.PAYMENT_NOT_FOUND);
 
-    const parsed = SafePaymentSchema.parse(payment);
-    await redis.setex(cacheKey, PAYMENT_CACHE_TTL, JSON.stringify(parsed)).catch(() => {});
-    return parsed;
+      const parsed = SafePaymentSchema.parse(payment);
+      await redis.setex(cacheKey, jitter(PAYMENT_CACHE_TTL), JSON.stringify(parsed)).catch(() => {});
+      return parsed;
+    });
   }
 
   static async getByIdWithTransactions(paymentId: string): Promise<PaymentWithTransactions> {
@@ -132,14 +134,16 @@ export default class PaymentService {
       try { return PaymentWithTransactionsSchema.parse(JSON.parse(cached)); } catch { await redis.del(cacheKey).catch(() => {}); }
     }
 
-    const ds = await getDefaultTenantDataSource();
-    const payment = await ds.getRepository(PaymentEntity).findOne({ where: { paymentId, deletedAt: IsNull() } });
-    if (!payment) throw new Error(PAYMENT_MESSAGES.PAYMENT_NOT_FOUND);
-    const transactions = await ds.getRepository(PaymentTransactionEntity).find({ where: { paymentId } });
+    return singleFlight(cacheKey, async () => {
+      const ds = await getDefaultTenantDataSource();
+      const payment = await ds.getRepository(PaymentEntity).findOne({ where: { paymentId, deletedAt: IsNull() } });
+      if (!payment) throw new Error(PAYMENT_MESSAGES.PAYMENT_NOT_FOUND);
+      const transactions = await ds.getRepository(PaymentTransactionEntity).find({ where: { paymentId } });
 
-    const parsed = PaymentWithTransactionsSchema.parse({ ...payment, transactions });
-    await redis.setex(cacheKey, PAYMENT_CACHE_TTL, JSON.stringify(parsed)).catch(() => {});
-    return parsed;
+      const parsed = PaymentWithTransactionsSchema.parse({ ...payment, transactions });
+      await redis.setex(cacheKey, jitter(PAYMENT_CACHE_TTL), JSON.stringify(parsed)).catch(() => {});
+      return parsed;
+    });
   }
 
   static async getAll(query: GetPaymentsQuery): Promise<{ payments: SafePayment[]; total: number }> {
@@ -247,13 +251,15 @@ export default class PaymentService {
       try { return PaymentTransactionSchema.parse(JSON.parse(cached)); } catch { await redis.del(cacheKey).catch(() => {}); }
     }
 
-    const ds = await getDefaultTenantDataSource();
-    const transaction = await ds.getRepository(PaymentTransactionEntity).findOne({ where: { transactionId } });
-    if (!transaction) throw new Error(PAYMENT_MESSAGES.TRANSACTION_NOT_FOUND);
+    return singleFlight(cacheKey, async () => {
+      const ds = await getDefaultTenantDataSource();
+      const transaction = await ds.getRepository(PaymentTransactionEntity).findOne({ where: { transactionId } });
+      if (!transaction) throw new Error(PAYMENT_MESSAGES.TRANSACTION_NOT_FOUND);
 
-    const parsed = PaymentTransactionSchema.parse(transaction);
-    await redis.setex(cacheKey, PAYMENT_CACHE_TTL, JSON.stringify(parsed)).catch(() => {});
-    return parsed;
+      const parsed = PaymentTransactionSchema.parse(transaction);
+      await redis.setex(cacheKey, jitter(PAYMENT_CACHE_TTL), JSON.stringify(parsed)).catch(() => {});
+      return parsed;
+    });
   }
 
   static async getTransactions(query: GetTransactionsQuery): Promise<{ transactions: PaymentTransaction[]; total: number }> {

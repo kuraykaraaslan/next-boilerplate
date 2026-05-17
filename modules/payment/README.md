@@ -387,6 +387,8 @@ Invalidation map:
 
 Webhook flow (`payment.webhook.service.ts`) writes through `PaymentService.update` / `markAsFailed` / etc., so webhooks inherit cache invalidation for free.
 
+TTL is jittered ±10% and reads are wrapped in in-process single-flight — useful on payment-status polling where many client requests may hit the same `paymentId` simultaneously.
+
 ## Module Structure
 
 ```

@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { getSystemDataSource } from '@/modules/db';
-import redis from '@/modules/redis';
+import redis, { jitter, singleFlight } from '@/modules/redis';
 import { env } from '@/modules/env';
 import { UserSocialAccount as UserSocialAccountEntity } from './entities/user_social_account.entity';
 import { SafeUserSocialAccount, SafeUserSocialAccountSchema } from './user_social_account.types';
@@ -28,11 +28,13 @@ export default class UserSocialAccountService {
       catch { await redis.del(cacheKey).catch(() => {}); }
     }
 
-    const ds = await getSystemDataSource();
-    const accounts = await ds.getRepository(UserSocialAccountEntity).find({ where: { userId } });
-    const parsed = accounts.map((a) => SafeUserSocialAccountSchema.parse(a));
-    await redis.setex(cacheKey, SOCIAL_ACCOUNT_CACHE_TTL, JSON.stringify(parsed)).catch(() => {});
-    return parsed;
+    return singleFlight(cacheKey, async () => {
+      const ds = await getSystemDataSource();
+      const accounts = await ds.getRepository(UserSocialAccountEntity).find({ where: { userId } });
+      const parsed = accounts.map((a) => SafeUserSocialAccountSchema.parse(a));
+      await redis.setex(cacheKey, jitter(SOCIAL_ACCOUNT_CACHE_TTL), JSON.stringify(parsed)).catch(() => {});
+      return parsed;
+    });
   }
 
   static async getByProviderAndProviderId(
@@ -48,13 +50,15 @@ export default class UserSocialAccountService {
       } catch { await redis.del(cacheKey).catch(() => {}); }
     }
 
-    const ds = await getSystemDataSource();
-    const account = await ds.getRepository(UserSocialAccountEntity).findOne({
-      where: { provider, providerId },
+    return singleFlight(cacheKey, async () => {
+      const ds = await getSystemDataSource();
+      const account = await ds.getRepository(UserSocialAccountEntity).findOne({
+        where: { provider, providerId },
+      });
+      const result = account ? SafeUserSocialAccountSchema.parse(account) : null;
+      await redis.setex(cacheKey, jitter(SOCIAL_ACCOUNT_CACHE_TTL), JSON.stringify(result)).catch(() => {});
+      return result;
     });
-    const result = account ? SafeUserSocialAccountSchema.parse(account) : null;
-    await redis.setex(cacheKey, SOCIAL_ACCOUNT_CACHE_TTL, JSON.stringify(result)).catch(() => {});
-    return result;
   }
 
   static async link(

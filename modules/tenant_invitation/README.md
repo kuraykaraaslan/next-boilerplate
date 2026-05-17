@@ -83,4 +83,10 @@ Invitations are cached in Redis (TTL = `TENANT_CACHE_TTL`, default 5 min):
 | `tenant_invitation:id:{invitationId}` | `getById` |
 | `tenant_invitation:token:{sha256(rawToken)}` | `getByToken` |
 
-`send` (when revoking stale PENDING invites for the same email), `accept`, `decline`, `revoke`, and `autoAcceptForEmail` all invalidate both keys for the affected invitation. Stale cache of an already-revoked or expired token would defeat the security guarantees, so any status transition clears the cache.
+`send` (when revoking stale PENDING invites for the same email), `accept`, `decline`, `revoke`, and `autoAcceptForEmail` all invalidate both keys for the affected invitation. Stale cache of an already-revoked or expired token would defeat the security guarantees, so any status transition clears the cache. `send` additionally clears any negative cache entry for the freshly-minted token.
+
+### Stampede + negative cache
+
+- **TTL jitter (±10%)** on every cache write.
+- **In-process single-flight** dedupes concurrent loaders.
+- **Negative cache** on `getByToken`: unknown tokens are cached as `__not_found__` for up to 60s — protects against token-guessing attacks on the public invite link endpoint.

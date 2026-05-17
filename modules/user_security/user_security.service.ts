@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { getSystemDataSource } from '@/modules/db';
-import redis from '@/modules/redis';
+import redis, { jitter, singleFlight } from '@/modules/redis';
 import { env } from '@/modules/env';
 import { UserSecurity as UserSecurityEntity } from './entities/user_security.entity';
 import { UserSecurity, UserSecuritySchema, SafeUserSecurity, SafeUserSecuritySchema } from './user_security.types';
@@ -23,13 +23,15 @@ export default class UserSecurityService {
       try { return UserSecuritySchema.parse(JSON.parse(cached)); } catch { await redis.del(cacheKey).catch(() => {}); }
     }
 
-    const ds = await getSystemDataSource();
-    const security = await ds.getRepository(UserSecurityEntity).findOne({ where: { userId } });
-    if (!security) return this.createDefaultUserSecurity(userId);
+    return singleFlight(cacheKey, async () => {
+      const ds = await getSystemDataSource();
+      const security = await ds.getRepository(UserSecurityEntity).findOne({ where: { userId } });
+      if (!security) return this.createDefaultUserSecurity(userId);
 
-    const parsed = UserSecuritySchema.parse(security);
-    await redis.setex(cacheKey, USER_SECURITY_CACHE_TTL, JSON.stringify(parsed)).catch(() => {});
-    return parsed;
+      const parsed = UserSecuritySchema.parse(security);
+      await redis.setex(cacheKey, jitter(USER_SECURITY_CACHE_TTL), JSON.stringify(parsed)).catch(() => {});
+      return parsed;
+    });
   }
 
   static async getSafeByUserId(userId: string): Promise<SafeUserSecurity> {
@@ -39,20 +41,22 @@ export default class UserSecurityService {
       try { return SafeUserSecuritySchema.parse(JSON.parse(cached)); } catch { await redis.del(cacheKey).catch(() => {}); }
     }
 
-    const ds = await getSystemDataSource();
-    const security = await ds.getRepository(UserSecurityEntity).findOne({ where: { userId } });
-    if (!security) {
-      const created = await this.createDefaultUserSecurity(userId);
-      return SafeUserSecuritySchema.parse(created);
-    }
-    const securityWithDefaults = {
-      ...security,
-      otpMethods: security.otpMethods ?? [],
-      otpBackupCodes: security.otpBackupCodes ?? [],
-    };
-    const parsed = SafeUserSecuritySchema.parse(securityWithDefaults);
-    await redis.setex(cacheKey, USER_SECURITY_CACHE_TTL, JSON.stringify(parsed)).catch(() => {});
-    return parsed;
+    return singleFlight(cacheKey, async () => {
+      const ds = await getSystemDataSource();
+      const security = await ds.getRepository(UserSecurityEntity).findOne({ where: { userId } });
+      if (!security) {
+        const created = await this.createDefaultUserSecurity(userId);
+        return SafeUserSecuritySchema.parse(created);
+      }
+      const securityWithDefaults = {
+        ...security,
+        otpMethods: security.otpMethods ?? [],
+        otpBackupCodes: security.otpBackupCodes ?? [],
+      };
+      const parsed = SafeUserSecuritySchema.parse(securityWithDefaults);
+      await redis.setex(cacheKey, jitter(USER_SECURITY_CACHE_TTL), JSON.stringify(parsed)).catch(() => {});
+      return parsed;
+    });
   }
 
   static async createDefaultUserSecurity(userId: string): Promise<UserSecurity> {

@@ -76,3 +76,5 @@ PUT /api/user/profile
 ## Caching
 
 `getByUserId(userId)` is cached in Redis under `user_profile:user:{userId}` (TTL = `SESSION_CACHE_TTL`, default 30 min). Null results are cached too — repeated lookups for users without a profile don't re-hit the DB. Every mutation (`create`, `update`, `upsert`, `delete`, `addSocialLink`, `removeSocialLink`, `updateSocialLink`) invalidates the key.
+
+TTL is jittered ±10% and reads are wrapped in in-process single-flight.

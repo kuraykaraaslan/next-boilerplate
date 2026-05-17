@@ -105,4 +105,10 @@ Coupons are cached in Redis (TTL = `TENANT_CACHE_TTL`, default 5 min):
 | `coupon:id:{couponId}` | `getById` |
 | `coupon:code:{CODE}` (uppercase) | `getByCode` → drives `validate` / `apply` lookups |
 
-Invalidation on **update**, **archive**, and **apply** (which increments `usedCount`) clears both keys. Apply is critical: stale `usedCount` could allow `maxUses` overspend, so the cache is invalidated even though the row is only incremented.
+Invalidation on **update**, **archive**, and **apply** (which increments `usedCount`) clears both keys. Apply is critical: stale `usedCount` could allow `maxUses` overspend, so the cache is invalidated even though the row is only incremented. `create` clears any negative cache for the new code.
+
+### Stampede + negative cache
+
+- **TTL jitter (±10%)** on every cache write.
+- **In-process single-flight** dedupes concurrent loaders for the same code/id.
+- **Negative cache** on `getByCode`: unknown codes are cached as `__not_found__` for up to 60s — protects against guessing/brute-forcing coupon codes.

@@ -103,3 +103,9 @@ Users are cached in Redis (TTL = `SESSION_CACHE_TTL`, default 30 min):
 Password changes happen outside this module. Any service that mutates `user.password` (e.g. `auth.password.service.ts`) **must** call `UserService.invalidate({ userId, email })` afterward — otherwise the cached `getByEmail` row will still authenticate against the old password until TTL expires.
 
 Already wired: `auth.password.service.resetPassword`. New writers must follow the same pattern.
+
+### Stampede + negative cache
+
+- **TTL jitter (±10%)** on every cache write.
+- **In-process single-flight** dedupes concurrent loaders for the same user.
+- **Negative cache** on `getByEmail`: unknown emails are cached as `__not_found__` for up to 60s — blunts email-enumeration / login-stuffing. `create` clears the negative key so a brand-new user can log in immediately.

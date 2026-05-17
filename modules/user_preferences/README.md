@@ -62,3 +62,5 @@ PUT /api/user/preferences
 ## Caching
 
 `getByUserId(userId)` is cached in Redis under `user_preferences:user:{userId}` (TTL = `SESSION_CACHE_TTL`, default 30 min). Null results are cached. Every mutation (`create`, `update`, `upsert`, `delete`) invalidates the key.
+
+TTL is jittered ±10% and reads are wrapped in in-process single-flight.

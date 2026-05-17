@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { IsNull, ILike } from 'typeorm';
 import { tenantDataSourceFor, getDefaultTenantDataSource } from '@/modules/db';
-import redis from '@/modules/redis';
+import redis, { jitter, singleFlight } from '@/modules/redis';
 import { env } from '@/modules/env';
 import { Tenant as TenantEntity } from './entities/tenant.entity';
 import { SafeTenant, SafeTenantSchema } from './tenant.types';
@@ -49,13 +49,15 @@ export default class TenantService {
       try { return SafeTenantSchema.parse(JSON.parse(cached)); } catch { await redis.del(cacheKey).catch(() => {}); }
     }
 
-    const ds = await tenantDataSourceFor(tenantId);
-    const tenant = await ds.getRepository(TenantEntity).findOne({ where: { tenantId, deletedAt: IsNull() } });
-    if (!tenant) throw new Error(TenantMessages.TENANT_NOT_FOUND);
+    return singleFlight(cacheKey, async () => {
+      const ds = await tenantDataSourceFor(tenantId);
+      const tenant = await ds.getRepository(TenantEntity).findOne({ where: { tenantId, deletedAt: IsNull() } });
+      if (!tenant) throw new Error(TenantMessages.TENANT_NOT_FOUND);
 
-    const parsed = SafeTenantSchema.parse(tenant);
-    await redis.setex(cacheKey, TENANT_CACHE_TTL, JSON.stringify(parsed)).catch(() => {});
-    return parsed;
+      const parsed = SafeTenantSchema.parse(tenant);
+      await redis.setex(cacheKey, jitter(TENANT_CACHE_TTL), JSON.stringify(parsed)).catch(() => {});
+      return parsed;
+    });
   }
 
   static async create(data: CreateTenantInput): Promise<SafeTenant> {
