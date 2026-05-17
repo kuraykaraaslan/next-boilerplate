@@ -5,6 +5,12 @@ import api from '@/modules_next/common/axios';
 import { BrandLogo } from '@/modules_next/common/ui/BrandLogo';
 import { LoginForm } from '@/modules_next/auth/ui/LoginForm';
 import { OAuthButtons, type OAuthProvider } from '@/modules_next/auth/ui/OAuthButtons';
+import { Spinner } from '@/modules_next/common/ui/Spinner';
+
+// Refresh token is minted with `notBefore: 5s` (see user_session.token.service.ts).
+// Wait past that window before navigating so any early refresh attempt on the
+// destination page doesn't hit NotBeforeError → INVALID_TOKEN → login bounce.
+const POST_LOGIN_REDIRECT_DELAY_MS = 6000;
 
 function safeRedirect(raw: string | null): string | null {
   if (!raw) return null;
@@ -28,7 +34,9 @@ export default function SystemLoginPage() {
     try {
       await api.post('/system/api/auth/login', { email: values.email, password: values.password });
       setSuccessMsg(`Signed in as ${values.email}`);
-      window.location.href = redirectTo ?? '/system/auth/select-tenant';
+      setTimeout(() => {
+        window.location.href = redirectTo ?? '/system/auth/select-tenant';
+      }, POST_LOGIN_REDIRECT_DELAY_MS);
     } catch (err: any) {
       throw new Error(err.response?.data?.error ?? err.message ?? 'Login failed.');
     }
@@ -57,9 +65,13 @@ export default function SystemLoginPage() {
         </div>
 
         {successMsg ? (
-          <div className="rounded-lg bg-success-subtle border border-success px-4 py-3 text-center space-y-1">
+          <div className="rounded-lg bg-success-subtle border border-success px-4 py-3 text-center space-y-2">
             <p className="text-sm font-semibold text-success-fg">Success!</p>
             <p className="text-sm text-success-fg">{successMsg}</p>
+            <div className="flex items-center justify-center gap-2 pt-1">
+              <Spinner size="sm" />
+              <span className="text-xs text-success-fg">Preparing your session…</span>
+            </div>
           </div>
         ) : (
           <>

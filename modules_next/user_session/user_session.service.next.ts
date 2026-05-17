@@ -257,11 +257,26 @@ export default class UserSessionNextService {
             hasRefreshToken: !!request.cookies.get("refreshToken")
         }
       });
-      if (requiredUserRole !== "GUEST") {
-        throw new Error(UserSessionMessages.USER_NOT_AUTHENTICATED);
+      if (requiredUserRole === "GUEST") {
+        request.user = null;
+        return null as any;
       }
-      request.user = null;
-      return null as any;
+      // Preserve specific error types so the client can react appropriately:
+      // - TOKEN_EXPIRED / SESSION_EXPIRED → axios refresh kicks in
+      // - OTP_REQUIRED → client should redirect to OTP page (not login)
+      // - USER_DOES_NOT_HAVE_REQUIRED_ROLE → client shows 403, not login redirect
+      // Anything else (missing cookies, invalid token, user not found) → USER_NOT_AUTHENTICATED.
+      const preserved = new Set<string>([
+        UserSessionMessages.TOKEN_EXPIRED,
+        UserSessionMessages.SESSION_EXPIRED,
+        UserSessionMessages.OTP_REQUIRED,
+        UserSessionMessages.USER_DOES_NOT_HAVE_REQUIRED_ROLE,
+        UserSessionMessages.USER_DOES_NOT_HAVE_REQUIRED_SCOPE,
+      ]);
+      if (preserved.has(error?.message)) {
+        throw error;
+      }
+      throw new Error(UserSessionMessages.USER_NOT_AUTHENTICATED);
     }
   }
 

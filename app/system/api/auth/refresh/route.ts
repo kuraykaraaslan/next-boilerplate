@@ -29,19 +29,25 @@ export async function POST(request: NextRequest) {
 
     const response = NextResponse.json({ message: AuthMessages.TOKENS_REFRESHED_SUCCESSFULLY });
 
-    response.cookies.set("accessToken", rawAccessToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-      path: "/",
-    });
+    const origin = request.headers.get('origin') || '';
+    const protocol = request.headers.get('x-forwarded-proto') || request.headers.get('x-scheme') || 'http';
+    const isSecure = origin.startsWith('https://') || protocol === 'https';
 
-    response.cookies.set("refreshToken", rawRefreshToken, {
+    const cookieOptions = isSecure ? {
       httpOnly: true,
       secure: true,
-      sameSite: "strict",
-      path: "/",
-    });
+      sameSite: 'none' as const,
+      path: '/',
+      maxAge: 60 * 60 * 24 * 7,
+    } : {
+      httpOnly: true,
+      sameSite: 'lax' as const,
+      path: '/',
+      maxAge: 60 * 60 * 24 * 7,
+    };
+
+    response.cookies.set("accessToken", rawAccessToken, cookieOptions);
+    response.cookies.set("refreshToken", rawRefreshToken, cookieOptions);
 
     return response;
 
