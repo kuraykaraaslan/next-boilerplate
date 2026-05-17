@@ -16,6 +16,7 @@ import { AuditLog } from '@/modules/audit_log/entities/audit_log.entity';
 import { Coupon } from '@/modules/coupon/entities/coupon.entity';
 import { SystemWebhook } from '@/modules/webhook/entities/system_webhook.entity';
 import { SystemWebhookDelivery } from '@/modules/webhook/entities/system_webhook_delivery.entity';
+import { SystemSamlConfig } from '@/modules/auth_saml/entities/system_saml_config.entity';
 import { TenantDatabase } from './entities/tenant_database.entity';
 
 const SYSTEM_ENTITIES = [
@@ -33,6 +34,7 @@ const SYSTEM_ENTITIES = [
   Coupon,
   SystemWebhook,
   SystemWebhookDelivery,
+  SystemSamlConfig,
   TenantDatabase,
 ];
 
@@ -42,7 +44,7 @@ export const SystemDataSource = new DataSource({
   type: 'postgres',
   url: SYSTEM_DB_URL,
   schema: SYSTEM_SCHEMA,
-  synchronize: false,
+  synchronize: env.NODE_ENV === 'development',
   logging: env.NODE_ENV === 'development',
   entities: SYSTEM_ENTITIES,
   migrations: [],

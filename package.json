@@ -11,7 +11,9 @@
     "analyze": "ANALYZE=true next build",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "db:reset": "tsx scripts/db-reset.ts",
+    "db:fix-enums": "tsx scripts/db-fix-enums.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.971.0",
@@ -27,6 +29,7 @@
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-dropdown-menu": "^2.1.16",
     "@radix-ui/react-tooltip": "^1.2.8",
+    "@simplewebauthn/browser": "^13.3.0",
     "@simplewebauthn/server": "^13.3.0",
     "@simplewebauthn/types": "^12.0.0",
     "@tinymce/tinymce-react": "^6.3.0",

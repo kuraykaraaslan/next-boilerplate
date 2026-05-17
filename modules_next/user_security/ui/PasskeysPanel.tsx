@@ -48,14 +48,8 @@ export function PasskeysPanel() {
       const optRes = await api.get('/system/api/auth/me/security/passkeys/register');
       const options = optRes.data;
 
-      // Dynamically import browser client — only available on client, package may not be installed
-      let response: unknown;
-      try {
-        const { startRegistration } = await import(/* webpackIgnore: true */ '@simplewebauthn/browser' as string);
-        response = await (startRegistration as (o: unknown) => Promise<unknown>)(options);
-      } catch {
-        throw new Error('@simplewebauthn/browser is not installed. Run: npm install @simplewebauthn/browser');
-      }
+      const { startRegistration } = await import('@simplewebauthn/browser');
+      const response = await startRegistration({ optionsJSON: options });
 
       await api.post('/system/api/auth/me/security/passkeys/register/verify', {
         response,
