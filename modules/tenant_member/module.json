@@ -1,0 +1,11 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "tenant_member",
+  "name": "Tenant Member",
+  "description": "Tenant-scoped membership join table with roles (owner/admin/member) and per-member permissions.",
+  "version": "1.0.0",
+  "icon": "fas fa-users",
+  "tags": ["tenant"],
+  "priority": 21,
+  "dependencies": { "requires": ["db", "tenant", "user"] }
+}

@@ -1,0 +1,11 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "api_key",
+  "name": "API Key",
+  "description": "Tenant-scoped API keys for programmatic access (hashed at rest, scope-bound).",
+  "version": "1.0.0",
+  "icon": "fas fa-key",
+  "tags": ["platform", "security"],
+  "priority": 40,
+  "dependencies": { "requires": ["db", "env", "common"] }
+}

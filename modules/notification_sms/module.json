@@ -1,0 +1,13 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "notification_sms",
+  "name": "SMS Notifications",
+  "description": "Pluggable SMS sender (Twilio, Nexmo, Clickatell, NetGSM).",
+  "version": "1.0.0",
+  "icon": "fas fa-message",
+  "tags": ["notifications", "sms"],
+  "priority": 30,
+  "dependencies": { "requires": ["redis", "env", "setting"] },
+  "settings": { "keys": "SMS_KEYS" },
+  "settingKeys": ["SMS_KEYS"]
+}

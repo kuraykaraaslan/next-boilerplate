@@ -2,6 +2,8 @@
 
 Framework-agnostic iş mantığı katmanı. Next.js, Express veya herhangi bir runtime tarafından kullanılabilir.
 
+> **Index:** the full module table is in [MODULES.md](MODULES.md). Top-level AI orientation: [../AGENTS.md](../AGENTS.md). Machine-readable manifests live in each `<module>/module.json` (validated against [module.schema.json](module.schema.json)).
+
 ## Kural
 
 Bu klasör altındaki hiçbir dosya aşağıdakileri import edemez:

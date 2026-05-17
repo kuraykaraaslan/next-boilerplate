@@ -1,0 +1,11 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "webhook",
+  "name": "Outgoing Webhooks",
+  "description": "Subscriber-configured outbound webhooks (system + tenant scope), signed deliveries, retry+redelivery.",
+  "version": "1.0.0",
+  "icon": "fas fa-rss",
+  "tags": ["platform", "integration"],
+  "priority": 40,
+  "dependencies": { "requires": ["db", "redis", "env"] }
+}

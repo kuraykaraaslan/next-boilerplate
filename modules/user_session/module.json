@@ -1,0 +1,17 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "user_session",
+  "name": "User Session",
+  "description": "JWT access/refresh issuance + revocation, Redis-backed session cache, CRUD on UserSession rows.",
+  "version": "1.0.0",
+  "icon": "fas fa-id-badge",
+  "tags": ["identity", "auth", "core"],
+  "priority": 12,
+  "dependencies": { "requires": ["db", "redis", "env", "user", "user_agent"] },
+  "exports": {
+    "UserSessionService": "user_session.service.ts",
+    "UserSessionTokenService": "user_session.token.service.ts",
+    "UserSessionCacheService": "user_session.cache.service.ts",
+    "UserSessionCrudService": "user_session.crud.service.ts"
+  }
+}

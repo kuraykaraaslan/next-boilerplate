@@ -1,0 +1,13 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "payment",
+  "name": "Payment",
+  "description": "Pluggable payment processing (Stripe, PayPal, Iyzico) + subscription plans, plan features, payment transactions, webhook handling.",
+  "version": "1.0.0",
+  "icon": "fas fa-credit-card",
+  "tags": ["billing", "payment"],
+  "priority": 25,
+  "dependencies": { "requires": ["db", "env", "setting", "common"] },
+  "settings": { "keys": "PAYMENT_KEYS" },
+  "settingKeys": ["PAYMENT_KEYS"]
+}

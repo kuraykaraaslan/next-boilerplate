@@ -1,0 +1,11 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "user_profile",
+  "name": "User Profile",
+  "description": "Profile fields (avatar, bio, locale, timezone) — separated from the user entity for read scalability.",
+  "version": "1.0.0",
+  "icon": "fas fa-id-card",
+  "tags": ["identity"],
+  "priority": 11,
+  "dependencies": { "requires": ["db", "user"] }
+}

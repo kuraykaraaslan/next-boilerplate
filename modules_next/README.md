@@ -2,6 +2,8 @@
 
 Next.js'e özgü katman. `modules/` içindeki framework-agnostic iş mantığının Next.js bağımlılıklarını barındıran uzantısı.
 
+> **Catalog:** the full UI / hooks / next-service table is in [COMPONENTS.md](COMPONENTS.md). Top-level AI orientation: [../AGENTS.md](../AGENTS.md).
+
 ## Kural
 
 `modules/` altında hiçbir dosya `next/*`, `react` veya tarayıcı API'larına import içermez. Bu tür bağımlılıklar buraya taşınır.

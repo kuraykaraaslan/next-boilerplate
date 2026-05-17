@@ -1,0 +1,11 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "tenant_export",
+  "name": "Tenant Export",
+  "description": "Export all per-tenant data into a downloadable archive (GDPR-friendly).",
+  "version": "1.0.0",
+  "icon": "fas fa-file-export",
+  "tags": ["tenant", "compliance", "gdpr"],
+  "priority": 25,
+  "dependencies": { "requires": ["db", "tenant", "storage"] }
+}

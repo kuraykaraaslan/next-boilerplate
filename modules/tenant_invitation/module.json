@@ -1,0 +1,11 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "tenant_invitation",
+  "name": "Tenant Invitation",
+  "description": "Email invitation flow: create / accept / decline / revoke. Bound to tenant_member on acceptance.",
+  "version": "1.0.0",
+  "icon": "fas fa-envelope-open",
+  "tags": ["tenant", "onboarding"],
+  "priority": 22,
+  "dependencies": { "requires": ["db", "tenant", "tenant_member", "notification_mail", "user", "env"] }
+}

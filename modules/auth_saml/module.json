@@ -1,0 +1,11 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "auth_saml",
+  "name": "SAML SSO",
+  "description": "SAML 2.0 SSO with per-tenant IdP configuration (SamlConfig entity).",
+  "version": "1.0.0",
+  "icon": "fas fa-building-shield",
+  "tags": ["identity", "auth", "sso", "enterprise"],
+  "priority": 16,
+  "dependencies": { "requires": ["db", "user", "user_session", "tenant", "env"] }
+}

@@ -1,0 +1,11 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "user_preferences",
+  "name": "User Preferences",
+  "description": "Per-user preferences: theme, language, timezone, notification opt-ins.",
+  "version": "1.0.0",
+  "icon": "fas fa-sliders",
+  "tags": ["identity", "ux"],
+  "priority": 11,
+  "dependencies": { "requires": ["db", "user"] }
+}

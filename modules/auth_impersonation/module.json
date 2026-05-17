@@ -1,0 +1,11 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "auth_impersonation",
+  "name": "Admin Impersonation",
+  "description": "Allow a system admin to assume a target user's session (always audited).",
+  "version": "1.0.0",
+  "icon": "fas fa-user-secret",
+  "tags": ["identity", "auth", "admin"],
+  "priority": 17,
+  "dependencies": { "requires": ["user", "user_session", "audit_log", "env"] }
+}

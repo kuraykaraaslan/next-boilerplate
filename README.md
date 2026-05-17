@@ -2,6 +2,8 @@
 
 Production-ready multi-tenant SaaS starter built with Next.js 16, TypeScript, PostgreSQL, and Redis.
 
+> **🤖 AI agents:** read [AGENTS.md](AGENTS.md) first. It's the canonical map of the codebase — architecture rules, where every module lives, file-naming conventions, and how to add new things. Module index: [modules/MODULES.md](modules/MODULES.md). UI catalog: [modules_next/COMPONENTS.md](modules_next/COMPONENTS.md).
+
 ## Tech Stack
 
 | Layer | Technology |

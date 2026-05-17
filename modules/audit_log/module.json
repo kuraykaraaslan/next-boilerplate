@@ -1,0 +1,11 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "audit_log",
+  "name": "Audit Log",
+  "description": "Append-only audit trail for sensitive actions (system AuditLog + per-tenant TenantAuditLog).",
+  "version": "1.0.0",
+  "icon": "fas fa-clipboard-list",
+  "tags": ["platform", "security", "compliance"],
+  "priority": 40,
+  "dependencies": { "requires": ["db", "env", "logger"] }
+}

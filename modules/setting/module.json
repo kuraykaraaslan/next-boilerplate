@@ -1,0 +1,11 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "setting",
+  "name": "Setting",
+  "description": "System-wide key-value settings store. Modules declare their keys in *.setting.keys.ts; the setting service stores/reads them.",
+  "version": "1.0.0",
+  "icon": "fas fa-gear",
+  "tags": ["platform", "configuration"],
+  "priority": 5,
+  "dependencies": { "requires": ["db", "env"] }
+}

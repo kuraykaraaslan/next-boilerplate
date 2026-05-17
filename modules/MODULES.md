@@ -1,0 +1,133 @@
+# MODULES.md — Module Registry
+
+> **Single-page index of every business-logic module.** Every entry has a `README.md` (human) and a `module.json` (machine, validated against [module.schema.json](module.schema.json)).
+> Need the architectural picture? See [../AGENTS.md](../AGENTS.md).
+
+There are **41 modules** under `modules/`. Eighteen of them also have a Next/React extension under [`modules_next/`](../modules_next/COMPONENTS.md).
+
+## Layer rules (recap)
+
+- `modules/` — **no `next/*`, no `react`, no browser APIs.** Framework-agnostic.
+- One-way dependency: `app/ → modules_next/ → modules/`.
+- Cross-module imports use the path alias `@/modules/<name>/...`.
+
+---
+
+## By tier
+
+### Infrastructure (loaded by everything)
+
+| Module | Description | Key exports | Deps |
+|---|---|---|---|
+| [common](common/) | `AppError` + `ErrorCode` enum + `toErrorResponse()`. Leaf module, zero deps. | `AppError`, `ErrorCode`, `toErrorResponse` | — |
+| [env](env/) | Zod-validated `env` object — single source of truth for env vars. | `env` | — |
+| [logger](logger/) | Winston structured logger. Use instead of `console.*`. | `logger` | env |
+| [redis](redis/) | Shared `ioredis` client, Pub/Sub-safe factory, BullMQ connection helper. | `redis`, `createRedisConnection`, `getBullMQConnection`, `createQueue` | env |
+| [db](db/) | TypeORM `DataSource` factories for the system schema + per-tenant schemas. Registers every entity. | `getSystemDataSource`, `tenantDataSourceFor`, `getDefaultTenantDataSource`, `TenantDatabase` | env |
+| [redis_idempotency](redis_idempotency/) | Redis-backed idempotency keys for retry-safe POST/PATCH. | `RedisIdempotencyService` | redis, env |
+| [limiter](limiter/) | Sliding-window rate limiter + tenant-plan quota enforcement. | `LimiterService`, `TenantPlanLimiterService` | redis, env, *tenant_subscription* |
+| [api_doc](api_doc/) | OpenAPI/Swagger spec builder + serving helpers. | — | env |
+
+### Identity (users, auth, sessions)
+
+| Module | Description | Entities | Deps |
+|---|---|---|---|
+| [user](user/) | Core user CRUD. | `User` | db, env, logger, common |
+| [user_profile](user_profile/) | Avatar, bio, locale, timezone (split from `User`). | `UserProfile` | db, user |
+| [user_security](user_security/) | Password hashes, account-lock, TOTP secret, WebAuthn/Passkey credentials. | `UserSecurity` | db, user, env |
+| [user_preferences](user_preferences/) | Per-user theme, language, timezone, notification opt-ins. | `UserPreferences` | db, user |
+| [user_session](user_session/) | JWT access/refresh issuance + Redis cache + CRUD. **4 sub-services**: token, cache, crud, service. | `UserSession` | db, redis, env, user, user_agent |
+| [user_social_account](user_social_account/) | Linked OAuth provider accounts (provider id, external user id). | `UserSocialAccount` | db, user |
+| [user_agent](user_agent/) | UA-string parser → device/OS/browser. Used to annotate sessions and audit logs. | — | — |
+| [auth](auth/) | Login, register, password reset, email verify, OTP, TOTP. Coordinates user / user_session / user_security / mail. | — | user, user_session, user_security, notification_mail, redis, env, common |
+| [auth_sso](auth_sso/) | OAuth SSO with 12 providers (Google, GitHub, Apple, Microsoft, Facebook, LinkedIn, Twitter, Slack, TikTok, WeChat, Autodesk). | — | user, user_session, user_social_account, env |
+| [auth_saml](auth_saml/) | SAML 2.0 SSO with per-tenant IdP config. | `SamlConfig` | db, user, user_session, tenant, env |
+| [auth_impersonation](auth_impersonation/) | Admin impersonation of a target user (always audited). | — | user, user_session, audit_log, env |
+
+### Tenancy
+
+| Module | Description | Entities | Deps |
+|---|---|---|---|
+| [tenant](tenant/) | Tenant CRUD + lifecycle (active/suspended/deleted) + soft-deletion. | `Tenant` | db, env, logger, common |
+| [tenant_member](tenant_member/) | Tenant membership + roles (owner/admin/member) + permissions. | `TenantMember` | db, tenant, user |
+| [tenant_invitation](tenant_invitation/) | Email invitation: create / accept / decline / revoke. | `TenantInvitation` | db, tenant, tenant_member, notification_mail, user, env |
+| [tenant_setting](tenant_setting/) | Per-tenant key-value settings (override system defaults). | `TenantSetting` | db, tenant |
+| [tenant_session](tenant_session/) | Tenant-scoped session binding + resolution from request. | — | db, redis, user_session, tenant, env |
+| [tenant_branding](tenant_branding/) | Logo, favicon, colors, font, custom CSS (white-label). | — | db, tenant_setting, storage |
+| [tenant_domain](tenant_domain/) | Custom domain mapping + DNS verification (TXT/CNAME). | `TenantDomain` | db, tenant, env |
+| [tenant_subscription](tenant_subscription/) | Subscription state, plan + feature key resolution, grace period, expiry job. | `TenantSubscription` | db, tenant, payment, redis, env |
+| [tenant_usage](tenant_usage/) | Usage metric tracking (API calls, storage GB, seats). | `TenantUsage` | db, tenant |
+| [tenant_export](tenant_export/) | Per-tenant data export archive (GDPR-friendly). | — | db, tenant, storage |
+
+### Notifications
+
+| Module | Description | Providers | Deps |
+|---|---|---|---|
+| [notification_mail](notification_mail/) | Email send, BullMQ-queued. EJS templates in [templates/](notification_mail/templates/). | SMTP, SES, Mailgun, Postmark, Resend, SendGrid | redis, env, setting |
+| [notification_sms](notification_sms/) | SMS send. | Twilio, Nexmo, Clickatell, NetGSM | redis, env, setting |
+| [notification_push](notification_push/) | Web Push (VAPID) + subscription storage. | — | db, env |
+| [notification_inapp](notification_inapp/) | In-app notification feed + unread counts. | — | db, user |
+
+### Billing
+
+| Module | Description | Entities | Providers | Deps |
+|---|---|---|---|---|
+| [payment](payment/) | Payment processing + subscription plans + plan features + webhook handler. | `Payment`, `PaymentTransaction`, `SubscriptionPlan`, `PlanFeature` | Stripe, PayPal, Iyzico | db, env, setting, common |
+| [coupon](coupon/) | Discount coupons + redemption tracking. Provider-aware. | `Coupon`, `CouponRedemption` | Stripe, PayPal, Iyzico | db, env, payment, common |
+
+### Platform
+
+| Module | Description | Entities | Deps |
+|---|---|---|---|
+| [setting](setting/) | System-wide key-value settings store. Each module declares its keys in `*.setting.keys.ts`. | `Setting` | db, env |
+| [storage](storage/) | Pluggable S3-compatible file storage (AWS S3, Cloudflare R2, DigitalOcean Spaces, MinIO). | — | env, setting |
+| [webhook](webhook/) | Outbound webhooks (system + tenant scope) with signed deliveries + retry + redelivery. | `Webhook`, `WebhookDelivery`, `SystemWebhook`, `SystemWebhookDelivery` | db, redis, env |
+| [audit_log](audit_log/) | Append-only audit trail (system + per-tenant). | `AuditLog`, `TenantAuditLog` | db, env, logger |
+| [api_key](api_key/) | Tenant-scoped API keys (hashed at rest, scope-bound). | `ApiKey` | db, env, common |
+| [api_doc](api_doc/) | OpenAPI / Swagger spec builder. | — | env |
+
+### AI
+
+| Module | Description | Providers | Deps |
+|---|---|---|---|
+| [ai](ai/) | Pluggable AI: chat, embeddings, streaming, usage tracking. | Anthropic, OpenAI, Google | env, setting |
+
+---
+
+## Dependency snapshot
+
+Most-imported modules (from grep counts across `modules/`):
+
+| Module | Importers |
+|---|---|
+| `@/modules/db` | 54 |
+| `@/modules/env` | 39 |
+| `@/modules/logger` | 35 |
+| `@/modules/redis` | 30 |
+| `@/modules/setting/setting.service` | 5 |
+
+Adding any infrastructure-tier module (`common`, `env`, `db`, `redis`, `logger`) to `requires` is almost always correct. Cross-domain imports (e.g. `tenant_subscription` ↔ `payment`) are listed in each module's `module.json`.
+
+---
+
+## File-naming convention recap
+
+| Suffix | Role |
+|---|---|
+| `*.service.ts` | Business logic |
+| `*.dto.ts` | Zod input schemas |
+| `*.types.ts` | TS types |
+| `*.enums.ts` | Enums |
+| `*.messages.ts` | User-facing strings |
+| `*.setting.keys.ts` | Setting key Zod enum |
+| `*.entity.ts` | TypeORM `@Entity` |
+| `*.provider.ts` | Pluggable backend implementation |
+| `*.job.ts` | BullMQ job processor |
+| `*.service.next.ts` | (in `modules_next/`) Next-specific extension |
+| `*.test.ts` / `*.test.tsx` | Vitest tests, colocated |
+
+## How to add a new module
+
+See [../AGENTS.md §10](../AGENTS.md#10-how-to-add-a-new-module).
+
+After adding: append a row to this file, write a `README.md`, and write a `module.json` validated against [module.schema.json](module.schema.json).

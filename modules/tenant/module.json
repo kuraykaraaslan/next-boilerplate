@@ -1,0 +1,13 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "tenant",
+  "name": "Tenant",
+  "description": "Tenant CRUD, lifecycle (active/suspended/deleted), soft-deletion service. Foundation of multi-tenancy.",
+  "version": "1.0.0",
+  "icon": "fas fa-building",
+  "tags": ["tenant", "core"],
+  "priority": 20,
+  "dependencies": { "requires": ["db", "env", "logger", "common"] },
+  "settings": { "keys": "TENANT_KEYS" },
+  "settingKeys": ["TENANT_KEYS"]
+}

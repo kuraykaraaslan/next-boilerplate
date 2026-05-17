@@ -1,0 +1,16 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "common",
+  "name": "Common Primitives",
+  "description": "AppError + ErrorCode enum + error-response helper. Dependency-free leaf module loaded by every other module.",
+  "version": "1.0.0",
+  "icon": "fas fa-cube",
+  "tags": ["infrastructure", "core", "leaf"],
+  "priority": 1,
+  "dependencies": { "requires": [] },
+  "exports": {
+    "AppError": "app-error.ts",
+    "ErrorCode": "app-error.ts",
+    "toErrorResponse": "app-error.ts"
+  }
+}

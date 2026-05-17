@@ -1,0 +1,15 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "auth",
+  "name": "Authentication",
+  "description": "Credential auth: login, register, password reset, email verify, OTP, TOTP. Coordinates user, user_session, user_security, notification_mail.",
+  "version": "1.0.0",
+  "icon": "fas fa-shield-halved",
+  "tags": ["identity", "auth", "core"],
+  "priority": 15,
+  "dependencies": {
+    "requires": ["user", "user_session", "user_security", "notification_mail", "env", "redis", "common"]
+  },
+  "settings": { "keys": "AUTH_KEYS" },
+  "settingKeys": ["AUTH_KEYS", "GENERAL_KEYS"]
+}

@@ -1,0 +1,13 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "tenant_subscription",
+  "name": "Tenant Subscription",
+  "description": "Tenant subscription state, plan + feature key resolution, grace period, expiry job.",
+  "version": "1.0.0",
+  "icon": "fas fa-credit-card",
+  "tags": ["tenant", "billing"],
+  "priority": 24,
+  "dependencies": { "requires": ["db", "tenant", "payment", "redis", "env"] },
+  "settings": { "keys": "SUBSCRIPTION_KEYS" },
+  "settingKeys": ["SUBSCRIPTION_KEYS", "FEATURE_KEYS"]
+}

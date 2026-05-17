@@ -1,0 +1,13 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "storage",
+  "name": "File Storage",
+  "description": "Pluggable S3-compatible file storage (AWS S3, Cloudflare R2, DigitalOcean Spaces, MinIO).",
+  "version": "1.0.0",
+  "icon": "fas fa-cloud-arrow-up",
+  "tags": ["platform", "storage"],
+  "priority": 10,
+  "dependencies": { "requires": ["env", "setting"] },
+  "settings": { "keys": "STORAGE_KEYS" },
+  "settingKeys": ["STORAGE_KEYS"]
+}

@@ -1,0 +1,12 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "logger",
+  "name": "Logger",
+  "description": "Winston-based structured logger. Use instead of console.* across the codebase.",
+  "version": "1.0.0",
+  "icon": "fas fa-file-lines",
+  "tags": ["infrastructure", "core"],
+  "priority": 2,
+  "dependencies": { "requires": ["env"] },
+  "exports": { "logger": "logger.service.ts" }
+}

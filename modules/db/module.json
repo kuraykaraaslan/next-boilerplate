@@ -1,0 +1,20 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "db",
+  "name": "Database",
+  "description": "TypeORM DataSource factories for the dual-schema model (system + per-tenant). All entities are registered here.",
+  "version": "1.0.0",
+  "icon": "fas fa-database",
+  "tags": ["infrastructure", "core", "database"],
+  "priority": 3,
+  "dependencies": { "requires": ["env"] },
+  "exports": {
+    "getSystemDataSource": "db.system.ts",
+    "SystemDataSource": "db.system.ts",
+    "tenantDataSourceFor": "db.tenant.ts",
+    "getDefaultTenantDataSource": "db.tenant.ts",
+    "clearTenantDsCache": "db.tenant.ts",
+    "TenantDatabase": "entities/tenant_database.entity.ts",
+    "parseDbUrl": "db.utils.ts"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "user_security",
+  "name": "User Security",
+  "description": "Password hashing, account lock, TOTP secret, WebAuthn/Passkey credentials.",
+  "version": "1.0.0",
+  "icon": "fas fa-lock",
+  "tags": ["identity", "security"],
+  "priority": 11,
+  "dependencies": { "requires": ["db", "user", "env"] }
+}

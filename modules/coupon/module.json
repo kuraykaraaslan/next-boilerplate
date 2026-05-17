@@ -1,0 +1,11 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "coupon",
+  "name": "Coupon",
+  "description": "Discount coupons + redemption tracking. Provider-aware (Stripe / PayPal / Iyzico) so codes sync with the payment processor.",
+  "version": "1.0.0",
+  "icon": "fas fa-ticket",
+  "tags": ["billing", "marketing"],
+  "priority": 26,
+  "dependencies": { "requires": ["db", "env", "payment", "common"] }
+}

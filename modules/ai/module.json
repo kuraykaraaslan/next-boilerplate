@@ -1,0 +1,13 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "ai",
+  "name": "AI",
+  "description": "Pluggable AI providers (Anthropic, OpenAI, Google). Chat, embeddings, streaming, usage tracking.",
+  "version": "1.0.0",
+  "icon": "fas fa-robot",
+  "tags": ["platform", "ai"],
+  "priority": 50,
+  "dependencies": { "requires": ["env", "setting"] },
+  "settings": { "keys": "AI_KEYS" },
+  "settingKeys": ["AI_KEYS"]
+}

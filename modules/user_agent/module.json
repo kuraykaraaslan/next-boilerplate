@@ -1,0 +1,11 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "user_agent",
+  "name": "User Agent Parser",
+  "description": "Parse User-Agent header into device/OS/browser metadata. Used to annotate sessions and audit logs.",
+  "version": "1.0.0",
+  "icon": "fas fa-mobile-screen",
+  "tags": ["identity", "utility"],
+  "priority": 5,
+  "dependencies": { "requires": [] }
+}

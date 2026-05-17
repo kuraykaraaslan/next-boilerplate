@@ -1,0 +1,11 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "user_social_account",
+  "name": "Linked Social Accounts",
+  "description": "Per-user linked OAuth provider accounts (provider id, external user id, tokens).",
+  "version": "1.0.0",
+  "icon": "fas fa-link",
+  "tags": ["identity", "auth"],
+  "priority": 12,
+  "dependencies": { "requires": ["db", "user"] }
+}

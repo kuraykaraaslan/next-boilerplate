@@ -1,0 +1,15 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "limiter",
+  "name": "Rate Limiter",
+  "description": "Sliding-window rate limiter + tenant-plan-based quota enforcement (seat/feature/usage limits).",
+  "version": "1.0.0",
+  "icon": "fas fa-gauge-high",
+  "tags": ["infrastructure", "security", "billing"],
+  "priority": 5,
+  "dependencies": { "requires": ["redis", "env"], "optional": ["tenant_subscription"] },
+  "exports": {
+    "LimiterService": "limiter.service.ts",
+    "TenantPlanLimiterService": "limiter.tenant-plan.service.ts"
+  }
+}
