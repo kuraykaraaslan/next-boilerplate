@@ -45,3 +45,5 @@ Uses `@node-saml/node-saml` for SAMLRequest generation, SAMLResponse validation,
 The full `SamlConfig` row (including `spPrivateKey`) is cached in Redis under `auth_saml:config:{tenantId}` (TTL = `TENANT_CACHE_TTL`, default 5 min). `upsertConfig` and `deleteConfig` invalidate the key. All read paths — `getConfig`, `generateAuthUrl`, `validateCallback`, `generateMetadata` — funnel through `loadConfig` so they share the same cache entry.
 
 SAML configs are accessed on every SSO request but change rarely, so this is a high-hit-rate cache. The cached value contains the SP private key; the trust boundary is the same as for SAML metadata in the DB.
+
+The system-scope SAML config (`auth_saml:system_config`) follows the same pattern. TTL is jittered ±10%; both `loadConfig` and `loadSystemConfig` are wrapped in in-process single-flight so a burst of concurrent SSO callbacks for the same tenant runs only one DB query.

@@ -7,18 +7,36 @@ import { Toggle } from '@/modules_next/common/ui/Toggle';
 import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave, faShieldHalved } from '@fortawesome/free-solid-svg-icons';
-import type { SafeSamlConfig } from '@/modules/auth_saml/auth_saml.types';
 import type { UpsertSamlConfigInput } from '@/modules/auth_saml/auth_saml.dto';
 
+/**
+ * Subset of SafeSamlConfig / SafeSystemSamlConfig that this form consumes.
+ * Both scopes share these fields, so the form is scope-agnostic.
+ */
+export type SamlConfigFormValues = {
+  isEnabled: boolean;
+  idpEntityId: string;
+  idpSsoUrl: string;
+  idpCertificate: string;
+  emailAttribute: string;
+  nameAttribute: string;
+  allowIdpInitiated: boolean;
+  signRequests: boolean;
+  nameIdFormat: string | null;
+};
+
 type Props = {
-  tenantId: string;
-  config: SafeSamlConfig | null;
+  /** Optional — only used by callers that want to thread it through. */
+  tenantId?: string;
+  /** Copy: 'this tenant' (default) or 'the system'. */
+  scopeLabel?: string;
+  config: SamlConfigFormValues | null;
   onSave: (input: UpsertSamlConfigInput) => Promise<void>;
   saving: boolean;
   error: string | null;
 };
 
-export function SamlConfigForm({ config, onSave, saving, error }: Props) {
+export function SamlConfigForm({ config, onSave, saving, error, scopeLabel = 'this tenant' }: Props) {
   const [f, setF] = useState<UpsertSamlConfigInput>({
     isEnabled: config?.isEnabled ?? false,
     idpEntityId: config?.idpEntityId ?? '',
@@ -39,7 +57,7 @@ export function SamlConfigForm({ config, onSave, saving, error }: Props) {
     <div className="space-y-6 pt-6">
       {error && <AlertBanner variant="error" message={error} />}
 
-      <Card title="SAML Status" subtitle="Enable or disable SAML SSO for this tenant">
+      <Card title="SAML Status" subtitle={`Enable or disable SAML SSO for ${scopeLabel}`}>
         <Toggle
           id="saml-enabled"
           label="Enable SAML SSO"

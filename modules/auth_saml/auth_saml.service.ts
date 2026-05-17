@@ -1,6 +1,6 @@
 import { SAML } from '@node-saml/node-saml';
 import { getSystemDataSource, tenantDataSourceFor } from '@/modules/db';
-import redis from '@/modules/redis';
+import redis, { jitter, singleFlight } from '@/modules/redis';
 import { env } from '@/modules/env';
 import { SamlConfig } from './entities/saml_config.entity';
 import { SystemSamlConfig } from './entities/system_saml_config.entity';
@@ -40,10 +40,12 @@ export default class SamlService {
       } catch { await redis.del(cacheKey).catch(() => {}); }
     }
 
-    const ds = await tenantDataSourceFor(tenantId);
-    const row = await ds.getRepository(SamlConfig).findOne({ where: { tenantId } });
-    await redis.setex(cacheKey, SAML_CACHE_TTL, JSON.stringify(row ?? null)).catch(() => {});
-    return row;
+    return singleFlight(cacheKey, async () => {
+      const ds = await tenantDataSourceFor(tenantId);
+      const row = await ds.getRepository(SamlConfig).findOne({ where: { tenantId } });
+      await redis.setex(cacheKey, jitter(SAML_CACHE_TTL), JSON.stringify(row ?? null)).catch(() => {});
+      return row;
+    });
   }
 
   static spEntityId(tenantId: string): string {
@@ -235,10 +237,12 @@ export default class SamlService {
       } catch { await redis.del(this.SYSTEM_CACHE_KEY).catch(() => {}); }
     }
 
-    const ds = await getSystemDataSource();
-    const row = await ds.getRepository(SystemSamlConfig).findOne({ where: {} });
-    await redis.setex(this.SYSTEM_CACHE_KEY, SAML_CACHE_TTL, JSON.stringify(row ?? null)).catch(() => {});
-    return row;
+    return singleFlight(this.SYSTEM_CACHE_KEY, async () => {
+      const ds = await getSystemDataSource();
+      const row = await ds.getRepository(SystemSamlConfig).findOne({ where: {} });
+      await redis.setex(this.SYSTEM_CACHE_KEY, jitter(SAML_CACHE_TTL), JSON.stringify(row ?? null)).catch(() => {});
+      return row;
+    });
   }
 
   static spSystemEntityId(): string {
@@ -311,6 +315,39 @@ export default class SamlService {
   static async isSystemEnabled(): Promise<boolean> {
     const config = await this.loadSystemConfig();
     return Boolean(config?.isEnabled);
+  }
+
+  /** SP metadata XML for the system-scope IdP integration. */
+  static async generateSystemMetadata(): Promise<SamlMetadata> {
+    const config = await this.loadSystemConfig();
+    const decryptionCert = config?.spCertificate ?? null;
+    const signingCert = config?.spCertificate ?? null;
+
+    let xml: string;
+    if (config) {
+      const saml = this.buildSystemSaml(config);
+      xml = saml.generateServiceProviderMetadata(decryptionCert, signingCert);
+    } else {
+      const entityId = this.spSystemEntityId();
+      const acs = this.acsSystemUrl();
+      xml = `<?xml version="1.0"?>
+<EntityDescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata" entityID="${entityId}">
+  <SPSSODescriptor AuthnRequestsSigned="false" WantAssertionsSigned="true"
+    protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+    <AssertionConsumerService
+      Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+      Location="${acs}"
+      index="1"/>
+  </SPSSODescriptor>
+</EntityDescriptor>`;
+    }
+
+    return {
+      entityId: this.spSystemEntityId(),
+      acsUrl: this.acsSystemUrl(),
+      metadataUrl: `${APP_HOST}/system/api/auth/saml/metadata`,
+      xml,
+    };
   }
 
   /** Build the IdP authorize URL for the system-scope SAML flow. */
