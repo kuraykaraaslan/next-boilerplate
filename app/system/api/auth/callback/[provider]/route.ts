@@ -23,7 +23,7 @@ export async function GET(
     const searchParams = request.nextUrl.searchParams;
 
     const code = searchParams.get('code');
-    //const state = searchParams.get('state');
+    const state = searchParams.get('state') ?? undefined;
 
     if (!code) {
         //redirect to frontend
@@ -36,7 +36,29 @@ export async function GET(
         return NextResponse.redirect(`${env.APPLICATION_HOST}/auth/login?error=${SSOMessages.INVALID_PROVIDER}`);
     }
 
-    const { user, isNewUser } = await SSOService.authenticateOrRegister(provider as SSOProvider, code as string);
+    // Link-from-Connected-Accounts flow: state is a signed JWT carrying { userId, email }.
+    // We never start a session here — just attach the social account to the existing user
+    // (only if the SSO email matches) and bounce back to the profile page.
+    const linkState = SSOService.parseLinkState(state);
+    if (linkState) {
+        try {
+            await SSOService.linkToUser(
+                linkState.uid,
+                linkState.em,
+                provider as SSOProvider,
+                code as string,
+                state,
+            );
+            return NextResponse.redirect(`${env.APPLICATION_HOST}/system/admin/me?linked=${provider}`);
+        } catch (err: any) {
+            const message = err?.message ?? SSOMessages.OAUTH_ERROR;
+            return NextResponse.redirect(
+                `${env.APPLICATION_HOST}/system/admin/me?linkError=${encodeURIComponent(message)}`,
+            );
+        }
+    }
+
+    const { user, isNewUser } = await SSOService.authenticateOrRegister(provider as SSOProvider, code as string, state);
 
     if (!user) {
         //redirect to frontend
@@ -107,7 +129,7 @@ export async function POST(
 ) {
     const { provider } = await params;
 
-    const { code } = await request.json();
+    const { code, state } = await request.json();
 
     if (!code) {
         //redirect to frontend
@@ -120,7 +142,7 @@ export async function POST(
         return NextResponse.redirect(`${env.APPLICATION_HOST}/auth/login?error=${SSOMessages.INVALID_PROVIDER}`);
     }
 
-    const { user, isNewUser} = await SSOService.authenticateOrRegister(provider as SSOProvider, code as string);
+    const { user, isNewUser } = await SSOService.authenticateOrRegister(provider as SSOProvider, code as string, state);
 
     if (!user) {
         //redirect to frontend

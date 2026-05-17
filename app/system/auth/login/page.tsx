@@ -1,20 +1,47 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import api from '@/modules_next/common/axios';
 import { BrandLogo } from '@/modules_next/common/ui/BrandLogo';
 import { LoginForm } from '@/modules_next/auth/ui/LoginForm';
-import { OAuthButtons } from '@/modules_next/auth/ui/OAuthButtons';
+import { OAuthButtons, type OAuthProvider } from '@/modules_next/auth/ui/OAuthButtons';
+
+function safeRedirect(raw: string | null): string | null {
+  if (!raw) return null;
+  if (!raw.startsWith('/') || raw.startsWith('//')) return null;
+  return raw;
+}
 
 export default function SystemLoginPage() {
   const [successMsg, setSuccessMsg] = useState('');
+  const [ssoProviders, setSsoProviders] = useState<OAuthProvider[]>([]);
+  const searchParams = useSearchParams();
+  const redirectTo = safeRedirect(searchParams.get('redirect'));
+
+  useEffect(() => {
+    api.get('/system/api/auth/sso')
+      .then((res) => setSsoProviders((res.data?.providers ?? []) as OAuthProvider[]))
+      .catch(() => setSsoProviders([]));
+  }, []);
 
   async function handleLogin(values: { email: string; password: string; rememberMe: boolean }) {
     try {
       await api.post('/system/api/auth/login', { email: values.email, password: values.password });
       setSuccessMsg(`Signed in as ${values.email}`);
-      window.location.href = '/system/auth/select-tenant';
+      window.location.href = redirectTo ?? '/system/auth/select-tenant';
     } catch (err: any) {
       throw new Error(err.response?.data?.error ?? err.message ?? 'Login failed.');
+    }
+  }
+
+  async function handleOAuth(provider: OAuthProvider) {
+    try {
+      const res = await api.get(`/system/api/auth/sso/${provider}`);
+      const url = res.data?.url;
+      if (!url) throw new Error('No SSO URL returned.');
+      window.location.href = url;
+    } catch (err: any) {
+      throw new Error(err.response?.data?.message ?? err.message ?? 'SSO sign-in failed.');
     }
   }
 
@@ -36,13 +63,17 @@ export default function SystemLoginPage() {
           </div>
         ) : (
           <>
-            <OAuthButtons providers={['GOOGLE', 'GITHUB']} onProvider={async () => {}} />
+            {ssoProviders.length > 0 && (
+              <>
+                <OAuthButtons providers={ssoProviders} onProvider={handleOAuth} />
 
-            <div className="flex items-center gap-3">
-              <div className="flex-1 h-px bg-border" aria-hidden="true" />
-              <span className="text-xs text-text-secondary">or continue with email</span>
-              <div className="flex-1 h-px bg-border" aria-hidden="true" />
-            </div>
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 h-px bg-border" aria-hidden="true" />
+                  <span className="text-xs text-text-secondary">or continue with email</span>
+                  <div className="flex-1 h-px bg-border" aria-hidden="true" />
+                </div>
+              </>
+            )}
 
             <LoginForm onSubmit={handleLogin} />
 

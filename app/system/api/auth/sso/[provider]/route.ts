@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import Logger from '@/modules/logger';
 // Original path: app/api/auth/callback/route.ts
 import { NextRequest, NextResponse } from "next/server";
@@ -33,9 +34,10 @@ export async function GET(
       );
     }
 
-    const url = await SSOService.generateAuthUrl(provider as SSOProvider);
+    const state = crypto.randomUUID();
+    const url = SSOService.generateAuthUrl(provider as SSOProvider, state);
 
-    return NextResponse.json({ url });
+    return NextResponse.json({ url, state });
 
   } catch (error: any) {
 

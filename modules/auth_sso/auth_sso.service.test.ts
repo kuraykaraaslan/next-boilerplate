@@ -237,7 +237,7 @@ describe('SSOService.authenticateOrRegister', () => {
     );
   });
 
-  it('throws EMAIL_NOT_FOUND when provider returns no email', async () => {
+  it('synthesizes a placeholder email when the provider returns none', async () => {
     mockProviderInstance.getUserInfo.mockResolvedValue({
       sub: 'provider-user-id',
       email: null,
@@ -246,9 +246,16 @@ describe('SSOService.authenticateOrRegister', () => {
       provider: 'google',
     });
 
-    await expect(SSOService.authenticateOrRegister('google', 'auth-code')).rejects.toThrow(
-      SSOMessages.EMAIL_NOT_FOUND
+    const result = await SSOService.authenticateOrRegister('google', 'auth-code');
+
+    expect(result.isNewUser).toBe(true);
+    expect(UserService.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        email: 'google-provider-user-id@noreply.invalid',
+      })
     );
+    expect(SSOService.isPlaceholderEmail('google-provider-user-id@noreply.invalid')).toBe(true);
+    expect(SSOService.isPlaceholderEmail('real@user.com')).toBe(false);
   });
 });
 

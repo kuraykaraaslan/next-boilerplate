@@ -1,9 +1,21 @@
-import { env } from '@/modules/env';
+import axios from 'axios';
 import { BaseSSOProvider } from './base.provider';
 import type { SSOProfile, SSOTokens } from '../auth_sso.types';
-import axios from 'axios';
 import SSOMessages from '../auth_sso.messages';
 
+/**
+ * TikTok Login Kit (v2).
+ *
+ * Quirks vs. generic OAuth 2.0:
+ * - Uses `client_key` instead of `client_id` on both /authorize and /token.
+ * - Scopes are comma-separated (not space-separated).
+ * - Token response is FLAT (not wrapped in `data`): `{ access_token, refresh_token,
+ *   expires_in, refresh_expires_in, open_id, scope, token_type }`. We capture
+ *   `open_id` into the shared `openid` field on SSOTokens (reused from WeChat).
+ * - /user/info/ requires a `?fields=` query — without it the response is empty.
+ *   Response shape: `{ data: { user: {...} }, error: { code, message, log_id } }`.
+ * - Login Kit does not expose email.
+ */
 export class TikTokProvider extends BaseSSOProvider {
   constructor() {
     super('tiktok');
@@ -24,12 +36,7 @@ export class TikTokProvider extends BaseSSOProvider {
     return `${this.config.authUrl}?${params.toString()}`;
   }
 
-  private getCallbackUrl(): string {
-    const APP_HOST = env.APPLICATION_HOST || 'http://localhost:3000';
-    return `${APP_HOST}${this.config.callbackPath}`;
-  }
-
-  async getTokens(code: string): Promise<SSOTokens> {
+  async getTokens(code: string, _state?: string): Promise<SSOTokens> {
     try {
       const response = await axios.post(
         this.config.tokenUrl,
@@ -48,43 +55,57 @@ export class TikTokProvider extends BaseSSOProvider {
         }
       );
 
+      const tokens = this.normalizeTokens(response.data);
+      const openId = response.data?.open_id;
       return {
-        accessToken: response.data.access_token,
-        refreshToken: response.data.refresh_token,
+        ...tokens,
+        openid: typeof openId === 'string' ? openId : null,
       };
     } catch {
       throw new Error(SSOMessages.TOKEN_EXCHANGE_FAILED);
     }
   }
 
-  async getUserInfo(accessToken: string): Promise<SSOProfile> {
+  async getUserInfo(accessToken: string, _tokens?: SSOTokens): Promise<SSOProfile> {
+    if (!this.config.userInfoUrl) {
+      throw new Error(SSOMessages.USER_INFO_FAILED);
+    }
+
     try {
-      const response = await axios.get(this.config.userInfoUrl!, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+      const fields = 'open_id,union_id,avatar_url,display_name';
+      const url = `${this.config.userInfoUrl}?fields=${fields}`;
+      const response = await axios.get(url, {
+        headers: { Authorization: `Bearer ${accessToken}` },
       });
 
-      const data = response.data.data;
+      const error = response.data?.error;
+      if (error && error.code && error.code !== 'ok') {
+        throw new Error(
+          `${SSOMessages.USER_INFO_FAILED}: ${error.message ?? error.code}`
+        );
+      }
+
+      const user = response.data?.data?.user;
+      if (!user) {
+        throw new Error(SSOMessages.USER_INFO_FAILED);
+      }
+
       return {
-        sub: data.open_id,
-        email: data.email || undefined,
-        name: data.nickname || undefined,
-        picture: data.avatar || undefined,
+        sub: (user.union_id as string | undefined) ?? (user.open_id as string),
+        email: null,
+        name: (user.display_name as string | undefined) ?? null,
+        picture: (user.avatar_url as string | undefined) ?? null,
         provider: 'tiktok',
       };
-    } catch {
+    } catch (err) {
+      if (err instanceof Error && err.message.startsWith(SSOMessages.USER_INFO_FAILED)) {
+        throw err;
+      }
       throw new Error(SSOMessages.USER_INFO_FAILED);
     }
   }
 
-  protected mapUserInfo(data: Record<string, unknown>): SSOProfile {
-    return {
-      sub: data.open_id as string,
-      email: (data.email as string),
-      name: data.nickname as string | undefined,
-      picture: data.avatar as string | undefined,
-      provider: 'tiktok',
-    };
+  protected mapUserInfo(_data: Record<string, unknown>): SSOProfile {
+    throw new Error('TikTokProvider.mapUserInfo is unused; getUserInfo handles unwrapping.');
   }
 }

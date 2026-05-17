@@ -9,6 +9,9 @@ const SamlMessages = {
   CONFIG_SAVED: 'SAML configuration saved',
   CONFIG_DELETED: 'SAML configuration deleted',
   IDP_INITIATED_DISABLED: 'IdP-initiated SSO is not allowed for this tenant',
+  EMAIL_MISMATCH: 'SAML assertion email does not match your account email',
+  SYSTEM_NOT_CONFIGURED: 'System SAML is not configured',
+  SYSTEM_NOT_ENABLED: 'System SAML is not enabled',
 } as const;
 
 export default SamlMessages;

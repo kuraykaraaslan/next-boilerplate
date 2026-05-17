@@ -1,0 +1,48 @@
+import crypto from 'crypto';
+import Logger from '@/modules/logger';
+import { NextRequest, NextResponse } from 'next/server';
+import SSOService from '@/modules/auth_sso/auth_sso.service';
+import Limiter from '@/modules_next/limiter/limiter.service.next';
+import { GenerateAuthUrlDTO } from '@/modules/auth_sso/auth_sso.dto';
+import SSOMessages from '@/modules/auth_sso/auth_sso.messages';
+import AuthMessages from '@/modules/auth/auth.messages';
+import { SSOProvider } from '@/modules/auth_sso/auth_sso.enums';
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ tenantId: string; provider: string }> }
+) {
+  const { tenantId, provider } = await params;
+
+  const parsedData = GenerateAuthUrlDTO.safeParse({ provider });
+
+  if (!parsedData.success) {
+    Logger.error('Invalid provider parameter:', parsedData.error);
+    return NextResponse.json({
+      message: parsedData.error.issues.map((err: any) => err.message).join(', '),
+    }, { status: 400 });
+  }
+
+  try {
+    const _rl = await Limiter.checkRateLimit(request);
+    if (_rl) return _rl;
+
+    if (!SSOService.isProviderEnabled(provider)) {
+      return NextResponse.json(
+        { message: SSOMessages.INVALID_PROVIDER },
+        { status: 400 }
+      );
+    }
+
+    const state = `${tenantId}.${crypto.randomUUID()}`;
+    const url = SSOService.generateAuthUrl(provider as SSOProvider, state);
+
+    return NextResponse.json({ url, state });
+  } catch (error: any) {
+    Logger.error(`Error generating SSO link for ${provider} (tenant ${tenantId}):`, error);
+    return NextResponse.json(
+      { message: AuthMessages.SSO_GENERATION_FAILED },
+      { status: 500 }
+    );
+  }
+}

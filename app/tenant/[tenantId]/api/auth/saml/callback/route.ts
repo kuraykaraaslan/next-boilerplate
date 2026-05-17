@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import SamlService from '@/modules/auth_saml/auth_saml.service';
+import SamlMessages from '@/modules/auth_saml/auth_saml.messages';
+import SSOService from '@/modules/auth_sso/auth_sso.service';
 import UserService from '@/modules/user/user.service';
 import { SafeUserSchema } from '@/modules/user/user.types';
 import UserSessionNextService from '@/modules_next/user_session/user_session.service.next';
@@ -27,6 +29,23 @@ export async function POST(req: NextRequest, { params }: Params) {
 
     const isIdpInitiated = !body.RelayState;
     const samlProfile = await SamlService.validateCallback(tenantId, body, isIdpInitiated);
+
+    // Link-from-Connected-Accounts: RelayState carries the signed link-state JWT.
+    // We attach the SAML identity to the existing user (email-match enforced) and
+    // never mint a new session here — the user is already logged in.
+    const linkState = SSOService.parseLinkState(body.RelayState);
+    if (linkState) {
+      try {
+        await SamlService.linkToUser(linkState.uid, linkState.em, samlProfile);
+        return NextResponse.redirect(
+          `${APP_HOST}/tenant/${tenantId}/admin/me?linked=saml`,
+        );
+      } catch (err: any) {
+        return NextResponse.redirect(
+          `${APP_HOST}/tenant/${tenantId}/admin/me?linkError=${encodeURIComponent(err?.message ?? SamlMessages.INVALID_RESPONSE)}`,
+        );
+      }
+    }
 
     const tenant = await TenantService.getById(tenantId);
     if (!tenant || tenant.tenantStatus !== 'ACTIVE') {

@@ -4,17 +4,12 @@ import api from '@/modules_next/common/axios';
 import { PageHeader } from '@/modules_next/common/ui/PageHeader';
 import { Card } from '@/modules_next/common/ui/Card';
 import { Badge } from '@/modules_next/common/ui/Badge';
-import { Spinner } from '@/modules_next/common/ui/Spinner';
-import { EmptyState } from '@/modules_next/common/ui/EmptyState';
 import { TabGroup } from '@/modules_next/common/ui/TabGroup';
 import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
-import { Pagination } from '@/modules_next/common/ui/Pagination';
+import { ServerDataTable, type TableColumn } from '@/modules_next/common/ui/ServerDataTable';
+import { RowActionsMenu } from '@/modules_next/common/ui/RowActionsMenu';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faShieldHalved, faList, faBook, faExternalLink, faBuilding,
-} from '@fortawesome/free-solid-svg-icons';
-
-// ─── Types ────────────────────────────────────────────────────────────────────
+import { faList, faBook, faExternalLink, faCog } from '@fortawesome/free-solid-svg-icons';
 
 type SamlTenantRow = {
   tenantId: string;
@@ -25,7 +20,19 @@ type SamlTenantRow = {
   updatedAt: string;
 };
 
-// ─── Setup Guide Tab ──────────────────────────────────────────────────────────
+const PAGE_SIZE = 20;
+
+const SAML_ENDPOINTS: { purpose: string; url: string; method: string }[] = [
+  { purpose: 'SP Metadata',         url: '/tenant/{tenantId}/api/auth/saml/metadata', method: 'GET' },
+  { purpose: 'SP-Initiated Login',  url: '/tenant/{tenantId}/api/auth/saml/initiate', method: 'GET' },
+  { purpose: 'ACS (Callback)',      url: '/tenant/{tenantId}/api/auth/saml/callback', method: 'POST' },
+  { purpose: 'Config API',          url: '/tenant/{tenantId}/api/saml/config',        method: 'GET / PUT / DELETE' },
+];
+
+function extractMessage(err: unknown, fallback: string): string {
+  const e = err as { response?: { data?: { message?: string } }; message?: string };
+  return e?.response?.data?.message ?? e?.message ?? fallback;
+}
 
 function GuideTab() {
   const steps = [
@@ -38,12 +45,18 @@ function GuideTab() {
   ];
 
   const providers = [
-    { name: 'Okta', url: 'https://developer.okta.com/docs/guides/saml-application-setup' },
-    { name: 'Azure AD', url: 'https://learn.microsoft.com/en-us/azure/active-directory/saas-apps/tutorial-list' },
+    { name: 'Okta',             url: 'https://developer.okta.com/docs/guides/saml-application-setup' },
+    { name: 'Azure AD',         url: 'https://learn.microsoft.com/en-us/azure/active-directory/saas-apps/tutorial-list' },
     { name: 'Google Workspace', url: 'https://support.google.com/a/answer/6087519' },
-    { name: 'OneLogin', url: 'https://onelogin.com/saml' },
-    { name: 'Auth0', url: 'https://auth0.com/docs/authenticate/protocols/saml' },
-    { name: 'JumpCloud', url: 'https://support.jumpcloud.com/s/article/sso-saml' },
+    { name: 'OneLogin',         url: 'https://onelogin.com/saml' },
+    { name: 'Auth0',            url: 'https://auth0.com/docs/authenticate/protocols/saml' },
+    { name: 'JumpCloud',        url: 'https://support.jumpcloud.com/s/article/sso-saml' },
+  ];
+
+  const endpointColumns: TableColumn<typeof SAML_ENDPOINTS[number]>[] = [
+    { key: 'purpose', header: 'Purpose', render: (e) => <span className="font-medium text-text-primary">{e.purpose}</span> },
+    { key: 'url',     header: 'URL Pattern', render: (e) => <span className="font-mono text-xs text-text-secondary">{e.url}</span> },
+    { key: 'method',  header: 'Method', render: (e) => <Badge variant="info">{e.method}</Badge> },
   ];
 
   return (
@@ -52,7 +65,7 @@ function GuideTab() {
         <ol className="space-y-4 mt-2">
           {steps.map(({ step, title, desc }) => (
             <li key={step} className="flex gap-4">
-              <span className="flex-shrink-0 w-7 h-7 rounded-full bg-primary/10 text-primary text-sm font-bold flex items-center justify-center mt-0.5">
+              <span className="flex-shrink-0 w-7 h-7 rounded-full bg-primary-subtle text-primary text-sm font-bold flex items-center justify-center mt-0.5">
                 {step}
               </span>
               <div>
@@ -72,7 +85,7 @@ function GuideTab() {
               href={url}
               target="_blank"
               rel="noreferrer"
-              className="flex items-center justify-between gap-2 rounded-lg border border-border px-3 py-2.5 hover:border-primary hover:bg-surface-secondary transition-colors text-sm font-medium"
+              className="flex items-center justify-between gap-2 rounded-lg border border-border px-3 py-2.5 hover:border-primary hover:bg-surface-overlay transition-colors text-sm font-medium"
             >
               {name}
               <FontAwesomeIcon icon={faExternalLink} className="w-3 h-3 text-text-disabled" />
@@ -81,133 +94,119 @@ function GuideTab() {
         </div>
       </Card>
 
-      <Card title="SAML Endpoints" subtitle="URL patterns used by tenants">
-        <div className="overflow-x-auto">
-          <table className="table table-sm text-xs w-full">
-            <thead>
-              <tr>
-                <th>Purpose</th>
-                <th>URL Pattern</th>
-                <th>Method</th>
-              </tr>
-            </thead>
-            <tbody>
-              {[
-                ['SP Metadata', '/tenant/{tenantId}/api/auth/saml/metadata', 'GET'],
-                ['SP-Initiated Login', '/tenant/{tenantId}/api/auth/saml/initiate', 'GET'],
-                ['ACS (Callback)', '/tenant/{tenantId}/api/auth/saml/callback', 'POST'],
-                ['Config API', '/tenant/{tenantId}/api/saml/config', 'GET / PUT / DELETE'],
-              ].map(([purpose, url, method]) => (
-                <tr key={url}>
-                  <td className="font-medium">{purpose}</td>
-                  <td className="font-mono text-text-secondary">{url}</td>
-                  <td><Badge variant="info" size="sm">{method}</Badge></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Card>
+      <ServerDataTable
+        columns={endpointColumns}
+        rows={SAML_ENDPOINTS}
+        getRowKey={(e) => e.url}
+        page={1}
+        totalPages={1}
+        onPageChange={() => {}}
+        hidePagination
+        title="SAML Endpoints"
+        subtitle="URL patterns used by tenants"
+      />
     </div>
   );
 }
 
-// ─── Overview Tab ─────────────────────────────────────────────────────────────
-
-const PAGE_SIZE = 20;
-
 function OverviewTab() {
-  const [rows, setRows] = useState<SamlTenantRow[]>([]);
+  const [rows, setRows]   = useState<SamlTenantRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [page, setPage] = useState(1);
+  const [fetchError, setFetchError] = useState('');
+  const [page, setPage]   = useState(1);
   const [total, setTotal] = useState(0);
 
   const load = useCallback(() => {
     setLoading(true);
+    setFetchError('');
     api
       .get('/system/api/saml/tenants', { params: { page, pageSize: PAGE_SIZE } })
       .then((res) => {
         setRows(res.data.rows ?? []);
         setTotal(res.data.total ?? 0);
       })
-      .catch((e) => setError(e.response?.data?.message ?? 'Failed to load'))
+      .catch((err) => setFetchError(extractMessage(err, 'Failed to load tenants.')))
       .finally(() => setLoading(false));
   }, [page]);
 
   useEffect(() => { load(); }, [load]);
 
-  if (loading) return <div className="flex justify-center py-20"><Spinner size="lg" /></div>;
-  if (error) return <AlertBanner variant="error" message={error} className="mt-6" />;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
-  if (rows.length === 0) {
-    return (
-      <EmptyState
-        icon={<FontAwesomeIcon icon={faBuilding} className="w-8 h-8" />}
-        title="No tenants with SAML configured"
-        description="When a tenant admin configures SAML SSO, it will appear here."
-        className="mt-10"
-      />
-    );
-  }
-
-  const totalPages = Math.ceil(total / PAGE_SIZE);
+  const columns: TableColumn<SamlTenantRow>[] = [
+    {
+      key: 'tenantName',
+      header: 'Tenant',
+      render: (r) => <span className="font-medium text-text-primary">{r.tenantName}</span>,
+    },
+    {
+      key: 'isEnabled',
+      header: 'Status',
+      render: (r) => (
+        <Badge variant={r.isEnabled ? 'success' : 'neutral'} dot>
+          {r.isEnabled ? 'Enabled' : 'Disabled'}
+        </Badge>
+      ),
+    },
+    {
+      key: 'idpEntityId',
+      header: 'IdP Entity ID',
+      render: (r) => (
+        <span className="font-mono text-xs text-text-secondary block truncate max-w-xs">
+          {r.idpEntityId || '—'}
+        </span>
+      ),
+    },
+    {
+      key: 'updatedAt',
+      header: 'Last Updated',
+      render: (r) => (
+        <span className="text-xs text-text-secondary">
+          {new Date(r.updatedAt).toLocaleDateString()}
+        </span>
+      ),
+    },
+    {
+      key: '_actions',
+      header: '',
+      align: 'right',
+      render: (r) => (
+        <div onClick={(e) => e.stopPropagation()}>
+          <RowActionsMenu
+            actions={[
+              {
+                label: 'Configure',
+                icon: <FontAwesomeIcon icon={faCog} />,
+                onClick: () => {
+                  window.location.href = `/tenant/${r.tenantId}/admin/settings/saml`;
+                },
+              },
+            ]}
+          />
+        </div>
+      ),
+    },
+  ];
 
   return (
     <div className="pt-6 space-y-4">
-      <div className="overflow-x-auto rounded-lg border border-border">
-        <table className="table table-sm w-full">
-          <thead>
-            <tr>
-              <th>Tenant</th>
-              <th>Status</th>
-              <th>IdP Entity ID</th>
-              <th>Last Updated</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((r) => (
-              <tr key={r.tenantId} className="hover:bg-surface-secondary">
-                <td className="font-medium">{r.tenantName}</td>
-                <td>
-                  {r.isEnabled
-                    ? <Badge variant="success" size="sm">Enabled</Badge>
-                    : <Badge variant="neutral" size="sm">Disabled</Badge>}
-                </td>
-                <td className="font-mono text-xs text-text-secondary max-w-xs truncate">
-                  {r.idpEntityId || '—'}
-                </td>
-                <td className="text-xs text-text-secondary">
-                  {new Date(r.updatedAt).toLocaleDateString()}
-                </td>
-                <td>
-                  <a
-                    href={`/tenant/${r.tenantId}/admin/settings/saml`}
-                    className="text-xs text-primary hover:underline flex items-center gap-1"
-                  >
-                    Configure
-                    <FontAwesomeIcon icon={faExternalLink} className="w-3 h-3" />
-                  </a>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {fetchError && <AlertBanner variant="error" message={fetchError} />}
 
-      {totalPages > 1 && (
-        <Pagination
-          page={page}
-          totalPages={totalPages}
-          onPageChange={setPage}
-        />
-      )}
+      <ServerDataTable
+        columns={columns}
+        rows={rows}
+        getRowKey={(r) => r.tenantId}
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        pageSize={PAGE_SIZE}
+        onPageChange={setPage}
+        loading={loading}
+        emptyMessage="No tenants with SAML configured."
+      />
     </div>
   );
 }
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function SystemSamlPage() {
   return (

@@ -39,3 +39,9 @@ Registered in `libs/typeorm/tenant.ts`.
 ## Library
 
 Uses `@node-saml/node-saml` for SAMLRequest generation, SAMLResponse validation, and metadata generation.
+
+## Caching
+
+The full `SamlConfig` row (including `spPrivateKey`) is cached in Redis under `auth_saml:config:{tenantId}` (TTL = `TENANT_CACHE_TTL`, default 5 min). `upsertConfig` and `deleteConfig` invalidate the key. All read paths — `getConfig`, `generateAuthUrl`, `validateCallback`, `generateMetadata` — funnel through `loadConfig` so they share the same cache entry.
+
+SAML configs are accessed on every SSO request but change rarely, so this is a high-hit-rate cache. The cached value contains the SP private key; the trust boundary is the same as for SAML metadata in the DB.

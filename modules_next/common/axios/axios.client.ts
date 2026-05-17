@@ -61,6 +61,31 @@ const processQueue = (error: any = null) => {
   failedQueue = [];
 };
 
+function getAuthContext(originalRequestUrl?: string): { refreshUrl: string; loginUrl: string } {
+  const candidate = originalRequestUrl ?? (typeof window !== 'undefined' ? window.location.pathname : '');
+  const tenantMatch = candidate.match(/\/tenant\/([^/]+)/);
+  if (tenantMatch) {
+    const tenantId = tenantMatch[1];
+    return {
+      refreshUrl: `/tenant/${tenantId}/api/auth/refresh`,
+      loginUrl:   `/tenant/${tenantId}/auth/login`,
+    };
+  }
+  return {
+    refreshUrl: '/system/api/auth/refresh',
+    loginUrl:   '/system/auth/login',
+  };
+}
+
+function buildLoginUrlWithRedirect(loginUrl: string): string {
+  if (typeof window === 'undefined') return loginUrl;
+  const current = window.location.pathname + window.location.search;
+  // Only allow safe relative redirects (single leading slash, not protocol-relative).
+  const isSafe = current.startsWith('/') && !current.startsWith('//');
+  if (!isSafe || current === loginUrl) return loginUrl;
+  return `${loginUrl}?redirect=${encodeURIComponent(current)}`;
+}
+
 axiosInstance.interceptors.response.use(
   (response) => {
     const message = response.data?.message;
@@ -111,16 +136,17 @@ axiosInstance.interceptors.response.use(
     originalRequest._retry = true;
     isRefreshing = true;
 
+    const { refreshUrl, loginUrl } = getAuthContext(originalRequest?.url);
+
     try {
-      await axios.post(`/api/auth/refresh`, {}, { withCredentials: true });
+      await axios.post(refreshUrl, {}, { withCredentials: true });
       processQueue();
       return axiosInstance(originalRequest);
     } catch (refreshError) {
       processQueue(refreshError);
 
       if (typeof window !== 'undefined') {
-        const redirect = encodeURIComponent(window.location.pathname);
-        window.location.href = `/auth/login?redirect=${redirect}`;
+        window.location.href = buildLoginUrlWithRedirect(loginUrl);
       }
 
       return Promise.reject(refreshError);
