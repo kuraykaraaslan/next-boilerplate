@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const state = SSOService.signLinkState(user.userId, user.email);
+    const state = SSOService.signLinkState(user.userId, user.email, '/system/admin/me');
     const url = await SamlService.generateSystemAuthUrl(state);
 
     return NextResponse.json({ url, state });

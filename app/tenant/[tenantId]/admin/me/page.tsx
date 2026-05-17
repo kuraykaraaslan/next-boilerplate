@@ -9,6 +9,7 @@ import { Spinner } from '@/modules_next/common/ui/Spinner';
 import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
 import { UserProfileForm, type UserProfileValues } from '@/modules_next/user/ui/UserProfileForm';
 import { UserPreferencesForm, type UserPreferencesValues } from '@/modules_next/user/ui/UserPreferencesForm';
+import { SocialAccountsPanel } from '@/modules_next/user/ui/SocialAccountsPanel';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faClock, faLayerGroup } from '@fortawesome/free-solid-svg-icons';
 
@@ -156,6 +157,11 @@ export default function TenantMePage({ params }: { params: Promise<{ tenantId: s
                 />
               </Card>
             ),
+          },
+          {
+            id: 'connected',
+            label: 'Connected Accounts',
+            content: <SocialAccountsPanel apiBase={`/tenant/${tenantId}/api/auth`} />,
           },
         ]}
       />

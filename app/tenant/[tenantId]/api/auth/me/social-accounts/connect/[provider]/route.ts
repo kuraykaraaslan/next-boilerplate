@@ -1,4 +1,4 @@
-// path: app/system/api/auth/me/social-accounts/connect/[provider]/route.ts
+// path: app/tenant/[tenantId]/api/auth/me/social-accounts/connect/[provider]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import Logger from '@/modules/logger';
 import UserSessionNextService from '@/modules_next/user_session/user_session.service.next';
@@ -8,16 +8,15 @@ import { SSOProvider, SSOProviderEnum } from '@/modules/auth_sso/auth_sso.enums'
 import Limiter from '@/modules_next/limiter/limiter.service.next';
 
 /**
- * GET /system/api/auth/me/social-accounts/connect/[provider]
+ * GET /tenant/[tenantId]/api/auth/me/social-accounts/connect/[provider]
  *
- * Initiate an OAuth flow to LINK a provider to the currently authenticated user.
- * Returns the OAuth authorization URL with a signed link-state JWT.
- *
- * Email-match guard is enforced at the callback (SSOService.linkToUser).
+ * Initiate an OAuth flow to LINK a provider to the currently authenticated
+ * user from the tenant me page. Mirrors the system-scope endpoint — the social
+ * account row itself lives in the system schema either way.
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ provider: string }> }
+  { params }: { params: Promise<{ tenantId: string; provider: string }> },
 ) {
   try {
     const _rl = await Limiter.checkRateLimit(request, 'auth');
@@ -25,7 +24,7 @@ export async function GET(
 
     const { user } = await UserSessionNextService.authenticateUserByRequest({ request });
 
-    const { provider } = await params;
+    const { tenantId, provider } = await params;
     if (!SSOProviderEnum.options.includes(provider as SSOProvider)) {
       return NextResponse.json({ message: SSOMessages.INVALID_PROVIDER }, { status: 400 });
     }
@@ -34,8 +33,6 @@ export async function GET(
       return NextResponse.json({ message: SSOMessages.INVALID_PROVIDER }, { status: 400 });
     }
 
-    // Refuse to start a link flow for a placeholder-email account — the email-match
-    // guard would always fail. The user must add a real email to their account first.
     if (SSOService.isPlaceholderEmail(user.email)) {
       return NextResponse.json(
         { message: 'Add a real email to your account before linking a social provider.' },
@@ -43,12 +40,12 @@ export async function GET(
       );
     }
 
-    const state = SSOService.signLinkState(user.userId, user.email, '/system/admin/me');
+    const state = SSOService.signLinkState(user.userId, user.email, `/tenant/${tenantId}/admin/me`);
     const url = SSOService.generateAuthUrl(provider as SSOProvider, state);
 
     return NextResponse.json({ url, state });
   } catch (error: any) {
-    Logger.error('Failed to start SSO link flow:', error);
+    Logger.error('Failed to start tenant SSO link flow:', error);
     return NextResponse.json(
       { message: error.message ?? SSOMessages.OAUTH_ERROR },
       { status: 500 },

@@ -38,12 +38,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const returnTo = SSOService.safeReturnPath(linkState.r);
     try {
       await SamlService.linkToUser(linkState.uid, linkState.em, samlProfile);
-      return NextResponse.redirect(`${APP_HOST}/system/admin/me?linked=saml`);
+      return NextResponse.redirect(`${APP_HOST}${returnTo}?linked=saml`);
     } catch (err: any) {
       return NextResponse.redirect(
-        `${APP_HOST}/system/admin/me?linkError=${encodeURIComponent(err?.message ?? SamlMessages.INVALID_RESPONSE)}`,
+        `${APP_HOST}${returnTo}?linkError=${encodeURIComponent(err?.message ?? SamlMessages.INVALID_RESPONSE)}`,
       );
     }
   } catch (e: any) {

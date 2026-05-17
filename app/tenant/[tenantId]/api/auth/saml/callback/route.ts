@@ -35,14 +35,13 @@ export async function POST(req: NextRequest, { params }: Params) {
     // never mint a new session here — the user is already logged in.
     const linkState = SSOService.parseLinkState(body.RelayState);
     if (linkState) {
+      const returnTo = SSOService.safeReturnPath(linkState.r ?? `/tenant/${tenantId}/admin/me`);
       try {
         await SamlService.linkToUser(linkState.uid, linkState.em, samlProfile);
-        return NextResponse.redirect(
-          `${APP_HOST}/tenant/${tenantId}/admin/me?linked=saml`,
-        );
+        return NextResponse.redirect(`${APP_HOST}${returnTo}?linked=saml`);
       } catch (err: any) {
         return NextResponse.redirect(
-          `${APP_HOST}/tenant/${tenantId}/admin/me?linkError=${encodeURIComponent(err?.message ?? SamlMessages.INVALID_RESPONSE)}`,
+          `${APP_HOST}${returnTo}?linkError=${encodeURIComponent(err?.message ?? SamlMessages.INVALID_RESPONSE)}`,
         );
       }
     }

@@ -18,6 +18,8 @@ interface SSOLinkStatePayload {
   uid: string;
   /** Email expected back from the provider; mismatch aborts the link. */
   em: string;
+  /** App-relative return path the callback should redirect to. Optional. */
+  r?: string;
 }
 
 /**
@@ -187,11 +189,12 @@ export default class SSOService {
    *   1) the SSO subject's email matches the user's email
    *   2) the link is being applied to the same user that initiated it
    */
-  static signLinkState(userId: string, email: string): string {
+  static signLinkState(userId: string, email: string, returnPath?: string): string {
     const payload: SSOLinkStatePayload = {
       a: 'link',
       uid: userId,
       em: email.toLowerCase(),
+      ...(returnPath ? { r: returnPath } : {}),
     };
     return jwt.sign(payload, env.CSRF_SECRET, { expiresIn: LINK_STATE_TTL_SECONDS });
   }
@@ -207,6 +210,17 @@ export default class SSOService {
     } catch {
       return null;
     }
+  }
+
+  /**
+   * Safe return path: app-relative only (must start with `/` and not `//`). Falls
+   * back to `/system/admin/me` so a tampered/expired state can't open redirect.
+   */
+  static safeReturnPath(input: string | undefined | null): string {
+    const fallback = '/system/admin/me';
+    if (!input || typeof input !== 'string') return fallback;
+    if (!input.startsWith('/') || input.startsWith('//')) return fallback;
+    return input;
   }
 
   /**

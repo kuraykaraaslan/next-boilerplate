@@ -41,6 +41,7 @@ export async function GET(
     // (only if the SSO email matches) and bounce back to the profile page.
     const linkState = SSOService.parseLinkState(state);
     if (linkState) {
+        const returnTo = SSOService.safeReturnPath(linkState.r);
         try {
             await SSOService.linkToUser(
                 linkState.uid,
@@ -49,11 +50,11 @@ export async function GET(
                 code as string,
                 state,
             );
-            return NextResponse.redirect(`${env.APPLICATION_HOST}/system/admin/me?linked=${provider}`);
+            return NextResponse.redirect(`${env.APPLICATION_HOST}${returnTo}?linked=${provider}`);
         } catch (err: any) {
             const message = err?.message ?? SSOMessages.OAUTH_ERROR;
             return NextResponse.redirect(
-                `${env.APPLICATION_HOST}/system/admin/me?linkError=${encodeURIComponent(message)}`,
+                `${env.APPLICATION_HOST}${returnTo}?linkError=${encodeURIComponent(message)}`,
             );
         }
     }

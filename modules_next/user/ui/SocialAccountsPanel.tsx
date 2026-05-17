@@ -26,7 +26,17 @@ function providerLabel(p: string): string {
   return p.charAt(0).toUpperCase() + p.slice(1).toLowerCase();
 }
 
-export function SocialAccountsPanel() {
+export type SocialAccountsPanelProps = {
+  /**
+   * Base URL for the auth API endpoints. Defaults to system-scope.
+   * For tenant me pages, pass `/tenant/${tenantId}/api/auth`.
+   */
+  apiBase?: string;
+};
+
+export function SocialAccountsPanel({
+  apiBase = '/system/api/auth',
+}: SocialAccountsPanelProps = {}) {
   const [accounts, setAccounts] = useState<SocialAccount[]>([]);
   const [available, setAvailable] = useState<OAuthProvider[]>([]);
   const [samlEnabled, setSamlEnabled] = useState(false);
@@ -41,9 +51,9 @@ export function SocialAccountsPanel() {
     setLoading(true);
     try {
       const [accountsRes, availableRes, samlRes] = await Promise.all([
-        api.get('/system/api/auth/me/social-accounts'),
-        api.get('/system/api/auth/sso').catch(() => ({ data: { providers: [] } })),
-        api.get('/system/api/auth/saml/status').catch(() => ({ data: { enabled: false } })),
+        api.get(`${apiBase}/me/social-accounts`),
+        api.get(`${apiBase}/sso`).catch(() => ({ data: { providers: [] } })),
+        api.get(`${apiBase}/saml/status`).catch(() => ({ data: { enabled: false } })),
       ]);
       setAccounts(accountsRes.data.accounts ?? []);
       setAvailable((availableRes.data.providers ?? []) as OAuthProvider[]);
@@ -53,7 +63,7 @@ export function SocialAccountsPanel() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [apiBase]);
 
   useEffect(() => { refresh(); }, [refresh]);
 
@@ -85,9 +95,7 @@ export function SocialAccountsPanel() {
     setError('');
     setConnecting(provider);
     try {
-      const endpoint = provider === 'saml'
-        ? '/system/api/auth/me/social-accounts/connect/saml'
-        : `/system/api/auth/me/social-accounts/connect/${provider}`;
+      const endpoint = `${apiBase}/me/social-accounts/connect/${provider}`;
       const res = await api.get(endpoint);
       const url = res.data?.url;
       if (!url) throw new Error('No connect URL returned.');
@@ -101,7 +109,7 @@ export function SocialAccountsPanel() {
   async function handleUnlink(provider: string) {
     setUnlinking(true);
     try {
-      await api.delete(`/system/api/auth/me/social-accounts/${provider}`);
+      await api.delete(`${apiBase}/me/social-accounts/${provider}`);
       setAccounts((p) => p.filter((a) => a.provider !== provider));
       setConfirm(null);
     } catch (e: any) {

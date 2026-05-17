@@ -40,7 +40,7 @@ export async function GET(
       );
     }
 
-    const state = SSOService.signLinkState(user.userId, user.email);
+    const state = SSOService.signLinkState(user.userId, user.email, `/tenant/${tenantId}/admin/me`);
     const url = await SamlService.generateAuthUrl(tenantId, state);
 
     return NextResponse.json({ url, state });
