@@ -1,17 +1,18 @@
 'use client';
-import { use, useEffect, useState } from 'react';
+import { use, useEffect, useState, useMemo } from 'react';
 import api from '@/modules_next/common/axios';
 import { PageHeader } from '@/modules_next/common/ui/PageHeader';
-import { Card } from '@/modules_next/common/ui/Card';
 import { Badge } from '@/modules_next/common/ui/Badge';
 import { Button } from '@/modules_next/common/ui/Button';
 import { Input } from '@/modules_next/common/ui/Input';
+import { Select } from '@/modules_next/common/ui/Select';
 import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
-import { Spinner } from '@/modules_next/common/ui/Spinner';
 import { Modal } from '@/modules_next/common/ui/Modal';
-import { EmptyState } from '@/modules_next/common/ui/EmptyState';
+import { ServerDataTable, type TableColumn } from '@/modules_next/common/ui/ServerDataTable';
+import { RowActionsMenu } from '@/modules_next/common/ui/RowActionsMenu';
+import { toast } from '@/modules_next/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEnvelope, faBan, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faEnvelope, faBan } from '@fortawesome/free-solid-svg-icons';
 
 type MemberRole = 'USER' | 'ADMIN' | 'OWNER';
 
@@ -34,6 +35,8 @@ type SessionData = {
   tenant: { name: string };
 };
 
+const PAGE_SIZE = 25;
+
 const STATUS_BADGE: Record<InvitationStatus, 'warning' | 'success' | 'error' | 'neutral'> = {
   PENDING:  'warning',
   ACCEPTED: 'success',
@@ -48,25 +51,28 @@ const ROLE_BADGE: Record<MemberRole, 'primary' | 'warning' | 'neutral'> = {
   USER:  'neutral',
 };
 
-const selectClass =
-  'h-9 rounded-lg border border-border bg-surface-base px-3 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-border-focus w-full';
+function extractMessage(err: unknown, fallback: string): string {
+  const e = err as { response?: { data?: { message?: string } }; message?: string };
+  return e?.response?.data?.message ?? e?.message ?? fallback;
+}
 
 export default function TenantInvitationsPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = use(params);
 
   const [invitations, setInvitations] = useState<Invitation[]>([]);
-  const [session, setSession] = useState<SessionData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [fetchError, setFetchError] = useState('');
+  const [session, setSession]         = useState<SessionData | null>(null);
+  const [page, setPage]               = useState(1);
+  const [loading, setLoading]         = useState(true);
+  const [fetchError, setFetchError]   = useState('');
 
   const [confirmRevoke, setConfirmRevoke] = useState<Invitation | null>(null);
-  const [revoking, setRevoking] = useState(false);
-  const [revokeError, setRevokeError] = useState('');
+  const [revoking, setRevoking]           = useState(false);
+  const [revokeError, setRevokeError]     = useState('');
 
-  const [showInvite, setShowInvite] = useState(false);
+  const [showInvite, setShowInvite]   = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
-  const [inviteRole, setInviteRole] = useState<MemberRole>('USER');
-  const [inviting, setInviting] = useState(false);
+  const [inviteRole, setInviteRole]   = useState<MemberRole>('USER');
+  const [inviting, setInviting]       = useState(false);
   const [inviteError, setInviteError] = useState('');
 
   useEffect(() => {
@@ -78,15 +84,28 @@ export default function TenantInvitationsPage({ params }: { params: Promise<{ te
         setSession(sessionRes.data);
         setInvitations(invitationsRes.data.invitations ?? []);
       })
-      .catch((err: any) => {
-        setFetchError(err.response?.data?.message ?? err.message ?? 'Failed to load invitations. Please refresh.');
-      })
+      .catch((err) => setFetchError(extractMessage(err, 'Failed to load invitations.')))
       .finally(() => setLoading(false));
   }, [tenantId]);
 
   const canManage =
     session?.tenantMember.memberRole === 'ADMIN' ||
     session?.tenantMember.memberRole === 'OWNER';
+
+  const roleOptions = useMemo(() => {
+    const base = [
+      { value: 'USER',  label: 'User'  },
+      { value: 'ADMIN', label: 'Admin' },
+    ];
+    if (session?.tenantMember.memberRole === 'OWNER') {
+      base.push({ value: 'OWNER', label: 'Owner' });
+    }
+    return base;
+  }, [session?.tenantMember.memberRole]);
+
+  const total = invitations.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const pageRows = invitations.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   async function handleRevoke() {
     if (!confirmRevoke) return;
@@ -96,8 +115,9 @@ export default function TenantInvitationsPage({ params }: { params: Promise<{ te
       await api.delete(`/tenant/${tenantId}/api/invitations/${confirmRevoke.invitationId}`);
       setInvitations((prev) => prev.filter((inv) => inv.invitationId !== confirmRevoke.invitationId));
       setConfirmRevoke(null);
-    } catch (err: any) {
-      setRevokeError(err.response?.data?.message ?? err.message ?? 'Failed to revoke invitation.');
+      toast.success('Invitation revoked.');
+    } catch (err: unknown) {
+      setRevokeError(extractMessage(err, 'Failed to revoke invitation.'));
     } finally {
       setRevoking(false);
     }
@@ -118,8 +138,9 @@ export default function TenantInvitationsPage({ params }: { params: Promise<{ te
       setShowInvite(false);
       setInviteEmail('');
       setInviteRole('USER');
-    } catch (err: any) {
-      setInviteError(err.response?.data?.message ?? err.message ?? 'Failed to send invitation.');
+      toast.success('Invitation sent.');
+    } catch (err: unknown) {
+      setInviteError(extractMessage(err, 'Failed to send invitation.'));
     } finally {
       setInviting(false);
     }
@@ -132,6 +153,67 @@ export default function TenantInvitationsPage({ params }: { params: Promise<{ te
     setInviteError('');
   }
 
+  const columns: TableColumn<Invitation>[] = [
+    {
+      key: 'email',
+      header: 'Email',
+      render: (inv) => (
+        <div className="flex items-center gap-3">
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-subtle text-primary shrink-0">
+            <FontAwesomeIcon icon={faEnvelope} className="w-3.5 h-3.5" />
+          </span>
+          <p className="font-medium text-text-primary truncate">{inv.email}</p>
+        </div>
+      ),
+    },
+    {
+      key: 'memberRole',
+      header: 'Role',
+      render: (inv) => <Badge variant={ROLE_BADGE[inv.memberRole]}>{inv.memberRole}</Badge>,
+    },
+    {
+      key: 'createdAt',
+      header: 'Sent',
+      render: (inv) => (
+        <span className="text-text-secondary">{new Date(inv.createdAt).toLocaleDateString()}</span>
+      ),
+    },
+    {
+      key: 'expiresAt',
+      header: 'Expires',
+      render: (inv) => (
+        <span className="text-text-secondary">{new Date(inv.expiresAt).toLocaleDateString()}</span>
+      ),
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      render: (inv) => <Badge variant={STATUS_BADGE[inv.status]}>{inv.status}</Badge>,
+    },
+  ];
+
+  if (canManage) {
+    columns.push({
+      key: '_actions',
+      header: '',
+      align: 'right',
+      render: (inv) => (
+        <div onClick={(e) => e.stopPropagation()}>
+          <RowActionsMenu
+            actions={[
+              {
+                label: 'Revoke',
+                icon: <FontAwesomeIcon icon={faBan} />,
+                onClick: () => { setConfirmRevoke(inv); setRevokeError(''); },
+                variant: 'danger',
+              },
+            ]}
+          />
+        </div>
+      ),
+    });
+  }
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -142,77 +224,20 @@ export default function TenantInvitationsPage({ params }: { params: Promise<{ te
 
       {fetchError && <AlertBanner variant="error" message={fetchError} />}
 
-      <Card title="Pending Invitations" subtitle="Invitations that have been sent but not yet accepted">
-        {loading ? (
-          <div className="flex justify-center py-10">
-            <Spinner size="lg" />
-          </div>
-        ) : invitations.length === 0 ? (
-          <EmptyState
-            icon={<FontAwesomeIcon icon={faEnvelope} className="w-5 h-5" />}
-            title="No pending invitations"
-            description="Invite new members to join this organization."
-            action={canManage ? (
-              <Button onClick={() => setShowInvite(true)} iconLeft={<FontAwesomeIcon icon={faPlus} />}>
-                New Invitation
-              </Button>
-            ) : undefined}
-          />
-        ) : (
-          <div className="overflow-x-auto -mx-6 -mb-4">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Email</th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Role</th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Sent</th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Expires</th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Status</th>
-                  {canManage && <th className="px-6 py-3" />}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {invitations.map((invitation) => (
-                  <tr key={invitation.invitationId} className="hover:bg-surface-overlay transition-colors">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-subtle text-primary text-xs font-semibold shrink-0">
-                          <FontAwesomeIcon icon={faEnvelope} className="w-3.5 h-3.5" />
-                        </span>
-                        <p className="font-medium text-text-primary truncate">{invitation.email}</p>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <Badge variant={ROLE_BADGE[invitation.memberRole]}>{invitation.memberRole}</Badge>
-                    </td>
-                    <td className="px-6 py-4 text-text-secondary">
-                      {new Date(invitation.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4 text-text-secondary">
-                      {new Date(invitation.expiresAt).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4">
-                      <Badge variant={STATUS_BADGE[invitation.status]}>{invitation.status}</Badge>
-                    </td>
-                    {canManage && (
-                      <td className="px-6 py-4 text-right">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          iconOnly
-                          aria-label="Revoke invitation"
-                          onClick={() => setConfirmRevoke(invitation)}
-                          iconLeft={<FontAwesomeIcon icon={faBan} className="text-error" />}
-                        />
-                      </td>
-                    )}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </Card>
+      <ServerDataTable
+        columns={columns}
+        rows={pageRows}
+        getRowKey={(inv) => inv.invitationId}
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        pageSize={PAGE_SIZE}
+        onPageChange={setPage}
+        loading={loading}
+        emptyMessage="No pending invitations."
+        title="Pending Invitations"
+        subtitle="Invitations that have been sent but not yet accepted"
+      />
 
       <Modal
         open={showInvite}
@@ -239,21 +264,13 @@ export default function TenantInvitationsPage({ params }: { params: Promise<{ te
             value={inviteEmail}
             onChange={(e) => setInviteEmail(e.target.value)}
           />
-          <div className="flex flex-col gap-1">
-            <label htmlFor="inv-role" className="text-xs font-medium text-text-secondary">Role</label>
-            <select
-              id="inv-role"
-              value={inviteRole}
-              onChange={(e) => setInviteRole(e.target.value as MemberRole)}
-              className={selectClass}
-            >
-              <option value="USER">User</option>
-              <option value="ADMIN">Admin</option>
-              {session?.tenantMember.memberRole === 'OWNER' && (
-                <option value="OWNER">Owner</option>
-              )}
-            </select>
-          </div>
+          <Select
+            id="inv-role"
+            label="Role"
+            options={roleOptions}
+            value={inviteRole}
+            onChange={(e) => setInviteRole(e.target.value as MemberRole)}
+          />
         </form>
       </Modal>
 
@@ -264,12 +281,10 @@ export default function TenantInvitationsPage({ params }: { params: Promise<{ te
         description={`Revoke the invitation sent to ${confirmRevoke?.email}?`}
         footer={
           <>
-            <Button variant="ghost" onClick={() => setConfirmRevoke(null)} disabled={revoking}>
+            <Button variant="ghost" onClick={() => { setConfirmRevoke(null); setRevokeError(''); }} disabled={revoking}>
               Cancel
             </Button>
-            <Button variant="danger" loading={revoking} onClick={handleRevoke}>
-              Revoke
-            </Button>
+            <Button variant="danger" loading={revoking} onClick={handleRevoke}>Revoke</Button>
           </>
         }
       >

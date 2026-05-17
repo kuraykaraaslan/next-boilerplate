@@ -40,6 +40,8 @@ type ServerDataTableProps<T extends Record<string, unknown>> = {
   headerRight?: React.ReactNode;
   toolbar?: React.ReactNode;
 
+  hidePagination?: boolean;
+
   className?: string;
 };
 
@@ -62,6 +64,7 @@ export function ServerDataTable<T extends Record<string, unknown>>({
   subtitle,
   headerRight,
   toolbar,
+  hidePagination = false,
   className,
 }: ServerDataTableProps<T>) {
   const safeTotalPages = Math.max(1, totalPages);
@@ -189,7 +192,7 @@ export function ServerDataTable<T extends Record<string, unknown>>({
         </div>
       )}
 
-      {!loading && (
+      {!loading && !hidePagination && (
         <div className="flex items-center justify-between gap-4 px-6 py-4 border-t border-border flex-wrap">
           <p className="text-xs text-text-secondary">
             {total != null && rangeStart != null && rangeEnd != null

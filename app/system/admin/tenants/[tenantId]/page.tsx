@@ -9,12 +9,12 @@ import { Input } from '@/modules_next/common/ui/Input';
 import { Spinner } from '@/modules_next/common/ui/Spinner';
 import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
 import { Modal } from '@/modules_next/common/ui/Modal';
-import { Pagination } from '@/modules_next/common/ui/Pagination';
 import { Breadcrumb } from '@/modules_next/common/ui/Breadcrumb';
 import { PageHeader } from '@/modules_next/common/ui/PageHeader';
+import { ServerDataTable, type TableColumn } from '@/modules_next/common/ui/ServerDataTable';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  faArrowLeft, faGlobe, faPeopleGroup, faGear,
+  faGlobe, faPeopleGroup, faGear,
   faPlus, faTrash, faCheck, faBan, faUser, faCreditCard,
 } from '@fortawesome/free-solid-svg-icons';
 
@@ -281,8 +281,52 @@ export default function TenantDetailPage({ params }: { params: Promise<{ tenantI
             </dl>
           </Card>
 
-          {/* Members */}
-          <Card
+          <ServerDataTable
+            columns={[
+              {
+                key: 'user',
+                header: 'User',
+                render: (m: Member) => (
+                  <div className="flex items-center gap-2">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary-subtle text-primary text-xs shrink-0">
+                      <FontAwesomeIcon icon={faUser} />
+                    </span>
+                    <div>
+                      <p className="font-medium text-text-primary">{m.user?.email ?? m.userId}</p>
+                      {m.user?.email && <p className="text-xs text-text-secondary font-mono">{m.userId}</p>}
+                    </div>
+                  </div>
+                ),
+              },
+              {
+                key: 'memberRole',
+                header: 'Role',
+                render: (m: Member) => <Badge variant={memberRoleVariant[m.memberRole]}>{m.memberRole}</Badge>,
+              },
+              {
+                key: 'memberStatus',
+                header: 'Status',
+                render: (m: Member) => <Badge variant={memberStatusVariant[m.memberStatus]} dot>{m.memberStatus}</Badge>,
+              },
+              {
+                key: 'createdAt',
+                header: 'Joined',
+                render: (m: Member) => (
+                  <span className="text-text-secondary">
+                    {m.createdAt ? new Date(m.createdAt).toLocaleDateString() : '—'}
+                  </span>
+                ),
+              },
+            ] satisfies TableColumn<Member>[]}
+            rows={members}
+            getRowKey={(m) => m.tenantMemberId}
+            page={memberPage}
+            totalPages={memberTotalPages}
+            total={memberTotal}
+            pageSize={PAGE_SIZE}
+            onPageChange={setMemberPage}
+            loading={membersLoading}
+            emptyMessage="No members yet."
             title="Members"
             subtitle={`${memberTotal} total`}
             headerRight={
@@ -290,94 +334,24 @@ export default function TenantDetailPage({ params }: { params: Promise<{ tenantI
                 Add Member
               </Button>
             }
-          >
-            {membersLoading ? (
-              <div className="flex justify-center py-8"><Spinner size="md" /></div>
-            ) : (
-              <>
-                <div className="overflow-x-auto -mx-6">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b border-border">
-                        <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">User</th>
-                        <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Role</th>
-                        <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Status</th>
-                        <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Joined</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-border">
-                      {members.map((m) => (
-                        <tr key={m.tenantMemberId} className="hover:bg-surface-overlay transition-colors">
-                          <td className="px-6 py-3">
-                            <div className="flex items-center gap-2">
-                              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary-subtle text-primary text-xs shrink-0">
-                                <FontAwesomeIcon icon={faUser} />
-                              </span>
-                              <div>
-                                <p className="font-medium text-text-primary">{m.user?.email ?? m.userId}</p>
-                                {m.user?.email && <p className="text-xs text-text-secondary font-mono">{m.userId}</p>}
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-3">
-                            <Badge variant={memberRoleVariant[m.memberRole]}>{m.memberRole}</Badge>
-                          </td>
-                          <td className="px-6 py-3">
-                            <Badge variant={memberStatusVariant[m.memberStatus]} dot>{m.memberStatus}</Badge>
-                          </td>
-                          <td className="px-6 py-3 text-text-secondary">
-                            {m.createdAt ? new Date(m.createdAt).toLocaleDateString() : '—'}
-                          </td>
-                        </tr>
-                      ))}
-                      {members.length === 0 && (
-                        <tr>
-                          <td colSpan={4} className="px-6 py-8 text-center text-sm text-text-secondary">No members yet.</td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-                <div className="flex justify-center px-6 py-4 border-t border-border -mb-4">
-                  <Pagination
-                    page={memberPage}
-                    totalPages={memberTotalPages}
-                    onPageChange={setMemberPage}
-                    showFirstLast
-                  />
-                </div>
-              </>
-            )}
-          </Card>
+          />
 
-          {/* Domains */}
           {tenant.domains && tenant.domains.length > 0 && (
-            <Card title="Custom Domains">
-              <div className="overflow-x-auto -mx-6">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-border">
-                      <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Domain</th>
-                      <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Status</th>
-                      <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Primary</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    {tenant.domains.map((d) => (
-                      <tr key={d.tenantDomainId} className="hover:bg-surface-overlay transition-colors">
-                        <td className="px-6 py-3 font-mono text-text-primary">{d.domain}</td>
-                        <td className="px-6 py-3">
-                          <Badge variant={domainStatusVariant[d.domainStatus]} dot>{d.domainStatus}</Badge>
-                        </td>
-                        <td className="px-6 py-3">
-                          {d.isPrimary && <Badge variant="primary">Primary</Badge>}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </Card>
+            <ServerDataTable
+              columns={[
+                { key: 'domain', header: 'Domain', render: (d: Domain) => <span className="font-mono text-text-primary">{d.domain}</span> },
+                { key: 'domainStatus', header: 'Status', render: (d: Domain) => <Badge variant={domainStatusVariant[d.domainStatus]} dot>{d.domainStatus}</Badge> },
+                { key: 'isPrimary', header: 'Primary', render: (d: Domain) => d.isPrimary ? <Badge variant="primary">Primary</Badge> : null },
+              ] satisfies TableColumn<Domain>[]}
+              rows={tenant.domains}
+              getRowKey={(d) => d.tenantDomainId}
+              page={1}
+              totalPages={1}
+              total={tenant.domains.length}
+              onPageChange={() => {}}
+              hidePagination
+              title="Custom Domains"
+            />
           )}
         </div>
 

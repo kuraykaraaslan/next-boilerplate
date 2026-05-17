@@ -5,9 +5,9 @@ import api from '@/modules_next/common/axios';
 import { PageHeader } from '@/modules_next/common/ui/PageHeader';
 import { Card } from '@/modules_next/common/ui/Card';
 import { Badge } from '@/modules_next/common/ui/Badge';
-import { Button } from '@/modules_next/common/ui/Button';
 import { Spinner } from '@/modules_next/common/ui/Spinner';
 import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
+import { ServerDataTable, type TableColumn } from '@/modules_next/common/ui/ServerDataTable';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faDatabase,
@@ -115,47 +115,7 @@ function ServiceRow({ label, check, icon }: { label: string; check: ServiceCheck
   );
 }
 
-function QueueRow({ name, queue }: { name: string; queue: QueueCheck }) {
-  return (
-    <tr className="border-b border-border last:border-0 hover:bg-surface-overlay transition-colors">
-      <td className="px-5 py-3">
-        <div className="flex items-center gap-2">
-          <FontAwesomeIcon
-            icon={faCircle}
-            className={cn('w-2 h-2 shrink-0', queue.status === 'ok' ? 'text-success' : 'text-error')}
-          />
-          <span className="text-sm font-mono text-text-primary">{name}</span>
-        </div>
-        {queue.message && (
-          <p className="text-xs text-error mt-0.5 font-mono pl-4">{queue.message}</p>
-        )}
-      </td>
-      <td className="px-5 py-3 text-center">
-        <span className={cn('text-sm tabular-nums font-medium', queue.waiting > 0 ? 'text-warning-fg' : 'text-text-secondary')}>
-          {queue.waiting}
-        </span>
-      </td>
-      <td className="px-5 py-3 text-center">
-        <span className={cn('text-sm tabular-nums font-medium', queue.active > 0 ? 'text-info' : 'text-text-secondary')}>
-          {queue.active}
-        </span>
-      </td>
-      <td className="px-5 py-3 text-center">
-        <span className="text-sm tabular-nums text-text-secondary">{queue.completed}</span>
-      </td>
-      <td className="px-5 py-3 text-center">
-        <span className={cn('text-sm tabular-nums font-medium', queue.failed > 0 ? 'text-error' : 'text-text-secondary')}>
-          {queue.failed}
-        </span>
-      </td>
-      <td className="px-5 py-3 text-center">
-        <span className={cn('text-sm tabular-nums', queue.delayed > 0 ? 'text-warning-fg' : 'text-text-secondary')}>
-          {queue.delayed}
-        </span>
-      </td>
-    </tr>
-  );
-}
+type QueueRow = { name: string; queue: QueueCheck };
 
 // ---------------------------------------------------------------------------
 // Page
@@ -269,8 +229,81 @@ export default function HealthPage() {
             </div>
           </Card>
 
-          {/* Queue stats */}
-          <Card
+          <ServerDataTable
+            columns={[
+              {
+                key: 'name',
+                header: 'Queue',
+                render: (r: QueueRow) => (
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <FontAwesomeIcon
+                        icon={faCircle}
+                        className={cn('w-2 h-2 shrink-0', r.queue.status === 'ok' ? 'text-success' : 'text-error')}
+                      />
+                      <span className="text-sm font-mono text-text-primary">{r.name}</span>
+                    </div>
+                    {r.queue.message && (
+                      <p className="text-xs text-error mt-0.5 font-mono pl-4">{r.queue.message}</p>
+                    )}
+                  </div>
+                ),
+              },
+              {
+                key: 'waiting',
+                header: 'Waiting',
+                align: 'center',
+                render: (r: QueueRow) => (
+                  <span className={cn('text-sm tabular-nums font-medium', r.queue.waiting > 0 ? 'text-warning-fg' : 'text-text-secondary')}>
+                    {r.queue.waiting}
+                  </span>
+                ),
+              },
+              {
+                key: 'active',
+                header: 'Active',
+                align: 'center',
+                render: (r: QueueRow) => (
+                  <span className={cn('text-sm tabular-nums font-medium', r.queue.active > 0 ? 'text-info' : 'text-text-secondary')}>
+                    {r.queue.active}
+                  </span>
+                ),
+              },
+              {
+                key: 'completed',
+                header: 'Completed',
+                align: 'center',
+                render: (r: QueueRow) => (
+                  <span className="text-sm tabular-nums text-text-secondary">{r.queue.completed}</span>
+                ),
+              },
+              {
+                key: 'failed',
+                header: 'Failed',
+                align: 'center',
+                render: (r: QueueRow) => (
+                  <span className={cn('text-sm tabular-nums font-medium', r.queue.failed > 0 ? 'text-error' : 'text-text-secondary')}>
+                    {r.queue.failed}
+                  </span>
+                ),
+              },
+              {
+                key: 'delayed',
+                header: 'Delayed',
+                align: 'center',
+                render: (r: QueueRow) => (
+                  <span className={cn('text-sm tabular-nums', r.queue.delayed > 0 ? 'text-warning-fg' : 'text-text-secondary')}>
+                    {r.queue.delayed}
+                  </span>
+                ),
+              },
+            ] satisfies TableColumn<QueueRow>[]}
+            rows={Object.entries(data.checks.queues).map(([name, queue]) => ({ name, queue }))}
+            getRowKey={(r) => r.name}
+            page={1}
+            totalPages={1}
+            onPageChange={() => {}}
+            hidePagination
             title="Job Queues"
             subtitle="BullMQ queue job counts"
             headerRight={
@@ -279,27 +312,8 @@ export default function HealthPage() {
                 /{Object.keys(data.checks.queues).length} queues healthy
               </span>
             }
-          >
-            <div className="overflow-x-auto -mx-6 -mb-4">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border bg-surface-base">
-                    <th className="text-left px-5 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Queue</th>
-                    <th className="text-center px-5 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Waiting</th>
-                    <th className="text-center px-5 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Active</th>
-                    <th className="text-center px-5 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Completed</th>
-                    <th className="text-center px-5 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Failed</th>
-                    <th className="text-center px-5 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Delayed</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {Object.entries(data.checks.queues).map(([name, queue]) => (
-                    <QueueRow key={name} name={name} queue={queue} />
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Card>
+            emptyMessage="No queues configured."
+          />
 
           {/* Environment snapshot */}
           <Card title="Environment" subtitle="Runtime information">

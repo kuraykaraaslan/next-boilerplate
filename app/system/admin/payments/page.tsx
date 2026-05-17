@@ -1,17 +1,15 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
 import api from '@/modules_next/common/axios';
-import { Card } from '@/modules_next/common/ui/Card';
-import { Button } from '@/modules_next/common/ui/Button';
+import { ServerDataTable, type TableColumn } from '@/modules_next/common/ui/ServerDataTable';
 import { Input } from '@/modules_next/common/ui/Input';
-import { Spinner } from '@/modules_next/common/ui/Spinner';
+import { Select } from '@/modules_next/common/ui/Select';
 import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
-import { Pagination } from '@/modules_next/common/ui/Pagination';
 import { PageHeader } from '@/modules_next/common/ui/PageHeader';
-import { EmptyState } from '@/modules_next/common/ui/EmptyState';
+import { RowActionsMenu } from '@/modules_next/common/ui/RowActionsMenu';
 import { PaymentStatusBadge, type PaymentStatus } from '@/modules_next/payment/ui/PaymentStatusBadge';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch, faCreditCard } from '@fortawesome/free-solid-svg-icons';
+import { faSearch, faEye } from '@fortawesome/free-solid-svg-icons';
 
 type Payment = {
   paymentId: string;
@@ -28,46 +26,82 @@ type Payment = {
 
 const PAGE_SIZE = 20;
 
-const selectClass =
-  'h-9 rounded-lg border border-border bg-surface-base px-3 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-border-focus';
+const statusOptions = [
+  { value: '',                   label: 'All statuses'        },
+  { value: 'PENDING',            label: 'Pending'             },
+  { value: 'PROCESSING',         label: 'Processing'          },
+  { value: 'COMPLETED',          label: 'Completed'           },
+  { value: 'FAILED',             label: 'Failed'              },
+  { value: 'REFUNDED',           label: 'Refunded'            },
+  { value: 'PARTIALLY_REFUNDED', label: 'Partially refunded'  },
+  { value: 'CANCELLED',          label: 'Cancelled'           },
+  { value: 'EXPIRED',            label: 'Expired'             },
+];
+
+const providerOptions = [
+  { value: '',        label: 'All providers' },
+  { value: 'STRIPE',  label: 'Stripe'        },
+  { value: 'PAYPAL',  label: 'PayPal'        },
+  { value: 'IYZICO',  label: 'Iyzico'        },
+];
+
+function extractMessage(err: unknown, fallback: string): string {
+  const e = err as { response?: { data?: { message?: string } }; message?: string };
+  return e?.response?.data?.message ?? e?.message ?? fallback;
+}
+
+function formatAmount(amount: number, currency: string) {
+  try {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency,
+      minimumFractionDigits: 2,
+    }).format(amount);
+  } catch {
+    return `${amount} ${currency}`;
+  }
+}
 
 export default function PaymentsPage() {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [total, setTotal]       = useState(0);
-  const [page, setPage]         = useState(0);
+  const [page, setPage]         = useState(1);
   const [status, setStatus]     = useState('');
   const [provider, setProvider] = useState('');
   const [search, setSearch]     = useState('');
   const [loading, setLoading]   = useState(true);
-  const [error, setError]       = useState('');
-
-  const fetch = useCallback(async (p: number) => {
-    setLoading(true);
-    setError('');
-    try {
-      const params: Record<string, string | number> = { page: p, pageSize: PAGE_SIZE };
-      if (status)   params.status   = status;
-      if (provider) params.provider = provider;
-      const res = await api.get('/system/api/admin/payments', { params });
-      setPayments(res.data.payments ?? []);
-      setTotal(res.data.total ?? 0);
-    } catch (e: any) {
-      setError(e.response?.data?.message ?? 'Failed to load payments.');
-    } finally {
-      setLoading(false);
-    }
-  }, [status, provider]);
-
-  useEffect(() => { setPage(0); fetch(0); }, [fetch]);
-  useEffect(() => { fetch(page); }, [page]); // eslint-disable-line react-hooks/exhaustive-deps
+  const [fetchError, setFetchError] = useState('');
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
-  function formatAmount(amount: number, currency: string) {
-    try {
-      return new Intl.NumberFormat('en-US', { style: 'currency', currency, minimumFractionDigits: 2 }).format(amount);
-    } catch { return `${amount} ${currency}`; }
-  }
+  const fetchPayments = useCallback(
+    async (p: number, st: string, prov: string) => {
+      setLoading(true);
+      setFetchError('');
+      try {
+        const params: Record<string, string | number> = { page: p - 1, pageSize: PAGE_SIZE };
+        if (st)   params.status   = st;
+        if (prov) params.provider = prov;
+        const res = await api.get('/system/api/admin/payments', { params });
+        setPayments(res.data.payments ?? []);
+        setTotal(res.data.total ?? 0);
+      } catch (err: unknown) {
+        setFetchError(extractMessage(err, 'Failed to load payments.'));
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
+
+  useEffect(() => {
+    setPage(1);
+    fetchPayments(1, status, provider);
+  }, [status, provider, fetchPayments]);
+
+  useEffect(() => {
+    fetchPayments(page, status, provider);
+  }, [page]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const displayed = search
     ? payments.filter(
@@ -78,97 +112,127 @@ export default function PaymentsPage() {
       )
     : payments;
 
+  const columns: TableColumn<Payment>[] = [
+    {
+      key: 'customer',
+      header: 'Customer',
+      render: (p) => (
+        <div>
+          <p className="font-medium text-text-primary">
+            {p.customerName ?? p.customerEmail ?? '—'}
+          </p>
+          {p.customerName && p.customerEmail && (
+            <p className="text-xs text-text-secondary">{p.customerEmail}</p>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: 'amount',
+      header: 'Amount',
+      render: (p) => (
+        <span className="font-semibold tabular-nums text-text-primary">
+          {formatAmount(p.amount, p.currency)}
+        </span>
+      ),
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      render: (p) => <PaymentStatusBadge status={p.status} dot size="sm" />,
+    },
+    {
+      key: 'provider',
+      header: 'Provider',
+      render: (p) => <span className="text-text-secondary">{p.provider}</span>,
+    },
+    {
+      key: 'createdAt',
+      header: 'Date',
+      render: (p) => (
+        <span className="text-text-secondary">
+          {new Date(p.createdAt).toLocaleDateString()}
+        </span>
+      ),
+    },
+    {
+      key: '_actions',
+      header: '',
+      align: 'right',
+      render: (p) => (
+        <div onClick={(e) => e.stopPropagation()}>
+          <RowActionsMenu
+            actions={[
+              {
+                label: 'View',
+                icon: <FontAwesomeIcon icon={faEye} />,
+                onClick: () => {
+                  window.location.href = `/system/admin/payments/${p.paymentId}`;
+                },
+              },
+            ]}
+          />
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div className="space-y-6">
-      <PageHeader title="Payments" subtitle={`${total} total transactions`} />
+      <PageHeader
+        title="Payments"
+        subtitle={loading ? '…' : `${total} total transaction${total !== 1 ? 's' : ''}`}
+      />
 
-      {error && <AlertBanner variant="error" message={error} />}
+      {fetchError && <AlertBanner variant="error" message={fetchError} />}
 
-      <Card>
-        <div className="flex flex-wrap gap-3 pb-4">
-          <Input
-            id="pay-search"
-            label=""
-            placeholder="Search by email or ID…"
-            prefixIcon={<FontAwesomeIcon icon={faSearch} className="w-3.5 h-3.5" />}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="flex-1 min-w-48"
-          />
-          <select value={status} onChange={(e) => setStatus(e.target.value)} className={selectClass}>
-            <option value="">All statuses</option>
-            {['PENDING','PROCESSING','COMPLETED','FAILED','REFUNDED','PARTIALLY_REFUNDED','CANCELLED','EXPIRED'].map((s) => (
-              <option key={s} value={s}>{s}</option>
-            ))}
-          </select>
-          <select value={provider} onChange={(e) => setProvider(e.target.value)} className={selectClass}>
-            <option value="">All providers</option>
-            {['STRIPE','PAYPAL','IYZICO'].map((pr) => (
-              <option key={pr} value={pr}>{pr}</option>
-            ))}
-          </select>
-        </div>
-
-        {loading ? (
-          <div className="flex justify-center py-12"><Spinner size="lg" /></div>
-        ) : (
-          <>
-            <div className="overflow-x-auto -mx-6">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border">
-                    {['Customer', 'Amount', 'Status', 'Provider', 'Date', ''].map((h) => (
-                      <th key={h} className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {displayed.map((p) => (
-                    <tr key={p.paymentId} className="hover:bg-surface-overlay transition-colors">
-                      <td className="px-6 py-4">
-                        <p className="font-medium text-text-primary">{p.customerName ?? p.customerEmail ?? '—'}</p>
-                        {p.customerName && p.customerEmail && (
-                          <p className="text-xs text-text-secondary">{p.customerEmail}</p>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 font-semibold tabular-nums text-text-primary">
-                        {formatAmount(p.amount, p.currency)}
-                      </td>
-                      <td className="px-6 py-4">
-                        <PaymentStatusBadge status={p.status} dot size="sm" />
-                      </td>
-                      <td className="px-6 py-4 text-text-secondary">{p.provider}</td>
-                      <td className="px-6 py-4 text-text-secondary">
-                        {new Date(p.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <a href={`/system/admin/payments/${p.paymentId}`}
-                          className="text-xs text-primary hover:underline">
-                          View
-                        </a>
-                      </td>
-                    </tr>
-                  ))}
-                  {displayed.length === 0 && !loading && (
-                    <tr>
-                      <td colSpan={6} className="p-0">
-                        <EmptyState
-                          icon={<FontAwesomeIcon icon={faCreditCard} className="w-5 h-5" />}
-                          title="No payments found"
-                          description="Try adjusting your filters."
-                        />
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+      <ServerDataTable
+        columns={columns}
+        rows={displayed}
+        getRowKey={(p) => p.paymentId}
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        pageSize={PAGE_SIZE}
+        onPageChange={setPage}
+        onRowClick={(p) => {
+          window.location.href = `/system/admin/payments/${p.paymentId}`;
+        }}
+        loading={loading}
+        emptyMessage="No payments found."
+        toolbar={
+          <div className="flex flex-wrap gap-3 pb-4">
+            <div className="flex-1 min-w-48">
+              <Input
+                id="pay-search"
+                label="Search"
+                placeholder="Search by customer or payment ID…"
+                prefixIcon={<FontAwesomeIcon icon={faSearch} className="w-3.5 h-3.5" />}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
             </div>
-            <div className="flex justify-center px-6 py-4 border-t border-border -mb-4">
-              <Pagination page={page + 1} totalPages={totalPages} onPageChange={(p) => setPage(p - 1)} showFirstLast />
+            <div className="min-w-44">
+              <Select
+                id="pay-status"
+                label="Status"
+                options={statusOptions}
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+              />
             </div>
-          </>
-        )}
-      </Card>
+            <div className="min-w-44">
+              <Select
+                id="pay-provider"
+                label="Provider"
+                options={providerOptions}
+                value={provider}
+                onChange={(e) => setProvider(e.target.value)}
+              />
+            </div>
+          </div>
+        }
+      />
     </div>
   );
 }

@@ -1,18 +1,19 @@
 'use client';
-import { use, useEffect, useState } from 'react';
+import { use, useEffect, useState, useMemo } from 'react';
 import api from '@/modules_next/common/axios';
 import { PageHeader } from '@/modules_next/common/ui/PageHeader';
-import { Card } from '@/modules_next/common/ui/Card';
 import { Badge } from '@/modules_next/common/ui/Badge';
 import { Button } from '@/modules_next/common/ui/Button';
 import { Input } from '@/modules_next/common/ui/Input';
+import { Select } from '@/modules_next/common/ui/Select';
 import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
-import { Spinner } from '@/modules_next/common/ui/Spinner';
 import { Modal } from '@/modules_next/common/ui/Modal';
-import { EmptyState } from '@/modules_next/common/ui/EmptyState';
 import { Avatar } from '@/modules_next/common/ui/Avatar';
+import { ServerDataTable, type TableColumn } from '@/modules_next/common/ui/ServerDataTable';
+import { RowActionsMenu } from '@/modules_next/common/ui/RowActionsMenu';
+import { toast } from '@/modules_next/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUserPlus, faSearch, faUser, faTrash, faPeopleGroup } from '@fortawesome/free-solid-svg-icons';
+import { faUserPlus, faSearch, faUser, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 type MemberRole = 'USER' | 'ADMIN' | 'OWNER';
 
@@ -29,34 +30,38 @@ type SessionData = {
   tenant: { name: string };
 };
 
+const PAGE_SIZE = 25;
+
 const ROLE_BADGE: Record<MemberRole, 'primary' | 'warning' | 'neutral'> = {
   OWNER: 'primary',
   ADMIN: 'warning',
   USER:  'neutral',
 };
 
-const selectClass =
-  'h-9 rounded-lg border border-border bg-surface-base px-3 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-border-focus w-full';
+function extractMessage(err: unknown, fallback: string): string {
+  const e = err as { response?: { data?: { message?: string } }; message?: string };
+  return e?.response?.data?.message ?? e?.message ?? fallback;
+}
 
 export default function TenantMembersPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = use(params);
 
   const [members, setMembers] = useState<Member[]>([]);
   const [session, setSession] = useState<SessionData | null>(null);
+  const [page, setPage]       = useState(1);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState('');
-  const [search, setSearch] = useState('');
+  const [search, setSearch]   = useState('');
 
-  const [showInvite, setShowInvite] = useState(false);
+  const [showInvite, setShowInvite]   = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
-  const [inviteRole, setInviteRole] = useState<MemberRole>('USER');
-  const [inviting, setInviting] = useState(false);
+  const [inviteRole, setInviteRole]   = useState<MemberRole>('USER');
+  const [inviting, setInviting]       = useState(false);
   const [inviteError, setInviteError] = useState('');
-  const [inviteSent, setInviteSent] = useState(false);
 
   const [confirmDelete, setConfirmDelete] = useState<Member | null>(null);
-  const [deleting, setDeleting] = useState(false);
-  const [deleteError, setDeleteError] = useState('');
+  const [deleting, setDeleting]         = useState(false);
+  const [deleteError, setDeleteError]   = useState('');
 
   useEffect(() => {
     Promise.all([
@@ -67,15 +72,31 @@ export default function TenantMembersPage({ params }: { params: Promise<{ tenant
         setSession(sessionRes.data);
         setMembers(membersRes.data.members ?? []);
       })
-      .catch(() => setFetchError('Failed to load members. Please refresh.'))
+      .catch((err) => setFetchError(extractMessage(err, 'Failed to load members.')))
       .finally(() => setLoading(false));
   }, [tenantId]);
 
   const canManage = session?.tenantMember.memberRole === 'ADMIN' || session?.tenantMember.memberRole === 'OWNER';
 
-  const filtered = members.filter((m) =>
-    m.user.email.toLowerCase().includes(search.toLowerCase())
+  const filtered = useMemo(
+    () => members.filter((m) => m.user.email.toLowerCase().includes(search.toLowerCase())),
+    [members, search],
   );
+
+  const total = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const pageRows = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  const roleOptions = useMemo(() => {
+    const base = [
+      { value: 'USER',  label: 'User'  },
+      { value: 'ADMIN', label: 'Admin' },
+    ];
+    if (session?.tenantMember.memberRole === 'OWNER') {
+      base.push({ value: 'OWNER', label: 'Owner' });
+    }
+    return base;
+  }, [session?.tenantMember.memberRole]);
 
   function closeInvite() {
     setShowInvite(false);
@@ -92,10 +113,9 @@ export default function TenantMembersPage({ params }: { params: Promise<{ tenant
     try {
       await api.post(`/tenant/${tenantId}/api/invitations`, { email: inviteEmail, memberRole: inviteRole });
       closeInvite();
-      setInviteSent(true);
-      setTimeout(() => setInviteSent(false), 4000);
-    } catch (err: any) {
-      setInviteError(err.response?.data?.message ?? err.message ?? 'Failed to send invitation.');
+      toast.success('Invitation sent.');
+    } catch (err: unknown) {
+      setInviteError(extractMessage(err, 'Failed to send invitation.'));
     } finally {
       setInviting(false);
     }
@@ -109,18 +129,67 @@ export default function TenantMembersPage({ params }: { params: Promise<{ tenant
       await api.delete(`/tenant/${tenantId}/api/members/${confirmDelete.tenantMemberId}`);
       setMembers((prev) => prev.filter((m) => m.tenantMemberId !== confirmDelete.tenantMemberId));
       setConfirmDelete(null);
-    } catch (err: any) {
-      setDeleteError(err.response?.data?.message ?? err.message ?? 'Failed to remove member.');
+      toast.success('Member removed.');
+    } catch (err: unknown) {
+      setDeleteError(extractMessage(err, 'Failed to remove member.'));
     } finally {
       setDeleting(false);
     }
   }
 
-  function canDelete(member: Member) {
+  function canDelete(member: Member): boolean {
     if (!canManage) return false;
     if (member.tenantMemberId === session?.tenantMember.tenantMemberId) return false;
     if (member.memberRole === 'OWNER') return session?.tenantMember.memberRole === 'OWNER';
     return true;
+  }
+
+  const columns: TableColumn<Member>[] = [
+    {
+      key: 'user',
+      header: 'Member',
+      render: (m) => (
+        <div className="flex items-center gap-3">
+          <Avatar name={m.user.email} size="sm" />
+          <p className="font-medium text-text-primary truncate">{m.user.email}</p>
+        </div>
+      ),
+    },
+    {
+      key: 'memberRole',
+      header: 'Role',
+      render: (m) => <Badge variant={ROLE_BADGE[m.memberRole]}>{m.memberRole}</Badge>,
+    },
+    {
+      key: 'createdAt',
+      header: 'Joined',
+      render: (m) => (
+        <span className="text-text-secondary">{new Date(m.createdAt).toLocaleDateString()}</span>
+      ),
+    },
+  ];
+
+  if (canManage) {
+    columns.push({
+      key: '_actions',
+      header: '',
+      align: 'right',
+      render: (m) =>
+        canDelete(m) ? (
+          <div onClick={(e) => e.stopPropagation()}>
+            <RowActionsMenu
+              actions={[
+                {
+                  label: 'Remove',
+                  icon: <FontAwesomeIcon icon={faTrash} />,
+                  onClick: () => { setConfirmDelete(m); setDeleteError(''); },
+                  variant: 'danger',
+                },
+              ]}
+            />
+          </div>
+        ) : null,
+    });
   }
 
   return (
@@ -132,80 +201,31 @@ export default function TenantMembersPage({ params }: { params: Promise<{ tenant
       />
 
       {fetchError && <AlertBanner variant="error" message={fetchError} />}
-      {inviteSent && <AlertBanner variant="success" message="Invitation sent successfully." dismissible />}
 
-      <Card>
-        <div className="pb-4">
-          <Input
-            id="member-search"
-            label="Search members"
-            placeholder="Search by email…"
-            prefixIcon={<FontAwesomeIcon icon={faSearch} className="w-3.5 h-3.5" />}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-
-        {loading ? (
-          <div className="flex justify-center py-10"><Spinner size="lg" /></div>
-        ) : filtered.length === 0 ? (
-          <EmptyState
-            icon={<FontAwesomeIcon icon={faPeopleGroup} className="w-5 h-5" />}
-            title={search ? 'No members match your search' : 'No members yet'}
-            description={search ? 'Try a different search term.' : 'Invite people to join this organization.'}
-            action={!search && canManage ? (
-              <Button onClick={() => setShowInvite(true)} iconLeft={<FontAwesomeIcon icon={faUserPlus} />}>
-                Invite Member
-              </Button>
-            ) : undefined}
-          />
-        ) : (
-          <div className="overflow-x-auto -mx-6 -mb-4">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Member</th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Role</th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Joined</th>
-                  {canManage && <th className="px-6 py-3" />}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {filtered.map((member) => (
-                  <tr key={member.tenantMemberId} className="hover:bg-surface-overlay transition-colors">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <Avatar name={member.user.email} size="sm" />
-                        <p className="font-medium text-text-primary truncate">{member.user.email}</p>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <Badge variant={ROLE_BADGE[member.memberRole]}>{member.memberRole}</Badge>
-                    </td>
-                    <td className="px-6 py-4 text-text-secondary">
-                      {new Date(member.createdAt).toLocaleDateString()}
-                    </td>
-                    {canManage && (
-                      <td className="px-6 py-4 text-right">
-                        {canDelete(member) && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            iconOnly
-                            aria-label="Remove member"
-                            onClick={() => setConfirmDelete(member)}
-                            iconLeft={<FontAwesomeIcon icon={faTrash} className="text-error" />}
-                          />
-                        )}
-                      </td>
-                    )}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      <ServerDataTable
+        columns={columns}
+        rows={pageRows}
+        getRowKey={(m) => m.tenantMemberId}
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        pageSize={PAGE_SIZE}
+        onPageChange={setPage}
+        loading={loading}
+        emptyMessage={search ? 'No members match your search.' : 'No members yet.'}
+        toolbar={
+          <div className="pb-4">
+            <Input
+              id="member-search"
+              label="Search members"
+              placeholder="Search by email…"
+              prefixIcon={<FontAwesomeIcon icon={faSearch} className="w-3.5 h-3.5" />}
+              value={search}
+              onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            />
           </div>
-        )}
-      </Card>
+        }
+      />
 
       <Modal
         open={showInvite}
@@ -238,21 +258,13 @@ export default function TenantMembersPage({ params }: { params: Promise<{ tenant
             value={inviteEmail}
             onChange={(e) => setInviteEmail(e.target.value)}
           />
-          <div className="flex flex-col gap-1">
-            <label htmlFor="invite-role" className="text-xs font-medium text-text-secondary">Role</label>
-            <select
-              id="invite-role"
-              value={inviteRole}
-              onChange={(e) => setInviteRole(e.target.value as MemberRole)}
-              className={selectClass}
-            >
-              <option value="USER">User</option>
-              <option value="ADMIN">Admin</option>
-              {session?.tenantMember.memberRole === 'OWNER' && (
-                <option value="OWNER">Owner</option>
-              )}
-            </select>
-          </div>
+          <Select
+            id="invite-role"
+            label="Role"
+            options={roleOptions}
+            value={inviteRole}
+            onChange={(e) => setInviteRole(e.target.value as MemberRole)}
+          />
         </form>
       </Modal>
 
@@ -263,7 +275,9 @@ export default function TenantMembersPage({ params }: { params: Promise<{ tenant
         description={`Remove ${confirmDelete?.user.email} from this organization?`}
         footer={
           <>
-            <Button variant="ghost" onClick={() => setConfirmDelete(null)} disabled={deleting}>Cancel</Button>
+            <Button variant="ghost" onClick={() => { setConfirmDelete(null); setDeleteError(''); }} disabled={deleting}>
+              Cancel
+            </Button>
             <Button variant="danger" loading={deleting} onClick={handleDelete}>Remove</Button>
           </>
         }

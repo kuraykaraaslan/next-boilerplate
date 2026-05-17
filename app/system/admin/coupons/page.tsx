@@ -1,23 +1,17 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
-import { Card } from '@/modules_next/common/ui/Card';
 import { Badge } from '@/modules_next/common/ui/Badge';
 import { Button } from '@/modules_next/common/ui/Button';
-import { Spinner } from '@/modules_next/common/ui/Spinner';
 import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
 import { Modal } from '@/modules_next/common/ui/Modal';
 import { Input } from '@/modules_next/common/ui/Input';
 import { Select } from '@/modules_next/common/ui/Select';
 import { PageHeader } from '@/modules_next/common/ui/PageHeader';
-import { EmptyState } from '@/modules_next/common/ui/EmptyState';
+import { ServerDataTable, type TableColumn } from '@/modules_next/common/ui/ServerDataTable';
+import { RowActionsMenu } from '@/modules_next/common/ui/RowActionsMenu';
+import { toast } from '@/modules_next/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faPlus,
-  faTag,
-  faTrash,
-  faPercent,
-  faDollarSign,
-} from '@fortawesome/free-solid-svg-icons';
+import { faPercent, faDollarSign, faTrash } from '@fortawesome/free-solid-svg-icons';
 import api from '@/modules_next/common/axios';
 
 type CouponStatus = 'ACTIVE' | 'INACTIVE' | 'EXPIRED' | 'ARCHIVED';
@@ -66,31 +60,43 @@ const EMPTY_FORM: CreateForm = {
   expiresAt: '',
 };
 
-const statusVariant = (s: CouponStatus): 'success' | 'warning' | 'error' | 'neutral' => {
-  if (s === 'ACTIVE') return 'success';
-  if (s === 'INACTIVE') return 'warning';
-  if (s === 'EXPIRED') return 'error';
-  return 'neutral';
+const PAGE_SIZE = 25;
+
+const statusVariant: Record<CouponStatus, 'success' | 'warning' | 'error' | 'neutral'> = {
+  ACTIVE:   'success',
+  INACTIVE: 'warning',
+  EXPIRED:  'error',
+  ARCHIVED: 'neutral',
 };
 
+function extractMessage(err: unknown, fallback: string): string {
+  const e = err as { response?: { data?: { message?: string } }; message?: string };
+  return e?.response?.data?.message ?? e?.message ?? fallback;
+}
+
 export default function CouponsPage() {
-  const [coupons, setCoupons] = useState<Coupon[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [createOpen, setCreateOpen] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [createError, setCreateError] = useState<string | null>(null);
-  const [form, setForm] = useState<CreateForm>(EMPTY_FORM);
-  const [archiving, setArchiving] = useState<string | null>(null);
+  const [coupons, setCoupons]     = useState<Coupon[]>([]);
+  const [page, setPage]           = useState(1);
+  const [loading, setLoading]     = useState(true);
+  const [fetchError, setFetchError] = useState('');
+
+  const [createOpen, setCreateOpen]   = useState(false);
+  const [submitting, setSubmitting]   = useState(false);
+  const [createError, setCreateError] = useState('');
+  const [form, setForm]               = useState<CreateForm>(EMPTY_FORM);
+
+  const [archivingCoupon, setArchivingCoupon] = useState<Coupon | null>(null);
+  const [archiving, setArchiving] = useState(false);
+  const [archiveError, setArchiveError] = useState('');
 
   const fetchCoupons = useCallback(async () => {
     setLoading(true);
-    setError(null);
+    setFetchError('');
     try {
       const res = await api.get('/system/api/coupons?pageSize=100');
       setCoupons(res.data.coupons ?? []);
-    } catch {
-      setError('Failed to load coupons.');
+    } catch (err: unknown) {
+      setFetchError(extractMessage(err, 'Failed to load coupons.'));
     } finally {
       setLoading(false);
     }
@@ -105,7 +111,7 @@ export default function CouponsPage() {
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
     setSubmitting(true);
-    setCreateError(null);
+    setCreateError('');
     try {
       await api.post('/system/api/coupons', {
         code: form.code.toUpperCase(),
@@ -121,148 +127,148 @@ export default function CouponsPage() {
       });
       setCreateOpen(false);
       setForm(EMPTY_FORM);
+      toast.success('Coupon created.');
       fetchCoupons();
-    } catch (err: any) {
-      setCreateError(err.response?.data?.message ?? 'Failed to create coupon.');
+    } catch (err: unknown) {
+      setCreateError(extractMessage(err, 'Failed to create coupon.'));
     } finally {
       setSubmitting(false);
     }
   }
 
-  async function handleArchive(couponId: string) {
-    setArchiving(couponId);
+  async function handleArchive() {
+    if (!archivingCoupon) return;
+    setArchiving(true);
+    setArchiveError('');
     try {
-      await api.delete(`/system/api/coupons/${couponId}`);
+      await api.delete(`/system/api/coupons/${archivingCoupon.couponId}`);
+      setArchivingCoupon(null);
+      toast.success('Coupon archived.');
       fetchCoupons();
-    } catch {
-      setError('Failed to archive coupon.');
+    } catch (err: unknown) {
+      setArchiveError(extractMessage(err, 'Failed to archive coupon.'));
     } finally {
-      setArchiving(null);
+      setArchiving(false);
     }
   }
+
+  const total = coupons.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const pageRows = coupons.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  const columns: TableColumn<Coupon>[] = [
+    {
+      key: 'code',
+      header: 'Coupon',
+      render: (c) => (
+        <div className="flex items-center gap-3">
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-subtle text-primary shrink-0">
+            <FontAwesomeIcon icon={c.discountType === 'PERCENTAGE' ? faPercent : faDollarSign} />
+          </span>
+          <div className="min-w-0">
+            <p className="font-mono font-semibold tracking-wide text-text-primary">{c.code}</p>
+            <p className="text-xs text-text-secondary truncate max-w-xs">{c.name}</p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'discountValue',
+      header: 'Discount',
+      render: (c) => (
+        <span className="font-semibold tabular-nums text-text-primary">
+          {c.discountType === 'PERCENTAGE'
+            ? `${c.discountValue}%`
+            : `${c.discountValue} ${c.currency ?? ''}`}
+        </span>
+      ),
+    },
+    {
+      key: 'usedCount',
+      header: 'Usage',
+      render: (c) => (
+        <span className="text-text-secondary text-sm tabular-nums">
+          {c.usedCount}{c.maxUses ? ` / ${c.maxUses}` : ''}
+        </span>
+      ),
+    },
+    {
+      key: 'expiresAt',
+      header: 'Expires',
+      render: (c) => (
+        <span className="text-text-secondary text-sm">
+          {c.expiresAt ? new Date(c.expiresAt).toLocaleDateString() : '—'}
+        </span>
+      ),
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      render: (c) => (
+        <Badge variant={statusVariant[c.status]} dot>{c.status}</Badge>
+      ),
+    },
+    {
+      key: '_actions',
+      header: '',
+      align: 'right',
+      render: (c) => (
+        <div onClick={(e) => e.stopPropagation()}>
+          <RowActionsMenu
+            actions={[
+              {
+                label: c.status === 'ARCHIVED' ? 'Archived' : 'Archive',
+                icon: <FontAwesomeIcon icon={faTrash} />,
+                onClick: () => { setArchivingCoupon(c); setArchiveError(''); },
+                variant: 'danger',
+              },
+            ]}
+          />
+        </div>
+      ),
+    },
+  ];
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Coupons"
         subtitle="Create and manage discount codes for subscription plans."
-        actions={[
-          {
-            label: (
-              <>
-                <FontAwesomeIcon icon={faPlus} className="mr-2" />
-                New Coupon
-              </>
-            ),
-            onClick: () => setCreateOpen(true),
-            variant: 'primary',
-          },
-        ]}
+        actions={[{ label: 'New Coupon', onClick: () => setCreateOpen(true) }]}
       />
 
-      {error && <AlertBanner variant="error" message={error} />}
+      {fetchError && <AlertBanner variant="error" message={fetchError} />}
 
-      {loading ? (
-        <div className="flex justify-center py-16"><Spinner /></div>
-      ) : coupons.length === 0 ? (
-        <EmptyState
-          icon={<FontAwesomeIcon icon={faTag} />}
-          title="No coupons yet"
-          description="Create your first discount coupon to start offering promotions."
-          action={
-            <Button onClick={() => setCreateOpen(true)}>
-              <FontAwesomeIcon icon={faPlus} className="mr-2" />
-              New Coupon
-            </Button>
-          }
-        />
-      ) : (
-        <div className="grid gap-4">
-          {coupons.map((coupon) => (
-            <Card key={coupon.couponId} className="p-4">
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                    <FontAwesomeIcon
-                      icon={coupon.discountType === 'PERCENTAGE' ? faPercent : faDollarSign}
-                      className="text-primary text-sm"
-                    />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono font-semibold tracking-wide">{coupon.code}</span>
-                      <Badge variant={statusVariant(coupon.status)} size="sm">
-                        {coupon.status}
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-base-content/60">{coupon.name}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-4">
-                  <div className="text-right">
-                    <p className="font-semibold text-lg">
-                      {coupon.discountType === 'PERCENTAGE'
-                        ? `${coupon.discountValue}%`
-                        : `${coupon.discountValue} ${coupon.currency ?? ''}`}
-                    </p>
-                    <p className="text-xs text-base-content/50">
-                      {coupon.usedCount}
-                      {coupon.maxUses ? ` / ${coupon.maxUses}` : ''} uses
-                    </p>
-                  </div>
-                  {coupon.expiresAt && (
-                    <div className="text-right hidden sm:block">
-                      <p className="text-xs text-base-content/50">Expires</p>
-                      <p className="text-sm">{new Date(coupon.expiresAt).toLocaleDateString()}</p>
-                    </div>
-                  )}
-                  {coupon.status !== 'ARCHIVED' && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleArchive(coupon.couponId)}
-                      disabled={archiving === coupon.couponId}
-                    >
-                      {archiving === coupon.couponId
-                        ? <Spinner size="sm" />
-                        : <FontAwesomeIcon icon={faTrash} className="text-error" />}
-                    </Button>
-                  )}
-                </div>
-              </div>
-
-              {(coupon.minimumAmount || coupon.maxUsesPerTenant) && (
-                <div className="mt-3 flex flex-wrap gap-3 text-xs text-base-content/50 border-t pt-3">
-                  {coupon.minimumAmount && (
-                    <span>Min. amount: {coupon.minimumAmount} {coupon.currency ?? ''}</span>
-                  )}
-                  {coupon.maxUsesPerTenant && (
-                    <span>Max {coupon.maxUsesPerTenant}× per tenant</span>
-                  )}
-                </div>
-              )}
-            </Card>
-          ))}
-        </div>
-      )}
+      <ServerDataTable
+        columns={columns}
+        rows={pageRows}
+        getRowKey={(c) => c.couponId}
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        pageSize={PAGE_SIZE}
+        onPageChange={setPage}
+        loading={loading}
+        emptyMessage="No coupons yet."
+      />
 
       <Modal
         open={createOpen}
-        onClose={() => { setCreateOpen(false); setForm(EMPTY_FORM); setCreateError(null); }}
+        onClose={() => { setCreateOpen(false); setForm(EMPTY_FORM); setCreateError(''); }}
         title="New Coupon"
         size="lg"
         footer={
-          <div className="flex justify-end gap-2">
-            <Button variant="ghost" onClick={() => setCreateOpen(false)}>Cancel</Button>
-            <Button type="submit" form="coupon-form" disabled={submitting}>
-              {submitting ? <Spinner size="sm" /> : 'Create'}
+          <>
+            <Button variant="ghost" onClick={() => { setCreateOpen(false); setForm(EMPTY_FORM); setCreateError(''); }} disabled={submitting}>
+              Cancel
             </Button>
-          </div>
+            <Button type="submit" form="coupon-form" loading={submitting}>Create</Button>
+          </>
         }
       >
-        {createError && <AlertBanner variant="error" message={createError} className="mb-4" />}
         <form id="coupon-form" onSubmit={handleCreate} className="space-y-4">
+          {createError && <AlertBanner variant="error" message={createError} />}
+
           <div className="grid grid-cols-2 gap-4">
             <Input
               id="coupon-code"
@@ -298,8 +304,8 @@ export default function CouponsPage() {
               value={form.discountType}
               onChange={(e) => handleField('discountType', e.target.value as DiscountType)}
               options={[
-                { value: 'PERCENTAGE', label: 'Percentage (%)' },
-                { value: 'FIXED_AMOUNT', label: 'Fixed Amount' },
+                { value: 'PERCENTAGE',   label: 'Percentage (%)' },
+                { value: 'FIXED_AMOUNT', label: 'Fixed Amount'   },
               ]}
             />
             <Input
@@ -369,6 +375,23 @@ export default function CouponsPage() {
             />
           </div>
         </form>
+      </Modal>
+
+      <Modal
+        open={!!archivingCoupon}
+        onClose={() => { setArchivingCoupon(null); setArchiveError(''); }}
+        title="Archive Coupon"
+        description={`Archive coupon ${archivingCoupon?.code}? It will no longer be usable.`}
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => { setArchivingCoupon(null); setArchiveError(''); }} disabled={archiving}>
+              Cancel
+            </Button>
+            <Button variant="danger" onClick={handleArchive} loading={archiving}>Archive</Button>
+          </>
+        }
+      >
+        {archiveError && <AlertBanner variant="error" message={archiveError} />}
       </Modal>
     </div>
   );

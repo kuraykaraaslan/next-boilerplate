@@ -1,19 +1,26 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
 import api from '@/modules_next/common/axios';
-import { Card } from '@/modules_next/common/ui/Card';
+import { ServerDataTable, type TableColumn } from '@/modules_next/common/ui/ServerDataTable';
 import { Badge } from '@/modules_next/common/ui/Badge';
 import { Button } from '@/modules_next/common/ui/Button';
 import { Input } from '@/modules_next/common/ui/Input';
-import { Spinner } from '@/modules_next/common/ui/Spinner';
+import { Select } from '@/modules_next/common/ui/Select';
 import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
 import { Modal } from '@/modules_next/common/ui/Modal';
-import { Pagination } from '@/modules_next/common/ui/Pagination';
 import { PageHeader } from '@/modules_next/common/ui/PageHeader';
-import { EmptyState } from '@/modules_next/common/ui/EmptyState';
 import { Avatar } from '@/modules_next/common/ui/Avatar';
+import { RowActionsMenu } from '@/modules_next/common/ui/RowActionsMenu';
+import { Spinner } from '@/modules_next/common/ui/Spinner';
+import { toast } from '@/modules_next/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faSearch, faUser, faBuilding, faArrowUpRightFromSquare, faUsers } from '@fortawesome/free-solid-svg-icons';
+import {
+  faSearch,
+  faBuilding,
+  faArrowUpRightFromSquare,
+  faPenToSquare,
+  faTrash,
+} from '@fortawesome/free-solid-svg-icons';
 
 type UserRole    = 'USER' | 'ADMIN';
 type UserStatus  = 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
@@ -78,37 +85,50 @@ const tenantStatusVariant: Record<TenantStatus, 'success' | 'warning' | 'error' 
   ARCHIVED: 'neutral',
 };
 
-const selectClass =
-  'h-9 rounded-lg border border-border bg-surface-base px-3 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-border-focus w-full';
+const roleOptions = [
+  { value: 'USER',  label: 'User'  },
+  { value: 'ADMIN', label: 'Admin' },
+];
+
+const statusOptions = [
+  { value: 'ACTIVE',    label: 'Active'    },
+  { value: 'INACTIVE',  label: 'Inactive'  },
+  { value: 'SUSPENDED', label: 'Suspended' },
+];
+
+function extractMessage(err: unknown, fallback: string): string {
+  const e = err as { response?: { data?: { message?: string } }; message?: string };
+  return e?.response?.data?.message ?? e?.message ?? fallback;
+}
 
 export default function UsersPage() {
   const [users, setUsers]   = useState<User[]>([]);
   const [total, setTotal]   = useState(0);
-  const [page, setPage]     = useState(0);
+  const [page, setPage]     = useState(1);
   const [search, setSearch] = useState('');
-  const [loading, setLoading]     = useState(true);
+  const [loading, setLoading]       = useState(true);
   const [fetchError, setFetchError] = useState('');
 
   // Create modal
-  const [showCreate, setShowCreate] = useState(false);
-  const [creating, setCreating]     = useState(false);
+  const [showCreate, setShowCreate]   = useState(false);
+  const [creating, setCreating]       = useState(false);
   const [createError, setCreateError] = useState('');
   const [createValues, setCreateValues] = useState({ email: '', password: '', userRole: 'USER' as UserRole });
 
   // Edit modal
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [editValues, setEditValues] = useState({ email: '', phone: '', userRole: 'USER' as UserRole, userStatus: 'ACTIVE' as UserStatus });
-  const [saving, setSaving]   = useState(false);
+  const [saving, setSaving]       = useState(false);
   const [editError, setEditError] = useState('');
 
-  // Tenant memberships (inside edit modal)
-  const [memberships, setMemberships]       = useState<Membership[]>([]);
+  // Memberships (inside edit modal)
+  const [memberships, setMemberships]               = useState<Membership[]>([]);
   const [membershipsLoading, setMembershipsLoading] = useState(false);
 
-  // Delete confirm modal
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [deleting, setDeleting] = useState(false);
-  const [deleteError, setDeleteError] = useState('');
+  // Delete confirm
+  const [deletingUser, setDeletingUser] = useState<User | null>(null);
+  const [deleting, setDeleting]         = useState(false);
+  const [deleteError, setDeleteError]   = useState('');
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
@@ -116,19 +136,20 @@ export default function UsersPage() {
     setLoading(true);
     setFetchError('');
     try {
-      const res = await api.get('/system/api/users', { params: { page: p, pageSize: PAGE_SIZE, search: q || undefined } });
+      const res = await api.get('/system/api/users', {
+        params: { page: p - 1, pageSize: PAGE_SIZE, search: q || undefined },
+      });
       setUsers(res.data.users ?? []);
       setTotal(res.data.total ?? 0);
-    } catch (err: any) {
-      setFetchError(err.response?.data?.message ?? err.message ?? 'Failed to load users.');
+    } catch (err: unknown) {
+      setFetchError(extractMessage(err, 'Failed to load users.'));
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    const t = setTimeout(() => fetchUsers(0, search), search ? 300 : 0);
-    setPage(0);
+    const t = setTimeout(() => { setPage(1); fetchUsers(1, search); }, search ? 300 : 0);
     return () => clearTimeout(t);
   }, [search, fetchUsers]);
 
@@ -145,9 +166,11 @@ export default function UsersPage() {
       await api.post('/system/api/users', createValues);
       setShowCreate(false);
       setCreateValues({ email: '', password: '', userRole: 'USER' });
-      fetchUsers(0, search);
-    } catch (err: any) {
-      setCreateError(err.response?.data?.message ?? err.message ?? 'Failed to create user.');
+      toast.success('User created.');
+      fetchUsers(1, search);
+      setPage(1);
+    } catch (err: unknown) {
+      setCreateError(extractMessage(err, 'Failed to create user.'));
     } finally {
       setCreating(false);
     }
@@ -162,12 +185,17 @@ export default function UsersPage() {
   // --- Edit ---
   function openEdit(user: User) {
     setSelectedUser(user);
-    setEditValues({ email: user.email, phone: user.phone ?? '', userRole: user.userRole, userStatus: user.userStatus });
+    setEditValues({
+      email:      user.email,
+      phone:      user.phone ?? '',
+      userRole:   user.userRole,
+      userStatus: user.userStatus,
+    });
     setEditError('');
-    setShowDeleteConfirm(false);
     setMemberships([]);
     setMembershipsLoading(true);
-    api.get(`/system/api/users/${user.userId}/tenants`)
+    api
+      .get(`/system/api/users/${user.userId}/tenants`)
       .then((res) => setMemberships(res.data.memberships ?? []))
       .catch(() => {})
       .finally(() => setMembershipsLoading(false));
@@ -176,8 +204,6 @@ export default function UsersPage() {
   function closeEdit() {
     setSelectedUser(null);
     setEditError('');
-    setShowDeleteConfirm(false);
-    setDeleteError('');
     setMemberships([]);
   }
 
@@ -194,9 +220,10 @@ export default function UsersPage() {
         userStatus: editValues.userStatus,
       });
       closeEdit();
+      toast.success('User updated.');
       fetchUsers(page, search);
-    } catch (err: any) {
-      setEditError(err.response?.data?.message ?? err.message ?? 'Failed to save changes.');
+    } catch (err: unknown) {
+      setEditError(extractMessage(err, 'Failed to save changes.'));
     } finally {
       setSaving(false);
     }
@@ -204,118 +231,116 @@ export default function UsersPage() {
 
   // --- Delete ---
   async function handleDelete() {
-    if (!selectedUser) return;
+    if (!deletingUser) return;
     setDeleting(true);
     setDeleteError('');
     try {
-      await api.delete(`/system/api/users/${selectedUser.userId}`);
-      setShowDeleteConfirm(false);
-      closeEdit();
+      await api.delete(`/system/api/users/${deletingUser.userId}`);
+      setDeletingUser(null);
+      if (selectedUser?.userId === deletingUser.userId) closeEdit();
+      toast.success('User deleted.');
       fetchUsers(page, search);
-    } catch (err: any) {
-      setDeleteError(err.response?.data?.message ?? err.message ?? 'Failed to delete user.');
+    } catch (err: unknown) {
+      setDeleteError(extractMessage(err, 'Failed to delete user.'));
+    } finally {
       setDeleting(false);
     }
   }
+
+  const columns: TableColumn<User>[] = [
+    {
+      key: 'email',
+      header: 'User',
+      render: (u) => (
+        <div className="flex items-center gap-3">
+          <Avatar name={u.email} size="sm" />
+          <div>
+            <p className="font-medium text-text-primary">{u.email}</p>
+            {u.phone && <p className="text-xs text-text-secondary">{u.phone}</p>}
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'userRole',
+      header: 'Role',
+      render: (u) => <Badge variant={roleVariant[u.userRole]}>{u.userRole}</Badge>,
+    },
+    {
+      key: 'userStatus',
+      header: 'Status',
+      render: (u) => <Badge variant={statusVariant[u.userStatus]} dot>{u.userStatus}</Badge>,
+    },
+    {
+      key: 'createdAt',
+      header: 'Joined',
+      render: (u) => (
+        <span className="text-text-secondary">
+          {u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '—'}
+        </span>
+      ),
+    },
+    {
+      key: '_actions',
+      header: '',
+      align: 'right',
+      render: (u) => (
+        <div onClick={(e) => e.stopPropagation()}>
+          <RowActionsMenu
+            actions={[
+              {
+                label: 'Edit',
+                icon: <FontAwesomeIcon icon={faPenToSquare} />,
+                onClick: () => openEdit(u),
+              },
+              {
+                label: 'Delete',
+                icon: <FontAwesomeIcon icon={faTrash} />,
+                onClick: () => { setDeletingUser(u); setDeleteError(''); },
+                variant: 'danger',
+              },
+            ]}
+          />
+        </div>
+      ),
+    },
+  ];
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Users"
-        subtitle="Manage system accounts"
+        subtitle={loading ? '…' : `${total} account${total !== 1 ? 's' : ''} total`}
         actions={[{ label: 'Create User', onClick: () => setShowCreate(true) }]}
       />
 
       {fetchError && <AlertBanner variant="error" message={fetchError} />}
 
-      <Card>
-        <div className="pb-4">
-          <Input
-            id="user-search"
-            label="Search"
-            placeholder="Search by email…"
-            prefixIcon={<FontAwesomeIcon icon={faSearch} className="w-3.5 h-3.5" />}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-
-        {loading ? (
-          <div className="flex justify-center py-10"><Spinner size="lg" /></div>
-        ) : (
-          <>
-            <div className="overflow-x-auto -mx-6">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border">
-                    <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">User</th>
-                    <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Role</th>
-                    <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Status</th>
-                    <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Joined</th>
-                    <th className="px-6 py-3" />
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {users.map((user) => (
-                    <tr
-                      key={user.userId}
-                      className="hover:bg-surface-overlay transition-colors cursor-pointer"
-                      onClick={() => openEdit(user)}
-                    >
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <Avatar name={user.email} size="sm" />
-                          <div>
-                            <p className="font-medium text-text-primary">{user.email}</p>
-                            {user.phone && <p className="text-xs text-text-secondary">{user.phone}</p>}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <Badge variant={roleVariant[user.userRole]}>{user.userRole}</Badge>
-                      </td>
-                      <td className="px-6 py-4">
-                        <Badge variant={statusVariant[user.userStatus]} dot>{user.userStatus}</Badge>
-                      </td>
-                      <td className="px-6 py-4 text-text-secondary">
-                        {new Date(user.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <span className="text-xs text-primary hover:underline">Edit</span>
-                      </td>
-                    </tr>
-                  ))}
-                  {users.length === 0 && !loading && (
-                    <tr>
-                      <td colSpan={5} className="p-0">
-                        <EmptyState
-                          icon={<FontAwesomeIcon icon={faUsers} className="w-5 h-5" />}
-                          title={search ? 'No users match your search' : 'No users yet'}
-                          description={search ? 'Try a different search term.' : 'Create the first user to get started.'}
-                          action={!search ? (
-                            <Button onClick={() => setShowCreate(true)} iconLeft={<FontAwesomeIcon icon={faPlus} />}>
-                              Create User
-                            </Button>
-                          ) : undefined}
-                        />
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-
-            <div className="flex justify-center px-6 py-4 border-t border-border -mb-4">
-              <Pagination
-                page={page + 1}
-                totalPages={totalPages}
-                onPageChange={(p) => setPage(p - 1)}
-                showFirstLast
-              />
-            </div>
-          </>
-        )}
-      </Card>
+      <ServerDataTable
+        columns={columns}
+        rows={users}
+        getRowKey={(u) => u.userId}
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        pageSize={PAGE_SIZE}
+        onPageChange={setPage}
+        onRowClick={(u) => openEdit(u)}
+        loading={loading}
+        emptyMessage={search ? 'No users match your search.' : 'No users yet.'}
+        toolbar={
+          <div className="pb-4">
+            <Input
+              id="user-search"
+              label="Search"
+              placeholder="Search by email…"
+              prefixIcon={<FontAwesomeIcon icon={faSearch} className="w-3.5 h-3.5" />}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+        }
+      />
 
       {/* ── Create Modal ── */}
       <Modal
@@ -333,22 +358,30 @@ export default function UsersPage() {
         <form id="create-user-form" onSubmit={handleCreate} className="space-y-4">
           {createError && <AlertBanner variant="error" message={createError} />}
           <Input
-            id="new-email" label="Email" type="email" required placeholder="user@example.com"
+            id="new-email"
+            label="Email"
+            type="email"
+            required
+            placeholder="user@example.com"
             value={createValues.email}
             onChange={(e) => setCreateValues((v) => ({ ...v, email: e.target.value }))}
           />
           <Input
-            id="new-password" label="Password" type="password" required placeholder="Min. 8 characters"
+            id="new-password"
+            label="Password"
+            type="password"
+            required
+            placeholder="Min. 8 characters"
             value={createValues.password}
             onChange={(e) => setCreateValues((v) => ({ ...v, password: e.target.value }))}
           />
-          <div className="flex flex-col gap-1">
-            <label htmlFor="new-role" className="text-xs font-medium text-text-secondary">Role</label>
-            <select id="new-role" value={createValues.userRole} onChange={(e) => setCreateValues((v) => ({ ...v, userRole: e.target.value as UserRole }))} className={selectClass}>
-              <option value="USER">User</option>
-              <option value="ADMIN">Admin</option>
-            </select>
-          </div>
+          <Select
+            id="new-role"
+            label="Role"
+            options={roleOptions}
+            value={createValues.userRole}
+            onChange={(e) => setCreateValues((v) => ({ ...v, userRole: e.target.value as UserRole }))}
+          />
         </form>
       </Modal>
 
@@ -360,7 +393,12 @@ export default function UsersPage() {
         description={selectedUser?.email}
         footer={
           <>
-            <Button variant="ghost" onClick={() => { setShowDeleteConfirm(true); setDeleteError(''); }} disabled={saving} className="mr-auto !text-error">
+            <Button
+              variant="ghost"
+              onClick={() => { if (selectedUser) { setDeletingUser(selectedUser); setDeleteError(''); } }}
+              disabled={saving}
+              className="mr-auto !text-error"
+            >
               Delete
             </Button>
             <Button variant="ghost" onClick={closeEdit} disabled={saving}>Cancel</Button>
@@ -369,45 +407,50 @@ export default function UsersPage() {
         }
       >
         <div className="space-y-6">
-          {/* Edit form */}
           <form id="edit-user-form" onSubmit={handleSave} className="space-y-4">
             {editError && <AlertBanner variant="error" message={editError} />}
             <Input
-              id="edit-email" label="Email" type="email" placeholder="user@example.com"
+              id="edit-email"
+              label="Email"
+              type="email"
+              placeholder="user@example.com"
               value={editValues.email}
               onChange={(e) => setEditValues((v) => ({ ...v, email: e.target.value }))}
             />
             <Input
-              id="edit-phone" label="Phone" type="tel" placeholder="+90 555 000 0000"
+              id="edit-phone"
+              label="Phone"
+              type="tel"
+              placeholder="+90 555 000 0000"
               value={editValues.phone}
               onChange={(e) => setEditValues((v) => ({ ...v, phone: e.target.value }))}
             />
             <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1">
-                <label htmlFor="edit-role" className="text-xs font-medium text-text-secondary">Role</label>
-                <select id="edit-role" value={editValues.userRole} onChange={(e) => setEditValues((v) => ({ ...v, userRole: e.target.value as UserRole }))} className={selectClass}>
-                  <option value="USER">User</option>
-                  <option value="ADMIN">Admin</option>
-                </select>
-              </div>
-              <div className="flex flex-col gap-1">
-                <label htmlFor="edit-status" className="text-xs font-medium text-text-secondary">Status</label>
-                <select id="edit-status" value={editValues.userStatus} onChange={(e) => setEditValues((v) => ({ ...v, userStatus: e.target.value as UserStatus }))} className={selectClass}>
-                  <option value="ACTIVE">Active</option>
-                  <option value="INACTIVE">Inactive</option>
-                  <option value="SUSPENDED">Suspended</option>
-                </select>
-              </div>
+              <Select
+                id="edit-role"
+                label="Role"
+                options={roleOptions}
+                value={editValues.userRole}
+                onChange={(e) => setEditValues((v) => ({ ...v, userRole: e.target.value as UserRole }))}
+              />
+              <Select
+                id="edit-status"
+                label="Status"
+                options={statusOptions}
+                value={editValues.userStatus}
+                onChange={(e) => setEditValues((v) => ({ ...v, userStatus: e.target.value as UserStatus }))}
+              />
             </div>
           </form>
 
-          {/* Tenant memberships */}
           <div>
             <div className="flex items-center gap-2 mb-3 pb-3 border-b border-border">
               <FontAwesomeIcon icon={faBuilding} className="w-3.5 h-3.5 text-text-secondary" />
               <p className="text-xs font-semibold text-text-secondary uppercase tracking-wider">Tenant Memberships</p>
               {!membershipsLoading && (
-                <span className="ml-auto text-xs text-text-secondary">{memberships.length} tenant{memberships.length !== 1 ? 's' : ''}</span>
+                <span className="ml-auto text-xs text-text-secondary">
+                  {memberships.length} tenant{memberships.length !== 1 ? 's' : ''}
+                </span>
               )}
             </div>
 
@@ -418,7 +461,10 @@ export default function UsersPage() {
             ) : (
               <div className="space-y-2">
                 {memberships.map((m) => (
-                  <div key={m.tenantMemberId} className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-surface-raised hover:bg-surface-overlay transition-colors">
+                  <div
+                    key={m.tenantMemberId}
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-surface-raised hover:bg-surface-overlay transition-colors"
+                  >
                     <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary-subtle text-primary text-xs shrink-0">
                       <FontAwesomeIcon icon={faBuilding} />
                     </span>
@@ -426,7 +472,7 @@ export default function UsersPage() {
                       <p className="text-sm font-medium text-text-primary truncate">
                         {m.tenant?.name ?? m.tenantId}
                       </p>
-                      <div className="flex items-center gap-2 mt-0.5">
+                      <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                         <Badge variant={memberRoleVariant[m.memberRole]}>{m.memberRole}</Badge>
                         <Badge variant={memberStatusVariant[m.memberStatus]} dot>{m.memberStatus}</Badge>
                         {m.tenant && (
@@ -452,13 +498,13 @@ export default function UsersPage() {
 
       {/* ── Delete Confirm Modal ── */}
       <Modal
-        open={showDeleteConfirm}
-        onClose={() => { setShowDeleteConfirm(false); setDeleteError(''); }}
+        open={!!deletingUser}
+        onClose={() => { setDeletingUser(null); setDeleteError(''); }}
         title="Delete User"
-        description={`Are you sure you want to delete ${selectedUser?.email}? This action cannot be undone.`}
+        description={`Are you sure you want to delete ${deletingUser?.email}? This action cannot be undone.`}
         footer={
           <>
-            <Button variant="ghost" onClick={() => { setShowDeleteConfirm(false); setDeleteError(''); }} disabled={deleting}>Cancel</Button>
+            <Button variant="ghost" onClick={() => { setDeletingUser(null); setDeleteError(''); }} disabled={deleting}>Cancel</Button>
             <Button variant="danger" onClick={handleDelete} loading={deleting}>Delete</Button>
           </>
         }

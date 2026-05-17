@@ -2,30 +2,26 @@
 import { useEffect, useState, useCallback } from 'react';
 import api from '@/modules_next/common/axios';
 import { PageHeader } from '@/modules_next/common/ui/PageHeader';
-import { Card } from '@/modules_next/common/ui/Card';
 import { Badge } from '@/modules_next/common/ui/Badge';
 import { Button } from '@/modules_next/common/ui/Button';
 import { Input } from '@/modules_next/common/ui/Input';
 import { Modal } from '@/modules_next/common/ui/Modal';
 import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
 import { Spinner } from '@/modules_next/common/ui/Spinner';
-import { EmptyState } from '@/modules_next/common/ui/EmptyState';
 import { Toggle } from '@/modules_next/common/ui/Toggle';
+import { ServerDataTable, type TableColumn } from '@/modules_next/common/ui/ServerDataTable';
+import { RowActionsMenu } from '@/modules_next/common/ui/RowActionsMenu';
+import { toast } from '@/modules_next/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  faLink,
-  faPlus,
-  faTrash,
   faFlask,
-  faChevronDown,
-  faChevronUp,
+  faTrash,
   faRotateRight,
   faCircleCheck,
   faCircleXmark,
   faClock,
+  faListUl,
 } from '@fortawesome/free-solid-svg-icons';
-
-// ─── Types ────────────────────────────────────────────────────────────────────
 
 type SystemWebhookEvent =
   | 'user.created' | 'user.updated' | 'user.deleted' | 'user.suspended'
@@ -54,16 +50,15 @@ type Delivery = {
   createdAt: string;
 };
 
-// ─── Constants ────────────────────────────────────────────────────────────────
-
 const ALL_EVENTS: { group: string; events: SystemWebhookEvent[] }[] = [
-  { group: 'Users', events: ['user.created', 'user.updated', 'user.deleted', 'user.suspended'] },
-  { group: 'Tenants', events: ['tenant.created', 'tenant.updated', 'tenant.deleted', 'tenant.suspended'] },
-  { group: 'Plans', events: ['plan.created', 'plan.updated', 'plan.deleted'] },
+  { group: 'Users',         events: ['user.created', 'user.updated', 'user.deleted', 'user.suspended'] },
+  { group: 'Tenants',       events: ['tenant.created', 'tenant.updated', 'tenant.deleted', 'tenant.suspended'] },
+  { group: 'Plans',         events: ['plan.created', 'plan.updated', 'plan.deleted'] },
   { group: 'Subscriptions', events: ['subscription.assigned', 'subscription.updated', 'subscription.cancelled'] },
 ];
 
 const BASE = '/system/api/webhooks/outgoing';
+const PAGE_SIZE = 20;
 
 const statusIcon = (s: Delivery['status']) =>
   s === 'SUCCESS' ? faCircleCheck : s === 'FAILED' ? faCircleXmark : faClock;
@@ -71,40 +66,41 @@ const statusIcon = (s: Delivery['status']) =>
 const statusVariant = (s: Delivery['status']): 'success' | 'error' | 'warning' =>
   s === 'SUCCESS' ? 'success' : s === 'FAILED' ? 'error' : 'warning';
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
+function extractMessage(err: unknown, fallback: string): string {
+  const e = err as { response?: { data?: { message?: string } }; message?: string };
+  return e?.response?.data?.message ?? e?.message ?? fallback;
+}
 
 export default function SystemWebhooksPage() {
   const [webhooks, setWebhooks] = useState<Webhook[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [page, setPage]         = useState(1);
+  const [loading, setLoading]   = useState(true);
+  const [fetchError, setFetchError] = useState('');
 
-  const [createOpen, setCreateOpen] = useState(false);
-  const [createForm, setCreateForm] = useState({ name: '', description: '', url: '', events: [] as SystemWebhookEvent[] });
-  const [creating, setCreating] = useState(false);
+  const [createOpen, setCreateOpen]   = useState(false);
+  const [createForm, setCreateForm]   = useState({ name: '', description: '', url: '', events: [] as SystemWebhookEvent[] });
+  const [creating, setCreating]       = useState(false);
   const [createError, setCreateError] = useState('');
 
   const [confirmDelete, setConfirmDelete] = useState<Webhook | null>(null);
-  const [deleting, setDeleting] = useState(false);
+  const [deleting, setDeleting]           = useState(false);
+  const [deleteError, setDeleteError]     = useState('');
 
-  const [expanded, setExpanded] = useState<string | null>(null);
-  const [deliveries, setDeliveries] = useState<Record<string, Delivery[]>>({});
+  const [deliveriesWebhook, setDeliveriesWebhook] = useState<Webhook | null>(null);
+  const [deliveries, setDeliveries]               = useState<Delivery[]>([]);
   const [deliveriesLoading, setDeliveriesLoading] = useState(false);
 
-  const [testing, setTesting] = useState<string | null>(null);
-  const [testResult, setTestResult] = useState<{ webhookId: string; success: boolean; message: string } | null>(null);
-
+  const [testing, setTesting]     = useState<string | null>(null);
   const [redelivering, setRedelivering] = useState<string | null>(null);
-
-  // ─── Fetch ──────────────────────────────────────────────────────────────────
 
   const fetchWebhooks = useCallback(async () => {
     setLoading(true);
-    setError('');
+    setFetchError('');
     try {
       const res = await api.get(`${BASE}?pageSize=100`);
       setWebhooks(res.data.webhooks ?? []);
-    } catch {
-      setError('Failed to load webhooks. Please refresh.');
+    } catch (err: unknown) {
+      setFetchError(extractMessage(err, 'Failed to load webhooks.'));
     } finally {
       setLoading(false);
     }
@@ -116,15 +112,13 @@ export default function SystemWebhooksPage() {
     setDeliveriesLoading(true);
     try {
       const res = await api.get(`${BASE}/${webhookId}/deliveries?pageSize=20`);
-      setDeliveries((prev) => ({ ...prev, [webhookId]: res.data.deliveries ?? [] }));
+      setDeliveries(res.data.deliveries ?? []);
     } catch {
-      // silent — user can retry by toggling the panel
+      setDeliveries([]);
     } finally {
       setDeliveriesLoading(false);
     }
   }, []);
-
-  // ─── Create ─────────────────────────────────────────────────────────────────
 
   function toggleEvent(ev: SystemWebhookEvent) {
     setCreateForm((prev) => ({
@@ -133,25 +127,30 @@ export default function SystemWebhooksPage() {
     }));
   }
 
+  function openCreate() {
+    setCreateForm({ name: '', description: '', url: '', events: [] });
+    setCreateError('');
+    setCreateOpen(true);
+  }
+
   async function handleCreate() {
     setCreateError('');
     if (!createForm.name.trim()) { setCreateError('Name is required.'); return; }
-    if (!createForm.url.trim()) { setCreateError('URL is required.'); return; }
+    if (!createForm.url.trim())  { setCreateError('URL is required.'); return; }
     if (createForm.events.length === 0) { setCreateError('Select at least one event.'); return; }
 
     setCreating(true);
     try {
       await api.post(BASE, createForm);
       setCreateOpen(false);
+      toast.success('Webhook created.');
       fetchWebhooks();
-    } catch (err: any) {
-      setCreateError(err?.response?.data?.message ?? 'Failed to create webhook.');
+    } catch (err: unknown) {
+      setCreateError(extractMessage(err, 'Failed to create webhook.'));
     } finally {
       setCreating(false);
     }
   }
-
-  // ─── Toggle active ───────────────────────────────────────────────────────────
 
   async function handleToggleActive(webhook: Webhook) {
     try {
@@ -159,239 +158,248 @@ export default function SystemWebhooksPage() {
       setWebhooks((prev) =>
         prev.map((w) => w.webhookId === webhook.webhookId ? { ...w, isActive: !w.isActive } : w),
       );
-    } catch {
-      // noop
+      toast.success(webhook.isActive ? 'Webhook disabled.' : 'Webhook enabled.');
+    } catch (err: unknown) {
+      toast.error(extractMessage(err, 'Failed to update webhook.'));
     }
   }
-
-  // ─── Delete ─────────────────────────────────────────────────────────────────
 
   async function handleDelete() {
     if (!confirmDelete) return;
     setDeleting(true);
+    setDeleteError('');
     try {
       await api.delete(`${BASE}/${confirmDelete.webhookId}`);
       setWebhooks((prev) => prev.filter((w) => w.webhookId !== confirmDelete.webhookId));
       setConfirmDelete(null);
-    } catch {
-      // noop
+      toast.success('Webhook deleted.');
+    } catch (err: unknown) {
+      setDeleteError(extractMessage(err, 'Failed to delete webhook.'));
     } finally {
       setDeleting(false);
     }
   }
 
-  // ─── Test ────────────────────────────────────────────────────────────────────
-
   async function handleTest(webhookId: string) {
     setTesting(webhookId);
-    setTestResult(null);
     try {
       const res = await api.post(`${BASE}/${webhookId}/test`);
       const d: Delivery = res.data.delivery;
-      setTestResult({
-        webhookId,
-        success: d.status === 'SUCCESS',
-        message: d.status === 'SUCCESS'
-          ? `Test delivered — HTTP ${d.responseStatus} in ${d.duration}ms`
-          : `Test failed — ${d.errorMessage ?? `HTTP ${d.responseStatus}`}`,
-      });
-      if (expanded === webhookId) fetchDeliveries(webhookId);
-    } catch (err: any) {
-      setTestResult({ webhookId, success: false, message: err?.response?.data?.message ?? 'Test request failed.' });
+      if (d.status === 'SUCCESS') {
+        toast.success(`Test delivered — HTTP ${d.responseStatus} in ${d.duration}ms`);
+      } else {
+        toast.error(`Test failed — ${d.errorMessage ?? `HTTP ${d.responseStatus}`}`);
+      }
+      if (deliveriesWebhook?.webhookId === webhookId) fetchDeliveries(webhookId);
+    } catch (err: unknown) {
+      toast.error(extractMessage(err, 'Test request failed.'));
     } finally {
       setTesting(null);
     }
   }
 
-  // ─── Expand ──────────────────────────────────────────────────────────────────
-
-  function toggleExpand(webhookId: string) {
-    if (expanded === webhookId) { setExpanded(null); return; }
-    setExpanded(webhookId);
-    fetchDeliveries(webhookId);
+  function openDeliveries(webhook: Webhook) {
+    setDeliveriesWebhook(webhook);
+    fetchDeliveries(webhook.webhookId);
   }
-
-  // ─── Redeliver ───────────────────────────────────────────────────────────────
 
   async function handleRedeliver(webhookId: string, deliveryId: string) {
     setRedelivering(deliveryId);
     try {
       await api.post(`${BASE}/${webhookId}/deliveries/${deliveryId}/redeliver`);
+      toast.success('Redelivery queued.');
       fetchDeliveries(webhookId);
-    } catch {
-      // noop
+    } catch (err: unknown) {
+      toast.error(extractMessage(err, 'Failed to redeliver.'));
     } finally {
       setRedelivering(null);
     }
   }
 
-  // ─── Render ──────────────────────────────────────────────────────────────────
+  const total = webhooks.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const pageRows = webhooks.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-  if (loading) {
-    return <div className="flex items-center justify-center py-32"><Spinner size="lg" /></div>;
-  }
+  const columns: TableColumn<Webhook>[] = [
+    {
+      key: 'name',
+      header: 'Webhook',
+      render: (w) => (
+        <div className="min-w-0">
+          <p className="font-semibold text-text-primary truncate">{w.name}</p>
+          <p className="text-xs text-text-secondary truncate max-w-md">{w.url}</p>
+          {w.description && (
+            <p className="text-xs text-text-secondary mt-0.5 truncate max-w-md">{w.description}</p>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: 'events',
+      header: 'Events',
+      render: (w) => (
+        <Badge variant="neutral">{w.events.length} event{w.events.length !== 1 ? 's' : ''}</Badge>
+      ),
+    },
+    {
+      key: 'isActive',
+      header: 'Active',
+      render: (w) => (
+        <div onClick={(e) => e.stopPropagation()}>
+          <Toggle
+            id={`toggle-${w.webhookId}`}
+            label=""
+            checked={w.isActive}
+            onChange={() => handleToggleActive(w)}
+          />
+        </div>
+      ),
+    },
+    {
+      key: '_actions',
+      header: '',
+      align: 'right',
+      render: (w) => (
+        <div onClick={(e) => e.stopPropagation()}>
+          <RowActionsMenu
+            actions={[
+              {
+                label: testing === w.webhookId ? 'Testing…' : 'Send test event',
+                icon: <FontAwesomeIcon icon={faFlask} />,
+                onClick: () => handleTest(w.webhookId),
+              },
+              {
+                label: 'View deliveries',
+                icon: <FontAwesomeIcon icon={faListUl} />,
+                onClick: () => openDeliveries(w),
+              },
+              {
+                label: 'Delete',
+                icon: <FontAwesomeIcon icon={faTrash} />,
+                onClick: () => { setDeleteError(''); setConfirmDelete(w); },
+                variant: 'danger',
+              },
+            ]}
+          />
+        </div>
+      ),
+    },
+  ];
+
+  const deliveryColumns: TableColumn<Delivery>[] = [
+    {
+      key: 'status',
+      header: 'Status',
+      render: (d) => (
+        <div className="flex items-center gap-2">
+          <FontAwesomeIcon
+            icon={statusIcon(d.status)}
+            className={
+              d.status === 'SUCCESS' ? 'text-success'
+              : d.status === 'FAILED' ? 'text-error'
+              : 'text-warning'
+            }
+          />
+          <Badge variant={statusVariant(d.status)}>{d.status}</Badge>
+        </div>
+      ),
+    },
+    {
+      key: 'event',
+      header: 'Event',
+      render: (d) => <span className="font-mono text-xs text-text-primary">{d.event}</span>,
+    },
+    {
+      key: 'responseStatus',
+      header: 'HTTP',
+      render: (d) => (
+        <span className="text-xs text-text-secondary">
+          {d.responseStatus != null ? `${d.responseStatus}` : '—'}
+        </span>
+      ),
+    },
+    {
+      key: 'duration',
+      header: 'Duration',
+      render: (d) => (
+        <span className="text-xs text-text-secondary">
+          {d.duration != null ? `${d.duration}ms` : '—'}
+        </span>
+      ),
+    },
+    {
+      key: 'createdAt',
+      header: 'When',
+      render: (d) => (
+        <span className="text-xs text-text-secondary whitespace-nowrap">
+          {new Date(d.createdAt).toLocaleString()}
+        </span>
+      ),
+    },
+    {
+      key: '_actions',
+      header: '',
+      align: 'right',
+      render: (d) =>
+        d.status === 'FAILED' && deliveriesWebhook ? (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => handleRedeliver(deliveriesWebhook.webhookId, d.deliveryId)}
+            disabled={redelivering === d.deliveryId}
+            iconLeft={<FontAwesomeIcon icon={faRotateRight} />}
+          >
+            {redelivering === d.deliveryId ? 'Redelivering' : 'Redeliver'}
+          </Button>
+        ) : null,
+    },
+  ];
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6">
       <PageHeader
         title="System Webhooks"
-        subtitle="Send real-time HTTP notifications for system-wide events (user registration, tenant creation, plan changes, etc.)."
-        actions={[{
-          label: 'New Webhook',
-          variant: 'primary',
-          onClick: () => { setCreateForm({ name: '', description: '', url: '', events: [] }); setCreateError(''); setCreateOpen(true); },
-        }]}
+        subtitle="Send real-time HTTP notifications for system-wide events."
+        actions={[{ label: 'New Webhook', onClick: openCreate }]}
       />
 
-      {error && <AlertBanner variant="error" message={error} />}
+      {fetchError && <AlertBanner variant="error" message={fetchError} />}
 
-      {testResult && (
-        <AlertBanner
-          key={testResult.webhookId}
-          variant={testResult.success ? 'success' : 'error'}
-          message={testResult.message}
-          dismissible
-        />
-      )}
-
-      {webhooks.length === 0 ? (
-        <EmptyState
-          icon={<FontAwesomeIcon icon={faLink} className="h-8 w-8" />}
-          title="No system webhooks yet"
-          description="Create a system webhook to notify external services about user and tenant lifecycle events."
-          action={
-            <Button variant="primary" onClick={() => setCreateOpen(true)}>
-              <FontAwesomeIcon icon={faPlus} className="mr-2 h-4 w-4" />
-              New Webhook
-            </Button>
-          }
-        />
-      ) : (
-        <div className="space-y-3">
-          {webhooks.map((webhook) => (
-            <Card key={webhook.webhookId} className="overflow-hidden">
-              <div className="flex items-start gap-4 p-5">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-semibold text-text-primary truncate">{webhook.name}</span>
-                    <Badge variant={webhook.isActive ? 'success' : 'neutral'}>
-                      {webhook.isActive ? 'Active' : 'Inactive'}
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-text-secondary mt-0.5 truncate">{webhook.url}</p>
-                  {webhook.description && (
-                    <p className="text-xs text-text-tertiary mt-1">{webhook.description}</p>
-                  )}
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {webhook.events.map((ev) => (
-                      <span
-                        key={ev}
-                        className="inline-flex items-center rounded-full bg-surface-raised px-2 py-0.5 text-xs text-text-secondary font-mono border border-border"
-                      >
-                        {ev}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 shrink-0">
-                  <Toggle
-                    id={`toggle-${webhook.webhookId}`}
-                    label=""
-                    checked={webhook.isActive}
-                    onChange={() => handleToggleActive(webhook)}
-                  />
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleTest(webhook.webhookId)}
-                    disabled={testing === webhook.webhookId}
-                    title="Send test event"
-                  >
-                    {testing === webhook.webhookId ? <Spinner size="sm" /> : <FontAwesomeIcon icon={faFlask} className="h-4 w-4" />}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setConfirmDelete(webhook)}
-                    title="Delete"
-                  >
-                    <FontAwesomeIcon icon={faTrash} className="h-4 w-4 text-error" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => toggleExpand(webhook.webhookId)}
-                    title="Deliveries"
-                  >
-                    <FontAwesomeIcon icon={expanded === webhook.webhookId ? faChevronUp : faChevronDown} className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-
-              {expanded === webhook.webhookId && (
-                <div className="border-t border-border bg-surface-subtle px-5 py-4">
-                  <p className="text-xs font-semibold text-text-secondary uppercase tracking-wide mb-3">
-                    Recent Deliveries
-                  </p>
-                  {deliveriesLoading ? (
-                    <div className="flex justify-center py-4"><Spinner size="sm" /></div>
-                  ) : (deliveries[webhook.webhookId] ?? []).length === 0 ? (
-                    <p className="text-sm text-text-tertiary">No deliveries yet.</p>
-                  ) : (
-                    <div className="space-y-2">
-                      {(deliveries[webhook.webhookId] ?? []).map((d) => (
-                        <div
-                          key={d.deliveryId}
-                          className="flex items-center gap-3 text-sm rounded-lg border border-border bg-surface-base px-3 py-2"
-                        >
-                          <FontAwesomeIcon
-                            icon={statusIcon(d.status)}
-                            className={`h-4 w-4 shrink-0 ${d.status === 'SUCCESS' ? 'text-success' : d.status === 'FAILED' ? 'text-error' : 'text-warning'}`}
-                          />
-                          <span className="font-mono text-xs text-text-secondary w-40 truncate shrink-0">{d.event}</span>
-                          <Badge variant={statusVariant(d.status)} className="shrink-0">{d.status}</Badge>
-                          {d.responseStatus && <span className="text-xs text-text-tertiary shrink-0">HTTP {d.responseStatus}</span>}
-                          {d.duration != null && <span className="text-xs text-text-tertiary shrink-0">{d.duration}ms</span>}
-                          {d.errorMessage && <span className="text-xs text-error truncate flex-1">{d.errorMessage}</span>}
-                          <span className="text-xs text-text-tertiary shrink-0 ml-auto">
-                            {new Date(d.createdAt).toLocaleString()}
-                          </span>
-                          {d.status === 'FAILED' && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleRedeliver(webhook.webhookId, d.deliveryId)}
-                              disabled={redelivering === d.deliveryId}
-                              title="Redeliver"
-                            >
-                              {redelivering === d.deliveryId
-                                ? <Spinner size="sm" />
-                                : <FontAwesomeIcon icon={faRotateRight} className="h-3.5 w-3.5" />}
-                            </Button>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-            </Card>
-          ))}
-        </div>
-      )}
+      <ServerDataTable
+        columns={columns}
+        rows={pageRows}
+        getRowKey={(w) => w.webhookId}
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        pageSize={PAGE_SIZE}
+        onPageChange={setPage}
+        loading={loading}
+        emptyMessage="No system webhooks yet."
+      />
 
       {/* ── Create Modal ── */}
-      <Modal open={createOpen} onClose={() => setCreateOpen(false)} title="New System Webhook">
+      <Modal
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        title="New System Webhook"
+        size="lg"
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setCreateOpen(false)} disabled={creating}>Cancel</Button>
+            <Button variant="primary" onClick={handleCreate} loading={creating}>Create</Button>
+          </>
+        }
+      >
         <div className="space-y-4">
           {createError && <AlertBanner variant="error" message={createError} />}
-
           <Input
             id="webhook-name"
             label="Name"
             placeholder="My system webhook"
             value={createForm.name}
             onChange={(e) => setCreateForm((p) => ({ ...p, name: e.target.value }))}
+            required
           />
           <Input
             id="webhook-url"
@@ -399,6 +407,7 @@ export default function SystemWebhooksPage() {
             placeholder="https://your-service.com/webhook"
             value={createForm.url}
             onChange={(e) => setCreateForm((p) => ({ ...p, url: e.target.value }))}
+            required
           />
           <Input
             id="webhook-description"
@@ -413,7 +422,7 @@ export default function SystemWebhooksPage() {
             <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
               {ALL_EVENTS.map(({ group, events }) => (
                 <div key={group}>
-                  <p className="text-xs font-semibold text-text-tertiary uppercase tracking-wide mb-1">{group}</p>
+                  <p className="text-xs font-semibold text-text-secondary uppercase tracking-wide mb-1">{group}</p>
                   <div className="flex flex-wrap gap-2">
                     {events.map((ev) => {
                       const selected = createForm.events.includes(ev);
@@ -424,7 +433,7 @@ export default function SystemWebhooksPage() {
                           onClick={() => toggleEvent(ev)}
                           className={`rounded-full border px-2.5 py-0.5 text-xs font-mono transition-colors ${
                             selected
-                              ? 'bg-primary text-primary-foreground border-primary'
+                              ? 'bg-primary text-primary-fg border-primary'
                               : 'bg-surface-base text-text-secondary border-border hover:border-primary'
                           }`}
                         >
@@ -437,31 +446,48 @@ export default function SystemWebhooksPage() {
               ))}
             </div>
           </div>
-
-          <div className="flex justify-end gap-2 pt-2">
-            <Button variant="ghost" onClick={() => setCreateOpen(false)}>Cancel</Button>
-            <Button variant="primary" onClick={handleCreate} disabled={creating}>
-              {creating ? <Spinner size="sm" /> : 'Create'}
-            </Button>
-          </div>
         </div>
       </Modal>
 
       {/* ── Delete Confirm ── */}
-      <Modal open={!!confirmDelete} onClose={() => setConfirmDelete(null)} title="Delete System Webhook">
-        <div className="space-y-4">
-          <p className="text-sm text-text-secondary">
-            Are you sure you want to delete{' '}
-            <span className="font-semibold text-text-primary">{confirmDelete?.name}</span>?
-            All delivery history will also be removed.
-          </p>
-          <div className="flex justify-end gap-2">
-            <Button variant="ghost" onClick={() => setConfirmDelete(null)}>Cancel</Button>
-            <Button variant="danger" onClick={handleDelete} disabled={deleting}>
-              {deleting ? <Spinner size="sm" /> : 'Delete'}
-            </Button>
-          </div>
-        </div>
+      <Modal
+        open={!!confirmDelete}
+        onClose={() => { setConfirmDelete(null); setDeleteError(''); }}
+        title="Delete System Webhook"
+        description={`Delete ${confirmDelete?.name}? All delivery history will also be removed.`}
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => { setConfirmDelete(null); setDeleteError(''); }} disabled={deleting}>Cancel</Button>
+            <Button variant="danger" onClick={handleDelete} loading={deleting}>Delete</Button>
+          </>
+        }
+      >
+        {deleteError && <AlertBanner variant="error" message={deleteError} />}
+      </Modal>
+
+      {/* ── Deliveries Modal ── */}
+      <Modal
+        open={!!deliveriesWebhook}
+        onClose={() => setDeliveriesWebhook(null)}
+        title={`Deliveries — ${deliveriesWebhook?.name ?? ''}`}
+        description={deliveriesWebhook?.url}
+        size="lg"
+      >
+        {deliveriesLoading ? (
+          <div className="flex justify-center py-8"><Spinner size="md" /></div>
+        ) : (
+          <ServerDataTable
+            columns={deliveryColumns}
+            rows={deliveries}
+            getRowKey={(d) => d.deliveryId}
+            page={1}
+            totalPages={1}
+            total={deliveries.length}
+            onPageChange={() => {}}
+            emptyMessage="No deliveries yet."
+            hidePagination
+          />
+        )}
       </Modal>
     </div>
   );

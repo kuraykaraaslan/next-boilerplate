@@ -1,18 +1,20 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card } from '@/modules_next/common/ui/Card';
 import { Badge } from '@/modules_next/common/ui/Badge';
 import { Button } from '@/modules_next/common/ui/Button';
-import { Spinner } from '@/modules_next/common/ui/Spinner';
 import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
 import { Modal } from '@/modules_next/common/ui/Modal';
 import { Input } from '@/modules_next/common/ui/Input';
 import { PageHeader } from '@/modules_next/common/ui/PageHeader';
-import { EmptyState } from '@/modules_next/common/ui/EmptyState';
+import { ServerDataTable, type TableColumn } from '@/modules_next/common/ui/ServerDataTable';
+import { RowActionsMenu } from '@/modules_next/common/ui/RowActionsMenu';
+import { toast } from '@/modules_next/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faTag, faCreditCard } from '@fortawesome/free-solid-svg-icons';
+import { faTag, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 import api from '@/modules_next/common/axios';
+
+type PlanStatus = 'ACTIVE' | 'INACTIVE' | 'ARCHIVED';
 
 type Plan = {
   planId: string;
@@ -22,7 +24,7 @@ type Plan = {
   yearlyPrice: number;
   currency: string;
   trialDays: number;
-  status: 'ACTIVE' | 'INACTIVE' | 'ARCHIVED';
+  status: PlanStatus;
   isDefault: boolean;
   sortOrder: number;
   createdAt: string;
@@ -38,41 +40,49 @@ type CreatePlanForm = {
   trialDays: string;
 };
 
-const INTERVAL_OPTIONS = ['MONTHLY', 'YEARLY'] as const;
-
-const statusVariant = (s: Plan['status']): 'success' | 'warning' | 'error' | 'neutral' => {
-  if (s === 'ACTIVE') return 'success';
-  if (s === 'INACTIVE') return 'warning';
-  return 'neutral';
+const EMPTY_FORM: CreatePlanForm = {
+  name: '',
+  description: '',
+  monthlyPrice: '0',
+  yearlyPrice: '0',
+  currency: 'USD',
+  trialDays: '0',
 };
+
+const PAGE_SIZE = 25;
+
+const statusVariant: Record<PlanStatus, 'success' | 'warning' | 'neutral'> = {
+  ACTIVE:   'success',
+  INACTIVE: 'warning',
+  ARCHIVED: 'neutral',
+};
+
+function extractMessage(err: unknown, fallback: string): string {
+  const e = err as { response?: { data?: { message?: string } }; message?: string };
+  return e?.response?.data?.message ?? e?.message ?? fallback;
+}
 
 export default function PlansPage() {
   const router = useRouter();
 
-  const [plans, setPlans] = useState<Plan[]>([]);
+  const [plans, setPlans]     = useState<Plan[]>([]);
+  const [page, setPage]       = useState(1);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [fetchError, setFetchError] = useState('');
 
-  const [createOpen, setCreateOpen] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [createError, setCreateError] = useState<string | null>(null);
-  const [form, setForm] = useState<CreatePlanForm>({
-    name: '',
-    description: '',
-    monthlyPrice: '0',
-    yearlyPrice: '0',
-    currency: 'USD',
-    trialDays: '0',
-  });
+  const [createOpen, setCreateOpen]   = useState(false);
+  const [submitting, setSubmitting]   = useState(false);
+  const [createError, setCreateError] = useState('');
+  const [form, setForm]               = useState<CreatePlanForm>(EMPTY_FORM);
 
   const fetchPlans = useCallback(async () => {
     setLoading(true);
-    setError(null);
+    setFetchError('');
     try {
       const res = await api.get('/system/api/subscriptions/plans');
       setPlans(res.data.plans ?? []);
-    } catch (err: any) {
-      setError(err.response?.data?.message ?? err.message);
+    } catch (err: unknown) {
+      setFetchError(extractMessage(err, 'Failed to load plans.'));
     } finally {
       setLoading(false);
     }
@@ -82,13 +92,13 @@ export default function PlansPage() {
     fetchPlans();
   }, [fetchPlans]);
 
-  const handleField = (field: keyof CreatePlanForm) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleField = (field: keyof CreatePlanForm) => (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm((prev) => ({ ...prev, [field]: e.target.value }));
   };
 
   const resetForm = () => {
-    setForm({ name: '', description: '', monthlyPrice: '0', yearlyPrice: '0', currency: 'USD', trialDays: '0' });
-    setCreateError(null);
+    setForm(EMPTY_FORM);
+    setCreateError('');
   };
 
   const handleCreate = async () => {
@@ -97,25 +107,113 @@ export default function PlansPage() {
       return;
     }
     setSubmitting(true);
-    setCreateError(null);
+    setCreateError('');
     try {
       await api.post('/system/api/subscriptions/plans', {
-        name: form.name.trim(),
-        description: form.description.trim() || undefined,
+        name:         form.name.trim(),
+        description:  form.description.trim() || undefined,
         monthlyPrice: parseFloat(form.monthlyPrice) || 0,
-        yearlyPrice: parseFloat(form.yearlyPrice) || 0,
-        currency: form.currency.trim() || 'USD',
-        trialDays: parseInt(form.trialDays, 10) || 0,
+        yearlyPrice:  parseFloat(form.yearlyPrice)  || 0,
+        currency:     form.currency.trim() || 'USD',
+        trialDays:    parseInt(form.trialDays, 10)  || 0,
       });
       setCreateOpen(false);
       resetForm();
+      toast.success('Plan created.');
       fetchPlans();
-    } catch (err: any) {
-      setCreateError(err.response?.data?.message ?? err.message);
+    } catch (err: unknown) {
+      setCreateError(extractMessage(err, 'Failed to create plan.'));
     } finally {
       setSubmitting(false);
     }
   };
+
+  const total = plans.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const pageRows = plans.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  const columns: TableColumn<Plan>[] = [
+    {
+      key: 'name',
+      header: 'Plan',
+      render: (plan) => (
+        <div className="flex items-center gap-3">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-subtle text-primary shrink-0">
+            <FontAwesomeIcon icon={faTag} className="w-3.5 h-3.5" />
+          </span>
+          <div className="min-w-0">
+            <p className="font-medium text-text-primary flex items-center gap-1.5">
+              {plan.name}
+              {plan.isDefault && <Badge variant="primary">Default</Badge>}
+            </p>
+            {plan.description && (
+              <p className="text-xs text-text-secondary truncate max-w-[200px]">{plan.description}</p>
+            )}
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'monthlyPrice',
+      header: 'Monthly',
+      render: (plan) => (
+        <span className="text-text-primary tabular-nums">{plan.monthlyPrice.toFixed(2)} {plan.currency}</span>
+      ),
+    },
+    {
+      key: 'yearlyPrice',
+      header: 'Yearly',
+      render: (plan) => (
+        <span className="text-text-primary tabular-nums">{plan.yearlyPrice.toFixed(2)} {plan.currency}</span>
+      ),
+    },
+    {
+      key: 'trialDays',
+      header: 'Trial',
+      render: (plan) => (
+        <span className="text-text-secondary">
+          {plan.trialDays > 0 ? `${plan.trialDays}d` : '—'}
+        </span>
+      ),
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      render: (plan) => <Badge variant={statusVariant[plan.status]} dot>{plan.status}</Badge>,
+    },
+    {
+      key: 'subscriptions',
+      header: 'Tenants',
+      render: (plan) => (
+        <span className="text-text-primary tabular-nums">{plan._count?.subscriptions ?? '—'}</span>
+      ),
+    },
+    {
+      key: 'createdAt',
+      header: 'Created',
+      render: (plan) => (
+        <span className="text-text-secondary">{new Date(plan.createdAt).toLocaleDateString()}</span>
+      ),
+    },
+    {
+      key: '_actions',
+      header: '',
+      align: 'right',
+      render: (plan) => (
+        <div onClick={(e) => e.stopPropagation()}>
+          <RowActionsMenu
+            actions={[
+              {
+                label: 'Manage',
+                icon: <FontAwesomeIcon icon={faPenToSquare} />,
+                onClick: () => router.push(`/system/admin/plans/${plan.planId}`),
+              },
+            ]}
+          />
+        </div>
+      ),
+    },
+  ];
 
   return (
     <div className="space-y-6">
@@ -125,104 +223,22 @@ export default function PlansPage() {
         actions={[{ label: 'Create Plan', onClick: () => { resetForm(); setCreateOpen(true); } }]}
       />
 
-      {error && (
-        <AlertBanner variant="error" message={error} dismissible />
-      )}
+      {fetchError && <AlertBanner variant="error" message={fetchError} dismissible />}
 
-      {/* Table card */}
-      <Card>
-        {loading ? (
-          <div className="flex items-center justify-center py-16">
-            <Spinner size="lg" />
-          </div>
-        ) : (
-          <div className="overflow-x-auto -mx-6 -mb-4">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Plan</th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Monthly Price</th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Yearly Price</th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Trial Days</th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Status</th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Tenants</th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Created</th>
-                  <th className="px-6 py-3" />
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {plans.map((plan) => (
-                  <tr
-                    key={plan.planId}
-                    className="hover:bg-surface-raised transition-colors cursor-pointer"
-                    onClick={() => router.push(`/system/admin/plans/${plan.planId}`)}
-                  >
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-surface-raised text-primary text-sm font-bold shrink-0">
-                          <FontAwesomeIcon icon={faTag} className="w-3.5 h-3.5" />
-                        </span>
-                        <div>
-                          <p className="font-medium text-text-primary flex items-center gap-1.5">
-                            {plan.name}
-                            {plan.isDefault && (
-                              <Badge variant="primary">Default</Badge>
-                            )}
-                          </p>
-                          {plan.description && (
-                            <p className="text-xs text-text-secondary truncate max-w-[200px]">{plan.description}</p>
-                          )}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-text-primary">
-                      {plan.monthlyPrice.toFixed(2)} {plan.currency}
-                    </td>
-                    <td className="px-6 py-4 text-text-primary">
-                      {plan.yearlyPrice.toFixed(2)} {plan.currency}
-                    </td>
-                    <td className="px-6 py-4 text-text-secondary">
-                      {plan.trialDays > 0 ? `${plan.trialDays}d` : '—'}
-                    </td>
-                    <td className="px-6 py-4">
-                      <Badge variant={statusVariant(plan.status)} dot>
-                        {plan.status}
-                      </Badge>
-                    </td>
-                    <td className="px-6 py-4 text-text-primary">
-                      {plan._count?.subscriptions ?? '—'}
-                    </td>
-                    <td className="px-6 py-4 text-text-secondary">
-                      {new Date(plan.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <span className="text-xs text-primary hover:underline">Manage</span>
-                    </td>
-                  </tr>
-                ))}
-                {!loading && plans.length === 0 && (
-                  <tr>
-                    <td colSpan={8} className="p-0">
-                      <EmptyState
-                        icon={<FontAwesomeIcon icon={faCreditCard} className="w-5 h-5" />}
-                        title="No subscription plans"
-                        description="Create a plan to start offering subscriptions."
-                        action={
-                          <Button onClick={() => { resetForm(); setCreateOpen(true); }} iconLeft={<FontAwesomeIcon icon={faPlus} />}>
-                            Create Plan
-                          </Button>
-                        }
-                      />
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </Card>
+      <ServerDataTable
+        columns={columns}
+        rows={pageRows}
+        getRowKey={(p) => p.planId}
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        pageSize={PAGE_SIZE}
+        onPageChange={setPage}
+        onRowClick={(p) => router.push(`/system/admin/plans/${p.planId}`)}
+        loading={loading}
+        emptyMessage="No subscription plans yet."
+      />
 
-      {/* Create Plan Modal */}
       <Modal
         open={createOpen}
         onClose={() => { setCreateOpen(false); resetForm(); }}
@@ -232,22 +248,19 @@ export default function PlansPage() {
             <Button variant="ghost" onClick={() => { setCreateOpen(false); resetForm(); }} disabled={submitting}>
               Cancel
             </Button>
-            <Button variant="primary" loading={submitting} onClick={handleCreate}>
-              Create Plan
-            </Button>
+            <Button variant="primary" loading={submitting} onClick={handleCreate}>Create Plan</Button>
           </>
         }
       >
         <div className="space-y-4">
-          {createError && (
-            <AlertBanner variant="error" message={createError} dismissible />
-          )}
+          {createError && <AlertBanner variant="error" message={createError} dismissible />}
+
           <Input
             id="plan-name"
             label="Name"
             value={form.name}
             onChange={handleField('name')}
-            hint="Required"
+            required
           />
           <Input
             id="plan-description"

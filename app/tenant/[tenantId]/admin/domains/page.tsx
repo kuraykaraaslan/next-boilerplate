@@ -6,12 +6,13 @@ import { Badge } from '@/modules_next/common/ui/Badge';
 import { Button } from '@/modules_next/common/ui/Button';
 import { Input } from '@/modules_next/common/ui/Input';
 import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
-import { Spinner } from '@/modules_next/common/ui/Spinner';
 import { Modal } from '@/modules_next/common/ui/Modal';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faTrash, faCheckCircle, faGlobe, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import { PageHeader } from '@/modules_next/common/ui/PageHeader';
-import { EmptyState } from '@/modules_next/common/ui/EmptyState';
+import { ServerDataTable, type TableColumn } from '@/modules_next/common/ui/ServerDataTable';
+import { RowActionsMenu } from '@/modules_next/common/ui/RowActionsMenu';
+import { toast } from '@/modules_next/common/ui/toast.store';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrash, faCheckCircle, faGlobe, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 
 type MemberRole = 'USER' | 'ADMIN' | 'OWNER';
 
@@ -33,45 +34,53 @@ type SessionData = {
   tenant: { name: string };
 };
 
+const PAGE_SIZE = 25;
+
 const STATUS_BADGE: Record<DomainStatus, 'success' | 'warning' | 'neutral' | 'error'> = {
-  ACTIVE: 'success',
+  ACTIVE:   'success',
   VERIFIED: 'success',
-  PENDING: 'warning',
+  PENDING:  'warning',
   INACTIVE: 'neutral',
 };
 
 const STATUS_LABEL: Record<DomainStatus, string> = {
-  ACTIVE: 'Active',
+  ACTIVE:   'Active',
   VERIFIED: 'Verified',
-  PENDING: 'Pending',
+  PENDING:  'Pending',
   INACTIVE: 'Inactive',
 };
 
 const APP_DOMAIN = process.env.NEXT_PUBLIC_TENANT_WILDCARD_DOMAIN ?? 'example.com';
 
+type DnsRecord = { type: string; name: string; value: string };
+const DNS_RECORDS: DnsRecord[] = [
+  { type: 'CNAME', name: 'your-domain.com', value: APP_DOMAIN },
+];
+
+function extractMessage(err: unknown, fallback: string): string {
+  const e = err as { response?: { data?: { message?: string } }; message?: string };
+  return e?.response?.data?.message ?? e?.message ?? fallback;
+}
+
 export default function TenantDomainsPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = use(params);
 
-  const [domains, setDomains] = useState<Domain[]>([]);
-  const [session, setSession] = useState<SessionData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [domains, setDomains]   = useState<Domain[]>([]);
+  const [session, setSession]   = useState<SessionData | null>(null);
+  const [page, setPage]         = useState(1);
+  const [loading, setLoading]   = useState(true);
   const [fetchError, setFetchError] = useState('');
 
-  // Add domain modal
-  const [addOpen, setAddOpen] = useState(false);
+  const [addOpen, setAddOpen]     = useState(false);
   const [newDomain, setNewDomain] = useState('');
-  const [adding, setAdding] = useState(false);
-  const [addError, setAddError] = useState('');
-  const [addSuccess, setAddSuccess] = useState('');
+  const [adding, setAdding]       = useState(false);
+  const [addError, setAddError]   = useState('');
 
-  // Verify DNS per-domain state
   const [verifying, setVerifying] = useState<Record<string, boolean>>({});
-  const [verifyMessages, setVerifyMessages] = useState<Record<string, { ok: boolean; text: string }>>({});
 
-  // Delete confirm modal
   const [confirmDelete, setConfirmDelete] = useState<Domain | null>(null);
-  const [deleting, setDeleting] = useState(false);
-  const [deleteError, setDeleteError] = useState('');
+  const [deleting, setDeleting]           = useState(false);
+  const [deleteError, setDeleteError]     = useState('');
 
   useEffect(() => {
     Promise.all([
@@ -82,7 +91,7 @@ export default function TenantDomainsPage({ params }: { params: Promise<{ tenant
         setSession(sessionRes.data);
         setDomains(domainsRes.data.domains ?? []);
       })
-      .catch(() => setFetchError('Failed to load domains. Please refresh.'))
+      .catch((err) => setFetchError(extractMessage(err, 'Failed to load domains.')))
       .finally(() => setLoading(false));
   }, [tenantId]);
 
@@ -97,17 +106,15 @@ export default function TenantDomainsPage({ params }: { params: Promise<{ tenant
     if (!newDomain.trim()) return;
     setAdding(true);
     setAddError('');
-    setAddSuccess('');
     try {
       const res = await api.post(`/tenant/${tenantId}/api/domains`, { domain: newDomain.trim() });
       const created: Domain = res.data.domain;
       setDomains((prev) => [created, ...prev]);
-      setAddSuccess(`Domain "${created.domain}" added. Add the DNS records below to verify it.`);
+      toast.success(`Domain "${created.domain}" added. Verify DNS to activate.`);
       setNewDomain('');
       setAddOpen(false);
-      setTimeout(() => setAddSuccess(''), 6000);
-    } catch (err: any) {
-      setAddError(err.response?.data?.message ?? err.message ?? 'Failed to add domain.');
+    } catch (err: unknown) {
+      setAddError(extractMessage(err, 'Failed to add domain.'));
     } finally {
       setAdding(false);
     }
@@ -115,38 +122,26 @@ export default function TenantDomainsPage({ params }: { params: Promise<{ tenant
 
   async function handleVerify(domain: Domain) {
     setVerifying((prev) => ({ ...prev, [domain.tenantDomainId]: true }));
-    setVerifyMessages((prev) => {
-      const next = { ...prev };
-      delete next[domain.tenantDomainId];
-      return next;
-    });
     try {
       const res = await api.post(`/tenant/${tenantId}/api/domains/${domain.tenantDomainId}/verify`);
       const isVerified: boolean = res.data.isVerified;
-      setVerifyMessages((prev) => ({
-        ...prev,
-        [domain.tenantDomainId]: {
-          ok: isVerified,
-          text: res.data.message ?? (isVerified ? 'Domain verified successfully.' : 'Verification failed. Check your DNS settings.'),
-        },
-      }));
+      const text = res.data.message ?? (isVerified
+        ? 'Domain verified successfully.'
+        : 'Verification failed. Check your DNS settings.');
       if (isVerified) {
+        toast.success(text);
         setDomains((prev) =>
           prev.map((d) =>
             d.tenantDomainId === domain.tenantDomainId
               ? { ...d, domainStatus: 'VERIFIED' }
-              : d
-          )
+              : d,
+          ),
         );
+      } else {
+        toast.error(text);
       }
-    } catch (err: any) {
-      setVerifyMessages((prev) => ({
-        ...prev,
-        [domain.tenantDomainId]: {
-          ok: false,
-          text: err.response?.data?.message ?? err.message ?? 'Verification request failed.',
-        },
-      }));
+    } catch (err: unknown) {
+      toast.error(extractMessage(err, 'Verification request failed.'));
     } finally {
       setVerifying((prev) => ({ ...prev, [domain.tenantDomainId]: false }));
     }
@@ -160,8 +155,9 @@ export default function TenantDomainsPage({ params }: { params: Promise<{ tenant
       await api.delete(`/tenant/${tenantId}/api/domains/${confirmDelete.tenantDomainId}`);
       setDomains((prev) => prev.filter((d) => d.tenantDomainId !== confirmDelete.tenantDomainId));
       setConfirmDelete(null);
-    } catch (err: any) {
-      setDeleteError(err.response?.data?.message ?? err.message ?? 'Failed to delete domain.');
+      toast.success('Domain deleted.');
+    } catch (err: unknown) {
+      setDeleteError(extractMessage(err, 'Failed to delete domain.'));
     } finally {
       setDeleting(false);
     }
@@ -170,6 +166,73 @@ export default function TenantDomainsPage({ params }: { params: Promise<{ tenant
   function needsVerification(status: DomainStatus) {
     return status === 'PENDING' || status === 'INACTIVE';
   }
+
+  const total = domains.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const pageRows = domains.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  const dnsColumns: TableColumn<DnsRecord>[] = [
+    { key: 'type',  header: 'Type',  render: (r) => <span className="font-mono text-text-primary text-xs">{r.type}</span> },
+    { key: 'name',  header: 'Name',  render: (r) => <span className="font-mono text-text-secondary text-xs">{r.name}</span> },
+    { key: 'value', header: 'Value', render: (r) => <span className="font-mono text-text-secondary text-xs">{r.value}</span> },
+  ];
+
+  const columns: TableColumn<Domain>[] = [
+    {
+      key: 'domain',
+      header: 'Domain',
+      render: (d) => (
+        <div className="flex items-center gap-2">
+          <FontAwesomeIcon icon={faGlobe} className="shrink-0 text-text-disabled w-3.5 h-3.5" />
+          <span className="font-medium text-text-primary">{d.domain}</span>
+          {d.isPrimary && <Badge variant="primary">Primary</Badge>}
+        </div>
+      ),
+    },
+    {
+      key: 'domainStatus',
+      header: 'Status',
+      render: (d) => <Badge variant={STATUS_BADGE[d.domainStatus]}>{STATUS_LABEL[d.domainStatus]}</Badge>,
+    },
+    {
+      key: 'createdAt',
+      header: 'Added',
+      render: (d) => (
+        <span className="text-text-secondary">
+          {d.createdAt ? new Date(d.createdAt).toLocaleDateString() : '—'}
+        </span>
+      ),
+    },
+    {
+      key: '_actions',
+      header: '',
+      align: 'right',
+      render: (d) => {
+        const actions: Parameters<typeof RowActionsMenu>[0]['actions'] = [];
+        if (canManage && needsVerification(d.domainStatus)) {
+          actions.push({
+            label: verifying[d.tenantDomainId] ? 'Verifying…' : 'Verify DNS',
+            icon: <FontAwesomeIcon icon={faCheckCircle} />,
+            onClick: () => handleVerify(d),
+          });
+        }
+        if (isOwner && !d.isPrimary) {
+          actions.push({
+            label: 'Delete',
+            icon: <FontAwesomeIcon icon={faTrash} />,
+            onClick: () => { setConfirmDelete(d); setDeleteError(''); },
+            variant: 'danger',
+          });
+        }
+        if (actions.length === 0) return null;
+        return (
+          <div onClick={(e) => e.stopPropagation()}>
+            <RowActionsMenu actions={actions} />
+          </div>
+        );
+      },
+    },
+  ];
 
   return (
     <div className="space-y-6">
@@ -183,9 +246,7 @@ export default function TenantDomainsPage({ params }: { params: Promise<{ tenant
       />
 
       {fetchError && <AlertBanner variant="error" message={fetchError} />}
-      {addSuccess && <AlertBanner variant="success" message={addSuccess} dismissible />}
 
-      {/* DNS Instructions Card */}
       <Card
         title="DNS Setup Instructions"
         subtitle="Add a CNAME record in your DNS provider to point your custom domain to this application"
@@ -202,124 +263,35 @@ export default function TenantDomainsPage({ params }: { params: Promise<{ tenant
               .
             </p>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="py-2 pr-4 text-left font-semibold text-text-primary">Type</th>
-                  <th className="py-2 pr-4 text-left font-semibold text-text-primary">Name</th>
-                  <th className="py-2 text-left font-semibold text-text-primary">Value</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td className="py-2 pr-4 font-mono text-text-primary">CNAME</td>
-                  <td className="py-2 pr-4 font-mono text-text-secondary">your-domain.com</td>
-                  <td className="py-2 font-mono text-text-secondary">{APP_DOMAIN}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <ServerDataTable
+            columns={dnsColumns}
+            rows={DNS_RECORDS}
+            getRowKey={(r) => r.name}
+            page={1}
+            totalPages={1}
+            onPageChange={() => {}}
+            hidePagination
+          />
           <p className="text-xs text-text-disabled">
             DNS changes may take up to 48 hours to propagate. After updating your DNS, click{' '}
-            <span className="font-medium text-text-secondary">Verify DNS</span> to confirm the configuration.
+            <span className="font-medium text-text-secondary">Verify DNS</span> on the domain row.
           </p>
         </div>
       </Card>
 
-      {/* Domains Table */}
-      <Card>
-        {loading ? (
-          <div className="flex justify-center py-10">
-            <Spinner size="lg" />
-          </div>
-        ) : domains.length === 0 ? (
-          <EmptyState
-            icon={<FontAwesomeIcon icon={faGlobe} className="w-5 h-5" />}
-            title="No domains configured"
-            description="Add a custom domain to use with this organization."
-            action={isOwner ? (
-              <Button
-                onClick={() => { setAddOpen(true); setAddError(''); setNewDomain(''); }}
-                iconLeft={<FontAwesomeIcon icon={faPlus} />}
-              >
-                Add Domain
-              </Button>
-            ) : undefined}
-          />
-        ) : (
-          <div className="overflow-x-auto -mx-6 -mb-4">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary">Domain</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary">Added</th>
-                  <th className="px-6 py-3" />
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {domains.map((domain) => {
-                  const msg = verifyMessages[domain.tenantDomainId];
-                  return (
-                    <tr key={domain.tenantDomainId} className="hover:bg-surface-overlay transition-colors">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <FontAwesomeIcon icon={faGlobe} className="shrink-0 text-text-disabled w-3.5 h-3.5" />
-                          <span className="font-medium text-text-primary">{domain.domain}</span>
-                          {domain.isPrimary && (
-                            <Badge variant="primary">Primary</Badge>
-                          )}
-                        </div>
-                        {msg && (
-                          <p className={`mt-1 text-xs ${msg.ok ? 'text-success' : 'text-error'}`}>
-                            {msg.text}
-                          </p>
-                        )}
-                      </td>
-                      <td className="px-6 py-4">
-                        <Badge variant={STATUS_BADGE[domain.domainStatus]}>
-                          {STATUS_LABEL[domain.domainStatus]}
-                        </Badge>
-                      </td>
-                      <td className="px-6 py-4 text-text-secondary">
-                        {domain.createdAt ? new Date(domain.createdAt).toLocaleDateString() : '—'}
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center justify-end gap-2">
-                          {canManage && needsVerification(domain.domainStatus) && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              loading={verifying[domain.tenantDomainId] ?? false}
-                              iconLeft={<FontAwesomeIcon icon={faCheckCircle} />}
-                              onClick={() => handleVerify(domain)}
-                            >
-                              Verify DNS
-                            </Button>
-                          )}
-                          {isOwner && !domain.isPrimary && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              iconOnly
-                              aria-label="Delete domain"
-                              onClick={() => { setConfirmDelete(domain); setDeleteError(''); }}
-                              iconLeft={<FontAwesomeIcon icon={faTrash} className="text-error" />}
-                            />
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </Card>
+      <ServerDataTable
+        columns={columns}
+        rows={pageRows}
+        getRowKey={(d) => d.tenantDomainId}
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        pageSize={PAGE_SIZE}
+        onPageChange={setPage}
+        loading={loading}
+        emptyMessage="No domains configured."
+      />
 
-      {/* Add Domain Modal */}
       <Modal
         open={addOpen}
         onClose={() => { setAddOpen(false); setAddError(''); setNewDomain(''); }}
@@ -327,16 +299,12 @@ export default function TenantDomainsPage({ params }: { params: Promise<{ tenant
         description="Enter the custom domain you want to connect to this organization."
         footer={
           <>
-            <Button variant="ghost" onClick={() => setAddOpen(false)} disabled={adding}>
-              Cancel
-            </Button>
-            <Button variant="primary" loading={adding} onClick={handleAddDomain as any}>
-              Add Domain
-            </Button>
+            <Button variant="ghost" onClick={() => setAddOpen(false)} disabled={adding}>Cancel</Button>
+            <Button form="add-domain-form" type="submit" variant="primary" loading={adding}>Add Domain</Button>
           </>
         }
       >
-        <form onSubmit={handleAddDomain} className="space-y-3">
+        <form id="add-domain-form" onSubmit={handleAddDomain} className="space-y-3">
           {addError && <AlertBanner variant="error" message={addError} />}
           <Input
             id="add-domain"
@@ -345,11 +313,11 @@ export default function TenantDomainsPage({ params }: { params: Promise<{ tenant
             value={newDomain}
             onChange={(e) => setNewDomain(e.target.value)}
             hint="Enter the full domain or subdomain you wish to use (e.g. app.yourdomain.com)."
+            required
           />
         </form>
       </Modal>
 
-      {/* Delete Confirm Modal */}
       <Modal
         open={confirmDelete !== null}
         onClose={() => { setConfirmDelete(null); setDeleteError(''); }}
@@ -357,12 +325,10 @@ export default function TenantDomainsPage({ params }: { params: Promise<{ tenant
         description={`Remove "${confirmDelete?.domain}" from this organization?`}
         footer={
           <>
-            <Button variant="ghost" onClick={() => setConfirmDelete(null)} disabled={deleting}>
+            <Button variant="ghost" onClick={() => { setConfirmDelete(null); setDeleteError(''); }} disabled={deleting}>
               Cancel
             </Button>
-            <Button variant="danger" loading={deleting} onClick={handleDelete}>
-              Delete
-            </Button>
+            <Button variant="danger" loading={deleting} onClick={handleDelete}>Delete</Button>
           </>
         }
       >

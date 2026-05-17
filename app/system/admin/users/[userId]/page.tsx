@@ -10,6 +10,9 @@ import { Spinner } from '@/modules_next/common/ui/Spinner';
 import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
 import { Modal } from '@/modules_next/common/ui/Modal';
 import { Avatar } from '@/modules_next/common/ui/Avatar';
+import { ServerDataTable, type TableColumn } from '@/modules_next/common/ui/ServerDataTable';
+import { RowActionsMenu } from '@/modules_next/common/ui/RowActionsMenu';
+import { toast } from '@/modules_next/common/ui/toast.store';
 import { UserRoleBadge } from '@/modules_next/user/ui/UserRoleBadge';
 import { UserStatusBadge } from '@/modules_next/user/ui/UserStatusBadge';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -88,12 +91,58 @@ export default function UserDetailPage({ params }: { params: Promise<{ userId: s
     setDeleteError('');
     try {
       await api.delete(`/system/api/users/${userId}`);
+      toast.success('User deleted.');
       router.push('/system/admin/users');
     } catch (err: any) {
       setDeleteError(err.response?.data?.message ?? err.message ?? 'Failed to delete user.');
       setDeleting(false);
     }
   }
+
+  const membershipColumns: TableColumn<Membership>[] = [
+    {
+      key: 'tenant',
+      header: 'Tenant',
+      render: (m) => (
+        <div className="flex items-center gap-3">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-subtle text-primary shrink-0">
+            <FontAwesomeIcon icon={faBuilding} className="w-3.5 h-3.5" />
+          </span>
+          <p className="text-sm font-medium text-text-primary truncate">
+            {m.tenant?.name ?? m.tenantId}
+          </p>
+        </div>
+      ),
+    },
+    {
+      key: 'memberRole',
+      header: 'Role',
+      render: (m) => <Badge variant={memberRoleVariant[m.memberRole]}>{m.memberRole}</Badge>,
+    },
+    {
+      key: 'memberStatus',
+      header: 'Status',
+      render: (m) => <Badge variant={memberStatusVariant[m.memberStatus]} dot>{m.memberStatus}</Badge>,
+    },
+    {
+      key: '_actions',
+      header: '',
+      align: 'right',
+      render: (m) => (
+        <div onClick={(e) => e.stopPropagation()}>
+          <RowActionsMenu
+            actions={[
+              {
+                label: 'Open tenant',
+                icon: <FontAwesomeIcon icon={faArrowUpRightFromSquare} />,
+                onClick: () => router.push(`/system/admin/tenants/${m.tenantId}`),
+              },
+            ]}
+          />
+        </div>
+      ),
+    },
+  ];
 
   if (loading) {
     return <div className="flex justify-center py-20"><Spinner size="lg" /></div>;
@@ -163,40 +212,19 @@ export default function UserDetailPage({ params }: { params: Promise<{ userId: s
             </dl>
           </Card>
 
-          <Card
+          <ServerDataTable
+            columns={membershipColumns}
+            rows={memberships}
+            getRowKey={(m) => m.tenantMemberId}
+            page={1}
+            totalPages={1}
+            total={memberships.length}
+            onPageChange={() => {}}
+            hidePagination
             title="Tenant Memberships"
             subtitle={`${memberships.length} organization${memberships.length !== 1 ? 's' : ''}`}
-          >
-            {memberships.length === 0 ? (
-              <p className="text-sm text-text-secondary py-4 text-center">No tenant memberships.</p>
-            ) : (
-              <div className="space-y-2">
-                {memberships.map((m) => (
-                  <div key={m.tenantMemberId} className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-surface-raised hover:bg-surface-overlay transition-colors">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-subtle text-primary text-xs shrink-0">
-                      <FontAwesomeIcon icon={faBuilding} className="w-3.5 h-3.5" />
-                    </span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-text-primary truncate">
-                        {m.tenant?.name ?? m.tenantId}
-                      </p>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <Badge variant={memberRoleVariant[m.memberRole]}>{m.memberRole}</Badge>
-                        <Badge variant={memberStatusVariant[m.memberStatus]} dot>{m.memberStatus}</Badge>
-                      </div>
-                    </div>
-                    <a
-                      href={`/system/admin/tenants/${m.tenantId}`}
-                      className="text-text-secondary hover:text-primary transition-colors shrink-0"
-                      title="Open tenant"
-                    >
-                      <FontAwesomeIcon icon={faArrowUpRightFromSquare} className="w-3.5 h-3.5" />
-                    </a>
-                  </div>
-                ))}
-              </div>
-            )}
-          </Card>
+            emptyMessage="No tenant memberships."
+          />
         </div>
 
         <div className="space-y-4">

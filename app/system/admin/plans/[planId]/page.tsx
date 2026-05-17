@@ -8,20 +8,15 @@ import { Spinner } from '@/modules_next/common/ui/Spinner';
 import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
 import { Modal } from '@/modules_next/common/ui/Modal';
 import { Input } from '@/modules_next/common/ui/Input';
+import { Select } from '@/modules_next/common/ui/Select';
 import { Breadcrumb } from '@/modules_next/common/ui/Breadcrumb';
 import { PageHeader } from '@/modules_next/common/ui/PageHeader';
+import { ServerDataTable, type TableColumn } from '@/modules_next/common/ui/ServerDataTable';
+import { RowActionsMenu } from '@/modules_next/common/ui/RowActionsMenu';
+import { toast } from '@/modules_next/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faArrowLeft,
-  faPlus,
-  faTrash,
-  faSave,
-} from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faTrash, faSave } from '@fortawesome/free-solid-svg-icons';
 import api from '@/modules_next/common/axios';
-
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
 
 type PlanStatus = 'ACTIVE' | 'INACTIVE' | 'ARCHIVED';
 
@@ -68,82 +63,79 @@ type FeatureForm = {
   value: string;
 };
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-const statusVariant = (s: PlanStatus): 'success' | 'warning' | 'neutral' => {
-  if (s === 'ACTIVE') return 'success';
-  if (s === 'INACTIVE') return 'warning';
-  return 'neutral';
+const statusVariant: Record<PlanStatus, 'success' | 'warning' | 'neutral'> = {
+  ACTIVE:   'success',
+  INACTIVE: 'warning',
+  ARCHIVED: 'neutral',
 };
 
+const statusOptions = [
+  { value: 'ACTIVE',   label: 'Active'   },
+  { value: 'INACTIVE', label: 'Inactive' },
+  { value: 'ARCHIVED', label: 'Archived' },
+];
+
+const featureTypeOptions = [
+  { value: 'BOOLEAN', label: 'Boolean' },
+  { value: 'LIMIT',   label: 'Limit'   },
+];
+
 const planToForm = (plan: Plan): EditForm => ({
-  name: plan.name,
-  description: plan.description ?? '',
+  name:         plan.name,
+  description:  plan.description ?? '',
   monthlyPrice: String(plan.monthlyPrice),
-  yearlyPrice: String(plan.yearlyPrice),
-  currency: plan.currency,
-  trialDays: String(plan.trialDays),
-  sortOrder: String(plan.sortOrder),
-  isDefault: plan.isDefault,
-  status: plan.status,
+  yearlyPrice:  String(plan.yearlyPrice),
+  currency:     plan.currency,
+  trialDays:    String(plan.trialDays),
+  sortOrder:    String(plan.sortOrder),
+  isDefault:    plan.isDefault,
+  status:       plan.status,
 });
 
-// ---------------------------------------------------------------------------
-// Page
-// ---------------------------------------------------------------------------
+function extractMessage(err: unknown, fallback: string): string {
+  const e = err as { response?: { data?: { message?: string } }; message?: string };
+  return e?.response?.data?.message ?? e?.message ?? fallback;
+}
 
 export default function PlanDetailPage({ params }: { params: Promise<{ planId: string }> }) {
   const { planId } = use(params);
   const router = useRouter();
 
-  // Plan state
-  const [plan, setPlan] = useState<Plan | null>(null);
+  const [plan, setPlan]               = useState<Plan | null>(null);
   const [planLoading, setPlanLoading] = useState(true);
-  const [planError, setPlanError] = useState<string | null>(null);
+  const [planError, setPlanError]     = useState('');
 
-  // Edit form state
-  const [editForm, setEditForm] = useState<EditForm | null>(null);
-  const [saving, setSaving] = useState(false);
-  const [saveError, setSaveError] = useState<string | null>(null);
-  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [editForm, setEditForm]   = useState<EditForm | null>(null);
+  const [saving, setSaving]       = useState(false);
+  const [saveError, setSaveError] = useState('');
 
-  // Features state
-  const [features, setFeatures] = useState<Feature[]>([]);
-  const [featuresLoading, setFeaturesLoading] = useState(true);
-  const [featuresError, setFeaturesError] = useState<string | null>(null);
+  const [features, setFeatures]                 = useState<Feature[]>([]);
+  const [featuresLoading, setFeaturesLoading]   = useState(true);
+  const [featuresError, setFeaturesError]       = useState('');
 
-  // Add feature modal
-  const [addFeatureOpen, setAddFeatureOpen] = useState(false);
-  const [featureForm, setFeatureForm] = useState<FeatureForm>({ key: '', label: '', type: 'BOOLEAN', value: 'true' });
-  const [addingFeature, setAddingFeature] = useState(false);
-  const [addFeatureError, setAddFeatureError] = useState<string | null>(null);
+  const [addFeatureOpen, setAddFeatureOpen]     = useState(false);
+  const [featureForm, setFeatureForm]           = useState<FeatureForm>({ key: '', label: '', type: 'BOOLEAN', value: 'true' });
+  const [addingFeature, setAddingFeature]       = useState(false);
+  const [addFeatureError, setAddFeatureError]   = useState('');
 
-  // Delete feature confirm
-  const [deleteFeatureId, setDeleteFeatureId] = useState<string | null>(null);
-  const [deletingFeature, setDeletingFeature] = useState(false);
-  const [deleteFeatureError, setDeleteFeatureError] = useState<string | null>(null);
+  const [deleteFeatureId, setDeleteFeatureId]   = useState<string | null>(null);
+  const [deletingFeature, setDeletingFeature]   = useState(false);
+  const [deleteFeatureError, setDeleteFeatureError] = useState('');
 
-  // Delete plan confirm
-  const [deletePlanOpen, setDeletePlanOpen] = useState(false);
-  const [deletingPlan, setDeletingPlan] = useState(false);
-  const [deletePlanError, setDeletePlanError] = useState<string | null>(null);
-
-  // ---------------------------------------------------------------------------
-  // Fetch
-  // ---------------------------------------------------------------------------
+  const [deletePlanOpen, setDeletePlanOpen]     = useState(false);
+  const [deletingPlan, setDeletingPlan]         = useState(false);
+  const [deletePlanError, setDeletePlanError]   = useState('');
 
   const fetchPlan = useCallback(async () => {
     setPlanLoading(true);
-    setPlanError(null);
+    setPlanError('');
     try {
       const res = await api.get(`/system/api/subscriptions/plans/${planId}`);
       const p: Plan = res.data.plan;
       setPlan(p);
       setEditForm(planToForm(p));
-    } catch (err: any) {
-      setPlanError(err.response?.data?.message ?? err.message);
+    } catch (err: unknown) {
+      setPlanError(extractMessage(err, 'Failed to load plan.'));
     } finally {
       setPlanLoading(false);
     }
@@ -151,12 +143,12 @@ export default function PlanDetailPage({ params }: { params: Promise<{ planId: s
 
   const fetchFeatures = useCallback(async () => {
     setFeaturesLoading(true);
-    setFeaturesError(null);
+    setFeaturesError('');
     try {
       const res = await api.get(`/system/api/subscriptions/plans/${planId}/features`);
       setFeatures(res.data.features ?? []);
-    } catch (err: any) {
-      setFeaturesError(err.response?.data?.message ?? err.message);
+    } catch (err: unknown) {
+      setFeaturesError(extractMessage(err, 'Failed to load features.'));
     } finally {
       setFeaturesLoading(false);
     }
@@ -166,10 +158,6 @@ export default function PlanDetailPage({ params }: { params: Promise<{ planId: s
     fetchPlan();
     fetchFeatures();
   }, [fetchPlan, fetchFeatures]);
-
-  // ---------------------------------------------------------------------------
-  // Edit plan
-  // ---------------------------------------------------------------------------
 
   const handleEditField =
     (field: keyof EditForm) =>
@@ -187,38 +175,33 @@ export default function PlanDetailPage({ params }: { params: Promise<{ planId: s
       return;
     }
     setSaving(true);
-    setSaveError(null);
-    setSaveSuccess(false);
+    setSaveError('');
     try {
       const res = await api.put(`/system/api/subscriptions/plans/${planId}`, {
-        name: editForm.name.trim(),
-        description: editForm.description.trim() || null,
+        name:         editForm.name.trim(),
+        description:  editForm.description.trim() || null,
         monthlyPrice: parseFloat(editForm.monthlyPrice) || 0,
-        yearlyPrice: parseFloat(editForm.yearlyPrice) || 0,
-        currency: editForm.currency.trim() || 'USD',
-        trialDays: parseInt(editForm.trialDays, 10) || 0,
-        sortOrder: parseInt(editForm.sortOrder, 10) || 0,
-        isDefault: editForm.isDefault,
-        status: editForm.status,
+        yearlyPrice:  parseFloat(editForm.yearlyPrice)  || 0,
+        currency:     editForm.currency.trim() || 'USD',
+        trialDays:    parseInt(editForm.trialDays, 10)  || 0,
+        sortOrder:    parseInt(editForm.sortOrder, 10)  || 0,
+        isDefault:    editForm.isDefault,
+        status:       editForm.status,
       });
       const updated: Plan = res.data.plan;
       setPlan(updated);
       setEditForm(planToForm(updated));
-      setSaveSuccess(true);
-    } catch (err: any) {
-      setSaveError(err.response?.data?.message ?? err.message);
+      toast.success('Plan updated.');
+    } catch (err: unknown) {
+      setSaveError(extractMessage(err, 'Failed to save plan.'));
     } finally {
       setSaving(false);
     }
   };
 
-  // ---------------------------------------------------------------------------
-  // Add feature
-  // ---------------------------------------------------------------------------
-
   const resetFeatureForm = () => {
     setFeatureForm({ key: '', label: '', type: 'BOOLEAN', value: 'true' });
-    setAddFeatureError(null);
+    setAddFeatureError('');
   };
 
   const handleFeatureField =
@@ -228,77 +211,57 @@ export default function PlanDetailPage({ params }: { params: Promise<{ planId: s
     };
 
   const handleAddFeature = async () => {
-    if (!featureForm.key.trim()) {
-      setAddFeatureError('Feature key is required.');
-      return;
-    }
-    if (!featureForm.label.trim()) {
-      setAddFeatureError('Feature label is required.');
-      return;
-    }
-    if (!featureForm.value.trim()) {
-      setAddFeatureError('Feature value is required.');
-      return;
-    }
+    if (!featureForm.key.trim())   { setAddFeatureError('Feature key is required.');   return; }
+    if (!featureForm.label.trim()) { setAddFeatureError('Feature label is required.'); return; }
+    if (!featureForm.value.trim()) { setAddFeatureError('Feature value is required.'); return; }
     setAddingFeature(true);
-    setAddFeatureError(null);
+    setAddFeatureError('');
     try {
       await api.post(`/system/api/subscriptions/plans/${planId}/features`, {
-        key: featureForm.key.trim(),
+        key:   featureForm.key.trim(),
         label: featureForm.label.trim(),
-        type: featureForm.type,
+        type:  featureForm.type,
         value: featureForm.value.trim(),
       });
       setAddFeatureOpen(false);
       resetFeatureForm();
+      toast.success('Feature added.');
       fetchFeatures();
-    } catch (err: any) {
-      setAddFeatureError(err.response?.data?.message ?? err.message);
+    } catch (err: unknown) {
+      setAddFeatureError(extractMessage(err, 'Failed to add feature.'));
     } finally {
       setAddingFeature(false);
     }
   };
 
-  // ---------------------------------------------------------------------------
-  // Delete feature
-  // ---------------------------------------------------------------------------
-
   const handleDeleteFeature = async () => {
     if (!deleteFeatureId) return;
     setDeletingFeature(true);
-    setDeleteFeatureError(null);
+    setDeleteFeatureError('');
     try {
-      await api.delete(
-        `/system/api/subscriptions/plans/${planId}/features/${deleteFeatureId}`
-      );
+      await api.delete(`/system/api/subscriptions/plans/${planId}/features/${deleteFeatureId}`);
       setDeleteFeatureId(null);
+      toast.success('Feature deleted.');
       fetchFeatures();
-    } catch (err: any) {
-      setDeleteFeatureError(err.response?.data?.message ?? err.message);
+    } catch (err: unknown) {
+      setDeleteFeatureError(extractMessage(err, 'Failed to delete feature.'));
     } finally {
       setDeletingFeature(false);
     }
   };
 
-  // ---------------------------------------------------------------------------
-  // Delete plan
-  // ---------------------------------------------------------------------------
-
   const handleDeletePlan = async () => {
     setDeletingPlan(true);
-    setDeletePlanError(null);
+    setDeletePlanError('');
     try {
       await api.delete(`/system/api/subscriptions/plans/${planId}`);
+      toast.success('Plan deleted.');
       router.push('/system/admin/plans');
-    } catch (err: any) {
-      setDeletePlanError(err.response?.data?.message ?? err.message);
+    } catch (err: unknown) {
+      setDeletePlanError(extractMessage(err, 'Failed to delete plan.'));
       setDeletingPlan(false);
     }
   };
-
-  // ---------------------------------------------------------------------------
-  // Render: loading / error
-  // ---------------------------------------------------------------------------
 
   if (planLoading) {
     return (
@@ -312,10 +275,52 @@ export default function PlanDetailPage({ params }: { params: Promise<{ planId: s
     return (
       <div className="space-y-4">
         <Breadcrumb items={[{ label: 'Plans', href: '/system/admin/plans' }, { label: 'Plan' }]} />
-        <AlertBanner variant="error" message={planError ?? 'Plan not found.'} />
+        <AlertBanner variant="error" message={planError || 'Plan not found.'} />
       </div>
     );
   }
+
+  const featureColumns: TableColumn<Feature>[] = [
+    {
+      key: 'key',
+      header: 'Key',
+      render: (f) => <span className="font-mono text-xs text-text-primary">{f.key}</span>,
+    },
+    {
+      key: 'label',
+      header: 'Label',
+      render: (f) => <span className="text-text-primary">{f.label}</span>,
+    },
+    {
+      key: 'type',
+      header: 'Type',
+      render: (f) => (
+        <Badge variant={f.type === 'BOOLEAN' ? 'primary' : 'neutral'}>{f.type}</Badge>
+      ),
+    },
+    {
+      key: 'value',
+      header: 'Value',
+      render: (f) => <span className="font-mono text-xs text-text-secondary">{f.value}</span>,
+    },
+    {
+      key: '_actions',
+      header: '',
+      align: 'right',
+      render: (f) => (
+        <RowActionsMenu
+          actions={[
+            {
+              label: 'Delete',
+              icon: <FontAwesomeIcon icon={faTrash} />,
+              onClick: () => { setDeleteFeatureError(''); setDeleteFeatureId(f.featureId); },
+              variant: 'danger',
+            },
+          ]}
+        />
+      ),
+    },
+  ];
 
   return (
     <div className="space-y-6">
@@ -326,16 +331,14 @@ export default function PlanDetailPage({ params }: { params: Promise<{ planId: s
         subtitle={`Plan ID: ${planId}`}
         badge={
           <div className="flex items-center gap-2">
-            <Badge variant={statusVariant(plan.status)} dot>{plan.status}</Badge>
+            <Badge variant={statusVariant[plan.status]} dot>{plan.status}</Badge>
             {plan.isDefault && <Badge variant="primary">Default</Badge>}
           </div>
         }
       />
 
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* Left column: edit form + features */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Edit plan card */}
           <Card
             title="Plan Details"
             headerRight={
@@ -351,19 +354,14 @@ export default function PlanDetailPage({ params }: { params: Promise<{ planId: s
             }
           >
             <div className="space-y-4">
-              {saveError && (
-                <AlertBanner variant="error" message={saveError} dismissible />
-              )}
-              {saveSuccess && (
-                <AlertBanner variant="success" message="Plan updated successfully." dismissible />
-              )}
+              {saveError && <AlertBanner variant="error" message={saveError} dismissible />}
 
               <Input
                 id="edit-plan-name"
                 label="Name"
                 value={editForm.name}
                 onChange={handleEditField('name')}
-                hint="Required"
+                required
               />
               <Input
                 id="edit-plan-description"
@@ -406,25 +404,13 @@ export default function PlanDetailPage({ params }: { params: Promise<{ planId: s
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label
-                    htmlFor="edit-plan-status"
-                    className="block text-sm font-medium text-text-primary"
-                  >
-                    Status
-                  </label>
-                  <select
-                    id="edit-plan-status"
-                    value={editForm.status}
-                    onChange={handleEditField('status')}
-                    className="w-full rounded-md border border-border bg-surface-base px-3 py-2 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
-                  >
-                    <option value="ACTIVE">ACTIVE</option>
-                    <option value="INACTIVE">INACTIVE</option>
-                    <option value="ARCHIVED">ARCHIVED</option>
-                  </select>
-                </div>
-
+                <Select
+                  id="edit-plan-status"
+                  label="Status"
+                  options={statusOptions}
+                  value={editForm.status}
+                  onChange={handleEditField('status')}
+                />
                 <Input
                   id="edit-plan-sort-order"
                   label="Sort Order"
@@ -452,76 +438,35 @@ export default function PlanDetailPage({ params }: { params: Promise<{ planId: s
             </div>
           </Card>
 
-          {/* Features card */}
-          <Card
-            title="Features"
-            headerRight={
-              <Button
-                size="sm"
-                variant="outline"
-                iconLeft={<FontAwesomeIcon icon={faPlus} />}
-                onClick={() => { resetFeatureForm(); setAddFeatureOpen(true); }}
-              >
-                Add Feature
-              </Button>
-            }
-          >
-            {featuresLoading ? (
-              <div className="flex items-center justify-center py-8">
-                <Spinner size="md" />
-              </div>
-            ) : featuresError ? (
-              <AlertBanner variant="error" message={featuresError} />
-            ) : (
-              <div className="overflow-x-auto -mx-6 -mb-4">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-border">
-                      <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Key</th>
-                      <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Label</th>
-                      <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Type</th>
-                      <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Value</th>
-                      <th className="px-6 py-3" />
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    {features.map((f) => (
-                      <tr key={f.featureId} className="hover:bg-surface-raised transition-colors">
-                        <td className="px-6 py-4 font-mono text-xs text-text-primary">{f.key}</td>
-                        <td className="px-6 py-4 text-text-primary">{f.label}</td>
-                        <td className="px-6 py-4">
-                          <Badge variant={f.type === 'BOOLEAN' ? 'primary' : 'neutral'}>
-                            {f.type}
-                          </Badge>
-                        </td>
-                        <td className="px-6 py-4 font-mono text-xs text-text-secondary">{f.value}</td>
-                        <td className="px-6 py-4 text-right">
-                          <Button
-                            size="sm"
-                            variant="danger"
-                            iconLeft={<FontAwesomeIcon icon={faTrash} />}
-                            onClick={() => { setDeleteFeatureError(null); setDeleteFeatureId(f.featureId); }}
-                          >
-                            Delete
-                          </Button>
-                        </td>
-                      </tr>
-                    ))}
-                    {features.length === 0 && (
-                      <tr>
-                        <td colSpan={5} className="px-6 py-10 text-center text-sm text-text-secondary">
-                          No features defined for this plan.
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </Card>
+          {featuresError ? (
+            <AlertBanner variant="error" message={featuresError} />
+          ) : (
+            <ServerDataTable
+              columns={featureColumns}
+              rows={features}
+              getRowKey={(f) => f.featureId}
+              page={1}
+              totalPages={1}
+              total={features.length}
+              onPageChange={() => {}}
+              loading={featuresLoading}
+              emptyMessage="No features defined for this plan."
+              hidePagination
+              title="Features"
+              headerRight={
+                <Button
+                  size="sm"
+                  variant="outline"
+                  iconLeft={<FontAwesomeIcon icon={faPlus} />}
+                  onClick={() => { resetFeatureForm(); setAddFeatureOpen(true); }}
+                >
+                  Add Feature
+                </Button>
+              }
+            />
+          )}
         </div>
 
-        {/* Right column: meta + actions */}
         <div className="space-y-4">
           <Card title="Meta">
             <dl className="space-y-3 text-sm">
@@ -539,151 +484,105 @@ export default function PlanDetailPage({ params }: { params: Promise<{ planId: s
               </div>
               <div>
                 <dt className="text-text-secondary mb-0.5">Created</dt>
-                <dd className="text-text-primary font-medium">
-                  {new Date(plan.createdAt).toLocaleDateString()}
-                </dd>
+                <dd className="text-text-primary font-medium">{new Date(plan.createdAt).toLocaleDateString()}</dd>
               </div>
               <div>
                 <dt className="text-text-secondary mb-0.5">Updated</dt>
-                <dd className="text-text-primary font-medium">
-                  {new Date(plan.updatedAt).toLocaleDateString()}
-                </dd>
+                <dd className="text-text-primary font-medium">{new Date(plan.updatedAt).toLocaleDateString()}</dd>
               </div>
             </dl>
           </Card>
 
           <Card title="Actions">
-            <div className="space-y-2">
-              <Button
-                variant="danger"
-                fullWidth
-                iconLeft={<FontAwesomeIcon icon={faTrash} />}
-                onClick={() => { setDeletePlanError(null); setDeletePlanOpen(true); }}
-              >
-                Delete Plan
-              </Button>
-            </div>
+            <Button
+              variant="danger"
+              fullWidth
+              iconLeft={<FontAwesomeIcon icon={faTrash} />}
+              onClick={() => { setDeletePlanError(''); setDeletePlanOpen(true); }}
+            >
+              Delete Plan
+            </Button>
           </Card>
         </div>
       </div>
 
-      {/* Add Feature Modal */}
       <Modal
         open={addFeatureOpen}
         onClose={() => { setAddFeatureOpen(false); resetFeatureForm(); }}
         title="Add Feature"
         footer={
           <>
-            <Button
-              variant="ghost"
-              onClick={() => { setAddFeatureOpen(false); resetFeatureForm(); }}
-              disabled={addingFeature}
-            >
+            <Button variant="ghost" onClick={() => { setAddFeatureOpen(false); resetFeatureForm(); }} disabled={addingFeature}>
               Cancel
             </Button>
-            <Button variant="primary" loading={addingFeature} onClick={handleAddFeature}>
-              Add Feature
-            </Button>
+            <Button variant="primary" loading={addingFeature} onClick={handleAddFeature}>Add Feature</Button>
           </>
         }
       >
         <div className="space-y-4">
-          {addFeatureError && (
-            <AlertBanner variant="error" message={addFeatureError} dismissible />
-          )}
+          {addFeatureError && <AlertBanner variant="error" message={addFeatureError} dismissible />}
           <Input
             id="feature-key"
             label="Key"
             value={featureForm.key}
             onChange={handleFeatureField('key')}
-            hint="Required — e.g. max_users"
+            required
+            hint="e.g. max_users"
           />
           <Input
             id="feature-label"
             label="Label"
             value={featureForm.label}
             onChange={handleFeatureField('label')}
-            hint="Required — human-readable name"
+            required
+            hint="Human-readable name"
           />
-          <div className="space-y-1.5">
-            <label
-              htmlFor="feature-type"
-              className="block text-sm font-medium text-text-primary"
-            >
-              Type
-            </label>
-            <select
-              id="feature-type"
-              value={featureForm.type}
-              onChange={handleFeatureField('type')}
-              className="w-full rounded-md border border-border bg-surface-base px-3 py-2 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
-            >
-              <option value="BOOLEAN">BOOLEAN</option>
-              <option value="LIMIT">LIMIT</option>
-            </select>
-          </div>
+          <Select
+            id="feature-type"
+            label="Type"
+            options={featureTypeOptions}
+            value={featureForm.type}
+            onChange={handleFeatureField('type')}
+          />
           <Input
             id="feature-value"
             label="Value"
             value={featureForm.value}
             onChange={handleFeatureField('value')}
-            hint='Required — e.g. "true" or "100"'
+            required
+            hint='e.g. "true" or "100"'
           />
         </div>
       </Modal>
 
-      {/* Delete Feature Confirm Modal */}
       <Modal
         open={!!deleteFeatureId}
         onClose={() => setDeleteFeatureId(null)}
         title="Delete Feature"
+        description="This action cannot be undone."
         footer={
           <>
-            <Button variant="ghost" onClick={() => setDeleteFeatureId(null)} disabled={deletingFeature}>
-              Cancel
-            </Button>
-            <Button variant="danger" loading={deletingFeature} onClick={handleDeleteFeature}>
-              Delete
-            </Button>
+            <Button variant="ghost" onClick={() => setDeleteFeatureId(null)} disabled={deletingFeature}>Cancel</Button>
+            <Button variant="danger" loading={deletingFeature} onClick={handleDeleteFeature}>Delete</Button>
           </>
         }
       >
-        <div className="space-y-3">
-          {deleteFeatureError && (
-            <AlertBanner variant="error" message={deleteFeatureError} />
-          )}
-          <p className="text-sm text-text-secondary">
-            Are you sure you want to delete this feature? This action cannot be undone.
-          </p>
-        </div>
+        {deleteFeatureError && <AlertBanner variant="error" message={deleteFeatureError} />}
       </Modal>
 
-      {/* Delete Plan Confirm Modal */}
       <Modal
         open={deletePlanOpen}
         onClose={() => setDeletePlanOpen(false)}
         title="Delete Plan"
+        description={`Permanently delete ${plan.name}? This will also remove all associated features.`}
         footer={
           <>
-            <Button variant="ghost" onClick={() => setDeletePlanOpen(false)} disabled={deletingPlan}>
-              Cancel
-            </Button>
-            <Button variant="danger" loading={deletingPlan} onClick={handleDeletePlan}>
-              Delete Plan
-            </Button>
+            <Button variant="ghost" onClick={() => setDeletePlanOpen(false)} disabled={deletingPlan}>Cancel</Button>
+            <Button variant="danger" loading={deletingPlan} onClick={handleDeletePlan}>Delete Plan</Button>
           </>
         }
       >
-        <div className="space-y-3">
-          {deletePlanError && (
-            <AlertBanner variant="error" message={deletePlanError} />
-          )}
-          <p className="text-sm text-text-secondary">
-            Are you sure you want to permanently delete{' '}
-            <span className="font-semibold text-text-primary">{plan.name}</span>?
-            This will also remove all associated features and cannot be undone.
-          </p>
-        </div>
+        {deletePlanError && <AlertBanner variant="error" message={deletePlanError} />}
       </Modal>
     </div>
   );

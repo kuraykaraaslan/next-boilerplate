@@ -2,24 +2,17 @@
 import { use, useEffect, useState } from 'react';
 import api from '@/modules_next/common/axios';
 import { PageHeader } from '@/modules_next/common/ui/PageHeader';
-import { Card } from '@/modules_next/common/ui/Card';
 import { Badge } from '@/modules_next/common/ui/Badge';
 import { Button } from '@/modules_next/common/ui/Button';
 import { Input } from '@/modules_next/common/ui/Input';
 import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
-import { Spinner } from '@/modules_next/common/ui/Spinner';
 import { Modal } from '@/modules_next/common/ui/Modal';
-import { EmptyState } from '@/modules_next/common/ui/EmptyState';
+import { Toggle } from '@/modules_next/common/ui/Toggle';
+import { ServerDataTable, type TableColumn } from '@/modules_next/common/ui/ServerDataTable';
+import { RowActionsMenu } from '@/modules_next/common/ui/RowActionsMenu';
+import { toast } from '@/modules_next/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faKey,
-  faPlus,
-  faTrash,
-  faCopy,
-  faCheck,
-  faToggleOn,
-  faToggleOff,
-} from '@fortawesome/free-solid-svg-icons';
+import { faKey, faTrash, faCopy, faCheck } from '@fortawesome/free-solid-svg-icons';
 import { API_KEY_SCOPES, type ApiKeyScope } from '@/modules/api_key/api_key.enums';
 
 type SafeApiKey = {
@@ -36,6 +29,8 @@ type SafeApiKey = {
   createdAt: string;
   updatedAt: string;
 };
+
+const PAGE_SIZE = 25;
 
 const SCOPE_LABEL: Record<ApiKeyScope, string> = {
   read:  'Read',
@@ -54,35 +49,38 @@ function formatDate(val: string | null): string {
   return new Date(val).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
+function extractMessage(err: unknown, fallback: string): string {
+  const e = err as { response?: { data?: { message?: string } }; message?: string };
+  return e?.response?.data?.message ?? e?.message ?? fallback;
+}
+
 export default function ApiKeysPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = use(params);
 
-  const [keys, setKeys] = useState<SafeApiKey[]>([]);
+  const [keys, setKeys]     = useState<SafeApiKey[]>([]);
+  const [page, setPage]     = useState(1);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState('');
 
-  // Create form
   const [showCreate, setShowCreate] = useState(false);
   const [createName, setCreateName] = useState('');
   const [createDescription, setCreateDescription] = useState('');
   const [createScopes, setCreateScopes] = useState<ApiKeyScope[]>(['read']);
   const [createExpiry, setCreateExpiry] = useState('');
-  const [creating, setCreating] = useState(false);
+  const [creating, setCreating]     = useState(false);
   const [createError, setCreateError] = useState('');
 
-  // Raw key reveal modal (shown once after creation)
   const [revealKey, setRevealKey] = useState('');
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied]       = useState(false);
 
-  // Revoke confirm
   const [confirmRevoke, setConfirmRevoke] = useState<SafeApiKey | null>(null);
-  const [revoking, setRevoking] = useState(false);
-  const [revokeError, setRevokeError] = useState('');
+  const [revoking, setRevoking]           = useState(false);
+  const [revokeError, setRevokeError]     = useState('');
 
   useEffect(() => {
     api.get(`/tenant/${tenantId}/api/api-keys`)
       .then((res) => setKeys(res.data.keys ?? []))
-      .catch(() => setFetchError('Failed to load API keys. Please refresh.'))
+      .catch((err) => setFetchError(extractMessage(err, 'Failed to load API keys.')))
       .finally(() => setLoading(false));
   }, [tenantId]);
 
@@ -113,7 +111,7 @@ export default function ApiKeysPage({ params }: { params: Promise<{ tenantId: st
 
     try {
       const payload: Record<string, unknown> = {
-        name: createName.trim(),
+        name:   createName.trim(),
         scopes: createScopes,
       };
       if (createDescription.trim()) payload.description = createDescription.trim();
@@ -124,8 +122,8 @@ export default function ApiKeysPage({ params }: { params: Promise<{ tenantId: st
       setRevealKey(res.data.rawKey);
       setShowCreate(false);
       resetCreate();
-    } catch (err: any) {
-      setCreateError(err.response?.data?.message ?? err.message ?? 'Failed to create key.');
+    } catch (err: unknown) {
+      setCreateError(extractMessage(err, 'Failed to create key.'));
     } finally {
       setCreating(false);
     }
@@ -137,8 +135,9 @@ export default function ApiKeysPage({ params }: { params: Promise<{ tenantId: st
         isActive: !key.isActive,
       });
       setKeys((prev) => prev.map((k) => (k.apiKeyId === key.apiKeyId ? res.data.key : k)));
-    } catch {
-      // silent — no blocking action
+      toast.success(key.isActive ? 'Key deactivated.' : 'Key activated.');
+    } catch (err: unknown) {
+      toast.error(extractMessage(err, 'Failed to update key.'));
     }
   }
 
@@ -150,8 +149,9 @@ export default function ApiKeysPage({ params }: { params: Promise<{ tenantId: st
       await api.delete(`/tenant/${tenantId}/api/api-keys/${confirmRevoke.apiKeyId}`);
       setKeys((prev) => prev.filter((k) => k.apiKeyId !== confirmRevoke.apiKeyId));
       setConfirmRevoke(null);
-    } catch (err: any) {
-      setRevokeError(err.response?.data?.message ?? err.message ?? 'Failed to revoke key.');
+      toast.success('Key revoked.');
+    } catch (err: unknown) {
+      setRevokeError(extractMessage(err, 'Failed to revoke key.'));
     } finally {
       setRevoking(false);
     }
@@ -163,6 +163,88 @@ export default function ApiKeysPage({ params }: { params: Promise<{ tenantId: st
     setTimeout(() => setCopied(false), 2000);
   }
 
+  const total = keys.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const pageRows = keys.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  const columns: TableColumn<SafeApiKey>[] = [
+    {
+      key: 'name',
+      header: 'Name',
+      render: (k) => (
+        <div className="min-w-0">
+          <p className="font-medium text-text-primary truncate">{k.name}</p>
+          {k.description && (
+            <p className="text-xs text-text-secondary mt-0.5 truncate max-w-xs">{k.description}</p>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: 'keyPrefix',
+      header: 'Key',
+      render: (k) => (
+        <code className="text-xs font-mono bg-surface-overlay px-2 py-1 rounded text-text-secondary">
+          {k.keyPrefix}…
+        </code>
+      ),
+    },
+    {
+      key: 'scopes',
+      header: 'Scopes',
+      render: (k) => (
+        <div className="flex flex-wrap gap-1">
+          {k.scopes.map((s) => (
+            <Badge key={s} variant={SCOPE_BADGE[s]} size="sm">{SCOPE_LABEL[s]}</Badge>
+          ))}
+        </div>
+      ),
+    },
+    {
+      key: 'lastUsedAt',
+      header: 'Last used',
+      render: (k) => <span className="text-text-secondary text-xs">{formatDate(k.lastUsedAt)}</span>,
+    },
+    {
+      key: 'expiresAt',
+      header: 'Expires',
+      render: (k) => <span className="text-text-secondary text-xs">{formatDate(k.expiresAt)}</span>,
+    },
+    {
+      key: 'isActive',
+      header: 'Active',
+      render: (k) => (
+        <div onClick={(e) => e.stopPropagation()}>
+          <Toggle
+            id={`toggle-${k.apiKeyId}`}
+            label=""
+            checked={k.isActive}
+            onChange={() => handleToggleActive(k)}
+          />
+        </div>
+      ),
+    },
+    {
+      key: '_actions',
+      header: '',
+      align: 'right',
+      render: (k) => (
+        <div onClick={(e) => e.stopPropagation()}>
+          <RowActionsMenu
+            actions={[
+              {
+                label: 'Revoke',
+                icon: <FontAwesomeIcon icon={faTrash} />,
+                onClick: () => { setConfirmRevoke(k); setRevokeError(''); },
+                variant: 'danger',
+              },
+            ]}
+          />
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -173,92 +255,19 @@ export default function ApiKeysPage({ params }: { params: Promise<{ tenantId: st
 
       {fetchError && <AlertBanner variant="error" message={fetchError} />}
 
-      <Card>
-        {loading ? (
-          <div className="flex justify-center py-10">
-            <Spinner size="lg" />
-          </div>
-        ) : keys.length === 0 ? (
-          <EmptyState
-            icon={<FontAwesomeIcon icon={faKey} className="w-5 h-5" />}
-            title="No API keys yet"
-            description="Create an API key to authenticate programmatic requests."
-            action={
-              <Button onClick={() => setShowCreate(true)} iconLeft={<FontAwesomeIcon icon={faPlus} />}>
-                New API Key
-              </Button>
-            }
-          />
-        ) : (
-          <div className="overflow-x-auto -mx-6 -mb-4">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Name</th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Key</th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Scopes</th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Last used</th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Expires</th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3" />
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {keys.map((key) => (
-                  <tr key={key.apiKeyId} className="hover:bg-surface-overlay transition-colors">
-                    <td className="px-6 py-4">
-                      <p className="font-medium text-text-primary">{key.name}</p>
-                      {key.description && (
-                        <p className="text-xs text-text-secondary mt-0.5 truncate max-w-[180px]">{key.description}</p>
-                      )}
-                    </td>
-                    <td className="px-6 py-4">
-                      <code className="text-xs font-mono bg-surface-overlay px-2 py-1 rounded text-text-secondary">
-                        {key.keyPrefix}…
-                      </code>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex flex-wrap gap-1">
-                        {key.scopes.map((s) => (
-                          <Badge key={s} variant={SCOPE_BADGE[s]} size="sm">
-                            {SCOPE_LABEL[s]}
-                          </Badge>
-                        ))}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-text-secondary text-xs">{formatDate(key.lastUsedAt)}</td>
-                    <td className="px-6 py-4 text-text-secondary text-xs">{formatDate(key.expiresAt)}</td>
-                    <td className="px-6 py-4">
-                      <button
-                        onClick={() => handleToggleActive(key)}
-                        aria-label={key.isActive ? 'Deactivate key' : 'Activate key'}
-                        className="text-text-secondary hover:text-text-primary transition-colors"
-                      >
-                        <FontAwesomeIcon
-                          icon={key.isActive ? faToggleOn : faToggleOff}
-                          className={`w-5 h-5 ${key.isActive ? 'text-success' : 'text-text-secondary'}`}
-                        />
-                      </button>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        iconOnly
-                        aria-label="Revoke key"
-                        onClick={() => setConfirmRevoke(key)}
-                        iconLeft={<FontAwesomeIcon icon={faTrash} className="text-error" />}
-                      />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </Card>
+      <ServerDataTable
+        columns={columns}
+        rows={pageRows}
+        getRowKey={(k) => k.apiKeyId}
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        pageSize={PAGE_SIZE}
+        onPageChange={setPage}
+        loading={loading}
+        emptyMessage="No API keys yet."
+      />
 
-      {/* Create Modal */}
       <Modal
         open={showCreate}
         onClose={() => { setShowCreate(false); resetCreate(); }}
@@ -296,7 +305,7 @@ export default function ApiKeysPage({ params }: { params: Promise<{ tenantId: st
           />
 
           <div className="flex flex-col gap-2">
-            <span className="text-xs font-medium text-text-secondary">Scopes</span>
+            <span className="text-sm font-medium text-text-primary">Scopes</span>
             <div className="flex gap-4">
               {API_KEY_SCOPES.map((scope) => (
                 <label key={scope} className="flex items-center gap-1.5 cursor-pointer text-sm text-text-primary">
@@ -322,7 +331,6 @@ export default function ApiKeysPage({ params }: { params: Promise<{ tenantId: st
         </form>
       </Modal>
 
-      {/* Raw Key Reveal Modal — shown once after creation */}
       <Modal
         open={!!revealKey}
         onClose={() => { setRevealKey(''); setCopied(false); }}
@@ -361,7 +369,6 @@ export default function ApiKeysPage({ params }: { params: Promise<{ tenantId: st
         </div>
       </Modal>
 
-      {/* Revoke Confirm Modal */}
       <Modal
         open={confirmRevoke !== null}
         onClose={() => { setConfirmRevoke(null); setRevokeError(''); }}
@@ -369,7 +376,9 @@ export default function ApiKeysPage({ params }: { params: Promise<{ tenantId: st
         description={`Permanently revoke "${confirmRevoke?.name}"?`}
         footer={
           <>
-            <Button variant="ghost" onClick={() => setConfirmRevoke(null)} disabled={revoking}>Cancel</Button>
+            <Button variant="ghost" onClick={() => { setConfirmRevoke(null); setRevokeError(''); }} disabled={revoking}>
+              Cancel
+            </Button>
             <Button variant="danger" loading={revoking} onClick={handleRevoke}>Revoke Key</Button>
           </>
         }

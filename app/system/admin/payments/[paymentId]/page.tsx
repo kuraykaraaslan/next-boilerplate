@@ -10,10 +10,12 @@ import { Breadcrumb } from '@/modules_next/common/ui/Breadcrumb';
 import { Modal } from '@/modules_next/common/ui/Modal';
 import { Input } from '@/modules_next/common/ui/Input';
 import { PageHeader } from '@/modules_next/common/ui/PageHeader';
+import { ServerDataTable, type TableColumn } from '@/modules_next/common/ui/ServerDataTable';
+import { toast } from '@/modules_next/common/ui/toast.store';
 import { PaymentSummaryCard } from '@/modules_next/payment/ui/PaymentSummaryCard';
 import { PaymentStatusBadge, type PaymentStatus } from '@/modules_next/payment/ui/PaymentStatusBadge';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowRotateLeft, faMoneyBill } from '@fortawesome/free-solid-svg-icons';
+import { faArrowRotateLeft } from '@fortawesome/free-solid-svg-icons';
 
 type Transaction = {
   transactionId: string;
@@ -52,11 +54,10 @@ export default function PaymentDetailPage({ params }: { params: Promise<{ paymen
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState('');
 
-  const [showRefund, setShowRefund] = useState(false);
+  const [showRefund, setShowRefund]     = useState(false);
   const [refundAmount, setRefundAmount] = useState('');
   const [refunding, setRefunding]       = useState(false);
   const [refundError, setRefundError]   = useState('');
-  const [success, setSuccess]           = useState('');
 
   useEffect(() => {
     api.get(`/system/api/admin/payments/${paymentId}`)
@@ -77,10 +78,10 @@ export default function PaymentDetailPage({ params }: { params: Promise<{ paymen
       setPayment(res.data.payment);
       setShowRefund(false);
       setRefundAmount('');
-      setSuccess('Refund processed successfully.');
-      setTimeout(() => setSuccess(''), 4000);
-    } catch (e: any) {
-      setRefundError(e.response?.data?.message ?? 'Refund failed.');
+      toast.success('Refund processed.');
+    } catch (e: unknown) {
+      const err = e as { response?: { data?: { message?: string } }; message?: string };
+      setRefundError(err?.response?.data?.message ?? err?.message ?? 'Refund failed.');
     } finally {
       setRefunding(false);
     }
@@ -107,45 +108,26 @@ export default function PaymentDetailPage({ params }: { params: Promise<{ paymen
         ] : []}
       />
 
-      {success && <AlertBanner variant="success" message={success} dismissible />}
-
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-6">
-          {/* Transactions */}
-          <Card title="Transactions" subtitle={`${payment.transactions?.length ?? 0} transaction(s)`}>
-            {!payment.transactions?.length ? (
-              <p className="text-sm text-text-secondary py-4">No transactions recorded.</p>
-            ) : (
-              <div className="overflow-x-auto -mx-6">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-border">
-                      {['Type', 'Status', 'Amount', 'Provider', 'Date'].map((h) => (
-                        <th key={h} className="text-left px-6 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    {payment.transactions!.map((tx) => (
-                      <tr key={tx.transactionId} className="hover:bg-surface-overlay">
-                        <td className="px-6 py-3">
-                          <Badge variant="neutral" size="sm">{tx.type}</Badge>
-                        </td>
-                        <td className="px-6 py-3">
-                          <Badge variant={txStatusVariant[tx.status] ?? 'neutral'} dot size="sm">{tx.status}</Badge>
-                        </td>
-                        <td className="px-6 py-3 tabular-nums font-medium text-text-primary">
-                          {tx.amount} {tx.currency}
-                        </td>
-                        <td className="px-6 py-3 text-text-secondary">{tx.provider}</td>
-                        <td className="px-6 py-3 text-text-secondary">{new Date(tx.createdAt).toLocaleString()}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </Card>
+          <ServerDataTable
+            columns={[
+              { key: 'type',     header: 'Type',     render: (tx) => <Badge variant="neutral" size="sm">{tx.type}</Badge> },
+              { key: 'status',   header: 'Status',   render: (tx) => <Badge variant={txStatusVariant[tx.status] ?? 'neutral'} dot size="sm">{tx.status}</Badge> },
+              { key: 'amount',   header: 'Amount',   render: (tx) => <span className="tabular-nums font-medium text-text-primary">{tx.amount} {tx.currency}</span> },
+              { key: 'provider', header: 'Provider', render: (tx) => <span className="text-text-secondary">{tx.provider}</span> },
+              { key: 'createdAt', header: 'Date',    render: (tx) => <span className="text-text-secondary">{new Date(tx.createdAt).toLocaleString()}</span> },
+            ] satisfies TableColumn<Transaction>[]}
+            rows={payment.transactions ?? []}
+            getRowKey={(tx) => tx.transactionId}
+            page={1}
+            totalPages={1}
+            onPageChange={() => {}}
+            hidePagination
+            title="Transactions"
+            subtitle={`${payment.transactions?.length ?? 0} transaction(s)`}
+            emptyMessage="No transactions recorded."
+          />
 
           {/* Metadata */}
           <Card title="Details">
