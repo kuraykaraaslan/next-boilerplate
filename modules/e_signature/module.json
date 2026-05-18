@@ -1,0 +1,16 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "e_signature",
+  "name": "E-Signature & E-Identity",
+  "description": "Multi-country e-identity login + e-signature (eIDAS/OIDC4IDA). Pluggable providers (TR Mobil İmza, Smart-ID, BankID, itsme, FranceConnect, eIDAS-nPA, Signicat).",
+  "version": "0.1.0",
+  "icon": "fas fa-id-card",
+  "tags": ["auth", "identity", "signature", "eidas"],
+  "priority": 35,
+  "dependencies": {
+    "requires": ["db", "env", "user", "user_session", "user_security", "redis", "redis_idempotency", "limiter", "audit_log", "logger"],
+    "optional": ["storage", "tenant_setting"]
+  },
+  "settings": { "keys": "E_SIGNATURE_KEYS" },
+  "settingKeys": ["E_SIGNATURE_KEYS"]
+}

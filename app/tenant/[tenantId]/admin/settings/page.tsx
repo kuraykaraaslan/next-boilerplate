@@ -15,8 +15,9 @@ import { AvatarUpload } from '@/modules_next/common/ui/AvatarUpload';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faBuilding, faPalette, faFileInvoice, faTriangleExclamation,
-  faEnvelope, faPhone, faLocationDot, faSave, faTrash,
+  faEnvelope, faPhone, faLocationDot, faSave, faTrash, faIdCard,
 } from '@fortawesome/free-solid-svg-icons';
+import { TenantESignatureSettingsPanel } from '@/modules_next/e_signature/ui/TenantESignatureSettingsPanel';
 
 type SR = Record<string, string>;
 
@@ -561,6 +562,12 @@ export default function TenantSettingsPage({ params }: { params: Promise<{ tenan
       label: 'Billing',
       icon: ICON(<FontAwesomeIcon icon={faFileInvoice} />),
       content: <BillingTab {...sharedProps} />,
+    },
+    {
+      id: 'e-signature',
+      label: 'E-Signature',
+      icon: ICON(<FontAwesomeIcon icon={faIdCard} />),
+      content: <TenantESignatureSettingsPanel tenantId={tenantId} />,
     },
     {
       id: 'danger',

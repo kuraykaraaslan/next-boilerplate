@@ -3,7 +3,7 @@
 > **Single-page index of every business-logic module.** Every entry has a `README.md` (human) and a `module.json` (machine, validated against [module.schema.json](module.schema.json)).
 > Need the architectural picture? See [../AGENTS.md](../AGENTS.md).
 
-There are **41 modules** under `modules/`. Eighteen of them also have a Next/React extension under [`modules_next/`](../modules_next/COMPONENTS.md).
+There are **42 modules** under `modules/`. Eighteen of them also have a Next/React extension under [`modules_next/`](../modules_next/COMPONENTS.md).
 
 ## Layer rules (recap)
 
@@ -43,6 +43,7 @@ There are **41 modules** under `modules/`. Eighteen of them also have a Next/Rea
 | [auth_sso](auth_sso/) | OAuth SSO with 12 providers (Google, GitHub, Apple, Microsoft, Facebook, LinkedIn, Twitter, Slack, TikTok, WeChat, Autodesk). | — | user, user_session, user_social_account, env |
 | [auth_saml](auth_saml/) | SAML 2.0 SSO with per-tenant IdP config. | `SamlConfig` | db, user, user_session, tenant, env |
 | [auth_impersonation](auth_impersonation/) | Admin impersonation of a target user (always audited). | — | user, user_session, audit_log, env |
+| [e_signature](e_signature/) | Multi-country e-identity login + e-signature (eIDAS / OIDC4IDA). MVP: TR Mobil İmza login. Doc-signing interfaces scaffolded. | `SigningCertificate`, `TrustListEntry` | db, env, user, user_session, user_security, redis, redis_idempotency, limiter, audit_log, logger |
 
 ### Tenancy
 

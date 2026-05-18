@@ -15,7 +15,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faGlobe, faEnvelope, faServer, faCreditCard, faRobot,
   faShieldHalved, faBell, faUserLock, faSave, faKey, faLink,
-  faCopy, faCheck, faMobile, faGear,
+  faCopy, faCheck, faMobile, faGear, faIdCard, faClock,
 } from '@fortawesome/free-solid-svg-icons';
 
 type SR = Record<string, string>;
@@ -982,6 +982,259 @@ function SecurityTab({ settings, onSave, saving }: TabProps) {
   );
 }
 
+// ─── E-Signature Tab ──────────────────────────────────────────────────────────
+
+const LOA_OPTIONS = [
+  { value: '', label: 'No minimum (accept any)' },
+  { value: 'low', label: 'Low' },
+  { value: 'substantial', label: 'Substantial' },
+  { value: 'high', label: 'High (QES — recommended)' },
+];
+
+type ProviderRow = {
+  id: string;
+  displayName: string;
+  countries: string[];
+  capabilities: string[];
+  loa: 'low' | 'substantial' | 'high';
+  configured: boolean;
+};
+
+function ESignatureTab({ saving: outerSaving }: TabProps) {
+  const [remote, setRemote] = useState<SR>({});
+  const [providers, setProviders] = useState<ProviderRow[]>([]);
+  const [loadingRemote, setLoadingRemote] = useState(true);
+  const [savingEid, setSavingEid] = useState(false);
+  const [eidError, setEidError] = useState('');
+  const [eidNotice, setEidNotice] = useState('');
+
+  useEffect(() => {
+    api.get('/system/api/admin/e-signature/settings')
+      .then((res) => {
+        const payload = res.data?.data ?? {};
+        setRemote((payload.settings ?? {}) as SR);
+        setProviders((payload.providers ?? []) as ProviderRow[]);
+      })
+      .catch(() => setEidError('Failed to load e-signature settings.'))
+      .finally(() => setLoadingRemote(false));
+  }, []);
+
+  const [f, setF] = useState({
+    eidEnabled: false,
+    eidDefaultProvider: 'mobil_imza_aggregator',
+    eidProviderMap: '',
+    eidRequiredLoA: 'high',
+    mobilImzaAggregatorEnabled: false,
+    mobilImzaAggregatorBaseUrl: '',
+    mobilImzaAggregatorApiKey: '',
+    mobilImzaAggregatorCustomerCode: '',
+    mobilImzaCallbackHmacSecret: '',
+    trTrustRootsPath: '',
+    euLotlUrl: '',
+    tsaDefaultUrl: '',
+  });
+
+  useEffect(() => {
+    if (!Object.keys(remote).length) return;
+    setF({
+      eidEnabled: b(remote.eidEnabled),
+      eidDefaultProvider: remote.eidDefaultProvider ?? 'mobil_imza_aggregator',
+      eidProviderMap: remote.eidProviderMap ?? '',
+      eidRequiredLoA: remote.eidRequiredLoA ?? 'high',
+      mobilImzaAggregatorEnabled: b(remote.mobilImzaAggregatorEnabled),
+      mobilImzaAggregatorBaseUrl: remote.mobilImzaAggregatorBaseUrl ?? '',
+      mobilImzaAggregatorApiKey: remote.mobilImzaAggregatorApiKey ?? '',  // already '' or '***SET***'
+      mobilImzaAggregatorCustomerCode: remote.mobilImzaAggregatorCustomerCode ?? '',
+      mobilImzaCallbackHmacSecret: remote.mobilImzaCallbackHmacSecret ?? '',
+      trTrustRootsPath: remote.trTrustRootsPath ?? '',
+      euLotlUrl: remote.euLotlUrl ?? '',
+      tsaDefaultUrl: remote.tsaDefaultUrl ?? '',
+    });
+  }, [remote]);
+
+  function patch(key: keyof typeof f, val: string | boolean) { setF((p) => ({ ...p, [key]: val })); }
+
+  async function saveEid(partial: Partial<typeof f>) {
+    setSavingEid(true);
+    setEidError('');
+    setEidNotice('');
+    try {
+      const settingsPatch: SR = {};
+      for (const [k, v] of Object.entries(partial)) {
+        if (typeof v === 'boolean') settingsPatch[k] = bStr(v);
+        else if (typeof v === 'string') settingsPatch[k] = v;
+      }
+      const res = await api.put('/system/api/admin/e-signature/settings', { settings: settingsPatch });
+      const payload = res.data?.data ?? {};
+      setRemote((payload.settings ?? {}) as SR);
+      setProviders((payload.providers ?? []) as ProviderRow[]);
+      setEidNotice('Saved.');
+      setTimeout(() => setEidNotice(''), 4000);
+    } catch (err: unknown) {
+      const ax = err as { response?: { data?: { error?: { message?: string } } }; message?: string };
+      setEidError(ax.response?.data?.error?.message ?? ax.message ?? 'Failed to save.');
+    } finally {
+      setSavingEid(false);
+    }
+  }
+
+  const saving = savingEid || outerSaving;
+
+  if (loadingRemote) {
+    return <div className="pt-6"><Spinner size="md" /></div>;
+  }
+
+  return (
+    <div className="pt-6 space-y-6">
+      {eidError && <AlertBanner variant="error" message={eidError} dismissible />}
+      {eidNotice && <AlertBanner variant="success" message={eidNotice} dismissible />}
+
+      <Card title="Provider matrix" subtitle="Every registered adapter and its current configuration state. Providers reporting 'not configured' are hidden from the user-facing login picker.">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="text-text-secondary text-left">
+              <tr className="border-b border-border">
+                <th className="py-2 pr-4 font-medium">Provider</th>
+                <th className="py-2 pr-4 font-medium">Countries</th>
+                <th className="py-2 pr-4 font-medium">Capabilities</th>
+                <th className="py-2 pr-4 font-medium">LoA</th>
+                <th className="py-2 font-medium">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {providers.length === 0 ? (
+                <tr><td colSpan={5} className="py-4 text-center text-text-secondary">No providers registered.</td></tr>
+              ) : providers.map((p) => (
+                <tr key={p.id} className="border-b border-border last:border-0">
+                  <td className="py-2 pr-4">
+                    <div className="font-medium text-text-primary">{p.displayName}</div>
+                    <div className="text-xs text-text-secondary font-mono">{p.id}</div>
+                  </td>
+                  <td className="py-2 pr-4 font-mono text-xs">{p.countries.join(', ')}</td>
+                  <td className="py-2 pr-4 text-xs">{p.capabilities.join(', ')}</td>
+                  <td className="py-2 pr-4 text-xs">{p.loa}</td>
+                  <td className="py-2">
+                    {p.configured ? (
+                      <span className="inline-flex items-center gap-1 text-success-fg text-xs">
+                        <FontAwesomeIcon icon={faCheck} className="w-3 h-3" />
+                        Configured
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-text-secondary text-xs">
+                        Not configured
+                      </span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="text-xs text-text-secondary pt-3">
+          Provider coverage: Turkey via Mobil Imza aggregator, EE/LV/LT via Smart-ID, Sweden via BankID, United States via Login.gov (OIDC bridge). Add more by extending <code className="font-mono">modules/e_signature/providers/</code>.
+        </p>
+      </Card>
+
+      <Card title="E-Identity & E-Signature" subtitle="Multi-country eIDAS / OIDC4IDA login flows. Each provider is enabled separately below; only providers with full credentials appear on the user-facing login page.">
+        <form onSubmit={(e) => { e.preventDefault(); saveEid({ eidEnabled: f.eidEnabled, eidDefaultProvider: f.eidDefaultProvider, eidProviderMap: f.eidProviderMap, eidRequiredLoA: f.eidRequiredLoA }); }} className="space-y-5">
+          <Toggle id="eidEnabled" label="Enable e-signature sign-in"
+            description="Surfaces the 'Continue with e-signature' panel on the login page."
+            checked={f.eidEnabled} onChange={(v) => patch('eidEnabled', v)} />
+
+          {f.eidEnabled && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Input id="eidDefaultProvider" label="Default provider"
+                  value={f.eidDefaultProvider}
+                  placeholder="mobil_imza_aggregator"
+                  hint="Fallback when a country has no explicit mapping."
+                  onChange={(e) => patch('eidDefaultProvider', e.target.value)} />
+                <Select id="eidRequiredLoA" label="Minimum Level of Assurance"
+                  options={LOA_OPTIONS}
+                  value={f.eidRequiredLoA}
+                  onChange={(e) => patch('eidRequiredLoA', e.target.value)} />
+              </div>
+              <Input id="eidProviderMap" label="Country → provider map"
+                value={f.eidProviderMap}
+                placeholder="TR:mobil_imza_aggregator,EE:smart_id,SE:bankid_se"
+                hint="Comma-separated. ISO 3166-1 alpha-2 country codes."
+                onChange={(e) => patch('eidProviderMap', e.target.value)} />
+            </div>
+          )}
+          <SaveRow loading={saving} />
+        </form>
+      </Card>
+
+      <Card title="Turkey — Mobil Imza Aggregator" subtitle="Turkish mobile-signature aggregator (E-Guven, TURKKEP, or similar). API key and HMAC secret are encrypted at rest.">
+        <form onSubmit={(e) => { e.preventDefault(); saveEid({
+          mobilImzaAggregatorEnabled: f.mobilImzaAggregatorEnabled,
+          mobilImzaAggregatorBaseUrl: f.mobilImzaAggregatorBaseUrl,
+          mobilImzaAggregatorCustomerCode: f.mobilImzaAggregatorCustomerCode,
+          mobilImzaAggregatorApiKey: f.mobilImzaAggregatorApiKey,
+          mobilImzaCallbackHmacSecret: f.mobilImzaCallbackHmacSecret,
+        }); }} className="space-y-4">
+          <Toggle id="mobilImzaAggregatorEnabled" label="Enable Mobil Imza"
+            checked={f.mobilImzaAggregatorEnabled}
+            onChange={(v) => patch('mobilImzaAggregatorEnabled', v)} />
+
+          {f.mobilImzaAggregatorEnabled && (
+            <>
+              <Input id="mobilImzaAggregatorBaseUrl" label="Aggregator base URL" type="url"
+                value={f.mobilImzaAggregatorBaseUrl}
+                placeholder="https://api.aggregator.example/v1"
+                prefixIcon={<FontAwesomeIcon icon={faLink} className="w-3.5 h-3.5" />}
+                onChange={(e) => patch('mobilImzaAggregatorBaseUrl', e.target.value)} />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Input id="mobilImzaAggregatorCustomerCode" label="Customer code"
+                  value={f.mobilImzaAggregatorCustomerCode}
+                  prefixIcon={<FontAwesomeIcon icon={faIdCard} className="w-3.5 h-3.5" />}
+                  onChange={(e) => patch('mobilImzaAggregatorCustomerCode', e.target.value)} />
+                <Input id="mobilImzaAggregatorApiKey" label="API key" type="password"
+                  value={f.mobilImzaAggregatorApiKey}
+                  prefixIcon={<FontAwesomeIcon icon={faKey} className="w-3.5 h-3.5" />}
+                  hint="Stored encrypted at rest when SETTINGS_ENCRYPTION_KEY is configured."
+                  onChange={(e) => patch('mobilImzaAggregatorApiKey', e.target.value)} />
+              </div>
+              <Input id="mobilImzaCallbackHmacSecret" label="Callback HMAC secret (optional)" type="password"
+                value={f.mobilImzaCallbackHmacSecret}
+                prefixIcon={<FontAwesomeIcon icon={faKey} className="w-3.5 h-3.5" />}
+                hint="Used to verify asynchronous aggregator callbacks."
+                onChange={(e) => patch('mobilImzaCallbackHmacSecret', e.target.value)} />
+            </>
+          )}
+          <SaveRow loading={saving} />
+        </form>
+      </Card>
+
+      <Card title="Trust list & timestamping" subtitle="Country-level certificate trust roots and an RFC 3161 timestamp authority. Roots are ingested via ETSI EU LOTL (covers all EU/EEA member states) and from a local PEM bundle for non-EU countries such as Turkey.">
+        <form onSubmit={(e) => { e.preventDefault(); saveEid({
+          trTrustRootsPath: f.trTrustRootsPath,
+          euLotlUrl: f.euLotlUrl,
+          tsaDefaultUrl: f.tsaDefaultUrl,
+        }); }} className="space-y-4">
+          <Input id="trTrustRootsPath" label="TR KamuSM trust-root bundle path"
+            value={f.trTrustRootsPath}
+            placeholder="/etc/trust/tr-kamusm-roots.pem"
+            prefixIcon={<FontAwesomeIcon icon={faShieldHalved} className="w-3.5 h-3.5" />}
+            hint="PEM bundle on disk. Ingested daily into the trust_list_entries table."
+            onChange={(e) => patch('trTrustRootsPath', e.target.value)} />
+          <Input id="euLotlUrl" label="ETSI EU LOTL URL"
+            value={f.euLotlUrl}
+            placeholder="https://ec.europa.eu/tools/lotl/eu-lotl.xml"
+            prefixIcon={<FontAwesomeIcon icon={faLink} className="w-3.5 h-3.5" />}
+            onChange={(e) => patch('euLotlUrl', e.target.value)} />
+          <Input id="tsaDefaultUrl" label="Default TSA URL (RFC 3161)"
+            value={f.tsaDefaultUrl}
+            placeholder="http://tsa.kamusm.gov.tr"
+            prefixIcon={<FontAwesomeIcon icon={faClock} className="w-3.5 h-3.5" />}
+            onChange={(e) => patch('tsaDefaultUrl', e.target.value)} />
+          <SaveRow loading={saving} />
+        </form>
+      </Card>
+    </div>
+  );
+}
+
 // ─── Notifications Tab ────────────────────────────────────────────────────────
 
 function NotificationsTab({ settings, onSave, saving }: TabProps) {
@@ -1139,6 +1392,12 @@ export default function SystemSettingsPage() {
       label: 'Security',
       icon: ICON(<FontAwesomeIcon icon={faShieldHalved} />),
       content: <SecurityTab settings={settings} onSave={handleSave} saving={saving} />,
+    },
+    {
+      id: 'e-signature',
+      label: 'E-Signature',
+      icon: ICON(<FontAwesomeIcon icon={faIdCard} />),
+      content: <ESignatureTab settings={settings} onSave={handleSave} saving={saving} />,
     },
     {
       id: 'notifications',

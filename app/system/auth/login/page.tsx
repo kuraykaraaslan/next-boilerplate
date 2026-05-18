@@ -5,6 +5,7 @@ import api from '@/modules_next/common/axios';
 import { BrandLogo } from '@/modules_next/common/ui/BrandLogo';
 import { LoginForm } from '@/modules_next/auth/ui/LoginForm';
 import { OAuthButtons, type OAuthProvider } from '@/modules_next/auth/ui/OAuthButtons';
+import { ESignatureLoginPanel } from '@/modules_next/auth/ui/ESignatureLoginPanel';
 import { Spinner } from '@/modules_next/common/ui/Spinner';
 
 // Refresh token is minted with `notBefore: 5s` (see user_session.token.service.ts).
@@ -88,6 +89,21 @@ export default function SystemLoginPage() {
             )}
 
             <LoginForm onSubmit={handleLogin} />
+
+            <div className="flex items-center gap-3">
+              <div className="flex-1 h-px bg-border" aria-hidden="true" />
+              <span className="text-xs text-text-secondary">or use e-signature</span>
+              <div className="flex-1 h-px bg-border" aria-hidden="true" />
+            </div>
+
+            <ESignatureLoginPanel
+              onSuccess={() => {
+                setSuccessMsg('Signed in with e-signature');
+                setTimeout(() => {
+                  window.location.href = redirectTo ?? '/system/auth/select-tenant';
+                }, POST_LOGIN_REDIRECT_DELAY_MS);
+              }}
+            />
 
             <p className="text-center text-xs text-text-secondary">
               <a href="/system/auth/forgot-password" className="text-primary hover:underline">

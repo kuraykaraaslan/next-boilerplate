@@ -17,6 +17,8 @@ import { Coupon } from '@/modules/coupon/entities/coupon.entity';
 import { SystemWebhook } from '@/modules/webhook/entities/system_webhook.entity';
 import { SystemWebhookDelivery } from '@/modules/webhook/entities/system_webhook_delivery.entity';
 import { SystemSamlConfig } from '@/modules/auth_saml/entities/system_saml_config.entity';
+import { SigningCertificate } from '@/modules/e_signature/entities/signing_certificate.entity';
+import { TrustListEntry } from '@/modules/e_signature/entities/trust_list_entry.entity';
 import { TenantDatabase } from './entities/tenant_database.entity';
 
 const SYSTEM_ENTITIES = [
@@ -35,6 +37,8 @@ const SYSTEM_ENTITIES = [
   SystemWebhook,
   SystemWebhookDelivery,
   SystemSamlConfig,
+  SigningCertificate,
+  TrustListEntry,
   TenantDatabase,
 ];
 

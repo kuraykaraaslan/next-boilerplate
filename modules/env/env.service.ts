@@ -194,6 +194,31 @@ const EnvSchema = z.object({
   RATE_LIMIT_MAX: z.coerce.number().default(100), // limit each IP to 100 requests per windowMs
   RATE_LIMIT_AUTH_WINDOW_MS: z.coerce.number().default(60 * 60 * 1000), // 1 hour
   RATE_LIMIT_AUTH_MAX: z.coerce.number().default(500), // limit each IP to 500 requests per auth windowMs
+
+  // ── E-Signature / E-Identity (eIDAS, OIDC4IDA) ──────────────────────────────
+  EID_DEFAULT_PROVIDER: z.string().optional(),
+  EID_PROVIDER_MAP: z.string().optional(), // e.g. "TR:mobil_imza_aggregator,EE:smart_id,SE:bankid_se"
+  EID_REQUIRED_LOA: z.enum(['low', 'substantial', 'high']).optional(),
+  EU_LOTL_URL: z.string().optional(),
+  LOTL_SIGNER_CERT_PEM: z.string().optional(), // out-of-band-distributed LOTL signing cert (PEM)
+  TR_TRUST_ROOTS_PATH: z.string().optional(),
+  TSA_DEFAULT_URL: z.string().optional(),
+  MOBIL_IMZA_AGGREGATOR_BASE_URL: z.string().optional(),
+  MOBIL_IMZA_AGGREGATOR_API_KEY: z.string().optional(),
+  MOBIL_IMZA_AGGREGATOR_CUSTOMER_CODE: z.string().optional(),
+  MOBIL_IMZA_CALLBACK_HMAC_SECRET: z.string().optional(),
+  // Smart-ID (EE/LV/LT) — SK ID Solutions v2 REST API
+  SMART_ID_BASE_URL: z.string().optional(), // e.g. https://rp-api.smart-id.com/v2
+  SMART_ID_RELYING_PARTY_UUID: z.string().optional(),
+  SMART_ID_RELYING_PARTY_NAME: z.string().optional(),
+  // BankID Sweden (TLS client cert PEM paths on disk; cert-auth, not bearer)
+  BANKID_SE_BASE_URL: z.string().optional(),
+  BANKID_SE_CLIENT_CERT_PATH: z.string().optional(),
+  BANKID_SE_CLIENT_KEY_PATH: z.string().optional(),
+  // US — Login.gov OIDC bridge (consumed by auth_sso; surfaced for the picker)
+  LOGIN_GOV_CLIENT_ID: z.string().optional(),
+  LOGIN_GOV_REDIRECT_URI: z.string().optional(),
+  SETTINGS_ENCRYPTION_KEY: z.string().optional(), // 64-hex (32 bytes) for AES-256-GCM
 });
 
 export const env = EnvSchema.parse(process.env);

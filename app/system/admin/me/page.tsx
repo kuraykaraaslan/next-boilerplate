@@ -12,6 +12,7 @@ import { UserProfileForm, type UserProfileValues } from '@/modules_next/user/ui/
 import { UserPreferencesForm, type UserPreferencesValues } from '@/modules_next/user/ui/UserPreferencesForm';
 import { UserRoleBadge } from '@/modules_next/user/ui/UserRoleBadge';
 import { PasskeysPanel } from '@/modules_next/user_security/ui/PasskeysPanel';
+import { SigningCertificatesPanel } from '@/modules_next/e_signature/ui/SigningCertificatesPanel';
 import { SocialAccountsPanel } from '@/modules_next/user/ui/SocialAccountsPanel';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -225,6 +226,11 @@ export default function SystemMePage() {
             id: 'passkeys',
             label: 'Passkeys',
             content: <PasskeysPanel />,
+          },
+          {
+            id: 'signing',
+            label: 'Signing Certificates',
+            content: <SigningCertificatesPanel />,
           },
           {
             id: 'connected',
