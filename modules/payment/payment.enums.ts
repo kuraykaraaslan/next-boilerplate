@@ -3,7 +3,15 @@ import { codes } from 'currency-codes-ts'
 import type { CurrencyCode } from 'currency-codes-ts/dist/types'
 
 // Payment Provider - matches Prisma PaymentProvider enum
-export const PaymentProviderEnum = z.enum(['STRIPE', 'PAYPAL', 'IYZICO'])
+export const PaymentProviderEnum = z.enum([
+  'STRIPE',
+  'PAYPAL',
+  'IYZICO',
+  'ALIPAY',
+  'WECHATPAY',
+  'YOOKASSA',
+  'CLOUDPAYMENTS',
+])
 
 // Payment Status - matches Prisma PaymentStatus enum
 export const PaymentStatusEnum = z.enum([

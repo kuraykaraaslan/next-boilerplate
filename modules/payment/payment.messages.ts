@@ -48,6 +48,28 @@ export const PAYMENT_MESSAGES = {
   IYZICO_CREATE_PAYMENT_FAILED: 'Failed to create Iyzico payment',
   IYZICO_REFUND_FAILED: 'Failed to process Iyzico refund',
 
+  // Alipay (China)
+  ALIPAY_GET_STATUS_FAILED: 'Failed to get Alipay payment status',
+  ALIPAY_CREATE_PAYMENT_FAILED: 'Failed to create Alipay payment',
+  ALIPAY_REFUND_FAILED: 'Failed to process Alipay refund',
+  ALIPAY_SIGNATURE_INVALID: 'Invalid Alipay signature',
+
+  // WeChat Pay (China)
+  WECHATPAY_GET_STATUS_FAILED: 'Failed to get WeChat Pay payment status',
+  WECHATPAY_CREATE_PAYMENT_FAILED: 'Failed to create WeChat Pay payment',
+  WECHATPAY_REFUND_FAILED: 'Failed to process WeChat Pay refund',
+  WECHATPAY_SIGNATURE_INVALID: 'Invalid WeChat Pay signature',
+
+  // YooKassa (Russia)
+  YOOKASSA_GET_STATUS_FAILED: 'Failed to get YooKassa payment status',
+  YOOKASSA_CREATE_PAYMENT_FAILED: 'Failed to create YooKassa payment',
+  YOOKASSA_REFUND_FAILED: 'Failed to process YooKassa refund',
+
+  // CloudPayments (Russia)
+  CLOUDPAYMENTS_GET_STATUS_FAILED: 'Failed to get CloudPayments payment status',
+  CLOUDPAYMENTS_CREATE_PAYMENT_FAILED: 'Failed to create CloudPayments payment',
+  CLOUDPAYMENTS_REFUND_FAILED: 'Failed to process CloudPayments refund',
+
   // Webhooks
   WEBHOOK_INVALID_SIGNATURE: 'Invalid webhook signature',
   WEBHOOK_UNKNOWN_EVENT: 'Unknown or unhandled webhook event type',

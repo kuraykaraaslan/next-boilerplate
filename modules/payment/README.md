@@ -1,6 +1,6 @@
 # Payment Module
 
-A multi-provider payment gateway module supporting Stripe, PayPal, and Iyzico with full TypeScript support and Zod validation.
+A multi-provider payment gateway module supporting Stripe, PayPal, Iyzico, Alipay, WeChat Pay, YooKassa and CloudPayments with full TypeScript support and Zod validation.
 
 ## Table of Contents
 
@@ -17,12 +17,21 @@ A multi-provider payment gateway module supporting Stripe, PayPal, and Iyzico wi
 
 ## Features
 
-- **Multi-Provider Support**: Seamlessly switch between Stripe, PayPal, and Iyzico
+- **Multi-Provider Support**: Seamlessly switch between 7 gateways — Stripe, PayPal, Iyzico (TR), Alipay (CN), WeChat Pay (CN), YooKassa (RU), CloudPayments (RU)
 - **Type Safety**: Full TypeScript support with Zod schema validation
 - **ISO 4217 Currencies**: Support for 180+ currencies via `currency-codes-ts`
 - **Provider Abstraction**: Unified interface across all payment providers
 - **Centralized Error Messages**: All error messages defined in one place
 - **Environment-Based Configuration**: Easy provider switching via environment variables
+
+### Regional Coverage
+
+| Region | Providers |
+|--------|-----------|
+| Global | Stripe, PayPal |
+| Turkey | Iyzico |
+| China | Alipay (支付宝), WeChat Pay (微信支付) |
+| Russia | YooKassa, CloudPayments |
 
 ## Installation
 
@@ -37,22 +46,21 @@ npm install axios crypto-js zod currency-codes-ts
 ### Environment Variables
 
 ```env
-# Default payment provider (stripe | paypal | iyzico)
-PAYMENT_DEFAULT_PROVIDER=stripe
-
-# Stripe Configuration
-STRIPE_SECRET_KEY=sk_test_...
-
-# PayPal Configuration
-PAYPAL_API_URL=https://api-m.sandbox.paypal.com
-PAYPAL_CLIENT_ID=your_client_id
-PAYPAL_CLIENT_SECRET=your_client_secret
-
-# Iyzico Configuration
-IYZICO_API_KEY=your_api_key
-IYZICO_SECRET_KEY=your_secret_key
-IYZICO_BASE_URL=https://sandbox-api.iyzipay.com
+# Default payment provider (STRIPE | PAYPAL | IYZICO | ALIPAY | WECHATPAY | YOOKASSA | CLOUDPAYMENTS)
+PAYMENT_DEFAULT_PROVIDER=STRIPE
 ```
+
+All provider credentials are stored as **settings** (DB-backed, managed by `SettingService`) — not env vars. The setting keys are declared in [`payment.setting.keys.ts`](./payment.setting.keys.ts):
+
+| Provider | Setting Keys |
+|----------|--------------|
+| Stripe | `stripeEnabled`, `stripePublicKey`, `stripeSecretKey`, `stripeWebhookSecret` |
+| PayPal | `paypalEnabled`, `paypalClientId`, `paypalClientSecret`, `paypalSandboxMode`, `paypalWebhookId` |
+| Iyzico | `iyzicoEnabled`, `iyzicoApiKey`, `iyzicoSecretKey`, `iyzicoSandboxMode` |
+| Alipay | `alipayEnabled`, `alipayAppId`, `alipayPrivateKey`, `alipayPublicKey`, `alipaySandboxMode` |
+| WeChat Pay | `wechatPayEnabled`, `wechatPayAppId`, `wechatPayMchId`, `wechatPayPrivateKey`, `wechatPaySerialNo`, `wechatPayApiV3Key`, `wechatPayNotifyUrl` |
+| YooKassa | `yookassaEnabled`, `yookassaShopId`, `yookassaSecretKey` |
+| CloudPayments | `cloudpaymentsEnabled`, `cloudpaymentsPublicId`, `cloudpaymentsApiSecret` |
 
 ### Production URLs
 
@@ -61,6 +69,10 @@ IYZICO_BASE_URL=https://sandbox-api.iyzipay.com
 | Stripe | https://api.stripe.com/v1 | https://api.stripe.com/v1 |
 | PayPal | https://api-m.sandbox.paypal.com | https://api-m.paypal.com |
 | Iyzico | https://sandbox-api.iyzipay.com | https://api.iyzipay.com |
+| Alipay | https://openapi.alipaydev.com/gateway.do | https://openapi.alipay.com/gateway.do |
+| WeChat Pay | https://api.mch.weixin.qq.com | https://api.mch.weixin.qq.com |
+| YooKassa | https://api.yookassa.ru/v3 (test shop) | https://api.yookassa.ru/v3 |
+| CloudPayments | https://api.cloudpayments.ru (test keys) | https://api.cloudpayments.ru |
 
 ## Usage
 
@@ -169,9 +181,79 @@ Iyzico provider uses HMAC-SHA256 signature authentication.
 ```typescript
 const status = await PaymentService.getPaymentStatus({
   token: 'iyzico_checkout_token',
-  provider: 'iyzico'
+  provider: 'IYZICO'
 })
 // Returns: 'success' | 'failure' | ...
+```
+
+### Alipay (China)
+
+Alipay is the largest mobile payment platform in China (Ant Group). Uses RSA2 (SHA256-with-RSA) signature authentication against the gateway endpoint.
+
+**Token Format**: Merchant `out_trade_no` (the `paymentId` we pass through `metadata.paymentId`).
+
+**Checkout flow**: `createCheckoutSession` returns a fully-signed URL targeting `alipay.trade.page.pay` (PC web). For mobile, switch the method to `alipay.trade.wap.pay`.
+
+**Status**: queried via `alipay.trade.query` — returns `trade_status` (e.g. `WAIT_BUYER_PAY`, `TRADE_SUCCESS`, `TRADE_CLOSED`, `TRADE_FINISHED`).
+
+```typescript
+const status = await PaymentService.getProviderStatus({
+  token: 'OUT_TRADE_NO_123',
+  provider: 'ALIPAY'
+})
+```
+
+### WeChat Pay (China)
+
+WeChat Pay (微信支付) is Tencent's payment platform — second-largest in China. Uses **API v3** with SHA256-RSA2048 request signing via the merchant private key + serial number.
+
+**Token Format**: Merchant `out_trade_no`.
+
+**Checkout flow**: `createCheckoutSession` calls `POST /v3/pay/transactions/native` and returns a `code_url` (a `weixin://wxpay/...` URI) which the frontend renders as a QR code. For JSAPI / H5 / App flows, swap the endpoint accordingly.
+
+**Currency**: Only `CNY` is supported by WeChat Pay (the provider normalizes any input to `CNY`).
+
+**Status**: queried via `GET /v3/pay/transactions/out-trade-no/{out_trade_no}` — returns `trade_state` (`SUCCESS`, `NOTPAY`, `CLOSED`, `REFUND`, `PAYERROR`, …).
+
+```typescript
+const status = await PaymentService.getProviderStatus({
+  token: 'OUT_TRADE_NO_123',
+  provider: 'WECHATPAY'
+})
+```
+
+### YooKassa (Russia)
+
+YooKassa (formerly Yandex.Kassa, now operated by Sber) is the most widely-used Russian payment gateway. Uses HTTP Basic auth with `shopId:secretKey`.
+
+**Token Format**: YooKassa `payment.id` (UUID returned from create).
+
+**Checkout flow**: `createCheckoutSession` calls `POST /v3/payments` with an `Idempotence-Key` header and returns `confirmation.confirmation_url` for redirect.
+
+**Status**: `pending`, `waiting_for_capture`, `succeeded`, `canceled`.
+
+```typescript
+const status = await PaymentService.getProviderStatus({
+  token: 'yookassa_payment_uuid',
+  provider: 'YOOKASSA'
+})
+```
+
+### CloudPayments (Russia)
+
+CloudPayments is a popular Russian acquirer used by major e-commerce. Uses HTTP Basic auth with `publicId:apiSecret`.
+
+**Token Format**: `InvoiceId` (the `paymentId` we set in metadata).
+
+**Checkout flow**: `createCheckoutSession` calls `POST /orders/create` and returns `Model.Url` for redirect. (For embedded widget flows, swap to client-side widget integration.)
+
+**Status**: queried via `POST /payments/find` with the `InvoiceId` — returns `Model.Status` (`Completed`, `Authorized`, `Declined`, …).
+
+```typescript
+const status = await PaymentService.getProviderStatus({
+  token: 'INVOICE_ID_123',
+  provider: 'CLOUDPAYMENTS'
+})
 ```
 
 ## API Reference
@@ -199,15 +281,14 @@ interface GetPaymentStatusDTO {
 
 ```typescript
 import {
-  PaymentProviderEnum,    // z.enum(['stripe', 'paypal', 'iyzico'])
-  PaymentStatusEnum,      // z.enum(['pending', 'completed', 'failed', 'refunded', 'cancelled'])
+  PaymentProviderEnum,    // z.enum(['STRIPE', 'PAYPAL', 'IYZICO', 'ALIPAY', 'WECHATPAY', 'YOOKASSA', 'CLOUDPAYMENTS'])
+  PaymentStatusEnum,      // z.enum(['PENDING', 'PROCESSING', 'COMPLETED', 'FAILED', 'REFUNDED', ...])
   PaymentCurrencyEnum,    // z.enum([...180+ ISO 4217 codes])
 } from '@/modules/payment'
 
 // Type inference
-type PaymentProviderType = 'stripe' | 'paypal' | 'iyzico'
-type PaymentStatus = 'pending' | 'completed' | 'failed' | 'refunded' | 'cancelled'
-type PaymentCurrency = 'USD' | 'EUR' | 'TRY' | ... // 180+ currencies
+type PaymentProvider = 'STRIPE' | 'PAYPAL' | 'IYZICO' | 'ALIPAY' | 'WECHATPAY' | 'YOOKASSA' | 'CLOUDPAYMENTS'
+type PaymentCurrency = 'USD' | 'EUR' | 'TRY' | 'CNY' | 'RUB' | ... // 180+ currencies
 ```
 
 ### Schemas
@@ -400,11 +481,15 @@ modules/payment/
 ├── payment.types.ts         # TypeScript types and schemas
 ├── payment.messages.ts      # Centralized error messages
 ├── providers/
-│   ├── base.provider.ts     # Abstract base provider
-│   ├── stripe.provider.ts   # Stripe implementation
-│   ├── paypal.provider.ts   # PayPal implementation
-│   └── iyzico.provider.ts   # Iyzico implementation
-└── README.md                # This file
+│   ├── base.provider.ts          # Abstract base provider
+│   ├── stripe.provider.ts        # Stripe implementation
+│   ├── paypal.provider.ts        # PayPal implementation
+│   ├── iyzico.provider.ts        # Iyzico implementation (Turkey)
+│   ├── alipay.provider.ts        # Alipay implementation (China)
+│   ├── wechatpay.provider.ts     # WeChat Pay implementation (China)
+│   ├── yookassa.provider.ts      # YooKassa implementation (Russia)
+│   └── cloudpayments.provider.ts # CloudPayments implementation (Russia)
+└── README.md                     # This file
 ```
 
 ## License

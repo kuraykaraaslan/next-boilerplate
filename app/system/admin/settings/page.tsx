@@ -458,6 +458,28 @@ function PaymentTab({ settings, onSave, saving }: TabProps) {
     iyzicoApiKey: settings.iyzicoApiKey ?? '',
     iyzicoSecretKey: settings.iyzicoSecretKey ?? '',
     iyzicoSandboxMode: b(settings.iyzicoSandboxMode),
+    // Alipay (China)
+    alipayEnabled: b(settings.alipayEnabled),
+    alipayAppId: settings.alipayAppId ?? '',
+    alipayPrivateKey: settings.alipayPrivateKey ?? '',
+    alipayPublicKey: settings.alipayPublicKey ?? '',
+    alipaySandboxMode: b(settings.alipaySandboxMode),
+    // WeChat Pay (China)
+    wechatPayEnabled: b(settings.wechatPayEnabled),
+    wechatPayAppId: settings.wechatPayAppId ?? '',
+    wechatPayMchId: settings.wechatPayMchId ?? '',
+    wechatPaySerialNo: settings.wechatPaySerialNo ?? '',
+    wechatPayPrivateKey: settings.wechatPayPrivateKey ?? '',
+    wechatPayApiV3Key: settings.wechatPayApiV3Key ?? '',
+    wechatPayNotifyUrl: settings.wechatPayNotifyUrl ?? '',
+    // YooKassa (Russia)
+    yookassaEnabled: b(settings.yookassaEnabled),
+    yookassaShopId: settings.yookassaShopId ?? '',
+    yookassaSecretKey: settings.yookassaSecretKey ?? '',
+    // CloudPayments (Russia)
+    cloudpaymentsEnabled: b(settings.cloudpaymentsEnabled),
+    cloudpaymentsPublicId: settings.cloudpaymentsPublicId ?? '',
+    cloudpaymentsApiSecret: settings.cloudpaymentsApiSecret ?? '',
     subscriptionEnabled: b(settings.subscriptionEnabled),
     defaultTrialDays: settings.defaultTrialDays ?? '14',
     subscriptionGracePeriodDays: settings.subscriptionGracePeriodDays ?? '7',
@@ -474,6 +496,11 @@ function PaymentTab({ settings, onSave, saving }: TabProps) {
       paypalSandboxMode: bStr(f.paypalSandboxMode),
       iyzicoEnabled: bStr(f.iyzicoEnabled),
       iyzicoSandboxMode: bStr(f.iyzicoSandboxMode),
+      alipayEnabled: bStr(f.alipayEnabled),
+      alipaySandboxMode: bStr(f.alipaySandboxMode),
+      wechatPayEnabled: bStr(f.wechatPayEnabled),
+      yookassaEnabled: bStr(f.yookassaEnabled),
+      cloudpaymentsEnabled: bStr(f.cloudpaymentsEnabled),
       subscriptionEnabled: bStr(f.subscriptionEnabled),
     };
   }
@@ -481,6 +508,10 @@ function PaymentTab({ settings, onSave, saving }: TabProps) {
   const stripeUrl = `${origin()}/system/api/webhooks/stripe`;
   const paypalUrl = `${origin()}/system/api/webhooks/paypal`;
   const iyzicoUrl = `${origin()}/system/api/webhooks/iyzico`;
+  const alipayUrl = `${origin()}/system/api/webhooks/alipay`;
+  const wechatPayUrl = `${origin()}/system/api/webhooks/wechatpay`;
+  const yookassaUrl = `${origin()}/system/api/webhooks/yookassa`;
+  const cloudpaymentsUrl = `${origin()}/system/api/webhooks/cloudpayments`;
 
   return (
     <div className="pt-6 space-y-6">
@@ -598,6 +629,129 @@ function PaymentTab({ settings, onSave, saving }: TabProps) {
                 prefixIcon={<FontAwesomeIcon icon={faLink} className="w-3.5 h-3.5" />}
                 suffixIcon={<CopyButton value={iyzicoUrl} />}
                 hint="Set as callbackUrl in Iyzico Merchant Settings" />
+            </>
+          )}
+          <SaveRow loading={saving} />
+        </form>
+      </Card>
+
+      {/* Alipay (China) */}
+      <Card title="Alipay (支付宝)" subtitle="Accept payments via Alipay (China)">
+        <form onSubmit={(e) => { e.preventDefault(); onSave(buildPatch()); }} className="space-y-4">
+          <Toggle id="alipayEnabled" label="Enable Alipay"
+            checked={f.alipayEnabled} onChange={(v) => patch('alipayEnabled', v)} />
+          {f.alipayEnabled && (
+            <>
+              <Toggle id="alipaySandbox" label="Sandbox Mode" size="sm"
+                checked={f.alipaySandboxMode} onChange={(v) => patch('alipaySandboxMode', v)} />
+              <Input id="alipayAppId" label="App ID" value={f.alipayAppId} placeholder="2021..."
+                prefixIcon={<FontAwesomeIcon icon={faKey} className="w-3.5 h-3.5" />}
+                hint="Application ID from Alipay Open Platform"
+                onChange={(e) => patch('alipayAppId', e.target.value)} />
+              <Input id="alipayPrivateKey" label="Merchant Private Key (RSA2)" type="password" value={f.alipayPrivateKey}
+                prefixIcon={<FontAwesomeIcon icon={faKey} className="w-3.5 h-3.5" />}
+                hint="PKCS#1 or PKCS#8 private key (PEM body or headerless base64)"
+                onChange={(e) => patch('alipayPrivateKey', e.target.value)} />
+              <Input id="alipayPublicKey" label="Alipay Public Key" type="password" value={f.alipayPublicKey}
+                prefixIcon={<FontAwesomeIcon icon={faKey} className="w-3.5 h-3.5" />}
+                hint="Public key issued by Alipay (for verifying async notifications)"
+                onChange={(e) => patch('alipayPublicKey', e.target.value)} />
+              <Input id="alipayCallbackEndpoint" label="Callback URL" readOnly value={alipayUrl}
+                prefixIcon={<FontAwesomeIcon icon={faLink} className="w-3.5 h-3.5" />}
+                suffixIcon={<CopyButton value={alipayUrl} />}
+                hint="Set as notify_url in Alipay merchant settings" />
+            </>
+          )}
+          <SaveRow loading={saving} />
+        </form>
+      </Card>
+
+      {/* WeChat Pay (China) */}
+      <Card title="WeChat Pay (微信支付)" subtitle="Accept payments via WeChat Pay (China) — API v3">
+        <form onSubmit={(e) => { e.preventDefault(); onSave(buildPatch()); }} className="space-y-4">
+          <Toggle id="wechatPayEnabled" label="Enable WeChat Pay"
+            checked={f.wechatPayEnabled} onChange={(v) => patch('wechatPayEnabled', v)} />
+          {f.wechatPayEnabled && (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Input id="wechatPayAppId" label="App ID" value={f.wechatPayAppId} placeholder="wx..."
+                  prefixIcon={<FontAwesomeIcon icon={faKey} className="w-3.5 h-3.5" />}
+                  hint="WeChat Official Account / Open Platform AppID"
+                  onChange={(e) => patch('wechatPayAppId', e.target.value)} />
+                <Input id="wechatPayMchId" label="Merchant ID" value={f.wechatPayMchId} placeholder="1600..."
+                  prefixIcon={<FontAwesomeIcon icon={faKey} className="w-3.5 h-3.5" />}
+                  hint="WeChat Pay merchant number (mchid)"
+                  onChange={(e) => patch('wechatPayMchId', e.target.value)} />
+              </div>
+              <Input id="wechatPaySerialNo" label="Certificate Serial No" value={f.wechatPaySerialNo}
+                prefixIcon={<FontAwesomeIcon icon={faKey} className="w-3.5 h-3.5" />}
+                hint="Serial number of your merchant certificate"
+                onChange={(e) => patch('wechatPaySerialNo', e.target.value)} />
+              <Input id="wechatPayPrivateKey" label="Merchant Private Key (apiclient_key.pem)" type="password" value={f.wechatPayPrivateKey}
+                prefixIcon={<FontAwesomeIcon icon={faKey} className="w-3.5 h-3.5" />}
+                hint="PKCS#8 private key for SHA256-RSA2048 request signing"
+                onChange={(e) => patch('wechatPayPrivateKey', e.target.value)} />
+              <Input id="wechatPayApiV3Key" label="API v3 Key" type="password" value={f.wechatPayApiV3Key}
+                prefixIcon={<FontAwesomeIcon icon={faKey} className="w-3.5 h-3.5" />}
+                hint="APIv3 key for AEAD response/callback decryption"
+                onChange={(e) => patch('wechatPayApiV3Key', e.target.value)} />
+              <Input id="wechatPayNotifyUrl" label="Notify URL" value={f.wechatPayNotifyUrl || wechatPayUrl}
+                prefixIcon={<FontAwesomeIcon icon={faLink} className="w-3.5 h-3.5" />}
+                suffixIcon={<CopyButton value={wechatPayUrl} />}
+                hint="Server-to-server payment notification endpoint"
+                onChange={(e) => patch('wechatPayNotifyUrl', e.target.value)} />
+            </>
+          )}
+          <SaveRow loading={saving} />
+        </form>
+      </Card>
+
+      {/* YooKassa (Russia) */}
+      <Card title="YooKassa" subtitle="Accept payments via YooKassa (Russia — formerly Yandex.Kassa)">
+        <form onSubmit={(e) => { e.preventDefault(); onSave(buildPatch()); }} className="space-y-4">
+          <Toggle id="yookassaEnabled" label="Enable YooKassa"
+            checked={f.yookassaEnabled} onChange={(v) => patch('yookassaEnabled', v)} />
+          {f.yookassaEnabled && (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Input id="yookassaShopId" label="Shop ID" value={f.yookassaShopId}
+                  prefixIcon={<FontAwesomeIcon icon={faKey} className="w-3.5 h-3.5" />}
+                  hint="shopId from YooKassa merchant cabinet"
+                  onChange={(e) => patch('yookassaShopId', e.target.value)} />
+                <Input id="yookassaSecretKey" label="Secret Key" type="password" value={f.yookassaSecretKey}
+                  prefixIcon={<FontAwesomeIcon icon={faKey} className="w-3.5 h-3.5" />}
+                  placeholder="live_... or test_..."
+                  onChange={(e) => patch('yookassaSecretKey', e.target.value)} />
+              </div>
+              <Input id="yookassaWebhookEndpoint" label="Webhook Endpoint" readOnly value={yookassaUrl}
+                prefixIcon={<FontAwesomeIcon icon={faLink} className="w-3.5 h-3.5" />}
+                suffixIcon={<CopyButton value={yookassaUrl} />}
+                hint="Register this in YooKassa → HTTP-notifications" />
+            </>
+          )}
+          <SaveRow loading={saving} />
+        </form>
+      </Card>
+
+      {/* CloudPayments (Russia) */}
+      <Card title="CloudPayments" subtitle="Accept payments via CloudPayments (Russia)">
+        <form onSubmit={(e) => { e.preventDefault(); onSave(buildPatch()); }} className="space-y-4">
+          <Toggle id="cloudpaymentsEnabled" label="Enable CloudPayments"
+            checked={f.cloudpaymentsEnabled} onChange={(v) => patch('cloudpaymentsEnabled', v)} />
+          {f.cloudpaymentsEnabled && (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Input id="cloudpaymentsPublicId" label="Public ID" value={f.cloudpaymentsPublicId} placeholder="pk_..."
+                  prefixIcon={<FontAwesomeIcon icon={faKey} className="w-3.5 h-3.5" />}
+                  onChange={(e) => patch('cloudpaymentsPublicId', e.target.value)} />
+                <Input id="cloudpaymentsApiSecret" label="API Secret" type="password" value={f.cloudpaymentsApiSecret}
+                  prefixIcon={<FontAwesomeIcon icon={faKey} className="w-3.5 h-3.5" />}
+                  onChange={(e) => patch('cloudpaymentsApiSecret', e.target.value)} />
+              </div>
+              <Input id="cloudpaymentsWebhookEndpoint" label="Webhook Endpoint" readOnly value={cloudpaymentsUrl}
+                prefixIcon={<FontAwesomeIcon icon={faLink} className="w-3.5 h-3.5" />}
+                suffixIcon={<CopyButton value={cloudpaymentsUrl} />}
+                hint="Register this in CloudPayments → Notifications (Pay, Fail, Refund)" />
             </>
           )}
           <SaveRow loading={saving} />

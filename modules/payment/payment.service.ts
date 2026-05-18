@@ -10,6 +10,10 @@ import BasePaymentProvider, { CheckoutSessionParams, CheckoutSessionResult } fro
 import StripeProvider from './providers/stripe.provider';
 import PaypalProvider from './providers/paypal.provider';
 import IyzicoProvider from './providers/iyzico.provider';
+import AlipayProvider from './providers/alipay.provider';
+import WeChatPayProvider from './providers/wechatpay.provider';
+import YooKassaProvider from './providers/yookassa.provider';
+import CloudPaymentsProvider from './providers/cloudpayments.provider';
 import { PaymentProvider, PaymentCurrency } from './payment.enums';
 import {
   SafePayment,
@@ -38,11 +42,19 @@ export default class PaymentService {
   private static readonly stripeProvider = new StripeProvider();
   private static readonly paypalProvider = new PaypalProvider();
   private static readonly iyzicoProvider = new IyzicoProvider();
+  private static readonly alipayProvider = new AlipayProvider();
+  private static readonly wechatPayProvider = new WeChatPayProvider();
+  private static readonly yookassaProvider = new YooKassaProvider();
+  private static readonly cloudpaymentsProvider = new CloudPaymentsProvider();
 
   private static readonly PROVIDERS = new Map<PaymentProvider, BasePaymentProvider>([
     ['STRIPE', PaymentService.stripeProvider],
     ['PAYPAL', PaymentService.paypalProvider],
     ['IYZICO', PaymentService.iyzicoProvider],
+    ['ALIPAY', PaymentService.alipayProvider],
+    ['WECHATPAY', PaymentService.wechatPayProvider],
+    ['YOOKASSA', PaymentService.yookassaProvider],
+    ['CLOUDPAYMENTS', PaymentService.cloudpaymentsProvider],
   ]);
 
   private static readonly DEFAULT_PROVIDER: PaymentProvider =

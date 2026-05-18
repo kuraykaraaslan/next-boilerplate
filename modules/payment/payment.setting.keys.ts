@@ -8,6 +8,15 @@ export const PaymentSettingKeySchema = z.enum([
   'stripeEnabled', 'stripePublicKey', 'stripeSecretKey', 'stripeWebhookSecret',
   'paypalEnabled', 'paypalClientId', 'paypalClientSecret', 'paypalSandboxMode', 'paypalWebhookId',
   'iyzicoEnabled', 'iyzicoApiKey', 'iyzicoSecretKey', 'iyzicoSandboxMode',
+  // Alipay (China)
+  'alipayEnabled', 'alipayAppId', 'alipayPrivateKey', 'alipayPublicKey', 'alipaySandboxMode',
+  // WeChat Pay (China)
+  'wechatPayEnabled', 'wechatPayAppId', 'wechatPayMchId', 'wechatPayPrivateKey',
+  'wechatPaySerialNo', 'wechatPayApiV3Key', 'wechatPayNotifyUrl',
+  // YooKassa (Russia)
+  'yookassaEnabled', 'yookassaShopId', 'yookassaSecretKey',
+  // CloudPayments (Russia)
+  'cloudpaymentsEnabled', 'cloudpaymentsPublicId', 'cloudpaymentsApiSecret',
   'currency', 'taxRate', 'taxEnabled',
 ]);
 export type PaymentSettingKey = z.infer<typeof PaymentSettingKeySchema>;
