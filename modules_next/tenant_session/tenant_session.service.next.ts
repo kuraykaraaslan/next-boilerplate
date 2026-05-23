@@ -10,6 +10,7 @@ import type { TenantMemberRole } from '@/modules/tenant_member/tenant_member.enu
 import AuditLogService from '@/modules/audit_log/audit_log.service';
 import { AuditActions } from '@/modules/audit_log/audit_log.enums';
 import { ROOT_TENANT_ID } from '@/modules/tenant/tenant.constants';
+import ObservabilityService from '@/modules/observability';
 
 type TenantIdSource = 'header' | 'subdomain' | 'query' | 'body' | 'param';
 
@@ -138,6 +139,7 @@ export default class TenantSessionNextService {
       const isImpersonating = !!extReq.isImpersonating;
       const impersonatedBy = extReq.impersonatedBy;
 
+      ObservabilityService.setTags({ tenantId, userId: user.userId });
       return { user, userSession, tenant, tenantMember: virtualMember, isGlobalAdmin: false, isImpersonating, impersonatedBy };
     }
 
@@ -171,6 +173,7 @@ export default class TenantSessionNextService {
       request.tenant = tenant;
       request.tenantMember = virtualTenantMember;
 
+      ObservabilityService.setTags({ tenantId, userId: user.userId });
       return { user, userSession, tenant, tenantMember: virtualTenantMember, isGlobalAdmin: true };
     }
 
@@ -211,6 +214,10 @@ export default class TenantSessionNextService {
     // Step 5: Attach to request
     request.tenant = tenant;
     request.tenantMember = tenantMember;
+
+    // Step 6: Push tenantId / userId into the observability scope so any
+    // log / metric / Sentry event from here on auto-inherits them.
+    ObservabilityService.setTags({ tenantId, userId: user.userId });
 
     return { user, userSession, tenant, tenantMember, isGlobalAdmin: false };
   }

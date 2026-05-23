@@ -219,6 +219,27 @@ const EnvSchema = z.object({
   LOGIN_GOV_CLIENT_ID: z.string().optional(),
   LOGIN_GOV_REDIRECT_URI: z.string().optional(),
   SETTINGS_ENCRYPTION_KEY: z.string().optional(), // 64-hex (32 bytes) for AES-256-GCM
+
+  // ── Observability ───────────────────────────────────────────────────────────
+  // Sentry (error + trace sink). All optional — modules/observability is no-op
+  // when SENTRY_DSN is unset.
+  SENTRY_DSN: z.string().optional(),
+  SENTRY_ENVIRONMENT: z.string().optional(),
+  SENTRY_TRACES_SAMPLE_RATE: z.coerce.number().min(0).max(1).default(0.1),
+  SENTRY_PROFILES_SAMPLE_RATE: z.coerce.number().min(0).max(1).default(0),
+  // Prometheus scrape endpoint (`/api/internal/metrics`). Off by default.
+  METRICS_ENABLED: z.coerce.boolean().default(false),
+  METRICS_SECRET: z.string().optional(),
+  // OpenTelemetry — enable to ship traces to OTLP collector.
+  OTEL_ENABLED: z.coerce.boolean().default(false),
+  OTEL_EXPORTER_OTLP_ENDPOINT: z.string().optional(),
+  OTEL_SERVICE_NAME: z.string().default('next-boilerplate'),
+  // Cron / background jobs — Next.js instrumentation hook starts queues only
+  // when set, so serverless deploys don't accidentally double-schedule.
+  ENABLE_BACKGROUND_JOBS: z.coerce.boolean().default(false),
+  // Version tag (e.g. git short SHA) — surfaced in /api/internal/health and
+  // every Sentry event.
+  APPLICATION_VERSION: z.string().default('dev'),
 });
 
 export const env = EnvSchema.parse(process.env);
