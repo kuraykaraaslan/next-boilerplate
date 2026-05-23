@@ -1,12 +1,42 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-05-23T05:42:11.651Z",
+  "generatedAt": "2026-05-23T12:13:48.781Z",
   "routes": [
     {
       "filePath": "app/api/internal/caddy-ask/route.ts",
       "scope": "system",
       "urlPath": "/api/internal/caddy-ask",
+      "methods": [
+        "GET"
+      ],
+      "module": "internal",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/api/internal/health/route.ts",
+      "scope": "system",
+      "urlPath": "/api/internal/health",
+      "methods": [
+        "GET"
+      ],
+      "module": "internal",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/api/internal/metrics/route.ts",
+      "scope": "system",
+      "urlPath": "/api/internal/metrics",
+      "methods": [
+        "GET"
+      ],
+      "module": "internal",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/api/internal/ready/route.ts",
+      "scope": "system",
+      "urlPath": "/api/internal/ready",
       "methods": [
         "GET"
       ],
@@ -23,6 +53,16 @@
         "PUT"
       ],
       "module": "admin_setting",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/admin/subscription/customer-portal/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/admin/subscription/customer-portal",
+      "methods": [
+        "POST"
+      ],
+      "module": "subscription",
       "dynamic": true
     },
     {
@@ -790,6 +830,77 @@
         "POST"
       ],
       "module": "tenant_invitation",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/invoices/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/invoices",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "invoice",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/invoices/[invoiceId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/invoices/[invoiceId]",
+      "methods": [
+        "GET"
+      ],
+      "module": "invoice",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/invoices/[invoiceId]/issue/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/invoices/[invoiceId]/issue",
+      "methods": [
+        "POST"
+      ],
+      "module": "invoice",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/invoices/[invoiceId]/mark-paid/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/invoices/[invoiceId]/mark-paid",
+      "methods": [
+        "POST"
+      ],
+      "module": "invoice",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/invoices/[invoiceId]/pdf/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/invoices/[invoiceId]/pdf",
+      "methods": [
+        "GET"
+      ],
+      "module": "invoice",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/invoices/[invoiceId]/void/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/invoices/[invoiceId]/void",
+      "methods": [
+        "POST"
+      ],
+      "module": "invoice",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/invoices/preview/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/invoices/preview",
+      "methods": [
+        "GET"
+      ],
+      "module": "invoice",
       "dynamic": true
     },
     {

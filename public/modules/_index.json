@@ -83,6 +83,20 @@
     "componentCount": 2,
     "file": "limiter.md"
   },
+  "observability": {
+    "name": "Observability",
+    "tier": "other",
+    "tags": [
+      "observability",
+      "infra",
+      "core"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 0,
+    "entityCount": 0,
+    "componentCount": 2,
+    "file": "observability.md"
+  },
   "redis_idempotency": {
     "name": "Idempotency Keys",
     "tier": "infrastructure",
@@ -430,6 +444,21 @@
     "entityCount": 2,
     "componentCount": 3,
     "file": "coupon.md"
+  },
+  "invoice": {
+    "name": "Invoice",
+    "tier": "other",
+    "tags": [
+      "invoice",
+      "billing",
+      "compliance",
+      "tax"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 7,
+    "entityCount": 2,
+    "componentCount": 1,
+    "file": "invoice.md"
   },
   "notification_inapp": {
     "name": "In-App Notifications",

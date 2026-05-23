@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-05-23T05:42:11.651Z",
+  "generatedAt": "2026-05-23T12:13:48.781Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -233,6 +233,43 @@
       "hasModuleJson": true,
       "hasNextLayer": true,
       "readme": "# limiter\n\nFramework-agnostic rate limiting servisleri.\n\n## Dosyalar\n\n| Dosya | İçerik |\n|-------|--------|\n| `limiter.service.ts` | Redis INCR tabanlı IP rate limit (`check`) |\n| `limiter.tenant-plan.service.ts` | Redis sorted set tabanlı tenant plan rate limit |\n\n## Exports\n\n- `check(ip, scope)` — IP bazlı rate limit kontrolü\n- `LIMITS` — `{ auth: 20, api: 120 }`\n- `RATE_LIMIT_WINDOW` — 60 saniye\n- `LimiterScope` — `'auth' | 'api'`\n- `checkTenantPlanRateLimit(tenantId, limitPerMinute)` — plan bazlı limit\n\nNext.js'e özgü `Limiter` sınıfı (request parsing, 429 response) → `modules_next/limiter`.\n"
+    },
+    {
+      "id": "observability",
+      "name": "Observability",
+      "version": "1.0.0",
+      "description": "Sentry + Prometheus + OTel facade. Auto-tags every log/trace/metric with the active tenantId/userId/requestId via Logger AsyncLocalStorage context. Lazy-loaded — no-op when SENTRY_DSN / METRICS_ENABLED / OTEL_ENABLED are unset.",
+      "dir": "modules/observability",
+      "icon": "fas fa-chart-line",
+      "tags": [
+        "observability",
+        "infra",
+        "core"
+      ],
+      "priority": 5,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "env",
+          "logger"
+        ]
+      },
+      "exports": {
+        "services": [
+          "observability.service.ts"
+        ],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true,
+      "readme": "# observability\n\nSingle-facade entry point for Sentry (error + trace sink), Prometheus (metrics scrape), and OpenTelemetry (distributed tracing). Every call automatically inherits the active `tenantId` / `userId` / `requestId` from the [Logger](../logger/) AsyncLocalStorage context — service code never threads observability metadata manually.\n\nThe module is **lazy** — when an env toggle is off (`SENTRY_DSN` unset, `METRICS_ENABLED=false`, `OTEL_ENABLED=false`), nothing is imported and every method is a no-op. Operators pay zero runtime cost until they opt in.\n\n---\n\n## Public API\n\n| Method | Use |\n|---|---|\n| `ObservabilityService.init()` | Boot Sentry + Prometheus. Called from `instrumentation.ts` at Next.js startup. |\n| `ObservabilityService.setTags({ tenantId?, userId?, requestId? })` | Attach context to the current Sentry scope. |\n| `ObservabilityService.recordHttpRequest({ tenantId, route, method, status, latencyMs })` | Bump the request counter + latency histogram. Called by `withObservability()`. |\n| `ObservabilityService.recordError(err, { tenantId?, userId?, fingerprint?, level?, extra? })` | Capture to Sentry + bump the error counter. |\n| `ObservabilityService.recordTenantUsage({ tenantId, metric, value })` | Per-tenant counter — feeds Grafana dashboards. Persistence still goes through `TenantUsageService`. |\n| `ObservabilityService.getMetricsRegistry()` | Prom registry for the scrape endpoint. `null` when METRICS_ENABLED is off. |\n| `ObservabilityService.flush(timeoutMs?)` | Wait for in-flight Sentry events to ship — call at shutdown. |\n\nThe Next-layer wrapper is in [modules_next/observability/withObservability.next.ts](../../modules_next/observability/withObservability.next.ts):\n\n```ts\nimport { withObservability } from '@/modules_next/observability';\n\nexport async function GET(request: NextRequest, { params }: { params: Promise<{ tenantId: string }> }) {\n  return withObservability(request, async () => {\n    // … route logic — Logger context, Sentry tags, and Prometheus metrics\n    // are all set automatically.\n  }, { route: '/api/tenant/[tenantId]/api/health' });\n}\n```\n\n---\n\n## Environment\n\n| Var | Default | Effect |\n|---|---|---|\n| `SENTRY_DSN` | — | When set, Sentry is initialised. Errors and traces ship. |\n| `SENTRY_ENVIRONMENT` | `NODE_ENV` | Sentry environment tag. |\n| `SENTRY_TRACES_SAMPLE_RATE` | `0.1` | Fraction of requests to trace. |\n| `SENTRY_PROFILES_SAMPLE_RATE` | `0` | Fraction to profile. |\n| `METRICS_ENABLED` | `false` | When `true`, `/api/internal/metrics` returns Prometheus text. |\n| `METRICS_SECRET` | — | Optional bearer token required on `/api/internal/metrics`. |\n| `OTEL_ENABLED` | `false` | Reserved for OTel SDK init (see below). |\n| `OTEL_EXPORTER_OTLP_ENDPOINT` | — | OTLP collector URL. |\n| `OTEL_SERVICE_NAME` | `next-boilerplate` | OTel resource service.name. |\n| `APPLICATION_VERSION` | `dev` | Surfaced in health + every Sentry event's `release`. |\n\n---\n\n## Installation\n\nThe boilerplate ships with the facade only — install the backend SDKs when you opt in:\n\n```bash\n# Sentry\nnpm install @sentry/nextjs\n\n# Prometheus\nnpm install prom-client\n\n# OpenTelemetry (optional)\nnpm install @opentelemetry/api @opentelemetry/sdk-node @opentelemetry/auto-instrumentations-node\n```\n\nWhen env toggles are on but the package is missing, the facade logs a warning at boot and stays no-op — the app never crashes for a missing observability dep.\n\n---\n\n## Rules\n\n- **No `next/*`, no `react`.** Service-layer only.\n- **Logger context is the source of truth** for tenantId/userId/requestId. Don't thread them manually unless overriding.\n- **Backends are optional.** Code that imports `ObservabilityService` works without Sentry or prom-client installed.\n- **`recordError` doesn't re-throw** — caller decides whether to surface the error to the response.\n"
     },
     {
       "id": "redis_idempotency",
@@ -1288,6 +1325,7 @@
       },
       "exports": {
         "services": [
+          "payment.proration.service.ts",
           "payment.service.ts",
           "payment.webhook.service.ts"
         ],
@@ -1401,6 +1439,59 @@
       "hasModuleJson": true,
       "hasNextLayer": true,
       "readme": "# coupon\n\nCoupon / promo code system for subscription plans and payments.\n\n## Overview\n\nCoupons are created in the **system DB** by admins. Redemptions are stored per-tenant in the **tenant DB**. Discount calculation is always server-side — providers (Stripe, PayPal, Iyzico) receive the already-discounted amount.\n\n## Architecture\n\n```\nSystem DB (global)\n  └── coupons           — coupon definitions (code, discount, limits, expiry)\n\nTenant DB (per-tenant)\n  └── coupon_redemptions — usage history per tenant\n```\n\n## Discount Types\n\n| Type | Behavior |\n|---|---|\n| `PERCENTAGE` | Reduces amount by N% |\n| `FIXED_AMOUNT` | Reduces amount by exact value (currency-matched) |\n\n## Provider Sync\n\n| Provider | Native coupon API | Sync support |\n|---|---|---|\n| Stripe | Yes — Coupon + Promotion Code | `StripeCouponProvider.syncCoupon()` creates the coupon and promo code in Stripe |\n| PayPal | No | Discount applied by reducing order amount |\n| Iyzico | No | Discount applied by reducing basket total |\n\n## Service API\n\n```typescript\n// Admin\nCouponService.create(dto)\nCouponService.getAll(query)\nCouponService.getById(couponId)\nCouponService.update(couponId, dto)\nCouponService.archive(couponId)\n\n// Checkout flow\nCouponService.validate({ code, tenantId, amount, currency, planId, provider })\nCouponService.apply({ code, tenantId, paymentId, userId, amount, currency })\n\n// History\nCouponService.getRedemptionsByTenant(tenantId, page, pageSize)\n```\n\n## API Routes\n\n| Method | Path | Auth | Description |\n|---|---|---|---|\n| GET | `/tenant/00000000-0000-4000-8000-000000000000/api/coupons` | root-tenant admin | List all coupons |\n| POST | `/tenant/00000000-0000-4000-8000-000000000000/api/coupons` | root-tenant admin | Create coupon |\n| GET | `/tenant/00000000-0000-4000-8000-000000000000/api/coupons/[couponId]` | root-tenant admin | Get coupon |\n| PUT | `/tenant/00000000-0000-4000-8000-000000000000/api/coupons/[couponId]` | root-tenant admin | Update coupon |\n| DELETE | `/tenant/00000000-0000-4000-8000-000000000000/api/coupons/[couponId]` | root-tenant admin | Archive coupon |\n| POST | `/tenant/[tenantId]/api/coupons/validate` | tenant member | Validate + preview discount |\n| POST | `/tenant/[tenantId]/api/coupons/apply` | tenant member | Apply + record redemption |\n| GET | `/tenant/[tenantId]/api/coupons/redemptions` | ADMIN+ | Redemption history |\n\n## UI Components\n\n```tsx\n// Checkout form — lets user enter and validate a promo code\n<CouponApplyForm\n  tenantId={tenantId}\n  amount={total}\n  currency=\"USD\"\n  planId={planId}\n  provider=\"STRIPE\"\n  onApplied={({ discountAmount, finalAmount, code }) => { ... }}\n  onRemoved={() => { ... }}\n/>\n\n// Small badge showing applied coupon\n<CouponBadge code=\"SUMMER25\" discountType=\"PERCENTAGE\" discountValue={25} />\n\n// Tenant admin redemption history\n<CouponRedemptionsList tenantId={tenantId} />\n```\n\n## Validation Rules\n\n- Coupon must be `ACTIVE`\n- `startsAt` and `expiresAt` windows enforced\n- `maxUses` (global) and `maxUsesPerTenant` checked atomically\n- `minimumAmount` checked against order amount\n- `applicablePlanIds` — null means all plans\n- `applicableProviders` — null means all providers\n\n## Stripe Sync\n\nCall `StripeCouponProvider.syncCoupon(coupon)` after creating a coupon to push it to the Stripe dashboard. The Stripe Coupon ID is `coupon_{couponId without dashes}`.\n\n## Caching\n\nCoupons are cached in Redis (TTL = `TENANT_CACHE_TTL`, default 5 min):\n\n| Key | Used by |\n|---|---|\n| `coupon:id:{couponId}` | `getById` |\n| `coupon:code:{CODE}` (uppercase) | `getByCode` → drives `validate` / `apply` lookups |\n\nInvalidation on **update**, **archive**, and **apply** (which increments `usedCount`) clears both keys. Apply is critical: stale `usedCount` could allow `maxUses` overspend, so the cache is invalidated even though the row is only incremented. `create` clears any negative cache for the new code.\n\n### Stampede + negative cache\n\n- **TTL jitter (±10%)** on every cache write.\n- **In-process single-flight** dedupes concurrent loaders for the same code/id.\n- **Negative cache** on `getByCode`: unknown codes are cached as `__not_found__` for up to 60s — protects against guessing/brute-forcing coupon codes.\n"
+    },
+    {
+      "id": "invoice",
+      "name": "Invoice",
+      "version": "1.0.0",
+      "description": "Tenant-scoped invoicing with regional e-invoicing adapters (TR e-Arşiv, EU Peppol, US Stripe Tax). Each tenant issues its own invoices keyed to its own subscription / payment flow.",
+      "dir": "modules/invoice",
+      "icon": "fas fa-file-invoice",
+      "tags": [
+        "invoice",
+        "billing",
+        "compliance",
+        "tax"
+      ],
+      "priority": 30,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "tenant",
+          "setting",
+          "audit_log",
+          "tenant_subscription",
+          "payment",
+          "notification_mail"
+        ]
+      },
+      "exports": {
+        "services": [
+          "invoice.pdf.service.ts",
+          "invoice.service.ts"
+        ],
+        "dtos": [],
+        "enums": [
+          "invoice.enums.ts"
+        ],
+        "messageKeys": [
+          "invoice.messages.ts"
+        ],
+        "settingKeys": [
+          "invoice.setting.keys.ts"
+        ],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "invoice.entity.ts",
+          "invoice_line.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true,
+      "readme": "# invoice module\n\nTenant-scoped invoicing with **regional e-invoicing adapters**: TR (e-Arşiv Fatura / e-Fatura), EU (Peppol BIS Billing 3.0), US (Stripe Tax). Each tenant issues its own invoices keyed to its own subscription / payment flow — see [ADR 0006](../../docs/adr/0006-billing-and-e-invoicing.md).\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `invoice.service.ts` | Create / issue / mark-paid / void / list invoices; per-tenant invoice-number sequence |\n| `invoice.types.ts` | Zod schemas + input/output types |\n| `invoice.enums.ts` | `InvoiceStatus`, `InvoiceRegion`, `TaxScheme`, `InvoiceLineSource` |\n| `invoice.messages.ts` | Error strings |\n| `invoice.setting.keys.ts` | Per-tenant company info + per-region adapter config keys |\n| `entities/invoice.entity.ts` | `Invoice` — composite unique `(tenantId, invoiceNumber)` |\n| `entities/invoice_line.entity.ts` | `InvoiceLine` — N rows per invoice |\n| `adapters/base.adapter.ts` | `InvoiceAdapter` interface (submit / cancel / isConfigured) |\n| `adapters/registry.ts` | Region → adapter map |\n| `adapters/tr_earsiv.adapter.ts` | UBL-TR 2.1 XML builder + integrator switch (Foriba / Logo / Uyumsoft / mock) |\n| `adapters/tr_validators.ts` | TCKN + VKN checksum validation |\n| `adapters/tr_vat_rates.ts` | Turkish KDV rate constants |\n| `adapters/eu_peppol.adapter.ts` | Peppol BIS Billing 3.0 stub + OSS VAT helpers |\n| `adapters/us_standard.adapter.ts` | Stripe Tax bridge + EIN/ZIP helpers |\n\n---\n\n## Lifecycle\n\n```\ndraft   ──issue()──▶   issued   ──markPaid()──▶   paid\n  │                       │\n  │                       └──markVoid()──▶ void\n  └──markVoid()──▶ void\n```\n\n- `create()` writes a `draft` invoice with computed totals.\n- `issue()` calls the regional adapter (`submit()`), persists provider IDs (`earsivUuid` / `peppolDocumentId` / `stripeTaxCalculationId`), flips status to `issued`. Best-effort: adapter failure does not block local issuance.\n- `markPaid()` records `paidAt` + `paymentId`. Stripe webhook (`invoice.payment_succeeded`) calls this.\n- `markVoid()` reverses an `issued` invoice and calls `adapter.cancel()` to inform the authority.\n\n---\n\n## Per-tenant company info\n\nBefore a tenant can issue an invoice, set these settings (Settings → Integrations → Invoicing):\n\n| Key | Required? |\n|---|---|\n| `companyLegalName`, `companyTaxId`, `companyCountryCode` | ✓ |\n| `companyTaxOffice` | TR only |\n| `companyAddressLine1`, `companyCity`, `companyPostalCode` | ✓ for legal print |\n| `companyEmail`, `companyPhone`, `companyWebsite`, `companyIban`, `companyLogoUrl` | optional |\n| `billingRegion` | `TR` / `EU` / `US` / `OTHER` (drives adapter) |\n| `invoiceNumberPrefix` | default `INV` |\n| `invoiceNumberPadding` | default `5` |\n| `invoiceDefaultCurrency` | default `USD` |\n| `invoiceDefaultDueDays` | default `0` (on-receipt) |\n| `invoiceDefaultVatRate` | e.g. `0.20` |\n\n---\n\n## Regional adapters\n\n### TR — e-Arşiv Fatura / e-Fatura\n\n- `billingRegion='TR'` + one of `earsivIntegrator` ∈ {`mock`, `foriba`, `logo`, `uyumsoft`, `bizplace`, `mikrogep`}.\n- UBL-TR 2.1 XML built by [tr_earsiv.adapter.ts](adapters/tr_earsiv.adapter.ts) — namespaces, supplier/customer parties, tax totals, line items.\n- `mock` mode generates a UUID + status=`accepted` for local development.\n- Production: fill `earsivIntegratorBaseUrl`, `earsivIntegratorUsername`, `earsivIntegratorPassword` per your contract; implement the integrator branch inside `submit()`.\n- KDV rates 0% / 1% / 10% / 20% via [tr_vat_rates.ts](adapters/tr_vat_rates.ts).\n- TCKN + VKN checksum validators in [tr_validators.ts](adapters/tr_validators.ts).\n- Document type: defaults to `EARSIVFATURA` (B2C). Set `earsivDocumentTypeOverride='TICARIFATURA'` for B2B.\n\n### EU — Peppol BIS Billing 3.0\n\n- `billingRegion='EU'` + `peppolEndpointId` + `peppolAccessPointUrl`.\n- Mock returns a synthetic `peppol-{uuid}` document ID and status=`submitted`.\n- Production: build EN-16931-compliant UBL 2.1 XML, wrap in AS4 envelope, POST to the Access Point.\n- VAT-OSS helper: `getOssVatRate(consumerCountryCode)` for cross-border B2C digital services.\n- VAT number regex per country via `validateEuVatNumber(country, vat)`. **No VIES roundtrip** — operators should call VIES asynchronously if real-time validation is needed.\n\n### US — Stripe Tax\n\n- `billingRegion='US'`. No federal e-invoice mandate.\n- `submit()` is a no-op unless `stripeTaxEnabled='true'`, in which case it stubs a `stripe.tax.calculations.create` call.\n- EIN format validator + US ZIP validator are exported for forms.\n\n### OTHER\n\n- No adapter. `issue()` skips submission; the local PDF is the only document.\n\n---\n\n## Feature gating\n\nEvery `create()` call enforces `FEATURE_KEYS.FEATURE_INVOICING` via `TenantSubscriptionService.assertFeatureAccess`. Tenants on a plan without invoicing get a `402 Payment Required` from the route layer. Root tenant is short-circuited.\n\n---\n\n## Stripe webhook integration\n\n`modules/payment/payment.webhook.service.ts` listens for `invoice.payment_succeeded` (Stripe Customer Portal autorenewals) and, after our subscription is extended, calls:\n\n1. `InvoiceService.create({ ... lines: [plan-line + proration if any], paymentId, subscriptionId })`\n2. `InvoiceService.issue(tenantId, invoiceId)` (regional submit)\n3. `InvoiceService.markPaid(tenantId, invoiceId, paymentId)`\n\nA `invoice.payment_failed` event triggers `TenantSubscriptionService.startGracePeriod` and a dunning email. See [ADR 0006](../../docs/adr/0006-billing-and-e-invoicing.md).\n\n---\n\n## Mock / development mode\n\nWith `billingRegion='TR'` + `earsivIntegrator='mock'`, the boilerplate produces a real UBL-TR XML and a synthetic GİB UUID — enough for local development, screenshots, and tests. Production deploys MUST flip to a real integrator and provide credentials.\n"
     },
     {
       "id": "notification_inapp",
@@ -1888,6 +1979,36 @@
       "dynamic": false
     },
     {
+      "filePath": "app/api/internal/health/route.ts",
+      "scope": "system",
+      "urlPath": "/api/internal/health",
+      "methods": [
+        "GET"
+      ],
+      "module": "internal",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/api/internal/metrics/route.ts",
+      "scope": "system",
+      "urlPath": "/api/internal/metrics",
+      "methods": [
+        "GET"
+      ],
+      "module": "internal",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/api/internal/ready/route.ts",
+      "scope": "system",
+      "urlPath": "/api/internal/ready",
+      "methods": [
+        "GET"
+      ],
+      "module": "internal",
+      "dynamic": false
+    },
+    {
       "filePath": "app/tenant/[tenantId]/api/admin-settings/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/admin-settings",
@@ -1897,6 +2018,16 @@
         "PUT"
       ],
       "module": "admin_setting",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/admin/subscription/customer-portal/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/admin/subscription/customer-portal",
+      "methods": [
+        "POST"
+      ],
+      "module": "subscription",
       "dynamic": true
     },
     {
@@ -2667,6 +2798,77 @@
       "dynamic": true
     },
     {
+      "filePath": "app/tenant/[tenantId]/api/invoices/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/invoices",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "invoice",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/invoices/[invoiceId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/invoices/[invoiceId]",
+      "methods": [
+        "GET"
+      ],
+      "module": "invoice",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/invoices/[invoiceId]/issue/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/invoices/[invoiceId]/issue",
+      "methods": [
+        "POST"
+      ],
+      "module": "invoice",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/invoices/[invoiceId]/mark-paid/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/invoices/[invoiceId]/mark-paid",
+      "methods": [
+        "POST"
+      ],
+      "module": "invoice",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/invoices/[invoiceId]/pdf/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/invoices/[invoiceId]/pdf",
+      "methods": [
+        "GET"
+      ],
+      "module": "invoice",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/invoices/[invoiceId]/void/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/invoices/[invoiceId]/void",
+      "methods": [
+        "POST"
+      ],
+      "module": "invoice",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/invoices/preview/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/invoices/preview",
+      "methods": [
+        "GET"
+      ],
+      "module": "invoice",
+      "dynamic": true
+    },
+    {
       "filePath": "app/tenant/[tenantId]/api/members/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/members",
@@ -3295,6 +3497,72 @@
       "relations": [
         "tenant"
       ]
+    },
+    {
+      "name": "Invoice",
+      "filePath": "modules/invoice/entities/invoice.entity.ts",
+      "module": "invoice",
+      "schema": "system",
+      "tableName": "invoices",
+      "columns": [
+        "invoiceId",
+        "tenantId",
+        "invoiceNumber",
+        "paymentId",
+        "subscriptionId",
+        "customerEmail",
+        "customerName",
+        "customerTaxId",
+        "customerAddress",
+        "customerCountryCode",
+        "issueDate",
+        "dueDate",
+        "paidAt",
+        "subtotal",
+        "discountAmount",
+        "taxAmount",
+        "totalAmount",
+        "currency",
+        "status",
+        "region",
+        "taxScheme",
+        "earsivUuid",
+        "earsivStatus",
+        "earsivIntegrator",
+        "peppolDocumentId",
+        "peppolStatus",
+        "stripeTaxCalculationId",
+        "pdfStorageKey",
+        "notes",
+        "metadata",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "InvoiceLine",
+      "filePath": "modules/invoice/entities/invoice_line.entity.ts",
+      "module": "invoice",
+      "schema": "system",
+      "tableName": "invoice_lines",
+      "columns": [
+        "invoiceLineId",
+        "tenantId",
+        "invoiceId",
+        "description",
+        "quantity",
+        "unitPrice",
+        "taxRate",
+        "taxAmount",
+        "lineTotal",
+        "sourceType",
+        "sourceId",
+        "metadata",
+        "createdAt"
+      ],
+      "relations": []
     },
     {
       "name": "NotificationLog",
@@ -4790,6 +5058,18 @@
       "baseName": "TenantESignatureSettingsPanel"
     },
     {
+      "id": "invoice/ui/InvoiceTemplateSettings",
+      "module": "invoice",
+      "filePath": "modules_next/invoice/ui/InvoiceTemplateSettings.tsx",
+      "kind": "ui",
+      "exports": [
+        "InvoiceTemplateSettings"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "InvoiceTemplateSettings"
+    },
+    {
       "id": "limiter/limiter.rate-limiters",
       "module": "limiter",
       "filePath": "modules_next/limiter/limiter.rate-limiters.ts",
@@ -4846,6 +5126,31 @@
       "isClient": true,
       "isServer": false,
       "baseName": "use-notifications.hook"
+    },
+    {
+      "id": "observability/index",
+      "module": "observability",
+      "filePath": "modules_next/observability/index.ts",
+      "kind": "ui",
+      "exports": [
+        "withObservability"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "index"
+    },
+    {
+      "id": "observability/withObservability.next",
+      "module": "observability",
+      "filePath": "modules_next/observability/withObservability.next.ts",
+      "kind": "ui",
+      "exports": [
+        "GET",
+        "withObservability"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "withObservability.next"
     },
     {
       "id": "payment/ui/PaymentStatusBadge",

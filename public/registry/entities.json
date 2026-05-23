@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-05-23T05:42:11.651Z",
+  "generatedAt": "2026-05-23T12:13:48.781Z",
   "entities": [
     {
       "name": "AiUsageLog",
@@ -119,6 +119,72 @@
       "relations": [
         "tenant"
       ]
+    },
+    {
+      "name": "Invoice",
+      "filePath": "modules/invoice/entities/invoice.entity.ts",
+      "module": "invoice",
+      "schema": "system",
+      "tableName": "invoices",
+      "columns": [
+        "invoiceId",
+        "tenantId",
+        "invoiceNumber",
+        "paymentId",
+        "subscriptionId",
+        "customerEmail",
+        "customerName",
+        "customerTaxId",
+        "customerAddress",
+        "customerCountryCode",
+        "issueDate",
+        "dueDate",
+        "paidAt",
+        "subtotal",
+        "discountAmount",
+        "taxAmount",
+        "totalAmount",
+        "currency",
+        "status",
+        "region",
+        "taxScheme",
+        "earsivUuid",
+        "earsivStatus",
+        "earsivIntegrator",
+        "peppolDocumentId",
+        "peppolStatus",
+        "stripeTaxCalculationId",
+        "pdfStorageKey",
+        "notes",
+        "metadata",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "InvoiceLine",
+      "filePath": "modules/invoice/entities/invoice_line.entity.ts",
+      "module": "invoice",
+      "schema": "system",
+      "tableName": "invoice_lines",
+      "columns": [
+        "invoiceLineId",
+        "tenantId",
+        "invoiceId",
+        "description",
+        "quantity",
+        "unitPrice",
+        "taxRate",
+        "taxAmount",
+        "lineTotal",
+        "sourceType",
+        "sourceId",
+        "metadata",
+        "createdAt"
+      ],
+      "relations": []
     },
     {
       "name": "NotificationLog",

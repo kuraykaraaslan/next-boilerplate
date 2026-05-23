@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-05-23T05:42:11.651Z",
+  "generatedAt": "2026-05-23T12:13:48.781Z",
   "components": [
     {
       "id": "ai/ui/AIChatBox",
@@ -917,6 +917,18 @@
       "baseName": "TenantESignatureSettingsPanel"
     },
     {
+      "id": "invoice/ui/InvoiceTemplateSettings",
+      "module": "invoice",
+      "filePath": "modules_next/invoice/ui/InvoiceTemplateSettings.tsx",
+      "kind": "ui",
+      "exports": [
+        "InvoiceTemplateSettings"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "InvoiceTemplateSettings"
+    },
+    {
       "id": "limiter/limiter.rate-limiters",
       "module": "limiter",
       "filePath": "modules_next/limiter/limiter.rate-limiters.ts",
@@ -973,6 +985,31 @@
       "isClient": true,
       "isServer": false,
       "baseName": "use-notifications.hook"
+    },
+    {
+      "id": "observability/index",
+      "module": "observability",
+      "filePath": "modules_next/observability/index.ts",
+      "kind": "ui",
+      "exports": [
+        "withObservability"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "index"
+    },
+    {
+      "id": "observability/withObservability.next",
+      "module": "observability",
+      "filePath": "modules_next/observability/withObservability.next.ts",
+      "kind": "ui",
+      "exports": [
+        "GET",
+        "withObservability"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "withObservability.next"
     },
     {
       "id": "payment/ui/PaymentStatusBadge",
