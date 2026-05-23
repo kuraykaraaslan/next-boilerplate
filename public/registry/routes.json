@@ -1,46 +1,46 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-05-23T12:13:48.781Z",
+  "generatedAt": "2026-05-23T15:15:08.253Z",
   "routes": [
     {
-      "filePath": "app/api/internal/caddy-ask/route.ts",
+      "filePath": "app/internal/api/caddy-ask/route.ts",
       "scope": "system",
-      "urlPath": "/api/internal/caddy-ask",
+      "urlPath": "/internal/api/caddy-ask",
       "methods": [
         "GET"
       ],
-      "module": "internal",
+      "module": "caddy_ask",
       "dynamic": false
     },
     {
-      "filePath": "app/api/internal/health/route.ts",
+      "filePath": "app/internal/api/health/route.ts",
       "scope": "system",
-      "urlPath": "/api/internal/health",
+      "urlPath": "/internal/api/health",
       "methods": [
         "GET"
       ],
-      "module": "internal",
+      "module": "health",
       "dynamic": false
     },
     {
-      "filePath": "app/api/internal/metrics/route.ts",
+      "filePath": "app/internal/api/metrics/route.ts",
       "scope": "system",
-      "urlPath": "/api/internal/metrics",
+      "urlPath": "/internal/api/metrics",
       "methods": [
         "GET"
       ],
-      "module": "internal",
+      "module": "metric",
       "dynamic": false
     },
     {
-      "filePath": "app/api/internal/ready/route.ts",
+      "filePath": "app/internal/api/ready/route.ts",
       "scope": "system",
-      "urlPath": "/api/internal/ready",
+      "urlPath": "/internal/api/ready",
       "methods": [
         "GET"
       ],
-      "module": "internal",
+      "module": "ready",
       "dynamic": false
     },
     {

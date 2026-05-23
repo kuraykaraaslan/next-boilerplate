@@ -48,11 +48,11 @@ Three Kubernetes-style endpoints expose the stack:
 
 | Endpoint | Purpose |
 |---|---|
-| `/api/internal/health` | Liveness probe — process up? |
-| `/api/internal/ready` | Readiness probe — system DB + tenant DB + Redis up? |
-| `/api/internal/metrics` | Prometheus scrape (Bearer `METRICS_SECRET` when set) |
+| `/internal/api/health` | Liveness probe — process up? |
+| `/internal/api/ready` | Readiness probe — system DB + tenant DB + Redis up? |
+| `/internal/api/metrics` | Prometheus scrape (Bearer `METRICS_SECRET` when set) |
 
-These live at `/api/internal/*` — explicitly excluded from the proxy's tenant-rewrite layer so a load balancer / scraper can reach them without resolving a tenant.
+These live at `/internal/api/*` — explicitly excluded from the proxy's tenant-rewrite layer so a load balancer / scraper can reach them without resolving a tenant.
 
 The Next.js [`instrumentation.ts`](../../instrumentation.ts) hook at the repo root boots Sentry + Prometheus on server startup and (when `ENABLE_BACKGROUND_JOBS=true`) registers BullMQ recurring jobs for the five built-in cron schedulers.
 

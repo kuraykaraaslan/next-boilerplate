@@ -68,8 +68,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 | `SENTRY_ENVIRONMENT` | `NODE_ENV` | Sentry environment tag. |
 | `SENTRY_TRACES_SAMPLE_RATE` | `0.1` | Fraction of requests to trace. |
 | `SENTRY_PROFILES_SAMPLE_RATE` | `0` | Fraction to profile. |
-| `METRICS_ENABLED` | `false` | When `true`, `/api/internal/metrics` returns Prometheus text. |
-| `METRICS_SECRET` | — | Optional bearer token required on `/api/internal/metrics`. |
+| `METRICS_ENABLED` | `false` | When `true`, `/internal/api/metrics` returns Prometheus text. |
+| `METRICS_SECRET` | — | Optional bearer token required on `/internal/api/metrics`. |
 | `OTEL_ENABLED` | `false` | Reserved for OTel SDK init (see below). |
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | — | OTLP collector URL. |
 | `OTEL_SERVICE_NAME` | `next-boilerplate` | OTel resource service.name. |

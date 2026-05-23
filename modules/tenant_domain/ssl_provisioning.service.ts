@@ -13,7 +13,7 @@ import Logger from '@/modules/logger';
  *
  *   1. Tells the reverse proxy whether a given hostname is allowed to
  *      provision a cert (see `isProvisioningAllowed` — Caddy's
- *      `on_demand_tls.ask` hits the `/api/internal/caddy-ask` route which
+ *      `on_demand_tls.ask` hits the `/internal/api/caddy-ask` route which
  *      delegates here).
  *
  *   2. Periodically opens a TLS handshake against every ACTIVE domain,
@@ -27,7 +27,7 @@ import Logger from '@/modules/logger';
  *
  *     {
  *       on_demand_tls {
- *         ask http://app:3000/api/internal/caddy-ask
+ *         ask http://app:3000/internal/api/caddy-ask
  *       }
  *     }
  */

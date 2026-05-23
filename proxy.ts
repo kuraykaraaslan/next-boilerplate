@@ -125,11 +125,11 @@ export async function proxy(req: NextRequest) {
         return NextResponse.next();
     }
 
-    // ✅ /api/internal/* — platform-internal endpoints reachable WITHOUT
+    // ✅ /internal/api/* — platform-internal endpoints reachable WITHOUT
     // a tenant prefix (Caddy `on_demand_tls.ask`, health probes, etc.).
-    // These routes live at app/api/internal/ and must not be rewritten
+    // These routes live at app/internal/api/ and must not be rewritten
     // under /tenant/.
-    if (pathname.startsWith("/api/internal/")) {
+    if (pathname.startsWith("/internal/api/")) {
         return NextResponse.next();
     }
 

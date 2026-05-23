@@ -227,7 +227,7 @@ const EnvSchema = z.object({
   SENTRY_ENVIRONMENT: z.string().optional(),
   SENTRY_TRACES_SAMPLE_RATE: z.coerce.number().min(0).max(1).default(0.1),
   SENTRY_PROFILES_SAMPLE_RATE: z.coerce.number().min(0).max(1).default(0),
-  // Prometheus scrape endpoint (`/api/internal/metrics`). Off by default.
+  // Prometheus scrape endpoint (`/internal/api/metrics`). Off by default.
   METRICS_ENABLED: z.coerce.boolean().default(false),
   METRICS_SECRET: z.string().optional(),
   // OpenTelemetry — enable to ship traces to OTLP collector.
@@ -237,7 +237,7 @@ const EnvSchema = z.object({
   // Cron / background jobs — Next.js instrumentation hook starts queues only
   // when set, so serverless deploys don't accidentally double-schedule.
   ENABLE_BACKGROUND_JOBS: z.coerce.boolean().default(false),
-  // Version tag (e.g. git short SHA) — surfaced in /api/internal/health and
+  // Version tag (e.g. git short SHA) — surfaced in /internal/api/health and
   // every Sentry event.
   APPLICATION_VERSION: z.string().default('dev'),
 });

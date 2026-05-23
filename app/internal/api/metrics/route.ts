@@ -3,13 +3,13 @@ import { env } from '@/modules/env';
 import ObservabilityService from '@/modules/observability';
 
 /**
- * GET /api/internal/metrics
+ * GET /internal/api/metrics
  *
  * Prometheus scrape endpoint. Returns the active registry's text output, or
  * 404 when `METRICS_ENABLED=false`. When `METRICS_SECRET` is set, callers
  * must present `Authorization: Bearer <secret>`.
  *
- * Reachable without tenant prefix — see `proxy.ts` `/api/internal/*` carve-out.
+ * Reachable without tenant prefix — see `proxy.ts` `/internal/api/*` carve-out.
  */
 export const dynamic = 'force-dynamic';
 

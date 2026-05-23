@@ -14,13 +14,13 @@ Tenants need to bind their own apex / subdomain (e.g. `acme.com`, `support.acme.
 
 The application does **not** speak ACME. A reverse proxy (Caddy is the documented default — see [docs/caddy-on-demand-tls.md](../caddy-on-demand-tls.md)) terminates TLS and obtains certs via Let's Encrypt's on-demand mechanism. The application's responsibility shrinks to:
 
-1. **Authorization** — `GET /api/internal/caddy-ask?domain=<host>` (Caddy's `on_demand_tls.ask` callback). Returns 200 iff the hostname is a `TenantDomain` row with `domainStatus IN ('ACTIVE', 'VERIFIED')`. Optionally Bearer-protected via `CADDY_ASK_SECRET`.
+1. **Authorization** — `GET /internal/api/caddy-ask?domain=<host>` (Caddy's `on_demand_tls.ask` callback). Returns 200 iff the hostname is a `TenantDomain` row with `domainStatus IN ('ACTIVE', 'VERIFIED')`. Optionally Bearer-protected via `CADDY_ASK_SECRET`.
 
 2. **Observability** — `SSLProvisioningService.recheckCertificates()` runs daily (cron `ssl-health`), opens a TLS handshake against every active domain, parses the leaf cert, and writes `sslStatus / sslIssuedAt / sslExpiresAt / sslIssuer / sslLastCheckedAt` back to the `TenantDomain` row. The admin UI in `/admin/domains` surfaces this state.
 
 3. **No cert storage** — certs live in the reverse-proxy data directory (`/data` for Caddy). The app never writes PEM bytes.
 
-The `/api/internal/*` URL space is reserved for endpoints the proxy needs to reach without a tenant context. `proxy.ts` short-circuits these requests so they are not rewritten under `/tenant/{tenantId}/`.
+The `/internal/api/*` URL space is reserved for endpoints the proxy needs to reach without a tenant context. `proxy.ts` short-circuits these requests so they are not rewritten under `/tenant/{tenantId}/`.
 
 ## Consequences
 

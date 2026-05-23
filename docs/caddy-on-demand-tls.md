@@ -7,7 +7,7 @@ This boilerplate does **not** mint TLS certificates in the Node process. A rever
 Caddy's [on-demand TLS](https://caddyserver.com/docs/automatic-https#on-demand-tls) directive provisions certs at first TLS handshake — but only if the operator has whitelisted the hostname via an `ask` endpoint. We implement that endpoint at:
 
 ```
-GET /api/internal/caddy-ask?domain=<hostname>
+GET /internal/api/caddy-ask?domain=<hostname>
 ```
 
 Returns HTTP 200 iff `<hostname>` is a row in `TenantDomain` with `domainStatus IN ('ACTIVE', 'VERIFIED')`. Anything else returns 4xx. Side effect: a successful authorization flips `sslStatus` from `DISABLED` → `PENDING` so the admin UI shows progress.
@@ -19,7 +19,7 @@ Returns HTTP 200 iff `<hostname>` is a row in `TenantDomain` with `domainStatus 
     # Global on-demand TLS config — the ask URL must return 200 before
     # Caddy will attempt ACME for any unknown hostname.
     on_demand_tls {
-        ask http://app:3000/api/internal/caddy-ask
+        ask http://app:3000/internal/api/caddy-ask
     }
 }
 
@@ -36,7 +36,7 @@ If you prefer Bearer auth on the ask endpoint (recommended in production so only
 
 ```caddyfile
 on_demand_tls {
-    ask http://app:3000/api/internal/caddy-ask {
+    ask http://app:3000/internal/api/caddy-ask {
         headers {
             Authorization "Bearer {env.CADDY_ASK_SECRET}"
         }
@@ -85,7 +85,7 @@ In a k8s deployment, each `TenantDomain` row should map to a `Certificate` resou
 |---|---|
 | Admin adds custom domain | `TenantDomain` row created, `domainStatus = 'PENDING'`, DNS verification token issued |
 | Admin completes DNS proof | `domainStatus = 'VERIFIED'`, `verifiedAt = now()` |
-| First TLS handshake to that domain | Caddy hits `/api/internal/caddy-ask` → 200, then performs HTTP-01 / TLS-ALPN-01 ACME challenge against Let's Encrypt. Cert issued. App flips `sslStatus = 'PENDING'` |
+| First TLS handshake to that domain | Caddy hits `/internal/api/caddy-ask` → 200, then performs HTTP-01 / TLS-ALPN-01 ACME challenge against Let's Encrypt. Cert issued. App flips `sslStatus = 'PENDING'` |
 | Daily `ssl-health` cron | TLS-probes every active domain, parses cert, writes `sslStatus / sslIssuedAt / sslExpiresAt / sslIssuer / sslLastCheckedAt`. Cert expiring within 30 days → `EXPIRING`; expired → `EXPIRED` |
 | 6-hourly `tenant-domain-dns-recheck` cron | TXT/CNAME health check; broken DNS → `domainStatus = 'DNS_FAILED'` (admin must re-verify) |
 

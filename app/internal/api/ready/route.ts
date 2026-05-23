@@ -4,7 +4,7 @@ import redis from '@/modules/redis';
 import { env } from '@/modules/env';
 
 /**
- * GET /api/internal/ready
+ * GET /internal/api/ready
  *
  * Readiness probe — the process is considered ready only when system DB,
  * default tenant DB, and Redis all answer. Returns 503 if any check fails,

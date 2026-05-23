@@ -3,7 +3,7 @@ import SSLProvisioningService from '@/modules/tenant_domain/ssl_provisioning.ser
 import Logger from '@/modules/logger';
 
 /**
- * GET /api/internal/caddy-ask?domain=example.com
+ * GET /internal/api/caddy-ask?domain=example.com
  *
  * Reverse-proxy hook for Caddy's `on_demand_tls.ask` directive. Caddy
  * issues this request before attempting to provision a TLS certificate
@@ -20,7 +20,7 @@ import Logger from '@/modules/logger';
  *
  *     {
  *       on_demand_tls {
- *         ask http://app:3000/api/internal/caddy-ask
+ *         ask http://app:3000/internal/api/caddy-ask
  *       }
  *     }
  */

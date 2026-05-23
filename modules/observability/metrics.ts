@@ -9,7 +9,7 @@
  *   - errors_total                       (counter, labels: tenantId, errorClass)
  *   - tenant_usage_total                 (counter, labels: tenantId, metric)
  *
- * Scraped by `/api/internal/metrics`.
+ * Scraped by `/internal/api/metrics`.
  */
 import { env } from '@/modules/env';
 import Logger from '@/modules/logger';
