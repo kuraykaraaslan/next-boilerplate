@@ -25,7 +25,20 @@ vi.mock('@/modules/db', () => ({
 }));
 
 vi.mock('@/modules/redis', () => ({
-  default: { get: vi.fn(), set: vi.fn(), del: vi.fn(), ping: vi.fn() },
+  default: {
+    get: vi.fn(async () => null),
+    set: vi.fn(async () => 'OK'),
+    setex: vi.fn(async () => 'OK'),
+    del: vi.fn(async () => 1),
+    ping: vi.fn(async () => 'PONG'),
+    mget: vi.fn(async () => []),
+    incrby: vi.fn(async () => 1),
+    expire: vi.fn(async () => 1),
+    keys: vi.fn(async () => []),
+    exists: vi.fn(async () => 0),
+  },
+  singleFlight: async (_key: string, fn: () => Promise<unknown>) => fn(),
+  jitter: (n: number) => n,
 }));
 
 vi.mock('@/modules/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
@@ -98,8 +111,18 @@ vi.mock('./providers/minio.provider', () => ({
   },
 }));
 
+
+// Bypass feature gating in unit tests — tested separately in tenant_subscription/.
+vi.mock('@/modules/tenant_subscription/tenant_subscription.service', () => ({
+  default: {
+    assertFeatureAccess: vi.fn(async () => undefined),
+    checkFeatureAccess: vi.fn(async () => ({ allowed: true, featureKey: '', type: 'BOOLEAN', limit: null, unlimited: null, current: null })),
+  },
+}));
 import StorageService from './storage.service';
 import SettingService from '@/modules/setting/setting.service';
+
+const TEST_TENANT_ID = '11111111-1111-4111-8111-111111111111';
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -116,7 +139,7 @@ describe('StorageService.uploadFile', () => {
   it('uploads a file and returns UploadResult with provider', async () => {
     const file = new File(['content'], 'photo.jpg', { type: 'image/jpeg' });
 
-    const result = await StorageService.uploadFile({ file });
+    const result = await StorageService.uploadFile(TEST_TENANT_ID, { file });
 
     expect(result.url).toBeTruthy();
     expect(result.key).toBeTruthy();
@@ -124,16 +147,22 @@ describe('StorageService.uploadFile', () => {
     expect(result.provider).toBe('aws-s3');
   });
 
+  it('passes the tenantId to SettingService.getByKeys', async () => {
+    const file = new File(['content'], 'photo.jpg', { type: 'image/jpeg' });
+    await StorageService.uploadFile(TEST_TENANT_ID, { file });
+    expect((SettingService.getByKeys as any).mock.calls[0][0]).toBe(TEST_TENANT_ID);
+  });
+
   it('propagates provider errors when settings fail to load', async () => {
     (SettingService.getByKeys as any).mockRejectedValueOnce(new Error('Settings unavailable'));
     const file = new File(['content'], 'photo.jpg', { type: 'image/jpeg' });
-    await expect(StorageService.uploadFile({ file })).rejects.toThrow();
+    await expect(StorageService.uploadFile(TEST_TENANT_ID, { file })).rejects.toThrow();
   });
 });
 
 describe('StorageService.uploadFromUrl', () => {
   it('uploads from URL and returns UploadResult', async () => {
-    const result = await StorageService.uploadFromUrl({
+    const result = await StorageService.uploadFromUrl(TEST_TENANT_ID, {
       url: 'https://example.com/image.jpg',
     });
 
@@ -144,7 +173,7 @@ describe('StorageService.uploadFromUrl', () => {
   it('throws when settings are unavailable', async () => {
     (SettingService.getByKeys as any).mockRejectedValueOnce(new Error('Settings error'));
     await expect(
-      StorageService.uploadFromUrl({ url: 'https://bad-url.example.com/image.jpg' })
+      StorageService.uploadFromUrl(TEST_TENANT_ID, { url: 'https://bad-url.example.com/image.jpg' })
     ).rejects.toThrow();
   });
 });
@@ -152,7 +181,7 @@ describe('StorageService.uploadFromUrl', () => {
 describe('StorageService.deleteFile', () => {
   it('deletes a file without throwing', async () => {
     await expect(
-      StorageService.deleteFile({ key: 'system/general/photo.jpg' })
+      StorageService.deleteFile(TEST_TENANT_ID, { key: 'system/general/photo.jpg' })
     ).resolves.not.toThrow();
   });
 
@@ -166,14 +195,14 @@ describe('StorageService.deleteFile', () => {
     });
 
     await expect(
-      StorageService.deleteFile({ key: 'system/general/photo.jpg' })
+      StorageService.deleteFile(TEST_TENANT_ID, { key: 'system/general/photo.jpg' })
     ).rejects.toThrow();
   });
 });
 
 describe('StorageService.getFileUrl', () => {
   it('returns a URL string for a given key', async () => {
-    const url = await StorageService.getFileUrl({ key: 'system/general/photo.jpg' });
+    const url = await StorageService.getFileUrl(TEST_TENANT_ID, { key: 'system/general/photo.jpg' });
     expect(typeof url).toBe('string');
     expect(url).toContain('photo.jpg');
   });
@@ -191,7 +220,7 @@ describe('StorageService with cloudflare-r2 provider', () => {
     });
 
     const file = new File(['content'], 'photo.jpg', { type: 'image/jpeg' });
-    const result = await StorageService.uploadFile({ file });
+    const result = await StorageService.uploadFile(TEST_TENANT_ID, { file });
     expect(result.provider).toBe('cloudflare-r2');
   });
 });

@@ -55,3 +55,18 @@ Uses Google's `libphonenumber` — all numbers must be in E.164 format (`+{count
 ## Rate Limiting
 
 Per-phone-number rate limits are enforced via Redis. Limits are configurable via settings.
+
+---
+
+## Usage tracking & audit (NEW)
+
+`_sendShortMessage` (the BullMQ worker target) now records every delivery attempt:
+
+- On `result.success === true`:
+  - `TenantUsageService.incrementSmsSends(tenantId, 1)` → updates the monthly `smsSends` quota counter.
+  - `NotificationLogService.log(tenantId, 'sms', toE164, 'sent', { provider, providerMessageId })`.
+- On provider error / `result.success === false`:
+  - `NotificationLogService.log(tenantId, 'sms', toE164, 'failed', { provider, error })`.
+
+Audit/usage failures are swallowed — SMS delivery is never blocked.
+

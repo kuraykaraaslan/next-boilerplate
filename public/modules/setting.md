@@ -32,8 +32,6 @@ System-wide key-value settings store. Modules declare their keys in *.setting.ke
 
 ## Owned API routes
 
-- `system` GET/POST/PUT `/system/api/settings`
-- `system` GET `/system/api/settings/public`
 - `tenant` GET/POST/PUT/DELETE `/tenant/[tenantId]/api/settings`
 - `tenant` GET/PUT/DELETE `/tenant/[tenantId]/api/settings/branding`
 - `tenant` GET `/tenant/[tenantId]/api/settings/public`
@@ -45,6 +43,7 @@ System-wide key-value settings store. Modules declare their keys in *.setting.ke
 ## Next layer (modules_next/) surface
 
 - `setting/setting.types` _(ui)_
+- `setting/ui/PlatformSettingsTabs` _(ui, client)_
 
 ## README
 
@@ -110,10 +109,10 @@ Each module defines its own setting keys file (e.g. `auth.setting.keys.ts`, `ai.
 ## API Routes
 
 ```
-GET  /system/api/settings
-GET  /system/api/settings?group=Email
-PUT  /system/api/settings
-PUT  /system/api/settings/[key]
+GET  /tenant/{ROOT_TENANT_ID}/api/admin-settings
+GET  /tenant/{ROOT_TENANT_ID}/api/admin-settings?group=Email
+PUT  /tenant/{ROOT_TENANT_ID}/api/admin-settings
+POST /tenant/{ROOT_TENANT_ID}/api/admin-settings
 ```
 
-Requires `system:admin` scope.
+Root-tenant-only — guarded by `authenticateRootTenantAdmin` + `isRootTenant(tenantId)` check.

@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { WebhookEventEnum, SystemWebhookEventEnum, WebhookDeliveryStatusEnum } from './webhook.enums';
+import { WebhookEventEnum, WebhookDeliveryStatusEnum } from './webhook.enums';
 
-// ─── Tenant webhook ───────────────────────────────────────────────────────────
+// ─── Webhook (tenant-scoped — root tenant uses tenantId = ROOT_TENANT_ID) ────
 
 export const WebhookSchema = z.object({
   webhookId: z.string().uuid(),
@@ -11,43 +11,26 @@ export const WebhookSchema = z.object({
   description: z.string().nullable(),
   url: z.string().url(),
   secret: z.string(),
+  previousSecret: z.string().nullable(),
+  previousSecretExpiresAt: z.date().nullable(),
   events: z.array(WebhookEventEnum),
   isActive: z.boolean(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
 
-export const SafeWebhookSchema = WebhookSchema.omit({ secret: true });
+// Safe view never leaks current OR previous signing secret.
+export const SafeWebhookSchema = WebhookSchema.omit({ secret: true, previousSecret: true });
 
 export type Webhook = z.infer<typeof WebhookSchema>;
 export type SafeWebhook = z.infer<typeof SafeWebhookSchema>;
 
-// ─── System webhook ───────────────────────────────────────────────────────────
-
-export const SystemWebhookSchema = z.object({
-  webhookId: z.string().uuid(),
-  createdByUserId: z.string().uuid(),
-  name: z.string(),
-  description: z.string().nullable(),
-  url: z.string().url(),
-  secret: z.string(),
-  events: z.array(SystemWebhookEventEnum),
-  isActive: z.boolean(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-});
-
-export const SafeSystemWebhookSchema = SystemWebhookSchema.omit({ secret: true });
-
-export type SystemWebhook = z.infer<typeof SystemWebhookSchema>;
-export type SafeSystemWebhook = z.infer<typeof SafeSystemWebhookSchema>;
-
-// ─── Delivery (shared shape, tenantId optional) ───────────────────────────────
+// ─── Delivery ────────────────────────────────────────────────────────────────
 
 export const WebhookDeliverySchema = z.object({
   deliveryId: z.string().uuid(),
   webhookId: z.string().uuid(),
-  tenantId: z.string().uuid().nullable().optional(),
+  tenantId: z.string().uuid(),
   event: z.string(),
   payload: z.record(z.string(), z.unknown()),
   status: WebhookDeliveryStatusEnum,

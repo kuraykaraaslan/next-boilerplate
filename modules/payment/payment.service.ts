@@ -323,9 +323,9 @@ export default class PaymentService {
   }
 
   static async getProviderStatus(data: GetProviderStatusDTO): Promise<any> {
-    const { token, provider } = data;
+    const { tenantId, token, provider } = data;
     try {
-      return await PaymentService.getProvider(provider).getPaymentStatus(token);
+      return await PaymentService.getProvider(provider).getPaymentStatus(tenantId, token);
     } catch (error) {
       Logger.error(`${PAYMENT_MESSAGES.GET_STATUS_FAILED}: ${error instanceof Error ? error.message : String(error)}`);
       throw error;
@@ -388,10 +388,17 @@ export default class PaymentService {
     return PaymentService.update(paymentId, { status: 'CANCELLED' });
   }
 
+  /**
+   * Create a checkout session for a tenant. The tenant's own provider API
+   * keys (Setting rows scoped to `tenantId`) are used to authenticate the
+   * outbound call, so every tenant can collect payments via its own
+   * Stripe / PayPal / Iyzico / etc. account.
+   */
   static async createCheckoutSession(
+    tenantId: string,
     params: CheckoutSessionParams,
     providerName?: PaymentProvider
   ): Promise<CheckoutSessionResult> {
-    return PaymentService.getProvider(providerName).createCheckoutSession(params);
+    return PaymentService.getProvider(providerName).createCheckoutSession(tenantId, params);
   }
 }

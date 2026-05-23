@@ -10,8 +10,9 @@ const SamlMessages = {
   CONFIG_DELETED: 'SAML configuration deleted',
   IDP_INITIATED_DISABLED: 'IdP-initiated SSO is not allowed for this tenant',
   EMAIL_MISMATCH: 'SAML assertion email does not match your account email',
-  SYSTEM_NOT_CONFIGURED: 'System SAML is not configured',
-  SYSTEM_NOT_ENABLED: 'System SAML is not enabled',
+  NOT_MEMBER: 'You are not a member of this tenant and JIT provisioning is disabled',
+  JIT_PROVISIONED: 'User provisioned via SAML JIT',
+  JIT_ROLE_MAPPED: 'Mapped SAML role to member role',
 } as const;
 
 export default SamlMessages;

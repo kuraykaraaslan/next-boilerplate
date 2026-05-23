@@ -1,7 +1,7 @@
 import Limiter from '@/modules_next/limiter/limiter.service.next';
 // path: app/tenant/[tenantId]/api/settings/public/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import TenantSettingService from "@/modules/tenant_setting/tenant_setting.service";
+import SettingService from '@/modules/setting/setting.service';
 import { TENANT_BRANDING_KEYS } from '@/modules/tenant_branding/tenant_branding.setting.keys'
 
 
@@ -24,7 +24,7 @@ export async function GET(
   if (_rl) return _rl;
 
     const { tenantId } = await params;
-    const settings = await TenantSettingService.getByKeys(tenantId, PUBLIC_SETTINGS_KEYS);
+    const settings = await SettingService.getByKeys(tenantId, PUBLIC_SETTINGS_KEYS);
 
     return NextResponse.json({
       success: true,

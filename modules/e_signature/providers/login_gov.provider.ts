@@ -52,7 +52,7 @@ export default class LoginGovProvider extends BaseESignatureProvider {
     // provider and redirect instead of polling.
     return Promise.reject(new Error(
       `${E_SIGNATURE_MESSAGES.PROVIDER_CAPABILITY_MISSING}: ` +
-      'Login.gov uses an OIDC redirect flow. Bridge via /system/api/auth/sso/login_gov.',
+      'Login.gov uses an OIDC redirect flow. Bridge via /api/auth/sso/login_gov on the root tenant.',
     ));
   }
 

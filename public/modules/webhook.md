@@ -8,7 +8,7 @@
 - **icon:** `fas fa-rss`
 - **hasNextLayer:** false
 
-Subscriber-configured outbound webhooks (system + tenant scope), signed deliveries, retry+redelivery.
+Subscriber-configured outbound webhooks (tenant-scoped; root tenant carries platform-wide events), signed deliveries, retry+redelivery.
 
 ## Dependencies
 
@@ -17,7 +17,6 @@ Subscriber-configured outbound webhooks (system + tenant scope), signed deliveri
 ## Services
 
 - `webhook.service.ts`
-- `webhook.system.service.ts`
 
 ## DTOs
 
@@ -25,8 +24,6 @@ Subscriber-configured outbound webhooks (system + tenant scope), signed deliveri
 
 ## Entities
 
-- `system_webhook.entity.ts`
-- `system_webhook_delivery.entity.ts`
 - `webhook.entity.ts`
 - `webhook_delivery.entity.ts`
 
@@ -40,24 +37,16 @@ Subscriber-configured outbound webhooks (system + tenant scope), signed deliveri
 
 ## Owned API routes
 
-- `system` POST `/system/api/webhooks/iyzico`
-- `system` GET/POST `/system/api/webhooks/outgoing`
-- `system` GET/PATCH/DELETE `/system/api/webhooks/outgoing/[webhookId]`
-- `system` GET `/system/api/webhooks/outgoing/[webhookId]/deliveries`
-- `system` POST `/system/api/webhooks/outgoing/[webhookId]/deliveries/[deliveryId]/redeliver`
-- `system` POST `/system/api/webhooks/outgoing/[webhookId]/test`
-- `system` POST `/system/api/webhooks/paypal`
-- `system` POST `/system/api/webhooks/stripe`
 - `tenant` GET/POST `/tenant/[tenantId]/api/webhooks`
 - `tenant` GET/PATCH/DELETE `/tenant/[tenantId]/api/webhooks/[webhookId]`
 - `tenant` GET `/tenant/[tenantId]/api/webhooks/[webhookId]/deliveries`
 - `tenant` POST `/tenant/[tenantId]/api/webhooks/[webhookId]/deliveries/[deliveryId]/redeliver`
+- `tenant` POST `/tenant/[tenantId]/api/webhooks/[webhookId]/deliveries/replay-dead-letter`
+- `tenant` POST `/tenant/[tenantId]/api/webhooks/[webhookId]/rotate-secret`
 - `tenant` POST `/tenant/[tenantId]/api/webhooks/[webhookId]/test`
 
 ## TypeORM entities
 
-- `SystemWebhook` (tenant) — `modules/webhook/entities/system_webhook.entity.ts`
-- `SystemWebhookDelivery` (tenant) — `modules/webhook/entities/system_webhook_delivery.entity.ts`
 - `Webhook` (tenant) — `modules/webhook/entities/webhook.entity.ts`
 - `WebhookDelivery` (tenant) — `modules/webhook/entities/webhook_delivery.entity.ts`
 
@@ -82,14 +71,24 @@ Both live in the **tenant DB**.
 
 ## Events
 
-| Event | Fired when |
-|---|---|
-| `tenant.updated` | Tenant name/settings change |
-| `member.created/updated/deleted` | Tenant membership changes |
-| `invitation.sent/accepted/declined/revoked` | Invitation lifecycle |
-| `subscription.created/updated/cancelled` | Subscription lifecycle |
-| `payment.completed/failed/refunded` | Payment lifecycle |
-| `api_key.created/deleted` | API key management |
+A single `WebhookEventEnum` covers both tenant-local and platform-wide
+events. Every event is delivered only to webhooks owned by the appropriate
+tenant — platform-wide events fire on root-tenant webhooks
+(`tenantId = ROOT_TENANT_ID`); tenant-local events fire on regular tenant
+webhooks.
+
+| Event | Scope | Fired when |
+|---|---|---|
+| `tenant.updated` | tenant | Tenant name/settings change |
+| `member.created/updated/deleted` | tenant | Tenant membership changes |
+| `invitation.sent/accepted/declined/revoked` | tenant | Invitation lifecycle |
+| `subscription.created/updated/cancelled` | tenant | Subscription lifecycle |
+| `payment.completed/failed/refunded` | tenant | Payment lifecycle |
+| `api_key.created/deleted` | tenant | API key management |
+| `user.created/updated/deleted/suspended` | platform | Global user lifecycle |
+| `tenant.created/deleted/suspended` | platform | Tenant lifecycle |
+| `plan.created/updated/deleted` | platform | Subscription plan changes |
+| `subscription.assigned` | platform | Plan assignment from admin panel |
 
 ---
 
@@ -105,6 +104,14 @@ Both live in the **tenant DB**.
 | POST | `/tenant/[id]/api/webhooks/[wid]/test` | Send test delivery (sync) |
 | GET | `/tenant/[id]/api/webhooks/[wid]/deliveries` | List deliveries |
 | POST | `/tenant/[id]/api/webhooks/[wid]/deliveries/[did]/redeliver` | Re-queue failed delivery |
+
+### Platform webhooks (root-tenant admins only)
+
+Mirror the routes above under `/tenant/[ROOT_TENANT_ID]/api/webhooks/...`.
+The handlers require root-tenant admin auth and bind every operation to
+`tenantId = ROOT_TENANT_ID`. There is no separate service or table —
+`WebhookService` and the `Webhook`/`WebhookDelivery` tables back both
+surfaces.
 
 ---
 

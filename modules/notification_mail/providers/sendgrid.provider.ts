@@ -1,35 +1,38 @@
 import { env } from '@/modules/env';
 import axios, { AxiosInstance } from "axios";
 import Logger from "@/modules/logger";
+import SettingService from "@/modules/setting/setting.service";
 import BaseMailProvider, { MailOptions, MailResult } from "./base.provider";
 
 export default class SendGridProvider extends BaseMailProvider {
   readonly name = "SendGrid";
 
-  private static readonly SENDGRID_API_KEY = env.SENDGRID_API_KEY;
   private static readonly SENDGRID_BASE_URL = "https://api.sendgrid.com/v3";
 
-  private axiosInstance: AxiosInstance | null = null;
-
-  private getAxiosInstance(): AxiosInstance {
-    if (!this.axiosInstance) {
-      this.axiosInstance = axios.create({
-        baseURL: SendGridProvider.SENDGRID_BASE_URL,
-        headers: {
-          Authorization: `Bearer ${SendGridProvider.SENDGRID_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-      });
-    }
-    return this.axiosInstance;
+  /**
+   * Resolve the SendGrid API key for `tenantId` with env fallback.
+   */
+  private async resolveApiKey(tenantId: string): Promise<string | null> {
+    return (await SettingService.getValue(tenantId, 'sendgridApiKey')) ?? env.SENDGRID_API_KEY ?? null;
   }
 
-  isConfigured(): boolean {
-    return !!SendGridProvider.SENDGRID_API_KEY;
+  private buildClient(apiKey: string): AxiosInstance {
+    return axios.create({
+      baseURL: SendGridProvider.SENDGRID_BASE_URL,
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+    });
   }
 
-  async sendMail(options: MailOptions): Promise<MailResult> {
-    if (!this.isConfigured()) {
+  async isConfigured(tenantId: string): Promise<boolean> {
+    return !!(await this.resolveApiKey(tenantId));
+  }
+
+  async sendMail(tenantId: string, options: MailOptions): Promise<MailResult> {
+    const apiKey = await this.resolveApiKey(tenantId);
+    if (!apiKey) {
       Logger.error("SendGrid: Provider is not configured");
       return { success: false, error: "SendGrid provider is not configured" };
     }
@@ -58,7 +61,7 @@ export default class SendGridProvider extends BaseMailProvider {
     };
 
     try {
-      const response = await this.getAxiosInstance().post("/mail/send", payload);
+      const response = await this.buildClient(apiKey).post("/mail/send", payload);
 
       if (response.status === 202) {
         Logger.info(`SendGrid: Email sent successfully to ${options.to}`);

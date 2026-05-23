@@ -1,11 +1,15 @@
 import 'reflect-metadata';
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, Index, Unique } from 'typeorm';
 
-@Unique(['planId', 'key'])
+@Unique(['tenantId', 'planId', 'key'])
 @Entity('plan_features')
 export class PlanFeature {
   @PrimaryGeneratedColumn('uuid', { name: 'featureId' })
   featureId!: string;
+
+  @Index()
+  @Column({ type: 'uuid' })
+  tenantId!: string;
 
   @Index()
   @Column({ type: 'uuid' })

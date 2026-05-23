@@ -17,6 +17,7 @@ Custom domain mapping per tenant + DNS verification (TXT/CNAME challenge).
 ## Services
 
 - `dns_verification.service.ts`
+- `ssl_provisioning.service.ts`
 - `tenant_domain.service.ts`
 
 ## DTOs
@@ -34,6 +35,11 @@ Custom domain mapping per tenant + DNS verification (TXT/CNAME challenge).
 ## Message keys
 
 - `tenant_domain.messages.ts`
+
+## Jobs
+
+- `ssl_health.job.ts`
+- `tenant_domain.job.ts`
 
 ## Owned API routes
 

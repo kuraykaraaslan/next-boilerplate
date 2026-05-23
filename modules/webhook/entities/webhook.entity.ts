@@ -33,6 +33,15 @@ export class Webhook {
   @Column({ type: 'varchar' })
   secret!: string;
 
+  // Previous secret kept valid during a rotation window so receivers have time
+  // to swap. Cleared once `previousSecretExpiresAt` passes. Outgoing requests
+  // carry both `X-Webhook-Signature` and (when set) `X-Webhook-Signature-Prev`.
+  @Column({ type: 'varchar', nullable: true })
+  previousSecret!: string | null;
+
+  @Column({ type: 'timestamp', nullable: true })
+  previousSecretExpiresAt!: Date | null;
+
   // JSON array of subscribed event types
   @Column({ type: 'simple-array' })
   events!: string[];

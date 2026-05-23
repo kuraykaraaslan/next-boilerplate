@@ -1,8 +1,15 @@
 import { z } from 'zod';
 
-// ─── Tenant-scoped events ─────────────────────────────────────────────────────
-
+/**
+ * Webhook event catalog. A single tenant-scoped enum used by every tenant —
+ * including the root (platform) tenant, which subscribes to the platform-wide
+ * events (user.*, tenant.*, plan.*) via Webhook rows tagged with
+ * ROOT_TENANT_ID. A root-tenant webhook can subscribe to e.g.
+ * `tenant.created` or `user.suspended` exactly the same way a normal tenant
+ * subscribes to `member.created`.
+ */
 export const WebhookEventEnum = z.enum([
+  // ─── Tenant-scoped events (visible to every tenant on their own data) ───
   'tenant.updated',
   'member.created',
   'member.updated',
@@ -19,32 +26,23 @@ export const WebhookEventEnum = z.enum([
   'payment.refunded',
   'api_key.created',
   'api_key.deleted',
-]);
 
-export type WebhookEvent = z.infer<typeof WebhookEventEnum>;
-export const WEBHOOK_EVENTS: WebhookEvent[] = WebhookEventEnum.options;
-
-// ─── System-scoped events ─────────────────────────────────────────────────────
-
-export const SystemWebhookEventEnum = z.enum([
+  // ─── Platform-wide events (only emitted to root-tenant webhooks) ─────────
   'user.created',
   'user.updated',
   'user.deleted',
   'user.suspended',
   'tenant.created',
-  'tenant.updated',
   'tenant.deleted',
   'tenant.suspended',
   'plan.created',
   'plan.updated',
   'plan.deleted',
   'subscription.assigned',
-  'subscription.updated',
-  'subscription.cancelled',
 ]);
 
-export type SystemWebhookEvent = z.infer<typeof SystemWebhookEventEnum>;
-export const SYSTEM_WEBHOOK_EVENTS: SystemWebhookEvent[] = SystemWebhookEventEnum.options;
+export type WebhookEvent = z.infer<typeof WebhookEventEnum>;
+export const WEBHOOK_EVENTS: WebhookEvent[] = WebhookEventEnum.options;
 
 // ─── Shared ───────────────────────────────────────────────────────────────────
 

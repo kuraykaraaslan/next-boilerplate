@@ -24,8 +24,8 @@ In-app notification feed with unread counts. Consumed by the notification menu i
 
 ## Owned API routes
 
-- `system` GET/POST `/system/api/admin/notifications/sms/send`
-- `system` POST/DELETE `/system/api/notifications/push/subscribe`
+- `tenant` POST/DELETE `/tenant/[tenantId]/api/notifications/push/subscribe`
+- `tenant` GET/POST `/tenant/[tenantId]/api/notifications/sms/send`
 
 ## Next layer (modules_next/) surface
 

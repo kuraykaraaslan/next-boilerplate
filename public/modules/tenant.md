@@ -39,14 +39,16 @@ Tenant CRUD, lifecycle (active/suspended/deleted), soft-deletion service. Founda
 
 - `tenant.setting.keys.ts`
 
+## Jobs
+
+- `tenant.deletion.job.ts`
+
 ## Owned API routes
 
-- `system` GET/POST `/system/api/tenant/[tenantId]/members`
-- `system` GET/PUT/DELETE `/system/api/tenant/[tenantId]/members/[memberId]`
-- `system` GET/POST `/system/api/tenants`
-- `system` GET/PUT/DELETE `/system/api/tenants/[tenantId]`
-- `system` POST `/system/api/tenants/[tenantId]/deletion-request`
-- `system` POST `/system/api/tenants/create`
+- `tenant` GET/POST `/tenant/[tenantId]/api/tenants`
+- `tenant` GET/PUT/DELETE `/tenant/[tenantId]/api/tenants/[targetTenantId]`
+- `tenant` POST `/tenant/[tenantId]/api/tenants/[targetTenantId]/deletion-request`
+- `tenant` POST `/tenant/[tenantId]/api/tenants/create`
 
 ## TypeORM entities
 
@@ -54,6 +56,7 @@ Tenant CRUD, lifecycle (active/suspended/deleted), soft-deletion service. Founda
 
 ## Next layer (modules_next/) surface
 
+- `tenant/tenant.constants` _(ui)_
 - `tenant/ui/CreateTenantForm` _(ui, client)_
 - `tenant/ui/TenantSelectorCard` _(ui, client)_
 
@@ -63,6 +66,8 @@ Tenant CRUD, lifecycle (active/suspended/deleted), soft-deletion service. Founda
 
 Multi-tenant organization management. Creates, updates, deletes tenants. Auto-provisions a personal tenant for every new user.
 
+The **root tenant** (`ROOT_TENANT_ID = 00000000-0000-4000-8000-000000000000`, name `"Platform"`) is a real tenant row that owns platform-level configuration (global users, plans, coupons, system audit logs, super-admin settings). A super-admin is any `TenantMember` of the root tenant with `memberRole = 'ADMIN'`. There is no separate "system" scope — every request resolves to a tenant.
+
 ---
 
 ## Files
@@ -70,6 +75,7 @@ Multi-tenant organization management. Creates, updates, deletes tenants. Auto-pr
 | File | Purpose |
 |---|---|
 | `tenant.service.ts` | Core: CRUD operations, personal tenant provisioning |
+| `tenant.constants.ts` | `ROOT_TENANT_ID`, `ROOT_TENANT_NAME`, `isRootTenant()` |
 | `tenant.types.ts` | `Tenant`, `CreateTenantInput`, `UpdateTenantInput` |
 | `tenant.dto.ts` | Zod DTOs |
 | `tenant.enums.ts` | `TenantStatus` enum |
@@ -120,6 +126,41 @@ const tenants = await TenantService.getByUserId(userId);
 ## Personal Tenant
 
 When a new user registers, a personal tenant is automatically created for them. This tenant cannot be deleted.
+
+---
+
+## Auto-seed on create
+
+Every newly created tenant (including the personal tenant auto-provisioned at user signup) starts with a minimal, functional default catalog rather than an empty one. The seed runs inside `TenantService.create()` and `TenantService.provisionPersonal()`, after the tenant row is committed.
+
+What is seeded:
+
+| Step | Source | Result |
+|---|---|---|
+| 1. Default plan | `TenantSubscriptionService.createPlan()` | A `"Free"` SubscriptionPlan: `monthlyPrice=0`, `yearlyPrice=0`, `currency='USD'`, `trialDays=0`, `isDefault=true`, `status='ACTIVE'`. |
+| 2. Subscription | `TenantSubscriptionService.assignPlan()` | A `TenantSubscription` row binding the new tenant to the just-created Free plan (`billingInterval='MONTHLY'`). |
+| 3. Defaults | `SettingService.updateMany()` | Setting rows: `language='en'`, `dateFormat='YYYY-MM-DD'`, `timeFormat='HH:mm'`, `timezone='UTC'`. |
+
+Rules:
+
+- **Best-effort, not atomic.** Each step is wrapped in `try/catch`. If the plan seed fails the tenant is still created — only a `Logger.warn` is emitted. The tenant create is the priority; downstream seeds can be re-run by admin tooling.
+- **Skipped for root.** `isRootTenant(tenantId)` short-circuits the seed — the root tenant is seeded by dedicated seed scripts.
+- **Opt-out.** `CreateTenantDTO` accepts an optional `defaults: { skipPlan?, skipSubscription?, skipSettings? }` to disable individual steps. Default behaviour seeds everything.
+- **Idempotent.** `SettingService.updateMany` upserts by key, and the seed is skipped when the tenant already has a plan (because `assignPlan` updates the existing subscription row).
+- **Does not copy from root.** The seed installs hardcoded minimum-functional defaults — it never reads the root tenant's plan/setting catalog.
+
+```typescript
+// Default behaviour — seeds plan, subscription, settings
+await TenantService.create({ name: 'Acme', description: null, region: 'TR' });
+
+// Opt out of plan/subscription (e.g. importing an existing org)
+await TenantService.create({
+  name: 'Imported',
+  description: null,
+  region: 'TR',
+  defaults: { skipPlan: true, skipSubscription: true },
+});
+```
 
 ---
 

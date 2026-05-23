@@ -1,36 +1,47 @@
 import { env } from '@/modules/env';
 import axios, { AxiosInstance } from "axios";
 import Logger from "@/modules/logger";
+import SettingService from "@/modules/setting/setting.service";
 import BaseMailProvider, { MailOptions, MailResult } from "./base.provider";
 
 export default class PostmarkProvider extends BaseMailProvider {
   readonly name = "Postmark";
 
-  private static readonly POSTMARK_API_KEY = env.POSTMARK_API_KEY;
   private static readonly POSTMARK_BASE_URL = "https://api.postmarkapp.com";
 
-  private axiosInstance: AxiosInstance | null = null;
+  // Cache one axios instance per tenant. The API key changes rarely;
+  // when it does, the corresponding entry is rebuilt on next send.
+  private axiosByTenant = new Map<string, { key: string; instance: AxiosInstance }>();
 
-  private getAxiosInstance(): AxiosInstance {
-    if (!this.axiosInstance) {
-      this.axiosInstance = axios.create({
-        baseURL: PostmarkProvider.POSTMARK_BASE_URL,
-        headers: {
-          "X-Postmark-Server-Token": PostmarkProvider.POSTMARK_API_KEY!,
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-      });
-    }
-    return this.axiosInstance;
+  private async getApiKey(tenantId: string): Promise<string | null> {
+    const tenantKey = await SettingService.getValue(tenantId, 'postmarkApiKey');
+    return tenantKey ?? env.POSTMARK_API_KEY ?? null;
   }
 
-  isConfigured(): boolean {
-    return !!PostmarkProvider.POSTMARK_API_KEY;
+  private async getAxiosInstance(tenantId: string): Promise<AxiosInstance | null> {
+    const apiKey = await this.getApiKey(tenantId);
+    if (!apiKey) return null;
+    const cached = this.axiosByTenant.get(tenantId);
+    if (cached && cached.key === apiKey) return cached.instance;
+    const instance = axios.create({
+      baseURL: PostmarkProvider.POSTMARK_BASE_URL,
+      headers: {
+        "X-Postmark-Server-Token": apiKey,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    });
+    this.axiosByTenant.set(tenantId, { key: apiKey, instance });
+    return instance;
   }
 
-  async sendMail(options: MailOptions): Promise<MailResult> {
-    if (!this.isConfigured()) {
+  async isConfigured(tenantId: string): Promise<boolean> {
+    return Boolean(await this.getApiKey(tenantId));
+  }
+
+  async sendMail(tenantId: string, options: MailOptions): Promise<MailResult> {
+    const client = await this.getAxiosInstance(tenantId);
+    if (!client) {
       Logger.error("Postmark: Provider is not configured");
       return { success: false, error: "Postmark provider is not configured" };
     }
@@ -65,7 +76,7 @@ export default class PostmarkProvider extends BaseMailProvider {
     }
 
     try {
-      const response = await this.getAxiosInstance().post("/email", payload);
+      const response = await client.post("/email", payload);
 
       if (response.status === 200 && response.data.ErrorCode === 0) {
         Logger.info(`Postmark: Email sent successfully to ${options.to}`);

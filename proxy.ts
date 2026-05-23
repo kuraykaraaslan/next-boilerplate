@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import SettingService from "@/modules/setting/setting.service";
 import TenantDomainService from "@/modules/tenant_domain/tenant_domain.service";
+import { ROOT_TENANT_ID } from "@/modules/tenant/tenant.constants";
 
 const EXCLUDED_PATHS = [
     /^\/_next\/?/,
@@ -13,7 +14,9 @@ const EXCLUDED_PATHS = [
 ];
 
 const isDev = process.env.NODE_ENV !== "production";
-const DEFAULT_SUBDOMAIN = process.env.TENANT_DEFAULT_SUBDOMAIN || "system";
+// Root tenant is exposed on either localhost (dev) or `{ROOT_SUBDOMAIN}.{WILDCARD_DOMAIN}`
+// (prod). Both resolve to ROOT_TENANT_ID — there is no separate "system" surface.
+const ROOT_SUBDOMAIN = process.env.TENANT_DEFAULT_SUBDOMAIN || "system";
 const WILDCARD_DOMAIN = process.env.TENANT_WILDCARD_DOMAIN || "example.com";
 
 // "domain" (default) | "path"
@@ -43,7 +46,7 @@ function isLocalhost(host: string) {
 async function checkMaintenance(req: NextRequest, pathname: string): Promise<NextResponse | null> {
     if (pathname === '/maintenance') return null;
     try {
-        const setting = await SettingService.getByKey('maintenanceMode');
+        const setting = await SettingService.getByKey(ROOT_TENANT_ID, 'maintenanceMode');
         if (setting?.value === 'true') {
             log("maintenance mode active → redirect to /maintenance");
             return NextResponse.rewrite(new URL('/maintenance', req.url));
@@ -56,10 +59,10 @@ async function checkMaintenance(req: NextRequest, pathname: string): Promise<Nex
 
 async function handleDomainMode(req: NextRequest, host: string, pathname: string): Promise<NextResponse> {
     let tenantId: string | null = null;
-    let isSystemDomain = false;
 
-    if (isLocalhost(host) || host === `${DEFAULT_SUBDOMAIN}.${WILDCARD_DOMAIN}`) {
-        isSystemDomain = true;
+    // Root surface: localhost (dev) or {root subdomain}.{wildcard} (prod)
+    if (isLocalhost(host) || host === `${ROOT_SUBDOMAIN}.${WILDCARD_DOMAIN}`) {
+        tenantId = ROOT_TENANT_ID;
     } else {
         try {
             const domainInfo = await TenantDomainService.getByDomain(host);
@@ -71,21 +74,14 @@ async function handleDomainMode(req: NextRequest, host: string, pathname: string
         }
     }
 
+    if (!tenantId) {
+        return NextResponse.next();
+    }
+
     const url = req.nextUrl.clone();
-
-    if (tenantId) {
-        url.pathname = `/tenant/${tenantId}${pathname}`;
-        log(`[domain] Rewriting to tenant: ${tenantId}`);
-        return NextResponse.rewrite(url);
-    }
-
-    if (isSystemDomain) {
-        url.pathname = `/system${pathname}`;
-        log("[domain] Rewriting to system");
-        return NextResponse.rewrite(url);
-    }
-
-    return NextResponse.next();
+    url.pathname = `/tenant/${tenantId}${pathname}`;
+    log(`[domain] Rewriting to tenant: ${tenantId}`);
+    return NextResponse.rewrite(url);
 }
 
 function handlePathMode(req: NextRequest, pathname: string): NextResponse {
@@ -99,10 +95,10 @@ function handlePathMode(req: NextRequest, pathname: string): NextResponse {
         const rest = slashIndex === -1 ? "" : withoutPrefix.slice(slashIndex);
 
         if (!tenantId) {
-            // /{prefix}/ ile biten istek → system
+            // /{prefix}/ ile biten istek → root tenant
             const url = req.nextUrl.clone();
-            url.pathname = `/system${pathname}`;
-            log("[path] No tenantId in path → rewriting to system");
+            url.pathname = `/tenant/${ROOT_TENANT_ID}${pathname}`;
+            log("[path] No tenantId in path → rewriting to root tenant");
             return NextResponse.rewrite(url);
         }
 
@@ -112,10 +108,10 @@ function handlePathMode(req: NextRequest, pathname: string): NextResponse {
         return NextResponse.rewrite(url);
     }
 
-    // Tenant prefix yoksa → system
+    // Tenant prefix yoksa → root tenant
     const url = req.nextUrl.clone();
-    url.pathname = `/system${pathname}`;
-    log("[path] Rewriting to system");
+    url.pathname = `/tenant/${ROOT_TENANT_ID}${pathname}`;
+    log("[path] Rewriting to root tenant");
     return NextResponse.rewrite(url);
 }
 
@@ -129,14 +125,12 @@ export async function proxy(req: NextRequest) {
         return NextResponse.next();
     }
 
-    // ✅ /api/system/[...] → /system/api/[...]
-    // External API standard. Internal Next.js file stays at app/system/api/...
-    if (pathname.startsWith("/api/system/")) {
-        const rest = pathname.slice("/api/system".length); // /auth/login
-        const url = req.nextUrl.clone();
-        url.pathname = `/system/api${rest}`;
-        log(`[api] system: ${pathname} → ${url.pathname}`);
-        return NextResponse.rewrite(url);
+    // ✅ /api/internal/* — platform-internal endpoints reachable WITHOUT
+    // a tenant prefix (Caddy `on_demand_tls.ask`, health probes, etc.).
+    // These routes live at app/api/internal/ and must not be rewritten
+    // under /tenant/.
+    if (pathname.startsWith("/api/internal/")) {
+        return NextResponse.next();
     }
 
     // ✅ /api/tenant/[tenantId]/[...] → /tenant/[tenantId]/api/[...]
@@ -151,8 +145,8 @@ export async function proxy(req: NextRequest) {
         return NextResponse.rewrite(url);
     }
 
-    // ❌ Zaten /tenant/ veya /system/ altındaysa (sonsuz döngüyü önle)
-    if (pathname.startsWith("/tenant/") || pathname.startsWith("/system/")) {
+    // ❌ Zaten /tenant/ altındaysa (sonsuz döngüyü önle)
+    if (pathname.startsWith("/tenant/")) {
         return NextResponse.next();
     }
 

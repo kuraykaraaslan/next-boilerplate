@@ -42,14 +42,6 @@ Tenant subscription state, plan + feature key resolution, grace period, expiry j
 
 - `tenant_subscription.job.ts`
 
-## Owned API routes
-
-- `system` GET/POST `/system/api/subscriptions/plans`
-- `system` GET/PUT/DELETE `/system/api/subscriptions/plans/[planId]`
-- `system` GET/POST `/system/api/subscriptions/plans/[planId]/features`
-- `system` PUT/DELETE `/system/api/subscriptions/plans/[planId]/features/[featureId]`
-- `system` GET `/system/api/subscriptions/plans/public`
-
 ## TypeORM entities
 
 - `TenantSubscription` (tenant) — `modules/tenant_subscription/entities/tenant_subscription.entity.ts`

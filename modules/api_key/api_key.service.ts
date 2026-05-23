@@ -8,6 +8,9 @@ import { SafeApiKey, SafeApiKeySchema } from './api_key.types';
 import type { CreateApiKeyInput, UpdateApiKeyInput, ListApiKeysInput } from './api_key.dto';
 import ApiKeyMessages from './api_key.messages';
 import type { ApiKeyScope } from './api_key.enums';
+import TenantSubscriptionService from '@/modules/tenant_subscription/tenant_subscription.service';
+import { FEATURE_KEYS } from '@/modules/tenant_subscription/tenant_subscription.feature-keys';
+import { isRootTenant } from '@/modules/tenant/tenant.constants';
 
 const API_KEY_CACHE_TTL = env.TENANT_CACHE_TTL ?? (60 * 5);
 const NEGATIVE_CACHE_TTL = Math.min(60, API_KEY_CACHE_TTL);
@@ -76,6 +79,13 @@ export default class ApiKeyService {
     createdByUserId: string,
     input: CreateApiKeyInput,
   ): Promise<{ key: SafeApiKey; rawKey: string }> {
+    // Defense-in-depth billing gate — the tenant plan must include
+    // `feature_api_keys`. Root tenant is short-circuited (the platform
+    // owner does not buy its own plan).
+    if (!isRootTenant(tenantId)) {
+      await TenantSubscriptionService.assertFeatureAccess(tenantId, FEATURE_KEYS.FEATURE_API_KEYS);
+    }
+
     const rawKey = ApiKeyService.generateRawKey(tenantId);
     const keyHash = ApiKeyService.hashKey(rawKey);
     const keyPrefix = ApiKeyService.extractPrefix(rawKey);
@@ -184,5 +194,36 @@ export default class ApiKeyService {
       .catch(() => {});
 
     return SafeApiKeySchema.parse(row);
+  }
+
+  /**
+   * Verify a raw API key from a request `Authorization: Bearer <key>` header,
+   * optionally pinning the key to a tenant and enforcing a required scope.
+   *
+   * Used by SCIM 2.0 endpoints and other machine-to-machine integrations
+   * where the caller cannot present a session cookie.
+   *
+   * Throws on missing/invalid header, mismatched tenant, or insufficient scope.
+   */
+  static async verifyFromAuthHeader(
+    request: { headers: { get: (name: string) => string | null } },
+    tenantId?: string,
+    requiredScope?: ApiKeyScope,
+  ): Promise<SafeApiKey> {
+    const header = request.headers.get('authorization') || request.headers.get('Authorization');
+    if (!header) throw new Error(ApiKeyMessages.INVALID_KEY);
+
+    const match = /^Bearer\s+(.+)$/i.exec(header.trim());
+    if (!match) throw new Error(ApiKeyMessages.INVALID_KEY);
+
+    const rawKey = match[1].trim();
+    if (!rawKey) throw new Error(ApiKeyMessages.INVALID_KEY);
+
+    const key = await ApiKeyService.verify(rawKey, requiredScope);
+
+    if (tenantId && key.tenantId !== tenantId) {
+      throw new Error(ApiKeyMessages.INVALID_KEY);
+    }
+    return key;
   }
 }

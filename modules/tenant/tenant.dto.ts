@@ -1,10 +1,17 @@
 import { z } from 'zod';
 import { TenantStatusEnum } from './tenant.enums';
 
+export const CreateTenantDefaultsDTO = z.object({
+  skipPlan: z.boolean().optional(),
+  skipSubscription: z.boolean().optional(),
+  skipSettings: z.boolean().optional(),
+}).optional();
+
 export const CreateTenantDTO = z.object({
   name: z.string().min(1).max(100),
   description: z.string().nullable(),
-  region: z.string().default('TR')
+  region: z.string().default('TR'),
+  defaults: CreateTenantDefaultsDTO,
 });
 
 export const UpdateTenantDTO = z.object({

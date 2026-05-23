@@ -25,7 +25,6 @@ SAML 2.0 SSO with per-tenant IdP configuration (SamlConfig entity).
 ## Entities
 
 - `saml_config.entity.ts`
-- `system_saml_config.entity.ts`
 
 ## Enums
 
@@ -38,7 +37,6 @@ SAML 2.0 SSO with per-tenant IdP configuration (SamlConfig entity).
 ## TypeORM entities
 
 - `SamlConfig` (system) — `modules/auth_saml/entities/saml_config.entity.ts`
-- `SystemSamlConfig` (system) — `modules/auth_saml/entities/system_saml_config.entity.ts`
 
 ## Next layer (modules_next/) surface
 
@@ -74,12 +72,12 @@ SAML 2.0 SSO per-tenant module.
 | GET | `/tenant/{id}/api/saml/config` | Get config + metadata (ADMIN) |
 | PUT | `/tenant/{id}/api/saml/config` | Save config (ADMIN) |
 | DELETE | `/tenant/{id}/api/saml/config` | Delete config (ADMIN) |
-| GET | `/system/api/saml/tenants` | List all tenants with SAML (SYSTEM ADMIN) |
+| GET | `/tenant/00000000-0000-4000-8000-000000000000/api/saml/tenants` | List all tenants with SAML (super-admin) |
 
 ## Admin Pages
 
 - **Tenant:** `/tenant/{id}/admin/settings/saml` — 3 tabs: Identity Provider · Attribute Mapping · SP Metadata
-- **System:** `/system/admin/saml` — 2 tabs: Tenant Overview · Setup Guide
+- **System:** `/tenant/00000000-0000-4000-8000-000000000000/admin/saml` — 2 tabs: Tenant Overview · Setup Guide
 
 ## Database
 

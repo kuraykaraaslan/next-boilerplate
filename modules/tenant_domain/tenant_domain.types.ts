@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { DomainStatusEnum, VerificationMethodEnum } from './tenant_domain.enums';
+import { DomainStatusEnum, SslStatusEnum, VerificationMethodEnum } from './tenant_domain.enums';
 
 export const TenantDomainSchema = z.object({
   tenantDomainId: z.string().uuid(),
@@ -9,6 +9,11 @@ export const TenantDomainSchema = z.object({
   domainStatus: DomainStatusEnum.default('PENDING'),
   verificationToken: z.string().nullable(),
   verifiedAt: z.coerce.date().nullable(),
+  sslStatus: SslStatusEnum.default('DISABLED'),
+  sslIssuedAt: z.coerce.date().nullable(),
+  sslExpiresAt: z.coerce.date().nullable(),
+  sslIssuer: z.string().nullable(),
+  sslLastCheckedAt: z.coerce.date().nullable(),
   createdAt: z.coerce.date().nullable(),
   updatedAt: z.coerce.date().nullable()
 });

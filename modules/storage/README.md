@@ -70,3 +70,17 @@ type UploadResult = {
 2. Add to `StorageProvider` enum in `storage.enums.ts`
 3. Register in `storage.service.ts` provider map
 4. Add setting keys in `storage.setting.keys.ts`
+
+---
+
+## Usage tracking & audit (NEW)
+
+Every successful upload now:
+
+1. Inserts an `UploadedFile` row in the tenant DB (`modules/storage/entities/uploaded_file.entity.ts`) — `key`, `bucket`, `provider`, `size`, `mimeType`, `url`, `createdAt`. The row is keyed by `tenantId` and indexed on `userId`/`key`.
+2. Calls `TenantUsageService.incrementStorageBytes(tenantId, result.size)` so the monthly `storageBytes` quota counter (`tenant_usage`) tracks reality.
+
+Deletes soft-remove the matching `UploadedFile` row (`deletedAt` set) — bytes are increment-only on the usage counter (audit-friendly; decrement is a future P2 task).
+
+Audit / usage failures are swallowed — they never break the upload itself.
+

@@ -18,14 +18,14 @@ export default class WeChatPayProvider extends BasePaymentProvider {
 
   private static readonly API_BASE = 'https://api.mch.weixin.qq.com'
 
-  private static async getConfig(): Promise<WeChatPayConfig> {
+  private static async getConfig(tenantId: string): Promise<WeChatPayConfig> {
     const [appId, mchId, privateKey, serialNo, apiV3Key, notifyUrl] = await Promise.all([
-      SettingService.getValue('wechatPayAppId'),
-      SettingService.getValue('wechatPayMchId'),
-      SettingService.getValue('wechatPayPrivateKey'),
-      SettingService.getValue('wechatPaySerialNo'),
-      SettingService.getValue('wechatPayApiV3Key'),
-      SettingService.getValue('wechatPayNotifyUrl'),
+      SettingService.getValue(tenantId, 'wechatPayAppId'),
+      SettingService.getValue(tenantId, 'wechatPayMchId'),
+      SettingService.getValue(tenantId, 'wechatPayPrivateKey'),
+      SettingService.getValue(tenantId, 'wechatPaySerialNo'),
+      SettingService.getValue(tenantId, 'wechatPayApiV3Key'),
+      SettingService.getValue(tenantId, 'wechatPayNotifyUrl'),
     ])
     if (!appId || !mchId || !privateKey || !serialNo) throw new Error(PAYMENT_MESSAGES.PROVIDER_NOT_CONFIGURED)
     return {
@@ -68,11 +68,12 @@ export default class WeChatPayProvider extends BasePaymentProvider {
   }
 
   private async authenticatedRequest<T = any>(
+    tenantId: string,
     method: 'GET' | 'POST',
     urlPath: string,
     body: Record<string, unknown> | null,
   ): Promise<T> {
-    const config = await WeChatPayProvider.getConfig()
+    const config = await WeChatPayProvider.getConfig(tenantId)
     const bodyStr = body ? JSON.stringify(body) : ''
     const authHeader = WeChatPayProvider.buildAuthHeader(config, method, urlPath, bodyStr)
 
@@ -97,20 +98,23 @@ export default class WeChatPayProvider extends BasePaymentProvider {
     })
   }
 
-  async getPaymentStatus(token: string): Promise<any> {
+  async getPaymentStatus(tenantId: string, token: string): Promise<any> {
     try {
-      const config = await WeChatPayProvider.getConfig()
+      const config = await WeChatPayProvider.getConfig(tenantId)
       const urlPath = `/v3/pay/transactions/out-trade-no/${encodeURIComponent(token)}?mchid=${encodeURIComponent(config.mchId)}`
-      const data = await this.authenticatedRequest('GET', urlPath, null)
+      const data: any = await this.authenticatedRequest(tenantId, 'GET', urlPath, null)
       return data?.trade_state || data
     } catch (error) {
       throw new Error(PAYMENT_MESSAGES.WECHATPAY_GET_STATUS_FAILED)
     }
   }
 
-  async createCheckoutSession(params: CheckoutSessionParams): Promise<CheckoutSessionResult> {
+  async createCheckoutSession(
+    tenantId: string,
+    params: CheckoutSessionParams,
+  ): Promise<CheckoutSessionResult> {
     try {
-      const config = await WeChatPayProvider.getConfig()
+      const config = await WeChatPayProvider.getConfig(tenantId)
       const outTradeNo = params.metadata?.paymentId || `${Date.now()}`
       const notifyUrl = params.metadata?.notifyUrl || config.notifyUrl || params.successUrl
 
@@ -127,6 +131,7 @@ export default class WeChatPayProvider extends BasePaymentProvider {
       }
 
       const data = await this.authenticatedRequest<{ code_url: string }>(
+        tenantId,
         'POST',
         '/v3/pay/transactions/native',
         body,

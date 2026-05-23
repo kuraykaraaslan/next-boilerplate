@@ -23,11 +23,18 @@ vi.mock('@/modules/db', () => ({
 vi.mock('@/modules/redis', () => ({
   default: {
     get: vi.fn(async () => null),
-    set: vi.fn(),
-    del: vi.fn(),
-    ping: vi.fn(),
+    set: vi.fn(async () => 'OK'),
+    setex: vi.fn(async () => 'OK'),
+    del: vi.fn(async () => 1),
+    ping: vi.fn(async () => 'PONG'),
+    mget: vi.fn(async () => []),
+    incrby: vi.fn(async () => 1),
+    expire: vi.fn(async () => 1),
     keys: vi.fn(async () => []),
+    exists: vi.fn(async () => 0),
   },
+  singleFlight: async (_key: string, fn: () => Promise<unknown>) => fn(),
+  jitter: (n: number) => n,
 }));
 
 vi.mock('@/modules/logger', () => ({
@@ -165,7 +172,7 @@ describe('TenantSubscriptionService.createPlan', () => {
 
   it('creates and returns a plan', async () => {
     mockSystemDs();
-    const result = await TenantSubscriptionService.createPlan({
+    const result = await TenantSubscriptionService.createPlan(TENANT_ID, {
       name: 'Basic Plan',
       monthlyPrice: 9.99,
       yearlyPrice: 99.99,
@@ -184,7 +191,7 @@ describe('TenantSubscriptionService.updatePlan', () => {
 
   it('throws PLAN_NOT_FOUND when plan does not exist', async () => {
     mockSystemDs(null);
-    await expect(TenantSubscriptionService.updatePlan(PLAN_ID, { name: 'Updated' }))
+    await expect(TenantSubscriptionService.updatePlan(TENANT_ID, PLAN_ID, { name: 'Updated' }))
       .rejects.toThrow(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND);
   });
 
@@ -195,7 +202,7 @@ describe('TenantSubscriptionService.updatePlan', () => {
       .mockResolvedValueOnce({ ...mockPlan, name: 'Updated' }); // after update
     (getSystemDataSource as any).mockResolvedValue({ getRepository: () => sysRepo });
 
-    const result = await TenantSubscriptionService.updatePlan(PLAN_ID, { name: 'Updated' });
+    const result = await TenantSubscriptionService.updatePlan(TENANT_ID, PLAN_ID, { name: 'Updated' });
     expect(result.name).toBe('Updated');
   });
 });
@@ -206,7 +213,7 @@ describe('TenantSubscriptionService.deletePlan', () => {
   it('throws PLAN_NOT_FOUND when plan does not exist', async () => {
     const sysRepo = makeSystemRepo(null);
     (getSystemDataSource as any).mockResolvedValue({ getRepository: () => sysRepo });
-    await expect(TenantSubscriptionService.deletePlan(PLAN_ID))
+    await expect(TenantSubscriptionService.deletePlan(TENANT_ID, PLAN_ID))
       .rejects.toThrow(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND);
   });
 
@@ -216,7 +223,7 @@ describe('TenantSubscriptionService.deletePlan', () => {
     subRepo.count = vi.fn(async () => 1);
     (getDefaultTenantDataSource as any).mockResolvedValue({ getRepository: () => subRepo });
 
-    await expect(TenantSubscriptionService.deletePlan(PLAN_ID))
+    await expect(TenantSubscriptionService.deletePlan(TENANT_ID, PLAN_ID))
       .rejects.toThrow(SUBSCRIPTION_MESSAGES.PLAN_HAS_SUBSCRIPTIONS);
   });
 
@@ -226,7 +233,7 @@ describe('TenantSubscriptionService.deletePlan', () => {
     subRepo.count = vi.fn(async () => 0);
     (getDefaultTenantDataSource as any).mockResolvedValue({ getRepository: () => subRepo });
 
-    await expect(TenantSubscriptionService.deletePlan(PLAN_ID)).resolves.toBeUndefined();
+    await expect(TenantSubscriptionService.deletePlan(TENANT_ID, PLAN_ID)).resolves.toBeUndefined();
     expect(sysRepo.delete).toHaveBeenCalled();
   });
 });
@@ -236,13 +243,13 @@ describe('TenantSubscriptionService.getPlanById', () => {
 
   it('throws PLAN_NOT_FOUND for unknown planId', async () => {
     mockSystemDs(null);
-    await expect(TenantSubscriptionService.getPlanById('unknown-id'))
+    await expect(TenantSubscriptionService.getPlanById(TENANT_ID, 'unknown-id'))
       .rejects.toThrow(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND);
   });
 
   it('returns the plan', async () => {
     mockSystemDs();
-    const result = await TenantSubscriptionService.getPlanById(PLAN_ID);
+    const result = await TenantSubscriptionService.getPlanById(TENANT_ID, PLAN_ID);
     expect(result.planId).toBe(PLAN_ID);
   });
 });
@@ -255,7 +262,7 @@ describe('TenantSubscriptionService.addFeature', () => {
   it('throws PLAN_NOT_FOUND when plan does not exist', async () => {
     mockSystemDs(null);
     await expect(
-      TenantSubscriptionService.addFeature(PLAN_ID, {
+      TenantSubscriptionService.addFeature(TENANT_ID, PLAN_ID, {
         key: 'f1',
         label: 'F1',
         type: 'BOOLEAN',
@@ -270,7 +277,7 @@ describe('TenantSubscriptionService.addFeature', () => {
     sysRepo.save = vi.fn(async (e: any) => ({ ...mockFeature, ...e }));
     (getSystemDataSource as any).mockResolvedValue({ getRepository: () => sysRepo });
 
-    const result = await TenantSubscriptionService.addFeature(PLAN_ID, {
+    const result = await TenantSubscriptionService.addFeature(TENANT_ID, PLAN_ID, {
       key: 'feature_chat',
       label: 'Chat',
       type: 'BOOLEAN',
@@ -287,7 +294,7 @@ describe('TenantSubscriptionService.updateFeature', () => {
   it('throws FEATURE_NOT_FOUND when feature does not exist', async () => {
     const sysRepo = makeSystemRepo(mockPlan, null);
     (getSystemDataSource as any).mockResolvedValue({ getRepository: () => sysRepo });
-    await expect(TenantSubscriptionService.updateFeature(FEATURE_ID, { label: 'New' }))
+    await expect(TenantSubscriptionService.updateFeature(TENANT_ID, FEATURE_ID, { label: 'New' }))
       .rejects.toThrow(SUBSCRIPTION_MESSAGES.FEATURE_NOT_FOUND);
   });
 });
@@ -298,14 +305,14 @@ describe('TenantSubscriptionService.removeFeature', () => {
   it('throws FEATURE_NOT_FOUND when feature does not exist', async () => {
     const sysRepo = makeSystemRepo(mockPlan, null);
     (getSystemDataSource as any).mockResolvedValue({ getRepository: () => sysRepo });
-    await expect(TenantSubscriptionService.removeFeature(FEATURE_ID))
+    await expect(TenantSubscriptionService.removeFeature(TENANT_ID, FEATURE_ID))
       .rejects.toThrow(SUBSCRIPTION_MESSAGES.FEATURE_NOT_FOUND);
   });
 
   it('deletes the feature successfully', async () => {
     const sysRepo = makeSystemRepo();
     (getSystemDataSource as any).mockResolvedValue({ getRepository: () => sysRepo });
-    await expect(TenantSubscriptionService.removeFeature(FEATURE_ID)).resolves.toBeUndefined();
+    await expect(TenantSubscriptionService.removeFeature(TENANT_ID, FEATURE_ID)).resolves.toBeUndefined();
     expect(sysRepo.delete).toHaveBeenCalled();
   });
 });

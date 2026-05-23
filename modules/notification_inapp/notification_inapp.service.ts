@@ -1,17 +1,29 @@
 import 'reflect-metadata';
 import { Redis } from 'ioredis';
 import redis, { createRedisConnection } from '@/modules/redis';
-import { getSystemDataSource } from '@/modules/db';
-import { User as UserEntity } from '../user/entities/user.entity';
+import { tenantDataSourceFor } from '@/modules/db';
+import { TenantMember } from '@/modules/tenant_member/entities/tenant_member.entity';
 import { v4 as uuid } from 'uuid';
 import type { Notification, NotificationPayload } from './notification_inapp.types';
-import type { UserRole } from '../user/user.enums';
 import NotificationPushService from '../notification_push/notification_push.service';
 
+/**
+ * NotificationInAppService is fully tenant-scoped. Redis keys and pub/sub
+ * channels include the tenantId so the same userId in tenant A can never
+ * see notifications addressed to that user in tenant B.
+ *
+ * Key formats:
+ *   - inbox hash:   notifications:{tenantId}:{userId}
+ *   - read set:     notifications_read:{tenantId}:{userId}
+ *   - pub/sub:      notifications:tenant:{tenantId}:user:{userId}
+ */
 export default class NotificationInAppService {
-  private static notifKey = (userId: string) => `notifications:${userId}`;
-  private static readKey = (userId: string) => `notifications_read:${userId}`;
-  private static channel = (userId: string) => `notifications:${userId}`;
+  private static notifKey = (tenantId: string, userId: string) =>
+    `notifications:${tenantId}:${userId}`;
+  private static readKey = (tenantId: string, userId: string) =>
+    `notifications_read:${tenantId}:${userId}`;
+  static channel = (tenantId: string, userId: string) =>
+    `notifications:tenant:${tenantId}:user:${userId}`;
 
   static MAX_PER_USER = 50;
   static TTL = 7 * 24 * 60 * 60;
@@ -20,7 +32,11 @@ export default class NotificationInAppService {
     return createRedisConnection();
   }
 
-  static async push(userId: string, data: NotificationPayload): Promise<Notification> {
+  static async push(
+    tenantId: string,
+    userId: string,
+    data: NotificationPayload
+  ): Promise<Notification> {
     const notification: Notification = {
       notificationId: uuid(),
       title: data.title,
@@ -30,11 +46,11 @@ export default class NotificationInAppService {
       createdAt: new Date().toISOString(),
     };
 
-    const key = this.notifKey(userId);
+    const key = this.notifKey(tenantId, userId);
     await redis.hset(key, notification.notificationId, JSON.stringify(notification));
     await redis.expire(key, this.TTL);
 
-    const all = await this.getAll(userId);
+    const all = await this.getAll(tenantId, userId);
     if (all.length > this.MAX_PER_USER) {
       const oldest = all
         .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
@@ -44,9 +60,9 @@ export default class NotificationInAppService {
       }
     }
 
-    await redis.publish(this.channel(userId), JSON.stringify(notification));
+    await redis.publish(this.channel(tenantId, userId), JSON.stringify(notification));
 
-    NotificationPushService.sendToUser(userId, {
+    NotificationPushService.sendToUser(tenantId, userId, {
       title: data.title,
       body: data.message,
       url: data.path ?? '/',
@@ -55,37 +71,49 @@ export default class NotificationInAppService {
     return notification;
   }
 
-  static async pushToUsers(userIds: string[], data: NotificationPayload): Promise<void> {
-    await Promise.all(userIds.map((id) => this.push(id, data)));
+  static async pushToUsers(
+    tenantId: string,
+    userIds: string[],
+    data: NotificationPayload
+  ): Promise<void> {
+    await Promise.all(userIds.map((id) => this.push(tenantId, id, data)));
   }
 
-  static async pushToRole(role: UserRole, data: NotificationPayload): Promise<void> {
-    const ds = await getSystemDataSource();
-    const users = await ds.getRepository(UserEntity).find({
-      where: { userRole: role },
+  static async pushToRole(
+    tenantId: string,
+    role: string,
+    data: NotificationPayload
+  ): Promise<void> {
+    const ds = await tenantDataSourceFor(tenantId);
+    const members = await ds.getRepository(TenantMember).find({
+      where: { tenantId, memberRole: role, memberStatus: 'ACTIVE' },
       select: ['userId'],
     });
-    await Promise.all(users.map((u) => this.push(u.userId, data)));
+    await Promise.all(members.map((m) => this.push(tenantId, m.userId, data)));
   }
 
-  static async pushToAdmins(data: NotificationPayload): Promise<void> {
-    await this.pushToRole('ADMIN', data);
+  static async pushToAdmins(tenantId: string, data: NotificationPayload): Promise<void> {
+    await this.pushToRole(tenantId, 'ADMIN', data);
   }
 
-  static async pushToAll(data: NotificationPayload): Promise<void> {
-    const ds = await getSystemDataSource();
-    const users = await ds.getRepository(UserEntity).find({
-      where: { userStatus: 'ACTIVE' },
+  /**
+   * Broadcast to every active member of {tenantId}. Scoped to a single
+   * tenant — there is no cross-tenant broadcast by design.
+   */
+  static async pushToAll(tenantId: string, data: NotificationPayload): Promise<void> {
+    const ds = await tenantDataSourceFor(tenantId);
+    const members = await ds.getRepository(TenantMember).find({
+      where: { tenantId, memberStatus: 'ACTIVE' },
       select: ['userId'],
     });
-    await Promise.all(users.map((u) => this.push(u.userId, data)));
+    await Promise.all(members.map((m) => this.push(tenantId, m.userId, data)));
   }
 
-  static async getAll(userId: string): Promise<Notification[]> {
-    const raw = await redis.hgetall(this.notifKey(userId));
+  static async getAll(tenantId: string, userId: string): Promise<Notification[]> {
+    const raw = await redis.hgetall(this.notifKey(tenantId, userId));
     if (!raw) return [];
 
-    const readIds = await this.getReadIds(userId);
+    const readIds = await this.getReadIds(tenantId, userId);
     const notifications: Notification[] = Object.values(raw).map((json) => {
       const n: Notification = JSON.parse(json);
       return { ...n, isRead: readIds.has(n.notificationId) };
@@ -96,41 +124,49 @@ export default class NotificationInAppService {
     );
   }
 
-  static async unreadCount(userId: string): Promise<number> {
-    const all = await this.getAll(userId);
+  static async unreadCount(tenantId: string, userId: string): Promise<number> {
+    const all = await this.getAll(tenantId, userId);
     return all.filter((n) => !n.isRead).length;
   }
 
-  static async markAsRead(userId: string, notificationId: string): Promise<void> {
-    const key = this.readKey(userId);
+  static async markAsRead(
+    tenantId: string,
+    userId: string,
+    notificationId: string
+  ): Promise<void> {
+    const key = this.readKey(tenantId, userId);
     await redis.sadd(key, notificationId);
     await redis.expire(key, this.TTL);
   }
 
-  static async markAllAsRead(userId: string): Promise<void> {
-    const all = await this.getAll(userId);
+  static async markAllAsRead(tenantId: string, userId: string): Promise<void> {
+    const all = await this.getAll(tenantId, userId);
     if (!all.length) return;
-    const key = this.readKey(userId);
+    const key = this.readKey(tenantId, userId);
     await redis.sadd(key, ...all.map((n) => n.notificationId));
     await redis.expire(key, this.TTL);
   }
 
-  static async deleteOne(userId: string, notificationId: string): Promise<void> {
+  static async deleteOne(
+    tenantId: string,
+    userId: string,
+    notificationId: string
+  ): Promise<void> {
     await Promise.all([
-      redis.hdel(this.notifKey(userId), notificationId),
-      redis.srem(this.readKey(userId), notificationId),
+      redis.hdel(this.notifKey(tenantId, userId), notificationId),
+      redis.srem(this.readKey(tenantId, userId), notificationId),
     ]);
   }
 
-  static async clearAll(userId: string): Promise<void> {
+  static async clearAll(tenantId: string, userId: string): Promise<void> {
     await Promise.all([
-      redis.del(this.notifKey(userId)),
-      redis.del(this.readKey(userId)),
+      redis.del(this.notifKey(tenantId, userId)),
+      redis.del(this.readKey(tenantId, userId)),
     ]);
   }
 
-  private static async getReadIds(userId: string): Promise<Set<string>> {
-    const members = await redis.smembers(this.readKey(userId));
+  private static async getReadIds(tenantId: string, userId: string): Promise<Set<string>> {
+    const members = await redis.smembers(this.readKey(tenantId, userId));
     return new Set(members);
   }
 }

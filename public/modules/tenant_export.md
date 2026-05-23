@@ -32,30 +32,60 @@ GDPR Article 20 (data portability) — allows a tenant OWNER to download all ten
 
 `TenantExportService.exportTenantData(tenantId)` queries the tenant's own database via `tenantDataSourceFor(tenantId)` and returns a `Buffer` containing a formatted JSON document with the following collections:
 
-| Field        | Source entity      | Notes                                      |
-|--------------|--------------------|--------------------------------------------|
-| `members`    | `TenantMember`     | All member rows (role, status, timestamps) |
-| `domains`    | `TenantDomain`     | All custom domains and their verification status |
-| `auditLogs`  | `TenantAuditLog`   | Last 1 000 entries, ordered newest-first   |
-| `webhooks`   | `Webhook`          | Endpoint config; **signing secret omitted** |
-| `settings`   | `TenantSetting`    | All key/value settings rows; `null` if none |
+| Field                 | Source entity         | Notes                                                          |
+|-----------------------|-----------------------|----------------------------------------------------------------|
+| `members`             | `TenantMember`        | All member rows (role, status, timestamps)                     |
+| `domains`             | `TenantDomain`        | All custom domains and their verification status               |
+| `auditLogs`           | `AuditLog`            | Last 1 000 entries, ordered newest-first                       |
+| `webhooks`            | `Webhook`             | Endpoint config; **signing secret omitted**                    |
+| `webhookDeliveries`   | `WebhookDelivery`     | Per-attempt delivery log (status, response code, retry count)  |
+| `settings`            | `Setting`             | All key/value settings rows; `null` if none                    |
+| `payments`            | `Payment`             | Payment intents / charges scoped to this tenant                |
+| `paymentTransactions` | `PaymentTransaction`  | Provider-side transaction ledger (joined via `Payment.tenantId`) |
+| `subscriptions`       | `TenantSubscription`  | Active and historical plan subscriptions                       |
+| `subscriptionPlans`   | `SubscriptionPlan`    | Tenant-owned plans (price, interval, currency)                 |
+| `planFeatures`        | `PlanFeature`         | Feature flags attached to each plan                            |
+| `coupons`             | `Coupon`              | Tenant-owned promo codes                                       |
+| `couponRedemptions`   | `CouponRedemption`    | Who redeemed which coupon, when                                |
+| `apiKeys`             | `ApiKey`              | API key metadata; **`keyHash` omitted**                        |
+| `samlConfigs`         | `SamlConfig`          | SAML 2.0 IdP/SP config; **`spPrivateKey` omitted**             |
+| `uploadedFiles`       | `UploadedFile`        | Object-storage file metadata (key, size, mime, owner)          |
+| `aiUsageLogs`         | `AiUsageLog`          | LLM usage records (provider, model, tokens, cost)              |
+| `notificationLogs`    | `NotificationLog`     | Outbound email/SMS delivery records                            |
+| `tenantUsage`         | `TenantUsage`         | Aggregated usage counters (requests, storage, seats)           |
 
 ## What it omits
 
 - **Webhook signing secrets** (`secret` column) — HMAC-SHA256 secrets are stripped before serialisation.
+- **API key hashes** (`keyHash` column) — SHA-256 digests are stripped; raw keys are never persisted.
+- **SAML SP private keys** (`spPrivateKey` column) — service-provider signing keys are stripped.
 - **User passwords** — passwords live on the `User` entity in the system database, not in the tenant DB.
 
 ## Response format
 
 ```json
 {
-  "exportedAt": "2026-05-08T12:00:00.000Z",
+  "exportedAt": "2026-05-23T12:00:00.000Z",
   "tenantId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
   "members": [ ... ],
   "domains": [ ... ],
   "auditLogs": [ ... ],
   "webhooks": [ ... ],
-  "settings": [ ... ]
+  "webhookDeliveries": [ ... ],
+  "settings": [ ... ],
+  "payments": [ ... ],
+  "paymentTransactions": [ ... ],
+  "subscriptions": [ ... ],
+  "subscriptionPlans": [ ... ],
+  "planFeatures": [ ... ],
+  "coupons": [ ... ],
+  "couponRedemptions": [ ... ],
+  "apiKeys": [ ... ],
+  "samlConfigs": [ ... ],
+  "uploadedFiles": [ ... ],
+  "aiUsageLogs": [ ... ],
+  "notificationLogs": [ ... ],
+  "tenantUsage": [ ... ]
 }
 ```
 

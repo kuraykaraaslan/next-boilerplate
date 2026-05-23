@@ -1,0 +1,13 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "scim",
+  "name": "SCIM 2.0",
+  "description": "System for Cross-domain Identity Management (RFC 7643/7644). Lets enterprise IdPs (Okta, Azure AD, OneLogin, Google Workspace) auto-provision and deprovision tenant members.",
+  "version": "1.0.0",
+  "icon": "fas fa-id-card",
+  "tags": ["identity", "enterprise", "provisioning", "sso"],
+  "priority": 17,
+  "dependencies": {
+    "requires": ["db", "user", "tenant_member", "api_key", "audit_log"]
+  }
+}

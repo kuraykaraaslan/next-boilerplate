@@ -9,7 +9,7 @@ import { SafeTenantDomain, SafeTenantDomainSchema, DomainVerificationInfo } from
 import { CreateTenantDomainInput, UpdateTenantDomainInput, GetTenantDomainsInput, InitiateVerificationInput } from './tenant_domain.dto';
 import TenantDomainMessages from './tenant_domain.messages';
 import DNSVerificationService from './dns_verification.service';
-import TenantSettingService from '@/modules/tenant_setting/tenant_setting.service';
+import SettingService from '@/modules/setting/setting.service';
 
 const DOMAIN_CACHE_TTL = env.TENANT_CACHE_TTL ?? (60 * 5);
 
@@ -125,8 +125,8 @@ export default class TenantDomainService {
     const [domainCount, subdomainCount, maxDomainsSetting, maxSubdomainsSetting] = await Promise.all([
       repo.count({ where: { tenantId: data.tenantId, domain: Not(Like(`%.${wildcardDomain}`)) } }),
       repo.count({ where: { tenantId: data.tenantId, domain: Like(`%.${wildcardDomain}`) } }),
-      TenantSettingService.getByKey(data.tenantId, 'maxDomains'),
-      TenantSettingService.getByKey(data.tenantId, 'maxSubdomains'),
+      SettingService.getByKey(data.tenantId, 'maxDomains'),
+      SettingService.getByKey(data.tenantId, 'maxSubdomains'),
     ]);
 
     const maxDomains = maxDomainsSetting ? parseInt(maxDomainsSetting.value) : 3;
@@ -197,7 +197,7 @@ export default class TenantDomainService {
       recordValue: method === 'TXT'
         ? DNSVerificationService.getTxtRecordValue(token)
         : DNSVerificationService.getCnameRecordTarget(),
-      domainStatus: domain.domainStatus as "ACTIVE" | "INACTIVE" | "PENDING" | "VERIFIED",
+      domainStatus: domain.domainStatus as "ACTIVE" | "INACTIVE" | "PENDING" | "VERIFIED" | "DNS_FAILED",
     };
   }
 
@@ -229,7 +229,7 @@ export default class TenantDomainService {
       method: verification.method,
       recordName: verification.recordName,
       recordValue: verification.recordValue,
-      domainStatus: domain.domainStatus as "ACTIVE" | "INACTIVE" | "PENDING" | "VERIFIED",
+      domainStatus: domain.domainStatus as "ACTIVE" | "INACTIVE" | "PENDING" | "VERIFIED" | "DNS_FAILED",
     };
   }
 

@@ -12,16 +12,30 @@ vi.mock('@/modules/env', () => ({
 }));
 
 vi.mock('@/modules/db', () => ({
-  getSystemDataSource: vi.fn(),
-  SystemDataSource: { isInitialized: false, initialize: vi.fn(), getRepository: vi.fn() },
   tenantDataSourceFor: vi.fn(),
+  SystemDataSource: { isInitialized: false, initialize: vi.fn(), getRepository: vi.fn() },
 }));
 
-vi.mock('@/modules/redis', () => ({ default: { get: vi.fn(), set: vi.fn(), del: vi.fn(), ping: vi.fn() } }));
+vi.mock('@/modules/redis', () => ({
+  default: {
+    get: vi.fn(async () => null),
+    set: vi.fn(async () => 'OK'),
+    setex: vi.fn(async () => 'OK'),
+    del: vi.fn(async () => 1),
+    ping: vi.fn(async () => 'PONG'),
+    mget: vi.fn(async () => []),
+    incrby: vi.fn(async () => 1),
+    expire: vi.fn(async () => 1),
+    keys: vi.fn(async () => []),
+    exists: vi.fn(async () => 0),
+  },
+  singleFlight: async (_key: string, fn: () => Promise<unknown>) => fn(),
+  jitter: (n: number) => n,
+}));
 vi.mock('@/modules/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
 
 import CouponService from './coupon.service';
-import { getSystemDataSource, tenantDataSourceFor } from '@/modules/db';
+import { tenantDataSourceFor } from '@/modules/db';
 import { COUPON_MESSAGES } from './coupon.messages';
 
 const COUPON_ID = '550e8400-e29b-41d4-a716-446655440000';
@@ -29,6 +43,7 @@ const TENANT_ID = '660e8400-e29b-41d4-a716-446655440001';
 const PLAN_ID = '770e8400-e29b-41d4-a716-446655440002';
 
 const mockCoupon = {
+  tenantId: TENANT_ID,
   couponId: COUPON_ID,
   code: 'SAVE20',
   name: '20% Off',
@@ -60,7 +75,7 @@ function makeCouponRepo(coupon: typeof mockCoupon | null = mockCoupon) {
 
 function setupSystemDs(coupon: typeof mockCoupon | null = mockCoupon) {
   const repo = makeCouponRepo(coupon);
-  (getSystemDataSource as any).mockResolvedValue({ getRepository: () => repo });
+  (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => repo });
   return repo;
 }
 
@@ -117,12 +132,12 @@ describe('CouponService.getById', () => {
 
   it('throws NOT_FOUND when coupon does not exist', async () => {
     setupSystemDs(null);
-    await expect(CouponService.getById(COUPON_ID)).rejects.toThrow(COUPON_MESSAGES.NOT_FOUND);
+    await expect(CouponService.getById(TENANT_ID, COUPON_ID)).rejects.toThrow(COUPON_MESSAGES.NOT_FOUND);
   });
 
   it('returns parsed coupon on success', async () => {
     setupSystemDs(mockCoupon);
-    const result = await CouponService.getById(COUPON_ID);
+    const result = await CouponService.getById(TENANT_ID, COUPON_ID);
     expect(result.couponId).toBe(COUPON_ID);
     expect(result.code).toBe('SAVE20');
   });
@@ -133,13 +148,13 @@ describe('CouponService.getByCode', () => {
 
   it('returns null when coupon code not found', async () => {
     setupSystemDs(null);
-    const result = await CouponService.getByCode('UNKNOWN');
+    const result = await CouponService.getByCode(TENANT_ID, 'UNKNOWN');
     expect(result).toBeNull();
   });
 
   it('returns coupon when found', async () => {
     setupSystemDs(mockCoupon);
-    const result = await CouponService.getByCode('SAVE20');
+    const result = await CouponService.getByCode(TENANT_ID, 'SAVE20');
     expect(result?.code).toBe('SAVE20');
   });
 });
@@ -149,7 +164,7 @@ describe('CouponService.create', () => {
 
   it('throws CODE_EXISTS when a coupon with that code already exists', async () => {
     setupSystemDs(mockCoupon);
-    await expect(CouponService.create({
+    await expect(CouponService.create(TENANT_ID, {
       code: 'SAVE20',
       name: 'Duplicate',
       discountType: 'PERCENTAGE',
@@ -162,9 +177,9 @@ describe('CouponService.create', () => {
     const repo = makeCouponRepo(null);
     // First findOne (exists check) returns null; save returns mockCoupon
     repo.save.mockResolvedValueOnce(mockCoupon);
-    (getSystemDataSource as any).mockResolvedValue({ getRepository: () => repo });
+    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => repo });
 
-    const result = await CouponService.create({
+    const result = await CouponService.create(TENANT_ID, {
       code: 'NEW10',
       name: '10% Off',
       discountType: 'PERCENTAGE',
@@ -181,14 +196,14 @@ describe('CouponService.getAll', () => {
 
   it('returns coupons list and total', async () => {
     setupSystemDs(mockCoupon);
-    const result = await CouponService.getAll({ page: 0, pageSize: 20 });
+    const result = await CouponService.getAll(TENANT_ID, { page: 0, pageSize: 20 });
     expect(result.total).toBe(1);
     expect(result.coupons).toHaveLength(1);
   });
 
   it('returns empty list when no coupons', async () => {
     setupSystemDs(null);
-    const result = await CouponService.getAll({ page: 0, pageSize: 20 });
+    const result = await CouponService.getAll(TENANT_ID, { page: 0, pageSize: 20 });
     expect(result.coupons).toHaveLength(0);
     expect(result.total).toBe(0);
   });
@@ -199,7 +214,7 @@ describe('CouponService.update', () => {
 
   it('throws NOT_FOUND when coupon does not exist', async () => {
     setupSystemDs(null);
-    await expect(CouponService.update(COUPON_ID, { name: 'New Name' })).rejects.toThrow(COUPON_MESSAGES.NOT_FOUND);
+    await expect(CouponService.update(TENANT_ID, COUPON_ID, { name: 'New Name' })).rejects.toThrow(COUPON_MESSAGES.NOT_FOUND);
   });
 
   it('updates and returns coupon on success', async () => {
@@ -207,9 +222,9 @@ describe('CouponService.update', () => {
     repo.findOne
       .mockResolvedValueOnce(mockCoupon)   // exists check
       .mockResolvedValueOnce({ ...mockCoupon, name: 'Updated Name' }); // after update
-    (getSystemDataSource as any).mockResolvedValue({ getRepository: () => repo });
+    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => repo });
 
-    const result = await CouponService.update(COUPON_ID, { name: 'Updated Name' });
+    const result = await CouponService.update(TENANT_ID, COUPON_ID, { name: 'Updated Name' });
     expect(result.name).toBe('Updated Name');
   });
 });
@@ -219,13 +234,13 @@ describe('CouponService.archive', () => {
 
   it('throws NOT_FOUND when coupon does not exist', async () => {
     setupSystemDs(null);
-    await expect(CouponService.archive(COUPON_ID)).rejects.toThrow(COUPON_MESSAGES.NOT_FOUND);
+    await expect(CouponService.archive(TENANT_ID, COUPON_ID)).rejects.toThrow(COUPON_MESSAGES.NOT_FOUND);
   });
 
   it('calls repo.update with ARCHIVED status', async () => {
     const repo = makeCouponRepo(mockCoupon);
-    (getSystemDataSource as any).mockResolvedValue({ getRepository: () => repo });
-    await CouponService.archive(COUPON_ID);
+    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => repo });
+    await CouponService.archive(TENANT_ID, COUPON_ID);
     expect(repo.update).toHaveBeenCalledWith({ couponId: COUPON_ID }, { status: 'ARCHIVED' });
   });
 });
@@ -286,7 +301,7 @@ describe('CouponService.validate', () => {
   it('returns valid result with computed discount for happy path', async () => {
     const repo = makeCouponRepo(mockCoupon);
     // Also need tenant DS for per-tenant check (maxUsesPerTenant is null so not called)
-    (getSystemDataSource as any).mockResolvedValue({ getRepository: () => repo });
+    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => repo });
 
     const result = await CouponService.validate({ code: 'SAVE20', tenantId: TENANT_ID, amount: 100 });
     expect(result.valid).toBe(true);

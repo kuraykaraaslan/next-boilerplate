@@ -17,11 +17,13 @@ This project follows strict security standards to ensure the confidentiality, in
 - Access and refresh tokens are separately signed secrets (`ACCESS_TOKEN_SECRET`, `REFRESH_TOKEN_SECRET`).
 - Token revocation is supported via `user_session` invalidation.
 - **Passkeys (WebAuthn)** are supported as a phishing-resistant alternative to passwords.
+- **SAML JIT provisioning** (opt-in per tenant via `SamlConfig.allowJitProvisioning`) auto-creates `User` + `TenantMember` rows from SAML assertion attributes on first login; SAML attribute → `memberRole` mapping configurable via `SamlConfig.roleAttribute`. Every JIT creation is audit-logged with action `saml.jit_provisioned`.
+- **SCIM 2.0 provisioning** at `/tenant/{tenantId}/api/scim/v2/...` accepts user create/update/delete from enterprise IdPs (Okta, Azure AD, OneLogin, Google Workspace). Bearer auth via tenant-issued `ApiKey` with scope `scim:write`. Each provisioning mutation is audit-logged. See [ADR 0004](docs/adr/0004-scim-provisioning.md).
 
 ### 3. Authorization (RBAC)
 - Role-Based Access Control is enforced at the **route** and **service** level.
-- System-scope and tenant-scope roles are kept strictly separated.
-- Admin impersonation (`auth_impersonation`) is gated behind system-admin privileges and fully audit-logged.
+- Super-admin = a `TenantMember` of the root tenant (`ROOT_TENANT_ID`) with `memberRole='ADMIN'`. Customer-tenant roles are isolated per tenant.
+- Admin impersonation (`auth_impersonation`) is gated behind root-tenant super-admin and fully audit-logged.
 
 ### 4. CSRF Protection
 - All state-mutating requests are protected using a **CSRF secret** (`CSRF_SECRET`).
@@ -33,9 +35,12 @@ This project follows strict security standards to ensure the confidentiality, in
 - Protection against brute-force, credential stuffing, and abuse.
 
 ### 6. Multi-Tenancy Isolation
-- System and tenant data live in **separate database schemas/connections**.
-- Tenant context is resolved in middleware and propagated explicitly — no ambient globals.
-- Tenant-scoped API routes (`/tenant/[tenantId]/api/...`) require a valid tenant session.
+- Every tenant-scope entity carries a `tenantId` column; every service-layer query filters on it (`where: { tenantId }`).
+- `tenantDataSourceFor(tenantId)` enforces a per-tenant TypeORM DataSource. By default each tenant shares the same Postgres schema; operators may point individual tenants at dedicated databases via the `TenantDatabase` table.
+- Tenant context is resolved in `proxy.ts` middleware and propagated explicitly through route params (`/tenant/[tenantId]/...`) — there are no ambient globals.
+- Tenant-scoped API routes (`/tenant/[tenantId]/api/...`) require a valid tenant session via `TenantSessionNextService.authenticateTenantByRequest`.
+- Tenant status (`SUSPENDED`/`INACTIVE`) is enforced in the auth pipeline; suspended tenants cannot transact even from the global-admin bypass path.
+- Defense-in-depth caveat: enforcement is currently application-layer only. A future hardening step is Postgres row-level security (RLS) so a forgotten `where: { tenantId }` cannot leak data.
 
 ### 7. Session Management
 - Sessions are tracked in the database via `user_session` and cached in Redis.
@@ -75,7 +80,7 @@ This project follows strict security standards to ensure the confidentiality, in
 
 ### 15. Logging & Audit Trail
 - Structured logs are written via **Winston** (`modules/logger`) with console and file transports.
-- User actions are recorded in `audit_log` (system-scoped and tenant-scoped).
+- User actions are recorded in `audit_log` (root-tenant-scoped for platform events, per-tenant for customer events).
 - Each permission denial, impersonation event, and session change is logged.
 
 ---

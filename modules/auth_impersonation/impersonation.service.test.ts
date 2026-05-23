@@ -25,7 +25,20 @@ vi.mock('@/modules/db', () => ({
 }));
 
 vi.mock('@/modules/redis', () => ({
-  default: { get: vi.fn(), set: vi.fn(), del: vi.fn(), ping: vi.fn() },
+  default: {
+    get: vi.fn(async () => null),
+    set: vi.fn(async () => 'OK'),
+    setex: vi.fn(async () => 'OK'),
+    del: vi.fn(async () => 1),
+    ping: vi.fn(async () => 'PONG'),
+    mget: vi.fn(async () => []),
+    incrby: vi.fn(async () => 1),
+    expire: vi.fn(async () => 1),
+    keys: vi.fn(async () => []),
+    exists: vi.fn(async () => 0),
+  },
+  singleFlight: async (_key: string, fn: () => Promise<unknown>) => fn(),
+  jitter: (n: number) => n,
 }));
 
 vi.mock('@/modules/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));

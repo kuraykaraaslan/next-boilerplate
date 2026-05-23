@@ -7,11 +7,11 @@ import SettingService from '@/modules/setting/setting.service'
 export default class IyzicoProvider extends BasePaymentProvider {
   readonly name = 'iyzico'
 
-  private static async getConfig() {
+  private static async getConfig(tenantId: string) {
     const [apiKey, secretKey, sandbox] = await Promise.all([
-      SettingService.getValue('iyzicoApiKey'),
-      SettingService.getValue('iyzicoSecretKey'),
-      SettingService.getValue('iyzicoSandboxMode'),
+      SettingService.getValue(tenantId, 'iyzicoApiKey'),
+      SettingService.getValue(tenantId, 'iyzicoSecretKey'),
+      SettingService.getValue(tenantId, 'iyzicoSandboxMode'),
     ])
     if (!apiKey || !secretKey) throw new Error(PAYMENT_MESSAGES.PROVIDER_NOT_CONFIGURED)
 
@@ -40,8 +40,8 @@ export default class IyzicoProvider extends BasePaymentProvider {
     }
   }
 
-  private async getAuthenticatedAxios(): Promise<AxiosInstance> {
-    const config = await IyzicoProvider.getConfig()
+  private async getAuthenticatedAxios(tenantId: string): Promise<AxiosInstance> {
+    const config = await IyzicoProvider.getConfig(tenantId)
     const client = axios.create({
       baseURL: config.baseUrl,
       headers: {
@@ -68,9 +68,9 @@ export default class IyzicoProvider extends BasePaymentProvider {
     })
   }
 
-  async getPaymentStatus(token: string): Promise<any> {
+  async getPaymentStatus(tenantId: string, token: string): Promise<any> {
     try {
-      const client = await this.getAuthenticatedAxios()
+      const client = await this.getAuthenticatedAxios(tenantId)
       const path = '/payment/iyzipos/checkoutform/auth/ecom/detail'
 
       const response = await client.post(path, {
@@ -84,9 +84,12 @@ export default class IyzicoProvider extends BasePaymentProvider {
     }
   }
 
-  async createCheckoutSession(params: CheckoutSessionParams): Promise<CheckoutSessionResult> {
+  async createCheckoutSession(
+    tenantId: string,
+    params: CheckoutSessionParams,
+  ): Promise<CheckoutSessionResult> {
     try {
-      const client = await this.getAuthenticatedAxios()
+      const client = await this.getAuthenticatedAxios(tenantId)
       const path = '/payment/iyzipos/checkoutform/initialize/auth/ecom'
 
       const conversationId = params.metadata?.paymentId || `${Date.now()}`
@@ -100,7 +103,7 @@ export default class IyzicoProvider extends BasePaymentProvider {
         paymentGroup: 'SUBSCRIPTION',
         callbackUrl: params.successUrl,
         buyer: {
-          id: params.metadata?.tenantId || 'BUYER',
+          id: params.metadata?.tenantId || tenantId,
           name: 'Tenant',
           surname: 'Admin',
           email: params.metadata?.email || 'buyer@example.com',

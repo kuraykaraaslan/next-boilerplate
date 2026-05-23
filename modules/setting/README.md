@@ -60,10 +60,10 @@ Each module defines its own setting keys file (e.g. `auth.setting.keys.ts`, `ai.
 ## API Routes
 
 ```
-GET  /system/api/settings
-GET  /system/api/settings?group=Email
-PUT  /system/api/settings
-PUT  /system/api/settings/[key]
+GET  /tenant/{ROOT_TENANT_ID}/api/admin-settings
+GET  /tenant/{ROOT_TENANT_ID}/api/admin-settings?group=Email
+PUT  /tenant/{ROOT_TENANT_ID}/api/admin-settings
+POST /tenant/{ROOT_TENANT_ID}/api/admin-settings
 ```
 
-Requires `system:admin` scope.
+Root-tenant-only — guarded by `authenticateRootTenantAdmin` + `isRootTenant(tenantId)` check.

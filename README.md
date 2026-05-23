@@ -10,7 +10,7 @@ Production-ready multi-tenant SaaS starter built with Next.js 16, TypeScript, Po
 |-------|-----------|
 | Framework | Next.js 16 (App Router, RSC) |
 | Language | TypeScript 5 (strict) |
-| Database | PostgreSQL via TypeORM (dual-schema: system + tenant) |
+| Database | PostgreSQL via TypeORM (single shared schema; root tenant owns platform-level rows) |
 | Cache / Queue | Redis + BullMQ |
 | Auth | JWT (httpOnly cookies), OTP, TOTP, SAML, OAuth |
 | UI | Tailwind CSS 4, Radix UI, FontAwesome, CVA |
@@ -44,9 +44,12 @@ cp .env.example .env
 # 3. Run database migrations
 npm run typeorm:migrate
 
-# 4. Seed default admin + tenant
+# 4. Seed default admin + root tenant + demo tenant
 npx tsx scripts/default-admin.ts
 npx tsx scripts/default-tenant.ts
+
+# (Existing prod DB?) Promote current global admins onto the root tenant:
+# npx tsx scripts/migrate-to-root-tenant.ts
 
 # 5. Start dev server
 npm run dev
@@ -58,8 +61,8 @@ Open [http://localhost:3000](http://localhost:3000).
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `SYSTEM_DATABASE_URL` | ✅ | PostgreSQL URL for system schema |
-| `TENANT_DATABASE_URL` | ✅ | PostgreSQL URL for tenant schema |
+| `SYSTEM_DATABASE_URL` | ✅ | PostgreSQL URL for shared / platform-config tables (User, Setting, SubscriptionPlan, Coupon, SystemWebhook, …). Single-DB setups point this and `TENANT_DATABASE_URL` at the same connection string. |
+| `TENANT_DATABASE_URL` | ✅ | PostgreSQL URL for per-tenant tables (Tenant, TenantMember, TenantDomain, Payment, ApiKey, Webhook, SamlConfig, …). |
 | `REDIS_HOST` | ✅ | Redis host |
 | `REDIS_PORT` | ✅ | Redis port |
 | `ACCESS_TOKEN_SECRET` | ✅ | JWT access token signing secret |
@@ -76,20 +79,16 @@ See `.env.example` for the full list.
 
 ```
 app/                          # Next.js App Router
-  system/                     # System-scoped pages + API routes
-    admin/                    # Admin dashboard (ai, api-docs, audit-logs, coupons,
-                              #   health, me, payments, plans, saml, settings, tenants, users, webhooks)
-    api/                      # System API handlers (auth, ai, audit-logs, coupons,
-                              #   cron, health, notifications, saml, settings, storage,
-                              #   subscriptions, tenant, tenants, users, webhooks)
+  tenant/[tenantId]/          # Every page + API lives under a tenant
+    admin/                    # Tenant admin dashboard — members, invitations, domains,
+                              #   subscription, api-keys, api-docs, webhooks, settings,
+                              #   me, plus features that only render for the root tenant
+                              #   today but use plain paths: ai, coupons, fleet, health,
+                              #   payments, plans, saml, tenants, users
+    api/                      # Tenant API handlers (flat — no /admin/ segment)
+    api-docs/                 # Swagger UI (root = SYSTEM_SPEC, others = TENANT_SPEC)
     auth/                     # Auth pages (login, register, forgot-password, callback,
                               #   create-tenant, select-tenant, logout)
-    fleet/                    # Fleet management panel
-  tenant/[tenantId]/          # Tenant-scoped pages + API routes
-    admin/                    # Tenant admin dashboard
-    api/                      # Tenant API handlers
-    api-docs/                 # Tenant-scoped API documentation
-    auth/                     # Tenant auth pages
 
 modules/                      # Framework-agnostic business logic
                               # No next/*, react, or browser API imports
@@ -150,26 +149,46 @@ modules_next/                 # Next.js-specific layer — extends modules/ with
 
 ## Multi-Tenancy
 
+The **root tenant** (`ROOT_TENANT_ID = 00000000-0000-4000-8000-000000000000`, name `"Platform"`) is a real tenant row that hosts the platform-admin / super-admin surface. There is no separate "system" scope — every request resolves to a tenant. A super-admin is a `TenantMember` of the root tenant with `memberRole = 'ADMIN'`.
+
 Two tenancy modes are supported:
 
 **Domain mode** (default): Each tenant maps to a subdomain or custom domain.
-- System panel: `system.example.com` or `localhost`
-- Tenant panel: `tenant1.example.com` or custom domain
+- Root tenant: `localhost` (dev) or `{TENANT_DEFAULT_SUBDOMAIN}.{TENANT_WILDCARD_DOMAIN}` (e.g. `system.example.com`) — both resolve to `ROOT_TENANT_ID`
+- Customer tenants: `tenant1.example.com` or custom domain (looked up in `TenantDomain`)
 
 **Path mode**: Tenant is identified by URL path prefix.
-- System panel: `example.com/...`
-- Tenant panel: `example.com/t/{tenantId}/...`
+- Root tenant: `example.com/...` (anything outside the tenant prefix)
+- Customer tenants: `example.com/t/{tenantId}/...`
 
-The proxy logic runs in Next.js middleware (`proxy.ts`) and rewrites URLs to the correct internal app route.
+The proxy logic runs in Next.js middleware (`proxy.ts`) and rewrites every URL to the correct `/tenant/{tenantId}/...` internal route.
+
+### Tenant-owned providers
+
+Every tenant configures its own integration credentials through the **Integrations** tab in `/admin/settings`:
+
+| Domain | Providers (configured per tenant) |
+|---|---|
+| Payments | Stripe · PayPal · Iyzico · Alipay · CloudPayments · WeChat Pay · YooKassa |
+| AI | Anthropic · OpenAI · Google |
+| Email | SMTP · AWS SES · Mailgun · Postmark · Resend · SendGrid |
+| SMS | Twilio · Nexmo · Clickatell · NetGSM |
+| Storage | AWS S3 · Cloudflare R2 · DigitalOcean Spaces · MinIO |
+| Auth (SSO) | Google · GitHub · Apple · Microsoft · Meta · LinkedIn · Twitter · Slack · TikTok · WeChat · Autodesk |
+| Captcha | hCaptcha · reCAPTCHA |
+
+Each service (`PaymentService`, `AIService`, `MailService`, `SmsService`, `StorageService`, `CaptchaService`) and concrete provider takes `tenantId` as its first argument and reads credentials from that tenant's row in `settings`. When a customer pays tenant X, the charge runs against X's Stripe account; when X sends a welcome email, it goes through X's SMTP. `SubscriptionPlan`, `PlanFeature`, `Coupon` are also tenant-scoped so each tenant exposes its own pricing to its own customers.
+
+Auto-seed: `TenantService.create()` provisions every new tenant with a Free plan + subscription + locale defaults so the workspace is usable on day one.
 
 ## API
 
 All public API calls go through the proxy layer:
 
 ```
-GET /api/v1/system/health                        → health check (no auth)
-POST /api/v1/system/auth/login                   → login
-/api/v1/tenant/{tenantId}/{route}                → tenant-scoped routes
+GET  /api/tenant/{ROOT_TENANT_ID}/admin/health   → platform health (root-only)
+POST /api/tenant/{tenantId}/auth/login                    → tenant login
+/api/tenant/{tenantId}/{route}                            → tenant-scoped routes
 ```
 
 ## Testing

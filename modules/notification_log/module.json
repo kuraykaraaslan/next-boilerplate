@@ -1,0 +1,11 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "notification_log",
+  "name": "Notification Log",
+  "description": "Unified outbound notification audit log across mail, sms, push, inapp channels.",
+  "version": "1.0.0",
+  "icon": "fas fa-clipboard-list",
+  "tags": ["notifications", "audit"],
+  "priority": 31,
+  "dependencies": { "requires": ["db", "tenant"] }
+}

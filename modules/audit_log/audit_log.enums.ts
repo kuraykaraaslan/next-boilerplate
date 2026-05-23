@@ -35,9 +35,10 @@ export const AuditActions = {
   INVITATION_REVOKED:  'invitation.revoked',
 
   // Domains
-  DOMAIN_ADDED:    'domain.added',
-  DOMAIN_VERIFIED: 'domain.verified',
-  DOMAIN_DELETED:  'domain.deleted',
+  DOMAIN_ADDED:           'domain.added',
+  DOMAIN_VERIFIED:        'domain.verified',
+  DOMAIN_DELETED:         'domain.deleted',
+  DOMAIN_DNS_CHECK_FAILED: 'domain.dns_check_failed',
 
   // Subscription
   SUBSCRIPTION_ASSIGNED:  'subscription.assigned',

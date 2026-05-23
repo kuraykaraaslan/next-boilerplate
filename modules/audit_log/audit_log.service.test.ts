@@ -12,16 +12,30 @@ vi.mock('@/modules/env', () => ({
 }));
 
 vi.mock('@/modules/db', () => ({
-  getSystemDataSource: vi.fn(),
-  SystemDataSource: { isInitialized: false, initialize: vi.fn(), getRepository: vi.fn() },
   tenantDataSourceFor: vi.fn(),
 }));
 
-vi.mock('@/modules/redis', () => ({ default: { get: vi.fn(), set: vi.fn(), del: vi.fn(), ping: vi.fn() } }));
+vi.mock('@/modules/redis', () => ({
+  default: {
+    get: vi.fn(async () => null),
+    set: vi.fn(async () => 'OK'),
+    setex: vi.fn(async () => 'OK'),
+    del: vi.fn(async () => 1),
+    ping: vi.fn(async () => 'PONG'),
+    mget: vi.fn(async () => []),
+    incrby: vi.fn(async () => 1),
+    expire: vi.fn(async () => 1),
+    keys: vi.fn(async () => []),
+    exists: vi.fn(async () => 0),
+  },
+  singleFlight: async (_key: string, fn: () => Promise<unknown>) => fn(),
+  jitter: (n: number) => n,
+}));
 vi.mock('@/modules/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
 
 import AuditLogService from './audit_log.service';
-import { getSystemDataSource, tenantDataSourceFor } from '@/modules/db';
+import { tenantDataSourceFor } from '@/modules/db';
+import { ROOT_TENANT_ID } from '@/modules/tenant/tenant.constants';
 import Logger from '@/modules/logger';
 
 const TENANT_ID = '550e8400-e29b-41d4-a716-446655440000';
@@ -53,11 +67,12 @@ function makeRepo(rows: typeof mockLog[] = [mockLog]) {
 describe('AuditLogService.log', () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it('writes to system DB when tenantId is absent', async () => {
+  it('writes to root-tenant DB when tenantId is absent', async () => {
     const repo = makeRepo();
-    (getSystemDataSource as any).mockResolvedValue({ getRepository: () => repo });
+    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => repo });
 
     await AuditLogService.log({ action: 'user.created', actorType: 'SYSTEM' });
+    expect(tenantDataSourceFor).toHaveBeenCalledWith(ROOT_TENANT_ID);
     expect(repo.save).toHaveBeenCalled();
   });
 
@@ -66,18 +81,19 @@ describe('AuditLogService.log', () => {
     (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => repo });
 
     await AuditLogService.log({ action: 'auth.login', actorType: 'USER', tenantId: TENANT_ID });
+    expect(tenantDataSourceFor).toHaveBeenCalledWith(TENANT_ID);
     expect(repo.save).toHaveBeenCalled();
   });
 
   it('does not throw even when DB save fails (swallows errors)', async () => {
-    (getSystemDataSource as any).mockRejectedValue(new Error('DB down'));
+    (tenantDataSourceFor as any).mockRejectedValue(new Error('DB down'));
     await expect(AuditLogService.log({ action: 'auth.login', actorType: 'SYSTEM' })).resolves.toBeUndefined();
     expect((Logger as any).error).toHaveBeenCalled();
   });
 
   it('logs an info message on success', async () => {
     const repo = makeRepo();
-    (getSystemDataSource as any).mockResolvedValue({ getRepository: () => repo });
+    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => repo });
     await AuditLogService.log({ action: 'tenant.created', actorType: 'SYSTEM' });
     expect((Logger as any).info).toHaveBeenCalled();
   });
@@ -86,11 +102,12 @@ describe('AuditLogService.log', () => {
 describe('AuditLogService.getAll', () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it('returns logs and total from system DB when no tenantId', async () => {
+  it('returns logs and total from root-tenant DB when no tenantId', async () => {
     const repo = makeRepo([mockLog]);
-    (getSystemDataSource as any).mockResolvedValue({ getRepository: () => repo });
+    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => repo });
 
     const result = await AuditLogService.getAll({ page: 1, pageSize: 20 });
+    expect(tenantDataSourceFor).toHaveBeenCalledWith(ROOT_TENANT_ID);
     expect(result.total).toBe(1);
     expect(result.logs).toHaveLength(1);
     expect(result.logs[0].action).toBe('auth.login');
@@ -101,13 +118,14 @@ describe('AuditLogService.getAll', () => {
     (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => repo });
 
     const result = await AuditLogService.getAll({ tenantId: TENANT_ID, page: 1, pageSize: 20 });
+    expect(tenantDataSourceFor).toHaveBeenCalledWith(TENANT_ID);
     expect(result.total).toBe(1);
     expect(result.logs[0].tenantId).toBe(TENANT_ID);
   });
 
   it('returns empty list when no logs exist', async () => {
     const repo = makeRepo([]);
-    (getSystemDataSource as any).mockResolvedValue({ getRepository: () => repo });
+    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => repo });
 
     const result = await AuditLogService.getAll({ page: 1, pageSize: 20 });
     expect(result.logs).toHaveLength(0);
@@ -116,7 +134,7 @@ describe('AuditLogService.getAll', () => {
 
   it('applies actorId filter', async () => {
     const repo = makeRepo([mockLog]);
-    (getSystemDataSource as any).mockResolvedValue({ getRepository: () => repo });
+    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => repo });
 
     await AuditLogService.getAll({ actorId: ACTOR_ID, page: 1, pageSize: 20 });
     const findCall = (repo.find.mock.calls as any[][])[0]![0];

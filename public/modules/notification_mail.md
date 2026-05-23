@@ -93,3 +93,17 @@ Active provider is selected from settings key `MAIL_PROVIDER`. Supported values:
 1. Create `templates/<name>.ejs`
 2. Add the template name to the service's template map
 3. Call `MailService.send({ template: '<name>', data: {...} })`
+
+---
+
+## Usage tracking & audit (NEW)
+
+`_sendMail` (the BullMQ worker target) now records every delivery attempt:
+
+- On `result.success === true`:
+  - `TenantUsageService.incrementEmailSends(tenantId, 1)` → updates the monthly `emailSends` quota counter.
+  - `NotificationLogService.log(tenantId, 'mail', to, 'sent', { subject, provider, providerMessageId })` → audit row.
+- On provider error / `result.success === false`:
+  - `NotificationLogService.log(tenantId, 'mail', to, 'failed', { subject, provider, error })` → audit row.
+
+Audit/usage failures are swallowed — mail delivery is never blocked by the audit tables.

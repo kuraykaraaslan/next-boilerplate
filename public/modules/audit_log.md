@@ -8,7 +8,7 @@
 - **icon:** `fas fa-clipboard-list`
 - **hasNextLayer:** true
 
-Append-only audit trail for sensitive actions (system AuditLog + per-tenant TenantAuditLog).
+Append-only audit trail for sensitive actions, stored per-tenant (platform events land on ROOT_TENANT_ID).
 
 ## Dependencies
 
@@ -25,7 +25,6 @@ Append-only audit trail for sensitive actions (system AuditLog + per-tenant Tena
 ## Entities
 
 - `audit_log.entity.ts`
-- `audit_log_tenant.entity.ts`
 
 ## Enums
 
@@ -37,13 +36,11 @@ Append-only audit trail for sensitive actions (system AuditLog + per-tenant Tena
 
 ## Owned API routes
 
-- `system` GET `/system/api/audit-logs`
 - `tenant` GET `/tenant/[tenantId]/api/audit-logs`
 
 ## TypeORM entities
 
 - `AuditLog` (tenant) — `modules/audit_log/entities/audit_log.entity.ts`
-- `TenantAuditLog` (tenant) — `modules/audit_log/entities/audit_log_tenant.entity.ts`
 
 ## Next layer (modules_next/) surface
 
@@ -67,7 +64,7 @@ Immutable event logging for system and tenant-level actions. Records actor, acti
 | `audit_log.dto.ts` | Zod DTOs for API input validation |
 | `audit_log.enums.ts` | `ActorType`, `AuditAction` enums |
 | `audit_log.messages.ts` | Error/success message strings |
-| `entities/` | TypeORM entities (system & tenant logs) |
+| `entities/` | TypeORM entity `AuditLog` (single table per tenant DB; platform events use `ROOT_TENANT_ID`) |
 | `ui/audit_log.filters.tsx` | Filter UI component for admin pages |
 
 ---
@@ -110,7 +107,6 @@ const { logs, total } = await AuditLogService.getByTenant({
 
 ```
 GET /tenant/[tenantId]/api/audit-logs
-GET /system/api/audit-logs
 ```
 
-Requires `tenant:admin` or `system:admin` scope.
+Requires `tenant:admin`. On the root tenant the same endpoint surfaces platform-wide audit logs (super-admin scope).

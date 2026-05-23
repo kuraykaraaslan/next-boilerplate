@@ -17,14 +17,24 @@ Both live in the **tenant DB**.
 
 ## Events
 
-| Event | Fired when |
-|---|---|
-| `tenant.updated` | Tenant name/settings change |
-| `member.created/updated/deleted` | Tenant membership changes |
-| `invitation.sent/accepted/declined/revoked` | Invitation lifecycle |
-| `subscription.created/updated/cancelled` | Subscription lifecycle |
-| `payment.completed/failed/refunded` | Payment lifecycle |
-| `api_key.created/deleted` | API key management |
+A single `WebhookEventEnum` covers both tenant-local and platform-wide
+events. Every event is delivered only to webhooks owned by the appropriate
+tenant — platform-wide events fire on root-tenant webhooks
+(`tenantId = ROOT_TENANT_ID`); tenant-local events fire on regular tenant
+webhooks.
+
+| Event | Scope | Fired when |
+|---|---|---|
+| `tenant.updated` | tenant | Tenant name/settings change |
+| `member.created/updated/deleted` | tenant | Tenant membership changes |
+| `invitation.sent/accepted/declined/revoked` | tenant | Invitation lifecycle |
+| `subscription.created/updated/cancelled` | tenant | Subscription lifecycle |
+| `payment.completed/failed/refunded` | tenant | Payment lifecycle |
+| `api_key.created/deleted` | tenant | API key management |
+| `user.created/updated/deleted/suspended` | platform | Global user lifecycle |
+| `tenant.created/deleted/suspended` | platform | Tenant lifecycle |
+| `plan.created/updated/deleted` | platform | Subscription plan changes |
+| `subscription.assigned` | platform | Plan assignment from admin panel |
 
 ---
 
@@ -40,6 +50,14 @@ Both live in the **tenant DB**.
 | POST | `/tenant/[id]/api/webhooks/[wid]/test` | Send test delivery (sync) |
 | GET | `/tenant/[id]/api/webhooks/[wid]/deliveries` | List deliveries |
 | POST | `/tenant/[id]/api/webhooks/[wid]/deliveries/[did]/redeliver` | Re-queue failed delivery |
+
+### Platform webhooks (root-tenant admins only)
+
+Mirror the routes above under `/tenant/[ROOT_TENANT_ID]/api/webhooks/...`.
+The handlers require root-tenant admin auth and bind every operation to
+`tenantId = ROOT_TENANT_ID`. There is no separate service or table —
+`WebhookService` and the `Webhook`/`WebhookDelivery` tables back both
+surfaces.
 
 ---
 

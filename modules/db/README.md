@@ -1,12 +1,12 @@
 # db
 
-TypeORM `DataSource` factory for the two-schema multi-tenant model: a single **system** schema plus one **tenant** schema per tenant (cached, lazily initialised).
+TypeORM `DataSource` factories for the multi-tenant model. The codebase keeps two structural buckets — *shared* (User, Setting, SubscriptionPlan, …) and *per-tenant* (Tenant, TenantMember, Payment, ApiKey, …) — but in the default single-DB setup both factories point at the **same** Postgres schema. Splitting databases later is an env-only change.
 
 ## Public API
 
 | Export | Source | Use |
 |---|---|---|
-| `getSystemDataSource()` | [db.system.ts](db.system.ts) | Returns the initialised system DataSource. Idempotent. |
+| `getSystemDataSource()` | [db.system.ts](db.system.ts) | Returns the initialised DataSource for shared / platform-config tables. Idempotent. |
 | `SystemDataSource` | [db.system.ts](db.system.ts) | The raw DataSource instance (rarely needed — prefer the getter). |
 | `tenantDataSourceFor(tenantId)` | [db.tenant.ts](db.tenant.ts) | Returns the DataSource for a specific tenant. Cached per tenant. |
 | `getDefaultTenantDataSource()` | [db.tenant.ts](db.tenant.ts) | DataSource for the wildcard/default tenant DB (used in single-DB setups). |
@@ -14,30 +14,30 @@ TypeORM `DataSource` factory for the two-schema multi-tenant model: a single **s
 | `TenantDatabase` | [entities/tenant_database.entity.ts](entities/tenant_database.entity.ts) | Entity that maps `tenantId → { connectionUrl, schema }`. |
 | `parseDbUrl(url)` | [db.utils.ts](db.utils.ts) | Splits a Postgres URL into `{ url, schema }`. |
 
-## Schema split
+## Entity buckets
 
-- **System schema** ([db.system.ts](db.system.ts)) owns: `User`, `UserProfile`, `UserSecurity`, `UserPreferences`, `UserSession`, `UserSocialAccount`, `PushSubscription`, `Setting`, `SubscriptionPlan`, `PlanFeature`, `AuditLog` (system), `Coupon`, `SystemWebhook`, `SystemWebhookDelivery`, `TenantDatabase`.
-- **Tenant schema** ([db.tenant.ts](db.tenant.ts)) owns: `Tenant`, `TenantDomain`, `TenantMember`, `TenantInvitation`, `TenantSetting`, `TenantSubscription`, `Payment`, `PaymentTransaction`, `TenantAuditLog`, `ApiKey`, `CouponRedemption`, `Webhook`, `WebhookDelivery`, `SamlConfig`.
+- **Shared / platform** ([db.system.ts](db.system.ts)) owns: `User`, `UserProfile`, `UserSecurity`, `UserPreferences`, `UserSession`, `UserSocialAccount`, `PushSubscription`, `Setting`, `SubscriptionPlan`, `PlanFeature`, `AuditLog`, `Coupon`, `SystemWebhook`, `SystemWebhookDelivery`, `SystemSamlConfig`, `SigningCertificate`, `TrustListEntry`, `TenantDatabase`.
+- **Per-tenant** ([db.tenant.ts](db.tenant.ts)) owns: `Tenant`, `TenantDomain`, `TenantMember`, `TenantInvitation`, `TenantSetting`, `TenantSubscription`, `Payment`, `PaymentTransaction`, `TenantAuditLog`, `ApiKey`, `CouponRedemption`, `Webhook`, `WebhookDelivery`, `SamlConfig`.
 
-When you add a new entity, register it in the appropriate file's `SYSTEM_ENTITIES` or `TENANT_ENTITIES` array.
+When you add a new entity, register it in the appropriate file's `SYSTEM_ENTITIES` or `TENANT_ENTITIES` array. The "shared" naming is historical — every row physically lives in the same DB as the per-tenant tables unless an operator points `SYSTEM_DATABASE_URL` and `TENANT_DATABASE_URL` at different connections.
 
 ## Usage
 
 ```ts
 import { getSystemDataSource, tenantDataSourceFor } from "@/modules/db";
 
-// system scope
+// Shared / platform entities
 const ds = await getSystemDataSource();
 const users = await ds.getRepository(User).find();
 
-// tenant scope
+// Per-tenant entities
 const tds = await tenantDataSourceFor(tenantId);
 const members = await tds.getRepository(TenantMember).find();
 ```
 
 ## Connection URLs
 
-Driven by `SYSTEM_DATABASE_URL` and `TENANT_DATABASE_URL` env vars. Per-tenant override URLs are stored in the `TenantDatabase` row (system schema).
+Driven by `SYSTEM_DATABASE_URL` and `TENANT_DATABASE_URL`. In single-DB setups set both to the same URL. Per-tenant override URLs (separate DBs per customer) are stored in the `TenantDatabase` row.
 
 ## Rules
 

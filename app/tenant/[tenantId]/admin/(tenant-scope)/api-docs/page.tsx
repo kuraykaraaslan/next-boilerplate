@@ -1,0 +1,18 @@
+import { ApiDocsPage } from '@/modules_next/api_doc/ui/ApiDocsPage';
+import { SYSTEM_SPEC, TENANT_SPEC } from '@/modules_next/api_doc/ui/mockSpec';
+import { isRootTenant } from '@/modules/tenant/tenant.constants';
+
+/**
+ * Tenant admin → API Docs.
+ * Root tenant displays the full platform spec (super-admin); other tenants
+ * see the tenant-scoped spec.
+ */
+export default async function TenantAdminApiDocsPage({
+  params,
+}: {
+  params: Promise<{ tenantId: string }>;
+}) {
+  const { tenantId } = await params;
+  const spec = isRootTenant(tenantId) ? SYSTEM_SPEC : TENANT_SPEC;
+  return <ApiDocsPage spec={spec} />;
+}

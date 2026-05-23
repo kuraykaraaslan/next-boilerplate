@@ -23,7 +23,7 @@ There are **42 modules** under `modules/`. Eighteen of them also have a Next/Rea
 | [env](env/) | Zod-validated `env` object — single source of truth for env vars. | `env` | — |
 | [logger](logger/) | Winston structured logger. Use instead of `console.*`. | `logger` | env |
 | [redis](redis/) | Shared `ioredis` client, Pub/Sub-safe factory, BullMQ connection helper. | `redis`, `createRedisConnection`, `getBullMQConnection`, `createQueue` | env |
-| [db](db/) | TypeORM `DataSource` factories for the system schema + per-tenant schemas. Registers every entity. | `getSystemDataSource`, `tenantDataSourceFor`, `getDefaultTenantDataSource`, `TenantDatabase` | env |
+| [db](db/) | TypeORM `DataSource` factories. Two structural buckets (shared platform tables + per-tenant tables) that point at the same Postgres schema in single-DB setups. | `getSystemDataSource`, `tenantDataSourceFor`, `getDefaultTenantDataSource`, `TenantDatabase` | env |
 | [redis_idempotency](redis_idempotency/) | Redis-backed idempotency keys for retry-safe POST/PATCH. | `RedisIdempotencyService` | redis, env |
 | [limiter](limiter/) | Sliding-window rate limiter + tenant-plan quota enforcement. | `LimiterService`, `TenantPlanLimiterService` | redis, env, *tenant_subscription* |
 | [api_doc](api_doc/) | OpenAPI/Swagger spec builder + serving helpers. | — | env |

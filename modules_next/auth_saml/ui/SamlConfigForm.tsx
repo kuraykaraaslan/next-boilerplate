@@ -10,8 +10,8 @@ import { faSave, faShieldHalved } from '@fortawesome/free-solid-svg-icons';
 import type { UpsertSamlConfigInput } from '@/modules/auth_saml/auth_saml.dto';
 
 /**
- * Subset of SafeSamlConfig / SafeSystemSamlConfig that this form consumes.
- * Both scopes share these fields, so the form is scope-agnostic.
+ * Subset of SafeSamlConfig that this form consumes.
+ * Tenant-agnostic: works for any tenant including the root tenant.
  */
 export type SamlConfigFormValues = {
   isEnabled: boolean;
@@ -20,6 +20,9 @@ export type SamlConfigFormValues = {
   idpCertificate: string;
   emailAttribute: string;
   nameAttribute: string;
+  roleAttribute?: string | null;
+  allowJitProvisioning?: boolean;
+  defaultMemberRole?: string | null;
   allowIdpInitiated: boolean;
   signRequests: boolean;
   nameIdFormat: string | null;
@@ -44,6 +47,9 @@ export function SamlConfigForm({ config, onSave, saving, error, scopeLabel = 'th
     idpCertificate: config?.idpCertificate ?? '',
     emailAttribute: config?.emailAttribute ?? 'email',
     nameAttribute: config?.nameAttribute ?? 'name',
+    roleAttribute: config?.roleAttribute ?? '',
+    allowJitProvisioning: config?.allowJitProvisioning ?? false,
+    defaultMemberRole: config?.defaultMemberRole ?? 'USER',
     allowIdpInitiated: config?.allowIdpInitiated ?? false,
     signRequests: config?.signRequests ?? false,
     nameIdFormat: config?.nameIdFormat ?? 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress',
@@ -110,6 +116,49 @@ export function SamlConfigForm({ config, onSave, saving, error, scopeLabel = 'th
           <div className="flex justify-end pt-2">
             <Button type="submit" loading={saving} iconLeft={<FontAwesomeIcon icon={faSave} />}>
               Save IdP Settings
+            </Button>
+          </div>
+        </form>
+      </Card>
+
+      <Card
+        title="Just-In-Time Provisioning"
+        subtitle="Automatically create users and tenant memberships from successful SAML assertions"
+      >
+        <form
+          onSubmit={(e) => { e.preventDefault(); onSave(f); }}
+          className="space-y-4"
+        >
+          <Toggle
+            id="allowJitProvisioning"
+            label="Enable Just-In-Time provisioning"
+            description="Unknown users that authenticate via your IdP will be auto-provisioned into this tenant."
+            checked={f.allowJitProvisioning ?? false}
+            onChange={(v) => patch('allowJitProvisioning', v)}
+          />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              id="defaultMemberRole"
+              label="Default member role"
+              placeholder="USER"
+              value={f.defaultMemberRole ?? ''}
+              onChange={(e) => patch('defaultMemberRole', e.target.value)}
+              hint="Role assigned to JIT-provisioned members when no role attribute is mapped. Allowed: OWNER, ADMIN, USER."
+            />
+            <Input
+              id="roleAttribute"
+              label="Role attribute name (optional)"
+              placeholder="role"
+              value={f.roleAttribute ?? ''}
+              onChange={(e) => patch('roleAttribute', e.target.value)}
+              hint="SAML attribute carrying the user's role. Values containing 'owner' map to OWNER, 'admin' to ADMIN."
+            />
+          </div>
+
+          <div className="flex justify-end pt-2">
+            <Button type="submit" loading={saving} iconLeft={<FontAwesomeIcon icon={faSave} />}>
+              Save Provisioning Settings
             </Button>
           </div>
         </form>

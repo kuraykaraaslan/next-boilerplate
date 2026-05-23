@@ -6,6 +6,7 @@ import { IsNull } from 'typeorm';
 import { PAYMENT_MESSAGES } from './payment.messages';
 import PaymentService from './payment.service';
 import SettingService from '@/modules/setting/setting.service';
+import { ROOT_TENANT_ID } from '@/modules/tenant/tenant.constants';
 import TenantSubscriptionService from '@/modules/tenant_subscription/tenant_subscription.service';
 import AuditLogService from '@/modules/audit_log/audit_log.service';
 import Logger from '@/modules/logger';
@@ -166,7 +167,7 @@ export default class PaymentWebhookService {
   }
 
   static async handleStripeEvent(rawBody: string, signatureHeader: string): Promise<void> {
-    const secret = await SettingService.getValue('stripeWebhookSecret');
+    const secret = await SettingService.getValue(ROOT_TENANT_ID, 'stripeWebhookSecret');
     if (!secret) throw new Error(PAYMENT_MESSAGES.PROVIDER_NOT_CONFIGURED);
 
     if (!PaymentWebhookService.verifyStripeSignature(rawBody, signatureHeader, secret)) {
@@ -195,9 +196,9 @@ export default class PaymentWebhookService {
   // ──────────────────────────────────────────────────────────────────────────
 
   static async verifyPaypalSignature(payload: PaypalVerifyPayload): Promise<boolean> {
-    const clientId = await SettingService.getValue('paypalClientId');
-    const clientSecret = await SettingService.getValue('paypalClientSecret');
-    const sandbox = await SettingService.getValue('paypalSandboxMode');
+    const clientId = await SettingService.getValue(ROOT_TENANT_ID, 'paypalClientId');
+    const clientSecret = await SettingService.getValue(ROOT_TENANT_ID, 'paypalClientSecret');
+    const sandbox = await SettingService.getValue(ROOT_TENANT_ID, 'paypalSandboxMode');
     if (!clientId || !clientSecret) throw new Error(PAYMENT_MESSAGES.PROVIDER_NOT_CONFIGURED);
 
     const baseUrl = sandbox === 'true'
@@ -290,7 +291,7 @@ export default class PaymentWebhookService {
   }
 
   static async handlePaypalEvent(rawBody: string, headers: PaypalWebhookHeaders): Promise<void> {
-    const webhookId = await SettingService.getValue('paypalWebhookId');
+    const webhookId = await SettingService.getValue(ROOT_TENANT_ID, 'paypalWebhookId');
     if (!webhookId) throw new Error(PAYMENT_MESSAGES.PROVIDER_NOT_CONFIGURED);
 
     let event: PaypalWebhookEvent;
@@ -332,9 +333,9 @@ export default class PaymentWebhookService {
     if (!token) throw new Error(PAYMENT_MESSAGES.IYZICO_CALLBACK_TOKEN_MISSING);
 
     const [apiKey, secretKey, sandbox] = await Promise.all([
-      SettingService.getValue('iyzicoApiKey'),
-      SettingService.getValue('iyzicoSecretKey'),
-      SettingService.getValue('iyzicoSandboxMode'),
+      SettingService.getValue(ROOT_TENANT_ID, 'iyzicoApiKey'),
+      SettingService.getValue(ROOT_TENANT_ID, 'iyzicoSecretKey'),
+      SettingService.getValue(ROOT_TENANT_ID, 'iyzicoSandboxMode'),
     ]);
     if (!apiKey || !secretKey) throw new Error(PAYMENT_MESSAGES.PROVIDER_NOT_CONFIGURED);
 

@@ -1,0 +1,59 @@
+// path: app/tenant/[tenantId]/api/auth/totp/setup/route.ts
+import Limiter from '@/modules_next/limiter/limiter.service.next';
+import Logger from '@/modules/logger';
+import { NextRequest, NextResponse } from "next/server";
+import UserSessionNextService from "@/modules_next/user_session/user_session.service.next";
+import TOTPService from "@/modules/auth/auth.totp.service";
+import TenantMemberService from "@/modules/tenant_member/tenant_member.service";
+import TenantService from "@/modules/tenant/tenant.service";
+import AuthMessages from "@/modules/auth/auth.messages";
+import { TOTPSetupDTO } from "@/modules/auth/auth.dto";
+import UserSecurityService from "@/modules/user_security/user_security.service";
+
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ tenantId: string }> }
+) {
+  try {
+    const { tenantId } = await params;
+
+    const _rl = await Limiter.checkRateLimit(request, 'auth');
+    if (_rl) return _rl;
+
+    const tenant = await TenantService.getById(tenantId);
+    if (!tenant || tenant.tenantStatus !== 'ACTIVE') {
+      return NextResponse.json({ error: 'Tenant not found or inactive' }, { status: 404 });
+    }
+
+    const body = await request.json();
+
+    const parsedData = TOTPSetupDTO.safeParse(body);
+
+    if (!parsedData.success) {
+      return NextResponse.json(
+        { message: parsedData.error.issues.map((err: any) => err.message).join(", ") },
+        { status: 400 }
+      );
+    }
+
+    const { user, userSession } = await UserSessionNextService.authenticateUserByRequest({ request });
+
+    const tenantMember = await TenantMemberService.getByTenantAndUser({ tenantMemberId: null, tenantId, userId: user.userId });
+    if (!tenantMember || tenantMember.memberStatus !== 'ACTIVE') {
+      return NextResponse.json({ error: 'You are not a member of this organization' }, { status: 403 });
+    }
+
+    const userSecurity = await UserSecurityService.getSafeByUserId(user.userId);
+
+    if (userSecurity.otpMethods.includes("TOTP_APP" as any)) {
+      return NextResponse.json({ message: "TOTP already enabled" }, { status: 400 });
+    }
+
+    const { secret, otpauthUrl } = await TOTPService.requestSetup({ user, userSession });
+
+    return NextResponse.json({ message: AuthMessages.TOTP_SETUP_INITIATED, secret, otpauthUrl });
+  } catch (err: any) {
+    Logger.error("TOTP Setup Error:", err);
+    return NextResponse.json({ message: err.message || AuthMessages.INVALID_OTP }, { status: 400 });
+  }
+}

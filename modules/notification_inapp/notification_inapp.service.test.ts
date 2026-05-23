@@ -26,24 +26,31 @@ vi.mock('@/modules/db', () => ({
 
 vi.mock('@/modules/redis', () => ({
   default: {
-    get: vi.fn(),
-    set: vi.fn(),
-    del: vi.fn(),
-    ping: vi.fn(),
-    hset: vi.fn(),
-    hgetall: vi.fn(),
-    hdel: vi.fn(),
-    expire: vi.fn(),
-    publish: vi.fn(),
-    sadd: vi.fn(),
-    smembers: vi.fn(),
-    srem: vi.fn(),
+    hgetall: vi.fn(async () => undefined),
+    get: vi.fn(async () => null),
+    set: vi.fn(async () => 'OK'),
+    setex: vi.fn(async () => 'OK'),
+    del: vi.fn(async () => 1),
+    ping: vi.fn(async () => 'PONG'),
+    mget: vi.fn(async () => []),
+    incrby: vi.fn(async () => 1),
+    expire: vi.fn(async () => 1),
+    keys: vi.fn(async () => []),
+    exists: vi.fn(async () => 0),
+    hset: vi.fn(async () => 1),
+    hdel: vi.fn(async () => 1),
+    sadd: vi.fn(async () => 1),
+    srem: vi.fn(async () => 1),
+    smembers: vi.fn(async () => []),
+    publish: vi.fn(async () => 0),
   },
   createRedisConnection: vi.fn(() => ({
     subscribe: vi.fn(),
     on: vi.fn(),
     quit: vi.fn(),
   })),
+  singleFlight: async (_key: string, fn: () => Promise<unknown>) => fn(),
+  jitter: (n: number) => n,
 }));
 
 vi.mock('@/modules/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
@@ -56,9 +63,10 @@ vi.mock('../notification_push/notification_push.service', () => ({
 
 import NotificationInAppService from './notification_inapp.service';
 import redis from '@/modules/redis';
-import { getSystemDataSource } from '@/modules/db';
+import { tenantDataSourceFor } from '@/modules/db';
 
 const mockRedis = redis as any;
+const TENANT_ID = '00000000-0000-4000-8000-000000000000';
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -74,11 +82,11 @@ beforeEach(() => {
 });
 
 describe('NotificationInAppService.push', () => {
-  it('stores notification in redis and returns a Notification object', async () => {
+  it('stores notification under tenant-scoped key and publishes on tenant channel', async () => {
     const userId = 'user-abc';
     const payload = { title: 'Hello', message: 'World', path: '/home' };
 
-    const result = await NotificationInAppService.push(userId, payload);
+    const result = await NotificationInAppService.push(TENANT_ID, userId, payload);
 
     expect(result.title).toBe('Hello');
     expect(result.message).toBe('World');
@@ -86,24 +94,24 @@ describe('NotificationInAppService.push', () => {
     expect(result.isRead).toBe(false);
     expect(result.notificationId).toBeTruthy();
     expect(mockRedis.hset).toHaveBeenCalledWith(
-      `notifications:${userId}`,
+      `notifications:${TENANT_ID}:${userId}`,
       result.notificationId,
       expect.any(String)
     );
     expect(mockRedis.publish).toHaveBeenCalledWith(
-      `notifications:${userId}`,
+      `notifications:tenant:${TENANT_ID}:user:${userId}`,
       expect.any(String)
     );
   });
 
   it('defaults path to null when not provided', async () => {
-    const result = await NotificationInAppService.push('user-1', { title: 'T', message: 'M' });
+    const result = await NotificationInAppService.push(TENANT_ID, 'user-1', { title: 'T', message: 'M' });
     expect(result.path).toBeNull();
   });
 });
 
 describe('NotificationInAppService.pushToUsers', () => {
-  it('calls push for each userId', async () => {
+  it('calls push for each userId with same tenantId', async () => {
     const spy = vi.spyOn(NotificationInAppService, 'push').mockResolvedValue({
       notificationId: 'n1',
       title: 'T',
@@ -113,16 +121,17 @@ describe('NotificationInAppService.pushToUsers', () => {
       createdAt: new Date().toISOString(),
     });
 
-    await NotificationInAppService.pushToUsers(['u1', 'u2', 'u3'], { title: 'T', message: 'M' });
+    await NotificationInAppService.pushToUsers(TENANT_ID, ['u1', 'u2', 'u3'], { title: 'T', message: 'M' });
     expect(spy).toHaveBeenCalledTimes(3);
+    expect(spy).toHaveBeenCalledWith(TENANT_ID, 'u1', expect.anything());
     spy.mockRestore();
   });
 });
 
 describe('NotificationInAppService.pushToRole', () => {
-  it('queries users by role and pushes notification to each', async () => {
+  it('queries tenant members by role and pushes to each', async () => {
     const mockFind = vi.fn(async () => [{ userId: 'u1' }, { userId: 'u2' }]);
-    (getSystemDataSource as any).mockResolvedValue({
+    (tenantDataSourceFor as any).mockResolvedValue({
       getRepository: () => ({ find: mockFind }),
     });
 
@@ -135,9 +144,12 @@ describe('NotificationInAppService.pushToRole', () => {
       createdAt: new Date().toISOString(),
     });
 
-    await NotificationInAppService.pushToRole('ADMIN', { title: 'Admin Note', message: 'Check this' });
+    await NotificationInAppService.pushToRole(TENANT_ID, 'ADMIN', { title: 'Admin Note', message: 'Check this' });
 
-    expect(mockFind).toHaveBeenCalledWith({ where: { userRole: 'ADMIN' }, select: ['userId'] });
+    expect(mockFind).toHaveBeenCalledWith({
+      where: { tenantId: TENANT_ID, memberRole: 'ADMIN', memberStatus: 'ACTIVE' },
+      select: ['userId'],
+    });
     expect(pushSpy).toHaveBeenCalledTimes(2);
     pushSpy.mockRestore();
   });
@@ -147,7 +159,7 @@ describe('NotificationInAppService.getAll', () => {
   it('returns empty array when no notifications exist', async () => {
     mockRedis.hgetall.mockResolvedValue(null);
     mockRedis.smembers.mockResolvedValue([]);
-    const result = await NotificationInAppService.getAll('user-1');
+    const result = await NotificationInAppService.getAll(TENANT_ID, 'user-1');
     expect(result).toEqual([]);
   });
 
@@ -162,10 +174,10 @@ describe('NotificationInAppService.getAll', () => {
       'id-1': JSON.stringify(n1),
       'id-2': JSON.stringify(n2),
     });
-    mockRedis.smembers.mockResolvedValue(['id-1']); // id-1 is read
+    mockRedis.smembers.mockResolvedValue(['id-1']);
 
-    const result = await NotificationInAppService.getAll('user-1');
-    expect(result[0].notificationId).toBe('id-1'); // newest first
+    const result = await NotificationInAppService.getAll(TENANT_ID, 'user-1');
+    expect(result[0].notificationId).toBe('id-1');
     expect(result[0].isRead).toBe(true);
     expect(result[1].isRead).toBe(false);
   });
@@ -180,17 +192,20 @@ describe('NotificationInAppService.unreadCount', () => {
       'id-1': JSON.stringify(n1),
       'id-2': JSON.stringify(n2),
     });
-    mockRedis.smembers.mockResolvedValue(['id-1']); // id-1 is read
+    mockRedis.smembers.mockResolvedValue(['id-1']);
 
-    const count = await NotificationInAppService.unreadCount('user-1');
+    const count = await NotificationInAppService.unreadCount(TENANT_ID, 'user-1');
     expect(count).toBe(1);
   });
 });
 
 describe('NotificationInAppService.markAsRead', () => {
-  it('adds notification id to read set in redis', async () => {
-    await NotificationInAppService.markAsRead('user-1', 'notif-id-1');
-    expect(mockRedis.sadd).toHaveBeenCalledWith('notifications_read:user-1', 'notif-id-1');
+  it('adds notification id to tenant-scoped read set', async () => {
+    await NotificationInAppService.markAsRead(TENANT_ID, 'user-1', 'notif-id-1');
+    expect(mockRedis.sadd).toHaveBeenCalledWith(
+      `notifications_read:${TENANT_ID}:user-1`,
+      'notif-id-1'
+    );
   });
 });
 
@@ -198,7 +213,7 @@ describe('NotificationInAppService.markAllAsRead', () => {
   it('does nothing when there are no notifications', async () => {
     mockRedis.hgetall.mockResolvedValue(null);
     mockRedis.smembers.mockResolvedValue([]);
-    await NotificationInAppService.markAllAsRead('user-1');
+    await NotificationInAppService.markAllAsRead(TENANT_ID, 'user-1');
     expect(mockRedis.sadd).not.toHaveBeenCalled();
   });
 
@@ -207,23 +222,26 @@ describe('NotificationInAppService.markAllAsRead', () => {
     mockRedis.hgetall.mockResolvedValue({ 'id-1': JSON.stringify(n1) });
     mockRedis.smembers.mockResolvedValue([]);
 
-    await NotificationInAppService.markAllAsRead('user-1');
-    expect(mockRedis.sadd).toHaveBeenCalledWith('notifications_read:user-1', 'id-1');
+    await NotificationInAppService.markAllAsRead(TENANT_ID, 'user-1');
+    expect(mockRedis.sadd).toHaveBeenCalledWith(
+      `notifications_read:${TENANT_ID}:user-1`,
+      'id-1'
+    );
   });
 });
 
 describe('NotificationInAppService.deleteOne', () => {
-  it('removes notification from hash and read set', async () => {
-    await NotificationInAppService.deleteOne('user-1', 'notif-id-1');
-    expect(mockRedis.hdel).toHaveBeenCalledWith('notifications:user-1', 'notif-id-1');
-    expect(mockRedis.srem).toHaveBeenCalledWith('notifications_read:user-1', 'notif-id-1');
+  it('removes notification from tenant-scoped hash and read set', async () => {
+    await NotificationInAppService.deleteOne(TENANT_ID, 'user-1', 'notif-id-1');
+    expect(mockRedis.hdel).toHaveBeenCalledWith(`notifications:${TENANT_ID}:user-1`, 'notif-id-1');
+    expect(mockRedis.srem).toHaveBeenCalledWith(`notifications_read:${TENANT_ID}:user-1`, 'notif-id-1');
   });
 });
 
 describe('NotificationInAppService.clearAll', () => {
-  it('deletes both the notification hash and read set', async () => {
-    await NotificationInAppService.clearAll('user-1');
-    expect(mockRedis.del).toHaveBeenCalledWith('notifications:user-1');
-    expect(mockRedis.del).toHaveBeenCalledWith('notifications_read:user-1');
+  it('deletes both the tenant-scoped notification hash and read set', async () => {
+    await NotificationInAppService.clearAll(TENANT_ID, 'user-1');
+    expect(mockRedis.del).toHaveBeenCalledWith(`notifications:${TENANT_ID}:user-1`);
+    expect(mockRedis.del).toHaveBeenCalledWith(`notifications_read:${TENANT_ID}:user-1`);
   });
 });

@@ -31,7 +31,20 @@ vi.mock('@/modules/db', () => ({
 }));
 
 vi.mock('@/modules/redis', () => ({
-  default: { get: vi.fn(), set: vi.fn(), del: vi.fn(), ping: vi.fn() },
+  default: {
+    get: vi.fn(async () => null),
+    set: vi.fn(async () => 'OK'),
+    setex: vi.fn(async () => 'OK'),
+    del: vi.fn(async () => 1),
+    ping: vi.fn(async () => 'PONG'),
+    mget: vi.fn(async () => []),
+    incrby: vi.fn(async () => 1),
+    expire: vi.fn(async () => 1),
+    keys: vi.fn(async () => []),
+    exists: vi.fn(async () => 0),
+  },
+  singleFlight: async (_key: string, fn: () => Promise<unknown>) => fn(),
+  jitter: (n: number) => n,
 }));
 
 vi.mock('@/modules/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
@@ -110,31 +123,41 @@ vi.mock('./providers/resend.provider', () => ({
   },
 }));
 
+
+// Bypass feature gating in unit tests — tested separately in tenant_subscription/.
+vi.mock('@/modules/tenant_subscription/tenant_subscription.service', () => ({
+  default: {
+    assertFeatureAccess: vi.fn(async () => undefined),
+    checkFeatureAccess: vi.fn(async () => ({ allowed: true, featureKey: '', type: 'BOOLEAN', limit: null, unlimited: null, current: null })),
+  },
+}));
 import MailService from './notification_mail.service';
+
+const TENANT_ID = '550e8400-e29b-41d4-a716-446655440000';
 
 beforeEach(() => {
   vi.clearAllMocks();
 });
 
 describe('MailService.getProvider', () => {
-  it('returns smtp provider when it is configured', () => {
-    const provider = MailService.getProvider('smtp');
+  it('returns smtp provider when it is configured', async () => {
+    const provider = await MailService.getProvider(TENANT_ID, 'smtp');
     expect(provider).toBeDefined();
-    expect(provider.isConfigured()).toBe(true);
+    expect(await provider.isConfigured(TENANT_ID)).toBe(true);
   });
 
-  it('falls back to smtp when unknown provider is requested', () => {
-    const provider = MailService.getProvider('unknown' as any);
+  it('falls back to smtp when unknown provider is requested', async () => {
+    const provider = await MailService.getProvider(TENANT_ID, 'unknown' as any);
     expect(provider).toBeDefined();
-    expect(provider.isConfigured()).toBe(true);
+    expect(await provider.isConfigured(TENANT_ID)).toBe(true);
   });
 });
 
 describe('MailService.listProviders', () => {
-  it('returns all 6 providers', () => {
-    const providers = MailService.listProviders();
+  it('returns all 6 providers', async () => {
+    const providers = await MailService.listProviders(TENANT_ID);
     expect(providers).toHaveLength(6);
-    const names = providers.map((p) => p.name);
+    const names = providers.map((p: any) => p.name);
     expect(names).toContain('smtp');
     expect(names).toContain('sendgrid');
     expect(names).toContain('mailgun');
@@ -143,11 +166,11 @@ describe('MailService.listProviders', () => {
     expect(names).toContain('resend');
   });
 
-  it('marks smtp as configured and others as not configured', () => {
-    const providers = MailService.listProviders();
-    const smtp = providers.find((p) => p.name === 'smtp');
+  it('marks smtp as configured and others as not configured', async () => {
+    const providers = await MailService.listProviders(TENANT_ID);
+    const smtp = providers.find((p: any) => p.name === 'smtp');
     expect(smtp?.configured).toBe(true);
-    const sendgrid = providers.find((p) => p.name === 'sendgrid');
+    const sendgrid = providers.find((p: any) => p.name === 'sendgrid');
     expect(sendgrid?.configured).toBe(false);
   });
 });
@@ -166,7 +189,7 @@ describe('MailService.getBaseTemplateVars', () => {
 describe('MailService.sendMail', () => {
   it('adds a job to the queue without throwing', async () => {
     await expect(
-      MailService.sendMail('user@example.com', 'Test Subject', '<p>Hello</p>')
+      MailService.sendMail(TENANT_ID, 'user@example.com', 'Test Subject', '<p>Hello</p>')
     ).resolves.not.toThrow();
   });
 
@@ -176,7 +199,7 @@ describe('MailService.sendMail', () => {
     (MailService.QUEUE as any).add = vi.fn(async () => { throw new Error('Queue error'); });
 
     await expect(
-      MailService.sendMail('user@example.com', 'Test Subject', '<p>Hello</p>')
+      MailService.sendMail(TENANT_ID, 'user@example.com', 'Test Subject', '<p>Hello</p>')
     ).resolves.not.toThrow();
 
     (MailService.QUEUE as any).add = originalAdd;
@@ -185,7 +208,7 @@ describe('MailService.sendMail', () => {
 
 describe('MailService.sendMailDirect', () => {
   it('returns a MailResult with success true', async () => {
-    const result = await MailService.sendMailDirect(
+    const result = await MailService.sendMailDirect(TENANT_ID, 
       'user@example.com',
       'Direct Subject',
       '<p>Direct</p>'
@@ -198,13 +221,13 @@ describe('MailService.sendMailDirect', () => {
 describe('MailService.sendWelcomeEmail', () => {
   it('does not throw for valid email', async () => {
     await expect(
-      MailService.sendWelcomeEmail({ email: 'user@example.com', name: 'Alice' })
+      MailService.sendWelcomeEmail({ tenantId: TENANT_ID, email: 'user@example.com', name: 'Alice' })
     ).resolves.not.toThrow();
   });
 
   it('uses email as name when name is not provided', async () => {
     await expect(
-      MailService.sendWelcomeEmail({ email: 'user@example.com' })
+      MailService.sendWelcomeEmail({ tenantId: TENANT_ID, email: 'user@example.com' })
     ).resolves.not.toThrow();
   });
 });
@@ -212,13 +235,13 @@ describe('MailService.sendWelcomeEmail', () => {
 describe('MailService.sendOTPEmail', () => {
   it('does not throw with valid otp token', async () => {
     await expect(
-      MailService.sendOTPEmail({ email: 'user@example.com', otpToken: '123456' })
+      MailService.sendOTPEmail({ tenantId: TENANT_ID, email: 'user@example.com', otpToken: '123456' })
     ).resolves.not.toThrow();
   });
 
   it('handles missing otp token gracefully (logs error, does not throw)', async () => {
     await expect(
-      MailService.sendOTPEmail({ email: 'user@example.com', otpToken: '' })
+      MailService.sendOTPEmail({ tenantId: TENANT_ID, email: 'user@example.com', otpToken: '' })
     ).resolves.not.toThrow();
   });
 });
@@ -227,7 +250,7 @@ describe('MailService.sendForgotPasswordEmail', () => {
   it('queues email with reset token in link', async () => {
     await expect(
       MailService.sendForgotPasswordEmail({
-        email: 'user@example.com',
+        tenantId: TENANT_ID, email: 'user@example.com',
         name: 'Alice',
         resetToken: 'reset-token-123',
       })
@@ -239,11 +262,11 @@ describe('MailService.sendTenantInvitationEmail', () => {
   it('queues invitation email without throwing', async () => {
     await expect(
       MailService.sendTenantInvitationEmail({
+        tenantId: TENANT_ID,
         email: 'invited@example.com',
         tenantName: 'Acme Corp',
         memberRole: 'USER',
         rawToken: 'token-xyz',
-        tenantId: 'tenant-uuid-123',
       })
     ).resolves.not.toThrow();
   });
@@ -253,7 +276,7 @@ describe('MailService.sendContactFormAdminEmail', () => {
   it('queues email to admin when INFORM_MAIL is set', async () => {
     await expect(
       MailService.sendContactFormAdminEmail({
-        message: 'Hello from contact form',
+        tenantId: TENANT_ID, message: 'Hello from contact form',
         name: 'Bob',
         email: 'bob@example.com',
         phone: '+1234567890',

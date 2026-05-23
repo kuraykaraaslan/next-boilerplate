@@ -2,7 +2,7 @@
   "$schema": "../module.schema.json",
   "id": "audit_log",
   "name": "Audit Log",
-  "description": "Append-only audit trail for sensitive actions (system AuditLog + per-tenant TenantAuditLog).",
+  "description": "Append-only audit trail for sensitive actions, stored per-tenant (platform events land on ROOT_TENANT_ID).",
   "version": "1.0.0",
   "icon": "fas fa-clipboard-list",
   "tags": ["platform", "security", "compliance"],

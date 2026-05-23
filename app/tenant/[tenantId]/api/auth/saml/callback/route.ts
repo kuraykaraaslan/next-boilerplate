@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import SamlService from '@/modules/auth_saml/auth_saml.service';
 import SamlMessages from '@/modules/auth_saml/auth_saml.messages';
 import SSOService from '@/modules/auth_sso/auth_sso.service';
-import UserService from '@/modules/user/user.service';
-import { SafeUserSchema } from '@/modules/user/user.types';
 import UserSessionNextService from '@/modules_next/user_session/user_session.service.next';
 import UserSecurityService from '@/modules/user_security/user_security.service';
 import TenantMemberService from '@/modules/tenant_member/tenant_member.service';
@@ -51,32 +49,22 @@ export async function POST(req: NextRequest, { params }: Params) {
       return NextResponse.redirect(`${APP_HOST}/tenant/${tenantId}/auth/login?error=tenant_inactive`);
     }
 
-    const existingRaw = await UserService.getByEmail(samlProfile.email);
+    // JIT-gated user + membership resolution. Throws NOT_MEMBER when the user
+    // is unknown / not a member and the tenant has not opted into JIT.
+    const { user, jitProvisioned } = await SamlService.resolveOrProvisionUser(tenantId, samlProfile);
 
-    let user = existingRaw ? SafeUserSchema.parse(existingRaw) : null;
-
-    if (!user) {
-      const created = await UserService.create({
-        email: samlProfile.email,
-        password: `saml_${Date.now()}_${Math.random().toString(36)}`,
-      });
-      await MailService.sendWelcomeEmail({ email: created.email });
-      user = created;
+    if (jitProvisioned) {
+      try { await MailService.sendWelcomeEmail({ tenantId, email: user.email }); } catch {}
     }
 
-    // Auto-provision tenant membership if not already a member
+    // Re-check membership status (in case the user is an existing, inactive
+    // member — JIT only creates ACTIVE rows, so this branch covers historical
+    // suspended / pending memberships).
     const existingMember = await TenantMemberService
       .getByTenantAndUser({ tenantMemberId: null, tenantId, userId: user.userId })
       .catch(() => null);
 
-    if (!existingMember) {
-      await TenantMemberService.create({
-        tenantId,
-        userId: user.userId,
-        memberRole: 'USER',
-        memberStatus: 'ACTIVE',
-      });
-    } else if (existingMember.memberStatus !== 'ACTIVE') {
+    if (existingMember && existingMember.memberStatus !== 'ACTIVE') {
       return NextResponse.redirect(`${APP_HOST}/tenant/${tenantId}/auth/login?error=member_inactive`);
     }
 

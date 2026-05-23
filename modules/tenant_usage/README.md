@@ -16,7 +16,7 @@ tenant:{tenantId}:usage:{metric}:{YYYY-MM}
 
 Example: `tenant:abc-123:usage:apiCalls:2026-05`
 
-Metrics: `apiCalls`, `aiTokens`, `storageBytes`, `emailSends`
+Metrics: `apiCalls`, `aiTokens`, `storageBytes`, `emailSends`, `smsSends`
 
 ## Incrementing counters
 
@@ -31,13 +31,28 @@ await TenantUsageService.incrementAiTokens(tenantId, tokensUsed);
 
 // After a file upload:
 await TenantUsageService.incrementStorageBytes(tenantId, fileSizeBytes);
+
+// After a successful email/sms delivery:
+await TenantUsageService.incrementEmailSends(tenantId, 1);
+await TenantUsageService.incrementSmsSends(tenantId, 1);
 ```
+
+### Wired call sites (live in this codebase)
+
+| Caller | Counter | Trigger |
+|---|---|---|
+| `modules/ai/ai.service.ts` (`chat` / `chatStream` / `embed`) | `aiTokens` | provider returns `usage.totalTokens` |
+| `modules/storage/storage.service.ts` (`uploadFile`, `uploadFromUrl`) | `storageBytes` | after `UploadedFile` audit insert |
+| `modules/notification_mail/notification_mail.service.ts` (`_sendMail` worker) | `emailSends` | provider returns `success: true` |
+| `modules/notification_sms/notification_sms.service.ts` (`_sendShortMessage` worker) | `smsSends` | provider returns `success: true` |
+
+`apiCalls` increment is wired at the route-middleware layer (Limiter hook); endpoints do not call it directly.
 
 ## Reading usage
 
 ```typescript
 const usage = await TenantUsageService.getUsage(tenantId);
-// { apiCalls: 42, aiTokens: 8000, storageBytes: 1048576, emailSends: 0 }
+// { apiCalls: 42, aiTokens: 8000, storageBytes: 1048576, emailSends: 0, smsSends: 0 }
 
 // For a specific past month:
 const lastMonth = await TenantUsageService.getUsage(tenantId, '2026-04');
@@ -59,4 +74,4 @@ await TenantUsageService.flushToDb(tenantId, month);
 
 ## Entity registration
 
-`TenantUsage` must be added to the tenant DataSource entity list separately (out of scope here). See `libs/typeorm/tenant.ts`.
+`TenantUsage` is registered in `modules/db/db.tenant.ts` (per-tenant DataSource).

@@ -1,17 +1,12 @@
 import { z } from 'zod';
-
-// ============================================================================
-// Constants
-// ============================================================================
-
-export const SYSTEM_TENANT_ID = '00000000-0000-0000-0000-000000000000';
+import { ROOT_TENANT_ID } from '@/modules/tenant/tenant.constants';
 
 // ============================================================================
 // Setting Schema
 // ============================================================================
 
 export const SettingSchema = z.object({
-  tenantId: z.string().uuid().default(SYSTEM_TENANT_ID),
+  tenantId: z.string().uuid().default(ROOT_TENANT_ID),
   key: z.string(),
   value: z.string(),
   group: z.string().default("general"),

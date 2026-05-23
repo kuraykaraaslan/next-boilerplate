@@ -2,42 +2,52 @@ import { env } from '@/modules/env';
 import axios, { AxiosInstance } from "axios";
 import FormData from "form-data";
 import Logger from "@/modules/logger";
+import SettingService from "@/modules/setting/setting.service";
 import BaseMailProvider, { MailOptions, MailResult } from "./base.provider";
+
+interface MailgunCreds {
+  apiKey: string;
+  domain: string;
+  region: string;
+}
 
 export default class MailgunProvider extends BaseMailProvider {
   readonly name = "Mailgun";
 
-  private static readonly MAILGUN_API_KEY = env.MAILGUN_API_KEY;
-  private static readonly MAILGUN_DOMAIN = env.MAILGUN_DOMAIN;
-  private static readonly MAILGUN_REGION = env.MAILGUN_REGION || "us"; // "us" or "eu"
+  private async resolveCreds(tenantId: string): Promise<MailgunCreds> {
+    const [apiKey, domain, region] = await Promise.all([
+      SettingService.getValue(tenantId, 'mailgunApiKey'),
+      SettingService.getValue(tenantId, 'mailgunDomain'),
+      SettingService.getValue(tenantId, 'mailgunRegion'),
+    ]);
+    return {
+      apiKey: apiKey ?? env.MAILGUN_API_KEY ?? '',
+      domain: domain ?? env.MAILGUN_DOMAIN ?? '',
+      region: region ?? env.MAILGUN_REGION ?? 'us',
+    };
+  }
 
-  private getBaseUrl(): string {
-    return MailgunProvider.MAILGUN_REGION === "eu"
+  private getBaseUrl(region: string): string {
+    return region === "eu"
       ? "https://api.eu.mailgun.net/v3"
       : "https://api.mailgun.net/v3";
   }
 
-  private axiosInstance: AxiosInstance | null = null;
-
-  private getAxiosInstance(): AxiosInstance {
-    if (!this.axiosInstance) {
-      this.axiosInstance = axios.create({
-        baseURL: this.getBaseUrl(),
-        auth: {
-          username: "api",
-          password: MailgunProvider.MAILGUN_API_KEY!,
-        },
-      });
-    }
-    return this.axiosInstance;
+  private buildClient(creds: MailgunCreds): AxiosInstance {
+    return axios.create({
+      baseURL: this.getBaseUrl(creds.region),
+      auth: { username: "api", password: creds.apiKey },
+    });
   }
 
-  isConfigured(): boolean {
-    return !!(MailgunProvider.MAILGUN_API_KEY && MailgunProvider.MAILGUN_DOMAIN);
+  async isConfigured(tenantId: string): Promise<boolean> {
+    const c = await this.resolveCreds(tenantId);
+    return !!(c.apiKey && c.domain);
   }
 
-  async sendMail(options: MailOptions): Promise<MailResult> {
-    if (!this.isConfigured()) {
+  async sendMail(tenantId: string, options: MailOptions): Promise<MailResult> {
+    const creds = await this.resolveCreds(tenantId);
+    if (!creds.apiKey || !creds.domain) {
       Logger.error("Mailgun: Provider is not configured");
       return { success: false, error: "Mailgun provider is not configured" };
     }
@@ -70,8 +80,8 @@ export default class MailgunProvider extends BaseMailProvider {
     }
 
     try {
-      const response = await this.getAxiosInstance().post(
-        `/${MailgunProvider.MAILGUN_DOMAIN}/messages`,
+      const response = await this.buildClient(creds).post(
+        `/${creds.domain}/messages`,
         formData,
         { headers: formData.getHeaders() }
       );

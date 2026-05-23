@@ -1,23 +1,5 @@
 import { z } from 'zod';
 
-export const SafeSystemSamlConfigSchema = z.object({
-  systemSamlConfigId: z.string(),
-  isEnabled: z.boolean(),
-  idpEntityId: z.string(),
-  idpSsoUrl: z.string(),
-  idpCertificate: z.string(),
-  spCertificate: z.string().nullable(),
-  emailAttribute: z.string(),
-  nameAttribute: z.string(),
-  allowIdpInitiated: z.boolean(),
-  signRequests: z.boolean(),
-  nameIdFormat: z.string().nullable(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-});
-
-export type SafeSystemSamlConfig = z.infer<typeof SafeSystemSamlConfigSchema>;
-
 export const SafeSamlConfigSchema = z.object({
   samlConfigId: z.string(),
   tenantId: z.string(),
@@ -29,6 +11,9 @@ export const SafeSamlConfigSchema = z.object({
   spCertificate: z.string().nullable(),
   emailAttribute: z.string(),
   nameAttribute: z.string(),
+  roleAttribute: z.string().nullable().optional(),
+  allowJitProvisioning: z.boolean(),
+  defaultMemberRole: z.string().nullable().optional(),
   allowIdpInitiated: z.boolean(),
   signRequests: z.boolean(),
   nameIdFormat: z.string().nullable(),

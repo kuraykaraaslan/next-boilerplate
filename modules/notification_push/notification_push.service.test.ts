@@ -28,7 +28,20 @@ vi.mock('@/modules/db', () => ({
 }));
 
 vi.mock('@/modules/redis', () => ({
-  default: { get: vi.fn(), set: vi.fn(), del: vi.fn(), ping: vi.fn() },
+  default: {
+    get: vi.fn(async () => null),
+    set: vi.fn(async () => 'OK'),
+    setex: vi.fn(async () => 'OK'),
+    del: vi.fn(async () => 1),
+    ping: vi.fn(async () => 'PONG'),
+    mget: vi.fn(async () => []),
+    incrby: vi.fn(async () => 1),
+    expire: vi.fn(async () => 1),
+    keys: vi.fn(async () => []),
+    exists: vi.fn(async () => 0),
+  },
+  jitter: (n: number) => n,
+  singleFlight: (_key: string, fn: () => Promise<unknown>) => fn(),
 }));
 
 vi.mock('@/modules/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
@@ -41,13 +54,16 @@ vi.mock('web-push', () => ({
 }));
 
 import NotificationPushService from './notification_push.service';
-import { getSystemDataSource } from '@/modules/db';
+import { tenantDataSourceFor } from '@/modules/db';
 import webpush from 'web-push';
 
 const mockWebPush = webpush as any;
 
+const TENANT_ID = '00000000-0000-4000-8000-000000000000';
+
 const mockSub = {
   id: 'sub-1',
+  tenantId: TENANT_ID,
   userId: 'user-1',
   endpoint: 'https://example.com/push/endpoint',
   p256dh: 'p256dh-key',
@@ -67,7 +83,7 @@ function makeRepo(overrides: Partial<Record<string, any>> = {}) {
 }
 
 function mockDataSource(repo: ReturnType<typeof makeRepo>) {
-  (getSystemDataSource as any).mockResolvedValue({
+  (tenantDataSourceFor as any).mockResolvedValue({
     getRepository: () => repo,
   });
   return repo;
@@ -82,58 +98,58 @@ describe('NotificationPushService.subscribe', () => {
     const repo = makeRepo({ findOne: vi.fn(async () => null) });
     mockDataSource(repo);
 
-    await NotificationPushService.subscribe('user-1', {
+    await NotificationPushService.subscribe(TENANT_ID, 'user-1', {
       endpoint: 'https://push.example.com/sub1',
       keys: { p256dh: 'p256key', auth: 'authkey' },
     });
 
-    expect(repo.create).toHaveBeenCalled();
+    expect(repo.create).toHaveBeenCalledWith(expect.objectContaining({ tenantId: TENANT_ID, userId: 'user-1' }));
     expect(repo.save).toHaveBeenCalled();
   });
 
-  it('updates an existing subscription when endpoint already exists', async () => {
+  it('updates an existing subscription when (tenantId, endpoint) already exists', async () => {
     const repo = makeRepo({ findOne: vi.fn(async () => mockSub) });
     mockDataSource(repo);
 
-    await NotificationPushService.subscribe('user-1', {
+    await NotificationPushService.subscribe(TENANT_ID, 'user-1', {
       endpoint: mockSub.endpoint,
       keys: { p256dh: 'new-p256', auth: 'new-auth' },
     });
 
     expect(repo.update).toHaveBeenCalledWith(
-      { endpoint: mockSub.endpoint },
+      { tenantId: TENANT_ID, endpoint: mockSub.endpoint },
       expect.objectContaining({ userId: 'user-1' })
     );
   });
 });
 
 describe('NotificationPushService.unsubscribe', () => {
-  it('deletes all subscriptions for a user', async () => {
+  it('deletes all subscriptions for a user within a tenant', async () => {
     const repo = makeRepo();
     mockDataSource(repo);
 
-    await NotificationPushService.unsubscribe('user-1');
-    expect(repo.delete).toHaveBeenCalledWith({ userId: 'user-1' });
+    await NotificationPushService.unsubscribe(TENANT_ID, 'user-1');
+    expect(repo.delete).toHaveBeenCalledWith({ tenantId: TENANT_ID, userId: 'user-1' });
   });
 });
 
 describe('NotificationPushService.unsubscribeByEndpoint', () => {
-  it('deletes subscription by endpoint', async () => {
+  it('deletes subscription by (tenantId, endpoint)', async () => {
     const repo = makeRepo();
     mockDataSource(repo);
 
-    await NotificationPushService.unsubscribeByEndpoint('https://push.example.com/sub1');
-    expect(repo.delete).toHaveBeenCalledWith({ endpoint: 'https://push.example.com/sub1' });
+    await NotificationPushService.unsubscribeByEndpoint(TENANT_ID, 'https://push.example.com/sub1');
+    expect(repo.delete).toHaveBeenCalledWith({ tenantId: TENANT_ID, endpoint: 'https://push.example.com/sub1' });
   });
 });
 
 describe('NotificationPushService.sendToUser', () => {
-  it('initializes VAPID and sends notifications to all user subscriptions', async () => {
+  it('initializes VAPID and sends notifications to all user subscriptions in tenant', async () => {
     const repo = makeRepo({ find: vi.fn(async () => [mockSub]) });
     mockDataSource(repo);
     mockWebPush.sendNotification.mockResolvedValue({ statusCode: 201 });
 
-    await NotificationPushService.sendToUser('user-1', { title: 'Hi', body: 'Hello' });
+    await NotificationPushService.sendToUser(TENANT_ID, 'user-1', { title: 'Hi', body: 'Hello' });
 
     expect(mockWebPush.setVapidDetails).toHaveBeenCalled();
     expect(mockWebPush.sendNotification).toHaveBeenCalledWith(
@@ -146,7 +162,7 @@ describe('NotificationPushService.sendToUser', () => {
     const repo = makeRepo({ find: vi.fn(async () => []) });
     mockDataSource(repo);
 
-    await NotificationPushService.sendToUser('user-1', { title: 'Hi', body: 'Hello' });
+    await NotificationPushService.sendToUser(TENANT_ID, 'user-1', { title: 'Hi', body: 'Hello' });
     expect(mockWebPush.sendNotification).not.toHaveBeenCalled();
   });
 
@@ -158,7 +174,7 @@ describe('NotificationPushService.sendToUser', () => {
     mockWebPush.sendNotification.mockRejectedValue(error);
 
     await expect(
-      NotificationPushService.sendToUser('user-1', { title: 'Hi', body: 'Gone' })
+      NotificationPushService.sendToUser(TENANT_ID, 'user-1', { title: 'Hi', body: 'Gone' })
     ).resolves.not.toThrow();
 
     expect(repo.delete).toHaveBeenCalledWith({ id: mockSub.id });
@@ -166,34 +182,36 @@ describe('NotificationPushService.sendToUser', () => {
 });
 
 describe('NotificationPushService.sendToAll', () => {
-  it('fetches all subscriptions and sends to each', async () => {
+  it('fetches all subscriptions in the tenant and sends to each', async () => {
     const sub2 = { ...mockSub, id: 'sub-2', userId: 'user-2', endpoint: 'https://push.example.com/sub2' };
     const repo = makeRepo({ find: vi.fn(async () => [mockSub, sub2]) });
     mockDataSource(repo);
     mockWebPush.sendNotification.mockResolvedValue({ statusCode: 201 });
 
-    await NotificationPushService.sendToAll({ title: 'Broadcast', body: 'To all' });
+    await NotificationPushService.sendToAll(TENANT_ID, { title: 'Broadcast', body: 'To all' });
     expect(mockWebPush.sendNotification).toHaveBeenCalledTimes(2);
   });
 });
 
 describe('NotificationPushService.sendToAdmins', () => {
-  it('queries admin users and dispatches to their subscriptions', async () => {
-    // First call: UserEntity repo (for role query)
-    // Second call: PushSubscriptionEntity repo (for subs)
-    const userRepo = { find: vi.fn(async () => [{ userId: 'admin-1' }]) };
+  it('queries TenantMember for ADMIN role and dispatches to their subscriptions', async () => {
+    const memberRepo = { find: vi.fn(async () => [{ userId: 'admin-1' }]) };
     const subRepo = { find: vi.fn(async () => [mockSub]) };
 
     let callCount = 0;
-    (getSystemDataSource as any).mockResolvedValue({
+    (tenantDataSourceFor as any).mockResolvedValue({
       getRepository: () => {
         callCount++;
-        return callCount === 1 ? userRepo : subRepo;
+        return callCount === 1 ? memberRepo : subRepo;
       },
     });
     mockWebPush.sendNotification.mockResolvedValue({ statusCode: 201 });
 
-    await NotificationPushService.sendToAdmins({ title: 'Admin Alert', body: 'Check now' });
+    await NotificationPushService.sendToAdmins(TENANT_ID, { title: 'Admin Alert', body: 'Check now' });
+    expect(memberRepo.find).toHaveBeenCalledWith({
+      where: { tenantId: TENANT_ID, memberRole: 'ADMIN', memberStatus: 'ACTIVE' },
+      select: ['userId'],
+    });
     expect(mockWebPush.sendNotification).toHaveBeenCalled();
   });
 });

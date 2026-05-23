@@ -16,6 +16,9 @@
     "db:reset": "tsx scripts/db-reset.ts",
     "db:fix-enums": "tsx scripts/db-fix-enums.ts",
     "db:migrate:user-security-policy": "tsx scripts/migrate-user-security-policy.ts",
+    "tenant:create": "tsx scripts/create-tenant.ts",
+    "tenant:seed-root": "tsx scripts/migrate-to-root-tenant.ts",
+    "tenant:seed-default": "tsx scripts/default-tenant.ts",
     "registry:snapshot": "node scripts/build-registry-snapshot.mjs",
     "mcp:server": "node scripts/mcp-server.mjs"
   },

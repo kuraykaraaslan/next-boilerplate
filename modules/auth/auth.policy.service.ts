@@ -1,5 +1,5 @@
 import SettingService from '@/modules/setting/setting.service';
-import TenantSettingService from '@/modules/tenant_setting/tenant_setting.service';
+import { ROOT_TENANT_ID } from '@/modules/tenant/tenant.constants';
 import Logger from '@/modules/logger';
 
 export const PASSWORD_POLICY_KEYS = [
@@ -157,13 +157,13 @@ async function loadSettings(
   keys: readonly string[],
   tenantId?: string,
 ): Promise<{ system: Record<string, string>; tenant: Record<string, string> }> {
-  const system = await SettingService.getByKeys([...keys]).catch((err: unknown) => {
-    Logger.warn(`AuthPolicy: failed to load system settings: ${err instanceof Error ? err.message : String(err)}`);
+  const system = await SettingService.getByKeys(ROOT_TENANT_ID, [...keys]).catch((err: unknown) => {
+    Logger.warn(`AuthPolicy: failed to load platform settings: ${err instanceof Error ? err.message : String(err)}`);
     return {};
   });
   let tenant: Record<string, string> = {};
   if (tenantId) {
-    tenant = await TenantSettingService.getByKeys(tenantId, [...keys]).catch((err: unknown) => {
+    tenant = await SettingService.getByKeys(tenantId, [...keys]).catch((err: unknown) => {
       Logger.warn(`AuthPolicy: failed to load tenant settings (${tenantId}): ${err instanceof Error ? err.message : String(err)}`);
       return {};
     });

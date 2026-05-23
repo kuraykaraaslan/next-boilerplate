@@ -58,3 +58,16 @@ Rate limits are enforced via Redis per user. Exceeding the limit throws `AIRateL
 1. Extend `BaseAIProvider` in `providers/`
 2. Register in `ai.service.ts` provider map
 3. Add setting keys in `ai.setting.keys.ts`
+
+---
+
+## Usage tracking & audit (NEW)
+
+Every successful `chat`, `chatStream`, and `embed` call now writes both:
+
+1. The legacy Redis daily counter (`ai:usage:<tenantId>:<provider>:<YYYY-MM-DD>`) — preserved for backwards compatibility.
+2. A monthly `TenantUsage.aiTokens` counter via `TenantUsageService.incrementAiTokens(tenantId, response.usage?.totalTokens)`. This is what billing / quota enforcement reads.
+3. A per-call `AiUsageLog` row (`modules/ai/entities/ai_usage_log.entity.ts`) with `provider`, `model`, `kind` (chat/stream/embed), `inputTokens`, `outputTokens`, `totalTokens`, `costUsd?`, `createdAt`. The row is the source of truth for "which model did what" reports.
+
+All audit writes are best-effort — a DB hiccup never breaks the provider response.
+

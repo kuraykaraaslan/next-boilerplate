@@ -2,6 +2,9 @@ import { z } from 'zod';
 import { AuditActorTypeEnum } from './audit_log.enums';
 
 export const CreateAuditLogDTO = z.object({
+  // tenantId is optional/nullable on the input — service defaults to
+  // ROOT_TENANT_ID for platform-level events. Every persisted row, however,
+  // has a real tenantId (the column is NOT NULL).
   tenantId:     z.string().uuid().nullable().optional(),
   actorId:      z.string().uuid().nullable().optional(),
   actorType:    AuditActorTypeEnum.default('SYSTEM'),

@@ -36,7 +36,7 @@ Before grepping or guessing — fetch the catalog. Static snapshots live under `
 A **production-grade, multi-tenant SaaS starter** built on Next.js 16 (App Router + RSC) with a strict three-layer architecture: framework-agnostic business logic, a Next.js binding layer, and the app routes themselves.
 
 - **Framework**: Next.js 16 · React 19 · TypeScript 5 (strict)
-- **DB**: PostgreSQL (TypeORM, dual-schema: system + tenant) · **Cache/Queue**: Redis + BullMQ
+- **DB**: PostgreSQL (TypeORM, single shared schema; the root tenant `00000000-0000-4000-8000-000000000000` owns the platform-level config) · **Cache/Queue**: Redis + BullMQ
 - **Auth**: JWT (httpOnly), OTP, TOTP, SAML, OAuth (12+ providers), WebAuthn/Passkeys
 - **Payments**: Stripe, PayPal, Iyzico · **Email**: 7 providers · **SMS**: 4 providers · **Storage**: 4 S3-compatible providers
 - **UI**: Tailwind 4 · Radix · CVA · FontAwesome · **State**: Zustand 5 · **Forms**: react-hook-form + Zod
@@ -83,16 +83,14 @@ Strict **one-way dependency**:
 │   ├── layout.tsx            ← root layout (HTML shell)
 │   ├── providers.tsx         ← React context providers (theme, i18n, toast)
 │   ├── globals.css           ← Tailwind entry
-│   ├── system/               ← system-scope (super-admin, no tenant)
-│   │   ├── admin/            ← system admin dashboard pages
-│   │   ├── api/              ← system API route handlers (versioned under proxy)
-│   │   ├── auth/             ← system auth pages
-│   │   └── fleet/            ← fleet management panel
-│   └── tenant/[tenantId]/    ← tenant-scope (everything per-tenant)
-│       ├── admin/            ← tenant admin dashboard pages
-│       ├── api/              ← tenant API route handlers
-│       ├── auth/             ← tenant auth pages
-│       └── api-docs/         ← per-tenant Swagger UI
+│   └── tenant/[tenantId]/    ← every page/API lives under a tenant; root tenant
+│       │                      hosts platform admin + super-admin surface
+│       ├── admin/            ← tenant admin dashboard pages (members, invitations,
+│       │                       webhooks, settings, me, ai, coupons, fleet, health,
+│       │                       payments, plans, saml, tenants, users …)
+│       ├── api/              ← tenant API route handlers (flat — no /admin/ segment)
+│       ├── auth/             ← tenant auth pages (login/register/select-tenant/…)
+│       └── api-docs/         ← Swagger UI (root tenant = SYSTEM_SPEC, others = TENANT_SPEC)
 │
 ├── modules/                  ← framework-agnostic business logic (41 modules)
 │   ├── README.md             ← layer rules
@@ -188,7 +186,7 @@ Every module under `modules/<name>/` is self-contained and follows this layout (
 | read what a module does | `modules/<name>/README.md` |
 | see the machine-readable spec of a module | `modules/<name>/module.json` (validated against [modules/module.schema.json](modules/module.schema.json)) |
 | change tenant routing/proxy rules | [proxy.ts](proxy.ts) |
-| add a new API endpoint | `app/system/api/...` or `app/tenant/[tenantId]/api/...` |
+| add a new API endpoint | `app/tenant/[tenantId]/api/...` (root-tenant-only handlers go under `api/admin/`) |
 | add a new business-logic module | create `modules/<name>/` (see §10) |
 | change the DB schema | `modules/<name>/entities/*.entity.ts` |
 | change setting keys | `modules/<name>/<name>.setting.keys.ts` |
@@ -210,7 +208,7 @@ These five modules sit at the bottom of the dependency graph — almost everythi
 
 | Module | What it gives you | Typical import |
 |---|---|---|
-| [modules/db](modules/db/) | `getSystemDataSource()`, `tenantDataSourceFor(id)`, `getDefaultTenantDataSource()` | `import { getSystemDataSource } from "@/modules/db";` |
+| [modules/db](modules/db/) | `getSystemDataSource()`, `tenantDataSourceFor(id)`, `getDefaultTenantDataSource()` (single shared schema; both factories point at the same DB by default) | `import { getSystemDataSource } from "@/modules/db";` |
 | [modules/env](modules/env/) | Typed env-var access (single source of truth) | `import { env } from "@/modules/env";` |
 | [modules/logger](modules/logger/) | Winston logger | `import { logger } from "@/modules/logger";` |
 | [modules/redis](modules/redis/) | Redis client + BullMQ connection | `import { redis } from "@/modules/redis";` |
@@ -258,10 +256,10 @@ Cross-module shared infrastructure: `common/` (axios client, 30+ UI primitives, 
    - `<new_module>.service.test.ts` — tests
    - `README.md` — **REQUIRED**: what it does, public API, dependencies, examples
    - `module.json` — **REQUIRED**: machine-readable manifest (validate against [modules/module.schema.json](modules/module.schema.json))
-3. **Register the entity** in the appropriate DataSource ([modules/db/db.system.ts](modules/db/db.system.ts) or [modules/db/db.tenant.ts](modules/db/db.tenant.ts))
+3. **Register the entity** in the appropriate DataSource ([modules/db/db.system.ts](modules/db/db.system.ts) for shared platform entities, or [modules/db/db.tenant.ts](modules/db/db.tenant.ts) for per-tenant tables)
 4. **Update the index**: add a row to [modules/MODULES.md](modules/MODULES.md)
 5. **If it needs Next/React**: add `modules_next/<new_module>/` with `ui/`, `hooks/`, or `*.service.next.ts`
-6. **If it needs routes**: add handlers under `app/system/api/...` or `app/tenant/[tenantId]/api/...`
+6. **If it needs routes**: add handlers under `app/tenant/[tenantId]/api/...` (root-tenant-only handlers go under `app/tenant/[tenantId]/api/admin/...`)
 7. **Tests**: run `npm test`
 
 ## 11. How to add a UI component
@@ -277,7 +275,19 @@ After adding, update [modules_next/COMPONENTS.md](modules_next/COMPONENTS.md).
 
 ## 12. Multi-tenancy in one paragraph
 
-Two Postgres schemas: **system** (shared: tenants table, system settings, fleet) and **tenant** (per-tenant data, scoped via `tenantDataSourceFor(tenantId)`). [proxy.ts](proxy.ts) inspects host/path, resolves the tenant, and rewrites the URL so the right route handler runs. System routes live under `app/system/`, tenant routes under `app/tenant/[tenantId]/`. The public-facing URL never contains internal route segments — clients hit `/api/v1/system/...` or `/api/v1/tenant/{id}/...` and the proxy maps them.
+Every page and API lives under `app/tenant/[tenantId]/`. The **root tenant** (`ROOT_TENANT_ID = 00000000-0000-4000-8000-000000000000`, name `"Platform"`) is a real tenant row — there is no separate "system" surface. A **super-admin** is a `TenantMember` of the root tenant with `memberRole = 'ADMIN'`; the admin guard ([modules_next/auth/auth.admin-guard.next.ts](modules_next/auth/auth.admin-guard.next.ts)) authenticates against root-tenant membership. Platform-wide pages (tenant CRUD, global users, plans, coupons, fleet, health, AI playground) live under `app/tenant/[tenantId]/admin/*` and guard themselves with `isRootTenant(tenantId)` so they 404 from any other tenant. [proxy.ts](proxy.ts) inspects host/path: `localhost` or `{ROOT_SUBDOMAIN}.{WILDCARD}` → `ROOT_TENANT_ID`; other domains → `TenantDomain` lookup. Path-mode uses `/t/{tenantId}/…`. The public API surface is `/api/tenant/{tenantId}/...` (rewritten to `/tenant/{tenantId}/api/...`). DataSource-wise there are still two factories (`getSystemDataSource`, `tenantDataSourceFor`), but they point at the same Postgres schema by default — the split is structural, not physical.
+
+**Tenant-owned configuration.** Each tenant owns its own row in the `settings` table (a single composite-key `(tenantId, key)` store; the legacy split into `settings` + `tenant_settings` was merged) and configures its own **provider credentials**: Stripe / PayPal / Iyzico / Alipay / CloudPayments / WeChat / YooKassa for payments, Anthropic / OpenAI / Google for AI, SMTP / SES / Mailgun / Postmark / Resend / SendGrid for email, Twilio / Nexmo / Clickatell / NetGSM for SMS, S3 / R2 / Spaces / MinIO for storage, hCaptcha / reCAPTCHA for captcha. The corresponding service layers (`PaymentService`, `AIService`, `MailService`, `SmsService`, `StorageService`, `CaptchaService`) and every concrete provider implementation take `tenantId` as their first argument and read settings from that tenant's row — so when a customer pays a tenant, the money lands in *that tenant's* Stripe account; when a tenant sends an email, it goes through *that tenant's* SMTP. Plans, coupons and audit logs are also tenant-scoped. The root tenant just happens to own the platform's defaults via its own settings row.
+
+**Tenant create seed.** `TenantService.create()` (and the personal-tenant auto-provision on user signup) seeds every new tenant with a Free `SubscriptionPlan`, a `TenantSubscription` bound to it, and minimum-functional locale settings (`language=en`, `dateFormat=YYYY-MM-DD`, `timezone=UTC`). The seed is best-effort, skipped for the root tenant, and opt-out per step via `CreateTenantDTO.defaults`.
+
+**Usage tracking & feature gating.** Every tenant-scoped service that costs the operator money (`AIService.chat`, `StorageService.uploadFile`, `MailService.sendXxxEmail`, `SmsService.sendShortMessage`) increments `TenantUsage` (`apiCalls`, `aiTokens`, `storageBytes`, `emailSends`, `smsSends`) and writes a persistent audit row (`AiUsageLog`, `UploadedFile`, `NotificationLog`). The `tenant-usage-flush` hourly cron (see [CRON.md](CRON.md)) persists Redis counters to the `TenantUsage` table before the monthly TTL expires. Feature access uses `TenantSubscriptionService.assertFeatureAccess(tenantId, 'feature_…', currentCount?)` — wired into AI, mail, SMS, storage, webhook, and API-key services so a tenant on a plan without a feature gets a clean 402/403 rather than silently consuming resources.
+
+**Tenant lifecycle.** Soft-delete via `TenantDeletionService.requestDeletion()` schedules a 30-day grace period; the `purge-expired-tenants` daily cron hard-removes anything past the horizon. `TenantExportService.exportTenantData(tenantId)` ships a JSON dump of every tenant-scoped row (members, domains, audit, webhooks, settings, payments, subscriptions, plans, coupons, api keys, SAML, uploaded files, AI usage, notifications, usage stats) — GDPR portability without bespoke per-customer extraction code. The `tenant-domain-dns-recheck` 6-hourly cron re-resolves every `ACTIVE` `TenantDomain` and marks broken ones `DNS_FAILED` so SSL cert provisioning and HTTP routing don't drift silently.
+
+**Defense-in-depth.** Service-layer queries always carry `where: { tenantId }`. As of migration [`001_tenant_rls.sql`](modules/db/migrations/001_tenant_rls.sql) every tenant-scoped table also runs Postgres row-level security keyed on a session variable (`app.current_tenant`) — a forgotten `where` clause in a service is a silently-empty result instead of a cross-tenant leak. See [ADR 0003](docs/adr/0003-migration-framework.md). The proxy / route handler is responsible for `SET LOCAL app.current_tenant = $tenantId` on connection checkout; cron jobs and CLI scripts that legitimately need cross-tenant access connect as a role with `BYPASSRLS` or opt into `app.bypass_rls = 'on'`.
+
+**Observability.** [`Logger.runWithContext({ tenantId, userId, requestId }, fn)`](modules/logger/logger.service.ts) uses `AsyncLocalStorage` to thread the request's tenant + user + request IDs through every async call. Every `Logger.info/warn/error` made inside the wrapped function is automatically tagged `[tenant=… user=… req=…]` — no manual structured-log scaffolding needed in service code.
 
 ## 13. Testing
 

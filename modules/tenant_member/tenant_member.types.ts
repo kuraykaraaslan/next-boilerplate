@@ -9,6 +9,7 @@ export const TenantMemberSchema = z.object({
   userId: z.string().uuid(),
   memberRole: TenantMemberRoleEnum.default('USER'),
   memberStatus: TenantMemberStatusEnum.default('ACTIVE'),
+  externalId: z.string().max(256).nullable().optional(),
   sessionVersion: z.number().int().default(0),
   createdAt: z.date().nullable(),
   updatedAt: z.date().nullable(),

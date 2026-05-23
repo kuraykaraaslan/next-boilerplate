@@ -14,12 +14,12 @@ interface AlipayConfig {
 export default class AlipayProvider extends BasePaymentProvider {
   readonly name = 'alipay'
 
-  private static async getConfig(): Promise<AlipayConfig> {
+  private static async getConfig(tenantId: string): Promise<AlipayConfig> {
     const [appId, privateKey, alipayPublicKey, sandbox] = await Promise.all([
-      SettingService.getValue('alipayAppId'),
-      SettingService.getValue('alipayPrivateKey'),
-      SettingService.getValue('alipayPublicKey'),
-      SettingService.getValue('alipaySandboxMode'),
+      SettingService.getValue(tenantId, 'alipayAppId'),
+      SettingService.getValue(tenantId, 'alipayPrivateKey'),
+      SettingService.getValue(tenantId, 'alipayPublicKey'),
+      SettingService.getValue(tenantId, 'alipaySandboxMode'),
     ])
     if (!appId || !privateKey || !alipayPublicKey) throw new Error(PAYMENT_MESSAGES.PROVIDER_NOT_CONFIGURED)
 
@@ -70,9 +70,9 @@ export default class AlipayProvider extends BasePaymentProvider {
     })
   }
 
-  async getPaymentStatus(token: string): Promise<any> {
+  async getPaymentStatus(tenantId: string, token: string): Promise<any> {
     try {
-      const config = await AlipayProvider.getConfig()
+      const config = await AlipayProvider.getConfig(tenantId)
       const params = AlipayProvider.buildCommonParams(config, 'alipay.trade.query', { out_trade_no: token })
       const signed = { ...params, sign: AlipayProvider.sign(params, config.privateKey) }
 
@@ -86,9 +86,12 @@ export default class AlipayProvider extends BasePaymentProvider {
     }
   }
 
-  async createCheckoutSession(params: CheckoutSessionParams): Promise<CheckoutSessionResult> {
+  async createCheckoutSession(
+    tenantId: string,
+    params: CheckoutSessionParams,
+  ): Promise<CheckoutSessionResult> {
     try {
-      const config = await AlipayProvider.getConfig()
+      const config = await AlipayProvider.getConfig(tenantId)
       const outTradeNo = params.metadata?.paymentId || `${Date.now()}`
 
       const bizContent: Record<string, unknown> = {

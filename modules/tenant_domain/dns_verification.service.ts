@@ -1,8 +1,15 @@
+import 'reflect-metadata';
 import { env } from '@/modules/env';
 import { Resolver } from 'dns/promises';
 import crypto from 'crypto';
 import redis from '@/modules/redis';
+import Logger from '@/modules/logger';
+import { tenantDataSourceFor, getDefaultTenantDataSource } from '@/modules/db';
+import { TenantDomain as TenantDomainEntity } from './entities/tenant_domain.entity';
+import AuditLogService from '@/modules/audit_log/audit_log.service';
 import type { VerificationMethod } from './tenant_domain.enums';
+
+const DNS_RECHECK_CONCURRENCY = 5;
 
 const DNS_VERIFICATION_PREFIX = 'dns_verify:';
 const DNS_VERIFICATION_TTL = 60 * 60 * 24; // 24 saat
@@ -120,6 +127,66 @@ export default class DNSVerificationService {
       recordValue: this.getTxtRecordValue(token),
       token
     };
+  }
+
+  /**
+   * Health-check the DNS records of every ACTIVE TenantDomain. Domains whose
+   * TXT/CNAME no longer resolves get downgraded to `DNS_FAILED` so admins are
+   * forced to manually re-verify before traffic resumes. Runs in batches of
+   * `DNS_RECHECK_CONCURRENCY` to avoid hammering the resolver on big tenants.
+   */
+  static async recheckActiveDomains(): Promise<{ checked: number; downgraded: number }> {
+    const ds = await getDefaultTenantDataSource();
+    const repo = ds.getRepository(TenantDomainEntity);
+    const activeDomains = await repo.find({ where: { domainStatus: 'ACTIVE' } });
+
+    let downgraded = 0;
+    for (let i = 0; i < activeDomains.length; i += DNS_RECHECK_CONCURRENCY) {
+      const batch = activeDomains.slice(i, i + DNS_RECHECK_CONCURRENCY);
+      const results = await Promise.all(
+        batch.map(async (d) => {
+          try {
+            const txt = await this.lookupTxtRecords(d.domain);
+            if (txt.length > 0) return { domain: d, ok: true };
+            const cnameProbe = await this.lookupCnameRecord(d.domain);
+            return { domain: d, ok: cnameProbe !== null };
+          } catch (err) {
+            Logger.warn(`[DNSRecheck] Resolver error for ${d.domain}: ${err instanceof Error ? err.message : String(err)}`);
+            return { domain: d, ok: false };
+          }
+        }),
+      );
+
+      for (const { domain: d, ok } of results) {
+        if (ok) continue;
+        try {
+          const tenantDs = await tenantDataSourceFor(d.tenantId);
+          await tenantDs.getRepository(TenantDomainEntity).update(
+            { tenantDomainId: d.tenantDomainId },
+            { domainStatus: 'DNS_FAILED', verifiedAt: undefined as unknown as Date },
+          );
+          await Promise.all([
+            redis.del(`tenant:domain:name:${d.domain}`),
+            redis.del(`tenant:domain:id:${d.tenantDomainId}`),
+            redis.del(`tenant:domain:primary:${d.tenantId}`),
+          ]);
+          await AuditLogService.log({
+            tenantId: d.tenantId,
+            actorType: 'SYSTEM',
+            action: 'domain.dns_check_failed',
+            resourceType: 'tenant_domain',
+            resourceId: d.tenantDomainId,
+            metadata: { domain: d.domain },
+          });
+          downgraded += 1;
+        } catch (err) {
+          Logger.error(`[DNSRecheck] Failed to downgrade ${d.domain}: ${err instanceof Error ? err.message : String(err)}`);
+        }
+      }
+    }
+
+    Logger.info(`[DNSRecheck] checked=${activeDomains.length} downgraded=${downgraded}`);
+    return { checked: activeDomains.length, downgraded };
   }
 
   static async checkVerification(tenantDomainId: string, domain: string): Promise<boolean> {

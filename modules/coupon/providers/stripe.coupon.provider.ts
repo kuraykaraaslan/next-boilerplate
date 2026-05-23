@@ -2,6 +2,7 @@ import axios from 'axios'
 import qs from 'querystring'
 import BaseCouponProvider, { CouponProviderSyncResult } from './base.coupon.provider'
 import SettingService from '@/modules/setting/setting.service'
+import { ROOT_TENANT_ID } from '@/modules/tenant/tenant.constants';
 import { COUPON_MESSAGES } from '../coupon.messages'
 import type { Coupon, CouponValidationResult } from '../coupon.types'
 import Logger from '@/modules/logger'
@@ -12,7 +13,7 @@ export default class StripeCouponProvider extends BaseCouponProvider {
   private static readonly STRIPE_API_URL = 'https://api.stripe.com/v1'
 
   private static async getClient() {
-    const key = await SettingService.getValue('stripeSecretKey')
+    const key = await SettingService.getValue(ROOT_TENANT_ID, 'stripeSecretKey')
     if (!key) throw new Error(COUPON_MESSAGES.STRIPE_SYNC_FAILED)
     return axios.create({
       baseURL: StripeCouponProvider.STRIPE_API_URL,

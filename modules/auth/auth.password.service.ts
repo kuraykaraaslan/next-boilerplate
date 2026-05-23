@@ -9,6 +9,7 @@ import Logger from '@/modules/logger';
 import UserService from '../user/user.service';
 import UserSecurityService from '../user_security/user_security.service';
 import MailService from '../notification_mail/notification_mail.service';
+import { ROOT_TENANT_ID } from '@/modules/tenant/tenant.constants';
 import AuthMessages from './auth.messages';
 import AuthPolicyService from './auth.policy.service';
 
@@ -62,7 +63,7 @@ export default class PasswordService {
     const hashedToken = await PasswordService.hashToken(resetToken);
     await redis.set(tokenKey, hashedToken, 'EX', PasswordService.RESET_TOKEN_EXPIRY_SECONDS);
 
-    MailService.sendForgotPasswordEmail({ email: user.email, resetToken }).catch((err: unknown) => {
+    MailService.sendForgotPasswordEmail({ tenantId: ROOT_TENANT_ID, email: user.email, resetToken }).catch((err: unknown) => {
       Logger.warn(`PasswordService: sendForgotPasswordEmail failed: ${err instanceof Error ? err.message : err}`);
     });
 
@@ -107,7 +108,7 @@ export default class PasswordService {
     await UserService.invalidate({ userId: user.userId, email: user.email });
     await redis.del(tokenKey);
 
-    MailService.sendPasswordResetSuccessEmail({ email: user.email }).catch((err: unknown) => {
+    MailService.sendPasswordResetSuccessEmail({ tenantId: ROOT_TENANT_ID, email: user.email }).catch((err: unknown) => {
       Logger.warn(`PasswordService: sendPasswordResetSuccessEmail failed: ${err instanceof Error ? err.message : err}`);
     });
   }

@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import AuthService from "@/modules/auth/auth.service";
 import TenantMemberService from "@/modules/tenant_member/tenant_member.service";
 import TenantService from "@/modules/tenant/tenant.service";
-import TenantSettingService from "@/modules/tenant_setting/tenant_setting.service";
+import SettingService from '@/modules/setting/setting.service';
 import Limiter from "@/modules_next/limiter/limiter.service.next";
 import { RegisterDTO } from "@/modules/auth/auth.dto";
 
@@ -27,7 +27,7 @@ export async function POST(
     }
 
     // Check if tenant allows self-registration
-    const settings = await TenantSettingService.getByKeys(tenantId, ['allowSelfRegistration']);
+    const settings = await SettingService.getByKeys(tenantId, ['allowSelfRegistration']);
     const allowSelfRegistration = settings['allowSelfRegistration'] === 'true';
 
     if (!allowSelfRegistration) {

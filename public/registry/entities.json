@@ -1,8 +1,29 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-05-17T20:17:46.545Z",
+  "generatedAt": "2026-05-23T05:42:11.651Z",
   "entities": [
+    {
+      "name": "AiUsageLog",
+      "filePath": "modules/ai/entities/ai_usage_log.entity.ts",
+      "module": "ai",
+      "schema": "system",
+      "tableName": "ai_usage_logs",
+      "columns": [
+        "aiUsageLogId",
+        "tenantId",
+        "userId",
+        "provider",
+        "model",
+        "kind",
+        "inputTokens",
+        "outputTokens",
+        "totalTokens",
+        "costUsd",
+        "createdAt"
+      ],
+      "relations": []
+    },
     {
       "name": "ApiKey",
       "filePath": "modules/api_key/entities/api_key.entity.ts",
@@ -34,6 +55,7 @@
       "tableName": "audit_logs",
       "columns": [
         "auditLogId",
+        "tenantId",
         "actorId",
         "actorType",
         "action",
@@ -54,6 +76,7 @@
       "tableName": "coupons",
       "columns": [
         "couponId",
+        "tenantId",
         "code",
         "name",
         "description",
@@ -96,6 +119,26 @@
       "relations": [
         "tenant"
       ]
+    },
+    {
+      "name": "NotificationLog",
+      "filePath": "modules/notification_log/entities/notification_log.entity.ts",
+      "module": "notification_log",
+      "schema": "system",
+      "tableName": "notification_logs",
+      "columns": [
+        "notificationLogId",
+        "tenantId",
+        "channel",
+        "recipient",
+        "subject",
+        "provider",
+        "status",
+        "providerMessageId",
+        "error",
+        "sentAt"
+      ],
+      "relations": []
     },
     {
       "name": "Payment",
@@ -169,6 +212,7 @@
       "tableName": "plan_features",
       "columns": [
         "featureId",
+        "tenantId",
         "planId",
         "key",
         "label",
@@ -188,6 +232,7 @@
       "tableName": "push_subscriptions",
       "columns": [
         "id",
+        "tenantId",
         "userId",
         "endpoint",
         "p256dh",
@@ -214,6 +259,9 @@
         "spCertificate",
         "emailAttribute",
         "nameAttribute",
+        "roleAttribute",
+        "allowJitProvisioning",
+        "defaultMemberRole",
         "allowIdpInitiated",
         "signRequests",
         "nameIdFormat",
@@ -229,11 +277,39 @@
       "schema": "system",
       "tableName": "settings",
       "columns": [
+        "tenantId",
         "key",
         "value",
         "group",
         "type",
         "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "SigningCertificate",
+      "filePath": "modules/e_signature/entities/signing_certificate.entity.ts",
+      "module": "e_signature",
+      "schema": "system",
+      "tableName": "signing_certificates",
+      "columns": [
+        "signingCertificateId",
+        "userId",
+        "providerName",
+        "country",
+        "certFingerprintSha256",
+        "certSerialHex",
+        "issuerDN",
+        "subjectDN",
+        "commonName",
+        "nationalIdHash",
+        "loa",
+        "notBefore",
+        "notAfter",
+        "lastUsedAt",
+        "revokedAt",
+        "boundAt",
         "updatedAt"
       ],
       "relations": []
@@ -246,6 +322,7 @@
       "tableName": "subscription_plans",
       "columns": [
         "planId",
+        "tenantId",
         "name",
         "description",
         "monthlyPrice",
@@ -255,75 +332,6 @@
         "sortOrder",
         "isDefault",
         "status",
-        "createdAt",
-        "updatedAt"
-      ],
-      "relations": []
-    },
-    {
-      "name": "SystemSamlConfig",
-      "filePath": "modules/auth_saml/entities/system_saml_config.entity.ts",
-      "module": "auth_saml",
-      "schema": "system",
-      "tableName": "system_saml_configs",
-      "columns": [
-        "systemSamlConfigId",
-        "isEnabled",
-        "idpEntityId",
-        "idpSsoUrl",
-        "idpCertificate",
-        "spPrivateKey",
-        "spCertificate",
-        "emailAttribute",
-        "nameAttribute",
-        "allowIdpInitiated",
-        "signRequests",
-        "nameIdFormat",
-        "createdAt",
-        "updatedAt"
-      ],
-      "relations": []
-    },
-    {
-      "name": "SystemWebhook",
-      "filePath": "modules/webhook/entities/system_webhook.entity.ts",
-      "module": "webhook",
-      "schema": "tenant",
-      "tableName": "system_webhooks",
-      "columns": [
-        "webhookId",
-        "createdByUserId",
-        "name",
-        "description",
-        "url",
-        "secret",
-        "events",
-        "isActive",
-        "createdAt",
-        "updatedAt"
-      ],
-      "relations": []
-    },
-    {
-      "name": "SystemWebhookDelivery",
-      "filePath": "modules/webhook/entities/system_webhook_delivery.entity.ts",
-      "module": "webhook",
-      "schema": "tenant",
-      "tableName": "system_webhook_deliveries",
-      "columns": [
-        "deliveryId",
-        "webhookId",
-        "event",
-        "payload",
-        "status",
-        "attempts",
-        "maxAttempts",
-        "requestBody",
-        "responseStatus",
-        "responseBody",
-        "errorMessage",
-        "duration",
-        "nextRetryAt",
         "createdAt",
         "updatedAt"
       ],
@@ -345,27 +353,6 @@
         "deletedAt",
         "deletionRequestedAt",
         "deleteAfter"
-      ],
-      "relations": []
-    },
-    {
-      "name": "TenantAuditLog",
-      "filePath": "modules/audit_log/entities/audit_log_tenant.entity.ts",
-      "module": "audit_log",
-      "schema": "tenant",
-      "tableName": "audit_logs",
-      "columns": [
-        "auditLogId",
-        "tenantId",
-        "actorId",
-        "actorType",
-        "action",
-        "resourceType",
-        "resourceId",
-        "metadata",
-        "ipAddress",
-        "userAgent",
-        "createdAt"
       ],
       "relations": []
     },
@@ -397,6 +384,11 @@
         "domainStatus",
         "verificationToken",
         "verifiedAt",
+        "sslStatus",
+        "sslIssuedAt",
+        "sslExpiresAt",
+        "sslIssuer",
+        "sslLastCheckedAt",
         "createdAt",
         "updatedAt"
       ],
@@ -434,27 +426,11 @@
         "userId",
         "memberRole",
         "memberStatus",
+        "externalId",
         "sessionVersion",
         "createdAt",
         "updatedAt",
         "deletedAt"
-      ],
-      "relations": []
-    },
-    {
-      "name": "TenantSetting",
-      "filePath": "modules/tenant_setting/entities/tenant_setting.entity.ts",
-      "module": "tenant_setting",
-      "schema": "tenant",
-      "tableName": "tenant_settings",
-      "columns": [
-        "tenantId",
-        "key",
-        "value",
-        "group",
-        "type",
-        "createdAt",
-        "updatedAt"
       ],
       "relations": []
     },
@@ -494,8 +470,50 @@
         "aiTokens",
         "storageBytes",
         "emailSends",
+        "smsSends",
         "createdAt",
         "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "TrustListEntry",
+      "filePath": "modules/e_signature/entities/trust_list_entry.entity.ts",
+      "module": "e_signature",
+      "schema": "system",
+      "tableName": "trust_list_entries",
+      "columns": [
+        "trustListEntryId",
+        "country",
+        "issuerDN",
+        "certificatePem",
+        "subjectKeyIdentifier",
+        "notBefore",
+        "notAfter",
+        "source",
+        "fetchedAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "UploadedFile",
+      "filePath": "modules/storage/entities/uploaded_file.entity.ts",
+      "module": "storage",
+      "schema": "system",
+      "tableName": "uploaded_files",
+      "columns": [
+        "uploadedFileId",
+        "tenantId",
+        "userId",
+        "key",
+        "bucket",
+        "provider",
+        "size",
+        "mimeType",
+        "url",
+        "createdAt",
+        "deletedAt"
       ],
       "relations": []
     },
@@ -645,6 +663,8 @@
         "description",
         "url",
         "secret",
+        "previousSecret",
+        "previousSecretExpiresAt",
         "events",
         "isActive",
         "createdAt",

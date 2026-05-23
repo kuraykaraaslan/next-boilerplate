@@ -36,10 +36,10 @@ Core user CRUD: create, find, update, deactivate. Foundation for every auth and 
 
 ## Owned API routes
 
-- `system` GET/POST `/system/api/users`
-- `system` GET/PUT/DELETE `/system/api/users/[userId]`
-- `system` GET `/system/api/users/[userId]/impersonation-sessions`
-- `system` GET `/system/api/users/[userId]/tenants`
+- `tenant` GET/POST `/tenant/[tenantId]/api/users`
+- `tenant` GET/PUT/DELETE `/tenant/[tenantId]/api/users/[userId]`
+- `tenant` GET `/tenant/[tenantId]/api/users/[userId]/impersonation-sessions`
+- `tenant` GET `/tenant/[tenantId]/api/users/[userId]/tenants`
 
 ## TypeORM entities
 
@@ -88,7 +88,7 @@ System user management: CRUD operations, password hashing with bcrypt, role-base
 | Role | Access level |
 |---|---|
 | `SUPER_ADMIN` | Full system access |
-| `ADMIN` | System admin, cannot manage super admins |
+| `ADMIN` | Super-admin (root tenant ADMIN), cannot manage super admins |
 | `USER` | Standard user |
 | `GUEST` | Read-only limited access |
 
@@ -135,14 +135,14 @@ await UserService.delete(userId);
 ## API Routes
 
 ```
-GET    /system/api/users
-GET    /system/api/users/[id]
-POST   /system/api/users
-PUT    /system/api/users/[id]
-DELETE /system/api/users/[id]
+GET    /tenant/00000000-0000-4000-8000-000000000000/api/users
+GET    /tenant/00000000-0000-4000-8000-000000000000/api/users/[id]
+POST   /tenant/00000000-0000-4000-8000-000000000000/api/users
+PUT    /tenant/00000000-0000-4000-8000-000000000000/api/users/[id]
+DELETE /tenant/00000000-0000-4000-8000-000000000000/api/users/[id]
 ```
 
-Requires `system:admin` scope.
+Requires `root-tenant admin` scope.
 
 ---
 

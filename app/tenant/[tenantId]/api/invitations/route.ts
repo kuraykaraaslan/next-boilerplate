@@ -99,11 +99,11 @@ export async function POST(
     );
 
     await MailService.sendTenantInvitationEmail({
+      tenantId,
       email: invitation.email,
       tenantName: tenant.name,
       memberRole: invitation.memberRole,
       rawToken,
-      tenantId,
     });
 
     return NextResponse.json({ message: "Invitation sent successfully", invitation }, { status: 201 });

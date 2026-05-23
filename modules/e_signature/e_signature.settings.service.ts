@@ -1,5 +1,5 @@
 import SettingService from '@/modules/setting/setting.service';
-import TenantSettingService from '@/modules/tenant_setting/tenant_setting.service';
+import { ROOT_TENANT_ID } from '@/modules/tenant/tenant.constants';
 import ESignatureEncryptionService from './e_signature.encryption.service';
 import {
   E_SIGNATURE_KEYS,
@@ -32,7 +32,7 @@ export default class ESignatureSettingsService {
 
   /** Plaintext read for server-side consumers (provider adapters etc.). */
   static async getInternal(key: ESignatureSystemSettingKey): Promise<string | null> {
-    const map = await SettingService.getByKeys([key]);
+    const map = await SettingService.getByKeys(ROOT_TENANT_ID, [key]);
     const raw = map[key];
     if (raw == null || raw === '') return null;
     if (ESignatureService_isEncrypted(raw)) {
@@ -44,7 +44,7 @@ export default class ESignatureSettingsService {
 
   /** Get all e_signature settings, masking sensitive values for UI display. */
   static async getAdminView(): Promise<Record<ESignatureSystemSettingKey, string>> {
-    const map = await SettingService.getByKeys([...E_SIGNATURE_KEYS]);
+    const map = await SettingService.getByKeys(ROOT_TENANT_ID, [...E_SIGNATURE_KEYS]);
     const out = {} as Record<ESignatureSystemSettingKey, string>;
     for (const key of E_SIGNATURE_KEYS) {
       const raw = map[key] ?? '';
@@ -72,7 +72,7 @@ export default class ESignatureSettingsService {
       }
     }
     if (Object.keys(toWrite).length > 0) {
-      await SettingService.updateMany(toWrite);
+      await SettingService.updateMany(ROOT_TENANT_ID, toWrite);
     }
   }
 
@@ -87,7 +87,7 @@ export default class ESignatureSettingsService {
    * the key set.
    */
   static async getTenantInternal(tenantId: string, key: ESignatureTenantSettingKey): Promise<string | null> {
-    const tenantRaw = await TenantSettingService.getValue(tenantId, key);
+    const tenantRaw = await SettingService.getValue(tenantId, key);
     if (tenantRaw != null && tenantRaw !== '') {
       if (ESignatureService_isEncrypted(tenantRaw)) {
         const decrypted = ESignatureEncryptionService.decryptOpt(tenantRaw);
@@ -105,7 +105,7 @@ export default class ESignatureSettingsService {
   static async getTenantAdminView(tenantId: string): Promise<Record<ESignatureTenantSettingKey, string>> {
     const out = {} as Record<ESignatureTenantSettingKey, string>;
     for (const key of E_SIGNATURE_TENANT_KEYS) {
-      const raw = (await TenantSettingService.getValue(tenantId, key)) ?? '';
+      const raw = (await SettingService.getValue(tenantId, key)) ?? '';
       const sensitive = ESignatureSettingsService.isTenantSensitive(key);
       out[key] = sensitive ? (raw ? MASK : '') : raw;
     }
@@ -121,13 +121,13 @@ export default class ESignatureSettingsService {
       if (incoming === undefined) continue;
       if (ESignatureSettingsService.isTenantSensitive(key)) {
         if (incoming === MASK || incoming === '') continue;
-        await TenantSettingService.create(
+        await SettingService.create(ROOT_TENANT_ID, 
           tenantId,
           key,
           ESignatureEncryptionService.encryptOpt(incoming),
         );
       } else {
-        await TenantSettingService.create(tenantId, key, incoming);
+        await SettingService.create(tenantId, key, incoming);
       }
     }
   }

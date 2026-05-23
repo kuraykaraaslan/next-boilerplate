@@ -9,17 +9,17 @@ export default class YooKassaProvider extends BasePaymentProvider {
 
   private static readonly API_BASE = 'https://api.yookassa.ru/v3'
 
-  private static async getConfig() {
+  private static async getConfig(tenantId: string) {
     const [shopId, secretKey] = await Promise.all([
-      SettingService.getValue('yookassaShopId'),
-      SettingService.getValue('yookassaSecretKey'),
+      SettingService.getValue(tenantId, 'yookassaShopId'),
+      SettingService.getValue(tenantId, 'yookassaSecretKey'),
     ])
     if (!shopId || !secretKey) throw new Error(PAYMENT_MESSAGES.PROVIDER_NOT_CONFIGURED)
     return { shopId, secretKey }
   }
 
-  private async getAuthenticatedAxios(): Promise<AxiosInstance> {
-    const { shopId, secretKey } = await YooKassaProvider.getConfig()
+  private async getAuthenticatedAxios(tenantId: string): Promise<AxiosInstance> {
+    const { shopId, secretKey } = await YooKassaProvider.getConfig(tenantId)
     const credentials = Buffer.from(`${shopId}:${secretKey}`).toString('base64')
     return axios.create({
       baseURL: YooKassaProvider.API_BASE,
@@ -38,9 +38,9 @@ export default class YooKassaProvider extends BasePaymentProvider {
     })
   }
 
-  async getPaymentStatus(token: string): Promise<any> {
+  async getPaymentStatus(tenantId: string, token: string): Promise<any> {
     try {
-      const client = await this.getAuthenticatedAxios()
+      const client = await this.getAuthenticatedAxios(tenantId)
       const response = await client.get(`/payments/${encodeURIComponent(token)}`)
       return response.data?.status
     } catch (error) {
@@ -48,9 +48,12 @@ export default class YooKassaProvider extends BasePaymentProvider {
     }
   }
 
-  async createCheckoutSession(params: CheckoutSessionParams): Promise<CheckoutSessionResult> {
+  async createCheckoutSession(
+    tenantId: string,
+    params: CheckoutSessionParams,
+  ): Promise<CheckoutSessionResult> {
     try {
-      const client = await this.getAuthenticatedAxios()
+      const client = await this.getAuthenticatedAxios(tenantId)
       const idempotenceKey = params.metadata?.paymentId || crypto.randomUUID()
 
       const body: Record<string, unknown> = {

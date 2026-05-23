@@ -6,14 +6,19 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Index,
+  Unique,
 } from 'typeorm';
 
+@Unique(['tenantId', 'code'])
 @Entity('coupons')
 export class Coupon {
   @PrimaryGeneratedColumn('uuid', { name: 'couponId' })
   couponId!: string;
 
-  @Index({ unique: true })
+  @Index()
+  @Column({ type: 'uuid' })
+  tenantId!: string;
+
   @Column({ type: 'varchar', length: 32 })
   code!: string;
 

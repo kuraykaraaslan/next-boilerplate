@@ -8,6 +8,7 @@ import SSOMessages from './auth_sso.messages';
 import UserSocialAccountService from '../user_social_account/user_social_account.service';
 import UserService from '../user/user.service';
 import type { SafeUser } from '../user/user.types';
+import { ROOT_TENANT_ID } from '@/modules/tenant/tenant.constants';
 
 const LINK_STATE_TTL_SECONDS = 600;
 
@@ -214,10 +215,11 @@ export default class SSOService {
 
   /**
    * Safe return path: app-relative only (must start with `/` and not `//`). Falls
-   * back to `/system/admin/me` so a tampered/expired state can't open redirect.
+   * back to the root-tenant profile so a tampered/expired state can't open
+   * redirect.
    */
   static safeReturnPath(input: string | undefined | null): string {
-    const fallback = '/system/admin/me';
+    const fallback = `/tenant/${ROOT_TENANT_ID}/admin/me`;
     if (!input || typeof input !== 'string') return fallback;
     if (!input.startsWith('/') || input.startsWith('//')) return fallback;
     return input;

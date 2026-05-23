@@ -8,32 +8,48 @@ import { Tenant } from '@/modules/tenant/entities/tenant.entity';
 import { TenantDomain } from '@/modules/tenant_domain/entities/tenant_domain.entity';
 import { TenantMember } from '@/modules/tenant_member/entities/tenant_member.entity';
 import { TenantInvitation } from '@/modules/tenant_invitation/entities/tenant_invitation.entity';
-import { TenantSetting } from '@/modules/tenant_setting/entities/tenant_setting.entity';
 import { TenantSubscription } from '@/modules/tenant_subscription/entities/tenant_subscription.entity';
 import { Payment } from '@/modules/payment/entities/payment.entity';
 import { PaymentTransaction } from '@/modules/payment/entities/payment_transaction.entity';
-import { TenantAuditLog } from '@/modules/audit_log/entities/audit_log_tenant.entity';
+import { AuditLog } from '@/modules/audit_log/entities/audit_log.entity';
 import { ApiKey } from '@/modules/api_key/entities/api_key.entity';
 import { CouponRedemption } from '@/modules/coupon/entities/coupon_redemption.entity';
 import { Webhook } from '@/modules/webhook/entities/webhook.entity';
 import { WebhookDelivery } from '@/modules/webhook/entities/webhook_delivery.entity';
 import { SamlConfig } from '@/modules/auth_saml/entities/saml_config.entity';
+import { Setting } from '@/modules/setting/entities/setting.entity';
+import { Coupon } from '@/modules/coupon/entities/coupon.entity';
+import { SubscriptionPlan } from '@/modules/payment/entities/subscription_plan.entity';
+import { PlanFeature } from '@/modules/payment/entities/plan_feature.entity';
+import { PushSubscription } from '@/modules/notification_push/entities/push_subscription.entity';
+import { TenantUsage } from '@/modules/tenant_usage/entities/tenant_usage.entity';
+import { UploadedFile } from '@/modules/storage/entities/uploaded_file.entity';
+import { AiUsageLog } from '@/modules/ai/entities/ai_usage_log.entity';
+import { NotificationLog } from '@/modules/notification_log/entities/notification_log.entity';
 
 const TENANT_ENTITIES = [
   Tenant,
   TenantDomain,
   TenantMember,
   TenantInvitation,
-  TenantSetting,
   TenantSubscription,
   Payment,
   PaymentTransaction,
-  TenantAuditLog,
+  AuditLog,
   ApiKey,
   CouponRedemption,
   Webhook,
   WebhookDelivery,
   SamlConfig,
+  Setting,
+  Coupon,
+  SubscriptionPlan,
+  PlanFeature,
+  PushSubscription,
+  TenantUsage,
+  UploadedFile,
+  AiUsageLog,
+  NotificationLog,
 ];
 
 const { url: DEFAULT_TENANT_DB_URL, schema: DEFAULT_TENANT_SCHEMA } = parseDbUrl(env.TENANT_DATABASE_URL);

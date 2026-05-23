@@ -10,6 +10,7 @@ import UserService from '../user/user.service';
 import TenantService from '../tenant/tenant.service';
 import TenantInvitationService from '../tenant_invitation/tenant_invitation.service';
 import MailService from '../notification_mail/notification_mail.service';
+import { ROOT_TENANT_ID } from '@/modules/tenant/tenant.constants';
 import UserSecurityService from '../user_security/user_security.service';
 import AuditLogService from '../audit_log/audit_log.service';
 import { AuditActions } from '../audit_log/audit_log.enums';
@@ -252,7 +253,7 @@ export default class AuthService {
     await redis.set(verifyKey, hashedToken, 'EX', AuthService.EMAIL_VERIFY_TTL_SECONDS);
     await redis.set(rateKey, '1', 'EX', AuthService.EMAIL_VERIFY_RATE_LIMIT_SECONDS);
 
-    await MailService.sendVerifyEmail({ email, name, verifyToken: rawToken });
+    await MailService.sendVerifyEmail({ tenantId: ROOT_TENANT_ID, email, name, verifyToken: rawToken });
     Logger.info(`Email verification sent for user ${userId}`);
   }
 

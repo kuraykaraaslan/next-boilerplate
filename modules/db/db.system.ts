@@ -8,15 +8,6 @@ import { UserSecurity } from '@/modules/user_security/entities/user_security.ent
 import { UserPreferences } from '@/modules/user_preferences/entities/user_preferences.entity';
 import { UserSession } from '@/modules/user_session/entities/user_session.entity';
 import { UserSocialAccount } from '@/modules/user_social_account/entities/user_social_account.entity';
-import { PushSubscription } from '@/modules/notification_push/entities/push_subscription.entity';
-import { Setting } from '@/modules/setting/entities/setting.entity';
-import { SubscriptionPlan } from '@/modules/payment/entities/subscription_plan.entity';
-import { PlanFeature } from '@/modules/payment/entities/plan_feature.entity';
-import { AuditLog } from '@/modules/audit_log/entities/audit_log.entity';
-import { Coupon } from '@/modules/coupon/entities/coupon.entity';
-import { SystemWebhook } from '@/modules/webhook/entities/system_webhook.entity';
-import { SystemWebhookDelivery } from '@/modules/webhook/entities/system_webhook_delivery.entity';
-import { SystemSamlConfig } from '@/modules/auth_saml/entities/system_saml_config.entity';
 import { SigningCertificate } from '@/modules/e_signature/entities/signing_certificate.entity';
 import { TrustListEntry } from '@/modules/e_signature/entities/trust_list_entry.entity';
 import { TenantDatabase } from './entities/tenant_database.entity';
@@ -28,15 +19,6 @@ const SYSTEM_ENTITIES = [
   UserPreferences,
   UserSession,
   UserSocialAccount,
-  PushSubscription,
-  Setting,
-  SubscriptionPlan,
-  PlanFeature,
-  AuditLog,
-  Coupon,
-  SystemWebhook,
-  SystemWebhookDelivery,
-  SystemSamlConfig,
   SigningCertificate,
   TrustListEntry,
   TenantDatabase,

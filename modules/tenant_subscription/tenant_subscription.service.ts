@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { Not } from 'typeorm';
-import { getSystemDataSource, getDefaultTenantDataSource, tenantDataSourceFor } from '@/modules/db';
+import { getDefaultTenantDataSource, tenantDataSourceFor } from '@/modules/db';
 import { SubscriptionPlan as SubscriptionPlanEntity } from '../payment/entities/subscription_plan.entity';
 import { PlanFeature as PlanFeatureEntity } from '../payment/entities/plan_feature.entity';
 import { TenantSubscription as TenantSubscriptionEntity } from './entities/tenant_subscription.entity';
@@ -42,16 +42,17 @@ export default class TenantSubscriptionService {
   // Plan CRUD Operations
   // ============================================================================
 
-  static async createPlan(data: CreatePlanDTO): Promise<SubscriptionPlan> {
+  static async createPlan(tenantId: string, data: CreatePlanDTO): Promise<SubscriptionPlan> {
     try {
-      const ds = await getSystemDataSource();
+      const ds = await tenantDataSourceFor(tenantId);
       const repo = ds.getRepository(SubscriptionPlanEntity);
 
       if (data.isDefault) {
-        await repo.update({ isDefault: true }, { isDefault: false });
+        await repo.update({ tenantId, isDefault: true }, { isDefault: false });
       }
 
       const plan = repo.create({
+        tenantId,
         name: data.name,
         description: data.description,
         monthlyPrice: data.monthlyPrice,
@@ -70,18 +71,18 @@ export default class TenantSubscriptionService {
     }
   }
 
-  static async updatePlan(planId: string, data: UpdatePlanDTO): Promise<SubscriptionPlan> {
-    const ds = await getSystemDataSource();
+  static async updatePlan(tenantId: string, planId: string, data: UpdatePlanDTO): Promise<SubscriptionPlan> {
+    const ds = await tenantDataSourceFor(tenantId);
     const repo = ds.getRepository(SubscriptionPlanEntity);
-    const existing = await repo.findOne({ where: { planId } });
+    const existing = await repo.findOne({ where: { tenantId, planId } });
     if (!existing) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND);
 
     try {
       if (data.isDefault) {
-        await repo.update({ isDefault: true, planId: Not(planId) }, { isDefault: false });
+        await repo.update({ tenantId, isDefault: true, planId: Not(planId) }, { isDefault: false });
       }
 
-      await repo.update({ planId }, {
+      await repo.update({ tenantId, planId }, {
         name: data.name,
         description: data.description,
         monthlyPrice: data.monthlyPrice,
@@ -93,7 +94,7 @@ export default class TenantSubscriptionService {
         status: data.status,
       } as any);
 
-      const updated = await repo.findOne({ where: { planId } });
+      const updated = await repo.findOne({ where: { tenantId, planId } });
       return SubscriptionPlanSchema.parse(updated!);
     } catch (error) {
       Logger.error(`${SUBSCRIPTION_MESSAGES.PLAN_UPDATE_FAILED}: ${error instanceof Error ? error.message : String(error)}`);
@@ -101,56 +102,56 @@ export default class TenantSubscriptionService {
     }
   }
 
-  static async deletePlan(planId: string): Promise<void> {
-    const sysDs = await getSystemDataSource();
-    const existing = await sysDs.getRepository(SubscriptionPlanEntity).findOne({ where: { planId } });
+  static async deletePlan(tenantId: string, planId: string): Promise<void> {
+    const sysDs = await tenantDataSourceFor(tenantId);
+    const existing = await sysDs.getRepository(SubscriptionPlanEntity).findOne({ where: { tenantId, planId } });
     if (!existing) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND);
 
     const tenantDs = await getDefaultTenantDataSource();
     const activeCount = await tenantDs.getRepository(TenantSubscriptionEntity).count({
-      where: { planId, status: 'ACTIVE' },
+      where: { tenantId, planId, status: 'ACTIVE' },
     });
     if (activeCount > 0) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_HAS_SUBSCRIPTIONS);
 
     try {
-      await sysDs.getRepository(SubscriptionPlanEntity).delete({ planId });
+      await sysDs.getRepository(SubscriptionPlanEntity).delete({ tenantId, planId });
     } catch (error) {
       Logger.error(`${SUBSCRIPTION_MESSAGES.PLAN_DELETE_FAILED}: ${error instanceof Error ? error.message : String(error)}`);
       throw new Error(SUBSCRIPTION_MESSAGES.PLAN_DELETE_FAILED);
     }
   }
 
-  static async getPlans(status?: SubscriptionPlanStatus): Promise<SubscriptionPlan[]> {
-    const ds = await getSystemDataSource();
-    const where: Record<string, unknown> = {};
+  static async getPlans(tenantId: string, status?: SubscriptionPlanStatus): Promise<SubscriptionPlan[]> {
+    const ds = await tenantDataSourceFor(tenantId);
+    const where: Record<string, unknown> = { tenantId };
     if (status) where.status = status;
     const plans = await ds.getRepository(SubscriptionPlanEntity).find({ where: where as any, order: { sortOrder: 'ASC' } });
     return plans.map((p) => SubscriptionPlanSchema.parse(p));
   }
 
-  static async getPlanById(planId: string): Promise<SubscriptionPlan> {
-    const ds = await getSystemDataSource();
-    const plan = await ds.getRepository(SubscriptionPlanEntity).findOne({ where: { planId } });
+  static async getPlanById(tenantId: string, planId: string): Promise<SubscriptionPlan> {
+    const ds = await tenantDataSourceFor(tenantId);
+    const plan = await ds.getRepository(SubscriptionPlanEntity).findOne({ where: { tenantId, planId } });
     if (!plan) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND);
     return SubscriptionPlanSchema.parse(plan);
   }
 
-  static async getPlanWithFeatures(planId: string): Promise<PlanWithFeatures> {
-    const ds = await getSystemDataSource();
-    const plan = await ds.getRepository(SubscriptionPlanEntity).findOne({ where: { planId } });
+  static async getPlanWithFeatures(tenantId: string, planId: string): Promise<PlanWithFeatures> {
+    const ds = await tenantDataSourceFor(tenantId);
+    const plan = await ds.getRepository(SubscriptionPlanEntity).findOne({ where: { tenantId, planId } });
     if (!plan) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND);
-    const features = await ds.getRepository(PlanFeatureEntity).find({ where: { planId }, order: { sortOrder: 'ASC' } });
+    const features = await ds.getRepository(PlanFeatureEntity).find({ where: { tenantId, planId }, order: { sortOrder: 'ASC' } });
     return PlanWithFeaturesSchema.parse({ ...plan, features });
   }
 
-  static async getPlansWithFeatures(status?: SubscriptionPlanStatus): Promise<PlanWithFeatures[]> {
-    const ds = await getSystemDataSource();
-    const where: Record<string, unknown> = {};
+  static async getPlansWithFeatures(tenantId: string, status?: SubscriptionPlanStatus): Promise<PlanWithFeatures[]> {
+    const ds = await tenantDataSourceFor(tenantId);
+    const where: Record<string, unknown> = { tenantId };
     if (status) where.status = status;
     const plans = await ds.getRepository(SubscriptionPlanEntity).find({ where: where as any, order: { sortOrder: 'ASC' } });
     const planIds = plans.map((p) => p.planId);
     const allFeatures = planIds.length > 0
-      ? await ds.getRepository(PlanFeatureEntity).find({ where: planIds.map((id) => ({ planId: id })), order: { sortOrder: 'ASC' } })
+      ? await ds.getRepository(PlanFeatureEntity).find({ where: planIds.map((id) => ({ tenantId, planId: id })), order: { sortOrder: 'ASC' } })
       : [];
 
     return plans.map((plan) =>
@@ -162,14 +163,15 @@ export default class TenantSubscriptionService {
   // Feature CRUD Operations
   // ============================================================================
 
-  static async addFeature(planId: string, data: CreateFeatureDTO): Promise<PlanFeature> {
-    const ds = await getSystemDataSource();
-    const plan = await ds.getRepository(SubscriptionPlanEntity).findOne({ where: { planId } });
+  static async addFeature(tenantId: string, planId: string, data: CreateFeatureDTO): Promise<PlanFeature> {
+    const ds = await tenantDataSourceFor(tenantId);
+    const plan = await ds.getRepository(SubscriptionPlanEntity).findOne({ where: { tenantId, planId } });
     if (!plan) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND);
 
     try {
       const repo = ds.getRepository(PlanFeatureEntity);
       const feature = repo.create({
+        tenantId,
         planId,
         key: data.key,
         label: data.label,
@@ -188,21 +190,21 @@ export default class TenantSubscriptionService {
     }
   }
 
-  static async updateFeature(featureId: string, data: UpdateFeatureDTO): Promise<PlanFeature> {
-    const ds = await getSystemDataSource();
+  static async updateFeature(tenantId: string, featureId: string, data: UpdateFeatureDTO): Promise<PlanFeature> {
+    const ds = await tenantDataSourceFor(tenantId);
     const repo = ds.getRepository(PlanFeatureEntity);
-    const existing = await repo.findOne({ where: { featureId } });
+    const existing = await repo.findOne({ where: { tenantId, featureId } });
     if (!existing) throw new Error(SUBSCRIPTION_MESSAGES.FEATURE_NOT_FOUND);
 
     try {
-      await repo.update({ featureId }, {
+      await repo.update({ tenantId, featureId }, {
         key: data.key,
         label: data.label,
         type: data.type,
         value: data.value,
         sortOrder: data.sortOrder,
       } as any);
-      const updated = await repo.findOne({ where: { featureId } });
+      const updated = await repo.findOne({ where: { tenantId, featureId } });
       return PlanFeatureSchema.parse(updated!);
     } catch (error: unknown) {
       if (error && typeof error === 'object' && 'code' in error && (error as any).code === '23505') {
@@ -213,22 +215,22 @@ export default class TenantSubscriptionService {
     }
   }
 
-  static async removeFeature(featureId: string): Promise<void> {
-    const ds = await getSystemDataSource();
-    const existing = await ds.getRepository(PlanFeatureEntity).findOne({ where: { featureId } });
+  static async removeFeature(tenantId: string, featureId: string): Promise<void> {
+    const ds = await tenantDataSourceFor(tenantId);
+    const existing = await ds.getRepository(PlanFeatureEntity).findOne({ where: { tenantId, featureId } });
     if (!existing) throw new Error(SUBSCRIPTION_MESSAGES.FEATURE_NOT_FOUND);
 
     try {
-      await ds.getRepository(PlanFeatureEntity).delete({ featureId });
+      await ds.getRepository(PlanFeatureEntity).delete({ tenantId, featureId });
     } catch (error) {
       Logger.error(`${SUBSCRIPTION_MESSAGES.FEATURE_DELETE_FAILED}: ${error instanceof Error ? error.message : String(error)}`);
       throw new Error(SUBSCRIPTION_MESSAGES.FEATURE_DELETE_FAILED);
     }
   }
 
-  static async getFeaturesByPlan(planId: string): Promise<PlanFeature[]> {
-    const ds = await getSystemDataSource();
-    const features = await ds.getRepository(PlanFeatureEntity).find({ where: { planId }, order: { sortOrder: 'ASC' } });
+  static async getFeaturesByPlan(tenantId: string, planId: string): Promise<PlanFeature[]> {
+    const ds = await tenantDataSourceFor(tenantId);
+    const features = await ds.getRepository(PlanFeatureEntity).find({ where: { tenantId, planId }, order: { sortOrder: 'ASC' } });
     return features.map((f) => PlanFeatureSchema.parse(f));
   }
 
@@ -237,8 +239,8 @@ export default class TenantSubscriptionService {
   // ============================================================================
 
   static async assignPlan(tenantId: string, data: AssignSubscriptionDTO): Promise<TenantSubscription> {
-    const sysDs = await getSystemDataSource();
-    const plan = await sysDs.getRepository(SubscriptionPlanEntity).findOne({ where: { planId: data.planId } });
+    const sysDs = await tenantDataSourceFor(tenantId);
+    const plan = await sysDs.getRepository(SubscriptionPlanEntity).findOne({ where: { tenantId, planId: data.planId } });
     if (!plan) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND);
 
     const now = new Date();
@@ -296,11 +298,10 @@ export default class TenantSubscriptionService {
     const subscription = await ds.getRepository(TenantSubscriptionEntity).findOne({ where: { tenantId } });
     if (!subscription) return null;
 
-    const sysDs = await getSystemDataSource();
-    const plan = await sysDs.getRepository(SubscriptionPlanEntity).findOne({ where: { planId: subscription.planId } });
+    const plan = await ds.getRepository(SubscriptionPlanEntity).findOne({ where: { tenantId, planId: subscription.planId } });
     if (!plan) return null;
 
-    const features = await sysDs.getRepository(PlanFeatureEntity).find({ where: { planId: plan.planId }, order: { sortOrder: 'ASC' } });
+    const features = await ds.getRepository(PlanFeatureEntity).find({ where: { tenantId, planId: plan.planId }, order: { sortOrder: 'ASC' } });
     return TenantSubscriptionWithPlanSchema.parse({ ...subscription, plan: { ...plan, features } });
   }
 
@@ -408,8 +409,8 @@ export default class TenantSubscriptionService {
   }): Promise<{ paymentId: string; checkoutUrl: string }> {
     const { tenantId, planId, billingInterval, successUrl, cancelUrl, provider, customerEmail, customerName } = params;
 
-    const sysDs = await getSystemDataSource();
-    const plan = await sysDs.getRepository(SubscriptionPlanEntity).findOne({ where: { planId } });
+    const sysDs = await tenantDataSourceFor(tenantId);
+    const plan = await sysDs.getRepository(SubscriptionPlanEntity).findOne({ where: { tenantId, planId } });
     if (!plan) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND);
 
     const amount = billingInterval === 'MONTHLY' ? Number(plan.monthlyPrice) : Number(plan.yearlyPrice);
@@ -428,6 +429,7 @@ export default class TenantSubscriptionService {
       });
 
       const checkout = await PaymentService.createCheckoutSession(
+        tenantId,
         {
           amount,
           currency,
@@ -467,7 +469,8 @@ export default class TenantSubscriptionService {
   private static async getGracePeriodDays(): Promise<number> {
     try {
       const SettingService = (await import('@/modules/setting/setting.service')).default;
-      const val = await SettingService.getValue('subscriptionGracePeriodDays');
+      const { ROOT_TENANT_ID } = await import('@/modules/tenant/tenant.constants');
+      const val = await SettingService.getValue(ROOT_TENANT_ID, 'subscriptionGracePeriodDays');
       const parsed = val ? parseInt(val, 10) : NaN;
       return isNaN(parsed) || parsed < 0 ? this.GRACE_PERIOD_DAYS_DEFAULT : parsed;
     } catch {
@@ -556,9 +559,8 @@ export default class TenantSubscriptionService {
           return DENIED_BOOLEAN;
         }
 
-        const sysDs = await getSystemDataSource();
-        const features = await sysDs.getRepository(PlanFeatureEntity).find({
-          where: { planId: sub.planId },
+        const features = await ds.getRepository(PlanFeatureEntity).find({
+          where: { tenantId, planId: sub.planId },
           select: ['key', 'type', 'value'],
         });
 

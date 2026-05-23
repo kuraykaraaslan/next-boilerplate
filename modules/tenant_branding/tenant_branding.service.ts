@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import TenantSettingService from '@/modules/tenant_setting/tenant_setting.service';
+import SettingService from '@/modules/setting/setting.service';
 import { TENANT_BRANDING_KEYS } from './tenant_branding.setting.keys';
 import { TenantBrandingSchema } from './tenant_branding.types';
 import type { TenantBranding } from './tenant_branding.types';
@@ -7,7 +7,7 @@ import type { TenantBranding } from './tenant_branding.types';
 export default class TenantBrandingService {
 
   static async get(tenantId: string): Promise<TenantBranding> {
-    const raw = await TenantSettingService.getByKeys(tenantId, [...TENANT_BRANDING_KEYS]);
+    const raw = await SettingService.getByKeys(tenantId, [...TENANT_BRANDING_KEYS]);
     return TenantBrandingSchema.parse(raw);
   }
 
@@ -22,7 +22,7 @@ export default class TenantBrandingService {
     }
 
     if (Object.keys(updates).length > 0) {
-      await TenantSettingService.updateMany(tenantId, updates);
+      await SettingService.updateMany(tenantId, updates);
     }
 
     return this.get(tenantId);
@@ -30,7 +30,7 @@ export default class TenantBrandingService {
 
   static async reset(tenantId: string): Promise<void> {
     for (const key of TENANT_BRANDING_KEYS) {
-      await TenantSettingService.delete(tenantId, key).catch(() => {});
+      await SettingService.delete(tenantId, key).catch(() => {});
     }
   }
 }

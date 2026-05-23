@@ -2,6 +2,7 @@ import redis from '@/modules/redis';
 import Logger from '@/modules/logger';
 import SettingService from '@/modules/setting/setting.service';
 
+import { ROOT_TENANT_ID } from '@/modules/tenant/tenant.constants';
 /**
  * KD-19: brute-force CAPTCHA threshold.
  * Tracks per-identity failed-login counters in Redis with a 30 min rolling
@@ -39,7 +40,7 @@ export default class CaptchaService {
    */
   static async verify(token: string): Promise<boolean> {
     if (!token) return false;
-    const secret = await SettingService.getValue('recaptchaServerKey');
+    const secret = await SettingService.getValue(ROOT_TENANT_ID, 'recaptchaServerKey');
     if (!secret) {
       Logger.warn('CaptchaService.verify: recaptchaServerKey is not set; rejecting captcha token');
       return false;

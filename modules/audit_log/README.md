@@ -13,7 +13,7 @@ Immutable event logging for system and tenant-level actions. Records actor, acti
 | `audit_log.dto.ts` | Zod DTOs for API input validation |
 | `audit_log.enums.ts` | `ActorType`, `AuditAction` enums |
 | `audit_log.messages.ts` | Error/success message strings |
-| `entities/` | TypeORM entities (system & tenant logs) |
+| `entities/` | TypeORM entity `AuditLog` (single table per tenant DB; platform events use `ROOT_TENANT_ID`) |
 | `ui/audit_log.filters.tsx` | Filter UI component for admin pages |
 
 ---
@@ -56,7 +56,6 @@ const { logs, total } = await AuditLogService.getByTenant({
 
 ```
 GET /tenant/[tenantId]/api/audit-logs
-GET /system/api/audit-logs
 ```
 
-Requires `tenant:admin` or `system:admin` scope.
+Requires `tenant:admin`. On the root tenant the same endpoint surfaces platform-wide audit logs (super-admin scope).

@@ -25,6 +25,9 @@ export class TenantUsage {
   @Column({ type: 'int', default: 0 })
   emailSends!: number;
 
+  @Column({ type: 'int', default: 0 })
+  smsSends!: number;
+
   @CreateDateColumn({ type: 'timestamp' })
   createdAt!: Date;
 

@@ -3,7 +3,7 @@ import { AuditActorTypeEnum } from './audit_log.enums';
 
 export const AuditLogSchema = z.object({
   auditLogId:   z.string().uuid(),
-  tenantId:     z.string().uuid().nullable(),
+  tenantId:     z.string().uuid(),
   actorId:      z.string().uuid().nullable(),
   actorType:    AuditActorTypeEnum,
   action:       z.string(),

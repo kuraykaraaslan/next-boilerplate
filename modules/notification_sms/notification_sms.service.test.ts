@@ -1,5 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+const TEST_TENANT_ID = '00000000-0000-4000-8000-000000000000';
+
 vi.mock('@/modules/env', () => ({
   env: {
     SYSTEM_DATABASE_URL: 'postgresql://test',
@@ -31,9 +33,17 @@ vi.mock('@/modules/redis', () => ({
   default: {
     get: vi.fn(async () => null),
     set: vi.fn(async () => 'OK'),
-    del: vi.fn(),
-    ping: vi.fn(),
+    setex: vi.fn(async () => 'OK'),
+    del: vi.fn(async () => 1),
+    ping: vi.fn(async () => 'PONG'),
+    mget: vi.fn(async () => []),
+    incrby: vi.fn(async () => 1),
+    expire: vi.fn(async () => 1),
+    keys: vi.fn(async () => []),
+    exists: vi.fn(async () => 0),
   },
+  singleFlight: async (_key: string, fn: () => Promise<unknown>) => fn(),
+  jitter: (n: number) => n,
 }));
 
 vi.mock('@/modules/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
@@ -54,31 +64,62 @@ vi.mock('@/modules/redis/redis.bullmq', () => ({
   getBullMQConnection: vi.fn(() => ({})),
 }));
 
-// Mock SMS providers as classes
+vi.mock('@/modules/setting/setting.service', () => ({
+  default: {
+    getValue: vi.fn(async () => null),
+    getByKeys: vi.fn(async () => ({})),
+  },
+}));
+
+// Mock SMS providers as classes implementing the tenant-aware contract.
 vi.mock('./providers/twilio.provider', () => ({
   default: class MockTwilioProvider {
-    async sendShortMessage(_to: string, _body: string) {}
+    readonly name = 'Twilio';
+    async isConfigured(_tenantId: string) { return true; }
+    async sendShortMessage(_tenantId: string, _opts: { to: string; body: string }) {
+      return { success: true };
+    }
   },
 }));
 
 vi.mock('./providers/netgsm.provider', () => ({
   default: class MockNetGSMProvider {
-    async sendShortMessage(_to: string, _body: string) {}
+    readonly name = 'NetGSM';
+    async isConfigured(_tenantId: string) { return true; }
+    async sendShortMessage(_tenantId: string, _opts: { to: string; body: string }) {
+      return { success: true };
+    }
   },
 }));
 
 vi.mock('./providers/clickatell.provider', () => ({
   default: class MockClickatellProvider {
-    async sendShortMessage(_to: string, _body: string) {}
+    readonly name = 'Clickatell';
+    async isConfigured(_tenantId: string) { return true; }
+    async sendShortMessage(_tenantId: string, _opts: { to: string; body: string }) {
+      return { success: true };
+    }
   },
 }));
 
 vi.mock('./providers/nexmo.provider', () => ({
   default: class MockNexmoProvider {
-    async sendShortMessage(_to: string, _body: string) {}
+    readonly name = 'Nexmo';
+    async isConfigured(_tenantId: string) { return true; }
+    async sendShortMessage(_tenantId: string, _opts: { to: string; body: string }) {
+      return { success: true };
+    }
   },
 }));
 
+
+// Bypass feature gating in unit tests — tested separately in tenant_subscription/.
+vi.mock('@/modules/tenant_subscription/tenant_subscription.service', () => ({
+  default: {
+    assertFeatureAccess: vi.fn(async () => undefined),
+    checkFeatureAccess: vi.fn(async () => ({ allowed: true, featureKey: '', type: 'BOOLEAN', limit: null, unlimited: null, current: null })),
+  },
+}));
 import SMSService from './notification_sms.service';
 import redis from '@/modules/redis';
 
@@ -127,7 +168,6 @@ describe('SMSService.isValidPhoneNumber', () => {
 
 describe('SMSService.isAllowedCountry', () => {
   it('allows all countries when ALLOWED_COUNTRIES is not set', () => {
-    // SMS_ALLOWED_COUNTRIES is not set in mock env, so ALLOWED_COUNTRIES is undefined/empty
     expect(SMSService.isAllowedCountry('TR')).toBe(true);
     expect(SMSService.isAllowedCountry('US')).toBe(true);
     expect(SMSService.isAllowedCountry('XX')).toBe(true);
@@ -135,25 +175,27 @@ describe('SMSService.isAllowedCountry', () => {
 });
 
 describe('SMSService.getProvider', () => {
-  it('returns twilio as default provider', () => {
-    const provider = SMSService.getProvider('twilio');
+  it('returns twilio when asked', async () => {
+    const provider = await SMSService.getProvider(TEST_TENANT_ID, 'twilio');
     expect(provider).toBeDefined();
   });
 
-  it('falls back to default when unknown provider is given', () => {
-    const provider = SMSService.getProvider('unknown' as any);
+  it('falls back to default when unknown provider name is given', async () => {
+    const provider = await SMSService.getProvider(TEST_TENANT_ID, 'unknown' as any);
     expect(provider).toBeDefined();
   });
 });
 
 describe('SMSService.listProviders', () => {
-  it('returns all 4 provider types', () => {
-    const providers = SMSService.listProviders();
-    expect(providers).toContain('twilio');
-    expect(providers).toContain('netgsm');
-    expect(providers).toContain('clickatell');
-    expect(providers).toContain('nexmo');
+  it('returns all 4 provider types with configured state', async () => {
+    const providers = await SMSService.listProviders(TEST_TENANT_ID);
+    const names = providers.map((p) => p.name);
+    expect(names).toContain('twilio');
+    expect(names).toContain('netgsm');
+    expect(names).toContain('clickatell');
+    expect(names).toContain('nexmo');
     expect(providers).toHaveLength(4);
+    for (const p of providers) expect(typeof p.configured).toBe('boolean');
   });
 });
 
@@ -168,36 +210,36 @@ describe('SMSService.getRegionProviderMap', () => {
 });
 
 describe('SMSService.getProviderForRegion', () => {
-  it('returns netgsm for TR region', () => {
-    const provider = SMSService.getProviderForRegion('TR');
+  it('returns netgsm for TR region', async () => {
+    const provider = await SMSService.getProviderForRegion(TEST_TENANT_ID, 'TR');
     expect(provider).toBeDefined();
   });
 
-  it('returns twilio for US region', () => {
-    const provider = SMSService.getProviderForRegion('US');
+  it('returns twilio for US region', async () => {
+    const provider = await SMSService.getProviderForRegion(TEST_TENANT_ID, 'US');
     expect(provider).toBeDefined();
   });
 
-  it('returns default provider for unknown region', () => {
-    const provider = SMSService.getProviderForRegion('ZZ');
+  it('returns default provider for unknown region', async () => {
+    const provider = await SMSService.getProviderForRegion(TEST_TENANT_ID, 'ZZ');
     expect(provider).toBeDefined();
   });
 });
 
 describe('SMSService.sendShortMessage', () => {
   it('does not queue when phone number is empty', async () => {
-    await SMSService.sendShortMessage({ to: '', body: 'Hello' });
+    await SMSService.sendShortMessage(TEST_TENANT_ID, { to: '', body: 'Hello' });
     expect(mockRedis.set).not.toHaveBeenCalled();
   });
 
   it('does not queue when body is empty', async () => {
-    await SMSService.sendShortMessage({ to: '+12025551234', body: '' });
+    await SMSService.sendShortMessage(TEST_TENANT_ID, { to: '+12025551234', body: '' });
     expect(mockRedis.set).not.toHaveBeenCalled();
   });
 
   it('does not queue when rate limit is active for the number', async () => {
-    mockRedis.get.mockResolvedValue('1'); // rate limit already set
-    await SMSService.sendShortMessage({ to: '+12025551234', body: 'Hello' });
+    mockRedis.get.mockResolvedValue('1');
+    await SMSService.sendShortMessage(TEST_TENANT_ID, { to: '+12025551234', body: 'Hello' });
     expect(mockRedis.set).not.toHaveBeenCalled();
   });
 
@@ -206,7 +248,7 @@ describe('SMSService.sendShortMessage', () => {
 
     const queueAddSpy = vi.spyOn(SMSService.QUEUE as any, 'add');
 
-    await SMSService.sendShortMessage({ to: '+12025551234', body: 'Hello World' });
+    await SMSService.sendShortMessage(TEST_TENANT_ID, { to: '+12025551234', body: 'Hello World' });
 
     expect(mockRedis.set).toHaveBeenCalledWith(
       expect.stringContaining('+12025551234'),
@@ -214,20 +256,23 @@ describe('SMSService.sendShortMessage', () => {
       'EX',
       60
     );
-    expect(queueAddSpy).toHaveBeenCalled();
+    expect(queueAddSpy).toHaveBeenCalledWith(
+      'sendShortMessage',
+      expect.objectContaining({ tenantId: TEST_TENANT_ID, to: '+12025551234', body: 'Hello World' })
+    );
   });
 });
 
 describe('SMSService.sendShortMessageDirect', () => {
   it('does not throw for a valid number and body', async () => {
     await expect(
-      SMSService.sendShortMessageDirect({ to: '+12025551234', body: 'Direct message' })
+      SMSService.sendShortMessageDirect(TEST_TENANT_ID, { to: '+12025551234', body: 'Direct message' })
     ).resolves.not.toThrow();
   });
 
   it('does not throw for an invalid number (logs error gracefully)', async () => {
     await expect(
-      SMSService.sendShortMessageDirect({ to: 'invalid', body: 'Direct message' })
+      SMSService.sendShortMessageDirect(TEST_TENANT_ID, { to: 'invalid', body: 'Direct message' })
     ).resolves.not.toThrow();
   });
 });

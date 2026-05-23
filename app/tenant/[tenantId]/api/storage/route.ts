@@ -33,7 +33,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       );
     }
 
-    const result = await StorageService.uploadFile({
+    const result = await StorageService.uploadFile(tenantId, {
       file,
       folder: folder,
       tenantId,

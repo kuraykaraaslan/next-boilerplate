@@ -37,8 +37,8 @@ Discount coupons + redemption tracking. Provider-aware (Stripe / PayPal / Iyzico
 
 ## Owned API routes
 
-- `system` GET/POST `/system/api/coupons`
-- `system` GET/PUT/DELETE `/system/api/coupons/[couponId]`
+- `tenant` GET/POST `/tenant/[tenantId]/api/coupons`
+- `tenant` GET/PUT/DELETE `/tenant/[tenantId]/api/coupons/[couponId]`
 - `tenant` POST `/tenant/[tenantId]/api/coupons/apply`
 - `tenant` GET `/tenant/[tenantId]/api/coupons/redemptions`
 - `tenant` POST `/tenant/[tenantId]/api/coupons/validate`
@@ -111,11 +111,11 @@ CouponService.getRedemptionsByTenant(tenantId, page, pageSize)
 
 | Method | Path | Auth | Description |
 |---|---|---|---|
-| GET | `/system/api/coupons` | system:admin | List all coupons |
-| POST | `/system/api/coupons` | system:admin | Create coupon |
-| GET | `/system/api/coupons/[couponId]` | system:admin | Get coupon |
-| PUT | `/system/api/coupons/[couponId]` | system:admin | Update coupon |
-| DELETE | `/system/api/coupons/[couponId]` | system:admin | Archive coupon |
+| GET | `/tenant/00000000-0000-4000-8000-000000000000/api/coupons` | root-tenant admin | List all coupons |
+| POST | `/tenant/00000000-0000-4000-8000-000000000000/api/coupons` | root-tenant admin | Create coupon |
+| GET | `/tenant/00000000-0000-4000-8000-000000000000/api/coupons/[couponId]` | root-tenant admin | Get coupon |
+| PUT | `/tenant/00000000-0000-4000-8000-000000000000/api/coupons/[couponId]` | root-tenant admin | Update coupon |
+| DELETE | `/tenant/00000000-0000-4000-8000-000000000000/api/coupons/[couponId]` | root-tenant admin | Archive coupon |
 | POST | `/tenant/[tenantId]/api/coupons/validate` | tenant member | Validate + preview discount |
 | POST | `/tenant/[tenantId]/api/coupons/apply` | tenant member | Apply + record redemption |
 | GET | `/tenant/[tenantId]/api/coupons/redemptions` | ADMIN+ | Redemption history |

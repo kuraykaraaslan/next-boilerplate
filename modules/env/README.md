@@ -22,7 +22,7 @@ const ttl = env.SESSION_CACHE_TTL; // number, already coerced
 `env.service.ts` groups variables in commented sections — extend the matching section when you add a new key:
 
 - Core (`NODE_ENV`, `PORT`, `DEBUG*`)
-- Databases (`SYSTEM_DATABASE_URL`, `TENANT_DATABASE_URL`)
+- Databases (`SYSTEM_DATABASE_URL`, `TENANT_DATABASE_URL` — in single-DB setups point both at the same connection)
 - Redis (`REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`)
 - Auth / Secrets (`ACCESS_TOKEN_SECRET`, `REFRESH_TOKEN_SECRET`, `CSRF_SECRET`)
 - Session / Token TTLs

@@ -39,7 +39,7 @@ export function TenantESignatureSettingsPanel({ tenantId }: { tenantId: string }
 
   const refresh = useCallback(async () => {
     try {
-      const res = await api.get(`/tenant/${tenantId}/api/admin/e-signature/settings`);
+      const res = await api.get(`/tenant/${tenantId}/api/e-signature/settings`);
       const data = (res.data?.data ?? {}) as SR;
       setRemote(data);
       setF({
@@ -68,7 +68,7 @@ export function TenantESignatureSettingsPanel({ tenantId }: { tenantId: string }
         if (typeof v === 'boolean') patch[k] = bStr(v);
         else if (typeof v === 'string') patch[k] = v;
       }
-      await api.put(`/tenant/${tenantId}/api/admin/e-signature/settings`, { settings: patch });
+      await api.put(`/tenant/${tenantId}/api/e-signature/settings`, { settings: patch });
       await refresh();
       setNotice('Saved.');
       setTimeout(() => setNotice(''), 4000);

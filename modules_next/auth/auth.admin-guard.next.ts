@@ -2,10 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import AuthPolicyService from '@/modules/auth/auth.policy.service';
 import AuthMessages from '@/modules/auth/auth.messages';
 import UserSecurityService from '@/modules/user_security/user_security.service';
-import UserSessionNextService from '@/modules_next/user_session/user_session.service.next';
+import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next';
 import type { SafeUser } from '@/modules/user/user.types';
 import type { SafeUserSession } from '@/modules/user_session/user_session.types';
 import type { SafeUserSecurity } from '@/modules/user_security/user_security.types';
+import type { SafeTenant } from '@/modules/tenant/tenant.types';
+import type { SafeTenantMember } from '@/modules/tenant_member/tenant_member.types';
+import type { TenantMemberRole } from '@/modules/tenant_member/tenant_member.enums';
 
 function clientIp(request: NextRequest): string | undefined {
   return (
@@ -54,43 +57,61 @@ export async function enforceAdminAccess(
 }
 
 export type AdminAuthResult =
-  | { ok: true; user: SafeUser; userSession: SafeUserSession; userSecurity: SafeUserSecurity }
+  | {
+      ok: true;
+      user: SafeUser;
+      userSession: SafeUserSession;
+      userSecurity: SafeUserSecurity;
+      tenant: SafeTenant;
+      tenantMember: SafeTenantMember;
+    }
   | { ok: false; response: NextResponse };
 
 /**
- * Single-call helper for admin API routes: resolves the session, enforces
- * role, and applies the KD-13 IP/MFA guard in one go.
+ * Single-call helper for admin API routes: resolves the session against the
+ * root tenant, enforces root-tenant membership at the requested role, and
+ * applies the KD-13 IP/MFA guard in one go.
+ *
+ * Super-admin = a TenantMember of the root tenant with memberRole satisfying
+ * `requiredRole` (default 'ADMIN'). The legacy `userRole === 'ADMIN'` gate
+ * is gone; identity now flows through the unified tenant-membership model.
  *
  * Usage:
  *   const auth = await authenticateAdminRequest(request);
  *   if (!auth.ok) return auth.response;
- *   const { user, userSession } = auth;
+ *   const { user, userSession, tenant, tenantMember } = auth;
  */
 export async function authenticateAdminRequest(
   request: NextRequest,
-  options: { requiredRole?: 'ADMIN' | 'SUPER_ADMIN' } = {},
+  options: { requiredRole?: TenantMemberRole } = {},
 ): Promise<AdminAuthResult> {
-  let user: SafeUser;
-  let userSession: SafeUserSession;
+  let result;
   try {
-    const result = await UserSessionNextService.authenticateUserByRequest({
+    result = await TenantSessionNextService.authenticateRootTenantAdmin({
       request,
-      requiredUserRole: (options.requiredRole ?? 'ADMIN') as 'ADMIN',
+      requiredRole: options.requiredRole ?? 'ADMIN',
     });
-    if (!result || !result.user) {
-      return { ok: false, response: NextResponse.json({ error: AuthMessages.USER_NOT_AUTHENTICATED }, { status: 401 }) };
-    }
-    user = result.user;
-    userSession = result.userSession;
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : 'USER_NOT_AUTHENTICATED';
-    const status = msg === AuthMessages.USER_DOES_NOT_HAVE_REQUIRED_ROLE ? 403 : 401;
+    const msg = err instanceof Error ? err.message : AuthMessages.USER_NOT_AUTHENTICATED;
+    const status =
+      msg === AuthMessages.USER_DOES_NOT_HAVE_REQUIRED_ROLE
+      || msg.includes('INSUFFICIENT')
+      || msg.includes('NOT_MEMBER')
+        ? 403
+        : 401;
     return { ok: false, response: NextResponse.json({ error: msg }, { status }) };
   }
 
-  const userSecurity = await UserSecurityService.getSafeByUserId(user.userId).catch(() => null);
+  const userSecurity = await UserSecurityService.getSafeByUserId(result.user.userId).catch(() => null);
   const denied = await enforceAdminAccess(request, userSecurity);
   if (denied) return { ok: false, response: denied };
 
-  return { ok: true, user, userSession, userSecurity: userSecurity! };
+  return {
+    ok: true,
+    user: result.user,
+    userSession: result.userSession,
+    userSecurity: userSecurity!,
+    tenant: result.tenant,
+    tenantMember: result.tenantMember,
+  };
 }

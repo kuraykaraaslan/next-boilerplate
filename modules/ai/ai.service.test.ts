@@ -28,9 +28,19 @@ vi.mock('@/modules/env', () => ({
   },
 }));
 
+const _fakeRepo = {
+  find: vi.fn(async () => []),
+  findOne: vi.fn(async () => null),
+  create: vi.fn((v: unknown) => v),
+  save: vi.fn(async (v: unknown) => v),
+  findAndCount: vi.fn(async () => [[], 0]),
+  softRemove: vi.fn(async (v: unknown) => v),
+};
+const _fakeDS = { getRepository: vi.fn(() => _fakeRepo) };
+
 vi.mock('@/modules/db', () => ({
-  getSystemDataSource: vi.fn(),
-  tenantDataSourceFor: vi.fn(),
+  getSystemDataSource: vi.fn(async () => _fakeDS),
+  tenantDataSourceFor: vi.fn(async () => _fakeDS),
   SystemDataSource: { isInitialized: false, initialize: vi.fn(), getRepository: vi.fn() },
 }));
 
@@ -38,14 +48,41 @@ vi.mock('@/modules/redis', () => ({
   default: {
     get: vi.fn(async () => null),
     set: vi.fn(async () => 'OK'),
-    del: vi.fn(),
-    ping: vi.fn(),
+    setex: vi.fn(async () => 'OK'),
+    del: vi.fn(async () => 1),
+    ping: vi.fn(async () => 'PONG'),
+    mget: vi.fn(async () => []),
     incrby: vi.fn(async () => 1),
     expire: vi.fn(async () => 1),
+    keys: vi.fn(async () => []),
+    exists: vi.fn(async () => 0),
   },
+  singleFlight: async (_key: string, fn: () => Promise<unknown>) => fn(),
+  jitter: (n: number) => n,
 }));
 
 vi.mock('@/modules/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
+
+vi.mock('@/modules/setting/setting.service', () => ({
+  default: {
+    getByKeys: vi.fn(async () => ({
+      openaiApiKey: 'sk-test-openai',
+      anthropicApiKey: 'sk-test-anthropic',
+      googleAiApiKey: 'test-google-ai-key',
+      aiDefaultProvider: 'openai',
+    })),
+  },
+}));
+
+vi.mock('@/modules/tenant_usage/tenant_usage.service', () => ({
+  TenantUsageService: {
+    incrementAiTokens: vi.fn(async () => {}),
+    incrementApiCall: vi.fn(async () => 1),
+    incrementStorageBytes: vi.fn(async () => {}),
+    incrementEmailSends: vi.fn(async () => {}),
+    incrementSmsSends: vi.fn(async () => {}),
+  },
+}));
 
 const mockChatResponse = {
   content: 'Hello from mock AI',
@@ -107,9 +144,19 @@ vi.mock('./providers/google.provider', () => ({
   },
 }));
 
+
+// Bypass feature gating in unit tests — tested separately in tenant_subscription/.
+vi.mock('@/modules/tenant_subscription/tenant_subscription.service', () => ({
+  default: {
+    assertFeatureAccess: vi.fn(async () => undefined),
+    checkFeatureAccess: vi.fn(async () => ({ allowed: true, featureKey: '', type: 'BOOLEAN', limit: null, unlimited: null, current: null })),
+  },
+}));
 import AIService from './ai.service';
 import redis from '@/modules/redis';
 import { AIError, OpenAIModels, AnthropicModels, GoogleModels } from './ai.types';
+
+const TENANT_ID = '550e8400-e29b-41d4-a716-446655440000';
 
 const mockRedis = redis as any;
 
@@ -119,10 +166,8 @@ beforeEach(() => {
   mockRedis.set.mockResolvedValue('OK');
   mockRedis.incrby.mockResolvedValue(30);
   mockRedis.expire.mockResolvedValue(1);
-  // Reset lazy-loaded providers
-  (AIService as any)._openaiProvider = null;
-  (AIService as any)._anthropicProvider = null;
-  (AIService as any)._googleProvider = null;
+  // Reset per-tenant provider cache
+  (AIService as any)._tenantProviders?.clear?.();
 });
 
 describe('AIService.listProviders', () => {
@@ -136,8 +181,8 @@ describe('AIService.listProviders', () => {
 });
 
 describe('AIService.listConfiguredProviders', () => {
-  it('returns all providers when all are configured', () => {
-    const configured = AIService.listConfiguredProviders();
+  it('returns all providers when all are configured', async () => {
+    const configured = await AIService.listConfiguredProviders(TENANT_ID);
     expect(configured).toContain('openai');
     expect(configured).toContain('anthropic');
     expect(configured).toContain('google');
@@ -145,12 +190,12 @@ describe('AIService.listConfiguredProviders', () => {
 });
 
 describe('AIService.isProviderConfigured', () => {
-  it('returns true for configured openai provider', () => {
-    expect(AIService.isProviderConfigured('openai')).toBe(true);
+  it('returns true for configured openai provider', async () => {
+    expect(await AIService.isProviderConfigured(TENANT_ID, 'openai')).toBe(true);
   });
 
-  it('returns true for configured anthropic provider', () => {
-    expect(AIService.isProviderConfigured('anthropic')).toBe(true);
+  it('returns true for configured anthropic provider', async () => {
+    expect(await AIService.isProviderConfigured(TENANT_ID, 'anthropic')).toBe(true);
   });
 });
 
@@ -185,8 +230,8 @@ describe('AIService.listAllModels', () => {
 });
 
 describe('AIService.listModels', () => {
-  it('returns model list for openai provider', () => {
-    const models = AIService.listModels('openai');
+  it('returns model list for openai provider', async () => {
+    const models = await AIService.listModels(TENANT_ID, 'openai');
     expect(Array.isArray(models)).toBe(true);
     expect(models.length).toBeGreaterThan(0);
   });
@@ -194,7 +239,7 @@ describe('AIService.listModels', () => {
 
 describe('AIService.chat', () => {
   it('returns a ChatCompletionResponse from openai', async () => {
-    const response = await AIService.chat({
+    const response = await AIService.chat(TENANT_ID, {
       messages: [{ role: 'user', content: 'Hello!' }],
       provider: 'openai',
     });
@@ -205,7 +250,7 @@ describe('AIService.chat', () => {
   });
 
   it('auto-detects provider from model name', async () => {
-    const response = await AIService.chat({
+    const response = await AIService.chat(TENANT_ID, {
       messages: [{ role: 'user', content: 'Hello!' }],
       model: 'gpt-4o-mini',
     });
@@ -213,7 +258,7 @@ describe('AIService.chat', () => {
   });
 
   it('auto-detects anthropic from Claude model', async () => {
-    const response = await AIService.chat({
+    const response = await AIService.chat(TENANT_ID, {
       messages: [{ role: 'user', content: 'Hello!' }],
       model: 'claude-3-5-sonnet-20241022',
     });
@@ -221,19 +266,19 @@ describe('AIService.chat', () => {
   });
 
   it('tracks usage in redis after successful chat', async () => {
-    await AIService.chat({
+    await AIService.chat(TENANT_ID, {
       messages: [{ role: 'user', content: 'Hello!' }],
       provider: 'openai',
     });
     expect(mockRedis.incrby).toHaveBeenCalledWith(
-      expect.stringContaining('ai:usage:openai:'),
+      expect.stringContaining(`ai:usage:${TENANT_ID}:openai:`),
       30
     );
   });
 
   it('throws AIError when provider is not configured', async () => {
-    // Inject a not-configured provider instance directly
-    (AIService as any)._openaiProvider = {
+    // Inject a not-configured bundle for this tenant directly
+    const notConfigured = {
       providerType: 'openai',
       isConfigured: () => false,
       chat: vi.fn(),
@@ -241,9 +286,15 @@ describe('AIService.chat', () => {
       embed: vi.fn(),
       listModels: () => [],
     };
+    (AIService as any)._tenantProviders.set(TENANT_ID, {
+      openai: notConfigured,
+      anthropic: notConfigured,
+      google: notConfigured,
+      defaultProvider: 'openai',
+    });
 
     await expect(
-      AIService.chat({ messages: [{ role: 'user', content: 'Hi' }], provider: 'openai' })
+      AIService.chat(TENANT_ID, { messages: [{ role: 'user', content: 'Hi' }], provider: 'openai' })
     ).rejects.toThrow(AIError);
   });
 });
@@ -251,9 +302,9 @@ describe('AIService.chat', () => {
 describe('AIService.chatStream', () => {
   it('calls onChunk with streamed content and returns response', async () => {
     const chunks: string[] = [];
-    const response = await AIService.chatStream(
+    const response = await AIService.chatStream(TENANT_ID, 
       { messages: [{ role: 'user', content: 'Stream this' }], provider: 'openai' },
-      (chunk) => chunks.push(chunk)
+      (chunk: string) => chunks.push(chunk)
     );
 
     expect(chunks).toContain('Hello');
@@ -263,7 +314,7 @@ describe('AIService.chatStream', () => {
 
 describe('AIService.embed', () => {
   it('returns EmbeddingResponse from openai', async () => {
-    const response = await AIService.embed({
+    const response = await AIService.embed(TENANT_ID, {
       input: 'Test text for embedding',
       provider: 'openai',
     });
@@ -273,7 +324,7 @@ describe('AIService.embed', () => {
   });
 
   it('throws AIError when embedding provider is not configured', async () => {
-    (AIService as any)._openaiProvider = {
+    const notConfigured = {
       providerType: 'openai',
       isConfigured: () => false,
       chat: vi.fn(),
@@ -281,16 +332,22 @@ describe('AIService.embed', () => {
       embed: vi.fn(),
       listModels: () => [],
     };
+    (AIService as any)._tenantProviders.set(TENANT_ID, {
+      openai: notConfigured,
+      anthropic: notConfigured,
+      google: notConfigured,
+      defaultProvider: 'openai',
+    });
 
     await expect(
-      AIService.embed({ input: 'test', provider: 'openai' })
+      AIService.embed(TENANT_ID, { input: 'test', provider: 'openai' })
     ).rejects.toThrow(AIError);
   });
 });
 
 describe('AIService.complete', () => {
   it('returns string content from the chat response', async () => {
-    const result = await AIService.complete('What is 2+2?', { provider: 'openai' });
+    const result = await AIService.complete(TENANT_ID, 'What is 2+2?', { provider: 'openai' });
     expect(typeof result).toBe('string');
     expect(result).toBe('Hello from mock AI');
   });
@@ -298,7 +355,7 @@ describe('AIService.complete', () => {
 
 describe('AIService.ask', () => {
   it('sends question with system prompt and returns string', async () => {
-    const result = await AIService.ask(
+    const result = await AIService.ask(TENANT_ID, 
       'What is the capital of France?',
       'You are a geography expert.',
       { provider: 'openai' }
@@ -331,7 +388,7 @@ describe('AIService.setRateLimit', () => {
 describe('AIService.getUsage', () => {
   it('returns usage record with date keys', async () => {
     mockRedis.get.mockResolvedValue('1500');
-    const usage = await AIService.getUsage('openai', 3);
+    const usage = await AIService.getUsage(TENANT_ID, 'openai', 3);
     expect(Object.keys(usage)).toHaveLength(3);
     for (const val of Object.values(usage)) {
       expect(typeof val).toBe('number');
@@ -340,7 +397,7 @@ describe('AIService.getUsage', () => {
 
   it('returns zeros for dates with no data', async () => {
     mockRedis.get.mockResolvedValue(null);
-    const usage = await AIService.getUsage('anthropic', 2);
+    const usage = await AIService.getUsage(TENANT_ID, 'anthropic', 2);
     for (const val of Object.values(usage)) {
       expect(val).toBe(0);
     }
@@ -350,26 +407,32 @@ describe('AIService.getUsage', () => {
 describe('AIService.getTotalUsage', () => {
   it('sums usage over given days', async () => {
     mockRedis.get.mockResolvedValue('100');
-    const total = await AIService.getTotalUsage('openai', 3);
+    const total = await AIService.getTotalUsage(TENANT_ID, 'openai', 3);
     expect(total).toBe(300); // 100 * 3 days
   });
 });
 
 describe('AIService.reinitializeProvider', () => {
+  beforeEach(async () => {
+    // Force the tenant bundle to be built so reinit has a cache entry to mutate.
+    await AIService.getProvider(TENANT_ID, 'openai');
+  });
+
   it('replaces the openai provider instance', () => {
-    const initialProvider = (AIService as any).openaiProvider;
-    AIService.reinitializeProvider('openai', { apiKey: 'new-key', defaultModel: 'gpt-4' });
-    const newProvider = (AIService as any)._openaiProvider;
-    expect(newProvider).not.toBeNull();
+    AIService.reinitializeProvider(TENANT_ID, 'openai', { apiKey: 'new-key', defaultModel: 'gpt-4' });
+    const bundle = (AIService as any)._tenantProviders.get(TENANT_ID);
+    expect(bundle?.openai).toBeTruthy();
   });
 
   it('replaces the anthropic provider instance', () => {
-    AIService.reinitializeProvider('anthropic', { apiKey: 'new-anthropic-key' });
-    expect((AIService as any)._anthropicProvider).not.toBeNull();
+    AIService.reinitializeProvider(TENANT_ID, 'anthropic', { apiKey: 'new-anthropic-key' });
+    const bundle = (AIService as any)._tenantProviders.get(TENANT_ID);
+    expect(bundle?.anthropic).toBeTruthy();
   });
 
   it('replaces the google provider instance', () => {
-    AIService.reinitializeProvider('google', { apiKey: 'new-google-key' });
-    expect((AIService as any)._googleProvider).not.toBeNull();
+    AIService.reinitializeProvider(TENANT_ID, 'google', { apiKey: 'new-google-key' });
+    const bundle = (AIService as any)._tenantProviders.get(TENANT_ID);
+    expect(bundle?.google).toBeTruthy();
   });
 });

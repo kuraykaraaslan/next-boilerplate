@@ -3,33 +3,36 @@ import BasePaymentProvider, { CheckoutSessionParams, CheckoutSessionResult } fro
 import { PAYMENT_MESSAGES } from '../payment.messages'
 import SettingService from '@/modules/setting/setting.service'
 
+interface CachedToken {
+  token: string
+  expiresAt: Date
+}
+
 export default class PaypalProvider extends BasePaymentProvider {
   readonly name = 'paypal'
 
-  private static PAYPAL_ACCESS_TOKEN: string | null = null
-  private static PAYPAL_ACCESS_TOKEN_EXPIRES: Date | null = null
+  // Per-tenant token cache. Provider instance is a singleton; each tenant
+  // has its own PayPal credentials so the cache must be keyed by tenantId.
+  private static readonly TOKEN_CACHE = new Map<string, CachedToken>()
 
-  private static async getBaseUrl(): Promise<string> {
-    const sandbox = await SettingService.getValue('paypalSandboxMode')
+  private static async getBaseUrl(tenantId: string): Promise<string> {
+    const sandbox = await SettingService.getValue(tenantId, 'paypalSandboxMode')
     return sandbox === 'true'
       ? 'https://api-m.sandbox.paypal.com'
       : 'https://api-m.paypal.com'
   }
 
-  private static async getAccessToken(): Promise<string> {
-    if (
-      this.PAYPAL_ACCESS_TOKEN &&
-      this.PAYPAL_ACCESS_TOKEN_EXPIRES &&
-      this.PAYPAL_ACCESS_TOKEN_EXPIRES > new Date()
-    ) {
-      return this.PAYPAL_ACCESS_TOKEN
+  private static async getAccessToken(tenantId: string): Promise<string> {
+    const cached = PaypalProvider.TOKEN_CACHE.get(tenantId)
+    if (cached && cached.expiresAt > new Date()) {
+      return cached.token
     }
 
-    const clientId = await SettingService.getValue('paypalClientId')
-    const clientSecret = await SettingService.getValue('paypalClientSecret')
+    const clientId = await SettingService.getValue(tenantId, 'paypalClientId')
+    const clientSecret = await SettingService.getValue(tenantId, 'paypalClientSecret')
     if (!clientId || !clientSecret) throw new Error(PAYMENT_MESSAGES.PROVIDER_NOT_CONFIGURED)
 
-    const baseUrl = await this.getBaseUrl()
+    const baseUrl = await PaypalProvider.getBaseUrl(tenantId)
     const credentials = Buffer.from(`${clientId}:${clientSecret}`).toString('base64')
 
     try {
@@ -39,17 +42,19 @@ export default class PaypalProvider extends BasePaymentProvider {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
       })
-      this.PAYPAL_ACCESS_TOKEN = res.data.access_token
-      this.PAYPAL_ACCESS_TOKEN_EXPIRES = new Date(Date.now() + res.data.expires_in * 1000)
+      PaypalProvider.TOKEN_CACHE.set(tenantId, {
+        token: res.data.access_token,
+        expiresAt: new Date(Date.now() + res.data.expires_in * 1000),
+      })
       return res.data.access_token
     } catch (error) {
       throw new Error(PAYMENT_MESSAGES.PAYPAL_ACCESS_TOKEN_FAILED)
     }
   }
 
-  private async getAuthenticatedAxios(): Promise<AxiosInstance> {
-    const baseUrl = await PaypalProvider.getBaseUrl()
-    const token = await PaypalProvider.getAccessToken()
+  private async getAuthenticatedAxios(tenantId: string): Promise<AxiosInstance> {
+    const baseUrl = await PaypalProvider.getBaseUrl(tenantId)
+    const token = await PaypalProvider.getAccessToken(tenantId)
     return axios.create({
       baseURL: baseUrl,
       headers: {
@@ -66,9 +71,9 @@ export default class PaypalProvider extends BasePaymentProvider {
     })
   }
 
-  async getPaymentStatus(token: string): Promise<any> {
+  async getPaymentStatus(tenantId: string, token: string): Promise<any> {
     try {
-      const client = await this.getAuthenticatedAxios()
+      const client = await this.getAuthenticatedAxios(tenantId)
       const response = await client.get(`/v2/checkout/orders/${token}`)
       return response.data
     } catch (error) {
@@ -76,9 +81,12 @@ export default class PaypalProvider extends BasePaymentProvider {
     }
   }
 
-  async createCheckoutSession(params: CheckoutSessionParams): Promise<CheckoutSessionResult> {
+  async createCheckoutSession(
+    tenantId: string,
+    params: CheckoutSessionParams,
+  ): Promise<CheckoutSessionResult> {
     try {
-      const client = await this.getAuthenticatedAxios()
+      const client = await this.getAuthenticatedAxios(tenantId)
 
       const body = {
         intent: 'CAPTURE',

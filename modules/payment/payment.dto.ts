@@ -60,6 +60,7 @@ export const GetPaymentsQuerySchema = z.object({
 })
 
 export const GetProviderStatusRequestSchema = z.object({
+  tenantId: z.string().uuid(),
   token: z.string().min(1, 'Token is required'),
   provider: PaymentProviderEnum.optional(),
 })

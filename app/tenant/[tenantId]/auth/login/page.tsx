@@ -6,6 +6,7 @@ import { BrandLogo } from '@/modules_next/common/ui/BrandLogo';
 import { LoginForm } from '@/modules_next/auth/ui/LoginForm';
 import { OAuthButtons, type OAuthProvider } from '@/modules_next/auth/ui/OAuthButtons';
 import { Spinner } from '@/modules_next/common/ui/Spinner';
+import { isRootTenant } from '@/modules/tenant/tenant.constants';
 
 // Refresh token is minted with `notBefore: 5s` (see user_session.token.service.ts).
 // Wait past that window before navigating so any early refresh attempt on the
@@ -35,8 +36,15 @@ export default function TenantLoginPage({ params }: { params: Promise<{ tenantId
     try {
       await api.post(`/tenant/${tenantId}/api/auth/login`, { email: values.email, password: values.password });
       setSuccessMsg(`Signed in as ${values.email}`);
+      // Root tenant context = platform login → user picks which workspace
+      // to enter (select-tenant). All other tenants land directly in their
+      // own admin area. Never redirect into select-tenant from a non-root
+      // tenant context.
+      const defaultRedirect = isRootTenant(tenantId)
+        ? `/tenant/${tenantId}/auth/select-tenant`
+        : `/tenant/${tenantId}/admin/me`;
       setTimeout(() => {
-        window.location.href = redirectTo ?? `/tenant/${tenantId}/admin/me`;
+        window.location.href = redirectTo ?? defaultRedirect;
       }, POST_LOGIN_REDIRECT_DELAY_MS);
     } catch (err: any) {
       throw new Error(err.response?.data?.error ?? err.message ?? 'Login failed.');

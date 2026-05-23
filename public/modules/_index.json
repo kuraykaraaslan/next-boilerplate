@@ -104,9 +104,9 @@
       "configuration"
     ],
     "hasNextLayer": true,
-    "routeCount": 5,
+    "routeCount": 3,
     "entityCount": 1,
-    "componentCount": 1,
+    "componentCount": 2,
     "file": "setting.md"
   },
   "user_agent": {
@@ -130,8 +130,8 @@
       "storage"
     ],
     "hasNextLayer": false,
-    "routeCount": 3,
-    "entityCount": 0,
+    "routeCount": 1,
+    "entityCount": 1,
     "componentCount": 0,
     "file": "storage.md"
   },
@@ -222,9 +222,9 @@
       "core"
     ],
     "hasNextLayer": true,
-    "routeCount": 73,
+    "routeCount": 44,
     "entityCount": 0,
-    "componentCount": 6,
+    "componentCount": 7,
     "file": "auth.md"
   },
   "auth_saml": {
@@ -238,7 +238,7 @@
     ],
     "hasNextLayer": true,
     "routeCount": 0,
-    "entityCount": 2,
+    "entityCount": 1,
     "componentCount": 3,
     "file": "auth_saml.md"
   },
@@ -270,6 +270,21 @@
     "componentCount": 0,
     "file": "auth_impersonation.md"
   },
+  "scim": {
+    "name": "SCIM 2.0",
+    "tier": "other",
+    "tags": [
+      "identity",
+      "enterprise",
+      "provisioning",
+      "sso"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 7,
+    "entityCount": 0,
+    "componentCount": 0,
+    "file": "scim.md"
+  },
   "tenant": {
     "name": "Tenant",
     "tier": "tenancy",
@@ -278,9 +293,9 @@
       "core"
     ],
     "hasNextLayer": true,
-    "routeCount": 6,
+    "routeCount": 4,
     "entityCount": 1,
-    "componentCount": 2,
+    "componentCount": 3,
     "file": "tenant.md"
   },
   "tenant_member": {
@@ -321,19 +336,6 @@
     "componentCount": 1,
     "file": "tenant_session.md"
   },
-  "tenant_setting": {
-    "name": "Tenant Setting",
-    "tier": "tenancy",
-    "tags": [
-      "tenant",
-      "configuration"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 1,
-    "componentCount": 0,
-    "file": "tenant_setting.md"
-  },
   "tenant_branding": {
     "name": "Tenant Branding",
     "tier": "tenancy",
@@ -370,7 +372,7 @@
       "billing"
     ],
     "hasNextLayer": true,
-    "routeCount": 5,
+    "routeCount": 0,
     "entityCount": 1,
     "componentCount": 8,
     "file": "tenant_subscription.md"
@@ -481,6 +483,34 @@
     "componentCount": 0,
     "file": "notification_sms.md"
   },
+  "notification_log": {
+    "name": "Notification Log",
+    "tier": "other",
+    "tags": [
+      "notifications",
+      "audit"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 1,
+    "componentCount": 0,
+    "file": "notification_log.md"
+  },
+  "e_signature": {
+    "name": "E-Signature & E-Identity",
+    "tier": "other",
+    "tags": [
+      "auth",
+      "identity",
+      "signature",
+      "eidas"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 1,
+    "entityCount": 2,
+    "componentCount": 2,
+    "file": "e_signature.md"
+  },
   "api_key": {
     "name": "API Key",
     "tier": "platform",
@@ -503,8 +533,8 @@
       "compliance"
     ],
     "hasNextLayer": true,
-    "routeCount": 2,
-    "entityCount": 2,
+    "routeCount": 1,
+    "entityCount": 1,
     "componentCount": 2,
     "file": "audit_log.md"
   },
@@ -516,8 +546,8 @@
       "integration"
     ],
     "hasNextLayer": false,
-    "routeCount": 13,
-    "entityCount": 4,
+    "routeCount": 7,
+    "entityCount": 2,
     "componentCount": 0,
     "file": "webhook.md"
   },
@@ -530,7 +560,7 @@
     ],
     "hasNextLayer": true,
     "routeCount": 6,
-    "entityCount": 0,
+    "entityCount": 1,
     "componentCount": 1,
     "file": "ai.md"
   },

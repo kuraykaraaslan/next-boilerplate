@@ -99,7 +99,7 @@ export async function POST(
     response.cookies.set('refreshToken', rawRefreshToken, cookieOptions);
 
     try {
-      await MailService.sendNewLoginEmail({ email: user.email });
+      await MailService.sendNewLoginEmail({ tenantId: tenantId, email: user.email });
     } catch (emailError) {
       // Ignored error for sending login email
     }

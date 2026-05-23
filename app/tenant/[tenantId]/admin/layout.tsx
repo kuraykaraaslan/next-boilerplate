@@ -9,7 +9,7 @@ export default async function TenantAdminLayout({
 }) {
   const { tenantId } = await params;
   return (
-    <AdminShell variant="tenant" tenantId={tenantId}>
+    <AdminShell tenantId={tenantId}>
       {children}
     </AdminShell>
   );

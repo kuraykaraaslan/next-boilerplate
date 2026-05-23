@@ -6,6 +6,7 @@ import { SafeUserSession } from "../user_session/user_session.types";
 import { OTPMethod, OTPAction } from "../user_security/user_security.enums";
 import UserSessionService from "../user_session/user_session.service";
 import MailService from "../notification_mail/notification_mail.service";
+import { ROOT_TENANT_ID } from '@/modules/tenant/tenant.constants';
 import SMSService from "../notification_sms/notification_sms.service";
 import AuthMessages from "./auth.messages";
 import Logger from "@/modules/logger";
@@ -104,13 +105,13 @@ export default class OTPService {
     // Send OTP — delivery failures are logged but must NOT propagate to the frontend
     switch (method) {
       case "EMAIL":
-        MailService.sendOTPEmail({ email: user.email, otpToken }).catch((err: unknown) => {
+        MailService.sendOTPEmail({ tenantId: ROOT_TENANT_ID, email: user.email, otpToken }).catch((err: unknown) => {
           Logger.error(`OTPService: sendOTPEmail failed for user ${user.userId}: ${err instanceof Error ? err.message : err}`);
         });
         break;
 
       case "SMS":
-        SMSService.sendShortMessage({
+        SMSService.sendShortMessage(ROOT_TENANT_ID, {
           to: user.phone!,
           body: `Your verification code is ${otpToken}. Valid for ${this.OTP_EXPIRY_SECONDS / 60} minutes.`,
         }).catch((err: unknown) => {

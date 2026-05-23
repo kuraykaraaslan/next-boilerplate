@@ -14,7 +14,7 @@ OIDC4IDA-shaped identity claims, eIDAS LoA awareness.
 | Login via Login.gov (United States) | **Adapter wired** — bridges to OIDC flow handled by `auth_sso`; surfaces in country picker once configured |
 | Tenant admin E-Signature settings page (`/tenant/[id]/admin/settings` → E-Signature tab) | **Live** — per-workspace policy + Mobil Imza credentials (encrypted) |
 | Account-settings bind/revoke UI (OTP-gated) | **Live** — `SigningCertificatesPanel` |
-| System admin settings UI (`/system/admin/settings` → E-Signature tab) with provider matrix | **Live** |
+| Super-admin (root tenant ADMIN) settings UI (`/tenant/00000000-0000-4000-8000-000000000000/admin/settings` → E-Signature tab) with provider matrix | **Live** |
 | Envelope encryption for sensitive admin settings (AES-256-GCM) | **Live** — `ESignatureEncryptionService`; admin GET returns `***SET***` mask |
 | OCSP revocation check (pkijs request build + POST) | **Live** — `ESignatureOCSPService.check` |
 | OCSP responder signature verification | **Live** — `BasicOCSPResponse.verify({ trustedCerts })` against the issuer |
@@ -54,7 +54,7 @@ modules/e_signature/
 
 ## Login flow
 
-1. `GET /system/api/auth/e-signature/countries` → returns the picker hint:
+1. `GET /tenant/00000000-0000-4000-8000-000000000000/api/auth/e-signature/countries` → returns the picker hint:
    ```json
    [
      { "country": "TR", "providers": [
@@ -65,13 +65,13 @@ modules/e_signature/
      ]}
    ]
    ```
-2. `POST /system/api/auth/e-signature/initiate` body `{ country, identifier, providerOverride? }`
+2. `POST /tenant/00000000-0000-4000-8000-000000000000/api/auth/e-signature/initiate` body `{ country, identifier, providerOverride? }`
    - Server generates a single-use challenge, stores `{provider, country, identifier, challenge, ip, ua, …}` in Redis (TTL 120 s), forwards to the aggregator.
    - Returns `{ transactionId, expiresIn, displayCode? }`.
-3. `GET /system/api/auth/e-signature/status/:transactionId` (poll every 2 s, up to 180 s):
+3. `GET /tenant/00000000-0000-4000-8000-000000000000/api/auth/e-signature/status/:transactionId` (poll every 2 s, up to 180 s):
    - On `signed`: verifies signature → validates cert chain (country-aware trust list) → checks OCSP → enforces key-usage + LoA → normalizes claims (OIDC4IDA) → matches user → mints `UserSession` + cookies.
    - On unmatched cert: `403 NEEDS_BINDING`.
-4. `POST /system/api/auth/e-signature/bind` (authenticated, 2FA-gated): identical initiate flow with `purpose='bind'`, auto-persists the certificate via `SigningCertificate` on signed.
+4. `POST /tenant/00000000-0000-4000-8000-000000000000/api/auth/e-signature/bind` (authenticated, 2FA-gated): identical initiate flow with `purpose='bind'`, auto-persists the certificate via `SigningCertificate` on signed.
 
 ## Provider model
 
@@ -227,12 +227,12 @@ adapter in `e_signature.service.ts:PROVIDERS`.
 
 | UI / endpoint | Audience |
 |---|---|
-| `/system/admin/settings` → "E-Signature" tab | System admins — provider matrix + global config + Mobil Imza aggregator creds (envelope-encrypted) |
+| `/tenant/00000000-0000-4000-8000-000000000000/admin/settings` → "E-Signature" tab | Super-admin (root tenant ADMIN)s — provider matrix + global config + Mobil Imza aggregator creds (envelope-encrypted) |
 | `/tenant/[tenantId]/admin/settings` → "E-Signature" tab | Tenant owner/admin — per-workspace policy + per-workspace Mobil Imza credentials |
-| `GET/PUT /system/api/admin/e-signature/settings` | System admin JSON API; sensitive values return masked as `***SET***` |
-| `GET/PUT /tenant/[tenantId]/api/admin/e-signature/settings` | Tenant owner/admin JSON API (per-tenant override) |
-| `GET /system/api/auth/me/security/e-signature` + bind dialog | Any authenticated user — list / bind / revoke own signing certificates |
-| `/system/api/auth/e-signature/*` | System-scope login flow |
+| `GET/PUT /tenant/00000000-0000-4000-8000-000000000000/api/e-signature/settings` | Super-admin (root tenant ADMIN) JSON API; sensitive values return masked as `***SET***` |
+| `GET/PUT /tenant/[tenantId]/api/e-signature/settings` | Tenant owner/admin JSON API (per-tenant override) |
+| `GET /tenant/00000000-0000-4000-8000-000000000000/api/auth/me/security/e-signature` + bind dialog | Any authenticated user — list / bind / revoke own signing certificates |
+| `/tenant/00000000-0000-4000-8000-000000000000/api/auth/e-signature/*` | Root-tenant-scope login flow |
 | `/tenant/[tenantId]/api/auth/e-signature/*` | Tenant-scope login flow (matched user must be an active tenant member) |
 
 ## Roadmap

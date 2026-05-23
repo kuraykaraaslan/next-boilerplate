@@ -7,6 +7,10 @@ export class AuditLog {
   auditLogId!: string;
 
   @Index()
+  @Column({ type: 'uuid' })
+  tenantId!: string;
+
+  @Index()
   @Column({ nullable: true, type: 'uuid' })
   actorId?: string;
 

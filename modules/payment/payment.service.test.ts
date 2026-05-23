@@ -27,7 +27,20 @@ vi.mock('@/modules/db', () => ({
 }));
 
 vi.mock('@/modules/redis', () => ({
-  default: { get: vi.fn(), set: vi.fn(), del: vi.fn(), ping: vi.fn() },
+  default: {
+    get: vi.fn(async () => null),
+    set: vi.fn(async () => 'OK'),
+    setex: vi.fn(async () => 'OK'),
+    del: vi.fn(async () => 1),
+    ping: vi.fn(async () => 'PONG'),
+    mget: vi.fn(async () => []),
+    incrby: vi.fn(async () => 1),
+    expire: vi.fn(async () => 1),
+    keys: vi.fn(async () => []),
+    exists: vi.fn(async () => 0),
+  },
+  singleFlight: async (_key: string, fn: () => Promise<unknown>) => fn(),
+  jitter: (n: number) => n,
 }));
 
 vi.mock('@/modules/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
@@ -70,6 +83,8 @@ vi.mock('./providers/iyzico.provider', () => ({
 import PaymentService from './payment.service';
 import { getDefaultTenantDataSource, tenantDataSourceFor } from '@/modules/db';
 import { PAYMENT_MESSAGES } from './payment.messages';
+
+const TENANT_ID = '550e8400-e29b-41d4-a716-446655440000';
 
 const validUuid = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11';
 const validUuid2 = 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22';
@@ -331,7 +346,7 @@ describe('PaymentService.refund', () => {
 
 describe('PaymentService.createCheckoutSession', () => {
   it('delegates to the Stripe provider by default', async () => {
-    const result = await PaymentService.createCheckoutSession({
+    const result = await PaymentService.createCheckoutSession(TENANT_ID, {
       amount: 100,
       currency: 'USD',
       description: 'Test payment',
@@ -343,7 +358,7 @@ describe('PaymentService.createCheckoutSession', () => {
   });
 
   it('delegates to PayPal provider when specified', async () => {
-    const result = await PaymentService.createCheckoutSession(
+    const result = await PaymentService.createCheckoutSession(TENANT_ID, 
       {
         amount: 100,
         currency: 'USD',
@@ -358,7 +373,7 @@ describe('PaymentService.createCheckoutSession', () => {
 
   it('throws when provider name is invalid', async () => {
     await expect(
-      PaymentService.createCheckoutSession(
+      PaymentService.createCheckoutSession(TENANT_ID, 
         { amount: 100, currency: 'USD', description: 'Test', successUrl: '', cancelUrl: '' },
         'UNKNOWN' as any
       )

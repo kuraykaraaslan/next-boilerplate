@@ -69,7 +69,7 @@ export default class ESignatureService {
   // Every provider is registered up-front. Whether each one actually surfaces
   // to end users is determined per-call by `isConfigured()`, so unconfigured
   // adapters never appear on the login picker but remain visible in the
-  // admin overview at /system/admin/settings → E-Signature.
+  // admin overview at /admin/settings → E-Signature on the root tenant.
   private static readonly mobilImzaProvider = new MobilImzaAggregatorProvider();
   private static readonly smartIdProvider = new SmartIdProvider();
   private static readonly bankIdSeProvider = new BankIdSeProvider();

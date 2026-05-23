@@ -15,7 +15,7 @@ Finds all `PAST_DUE` subscriptions whose grace period has ended and marks them `
 | Service method | `TenantSubscriptionService.expireOverdueSubscriptions()` |
 | Default schedule | Every hour (`0 * * * *`) |
 | BullMQ queue | `subscription-expire` |
-| HTTP endpoint | `POST /system/api/cron/expire-subscriptions` |
+| HTTP endpoint | `POST /api/tenant/00000000-0000-4000-8000-000000000000/admin/cron/expire-subscriptions` |
 
 ### `dormant-sweep` (KD-15)
 
@@ -27,7 +27,58 @@ Marks user accounts `INACTIVE` when their last successful login is older than th
 | Default schedule | Daily at 03:00 (`0 3 * * *`) |
 | BullMQ queue | `auth-dormant-sweep` |
 | BullMQ scheduler | `scheduleDormantSweepJob()` from `modules/auth/auth.dormant.job.ts` |
-| HTTP endpoint | `POST /system/api/cron/dormant-sweep` |
+| HTTP endpoint | `POST /api/tenant/00000000-0000-4000-8000-000000000000/api/cron/dormant-sweep` |
+
+### `purge-expired-tenants`
+
+Hard-deletes tenants whose 30-day soft-delete grace period has elapsed (`Tenant.deleteAfter <= now`).
+
+| Property | Value |
+|---|---|
+| Service method | `TenantDeletionService.purgeExpiredTenants()` |
+| Default schedule | Daily at 04:00 (`0 4 * * *`) |
+| BullMQ queue | `tenant-purge` |
+| BullMQ scheduler | `scheduleTenantPurgeJob()` from `modules/tenant/tenant.deletion.job.ts` |
+| HTTP endpoint | `POST /api/tenant/00000000-0000-4000-8000-000000000000/api/cron/purge-expired-tenants` |
+
+### `tenant-domain-dns-recheck`
+
+Re-resolves the TXT/CNAME records of every `ACTIVE` `TenantDomain` and downgrades
+broken ones to `DNS_FAILED` (admin must then manually re-verify). Closes the
+gap where one-shot verification tokens expire after 24h and silent DNS
+breakage goes undetected.
+
+| Property | Value |
+|---|---|
+| Service method | `DNSVerificationService.recheckActiveDomains()` |
+| Default schedule | Every 6 hours (`0 */6 * * *`) |
+| BullMQ queue | `tenant-domain-dns-recheck` |
+| BullMQ scheduler | `scheduleDnsRecheckJob()` from `modules/tenant_domain/tenant_domain.job.ts` |
+| HTTP endpoint | `POST /api/tenant/00000000-0000-4000-8000-000000000000/api/cron/dns-recheck` |
+
+### `tenant-usage-flush`
+
+Flushes every active tenant's Redis usage counters (`apiCalls`, `aiTokens`, `storageBytes`, `emailSends`, `smsSends`) into the `TenantUsage` table for the current month. Without this job, Redis monthly counters (32-day TTL) lose month-end totals before they're persisted.
+
+| Property | Value |
+|---|---|
+| Service method | `TenantUsageService.flushToDb(tenantId, month)` per active tenant |
+| Default schedule | Hourly (`0 * * * *`) |
+| BullMQ queue | `tenant-usage-flush` |
+| BullMQ scheduler | `scheduleUsageFlushJob()` from `modules/tenant_usage/tenant_usage.job.ts` |
+| HTTP endpoint | `POST /api/tenant/00000000-0000-4000-8000-000000000000/api/cron/usage-flush` |
+
+### `tenant-domain-ssl-health`
+
+Opens a TLS handshake against every active tenant custom domain, parses the leaf certificate, and writes `sslStatus / sslIssuedAt / sslExpiresAt / sslIssuer / sslLastCheckedAt` back to the `TenantDomain` row. Certs expiring within 30 days are flagged `EXPIRING`; handshakes that fail (untrusted cert, DNS broken, connection refused) downgrade to `FAILED`. Operator must inspect the reverse proxy when this happens. See [docs/caddy-on-demand-tls.md](docs/caddy-on-demand-tls.md) and [ADR 0005](docs/adr/0005-tenant-custom-domain-ssl.md).
+
+| Property | Value |
+|---|---|
+| Service method | `SSLProvisioningService.recheckCertificates()` |
+| Default schedule | Daily at 05:15 (`15 5 * * *`) |
+| BullMQ queue | `tenant-domain-ssl-health` |
+| BullMQ scheduler | `scheduleSslHealthJob()` from `modules/tenant_domain/ssl_health.job.ts` |
+| HTTP endpoint | `POST /api/tenant/00000000-0000-4000-8000-000000000000/api/cron/ssl-health` |
 
 ---
 
@@ -94,7 +145,7 @@ CRON_SECRET=your-long-random-secret-here
 Then trigger the endpoint on your desired schedule:
 
 ```
-POST /system/api/cron/expire-subscriptions
+POST /api/tenant/00000000-0000-4000-8000-000000000000/admin/cron/expire-subscriptions
 Authorization: Bearer <CRON_SECRET>
 ```
 
@@ -104,7 +155,7 @@ Authorization: Bearer <CRON_SECRET>
 {
   "crons": [
     {
-      "path": "/system/api/cron/expire-subscriptions",
+      "path": "/api/tenant/00000000-0000-4000-8000-000000000000/admin/cron/expire-subscriptions",
       "schedule": "0 * * * *"
     }
   ]
@@ -126,14 +177,14 @@ jobs:
     steps:
       - name: Call expire endpoint
         run: |
-          curl -X POST ${{ vars.APP_URL }}/system/api/cron/expire-subscriptions \
+          curl -X POST ${{ vars.APP_URL }}/api/tenant/00000000-0000-4000-8000-000000000000/admin/cron/expire-subscriptions \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
 ```
 
 ### curl (manual / testing)
 
 ```bash
-curl -X POST http://localhost:3000/system/api/cron/expire-subscriptions \
+curl -X POST http://localhost:3000/api/tenant/00000000-0000-4000-8000-000000000000/admin/cron/expire-subscriptions \
   -H "Authorization: Bearer dev-cron-secret-change-in-production"
 ```
 
@@ -149,5 +200,5 @@ curl -X POST http://localhost:3000/system/api/cron/expire-subscriptions \
 
 1. Add the core logic as a `static` method on the relevant service.
 2. **BullMQ path**: create `<module>.job.ts` following the pattern in [modules/tenant_subscription/tenant_subscription.job.ts](modules/tenant_subscription/tenant_subscription.job.ts).
-3. **HTTP path**: create `app/system/api/cron/<job-name>/route.ts` with Bearer auth guard.
+3. **HTTP path**: create `app/tenant/[tenantId]/api/cron/<job-name>/route.ts` with a Bearer auth guard. Only reachable under the root tenant.
 4. Document it in this file under **Registered Jobs**.

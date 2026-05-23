@@ -62,12 +62,9 @@ npm run registry:snapshot
    | `*.job.ts` | BullMQ job processor |
    | `*.service.next.ts` | (modules_next/ only) Next-specific extension |
    | `*.test.ts` / `*.test.tsx` | Vitest tests, colocated |
-4. **Multi-tenant scope.** Two top-level scopes:
-   - System (`app/system/...`) — super-admin, no tenant context. Routes: `/system/api/*`.
-   - Tenant (`app/tenant/[tenantId]/...`) — per-tenant. Routes: `/tenant/[tenantId]/api/*`. Resolution + URL rewrite happens in [proxy.ts](mdc:proxy.ts).
-   - When adding an API endpoint, **decide the scope first** — most things are tenant-scoped.
+4. **Multi-tenant scope.** Single tenant routing — every page/API lives under `app/tenant/[tenantId]/`. The **root tenant** (`ROOT_TENANT_ID = 00000000-0000-4000-8000-000000000000`) hosts the super-admin / platform surface; root-only pages live under `admin/platform/`, customer tenants don't see them. Tenant resolution + URL rewrite happens in [proxy.ts](mdc:proxy.ts).
 5. **Auth.** JWT (httpOnly cookies), OTP, TOTP, SAML, OAuth (12+ providers via `modules/auth_sso`), WebAuthn/Passkeys via `modules/user_security`. Session issuance lives in `modules/user_session` (4 sub-services: token, cache, crud, service). Impersonation always goes through `modules/auth_impersonation` and is audited.
-6. **Database access.** Get a DataSource via `modules/db` — `getSystemDataSource()` or `tenantDataSourceFor(tenantId)`. Every new `*.entity.ts` must be registered there. Per-tenant entities are isolated by schema; **never share a DataSource between scopes**.
+6. **Database access.** Get a DataSource via `modules/db` — `getSystemDataSource()` (shared / platform tables) or `tenantDataSourceFor(tenantId)` (per-tenant tables). In single-DB setups both point at the same connection. Every new `*.entity.ts` must be registered in the matching factory.
 7. **Settings & messages.** Per-module `*.setting.keys.ts` declares the key enum; `setting.service` is the read/write path. `*.messages.ts` enumerates i18n keys — never inline literal user-facing strings in service code.
 8. **Forms & validation.** `react-hook-form` + Zod. DTO schemas live in `*.dto.ts` and are reused server-side; the Next layer imports them from `modules/<x>/<x>.dto`.
 9. **UI primitives.** Tailwind 4 + Radix + CVA + FontAwesome. Buttons / Inputs / Forms / Tables / Modals all come from `modules_next/common/ui/`. Don't add a new UI primitive without checking that surface first.
@@ -87,8 +84,8 @@ npm run registry:snapshot
 | Shared React UI primitive | `modules_next/common/ui/<X>.tsx` |
 | Module-specific React UI | `modules_next/<id>/ui/<X>.tsx` |
 | React hook | `modules_next/<id>/hooks/use<X>.ts` |
-| Page / layout | `app/system/...` or `app/tenant/[tenantId]/...` |
-| API route handler | `app/system/api/.../route.ts` or `app/tenant/[tenantId]/api/.../route.ts` |
+| Page / layout | `app/tenant/[tenantId]/admin/...` — flat layout, no `/platform/` segment |
+| API route handler | `app/tenant/[tenantId]/api/.../route.ts` (root-only goes under `api/admin/`) |
 | One-off CLI | `scripts/<name>.ts` (run with `tsx`) |
 
 ## Adding a new module — required order
@@ -111,4 +108,4 @@ npm run registry:snapshot
 - Don't use `console.*` in service code — use `logger`.
 - Don't mock the database in cross-module tests when an integration path makes sense.
 - Don't add a new auth strategy outside the `modules/auth*` family — keep them grouped.
-- Don't break tenant isolation: never reuse a system DataSource for tenant data or vice versa.
+- Don't break tenant isolation: every per-tenant query must go through `tenantDataSourceFor(tenantId)` with the resolved tenant ID.

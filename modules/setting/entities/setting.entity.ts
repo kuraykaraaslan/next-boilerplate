@@ -3,6 +3,9 @@ import { Entity, PrimaryColumn, Column, CreateDateColumn, UpdateDateColumn, Inde
 
 @Entity('settings')
 export class Setting {
+  @PrimaryColumn({ type: 'uuid' })
+  tenantId!: string;
+
   @PrimaryColumn({ type: 'varchar' })
   key!: string;
 

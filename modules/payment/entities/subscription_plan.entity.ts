@@ -6,6 +6,10 @@ export class SubscriptionPlan {
   @PrimaryGeneratedColumn('uuid', { name: 'planId' })
   planId!: string;
 
+  @Index()
+  @Column({ type: 'uuid' })
+  tenantId!: string;
+
   @Column({ type: 'varchar' })
   name!: string;
 

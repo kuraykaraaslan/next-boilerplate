@@ -2,38 +2,56 @@ import { env } from '@/modules/env';
 import axios from "axios";
 import crypto from "crypto";
 import Logger from "@/modules/logger";
+import SettingService from "@/modules/setting/setting.service";
 import BaseMailProvider, { MailOptions, MailResult } from "./base.provider";
+
+interface SesCreds {
+  accessKeyId: string;
+  secretAccessKey: string;
+  region: string;
+}
 
 export default class SESProvider extends BaseMailProvider {
   readonly name = "AWS SES";
 
-  private static readonly AWS_ACCESS_KEY_ID = env.AWS_SES_ACCESS_KEY_ID || env.AWS_ACCESS_KEY_ID;
-  private static readonly AWS_SECRET_ACCESS_KEY = env.AWS_SES_SECRET_ACCESS_KEY || env.AWS_SECRET_ACCESS_KEY;
-  private static readonly AWS_REGION = env.AWS_SES_REGION || env.AWS_REGION || "us-east-1";
+  private async resolveCreds(tenantId: string): Promise<SesCreds> {
+    const [ak, sk, region] = await Promise.all([
+      SettingService.getValue(tenantId, 'awsSesAccessKeyId'),
+      SettingService.getValue(tenantId, 'awsSesSecretAccessKey'),
+      SettingService.getValue(tenantId, 'awsSesRegion'),
+    ]);
+    return {
+      accessKeyId: ak ?? env.AWS_SES_ACCESS_KEY_ID ?? env.AWS_ACCESS_KEY_ID ?? '',
+      secretAccessKey: sk ?? env.AWS_SES_SECRET_ACCESS_KEY ?? env.AWS_SECRET_ACCESS_KEY ?? '',
+      region: region ?? env.AWS_SES_REGION ?? env.AWS_REGION ?? 'us-east-1',
+    };
+  }
 
-  isConfigured(): boolean {
-    return !!(SESProvider.AWS_ACCESS_KEY_ID && SESProvider.AWS_SECRET_ACCESS_KEY);
+  async isConfigured(tenantId: string): Promise<boolean> {
+    const c = await this.resolveCreds(tenantId);
+    return !!(c.accessKeyId && c.secretAccessKey);
   }
 
   private sign(key: Buffer, msg: string): Buffer {
     return crypto.createHmac("sha256", key).update(msg).digest();
   }
 
-  private getSignatureKey(dateStamp: string): Buffer {
-    const kDate = this.sign(Buffer.from("AWS4" + SESProvider.AWS_SECRET_ACCESS_KEY), dateStamp);
-    const kRegion = this.sign(kDate, SESProvider.AWS_REGION);
+  private getSignatureKey(secret: string, region: string, dateStamp: string): Buffer {
+    const kDate = this.sign(Buffer.from("AWS4" + secret), dateStamp);
+    const kRegion = this.sign(kDate, region);
     const kService = this.sign(kRegion, "ses");
     const kSigning = this.sign(kService, "aws4_request");
     return kSigning;
   }
 
-  async sendMail(options: MailOptions): Promise<MailResult> {
-    if (!this.isConfigured()) {
+  async sendMail(tenantId: string, options: MailOptions): Promise<MailResult> {
+    const creds = await this.resolveCreds(tenantId);
+    if (!creds.accessKeyId || !creds.secretAccessKey) {
       Logger.error("AWS SES: Provider is not configured");
       return { success: false, error: "AWS SES provider is not configured" };
     }
 
-    const endpoint = `https://email.${SESProvider.AWS_REGION}.amazonaws.com`;
+    const endpoint = `https://email.${creds.region}.amazonaws.com`;
     const now = new Date();
     const amzDate = now.toISOString().replace(/[:-]|\.\d{3}/g, "");
     const dateStamp = amzDate.slice(0, 8);
@@ -70,14 +88,14 @@ export default class SESProvider extends BaseMailProvider {
       "/",
       "",
       `content-type:application/x-www-form-urlencoded`,
-      `host:email.${SESProvider.AWS_REGION}.amazonaws.com`,
+      `host:email.${creds.region}.amazonaws.com`,
       `x-amz-date:${amzDate}`,
       "",
       "content-type;host;x-amz-date",
       payloadHash,
     ].join("\n");
 
-    const credentialScope = `${dateStamp}/${SESProvider.AWS_REGION}/ses/aws4_request`;
+    const credentialScope = `${dateStamp}/${creds.region}/ses/aws4_request`;
     const stringToSign = [
       "AWS4-HMAC-SHA256",
       amzDate,
@@ -85,10 +103,10 @@ export default class SESProvider extends BaseMailProvider {
       crypto.createHash("sha256").update(canonicalRequest).digest("hex"),
     ].join("\n");
 
-    const signingKey = this.getSignatureKey(dateStamp);
+    const signingKey = this.getSignatureKey(creds.secretAccessKey, creds.region, dateStamp);
     const signature = crypto.createHmac("sha256", signingKey).update(stringToSign).digest("hex");
 
-    const authHeader = `AWS4-HMAC-SHA256 Credential=${SESProvider.AWS_ACCESS_KEY_ID}/${credentialScope}, SignedHeaders=content-type;host;x-amz-date, Signature=${signature}`;
+    const authHeader = `AWS4-HMAC-SHA256 Credential=${creds.accessKeyId}/${credentialScope}, SignedHeaders=content-type;host;x-amz-date, Signature=${signature}`;
 
     try {
       const response = await axios.post(endpoint, body, {

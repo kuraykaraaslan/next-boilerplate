@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-05-17T20:17:46.545Z",
+  "generatedAt": "2026-05-23T05:42:11.651Z",
   "components": [
     {
       "id": "ai/ui/AIChatBox",
@@ -272,6 +272,18 @@
       "isClient": false,
       "isServer": false,
       "baseName": "auth.admin-guard.next"
+    },
+    {
+      "id": "auth/ui/ESignatureLoginPanel",
+      "module": "auth",
+      "filePath": "modules_next/auth/ui/ESignatureLoginPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "ESignatureLoginPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ESignatureLoginPanel"
     },
     {
       "id": "auth/ui/ForgotPasswordForm",
@@ -881,6 +893,30 @@
       "baseName": "CouponRedemptionsList"
     },
     {
+      "id": "e_signature/ui/SigningCertificatesPanel",
+      "module": "e_signature",
+      "filePath": "modules_next/e_signature/ui/SigningCertificatesPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "SigningCertificatesPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SigningCertificatesPanel"
+    },
+    {
+      "id": "e_signature/ui/TenantESignatureSettingsPanel",
+      "module": "e_signature",
+      "filePath": "modules_next/e_signature/ui/TenantESignatureSettingsPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "TenantESignatureSettingsPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "TenantESignatureSettingsPanel"
+    },
+    {
       "id": "limiter/limiter.rate-limiters",
       "module": "limiter",
       "filePath": "modules_next/limiter/limiter.rate-limiters.ts",
@@ -988,6 +1024,18 @@
       "baseName": "setting.types"
     },
     {
+      "id": "setting/ui/PlatformSettingsTabs",
+      "module": "setting",
+      "filePath": "modules_next/setting/ui/PlatformSettingsTabs.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlatformSettingsTabs"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PlatformSettingsTabs"
+    },
+    {
       "id": "tenant_session/tenant_session.service.next",
       "module": "tenant_session",
       "filePath": "modules_next/tenant_session/tenant_session.service.next.ts",
@@ -1093,6 +1141,20 @@
       "isClient": true,
       "isServer": false,
       "baseName": "UpgradePrompt"
+    },
+    {
+      "id": "tenant/tenant.constants",
+      "module": "tenant",
+      "filePath": "modules_next/tenant/tenant.constants.ts",
+      "kind": "ui",
+      "exports": [
+        "ROOT_TENANT_ID",
+        "ROOT_TENANT_NAME",
+        "isRootTenant"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "tenant.constants"
     },
     {
       "id": "tenant/ui/CreateTenantForm",

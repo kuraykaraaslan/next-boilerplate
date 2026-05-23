@@ -27,7 +27,10 @@ export class WebhookDelivery {
   @Column({ type: 'jsonb' })
   payload!: Record<string, unknown>;
 
-  // PENDING | SUCCESS | FAILED
+  // PENDING | SUCCESS | FAILED | DEAD_LETTERED
+  // FAILED → recoverable (will retry until attempts === maxAttempts)
+  // DEAD_LETTERED → all retries exhausted, awaits manual replay
+  @Index()
   @Column({ type: 'varchar', default: 'PENDING' })
   status!: string;
 

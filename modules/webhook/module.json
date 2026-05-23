@@ -2,7 +2,7 @@
   "$schema": "../module.schema.json",
   "id": "webhook",
   "name": "Outgoing Webhooks",
-  "description": "Subscriber-configured outbound webhooks (system + tenant scope), signed deliveries, retry+redelivery.",
+  "description": "Subscriber-configured outbound webhooks (tenant-scoped; root tenant carries platform-wide events), signed deliveries, retry+redelivery.",
   "version": "1.0.0",
   "icon": "fas fa-rss",
   "tags": ["platform", "integration"],

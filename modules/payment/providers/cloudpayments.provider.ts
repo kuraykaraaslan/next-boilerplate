@@ -8,17 +8,17 @@ export default class CloudPaymentsProvider extends BasePaymentProvider {
 
   private static readonly API_BASE = 'https://api.cloudpayments.ru'
 
-  private static async getConfig() {
+  private static async getConfig(tenantId: string) {
     const [publicId, apiSecret] = await Promise.all([
-      SettingService.getValue('cloudpaymentsPublicId'),
-      SettingService.getValue('cloudpaymentsApiSecret'),
+      SettingService.getValue(tenantId, 'cloudpaymentsPublicId'),
+      SettingService.getValue(tenantId, 'cloudpaymentsApiSecret'),
     ])
     if (!publicId || !apiSecret) throw new Error(PAYMENT_MESSAGES.PROVIDER_NOT_CONFIGURED)
     return { publicId, apiSecret }
   }
 
-  private async getAuthenticatedAxios(): Promise<AxiosInstance> {
-    const { publicId, apiSecret } = await CloudPaymentsProvider.getConfig()
+  private async getAuthenticatedAxios(tenantId: string): Promise<AxiosInstance> {
+    const { publicId, apiSecret } = await CloudPaymentsProvider.getConfig(tenantId)
     const credentials = Buffer.from(`${publicId}:${apiSecret}`).toString('base64')
     return axios.create({
       baseURL: CloudPaymentsProvider.API_BASE,
@@ -37,9 +37,9 @@ export default class CloudPaymentsProvider extends BasePaymentProvider {
     })
   }
 
-  async getPaymentStatus(token: string): Promise<any> {
+  async getPaymentStatus(tenantId: string, token: string): Promise<any> {
     try {
-      const client = await this.getAuthenticatedAxios()
+      const client = await this.getAuthenticatedAxios(tenantId)
       const response = await client.post('/payments/find', { InvoiceId: token })
       const model = response.data?.Model
       return model?.Status || response.data?.Success
@@ -48,9 +48,12 @@ export default class CloudPaymentsProvider extends BasePaymentProvider {
     }
   }
 
-  async createCheckoutSession(params: CheckoutSessionParams): Promise<CheckoutSessionResult> {
+  async createCheckoutSession(
+    tenantId: string,
+    params: CheckoutSessionParams,
+  ): Promise<CheckoutSessionResult> {
     try {
-      const client = await this.getAuthenticatedAxios()
+      const client = await this.getAuthenticatedAxios(tenantId)
       const invoiceId = params.metadata?.paymentId || `${Date.now()}`
 
       const body: Record<string, unknown> = {

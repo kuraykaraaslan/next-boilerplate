@@ -9,6 +9,7 @@ import TenantAuthMessages from '@/modules/tenant_session/tenant_session.messages
 import type { TenantMemberRole } from '@/modules/tenant_member/tenant_member.enums';
 import AuditLogService from '@/modules/audit_log/audit_log.service';
 import { AuditActions } from '@/modules/audit_log/audit_log.enums';
+import { ROOT_TENANT_ID } from '@/modules/tenant/tenant.constants';
 
 type TenantIdSource = 'header' | 'subdomain' | 'query' | 'body' | 'param';
 
@@ -144,12 +145,16 @@ export default class TenantSessionNextService {
     const isGlobalAdmin = allowGlobalAdmin && user.userRole === 'ADMIN';
 
     if (isGlobalAdmin) {
-      // Global admin bypass - just get the tenant without membership check
+      // Global admin bypass - just get the tenant without membership check,
+      // but still enforce tenant status (SUSPENDED/INACTIVE blocks even root admins
+      // — a suspended tenant must be fully frozen, no admin escape hatch).
       const tenant = await TenantSessionService.getTenantById(tenantId);
 
       if (!tenant) {
         throw new Error(TenantAuthMessages.TENANT_NOT_FOUND);
       }
+
+      TenantSessionService.validateTenantStatus(tenant);
 
       // Create a virtual tenant member for global admin with OWNER privileges
       const virtualTenantMember: SafeTenantMember = {
@@ -247,5 +252,45 @@ export default class TenantSessionNextService {
    */
   static hasRequiredRole(memberRole: TenantMemberRole, requiredRole: TenantMemberRole): boolean {
     return TenantSessionService.hasRequiredRole(memberRole, requiredRole);
+  }
+
+  /**
+   * Authenticate as a root-tenant member with the given role (default ADMIN).
+   *
+   * Super-admin = a TenantMember of the root tenant (ROOT_TENANT_ID) whose
+   * memberRole satisfies `requiredRole`. Replaces the legacy
+   * `userRole === 'ADMIN'` check; cross-tenant impersonation/global-admin
+   * bypass is intentionally disabled here because the root tenant *is* the
+   * super-admin scope.
+   *
+   * Use in admin API routes that previously sat under `/system/api/...`.
+   */
+  static async authenticateRootTenantAdmin({
+    request,
+    requiredRole = 'ADMIN',
+    otpVerifyBypass = false,
+  }: {
+    request: NextRequest;
+    requiredRole?: TenantMemberRole;
+    otpVerifyBypass?: boolean;
+  }): Promise<{
+    user: SafeUser;
+    userSession: SafeUserSession;
+    tenant: SafeTenant;
+    tenantMember: SafeTenantMember;
+  }> {
+    const result = await this.authenticateTenantByRequest({
+      request,
+      tenantId: ROOT_TENANT_ID,
+      requiredTenantRole: requiredRole,
+      otpVerifyBypass,
+      allowGlobalAdmin: false,
+    });
+    return {
+      user: result.user,
+      userSession: result.userSession,
+      tenant: result.tenant,
+      tenantMember: result.tenantMember,
+    };
   }
 }

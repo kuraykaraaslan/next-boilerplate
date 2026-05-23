@@ -4,6 +4,11 @@ import ejs from "ejs";
 import path from "path";
 import { Queue, Worker, Job } from "bullmq";
 import { getBullMQConnection } from "@/modules/redis/redis.bullmq";
+import { TenantUsageService } from "@/modules/tenant_usage/tenant_usage.service";
+import NotificationLogService from "@/modules/notification_log/notification_log.service";
+import TenantSubscriptionService from "@/modules/tenant_subscription/tenant_subscription.service";
+import { FEATURE_KEYS } from "@/modules/tenant_subscription/tenant_subscription.feature-keys";
+import { isRootTenant } from "@/modules/tenant/tenant.constants";
 
 // Providers
 import BaseMailProvider, { MailOptions, MailResult } from "./providers/base.provider";
@@ -17,6 +22,7 @@ import ResendProvider from "./providers/resend.provider";
 export type MailProviderType = "smtp" | "sendgrid" | "mailgun" | "ses" | "postmark" | "resend";
 
 interface MailJobData {
+  tenantId: string;
   to: string;
   subject: string;
   html: string;
@@ -58,9 +64,9 @@ export default class MailService {
   static readonly WORKER = new Worker<MailJobData>(
     MailService.QUEUE_NAME,
     async (job: Job<MailJobData>) => {
-      const { to, subject, html, provider } = job.data;
+      const { tenantId, to, subject, html, provider } = job.data;
       Logger.info(`MAIL Worker processing job ${job.id}...`);
-      await MailService._sendMail({ to, subject, html, provider });
+      await MailService._sendMail({ tenantId, to, subject, html, provider });
     },
     { connection: getBullMQConnection(), concurrency: 5 }
   );
@@ -102,9 +108,10 @@ export default class MailService {
   static readonly INFORM_NAME = env.INFORM_NAME;
 
   /**
-   * Get the provider instance by name
+   * Get the provider instance for a tenant by name, falling back through the
+   * tenant's configured providers when the requested one is missing creds.
    */
-  static getProvider(providerName?: MailProviderType): BaseMailProvider {
+  static async getProvider(tenantId: string, providerName?: MailProviderType): Promise<BaseMailProvider> {
     const name = providerName || MailService.DEFAULT_PROVIDER;
     const provider = MailService.PROVIDER_MAP.get(name);
 
@@ -113,11 +120,10 @@ export default class MailService {
       return MailService.smtpProvider;
     }
 
-    if (!provider.isConfigured()) {
-      Logger.warn(`MailService: Provider "${name}" is not configured, trying fallback`);
-      // Try to find a configured provider
+    if (!(await provider.isConfigured(tenantId))) {
+      Logger.warn(`MailService: Provider "${name}" is not configured for tenant ${tenantId}, trying fallback`);
       for (const [, p] of MailService.PROVIDER_MAP) {
-        if (p.isConfigured()) {
+        if (await p.isConfigured(tenantId)) {
           Logger.info(`MailService: Using fallback provider "${p.name}"`);
           return p;
         }
@@ -128,12 +134,12 @@ export default class MailService {
   }
 
   /**
-   * List all available and configured providers
+   * List all available and configured providers for a tenant.
    */
-  static listProviders(): { name: MailProviderType; configured: boolean }[] {
+  static async listProviders(tenantId: string): Promise<{ name: MailProviderType; configured: boolean }[]> {
     const result: { name: MailProviderType; configured: boolean }[] = [];
     for (const [name, provider] of MailService.PROVIDER_MAP) {
-      result.push({ name, configured: provider.isConfigured() });
+      result.push({ name, configured: await provider.isConfigured(tenantId) });
     }
     return result;
   }
@@ -156,16 +162,42 @@ export default class MailService {
   }
 
   /**
-   * Add email job to queue
+   * Defense-in-depth billing gate for outbound email. Asserts the tenant's
+   * active plan grants `feature_email_send` (BOOLEAN) and is below the
+   * `feature_email_monthly_quota` LIMIT for the current month
+   * (TenantUsage.emailSends).
+   *
+   * Root tenant is short-circuited — the platform owner does not purchase
+   * its own plan. Best-effort: the LIMIT check is not atomic so a small
+   * over-run is possible under concurrent calls.
+   */
+  static async assertMailFeatureAccess(tenantId: string): Promise<void> {
+    if (isRootTenant(tenantId)) return;
+
+    await TenantSubscriptionService.assertFeatureAccess(tenantId, FEATURE_KEYS.FEATURE_EMAIL_SEND);
+
+    const usage = await TenantUsageService.getUsage(tenantId);
+    await TenantSubscriptionService.assertFeatureAccess(
+      tenantId,
+      FEATURE_KEYS.FEATURE_EMAIL_MONTHLY_QUOTA,
+      usage.emailSends,
+    );
+  }
+
+  /**
+   * Add email job to queue (tenant-scoped — the worker reads each tenant's
+   * provider config when the job runs).
    */
   static async sendMail(
+    tenantId: string,
     to: string,
     subject: string,
     html: string,
     provider?: MailProviderType
   ): Promise<void> {
     try {
-      await MailService.QUEUE.add("sendMail", { to, subject, html, provider });
+      await MailService.assertMailFeatureAccess(tenantId);
+      await MailService.QUEUE.add("sendMail", { tenantId, to, subject, html, provider });
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "Unknown error";
       Logger.error(`MAIL sendMail ERROR: ${to} ${subject} ${message}`);
@@ -176,24 +208,38 @@ export default class MailService {
    * Send email directly without queue (for urgent emails)
    */
   static async sendMailDirect(
+    tenantId: string,
     to: string,
     subject: string,
     html: string,
     provider?: MailProviderType
   ): Promise<MailResult> {
-    return MailService._sendMail({ to, subject, html, provider });
+    await MailService.assertMailFeatureAccess(tenantId);
+    return MailService._sendMail({ tenantId, to, subject, html, provider });
   }
 
   /**
-   * Internal method to send email via provider
+   * Internal method to send email via provider.
+   *
+   * Side-effects on success:
+   *   - increments `TenantUsage.emailSends` (Redis counter, flushed to DB).
+   *   - inserts a `NotificationLog` row with status='sent' + providerMessageId.
+   * On failure:
+   *   - inserts a `NotificationLog` row with status='failed' + error message.
+   * Tracking failures are swallowed so they never break mail delivery.
    */
   private static async _sendMail({
+    tenantId,
     to,
     subject,
     html,
     provider: providerName,
   }: MailJobData): Promise<MailResult> {
-    const provider = MailService.getProvider(providerName);
+    // Re-assert feature access at the worker boundary so a long-queued job
+    // does not bypass gating after a plan was downgraded / cancelled.
+    await MailService.assertMailFeatureAccess(tenantId);
+
+    const provider = await MailService.getProvider(tenantId, providerName);
 
     const options: MailOptions = {
       to,
@@ -202,7 +248,35 @@ export default class MailService {
       from: MailService.MAIL_FROM,
     };
 
-    return provider.sendMail(options);
+    let result: MailResult;
+    try {
+      result = await provider.sendMail(tenantId, options);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      await NotificationLogService.log(tenantId, 'mail', to, 'failed', {
+        subject,
+        provider: provider.name,
+        error: message,
+      });
+      throw err;
+    }
+
+    if (result.success) {
+      await TenantUsageService.incrementEmailSends(tenantId, 1);
+      await NotificationLogService.log(tenantId, 'mail', to, 'sent', {
+        subject,
+        provider: provider.name,
+        providerMessageId: result.messageId,
+      });
+    } else {
+      await NotificationLogService.log(tenantId, 'mail', to, 'failed', {
+        subject,
+        provider: provider.name,
+        error: result.error,
+      });
+    }
+
+    return result;
   }
 
   /**
@@ -236,7 +310,9 @@ export default class MailService {
   /**
    * Welcome email for new users
    */
-  static async sendWelcomeEmail({ email, name }: { email: string; name?: string }): Promise<void> {
+  static async sendWelcomeEmail({ tenantId,
+    email, name }: { tenantId: string;
+    email: string; name?: string }): Promise<void> {
     try {
       const subject = `Welcome to ${MailService.APPLICATION_NAME}`;
       const emailContent = await MailService.renderTemplate("welcome.ejs", {
@@ -244,7 +320,7 @@ export default class MailService {
         subject,
         user: { name: name || email },
       });
-      await MailService.sendMail(email, subject, emailContent);
+      await MailService.sendMail(tenantId, email, subject, emailContent);
     } catch (error: unknown) {
       Logger.error(`MailService.sendWelcomeEmail error: ${error instanceof Error ? error.message : error}`);
     }
@@ -254,6 +330,7 @@ export default class MailService {
    * New login detected email
    */
   static async sendNewLoginEmail({
+    tenantId,
     email,
     name,
     device,
@@ -261,6 +338,7 @@ export default class MailService {
     location,
     loginTime,
   }: {
+    tenantId: string;
     email: string;
     name?: string;
     device?: string;
@@ -279,7 +357,7 @@ export default class MailService {
         location: location || "Unknown",
         loginTime: loginTime || new Date().toLocaleString(),
       });
-      await MailService.sendMail(email, subject, emailContent);
+      await MailService.sendMail(tenantId, email, subject, emailContent);
     } catch (error: unknown) {
       Logger.error(`MailService.sendNewLoginEmail error: ${error instanceof Error ? error.message : error}`);
     }
@@ -289,10 +367,12 @@ export default class MailService {
    * Forgot password email with reset token
    */
   static async sendForgotPasswordEmail({
+    tenantId,
     email,
     name,
     resetToken,
   }: {
+    tenantId: string;
     email: string;
     name?: string;
     resetToken: string;
@@ -314,7 +394,7 @@ export default class MailService {
         resetLink,
         expiryTime: 1,
       });
-      await MailService.sendMail(email, subject, emailContent);
+      await MailService.sendMail(tenantId, email, subject, emailContent);
     } catch (error: unknown) {
       Logger.error(`MailService.sendForgotPasswordEmail error: ${error instanceof Error ? error.message : error}`);
     }
@@ -324,9 +404,11 @@ export default class MailService {
    * Password reset success email
    */
   static async sendPasswordResetSuccessEmail({
+    tenantId,
     email,
     name,
   }: {
+    tenantId: string;
     email: string;
     name?: string;
   }): Promise<void> {
@@ -337,7 +419,7 @@ export default class MailService {
         subject,
         user: { name: name || email },
       });
-      await MailService.sendMail(email, subject, emailContent);
+      await MailService.sendMail(tenantId, email, subject, emailContent);
     } catch (error: unknown) {
       Logger.error(`MailService.sendPasswordResetSuccessEmail error: ${error instanceof Error ? error.message : error}`);
     }
@@ -347,10 +429,12 @@ export default class MailService {
    * OTP verification email
    */
   static async sendOTPEmail({
+    tenantId,
     email,
     name,
     otpToken,
   }: {
+    tenantId: string;
     email: string;
     name?: string | null;
     otpToken: string;
@@ -364,7 +448,7 @@ export default class MailService {
         user: { name: name || email },
         otpToken,
       });
-      await MailService.sendMail(email, subject, emailContent);
+      await MailService.sendMail(tenantId, email, subject, emailContent);
     } catch (error: unknown) {
       Logger.error(`MailService.sendOTPEmail error: ${error instanceof Error ? error.message : error}`);
     }
@@ -373,7 +457,9 @@ export default class MailService {
   /**
    * OTP enabled notification
    */
-  static async sendOTPEnabledEmail({ email, name }: { email: string; name?: string }): Promise<void> {
+  static async sendOTPEnabledEmail({ tenantId,
+    email, name }: { tenantId: string;
+    email: string; name?: string }): Promise<void> {
     try {
       const subject = "OTP Enabled";
       const emailContent = await MailService.renderTemplate("otp_enabled.ejs", {
@@ -381,7 +467,7 @@ export default class MailService {
         subject,
         user: { name: name || email },
       });
-      await MailService.sendMail(email, subject, emailContent);
+      await MailService.sendMail(tenantId, email, subject, emailContent);
     } catch (error: unknown) {
       Logger.error(`MailService.sendOTPEnabledEmail error: ${error instanceof Error ? error.message : error}`);
     }
@@ -390,7 +476,9 @@ export default class MailService {
   /**
    * OTP disabled notification
    */
-  static async sendOTPDisabledEmail({ email, name }: { email: string; name?: string }): Promise<void> {
+  static async sendOTPDisabledEmail({ tenantId,
+    email, name }: { tenantId: string;
+    email: string; name?: string }): Promise<void> {
     try {
       const subject = "OTP Disabled";
       const emailContent = await MailService.renderTemplate("otp_disabled.ejs", {
@@ -398,7 +486,7 @@ export default class MailService {
         subject,
         user: { name: name || email },
       });
-      await MailService.sendMail(email, subject, emailContent);
+      await MailService.sendMail(tenantId, email, subject, emailContent);
     } catch (error: unknown) {
       Logger.error(`MailService.sendOTPDisabledEmail error: ${error instanceof Error ? error.message : error}`);
     }
@@ -407,7 +495,9 @@ export default class MailService {
   /**
    * Email changed notification
    */
-  static async sendEmailChangedEmail({ email, name }: { email: string; name?: string }): Promise<void> {
+  static async sendEmailChangedEmail({ tenantId,
+    email, name }: { tenantId: string;
+    email: string; name?: string }): Promise<void> {
     try {
       const subject = "Your Email Was Updated";
       const emailContent = await MailService.renderTemplate("email_change.ejs", {
@@ -415,7 +505,7 @@ export default class MailService {
         subject,
         user: { name: name || email },
       });
-      await MailService.sendMail(email, subject, emailContent);
+      await MailService.sendMail(tenantId, email, subject, emailContent);
     } catch (error: unknown) {
       Logger.error(`MailService.sendEmailChangedEmail error: ${error instanceof Error ? error.message : error}`);
     }
@@ -425,10 +515,12 @@ export default class MailService {
    * Email verification
    */
   static async sendVerifyEmail({
+    tenantId,
     email,
     name,
     verifyToken,
   }: {
+    tenantId: string;
     email: string;
     name?: string;
     verifyToken: string;
@@ -443,7 +535,7 @@ export default class MailService {
         user: { name: name || email },
         verifyLink,
       });
-      await MailService.sendMail(email, subject, emailContent);
+      await MailService.sendMail(tenantId, email, subject, emailContent);
     } catch (error: unknown) {
       Logger.error(`MailService.sendVerifyEmail error: ${error instanceof Error ? error.message : error}`);
     }
@@ -452,7 +544,9 @@ export default class MailService {
   /**
    * Password changed notification
    */
-  static async sendPasswordChangedEmail({ email, name }: { email: string; name?: string }): Promise<void> {
+  static async sendPasswordChangedEmail({ tenantId,
+    email, name }: { tenantId: string;
+    email: string; name?: string }): Promise<void> {
     try {
       const subject = "Your Password Was Changed";
       const emailContent = await MailService.renderTemplate("password_changed.ejs", {
@@ -460,7 +554,7 @@ export default class MailService {
         subject,
         user: { name: name || email },
       });
-      await MailService.sendMail(email, subject, emailContent);
+      await MailService.sendMail(tenantId, email, subject, emailContent);
     } catch (error: unknown) {
       Logger.error(`MailService.sendPasswordChangedEmail error: ${error instanceof Error ? error.message : error}`);
     }
@@ -470,6 +564,7 @@ export default class MailService {
    * Suspicious activity alert
    */
   static async sendSuspiciousActivityEmail({
+    tenantId,
     email,
     name,
     eventType,
@@ -477,6 +572,7 @@ export default class MailService {
     location,
     attemptTime,
   }: {
+    tenantId: string;
     email: string;
     name?: string;
     eventType: string;
@@ -495,7 +591,7 @@ export default class MailService {
         location,
         attemptTime,
       });
-      await MailService.sendMail(email, subject, emailContent);
+      await MailService.sendMail(tenantId, email, subject, emailContent);
     } catch (error: unknown) {
       Logger.error(`MailService.sendSuspiciousActivityEmail error: ${error instanceof Error ? error.message : error}`);
     }
@@ -505,6 +601,7 @@ export default class MailService {
    * New device login alert
    */
   static async sendNewDeviceAlertEmail({
+    tenantId,
     email,
     name,
     device,
@@ -512,6 +609,7 @@ export default class MailService {
     location,
     loginTime,
   }: {
+    tenantId: string;
     email: string;
     name?: string;
     device: string;
@@ -530,7 +628,7 @@ export default class MailService {
         location,
         loginTime,
       });
-      await MailService.sendMail(email, subject, emailContent);
+      await MailService.sendMail(tenantId, email, subject, emailContent);
     } catch (error: unknown) {
       Logger.error(`MailService.sendNewDeviceAlertEmail error: ${error instanceof Error ? error.message : error}`);
     }
@@ -569,7 +667,7 @@ export default class MailService {
         invitationLink,
         declineLink,
       });
-      await MailService.sendMail(email, subject, emailContent);
+      await MailService.sendMail(tenantId, email, subject, emailContent);
     } catch (error: unknown) {
       Logger.error(`MailService.sendTenantInvitationEmail error: ${error instanceof Error ? error.message : error}`);
     }
@@ -579,11 +677,13 @@ export default class MailService {
    * Contact form submission - Admin notification
    */
   static async sendContactFormAdminEmail({
+    tenantId,
     message,
     name,
     email,
     phone,
   }: {
+    tenantId: string;
     message: string;
     name: string;
     email: string;
@@ -600,7 +700,7 @@ export default class MailService {
         email,
         phone,
       });
-      await MailService.sendMail(MailService.INFORM_MAIL, subject, emailContent);
+      await MailService.sendMail(tenantId, MailService.INFORM_MAIL, subject, emailContent);
     } catch (error: unknown) {
       Logger.error(`MailService.sendContactFormAdminEmail error: ${error instanceof Error ? error.message : error}`);
     }
@@ -609,7 +709,9 @@ export default class MailService {
   /**
    * Contact form submission - User confirmation
    */
-  static async sendContactFormUserEmail({ name, email }: { name: string; email: string }): Promise<void> {
+  static async sendContactFormUserEmail({ tenantId,
+    name, email }: { tenantId: string;
+    name: string; email: string }): Promise<void> {
     try {
       const subject = "We Received Your Message";
       const emailContent = await MailService.renderTemplate("contact_form_user.ejs", {
@@ -617,7 +719,7 @@ export default class MailService {
         subject,
         user: { name },
       });
-      await MailService.sendMail(email, subject, emailContent);
+      await MailService.sendMail(tenantId, email, subject, emailContent);
     } catch (error: unknown) {
       Logger.error(`MailService.sendContactFormUserEmail error: ${error instanceof Error ? error.message : error}`);
     }

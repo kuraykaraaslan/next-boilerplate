@@ -9,7 +9,7 @@ import Logger from '@/modules/logger';
  *
  * Two trigger paths, pick one per deployment:
  *  - Self-hosted: call `scheduleDormantSweepJob()` once at app startup
- *  - Serverless: hit POST /system/api/cron/dormant-sweep with the
+ *  - Serverless: hit POST /api/cron/dormant-sweep on the root tenant with the
  *    `CRON_SECRET` bearer token
  */
 const QUEUE_NAME = 'auth-dormant-sweep';

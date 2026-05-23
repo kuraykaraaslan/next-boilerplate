@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { ILike } from 'typeorm';
-import { getSystemDataSource, tenantDataSourceFor } from '@/modules/db';
+import { tenantDataSourceFor } from '@/modules/db';
 import redis, { jitter, singleFlight } from '@/modules/redis';
 import { env } from '@/modules/env';
 import { Coupon as CouponEntity } from './entities/coupon.entity';
@@ -27,10 +27,10 @@ const NEG = '__not_found__';
 
 export default class CouponService {
 
-  private static async clearCache(coupon: { couponId: string; code: string }) {
+  private static async clearCache(tenantId: string, coupon: { couponId: string; code: string }) {
     await Promise.all([
-      redis.del(`coupon:id:${coupon.couponId}`).catch(() => {}),
-      redis.del(`coupon:code:${coupon.code.toUpperCase()}`).catch(() => {}),
+      redis.del(`coupon:id:${tenantId}:${coupon.couponId}`).catch(() => {}),
+      redis.del(`coupon:code:${tenantId}:${coupon.code.toUpperCase()}`).catch(() => {}),
     ]);
   }
 
@@ -38,15 +38,16 @@ export default class CouponService {
   // Admin CRUD
   // ============================================================================
 
-  static async create(data: CreateCouponDTO): Promise<Coupon> {
+  static async create(tenantId: string, data: CreateCouponDTO): Promise<Coupon> {
     try {
-      const ds = await getSystemDataSource();
+      const ds = await tenantDataSourceFor(tenantId);
       const repo = ds.getRepository(CouponEntity);
 
-      const existing = await repo.findOne({ where: { code: data.code } });
+      const existing = await repo.findOne({ where: { tenantId, code: data.code } });
       if (existing) throw new Error(COUPON_MESSAGES.CODE_EXISTS);
 
       const coupon = new CouponEntity();
+      coupon.tenantId = tenantId;
       coupon.code = data.code;
       coupon.name = data.name;
       coupon.discountType = data.discountType;
@@ -64,7 +65,7 @@ export default class CouponService {
       if (data.expiresAt) coupon.expiresAt = data.expiresAt;
 
       const saved = await repo.save(coupon as CouponEntity);
-      await redis.del(`coupon:code:${data.code.toUpperCase()}`).catch(() => {});
+      await redis.del(`coupon:code:${tenantId}:${data.code.toUpperCase()}`).catch(() => {});
       return CouponSchema.parse(saved);
     } catch (error) {
       if (error instanceof Error && error.message === COUPON_MESSAGES.CODE_EXISTS) throw error;
@@ -73,12 +74,12 @@ export default class CouponService {
     }
   }
 
-  static async getAll(query: GetCouponsQuery): Promise<{ coupons: Coupon[]; total: number }> {
+  static async getAll(tenantId: string, query: GetCouponsQuery): Promise<{ coupons: Coupon[]; total: number }> {
     try {
-      const ds = await getSystemDataSource();
+      const ds = await tenantDataSourceFor(tenantId);
       const repo = ds.getRepository(CouponEntity);
 
-      const where: Record<string, any> = {};
+      const where: Record<string, any> = { tenantId };
       if (query.status) where.status = query.status;
       if (query.search) where.code = ILike(`%${query.search}%`);
 
@@ -96,16 +97,16 @@ export default class CouponService {
     }
   }
 
-  static async getById(couponId: string): Promise<Coupon> {
-    const cacheKey = `coupon:id:${couponId}`;
+  static async getById(tenantId: string, couponId: string): Promise<Coupon> {
+    const cacheKey = `coupon:id:${tenantId}:${couponId}`;
     const cached = await redis.get(cacheKey).catch(() => null);
     if (cached) {
       try { return CouponSchema.parse(JSON.parse(cached)); } catch { await redis.del(cacheKey).catch(() => {}); }
     }
 
     return singleFlight(cacheKey, async () => {
-      const ds = await getSystemDataSource();
-      const coupon = await ds.getRepository(CouponEntity).findOne({ where: { couponId } });
+      const ds = await tenantDataSourceFor(tenantId);
+      const coupon = await ds.getRepository(CouponEntity).findOne({ where: { tenantId, couponId } });
       if (!coupon) throw new Error(COUPON_MESSAGES.NOT_FOUND);
 
       const parsed = CouponSchema.parse(coupon);
@@ -114,8 +115,8 @@ export default class CouponService {
     });
   }
 
-  static async getByCode(code: string): Promise<Coupon | null> {
-    const cacheKey = `coupon:code:${code.toUpperCase()}`;
+  static async getByCode(tenantId: string, code: string): Promise<Coupon | null> {
+    const cacheKey = `coupon:code:${tenantId}:${code.toUpperCase()}`;
     const cached = await redis.get(cacheKey).catch(() => null);
     if (cached === NEG) return null;
     if (cached) {
@@ -123,8 +124,8 @@ export default class CouponService {
     }
 
     return singleFlight(cacheKey, async () => {
-      const ds = await getSystemDataSource();
-      const coupon = await ds.getRepository(CouponEntity).findOne({ where: { code: code.toUpperCase() } });
+      const ds = await tenantDataSourceFor(tenantId);
+      const coupon = await ds.getRepository(CouponEntity).findOne({ where: { tenantId, code: code.toUpperCase() } });
       if (!coupon) {
         await redis.setex(cacheKey, jitter(NEGATIVE_CACHE_TTL), NEG).catch(() => {});
         return null;
@@ -136,14 +137,14 @@ export default class CouponService {
     });
   }
 
-  static async update(couponId: string, data: UpdateCouponDTO): Promise<Coupon> {
-    const ds = await getSystemDataSource();
+  static async update(tenantId: string, couponId: string, data: UpdateCouponDTO): Promise<Coupon> {
+    const ds = await tenantDataSourceFor(tenantId);
     const repo = ds.getRepository(CouponEntity);
-    const existing = await repo.findOne({ where: { couponId } });
+    const existing = await repo.findOne({ where: { tenantId, couponId } });
     if (!existing) throw new Error(COUPON_MESSAGES.NOT_FOUND);
 
     try {
-      await repo.update({ couponId }, {
+      await repo.update({ tenantId, couponId }, {
         ...(data.name !== undefined && { name: data.name }),
         ...(data.description !== undefined && { description: data.description ?? undefined }),
         ...(data.discountType !== undefined && { discountType: data.discountType }),
@@ -158,10 +159,10 @@ export default class CouponService {
         ...(data.startsAt !== undefined && { startsAt: data.startsAt ?? undefined }),
         ...(data.expiresAt !== undefined && { expiresAt: data.expiresAt ?? undefined }),
       });
-      const updated = await repo.findOne({ where: { couponId } });
-      await this.clearCache({ couponId: existing.couponId, code: existing.code });
+      const updated = await repo.findOne({ where: { tenantId, couponId } });
+      await this.clearCache(tenantId, { couponId: existing.couponId, code: existing.code });
       if (updated && updated.code !== existing.code) {
-        await this.clearCache({ couponId: updated.couponId, code: updated.code });
+        await this.clearCache(tenantId, { couponId: updated.couponId, code: updated.code });
       }
       return CouponSchema.parse(updated!);
     } catch (error) {
@@ -170,13 +171,13 @@ export default class CouponService {
     }
   }
 
-  static async archive(couponId: string): Promise<void> {
-    const ds = await getSystemDataSource();
+  static async archive(tenantId: string, couponId: string): Promise<void> {
+    const ds = await tenantDataSourceFor(tenantId);
     const repo = ds.getRepository(CouponEntity);
-    const existing = await repo.findOne({ where: { couponId } });
+    const existing = await repo.findOne({ where: { tenantId, couponId } });
     if (!existing) throw new Error(COUPON_MESSAGES.NOT_FOUND);
-    await repo.update({ couponId }, { status: 'ARCHIVED' });
-    await this.clearCache({ couponId: existing.couponId, code: existing.code });
+    await repo.update({ tenantId, couponId }, { status: 'ARCHIVED' });
+    await this.clearCache(tenantId, { couponId: existing.couponId, code: existing.code });
   }
 
   // ============================================================================
@@ -184,7 +185,7 @@ export default class CouponService {
   // ============================================================================
 
   static async validate(dto: ValidateCouponDTO): Promise<CouponValidationResult> {
-    const coupon = await CouponService.getByCode(dto.code);
+    const coupon = await CouponService.getByCode(dto.tenantId, dto.code);
 
     if (!coupon) {
       return CouponValidationResultSchema.parse({ valid: false, message: COUPON_MESSAGES.INVALID_CODE });
@@ -287,12 +288,11 @@ export default class CouponService {
       });
       const saved = await redemptionRepo.save(redemption);
 
-      const sysDs = await getSystemDataSource();
-      await sysDs
+      await tenantDs
         .getRepository(CouponEntity)
-        .increment({ couponId: validation.coupon.couponId }, 'usedCount', 1);
+        .increment({ tenantId: dto.tenantId, couponId: validation.coupon.couponId }, 'usedCount', 1);
 
-      await this.clearCache({ couponId: validation.coupon.couponId, code: validation.coupon.code });
+      await this.clearCache(dto.tenantId, { couponId: validation.coupon.couponId, code: validation.coupon.code });
 
       return CouponRedemptionSchema.parse(saved);
     } catch (error) {

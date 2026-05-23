@@ -2,9 +2,23 @@ import 'reflect-metadata';
 import { tenantDataSourceFor } from '@/modules/db';
 import { TenantMember } from '@/modules/tenant_member/entities/tenant_member.entity';
 import { TenantDomain } from '@/modules/tenant_domain/entities/tenant_domain.entity';
-import { TenantAuditLog } from '@/modules/audit_log/entities/audit_log_tenant.entity';
+import { AuditLog } from '@/modules/audit_log/entities/audit_log.entity';
 import { Webhook } from '@/modules/webhook/entities/webhook.entity';
-import { TenantSetting } from '@/modules/tenant_setting/entities/tenant_setting.entity';
+import { WebhookDelivery } from '@/modules/webhook/entities/webhook_delivery.entity';
+import { Setting } from '@/modules/setting/entities/setting.entity';
+import { Payment } from '@/modules/payment/entities/payment.entity';
+import { PaymentTransaction } from '@/modules/payment/entities/payment_transaction.entity';
+import { SubscriptionPlan } from '@/modules/payment/entities/subscription_plan.entity';
+import { PlanFeature } from '@/modules/payment/entities/plan_feature.entity';
+import { TenantSubscription } from '@/modules/tenant_subscription/entities/tenant_subscription.entity';
+import { Coupon } from '@/modules/coupon/entities/coupon.entity';
+import { CouponRedemption } from '@/modules/coupon/entities/coupon_redemption.entity';
+import { ApiKey } from '@/modules/api_key/entities/api_key.entity';
+import { SamlConfig } from '@/modules/auth_saml/entities/saml_config.entity';
+import { UploadedFile } from '@/modules/storage/entities/uploaded_file.entity';
+import { AiUsageLog } from '@/modules/ai/entities/ai_usage_log.entity';
+import { NotificationLog } from '@/modules/notification_log/entities/notification_log.entity';
+import { TenantUsage } from '@/modules/tenant_usage/entities/tenant_usage.entity';
 import Logger from '@/modules/logger';
 
 export interface TenantExportData {
@@ -14,7 +28,29 @@ export interface TenantExportData {
   domains: object[];
   auditLogs: object[];
   webhooks: object[];
+  webhookDeliveries: object[];
   settings: object[] | null;
+  payments: object[];
+  paymentTransactions: object[];
+  subscriptions: object[];
+  subscriptionPlans: object[];
+  planFeatures: object[];
+  coupons: object[];
+  couponRedemptions: object[];
+  apiKeys: object[];
+  samlConfigs: object[];
+  uploadedFiles: object[];
+  aiUsageLogs: object[];
+  notificationLogs: object[];
+  tenantUsage: object[];
+}
+
+function stripFields<T>(rows: T[], fields: string[]): object[] {
+  return rows.map((row) => {
+    const safe = { ...(row as unknown as Record<string, unknown>) };
+    for (const f of fields) delete safe[f];
+    return safe;
+  });
 }
 
 export default class TenantExportService {
@@ -24,27 +60,69 @@ export default class TenantExportService {
 
     Logger.info(`[TenantExport] Starting export for tenant ${tenantId}`);
 
-    const [members, domains, auditLogs, webhooks, settings] = await Promise.all([
+    const [
+      members,
+      domains,
+      auditLogs,
+      webhooks,
+      webhookDeliveries,
+      settings,
+      payments,
+      paymentTransactions,
+      subscriptions,
+      subscriptionPlans,
+      planFeatures,
+      coupons,
+      couponRedemptions,
+      apiKeys,
+      samlConfigs,
+      uploadedFiles,
+      aiUsageLogs,
+      notificationLogs,
+      tenantUsage,
+    ] = await Promise.all([
       ds.getRepository(TenantMember).find({ where: { tenantId } }),
       ds.getRepository(TenantDomain).find({ where: { tenantId } }),
-      ds.getRepository(TenantAuditLog).find({
+      ds.getRepository(AuditLog).find({
         where: { tenantId },
         order: { createdAt: 'DESC' },
         take: 1000,
       }),
       ds.getRepository(Webhook).find({ where: { tenantId } }),
-      ds.getRepository(TenantSetting).find({ where: { tenantId } }),
+      ds.getRepository(WebhookDelivery).find({ where: { tenantId } }),
+      ds.getRepository(Setting).find({ where: { tenantId } }),
+      ds.getRepository(Payment).find({ where: { tenantId } }),
+      // PaymentTransaction has no direct tenantId — join via Payment.
+      ds
+        .getRepository(PaymentTransaction)
+        .createQueryBuilder('pt')
+        .innerJoin(Payment, 'p', 'p.paymentId = pt.paymentId')
+        .where('p.tenantId = :tenantId', { tenantId })
+        .getMany(),
+      ds.getRepository(TenantSubscription).find({ where: { tenantId } }),
+      ds.getRepository(SubscriptionPlan).find({ where: { tenantId } }),
+      ds.getRepository(PlanFeature).find({ where: { tenantId } }),
+      ds.getRepository(Coupon).find({ where: { tenantId } }),
+      ds.getRepository(CouponRedemption).find({ where: { tenantId } }),
+      ds.getRepository(ApiKey).find({ where: { tenantId } }),
+      ds.getRepository(SamlConfig).find({ where: { tenantId } }),
+      ds.getRepository(UploadedFile).find({ where: { tenantId } }),
+      ds.getRepository(AiUsageLog).find({ where: { tenantId } }),
+      ds.getRepository(NotificationLog).find({ where: { tenantId } }),
+      ds.getRepository(TenantUsage).find({ where: { tenantId } }),
     ]);
 
     // Members have no passwords — passwords are stored on User entity in system DB
     const safeMembers = members.map(({ ...m }) => m);
 
     // Strip HMAC signing secrets from webhooks before export
-    const safeWebhooks = webhooks.map((w) => {
-      const safe = { ...(w as unknown as Record<string, unknown>) };
-      delete safe['secret'];
-      return safe;
-    });
+    const safeWebhooks = stripFields(webhooks, ['secret']);
+
+    // Strip raw key hashes from API keys — only metadata leaves the tenant
+    const safeApiKeys = stripFields(apiKeys, ['keyHash']);
+
+    // Strip SAML SP private keys before export
+    const safeSamlConfigs = stripFields(samlConfigs, ['spPrivateKey']);
 
     const exportData: TenantExportData = {
       exportedAt: new Date().toISOString(),
@@ -53,13 +131,31 @@ export default class TenantExportService {
       domains,
       auditLogs,
       webhooks: safeWebhooks,
+      webhookDeliveries,
       settings: settings.length > 0 ? settings : null,
+      payments,
+      paymentTransactions,
+      subscriptions,
+      subscriptionPlans,
+      planFeatures,
+      coupons,
+      couponRedemptions,
+      apiKeys: safeApiKeys,
+      samlConfigs: safeSamlConfigs,
+      uploadedFiles,
+      aiUsageLogs,
+      notificationLogs,
+      tenantUsage,
     };
 
     Logger.info(
       `[TenantExport] Export complete for tenant ${tenantId}: ` +
       `${members.length} members, ${auditLogs.length} audit logs, ` +
-      `${webhooks.length} webhooks, ${settings.length} settings`,
+      `${webhooks.length} webhooks, ${settings.length} settings, ` +
+      `${payments.length} payments, ${subscriptions.length} subscriptions, ` +
+      `${coupons.length} coupons, ${apiKeys.length} api keys, ` +
+      `${uploadedFiles.length} uploaded files, ${aiUsageLogs.length} ai usage logs, ` +
+      `${notificationLogs.length} notification logs`,
     );
 
     return Buffer.from(JSON.stringify(exportData, null, 2), 'utf-8');

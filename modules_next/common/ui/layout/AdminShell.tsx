@@ -8,6 +8,7 @@ import { AppTopBar } from '@/modules_next/common/ui/layout/AppTopBar';
 import { UserMenu } from '@/modules_next/user/ui/UserMenu';
 import { NotificationMenu } from '@/modules_next/common/ui/NotificationMenu';
 import { useNotifications } from '@/modules_next/notification_inapp/hooks/use-notifications.hook';
+import { isRootTenant } from '@/modules/tenant/tenant.constants';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faUsers,
@@ -31,23 +32,21 @@ import {
 
 type AdminShellProps = {
   children: React.ReactNode;
-  variant: 'system' | 'tenant';
-  tenantId?: string;
+  tenantId: string;
 };
 
-export function AdminShell({ children, variant, tenantId }: AdminShellProps) {
+export function AdminShell({ children, tenantId }: AdminShellProps) {
   const pathname = usePathname();
+  const isRoot = isRootTenant(tenantId);
 
   const [userEmail, setUserEmail] = useState('');
   const [userName, setUserName]   = useState('');
 
-  const notifBase = variant === 'system' ? '/system/api/auth/me' : null;
-  const { items: notifications, markAllRead } = useNotifications(notifBase ?? '/system/api/auth/me');
+  const notifBase = `/tenant/${tenantId}/api/auth/me`;
+  const { items: notifications, markAllRead } = useNotifications(notifBase);
 
   useEffect(() => {
-    const sessionUrl = variant === 'system'
-      ? '/system/api/auth/session'
-      : `/tenant/${tenantId}/api/auth/session`;
+    const sessionUrl = `/tenant/${tenantId}/api/auth/session`;
 
     api.get(sessionUrl)
       .then((res) => {
@@ -57,47 +56,13 @@ export function AdminShell({ children, variant, tenantId }: AdminShellProps) {
       })
       .catch(() => {});
 
-    if (variant === 'system') {
-      api.get('/system/api/auth/me/profile')
-        .then((res) => {
-          const name = res.data?.userProfile?.name;
-          if (name) setUserName(name);
-        })
-        .catch(() => {});
-    }
-  }, [variant, tenantId]);
-
-  const systemNavGroups = [
-    {
-      label: 'Management',
-      items: [
-        { id: 'users',      label: 'Users',      href: '/system/admin/users',      icon: <FontAwesomeIcon icon={faUsers} aria-hidden /> },
-        { id: 'tenants',    label: 'Tenants',    href: '/system/admin/tenants',    icon: <FontAwesomeIcon icon={faBuilding} aria-hidden /> },
-        { id: 'audit-logs', label: 'Audit Logs', href: '/system/admin/audit-logs', icon: <FontAwesomeIcon icon={faClockRotateLeft} aria-hidden /> },
-        { id: 'plans',      label: 'Plans',      href: '/system/admin/plans',      icon: <FontAwesomeIcon icon={faCreditCard} aria-hidden /> },
-        { id: 'payments',   label: 'Payments',   href: '/system/admin/payments',   icon: <FontAwesomeIcon icon={faCreditCard} aria-hidden /> },
-      ],
-    },
-    {
-      label: 'Security',
-      items: [
-        { id: 'saml',     label: 'SAML SSO',   href: '/system/admin/saml',     icon: <FontAwesomeIcon icon={faIdCard} aria-hidden /> },
-        { id: 'webhooks', label: 'Webhooks',   href: '/system/admin/webhooks', icon: <FontAwesomeIcon icon={faPlug} aria-hidden /> },
-        { id: 'coupons',  label: 'Coupons',    href: '/system/admin/coupons',  icon: <FontAwesomeIcon icon={faKey} aria-hidden /> },
-      ],
-    },
-    {
-      label: 'System',
-      items: [
-        { id: 'health',   label: 'Health',     href: '/system/admin/health',    icon: <FontAwesomeIcon icon={faHeartPulse} aria-hidden /> },
-        { id: 'fleet',    label: 'Fleet',      href: '/system/fleet',           icon: <FontAwesomeIcon icon={faServer} aria-hidden /> },
-        { id: 'ai',       label: 'AI',         href: '/system/admin/ai',        icon: <FontAwesomeIcon icon={faRobot} aria-hidden /> },
-        { id: 'api-docs', label: 'API Docs',   href: '/system/admin/api-docs',  icon: <FontAwesomeIcon icon={faBook} aria-hidden /> },
-        { id: 'settings', label: 'Settings',   href: '/system/admin/settings',  icon: <FontAwesomeIcon icon={faGear} aria-hidden /> },
-        { id: 'me',       label: 'My Profile', href: '/system/admin/me',        icon: <FontAwesomeIcon icon={faCircleUser} aria-hidden /> },
-      ],
-    },
-  ];
+    api.get(`/tenant/${tenantId}/api/auth/me/profile`)
+      .then((res) => {
+        const name = res.data?.userProfile?.name;
+        if (name) setUserName(name);
+      })
+      .catch(() => {});
+  }, [tenantId]);
 
   const tenantNavGroups = [
     {
@@ -110,9 +75,17 @@ export function AdminShell({ children, variant, tenantId }: AdminShellProps) {
       ],
     },
     {
+      label: 'Commerce',
+      items: [
+        { id: 'plans',    label: 'Plans',    href: `/tenant/${tenantId}/admin/plans`,    icon: <FontAwesomeIcon icon={faCreditCard} aria-hidden /> },
+        { id: 'payments', label: 'Payments', href: `/tenant/${tenantId}/admin/payments`, icon: <FontAwesomeIcon icon={faCreditCard} aria-hidden /> },
+        { id: 'coupons',  label: 'Coupons',  href: `/tenant/${tenantId}/admin/coupons`,  icon: <FontAwesomeIcon icon={faKey} aria-hidden /> },
+      ],
+    },
+    {
       label: 'Security',
       items: [
-        { id: 'saml',     label: 'SAML SSO', href: `/tenant/${tenantId}/admin/settings/saml`,  icon: <FontAwesomeIcon icon={faIdCard} aria-hidden /> },
+        { id: 'saml',     label: 'SAML SSO', href: `/tenant/${tenantId}/admin/saml`,  icon: <FontAwesomeIcon icon={faIdCard} aria-hidden /> },
         { id: 'webhooks', label: 'Webhooks', href: `/tenant/${tenantId}/admin/webhooks`,        icon: <FontAwesomeIcon icon={faPlug} aria-hidden /> },
       ],
     },
@@ -120,7 +93,8 @@ export function AdminShell({ children, variant, tenantId }: AdminShellProps) {
       label: 'Developer',
       items: [
         { id: 'api-keys', label: 'API Keys', href: `/tenant/${tenantId}/admin/api-keys`, icon: <FontAwesomeIcon icon={faKey} aria-hidden /> },
-        { id: 'api-docs', label: 'API Docs', href: `/tenant/${tenantId}/api-docs`,       icon: <FontAwesomeIcon icon={faBook} aria-hidden /> },
+        { id: 'api-docs', label: 'API Docs', href: `/tenant/${tenantId}/admin/api-docs`, icon: <FontAwesomeIcon icon={faBook} aria-hidden /> },
+        { id: 'ai',       label: 'AI',       href: `/tenant/${tenantId}/admin/ai`,       icon: <FontAwesomeIcon icon={faRobot} aria-hidden /> },
       ],
     },
     {
@@ -138,19 +112,32 @@ export function AdminShell({ children, variant, tenantId }: AdminShellProps) {
     },
   ];
 
-  const navGroups = variant === 'system' ? systemNavGroups : tenantNavGroups;
+  const platformNavGroups = isRoot ? [
+    {
+      label: 'Platform',
+      items: [
+        { id: 'platform-tenants',    label: 'Tenants',    href: `/tenant/${tenantId}/admin/tenants`,    icon: <FontAwesomeIcon icon={faBuilding} aria-hidden /> },
+        { id: 'platform-users',      label: 'Users',      href: `/tenant/${tenantId}/admin/users`,      icon: <FontAwesomeIcon icon={faUsers} aria-hidden /> },
+        { id: 'platform-audit-logs', label: 'Audit Logs', href: `/tenant/${tenantId}/admin/audit-logs`, icon: <FontAwesomeIcon icon={faClockRotateLeft} aria-hidden /> },
+      ],
+    },
+    {
+      label: 'Platform System',
+      items: [
+        { id: 'platform-health', label: 'Health', href: `/tenant/${tenantId}/admin/health`, icon: <FontAwesomeIcon icon={faHeartPulse} aria-hidden /> },
+        { id: 'platform-fleet',  label: 'Fleet',  href: `/tenant/${tenantId}/admin/fleet`,  icon: <FontAwesomeIcon icon={faServer} aria-hidden /> },
+      ],
+    },
+  ] : [];
+
+  const navGroups = [...tenantNavGroups, ...platformNavGroups];
 
   const activeId = navGroups
     .flatMap((g) => g.items)
     .find((item) => item.href && pathname.startsWith(item.href))?.id;
 
-  const profileHref = variant === 'system'
-    ? '/system/admin/me'
-    : `/tenant/${tenantId}/admin/me`;
-
-  const logoutHref = variant === 'system'
-    ? '/system/auth/logout'
-    : `/tenant/${tenantId}/auth/logout`;
+  const profileHref = `/tenant/${tenantId}/admin/me`;
+  const logoutHref = `/tenant/${tenantId}/auth/logout`;
 
   const logo = (
     <div className="flex items-center gap-2">
@@ -158,7 +145,7 @@ export function AdminShell({ children, variant, tenantId }: AdminShellProps) {
         <FontAwesomeIcon icon={faShieldHalved} aria-hidden />
       </span>
       <span className="text-sm font-semibold text-text-primary truncate">
-        {variant === 'system' ? 'System Admin' : 'Tenant Admin'}
+        {isRoot ? 'Platform Admin' : 'Tenant Admin'}
       </span>
     </div>
   );
@@ -193,7 +180,7 @@ export function AdminShell({ children, variant, tenantId }: AdminShellProps) {
       logo={logo}
       sidebar={sidebar}
       topbar={topbar}
-      mobileSidebarTitle={variant === 'system' ? 'System Admin' : 'Tenant Admin'}
+      mobileSidebarTitle={isRoot ? 'Platform Admin' : 'Tenant Admin'}
     >
       {children}
     </AppShell>

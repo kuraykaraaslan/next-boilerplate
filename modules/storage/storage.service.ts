@@ -10,14 +10,22 @@ import { UploadResult, S3Config } from './storage.types'
 import { STORAGE_MESSAGES } from './storage.messages'
 import SettingService from '@/modules/setting/setting.service'
 import { STORAGE_KEYS } from './storage.setting.keys'
+import { TenantUsageService } from '@/modules/tenant_usage/tenant_usage.service'
+import { tenantDataSourceFor } from '@/modules/db'
+import { UploadedFile } from './entities/uploaded_file.entity'
+import { IsNull } from 'typeorm'
+import TenantSubscriptionService from '@/modules/tenant_subscription/tenant_subscription.service'
+import { FEATURE_KEYS } from '@/modules/tenant_subscription/tenant_subscription.feature-keys'
+import { isRootTenant } from '@/modules/tenant/tenant.constants'
 
 export default class StorageService {
 
   /**
-   * Read storage settings from SettingService and build S3Config
+   * Read storage settings from SettingService and build S3Config for a tenant.
+   * Each tenant has its own S3 bucket / credentials in Setting rows.
    */
-  private static async getStorageSettings(): Promise<{ providerName: StorageProviderType; config: S3Config }> {
-    const settings = await SettingService.getByKeys([...STORAGE_KEYS])
+  private static async getStorageSettings(tenantId: string): Promise<{ providerName: StorageProviderType; config: S3Config }> {
+    const settings = await SettingService.getByKeys(tenantId, [...STORAGE_KEYS])
 
     const providerName = (settings.storageProvider || 'aws-s3') as StorageProviderType
 
@@ -52,29 +60,99 @@ export default class StorageService {
   }
 
   /**
-   * Get a configured provider instance
+   * Get a configured provider instance for a tenant
    */
-  private static async getProvider(providerName?: StorageProviderType): Promise<{ provider: BaseStorageProvider; resolvedName: StorageProviderType }> {
-    const { providerName: defaultName, config } = await StorageService.getStorageSettings()
+  private static async getProvider(
+    tenantId: string,
+    providerName?: StorageProviderType
+  ): Promise<{ provider: BaseStorageProvider; resolvedName: StorageProviderType }> {
+    const { providerName: defaultName, config } = await StorageService.getStorageSettings(tenantId)
     const resolvedName = providerName || defaultName
     const provider = StorageService.createProvider(resolvedName, config)
     return { provider, resolvedName }
   }
 
   /**
-   * Upload a file to storage
+   * Persist an UploadedFile audit row + increment the tenant_usage.storageBytes
+   * counter. Best-effort: failures are logged but do not fail the upload —
+   * the file is already in the bucket at this point.
    */
-  static async uploadFile(data: UploadFileDTO): Promise<UploadResult> {
-    const { file, folder, filename, provider: requestedProvider, tenantId = 'system' } = data
+  private static async persistUploadAudit(
+    tenantId: string,
+    userId: string | undefined,
+    result: UploadResult,
+    mimeType: string,
+  ): Promise<void> {
+    const size = result.size ?? 0
+    try {
+      const ds = await tenantDataSourceFor(tenantId)
+      const repo = ds.getRepository(UploadedFile)
+      const row = repo.create({
+        tenantId,
+        userId,
+        key: result.key,
+        bucket: result.bucket,
+        provider: result.provider,
+        size,
+        mimeType: mimeType || 'application/octet-stream',
+        url: result.url,
+      })
+      await repo.save(row)
+    } catch (error) {
+      Logger.warn(
+        `StorageService.persistUploadAudit failed: ${error instanceof Error ? error.message : String(error)}`,
+      )
+    }
+
+    if (size > 0) {
+      await TenantUsageService.incrementStorageBytes(tenantId, size)
+    }
+  }
+
+  /**
+   * Defense-in-depth billing gate for uploads. Asserts the tenant's active
+   * plan grants `feature_storage_upload` (BOOLEAN) and that the cumulative
+   * `feature_storage_quota_bytes` LIMIT (compared against
+   * TenantUsage.storageBytes for the current month) is not exhausted.
+   *
+   * Root tenant is short-circuited. Best-effort — LIMIT check is not atomic
+   * and the post-upload bytes counter increment can briefly push usage
+   * above the ceiling under concurrent uploads.
+   */
+  private static async assertStorageFeatureAccess(tenantId: string): Promise<void> {
+    if (isRootTenant(tenantId)) return
+
+    await TenantSubscriptionService.assertFeatureAccess(tenantId, FEATURE_KEYS.FEATURE_STORAGE_UPLOAD)
+
+    const usage = await TenantUsageService.getUsage(tenantId)
+    await TenantSubscriptionService.assertFeatureAccess(
+      tenantId,
+      FEATURE_KEYS.FEATURE_STORAGE_QUOTA_BYTES,
+      usage.storageBytes,
+    )
+  }
+
+  /**
+   * Upload a file to storage for a tenant
+   */
+  static async uploadFile(tenantId: string, data: UploadFileDTO): Promise<UploadResult> {
+    await StorageService.assertStorageFeatureAccess(tenantId)
+
+    const { file, folder, filename, provider: requestedProvider } = data
+    const effectiveTenantId = data.tenantId || tenantId
 
     try {
-      const { provider, resolvedName } = await StorageService.getProvider(requestedProvider)
-      const result = await provider.uploadFile(file, { folder, filename, tenantId })
+      const { provider, resolvedName } = await StorageService.getProvider(tenantId, requestedProvider)
+      const result = await provider.uploadFile(file, { folder, filename, tenantId: effectiveTenantId })
 
-      return {
+      const uploadResult: UploadResult = {
         ...result,
         provider: resolvedName,
       }
+
+      await StorageService.persistUploadAudit(tenantId, undefined, uploadResult, file.type)
+
+      return uploadResult
     } catch (error) {
       Logger.error(`${STORAGE_MESSAGES.UPLOAD_FAILED}: ${error instanceof Error ? error.message : String(error)}`)
       throw error
@@ -82,19 +160,26 @@ export default class StorageService {
   }
 
   /**
-   * Upload a file from URL to storage
+   * Upload a file from URL to storage for a tenant
    */
-  static async uploadFromUrl(data: UploadFromUrlDTO): Promise<UploadResult> {
-    const { url, folder, filename, provider: requestedProvider, tenantId = 'system' } = data
+  static async uploadFromUrl(tenantId: string, data: UploadFromUrlDTO): Promise<UploadResult> {
+    await StorageService.assertStorageFeatureAccess(tenantId)
+
+    const { url, folder, filename, provider: requestedProvider } = data
+    const effectiveTenantId = data.tenantId || tenantId
 
     try {
-      const { provider, resolvedName } = await StorageService.getProvider(requestedProvider)
-      const result = await provider.uploadFromUrl(url, { url, folder, filename, tenantId })
+      const { provider, resolvedName } = await StorageService.getProvider(tenantId, requestedProvider)
+      const result = await provider.uploadFromUrl(url, { url, folder, filename, tenantId: effectiveTenantId })
 
-      return {
+      const uploadResult: UploadResult = {
         ...result,
         provider: resolvedName,
       }
+
+      await StorageService.persistUploadAudit(tenantId, undefined, uploadResult, 'application/octet-stream')
+
+      return uploadResult
     } catch (error) {
       Logger.error(`${STORAGE_MESSAGES.UPLOAD_FAILED}: ${error instanceof Error ? error.message : String(error)}`)
       throw error
@@ -102,14 +187,30 @@ export default class StorageService {
   }
 
   /**
-   * Delete a file from storage
+   * Delete a file from a tenant's storage.
+   * Soft-deletes the matching UploadedFile audit row so we keep an immutable
+   * record of what existed. Storage byte counter is increment-only (audit
+   * friendly); a future decrement pass can be added in tenant_usage.
    */
-  static async deleteFile(data: DeleteFileDTO): Promise<void> {
+  static async deleteFile(tenantId: string, data: DeleteFileDTO): Promise<void> {
     const { key, provider: requestedProvider } = data
 
     try {
-      const { provider } = await StorageService.getProvider(requestedProvider)
+      const { provider } = await StorageService.getProvider(tenantId, requestedProvider)
       await provider.deleteFile(key)
+
+      try {
+        const ds = await tenantDataSourceFor(tenantId)
+        const repo = ds.getRepository(UploadedFile)
+        const row = await repo.findOne({ where: { tenantId, key, deletedAt: IsNull() } })
+        if (row) await repo.softRemove(row)
+      } catch (auditError) {
+        Logger.warn(
+          `StorageService.deleteFile audit soft-delete failed: ${
+            auditError instanceof Error ? auditError.message : String(auditError)
+          }`,
+        )
+      }
     } catch (error) {
       Logger.error(`${STORAGE_MESSAGES.DELETE_FAILED}: ${error instanceof Error ? error.message : String(error)}`)
       throw error
@@ -117,13 +218,13 @@ export default class StorageService {
   }
 
   /**
-   * Get file URL from storage
+   * Get file URL from a tenant's storage
    */
-  static async getFileUrl(data: GetFileUrlDTO): Promise<string> {
+  static async getFileUrl(tenantId: string, data: GetFileUrlDTO): Promise<string> {
     const { key, provider: requestedProvider } = data
 
     try {
-      const { provider } = await StorageService.getProvider(requestedProvider)
+      const { provider } = await StorageService.getProvider(tenantId, requestedProvider)
       return provider.getFileUrl(key)
     } catch (error) {
       Logger.error(`Failed to get file URL: ${error instanceof Error ? error.message : String(error)}`)
