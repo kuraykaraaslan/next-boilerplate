@@ -1,0 +1,9 @@
+<h2>Payment received — invoice <%= invoice.invoiceNumber %></h2>
+<p>Hi <%= invoice.customerName %>,</p>
+<p>We've received your payment of <strong><%= invoice.totalAmount %> <%= invoice.currency %></strong>. Thank you!</p>
+<table style="border-collapse:collapse;margin:16px 0;">
+  <tr><td style="padding:4px 12px;color:#666;">Invoice</td><td style="padding:4px 12px;"><strong><%= invoice.invoiceNumber %></strong></td></tr>
+  <tr><td style="padding:4px 12px;color:#666;">Paid on</td><td style="padding:4px 12px;"><%= new Date(invoice.paidAt).toISOString().slice(0,10) %></td></tr>
+  <tr><td style="padding:4px 12px;color:#666;">Amount</td><td style="padding:4px 12px;"><strong><%= invoice.totalAmount %> <%= invoice.currency %></strong></td></tr>
+</table>
+<p>This receipt is your record of payment. Keep it for your tax filings.</p>

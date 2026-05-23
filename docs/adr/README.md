@@ -7,6 +7,8 @@
 | [0003](0003-migration-framework.md) | SQL-first migrations with RLS as defense-in-depth | Accepted |
 | [0004](0004-scim-provisioning.md) | SCIM 2.0 provisioning + SAML JIT | Accepted |
 | [0005](0005-tenant-custom-domain-ssl.md) | Tenant custom-domain SSL via reverse-proxy on-demand TLS | Accepted |
+| [0006](0006-billing-and-e-invoicing.md) | Billing reality + regional e-invoicing (TR e-Arşiv, EU Peppol, US Stripe Tax) | Accepted |
+| [0007](0007-observability-stack.md) | Observability stack: Sentry + Prometheus, OTel optional, AsyncLocalStorage context | Accepted |
 
 ## Conventions
 

@@ -27,6 +27,22 @@ export interface CheckoutSessionResult {
  * `getAxiosInstance()` is intentionally NOT tenant-scoped — it is only
  * used as a low-level, unauthenticated fallback (e.g. for health checks).
  */
+export interface CustomerPortalParams {
+  /** End customer identifier with this provider — Stripe customer id, PayPal payer id, …. */
+  customerExternalId?: string;
+  /** End customer email (fallback when there's no provider-side customer record yet). */
+  customerEmail?: string;
+  /** Where the provider should send the customer back to. */
+  returnUrl: string;
+}
+
+export interface CustomerPortalResult {
+  /** Hosted URL to redirect the customer to. `null` when the provider does not offer a portal. */
+  url: string | null;
+  /** Provider-specific notes — surfaced to the operator in error messages. */
+  note?: string;
+}
+
 export default abstract class BasePaymentProvider {
   abstract readonly name: string
   abstract getAxiosInstance(): AxiosInstance
@@ -35,4 +51,20 @@ export default abstract class BasePaymentProvider {
     tenantId: string,
     params: CheckoutSessionParams,
   ): Promise<CheckoutSessionResult>
+
+  /**
+   * Self-service billing / subscription portal URL for an end customer.
+   * Each provider implements what it can — Stripe has a full portal, PayPal
+   * surfaces subscription management, Iyzico has none. Providers that can't
+   * deliver a portal return `{ url: null, note: ... }` and the route layer
+   * can fall back to in-app cancellation UI.
+   *
+   * Default implementation: no portal. Subclasses override.
+   */
+  async createCustomerPortalSession(
+    _tenantId: string,
+    _params: CustomerPortalParams,
+  ): Promise<CustomerPortalResult> {
+    return { url: null, note: `${this.name} does not provide a customer portal` };
+  }
 }

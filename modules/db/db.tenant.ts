@@ -22,6 +22,8 @@ import { Coupon } from '@/modules/coupon/entities/coupon.entity';
 import { SubscriptionPlan } from '@/modules/payment/entities/subscription_plan.entity';
 import { PlanFeature } from '@/modules/payment/entities/plan_feature.entity';
 import { PushSubscription } from '@/modules/notification_push/entities/push_subscription.entity';
+import { Invoice } from '@/modules/invoice/entities/invoice.entity';
+import { InvoiceLine } from '@/modules/invoice/entities/invoice_line.entity';
 import { TenantUsage } from '@/modules/tenant_usage/entities/tenant_usage.entity';
 import { UploadedFile } from '@/modules/storage/entities/uploaded_file.entity';
 import { AiUsageLog } from '@/modules/ai/entities/ai_usage_log.entity';
@@ -46,6 +48,8 @@ const TENANT_ENTITIES = [
   SubscriptionPlan,
   PlanFeature,
   PushSubscription,
+  Invoice,
+  InvoiceLine,
   TenantUsage,
   UploadedFile,
   AiUsageLog,

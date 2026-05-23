@@ -16,6 +16,7 @@ Pluggable payment processing (Stripe, PayPal, Iyzico) + subscription plans, plan
 
 ## Services
 
+- `payment.proration.service.ts`
 - `payment.service.ts`
 - `payment.webhook.service.ts`
 

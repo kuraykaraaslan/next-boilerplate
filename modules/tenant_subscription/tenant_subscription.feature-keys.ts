@@ -48,6 +48,9 @@ export const FEATURE_KEYS = {
 
   // API Key
   FEATURE_API_KEYS: 'feature_api_keys',
+
+  // Invoicing / e-invoicing
+  FEATURE_INVOICING: 'feature_invoicing',
 } as const;
 
 export type FeatureKey = (typeof FEATURE_KEYS)[keyof typeof FEATURE_KEYS];

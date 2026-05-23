@@ -13,6 +13,12 @@ import Logger from '@/modules/logger';
 import { getDefaultTenantDataSource, tenantDataSourceFor } from '@/modules/db';
 import { Payment as PaymentEntity } from './entities/payment.entity';
 import { TenantSubscription as TenantSubscriptionEntity } from '../tenant_subscription/entities/tenant_subscription.entity';
+import { Tenant as TenantEntity } from '@/modules/tenant/entities/tenant.entity';
+import { TenantMember as TenantMemberEntity } from '@/modules/tenant_member/entities/tenant_member.entity';
+import { User as UserEntity } from '@/modules/user/entities/user.entity';
+import { getSystemDataSource } from '@/modules/db';
+import MailService from '@/modules/notification_mail/notification_mail.service';
+import { env } from '@/modules/env';
 
 // ============================================================================
 // Types
@@ -57,6 +63,8 @@ interface NormalizedEvent {
   providerPaymentId: string;
   tenantId?: string;
   amount?: number;
+  currency?: string;
+  metadata?: Record<string, string | undefined>;
   failureCode?: string;
   failureMessage?: string;
   rawEvent: unknown;
@@ -544,6 +552,13 @@ export default class PaymentWebhookService {
       Logger.warn(`[Webhook:${provider}] Grace period start failed for tenant ${tenantId}: ${err instanceof Error ? err.message : String(err)}`);
     }
 
+    // Dunning email — to every active ADMIN of the tenant so somebody acts.
+    try {
+      await PaymentWebhookService.sendDunningEmail(tenantId, provider, event);
+    } catch (err) {
+      Logger.warn(`[Webhook:${provider}] Dunning email failed for tenant ${tenantId}: ${err instanceof Error ? err.message : String(err)}`);
+    }
+
     await AuditLogService.log({
       tenantId,
       actorType: 'SYSTEM',
@@ -591,6 +606,112 @@ export default class PaymentWebhookService {
       metadata: { provider, providerPaymentId: event.providerPaymentId, amount: event.amount },
     });
 
+    // Issue an invoice for this renewal — best-effort. Failures must not
+    // block the subscription extension; admin can re-issue from the UI.
+    await PaymentWebhookService.issueRenewalInvoice(event, provider).catch((err) => {
+      Logger.warn(`[Webhook:${provider}] renewal invoice failed for ${tenantId}: ${err instanceof Error ? err.message : err}`);
+    });
+
     Logger.info(`[Webhook:${provider}] subscription.renewed for tenant: ${tenantId}`);
+  }
+
+  /**
+   * Create + issue + mark-paid a legally-formatted Invoice for a renewal.
+   * Region/tax/adapter selection is driven by the tenant's `billingRegion`
+   * setting; see modules/invoice/README.md.
+   */
+  private static async issueRenewalInvoice(event: NormalizedEvent, provider: string): Promise<void> {
+    const { tenantId } = event;
+    if (!tenantId || !event.amount) return;
+
+    // Lazy-import to avoid a circular dep through TenantSubscriptionService.
+    const { default: InvoiceService } = await import('@/modules/invoice/invoice.service');
+    const { default: SettingService } = await import('@/modules/setting/setting.service');
+
+    // Caller info — best-effort. If the tenant hasn't populated company info
+    // yet, InvoiceService.create will throw COMPANY_INFO_MISSING; we swallow.
+    const settings = await SettingService.getByKeys(tenantId, ['invoiceDefaultCurrency']);
+    const currency = (event.currency ?? settings.invoiceDefaultCurrency ?? 'USD').toUpperCase();
+
+    // We don't have the end-customer email from the webhook payload in the
+    // normalised shape — use the subscription/billing email if attached, or
+    // fall back to a placeholder that the operator must override before
+    // sending. Real implementations should attach customer info in
+    // `event.metadata.customer{Email,Name,CountryCode}`.
+    const md = (event.metadata ?? {}) as Record<string, string | undefined>;
+    const customerEmail = md.customerEmail ?? 'unknown@example.com';
+    const customerName = md.customerName ?? 'Customer';
+    const customerCountryCode = (md.customerCountryCode ?? 'TR').toUpperCase().slice(0, 2);
+
+    const planName = md.planName ?? 'Subscription renewal';
+    const invoice = await InvoiceService.create(tenantId, {
+      customerEmail,
+      customerName,
+      customerCountryCode,
+      currency,
+      lines: [{
+        description: planName,
+        quantity: 1,
+        unitPrice: Number(event.amount),
+        taxRate: 0, // defaults to invoiceDefaultVatRate inside service
+        sourceType: 'subscription',
+        sourceId: md.subscriptionId,
+      }],
+      paymentId: md.paymentId,
+      subscriptionId: md.subscriptionId,
+      metadata: { provider, providerPaymentId: event.providerPaymentId },
+    });
+
+    await InvoiceService.issue(tenantId, invoice.invoiceId);
+    await InvoiceService.markPaid(tenantId, invoice.invoiceId, md.paymentId);
+  }
+
+  /**
+   * Fan out a dunning notification to every active tenant ADMIN.
+   * Provider-agnostic — Stripe `invoice.payment_failed` is the loudest
+   * trigger but PayPal / Iyzico can hit the same path via the normalised
+   * `subscription.past_due` action.
+   */
+  private static async sendDunningEmail(tenantId: string, provider: string, event: NormalizedEvent): Promise<void> {
+    const tenantDs = await tenantDataSourceFor(tenantId);
+    const sub = await tenantDs.getRepository(TenantSubscriptionEntity).findOne({ where: { tenantId } });
+    const members = await tenantDs.getRepository(TenantMemberEntity).find({
+      where: { tenantId, memberRole: 'ADMIN', memberStatus: 'ACTIVE' },
+    });
+    if (members.length === 0) {
+      Logger.warn(`[Webhook:${provider}] no active ADMIN for tenant ${tenantId} — dunning mail skipped`);
+      return;
+    }
+
+    const sysDs = await getSystemDataSource();
+    const userRepo = sysDs.getRepository(UserEntity);
+    const tenantRepo = tenantDs.getRepository(TenantEntity);
+    const tenant = await tenantRepo.findOne({ where: { tenantId } });
+
+    const appHost = env.APPLICATION_HOST ?? 'http://localhost:3000';
+    const billingPortalUrl = `${appHost}/tenant/${tenantId}/admin/subscription`;
+
+    for (const member of members) {
+      const user = await userRepo.findOne({ where: { userId: member.userId } });
+      if (!user?.email) continue;
+
+      const invoiceShape = {
+        invoiceNumber: event.providerPaymentId ?? '—',
+        totalAmount: event.amount ?? '—',
+        currency: 'USD',
+        customerName: tenant?.name ?? user.email,
+      };
+
+      await MailService.sendInvoicePaymentFailedEmail({
+        tenantId,
+        email: user.email,
+        invoice: invoiceShape,
+        reason: event.failureMessage ?? event.failureCode ?? `Payment via ${provider} could not be processed`,
+        retryAt: sub?.gracePeriodEndsAt ?? undefined,
+        billingPortalUrl,
+      });
+    }
+
+    Logger.info(`[Webhook:${provider}] dunning mail sent to ${members.length} admin(s) of tenant ${tenantId}`);
   }
 }

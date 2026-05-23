@@ -1,0 +1,16 @@
+<h2>Invoice <%= invoice.invoiceNumber %></h2>
+<p>Hi <%= invoice.customerName %>,</p>
+<p>Your invoice has been issued.</p>
+<table style="border-collapse:collapse;margin:16px 0;">
+  <tr><td style="padding:4px 12px;color:#666;">Invoice number</td><td style="padding:4px 12px;"><strong><%= invoice.invoiceNumber %></strong></td></tr>
+  <tr><td style="padding:4px 12px;color:#666;">Issue date</td><td style="padding:4px 12px;"><%= new Date(invoice.issueDate).toISOString().slice(0,10) %></td></tr>
+  <% if (invoice.dueDate) { %>
+  <tr><td style="padding:4px 12px;color:#666;">Due date</td><td style="padding:4px 12px;"><%= new Date(invoice.dueDate).toISOString().slice(0,10) %></td></tr>
+  <% } %>
+  <tr><td style="padding:4px 12px;color:#666;">Total</td><td style="padding:4px 12px;"><strong><%= invoice.totalAmount %> <%= invoice.currency %></strong></td></tr>
+  <% if (invoice.earsivUuid) { %>
+  <tr><td style="padding:4px 12px;color:#666;">e-Arşiv UUID</td><td style="padding:4px 12px;font-family:monospace;font-size:11px;"><%= invoice.earsivUuid %></td></tr>
+  <% } %>
+</table>
+<p>The PDF copy is attached to this email. Thank you for your business.</p>
+<p style="color:#888;font-size:12px;">If you have questions, reply to this email.</p>

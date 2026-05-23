@@ -73,6 +73,30 @@ export default class PaymentService {
     await Promise.all(ops.map((p) => p.catch(() => {})));
   }
 
+  /**
+   * Provider-agnostic customer portal. Routes to the configured provider's
+   * own self-service portal (Stripe Billing Portal, PayPal subscription mgmt,
+   * …) — providers without a portal return `{ url: null, note }` so the UI
+   * can fall back to in-app management.
+   */
+  static async createCustomerPortalSession(
+    tenantId: string,
+    params: {
+      provider?: PaymentProvider;
+      customerEmail?: string;
+      customerExternalId?: string;
+      returnUrl: string;
+    },
+  ): Promise<{ url: string | null; note?: string; provider: string }> {
+    const provider = PaymentService.getProvider(params.provider);
+    const result = await provider.createCustomerPortalSession(tenantId, {
+      customerExternalId: params.customerExternalId,
+      customerEmail: params.customerEmail,
+      returnUrl: params.returnUrl,
+    });
+    return { ...result, provider: provider.name };
+  }
+
   private static getProvider(providerName?: PaymentProvider): BasePaymentProvider {
     const name = providerName || PaymentService.DEFAULT_PROVIDER;
     const provider = PaymentService.PROVIDERS.get(name);

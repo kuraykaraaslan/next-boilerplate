@@ -1,0 +1,14 @@
+<h2>Payment failed — please update your billing details</h2>
+<p>Hi <%= invoice.customerName %>,</p>
+<p>We were unable to process your subscription renewal for invoice <strong><%= invoice.invoiceNumber %></strong>.</p>
+<table style="border-collapse:collapse;margin:16px 0;">
+  <tr><td style="padding:4px 12px;color:#666;">Amount</td><td style="padding:4px 12px;"><strong><%= invoice.totalAmount %> <%= invoice.currency %></strong></td></tr>
+  <% if (reason) { %>
+  <tr><td style="padding:4px 12px;color:#666;">Reason</td><td style="padding:4px 12px;"><%= reason %></td></tr>
+  <% } %>
+  <% if (retryAt) { %>
+  <tr><td style="padding:4px 12px;color:#666;">Next retry</td><td style="padding:4px 12px;"><%= new Date(retryAt).toISOString().slice(0,10) %></td></tr>
+  <% } %>
+</table>
+<p>Your subscription is now in a <strong>grace period</strong>. Please <a href="<%= billingPortalUrl %>">update your payment method</a> before the grace period ends to avoid service interruption.</p>
+<p style="color:#888;font-size:12px;">If you've already fixed the issue, you can safely ignore this email — the next retry will resolve automatically.</p>

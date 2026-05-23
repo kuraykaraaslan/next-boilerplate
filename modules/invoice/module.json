@@ -1,0 +1,14 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "invoice",
+  "name": "Invoice",
+  "description": "Tenant-scoped invoicing with regional e-invoicing adapters (TR e-Arşiv, EU Peppol, US Stripe Tax). Each tenant issues its own invoices keyed to its own subscription / payment flow.",
+  "version": "1.0.0",
+  "icon": "fas fa-file-invoice",
+  "tags": ["invoice", "billing", "compliance", "tax"],
+  "priority": 30,
+  "dependencies": {
+    "requires": ["db", "tenant", "setting", "audit_log", "tenant_subscription", "payment", "notification_mail"]
+  },
+  "settingKeys": ["INVOICE_KEYS"]
+}

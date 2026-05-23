@@ -28,6 +28,7 @@ import {
   faHeartPulse,
   faIdCard,
   faPlug,
+  faFileInvoice,
 } from '@fortawesome/free-solid-svg-icons';
 
 type AdminShellProps = {
@@ -79,6 +80,7 @@ export function AdminShell({ children, tenantId }: AdminShellProps) {
       items: [
         { id: 'plans',    label: 'Plans',    href: `/tenant/${tenantId}/admin/plans`,    icon: <FontAwesomeIcon icon={faCreditCard} aria-hidden /> },
         { id: 'payments', label: 'Payments', href: `/tenant/${tenantId}/admin/payments`, icon: <FontAwesomeIcon icon={faCreditCard} aria-hidden /> },
+        { id: 'invoices', label: 'Invoices', href: `/tenant/${tenantId}/admin/invoices`, icon: <FontAwesomeIcon icon={faFileInvoice} aria-hidden /> },
         { id: 'coupons',  label: 'Coupons',  href: `/tenant/${tenantId}/admin/coupons`,  icon: <FontAwesomeIcon icon={faKey} aria-hidden /> },
       ],
     },

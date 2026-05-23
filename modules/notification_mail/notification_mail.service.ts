@@ -307,6 +307,75 @@ export default class MailService {
 
   // ==================== EMAIL METHODS ====================
 
+  /** Invoice issued — sent right after issue + regional submission. */
+  static async sendInvoiceIssuedEmail({
+    tenantId, email, invoice,
+  }: {
+    tenantId: string;
+    email: string;
+    invoice: Record<string, unknown>;
+  }): Promise<void> {
+    try {
+      const subject = `Invoice ${invoice.invoiceNumber} — ${invoice.totalAmount} ${invoice.currency}`;
+      const html = await MailService.renderTemplate('invoice_issued.ejs', {
+        ...MailService.getBaseTemplateVars(),
+        subject,
+        invoice,
+      });
+      await MailService.sendMail(tenantId, email, subject, html);
+    } catch (error: unknown) {
+      Logger.error(`MailService.sendInvoiceIssuedEmail error: ${error instanceof Error ? error.message : error}`);
+    }
+  }
+
+  /** Receipt — sent on payment success. */
+  static async sendInvoicePaidEmail({
+    tenantId, email, invoice,
+  }: {
+    tenantId: string;
+    email: string;
+    invoice: Record<string, unknown>;
+  }): Promise<void> {
+    try {
+      const subject = `Receipt for ${invoice.invoiceNumber} — paid`;
+      const html = await MailService.renderTemplate('invoice_paid.ejs', {
+        ...MailService.getBaseTemplateVars(),
+        subject,
+        invoice,
+      });
+      await MailService.sendMail(tenantId, email, subject, html);
+    } catch (error: unknown) {
+      Logger.error(`MailService.sendInvoicePaidEmail error: ${error instanceof Error ? error.message : error}`);
+    }
+  }
+
+  /** Dunning email — sent on Stripe `invoice.payment_failed`. */
+  static async sendInvoicePaymentFailedEmail({
+    tenantId, email, invoice, reason, retryAt, billingPortalUrl,
+  }: {
+    tenantId: string;
+    email: string;
+    invoice: Record<string, unknown>;
+    reason?: string;
+    retryAt?: Date | string;
+    billingPortalUrl?: string;
+  }): Promise<void> {
+    try {
+      const subject = `Payment failed — invoice ${invoice.invoiceNumber}`;
+      const html = await MailService.renderTemplate('invoice_payment_failed.ejs', {
+        ...MailService.getBaseTemplateVars(),
+        subject,
+        invoice,
+        reason,
+        retryAt,
+        billingPortalUrl: billingPortalUrl ?? '',
+      });
+      await MailService.sendMail(tenantId, email, subject, html);
+    } catch (error: unknown) {
+      Logger.error(`MailService.sendInvoicePaymentFailedEmail error: ${error instanceof Error ? error.message : error}`);
+    }
+  }
+
   /**
    * Welcome email for new users
    */

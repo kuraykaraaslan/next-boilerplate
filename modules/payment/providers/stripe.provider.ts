@@ -1,5 +1,8 @@
 import axios, { AxiosInstance } from 'axios'
-import BasePaymentProvider, { CheckoutSessionParams, CheckoutSessionResult } from './base.provider'
+import BasePaymentProvider, {
+  CheckoutSessionParams, CheckoutSessionResult,
+  CustomerPortalParams, CustomerPortalResult,
+} from './base.provider'
 import { PAYMENT_MESSAGES } from '../payment.messages'
 import SettingService from '@/modules/setting/setting.service'
 import qs from 'querystring'
@@ -86,6 +89,49 @@ export default class StripeProvider extends BasePaymentProvider {
       }
     } catch (error) {
       throw new Error(PAYMENT_MESSAGES.STRIPE_CREATE_INTENT_FAILED)
+    }
+  }
+
+  override async createCustomerPortalSession(
+    tenantId: string,
+    params: CustomerPortalParams,
+  ): Promise<CustomerPortalResult> {
+    // Resolve / ensure Stripe customer id from Setting cache.
+    let customerId = params.customerExternalId
+      ?? (await SettingService.getValue(tenantId, 'stripeCustomerId'))
+      ?? undefined;
+
+    const secretKey = await StripeProvider.getSecretKey(tenantId);
+    const client = StripeProvider.buildAuthenticatedAxios(secretKey);
+
+    // Create the customer if we only have an email (best-effort, dev convenience).
+    if (!customerId && params.customerEmail) {
+      try {
+        const create = await client.post('/customers', qs.stringify({
+          email: params.customerEmail,
+          'metadata[tenantId]': tenantId,
+        }));
+        customerId = create.data.id;
+        if (customerId) {
+          await SettingService.create(tenantId, 'stripeCustomerId', customerId).catch(() => {});
+        }
+      } catch {
+        return { url: null, note: 'Stripe customer could not be created — set Settings → Integrations → Payments → Stripe' };
+      }
+    }
+
+    if (!customerId) {
+      return { url: null, note: 'No Stripe customer linked yet — make a checkout first' };
+    }
+
+    try {
+      const session = await client.post('/billing_portal/sessions', qs.stringify({
+        customer: customerId,
+        return_url: params.returnUrl,
+      }));
+      return { url: session.data.url };
+    } catch (error: any) {
+      return { url: null, note: error?.response?.data?.error?.message ?? 'Stripe billing portal request failed' };
     }
   }
 }
