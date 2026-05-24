@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
 import { env } from '@/modules/env';
-import { parseDbUrl } from './db.utils';
+import { parseDbUrl, typeormLogging } from './db.utils';
 import { User } from '@/modules/user/entities/user.entity';
 import { UserProfile } from '@/modules/user_profile/entities/user_profile.entity';
 import { UserSecurity } from '@/modules/user_security/entities/user_security.entity';
@@ -31,7 +31,7 @@ export const SystemDataSource = new DataSource({
   url: SYSTEM_DB_URL,
   schema: SYSTEM_SCHEMA,
   synchronize: env.NODE_ENV === 'development',
-  logging: env.NODE_ENV === 'development',
+  logging: typeormLogging(env.NODE_ENV),
   entities: SYSTEM_ENTITIES,
   migrations: [],
 });

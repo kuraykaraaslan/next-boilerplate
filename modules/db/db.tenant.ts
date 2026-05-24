@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
 import { env } from '@/modules/env';
-import { parseDbUrl } from './db.utils';
+import { parseDbUrl, typeormLogging } from './db.utils';
 import { getSystemDataSource } from './db.system';
 import { TenantDatabase } from './entities/tenant_database.entity';
 import { Tenant } from '@/modules/tenant/entities/tenant.entity';
@@ -63,7 +63,7 @@ export const defaultTenantDataSource = new DataSource({
   url: DEFAULT_TENANT_DB_URL,
   schema: DEFAULT_TENANT_SCHEMA,
   synchronize: env.NODE_ENV === 'development',
-  logging: env.NODE_ENV === 'development',
+  logging: typeormLogging(env.NODE_ENV),
   entities: TENANT_ENTITIES,
   migrations: [],
 });
@@ -102,7 +102,7 @@ export async function tenantDataSourceFor(tenantId: string): Promise<DataSource>
     url,
     schema,
     synchronize: env.NODE_ENV === 'development',
-    logging: env.NODE_ENV === 'development',
+    logging: typeormLogging(env.NODE_ENV),
     entities: TENANT_ENTITIES,
     migrations: [],
   });
