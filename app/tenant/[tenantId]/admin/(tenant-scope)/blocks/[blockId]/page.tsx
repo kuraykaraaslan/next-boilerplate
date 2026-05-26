@@ -9,17 +9,12 @@ import { Input } from '@/modules_next/common/ui/Input';
 import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
 import { toast } from '@/modules_next/common/ui/toast.store';
 import TemplateBlockRenderer from '@/modules_next/dynamic_page/dynamic/partials/TemplateBlockRenderer';
+import type { DynamicPageBlockRecord } from '@/modules/dynamic_page/dynamic_page.types';
 
-type BlockDef = {
-  blockId: string;
-  type: string;
-  label: string;
-  category: string;
+type BlockDef = Pick<DynamicPageBlockRecord, 'blockId' | 'type' | 'label' | 'category' | 'defaultProps' | 'isSystem'> & {
   description: string;
   template: string;
   script: string;
-  defaultProps: Record<string, unknown>;
-  isSystem: boolean;
 };
 
 function extractMessage(err: unknown, fallback: string) {

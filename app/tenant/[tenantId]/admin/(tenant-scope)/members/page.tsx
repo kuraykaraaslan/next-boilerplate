@@ -14,8 +14,7 @@ import { RowActionsMenu } from '@/modules_next/common/ui/RowActionsMenu';
 import { toast } from '@/modules_next/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserPlus, faSearch, faUser, faTrash } from '@fortawesome/free-solid-svg-icons';
-
-type MemberRole = 'USER' | 'ADMIN' | 'OWNER';
+import type { TenantMemberRole as MemberRole } from '@/modules/tenant_member/tenant_member.enums';
 
 type Member = {
   tenantMemberId: string;

@@ -10,18 +10,11 @@ import { RowActionsMenu } from '@/modules_next/common/ui/RowActionsMenu';
 import { PaymentStatusBadge, type PaymentStatus } from '@/modules_next/payment/ui/PaymentStatusBadge';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faEye } from '@fortawesome/free-solid-svg-icons';
+import type { SafePayment } from '@/modules/payment/payment.types';
 
-type Payment = {
-  paymentId: string;
-  amount: number;
-  currency: string;
+type Payment = Pick<SafePayment, 'paymentId' | 'amount' | 'currency' | 'provider' | 'customerEmail' | 'customerName' | 'tenantId' | 'userId'> & {
   status: PaymentStatus;
-  provider: string;
-  customerEmail?: string | null;
-  customerName?: string | null;
   createdAt: string;
-  tenantId?: string | null;
-  userId?: string | null;
 };
 
 const PAGE_SIZE = 20;

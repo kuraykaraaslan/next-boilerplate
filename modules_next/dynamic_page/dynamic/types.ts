@@ -1,6 +1,6 @@
 import type { ComponentType } from 'react'
 
-export type { BlockData } from '@/modules/dynamic_page/dynamic_page.types'
+export type { BlockData, DynamicPageBlockRecord } from '@/modules/dynamic_page/dynamic_page.types'
 
 export type FieldType =
   | 'text' | 'url' | 'textarea' | 'color' | 'boolean' | 'number'
@@ -40,15 +40,3 @@ export interface BlockDefinition {
   Component: ComponentType<Record<string, unknown>>
 }
 
-export interface DynamicPageBlockRecord {
-  blockId: string
-  type: string
-  label: string
-  category: string
-  description?: string | null
-  schema: Record<string, unknown>
-  defaultProps: Record<string, unknown>
-  template: string
-  script?: string | null
-  isSystem: boolean
-}

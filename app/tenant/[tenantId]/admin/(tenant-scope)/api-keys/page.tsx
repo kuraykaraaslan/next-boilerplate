@@ -14,16 +14,9 @@ import { toast } from '@/modules_next/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faKey, faTrash, faCopy, faCheck } from '@fortawesome/free-solid-svg-icons';
 import { API_KEY_SCOPES, type ApiKeyScope } from '@/modules/api_key/api_key.enums';
+import type { SafeApiKey as CanonicalSafeApiKey } from '@/modules/api_key/api_key.types';
 
-type SafeApiKey = {
-  apiKeyId: string;
-  tenantId: string;
-  createdByUserId: string;
-  name: string;
-  description: string | null;
-  keyPrefix: string;
-  scopes: ApiKeyScope[];
-  isActive: boolean;
+type SafeApiKey = Omit<CanonicalSafeApiKey, 'lastUsedAt' | 'expiresAt' | 'createdAt' | 'updatedAt'> & {
   lastUsedAt: string | null;
   expiresAt: string | null;
   createdAt: string;

@@ -13,10 +13,8 @@ import { RowActionsMenu } from '@/modules_next/common/ui/RowActionsMenu';
 import { toast } from '@/modules_next/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faBan } from '@fortawesome/free-solid-svg-icons';
-
-type MemberRole = 'USER' | 'ADMIN' | 'OWNER';
-
-type InvitationStatus = 'PENDING' | 'ACCEPTED' | 'DECLINED' | 'EXPIRED' | 'REVOKED';
+import type { TenantMemberRole as MemberRole } from '@/modules/tenant_member/tenant_member.enums';
+import type { TenantInvitationStatus as InvitationStatus } from '@/modules/tenant_invitation/tenant_invitation.enums';
 
 type Invitation = {
   invitationId: string;

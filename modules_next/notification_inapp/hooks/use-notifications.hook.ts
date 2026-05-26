@@ -2,15 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import api from '@/modules_next/common/axios';
 import type { NotificationItem } from '@/modules_next/common/ui/NotificationMenu';
-
-interface RawNotification {
-  notificationId: string;
-  title: string;
-  message: string;
-  path: string | null;
-  isRead: boolean;
-  createdAt: string;
-}
+import type { Notification as InAppNotification } from '@/modules/notification_inapp/notification_inapp.types';
 
 function formatTimestamp(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
@@ -22,7 +14,7 @@ function formatTimestamp(iso: string): string {
   return new Date(iso).toLocaleDateString();
 }
 
-function toItem(n: RawNotification): NotificationItem {
+function toItem(n: InAppNotification): NotificationItem {
   return {
     id: n.notificationId,
     title: n.title,
@@ -38,7 +30,7 @@ export function useNotifications(apiBase: string) {
 
   const fetch = useCallback(async () => {
     try {
-      const res = await api.get<{ notifications: RawNotification[] }>(`${apiBase}/notifications`);
+      const res = await api.get<{ notifications: InAppNotification[] }>(`${apiBase}/notifications`);
       setItems((res.data.notifications ?? []).map(toItem));
     } catch {
       // silently ignore — user may not be authenticated yet
@@ -61,7 +53,7 @@ export function useNotifications(apiBase: string) {
 
     es.onmessage = (e) => {
       try {
-        const raw: RawNotification = JSON.parse(e.data);
+        const raw: InAppNotification = JSON.parse(e.data);
         setItems((prev) => [toItem(raw), ...prev].slice(0, 50));
       } catch { /* ignore malformed */ }
     };

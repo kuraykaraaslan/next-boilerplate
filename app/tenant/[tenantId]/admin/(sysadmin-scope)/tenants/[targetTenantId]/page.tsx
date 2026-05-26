@@ -18,11 +18,11 @@ import {
   faGlobe, faPeopleGroup, faGear,
   faPlus, faTrash, faCheck, faBan, faUser, faCreditCard,
 } from '@fortawesome/free-solid-svg-icons';
+import type { TenantStatus } from '@/modules/tenant/tenant.enums';
+import type { TenantMemberRole as MemberRole, TenantMemberStatus as MemberStatus } from '@/modules/tenant_member/tenant_member.enums';
 
-type TenantStatus = 'ACTIVE' | 'INACTIVE' | 'PENDING' | 'SUSPENDED' | 'DELETED' | 'ARCHIVED';
-type DomainStatus = 'ACTIVE' | 'INACTIVE' | 'PENDING' | 'VERIFIED';
-type MemberRole   = 'OWNER' | 'ADMIN' | 'USER';
-type MemberStatus = 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' | 'PENDING';
+// Subset of DomainStatus excluding DNS_FAILED — sysadmin view doesn't render that case.
+type DomainStatus = Exclude<import('@/modules/tenant_domain/tenant_domain.enums').DomainStatus, 'DNS_FAILED'>;
 
 type Domain = {
   tenantDomainId: string;

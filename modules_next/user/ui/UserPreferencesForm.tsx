@@ -5,19 +5,9 @@ import { Button } from '@/modules_next/common/ui/Button';
 import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
 import { Select } from '@/modules_next/common/ui/Select';
 import { Input } from '@/modules_next/common/ui/Input';
+import type { UserPreferences } from '@/modules/user_preferences/user_preferences.types';
 
-export interface UserPreferencesValues {
-  theme: 'LIGHT' | 'DARK' | 'SYSTEM';
-  language: 'EN' | 'ES' | 'FR' | 'DE' | 'CN' | 'JP';
-  emailNotifications: boolean;
-  smsNotifications: boolean;
-  pushNotifications: boolean;
-  newsletter: boolean;
-  timezone: string;
-  dateFormat: 'DD_MM_YYYY' | 'MM_DD_YYYY';
-  timeFormat: 'H24' | 'H12';
-  firstDayOfWeek: 'MON' | 'SUN';
-}
+export type UserPreferencesValues = UserPreferences;
 
 const LANGUAGE_OPTIONS = [
   { value: 'EN', label: 'English' },

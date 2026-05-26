@@ -11,8 +11,7 @@ import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
 import { Modal } from '@/modules_next/common/ui/Modal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faSearch } from '@fortawesome/free-solid-svg-icons';
-
-type TenantStatus = 'ACTIVE' | 'INACTIVE' | 'PENDING' | 'SUSPENDED' | 'DELETED' | 'ARCHIVED';
+import type { TenantStatus } from '@/modules/tenant/tenant.enums';
 
 type HealthStatus = 'active' | 'trialing' | 'past_due' | 'grace_period' | 'suspended' | 'pending_deletion' | 'no_subscription' | 'expired';
 

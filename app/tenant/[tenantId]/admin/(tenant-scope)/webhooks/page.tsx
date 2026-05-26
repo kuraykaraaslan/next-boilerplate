@@ -25,28 +25,7 @@ import {
   faKey,
 } from '@fortawesome/free-solid-svg-icons';
 
-/**
- * Unified webhook event catalog. Every tenant — including the root tenant —
- * uses the same `Webhook` table. The root tenant subscribes to platform-wide
- * events (user.*, tenant.*, plan.*); regular tenants subscribe to tenant-local
- * events (member.*, invitation.*, subscription.*, payment.*, api_key.*).
- *
- * UI hides platform-only event groups from non-root tenants and tenant-local
- * groups from the root tenant — the actual enum is unified server-side.
- */
-type WebhookEvent =
-  // tenant-scoped
-  | 'tenant.updated'
-  | 'member.created' | 'member.updated' | 'member.deleted'
-  | 'invitation.sent' | 'invitation.accepted' | 'invitation.declined' | 'invitation.revoked'
-  | 'subscription.created' | 'subscription.updated' | 'subscription.cancelled'
-  | 'payment.completed' | 'payment.failed' | 'payment.refunded'
-  | 'api_key.created' | 'api_key.deleted'
-  // platform-only
-  | 'user.created' | 'user.updated' | 'user.deleted' | 'user.suspended'
-  | 'tenant.created' | 'tenant.deleted' | 'tenant.suspended'
-  | 'plan.created' | 'plan.updated' | 'plan.deleted'
-  | 'subscription.assigned';
+import type { WebhookEvent } from '@/modules/webhook/webhook.enums';
 
 const TENANT_EVENT_GROUPS: { group: string; events: WebhookEvent[] }[] = [
   { group: 'Tenant',        events: ['tenant.updated'] },

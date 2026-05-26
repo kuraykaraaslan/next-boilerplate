@@ -4,12 +4,9 @@ import { Input } from '@/modules_next/common/ui/Input';
 import { Button } from '@/modules_next/common/ui/Button';
 import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
 import { AvatarUpload } from '@/modules_next/common/ui/AvatarUpload';
+import type { UserProfile } from '@/modules/user_profile/user_profile.types';
 
-export interface UserProfileValues {
-  name: string | null;
-  biography: string | null;
-  profilePicture: string | null;
-}
+export type UserProfileValues = Pick<UserProfile, 'name' | 'biography' | 'profilePicture'>;
 
 type Errors = Partial<Record<keyof UserProfileValues, string>>;
 

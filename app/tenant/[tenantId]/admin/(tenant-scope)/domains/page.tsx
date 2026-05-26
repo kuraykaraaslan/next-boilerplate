@@ -13,11 +13,8 @@ import { RowActionsMenu } from '@/modules_next/common/ui/RowActionsMenu';
 import { toast } from '@/modules_next/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faCheckCircle, faGlobe, faInfoCircle, faLock, faLockOpen } from '@fortawesome/free-solid-svg-icons';
-
-type MemberRole = 'USER' | 'ADMIN' | 'OWNER';
-
-type DomainStatus = 'ACTIVE' | 'INACTIVE' | 'PENDING' | 'VERIFIED' | 'DNS_FAILED';
-type SslStatus = 'DISABLED' | 'PENDING' | 'PROVISIONING' | 'ACTIVE' | 'EXPIRING' | 'FAILED' | 'EXPIRED';
+import type { TenantMemberRole as MemberRole } from '@/modules/tenant_member/tenant_member.enums';
+import type { DomainStatus, SslStatus } from '@/modules/tenant_domain/tenant_domain.enums';
 
 type Domain = {
   tenantDomainId: string;

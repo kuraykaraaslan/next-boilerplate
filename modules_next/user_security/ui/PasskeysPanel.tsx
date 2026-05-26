@@ -9,14 +9,9 @@ import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
 import { Modal } from '@/modules_next/common/ui/Modal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFingerprint, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
+import type { StoredPasskey } from '@/modules/user_security/user_security.types';
 
-type Passkey = {
-  credentialId: string;
-  label?: string;
-  createdAt: string;
-  lastUsedAt?: string | null;
-  transports?: string[];
-};
+type Passkey = StoredPasskey;
 
 export function PasskeysPanel() {
   const [passkeys, setPasskeys]   = useState<Passkey[]>([]);

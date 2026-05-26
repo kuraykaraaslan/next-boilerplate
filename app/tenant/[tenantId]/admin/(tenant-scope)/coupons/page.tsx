@@ -13,35 +13,14 @@ import { toast } from '@/modules_next/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPercent, faDollarSign, faTrash, faXmark } from '@fortawesome/free-solid-svg-icons';
 import api from '@/modules_next/common/axios';
+import type { CouponStatus, DiscountType } from '@/modules/coupon/coupon.enums';
+import type { CouponScope } from '@/modules/coupon/coupon.dto';
+import type { Coupon as CanonicalCoupon } from '@/modules/coupon/coupon.types';
 
 type SelectedRef = { id: string; label: string };
 
-type CouponStatus = 'ACTIVE' | 'INACTIVE' | 'EXPIRED' | 'ARCHIVED';
-type DiscountType = 'PERCENTAGE' | 'FIXED_AMOUNT';
-
-type CouponScope = {
-  productIds?: string[];
-  planIds?: string[];
-  categoryIds?: string[];
-  providers?: string[];
-  appliesTo?: 'line' | 'cart';
-  minimumAmount?: number;
-};
-
-type Coupon = {
-  couponId: string;
-  code: string;
-  name: string;
-  description?: string | null;
-  discountType: DiscountType;
-  discountValue: number;
-  currency?: string | null;
-  scope?: CouponScope | null;
-  maxUses?: number | null;
-  maxUsesPerTenant?: number | null;
-  usedCount: number;
-  status: CouponStatus;
-  expiresAt?: string | null;
+type Coupon = Pick<CanonicalCoupon, 'couponId' | 'code' | 'name' | 'description' | 'discountType' | 'discountValue' | 'currency' | 'scope' | 'maxUses' | 'maxUsesPerTenant' | 'usedCount' | 'status'> & {
+  expiresAt: string | null;
   createdAt: string;
 };
 

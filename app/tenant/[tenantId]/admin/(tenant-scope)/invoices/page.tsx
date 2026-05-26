@@ -7,18 +7,11 @@ import { Spinner } from '@/modules_next/common/ui/Spinner';
 import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
 import { Breadcrumb } from '@/modules_next/common/ui/Breadcrumb';
 import { Button } from '@/modules_next/common/ui/Button';
+import type { SafeInvoice } from '@/modules/invoice/invoice.types';
 
-interface InvoiceRow {
-  invoiceId: string;
-  invoiceNumber: string;
-  customerName: string;
-  customerEmail: string;
+type InvoiceRow = Pick<SafeInvoice, 'invoiceId' | 'invoiceNumber' | 'customerName' | 'customerEmail' | 'totalAmount' | 'currency' | 'status' | 'region'> & {
   issueDate: string;
-  totalAmount: number;
-  currency: string;
-  status: string;
-  region: string;
-}
+};
 
 const STATUS_COLOR: Record<string, string> = {
   draft: 'bg-text-secondary/10 text-text-secondary',

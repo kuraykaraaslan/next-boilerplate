@@ -14,13 +14,9 @@ import { RowActionsMenu } from '@/modules_next/common/ui/RowActionsMenu';
 import { toast } from '@/modules_next/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
+import type { DynamicPageBlockRecord } from '@/modules/dynamic_page/dynamic_page.types';
 
-type BlockDef = {
-  blockId: string;
-  type: string;
-  label: string;
-  category: string;
-  isSystem: boolean;
+type BlockDef = Pick<DynamicPageBlockRecord, 'blockId' | 'type' | 'label' | 'category' | 'isSystem'> & {
   createdAt: string;
 };
 

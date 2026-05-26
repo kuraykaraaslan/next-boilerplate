@@ -19,12 +19,9 @@ import { UserRoleBadge } from '@/modules_next/user/ui/UserRoleBadge';
 import { UserStatusBadge } from '@/modules_next/user/ui/UserStatusBadge';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBuilding, faArrowUpRightFromSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
-
-type UserRole   = 'USER' | 'ADMIN';
-type UserStatus = 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
-type MemberRole   = 'OWNER' | 'ADMIN' | 'USER';
-type MemberStatus = 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' | 'PENDING';
-type TenantStatus = 'ACTIVE' | 'INACTIVE' | 'PENDING' | 'SUSPENDED' | 'DELETED' | 'ARCHIVED';
+import type { UserRole, UserStatus } from '@/modules/user/user.enums';
+import type { TenantMemberRole as MemberRole, TenantMemberStatus as MemberStatus } from '@/modules/tenant_member/tenant_member.enums';
+import type { TenantStatus } from '@/modules/tenant/tenant.enums';
 
 type User = {
   userId: string;

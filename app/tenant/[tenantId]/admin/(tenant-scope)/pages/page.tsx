@@ -15,12 +15,11 @@ import { Badge } from '@/modules_next/common/ui/Badge';
 import { toast } from '@/modules_next/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faSearch, faPenToSquare, faTrash, faEye } from '@fortawesome/free-solid-svg-icons';
+import type { DynamicPageRecord } from '@/modules/dynamic_page/dynamic_page.types';
+import { DynamicPageStatus } from '@/modules/dynamic_page/dynamic_page.enums';
 
-type DynamicPage = {
-  dynamicPageId: string;
-  title: string;
-  slug: string;
-  status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+type DynamicPage = Pick<DynamicPageRecord, 'dynamicPageId' | 'title' | 'slug'> & {
+  status: `${DynamicPageStatus}`;
   updatedAt: string;
 };
 
