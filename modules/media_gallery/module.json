@@ -1,0 +1,11 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "media_gallery",
+  "name": "Media Gallery",
+  "description": "Polymorphic ordered image gallery attachable to any entity type. Items wrap UploadedFile rows (storage module) and add gallery-side overlay: sortOrder, isPrimary, altText, title.",
+  "version": "1.0.0",
+  "icon": "fas fa-images",
+  "tags": ["media", "gallery", "images"],
+  "priority": 36,
+  "dependencies": { "requires": ["db", "redis", "storage"] }
+}

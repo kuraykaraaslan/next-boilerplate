@@ -42,6 +42,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     return NextResponse.json({
       message: 'File uploaded successfully',
+      uploadedFileId: result.uploadedFileId,
       url: result.url,
       key: result.key,
       bucket: result.bucket,

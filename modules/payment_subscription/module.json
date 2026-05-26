@@ -1,0 +1,13 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "payment_subscription",
+  "name": "Payment Subscription",
+  "description": "Recurring subscription lifecycle: plans, plan features, subscriber management, proration, billing cycle tracking. Provider-agnostic (Stripe, PayPal, Iyzico, …). Tenant-aware — every plan and subscription is scoped to a tenant.",
+  "version": "1.0.0",
+  "icon": "fas fa-sync-alt",
+  "tags": ["payment", "subscription", "billing", "plans"],
+  "priority": 27,
+  "dependencies": {
+    "requires": ["db", "env", "setting", "redis", "logger", "payment_core"]
+  }
+}

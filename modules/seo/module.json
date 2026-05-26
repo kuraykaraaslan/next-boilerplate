@@ -1,0 +1,11 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "seo",
+  "name": "SEO Metadata",
+  "description": "Polymorphic SEO metadata (title, description, Open Graph, canonical, noIndex) attachable to any entity type via entityType + entityId pair.",
+  "version": "1.0.0",
+  "icon": "fas fa-search",
+  "tags": ["seo", "metadata"],
+  "priority": 35,
+  "dependencies": { "requires": ["db", "redis"] }
+}

@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-05-23T15:15:08.253Z",
+  "generatedAt": "2026-05-26T08:39:48.402Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -1408,6 +1408,108 @@
       "hasNextLayer": true
     },
     {
+      "id": "payment_sell",
+      "name": "Payment Sell",
+      "version": "1.0.0",
+      "description": "One-time product / service payment processing. Uses payment_core providers (Stripe, PayPal, Iyzico, Alipay, WeChat Pay, YooKassa, CloudPayments). Tenant-aware checkout sessions, transactions, and refunds.",
+      "dir": "modules/payment_sell",
+      "icon": "fas fa-shopping-cart",
+      "tags": [
+        "payment",
+        "sell",
+        "billing"
+      ],
+      "priority": 26,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "setting",
+          "redis",
+          "logger",
+          "payment_core"
+        ]
+      },
+      "exports": {
+        "services": [
+          "payment_sell.service.ts",
+          "payment_sell.webhook.service.ts"
+        ],
+        "dtos": [
+          "payment_sell.dto.ts"
+        ],
+        "enums": [
+          "payment_sell.enums.ts"
+        ],
+        "messageKeys": [
+          "payment_sell.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "payment.entity.ts",
+          "payment_transaction.entity.ts"
+        ]
+      },
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": true
+    },
+    {
+      "id": "payment_subscription",
+      "name": "Payment Subscription",
+      "version": "1.0.0",
+      "description": "Recurring subscription lifecycle: plans, plan features, subscriber management, proration, billing cycle tracking. Provider-agnostic (Stripe, PayPal, Iyzico, …). Tenant-aware — every plan and subscription is scoped to a tenant.",
+      "dir": "modules/payment_subscription",
+      "icon": "fas fa-sync-alt",
+      "tags": [
+        "payment",
+        "subscription",
+        "billing",
+        "plans"
+      ],
+      "priority": 27,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "setting",
+          "redis",
+          "logger",
+          "payment_core"
+        ]
+      },
+      "exports": {
+        "services": [
+          "payment_subscription.proration.service.ts",
+          "payment_subscription.service.ts"
+        ],
+        "dtos": [
+          "payment_subscription.dto.ts"
+        ],
+        "enums": [
+          "payment_subscription.enums.ts"
+        ],
+        "messageKeys": [
+          "payment_subscription.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "plan_feature.entity.ts",
+          "subscription.entity.ts",
+          "subscription_plan.entity.ts"
+        ]
+      },
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
       "id": "invoice",
       "name": "Invoice",
       "version": "1.0.0",
@@ -1717,6 +1819,95 @@
       "hasNextLayer": true
     },
     {
+      "id": "seo",
+      "name": "SEO Metadata",
+      "version": "1.0.0",
+      "description": "Polymorphic SEO metadata (title, description, Open Graph, canonical, noIndex) attachable to any entity type via entityType + entityId pair.",
+      "dir": "modules/seo",
+      "icon": "fas fa-search",
+      "tags": [
+        "seo",
+        "metadata"
+      ],
+      "priority": 35,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "redis"
+        ]
+      },
+      "exports": {
+        "services": [
+          "seo.service.ts"
+        ],
+        "dtos": [
+          "seo.dto.ts"
+        ],
+        "enums": [
+          "seo.enums.ts"
+        ],
+        "messageKeys": [
+          "seo.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "seo_meta.entity.ts"
+        ]
+      },
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": true
+    },
+    {
+      "id": "media_gallery",
+      "name": "Media Gallery",
+      "version": "1.0.0",
+      "description": "Polymorphic ordered image gallery attachable to any entity type. Items wrap UploadedFile rows (storage module) and add gallery-side overlay: sortOrder, isPrimary, altText, title.",
+      "dir": "modules/media_gallery",
+      "icon": "fas fa-images",
+      "tags": [
+        "media",
+        "gallery",
+        "images"
+      ],
+      "priority": 36,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "redis",
+          "storage"
+        ]
+      },
+      "exports": {
+        "services": [
+          "media_gallery.service.ts"
+        ],
+        "dtos": [
+          "media_gallery.dto.ts"
+        ],
+        "enums": [
+          "media_gallery.enums.ts"
+        ],
+        "messageKeys": [
+          "media_gallery.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "media_gallery.entity.ts",
+          "media_gallery_item.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true
+    },
+    {
       "id": "api_key",
       "name": "API Key",
       "version": "1.0.0",
@@ -1799,6 +1990,64 @@
         "jobs": [],
         "entities": [
           "audit_log.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true
+    },
+    {
+      "id": "store",
+      "name": "Store",
+      "version": "1.0.0",
+      "description": "Tenant-aware e-commerce store. Hierarchical categories with typed spec templates; products with Tiptap richtext descriptions, spec values, multiple images, tags, SEO; variation types (Color, Size, …) with options and swatches; product variants with independent SKU / price / stock per combination; product bundles with per-item quantity and price overrides. Admin-only — no storefront UI layer.",
+      "dir": "modules/store",
+      "icon": "fas fa-store",
+      "tags": [
+        "store",
+        "ecommerce",
+        "products",
+        "catalog"
+      ],
+      "priority": 40,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "logger"
+        ]
+      },
+      "exports": {
+        "services": [
+          "store.service.ts"
+        ],
+        "dtos": [
+          "store.dto.ts"
+        ],
+        "enums": [
+          "store.enums.ts"
+        ],
+        "messageKeys": [
+          "store.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "store_bundle.entity.ts",
+          "store_bundle_item.entity.ts",
+          "store_category.entity.ts",
+          "store_category_spec.entity.ts",
+          "store_product.entity.ts",
+          "store_product_image.entity.ts",
+          "store_product_spec_value.entity.ts",
+          "store_product_variant.entity.ts",
+          "store_variant_group.entity.ts",
+          "store_variant_group_item.entity.ts",
+          "store_variation_option.entity.ts",
+          "store_variation_type.entity.ts"
         ]
       },
       "hasReadme": true,
@@ -1920,6 +2169,68 @@
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": true
+    },
+    {
+      "id": "dynamic_page",
+      "name": "dynamic_page",
+      "version": "0.0.0",
+      "description": "",
+      "dir": "modules/dynamic_page",
+      "tags": [],
+      "priority": 100,
+      "tier": "other",
+      "dependencies": {
+        "requires": [],
+        "optional": [],
+        "conflicts": []
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": false,
+      "hasModuleJson": false,
+      "hasNextLayer": true
+    },
+    {
+      "id": "payment_core",
+      "name": "payment_core",
+      "version": "0.0.0",
+      "description": "",
+      "dir": "modules/payment_core",
+      "tags": [],
+      "priority": 100,
+      "tier": "other",
+      "dependencies": {
+        "requires": [],
+        "optional": [],
+        "conflicts": []
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [
+          "payment_core.enums.ts"
+        ],
+        "messageKeys": [
+          "payment_core.messages.ts"
+        ],
+        "settingKeys": [
+          "payment_core.setting.keys.ts"
+        ],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": false,
+      "hasModuleJson": false,
+      "hasNextLayer": false
     }
   ],
   "routes": [
@@ -2824,6 +3135,38 @@
       "dynamic": true
     },
     {
+      "filePath": "app/tenant/[tenantId]/api/media-gallery/[entityType]/[entityId]/items/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/media-gallery/[entityType]/[entityId]/items",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "media_gallery",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/media-gallery/[entityType]/[entityId]/items/reorder/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/media-gallery/[entityType]/[entityId]/items/reorder",
+      "methods": [
+        "PUT"
+      ],
+      "module": "media_gallery",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/media-gallery/items/[itemId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/media-gallery/items/[itemId]",
+      "methods": [
+        "PUT",
+        "DELETE"
+      ],
+      "module": "media_gallery",
+      "dynamic": true
+    },
+    {
       "filePath": "app/tenant/[tenantId]/api/members/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/members",
@@ -3089,6 +3432,17 @@
       "dynamic": true
     },
     {
+      "filePath": "app/tenant/[tenantId]/api/seo/[entityType]/[entityId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/seo/[entityType]/[entityId]",
+      "methods": [
+        "GET",
+        "PUT"
+      ],
+      "module": "seo",
+      "dynamic": true
+    },
+    {
       "filePath": "app/tenant/[tenantId]/api/settings/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/settings",
@@ -3131,6 +3485,188 @@
         "POST"
       ],
       "module": "storage",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/store/bundles/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/store/bundles",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "store",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/store/bundles/[bundleId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/store/bundles/[bundleId]",
+      "methods": [
+        "GET",
+        "PUT",
+        "DELETE"
+      ],
+      "module": "store",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/store/bundles/[bundleId]/items/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/store/bundles/[bundleId]/items",
+      "methods": [
+        "POST"
+      ],
+      "module": "store",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/store/bundles/[bundleId]/items/[itemId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/store/bundles/[bundleId]/items/[itemId]",
+      "methods": [
+        "DELETE"
+      ],
+      "module": "store",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/store/categories/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/store/categories",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "store",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/store/categories/[categoryId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/store/categories/[categoryId]",
+      "methods": [
+        "GET",
+        "PUT",
+        "DELETE"
+      ],
+      "module": "store",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/store/categories/[categoryId]/specs/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/store/categories/[categoryId]/specs",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "store",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/store/categories/[categoryId]/specs/[specId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/store/categories/[categoryId]/specs/[specId]",
+      "methods": [
+        "PUT",
+        "DELETE"
+      ],
+      "module": "store",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/store/products/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/store/products",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "store",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/store/products/[productId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/store/products/[productId]",
+      "methods": [
+        "GET",
+        "PUT",
+        "DELETE"
+      ],
+      "module": "store",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/store/products/[productId]/duplicate/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/store/products/[productId]/duplicate",
+      "methods": [
+        "POST"
+      ],
+      "module": "store",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/store/products/[productId]/images/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/store/products/[productId]/images",
+      "methods": [
+        "POST"
+      ],
+      "module": "store",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/store/products/[productId]/images/[imageId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/store/products/[productId]/images/[imageId]",
+      "methods": [
+        "DELETE"
+      ],
+      "module": "store",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/store/products/[productId]/spec-values/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/store/products/[productId]/spec-values",
+      "methods": [
+        "PUT"
+      ],
+      "module": "store",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/store/products/[productId]/variant-group/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/store/products/[productId]/variant-group",
+      "methods": [
+        "GET"
+      ],
+      "module": "store",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/store/products/[productId]/variant-group/items/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/store/products/[productId]/variant-group/items",
+      "methods": [
+        "POST"
+      ],
+      "module": "store",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/store/products/[productId]/variant-group/items/[itemId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/store/products/[productId]/variant-group/items/[itemId]",
+      "methods": [
+        "PATCH",
+        "DELETE"
+      ],
+      "module": "store",
       "dynamic": true
     },
     {
@@ -3520,6 +4056,42 @@
       "relations": []
     },
     {
+      "name": "MediaGallery",
+      "filePath": "modules/media_gallery/entities/media_gallery.entity.ts",
+      "module": "media_gallery",
+      "schema": "system",
+      "tableName": "media_galleries",
+      "columns": [
+        "galleryId",
+        "tenantId",
+        "entityType",
+        "entityId",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "MediaGalleryItem",
+      "filePath": "modules/media_gallery/entities/media_gallery_item.entity.ts",
+      "module": "media_gallery",
+      "schema": "system",
+      "tableName": "media_gallery_items",
+      "columns": [
+        "itemId",
+        "galleryId",
+        "tenantId",
+        "uploadedFileId",
+        "altText",
+        "title",
+        "sortOrder",
+        "isPrimary",
+        "createdAt"
+      ],
+      "relations": [
+        "uploadedFile"
+      ]
+    },
+    {
       "name": "NotificationLog",
       "filePath": "modules/notification_log/entities/notification_log.entity.ts",
       "module": "notification_log",
@@ -3543,6 +4115,41 @@
       "name": "Payment",
       "filePath": "modules/payment/entities/payment.entity.ts",
       "module": "payment",
+      "schema": "system",
+      "tableName": "payments",
+      "columns": [
+        "paymentId",
+        "userId",
+        "tenantId",
+        "provider",
+        "providerPaymentId",
+        "amount",
+        "currency",
+        "status",
+        "paymentMethod",
+        "description",
+        "metadata",
+        "customerEmail",
+        "customerName",
+        "customerPhone",
+        "billingAddress",
+        "refundedAmount",
+        "failureCode",
+        "failureMessage",
+        "paidAt",
+        "cancelledAt",
+        "refundedAt",
+        "expiresAt",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "Payment",
+      "filePath": "modules/payment_sell/entities/payment.entity.ts",
+      "module": "payment_sell",
       "schema": "system",
       "tableName": "payments",
       "columns": [
@@ -3604,9 +4211,58 @@
       "relations": []
     },
     {
+      "name": "PaymentTransaction",
+      "filePath": "modules/payment_sell/entities/payment_transaction.entity.ts",
+      "module": "payment_sell",
+      "schema": "system",
+      "tableName": "payment_transactions",
+      "columns": [
+        "transactionId",
+        "paymentId",
+        "provider",
+        "providerTransactionId",
+        "type",
+        "status",
+        "amount",
+        "currency",
+        "fee",
+        "net",
+        "providerResponse",
+        "errorCode",
+        "errorMessage",
+        "parentTransactionId",
+        "ipAddress",
+        "userAgent",
+        "processedAt",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "PlanFeature",
       "filePath": "modules/payment/entities/plan_feature.entity.ts",
       "module": "payment",
+      "schema": "system",
+      "tableName": "plan_features",
+      "columns": [
+        "featureId",
+        "tenantId",
+        "planId",
+        "key",
+        "label",
+        "type",
+        "value",
+        "sortOrder",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "PlanFeature",
+      "filePath": "modules/payment_subscription/entities/plan_feature.entity.ts",
+      "module": "payment_subscription",
       "schema": "system",
       "tableName": "plan_features",
       "columns": [
@@ -3670,6 +4326,29 @@
       "relations": []
     },
     {
+      "name": "SeoMeta",
+      "filePath": "modules/seo/entities/seo_meta.entity.ts",
+      "module": "seo",
+      "schema": "system",
+      "tableName": "seo_meta",
+      "columns": [
+        "seoId",
+        "tenantId",
+        "entityType",
+        "entityId",
+        "title",
+        "description",
+        "keywords",
+        "ogTitle",
+        "ogDescription",
+        "ogImageUrl",
+        "canonicalUrl",
+        "noIndex",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "Setting",
       "filePath": "modules/setting/entities/setting.entity.ts",
       "module": "setting",
@@ -3714,9 +4393,325 @@
       "relations": []
     },
     {
+      "name": "StoreBundle",
+      "filePath": "modules/store/entities/store_bundle.entity.ts",
+      "module": "store",
+      "schema": "system",
+      "tableName": "store_bundles",
+      "columns": [
+        "bundleId",
+        "tenantId",
+        "name",
+        "slug",
+        "description",
+        "richDescription",
+        "bundlePrice",
+        "discountPercent",
+        "currency",
+        "imageUrl",
+        "status",
+        "availableFrom",
+        "availableTo",
+        "sortOrder",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "StoreBundleItem",
+      "filePath": "modules/store/entities/store_bundle_item.entity.ts",
+      "module": "store",
+      "schema": "system",
+      "tableName": "store_bundle_items",
+      "columns": [
+        "bundleItemId",
+        "tenantId",
+        "bundleId",
+        "productId",
+        "variantId",
+        "quantity",
+        "overridePrice",
+        "sortOrder",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "StoreCategory",
+      "filePath": "modules/store/entities/store_category.entity.ts",
+      "module": "store",
+      "schema": "system",
+      "tableName": "store_categories",
+      "columns": [
+        "categoryId",
+        "tenantId",
+        "parentId",
+        "name",
+        "slug",
+        "description",
+        "imageUrl",
+        "sortOrder",
+        "isActive",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "StoreCategorySpec",
+      "filePath": "modules/store/entities/store_category_spec.entity.ts",
+      "module": "store",
+      "schema": "system",
+      "tableName": "store_category_specs",
+      "columns": [
+        "specId",
+        "tenantId",
+        "categoryId",
+        "key",
+        "label",
+        "type",
+        "unit",
+        "placeholder",
+        "options",
+        "isRequired",
+        "isFilterable",
+        "sortOrder",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "StoreProduct",
+      "filePath": "modules/store/entities/store_product.entity.ts",
+      "module": "store",
+      "schema": "system",
+      "tableName": "store_products",
+      "columns": [
+        "productId",
+        "tenantId",
+        "categoryId",
+        "name",
+        "slug",
+        "shortDescription",
+        "details",
+        "basePrice",
+        "currency",
+        "sku",
+        "stockQuantity",
+        "trackInventory",
+        "allowBackorder",
+        "weight",
+        "weightUnit",
+        "dimensions",
+        "tags",
+        "status",
+        "isFeatured",
+        "isDigital",
+        "digitalDownloadUrl",
+        "seo",
+        "sortOrder",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "StoreProductImage",
+      "filePath": "modules/store/entities/store_product_image.entity.ts",
+      "module": "store",
+      "schema": "system",
+      "tableName": "store_product_images",
+      "columns": [
+        "imageId",
+        "tenantId",
+        "productId",
+        "variantId",
+        "url",
+        "altText",
+        "sortOrder",
+        "isPrimary",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "StoreProductSpecValue",
+      "filePath": "modules/store/entities/store_product_spec_value.entity.ts",
+      "module": "store",
+      "schema": "system",
+      "tableName": "store_product_spec_values",
+      "columns": [
+        "specValueId",
+        "tenantId",
+        "productId",
+        "specId",
+        "value",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "StoreProductVariant",
+      "filePath": "modules/store/entities/store_product_variant.entity.ts",
+      "module": "store",
+      "schema": "system",
+      "tableName": "store_product_variants",
+      "columns": [
+        "variantId",
+        "tenantId",
+        "productId",
+        "optionIds",
+        "sku",
+        "price",
+        "stockQuantity",
+        "weight",
+        "imageUrl",
+        "isActive",
+        "sortOrder",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "StoreVariantGroup",
+      "filePath": "modules/store/entities/store_variant_group.entity.ts",
+      "module": "store",
+      "schema": "system",
+      "tableName": "store_variant_groups",
+      "columns": [
+        "variantGroupId",
+        "tenantId",
+        "name",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "StoreVariantGroupItem",
+      "filePath": "modules/store/entities/store_variant_group_item.entity.ts",
+      "module": "store",
+      "schema": "system",
+      "tableName": "store_variant_group_items",
+      "columns": [
+        "itemId",
+        "tenantId",
+        "variantGroupId",
+        "productId",
+        "label",
+        "sortOrder",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "StoreVariationOption",
+      "filePath": "modules/store/entities/store_variation_option.entity.ts",
+      "module": "store",
+      "schema": "system",
+      "tableName": "store_variation_options",
+      "columns": [
+        "optionId",
+        "tenantId",
+        "variationTypeId",
+        "label",
+        "value",
+        "swatch",
+        "sortOrder",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "StoreVariationType",
+      "filePath": "modules/store/entities/store_variation_type.entity.ts",
+      "module": "store",
+      "schema": "system",
+      "tableName": "store_variation_types",
+      "columns": [
+        "variationTypeId",
+        "tenantId",
+        "productId",
+        "name",
+        "displayType",
+        "sortOrder",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "Subscription",
+      "filePath": "modules/payment_subscription/entities/subscription.entity.ts",
+      "module": "payment_subscription",
+      "schema": "system",
+      "tableName": "subscriptions",
+      "columns": [
+        "subscriptionId",
+        "tenantId",
+        "userId",
+        "planId",
+        "provider",
+        "providerSubscriptionId",
+        "providerCustomerId",
+        "status",
+        "billingCycle",
+        "amount",
+        "currency",
+        "trialEndsAt",
+        "currentPeriodStart",
+        "currentPeriodEnd",
+        "cancelledAt",
+        "cancellationReason",
+        "cancelAtPeriodEnd",
+        "pausedAt",
+        "pausedUntil",
+        "pastDueCount",
+        "metadata",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "SubscriptionPlan",
       "filePath": "modules/payment/entities/subscription_plan.entity.ts",
       "module": "payment",
+      "schema": "system",
+      "tableName": "subscription_plans",
+      "columns": [
+        "planId",
+        "tenantId",
+        "name",
+        "description",
+        "monthlyPrice",
+        "yearlyPrice",
+        "currency",
+        "trialDays",
+        "sortOrder",
+        "isDefault",
+        "status",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "SubscriptionPlan",
+      "filePath": "modules/payment_subscription/entities/subscription_plan.entity.ts",
+      "module": "payment_subscription",
       "schema": "system",
       "tableName": "subscription_plans",
       "columns": [
@@ -4581,6 +5576,32 @@
       "baseName": "Card"
     },
     {
+      "id": "common/ui/ContextMenu",
+      "module": "common",
+      "filePath": "modules_next/common/ui/ContextMenu.tsx",
+      "kind": "ui",
+      "exports": [
+        "ContextMenuItem",
+        "ContextMenuProps",
+        "ContextMenu"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ContextMenu"
+    },
+    {
+      "id": "common/ui/CurrencySelector",
+      "module": "common",
+      "filePath": "modules_next/common/ui/CurrencySelector.tsx",
+      "kind": "ui",
+      "exports": [
+        "CurrencySelector"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CurrencySelector"
+    },
+    {
       "id": "common/ui/DateRangePicker",
       "module": "common",
       "filePath": "modules_next/common/ui/DateRangePicker.tsx",
@@ -4640,6 +5661,20 @@
       "isClient": true,
       "isServer": false,
       "baseName": "Form"
+    },
+    {
+      "id": "common/ui/ImageGallery",
+      "module": "common",
+      "filePath": "modules_next/common/ui/ImageGallery.tsx",
+      "kind": "ui",
+      "exports": [
+        "ImageGalleryImage",
+        "ImageGalleryProps",
+        "ImageGallery"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ImageGallery"
     },
     {
       "id": "common/ui/Input",
@@ -4776,6 +5811,31 @@
       "isClient": true,
       "isServer": false,
       "baseName": "RadioGroup"
+    },
+    {
+      "id": "common/ui/RichTextEditor/ImageInsertModal",
+      "module": "common",
+      "filePath": "modules_next/common/ui/RichTextEditor/ImageInsertModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "ImageInsertModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ImageInsertModal"
+    },
+    {
+      "id": "common/ui/RichTextEditor/index",
+      "module": "common",
+      "filePath": "modules_next/common/ui/RichTextEditor/index.tsx",
+      "kind": "ui",
+      "exports": [
+        "RichTextEditorProps",
+        "RichTextEditor"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "index"
     },
     {
       "id": "common/ui/RowActionsMenu",
@@ -4953,6 +6013,18 @@
       "baseName": "cn"
     },
     {
+      "id": "common/utils/isBrowser",
+      "module": "common",
+      "filePath": "modules_next/common/utils/isBrowser.ts",
+      "kind": "util",
+      "exports": [
+        "isBrowser"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "isBrowser"
+    },
+    {
       "id": "coupon/ui/CouponApplyForm",
       "module": "coupon",
       "filePath": "modules_next/coupon/ui/CouponApplyForm.tsx",
@@ -5047,6 +6119,18 @@
       "isClient": false,
       "isServer": false,
       "baseName": "limiter.service.next"
+    },
+    {
+      "id": "media_gallery/ui/GalleryPanel",
+      "module": "media_gallery",
+      "filePath": "modules_next/media_gallery/ui/GalleryPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "GalleryPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "GalleryPanel"
     },
     {
       "id": "module.types.ts/",
@@ -5145,6 +6229,18 @@
       "baseName": "withIdempotency"
     },
     {
+      "id": "seo/ui/SeoPanel",
+      "module": "seo",
+      "filePath": "modules_next/seo/ui/SeoPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "SeoPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SeoPanel"
+    },
+    {
       "id": "setting/setting.types",
       "module": "setting",
       "filePath": "modules_next/setting/setting.types.ts",
@@ -5167,6 +6263,34 @@
       "isClient": true,
       "isServer": false,
       "baseName": "PlatformSettingsTabs"
+    },
+    {
+      "id": "store/ui/ProductSpecValuesPanel",
+      "module": "store",
+      "filePath": "modules_next/store/ui/ProductSpecValuesPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "ProductSpecValuesPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ProductSpecValuesPanel"
+    },
+    {
+      "id": "store/ui/ProductStatusBadge",
+      "module": "store",
+      "filePath": "modules_next/store/ui/ProductStatusBadge.tsx",
+      "kind": "ui",
+      "exports": [
+        "ProductStatus",
+        "BundleStatus",
+        "ProductStatusBadge",
+        "BundleStatusBadge",
+        "StockBadge"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ProductStatusBadge"
     },
     {
       "id": "tenant_session/tenant_session.service.next",

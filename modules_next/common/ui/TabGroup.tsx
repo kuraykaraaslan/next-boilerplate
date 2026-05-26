@@ -52,7 +52,7 @@ export function TabGroup({
 
   return (
     <div className={cn('w-full', className)}>
-      <div role="tablist" aria-label={label} className="flex border-b border-border pb-3">
+      <div role="tablist" aria-label={label} className="flex border-b border-border">
         {tabs.map((tab, i) => {
           const isActive = tab.id === active;
           return (
@@ -94,7 +94,7 @@ export function TabGroup({
             aria-labelledby={`tab-btn-${tab.id}`}
             tabIndex={0}
             hidden={!isActive}
-            className="focus-visible:outline-none"
+            className="pt-4 focus-visible:outline-none"
           >
             {shouldRender ? tab.content : null}
           </div>

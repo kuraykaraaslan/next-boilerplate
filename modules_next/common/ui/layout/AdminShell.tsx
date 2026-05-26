@@ -29,6 +29,10 @@ import {
   faIdCard,
   faPlug,
   faFileInvoice,
+  faStore,
+  faTag,
+  faBoxOpen,
+  faLayerGroup,
 } from '@fortawesome/free-solid-svg-icons';
 
 type AdminShellProps = {
@@ -82,6 +86,14 @@ export function AdminShell({ children, tenantId }: AdminShellProps) {
         { id: 'payments', label: 'Payments', href: `/tenant/${tenantId}/admin/payments`, icon: <FontAwesomeIcon icon={faCreditCard} aria-hidden /> },
         { id: 'invoices', label: 'Invoices', href: `/tenant/${tenantId}/admin/invoices`, icon: <FontAwesomeIcon icon={faFileInvoice} aria-hidden /> },
         { id: 'coupons',  label: 'Coupons',  href: `/tenant/${tenantId}/admin/coupons`,  icon: <FontAwesomeIcon icon={faKey} aria-hidden /> },
+      ],
+    },
+    {
+      label: 'Store',
+      items: [
+        { id: 'store-categories', label: 'Categories', href: `/tenant/${tenantId}/admin/store/categories`, icon: <FontAwesomeIcon icon={faTag} aria-hidden /> },
+        { id: 'store-products',   label: 'Products',   href: `/tenant/${tenantId}/admin/store/products`,   icon: <FontAwesomeIcon icon={faBoxOpen} aria-hidden /> },
+        { id: 'store-bundles',    label: 'Bundles',    href: `/tenant/${tenantId}/admin/store/bundles`,    icon: <FontAwesomeIcon icon={faLayerGroup} aria-hidden /> },
       ],
     },
     {

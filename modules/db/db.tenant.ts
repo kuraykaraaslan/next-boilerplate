@@ -28,6 +28,18 @@ import { TenantUsage } from '@/modules/tenant_usage/entities/tenant_usage.entity
 import { UploadedFile } from '@/modules/storage/entities/uploaded_file.entity';
 import { AiUsageLog } from '@/modules/ai/entities/ai_usage_log.entity';
 import { NotificationLog } from '@/modules/notification_log/entities/notification_log.entity';
+import { StoreCategory } from '@/modules/store/entities/store_category.entity';
+import { StoreCategorySpec } from '@/modules/store/entities/store_category_spec.entity';
+import { StoreProduct } from '@/modules/store/entities/store_product.entity';
+import { StoreProductImage } from '@/modules/store/entities/store_product_image.entity';
+import { StoreProductSpecValue } from '@/modules/store/entities/store_product_spec_value.entity';
+import { StoreVariantGroup } from '@/modules/store/entities/store_variant_group.entity';
+import { StoreVariantGroupItem } from '@/modules/store/entities/store_variant_group_item.entity';
+import { StoreBundle } from '@/modules/store/entities/store_bundle.entity';
+import { StoreBundleItem } from '@/modules/store/entities/store_bundle_item.entity';
+import { SeoMeta } from '@/modules/seo/entities/seo_meta.entity';
+import { MediaGallery } from '@/modules/media_gallery/entities/media_gallery.entity';
+import { MediaGalleryItem } from '@/modules/media_gallery/entities/media_gallery_item.entity';
 
 const TENANT_ENTITIES = [
   Tenant,
@@ -54,6 +66,18 @@ const TENANT_ENTITIES = [
   UploadedFile,
   AiUsageLog,
   NotificationLog,
+  StoreCategory,
+  StoreCategorySpec,
+  StoreProduct,
+  StoreProductImage,
+  StoreProductSpecValue,
+  StoreVariantGroup,
+  StoreVariantGroupItem,
+  StoreBundle,
+  StoreBundleItem,
+  SeoMeta,
+  MediaGallery,
+  MediaGalleryItem,
 ];
 
 const { url: DEFAULT_TENANT_DB_URL, schema: DEFAULT_TENANT_SCHEMA } = parseDbUrl(env.TENANT_DATABASE_URL);

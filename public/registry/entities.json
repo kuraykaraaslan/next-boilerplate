@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-05-23T15:15:08.253Z",
+  "generatedAt": "2026-05-26T08:39:48.402Z",
   "entities": [
     {
       "name": "AiUsageLog",
@@ -187,6 +187,42 @@
       "relations": []
     },
     {
+      "name": "MediaGallery",
+      "filePath": "modules/media_gallery/entities/media_gallery.entity.ts",
+      "module": "media_gallery",
+      "schema": "system",
+      "tableName": "media_galleries",
+      "columns": [
+        "galleryId",
+        "tenantId",
+        "entityType",
+        "entityId",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "MediaGalleryItem",
+      "filePath": "modules/media_gallery/entities/media_gallery_item.entity.ts",
+      "module": "media_gallery",
+      "schema": "system",
+      "tableName": "media_gallery_items",
+      "columns": [
+        "itemId",
+        "galleryId",
+        "tenantId",
+        "uploadedFileId",
+        "altText",
+        "title",
+        "sortOrder",
+        "isPrimary",
+        "createdAt"
+      ],
+      "relations": [
+        "uploadedFile"
+      ]
+    },
+    {
       "name": "NotificationLog",
       "filePath": "modules/notification_log/entities/notification_log.entity.ts",
       "module": "notification_log",
@@ -210,6 +246,41 @@
       "name": "Payment",
       "filePath": "modules/payment/entities/payment.entity.ts",
       "module": "payment",
+      "schema": "system",
+      "tableName": "payments",
+      "columns": [
+        "paymentId",
+        "userId",
+        "tenantId",
+        "provider",
+        "providerPaymentId",
+        "amount",
+        "currency",
+        "status",
+        "paymentMethod",
+        "description",
+        "metadata",
+        "customerEmail",
+        "customerName",
+        "customerPhone",
+        "billingAddress",
+        "refundedAmount",
+        "failureCode",
+        "failureMessage",
+        "paidAt",
+        "cancelledAt",
+        "refundedAt",
+        "expiresAt",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "Payment",
+      "filePath": "modules/payment_sell/entities/payment.entity.ts",
+      "module": "payment_sell",
       "schema": "system",
       "tableName": "payments",
       "columns": [
@@ -271,9 +342,58 @@
       "relations": []
     },
     {
+      "name": "PaymentTransaction",
+      "filePath": "modules/payment_sell/entities/payment_transaction.entity.ts",
+      "module": "payment_sell",
+      "schema": "system",
+      "tableName": "payment_transactions",
+      "columns": [
+        "transactionId",
+        "paymentId",
+        "provider",
+        "providerTransactionId",
+        "type",
+        "status",
+        "amount",
+        "currency",
+        "fee",
+        "net",
+        "providerResponse",
+        "errorCode",
+        "errorMessage",
+        "parentTransactionId",
+        "ipAddress",
+        "userAgent",
+        "processedAt",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "PlanFeature",
       "filePath": "modules/payment/entities/plan_feature.entity.ts",
       "module": "payment",
+      "schema": "system",
+      "tableName": "plan_features",
+      "columns": [
+        "featureId",
+        "tenantId",
+        "planId",
+        "key",
+        "label",
+        "type",
+        "value",
+        "sortOrder",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "PlanFeature",
+      "filePath": "modules/payment_subscription/entities/plan_feature.entity.ts",
+      "module": "payment_subscription",
       "schema": "system",
       "tableName": "plan_features",
       "columns": [
@@ -337,6 +457,29 @@
       "relations": []
     },
     {
+      "name": "SeoMeta",
+      "filePath": "modules/seo/entities/seo_meta.entity.ts",
+      "module": "seo",
+      "schema": "system",
+      "tableName": "seo_meta",
+      "columns": [
+        "seoId",
+        "tenantId",
+        "entityType",
+        "entityId",
+        "title",
+        "description",
+        "keywords",
+        "ogTitle",
+        "ogDescription",
+        "ogImageUrl",
+        "canonicalUrl",
+        "noIndex",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "Setting",
       "filePath": "modules/setting/entities/setting.entity.ts",
       "module": "setting",
@@ -381,9 +524,325 @@
       "relations": []
     },
     {
+      "name": "StoreBundle",
+      "filePath": "modules/store/entities/store_bundle.entity.ts",
+      "module": "store",
+      "schema": "system",
+      "tableName": "store_bundles",
+      "columns": [
+        "bundleId",
+        "tenantId",
+        "name",
+        "slug",
+        "description",
+        "richDescription",
+        "bundlePrice",
+        "discountPercent",
+        "currency",
+        "imageUrl",
+        "status",
+        "availableFrom",
+        "availableTo",
+        "sortOrder",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "StoreBundleItem",
+      "filePath": "modules/store/entities/store_bundle_item.entity.ts",
+      "module": "store",
+      "schema": "system",
+      "tableName": "store_bundle_items",
+      "columns": [
+        "bundleItemId",
+        "tenantId",
+        "bundleId",
+        "productId",
+        "variantId",
+        "quantity",
+        "overridePrice",
+        "sortOrder",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "StoreCategory",
+      "filePath": "modules/store/entities/store_category.entity.ts",
+      "module": "store",
+      "schema": "system",
+      "tableName": "store_categories",
+      "columns": [
+        "categoryId",
+        "tenantId",
+        "parentId",
+        "name",
+        "slug",
+        "description",
+        "imageUrl",
+        "sortOrder",
+        "isActive",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "StoreCategorySpec",
+      "filePath": "modules/store/entities/store_category_spec.entity.ts",
+      "module": "store",
+      "schema": "system",
+      "tableName": "store_category_specs",
+      "columns": [
+        "specId",
+        "tenantId",
+        "categoryId",
+        "key",
+        "label",
+        "type",
+        "unit",
+        "placeholder",
+        "options",
+        "isRequired",
+        "isFilterable",
+        "sortOrder",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "StoreProduct",
+      "filePath": "modules/store/entities/store_product.entity.ts",
+      "module": "store",
+      "schema": "system",
+      "tableName": "store_products",
+      "columns": [
+        "productId",
+        "tenantId",
+        "categoryId",
+        "name",
+        "slug",
+        "shortDescription",
+        "details",
+        "basePrice",
+        "currency",
+        "sku",
+        "stockQuantity",
+        "trackInventory",
+        "allowBackorder",
+        "weight",
+        "weightUnit",
+        "dimensions",
+        "tags",
+        "status",
+        "isFeatured",
+        "isDigital",
+        "digitalDownloadUrl",
+        "seo",
+        "sortOrder",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "StoreProductImage",
+      "filePath": "modules/store/entities/store_product_image.entity.ts",
+      "module": "store",
+      "schema": "system",
+      "tableName": "store_product_images",
+      "columns": [
+        "imageId",
+        "tenantId",
+        "productId",
+        "variantId",
+        "url",
+        "altText",
+        "sortOrder",
+        "isPrimary",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "StoreProductSpecValue",
+      "filePath": "modules/store/entities/store_product_spec_value.entity.ts",
+      "module": "store",
+      "schema": "system",
+      "tableName": "store_product_spec_values",
+      "columns": [
+        "specValueId",
+        "tenantId",
+        "productId",
+        "specId",
+        "value",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "StoreProductVariant",
+      "filePath": "modules/store/entities/store_product_variant.entity.ts",
+      "module": "store",
+      "schema": "system",
+      "tableName": "store_product_variants",
+      "columns": [
+        "variantId",
+        "tenantId",
+        "productId",
+        "optionIds",
+        "sku",
+        "price",
+        "stockQuantity",
+        "weight",
+        "imageUrl",
+        "isActive",
+        "sortOrder",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "StoreVariantGroup",
+      "filePath": "modules/store/entities/store_variant_group.entity.ts",
+      "module": "store",
+      "schema": "system",
+      "tableName": "store_variant_groups",
+      "columns": [
+        "variantGroupId",
+        "tenantId",
+        "name",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "StoreVariantGroupItem",
+      "filePath": "modules/store/entities/store_variant_group_item.entity.ts",
+      "module": "store",
+      "schema": "system",
+      "tableName": "store_variant_group_items",
+      "columns": [
+        "itemId",
+        "tenantId",
+        "variantGroupId",
+        "productId",
+        "label",
+        "sortOrder",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "StoreVariationOption",
+      "filePath": "modules/store/entities/store_variation_option.entity.ts",
+      "module": "store",
+      "schema": "system",
+      "tableName": "store_variation_options",
+      "columns": [
+        "optionId",
+        "tenantId",
+        "variationTypeId",
+        "label",
+        "value",
+        "swatch",
+        "sortOrder",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "StoreVariationType",
+      "filePath": "modules/store/entities/store_variation_type.entity.ts",
+      "module": "store",
+      "schema": "system",
+      "tableName": "store_variation_types",
+      "columns": [
+        "variationTypeId",
+        "tenantId",
+        "productId",
+        "name",
+        "displayType",
+        "sortOrder",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "Subscription",
+      "filePath": "modules/payment_subscription/entities/subscription.entity.ts",
+      "module": "payment_subscription",
+      "schema": "system",
+      "tableName": "subscriptions",
+      "columns": [
+        "subscriptionId",
+        "tenantId",
+        "userId",
+        "planId",
+        "provider",
+        "providerSubscriptionId",
+        "providerCustomerId",
+        "status",
+        "billingCycle",
+        "amount",
+        "currency",
+        "trialEndsAt",
+        "currentPeriodStart",
+        "currentPeriodEnd",
+        "cancelledAt",
+        "cancellationReason",
+        "cancelAtPeriodEnd",
+        "pausedAt",
+        "pausedUntil",
+        "pastDueCount",
+        "metadata",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "SubscriptionPlan",
       "filePath": "modules/payment/entities/subscription_plan.entity.ts",
       "module": "payment",
+      "schema": "system",
+      "tableName": "subscription_plans",
+      "columns": [
+        "planId",
+        "tenantId",
+        "name",
+        "description",
+        "monthlyPrice",
+        "yearlyPrice",
+        "currency",
+        "trialDays",
+        "sortOrder",
+        "isDefault",
+        "status",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "SubscriptionPlan",
+      "filePath": "modules/payment_subscription/entities/subscription_plan.entity.ts",
+      "module": "payment_subscription",
       "schema": "system",
       "tableName": "subscription_plans",
       "columns": [

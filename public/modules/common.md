@@ -23,11 +23,14 @@ AppError + ErrorCode enum + error-response helper. Dependency-free leaf module l
 - `common/ui/Breadcrumb` _(ui, client)_
 - `common/ui/Button` _(ui, client)_
 - `common/ui/Card` _(ui, client)_
+- `common/ui/ContextMenu` _(ui, client)_
+- `common/ui/CurrencySelector` _(ui, client)_
 - `common/ui/DateRangePicker` _(ui, client)_
 - `common/ui/Drawer` _(ui, client)_
 - `common/ui/EmptyState` _(ui, client)_
 - `common/ui/FileInput` _(ui, client)_
 - `common/ui/Form` _(ui, client)_
+- `common/ui/ImageGallery` _(ui, client)_
 - `common/ui/Input` _(ui, client)_
 - `common/ui/layout/AdminShell` _(ui, client)_
 - `common/ui/layout/AppShell` _(ui, client)_
@@ -39,6 +42,8 @@ AppError + ErrorCode enum + error-response helper. Dependency-free leaf module l
 - `common/ui/PageHeader` _(ui, client)_
 - `common/ui/Pagination` _(ui, client)_
 - `common/ui/RadioGroup` _(ui, client)_
+- `common/ui/RichTextEditor/ImageInsertModal` _(ui, client)_
+- `common/ui/RichTextEditor/index` _(ui, client)_
 - `common/ui/RowActionsMenu` _(ui, client)_
 - `common/ui/SearchBar` _(ui, client)_
 - `common/ui/Select` _(ui, client)_
@@ -53,6 +58,7 @@ AppError + ErrorCode enum + error-response helper. Dependency-free leaf module l
 - `common/ui/Toggle` _(ui, client)_
 - `common/ui/Tooltip` _(ui, client)_
 - `common/utils/cn` _(util)_
+- `common/utils/isBrowser` _(util)_
 
 ## README
 

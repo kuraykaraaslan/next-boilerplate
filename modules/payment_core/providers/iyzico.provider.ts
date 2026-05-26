@@ -1,7 +1,7 @@
 import CryptoJS from 'crypto-js'
 import axios, { AxiosInstance } from 'axios'
 import BasePaymentProvider, { CheckoutSessionParams, CheckoutSessionResult } from './base.provider'
-import { PAYMENT_MESSAGES } from '../payment.messages'
+import { PAYMENT_MESSAGES } from '../payment_core.messages'
 import SettingService from '@/modules/setting/setting.service'
 
 export default class IyzicoProvider extends BasePaymentProvider {

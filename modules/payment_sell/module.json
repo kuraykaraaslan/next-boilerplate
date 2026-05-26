@@ -1,0 +1,13 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "payment_sell",
+  "name": "Payment Sell",
+  "description": "One-time product / service payment processing. Uses payment_core providers (Stripe, PayPal, Iyzico, Alipay, WeChat Pay, YooKassa, CloudPayments). Tenant-aware checkout sessions, transactions, and refunds.",
+  "version": "1.0.0",
+  "icon": "fas fa-shopping-cart",
+  "tags": ["payment", "sell", "billing"],
+  "priority": 26,
+  "dependencies": {
+    "requires": ["db", "env", "setting", "redis", "logger", "payment_core"]
+  }
+}

@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-05-23T15:15:08.253Z",
+  "generatedAt": "2026-05-26T08:39:48.402Z",
   "routes": [
     {
       "filePath": "app/internal/api/caddy-ask/route.ts",
@@ -904,6 +904,38 @@
       "dynamic": true
     },
     {
+      "filePath": "app/tenant/[tenantId]/api/media-gallery/[entityType]/[entityId]/items/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/media-gallery/[entityType]/[entityId]/items",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "media_gallery",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/media-gallery/[entityType]/[entityId]/items/reorder/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/media-gallery/[entityType]/[entityId]/items/reorder",
+      "methods": [
+        "PUT"
+      ],
+      "module": "media_gallery",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/media-gallery/items/[itemId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/media-gallery/items/[itemId]",
+      "methods": [
+        "PUT",
+        "DELETE"
+      ],
+      "module": "media_gallery",
+      "dynamic": true
+    },
+    {
       "filePath": "app/tenant/[tenantId]/api/members/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/members",
@@ -1169,6 +1201,17 @@
       "dynamic": true
     },
     {
+      "filePath": "app/tenant/[tenantId]/api/seo/[entityType]/[entityId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/seo/[entityType]/[entityId]",
+      "methods": [
+        "GET",
+        "PUT"
+      ],
+      "module": "seo",
+      "dynamic": true
+    },
+    {
       "filePath": "app/tenant/[tenantId]/api/settings/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/settings",
@@ -1211,6 +1254,188 @@
         "POST"
       ],
       "module": "storage",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/store/bundles/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/store/bundles",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "store",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/store/bundles/[bundleId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/store/bundles/[bundleId]",
+      "methods": [
+        "GET",
+        "PUT",
+        "DELETE"
+      ],
+      "module": "store",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/store/bundles/[bundleId]/items/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/store/bundles/[bundleId]/items",
+      "methods": [
+        "POST"
+      ],
+      "module": "store",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/store/bundles/[bundleId]/items/[itemId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/store/bundles/[bundleId]/items/[itemId]",
+      "methods": [
+        "DELETE"
+      ],
+      "module": "store",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/store/categories/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/store/categories",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "store",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/store/categories/[categoryId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/store/categories/[categoryId]",
+      "methods": [
+        "GET",
+        "PUT",
+        "DELETE"
+      ],
+      "module": "store",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/store/categories/[categoryId]/specs/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/store/categories/[categoryId]/specs",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "store",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/store/categories/[categoryId]/specs/[specId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/store/categories/[categoryId]/specs/[specId]",
+      "methods": [
+        "PUT",
+        "DELETE"
+      ],
+      "module": "store",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/store/products/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/store/products",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "store",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/store/products/[productId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/store/products/[productId]",
+      "methods": [
+        "GET",
+        "PUT",
+        "DELETE"
+      ],
+      "module": "store",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/store/products/[productId]/duplicate/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/store/products/[productId]/duplicate",
+      "methods": [
+        "POST"
+      ],
+      "module": "store",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/store/products/[productId]/images/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/store/products/[productId]/images",
+      "methods": [
+        "POST"
+      ],
+      "module": "store",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/store/products/[productId]/images/[imageId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/store/products/[productId]/images/[imageId]",
+      "methods": [
+        "DELETE"
+      ],
+      "module": "store",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/store/products/[productId]/spec-values/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/store/products/[productId]/spec-values",
+      "methods": [
+        "PUT"
+      ],
+      "module": "store",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/store/products/[productId]/variant-group/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/store/products/[productId]/variant-group",
+      "methods": [
+        "GET"
+      ],
+      "module": "store",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/store/products/[productId]/variant-group/items/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/store/products/[productId]/variant-group/items",
+      "methods": [
+        "POST"
+      ],
+      "module": "store",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/store/products/[productId]/variant-group/items/[itemId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/store/products/[productId]/variant-group/items/[itemId]",
+      "methods": [
+        "PATCH",
+        "DELETE"
+      ],
+      "module": "store",
       "dynamic": true
     },
     {

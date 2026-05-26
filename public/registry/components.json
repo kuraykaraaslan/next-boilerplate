@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-05-23T15:15:08.253Z",
+  "generatedAt": "2026-05-26T08:39:48.402Z",
   "components": [
     {
       "id": "ai/ui/AIChatBox",
@@ -485,6 +485,32 @@
       "baseName": "Card"
     },
     {
+      "id": "common/ui/ContextMenu",
+      "module": "common",
+      "filePath": "modules_next/common/ui/ContextMenu.tsx",
+      "kind": "ui",
+      "exports": [
+        "ContextMenuItem",
+        "ContextMenuProps",
+        "ContextMenu"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ContextMenu"
+    },
+    {
+      "id": "common/ui/CurrencySelector",
+      "module": "common",
+      "filePath": "modules_next/common/ui/CurrencySelector.tsx",
+      "kind": "ui",
+      "exports": [
+        "CurrencySelector"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CurrencySelector"
+    },
+    {
       "id": "common/ui/DateRangePicker",
       "module": "common",
       "filePath": "modules_next/common/ui/DateRangePicker.tsx",
@@ -544,6 +570,20 @@
       "isClient": true,
       "isServer": false,
       "baseName": "Form"
+    },
+    {
+      "id": "common/ui/ImageGallery",
+      "module": "common",
+      "filePath": "modules_next/common/ui/ImageGallery.tsx",
+      "kind": "ui",
+      "exports": [
+        "ImageGalleryImage",
+        "ImageGalleryProps",
+        "ImageGallery"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ImageGallery"
     },
     {
       "id": "common/ui/Input",
@@ -680,6 +720,31 @@
       "isClient": true,
       "isServer": false,
       "baseName": "RadioGroup"
+    },
+    {
+      "id": "common/ui/RichTextEditor/ImageInsertModal",
+      "module": "common",
+      "filePath": "modules_next/common/ui/RichTextEditor/ImageInsertModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "ImageInsertModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ImageInsertModal"
+    },
+    {
+      "id": "common/ui/RichTextEditor/index",
+      "module": "common",
+      "filePath": "modules_next/common/ui/RichTextEditor/index.tsx",
+      "kind": "ui",
+      "exports": [
+        "RichTextEditorProps",
+        "RichTextEditor"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "index"
     },
     {
       "id": "common/ui/RowActionsMenu",
@@ -857,6 +922,18 @@
       "baseName": "cn"
     },
     {
+      "id": "common/utils/isBrowser",
+      "module": "common",
+      "filePath": "modules_next/common/utils/isBrowser.ts",
+      "kind": "util",
+      "exports": [
+        "isBrowser"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "isBrowser"
+    },
+    {
       "id": "coupon/ui/CouponApplyForm",
       "module": "coupon",
       "filePath": "modules_next/coupon/ui/CouponApplyForm.tsx",
@@ -951,6 +1028,18 @@
       "isClient": false,
       "isServer": false,
       "baseName": "limiter.service.next"
+    },
+    {
+      "id": "media_gallery/ui/GalleryPanel",
+      "module": "media_gallery",
+      "filePath": "modules_next/media_gallery/ui/GalleryPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "GalleryPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "GalleryPanel"
     },
     {
       "id": "module.types.ts/",
@@ -1049,6 +1138,18 @@
       "baseName": "withIdempotency"
     },
     {
+      "id": "seo/ui/SeoPanel",
+      "module": "seo",
+      "filePath": "modules_next/seo/ui/SeoPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "SeoPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SeoPanel"
+    },
+    {
       "id": "setting/setting.types",
       "module": "setting",
       "filePath": "modules_next/setting/setting.types.ts",
@@ -1071,6 +1172,34 @@
       "isClient": true,
       "isServer": false,
       "baseName": "PlatformSettingsTabs"
+    },
+    {
+      "id": "store/ui/ProductSpecValuesPanel",
+      "module": "store",
+      "filePath": "modules_next/store/ui/ProductSpecValuesPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "ProductSpecValuesPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ProductSpecValuesPanel"
+    },
+    {
+      "id": "store/ui/ProductStatusBadge",
+      "module": "store",
+      "filePath": "modules_next/store/ui/ProductStatusBadge.tsx",
+      "kind": "ui",
+      "exports": [
+        "ProductStatus",
+        "BundleStatus",
+        "ProductStatusBadge",
+        "BundleStatusBadge",
+        "StockBadge"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ProductStatusBadge"
     },
     {
       "id": "tenant_session/tenant_session.service.next",

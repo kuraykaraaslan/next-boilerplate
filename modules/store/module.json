@@ -1,0 +1,13 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "store",
+  "name": "Store",
+  "description": "Tenant-aware e-commerce store. Hierarchical categories with typed spec templates; products with Tiptap richtext descriptions, spec values, multiple images, tags, SEO; variation types (Color, Size, …) with options and swatches; product variants with independent SKU / price / stock per combination; product bundles with per-item quantity and price overrides. Admin-only — no storefront UI layer.",
+  "version": "1.0.0",
+  "icon": "fas fa-store",
+  "tags": ["store", "ecommerce", "products", "catalog"],
+  "priority": 40,
+  "dependencies": {
+    "requires": ["db", "env", "redis", "logger"]
+  }
+}

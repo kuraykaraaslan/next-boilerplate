@@ -1,0 +1,106 @@
+/* Remap Quill's snow theme to the project's design tokens so the editor
+   visually matches the rest of the app.
+   The base 'quill/dist/quill.snow.css' is imported alongside this file from
+   index.tsx. */
+
+.ql-toolbar.ql-snow {
+  background: var(--surface-sunken);
+  border: none;
+  border-bottom: 1px solid var(--border);
+  padding: 6px 8px;
+}
+
+.ql-container.ql-snow {
+  border: none;
+  background: var(--surface-base);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.875rem;
+}
+
+.ql-editor {
+  color: var(--text-primary);
+  padding: 12px 16px;
+}
+
+.ql-editor.ql-blank::before {
+  color: var(--text-disabled);
+  font-style: normal;
+  left: 16px;
+  right: 16px;
+}
+
+.ql-snow .ql-stroke {
+  stroke: var(--text-primary);
+}
+
+.ql-snow .ql-fill,
+.ql-snow .ql-stroke.ql-fill {
+  fill: var(--text-primary);
+}
+
+.ql-snow .ql-picker {
+  color: var(--text-primary);
+}
+
+.ql-snow .ql-picker-options {
+  background: var(--surface-base);
+  border-color: var(--border);
+  color: var(--text-primary);
+}
+
+.ql-snow .ql-picker-label {
+  border: none;
+}
+
+.ql-snow .ql-picker-label:hover,
+.ql-snow .ql-picker-item:hover {
+  color: var(--primary);
+}
+
+.ql-snow button:hover,
+.ql-snow button:focus {
+  color: var(--primary);
+}
+
+.ql-snow button.ql-active,
+.ql-snow .ql-picker-label.ql-active,
+.ql-snow .ql-picker-item.ql-selected {
+  color: var(--primary);
+}
+
+.ql-snow button:hover .ql-stroke,
+.ql-snow button:focus .ql-stroke,
+.ql-snow button.ql-active .ql-stroke,
+.ql-snow .ql-picker-label:hover .ql-stroke,
+.ql-snow .ql-picker-label.ql-active .ql-stroke {
+  stroke: var(--primary);
+}
+
+.ql-snow button:hover .ql-fill,
+.ql-snow button:focus .ql-fill,
+.ql-snow button.ql-active .ql-fill,
+.ql-snow .ql-picker-label:hover .ql-fill,
+.ql-snow .ql-picker-label.ql-active .ql-fill {
+  fill: var(--primary);
+}
+
+.ql-snow .ql-tooltip {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.08);
+  border-radius: 6px;
+}
+
+.ql-snow .ql-tooltip input[type=text] {
+  background: var(--surface-base);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  border-radius: 4px;
+}
+
+.ql-snow .ql-tooltip a.ql-action,
+.ql-snow .ql-tooltip a.ql-remove {
+  color: var(--primary);
+}

@@ -82,8 +82,9 @@ export default class StorageService {
     userId: string | undefined,
     result: UploadResult,
     mimeType: string,
-  ): Promise<void> {
+  ): Promise<string | undefined> {
     const size = result.size ?? 0
+    let uploadedFileId: string | undefined
     try {
       const ds = await tenantDataSourceFor(tenantId)
       const repo = ds.getRepository(UploadedFile)
@@ -97,7 +98,8 @@ export default class StorageService {
         mimeType: mimeType || 'application/octet-stream',
         url: result.url,
       })
-      await repo.save(row)
+      const saved = await repo.save(row)
+      uploadedFileId = saved.uploadedFileId
     } catch (error) {
       Logger.warn(
         `StorageService.persistUploadAudit failed: ${error instanceof Error ? error.message : String(error)}`,
@@ -107,6 +109,8 @@ export default class StorageService {
     if (size > 0) {
       await TenantUsageService.incrementStorageBytes(tenantId, size)
     }
+
+    return uploadedFileId
   }
 
   /**
@@ -150,9 +154,9 @@ export default class StorageService {
         provider: resolvedName,
       }
 
-      await StorageService.persistUploadAudit(tenantId, undefined, uploadResult, file.type)
+      const uploadedFileId = await StorageService.persistUploadAudit(tenantId, undefined, uploadResult, file.type)
 
-      return uploadResult
+      return { ...uploadResult, uploadedFileId }
     } catch (error) {
       Logger.error(`${STORAGE_MESSAGES.UPLOAD_FAILED}: ${error instanceof Error ? error.message : String(error)}`)
       throw error
@@ -177,9 +181,9 @@ export default class StorageService {
         provider: resolvedName,
       }
 
-      await StorageService.persistUploadAudit(tenantId, undefined, uploadResult, 'application/octet-stream')
+      const uploadedFileId = await StorageService.persistUploadAudit(tenantId, undefined, uploadResult, 'application/octet-stream')
 
-      return uploadResult
+      return { ...uploadResult, uploadedFileId }
     } catch (error) {
       Logger.error(`${STORAGE_MESSAGES.UPLOAD_FAILED}: ${error instanceof Error ? error.message : String(error)}`)
       throw error

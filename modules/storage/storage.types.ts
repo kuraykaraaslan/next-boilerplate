@@ -24,6 +24,7 @@ export type ProviderUploadResult = z.infer<typeof ProviderUploadResultSchema>
 
 export const UploadResultSchema = ProviderUploadResultSchema.extend({
   provider: StorageProviderTypeSchema,
+  uploadedFileId: z.string().uuid().optional(),
 })
 export type UploadResult = z.infer<typeof UploadResultSchema>
 

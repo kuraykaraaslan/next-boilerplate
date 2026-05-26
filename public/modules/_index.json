@@ -10,7 +10,7 @@
     "hasNextLayer": true,
     "routeCount": 0,
     "entityCount": 0,
-    "componentCount": 41,
+    "componentCount": 47,
     "file": "common.md"
   },
   "env": {
@@ -445,6 +445,35 @@
     "componentCount": 3,
     "file": "coupon.md"
   },
+  "payment_sell": {
+    "name": "Payment Sell",
+    "tier": "other",
+    "tags": [
+      "payment",
+      "sell",
+      "billing"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 0,
+    "entityCount": 2,
+    "componentCount": 0,
+    "file": "payment_sell.md"
+  },
+  "payment_subscription": {
+    "name": "Payment Subscription",
+    "tier": "other",
+    "tags": [
+      "payment",
+      "subscription",
+      "billing",
+      "plans"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 3,
+    "componentCount": 0,
+    "file": "payment_subscription.md"
+  },
   "invoice": {
     "name": "Invoice",
     "tier": "other",
@@ -540,6 +569,33 @@
     "componentCount": 2,
     "file": "e_signature.md"
   },
+  "seo": {
+    "name": "SEO Metadata",
+    "tier": "other",
+    "tags": [
+      "seo",
+      "metadata"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 1,
+    "entityCount": 1,
+    "componentCount": 1,
+    "file": "seo.md"
+  },
+  "media_gallery": {
+    "name": "Media Gallery",
+    "tier": "other",
+    "tags": [
+      "media",
+      "gallery",
+      "images"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 3,
+    "entityCount": 2,
+    "componentCount": 1,
+    "file": "media_gallery.md"
+  },
   "api_key": {
     "name": "API Key",
     "tier": "platform",
@@ -566,6 +622,21 @@
     "entityCount": 1,
     "componentCount": 2,
     "file": "audit_log.md"
+  },
+  "store": {
+    "name": "Store",
+    "tier": "other",
+    "tags": [
+      "store",
+      "ecommerce",
+      "products",
+      "catalog"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 17,
+    "entityCount": 12,
+    "componentCount": 2,
+    "file": "store.md"
   },
   "webhook": {
     "name": "Outgoing Webhooks",
@@ -605,5 +676,25 @@
     "entityCount": 0,
     "componentCount": 14,
     "file": "api_doc.md"
+  },
+  "dynamic_page": {
+    "name": "dynamic_page",
+    "tier": "other",
+    "tags": [],
+    "hasNextLayer": true,
+    "routeCount": 0,
+    "entityCount": 0,
+    "componentCount": 0,
+    "file": "dynamic_page.md"
+  },
+  "payment_core": {
+    "name": "payment_core",
+    "tier": "other",
+    "tags": [],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 0,
+    "componentCount": 0,
+    "file": "payment_core.md"
   }
 }

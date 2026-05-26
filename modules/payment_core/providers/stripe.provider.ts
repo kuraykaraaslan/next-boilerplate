@@ -3,7 +3,7 @@ import BasePaymentProvider, {
   CheckoutSessionParams, CheckoutSessionResult,
   CustomerPortalParams, CustomerPortalResult,
 } from './base.provider'
-import { PAYMENT_MESSAGES } from '../payment.messages'
+import { PAYMENT_MESSAGES } from '../payment_core.messages'
 import SettingService from '@/modules/setting/setting.service'
 import qs from 'querystring'
 
