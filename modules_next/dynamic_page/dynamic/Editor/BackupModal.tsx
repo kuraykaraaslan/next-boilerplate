@@ -8,12 +8,12 @@ import { CURRENT_SCHEMA_VERSION } from '@/modules/dynamic_page/dynamic_page.type
 export default function BackupModal() {
   const {
     backupOpen, setBackupOpen,
-    title, slug, status, description, keywords, metadata, sections,
+    title, slug, status, description, keywords, seoData, sections,
     translationCache,
   } = useEditorStore()
 
   const getBackupData = () => ({
-    title, slug, status, description, keywords, metadata,
+    title, slug, status, description, keywords, seoData,
     sections: sections.map((s, i) => ({ ...s, order: i })),
     schemaVersion: CURRENT_SCHEMA_VERSION,
     translations: Object.keys(translationCache).length > 0 ? translationCache : undefined,

@@ -14,13 +14,15 @@ export function PopupCard({ p, isEditor, onClose, animStyle, onAnimEnd }: CardPr
   const imageActionUrl       = (p.imageActionUrl as string) || ''
   const imageActionOpenNewTab = (p.imageActionOpenNewTab as boolean) || false
   const buttons              = parseButtons(p.buttons)
-  const bgColor              = (p.backgroundColor as string) || '#282626'
+  // Empty strings fall back to theme CSS variables so the popup matches the
+  // app's design tokens (and auto-adapts to dark mode).
+  const bgColor              = (p.backgroundColor as string) || 'var(--surface-base)'
   const radius               = (p.borderRadius as string) || 'lg'
   const closePos             = (p.closeButtonPosition as string) || 'top-right'
   const clStyle              = (p.closeButtonStyle as string) || 'circle'
   const clSize               = (p.closeButtonSize as string) || 'md'
-  const clColor              = (p.closeButtonColor as string) || '#ffffff'
-  const clBg                 = (p.closeButtonBg as string) || '#000000'
+  const clColor              = (p.closeButtonColor as string) || 'var(--text-primary)'
+  const clBg                 = (p.closeButtonBg as string) || 'var(--surface-overlay)'
 
   const hasContent = title || desc || buttons.length > 0
   const radiusClass = RADIUS_CLASS[radius] ?? 'rounded-lg'
@@ -58,18 +60,20 @@ export function PopupCard({ p, isEditor, onClose, animStyle, onAnimEnd }: CardPr
         <div className="p-5" style={{ backgroundColor: bgColor }}>
           {(title || desc) && (
             <div className={closePos.startsWith('top') && closePos !== 'hidden' ? 'pr-10' : ''}>
-              {title && <p className="font-semibold text-white text-lg">{title}</p>}
-              {desc  && <p className="text-white/70 text-sm mt-1">{desc}</p>}
+              {title && <p className="font-semibold text-text-primary text-lg">{title}</p>}
+              {desc  && <p className="text-text-secondary text-sm mt-1">{desc}</p>}
             </div>
           )}
           {buttons.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-4">
               {buttons.map((btn, i) => {
+                const btnBg = btn.bgColor || 'var(--primary)'
+                const btnFg = btn.textColor || 'var(--primary-fg)'
                 const s = btn.variant === 'filled'
-                  ? { backgroundColor: btn.bgColor, color: btn.textColor }
+                  ? { backgroundColor: btnBg, color: btnFg }
                   : btn.variant === 'outlined'
-                    ? { border: `1.5px solid ${btn.bgColor}`, color: btn.bgColor, backgroundColor: 'transparent' }
-                    : { color: btn.bgColor, backgroundColor: 'transparent' }
+                    ? { border: `1.5px solid ${btnBg}`, color: btnBg, backgroundColor: 'transparent' }
+                    : { color: btnBg, backgroundColor: 'transparent' }
                 return isEditor
                   ? <span key={i} className="px-4 py-1.5 text-sm font-medium rounded cursor-default" style={s}>{btn.text}</span>
                   : <Link

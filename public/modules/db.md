@@ -8,7 +8,7 @@
 - **icon:** `fas fa-database`
 - **hasNextLayer:** false
 
-TypeORM DataSource factories for the dual-schema model (system + per-tenant). All entities are registered here.
+TypeORM DataSource factory — single shared DB for all entities, optional per-tenant DB override via TenantDatabase.
 
 ## Dependencies
 
@@ -26,47 +26,46 @@ TypeORM DataSource factories for the dual-schema model (system + per-tenant). Al
 
 # db
 
-TypeORM `DataSource` factories for the multi-tenant model. The codebase keeps two structural buckets — *shared* (User, Setting, SubscriptionPlan, …) and *per-tenant* (Tenant, TenantMember, Payment, ApiKey, …) — but in the default single-DB setup both factories point at the **same** Postgres schema. Splitting databases later is an env-only change.
+Tek bir TypeORM `DataSource` üzerinden tüm entity'lere erişim. Default `getDataSource()` `env.DATABASE_URL`'i kullanır; opsiyonel olarak `tenantDataSourceFor(tenantId)` ile bir tenant kendine ait DB'ye (`TenantDatabase` row'u varsa) yönlendirilebilir. Yoksa default'a düşer.
 
 ## Public API
 
 | Export | Source | Use |
 |---|---|---|
-| `getSystemDataSource()` | [db.system.ts](db.system.ts) | Returns the initialised DataSource for shared / platform-config tables. Idempotent. |
-| `SystemDataSource` | [db.system.ts](db.system.ts) | The raw DataSource instance (rarely needed — prefer the getter). |
-| `tenantDataSourceFor(tenantId)` | [db.tenant.ts](db.tenant.ts) | Returns the DataSource for a specific tenant. Cached per tenant. |
-| `getDefaultTenantDataSource()` | [db.tenant.ts](db.tenant.ts) | DataSource for the wildcard/default tenant DB (used in single-DB setups). |
-| `clearTenantDsCache(tenantId?)` | [db.tenant.ts](db.tenant.ts) | Drop one tenant from the cache or clear it entirely. |
-| `TenantDatabase` | [entities/tenant_database.entity.ts](entities/tenant_database.entity.ts) | Entity that maps `tenantId → { connectionUrl, schema }`. |
-| `parseDbUrl(url)` | [db.utils.ts](db.utils.ts) | Splits a Postgres URL into `{ url, schema }`. |
+| `getDataSource()` | [db.ts](db.ts) | Init+cache'lenmiş default DataSource. Tüm callsite'lar için. Idempotent. |
+| `tenantDataSourceFor(tenantId)` | [db.ts](db.ts) | `TenantDatabase` row'u varsa o DB'ye giden ayrı DataSource (LRU cache, max 100). Yoksa `getDataSource()`'ı döner. |
+| `clearTenantDsCache(tenantId)` | [db.ts](db.ts) | Per-tenant override cache'inden bir tenant'ı düşür. |
+| `TenantDatabase` | [entities/tenant_database.entity.ts](entities/tenant_database.entity.ts) | `tenantId → databaseUrl` mapping. |
+| `parseDbUrl(url)` | [db.utils.ts](db.utils.ts) | Postgres URL'ini `{ url, schema }` olarak ayırır. |
 
-## Entity buckets
+## Entity listesi
 
-- **Shared / platform** ([db.system.ts](db.system.ts)) owns: `User`, `UserProfile`, `UserSecurity`, `UserPreferences`, `UserSession`, `UserSocialAccount`, `PushSubscription`, `Setting`, `SubscriptionPlan`, `PlanFeature`, `AuditLog`, `Coupon`, `SystemWebhook`, `SystemWebhookDelivery`, `SystemSamlConfig`, `SigningCertificate`, `TrustListEntry`, `TenantDatabase`.
-- **Per-tenant** ([db.tenant.ts](db.tenant.ts)) owns: `Tenant`, `TenantDomain`, `TenantMember`, `TenantInvitation`, `TenantSetting`, `TenantSubscription`, `Payment`, `PaymentTransaction`, `TenantAuditLog`, `ApiKey`, `CouponRedemption`, `Webhook`, `WebhookDelivery`, `SamlConfig`.
+Tüm uygulama entity'leri tek bir array'de ([db.ts](db.ts)): User, UserProfile, UserSecurity, UserPreferences, UserSession, UserSocialAccount, SigningCertificate, TrustListEntry, TenantDatabase, Tenant, TenantDomain, TenantMember, TenantInvitation, TenantSubscription, Payment, PaymentTransaction, AuditLog, ApiKey, CouponRedemption, Webhook, WebhookDelivery, SamlConfig, Setting, Coupon, SubscriptionPlan, PlanFeature, PushSubscription, Invoice, InvoiceLine, TenantUsage, UploadedFile, AiUsageLog, NotificationLog, StoreCategory, StoreCategorySpec, StoreProduct, StoreProductImage, StoreProductSpecValue, StoreVariantGroup, StoreVariantGroupItem, StoreBundle, StoreBundleItem, SeoMeta, MediaGallery, MediaGalleryItem.
 
-When you add a new entity, register it in the appropriate file's `SYSTEM_ENTITIES` or `TENANT_ENTITIES` array. The "shared" naming is historical — every row physically lives in the same DB as the per-tenant tables unless an operator points `SYSTEM_DATABASE_URL` and `TENANT_DATABASE_URL` at different connections.
+Yeni entity eklendiğinde [db.ts](db.ts) içindeki `ENTITIES` array'ine ekle.
 
 ## Usage
 
 ```ts
-import { getSystemDataSource, tenantDataSourceFor } from "@/modules/db";
+import { getDataSource, tenantDataSourceFor } from "@/modules/db";
 
-// Shared / platform entities
-const ds = await getSystemDataSource();
+// Default path — uygulamanın %99'u
+const ds = await getDataSource();
 const users = await ds.getRepository(User).find();
 
-// Per-tenant entities
+// Per-tenant DB override (opsiyonel; row yoksa default'a düşer)
 const tds = await tenantDataSourceFor(tenantId);
 const members = await tds.getRepository(TenantMember).find();
 ```
 
-## Connection URLs
+## Connection URL
 
-Driven by `SYSTEM_DATABASE_URL` and `TENANT_DATABASE_URL`. In single-DB setups set both to the same URL. Per-tenant override URLs (separate DBs per customer) are stored in the `TenantDatabase` row.
+Tek env var: `DATABASE_URL` (örn. `postgresql://postgres:postgres@localhost:5432/next_boilerplate?schema=public`).
+
+Bir tenant'a ayrı DB tahsis etmek için `tenant_databases` tablosuna `{ tenantId, databaseUrl }` row'u yaz; `tenantDataSourceFor(tenantId)` o DB'ye düşer.
 
 ## Rules
 
 - No `next/*`, no `react`. Service-layer only.
-- Always **await** the data-source helpers — they perform lazy `initialize()` on first call.
-- Tests mock these helpers; production code never instantiates `new DataSource()` directly.
+- Helper'lar her zaman `await` — ilk çağrıda lazy `initialize()` yapar.
+- Test'lerde bu helper'lar mock'lanır; production'da asla `new DataSource()` çağrılmaz.

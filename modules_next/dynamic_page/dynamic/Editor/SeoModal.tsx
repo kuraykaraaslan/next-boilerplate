@@ -38,50 +38,51 @@ const inputCls = 'w-full px-3 py-2 rounded-md text-sm text-[var(--text-primary)]
 export default function SeoModal() {
   const {
     seoOpen, setSeoOpen,
-    title, slug,
-    description, setDescription,
-    keywords, setKeywords,
-    metadata, setMetadata,
+    title: pageTitle, slug,
+    seoData, setSeoField,
   } = useEditorStore()
-
-  const meta = metadata ?? {}
-
-  const updateMeta = (key: string, value: string) =>
-    setMetadata({ ...meta, [key]: value })
-
-  const robotsStr = (meta as Record<string, string>)?.robots ?? ''
-  const isNoIndex = robotsStr.includes('noindex')
-  const isNoFollow = robotsStr.includes('nofollow')
-  const updateRobots = (noindex: boolean, nofollow: boolean) => {
-    const parts: string[] = []
-    if (noindex) parts.push('noindex')
-    if (nofollow) parts.push('nofollow')
-    updateMeta('robots', parts.join(','))
-  }
 
   return (
     <Modal open={seoOpen} onClose={() => setSeoOpen(false)} title="SEO Settings" size="lg">
       <div className="space-y-6 p-1 overflow-y-auto max-h-[70vh]">
-        {/* SERP preview */}
+        {/* SERP preview — falls back to page title when SEO override is empty */}
         <section className="space-y-2">
           <h3 className="text-xs font-semibold text-[var(--text-primary)]/60 uppercase tracking-wide">Search Preview</h3>
-          <SerpPreview title={(meta as Record<string, string>)?.ogTitle || title} description={description} slug={slug} />
+          <SerpPreview
+            title={seoData.title || seoData.ogTitle || pageTitle}
+            description={seoData.description}
+            slug={slug}
+          />
         </section>
 
         <div className="border-t border-[var(--text-primary)]/10" />
 
-        {/* Page info */}
+        {/* Page-level meta */}
         <section className="space-y-4">
-          <h3 className="text-xs font-semibold text-[var(--text-primary)]/60 uppercase tracking-wide">Page Info</h3>
+          <h3 className="text-xs font-semibold text-[var(--text-primary)]/60 uppercase tracking-wide">Page Meta</h3>
+
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs font-medium text-[var(--text-primary)]/55">Meta Title</span>
+              <CharCounter value={seoData.title} ideal={[40, 60]} />
+            </div>
+            <input
+              type="text"
+              value={seoData.title}
+              onChange={(e) => setSeoField('title', e.target.value)}
+              placeholder={pageTitle || 'Falls back to page title if empty'}
+              className={inputCls}
+            />
+          </div>
 
           <div>
             <div className="flex items-center justify-between mb-1">
               <span className="text-xs font-medium text-[var(--text-primary)]/55">Meta Description</span>
-              <CharCounter value={description} ideal={[120, 160]} />
+              <CharCounter value={seoData.description} ideal={[120, 160]} />
             </div>
             <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              value={seoData.description}
+              onChange={(e) => setSeoField('description', e.target.value)}
               rows={3}
               className={`${inputCls} resize-none`}
               placeholder="Describe this page for search engines…"
@@ -92,8 +93,8 @@ export default function SeoModal() {
             <label className="text-xs font-medium text-[var(--text-primary)]/55 block mb-1">Keywords</label>
             <input
               type="text"
-              value={keywords.join(', ')}
-              onChange={(e) => setKeywords(e.target.value.split(',').map((s) => s.trim()).filter(Boolean))}
+              value={seoData.keywords.join(', ')}
+              onChange={(e) => setSeoField('keywords', e.target.value.split(',').map((s) => s.trim()).filter(Boolean))}
               placeholder="keyword1, keyword2, keyword3"
               className={inputCls}
             />
@@ -103,25 +104,23 @@ export default function SeoModal() {
             <label className="text-xs font-medium text-[var(--text-primary)]/55 block mb-1">Canonical URL</label>
             <input
               type="url"
-              value={(meta as Record<string, string>)?.canonical ?? ''}
-              onChange={(e) => updateMeta('canonical', e.target.value)}
+              value={seoData.canonicalUrl}
+              onChange={(e) => setSeoField('canonicalUrl', e.target.value)}
               placeholder={`https://yoursite.com/${slug}`}
               className={inputCls}
             />
           </div>
 
           <div>
-            <p className="text-xs font-medium text-[var(--text-primary)]/55 mb-2">Robots</p>
-            <div className="flex gap-6">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" checked={isNoIndex} onChange={(e) => updateRobots(e.target.checked, isNoFollow)} className="w-4 h-4 rounded accent-[var(--primary)]" />
-                <span className="text-sm text-[var(--text-primary)]/60">noindex</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" checked={isNoFollow} onChange={(e) => updateRobots(isNoIndex, e.target.checked)} className="w-4 h-4 rounded accent-[var(--primary)]" />
-                <span className="text-sm text-[var(--text-primary)]/60">nofollow</span>
-              </label>
-            </div>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={seoData.noIndex}
+                onChange={(e) => setSeoField('noIndex', e.target.checked)}
+                className="w-4 h-4 rounded accent-[var(--primary)]"
+              />
+              <span className="text-sm text-[var(--text-primary)]/60">noindex — hide this page from search engines</span>
+            </label>
           </div>
         </section>
 
@@ -133,20 +132,36 @@ export default function SeoModal() {
           <div>
             <div className="flex items-center justify-between mb-1">
               <span className="text-xs font-medium text-[var(--text-primary)]/55">OG Title</span>
-              <CharCounter value={(meta as Record<string, string>)?.ogTitle ?? ''} ideal={[40, 60]} />
+              <CharCounter value={seoData.ogTitle} ideal={[40, 60]} />
             </div>
-            <input type="text" value={(meta as Record<string, string>)?.ogTitle ?? ''} onChange={(e) => updateMeta('ogTitle', e.target.value)} className={inputCls} />
+            <input
+              type="text"
+              value={seoData.ogTitle}
+              onChange={(e) => setSeoField('ogTitle', e.target.value)}
+              className={inputCls}
+            />
           </div>
           <div>
             <div className="flex items-center justify-between mb-1">
               <span className="text-xs font-medium text-[var(--text-primary)]/55">OG Description</span>
-              <CharCounter value={(meta as Record<string, string>)?.ogDescription ?? ''} ideal={[120, 160]} />
+              <CharCounter value={seoData.ogDescription} ideal={[120, 160]} />
             </div>
-            <textarea value={(meta as Record<string, string>)?.ogDescription ?? ''} onChange={(e) => updateMeta('ogDescription', e.target.value)} rows={3} className={`${inputCls} resize-none`} />
+            <textarea
+              value={seoData.ogDescription}
+              onChange={(e) => setSeoField('ogDescription', e.target.value)}
+              rows={3}
+              className={`${inputCls} resize-none`}
+            />
           </div>
           <div>
             <label className="text-xs font-medium text-[var(--text-primary)]/55 block mb-1">OG Image URL</label>
-            <input type="url" value={(meta as Record<string, string>)?.ogImage ?? ''} onChange={(e) => updateMeta('ogImage', e.target.value)} placeholder="https://..." className={inputCls} />
+            <input
+              type="url"
+              value={seoData.ogImageUrl}
+              onChange={(e) => setSeoField('ogImageUrl', e.target.value)}
+              placeholder="https://..."
+              className={inputCls}
+            />
           </div>
         </section>
 
@@ -158,20 +173,36 @@ export default function SeoModal() {
           <div>
             <div className="flex items-center justify-between mb-1">
               <span className="text-xs font-medium text-[var(--text-primary)]/55">Twitter Title</span>
-              <CharCounter value={(meta as Record<string, string>)?.twitterTitle ?? ''} ideal={[40, 60]} />
+              <CharCounter value={seoData.twitterTitle} ideal={[40, 60]} />
             </div>
-            <input type="text" value={(meta as Record<string, string>)?.twitterTitle ?? ''} onChange={(e) => updateMeta('twitterTitle', e.target.value)} className={inputCls} />
+            <input
+              type="text"
+              value={seoData.twitterTitle}
+              onChange={(e) => setSeoField('twitterTitle', e.target.value)}
+              className={inputCls}
+            />
           </div>
           <div>
             <div className="flex items-center justify-between mb-1">
               <span className="text-xs font-medium text-[var(--text-primary)]/55">Twitter Description</span>
-              <CharCounter value={(meta as Record<string, string>)?.twitterDescription ?? ''} ideal={[120, 160]} />
+              <CharCounter value={seoData.twitterDescription} ideal={[120, 160]} />
             </div>
-            <textarea value={(meta as Record<string, string>)?.twitterDescription ?? ''} onChange={(e) => updateMeta('twitterDescription', e.target.value)} rows={3} className={`${inputCls} resize-none`} />
+            <textarea
+              value={seoData.twitterDescription}
+              onChange={(e) => setSeoField('twitterDescription', e.target.value)}
+              rows={3}
+              className={`${inputCls} resize-none`}
+            />
           </div>
           <div>
             <label className="text-xs font-medium text-[var(--text-primary)]/55 block mb-1">Card Type</label>
-            <input type="text" value={(meta as Record<string, string>)?.twitterCard ?? ''} onChange={(e) => updateMeta('twitterCard', e.target.value)} placeholder="summary_large_image" className={inputCls} />
+            <input
+              type="text"
+              value={seoData.twitterCard}
+              onChange={(e) => setSeoField('twitterCard', e.target.value)}
+              placeholder="summary_large_image"
+              className={inputCls}
+            />
           </div>
         </section>
       </div>

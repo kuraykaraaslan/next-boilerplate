@@ -65,4 +65,4 @@ const { logs, total } = await NotificationLogService.list(tenantId, {
 
 ## Entity
 
-`NotificationLog` is registered in `modules/db/db.tenant.ts` as a per-tenant entity.
+`NotificationLog` is registered in `modules/db/db.ts` (single DataSource).

@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-05-26T13:33:17.307Z",
+  "generatedAt": "2026-05-26T21:49:04.137Z",
   "components": [
     {
       "id": "ai/ui/AIChatBox",
@@ -1186,6 +1186,541 @@
       "isClient": true,
       "isServer": false,
       "baseName": "CouponRedemptionsList"
+    },
+    {
+      "id": "dynamic_page/dynamic/Blocks/CustomBlock",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Blocks/CustomBlock.tsx",
+      "kind": "ui",
+      "exports": [
+        "CustomFieldSchema",
+        "CustomBlockDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CustomBlock"
+    },
+    {
+      "id": "dynamic_page/dynamic/Blocks/FooterColumns",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Blocks/FooterColumns.tsx",
+      "kind": "ui",
+      "exports": [
+        "FooterColumnsDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "FooterColumns"
+    },
+    {
+      "id": "dynamic_page/dynamic/Blocks/FooterCommerce",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Blocks/FooterCommerce.tsx",
+      "kind": "ui",
+      "exports": [
+        "FooterCommerceDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "FooterCommerce"
+    },
+    {
+      "id": "dynamic_page/dynamic/Blocks/FooterMinimal",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Blocks/FooterMinimal.tsx",
+      "kind": "ui",
+      "exports": [
+        "FooterMinimalDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "FooterMinimal"
+    },
+    {
+      "id": "dynamic_page/dynamic/Blocks/HeroBlock",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Blocks/HeroBlock.tsx",
+      "kind": "ui",
+      "exports": [
+        "HeroBlockDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "HeroBlock"
+    },
+    {
+      "id": "dynamic_page/dynamic/Blocks/NavBarCommerce",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Blocks/NavBarCommerce.tsx",
+      "kind": "ui",
+      "exports": [
+        "NavBarCommerceDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "NavBarCommerce"
+    },
+    {
+      "id": "dynamic_page/dynamic/Blocks/NavBarMarketing",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Blocks/NavBarMarketing.tsx",
+      "kind": "ui",
+      "exports": [
+        "NavBarMarketingDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "NavBarMarketing"
+    },
+    {
+      "id": "dynamic_page/dynamic/Blocks/NavBarSimple",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Blocks/NavBarSimple.tsx",
+      "kind": "ui",
+      "exports": [
+        "NavBarSimpleDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "NavBarSimple"
+    },
+    {
+      "id": "dynamic_page/dynamic/Blocks/PopupModalBlock/animations",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Blocks/PopupModalBlock/animations.ts",
+      "kind": "ui",
+      "exports": [
+        "injectKeyframes",
+        "ENTRY_DEF",
+        "EXIT_DEF",
+        "buildAnim"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "animations"
+    },
+    {
+      "id": "dynamic_page/dynamic/Blocks/PopupModalBlock/CloseBtn",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Blocks/PopupModalBlock/CloseBtn.tsx",
+      "kind": "ui",
+      "exports": [
+        "CloseBtn"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CloseBtn"
+    },
+    {
+      "id": "dynamic_page/dynamic/Blocks/PopupModalBlock/constants",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Blocks/PopupModalBlock/constants.ts",
+      "kind": "ui",
+      "exports": [
+        "SIZE_CLASS",
+        "POS_CLASS",
+        "RADIUS_CLASS",
+        "CLOSE_POS_CLASS",
+        "CLOSE_SIZE"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "constants"
+    },
+    {
+      "id": "dynamic_page/dynamic/Blocks/PopupModalBlock/EditorPreview",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Blocks/PopupModalBlock/EditorPreview.tsx",
+      "kind": "ui",
+      "exports": [
+        "EditorPreview"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "EditorPreview"
+    },
+    {
+      "id": "dynamic_page/dynamic/Blocks/PopupModalBlock/index",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Blocks/PopupModalBlock/index.tsx",
+      "kind": "ui",
+      "exports": [
+        "PopupModalBlockDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "index"
+    },
+    {
+      "id": "dynamic_page/dynamic/Blocks/PopupModalBlock/PopupCard",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Blocks/PopupModalBlock/PopupCard.tsx",
+      "kind": "ui",
+      "exports": [
+        "PopupCard"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PopupCard"
+    },
+    {
+      "id": "dynamic_page/dynamic/Blocks/PopupModalBlock/PopupOverlay",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Blocks/PopupModalBlock/PopupOverlay.tsx",
+      "kind": "ui",
+      "exports": [
+        "PopupOverlay"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PopupOverlay"
+    },
+    {
+      "id": "dynamic_page/dynamic/Blocks/PopupModalBlock/types",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Blocks/PopupModalBlock/types.ts",
+      "kind": "ui",
+      "exports": [
+        "PopupButton",
+        "AnimPhase",
+        "CloseBtnProps",
+        "CardProps"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "types"
+    },
+    {
+      "id": "dynamic_page/dynamic/Blocks/PopupModalBlock/utils",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Blocks/PopupModalBlock/utils.ts",
+      "kind": "ui",
+      "exports": [
+        "parseButtons",
+        "getStorage",
+        "hasSeen",
+        "markSeen",
+        "matchesDevice"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "utils"
+    },
+    {
+      "id": "dynamic_page/dynamic/Blocks/ProseBlock",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Blocks/ProseBlock.tsx",
+      "kind": "ui",
+      "exports": [
+        "ProseBlockDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ProseBlock"
+    },
+    {
+      "id": "dynamic_page/dynamic/Editor/BackupModal",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Editor/BackupModal.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "BackupModal"
+    },
+    {
+      "id": "dynamic_page/dynamic/Editor/Canvas",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Editor/Canvas.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Canvas"
+    },
+    {
+      "id": "dynamic_page/dynamic/Editor/EditorTopBar",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Editor/EditorTopBar.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "EditorTopBar"
+    },
+    {
+      "id": "dynamic_page/dynamic/Editor/index",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Editor/index.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "index"
+    },
+    {
+      "id": "dynamic_page/dynamic/Editor/LeftSidebar",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Editor/LeftSidebar.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "LeftSidebar"
+    },
+    {
+      "id": "dynamic_page/dynamic/Editor/PropsPanel",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Editor/PropsPanel.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PropsPanel"
+    },
+    {
+      "id": "dynamic_page/dynamic/Editor/RepeaterField",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Editor/RepeaterField.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "RepeaterField"
+    },
+    {
+      "id": "dynamic_page/dynamic/Editor/RightSidebar",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Editor/RightSidebar.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "RightSidebar"
+    },
+    {
+      "id": "dynamic_page/dynamic/Editor/SeoModal",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Editor/SeoModal.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SeoModal"
+    },
+    {
+      "id": "dynamic_page/dynamic/Editor/ShortcutsModal",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Editor/ShortcutsModal.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ShortcutsModal"
+    },
+    {
+      "id": "dynamic_page/dynamic/Editor/stores/editorStore",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Editor/stores/editorStore.ts",
+      "kind": "ui",
+      "exports": [
+        "PreviewMode",
+        "selectSelectedBlock",
+        "SeoData",
+        "useEditorStore"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "editorStore"
+    },
+    {
+      "id": "dynamic_page/dynamic/Editor/TranslationModal",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Editor/TranslationModal.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "TranslationModal"
+    },
+    {
+      "id": "dynamic_page/dynamic/migrations/index",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/migrations/index.ts",
+      "kind": "ui",
+      "exports": [
+        "CURRENT_SCHEMA_VERSION",
+        "BlockSchemas",
+        "MigrationContext",
+        "normalizeRepeaters",
+        "detectSchemaVersion",
+        "migrateSections",
+        "needsMigration"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "index"
+    },
+    {
+      "id": "dynamic_page/dynamic/partials/BaseBlock",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/partials/BaseBlock.tsx",
+      "kind": "ui",
+      "exports": [
+        "BaseBlockConfig",
+        "BASE_BLOCK_DEFAULT_PROPS",
+        "BASE_BLOCK_SCHEMA_FIELDS",
+        "parseBaseBlockProps"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "BaseBlock"
+    },
+    {
+      "id": "dynamic_page/dynamic/partials/BlockBackground",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/partials/BlockBackground.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "BlockBackground"
+    },
+    {
+      "id": "dynamic_page/dynamic/partials/BlockErrorBoundary",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/partials/BlockErrorBoundary.tsx",
+      "kind": "ui",
+      "exports": [
+        "BlockRenderErrorBoundary",
+        "BlockEditorErrorBoundary"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "BlockErrorBoundary"
+    },
+    {
+      "id": "dynamic_page/dynamic/partials/BlockSkeleton",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/partials/BlockSkeleton.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "BlockSkeleton"
+    },
+    {
+      "id": "dynamic_page/dynamic/partials/ClientBlockList",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/partials/ClientBlockList.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ClientBlockList"
+    },
+    {
+      "id": "dynamic_page/dynamic/partials/PreviewContext",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/partials/PreviewContext.tsx",
+      "kind": "ui",
+      "exports": [
+        "PreviewMode",
+        "PreviewContext",
+        "PreviewProvider",
+        "usePreviewMode"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PreviewContext"
+    },
+    {
+      "id": "dynamic_page/dynamic/partials/TemplateBlockRenderer",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/partials/TemplateBlockRenderer.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "TemplateBlockRenderer"
+    },
+    {
+      "id": "dynamic_page/dynamic/types",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/types.ts",
+      "kind": "ui",
+      "exports": [
+        "FieldType",
+        "FieldOption",
+        "FieldSchema",
+        "BlockDefinition"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "types"
+    },
+    {
+      "id": "dynamic_page/dynamic/utils/BlockBg",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/utils/BlockBg.ts",
+      "kind": "util",
+      "exports": [
+        "BgType",
+        "BgProps",
+        "parseBgProps",
+        "BG_DEFAULT_PROPS",
+        "BG_SCHEMA_FIELDS"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "BlockBg"
+    },
+    {
+      "id": "dynamic_page/dynamic/utils/BlockRegistry",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/utils/BlockRegistry.ts",
+      "kind": "util",
+      "exports": [
+        "CODE_BLOCKS",
+        "getCodeBlock",
+        "getCodeBlocks"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "BlockRegistry"
+    },
+    {
+      "id": "dynamic_page/DynamicPageRenderer",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/DynamicPageRenderer.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "DynamicPageRenderer"
+    },
+    {
+      "id": "dynamic_page/PublicDynamicPage",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/PublicDynamicPage.tsx",
+      "kind": "ui",
+      "exports": [
+        "MAX_SLUG_DEPTH",
+        "buildPublicPageMetadata"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "PublicDynamicPage"
+    },
+    {
+      "id": "dynamic_page/SiteChrome",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/SiteChrome.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "SiteChrome"
     },
     {
       "id": "e_signature/ui/SigningCertificatesPanel",

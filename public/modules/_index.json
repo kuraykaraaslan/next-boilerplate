@@ -664,6 +664,22 @@
     "componentCount": 1,
     "file": "ai.md"
   },
+  "dynamic_page": {
+    "name": "Dynamic Pages",
+    "tier": "other",
+    "tags": [
+      "cms",
+      "pages",
+      "blocks",
+      "builder",
+      "i18n"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 6,
+    "entityCount": 3,
+    "componentCount": 44,
+    "file": "dynamic_page.md"
+  },
   "api_doc": {
     "name": "API Documentation",
     "tier": "infrastructure",
@@ -676,16 +692,6 @@
     "entityCount": 0,
     "componentCount": 14,
     "file": "api_doc.md"
-  },
-  "dynamic_page": {
-    "name": "dynamic_page",
-    "tier": "other",
-    "tags": [],
-    "hasNextLayer": true,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "dynamic_page.md"
   },
   "payment_core": {
     "name": "payment_core",

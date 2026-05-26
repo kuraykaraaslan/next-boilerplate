@@ -108,4 +108,4 @@ await TenantUsageService.flushToDb(tenantId, month);
 
 ## Entity registration
 
-`TenantUsage` is registered in `modules/db/db.tenant.ts` (per-tenant DataSource).
+`TenantUsage` is registered in `modules/db/db.ts` (single DataSource).

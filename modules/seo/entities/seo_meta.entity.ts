@@ -40,6 +40,15 @@ export class SeoMeta {
   @Column({ nullable: true, type: 'varchar' })
   canonicalUrl?: string;
 
+  @Column({ nullable: true, type: 'varchar', length: 200 })
+  twitterTitle?: string;
+
+  @Column({ nullable: true, type: 'text' })
+  twitterDescription?: string;
+
+  @Column({ nullable: true, type: 'varchar', length: 50 })
+  twitterCard?: string;
+
   @Column({ type: 'boolean', default: false })
   noIndex!: boolean;
 

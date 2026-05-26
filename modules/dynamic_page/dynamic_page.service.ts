@@ -3,6 +3,8 @@ import { tenantDataSourceFor } from '@/modules/db'
 import redis, { singleFlight, jitter } from '@/modules/redis'
 import Logger from '@/modules/logger'
 import SeoService from '@/modules/seo/seo.service'
+// SEO writes happen directly from the editor against /api/seo; this module
+// only deletes the seo_meta row when the page is removed.
 import { DynamicPage as DynamicPageEntity } from './entities/dynamic_page.entity'
 import { DynamicPageTranslation as DynamicPageTranslationEntity } from './entities/dynamic_page_translation.entity'
 import { DynamicPageBlock as DynamicPageBlockEntity } from './entities/dynamic_page_block.entity'
@@ -98,7 +100,6 @@ export default class DynamicPageService {
       const { metadata, ...rest } = dto
       const page = repo.create({ tenantId, ...rest, metadata: metadata ?? undefined, schemaVersion: CURRENT_SCHEMA_VERSION })
       const saved = await repo.save(page) as DynamicPageEntity
-      await DynamicPageService._syncSeo(tenantId, saved.dynamicPageId, dto)
       return DynamicPageRecordSchema.parse(saved)
     } catch (error) {
       Logger.error(`${DynamicPageMessages.PAGE_CREATE_FAILED}: ${error}`)
@@ -124,7 +125,6 @@ export default class DynamicPageService {
       const saved = await repo.save(row)
       await redis.del(slugKey(tenantId, saved.slug))
       if (oldSlug !== saved.slug) await redis.del(slugKey(tenantId, oldSlug))
-      await DynamicPageService._syncSeo(tenantId, pageId, dto)
       return DynamicPageRecordSchema.parse(saved)
     } catch (error) {
       Logger.error(`${DynamicPageMessages.PAGE_UPDATE_FAILED}: ${error}`)
@@ -261,22 +261,4 @@ export default class DynamicPageService {
     await redis.del(blocksKey(tenantId))
   }
 
-  // ─── Helpers ──────────────────────────────────────────────────────────────
-
-  private static async _syncSeo(tenantId: string, pageId: string, dto: Partial<CreatePageDTO>) {
-    try {
-      await SeoService.upsert(tenantId, 'dynamic_page', pageId, {
-        title: dto.title,
-        description: dto.description,
-        keywords: dto.keywords,
-        ogTitle: dto.metadata?.ogTitle,
-        ogDescription: dto.metadata?.ogDescription,
-        ogImageUrl: dto.metadata?.ogImage,
-        canonicalUrl: dto.metadata?.canonical,
-        noIndex: dto.metadata?.robots === 'noindex',
-      })
-    } catch (err) {
-      Logger.warn(`DynamicPageService: SEO sync failed for page ${pageId}: ${err}`)
-    }
-  }
 }

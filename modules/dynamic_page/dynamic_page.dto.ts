@@ -2,7 +2,10 @@ import { z } from 'zod'
 import { BlockDataSchema, PageMetadataSchema, CURRENT_SCHEMA_VERSION } from './dynamic_page.types'
 
 export const CreatePageDTO = z.object({
-  slug: z.string().max(200).regex(/^[a-z0-9-]*$/, 'Slug can only contain lowercase letters, numbers, and hyphens').default(''),
+  slug: z.string().max(200).regex(
+    /^([a-z0-9_-]+(\/[a-z0-9_-]+)*)?$/,
+    'Slug segments can only contain lowercase letters, numbers, underscores and hyphens; segments separated by single forward slashes (no leading/trailing slash).',
+  ).default(''),
   title: z.string().min(1).max(300),
   description: z.string().optional(),
   keywords: z.array(z.string()).default([]),

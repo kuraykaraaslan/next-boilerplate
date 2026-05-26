@@ -17,10 +17,27 @@ type Router = { push: (href: string) => void; replace: (href: string) => void }
 
 type TranslationEntry = { title: string; description: string; sections: BlockData[] }
 
-const DefaultPageMetadata = {
-  ogTitle: '', ogDescription: '', ogImage: '',
+// Editor SEO view-model — mirrors @/modules/seo SeoMeta shape with all fields
+// required-but-empty so SeoModal inputs are always controlled.
+export type SeoData = {
+  title: string
+  description: string
+  keywords: string[]
+  ogTitle: string
+  ogDescription: string
+  ogImageUrl: string
+  twitterTitle: string
+  twitterDescription: string
+  twitterCard: string
+  canonicalUrl: string
+  noIndex: boolean
+}
+
+const DefaultSeoData: SeoData = {
+  title: '', description: '', keywords: [],
+  ogTitle: '', ogDescription: '', ogImageUrl: '',
   twitterTitle: '', twitterDescription: '', twitterCard: '',
-  canonical: '', robots: '',
+  canonicalUrl: '', noIndex: false,
 }
 
 interface EditorStore {
@@ -34,7 +51,7 @@ interface EditorStore {
   status: string
   description: string
   keywords: string[]
-  metadata: typeof DefaultPageMetadata
+  seoData: SeoData
   backupOpen: boolean
   seoOpen: boolean
   translationOpen: boolean
@@ -61,7 +78,7 @@ interface EditorStore {
   setStatus: (v: string) => void
   setDescription: (v: string) => void
   setKeywords: (v: string[]) => void
-  setMetadata: (v: typeof DefaultPageMetadata) => void
+  setSeoField: <K extends keyof SeoData>(key: K, value: SeoData[K]) => void
   setBackupOpen: (v: boolean) => void
   setSeoOpen: (v: boolean) => void
   setTranslationOpen: (v: boolean) => void
@@ -107,7 +124,7 @@ const initialState = {
   status: 'DRAFT',
   description: '',
   keywords: [] as string[],
-  metadata: DefaultPageMetadata,
+  seoData: DefaultSeoData,
   backupOpen: false,
   seoOpen: false,
   translationOpen: false,
@@ -148,7 +165,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
   setStatus: (v) => set({ status: v, isDirty: true }),
   setDescription: (v) => set({ description: v, isDirty: true }),
   setKeywords: (v) => set({ keywords: v, isDirty: true }),
-  setMetadata: (v) => set({ metadata: v, isDirty: true }),
+  setSeoField: (key, value) => set((state) => ({ seoData: { ...state.seoData, [key]: value }, isDirty: true })),
   setBackupOpen: (v) => set({ backupOpen: v }),
   setSeoOpen: (v) => set({ seoOpen: v }),
   setTranslationOpen: (v) => set({ translationOpen: v }),
@@ -166,7 +183,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
         slug: draft.slug ?? '',
         description: draft.description ?? '',
         keywords: Array.isArray(draft.keywords) ? draft.keywords : [],
-        metadata: draft.metadata ?? DefaultPageMetadata,
+        seoData: draft.seoData ?? DefaultSeoData,
         sections: Array.isArray(draft.sections) ? draft.sections : [],
         enSections: Array.isArray(draft.sections) ? draft.sections : [],
         isDirty: true,
@@ -401,9 +418,10 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
     if (pageId === 'create') { set({ loading: false, pageId: '', isDirty: false }); return }
     set({ loading: true, pageId })
     try {
-      const [pageData, transData] = await Promise.all([
+      const [pageData, transData, seoData] = await Promise.all([
         apiFetch(`${apiBase(tenantId)}/${pageId}`),
         apiFetch(`${apiBase(tenantId)}/${pageId}/translations`),
+        apiFetch(`/tenant/${tenantId}/api/seo/dynamic_page/${pageId}`).catch(() => ({ seo: null })),
       ])
 
       const raw = pageData.page
@@ -431,13 +449,30 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
         savedLangs.push(t.lang)
       }
 
+      const seo = seoData?.seo
+      const loadedSeoData: SeoData = seo
+        ? {
+            title:              seo.title ?? '',
+            description:        seo.description ?? '',
+            keywords:           Array.isArray(seo.keywords) ? seo.keywords : [],
+            ogTitle:            seo.ogTitle ?? '',
+            ogDescription:      seo.ogDescription ?? '',
+            ogImageUrl:         seo.ogImageUrl ?? '',
+            twitterTitle:       seo.twitterTitle ?? '',
+            twitterDescription: seo.twitterDescription ?? '',
+            twitterCard:        seo.twitterCard ?? '',
+            canonicalUrl:       seo.canonicalUrl ?? '',
+            noIndex:            !!seo.noIndex,
+          }
+        : DefaultSeoData
+
       set({
         title: raw.title ?? '',
         slug: raw.slug ?? '',
         status: raw.status ?? 'DRAFT',
         description: raw.description ?? '',
         keywords: Array.isArray(raw.keywords) ? raw.keywords : [],
-        metadata: raw.metadata ?? DefaultPageMetadata,
+        seoData: loadedSeoData,
         sections: enSections,
         enSections,
         translationCache: cache,
@@ -469,13 +504,28 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
   },
 
   handleSave: async (mode, pageId, router) => {
-    const { tenantId, title, slug, status, description, keywords, metadata, sections, enSections, activeLang, translationCache, dirtyLangs, savedLangs } = get()
+    const { tenantId, title, slug, status, description, keywords, seoData, sections, enSections, activeLang, translationCache, dirtyLangs, savedLangs } = get()
     if (!title.trim()) { toast.error('Title is required'); return }
 
     const enSectionsToSave = activeLang === 'en' ? sections : enSections
     const body = {
-      title, slug, status, description, keywords, metadata,
+      title, slug, status, description, keywords,
       sections: enSectionsToSave.map((s, i) => ({ ...s, order: i })),
+    }
+
+    // SEO payload mirrors UpsertSeoDTO; the API drops empty strings via z.literal('').
+    const seoBody = {
+      title:              seoData.title,
+      description:        seoData.description,
+      keywords:           seoData.keywords,
+      ogTitle:            seoData.ogTitle,
+      ogDescription:      seoData.ogDescription,
+      ogImageUrl:         seoData.ogImageUrl,
+      twitterTitle:       seoData.twitterTitle,
+      twitterDescription: seoData.twitterDescription,
+      twitterCard:        seoData.twitterCard,
+      canonicalUrl:       seoData.canonicalUrl,
+      noIndex:            seoData.noIndex,
     }
 
     set({ saving: true })
@@ -485,10 +535,15 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
           method: 'POST',
           body: JSON.stringify(body),
         })
+        const newPageId = res.page.dynamicPageId
+        await apiFetch(`/tenant/${tenantId}/api/seo/dynamic_page/${newPageId}`, {
+          method: 'PUT',
+          body: JSON.stringify(seoBody),
+        }).catch(() => { /* non-fatal */ })
         toast.success('Page created')
         set({ isDirty: false, dirtyLangs: [] })
         try { if (typeof window !== 'undefined') localStorage.removeItem(draftKey('')) } catch {}
-        router.replace(`/tenant/${tenantId}/admin/pages/${res.page.dynamicPageId}`)
+        router.replace(`/tenant/${tenantId}/admin/pages/${newPageId}`)
         return
       }
 
@@ -503,6 +558,10 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
 
       await Promise.all([
         apiFetch(`${apiBase(tenantId)}/${pageId}`, { method: 'PATCH', body: JSON.stringify(body) }),
+        apiFetch(`/tenant/${tenantId}/api/seo/dynamic_page/${pageId}`, {
+          method: 'PUT',
+          body: JSON.stringify(seoBody),
+        }).catch(() => { /* non-fatal */ }),
         ...translationEntries
           .filter(([, entry]) => entry.title.trim())
           .map(([lang, entry]) =>

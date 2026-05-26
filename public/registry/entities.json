@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-05-26T13:33:17.307Z",
+  "generatedAt": "2026-05-26T21:49:04.137Z",
   "entities": [
     {
       "name": "AiUsageLog",
@@ -116,6 +116,72 @@
       ],
       "relations": [
         "tenant"
+      ]
+    },
+    {
+      "name": "DynamicPage",
+      "filePath": "modules/dynamic_page/entities/dynamic_page.entity.ts",
+      "module": "dynamic_page",
+      "schema": "system",
+      "tableName": "dynamic_pages",
+      "columns": [
+        "dynamicPageId",
+        "tenantId",
+        "slug",
+        "title",
+        "description",
+        "keywords",
+        "sections",
+        "metadata",
+        "status",
+        "schemaVersion",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "DynamicPageBlock",
+      "filePath": "modules/dynamic_page/entities/dynamic_page_block.entity.ts",
+      "module": "dynamic_page",
+      "schema": "system",
+      "tableName": "dynamic_page_blocks",
+      "columns": [
+        "blockId",
+        "tenantId",
+        "type",
+        "label",
+        "category",
+        "description",
+        "schema",
+        "defaultProps",
+        "template",
+        "script",
+        "isSystem",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "DynamicPageTranslation",
+      "filePath": "modules/dynamic_page/entities/dynamic_page_translation.entity.ts",
+      "module": "dynamic_page",
+      "schema": "system",
+      "tableName": "dynamic_page_translations",
+      "columns": [
+        "translationId",
+        "dynamicPageId",
+        "tenantId",
+        "lang",
+        "title",
+        "description",
+        "sections",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": [
+        "page"
       ]
     },
     {
@@ -472,6 +538,9 @@
         "ogDescription",
         "ogImageUrl",
         "canonicalUrl",
+        "twitterTitle",
+        "twitterDescription",
+        "twitterCard",
         "noIndex",
         "updatedAt"
       ],

@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-05-26T13:33:17.307Z",
+  "generatedAt": "2026-05-26T21:49:04.137Z",
   "routes": [
     {
       "filePath": "app/internal/api/caddy-ask/route.ts",
@@ -756,6 +756,73 @@
         "POST"
       ],
       "module": "tenant_domain",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/dynamic-pages/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/dynamic-pages",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "dynamic_page",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/dynamic-pages/[dynamicPageId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/dynamic-pages/[dynamicPageId]",
+      "methods": [
+        "GET",
+        "PATCH",
+        "DELETE"
+      ],
+      "module": "dynamic_page",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/dynamic-pages/[dynamicPageId]/translations/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/dynamic-pages/[dynamicPageId]/translations",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "dynamic_page",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/dynamic-pages/[dynamicPageId]/translations/[lang]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/dynamic-pages/[dynamicPageId]/translations/[lang]",
+      "methods": [
+        "DELETE"
+      ],
+      "module": "dynamic_page",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/dynamic-pages/block-definitions/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/dynamic-pages/block-definitions",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "dynamic_page",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/dynamic-pages/block-definitions/[blockId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/dynamic-pages/block-definitions/[blockId]",
+      "methods": [
+        "GET",
+        "PATCH",
+        "DELETE"
+      ],
+      "module": "dynamic_page",
       "dynamic": true
     },
     {

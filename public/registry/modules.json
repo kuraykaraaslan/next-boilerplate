@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-05-26T13:33:17.307Z",
+  "generatedAt": "2026-05-26T21:49:04.137Z",
   "modules": [
     {
       "id": "common",
@@ -67,7 +67,7 @@
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false,
-      "readme": "# env\n\nSingle source of truth for environment-variable access. Parses `process.env` once at module load through a Zod schema and exports a strongly-typed `env` object — typos and missing required values fail fast at boot.\n\n## Public API\n\n| Export | Source | Use |\n|---|---|---|\n| `env` | [env.service.ts](env.service.ts) | Typed accessor: `env.SYSTEM_DATABASE_URL`, `env.REDIS_PORT` (already a number), etc. |\n\n## Usage\n\n```ts\nimport { env } from \"@/modules/env\";\n\nconst pool = new Pool({ connectionString: env.SYSTEM_DATABASE_URL });\nconst ttl = env.SESSION_CACHE_TTL; // number, already coerced\n```\n\n## Variable groups\n\n`env.service.ts` groups variables in commented sections — extend the matching section when you add a new key:\n\n- Core (`NODE_ENV`, `PORT`, `DEBUG*`)\n- Databases (`SYSTEM_DATABASE_URL`, `TENANT_DATABASE_URL` — in single-DB setups point both at the same connection)\n- Redis (`REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`)\n- Auth / Secrets (`ACCESS_TOKEN_SECRET`, `REFRESH_TOKEN_SECRET`, `CSRF_SECRET`)\n- Session / Token TTLs\n- OTP / TOTP / WebAuthn\n- Multi-tenancy (`TENANCY_MODE`, `TENANT_WILDCARD_DOMAIN`, …)\n- Storage, Payments, AI, Notifications, Webhooks — see schema for the full list\n\n## Rules\n\n- **Never** read `process.env.XXX` directly outside this module. Always go through `env.XXX`. This keeps validation centralised and the `.env.example` file authoritative.\n- Required values use `z.string().min(1)`; optional values use `.optional()` or `.default(...)`.\n- Use `z.coerce.number()` / `z.coerce.boolean()` for non-string types — env vars arrive as strings.\n- When you add a key, update [.env.example](../../.env.example) with a documented placeholder.\n- No `next/*`, no `react`.\n"
+      "readme": "# env\n\nSingle source of truth for environment-variable access. Parses `process.env` once at module load through a Zod schema and exports a strongly-typed `env` object — typos and missing required values fail fast at boot.\n\n## Public API\n\n| Export | Source | Use |\n|---|---|---|\n| `env` | [env.service.ts](env.service.ts) | Typed accessor: `env.DATABASE_URL`, `env.REDIS_PORT` (already a number), etc. |\n\n## Usage\n\n```ts\nimport { env } from \"@/modules/env\";\n\nconst pool = new Pool({ connectionString: env.DATABASE_URL });\nconst ttl = env.SESSION_CACHE_TTL; // number, already coerced\n```\n\n## Variable groups\n\n`env.service.ts` groups variables in commented sections — extend the matching section when you add a new key:\n\n- Core (`NODE_ENV`, `PORT`, `DEBUG*`)\n- Database (`DATABASE_URL` — tek Postgres URL; per-tenant DB isolation `tenant_databases` row'u ile yapılır)\n- Redis (`REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`)\n- Auth / Secrets (`ACCESS_TOKEN_SECRET`, `REFRESH_TOKEN_SECRET`, `CSRF_SECRET`)\n- Session / Token TTLs\n- OTP / TOTP / WebAuthn\n- Multi-tenancy (`TENANCY_MODE`, `TENANT_WILDCARD_DOMAIN`, …)\n- Storage, Payments, AI, Notifications, Webhooks — see schema for the full list\n\n## Rules\n\n- **Never** read `process.env.XXX` directly outside this module. Always go through `env.XXX`. This keeps validation centralised and the `.env.example` file authoritative.\n- Required values use `z.string().min(1)`; optional values use `.optional()` or `.default(...)`.\n- Use `z.coerce.number()` / `z.coerce.boolean()` for non-string types — env vars arrive as strings.\n- When you add a key, update [.env.example](../../.env.example) with a documented placeholder.\n- No `next/*`, no `react`.\n"
     },
     {
       "id": "logger",
@@ -145,7 +145,7 @@
       "id": "db",
       "name": "Database",
       "version": "1.0.0",
-      "description": "TypeORM DataSource factories for the dual-schema model (system + per-tenant). All entities are registered here.",
+      "description": "TypeORM DataSource factory — single shared DB for all entities, optional per-tenant DB override via TenantDatabase.",
       "dir": "modules/db",
       "icon": "fas fa-database",
       "tags": [
@@ -175,7 +175,7 @@
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false,
-      "readme": "# db\n\nTypeORM `DataSource` factories for the multi-tenant model. The codebase keeps two structural buckets — *shared* (User, Setting, SubscriptionPlan, …) and *per-tenant* (Tenant, TenantMember, Payment, ApiKey, …) — but in the default single-DB setup both factories point at the **same** Postgres schema. Splitting databases later is an env-only change.\n\n## Public API\n\n| Export | Source | Use |\n|---|---|---|\n| `getSystemDataSource()` | [db.system.ts](db.system.ts) | Returns the initialised DataSource for shared / platform-config tables. Idempotent. |\n| `SystemDataSource` | [db.system.ts](db.system.ts) | The raw DataSource instance (rarely needed — prefer the getter). |\n| `tenantDataSourceFor(tenantId)` | [db.tenant.ts](db.tenant.ts) | Returns the DataSource for a specific tenant. Cached per tenant. |\n| `getDefaultTenantDataSource()` | [db.tenant.ts](db.tenant.ts) | DataSource for the wildcard/default tenant DB (used in single-DB setups). |\n| `clearTenantDsCache(tenantId?)` | [db.tenant.ts](db.tenant.ts) | Drop one tenant from the cache or clear it entirely. |\n| `TenantDatabase` | [entities/tenant_database.entity.ts](entities/tenant_database.entity.ts) | Entity that maps `tenantId → { connectionUrl, schema }`. |\n| `parseDbUrl(url)` | [db.utils.ts](db.utils.ts) | Splits a Postgres URL into `{ url, schema }`. |\n\n## Entity buckets\n\n- **Shared / platform** ([db.system.ts](db.system.ts)) owns: `User`, `UserProfile`, `UserSecurity`, `UserPreferences`, `UserSession`, `UserSocialAccount`, `PushSubscription`, `Setting`, `SubscriptionPlan`, `PlanFeature`, `AuditLog`, `Coupon`, `SystemWebhook`, `SystemWebhookDelivery`, `SystemSamlConfig`, `SigningCertificate`, `TrustListEntry`, `TenantDatabase`.\n- **Per-tenant** ([db.tenant.ts](db.tenant.ts)) owns: `Tenant`, `TenantDomain`, `TenantMember`, `TenantInvitation`, `TenantSetting`, `TenantSubscription`, `Payment`, `PaymentTransaction`, `TenantAuditLog`, `ApiKey`, `CouponRedemption`, `Webhook`, `WebhookDelivery`, `SamlConfig`.\n\nWhen you add a new entity, register it in the appropriate file's `SYSTEM_ENTITIES` or `TENANT_ENTITIES` array. The \"shared\" naming is historical — every row physically lives in the same DB as the per-tenant tables unless an operator points `SYSTEM_DATABASE_URL` and `TENANT_DATABASE_URL` at different connections.\n\n## Usage\n\n```ts\nimport { getSystemDataSource, tenantDataSourceFor } from \"@/modules/db\";\n\n// Shared / platform entities\nconst ds = await getSystemDataSource();\nconst users = await ds.getRepository(User).find();\n\n// Per-tenant entities\nconst tds = await tenantDataSourceFor(tenantId);\nconst members = await tds.getRepository(TenantMember).find();\n```\n\n## Connection URLs\n\nDriven by `SYSTEM_DATABASE_URL` and `TENANT_DATABASE_URL`. In single-DB setups set both to the same URL. Per-tenant override URLs (separate DBs per customer) are stored in the `TenantDatabase` row.\n\n## Rules\n\n- No `next/*`, no `react`. Service-layer only.\n- Always **await** the data-source helpers — they perform lazy `initialize()` on first call.\n- Tests mock these helpers; production code never instantiates `new DataSource()` directly.\n"
+      "readme": "# db\n\nTek bir TypeORM `DataSource` üzerinden tüm entity'lere erişim. Default `getDataSource()` `env.DATABASE_URL`'i kullanır; opsiyonel olarak `tenantDataSourceFor(tenantId)` ile bir tenant kendine ait DB'ye (`TenantDatabase` row'u varsa) yönlendirilebilir. Yoksa default'a düşer.\n\n## Public API\n\n| Export | Source | Use |\n|---|---|---|\n| `getDataSource()` | [db.ts](db.ts) | Init+cache'lenmiş default DataSource. Tüm callsite'lar için. Idempotent. |\n| `tenantDataSourceFor(tenantId)` | [db.ts](db.ts) | `TenantDatabase` row'u varsa o DB'ye giden ayrı DataSource (LRU cache, max 100). Yoksa `getDataSource()`'ı döner. |\n| `clearTenantDsCache(tenantId)` | [db.ts](db.ts) | Per-tenant override cache'inden bir tenant'ı düşür. |\n| `TenantDatabase` | [entities/tenant_database.entity.ts](entities/tenant_database.entity.ts) | `tenantId → databaseUrl` mapping. |\n| `parseDbUrl(url)` | [db.utils.ts](db.utils.ts) | Postgres URL'ini `{ url, schema }` olarak ayırır. |\n\n## Entity listesi\n\nTüm uygulama entity'leri tek bir array'de ([db.ts](db.ts)): User, UserProfile, UserSecurity, UserPreferences, UserSession, UserSocialAccount, SigningCertificate, TrustListEntry, TenantDatabase, Tenant, TenantDomain, TenantMember, TenantInvitation, TenantSubscription, Payment, PaymentTransaction, AuditLog, ApiKey, CouponRedemption, Webhook, WebhookDelivery, SamlConfig, Setting, Coupon, SubscriptionPlan, PlanFeature, PushSubscription, Invoice, InvoiceLine, TenantUsage, UploadedFile, AiUsageLog, NotificationLog, StoreCategory, StoreCategorySpec, StoreProduct, StoreProductImage, StoreProductSpecValue, StoreVariantGroup, StoreVariantGroupItem, StoreBundle, StoreBundleItem, SeoMeta, MediaGallery, MediaGalleryItem.\n\nYeni entity eklendiğinde [db.ts](db.ts) içindeki `ENTITIES` array'ine ekle.\n\n## Usage\n\n```ts\nimport { getDataSource, tenantDataSourceFor } from \"@/modules/db\";\n\n// Default path — uygulamanın %99'u\nconst ds = await getDataSource();\nconst users = await ds.getRepository(User).find();\n\n// Per-tenant DB override (opsiyonel; row yoksa default'a düşer)\nconst tds = await tenantDataSourceFor(tenantId);\nconst members = await tds.getRepository(TenantMember).find();\n```\n\n## Connection URL\n\nTek env var: `DATABASE_URL` (örn. `postgresql://postgres:postgres@localhost:5432/next_boilerplate?schema=public`).\n\nBir tenant'a ayrı DB tahsis etmek için `tenant_databases` tablosuna `{ tenantId, databaseUrl }` row'u yaz; `tenantDataSourceFor(tenantId)` o DB'ye düşer.\n\n## Rules\n\n- No `next/*`, no `react`. Service-layer only.\n- Helper'lar her zaman `await` — ilk çağrıda lazy `initialize()` yapar.\n- Test'lerde bu helper'lar mock'lanır; production'da asla `new DataSource()` çağrılmaz.\n"
     },
     {
       "id": "limiter",
@@ -1284,7 +1284,7 @@
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false,
-      "readme": "# tenant_usage\n\nTracks per-tenant usage counters (API calls, AI tokens, storage bytes, email sends) by month. Counters are stored in Redis for low-latency O(1) increments and flushed to the `tenant_usage` PostgreSQL table by a background CRON job for durable reporting and plan-limit enforcement.\n\n## What it does\n\n- Provides `TenantUsageService` with static methods to increment counters and read/flush usage.\n- The `TenantUsage` TypeORM entity persists monthly aggregates with a `UNIQUE(tenantId, month)` constraint.\n- Redis keys expire automatically after 32 days so stale data is cleaned up.\n\n## Redis key pattern\n\n```\ntenant:{tenantId}:usage:{metric}:{YYYY-MM}\n```\n\nExample: `tenant:abc-123:usage:apiCalls:2026-05`\n\nMetrics: `apiCalls`, `aiTokens`, `storageBytes`, `emailSends`, `smsSends`\n\n## Incrementing counters\n\n```typescript\nimport { TenantUsageService } from '@/modules/tenant_usage/tenant_usage.service';\n\n// In an API route or middleware:\nawait TenantUsageService.incrementApiCall(tenantId);\n\n// After an AI completion:\nawait TenantUsageService.incrementAiTokens(tenantId, tokensUsed);\n\n// After a file upload:\nawait TenantUsageService.incrementStorageBytes(tenantId, fileSizeBytes);\n\n// After a successful email/sms delivery:\nawait TenantUsageService.incrementEmailSends(tenantId, 1);\nawait TenantUsageService.incrementSmsSends(tenantId, 1);\n```\n\n### Wired call sites (live in this codebase)\n\n| Caller | Counter | Trigger |\n|---|---|---|\n| `modules/ai/ai.service.ts` (`chat` / `chatStream` / `embed`) | `aiTokens` | provider returns `usage.totalTokens` |\n| `modules/storage/storage.service.ts` (`uploadFile`, `uploadFromUrl`) | `storageBytes` | after `UploadedFile` audit insert |\n| `modules/notification_mail/notification_mail.service.ts` (`_sendMail` worker) | `emailSends` | provider returns `success: true` |\n| `modules/notification_sms/notification_sms.service.ts` (`_sendShortMessage` worker) | `smsSends` | provider returns `success: true` |\n\n`apiCalls` increment is wired at the route-middleware layer (Limiter hook); endpoints do not call it directly.\n\n## Reading usage\n\n```typescript\nconst usage = await TenantUsageService.getUsage(tenantId);\n// { apiCalls: 42, aiTokens: 8000, storageBytes: 1048576, emailSends: 0, smsSends: 0 }\n\n// For a specific past month:\nconst lastMonth = await TenantUsageService.getUsage(tenantId, '2026-04');\n```\n\n`getUsage` reads from Redis first and falls back to the DB when Redis has no data (e.g. after a restart or for historical months).\n\n## Flushing to the database\n\nCall `flushToDb` from a CRON job (e.g. hourly) to persist counters durably:\n\n```typescript\n// In a CRON handler:\nconst month = TenantUsageService.currentMonth();\nawait TenantUsageService.flushToDb(tenantId, month);\n```\n\n`flushToDb` reads all 4 Redis counters and upserts the `TenantUsage` row for the given tenant+month. If all counters are zero, it skips the DB write.\n\n## Entity registration\n\n`TenantUsage` is registered in `modules/db/db.tenant.ts` (per-tenant DataSource).\n"
+      "readme": "# tenant_usage\n\nTracks per-tenant usage counters (API calls, AI tokens, storage bytes, email sends) by month. Counters are stored in Redis for low-latency O(1) increments and flushed to the `tenant_usage` PostgreSQL table by a background CRON job for durable reporting and plan-limit enforcement.\n\n## What it does\n\n- Provides `TenantUsageService` with static methods to increment counters and read/flush usage.\n- The `TenantUsage` TypeORM entity persists monthly aggregates with a `UNIQUE(tenantId, month)` constraint.\n- Redis keys expire automatically after 32 days so stale data is cleaned up.\n\n## Redis key pattern\n\n```\ntenant:{tenantId}:usage:{metric}:{YYYY-MM}\n```\n\nExample: `tenant:abc-123:usage:apiCalls:2026-05`\n\nMetrics: `apiCalls`, `aiTokens`, `storageBytes`, `emailSends`, `smsSends`\n\n## Incrementing counters\n\n```typescript\nimport { TenantUsageService } from '@/modules/tenant_usage/tenant_usage.service';\n\n// In an API route or middleware:\nawait TenantUsageService.incrementApiCall(tenantId);\n\n// After an AI completion:\nawait TenantUsageService.incrementAiTokens(tenantId, tokensUsed);\n\n// After a file upload:\nawait TenantUsageService.incrementStorageBytes(tenantId, fileSizeBytes);\n\n// After a successful email/sms delivery:\nawait TenantUsageService.incrementEmailSends(tenantId, 1);\nawait TenantUsageService.incrementSmsSends(tenantId, 1);\n```\n\n### Wired call sites (live in this codebase)\n\n| Caller | Counter | Trigger |\n|---|---|---|\n| `modules/ai/ai.service.ts` (`chat` / `chatStream` / `embed`) | `aiTokens` | provider returns `usage.totalTokens` |\n| `modules/storage/storage.service.ts` (`uploadFile`, `uploadFromUrl`) | `storageBytes` | after `UploadedFile` audit insert |\n| `modules/notification_mail/notification_mail.service.ts` (`_sendMail` worker) | `emailSends` | provider returns `success: true` |\n| `modules/notification_sms/notification_sms.service.ts` (`_sendShortMessage` worker) | `smsSends` | provider returns `success: true` |\n\n`apiCalls` increment is wired at the route-middleware layer (Limiter hook); endpoints do not call it directly.\n\n## Reading usage\n\n```typescript\nconst usage = await TenantUsageService.getUsage(tenantId);\n// { apiCalls: 42, aiTokens: 8000, storageBytes: 1048576, emailSends: 0, smsSends: 0 }\n\n// For a specific past month:\nconst lastMonth = await TenantUsageService.getUsage(tenantId, '2026-04');\n```\n\n`getUsage` reads from Redis first and falls back to the DB when Redis has no data (e.g. after a restart or for historical months).\n\n## Flushing to the database\n\nCall `flushToDb` from a CRON job (e.g. hourly) to persist counters durably:\n\n```typescript\n// In a CRON handler:\nconst month = TenantUsageService.currentMonth();\nawait TenantUsageService.flushToDb(tenantId, month);\n```\n\n`flushToDb` reads all 4 Redis counters and upserts the `TenantUsage` row for the given tenant+month. If all counters are zero, it skips the DB write.\n\n## Entity registration\n\n`TenantUsage` is registered in `modules/db/db.ts` (single DataSource).\n"
     },
     {
       "id": "payment",
@@ -1773,7 +1773,7 @@
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false,
-      "readme": "# notification_log\n\nUnified outbound notification audit log. One row per delivery attempt across all channels (`mail`, `sms`, `push`, `inapp`). The channel-specific notification services (`notification_mail`, `notification_sms`, ...) call into this module from their BullMQ worker completion/failure handlers.\n\n## What it does\n\n- Persists `NotificationLog` rows to the tenant DB with channel, recipient, provider, status, optional `providerMessageId` and `error`.\n- Powers admin \"outbound deliveries\" dashboards and per-user delivery history.\n- Pairs with `tenant_usage` counters (`emailSends`, `smsSends`) — counters answer \"how many\", logs answer \"to whom, by which provider, succeeded?\".\n\n## API\n\n```ts\nimport NotificationLogService from '@/modules/notification_log/notification_log.service';\n\nawait NotificationLogService.log(tenantId, 'mail', 'user@example.com', 'sent', {\n  subject: 'Welcome',\n  provider: 'smtp',\n  providerMessageId: '<abc@host>',\n});\n\nawait NotificationLogService.log(tenantId, 'sms', '+12025551234', 'failed', {\n  provider: 'twilio',\n  error: 'Twilio: invalid recipient',\n});\n\nconst { logs, total } = await NotificationLogService.list(tenantId, {\n  channel: 'mail',\n  status: 'failed',\n  limit: 50,\n});\n```\n\n`log()` swallows errors — outbound notification flow is never blocked by audit-log unavailability.\n\n## Entity\n\n`NotificationLog` is registered in `modules/db/db.tenant.ts` as a per-tenant entity.\n"
+      "readme": "# notification_log\n\nUnified outbound notification audit log. One row per delivery attempt across all channels (`mail`, `sms`, `push`, `inapp`). The channel-specific notification services (`notification_mail`, `notification_sms`, ...) call into this module from their BullMQ worker completion/failure handlers.\n\n## What it does\n\n- Persists `NotificationLog` rows to the tenant DB with channel, recipient, provider, status, optional `providerMessageId` and `error`.\n- Powers admin \"outbound deliveries\" dashboards and per-user delivery history.\n- Pairs with `tenant_usage` counters (`emailSends`, `smsSends`) — counters answer \"how many\", logs answer \"to whom, by which provider, succeeded?\".\n\n## API\n\n```ts\nimport NotificationLogService from '@/modules/notification_log/notification_log.service';\n\nawait NotificationLogService.log(tenantId, 'mail', 'user@example.com', 'sent', {\n  subject: 'Welcome',\n  provider: 'smtp',\n  providerMessageId: '<abc@host>',\n});\n\nawait NotificationLogService.log(tenantId, 'sms', '+12025551234', 'failed', {\n  provider: 'twilio',\n  error: 'Twilio: invalid recipient',\n});\n\nconst { logs, total } = await NotificationLogService.list(tenantId, {\n  channel: 'mail',\n  status: 'failed',\n  limit: 50,\n});\n```\n\n`log()` swallows errors — outbound notification flow is never blocked by audit-log unavailability.\n\n## Entity\n\n`NotificationLog` is registered in `modules/db/db.ts` (single DataSource).\n"
     },
     {
       "id": "e_signature",
@@ -2172,6 +2172,58 @@
       "readme": "# ai module\n\nMulti-provider AI service supporting OpenAI, Anthropic, and Google. Handles chat completions, embeddings, streaming, usage tracking, and rate limiting.\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `ai.service.ts` | Core service: provider selection, chat completions, embeddings, usage tracking |\n| `ai.types.ts` | TypeScript types: `AIProviderType`, `ChatCompletionOptions`, `ChatCompletionResponse`, `AIModel` |\n| `ai.setting.keys.ts` | Setting key constants for API keys and model configuration |\n| `providers/base.provider.ts` | Abstract base class all providers extend |\n| `providers/openai.provider.ts` | OpenAI implementation (GPT-4, GPT-4o, etc.) |\n| `providers/anthropic.provider.ts` | Anthropic implementation (Claude 3.x, Claude 4.x) |\n| `providers/google.provider.ts` | Google implementation (Gemini) |\n| `ui/ai.chat-box.tsx` | Chat UI component |\n\n---\n\n## Providers\n\n| Provider | Key in settings | Models |\n|---|---|---|\n| `openai` | `AI_OPENAI_API_KEY` | gpt-4o, gpt-4-turbo, gpt-3.5-turbo |\n| `anthropic` | `AI_ANTHROPIC_API_KEY` | claude-opus-4-7, claude-sonnet-4-6, claude-haiku-4-5 |\n| `google` | `AI_GOOGLE_API_KEY` | gemini-1.5-pro, gemini-1.5-flash |\n\n---\n\n## Basic Usage\n\n```typescript\nimport AIService from '@/modules/ai/ai.service';\n\n// Chat completion\nconst response = await AIService.chat({\n  messages: [{ role: 'user', content: 'Hello' }],\n  provider: 'anthropic',\n  model: 'claude-sonnet-4-6',\n  maxTokens: 1024,\n});\n\n// response.content, response.model, response.provider, response.usage\n```\n\n---\n\n## Rate Limiting\n\nRate limits are enforced via Redis per user. Exceeding the limit throws `AIRateLimitError`.\n\n---\n\n## Adding a New Provider\n\n1. Extend `BaseAIProvider` in `providers/`\n2. Register in `ai.service.ts` provider map\n3. Add setting keys in `ai.setting.keys.ts`\n\n---\n\n## Usage tracking & audit (NEW)\n\nEvery successful `chat`, `chatStream`, and `embed` call now writes both:\n\n1. The legacy Redis daily counter (`ai:usage:<tenantId>:<provider>:<YYYY-MM-DD>`) — preserved for backwards compatibility.\n2. A monthly `TenantUsage.aiTokens` counter via `TenantUsageService.incrementAiTokens(tenantId, response.usage?.totalTokens)`. This is what billing / quota enforcement reads.\n3. A per-call `AiUsageLog` row (`modules/ai/entities/ai_usage_log.entity.ts`) with `provider`, `model`, `kind` (chat/stream/embed), `inputTokens`, `outputTokens`, `totalTokens`, `costUsd?`, `createdAt`. The row is the source of truth for \"which model did what\" reports.\n\nAll audit writes are best-effort — a DB hiccup never breaks the provider response.\n\n"
     },
     {
+      "id": "dynamic_page",
+      "name": "Dynamic Pages",
+      "version": "1.0.0",
+      "description": "Tenant-aware block-based page builder with i18n support. Supports code blocks (Prose, Hero, Popup Modal, Custom) and custom HTML template blocks. Public pages served at /tenant/[tenantId]/p/[slug].",
+      "dir": "modules/dynamic_page",
+      "icon": "fas fa-file-alt",
+      "tags": [
+        "cms",
+        "pages",
+        "blocks",
+        "builder",
+        "i18n"
+      ],
+      "priority": 50,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "logger",
+          "seo"
+        ]
+      },
+      "exports": {
+        "services": [
+          "dynamic_page.service.ts"
+        ],
+        "dtos": [
+          "dynamic_page.dto.ts"
+        ],
+        "enums": [
+          "dynamic_page.enums.ts"
+        ],
+        "messageKeys": [
+          "dynamic_page.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "dynamic_page.entity.ts",
+          "dynamic_page_block.entity.ts",
+          "dynamic_page_translation.entity.ts"
+        ]
+      },
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": true,
+      "readme": ""
+    },
+    {
       "id": "api_doc",
       "name": "API Documentation",
       "version": "1.0.0",
@@ -2203,35 +2255,6 @@
       "hasModuleJson": true,
       "hasNextLayer": true,
       "readme": "# api_doc module\n\nUI-only module for rendering interactive API documentation pages. Displays OpenAPI-style operation details, parameters, responses, and code samples. No backend service.\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `ui/types.ts` | Types for spec structure |\n| `ui/*.tsx` | 14 UI components for API doc rendering |\n| `mockSpec.ts` | Mock OpenAPI spec for development/preview |\n\n---\n\n## Usage\n\nThis module is consumed by the API documentation admin page. Pass an OpenAPI spec object to the root component:\n\n```tsx\nimport { ApiDocViewer } from '@/modules/api_doc/ui/api-doc-viewer';\nimport { mockSpec } from '@/modules/api_doc/mockSpec';\n\n<ApiDocViewer spec={mockSpec} />\n```\n\n---\n\n## Notes\n\n- No service, no database entity, no API routes\n- Uses the mock spec during development; in production, swap with a real spec fetched from `/api/spec` or loaded from file\n"
-    },
-    {
-      "id": "dynamic_page",
-      "name": "dynamic_page",
-      "version": "0.0.0",
-      "description": "",
-      "dir": "modules/dynamic_page",
-      "tags": [],
-      "priority": 100,
-      "tier": "other",
-      "dependencies": {
-        "requires": [],
-        "optional": [],
-        "conflicts": []
-      },
-      "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
-        "settingKeys": [],
-        "providers": [],
-        "jobs": [],
-        "entities": []
-      },
-      "hasReadme": false,
-      "hasModuleJson": false,
-      "hasNextLayer": true,
-      "readme": ""
     },
     {
       "id": "payment_core",

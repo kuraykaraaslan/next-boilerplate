@@ -14,7 +14,7 @@ import { RowActionsMenu } from '@/modules_next/common/ui/RowActionsMenu';
 import { Badge } from '@/modules_next/common/ui/Badge';
 import { toast } from '@/modules_next/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faSearch, faPenToSquare, faTrash, faEye } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faSearch, faPenToSquare, faTrash, faEye, faBars, faWindowMinimize } from '@fortawesome/free-solid-svg-icons';
 import type { DynamicPageRecord } from '@/modules/dynamic_page/dynamic_page.types';
 import { DynamicPageStatus } from '@/modules/dynamic_page/dynamic_page.enums';
 
@@ -52,6 +52,9 @@ export default function DynamicPagesListPage({ params }: { params: Promise<{ ten
   const [form, setForm] = useState({ title: '', slug: '' });
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState('');
+  const [systemPages, setSystemPages] = useState<{ nav?: DynamicPage; footer?: DynamicPage }>({});
+  const [systemLoading, setSystemLoading] = useState(true);
+  const [creatingSystem, setCreatingSystem] = useState<'__nav' | '__footer' | null>(null);
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
@@ -61,15 +64,47 @@ export default function DynamicPagesListPage({ params }: { params: Promise<{ ten
       const res = await api.get(`/tenant/${tenantId}/api/dynamic-pages`, {
         params: { page: p - 1, pageSize: PAGE_SIZE, search: q || undefined, status: st || undefined },
       });
-      setPages(res.data.items ?? []);
+      const items: DynamicPage[] = res.data.items ?? [];
+      setPages(items.filter((p) => !p.slug.startsWith('__')));
       setTotal(res.data.total ?? 0);
     } catch (err) {
       setFetchError(extractMessage(err, 'Failed to load pages.'));
     } finally { setLoading(false); }
   }, [tenantId]);
 
+  const fetchSystemPages = useCallback(async () => {
+    setSystemLoading(true);
+    try {
+      const res = await api.get(`/tenant/${tenantId}/api/dynamic-pages`, {
+        params: { page: 0, pageSize: 10, search: '__' },
+      });
+      const items: DynamicPage[] = res.data.items ?? [];
+      setSystemPages({
+        nav: items.find((p) => p.slug === '__nav'),
+        footer: items.find((p) => p.slug === '__footer'),
+      });
+    } catch {
+      /* silent — system section just won't render */
+    } finally { setSystemLoading(false); }
+  }, [tenantId]);
+
   useEffect(() => { setPage(1); fetchPages(1, search, status); }, [status]);
   useEffect(() => { fetchPages(page, search, status); }, [page]);
+  useEffect(() => { fetchSystemPages(); }, [fetchSystemPages]);
+
+  async function handleCreateSystem(slug: '__nav' | '__footer') {
+    setCreatingSystem(slug);
+    try {
+      const title = slug === '__nav' ? 'Site Navigation' : 'Site Footer';
+      const res = await api.post(`/tenant/${tenantId}/api/dynamic-pages`, {
+        title, slug, status: 'PUBLISHED', sections: [],
+      });
+      toast.success(`${title} created`);
+      router.push(`/tenant/${tenantId}/admin/pages/${res.data.page.dynamicPageId}`);
+    } catch (err) {
+      toast.error(extractMessage(err, `Failed to create ${slug}.`));
+    } finally { setCreatingSystem(null); }
+  }
 
   function handleSearch(v: string) { setSearch(v); setPage(1); fetchPages(1, v, status); }
 
@@ -138,7 +173,7 @@ export default function DynamicPagesListPage({ params }: { params: Promise<{ ten
             },
             {
               label: 'Preview', icon: <FontAwesomeIcon icon={faEye} />,
-              onClick: () => window.open(`/tenant/${tenantId}/p/${p.slug}`, '_blank'),
+              onClick: () => window.open(`/tenant/${tenantId}/${p.slug}`, '_blank'),
             },
             {
               label: 'Delete', icon: <FontAwesomeIcon icon={faTrash} />, variant: 'danger',
@@ -150,6 +185,41 @@ export default function DynamicPagesListPage({ params }: { params: Promise<{ ten
     },
   ];
 
+  function renderSystemCard(slug: '__nav' | '__footer', label: string, icon: typeof faBars) {
+    const existing = slug === '__nav' ? systemPages.nav : systemPages.footer;
+    return (
+      <div className="flex items-center gap-4 p-4 rounded-lg border border-border bg-surface-raised">
+        <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary-subtle text-primary">
+          <FontAwesomeIcon icon={icon} className="w-4 h-4" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="font-medium text-text-primary">{label}</p>
+          <p className="text-xs text-text-secondary">
+            {existing
+              ? <>Slug: <code className="font-mono">/{existing.slug}</code> · {existing.status}</>
+              : `Not yet created — site will render without ${slug === '__nav' ? 'navigation' : 'footer'}.`}
+          </p>
+        </div>
+        {existing ? (
+          <Button
+            variant="secondary"
+            onClick={() => router.push(`/tenant/${tenantId}/admin/pages/${existing.dynamicPageId}`)}
+          >
+            <FontAwesomeIcon icon={faPenToSquare} /> Edit
+          </Button>
+        ) : (
+          <Button
+            variant="primary"
+            loading={creatingSystem === slug}
+            onClick={() => handleCreateSystem(slug)}
+          >
+            <FontAwesomeIcon icon={faPlus} /> Create
+          </Button>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -157,6 +227,21 @@ export default function DynamicPagesListPage({ params }: { params: Promise<{ ten
         subtitle={loading ? '…' : `${total} page${total !== 1 ? 's' : ''}`}
         actions={[{ label: <><FontAwesomeIcon icon={faPlus} /> New Page</>, onClick: () => setShowCreate(true) }]}
       />
+
+      <section className="space-y-3">
+        <div>
+          <h2 className="text-sm font-semibold text-text-primary">Site Layout</h2>
+          <p className="text-xs text-text-secondary">Shared navigation and footer rendered around every public page.</p>
+        </div>
+        {systemLoading ? (
+          <p className="text-sm text-text-secondary">Loading…</p>
+        ) : (
+          <div className="grid gap-3 md:grid-cols-2">
+            {renderSystemCard('__nav', 'Navigation', faBars)}
+            {renderSystemCard('__footer', 'Footer', faWindowMinimize)}
+          </div>
+        )}
+      </section>
 
       {fetchError && <AlertBanner variant="error" message={fetchError} />}
 
