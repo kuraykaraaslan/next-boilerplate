@@ -47,6 +47,9 @@ import { StoreBundleItem } from '@/modules/store/entities/store_bundle_item.enti
 import { SeoMeta } from '@/modules/seo/entities/seo_meta.entity';
 import { MediaGallery } from '@/modules/media_gallery/entities/media_gallery.entity';
 import { MediaGalleryItem } from '@/modules/media_gallery/entities/media_gallery_item.entity';
+import { DynamicPage } from '@/modules/dynamic_page/entities/dynamic_page.entity';
+import { DynamicPageTranslation } from '@/modules/dynamic_page/entities/dynamic_page_translation.entity';
+import { DynamicPageBlock } from '@/modules/dynamic_page/entities/dynamic_page_block.entity';
 
 const ENTITIES = [
   User,
@@ -94,6 +97,9 @@ const ENTITIES = [
   SeoMeta,
   MediaGallery,
   MediaGalleryItem,
+  DynamicPage,
+  DynamicPageTranslation,
+  DynamicPageBlock,
 ];
 
 const { url: DEFAULT_DB_URL, schema: DEFAULT_SCHEMA } = parseDbUrl(env.DATABASE_URL);

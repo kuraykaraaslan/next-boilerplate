@@ -1,0 +1,13 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "dynamic_page",
+  "name": "Dynamic Pages",
+  "description": "Tenant-aware block-based page builder with i18n support. Supports code blocks (Prose, Hero, Popup Modal, Custom) and custom HTML template blocks. Public pages served at /tenant/[tenantId]/p/[slug].",
+  "version": "1.0.0",
+  "icon": "fas fa-file-alt",
+  "tags": ["cms", "pages", "blocks", "builder", "i18n"],
+  "priority": 50,
+  "dependencies": {
+    "requires": ["db", "env", "redis", "logger", "seo"]
+  }
+}

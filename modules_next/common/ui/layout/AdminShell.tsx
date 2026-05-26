@@ -29,10 +29,11 @@ import {
   faIdCard,
   faPlug,
   faFileInvoice,
-  faStore,
   faTag,
   faBoxOpen,
   faLayerGroup,
+  faFileAlt,
+  faPuzzlePiece,
 } from '@fortawesome/free-solid-svg-icons';
 
 type AdminShellProps = {
@@ -70,6 +71,13 @@ export function AdminShell({ children, tenantId }: AdminShellProps) {
   }, [tenantId]);
 
   const tenantNavGroups = [
+    {
+      label: 'Content',
+      items: [
+        { id: 'pages',  label: 'Pages',  href: `/tenant/${tenantId}/admin/pages`,  icon: <FontAwesomeIcon icon={faFileAlt} aria-hidden /> },
+        { id: 'blocks', label: 'Blocks', href: `/tenant/${tenantId}/admin/blocks`, icon: <FontAwesomeIcon icon={faPuzzlePiece} aria-hidden /> },
+      ],
+    },
     {
       label: 'Management',
       items: [
