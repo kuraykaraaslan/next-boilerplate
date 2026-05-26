@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { env } from '@/modules/env';
 import { IsNull } from 'typeorm';
-import { tenantDataSourceFor, getDefaultTenantDataSource } from '@/modules/db';
+import { tenantDataSourceFor, getDataSource } from '@/modules/db';
 import { Tenant as TenantEntity } from '@/modules/tenant/entities/tenant.entity';
 import { TenantMember as TenantMemberEntity } from '@/modules/tenant_member/entities/tenant_member.entity';
 import redis from '@/modules/redis';
@@ -93,7 +93,7 @@ export default class TenantSessionService {
   }
 
   static async getUserTenants(userId: string): Promise<Array<{ tenant: SafeTenant; tenantMember: SafeTenantMember }>> {
-    const ds = await getDefaultTenantDataSource();
+    const ds = await getDataSource();
     const members = await ds.getRepository(TenantMemberEntity).find({
       where: { userId, memberStatus: 'ACTIVE', deletedAt: IsNull() },
     });

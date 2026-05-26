@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-05-26T08:39:48.402Z",
+  "generatedAt": "2026-05-26T13:33:17.307Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -1438,7 +1438,7 @@
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": true,
-      "readme": "# coupon\n\nCoupon / promo code system for subscription plans and payments.\n\n## Overview\n\nCoupons are created in the **system DB** by admins. Redemptions are stored per-tenant in the **tenant DB**. Discount calculation is always server-side — providers (Stripe, PayPal, Iyzico) receive the already-discounted amount.\n\n## Architecture\n\n```\nSystem DB (global)\n  └── coupons           — coupon definitions (code, discount, limits, expiry)\n\nTenant DB (per-tenant)\n  └── coupon_redemptions — usage history per tenant\n```\n\n## Discount Types\n\n| Type | Behavior |\n|---|---|\n| `PERCENTAGE` | Reduces amount by N% |\n| `FIXED_AMOUNT` | Reduces amount by exact value (currency-matched) |\n\n## Provider Sync\n\n| Provider | Native coupon API | Sync support |\n|---|---|---|\n| Stripe | Yes — Coupon + Promotion Code | `StripeCouponProvider.syncCoupon()` creates the coupon and promo code in Stripe |\n| PayPal | No | Discount applied by reducing order amount |\n| Iyzico | No | Discount applied by reducing basket total |\n\n## Service API\n\n```typescript\n// Admin\nCouponService.create(dto)\nCouponService.getAll(query)\nCouponService.getById(couponId)\nCouponService.update(couponId, dto)\nCouponService.archive(couponId)\n\n// Checkout flow\nCouponService.validate({ code, tenantId, amount, currency, planId, provider })\nCouponService.apply({ code, tenantId, paymentId, userId, amount, currency })\n\n// History\nCouponService.getRedemptionsByTenant(tenantId, page, pageSize)\n```\n\n## API Routes\n\n| Method | Path | Auth | Description |\n|---|---|---|---|\n| GET | `/tenant/00000000-0000-4000-8000-000000000000/api/coupons` | root-tenant admin | List all coupons |\n| POST | `/tenant/00000000-0000-4000-8000-000000000000/api/coupons` | root-tenant admin | Create coupon |\n| GET | `/tenant/00000000-0000-4000-8000-000000000000/api/coupons/[couponId]` | root-tenant admin | Get coupon |\n| PUT | `/tenant/00000000-0000-4000-8000-000000000000/api/coupons/[couponId]` | root-tenant admin | Update coupon |\n| DELETE | `/tenant/00000000-0000-4000-8000-000000000000/api/coupons/[couponId]` | root-tenant admin | Archive coupon |\n| POST | `/tenant/[tenantId]/api/coupons/validate` | tenant member | Validate + preview discount |\n| POST | `/tenant/[tenantId]/api/coupons/apply` | tenant member | Apply + record redemption |\n| GET | `/tenant/[tenantId]/api/coupons/redemptions` | ADMIN+ | Redemption history |\n\n## UI Components\n\n```tsx\n// Checkout form — lets user enter and validate a promo code\n<CouponApplyForm\n  tenantId={tenantId}\n  amount={total}\n  currency=\"USD\"\n  planId={planId}\n  provider=\"STRIPE\"\n  onApplied={({ discountAmount, finalAmount, code }) => { ... }}\n  onRemoved={() => { ... }}\n/>\n\n// Small badge showing applied coupon\n<CouponBadge code=\"SUMMER25\" discountType=\"PERCENTAGE\" discountValue={25} />\n\n// Tenant admin redemption history\n<CouponRedemptionsList tenantId={tenantId} />\n```\n\n## Validation Rules\n\n- Coupon must be `ACTIVE`\n- `startsAt` and `expiresAt` windows enforced\n- `maxUses` (global) and `maxUsesPerTenant` checked atomically\n- `minimumAmount` checked against order amount\n- `applicablePlanIds` — null means all plans\n- `applicableProviders` — null means all providers\n\n## Stripe Sync\n\nCall `StripeCouponProvider.syncCoupon(coupon)` after creating a coupon to push it to the Stripe dashboard. The Stripe Coupon ID is `coupon_{couponId without dashes}`.\n\n## Caching\n\nCoupons are cached in Redis (TTL = `TENANT_CACHE_TTL`, default 5 min):\n\n| Key | Used by |\n|---|---|\n| `coupon:id:{couponId}` | `getById` |\n| `coupon:code:{CODE}` (uppercase) | `getByCode` → drives `validate` / `apply` lookups |\n\nInvalidation on **update**, **archive**, and **apply** (which increments `usedCount`) clears both keys. Apply is critical: stale `usedCount` could allow `maxUses` overspend, so the cache is invalidated even though the row is only incremented. `create` clears any negative cache for the new code.\n\n### Stampede + negative cache\n\n- **TTL jitter (±10%)** on every cache write.\n- **In-process single-flight** dedupes concurrent loaders for the same code/id.\n- **Negative cache** on `getByCode`: unknown codes are cached as `__not_found__` for up to 60s — protects against guessing/brute-forcing coupon codes.\n"
+      "readme": "# coupon\n\nCoupon / promo code system for subscription plans and payments.\n\n## Overview\n\nCoupons are created in the **system DB** by admins. Redemptions are stored per-tenant in the **tenant DB**. Discount calculation is always server-side — providers (Stripe, PayPal, Iyzico) receive the already-discounted amount.\n\n## Architecture\n\n```\nSystem DB (global)\n  └── coupons           — coupon definitions (code, discount, limits, expiry)\n\nTenant DB (per-tenant)\n  └── coupon_redemptions — usage history per tenant\n```\n\n## Discount Types\n\n| Type | Behavior |\n|---|---|\n| `PERCENTAGE` | Reduces amount by N% |\n| `FIXED_AMOUNT` | Reduces amount by exact value (currency-matched) |\n\n## Provider Sync\n\n| Provider | Native coupon API | Sync support |\n|---|---|---|\n| Stripe | Yes — Coupon + Promotion Code | `StripeCouponProvider.syncCoupon()` creates the coupon and promo code in Stripe |\n| PayPal | No | Discount applied by reducing order amount |\n| Iyzico | No | Discount applied by reducing basket total |\n\n## Service API\n\n```typescript\n// Admin\nCouponService.create(dto)\nCouponService.getAll(query)\nCouponService.getById(couponId)\nCouponService.update(couponId, dto)\nCouponService.archive(couponId)\n\n// Checkout flow\nCouponService.validate({ code, tenantId, amount, currency, planId, provider })\nCouponService.apply({ code, tenantId, paymentId, userId, amount, currency })\n\n// History\nCouponService.getRedemptionsByTenant(tenantId, page, pageSize)\n```\n\n## API Routes\n\n| Method | Path | Auth | Description |\n|---|---|---|---|\n| GET | `/tenant/00000000-0000-4000-8000-000000000000/api/coupons` | root-tenant admin | List all coupons |\n| POST | `/tenant/00000000-0000-4000-8000-000000000000/api/coupons` | root-tenant admin | Create coupon |\n| GET | `/tenant/00000000-0000-4000-8000-000000000000/api/coupons/[couponId]` | root-tenant admin | Get coupon |\n| PUT | `/tenant/00000000-0000-4000-8000-000000000000/api/coupons/[couponId]` | root-tenant admin | Update coupon |\n| DELETE | `/tenant/00000000-0000-4000-8000-000000000000/api/coupons/[couponId]` | root-tenant admin | Archive coupon |\n| POST | `/tenant/[tenantId]/api/coupons/validate` | tenant member | Validate + preview discount |\n| POST | `/tenant/[tenantId]/api/coupons/apply` | tenant member | Apply + record redemption |\n| GET | `/tenant/[tenantId]/api/coupons/redemptions` | ADMIN+ | Redemption history |\n\n## UI Components\n\n```tsx\n// Checkout form — lets user enter and validate a promo code\n<CouponApplyForm\n  tenantId={tenantId}\n  amount={total}\n  currency=\"USD\"\n  planId={planId}\n  provider=\"STRIPE\"\n  onApplied={({ discountAmount, finalAmount, code }) => { ... }}\n  onRemoved={() => { ... }}\n/>\n\n// Small badge showing applied coupon\n<CouponBadge code=\"SUMMER25\" discountType=\"PERCENTAGE\" discountValue={25} />\n\n// Tenant admin redemption history\n<CouponRedemptionsList tenantId={tenantId} />\n```\n\n## Validation Rules\n\n- Coupon must be `ACTIVE`\n- `startsAt` and `expiresAt` windows enforced\n- `maxUses` (global) and `maxUsesPerTenant` checked atomically\n- Scope dimensions checked via `CouponService.scopeApplies(scope, ctx)` (see below)\n\n## Scope\n\n`Coupon.scope` is a single JSONB column that captures every targeting dimension. Each field is **optional**; a missing/null dimension acts as a wildcard. Pass relevant fields at validate/apply time.\n\n```ts\ntype CouponScope = {\n  productIds?: string[]   // limit to specific store products (one-time sales)\n  planIds?: string[]      // limit to specific subscription plans\n  categoryIds?: string[]  // limit to products in these categories\n  providers?: string[]    // limit to specific payment providers\n  appliesTo?: 'line' | 'cart'  // 'line' = discount each matching line, 'cart' = discount cart total. Default 'line'.\n  minimumAmount?: number  // minimum subtotal (in coupon.currency)\n}\n```\n\nMatching semantics:\n- `planIds` — `ctx.planId` must be in the list.\n- `productIds` — `ctx.productIds` (cart's product UUIDs) must intersect the list.\n- `categoryIds` — `ctx.categoryIds` must intersect the list.\n- `providers` — `ctx.provider` must be in the list.\n- `minimumAmount` — `ctx.amount` must be ≥ this threshold.\n\nWhen `validate` / `apply` is called with the relevant context the helper short-circuits with a typed reason if any dimension fails. `appliesTo` is metadata for checkout-flow callers — it doesn't gate validation by itself.\n\n## Migration notes\n\nRecent changes:\n\n- **Replaced flat columns with `scope` jsonb.** Removed `applicablePlanIds`, `applicableProviders`, `minimumAmount` from the entity. Added `scope`. Manual SQL if you have legacy data:\n  ```sql\n  ALTER TABLE coupons ADD COLUMN scope jsonb;\n  UPDATE coupons SET scope = jsonb_strip_nulls(jsonb_build_object(\n    'planIds',       \"applicablePlanIds\",\n    'providers',     \"applicableProviders\",\n    'minimumAmount', \"minimumAmount\"\n  )) WHERE \"applicablePlanIds\" IS NOT NULL\n       OR \"applicableProviders\" IS NOT NULL\n       OR \"minimumAmount\" IS NOT NULL;\n  ALTER TABLE coupons DROP COLUMN IF EXISTS \"applicablePlanIds\",\n                     DROP COLUMN IF EXISTS \"applicableProviders\",\n                     DROP COLUMN IF EXISTS \"minimumAmount\";\n  ```\n  TypeORM `synchronize` handles dev databases automatically.\n\n## Stripe Sync\n\nCall `StripeCouponProvider.syncCoupon(coupon)` after creating a coupon to push it to the Stripe dashboard. The Stripe Coupon ID is `coupon_{couponId without dashes}`.\n\n## Caching\n\nCoupons are cached in Redis (TTL = `TENANT_CACHE_TTL`, default 5 min):\n\n| Key | Used by |\n|---|---|\n| `coupon:id:{couponId}` | `getById` |\n| `coupon:code:{CODE}` (uppercase) | `getByCode` → drives `validate` / `apply` lookups |\n\nInvalidation on **update**, **archive**, and **apply** (which increments `usedCount`) clears both keys. Apply is critical: stale `usedCount` could allow `maxUses` overspend, so the cache is invalidated even though the row is only incremented. `create` clears any negative cache for the new code.\n\n### Stampede + negative cache\n\n- **TTL jitter (±10%)** on every cache write.\n- **In-process single-flight** dedupes concurrent loaders for the same code/id.\n- **Negative cache** on `getByCode`: unknown codes are cached as `__not_found__` for up to 60s — protects against guessing/brute-forcing coupon codes.\n"
     },
     {
       "id": "payment_sell",
@@ -1539,10 +1539,10 @@
           "subscription_plan.entity.ts"
         ]
       },
-      "hasReadme": false,
+      "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false,
-      "readme": ""
+      "readme": "# payment_subscription\n\nTenant-scoped subscription billing: plans, features, and Subscription state.\n\n## Plans wrap products\n\nA **Plan** is a billing-recurrence binding around a `StoreProduct`. The product owns presentation **and price** (name, slug, description, `basePrice`, currency, imagery, SEO). The plan owns recurrence (`interval`, trial, status).\n\nTo offer the same product at multiple cadences (e.g. \"Pro Monthly\" vs \"Pro Yearly\"), create **multiple plans** that point to the same product. The interval is part of each plan's identity.\n\n```\nStoreProduct (modules/store)\n   ▲\n   │ productId FK\n   │\nSubscriptionPlan          ← name, description, currency come from the product\n   ▲\n   │ planId FK\n   │\nSubscription              ← per-tenant or per-user billing state\n```\n\nThis means coupons, invoices, the storefront cart, and the admin product catalog all operate over a single notion of \"what is being sold\". One-time products and recurring plans are both reachable from the same product record.\n\n## Entities\n\n- `SubscriptionPlan` — `planId`, `tenantId`, `productId`, `interval` (DAILY | WEEKLY | MONTHLY | QUARTERLY | YEARLY), `trialDays`, `status`, timestamps. Price comes from `product.basePrice`.\n- `PlanFeature` — capability rows attached to a plan (`key`, `label`, `type=BOOLEAN|LIMIT`, `value`).\n- `Subscription` — provider state (status, `billingCycle` snapshot of plan's interval, current period, trial, cancellation, metadata).\n\n## Admin UI\n\n- `/tenant/<id>/admin/plans` — list of plans (joined product columns for name/price/currency). \"New Plan\" modal picks an existing product via search, then sets monthly/yearly/trial.\n- `/tenant/<id>/admin/plans/<planId>` — detail page: \"Wrapped Product\" card with link to product editor, \"Pricing & Status\" card for plan-specific fields, \"Features\" table for capability flags, \"Change product\" modal to rebind.\n\nThe product picker reuses the same search-as-you-type pattern as the Store variant-link picker.\n\n## Service shape\n\n```ts\nPaymentSubscriptionService.createPlan(tenantId, { productId, interval, trialDays?, status? }) → PlanWithProduct\nPaymentSubscriptionService.updatePlan(tenantId, planId, partial) → PlanWithProduct\nPaymentSubscriptionService.getPlan(tenantId, planId, withFeatures?) → PlanWithProduct | PlanWithFeatures\nPaymentSubscriptionService.listPlans(tenantId, { page, pageSize, status?, includeFeatures? }) → { data, total }\n```\n\n`PlanWithProduct` always embeds the product summary so admin tables don't need a second roundtrip. `PlanWithFeatures` extends it with the feature list.\n\n## Price & currency derivation\n\nBoth **amount** and **currency** flow from the wrapped product (`product.basePrice`, `product.currency`). On `createSubscription` you can override the currency explicitly; otherwise it follows the product. `billingCycle` on a Subscription is a snapshot of the plan's `interval` taken at subscribe time (so changing the plan later doesn't rewrite history).\n\n## Migration notes\n\nThe legacy `modules/payment/entities/subscription_plan.entity.ts` and `modules/payment_subscription/entities/subscription_plan.entity.ts` both target the same `subscription_plans` table. Both have been updated to the same shape so either registration works.\n\nSchema changes:\n\n```sql\n-- drop legacy plan-owned display fields and per-cadence prices\nALTER TABLE subscription_plans DROP COLUMN IF EXISTS \"name\";\nALTER TABLE subscription_plans DROP COLUMN IF EXISTS \"description\";\nALTER TABLE subscription_plans DROP COLUMN IF EXISTS \"currency\";\nALTER TABLE subscription_plans DROP COLUMN IF EXISTS \"sortOrder\";\nALTER TABLE subscription_plans DROP COLUMN IF EXISTS \"monthlyPrice\";\nALTER TABLE subscription_plans DROP COLUMN IF EXISTS \"yearlyPrice\";\nALTER TABLE subscription_plans DROP COLUMN IF EXISTS \"isDefault\";\n\n-- add the product binding and the recurrence interval\nALTER TABLE subscription_plans ADD COLUMN \"productId\" uuid;\nALTER TABLE subscription_plans ADD COLUMN \"interval\"  varchar DEFAULT 'MONTHLY';\n-- backfill: for each existing plan, create or pick a StoreProduct (basePrice=monthlyPrice)\n-- and set productId. For plans that had both monthly+yearly amounts, split into TWO plans.\nALTER TABLE subscription_plans ALTER COLUMN \"productId\" SET NOT NULL;\nALTER TABLE subscription_plans ALTER COLUMN \"interval\"  SET NOT NULL;\n```\n\nIn dev (TypeORM `synchronize`) the columns drop/add automatically. In prod, backfill before tightening the constraints.\n\n**Tenant seed:** `TenantService.seedDefaults` previously auto-created a \"Free\" plan for every new tenant. That seed is currently disabled — a plan now requires both a `Category` and a `StoreProduct`, and the catalog is tenant-specific. Operators create the Free plan via the admin UI once their catalog is in place.\n\n## Dependencies\n\n`db`, `env`, `redis`, `logger`, `store` (entity import for product join).\n"
     },
     {
       "id": "invoice",
@@ -4004,12 +4004,10 @@
         "discountType",
         "discountValue",
         "currency",
-        "applicablePlanIds",
-        "applicableProviders",
+        "scope",
         "maxUses",
         "maxUsesPerTenant",
         "usedCount",
-        "minimumAmount",
         "status",
         "startsAt",
         "expiresAt",
@@ -4746,14 +4744,9 @@
       "columns": [
         "planId",
         "tenantId",
-        "name",
-        "description",
-        "monthlyPrice",
-        "yearlyPrice",
-        "currency",
+        "productId",
+        "interval",
         "trialDays",
-        "sortOrder",
-        "isDefault",
         "status",
         "createdAt",
         "updatedAt"
@@ -4769,14 +4762,9 @@
       "columns": [
         "planId",
         "tenantId",
-        "name",
-        "description",
-        "monthlyPrice",
-        "yearlyPrice",
-        "currency",
+        "productId",
+        "interval",
         "trialDays",
-        "sortOrder",
-        "isDefault",
         "status",
         "createdAt",
         "updatedAt"
@@ -5628,6 +5616,20 @@
       "baseName": "Card"
     },
     {
+      "id": "common/ui/ColorPicker",
+      "module": "common",
+      "filePath": "modules_next/common/ui/ColorPicker.tsx",
+      "kind": "ui",
+      "exports": [
+        "DEFAULT_COLOR_SWATCHES",
+        "ColorPickerProps",
+        "ColorPicker"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ColorPicker"
+    },
+    {
       "id": "common/ui/ContextMenu",
       "module": "common",
       "filePath": "modules_next/common/ui/ContextMenu.tsx",
@@ -5865,6 +5867,30 @@
       "baseName": "RadioGroup"
     },
     {
+      "id": "common/ui/RichTextEditor/BubbleMenu",
+      "module": "common",
+      "filePath": "modules_next/common/ui/RichTextEditor/BubbleMenu.tsx",
+      "kind": "ui",
+      "exports": [
+        "BubbleMenu"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "BubbleMenu"
+    },
+    {
+      "id": "common/ui/RichTextEditor/EmojiPicker",
+      "module": "common",
+      "filePath": "modules_next/common/ui/RichTextEditor/EmojiPicker.tsx",
+      "kind": "ui",
+      "exports": [
+        "EmojiPicker"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "EmojiPicker"
+    },
+    {
       "id": "common/ui/RichTextEditor/ImageInsertModal",
       "module": "common",
       "filePath": "modules_next/common/ui/RichTextEditor/ImageInsertModal.tsx",
@@ -5877,17 +5903,197 @@
       "baseName": "ImageInsertModal"
     },
     {
+      "id": "common/ui/RichTextEditor/ImageOverlay",
+      "module": "common",
+      "filePath": "modules_next/common/ui/RichTextEditor/ImageOverlay.tsx",
+      "kind": "ui",
+      "exports": [
+        "ImageOverlay"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ImageOverlay"
+    },
+    {
       "id": "common/ui/RichTextEditor/index",
       "module": "common",
       "filePath": "modules_next/common/ui/RichTextEditor/index.tsx",
       "kind": "ui",
       "exports": [
-        "RichTextEditorProps",
         "RichTextEditor"
       ],
       "isClient": true,
       "isServer": false,
       "baseName": "index"
+    },
+    {
+      "id": "common/ui/RichTextEditor/markdown",
+      "module": "common",
+      "filePath": "modules_next/common/ui/RichTextEditor/markdown.ts",
+      "kind": "ui",
+      "exports": [
+        "applyMarkdownShortcuts"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "markdown"
+    },
+    {
+      "id": "common/ui/RichTextEditor/PopupOverlays",
+      "module": "common",
+      "filePath": "modules_next/common/ui/RichTextEditor/PopupOverlays.tsx",
+      "kind": "ui",
+      "exports": [
+        "PopupOverlaysProps",
+        "PopupOverlays"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PopupOverlays"
+    },
+    {
+      "id": "common/ui/RichTextEditor/quill-helpers",
+      "module": "common",
+      "filePath": "modules_next/common/ui/RichTextEditor/quill-helpers.ts",
+      "kind": "ui",
+      "exports": [
+        "updateCounts",
+        "detectTriggers"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "quill-helpers"
+    },
+    {
+      "id": "common/ui/RichTextEditor/sanitize",
+      "module": "common",
+      "filePath": "modules_next/common/ui/RichTextEditor/sanitize.ts",
+      "kind": "ui",
+      "exports": [
+        "sanitizePastedHTML",
+        "resolveImageSrc"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "sanitize"
+    },
+    {
+      "id": "common/ui/RichTextEditor/store",
+      "module": "common",
+      "filePath": "modules_next/common/ui/RichTextEditor/store.ts",
+      "kind": "ui",
+      "exports": [
+        "RichTextEditorState",
+        "RichTextEditorActions",
+        "RichTextEditorStore",
+        "createRichTextEditorStore",
+        "RichTextEditorStoreHook",
+        "RichTextEditorStoreProvider",
+        "useRteStore",
+        "useRteStoreApi"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "store"
+    },
+    {
+      "id": "common/ui/RichTextEditor/SuggestionPopup",
+      "module": "common",
+      "filePath": "modules_next/common/ui/RichTextEditor/SuggestionPopup.tsx",
+      "kind": "ui",
+      "exports": [
+        "SuggestionItem",
+        "SuggestionPopup"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SuggestionPopup"
+    },
+    {
+      "id": "common/ui/RichTextEditor/TableInsertModal",
+      "module": "common",
+      "filePath": "modules_next/common/ui/RichTextEditor/TableInsertModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "TableInsertModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "TableInsertModal"
+    },
+    {
+      "id": "common/ui/RichTextEditor/Toolbar",
+      "module": "common",
+      "filePath": "modules_next/common/ui/RichTextEditor/Toolbar.tsx",
+      "kind": "ui",
+      "exports": [
+        "ToolbarProps",
+        "Toolbar",
+        "QuillFormatFn"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Toolbar"
+    },
+    {
+      "id": "common/ui/RichTextEditor/types",
+      "module": "common",
+      "filePath": "modules_next/common/ui/RichTextEditor/types.ts",
+      "kind": "ui",
+      "exports": [
+        "RichTextEditorHandle",
+        "MentionUser",
+        "SlashCommand",
+        "RichTextEditorProps",
+        "Range",
+        "QuillFormats",
+        "QuillInstance",
+        "TriggerState",
+        "ImageSelection",
+        "BubbleState"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "types"
+    },
+    {
+      "id": "common/ui/RichTextEditor/useEditorActions",
+      "module": "common",
+      "filePath": "modules_next/common/ui/RichTextEditor/useEditorActions.ts",
+      "kind": "ui",
+      "exports": [
+        "UseEditorActionsArgs",
+        "useEditorActions"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "useEditorActions"
+    },
+    {
+      "id": "common/ui/RichTextEditor/useQuillSetup",
+      "module": "common",
+      "filePath": "modules_next/common/ui/RichTextEditor/useQuillSetup.ts",
+      "kind": "ui",
+      "exports": [
+        "UseQuillSetupOptions",
+        "useQuillSetup"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "useQuillSetup"
+    },
+    {
+      "id": "common/ui/RichTextEditor/useTriggerKeyboard",
+      "module": "common",
+      "filePath": "modules_next/common/ui/RichTextEditor/useTriggerKeyboard.ts",
+      "kind": "ui",
+      "exports": [
+        "UseTriggerKeyboardArgs",
+        "useTriggerKeyboard"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "useTriggerKeyboard"
     },
     {
       "id": "common/ui/RowActionsMenu",

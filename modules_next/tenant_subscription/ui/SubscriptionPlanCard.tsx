@@ -3,8 +3,7 @@ import { cn } from '@/modules_next/common/utils/cn';
 import { Badge } from '@/modules_next/common/ui/Badge';
 import { Button } from '@/modules_next/common/ui/Button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck, faStar, faInfinity } from '@fortawesome/free-solid-svg-icons';
-import type { BillingInterval } from '@/modules/tenant_subscription/tenant_subscription.enums';
+import { faCheck, faInfinity } from '@fortawesome/free-solid-svg-icons';
 
 type PlanFeature = {
   featureId: string;
@@ -16,23 +15,29 @@ type PlanFeature = {
 
 type Plan = {
   planId: string;
-  name: string;
-  description?: string | null;
-  monthlyPrice: number;
-  yearlyPrice: number;
-  currency?: string;
+  productId: string;
+  product?: {
+    productId: string;
+    name: string;
+    currency: string;
+    basePrice?: number;
+    shortDescription?: string | null;
+  };
+  interval: string;  // DAILY | WEEKLY | MONTHLY | QUARTERLY | YEARLY
   trialDays?: number;
-  isDefault?: boolean;
   features?: PlanFeature[];
 };
 
 type Props = {
   plan: Plan;
-  billingInterval: BillingInterval;
   current?: boolean;
   onSelect?: (planId: string) => void;
   loading?: boolean;
   className?: string;
+};
+
+const INTERVAL_SHORT: Record<string, string> = {
+  DAILY: 'day', WEEKLY: 'week', MONTHLY: 'month', QUARTERLY: 'quarter', YEARLY: 'year',
 };
 
 function formatPrice(amount: number, currency = 'USD') {
@@ -57,16 +62,12 @@ function renderFeatureValue(feature: PlanFeature) {
   return <span className="text-text-secondary">: {feature.value}</span>;
 }
 
-export function SubscriptionPlanCard({ plan, billingInterval, current, onSelect, loading, className }: Props) {
-  const price = billingInterval === 'YEARLY' ? plan.yearlyPrice : plan.monthlyPrice;
-  const currency = plan.currency ?? 'USD';
-
-  const yearlySavingsPct =
-    plan.monthlyPrice > 0
-      ? Math.round((1 - plan.yearlyPrice / (plan.monthlyPrice * 12)) * 100)
-      : 0;
-
-  const showSavings = billingInterval === 'YEARLY' && yearlySavingsPct > 0;
+export function SubscriptionPlanCard({ plan, current, onSelect, loading, className }: Props) {
+  const price = Number(plan.product?.basePrice ?? 0);
+  const currency = plan.product?.currency ?? 'USD';
+  const displayName = plan.product?.name ?? 'Plan';
+  const displayDescription = plan.product?.shortDescription;
+  const intervalShort = INTERVAL_SHORT[plan.interval] ?? plan.interval.toLowerCase();
   const isFree = price === 0;
 
   return (
@@ -84,19 +85,13 @@ export function SubscriptionPlanCard({ plan, billingInterval, current, onSelect,
         {current && (
           <Badge variant="primary" size="sm">Current Plan</Badge>
         )}
-        {!current && plan.isDefault && (
-          <span className="inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-0.5 text-xs font-semibold text-primary-fg">
-            <FontAwesomeIcon icon={faStar} className="w-2.5 h-2.5" aria-hidden="true" />
-            Popular
-          </span>
-        )}
       </div>
 
       {/* Plan name & description */}
       <div className="mb-4 mt-2">
-        <h3 className="text-base font-semibold text-text-primary">{plan.name}</h3>
-        {plan.description && (
-          <p className="mt-1 text-sm text-text-secondary line-clamp-2">{plan.description}</p>
+        <h3 className="text-base font-semibold text-text-primary">{displayName}</h3>
+        {displayDescription && (
+          <p className="mt-1 text-sm text-text-secondary line-clamp-2">{displayDescription}</p>
         )}
       </div>
 
@@ -110,20 +105,13 @@ export function SubscriptionPlanCard({ plan, billingInterval, current, onSelect,
               {formatPrice(price, currency)}
             </span>
             <span className="text-sm text-text-secondary">
-              /{billingInterval === 'YEARLY' ? 'year' : 'month'}
+              /{intervalShort}
             </span>
           </>
         )}
       </div>
 
-      {/* Yearly savings */}
-      {showSavings && (
-        <p className="mb-4 text-xs text-success font-medium">
-          Save {yearlySavingsPct}% vs monthly billing
-        </p>
-      )}
-
-      {!showSavings && <div className="mb-4" />}
+      <div className="mb-4" />
 
       {/* Trial badge */}
       {(plan.trialDays ?? 0) > 0 && !current && (
@@ -160,7 +148,7 @@ export function SubscriptionPlanCard({ plan, billingInterval, current, onSelect,
           onClick={() => onSelect(plan.planId)}
           className="mt-auto"
         >
-          {current ? 'Current Plan' : isFree ? 'Get Started' : `Choose ${plan.name}`}
+          {current ? 'Current Plan' : isFree ? 'Get Started' : `Choose ${displayName}`}
         </Button>
       )}
     </div>

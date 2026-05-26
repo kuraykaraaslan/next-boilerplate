@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { Not, Like } from 'typeorm';
 import { env } from '@/modules/env';
-import { getDefaultTenantDataSource, tenantDataSourceFor } from '@/modules/db';
+import { getDataSource, tenantDataSourceFor } from '@/modules/db';
 import { TenantDomain as TenantDomainEntity } from './entities/tenant_domain.entity';
 import redis from '@/modules/redis';
 import Logger from '@/modules/logger';
@@ -56,7 +56,7 @@ export default class TenantDomainService {
       }
     }
 
-    const ds = await getDefaultTenantDataSource();
+    const ds = await getDataSource();
     const domain = await ds.getRepository(TenantDomainEntity).findOne({ where: { tenantDomainId } });
     if (!domain) throw new Error(TenantDomainMessages.DOMAIN_NOT_FOUND);
 
@@ -77,7 +77,7 @@ export default class TenantDomainService {
       }
     }
 
-    const ds = await getDefaultTenantDataSource();
+    const ds = await getDataSource();
     const found = await ds.getRepository(TenantDomainEntity).findOne({ where: { domain } });
 
     if (!found) {
@@ -155,7 +155,7 @@ export default class TenantDomainService {
   }
 
   static async update(tenantDomainId: string, data: UpdateTenantDomainInput): Promise<SafeTenantDomain> {
-    const defaultDs = await getDefaultTenantDataSource();
+    const defaultDs = await getDataSource();
     const domain = await defaultDs.getRepository(TenantDomainEntity).findOne({ where: { tenantDomainId } });
     if (!domain) throw new Error(TenantDomainMessages.DOMAIN_NOT_FOUND);
 
@@ -176,7 +176,7 @@ export default class TenantDomainService {
   }
 
   static async getVerificationInfo(tenantDomainId: string): Promise<DomainVerificationInfo> {
-    const ds = await getDefaultTenantDataSource();
+    const ds = await getDataSource();
     const domain = await ds.getRepository(TenantDomainEntity).findOne({ where: { tenantDomainId } });
     if (!domain) throw new Error(TenantDomainMessages.DOMAIN_NOT_FOUND);
 
@@ -202,7 +202,7 @@ export default class TenantDomainService {
   }
 
   static async initiateVerification({ tenantDomainId, method }: InitiateVerificationInput): Promise<DomainVerificationInfo> {
-    const ds = await getDefaultTenantDataSource();
+    const ds = await getDataSource();
     const domain = await ds.getRepository(TenantDomainEntity).findOne({ where: { tenantDomainId } });
     if (!domain) throw new Error(TenantDomainMessages.DOMAIN_NOT_FOUND);
 
@@ -234,7 +234,7 @@ export default class TenantDomainService {
   }
 
   static async verifyDomain(tenantDomainId: string): Promise<SafeTenantDomain> {
-    const ds = await getDefaultTenantDataSource();
+    const ds = await getDataSource();
     const domain = await ds.getRepository(TenantDomainEntity).findOne({ where: { tenantDomainId } });
     if (!domain) throw new Error(TenantDomainMessages.DOMAIN_NOT_FOUND);
 
@@ -258,7 +258,7 @@ export default class TenantDomainService {
   }
 
   static async delete(tenantDomainId: string): Promise<void> {
-    const ds = await getDefaultTenantDataSource();
+    const ds = await getDataSource();
     const domain = await ds.getRepository(TenantDomainEntity).findOne({ where: { tenantDomainId } });
     if (!domain) throw new Error(TenantDomainMessages.DOMAIN_NOT_FOUND);
 

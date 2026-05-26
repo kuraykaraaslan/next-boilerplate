@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { IsNull, LessThan } from 'typeorm';
-import { tenantDataSourceFor, getDefaultTenantDataSource } from '@/modules/db';
+import { tenantDataSourceFor, getDataSource } from '@/modules/db';
 import { Tenant } from './entities/tenant.entity';
 import Logger from '@/modules/logger';
 
@@ -38,7 +38,7 @@ export default class TenantDeletionService {
   }
 
   static async purgeExpiredTenants(): Promise<number> {
-    const ds = await getDefaultTenantDataSource();
+    const ds = await getDataSource();
     const repo = ds.getRepository(Tenant);
     const now = new Date();
 

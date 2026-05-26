@@ -6,8 +6,8 @@ export const SubscriptionPlanStatusEnum = z.enum(['ACTIVE', 'INACTIVE', 'ARCHIVE
 // Subscription Status - matches Prisma SubscriptionStatus enum
 export const SubscriptionStatusEnum = z.enum(['ACTIVE', 'PAST_DUE', 'CANCELLED', 'EXPIRED', 'TRIALING'])
 
-// Billing Interval - matches Prisma BillingInterval enum
-export const BillingIntervalEnum = z.enum(['MONTHLY', 'YEARLY'])
+// Billing Interval - recurrence frequency of a plan / subscription
+export const BillingIntervalEnum = z.enum(['DAILY', 'WEEKLY', 'MONTHLY', 'QUARTERLY', 'YEARLY'])
 
 // Plan Feature Type - matches Prisma PlanFeatureType enum
 export const PlanFeatureTypeEnum = z.enum(['BOOLEAN', 'LIMIT'])

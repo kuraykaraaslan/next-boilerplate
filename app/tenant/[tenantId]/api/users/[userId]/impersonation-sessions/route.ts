@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { Not, IsNull, MoreThan } from 'typeorm';
 import { authenticateAdminRequest } from '@/modules_next/auth/auth.admin-guard.next';
-import { getSystemDataSource } from '@/modules/db';
+import { getDataSource } from '@/modules/db';
 import { UserSession as UserSessionEntity } from '@/modules/user_session/entities/user_session.entity';
 import { SafeUserSessionSchema } from '@/modules/user_session/user_session.types';
 
@@ -32,7 +32,7 @@ export async function GET(
     };
     if (activeOnly) where.sessionExpiry = MoreThan(new Date());
 
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const repo = ds.getRepository(UserSessionEntity);
 
     const [sessions, total] = await Promise.all([

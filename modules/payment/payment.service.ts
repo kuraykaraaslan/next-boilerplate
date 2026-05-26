@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { Between, IsNull, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
 import { env } from '@/modules/env';
-import { getDefaultTenantDataSource, tenantDataSourceFor } from '@/modules/db';
+import { getDataSource, tenantDataSourceFor } from '@/modules/db';
 import redis, { jitter, singleFlight } from '@/modules/redis';
 import { Payment as PaymentEntity } from './entities/payment.entity';
 import { PaymentTransaction as PaymentTransactionEntity } from './entities/payment_transaction.entity';
@@ -119,7 +119,7 @@ export default class PaymentService {
     try {
       const ds = data.tenantId
         ? await tenantDataSourceFor(data.tenantId)
-        : await getDefaultTenantDataSource();
+        : await getDataSource();
       const repo = ds.getRepository(PaymentEntity);
       const payment = repo.create({
         userId: data.userId,
@@ -153,7 +153,7 @@ export default class PaymentService {
     }
 
     return singleFlight(cacheKey, async () => {
-      const ds = await getDefaultTenantDataSource();
+      const ds = await getDataSource();
       const payment = await ds.getRepository(PaymentEntity).findOne({ where: { paymentId, deletedAt: IsNull() } });
       if (!payment) throw new Error(PAYMENT_MESSAGES.PAYMENT_NOT_FOUND);
 
@@ -171,7 +171,7 @@ export default class PaymentService {
     }
 
     return singleFlight(cacheKey, async () => {
-      const ds = await getDefaultTenantDataSource();
+      const ds = await getDataSource();
       const payment = await ds.getRepository(PaymentEntity).findOne({ where: { paymentId, deletedAt: IsNull() } });
       if (!payment) throw new Error(PAYMENT_MESSAGES.PAYMENT_NOT_FOUND);
       const transactions = await ds.getRepository(PaymentTransactionEntity).find({ where: { paymentId } });
@@ -195,7 +195,7 @@ export default class PaymentService {
     else if (fromDate) where.createdAt = MoreThanOrEqual(fromDate);
     else if (toDate) where.createdAt = LessThanOrEqual(toDate);
 
-    const ds = await getDefaultTenantDataSource();
+    const ds = await getDataSource();
     const repo = ds.getRepository(PaymentEntity);
     const [payments, total] = await Promise.all([
       repo.find({ where: where as any, skip: page * pageSize, take: pageSize, order: { createdAt: 'DESC' } }),
@@ -206,7 +206,7 @@ export default class PaymentService {
   }
 
   static async update(paymentId: string, data: UpdatePaymentDTO): Promise<SafePayment> {
-    const defaultDs = await getDefaultTenantDataSource();
+    const defaultDs = await getDataSource();
     const existing = await defaultDs.getRepository(PaymentEntity).findOne({ where: { paymentId } });
     if (!existing) throw new Error(PAYMENT_MESSAGES.PAYMENT_NOT_FOUND);
 
@@ -240,7 +240,7 @@ export default class PaymentService {
   }
 
   static async delete(paymentId: string): Promise<void> {
-    const defaultDs = await getDefaultTenantDataSource();
+    const defaultDs = await getDataSource();
     const existing = await defaultDs.getRepository(PaymentEntity).findOne({ where: { paymentId } });
     if (!existing) throw new Error(PAYMENT_MESSAGES.PAYMENT_NOT_FOUND);
 
@@ -250,7 +250,7 @@ export default class PaymentService {
   }
 
   static async createTransaction(data: CreateTransactionDTO): Promise<PaymentTransaction> {
-    const ds = await getDefaultTenantDataSource();
+    const ds = await getDataSource();
     const payment = await ds.getRepository(PaymentEntity).findOne({ where: { paymentId: data.paymentId } });
     if (!payment) throw new Error(PAYMENT_MESSAGES.PAYMENT_NOT_FOUND);
 
@@ -288,7 +288,7 @@ export default class PaymentService {
     }
 
     return singleFlight(cacheKey, async () => {
-      const ds = await getDefaultTenantDataSource();
+      const ds = await getDataSource();
       const transaction = await ds.getRepository(PaymentTransactionEntity).findOne({ where: { transactionId } });
       if (!transaction) throw new Error(PAYMENT_MESSAGES.TRANSACTION_NOT_FOUND);
 
@@ -310,7 +310,7 @@ export default class PaymentService {
     else if (fromDate) where.createdAt = MoreThanOrEqual(fromDate);
     else if (toDate) where.createdAt = LessThanOrEqual(toDate);
 
-    const ds = await getDefaultTenantDataSource();
+    const ds = await getDataSource();
     const repo = ds.getRepository(PaymentTransactionEntity);
     const [transactions, total] = await Promise.all([
       repo.find({ where: where as any, skip: page * pageSize, take: pageSize, order: { createdAt: 'DESC' } }),
@@ -321,7 +321,7 @@ export default class PaymentService {
   }
 
   static async updateTransaction(transactionId: string, data: UpdateTransactionDTO): Promise<PaymentTransaction> {
-    const ds = await getDefaultTenantDataSource();
+    const ds = await getDataSource();
     const repo = ds.getRepository(PaymentTransactionEntity);
     const existing = await repo.findOne({ where: { transactionId } });
     if (!existing) throw new Error(PAYMENT_MESSAGES.TRANSACTION_NOT_FOUND);
@@ -357,7 +357,7 @@ export default class PaymentService {
   }
 
   static async refund(data: RefundPaymentDTO): Promise<PaymentTransaction> {
-    const ds = await getDefaultTenantDataSource();
+    const ds = await getDataSource();
     const payment = await ds.getRepository(PaymentEntity).findOne({ where: { paymentId: data.paymentId } });
     if (!payment) throw new Error(PAYMENT_MESSAGES.PAYMENT_NOT_FOUND);
     if (payment.status !== 'COMPLETED') throw new Error(PAYMENT_MESSAGES.REFUND_NOT_ALLOWED);

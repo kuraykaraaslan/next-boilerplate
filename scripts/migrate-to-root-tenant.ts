@@ -40,29 +40,19 @@ function parseDbUrl(raw: string): { url: string; schema?: string } {
   return { url, schema };
 }
 
-const systemDb = parseDbUrl(env.SYSTEM_DATABASE_URL);
-const tenantDb = parseDbUrl(env.TENANT_DATABASE_URL);
+const dbUrl = parseDbUrl(env.DATABASE_URL);
 
-const systemDs = new DataSource({
+const ds = new DataSource({
   type: 'postgres',
-  url: systemDb.url,
-  schema: systemDb.schema,
+  url: dbUrl.url,
+  schema: dbUrl.schema,
   synchronize: false,
   logging: false,
-  entities: [User],
-});
-
-const tenantDs = new DataSource({
-  type: 'postgres',
-  url: tenantDb.url,
-  schema: tenantDb.schema,
-  synchronize: false,
-  logging: false,
-  entities: [Tenant, TenantMember, TenantDomain],
+  entities: [User, Tenant, TenantMember, TenantDomain],
 });
 
 async function ensureRootTenant(): Promise<Tenant> {
-  const repo = tenantDs.getRepository(Tenant);
+  const repo = ds.getRepository(Tenant);
   let row = await repo.findOne({ where: { tenantId: ROOT_TENANT_ID } });
   if (row) {
     console.log(`✓ root tenant already exists: ${row.tenantId}`);
@@ -82,7 +72,7 @@ async function ensureRootDomain(): Promise<void> {
   const wildcard = env.TENANT_WILDCARD_DOMAIN;
   const subdomain = process.env.TENANT_DEFAULT_SUBDOMAIN || 'system';
   const domain = `${subdomain}.${wildcard}`;
-  const repo = tenantDs.getRepository(TenantDomain);
+  const repo = ds.getRepository(TenantDomain);
   const existing = await repo.findOne({ where: { domain } });
   if (existing) {
     if (existing.tenantId !== ROOT_TENANT_ID) {
@@ -102,8 +92,8 @@ async function ensureRootDomain(): Promise<void> {
 }
 
 async function promoteAdmins(): Promise<{ promoted: number; skipped: number }> {
-  const userRepo = systemDs.getRepository(User);
-  const memberRepo = tenantDs.getRepository(TenantMember);
+  const userRepo = ds.getRepository(User);
+  const memberRepo = ds.getRepository(TenantMember);
   const admins = await userRepo.find({
     where: [
       { userRole: 'ADMIN' },
@@ -146,8 +136,7 @@ async function main() {
   console.log(`ROOT_TENANT_ID = ${ROOT_TENANT_ID}`);
   console.log('');
 
-  await systemDs.initialize();
-  await tenantDs.initialize();
+  await ds.initialize();
 
   await ensureRootTenant();
   await ensureRootDomain();
@@ -166,6 +155,5 @@ main()
     process.exit(1);
   })
   .finally(async () => {
-    if (systemDs.isInitialized) await systemDs.destroy();
-    if (tenantDs.isInitialized) await tenantDs.destroy();
+    if (ds.isInitialized) await ds.destroy();
   });

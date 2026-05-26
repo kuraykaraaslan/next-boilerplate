@@ -1,8 +1,8 @@
 import 'reflect-metadata';
-import { Not } from 'typeorm';
-import { getDefaultTenantDataSource, tenantDataSourceFor } from '@/modules/db';
+import { getDataSource, tenantDataSourceFor } from '@/modules/db';
 import { SubscriptionPlan as SubscriptionPlanEntity } from '../payment/entities/subscription_plan.entity';
 import { PlanFeature as PlanFeatureEntity } from '../payment/entities/plan_feature.entity';
+import { StoreProduct as ProductEntity } from '@/modules/store/entities/store_product.entity';
 import { TenantSubscription as TenantSubscriptionEntity } from './entities/tenant_subscription.entity';
 import Logger from '@/modules/logger';
 import redis from '@/modules/redis';
@@ -12,6 +12,8 @@ import type { PaymentProvider, PaymentCurrency } from '@/modules/payment/payment
 import {
   SubscriptionPlanSchema,
   PlanWithFeaturesSchema,
+  PlanWithProductSchema,
+  PlanProductSummarySchema,
   PlanFeatureSchema,
   TenantSubscriptionSchema,
   TenantSubscriptionWithPlanSchema,
@@ -20,6 +22,8 @@ import {
 import type {
   SubscriptionPlan,
   PlanWithFeatures,
+  PlanWithProduct,
+  PlanProductSummary,
   PlanFeature,
   TenantSubscription,
   TenantSubscriptionWithPlan,
@@ -42,63 +46,76 @@ export default class TenantSubscriptionService {
   // Plan CRUD Operations
   // ============================================================================
 
-  static async createPlan(tenantId: string, data: CreatePlanDTO): Promise<SubscriptionPlan> {
+  private static productSummary(p: ProductEntity): PlanProductSummary {
+    return PlanProductSummarySchema.parse({
+      productId: p.productId,
+      name: p.name,
+      slug: p.slug,
+      currency: p.currency,
+      basePrice: p.basePrice,
+      shortDescription: p.shortDescription ?? null,
+      status: p.status,
+    });
+  }
+
+  private static async fetchProductOrThrow(tenantId: string, productId: string): Promise<ProductEntity> {
+    const ds = await tenantDataSourceFor(tenantId);
+    const product = await ds.getRepository(ProductEntity).findOne({ where: { tenantId, productId } });
+    if (!product) throw new Error('Product not found for plan.');
+    return product;
+  }
+
+  static async createPlan(tenantId: string, data: CreatePlanDTO): Promise<PlanWithProduct> {
     try {
+      const product = await TenantSubscriptionService.fetchProductOrThrow(tenantId, data.productId);
       const ds = await tenantDataSourceFor(tenantId);
       const repo = ds.getRepository(SubscriptionPlanEntity);
 
-      if (data.isDefault) {
-        await repo.update({ tenantId, isDefault: true }, { isDefault: false });
-      }
-
       const plan = repo.create({
         tenantId,
-        name: data.name,
-        description: data.description,
-        monthlyPrice: data.monthlyPrice,
-        yearlyPrice: data.yearlyPrice,
-        currency: data.currency,
+        productId: data.productId,
+        interval: data.interval,
         trialDays: data.trialDays,
-        sortOrder: data.sortOrder,
-        isDefault: data.isDefault,
         status: data.status,
       });
       const saved = await repo.save(plan);
-      return SubscriptionPlanSchema.parse(saved);
+      return PlanWithProductSchema.parse({
+        ...SubscriptionPlanSchema.parse(saved),
+        product: TenantSubscriptionService.productSummary(product),
+      });
     } catch (error) {
       Logger.error(`${SUBSCRIPTION_MESSAGES.PLAN_CREATE_FAILED}: ${error instanceof Error ? error.message : String(error)}`);
-      throw new Error(SUBSCRIPTION_MESSAGES.PLAN_CREATE_FAILED);
+      throw error instanceof Error ? error : new Error(SUBSCRIPTION_MESSAGES.PLAN_CREATE_FAILED);
     }
   }
 
-  static async updatePlan(tenantId: string, planId: string, data: UpdatePlanDTO): Promise<SubscriptionPlan> {
+  static async updatePlan(tenantId: string, planId: string, data: UpdatePlanDTO): Promise<PlanWithProduct> {
     const ds = await tenantDataSourceFor(tenantId);
     const repo = ds.getRepository(SubscriptionPlanEntity);
     const existing = await repo.findOne({ where: { tenantId, planId } });
     if (!existing) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND);
+    if (data.productId && data.productId !== existing.productId) {
+      await TenantSubscriptionService.fetchProductOrThrow(tenantId, data.productId);
+    }
 
     try {
-      if (data.isDefault) {
-        await repo.update({ tenantId, isDefault: true, planId: Not(planId) }, { isDefault: false });
-      }
-
       await repo.update({ tenantId, planId }, {
-        name: data.name,
-        description: data.description,
-        monthlyPrice: data.monthlyPrice,
-        yearlyPrice: data.yearlyPrice,
-        currency: data.currency,
-        trialDays: data.trialDays,
-        sortOrder: data.sortOrder,
-        isDefault: data.isDefault,
-        status: data.status,
+        ...(data.productId !== undefined && { productId: data.productId }),
+        ...(data.interval !== undefined && { interval: data.interval }),
+        ...(data.trialDays !== undefined && { trialDays: data.trialDays }),
+        ...(data.status !== undefined && { status: data.status }),
       } as any);
 
       const updated = await repo.findOne({ where: { tenantId, planId } });
-      return SubscriptionPlanSchema.parse(updated!);
+      if (!updated) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND);
+      const product = await TenantSubscriptionService.fetchProductOrThrow(tenantId, updated.productId);
+      return PlanWithProductSchema.parse({
+        ...SubscriptionPlanSchema.parse(updated),
+        product: TenantSubscriptionService.productSummary(product),
+      });
     } catch (error) {
       Logger.error(`${SUBSCRIPTION_MESSAGES.PLAN_UPDATE_FAILED}: ${error instanceof Error ? error.message : String(error)}`);
-      throw new Error(SUBSCRIPTION_MESSAGES.PLAN_UPDATE_FAILED);
+      throw error instanceof Error ? error : new Error(SUBSCRIPTION_MESSAGES.PLAN_UPDATE_FAILED);
     }
   }
 
@@ -107,7 +124,7 @@ export default class TenantSubscriptionService {
     const existing = await sysDs.getRepository(SubscriptionPlanEntity).findOne({ where: { tenantId, planId } });
     if (!existing) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND);
 
-    const tenantDs = await getDefaultTenantDataSource();
+    const tenantDs = await getDataSource();
     const activeCount = await tenantDs.getRepository(TenantSubscriptionEntity).count({
       where: { tenantId, planId, status: 'ACTIVE' },
     });
@@ -121,42 +138,75 @@ export default class TenantSubscriptionService {
     }
   }
 
-  static async getPlans(tenantId: string, status?: SubscriptionPlanStatus): Promise<SubscriptionPlan[]> {
+  private static async attachProducts(tenantId: string, plans: SubscriptionPlanEntity[]): Promise<Map<string, ProductEntity>> {
+    if (plans.length === 0) return new Map();
+    const productIds = Array.from(new Set(plans.map((p) => p.productId)));
+    const ds = await tenantDataSourceFor(tenantId);
+    const products = await ds.getRepository(ProductEntity)
+      .findBy(productIds.map((productId) => ({ tenantId, productId })));
+    return new Map(products.map((p) => [p.productId, p]));
+  }
+
+  static async getPlans(tenantId: string, status?: SubscriptionPlanStatus): Promise<PlanWithProduct[]> {
     const ds = await tenantDataSourceFor(tenantId);
     const where: Record<string, unknown> = { tenantId };
     if (status) where.status = status;
-    const plans = await ds.getRepository(SubscriptionPlanEntity).find({ where: where as any, order: { sortOrder: 'ASC' } });
-    return plans.map((p) => SubscriptionPlanSchema.parse(p));
+    const plans = await ds.getRepository(SubscriptionPlanEntity).find({ where: where as any, order: { createdAt: 'ASC' } });
+    const productMap = await TenantSubscriptionService.attachProducts(tenantId, plans);
+    return plans.map((p) => {
+      const product = productMap.get(p.productId);
+      if (!product) throw new Error(`Plan ${p.planId} references missing product ${p.productId}`);
+      return PlanWithProductSchema.parse({
+        ...SubscriptionPlanSchema.parse(p),
+        product: TenantSubscriptionService.productSummary(product),
+      });
+    });
   }
 
-  static async getPlanById(tenantId: string, planId: string): Promise<SubscriptionPlan> {
+  static async getPlanById(tenantId: string, planId: string): Promise<PlanWithProduct> {
     const ds = await tenantDataSourceFor(tenantId);
     const plan = await ds.getRepository(SubscriptionPlanEntity).findOne({ where: { tenantId, planId } });
     if (!plan) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND);
-    return SubscriptionPlanSchema.parse(plan);
+    const product = await TenantSubscriptionService.fetchProductOrThrow(tenantId, plan.productId);
+    return PlanWithProductSchema.parse({
+      ...SubscriptionPlanSchema.parse(plan),
+      product: TenantSubscriptionService.productSummary(product),
+    });
   }
 
   static async getPlanWithFeatures(tenantId: string, planId: string): Promise<PlanWithFeatures> {
     const ds = await tenantDataSourceFor(tenantId);
     const plan = await ds.getRepository(SubscriptionPlanEntity).findOne({ where: { tenantId, planId } });
     if (!plan) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND);
+    const product = await TenantSubscriptionService.fetchProductOrThrow(tenantId, plan.productId);
     const features = await ds.getRepository(PlanFeatureEntity).find({ where: { tenantId, planId }, order: { sortOrder: 'ASC' } });
-    return PlanWithFeaturesSchema.parse({ ...plan, features });
+    return PlanWithFeaturesSchema.parse({
+      ...SubscriptionPlanSchema.parse(plan),
+      product: TenantSubscriptionService.productSummary(product),
+      features,
+    });
   }
 
   static async getPlansWithFeatures(tenantId: string, status?: SubscriptionPlanStatus): Promise<PlanWithFeatures[]> {
     const ds = await tenantDataSourceFor(tenantId);
     const where: Record<string, unknown> = { tenantId };
     if (status) where.status = status;
-    const plans = await ds.getRepository(SubscriptionPlanEntity).find({ where: where as any, order: { sortOrder: 'ASC' } });
+    const plans = await ds.getRepository(SubscriptionPlanEntity).find({ where: where as any, order: { createdAt: 'ASC' } });
+    const productMap = await TenantSubscriptionService.attachProducts(tenantId, plans);
     const planIds = plans.map((p) => p.planId);
     const allFeatures = planIds.length > 0
       ? await ds.getRepository(PlanFeatureEntity).find({ where: planIds.map((id) => ({ tenantId, planId: id })), order: { sortOrder: 'ASC' } })
       : [];
 
-    return plans.map((plan) =>
-      PlanWithFeaturesSchema.parse({ ...plan, features: allFeatures.filter((f) => f.planId === plan.planId) })
-    );
+    return plans.map((plan) => {
+      const product = productMap.get(plan.productId);
+      if (!product) throw new Error(`Plan ${plan.planId} references missing product ${plan.productId}`);
+      return PlanWithFeaturesSchema.parse({
+        ...SubscriptionPlanSchema.parse(plan),
+        product: TenantSubscriptionService.productSummary(product),
+        features: allFeatures.filter((f) => f.planId === plan.planId),
+      });
+    });
   }
 
   // ============================================================================
@@ -243,12 +293,16 @@ export default class TenantSubscriptionService {
     const plan = await sysDs.getRepository(SubscriptionPlanEntity).findOne({ where: { tenantId, planId: data.planId } });
     if (!plan) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND);
 
+    const interval = (data.billingInterval ?? plan.interval) as 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'QUARTERLY' | 'YEARLY';
+
     const now = new Date();
     const periodEnd = new Date(now);
-    if (data.billingInterval === 'MONTHLY') {
-      periodEnd.setMonth(periodEnd.getMonth() + 1);
-    } else {
-      periodEnd.setFullYear(periodEnd.getFullYear() + 1);
+    switch (interval) {
+      case 'DAILY':     periodEnd.setDate(periodEnd.getDate() + 1); break;
+      case 'WEEKLY':    periodEnd.setDate(periodEnd.getDate() + 7); break;
+      case 'MONTHLY':   periodEnd.setMonth(periodEnd.getMonth() + 1); break;
+      case 'QUARTERLY': periodEnd.setMonth(periodEnd.getMonth() + 3); break;
+      case 'YEARLY':    periodEnd.setFullYear(periodEnd.getFullYear() + 1); break;
     }
 
     const trialEndsAt = plan.trialDays > 0
@@ -264,7 +318,7 @@ export default class TenantSubscriptionService {
       if (existing) {
         await repo.update({ tenantId }, {
           planId: data.planId,
-          billingInterval: data.billingInterval,
+          billingInterval: interval,
           status: trialEndsAt ? 'TRIALING' : 'ACTIVE',
           currentPeriodStart: now,
           currentPeriodEnd: periodEnd,
@@ -276,7 +330,7 @@ export default class TenantSubscriptionService {
         const entity = repo.create({
           tenantId,
           planId: data.planId,
-          billingInterval: data.billingInterval,
+          billingInterval: interval,
           status: trialEndsAt ? 'TRIALING' : 'ACTIVE',
           currentPeriodStart: now,
           currentPeriodEnd: periodEnd,
@@ -369,7 +423,7 @@ export default class TenantSubscriptionService {
 
   static async expireOverdueSubscriptions(): Promise<number> {
     try {
-      const ds = await getDefaultTenantDataSource();
+      const ds = await getDataSource();
       const repo = ds.getRepository(TenantSubscriptionEntity);
       const now = new Date();
 
@@ -400,21 +454,22 @@ export default class TenantSubscriptionService {
   static async purchaseSubscription(params: {
     tenantId: string;
     planId: string;
-    billingInterval: 'MONTHLY' | 'YEARLY';
     successUrl: string;
     cancelUrl: string;
     provider?: PaymentProvider;
     customerEmail?: string;
     customerName?: string;
   }): Promise<{ paymentId: string; checkoutUrl: string }> {
-    const { tenantId, planId, billingInterval, successUrl, cancelUrl, provider, customerEmail, customerName } = params;
+    const { tenantId, planId, successUrl, cancelUrl, provider, customerEmail, customerName } = params;
 
     const sysDs = await tenantDataSourceFor(tenantId);
     const plan = await sysDs.getRepository(SubscriptionPlanEntity).findOne({ where: { tenantId, planId } });
     if (!plan) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND);
+    const product = await TenantSubscriptionService.fetchProductOrThrow(tenantId, plan.productId);
 
-    const amount = billingInterval === 'MONTHLY' ? Number(plan.monthlyPrice) : Number(plan.yearlyPrice);
-    const currency = plan.currency as PaymentCurrency;
+    const billingInterval = plan.interval;
+    const amount = Number(product.basePrice);
+    const currency = product.currency as PaymentCurrency;
 
     try {
       const payment = await PaymentService.create({
@@ -422,7 +477,7 @@ export default class TenantSubscriptionService {
         provider: provider || 'STRIPE',
         amount,
         currency,
-        description: `${plan.name} Subscription - ${billingInterval === 'MONTHLY' ? 'Monthly' : 'Yearly'}`,
+        description: `${product.name} Subscription (${billingInterval.toLowerCase()})`,
         customerEmail,
         customerName,
         metadata: { type: 'subscription', planId, billingInterval, tenantId },
@@ -433,7 +488,7 @@ export default class TenantSubscriptionService {
         {
           amount,
           currency,
-          description: `${plan.name} Subscription`,
+          description: `${product.name} Subscription`,
           successUrl: `${successUrl}?paymentId=${payment.paymentId}`,
           cancelUrl,
           metadata: { paymentId: payment.paymentId, planId, tenantId, billingInterval },
@@ -679,7 +734,7 @@ export default class TenantSubscriptionService {
       const metadata = payment.metadata as { planId?: string; billingInterval?: string; tenantId?: string } || {};
       const { planId, billingInterval, tenantId } = metadata;
 
-      if (!planId || !billingInterval || !tenantId) {
+      if (!planId || !tenantId) {
         throw new Error(SUBSCRIPTION_MESSAGES.INVALID_REQUEST);
       }
 
@@ -687,7 +742,7 @@ export default class TenantSubscriptionService {
 
       return await this.assignPlan(tenantId, {
         planId,
-        billingInterval: billingInterval as 'MONTHLY' | 'YEARLY',
+        billingInterval: billingInterval as 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'QUARTERLY' | 'YEARLY' | undefined,
       });
     } catch (error) {
       Logger.error(`${SUBSCRIPTION_MESSAGES.PAYMENT_CONFIRMATION_FAILED}: ${error instanceof Error ? error.message : String(error)}`);

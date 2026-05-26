@@ -1,7 +1,8 @@
 import type { ProrationPreview } from './payment_subscription.types'
 import type { BillingCycle } from './payment_subscription.enums'
 
-const CYCLE_DAYS: Record<BillingCycle, number> = {
+export const CYCLE_DAYS: Record<BillingCycle, number> = {
+  DAILY: 1,
   WEEKLY: 7,
   MONTHLY: 30,
   QUARTERLY: 91,
@@ -39,20 +40,12 @@ export default class ProrationService {
   static nextPeriodEnd(from: Date, cycle: BillingCycle): Date {
     const d = new Date(from)
     switch (cycle) {
+      case 'DAILY': d.setDate(d.getDate() + 1); break
       case 'WEEKLY': d.setDate(d.getDate() + 7); break
       case 'MONTHLY': d.setMonth(d.getMonth() + 1); break
       case 'QUARTERLY': d.setMonth(d.getMonth() + 3); break
       case 'YEARLY': d.setFullYear(d.getFullYear() + 1); break
     }
     return d
-  }
-
-  static cycleAmount(monthlyPrice: number, yearlyPrice: number, cycle: BillingCycle): number {
-    switch (cycle) {
-      case 'WEEKLY': return +(monthlyPrice / 4.33).toFixed(2)
-      case 'MONTHLY': return monthlyPrice
-      case 'QUARTERLY': return +(monthlyPrice * 3 * 0.95).toFixed(2)
-      case 'YEARLY': return yearlyPrice
-    }
   }
 }

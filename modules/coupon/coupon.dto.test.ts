@@ -97,15 +97,37 @@ describe('CreateCouponRequestSchema', () => {
     expect(result.success).toBe(false);
   });
 
-  it('accepts optional fields: maxUses, expiresAt, applicablePlanIds', () => {
+  it('accepts optional fields: maxUses, expiresAt, scope', () => {
     const result = CreateCouponRequestSchema.safeParse({
       ...validBase,
       maxUses: 100,
       maxUsesPerTenant: 1,
       expiresAt: '2030-01-01',
-      applicablePlanIds: [PLAN_ID],
+      scope: {
+        planIds: [PLAN_ID],
+        providers: ['STRIPE'],
+        appliesTo: 'cart',
+        minimumAmount: 50,
+      },
     });
     expect(result.success).toBe(true);
+  });
+
+  it('accepts scope with only productIds', () => {
+    const PRODUCT_ID = '770e8400-e29b-41d4-a716-446655440003';
+    const result = CreateCouponRequestSchema.safeParse({
+      ...validBase,
+      scope: { productIds: [PRODUCT_ID] },
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects scope.appliesTo with invalid value', () => {
+    const result = CreateCouponRequestSchema.safeParse({
+      ...validBase,
+      scope: { appliesTo: 'invoice' },
+    });
+    expect(result.success).toBe(false);
   });
 
   it('rejects currency with wrong length', () => {

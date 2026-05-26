@@ -1,3 +1,3 @@
-export { SystemDataSource, getSystemDataSource } from './db.system';
-export { tenantDataSourceFor, clearTenantDsCache, getDefaultTenantDataSource } from './db.tenant';
+export { getDataSource, tenantDataSourceFor, clearTenantDsCache } from './db';
 export { TenantDatabase } from './entities/tenant_database.entity';
+export { parseDbUrl } from './db.utils';

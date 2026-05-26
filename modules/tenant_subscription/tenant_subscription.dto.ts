@@ -10,26 +10,16 @@ import {
 // ============================================================================
 
 export const CreatePlanRequestSchema = z.object({
-  name: z.string().min(1, 'Plan name is required'),
-  description: z.string().optional(),
-  monthlyPrice: z.number().nonnegative('Monthly price must be non-negative'),
-  yearlyPrice: z.number().nonnegative('Yearly price must be non-negative'),
-  currency: z.string().max(3).default('USD'),
-  trialDays: z.number().int().nonnegative().default(0),
-  sortOrder: z.number().int().default(0),
-  isDefault: z.boolean().default(false),
+  productId: z.string().uuid('Invalid product ID'),
+  interval: BillingIntervalEnum.default('MONTHLY'),
+  trialDays: z.coerce.number().int().nonnegative().default(0),
   status: SubscriptionPlanStatusEnum.default('ACTIVE'),
 })
 
 export const UpdatePlanRequestSchema = z.object({
-  name: z.string().min(1).optional(),
-  description: z.string().nullable().optional(),
-  monthlyPrice: z.number().nonnegative().optional(),
-  yearlyPrice: z.number().nonnegative().optional(),
-  currency: z.string().max(3).optional(),
-  trialDays: z.number().int().nonnegative().optional(),
-  sortOrder: z.number().int().optional(),
-  isDefault: z.boolean().optional(),
+  productId: z.string().uuid().optional(),
+  interval: BillingIntervalEnum.optional(),
+  trialDays: z.coerce.number().int().nonnegative().optional(),
   status: SubscriptionPlanStatusEnum.optional(),
 })
 
@@ -64,7 +54,8 @@ export const UpdateFeatureRequestSchema = z.object({
 
 export const AssignSubscriptionRequestSchema = z.object({
   planId: z.string().uuid('Invalid plan ID'),
-  billingInterval: BillingIntervalEnum.default('MONTHLY'),
+  /** Optional override; defaults to the plan's interval. */
+  billingInterval: BillingIntervalEnum.optional(),
 })
 
 // ============================================================================

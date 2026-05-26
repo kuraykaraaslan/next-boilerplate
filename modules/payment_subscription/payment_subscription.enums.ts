@@ -18,7 +18,7 @@ export const SubscriptionStatusEnum = z.enum([
 ])
 export type SubscriptionStatus = z.infer<typeof SubscriptionStatusEnum>
 
-export const BillingCycleEnum = z.enum(['MONTHLY', 'YEARLY', 'QUARTERLY', 'WEEKLY'])
+export const BillingCycleEnum = z.enum(['DAILY', 'WEEKLY', 'MONTHLY', 'QUARTERLY', 'YEARLY'])
 export type BillingCycle = z.infer<typeof BillingCycleEnum>
 
 export const SubscriptionPlanStatusEnum = z.enum(['ACTIVE', 'ARCHIVED', 'DRAFT'])

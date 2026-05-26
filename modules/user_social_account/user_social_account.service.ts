@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { getSystemDataSource } from '@/modules/db';
+import { getDataSource } from '@/modules/db';
 import redis, { jitter, singleFlight } from '@/modules/redis';
 import { env } from '@/modules/env';
 import { UserSocialAccount as UserSocialAccountEntity } from './entities/user_social_account.entity';
@@ -29,7 +29,7 @@ export default class UserSocialAccountService {
     }
 
     return singleFlight(cacheKey, async () => {
-      const ds = await getSystemDataSource();
+      const ds = await getDataSource();
       const accounts = await ds.getRepository(UserSocialAccountEntity).find({ where: { userId } });
       const parsed = accounts.map((a) => SafeUserSocialAccountSchema.parse(a));
       await redis.setex(cacheKey, jitter(SOCIAL_ACCOUNT_CACHE_TTL), JSON.stringify(parsed)).catch(() => {});
@@ -51,7 +51,7 @@ export default class UserSocialAccountService {
     }
 
     return singleFlight(cacheKey, async () => {
-      const ds = await getSystemDataSource();
+      const ds = await getDataSource();
       const account = await ds.getRepository(UserSocialAccountEntity).findOne({
         where: { provider, providerId },
       });
@@ -69,7 +69,7 @@ export default class UserSocialAccountService {
     refreshToken?: string,
     profilePicture?: string
   ): Promise<SafeUserSocialAccount> {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const repo = ds.getRepository(UserSocialAccountEntity);
     const existing = await repo.findOne({ where: { provider, providerId } });
 
@@ -97,7 +97,7 @@ export default class UserSocialAccountService {
     accessToken: string,
     refreshToken?: string
   ): Promise<void> {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     await ds.getRepository(UserSocialAccountEntity).update(
       { userSocialAccountId },
       { accessToken, refreshToken }
@@ -105,7 +105,7 @@ export default class UserSocialAccountService {
   }
 
   static async unlink(userId: string, provider: SocialAccountProvider): Promise<void> {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const repo = ds.getRepository(UserSocialAccountEntity);
     const account = await repo.findOne({ where: { userId, provider } });
     if (!account) throw new Error(UserSocialAccountMessages.ACCOUNT_NOT_FOUND);

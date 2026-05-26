@@ -2,8 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('@/modules/env', () => ({
   env: {
-    SYSTEM_DATABASE_URL: 'postgresql://test',
-    TENANT_DATABASE_URL: 'postgresql://test',
+    DATABASE_URL: 'postgresql://test',
     ACCESS_TOKEN_SECRET: 'test_secret',
     REFRESH_TOKEN_SECRET: 'test_refresh',
     CSRF_SECRET: 'test_csrf',
@@ -13,10 +12,8 @@ vi.mock('@/modules/env', () => ({
 }));
 
 vi.mock('@/modules/db', () => ({
-  getSystemDataSource: vi.fn(),
+  getDataSource: vi.fn(),
   tenantDataSourceFor: vi.fn(),
-  getDefaultTenantDataSource: vi.fn(),
-  SystemDataSource: { isInitialized: false, initialize: vi.fn(), getRepository: vi.fn() },
 }));
 
 vi.mock('@/modules/redis', () => ({
@@ -43,7 +40,7 @@ vi.mock('../tenant_member/tenant_member.service', () => ({
   },
 }));
 
-import { getSystemDataSource, tenantDataSourceFor, getDefaultTenantDataSource } from '@/modules/db';
+import { getDataSource, tenantDataSourceFor } from '@/modules/db';
 import TenantInvitationService from './tenant_invitation.service';
 import TenantInvitationMessages from './tenant_invitation.messages';
 import TenantMemberService from '../tenant_member/tenant_member.service';
@@ -92,11 +89,11 @@ function mockTenantDs(repo: ReturnType<typeof makeRepo>) {
 }
 
 function mockDefaultDs(repo: ReturnType<typeof makeRepo>) {
-  (getDefaultTenantDataSource as any).mockResolvedValue({ getRepository: () => repo });
+  (getDataSource as any).mockResolvedValue({ getRepository: () => repo });
 }
 
 function mockSystemDs(userRepo: ReturnType<typeof vi.fn>) {
-  (getSystemDataSource as any).mockResolvedValue({ getRepository: () => ({ findOne: userRepo }) });
+  (getDataSource as any).mockResolvedValue({ getRepository: () => ({ findOne: userRepo }) });
 }
 
 beforeEach(() => vi.clearAllMocks());

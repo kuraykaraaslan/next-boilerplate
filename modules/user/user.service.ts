@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { ILike } from 'typeorm';
-import { getSystemDataSource } from '@/modules/db';
+import { getDataSource } from '@/modules/db';
 import redis, { jitter, singleFlight } from '@/modules/redis';
 import { env } from '@/modules/env';
 import { User as UserEntity } from './entities/user.entity';
@@ -29,7 +29,7 @@ export default class UserService {
   }): Promise<SafeUser> {
     if (!email) throw new Error(UserMessages.INVALID_EMAIL);
 
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const repo = ds.getRepository(UserEntity);
 
     const existingUser = await repo.findOne({ where: { email: email.toLowerCase() } });
@@ -55,7 +55,7 @@ export default class UserService {
     search?: string;
     userId?: string;
   }): Promise<{ users: SafeUser[]; total: number }> {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const repo = ds.getRepository(UserEntity);
 
     const baseWhere: Record<string, unknown> = {};
@@ -86,7 +86,7 @@ export default class UserService {
     }
 
     return singleFlight(cacheKey, async () => {
-      const ds = await getSystemDataSource();
+      const ds = await getDataSource();
       const user = await ds.getRepository(UserEntity).findOne({ where: { userId } });
       if (!user) throw new Error(UserMessages.USER_NOT_FOUND);
 
@@ -98,7 +98,7 @@ export default class UserService {
 
   static async update({ userId, data }: { userId: string; data: UpdateUser }): Promise<SafeUser> {
     if (!userId) throw new Error(UserMessages.USER_NOT_FOUND);
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const repo = ds.getRepository(UserEntity);
     const user = await repo.findOne({ where: { userId } });
     if (!user) throw new Error(UserMessages.USER_NOT_FOUND);
@@ -120,7 +120,7 @@ export default class UserService {
   }
 
   static async delete(userId: string): Promise<void> {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const repo = ds.getRepository(UserEntity);
     const user = await repo.findOne({ where: { userId } });
     if (!user) throw new Error(UserMessages.USER_NOT_FOUND);
@@ -138,7 +138,7 @@ export default class UserService {
     }
 
     return singleFlight(cacheKey, async () => {
-      const ds = await getSystemDataSource();
+      const ds = await getDataSource();
       const user = await ds.getRepository(UserEntity).findOne({ where: { email: normalized } });
       if (!user) {
         await redis.setex(cacheKey, jitter(NEGATIVE_CACHE_TTL), NEG).catch(() => {});

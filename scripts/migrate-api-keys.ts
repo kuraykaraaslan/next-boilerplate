@@ -14,7 +14,7 @@ function parseDbUrl(raw: string): { url: string; schema?: string } {
   return { url, schema };
 }
 
-const { url, schema } = parseDbUrl(env.TENANT_DATABASE_URL);
+const { url, schema } = parseDbUrl(env.DATABASE_URL);
 
 const ds = new DataSource({
   type: 'postgres',

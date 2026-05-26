@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Limiter from '@/modules_next/limiter/limiter.service.next'
 import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next'
-import { tenantDataSourceFor } from '@/modules/db/db.tenant'
+import { tenantDataSourceFor } from '@/modules/db'
 import { StoreProduct } from '@/modules/store/entities/store_product.entity'
 import StoreService from '@/modules/store/store.service'
 

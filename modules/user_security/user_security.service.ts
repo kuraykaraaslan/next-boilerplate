@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { getSystemDataSource } from '@/modules/db';
+import { getDataSource } from '@/modules/db';
 import redis, { jitter, singleFlight } from '@/modules/redis';
 import { env } from '@/modules/env';
 import { UserSecurity as UserSecurityEntity } from './entities/user_security.entity';
@@ -24,7 +24,7 @@ export default class UserSecurityService {
     }
 
     return singleFlight(cacheKey, async () => {
-      const ds = await getSystemDataSource();
+      const ds = await getDataSource();
       const security = await ds.getRepository(UserSecurityEntity).findOne({ where: { userId } });
       if (!security) return this.createDefaultUserSecurity(userId);
 
@@ -42,7 +42,7 @@ export default class UserSecurityService {
     }
 
     return singleFlight(cacheKey, async () => {
-      const ds = await getSystemDataSource();
+      const ds = await getDataSource();
       const security = await ds.getRepository(UserSecurityEntity).findOne({ where: { userId } });
       if (!security) {
         const created = await this.createDefaultUserSecurity(userId);
@@ -60,7 +60,7 @@ export default class UserSecurityService {
   }
 
   static async createDefaultUserSecurity(userId: string): Promise<UserSecurity> {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const repo = ds.getRepository(UserSecurityEntity);
     const existing = await repo.findOne({ where: { userId } });
     if (existing) throw new Error('Security record already exists for this user');
@@ -72,7 +72,7 @@ export default class UserSecurityService {
   }
 
   static async updateUserSecurity(userId: string, data: Partial<UserSecurity>): Promise<UserSecurity> {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const repo = ds.getRepository(UserSecurityEntity);
     const security = await repo.findOne({ where: { userId } });
     if (!security) throw new Error('Security record not found');
@@ -84,7 +84,7 @@ export default class UserSecurityService {
   }
 
   static async upsertUserSecurity(userId: string, data: Partial<UserSecurity>): Promise<UserSecurity> {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const repo = ds.getRepository(UserSecurityEntity);
     const existing = await repo.findOne({ where: { userId } });
 
@@ -114,7 +114,7 @@ export default class UserSecurityService {
     device?: string,
     options?: { maxAttempts?: number; lockDurationMinutes?: number },
   ): Promise<void> {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const repo = ds.getRepository(UserSecurityEntity);
     const security = await repo.findOne({ where: { userId } });
     if (!security) throw new Error('Security record not found');
@@ -141,7 +141,7 @@ export default class UserSecurityService {
   }
 
   static async isLocked(userId: string): Promise<boolean> {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const security = await ds.getRepository(UserSecurityEntity).findOne({ where: { userId } });
     if (!security || !security.lockedUntil) return false;
     return new Date() < security.lockedUntil;
@@ -154,7 +154,7 @@ export default class UserSecurityService {
    * value (bcrypt) — never plaintext.
    */
   static async pushPasswordHistory(userId: string, passwordHash: string, historyCount: number): Promise<void> {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const repo = ds.getRepository(UserSecurityEntity);
     const security = await repo.findOne({ where: { userId } });
     if (!security) throw new Error('Security record not found');
@@ -171,20 +171,20 @@ export default class UserSecurityService {
   }
 
   static async getPasswordHistory(userId: string): Promise<string[]> {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const security = await ds.getRepository(UserSecurityEntity).findOne({ where: { userId } });
     if (!security) return [];
     return Array.isArray(security.passwordHistory) ? (security.passwordHistory as string[]) : [];
   }
 
   static async getPasswordChangedAt(userId: string): Promise<Date | null> {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const security = await ds.getRepository(UserSecurityEntity).findOne({ where: { userId } });
     return security?.passwordChangedAt ?? null;
   }
 
   static async setMustChangePassword(userId: string, value: boolean): Promise<void> {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     await ds.getRepository(UserSecurityEntity).update({ userId }, { mustChangePassword: value });
     await this.clearCache(userId);
   }

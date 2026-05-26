@@ -3,8 +3,7 @@ import 'dotenv/config';
 import bcrypt from 'bcrypt';
 import { env } from '@/modules/env';
 import { ROOT_TENANT_ID, ROOT_TENANT_NAME } from '@/modules/tenant/tenant.constants';
-import { getSystemDataSource } from '@/modules/db/db.system';
-import { getDefaultTenantDataSource } from '@/modules/db/db.tenant';
+import { getDataSource } from '@/modules/db';
 import { User } from '@/modules/user/entities/user.entity';
 import { Tenant } from '@/modules/tenant/entities/tenant.entity';
 import { TenantMember } from '@/modules/tenant_member/entities/tenant_member.entity';
@@ -66,28 +65,27 @@ async function upsertDomain(
 }
 
 async function main() {
-  const systemDs = await getSystemDataSource();
-  const tenantDs = await getDefaultTenantDataSource();
+  const ds = await getDataSource();
 
   const email = 'eneskuray@gmail.com';
   const password = 'qwerty20';
   const hashed = await bcrypt.hash(password, 10);
 
   const rootTenant = await upsertTenant(
-    tenantDs,
+    ds,
     ROOT_TENANT_ID,
     ROOT_TENANT_NAME,
     'Root tenant — owns platform configuration and super-admin surface',
   );
 
   const demoTenant = await upsertTenant(
-    tenantDs,
+    ds,
     '00000000-0000-4000-8000-000000000001',
     'Acme Corp',
     'Example tenant created by setup script',
   );
 
-  const userRepo = systemDs.getRepository(User);
+  const userRepo = ds.getRepository(User);
   let user = await userRepo.findOne({ where: { email } });
   if (user) {
     await userRepo.update({ email }, { password: hashed } as any);
@@ -99,13 +97,13 @@ async function main() {
   }
   console.log(`User processed: ${user.email} (${user.userId})`);
 
-  await upsertMembership(tenantDs, rootTenant.tenantId, user.userId, 'ADMIN');
-  await upsertMembership(tenantDs, demoTenant.tenantId, user.userId, 'OWNER');
+  await upsertMembership(ds, rootTenant.tenantId, user.userId, 'ADMIN');
+  await upsertMembership(ds, demoTenant.tenantId, user.userId, 'OWNER');
 
   const wildcard = env.TENANT_WILDCARD_DOMAIN;
   const rootSubdomain = process.env.TENANT_DEFAULT_SUBDOMAIN || 'system';
-  await upsertDomain(tenantDs, rootTenant.tenantId, `${rootSubdomain}.${wildcard}`, true);
-  await upsertDomain(tenantDs, demoTenant.tenantId, `acme.${wildcard}`, true);
+  await upsertDomain(ds, rootTenant.tenantId, `${rootSubdomain}.${wildcard}`, true);
+  await upsertDomain(ds, demoTenant.tenantId, `acme.${wildcard}`, true);
 
   console.log('---');
   console.log('Root tenant ID :', rootTenant.tenantId);
@@ -114,8 +112,7 @@ async function main() {
   console.log('Login email    :', email);
   console.log('Login password :', password);
 
-  await systemDs.destroy();
-  await tenantDs.destroy();
+  await ds.destroy();
 }
 
 main().catch((e) => {

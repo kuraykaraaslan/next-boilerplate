@@ -10,9 +10,8 @@ const EnvSchema = z.object({
   DEBUG_TESTS: z.coerce.boolean().optional(),
   DEBUG_TESTS_REAL_SERVER: z.coerce.boolean().optional(),
 
-  // ── Databases ───────────────────────────────────────────────────────────────
-  SYSTEM_DATABASE_URL: z.string().min(1),
-  TENANT_DATABASE_URL: z.string().min(1),
+  // ── Database ────────────────────────────────────────────────────────────────
+  DATABASE_URL: z.string().min(1),
 
   // ── Redis ───────────────────────────────────────────────────────────────────
   REDIS_HOST: z.string().default('localhost'),

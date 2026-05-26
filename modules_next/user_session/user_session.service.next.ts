@@ -9,7 +9,7 @@ import UserSessionMessages from "@/modules/user_session/user_session.messages";
 import redis from "@/modules/redis";
 import { SafeUserSecurity } from '@/modules/user_security/user_security.types';
 import UserSessionService from '@/modules/user_session/user_session.service';
-import { getSystemDataSource } from '@/modules/db';
+import { getDataSource } from '@/modules/db';
 import { User as UserEntity } from '@/modules/user/entities/user.entity';
 
 const SESSION_CACHE_TTL = env.SESSION_CACHE_TTL;
@@ -133,7 +133,7 @@ export default class UserSessionNextService {
     });
 
     // Get user from database
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const user = await ds.getRepository(UserEntity).findOne({ where: { userId: userSession.userId } });
     
     if (!user) {
@@ -235,7 +235,7 @@ export default class UserSessionNextService {
       if (meta?.impersonation) {
         request.isImpersonating = true;
         try {
-          const ds2 = await getSystemDataSource();
+          const ds2 = await getDataSource();
           const impersonatorUser = await ds2.getRepository(UserEntity).findOne({
             where: { userId: meta.impersonation.impersonatorUserId },
           });

@@ -2,8 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('@/modules/env', () => ({
   env: {
-    SYSTEM_DATABASE_URL: 'postgresql://test',
-    TENANT_DATABASE_URL: 'postgresql://test',
+    DATABASE_URL: 'postgresql://test',
     ACCESS_TOKEN_SECRET: 'test_secret',
     REFRESH_TOKEN_SECRET: 'test_refresh',
     CSRF_SECRET: 'test_csrf',
@@ -12,7 +11,7 @@ vi.mock('@/modules/env', () => ({
 }));
 
 vi.mock('@/modules/db', () => ({
-  getSystemDataSource: vi.fn(),
+  getDataSource: vi.fn(),
 }));
 
 vi.mock('@/modules/redis', () => ({
@@ -33,7 +32,7 @@ vi.mock('@/modules/redis', () => ({
 }));
 vi.mock('@/modules/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
 
-import { getSystemDataSource } from '@/modules/db';
+import { getDataSource } from '@/modules/db';
 import UserPreferencesService from './user_preferences.service';
 
 const mockPrefsEntity = {
@@ -59,7 +58,7 @@ function buildRepoMock(overrides: Record<string, any> = {}) {
 
   const repo = { findOne, save, create, update, delete: del, ...overrides };
 
-  (getSystemDataSource as any).mockResolvedValue({
+  (getDataSource as any).mockResolvedValue({
     getRepository: () => repo,
   });
 

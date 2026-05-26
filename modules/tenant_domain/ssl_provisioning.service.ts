@@ -1,5 +1,5 @@
 import tls from 'node:tls';
-import { getDefaultTenantDataSource } from '@/modules/db';
+import { getDataSource } from '@/modules/db';
 import { TenantDomain } from './entities/tenant_domain.entity';
 import type { SslStatus } from './tenant_domain.enums';
 import Logger from '@/modules/logger';
@@ -71,7 +71,7 @@ export default class SSLProvisioningService {
     if (host === 'localhost' || host.endsWith('.localhost')) return false;
 
     try {
-      const ds = await getDefaultTenantDataSource();
+      const ds = await getDataSource();
       const repo = ds.getRepository(TenantDomain);
       const row = await repo.findOne({ where: { domain: host } });
       if (!row) return false;
@@ -154,7 +154,7 @@ export default class SSLProvisioningService {
     expiring: number;
     failed: number;
   }> {
-    const ds = await getDefaultTenantDataSource();
+    const ds = await getDataSource();
     const repo = ds.getRepository(TenantDomain);
     // Probe everything that's either currently ACTIVE on the DNS side OR
     // sitting in SSL PENDING (Caddy is about to or just did mint a cert).

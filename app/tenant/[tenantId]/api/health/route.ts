@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { SystemDataSource, getDefaultTenantDataSource } from '@/modules/db';
+import { getDataSource } from '@/modules/db';
 import redis from '@/modules/redis';
 import { Queue } from 'bullmq';
 import { getBullMQConnection } from '@/modules/redis/redis.bullmq';
@@ -27,23 +27,17 @@ interface HealthResponse {
   timestamp: string;
   uptimeSeconds: number;
   checks: {
-    system_db: ServiceCheck;
-    tenant_db: ServiceCheck;
+    db: ServiceCheck;
     redis: ServiceCheck;
     queues: Record<string, QueueCheck>;
   };
 }
 
-async function checkDb(name: 'system' | 'tenant'): Promise<ServiceCheck> {
+async function checkDb(): Promise<ServiceCheck> {
   const t0 = Date.now();
   try {
-    if (name === 'system') {
-      if (!SystemDataSource.isInitialized) await SystemDataSource.initialize();
-      await SystemDataSource.query('SELECT 1');
-    } else {
-      const ds = await getDefaultTenantDataSource();
-      await ds.query('SELECT 1');
-    }
+    const ds = await getDataSource();
+    await ds.query('SELECT 1');
     return { status: 'ok', latencyMs: Date.now() - t0 };
   } catch (e: any) {
     return { status: 'error', latencyMs: Date.now() - t0, message: e.message };
@@ -81,9 +75,8 @@ async function checkQueue(name: string): Promise<QueueCheck> {
 const QUEUE_NAMES = ['mailQueue', 'webhookDeliveryQueue', 'systemWebhookDeliveryQueue', 'subscription-expire'];
 
 export async function GET() {
-  const [system_db, tenant_db, redisCheck, ...queueChecks] = await Promise.all([
-    checkDb('system'),
-    checkDb('tenant'),
+  const [db, redisCheck, ...queueChecks] = await Promise.all([
+    checkDb(),
     checkRedis(),
     ...QUEUE_NAMES.map(checkQueue),
   ]);
@@ -91,7 +84,7 @@ export async function GET() {
   const queues: Record<string, QueueCheck> = {};
   QUEUE_NAMES.forEach((name, i) => { queues[name] = queueChecks[i]; });
 
-  const coreOk = system_db.status === 'ok' && tenant_db.status === 'ok' && redisCheck.status === 'ok';
+  const coreOk = db.status === 'ok' && redisCheck.status === 'ok';
   const queuesOk = Object.values(queues).every((q) => q.status === 'ok');
 
   const overallStatus: HealthResponse['status'] = coreOk
@@ -103,8 +96,7 @@ export async function GET() {
     timestamp: new Date().toISOString(),
     uptimeSeconds: Math.floor(process.uptime()),
     checks: {
-      system_db,
-      tenant_db,
+      db,
       redis: redisCheck,
       queues,
     },

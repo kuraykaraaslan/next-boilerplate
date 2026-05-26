@@ -1,6 +1,6 @@
 import { Queue, Worker, Job } from 'bullmq';
 import { getBullMQConnection } from '@/modules/redis/redis.bullmq';
-import { getSystemDataSource } from '@/modules/db';
+import { getDataSource } from '@/modules/db';
 import { Tenant } from '@/modules/tenant/entities/tenant.entity';
 import { TenantUsageService } from './tenant_usage.service';
 import Logger from '@/modules/logger';
@@ -28,7 +28,7 @@ export const usageFlushQueue = new Queue(QUEUE_NAME, {
 export const usageFlushWorker = new Worker(
   QUEUE_NAME,
   async (_job: Job) => {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const tenants = await ds.getRepository(Tenant).find({ where: { tenantStatus: 'ACTIVE' } });
     const now = new Date();
     const month = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}`;

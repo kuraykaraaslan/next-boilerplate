@@ -2,15 +2,14 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('@/modules/env', () => ({
   env: {
-    SYSTEM_DATABASE_URL: 'postgresql://test',
-    TENANT_DATABASE_URL: 'postgresql://test',
+    DATABASE_URL: 'postgresql://test',
     NODE_ENV: 'test',
     VERIFICATION_DOMAIN: 'verify.example.com',
   },
 }));
 
 vi.mock('@/modules/db', () => ({
-  getDefaultTenantDataSource: vi.fn(),
+  getDataSource: vi.fn(),
   tenantDataSourceFor: vi.fn(),
 }));
 
@@ -39,7 +38,7 @@ vi.mock('@/modules/audit_log/audit_log.service', () => ({
   default: { log: vi.fn(async () => undefined) },
 }));
 
-import { getDefaultTenantDataSource, tenantDataSourceFor } from '@/modules/db';
+import { getDataSource, tenantDataSourceFor } from '@/modules/db';
 import DNSVerificationService from './dns_verification.service';
 import AuditLogService from '@/modules/audit_log/audit_log.service';
 const auditLogMock = AuditLogService.log as ReturnType<typeof vi.fn>;
@@ -71,7 +70,7 @@ describe('DNSVerificationService.recheckActiveDomains', () => {
     const broken = makeDomain({ tenantDomainId: 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', domain: 'broken.example.com' });
 
     const defaultRepo = { find: vi.fn(async () => [good, broken]) };
-    (getDefaultTenantDataSource as any).mockResolvedValue({ getRepository: () => defaultRepo });
+    (getDataSource as any).mockResolvedValue({ getRepository: () => defaultRepo });
 
     const updateSpy = vi.fn(async () => ({ affected: 1 }));
     (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => ({ update: updateSpy }) });
@@ -100,7 +99,7 @@ describe('DNSVerificationService.recheckActiveDomains', () => {
 
   it('returns zeros when no ACTIVE domains exist', async () => {
     const defaultRepo = { find: vi.fn(async () => []) };
-    (getDefaultTenantDataSource as any).mockResolvedValue({ getRepository: () => defaultRepo });
+    (getDataSource as any).mockResolvedValue({ getRepository: () => defaultRepo });
 
     const result = await DNSVerificationService.recheckActiveDomains();
     expect(result).toEqual({ checked: 0, downgraded: 0 });

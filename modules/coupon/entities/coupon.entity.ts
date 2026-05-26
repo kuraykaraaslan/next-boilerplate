@@ -38,13 +38,25 @@ export class Coupon {
   @Column({ nullable: true, type: 'varchar', length: 3 })
   currency?: string;
 
-  // null = applies to all plans
+  /**
+   * Flexible coupon scope. Any missing/null dimension means "applies to all".
+   *
+   *   productIds      — limit to specific store products
+   *   planIds         — limit to specific subscription plans
+   *   categoryIds     — limit to products in these categories
+   *   providers       — limit to specific payment providers
+   *   appliesTo       — 'line' = discount each matching line, 'cart' = discount cart total
+   *   minimumAmount   — minimum subtotal (in coupon.currency)
+   */
   @Column({ type: 'jsonb', nullable: true })
-  applicablePlanIds?: string[];
-
-  // null = applies to all providers
-  @Column({ type: 'jsonb', nullable: true })
-  applicableProviders?: string[];
+  scope?: {
+    productIds?: string[]
+    planIds?: string[]
+    categoryIds?: string[]
+    providers?: string[]
+    appliesTo?: 'line' | 'cart'
+    minimumAmount?: number
+  };
 
   @Column({ nullable: true, type: 'int' })
   maxUses?: number;
@@ -54,9 +66,6 @@ export class Coupon {
 
   @Column({ type: 'int', default: 0 })
   usedCount!: number;
-
-  @Column({ nullable: true, type: 'decimal', precision: 12, scale: 2 })
-  minimumAmount?: number;
 
   @Index()
   @Column({ type: 'varchar', default: 'ACTIVE' })

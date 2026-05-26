@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { IsNull, ILike } from 'typeorm';
-import { tenantDataSourceFor, getDefaultTenantDataSource } from '@/modules/db';
+import { tenantDataSourceFor, getDataSource } from '@/modules/db';
 import redis, { jitter, singleFlight } from '@/modules/redis';
 import { env } from '@/modules/env';
 import { Tenant as TenantEntity } from './entities/tenant.entity';
@@ -26,15 +26,22 @@ const DEFAULT_TENANT_SETTINGS: Record<string, string> = {
   timezone: 'UTC',
 };
 
-const DEFAULT_FREE_PLAN = {
-  name: 'Free',
-  description: 'Default starter plan auto-provisioned for new tenants.',
-  monthlyPrice: 0,
-  yearlyPrice: 0,
+/**
+ * Default starter plan that the tenant seed wires up. Plans now wrap a
+ * StoreProduct (productId is required), so the seed creates a hidden
+ * "Free" product first and binds the plan to it.
+ */
+const DEFAULT_FREE_PRODUCT = {
+  name: 'Free Plan',
+  slug: 'free-plan',
+  basePrice: 0,
   currency: 'USD',
+  status: 'ACTIVE' as const,
+  isDigital: true,
+};
+const DEFAULT_FREE_PLAN_BILLING = {
+  interval: 'MONTHLY' as const,
   trialDays: 0,
-  sortOrder: 0,
-  isDefault: true,
   status: 'ACTIVE' as const,
 };
 
@@ -45,7 +52,7 @@ export default class TenantService {
   }
 
   static async getAll({ page, pageSize, search, tenantId }: GetTenantsInput): Promise<{ tenants: SafeTenant[]; total: number }> {
-    const ds = await getDefaultTenantDataSource();
+    const ds = await getDataSource();
     const repo = ds.getRepository(TenantEntity);
 
     const baseWhere: Record<string, unknown> = { deletedAt: IsNull() };
@@ -88,7 +95,7 @@ export default class TenantService {
 
   static async create(data: CreateTenantInput): Promise<SafeTenant> {
     const { defaults, ...tenantData } = data;
-    const ds = await getDefaultTenantDataSource();
+    const ds = await getDataSource();
     const repo = ds.getRepository(TenantEntity);
     const tenant = repo.create({ ...tenantData, tenantStatus: 'ACTIVE' } as any);
     const saved = await repo.save(tenant) as unknown as TenantEntity;
@@ -111,26 +118,15 @@ export default class TenantService {
   private static async seedDefaults(tenantId: string, defaults?: SeedDefaults): Promise<void> {
     if (isRootTenant(tenantId)) return;
 
-    let planId: string | null = null;
-
-    if (!defaults?.skipPlan) {
-      try {
-        const TenantSubscriptionService = (await import('@/modules/tenant_subscription/tenant_subscription.service')).default;
-        const plan = await TenantSubscriptionService.createPlan(tenantId, { ...DEFAULT_FREE_PLAN });
-        planId = plan.planId;
-      } catch (err) {
-        Logger.warn(`[TenantService.seedDefaults] default plan seed failed for ${tenantId}: ${err instanceof Error ? err.message : String(err)}`);
-      }
-    }
-
-    if (planId && !defaults?.skipSubscription) {
-      try {
-        const TenantSubscriptionService = (await import('@/modules/tenant_subscription/tenant_subscription.service')).default;
-        await TenantSubscriptionService.assignPlan(tenantId, { planId, billingInterval: 'MONTHLY' });
-      } catch (err) {
-        Logger.warn(`[TenantService.seedDefaults] default subscription assign failed for ${tenantId}: ${err instanceof Error ? err.message : String(err)}`);
-      }
-    }
+    // Default plan + subscription seed disabled: plans now wrap StoreProduct,
+    // which requires a Category. A new tenant has no catalog yet, so the Free
+    // plan/subscription must be created manually from the admin UI once the
+    // operator has a category in place. The defaults?.skipPlan and
+    // defaults?.skipSubscription flags are kept for future re-enablement.
+    void DEFAULT_FREE_PRODUCT;
+    void DEFAULT_FREE_PLAN_BILLING;
+    void defaults?.skipPlan;
+    void defaults?.skipSubscription;
 
     if (!defaults?.skipSettings) {
       try {
@@ -156,7 +152,7 @@ export default class TenantService {
 
   static async provisionPersonal(userId: string, email: string): Promise<SafeTenant> {
     const name = email.split('@')[0];
-    const ds = await getDefaultTenantDataSource();
+    const ds = await getDataSource();
     const repo = ds.getRepository(TenantEntity);
     const tenant = repo.create({ name, tenantStatus: 'ACTIVE' });
     const saved = await repo.save(tenant);

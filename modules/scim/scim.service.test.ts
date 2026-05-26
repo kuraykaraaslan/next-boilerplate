@@ -2,16 +2,14 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('@/modules/env', () => ({
   env: {
-    SYSTEM_DATABASE_URL: 'postgresql://test',
-    TENANT_DATABASE_URL: 'postgresql://test',
+    DATABASE_URL: 'postgresql://test',
     NODE_ENV: 'test',
   },
 }));
 
 vi.mock('@/modules/db', () => ({
-  getSystemDataSource: vi.fn(),
+  getDataSource: vi.fn(),
   tenantDataSourceFor: vi.fn(),
-  getDefaultTenantDataSource: vi.fn(),
 }));
 
 vi.mock('@/modules/logger', () => ({
@@ -28,7 +26,7 @@ vi.mock('bcrypt', () => ({
 }));
 
 import ScimService from './scim.service';
-import { getSystemDataSource, tenantDataSourceFor } from '@/modules/db';
+import { getDataSource, tenantDataSourceFor } from '@/modules/db';
 
 const TENANT_ID = '550e8400-e29b-41d4-a716-446655440000';
 const OTHER_TENANT_ID = '660e8400-e29b-41d4-a716-446655440010';
@@ -77,7 +75,7 @@ describe('ScimService.listUsers', () => {
     const memberRepo = makeRepo(null);
     const userRepo = makeRepo(null);
     (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => memberRepo });
-    (getSystemDataSource as any).mockResolvedValue({ getRepository: () => userRepo });
+    (getDataSource as any).mockResolvedValue({ getRepository: () => userRepo });
 
     const list = await ScimService.listUsers(TENANT_ID, { startIndex: 1, count: 100 });
     expect(list.totalResults).toBe(0);
@@ -89,7 +87,7 @@ describe('ScimService.listUsers', () => {
     const memberRepo = makeRepo(null);
     const userRepo = makeRepo(null);
     (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => memberRepo });
-    (getSystemDataSource as any).mockResolvedValue({ getRepository: () => userRepo });
+    (getDataSource as any).mockResolvedValue({ getRepository: () => userRepo });
 
     await expect(
       ScimService.listUsers(TENANT_ID, { startIndex: 1, count: 100, filter: 'userName sw "ali"' }),
@@ -104,7 +102,7 @@ describe('ScimService.getUser', () => {
     const memberRepo = makeRepo(null);
     const userRepo = makeRepo(mockUser);
     (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => memberRepo });
-    (getSystemDataSource as any).mockResolvedValue({ getRepository: () => userRepo });
+    (getDataSource as any).mockResolvedValue({ getRepository: () => userRepo });
 
     await expect(ScimService.getUser(TENANT_ID, MEMBER_ID)).rejects.toThrow(/not found/i);
   });
@@ -113,7 +111,7 @@ describe('ScimService.getUser', () => {
     const memberRepo = makeRepo({ ...mockMember, tenantId: OTHER_TENANT_ID });
     const userRepo = makeRepo(mockUser);
     (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => memberRepo });
-    (getSystemDataSource as any).mockResolvedValue({ getRepository: () => userRepo });
+    (getDataSource as any).mockResolvedValue({ getRepository: () => userRepo });
 
     await expect(ScimService.getUser(TENANT_ID, MEMBER_ID)).rejects.toThrow(/not found/i);
   });
@@ -122,7 +120,7 @@ describe('ScimService.getUser', () => {
     const memberRepo = makeRepo(mockMember);
     const userRepo = makeRepo(mockUser);
     (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => memberRepo });
-    (getSystemDataSource as any).mockResolvedValue({ getRepository: () => userRepo });
+    (getDataSource as any).mockResolvedValue({ getRepository: () => userRepo });
 
     const u = await ScimService.getUser(TENANT_ID, MEMBER_ID);
     expect(u.userName).toBe('alice@example.com');
@@ -140,7 +138,7 @@ describe('ScimService.createUser', () => {
     const memberRepo = makeRepo(mockMember);
     const userRepo = makeRepo(mockUser);
     (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => memberRepo });
-    (getSystemDataSource as any).mockResolvedValue({ getRepository: () => userRepo });
+    (getDataSource as any).mockResolvedValue({ getRepository: () => userRepo });
 
     await expect(
       ScimService.createUser(TENANT_ID, { userName: 'alice@example.com' }),
@@ -153,7 +151,7 @@ describe('ScimService.createUser', () => {
     memberRepo.create = vi.fn((e: any) => ({ ...mockMember, ...e }));
     const userRepo = makeRepo(mockUser);
     (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => memberRepo });
-    (getSystemDataSource as any).mockResolvedValue({ getRepository: () => userRepo });
+    (getDataSource as any).mockResolvedValue({ getRepository: () => userRepo });
 
     const u = await ScimService.createUser(TENANT_ID, {
       userName: 'alice@example.com',
@@ -172,7 +170,7 @@ describe('ScimService.deleteUser', () => {
     const memberRepo = makeRepo({ ...mockMember });
     const userRepo = makeRepo(mockUser);
     (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => memberRepo });
-    (getSystemDataSource as any).mockResolvedValue({ getRepository: () => userRepo });
+    (getDataSource as any).mockResolvedValue({ getRepository: () => userRepo });
 
     await ScimService.deleteUser(TENANT_ID, MEMBER_ID);
     expect(memberRepo.save).toHaveBeenCalled();
@@ -189,7 +187,7 @@ describe('ScimService.patchUser', () => {
     const memberRepo = makeRepo({ ...mockMember });
     const userRepo = makeRepo({ ...mockUser });
     (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => memberRepo });
-    (getSystemDataSource as any).mockResolvedValue({ getRepository: () => userRepo });
+    (getDataSource as any).mockResolvedValue({ getRepository: () => userRepo });
 
     const u = await ScimService.patchUser(TENANT_ID, MEMBER_ID, [
       { op: 'replace', path: 'active', value: false },
@@ -201,7 +199,7 @@ describe('ScimService.patchUser', () => {
     const memberRepo = makeRepo({ ...mockMember });
     const userRepo = makeRepo({ ...mockUser });
     (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => memberRepo });
-    (getSystemDataSource as any).mockResolvedValue({ getRepository: () => userRepo });
+    (getDataSource as any).mockResolvedValue({ getRepository: () => userRepo });
 
     const u = await ScimService.patchUser(TENANT_ID, MEMBER_ID, [
       { op: 'replace', value: { active: false } },
@@ -213,7 +211,7 @@ describe('ScimService.patchUser', () => {
     const memberRepo = makeRepo({ ...mockMember });
     const userRepo = makeRepo({ ...mockUser });
     (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => memberRepo });
-    (getSystemDataSource as any).mockResolvedValue({ getRepository: () => userRepo });
+    (getDataSource as any).mockResolvedValue({ getRepository: () => userRepo });
 
     await expect(
       ScimService.patchUser(TENANT_ID, MEMBER_ID, [

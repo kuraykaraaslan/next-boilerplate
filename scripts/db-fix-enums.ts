@@ -119,8 +119,7 @@ async function fixSchema(databaseUrl: string, label: string) {
 }
 
 async function main() {
-  await fixSchema(env.SYSTEM_DATABASE_URL, 'system');
-  await fixSchema(env.TENANT_DATABASE_URL, 'tenant');
+  await fixSchema(env.DATABASE_URL, 'db');
   console.log('All enum types converted to varchar. Next `npm run dev` should sync cleanly.');
 }
 

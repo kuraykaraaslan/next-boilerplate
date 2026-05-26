@@ -2,8 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('@/modules/env', () => ({
   env: {
-    SYSTEM_DATABASE_URL: 'postgresql://test',
-    TENANT_DATABASE_URL: 'postgresql://test',
+    DATABASE_URL: 'postgresql://test',
     ACCESS_TOKEN_SECRET: 'test_secret',
     REFRESH_TOKEN_SECRET: 'test_refresh',
     CSRF_SECRET: 'test_csrf',
@@ -19,9 +18,8 @@ vi.mock('@/modules/env', () => ({
 }));
 
 vi.mock('@/modules/db', () => ({
-  getSystemDataSource: vi.fn(),
+  getDataSource: vi.fn(),
   tenantDataSourceFor: vi.fn(),
-  SystemDataSource: { isInitialized: false, initialize: vi.fn(), getRepository: vi.fn() },
 }));
 
 vi.mock('@/modules/redis', () => ({
@@ -68,7 +66,7 @@ vi.mock('jsonwebtoken', () => ({
   },
 }));
 
-import { getSystemDataSource } from '@/modules/db';
+import { getDataSource } from '@/modules/db';
 import redis from '@/modules/redis';
 import UserSessionMessages from './user_session.messages';
 
@@ -132,7 +130,7 @@ function makeRepo(sessionOverride: any = mockSessionEntity) {
 
 function mockSystemDs(sessionOverride?: any) {
   const repo = makeRepo(sessionOverride);
-  (getSystemDataSource as any).mockResolvedValue({ getRepository: () => repo });
+  (getDataSource as any).mockResolvedValue({ getRepository: () => repo });
   return repo;
 }
 
@@ -305,7 +303,7 @@ describe('UserSessionCrudService.getSession', () => {
     (redis.get as any).mockResolvedValue(JSON.stringify(cachedSession));
     const result = await UserSessionService.getSession({ accessToken: 'valid.token' });
     expect(result.userId).toBe(USER_ID);
-    expect(getSystemDataSource).not.toHaveBeenCalled();
+    expect(getDataSource).not.toHaveBeenCalled();
   });
 });
 
@@ -331,7 +329,7 @@ describe('UserSessionCrudService.updateSession', () => {
     repo.findOne = vi.fn()
       .mockResolvedValueOnce(mockSessionEntity) // existence check
       .mockResolvedValueOnce(updatedSession);   // after update
-    (getSystemDataSource as any).mockResolvedValue({ getRepository: () => repo });
+    (getDataSource as any).mockResolvedValue({ getRepository: () => repo });
 
     const result = await UserSessionService.updateSession(SESSION_ID, { otpVerifyNeeded: false });
     expect(result.otpVerifyNeeded).toBe(false);

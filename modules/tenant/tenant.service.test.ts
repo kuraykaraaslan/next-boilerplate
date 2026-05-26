@@ -2,8 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('@/modules/env', () => ({
   env: {
-    SYSTEM_DATABASE_URL: 'postgresql://test',
-    TENANT_DATABASE_URL: 'postgresql://test',
+    DATABASE_URL: 'postgresql://test',
     ACCESS_TOKEN_SECRET: 'test_secret',
     REFRESH_TOKEN_SECRET: 'test_refresh',
     CSRF_SECRET: 'test_csrf',
@@ -12,10 +11,8 @@ vi.mock('@/modules/env', () => ({
 }));
 
 vi.mock('@/modules/db', () => ({
-  getSystemDataSource: vi.fn(),
+  getDataSource: vi.fn(),
   tenantDataSourceFor: vi.fn(),
-  getDefaultTenantDataSource: vi.fn(),
-  SystemDataSource: { isInitialized: false, initialize: vi.fn(), getRepository: vi.fn() },
 }));
 
 vi.mock('@/modules/redis', () => ({
@@ -44,13 +41,9 @@ vi.mock('@/modules/tenant_subscription/tenant_subscription.service', () => ({
     createPlan: vi.fn(async () => ({
       planId: '11111111-1111-4111-8111-111111111111',
       tenantId: 'mock-tenant',
-      name: 'Free',
-      monthlyPrice: 0,
-      yearlyPrice: 0,
-      currency: 'USD',
+      productId: '22222222-2222-4222-8222-222222222222',
+      interval: 'MONTHLY',
       trialDays: 0,
-      sortOrder: 0,
-      isDefault: true,
       status: 'ACTIVE',
     })),
     assignPlan: vi.fn(async () => ({})),
@@ -63,7 +56,7 @@ vi.mock('@/modules/setting/setting.service', () => ({
   },
 }));
 
-import { tenantDataSourceFor, getDefaultTenantDataSource } from '@/modules/db';
+import { tenantDataSourceFor, getDataSource } from '@/modules/db';
 import TenantService from './tenant.service';
 import TenantMessages from './tenant.messages';
 import TenantMemberService from '../tenant_member/tenant_member.service';
@@ -103,7 +96,7 @@ function makeRepo(overrides: Partial<{
 }
 
 function mockDefaultDs(repo: ReturnType<typeof makeRepo>) {
-  (getDefaultTenantDataSource as any).mockResolvedValue({ getRepository: () => repo });
+  (getDataSource as any).mockResolvedValue({ getRepository: () => repo });
 }
 
 function mockTenantDs(repo: ReturnType<typeof makeRepo>) {
@@ -179,20 +172,17 @@ describe('TenantService.create', () => {
     expect(arg).not.toHaveProperty('defaults');
   });
 
-  it('auto-seeds default Free plan, subscription and settings', async () => {
+  it('seeds default settings (plan/subscription seed currently disabled)', async () => {
+    // Plan + subscription auto-seed is intentionally disabled because the new
+    // plan model requires a StoreProduct (which needs a Category) and a fresh
+    // tenant has no catalog. Settings still seed.
     const repo = makeRepo();
     mockDefaultDs(repo);
 
     await TenantService.create({ name: 'Seed Tenant', description: null, region: 'TR' });
 
-    expect(TenantSubscriptionService.createPlan).toHaveBeenCalledWith(
-      TENANT_ID,
-      expect.objectContaining({ name: 'Free', monthlyPrice: 0, isDefault: true, status: 'ACTIVE' }),
-    );
-    expect(TenantSubscriptionService.assignPlan).toHaveBeenCalledWith(
-      TENANT_ID,
-      expect.objectContaining({ billingInterval: 'MONTHLY' }),
-    );
+    expect(TenantSubscriptionService.createPlan).not.toHaveBeenCalled();
+    expect(TenantSubscriptionService.assignPlan).not.toHaveBeenCalled();
     expect(SettingService.updateMany).toHaveBeenCalledWith(
       TENANT_ID,
       expect.objectContaining({ language: 'en', dateFormat: 'YYYY-MM-DD', timezone: 'UTC' }),

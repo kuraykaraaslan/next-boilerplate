@@ -3,7 +3,7 @@ import { env } from '@/modules/env';
 import crypto from 'crypto';
 import bcrypt from 'bcrypt';
 import redis from '@/modules/redis';
-import { getSystemDataSource } from '@/modules/db';
+import { getDataSource } from '@/modules/db';
 import { User as UserEntity } from '../user/entities/user.entity';
 import Logger from '@/modules/logger';
 import UserService from '../user/user.service';
@@ -40,7 +40,7 @@ export default class PasswordService {
   }
 
   static async forgotPassword({ email }: { email: string }): Promise<{ resetToken: string }> {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const user = await ds.getRepository(UserEntity).findOne({ where: { email } });
     if (!user) throw new Error(AuthMessages.USER_NOT_FOUND);
 
@@ -99,7 +99,7 @@ export default class PasswordService {
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     await ds.getRepository(UserEntity).update({ userId: user.userId }, { password: hashedPassword });
     await UserSecurityService.pushPasswordHistory(user.userId, hashedPassword, policy.historyCount).catch(
       (err: unknown) => Logger.warn(`PasswordService: pushPasswordHistory failed: ${err instanceof Error ? err.message : err}`),

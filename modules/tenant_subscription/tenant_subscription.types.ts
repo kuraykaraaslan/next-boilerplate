@@ -19,24 +19,36 @@ export const PlanFeatureSchema = z.object({
   updatedAt: z.date(),
 })
 
-// Subscription Plan Schema
+// Subscription Plan Schema (billing recurrence binding for a Store Product)
 export const SubscriptionPlanSchema = z.object({
   planId: z.string().uuid(),
-  name: z.string(),
-  description: z.string().nullable(),
-  monthlyPrice: z.number(),
-  yearlyPrice: z.number(),
-  currency: z.string().max(3),
-  trialDays: z.number(),
-  sortOrder: z.number(),
-  isDefault: z.boolean(),
+  tenantId: z.string().uuid(),
+  productId: z.string().uuid(),
+  interval: BillingIntervalEnum,
+  trialDays: z.coerce.number().int(),
   status: SubscriptionPlanStatusEnum,
   createdAt: z.date(),
   updatedAt: z.date(),
 })
 
-// Plan with Features Schema
+// Product summary attached to plans for admin/list display
+export const PlanProductSummarySchema = z.object({
+  productId: z.string().uuid(),
+  name: z.string(),
+  slug: z.string(),
+  currency: z.string().max(3),
+  basePrice: z.coerce.number(),
+  shortDescription: z.string().nullable(),
+  status: z.string(),
+})
+
+export const PlanWithProductSchema = SubscriptionPlanSchema.extend({
+  product: PlanProductSummarySchema,
+})
+
+// Plan with Features (also embeds product)
 export const PlanWithFeaturesSchema = SubscriptionPlanSchema.extend({
+  product: PlanProductSummarySchema,
   features: z.array(PlanFeatureSchema),
 })
 
@@ -71,6 +83,8 @@ export const TenantSubscriptionWithPlanSchema = TenantSubscriptionSchema.extend(
 // Type exports
 export type PlanFeature = z.infer<typeof PlanFeatureSchema>
 export type SubscriptionPlan = z.infer<typeof SubscriptionPlanSchema>
+export type PlanProductSummary = z.infer<typeof PlanProductSummarySchema>
+export type PlanWithProduct = z.infer<typeof PlanWithProductSchema>
 export type PlanWithFeatures = z.infer<typeof PlanWithFeaturesSchema>
 export type TenantSubscription = z.infer<typeof TenantSubscriptionSchema>
 export type TenantSubscriptionWithPlan = z.infer<typeof TenantSubscriptionWithPlanSchema>

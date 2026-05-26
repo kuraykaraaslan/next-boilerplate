@@ -19,6 +19,7 @@ import type {
   GetCouponsQuery,
   ValidateCouponDTO,
   ApplyCouponDTO,
+  CouponScope,
 } from './coupon.dto';
 
 const COUPON_CACHE_TTL = env.TENANT_CACHE_TTL ?? (60 * 5);
@@ -56,11 +57,9 @@ export default class CouponService {
       coupon.usedCount = 0;
       if (data.description) coupon.description = data.description;
       if (data.currency) coupon.currency = data.currency;
-      if (data.applicablePlanIds) coupon.applicablePlanIds = data.applicablePlanIds;
-      if (data.applicableProviders) coupon.applicableProviders = data.applicableProviders;
+      if (data.scope) coupon.scope = data.scope;
       if (data.maxUses) coupon.maxUses = data.maxUses;
       if (data.maxUsesPerTenant) coupon.maxUsesPerTenant = data.maxUsesPerTenant;
-      if (data.minimumAmount) coupon.minimumAmount = data.minimumAmount;
       if (data.startsAt) coupon.startsAt = data.startsAt;
       if (data.expiresAt) coupon.expiresAt = data.expiresAt;
 
@@ -150,11 +149,9 @@ export default class CouponService {
         ...(data.discountType !== undefined && { discountType: data.discountType }),
         ...(data.discountValue !== undefined && { discountValue: data.discountValue }),
         ...(data.currency !== undefined && { currency: data.currency ?? undefined }),
-        ...(data.applicablePlanIds !== undefined && { applicablePlanIds: data.applicablePlanIds ?? undefined }),
-        ...(data.applicableProviders !== undefined && { applicableProviders: data.applicableProviders ?? undefined }),
+        ...(data.scope !== undefined && { scope: data.scope ?? undefined }),
         ...(data.maxUses !== undefined && { maxUses: data.maxUses ?? undefined }),
         ...(data.maxUsesPerTenant !== undefined && { maxUsesPerTenant: data.maxUsesPerTenant ?? undefined }),
-        ...(data.minimumAmount !== undefined && { minimumAmount: data.minimumAmount ?? undefined }),
         ...(data.status !== undefined && { status: data.status }),
         ...(data.startsAt !== undefined && { startsAt: data.startsAt ?? undefined }),
         ...(data.expiresAt !== undefined && { expiresAt: data.expiresAt ?? undefined }),
@@ -209,16 +206,15 @@ export default class CouponService {
       return CouponValidationResultSchema.parse({ valid: false, message: COUPON_MESSAGES.MAX_USES_REACHED });
     }
 
-    if (coupon.applicablePlanIds !== null && dto.planId && !coupon.applicablePlanIds.includes(dto.planId)) {
-      return CouponValidationResultSchema.parse({ valid: false, message: COUPON_MESSAGES.PLAN_NOT_ELIGIBLE });
-    }
-
-    if (coupon.applicableProviders !== null && dto.provider && !coupon.applicableProviders.includes(dto.provider)) {
-      return CouponValidationResultSchema.parse({ valid: false, message: COUPON_MESSAGES.PROVIDER_NOT_ELIGIBLE });
-    }
-
-    if (dto.amount && coupon.minimumAmount !== null && dto.amount < coupon.minimumAmount) {
-      return CouponValidationResultSchema.parse({ valid: false, message: COUPON_MESSAGES.MINIMUM_AMOUNT_NOT_MET });
+    const scopeCheck = CouponService.scopeApplies(coupon.scope, {
+      planId: dto.planId,
+      productIds: dto.productIds,
+      categoryIds: dto.categoryIds,
+      provider: dto.provider,
+      amount: dto.amount,
+    });
+    if (!scopeCheck.ok) {
+      return CouponValidationResultSchema.parse({ valid: false, message: scopeCheck.reason });
     }
 
     if (coupon.maxUsesPerTenant !== null) {
@@ -240,6 +236,58 @@ export default class CouponService {
     });
   }
 
+  /**
+   * Evaluate a coupon's scope against a usage context.
+   * Missing/null scope dimensions are wildcards. Empty arrays are treated as "no match"
+   * because they explicitly enumerate the set of allowed values to nothing.
+   */
+  static scopeApplies(
+    scope: CouponScope | null | undefined,
+    ctx: {
+      planId?: string;
+      productIds?: string[];
+      categoryIds?: string[];
+      provider?: string;
+      amount?: number;
+    },
+  ): { ok: true } | { ok: false; reason: string } {
+    if (!scope) return { ok: true };
+
+    if (scope.planIds !== undefined && ctx.planId) {
+      if (!scope.planIds.includes(ctx.planId)) {
+        return { ok: false, reason: COUPON_MESSAGES.PLAN_NOT_ELIGIBLE };
+      }
+    }
+
+    if (scope.productIds !== undefined && ctx.productIds && ctx.productIds.length > 0) {
+      const allowed = scope.productIds;
+      const matched = ctx.productIds.some((id) => allowed.includes(id));
+      if (!matched) {
+        return { ok: false, reason: COUPON_MESSAGES.PLAN_NOT_ELIGIBLE };
+      }
+    }
+
+    if (scope.categoryIds !== undefined && ctx.categoryIds && ctx.categoryIds.length > 0) {
+      const allowed = scope.categoryIds;
+      const matched = ctx.categoryIds.some((id) => allowed.includes(id));
+      if (!matched) {
+        return { ok: false, reason: COUPON_MESSAGES.PLAN_NOT_ELIGIBLE };
+      }
+    }
+
+    if (scope.providers !== undefined && ctx.provider) {
+      if (!scope.providers.includes(ctx.provider)) {
+        return { ok: false, reason: COUPON_MESSAGES.PROVIDER_NOT_ELIGIBLE };
+      }
+    }
+
+    if (scope.minimumAmount !== undefined && ctx.amount !== undefined && ctx.amount < scope.minimumAmount) {
+      return { ok: false, reason: COUPON_MESSAGES.MINIMUM_AMOUNT_NOT_MET };
+    }
+
+    return { ok: true };
+  }
+
   static calculateDiscount(coupon: Coupon, amount: number, currency?: string): number {
     if (coupon.discountType === 'PERCENTAGE') {
       return parseFloat(((amount * coupon.discountValue) / 100).toFixed(2));
@@ -259,6 +307,8 @@ export default class CouponService {
       code: dto.code,
       tenantId: dto.tenantId,
       planId: dto.planId,
+      productIds: dto.productIds,
+      categoryIds: dto.categoryIds,
       amount: dto.amount,
       currency: dto.currency,
       provider: dto.provider,

@@ -2,8 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('@/modules/env', () => ({
   env: {
-    SYSTEM_DATABASE_URL: 'postgresql://test',
-    TENANT_DATABASE_URL: 'postgresql://test',
+    DATABASE_URL: 'postgresql://test',
     ACCESS_TOKEN_SECRET: 'test_secret',
     REFRESH_TOKEN_SECRET: 'test_refresh',
     CSRF_SECRET: 'test_csrf',
@@ -39,9 +38,8 @@ const _fakeRepo = {
 const _fakeDS = { getRepository: vi.fn(() => _fakeRepo) };
 
 vi.mock('@/modules/db', () => ({
-  getSystemDataSource: vi.fn(async () => _fakeDS),
+  getDataSource: vi.fn(async () => _fakeDS),
   tenantDataSourceFor: vi.fn(async () => _fakeDS),
-  SystemDataSource: { isInitialized: false, initialize: vi.fn(), getRepository: vi.fn() },
 }));
 
 vi.mock('@/modules/redis', () => ({

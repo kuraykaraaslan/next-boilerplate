@@ -4,7 +4,7 @@ import { Resolver } from 'dns/promises';
 import crypto from 'crypto';
 import redis from '@/modules/redis';
 import Logger from '@/modules/logger';
-import { tenantDataSourceFor, getDefaultTenantDataSource } from '@/modules/db';
+import { tenantDataSourceFor, getDataSource } from '@/modules/db';
 import { TenantDomain as TenantDomainEntity } from './entities/tenant_domain.entity';
 import AuditLogService from '@/modules/audit_log/audit_log.service';
 import type { VerificationMethod } from './tenant_domain.enums';
@@ -136,7 +136,7 @@ export default class DNSVerificationService {
    * `DNS_RECHECK_CONCURRENCY` to avoid hammering the resolver on big tenants.
    */
   static async recheckActiveDomains(): Promise<{ checked: number; downgraded: number }> {
-    const ds = await getDefaultTenantDataSource();
+    const ds = await getDataSource();
     const repo = ds.getRepository(TenantDomainEntity);
     const activeDomains = await repo.find({ where: { domainStatus: 'ACTIVE' } });
 

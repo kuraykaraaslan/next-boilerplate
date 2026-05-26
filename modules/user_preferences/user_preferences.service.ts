@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { getSystemDataSource } from '@/modules/db';
+import { getDataSource } from '@/modules/db';
 import redis, { jitter, singleFlight } from '@/modules/redis';
 import { env } from '@/modules/env';
 import { UserPreferences as UserPreferencesEntity } from './entities/user_preferences.entity';
@@ -24,7 +24,7 @@ export default class UserPreferencesService {
     }
 
     return singleFlight(cacheKey, async () => {
-      const ds = await getSystemDataSource();
+      const ds = await getDataSource();
       const prefs = await ds.getRepository(UserPreferencesEntity).findOne({ where: { userId } });
       const result = prefs ? UserPreferencesSchema.parse(prefs) : null;
       await redis.setex(cacheKey, jitter(USER_PREFERENCES_CACHE_TTL), JSON.stringify(result)).catch(() => {});
@@ -33,7 +33,7 @@ export default class UserPreferencesService {
   }
 
   static async create(userId: string, data?: Partial<UserPreferences>): Promise<UserPreferences> {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const repo = ds.getRepository(UserPreferencesEntity);
     const existing = await repo.findOne({ where: { userId } });
     if (existing) throw new Error('Preferences already exist for this user');
@@ -45,7 +45,7 @@ export default class UserPreferencesService {
   }
 
   static async update(userId: string, data: Partial<UserPreferences>): Promise<UserPreferences> {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const repo = ds.getRepository(UserPreferencesEntity);
     const prefs = await repo.findOne({ where: { userId } });
     if (!prefs) throw new Error('Preferences not found');
@@ -57,7 +57,7 @@ export default class UserPreferencesService {
   }
 
   static async upsert(userId: string, data: Partial<UserPreferences>): Promise<UserPreferences> {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const repo = ds.getRepository(UserPreferencesEntity);
     const existing = await repo.findOne({ where: { userId } });
 
@@ -76,7 +76,7 @@ export default class UserPreferencesService {
   }
 
   static async delete(userId: string): Promise<void> {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const repo = ds.getRepository(UserPreferencesEntity);
     const prefs = await repo.findOne({ where: { userId } });
     if (!prefs) throw new Error('Preferences not found');
@@ -85,7 +85,7 @@ export default class UserPreferencesService {
   }
 
   static async getOrCreateDefault(userId: string): Promise<UserPreferences> {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const repo = ds.getRepository(UserPreferencesEntity);
     const existing = await repo.findOne({ where: { userId } });
     if (existing) return UserPreferencesSchema.parse(existing);

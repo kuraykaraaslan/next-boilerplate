@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { IsNull } from 'typeorm';
-import { getSystemDataSource, tenantDataSourceFor } from '@/modules/db';
+import { getDataSource, tenantDataSourceFor } from '@/modules/db';
 import { User as UserEntity } from '../user/entities/user.entity';
 import { UserSession as UserSessionEntity } from '../user_session/entities/user_session.entity';
 import { TenantMember as TenantMemberEntity } from '../tenant_member/entities/tenant_member.entity';
@@ -40,7 +40,7 @@ export default class ImpersonationService {
   }> {
     this.assertNotSelf(impersonatorUser.userId, targetUserId);
 
-    const sysDs = await getSystemDataSource();
+    const sysDs = await getDataSource();
     const targetUser = await sysDs.getRepository(UserEntity).findOne({ where: { userId: targetUserId } });
     if (!targetUser) throw new Error(ImpersonationMessages.TARGET_USER_NOT_FOUND);
 
@@ -111,7 +111,7 @@ export default class ImpersonationService {
   }> {
     this.assertNotSelf(impersonatorUser.userId, targetUserId);
 
-    const sysDs = await getSystemDataSource();
+    const sysDs = await getDataSource();
     const targetUser = await sysDs.getRepository(UserEntity).findOne({ where: { userId: targetUserId } });
     if (!targetUser) throw new Error(ImpersonationMessages.TARGET_USER_NOT_FOUND);
 
@@ -178,7 +178,7 @@ export default class ImpersonationService {
 
   static async getActiveImpersonationSession(rawAccessToken: string): Promise<SafeUserSession | null> {
     const hashedToken = UserSessionService.hashToken(rawAccessToken);
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const session = await ds.getRepository(UserSessionEntity).findOne({
       where: { accessToken: hashedToken },
     });

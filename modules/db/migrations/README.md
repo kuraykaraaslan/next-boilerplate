@@ -9,7 +9,7 @@ Raw SQL migrations. Numbered, applied in order. Idempotent where reasonable so r
 ## Applying
 
 ```bash
-psql "$TENANT_DATABASE_URL" -f modules/db/migrations/001_tenant_rls.sql
+psql "$DATABASE_URL" -f modules/db/migrations/001_tenant_rls.sql
 ```
 
 For production, integrate these into your migration runner of choice (Flyway, Sqitch, `node-pg-migrate`, or TypeORM's `migration:run`). The boilerplate currently relies on `synchronize: true` in development — see [ADR 0003 — migrations](../../../docs/adr/) (to be written) for the production story.

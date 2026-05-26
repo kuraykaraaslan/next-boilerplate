@@ -1,7 +1,7 @@
 import Logger from '@/modules/logger';
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcrypt';
-import { getSystemDataSource } from '@/modules/db';
+import { getDataSource } from '@/modules/db';
 import { User as UserEntity } from '@/modules/user/entities/user.entity';
 import Limiter from '@/modules_next/limiter/limiter.service.next';
 import UserSessionNextService from '@/modules_next/user_session/user_session.service.next';
@@ -40,7 +40,7 @@ export async function POST(
     }
     const { currentPassword, newPassword } = parsed.data;
 
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const dbUser = await ds.getRepository(UserEntity).findOne({ where: { userId: user.userId } });
     if (!dbUser) {
       return NextResponse.json({ error: AuthMessages.USER_NOT_FOUND }, { status: 404 });

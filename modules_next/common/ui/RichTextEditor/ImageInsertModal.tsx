@@ -22,7 +22,7 @@ export function ImageInsertModal({
 }: {
   open: boolean;
   onClose: () => void;
-  onInsert: (payload: { src: string; alt: string }) => void;
+  onInsert: (payload: { src: string; alt: string; file?: File | null }) => void;
 }) {
   const [file, setFile] = useState<File | null>(null);
   const [url, setUrl] = useState('');
@@ -76,7 +76,7 @@ export function ImageInsertModal({
           r.readAsDataURL(file);
         });
       }
-      onInsert({ src, alt: alt.trim() });
+      onInsert({ src, alt: alt.trim(), file });
       reset();
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to insert image.');

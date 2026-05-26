@@ -10,13 +10,12 @@ import { ROOT_TENANT_ID } from '@/modules/tenant/tenant.constants';
 import TenantSubscriptionService from '@/modules/tenant_subscription/tenant_subscription.service';
 import AuditLogService from '@/modules/audit_log/audit_log.service';
 import Logger from '@/modules/logger';
-import { getDefaultTenantDataSource, tenantDataSourceFor } from '@/modules/db';
+import { getDataSource, tenantDataSourceFor } from '@/modules/db';
 import { Payment as PaymentEntity } from './entities/payment.entity';
 import { TenantSubscription as TenantSubscriptionEntity } from '../tenant_subscription/entities/tenant_subscription.entity';
 import { Tenant as TenantEntity } from '@/modules/tenant/entities/tenant.entity';
 import { TenantMember as TenantMemberEntity } from '@/modules/tenant_member/entities/tenant_member.entity';
 import { User as UserEntity } from '@/modules/user/entities/user.entity';
-import { getSystemDataSource } from '@/modules/db';
 import MailService from '@/modules/notification_mail/notification_mail.service';
 import { env } from '@/modules/env';
 
@@ -415,7 +414,7 @@ export default class PaymentWebhookService {
 
   private static async findPaymentIdByProviderId(providerPaymentId: string): Promise<string | null> {
     try {
-      const ds = await getDefaultTenantDataSource();
+      const ds = await getDataSource();
       const payment = await ds.getRepository(PaymentEntity).findOne({
         where: { providerPaymentId, deletedAt: IsNull() },
         select: ['paymentId'],
@@ -683,7 +682,7 @@ export default class PaymentWebhookService {
       return;
     }
 
-    const sysDs = await getSystemDataSource();
+    const sysDs = await getDataSource();
     const userRepo = sysDs.getRepository(UserEntity);
     const tenantRepo = tenantDs.getRepository(TenantEntity);
     const tenant = await tenantRepo.findOne({ where: { tenantId } });

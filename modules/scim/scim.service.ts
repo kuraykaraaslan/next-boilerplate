@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import crypto from 'crypto';
 import { IsNull, In } from 'typeorm';
-import { getSystemDataSource, tenantDataSourceFor } from '@/modules/db';
+import { getDataSource, tenantDataSourceFor } from '@/modules/db';
 import { User as UserEntity } from '@/modules/user/entities/user.entity';
 import { TenantMember as TenantMemberEntity } from '@/modules/tenant_member/entities/tenant_member.entity';
 import AuditLogService from '@/modules/audit_log/audit_log.service';
@@ -104,7 +104,7 @@ export default class ScimService {
 
     const tenantDs = await tenantDataSourceFor(tenantId);
     const memberRepo = tenantDs.getRepository(TenantMemberEntity);
-    const sysDs = await getSystemDataSource();
+    const sysDs = await getDataSource();
     const userRepo = sysDs.getRepository(UserEntity);
 
     const where: Record<string, unknown> = { tenantId, deletedAt: IsNull() };
@@ -171,7 +171,7 @@ export default class ScimService {
       (err as any).status = 404;
       throw err;
     }
-    const sysDs = await getSystemDataSource();
+    const sysDs = await getDataSource();
     const user = await sysDs.getRepository(UserEntity).findOne({ where: { userId: member.userId } });
     if (!user) {
       const err = new Error(ScimMessages.USER_NOT_FOUND);
@@ -191,7 +191,7 @@ export default class ScimService {
       throw err;
     }
 
-    const sysDs = await getSystemDataSource();
+    const sysDs = await getDataSource();
     const userRepo = sysDs.getRepository(UserEntity);
     let user = await userRepo.findOne({ where: { email } });
 
@@ -252,7 +252,7 @@ export default class ScimService {
       throw err;
     }
 
-    const sysDs = await getSystemDataSource();
+    const sysDs = await getDataSource();
     const userRepo = sysDs.getRepository(UserEntity);
     const user = await userRepo.findOne({ where: { userId: member.userId } });
     if (!user) {
@@ -302,7 +302,7 @@ export default class ScimService {
       throw err;
     }
 
-    const sysDs = await getSystemDataSource();
+    const sysDs = await getDataSource();
     const userRepo = sysDs.getRepository(UserEntity);
     const user = await userRepo.findOne({ where: { userId: member.userId } });
     if (!user) {

@@ -57,30 +57,21 @@ async function main() {
   const domain = typeof flags.domain === 'string' ? flags.domain : null;
   const ownerEmail = typeof flags.owner === 'string' ? flags.owner : null;
 
-  const systemDb = parseDbUrl(env.SYSTEM_DATABASE_URL);
-  const tenantDb = parseDbUrl(env.TENANT_DATABASE_URL);
+  const dbUrl = parseDbUrl(env.DATABASE_URL);
 
-  const systemDs = new DataSource({
+  const ds = new DataSource({
     type: 'postgres',
-    url: systemDb.url,
-    schema: systemDb.schema,
+    url: dbUrl.url,
+    schema: dbUrl.schema,
     synchronize: false,
-    entities: [User],
-  });
-  const tenantDs = new DataSource({
-    type: 'postgres',
-    url: tenantDb.url,
-    schema: tenantDb.schema,
-    synchronize: false,
-    entities: [Tenant, TenantMember, TenantDomain],
+    entities: [User, Tenant, TenantMember, TenantDomain],
   });
 
-  await systemDs.initialize();
-  await tenantDs.initialize();
+  await ds.initialize();
 
   try {
     // 1. Check for an existing tenant by name (best-effort idempotency)
-    const tenantRepo = tenantDs.getRepository(Tenant);
+    const tenantRepo = ds.getRepository(Tenant);
     const existing = await tenantRepo.findOne({ where: { name } });
     if (existing) {
       console.warn(`tenant "${name}" already exists (${existing.tenantId}); nothing to do`);
@@ -100,12 +91,12 @@ async function main() {
 
     // 3. Bind owner (if provided)
     if (ownerEmail) {
-      const user = await systemDs.getRepository(User).findOne({ where: { email: ownerEmail } });
+      const user = await ds.getRepository(User).findOne({ where: { email: ownerEmail } });
       if (!user) {
         console.warn(`owner email "${ownerEmail}" not found — tenant created without owner`);
       } else {
-        await tenantDs.getRepository(TenantMember).save(
-          tenantDs.getRepository(TenantMember).create({
+        await ds.getRepository(TenantMember).save(
+          ds.getRepository(TenantMember).create({
             tenantId: tenant.tenantId,
             userId: user.userId,
             memberRole: 'ADMIN',
@@ -118,12 +109,12 @@ async function main() {
 
     // 4. Bind primary domain (if provided)
     if (domain) {
-      const exists = await tenantDs.getRepository(TenantDomain).findOne({ where: { domain } });
+      const exists = await ds.getRepository(TenantDomain).findOne({ where: { domain } });
       if (exists) {
         console.warn(`domain ${domain} already mapped to ${exists.tenantId}; skipping`);
       } else {
-        await tenantDs.getRepository(TenantDomain).save(
-          tenantDs.getRepository(TenantDomain).create({
+        await ds.getRepository(TenantDomain).save(
+          ds.getRepository(TenantDomain).create({
             tenantId: tenant.tenantId,
             domain,
             isPrimary: true,
@@ -150,8 +141,7 @@ async function main() {
     console.log('---');
     console.log(`tenantId: ${tenant.tenantId}`);
   } finally {
-    await systemDs.destroy();
-    await tenantDs.destroy();
+    await ds.destroy();
   }
 }
 

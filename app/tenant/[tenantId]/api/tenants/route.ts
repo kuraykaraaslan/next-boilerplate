@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import TenantService from "@/modules/tenant/tenant.service";
 import Limiter from "@/modules_next/limiter/limiter.service.next";
 import { authenticateAdminRequest } from "@/modules_next/auth/auth.admin-guard.next";
-import { getDefaultTenantDataSource } from '@/modules/db';
+import { getDataSource } from '@/modules/db';
 import { TenantSubscription } from '@/modules/tenant_subscription/entities/tenant_subscription.entity';
 import { In } from 'typeorm';
 
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
     Logger.info(`Fetched ${tenants.length} tenants (total: ${total})`);
 
     // Enrich with subscription health
-    const ds = await getDefaultTenantDataSource();
+    const ds = await getDataSource();
     const subRepo = ds.getRepository(TenantSubscription);
     const tenantIds = tenants.map((t: { tenantId: string }) => t.tenantId);
 

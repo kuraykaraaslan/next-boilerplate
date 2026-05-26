@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { PaymentProviderEnum, PaymentCurrencyEnum } from '../payment_core/payment_core.enums'
+import { PaymentProviderEnum } from '../payment_core/payment_core.enums'
 import {
   SubscriptionStatusEnum, BillingCycleEnum,
   SubscriptionPlanStatusEnum, PlanFeatureTypeEnum,
@@ -22,21 +22,33 @@ export type PlanFeature = z.infer<typeof PlanFeatureSchema>
 export const SubscriptionPlanSchema = z.object({
   planId: z.string().uuid(),
   tenantId: z.string().uuid(),
-  name: z.string(),
-  description: z.string().nullable(),
-  monthlyPrice: z.number(),
-  yearlyPrice: z.number(),
-  currency: z.string().max(3),
-  trialDays: z.number().int(),
-  sortOrder: z.number().int(),
-  isDefault: z.boolean(),
+  productId: z.string().uuid(),
+  interval: BillingCycleEnum,
+  trialDays: z.coerce.number().int(),
   status: SubscriptionPlanStatusEnum,
   createdAt: z.date(),
   updatedAt: z.date(),
 })
 export type SubscriptionPlan = z.infer<typeof SubscriptionPlanSchema>
 
+export const PlanProductSummarySchema = z.object({
+  productId: z.string().uuid(),
+  name: z.string(),
+  slug: z.string(),
+  currency: z.string().max(3),
+  basePrice: z.coerce.number(),
+  shortDescription: z.string().nullable(),
+  status: z.string(),
+})
+export type PlanProductSummary = z.infer<typeof PlanProductSummarySchema>
+
+export const PlanWithProductSchema = SubscriptionPlanSchema.extend({
+  product: PlanProductSummarySchema,
+})
+export type PlanWithProduct = z.infer<typeof PlanWithProductSchema>
+
 export const PlanWithFeaturesSchema = SubscriptionPlanSchema.extend({
+  product: PlanProductSummarySchema,
   features: z.array(PlanFeatureSchema),
 })
 export type PlanWithFeatures = z.infer<typeof PlanWithFeaturesSchema>

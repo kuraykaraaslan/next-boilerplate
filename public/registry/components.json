@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-05-26T08:39:48.402Z",
+  "generatedAt": "2026-05-26T13:33:17.307Z",
   "components": [
     {
       "id": "ai/ui/AIChatBox",
@@ -485,6 +485,20 @@
       "baseName": "Card"
     },
     {
+      "id": "common/ui/ColorPicker",
+      "module": "common",
+      "filePath": "modules_next/common/ui/ColorPicker.tsx",
+      "kind": "ui",
+      "exports": [
+        "DEFAULT_COLOR_SWATCHES",
+        "ColorPickerProps",
+        "ColorPicker"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ColorPicker"
+    },
+    {
       "id": "common/ui/ContextMenu",
       "module": "common",
       "filePath": "modules_next/common/ui/ContextMenu.tsx",
@@ -722,6 +736,30 @@
       "baseName": "RadioGroup"
     },
     {
+      "id": "common/ui/RichTextEditor/BubbleMenu",
+      "module": "common",
+      "filePath": "modules_next/common/ui/RichTextEditor/BubbleMenu.tsx",
+      "kind": "ui",
+      "exports": [
+        "BubbleMenu"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "BubbleMenu"
+    },
+    {
+      "id": "common/ui/RichTextEditor/EmojiPicker",
+      "module": "common",
+      "filePath": "modules_next/common/ui/RichTextEditor/EmojiPicker.tsx",
+      "kind": "ui",
+      "exports": [
+        "EmojiPicker"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "EmojiPicker"
+    },
+    {
       "id": "common/ui/RichTextEditor/ImageInsertModal",
       "module": "common",
       "filePath": "modules_next/common/ui/RichTextEditor/ImageInsertModal.tsx",
@@ -734,17 +772,197 @@
       "baseName": "ImageInsertModal"
     },
     {
+      "id": "common/ui/RichTextEditor/ImageOverlay",
+      "module": "common",
+      "filePath": "modules_next/common/ui/RichTextEditor/ImageOverlay.tsx",
+      "kind": "ui",
+      "exports": [
+        "ImageOverlay"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ImageOverlay"
+    },
+    {
       "id": "common/ui/RichTextEditor/index",
       "module": "common",
       "filePath": "modules_next/common/ui/RichTextEditor/index.tsx",
       "kind": "ui",
       "exports": [
-        "RichTextEditorProps",
         "RichTextEditor"
       ],
       "isClient": true,
       "isServer": false,
       "baseName": "index"
+    },
+    {
+      "id": "common/ui/RichTextEditor/markdown",
+      "module": "common",
+      "filePath": "modules_next/common/ui/RichTextEditor/markdown.ts",
+      "kind": "ui",
+      "exports": [
+        "applyMarkdownShortcuts"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "markdown"
+    },
+    {
+      "id": "common/ui/RichTextEditor/PopupOverlays",
+      "module": "common",
+      "filePath": "modules_next/common/ui/RichTextEditor/PopupOverlays.tsx",
+      "kind": "ui",
+      "exports": [
+        "PopupOverlaysProps",
+        "PopupOverlays"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PopupOverlays"
+    },
+    {
+      "id": "common/ui/RichTextEditor/quill-helpers",
+      "module": "common",
+      "filePath": "modules_next/common/ui/RichTextEditor/quill-helpers.ts",
+      "kind": "ui",
+      "exports": [
+        "updateCounts",
+        "detectTriggers"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "quill-helpers"
+    },
+    {
+      "id": "common/ui/RichTextEditor/sanitize",
+      "module": "common",
+      "filePath": "modules_next/common/ui/RichTextEditor/sanitize.ts",
+      "kind": "ui",
+      "exports": [
+        "sanitizePastedHTML",
+        "resolveImageSrc"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "sanitize"
+    },
+    {
+      "id": "common/ui/RichTextEditor/store",
+      "module": "common",
+      "filePath": "modules_next/common/ui/RichTextEditor/store.ts",
+      "kind": "ui",
+      "exports": [
+        "RichTextEditorState",
+        "RichTextEditorActions",
+        "RichTextEditorStore",
+        "createRichTextEditorStore",
+        "RichTextEditorStoreHook",
+        "RichTextEditorStoreProvider",
+        "useRteStore",
+        "useRteStoreApi"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "store"
+    },
+    {
+      "id": "common/ui/RichTextEditor/SuggestionPopup",
+      "module": "common",
+      "filePath": "modules_next/common/ui/RichTextEditor/SuggestionPopup.tsx",
+      "kind": "ui",
+      "exports": [
+        "SuggestionItem",
+        "SuggestionPopup"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SuggestionPopup"
+    },
+    {
+      "id": "common/ui/RichTextEditor/TableInsertModal",
+      "module": "common",
+      "filePath": "modules_next/common/ui/RichTextEditor/TableInsertModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "TableInsertModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "TableInsertModal"
+    },
+    {
+      "id": "common/ui/RichTextEditor/Toolbar",
+      "module": "common",
+      "filePath": "modules_next/common/ui/RichTextEditor/Toolbar.tsx",
+      "kind": "ui",
+      "exports": [
+        "ToolbarProps",
+        "Toolbar",
+        "QuillFormatFn"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Toolbar"
+    },
+    {
+      "id": "common/ui/RichTextEditor/types",
+      "module": "common",
+      "filePath": "modules_next/common/ui/RichTextEditor/types.ts",
+      "kind": "ui",
+      "exports": [
+        "RichTextEditorHandle",
+        "MentionUser",
+        "SlashCommand",
+        "RichTextEditorProps",
+        "Range",
+        "QuillFormats",
+        "QuillInstance",
+        "TriggerState",
+        "ImageSelection",
+        "BubbleState"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "types"
+    },
+    {
+      "id": "common/ui/RichTextEditor/useEditorActions",
+      "module": "common",
+      "filePath": "modules_next/common/ui/RichTextEditor/useEditorActions.ts",
+      "kind": "ui",
+      "exports": [
+        "UseEditorActionsArgs",
+        "useEditorActions"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "useEditorActions"
+    },
+    {
+      "id": "common/ui/RichTextEditor/useQuillSetup",
+      "module": "common",
+      "filePath": "modules_next/common/ui/RichTextEditor/useQuillSetup.ts",
+      "kind": "ui",
+      "exports": [
+        "UseQuillSetupOptions",
+        "useQuillSetup"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "useQuillSetup"
+    },
+    {
+      "id": "common/ui/RichTextEditor/useTriggerKeyboard",
+      "module": "common",
+      "filePath": "modules_next/common/ui/RichTextEditor/useTriggerKeyboard.ts",
+      "kind": "ui",
+      "exports": [
+        "UseTriggerKeyboardArgs",
+        "useTriggerKeyboard"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "useTriggerKeyboard"
     },
     {
       "id": "common/ui/RowActionsMenu",

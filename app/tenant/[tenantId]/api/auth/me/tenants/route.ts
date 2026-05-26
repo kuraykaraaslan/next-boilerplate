@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import Logger from '@/modules/logger';
 import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next';
 import Limiter from '@/modules_next/limiter/limiter.service.next';
-import { getDefaultTenantDataSource, tenantDataSourceFor } from '@/modules/db';
+import { getDataSource, tenantDataSourceFor } from '@/modules/db';
 import { TenantMember as TenantMemberEntity } from '@/modules/tenant_member/entities/tenant_member.entity';
 import { Tenant as TenantEntity } from '@/modules/tenant/entities/tenant.entity';
 import { TenantDomain as TenantDomainEntity } from '@/modules/tenant_domain/entities/tenant_domain.entity';
@@ -31,7 +31,7 @@ export async function GET(
       tenantId,
     });
 
-    const ds = await getDefaultTenantDataSource();
+    const ds = await getDataSource();
 
     const memberships = await ds.getRepository(TenantMemberEntity).find({
       where: { userId: user.userId, memberStatus: 'ACTIVE', deletedAt: IsNull() },

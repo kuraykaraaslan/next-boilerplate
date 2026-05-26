@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { env } from '@/modules/env';
 import { Not } from 'typeorm';
-import { getSystemDataSource } from '@/modules/db';
+import { getDataSource } from '@/modules/db';
 import { UserSession as UserSessionEntity } from './entities/user_session.entity';
 import redis from '@/modules/redis';
 import { v4 as uuidv4 } from 'uuid';
@@ -41,7 +41,7 @@ export default class UserSessionCrudService {
     const absoluteCapMs = sessionPolicy.absoluteMaxHours * 60 * 60 * 1000;
     const expiryMs = Math.min(SESSION_EXPIRY_MS, absoluteCapMs);
 
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
 
     // KD-21: when single-session-only is enabled (sysadmin > tenant), drop all
     // prior active sessions for the user before issuing the new one.
@@ -86,7 +86,7 @@ export default class UserSessionCrudService {
     const rawRefreshToken = UserSessionTokenService.generateRefreshToken(jwtPayload);
     const metadata: SessionMeta = { impersonation: impersonationMeta };
 
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const repo = ds.getRepository(UserSessionEntity);
     const session = repo.create({
       userSessionId,
@@ -136,7 +136,7 @@ export default class UserSessionCrudService {
       }
     }
 
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const session = await ds.getRepository(UserSessionEntity).findOne({
       where: { accessToken: hashedToken, userId: decoded.userId },
     });
@@ -171,7 +171,7 @@ export default class UserSessionCrudService {
     const decoded = UserSessionTokenService.verifyRefreshToken(refreshToken);
     const hashedRefreshToken = UserSessionTokenService.hashToken(refreshToken);
 
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const repo = ds.getRepository(UserSessionEntity);
     const session = await repo.findOne({ where: { refreshToken: hashedRefreshToken, userId: decoded.userId } });
 
@@ -222,7 +222,7 @@ export default class UserSessionCrudService {
     userSessionId: string,
     updates: Partial<Pick<{ otpVerifyNeeded: boolean; sessionStatus: SessionStatus }, 'otpVerifyNeeded' | 'sessionStatus'>>
   ): Promise<SafeUserSession> {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const repo = ds.getRepository(UserSessionEntity);
     const session = await repo.findOne({ where: { userSessionId } });
     if (!session) throw new Error(UserSessionMessages.SESSION_NOT_FOUND);
@@ -234,7 +234,7 @@ export default class UserSessionCrudService {
   }
 
   static async deleteSession(userSessionId: string): Promise<void> {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const repo = ds.getRepository(UserSessionEntity);
     const session = await repo.findOne({ where: { userSessionId } });
     if (session) {
@@ -244,19 +244,19 @@ export default class UserSessionCrudService {
   }
 
   static async deleteOtherSessions(userId: string, currentSessionId: string): Promise<void> {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     await ds.getRepository(UserSessionEntity).delete({ userId, userSessionId: Not(currentSessionId) });
     await UserSessionCacheService.clearUserSessionCache(userId);
   }
 
   static async deleteAllSessions(userId: string): Promise<void> {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     await ds.getRepository(UserSessionEntity).delete({ userId });
     await UserSessionCacheService.clearUserSessionCache(userId);
   }
 
   static async getUserSessions(userId: string): Promise<SafeUserSession[]> {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const sessions = await ds.getRepository(UserSessionEntity).find({
       where: { userId, sessionStatus: 'ACTIVE' },
       order: { createdAt: 'DESC' },

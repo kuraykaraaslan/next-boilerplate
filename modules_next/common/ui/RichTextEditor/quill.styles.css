@@ -1,7 +1,7 @@
 /* Remap Quill's snow theme to the project's design tokens so the editor
-   visually matches the rest of the app.
+   visually matches the rest of the app (and pixel-matches the EJS sibling).
    The base 'quill/dist/quill.snow.css' is imported alongside this file from
-   index.tsx. */
+   RichTextEditor.tsx. */
 
 .ql-toolbar.ql-snow {
   background: var(--surface-sunken);
@@ -85,6 +85,7 @@
   fill: var(--primary);
 }
 
+/* Link/image tooltip popover */
 .ql-snow .ql-tooltip {
   background: var(--surface-raised);
   border: 1px solid var(--border);
@@ -103,4 +104,63 @@
 .ql-snow .ql-tooltip a.ql-action,
 .ql-snow .ql-tooltip a.ql-remove {
   color: var(--primary);
+}
+
+/* Active toolbar button highlight — also covers Tailwind-styled kui-rte-btn buttons */
+.ql-snow .kui-rte-btn.ql-active {
+  background: var(--primary-subtle);
+  color: var(--primary);
+}
+
+/* Tables emitted by the table modal */
+.kui-rte-content table.kui-rte-table,
+.ql-editor table.kui-rte-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.5em 0;
+}
+
+.kui-rte-content table.kui-rte-table th,
+.kui-rte-content table.kui-rte-table td,
+.ql-editor table.kui-rte-table th,
+.ql-editor table.kui-rte-table td {
+  border: 1px solid var(--border);
+  padding: 0.4em 0.6em;
+  min-width: 3rem;
+  vertical-align: top;
+}
+
+.kui-rte-content table.kui-rte-table th,
+.ql-editor table.kui-rte-table th {
+  background: var(--surface-overlay);
+  font-weight: 600;
+  text-align: left;
+}
+
+/* Horizontal rule */
+.kui-rte-content hr,
+.ql-editor hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 0.75em 0;
+}
+
+/* Mention chip */
+.kui-rte-content .kui-rte-mention,
+.ql-editor .kui-rte-mention {
+  display: inline-block;
+  padding: 0.05em 0.4em;
+  border-radius: 9999px;
+  background: var(--primary-subtle);
+  color: var(--primary);
+  font-weight: 500;
+  font-size: 0.875em;
+  white-space: nowrap;
+}
+
+/* Images selected state */
+.kui-rte-content img,
+.ql-editor img {
+  max-width: 100%;
+  height: auto;
 }

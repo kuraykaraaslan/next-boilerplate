@@ -1,6 +1,11 @@
 import 'reflect-metadata';
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, Index } from 'typeorm';
 
+/**
+ * A Plan is the binding between a StoreProduct and a billing recurrence.
+ * Price is sourced from the wrapped product (product.basePrice); the plan
+ * itself only carries cadence (interval) and trial configuration.
+ */
 @Entity('subscription_plans')
 export class SubscriptionPlan {
   @PrimaryGeneratedColumn('uuid', { name: 'planId' })
@@ -10,30 +15,17 @@ export class SubscriptionPlan {
   @Column({ type: 'uuid' })
   tenantId!: string;
 
+  @Index()
+  @Column({ type: 'uuid' })
+  productId!: string;
+
+  /** DAILY | WEEKLY | MONTHLY | QUARTERLY | YEARLY */
+  @Index()
   @Column({ type: 'varchar' })
-  name!: string;
-
-  @Column({ nullable: true, type: 'text' })
-  description?: string;
-
-  @Column({ type: 'decimal', precision: 12, scale: 2 })
-  monthlyPrice!: number;
-
-  @Column({ type: 'decimal', precision: 12, scale: 2 })
-  yearlyPrice!: number;
-
-  @Column({ type: 'varchar', length: 3, default: 'USD' })
-  currency!: string;
+  interval!: string;
 
   @Column({ type: 'int', default: 0 })
   trialDays!: number;
-
-  @Index()
-  @Column({ type: 'int', default: 0 })
-  sortOrder!: number;
-
-  @Column({ type: 'boolean', default: false })
-  isDefault!: boolean;
 
   @Index()
   @Column({ type: 'varchar', default: 'ACTIVE' })

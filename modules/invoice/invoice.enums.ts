@@ -10,6 +10,6 @@ export const TaxSchemeEnum = z.enum(['KDV', 'VAT', 'SALES_TAX', 'NONE']);
 export type TaxScheme = z.infer<typeof TaxSchemeEnum>;
 
 export const InvoiceLineSourceEnum = z.enum([
-  'subscription', 'one_off', 'usage', 'credit', 'proration',
+  'subscription', 'product', 'one_off', 'usage', 'credit', 'proration', 'discount',
 ]);
 export type InvoiceLineSource = z.infer<typeof InvoiceLineSourceEnum>;

@@ -2,8 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('@/modules/env', () => ({
   env: {
-    SYSTEM_DATABASE_URL: 'postgresql://test',
-    TENANT_DATABASE_URL: 'postgresql://test',
+    DATABASE_URL: 'postgresql://test',
     ACCESS_TOKEN_SECRET: 'test_secret',
     REFRESH_TOKEN_SECRET: 'test_refresh',
     CSRF_SECRET: 'test_csrf',
@@ -12,10 +11,8 @@ vi.mock('@/modules/env', () => ({
 }));
 
 vi.mock('@/modules/db', () => ({
-  getSystemDataSource: vi.fn(),
+  getDataSource: vi.fn(),
   tenantDataSourceFor: vi.fn(),
-  getDefaultTenantDataSource: vi.fn(),
-  SystemDataSource: { isInitialized: false, initialize: vi.fn(), getRepository: vi.fn() },
 }));
 
 vi.mock('@/modules/redis', () => ({
@@ -36,7 +33,7 @@ vi.mock('@/modules/redis', () => ({
 }));
 vi.mock('@/modules/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
 
-import { getSystemDataSource, tenantDataSourceFor, getDefaultTenantDataSource } from '@/modules/db';
+import { getDataSource, tenantDataSourceFor } from '@/modules/db';
 import TenantMemberService from './tenant_member.service';
 import TenantMemberMessages from './tenant_member.messages';
 
@@ -80,7 +77,7 @@ function makeRepo(overrides: Partial<{
 }
 
 function mockDefaultDs(repo: ReturnType<typeof makeRepo>) {
-  (getDefaultTenantDataSource as any).mockResolvedValue({ getRepository: () => repo });
+  (getDataSource as any).mockResolvedValue({ getRepository: () => repo });
 }
 
 function mockTenantDs(repo: ReturnType<typeof makeRepo>) {
@@ -94,7 +91,7 @@ describe('TenantMemberService.getByTenantId', () => {
     const memberRepo = makeRepo();
     const userRepo = { find: vi.fn(async () => [mockUser]) };
     mockTenantDs(memberRepo);
-    (getSystemDataSource as any).mockResolvedValue({ getRepository: () => userRepo });
+    (getDataSource as any).mockResolvedValue({ getRepository: () => userRepo });
 
     const result = await TenantMemberService.getByTenantId({
       tenantId: TENANT_ID,
@@ -110,7 +107,7 @@ describe('TenantMemberService.getByTenantId', () => {
 
   it('returns empty result when search yields no matching users', async () => {
     const userRepo = { find: vi.fn(async () => []) };
-    (getSystemDataSource as any).mockResolvedValue({ getRepository: () => userRepo });
+    (getDataSource as any).mockResolvedValue({ getRepository: () => userRepo });
 
     const result = await TenantMemberService.getByTenantId({
       tenantId: TENANT_ID,

@@ -1,6 +1,16 @@
 import { z } from 'zod'
 import { DiscountTypeEnum, CouponStatusEnum } from './coupon.enums'
 
+export const CouponScopeSchema = z.object({
+  productIds:    z.array(z.string().uuid()).optional(),
+  planIds:       z.array(z.string().uuid()).optional(),
+  categoryIds:   z.array(z.string().uuid()).optional(),
+  providers:     z.array(z.string()).optional(),
+  appliesTo:     z.enum(['line', 'cart']).optional(),
+  minimumAmount: z.number().nonnegative().optional(),
+})
+export type CouponScope = z.infer<typeof CouponScopeSchema>
+
 export const CreateCouponRequestSchema = z.object({
   code: z
     .string()
@@ -16,11 +26,9 @@ export const CreateCouponRequestSchema = z.object({
     .positive()
     .refine((v) => true, { message: 'Discount value must be positive' }),
   currency: z.string().length(3).optional(),
-  applicablePlanIds: z.array(z.string().uuid()).optional(),
-  applicableProviders: z.array(z.string()).optional(),
+  scope: CouponScopeSchema.nullable().optional(),
   maxUses: z.number().int().positive().optional(),
   maxUsesPerTenant: z.number().int().positive().optional(),
-  minimumAmount: z.number().nonnegative().optional(),
   status: CouponStatusEnum.default('ACTIVE'),
   startsAt: z.coerce.date().optional(),
   expiresAt: z.coerce.date().optional(),
@@ -38,11 +46,9 @@ export const UpdateCouponRequestSchema = z.object({
   discountType: DiscountTypeEnum.optional(),
   discountValue: z.number().positive().optional(),
   currency: z.string().length(3).nullable().optional(),
-  applicablePlanIds: z.array(z.string().uuid()).nullable().optional(),
-  applicableProviders: z.array(z.string()).nullable().optional(),
+  scope: CouponScopeSchema.nullable().optional(),
   maxUses: z.number().int().positive().nullable().optional(),
   maxUsesPerTenant: z.number().int().positive().nullable().optional(),
-  minimumAmount: z.number().nonnegative().nullable().optional(),
   status: CouponStatusEnum.optional(),
   startsAt: z.coerce.date().nullable().optional(),
   expiresAt: z.coerce.date().nullable().optional(),
@@ -59,6 +65,8 @@ export const ValidateCouponRequestSchema = z.object({
   code: z.string().min(1).transform((v) => v.toUpperCase()),
   tenantId: z.string().uuid(),
   planId: z.string().uuid().optional(),
+  productIds: z.array(z.string().uuid()).optional(),
+  categoryIds: z.array(z.string().uuid()).optional(),
   amount: z.number().positive().optional(),
   currency: z.string().length(3).optional(),
   provider: z.string().optional(),
@@ -72,6 +80,8 @@ export const ApplyCouponRequestSchema = z.object({
   amount: z.number().positive(),
   currency: z.string().length(3),
   planId: z.string().uuid().optional(),
+  productIds: z.array(z.string().uuid()).optional(),
+  categoryIds: z.array(z.string().uuid()).optional(),
   provider: z.string().optional(),
 })
 

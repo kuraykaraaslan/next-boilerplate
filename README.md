@@ -61,8 +61,7 @@ Open [http://localhost:3000](http://localhost:3000).
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `SYSTEM_DATABASE_URL` | ✅ | PostgreSQL URL for shared / platform-config tables (User, Setting, SubscriptionPlan, Coupon, SystemWebhook, …). Single-DB setups point this and `TENANT_DATABASE_URL` at the same connection string. |
-| `TENANT_DATABASE_URL` | ✅ | PostgreSQL URL for per-tenant tables (Tenant, TenantMember, TenantDomain, Payment, ApiKey, Webhook, SamlConfig, …). |
+| `DATABASE_URL` | ✅ | PostgreSQL URL. All entities live in this single DB. Per-tenant DB isolation is opt-in via `tenant_databases` rows (`{ tenantId, databaseUrl }`). |
 | `REDIS_HOST` | ✅ | Redis host |
 | `REDIS_PORT` | ✅ | Redis port |
 | `ACCESS_TOKEN_SECRET` | ✅ | JWT access token signing secret |
@@ -199,7 +198,7 @@ npm run test:watch    # watch mode
 npm run test:coverage # with coverage report
 ```
 
-Tests use Vitest + @testing-library/react. Mock the `axiosInstance` boundary for client component tests; mock `getSystemDataSource` for service-layer tests. Test files follow the naming convention:
+Tests use Vitest + @testing-library/react. Mock the `axiosInstance` boundary for client component tests; mock `getDataSource` for service-layer tests. Test files follow the naming convention:
 - `[module].dto.test.ts` — DTO/Zod validation
 - `[module].service.test.ts` — service unit tests (mocked DB)
 - `[module].test.tsx` — React component tests

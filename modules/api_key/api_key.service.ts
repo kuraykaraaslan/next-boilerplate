@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import crypto from 'crypto';
-import { tenantDataSourceFor, getDefaultTenantDataSource } from '@/modules/db';
+import { tenantDataSourceFor, getDataSource } from '@/modules/db';
 import redis, { jitter, singleFlight } from '@/modules/redis';
 import { env } from '@/modules/env';
 import { ApiKey as ApiKeyEntity } from './entities/api_key.entity';
@@ -165,7 +165,7 @@ export default class ApiKeyService {
 
     if (!row) {
       row = await singleFlight(cacheKey, async () => {
-        const ds = await getDefaultTenantDataSource();
+        const ds = await getDataSource();
         const repo = ds.getRepository(ApiKeyEntity);
         const found = await repo.findOne({ where: { keyHash: hash } });
         if (!found) {
@@ -188,7 +188,7 @@ export default class ApiKeyService {
       throw new Error(ApiKeyMessages.INSUFFICIENT_SCOPE);
     }
 
-    const ds = await getDefaultTenantDataSource();
+    const ds = await getDataSource();
     ds.getRepository(ApiKeyEntity)
       .update({ apiKeyId: row.apiKeyId }, { lastUsedAt: new Date() })
       .catch(() => {});

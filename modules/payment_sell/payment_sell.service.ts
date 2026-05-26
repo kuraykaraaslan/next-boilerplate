@@ -1,6 +1,6 @@
 import 'reflect-metadata'
 import { Between, IsNull, LessThanOrEqual, MoreThanOrEqual } from 'typeorm'
-import { getDefaultTenantDataSource, tenantDataSourceFor } from '@/modules/db'
+import { getDataSource, tenantDataSourceFor } from '@/modules/db'
 import redis, { singleFlight } from '@/modules/redis'
 import Logger from '@/modules/logger'
 import { env } from '@/modules/env'

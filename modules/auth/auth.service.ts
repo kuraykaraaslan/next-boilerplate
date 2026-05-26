@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { env } from '@/modules/env';
 import crypto from 'crypto';
-import { getSystemDataSource } from '@/modules/db';
+import { getDataSource } from '@/modules/db';
 import { User as UserEntity } from '../user/entities/user.entity';
 import bcrypt from 'bcrypt';
 import redis from '@/modules/redis';
@@ -48,7 +48,7 @@ export default class AuthService {
       if (!ok) throw new Error(AuthMessages.CAPTCHA_INVALID);
     }
 
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const user = await ds.getRepository(UserEntity).findOne({ where: { email: email.toLowerCase() } });
     if (!user) {
       // KD-14: log failed attempt for unknown identities too — actorId stays null.
@@ -173,7 +173,7 @@ export default class AuthService {
     const policyError = AuthPolicyService.validatePassword(password, policy, { email });
     if (policyError) throw new Error(policyError);
 
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const hashed = await AuthService.hashPassword(password);
     const newUser = ds.getRepository(UserEntity).create({
       phone,
@@ -199,7 +199,7 @@ export default class AuthService {
    * Caller is expected to already have verified the current password (e.g. via session + currentPassword check) — this method only mutates.
    */
   static async changePassword({ userId, newPassword, tenantId }: { userId: string; newPassword: string; tenantId?: string }): Promise<void> {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const repo = ds.getRepository(UserEntity);
     const user = await repo.findOne({ where: { userId } });
     if (!user) throw new Error(AuthMessages.USER_NOT_FOUND);
@@ -238,7 +238,7 @@ export default class AuthService {
   }
 
   static async sendEmailVerification({ userId, email, name }: { userId: string; email: string; name?: string }): Promise<void> {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const user = await ds.getRepository(UserEntity).findOne({ where: { userId } });
     if (!user) throw new Error(AuthMessages.USER_NOT_FOUND);
     if (user.emailVerifiedAt) throw new Error(AuthMessages.EMAIL_ALREADY_VERIFIED);
@@ -258,7 +258,7 @@ export default class AuthService {
   }
 
   static async verifyEmail({ userId, token }: { userId: string; token: string }): Promise<void> {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const repo = ds.getRepository(UserEntity);
     const user = await repo.findOne({ where: { userId } });
     if (!user) throw new Error(AuthMessages.USER_NOT_FOUND);
@@ -298,7 +298,7 @@ export default class AuthService {
 
     const cutoff = new Date(Date.now() - policy.days * 24 * 60 * 60 * 1000);
 
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     // Inline-join through TypeORM raw query to avoid pulling user_security entity here.
     const dormantRows: { userId: string }[] = await ds.query(
       `

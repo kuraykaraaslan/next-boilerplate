@@ -10,45 +10,48 @@ import {
 
 // ─── CreatePlanRequestSchema ──────────────────────────────────────────────────
 
+const PRODUCT_ID = '550e8400-e29b-41d4-a716-446655440000';
+
 describe('CreatePlanRequestSchema', () => {
   const valid = {
-    name: 'Pro Plan',
-    monthlyPrice: 29.99,
-    yearlyPrice: 299.99,
+    productId: PRODUCT_ID,
   };
 
-  it('accepts a valid plan', () => {
+  it('accepts a valid plan with just productId', () => {
     const result = CreatePlanRequestSchema.safeParse(valid);
     expect(result.success).toBe(true);
   });
 
-  it('applies default values for currency, trialDays, sortOrder, isDefault, status', () => {
+  it('applies default values for interval, trialDays, status', () => {
     const result = CreatePlanRequestSchema.safeParse(valid);
     expect(result.success).toBe(true);
     if (result.success) {
-      expect(result.data.currency).toBe('USD');
+      expect(result.data.interval).toBe('MONTHLY');
       expect(result.data.trialDays).toBe(0);
-      expect(result.data.sortOrder).toBe(0);
-      expect(result.data.isDefault).toBe(false);
       expect(result.data.status).toBe('ACTIVE');
     }
   });
 
-  it('rejects empty plan name', () => {
-    const result = CreatePlanRequestSchema.safeParse({ ...valid, name: '' });
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues[0].message).toMatch(/required/i);
+  it('accepts interval=DAILY/WEEKLY/QUARTERLY/YEARLY', () => {
+    for (const interval of ['DAILY', 'WEEKLY', 'QUARTERLY', 'YEARLY'] as const) {
+      const result = CreatePlanRequestSchema.safeParse({ ...valid, interval });
+      expect(result.success).toBe(true);
+      if (result.success) expect(result.data.interval).toBe(interval);
     }
   });
 
-  it('rejects negative monthlyPrice', () => {
-    const result = CreatePlanRequestSchema.safeParse({ ...valid, monthlyPrice: -1 });
+  it('rejects unknown interval', () => {
+    const result = CreatePlanRequestSchema.safeParse({ ...valid, interval: 'BIWEEKLY' });
     expect(result.success).toBe(false);
   });
 
-  it('rejects negative yearlyPrice', () => {
-    const result = CreatePlanRequestSchema.safeParse({ ...valid, yearlyPrice: -5 });
+  it('rejects missing productId', () => {
+    const result = CreatePlanRequestSchema.safeParse({});
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects non-UUID productId', () => {
+    const result = CreatePlanRequestSchema.safeParse({ productId: 'not-a-uuid' });
     expect(result.success).toBe(false);
   });
 
@@ -61,19 +64,6 @@ describe('CreatePlanRequestSchema', () => {
     const result = CreatePlanRequestSchema.safeParse({ ...valid, status: 'DELETED' });
     expect(result.success).toBe(false);
   });
-
-  it('rejects currency longer than 3 chars', () => {
-    const result = CreatePlanRequestSchema.safeParse({ ...valid, currency: 'EURUSD' });
-    expect(result.success).toBe(false);
-  });
-
-  it('accepts description as optional', () => {
-    const result = CreatePlanRequestSchema.safeParse({ ...valid, description: 'A great plan' });
-    expect(result.success).toBe(true);
-    if (result.success) {
-      expect(result.data.description).toBe('A great plan');
-    }
-  });
 });
 
 // ─── UpdatePlanRequestSchema ──────────────────────────────────────────────────
@@ -83,18 +73,23 @@ describe('UpdatePlanRequestSchema', () => {
     expect(UpdatePlanRequestSchema.safeParse({}).success).toBe(true);
   });
 
-  it('accepts partial update with name only', () => {
-    const result = UpdatePlanRequestSchema.safeParse({ name: 'New Name' });
+  it('accepts partial update with productId only', () => {
+    const result = UpdatePlanRequestSchema.safeParse({ productId: PRODUCT_ID });
     expect(result.success).toBe(true);
   });
 
-  it('rejects empty name string', () => {
-    const result = UpdatePlanRequestSchema.safeParse({ name: '' });
+  it('accepts partial update with interval only', () => {
+    const result = UpdatePlanRequestSchema.safeParse({ interval: 'YEARLY' });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects invalid productId UUID', () => {
+    const result = UpdatePlanRequestSchema.safeParse({ productId: 'not-a-uuid' });
     expect(result.success).toBe(false);
   });
 
-  it('rejects negative monthlyPrice', () => {
-    const result = UpdatePlanRequestSchema.safeParse({ monthlyPrice: -10 });
+  it('rejects negative trialDays', () => {
+    const result = UpdatePlanRequestSchema.safeParse({ trialDays: -1 });
     expect(result.success).toBe(false);
   });
 
@@ -198,11 +193,11 @@ describe('UpdateFeatureRequestSchema', () => {
 describe('AssignSubscriptionRequestSchema', () => {
   const validPlanId = '00000000-0000-1000-8001-000000000005';
 
-  it('accepts valid planId with default MONTHLY interval', () => {
+  it('accepts valid planId without billingInterval (derived from plan)', () => {
     const result = AssignSubscriptionRequestSchema.safeParse({ planId: validPlanId });
     expect(result.success).toBe(true);
     if (result.success) {
-      expect(result.data.billingInterval).toBe('MONTHLY');
+      expect(result.data.billingInterval).toBeUndefined();
     }
   });
 
@@ -225,7 +220,14 @@ describe('AssignSubscriptionRequestSchema', () => {
   });
 
   it('rejects invalid billingInterval', () => {
-    const result = AssignSubscriptionRequestSchema.safeParse({ planId: validPlanId, billingInterval: 'WEEKLY' });
+    const result = AssignSubscriptionRequestSchema.safeParse({ planId: validPlanId, billingInterval: 'BIWEEKLY' });
     expect(result.success).toBe(false);
+  });
+
+  it('accepts billingInterval=WEEKLY/DAILY/QUARTERLY', () => {
+    for (const billingInterval of ['WEEKLY', 'DAILY', 'QUARTERLY'] as const) {
+      const result = AssignSubscriptionRequestSchema.safeParse({ planId: validPlanId, billingInterval });
+      expect(result.success).toBe(true);
+    }
   });
 });

@@ -1,8 +1,7 @@
 import 'reflect-metadata';
 import 'dotenv/config';
 import bcrypt from 'bcrypt';
-import { getSystemDataSource } from '@/modules/db/db.system';
-import { getDefaultTenantDataSource } from '@/modules/db/db.tenant';
+import { getDataSource } from '@/modules/db';
 import { ROOT_TENANT_ID, ROOT_TENANT_NAME } from '@/modules/tenant/tenant.constants';
 import { User } from '@/modules/user/entities/user.entity';
 import { Tenant } from '@/modules/tenant/entities/tenant.entity';
@@ -10,14 +9,13 @@ import { TenantMember } from '@/modules/tenant_member/entities/tenant_member.ent
 import { Setting } from '@/modules/setting/entities/setting.entity';
 
 async function main() {
-  const systemDs = await getSystemDataSource();
-  const tenantDs = await getDefaultTenantDataSource();
+  const ds = await getDataSource();
 
   const adminEmail = 'admin@kuray.dev';
   const adminPassword = 'demo123456';
   const hashed = await bcrypt.hash(adminPassword, 10);
 
-  const userRepo = systemDs.getRepository(User);
+  const userRepo = ds.getRepository(User);
   let user = await userRepo.findOne({ where: { email: adminEmail } });
   if (user) {
     await userRepo.update(
@@ -38,7 +36,7 @@ async function main() {
     console.log('Created admin user:', adminEmail);
   }
 
-  const tenantRepo = tenantDs.getRepository(Tenant);
+  const tenantRepo = ds.getRepository(Tenant);
   const rootExists = await tenantRepo.findOne({ where: { tenantId: ROOT_TENANT_ID } });
   if (!rootExists) {
     await tenantRepo.save(
@@ -52,7 +50,7 @@ async function main() {
     console.log('Created root tenant:', ROOT_TENANT_ID);
   }
 
-  const memberRepo = tenantDs.getRepository(TenantMember);
+  const memberRepo = ds.getRepository(TenantMember);
   const existingMember = await memberRepo.findOne({
     where: { tenantId: ROOT_TENANT_ID, userId: user.userId },
   });
@@ -78,7 +76,7 @@ async function main() {
     console.log('Added admin as root tenant super-admin');
   }
 
-  const settingRepo = tenantDs.getRepository(Setting);
+  const settingRepo = ds.getRepository(Setting);
   const mfaSetting = await settingRepo.findOne({
     where: { tenantId: ROOT_TENANT_ID, key: 'adminRequireMfa' },
   });
@@ -108,8 +106,7 @@ async function main() {
   console.log('Login password :', adminPassword);
   console.log('User ID        :', user.userId);
 
-  await systemDs.destroy();
-  await tenantDs.destroy();
+  await ds.destroy();
 }
 
 main().catch((e) => {

@@ -10,14 +10,9 @@ import {
 // ============================================================================
 
 export const CreatePlanDTO = z.object({
-  name: z.string().min(1).max(100),
-  description: z.string().optional(),
-  monthlyPrice: z.number().nonnegative(),
-  yearlyPrice: z.number().nonnegative(),
-  currency: PaymentCurrencyEnum.default('USD'),
-  trialDays: z.number().int().nonnegative().default(0),
-  sortOrder: z.number().int().nonnegative().default(0),
-  isDefault: z.boolean().default(false),
+  productId: z.string().uuid(),
+  interval: BillingCycleEnum.default('MONTHLY'),
+  trialDays: z.coerce.number().int().nonnegative().default(0),
   status: SubscriptionPlanStatusEnum.default('ACTIVE'),
 })
 export type CreatePlanDTO = z.infer<typeof CreatePlanDTO>
@@ -57,7 +52,8 @@ export const CreateSubscriptionDTO = z.object({
   userId: z.string().uuid().optional(),
   planId: z.string().uuid(),
   provider: PaymentProviderEnum,
-  billingCycle: BillingCycleEnum.default('MONTHLY'),
+  /** Optional override; defaults to the plan's interval. */
+  billingCycle: BillingCycleEnum.optional(),
   currency: PaymentCurrencyEnum.optional(),
   providerSubscriptionId: z.string().optional(),
   providerCustomerId: z.string().optional(),

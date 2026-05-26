@@ -5,10 +5,13 @@ import Logger from '@/modules/logger'
 import { SubscriptionPlan as PlanEntity } from './entities/subscription_plan.entity'
 import { PlanFeature as PlanFeatureEntity } from './entities/plan_feature.entity'
 import { Subscription as SubscriptionEntity } from './entities/subscription.entity'
+import { StoreProduct as ProductEntity } from '@/modules/store/entities/store_product.entity'
 import {
   SubscriptionPlanSchema, PlanFeatureSchema, PlanWithFeaturesSchema,
-  SubscriptionSchema, SubscriptionWithPlanSchema, ProrationPreviewSchema,
+  PlanWithProductSchema, PlanProductSummarySchema,
+  SubscriptionSchema, SubscriptionWithPlanSchema,
   type SubscriptionPlan, type PlanFeature, type PlanWithFeatures,
+  type PlanWithProduct, type PlanProductSummary,
   type Subscription, type SubscriptionWithPlan, type ProrationPreview,
 } from './payment_subscription.types'
 import type {
@@ -21,72 +24,120 @@ import { SUBSCRIPTION_MESSAGES } from './payment_subscription.messages'
 import ProrationService from './payment_subscription.proration.service'
 import type { BillingCycle } from './payment_subscription.enums'
 
-const CACHE_TTL = 300
-
 export default class PaymentSubscriptionService {
 
   // ============================================================================
   // Plans
   // ============================================================================
 
-  static async createPlan(tenantId: string, data: CreatePlanDTO): Promise<SubscriptionPlan> {
+  private static productSummary(p: ProductEntity): PlanProductSummary {
+    return PlanProductSummarySchema.parse({
+      productId: p.productId,
+      name: p.name,
+      slug: p.slug,
+      currency: p.currency,
+      basePrice: p.basePrice,
+      shortDescription: p.shortDescription ?? null,
+      status: p.status,
+    })
+  }
+
+  private static async fetchProductOrThrow(tenantId: string, productId: string): Promise<ProductEntity> {
+    const ds = await tenantDataSourceFor(tenantId)
+    const product = await ds.getRepository(ProductEntity).findOne({ where: { tenantId, productId } })
+    if (!product) throw new Error('Product not found for plan.')
+    return product
+  }
+
+  static async createPlan(tenantId: string, data: CreatePlanDTO): Promise<PlanWithProduct> {
     try {
+      const product = await PaymentSubscriptionService.fetchProductOrThrow(tenantId, data.productId)
       const ds = await tenantDataSourceFor(tenantId)
       const repo = ds.getRepository(PlanEntity)
-      if (data.isDefault) {
-        await repo.update({ tenantId, isDefault: true }, { isDefault: false })
-      }
       const plan = repo.create({ tenantId, ...data })
       const saved = await repo.save(plan)
       await redis.del(`sub:plans:${tenantId}`)
-      return SubscriptionPlanSchema.parse(saved)
+      return PlanWithProductSchema.parse({
+        ...SubscriptionPlanSchema.parse(saved),
+        product: PaymentSubscriptionService.productSummary(product),
+      })
     } catch (error) {
       Logger.error(`${SUBSCRIPTION_MESSAGES.PLAN_CREATE_FAILED}: ${error}`)
-      throw new Error(SUBSCRIPTION_MESSAGES.PLAN_CREATE_FAILED)
+      throw error instanceof Error ? error : new Error(SUBSCRIPTION_MESSAGES.PLAN_CREATE_FAILED)
     }
   }
 
-  static async updatePlan(tenantId: string, planId: string, data: UpdatePlanDTO): Promise<SubscriptionPlan> {
+  static async updatePlan(tenantId: string, planId: string, data: UpdatePlanDTO): Promise<PlanWithProduct> {
     const ds = await tenantDataSourceFor(tenantId)
     const repo = ds.getRepository(PlanEntity)
     const existing = await repo.findOne({ where: { tenantId, planId } })
     if (!existing) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND)
-    if (data.isDefault) {
-      await repo.update({ tenantId, isDefault: true }, { isDefault: false })
+    if (data.productId && data.productId !== existing.productId) {
+      await PaymentSubscriptionService.fetchProductOrThrow(tenantId, data.productId)
     }
     Object.assign(existing, data)
     const saved = await repo.save(existing)
+    const product = await PaymentSubscriptionService.fetchProductOrThrow(tenantId, saved.productId)
     await redis.del(`sub:plans:${tenantId}`)
     await redis.del(`sub:plan:${planId}`)
-    return SubscriptionPlanSchema.parse(saved)
+    await redis.del(`sub:plan:${planId}:true`)
+    await redis.del(`sub:plan:${planId}:false`)
+    return PlanWithProductSchema.parse({
+      ...SubscriptionPlanSchema.parse(saved),
+      product: PaymentSubscriptionService.productSummary(product),
+    })
   }
 
-  static async getPlan(tenantId: string, planId: string, withFeatures = false): Promise<SubscriptionPlan | PlanWithFeatures> {
+  static async getPlan(tenantId: string, planId: string, withFeatures = false): Promise<PlanWithProduct | PlanWithFeatures> {
     return singleFlight(`sub:plan:${planId}:${withFeatures}`, async () => {
       const ds = await tenantDataSourceFor(tenantId)
       const plan = await ds.getRepository(PlanEntity).findOne({ where: { tenantId, planId } })
       if (!plan) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND)
-      if (!withFeatures) return SubscriptionPlanSchema.parse(plan)
+      const product = await PaymentSubscriptionService.fetchProductOrThrow(tenantId, plan.productId)
+      const base = {
+        ...SubscriptionPlanSchema.parse(plan),
+        product: PaymentSubscriptionService.productSummary(product),
+      }
+      if (!withFeatures) return PlanWithProductSchema.parse(base)
       const features = await ds.getRepository(PlanFeatureEntity).find({
         where: { tenantId, planId }, order: { sortOrder: 'ASC' },
       })
-      return PlanWithFeaturesSchema.parse({ ...plan, features })
+      return PlanWithFeaturesSchema.parse({ ...base, features })
     })
   }
 
   static async listPlans(
     tenantId: string, query: GetPlansQuery,
-  ): Promise<{ data: Array<SubscriptionPlan | PlanWithFeatures>; total: number }> {
+  ): Promise<{ data: Array<PlanWithProduct | PlanWithFeatures>; total: number }> {
     const ds = await tenantDataSourceFor(tenantId)
     const where: Record<string, unknown> = { tenantId }
     if (query.status) where['status'] = query.status
     const [rows, total] = await ds.getRepository(PlanEntity).findAndCount({
-      where, order: { sortOrder: 'ASC', createdAt: 'ASC' },
+      where, order: { createdAt: 'ASC' },
       skip: query.page * query.pageSize, take: query.pageSize,
     })
+
+    const productIds = Array.from(new Set(rows.map((r) => r.productId)))
+    const productRepo = ds.getRepository(ProductEntity)
+    const products = productIds.length
+      ? await productRepo.findBy(productIds.map((productId) => ({ tenantId, productId })))
+      : []
+    const productMap = new Map(products.map((p) => [p.productId, p]))
+
     if (!query.includeFeatures) {
-      return { data: rows.map((r) => SubscriptionPlanSchema.parse(r)), total }
+      return {
+        data: rows.map((r) => {
+          const product = productMap.get(r.productId)
+          if (!product) throw new Error(`Plan ${r.planId} references missing product ${r.productId}`)
+          return PlanWithProductSchema.parse({
+            ...SubscriptionPlanSchema.parse(r),
+            product: PaymentSubscriptionService.productSummary(product),
+          })
+        }),
+        total,
+      }
     }
+
     const featureRepo = ds.getRepository(PlanFeatureEntity)
     const planIds = rows.map((r) => r.planId)
     const allFeatures = planIds.length
@@ -99,7 +150,15 @@ export default class PaymentSubscriptionService {
       featureMap.set(f.planId, arr)
     }
     return {
-      data: rows.map((r) => PlanWithFeaturesSchema.parse({ ...r, features: featureMap.get(r.planId) ?? [] })),
+      data: rows.map((r) => {
+        const product = productMap.get(r.productId)
+        if (!product) throw new Error(`Plan ${r.planId} references missing product ${r.productId}`)
+        return PlanWithFeaturesSchema.parse({
+          ...SubscriptionPlanSchema.parse(r),
+          product: PaymentSubscriptionService.productSummary(product),
+          features: featureMap.get(r.planId) ?? [],
+        })
+      }),
       total,
     }
   }
@@ -149,11 +208,10 @@ export default class PaymentSubscriptionService {
     const ds = await tenantDataSourceFor(tenantId)
     const plan = await ds.getRepository(PlanEntity).findOne({ where: { tenantId, planId: data.planId } })
     if (!plan) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND)
+    const product = await PaymentSubscriptionService.fetchProductOrThrow(tenantId, plan.productId)
 
-    const cycle = data.billingCycle as BillingCycle
-    const amount = data.currency
-      ? ProrationService.cycleAmount(plan.monthlyPrice, plan.yearlyPrice, cycle)
-      : ProrationService.cycleAmount(plan.monthlyPrice, plan.yearlyPrice, cycle)
+    const cycle = (data.billingCycle ?? plan.interval) as BillingCycle
+    const amount = Number(product.basePrice)
 
     const periodStart = data.currentPeriodStart ?? new Date()
     const periodEnd = data.currentPeriodEnd ?? ProrationService.nextPeriodEnd(periodStart, cycle)
@@ -172,9 +230,9 @@ export default class PaymentSubscriptionService {
         providerSubscriptionId: data.providerSubscriptionId,
         providerCustomerId: data.providerCustomerId,
         status: trialEndsAt ? 'TRIALING' : 'ACTIVE',
-        billingCycle: data.billingCycle,
+        billingCycle: cycle,
         amount,
-        currency: data.currency ?? plan.currency,
+        currency: data.currency ?? product.currency,
         trialEndsAt,
         currentPeriodStart: periodStart,
         currentPeriodEnd: periodEnd,
@@ -196,10 +254,18 @@ export default class PaymentSubscriptionService {
       if (!withPlan) return SubscriptionSchema.parse(sub)
       const plan = await ds.getRepository(PlanEntity).findOne({ where: { tenantId, planId: sub.planId } })
       if (!plan) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND)
+      const product = await PaymentSubscriptionService.fetchProductOrThrow(tenantId, plan.productId)
       const features = await ds.getRepository(PlanFeatureEntity).find({
         where: { tenantId, planId: sub.planId }, order: { sortOrder: 'ASC' },
       })
-      return SubscriptionWithPlanSchema.parse({ ...sub, plan: { ...plan, features } })
+      return SubscriptionWithPlanSchema.parse({
+        ...sub,
+        plan: {
+          ...SubscriptionPlanSchema.parse(plan),
+          product: PaymentSubscriptionService.productSummary(product),
+          features,
+        },
+      })
     })
   }
 
@@ -280,11 +346,13 @@ export default class PaymentSubscriptionService {
 
     const newPlan = await planRepo.findOne({ where: { tenantId, planId: dto.newPlanId } })
     if (!newPlan) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND)
+    const newProduct = await PaymentSubscriptionService.fetchProductOrThrow(tenantId, newPlan.productId)
 
-    const cycle = (dto.billingCycle ?? sub.billingCycle) as BillingCycle
+    const cycle = (dto.billingCycle ?? newPlan.interval) as BillingCycle
     sub.planId = dto.newPlanId
-    if (dto.billingCycle) sub.billingCycle = dto.billingCycle
-    sub.amount = ProrationService.cycleAmount(newPlan.monthlyPrice, newPlan.yearlyPrice, cycle)
+    sub.billingCycle = cycle
+    sub.amount = Number(newProduct.basePrice)
+    sub.currency = newProduct.currency
 
     if (dto.prorate && sub.currentPeriodStart && sub.currentPeriodEnd) {
       const periodEnd = ProrationService.nextPeriodEnd(new Date(), cycle)
@@ -306,9 +374,10 @@ export default class PaymentSubscriptionService {
     if (!sub) throw new Error(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_NOT_FOUND)
     const newPlan = await ds.getRepository(PlanEntity).findOne({ where: { tenantId, planId: dto.newPlanId } })
     if (!newPlan) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND)
+    const newProduct = await PaymentSubscriptionService.fetchProductOrThrow(tenantId, newPlan.productId)
 
-    const cycle = (dto.billingCycle ?? sub.billingCycle) as BillingCycle
-    const newAmount = ProrationService.cycleAmount(newPlan.monthlyPrice, newPlan.yearlyPrice, cycle)
+    const cycle = (dto.billingCycle ?? newPlan.interval) as BillingCycle
+    const newAmount = Number(newProduct.basePrice)
 
     return ProrationService.preview(
       Number(sub.amount),

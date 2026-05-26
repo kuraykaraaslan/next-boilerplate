@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { IsNull, ILike, In } from 'typeorm';
 import type { FindOptionsWhere } from 'typeorm';
-import { getSystemDataSource, tenantDataSourceFor, getDefaultTenantDataSource } from '@/modules/db';
+import { getDataSource, tenantDataSourceFor } from '@/modules/db';
 import redis from '@/modules/redis';
 import { User as UserEntity } from '../user/entities/user.entity';
 import { TenantMember as TenantMemberEntity } from './entities/tenant_member.entity';
@@ -20,7 +20,7 @@ export default class TenantMemberService {
     if (memberStatus) whereBase.memberStatus = memberStatus;
 
     if (search) {
-      const sysDs = await getSystemDataSource();
+      const sysDs = await getDataSource();
       const matchingUsers = await sysDs.getRepository(UserEntity).find({
         where: { email: ILike(`%${search}%`) },
         select: { userId: true },
@@ -40,7 +40,7 @@ export default class TenantMemberService {
     ]);
 
     const userIds = members.map((m) => m.userId);
-    const sysDs = await getSystemDataSource();
+    const sysDs = await getDataSource();
     const users = await sysDs.getRepository(UserEntity).find({ where: { userId: In(userIds) } });
     const userMap = Object.fromEntries(users.map((u) => [u.userId, u]));
 
@@ -51,7 +51,7 @@ export default class TenantMemberService {
   }
 
   static async getById(tenantMemberId: string): Promise<SafeTenantMember> {
-    const ds = await getDefaultTenantDataSource();
+    const ds = await getDataSource();
     const member = await ds.getRepository(TenantMemberEntity).findOne({ where: { tenantMemberId, deletedAt: IsNull() } });
     if (!member) throw new Error(TenantMemberMessages.MEMBER_NOT_FOUND);
     return SafeTenantMemberSchema.parse(member);
@@ -59,7 +59,7 @@ export default class TenantMemberService {
 
   static async getByTenantAndUser({ tenantMemberId, tenantId, userId }: GetTenantMemberInput): Promise<SafeTenantMember | null> {
     if (tenantMemberId) {
-      const ds = await getDefaultTenantDataSource();
+      const ds = await getDataSource();
       const member = await ds.getRepository(TenantMemberEntity).findOne({ where: { tenantMemberId, deletedAt: IsNull() } });
       if (!member || member.tenantId !== tenantId || member.userId !== userId) return null;
       return SafeTenantMemberSchema.parse(member);
@@ -82,7 +82,7 @@ export default class TenantMemberService {
   }
 
   static async update(tenantMemberId: string, data: UpdateTenantMemberInput): Promise<SafeTenantMember> {
-    const ds = await getDefaultTenantDataSource();
+    const ds = await getDataSource();
     const repo = ds.getRepository(TenantMemberEntity);
     const member = await repo.findOne({ where: { tenantMemberId, deletedAt: IsNull() } });
     if (!member) throw new Error(TenantMemberMessages.MEMBER_NOT_FOUND);
@@ -104,7 +104,7 @@ export default class TenantMemberService {
   }
 
   static async delete(tenantMemberId: string): Promise<void> {
-    const ds = await getDefaultTenantDataSource();
+    const ds = await getDataSource();
     const repo = ds.getRepository(TenantMemberEntity);
     const member = await repo.findOne({ where: { tenantMemberId, deletedAt: IsNull() } });
     if (!member) throw new Error(TenantMemberMessages.MEMBER_NOT_FOUND);
@@ -121,7 +121,7 @@ export default class TenantMemberService {
   }
 
   static async getUserTenants(userId: string): Promise<SafeTenantMember[]> {
-    const ds = await getDefaultTenantDataSource();
+    const ds = await getDataSource();
     const members = await ds.getRepository(TenantMemberEntity).find({
       where: { userId, memberStatus: 'ACTIVE', deletedAt: IsNull() },
     });

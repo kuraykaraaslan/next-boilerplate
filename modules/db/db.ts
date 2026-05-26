@@ -2,8 +2,15 @@ import 'reflect-metadata';
 import { DataSource } from 'typeorm';
 import { env } from '@/modules/env';
 import { parseDbUrl, typeormLogging } from './db.utils';
-import { getSystemDataSource } from './db.system';
 import { TenantDatabase } from './entities/tenant_database.entity';
+import { User } from '@/modules/user/entities/user.entity';
+import { UserProfile } from '@/modules/user_profile/entities/user_profile.entity';
+import { UserSecurity } from '@/modules/user_security/entities/user_security.entity';
+import { UserPreferences } from '@/modules/user_preferences/entities/user_preferences.entity';
+import { UserSession } from '@/modules/user_session/entities/user_session.entity';
+import { UserSocialAccount } from '@/modules/user_social_account/entities/user_social_account.entity';
+import { SigningCertificate } from '@/modules/e_signature/entities/signing_certificate.entity';
+import { TrustListEntry } from '@/modules/e_signature/entities/trust_list_entry.entity';
 import { Tenant } from '@/modules/tenant/entities/tenant.entity';
 import { TenantDomain } from '@/modules/tenant_domain/entities/tenant_domain.entity';
 import { TenantMember } from '@/modules/tenant_member/entities/tenant_member.entity';
@@ -41,7 +48,16 @@ import { SeoMeta } from '@/modules/seo/entities/seo_meta.entity';
 import { MediaGallery } from '@/modules/media_gallery/entities/media_gallery.entity';
 import { MediaGalleryItem } from '@/modules/media_gallery/entities/media_gallery_item.entity';
 
-const TENANT_ENTITIES = [
+const ENTITIES = [
+  User,
+  UserProfile,
+  UserSecurity,
+  UserPreferences,
+  UserSession,
+  UserSocialAccount,
+  SigningCertificate,
+  TrustListEntry,
+  TenantDatabase,
   Tenant,
   TenantDomain,
   TenantMember,
@@ -80,26 +96,26 @@ const TENANT_ENTITIES = [
   MediaGalleryItem,
 ];
 
-const { url: DEFAULT_TENANT_DB_URL, schema: DEFAULT_TENANT_SCHEMA } = parseDbUrl(env.TENANT_DATABASE_URL);
+const { url: DEFAULT_DB_URL, schema: DEFAULT_SCHEMA } = parseDbUrl(env.DATABASE_URL);
 
-export const defaultTenantDataSource = new DataSource({
+const defaultDataSource = new DataSource({
   type: 'postgres',
-  url: DEFAULT_TENANT_DB_URL,
-  schema: DEFAULT_TENANT_SCHEMA,
+  url: DEFAULT_DB_URL,
+  schema: DEFAULT_SCHEMA,
   synchronize: env.NODE_ENV === 'development',
   logging: typeormLogging(env.NODE_ENV),
-  entities: TENANT_ENTITIES,
+  entities: ENTITIES,
   migrations: [],
 });
 
 let defaultInitialized = false;
 
-export async function getDefaultTenantDataSource(): Promise<DataSource> {
+export async function getDataSource(): Promise<DataSource> {
   if (!defaultInitialized) {
-    await defaultTenantDataSource.initialize();
+    await defaultDataSource.initialize();
     defaultInitialized = true;
   }
-  return defaultTenantDataSource;
+  return defaultDataSource;
 }
 
 const MAX_CACHED = 100;
@@ -114,11 +130,11 @@ function evictOldest(): void {
 export async function tenantDataSourceFor(tenantId: string): Promise<DataSource> {
   if (tenantCache.has(tenantId)) return tenantCache.get(tenantId)!;
 
-  const sys = await getSystemDataSource();
-  const row = await sys.getRepository(TenantDatabase).findOne({ where: { tenantId } });
+  const base = await getDataSource();
+  const row = await base.getRepository(TenantDatabase).findOne({ where: { tenantId } });
+  if (!row) return base;
 
-  const { url, schema } = parseDbUrl(row?.databaseUrl ?? env.TENANT_DATABASE_URL);
-
+  const { url, schema } = parseDbUrl(row.databaseUrl);
   if (tenantCache.size >= MAX_CACHED) evictOldest();
 
   const ds = new DataSource({
@@ -127,7 +143,7 @@ export async function tenantDataSourceFor(tenantId: string): Promise<DataSource>
     schema,
     synchronize: env.NODE_ENV === 'development',
     logging: typeormLogging(env.NODE_ENV),
-    entities: TENANT_ENTITIES,
+    entities: ENTITIES,
     migrations: [],
   });
   await ds.initialize();

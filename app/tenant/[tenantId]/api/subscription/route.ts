@@ -78,7 +78,6 @@ export async function POST(
     const result = await TenantSubscriptionService.purchaseSubscription({
       tenantId,
       planId: parsed.data.planId,
-      billingInterval: parsed.data.billingInterval,
       successUrl: `${baseUrl}/tenant/${tenantId}/admin/settings?tab=subscription&paymentSuccess=true`,
       cancelUrl: `${baseUrl}/tenant/${tenantId}/admin/settings?tab=subscription&paymentCancelled=true`,
       provider: parsed.data.provider,

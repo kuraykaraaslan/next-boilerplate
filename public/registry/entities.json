@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-05-26T08:39:48.402Z",
+  "generatedAt": "2026-05-26T13:33:17.307Z",
   "entities": [
     {
       "name": "AiUsageLog",
@@ -83,12 +83,10 @@
         "discountType",
         "discountValue",
         "currency",
-        "applicablePlanIds",
-        "applicableProviders",
+        "scope",
         "maxUses",
         "maxUsesPerTenant",
         "usedCount",
-        "minimumAmount",
         "status",
         "startsAt",
         "expiresAt",
@@ -825,14 +823,9 @@
       "columns": [
         "planId",
         "tenantId",
-        "name",
-        "description",
-        "monthlyPrice",
-        "yearlyPrice",
-        "currency",
+        "productId",
+        "interval",
         "trialDays",
-        "sortOrder",
-        "isDefault",
         "status",
         "createdAt",
         "updatedAt"
@@ -848,14 +841,9 @@
       "columns": [
         "planId",
         "tenantId",
-        "name",
-        "description",
-        "monthlyPrice",
-        "yearlyPrice",
-        "currency",
+        "productId",
+        "interval",
         "trialDays",
-        "sortOrder",
-        "isDefault",
         "status",
         "createdAt",
         "updatedAt"

@@ -23,6 +23,7 @@ AppError + ErrorCode enum + error-response helper. Dependency-free leaf module l
 - `common/ui/Breadcrumb` _(ui, client)_
 - `common/ui/Button` _(ui, client)_
 - `common/ui/Card` _(ui, client)_
+- `common/ui/ColorPicker` _(ui, client)_
 - `common/ui/ContextMenu` _(ui, client)_
 - `common/ui/CurrencySelector` _(ui, client)_
 - `common/ui/DateRangePicker` _(ui, client)_
@@ -42,8 +43,23 @@ AppError + ErrorCode enum + error-response helper. Dependency-free leaf module l
 - `common/ui/PageHeader` _(ui, client)_
 - `common/ui/Pagination` _(ui, client)_
 - `common/ui/RadioGroup` _(ui, client)_
+- `common/ui/RichTextEditor/BubbleMenu` _(ui, client)_
+- `common/ui/RichTextEditor/EmojiPicker` _(ui, client)_
 - `common/ui/RichTextEditor/ImageInsertModal` _(ui, client)_
+- `common/ui/RichTextEditor/ImageOverlay` _(ui, client)_
 - `common/ui/RichTextEditor/index` _(ui, client)_
+- `common/ui/RichTextEditor/markdown` _(ui)_
+- `common/ui/RichTextEditor/PopupOverlays` _(ui, client)_
+- `common/ui/RichTextEditor/quill-helpers` _(ui, client)_
+- `common/ui/RichTextEditor/sanitize` _(ui)_
+- `common/ui/RichTextEditor/store` _(ui, client)_
+- `common/ui/RichTextEditor/SuggestionPopup` _(ui, client)_
+- `common/ui/RichTextEditor/TableInsertModal` _(ui, client)_
+- `common/ui/RichTextEditor/Toolbar` _(ui, client)_
+- `common/ui/RichTextEditor/types` _(ui)_
+- `common/ui/RichTextEditor/useEditorActions` _(ui, client)_
+- `common/ui/RichTextEditor/useQuillSetup` _(ui, client)_
+- `common/ui/RichTextEditor/useTriggerKeyboard` _(ui, client)_
 - `common/ui/RowActionsMenu` _(ui, client)_
 - `common/ui/SearchBar` _(ui, client)_
 - `common/ui/Select` _(ui, client)_
@@ -56,9 +72,7 @@ AppError + ErrorCode enum + error-response helper. Dependency-free leaf module l
 - `common/ui/toast.store` _(ui)_
 - `common/ui/ToastContainer` _(ui, client)_
 - `common/ui/Toggle` _(ui, client)_
-- `common/ui/Tooltip` _(ui, client)_
-- `common/utils/cn` _(util)_
-- `common/utils/isBrowser` _(util)_
+- … and 3 more
 
 ## README
 

@@ -18,8 +18,7 @@ async function resetSchema(databaseUrl: string, label: string) {
 }
 
 async function main() {
-  await resetSchema(env.SYSTEM_DATABASE_URL, 'system');
-  await resetSchema(env.TENANT_DATABASE_URL, 'tenant');
+  await resetSchema(env.DATABASE_URL, 'db');
   console.log('Done. Next `npm run dev` will recreate tables from entities.');
 }
 

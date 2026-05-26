@@ -2,8 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('@/modules/env', () => ({
   env: {
-    SYSTEM_DATABASE_URL: 'postgresql://test',
-    TENANT_DATABASE_URL: 'postgresql://test',
+    DATABASE_URL: 'postgresql://test',
     ACCESS_TOKEN_SECRET: 'test_secret',
     REFRESH_TOKEN_SECRET: 'test_refresh',
     CSRF_SECRET: 'test_csrf',
@@ -15,10 +14,8 @@ vi.mock('@/modules/env', () => ({
 }));
 
 vi.mock('@/modules/db', () => ({
-  getSystemDataSource: vi.fn(),
+  getDataSource: vi.fn(),
   tenantDataSourceFor: vi.fn(),
-  getDefaultTenantDataSource: vi.fn(),
-  SystemDataSource: { isInitialized: false, initialize: vi.fn(), getRepository: vi.fn() },
 }));
 
 vi.mock('@/modules/redis', () => ({
@@ -58,7 +55,7 @@ vi.mock('@/modules/setting/setting.service', () => ({
   },
 }));
 
-import { tenantDataSourceFor, getDefaultTenantDataSource } from '@/modules/db';
+import { tenantDataSourceFor, getDataSource } from '@/modules/db';
 import redis from '@/modules/redis';
 import TenantDomainService from './tenant_domain.service';
 import TenantDomainMessages from './tenant_domain.messages';
@@ -101,7 +98,7 @@ function makeRepo(overrides: Partial<{
 }
 
 function mockDefaultDs(repo: ReturnType<typeof makeRepo>) {
-  (getDefaultTenantDataSource as any).mockResolvedValue({ getRepository: () => repo });
+  (getDataSource as any).mockResolvedValue({ getRepository: () => repo });
 }
 
 function mockTenantDs(repo: ReturnType<typeof makeRepo>) {
@@ -146,7 +143,7 @@ describe('TenantDomainService.getById', () => {
 
     const result = await TenantDomainService.getById(DOMAIN_ID);
     expect(result.tenantDomainId).toBe(DOMAIN_ID);
-    expect(getDefaultTenantDataSource).not.toHaveBeenCalled();
+    expect(getDataSource).not.toHaveBeenCalled();
   });
 
   it('throws DOMAIN_NOT_FOUND when domain does not exist', async () => {
@@ -180,7 +177,7 @@ describe('TenantDomainService.getByDomain', () => {
 
     const result = await TenantDomainService.getByDomain('example.com');
     expect(result?.domain).toBe('example.com');
-    expect(getDefaultTenantDataSource).not.toHaveBeenCalled();
+    expect(getDataSource).not.toHaveBeenCalled();
   });
 });
 

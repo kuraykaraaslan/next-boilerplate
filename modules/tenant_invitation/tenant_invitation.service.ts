@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import { env } from '@/modules/env';
 import crypto from 'crypto';
 import { MoreThan } from 'typeorm';
-import { getSystemDataSource, tenantDataSourceFor, getDefaultTenantDataSource } from '@/modules/db';
+import { getDataSource, tenantDataSourceFor } from '@/modules/db';
 import redis, { jitter, singleFlight } from '@/modules/redis';
 import { User as UserEntity } from '../user/entities/user.entity';
 import { TenantInvitation as TenantInvitationEntity } from './entities/tenant_invitation.entity';
@@ -58,7 +58,7 @@ export default class TenantInvitationService {
     }
 
     return singleFlight(cacheKey, async () => {
-      const ds = await getDefaultTenantDataSource();
+      const ds = await getDataSource();
       const invitation = await ds.getRepository(TenantInvitationEntity).findOne({ where: { invitationId } });
       if (!invitation) throw new Error(TenantInvitationMessages.INVITATION_NOT_FOUND);
 
@@ -78,7 +78,7 @@ export default class TenantInvitationService {
     }
 
     return singleFlight(cacheKey, async () => {
-      const ds = await getDefaultTenantDataSource();
+      const ds = await getDataSource();
       const invitation = await ds.getRepository(TenantInvitationEntity).findOne({ where: { token: hashed } });
       if (!invitation) {
         await redis.setex(cacheKey, jitter(NEGATIVE_CACHE_TTL), NEG).catch(() => {});
@@ -94,7 +94,7 @@ export default class TenantInvitationService {
   static async send(tenantId: string, invitedByUserId: string, { email, memberRole }: SendInvitationInput): Promise<{ invitation: SafeTenantInvitation; rawToken: string }> {
     const normalizedEmail = email.toLowerCase();
 
-    const sysDs = await getSystemDataSource();
+    const sysDs = await getDataSource();
     const existingUser = await sysDs.getRepository(UserEntity).findOne({ where: { email: normalizedEmail } });
     if (existingUser) {
       const alreadyMember = await TenantMemberService.getByTenantAndUser({ tenantId, userId: existingUser.userId, tenantMemberId: null });
@@ -178,7 +178,7 @@ export default class TenantInvitationService {
     const normalizedEmail = email.toLowerCase();
     const now = new Date();
 
-    const ds = await getDefaultTenantDataSource();
+    const ds = await getDataSource();
     const pending = await ds.getRepository(TenantInvitationEntity).find({
       where: { email: normalizedEmail, status: 'PENDING', expiresAt: MoreThan(now) },
     });

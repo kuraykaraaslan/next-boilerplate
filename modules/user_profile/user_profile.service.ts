@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { getSystemDataSource } from '@/modules/db';
+import { getDataSource } from '@/modules/db';
 import redis, { jitter, singleFlight } from '@/modules/redis';
 import { env } from '@/modules/env';
 import { UserProfile as UserProfileEntity } from './entities/user_profile.entity';
@@ -24,7 +24,7 @@ export default class UserProfileService {
     }
 
     return singleFlight(cacheKey, async () => {
-      const ds = await getSystemDataSource();
+      const ds = await getDataSource();
       const profile = await ds.getRepository(UserProfileEntity).findOne({ where: { userId } });
       const result = profile ? UserProfileSchema.parse(profile) : null;
       await redis.setex(cacheKey, jitter(USER_PROFILE_CACHE_TTL), JSON.stringify(result)).catch(() => {});
@@ -33,7 +33,7 @@ export default class UserProfileService {
   }
 
   static async create(userId: string, data?: Partial<UserProfile>): Promise<UserProfile> {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const repo = ds.getRepository(UserProfileEntity);
     const existing = await repo.findOne({ where: { userId } });
     if (existing) throw new Error('Profile already exists for this user');
@@ -52,7 +52,7 @@ export default class UserProfileService {
   }
 
   static async update(userId: string, data: Partial<UserProfile>): Promise<UserProfile> {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const repo = ds.getRepository(UserProfileEntity);
     const profile = await repo.findOne({ where: { userId } });
     if (!profile) throw new Error('Profile not found');
@@ -70,7 +70,7 @@ export default class UserProfileService {
   }
 
   static async upsert(userId: string, data: Partial<UserProfile>): Promise<UserProfile> {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const repo = ds.getRepository(UserProfileEntity);
     const existing = await repo.findOne({ where: { userId } });
 
@@ -91,7 +91,7 @@ export default class UserProfileService {
   }
 
   static async delete(userId: string): Promise<void> {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const repo = ds.getRepository(UserProfileEntity);
     const profile = await repo.findOne({ where: { userId } });
     if (!profile) throw new Error('Profile not found');
@@ -100,7 +100,7 @@ export default class UserProfileService {
   }
 
   static async addSocialLink(userId: string, link: SocialLinkItem): Promise<UserProfile> {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const repo = ds.getRepository(UserProfileEntity);
     const profile = await repo.findOne({ where: { userId } });
     if (!profile) throw new Error('Profile not found');
@@ -113,7 +113,7 @@ export default class UserProfileService {
   }
 
   static async removeSocialLink(userId: string, linkId: string): Promise<UserProfile> {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const repo = ds.getRepository(UserProfileEntity);
     const profile = await repo.findOne({ where: { userId } });
     if (!profile) throw new Error('Profile not found');
@@ -126,7 +126,7 @@ export default class UserProfileService {
   }
 
   static async updateSocialLink(userId: string, linkId: string, data: Partial<SocialLinkItem>): Promise<UserProfile> {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const repo = ds.getRepository(UserProfileEntity);
     const profile = await repo.findOne({ where: { userId } });
     if (!profile) throw new Error('Profile not found');

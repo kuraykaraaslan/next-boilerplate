@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { getSystemDataSource } from '@/modules/db';
+import { getDataSource } from '@/modules/db';
 import Logger from '@/modules/logger';
 import { SigningCertificate } from './entities/signing_certificate.entity';
 import { E_SIGNATURE_MESSAGES } from './e_signature.messages';
@@ -9,14 +9,14 @@ import { createHash } from 'node:crypto';
 
 export default class ESignatureCertService {
   static async findByFingerprint(fingerprint: string): Promise<SigningCertificate | null> {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     return ds.getRepository(SigningCertificate).findOne({
       where: { certFingerprintSha256: fingerprint.toUpperCase() },
     });
   }
 
   static async findByUser(userId: string): Promise<SigningCertificate[]> {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     return ds.getRepository(SigningCertificate).find({
       where: { userId },
       order: { boundAt: 'DESC' },
@@ -38,7 +38,7 @@ export default class ESignatureCertService {
     loa: LoA;
     subjectDN: string;
   }): Promise<SigningCertificate> {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const repo = ds.getRepository(SigningCertificate);
 
     const existing = await repo.findOne({
@@ -71,7 +71,7 @@ export default class ESignatureCertService {
   }
 
   static async markUsed(signingCertificateId: string): Promise<void> {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     try {
       await ds
         .getRepository(SigningCertificate)
@@ -82,7 +82,7 @@ export default class ESignatureCertService {
   }
 
   static async revoke(signingCertificateId: string): Promise<void> {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     await ds
       .getRepository(SigningCertificate)
       .update({ signingCertificateId }, { revokedAt: new Date() });

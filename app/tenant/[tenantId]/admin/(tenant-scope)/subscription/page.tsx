@@ -18,7 +18,6 @@ import {
   faCheckCircle, faClock, faRotateRight,
 } from '@fortawesome/free-solid-svg-icons';
 import { faStripe, faPaypal } from '@fortawesome/free-brands-svg-icons';
-import type { BillingInterval } from '@/modules/tenant_subscription/tenant_subscription.enums';
 import type {
   PlanWithFeatures,
   TenantSubscriptionWithPlan,
@@ -75,6 +74,15 @@ function formatPrice(amount: number, currency = 'USD') {
   }
 }
 
+const INTERVAL_LABEL: Record<string, string> = {
+  DAILY: 'Daily', WEEKLY: 'Weekly', MONTHLY: 'Monthly', QUARTERLY: 'Quarterly', YEARLY: 'Yearly',
+};
+const INTERVAL_SHORT: Record<string, string> = {
+  DAILY: 'day', WEEKLY: 'wk', MONTHLY: 'mo', QUARTERLY: 'qtr', YEARLY: 'yr',
+};
+function intervalLabel(v: string): string { return INTERVAL_LABEL[v] ?? v; }
+function intervalShortLabel(v: string): string { return INTERVAL_SHORT[v] ?? v.toLowerCase(); }
+
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
 function CurrentSubscriptionCard({
@@ -85,7 +93,8 @@ function CurrentSubscriptionCard({
   onCancel: () => void;
 }) {
   const { plan, status, billingInterval, currentPeriodEnd, trialEndsAt, cancelledAt } = subscription;
-  const price = billingInterval === 'YEARLY' ? plan.yearlyPrice : plan.monthlyPrice;
+  const price = Number(plan.product?.basePrice ?? 0);
+  const planName = plan.product?.name ?? 'Plan';
 
   return (
     <Card>
@@ -93,12 +102,12 @@ function CurrentSubscriptionCard({
         {/* Left: plan info */}
         <div className="space-y-3 flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="text-base font-semibold text-text-primary">{plan.name}</h3>
+            <h3 className="text-base font-semibold text-text-primary">{planName}</h3>
             <Badge variant={STATUS_VARIANT[status] ?? 'neutral'} dot size="sm">
               {status === 'TRIALING' ? 'Trial' : status.charAt(0) + status.slice(1).toLowerCase()}
             </Badge>
             <Badge variant="neutral" size="sm">
-              {billingInterval === 'YEARLY' ? 'Annual' : 'Monthly'}
+              {intervalLabel(billingInterval)}
             </Badge>
           </div>
 
@@ -156,9 +165,9 @@ function CurrentSubscriptionCard({
         {/* Right: price + cancel */}
         <div className="flex flex-row sm:flex-col items-center sm:items-end gap-3 shrink-0">
           <p className="text-2xl font-bold text-text-primary tabular-nums">
-            {formatPrice(price, plan.currency)}
+            {formatPrice(price, plan.product?.currency ?? 'USD')}
             <span className="text-sm font-normal text-text-secondary ml-1">
-              /{billingInterval === 'YEARLY' ? 'yr' : 'mo'}
+              /{intervalShortLabel(billingInterval)}
             </span>
           </p>
           {status !== 'CANCELLED' && status !== 'EXPIRED' && (
@@ -190,7 +199,6 @@ export default function TenantSubscriptionPage({
   const [loading, setLoading] = useState(true);
 
   // ── UI state ──
-  const [billingInterval, setBillingInterval] = useState<BillingInterval>('MONTHLY');
   const [provider, setProvider] = useState<Provider>('STRIPE');
   const [selecting, setSelecting] = useState<string | null>(null);
   const [showCancel, setShowCancel] = useState(false);
@@ -222,9 +230,7 @@ export default function TenantSubscriptionPage({
 
       if (plansRes.status === 'fulfilled') setPlans(plansRes.value.data.plans ?? []);
       if (subRes.status === 'fulfilled') {
-        const sub = subRes.value.data.subscription ?? null;
-        setSubscription(sub);
-        if (sub) setBillingInterval(sub.billingInterval);
+        setSubscription(subRes.value.data.subscription ?? null);
       }
       if (graceRes.status === 'fulfilled') setGracePeriod(graceRes.value.data.status ?? null);
     } finally {
@@ -267,7 +273,6 @@ export default function TenantSubscriptionPage({
     try {
       const res = await api.post<{ checkoutUrl: string }>(`/tenant/${tenantId}/api/subscription`, {
         planId,
-        billingInterval,
         provider,
       });
       if (res.data.checkoutUrl) {
@@ -318,11 +323,6 @@ export default function TenantSubscriptionPage({
       ? subscription
       : null;
 
-  const yearlyMonthlyRatio =
-    plans.length > 0 && plans[0].monthlyPrice > 0
-      ? Math.round((1 - plans[0].yearlyPrice / (plans[0].monthlyPrice * 12)) * 100)
-      : 0;
-
   return (
     <div className="space-y-6">
       <PageHeader
@@ -366,43 +366,10 @@ export default function TenantSubscriptionPage({
 
       {/* Available plans */}
       <div className="space-y-4">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-text-secondary">
-            <FontAwesomeIcon icon={faCreditCard} className="w-3.5 h-3.5" />
-            Available Plans
-          </h2>
-
-          {/* Billing interval toggle */}
-          <div className="flex items-center gap-1 rounded-lg border border-border bg-surface-raised p-1">
-            <button
-              type="button"
-              onClick={() => setBillingInterval('MONTHLY')}
-              className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus ${
-                billingInterval === 'MONTHLY'
-                  ? 'bg-surface-base text-text-primary shadow-sm'
-                  : 'text-text-secondary hover:text-text-primary'
-              }`}
-            >
-              Monthly
-            </button>
-            <button
-              type="button"
-              onClick={() => setBillingInterval('YEARLY')}
-              className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus ${
-                billingInterval === 'YEARLY'
-                  ? 'bg-surface-base text-text-primary shadow-sm'
-                  : 'text-text-secondary hover:text-text-primary'
-              }`}
-            >
-              Yearly
-              {yearlyMonthlyRatio > 0 && (
-                <span className="rounded-full bg-success/15 px-1.5 py-0.5 text-[10px] font-semibold text-success">
-                  -{yearlyMonthlyRatio}%
-                </span>
-              )}
-            </button>
-          </div>
-        </div>
+        <h2 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-text-secondary">
+          <FontAwesomeIcon icon={faCreditCard} className="w-3.5 h-3.5" />
+          Available Plans
+        </h2>
 
         {/* Plan grid */}
         {plans.length === 0 ? (
@@ -415,7 +382,6 @@ export default function TenantSubscriptionPage({
               <SubscriptionPlanCard
                 key={plan.planId}
                 plan={plan}
-                billingInterval={billingInterval}
                 current={activeSubscription?.planId === plan.planId}
                 onSelect={handleSelectPlan}
                 loading={selecting === plan.planId}
@@ -452,7 +418,7 @@ export default function TenantSubscriptionPage({
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-text-primary">
-                Reactivate {subscription.plan.name}
+                Reactivate {subscription.plan.product?.name ?? 'Plan'}
               </p>
               <p className="text-xs text-text-secondary">
                 Pick any plan above and select a provider to resubscribe.

@@ -2,8 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('@/modules/env', () => ({
   env: {
-    SYSTEM_DATABASE_URL: 'postgresql://test',
-    TENANT_DATABASE_URL: 'postgresql://test',
+    DATABASE_URL: 'postgresql://test',
     ACCESS_TOKEN_SECRET: 'test_secret',
     REFRESH_TOKEN_SECRET: 'test_refresh',
     CSRF_SECRET: 'test_csrf',
@@ -20,10 +19,8 @@ vi.mock('@/modules/env', () => ({
 }));
 
 vi.mock('@/modules/db', () => ({
-  getSystemDataSource: vi.fn(),
+  getDataSource: vi.fn(),
   tenantDataSourceFor: vi.fn(),
-  getDefaultTenantDataSource: vi.fn(),
-  SystemDataSource: { isInitialized: false, initialize: vi.fn(), getRepository: vi.fn() },
 }));
 
 vi.mock('@/modules/redis', () => ({
@@ -81,7 +78,7 @@ vi.mock('./providers/iyzico.provider', () => ({
 }));
 
 import PaymentService from './payment.service';
-import { getDefaultTenantDataSource, tenantDataSourceFor } from '@/modules/db';
+import { getDataSource, tenantDataSourceFor } from '@/modules/db';
 import { PAYMENT_MESSAGES } from './payment.messages';
 
 const TENANT_ID = '550e8400-e29b-41d4-a716-446655440000';
@@ -175,7 +172,7 @@ function mockDS(paymentRepo?: ReturnType<typeof makePaymentRepo>, txRepo?: Retur
       return pRepo;
     }),
   };
-  (getDefaultTenantDataSource as any).mockResolvedValue(ds);
+  (getDataSource as any).mockResolvedValue(ds);
   (tenantDataSourceFor as any).mockResolvedValue(ds);
   return { pRepo, tRepo, ds };
 }

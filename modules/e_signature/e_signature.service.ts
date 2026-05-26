@@ -3,7 +3,7 @@ import 'reflect-metadata';
 import { env } from '@/modules/env';
 import redis from '@/modules/redis';
 import Logger from '@/modules/logger';
-import { getSystemDataSource } from '@/modules/db';
+import { getDataSource } from '@/modules/db';
 import { User as UserEntity } from '@/modules/user/entities/user.entity';
 
 import BaseESignatureProvider, { ProviderCredentials } from './providers/base.provider';
@@ -482,7 +482,7 @@ export default class ESignatureService {
     identifier: string;
     nationalIdHash: string | null;
   }): Promise<string | null> {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const repo = ds.getRepository(UserEntity);
 
     // Identifier-based lookup (TR: phone). For other countries this would

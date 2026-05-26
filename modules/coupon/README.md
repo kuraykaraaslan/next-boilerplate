@@ -88,9 +88,51 @@ CouponService.getRedemptionsByTenant(tenantId, page, pageSize)
 - Coupon must be `ACTIVE`
 - `startsAt` and `expiresAt` windows enforced
 - `maxUses` (global) and `maxUsesPerTenant` checked atomically
-- `minimumAmount` checked against order amount
-- `applicablePlanIds` — null means all plans
-- `applicableProviders` — null means all providers
+- Scope dimensions checked via `CouponService.scopeApplies(scope, ctx)` (see below)
+
+## Scope
+
+`Coupon.scope` is a single JSONB column that captures every targeting dimension. Each field is **optional**; a missing/null dimension acts as a wildcard. Pass relevant fields at validate/apply time.
+
+```ts
+type CouponScope = {
+  productIds?: string[]   // limit to specific store products (one-time sales)
+  planIds?: string[]      // limit to specific subscription plans
+  categoryIds?: string[]  // limit to products in these categories
+  providers?: string[]    // limit to specific payment providers
+  appliesTo?: 'line' | 'cart'  // 'line' = discount each matching line, 'cart' = discount cart total. Default 'line'.
+  minimumAmount?: number  // minimum subtotal (in coupon.currency)
+}
+```
+
+Matching semantics:
+- `planIds` — `ctx.planId` must be in the list.
+- `productIds` — `ctx.productIds` (cart's product UUIDs) must intersect the list.
+- `categoryIds` — `ctx.categoryIds` must intersect the list.
+- `providers` — `ctx.provider` must be in the list.
+- `minimumAmount` — `ctx.amount` must be ≥ this threshold.
+
+When `validate` / `apply` is called with the relevant context the helper short-circuits with a typed reason if any dimension fails. `appliesTo` is metadata for checkout-flow callers — it doesn't gate validation by itself.
+
+## Migration notes
+
+Recent changes:
+
+- **Replaced flat columns with `scope` jsonb.** Removed `applicablePlanIds`, `applicableProviders`, `minimumAmount` from the entity. Added `scope`. Manual SQL if you have legacy data:
+  ```sql
+  ALTER TABLE coupons ADD COLUMN scope jsonb;
+  UPDATE coupons SET scope = jsonb_strip_nulls(jsonb_build_object(
+    'planIds',       "applicablePlanIds",
+    'providers',     "applicableProviders",
+    'minimumAmount', "minimumAmount"
+  )) WHERE "applicablePlanIds" IS NOT NULL
+       OR "applicableProviders" IS NOT NULL
+       OR "minimumAmount" IS NOT NULL;
+  ALTER TABLE coupons DROP COLUMN IF EXISTS "applicablePlanIds",
+                     DROP COLUMN IF EXISTS "applicableProviders",
+                     DROP COLUMN IF EXISTS "minimumAmount";
+  ```
+  TypeORM `synchronize` handles dev databases automatically.
 
 ## Stripe Sync
 

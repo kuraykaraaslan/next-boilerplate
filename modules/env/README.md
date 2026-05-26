@@ -6,14 +6,14 @@ Single source of truth for environment-variable access. Parses `process.env` onc
 
 | Export | Source | Use |
 |---|---|---|
-| `env` | [env.service.ts](env.service.ts) | Typed accessor: `env.SYSTEM_DATABASE_URL`, `env.REDIS_PORT` (already a number), etc. |
+| `env` | [env.service.ts](env.service.ts) | Typed accessor: `env.DATABASE_URL`, `env.REDIS_PORT` (already a number), etc. |
 
 ## Usage
 
 ```ts
 import { env } from "@/modules/env";
 
-const pool = new Pool({ connectionString: env.SYSTEM_DATABASE_URL });
+const pool = new Pool({ connectionString: env.DATABASE_URL });
 const ttl = env.SESSION_CACHE_TTL; // number, already coerced
 ```
 
@@ -22,7 +22,7 @@ const ttl = env.SESSION_CACHE_TTL; // number, already coerced
 `env.service.ts` groups variables in commented sections — extend the matching section when you add a new key:
 
 - Core (`NODE_ENV`, `PORT`, `DEBUG*`)
-- Databases (`SYSTEM_DATABASE_URL`, `TENANT_DATABASE_URL` — in single-DB setups point both at the same connection)
+- Database (`DATABASE_URL` — tek Postgres URL; per-tenant DB isolation `tenant_databases` row'u ile yapılır)
 - Redis (`REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`)
 - Auth / Secrets (`ACCESS_TOKEN_SECRET`, `REFRESH_TOKEN_SECRET`, `CSRF_SECRET`)
 - Session / Token TTLs

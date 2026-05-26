@@ -2,8 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('@/modules/env', () => ({
   env: {
-    SYSTEM_DATABASE_URL: 'postgresql://test',
-    TENANT_DATABASE_URL: 'postgresql://test',
+    DATABASE_URL: 'postgresql://test',
     ACCESS_TOKEN_SECRET: 'test_secret',
     REFRESH_TOKEN_SECRET: 'test_refresh',
     CSRF_SECRET: 'test_csrf',
@@ -13,7 +12,6 @@ vi.mock('@/modules/env', () => ({
 
 vi.mock('@/modules/db', () => ({
   tenantDataSourceFor: vi.fn(),
-  SystemDataSource: { isInitialized: false, initialize: vi.fn(), getRepository: vi.fn() },
 }));
 
 vi.mock('@/modules/redis', () => ({
@@ -42,6 +40,15 @@ const COUPON_ID = '550e8400-e29b-41d4-a716-446655440000';
 const TENANT_ID = '660e8400-e29b-41d4-a716-446655440001';
 const PLAN_ID = '770e8400-e29b-41d4-a716-446655440002';
 
+type CouponScopeFixture = {
+  productIds?: string[];
+  planIds?: string[];
+  categoryIds?: string[];
+  providers?: string[];
+  appliesTo?: 'line' | 'cart';
+  minimumAmount?: number;
+};
+
 const mockCoupon = {
   tenantId: TENANT_ID,
   couponId: COUPON_ID,
@@ -51,12 +58,10 @@ const mockCoupon = {
   discountType: 'PERCENTAGE' as const,
   discountValue: 20,
   currency: null,
-  applicablePlanIds: null as string[] | null,
-  applicableProviders: null,
+  scope: null as CouponScopeFixture | null,
   maxUses: null as number | null,
   maxUsesPerTenant: null as number | null,
   usedCount: 0,
-  minimumAmount: null as number | null,
   status: 'ACTIVE' as 'ACTIVE' | 'INACTIVE',
   startsAt: null as Date | null,
   expiresAt: null as Date | null,
@@ -241,7 +246,7 @@ describe('CouponService.archive', () => {
     const repo = makeCouponRepo(mockCoupon);
     (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => repo });
     await CouponService.archive(TENANT_ID, COUPON_ID);
-    expect(repo.update).toHaveBeenCalledWith({ couponId: COUPON_ID }, { status: 'ARCHIVED' });
+    expect(repo.update).toHaveBeenCalledWith({ tenantId: TENANT_ID, couponId: COUPON_ID }, { status: 'ARCHIVED' });
   });
 });
 
@@ -283,16 +288,37 @@ describe('CouponService.validate', () => {
     expect(result.message).toBe(COUPON_MESSAGES.MAX_USES_REACHED);
   });
 
-  it('returns invalid when plan is not eligible', async () => {
+  it('returns invalid when plan is not eligible via scope.planIds', async () => {
     const otherPlan = '999e8400-e29b-41d4-a716-446655440099';
-    setupSystemDs({ ...mockCoupon, applicablePlanIds: [PLAN_ID] });
+    setupSystemDs({ ...mockCoupon, scope: { planIds: [PLAN_ID] } });
     const result = await CouponService.validate({ code: 'SAVE20', tenantId: TENANT_ID, planId: otherPlan });
     expect(result.valid).toBe(false);
     expect(result.message).toBe(COUPON_MESSAGES.PLAN_NOT_ELIGIBLE);
   });
 
-  it('returns invalid when amount below minimum', async () => {
-    setupSystemDs({ ...mockCoupon, minimumAmount: 100 });
+  it('returns invalid when products do not intersect scope.productIds', async () => {
+    const SCOPED_PRODUCT = '888e8400-e29b-41d4-a716-446655440088';
+    const OTHER_PRODUCT  = '999e8400-e29b-41d4-a716-446655440099';
+    setupSystemDs({ ...mockCoupon, scope: { productIds: [SCOPED_PRODUCT] } });
+    const result = await CouponService.validate({
+      code: 'SAVE20', tenantId: TENANT_ID, productIds: [OTHER_PRODUCT],
+    });
+    expect(result.valid).toBe(false);
+    expect(result.message).toBe(COUPON_MESSAGES.PLAN_NOT_ELIGIBLE);
+  });
+
+  it('returns valid when at least one product matches scope.productIds', async () => {
+    const SCOPED_PRODUCT = '888e8400-e29b-41d4-a716-446655440088';
+    const OTHER_PRODUCT  = '999e8400-e29b-41d4-a716-446655440099';
+    setupSystemDs({ ...mockCoupon, scope: { productIds: [SCOPED_PRODUCT] } });
+    const result = await CouponService.validate({
+      code: 'SAVE20', tenantId: TENANT_ID, productIds: [SCOPED_PRODUCT, OTHER_PRODUCT], amount: 50,
+    });
+    expect(result.valid).toBe(true);
+  });
+
+  it('returns invalid when amount below scope.minimumAmount', async () => {
+    setupSystemDs({ ...mockCoupon, scope: { minimumAmount: 100 } });
     const result = await CouponService.validate({ code: 'SAVE20', tenantId: TENANT_ID, amount: 50 });
     expect(result.valid).toBe(false);
     expect(result.message).toBe(COUPON_MESSAGES.MINIMUM_AMOUNT_NOT_MET);

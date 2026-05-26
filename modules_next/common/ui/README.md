@@ -28,6 +28,8 @@ Shared UI component library for the Next Boilerplate project.
 - **FileInput** — File picker with drag-and-drop
 - **SearchBar** — Search input with debounce
 - **DateRangePicker** — Date range picker component
+- **ColorPicker** — Color swatch + hex / native picker, supports `iconOnly` toolbar trigger
+- **RichTextEditor** — Quill-backed rich text editor (toolbar, bubble menu, mentions, slash commands, tables, emoji, HTML/fullscreen modes, autosave). Per-instance Zustand store via `RichTextEditorStoreProvider`
 
 ### Overlays
 - **Modal** — Dialog overlay (Radix `@radix-ui/react-dialog`)

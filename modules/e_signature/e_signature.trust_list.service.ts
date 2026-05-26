@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { promises as fs } from 'node:fs';
-import { getSystemDataSource } from '@/modules/db';
+import { getDataSource } from '@/modules/db';
 import redis from '@/modules/redis';
 import { env } from '@/modules/env';
 import Logger from '@/modules/logger';
@@ -34,7 +34,7 @@ export default class ESignatureTrustListService {
     if (cached) {
       try { return JSON.parse(cached) as string[]; } catch { /* fall through */ }
     }
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const rows = await ds.getRepository(TrustListEntry).find({
       where: { country },
     });
@@ -166,7 +166,7 @@ export default class ESignatureTrustListService {
     pemBlocks: string[];
     source: 'etsi_lotl' | 'tr_kamusm' | 'manual';
   }): Promise<number> {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const repo = ds.getRepository(TrustListEntry);
     let inserted = 0;
     for (const pem of pemBlocks) {

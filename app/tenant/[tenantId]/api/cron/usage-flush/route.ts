@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { env } from '@/modules/env';
-import { getSystemDataSource } from '@/modules/db';
+import { getDataSource } from '@/modules/db';
 import { Tenant } from '@/modules/tenant/entities/tenant.entity';
 import { TenantUsageService } from '@/modules/tenant_usage/tenant_usage.service';
 import Logger from '@/modules/logger';
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   try {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
     const tenants = await ds.getRepository(Tenant).find({ where: { tenantStatus: 'ACTIVE' } });
 
     const now = new Date();

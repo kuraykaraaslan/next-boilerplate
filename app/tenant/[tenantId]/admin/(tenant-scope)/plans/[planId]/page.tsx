@@ -16,25 +16,35 @@ import { ServerDataTable, type TableColumn } from '@/modules_next/common/ui/Serv
 import { RowActionsMenu } from '@/modules_next/common/ui/RowActionsMenu';
 import { toast } from '@/modules_next/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faTrash, faSave } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faTrash, faSave, faTag } from '@fortawesome/free-solid-svg-icons';
 import api from '@/modules_next/common/axios';
 
 type PlanStatus = 'ACTIVE' | 'INACTIVE' | 'ARCHIVED';
 
+type PlanProduct = {
+  productId: string;
+  name: string;
+  slug: string;
+  currency: string;
+  basePrice: number;
+  shortDescription?: string | null;
+  status: string;
+};
+
+type BillingInterval = 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'QUARTERLY' | 'YEARLY';
+
 type Plan = {
   planId: string;
-  name: string;
-  description?: string | null;
-  monthlyPrice: number;
-  yearlyPrice: number;
-  currency: string;
+  productId: string;
+  product: PlanProduct;
+  interval: BillingInterval;
   trialDays: number;
-  sortOrder: number;
-  isDefault: boolean;
   status: PlanStatus;
   createdAt: string;
   updatedAt: string;
 };
+
+type SearchProduct = { productId: string; name: string; slug: string; basePrice: number; currency: string; status: string };
 
 type Feature = {
   featureId: string;
@@ -46,16 +56,22 @@ type Feature = {
 };
 
 type EditForm = {
-  name: string;
-  description: string;
-  monthlyPrice: string;
-  yearlyPrice: string;
-  currency: string;
+  productId: string;
+  interval: BillingInterval;
   trialDays: string;
-  sortOrder: string;
-  isDefault: boolean;
   status: PlanStatus;
 };
+
+const INTERVAL_LABEL: Record<BillingInterval, string> = {
+  DAILY: 'Daily', WEEKLY: 'Weekly', MONTHLY: 'Monthly', QUARTERLY: 'Quarterly', YEARLY: 'Yearly',
+};
+const INTERVAL_OPTIONS: { value: BillingInterval; label: string }[] = [
+  { value: 'DAILY',     label: 'Daily'     },
+  { value: 'WEEKLY',    label: 'Weekly'    },
+  { value: 'MONTHLY',   label: 'Monthly'   },
+  { value: 'QUARTERLY', label: 'Quarterly' },
+  { value: 'YEARLY',    label: 'Yearly'    },
+];
 
 type FeatureForm = {
   key: string;
@@ -82,16 +98,16 @@ const featureTypeOptions = [
 ];
 
 const planToForm = (plan: Plan): EditForm => ({
-  name:         plan.name,
-  description:  plan.description ?? '',
-  monthlyPrice: String(plan.monthlyPrice),
-  yearlyPrice:  String(plan.yearlyPrice),
-  currency:     plan.currency,
-  trialDays:    String(plan.trialDays),
-  sortOrder:    String(plan.sortOrder),
-  isDefault:    plan.isDefault,
-  status:       plan.status,
+  productId: plan.productId,
+  interval:  plan.interval,
+  trialDays: String(plan.trialDays),
+  status:    plan.status,
 });
+
+function formatPrice(amount: number, currency: string) {
+  try { return new Intl.NumberFormat('en-US', { style: 'currency', currency, minimumFractionDigits: 2 }).format(amount); }
+  catch { return `${amount} ${currency}`; }
+}
 
 function extractMessage(err: unknown, fallback: string): string {
   const e = err as { response?: { data?: { message?: string } }; message?: string };
@@ -111,6 +127,11 @@ export default function PlanDetailPage({ params }: { params: Promise<{ tenantId:
   const [editForm, setEditForm]   = useState<EditForm | null>(null);
   const [saving, setSaving]       = useState(false);
   const [saveError, setSaveError] = useState('');
+
+  // Product picker for "Change product"
+  const [productPickerOpen, setProductPickerOpen]   = useState(false);
+  const [productSearch, setProductSearch]           = useState('');
+  const [productResults, setProductResults]         = useState<SearchProduct[]>([]);
 
   const [features, setFeatures]                 = useState<Feature[]>([]);
   const [featuresLoading, setFeaturesLoading]   = useState(true);
@@ -165,31 +186,24 @@ export default function PlanDetailPage({ params }: { params: Promise<{ tenantId:
   const handleEditField =
     (field: keyof EditForm) =>
     (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-      const value = field === 'isDefault'
-        ? (e.target as HTMLInputElement).checked
-        : e.target.value;
+      const value = e.target.value;
       setEditForm((prev) => prev ? { ...prev, [field]: value } : prev);
     };
 
   const handleSave = async () => {
     if (!editForm) return;
-    if (!editForm.name.trim()) {
-      setSaveError('Plan name is required.');
+    if (!editForm.productId) {
+      setSaveError('A plan must wrap a product.');
       return;
     }
     setSaving(true);
     setSaveError('');
     try {
       const res = await api.put(`/tenant/${tenantId}/api/plans/${planId}`, {
-        name:         editForm.name.trim(),
-        description:  editForm.description.trim() || null,
-        monthlyPrice: parseFloat(editForm.monthlyPrice) || 0,
-        yearlyPrice:  parseFloat(editForm.yearlyPrice)  || 0,
-        currency:     editForm.currency.trim() || 'USD',
-        trialDays:    parseInt(editForm.trialDays, 10)  || 0,
-        sortOrder:    parseInt(editForm.sortOrder, 10)  || 0,
-        isDefault:    editForm.isDefault,
-        status:       editForm.status,
+        productId: editForm.productId,
+        interval:  editForm.interval,
+        trialDays: parseInt(editForm.trialDays, 10) || 0,
+        status:    editForm.status,
       });
       const updated: Plan = res.data.plan;
       setPlan(updated);
@@ -201,6 +215,17 @@ export default function PlanDetailPage({ params }: { params: Promise<{ tenantId:
       setSaving(false);
     }
   };
+
+  async function searchProducts(q: string) {
+    setProductSearch(q);
+    if (!q.trim()) { setProductResults([]); return; }
+    try {
+      const res = await api.get(`/tenant/${tenantId}/api/store/products`, { params: { search: q, pageSize: 8 } });
+      setProductResults(res.data.data ?? []);
+    } catch {
+      setProductResults([]);
+    }
+  }
 
   const resetFeatureForm = () => {
     setFeatureForm({ key: '', label: '', type: 'BOOLEAN', value: 'true' });
@@ -327,23 +352,47 @@ export default function PlanDetailPage({ params }: { params: Promise<{ tenantId:
 
   return (
     <div className="space-y-6">
-      <Breadcrumb items={[{ label: 'Plans', href: `/tenant/${tenantId}/admin/plans` }, { label: plan.name }]} />
+      <Breadcrumb items={[{ label: 'Plans', href: `/tenant/${tenantId}/admin/plans` }, { label: plan.product?.name ?? 'Plan' }]} />
 
       <PageHeader
-        title={plan.name}
+        title={plan.product?.name ?? 'Plan'}
         subtitle={`Plan ID: ${planId}`}
         badge={
           <div className="flex items-center gap-2">
             <Badge variant={statusVariant[plan.status]} dot>{plan.status}</Badge>
-            {plan.isDefault && <Badge variant="primary">Default</Badge>}
+            <Badge variant="neutral">{INTERVAL_LABEL[plan.interval] ?? plan.interval}</Badge>
           </div>
         }
       />
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-6">
+          <Card title="Wrapped Product" headerRight={
+            <Button size="sm" variant="outline" onClick={() => { setProductSearch(''); setProductResults([]); setProductPickerOpen(true); }}>
+              Change product
+            </Button>
+          }>
+            <div className="flex items-center gap-3">
+              <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-subtle text-primary shrink-0">
+                <FontAwesomeIcon icon={faTag} className="w-4 h-4" />
+              </span>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-text-primary truncate">{plan.product?.name ?? <span className="italic text-text-disabled">No product</span>}</p>
+                <p className="text-xs text-text-secondary">
+                  <code>{plan.product?.slug}</code> · base {formatPrice(plan.product?.basePrice ?? 0, plan.product?.currency ?? 'USD')}
+                </p>
+                {plan.product?.shortDescription && (
+                  <p className="text-xs text-text-secondary mt-1 line-clamp-2">{plan.product.shortDescription}</p>
+                )}
+              </div>
+              <Button size="sm" variant="ghost" onClick={() => router.push(`/tenant/${tenantId}/admin/store/products/${plan.productId}`)}>
+                Open
+              </Button>
+            </div>
+          </Card>
+
           <Card
-            title="Plan Details"
+            title="Billing & Status"
             headerRight={
               <Button
                 size="sm"
@@ -359,43 +408,18 @@ export default function PlanDetailPage({ params }: { params: Promise<{ tenantId:
             <div className="space-y-4">
               {saveError && <AlertBanner variant="error" message={saveError} dismissible />}
 
-              <Input
-                id="edit-plan-name"
-                label="Name"
-                value={editForm.name}
-                onChange={handleEditField('name')}
-                required
-              />
-              <Input
-                id="edit-plan-description"
-                label="Description"
-                value={editForm.description}
-                onChange={handleEditField('description')}
-              />
+              <p className="text-xs text-text-secondary">
+                Price comes from the wrapped product&apos;s base price ({formatPrice(plan.product?.basePrice ?? 0, plan.product?.currency ?? 'USD')}). Edit it from the product page if you need to change the amount.
+              </p>
 
-              <div className="grid grid-cols-2 gap-4">
-                <Input
-                  id="edit-plan-monthly-price"
-                  label="Monthly Price"
-                  type="number"
-                  value={editForm.monthlyPrice}
-                  onChange={handleEditField('monthlyPrice')}
-                />
-                <Input
-                  id="edit-plan-yearly-price"
-                  label="Yearly Price"
-                  type="number"
-                  value={editForm.yearlyPrice}
-                  onChange={handleEditField('yearlyPrice')}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <Input
-                  id="edit-plan-currency"
-                  label="Currency"
-                  value={editForm.currency}
-                  onChange={handleEditField('currency')}
+              <div className="grid grid-cols-3 gap-4">
+                <Select
+                  id="edit-plan-interval"
+                  label="Billing Interval"
+                  required
+                  options={INTERVAL_OPTIONS}
+                  value={editForm.interval}
+                  onChange={handleEditField('interval')}
                 />
                 <Input
                   id="edit-plan-trial-days"
@@ -404,9 +428,6 @@ export default function PlanDetailPage({ params }: { params: Promise<{ tenantId:
                   value={editForm.trialDays}
                   onChange={handleEditField('trialDays')}
                 />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
                 <Select
                   id="edit-plan-status"
                   label="Status"
@@ -414,29 +435,6 @@ export default function PlanDetailPage({ params }: { params: Promise<{ tenantId:
                   value={editForm.status}
                   onChange={handleEditField('status')}
                 />
-                <Input
-                  id="edit-plan-sort-order"
-                  label="Sort Order"
-                  type="number"
-                  value={editForm.sortOrder}
-                  onChange={handleEditField('sortOrder')}
-                />
-              </div>
-
-              <div className="flex items-center gap-2">
-                <input
-                  id="edit-plan-is-default"
-                  type="checkbox"
-                  checked={editForm.isDefault}
-                  onChange={handleEditField('isDefault')}
-                  className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
-                />
-                <label
-                  htmlFor="edit-plan-is-default"
-                  className="text-sm font-medium text-text-primary select-none"
-                >
-                  Mark as default plan
-                </label>
               </div>
             </div>
           </Card>
@@ -475,15 +473,11 @@ export default function PlanDetailPage({ params }: { params: Promise<{ tenantId:
             <dl className="space-y-3 text-sm">
               <div>
                 <dt className="text-text-secondary mb-0.5">Currency</dt>
-                <dd className="text-text-primary font-medium">{plan.currency}</dd>
+                <dd className="text-text-primary font-medium">{plan.product?.currency ?? '—'}</dd>
               </div>
               <div>
                 <dt className="text-text-secondary mb-0.5">Trial Days</dt>
                 <dd className="text-text-primary font-medium">{plan.trialDays}</dd>
-              </div>
-              <div>
-                <dt className="text-text-secondary mb-0.5">Sort Order</dt>
-                <dd className="text-text-primary font-medium">{plan.sortOrder}</dd>
               </div>
               <div>
                 <dt className="text-text-secondary mb-0.5">Created</dt>
@@ -577,7 +571,7 @@ export default function PlanDetailPage({ params }: { params: Promise<{ tenantId:
         open={deletePlanOpen}
         onClose={() => setDeletePlanOpen(false)}
         title="Delete Plan"
-        description={`Permanently delete ${plan.name}? This will also remove all associated features.`}
+        description={`Permanently delete this plan? This will also remove all associated features.`}
         footer={
           <>
             <Button variant="ghost" onClick={() => setDeletePlanOpen(false)} disabled={deletingPlan}>Cancel</Button>
@@ -586,6 +580,50 @@ export default function PlanDetailPage({ params }: { params: Promise<{ tenantId:
         }
       >
         {deletePlanError && <AlertBanner variant="error" message={deletePlanError} />}
+      </Modal>
+
+      <Modal
+        open={productPickerOpen}
+        onClose={() => setProductPickerOpen(false)}
+        title="Change Wrapped Product"
+        description="Pick a different store product. Name, currency and other display fields will follow the new product."
+        footer={
+          <Button variant="ghost" onClick={() => setProductPickerOpen(false)}>Cancel</Button>
+        }
+      >
+        <div className="space-y-3">
+          <Input
+            id="picker-search"
+            label="Search product"
+            value={productSearch}
+            onChange={(e) => searchProducts(e.target.value)}
+            placeholder="Type a product name…"
+          />
+          {productResults.length > 0 && (
+            <div className="border border-border rounded-lg overflow-hidden max-h-64 overflow-y-auto">
+              {productResults.map((p) => (
+                <button
+                  key={p.productId}
+                  type="button"
+                  onClick={() => {
+                    setEditForm((f) => f ? { ...f, productId: p.productId } : f);
+                    setProductPickerOpen(false);
+                  }}
+                  className="flex w-full items-center justify-between px-3 py-2.5 text-sm text-left hover:bg-surface-overlay transition-colors border-b border-border last:border-0"
+                >
+                  <div className="min-w-0">
+                    <p className="font-medium text-text-primary truncate">{p.name}</p>
+                    <code className="text-xs text-text-secondary">{p.slug}</code>
+                  </div>
+                  <span className="text-text-secondary tabular-nums shrink-0">{formatPrice(p.basePrice, p.currency)}</span>
+                </button>
+              ))}
+            </div>
+          )}
+          <p className="text-xs text-text-secondary">
+            Selection only takes effect after you press <strong>Save</strong> on the Pricing &amp; Status card.
+          </p>
+        </div>
       </Modal>
     </div>
   );

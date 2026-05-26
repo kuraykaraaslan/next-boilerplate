@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { DiscountTypeEnum, CouponStatusEnum } from './coupon.enums'
+import { CouponScopeSchema } from './coupon.dto'
 
 export const CouponSchema = z.object({
   couponId: z.string().uuid(),
@@ -7,14 +8,12 @@ export const CouponSchema = z.object({
   name: z.string(),
   description: z.string().nullable(),
   discountType: DiscountTypeEnum,
-  discountValue: z.number(),
+  discountValue: z.coerce.number(),
   currency: z.string().nullable(),
-  applicablePlanIds: z.array(z.string()).nullable(),
-  applicableProviders: z.array(z.string()).nullable(),
-  maxUses: z.number().nullable(),
-  maxUsesPerTenant: z.number().nullable(),
-  usedCount: z.number(),
-  minimumAmount: z.number().nullable(),
+  scope: CouponScopeSchema.nullable(),
+  maxUses: z.coerce.number().nullable(),
+  maxUsesPerTenant: z.coerce.number().nullable(),
+  usedCount: z.coerce.number(),
   status: CouponStatusEnum,
   startsAt: z.date().nullable(),
   expiresAt: z.date().nullable(),

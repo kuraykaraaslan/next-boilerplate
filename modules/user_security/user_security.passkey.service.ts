@@ -12,7 +12,7 @@ import type {
   AuthenticatorTransportFuture,
 } from '@simplewebauthn/server';
 
-import { getSystemDataSource } from '@/modules/db';
+import { getDataSource } from '@/modules/db';
 import { User as UserEntity } from '../user/entities/user.entity';
 import redis from '@/modules/redis';
 import UserSecurityService from './user_security.service';
@@ -136,7 +136,7 @@ export default class UserSecurityPasskeyService {
     let cacheKey: string;
 
     if (email) {
-      const ds = await getSystemDataSource();
+      const ds = await getDataSource();
       const user = await ds.getRepository(UserEntity).findOne({ where: { email: email.toLowerCase() } });
       if (!user) throw new Error(PasskeyMessages.USER_NOT_FOUND);
 
@@ -174,7 +174,7 @@ export default class UserSecurityPasskeyService {
     response: AuthenticationResponseJSON;
     email?: string;
   }): Promise<SafeUser> {
-    const ds = await getSystemDataSource();
+    const ds = await getDataSource();
 
     const rows = await ds.query<{ userId: string }[]>(
       `
