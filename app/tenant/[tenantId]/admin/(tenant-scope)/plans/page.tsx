@@ -32,7 +32,7 @@ type BillingInterval = 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'QUARTERLY' | 'YEARLY';
 type Plan = {
   planId: string;
   productId: string;
-  product: PlanProduct;
+  product: PlanProduct | null;
   interval: BillingInterval;
   trialDays: number;
   status: PlanStatus;

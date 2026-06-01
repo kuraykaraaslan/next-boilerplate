@@ -25,10 +25,13 @@ export async function GET(
 
     const { targetTenantId } = await params;
 
-    const [subscription, platformPlans] = await Promise.all([
+    const [subscription, allPlatformPlans] = await Promise.all([
       TenantSubscriptionService.getSubscription(targetTenantId),
       TenantSubscriptionService.getPlansWithFeatures(ROOT_TENANT_ID, "ACTIVE"),
     ]);
+
+    // Only plans whose product still exists are assignable.
+    const platformPlans = allPlatformPlans.filter((p) => p.product !== null);
 
     return NextResponse.json({ subscription, platformPlans }, { status: 200 });
   } catch (error: any) {

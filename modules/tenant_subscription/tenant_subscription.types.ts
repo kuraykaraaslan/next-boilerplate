@@ -42,13 +42,17 @@ export const PlanProductSummarySchema = z.object({
   status: z.string(),
 })
 
+// `product` is nullable: a plan keeps its productId even after the referenced
+// store product is (soft-)deleted, so list/detail reads must tolerate the
+// dangling reference instead of throwing. Admin UI renders a "No product"
+// placeholder in that case.
 export const PlanWithProductSchema = SubscriptionPlanSchema.extend({
-  product: PlanProductSummarySchema,
+  product: PlanProductSummarySchema.nullable(),
 })
 
 // Plan with Features (also embeds product)
 export const PlanWithFeaturesSchema = SubscriptionPlanSchema.extend({
-  product: PlanProductSummarySchema,
+  product: PlanProductSummarySchema.nullable(),
   features: z.array(PlanFeatureSchema),
 })
 

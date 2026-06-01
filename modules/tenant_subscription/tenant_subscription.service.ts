@@ -68,6 +68,14 @@ export default class TenantSubscriptionService {
     return product;
   }
 
+  // Read-side counterpart to fetchProductOrThrow: a plan may reference a product
+  // that has since been deleted. Listing/detail views must degrade to a null
+  // product rather than 500, so they use this instead.
+  private static async fetchProductOrNull(tenantId: string, productId: string): Promise<ProductEntity | null> {
+    const ds = await tenantDataSourceFor(tenantId);
+    return ds.getRepository(ProductEntity).findOne({ where: { tenantId, productId } });
+  }
+
   static async createPlan(tenantId: string, data: CreatePlanDTO): Promise<PlanWithProduct> {
     try {
       const product = await TenantSubscriptionService.fetchProductOrThrow(tenantId, data.productId);
@@ -158,10 +166,9 @@ export default class TenantSubscriptionService {
     const productMap = await TenantSubscriptionService.attachProducts(tenantId, plans);
     return plans.map((p) => {
       const product = productMap.get(p.productId);
-      if (!product) throw new Error(`Plan ${p.planId} references missing product ${p.productId}`);
       return PlanWithProductSchema.parse({
         ...SubscriptionPlanSchema.parse(p),
-        product: TenantSubscriptionService.productSummary(product),
+        product: product ? TenantSubscriptionService.productSummary(product) : null,
       });
     });
   }
@@ -170,10 +177,10 @@ export default class TenantSubscriptionService {
     const ds = await tenantDataSourceFor(tenantId);
     const plan = await ds.getRepository(SubscriptionPlanEntity).findOne({ where: { tenantId, planId } });
     if (!plan) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND);
-    const product = await TenantSubscriptionService.fetchProductOrThrow(tenantId, plan.productId);
+    const product = await TenantSubscriptionService.fetchProductOrNull(tenantId, plan.productId);
     return PlanWithProductSchema.parse({
       ...SubscriptionPlanSchema.parse(plan),
-      product: TenantSubscriptionService.productSummary(product),
+      product: product ? TenantSubscriptionService.productSummary(product) : null,
     });
   }
 
@@ -181,11 +188,11 @@ export default class TenantSubscriptionService {
     const ds = await tenantDataSourceFor(tenantId);
     const plan = await ds.getRepository(SubscriptionPlanEntity).findOne({ where: { tenantId, planId } });
     if (!plan) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND);
-    const product = await TenantSubscriptionService.fetchProductOrThrow(tenantId, plan.productId);
+    const product = await TenantSubscriptionService.fetchProductOrNull(tenantId, plan.productId);
     const features = await ds.getRepository(PlanFeatureEntity).find({ where: { tenantId, planId }, order: { sortOrder: 'ASC' } });
     return PlanWithFeaturesSchema.parse({
       ...SubscriptionPlanSchema.parse(plan),
-      product: TenantSubscriptionService.productSummary(product),
+      product: product ? TenantSubscriptionService.productSummary(product) : null,
       features,
     });
   }
@@ -203,10 +210,9 @@ export default class TenantSubscriptionService {
 
     return plans.map((plan) => {
       const product = productMap.get(plan.productId);
-      if (!product) throw new Error(`Plan ${plan.planId} references missing product ${plan.productId}`);
       return PlanWithFeaturesSchema.parse({
         ...SubscriptionPlanSchema.parse(plan),
-        product: TenantSubscriptionService.productSummary(product),
+        product: product ? TenantSubscriptionService.productSummary(product) : null,
         features: allFeatures.filter((f) => f.planId === plan.planId),
       });
     });
@@ -369,6 +375,8 @@ export default class TenantSubscriptionService {
     try {
       // 1. Load the source plan (+ product + features) from the ROOT catalogue.
       const source = await this.getPlanWithFeatures(ROOT_TENANT_ID, data.planId);
+      if (!source.product) throw new Error('Source platform plan references a deleted product.');
+      const sourceProduct = source.product;
 
       const ds = await tenantDataSourceFor(targetTenantId);
 
@@ -387,14 +395,14 @@ export default class TenantSubscriptionService {
 
       // 2b. find-or-create the cloned product (keyed by source plan id via sku).
       const sku = `platform-plan:${source.planId}`;
-      const basePrice = data.priceOverride ?? source.product.basePrice;
+      const basePrice = data.priceOverride ?? sourceProduct.basePrice;
       const prodRepo = ds.getRepository(ProductEntity);
       let product = await prodRepo.findOne({ where: { tenantId: targetTenantId, sku } });
       if (product) {
         await prodRepo.update({ tenantId: targetTenantId, productId: product.productId }, {
-          name: source.product.name,
+          name: sourceProduct.name,
           basePrice,
-          currency: source.product.currency,
+          currency: sourceProduct.currency,
           status: 'ACTIVE',
         } as any);
         product = (await prodRepo.findOne({ where: { tenantId: targetTenantId, productId: product.productId } }))!;
@@ -402,11 +410,11 @@ export default class TenantSubscriptionService {
         product = await prodRepo.save(prodRepo.create({
           tenantId: targetTenantId,
           categoryId: category.categoryId,
-          name: source.product.name,
-          slug: `platform-${source.product.slug}`,
-          shortDescription: source.product.shortDescription ?? undefined,
+          name: sourceProduct.name,
+          slug: `platform-${sourceProduct.slug}`,
+          shortDescription: sourceProduct.shortDescription ?? undefined,
           basePrice,
-          currency: source.product.currency,
+          currency: sourceProduct.currency,
           sku,
           status: 'ACTIVE',
           isDigital: true,

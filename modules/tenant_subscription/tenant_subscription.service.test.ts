@@ -221,7 +221,7 @@ describe('TenantSubscriptionService.createPlan', () => {
     });
     expect(result.productId).toBe(PRODUCT_ID);
     expect(result.interval).toBe('MONTHLY');
-    expect(result.product.name).toBe('Basic Plan');
+    expect(result.product?.name).toBe('Basic Plan');
   });
 });
 
@@ -237,7 +237,7 @@ describe('TenantSubscriptionService.updatePlan', () => {
   it('returns updated plan with product', async () => {
     (tenantDataSourceFor as any).mockResolvedValue({ getRepository: makeMultiRepo() });
     const result = await TenantSubscriptionService.updatePlan(TENANT_ID, PLAN_ID, { interval: 'YEARLY' });
-    expect(result.product.name).toBe('Basic Plan');
+    expect(result.product?.name).toBe('Basic Plan');
     expect(result.productId).toBe(PRODUCT_ID);
   });
 });
@@ -286,6 +286,35 @@ describe('TenantSubscriptionService.getPlanById', () => {
     mockSystemDs();
     const result = await TenantSubscriptionService.getPlanById(TENANT_ID, PLAN_ID);
     expect(result.planId).toBe(PLAN_ID);
+  });
+
+  it('returns a null product instead of throwing when the product was deleted', async () => {
+    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: makeMultiRepo(mockPlan, null) });
+    const result = await TenantSubscriptionService.getPlanById(TENANT_ID, PLAN_ID);
+    expect(result.planId).toBe(PLAN_ID);
+    expect(result.product).toBeNull();
+  });
+});
+
+describe('TenantSubscriptionService.getPlans', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('embeds a null product for plans whose product was deleted (no throw)', async () => {
+    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: makeMultiRepo(mockPlan, null) });
+    const result = await TenantSubscriptionService.getPlans(TENANT_ID);
+    expect(result).toHaveLength(1);
+    expect(result[0].product).toBeNull();
+  });
+});
+
+describe('TenantSubscriptionService.getPlansWithFeatures', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('embeds a null product for plans whose product was deleted (no throw)', async () => {
+    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: makeMultiRepo(mockPlan, null) });
+    const result = await TenantSubscriptionService.getPlansWithFeatures(TENANT_ID);
+    expect(result).toHaveLength(1);
+    expect(result[0].product).toBeNull();
   });
 });
 
