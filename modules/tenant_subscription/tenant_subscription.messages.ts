@@ -17,6 +17,8 @@ export const SUBSCRIPTION_MESSAGES = {
   // Subscription
   SUBSCRIPTION_NOT_FOUND: 'Tenant subscription not found',
   SUBSCRIPTION_ASSIGN_FAILED: 'Failed to assign subscription',
+  PLATFORM_PLAN_ASSIGN_FAILED: 'Failed to assign platform plan to tenant',
+  PLATFORM_PLAN_ONLY_ROOT: 'Only root-tenant plans can be assigned to other tenants',
   SUBSCRIPTION_CANCEL_FAILED: 'Failed to cancel subscription',
   SUBSCRIPTION_ALREADY_CANCELLED: 'Subscription is already cancelled',
 
