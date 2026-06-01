@@ -236,6 +236,26 @@ bypasses payment. Exposed via `GET`/`POST /tenant/[tenantId]/api/tenants/[target
 (guarded by `authenticateAdminRequest` — root-tenant ADMIN only). Each assignment
 is recorded in the audit log as `subscription.platform_plan.assigned`.
 
+## Default plan (auto-assigned on tenant creation)
+
+A **free** ROOT-catalogue plan can be marked as the default. When set, every
+newly created tenant is automatically granted that plan for free (via
+`assignPlatformPlan` with `priceOverride: 0`) during `TenantService.seedDefaults`
+— best-effort, so a failure never blocks tenant creation.
+
+```typescript
+await TenantSubscriptionService.getDefaultPlanId();          // string | null
+await TenantSubscriptionService.setDefaultPlanId(planId);    // only a free plan (basePrice 0)
+await TenantSubscriptionService.setDefaultPlanId(null);      // clear
+```
+
+Stored as the `defaultPlanId` system setting on the ROOT tenant (same place as
+`subscriptionGracePeriodDays`). `setDefaultPlanId` rejects any plan whose wrapped
+product has a non-zero base price, so tenants are never silently put on a paid
+plan. Managed from the Plans admin list (row action **Set as default** /
+**Remove as default**, shown only for free plans) via
+`GET`/`PUT /tenant/[tenantId]/api/plans/default` (root-tenant ADMIN only).
+
 ## Caching
 
 Feature access results are cached in Redis with a 5-minute TTL per tenant:
