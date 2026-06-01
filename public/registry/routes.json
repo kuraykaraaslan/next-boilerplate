@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-05-26T21:49:04.137Z",
+  "generatedAt": "2026-06-01T08:06:40.312Z",
   "routes": [
     {
       "filePath": "app/internal/api/caddy-ask/route.ts",
@@ -1168,6 +1168,17 @@
       "dynamic": true
     },
     {
+      "filePath": "app/tenant/[tenantId]/api/plans/default/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/plans/default",
+      "methods": [
+        "GET",
+        "PUT"
+      ],
+      "module": "plan",
+      "dynamic": true
+    },
+    {
       "filePath": "app/tenant/[tenantId]/api/plans/public/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/plans/public",
@@ -1575,6 +1586,17 @@
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/tenants/[targetTenantId]/deletion-request",
       "methods": [
+        "POST"
+      ],
+      "module": "tenant",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/tenants/[targetTenantId]/subscription/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/tenants/[targetTenantId]/subscription",
+      "methods": [
+        "GET",
         "POST"
       ],
       "module": "tenant",

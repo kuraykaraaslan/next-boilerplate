@@ -277,6 +277,26 @@ function MembersSection({ tenantId, memberCount }: { tenantId: string; memberCou
 
 ---
 
+## Root-admin: assign a platform plan for free
+
+Root (Platform) tenant admins can grant any other tenant a plan **without payment**
+from the sysadmin tenant-detail page (`/tenant/<ROOT>/admin/tenants/<target>`).
+
+```typescript
+await TenantSubscriptionService.assignPlatformPlan(targetTenantId, {
+  planId,            // a plan in the ROOT tenant's catalogue
+  billingInterval,   // optional; defaults to the source plan's interval
+  priceOverride,     // optional; omit = copy source price, 0 = free-forever
+});
+```
+
+Because plans are tenant-scoped, this clones the source plan's
+category → product → plan → features chain into the target tenant (idempotently,
+keyed by `sku = platform-plan:<sourcePlanId>`) and then calls `assignPlan`, which
+bypasses payment. Exposed via `GET`/`POST /tenant/[tenantId]/api/tenants/[targetTenantId]/subscription`
+(guarded by `authenticateAdminRequest` — root-tenant ADMIN only). Each assignment
+is recorded in the audit log as `subscription.platform_plan.assigned`.
+
 ## Caching
 
 Feature access results are cached in Redis with a 5-minute TTL per tenant:

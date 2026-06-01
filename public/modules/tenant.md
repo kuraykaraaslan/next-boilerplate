@@ -48,6 +48,7 @@ Tenant CRUD, lifecycle (active/suspended/deleted), soft-deletion service. Founda
 - `tenant` GET/POST `/tenant/[tenantId]/api/tenants`
 - `tenant` GET/PUT/DELETE `/tenant/[tenantId]/api/tenants/[targetTenantId]`
 - `tenant` POST `/tenant/[tenantId]/api/tenants/[targetTenantId]/deletion-request`
+- `tenant` GET/POST `/tenant/[tenantId]/api/tenants/[targetTenantId]/subscription`
 - `tenant` POST `/tenant/[tenantId]/api/tenants/create`
 
 ## TypeORM entities

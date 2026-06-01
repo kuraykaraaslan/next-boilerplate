@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-05-26T21:49:04.137Z",
+  "generatedAt": "2026-06-01T08:06:40.312Z",
   "entities": [
     {
       "name": "AiUsageLog",
@@ -65,6 +65,52 @@
         "ipAddress",
         "userAgent",
         "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "Cart",
+      "filePath": "modules/payment_cart/entities/cart.entity.ts",
+      "module": "payment_cart",
+      "schema": "system",
+      "tableName": "carts",
+      "columns": [
+        "cartId",
+        "tenantId",
+        "userId",
+        "guestToken",
+        "status",
+        "currency",
+        "couponCode",
+        "subtotal",
+        "discountTotal",
+        "metadata",
+        "expiresAt",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "CartItem",
+      "filePath": "modules/payment_cart/entities/cart_item.entity.ts",
+      "module": "payment_cart",
+      "schema": "system",
+      "tableName": "cart_items",
+      "columns": [
+        "cartItemId",
+        "tenantId",
+        "cartId",
+        "productId",
+        "variantId",
+        "sku",
+        "name",
+        "unitPrice",
+        "quantity",
+        "metadata",
+        "createdAt",
+        "updatedAt"
       ],
       "relations": []
     },
@@ -185,6 +231,71 @@
       ]
     },
     {
+      "name": "Fulfillment",
+      "filePath": "modules/order_fulfillment/entities/fulfillment.entity.ts",
+      "module": "order_fulfillment",
+      "schema": "system",
+      "tableName": "fulfillments",
+      "columns": [
+        "fulfillmentId",
+        "tenantId",
+        "orderId",
+        "status",
+        "carrier",
+        "trackingNumber",
+        "trackingUrl",
+        "shippingMethodId",
+        "notes",
+        "metadata",
+        "packedAt",
+        "shippedAt",
+        "deliveredAt",
+        "cancelledAt",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "FulfillmentEvent",
+      "filePath": "modules/order_fulfillment/entities/fulfillment_event.entity.ts",
+      "module": "order_fulfillment",
+      "schema": "system",
+      "tableName": "fulfillment_events",
+      "columns": [
+        "fulfillmentEventId",
+        "tenantId",
+        "fulfillmentId",
+        "status",
+        "message",
+        "metadata",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "FulfillmentItem",
+      "filePath": "modules/order_fulfillment/entities/fulfillment_item.entity.ts",
+      "module": "order_fulfillment",
+      "schema": "system",
+      "tableName": "fulfillment_items",
+      "columns": [
+        "fulfillmentItemId",
+        "tenantId",
+        "fulfillmentId",
+        "orderItemId",
+        "productId",
+        "variantId",
+        "sku",
+        "name",
+        "quantity",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "Invoice",
       "filePath": "modules/invoice/entities/invoice.entity.ts",
       "module": "invoice",
@@ -246,6 +357,68 @@
         "sourceType",
         "sourceId",
         "metadata",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "LoyaltyAccount",
+      "filePath": "modules/payment_loyalty_points/entities/loyalty_account.entity.ts",
+      "module": "payment_loyalty_points",
+      "schema": "system",
+      "tableName": "loyalty_accounts",
+      "columns": [
+        "loyaltyAccountId",
+        "tenantId",
+        "userId",
+        "balance",
+        "lifetimePoints",
+        "tier",
+        "metadata",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "LoyaltyTier",
+      "filePath": "modules/payment_loyalty_points/entities/loyalty_tier.entity.ts",
+      "module": "payment_loyalty_points",
+      "schema": "system",
+      "tableName": "loyalty_tiers",
+      "columns": [
+        "loyaltyTierId",
+        "tenantId",
+        "name",
+        "code",
+        "minPoints",
+        "multiplier",
+        "benefits",
+        "sortOrder",
+        "isActive",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "LoyaltyTransaction",
+      "filePath": "modules/payment_loyalty_points/entities/loyalty_transaction.entity.ts",
+      "module": "payment_loyalty_points",
+      "schema": "system",
+      "tableName": "loyalty_transactions",
+      "columns": [
+        "loyaltyTransactionId",
+        "tenantId",
+        "accountId",
+        "userId",
+        "type",
+        "points",
+        "reason",
+        "referenceType",
+        "referenceId",
+        "balanceAfter",
+        "expiresAt",
         "createdAt"
       ],
       "relations": []
@@ -475,6 +648,48 @@
       "relations": []
     },
     {
+      "name": "ProductReview",
+      "filePath": "modules/product_review/entities/product_review.entity.ts",
+      "module": "product_review",
+      "schema": "system",
+      "tableName": "product_reviews",
+      "columns": [
+        "productReviewId",
+        "tenantId",
+        "productId",
+        "userId",
+        "authorName",
+        "rating",
+        "title",
+        "body",
+        "status",
+        "isVerifiedPurchase",
+        "helpfulCount",
+        "orderId",
+        "metadata",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "ProductReviewVote",
+      "filePath": "modules/product_review/entities/product_review_vote.entity.ts",
+      "module": "product_review",
+      "schema": "system",
+      "tableName": "product_review_votes",
+      "columns": [
+        "voteId",
+        "tenantId",
+        "reviewId",
+        "userId",
+        "isHelpful",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "PushSubscription",
       "filePath": "modules/notification_push/entities/push_subscription.entity.ts",
       "module": "notification_push",
@@ -489,6 +704,76 @@
         "auth",
         "createdAt",
         "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "ReturnEvent",
+      "filePath": "modules/payment_return_rma/entities/return_event.entity.ts",
+      "module": "payment_return_rma",
+      "schema": "system",
+      "tableName": "return_events",
+      "columns": [
+        "returnEventId",
+        "tenantId",
+        "returnRequestId",
+        "status",
+        "message",
+        "metadata",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "ReturnItem",
+      "filePath": "modules/payment_return_rma/entities/return_item.entity.ts",
+      "module": "payment_return_rma",
+      "schema": "system",
+      "tableName": "return_items",
+      "columns": [
+        "returnItemId",
+        "tenantId",
+        "returnRequestId",
+        "orderItemId",
+        "productId",
+        "variantId",
+        "sku",
+        "name",
+        "quantity",
+        "reason",
+        "condition",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "ReturnRequest",
+      "filePath": "modules/payment_return_rma/entities/return_request.entity.ts",
+      "module": "payment_return_rma",
+      "schema": "system",
+      "tableName": "return_requests",
+      "columns": [
+        "returnRequestId",
+        "tenantId",
+        "orderId",
+        "paymentId",
+        "userId",
+        "rmaNumber",
+        "type",
+        "status",
+        "reason",
+        "customerNote",
+        "adminNote",
+        "refundAmount",
+        "currency",
+        "metadata",
+        "approvedAt",
+        "receivedAt",
+        "refundedAt",
+        "cancelledAt",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
       ],
       "relations": []
     },
@@ -558,6 +843,57 @@
         "value",
         "group",
         "type",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "ShippingMethod",
+      "filePath": "modules/payment_shipping/entities/shipping_method.entity.ts",
+      "module": "payment_shipping",
+      "schema": "system",
+      "tableName": "shipping_methods",
+      "columns": [
+        "shippingMethodId",
+        "tenantId",
+        "name",
+        "code",
+        "carrier",
+        "description",
+        "isActive",
+        "sortOrder",
+        "metadata",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "ShippingRate",
+      "filePath": "modules/payment_shipping/entities/shipping_rate.entity.ts",
+      "module": "payment_shipping",
+      "schema": "system",
+      "tableName": "shipping_rates",
+      "columns": [
+        "shippingRateId",
+        "tenantId",
+        "shippingMethodId",
+        "name",
+        "countryCode",
+        "region",
+        "minWeight",
+        "maxWeight",
+        "minSubtotal",
+        "maxSubtotal",
+        "price",
+        "currency",
+        "freeThreshold",
+        "estimatedDaysMin",
+        "estimatedDaysMax",
+        "isActive",
+        "sortOrder",
         "createdAt",
         "updatedAt"
       ],
@@ -914,6 +1250,49 @@
         "interval",
         "trialDays",
         "status",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "TaxClass",
+      "filePath": "modules/payment_tax/entities/tax_class.entity.ts",
+      "module": "payment_tax",
+      "schema": "system",
+      "tableName": "tax_classes",
+      "columns": [
+        "taxClassId",
+        "tenantId",
+        "name",
+        "code",
+        "description",
+        "isDefault",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "TaxRate",
+      "filePath": "modules/payment_tax/entities/tax_rate.entity.ts",
+      "module": "payment_tax",
+      "schema": "system",
+      "tableName": "tax_rates",
+      "columns": [
+        "taxRateId",
+        "tenantId",
+        "taxClassId",
+        "name",
+        "countryCode",
+        "region",
+        "postalCodePattern",
+        "rate",
+        "isCompound",
+        "includedInPrice",
+        "priority",
+        "isActive",
         "createdAt",
         "updatedAt"
       ],
@@ -1277,6 +1656,43 @@
         "nextRetryAt",
         "createdAt",
         "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "Wishlist",
+      "filePath": "modules/payment_wishlist/entities/wishlist.entity.ts",
+      "module": "payment_wishlist",
+      "schema": "system",
+      "tableName": "wishlists",
+      "columns": [
+        "wishlistId",
+        "tenantId",
+        "userId",
+        "name",
+        "isPublic",
+        "shareToken",
+        "metadata",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "WishlistItem",
+      "filePath": "modules/payment_wishlist/entities/wishlist_item.entity.ts",
+      "module": "payment_wishlist",
+      "schema": "system",
+      "tableName": "wishlist_items",
+      "columns": [
+        "wishlistItemId",
+        "tenantId",
+        "wishlistId",
+        "productId",
+        "variantId",
+        "note",
+        "createdAt"
       ],
       "relations": []
     }

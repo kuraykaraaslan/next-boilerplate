@@ -307,7 +307,7 @@
       "core"
     ],
     "hasNextLayer": true,
-    "routeCount": 4,
+    "routeCount": 5,
     "entityCount": 1,
     "componentCount": 3,
     "file": "tenant.md"
@@ -474,6 +474,34 @@
     "componentCount": 0,
     "file": "payment_subscription.md"
   },
+  "payment_cart": {
+    "name": "Payment Cart",
+    "tier": "other",
+    "tags": [
+      "payment",
+      "cart",
+      "ecommerce"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 2,
+    "componentCount": 0,
+    "file": "payment_cart.md"
+  },
+  "payment_shipping": {
+    "name": "Payment Shipping",
+    "tier": "other",
+    "tags": [
+      "payment",
+      "shipping",
+      "ecommerce"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 2,
+    "componentCount": 0,
+    "file": "payment_shipping.md"
+  },
   "invoice": {
     "name": "Invoice",
     "tier": "other",
@@ -553,6 +581,65 @@
     "entityCount": 1,
     "componentCount": 0,
     "file": "notification_log.md"
+  },
+  "payment_tax": {
+    "name": "Payment Tax",
+    "tier": "other",
+    "tags": [
+      "payment",
+      "tax",
+      "vat",
+      "compliance"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 2,
+    "componentCount": 0,
+    "file": "payment_tax.md"
+  },
+  "payment_wishlist": {
+    "name": "Payment Wishlist",
+    "tier": "other",
+    "tags": [
+      "wishlist",
+      "ecommerce",
+      "favorites"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 2,
+    "componentCount": 0,
+    "file": "payment_wishlist.md"
+  },
+  "payment_return_rma": {
+    "name": "Payment Return / RMA",
+    "tier": "other",
+    "tags": [
+      "return",
+      "rma",
+      "refund",
+      "ecommerce"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 3,
+    "componentCount": 0,
+    "file": "payment_return_rma.md"
+  },
+  "payment_loyalty_points": {
+    "name": "Payment Loyalty Points",
+    "tier": "other",
+    "tags": [
+      "loyalty",
+      "points",
+      "rewards",
+      "ecommerce"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 3,
+    "componentCount": 0,
+    "file": "payment_loyalty_points.md"
   },
   "e_signature": {
     "name": "E-Signature & E-Identity",
@@ -650,6 +737,36 @@
     "entityCount": 2,
     "componentCount": 0,
     "file": "webhook.md"
+  },
+  "order_fulfillment": {
+    "name": "Order Fulfillment",
+    "tier": "other",
+    "tags": [
+      "order",
+      "fulfillment",
+      "shipping",
+      "ecommerce"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 3,
+    "componentCount": 0,
+    "file": "order_fulfillment.md"
+  },
+  "product_review": {
+    "name": "Product Review",
+    "tier": "other",
+    "tags": [
+      "review",
+      "rating",
+      "ecommerce",
+      "moderation"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 2,
+    "componentCount": 0,
+    "file": "product_review.md"
   },
   "ai": {
     "name": "AI",

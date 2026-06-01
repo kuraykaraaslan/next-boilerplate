@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-05-26T21:49:04.137Z",
+  "generatedAt": "2026-06-01T08:06:40.312Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -1259,7 +1259,7 @@
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": true,
-      "readme": "# tenant_subscription module\n\nManages subscription plans, plan features, and feature enforcement for tenants.\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `tenant_subscription.service.ts` | Core logic: plan CRUD, subscription lifecycle, feature gating |\n| `tenant_subscription.feature-keys.ts` | Canonical feature key constants (`FEATURE_KEYS`) |\n| `tenant_subscription.types.ts` | Zod schemas + TypeScript types |\n| `tenant_subscription.dto.ts` | Zod DTOs for API input validation |\n| `tenant_subscription.enums.ts` | Enums: `SubscriptionStatus`, `BillingInterval`, `PlanFeatureType` |\n| `tenant_subscription.messages.ts` | Error/success message strings |\n| `ui/subscription.plan-card.tsx` | Plan selection card |\n| `ui/subscription.usage-meter.tsx` | Progress bar for LIMIT feature usage |\n| `ui/subscription.upgrade-prompt.tsx` | Upgrade CTA shown when access is denied |\n| `ui/subscription.feature-gate.tsx` | Wrapper that blocks UI based on feature access |\n| `hooks/use-feature-access.ts` | Client-side hook: fetches feature access via axios |\n\n---\n\n## Feature Types\n\n| Type | DB value | Meaning |\n|---|---|---|\n| `BOOLEAN` | `\"true\"` / `\"false\"` | Feature on/off switch |\n| `LIMIT` | `\"5\"`, `\"100\"`, `\"-1\"` | Max count; `-1` = unlimited |\n\n---\n\n## Feature Keys\n\nAll keys are defined in `tenant_subscription.feature-keys.ts`. Always import from there — never hard-code strings.\n\n```typescript\nimport { FEATURE_KEYS } from '@/modules/tenant_subscription/tenant_subscription.feature-keys';\n```\n\n| Constant | Key | Type |\n|---|---|---|\n| `FEATURE_KEYS.MAX_MEMBERS` | `max_members` | LIMIT |\n| `FEATURE_KEYS.MAX_INVITATIONS` | `max_invitations` | LIMIT |\n| `FEATURE_KEYS.STORAGE_GB` | `storage_gb` | LIMIT |\n| `FEATURE_KEYS.MAX_DOMAINS` | `max_domains` | LIMIT |\n| `FEATURE_KEYS.MAX_AI_REQUESTS` | `max_ai_requests` | LIMIT |\n| `FEATURE_KEYS.CUSTOM_DOMAIN` | `custom_domain` | BOOLEAN |\n| `FEATURE_KEYS.API_ACCESS` | `api_access` | BOOLEAN |\n| `FEATURE_KEYS.SSO_LOGIN` | `sso_login` | BOOLEAN |\n| `FEATURE_KEYS.AUDIT_LOGS` | `audit_logs` | BOOLEAN |\n| `FEATURE_KEYS.AI_FEATURES` | `ai_features` | BOOLEAN |\n| `FEATURE_KEYS.ADVANCED_ANALYTICS` | `advanced_analytics` | BOOLEAN |\n| `FEATURE_KEYS.PRIORITY_SUPPORT` | `priority_support` | BOOLEAN |\n\nTo add a new feature key: add it to `FEATURE_KEYS` in `tenant_subscription.feature-keys.ts`, then create the matching `PlanFeature` row in the plan admin UI or seed script.\n\n---\n\n## Enforcing a Feature in an API Route\n\nUse `assertFeatureAccess` — it throws with a user-facing message when denied.\n\n### BOOLEAN feature (on/off)\n\n```typescript\n// app/tenant/[tenantId]/api/ai/route.ts\nimport TenantSubscriptionService from '@/modules/tenant_subscription/tenant_subscription.service';\nimport { FEATURE_KEYS } from '@/modules/tenant_subscription/tenant_subscription.feature-keys';\n\nawait TenantSubscriptionService.assertFeatureAccess(tenantId, FEATURE_KEYS.AI_FEATURES);\n```\n\n### LIMIT feature (count-based)\n\nGet the current count first, then assert. The service compares `currentCount < limit`.\n\n```typescript\n// app/tenant/[tenantId]/api/members/route.ts\nconst { total: currentMemberCount } = await TenantMemberService.getByTenantId({\n  tenantId, page: 1, pageSize: 1, search: null, memberRole: null, memberStatus: 'ACTIVE',\n});\n\nawait TenantSubscriptionService.assertFeatureAccess(\n  tenantId,\n  FEATURE_KEYS.MAX_MEMBERS,\n  currentMemberCount,\n);\n```\n\n### With grace period\n\nPass `gracePercent` to allow a soft overflow (e.g., 10% over limit before hard block):\n\n```typescript\nawait TenantSubscriptionService.assertFeatureAccess(\n  tenantId,\n  FEATURE_KEYS.MAX_MEMBERS,\n  currentMemberCount,\n  { gracePercent: 10 },\n);\n```\n\n### Non-throwing check (read result without throwing)\n\nUse `checkFeatureAccess` when you need the result object (e.g., to show a UI meter):\n\n```typescript\nconst result = await TenantSubscriptionService.checkFeatureAccess(\n  tenantId,\n  FEATURE_KEYS.MAX_MEMBERS,\n  currentMemberCount,\n);\n// result.allowed, result.type, result.limit, result.current, result.inGrace\n```\n\n---\n\n## Feature Check API Endpoint\n\n```\nGET /tenant/[tenantId]/api/subscription/features?key=max_members&count=5\n```\n\nRequires `tenant:read` scope. Returns `{ success: true, result: FeatureAccessResult }`.\n\n`count` is optional — omit it when checking a BOOLEAN feature or when current usage is unknown.\n\n---\n\n## UI Components\n\n### FeatureGate — block UI when access is denied\n\nPass a pre-fetched `FeatureAccessResult`. If `result.allowed` is false, shows `UpgradePrompt` by default.\n\n```tsx\n// Server component — fetch on the server, pass result as prop\nimport TenantSubscriptionService from '@/modules/tenant_subscription/tenant_subscription.service';\nimport { FeatureGate } from '@/modules/tenant_subscription/ui/subscription.feature-gate';\nimport { FEATURE_KEYS } from '@/modules/tenant_subscription/tenant_subscription.feature-keys';\n\nconst result = await TenantSubscriptionService.checkFeatureAccess(tenantId, FEATURE_KEYS.CUSTOM_DOMAIN);\n\n<FeatureGate result={result} tenantId={tenantId}>\n  <CustomDomainSettings />\n</FeatureGate>\n```\n\nCustom fallback:\n\n```tsx\n<FeatureGate result={result} tenantId={tenantId} fallback={<p>Not available on your plan.</p>}>\n  <AdvancedAnalytics />\n</FeatureGate>\n```\n\nSilent mode (renders nothing when denied):\n\n```tsx\n<FeatureGate result={result} tenantId={tenantId} silent>\n  <PremiumBadge />\n</FeatureGate>\n```\n\n### PlanUsageMeter — show current / limit bar\n\nOnly for `LIMIT` features. Color: green < 80%, yellow 80–99%, red ≥ 100%.\n\n```tsx\nimport { PlanUsageMeter } from '@/modules/tenant_subscription/ui/subscription.usage-meter';\n\n// result must be FeatureAccessResult with type === 'LIMIT'\n<PlanUsageMeter result={result} label=\"Team Members\" />\n```\n\n### UpgradePrompt — standalone upgrade CTA\n\n```tsx\nimport { UpgradePrompt } from '@/modules/tenant_subscription/ui/subscription.upgrade-prompt';\n\n// Full card\n<UpgradePrompt result={result} tenantId={tenantId} />\n\n// Inline compact version\n<UpgradePrompt result={result} tenantId={tenantId} compact />\n\n// Custom text\n<UpgradePrompt\n  result={result}\n  tenantId={tenantId}\n  title=\"Storage limit reached\"\n  description=\"Upgrade to Pro for 100 GB of storage.\"\n/>\n```\n\n### useFeatureAccess — client-side hook\n\nUses `axiosInstance` + `useState/useEffect`. No React Query.\n\n```tsx\n'use client';\nimport { useFeatureAccess } from '@/modules/tenant_subscription/hooks/use-feature-access';\nimport { PlanUsageMeter } from '@/modules/tenant_subscription/ui/subscription.usage-meter';\nimport { FEATURE_KEYS } from '@/modules/tenant_subscription/tenant_subscription.feature-keys';\n\nfunction MembersSection({ tenantId, memberCount }: { tenantId: string; memberCount: number }) {\n  const { result, loading } = useFeatureAccess(tenantId, FEATURE_KEYS.MAX_MEMBERS, memberCount);\n\n  if (loading || !result || result.type !== 'LIMIT') return null;\n\n  return <PlanUsageMeter result={result} label=\"Team Members\" />;\n}\n```\n\n---\n\n## Caching\n\nFeature access results are cached in Redis with a 5-minute TTL per tenant:\n\n```\nfeature:sub:{tenantId}\n```\n\nThe cache is invalidated automatically when:\n- A subscription is assigned (`assignPlan`)\n- A subscription is cancelled (`cancelSubscription`)\n\nTo manually invalidate (e.g., after plan feature edits):\n\n```typescript\nawait TenantSubscriptionService.invalidateFeatureCache(tenantId);\n```\n"
+      "readme": "# tenant_subscription module\n\nManages subscription plans, plan features, and feature enforcement for tenants.\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `tenant_subscription.service.ts` | Core logic: plan CRUD, subscription lifecycle, feature gating |\n| `tenant_subscription.feature-keys.ts` | Canonical feature key constants (`FEATURE_KEYS`) |\n| `tenant_subscription.types.ts` | Zod schemas + TypeScript types |\n| `tenant_subscription.dto.ts` | Zod DTOs for API input validation |\n| `tenant_subscription.enums.ts` | Enums: `SubscriptionStatus`, `BillingInterval`, `PlanFeatureType` |\n| `tenant_subscription.messages.ts` | Error/success message strings |\n| `ui/subscription.plan-card.tsx` | Plan selection card |\n| `ui/subscription.usage-meter.tsx` | Progress bar for LIMIT feature usage |\n| `ui/subscription.upgrade-prompt.tsx` | Upgrade CTA shown when access is denied |\n| `ui/subscription.feature-gate.tsx` | Wrapper that blocks UI based on feature access |\n| `hooks/use-feature-access.ts` | Client-side hook: fetches feature access via axios |\n\n---\n\n## Feature Types\n\n| Type | DB value | Meaning |\n|---|---|---|\n| `BOOLEAN` | `\"true\"` / `\"false\"` | Feature on/off switch |\n| `LIMIT` | `\"5\"`, `\"100\"`, `\"-1\"` | Max count; `-1` = unlimited |\n\n---\n\n## Feature Keys\n\nAll keys are defined in `tenant_subscription.feature-keys.ts`. Always import from there — never hard-code strings.\n\n```typescript\nimport { FEATURE_KEYS } from '@/modules/tenant_subscription/tenant_subscription.feature-keys';\n```\n\n| Constant | Key | Type |\n|---|---|---|\n| `FEATURE_KEYS.MAX_MEMBERS` | `max_members` | LIMIT |\n| `FEATURE_KEYS.MAX_INVITATIONS` | `max_invitations` | LIMIT |\n| `FEATURE_KEYS.STORAGE_GB` | `storage_gb` | LIMIT |\n| `FEATURE_KEYS.MAX_DOMAINS` | `max_domains` | LIMIT |\n| `FEATURE_KEYS.MAX_AI_REQUESTS` | `max_ai_requests` | LIMIT |\n| `FEATURE_KEYS.CUSTOM_DOMAIN` | `custom_domain` | BOOLEAN |\n| `FEATURE_KEYS.API_ACCESS` | `api_access` | BOOLEAN |\n| `FEATURE_KEYS.SSO_LOGIN` | `sso_login` | BOOLEAN |\n| `FEATURE_KEYS.AUDIT_LOGS` | `audit_logs` | BOOLEAN |\n| `FEATURE_KEYS.AI_FEATURES` | `ai_features` | BOOLEAN |\n| `FEATURE_KEYS.ADVANCED_ANALYTICS` | `advanced_analytics` | BOOLEAN |\n| `FEATURE_KEYS.PRIORITY_SUPPORT` | `priority_support` | BOOLEAN |\n\nTo add a new feature key: add it to `FEATURE_KEYS` in `tenant_subscription.feature-keys.ts`, then create the matching `PlanFeature` row in the plan admin UI or seed script.\n\n---\n\n## Enforcing a Feature in an API Route\n\nUse `assertFeatureAccess` — it throws with a user-facing message when denied.\n\n### BOOLEAN feature (on/off)\n\n```typescript\n// app/tenant/[tenantId]/api/ai/route.ts\nimport TenantSubscriptionService from '@/modules/tenant_subscription/tenant_subscription.service';\nimport { FEATURE_KEYS } from '@/modules/tenant_subscription/tenant_subscription.feature-keys';\n\nawait TenantSubscriptionService.assertFeatureAccess(tenantId, FEATURE_KEYS.AI_FEATURES);\n```\n\n### LIMIT feature (count-based)\n\nGet the current count first, then assert. The service compares `currentCount < limit`.\n\n```typescript\n// app/tenant/[tenantId]/api/members/route.ts\nconst { total: currentMemberCount } = await TenantMemberService.getByTenantId({\n  tenantId, page: 1, pageSize: 1, search: null, memberRole: null, memberStatus: 'ACTIVE',\n});\n\nawait TenantSubscriptionService.assertFeatureAccess(\n  tenantId,\n  FEATURE_KEYS.MAX_MEMBERS,\n  currentMemberCount,\n);\n```\n\n### With grace period\n\nPass `gracePercent` to allow a soft overflow (e.g., 10% over limit before hard block):\n\n```typescript\nawait TenantSubscriptionService.assertFeatureAccess(\n  tenantId,\n  FEATURE_KEYS.MAX_MEMBERS,\n  currentMemberCount,\n  { gracePercent: 10 },\n);\n```\n\n### Non-throwing check (read result without throwing)\n\nUse `checkFeatureAccess` when you need the result object (e.g., to show a UI meter):\n\n```typescript\nconst result = await TenantSubscriptionService.checkFeatureAccess(\n  tenantId,\n  FEATURE_KEYS.MAX_MEMBERS,\n  currentMemberCount,\n);\n// result.allowed, result.type, result.limit, result.current, result.inGrace\n```\n\n---\n\n## Feature Check API Endpoint\n\n```\nGET /tenant/[tenantId]/api/subscription/features?key=max_members&count=5\n```\n\nRequires `tenant:read` scope. Returns `{ success: true, result: FeatureAccessResult }`.\n\n`count` is optional — omit it when checking a BOOLEAN feature or when current usage is unknown.\n\n---\n\n## UI Components\n\n### FeatureGate — block UI when access is denied\n\nPass a pre-fetched `FeatureAccessResult`. If `result.allowed` is false, shows `UpgradePrompt` by default.\n\n```tsx\n// Server component — fetch on the server, pass result as prop\nimport TenantSubscriptionService from '@/modules/tenant_subscription/tenant_subscription.service';\nimport { FeatureGate } from '@/modules/tenant_subscription/ui/subscription.feature-gate';\nimport { FEATURE_KEYS } from '@/modules/tenant_subscription/tenant_subscription.feature-keys';\n\nconst result = await TenantSubscriptionService.checkFeatureAccess(tenantId, FEATURE_KEYS.CUSTOM_DOMAIN);\n\n<FeatureGate result={result} tenantId={tenantId}>\n  <CustomDomainSettings />\n</FeatureGate>\n```\n\nCustom fallback:\n\n```tsx\n<FeatureGate result={result} tenantId={tenantId} fallback={<p>Not available on your plan.</p>}>\n  <AdvancedAnalytics />\n</FeatureGate>\n```\n\nSilent mode (renders nothing when denied):\n\n```tsx\n<FeatureGate result={result} tenantId={tenantId} silent>\n  <PremiumBadge />\n</FeatureGate>\n```\n\n### PlanUsageMeter — show current / limit bar\n\nOnly for `LIMIT` features. Color: green < 80%, yellow 80–99%, red ≥ 100%.\n\n```tsx\nimport { PlanUsageMeter } from '@/modules/tenant_subscription/ui/subscription.usage-meter';\n\n// result must be FeatureAccessResult with type === 'LIMIT'\n<PlanUsageMeter result={result} label=\"Team Members\" />\n```\n\n### UpgradePrompt — standalone upgrade CTA\n\n```tsx\nimport { UpgradePrompt } from '@/modules/tenant_subscription/ui/subscription.upgrade-prompt';\n\n// Full card\n<UpgradePrompt result={result} tenantId={tenantId} />\n\n// Inline compact version\n<UpgradePrompt result={result} tenantId={tenantId} compact />\n\n// Custom text\n<UpgradePrompt\n  result={result}\n  tenantId={tenantId}\n  title=\"Storage limit reached\"\n  description=\"Upgrade to Pro for 100 GB of storage.\"\n/>\n```\n\n### useFeatureAccess — client-side hook\n\nUses `axiosInstance` + `useState/useEffect`. No React Query.\n\n```tsx\n'use client';\nimport { useFeatureAccess } from '@/modules/tenant_subscription/hooks/use-feature-access';\nimport { PlanUsageMeter } from '@/modules/tenant_subscription/ui/subscription.usage-meter';\nimport { FEATURE_KEYS } from '@/modules/tenant_subscription/tenant_subscription.feature-keys';\n\nfunction MembersSection({ tenantId, memberCount }: { tenantId: string; memberCount: number }) {\n  const { result, loading } = useFeatureAccess(tenantId, FEATURE_KEYS.MAX_MEMBERS, memberCount);\n\n  if (loading || !result || result.type !== 'LIMIT') return null;\n\n  return <PlanUsageMeter result={result} label=\"Team Members\" />;\n}\n```\n\n---\n\n## Root-admin: assign a platform plan for free\n\nRoot (Platform) tenant admins can grant any other tenant a plan **without payment**\nfrom the sysadmin tenant-detail page (`/tenant/<ROOT>/admin/tenants/<target>`).\n\n```typescript\nawait TenantSubscriptionService.assignPlatformPlan(targetTenantId, {\n  planId,            // a plan in the ROOT tenant's catalogue\n  billingInterval,   // optional; defaults to the source plan's interval\n  priceOverride,     // optional; omit = copy source price, 0 = free-forever\n});\n```\n\nBecause plans are tenant-scoped, this clones the source plan's\ncategory → product → plan → features chain into the target tenant (idempotently,\nkeyed by `sku = platform-plan:<sourcePlanId>`) and then calls `assignPlan`, which\nbypasses payment. Exposed via `GET`/`POST /tenant/[tenantId]/api/tenants/[targetTenantId]/subscription`\n(guarded by `authenticateAdminRequest` — root-tenant ADMIN only). Each assignment\nis recorded in the audit log as `subscription.platform_plan.assigned`.\n\n## Caching\n\nFeature access results are cached in Redis with a 5-minute TTL per tenant:\n\n```\nfeature:sub:{tenantId}\n```\n\nThe cache is invalidated automatically when:\n- A subscription is assigned (`assignPlan`)\n- A subscription is cancelled (`cancelSubscription`)\n\nTo manually invalidate (e.g., after plan feature edits):\n\n```typescript\nawait TenantSubscriptionService.invalidateFeatureCache(tenantId);\n```\n"
     },
     {
       "id": "tenant_usage",
@@ -1545,6 +1545,103 @@
       "readme": "# payment_subscription\n\nTenant-scoped subscription billing: plans, features, and Subscription state.\n\n## Plans wrap products\n\nA **Plan** is a billing-recurrence binding around a `StoreProduct`. The product owns presentation **and price** (name, slug, description, `basePrice`, currency, imagery, SEO). The plan owns recurrence (`interval`, trial, status).\n\nTo offer the same product at multiple cadences (e.g. \"Pro Monthly\" vs \"Pro Yearly\"), create **multiple plans** that point to the same product. The interval is part of each plan's identity.\n\n```\nStoreProduct (modules/store)\n   ▲\n   │ productId FK\n   │\nSubscriptionPlan          ← name, description, currency come from the product\n   ▲\n   │ planId FK\n   │\nSubscription              ← per-tenant or per-user billing state\n```\n\nThis means coupons, invoices, the storefront cart, and the admin product catalog all operate over a single notion of \"what is being sold\". One-time products and recurring plans are both reachable from the same product record.\n\n## Entities\n\n- `SubscriptionPlan` — `planId`, `tenantId`, `productId`, `interval` (DAILY | WEEKLY | MONTHLY | QUARTERLY | YEARLY), `trialDays`, `status`, timestamps. Price comes from `product.basePrice`.\n- `PlanFeature` — capability rows attached to a plan (`key`, `label`, `type=BOOLEAN|LIMIT`, `value`).\n- `Subscription` — provider state (status, `billingCycle` snapshot of plan's interval, current period, trial, cancellation, metadata).\n\n## Admin UI\n\n- `/tenant/<id>/admin/plans` — list of plans (joined product columns for name/price/currency). \"New Plan\" modal picks an existing product via search, then sets monthly/yearly/trial.\n- `/tenant/<id>/admin/plans/<planId>` — detail page: \"Wrapped Product\" card with link to product editor, \"Pricing & Status\" card for plan-specific fields, \"Features\" table for capability flags, \"Change product\" modal to rebind.\n\nThe product picker reuses the same search-as-you-type pattern as the Store variant-link picker.\n\n## Service shape\n\n```ts\nPaymentSubscriptionService.createPlan(tenantId, { productId, interval, trialDays?, status? }) → PlanWithProduct\nPaymentSubscriptionService.updatePlan(tenantId, planId, partial) → PlanWithProduct\nPaymentSubscriptionService.getPlan(tenantId, planId, withFeatures?) → PlanWithProduct | PlanWithFeatures\nPaymentSubscriptionService.listPlans(tenantId, { page, pageSize, status?, includeFeatures? }) → { data, total }\n```\n\n`PlanWithProduct` always embeds the product summary so admin tables don't need a second roundtrip. `PlanWithFeatures` extends it with the feature list.\n\n## Price & currency derivation\n\nBoth **amount** and **currency** flow from the wrapped product (`product.basePrice`, `product.currency`). On `createSubscription` you can override the currency explicitly; otherwise it follows the product. `billingCycle` on a Subscription is a snapshot of the plan's `interval` taken at subscribe time (so changing the plan later doesn't rewrite history).\n\n## Migration notes\n\nThe legacy `modules/payment/entities/subscription_plan.entity.ts` and `modules/payment_subscription/entities/subscription_plan.entity.ts` both target the same `subscription_plans` table. Both have been updated to the same shape so either registration works.\n\nSchema changes:\n\n```sql\n-- drop legacy plan-owned display fields and per-cadence prices\nALTER TABLE subscription_plans DROP COLUMN IF EXISTS \"name\";\nALTER TABLE subscription_plans DROP COLUMN IF EXISTS \"description\";\nALTER TABLE subscription_plans DROP COLUMN IF EXISTS \"currency\";\nALTER TABLE subscription_plans DROP COLUMN IF EXISTS \"sortOrder\";\nALTER TABLE subscription_plans DROP COLUMN IF EXISTS \"monthlyPrice\";\nALTER TABLE subscription_plans DROP COLUMN IF EXISTS \"yearlyPrice\";\nALTER TABLE subscription_plans DROP COLUMN IF EXISTS \"isDefault\";\n\n-- add the product binding and the recurrence interval\nALTER TABLE subscription_plans ADD COLUMN \"productId\" uuid;\nALTER TABLE subscription_plans ADD COLUMN \"interval\"  varchar DEFAULT 'MONTHLY';\n-- backfill: for each existing plan, create or pick a StoreProduct (basePrice=monthlyPrice)\n-- and set productId. For plans that had both monthly+yearly amounts, split into TWO plans.\nALTER TABLE subscription_plans ALTER COLUMN \"productId\" SET NOT NULL;\nALTER TABLE subscription_plans ALTER COLUMN \"interval\"  SET NOT NULL;\n```\n\nIn dev (TypeORM `synchronize`) the columns drop/add automatically. In prod, backfill before tightening the constraints.\n\n**Tenant seed:** `TenantService.seedDefaults` previously auto-created a \"Free\" plan for every new tenant. That seed is currently disabled — a plan now requires both a `Category` and a `StoreProduct`, and the catalog is tenant-specific. Operators create the Free plan via the admin UI once their catalog is in place.\n\n## Dependencies\n\n`db`, `env`, `redis`, `logger`, `store` (entity import for product join).\n"
     },
     {
+      "id": "payment_cart",
+      "name": "Payment Cart",
+      "version": "1.0.0",
+      "description": "Tenant-aware shopping cart for users and anonymous guests. Manages cart items, quantities, coupon codes, totals, guest-to-user merge, and conversion to checkout.",
+      "dir": "modules/payment_cart",
+      "icon": "fas fa-cart-shopping",
+      "tags": [
+        "payment",
+        "cart",
+        "ecommerce"
+      ],
+      "priority": 28,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "logger",
+          "coupon"
+        ]
+      },
+      "exports": {
+        "services": [
+          "payment_cart.service.ts"
+        ],
+        "dtos": [
+          "payment_cart.dto.ts"
+        ],
+        "enums": [
+          "payment_cart.enums.ts"
+        ],
+        "messageKeys": [
+          "payment_cart.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "cart.entity.ts",
+          "cart_item.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": "# payment_cart\n\nTenant-aware shopping cart for both authenticated users and anonymous guests. Holds line items, quantities, an optional coupon code, and derived totals until the cart is converted to a checkout.\n\n## Purpose\n\nA cart is a short-lived, mutable basket scoped to a tenant. It can be owned by a `userId` (logged-in shopper) or a `guestToken` (anonymous session). When a guest signs in, their cart can be merged into the user's active cart. On checkout the cart is marked `CONVERTED` so it stops being reused.\n\nMoney lives on the **items** (`unitPrice` × `quantity`); the cart's `subtotal` / `discountTotal` are recomputed and persisted after every mutation, and the live `total` / `itemCount` are computed on read.\n\n```\nCart (carts)                 ← owner = userId OR guestToken, status, currency, coupon, subtotal/discountTotal\n   ▲\n   │ cartId FK\n   │\nCartItem (cart_items)        ← productId/variantId/sku, name, unitPrice, quantity\n```\n\n## Entities\n\n- `Cart` — `cartId`, `tenantId`, `userId?`, `guestToken?`, `status` (ACTIVE | CONVERTED | ABANDONED | MERGED), `currency` (3-letter, default `USD`), `couponCode?`, `subtotal?`, `discountTotal?`, `metadata?`, `expiresAt?`, timestamps + soft delete.\n- `CartItem` — `cartItemId`, `tenantId`, `cartId`, `productId?`, `variantId?`, `sku?`, `name`, `unitPrice` (decimal 12,2), `quantity` (int, default 1), `metadata?`, timestamps.\n\n## Public service methods\n\nAll methods are static on `PaymentCartService` and take `tenantId` as the first argument.\n\n| Method | Returns | Description |\n| --- | --- | --- |\n| `getOrCreateCart(tenantId, dto)` | `CartWithItems` | Find the ACTIVE cart for a `userId` or `guestToken`, else create one. |\n| `getById(tenantId, cartId)` | `CartWithItems` | Load a cart with items and computed totals (single-flight cached). |\n| `addItem(tenantId, cartId, dto)` | `CartWithItems` | Add a line; same `productId`+`variantId` increments quantity. |\n| `updateItemQuantity(tenantId, cartId, cartItemId, quantity)` | `CartWithItems` | Set quantity; `<= 0` removes the item. |\n| `removeItem(tenantId, cartId, cartItemId)` | `CartWithItems` | Remove a single line item. |\n| `clear(tenantId, cartId)` | `CartWithItems` | Delete all items in the cart. |\n| `applyCoupon(tenantId, cartId, dto)` | `CartWithItems` | Store a coupon code (validation is a TODO — see below). |\n| `mergeGuestIntoUser(tenantId, guestToken, userId)` | `CartWithItems` | Move guest items into the user's ACTIVE cart and mark the guest cart `MERGED`. |\n| `markConverted(tenantId, cartId)` | `void` | Flag the cart `CONVERTED` after a successful checkout. |\n| `list(tenantId, query)` | `{ data: SafeCart[]; total }` | Paginated cart listing, filterable by `userId` / `status`. |\n\n## Coupons\n\n`applyCoupon` is integrated with the **`coupon`** module. It validates the code against the cart's current subtotal, currency and product ids (`CouponService.validate`) and rejects an invalid code with `COUPON_INVALID`. The resolved discount is persisted to `discountTotal`, so `total === subtotal − discountTotal`.\n\nThe discount is **re-resolved on every cart mutation** (`recalcAndSave`): when items change the discount recomputes, and if the coupon is no longer valid (expired, minimum-amount no longer met, …) it is automatically dropped from the cart. Use `removeCoupon(tenantId, cartId)` to clear it manually.\n\n## Dependencies\n\n`db`, `env`, `redis`, `logger`. No dependency on `payment_core`; currency is a plain 3-letter string (default `USD`).\n\n## Cache keys\n\n- `pay:cart:<cartId>` — single-flight cache for `getById`. Busted on every mutation (`addItem`, `updateItemQuantity`, `removeItem`, `clear`, `applyCoupon`, `mergeGuestIntoUser`, `markConverted`).\n\n`CACHE_TTL` falls back to `env.TENANT_CACHE_TTL ?? 300`.\n\n## Usage\n\n```ts\nimport { PaymentCartService } from '@/modules/payment_cart'\n\n// Guest adds an item\nconst cart = await PaymentCartService.getOrCreateCart(tenantId, { guestToken: 'g-abc', currency: 'USD' })\nawait PaymentCartService.addItem(tenantId, cart.cartId, {\n  productId, name: 'Pro License', unitPrice: 49.0, quantity: 1,\n})\n\n// Guest signs in → merge into their user cart\nconst userCart = await PaymentCartService.mergeGuestIntoUser(tenantId, 'g-abc', userId)\n\n// On successful checkout\nawait PaymentCartService.markConverted(tenantId, userCart.cartId)\n```\n"
+    },
+    {
+      "id": "payment_shipping",
+      "name": "Payment Shipping",
+      "version": "1.0.0",
+      "description": "Tenant-aware shipping methods and a rate-calculation engine. Define carriers and rate rules (by country, region, weight, subtotal) and compute shipping quotes at checkout.",
+      "dir": "modules/payment_shipping",
+      "icon": "fas fa-truck",
+      "tags": [
+        "payment",
+        "shipping",
+        "ecommerce"
+      ],
+      "priority": 29,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "logger"
+        ]
+      },
+      "exports": {
+        "services": [
+          "payment_shipping.service.ts"
+        ],
+        "dtos": [
+          "payment_shipping.dto.ts"
+        ],
+        "enums": [
+          "payment_shipping.enums.ts"
+        ],
+        "messageKeys": [
+          "payment_shipping.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "shipping_method.entity.ts",
+          "shipping_rate.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": "# payment_shipping\n\nTenant-aware shipping methods and a rate-calculation engine. Admin-configured — no storefront UI.\n\nDefine the shipping methods a tenant offers (carriers like ARAS, UPS, DHL…) and attach **rate rules** to each. At checkout, `calculateShipping` evaluates every rule against the cart and returns the cheapest applicable quote per method.\n\n## Domain model\n\n- **ShippingMethod** (`shipping_methods`) — a way to ship: `name`, tenant-scoped `code`, optional `carrier`, `isActive`, `sortOrder`, `metadata`. Soft-deletable.\n- **ShippingRate** (`shipping_rates`) — a pricing rule under a method. Scopes by `countryCode` (ISO-2, null = any), `region` (null = any), and the ranges `minWeight`/`maxWeight`, `minSubtotal`/`maxSubtotal` (null bound = unbounded). Carries `price` + `currency`, an optional `freeThreshold` (subtotal at/above which shipping is free), and an `estimatedDaysMin`/`estimatedDaysMax` delivery window.\n\nA method can have many rates (e.g. one per country band or weight tier). Hard-deleted with their method (not soft-deletable on their own).\n\n## Service methods\n\nAll methods are static on `PaymentShippingService` and take `tenantId` first.\n\n| Method | Description |\n| --- | --- |\n| `createMethod(tenantId, dto)` | Create a method. Rejects a duplicate `code` for the tenant. |\n| `updateMethod(tenantId, methodId, dto)` | Partial update. Guards `code` uniqueness. Busts cache. |\n| `getMethod(tenantId, methodId)` | Method **with its rates** (`ShippingMethodWithRates`). `singleFlight` cached. |\n| `listMethods(tenantId, query)` | Paginated list, filterable by `isActive` / `carrier`. |\n| `deleteMethod(tenantId, methodId)` | Soft delete. Busts cache. |\n| `createRate(tenantId, dto)` | Create a rate under an existing method. Validates ranges. |\n| `updateRate(tenantId, rateId, dto)` | Partial update. Validates ranges. Busts method cache. |\n| `deleteRate(tenantId, rateId)` | Hard delete. Busts method cache. |\n| `calculateShipping(tenantId, dto)` | Core engine — returns `ShippingQuote[]`, cheapest per method, sorted by price. |\n\n## Matching algorithm (`calculateShipping`)\n\nFor a cart context `{ countryCode?, region?, weight?, subtotal, currency }`:\n\n1. Load all **active** methods for the tenant, then all **active** rates.\n2. A rate **matches** when ALL hold:\n   - **country** — rate's `countryCode` is null (any), or equals the cart's. A rate scoped to a country is skipped when the cart has no country.\n   - **region** — rate's `region` is null (any), or equals the cart's. Same skip rule as country.\n   - **weight** — within `[minWeight, maxWeight]`; a null bound is unbounded. A weight-bounded rate requires a cart `weight` to compare.\n   - **subtotal** — within `[minSubtotal, maxSubtotal]`; null bound is unbounded.\n3. **Price** — if `freeThreshold` is set and `subtotal >= freeThreshold`, the quote is free (`price = 0`, `isFree = true`); otherwise the rate's `price`.\n4. **Cheapest per method** — among a method's matching rates, only the lowest-priced quote is kept.\n5. Result is sorted **ascending by price**.\n\nReturns `[]` when the tenant has no active methods or nothing matches.\n\n## Cache keys\n\n- `pay:ship:<shippingMethodId>` — `getMethod` result (method + rates), via `singleFlight`. Busted on method update/delete and on any rate create/update/delete under that method.\n\n## Dependencies\n\n`db`, `env`, `redis`, `logger`.\n\n## Usage\n\n```ts\nimport { PaymentShippingService } from '@/modules/payment_shipping'\n\n// 1. Define a method\nconst standard = await PaymentShippingService.createMethod(tenantId, {\n  name: 'Standard', code: 'standard', carrier: 'ARAS',\n})\n\n// 2. Attach rate rules\nawait PaymentShippingService.createRate(tenantId, {\n  shippingMethodId: standard.shippingMethodId,\n  name: 'TR up to 5kg',\n  countryCode: 'TR',\n  maxWeight: 5,\n  price: 49.9,\n  currency: 'TRY',\n  freeThreshold: 500, // free over 500 TRY\n  estimatedDaysMin: 1,\n  estimatedDaysMax: 3,\n})\n\n// 3. Quote a cart at checkout\nconst quotes = await PaymentShippingService.calculateShipping(tenantId, {\n  countryCode: 'TR',\n  weight: 2.4,\n  subtotal: 120,\n  currency: 'TRY',\n})\n// -> [{ shippingMethodId, methodName, carrier, rateId, price, currency, estimatedDaysMin, estimatedDaysMax, isFree }, ...]\n```\n"
+    },
+    {
       "id": "invoice",
       "name": "Invoice",
       "version": "1.0.0",
@@ -1790,6 +1887,204 @@
       "hasModuleJson": true,
       "hasNextLayer": false,
       "readme": "# notification_log\n\nUnified outbound notification audit log. One row per delivery attempt across all channels (`mail`, `sms`, `push`, `inapp`). The channel-specific notification services (`notification_mail`, `notification_sms`, ...) call into this module from their BullMQ worker completion/failure handlers.\n\n## What it does\n\n- Persists `NotificationLog` rows to the tenant DB with channel, recipient, provider, status, optional `providerMessageId` and `error`.\n- Powers admin \"outbound deliveries\" dashboards and per-user delivery history.\n- Pairs with `tenant_usage` counters (`emailSends`, `smsSends`) — counters answer \"how many\", logs answer \"to whom, by which provider, succeeded?\".\n\n## API\n\n```ts\nimport NotificationLogService from '@/modules/notification_log/notification_log.service';\n\nawait NotificationLogService.log(tenantId, 'mail', 'user@example.com', 'sent', {\n  subject: 'Welcome',\n  provider: 'smtp',\n  providerMessageId: '<abc@host>',\n});\n\nawait NotificationLogService.log(tenantId, 'sms', '+12025551234', 'failed', {\n  provider: 'twilio',\n  error: 'Twilio: invalid recipient',\n});\n\nconst { logs, total } = await NotificationLogService.list(tenantId, {\n  channel: 'mail',\n  status: 'failed',\n  limit: 50,\n});\n```\n\n`log()` swallows errors — outbound notification flow is never blocked by audit-log unavailability.\n\n## Entity\n\n`NotificationLog` is registered in `modules/db/db.ts` (single DataSource).\n"
+    },
+    {
+      "id": "payment_tax",
+      "name": "Payment Tax",
+      "version": "1.0.0",
+      "description": "Tenant-aware tax/VAT calculation engine: tax classes, destination-matched rates, compound and price-inclusive computation.",
+      "dir": "modules/payment_tax",
+      "icon": "fas fa-percent",
+      "tags": [
+        "payment",
+        "tax",
+        "vat",
+        "compliance"
+      ],
+      "priority": 31,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "logger"
+        ]
+      },
+      "exports": {
+        "services": [
+          "payment_tax.service.ts"
+        ],
+        "dtos": [
+          "payment_tax.dto.ts"
+        ],
+        "enums": [
+          "payment_tax.enums.ts"
+        ],
+        "messageKeys": [
+          "payment_tax.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "tax_class.entity.ts",
+          "tax_rate.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": "# payment_tax module\n\nA tenant-scoped **tax / VAT calculation engine**. Each tenant defines its own\n**tax classes** (Standard, Reduced, Zero, Digital Goods…) and **tax rates**\nmatched by destination (country / region / postal code). The core\n`calculateTax()` method resolves the right rates for each line and computes net,\ntax, and gross totals — supporting **priority ordering**, **compound taxes**, and\n**price-inclusive** rates.\n\nThis module is framework-agnostic: no `next/*`, no `react`, no browser APIs.\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `payment_tax.service.ts` | `PaymentTaxService` — class & rate CRUD + the `calculateTax()` engine |\n| `payment_tax.types.ts` | Zod schemas + inferred types (entities + calculation result shapes) |\n| `payment_tax.dto.ts` | Input DTOs (create/update/query/calculate) |\n| `payment_tax.enums.ts` | `TaxClassCodeEnum` (`STANDARD`/`REDUCED`/`ZERO`/`EXEMPT`/`DIGITAL`) |\n| `payment_tax.messages.ts` | Flat error strings (`PAYMENT_TAX_MESSAGES`) |\n| `entities/tax_class.entity.ts` | `TaxClass` — table `tax_classes` (soft-deletable) |\n| `entities/tax_rate.entity.ts` | `TaxRate` — table `tax_rates` |\n\n---\n\n## Entities\n\n### `tax_classes`\n| Column | Notes |\n|---|---|\n| `taxClassId` | uuid pk |\n| `tenantId` | uuid, indexed |\n| `name` | e.g. `Standard`, `Digital Goods` |\n| `code` | indexed machine code, e.g. `STANDARD` |\n| `description` | text, nullable |\n| `isDefault` | bool — applied to lines with no `taxClassCode` (one per tenant) |\n| `createdAt` / `updatedAt` / `deletedAt` | soft delete |\n\n### `tax_rates`\n| Column | Notes |\n|---|---|\n| `taxRateId` | uuid pk |\n| `tenantId` | uuid, indexed |\n| `taxClassId` | uuid, indexed, nullable — **null = applies to all classes** |\n| `name` | e.g. `TR KDV %20` |\n| `countryCode` | ISO-2, nullable — **null = any country** |\n| `region` | state/province, nullable — null = any region |\n| `postalCodePattern` | regex or prefix, nullable — null = any postal code |\n| `rate` | decimal(6,4) percentage — `20.0000` = 20% |\n| `isCompound` | bool — compounded on top of prior taxes |\n| `includedInPrice` | bool — supplied amount is tax-inclusive (gross) |\n| `priority` | int — **lower applies first** |\n| `isActive` | bool |\n| `createdAt` / `updatedAt` | — |\n\n---\n\n## Service methods\n\n| Method | Returns | Notes |\n|---|---|---|\n| `createClass(tenantId, dto)` | `SafeTaxClass` | unsets other defaults when `isDefault` |\n| `updateClass(tenantId, classId, dto)` | `SafeTaxClass` | promoting to default demotes others |\n| `listClasses(tenantId)` | `SafeTaxClass[]` | default first, then by name |\n| `deleteClass(tenantId, classId)` | `void` | soft delete |\n| `createRate(tenantId, dto)` | `TaxRate` | |\n| `updateRate(tenantId, rateId, dto)` | `TaxRate` | invalidates cache |\n| `getRate(tenantId, rateId)` | `TaxRate` | single-flight cached |\n| `listRates(tenantId, query)` | `{ data, total }` | filter by country/class/active |\n| `deleteRate(tenantId, rateId)` | `void` | hard delete |\n| `calculateTax(tenantId, dto)` | `TaxCalculationResult` | the core engine (below) |\n\n---\n\n## Calculation algorithm\n\nFor each input line:\n\n1. **Resolve class** — look up by `taxClassCode`, else fall back to the tenant's\n   default class.\n2. **Select rates** — an active rate matches when:\n   - `countryCode` is null OR equals `destination.countryCode`, **and**\n   - `region` is null OR equals `destination.region`, **and**\n   - `postalCodePattern` is null OR matches `destination.postalCode` (regex,\n     falling back to prefix match), **and**\n   - `taxClassId` is null (global) OR equals the resolved class id.\n3. **Order** matching rates by `priority` ascending (lower first).\n4. **Compute** per line, with `lineNet = amount * quantity`:\n   - **Exclusive** (`includedInPrice = false`): tax is added on top.\n     - non-compound: `tax = lineNet * rate%`\n     - compound: `tax = (lineNet + Σ prior taxes) * rate%`\n   - **Inclusive** (`includedInPrice = true`): the amount is **gross**. We back\n     out the net: `net = gross / (1 + rate/100)`, `tax = gross − net`, and reduce\n     the line's reported net accordingly so `gross == net + tax`.\n5. Sum line taxes → `TaxCalculationLine`, then aggregate to totals. All monetary\n   values are rounded to 2 decimals via `round2`.\n\n### Worked example\n\nDestination `TR`, one line: `amount = 100`, `quantity = 1`, class `STANDARD`.\nTwo matching active rates ordered by priority:\n\n| priority | name | rate | compound | inclusive |\n|---|---|---|---|---|\n| 0 | KDV | 20% | no | no |\n| 1 | Eco fee | 5% | yes | no |\n\n- KDV: `100 * 20% = 20.00`\n- Eco fee (compound): `(100 + 20) * 5% = 6.00`\n- **netAmount** `100.00`, **taxAmount** `26.00`, **grossAmount** `126.00`\n\nIf KDV were `includedInPrice` instead (amount `120` gross, 20%):\n`net = 120 / 1.20 = 100.00`, `tax = 20.00` → net `100.00`, gross `120.00`.\n\n---\n\n## Dependencies\n\n`db`, `env`, `redis`, `logger`. Currency is a plain 3-letter string (default\n`USD`); this module does **not** depend on `payment_core`.\n\n## Cache keys\n\n| Key | Written by | Invalidated by |\n|---|---|---|\n| `pay:tax:<rateId>` | `getRate()` (single-flight) | `updateRate()`, `deleteRate()` |\n"
+    },
+    {
+      "id": "payment_wishlist",
+      "name": "Payment Wishlist",
+      "version": "1.0.0",
+      "description": "Tenant-aware wishlists / favorites. Users keep multiple named lists of products and variants, with optional public sharing via a share token.",
+      "dir": "modules/payment_wishlist",
+      "icon": "fas fa-heart",
+      "tags": [
+        "wishlist",
+        "ecommerce",
+        "favorites"
+      ],
+      "priority": 32,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "logger"
+        ]
+      },
+      "exports": {
+        "services": [
+          "payment_wishlist.service.ts"
+        ],
+        "dtos": [
+          "payment_wishlist.dto.ts"
+        ],
+        "enums": [
+          "payment_wishlist.enums.ts"
+        ],
+        "messageKeys": [
+          "payment_wishlist.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "wishlist.entity.ts",
+          "wishlist_item.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": "# payment_wishlist\n\nTenant-aware wishlists / favorites. Framework-agnostic — no UI, just service + entities. Users keep one or more named lists of products (and optional variants), with optional public sharing via a `shareToken`.\n\n## Domain model\n\n- **Wishlist** — a named list owned by a user, tenant-scoped. Every user gets a `Default` list on demand. `isPublic` + `shareToken` enable read-only public sharing.\n- **WishlistItem** — a product (optionally a specific `variantId`) inside a list, with an optional `note`. An item is unique per `productId` + `variantId` within a list (de-duplicated on add).\n\n## Entities\n\n| Entity | Table | Key columns |\n| --- | --- | --- |\n| `Wishlist` | `wishlists` | `wishlistId` (uuid pk), `tenantId`, `userId`, `name` (default `Default`), `isPublic`, `shareToken` (nullable), `metadata` (jsonb), timestamps + soft delete |\n| `WishlistItem` | `wishlist_items` | `wishlistItemId` (uuid pk), `tenantId`, `wishlistId`, `productId`, `variantId` (nullable), `note` (nullable), `createdAt` |\n\n`tenantId` is indexed on both entities; all access goes through `tenantDataSourceFor(tenantId)`.\n\n## Service — `PaymentWishlistService` (static methods)\n\n| Method | Returns | Notes |\n| --- | --- | --- |\n| `getOrCreateDefault(tenantId, userId)` | `WishlistWithItems` | Finds the user's `Default` list or creates it. |\n| `create(tenantId, dto)` | `SafeWishlist` | Generates a `shareToken` when `isPublic` is true. |\n| `getById(tenantId, wishlistId)` | `WishlistWithItems` | `singleFlight`-cached, includes items + `itemCount`. |\n| `getByShareToken(tenantId, shareToken)` | `WishlistWithItems` | Only resolves when the list is public. |\n| `update(tenantId, wishlistId, dto)` | `SafeWishlist` | Generates a `shareToken` if `isPublic` is turned on and none exists. |\n| `list(tenantId, query)` | `{ data: SafeWishlist[]; total }` | Paginated, optional `userId` filter. |\n| `addItem(tenantId, wishlistId, dto)` | `WishlistWithItems` | De-duped by `productId` + `variantId` (no-op if present). |\n| `removeItem(tenantId, wishlistId, wishlistItemId)` | `WishlistWithItems` | |\n| `moveItem(tenantId, fromWishlistId, toWishlistId, wishlistItemId)` | `WishlistWithItems` | Returns the destination list. |\n| `clear(tenantId, wishlistId)` | `WishlistWithItems` | Removes all items. |\n| `delete(tenantId, wishlistId)` | `void` | Soft delete. |\n\n## Cache keys\n\n- `wishlist:<wishlistId>` — `getById` reads through `singleFlight`; every mutation (`update`, `addItem`, `removeItem`, `moveItem`, `clear`, `delete`) busts it. `moveItem` busts both source and destination keys.\n\n## Dependencies\n\n`db`, `env`, `redis`, `logger`.\n\n## Usage\n\n```ts\nimport { PaymentWishlistService } from '@/modules/payment_wishlist'\n\n// Get (or lazily create) the user's default list\nconst list = await PaymentWishlistService.getOrCreateDefault(tenantId, userId)\n\n// Add a product (deduped automatically)\nawait PaymentWishlistService.addItem(tenantId, list.wishlistId, {\n  productId,\n  variantId,        // optional\n  note: 'For the holidays',\n})\n\n// Make it shareable and read it back by token\nconst updated = await PaymentWishlistService.update(tenantId, list.wishlistId, { isPublic: true })\nconst shared = await PaymentWishlistService.getByShareToken(tenantId, updated.shareToken!)\n```\n"
+    },
+    {
+      "id": "payment_return_rma",
+      "name": "Payment Return / RMA",
+      "version": "1.0.0",
+      "description": "Customer return, exchange and refund (RMA) requests with line items and an append-only status-event log. Tenant-aware, references orders from a future order module.",
+      "dir": "modules/payment_return_rma",
+      "icon": "fas fa-rotate-left",
+      "tags": [
+        "return",
+        "rma",
+        "refund",
+        "ecommerce"
+      ],
+      "priority": 33,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "logger",
+          "payment_sell"
+        ]
+      },
+      "exports": {
+        "services": [
+          "payment_return_rma.service.ts"
+        ],
+        "dtos": [
+          "payment_return_rma.dto.ts"
+        ],
+        "enums": [
+          "payment_return_rma.enums.ts"
+        ],
+        "messageKeys": [
+          "payment_return_rma.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "return_event.entity.ts",
+          "return_item.entity.ts",
+          "return_request.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": "# payment_return_rma\n\nTenant-aware customer **return / exchange / refund (RMA)** workflow. Admin + customer facing service layer — no UI. Mirrors the status-event-log pattern used by `order_fulfillment`.\n\nA return request groups the line items a customer wants to send back, carries a human-readable `rmaNumber` (e.g. `RMA-1A2B3C4D`), and accumulates an append-only audit trail of status changes.\n\n## Domain model\n\n- **ReturnRequest** (`return_requests`) — the RMA header. Tenant-scoped, references an `orderId` (external, from a future `order` module — plain indexed uuid, no FK). Holds `rmaNumber`, `type`, `status`, customer/admin notes, `refundAmount`, `currency`, and lifecycle timestamps (`approvedAt`, `receivedAt`, `refundedAt`, `cancelledAt`). Soft-deletable.\n- **ReturnItem** (`return_items`) — one returned line. Links back to `returnRequestId`, optionally to an `orderItemId` / `productId` / `variantId`, with `sku`, `name`, `quantity`, per-line `reason` and physical `condition` (`UNOPENED` | `USED` | `DAMAGED` | `DEFECTIVE` | `OTHER`).\n- **ReturnEvent** (`return_events`) — append-only log of every status change, with optional `message` and `metadata`.\n\n## Status lifecycle\n\n```\nREQUESTED → APPROVED → RECEIVED → REFUNDED → COMPLETED\n                │\n                └─ REJECTED\n(any non-terminal) ─→ CANCELLED\n```\n\n`COMPLETED`, `CANCELLED`, and `REJECTED` are **terminal** — any mutation against a request already in one of these throws `INVALID_STATUS_TRANSITION`. Transitions are validated loosely (terminal-guard only), not as a strict state machine.\n\n## Types\n\n- `RETURN` — goods sent back for a refund.\n- `EXCHANGE` — goods swapped for a replacement.\n- `REFUND` — money-only refund without physical return.\n\n## Service methods\n\n`PaymentReturnRmaService` — all static.\n\n| Method | Description |\n| --- | --- |\n| `create(tenantId, dto)` | Generates `rmaNumber`, inserts request + items, logs initial `REQUESTED` event. |\n| `getById(tenantId, id)` | Returns request with `items` + `events` (cached via `singleFlight`). |\n| `list(tenantId, query)` | Paginated list, filterable by `orderId`, `userId`, `status`, `type`, `rmaNumber`. |\n| `update(tenantId, id, dto)` | Patch `adminNote` / `refundAmount` / `metadata`. |\n| `approve(tenantId, id, dto?)` | → `APPROVED`, sets `approvedAt`, logs event. |\n| `reject(tenantId, id, dto?)` | → `REJECTED`, logs event. |\n| `markReceived(tenantId, id)` | → `RECEIVED`, sets `receivedAt`, logs event. |\n| `refund(tenantId, id, dto)` | → `REFUNDED`, sets `refundedAt` + `refundAmount`, logs event. |\n| `complete(tenantId, id)` | → `COMPLETED`, logs event. |\n| `cancel(tenantId, id, reason?)` | → `CANCELLED`, sets `cancelledAt`, logs event. |\n| `listEvents(tenantId, id)` | Returns the full append-only event log, oldest first. |\n\n> `refund()` is integrated with **`payment_sell`**. When the return is linked to a payment — `paymentId` set at `create()` time or passed to `refund()` — it issues the actual refund via `PaymentSellService.refund(tenantId, paymentId, { amount?, reason? })`; a provider failure aborts with `REFUND_FAILED`. Without a `paymentId` it falls back to a manual/no-charge refund that only records `refundAmount` on the RMA (e.g. cash-on-delivery, store credit).\n\n## Cache keys\n\n- `rma:<returnRequestId>` — the `getById` aggregate (request + items + events), written through `singleFlight` and busted via `redis.del` on every mutation.\n\n## Dependencies\n\n`db`, `env`, `redis`, `logger`.\n\n## Usage\n\n```ts\nimport { PaymentReturnRmaService } from '@/modules/payment_return_rma'\n\n// Create an RMA\nconst rma = await PaymentReturnRmaService.create(tenantId, {\n  orderId,\n  userId,\n  type: 'RETURN',\n  reason: 'Wrong size',\n  currency: 'USD',\n  items: [\n    { name: 'T-Shirt M', quantity: 1, condition: 'UNOPENED', orderItemId },\n  ],\n})\n\n// Move it through the lifecycle\nawait PaymentReturnRmaService.approve(tenantId, rma.returnRequestId, { note: 'Approved by support' })\nawait PaymentReturnRmaService.markReceived(tenantId, rma.returnRequestId)\nawait PaymentReturnRmaService.refund(tenantId, rma.returnRequestId, { refundAmount: 19.99 })\nawait PaymentReturnRmaService.complete(tenantId, rma.returnRequestId)\n\n// Inspect the audit trail\nconst events = await PaymentReturnRmaService.listEvents(tenantId, rma.returnRequestId)\n```\n"
+    },
+    {
+      "id": "payment_loyalty_points",
+      "name": "Payment Loyalty Points",
+      "version": "1.0.0",
+      "description": "Tenant-aware loyalty points program. Earn / redeem points, lifetime-driven tiers with earn multipliers, manual adjustments, transaction ledger, and point expiry.",
+      "dir": "modules/payment_loyalty_points",
+      "icon": "fas fa-medal",
+      "tags": [
+        "loyalty",
+        "points",
+        "rewards",
+        "ecommerce"
+      ],
+      "priority": 34,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "logger"
+        ]
+      },
+      "exports": {
+        "services": [
+          "payment_loyalty_points.service.ts"
+        ],
+        "dtos": [
+          "payment_loyalty_points.dto.ts"
+        ],
+        "enums": [
+          "payment_loyalty_points.enums.ts"
+        ],
+        "messageKeys": [
+          "payment_loyalty_points.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "loyalty_account.entity.ts",
+          "loyalty_tier.entity.ts",
+          "loyalty_transaction.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": "# payment_loyalty_points\n\nTenant-aware loyalty points program. Framework-agnostic — no `next/*`, no `react`, no browser APIs.\n\nUsers earn points (e.g. on orders/payments), redeem them, and climb **tiers** based on lifetime points. Tiers apply an **earn multiplier** so higher tiers accrue points faster. Every balance change is recorded in an append-only transaction ledger.\n\n## Domain model\n\n- **LoyaltyAccount** (`loyalty_accounts`) — one account per user per tenant. Holds the current spendable `balance`, the running `lifetimePoints` (total ever earned, drives the tier), and the resolved `tier` code (default `BRONZE`).\n- **LoyaltyTransaction** (`loyalty_transactions`) — append-only ledger row per balance mutation. `type` ∈ `EARN | REDEEM | EXPIRE | ADJUST | REVOKE`. `points` is positive for credits (EARN, positive ADJUST) and negative for debits (REDEEM, EXPIRE, negative ADJUST, REVOKE). Stores `balanceAfter`, optional `reason`, optional `referenceType`/`referenceId` (e.g. `order` / `payment`), and an optional `expiresAt` for EARN lots.\n- **LoyaltyTier** (`loyalty_tiers`) — tenant-defined tier (e.g. `BRONZE`, `SILVER`, `GOLD`). `minPoints` is the lifetime threshold, `multiplier` (decimal 6,2) is the earn multiplier, plus `benefits` (jsonb), `sortOrder`, and `isActive`.\n\nEvery entity carries an indexed `tenantId` (uuid). All DB access goes through `tenantDataSourceFor(tenantId)`.\n\n## Earn / redeem / tier model\n\n- **Earn** — load (or create) the account. If `applyMultiplier` (default true), the requested points are multiplied by the account's **current** tier multiplier and rounded to an int. Both `balance` and `lifetimePoints` increase, an `EARN` ledger row is written (with `expiresAt = now + expiresInDays` when supplied), then the tier is recomputed from the new `lifetimePoints`.\n- **Redeem** — requires `balance >= points`, otherwise throws `INSUFFICIENT_POINTS`. Decrements `balance` and writes a `REDEEM` row (negative points). Redeeming does not touch `lifetimePoints` or the tier.\n- **Adjust** — manual admin correction; `points` may be positive or negative. Balance is floored at 0. Positive adjustments also accrue toward `lifetimePoints` and trigger a tier recompute. Writes an `ADJUST` row.\n- **Tier recompute** — picks the highest **active** tier whose `minPoints <= lifetimePoints`; falls back to `BRONZE` when none match. Called internally by `earn` and `adjust`.\n- **Expiry** — `expirePoints` scans EARN lots whose `expiresAt` has passed, debits the corresponding points from the account (capped at the current balance), writes `EXPIRE` rows, and clears each lot's `expiresAt` so it isn't double-counted. Returns the number of lots processed.\n\n> NOTE: expiry is a simple FIFO-by-lot pass — production may need full lot-based tracking (per-lot remaining balances).\n\nAll balance mutations (`earn`, `redeem`, `adjust`, `recomputeTier`, `expirePoints`) run inside `ds.transaction(...)` to avoid races on the balance.\n\n## Service methods\n\n`PaymentLoyaltyPointsService` — all static.\n\n| Method | Description |\n| --- | --- |\n| `getOrCreateAccount(tenantId, userId)` | Find or create the user's account. |\n| `getAccount(tenantId, userId)` | Account + resolved `tierDetail` (cached via `singleFlight`). |\n| `getBalance(tenantId, userId)` | Current spendable balance. |\n| `earn(tenantId, dto)` | Credit points (optional multiplier + expiry), recompute tier. |\n| `redeem(tenantId, dto)` | Debit points; throws `INSUFFICIENT_POINTS` if balance too low. |\n| `adjust(tenantId, dto)` | Manual +/- correction, floored at 0, recompute tier. |\n| `listTransactions(tenantId, query)` | Paginated ledger (`{ data, total }`). |\n| `recomputeTier(tenantId, accountId)` | Re-resolve tier from lifetime points. |\n| `createTier(tenantId, dto)` | Create a tier (unique `code` per tenant). |\n| `updateTier(tenantId, tierId, dto)` | Partial tier update. |\n| `listTiers(tenantId)` | Tiers ordered by `minPoints` asc. |\n| `expirePoints(tenantId)` | Expire due EARN lots; returns count processed. |\n\n## Cache keys\n\n- `loyalty:user:<userId>` — `getAccount` result (singleFlight).\n- `loyalty:<accountId>` — account-keyed entry.\n\nBoth keys are busted on every balance mutation.\n\n## Dependencies\n\n`db`, `env`, `redis`, `logger`.\n\n## Usage\n\n```ts\nimport { PaymentLoyaltyPointsService } from '@/modules/payment_loyalty_points'\n\n// Define tiers (once per tenant)\nawait PaymentLoyaltyPointsService.createTier(tenantId, { name: 'Bronze', code: 'BRONZE', minPoints: 0 })\nawait PaymentLoyaltyPointsService.createTier(tenantId, { name: 'Gold', code: 'GOLD', minPoints: 1000, multiplier: 1.5 })\n\n// Earn points on an order (multiplier applied from current tier)\nawait PaymentLoyaltyPointsService.earn(tenantId, {\n  userId,\n  points: 200,\n  referenceType: 'order',\n  referenceId: orderId,\n  expiresInDays: 365,\n})\n\n// Redeem at checkout\nawait PaymentLoyaltyPointsService.redeem(tenantId, { userId, points: 150, reason: 'Checkout discount' })\n\n// Read balance + tier\nconst account = await PaymentLoyaltyPointsService.getAccount(tenantId, userId)\nconsole.log(account.balance, account.tier, account.tierDetail?.multiplier)\n\n// Scheduled job: expire due points\nconst expired = await PaymentLoyaltyPointsService.expirePoints(tenantId)\n```\n"
     },
     {
       "id": "e_signature",
@@ -2146,6 +2441,105 @@
       "hasModuleJson": true,
       "hasNextLayer": false,
       "readme": "# Webhook Module\n\nOutgoing webhook system. Tenant admins configure HTTP endpoints and subscribe to events. When an event fires, the system signs and delivers a JSON payload to all matching endpoints.\n\n---\n\n## Entities\n\n| Entity | Table | Description |\n|---|---|---|\n| `Webhook` | `webhooks` | Endpoint configuration per tenant |\n| `WebhookDelivery` | `webhook_deliveries` | Delivery attempt log |\n\nBoth live in the **tenant DB**.\n\n---\n\n## Events\n\nA single `WebhookEventEnum` covers both tenant-local and platform-wide\nevents. Every event is delivered only to webhooks owned by the appropriate\ntenant — platform-wide events fire on root-tenant webhooks\n(`tenantId = ROOT_TENANT_ID`); tenant-local events fire on regular tenant\nwebhooks.\n\n| Event | Scope | Fired when |\n|---|---|---|\n| `tenant.updated` | tenant | Tenant name/settings change |\n| `member.created/updated/deleted` | tenant | Tenant membership changes |\n| `invitation.sent/accepted/declined/revoked` | tenant | Invitation lifecycle |\n| `subscription.created/updated/cancelled` | tenant | Subscription lifecycle |\n| `payment.completed/failed/refunded` | tenant | Payment lifecycle |\n| `api_key.created/deleted` | tenant | API key management |\n| `user.created/updated/deleted/suspended` | platform | Global user lifecycle |\n| `tenant.created/deleted/suspended` | platform | Tenant lifecycle |\n| `plan.created/updated/deleted` | platform | Subscription plan changes |\n| `subscription.assigned` | platform | Plan assignment from admin panel |\n\n---\n\n## API Routes (tenant-scoped, ADMIN+)\n\n| Method | Path | Description |\n|---|---|---|\n| GET | `/tenant/[id]/api/webhooks` | List endpoints |\n| POST | `/tenant/[id]/api/webhooks` | Create endpoint |\n| GET | `/tenant/[id]/api/webhooks/[wid]` | Get endpoint |\n| PATCH | `/tenant/[id]/api/webhooks/[wid]` | Update endpoint |\n| DELETE | `/tenant/[id]/api/webhooks/[wid]` | Delete endpoint |\n| POST | `/tenant/[id]/api/webhooks/[wid]/test` | Send test delivery (sync) |\n| GET | `/tenant/[id]/api/webhooks/[wid]/deliveries` | List deliveries |\n| POST | `/tenant/[id]/api/webhooks/[wid]/deliveries/[did]/redeliver` | Re-queue failed delivery |\n\n### Platform webhooks (root-tenant admins only)\n\nMirror the routes above under `/tenant/[ROOT_TENANT_ID]/api/webhooks/...`.\nThe handlers require root-tenant admin auth and bind every operation to\n`tenantId = ROOT_TENANT_ID`. There is no separate service or table —\n`WebhookService` and the `Webhook`/`WebhookDelivery` tables back both\nsurfaces.\n\n---\n\n## Security\n\nEvery request carries an `X-Webhook-Signature: sha256=<hmac>` header.\nThe HMAC is computed as `HMAC-SHA256(secret, requestBody)`.\nThe secret is generated per endpoint and never returned via the API.\n\n### Verification example (Node.js)\n\n```typescript\nimport crypto from 'crypto';\n\nfunction verifyWebhook(body: string, signature: string, secret: string): boolean {\n  const expected = 'sha256=' + crypto.createHmac('sha256', secret).update(body).digest('hex');\n  return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(signature));\n}\n```\n\n---\n\n## Delivery\n\n- Queue: BullMQ (`webhookDeliveryQueue`), concurrency 10\n- Timeout: 15 seconds per attempt\n- Max attempts: 3\n- Backoff: exponential — 60s → 5min → 15min\n- Delivery record updated after each attempt with status, HTTP code, response body (truncated to 4 KB), and duration\n\n---\n\n## Dispatching from other modules\n\n```typescript\nimport WebhookService from '@/modules/webhook/webhook.service';\n\n// Call after a member is created:\nawait WebhookService.dispatchEvent(tenantId, 'member.created', {\n  tenantMemberId: member.tenantMemberId,\n  userId: member.userId,\n  role: member.memberRole,\n});\n```\n\n`dispatchEvent` is fire-and-forget safe — it catches internal errors and logs them without throwing.\n"
+    },
+    {
+      "id": "order_fulfillment",
+      "name": "Order Fulfillment",
+      "version": "1.0.0",
+      "description": "Tenant-aware fulfillment and shipment tracking for orders. Manages packing, carrier tracking, status lifecycle, and an append-only event log.",
+      "dir": "modules/order_fulfillment",
+      "icon": "fas fa-box",
+      "tags": [
+        "order",
+        "fulfillment",
+        "shipping",
+        "ecommerce"
+      ],
+      "priority": 41,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "logger"
+        ]
+      },
+      "exports": {
+        "services": [
+          "order_fulfillment.service.ts"
+        ],
+        "dtos": [
+          "order_fulfillment.dto.ts"
+        ],
+        "enums": [
+          "order_fulfillment.enums.ts"
+        ],
+        "messageKeys": [
+          "order_fulfillment.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "fulfillment.entity.ts",
+          "fulfillment_event.entity.ts",
+          "fulfillment_item.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": "# order_fulfillment\n\nTenant-aware fulfillment and shipment tracking for orders. Framework-agnostic — no `next/*`, `react`, or browser APIs.\n\n`orderId` is an external uuid reference — there is **no** `order` module yet, so it is stored as a plain indexed column (no TypeORM relation/FK). `shippingMethodId` is an optional reference to a method in `payment_shipping`.\n\n## Domain model\n\n- **Fulfillment** (`fulfillments`) — one shipment of an order. Holds `status`, carrier + tracking info, an optional `shippingMethodId`, free-form `notes`/`metadata`, and lifecycle timestamps (`packedAt`, `shippedAt`, `deliveredAt`, `cancelledAt`). Soft-deletable.\n- **FulfillmentItem** (`fulfillment_items`) — the line items packed into a fulfillment. Each carries optional `orderItemId` / `productId` / `variantId` / `sku` plus a `name` and `quantity`.\n- **FulfillmentEvent** (`fulfillment_events`) — append-only status-change log. Every create / tracking change / status update writes one row.\n\nAll three entities are scoped by an indexed `tenantId`.\n\n## Status lifecycle\n\n```\nPENDING → PROCESSING → PACKED → SHIPPED → IN_TRANSIT → DELIVERED\n                                                  │\n                                       (terminal) │\n   CANCELLED ◄───────── any non-terminal ─────────┤\n   RETURNED  ◄──────────────────────────────────── \n```\n\n`DELIVERED`, `CANCELLED`, and `RETURNED` are **terminal** — `updateStatus` throws `INVALID_STATUS_TRANSITION` if you try to move out of them. Transitions are otherwise validated loosely (any forward jump is allowed). Reaching `PACKED` / `SHIPPED` / `DELIVERED` / `CANCELLED` stamps the matching timestamp once.\n\n## Service\n\n`OrderFulfillmentService` — static methods, all take `tenantId` first.\n\n| Method | Description |\n| --- | --- |\n| `create(tenantId, dto)` | Insert a fulfillment + its items + an initial `PENDING` event. Returns `FulfillmentWithItems`. |\n| `getById(tenantId, fulfillmentId)` | Fetch fulfillment with `items` and `events` (ordered). `singleFlight`-cached. |\n| `list(tenantId, query)` | Paginated list filtered by `orderId` / `status` / `carrier` / `trackingNumber`. Returns `{ data, total }`. |\n| `update(tenantId, fulfillmentId, dto)` | Patch carrier / tracking / notes / metadata. |\n| `addTracking(tenantId, fulfillmentId, dto)` | Set carrier + tracking number/url and log an event. |\n| `updateStatus(tenantId, fulfillmentId, dto)` | Change status, stamp the matching timestamp, append an event. Enforces terminal-state rule. |\n| `markShipped(tenantId, fulfillmentId, tracking?)` | Convenience: optional tracking then status `SHIPPED`. |\n| `cancel(tenantId, fulfillmentId, reason?)` | Status `CANCELLED` + event. |\n| `listEvents(tenantId, fulfillmentId)` | Full event log, oldest first. |\n\n## Cache keys\n\n- `order:fulfillment:<fulfillmentId>` — `getById` result (`FulfillmentWithItems`). Busted on every mutation (`update`, `addTracking`, `updateStatus`, and the convenience methods that wrap them).\n\n## Usage\n\n```ts\nimport { OrderFulfillmentService } from '@/modules/order_fulfillment'\n\nconst f = await OrderFulfillmentService.create(tenantId, {\n  orderId,\n  carrier: 'ARAS',\n  items: [{ productId, sku: 'TS-BLK-M', name: 'T-Shirt Black M', quantity: 2 }],\n})\n\nawait OrderFulfillmentService.markShipped(tenantId, f.fulfillmentId, {\n  carrier: 'ARAS',\n  trackingNumber: '1234567890',\n  trackingUrl: 'https://kargotakip.araskargo.com.tr/?code=1234567890',\n})\n\nawait OrderFulfillmentService.updateStatus(tenantId, f.fulfillmentId, { status: 'DELIVERED' })\n```\n\n## Dependencies\n\n`db`, `env`, `redis`, `logger`.\n"
+    },
+    {
+      "id": "product_review",
+      "name": "Product Review",
+      "version": "1.0.0",
+      "description": "Tenant-aware product ratings and reviews with verified-purchase flags, helpful voting, moderation lifecycle, and cached per-product rating summaries.",
+      "dir": "modules/product_review",
+      "icon": "fas fa-star",
+      "tags": [
+        "review",
+        "rating",
+        "ecommerce",
+        "moderation"
+      ],
+      "priority": 42,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "logger"
+        ]
+      },
+      "exports": {
+        "services": [
+          "product_review.service.ts"
+        ],
+        "dtos": [
+          "product_review.dto.ts"
+        ],
+        "enums": [
+          "product_review.enums.ts"
+        ],
+        "messageKeys": [
+          "product_review.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "product_review.entity.ts",
+          "product_review_vote.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": "# product_review\n\nTenant-aware product ratings and reviews. Framework-agnostic service layer — no UI.\n\n## Purpose\n\nLets shoppers rate (1–5) and review products, flag verified purchases, vote reviews\nas helpful, and run reviews through a moderation queue before they appear publicly.\nPer-product rating summaries (average + star distribution) are computed over approved\nreviews and cached.\n\n## Domain model\n\n- **ProductReview** (`product_reviews`) — a single review for a `productId`, scoped to\n  `tenantId`. Authored by a `userId` (registered) or an `authorName` (guest). Carries\n  `rating` (1–5), optional `title`, `body`, `status`, `isVerifiedPurchase`,\n  `helpfulCount`, optional `orderId` (proof-of-purchase ref), `metadata` (jsonb).\n  Soft-deletable.\n- **ProductReviewVote** (`product_review_votes`) — one helpful/not-helpful vote per\n  `userId` per `reviewId`, scoped to `tenantId`. `helpfulCount` on the review is the\n  count of `isHelpful = true` votes.\n\n## Moderation lifecycle\n\n```\n            create / author-edit\n                    │\n                    ▼\n                 PENDING ──── moderate ────▶ APPROVED   (publicly visible, counts in summary)\n                    │                   ├──▶ REJECTED\n                    │                   └──▶ SPAM\n```\n\n- New reviews start `PENDING`.\n- Author edits (`update`) reset status back to `PENDING` (re-enter the queue).\n- `moderate` transitions to `APPROVED` / `REJECTED` / `SPAM`. A `note` is stored under\n  `metadata.moderationNote`.\n- Only `APPROVED` reviews are aggregated into the product summary. For public product\n  pages, call `list` with `status: 'APPROVED'`.\n\n## Service methods (`ProductReviewService`, all static)\n\n| Method | Description |\n| --- | --- |\n| `create(tenantId, dto)` | Create a review (status `PENDING`). Enforces rating 1–5. |\n| `getById(tenantId, reviewId)` | Fetch one review (singleFlight cached). |\n| `list(tenantId, query)` | Paginated list with filters (`productId`, `userId`, `status`, `minRating`, `isVerifiedPurchase`) and `sort` (`recent` \\| `helpful` \\| `rating_high` \\| `rating_low`). |\n| `update(tenantId, reviewId, dto)` | Author edit (rating/title/body). Resets status to `PENDING`. |\n| `moderate(tenantId, reviewId, dto)` | Set status to `APPROVED` / `REJECTED` / `SPAM`. |\n| `voteHelpful(tenantId, reviewId, dto)` | Upsert one vote per user, recompute `helpfulCount`. |\n| `getProductSummary(tenantId, productId)` | Aggregate over `APPROVED` reviews (cached). |\n| `delete(tenantId, reviewId)` | Soft delete. |\n\n## Summary aggregation\n\n`getProductSummary` scans `APPROVED` reviews for a product and returns:\n\n```ts\n{\n  productId,\n  totalReviews,                       // count of approved reviews\n  averageRating,                      // mean rating, rounded to 1 decimal (0 when none)\n  distribution: { '1': n, '2': n, '3': n, '4': n, '5': n }, // per-star counts\n}\n```\n\n## Cache keys\n\n| Key | Written by | Busted by |\n| --- | --- | --- |\n| `review:<reviewId>` | `getById` (singleFlight) | `update`, `moderate`, `voteHelpful`, `delete` |\n| `review:summary:<productId>` | `getProductSummary` (singleFlight) | `create`, `update`, `moderate`, `delete` |\n\n## Dependencies\n\n`db`, `env`, `redis`, `logger`.\n\n## Usage\n\n```ts\nimport { ProductReviewService } from '@/modules/product_review'\n\n// Shopper submits a review (enters moderation as PENDING)\nconst review = await ProductReviewService.create(tenantId, {\n  productId,\n  userId,\n  rating: 5,\n  title: 'Great product',\n  body: 'Exactly as described.',\n  isVerifiedPurchase: true,\n  orderId,\n})\n\n// Moderator approves it\nawait ProductReviewService.moderate(tenantId, review.productReviewId, { status: 'APPROVED' })\n\n// Another user marks it helpful\nawait ProductReviewService.voteHelpful(tenantId, review.productReviewId, { userId: otherUserId })\n\n// Public product page: approved reviews + rating summary\nconst { data } = await ProductReviewService.list(tenantId, { productId, status: 'APPROVED', sort: 'helpful' })\nconst summary = await ProductReviewService.getProductSummary(tenantId, productId)\n```\n"
     },
     {
       "id": "ai",
@@ -3474,6 +3868,17 @@
       "dynamic": true
     },
     {
+      "filePath": "app/tenant/[tenantId]/api/plans/default/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/plans/default",
+      "methods": [
+        "GET",
+        "PUT"
+      ],
+      "module": "plan",
+      "dynamic": true
+    },
+    {
       "filePath": "app/tenant/[tenantId]/api/plans/public/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/plans/public",
@@ -3887,6 +4292,17 @@
       "dynamic": true
     },
     {
+      "filePath": "app/tenant/[tenantId]/api/tenants/[targetTenantId]/subscription/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/tenants/[targetTenantId]/subscription",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "tenant",
+      "dynamic": true
+    },
+    {
       "filePath": "app/tenant/[tenantId]/api/tenants/create/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/tenants/create",
@@ -4080,6 +4496,52 @@
       "relations": []
     },
     {
+      "name": "Cart",
+      "filePath": "modules/payment_cart/entities/cart.entity.ts",
+      "module": "payment_cart",
+      "schema": "system",
+      "tableName": "carts",
+      "columns": [
+        "cartId",
+        "tenantId",
+        "userId",
+        "guestToken",
+        "status",
+        "currency",
+        "couponCode",
+        "subtotal",
+        "discountTotal",
+        "metadata",
+        "expiresAt",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "CartItem",
+      "filePath": "modules/payment_cart/entities/cart_item.entity.ts",
+      "module": "payment_cart",
+      "schema": "system",
+      "tableName": "cart_items",
+      "columns": [
+        "cartItemId",
+        "tenantId",
+        "cartId",
+        "productId",
+        "variantId",
+        "sku",
+        "name",
+        "unitPrice",
+        "quantity",
+        "metadata",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "Coupon",
       "filePath": "modules/coupon/entities/coupon.entity.ts",
       "module": "coupon",
@@ -4196,6 +4658,71 @@
       ]
     },
     {
+      "name": "Fulfillment",
+      "filePath": "modules/order_fulfillment/entities/fulfillment.entity.ts",
+      "module": "order_fulfillment",
+      "schema": "system",
+      "tableName": "fulfillments",
+      "columns": [
+        "fulfillmentId",
+        "tenantId",
+        "orderId",
+        "status",
+        "carrier",
+        "trackingNumber",
+        "trackingUrl",
+        "shippingMethodId",
+        "notes",
+        "metadata",
+        "packedAt",
+        "shippedAt",
+        "deliveredAt",
+        "cancelledAt",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "FulfillmentEvent",
+      "filePath": "modules/order_fulfillment/entities/fulfillment_event.entity.ts",
+      "module": "order_fulfillment",
+      "schema": "system",
+      "tableName": "fulfillment_events",
+      "columns": [
+        "fulfillmentEventId",
+        "tenantId",
+        "fulfillmentId",
+        "status",
+        "message",
+        "metadata",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "FulfillmentItem",
+      "filePath": "modules/order_fulfillment/entities/fulfillment_item.entity.ts",
+      "module": "order_fulfillment",
+      "schema": "system",
+      "tableName": "fulfillment_items",
+      "columns": [
+        "fulfillmentItemId",
+        "tenantId",
+        "fulfillmentId",
+        "orderItemId",
+        "productId",
+        "variantId",
+        "sku",
+        "name",
+        "quantity",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "Invoice",
       "filePath": "modules/invoice/entities/invoice.entity.ts",
       "module": "invoice",
@@ -4257,6 +4784,68 @@
         "sourceType",
         "sourceId",
         "metadata",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "LoyaltyAccount",
+      "filePath": "modules/payment_loyalty_points/entities/loyalty_account.entity.ts",
+      "module": "payment_loyalty_points",
+      "schema": "system",
+      "tableName": "loyalty_accounts",
+      "columns": [
+        "loyaltyAccountId",
+        "tenantId",
+        "userId",
+        "balance",
+        "lifetimePoints",
+        "tier",
+        "metadata",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "LoyaltyTier",
+      "filePath": "modules/payment_loyalty_points/entities/loyalty_tier.entity.ts",
+      "module": "payment_loyalty_points",
+      "schema": "system",
+      "tableName": "loyalty_tiers",
+      "columns": [
+        "loyaltyTierId",
+        "tenantId",
+        "name",
+        "code",
+        "minPoints",
+        "multiplier",
+        "benefits",
+        "sortOrder",
+        "isActive",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "LoyaltyTransaction",
+      "filePath": "modules/payment_loyalty_points/entities/loyalty_transaction.entity.ts",
+      "module": "payment_loyalty_points",
+      "schema": "system",
+      "tableName": "loyalty_transactions",
+      "columns": [
+        "loyaltyTransactionId",
+        "tenantId",
+        "accountId",
+        "userId",
+        "type",
+        "points",
+        "reason",
+        "referenceType",
+        "referenceId",
+        "balanceAfter",
+        "expiresAt",
         "createdAt"
       ],
       "relations": []
@@ -4486,6 +5075,48 @@
       "relations": []
     },
     {
+      "name": "ProductReview",
+      "filePath": "modules/product_review/entities/product_review.entity.ts",
+      "module": "product_review",
+      "schema": "system",
+      "tableName": "product_reviews",
+      "columns": [
+        "productReviewId",
+        "tenantId",
+        "productId",
+        "userId",
+        "authorName",
+        "rating",
+        "title",
+        "body",
+        "status",
+        "isVerifiedPurchase",
+        "helpfulCount",
+        "orderId",
+        "metadata",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "ProductReviewVote",
+      "filePath": "modules/product_review/entities/product_review_vote.entity.ts",
+      "module": "product_review",
+      "schema": "system",
+      "tableName": "product_review_votes",
+      "columns": [
+        "voteId",
+        "tenantId",
+        "reviewId",
+        "userId",
+        "isHelpful",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "PushSubscription",
       "filePath": "modules/notification_push/entities/push_subscription.entity.ts",
       "module": "notification_push",
@@ -4500,6 +5131,76 @@
         "auth",
         "createdAt",
         "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "ReturnEvent",
+      "filePath": "modules/payment_return_rma/entities/return_event.entity.ts",
+      "module": "payment_return_rma",
+      "schema": "system",
+      "tableName": "return_events",
+      "columns": [
+        "returnEventId",
+        "tenantId",
+        "returnRequestId",
+        "status",
+        "message",
+        "metadata",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "ReturnItem",
+      "filePath": "modules/payment_return_rma/entities/return_item.entity.ts",
+      "module": "payment_return_rma",
+      "schema": "system",
+      "tableName": "return_items",
+      "columns": [
+        "returnItemId",
+        "tenantId",
+        "returnRequestId",
+        "orderItemId",
+        "productId",
+        "variantId",
+        "sku",
+        "name",
+        "quantity",
+        "reason",
+        "condition",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "ReturnRequest",
+      "filePath": "modules/payment_return_rma/entities/return_request.entity.ts",
+      "module": "payment_return_rma",
+      "schema": "system",
+      "tableName": "return_requests",
+      "columns": [
+        "returnRequestId",
+        "tenantId",
+        "orderId",
+        "paymentId",
+        "userId",
+        "rmaNumber",
+        "type",
+        "status",
+        "reason",
+        "customerNote",
+        "adminNote",
+        "refundAmount",
+        "currency",
+        "metadata",
+        "approvedAt",
+        "receivedAt",
+        "refundedAt",
+        "cancelledAt",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
       ],
       "relations": []
     },
@@ -4569,6 +5270,57 @@
         "value",
         "group",
         "type",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "ShippingMethod",
+      "filePath": "modules/payment_shipping/entities/shipping_method.entity.ts",
+      "module": "payment_shipping",
+      "schema": "system",
+      "tableName": "shipping_methods",
+      "columns": [
+        "shippingMethodId",
+        "tenantId",
+        "name",
+        "code",
+        "carrier",
+        "description",
+        "isActive",
+        "sortOrder",
+        "metadata",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "ShippingRate",
+      "filePath": "modules/payment_shipping/entities/shipping_rate.entity.ts",
+      "module": "payment_shipping",
+      "schema": "system",
+      "tableName": "shipping_rates",
+      "columns": [
+        "shippingRateId",
+        "tenantId",
+        "shippingMethodId",
+        "name",
+        "countryCode",
+        "region",
+        "minWeight",
+        "maxWeight",
+        "minSubtotal",
+        "maxSubtotal",
+        "price",
+        "currency",
+        "freeThreshold",
+        "estimatedDaysMin",
+        "estimatedDaysMax",
+        "isActive",
+        "sortOrder",
         "createdAt",
         "updatedAt"
       ],
@@ -4925,6 +5677,49 @@
         "interval",
         "trialDays",
         "status",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "TaxClass",
+      "filePath": "modules/payment_tax/entities/tax_class.entity.ts",
+      "module": "payment_tax",
+      "schema": "system",
+      "tableName": "tax_classes",
+      "columns": [
+        "taxClassId",
+        "tenantId",
+        "name",
+        "code",
+        "description",
+        "isDefault",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "TaxRate",
+      "filePath": "modules/payment_tax/entities/tax_rate.entity.ts",
+      "module": "payment_tax",
+      "schema": "system",
+      "tableName": "tax_rates",
+      "columns": [
+        "taxRateId",
+        "tenantId",
+        "taxClassId",
+        "name",
+        "countryCode",
+        "region",
+        "postalCodePattern",
+        "rate",
+        "isCompound",
+        "includedInPrice",
+        "priority",
+        "isActive",
         "createdAt",
         "updatedAt"
       ],
@@ -5288,6 +6083,43 @@
         "nextRetryAt",
         "createdAt",
         "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "Wishlist",
+      "filePath": "modules/payment_wishlist/entities/wishlist.entity.ts",
+      "module": "payment_wishlist",
+      "schema": "system",
+      "tableName": "wishlists",
+      "columns": [
+        "wishlistId",
+        "tenantId",
+        "userId",
+        "name",
+        "isPublic",
+        "shareToken",
+        "metadata",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "WishlistItem",
+      "filePath": "modules/payment_wishlist/entities/wishlist_item.entity.ts",
+      "module": "payment_wishlist",
+      "schema": "system",
+      "tableName": "wishlist_items",
+      "columns": [
+        "wishlistItemId",
+        "tenantId",
+        "wishlistId",
+        "productId",
+        "variantId",
+        "note",
+        "createdAt"
       ],
       "relations": []
     }

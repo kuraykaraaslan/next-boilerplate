@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-05-26T21:49:04.137Z",
+  "generatedAt": "2026-06-01T08:06:40.312Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -1510,6 +1510,101 @@
       "hasNextLayer": false
     },
     {
+      "id": "payment_cart",
+      "name": "Payment Cart",
+      "version": "1.0.0",
+      "description": "Tenant-aware shopping cart for users and anonymous guests. Manages cart items, quantities, coupon codes, totals, guest-to-user merge, and conversion to checkout.",
+      "dir": "modules/payment_cart",
+      "icon": "fas fa-cart-shopping",
+      "tags": [
+        "payment",
+        "cart",
+        "ecommerce"
+      ],
+      "priority": 28,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "logger",
+          "coupon"
+        ]
+      },
+      "exports": {
+        "services": [
+          "payment_cart.service.ts"
+        ],
+        "dtos": [
+          "payment_cart.dto.ts"
+        ],
+        "enums": [
+          "payment_cart.enums.ts"
+        ],
+        "messageKeys": [
+          "payment_cart.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "cart.entity.ts",
+          "cart_item.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "payment_shipping",
+      "name": "Payment Shipping",
+      "version": "1.0.0",
+      "description": "Tenant-aware shipping methods and a rate-calculation engine. Define carriers and rate rules (by country, region, weight, subtotal) and compute shipping quotes at checkout.",
+      "dir": "modules/payment_shipping",
+      "icon": "fas fa-truck",
+      "tags": [
+        "payment",
+        "shipping",
+        "ecommerce"
+      ],
+      "priority": 29,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "logger"
+        ]
+      },
+      "exports": {
+        "services": [
+          "payment_shipping.service.ts"
+        ],
+        "dtos": [
+          "payment_shipping.dto.ts"
+        ],
+        "enums": [
+          "payment_shipping.enums.ts"
+        ],
+        "messageKeys": [
+          "payment_shipping.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "shipping_method.entity.ts",
+          "shipping_rate.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
       "id": "invoice",
       "name": "Invoice",
       "version": "1.0.0",
@@ -1744,6 +1839,200 @@
         "jobs": [],
         "entities": [
           "notification_log.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "payment_tax",
+      "name": "Payment Tax",
+      "version": "1.0.0",
+      "description": "Tenant-aware tax/VAT calculation engine: tax classes, destination-matched rates, compound and price-inclusive computation.",
+      "dir": "modules/payment_tax",
+      "icon": "fas fa-percent",
+      "tags": [
+        "payment",
+        "tax",
+        "vat",
+        "compliance"
+      ],
+      "priority": 31,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "logger"
+        ]
+      },
+      "exports": {
+        "services": [
+          "payment_tax.service.ts"
+        ],
+        "dtos": [
+          "payment_tax.dto.ts"
+        ],
+        "enums": [
+          "payment_tax.enums.ts"
+        ],
+        "messageKeys": [
+          "payment_tax.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "tax_class.entity.ts",
+          "tax_rate.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "payment_wishlist",
+      "name": "Payment Wishlist",
+      "version": "1.0.0",
+      "description": "Tenant-aware wishlists / favorites. Users keep multiple named lists of products and variants, with optional public sharing via a share token.",
+      "dir": "modules/payment_wishlist",
+      "icon": "fas fa-heart",
+      "tags": [
+        "wishlist",
+        "ecommerce",
+        "favorites"
+      ],
+      "priority": 32,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "logger"
+        ]
+      },
+      "exports": {
+        "services": [
+          "payment_wishlist.service.ts"
+        ],
+        "dtos": [
+          "payment_wishlist.dto.ts"
+        ],
+        "enums": [
+          "payment_wishlist.enums.ts"
+        ],
+        "messageKeys": [
+          "payment_wishlist.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "wishlist.entity.ts",
+          "wishlist_item.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "payment_return_rma",
+      "name": "Payment Return / RMA",
+      "version": "1.0.0",
+      "description": "Customer return, exchange and refund (RMA) requests with line items and an append-only status-event log. Tenant-aware, references orders from a future order module.",
+      "dir": "modules/payment_return_rma",
+      "icon": "fas fa-rotate-left",
+      "tags": [
+        "return",
+        "rma",
+        "refund",
+        "ecommerce"
+      ],
+      "priority": 33,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "logger",
+          "payment_sell"
+        ]
+      },
+      "exports": {
+        "services": [
+          "payment_return_rma.service.ts"
+        ],
+        "dtos": [
+          "payment_return_rma.dto.ts"
+        ],
+        "enums": [
+          "payment_return_rma.enums.ts"
+        ],
+        "messageKeys": [
+          "payment_return_rma.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "return_event.entity.ts",
+          "return_item.entity.ts",
+          "return_request.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "payment_loyalty_points",
+      "name": "Payment Loyalty Points",
+      "version": "1.0.0",
+      "description": "Tenant-aware loyalty points program. Earn / redeem points, lifetime-driven tiers with earn multipliers, manual adjustments, transaction ledger, and point expiry.",
+      "dir": "modules/payment_loyalty_points",
+      "icon": "fas fa-medal",
+      "tags": [
+        "loyalty",
+        "points",
+        "rewards",
+        "ecommerce"
+      ],
+      "priority": 34,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "logger"
+        ]
+      },
+      "exports": {
+        "services": [
+          "payment_loyalty_points.service.ts"
+        ],
+        "dtos": [
+          "payment_loyalty_points.dto.ts"
+        ],
+        "enums": [
+          "payment_loyalty_points.enums.ts"
+        ],
+        "messageKeys": [
+          "payment_loyalty_points.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "loyalty_account.entity.ts",
+          "loyalty_tier.entity.ts",
+          "loyalty_transaction.entity.ts"
         ]
       },
       "hasReadme": true,
@@ -2093,6 +2382,103 @@
         "entities": [
           "webhook.entity.ts",
           "webhook_delivery.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "order_fulfillment",
+      "name": "Order Fulfillment",
+      "version": "1.0.0",
+      "description": "Tenant-aware fulfillment and shipment tracking for orders. Manages packing, carrier tracking, status lifecycle, and an append-only event log.",
+      "dir": "modules/order_fulfillment",
+      "icon": "fas fa-box",
+      "tags": [
+        "order",
+        "fulfillment",
+        "shipping",
+        "ecommerce"
+      ],
+      "priority": 41,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "logger"
+        ]
+      },
+      "exports": {
+        "services": [
+          "order_fulfillment.service.ts"
+        ],
+        "dtos": [
+          "order_fulfillment.dto.ts"
+        ],
+        "enums": [
+          "order_fulfillment.enums.ts"
+        ],
+        "messageKeys": [
+          "order_fulfillment.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "fulfillment.entity.ts",
+          "fulfillment_event.entity.ts",
+          "fulfillment_item.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "product_review",
+      "name": "Product Review",
+      "version": "1.0.0",
+      "description": "Tenant-aware product ratings and reviews with verified-purchase flags, helpful voting, moderation lifecycle, and cached per-product rating summaries.",
+      "dir": "modules/product_review",
+      "icon": "fas fa-star",
+      "tags": [
+        "review",
+        "rating",
+        "ecommerce",
+        "moderation"
+      ],
+      "priority": 42,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "logger"
+        ]
+      },
+      "exports": {
+        "services": [
+          "product_review.service.ts"
+        ],
+        "dtos": [
+          "product_review.dto.ts"
+        ],
+        "enums": [
+          "product_review.enums.ts"
+        ],
+        "messageKeys": [
+          "product_review.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "product_review.entity.ts",
+          "product_review_vote.entity.ts"
         ]
       },
       "hasReadme": true,
@@ -3422,6 +3808,17 @@
       "dynamic": true
     },
     {
+      "filePath": "app/tenant/[tenantId]/api/plans/default/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/plans/default",
+      "methods": [
+        "GET",
+        "PUT"
+      ],
+      "module": "plan",
+      "dynamic": true
+    },
+    {
       "filePath": "app/tenant/[tenantId]/api/plans/public/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/plans/public",
@@ -3835,6 +4232,17 @@
       "dynamic": true
     },
     {
+      "filePath": "app/tenant/[tenantId]/api/tenants/[targetTenantId]/subscription/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/tenants/[targetTenantId]/subscription",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "tenant",
+      "dynamic": true
+    },
+    {
       "filePath": "app/tenant/[tenantId]/api/tenants/create/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/tenants/create",
@@ -4028,6 +4436,52 @@
       "relations": []
     },
     {
+      "name": "Cart",
+      "filePath": "modules/payment_cart/entities/cart.entity.ts",
+      "module": "payment_cart",
+      "schema": "system",
+      "tableName": "carts",
+      "columns": [
+        "cartId",
+        "tenantId",
+        "userId",
+        "guestToken",
+        "status",
+        "currency",
+        "couponCode",
+        "subtotal",
+        "discountTotal",
+        "metadata",
+        "expiresAt",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "CartItem",
+      "filePath": "modules/payment_cart/entities/cart_item.entity.ts",
+      "module": "payment_cart",
+      "schema": "system",
+      "tableName": "cart_items",
+      "columns": [
+        "cartItemId",
+        "tenantId",
+        "cartId",
+        "productId",
+        "variantId",
+        "sku",
+        "name",
+        "unitPrice",
+        "quantity",
+        "metadata",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "Coupon",
       "filePath": "modules/coupon/entities/coupon.entity.ts",
       "module": "coupon",
@@ -4144,6 +4598,71 @@
       ]
     },
     {
+      "name": "Fulfillment",
+      "filePath": "modules/order_fulfillment/entities/fulfillment.entity.ts",
+      "module": "order_fulfillment",
+      "schema": "system",
+      "tableName": "fulfillments",
+      "columns": [
+        "fulfillmentId",
+        "tenantId",
+        "orderId",
+        "status",
+        "carrier",
+        "trackingNumber",
+        "trackingUrl",
+        "shippingMethodId",
+        "notes",
+        "metadata",
+        "packedAt",
+        "shippedAt",
+        "deliveredAt",
+        "cancelledAt",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "FulfillmentEvent",
+      "filePath": "modules/order_fulfillment/entities/fulfillment_event.entity.ts",
+      "module": "order_fulfillment",
+      "schema": "system",
+      "tableName": "fulfillment_events",
+      "columns": [
+        "fulfillmentEventId",
+        "tenantId",
+        "fulfillmentId",
+        "status",
+        "message",
+        "metadata",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "FulfillmentItem",
+      "filePath": "modules/order_fulfillment/entities/fulfillment_item.entity.ts",
+      "module": "order_fulfillment",
+      "schema": "system",
+      "tableName": "fulfillment_items",
+      "columns": [
+        "fulfillmentItemId",
+        "tenantId",
+        "fulfillmentId",
+        "orderItemId",
+        "productId",
+        "variantId",
+        "sku",
+        "name",
+        "quantity",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "Invoice",
       "filePath": "modules/invoice/entities/invoice.entity.ts",
       "module": "invoice",
@@ -4205,6 +4724,68 @@
         "sourceType",
         "sourceId",
         "metadata",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "LoyaltyAccount",
+      "filePath": "modules/payment_loyalty_points/entities/loyalty_account.entity.ts",
+      "module": "payment_loyalty_points",
+      "schema": "system",
+      "tableName": "loyalty_accounts",
+      "columns": [
+        "loyaltyAccountId",
+        "tenantId",
+        "userId",
+        "balance",
+        "lifetimePoints",
+        "tier",
+        "metadata",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "LoyaltyTier",
+      "filePath": "modules/payment_loyalty_points/entities/loyalty_tier.entity.ts",
+      "module": "payment_loyalty_points",
+      "schema": "system",
+      "tableName": "loyalty_tiers",
+      "columns": [
+        "loyaltyTierId",
+        "tenantId",
+        "name",
+        "code",
+        "minPoints",
+        "multiplier",
+        "benefits",
+        "sortOrder",
+        "isActive",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "LoyaltyTransaction",
+      "filePath": "modules/payment_loyalty_points/entities/loyalty_transaction.entity.ts",
+      "module": "payment_loyalty_points",
+      "schema": "system",
+      "tableName": "loyalty_transactions",
+      "columns": [
+        "loyaltyTransactionId",
+        "tenantId",
+        "accountId",
+        "userId",
+        "type",
+        "points",
+        "reason",
+        "referenceType",
+        "referenceId",
+        "balanceAfter",
+        "expiresAt",
         "createdAt"
       ],
       "relations": []
@@ -4434,6 +5015,48 @@
       "relations": []
     },
     {
+      "name": "ProductReview",
+      "filePath": "modules/product_review/entities/product_review.entity.ts",
+      "module": "product_review",
+      "schema": "system",
+      "tableName": "product_reviews",
+      "columns": [
+        "productReviewId",
+        "tenantId",
+        "productId",
+        "userId",
+        "authorName",
+        "rating",
+        "title",
+        "body",
+        "status",
+        "isVerifiedPurchase",
+        "helpfulCount",
+        "orderId",
+        "metadata",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "ProductReviewVote",
+      "filePath": "modules/product_review/entities/product_review_vote.entity.ts",
+      "module": "product_review",
+      "schema": "system",
+      "tableName": "product_review_votes",
+      "columns": [
+        "voteId",
+        "tenantId",
+        "reviewId",
+        "userId",
+        "isHelpful",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "PushSubscription",
       "filePath": "modules/notification_push/entities/push_subscription.entity.ts",
       "module": "notification_push",
@@ -4448,6 +5071,76 @@
         "auth",
         "createdAt",
         "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "ReturnEvent",
+      "filePath": "modules/payment_return_rma/entities/return_event.entity.ts",
+      "module": "payment_return_rma",
+      "schema": "system",
+      "tableName": "return_events",
+      "columns": [
+        "returnEventId",
+        "tenantId",
+        "returnRequestId",
+        "status",
+        "message",
+        "metadata",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "ReturnItem",
+      "filePath": "modules/payment_return_rma/entities/return_item.entity.ts",
+      "module": "payment_return_rma",
+      "schema": "system",
+      "tableName": "return_items",
+      "columns": [
+        "returnItemId",
+        "tenantId",
+        "returnRequestId",
+        "orderItemId",
+        "productId",
+        "variantId",
+        "sku",
+        "name",
+        "quantity",
+        "reason",
+        "condition",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "ReturnRequest",
+      "filePath": "modules/payment_return_rma/entities/return_request.entity.ts",
+      "module": "payment_return_rma",
+      "schema": "system",
+      "tableName": "return_requests",
+      "columns": [
+        "returnRequestId",
+        "tenantId",
+        "orderId",
+        "paymentId",
+        "userId",
+        "rmaNumber",
+        "type",
+        "status",
+        "reason",
+        "customerNote",
+        "adminNote",
+        "refundAmount",
+        "currency",
+        "metadata",
+        "approvedAt",
+        "receivedAt",
+        "refundedAt",
+        "cancelledAt",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
       ],
       "relations": []
     },
@@ -4517,6 +5210,57 @@
         "value",
         "group",
         "type",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "ShippingMethod",
+      "filePath": "modules/payment_shipping/entities/shipping_method.entity.ts",
+      "module": "payment_shipping",
+      "schema": "system",
+      "tableName": "shipping_methods",
+      "columns": [
+        "shippingMethodId",
+        "tenantId",
+        "name",
+        "code",
+        "carrier",
+        "description",
+        "isActive",
+        "sortOrder",
+        "metadata",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "ShippingRate",
+      "filePath": "modules/payment_shipping/entities/shipping_rate.entity.ts",
+      "module": "payment_shipping",
+      "schema": "system",
+      "tableName": "shipping_rates",
+      "columns": [
+        "shippingRateId",
+        "tenantId",
+        "shippingMethodId",
+        "name",
+        "countryCode",
+        "region",
+        "minWeight",
+        "maxWeight",
+        "minSubtotal",
+        "maxSubtotal",
+        "price",
+        "currency",
+        "freeThreshold",
+        "estimatedDaysMin",
+        "estimatedDaysMax",
+        "isActive",
+        "sortOrder",
         "createdAt",
         "updatedAt"
       ],
@@ -4873,6 +5617,49 @@
         "interval",
         "trialDays",
         "status",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "TaxClass",
+      "filePath": "modules/payment_tax/entities/tax_class.entity.ts",
+      "module": "payment_tax",
+      "schema": "system",
+      "tableName": "tax_classes",
+      "columns": [
+        "taxClassId",
+        "tenantId",
+        "name",
+        "code",
+        "description",
+        "isDefault",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "TaxRate",
+      "filePath": "modules/payment_tax/entities/tax_rate.entity.ts",
+      "module": "payment_tax",
+      "schema": "system",
+      "tableName": "tax_rates",
+      "columns": [
+        "taxRateId",
+        "tenantId",
+        "taxClassId",
+        "name",
+        "countryCode",
+        "region",
+        "postalCodePattern",
+        "rate",
+        "isCompound",
+        "includedInPrice",
+        "priority",
+        "isActive",
         "createdAt",
         "updatedAt"
       ],
@@ -5236,6 +6023,43 @@
         "nextRetryAt",
         "createdAt",
         "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "Wishlist",
+      "filePath": "modules/payment_wishlist/entities/wishlist.entity.ts",
+      "module": "payment_wishlist",
+      "schema": "system",
+      "tableName": "wishlists",
+      "columns": [
+        "wishlistId",
+        "tenantId",
+        "userId",
+        "name",
+        "isPublic",
+        "shareToken",
+        "metadata",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "WishlistItem",
+      "filePath": "modules/payment_wishlist/entities/wishlist_item.entity.ts",
+      "module": "payment_wishlist",
+      "schema": "system",
+      "tableName": "wishlist_items",
+      "columns": [
+        "wishlistItemId",
+        "tenantId",
+        "wishlistId",
+        "productId",
+        "variantId",
+        "note",
+        "createdAt"
       ],
       "relations": []
     }
