@@ -1,0 +1,13 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "product_review",
+  "name": "Product Review",
+  "description": "Tenant-aware product ratings and reviews with verified-purchase flags, helpful voting, moderation lifecycle, and cached per-product rating summaries.",
+  "version": "1.0.0",
+  "icon": "fas fa-star",
+  "tags": ["review", "rating", "ecommerce", "moderation"],
+  "priority": 42,
+  "dependencies": {
+    "requires": ["db", "env", "redis", "logger"]
+  }
+}

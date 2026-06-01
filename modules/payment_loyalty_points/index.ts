@@ -1,0 +1,5 @@
+export { default as PaymentLoyaltyPointsService } from './payment_loyalty_points.service'
+export * from './payment_loyalty_points.enums'
+export * from './payment_loyalty_points.types'
+export * from './payment_loyalty_points.dto'
+export * from './payment_loyalty_points.messages'
