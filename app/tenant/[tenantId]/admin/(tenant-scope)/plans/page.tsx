@@ -12,7 +12,7 @@ import { ServerDataTable, type TableColumn } from '@/modules_next/common/ui/Serv
 import { RowActionsMenu } from '@/modules_next/common/ui/RowActionsMenu';
 import { toast } from '@/modules_next/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTag, faPenToSquare, faBoxOpen } from '@fortawesome/free-solid-svg-icons';
+import { faTag, faPenToSquare, faBoxOpen, faStar, faStarHalfStroke } from '@fortawesome/free-solid-svg-icons';
 import api from '@/modules_next/common/axios';
 
 type PlanStatus = 'ACTIVE' | 'INACTIVE' | 'ARCHIVED';
@@ -91,6 +91,7 @@ export default function PlansPage({ params }: { params: Promise<{ tenantId: stri
   const router = useRouter();
 
   const [plans, setPlans]     = useState<Plan[]>([]);
+  const [defaultPlanId, setDefaultPlanId] = useState<string | null>(null);
   const [page, setPage]       = useState(1);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState('');
@@ -109,14 +110,28 @@ export default function PlansPage({ params }: { params: Promise<{ tenantId: stri
     setLoading(true);
     setFetchError('');
     try {
-      const res = await api.get(`/tenant/${tenantId}/api/plans`);
-      setPlans(res.data.plans ?? []);
+      const [plansRes, defaultRes] = await Promise.all([
+        api.get(`/tenant/${tenantId}/api/plans`),
+        api.get(`/tenant/${tenantId}/api/plans/default`),
+      ]);
+      setPlans(plansRes.data.plans ?? []);
+      setDefaultPlanId(defaultRes.data.defaultPlanId ?? null);
     } catch (err: unknown) {
       setFetchError(extractMessage(err, 'Failed to load plans.'));
     } finally {
       setLoading(false);
     }
   }, [tenantId]);
+
+  const handleSetDefault = async (planId: string | null) => {
+    try {
+      const res = await api.put(`/tenant/${tenantId}/api/plans/default`, { planId });
+      setDefaultPlanId(res.data.defaultPlanId ?? null);
+      toast.success(planId ? 'Default plan updated.' : 'Default plan cleared.');
+    } catch (err: unknown) {
+      toast.error(extractMessage(err, 'Failed to update default plan.'));
+    }
+  };
 
   useEffect(() => { fetchPlans(); }, [fetchPlans]);
 
@@ -177,8 +192,11 @@ export default function PlansPage({ params }: { params: Promise<{ tenantId: stri
             <FontAwesomeIcon icon={faTag} className="w-3.5 h-3.5" />
           </span>
           <div className="min-w-0">
-            <p className="font-medium text-text-primary truncate">
-              {plan.product?.name ?? <span className="italic text-text-disabled">No product</span>}
+            <p className="font-medium text-text-primary truncate flex items-center gap-2">
+              <span className="truncate">{plan.product?.name ?? <span className="italic text-text-disabled">No product</span>}</span>
+              {plan.planId === defaultPlanId && (
+                <Badge variant="primary" size="sm">Default</Badge>
+              )}
             </p>
             <p className="text-xs text-text-secondary truncate max-w-[260px]">
               <code>{plan.product?.slug}</code>
@@ -235,24 +253,42 @@ export default function PlansPage({ params }: { params: Promise<{ tenantId: stri
       key: '_actions',
       header: '',
       align: 'right',
-      render: (plan) => (
-        <div onClick={(e) => e.stopPropagation()}>
-          <RowActionsMenu
-            actions={[
-              {
-                label: 'Manage',
-                icon: <FontAwesomeIcon icon={faPenToSquare} />,
-                onClick: () => router.push(`/tenant/${tenantId}/admin/plans/${plan.planId}`),
-              },
-              {
-                label: 'Open product',
-                icon: <FontAwesomeIcon icon={faBoxOpen} />,
-                onClick: () => router.push(`/tenant/${tenantId}/admin/store/products/${plan.productId}`),
-              },
-            ]}
-          />
-        </div>
-      ),
+      render: (plan) => {
+        const isDefault = plan.planId === defaultPlanId;
+        const isFree = (plan.product?.basePrice ?? -1) === 0;
+        return (
+          <div onClick={(e) => e.stopPropagation()}>
+            <RowActionsMenu
+              actions={[
+                {
+                  label: 'Manage',
+                  icon: <FontAwesomeIcon icon={faPenToSquare} />,
+                  onClick: () => router.push(`/tenant/${tenantId}/admin/plans/${plan.planId}`),
+                },
+                {
+                  label: 'Open product',
+                  icon: <FontAwesomeIcon icon={faBoxOpen} />,
+                  onClick: () => router.push(`/tenant/${tenantId}/admin/store/products/${plan.productId}`),
+                },
+                // Only a free plan can be the default; the current default offers "remove".
+                ...(isDefault
+                  ? [{
+                      label: 'Remove as default',
+                      icon: <FontAwesomeIcon icon={faStarHalfStroke} />,
+                      onClick: () => handleSetDefault(null),
+                    }]
+                  : isFree
+                  ? [{
+                      label: 'Set as default',
+                      icon: <FontAwesomeIcon icon={faStar} />,
+                      onClick: () => handleSetDefault(plan.planId),
+                    }]
+                  : []),
+              ]}
+            />
+          </div>
+        );
+      },
     },
   ];
 

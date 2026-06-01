@@ -654,6 +654,44 @@ export default class TenantSubscriptionService {
     }
   }
 
+  // ============================================================================
+  // Default Plan (system setting `defaultPlanId`, stored on the ROOT tenant)
+  // ============================================================================
+
+  /**
+   * The ROOT-catalogue plan auto-assigned (for free) to newly created tenants.
+   * Returns null when no default has been configured. System-level setting,
+   * read from the ROOT tenant like the other subscription settings.
+   */
+  static async getDefaultPlanId(): Promise<string | null> {
+    try {
+      const SettingService = (await import('@/modules/setting/setting.service')).default;
+      const val = await SettingService.getValue(ROOT_TENANT_ID, 'defaultPlanId');
+      return val && val.trim() ? val.trim() : null;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Set (or clear, when `planId` is null) the default plan. Only a *free* plan
+   * — a ROOT plan whose wrapped product has a base price of 0 — may be made the
+   * default, so newly created tenants are never silently placed on a paid plan.
+   */
+  static async setDefaultPlanId(planId: string | null): Promise<void> {
+    if (planId) {
+      const plan = await this.getPlanById(ROOT_TENANT_ID, planId);
+      if (!plan.product) {
+        throw new Error('This plan references a deleted product and cannot be the default.');
+      }
+      if (plan.product.basePrice !== 0) {
+        throw new Error('Only a free plan (base price 0) can be set as the default plan.');
+      }
+    }
+    const SettingService = (await import('@/modules/setting/setting.service')).default;
+    await SettingService.updateMany(ROOT_TENANT_ID, { defaultPlanId: planId ?? '' });
+  }
+
   private static async getFeatureCache(tenantId: string): Promise<{
     status: string;
     gracePeriodEndsAt: string | null;

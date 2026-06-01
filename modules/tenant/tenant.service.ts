@@ -118,15 +118,27 @@ export default class TenantService {
   private static async seedDefaults(tenantId: string, defaults?: SeedDefaults): Promise<void> {
     if (isRootTenant(tenantId)) return;
 
-    // Default plan + subscription seed disabled: plans now wrap StoreProduct,
-    // which requires a Category. A new tenant has no catalog yet, so the Free
-    // plan/subscription must be created manually from the admin UI once the
-    // operator has a category in place. The defaults?.skipPlan and
-    // defaults?.skipSubscription flags are kept for future re-enablement.
+    // Inline Free plan seed disabled: plans now wrap a StoreProduct (which
+    // requires a Category), so a brand-new tenant has no catalog to bind to.
+    // Instead, if the operator has configured a default plan (a free plan in
+    // the ROOT catalogue), we clone+assign it for free below. The
+    // defaults?.skipPlan / skipSubscription flags gate that step.
     void DEFAULT_FREE_PRODUCT;
     void DEFAULT_FREE_PLAN_BILLING;
-    void defaults?.skipPlan;
-    void defaults?.skipSubscription;
+
+    if (!defaults?.skipPlan && !defaults?.skipSubscription) {
+      try {
+        const { default: TenantSubscriptionService } = await import('@/modules/tenant_subscription/tenant_subscription.service');
+        const defaultPlanId = await TenantSubscriptionService.getDefaultPlanId();
+        if (defaultPlanId) {
+          // assignPlatformPlan clones the ROOT plan's category/product/plan/feature
+          // chain into this tenant and assigns it for free (priceOverride 0).
+          await TenantSubscriptionService.assignPlatformPlan(tenantId, { planId: defaultPlanId, priceOverride: 0 });
+        }
+      } catch (err) {
+        Logger.warn(`[TenantService.seedDefaults] default plan assignment failed for ${tenantId}: ${err instanceof Error ? err.message : String(err)}`);
+      }
+    }
 
     if (!defaults?.skipSettings) {
       try {
