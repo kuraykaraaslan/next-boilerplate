@@ -17,7 +17,10 @@ Tenant-scoped invoicing with **regional e-invoicing adapters**: TR (e-Arşiv Fat
 | `entities/invoice_line.entity.ts` | `InvoiceLine` — N rows per invoice |
 | `adapters/base.adapter.ts` | `InvoiceAdapter` interface (submit / cancel / isConfigured) |
 | `adapters/registry.ts` | Region → adapter map |
-| `adapters/tr_earsiv.adapter.ts` | UBL-TR 2.1 XML builder + integrator switch (Foriba / Logo / Uyumsoft / mock) |
+| `adapters/tr_earsiv.adapter.ts` | UBL-TR 2.1 XML builder + GİB portal JSON builder + integrator switch (gib_direct / Foriba / Logo / Uyumsoft / mock) |
+| `adapters/tr_gib_direct.client.ts` | Free GİB e-Arşiv Portal client — login / create draft / SMS-OTP sign / cancel (no integrator contract needed) |
+| `adapters/tr_foriba.client.ts` | Foriba integrator HTTP client (UBL submit) |
+| `adapters/tr_logo.client.ts` | Logo İnternet integrator HTTP client (UBL submit) |
 | `adapters/tr_validators.ts` | TCKN + VKN checksum validation |
 | `adapters/tr_vat_rates.ts` | Turkish KDV rate constants |
 | `adapters/eu_peppol.adapter.ts` | Peppol BIS Billing 3.0 stub + OSS VAT helpers |
@@ -64,13 +67,25 @@ Before a tenant can issue an invoice, set these settings (Settings → Integrati
 
 ### TR — e-Arşiv Fatura / e-Fatura
 
-- `billingRegion='TR'` + one of `earsivIntegrator` ∈ {`mock`, `foriba`, `logo`, `uyumsoft`, `bizplace`, `mikrogep`}.
+- `billingRegion='TR'` + one of `earsivIntegrator` ∈ {`mock`, `gib_direct`, `foriba`, `logo`, `uyumsoft`, `bizplace`, `mikrogep`}.
 - UBL-TR 2.1 XML built by [tr_earsiv.adapter.ts](adapters/tr_earsiv.adapter.ts) — namespaces, supplier/customer parties, tax totals, line items.
 - `mock` mode generates a UUID + status=`accepted` for local development.
-- Production: fill `earsivIntegratorBaseUrl`, `earsivIntegratorUsername`, `earsivIntegratorPassword` per your contract; implement the integrator branch inside `submit()`.
+- Paid integrators (`foriba` / `logo` / …): fill `earsivIntegratorBaseUrl`, `earsivIntegratorUsername`, `earsivIntegratorPassword` per your contract; the integrator branches POST the UBL-TR XML.
 - KDV rates 0% / 1% / 10% / 20% via [tr_vat_rates.ts](adapters/tr_vat_rates.ts).
 - TCKN + VKN checksum validators in [tr_validators.ts](adapters/tr_validators.ts).
 - Document type: defaults to `EARSIVFATURA` (B2C). Set `earsivDocumentTypeOverride='TICARIFATURA'` for B2B.
+
+#### Free GİB portal (`gib_direct`) + SMS signing
+
+For small issuers (freelancers, micro-businesses) who use GİB's free e-Arşiv Portal directly instead of a paid integrator. See [tr_gib_direct.client.ts](adapters/tr_gib_direct.client.ts).
+
+- Settings: `earsivIntegrator='gib_direct'`, `earsivIntegratorUsername` (TCKN/VKN), `earsivIntegratorPassword`, `earsivIntegratorSandbox` (`'true'` = GİB TEST portal, default; `'false'` = PROD). `earsivIntegratorBaseUrl` is an optional override.
+- The portal does **not** take UBL-TR XML — it takes a flat JSON invoice (`buildGibPortalInvoice`) and renders the UBL itself.
+- **Two-step finalisation.** `issue()` creates an **unsigned** draft (`earsivStatus='submitted'`). Making it legally final needs an SMS-OTP — that step can't run unattended from a webhook, so it is driven from the Invoices admin page:
+  1. `POST /tenant/[tenantId]/api/invoices/earsiv/sms/send` → `InvoiceService.requestEarsivSms()` sends the OTP to the account's phone and returns an `oid`.
+  2. `POST /tenant/[tenantId]/api/invoices/earsiv/sms/verify` with `{ oid, code, invoiceIds? }` → `InvoiceService.confirmEarsivSms()` signs the matching drafts and flips them to `earsivStatus='accepted'`. Omitting `invoiceIds` signs every unsigned TR invoice.
+- On submit failure `gib_direct` surfaces `earsivStatus='rejected'` (no silent mock fallback) so the operator notices and can retry.
+- Limits: the free portal is rate-limited (a few hundred docs/day) and issues e-Arşiv (B2C) only — for e-Fatura (B2B) at volume, use a paid integrator.
 
 ### EU — Peppol BIS Billing 3.0
 

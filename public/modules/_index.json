@@ -120,7 +120,7 @@
     "hasNextLayer": true,
     "routeCount": 3,
     "entityCount": 1,
-    "componentCount": 2,
+    "componentCount": 7,
     "file": "setting.md"
   },
   "user_agent": {
@@ -135,6 +135,19 @@
     "entityCount": 0,
     "componentCount": 0,
     "file": "user_agent.md"
+  },
+  "seed": {
+    "name": "Seed",
+    "tier": "other",
+    "tags": [
+      "infrastructure",
+      "tooling"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 0,
+    "componentCount": 0,
+    "file": "seed.md"
   },
   "storage": {
     "name": "File Storage",
@@ -413,9 +426,9 @@
       "payment"
     ],
     "hasNextLayer": true,
-    "routeCount": 7,
+    "routeCount": 9,
     "entityCount": 4,
-    "componentCount": 2,
+    "componentCount": 7,
     "file": "payment.md"
   },
   "tenant_export": {
@@ -458,6 +471,19 @@
     "entityCount": 2,
     "componentCount": 0,
     "file": "payment_sell.md"
+  },
+  "exchange_rate": {
+    "name": "Exchange Rate",
+    "tier": "other",
+    "tags": [
+      "billing",
+      "fx"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 0,
+    "componentCount": 0,
+    "file": "exchange_rate.md"
   },
   "payment_subscription": {
     "name": "Payment Subscription",
@@ -512,7 +538,7 @@
       "tax"
     ],
     "hasNextLayer": true,
-    "routeCount": 7,
+    "routeCount": 9,
     "entityCount": 2,
     "componentCount": 1,
     "file": "invoice.md"

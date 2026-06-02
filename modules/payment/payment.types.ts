@@ -79,6 +79,20 @@ export const PaymentWithTransactionsSchema = SafePaymentSchema.extend({
   transactions: z.array(PaymentTransactionSchema),
 })
 
+// Combined BIN lookup result — merges the provider's BIN check (brand / bank /
+// type / commercial) with a public BIN→country lookup. Drives the "charge in TRY
+// for Turkish cards" decision and the live checkout quote.
+export const CardBinInfoSchema = z.object({
+  bin: z.string(),
+  brand: z.string().nullable(),
+  bankName: z.string().nullable(),
+  cardType: z.string().nullable(),
+  commercial: z.boolean(),
+  country: z.string().nullable(),
+  isTurkish: z.boolean(),
+  force3ds: z.boolean(),
+})
+
 // Provider Result Schema - response from payment provider
 export const ProviderResultSchema = z.object({
   success: z.boolean(),
@@ -96,3 +110,4 @@ export type SafePayment = z.infer<typeof SafePaymentSchema>
 export type PaymentTransaction = z.infer<typeof PaymentTransactionSchema>
 export type PaymentWithTransactions = z.infer<typeof PaymentWithTransactionsSchema>
 export type ProviderResult = z.infer<typeof ProviderResultSchema>
+export type CardBinInfo = z.infer<typeof CardBinInfoSchema>

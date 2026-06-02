@@ -216,6 +216,80 @@ function MembersSection({ tenantId, memberCount }: { tenantId: string; memberCou
 
 ---
 
+## Self-service paid checkout
+
+Two ways for a tenant admin to buy a plan from the subscription admin page
+(`/tenant/<id>/admin/subscription`):
+
+- **Hosted redirect** (Stripe, PayPal) — `purchaseSubscription` → provider checkout URL → return → `confirmPayment`.
+- **In-app card form** (iyzico) — the card is collected on our own form
+  (`modules_next/payment/ui/CreditCardForm.tsx`, shown via `CardCheckoutModal`).
+  Charged synchronously (non-3DS) **or** via 3D Secure when required (see below).
+- **iyzico wallet** (MasterPass / BKM Express) — `purchaseSubscription({ convertToTry: true })`
+  → iyzico hosted page (wallets shown automatically) → redirect → `confirmPayment`. Charged in TRY.
+- **Stripe Express Checkout** (Apple/Google Pay, Click to Pay, Link…) — `startExpressCheckout`
+  → `<ExpressCheckoutElement>` (`StripeExpressCheckoutModal`) → `confirmExpressCheckout`
+  (server verifies the PaymentIntent succeeded before activating).
+
+Which wallets each provider can surface comes from
+[`PaymentService.getWalletMatrix()`](../payment/README.md#wallets--alternative-payment-methods)
+(`GET /tenant/[id]/api/payments/wallets`), shown as badges in the UI.
+
+### Charge Turkish cards in TRY
+
+When paying via a **TRY-settling provider** (currently **iyzico**) with a
+**Turkish card**, a plan priced in USD is converted to TRY at the live
+[TCMB rate](../../exchange_rate/README.md) and charged in TRY. "Turkish" =
+BIN→country is `TR` **or** the provider's BIN lookup returned a (Turkish) bank
+(see [`payment` · BIN check](../payment/README.md#direct-card-charging--bin-check)).
+
+```typescript
+// Live preview for the card form (no charge): amount/currency + detected brand/bank
+await TenantSubscriptionService.quote(tenantId, planId, bin /* 6–8 digits */, 'IYZICO');
+// → { baseAmount, baseCurrency, isTurkish, chargedAmount, chargedCurrency, exchangeRate, brand, bankName }
+
+// Real charge. Returns a discriminated result:
+await TenantSubscriptionService.payWithCard({
+  tenantId, planId, card /* CreditCardInput */, provider: 'IYZICO',
+  customerEmail, customerName, ip, callbackUrl /* enables 3DS */,
+});
+// → { status: 'completed', paymentId, subscription, chargedAmount, chargedCurrency, exchangeRate }
+// → { status: 'requires_3ds', paymentId, htmlContent /* base64 bank form */, chargedAmount, ... }
+
+// Finalize 3DS on the bank callback (idempotent activation)
+await TenantSubscriptionService.complete3dsCardPayment({ tenantId, conversationId, providerPaymentId });
+```
+
+### 3D Secure (auto)
+
+3DS is chosen **automatically**: a commercial card (`force3ds`) or a **Turkish
+card** goes through 3DS; other cards are charged non-3DS in one step. (3DS only
+engages when a `callbackUrl` is passed and the provider supports it.)
+
+Flow: `payWithCard` → `requires_3ds` + `htmlContent` → the browser renders the
+bank's self-submitting form (full-page redirect via `document.write`) → bank POSTs
+to the **public** callback → it re-validates with iyzico and activates the
+subscription → redirects back to `…/admin/subscription?paymentSuccess=true&paymentId=…`
+(the existing idempotent confirm/refresh takes over).
+
+The `Payment` row stores the **actually charged** amount/currency (TRY when
+converted); the original price + rate live in `Payment.metadata`
+(`originalAmount`, `originalCurrency`, `exchangeRate`, `chargedAmountTRY`,
+`binCountry`, `binBank`) for audit/invoicing. The card PAN/CVV are passed straight
+to the provider and never persisted or logged.
+
+**Routes** (ADMIN unless noted):
+
+| Route | Body | Returns |
+|---|---|---|
+| `POST /tenant/[id]/api/subscription/quote` | `{ planId, bin, provider? }` | live TRY quote + brand/bank |
+| `POST /tenant/[id]/api/subscription/pay` | `{ planId, card, provider?, customerEmail?, customerName? }` | `completed` or `requires3ds`+`htmlContent` (402 on decline) |
+| `POST /tenant/[id]/api/subscription/pay/3ds-callback` | iyzico form post (**public**) | 303 redirect back to the subscription page |
+| `POST /tenant/[id]/api/subscription/payment-intent` | `{ planId, provider?, customerEmail?, customerName? }` | `{ paymentId, clientSecret, publishableKey, amount, currency }` (Express Checkout) |
+| `POST /tenant/[id]/api/subscription/payment-intent/confirm` | `{ paymentId, provider? }` | `{ subscription }` (verifies PaymentIntent, 402 if not succeeded) |
+| `POST /tenant/[id]/api/payments/bin-check` | `{ bin, provider? }` | combined `CardBinInfo` |
+| `GET /tenant/[id]/api/payments/wallets` | — | provider → supported wallets matrix |
+
 ## Root-admin: assign a platform plan for free
 
 Root (Platform) tenant admins can grant any other tenant a plan **without payment**

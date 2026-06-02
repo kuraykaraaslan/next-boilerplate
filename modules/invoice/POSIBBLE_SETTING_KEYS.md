@@ -25,6 +25,7 @@
 | earsivIntegratorBaseUrl | invoice.setting.keys.ts | tenant-level |
 | earsivIntegratorUsername | invoice.setting.keys.ts | tenant-level |
 | earsivIntegratorPassword | invoice.setting.keys.ts | tenant-level |
+| earsivIntegratorSandbox | invoice.setting.keys.ts | tenant-level |
 | earsivAutoSubmit | invoice.setting.keys.ts | tenant-level |
 | earsivDocumentTypeOverride | invoice.setting.keys.ts | tenant-level |
 | peppolEndpointId | invoice.setting.keys.ts | tenant-level |

@@ -42,8 +42,13 @@ System-wide key-value settings store. Modules declare their keys in *.setting.ke
 
 ## Next layer (modules_next/) surface
 
+- `setting/setting-fields.types` _(ui)_
 - `setting/setting.types` _(ui)_
+- `setting/ui/ModuleSettingsPage` _(ui, client)_
 - `setting/ui/PlatformSettingsTabs` _(ui, client)_
+- `setting/ui/settings-kit` _(ui, client)_
+- `setting/ui/SettingsPanelHost` _(ui, client)_
+- `setting/ui/TenantSettingsPanels` _(ui, client)_
 
 ## README
 

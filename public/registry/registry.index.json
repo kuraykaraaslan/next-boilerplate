@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-01T08:06:40.312Z",
+  "generatedAt": "2026-06-02T22:28:30.051Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -364,6 +364,39 @@
         "enums": [
           "user_agent.enums.ts"
         ],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "seed",
+      "name": "Seed",
+      "version": "1.0.0",
+      "description": "Demo-data seeding framework. Each domain module ships a <module>.seed.ts exporting seed<Module>(ctx); the runner invokes them in dependency order against a target tenant.",
+      "dir": "modules/seed",
+      "icon": "fas fa-seedling",
+      "tags": [
+        "infrastructure",
+        "tooling"
+      ],
+      "priority": 9,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "tenant"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
         "messageKeys": [],
         "settingKeys": [],
         "providers": [],
@@ -1456,6 +1489,43 @@
       "hasReadme": false,
       "hasModuleJson": true,
       "hasNextLayer": true
+    },
+    {
+      "id": "exchange_rate",
+      "name": "Exchange Rate",
+      "version": "1.0.0",
+      "description": "TCMB (Turkish Central Bank) FX rates with Redis caching. Converts plan prices to TRY when charging Turkish cards via iyzico.",
+      "dir": "modules/exchange_rate",
+      "icon": "fas fa-money-bill-transfer",
+      "tags": [
+        "billing",
+        "fx"
+      ],
+      "priority": 27,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "redis",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [
+          "exchange_rate.service.ts"
+        ],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [
+          "exchange_rate.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
     },
     {
       "id": "payment_subscription",
@@ -3601,6 +3671,26 @@
       "dynamic": true
     },
     {
+      "filePath": "app/tenant/[tenantId]/api/invoices/earsiv/sms/send/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/invoices/earsiv/sms/send",
+      "methods": [
+        "POST"
+      ],
+      "module": "invoice",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/invoices/earsiv/sms/verify/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/invoices/earsiv/sms/verify",
+      "methods": [
+        "POST"
+      ],
+      "module": "invoice",
+      "dynamic": true
+    },
+    {
       "filePath": "app/tenant/[tenantId]/api/invoices/preview/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/invoices/preview",
@@ -3732,6 +3822,16 @@
       "dynamic": true
     },
     {
+      "filePath": "app/tenant/[tenantId]/api/payments/bin-check/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/payments/bin-check",
+      "methods": [
+        "POST"
+      ],
+      "module": "payment",
+      "dynamic": true
+    },
+    {
       "filePath": "app/tenant/[tenantId]/api/payments/provider-status/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/payments/provider-status",
@@ -3758,6 +3858,16 @@
       "methods": [
         "GET",
         "PUT"
+      ],
+      "module": "payment",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/payments/wallets/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/payments/wallets",
+      "methods": [
+        "GET"
       ],
       "module": "payment",
       "dynamic": true
@@ -4194,6 +4304,56 @@
       "urlPath": "/tenant/[tenantId]/api/subscription/grace-period",
       "methods": [
         "GET"
+      ],
+      "module": "subscription",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/subscription/pay/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/subscription/pay",
+      "methods": [
+        "POST"
+      ],
+      "module": "subscription",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/subscription/pay/3ds-callback/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/subscription/pay/3ds-callback",
+      "methods": [
+        "POST"
+      ],
+      "module": "subscription",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/subscription/payment-intent/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/subscription/payment-intent",
+      "methods": [
+        "POST"
+      ],
+      "module": "subscription",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/subscription/payment-intent/confirm/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/subscription/payment-intent/confirm",
+      "methods": [
+        "POST"
+      ],
+      "module": "subscription",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/subscription/quote/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/subscription/quote",
+      "methods": [
+        "POST"
       ],
       "module": "subscription",
       "dynamic": true
@@ -7916,6 +8076,43 @@
       "baseName": "withObservability.next"
     },
     {
+      "id": "payment/ui/CardCheckoutModal",
+      "module": "payment",
+      "filePath": "modules_next/payment/ui/CardCheckoutModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "CardCheckoutModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CardCheckoutModal"
+    },
+    {
+      "id": "payment/ui/CreditCardForm",
+      "module": "payment",
+      "filePath": "modules_next/payment/ui/CreditCardForm.tsx",
+      "kind": "ui",
+      "exports": [
+        "detectBrand",
+        "CreditCardForm"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CreditCardForm"
+    },
+    {
+      "id": "payment/ui/CreditCardVisual",
+      "module": "payment",
+      "filePath": "modules_next/payment/ui/CreditCardVisual.tsx",
+      "kind": "ui",
+      "exports": [
+        "CreditCardVisual"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CreditCardVisual"
+    },
+    {
       "id": "payment/ui/PaymentStatusBadge",
       "module": "payment",
       "filePath": "modules_next/payment/ui/PaymentStatusBadge.tsx",
@@ -7939,6 +8136,30 @@
       "isClient": true,
       "isServer": false,
       "baseName": "PaymentSummaryCard"
+    },
+    {
+      "id": "payment/ui/StripeExpressCheckoutModal",
+      "module": "payment",
+      "filePath": "modules_next/payment/ui/StripeExpressCheckoutModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "StripeExpressCheckoutModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "StripeExpressCheckoutModal"
+    },
+    {
+      "id": "payment/ui/WalletBadges",
+      "module": "payment",
+      "filePath": "modules_next/payment/ui/WalletBadges.tsx",
+      "kind": "ui",
+      "exports": [
+        "WalletBadges"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "WalletBadges"
     },
     {
       "id": "redis_idempotency/withIdempotency",
@@ -7965,6 +8186,21 @@
       "baseName": "SeoPanel"
     },
     {
+      "id": "setting/setting-fields.types",
+      "module": "setting",
+      "filePath": "modules_next/setting/setting-fields.types.ts",
+      "kind": "ui",
+      "exports": [
+        "SettingFieldType",
+        "SettingFieldOption",
+        "SettingFieldDef",
+        "SECRET_MASK"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "setting-fields.types"
+    },
+    {
       "id": "setting/setting.types",
       "module": "setting",
       "filePath": "modules_next/setting/setting.types.ts",
@@ -7977,16 +8213,77 @@
       "baseName": "setting.types"
     },
     {
+      "id": "setting/ui/ModuleSettingsPage",
+      "module": "setting",
+      "filePath": "modules_next/setting/ui/ModuleSettingsPage.tsx",
+      "kind": "ui",
+      "exports": [
+        "ModuleSettingsPage"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ModuleSettingsPage"
+    },
+    {
       "id": "setting/ui/PlatformSettingsTabs",
       "module": "setting",
       "filePath": "modules_next/setting/ui/PlatformSettingsTabs.tsx",
       "kind": "ui",
       "exports": [
+        "PlatformAuthTab",
+        "PlatformEmailTab",
+        "PlatformSmsTab",
+        "PlatformStorageTab",
+        "PlatformPaymentTab",
+        "PlatformAiTab",
+        "PlatformSecurityTab",
+        "PlatformNotificationsTab",
+        "PlatformScimTab",
         "PlatformSettingsTabs"
       ],
       "isClient": true,
       "isServer": false,
       "baseName": "PlatformSettingsTabs"
+    },
+    {
+      "id": "setting/ui/settings-kit",
+      "module": "setting",
+      "filePath": "modules_next/setting/ui/settings-kit.tsx",
+      "kind": "ui",
+      "exports": [
+        "SR",
+        "b",
+        "bStr",
+        "SaveRow"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "settings-kit"
+    },
+    {
+      "id": "setting/ui/SettingsPanelHost",
+      "module": "setting",
+      "filePath": "modules_next/setting/ui/SettingsPanelHost.tsx",
+      "kind": "ui",
+      "exports": [
+        "SettingsPanelHost"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SettingsPanelHost"
+    },
+    {
+      "id": "setting/ui/TenantSettingsPanels",
+      "module": "setting",
+      "filePath": "modules_next/setting/ui/TenantSettingsPanels.tsx",
+      "kind": "ui",
+      "exports": [
+        "GeneralTab",
+        "BillingTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "TenantSettingsPanels"
     },
     {
       "id": "store/ui/ProductSpecValuesPanel",

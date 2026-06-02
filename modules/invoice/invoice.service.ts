@@ -1,7 +1,9 @@
 import 'reflect-metadata';
+import { In } from 'typeorm';
 import { tenantDataSourceFor } from '@/modules/db';
 import { Invoice as InvoiceEntity } from './entities/invoice.entity';
 import { InvoiceLine as InvoiceLineEntity } from './entities/invoice_line.entity';
+import { GibDirectClient } from './adapters/tr_gib_direct.client';
 import SettingService from '@/modules/setting/setting.service';
 import AuditLogService from '@/modules/audit_log/audit_log.service';
 import { ROOT_TENANT_ID, isRootTenant } from '@/modules/tenant/tenant.constants';
@@ -261,6 +263,91 @@ export default class InvoiceService {
     }).catch(() => {});
 
     return SafeInvoiceSchema.parse(invoice);
+  }
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // TR e-Arşiv — SMS finalisation (gib_direct only)
+  //
+  // The free GİB portal creates drafts UNSIGNED. Making them legal needs an
+  // SMS-OTP: requestEarsivSms() sends the code to the account's phone, then the
+  // admin enters it in confirmEarsivSms() which signs the matching drafts.
+  // ───────────────────────────────────────────────────────────────────────────
+
+  private static async buildGibClient(tenantId: string): Promise<GibDirectClient> {
+    const integrator = await SettingService.getValue(tenantId, 'earsivIntegrator');
+    if (integrator !== 'gib_direct') throw new Error(InvoiceMessages.EARSIV_NOT_GIB_DIRECT);
+    const [username, password, baseUrl, sandboxFlag] = await Promise.all([
+      SettingService.getValue(tenantId, 'earsivIntegratorUsername'),
+      SettingService.getValue(tenantId, 'earsivIntegratorPassword'),
+      SettingService.getValue(tenantId, 'earsivIntegratorBaseUrl'),
+      SettingService.getValue(tenantId, 'earsivIntegratorSandbox'),
+    ]);
+    if (!username || !password) throw new Error(InvoiceMessages.EARSIV_NOT_CONFIGURED);
+    return new GibDirectClient({
+      username, password,
+      baseUrl: baseUrl || undefined,
+      sandbox: sandboxFlag === 'false' ? false : true,
+    });
+  }
+
+  /** Step 1 — ask the GİB portal to SMS an OTP to the account's phone. */
+  static async requestEarsivSms(tenantId: string): Promise<{ oid: string }> {
+    const client = await this.buildGibClient(tenantId);
+    try {
+      await client.login();
+      const oid = await client.sendSmsCode();
+      return { oid };
+    } catch (err) {
+      Logger.warn(`[Invoice.requestEarsivSms] ${err instanceof Error ? err.message : err}`);
+      throw new Error(InvoiceMessages.EARSIV_SMS_SEND_FAILED);
+    }
+  }
+
+  /**
+   * Step 2 — verify the OTP and sign the unsigned drafts. When `invoiceIds` is
+   * omitted, every 'submitted' (created-but-unsigned) TR invoice is signed.
+   * Returns how many invoices were finalised.
+   */
+  static async confirmEarsivSms(tenantId: string, oid: string, code: string, invoiceIds?: string[]): Promise<{ signed: number }> {
+    const client = await this.buildGibClient(tenantId);
+    const ds = await tenantDataSourceFor(tenantId);
+    const repo = ds.getRepository(InvoiceEntity);
+
+    const rows = invoiceIds?.length
+      ? await repo.find({ where: { tenantId, invoiceId: In(invoiceIds) } })
+      : await repo.find({ where: { tenantId, region: 'TR', earsivStatus: 'submitted' } });
+    const invoices = rows.filter((i) => i.earsivUuid && i.earsivStatus !== 'accepted');
+    if (invoices.length === 0) return { signed: 0 };
+
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const fmt = (d: Date) => `${pad(d.getUTCDate())}/${pad(d.getUTCMonth() + 1)}/${d.getUTCFullYear()}`;
+    const earliest = new Date(Math.min(...invoices.map((i) => i.issueDate.getTime())));
+
+    try {
+      await client.login();
+      const drafts = await client.listDrafts(fmt(earliest), fmt(new Date()));
+      const uuids = new Set(invoices.map((i) => i.earsivUuid));
+      const toSign = drafts.filter((r) => uuids.has(String(r.ettn ?? r.belgeId ?? r.faturaUuid ?? '')));
+      if (toSign.length === 0) throw new Error(InvoiceMessages.EARSIV_NO_DRAFTS);
+
+      await client.verifySmsCode(oid, code, toSign);
+    } catch (err) {
+      if (err instanceof Error && err.message === InvoiceMessages.EARSIV_NO_DRAFTS) throw err;
+      Logger.warn(`[Invoice.confirmEarsivSms] ${err instanceof Error ? err.message : err}`);
+      throw new Error(InvoiceMessages.EARSIV_SMS_VERIFY_FAILED);
+    }
+
+    for (const inv of invoices) {
+      inv.earsivStatus = 'accepted';
+      await repo.save(inv);
+    }
+    AuditLogService.log({
+      tenantId, actorType: 'SYSTEM', action: 'invoice.earsiv.signed',
+      resourceType: 'invoice', resourceId: invoices.map((i) => i.invoiceId).join(','),
+      metadata: { count: invoices.length },
+    }).catch(() => {});
+
+    return { signed: invoices.length };
   }
 
   // ───────────────────────────────────────────────────────────────────────────

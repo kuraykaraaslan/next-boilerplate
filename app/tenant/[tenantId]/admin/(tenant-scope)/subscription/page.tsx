@@ -12,6 +12,10 @@ import { Modal } from '@/modules_next/common/ui/Modal';
 import { RadioGroup } from '@/modules_next/common/ui/RadioGroup';
 import { SubscriptionPlanCard } from '@/modules_next/tenant_subscription/ui/SubscriptionPlanCard';
 import { GracePeriodBanner } from '@/modules_next/tenant_subscription/ui/GracePeriodBanner';
+import { CardCheckoutModal } from '@/modules_next/payment/ui/CardCheckoutModal';
+import { StripeExpressCheckoutModal } from '@/modules_next/payment/ui/StripeExpressCheckoutModal';
+import { WalletBadges } from '@/modules_next/payment/ui/WalletBadges';
+import type { WalletMethod } from '@/modules/payment/payment.enums';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faCreditCard, faWarning, faCalendar, faFlask,
@@ -200,7 +204,17 @@ export default function TenantSubscriptionPage({
 
   // ── UI state ──
   const [provider, setProvider] = useState<Provider>('STRIPE');
+  // iyzico: pay with our own card form vs. hosted wallet (MasterPass / BKM Express).
+  const [iyzicoMode, setIyzicoMode] = useState<'card' | 'wallet'>('card');
+  // Stripe: hosted Checkout redirect vs. in-app Express Checkout wallets (Apple/Google Pay, Click to Pay).
+  const [stripeMode, setStripeMode] = useState<'hosted' | 'express'>('hosted');
   const [selecting, setSelecting] = useState<string | null>(null);
+  // Plan being paid via the in-app card form (iyzico, direct non-3DS).
+  const [cardPlan, setCardPlan] = useState<{ planId: string; name: string; basePrice: number; currency: string } | null>(null);
+  // Plan being paid via the Stripe Express Checkout Element (wallets).
+  const [expressPlan, setExpressPlan] = useState<{ planId: string; name: string } | null>(null);
+  // Wallet capability matrix (provider → supported wallets) for the badges.
+  const [walletMatrix, setWalletMatrix] = useState<Record<string, WalletMethod[]>>({});
   const [showCancel, setShowCancel] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [confirming, setConfirming] = useState(false);
@@ -240,6 +254,22 @@ export default function TenantSubscriptionPage({
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
+  // Wallet capability matrix (for the supported-method badges).
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await api.get<{ matrix: { provider: string; wallets: { method: WalletMethod }[] }[] }>(
+          `/tenant/${tenantId}/api/payments/wallets`,
+        );
+        const map: Record<string, WalletMethod[]> = {};
+        for (const row of res.data.matrix ?? []) map[row.provider] = row.wallets.map((w) => w.method);
+        setWalletMatrix(map);
+      } catch {
+        // Non-critical — badges just won't show.
+      }
+    })();
+  }, [tenantId]);
+
   // ── Auto-confirm payment on return from provider ──
   useEffect(() => {
     if (!paymentSuccess || !paymentId) return;
@@ -268,12 +298,44 @@ export default function TenantSubscriptionPage({
 
   // ── Actions ──
   async function handleSelectPlan(planId: string) {
-    setSelecting(planId);
     setError('');
+
+    // iyzico "card" mode: pay with our own card form (direct, non-3DS/3DS) so we can
+    // BIN-check the card and charge Turkish cards in TRY.
+    if (provider === 'IYZICO' && iyzicoMode === 'card') {
+      const p = plans.find((pl) => pl.planId === planId);
+      if (!p?.product) {
+        setError('This plan is not available for purchase.');
+        return;
+      }
+      setCardPlan({
+        planId,
+        name: p.product.name,
+        basePrice: Number(p.product.basePrice),
+        currency: p.product.currency,
+      });
+      return;
+    }
+
+    // Stripe "express" mode: in-app wallets (Apple/Google Pay, Click to Pay) via Element.
+    if (provider === 'STRIPE' && stripeMode === 'express') {
+      const p = plans.find((pl) => pl.planId === planId);
+      if (!p?.product) {
+        setError('This plan is not available for purchase.');
+        return;
+      }
+      setExpressPlan({ planId, name: p.product.name });
+      return;
+    }
+
+    // Everything else is a hosted redirect. For the iyzico wallet path
+    // (MasterPass / BKM Express) charge in TRY.
+    setSelecting(planId);
     try {
       const res = await api.post<{ checkoutUrl: string }>(`/tenant/${tenantId}/api/subscription`, {
         planId,
         provider,
+        ...(provider === 'IYZICO' && iyzicoMode === 'wallet' ? { convertToTry: true } : {}),
       });
       if (res.data.checkoutUrl) {
         window.location.href = res.data.checkoutUrl;
@@ -403,8 +465,54 @@ export default function TenantSubscriptionPage({
             variant="card"
             columns={3}
           />
+
+          {/* iyzico: own card form vs. hosted wallet (MasterPass / BKM Express) */}
+          {provider === 'IYZICO' && (
+            <div className="mt-4">
+              <RadioGroup
+                name="iyzico-mode"
+                legend="iyzico payment method"
+                options={[
+                  { value: 'card', label: 'Card', hint: 'Pay with your card here (Turkish cards charged in TRY)' },
+                  { value: 'wallet', label: 'Wallet', hint: 'MasterPass / BKM Express on iyzico (TRY)' },
+                ]}
+                value={iyzicoMode}
+                onChange={(v) => setIyzicoMode(v as 'card' | 'wallet')}
+                variant="card"
+                columns={2}
+              />
+            </div>
+          )}
+
+          {/* Stripe: hosted Checkout vs. in-app Express Checkout wallets */}
+          {provider === 'STRIPE' && (
+            <div className="mt-4">
+              <RadioGroup
+                name="stripe-mode"
+                legend="Stripe payment method"
+                options={[
+                  { value: 'hosted', label: 'Hosted Checkout', hint: 'Redirect to Stripe (card + wallets)' },
+                  { value: 'express', label: 'Express wallets', hint: 'Apple Pay / Google Pay / Click to Pay here' },
+                ]}
+                value={stripeMode}
+                onChange={(v) => setStripeMode(v as 'hosted' | 'express')}
+                variant="card"
+                columns={2}
+              />
+            </div>
+          )}
+
+          {/* Supported methods for the selected provider */}
+          {walletMatrix[provider]?.length > 0 && (
+            <div className="mt-4">
+              <p className="mb-1.5 text-xs font-medium text-text-secondary">Supported methods</p>
+              <WalletBadges wallets={walletMatrix[provider]} />
+            </div>
+          )}
+
           <p className="mt-3 text-xs text-text-secondary">
-            You'll be redirected to the provider to complete the payment. You can switch providers at any time.
+            Stripe and PayPal redirect you to the provider. iyzico can charge your card here or open its
+            hosted wallet (MasterPass / BKM Express). Turkish cards are charged in TRY. You can switch providers at any time.
           </p>
         </Card>
       )}
@@ -427,6 +535,35 @@ export default function TenantSubscriptionPage({
           </div>
         </Card>
       )}
+
+      {/* iyzico in-app card checkout (direct, non-3DS) */}
+      <CardCheckoutModal
+        open={!!cardPlan}
+        onClose={() => setCardPlan(null)}
+        tenantId={tenantId}
+        plan={cardPlan}
+        provider="IYZICO"
+        onSuccess={async () => {
+          setCardPlan(null);
+          await fetchData();
+          setSuccess('Subscription activated successfully!');
+          setTimeout(() => setSuccess(''), 6000);
+        }}
+      />
+
+      {/* Stripe Express Checkout wallets (Apple/Google Pay, Click to Pay) */}
+      <StripeExpressCheckoutModal
+        open={!!expressPlan}
+        onClose={() => setExpressPlan(null)}
+        tenantId={tenantId}
+        plan={expressPlan}
+        onSuccess={async () => {
+          setExpressPlan(null);
+          await fetchData();
+          setSuccess('Subscription activated successfully!');
+          setTimeout(() => setSuccess(''), 6000);
+        }}
+      />
 
       {/* Cancel modal */}
       <Modal

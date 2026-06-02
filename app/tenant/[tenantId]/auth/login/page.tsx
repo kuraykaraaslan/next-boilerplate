@@ -23,13 +23,21 @@ export default function TenantLoginPage({ params }: { params: Promise<{ tenantId
   const { tenantId } = use(params);
   const [successMsg, setSuccessMsg] = useState('');
   const [ssoProviders, setSsoProviders] = useState<OAuthProvider[]>([]);
+  const [tenantName, setTenantName] = useState('');
   const searchParams = useSearchParams();
   const redirectTo = safeRedirect(searchParams.get('redirect'));
+
+  // Display the tenant's brand/display name instead of the raw tenantId (UUID).
+  const displayName = tenantName || tenantId;
 
   useEffect(() => {
     api.get(`/tenant/${tenantId}/api/auth/sso`)
       .then((res) => setSsoProviders((res.data?.providers ?? []) as OAuthProvider[]))
       .catch(() => setSsoProviders([]));
+
+    api.get(`/tenant/${tenantId}/api/settings/public`)
+      .then((res) => setTenantName(res.data?.settings?.brandName || res.data?.tenant?.name || ''))
+      .catch(() => setTenantName(''));
   }, [tenantId]);
 
   async function handleLogin(values: { email: string; password: string; rememberMe: boolean }) {
@@ -67,10 +75,10 @@ export default function TenantLoginPage({ params }: { params: Promise<{ tenantId
       <div className="rounded-2xl border border-border bg-surface-raised shadow-sm p-8 space-y-6">
         <div className="text-center space-y-1">
           <div className="flex justify-center mb-3">
-            <BrandLogo>{tenantId.charAt(0).toUpperCase()}</BrandLogo>
+            <BrandLogo>{displayName.charAt(0).toUpperCase()}</BrandLogo>
           </div>
           <h1 className="text-2xl font-bold text-text-primary">Welcome back</h1>
-          <p className="text-sm text-text-secondary">Sign in to <span className="font-medium">{tenantId}</span></p>
+          <p className="text-sm text-text-secondary">Sign in to <span className="font-medium">{displayName}</span></p>
         </div>
 
         {successMsg ? (

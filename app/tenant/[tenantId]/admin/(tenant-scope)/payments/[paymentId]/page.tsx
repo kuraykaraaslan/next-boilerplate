@@ -39,6 +39,8 @@ type Payment = {
   providerPaymentId?: string | null;
   customerEmail?: string | null;
   customerName?: string | null;
+  description?: string | null;
+  metadata?: Record<string, unknown> | null;
   paidAt?: string | null;
   createdAt: string;
   transactions?: Transaction[];
@@ -46,15 +48,45 @@ type Payment = {
   tenantId?: string | null;
 };
 
+type PaymentSubject = {
+  kind: 'SUBSCRIPTION' | 'STORE_SALE' | 'OTHER';
+  label: string;
+  title: string | null;
+  planId?: string;
+  productName?: string | null;
+  billingInterval?: string;
+  orderId?: string;
+};
+
 const txStatusVariant: Record<string, 'success' | 'warning' | 'error' | 'neutral'> = {
   COMPLETED: 'success', PENDING: 'warning', FAILED: 'error', REFUNDED: 'neutral',
 };
+
+function fmtMoney(amount: number | string, currency: string) {
+  try {
+    return new Intl.NumberFormat(currency === 'TRY' ? 'tr-TR' : 'en-US', {
+      style: 'currency', currency, minimumFractionDigits: 2,
+    }).format(Number(amount));
+  } catch {
+    return `${amount} ${currency}`;
+  }
+}
+
+function DetailField({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <dt className="text-text-secondary mb-0.5">{label}</dt>
+      <dd className="text-text-primary">{children}</dd>
+    </div>
+  );
+}
 
 export default function PaymentDetailPage({ params }: { params: Promise<{ tenantId: string; paymentId: string }> }) {
   const { tenantId, paymentId } = use(params);
   if (!isRootTenant(tenantId)) notFound();
 
   const [payment, setPayment] = useState<Payment | null>(null);
+  const [subject, setSubject] = useState<PaymentSubject | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState('');
 
@@ -65,7 +97,7 @@ export default function PaymentDetailPage({ params }: { params: Promise<{ tenant
 
   useEffect(() => {
     api.get(`/tenant/${tenantId}/api/payments/${paymentId}`)
-      .then((res) => setPayment(res.data.payment))
+      .then((res) => { setPayment(res.data.payment); setSubject(res.data.subject ?? null); })
       .catch((e) => setError(e.response?.data?.message ?? 'Failed to load payment.'))
       .finally(() => setLoading(false));
   }, [tenantId, paymentId]);
@@ -80,6 +112,7 @@ export default function PaymentDetailPage({ params }: { params: Promise<{ tenant
       });
       const res = await api.get(`/tenant/${tenantId}/api/payments/${paymentId}`);
       setPayment(res.data.payment);
+      setSubject(res.data.subject ?? null);
       setShowRefund(false);
       setRefundAmount('');
       toast.success('Refund processed.');
@@ -99,6 +132,9 @@ export default function PaymentDetailPage({ params }: { params: Promise<{ tenant
     </div>
   );
 
+  const md = (payment.metadata ?? {}) as Record<string, unknown>;
+  const hasConversion = md.exchangeRate != null && md.originalAmount != null;
+
   return (
     <div className="space-y-6">
       <Breadcrumb items={[{ label: 'Payments', href: `/tenant/${tenantId}/admin/payments` }, { label: payment.paymentId.slice(0, 8) + '…' }]} />
@@ -114,6 +150,46 @@ export default function PaymentDetailPage({ params }: { params: Promise<{ tenant
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-6">
+          {/* What this payment is for */}
+          <Card title="What this payment is for">
+            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
+              <DetailField label="Type">
+                {subject ? <Badge variant="neutral" size="sm">{subject.label}</Badge> : '—'}
+              </DetailField>
+              {subject?.title && (
+                <DetailField label={subject.kind === 'SUBSCRIPTION' ? 'Plan / Product' : subject.kind === 'STORE_SALE' ? 'Order item' : 'Item'}>
+                  {subject.title}
+                </DetailField>
+              )}
+              {subject?.billingInterval && (
+                <DetailField label="Billing">
+                  {subject.billingInterval.charAt(0) + subject.billingInterval.slice(1).toLowerCase()}
+                </DetailField>
+              )}
+              {subject?.orderId && (
+                <DetailField label="Order ID">
+                  <span className="font-mono text-xs break-all">{subject.orderId}</span>
+                </DetailField>
+              )}
+              {payment.description && <DetailField label="Description">{payment.description}</DetailField>}
+              <DetailField label="Provider">{payment.provider}</DetailField>
+              {payment.paymentMethod && <DetailField label="Method">{payment.paymentMethod}</DetailField>}
+              {hasConversion && (
+                <DetailField label="Currency conversion">
+                  {fmtMoney(Number(md.originalAmount), String(md.originalCurrency ?? payment.currency))}
+                  {' → '}
+                  {fmtMoney(Number(md.chargedAmountTRY ?? payment.amount), 'TRY')}
+                  <span className="text-text-secondary"> · rate {String(md.exchangeRate)}</span>
+                </DetailField>
+              )}
+              {typeof md.binBank === 'string' && md.binBank && (
+                <DetailField label="Card bank">
+                  {md.binBank}{typeof md.binCountry === 'string' && md.binCountry ? ` (${md.binCountry})` : ''}
+                </DetailField>
+              )}
+            </dl>
+          </Card>
+
           <ServerDataTable
             columns={[
               { key: 'type',     header: 'Type',     render: (tx) => <Badge variant="neutral" size="sm">{tx.type}</Badge> },
@@ -153,7 +229,7 @@ export default function PaymentDetailPage({ params }: { params: Promise<{ tenant
 
         {/* Sidebar */}
         <div>
-          <PaymentSummaryCard payment={payment} />
+          <PaymentSummaryCard payment={payment} type={subject?.label} />
         </div>
       </div>
 

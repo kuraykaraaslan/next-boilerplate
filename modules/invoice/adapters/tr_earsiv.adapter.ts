@@ -7,8 +7,15 @@ import type { Invoice } from '../entities/invoice.entity';
 import type { InvoiceLine } from '../entities/invoice_line.entity';
 import { isValidTrTaxId } from './tr_validators';
 import { ForibaClient } from './tr_foriba.client';
-import { GibDirectClient } from './tr_gib_direct.client';
+import { GibDirectClient, type GibPortalInvoice } from './tr_gib_direct.client';
 import { LogoClient } from './tr_logo.client';
+
+/** Format a number the way the GİB portal expects it: "1.234,56". */
+function trNum(n: number): string {
+  const fixed = (Math.round((Number(n) || 0) * 100) / 100).toFixed(2);
+  const [intPart, dec] = fixed.split('.');
+  return `${intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.')},${dec}`;
+}
 
 /**
  * Turkey — e-Arşiv Fatura (B2C) and e-Fatura (B2B). Document shape is
@@ -32,12 +39,15 @@ export class TrEarsivAdapter implements InvoiceAdapter {
     const integrator = await SettingService.getValue(tenantId, 'earsivIntegrator');
     if (!integrator) return false;
     if (integrator === 'mock') return true;
-    // Real integrators need creds
     const [baseUrl, username, password] = await Promise.all([
       SettingService.getValue(tenantId, 'earsivIntegratorBaseUrl'),
       SettingService.getValue(tenantId, 'earsivIntegratorUsername'),
       SettingService.getValue(tenantId, 'earsivIntegratorPassword'),
     ]);
+    // gib_direct talks to the free GİB portal — baseUrl is optional (defaults
+    // to the TEST portal); only TCKN/VKN + password are required.
+    if (integrator === 'gib_direct') return Boolean(username && password);
+    // Paid integrators (foriba / logo / …) need an explicit endpoint.
     return Boolean(baseUrl && username && password);
   }
 
@@ -55,7 +65,7 @@ export class TrEarsivAdapter implements InvoiceAdapter {
       case 'mock':
         return this.submitMock(invoice, xml);
       case 'gib_direct':
-        return this.submitViaGibDirect(tenantId, invoice, xml);
+        return this.submitViaGibDirect(tenantId, invoice, lines);
       case 'foriba':
         return this.submitViaForiba(tenantId, invoice, xml);
       case 'logo':
@@ -70,33 +80,42 @@ export class TrEarsivAdapter implements InvoiceAdapter {
     }
   }
 
-  private async submitViaGibDirect(tenantId: string, invoice: Invoice, ublXml: string): Promise<InvoiceAdapterSubmitResult> {
+  /**
+   * Free GİB portal flow. Unlike the paid integrators this does NOT take
+   * UBL-TR XML — the portal wants a flat JSON invoice and renders the UBL
+   * itself. The draft is created UNSIGNED ('submitted'); finalising it needs
+   * the SMS-OTP step (see InvoiceService.requestEarsivSms / confirmEarsivSms).
+   * On failure we surface 'rejected' (no silent mock fallback) so the operator
+   * notices and can retry.
+   */
+  private async submitViaGibDirect(tenantId: string, invoice: Invoice, lines: InvoiceLine[]): Promise<InvoiceAdapterSubmitResult> {
     const [username, password, baseUrl, sandboxFlag] = await Promise.all([
       SettingService.getValue(tenantId, 'earsivIntegratorUsername'),
       SettingService.getValue(tenantId, 'earsivIntegratorPassword'),
       SettingService.getValue(tenantId, 'earsivIntegratorBaseUrl'),
-      SettingService.getValue(tenantId, 'earsivAutoSubmit'),
+      SettingService.getValue(tenantId, 'earsivIntegratorSandbox'),
     ]);
     if (!username || !password) {
-      Logger.warn(`[TrEarsiv:gib_direct] missing TCKN/VKN credentials for tenant ${tenantId} — falling back to mock`);
-      return this.submitMock(invoice, ublXml);
+      Logger.warn(`[TrEarsiv:gib_direct] missing TCKN/VKN credentials for tenant ${tenantId}`);
+      return { externalId: undefined, status: 'rejected', raw: { integrator: 'gib_direct', error: 'missing credentials' } };
     }
     const client = new GibDirectClient({
       username, password,
-      baseUrl: baseUrl ?? undefined,
+      baseUrl: baseUrl || undefined,
       sandbox: sandboxFlag === 'false' ? false : true,
     });
     try {
-      const res = await client.submit({ ublXml, receiverEmail: invoice.customerEmail });
+      const dto = this.buildGibPortalInvoice(invoice, lines, await this.loadSellerInfo(tenantId));
+      const res = await client.createDraft(dto);
       return {
         externalId: res.uuid,
-        status: res.status === 'SIGNED' ? 'accepted' : res.status === 'CREATED' ? 'submitted' : 'rejected',
-        pdfUrl: res.pdfUrl,
-        raw: { integrator: 'gib_direct', documentNumber: res.documentNumber, status: res.status },
+        status: res.status === 'SIGNED' ? 'accepted' : 'submitted',
+        raw: { integrator: 'gib_direct', documentNumber: res.documentNumber, status: res.status, signed: false },
       };
     } catch (err) {
-      Logger.warn(`[TrEarsiv:gib_direct] submit failed — falling back to mock: ${err instanceof Error ? err.message : err}`);
-      return this.submitMock(invoice, ublXml);
+      const message = err instanceof Error ? err.message : String(err);
+      Logger.warn(`[TrEarsiv:gib_direct] submit failed for ${invoice.invoiceNumber}: ${message}`);
+      return { externalId: undefined, status: 'rejected', raw: { integrator: 'gib_direct', error: message } };
     }
   }
 
@@ -154,9 +173,23 @@ export class TrEarsivAdapter implements InvoiceAdapter {
     }
   }
 
-  async cancel(_tenantId: string, invoice: Invoice, reason?: string): Promise<void> {
+  async cancel(tenantId: string, invoice: Invoice, reason?: string): Promise<void> {
     Logger.info(`[TrEarsiv] cancel invoice ${invoice.invoiceNumber} (${invoice.earsivUuid ?? 'no-uuid'}) reason=${reason ?? '-'}`);
-    // Real integrators: POST cancellation request. Mock: no-op.
+    const integrator = (await SettingService.getValue(tenantId, 'earsivIntegrator')) || 'mock';
+    if (integrator !== 'gib_direct' || !invoice.earsivUuid) return; // mock / other integrators: no-op
+    const [username, password, baseUrl, sandboxFlag] = await Promise.all([
+      SettingService.getValue(tenantId, 'earsivIntegratorUsername'),
+      SettingService.getValue(tenantId, 'earsivIntegratorPassword'),
+      SettingService.getValue(tenantId, 'earsivIntegratorBaseUrl'),
+      SettingService.getValue(tenantId, 'earsivIntegratorSandbox'),
+    ]);
+    if (!username || !password) return;
+    const client = new GibDirectClient({
+      username, password,
+      baseUrl: baseUrl || undefined,
+      sandbox: sandboxFlag === 'false' ? false : true,
+    });
+    await client.cancel(invoice.earsivUuid, reason ?? 'İptal');
   }
 
   // ────────────────────────────────────────────────────────────────────────
@@ -203,6 +236,81 @@ export class TrEarsivAdapter implements InvoiceAdapter {
     const year = issueDate.getUTCFullYear();
     const seq = (invoiceNumber.match(/\d+$/)?.[0] ?? '0').padStart(9, '0');
     return `INV${year}${seq}`;
+  }
+
+  /**
+   * Map our Invoice + lines to the flat JSON the free GİB portal expects for
+   * `EARSIV_PORTAL_FATURA_OLUSTUR`. Numbers are TR-formatted ("1.234,56"),
+   * date is dd/mm/yyyy. e-Arşiv is B2C: an 11-digit customerTaxId (TCKN) maps
+   * to ad/soyad, a 10-digit one (VKN) to ünvan; no tax id → retail buyer.
+   */
+  private buildGibPortalInvoice(
+    invoice: Invoice,
+    lines: InvoiceLine[],
+    seller: Awaited<ReturnType<TrEarsivAdapter['loadSellerInfo']>>,
+  ): GibPortalInvoice {
+    void seller; // seller identity comes from the authenticated portal account
+    const issue = invoice.issueDate;
+    const dd = String(issue.getUTCDate()).padStart(2, '0');
+    const mm = String(issue.getUTCMonth() + 1).padStart(2, '0');
+    const yyyy = issue.getUTCFullYear();
+
+    const taxId = invoice.customerTaxId?.replace(/\D/g, '') ?? '';
+    const isCompany = taxId.length === 10;
+    const nameParts = (invoice.customerName ?? '').trim().split(/\s+/);
+    const aliciSoyadi = !isCompany && nameParts.length > 1 ? nameParts.pop()! : '';
+    const aliciAdi = !isCompany ? nameParts.join(' ') : '';
+
+    const addr = (invoice.customerAddress ?? {}) as Record<string, string>;
+    const currency = invoice.currency.toUpperCase();
+
+    return {
+      faturaUuid: invoice.earsivUuid || randomUUID(),
+      belgeNumarasi: '',
+      faturaTarihi: `${dd}/${mm}/${yyyy}`,
+      saat: issue.toISOString().slice(11, 19),
+      paraBirimi: currency === 'TRY' ? 'TRY' : currency,
+      dovizKuru: currency === 'TRY' ? '0' : '1',
+      faturaTipi: 'SATIS',
+      vknTckn: taxId || '11111111111',
+      aliciUnvan: isCompany ? invoice.customerName : '',
+      aliciAdi,
+      aliciSoyadi,
+      bulvarcaddesokak: addr.line1 ?? addr.street ?? '',
+      mahalleSemtIlce: addr.district ?? addr.line2 ?? '',
+      sehir: addr.city ?? '',
+      postaKodu: addr.postal ?? addr.postalCode ?? '',
+      ulke: 'Türkiye',
+      vergiDairesi: '',
+      tel: '',
+      eposta: invoice.customerEmail ?? '',
+      malHizmetTable: lines.map((line) => {
+        const lineSubtotal = Number(line.unitPrice) * Number(line.quantity);
+        return {
+          malHizmet: line.description,
+          miktar: String(line.quantity),
+          birim: 'C62',
+          birimFiyat: trNum(Number(line.unitPrice)),
+          fiyat: trNum(lineSubtotal),
+          iskontoArttirim: 'İskonto',
+          iskontoOrani: '0',
+          iskontoTutari: '0',
+          iskontoNedeni: '',
+          malHizmetTutari: trNum(lineSubtotal),
+          kdvOrani: String(Math.round(Number(line.taxRate) * 100)),
+          kdvTutari: trNum(Number(line.taxAmount)),
+          vergiOrani: '0',
+        };
+      }),
+      matrah: trNum(Number(invoice.subtotal)),
+      malhizmetToplamTutari: trNum(Number(invoice.subtotal)),
+      toplamIskonto: trNum(Number(invoice.discountAmount)),
+      hesaplanankdv: trNum(Number(invoice.taxAmount)),
+      vergilerToplami: trNum(Number(invoice.taxAmount)),
+      vergilerDahilToplamTutar: trNum(Number(invoice.totalAmount)),
+      odenecekTutar: trNum(Number(invoice.totalAmount)),
+      not: invoice.notes ?? '',
+    };
   }
 
   private buildUblTrXml(

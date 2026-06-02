@@ -139,3 +139,15 @@ Invitations are cached in Redis (TTL = `TENANT_CACHE_TTL`, default 5 min):
 - **TTL jitter (±10%)** on every cache write.
 - **In-process single-flight** dedupes concurrent loaders.
 - **Negative cache** on `getByToken`: unknown tokens are cached as `__not_found__` for up to 60s — protects against token-guessing attacks on the public invite link endpoint.
+
+---
+
+## Settings
+
+Surfaced at `/tenant/[tenantId]/admin/invitations/settings` (gear button in the Invitations page header) via the shared `ModuleSettingsPage` scaffold. UI field metadata: `tenant_invitation.settings.fields.ts`. `env:*` TTLs (`INVITATION_TTL_SECONDS`, `TENANT_CACHE_TTL`) are deployment config and are **not** exposed here.
+
+| Key | Type | Notes |
+|---|---|---|
+| `invitationNegativeCacheTtlSeconds` | number | Negative-cache TTL for missing invitations (min 60s). |
+
+Read/written via `GET/PUT /tenant/[tenantId]/api/admin-settings`. See `docs/ROADMAP_SETTINGS.md`.

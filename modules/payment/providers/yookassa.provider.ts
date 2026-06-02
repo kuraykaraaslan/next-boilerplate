@@ -1,11 +1,19 @@
 import crypto from 'crypto'
 import axios, { AxiosInstance } from 'axios'
-import BasePaymentProvider, { CheckoutSessionParams, CheckoutSessionResult } from './base.provider'
+import BasePaymentProvider, { CheckoutSessionParams, CheckoutSessionResult, WalletDescriptor } from './base.provider'
 import { PAYMENT_MESSAGES } from '../payment.messages'
 import SettingService from '@/modules/setting/setting.service'
 
 export default class YooKassaProvider extends BasePaymentProvider {
   readonly name = 'yookassa'
+
+  override get supportedWallets(): WalletDescriptor[] {
+    return [
+      { method: 'CARD', delivery: 'HOSTED_REDIRECT' },
+      { method: 'YOOMONEY', delivery: 'HOSTED_REDIRECT' },
+      { method: 'SBP', delivery: 'HOSTED_REDIRECT' },
+    ]
+  }
 
   private static readonly API_BASE = 'https://api.yookassa.ru/v3'
 

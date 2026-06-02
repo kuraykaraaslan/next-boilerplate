@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-01T08:06:40.312Z",
+  "generatedAt": "2026-06-02T22:28:30.051Z",
   "routes": [
     {
       "filePath": "app/internal/api/caddy-ask/route.ts",
@@ -961,6 +961,26 @@
       "dynamic": true
     },
     {
+      "filePath": "app/tenant/[tenantId]/api/invoices/earsiv/sms/send/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/invoices/earsiv/sms/send",
+      "methods": [
+        "POST"
+      ],
+      "module": "invoice",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/invoices/earsiv/sms/verify/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/invoices/earsiv/sms/verify",
+      "methods": [
+        "POST"
+      ],
+      "module": "invoice",
+      "dynamic": true
+    },
+    {
       "filePath": "app/tenant/[tenantId]/api/invoices/preview/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/invoices/preview",
@@ -1092,6 +1112,16 @@
       "dynamic": true
     },
     {
+      "filePath": "app/tenant/[tenantId]/api/payments/bin-check/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/payments/bin-check",
+      "methods": [
+        "POST"
+      ],
+      "module": "payment",
+      "dynamic": true
+    },
+    {
       "filePath": "app/tenant/[tenantId]/api/payments/provider-status/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/payments/provider-status",
@@ -1118,6 +1148,16 @@
       "methods": [
         "GET",
         "PUT"
+      ],
+      "module": "payment",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/payments/wallets/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/payments/wallets",
+      "methods": [
+        "GET"
       ],
       "module": "payment",
       "dynamic": true
@@ -1554,6 +1594,56 @@
       "urlPath": "/tenant/[tenantId]/api/subscription/grace-period",
       "methods": [
         "GET"
+      ],
+      "module": "subscription",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/subscription/pay/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/subscription/pay",
+      "methods": [
+        "POST"
+      ],
+      "module": "subscription",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/subscription/pay/3ds-callback/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/subscription/pay/3ds-callback",
+      "methods": [
+        "POST"
+      ],
+      "module": "subscription",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/subscription/payment-intent/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/subscription/payment-intent",
+      "methods": [
+        "POST"
+      ],
+      "module": "subscription",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/subscription/payment-intent/confirm/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/subscription/payment-intent/confirm",
+      "methods": [
+        "POST"
+      ],
+      "module": "subscription",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/subscription/quote/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/subscription/quote",
+      "methods": [
+        "POST"
       ],
       "module": "subscription",
       "dynamic": true

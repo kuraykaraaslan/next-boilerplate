@@ -12,6 +12,8 @@ const PurchaseSubscriptionRequestSchema = z.object({
   provider: z.enum(['STRIPE', 'PAYPAL', 'IYZICO']).optional(),
   customerEmail: z.string().email().optional(),
   customerName: z.string().optional(),
+  // iyzico hosted wallet path (MasterPass / BKM Express) → charge in TRY.
+  convertToTry: z.boolean().optional(),
 })
 
 /**
@@ -83,6 +85,7 @@ export async function POST(
       provider: parsed.data.provider,
       customerEmail: parsed.data.customerEmail,
       customerName: parsed.data.customerName,
+      convertToTry: parsed.data.convertToTry,
     })
 
     return NextResponse.json({ success: true, ...result })

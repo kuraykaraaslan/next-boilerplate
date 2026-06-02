@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-01T08:06:40.312Z",
+  "generatedAt": "2026-06-02T22:28:30.051Z",
   "components": [
     {
       "id": "ai/ui/AIChatBox",
@@ -1854,6 +1854,43 @@
       "baseName": "withObservability.next"
     },
     {
+      "id": "payment/ui/CardCheckoutModal",
+      "module": "payment",
+      "filePath": "modules_next/payment/ui/CardCheckoutModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "CardCheckoutModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CardCheckoutModal"
+    },
+    {
+      "id": "payment/ui/CreditCardForm",
+      "module": "payment",
+      "filePath": "modules_next/payment/ui/CreditCardForm.tsx",
+      "kind": "ui",
+      "exports": [
+        "detectBrand",
+        "CreditCardForm"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CreditCardForm"
+    },
+    {
+      "id": "payment/ui/CreditCardVisual",
+      "module": "payment",
+      "filePath": "modules_next/payment/ui/CreditCardVisual.tsx",
+      "kind": "ui",
+      "exports": [
+        "CreditCardVisual"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CreditCardVisual"
+    },
+    {
       "id": "payment/ui/PaymentStatusBadge",
       "module": "payment",
       "filePath": "modules_next/payment/ui/PaymentStatusBadge.tsx",
@@ -1877,6 +1914,30 @@
       "isClient": true,
       "isServer": false,
       "baseName": "PaymentSummaryCard"
+    },
+    {
+      "id": "payment/ui/StripeExpressCheckoutModal",
+      "module": "payment",
+      "filePath": "modules_next/payment/ui/StripeExpressCheckoutModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "StripeExpressCheckoutModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "StripeExpressCheckoutModal"
+    },
+    {
+      "id": "payment/ui/WalletBadges",
+      "module": "payment",
+      "filePath": "modules_next/payment/ui/WalletBadges.tsx",
+      "kind": "ui",
+      "exports": [
+        "WalletBadges"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "WalletBadges"
     },
     {
       "id": "redis_idempotency/withIdempotency",
@@ -1903,6 +1964,21 @@
       "baseName": "SeoPanel"
     },
     {
+      "id": "setting/setting-fields.types",
+      "module": "setting",
+      "filePath": "modules_next/setting/setting-fields.types.ts",
+      "kind": "ui",
+      "exports": [
+        "SettingFieldType",
+        "SettingFieldOption",
+        "SettingFieldDef",
+        "SECRET_MASK"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "setting-fields.types"
+    },
+    {
       "id": "setting/setting.types",
       "module": "setting",
       "filePath": "modules_next/setting/setting.types.ts",
@@ -1915,16 +1991,77 @@
       "baseName": "setting.types"
     },
     {
+      "id": "setting/ui/ModuleSettingsPage",
+      "module": "setting",
+      "filePath": "modules_next/setting/ui/ModuleSettingsPage.tsx",
+      "kind": "ui",
+      "exports": [
+        "ModuleSettingsPage"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ModuleSettingsPage"
+    },
+    {
       "id": "setting/ui/PlatformSettingsTabs",
       "module": "setting",
       "filePath": "modules_next/setting/ui/PlatformSettingsTabs.tsx",
       "kind": "ui",
       "exports": [
+        "PlatformAuthTab",
+        "PlatformEmailTab",
+        "PlatformSmsTab",
+        "PlatformStorageTab",
+        "PlatformPaymentTab",
+        "PlatformAiTab",
+        "PlatformSecurityTab",
+        "PlatformNotificationsTab",
+        "PlatformScimTab",
         "PlatformSettingsTabs"
       ],
       "isClient": true,
       "isServer": false,
       "baseName": "PlatformSettingsTabs"
+    },
+    {
+      "id": "setting/ui/settings-kit",
+      "module": "setting",
+      "filePath": "modules_next/setting/ui/settings-kit.tsx",
+      "kind": "ui",
+      "exports": [
+        "SR",
+        "b",
+        "bStr",
+        "SaveRow"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "settings-kit"
+    },
+    {
+      "id": "setting/ui/SettingsPanelHost",
+      "module": "setting",
+      "filePath": "modules_next/setting/ui/SettingsPanelHost.tsx",
+      "kind": "ui",
+      "exports": [
+        "SettingsPanelHost"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SettingsPanelHost"
+    },
+    {
+      "id": "setting/ui/TenantSettingsPanels",
+      "module": "setting",
+      "filePath": "modules_next/setting/ui/TenantSettingsPanels.tsx",
+      "kind": "ui",
+      "exports": [
+        "GeneralTab",
+        "BillingTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "TenantSettingsPanels"
     },
     {
       "id": "store/ui/ProductSpecValuesPanel",

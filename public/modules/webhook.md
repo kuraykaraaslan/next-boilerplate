@@ -158,3 +158,17 @@ await WebhookService.dispatchEvent(tenantId, 'member.created', {
 ```
 
 `dispatchEvent` is fire-and-forget safe — it catches internal errors and logs them without throwing.
+
+---
+
+## Settings
+
+Surfaced at `/tenant/[tenantId]/admin/webhooks/settings` (gear button in the Webhooks page header) via the shared `ModuleSettingsPage` scaffold. UI field metadata: `webhook.settings.fields.ts`. The global worker-pool knob (`webhookWorkerConcurrency`) is intentionally **not** exposed here — it is a shared resource, not a per-tenant setting.
+
+| Key | Type | Default | Notes |
+|---|---|---|---|
+| `webhookMaxAttempts` | number | `3` | Retries before a delivery is marked failed. |
+| `webhookRetryDelaysMs` | text (CSV) | `60000,300000,900000` | Backoff delays between retries (ms). |
+| `webhookRequestTimeoutMs` | number | `15000` | Per-delivery request timeout (ms). |
+
+**Phase 2:** `webhook.service.ts` reads these per tenant (with the defaults above as fallback) instead of the hardcoded values in *Delivery*. Read/written via `GET/PUT /tenant/[tenantId]/api/admin-settings`. See `docs/ROADMAP_SETTINGS.md`.

@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import axios from 'axios';
 import { Between, IsNull, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
 import { env } from '@/modules/env';
 import { getDataSource, tenantDataSourceFor } from '@/modules/db';
@@ -6,7 +7,19 @@ import redis, { jitter, singleFlight } from '@/modules/redis';
 import { Payment as PaymentEntity } from './entities/payment.entity';
 import { PaymentTransaction as PaymentTransactionEntity } from './entities/payment_transaction.entity';
 import Logger from '@/modules/logger';
-import BasePaymentProvider, { CheckoutSessionParams, CheckoutSessionResult } from './providers/base.provider';
+import BasePaymentProvider, {
+  CheckoutSessionParams,
+  CheckoutSessionResult,
+  DirectChargeParams,
+  DirectChargeResult,
+  ProviderBinInfo,
+  ThreeDSInitParams,
+  ThreeDSInitResult,
+  ThreeDSCompleteParams,
+  WalletDescriptor,
+  PaymentIntentParams,
+  PaymentIntentResult,
+} from './providers/base.provider';
 import StripeProvider from './providers/stripe.provider';
 import PaypalProvider from './providers/paypal.provider';
 import IyzicoProvider from './providers/iyzico.provider';
@@ -22,6 +35,7 @@ import {
   PaymentTransactionSchema,
   PaymentWithTransactions,
   PaymentWithTransactionsSchema,
+  CardBinInfo,
 } from './payment.types';
 import {
   CreatePaymentDTO,
@@ -113,6 +127,19 @@ export default class PaymentService {
 
   static getDefaultProvider(): PaymentProvider {
     return PaymentService.DEFAULT_PROVIDER;
+  }
+
+  /** Wallets / APMs a provider can surface (with delivery: hosted / client element / direct). */
+  static getSupportedWallets(providerName?: PaymentProvider): WalletDescriptor[] {
+    return PaymentService.getProvider(providerName).supportedWallets;
+  }
+
+  /** Wallet capability matrix across every registered provider (for UI / registry). */
+  static getWalletMatrix(): { provider: PaymentProvider; wallets: WalletDescriptor[] }[] {
+    return Array.from(PaymentService.PROVIDERS.entries()).map(([provider, impl]) => ({
+      provider,
+      wallets: impl.supportedWallets,
+    }));
   }
 
   static async create(data: CreatePaymentDTO): Promise<SafePayment> {
@@ -424,5 +451,161 @@ export default class PaymentService {
     providerName?: PaymentProvider
   ): Promise<CheckoutSessionResult> {
     return PaymentService.getProvider(providerName).createCheckoutSession(tenantId, params);
+  }
+
+  // ==========================================================================
+  // Direct (non-3DS) card charging + BIN check — shared by all providers via
+  // the provider map. Providers that don't support raw-card collection fall
+  // back to the hosted redirect flow (see `supportsDirectCardPayment`).
+  // ==========================================================================
+
+  /** Whether the given provider can charge a raw card directly (our own form). */
+  static supportsDirectCardPayment(providerName?: PaymentProvider): boolean {
+    return PaymentService.getProvider(providerName).supportsDirectCardPayment;
+  }
+
+  /**
+   * Charge a raw card directly. Routes to the provider's own non-3DS
+   * implementation. Throws if the provider has no direct-charge support.
+   */
+  static async chargeWithCard(
+    tenantId: string,
+    params: DirectChargeParams,
+    providerName?: PaymentProvider,
+  ): Promise<DirectChargeResult> {
+    const provider = PaymentService.getProvider(providerName);
+    if (!provider.supportsDirectCardPayment) {
+      throw new Error(PAYMENT_MESSAGES.DIRECT_PAYMENT_NOT_SUPPORTED);
+    }
+    return provider.createPayment(tenantId, params);
+  }
+
+  /** Whether the given provider supports a 3D Secure card flow. */
+  static supports3dsCardPayment(providerName?: PaymentProvider): boolean {
+    return PaymentService.getProvider(providerName).supports3dsCardPayment;
+  }
+
+  /**
+   * Start a 3DS charge. Returns base64 HTML to render (full-page redirect / popup)
+   * for the bank's 3DS page; the bank then POSTs to `params.callbackUrl`.
+   */
+  static async start3dsCharge(
+    tenantId: string,
+    params: ThreeDSInitParams,
+    providerName?: PaymentProvider,
+  ): Promise<ThreeDSInitResult> {
+    const provider = PaymentService.getProvider(providerName);
+    if (!provider.supports3dsCardPayment) {
+      throw new Error(PAYMENT_MESSAGES.DIRECT_PAYMENT_NOT_SUPPORTED);
+    }
+    return provider.create3dsPayment(tenantId, params);
+  }
+
+  /** Finalize a 3DS charge after the bank callback. */
+  static async complete3dsCharge(
+    tenantId: string,
+    params: ThreeDSCompleteParams,
+    providerName?: PaymentProvider,
+  ): Promise<DirectChargeResult> {
+    return PaymentService.getProvider(providerName).complete3dsPayment(tenantId, params);
+  }
+
+  /**
+   * Create a client-side PaymentIntent for the Express Checkout Element (Stripe:
+   * Apple/Google Pay, Click to Pay, Link, PayPal…). Routes via the provider.
+   */
+  static async createPaymentIntent(
+    tenantId: string,
+    params: PaymentIntentParams,
+    providerName?: PaymentProvider,
+  ): Promise<PaymentIntentResult> {
+    return PaymentService.getProvider(providerName).createPaymentIntent(tenantId, params);
+  }
+
+  private static readonly BIN_CACHE_TTL = 60 * 60 * 24 * 7; // 7 days — BIN→country is static
+
+  private static normalizeBrand(association?: string | null, scheme?: string | null): string | null {
+    const a = (association || '').toUpperCase().replace(/[^A-Z]/g, '');
+    const map: Record<string, string> = {
+      VISA: 'VISA',
+      MASTERCARD: 'MASTERCARD',
+      MASTER: 'MASTERCARD',
+      AMERICANEXPRESS: 'AMEX',
+      AMEX: 'AMEX',
+      TROY: 'TROY',
+      DISCOVER: 'DISCOVER',
+      JCB: 'JCB',
+      UNIONPAY: 'UNIONPAY',
+      MIR: 'MIR',
+    };
+    if (map[a]) return map[a];
+    const s = (scheme || '').toUpperCase().replace(/[^A-Z]/g, '');
+    return map[s] ?? (s ? s : null);
+  }
+
+  /**
+   * Public BIN→country lookup (binlist.net). Best-effort and cached for a week;
+   * a failure resolves to `null` so it never blocks a checkout.
+   */
+  private static async lookupBinCountry(bin: string): Promise<{ country: string | null; scheme: string | null; bank: string | null } | null> {
+    const clean = bin.replace(/\D/g, '').slice(0, 8);
+    if (clean.length < 6) return null;
+    const cacheKey = `bin:country:${clean}`;
+
+    const cached = await redis.get(cacheKey).catch(() => null);
+    if (cached) {
+      try { return JSON.parse(cached); } catch { await redis.del(cacheKey).catch(() => {}); }
+    }
+
+    try {
+      const res = await axios.get(`https://lookup.binlist.net/${clean}`, {
+        timeout: 5000,
+        headers: { 'Accept-Version': '3', Accept: 'application/json' },
+      });
+      const data = res.data || {};
+      const result = {
+        country: data?.country?.alpha2 ?? null,
+        scheme: data?.scheme ?? null,
+        bank: data?.bank?.name ?? null,
+      };
+      await redis.setex(cacheKey, jitter(PaymentService.BIN_CACHE_TTL), JSON.stringify(result)).catch(() => {});
+      return result;
+    } catch {
+      // binlist is rate-limited / flaky — degrade gracefully.
+      return null;
+    }
+  }
+
+  /**
+   * Combined BIN check: the provider's own BIN lookup (brand / bank / type /
+   * commercial) plus a public BIN→country lookup. A card counts as Turkish when
+   * the BIN country is TR **or** the provider returned a (Turkish) bank.
+   */
+  static async checkBin(tenantId: string, bin: string, providerName?: PaymentProvider): Promise<CardBinInfo> {
+    const clean = bin.replace(/\D/g, '').slice(0, 8);
+    const provider = PaymentService.getProvider(providerName);
+
+    const [providerRes, countryRes] = await Promise.allSettled([
+      provider.checkBin(tenantId, clean),
+      PaymentService.lookupBinCountry(clean),
+    ]);
+
+    const pBin: ProviderBinInfo = providerRes.status === 'fulfilled' ? providerRes.value : { supported: false };
+    const country = countryRes.status === 'fulfilled' ? countryRes.value : null;
+
+    const brand = PaymentService.normalizeBrand(pBin.cardAssociation, country?.scheme);
+    const bankName = pBin.bankName ?? country?.bank ?? null;
+    const isTurkish = country?.country === 'TR' || (pBin.supported === true && !!pBin.bankName);
+
+    return {
+      bin: clean,
+      brand,
+      bankName,
+      cardType: pBin.cardType ?? null,
+      commercial: pBin.commercial === true,
+      country: country?.country ?? null,
+      isTurkish,
+      force3ds: pBin.commercial === true,
+    };
   }
 }

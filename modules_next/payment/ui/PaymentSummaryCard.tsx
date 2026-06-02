@@ -17,6 +17,8 @@ type PaymentSummaryCardProps = {
     createdAt?: string | null;
     paidAt?: string | null;
   };
+  /** Humanized payment type (e.g. "Subscription", "Store sale"). */
+  type?: string | null;
   className?: string;
 };
 
@@ -42,7 +44,7 @@ function formatAmount(amount: number | string, currency: string) {
   }
 }
 
-export function PaymentSummaryCard({ payment, className }: PaymentSummaryCardProps) {
+export function PaymentSummaryCard({ payment, type, className }: PaymentSummaryCardProps) {
   return (
     <div className={cn('bg-surface-raised border border-border rounded-xl overflow-hidden', className)}>
       <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-surface-overlay">
@@ -55,6 +57,7 @@ export function PaymentSummaryCard({ payment, className }: PaymentSummaryCardPro
             {formatAmount(payment.amount, payment.currency)}
           </span>
         </Row>
+        {type && <Row label="Type">{type}</Row>}
         {payment.paymentMethod && (
           <Row label="Method">{METHOD_LABELS[payment.paymentMethod] ?? payment.paymentMethod}</Row>
         )}

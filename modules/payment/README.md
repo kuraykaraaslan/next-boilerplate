@@ -23,6 +23,7 @@ A multi-provider payment gateway module supporting Stripe, PayPal, Iyzico, Alipa
 - **Provider Abstraction**: Unified interface across all payment providers
 - **Centralized Error Messages**: All error messages defined in one place
 - **Environment-Based Configuration**: Easy provider switching via environment variables
+- **Direct card charging (non-3DS)**: A shared, provider-agnostic interface for charging a raw card collected on our own form (currently Iyzico), plus a combined BIN check — see below
 
 ### Regional Coverage
 
@@ -255,6 +256,100 @@ const status = await PaymentService.getProviderStatus({
   provider: 'CLOUDPAYMENTS'
 })
 ```
+
+## Direct Card Charging & BIN Check
+
+Besides the hosted-redirect flow (`createCheckoutSession`), the module supports
+charging a **raw card collected on our own form** (non-3DS). This is a shared,
+provider-agnostic capability on `BasePaymentProvider`; providers opt in by
+overriding it. **Iyzico** implements it today (via `/payment/auth`); other
+providers fall back to the hosted redirect.
+
+```typescript
+import { PaymentService } from '@/modules/payment'
+
+// Is direct (own-form) charging available for this provider?
+PaymentService.supportsDirectCardPayment('IYZICO') // true
+
+// Combined BIN check: provider BIN lookup (brand/bank/type/commercial) +
+// public BIN→country lookup (binlist). Drives the "charge Turkish cards in TRY".
+const bin = await PaymentService.checkBin(tenantId, '979211', 'IYZICO')
+// → { bin, brand: 'TROY', bankName, cardType, commercial, country: 'TR', isTurkish: true, force3ds }
+
+// Charge a raw card directly (PCI-sensitive — never persisted/logged).
+const result = await PaymentService.chargeWithCard(tenantId, {
+  amount: 935.45, currency: 'TRY', description: 'Pro Subscription',
+  card: { cardHolderName, cardNumber, expireMonth: '12', expireYear: '30', cvc: '123' },
+  basketItems: [{ id: planId, name: 'Pro', price: 935.45 }],
+}, 'IYZICO')
+// → { status: 'success' | 'failure', providerPaymentId?, errorCode?, errorMessage? }
+```
+
+A card counts as **Turkish** when the BIN→country is `TR` **or** the provider's BIN
+lookup returned a (Turkish) bank. The subscription flow uses this to convert a
+USD-priced plan to TRY at the live [TCMB rate](../exchange_rate/README.md) before
+charging — see [`tenant_subscription`](../tenant_subscription/README.md)
+(`quote` / `payWithCard`). The shared card form lives at
+`modules_next/payment/ui/CreditCardForm.tsx`.
+
+### 3D Secure
+
+Same shared interface, two extra methods (Iyzico implements them):
+
+```typescript
+PaymentService.supports3dsCardPayment('IYZICO') // true
+
+// 1) Start: returns base64 self-submitting HTML for the bank's 3DS page.
+const init = await PaymentService.start3dsCharge(tenantId, {
+  ...directChargeParams, callbackUrl, // where the bank returns
+}, 'IYZICO')
+// → { status, htmlContent, conversationId }  (render htmlContent: full-page redirect or popup)
+
+// 2) Finalize on the bank callback (re-validates with the provider — cannot be forged).
+const done = await PaymentService.complete3dsCharge(tenantId, { conversationId, paymentId }, 'IYZICO')
+// → { status: 'success' | 'failure', providerPaymentId? }
+```
+
+The subscription flow decides 3DS **automatically**: commercial cards (`force3ds`)
+and Turkish cards go through 3DS; everything else is charged non-3DS in one step.
+The UI uses a full-page redirect (renders `htmlContent` via `document.write`); the
+bank returns to a public callback route that finalizes + activates the subscription.
+
+### BIN-check route
+
+`POST /tenant/[tenantId]/api/payments/bin-check` → `{ bin, provider? }` → combined `CardBinInfo`.
+
+## Wallets & Alternative Payment Methods
+
+Wallets are **provider-specific** and exposed through a generic capability:
+`provider.supportedWallets` declares which wallets it can surface and **how** each is
+delivered. `MasterPass`/`Visa Checkout` merged into **Click to Pay** (EMVCo SRC)
+globally; `MASTERPASS` remains a live local scheme in Turkey via iyzico hosted.
+
+```typescript
+PaymentService.getSupportedWallets('IYZICO') // [{method:'MASTERPASS',delivery:'HOSTED_REDIRECT'}, …]
+PaymentService.getWalletMatrix()             // every provider → its wallets (UI: GET .../api/payments/wallets)
+```
+
+Delivery types (`WalletDeliveryEnum`):
+- **HOSTED_REDIRECT** — appears on the provider's hosted page; no extra code (enable in the provider panel).
+- **CLIENT_ELEMENT** — browser SDK/Element (Stripe Express Checkout via `PaymentService.createPaymentIntent`).
+- **DIRECT_API** — server wallet protocol (e.g. iyzico MasterPass MSISDN/OTP — not implemented).
+
+| Provider | Wallets (delivery) |
+|---|---|
+| **iyzico** | MasterPass, BKM Express, Saved card, Installments — *hosted redirect* |
+| **Stripe** | Apple Pay, Google Pay, **Click to Pay**, Link, PayPal, Amazon Pay, Cash App — *client element* (Express Checkout) |
+| PayPal | PayPal — *hosted redirect* |
+| Alipay / WeChat | Alipay / WeChat Pay — *hosted redirect* |
+| YooKassa / CloudPayments | YooMoney / SBP — *hosted redirect* |
+
+**Stripe Express Checkout (client element):** `createPaymentIntent` returns
+`{ clientSecret, publishableKey, providerRef }` for `<ExpressCheckoutElement>`
+(`modules_next/payment/ui/StripeExpressCheckoutModal.tsx`). The subscription flow
+wraps this in `startExpressCheckout` / `confirmExpressCheckout` (server-side verifies
+the PaymentIntent succeeded before activating). Apple Pay needs Stripe domain
+verification; set `stripePublishableKey` in settings.
 
 ## API Reference
 

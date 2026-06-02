@@ -1,6 +1,6 @@
 import crypto from 'crypto'
 import axios, { AxiosInstance } from 'axios'
-import BasePaymentProvider, { CheckoutSessionParams, CheckoutSessionResult } from './base.provider'
+import BasePaymentProvider, { CheckoutSessionParams, CheckoutSessionResult, WalletDescriptor } from './base.provider'
 import { PAYMENT_MESSAGES } from '../payment.messages'
 import SettingService from '@/modules/setting/setting.service'
 
@@ -13,6 +13,10 @@ interface AlipayConfig {
 
 export default class AlipayProvider extends BasePaymentProvider {
   readonly name = 'alipay'
+
+  override get supportedWallets(): WalletDescriptor[] {
+    return [{ method: 'ALIPAY', delivery: 'HOSTED_REDIRECT' }]
+  }
 
   private static async getConfig(tenantId: string): Promise<AlipayConfig> {
     const [appId, privateKey, alipayPublicKey, sandbox] = await Promise.all([

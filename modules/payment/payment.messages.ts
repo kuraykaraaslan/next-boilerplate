@@ -47,6 +47,15 @@ export const PAYMENT_MESSAGES = {
   IYZICO_GET_STATUS_FAILED: 'Failed to get Iyzico payment status',
   IYZICO_CREATE_PAYMENT_FAILED: 'Failed to create Iyzico payment',
   IYZICO_REFUND_FAILED: 'Failed to process Iyzico refund',
+  IYZICO_BIN_CHECK_FAILED: 'Failed to check card BIN with Iyzico',
+  IYZICO_DIRECT_PAYMENT_FAILED: 'Card payment could not be completed. Please try again.',
+  IYZICO_PAYMENT_DECLINED: 'Your card was declined.',
+  IYZICO_3DS_INIT_FAILED: 'Could not start 3D Secure verification. Please try again.',
+  IYZICO_3DS_COMPLETE_FAILED: '3D Secure verification failed. Please try again.',
+  IYZICO_3DS_NOT_VERIFIED: '3D Secure verification was not completed.',
+
+  // Direct card charge (provider-agnostic)
+  DIRECT_PAYMENT_NOT_SUPPORTED: 'The selected provider does not support direct card payments',
 
   // Alipay (China)
   ALIPAY_GET_STATUS_FAILED: 'Failed to get Alipay payment status',

@@ -6,8 +6,13 @@ import { z } from 'zod';
 
 export const PaymentSettingKeySchema = z.enum([
   'stripeEnabled', 'stripePublicKey', 'stripeSecretKey', 'stripeWebhookSecret',
+  // Publishable key for the client-side Express Checkout Element (Apple/Google Pay, Click to Pay…)
+  'stripePublishableKey',
   'paypalEnabled', 'paypalClientId', 'paypalClientSecret', 'paypalSandboxMode', 'paypalWebhookId',
   'iyzicoEnabled', 'iyzicoApiKey', 'iyzicoSecretKey', 'iyzicoSandboxMode',
+  // iyzico hosted wallets/installments — MasterPass & BKM Express are enabled in the
+  // iyzico merchant panel; this optionally scopes installment counts on the hosted form.
+  'iyzicoEnabledInstallments',
   // Alipay (China)
   'alipayEnabled', 'alipayAppId', 'alipayPrivateKey', 'alipayPublicKey', 'alipaySandboxMode',
   // WeChat Pay (China)
