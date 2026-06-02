@@ -60,19 +60,19 @@ export async function seedPaymentSubscription(ctx: SeedContext): Promise<void> {
   const yearlyPlan = plans['pro-yearly'];
   const draftPlan = plans['starter-quarterly'];
 
-  // ── Plan features (varied types: BOOLEAN / NUMBER / LIMIT / TEXT) ────────────
+  // ── Plan features (canonical 2-type model: BOOLEAN flag / LIMIT quota) ───────
   type FeatureDef = { planId: string; key: string; label: string; type: string; value: string; sortOrder: number };
   const featureDefs: FeatureDef[] = [
     // Pro Monthly feature set
     { planId: monthlyPlan.planId, key: 'priority_support',  label: 'Priority Support',  type: 'BOOLEAN', value: 'true', sortOrder: 1 },
-    { planId: monthlyPlan.planId, key: 'seats',             label: 'Team Seats',        type: 'NUMBER',  value: '5',    sortOrder: 2 },
+    { planId: monthlyPlan.planId, key: 'seats',             label: 'Team Seats',        type: 'LIMIT',   value: '5',    sortOrder: 2 },
     { planId: monthlyPlan.planId, key: 'storage_gb',        label: 'Storage',           type: 'LIMIT',   value: '100',  sortOrder: 3 },
     // Pro Yearly feature set (richer)
     { planId: yearlyPlan.planId,  key: 'priority_support',  label: 'Priority Support',  type: 'BOOLEAN', value: 'true', sortOrder: 1 },
-    { planId: yearlyPlan.planId,  key: 'seats',             label: 'Team Seats',        type: 'NUMBER',  value: '25',   sortOrder: 2 },
-    { planId: yearlyPlan.planId,  key: 'sla',               label: 'Support SLA',       type: 'TEXT',    value: '99.9% uptime', sortOrder: 3 },
+    { planId: yearlyPlan.planId,  key: 'seats',             label: 'Team Seats',        type: 'LIMIT',   value: '25',   sortOrder: 2 },
+    { planId: yearlyPlan.planId,  key: 'sla',               label: 'Support SLA',       type: 'BOOLEAN', value: 'true', sortOrder: 3 },
     // Starter Quarterly feature set (limited)
-    { planId: draftPlan.planId,   key: 'seats',             label: 'Team Seats',        type: 'NUMBER',  value: '1',    sortOrder: 1 },
+    { planId: draftPlan.planId,   key: 'seats',             label: 'Team Seats',        type: 'LIMIT',   value: '1',    sortOrder: 1 },
     { planId: draftPlan.planId,   key: 'priority_support',  label: 'Priority Support',  type: 'BOOLEAN', value: 'false', sortOrder: 2 },
   ];
   for (const def of featureDefs) {

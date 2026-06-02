@@ -235,15 +235,15 @@ export async function seedPayment(ctx: SeedContext): Promise<void> {
   // ── Plan features (composite unique: tenantId + planId + key) ───────────────
   type FeatureDef = { key: string; label: string; type: string; value: string; sortOrder: number };
   const monthlyFeatures: FeatureDef[] = [
-    { key: 'seats',        label: 'Team Seats',      type: 'NUMBER',  value: '5',     sortOrder: 1 },
-    { key: 'storage_gb',   label: 'Storage',         type: 'NUMBER',  value: '50',    sortOrder: 2 },
+    { key: 'seats',        label: 'Team Seats',      type: 'LIMIT',   value: '5',     sortOrder: 1 },
+    { key: 'storage_gb',   label: 'Storage',         type: 'LIMIT',   value: '50',    sortOrder: 2 },
     { key: 'custom_domain', label: 'Custom Domain',  type: 'BOOLEAN', value: 'false', sortOrder: 3 },
   ];
   const yearlyFeatures: FeatureDef[] = [
-    { key: 'seats',        label: 'Team Seats',      type: 'NUMBER',  value: '25',    sortOrder: 1 },
-    { key: 'storage_gb',   label: 'Storage',         type: 'NUMBER',  value: '500',   sortOrder: 2 },
+    { key: 'seats',        label: 'Team Seats',      type: 'LIMIT',   value: '25',    sortOrder: 1 },
+    { key: 'storage_gb',   label: 'Storage',         type: 'LIMIT',   value: '500',   sortOrder: 2 },
     { key: 'custom_domain', label: 'Custom Domain',  type: 'BOOLEAN', value: 'true',  sortOrder: 3 },
-    { key: 'support_tier', label: 'Support Tier',    type: 'TEXT',    value: 'priority', sortOrder: 4 },
+    { key: 'support_tier', label: 'Support Tier',    type: 'BOOLEAN', value: 'true',  sortOrder: 4 },
   ];
 
   const featureRepo = ctx.repo<PlanFeature>(PlanFeature);
