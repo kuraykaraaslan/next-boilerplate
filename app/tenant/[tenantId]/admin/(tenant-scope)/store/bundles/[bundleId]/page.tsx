@@ -19,7 +19,7 @@ import { SeoPanel } from '@/modules_next/seo/ui/SeoPanel';
 import { GalleryPanel } from '@/modules_next/media_gallery/ui/GalleryPanel';
 import { CurrencySelector } from '@/modules_next/common/ui/CurrencySelector';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSave, faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faSave, faPlus, faTrash, faPen } from '@fortawesome/free-solid-svg-icons';
 
 type BundleDetail = {
   bundleId: string;
@@ -34,15 +34,20 @@ type BundleDetail = {
   items: Array<{
     bundleItemId: string;
     productId: string;
+    productName?: string | null;
+    productBasePrice?: number | null;
+    productCurrency?: string | null;
     variantId?: string | null;
     quantity: number;
     overridePrice?: number | null;
     sortOrder: number;
   }>;
 };
+type BundleItem = BundleDetail['items'][number];
 
 type EditForm = { name: string; slug: string; description: string; bundlePrice: string; discountPercent: string; currency: string; status: string; sortOrder: string };
 type AddItemForm = { productId: string; quantity: string; overridePrice: string };
+type EditItemForm = { quantity: string; overridePrice: string };
 type Product = { productId: string; name: string; basePrice: number; currency: string };
 
 const EMPTY_ITEM: AddItemForm = { productId: '', quantity: '1', overridePrice: '' };
@@ -70,6 +75,10 @@ export default function BundleDetailPage({ params }: { params: Promise<{ tenantI
   const [itemForm, setItemForm] = useState<AddItemForm>(EMPTY_ITEM);
   const [itemSaving, setItemSaving] = useState(false);
   const [itemError, setItemError]   = useState('');
+  const [editItem, setEditItem]     = useState<BundleItem | null>(null);
+  const [editItemForm, setEditItemForm] = useState<EditItemForm>({ quantity: '1', overridePrice: '' });
+  const [editItemSaving, setEditItemSaving] = useState(false);
+  const [editItemError, setEditItemError]   = useState('');
 
   const load = useCallback(async () => {
     setLoading(true); setLoadError('');
@@ -131,8 +140,34 @@ export default function BundleDetailPage({ params }: { params: Promise<{ tenantI
     } catch (err) { toast.error(extractMessage(err, 'Failed to remove.')); }
   }
 
-  function productName(productId: string) {
-    return products.find((p) => p.productId === productId)?.name ?? productId.slice(0, 8);
+  function openEditItem(item: BundleItem) {
+    setEditItem(item);
+    setEditItemForm({
+      quantity: String(item.quantity),
+      overridePrice: item.overridePrice != null ? String(item.overridePrice) : '',
+    });
+    setEditItemError('');
+  }
+
+  async function handleUpdateItem() {
+    if (!editItem) return;
+    setEditItemSaving(true); setEditItemError('');
+    try {
+      await api.patch(`/tenant/${tenantId}/api/store/bundles/${bundleId}/items/${editItem.bundleItemId}`, {
+        quantity: Number(editItemForm.quantity),
+        // empty string clears the override back to the product's default price
+        overridePrice: editItemForm.overridePrice === '' ? null : Number(editItemForm.overridePrice),
+      });
+      toast.success('Item updated');
+      setEditItem(null); load();
+    } catch (err) { setEditItemError(extractMessage(err, 'Failed to update item.')); }
+    finally { setEditItemSaving(false); }
+  }
+
+  function productName(item: BundleItem) {
+    return item.productName
+      ?? products.find((p) => p.productId === item.productId)?.name
+      ?? item.productId.slice(0, 8);
   }
 
   if (loading) return <div className="flex justify-center py-16"><Spinner /></div>;
@@ -140,22 +175,30 @@ export default function BundleDetailPage({ params }: { params: Promise<{ tenantI
   if (!bundle) return null;
 
   const itemColumns: TableColumn<BundleDetail['items'][0]>[] = [
-    { key: 'product', header: 'Product', render: (i) => <span className="font-medium">{productName(i.productId)}</span> },
+    { key: 'product', header: 'Product', render: (i) => <span className="font-medium">{productName(i)}</span> },
     { key: 'qty',  header: 'Quantity', render: (i) => <span className="tabular-nums">{i.quantity}</span> },
     {
       key: 'price', header: 'Override Price',
       render: (i) => i.overridePrice != null
         ? <span className="tabular-nums">{i.overridePrice} {bundle.currency}</span>
-        : <span className="text-text-secondary text-xs">Default</span>,
+        : <span className="text-text-secondary text-xs">
+            Default{i.productBasePrice != null ? ` (${i.productBasePrice} ${i.productCurrency ?? bundle.currency})` : ''}
+          </span>,
     },
     {
       key: '_actions', header: '', align: 'right',
       render: (i) => (
         <div onClick={(e) => e.stopPropagation()}>
-          <RowActionsMenu actions={[{
-            label: 'Remove', icon: <FontAwesomeIcon icon={faTrash} />, variant: 'danger',
-            onClick: () => handleRemoveItem(i.bundleItemId),
-          }]} />
+          <RowActionsMenu actions={[
+            {
+              label: 'Edit', icon: <FontAwesomeIcon icon={faPen} />,
+              onClick: () => openEditItem(i),
+            },
+            {
+              label: 'Remove', icon: <FontAwesomeIcon icon={faTrash} />, variant: 'danger',
+              onClick: () => handleRemoveItem(i.bundleItemId),
+            },
+          ]} />
         </div>
       ),
     },
@@ -272,6 +315,28 @@ export default function BundleDetailPage({ params }: { params: Promise<{ tenantI
             <div className="flex-1">
               <Input id="item-price" label="Override Price (optional)" type="number" value={itemForm.overridePrice}
                 onChange={(e) => setItemForm((f) => ({ ...f, overridePrice: e.target.value }))} />
+            </div>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal open={!!editItem} onClose={() => setEditItem(null)}
+        title={editItem ? `Edit ${productName(editItem)}` : 'Edit Item'}
+        footer={<>
+          <Button variant="ghost" onClick={() => setEditItem(null)} disabled={editItemSaving}>Cancel</Button>
+          <Button variant="primary" onClick={handleUpdateItem} loading={editItemSaving}>Save</Button>
+        </>}
+      >
+        <div className="space-y-4">
+          {editItemError && <AlertBanner variant="error" message={editItemError} />}
+          <div className="flex gap-3">
+            <div className="flex-1">
+              <Input id="edit-item-qty" label="Quantity" type="number" value={editItemForm.quantity}
+                onChange={(e) => setEditItemForm((f) => ({ ...f, quantity: e.target.value }))} />
+            </div>
+            <div className="flex-1">
+              <Input id="edit-item-price" label="Override Price (empty = default)" type="number" value={editItemForm.overridePrice}
+                onChange={(e) => setEditItemForm((f) => ({ ...f, overridePrice: e.target.value }))} />
             </div>
           </div>
         </div>

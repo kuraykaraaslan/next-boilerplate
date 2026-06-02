@@ -50,7 +50,7 @@ Tenant-aware e-commerce store. Hierarchical categories with typed spec templates
 - `tenant` GET/POST `/tenant/[tenantId]/api/store/bundles`
 - `tenant` GET/PUT/DELETE `/tenant/[tenantId]/api/store/bundles/[bundleId]`
 - `tenant` POST `/tenant/[tenantId]/api/store/bundles/[bundleId]/items`
-- `tenant` DELETE `/tenant/[tenantId]/api/store/bundles/[bundleId]/items/[itemId]`
+- `tenant` PATCH/DELETE `/tenant/[tenantId]/api/store/bundles/[bundleId]/items/[itemId]`
 - `tenant` GET/POST `/tenant/[tenantId]/api/store/categories`
 - `tenant` GET/PUT/DELETE `/tenant/[tenantId]/api/store/categories/[categoryId]`
 - `tenant` GET/POST `/tenant/[tenantId]/api/store/categories/[categoryId]/specs`

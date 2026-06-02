@@ -1,5 +1,5 @@
 import 'reflect-metadata'
-import { ILike } from 'typeorm'
+import { ILike, In } from 'typeorm'
 import { tenantDataSourceFor } from '@/modules/db'
 import redis, { singleFlight } from '@/modules/redis'
 import Logger from '@/modules/logger'
@@ -30,7 +30,7 @@ import type {
   CreateProductDTO, UpdateProductDTO, GetProductsQuery,
   AddProductImageDTO, SetSpecValuesDTO,
   AddVariantGroupItemDTO, UpdateVariantGroupItemDTO,
-  CreateBundleDTO, UpdateBundleDTO, AddBundleItemDTO, GetBundlesQuery,
+  CreateBundleDTO, UpdateBundleDTO, AddBundleItemDTO, UpdateBundleItemDTO, GetBundlesQuery,
 } from './store.dto'
 import { STORE_MESSAGES } from './store.messages'
 
@@ -359,7 +359,23 @@ export default class StoreService {
       const items = await ds.getRepository(BundleItemEntity).find({
         where: { tenantId, bundleId }, order: { sortOrder: 'ASC' },
       })
-      return StoreBundleWithItemsSchema.parse({ ...bundle, items })
+      // Enrich each item with its product's name + base price so the UI can
+      // display them regardless of the product's status (ACTIVE/DRAFT/etc).
+      const productIds = [...new Set(items.map((i) => i.productId))]
+      const products = productIds.length
+        ? await ds.getRepository(ProductEntity).find({ where: { tenantId, productId: In(productIds) } })
+        : []
+      const productById = new Map(products.map((p) => [p.productId, p]))
+      const enriched = items.map((i) => {
+        const p = productById.get(i.productId)
+        return {
+          ...i,
+          productName: p?.name ?? null,
+          productBasePrice: p?.basePrice ?? null,
+          productCurrency: p?.currency ?? null,
+        }
+      })
+      return StoreBundleWithItemsSchema.parse({ ...bundle, items: enriched })
     })
   }
 
@@ -385,6 +401,21 @@ export default class StoreService {
     if (!product) throw new Error(STORE_MESSAGES.PRODUCT_NOT_FOUND)
     const item = ds.getRepository(BundleItemEntity).create({ tenantId, bundleId, ...data })
     const saved = await ds.getRepository(BundleItemEntity).save(item)
+    await redis.del(`store:bundle:${bundleId}:true`)
+    return StoreBundleItemSchema.parse(saved)
+  }
+
+  static async updateBundleItem(
+    tenantId: string, bundleId: string, bundleItemId: string, data: UpdateBundleItemDTO,
+  ): Promise<StoreBundleItem> {
+    const ds = await tenantDataSourceFor(tenantId)
+    const repo = ds.getRepository(BundleItemEntity)
+    const item = await repo.findOne({ where: { tenantId, bundleId, bundleItemId } })
+    if (!item) throw new Error(STORE_MESSAGES.BUNDLE_ITEM_NOT_FOUND)
+    if (data.quantity !== undefined) item.quantity = data.quantity
+    if (data.overridePrice !== undefined) item.overridePrice = data.overridePrice ?? undefined
+    if (data.sortOrder !== undefined) item.sortOrder = data.sortOrder
+    const saved = await repo.save(item)
     await redis.del(`store:bundle:${bundleId}:true`)
     return StoreBundleItemSchema.parse(saved)
   }

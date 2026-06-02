@@ -56,6 +56,16 @@ UI surfaces:
 - *Duplicate as Variant* button in the Variants tab (clone + add to group).
 - *Duplicate* row action in the products list page.
 
+## Bundles & bundle items
+
+Endpoints (admin only):
+- `GET    /tenant/:tid/api/store/bundles/:bundleId?withItems=true` — when `withItems=true`, each item is enriched server-side with `productName`, `productBasePrice` and `productCurrency` (joined from the referenced product), so names render regardless of the product's status. Without the join the bundle detail page could only resolve names for `ACTIVE` products.
+- `POST   /tenant/:tid/api/store/bundles/:bundleId/items` body `{ productId, variantId?, quantity?, overridePrice?, sortOrder? }`.
+- `PATCH  /tenant/:tid/api/store/bundles/:bundleId/items/:itemId` body `{ quantity?, overridePrice?, sortOrder? }` — `overridePrice: null` clears the override back to the product's default price.
+- `DELETE /tenant/:tid/api/store/bundles/:bundleId/items/:itemId`.
+
+The bundle detail page's **Bundle Items** table offers per-row *Edit* (quantity + override price) and *Remove* actions, plus *Add Product*.
+
 ## Migration notes
 
 Recent changes:
