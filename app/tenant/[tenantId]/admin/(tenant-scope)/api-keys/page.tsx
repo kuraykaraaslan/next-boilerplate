@@ -12,7 +12,7 @@ import { ServerDataTable, type TableColumn } from '@/modules_next/common/ui/Serv
 import { RowActionsMenu } from '@/modules_next/common/ui/RowActionsMenu';
 import { toast } from '@/modules_next/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faKey, faTrash, faCopy, faCheck } from '@fortawesome/free-solid-svg-icons';
+import { faKey, faTrash, faCopy, faCheck, faGear } from '@fortawesome/free-solid-svg-icons';
 import { API_KEY_SCOPES, type ApiKeyScope } from '@/modules/api_key/api_key.enums';
 import type { SafeApiKey as CanonicalSafeApiKey } from '@/modules/api_key/api_key.types';
 
@@ -247,7 +247,10 @@ export default function ApiKeysPage({ params }: { params: Promise<{ tenantId: st
       <PageHeader
         title="API Keys"
         subtitle="Programmatic access tokens for your integrations"
-        actions={[{ label: 'New API Key', onClick: () => setShowCreate(true) }]}
+        actions={[
+          { label: <FontAwesomeIcon icon={faGear} />, href: `/tenant/${tenantId}/admin/api-keys/settings`, variant: 'ghost' as const },
+          { label: 'New API Key', onClick: () => setShowCreate(true) },
+        ]}
       />
 
       {fetchError && <AlertBanner variant="error" message={fetchError} />}

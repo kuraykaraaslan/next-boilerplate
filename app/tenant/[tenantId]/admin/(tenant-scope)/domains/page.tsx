@@ -12,7 +12,7 @@ import { ServerDataTable, type TableColumn } from '@/modules_next/common/ui/Serv
 import { RowActionsMenu } from '@/modules_next/common/ui/RowActionsMenu';
 import { toast } from '@/modules_next/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash, faCheckCircle, faGlobe, faInfoCircle, faLock, faLockOpen } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faCheckCircle, faGlobe, faInfoCircle, faLock, faLockOpen, faGear } from '@fortawesome/free-solid-svg-icons';
 import type { TenantMemberRole as MemberRole } from '@/modules/tenant_member/tenant_member.enums';
 import type { DomainStatus, SslStatus } from '@/modules/tenant_domain/tenant_domain.enums';
 
@@ -282,10 +282,13 @@ export default function TenantDomainsPage({ params }: { params: Promise<{ tenant
       <PageHeader
         title="Domains"
         subtitle="Custom domains connected to this organization"
-        actions={isOwner ? [{
-          label: 'Add Domain',
-          onClick: () => { setAddOpen(true); setAddError(''); setNewDomain(''); },
-        }] : []}
+        actions={[
+          { label: <FontAwesomeIcon icon={faGear} />, href: `/tenant/${tenantId}/admin/domains/settings`, variant: 'ghost' as const },
+          ...(isOwner ? [{
+            label: 'Add Domain',
+            onClick: () => { setAddOpen(true); setAddError(''); setNewDomain(''); },
+          }] : []),
+        ]}
       />
 
       {fetchError && <AlertBanner variant="error" message={fetchError} />}

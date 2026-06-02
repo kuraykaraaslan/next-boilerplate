@@ -82,3 +82,15 @@ API key lookups are cached in Redis (TTL = `TENANT_CACHE_TTL`, default 5 min):
 - **TTL jitter (±10%)** spreads expirations so a burst of keys minted in the same second don't refill simultaneously.
 - **In-process single-flight** (`modules/redis/redis.cache.ts`) dedupes concurrent loaders for the same key — if 100 requests miss on the same hash at the same time, only one DB query runs.
 - **Negative cache** on `verify`: an unknown hash is cached as `__not_found__` for up to 60s. Credential-stuffing attempts against random hashes hit Redis, not the DB. `create` clears the negative key for the new hash, so freshly-minted keys are immediately usable.
+
+---
+
+## Settings
+
+Surfaced at `/tenant/[tenantId]/admin/api-keys/settings` (gear button in the API Keys page header) via the shared `ModuleSettingsPage` scaffold. UI field metadata: `api_key.settings.fields.ts`. The `env:TENANT_CACHE_TTL` deployment var is **not** exposed here.
+
+| Key | Type | Notes |
+|---|---|---|
+| `apiKeyNegativeCacheTtlSeconds` | number | Negative-cache TTL for missing API keys (min 60s). |
+
+Read/written via `GET/PUT /tenant/[tenantId]/api/admin-settings`. See `docs/ROADMAP_SETTINGS.md`.

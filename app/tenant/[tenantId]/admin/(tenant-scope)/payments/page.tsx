@@ -9,7 +9,7 @@ import { PageHeader } from '@/modules_next/common/ui/PageHeader';
 import { RowActionsMenu } from '@/modules_next/common/ui/RowActionsMenu';
 import { PaymentStatusBadge, type PaymentStatus } from '@/modules_next/payment/ui/PaymentStatusBadge';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch, faEye } from '@fortawesome/free-solid-svg-icons';
+import { faSearch, faEye, faGear } from '@fortawesome/free-solid-svg-icons';
 import type { SafePayment } from '@/modules/payment/payment.types';
 
 type Payment = Pick<SafePayment, 'paymentId' | 'amount' | 'currency' | 'provider' | 'customerEmail' | 'customerName' | 'tenantId' | 'userId'> & {
@@ -176,6 +176,9 @@ export default function PaymentsPage({ params }: { params: Promise<{ tenantId: s
       <PageHeader
         title="Payments"
         subtitle={loading ? '…' : `${total} total transaction${total !== 1 ? 's' : ''}`}
+        actions={[
+          { label: <FontAwesomeIcon icon={faGear} />, href: `/tenant/${tenantId}/admin/payments/settings`, variant: 'ghost' as const },
+        ]}
       />
 
       {fetchError && <AlertBanner variant="error" message={fetchError} />}

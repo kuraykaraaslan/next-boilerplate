@@ -23,6 +23,7 @@ import {
   faClock,
   faListUl,
   faKey,
+  faGear,
 } from '@fortawesome/free-solid-svg-icons';
 
 import type { WebhookEvent } from '@/modules/webhook/webhook.enums';
@@ -435,7 +436,10 @@ export default function WebhooksPage({ params }: { params: Promise<{ tenantId: s
         subtitle={isRoot
           ? 'Send real-time HTTP notifications for platform-wide events.'
           : 'Receive real-time HTTP notifications when events occur in your tenant.'}
-        actions={[{ label: 'New Webhook', onClick: openCreate }]}
+        actions={[
+          { label: <FontAwesomeIcon icon={faGear} />, href: `/tenant/${tenantId}/admin/webhooks/settings`, variant: 'ghost' as const },
+          { label: 'New Webhook', onClick: openCreate },
+        ]}
       />
 
       {fetchError && <AlertBanner variant="error" message={fetchError} />}

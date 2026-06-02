@@ -12,7 +12,7 @@ import { ServerDataTable, type TableColumn } from '@/modules_next/common/ui/Serv
 import { RowActionsMenu } from '@/modules_next/common/ui/RowActionsMenu';
 import { toast } from '@/modules_next/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEnvelope, faBan } from '@fortawesome/free-solid-svg-icons';
+import { faEnvelope, faBan, faGear } from '@fortawesome/free-solid-svg-icons';
 import type { TenantMemberRole as MemberRole } from '@/modules/tenant_member/tenant_member.enums';
 import type { TenantInvitationStatus as InvitationStatus } from '@/modules/tenant_invitation/tenant_invitation.enums';
 
@@ -217,7 +217,10 @@ export default function TenantInvitationsPage({ params }: { params: Promise<{ te
       <PageHeader
         title="Invitations"
         subtitle="Pending invitations sent to new members"
-        actions={canManage ? [{ label: 'New Invitation', onClick: () => setShowInvite(true) }] : []}
+        actions={[
+          { label: <FontAwesomeIcon icon={faGear} />, href: `/tenant/${tenantId}/admin/invitations/settings`, variant: 'ghost' as const },
+          ...(canManage ? [{ label: 'New Invitation', onClick: () => setShowInvite(true) }] : []),
+        ]}
       />
 
       {fetchError && <AlertBanner variant="error" message={fetchError} />}

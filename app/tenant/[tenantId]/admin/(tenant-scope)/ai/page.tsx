@@ -10,7 +10,7 @@ import { AIChatBox } from '@/modules_next/ai/ui/AIChatBox';
 import { Badge } from '@/modules_next/common/ui/Badge';
 import { DateRangePicker, DateRange } from '@/modules_next/common/ui/DateRangePicker';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faRobot, faChartBar, faServer } from '@fortawesome/free-solid-svg-icons';
+import { faRobot, faChartBar, faServer, faGear } from '@fortawesome/free-solid-svg-icons';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -117,7 +117,13 @@ export default function AIPage({ params }: { params: Promise<{ tenantId: string 
 
   return (
     <div className="space-y-6">
-      <PageHeader title="AI" subtitle="Playground and usage statistics" />
+      <PageHeader
+        title="AI"
+        subtitle="Playground and usage statistics"
+        actions={[
+          { label: <FontAwesomeIcon icon={faGear} />, href: `/tenant/${tenantId}/admin/ai/settings`, variant: 'ghost' as const },
+        ]}
+      />
       {error && <AlertBanner variant="error" message={error} />}
 
       <TabGroup

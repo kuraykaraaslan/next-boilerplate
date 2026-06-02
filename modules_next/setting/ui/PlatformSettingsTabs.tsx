@@ -52,7 +52,7 @@ const SSO_PROVIDERS = [
   { key: 'oauthMeta',      label: 'Meta',      idKey: 'metaClientId',      secretKey: 'metaClientSecret' },
 ];
 
-function PlatformAuthTab({ settings, onSave, saving }: TabProps) {
+export function PlatformAuthTab({ settings, onSave, saving }: TabProps) {
   const [f, setF] = useState({
     allowRegistration: b(settings.allowRegistration),
     emailVerificationRequired: b(settings.emailVerificationRequired),
@@ -145,7 +145,7 @@ const SMTP_ENCRYPTION_OPTIONS = [
   { value: 'ssl', label: 'SSL' },
 ];
 
-function PlatformEmailTab({ settings, onSave, saving }: TabProps) {
+export function PlatformEmailTab({ settings, onSave, saving }: TabProps) {
   const [f, setF] = useState({
     smtpHost: settings.smtpHost ?? '',
     smtpPort: settings.smtpPort ?? '587',
@@ -206,7 +206,7 @@ const SMS_PROVIDER_OPTIONS = [
   { value: 'netgsm', label: 'Netgsm' },
 ];
 
-function PlatformSmsTab({ settings, onSave, saving }: TabProps) {
+export function PlatformSmsTab({ settings, onSave, saving }: TabProps) {
   const [f, setF] = useState({
     smsEnabled: b(settings.smsEnabled),
     smsProvider: settings.smsProvider ?? 'twilio',
@@ -266,7 +266,7 @@ const STORAGE_PROVIDER_OPTIONS = [
   { value: 'minio', label: 'MinIO' },
 ];
 
-function PlatformStorageTab({ settings, onSave, saving }: TabProps) {
+export function PlatformStorageTab({ settings, onSave, saving }: TabProps) {
   const [f, setF] = useState({
     storageProvider: settings.storageProvider ?? 'aws-s3',
     s3Bucket: settings.s3Bucket ?? '',
@@ -317,7 +317,7 @@ function PlatformStorageTab({ settings, onSave, saving }: TabProps) {
 
 // ─── Platform Payment ─────────────────────────────────────────────────────────
 
-function PlatformPaymentTab({ settings, onSave, saving }: TabProps) {
+export function PlatformPaymentTab({ settings, onSave, saving }: TabProps) {
   const [f, setF] = useState({
     currency: settings.currency ?? 'USD',
     taxEnabled: b(settings.taxEnabled),
@@ -421,7 +421,7 @@ const AI_PROVIDER_OPTIONS = [
   { value: 'google', label: 'Google (Gemini)' },
 ];
 
-function PlatformAiTab({ settings, onSave, saving }: TabProps) {
+export function PlatformAiTab({ settings, onSave, saving }: TabProps) {
   const [f, setF] = useState({
     aiEnabled: b(settings.aiEnabled),
     aiDefaultProvider: settings.aiDefaultProvider ?? 'openai',
@@ -486,7 +486,7 @@ function PlatformAiTab({ settings, onSave, saving }: TabProps) {
 
 // ─── Platform Security ────────────────────────────────────────────────────────
 
-function PlatformSecurityTab({ settings, onSave, saving }: TabProps) {
+export function PlatformSecurityTab({ settings, onSave, saving }: TabProps) {
   const [f, setF] = useState({
     rateLimitEnabled: b(settings.rateLimitEnabled),
     rateLimitPerMinute: settings.rateLimitPerMinute ?? '60',
@@ -572,7 +572,7 @@ function PlatformSecurityTab({ settings, onSave, saving }: TabProps) {
 
 // ─── Platform Notifications ───────────────────────────────────────────────────
 
-function PlatformNotificationsTab({ settings, onSave, saving }: TabProps) {
+export function PlatformNotificationsTab({ settings, onSave, saving }: TabProps) {
   const [f, setF] = useState({
     pushNotificationsEnabled: b(settings.pushNotificationsEnabled),
     vapidPublicKey: settings.vapidPublicKey ?? '',
@@ -664,7 +664,7 @@ type ScimToken = {
   updatedAt: string;
 };
 
-function PlatformScimTab({ tenantId }: { tenantId: string }) {
+export function PlatformScimTab({ tenantId }: { tenantId: string }) {
   const [tokens, setTokens] = useState<ScimToken[]>([]);
   const [loading, setLoading] = useState(true);
   const [endpoint, setEndpoint] = useState('');

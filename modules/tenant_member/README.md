@@ -71,3 +71,15 @@ DELETE /tenant/[tenantId]/api/members/[id]
 ```
 
 Member limit enforced via `tenant_subscription` feature `max_members`.
+
+---
+
+## Settings
+
+Surfaced at `/tenant/[tenantId]/admin/members/settings` (gear button in the Members page header) via the shared `ModuleSettingsPage` scaffold. UI field metadata: `tenant_member.settings.fields.ts`.
+
+| Key | Type | Notes |
+|---|---|---|
+| `defaultMemberRole` | select (`USER` \| `ADMIN`) | Default `USER`. Role assigned to new members on join / invitation accept. **Phase 2:** the invitation flow reads this as the default role. |
+
+Read/written via `GET/PUT /tenant/[tenantId]/api/admin-settings`. See `docs/ROADMAP_SETTINGS.md`.

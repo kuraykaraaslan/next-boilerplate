@@ -13,7 +13,7 @@ import { ServerDataTable, type TableColumn } from '@/modules_next/common/ui/Serv
 import { RowActionsMenu } from '@/modules_next/common/ui/RowActionsMenu';
 import { toast } from '@/modules_next/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUserPlus, faSearch, faUser, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faUserPlus, faSearch, faUser, faTrash, faGear } from '@fortawesome/free-solid-svg-icons';
 import type { TenantMemberRole as MemberRole } from '@/modules/tenant_member/tenant_member.enums';
 
 type Member = {
@@ -196,7 +196,10 @@ export default function TenantMembersPage({ params }: { params: Promise<{ tenant
       <PageHeader
         title="Members"
         subtitle="People with access to this organization"
-        actions={canManage ? [{ label: 'Invite Member', onClick: () => setShowInvite(true) }] : []}
+        actions={[
+          { label: <FontAwesomeIcon icon={faGear} />, href: `/tenant/${tenantId}/admin/members/settings`, variant: 'ghost' as const },
+          ...(canManage ? [{ label: 'Invite Member', onClick: () => setShowInvite(true) }] : []),
+        ]}
       />
 
       {fetchError && <AlertBanner variant="error" message={fetchError} />}

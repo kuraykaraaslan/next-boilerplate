@@ -70,3 +70,16 @@ DELETE /tenant/[tenantId]/api/domains/[id]
 ```
 
 Requires `tenant:admin` scope. Domain limits enforced via `tenant_subscription` feature `max_domains`.
+
+---
+
+## Settings
+
+Surfaced at `/tenant/[tenantId]/admin/domains/settings` (gear button in the Domains page header) via the shared `ModuleSettingsPage` scaffold. UI field metadata: `tenant_domain.settings.fields.ts`.
+
+| Key | Type | Notes |
+|---|---|---|
+| `maxDomains` | number | Max custom domains. Already read per-tenant via `SettingService.getByKey(tenantId, 'maxDomains')`. |
+| `maxSubdomains` | number | Max subdomains. Read per-tenant via `SettingService.getByKey(tenantId, 'maxSubdomains')`. |
+
+Read/written via `GET/PUT /tenant/[tenantId]/api/admin-settings`. See `docs/ROADMAP_SETTINGS.md`.
