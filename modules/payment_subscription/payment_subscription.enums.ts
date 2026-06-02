@@ -24,5 +24,11 @@ export type BillingCycle = z.infer<typeof BillingCycleEnum>
 export const SubscriptionPlanStatusEnum = z.enum(['ACTIVE', 'ARCHIVED', 'DRAFT'])
 export type SubscriptionPlanStatus = z.infer<typeof SubscriptionPlanStatusEnum>
 
-export const PlanFeatureTypeEnum = z.enum(['BOOLEAN', 'NUMBER', 'TEXT', 'LIMIT'])
-export type PlanFeatureType = z.infer<typeof PlanFeatureTypeEnum>
+// Plan feature type is shared with the `tenant_subscription` module — both read the
+// same `plan_features` table, so the value set must have a single source of truth.
+// Re-exported (not redefined) to make the 4-vs-2 drift that previously broke plan
+// reads structurally impossible. Canonical model: BOOLEAN flag | LIMIT quota.
+export {
+  PlanFeatureTypeEnum,
+  type PlanFeatureType,
+} from '../tenant_subscription/tenant_subscription.enums'
