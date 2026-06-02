@@ -1,5 +1,6 @@
 'use client';
 import { use, useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { Badge } from '@/modules_next/common/ui/Badge';
 import { Button } from '@/modules_next/common/ui/Button';
 import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
@@ -11,7 +12,7 @@ import { ServerDataTable, type TableColumn } from '@/modules_next/common/ui/Serv
 import { RowActionsMenu } from '@/modules_next/common/ui/RowActionsMenu';
 import { toast } from '@/modules_next/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPercent, faDollarSign, faTrash, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faPercent, faDollarSign, faTrash, faXmark, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 import api from '@/modules_next/common/axios';
 import type { CouponStatus, DiscountType } from '@/modules/coupon/coupon.enums';
 import type { CouponScope } from '@/modules/coupon/coupon.dto';
@@ -98,6 +99,7 @@ function extractMessage(err: unknown, fallback: string): string {
 
 export default function CouponsPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = use(params);
+  const router = useRouter();
   const [coupons, setCoupons]     = useState<Coupon[]>([]);
   const [page, setPage]           = useState(1);
   const [loading, setLoading]     = useState(true);
@@ -280,6 +282,11 @@ export default function CouponsPage({ params }: { params: Promise<{ tenantId: st
           <RowActionsMenu
             actions={[
               {
+                label: 'Edit',
+                icon: <FontAwesomeIcon icon={faPenToSquare} />,
+                onClick: () => router.push(`/tenant/${tenantId}/admin/coupons/${c.couponId}`),
+              },
+              {
                 label: c.status === 'ARCHIVED' ? 'Archived' : 'Archive',
                 icon: <FontAwesomeIcon icon={faTrash} />,
                 onClick: () => { setArchivingCoupon(c); setArchiveError(''); },
@@ -306,6 +313,7 @@ export default function CouponsPage({ params }: { params: Promise<{ tenantId: st
         columns={columns}
         rows={pageRows}
         getRowKey={(c) => c.couponId}
+        onRowClick={(c) => router.push(`/tenant/${tenantId}/admin/coupons/${c.couponId}`)}
         page={page}
         totalPages={totalPages}
         total={total}
