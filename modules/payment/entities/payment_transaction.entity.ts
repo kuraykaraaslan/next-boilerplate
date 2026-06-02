@@ -26,16 +26,16 @@ export class PaymentTransaction {
   @Column({ type: 'varchar', default: 'PENDING' })
   status!: string;
 
-  @Column({ type: 'decimal', precision: 12, scale: 2 })
+  @Column({ type: 'decimal', precision: 12, scale: 2, transformer: { to: (v) => v, from: (v) => v == null ? v : parseFloat(v) } })
   amount!: number;
 
   @Column({ type: 'varchar', length: 3 })
   currency!: string;
 
-  @Column({ nullable: true, type: 'decimal', precision: 12, scale: 2 })
+  @Column({ nullable: true, type: 'decimal', precision: 12, scale: 2, transformer: { to: (v) => v, from: (v) => v == null ? v : parseFloat(v) } })
   fee?: number;
 
-  @Column({ nullable: true, type: 'decimal', precision: 12, scale: 2 })
+  @Column({ nullable: true, type: 'decimal', precision: 12, scale: 2, transformer: { to: (v) => v, from: (v) => v == null ? v : parseFloat(v) } })
   net?: number;
 
   @Column({ type: 'jsonb', nullable: true })

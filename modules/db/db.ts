@@ -44,6 +44,9 @@ import { StoreVariantGroup } from '@/modules/store/entities/store_variant_group.
 import { StoreVariantGroupItem } from '@/modules/store/entities/store_variant_group_item.entity';
 import { StoreBundle } from '@/modules/store/entities/store_bundle.entity';
 import { StoreBundleItem } from '@/modules/store/entities/store_bundle_item.entity';
+import { StoreVariationType } from '@/modules/store/entities/store_variation_type.entity';
+import { StoreVariationOption } from '@/modules/store/entities/store_variation_option.entity';
+import { StoreProductVariant } from '@/modules/store/entities/store_product_variant.entity';
 import { SeoMeta } from '@/modules/seo/entities/seo_meta.entity';
 import { MediaGallery } from '@/modules/media_gallery/entities/media_gallery.entity';
 import { MediaGalleryItem } from '@/modules/media_gallery/entities/media_gallery_item.entity';
@@ -113,6 +116,9 @@ const ENTITIES = [
   StoreVariantGroupItem,
   StoreBundle,
   StoreBundleItem,
+  StoreVariationType,
+  StoreVariationOption,
+  StoreProductVariant,
   SeoMeta,
   MediaGallery,
   MediaGalleryItem,

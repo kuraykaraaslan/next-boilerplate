@@ -22,7 +22,7 @@ export class Payment {
   @Column({ nullable: true, type: 'varchar' })
   providerPaymentId?: string;
 
-  @Column({ type: 'decimal', precision: 12, scale: 2 })
+  @Column({ type: 'decimal', precision: 12, scale: 2, transformer: { to: (v) => v, from: (v) => v == null ? v : parseFloat(v) } })
   amount!: number;
 
   @Index()
@@ -54,7 +54,7 @@ export class Payment {
   @Column({ type: 'jsonb', nullable: true })
   billingAddress?: unknown;
 
-  @Column({ nullable: true, type: 'decimal', precision: 12, scale: 2 })
+  @Column({ nullable: true, type: 'decimal', precision: 12, scale: 2, transformer: { to: (v) => v, from: (v) => v == null ? v : parseFloat(v) } })
   refundedAmount?: number;
 
   @Column({ nullable: true, type: 'varchar' })
