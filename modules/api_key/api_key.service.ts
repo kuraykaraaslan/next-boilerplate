@@ -11,6 +11,7 @@ import type { ApiKeyScope } from './api_key.enums';
 import TenantSubscriptionService from '@/modules/tenant_subscription/tenant_subscription.service';
 import { FEATURE_KEYS } from '@/modules/tenant_subscription/tenant_subscription.feature-keys';
 import { isRootTenant } from '@/modules/tenant/tenant.constants';
+import WebhookService from '@/modules/webhook/webhook.service';
 
 const API_KEY_CACHE_TTL = env.TENANT_CACHE_TTL ?? (60 * 5);
 const NEGATIVE_CACHE_TTL = Math.min(60, API_KEY_CACHE_TTL);
@@ -35,10 +36,6 @@ export default class ApiKeyService {
 
   static hashKey(rawKey: string): string {
     return crypto.createHash('sha256').update(rawKey).digest('hex');
-  }
-
-  static extractPrefix(rawKey: string): string {
-    return rawKey.slice(0, 20);
   }
 
   static async list({ tenantId, page, pageSize }: ListApiKeysInput): Promise<{ keys: SafeApiKey[]; total: number }> {
@@ -88,7 +85,6 @@ export default class ApiKeyService {
 
     const rawKey = ApiKeyService.generateRawKey(tenantId);
     const keyHash = ApiKeyService.hashKey(rawKey);
-    const keyPrefix = ApiKeyService.extractPrefix(rawKey);
 
     const ds = await tenantDataSourceFor(tenantId);
     const repo = ds.getRepository(ApiKeyEntity);
@@ -99,7 +95,6 @@ export default class ApiKeyService {
       name: input.name,
       description: input.description ?? null,
       keyHash,
-      keyPrefix,
       scopes: input.scopes,
       isActive: true,
       expiresAt: input.expiresAt ? new Date(input.expiresAt) : null,
@@ -107,6 +102,12 @@ export default class ApiKeyService {
 
     const saved = await repo.save(entity);
     await redis.del(`api_key:hash:${keyHash}`).catch(() => {});
+    await WebhookService.dispatchEvent(tenantId, 'api_key.created', {
+      apiKeyId: saved.apiKeyId,
+      name: saved.name,
+      scopes: saved.scopes,
+      createdByUserId,
+    });
     return { key: SafeApiKeySchema.parse(saved), rawKey };
   }
 
@@ -141,6 +142,10 @@ export default class ApiKeyService {
 
     await repo.remove(row);
     await this.clearCache({ apiKeyId, tenantId, keyHash: row.keyHash });
+    await WebhookService.dispatchEvent(tenantId, 'api_key.deleted', {
+      apiKeyId,
+      name: row.name,
+    });
   }
 
   /**

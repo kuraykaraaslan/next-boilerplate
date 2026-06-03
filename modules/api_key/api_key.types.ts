@@ -8,7 +8,6 @@ export const ApiKeySchema = z.object({
   name: z.string(),
   description: z.string().nullable(),
   keyHash: z.string(),
-  keyPrefix: z.string(),
   scopes: z.array(ApiKeyScopeEnum),
   isActive: z.boolean(),
   lastUsedAt: z.date().nullable(),

@@ -655,7 +655,6 @@ type ScimToken = {
   createdByUserId: string;
   name: string;
   description: string | null;
-  keyPrefix: string;
   scopes: string[];
   isActive: boolean;
   lastUsedAt: string | null;
@@ -828,8 +827,6 @@ export function PlatformScimTab({ tenantId }: { tenantId: string }) {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-text-primary truncate">{t.name}</p>
                     <p className="text-xs text-text-secondary mt-0.5">
-                      <code className="font-mono">{t.keyPrefix}…</code>
-                      <span className="mx-2">•</span>
                       Scopes: {t.scopes.join(', ')}
                       <span className="mx-2">•</span>
                       Last used: {formatDate(t.lastUsedAt)}

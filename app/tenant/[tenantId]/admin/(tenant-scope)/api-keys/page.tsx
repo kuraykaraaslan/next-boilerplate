@@ -178,15 +178,6 @@ export default function ApiKeysPage({ params }: { params: Promise<{ tenantId: st
       ),
     },
     {
-      key: 'keyPrefix',
-      header: 'Key',
-      render: (k) => (
-        <code className="text-xs font-mono bg-surface-overlay px-2 py-1 rounded text-text-secondary">
-          {k.keyPrefix}…
-        </code>
-      ),
-    },
-    {
       key: 'scopes',
       header: 'Scopes',
       render: (k) => (

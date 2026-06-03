@@ -35,7 +35,6 @@ export async function seedApiKey(ctx: SeedContext): Promise<void> {
 
   type ApiKeyDef = {
     keyHash: string;
-    keyPrefix: string;
     name: string;
     description: string | null;
     scopes: string[];
@@ -50,7 +49,6 @@ export async function seedApiKey(ctx: SeedContext): Promise<void> {
     // 1) Active read/write integration key, used recently, no expiry.
     {
       keyHash: 'seed-apikey-hash-0000000000000000000000000000000000000001',
-      keyPrefix: 'sk_live_a1b2',
       name: 'CI Pipeline Key',
       description: 'Read/write key used by the demo CI pipeline.',
       scopes: ['read', 'write'],
@@ -63,7 +61,6 @@ export async function seedApiKey(ctx: SeedContext): Promise<void> {
     // 2) Admin key with an upcoming expiry, never used yet.
     {
       keyHash: 'seed-apikey-hash-0000000000000000000000000000000000000002',
-      keyPrefix: 'sk_live_c3d4',
       name: 'Admin Automation Key',
       description: 'Full-access admin key for back-office automation. Rotates quarterly.',
       scopes: ['read', 'write', 'admin'],
@@ -76,7 +73,6 @@ export async function seedApiKey(ctx: SeedContext): Promise<void> {
     // 3) SCIM provisioning bearer token (read + write SCIM scopes).
     {
       keyHash: 'seed-apikey-hash-0000000000000000000000000000000000000003',
-      keyPrefix: 'sk_scim_e5f6',
       name: 'SCIM Provisioning Token',
       description: 'IdP SCIM 2.0 bearer token for user provisioning.',
       scopes: ['scim:read', 'scim:write'],
@@ -89,7 +85,6 @@ export async function seedApiKey(ctx: SeedContext): Promise<void> {
     // 4) Revoked + expired read-only key (inactive, past expiry).
     {
       keyHash: 'seed-apikey-hash-0000000000000000000000000000000000000004',
-      keyPrefix: 'sk_test_0789',
       name: 'Legacy Reporting Key',
       description: 'Read-only key, revoked after a leak and now expired.',
       scopes: ['read'],

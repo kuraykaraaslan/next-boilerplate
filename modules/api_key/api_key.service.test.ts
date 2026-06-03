@@ -56,7 +56,6 @@ const mockApiKey = {
   name: 'Test Key',
   description: null,
   keyHash: 'abc123hash',
-  keyPrefix: 'sk_live_abcd1234_5',
   scopes: ['read'] as ('read' | 'write' | 'admin')[],
   isActive: true,
   lastUsedAt: null,
@@ -114,13 +113,6 @@ describe('ApiKeyService.hashKey', () => {
 
   it('produces different hashes for different keys', () => {
     expect(ApiKeyService.hashKey('key_a')).not.toBe(ApiKeyService.hashKey('key_b'));
-  });
-});
-
-describe('ApiKeyService.extractPrefix', () => {
-  it('returns the first 20 characters', () => {
-    const key = 'sk_live_abcd1234_deadbeefcafebabe1234';
-    expect(ApiKeyService.extractPrefix(key)).toBe(key.slice(0, 20));
   });
 });
 

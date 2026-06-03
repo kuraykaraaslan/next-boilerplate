@@ -31,10 +31,6 @@ export class ApiKey {
   @Column({ type: 'varchar' })
   keyHash!: string;
 
-  // First 12 chars of raw key for display (e.g. "sk_live_ab12")
-  @Column({ type: 'varchar' })
-  keyPrefix!: string;
-
   // JSON array of scope strings: ["read", "write", "admin"]
   @Column({ type: 'simple-array', default: '' })
   scopes!: string[];
