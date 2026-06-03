@@ -29,12 +29,23 @@ webhooks.
 | `member.created/updated/deleted` | tenant | Tenant membership changes |
 | `invitation.sent/accepted/declined/revoked` | tenant | Invitation lifecycle |
 | `subscription.created/updated/cancelled` | tenant | Subscription lifecycle |
+| `subscription.paused/resumed` | tenant | Subscription pause/resume |
 | `payment.completed/failed/refunded` | tenant | Payment lifecycle |
+| `invoice.created/issued/paid` | tenant | Invoice lifecycle |
+| `coupon.created/updated/redeemed` | tenant | Coupon lifecycle |
+| `product.created/updated/deleted` | tenant | Store product changes |
+| `fulfillment.created/shipped/delivered/cancelled` | tenant | Order fulfillment lifecycle |
+| `document.signed` / `identity.verified` | tenant | E-signature / identity verification |
 | `api_key.created/deleted` | tenant | API key management |
 | `user.created/updated/deleted/suspended` | platform | Global user lifecycle |
 | `tenant.created/deleted/suspended` | platform | Tenant lifecycle |
 | `plan.created/updated/deleted` | platform | Subscription plan changes |
 | `subscription.assigned` | platform | Plan assignment from admin panel |
+
+`webhook.catalog.ts` is the single source of truth for event metadata (scope,
+group, label, description). It is typed `Record<WebhookEvent, …>`, so the enum
+and catalog cannot drift — adding an event to one without the other fails the
+type-check. Both the admin event picker and `GET …/webhooks/events` consume it.
 
 ---
 
@@ -42,6 +53,7 @@ webhooks.
 
 | Method | Path | Description |
 |---|---|---|
+| GET | `/tenant/[id]/api/webhooks/events` | List subscribable events for this tenant's scope |
 | GET | `/tenant/[id]/api/webhooks` | List endpoints |
 | POST | `/tenant/[id]/api/webhooks` | Create endpoint |
 | GET | `/tenant/[id]/api/webhooks/[wid]` | Get endpoint |
@@ -83,10 +95,41 @@ function verifyWebhook(body: string, signature: string, secret: string): boolean
 ## Delivery
 
 - Queue: BullMQ (`webhookDeliveryQueue`), concurrency 10
-- Timeout: 15 seconds per attempt
-- Max attempts: 3
-- Backoff: exponential — 60s → 5min → 15min
+- Timeout, max attempts, and backoff are **per-tenant settings** (see *Settings*); the values below are the defaults:
+  - Timeout: 15 seconds per attempt (`webhookRequestTimeoutMs`)
+  - Max attempts: 3 (`webhookMaxAttempts`)
+  - Backoff: exponential — 60s → 5min → 15min (`webhookRetryDelaysMs`)
 - Delivery record updated after each attempt with status, HTTP code, response body (truncated to 4 KB), and duration
+
+---
+
+## Endpoint configuration
+
+Each endpoint supports optional per-webhook configuration (DB columns added in
+`003_webhook_endpoint_capabilities.sql`):
+
+| Field | Purpose |
+|---|---|
+| `headers` | Extra HTTP headers merged into every request. **Reserved** names (`Content-Type`, `Content-Length`, `Host`, `User-Agent`, `X-Webhook-*`) are rejected at the DTO layer **and** stripped again in `_executeDelivery` (defense in depth). Header values are validated single-line (no CR/LF). |
+| `eventFilters` | `{ "<event>": { "<dot.path>": value } }`. Before enqueue, the event's payload is matched against the filter for that event — non-matching deliveries are skipped. Events with no filter always deliver. |
+| `tags` | Free-form labels for organising endpoints in the admin UI. |
+
+All three are editable from the create/edit modal on the Webhooks admin page and
+never expose the signing secret (`SafeWebhook`).
+
+---
+
+## Reliability
+
+- **Per-endpoint rate limit** (`rateLimitPerMinute`, or the `webhookDefaultRateLimitPerMinute`
+  setting as fallback): a sliding-window limiter (`checkWebhookRateLimit`, reusing the
+  tenant-plan zset algorithm). When an endpoint is over its limit the delivery is **deferred**
+  ~60s via a BullMQ delay rather than dropped.
+- **Circuit breaker**: `consecutiveFailures` increments on each failed delivery and resets on
+  success. When it reaches `webhookCircuitBreakerThreshold` (default 10) the endpoint is
+  **auto-disabled** (`isActive=false`, `autoDisabledAt` set) and stops receiving events. The
+  admin UI shows an *Auto-disabled* badge; toggling the endpoint back on clears the breaker
+  (resets the counter and `autoDisabledAt`).
 
 ---
 
@@ -95,15 +138,24 @@ function verifyWebhook(body: string, signature: string, secret: string): boolean
 ```typescript
 import WebhookService from '@/modules/webhook/webhook.service';
 
-// Call after a member is created:
+// Tenant-scoped event — call after a member is created:
 await WebhookService.dispatchEvent(tenantId, 'member.created', {
   tenantMemberId: member.tenantMemberId,
   userId: member.userId,
   role: member.memberRole,
 });
+
+// Platform-wide event (user.*, tenant.*, plan.*, subscription.assigned) —
+// routes to root-tenant webhooks without threading ROOT_TENANT_ID by hand:
+await WebhookService.dispatchPlatformEvent('user.created', {
+  userId: user.userId,
+  email: user.email,
+});
 ```
 
-`dispatchEvent` is fire-and-forget safe — it catches internal errors and logs them without throwing.
+`dispatchEvent` / `dispatchPlatformEvent` are fire-and-forget safe — they catch internal errors and log them without throwing, so a webhook failure never breaks the producing operation. Dispatch **after** the DB commit so a rolled-back operation cannot emit a phantom event.
+
+These are already wired into the user, tenant, tenant_member, tenant_invitation, api_key, payment (inbound provider webhooks), tenant_subscription (plans + assignment), and payment_subscription (subscription lifecycle) services.
 
 ---
 
@@ -117,4 +169,4 @@ Surfaced at `/tenant/[tenantId]/admin/webhooks/settings` (gear button in the Web
 | `webhookRetryDelaysMs` | text (CSV) | `60000,300000,900000` | Backoff delays between retries (ms). |
 | `webhookRequestTimeoutMs` | number | `15000` | Per-delivery request timeout (ms). |
 
-**Phase 2:** `webhook.service.ts` reads these per tenant (with the defaults above as fallback) instead of the hardcoded values in *Delivery*. Read/written via `GET/PUT /tenant/[tenantId]/api/admin-settings`. See `docs/ROADMAP_SETTINGS.md`.
+`webhook.service.ts` reads these per tenant at dispatch/delivery time via `SettingService.getByKeys` (Redis-cached), with the defaults above as fallback for any missing or unparseable value (`_resolveDeliveryConfig`). Read/written via `GET/PUT /tenant/[tenantId]/api/admin-settings`. See `docs/ROADMAP_SETTINGS.md`.

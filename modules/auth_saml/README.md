@@ -28,8 +28,21 @@ SAML 2.0 SSO per-tenant module.
 
 ## Admin Pages
 
-- **Tenant:** `/tenant/{id}/admin/settings/saml` — 3 tabs: Identity Provider · Attribute Mapping · SP Metadata
-- **System:** `/tenant/00000000-0000-4000-8000-000000000000/admin/saml` — 2 tabs: Tenant Overview · Setup Guide
+- **Dashboard:** `/tenant/{id}/admin/saml` — status badge (Active / Disabled / Not configured), SSO activity feed (from the audit log, `action=saml`), and headline stats (JIT-provisioned users, successful logins, last login).
+- **Settings:** `/tenant/{id}/admin/saml/settings` — IdP config form (Identity Provider · Attribute Mapping) + SP metadata / ACS endpoints. Reached via the ⚙ action on the dashboard.
+
+The root tenant (`00000000-0000-4000-8000-000000000000`) uses the same two pages — its `SamlConfig` row is the platform-wide config.
+
+## Audit events
+
+The ACS callback and JIT flow emit audit-log rows (consumed by the dashboard activity feed):
+
+| Action | When |
+|--------|------|
+| `saml.login_success` | Session minted after a valid assertion (`metadata`: email, nameId, jitProvisioned) |
+| `saml.login_failed` | Assertion rejected, tenant inactive, or member inactive (`metadata.reason`) |
+| `saml.jit_provisioned` | A new user was created from an assertion |
+| `saml.jit_role_mapped` | A tenant membership was created with a mapped role |
 
 ## Database
 
