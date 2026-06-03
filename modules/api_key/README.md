@@ -152,6 +152,8 @@ Surfaced at `/tenant/[tenantId]/admin/api-keys/settings` (gear button in the API
 |---|---|---|
 | `apiKeyNegativeCacheTtlSeconds` | number | Negative-cache TTL for missing API keys (min 60s). |
 
+> **Not wired:** `apiKeyNegativeCacheTtlSeconds` is currently only a UI field — `api_key.service.ts` never reads it. The negative-cache window is hardcoded as `NEGATIVE_CACHE_TTL = Math.min(60, API_KEY_CACHE_TTL)` (`api_key.service.ts:17`), so changing this setting has no runtime effect yet.
+
 Read/written via `GET/PUT /tenant/[tenantId]/api/admin-settings`. See `docs/ROADMAP_SETTINGS.md`.
 
 ---
@@ -160,40 +162,31 @@ Read/written via `GET/PUT /tenant/[tenantId]/api/admin-settings`. See `docs/ROAD
 
 > What varies per tenant in this module — and what could. Audited 2026-06-03.
 
-Manages tenant-scoped API keys for programmatic authentication with feature gating and per-tenant credential isolation.
-
-### Per-tenant settings
-
-| Key | Type | Default | Scope | Controls | Read in |
-|---|---|---|---|---|---|
-| `apiKeyNegativeCacheTtlSeconds` | number | `60` | tenant | Negative-cache TTL for missing API keys (min 60s); shortens credential-stuffing attack surface. | `api_key.settings.fields.ts` |
-
-*Scope: `tenant` = real tenants override · `root` = platform-only default (not per-tenant).*
+The api_key module issues, stores, and verifies per-tenant API keys (hashed, scoped, expirable) in each tenant's own database, gating creation on a per-tenant subscription feature, but exposes no working per-tenant settings (its one declared setting field is never read).
 
 ### Tenant-scoped data
 
 | Entity | Table | Tenant-variable columns |
 |---|---|---|
-| `ApiKey` | `api_keys` | name, description, scopes, isActive, expiresAt, lastUsedAt, createdByUserId |
+| `ApiKey` | `api_keys` | name, description, keyHash, scopes, isActive, expiresAt, createdByUserId, lastUsedAt |
 
 All rows isolated by `tenantId` via the per-tenant DataSource.
 
 ### Per-tenant behavior
 
-- `api_key.service.ts:create` — Feature gating: non-root tenants must have FEATURE_API_KEYS enabled in their subscription plan via TenantSubscriptionService.assertFeatureAccess(); root tenant bypasses this check.
-- `api_key.service.ts:list` — Returns only API keys belonging to the specified tenant, queried from that tenant's data source.
-- `api_key.service.ts:getById` — Retrieves a single API key scoped to the tenant; separate Redis cache key includes tenantId.
-- `api_key.service.ts:update` — Updates only keys belonging to the specified tenant; clears tenant-scoped cache.
-- `api_key.service.ts:delete` — Deletes only keys belonging to the specified tenant; clears tenant-scoped cache.
+- `api_key.service.ts:create` — API key creation is feature-gated per tenant: TenantSubscriptionService.assertFeatureAccess(tenantId, FEATURE_KEYS.FEATURE_API_KEYS) blocks tenants whose plan lacks the feature_api_keys entitlement; the root tenant (isRootTenant) is short-circuited and bypasses the gate.
+- `api_key.service.ts:list/getById/create/update/delete` — All CRUD goes through tenantDataSourceFor(tenantId) and filters where:{tenantId}, so each tenant has its own isolated set of api_keys rows; cache keys are namespaced by tenantId (api_key:tenant:{tenantId}:{apiKeyId}).
+- `api_key.service.ts:generateRawKey` — The raw key string embeds a per-tenant prefix derived from the tenantId (first 8 hex chars of the dashless tenantId) into the sk_live_{prefix}_{secret} format.
+- `api_key.service.ts:verifyFromAuthHeader` — When a tenantId is supplied, verification rejects keys whose key.tenantId does not match, pinning a verified key to a specific tenant (used by SCIM / M2M callers). Note: the underlying verify() lookup uses the global getDataSource() and matches by keyHash across all tenants, so verification itself is not tenant-scoped at the DB level.
 
 ### Candidates (global / hardcoded today → could be per-tenant)
 
 | What | Where | Why per-tenant | Suggested key |
 |---|---|---|---|
-| NEGATIVE_CACHE_TTL hardcoded to Math.min(60, API_KEY_CACHE_TTL) | `api_key.service.ts:13` | Setting apiKeyNegativeCacheTtlSeconds is declared but not read; NEGATIVE_CACHE_TTL is computed from global API_KEY_CACHE_TTL and should be per-tenant to allow tenants to tune credential-stuffing defense independently. | `apiKeyNegativeCacheTtlSeconds` |
-| API_KEY_CACHE_TTL sourced only from env.TENANT_CACHE_TTL (global default 300s) | `api_key.service.ts:12` | Positive cache TTL for valid API keys is a global deployment setting; could plausibly be per-tenant to let high-traffic tenants tune Redis load vs. freshness trade-off independently, though this is intentionally global for consistency. | — |
-| Key format (sk_live_{tenantPrefix}_{secret}) hardcoded in generateRawKey() | `api_key.service.ts:generateRawKey` | Key format is fixed; intentionally global for interoperability, not a tenant-variability concern. | — |
-| Scope enum (read, write, admin, scim:read, scim:write) globally defined | `api_key.enums.ts` | Scopes are platform-wide; could plausibly restrict available scopes per tenant (e.g., SCIM integration only for certain tenants), but currently all scopes are available to all tenants. | — |
+| apiKeyNegativeCacheTtlSeconds is declared as a UI settings field but is never read by the service; NEGATIVE_CACHE_TTL is hardcoded as Math.min(60, API_KEY_CACHE_TTL) from the global env value, so the negative-cache window is identical for every tenant and the declared setting has no effect. | `api_key.settings.fields.ts (API_KEY_SETTINGS_FIELDS apiKeyNegativeCacheTtlSeconds) / api_key.service.ts (NEGATIVE_CACHE_TTL, line 17)` | The field exists specifically to let a tenant tune how long missing-key lookups are negatively cached (credential-stuffing defense), but no SettingService.getValue call wires it in. Reading it per request tenant would make the declared setting functional and let tenants tune their own attack-surface window. | `apiKeyNegativeCacheTtlSeconds` |
+| API_KEY_CACHE_TTL (positive cache TTL for valid keys) is sourced only from the global env.TENANT_CACHE_TTL (default 300s) and applied uniformly to all tenants. | `api_key.service.ts (API_KEY_CACHE_TTL, line 16)` | Positive lookup-cache freshness vs. Redis load is currently a single global deployment value. It could plausibly be per-tenant so high-traffic tenants tune it independently, but it is reasonable to keep global for operational consistency and to bound Redis memory — list as intentional-global rather than a strong candidate. | `apiKeyCacheTtlSeconds` |
+| Default/allowed API key scopes are a fixed global enum (read, write, admin, scim:read, scim:write) with no per-tenant restriction; any tenant can mint admin- or scim-scoped keys regardless of plan tier. | `api_key.enums.ts (API_KEY_SCOPES / ApiKeyScopeEnum) consumed in api_key.service.ts:create` | Plan tiers or security policies might want to restrict which scopes a given tenant can grant (e.g. only paid plans may issue scim:* tokens). Today scopes are validated only against the global enum, not against any per-tenant policy, so this is a plausible per-tenant gating point. | `apiKeyAllowedScopes` |
+| There is no per-tenant cap on the number of active API keys or a default key expiry/rotation policy; create() places no limit and expiresAt defaults to null (never expires). | `api_key.service.ts:create (no count check; expiresAt: input.expiresAt ? ... : null)` | Many SaaS products bound key count per plan and enforce a maximum/forced expiry for security. Both are currently unbounded and identical for all tenants, making them natural per-tenant policy settings. | `apiKeyMaxActiveKeys` |
 
 ---
 

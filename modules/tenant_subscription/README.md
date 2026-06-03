@@ -1,6 +1,36 @@
-# tenant_subscription module
+# Tenant Subscription Module
 
-Manages subscription plans, plan features, and feature enforcement for tenants.
+Manages per-tenant subscription plans, plan features, feature-gating, and self-service / root-admin billing. Each tenant's plan catalogue (plan + product + features) lives in its own datasource; feature access is Redis-cached and audit-logged, and overdue subscriptions are expired by a BullMQ cron worker.
+
+---
+
+## Entities
+
+| Entity | Table | Description |
+|---|---|---|
+| `TenantSubscription` | `tenant_subscriptions` | The tenant's current subscription (one row per tenant, `@Unique(['tenantId'])`): `planId`, `status`, `billingInterval`, period window, `trialEndsAt`, `cancelledAt`, `gracePeriodEndsAt`. Owned by this module. |
+| `SubscriptionPlan` | `subscription_plans` | A plan wrapping a `StoreProduct` (`interval`, `trialDays`, `status`). Entity defined in `modules/payment`; this service reads/writes it. |
+| `PlanFeature` | `plan_features` | Per-plan feature row (`key`, `label`, `type`, `value`, `sortOrder`), unique on `(tenantId, planId, key)`. Entity defined in `modules/payment`; this service reads/writes it. |
+
+All three are **tenant-DB** tables, isolated by `tenantId` via the per-tenant DataSource (`tenantDataSourceFor`). The plan/product/feature chain also relies on `StoreProduct` / `StoreCategory` from `modules/store`.
+
+---
+
+## Services / Responsibilities
+
+`TenantSubscriptionService` (static methods):
+
+| Area | Methods |
+|---|---|
+| Plan CRUD | `createPlan`, `updatePlan`, `deletePlan` (blocks delete with ACTIVE subs), `getPlans`, `getPlanById`, `getPlanWithFeatures`, `getPlansWithFeatures` |
+| Feature CRUD | `addFeature`, `updateFeature`, `removeFeature`, `getFeaturesByPlan` |
+| Subscription lifecycle | `assignPlan` (derives TRIALING/ACTIVE + period end from the plan), `assignPlatformPlan` (root-only free clone+assign), `getSubscription`, `cancelSubscription` |
+| Grace period | `startGracePeriod`, `getGracePeriodStatus`, `expireOverdueSubscriptions` (PAST_DUE past grace → EXPIRED) |
+| Payment / checkout | `purchaseSubscription` (hosted redirect), `startExpressCheckout` / `confirmExpressCheckout` (Stripe wallets), `quote` / `payWithCard` / `complete3dsCardPayment` (direct card + 3DS), `confirmPayment` (idempotent activation) |
+| Feature gating | `checkFeatureAccess` (non-throwing), `assertFeatureAccess` (throws), `invalidateFeatureCache` |
+| Default plan | `getDefaultPlanId`, `setDefaultPlanId` (free plans only) |
+
+Plan/assignment changes emit webhook events via a lazy import (`emitWebhook`): `plan.created/updated/deleted` and the platform-scoped `subscription.assigned`. Feature-access checks are audit-logged (`feature.access.checked`); platform-plan assignment is logged as `subscription.platform_plan.assigned`.
 
 ---
 
@@ -53,6 +83,8 @@ import { FEATURE_KEYS } from '@/modules/tenant_subscription/tenant_subscription.
 | `FEATURE_KEYS.AI_FEATURES` | `ai_features` | BOOLEAN |
 | `FEATURE_KEYS.ADVANCED_ANALYTICS` | `advanced_analytics` | BOOLEAN |
 | `FEATURE_KEYS.PRIORITY_SUPPORT` | `priority_support` | BOOLEAN |
+
+`FEATURE_KEYS` also defines `API_RATE_LIMIT` (`api_rate_limit`, LIMIT) and a set of **billing-aware service-gating keys** consumed by the AI / Mail / SMS / Storage / Webhook / API-key / invoicing flows: `feature_ai_chat`, `feature_ai_monthly_tokens`, `feature_email_send`, `feature_email_monthly_quota`, `feature_sms_send`, `feature_sms_monthly_quota`, `feature_storage_upload`, `feature_storage_quota_bytes`, `feature_webhooks`, `feature_api_keys`, `feature_invoicing`. BOOLEAN `feature_*` keys gate the capability; LIMIT `*_quota` / `*_monthly_*` keys are checked against the matching Redis-backed `TenantUsage` counter.
 
 To add a new feature key: add it to `FEATURE_KEYS` in `tenant_subscription.feature-keys.ts`, then create the matching `PlanFeature` row in the plan admin UI or seed script.
 
@@ -347,3 +379,77 @@ To manually invalidate (e.g., after plan feature edits):
 ```typescript
 await TenantSubscriptionService.invalidateFeatureCache(tenantId);
 ```
+
+---
+
+## Settings
+
+All subscription settings are **platform/root-scoped** — declared in `tenant_subscription.setting.keys.ts` (`SUBSCRIPTION_KEYS`) and stored on the ROOT tenant. There are no per-tenant overrides.
+
+| Key | Read by service | Notes |
+|---|---|---|
+| `subscriptionGracePeriodDays` | yes (`getGracePeriodDays`) | Days a PAST_DUE tenant keeps access before EXPIRED. Read only at `ROOT_TENANT_ID`; default `7`. |
+| `defaultPlanId` | yes (`getDefaultPlanId` / `setDefaultPlanId`) | Free ROOT-catalogue plan auto-cloned + assigned to every newly created tenant. Only a plan whose product has base price 0 may be set. |
+| `subscriptionEnabled` | no | Platform-wide feature toggle, edited in the Platform settings tab; not read at runtime. |
+| `trialEnabled` | no | Platform trial toggle; declared but not read by the service. |
+| `defaultTrialDays` | no | Platform default trial length; the service derives trial from each plan's `trialDays` instead. |
+
+---
+
+## Tenant Variability
+
+> What varies per tenant in this module — and what could. Audited 2026-06-03.
+
+Manages per-tenant subscription plans, plan features, and feature-gating/billing for each tenant, but all of its declared *settings* are platform/root-scoped — the per-tenant variability lives entirely in tenant-scoped catalog/subscription data, not in tenant-overridable settings.
+
+### Tenant-scoped data
+
+| Entity | Table | Tenant-variable columns |
+|---|---|---|
+| `TenantSubscription` | `tenant_subscriptions` | planId, status, billingInterval, currentPeriodStart, currentPeriodEnd, trialEndsAt, cancelledAt, gracePeriodEndsAt |
+| `SubscriptionPlan` | `subscription_plans` | productId, interval, trialDays, status |
+| `PlanFeature` | `plan_features` | planId, key, label, type, value, sortOrder |
+
+All rows isolated by `tenantId` via the per-tenant DataSource.
+
+### Per-tenant behavior
+
+- `tenant_subscription.service.ts:checkFeatureAccess` — Feature gating is fully per-tenant: reads the tenant's own TenantSubscription status/grace + that tenant's PlanFeature rows (BOOLEAN allow vs LIMIT count, unlimited=-1) from tenantDataSourceFor(tenantId), Redis-cached per tenantId. Each tenant's plan features decide what is allowed/limited.
+- `tenant_subscription.service.ts:assignPlan` — Trial vs active state, period end, and billing interval are derived from the specific tenant's plan (plan.trialDays, plan.interval), so each tenant's subscription lifecycle differs by its assigned plan.
+- `tenant_subscription.service.ts:assignPlatformPlan` — Per new/target tenant, clones the ROOT default/platform plan's category+product+plan+feature chain into that tenant's datasource and assigns it for free (priceOverride 0).
+- `tenant_subscription.service.ts:resolveCharge` — Charge currency/amount vary per tenant: based on the tenant's own product.basePrice/currency and the payer card BIN (TRY conversion at live rate only for a TRY-settling provider + Turkish card).
+- `tenant_subscription.service.ts:startGracePeriod` — Sets gracePeriodEndsAt on the specific tenant's subscription (length from the global subscriptionGracePeriodDays setting); expireOverdueSubscriptions then expires each overdue tenant individually.
+
+### Candidates (global / hardcoded today → could be per-tenant)
+
+| What | Where | Why per-tenant | Suggested key |
+|---|---|---|---|
+| Grace period length is global (read once at ROOT) yet applied per tenant, so a tenant/plan cannot have a longer or shorter grace window. | `tenant_subscription.service.ts:getGracePeriodDays` | getGracePeriodDays() calls SettingService.getValue(ROOT_TENANT_ID, 'subscriptionGracePeriodDays') — there is no per-tenant override, but dunning/grace policy is a plausible per-tenant or per-plan concern. | `subscriptionGracePeriodDays` |
+| Default payment provider is hardcoded ('STRIPE' for hosted/express checkout, 'IYZICO' for card/quote) instead of resolved from a tenant's preferred provider. | `tenant_subscription.service.ts:purchaseSubscription / startExpressCheckout / payWithCard / quote` | Each tenant may enable different providers; the fallback provider should come from a per-tenant setting rather than a literal default. | `defaultPaymentProvider` |
+| TRY-settling providers set is hardcoded to ['IYZICO'], so which providers trigger TRY conversion cannot vary per tenant/market. | `tenant_subscription.service.ts:TRY_SETTLE_PROVIDERS` | Tenants in other regions may use different local-settlement providers; the conversion rule is currently global infrastructure config. | `trySettleProviders` |
+| Feature-access Redis cache TTL is a hardcoded 300s constant. | `tenant_subscription.service.ts:FEATURE_CACHE_TTL` | Mostly intentional shared-infra tuning, but staleness tolerance of feature gates could reasonably be platform-configurable; not strictly per-tenant. | `featureCacheTtlSeconds` |
+| Subscription-expire cron pattern defaults to '0 * * * *' in code. | `tenant_subscription.job.ts:scheduleSubscriptionExpireJob` | This is a single shared platform worker, so global is appropriate; flagged only as configurable platform tuning, not per-tenant. | — |
+
+### Platform/root-only settings (not per-tenant)
+
+Configured once at the root tenant; identical for all tenants:
+
+- `subscriptionGracePeriodDays` — Days a PAST_DUE tenant keeps access before EXPIRED. Read only at ROOT_TENANT_ID in getGracePeriodDays(); applies to every tenant (default 7).
+- `defaultPlanId` — ROOT-catalogue free plan auto-cloned+assigned to every newly created tenant. Read/written only at ROOT in getDefaultPlanId()/setDefaultPlanId().
+- `subscriptionEnabled` — Platform-wide toggle for the subscription feature. Edited only in the Platform settings tab; not read by the service at runtime.
+- `trialEnabled` — Platform-wide trial toggle. Declared in keys but not read by the service.
+- `defaultTrialDays` — Platform default trial length. Edited in the Platform settings tab; service derives trial from each plan's trialDays instead, so this key is not read at runtime.
+
+---
+
+## Dependencies
+
+- `modules/db` — per-tenant DataSource resolution (`tenantDataSourceFor`, `getDataSource`).
+- `modules/payment` — `SubscriptionPlan` / `PlanFeature` entities, `PaymentService` (checkout, card charging, BIN check, 3DS, payment intents).
+- `modules/store` — `StoreProduct` / `StoreCategory` entities backing each plan.
+- `modules/exchange_rate` — live TCMB rate for TRY conversion.
+- `modules/redis` — feature-access cache + BullMQ connection for the expire worker.
+- `modules/setting` — ROOT-tenant setting reads/writes (`subscriptionGracePeriodDays`, `defaultPlanId`).
+- `modules/audit_log` — feature-access and platform-plan-assignment audit entries.
+- `modules/webhook` — emits `plan.*` and `subscription.assigned` events (lazy import to avoid an init cycle).
+- `modules/tenant` — `ROOT_TENANT_ID` / `isRootTenant`.
