@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import TenantSubscriptionService from '@/modules/tenant_subscription/tenant_subscription.service';
+import TenantCheckoutService from '@/modules/tenant_subscription/tenant_subscription.checkout.service';
 import { SUBSCRIPTION_MESSAGES } from '@/modules/tenant_subscription/tenant_subscription.messages';
 import { PaymentProviderEnum } from '@/modules/payment/payment.enums';
 import Limiter from '@/modules_next/limiter/limiter.service.next';
@@ -39,7 +39,7 @@ export async function POST(
       return NextResponse.json({ success: false, message: parsed.error.issues.map((i) => i.message).join(', ') }, { status: 400 });
     }
 
-    const result = await TenantSubscriptionService.startExpressCheckout({
+    const result = await TenantCheckoutService.startExpressCheckout({
       tenantId,
       planId: parsed.data.planId,
       provider: parsed.data.provider,

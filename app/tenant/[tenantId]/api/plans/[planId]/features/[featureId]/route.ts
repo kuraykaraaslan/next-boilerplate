@@ -1,6 +1,6 @@
 import Limiter from '@/modules_next/limiter/limiter.service.next';
 import { NextRequest, NextResponse } from 'next/server'
-import TenantSubscriptionService from '@/modules/tenant_subscription/tenant_subscription.service'
+import TenantPlanService from '@/modules/tenant_subscription/tenant_subscription.plan.service'
 import { UpdateFeatureRequestSchema } from '@/modules/tenant_subscription/tenant_subscription.dto'
 import { SUBSCRIPTION_MESSAGES } from '@/modules/tenant_subscription/tenant_subscription.messages'
 import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next'
@@ -49,7 +49,7 @@ export async function PUT(
       )
     }
 
-    const feature = await TenantSubscriptionService.updateFeature(tenantId, featureId, parsed.data)
+    const feature = await TenantPlanService.updateFeature(tenantId, featureId, parsed.data)
     return NextResponse.json({ success: true, feature })
   } catch (error: any) {
     return NextResponse.json(
@@ -83,7 +83,7 @@ export async function DELETE(
 
     }
 
-    await TenantSubscriptionService.removeFeature(tenantId, featureId)
+    await TenantPlanService.removeFeature(tenantId, featureId)
     return NextResponse.json({ success: true })
   } catch (error: any) {
     return NextResponse.json(

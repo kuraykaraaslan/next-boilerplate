@@ -3,8 +3,8 @@
 Her admin modülüne, kendi sayfasından erişilen **kendi ayar sayfası** kazandırma çalışması.
 Modülün ana admin sayfasındaki `PageHeader`'a bir **faGear** eklenir (ayrı bir buton/`action` olarak —
 `PageHeader` bileşeni değiştirilmez); tıklanınca o modülün `…/settings` alt sayfası açılır. Ayar sayfaları
-ortak "settings teması" (Card + Input/Toggle/Select) ile kurulur ve modülün **olası ayarları**
-(`modules/<m>/POSIBBLE_SETTING_KEYS.md`) ile **mevcut değerlerini** gösterir.
+ortak "settings teması" (Card + Input/Toggle/Select) ile kurulur ve modülün **olası ayarları** ile
+**mevcut değerlerini** gösterir.
 
 İki aşamalı: **önce UI, sonra kod.**
 
@@ -69,7 +69,7 @@ Ertelenenler: `invoice` (büyük; kendi `InvoiceTemplateSettings`'i ile ayrı el
 
 ## İzleme Tablosu (45 modül)
 
-`#keys` = `POSIBBLE_SETTING_KEYS.md` veri satırı (env:* hariç kullanılabilir aday sayısı). P1/P2: ☑ tamam, ☐ bekliyor, — uygulanmaz. *(Aşağıdaki tablo ilk Faz-1 anlık görüntüsüdür; T2 satırları artık yukarıdaki launcher sayfalarına taşınmıştır.)*
+`#keys` = modülün olası ayar sayısı (env:* hariç kullanılabilir aday sayısı). P1/P2: ☑ tamam, ☐ bekliyor, — uygulanmaz. *(Aşağıdaki tablo ilk Faz-1 anlık görüntüsüdür; T2 satırları artık yukarıdaki launcher sayfalarına taşınmıştır.)*
 
 | Modül | Scope | Admin sayfası | #keys | Tier | Settings sayfası | P1 | P2 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -128,7 +128,7 @@ Ortak altyapı + 5 T1 modülü uçtan uca:
 - `modules_next/setting/setting-fields.types.ts` — `SettingFieldDef` tipi.
 - `modules_next/setting/ui/ModuleSettingsPage.tsx` — ortak data-driven settings sayfası.
 - Her T1 modülü için:
-  1. `modules/<m>/<m>.settings.fields.ts` — `POSIBBLE_SETTING_KEYS.md` satırları küratörlükle
+  1. `modules/<m>/<m>.settings.fields.ts` — modülün olası ayarları küratörlükle
      `SettingFieldDef[]`'e çevrildi (env:* ve "external/declared elsewhere" satırlar atlandı).
   2. `<page>/page.tsx`'in `PageHeader` `actions`'ına gear eklendi (`PageHeader` bileşeni değişmedi).
   3. `<page>/settings/page.tsx` — `ModuleSettingsPage`'i render eden ince istemci sayfası.

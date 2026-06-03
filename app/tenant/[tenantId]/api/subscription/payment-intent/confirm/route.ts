@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import TenantSubscriptionService from '@/modules/tenant_subscription/tenant_subscription.service';
+import TenantCheckoutService from '@/modules/tenant_subscription/tenant_subscription.checkout.service';
 import { SUBSCRIPTION_MESSAGES } from '@/modules/tenant_subscription/tenant_subscription.messages';
 import { PaymentProviderEnum } from '@/modules/payment/payment.enums';
 import Limiter from '@/modules_next/limiter/limiter.service.next';
@@ -38,7 +38,7 @@ export async function POST(
     }
 
     try {
-      const subscription = await TenantSubscriptionService.confirmExpressCheckout({
+      const subscription = await TenantCheckoutService.confirmExpressCheckout({
         tenantId,
         paymentId: parsed.data.paymentId,
         provider: parsed.data.provider,

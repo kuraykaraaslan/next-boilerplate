@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Limiter from '@/modules_next/limiter/limiter.service.next';
 import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next';
-import WebhookService from '@/modules/webhook/webhook.service';
+import WebhookCrudService from '@/modules/webhook/webhook.crud.service';
 
 /**
  * POST /tenant/[tenantId]/api/webhooks/[webhookId]/rotate-secret
@@ -44,7 +44,7 @@ export async function POST(
       // Empty body is fine — use default.
     }
 
-    const { webhook, newSecret } = await WebhookService.rotateSecret(tenantId, webhookId, overlapMs);
+    const { webhook, newSecret } = await WebhookCrudService.rotateSecret(tenantId, webhookId, overlapMs);
 
     return NextResponse.json(
       {

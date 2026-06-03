@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Limiter from '@/modules_next/limiter/limiter.service.next';
 import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next';
-import WebhookService from '@/modules/webhook/webhook.service';
+import WebhookCrudService from '@/modules/webhook/webhook.crud.service';
 import { UpdateWebhookDTO } from '@/modules/webhook/webhook.dto';
 
 /**
@@ -23,7 +23,7 @@ export async function GET(
       tenantId,
     });
 
-    const webhook = await WebhookService.getById(tenantId, webhookId);
+    const webhook = await WebhookCrudService.getById(tenantId, webhookId);
     return NextResponse.json({ webhook }, { status: 200 });
   } catch (error: any) {
     return NextResponse.json({ message: error.message }, { status: 500 });
@@ -59,7 +59,7 @@ export async function PATCH(
       );
     }
 
-    const webhook = await WebhookService.update(tenantId, webhookId, parsed.data);
+    const webhook = await WebhookCrudService.update(tenantId, webhookId, parsed.data);
     return NextResponse.json({ webhook }, { status: 200 });
   } catch (error: any) {
     return NextResponse.json({ message: error.message }, { status: 500 });
@@ -85,7 +85,7 @@ export async function DELETE(
       tenantId,
     });
 
-    await WebhookService.delete(tenantId, webhookId);
+    await WebhookCrudService.delete(tenantId, webhookId);
     return NextResponse.json({ message: 'Webhook deleted successfully.' }, { status: 200 });
   } catch (error: any) {
     return NextResponse.json({ message: error.message }, { status: 500 });

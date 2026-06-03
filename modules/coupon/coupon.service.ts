@@ -6,6 +6,7 @@ import { env } from '@/modules/env';
 import { Coupon as CouponEntity } from './entities/coupon.entity';
 import { CouponRedemption as CouponRedemptionEntity } from './entities/coupon_redemption.entity';
 import Logger from '@/modules/logger';
+import WebhookService from '@/modules/webhook/webhook.service';
 import { COUPON_MESSAGES } from './coupon.messages';
 import {
   CouponSchema,
@@ -65,6 +66,13 @@ export default class CouponService {
 
       const saved = await repo.save(coupon as CouponEntity);
       await redis.del(`coupon:code:${tenantId}:${data.code.toUpperCase()}`).catch(() => {});
+      await WebhookService.dispatchEvent(tenantId, 'coupon.created', {
+        couponId: saved.couponId,
+        code: saved.code,
+        discountType: saved.discountType,
+        discountValue: saved.discountValue,
+        status: saved.status,
+      });
       return CouponSchema.parse(saved);
     } catch (error) {
       if (error instanceof Error && error.message === COUPON_MESSAGES.CODE_EXISTS) throw error;
@@ -161,6 +169,11 @@ export default class CouponService {
       if (updated && updated.code !== existing.code) {
         await this.clearCache(tenantId, { couponId: updated.couponId, code: updated.code });
       }
+      await WebhookService.dispatchEvent(tenantId, 'coupon.updated', {
+        couponId: updated!.couponId,
+        code: updated!.code,
+        status: updated!.status,
+      });
       return CouponSchema.parse(updated!);
     } catch (error) {
       Logger.error(`${COUPON_MESSAGES.UPDATE_FAILED}: ${error}`);
@@ -343,6 +356,15 @@ export default class CouponService {
         .increment({ tenantId: dto.tenantId, couponId: validation.coupon.couponId }, 'usedCount', 1);
 
       await this.clearCache(dto.tenantId, { couponId: validation.coupon.couponId, code: validation.coupon.code });
+
+      await WebhookService.dispatchEvent(dto.tenantId, 'coupon.redeemed', {
+        couponId: validation.coupon.couponId,
+        code: validation.coupon.code,
+        redemptionId: saved.redemptionId,
+        userId: saved.userId ?? null,
+        discountAmount,
+        finalAmount,
+      });
 
       return CouponRedemptionSchema.parse(saved);
     } catch (error) {

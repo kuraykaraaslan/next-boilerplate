@@ -7,7 +7,7 @@ import { GibDirectClient } from './adapters/tr_gib_direct.client';
 import SettingService from '@/modules/setting/setting.service';
 import AuditLogService from '@/modules/audit_log/audit_log.service';
 import { ROOT_TENANT_ID, isRootTenant } from '@/modules/tenant/tenant.constants';
-import TenantSubscriptionService from '@/modules/tenant_subscription/tenant_subscription.service';
+import TenantFeatureGateService from '@/modules/tenant_subscription/tenant_subscription.feature.service';
 import { FEATURE_KEYS } from '@/modules/tenant_subscription/tenant_subscription.feature-keys';
 import Logger from '@/modules/logger';
 import InvoiceMessages from './invoice.messages';
@@ -18,7 +18,8 @@ import {
   type CreateInvoiceInput,
 } from './invoice.types';
 import { getInvoiceAdapter } from './adapters/registry';
-import MailService from '@/modules/notification_mail/notification_mail.service';
+import MailTemplatesService from '@/modules/notification_mail/notification_mail.templates.service';
+import WebhookService from '@/modules/webhook/webhook.service';
 
 interface ListInvoicesQuery {
   page?: number;
@@ -33,7 +34,7 @@ export default class InvoiceService {
 
   static async create(tenantId: string, input: CreateInvoiceInput): Promise<SafeInvoice> {
     if (!isRootTenant(tenantId)) {
-      await TenantSubscriptionService.assertFeatureAccess(tenantId, FEATURE_KEYS.FEATURE_INVOICING);
+      await TenantFeatureGateService.assertFeatureAccess(tenantId, FEATURE_KEYS.FEATURE_INVOICING);
     }
     const parsed = CreateInvoiceInputSchema.parse(input);
 
@@ -116,6 +117,14 @@ export default class InvoiceService {
       metadata: { invoiceNumber, total: invoice.totalAmount, currency },
     }).catch(() => {});
 
+    await WebhookService.dispatchEvent(tenantId, 'invoice.created', {
+      invoiceId: invoice.invoiceId,
+      invoiceNumber,
+      totalAmount: invoice.totalAmount,
+      currency,
+      status: invoice.status,
+    });
+
     return SafeInvoiceSchema.parse(invoice);
   }
 
@@ -189,8 +198,16 @@ export default class InvoiceService {
       metadata: { invoiceNumber: invoice.invoiceNumber, region: invoice.region },
     }).catch(() => {});
 
+    await WebhookService.dispatchEvent(tenantId, 'invoice.issued', {
+      invoiceId,
+      invoiceNumber: invoice.invoiceNumber,
+      region: invoice.region,
+      totalAmount: invoice.totalAmount,
+      currency: invoice.currency,
+    });
+
     // Issued email — fire-and-forget.
-    MailService.sendInvoiceIssuedEmail({
+    MailTemplatesService.sendInvoiceIssuedEmail({
       tenantId,
       email: invoice.customerEmail,
       invoice: {
@@ -225,8 +242,16 @@ export default class InvoiceService {
       metadata: { invoiceNumber: invoice.invoiceNumber, paymentId },
     }).catch(() => {});
 
+    await WebhookService.dispatchEvent(tenantId, 'invoice.paid', {
+      invoiceId,
+      invoiceNumber: invoice.invoiceNumber,
+      totalAmount: invoice.totalAmount,
+      currency: invoice.currency,
+      paymentId: paymentId ?? null,
+    });
+
     // Receipt email — fire-and-forget. Failure does not roll back the paid state.
-    MailService.sendInvoicePaidEmail({
+    MailTemplatesService.sendInvoicePaidEmail({
       tenantId,
       email: invoice.customerEmail,
       invoice: {

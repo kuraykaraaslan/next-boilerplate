@@ -2,6 +2,7 @@ import Limiter from '@/modules_next/limiter/limiter.service.next';
 import { NextRequest, NextResponse } from 'next/server'
 import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next'
 import TenantSubscriptionService from '@/modules/tenant_subscription/tenant_subscription.service'
+import TenantCheckoutService from '@/modules/tenant_subscription/tenant_subscription.checkout.service'
 import { SUBSCRIPTION_MESSAGES } from '@/modules/tenant_subscription/tenant_subscription.messages'
 import { z } from 'zod'
 
@@ -77,7 +78,7 @@ export async function POST(
     const url = new URL(request.url)
     const baseUrl = `${url.protocol}//${url.host}`
 
-    const result = await TenantSubscriptionService.purchaseSubscription({
+    const result = await TenantCheckoutService.purchaseSubscription({
       tenantId,
       planId: parsed.data.planId,
       successUrl: `${baseUrl}/tenant/${tenantId}/admin/settings?tab=subscription&paymentSuccess=true`,

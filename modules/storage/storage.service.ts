@@ -14,7 +14,7 @@ import { TenantUsageService } from '@/modules/tenant_usage/tenant_usage.service'
 import { tenantDataSourceFor } from '@/modules/db'
 import { UploadedFile } from './entities/uploaded_file.entity'
 import { IsNull } from 'typeorm'
-import TenantSubscriptionService from '@/modules/tenant_subscription/tenant_subscription.service'
+import TenantFeatureGateService from '@/modules/tenant_subscription/tenant_subscription.feature.service'
 import { FEATURE_KEYS } from '@/modules/tenant_subscription/tenant_subscription.feature-keys'
 import { isRootTenant } from '@/modules/tenant/tenant.constants'
 
@@ -126,10 +126,10 @@ export default class StorageService {
   private static async assertStorageFeatureAccess(tenantId: string): Promise<void> {
     if (isRootTenant(tenantId)) return
 
-    await TenantSubscriptionService.assertFeatureAccess(tenantId, FEATURE_KEYS.FEATURE_STORAGE_UPLOAD)
+    await TenantFeatureGateService.assertFeatureAccess(tenantId, FEATURE_KEYS.FEATURE_STORAGE_UPLOAD)
 
     const usage = await TenantUsageService.getUsage(tenantId)
-    await TenantSubscriptionService.assertFeatureAccess(
+    await TenantFeatureGateService.assertFeatureAccess(
       tenantId,
       FEATURE_KEYS.FEATURE_STORAGE_QUOTA_BYTES,
       usage.storageBytes,

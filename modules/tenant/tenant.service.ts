@@ -10,6 +10,7 @@ import TenantMessages from './tenant.messages';
 import TenantMemberService from '../tenant_member/tenant_member.service';
 import Logger from '@/modules/logger';
 import { isRootTenant } from './tenant.constants';
+import WebhookService from '@/modules/webhook/webhook.service';
 
 const TENANT_CACHE_TTL = env.TENANT_CACHE_TTL ?? (60 * 5);
 
@@ -105,6 +106,11 @@ export default class TenantService {
     // Best-effort auto-seed: never fail tenant creation if a default cannot be applied.
     await this.seedDefaults(parsed.tenantId, defaults);
 
+    await WebhookService.dispatchPlatformEvent('tenant.created', {
+      tenantId: parsed.tenantId,
+      name: parsed.name,
+    });
+
     return parsed;
   }
 
@@ -128,12 +134,13 @@ export default class TenantService {
 
     if (!defaults?.skipPlan && !defaults?.skipSubscription) {
       try {
-        const { default: TenantSubscriptionService } = await import('@/modules/tenant_subscription/tenant_subscription.service');
-        const defaultPlanId = await TenantSubscriptionService.getDefaultPlanId();
+        const { default: TenantPlatformPlanService } = await import('@/modules/tenant_subscription/tenant_subscription.platform.service');
+        const { default: TenantFeatureGateService } = await import('@/modules/tenant_subscription/tenant_subscription.feature.service');
+        const defaultPlanId = await TenantFeatureGateService.getDefaultPlanId();
         if (defaultPlanId) {
           // assignPlatformPlan clones the ROOT plan's category/product/plan/feature
           // chain into this tenant and assigns it for free (priceOverride 0).
-          await TenantSubscriptionService.assignPlatformPlan(tenantId, { planId: defaultPlanId, priceOverride: 0 });
+          await TenantPlatformPlanService.assignPlatformPlan(tenantId, { planId: defaultPlanId, priceOverride: 0 });
         }
       } catch (err) {
         Logger.warn(`[TenantService.seedDefaults] default plan assignment failed for ${tenantId}: ${err instanceof Error ? err.message : String(err)}`);
@@ -159,6 +166,20 @@ export default class TenantService {
     await repo.update({ tenantId }, data as any);
     const updated = await repo.findOne({ where: { tenantId } });
     await this.clearCache(tenantId);
+
+    // tenant.updated fires to the tenant's own webhooks; a transition into
+    // SUSPENDED additionally raises the platform-wide tenant.suspended event.
+    await WebhookService.dispatchEvent(tenantId, 'tenant.updated', {
+      tenantId,
+      name: updated!.name,
+      tenantStatus: updated!.tenantStatus,
+    });
+    if (updated!.tenantStatus === 'SUSPENDED' && tenant.tenantStatus !== 'SUSPENDED') {
+      await WebhookService.dispatchPlatformEvent('tenant.suspended', {
+        tenantId,
+        name: updated!.name,
+      });
+    }
     return SafeTenantSchema.parse(updated!);
   }
 
@@ -188,5 +209,9 @@ export default class TenantService {
     if (!tenant) throw new Error(TenantMessages.TENANT_NOT_FOUND);
     await repo.update({ tenantId }, { deletedAt: new Date() });
     await this.clearCache(tenantId);
+    await WebhookService.dispatchPlatformEvent('tenant.deleted', {
+      tenantId,
+      name: tenant.name,
+    });
   }
 }

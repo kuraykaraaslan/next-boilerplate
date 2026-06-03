@@ -63,6 +63,26 @@ describe('CreateWebhookDTO', () => {
     const { url: _, ...withoutUrl } = validInput;
     expect(CreateWebhookDTO.safeParse(withoutUrl).success).toBe(false);
   });
+
+  it('accepts valid custom headers, tags, and event filters', () => {
+    const result = CreateWebhookDTO.safeParse({
+      ...validInput,
+      headers: { 'X-Custom': 'abc' },
+      tags: ['billing', 'prod'],
+      eventFilters: { 'tenant.updated': { 'tenantStatus': 'ACTIVE' } },
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects reserved header names (case-insensitive)', () => {
+    expect(CreateWebhookDTO.safeParse({ ...validInput, headers: { 'Content-Type': 'text/xml' } }).success).toBe(false);
+    expect(CreateWebhookDTO.safeParse({ ...validInput, headers: { 'x-webhook-signature': 'x' } }).success).toBe(false);
+    expect(CreateWebhookDTO.safeParse({ ...validInput, headers: { 'User-Agent': 'evil' } }).success).toBe(false);
+  });
+
+  it('rejects header values containing CRLF', () => {
+    expect(CreateWebhookDTO.safeParse({ ...validInput, headers: { 'X-A': 'a\r\nB: c' } }).success).toBe(false);
+  });
 });
 
 describe('UpdateWebhookDTO', () => {

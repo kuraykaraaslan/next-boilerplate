@@ -38,6 +38,18 @@ vi.mock('../tenant_member/tenant_member.service', () => ({
 
 vi.mock('@/modules/tenant_subscription/tenant_subscription.service', () => ({
   default: {
+    assignPlan: vi.fn(async () => ({})),
+  },
+}));
+
+vi.mock('@/modules/tenant_subscription/tenant_subscription.platform.service', () => ({
+  default: {
+    assignPlatformPlan: vi.fn(async () => ({})),
+  },
+}));
+
+vi.mock('@/modules/tenant_subscription/tenant_subscription.plan.service', () => ({
+  default: {
     createPlan: vi.fn(async () => ({
       planId: '11111111-1111-4111-8111-111111111111',
       tenantId: 'mock-tenant',
@@ -46,7 +58,12 @@ vi.mock('@/modules/tenant_subscription/tenant_subscription.service', () => ({
       trialDays: 0,
       status: 'ACTIVE',
     })),
-    assignPlan: vi.fn(async () => ({})),
+  },
+}));
+
+vi.mock('@/modules/tenant_subscription/tenant_subscription.feature.service', () => ({
+  default: {
+    getDefaultPlanId: vi.fn(async () => null),
   },
 }));
 
@@ -61,6 +78,7 @@ import TenantService from './tenant.service';
 import TenantMessages from './tenant.messages';
 import TenantMemberService from '../tenant_member/tenant_member.service';
 import TenantSubscriptionService from '@/modules/tenant_subscription/tenant_subscription.service';
+import TenantPlanService from '@/modules/tenant_subscription/tenant_subscription.plan.service';
 import SettingService from '@/modules/setting/setting.service';
 
 const TENANT_ID = '550e8400-e29b-41d4-a716-446655440001';
@@ -181,7 +199,7 @@ describe('TenantService.create', () => {
 
     await TenantService.create({ name: 'Seed Tenant', description: null, region: 'TR' });
 
-    expect(TenantSubscriptionService.createPlan).not.toHaveBeenCalled();
+    expect(TenantPlanService.createPlan).not.toHaveBeenCalled();
     expect(TenantSubscriptionService.assignPlan).not.toHaveBeenCalled();
     expect(SettingService.updateMany).toHaveBeenCalledWith(
       TENANT_ID,
@@ -195,7 +213,7 @@ describe('TenantService.create', () => {
 
     await TenantService.create({ name: 'No-plan Tenant', description: null, region: 'TR', defaults: { skipPlan: true } });
 
-    expect(TenantSubscriptionService.createPlan).not.toHaveBeenCalled();
+    expect(TenantPlanService.createPlan).not.toHaveBeenCalled();
     expect(TenantSubscriptionService.assignPlan).not.toHaveBeenCalled();
     expect(SettingService.updateMany).toHaveBeenCalled();
   });
@@ -220,14 +238,14 @@ describe('TenantService.create', () => {
 
     await TenantService.create({ name: 'Platform', description: null, region: 'TR' });
 
-    expect(TenantSubscriptionService.createPlan).not.toHaveBeenCalled();
+    expect(TenantPlanService.createPlan).not.toHaveBeenCalled();
     expect(SettingService.updateMany).not.toHaveBeenCalled();
   });
 
   it('does not fail the tenant create when plan seed throws', async () => {
     const repo = makeRepo();
     mockDefaultDs(repo);
-    (TenantSubscriptionService.createPlan as any).mockRejectedValueOnce(new Error('boom'));
+    (TenantPlanService.createPlan as any).mockRejectedValueOnce(new Error('boom'));
 
     const result = await TenantService.create({ name: 'Robust Tenant', description: null, region: 'TR' });
     expect(result.name).toBe('Robust Tenant');
@@ -291,7 +309,7 @@ describe('TenantService.provisionPersonal', () => {
     (TenantMemberService.create as any).mockResolvedValue({});
 
     await TenantService.provisionPersonal('user-1', 'bob@example.com');
-    expect(TenantSubscriptionService.createPlan).toHaveBeenCalled();
+    expect(TenantPlanService.createPlan).toHaveBeenCalled();
     expect(SettingService.updateMany).toHaveBeenCalled();
   });
 });

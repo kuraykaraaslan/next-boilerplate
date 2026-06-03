@@ -52,6 +52,8 @@ vi.mock('@/modules/redis/redis.bullmq', () => ({
 import WebhookService from './webhook.service';
 import { tenantDataSourceFor } from '@/modules/db';
 import WebhookMessages from './webhook.messages';
+import { ROOT_TENANT_ID } from '@/modules/tenant/tenant.constants';
+import SettingService from '@/modules/setting/setting.service';
 
 const TENANT_ID = '550e8400-e29b-41d4-a716-446655440000';
 const USER_ID = '660e8400-e29b-41d4-a716-446655440001';
@@ -66,8 +68,17 @@ const mockWebhook = {
   description: null,
   url: 'https://example.com/hook',
   secret: 'supersecret',
+  previousSecret: null,
+  previousSecretExpiresAt: null,
   events: ['member.created', 'tenant.updated'],
+  headers: null,
+  eventFilters: null,
+  tags: null,
   isActive: true,
+  consecutiveFailures: 0,
+  autoDisabledAt: null,
+  ipAllowlist: null,
+  rateLimitPerMinute: null,
   createdAt: new Date('2024-01-01'),
   updatedAt: new Date('2024-01-01'),
 };
@@ -115,127 +126,6 @@ describe('WebhookService.generateSecret', () => {
   });
 });
 
-describe('WebhookService.list', () => {
-  beforeEach(() => vi.clearAllMocks());
-
-  it('returns webhooks and total', async () => {
-    setupTenantDs(mockWebhook);
-    const result = await WebhookService.list({ tenantId: TENANT_ID, page: 1, pageSize: 20 });
-    expect(result.total).toBe(1);
-    expect(result.webhooks).toHaveLength(1);
-    expect(result.webhooks[0].webhookId).toBe(WEBHOOK_ID);
-  });
-
-  it('does not expose secret in returned webhooks', async () => {
-    setupTenantDs(mockWebhook);
-    const result = await WebhookService.list({ tenantId: TENANT_ID, page: 1, pageSize: 20 });
-    expect((result.webhooks[0] as any).secret).toBeUndefined();
-  });
-});
-
-describe('WebhookService.getById', () => {
-  beforeEach(() => vi.clearAllMocks());
-
-  it('throws NOT_FOUND when webhook does not exist', async () => {
-    setupTenantDs(null);
-    await expect(WebhookService.getById(TENANT_ID, WEBHOOK_ID)).rejects.toThrow(WebhookMessages.NOT_FOUND);
-  });
-
-  it('returns SafeWebhook on success', async () => {
-    setupTenantDs(mockWebhook);
-    const result = await WebhookService.getById(TENANT_ID, WEBHOOK_ID);
-    expect(result.webhookId).toBe(WEBHOOK_ID);
-    expect((result as any).secret).toBeUndefined();
-  });
-});
-
-describe('WebhookService.create', () => {
-  beforeEach(() => vi.clearAllMocks());
-
-  it('creates a webhook and returns SafeWebhook', async () => {
-    const repo = makeWebhookRepo(mockWebhook);
-    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => repo });
-
-    const result = await WebhookService.create(TENANT_ID, USER_ID, {
-      name: 'My Hook',
-      url: 'https://example.com/callback',
-      events: ['member.created'],
-    });
-
-    expect(repo.create).toHaveBeenCalled();
-    expect(repo.save).toHaveBeenCalled();
-    expect((result as any).secret).toBeUndefined();
-  });
-
-  it('sets isActive to true for new webhooks', async () => {
-    const repo = makeWebhookRepo(mockWebhook);
-    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => repo });
-
-    await WebhookService.create(TENANT_ID, USER_ID, {
-      name: 'New Hook',
-      url: 'https://example.com/new',
-      events: ['payment.completed'],
-    });
-
-    const createArg = repo.create.mock.calls[0][0];
-    expect(createArg.isActive).toBe(true);
-  });
-
-  it('generates a secret for each new webhook', async () => {
-    const repo = makeWebhookRepo(mockWebhook);
-    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => repo });
-
-    await WebhookService.create(TENANT_ID, USER_ID, {
-      name: 'Secure Hook',
-      url: 'https://example.com/secure',
-      events: ['api_key.created'],
-    });
-
-    const createArg = repo.create.mock.calls[0][0];
-    expect(createArg.secret).toMatch(/^[a-f0-9]{64}$/);
-  });
-});
-
-describe('WebhookService.update', () => {
-  beforeEach(() => vi.clearAllMocks());
-
-  it('throws NOT_FOUND when webhook does not exist', async () => {
-    setupTenantDs(null);
-    await expect(WebhookService.update(TENANT_ID, WEBHOOK_ID, { name: 'New' })).rejects.toThrow(WebhookMessages.NOT_FOUND);
-  });
-
-  it('updates and returns webhook without secret', async () => {
-    const repo = makeWebhookRepo({ ...mockWebhook, name: 'Updated Hook' });
-    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => repo });
-    const result = await WebhookService.update(TENANT_ID, WEBHOOK_ID, { name: 'Updated Hook' });
-    expect(result.name).toBe('Updated Hook');
-    expect((result as any).secret).toBeUndefined();
-  });
-
-  it('can deactivate a webhook', async () => {
-    const repo = makeWebhookRepo({ ...mockWebhook, isActive: false });
-    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => repo });
-    const result = await WebhookService.update(TENANT_ID, WEBHOOK_ID, { isActive: false });
-    expect(result.isActive).toBe(false);
-  });
-});
-
-describe('WebhookService.delete', () => {
-  beforeEach(() => vi.clearAllMocks());
-
-  it('throws NOT_FOUND when webhook does not exist', async () => {
-    setupTenantDs(null);
-    await expect(WebhookService.delete(TENANT_ID, WEBHOOK_ID)).rejects.toThrow(WebhookMessages.NOT_FOUND);
-  });
-
-  it('calls repo.remove when webhook exists', async () => {
-    const repo = makeWebhookRepo(mockWebhook);
-    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => repo });
-    await WebhookService.delete(TENANT_ID, WEBHOOK_ID);
-    expect(repo.remove).toHaveBeenCalled();
-  });
-});
-
 describe('WebhookService.dispatchEvent', () => {
   beforeEach(() => vi.clearAllMocks());
 
@@ -255,5 +145,98 @@ describe('WebhookService.dispatchEvent', () => {
     await WebhookService.dispatchEvent(TENANT_ID, 'member.created', {});
     // Queue.add should not be called since no matching webhook
     expect(WebhookService.QUEUE.add).not.toHaveBeenCalled();
+  });
+
+  // Use ROOT_TENANT_ID so the billing gate is bypassed and the event filter is
+  // the only thing deciding whether the delivery is enqueued.
+  it('skips a webhook whose event filter does not match the payload', async () => {
+    const filtered: any = { ...mockWebhook, tenantId: ROOT_TENANT_ID, events: ['payment.completed'], eventFilters: { 'payment.completed': { currency: 'USD' } } };
+    const repo = makeWebhookRepo(filtered);
+    repo.find.mockResolvedValue([filtered]);
+    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => repo });
+
+    await WebhookService.dispatchEvent(ROOT_TENANT_ID, 'payment.completed', { currency: 'EUR' });
+    expect(WebhookService.QUEUE.add).not.toHaveBeenCalled();
+  });
+
+  it('enqueues a webhook whose event filter matches the payload', async () => {
+    const filtered: any = { ...mockWebhook, tenantId: ROOT_TENANT_ID, events: ['payment.completed'], eventFilters: { 'payment.completed': { currency: 'USD' } } };
+    const repo = makeWebhookRepo(filtered);
+    repo.find.mockResolvedValue([filtered]);
+    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => repo });
+
+    await WebhookService.dispatchEvent(ROOT_TENANT_ID, 'payment.completed', { currency: 'USD', amount: 10 });
+    expect(WebhookService.QUEUE.add).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('WebhookService.dispatchPlatformEvent', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('routes to root-tenant webhooks and enqueues a matching delivery', async () => {
+    const rootWebhook = { ...mockWebhook, tenantId: ROOT_TENANT_ID, events: ['user.created'] };
+    const repo = makeWebhookRepo(rootWebhook);
+    repo.find.mockResolvedValue([rootWebhook]);
+    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => repo });
+
+    // Root tenant short-circuits the billing gate, so this exercises the enqueue path.
+    await WebhookService.dispatchPlatformEvent('user.created', { userId: USER_ID });
+
+    expect(tenantDataSourceFor).toHaveBeenCalledWith(ROOT_TENANT_ID);
+    expect(WebhookService.QUEUE.add).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('WebhookService.triggerEvent', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('enqueues a delivery for the chosen event on the target webhook', async () => {
+    const repo = makeWebhookRepo({ ...mockWebhook, tenantId: ROOT_TENANT_ID });
+    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => repo });
+
+    await WebhookService.triggerEvent(ROOT_TENANT_ID, WEBHOOK_ID, 'user.created', { hello: 'world' });
+
+    expect(WebhookService.QUEUE.add).toHaveBeenCalledTimes(1);
+  });
+
+  it('throws when the webhook does not exist', async () => {
+    const repo = makeWebhookRepo(null);
+    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => repo });
+
+    await expect(WebhookService.triggerEvent(ROOT_TENANT_ID, WEBHOOK_ID, 'user.created')).rejects.toThrow(WebhookMessages.NOT_FOUND);
+  });
+});
+
+
+describe('WebhookService per-tenant delivery config', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('applies webhookMaxAttempts from settings to the queued job', async () => {
+    const rootWebhook = { ...mockWebhook, tenantId: ROOT_TENANT_ID, events: ['user.created'] };
+    const repo = makeWebhookRepo(rootWebhook);
+    repo.find.mockResolvedValue([rootWebhook]);
+    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => repo });
+    const spy = vi.spyOn(SettingService, 'getByKeys').mockResolvedValue({ webhookMaxAttempts: '7' });
+
+    await WebhookService.dispatchPlatformEvent('user.created', { userId: USER_ID });
+
+    expect(spy).toHaveBeenCalled();
+    const addArgs = (WebhookService.QUEUE.add as any).mock.calls[0];
+    expect(addArgs[2]).toMatchObject({ attempts: 7 });
+    spy.mockRestore();
+  });
+
+  it('falls back to defaults when the settings read throws', async () => {
+    const rootWebhook = { ...mockWebhook, tenantId: ROOT_TENANT_ID, events: ['user.created'] };
+    const repo = makeWebhookRepo(rootWebhook);
+    repo.find.mockResolvedValue([rootWebhook]);
+    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => repo });
+    const spy = vi.spyOn(SettingService, 'getByKeys').mockRejectedValue(new Error('settings down'));
+
+    await WebhookService.dispatchPlatformEvent('user.created', { userId: USER_ID });
+
+    const addArgs = (WebhookService.QUEUE.add as any).mock.calls[0];
+    expect(addArgs[2]).toMatchObject({ attempts: 3 });
+    spy.mockRestore();
   });
 });

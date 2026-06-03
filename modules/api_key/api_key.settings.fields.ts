@@ -1,8 +1,7 @@
 import type { SettingFieldDef } from '@/modules_next/setting/setting-fields.types';
 
-// UI metadata for the API Keys settings page. Keys mirror the non-env rows of
-// modules/api_key/POSIBBLE_SETTING_KEYS.md (env:* cache TTL is deployment config
-// and excluded).
+// UI metadata for the API Keys settings page. Keys cover the non-env settings
+// (env:* cache TTL is deployment config and excluded).
 export const API_KEY_SETTINGS_FIELDS: SettingFieldDef[] = [
   {
     key: 'apiKeyNegativeCacheTtlSeconds',

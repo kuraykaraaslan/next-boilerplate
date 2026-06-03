@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Limiter from '@/modules_next/limiter/limiter.service.next';
 import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next';
-import WebhookService from '@/modules/webhook/webhook.service';
+import WebhookCrudService from '@/modules/webhook/webhook.crud.service';
 import { CreateWebhookDTO, ListWebhooksDTO } from '@/modules/webhook/webhook.dto';
 
 /**
@@ -37,7 +37,7 @@ export async function GET(
       );
     }
 
-    const { webhooks, total } = await WebhookService.list(parsed.data);
+    const { webhooks, total } = await WebhookCrudService.list(parsed.data);
     return NextResponse.json({ webhooks, total }, { status: 200 });
   } catch (error: any) {
     return NextResponse.json({ message: error.message }, { status: 500 });
@@ -73,7 +73,7 @@ export async function POST(
       );
     }
 
-    const webhook = await WebhookService.create(tenantId, user.userId, parsed.data);
+    const webhook = await WebhookCrudService.create(tenantId, user.userId, parsed.data);
     return NextResponse.json({ webhook }, { status: 201 });
   } catch (error: any) {
     return NextResponse.json({ message: error.message }, { status: 500 });

@@ -51,7 +51,16 @@ export async function seedWebhook(ctx: SeedContext): Promise<void> {
         'payment.completed',
         'payment.failed',
         'payment.refunded',
+        'invoice.created',
+        'invoice.issued',
+        'invoice.paid',
+        'coupon.redeemed',
       ],
+      // Demo endpoint capabilities: a custom header, tags, and a per-event filter
+      // (only forward USD payments).
+      headers: { 'X-Source': 'next-boilerplate' },
+      tags: ['billing', 'commerce'],
+      eventFilters: { 'payment.completed': { currency: 'USD' } },
       isActive: true,
     },
   );

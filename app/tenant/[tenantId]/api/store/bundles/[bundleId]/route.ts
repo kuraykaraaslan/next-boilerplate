@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Limiter from '@/modules_next/limiter/limiter.service.next'
 import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next'
-import StoreService from '@/modules/store/store.service'
+import StoreBundleService from '@/modules/store/store.bundle.service'
 import { UpdateBundleDTO } from '@/modules/store/store.dto'
 
 type Ctx = { params: Promise<{ tenantId: string; bundleId: string }> }
@@ -14,7 +14,7 @@ export async function GET(request: NextRequest, { params }: Ctx) {
   } catch (e: any) { return NextResponse.json({ message: e.message }, { status: 403 }) }
   try {
     const withItems = new URL(request.url).searchParams.get('withItems') === 'true'
-    const bundle = await StoreService.getBundle(tenantId, bundleId, withItems)
+    const bundle = await StoreBundleService.getBundle(tenantId, bundleId, withItems)
     return NextResponse.json({ bundle })
   } catch (e: any) { return NextResponse.json({ message: e.message }, { status: 404 }) }
 }
@@ -27,7 +27,7 @@ export async function PUT(request: NextRequest, { params }: Ctx) {
   } catch (e: any) { return NextResponse.json({ message: e.message }, { status: 403 }) }
   try {
     const dto = UpdateBundleDTO.parse(await request.json())
-    const bundle = await StoreService.updateBundle(tenantId, bundleId, dto)
+    const bundle = await StoreBundleService.updateBundle(tenantId, bundleId, dto)
     return NextResponse.json({ bundle })
   } catch (e: any) { return NextResponse.json({ message: e.message }, { status: 400 }) }
 }
@@ -39,7 +39,7 @@ export async function DELETE(request: NextRequest, { params }: Ctx) {
     await TenantSessionNextService.authenticateTenantByRequest({ request, tenantId, requiredTenantRole: 'ADMIN' })
   } catch (e: any) { return NextResponse.json({ message: e.message }, { status: 403 }) }
   try {
-    await StoreService.deleteBundle(tenantId, bundleId)
+    await StoreBundleService.deleteBundle(tenantId, bundleId)
     return NextResponse.json({ success: true })
   } catch (e: any) { return NextResponse.json({ message: e.message }, { status: 400 }) }
 }

@@ -123,7 +123,7 @@ vi.mock('./providers/resend.provider', () => ({
 
 
 // Bypass feature gating in unit tests — tested separately in tenant_subscription/.
-vi.mock('@/modules/tenant_subscription/tenant_subscription.service', () => ({
+vi.mock('@/modules/tenant_subscription/tenant_subscription.feature.service', () => ({
   default: {
     assertFeatureAccess: vi.fn(async () => undefined),
     checkFeatureAccess: vi.fn(async () => ({ allowed: true, featureKey: '', type: 'BOOLEAN', limit: null, unlimited: null, current: null })),
@@ -173,17 +173,6 @@ describe('MailService.listProviders', () => {
   });
 });
 
-describe('MailService.getBaseTemplateVars', () => {
-  it('returns template vars with required keys', () => {
-    const vars = MailService.getBaseTemplateVars();
-    expect(vars).toHaveProperty('appName');
-    expect(vars).toHaveProperty('frontendUrl');
-    expect(vars).toHaveProperty('loginLink');
-    expect(vars).toHaveProperty('resetPasswordLink');
-    expect(vars).toHaveProperty('supportEmail');
-  });
-});
-
 describe('MailService.sendMail', () => {
   it('adds a job to the queue without throwing', async () => {
     await expect(
@@ -213,72 +202,5 @@ describe('MailService.sendMailDirect', () => {
     );
     expect(result.success).toBe(true);
     expect(result.messageId).toBe('test-id');
-  });
-});
-
-describe('MailService.sendWelcomeEmail', () => {
-  it('does not throw for valid email', async () => {
-    await expect(
-      MailService.sendWelcomeEmail({ tenantId: TENANT_ID, email: 'user@example.com', name: 'Alice' })
-    ).resolves.not.toThrow();
-  });
-
-  it('uses email as name when name is not provided', async () => {
-    await expect(
-      MailService.sendWelcomeEmail({ tenantId: TENANT_ID, email: 'user@example.com' })
-    ).resolves.not.toThrow();
-  });
-});
-
-describe('MailService.sendOTPEmail', () => {
-  it('does not throw with valid otp token', async () => {
-    await expect(
-      MailService.sendOTPEmail({ tenantId: TENANT_ID, email: 'user@example.com', otpToken: '123456' })
-    ).resolves.not.toThrow();
-  });
-
-  it('handles missing otp token gracefully (logs error, does not throw)', async () => {
-    await expect(
-      MailService.sendOTPEmail({ tenantId: TENANT_ID, email: 'user@example.com', otpToken: '' })
-    ).resolves.not.toThrow();
-  });
-});
-
-describe('MailService.sendForgotPasswordEmail', () => {
-  it('queues email with reset token in link', async () => {
-    await expect(
-      MailService.sendForgotPasswordEmail({
-        tenantId: TENANT_ID, email: 'user@example.com',
-        name: 'Alice',
-        resetToken: 'reset-token-123',
-      })
-    ).resolves.not.toThrow();
-  });
-});
-
-describe('MailService.sendTenantInvitationEmail', () => {
-  it('queues invitation email without throwing', async () => {
-    await expect(
-      MailService.sendTenantInvitationEmail({
-        tenantId: TENANT_ID,
-        email: 'invited@example.com',
-        tenantName: 'Acme Corp',
-        memberRole: 'USER',
-        rawToken: 'token-xyz',
-      })
-    ).resolves.not.toThrow();
-  });
-});
-
-describe('MailService.sendContactFormAdminEmail', () => {
-  it('queues email to admin when INFORM_MAIL is set', async () => {
-    await expect(
-      MailService.sendContactFormAdminEmail({
-        tenantId: TENANT_ID, message: 'Hello from contact form',
-        name: 'Bob',
-        email: 'bob@example.com',
-        phone: '+1234567890',
-      })
-    ).resolves.not.toThrow();
   });
 });

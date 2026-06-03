@@ -8,6 +8,7 @@ import { User, SafeUser, UpdateUser, SafeUserSchema, UserSchema } from './user.t
 import type { UserRole, UserStatus } from './user.enums';
 import bcrypt from 'bcrypt';
 import UserMessages from './user.messages';
+import WebhookService from '@/modules/webhook/webhook.service';
 
 const USER_CACHE_TTL = env.SESSION_CACHE_TTL ?? (60 * 5);
 const NEGATIVE_CACHE_TTL = Math.min(60, USER_CACHE_TTL);
@@ -46,6 +47,11 @@ export default class UserService {
     });
     const saved = await repo.save(user);
     await redis.del(`user:email:${saved.email.toLowerCase()}`).catch(() => {});
+    await WebhookService.dispatchPlatformEvent('user.created', {
+      userId: saved.userId,
+      email: saved.email,
+      userRole: saved.userRole,
+    });
     return SafeUserSchema.parse(saved);
   }
 
@@ -116,6 +122,20 @@ export default class UserService {
       await this.invalidate({ userId, email: updated.email });
     }
 
+    await WebhookService.dispatchPlatformEvent('user.updated', {
+      userId,
+      email: updated!.email,
+      userRole: updated!.userRole,
+      userStatus: updated!.userStatus,
+    });
+    // Distinct lifecycle event when an account transitions into suspension.
+    if (updated!.userStatus === 'SUSPENDED' && user.userStatus !== 'SUSPENDED') {
+      await WebhookService.dispatchPlatformEvent('user.suspended', {
+        userId,
+        email: updated!.email,
+      });
+    }
+
     return SafeUserSchema.parse(updated!);
   }
 
@@ -126,6 +146,10 @@ export default class UserService {
     if (!user) throw new Error(UserMessages.USER_NOT_FOUND);
     await repo.delete({ userId });
     await this.invalidate({ userId, email: user.email });
+    await WebhookService.dispatchPlatformEvent('user.deleted', {
+      userId,
+      email: user.email,
+    });
   }
 
   static async getByEmail(email: string): Promise<User | null> {

@@ -6,7 +6,7 @@ import redis from "@/modules/redis";
 import { PhoneNumberUtil, PhoneNumberFormat } from "google-libphonenumber";
 import { TenantUsageService } from "@/modules/tenant_usage/tenant_usage.service";
 import NotificationLogService from "@/modules/notification_log/notification_log.service";
-import TenantSubscriptionService from "@/modules/tenant_subscription/tenant_subscription.service";
+import TenantFeatureGateService from "@/modules/tenant_subscription/tenant_subscription.feature.service";
 import { FEATURE_KEYS } from "@/modules/tenant_subscription/tenant_subscription.feature-keys";
 import { isRootTenant } from "@/modules/tenant/tenant.constants";
 
@@ -186,10 +186,10 @@ export default class SMSService {
   static async assertSmsFeatureAccess(tenantId: string): Promise<void> {
     if (isRootTenant(tenantId)) return;
 
-    await TenantSubscriptionService.assertFeatureAccess(tenantId, FEATURE_KEYS.FEATURE_SMS_SEND);
+    await TenantFeatureGateService.assertFeatureAccess(tenantId, FEATURE_KEYS.FEATURE_SMS_SEND);
 
     const usage = await TenantUsageService.getUsage(tenantId);
-    await TenantSubscriptionService.assertFeatureAccess(
+    await TenantFeatureGateService.assertFeatureAccess(
       tenantId,
       FEATURE_KEYS.FEATURE_SMS_MONTHLY_QUOTA,
       usage.smsSends,

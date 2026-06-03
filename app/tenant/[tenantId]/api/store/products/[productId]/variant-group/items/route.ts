@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Limiter from '@/modules_next/limiter/limiter.service.next'
 import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next'
-import StoreService from '@/modules/store/store.service'
+import StoreVariantService from '@/modules/store/store.variant.service'
 import { AddVariantGroupItemDTO } from '@/modules/store/store.dto'
 
 type Ctx = { params: Promise<{ tenantId: string; productId: string }> }
@@ -16,7 +16,7 @@ export async function POST(request: NextRequest, { params }: Ctx) {
   try { await auth(request, tenantId) } catch (e: any) { return NextResponse.json({ message: e.message }, { status: 403 }) }
   try {
     const dto = AddVariantGroupItemDTO.parse(await request.json())
-    const result = await StoreService.addToVariantGroup(tenantId, productId, dto)
+    const result = await StoreVariantService.addToVariantGroup(tenantId, productId, dto)
     return NextResponse.json(result, { status: 201 })
   } catch (e: any) { return NextResponse.json({ message: e.message }, { status: 400 }) }
 }

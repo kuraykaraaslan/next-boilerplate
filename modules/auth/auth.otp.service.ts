@@ -5,7 +5,7 @@ import { SafeUser } from "../user/user.types";
 import { SafeUserSession } from "../user_session/user_session.types";
 import { OTPMethod, OTPAction } from "../user_security/user_security.enums";
 import UserSessionService from "../user_session/user_session.service";
-import MailService from "../notification_mail/notification_mail.service";
+import MailTemplatesService from "../notification_mail/notification_mail.templates.service";
 import { ROOT_TENANT_ID } from '@/modules/tenant/tenant.constants';
 import SMSService from "../notification_sms/notification_sms.service";
 import AuthMessages from "./auth.messages";
@@ -105,7 +105,7 @@ export default class OTPService {
     // Send OTP — delivery failures are logged but must NOT propagate to the frontend
     switch (method) {
       case "EMAIL":
-        MailService.sendOTPEmail({ tenantId: ROOT_TENANT_ID, email: user.email, otpToken }).catch((err: unknown) => {
+        MailTemplatesService.sendOTPEmail({ tenantId: ROOT_TENANT_ID, email: user.email, otpToken }).catch((err: unknown) => {
           Logger.error(`OTPService: sendOTPEmail failed for user ${user.userId}: ${err instanceof Error ? err.message : err}`);
         });
         break;

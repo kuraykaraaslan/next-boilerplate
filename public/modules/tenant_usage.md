@@ -32,7 +32,7 @@ Usage metric tracking per tenant (API calls, storage GB, seats). Source for plan
 
 ## README
 
-# tenant_usage
+# Tenant Usage Module
 
 Tracks per-tenant usage counters (API calls, AI tokens, storage bytes, email sends) by month. Counters are stored in Redis for low-latency O(1) increments and flushed to the `tenant_usage` PostgreSQL table by a background CRON job for durable reporting and plan-limit enforcement.
 
@@ -105,6 +105,41 @@ await TenantUsageService.flushToDb(tenantId, month);
 ```
 
 `flushToDb` reads all 4 Redis counters and upserts the `TenantUsage` row for the given tenant+month. If all counters are zero, it skips the DB write.
+
+## Background job
+
+`tenant_usage.job.ts` runs an hourly BullMQ flush (queue `tenant-usage-flush`, concurrency 1): it loads every `ACTIVE` tenant and calls `flushToDb` for the current month, so the 32-day-TTL Redis counters are persisted before they can expire at month end. Triggered by `scheduleUsageFlushJob()` at boot (self-hosted) or `POST /api/cron/usage-flush` with the `CRON_SECRET` bearer token (serverless).
+
+---
+
+## Tenant Variability
+
+> What varies per tenant in this module — and what could. Audited 2026-06-03.
+
+Per-tenant monthly usage metering (API calls, AI tokens, storage bytes, email/SMS sends) — Redis counters flushed to a tenant-scoped table by an hourly job.
+
+### Tenant-scoped data
+
+| Entity | Table | Tenant-variable columns |
+|---|---|---|
+| `TenantUsage` | `tenant_usage` | month, apiCalls, aiTokens, storageBytes, emailSends, smsSends |
+
+All rows isolated by `tenantId` via the per-tenant DataSource.
+
+### Per-tenant behavior
+
+- `tenant_usage.service.ts` — per-tenant Redis counters keyed `tenant:<tenantId>:usage:<metric>:<month>` (the `increment*` methods); best-effort, never blocks the originating action.
+- `tenant_usage.service.ts:getUsage / flushToDb` — read/persist each tenant's monthly usage via `tenantDataSourceFor(tenantId)` (Redis-first, DB fallback).
+- `tenant_usage.job.ts` — the hourly flush iterates every `ACTIVE` tenant and writes that tenant's counters into its own `TenantUsage` row.
+
+### Candidates (global / hardcoded today → could be per-tenant)
+
+| What | Where | Why per-tenant | Suggested key |
+|---|---|---|---|
+| Counter retention TTL (32 days) | `tenant_usage.service.ts:TTL_SECONDS` | Fixed to the billing month for all tenants | intentionally global — N/A |
+| Flush cadence & worker concurrency | `tenant_usage.job.ts` | Single shared cron + worker, not per-tenant | intentionally global — N/A |
+
+---
 
 ## Entity registration
 

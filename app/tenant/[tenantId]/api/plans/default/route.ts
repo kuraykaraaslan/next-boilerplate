@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import TenantSubscriptionService from '@/modules/tenant_subscription/tenant_subscription.service';
+import TenantFeatureGateService from '@/modules/tenant_subscription/tenant_subscription.feature.service';
 import { SUBSCRIPTION_MESSAGES } from '@/modules/tenant_subscription/tenant_subscription.messages';
 import Limiter from '@/modules_next/limiter/limiter.service.next';
 import { authenticateAdminRequest } from '@/modules_next/auth/auth.admin-guard.next';
@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
     const auth = await authenticateAdminRequest(request);
     if (!auth.ok) return auth.response;
 
-    const defaultPlanId = await TenantSubscriptionService.getDefaultPlanId();
+    const defaultPlanId = await TenantFeatureGateService.getDefaultPlanId();
     return NextResponse.json({ success: true, defaultPlanId });
   } catch (error: any) {
     return NextResponse.json(
@@ -53,7 +53,7 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    await TenantSubscriptionService.setDefaultPlanId(parsed.data.planId);
+    await TenantFeatureGateService.setDefaultPlanId(parsed.data.planId);
     return NextResponse.json({ success: true, defaultPlanId: parsed.data.planId });
   } catch (error: any) {
     return NextResponse.json(

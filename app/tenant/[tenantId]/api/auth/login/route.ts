@@ -6,7 +6,7 @@ import TenantMemberService from "@/modules/tenant_member/tenant_member.service";
 import TenantService from "@/modules/tenant/tenant.service";
 import Limiter from "@/modules_next/limiter/limiter.service.next";
 import { LoginDTO } from "@/modules/auth/auth.dto";
-import MailService from "@/modules/notification_mail/notification_mail.service";
+import MailTemplatesService from "@/modules/notification_mail/notification_mail.templates.service";
 import { SafeUserSecuritySchema } from '@/modules/user_security/user_security.types';
 import AuthMessages from "@/modules/auth/auth.messages";
 import UserSecurityService from "@/modules/user_security/user_security.service";
@@ -99,7 +99,7 @@ export async function POST(
     response.cookies.set('refreshToken', rawRefreshToken, cookieOptions);
 
     try {
-      await MailService.sendNewLoginEmail({ tenantId: tenantId, email: user.email });
+      await MailTemplatesService.sendNewLoginEmail({ tenantId: tenantId, email: user.email });
     } catch (emailError) {
       // Ignored error for sending login email
     }

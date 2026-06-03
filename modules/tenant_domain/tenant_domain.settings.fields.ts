@@ -1,7 +1,6 @@
 import type { SettingFieldDef } from '@/modules_next/setting/setting-fields.types';
 
-// UI metadata for the Domains settings page. Keys mirror
-// modules/tenant_domain/POSIBBLE_SETTING_KEYS.md and are already read per-tenant
+// UI metadata for the Domains settings page. Keys are already read per-tenant
 // by tenant_domain.service.ts via SettingService.getByKey(tenantId, ...).
 export const TENANT_DOMAIN_SETTINGS_FIELDS: SettingFieldDef[] = [
   {

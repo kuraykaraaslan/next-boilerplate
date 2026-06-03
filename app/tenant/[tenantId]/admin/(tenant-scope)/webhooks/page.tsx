@@ -24,25 +24,13 @@ import {
   faListUl,
   faKey,
   faGear,
+  faPen,
+  faBolt,
 } from '@fortawesome/free-solid-svg-icons';
 
 import type { WebhookEvent } from '@/modules/webhook/webhook.enums';
-
-const TENANT_EVENT_GROUPS: { group: string; events: WebhookEvent[] }[] = [
-  { group: 'Tenant',        events: ['tenant.updated'] },
-  { group: 'Members',       events: ['member.created', 'member.updated', 'member.deleted'] },
-  { group: 'Invitations',   events: ['invitation.sent', 'invitation.accepted', 'invitation.declined', 'invitation.revoked'] },
-  { group: 'Subscriptions', events: ['subscription.created', 'subscription.updated', 'subscription.cancelled'] },
-  { group: 'Payments',      events: ['payment.completed', 'payment.failed', 'payment.refunded'] },
-  { group: 'API Keys',      events: ['api_key.created', 'api_key.deleted'] },
-];
-
-const PLATFORM_EVENT_GROUPS: { group: string; events: WebhookEvent[] }[] = [
-  { group: 'Users',         events: ['user.created', 'user.updated', 'user.deleted', 'user.suspended'] },
-  { group: 'Tenants',       events: ['tenant.created', 'tenant.updated', 'tenant.deleted', 'tenant.suspended'] },
-  { group: 'Plans',         events: ['plan.created', 'plan.updated', 'plan.deleted'] },
-  { group: 'Subscriptions', events: ['subscription.assigned', 'subscription.updated', 'subscription.cancelled'] },
-];
+import type { WebhookMetrics } from '@/modules/webhook/webhook.types';
+import { groupedCatalogForScope, scopeForTenant } from '@/modules/webhook/webhook.catalog';
 
 type Webhook = {
   webhookId: string;
@@ -50,7 +38,13 @@ type Webhook = {
   description: string | null;
   url: string;
   events: WebhookEvent[];
+  headers: Record<string, string> | null;
+  eventFilters: Record<string, Record<string, unknown>> | null;
+  tags: string[] | null;
+  rateLimitPerMinute: number | null;
   isActive: boolean;
+  consecutiveFailures: number;
+  autoDisabledAt: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -98,17 +92,32 @@ export default function WebhooksPage({ params }: { params: Promise<{ tenantId: s
   const apiBase = isRoot
     ? `/tenant/${tenantId}/api/webhooks`
     : `/tenant/${tenantId}/api/webhooks`;
-  const eventGroups = isRoot ? PLATFORM_EVENT_GROUPS : TENANT_EVENT_GROUPS;
+  // Event picker is driven by the shared webhook catalog (single source of truth,
+  // also served by GET /api/webhooks/events) — root tenant sees platform events.
+  const eventGroups = groupedCatalogForScope(scopeForTenant(isRoot));
 
   const [webhooks, setWebhooks] = useState<Webhook[]>([]);
   const [page, setPage]         = useState(1);
   const [loading, setLoading]   = useState(true);
   const [fetchError, setFetchError] = useState('');
+  const [metrics, setMetrics]   = useState<WebhookMetrics | null>(null);
 
-  const [createOpen, setCreateOpen]   = useState(false);
-  const [createForm, setCreateForm]   = useState({ name: '', description: '', url: '', events: [] as WebhookEvent[] });
-  const [creating, setCreating]       = useState(false);
-  const [createError, setCreateError] = useState('');
+  // One form serves both "create" and "edit" — identical fields. In edit mode
+  // `editingId` holds the webhook being patched; in create mode it stays null.
+  const [formOpen, setFormOpen]     = useState(false);
+  const [editingId, setEditingId]   = useState<string | null>(null);
+  const [form, setForm]             = useState({
+    name: '',
+    description: '',
+    url: '',
+    events: [] as WebhookEvent[],
+    tagsText: '',
+    headerRows: [] as { key: string; value: string }[],
+    filtersText: '',
+    rateLimitText: '',
+  });
+  const [saving, setSaving]         = useState(false);
+  const [formError, setFormError]   = useState('');
 
   const [confirmDelete, setConfirmDelete] = useState<Webhook | null>(null);
   const [deleting, setDeleting]           = useState(false);
@@ -120,6 +129,12 @@ export default function WebhooksPage({ params }: { params: Promise<{ tenantId: s
 
   const [testing, setTesting]           = useState<string | null>(null);
   const [redelivering, setRedelivering] = useState<string | null>(null);
+
+  const [triggerWebhook, setTriggerWebhook] = useState<Webhook | null>(null);
+  const [triggerEvent, setTriggerEvent]     = useState<WebhookEvent | ''>('');
+  const [triggerPayload, setTriggerPayload] = useState('{}');
+  const [triggering, setTriggering]         = useState(false);
+  const [triggerError, setTriggerError]     = useState('');
 
   const fetchWebhooks = useCallback(async () => {
     setLoading(true);
@@ -134,7 +149,16 @@ export default function WebhooksPage({ params }: { params: Promise<{ tenantId: s
     }
   }, [apiBase]);
 
-  useEffect(() => { fetchWebhooks(); }, [fetchWebhooks]);
+  const fetchMetrics = useCallback(async () => {
+    try {
+      const res = await api.get(`${apiBase}/metrics?days=7`);
+      setMetrics(res.data.metrics ?? null);
+    } catch {
+      setMetrics(null);
+    }
+  }, [apiBase]);
+
+  useEffect(() => { fetchWebhooks(); fetchMetrics(); }, [fetchWebhooks, fetchMetrics]);
 
   const fetchDeliveries = useCallback(async (webhookId: string) => {
     setDeliveriesLoading(true);
@@ -149,13 +173,30 @@ export default function WebhooksPage({ params }: { params: Promise<{ tenantId: s
   }, [apiBase]);
 
   function openCreate() {
-    setCreateForm({ name: '', description: '', url: '', events: [] });
-    setCreateError('');
-    setCreateOpen(true);
+    setEditingId(null);
+    setForm({ name: '', description: '', url: '', events: [], tagsText: '', headerRows: [], filtersText: '', rateLimitText: '' });
+    setFormError('');
+    setFormOpen(true);
+  }
+
+  function openEdit(webhook: Webhook) {
+    setEditingId(webhook.webhookId);
+    setForm({
+      name: webhook.name,
+      description: webhook.description ?? '',
+      url: webhook.url,
+      events: webhook.events,
+      tagsText: (webhook.tags ?? []).join(', '),
+      headerRows: Object.entries(webhook.headers ?? {}).map(([key, value]) => ({ key, value })),
+      filtersText: webhook.eventFilters ? JSON.stringify(webhook.eventFilters, null, 2) : '',
+      rateLimitText: webhook.rateLimitPerMinute != null ? String(webhook.rateLimitPerMinute) : '',
+    });
+    setFormError('');
+    setFormOpen(true);
   }
 
   function toggleEvent(event: WebhookEvent) {
-    setCreateForm((prev) => ({
+    setForm((prev) => ({
       ...prev,
       events: prev.events.includes(event)
         ? prev.events.filter((e) => e !== event)
@@ -163,22 +204,85 @@ export default function WebhooksPage({ params }: { params: Promise<{ tenantId: s
     }));
   }
 
-  async function handleCreate() {
-    setCreateError('');
-    if (!createForm.name.trim()) { setCreateError('Name is required.'); return; }
-    if (!createForm.url.trim())  { setCreateError('URL is required.');  return; }
-    if (createForm.events.length === 0) { setCreateError('Select at least one event.'); return; }
+  function addHeaderRow() {
+    setForm((prev) => ({ ...prev, headerRows: [...prev.headerRows, { key: '', value: '' }] }));
+  }
+  function updateHeaderRow(index: number, field: 'key' | 'value', value: string) {
+    setForm((prev) => ({
+      ...prev,
+      headerRows: prev.headerRows.map((row, i) => (i === index ? { ...row, [field]: value } : row)),
+    }));
+  }
+  function removeHeaderRow(index: number) {
+    setForm((prev) => ({ ...prev, headerRows: prev.headerRows.filter((_, i) => i !== index) }));
+  }
 
-    setCreating(true);
+  async function handleSave() {
+    setFormError('');
+    if (!form.name.trim()) { setFormError('Name is required.'); return; }
+    if (!form.url.trim())  { setFormError('URL is required.');  return; }
+    if (form.events.length === 0) { setFormError('Select at least one event.'); return; }
+
+    const tags = form.tagsText.split(',').map((t) => t.trim()).filter(Boolean);
+    const headers: Record<string, string> = {};
+    for (const row of form.headerRows) {
+      const key = row.key.trim();
+      if (key) headers[key] = row.value;
+    }
+    let eventFilters: Record<string, unknown> | undefined;
+    if (form.filtersText.trim()) {
+      try {
+        eventFilters = JSON.parse(form.filtersText);
+      } catch {
+        setFormError('Event filters must be valid JSON.');
+        return;
+      }
+    }
+
+    let rateLimitPerMinute: number | null = null;
+    if (form.rateLimitText.trim()) {
+      const n = parseInt(form.rateLimitText, 10);
+      if (!Number.isFinite(n) || n < 1) {
+        setFormError('Rate limit must be a positive whole number.');
+        return;
+      }
+      rateLimitPerMinute = n;
+    }
+
+    // On create, omit empty optional fields; on edit, send null to clear them.
+    const payload: Record<string, unknown> = {
+      name: form.name,
+      description: form.description,
+      url: form.url,
+      events: form.events,
+    };
+    if (editingId) {
+      payload.tags = tags.length ? tags : null;
+      payload.headers = Object.keys(headers).length ? headers : null;
+      payload.eventFilters = eventFilters ?? null;
+      payload.rateLimitPerMinute = rateLimitPerMinute;
+    } else {
+      if (tags.length) payload.tags = tags;
+      if (Object.keys(headers).length) payload.headers = headers;
+      if (eventFilters) payload.eventFilters = eventFilters;
+      if (rateLimitPerMinute != null) payload.rateLimitPerMinute = rateLimitPerMinute;
+    }
+
+    setSaving(true);
     try {
-      await api.post(apiBase, createForm);
-      setCreateOpen(false);
-      toast.success('Webhook created.');
+      if (editingId) {
+        await api.patch(`${apiBase}/${editingId}`, payload);
+        toast.success('Webhook updated.');
+      } else {
+        await api.post(apiBase, payload);
+        toast.success('Webhook created.');
+      }
+      setFormOpen(false);
       fetchWebhooks();
     } catch (err: unknown) {
-      setCreateError(extractMessage(err, 'Failed to create webhook.'));
+      setFormError(extractMessage(err, editingId ? 'Failed to update webhook.' : 'Failed to create webhook.'));
     } finally {
-      setCreating(false);
+      setSaving(false);
     }
   }
 
@@ -187,8 +291,12 @@ export default function WebhooksPage({ params }: { params: Promise<{ tenantId: s
       await api.patch(`${apiBase}/${webhook.webhookId}`, {
         isActive: !webhook.isActive,
       });
+      const nowActive = !webhook.isActive;
       setWebhooks((prev) =>
-        prev.map((w) => w.webhookId === webhook.webhookId ? { ...w, isActive: !w.isActive } : w),
+        prev.map((w) => w.webhookId === webhook.webhookId
+          // Re-enabling clears the circuit-breaker state server-side; mirror that locally.
+          ? { ...w, isActive: nowActive, autoDisabledAt: nowActive ? null : w.autoDisabledAt, consecutiveFailures: nowActive ? 0 : w.consecutiveFailures }
+          : w),
       );
       toast.success(webhook.isActive ? 'Webhook disabled.' : 'Webhook enabled.');
     } catch (err: unknown) {
@@ -227,6 +335,33 @@ export default function WebhooksPage({ params }: { params: Promise<{ tenantId: s
       toast.error(extractMessage(err, 'Test request failed.'));
     } finally {
       setTesting(null);
+    }
+  }
+
+  function openTrigger(webhook: Webhook) {
+    setTriggerWebhook(webhook);
+    setTriggerEvent(webhook.events[0] ?? '');
+    setTriggerPayload('{}');
+    setTriggerError('');
+  }
+
+  async function handleTrigger() {
+    if (!triggerWebhook || !triggerEvent) { setTriggerError('Pick an event.'); return; }
+    let payload: unknown = {};
+    if (triggerPayload.trim()) {
+      try { payload = JSON.parse(triggerPayload); } catch { setTriggerError('Payload must be valid JSON.'); return; }
+    }
+    setTriggering(true);
+    setTriggerError('');
+    try {
+      await api.post(`${apiBase}/${triggerWebhook.webhookId}/trigger`, { event: triggerEvent, payload });
+      toast.success(`Triggered ${triggerEvent}.`);
+      setTriggerWebhook(null);
+      if (deliveriesWebhook?.webhookId === triggerWebhook.webhookId) fetchDeliveries(triggerWebhook.webhookId);
+    } catch (err: unknown) {
+      setTriggerError(extractMessage(err, 'Trigger failed.'));
+    } finally {
+      setTriggering(false);
     }
   }
 
@@ -313,13 +448,18 @@ export default function WebhooksPage({ params }: { params: Promise<{ tenantId: s
       key: 'isActive',
       header: 'Active',
       render: (w) => (
-        <div onClick={(e) => e.stopPropagation()}>
+        <div onClick={(e) => e.stopPropagation()} className="flex items-center gap-2">
           <Toggle
             id={`toggle-${w.webhookId}`}
             label=""
             checked={w.isActive}
             onChange={() => handleToggleActive(w)}
           />
+          {!w.isActive && w.autoDisabledAt && (
+            <span title={`Auto-disabled after ${w.consecutiveFailures} consecutive failures. Toggle on to re-enable.`}>
+              <Badge variant="error">Auto-disabled</Badge>
+            </span>
+          )}
         </div>
       ),
     },
@@ -332,9 +472,19 @@ export default function WebhooksPage({ params }: { params: Promise<{ tenantId: s
           <RowActionsMenu
             actions={[
               {
+                label: 'Edit',
+                icon: <FontAwesomeIcon icon={faPen} />,
+                onClick: () => openEdit(w),
+              },
+              {
                 label: testing === w.webhookId ? 'Testing…' : 'Send test event',
                 icon: <FontAwesomeIcon icon={faFlask} />,
                 onClick: () => handleTest(w.webhookId),
+              },
+              {
+                label: 'Trigger event…',
+                icon: <FontAwesomeIcon icon={faBolt} />,
+                onClick: () => openTrigger(w),
               },
               {
                 label: 'View deliveries',
@@ -444,6 +594,22 @@ export default function WebhooksPage({ params }: { params: Promise<{ tenantId: s
 
       {fetchError && <AlertBanner variant="error" message={fetchError} />}
 
+      {metrics && metrics.total > 0 && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {[
+            { label: 'Deliveries (7d)', value: String(metrics.total) },
+            { label: 'Success rate', value: metrics.successRate != null ? `${Math.round(metrics.successRate * 100)}%` : '—' },
+            { label: 'Avg latency', value: metrics.avgDurationMs != null ? `${metrics.avgDurationMs} ms` : '—' },
+            { label: 'p95 latency', value: metrics.p95DurationMs != null ? `${metrics.p95DurationMs} ms` : '—' },
+          ].map((stat) => (
+            <div key={stat.label} className="rounded-lg border border-border bg-surface-base px-4 py-3">
+              <p className="text-xs text-text-secondary">{stat.label}</p>
+              <p className="text-xl font-semibold text-text-primary mt-0.5">{stat.value}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
       <ServerDataTable
         columns={columns}
         rows={pageRows}
@@ -458,42 +624,44 @@ export default function WebhooksPage({ params }: { params: Promise<{ tenantId: s
       />
 
       <Modal
-        open={createOpen}
-        onClose={() => setCreateOpen(false)}
-        title={isRoot ? 'New Platform Webhook' : 'New Webhook'}
+        open={formOpen}
+        onClose={() => setFormOpen(false)}
+        title={editingId
+          ? (isRoot ? 'Edit Platform Webhook' : 'Edit Webhook')
+          : (isRoot ? 'New Platform Webhook' : 'New Webhook')}
         size="lg"
         footer={
           <>
-            <Button variant="ghost" onClick={() => setCreateOpen(false)} disabled={creating}>Cancel</Button>
-            <Button variant="primary" onClick={handleCreate} loading={creating}>Create</Button>
+            <Button variant="ghost" onClick={() => setFormOpen(false)} disabled={saving}>Cancel</Button>
+            <Button variant="primary" onClick={handleSave} loading={saving}>{editingId ? 'Save' : 'Create'}</Button>
           </>
         }
       >
         <div className="space-y-4">
-          {createError && <AlertBanner variant="error" message={createError} />}
+          {formError && <AlertBanner variant="error" message={formError} />}
 
           <Input
             id="webhook-name"
             label="Name"
             placeholder="My webhook"
-            value={createForm.name}
-            onChange={(e) => setCreateForm((p) => ({ ...p, name: e.target.value }))}
+            value={form.name}
+            onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
             required
           />
           <Input
             id="webhook-url"
             label="URL"
             placeholder="https://your-service.com/webhook"
-            value={createForm.url}
-            onChange={(e) => setCreateForm((p) => ({ ...p, url: e.target.value }))}
+            value={form.url}
+            onChange={(e) => setForm((p) => ({ ...p, url: e.target.value }))}
             required
           />
           <Input
             id="webhook-description"
             label="Description (optional)"
             placeholder="What is this webhook for?"
-            value={createForm.description}
-            onChange={(e) => setCreateForm((p) => ({ ...p, description: e.target.value }))}
+            value={form.description}
+            onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))}
           />
 
           <div>
@@ -503,12 +671,13 @@ export default function WebhooksPage({ params }: { params: Promise<{ tenantId: s
                 <div key={group}>
                   <p className="text-xs font-semibold text-text-secondary uppercase tracking-wide mb-1">{group}</p>
                   <div className="flex flex-wrap gap-2">
-                    {events.map((ev) => {
-                      const selected = createForm.events.includes(ev);
+                    {events.map(({ event: ev, description }) => {
+                      const selected = form.events.includes(ev);
                       return (
                         <button
                           key={ev}
                           type="button"
+                          title={description}
                           onClick={() => toggleEvent(ev)}
                           className={`rounded-full border px-2.5 py-0.5 text-xs font-mono transition-colors ${
                             selected
@@ -524,6 +693,112 @@ export default function WebhooksPage({ params }: { params: Promise<{ tenantId: s
                 </div>
               ))}
             </div>
+          </div>
+
+          <Input
+            id="webhook-tags"
+            label="Tags (optional, comma-separated)"
+            placeholder="billing, prod"
+            value={form.tagsText}
+            onChange={(e) => setForm((p) => ({ ...p, tagsText: e.target.value }))}
+          />
+
+          <Input
+            id="webhook-rate-limit"
+            label="Rate limit (optional, deliveries/minute)"
+            type="number"
+            placeholder="Unlimited"
+            value={form.rateLimitText}
+            onChange={(e) => setForm((p) => ({ ...p, rateLimitText: e.target.value }))}
+          />
+
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-medium text-text-primary">Custom headers (optional)</p>
+              <Button type="button" variant="ghost" size="sm" onClick={addHeaderRow}>Add header</Button>
+            </div>
+            {form.headerRows.length === 0 ? (
+              <p className="text-xs text-text-secondary">No custom headers. Reserved headers (Content-Type, X-Webhook-*, User-Agent) can&apos;t be overridden.</p>
+            ) : (
+              <div className="space-y-2">
+                {form.headerRows.map((row, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <input
+                      className="flex-1 rounded-md border border-border bg-surface-base px-2.5 py-1.5 text-sm font-mono"
+                      placeholder="X-Custom-Header"
+                      value={row.key}
+                      onChange={(e) => updateHeaderRow(i, 'key', e.target.value)}
+                    />
+                    <input
+                      className="flex-1 rounded-md border border-border bg-surface-base px-2.5 py-1.5 text-sm font-mono"
+                      placeholder="value"
+                      value={row.value}
+                      onChange={(e) => updateHeaderRow(i, 'value', e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeHeaderRow(i)}
+                      className="text-text-secondary hover:text-error px-1"
+                      aria-label="Remove header"
+                    >
+                      <FontAwesomeIcon icon={faTrash} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div>
+            <p className="text-sm font-medium text-text-primary mb-1">Event filters (optional, advanced)</p>
+            <p className="text-xs text-text-secondary mb-2">
+              JSON map of <code>{'{ "event": { "data.path": value } }'}</code>. A delivery is skipped when the payload doesn&apos;t match.
+            </p>
+            <textarea
+              className="w-full rounded-md border border-border bg-surface-base px-2.5 py-1.5 text-sm font-mono min-h-24"
+              placeholder={'{\n  "payment.completed": { "currency": "USD" }\n}'}
+              value={form.filtersText}
+              onChange={(e) => setForm((p) => ({ ...p, filtersText: e.target.value }))}
+            />
+          </div>
+        </div>
+      </Modal>
+
+      <Modal
+        open={!!triggerWebhook}
+        onClose={() => setTriggerWebhook(null)}
+        title="Trigger event"
+        description={triggerWebhook ? `Send a real event to "${triggerWebhook.name}" with a sample payload.` : ''}
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setTriggerWebhook(null)} disabled={triggering}>Cancel</Button>
+            <Button variant="primary" onClick={handleTrigger} loading={triggering}>Trigger</Button>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          {triggerError && <AlertBanner variant="error" message={triggerError} />}
+          <div>
+            <label htmlFor="trigger-event" className="text-sm font-medium text-text-primary mb-1 block">Event</label>
+            <select
+              id="trigger-event"
+              className="w-full rounded-md border border-border bg-surface-base px-2.5 py-1.5 text-sm font-mono"
+              value={triggerEvent}
+              onChange={(e) => setTriggerEvent(e.target.value as WebhookEvent)}
+            >
+              {(triggerWebhook?.events ?? []).map((ev) => (
+                <option key={ev} value={ev}>{ev}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label htmlFor="trigger-payload" className="text-sm font-medium text-text-primary mb-1 block">Sample payload (JSON)</label>
+            <textarea
+              id="trigger-payload"
+              className="w-full rounded-md border border-border bg-surface-base px-2.5 py-1.5 text-sm font-mono min-h-32"
+              value={triggerPayload}
+              onChange={(e) => setTriggerPayload(e.target.value)}
+            />
           </div>
         </div>
       </Modal>

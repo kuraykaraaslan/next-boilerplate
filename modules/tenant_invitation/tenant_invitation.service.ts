@@ -12,6 +12,7 @@ import { SendInvitationInput, GetInvitationsInput } from './tenant_invitation.dt
 import TenantInvitationMessages from './tenant_invitation.messages';
 import TenantMemberService from '../tenant_member/tenant_member.service';
 import type { TenantMemberRole } from '../tenant_member/tenant_member.enums';
+import WebhookService from '@/modules/webhook/webhook.service';
 
 const INVITATION_TTL_SECONDS = env.INVITATION_TTL_SECONDS ?? (60 * 60 * 24 * 7);
 const INVITATION_CACHE_TTL = env.TENANT_CACHE_TTL ?? (60 * 5);
@@ -117,6 +118,11 @@ export default class TenantInvitationService {
     const invitation = repo.create({ tenantId, email: normalizedEmail, invitedByUserId, memberRole, token: hashedToken, status: 'PENDING', expiresAt });
     const saved = await repo.save(invitation);
     await redis.del(`tenant_invitation:token:${hashedToken}`).catch(() => {});
+    await WebhookService.dispatchEvent(tenantId, 'invitation.sent', {
+      invitationId: saved.invitationId,
+      email: saved.email,
+      memberRole: saved.memberRole,
+    });
 
     return { invitation: SafeTenantInvitationSchema.parse(saved), rawToken };
   }
@@ -148,6 +154,11 @@ export default class TenantInvitationService {
     await TenantMemberService.create({ tenantId, userId, memberRole: invitation.memberRole as TenantMemberRole, memberStatus: 'ACTIVE' });
     await repo.update({ invitationId: invitation.invitationId }, { status: 'ACCEPTED' });
     await this.clearCache({ invitationId: invitation.invitationId, token: invitation.token });
+    await WebhookService.dispatchEvent(tenantId, 'invitation.accepted', {
+      invitationId: invitation.invitationId,
+      email: invitation.email,
+      userId,
+    });
   }
 
   static async decline(tenantId: string, userEmail: string, rawToken: string): Promise<void> {
@@ -162,6 +173,10 @@ export default class TenantInvitationService {
 
     await repo.update({ invitationId: invitation.invitationId }, { status: 'DECLINED' });
     await this.clearCache({ invitationId: invitation.invitationId, token: invitation.token });
+    await WebhookService.dispatchEvent(tenantId, 'invitation.declined', {
+      invitationId: invitation.invitationId,
+      email: invitation.email,
+    });
   }
 
   static async revoke(invitationId: string, tenantId: string): Promise<void> {
@@ -172,6 +187,10 @@ export default class TenantInvitationService {
     if (invitation.status !== 'PENDING') throw new Error(TenantInvitationMessages.INVITATION_NOT_FOUND);
     await repo.update({ invitationId }, { status: 'REVOKED' });
     await this.clearCache({ invitationId, token: invitation.token });
+    await WebhookService.dispatchEvent(tenantId, 'invitation.revoked', {
+      invitationId,
+      email: invitation.email,
+    });
   }
 
   static async autoAcceptForEmail(userId: string, email: string): Promise<void> {

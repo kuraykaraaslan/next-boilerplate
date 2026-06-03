@@ -4,6 +4,7 @@ import { tenantDataSourceFor } from '@/modules/db'
 import redis, { singleFlight } from '@/modules/redis'
 import Logger from '@/modules/logger'
 import { env } from '@/modules/env'
+import WebhookService from '@/modules/webhook/webhook.service'
 import { Fulfillment as FulfillmentEntity } from './entities/fulfillment.entity'
 import { FulfillmentItem as FulfillmentItemEntity } from './entities/fulfillment_item.entity'
 import { FulfillmentEvent as FulfillmentEventEntity } from './entities/fulfillment_event.entity'
@@ -62,6 +63,12 @@ export default class OrderFulfillmentService {
       await itemRepo.save(items)
 
       await OrderFulfillmentService.logEvent(ds, tenantId, savedFulfillment.fulfillmentId, 'PENDING')
+
+      await WebhookService.dispatchEvent(tenantId, 'fulfillment.created', {
+        fulfillmentId: savedFulfillment.fulfillmentId,
+        orderId: savedFulfillment.orderId,
+        status: savedFulfillment.status,
+      })
 
       return OrderFulfillmentService.getById(tenantId, savedFulfillment.fulfillmentId)
     } catch (error) {
@@ -170,6 +177,19 @@ export default class OrderFulfillmentService {
     await repo.save(row)
     await OrderFulfillmentService.logEvent(ds, tenantId, fulfillmentId, dto.status, dto.message)
     await redis.del(cacheKey(fulfillmentId))
+
+    // Map terminal/shipping transitions to webhook events (covers markShipped/cancel,
+    // which delegate here). Other statuses (PENDING/PACKED) do not emit.
+    const statusEvent = { SHIPPED: 'fulfillment.shipped', DELIVERED: 'fulfillment.delivered', CANCELLED: 'fulfillment.cancelled' } as const
+    const evt = statusEvent[dto.status as keyof typeof statusEvent]
+    if (evt) {
+      await WebhookService.dispatchEvent(tenantId, evt, {
+        fulfillmentId,
+        orderId: row.orderId,
+        status: dto.status,
+      })
+    }
+
     return OrderFulfillmentService.getById(tenantId, fulfillmentId)
   }
 

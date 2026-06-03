@@ -8,7 +8,10 @@ Queue-backed transactional email service. Renders EJS templates and delivers the
 
 | File | Purpose |
 |---|---|
-| `notification_mail.service.ts` | Core: feature gating, queue + worker, template rendering, provider selection, per-event helpers |
+| `notification_mail.service.ts` | `MailService` core: feature gating, queue + worker, template rendering, provider selection |
+| `notification_mail.templates.service.ts` | `MailTemplatesService` — invoice + auth/OTP email helpers |
+| `notification_mail.account-templates.service.ts` | `MailAccountTemplatesService` — account/security + tenant-invitation/contact email helpers |
+| `notification_mail.template-vars.ts` | `getBaseTemplateVars()` shared by both template services |
 | `notification_mail.setting.keys.ts` | `EmailSettingKeySchema` / `NotificationSettingKeySchema` setting-key constants |
 | `providers/base.provider.ts` | Abstract `BaseMailProvider` contract (`sendMail`, `isConfigured`) + `MailOptions` / `MailResult` types |
 | `providers/smtp.provider.ts` | SMTP via Nodemailer (per-tenant cached transporter) |
@@ -33,8 +36,12 @@ This module has **no entities or tables of its own**. Delivery audit rows are wr
 - **Queue + worker** — BullMQ queue `mailQueue` with a worker at concurrency 5. `sendMail(...)` enqueues a job; the worker calls `_sendMail`.
 - **Direct send** — `sendMailDirect(...)` bypasses the queue for urgent mail (still gated).
 - **Provider selection** — `getProvider(tenantId, providerName?)` returns the requested (or `DEFAULT_PROVIDER`) provider only if `isConfigured(tenantId)`; otherwise it iterates `PROVIDER_MAP` and falls back to the first provider with credentials configured for that tenant. `listProviders(tenantId)` returns the configured/unconfigured status of every provider.
-- **Template rendering** — `renderTemplate(name, data)` renders the body EJS, the header/footer partials, then wraps them in `layouts/email_layout.ejs`. `getBaseTemplateVars()` supplies the shared template variables (app name, frontend links, support email).
-- **Per-event helpers** — typed wrappers that render a template and enqueue: `sendWelcomeEmail`, `sendNewLoginEmail`, `sendForgotPasswordEmail`, `sendPasswordResetSuccessEmail`, `sendOTPEmail`, `sendOTPEnabledEmail`, `sendOTPDisabledEmail`, `sendEmailChangedEmail`, `sendVerifyEmail`, `sendPasswordChangedEmail`, `sendSuspiciousActivityEmail`, `sendNewDeviceAlertEmail`, `sendTenantInvitationEmail`, `sendInvoiceIssuedEmail`, `sendInvoicePaidEmail`, `sendInvoicePaymentFailedEmail`, `sendContactFormAdminEmail`, `sendContactFormUserEmail`. Each helper catches and logs its own errors so a mail failure never throws into the caller.
+- **Template rendering** — `renderTemplate(name, data)` renders the body EJS, the header/footer partials, then wraps them in `layouts/email_layout.ejs`. `getBaseTemplateVars()` (in `notification_mail.template-vars.ts`) supplies the shared template variables (app name, frontend links, support email).
+
+**Per-event helpers** (typed wrappers that render a template and enqueue; each catches and logs its own errors so a mail failure never throws into the caller) are split across two services:
+
+- `MailTemplatesService` (`notification_mail.templates.service.ts`): `sendInvoiceIssuedEmail`, `sendInvoicePaidEmail`, `sendInvoicePaymentFailedEmail`, `sendWelcomeEmail`, `sendNewLoginEmail`, `sendForgotPasswordEmail`, `sendPasswordResetSuccessEmail`, `sendOTPEmail`, `sendOTPEnabledEmail`, `sendOTPDisabledEmail`.
+- `MailAccountTemplatesService` (`notification_mail.account-templates.service.ts`): `sendEmailChangedEmail`, `sendVerifyEmail`, `sendPasswordChangedEmail`, `sendSuspiciousActivityEmail`, `sendNewDeviceAlertEmail`, `sendTenantInvitationEmail`, `sendContactFormAdminEmail`, `sendContactFormUserEmail`.
 
 ---
 
@@ -50,7 +57,7 @@ await MailService.sendMail(tenantId, 'user@example.com', 'Welcome!', html);
 const result = await MailService.sendMailDirect(tenantId, 'user@example.com', 'Subject', html);
 
 // Or use a typed per-event helper (renders the template for you)
-await MailService.sendWelcomeEmail({ tenantId, email: 'user@example.com', name: 'Alice' });
+await MailTemplatesService.sendWelcomeEmail({ tenantId, email: 'user@example.com', name: 'Alice' });
 ```
 
 ---
@@ -95,7 +102,7 @@ EJS templates under `templates/`. Each is rendered inside `layouts/email_layout.
 ### Adding a New Template
 
 1. Create `templates/<name>.ejs`.
-2. Render it via `MailService.renderTemplate('<name>.ejs', { ...MailService.getBaseTemplateVars(), ...data })`.
+2. Render it via `MailService.renderTemplate('<name>.ejs', { ...getBaseTemplateVars(), ...data })` (import `getBaseTemplateVars` from `notification_mail.template-vars`).
 3. Enqueue with `MailService.sendMail(tenantId, to, subject, html)` (or add a typed helper).
 
 ---

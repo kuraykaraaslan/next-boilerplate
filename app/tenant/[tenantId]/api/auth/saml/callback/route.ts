@@ -6,7 +6,8 @@ import UserSessionNextService from '@/modules_next/user_session/user_session.ser
 import UserSecurityService from '@/modules/user_security/user_security.service';
 import TenantMemberService from '@/modules/tenant_member/tenant_member.service';
 import TenantService from '@/modules/tenant/tenant.service';
-import MailService from '@/modules/notification_mail/notification_mail.service';
+import MailTemplatesService from '@/modules/notification_mail/notification_mail.templates.service';
+import AuditLogService from '@/modules/audit_log/audit_log.service';
 import Limiter from '@/modules_next/limiter/limiter.service.next';
 import { env } from '@/modules/env';
 
@@ -19,6 +20,11 @@ export async function POST(req: NextRequest, { params }: Params) {
   if (rl) return rl;
 
   const { tenantId } = await params;
+
+  // Captured up-front so both the success path and the catch-all failure path
+  // can attribute the audit row to the originating client.
+  const ipAddress = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? null;
+  const userAgent = req.headers.get('user-agent') ?? null;
 
   try {
     const formData = await req.formData();
@@ -46,6 +52,14 @@ export async function POST(req: NextRequest, { params }: Params) {
 
     const tenant = await TenantService.getById(tenantId);
     if (!tenant || tenant.tenantStatus !== 'ACTIVE') {
+      await AuditLogService.log({
+        tenantId,
+        actorType: 'SYSTEM',
+        action: 'saml.login_failed',
+        metadata: { reason: 'tenant_inactive', email: samlProfile.email },
+        ipAddress,
+        userAgent,
+      });
       return NextResponse.redirect(`${APP_HOST}/tenant/${tenantId}/auth/login?error=tenant_inactive`);
     }
 
@@ -54,7 +68,7 @@ export async function POST(req: NextRequest, { params }: Params) {
     const { user, jitProvisioned } = await SamlService.resolveOrProvisionUser(tenantId, samlProfile);
 
     if (jitProvisioned) {
-      try { await MailService.sendWelcomeEmail({ tenantId, email: user.email }); } catch {}
+      try { await MailTemplatesService.sendWelcomeEmail({ tenantId, email: user.email }); } catch {}
     }
 
     // Re-check membership status (in case the user is an existing, inactive
@@ -65,6 +79,17 @@ export async function POST(req: NextRequest, { params }: Params) {
       .catch(() => null);
 
     if (existingMember && existingMember.memberStatus !== 'ACTIVE') {
+      await AuditLogService.log({
+        tenantId,
+        actorType: 'USER',
+        actorId: user.userId,
+        action: 'saml.login_failed',
+        resourceType: 'user',
+        resourceId: user.userId,
+        metadata: { reason: 'member_inactive', email: user.email },
+        ipAddress,
+        userAgent,
+      });
       return NextResponse.redirect(`${APP_HOST}/tenant/${tenantId}/auth/login?error=member_inactive`);
     }
 
@@ -74,6 +99,18 @@ export async function POST(req: NextRequest, { params }: Params) {
       request: req,
       userSecurity,
       otpIgnore: true,
+    });
+
+    await AuditLogService.log({
+      tenantId,
+      actorType: 'USER',
+      actorId: user.userId,
+      action: 'saml.login_success',
+      resourceType: 'user',
+      resourceId: user.userId,
+      metadata: { email: user.email, nameId: samlProfile.nameId, jitProvisioned },
+      ipAddress,
+      userAgent,
     });
 
     const response = NextResponse.redirect(
@@ -90,6 +127,14 @@ export async function POST(req: NextRequest, { params }: Params) {
 
     return response;
   } catch (e: any) {
+    await AuditLogService.log({
+      tenantId,
+      actorType: 'SYSTEM',
+      action: 'saml.login_failed',
+      metadata: { reason: e?.message ?? 'unknown' },
+      ipAddress,
+      userAgent,
+    });
     return NextResponse.redirect(
       `${APP_HOST}/tenant/${tenantId}/auth/login?error=${encodeURIComponent(e.message)}`,
     );

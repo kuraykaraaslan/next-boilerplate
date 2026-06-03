@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Limiter from '@/modules_next/limiter/limiter.service.next'
 import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next'
-import StoreService from '@/modules/store/store.service'
+import StoreVariantService from '@/modules/store/store.variant.service'
 import { UpdateVariantGroupItemDTO } from '@/modules/store/store.dto'
 
 type Ctx = { params: Promise<{ tenantId: string; productId: string; itemId: string }> }
@@ -16,7 +16,7 @@ export async function PATCH(request: NextRequest, { params }: Ctx) {
   try { await auth(request, tenantId) } catch (e: any) { return NextResponse.json({ message: e.message }, { status: 403 }) }
   try {
     const dto = UpdateVariantGroupItemDTO.parse(await request.json())
-    const item = await StoreService.updateVariantGroupItem(tenantId, itemId, dto)
+    const item = await StoreVariantService.updateVariantGroupItem(tenantId, itemId, dto)
     return NextResponse.json({ item })
   } catch (e: any) { return NextResponse.json({ message: e.message }, { status: 400 }) }
 }
@@ -26,7 +26,7 @@ export async function DELETE(request: NextRequest, { params }: Ctx) {
   const { tenantId, itemId } = await params
   try { await auth(request, tenantId) } catch (e: any) { return NextResponse.json({ message: e.message }, { status: 403 }) }
   try {
-    await StoreService.removeFromVariantGroup(tenantId, itemId)
+    await StoreVariantService.removeFromVariantGroup(tenantId, itemId)
     return NextResponse.json({ success: true })
   } catch (e: any) { return NextResponse.json({ message: e.message }, { status: 400 }) }
 }

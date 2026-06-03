@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import PaymentService from "@/modules/payment/payment.service";
-import TenantSubscriptionService from "@/modules/tenant_subscription/tenant_subscription.service";
+import TenantPlanService from "@/modules/tenant_subscription/tenant_subscription.plan.service";
 import { UpdatePaymentRequestSchema } from "@/modules/payment/payment.dto";
 import Limiter from "@/modules_next/limiter/limiter.service.next";
 
@@ -29,7 +29,7 @@ async function buildPaymentSubject(routeTenantId: string, payment: { description
     const planTenantId = (typeof md.tenantId === 'string' && md.tenantId) || routeTenantId;
     if (subject.planId) {
       try {
-        const plan = await TenantSubscriptionService.getPlanById(planTenantId, subject.planId);
+        const plan = await TenantPlanService.getPlanById(planTenantId, subject.planId);
         subject.productName = plan.product?.name ?? null;
         if (plan.product?.name) {
           subject.title = `${plan.product.name}${subject.billingInterval ? ` (${subject.billingInterval.toLowerCase()})` : ''}`;

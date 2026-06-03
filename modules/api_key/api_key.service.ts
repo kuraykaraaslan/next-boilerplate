@@ -8,7 +8,7 @@ import { SafeApiKey, SafeApiKeySchema } from './api_key.types';
 import type { CreateApiKeyInput, UpdateApiKeyInput, ListApiKeysInput } from './api_key.dto';
 import ApiKeyMessages from './api_key.messages';
 import type { ApiKeyScope } from './api_key.enums';
-import TenantSubscriptionService from '@/modules/tenant_subscription/tenant_subscription.service';
+import TenantFeatureGateService from '@/modules/tenant_subscription/tenant_subscription.feature.service';
 import { FEATURE_KEYS } from '@/modules/tenant_subscription/tenant_subscription.feature-keys';
 import { isRootTenant } from '@/modules/tenant/tenant.constants';
 import WebhookService from '@/modules/webhook/webhook.service';
@@ -80,7 +80,7 @@ export default class ApiKeyService {
     // `feature_api_keys`. Root tenant is short-circuited (the platform
     // owner does not buy its own plan).
     if (!isRootTenant(tenantId)) {
-      await TenantSubscriptionService.assertFeatureAccess(tenantId, FEATURE_KEYS.FEATURE_API_KEYS);
+      await TenantFeatureGateService.assertFeatureAccess(tenantId, FEATURE_KEYS.FEATURE_API_KEYS);
     }
 
     const rawKey = ApiKeyService.generateRawKey(tenantId);

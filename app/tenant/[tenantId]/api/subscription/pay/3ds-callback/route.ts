@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import TenantSubscriptionService from '@/modules/tenant_subscription/tenant_subscription.service';
+import TenantCardCheckoutService from '@/modules/tenant_subscription/tenant_subscription.card.service';
 import PaymentService from '@/modules/payment/payment.service';
 import Logger from '@/modules/logger';
 
@@ -45,7 +45,7 @@ export async function POST(
       return fail();
     }
 
-    await TenantSubscriptionService.complete3dsCardPayment({
+    await TenantCardCheckoutService.complete3dsCardPayment({
       tenantId,
       conversationId,
       providerPaymentId,

@@ -5,6 +5,7 @@ import redis from '@/modules/redis';
 import Logger from '@/modules/logger';
 import { getDataSource } from '@/modules/db';
 import { User as UserEntity } from '@/modules/user/entities/user.entity';
+import WebhookService from '@/modules/webhook/webhook.service';
 
 import BaseESignatureProvider, { ProviderCredentials } from './providers/base.provider';
 import MobilImzaAggregatorProvider from './providers/mobil_imza_aggregator.provider';
@@ -458,6 +459,24 @@ export default class ESignatureService {
 
     // Single-use: drop the Redis record
     await ESignatureService.deleteTransaction(transactionId);
+
+    // Notify tenant integrations: identity was verified; for a `sign` purpose the
+    // document itself was signed. Only emitted for tenant-scoped transactions.
+    if (record.tenantId) {
+      await WebhookService.dispatchEvent(record.tenantId, 'identity.verified', {
+        transactionId,
+        country: record.country,
+        matchedUserId: matchedUserId ?? null,
+        purpose: record.purpose,
+      });
+      if (record.purpose === 'sign') {
+        await WebhookService.dispatchEvent(record.tenantId, 'document.signed', {
+          transactionId,
+          country: record.country,
+          matchedUserId: matchedUserId ?? null,
+        });
+      }
+    }
 
     return {
       status: 'signed',

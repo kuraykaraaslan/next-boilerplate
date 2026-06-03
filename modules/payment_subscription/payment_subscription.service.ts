@@ -23,6 +23,7 @@ import type {
 import { SUBSCRIPTION_MESSAGES } from './payment_subscription.messages'
 import ProrationService from './payment_subscription.proration.service'
 import type { BillingCycle } from './payment_subscription.enums'
+import WebhookService from '@/modules/webhook/webhook.service'
 
 export default class PaymentSubscriptionService {
 
@@ -239,6 +240,13 @@ export default class PaymentSubscriptionService {
         metadata: data.metadata,
       })
       const saved = await repo.save(sub)
+      await WebhookService.dispatchEvent(tenantId, 'subscription.created', {
+        subscriptionId: saved.subscriptionId,
+        userId: saved.userId,
+        planId: saved.planId,
+        status: saved.status,
+        provider: saved.provider,
+      })
       return SubscriptionSchema.parse(saved)
     } catch (error) {
       Logger.error(`${SUBSCRIPTION_MESSAGES.SUBSCRIPTION_CREATE_FAILED}: ${error}`)
@@ -301,6 +309,13 @@ export default class PaymentSubscriptionService {
     const saved = await repo.save(sub)
     await redis.del(`sub:id:${subscriptionId}:true`)
     await redis.del(`sub:id:${subscriptionId}:false`)
+    await WebhookService.dispatchEvent(tenantId, 'subscription.cancelled', {
+      subscriptionId: saved.subscriptionId,
+      userId: saved.userId,
+      planId: saved.planId,
+      status: saved.status,
+      cancelAtPeriodEnd: saved.cancelAtPeriodEnd,
+    })
     return SubscriptionSchema.parse(saved)
   }
 
@@ -317,6 +332,12 @@ export default class PaymentSubscriptionService {
     const saved = await repo.save(sub)
     await redis.del(`sub:id:${subscriptionId}:true`)
     await redis.del(`sub:id:${subscriptionId}:false`)
+    await WebhookService.dispatchEvent(tenantId, 'subscription.paused', {
+      subscriptionId: saved.subscriptionId,
+      userId: saved.userId,
+      planId: saved.planId,
+      status: saved.status,
+    })
     return SubscriptionSchema.parse(saved)
   }
 
@@ -333,6 +354,12 @@ export default class PaymentSubscriptionService {
     const saved = await repo.save(sub)
     await redis.del(`sub:id:${subscriptionId}:true`)
     await redis.del(`sub:id:${subscriptionId}:false`)
+    await WebhookService.dispatchEvent(tenantId, 'subscription.resumed', {
+      subscriptionId: saved.subscriptionId,
+      userId: saved.userId,
+      planId: saved.planId,
+      status: saved.status,
+    })
     return SubscriptionSchema.parse(saved)
   }
 
@@ -363,6 +390,13 @@ export default class PaymentSubscriptionService {
     const saved = await subRepo.save(sub)
     await redis.del(`sub:id:${subscriptionId}:true`)
     await redis.del(`sub:id:${subscriptionId}:false`)
+    await WebhookService.dispatchEvent(tenantId, 'subscription.updated', {
+      subscriptionId: saved.subscriptionId,
+      userId: saved.userId,
+      planId: saved.planId,
+      status: saved.status,
+      billingCycle: saved.billingCycle,
+    })
     return SubscriptionSchema.parse(saved)
   }
 

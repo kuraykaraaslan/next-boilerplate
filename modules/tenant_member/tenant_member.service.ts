@@ -9,6 +9,7 @@ import { SafeTenantMember, SafeTenantMemberSchema } from './tenant_member.types'
 import { CreateTenantMemberInput, UpdateTenantMemberInput, GetTenantMembersInput, GetTenantMemberInput } from './tenant_member.dto';
 import TenantMemberMessages from './tenant_member.messages';
 import type { TenantMemberRole } from './tenant_member.enums';
+import WebhookService from '@/modules/webhook/webhook.service';
 
 export default class TenantMemberService {
 
@@ -78,6 +79,11 @@ export default class TenantMemberService {
 
     const member = repo.create(data as Partial<TenantMemberEntity>);
     const saved = await repo.save(member);
+    await WebhookService.dispatchEvent(saved.tenantId, 'member.created', {
+      tenantMemberId: saved.tenantMemberId,
+      userId: saved.userId,
+      memberRole: saved.memberRole,
+    });
     return SafeTenantMemberSchema.parse(saved);
   }
 
@@ -100,6 +106,11 @@ export default class TenantMemberService {
     await tenantRepo.increment({ tenantMemberId }, 'sessionVersion', 1);
     await redis.del(`tenant:member:${member.userId}:${member.tenantId}`).catch(() => {});
     const updated = await tenantRepo.findOne({ where: { tenantMemberId } });
+    await WebhookService.dispatchEvent(member.tenantId, 'member.updated', {
+      tenantMemberId,
+      userId: updated!.userId,
+      memberRole: updated!.memberRole,
+    });
     return SafeTenantMemberSchema.parse(updated!);
   }
 
@@ -118,6 +129,10 @@ export default class TenantMemberService {
     }
 
     await tenantRepo.update({ tenantMemberId }, { deletedAt: new Date() });
+    await WebhookService.dispatchEvent(member.tenantId, 'member.deleted', {
+      tenantMemberId,
+      userId: member.userId,
+    });
   }
 
   static async getUserTenants(userId: string): Promise<SafeTenantMember[]> {

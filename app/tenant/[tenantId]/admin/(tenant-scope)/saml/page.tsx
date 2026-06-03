@@ -3,54 +3,179 @@ import { use, useCallback, useEffect, useState } from 'react';
 import api from '@/modules_next/common/axios';
 import { PageHeader } from '@/modules_next/common/ui/PageHeader';
 import { Card } from '@/modules_next/common/ui/Card';
+import { Badge } from '@/modules_next/common/ui/Badge';
 import { Spinner } from '@/modules_next/common/ui/Spinner';
 import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
 import { Breadcrumb } from '@/modules_next/common/ui/Breadcrumb';
-import { SamlConfigForm } from '@/modules_next/auth_saml/ui/SamlConfigForm';
+import { ServerDataTable, type TableColumn } from '@/modules_next/common/ui/ServerDataTable';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faGear, faUserPlus, faRightToBracket, faClock } from '@fortawesome/free-solid-svg-icons';
 import type { SafeSamlConfig } from '@/modules/auth_saml/auth_saml.types';
-import type { UpsertSamlConfigInput } from '@/modules/auth_saml/auth_saml.dto';
 
-/**
- * Tenant SAML IdP configuration. Each tenant owns one `SamlConfig` row keyed
- * by its own tenantId — the root tenant's row is the platform-wide config,
- * other tenants' rows configure their own customer-facing SSO.
- */
-export default function TenantSamlConfigPage({ params }: { params: Promise<{ tenantId: string }> }) {
+type AuditLog = {
+  auditLogId: string;
+  actorType: string;
+  actorId: string | null;
+  action: string;
+  resourceType: string | null;
+  resourceId: string | null;
+  metadata: Record<string, unknown> | null;
+  ipAddress: string | null;
+  createdAt: string;
+};
+
+const PAGE_SIZE = 20;
+
+type BadgeVariant = 'success' | 'error' | 'warning' | 'info' | 'neutral';
+
+const ACTION_DISPLAY: Record<string, { label: string; variant: BadgeVariant }> = {
+  'saml.login_success':   { label: 'Login success',     variant: 'success' },
+  'saml.login_failed':    { label: 'Login failed',      variant: 'error'   },
+  'saml.jit_provisioned': { label: 'JIT user created',  variant: 'info'    },
+  'saml.jit_role_mapped': { label: 'JIT role mapped',   variant: 'neutral' },
+};
+
+function actionDisplay(action: string): { label: string; variant: BadgeVariant } {
+  return ACTION_DISPLAY[action] ?? { label: action, variant: 'neutral' };
+}
+
+/** Pull the most human-readable one-liner out of an audit row's metadata. */
+function summarize(log: AuditLog): string {
+  const m = (log.metadata ?? {}) as Record<string, unknown>;
+  const parts: string[] = [];
+  if (typeof m.email === 'string') parts.push(m.email);
+  if (typeof m.memberRole === 'string') parts.push(String(m.memberRole));
+  if (typeof m.reason === 'string') parts.push(String(m.reason));
+  if (parts.length === 0 && typeof m.nameId === 'string') parts.push(m.nameId);
+  return parts.length ? parts.join(' · ') : '—';
+}
+
+type SamlStatus = 'active' | 'disabled' | 'unconfigured';
+
+function deriveStatus(config: SafeSamlConfig | null): SamlStatus {
+  if (!config || !config.idpSsoUrl || !config.idpEntityId) return 'unconfigured';
+  return config.isEnabled ? 'active' : 'disabled';
+}
+
+const STATUS_DISPLAY: Record<SamlStatus, { label: string; variant: BadgeVariant }> = {
+  active:       { label: 'Active',          variant: 'success' },
+  disabled:     { label: 'Disabled',        variant: 'warning' },
+  unconfigured: { label: 'Not configured',  variant: 'neutral' },
+};
+
+function StatCard({ label, value, icon }: { label: string; value: React.ReactNode; icon: any }) {
+  return (
+    <Card>
+      <div className="flex items-start gap-3">
+        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-subtle text-primary shrink-0">
+          <FontAwesomeIcon icon={icon} className="w-4 h-4" />
+        </span>
+        <div className="min-w-0">
+          <p className="text-xs text-text-secondary">{label}</p>
+          <div className="text-xl font-bold text-text-primary tabular-nums mt-0.5">{value}</div>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+export default function TenantSamlPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = use(params);
 
   const [config, setConfig] = useState<SafeSamlConfig | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [jitTotal, setJitTotal] = useState(0);
+  const [loginTotal, setLoginTotal] = useState(0);
+  const [lastLogin, setLastLogin] = useState<string | null>(null);
+  const [overviewLoading, setOverviewLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
 
-  const load = useCallback(() => {
-    setLoading(true);
-    api
-      .get(`/tenant/${tenantId}/api/saml/config`)
-      .then((res) => setConfig(res.data.config))
-      .catch((e) => setError(e.response?.data?.message ?? 'Failed to load SAML config'))
-      .finally(() => setLoading(false));
-  }, [tenantId]);
+  const [logs, setLogs] = useState<AuditLog[]>([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const [tableLoading, setTableLoading] = useState(true);
 
-  useEffect(() => { load(); }, [load]);
+  const auditUrl = `/tenant/${tenantId}/api/audit-logs`;
 
-  const save = useCallback(async (input: UpsertSamlConfigInput) => {
-    setSaving(true);
+  // Status + headline metrics: loaded once. The per-action `total` from the
+  // audit list is reused as a cheap count (pageSize=1 → just the counter).
+  const loadOverview = useCallback(async () => {
+    setOverviewLoading(true);
     setError(null);
     try {
-      const res = await api.put(`/tenant/${tenantId}/api/saml/config`, input);
-      setConfig(res.data.config);
-      setSuccess('SAML configuration saved.');
-      setTimeout(() => setSuccess(null), 4000);
+      const [cfgRes, jitRes, loginRes] = await Promise.all([
+        api.get(`/tenant/${tenantId}/api/saml/config`),
+        api.get(auditUrl, { params: { action: 'saml.jit_provisioned', pageSize: 1 } }),
+        api.get(auditUrl, { params: { action: 'saml.login_success', pageSize: 1 } }),
+      ]);
+      setConfig(cfgRes.data.config ?? null);
+      setJitTotal(jitRes.data.total ?? 0);
+      setLoginTotal(loginRes.data.total ?? 0);
+      setLastLogin(loginRes.data.logs?.[0]?.createdAt ?? null);
     } catch (e: any) {
-      setError(e.response?.data?.message ?? 'Failed to save');
+      setError(e.response?.data?.message ?? 'Failed to load SAML overview.');
     } finally {
-      setSaving(false);
+      setOverviewLoading(false);
     }
-  }, [tenantId]);
+  }, [tenantId, auditUrl]);
 
-  if (loading) {
+  // Activity feed: all `saml.*` audit rows, paginated independently so paging
+  // doesn't re-trigger the overview spinner.
+  const loadActivity = useCallback(async () => {
+    setTableLoading(true);
+    try {
+      const res = await api.get(auditUrl, { params: { action: 'saml', page, pageSize: PAGE_SIZE } });
+      setLogs(res.data.logs ?? []);
+      setTotal(res.data.total ?? 0);
+    } catch {
+      setLogs([]);
+      setTotal(0);
+    } finally {
+      setTableLoading(false);
+    }
+  }, [auditUrl, page]);
+
+  useEffect(() => { loadOverview(); }, [loadOverview]);
+  useEffect(() => { loadActivity(); }, [loadActivity]);
+
+  const status = deriveStatus(config);
+  const statusDisplay = STATUS_DISPLAY[status];
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
+  const columns: TableColumn<AuditLog>[] = [
+    {
+      key: 'createdAt',
+      header: 'When',
+      render: (l) => (
+        <span className="text-xs text-text-secondary whitespace-nowrap">
+          {new Date(l.createdAt).toLocaleString()}
+        </span>
+      ),
+    },
+    {
+      key: 'action',
+      header: 'Event',
+      render: (l) => {
+        const d = actionDisplay(l.action);
+        return <Badge variant={d.variant}>{d.label}</Badge>;
+      },
+    },
+    {
+      key: '_details',
+      header: 'Details',
+      render: (l) => (
+        <span className="text-xs text-text-primary break-all">{summarize(l)}</span>
+      ),
+    },
+    {
+      key: 'ipAddress',
+      header: 'IP',
+      render: (l) => (
+        <span className="font-mono text-xs text-text-secondary">{l.ipAddress ?? '—'}</span>
+      ),
+    },
+  ];
+
+  if (overviewLoading) {
     return (
       <div className="flex items-center justify-center py-32">
         <Spinner size="lg" />
@@ -69,34 +194,59 @@ export default function TenantSamlConfigPage({ params }: { params: Promise<{ ten
 
       <PageHeader
         title="SAML SSO"
-        subtitle="Configure this tenant's SAML Identity Provider integration."
+        subtitle="Single sign-on activity and identity-provider status for this tenant."
+        actions={[
+          {
+            label: <><FontAwesomeIcon icon={faGear} className="mr-2" />Settings</>,
+            href: `/tenant/${tenantId}/admin/saml/settings`,
+            variant: 'ghost',
+          },
+        ]}
       />
 
-      {success && <AlertBanner variant="success" message={success} />}
+      {error && <AlertBanner variant="error" message={error} />}
 
-      <SamlConfigForm
-        scopeLabel="this tenant"
-        config={config}
-        onSave={save}
-        saving={saving}
-        error={error}
-      />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card>
+          <div className="flex items-start gap-3">
+            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-subtle text-primary shrink-0">
+              <FontAwesomeIcon icon={faRightToBracket} className="w-4 h-4" />
+            </span>
+            <div className="min-w-0">
+              <p className="text-xs text-text-secondary">Status</p>
+              <div className="mt-1">
+                <Badge variant={statusDisplay.variant} dot>{statusDisplay.label}</Badge>
+              </div>
+            </div>
+          </div>
+        </Card>
 
-      <Card title="SAML Endpoints" subtitle="Register these with your Identity Provider">
-        <div className="space-y-3 font-mono text-xs">
-          <div>
-            <span className="text-text-secondary mr-2">Entity ID / Metadata:</span>
-            <span className="text-text-primary break-all">
-              {typeof window !== 'undefined' ? window.location.origin : ''}/tenant/{tenantId}/api/auth/saml/metadata
+        <StatCard label="JIT-provisioned users" value={jitTotal.toLocaleString()} icon={faUserPlus} />
+        <StatCard label="Successful logins" value={loginTotal.toLocaleString()} icon={faRightToBracket} />
+        <StatCard
+          label="Last login"
+          value={
+            <span className="text-sm font-semibold">
+              {lastLogin ? new Date(lastLogin).toLocaleString() : '—'}
             </span>
-          </div>
-          <div>
-            <span className="text-text-secondary mr-2">ACS (Callback):</span>
-            <span className="text-text-primary break-all">
-              {typeof window !== 'undefined' ? window.location.origin : ''}/tenant/{tenantId}/api/auth/saml/callback
-            </span>
-          </div>
-        </div>
+          }
+          icon={faClock}
+        />
+      </div>
+
+      <Card title="SSO Activity" subtitle="JIT provisioning, role mapping and login events from the audit log.">
+        <ServerDataTable
+          columns={columns}
+          rows={logs}
+          getRowKey={(l) => l.auditLogId}
+          page={page}
+          totalPages={totalPages}
+          total={total}
+          pageSize={PAGE_SIZE}
+          onPageChange={setPage}
+          loading={tableLoading}
+          emptyMessage="No SAML activity yet."
+        />
       </Card>
     </div>
   );

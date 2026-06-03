@@ -22,7 +22,7 @@ All four entities can live in the **tenant DB** (writes go through `tenantDataSo
 | Service | Responsibility |
 |---|---|
 | `PaymentService` (`payment.service.ts`) | Core service. CRUD for payments + transactions, list/query, refunds, mark completed/failed/cancelled, provider routing, and the provider-agnostic gateway calls: `createCheckoutSession`, `chargeWithCard` / `start3dsCharge` / `complete3dsCharge`, `createPaymentIntent`, `checkBin`, `createCustomerPortalSession`, plus wallet introspection (`getSupportedWallets`, `getWalletMatrix`) and provider discovery (`getAvailableProviders`, `getDefaultProvider`). Single-record reads are Redis-cached. |
-| `PaymentWebhookService` (`payment.webhook.service.ts`) | Inbound provider webhook handling. Verifies signatures (`verifyStripeSignature`, `verifyPaypalSignature`) using **root-tenant** credentials, normalizes Stripe/PayPal events and the Iyzico hosted-form callback into internal actions, then dispatches: marks payments completed/failed/expired/refunded, renews/cancels/past-dues subscriptions, issues renewal invoices, writes audit logs, fans out a dunning email to active tenant ADMINs, and re-dispatches `payment.*` events to outgoing webhooks via `WebhookService`. |
+| `PaymentWebhookService` (`payment.webhook.service.ts`) | Inbound provider webhook handling. Verifies signatures (`verifyStripeSignature`, `verifyPaypalSignature`) using **root-tenant** credentials, normalizes Stripe/PayPal events and the Iyzico hosted-form callback into internal actions, then dispatches: marks payments completed/failed/expired/refunded, renews/cancels/past-dues subscriptions, issues renewal invoices, writes audit logs, fans out a dunning email to active tenant ADMINs, and re-dispatches `payment.*` events to outgoing webhooks via `WebhookService`.  Split across `payment.webhook.{service,stripe.service,paypal.service,handlers.service,notifications.service}.ts` (entry stays `PaymentWebhookService`). |
 | `PaymentProrationService` (`payment.proration.service.ts`) | Mid-period plan-change proration arithmetic. `calculateProration()` computes credit/charge/net for a switch; `prorationLines()` turns the result into `InvoiceLine`-shaped inputs (`sourceType: 'proration'`). |
 | Providers (`providers/*.provider.ts`) | One singleton per gateway extending `BasePaymentProvider`. Each reads its own API credentials per-tenant via `SettingService.getValue(tenantId, …)` and implements checkout sessions, status lookups, and (where supported) direct/3DS card charges, BIN lookup, customer portal, payment intents, and a `supportedWallets` descriptor. |
 
@@ -410,8 +410,8 @@ A multi-provider payment gateway (Stripe, PayPal, Iyzico, Alipay, WeChat Pay, Yo
 - `stripe.provider.ts / paypal.provider.ts / iyzico.provider.ts / alipay.provider.ts / wechatpay.provider.ts / yookassa.provider.ts / cloudpayments.provider.ts` — Every provider's getConfig/getSecretKey/getAccessToken reads its API credentials via SettingService.getValue(tenantId, ...), so each tenant's checkout/charge/portal/BIN calls are authenticated against that tenant's own merchant account; sandbox-vs-live base URL also varies per tenant via the *SandboxMode keys. A tenant with no credentials throws PROVIDER_NOT_CONFIGURED.
 - `iyzico.provider.ts:createCheckoutSession` — The hosted checkout form's offered installment counts vary per tenant from the iyzicoEnabledInstallments setting.
 - `payment.service.ts:createCheckoutSession / chargeWithCard / start3dsCharge / createPaymentIntent / checkBin` — All entry points take tenantId and forward it to the provider so the tenant-scoped credentials above are used; provider capability gating (supportsDirectCardPayment, supports3dsCardPayment, supportedWallets) is per-provider, not per-tenant.
-- `payment.webhook.service.ts:onSubscriptionRenewed/issueRenewalInvoice` — Renewal invoice currency falls back to the tenant's invoiceDefaultCurrency setting and renewal period length branches on the tenant subscription's billingInterval (MONTHLY vs yearly).
-- `payment.webhook.service.ts:sendDunningEmail` — Past-due dunning emails are fanned out to the active ADMIN members of the specific tenant (tenantDataSourceFor(tenantId)), so recipients and grace-period retry date are per tenant.
+- `payment.webhook.handlers.service.ts:onSubscriptionRenewed` / `payment.webhook.notifications.service.ts:issueRenewalInvoice` — Renewal invoice currency falls back to the tenant's invoiceDefaultCurrency setting and renewal period length branches on the tenant subscription's billingInterval (MONTHLY vs yearly).
+- `payment.webhook.notifications.service.ts:sendDunningEmail` — Past-due dunning emails are fanned out to the active ADMIN members of the specific tenant (tenantDataSourceFor(tenantId)), so recipients and grace-period retry date are per tenant.
 
 ### Candidates (global / hardcoded today → could be per-tenant)
 
@@ -445,7 +445,12 @@ Configured once at the root tenant; identical for all tenants:
 modules/payment/
 ├── index.ts                      # Module exports
 ├── payment.service.ts            # Core service
-├── payment.webhook.service.ts    # Inbound provider webhook handling
+├── payment.webhook.service.ts    # Inbound webhook entry (Iyzico + Stripe/PayPal delegators)
+├── payment.webhook.stripe.service.ts   # Stripe verify/normalize/handle
+├── payment.webhook.paypal.service.ts   # PayPal verify/normalize/handle
+├── payment.webhook.handlers.service.ts # Dispatcher + action handlers (payment/subscription)
+├── payment.webhook.notifications.service.ts # Renewal invoice + dunning email
+├── payment.webhook.types.ts      # Shared webhook event/normalized types
 ├── payment.proration.service.ts  # Mid-period proration arithmetic
 ├── payment.dto.ts                # Zod DTOs
 ├── payment.enums.ts              # Enums + currency utilities

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Limiter from '@/modules_next/limiter/limiter.service.next'
 import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next'
-import StoreService from '@/modules/store/store.service'
+import StoreBundleService from '@/modules/store/store.bundle.service'
 import { CreateBundleDTO, GetBundlesQuery } from '@/modules/store/store.dto'
 
 export async function GET(
@@ -21,7 +21,7 @@ export async function GET(
       status: sp.get('status') ?? undefined,
       search: sp.get('search') ?? undefined,
     })
-    const result = await StoreService.listBundles(tenantId, query)
+    const result = await StoreBundleService.listBundles(tenantId, query)
     return NextResponse.json(result)
   } catch (e: any) { return NextResponse.json({ message: e.message }, { status: 500 }) }
 }
@@ -37,7 +37,7 @@ export async function POST(
   } catch (e: any) { return NextResponse.json({ message: e.message }, { status: 403 }) }
   try {
     const dto = CreateBundleDTO.parse(await request.json())
-    const bundle = await StoreService.createBundle(tenantId, dto)
+    const bundle = await StoreBundleService.createBundle(tenantId, dto)
     return NextResponse.json({ bundle }, { status: 201 })
   } catch (e: any) { return NextResponse.json({ message: e.message }, { status: 400 }) }
 }

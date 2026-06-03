@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import TenantSubscriptionService from "@/modules/tenant_subscription/tenant_subscription.service";
+import TenantPlanService from "@/modules/tenant_subscription/tenant_subscription.plan.service";
+import TenantPlatformPlanService from "@/modules/tenant_subscription/tenant_subscription.platform.service";
 import { AssignPlatformPlanRequestSchema } from "@/modules/tenant_subscription/tenant_subscription.dto";
 import { SUBSCRIPTION_MESSAGES } from "@/modules/tenant_subscription/tenant_subscription.messages";
 import Limiter from "@/modules_next/limiter/limiter.service.next";
@@ -27,7 +29,7 @@ export async function GET(
 
     const [subscription, allPlatformPlans] = await Promise.all([
       TenantSubscriptionService.getSubscription(targetTenantId),
-      TenantSubscriptionService.getPlansWithFeatures(ROOT_TENANT_ID, "ACTIVE"),
+      TenantPlanService.getPlansWithFeatures(ROOT_TENANT_ID, "ACTIVE"),
     ]);
 
     // Only plans whose product still exists are assignable.
@@ -68,7 +70,7 @@ export async function POST(
       );
     }
 
-    const subscription = await TenantSubscriptionService.assignPlatformPlan(
+    const subscription = await TenantPlatformPlanService.assignPlatformPlan(
       targetTenantId,
       parsed.data
     );

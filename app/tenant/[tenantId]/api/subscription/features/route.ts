@@ -1,7 +1,7 @@
 import Limiter from '@/modules_next/limiter/limiter.service.next';
 import { NextRequest, NextResponse } from 'next/server'
 import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next'
-import TenantSubscriptionService from '@/modules/tenant_subscription/tenant_subscription.service'
+import TenantFeatureGateService from '@/modules/tenant_subscription/tenant_subscription.feature.service'
 import { SUBSCRIPTION_MESSAGES } from '@/modules/tenant_subscription/tenant_subscription.messages'
 
 /**
@@ -39,7 +39,7 @@ export async function GET(
 
     const count = countParam !== null ? parseInt(countParam, 10) : undefined
 
-    const result = await TenantSubscriptionService.checkFeatureAccess(tenantId, key, count)
+    const result = await TenantFeatureGateService.checkFeatureAccess(tenantId, key, count)
     return NextResponse.json({ success: true, result })
   } catch (error: any) {
     return NextResponse.json(

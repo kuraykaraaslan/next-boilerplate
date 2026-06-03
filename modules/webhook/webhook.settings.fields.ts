@@ -1,10 +1,10 @@
 import type { SettingFieldDef } from '@/modules_next/setting/setting-fields.types';
 
-// UI metadata for the Webhooks settings page. Keys mirror
-// modules/webhook/POSIBBLE_SETTING_KEYS.md (per-delivery knobs). The global
-// worker-pool knob (webhookWorkerConcurrency) is intentionally excluded — it is
-// a shared resource, not a per-tenant setting. Phase 2 wires webhook.service.ts
-// to read these per tenant with the documented defaults as fallback.
+// UI metadata for the Webhooks settings page. Keys cover the per-delivery
+// knobs and the reliability controls. The global worker-pool knob
+// (webhookWorkerConcurrency) is intentionally excluded — it is a shared
+// resource, not a per-tenant setting. webhook.service.ts reads these per tenant
+// (`_resolveDeliveryConfig`) with the documented defaults as fallback.
 export const WEBHOOK_SETTINGS_FIELDS: SettingFieldDef[] = [
   {
     key: 'webhookMaxAttempts',
@@ -32,5 +32,22 @@ export const WEBHOOK_SETTINGS_FIELDS: SettingFieldDef[] = [
     type: 'number',
     defaultValue: '15000',
     placeholder: '15000',
+  },
+  {
+    key: 'webhookCircuitBreakerThreshold',
+    label: 'Circuit Breaker Threshold',
+    description: 'Auto-disable an endpoint after this many consecutive failed deliveries. A success resets the counter.',
+    group: 'Reliability',
+    type: 'number',
+    defaultValue: '10',
+    placeholder: '10',
+  },
+  {
+    key: 'webhookDefaultRateLimitPerMinute',
+    label: 'Default Rate Limit (per minute)',
+    description: 'Fallback per-endpoint delivery rate limit when a webhook has none set. Leave blank for unlimited.',
+    group: 'Reliability',
+    type: 'number',
+    placeholder: '600',
   },
 ];

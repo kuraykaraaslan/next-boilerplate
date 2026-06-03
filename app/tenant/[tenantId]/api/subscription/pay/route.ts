@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import TenantSubscriptionService from '@/modules/tenant_subscription/tenant_subscription.service';
+import TenantCardCheckoutService from '@/modules/tenant_subscription/tenant_subscription.card.service';
 import { SUBSCRIPTION_MESSAGES } from '@/modules/tenant_subscription/tenant_subscription.messages';
 import { CreditCardInputSchema, PaymentProviderEnum } from '@/modules/payment/payment.enums';
 import Limiter from '@/modules_next/limiter/limiter.service.next';
@@ -46,7 +46,7 @@ export async function POST(
     const callbackUrl = `${url.protocol}//${url.host}/tenant/${tenantId}/api/subscription/pay/3ds-callback`;
 
     try {
-      const result = await TenantSubscriptionService.payWithCard({
+      const result = await TenantCardCheckoutService.payWithCard({
         tenantId,
         planId: parsed.data.planId,
         card: parsed.data.card,

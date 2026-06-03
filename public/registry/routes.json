@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-02T22:28:30.051Z",
+  "generatedAt": "2026-06-03T18:19:21.856Z",
   "routes": [
     {
       "filePath": "app/internal/api/caddy-ask/route.ts",
@@ -1412,6 +1412,7 @@
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/store/bundles/[bundleId]/items/[itemId]",
       "methods": [
+        "PATCH",
         "DELETE"
       ],
       "module": "store",
@@ -1814,6 +1815,36 @@
       "urlPath": "/tenant/[tenantId]/api/webhooks/[webhookId]/test",
       "methods": [
         "POST"
+      ],
+      "module": "webhook",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/webhooks/[webhookId]/trigger/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/webhooks/[webhookId]/trigger",
+      "methods": [
+        "POST"
+      ],
+      "module": "webhook",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/webhooks/events/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/webhooks/events",
+      "methods": [
+        "GET"
+      ],
+      "module": "webhook",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/webhooks/metrics/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/webhooks/metrics",
+      "methods": [
+        "GET"
       ],
       "module": "webhook",
       "dynamic": true

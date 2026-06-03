@@ -6,7 +6,7 @@ import { TenantUsageService } from '@/modules/tenant_usage/tenant_usage.service'
 import { tenantDataSourceFor } from '@/modules/db';
 import { AiUsageLog } from './entities/ai_usage_log.entity';
 import { AI_KEYS } from './ai.setting.keys';
-import TenantSubscriptionService from '@/modules/tenant_subscription/tenant_subscription.service';
+import TenantFeatureGateService from '@/modules/tenant_subscription/tenant_subscription.feature.service';
 import { FEATURE_KEYS } from '@/modules/tenant_subscription/tenant_subscription.feature-keys';
 import { isRootTenant } from '@/modules/tenant/tenant.constants';
 
@@ -209,10 +209,10 @@ export default class AIService {
   private static async assertAiFeatureAccess(tenantId: string): Promise<void> {
     if (isRootTenant(tenantId)) return;
 
-    await TenantSubscriptionService.assertFeatureAccess(tenantId, FEATURE_KEYS.FEATURE_AI_CHAT);
+    await TenantFeatureGateService.assertFeatureAccess(tenantId, FEATURE_KEYS.FEATURE_AI_CHAT);
 
     const usage = await TenantUsageService.getUsage(tenantId);
-    await TenantSubscriptionService.assertFeatureAccess(
+    await TenantFeatureGateService.assertFeatureAccess(
       tenantId,
       FEATURE_KEYS.FEATURE_AI_MONTHLY_TOKENS,
       usage.aiTokens,
