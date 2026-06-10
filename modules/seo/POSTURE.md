@@ -1,3 +1,5 @@
+> **Uygulandı** — 2026-06-10: get() now implements full Redis read-through (redis.get → singleFlight loader → redis.setex with jitter TTL); redis.del fail-open (.catch(()=>{})) in upsert/delete; upsert wrapped in try/catch → AppError 500 INTERNAL_ERROR; SEO_CACHE_TTL from env.
+
 # seo — Posture Review
 
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`

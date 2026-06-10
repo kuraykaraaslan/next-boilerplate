@@ -1,3 +1,5 @@
+> **Uygulandı** — 2026-06-10: ensureVapid() now guards for missing NEXT_PUBLIC_VAPID_PUBLIC_KEY/VAPID_PRIVATE_KEY → AppError 500 INTERNAL_ERROR; removed ! assertions; Redis cache now stores only {id, endpoint, userId} (no p256dh/auth secret material).
+
 # notification_push — Posture Review
 
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`

@@ -7,6 +7,8 @@ import redis, { jitter, singleFlight } from '@/modules/redis';
 import { PushSubscription as PushSubscriptionEntity } from './entities/push_subscription.entity';
 import { TenantMember } from '@/modules/tenant_member/entities/tenant_member.entity';
 import Logger from '@/modules/logger';
+import NotificationPushMessages from './notification_push.messages';
+import { AppError, ErrorCode } from '@/modules/common/app-error';
 
 export interface PushPayload {
   title: string;
@@ -21,10 +23,13 @@ let vapidInitialised = false;
 
 function ensureVapid() {
   if (vapidInitialised) return;
+  if (!env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || !env.VAPID_PRIVATE_KEY) {
+    throw new AppError(NotificationPushMessages.VAPID_NOT_CONFIGURED, 500, ErrorCode.INTERNAL_ERROR);
+  }
   webpush.setVapidDetails(
     `mailto:${env.VAPID_CONTACT_EMAIL ?? 'info@example.com'}`,
-    env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
-    env.VAPID_PRIVATE_KEY!
+    env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+    env.VAPID_PRIVATE_KEY,
   );
   vapidInitialised = true;
 }
@@ -60,7 +65,8 @@ export default class NotificationPushService {
       const subs = await ds
         .getRepository(PushSubscriptionEntity)
         .find({ where: { tenantId, userId } });
-      await redis.setex(cacheKey, jitter(PUSH_CACHE_TTL), JSON.stringify(subs)).catch(() => {});
+      const safeForCache = subs.map(({ id, endpoint, userId: uid }) => ({ id, endpoint, userId: uid }));
+      await redis.setex(cacheKey, jitter(PUSH_CACHE_TTL), JSON.stringify(safeForCache)).catch(() => {});
       return subs;
     });
   }

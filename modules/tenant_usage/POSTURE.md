@@ -1,3 +1,5 @@
+> **Uygulandı** — 2026-06-10: getUsage() redis.mget wrapped in try/catch → falls through to DB on Redis error; flushToDb() redis.mget wrapped in try/catch → logs and returns early on Redis error; DB failures in getUsage → AppError 500 INTERNAL_ERROR; added tenant_usage.messages.ts (FETCH_FAILED, FLUSH_FAILED).
+
 # tenant_usage — Posture Review
 
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`
