@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { IdempotencyKey } from '@/modules/redis_idempotency';
+import { RedisIdempotencyService } from '@/modules/redis_idempotency';
 
 type Handler = (request: NextRequest) => Promise<NextResponse>;
+
+function extractTenantId(pathname: string): string {
+  return pathname.match(/\/tenant\/([^/]+)/)?.[1] ?? 'unknown';
+}
 
 export function withIdempotency(handler: Handler): Handler {
   return async (request: NextRequest): Promise<NextResponse> => {
@@ -11,7 +15,8 @@ export function withIdempotency(handler: Handler): Handler {
       return handler(request);
     }
 
-    const existing = await IdempotencyKey.get(idempotencyKey);
+    const tenantId = extractTenantId(request.nextUrl.pathname);
+    const existing = await RedisIdempotencyService.get(tenantId, idempotencyKey);
 
     if (existing?.status === 'pending') {
       return NextResponse.json(
@@ -27,12 +32,12 @@ export function withIdempotency(handler: Handler): Handler {
       });
     }
 
-    await IdempotencyKey.setPending(idempotencyKey);
+    await RedisIdempotencyService.setPending(tenantId, idempotencyKey);
 
     const response = await handler(request);
     const body = await response.clone().json().catch(() => null);
 
-    await IdempotencyKey.setCompleted(idempotencyKey, {
+    await RedisIdempotencyService.setCompleted(tenantId, idempotencyKey, {
       body,
       statusCode: response.status,
     });

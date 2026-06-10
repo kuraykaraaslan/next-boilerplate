@@ -1,5 +1,7 @@
 # payment_wishlist — Posture Review
 
+> **Uygulandı:** 2026-06-10 — High AppError (tüm 12 throw → AppError: 404 NOT_FOUND, 403 FORBIDDEN, 500 INTERNAL_ERROR), Medium Redis cache scaffolding kaldırıldı (redis.del dead calls + cacheKey helper — hiç redis.get/set yoktu; singleFlight korundu).
+
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`
 > **Services:** `payment_wishlist.service.ts`
 > **Overall grade:** C · **Findings:** 0c / 1h / 2m / 1l

@@ -1,5 +1,7 @@
 # notification_mail — Posture Review
 
+> **Uygulandı:** 2026-06-10 — High AppError (sendOTPEmail → AppError 400 VALIDATION_ERROR), Medium tracking side-effects swallowed (incrementEmailSends + NotificationLogService.log wrapped in .catch()), Medium notification_mail.messages.ts oluşturuldu (OTP_TOKEN_REQUIRED key).
+
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`
 > **Services:** notification_mail.service.ts, notification_mail.account-templates.service.ts, notification_mail.templates.service.ts
 > **Overall grade:** C · **Findings:** 0c / 1h / 5m / 2l

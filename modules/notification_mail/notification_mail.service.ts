@@ -246,17 +246,23 @@ export default class MailService {
     }
 
     if (result.success) {
-      await TenantUsageService.incrementEmailSends(tenantId, 1);
+      await TenantUsageService.incrementEmailSends(tenantId, 1).catch((err) => {
+        Logger.warn(`_sendMail usage increment failed: ${err instanceof Error ? err.message : String(err)}`);
+      });
       await NotificationLogService.log(tenantId, 'mail', to, 'sent', {
         subject,
         provider: provider.name,
         providerMessageId: result.messageId,
+      }).catch((err) => {
+        Logger.warn(`_sendMail notification log failed: ${err instanceof Error ? err.message : String(err)}`);
       });
     } else {
       await NotificationLogService.log(tenantId, 'mail', to, 'failed', {
         subject,
         provider: provider.name,
         error: result.error,
+      }).catch((err) => {
+        Logger.warn(`_sendMail notification log failed: ${err instanceof Error ? err.message : String(err)}`);
       });
     }
 

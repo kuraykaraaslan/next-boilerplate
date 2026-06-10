@@ -1,6 +1,8 @@
 import Logger from "@/modules/logger";
+import { AppError, ErrorCode } from '@/modules/common/app-error';
 import MailService from "./notification_mail.service";
 import { getBaseTemplateVars } from "./notification_mail.template-vars";
+import NotificationMailMessages from './notification_mail.messages';
 
 /**
  * Email templates for invoices and authentication/OTP flows. Each renders an EJS
@@ -210,7 +212,7 @@ export default class MailTemplatesService {
     otpToken: string;
   }): Promise<void> {
     try {
-      if (!otpToken) throw new Error("OTP token is required");
+      if (!otpToken) throw new AppError(NotificationMailMessages.OTP_TOKEN_REQUIRED, 400, ErrorCode.VALIDATION_ERROR);
       const subject = "Your OTP Code";
       const emailContent = await MailService.renderTemplate("otp.ejs", {
         ...getBaseTemplateVars(),

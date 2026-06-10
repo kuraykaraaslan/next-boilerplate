@@ -1,5 +1,7 @@
 # redis_idempotency — Posture Review
 
+> **Uygulandı:** 2026-06-10 — High tenant namespace eklendi (idempotency:${tenantId}:${key}), Medium JSON.parse fail-open (try/catch → null), Low IdempotencyKey → RedisIdempotencyService (class rename + barrel + withIdempotency middleware güncellendi).
+
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`
 > **Services:** `redis_idempotency.service.ts`
 > **Overall grade:** C · **Findings:** 0c / 1h / 4m / 0l

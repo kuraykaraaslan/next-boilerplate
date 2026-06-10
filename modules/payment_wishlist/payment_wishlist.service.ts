@@ -2,8 +2,9 @@ import 'reflect-metadata'
 import { randomUUID } from 'node:crypto'
 import { IsNull } from 'typeorm'
 import { tenantDataSourceFor } from '@/modules/db'
-import redis, { singleFlight } from '@/modules/redis'
+import { singleFlight } from '@/modules/redis'
 import Logger from '@/modules/logger'
+import { AppError, ErrorCode } from '@/modules/common/app-error'
 import { Wishlist as WishlistEntity } from './entities/wishlist.entity'
 import { WishlistItem as WishlistItemEntity } from './entities/wishlist_item.entity'
 import {
@@ -17,10 +18,6 @@ import { PAYMENT_WISHLIST_MESSAGES } from './payment_wishlist.messages'
 
 export default class PaymentWishlistService {
 
-  private static cacheKey(wishlistId: string): string {
-    return `wishlist:${wishlistId}`
-  }
-
   // ============================================================================
   // Internal helpers
   // ============================================================================
@@ -28,7 +25,7 @@ export default class PaymentWishlistService {
   private static async buildWithItems(tenantId: string, wishlistId: string): Promise<WishlistWithItems> {
     const ds = await tenantDataSourceFor(tenantId)
     const wishlist = await ds.getRepository(WishlistEntity).findOne({ where: { tenantId, wishlistId } })
-    if (!wishlist) throw new Error(PAYMENT_WISHLIST_MESSAGES.WISHLIST_NOT_FOUND)
+    if (!wishlist) throw new AppError(PAYMENT_WISHLIST_MESSAGES.WISHLIST_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     const items = await ds.getRepository(WishlistItemEntity).find({
       where: { tenantId, wishlistId },
       order: { createdAt: 'DESC' },
@@ -66,12 +63,12 @@ export default class PaymentWishlistService {
       return SafeWishlistSchema.parse(saved)
     } catch (error) {
       Logger.error(`${PAYMENT_WISHLIST_MESSAGES.WISHLIST_CREATE_FAILED}: ${error}`)
-      throw new Error(PAYMENT_WISHLIST_MESSAGES.WISHLIST_CREATE_FAILED)
+      throw new AppError(PAYMENT_WISHLIST_MESSAGES.WISHLIST_CREATE_FAILED, 500, ErrorCode.INTERNAL_ERROR)
     }
   }
 
   static async getById(tenantId: string, wishlistId: string): Promise<WishlistWithItems> {
-    return singleFlight(PaymentWishlistService.cacheKey(wishlistId), async () => {
+    return singleFlight(`wishlist:${wishlistId}`, async () => {
       return PaymentWishlistService.buildWithItems(tenantId, wishlistId)
     })
   }
@@ -79,8 +76,8 @@ export default class PaymentWishlistService {
   static async getByShareToken(tenantId: string, shareToken: string): Promise<WishlistWithItems> {
     const ds = await tenantDataSourceFor(tenantId)
     const wishlist = await ds.getRepository(WishlistEntity).findOne({ where: { tenantId, shareToken } })
-    if (!wishlist) throw new Error(PAYMENT_WISHLIST_MESSAGES.WISHLIST_NOT_FOUND)
-    if (!wishlist.isPublic) throw new Error(PAYMENT_WISHLIST_MESSAGES.WISHLIST_NOT_PUBLIC)
+    if (!wishlist) throw new AppError(PAYMENT_WISHLIST_MESSAGES.WISHLIST_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
+    if (!wishlist.isPublic) throw new AppError(PAYMENT_WISHLIST_MESSAGES.WISHLIST_NOT_PUBLIC, 403, ErrorCode.FORBIDDEN)
     return PaymentWishlistService.buildWithItems(tenantId, wishlist.wishlistId)
   }
 
@@ -88,13 +85,12 @@ export default class PaymentWishlistService {
     const ds = await tenantDataSourceFor(tenantId)
     const repo = ds.getRepository(WishlistEntity)
     const wishlist = await repo.findOne({ where: { tenantId, wishlistId } })
-    if (!wishlist) throw new Error(PAYMENT_WISHLIST_MESSAGES.WISHLIST_NOT_FOUND)
+    if (!wishlist) throw new AppError(PAYMENT_WISHLIST_MESSAGES.WISHLIST_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
 
     Object.assign(wishlist, dto)
     if (wishlist.isPublic && !wishlist.shareToken) wishlist.shareToken = randomUUID()
 
     const saved = await repo.save(wishlist)
-    await redis.del(PaymentWishlistService.cacheKey(wishlistId))
     return SafeWishlistSchema.parse(saved)
   }
 
@@ -117,9 +113,8 @@ export default class PaymentWishlistService {
     const ds = await tenantDataSourceFor(tenantId)
     const repo = ds.getRepository(WishlistEntity)
     const wishlist = await repo.findOne({ where: { tenantId, wishlistId } })
-    if (!wishlist) throw new Error(PAYMENT_WISHLIST_MESSAGES.WISHLIST_NOT_FOUND)
+    if (!wishlist) throw new AppError(PAYMENT_WISHLIST_MESSAGES.WISHLIST_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     await repo.softRemove(wishlist)
-    await redis.del(PaymentWishlistService.cacheKey(wishlistId))
   }
 
   // ============================================================================
@@ -130,7 +125,7 @@ export default class PaymentWishlistService {
     const ds = await tenantDataSourceFor(tenantId)
     const wishlistRepo = ds.getRepository(WishlistEntity)
     const wishlist = await wishlistRepo.findOne({ where: { tenantId, wishlistId } })
-    if (!wishlist) throw new Error(PAYMENT_WISHLIST_MESSAGES.WISHLIST_NOT_FOUND)
+    if (!wishlist) throw new AppError(PAYMENT_WISHLIST_MESSAGES.WISHLIST_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
 
     const itemRepo = ds.getRepository(WishlistItemEntity)
     const existing = await itemRepo.findOne({
@@ -152,11 +147,10 @@ export default class PaymentWishlistService {
         }))
       } catch (error) {
         Logger.error(`${PAYMENT_WISHLIST_MESSAGES.WISHLIST_ITEM_ADD_FAILED}: ${error}`)
-        throw new Error(PAYMENT_WISHLIST_MESSAGES.WISHLIST_ITEM_ADD_FAILED)
+        throw new AppError(PAYMENT_WISHLIST_MESSAGES.WISHLIST_ITEM_ADD_FAILED, 500, ErrorCode.INTERNAL_ERROR)
       }
     }
 
-    await redis.del(PaymentWishlistService.cacheKey(wishlistId))
     return PaymentWishlistService.buildWithItems(tenantId, wishlistId)
   }
 
@@ -164,9 +158,8 @@ export default class PaymentWishlistService {
     const ds = await tenantDataSourceFor(tenantId)
     const itemRepo = ds.getRepository(WishlistItemEntity)
     const item = await itemRepo.findOne({ where: { tenantId, wishlistId, wishlistItemId } })
-    if (!item) throw new Error(PAYMENT_WISHLIST_MESSAGES.WISHLIST_ITEM_NOT_FOUND)
+    if (!item) throw new AppError(PAYMENT_WISHLIST_MESSAGES.WISHLIST_ITEM_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     await itemRepo.remove(item)
-    await redis.del(PaymentWishlistService.cacheKey(wishlistId))
     return PaymentWishlistService.buildWithItems(tenantId, wishlistId)
   }
 
@@ -179,16 +172,14 @@ export default class PaymentWishlistService {
     const ds = await tenantDataSourceFor(tenantId)
     const wishlistRepo = ds.getRepository(WishlistEntity)
     const dest = await wishlistRepo.findOne({ where: { tenantId, wishlistId: toWishlistId } })
-    if (!dest) throw new Error(PAYMENT_WISHLIST_MESSAGES.WISHLIST_NOT_FOUND)
+    if (!dest) throw new AppError(PAYMENT_WISHLIST_MESSAGES.WISHLIST_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
 
     const itemRepo = ds.getRepository(WishlistItemEntity)
     const item = await itemRepo.findOne({ where: { tenantId, wishlistId: fromWishlistId, wishlistItemId } })
-    if (!item) throw new Error(PAYMENT_WISHLIST_MESSAGES.WISHLIST_ITEM_NOT_FOUND)
+    if (!item) throw new AppError(PAYMENT_WISHLIST_MESSAGES.WISHLIST_ITEM_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
 
     item.wishlistId = toWishlistId
     await itemRepo.save(item)
-    await redis.del(PaymentWishlistService.cacheKey(fromWishlistId))
-    await redis.del(PaymentWishlistService.cacheKey(toWishlistId))
     return PaymentWishlistService.buildWithItems(tenantId, toWishlistId)
   }
 
@@ -196,10 +187,9 @@ export default class PaymentWishlistService {
     const ds = await tenantDataSourceFor(tenantId)
     const wishlistRepo = ds.getRepository(WishlistEntity)
     const wishlist = await wishlistRepo.findOne({ where: { tenantId, wishlistId } })
-    if (!wishlist) throw new Error(PAYMENT_WISHLIST_MESSAGES.WISHLIST_NOT_FOUND)
+    if (!wishlist) throw new AppError(PAYMENT_WISHLIST_MESSAGES.WISHLIST_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
 
     await ds.getRepository(WishlistItemEntity).delete({ tenantId, wishlistId })
-    await redis.del(PaymentWishlistService.cacheKey(wishlistId))
     return PaymentWishlistService.buildWithItems(tenantId, wishlistId)
   }
 }
