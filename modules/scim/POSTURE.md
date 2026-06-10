@@ -1,3 +1,5 @@
+> **Uygulandı** — 2026-06-10: Added ScimError class (extends AppError + scimType field + status getter), replaced all raw Error+any-patch throws, removed (user as any).givenName/familyName casts (now no-op until entity grows name fields), output parsed through ScimUserSchema, all AuditLogService.log() calls made fire-and-forget.
+
 # scim — Posture Review
 
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`

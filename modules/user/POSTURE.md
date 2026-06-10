@@ -1,3 +1,5 @@
+> **Uygulandı** — 2026-06-10: All 7 raw Error throws → AppError (404 NOT_FOUND, 409 CONFLICT, 400 VALIDATION_ERROR). Note: getByEmail bcrypt-hash-in-cache fix requires caller refactoring — deferred.
+
 # user — Posture Review
 
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`

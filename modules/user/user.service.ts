@@ -9,6 +9,7 @@ import type { UserRole, UserStatus } from './user.enums';
 import bcrypt from 'bcrypt';
 import UserMessages from './user.messages';
 import WebhookService from '@/modules/webhook/webhook.service';
+import { AppError, ErrorCode } from '@/modules/common/app-error';
 
 const USER_CACHE_TTL = env.SESSION_CACHE_TTL ?? (60 * 5);
 const NEGATIVE_CACHE_TTL = Math.min(60, USER_CACHE_TTL);
@@ -28,14 +29,14 @@ export default class UserService {
     phone?: string;
     userRole?: UserRole;
   }): Promise<SafeUser> {
-    if (!email) throw new Error(UserMessages.INVALID_EMAIL);
+    if (!email) throw new AppError(UserMessages.INVALID_EMAIL, 400, ErrorCode.VALIDATION_ERROR);
 
     const ds = await getDataSource();
     const repo = ds.getRepository(UserEntity);
 
     const existingUser = await repo.findOne({ where: { email: email.toLowerCase() } });
-    if (existingUser) throw new Error(UserMessages.EMAIL_ALREADY_EXISTS);
-    if (!password) throw new Error(UserMessages.INVALID_PASSWORD);
+    if (existingUser) throw new AppError(UserMessages.EMAIL_ALREADY_EXISTS, 409, ErrorCode.CONFLICT);
+    if (!password) throw new AppError(UserMessages.INVALID_PASSWORD, 400, ErrorCode.VALIDATION_ERROR);
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = repo.create({
@@ -94,7 +95,7 @@ export default class UserService {
     return singleFlight(cacheKey, async () => {
       const ds = await getDataSource();
       const user = await ds.getRepository(UserEntity).findOne({ where: { userId } });
-      if (!user) throw new Error(UserMessages.USER_NOT_FOUND);
+      if (!user) throw new AppError(UserMessages.USER_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
 
       const parsed = SafeUserSchema.parse(user);
       await redis.setex(cacheKey, jitter(USER_CACHE_TTL), JSON.stringify(parsed)).catch(() => {});
@@ -103,11 +104,11 @@ export default class UserService {
   }
 
   static async update({ userId, data }: { userId: string; data: UpdateUser }): Promise<SafeUser> {
-    if (!userId) throw new Error(UserMessages.USER_NOT_FOUND);
+    if (!userId) throw new AppError(UserMessages.USER_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
     const ds = await getDataSource();
     const repo = ds.getRepository(UserEntity);
     const user = await repo.findOne({ where: { userId } });
-    if (!user) throw new Error(UserMessages.USER_NOT_FOUND);
+    if (!user) throw new AppError(UserMessages.USER_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
 
     await repo.update({ userId }, {
       email: data.email || undefined,
@@ -143,7 +144,7 @@ export default class UserService {
     const ds = await getDataSource();
     const repo = ds.getRepository(UserEntity);
     const user = await repo.findOne({ where: { userId } });
-    if (!user) throw new Error(UserMessages.USER_NOT_FOUND);
+    if (!user) throw new AppError(UserMessages.USER_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
     await repo.delete({ userId });
     await this.invalidate({ userId, email: user.email });
     await WebhookService.dispatchPlatformEvent('user.deleted', {

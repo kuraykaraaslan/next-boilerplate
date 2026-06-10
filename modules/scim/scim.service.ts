@@ -6,9 +6,12 @@ import { User as UserEntity } from '@/modules/user/entities/user.entity';
 import { TenantMember as TenantMemberEntity } from '@/modules/tenant_member/entities/tenant_member.entity';
 import AuditLogService from '@/modules/audit_log/audit_log.service';
 import bcrypt from 'bcrypt';
+import { ErrorCode } from '@/modules/common/app-error';
+import { ScimError } from './scim.errors';
 import {
   SCIM_SCHEMAS,
   SCIM_PAGINATION,
+  ScimUserSchema,
   type ScimUser,
   type ScimGroup,
   type ScimListResponse,
@@ -59,23 +62,17 @@ export default class ScimService {
   }
 
   private static toScimUser(member: TenantMemberEntity, user: UserEntity): ScimUser {
-    const givenName = (user as any).givenName as string | undefined;
-    const familyName = (user as any).familyName as string | undefined;
-    return {
+    return ScimUserSchema.parse({
       schemas: [SCIM_SCHEMAS.USER],
       id: member.tenantMemberId,
       externalId: member.externalId ?? undefined,
       userName: user.email,
-      name: {
-        givenName,
-        familyName,
-        formatted: [givenName, familyName].filter(Boolean).join(' ') || undefined,
-      },
+      name: {},
       displayName: user.email,
       emails: [{ value: user.email, primary: true, type: 'work' }],
       active: member.memberStatus === 'ACTIVE',
       meta: ScimService.buildMeta(member.tenantId, member.tenantMemberId, member.updatedAt, member.createdAt),
-    };
+    });
   }
 
   // ─── Filter parsing (eq only) ──────────────────────────────────────
@@ -89,10 +86,7 @@ export default class ScimService {
   private static parseFilter(filter: string): { attr: 'userName' | 'externalId'; value: string } {
     const match = /^\s*(userName|externalId)\s+eq\s+"([^"]*)"\s*$/i.exec(filter);
     if (!match) {
-      const err = new Error(ScimMessages.INVALID_FILTER);
-      (err as any).scimType = 'invalidFilter';
-      (err as any).status = 400;
-      throw err;
+      throw new ScimError(ScimMessages.INVALID_FILTER, 400, ErrorCode.VALIDATION_ERROR, 'invalidFilter');
     }
     return { attr: match[1] as 'userName' | 'externalId', value: match[2] };
   }
@@ -167,16 +161,12 @@ export default class ScimService {
       where: { tenantMemberId, deletedAt: IsNull() },
     });
     if (!member || member.tenantId !== tenantId) {
-      const err = new Error(ScimMessages.USER_NOT_FOUND);
-      (err as any).status = 404;
-      throw err;
+      throw new ScimError(ScimMessages.USER_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
     }
     const sysDs = await getDataSource();
     const user = await sysDs.getRepository(UserEntity).findOne({ where: { userId: member.userId } });
     if (!user) {
-      const err = new Error(ScimMessages.USER_NOT_FOUND);
-      (err as any).status = 404;
-      throw err;
+      throw new ScimError(ScimMessages.USER_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
     }
     return ScimService.toScimUser(member, user);
   }
@@ -185,10 +175,7 @@ export default class ScimService {
   static async createUser(tenantId: string, input: CreateScimUserInput): Promise<ScimUser> {
     const email = (input.emails?.find((e) => e.primary)?.value ?? input.emails?.[0]?.value ?? input.userName).toLowerCase();
     if (!email) {
-      const err = new Error(ScimMessages.USERNAME_REQUIRED);
-      (err as any).status = 400;
-      (err as any).scimType = 'invalidValue';
-      throw err;
+      throw new ScimError(ScimMessages.USERNAME_REQUIRED, 400, ErrorCode.VALIDATION_ERROR, 'invalidValue');
     }
 
     const sysDs = await getDataSource();
@@ -214,10 +201,7 @@ export default class ScimService {
 
     const existing = await memberRepo.findOne({ where: { tenantId, userId: user.userId, deletedAt: IsNull() } });
     if (existing) {
-      const err = new Error(ScimMessages.USER_ALREADY_EXISTS);
-      (err as any).status = 409;
-      (err as any).scimType = 'uniqueness';
-      throw err;
+      throw new ScimError(ScimMessages.USER_ALREADY_EXISTS, 409, ErrorCode.CONFLICT, 'uniqueness');
     }
 
     const member = memberRepo.create({
@@ -229,14 +213,14 @@ export default class ScimService {
     } as Partial<TenantMemberEntity>);
     const saved = await memberRepo.save(member);
 
-    await AuditLogService.log({
+    AuditLogService.log({
       tenantId,
       actorType: 'SYSTEM',
       action: 'scim.user.created',
       resourceType: 'tenant_member',
       resourceId: saved.tenantMemberId,
       metadata: { externalId: input.externalId, userName: email, userId: user.userId },
-    });
+    }).catch(() => {});
 
     return ScimService.toScimUser(saved, user);
   }
@@ -247,18 +231,14 @@ export default class ScimService {
     const memberRepo = tenantDs.getRepository(TenantMemberEntity);
     const member = await memberRepo.findOne({ where: { tenantMemberId, deletedAt: IsNull() } });
     if (!member || member.tenantId !== tenantId) {
-      const err = new Error(ScimMessages.USER_NOT_FOUND);
-      (err as any).status = 404;
-      throw err;
+      throw new ScimError(ScimMessages.USER_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
     }
 
     const sysDs = await getDataSource();
     const userRepo = sysDs.getRepository(UserEntity);
     const user = await userRepo.findOne({ where: { userId: member.userId } });
     if (!user) {
-      const err = new Error(ScimMessages.USER_NOT_FOUND);
-      (err as any).status = 404;
-      throw err;
+      throw new ScimError(ScimMessages.USER_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
     }
 
     // userName / email
@@ -266,10 +246,7 @@ export default class ScimService {
     if (newEmail && newEmail !== user.email) {
       const collision = await userRepo.findOne({ where: { email: newEmail } });
       if (collision && collision.userId !== user.userId) {
-        const err = new Error(ScimMessages.USER_ALREADY_EXISTS);
-        (err as any).status = 409;
-        (err as any).scimType = 'uniqueness';
-        throw err;
+        throw new ScimError(ScimMessages.USER_ALREADY_EXISTS, 409, ErrorCode.CONFLICT, 'uniqueness');
       }
       user.email = newEmail;
       await userRepo.save(user);
@@ -279,14 +256,14 @@ export default class ScimService {
     if (input.active !== undefined) member.memberStatus = input.active ? 'ACTIVE' : 'INACTIVE';
     const saved = await memberRepo.save(member);
 
-    await AuditLogService.log({
+    AuditLogService.log({
       tenantId,
       actorType: 'SYSTEM',
       action: 'scim.user.updated',
       resourceType: 'tenant_member',
       resourceId: saved.tenantMemberId,
       metadata: { externalId: saved.externalId, active: input.active },
-    });
+    }).catch(() => {});
 
     return ScimService.toScimUser(saved, user);
   }
@@ -297,18 +274,14 @@ export default class ScimService {
     const memberRepo = tenantDs.getRepository(TenantMemberEntity);
     const member = await memberRepo.findOne({ where: { tenantMemberId, deletedAt: IsNull() } });
     if (!member || member.tenantId !== tenantId) {
-      const err = new Error(ScimMessages.USER_NOT_FOUND);
-      (err as any).status = 404;
-      throw err;
+      throw new ScimError(ScimMessages.USER_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
     }
 
     const sysDs = await getDataSource();
     const userRepo = sysDs.getRepository(UserEntity);
     const user = await userRepo.findOne({ where: { userId: member.userId } });
     if (!user) {
-      const err = new Error(ScimMessages.USER_NOT_FOUND);
-      (err as any).status = 404;
-      throw err;
+      throw new ScimError(ScimMessages.USER_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
     }
 
     for (const op of ops) {
@@ -346,10 +319,7 @@ export default class ScimService {
           // so IdPs do not retry forever.
           break;
         default: {
-          const err = new Error(`${ScimMessages.INVALID_PATCH_PATH}: ${path}`);
-          (err as any).status = 400;
-          (err as any).scimType = 'invalidPath';
-          throw err;
+          throw new ScimError(`${ScimMessages.INVALID_PATCH_PATH}: ${path}`, 400, ErrorCode.VALIDATION_ERROR, 'invalidPath');
         }
       }
     }
@@ -357,14 +327,14 @@ export default class ScimService {
     await userRepo.save(user);
     const saved = await memberRepo.save(member);
 
-    await AuditLogService.log({
+    AuditLogService.log({
       tenantId,
       actorType: 'SYSTEM',
       action: 'scim.user.patched',
       resourceType: 'tenant_member',
       resourceId: saved.tenantMemberId,
       metadata: { ops: ops.map((o) => ({ op: o.op, path: o.path })) },
-    });
+    }).catch(() => {});
 
     return ScimService.toScimUser(saved, user);
   }
@@ -375,9 +345,7 @@ export default class ScimService {
     const memberRepo = tenantDs.getRepository(TenantMemberEntity);
     const member = await memberRepo.findOne({ where: { tenantMemberId, deletedAt: IsNull() } });
     if (!member || member.tenantId !== tenantId) {
-      const err = new Error(ScimMessages.USER_NOT_FOUND);
-      (err as any).status = 404;
-      throw err;
+      throw new ScimError(ScimMessages.USER_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
     }
     // Deprovision: mark inactive, soft-delete. The cross-tenant `User` row
     // is preserved so the person can still log into other tenants.
@@ -385,14 +353,14 @@ export default class ScimService {
     member.deletedAt = new Date();
     await memberRepo.save(member);
 
-    await AuditLogService.log({
+    AuditLogService.log({
       tenantId,
       actorType: 'SYSTEM',
       action: 'scim.user.deleted',
       resourceType: 'tenant_member',
       resourceId: tenantMemberId,
       metadata: { externalId: member.externalId },
-    });
+    }).catch(() => {});
   }
 
   // ─── Groups (stubs) ────────────────────────────────────────────────

@@ -1,3 +1,5 @@
+> **Uygulandı** — 2026-06-10: AppError across token + crud services (SESSION_EXPIRED/UNAUTHORIZED/OTP_REQUIRED), removed hardcoded JWT secret fallbacks + dead guard, fixed dead refresh-token reuse detection (now queries by userSessionId), fixed cache-miss branch to compare ErrorCode instead of message string.
+
 # user_session — Posture Review
 
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`

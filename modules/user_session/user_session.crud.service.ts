@@ -13,6 +13,7 @@ import UserSessionTokenService, { type TokenPayload } from './user_session.token
 import UserSessionCacheService from './user_session.cache.service';
 import type { SessionStatus } from './user_session.enums';
 import AuthPolicyService from '@/modules/auth/auth.policy.service';
+import { AppError, ErrorCode } from '@/modules/common/app-error';
 
 const IMPERSONATION_SESSION_TTL_MS = 60 * 60 * 1000;
 const SESSION_EXPIRY_MS = env.SESSION_EXPIRY_MS ?? (1000 * 60 * 60 * 24 * 7);
@@ -126,12 +127,12 @@ export default class UserSessionCrudService {
         const session = SafeUserSessionSchema.parse(JSON.parse(cached));
         // Idle key absent → user was away longer than the timeout.
         const alive = await redis.get(idleKey);
-        if (!alive) throw new Error(UserSessionMessages.SESSION_EXPIRED);
-        if (!otpVerifyBypass && session.otpVerifyNeeded) throw new Error(UserSessionMessages.OTP_REQUIRED);
+        if (!alive) throw new AppError(UserSessionMessages.SESSION_EXPIRED, 401, ErrorCode.SESSION_EXPIRED);
+        if (!otpVerifyBypass && session.otpVerifyNeeded) throw new AppError(UserSessionMessages.OTP_REQUIRED, 401, ErrorCode.OTP_REQUIRED);
         await redis.expire(idleKey, idleTtl).catch(() => {});
         return session;
       } catch (err: unknown) {
-        if (err instanceof Error && err.message === UserSessionMessages.SESSION_EXPIRED) throw err;
+        if (err instanceof AppError && err.code === ErrorCode.SESSION_EXPIRED) throw err;
         await redis.del(cacheKey);
       }
     }
@@ -141,20 +142,20 @@ export default class UserSessionCrudService {
       where: { accessToken: hashedToken, userId: decoded.userId },
     });
 
-    if (!session) throw new Error(UserSessionMessages.SESSION_NOT_FOUND);
-    if (session.sessionExpiry < new Date()) throw new Error(UserSessionMessages.SESSION_EXPIRED);
-    if (session.sessionStatus === 'REVOKED') throw new Error(UserSessionMessages.SESSION_REVOKED);
+    if (!session) throw new AppError(UserSessionMessages.SESSION_NOT_FOUND, 401, ErrorCode.UNAUTHORIZED);
+    if (session.sessionExpiry < new Date()) throw new AppError(UserSessionMessages.SESSION_EXPIRED, 401, ErrorCode.SESSION_EXPIRED);
+    if (session.sessionStatus === 'REVOKED') throw new AppError(UserSessionMessages.SESSION_REVOKED, 401, ErrorCode.UNAUTHORIZED);
     if (deviceFingerprint && session.deviceFingerprint !== deviceFingerprint) {
-      throw new Error(UserSessionMessages.DEVICE_FINGERPRINT_MISMATCH);
+      throw new AppError(UserSessionMessages.DEVICE_FINGERPRINT_MISMATCH, 401, ErrorCode.UNAUTHORIZED);
     }
-    if (!otpVerifyBypass && session.otpVerifyNeeded) throw new Error(UserSessionMessages.OTP_REQUIRED);
+    if (!otpVerifyBypass && session.otpVerifyNeeded) throw new AppError(UserSessionMessages.OTP_REQUIRED, 401, ErrorCode.OTP_REQUIRED);
 
     // KD-11: also check DB-level idle when cache missed. We compare against
     // the session row's `updatedAt` so existing sessions without a Redis idle
     // key still get a fair grace window (their last DB touch).
     const lastActivityMs = (session.updatedAt ?? session.createdAt).getTime();
     if (Date.now() - lastActivityMs > idleTtl * 1000) {
-      throw new Error(UserSessionMessages.SESSION_EXPIRED);
+      throw new AppError(UserSessionMessages.SESSION_EXPIRED, 401, ErrorCode.SESSION_EXPIRED);
     }
 
     const safeSession = SafeUserSessionSchema.parse(session);
@@ -173,16 +174,23 @@ export default class UserSessionCrudService {
 
     const ds = await getDataSource();
     const repo = ds.getRepository(UserSessionEntity);
-    const session = await repo.findOne({ where: { refreshToken: hashedRefreshToken, userId: decoded.userId } });
 
-    if (!session) throw new Error(UserSessionMessages.SESSION_NOT_FOUND);
-    if (session.sessionExpiry < new Date()) throw new Error(UserSessionMessages.SESSION_EXPIRED);
-    if (session.otpVerifyNeeded) throw new Error(UserSessionMessages.OTP_REQUIRED);
-    if ((session.metadata as any)?.impersonation) throw new Error(UserSessionMessages.INVALID_TOKEN);
+    // Look up by userSessionId (from the decoded JWT) so the hash comparison below
+    // can actually detect token reuse. If we queried by the hash we'd never find a
+    // row with a mismatching hash, making the reuse branch unreachable.
+    const session = await repo.findOne({ where: { userSessionId: decoded.userSessionId, userId: decoded.userId } });
+
+    if (!session) throw new AppError(UserSessionMessages.SESSION_NOT_FOUND, 401, ErrorCode.UNAUTHORIZED);
+    if (session.sessionExpiry < new Date()) throw new AppError(UserSessionMessages.SESSION_EXPIRED, 401, ErrorCode.SESSION_EXPIRED);
+    if (session.otpVerifyNeeded) throw new AppError(UserSessionMessages.OTP_REQUIRED, 401, ErrorCode.OTP_REQUIRED);
+    if ((session.metadata as SessionMeta | null)?.impersonation) throw new AppError(UserSessionMessages.INVALID_TOKEN, 401, ErrorCode.UNAUTHORIZED);
+
+    // Reuse detection: if the stored token no longer matches the presented one,
+    // a prior refresh already rotated it — revoke the entire session family.
     if (session.refreshToken !== hashedRefreshToken) {
       await repo.delete({ userId: session.userId });
       await UserSessionCacheService.clearUserSessionCache(session.userId);
-      throw new Error(UserSessionMessages.REFRESH_TOKEN_REUSED);
+      throw new AppError(UserSessionMessages.REFRESH_TOKEN_REUSED, 401, ErrorCode.UNAUTHORIZED);
     }
 
     const newAccessToken = UserSessionTokenService.generateAccessToken({
@@ -203,7 +211,7 @@ export default class UserSessionCrudService {
     if (Date.now() >= absoluteDeadline) {
       await repo.delete({ userSessionId: session.userSessionId });
       await UserSessionCacheService.clearUserSessionCache(session.userId);
-      throw new Error(UserSessionMessages.SESSION_EXPIRED);
+      throw new AppError(UserSessionMessages.SESSION_EXPIRED, 401, ErrorCode.SESSION_EXPIRED);
     }
     const renewedExpiryMs = Math.min(Date.now() + SESSION_EXPIRY_MS, absoluteDeadline);
 
@@ -225,7 +233,7 @@ export default class UserSessionCrudService {
     const ds = await getDataSource();
     const repo = ds.getRepository(UserSessionEntity);
     const session = await repo.findOne({ where: { userSessionId } });
-    if (!session) throw new Error(UserSessionMessages.SESSION_NOT_FOUND);
+    if (!session) throw new AppError(UserSessionMessages.SESSION_NOT_FOUND, 401, ErrorCode.UNAUTHORIZED);
 
     await repo.update({ userSessionId }, updates as any);
     await UserSessionCacheService.clearUserSessionCache(session.userId);
