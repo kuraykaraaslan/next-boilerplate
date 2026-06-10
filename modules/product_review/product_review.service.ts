@@ -2,7 +2,6 @@ import 'reflect-metadata'
 import { MoreThanOrEqual } from 'typeorm'
 import { tenantDataSourceFor } from '@/modules/db'
 import redis, { singleFlight } from '@/modules/redis'
-import Logger from '@/modules/logger'
 import { ProductReview as ProductReviewEntity } from './entities/product_review.entity'
 import { ProductReviewVote as ProductReviewVoteEntity } from './entities/product_review_vote.entity'
 import {
@@ -12,6 +11,7 @@ import {
 import type {
   CreateReviewDTO, UpdateReviewDTO, ModerateReviewDTO, VoteReviewDTO, GetReviewsQuery,
 } from './product_review.dto'
+import { AppError, ErrorCode } from '@/modules/common/app-error'
 import { PRODUCT_REVIEW_MESSAGES } from './product_review.messages'
 
 export default class ProductReviewService {
@@ -21,11 +21,11 @@ export default class ProductReviewService {
   // ============================================================================
 
   private static async bustReview(reviewId: string): Promise<void> {
-    await redis.del(`review:${reviewId}`)
+    await redis.del(`review:${reviewId}`).catch(() => {})
   }
 
   private static async bustSummary(productId: string): Promise<void> {
-    await redis.del(`review:summary:${productId}`)
+    await redis.del(`review:summary:${productId}`).catch(() => {})
   }
 
   // ============================================================================
@@ -33,10 +33,6 @@ export default class ProductReviewService {
   // ============================================================================
 
   static async create(tenantId: string, dto: CreateReviewDTO): Promise<SafeProductReview> {
-    if (!Number.isInteger(dto.rating) || dto.rating < 1 || dto.rating > 5) {
-      throw new Error(PRODUCT_REVIEW_MESSAGES.INVALID_RATING)
-    }
-
     const ds = await tenantDataSourceFor(tenantId)
     const repo = ds.getRepository(ProductReviewEntity)
 
@@ -65,7 +61,7 @@ export default class ProductReviewService {
       const row = await ds.getRepository(ProductReviewEntity).findOne({
         where: { tenantId, productReviewId: reviewId },
       })
-      if (!row) throw new Error(PRODUCT_REVIEW_MESSAGES.REVIEW_NOT_FOUND)
+      if (!row) throw new AppError(PRODUCT_REVIEW_MESSAGES.REVIEW_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
       return SafeProductReviewSchema.parse(row)
     })
   }
@@ -97,14 +93,10 @@ export default class ProductReviewService {
   }
 
   static async update(tenantId: string, reviewId: string, dto: UpdateReviewDTO): Promise<SafeProductReview> {
-    if (dto.rating !== undefined && (!Number.isInteger(dto.rating) || dto.rating < 1 || dto.rating > 5)) {
-      throw new Error(PRODUCT_REVIEW_MESSAGES.INVALID_RATING)
-    }
-
     const ds = await tenantDataSourceFor(tenantId)
     const repo = ds.getRepository(ProductReviewEntity)
     const row = await repo.findOne({ where: { tenantId, productReviewId: reviewId } })
-    if (!row) throw new Error(PRODUCT_REVIEW_MESSAGES.REVIEW_NOT_FOUND)
+    if (!row) throw new AppError(PRODUCT_REVIEW_MESSAGES.REVIEW_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
 
     if (dto.rating !== undefined) row.rating = dto.rating
     if (dto.title !== undefined) row.title = dto.title
@@ -126,7 +118,7 @@ export default class ProductReviewService {
     const ds = await tenantDataSourceFor(tenantId)
     const repo = ds.getRepository(ProductReviewEntity)
     const row = await repo.findOne({ where: { tenantId, productReviewId: reviewId } })
-    if (!row) throw new Error(PRODUCT_REVIEW_MESSAGES.REVIEW_NOT_FOUND)
+    if (!row) throw new AppError(PRODUCT_REVIEW_MESSAGES.REVIEW_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
 
     row.status = dto.status
     if (dto.note) {
@@ -146,13 +138,14 @@ export default class ProductReviewService {
 
   static async voteHelpful(tenantId: string, reviewId: string, dto: VoteReviewDTO): Promise<SafeProductReview> {
     const ds = await tenantDataSourceFor(tenantId)
-    const reviewRepo = ds.getRepository(ProductReviewEntity)
-    const voteRepo = ds.getRepository(ProductReviewVoteEntity)
 
-    const review = await reviewRepo.findOne({ where: { tenantId, productReviewId: reviewId } })
-    if (!review) throw new Error(PRODUCT_REVIEW_MESSAGES.REVIEW_NOT_FOUND)
+    const saved = await ds.transaction(async (mgr) => {
+      const reviewRepo = mgr.getRepository(ProductReviewEntity)
+      const voteRepo = mgr.getRepository(ProductReviewVoteEntity)
 
-    try {
+      const review = await reviewRepo.findOne({ where: { tenantId, productReviewId: reviewId } })
+      if (!review) throw new AppError(PRODUCT_REVIEW_MESSAGES.REVIEW_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
+
       // Upsert: one vote per user per review.
       const existing = await voteRepo.findOne({ where: { tenantId, reviewId, userId: dto.userId } })
       if (existing) {
@@ -168,13 +161,11 @@ export default class ProductReviewService {
       }
 
       review.helpfulCount = await voteRepo.count({ where: { tenantId, reviewId, isHelpful: true } })
-      const saved = await reviewRepo.save(review)
-      await ProductReviewService.bustReview(reviewId)
-      return SafeProductReviewSchema.parse(saved)
-    } catch (error) {
-      Logger.error(`${PRODUCT_REVIEW_MESSAGES.VOTE_FAILED}: ${error}`)
-      throw new Error(PRODUCT_REVIEW_MESSAGES.VOTE_FAILED)
-    }
+      return reviewRepo.save(review)
+    })
+
+    await ProductReviewService.bustReview(reviewId)
+    return SafeProductReviewSchema.parse(saved)
   }
 
   // ============================================================================
@@ -217,7 +208,7 @@ export default class ProductReviewService {
     const ds = await tenantDataSourceFor(tenantId)
     const repo = ds.getRepository(ProductReviewEntity)
     const row = await repo.findOne({ where: { tenantId, productReviewId: reviewId } })
-    if (!row) throw new Error(PRODUCT_REVIEW_MESSAGES.REVIEW_NOT_FOUND)
+    if (!row) throw new AppError(PRODUCT_REVIEW_MESSAGES.REVIEW_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
 
     await repo.softRemove(row)
     await ProductReviewService.bustReview(reviewId)

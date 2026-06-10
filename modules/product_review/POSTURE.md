@@ -1,5 +1,7 @@
 # product_review — Posture Review
 
+> **Uygulandı:** 2026-06-10 — High AppError (6 throw site, 404 NOT_FOUND), Medium voteHelpful transaction, Medium redis.del cache busts fail-open, Medium redundant rating validation kaldırıldı.
+
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`
 > **Services:** product_review.service.ts
 > **Overall grade:** C · **Findings:** 0c / 1h / 4m / 2l

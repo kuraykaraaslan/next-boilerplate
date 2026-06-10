@@ -1,4 +1,5 @@
 import Logger from '@/modules/logger'
+import { AppError, ErrorCode } from '@/modules/common/app-error'
 import BaseStorageProvider from './providers/base.provider'
 import AWSS3Provider from './providers/aws-s3.provider'
 import CloudflareR2Provider from './providers/cloudflare-r2.provider'
@@ -55,7 +56,7 @@ export default class StorageService {
         return new MinIOProvider(config)
       default:
         Logger.error(`${STORAGE_MESSAGES.PROVIDER_NOT_FOUND}: ${providerName}`)
-        throw new Error(`${STORAGE_MESSAGES.PROVIDER_NOT_FOUND}: ${providerName}`)
+        throw new AppError(`${STORAGE_MESSAGES.PROVIDER_NOT_FOUND}: ${providerName}`, 400, ErrorCode.VALIDATION_ERROR)
     }
   }
 
@@ -100,14 +101,13 @@ export default class StorageService {
       })
       const saved = await repo.save(row)
       uploadedFileId = saved.uploadedFileId
+      if (size > 0) {
+        await TenantUsageService.incrementStorageBytes(tenantId, size)
+      }
     } catch (error) {
       Logger.warn(
         `StorageService.persistUploadAudit failed: ${error instanceof Error ? error.message : String(error)}`,
       )
-    }
-
-    if (size > 0) {
-      await TenantUsageService.incrementStorageBytes(tenantId, size)
     }
 
     return uploadedFileId
@@ -143,11 +143,10 @@ export default class StorageService {
     await StorageService.assertStorageFeatureAccess(tenantId)
 
     const { file, folder, filename, provider: requestedProvider } = data
-    const effectiveTenantId = data.tenantId || tenantId
 
     try {
       const { provider, resolvedName } = await StorageService.getProvider(tenantId, requestedProvider)
-      const result = await provider.uploadFile(file, { folder, filename, tenantId: effectiveTenantId })
+      const result = await provider.uploadFile(file, { folder, filename, tenantId })
 
       const uploadResult: UploadResult = {
         ...result,
@@ -170,11 +169,10 @@ export default class StorageService {
     await StorageService.assertStorageFeatureAccess(tenantId)
 
     const { url, folder, filename, provider: requestedProvider } = data
-    const effectiveTenantId = data.tenantId || tenantId
 
     try {
       const { provider, resolvedName } = await StorageService.getProvider(tenantId, requestedProvider)
-      const result = await provider.uploadFromUrl(url, { url, folder, filename, tenantId: effectiveTenantId })
+      const result = await provider.uploadFromUrl(url, { url, folder, filename, tenantId })
 
       const uploadResult: UploadResult = {
         ...result,

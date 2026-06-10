@@ -1,5 +1,7 @@
 # user_social_account — Posture Review
 
+> **Uygulandı:** 2026-06-10 — High AppError (link → 409 CONFLICT, unlink → 404 NOT_FOUND).
+
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`
 > **Services:** `user_social_account.service.ts`
 > **Overall grade:** C · **Findings:** 0c / 2h / 2m / 1l

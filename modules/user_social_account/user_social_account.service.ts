@@ -4,6 +4,7 @@ import redis, { jitter, singleFlight } from '@/modules/redis';
 import { env } from '@/modules/env';
 import { UserSocialAccount as UserSocialAccountEntity } from './entities/user_social_account.entity';
 import { SafeUserSocialAccount, SafeUserSocialAccountSchema } from './user_social_account.types';
+import { AppError, ErrorCode } from '@/modules/common/app-error';
 import UserSocialAccountMessages from './user_social_account.messages';
 import type { SocialAccountProvider } from './user_social_account.enums';
 
@@ -74,7 +75,7 @@ export default class UserSocialAccountService {
     const existing = await repo.findOne({ where: { provider, providerId } });
 
     if (existing && existing.userId !== userId) {
-      throw new Error(UserSocialAccountMessages.ACCOUNT_ALREADY_LINKED);
+      throw new AppError(UserSocialAccountMessages.ACCOUNT_ALREADY_LINKED, 409, ErrorCode.CONFLICT);
     }
 
     if (existing) {
@@ -108,7 +109,7 @@ export default class UserSocialAccountService {
     const ds = await getDataSource();
     const repo = ds.getRepository(UserSocialAccountEntity);
     const account = await repo.findOne({ where: { userId, provider } });
-    if (!account) throw new Error(UserSocialAccountMessages.ACCOUNT_NOT_FOUND);
+    if (!account) throw new AppError(UserSocialAccountMessages.ACCOUNT_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
     await repo.delete({ userSocialAccountId: account.userSocialAccountId });
     await this.clearCache({ userId, provider, providerId: account.providerId });
   }

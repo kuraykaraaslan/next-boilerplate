@@ -1,5 +1,7 @@
 # storage — Posture Review
 
+> **Uygulandı:** 2026-06-10 — High AppError (createProvider), Medium incrementStorageBytes try/catch içine alındı, Medium data.tenantId override kaldırıldı (her zaman authenticated tenantId kullanılıyor).
+
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`
 > **Services:** storage.service.ts
 > **Overall grade:** C · **Findings:** 0c / 2h / 4m / 1l
