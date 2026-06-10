@@ -4,8 +4,10 @@ import redis, { createRedisConnection } from '@/modules/redis';
 import { tenantDataSourceFor } from '@/modules/db';
 import { TenantMember } from '@/modules/tenant_member/entities/tenant_member.entity';
 import { v4 as uuid } from 'uuid';
+import { NotificationSchema } from './notification_inapp.types';
 import type { Notification, NotificationPayload } from './notification_inapp.types';
-import NotificationPushService from '../notification_push/notification_push.service';
+import NotificationPushService from '@/modules/notification_push/notification_push.service';
+import Logger from '@/modules/logger';
 
 /**
  * NotificationInAppService is fully tenant-scoped. Redis keys and pub/sub
@@ -66,7 +68,7 @@ export default class NotificationInAppService {
       title: data.title,
       body: data.message,
       url: data.path ?? '/',
-    }).catch(() => {});
+    }).catch((err) => Logger.warn('Push notification delivery failed', err));
 
     return notification;
   }
@@ -114,9 +116,14 @@ export default class NotificationInAppService {
     if (!raw) return [];
 
     const readIds = await this.getReadIds(tenantId, userId);
-    const notifications: Notification[] = Object.values(raw).map((json) => {
-      const n: Notification = JSON.parse(json);
-      return { ...n, isRead: readIds.has(n.notificationId) };
+    const notifications: Notification[] = Object.values(raw).flatMap((json) => {
+      const parsed = NotificationSchema.safeParse(JSON.parse(json));
+      if (!parsed.success) {
+        Logger.warn('notification_inapp: skipping malformed entry', parsed.error);
+        return [];
+      }
+      const n = parsed.data;
+      return [{ ...n, isRead: readIds.has(n.notificationId) }];
     });
 
     return notifications.sort(

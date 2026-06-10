@@ -11,6 +11,8 @@ import TenantFeatureGateService from '@/modules/tenant_subscription/tenant_subsc
 import { FEATURE_KEYS } from '@/modules/tenant_subscription/tenant_subscription.feature-keys';
 import Logger from '@/modules/logger';
 import InvoiceMessages from './invoice.messages';
+import { AppError, ErrorCode } from '@/modules/common/app-error';
+import redis from '@/modules/redis';
 import {
   SafeInvoiceSchema, SafeInvoiceLineSchema,
   CreateInvoiceInputSchema,
@@ -44,7 +46,7 @@ export default class InvoiceService {
       'invoiceDefaultVatRate', 'invoiceNumberPrefix', 'invoiceNumberPadding',
     ]);
     if (!settings.companyLegalName || !settings.companyTaxId || !settings.companyCountryCode) {
-      throw new Error(InvoiceMessages.COMPANY_INFO_MISSING);
+      throw new AppError(InvoiceMessages.COMPANY_INFO_MISSING, 422, ErrorCode.VALIDATION_ERROR);
     }
 
     const region = (settings.billingRegion as 'TR' | 'EU' | 'US' | 'OTHER' | undefined) ?? 'OTHER';
@@ -80,36 +82,41 @@ export default class InvoiceService {
     const invoiceNumber = await this.getNextInvoiceNumber(tenantId, settings.invoiceNumberPrefix, settings.invoiceNumberPadding);
 
     const ds = await tenantDataSourceFor(tenantId);
-    const invoiceRepo = ds.getRepository(InvoiceEntity);
-    const lineRepo = ds.getRepository(InvoiceLineEntity);
 
-    const invoice = await invoiceRepo.save(invoiceRepo.create({
-      tenantId,
-      invoiceNumber,
-      paymentId: parsed.paymentId,
-      subscriptionId: parsed.subscriptionId,
-      customerEmail: parsed.customerEmail,
-      customerName: parsed.customerName,
-      customerTaxId: parsed.customerTaxId,
-      customerAddress: parsed.customerAddress,
-      customerCountryCode: parsed.customerCountryCode.toUpperCase(),
-      issueDate,
-      dueDate,
-      subtotal,
-      discountAmount: 0,
-      taxAmount,
-      totalAmount: Math.round((subtotal + taxAmount) * 10000) / 10000,
-      currency,
-      status: 'draft',
-      region,
-      taxScheme,
-      notes: parsed.notes,
-      metadata: parsed.metadata,
-    }));
+    const invoice = await ds.transaction(async (manager) => {
+      const invoiceRepo = manager.getRepository(InvoiceEntity);
+      const lineRepo = manager.getRepository(InvoiceLineEntity);
 
-    for (const cl of computedLines) {
-      await lineRepo.save(lineRepo.create({ ...cl, tenantId, invoiceId: invoice.invoiceId }));
-    }
+      const inv = await invoiceRepo.save(invoiceRepo.create({
+        tenantId,
+        invoiceNumber,
+        paymentId: parsed.paymentId,
+        subscriptionId: parsed.subscriptionId,
+        customerEmail: parsed.customerEmail,
+        customerName: parsed.customerName,
+        customerTaxId: parsed.customerTaxId,
+        customerAddress: parsed.customerAddress,
+        customerCountryCode: parsed.customerCountryCode.toUpperCase(),
+        issueDate,
+        dueDate,
+        subtotal,
+        discountAmount: 0,
+        taxAmount,
+        totalAmount: Math.round((subtotal + taxAmount) * 10000) / 10000,
+        currency,
+        status: 'draft',
+        region,
+        taxScheme,
+        notes: parsed.notes,
+        metadata: parsed.metadata,
+      }));
+
+      for (const cl of computedLines) {
+        await lineRepo.save(lineRepo.create({ ...cl, tenantId, invoiceId: inv.invoiceId }));
+      }
+
+      return inv;
+    });
 
     AuditLogService.log({
       tenantId, actorType: 'SYSTEM', action: 'invoice.created',
@@ -131,7 +138,7 @@ export default class InvoiceService {
   static async getById(tenantId: string, invoiceId: string): Promise<SafeInvoice> {
     const ds = await tenantDataSourceFor(tenantId);
     const row = await ds.getRepository(InvoiceEntity).findOne({ where: { tenantId, invoiceId } });
-    if (!row) throw new Error(InvoiceMessages.NOT_FOUND);
+    if (!row) throw new AppError(InvoiceMessages.NOT_FOUND, 404, ErrorCode.NOT_FOUND);
     return SafeInvoiceSchema.parse(row);
   }
 
@@ -164,8 +171,8 @@ export default class InvoiceService {
     const ds = await tenantDataSourceFor(tenantId);
     const repo = ds.getRepository(InvoiceEntity);
     const invoice = await repo.findOne({ where: { tenantId, invoiceId } });
-    if (!invoice) throw new Error(InvoiceMessages.NOT_FOUND);
-    if (invoice.status !== 'draft') throw new Error(InvoiceMessages.ALREADY_ISSUED);
+    if (!invoice) throw new AppError(InvoiceMessages.NOT_FOUND, 404, ErrorCode.NOT_FOUND);
+    if (invoice.status !== 'draft') throw new AppError(InvoiceMessages.ALREADY_ISSUED, 409, ErrorCode.CONFLICT);
 
     // Submit to regional adapter (if configured)
     const adapter = getInvoiceAdapter(invoice.region);
@@ -229,7 +236,7 @@ export default class InvoiceService {
     const ds = await tenantDataSourceFor(tenantId);
     const repo = ds.getRepository(InvoiceEntity);
     const invoice = await repo.findOne({ where: { tenantId, invoiceId } });
-    if (!invoice) throw new Error(InvoiceMessages.NOT_FOUND);
+    if (!invoice) throw new AppError(InvoiceMessages.NOT_FOUND, 404, ErrorCode.NOT_FOUND);
     if (invoice.status === 'paid') return SafeInvoiceSchema.parse(invoice);
     invoice.status = 'paid';
     invoice.paidAt = new Date();
@@ -270,8 +277,8 @@ export default class InvoiceService {
     const ds = await tenantDataSourceFor(tenantId);
     const repo = ds.getRepository(InvoiceEntity);
     const invoice = await repo.findOne({ where: { tenantId, invoiceId } });
-    if (!invoice) throw new Error(InvoiceMessages.NOT_FOUND);
-    if (invoice.status === 'paid') throw new Error(InvoiceMessages.CANNOT_VOID_PAID);
+    if (!invoice) throw new AppError(InvoiceMessages.NOT_FOUND, 404, ErrorCode.NOT_FOUND);
+    if (invoice.status === 'paid') throw new AppError(InvoiceMessages.CANNOT_VOID_PAID, 409, ErrorCode.CONFLICT);
     invoice.status = 'void';
     await repo.save(invoice);
 
@@ -300,14 +307,14 @@ export default class InvoiceService {
 
   private static async buildGibClient(tenantId: string): Promise<GibDirectClient> {
     const integrator = await SettingService.getValue(tenantId, 'earsivIntegrator');
-    if (integrator !== 'gib_direct') throw new Error(InvoiceMessages.EARSIV_NOT_GIB_DIRECT);
+    if (integrator !== 'gib_direct') throw new AppError(InvoiceMessages.EARSIV_NOT_GIB_DIRECT, 422, ErrorCode.VALIDATION_ERROR);
     const [username, password, baseUrl, sandboxFlag] = await Promise.all([
       SettingService.getValue(tenantId, 'earsivIntegratorUsername'),
       SettingService.getValue(tenantId, 'earsivIntegratorPassword'),
       SettingService.getValue(tenantId, 'earsivIntegratorBaseUrl'),
       SettingService.getValue(tenantId, 'earsivIntegratorSandbox'),
     ]);
-    if (!username || !password) throw new Error(InvoiceMessages.EARSIV_NOT_CONFIGURED);
+    if (!username || !password) throw new AppError(InvoiceMessages.EARSIV_NOT_CONFIGURED, 422, ErrorCode.VALIDATION_ERROR);
     return new GibDirectClient({
       username, password,
       baseUrl: baseUrl || undefined,
@@ -315,8 +322,25 @@ export default class InvoiceService {
     });
   }
 
+  private static readonly EARSIV_SMS_SEND_LIMIT = 5;    // per 10-minute window
+  private static readonly EARSIV_SMS_SEND_WINDOW = 600; // seconds
+  private static readonly EARSIV_SMS_VERIFY_LIMIT = 5;  // per oid
+
   /** Step 1 — ask the GİB portal to SMS an OTP to the account's phone. */
   static async requestEarsivSms(tenantId: string): Promise<{ oid: string }> {
+    // Rate-limit SMS send attempts per tenant (max 5 per 10 minutes)
+    const sendRateKey = `earsiv:sms:send:${tenantId}`;
+    try {
+      const count = await redis.incr(sendRateKey);
+      if (count === 1) await redis.expire(sendRateKey, InvoiceService.EARSIV_SMS_SEND_WINDOW);
+      if (count > InvoiceService.EARSIV_SMS_SEND_LIMIT) {
+        throw new AppError(InvoiceMessages.EARSIV_SMS_SEND_FAILED, 429, ErrorCode.RATE_LIMIT_EXCEEDED);
+      }
+    } catch (err) {
+      if (err instanceof AppError) throw err;
+      Logger.warn(`[Invoice.requestEarsivSms] rate-limit Redis error (fail-open): ${err instanceof Error ? err.message : err}`);
+    }
+
     const client = await this.buildGibClient(tenantId);
     try {
       await client.login();
@@ -324,7 +348,7 @@ export default class InvoiceService {
       return { oid };
     } catch (err) {
       Logger.warn(`[Invoice.requestEarsivSms] ${err instanceof Error ? err.message : err}`);
-      throw new Error(InvoiceMessages.EARSIV_SMS_SEND_FAILED);
+      throw new AppError(InvoiceMessages.EARSIV_SMS_SEND_FAILED, 502, ErrorCode.INTERNAL_ERROR);
     }
   }
 
@@ -334,6 +358,19 @@ export default class InvoiceService {
    * Returns how many invoices were finalised.
    */
   static async confirmEarsivSms(tenantId: string, oid: string, code: string, invoiceIds?: string[]): Promise<{ signed: number }> {
+    // Rate-limit verify attempts per oid (max 5 attempts)
+    const verifyAttemptKey = `earsiv:sms:verify:${tenantId}:${oid}`;
+    try {
+      const attempts = await redis.incr(verifyAttemptKey);
+      if (attempts === 1) await redis.expire(verifyAttemptKey, InvoiceService.EARSIV_SMS_SEND_WINDOW);
+      if (attempts > InvoiceService.EARSIV_SMS_VERIFY_LIMIT) {
+        throw new AppError(InvoiceMessages.EARSIV_SMS_VERIFY_FAILED, 429, ErrorCode.RATE_LIMIT_EXCEEDED);
+      }
+    } catch (err) {
+      if (err instanceof AppError) throw err;
+      Logger.warn(`[Invoice.confirmEarsivSms] rate-limit Redis error (fail-open): ${err instanceof Error ? err.message : err}`);
+    }
+
     const client = await this.buildGibClient(tenantId);
     const ds = await tenantDataSourceFor(tenantId);
     const repo = ds.getRepository(InvoiceEntity);
@@ -353,13 +390,13 @@ export default class InvoiceService {
       const drafts = await client.listDrafts(fmt(earliest), fmt(new Date()));
       const uuids = new Set(invoices.map((i) => i.earsivUuid));
       const toSign = drafts.filter((r) => uuids.has(String(r.ettn ?? r.belgeId ?? r.faturaUuid ?? '')));
-      if (toSign.length === 0) throw new Error(InvoiceMessages.EARSIV_NO_DRAFTS);
+      if (toSign.length === 0) throw new AppError(InvoiceMessages.EARSIV_NO_DRAFTS, 404, ErrorCode.NOT_FOUND);
 
       await client.verifySmsCode(oid, code, toSign);
     } catch (err) {
-      if (err instanceof Error && err.message === InvoiceMessages.EARSIV_NO_DRAFTS) throw err;
+      if (err instanceof AppError) throw err;
       Logger.warn(`[Invoice.confirmEarsivSms] ${err instanceof Error ? err.message : err}`);
-      throw new Error(InvoiceMessages.EARSIV_SMS_VERIFY_FAILED);
+      throw new AppError(InvoiceMessages.EARSIV_SMS_VERIFY_FAILED, 502, ErrorCode.INTERNAL_ERROR);
     }
 
     for (const inv of invoices) {

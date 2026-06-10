@@ -1,5 +1,7 @@
 # invoice — Posture Review
 
+> **Uygulandı:** 2026-06-11 — High: AppError on all throw sites (404/409/422/502); Medium: create() wrapped in transaction, e-Arşiv OTP rate-limited via Redis, as any cast removed with typed UploadFileDTO; Low: inline PDF labels moved to PDF_LABELS map.
+
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`
 > **Services:** `invoice.service.ts`, `invoice.pdf.service.ts`
 > **Overall grade:** C · **Findings:** 0c / 1h / 4m / 1l

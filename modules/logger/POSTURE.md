@@ -1,5 +1,7 @@
 # logger — Posture Review
 
+> **Uygulandı:** 2026-06-11 — Medium: added recursive redact() with REDACTED_KEYS denylist + depth/size caps in serialize; Low: any[] → unknown[] on serialize and 4 public log methods.
+
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`
 > **Services:** `logger.service.ts`
 > **Overall grade:** B · **Findings:** 0c / 0h / 1m / 1l

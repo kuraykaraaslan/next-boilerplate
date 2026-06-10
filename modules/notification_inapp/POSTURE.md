@@ -1,5 +1,7 @@
 # notification_inapp — Posture Review
 
+> **Uygulandı:** 2026-06-11 — Medium: NotificationSchema.safeParse on Redis output in getAll (malformed entries skipped+logged), @/ alias for notification_push import, swallowed push error now Logger.warn'd.
+
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`
 > **Services:** `notification_inapp.service.ts`
 > **Overall grade:** B · **Findings:** 0c / 0h / 3m / 1l

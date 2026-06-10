@@ -6,6 +6,7 @@ import { Invoice } from './entities/invoice.entity';
 import { InvoiceLine } from './entities/invoice_line.entity';
 import SettingService from '@/modules/setting/setting.service';
 import StorageService from '@/modules/storage/storage.service';
+import { type UploadFileDTO } from '@/modules/storage/storage.dto';
 import Logger from '@/modules/logger';
 import InvoiceMessages from './invoice.messages';
 
@@ -44,19 +45,19 @@ const PDF_LABELS: Record<PdfTemplateOptions['language'], Record<string, string>>
   en: { invoice: 'INVOICE', issue: 'Issue', due: 'Due', status: 'Status', billTo: 'Bill to',
         desc: 'Description', qty: 'Qty', unit: 'Unit', vat: 'VAT', tax: 'Tax', total: 'Total',
         subtotal: 'Subtotal', discount: 'Discount', grandTotal: 'Total', taxId: 'Tax ID',
-        paymentToIban: 'Payment to IBAN' },
+        paymentToIban: 'Payment to IBAN', earsiv: 'e-Arşiv', peppol: 'Peppol' },
   tr: { invoice: 'FATURA', issue: 'Düzenleme', due: 'Vade', status: 'Durum', billTo: 'Müşteri',
         desc: 'Açıklama', qty: 'Adet', unit: 'Birim', vat: 'KDV', tax: 'Vergi', total: 'Tutar',
         subtotal: 'Ara toplam', discount: 'İndirim', grandTotal: 'Genel toplam', taxId: 'V.K.N./T.C.K.N.',
-        paymentToIban: 'IBAN' },
+        paymentToIban: 'IBAN', earsiv: 'e-Arşiv', peppol: 'Peppol' },
   de: { invoice: 'RECHNUNG', issue: 'Datum', due: 'Fällig', status: 'Status', billTo: 'Rechnung an',
         desc: 'Beschreibung', qty: 'Menge', unit: 'Preis', vat: 'MwSt', tax: 'Steuer', total: 'Summe',
         subtotal: 'Zwischensumme', discount: 'Rabatt', grandTotal: 'Gesamt', taxId: 'USt-IdNr.',
-        paymentToIban: 'IBAN' },
+        paymentToIban: 'IBAN', earsiv: 'e-Arşiv', peppol: 'Peppol' },
   fr: { invoice: 'FACTURE', issue: 'Émission', due: 'Échéance', status: 'Statut', billTo: 'Facturé à',
         desc: 'Description', qty: 'Qté', unit: 'Unitaire', vat: 'TVA', tax: 'Taxe', total: 'Total',
         subtotal: 'Sous-total', discount: 'Remise', grandTotal: 'Total', taxId: 'N° TVA',
-        paymentToIban: 'IBAN' },
+        paymentToIban: 'IBAN', earsiv: 'e-Arşiv', peppol: 'Peppol' },
 };
 
 function hexToRgb(hex: string): [number, number, number] {
@@ -121,11 +122,12 @@ export default class InvoicePdfService {
     if (!invoice) throw new Error(InvoiceMessages.NOT_FOUND);
 
     const file = new File([new Uint8Array(buffer)], `${invoice.invoiceNumber}.pdf`, { type: 'application/pdf' });
-    const result = await StorageService.uploadFile(tenantId, {
+    const uploadPayload: UploadFileDTO = {
       file,
       folder: 'invoices',
       filename: `${invoice.invoiceNumber}.pdf`,
-    } as any);
+    };
+    const result = await StorageService.uploadFile(tenantId, uploadPayload);
 
     invoice.pdfStorageKey = result.key;
     await repo.save(invoice);
@@ -225,9 +227,9 @@ export default class InvoicePdfService {
     }
     doc.text(`${L.status}: ${invoice.status.toUpperCase()}`, pageW - left, yRight, { align: 'right' }); yRight += 5;
     if (invoice.earsivUuid) {
-      doc.text(`e-Arşiv: ${invoice.earsivUuid.slice(0, 13)}…`, pageW - left, yRight, { align: 'right' }); yRight += 5;
+      doc.text(`${L.earsiv}: ${invoice.earsivUuid.slice(0, 13)}…`, pageW - left, yRight, { align: 'right' }); yRight += 5;
     } else if (invoice.peppolDocumentId) {
-      doc.text(`Peppol: ${invoice.peppolDocumentId.slice(0, 18)}…`, pageW - left, yRight, { align: 'right' }); yRight += 5;
+      doc.text(`${L.peppol}: ${invoice.peppolDocumentId.slice(0, 18)}…`, pageW - left, yRight, { align: 'right' }); yRight += 5;
     }
 
     y = Math.max(y, yRight) + 6;

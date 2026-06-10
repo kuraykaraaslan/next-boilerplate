@@ -56,14 +56,45 @@ function makeLogger(level: string) {
   });
 }
 
+const REDACTED_KEYS = new Set([
+  'password', 'token', 'secret', 'authorization', 'apiKey', 'api_key',
+  'accessToken', 'refreshToken', 'privateKey', 'creditCard', 'cvv', 'ssn',
+]);
+
+const MAX_REDACT_DEPTH = 10;
+const MAX_REDACT_KEYS = 2_000;
+
 export default class Logger {
   private static infoLogger = makeLogger('info');
   private static errorLogger = makeLogger('error');
   private static warnLogger = makeLogger('warn');
 
-  private static serialize(...args: any[]): string {
+  /**
+   * Recursively walk `obj` and replace the values of any keys that match the
+   * sensitive-key list with `"[REDACTED]"`. Caps at MAX_REDACT_DEPTH levels
+   * deep and bails out early once MAX_REDACT_KEYS total keys have been visited
+   * to prevent DoS on unexpectedly large payloads.
+   */
+  private static redact(obj: unknown, depth = 0): unknown {
+    if (depth > MAX_REDACT_DEPTH) return obj;
+    if (Array.isArray(obj)) {
+      return obj.map((item) => Logger.redact(item, depth + 1));
+    }
+    if (obj !== null && typeof obj === 'object') {
+      const result: Record<string, unknown> = {};
+      let keyCount = 0;
+      for (const [k, v] of Object.entries(obj as Record<string, unknown>)) {
+        if (++keyCount > MAX_REDACT_KEYS) break;
+        result[k] = REDACTED_KEYS.has(k) ? '[REDACTED]' : Logger.redact(v, depth + 1);
+      }
+      return result;
+    }
+    return obj;
+  }
+
+  private static serialize(...args: unknown[]): string {
     return args
-      .map(a => (typeof a === 'object' && a !== null ? JSON.stringify(a) : String(a)))
+      .map(a => (typeof a === 'object' && a !== null ? JSON.stringify(Logger.redact(a)) : String(a)))
       .join(' ');
   }
 
@@ -84,19 +115,19 @@ export default class Logger {
     return { ...currentContext() };
   }
 
-  static info(message: string, ...args: any[]) {
+  static info(message: string, ...args: unknown[]) {
     Logger.infoLogger.info(args.length > 0 ? `${message} ${Logger.serialize(...args)}` : message);
   }
 
-  static error(message: string, ...args: any[]) {
+  static error(message: string, ...args: unknown[]) {
     Logger.errorLogger.error(args.length > 0 ? `${message} ${Logger.serialize(...args)}` : message);
   }
 
-  static warn(message: string, ...args: any[]) {
+  static warn(message: string, ...args: unknown[]) {
     Logger.warnLogger.warn(args.length > 0 ? `${message} ${Logger.serialize(...args)}` : message);
   }
 
-  static debug(message: string, ...args: any[]) {
+  static debug(message: string, ...args: unknown[]) {
     const msg = args.length > 0 ? `[DEBUG] ${message} ${Logger.serialize(...args)}` : `[DEBUG] ${message}`;
     Logger.infoLogger.info(msg);
   }
