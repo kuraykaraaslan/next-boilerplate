@@ -1,3 +1,5 @@
+> **Uygulandı** — 2026-06-10: All raw Error throws → AppError (409 CONFLICT, 404 NOT_FOUND, 422 VALIDATION_ERROR, 500 INTERNAL_ERROR); AppError re-throw guards in update/apply/getRedemptionsByTenant catch blocks; apply() redemption save + usedCount increment wrapped in ds.transaction(); webhook dispatches → .catch(() => {}) fail-open.
+
 # coupon — Posture Review
 
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`

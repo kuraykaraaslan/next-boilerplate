@@ -1,3 +1,5 @@
+> **Uygulandı** — 2026-06-10: All 12 raw Error throws → AppError (404 NOT_FOUND, 401 UNAUTHORIZED, 403 FORBIDDEN); webhook dispatches on create/delete → .catch(() => {}) fail-open; redis.del → .catch(() => {}) fail-open in clearCache.
+
 # api_key — Posture Review
 
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`

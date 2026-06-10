@@ -12,6 +12,7 @@ import TenantFeatureGateService from '@/modules/tenant_subscription/tenant_subsc
 import { FEATURE_KEYS } from '@/modules/tenant_subscription/tenant_subscription.feature-keys';
 import { isRootTenant } from '@/modules/tenant/tenant.constants';
 import WebhookService from '@/modules/webhook/webhook.service';
+import { AppError, ErrorCode } from '@/modules/common/app-error';
 
 const API_KEY_CACHE_TTL = env.TENANT_CACHE_TTL ?? (60 * 5);
 const NEGATIVE_CACHE_TTL = Math.min(60, API_KEY_CACHE_TTL);
@@ -63,7 +64,7 @@ export default class ApiKeyService {
     return singleFlight(cacheKey, async () => {
       const ds = await tenantDataSourceFor(tenantId);
       const row = await ds.getRepository(ApiKeyEntity).findOne({ where: { apiKeyId, tenantId } });
-      if (!row) throw new Error(ApiKeyMessages.NOT_FOUND);
+      if (!row) throw new AppError(ApiKeyMessages.NOT_FOUND, 404, ErrorCode.NOT_FOUND);
 
       const parsed = SafeApiKeySchema.parse(row);
       await redis.setex(cacheKey, jitter(API_KEY_CACHE_TTL), JSON.stringify(parsed)).catch(() => {});
@@ -107,7 +108,7 @@ export default class ApiKeyService {
       name: saved.name,
       scopes: saved.scopes,
       createdByUserId,
-    });
+    }).catch(() => {});
     return { key: SafeApiKeySchema.parse(saved), rawKey };
   }
 
@@ -120,7 +121,7 @@ export default class ApiKeyService {
     const repo = ds.getRepository(ApiKeyEntity);
 
     const row = await repo.findOne({ where: { apiKeyId, tenantId } });
-    if (!row) throw new Error(ApiKeyMessages.NOT_FOUND);
+    if (!row) throw new AppError(ApiKeyMessages.NOT_FOUND, 404, ErrorCode.NOT_FOUND);
 
     const beforeHash = row.keyHash;
 
@@ -138,14 +139,14 @@ export default class ApiKeyService {
     const repo = ds.getRepository(ApiKeyEntity);
 
     const row = await repo.findOne({ where: { apiKeyId, tenantId } });
-    if (!row) throw new Error(ApiKeyMessages.NOT_FOUND);
+    if (!row) throw new AppError(ApiKeyMessages.NOT_FOUND, 404, ErrorCode.NOT_FOUND);
 
     await repo.remove(row);
     await this.clearCache({ apiKeyId, tenantId, keyHash: row.keyHash });
     await WebhookService.dispatchEvent(tenantId, 'api_key.deleted', {
       apiKeyId,
       name: row.name,
-    });
+    }).catch(() => {});
   }
 
   /**
@@ -161,7 +162,7 @@ export default class ApiKeyService {
     const cacheKey = `api_key:hash:${hash}`;
 
     const cached = await redis.get(cacheKey).catch(() => null);
-    if (cached === NEG) throw new Error(ApiKeyMessages.INVALID_KEY);
+    if (cached === NEG) throw new AppError(ApiKeyMessages.INVALID_KEY, 401, ErrorCode.UNAUTHORIZED);
 
     let row: ApiKeyEntity | null = null;
     if (cached) {
@@ -180,17 +181,17 @@ export default class ApiKeyService {
         await redis.setex(cacheKey, jitter(API_KEY_CACHE_TTL), JSON.stringify(found)).catch(() => {});
         return found;
       });
-      if (!row) throw new Error(ApiKeyMessages.INVALID_KEY);
+      if (!row) throw new AppError(ApiKeyMessages.INVALID_KEY, 401, ErrorCode.UNAUTHORIZED);
     }
 
-    if (!row.isActive) throw new Error(ApiKeyMessages.KEY_INACTIVE);
+    if (!row.isActive) throw new AppError(ApiKeyMessages.KEY_INACTIVE, 401, ErrorCode.UNAUTHORIZED);
 
     if (row.expiresAt && new Date(row.expiresAt) < new Date()) {
-      throw new Error(ApiKeyMessages.KEY_EXPIRED);
+      throw new AppError(ApiKeyMessages.KEY_EXPIRED, 401, ErrorCode.UNAUTHORIZED);
     }
 
     if (requiredScope && !row.scopes.includes(requiredScope)) {
-      throw new Error(ApiKeyMessages.INSUFFICIENT_SCOPE);
+      throw new AppError(ApiKeyMessages.INSUFFICIENT_SCOPE, 403, ErrorCode.FORBIDDEN);
     }
 
     const ds = await getDataSource();
@@ -216,18 +217,18 @@ export default class ApiKeyService {
     requiredScope?: ApiKeyScope,
   ): Promise<SafeApiKey> {
     const header = request.headers.get('authorization') || request.headers.get('Authorization');
-    if (!header) throw new Error(ApiKeyMessages.INVALID_KEY);
+    if (!header) throw new AppError(ApiKeyMessages.INVALID_KEY, 401, ErrorCode.UNAUTHORIZED);
 
     const match = /^Bearer\s+(.+)$/i.exec(header.trim());
-    if (!match) throw new Error(ApiKeyMessages.INVALID_KEY);
+    if (!match) throw new AppError(ApiKeyMessages.INVALID_KEY, 401, ErrorCode.UNAUTHORIZED);
 
     const rawKey = match[1].trim();
-    if (!rawKey) throw new Error(ApiKeyMessages.INVALID_KEY);
+    if (!rawKey) throw new AppError(ApiKeyMessages.INVALID_KEY, 401, ErrorCode.UNAUTHORIZED);
 
     const key = await ApiKeyService.verify(rawKey, requiredScope);
 
     if (tenantId && key.tenantId !== tenantId) {
-      throw new Error(ApiKeyMessages.INVALID_KEY);
+      throw new AppError(ApiKeyMessages.INVALID_KEY, 401, ErrorCode.UNAUTHORIZED);
     }
     return key;
   }

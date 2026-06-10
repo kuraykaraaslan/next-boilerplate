@@ -1,3 +1,5 @@
+> **Uygulandı** — 2026-06-10: Raw Error throw → AppError (404 NOT_FOUND) in update(); updateMany wrapped in ds.transaction() for atomic batch writes; all redis ops already fail-open via try/catch helpers.
+
 # setting — Posture Review
 
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`

@@ -8,6 +8,7 @@ import { CouponRedemption as CouponRedemptionEntity } from './entities/coupon_re
 import Logger from '@/modules/logger';
 import WebhookService from '@/modules/webhook/webhook.service';
 import { COUPON_MESSAGES } from './coupon.messages';
+import { AppError, ErrorCode } from '@/modules/common/app-error';
 import {
   CouponSchema,
   CouponRedemptionSchema,
@@ -46,7 +47,7 @@ export default class CouponService {
       const repo = ds.getRepository(CouponEntity);
 
       const existing = await repo.findOne({ where: { tenantId, code: data.code } });
-      if (existing) throw new Error(COUPON_MESSAGES.CODE_EXISTS);
+      if (existing) throw new AppError(COUPON_MESSAGES.CODE_EXISTS, 409, ErrorCode.CONFLICT);
 
       const coupon = new CouponEntity();
       coupon.tenantId = tenantId;
@@ -75,9 +76,9 @@ export default class CouponService {
       });
       return CouponSchema.parse(saved);
     } catch (error) {
-      if (error instanceof Error && error.message === COUPON_MESSAGES.CODE_EXISTS) throw error;
+      if (error instanceof AppError) throw error;
       Logger.error(`${COUPON_MESSAGES.CREATE_FAILED}: ${error}`);
-      throw new Error(COUPON_MESSAGES.CREATE_FAILED);
+      throw new AppError(COUPON_MESSAGES.CREATE_FAILED, 500, ErrorCode.INTERNAL_ERROR);
     }
   }
 
@@ -99,8 +100,9 @@ export default class CouponService {
 
       return { coupons: rows.map((r) => CouponSchema.parse(r)), total };
     } catch (error) {
+      if (error instanceof AppError) throw error;
       Logger.error(`${COUPON_MESSAGES.FETCH_FAILED}: ${error}`);
-      throw new Error(COUPON_MESSAGES.FETCH_FAILED);
+      throw new AppError(COUPON_MESSAGES.FETCH_FAILED, 500, ErrorCode.INTERNAL_ERROR);
     }
   }
 
@@ -114,7 +116,7 @@ export default class CouponService {
     return singleFlight(cacheKey, async () => {
       const ds = await tenantDataSourceFor(tenantId);
       const coupon = await ds.getRepository(CouponEntity).findOne({ where: { tenantId, couponId } });
-      if (!coupon) throw new Error(COUPON_MESSAGES.NOT_FOUND);
+      if (!coupon) throw new AppError(COUPON_MESSAGES.NOT_FOUND, 404, ErrorCode.NOT_FOUND);
 
       const parsed = CouponSchema.parse(coupon);
       await redis.setex(cacheKey, jitter(COUPON_CACHE_TTL), JSON.stringify(parsed)).catch(() => {});
@@ -148,7 +150,7 @@ export default class CouponService {
     const ds = await tenantDataSourceFor(tenantId);
     const repo = ds.getRepository(CouponEntity);
     const existing = await repo.findOne({ where: { tenantId, couponId } });
-    if (!existing) throw new Error(COUPON_MESSAGES.NOT_FOUND);
+    if (!existing) throw new AppError(COUPON_MESSAGES.NOT_FOUND, 404, ErrorCode.NOT_FOUND);
 
     try {
       await repo.update({ tenantId, couponId }, {
@@ -173,11 +175,12 @@ export default class CouponService {
         couponId: updated!.couponId,
         code: updated!.code,
         status: updated!.status,
-      });
+      }).catch(() => {});
       return CouponSchema.parse(updated!);
     } catch (error) {
+      if (error instanceof AppError) throw error;
       Logger.error(`${COUPON_MESSAGES.UPDATE_FAILED}: ${error}`);
-      throw new Error(COUPON_MESSAGES.UPDATE_FAILED);
+      throw new AppError(COUPON_MESSAGES.UPDATE_FAILED, 500, ErrorCode.INTERNAL_ERROR);
     }
   }
 
@@ -185,7 +188,7 @@ export default class CouponService {
     const ds = await tenantDataSourceFor(tenantId);
     const repo = ds.getRepository(CouponEntity);
     const existing = await repo.findOne({ where: { tenantId, couponId } });
-    if (!existing) throw new Error(COUPON_MESSAGES.NOT_FOUND);
+    if (!existing) throw new AppError(COUPON_MESSAGES.NOT_FOUND, 404, ErrorCode.NOT_FOUND);
     await repo.update({ tenantId, couponId }, { status: 'ARCHIVED' });
     await this.clearCache(tenantId, { couponId: existing.couponId, code: existing.code });
   }
@@ -328,7 +331,7 @@ export default class CouponService {
     });
 
     if (!validation.valid || !validation.coupon) {
-      throw new Error(validation.message ?? COUPON_MESSAGES.APPLY_FAILED);
+      throw new AppError(validation.message ?? COUPON_MESSAGES.APPLY_FAILED, 422, ErrorCode.VALIDATION_ERROR);
     }
 
     const discountAmount = validation.discountAmount!;
@@ -336,40 +339,43 @@ export default class CouponService {
 
     try {
       const tenantDs = await tenantDataSourceFor(dto.tenantId);
-      const redemptionRepo = tenantDs.getRepository(CouponRedemptionEntity);
 
-      const redemption = redemptionRepo.create({
-        couponId: validation.coupon.couponId,
-        couponCode: validation.coupon.code,
-        tenantId: dto.tenantId,
-        paymentId: dto.paymentId,
-        userId: dto.userId,
-        discountAmount,
-        currency: dto.currency,
-        originalAmount: dto.amount,
-        finalAmount,
+      const saved = await tenantDs.transaction(async (mgr) => {
+        const redemptionRepo = mgr.getRepository(CouponRedemptionEntity);
+        const redemption = redemptionRepo.create({
+          couponId: validation.coupon!.couponId,
+          couponCode: validation.coupon!.code,
+          tenantId: dto.tenantId,
+          paymentId: dto.paymentId,
+          userId: dto.userId,
+          discountAmount,
+          currency: dto.currency,
+          originalAmount: dto.amount,
+          finalAmount,
+        });
+        const result = await redemptionRepo.save(redemption);
+        await mgr
+          .getRepository(CouponEntity)
+          .increment({ tenantId: dto.tenantId, couponId: validation.coupon!.couponId }, 'usedCount', 1);
+        return result;
       });
-      const saved = await redemptionRepo.save(redemption);
-
-      await tenantDs
-        .getRepository(CouponEntity)
-        .increment({ tenantId: dto.tenantId, couponId: validation.coupon.couponId }, 'usedCount', 1);
 
       await this.clearCache(dto.tenantId, { couponId: validation.coupon.couponId, code: validation.coupon.code });
 
-      await WebhookService.dispatchEvent(dto.tenantId, 'coupon.redeemed', {
+      WebhookService.dispatchEvent(dto.tenantId, 'coupon.redeemed', {
         couponId: validation.coupon.couponId,
         code: validation.coupon.code,
         redemptionId: saved.redemptionId,
         userId: saved.userId ?? null,
         discountAmount,
         finalAmount,
-      });
+      }).catch(() => {});
 
       return CouponRedemptionSchema.parse(saved);
     } catch (error) {
+      if (error instanceof AppError) throw error;
       Logger.error(`${COUPON_MESSAGES.APPLY_FAILED}: ${error}`);
-      throw new Error(COUPON_MESSAGES.APPLY_FAILED);
+      throw new AppError(COUPON_MESSAGES.APPLY_FAILED, 500, ErrorCode.INTERNAL_ERROR);
     }
   }
 
@@ -393,8 +399,9 @@ export default class CouponService {
       });
       return { redemptions: rows.map((r) => CouponRedemptionSchema.parse(r)), total };
     } catch (error) {
+      if (error instanceof AppError) throw error;
       Logger.error(`${COUPON_MESSAGES.FETCH_FAILED}: ${error}`);
-      throw new Error(COUPON_MESSAGES.FETCH_FAILED);
+      throw new AppError(COUPON_MESSAGES.FETCH_FAILED, 500, ErrorCode.INTERNAL_ERROR);
     }
   }
 
