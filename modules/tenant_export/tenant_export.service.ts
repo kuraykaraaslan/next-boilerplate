@@ -89,7 +89,7 @@ export default class TenantExportService {
         take: 1000,
       }),
       ds.getRepository(Webhook).find({ where: { tenantId } }),
-      ds.getRepository(WebhookDelivery).find({ where: { tenantId } }),
+      ds.getRepository(WebhookDelivery).find({ where: { tenantId }, order: { createdAt: 'DESC' }, take: 5000 }),
       ds.getRepository(Setting).find({ where: { tenantId } }),
       ds.getRepository(Payment).find({ where: { tenantId } }),
       // PaymentTransaction has no direct tenantId — join via Payment.
@@ -98,6 +98,8 @@ export default class TenantExportService {
         .createQueryBuilder('pt')
         .innerJoin(Payment, 'p', 'p.paymentId = pt.paymentId')
         .where('p.tenantId = :tenantId', { tenantId })
+        .orderBy('pt.createdAt', 'DESC')
+        .take(5000)
         .getMany(),
       ds.getRepository(TenantSubscription).find({ where: { tenantId } }),
       ds.getRepository(SubscriptionPlan).find({ where: { tenantId } }),
@@ -106,9 +108,9 @@ export default class TenantExportService {
       ds.getRepository(CouponRedemption).find({ where: { tenantId } }),
       ds.getRepository(ApiKey).find({ where: { tenantId } }),
       ds.getRepository(SamlConfig).find({ where: { tenantId } }),
-      ds.getRepository(UploadedFile).find({ where: { tenantId } }),
-      ds.getRepository(AiUsageLog).find({ where: { tenantId } }),
-      ds.getRepository(NotificationLog).find({ where: { tenantId } }),
+      ds.getRepository(UploadedFile).find({ where: { tenantId }, order: { createdAt: 'DESC' }, take: 5000 }),
+      ds.getRepository(AiUsageLog).find({ where: { tenantId }, order: { createdAt: 'DESC' }, take: 5000 }),
+      ds.getRepository(NotificationLog).find({ where: { tenantId }, order: { sentAt: 'DESC' }, take: 5000 }),
       ds.getRepository(TenantUsage).find({ where: { tenantId } }),
     ]);
 

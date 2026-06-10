@@ -4,7 +4,8 @@ import { IsNull } from 'typeorm';
 import { tenantDataSourceFor, getDataSource } from '@/modules/db';
 import { Tenant as TenantEntity } from '@/modules/tenant/entities/tenant.entity';
 import { TenantMember as TenantMemberEntity } from '@/modules/tenant_member/entities/tenant_member.entity';
-import redis from '@/modules/redis';
+import redis, { jitter, singleFlight } from '@/modules/redis';
+import { AppError, ErrorCode } from '@/modules/common/app-error';
 import { SafeTenant, SafeTenantSchema } from '@/modules/tenant/tenant.types';
 import { SafeTenantMember, SafeTenantMemberSchema } from '@/modules/tenant_member/tenant_member.types';
 import { SafeUser } from '@/modules/user/user.types';
@@ -34,14 +35,14 @@ export default class TenantSessionService {
   }
 
   static validateTenantStatus(tenant: SafeTenant): void {
-    if (tenant.tenantStatus === 'INACTIVE') throw new Error(TenantAuthMessages.TENANT_INACTIVE);
-    if (tenant.tenantStatus === 'SUSPENDED') throw new Error(TenantAuthMessages.TENANT_SUSPENDED);
+    if (tenant.tenantStatus === 'INACTIVE') throw new AppError(TenantAuthMessages.TENANT_INACTIVE, 403, ErrorCode.FORBIDDEN);
+    if (tenant.tenantStatus === 'SUSPENDED') throw new AppError(TenantAuthMessages.TENANT_SUSPENDED, 403, ErrorCode.TENANT_SUSPENDED);
   }
 
   static validateMemberStatus(tenantMember: SafeTenantMember): void {
-    if (tenantMember.memberStatus === 'INACTIVE') throw new Error(TenantAuthMessages.MEMBER_INACTIVE);
-    if (tenantMember.memberStatus === 'SUSPENDED') throw new Error(TenantAuthMessages.MEMBER_SUSPENDED);
-    if (tenantMember.memberStatus === 'PENDING') throw new Error(TenantAuthMessages.MEMBER_PENDING);
+    if (tenantMember.memberStatus === 'INACTIVE') throw new AppError(TenantAuthMessages.MEMBER_INACTIVE, 403, ErrorCode.FORBIDDEN);
+    if (tenantMember.memberStatus === 'SUSPENDED') throw new AppError(TenantAuthMessages.MEMBER_SUSPENDED, 403, ErrorCode.FORBIDDEN);
+    if (tenantMember.memberStatus === 'PENDING') throw new AppError(TenantAuthMessages.MEMBER_PENDING, 403, ErrorCode.FORBIDDEN);
   }
 
   static async authenticateTenantMembership({ user, tenantId, requiredRole = 'USER' }: {
@@ -50,46 +51,46 @@ export default class TenantSessionService {
     requiredRole?: TenantMemberRole;
   }): Promise<{ tenant: SafeTenant; tenantMember: SafeTenantMember }> {
     const cacheKey = `tenant:member:${user.userId}:${tenantId}`;
-    const cached = await redis.get(cacheKey);
+    const cached = await redis.get(cacheKey).catch(() => null);
 
     if (cached) {
       try {
         const cachedData = JSON.parse(cached);
         if (cachedData?.tenant && cachedData?.tenantMember) {
-          // Quick sessionVersion check to detect role/status changes
           const ds = await tenantDataSourceFor(tenantId);
           const dbMember = await ds.getRepository(TenantMemberEntity)
-            .findOne({ where: { tenantId, userId: user.userId }, select: { sessionVersion: true } });
-          if (dbMember && dbMember.sessionVersion !== cachedData.tenantMember.sessionVersion) {
-            // Cache is stale — evict and fall through to full re-fetch below
-            await redis.del(cacheKey);
+            .findOne({ where: { tenantId, userId: user.userId, deletedAt: IsNull() }, select: { sessionVersion: true } });
+          if (!dbMember || dbMember.sessionVersion !== cachedData.tenantMember.sessionVersion) {
+            await redis.del(cacheKey).catch(() => {});
           } else {
             if (!this.hasRequiredRole(cachedData.tenantMember.memberRole, requiredRole)) {
-              throw new Error(TenantAuthMessages.INSUFFICIENT_TENANT_PERMISSIONS);
+              throw new AppError(TenantAuthMessages.INSUFFICIENT_TENANT_PERMISSIONS, 403, ErrorCode.FORBIDDEN);
             }
             return { tenant: cachedData.tenant, tenantMember: cachedData.tenantMember };
           }
         }
       } catch (e: unknown) {
-        if (e instanceof Error && e.message === TenantAuthMessages.INSUFFICIENT_TENANT_PERMISSIONS) throw e;
-        await redis.del(cacheKey);
+        if (e instanceof AppError) throw e;
+        await redis.del(cacheKey).catch(() => {});
       }
     }
 
-    const tenant = await this.getTenantById(tenantId);
-    if (!tenant) throw new Error(TenantAuthMessages.TENANT_NOT_FOUND);
-    this.validateTenantStatus(tenant);
+    return singleFlight(cacheKey, async () => {
+      const tenant = await this.getTenantById(tenantId);
+      if (!tenant) throw new AppError(TenantAuthMessages.TENANT_NOT_FOUND, 404, ErrorCode.TENANT_NOT_FOUND);
+      this.validateTenantStatus(tenant);
 
-    const tenantMember = await this.getTenantMembership(tenantId, user.userId);
-    if (!tenantMember) throw new Error(TenantAuthMessages.USER_NOT_MEMBER_OF_TENANT);
-    this.validateMemberStatus(tenantMember);
+      const tenantMember = await this.getTenantMembership(tenantId, user.userId);
+      if (!tenantMember) throw new AppError(TenantAuthMessages.USER_NOT_MEMBER_OF_TENANT, 403, ErrorCode.NOT_TENANT_MEMBER);
+      this.validateMemberStatus(tenantMember);
 
-    if (!this.hasRequiredRole(tenantMember.memberRole, requiredRole)) {
-      throw new Error(TenantAuthMessages.INSUFFICIENT_TENANT_PERMISSIONS);
-    }
+      if (!this.hasRequiredRole(tenantMember.memberRole, requiredRole)) {
+        throw new AppError(TenantAuthMessages.INSUFFICIENT_TENANT_PERMISSIONS, 403, ErrorCode.FORBIDDEN);
+      }
 
-    await redis.setex(cacheKey, TENANT_CACHE_TTL, JSON.stringify({ tenant, tenantMember }));
-    return { tenant, tenantMember };
+      await redis.setex(cacheKey, jitter(TENANT_CACHE_TTL), JSON.stringify({ tenant, tenantMember })).catch(() => {});
+      return { tenant, tenantMember };
+    });
   }
 
   static async getUserTenants(userId: string): Promise<Array<{ tenant: SafeTenant; tenantMember: SafeTenantMember }>> {

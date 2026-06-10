@@ -1,3 +1,5 @@
+> **Uygulandı** — 2026-06-10: Added SafeNotificationLogSchema (strips raw error text column); list() and getById() return through SafeNotificationLogSchema.parse(); where clause typed as FindOptionsWhere<NotificationLog>.
+
 # notification_log — Posture Review
 
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`

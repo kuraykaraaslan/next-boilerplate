@@ -1,3 +1,5 @@
+> **Uygulandı** — 2026-06-10: Added take:5000 caps to unbounded collections (WebhookDelivery, UploadedFile, AiUsageLog, NotificationLog, PaymentTransaction) to bound memory; ordered DESC so most-recent rows are exported.
+
 # tenant_export — Posture Review
 
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`

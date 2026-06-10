@@ -1,3 +1,5 @@
+> **Uygulandı** — 2026-06-10: All 9 raw Error throws → AppError (404 TENANT_NOT_FOUND, 403 TENANT_SUSPENDED/FORBIDDEN, 403 NOT_TENANT_MEMBER); redis.get/setex wrapped in try/catch (fail-open); deletedAt: IsNull() added to sessionVersion recheck; miss-path wrapped in singleFlight with jitter TTL; sentinel comparison by message-string → instanceof AppError check.
+
 # tenant_session — Posture Review
 
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`
