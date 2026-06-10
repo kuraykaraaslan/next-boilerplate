@@ -1,6 +1,18 @@
+import { isIP } from 'net';
 import { OSName, DeviceType, BrowserName } from './user_agent.enums';
-import { GeoLocation, DeviceInfo } from './user_agent.types';
+import { GeoLocation, DeviceInfo, GeoLocationSchema } from './user_agent.types';
 import Logger from '@/modules/logger';
+
+const NULL_GEO: GeoLocation = { city: null, state: null, country: null, countryCode: null, latitude: null, longitude: null };
+
+function isPrivateOrReservedIp(ip: string): boolean {
+  if (!ip || ip === '0.0.0.0' || ip === '127.0.0.1' || ip === 'localhost') return true;
+  if (ip.startsWith('10.') || ip.startsWith('192.168.') || ip.startsWith('::1') || ip.startsWith('fe80:') || ip.startsWith('fc') || ip.startsWith('fd')) return true;
+  if (ip.startsWith('169.254.')) return true;
+  const m = ip.match(/^172\.(\d+)\./);
+  if (m && parseInt(m[1], 10) >= 16 && parseInt(m[1], 10) <= 31) return true;
+  return false;
+}
 
 export default class UserAgentService {
   /**
@@ -176,49 +188,35 @@ export default class UserAgentService {
    */
   static async getGeoLocation(ip: string): Promise<GeoLocation> {
     try {
-      // Skip local/private IPs
-      if (!ip || ip === '127.0.0.1' || ip === 'localhost' || ip.startsWith('192.168.') || ip.startsWith('10.')) {
-        return {
-          city: null,
-          state: null,
-          country: null,
-          countryCode: null,
-          latitude: null,
-          longitude: null,
-        };
-      }
+      if (!isIP(ip) || isPrivateOrReservedIp(ip)) return NULL_GEO;
 
-      const response = await fetch(`http://ip-api.com/json/${ip}?fields=status,country,countryCode,region,city,lat,lon`, {
-        method: 'GET',
-        headers: { 'Accept': 'application/json' },
-      });
+      const safeIp = encodeURIComponent(ip);
+      const response = await fetch(
+        `https://ip-api.com/json/${safeIp}?fields=status,country,countryCode,region,city,lat,lon`,
+        { method: 'GET', headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(3000) },
+      );
 
       if (!response.ok) {
-        throw new Error(`IP API returned ${response.status}`);
+        Logger.warn(`IP API returned ${response.status} for ${ip}`);
+        return NULL_GEO;
       }
 
-      const data = await response.json();
+      const raw = await response.json();
 
-      if (data.status !== 'success') {
-        Logger.warn(`Failed to get geo-location for IP ${ip}: ${data.message || 'Unknown error'}`);
-        return {
-          city: null,
-          state: null,
-          country: null,
-          countryCode: null,
-          latitude: null,
-          longitude: null,
-        };
+      if (raw.status !== 'success') {
+        Logger.warn(`Failed to get geo-location for IP ${ip}: ${raw.message || 'Unknown error'}`);
+        return NULL_GEO;
       }
 
-      return {
-        city: data.city || null,
-        state: data.region || null,
-        country: data.country || null,
-        countryCode: data.countryCode || null,
-        latitude: data.lat || null,
-        longitude: data.lon || null,
-      };
+      const result = GeoLocationSchema.safeParse({
+        city: raw.city || null,
+        state: raw.region || null,
+        country: raw.country || null,
+        countryCode: raw.countryCode || null,
+        latitude: raw.lat || null,
+        longitude: raw.lon || null,
+      });
+      return result.success ? result.data : NULL_GEO;
     } catch (error) {
       Logger.error(`Error getting geo-location for IP ${ip}: ${(error as Error).message}`);
       return {

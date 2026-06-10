@@ -1,3 +1,5 @@
+> **Uygulandı** — 2026-06-10: IP validated via net.isIP(); full private/reserved range guard (172.16/12, 169.254/16, IPv6 loopback/link-local); encodeURIComponent(ip) in URL; switched to HTTPS endpoint; AbortSignal.timeout(3000); response parsed through GeoLocationSchema.safeParse; raw throw replaced with early return (NULL_GEO sentinel).
+
 # user_agent — Posture Review
 
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`

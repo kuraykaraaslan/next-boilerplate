@@ -1,3 +1,5 @@
+> **Uygulandı** — 2026-06-10: Added attachLifecycleListeners() helper that attaches error/reconnecting/ready listeners to both the singleton and createRedisConnection() instances; connection errors now logged and no longer unhandled; lifecycle events visible in logs.
+
 # redis — Posture Review
 
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`

@@ -1,3 +1,5 @@
+> **Uygulandı** — 2026-06-10: getAll() switched from .parse() to .safeParse() on GetAuditLogsDTO (throws AppError 400 VALIDATION_ERROR on invalid input); query wrapped in try/catch (throws AppError 500 INTERNAL_ERROR on DB failure); where clause typed as FindOptionsWhere<AuditLogRow> (dropped as any); AuditLogMessages imported and wired.
+
 # audit_log — Posture Review
 
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`
