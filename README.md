@@ -62,8 +62,7 @@ Open [http://localhost:3000](http://localhost:3000).
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `DATABASE_URL` | ✅ | PostgreSQL URL. All entities live in this single DB. Per-tenant DB isolation is opt-in via `tenant_databases` rows (`{ tenantId, databaseUrl }`). |
-| `REDIS_HOST` | ✅ | Redis host |
-| `REDIS_PORT` | ✅ | Redis port |
+| `REDIS_URL` | ✅ | Redis connection string (e.g. `redis://localhost:6379`) |
 | `ACCESS_TOKEN_SECRET` | ✅ | JWT access token signing secret |
 | `REFRESH_TOKEN_SECRET` | ✅ | JWT refresh token signing secret |
 | `CSRF_SECRET` | ✅ | CSRF protection secret |

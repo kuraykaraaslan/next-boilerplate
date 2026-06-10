@@ -26,7 +26,7 @@ Single source of truth for environment-variable access. Parses `process.env` onc
 
 | Export | Source | Use |
 |---|---|---|
-| `env` | [env.service.ts](env.service.ts) | Typed accessor: `env.DATABASE_URL`, `env.REDIS_PORT` (already a number), etc. |
+| `env` | [env.service.ts](env.service.ts) | Typed accessor: `env.DATABASE_URL`, `env.PORT` (already a number), etc. |
 
 `env` is `EnvSchema.parse(process.env)` evaluated once at module load — a frozen, validated singleton. There are no entities, routes, jobs, or providers; the module is pure configuration.
 
@@ -49,7 +49,7 @@ const ttl = env.SESSION_CACHE_TTL; // number, already coerced
 
 - **Core** — `NODE_ENV` (`development` | `production` | `test` | `vercel`), `PORT`, `HOST`, `DEBUG`, `DEBUG_LOCAL`, `DEBUG_TESTS`, `DEBUG_TESTS_REAL_SERVER`
 - **Database** — `DATABASE_URL` (required; single Postgres URL — per-tenant DB isolation is done via the `tenant_databases` row, not extra env vars)
-- **Redis** — `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`
+- **Redis** — `REDIS_URL` (single connection string)
 - **Auth / Secrets** (required) — `ACCESS_TOKEN_SECRET`, `REFRESH_TOKEN_SECRET`, `CSRF_SECRET` (+ `*_EXPIRES_IN`)
 - **Session / Token TTLs** — `SESSION_CACHE_TTL`, `SESSION_EXPIRY_MS`, `RESET_TOKEN_*`, `EMAIL_VERIFY_*`, `INVITATION_TTL_SECONDS`
 - **OTP / TOTP / WebAuthn** — `OTP_*`, `TOTP_*`, `WEBAUTHN_ORIGIN`, `WEBAUTHN_RP_ID`

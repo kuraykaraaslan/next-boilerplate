@@ -16,6 +16,9 @@ Subscriber-configured outbound webhooks (tenant-scoped; root tenant carries plat
 
 ## Services
 
+- `webhook.crud.service.ts`
+- `webhook.delivery.service.ts`
+- `webhook.metrics.service.ts`
 - `webhook.service.ts`
 
 ## DTOs
@@ -132,6 +135,25 @@ surfaces.
 
 ---
 
+## Service layout
+
+`WebhookService` is the public coordinator (event dispatch, manual (re)delivery,
+test delivery, metrics passthrough); the heavy machinery is split into focused
+collaborators:
+
+| File | Responsibility |
+|---|---|
+| `webhook.service.ts` (`WebhookService`) | Dispatch (`dispatchEvent`/`dispatchPlatformEvent`), redeliver/replay, `sendTest`/`triggerEvent`, metrics delegators, the shared `QUEUE` handle |
+| `webhook.crud.service.ts` (`WebhookCrudService`) | Endpoint CRUD + `rotateSecret` |
+| `webhook.queue.ts` | BullMQ producer (`webhookQueue`) + worker (`webhookWorker`) + `enqueueDelivery` |
+| `webhook.delivery.service.ts` (`WebhookDeliveryService`) | Signed HTTP delivery, retry/dead-letter, circuit breaker |
+| `webhook.metrics.service.ts` (`WebhookMetricsService`) | `listDeliveries` + aggregate `getMetrics` |
+| `webhook.config.ts` | Delivery tuning constants/types + per-tenant `resolveDeliveryConfig` |
+| `webhook.filters.ts` | `passesEventFilter` (per-event payload matching) |
+| `webhook.crypto.ts` | `signPayload` / `generateSecret` |
+
+---
+
 ## Security
 
 Every request carries HMAC signature headers (secret is per-endpoint, never returned via the API):
@@ -184,7 +206,7 @@ Each endpoint supports optional per-webhook configuration (DB columns added in
 
 | Field | Purpose |
 |---|---|
-| `headers` | Extra HTTP headers merged into every request. **Reserved** names (`Content-Type`, `Content-Length`, `Host`, `User-Agent`, `X-Webhook-*`) are rejected at the DTO layer **and** stripped again in `_executeDelivery` (defense in depth). Header values are validated single-line (no CR/LF). |
+| `headers` | Extra HTTP headers merged into every request. **Reserved** names (`Content-Type`, `Content-Length`, `Host`, `User-Agent`, `X-Webhook-*`) are rejected at the DTO layer **and** stripped again in `webhook.delivery.service.ts` (defense in depth). Header values are validated single-line (no CR/LF). |
 | `eventFilters` | `{ "<event>": { "<dot.path>": value } }`. Before enqueue, the event's payload is matched against the filter for that event — non-matching deliveries are skipped. Events with no filter always deliver. |
 | `tags` | Free-form labels for organising endpoints in the admin UI. |
 
@@ -257,7 +279,7 @@ Surfaced at `/tenant/[tenantId]/admin/webhooks/settings` (gear button in the Web
 | `webhookCircuitBreakerThreshold` | number | `10` | Consecutive failures before an endpoint auto-disables (clamped 1-100000). |
 | `webhookDefaultRateLimitPerMinute` | number | — | Fallback per-endpoint rate limit (deliveries/min) when a webhook has none; blank = unlimited. |
 
-`webhook.service.ts` reads these per tenant at dispatch/delivery time via `SettingService.getByKeys` (Redis-cached), with the defaults above as fallback for any missing or unparseable value (`_resolveDeliveryConfig`). Read/written via `GET/PUT /tenant/[tenantId]/api/admin-settings`. See `docs/ROADMAP_SETTINGS.md`.
+`webhook.config.ts` reads these per tenant at dispatch/delivery time via `SettingService.getByKeys` (Redis-cached), with the defaults above as fallback for any missing or unparseable value (`resolveDeliveryConfig`). Read/written via `GET/PUT /tenant/[tenantId]/api/admin-settings`. See `docs/ROADMAP_SETTINGS.md`.
 
 ## Tenant Variability
 
@@ -289,23 +311,23 @@ All rows isolated by `tenantId` via the per-tenant DataSource.
 ### Per-tenant behavior
 
 - `webhook.service.ts:dispatchEvent / hasWebhookFeature` — Webhook dispatch is feature-gated per tenant: tenants whose active plan lacks the feature_webhooks subscription feature get no enqueue and no delivery; root tenant is short-circuited as always-allowed.
-- `webhook.service.ts:_resolveDeliveryConfig` — Max attempts, retry backoff delays, request timeout, circuit-breaker threshold, and default rate limit are all resolved per tenantId from SettingService (with module defaults as fallback), so delivery reliability/timing differs per tenant.
-- `webhook.service.ts:_enqueueDelivery` — Per-endpoint sliding-window rate limit: effective limit is webhook.rateLimitPerMinute or the tenant's webhookDefaultRateLimitPerMinute; when exceeded the delivery is deferred ~60s rather than enqueued immediately.
-- `webhook.service.ts:_passesEventFilter` — Per-endpoint eventFilters (dot-path equality conditions) decide whether a matching event is actually delivered, so two tenants/endpoints subscribed to the same event can receive different subsets.
-- `webhook.service.ts:_applyCircuitBreaker` — Endpoints are auto-disabled once consecutiveFailures crosses the tenant-configured circuit-breaker threshold; the threshold and thus disable behavior varies per tenant.
-- `webhook.service.ts:_executeDelivery / webhook.ssrf.ts` — Per-endpoint custom headers are merged (reserved names stripped) and the per-endpoint ipAllowlist overrides the default SSRF private/reserved-range block, so destination policy differs per webhook.
+- `webhook.config.ts:resolveDeliveryConfig` — Max attempts, retry backoff delays, request timeout, circuit-breaker threshold, and default rate limit are all resolved per tenantId from SettingService (with module defaults as fallback), so delivery reliability/timing differs per tenant.
+- `webhook.queue.ts:enqueueDelivery` — Per-endpoint sliding-window rate limit: effective limit is webhook.rateLimitPerMinute or the tenant's webhookDefaultRateLimitPerMinute; when exceeded the delivery is deferred ~60s rather than enqueued immediately.
+- `webhook.filters.ts:passesEventFilter` — Per-endpoint eventFilters (dot-path equality conditions) decide whether a matching event is actually delivered, so two tenants/endpoints subscribed to the same event can receive different subsets.
+- `webhook.delivery.service.ts (circuit breaker)` — Endpoints are auto-disabled once consecutiveFailures crosses the tenant-configured circuit-breaker threshold; the threshold and thus disable behavior varies per tenant.
+- `webhook.delivery.service.ts / webhook.ssrf.ts` — Per-endpoint custom headers are merged (reserved names stripped) and the per-endpoint ipAllowlist overrides the default SSRF private/reserved-range block, so destination policy differs per webhook.
 
 ### Candidates (global / hardcoded today → could be per-tenant)
 
 | What | Where | Why per-tenant | Suggested key |
 |---|---|---|---|
-| BullMQ delivery worker concurrency is hardcoded to 10 in the shared WORKER definition. | `webhook.service.ts (WebhookService.WORKER concurrency: 10)` | Intentionally global shared infrastructure (a single process-wide worker pool serves all tenants), so it is correctly NOT per-tenant; noted only for completeness. A per-tenant fairness/throughput cap would be a separate queue-level concern, not this knob. | — |
+| BullMQ delivery worker concurrency is hardcoded to 10 in the shared WORKER definition. | `webhook.queue.ts (webhookWorker concurrency: 10)` | Intentionally global shared infrastructure (a single process-wide worker pool serves all tenants), so it is correctly NOT per-tenant; noted only for completeness. A per-tenant fairness/throughput cap would be a separate queue-level concern, not this knob. | — |
 | Secret rotation overlap window is a hardcoded 48h default parameter (overlapMs) rather than a tenant setting. | `webhook.service.ts:rotateSecret (overlapMs default 48*60*60*1000)` | How long the previous signing secret stays valid during rotation is a security/operability tradeoff that some tenants may want longer or shorter; today it is a fixed default with no per-tenant override surfaced in settings. | `webhookSecretRotationOverlapMs` |
-| Rate-limit deferral delay when an endpoint is over its limit is hardcoded to 60000ms. | `webhook.service.ts:_enqueueDelivery (deferDelayMs = 60_000)` | The deferral window is tied conceptually to the per-minute rate limit but is a fixed constant; tenants tuning rate limits cannot adjust how long over-limit deliveries are deferred. | `webhookRateLimitDeferMs` |
-| Response body capture cap is hardcoded to 4096 bytes. | `webhook.service.ts:_executeDelivery (responseBody slice(0, 4096))` | How much of the subscriber response is persisted for debugging is a per-tenant storage/observability tradeoff; currently global with no override. | `webhookResponseBodyMaxBytes` |
+| Rate-limit deferral delay when an endpoint is over its limit is hardcoded to 60000ms. | `webhook.queue.ts:enqueueDelivery (deferDelayMs = 60_000)` | The deferral window is tied conceptually to the per-minute rate limit but is a fixed constant; tenants tuning rate limits cannot adjust how long over-limit deliveries are deferred. | `webhookRateLimitDeferMs` |
+| Response body capture cap is hardcoded to 4096 bytes. | `webhook.delivery.service.ts (responseBody slice(0, 4096))` | How much of the subscriber response is persisted for debugging is a per-tenant storage/observability tradeoff; currently global with no override. | `webhookResponseBodyMaxBytes` |
 
 ### Platform/root-only settings (not per-tenant)
 
 Configured once at the root tenant; identical for all tenants:
 
-- `webhookWorkerConcurrency` — Global BullMQ worker-pool concurrency (currently hardcoded to 10 in WebhookService.WORKER). Documented as a shared-infra knob deliberately excluded from per-tenant settings; not actually read from the setting store today.
+- `webhookWorkerConcurrency` — Global BullMQ worker-pool concurrency (currently hardcoded to 10 in webhook.queue.ts (webhookWorker)). Documented as a shared-infra knob deliberately excluded from per-tenant settings; not actually read from the setting store today.

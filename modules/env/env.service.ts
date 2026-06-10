@@ -14,9 +14,7 @@ const EnvSchema = z.object({
   DATABASE_URL: z.string().min(1),
 
   // ── Redis ───────────────────────────────────────────────────────────────────
-  REDIS_HOST: z.string().default('localhost'),
-  REDIS_PORT: z.coerce.number().default(6379),
-  REDIS_PASSWORD: z.string().optional(),
+  REDIS_URL: z.string().default('redis://localhost:6379'),
 
   // ── Auth / Secrets ──────────────────────────────────────────────────────────
   ACCESS_TOKEN_SECRET: z.string().min(1),
@@ -90,10 +88,6 @@ const EnvSchema = z.object({
   // ── Mail ─────────────────────────────────────────────────────────────────────
   MAIL_PROVIDER: z.string().default('smtp'),
   MAIL_FROM: z.string().optional(),
-  MAIL_HOST: z.string().optional(),
-  MAIL_PORT: z.coerce.number().optional(),
-  MAIL_USER: z.string().optional(),
-  MAIL_PASS: z.string().optional(),
   SMTP_HOST: z.string().optional(),
   SMTP_PORT: z.coerce.number().optional(),
   SMTP_USER: z.string().optional(),

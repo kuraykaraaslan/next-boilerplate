@@ -151,10 +151,10 @@ A queue-backed transactional email module that sends templated mail through six 
 
 | Key | Type | Default | Scope | Controls | Read in |
 |---|---|---|---|---|---|
-| `smtpHost` | string | — | tenant | SMTP server hostname; falls back to env.SMTP_HOST/MAIL_HOST when unset | `smtp.provider.ts` |
-| `smtpPort` | number | `587` | tenant | SMTP port; falls back to env.SMTP_PORT/MAIL_PORT (587) | `smtp.provider.ts` |
-| `smtpUsername` | string | — | tenant | SMTP auth username; falls back to env.SMTP_USER/MAIL_USER | `smtp.provider.ts` |
-| `smtpPassword` | string | — | tenant | SMTP auth password; falls back to env.SMTP_PASS/MAIL_PASS | `smtp.provider.ts` |
+| `smtpHost` | string | — | tenant | SMTP server hostname; falls back to env.SMTP_HOST when unset | `smtp.provider.ts` |
+| `smtpPort` | number | `587` | tenant | SMTP port; falls back to env.SMTP_PORT (587) | `smtp.provider.ts` |
+| `smtpUsername` | string | — | tenant | SMTP auth username; falls back to env.SMTP_USER | `smtp.provider.ts` |
+| `smtpPassword` | string | — | tenant | SMTP auth password; falls back to env.SMTP_PASS | `smtp.provider.ts` |
 | `smtpSecure` | boolean | — | tenant | Whether SMTP uses TLS ('true'); also forced true when port is 465; falls back to env.SMTP_SECURE | `smtp.provider.ts` |
 | `sendgridApiKey` | string | — | tenant | SendGrid API key for this tenant; falls back to env.SENDGRID_API_KEY | `sendgrid.provider.ts` |
 | `mailgunApiKey` | string | — | tenant | Mailgun API key; falls back to env.MAILGUN_API_KEY | `mailgun.provider.ts` |

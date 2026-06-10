@@ -9,8 +9,7 @@ services:
     environment:
       SYSTEM_DATABASE_URL: "postgresql://postgres:postgres@db:5432/next_boilerplate?schema=system"
       TENANT_DATABASE_URL: "postgresql://postgres:postgres@db:5432/next_boilerplate?schema=tenant"
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
+      REDIS_URL: "redis://redis:6379"
     depends_on:
       db:
         condition: service_healthy

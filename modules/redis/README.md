@@ -9,14 +9,13 @@ Shared Redis client (ioredis) and BullMQ connection factory. One pooled client f
 | Export | Source | Use |
 |---|---|---|
 | `redis` (default export) | [redis.service.ts](redis.service.ts) | The shared `ioredis` connection. Use for `get`/`set`/`incr`/etc. |
-| `redisConnectionOptions` | [redis.service.ts](redis.service.ts) | Plain options object — useful when building a new `Redis` instance. |
 | `createRedisConnection()` | [redis.service.ts](redis.service.ts) | New independent connection (required for Pub/Sub subscribers — they can't share the main client). |
 | `getBullMQConnection()` | [redis.bullmq.ts](redis.bullmq.ts) | `ConnectionOptions` for BullMQ workers and queues. |
 | `createQueue<T>(name)` | [redis.bullmq.ts](redis.bullmq.ts) | Convenience factory: `new Queue(name, { connection: getBullMQConnection() })`. |
 | `jitter(ttl, factor?)` | [redis.cache.ts](redis.cache.ts) | Returns `ttl ± factor%` (default 10%). Apply to every `setex` TTL so co-written keys don't expire on the same second. |
 | `singleFlight(key, loader)` | [redis.cache.ts](redis.cache.ts) | In-process dedup of concurrent loaders for the same key. Process-local — does not deduplicate across pods. |
 
-The package root (`index.ts`) re-exports `default` (the client), `createRedisConnection`, `redisConnectionOptions`, `getBullMQConnection`, `jitter`, and `singleFlight`. `createQueue` is imported directly from `redis.bullmq.ts`.
+The package root (`index.ts`) re-exports `default` (the client), `createRedisConnection`, `getBullMQConnection`, `jitter`, and `singleFlight`. `createQueue` is imported directly from `redis.bullmq.ts`.
 
 ---
 
@@ -74,9 +73,9 @@ async function getUserById(userId: string) {
 
 ## Connection options
 
-Driven by `env.REDIS_HOST` (default `localhost`), `env.REDIS_PORT` (default `6379`), and `env.REDIS_PASSWORD` (optional). `maxRetriesPerRequest: null` is set explicitly on both the client and the BullMQ connection — it's required by BullMQ.
+Driven by `env.REDIS_URL` (default `redis://localhost:6379`) — a single connection string. `maxRetriesPerRequest: null` is set explicitly on both the client and the BullMQ connection — it's required by BullMQ.
 
-The shared client coerces a missing password to `''`; `getBullMQConnection()` coerces it to `undefined`. Both helpers read the same env vars so connection settings stay consistent across the app.
+Both the shared client and `getBullMQConnection()` read the same `REDIS_URL`, so connection settings stay consistent across the app.
 
 ---
 

@@ -6,7 +6,7 @@
 - **dir:** `modules/payment_sell/`
 - **tags:** payment, sell, billing
 - **icon:** `fas fa-shopping-cart`
-- **hasNextLayer:** true
+- **hasNextLayer:** false
 
 One-time product / service payment processing. Uses payment_core providers (Stripe, PayPal, Iyzico, Alipay, WeChat Pay, YooKassa, CloudPayments). Tenant-aware checkout sessions, transactions, and refunds.
 

@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-03T18:19:21.856Z",
+  "generatedAt": "2026-06-10T08:35:13.849Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -1239,6 +1239,11 @@
       },
       "exports": {
         "services": [
+          "tenant_subscription.card.service.ts",
+          "tenant_subscription.checkout.service.ts",
+          "tenant_subscription.feature.service.ts",
+          "tenant_subscription.plan.service.ts",
+          "tenant_subscription.platform.service.ts",
           "tenant_subscription.service.ts"
         ],
         "dtos": [
@@ -1330,7 +1335,11 @@
         "services": [
           "payment.proration.service.ts",
           "payment.service.ts",
-          "payment.webhook.service.ts"
+          "payment.webhook.handlers.service.ts",
+          "payment.webhook.notifications.service.ts",
+          "payment.webhook.paypal.service.ts",
+          "payment.webhook.service.ts",
+          "payment.webhook.stripe.service.ts"
         ],
         "dtos": [
           "payment.dto.ts"
@@ -1488,7 +1497,7 @@
       },
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": true
+      "hasNextLayer": false
     },
     {
       "id": "exchange_rate",
@@ -1785,7 +1794,9 @@
       },
       "exports": {
         "services": [
-          "notification_mail.service.ts"
+          "notification_mail.account-templates.service.ts",
+          "notification_mail.service.ts",
+          "notification_mail.templates.service.ts"
         ],
         "dtos": [],
         "enums": [],
@@ -2380,7 +2391,10 @@
       },
       "exports": {
         "services": [
-          "store.service.ts"
+          "store.bundle.service.ts",
+          "store.category.service.ts",
+          "store.product.service.ts",
+          "store.variant.service.ts"
         ],
         "dtos": [
           "store.dto.ts"
@@ -2435,6 +2449,9 @@
       },
       "exports": {
         "services": [
+          "webhook.crud.service.ts",
+          "webhook.delivery.service.ts",
+          "webhook.metrics.service.ts",
           "webhook.service.ts"
         ],
         "dtos": [

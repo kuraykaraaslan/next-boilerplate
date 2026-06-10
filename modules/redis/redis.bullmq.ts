@@ -1,13 +1,9 @@
+import { Redis } from 'ioredis';
 import { ConnectionOptions, Queue } from 'bullmq';
 import { env } from '@/modules/env';
 
 export function getBullMQConnection(): ConnectionOptions {
-  return {
-    host: env.REDIS_HOST,
-    port: env.REDIS_PORT,
-    password: env.REDIS_PASSWORD || undefined,
-    maxRetriesPerRequest: null,
-  };
+  return new Redis(env.REDIS_URL, { maxRetriesPerRequest: null });
 }
 
 

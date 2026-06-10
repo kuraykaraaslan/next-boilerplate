@@ -16,6 +16,11 @@ Tenant subscription state, plan + feature key resolution, grace period, expiry j
 
 ## Services
 
+- `tenant_subscription.card.service.ts`
+- `tenant_subscription.checkout.service.ts`
+- `tenant_subscription.feature.service.ts`
+- `tenant_subscription.plan.service.ts`
+- `tenant_subscription.platform.service.ts`
 - `tenant_subscription.service.ts`
 
 ## DTOs
@@ -79,17 +84,21 @@ All three are **tenant-DB** tables, isolated by `tenantId` via the per-tenant Da
 
 ## Services / Responsibilities
 
-`TenantSubscriptionService` (static methods):
+The service family is split by responsibility into one static class per file
+(all share `tenant_subscription.helpers.ts` for product/webhook helpers):
 
-| Area | Methods |
-|---|---|
-| Plan CRUD | `createPlan`, `updatePlan`, `deletePlan` (blocks delete with ACTIVE subs), `getPlans`, `getPlanById`, `getPlanWithFeatures`, `getPlansWithFeatures` |
-| Feature CRUD | `addFeature`, `updateFeature`, `removeFeature`, `getFeaturesByPlan` |
-| Subscription lifecycle | `assignPlan` (derives TRIALING/ACTIVE + period end from the plan), `assignPlatformPlan` (root-only free clone+assign), `getSubscription`, `cancelSubscription` |
-| Grace period | `startGracePeriod`, `getGracePeriodStatus`, `expireOverdueSubscriptions` (PAST_DUE past grace → EXPIRED) |
-| Payment / checkout | `purchaseSubscription` (hosted redirect), `startExpressCheckout` / `confirmExpressCheckout` (Stripe wallets), `quote` / `payWithCard` / `complete3dsCardPayment` (direct card + 3DS), `confirmPayment` (idempotent activation) |
-| Feature gating | `checkFeatureAccess` (non-throwing), `assertFeatureAccess` (throws), `invalidateFeatureCache` |
-| Default plan | `getDefaultPlanId`, `setDefaultPlanId` (free plans only) |
+| Service (file) | Area | Methods |
+|---|---|---|
+| `TenantPlanService` (`tenant_subscription.plan.service.ts`) | Plan CRUD | `createPlan`, `updatePlan`, `deletePlan` (blocks delete with ACTIVE subs), `getPlans`, `getPlanById`, `getPlanWithFeatures`, `getPlansWithFeatures` |
+| `TenantPlanService` | Feature CRUD | `addFeature`, `updateFeature`, `removeFeature`, `getFeaturesByPlan` |
+| `TenantSubscriptionService` (`tenant_subscription.service.ts`) | Subscription lifecycle | `assignPlan` (derives TRIALING/ACTIVE + period end from the plan), `getSubscription`, `cancelSubscription` |
+| `TenantSubscriptionService` | Grace period | `startGracePeriod`, `getGracePeriodStatus`, `expireOverdueSubscriptions` (PAST_DUE past grace → EXPIRED) |
+| `TenantSubscriptionService` | Payment confirmation | `confirmPayment` (idempotent activation) |
+| `TenantPlatformPlanService` (`tenant_subscription.platform.service.ts`) | Platform plan | `assignPlatformPlan` (root-only free clone+assign) |
+| `TenantCheckoutService` (`tenant_subscription.checkout.service.ts`) | Hosted / wallet checkout | `purchaseSubscription` (hosted redirect), `startExpressCheckout` / `confirmExpressCheckout` (Stripe wallets) |
+| `TenantCardCheckoutService` (`tenant_subscription.card.service.ts`) | Direct card | `quote` / `payWithCard` / `complete3dsCardPayment` (direct card + 3DS) |
+| `TenantFeatureGateService` (`tenant_subscription.feature.service.ts`) | Feature gating | `checkFeatureAccess` (non-throwing), `assertFeatureAccess` (throws), `invalidateFeatureCache` |
+| `TenantFeatureGateService` | Default plan | `getDefaultPlanId`, `setDefaultPlanId` (free plans only) |
 
 Plan/assignment changes emit webhook events via a lazy import (`emitWebhook`): `plan.created/updated/deleted` and the platform-scoped `subscription.assigned`. Feature-access checks are audit-logged (`feature.access.checked`); platform-plan assignment is logged as `subscription.platform_plan.assigned`.
 
@@ -99,7 +108,13 @@ Plan/assignment changes emit webhook events via a lazy import (`emitWebhook`): `
 
 | File | Purpose |
 |---|---|
-| `tenant_subscription.service.ts` | Core logic: plan CRUD, subscription lifecycle, feature gating |
+| `tenant_subscription.service.ts` | `TenantSubscriptionService` — subscription lifecycle, grace period, payment confirmation |
+| `tenant_subscription.plan.service.ts` | `TenantPlanService` — plan + plan-feature CRUD |
+| `tenant_subscription.platform.service.ts` | `TenantPlatformPlanService` — root-admin free platform-plan clone+assign |
+| `tenant_subscription.checkout.service.ts` | `TenantCheckoutService` — hosted checkout + Stripe Element wallets |
+| `tenant_subscription.card.service.ts` | `TenantCardCheckoutService` — direct card charge + TRY conversion + 3DS |
+| `tenant_subscription.feature.service.ts` | `TenantFeatureGateService` — Redis-cached feature gating + default plan |
+| `tenant_subscription.helpers.ts` | Shared helpers (product fetch/summary, lazy webhook emit) |
 | `tenant_subscription.feature-keys.ts` | Canonical feature key constants (`FEATURE_KEYS`) |
 | `tenant_subscription.types.ts` | Zod schemas + TypeScript types |
 | `tenant_subscription.dto.ts` | Zod DTOs for API input validation |
@@ -159,10 +174,10 @@ Use `assertFeatureAccess` — it throws with a user-facing message when denied.
 
 ```typescript
 // app/tenant/[tenantId]/api/ai/route.ts
-import TenantSubscriptionService from '@/modules/tenant_subscription/tenant_subscription.service';
+import TenantFeatureGateService from '@/modules/tenant_subscription/tenant_subscription.feature.service';
 import { FEATURE_KEYS } from '@/modules/tenant_subscription/tenant_subscription.feature-keys';
 
-await TenantSubscriptionService.assertFeatureAccess(tenantId, FEATURE_KEYS.AI_FEATURES);
+await TenantFeatureGateService.assertFeatureAccess(tenantId, FEATURE_KEYS.AI_FEATURES);
 ```
 
 ### LIMIT feature (count-based)
@@ -175,7 +190,7 @@ const { total: currentMemberCount } = await TenantMemberService.getByTenantId({
   tenantId, page: 1, pageSize: 1, search: null, memberRole: null, memberStatus: 'ACTIVE',
 });
 
-await TenantSubscriptionService.assertFeatureAccess(
+await TenantFeatureGateService.assertFeatureAccess(
   tenantId,
   FEATURE_KEYS.MAX_MEMBERS,
   currentMemberCount,
@@ -187,7 +202,7 @@ await TenantSubscriptionService.assertFeatureAccess(
 Pass `gracePercent` to allow a soft overflow (e.g., 10% over limit before hard block):
 
 ```typescript
-await TenantSubscriptionService.assertFeatureAccess(
+await TenantFeatureGateService.assertFeatureAccess(
   tenantId,
   FEATURE_KEYS.MAX_MEMBERS,
   currentMemberCount,
@@ -200,7 +215,7 @@ await TenantSubscriptionService.assertFeatureAccess(
 Use `checkFeatureAccess` when you need the result object (e.g., to show a UI meter):
 
 ```typescript
-const result = await TenantSubscriptionService.checkFeatureAccess(
+const result = await TenantFeatureGateService.checkFeatureAccess(
   tenantId,
   FEATURE_KEYS.MAX_MEMBERS,
   currentMemberCount,
@@ -230,11 +245,11 @@ Pass a pre-fetched `FeatureAccessResult`. If `result.allowed` is false, shows `U
 
 ```tsx
 // Server component — fetch on the server, pass result as prop
-import TenantSubscriptionService from '@/modules/tenant_subscription/tenant_subscription.service';
+import TenantFeatureGateService from '@/modules/tenant_subscription/tenant_subscription.feature.service';
 import { FeatureGate } from '@/modules/tenant_subscription/ui/subscription.feature-gate';
 import { FEATURE_KEYS } from '@/modules/tenant_subscription/tenant_subscription.feature-keys';
 
-const result = await TenantSubscriptionService.checkFeatureAccess(tenantId, FEATURE_KEYS.CUSTOM_DOMAIN);
+const result = await TenantFeatureGateService.checkFeatureAccess(tenantId, FEATURE_KEYS.CUSTOM_DOMAIN);
 
 <FeatureGate result={result} tenantId={tenantId}>
   <CustomDomainSettings />
@@ -338,11 +353,11 @@ BIN→country is `TR` **or** the provider's BIN lookup returned a (Turkish) bank
 
 ```typescript
 // Live preview for the card form (no charge): amount/currency + detected brand/bank
-await TenantSubscriptionService.quote(tenantId, planId, bin /* 6–8 digits */, 'IYZICO');
+await TenantCardCheckoutService.quote(tenantId, planId, bin /* 6–8 digits */, 'IYZICO');
 // → { baseAmount, baseCurrency, isTurkish, chargedAmount, chargedCurrency, exchangeRate, brand, bankName }
 
 // Real charge. Returns a discriminated result:
-await TenantSubscriptionService.payWithCard({
+await TenantCardCheckoutService.payWithCard({
   tenantId, planId, card /* CreditCardInput */, provider: 'IYZICO',
   customerEmail, customerName, ip, callbackUrl /* enables 3DS */,
 });
@@ -350,7 +365,7 @@ await TenantSubscriptionService.payWithCard({
 // → { status: 'requires_3ds', paymentId, htmlContent /* base64 bank form */, chargedAmount, ... }
 
 // Finalize 3DS on the bank callback (idempotent activation)
-await TenantSubscriptionService.complete3dsCardPayment({ tenantId, conversationId, providerPaymentId });
+await TenantCardCheckoutService.complete3dsCardPayment({ tenantId, conversationId, providerPaymentId });
 ```
 
 ### 3D Secure (auto)
@@ -389,7 +404,7 @@ Root (Platform) tenant admins can grant any other tenant a plan **without paymen
 from the sysadmin tenant-detail page (`/tenant/<ROOT>/admin/tenants/<target>`).
 
 ```typescript
-await TenantSubscriptionService.assignPlatformPlan(targetTenantId, {
+await TenantPlatformPlanService.assignPlatformPlan(targetTenantId, {
   planId,            // a plan in the ROOT tenant's catalogue
   billingInterval,   // optional; defaults to the source plan's interval
   priceOverride,     // optional; omit = copy source price, 0 = free-forever
@@ -411,9 +426,9 @@ newly created tenant is automatically granted that plan for free (via
 — best-effort, so a failure never blocks tenant creation.
 
 ```typescript
-await TenantSubscriptionService.getDefaultPlanId();          // string | null
-await TenantSubscriptionService.setDefaultPlanId(planId);    // only a free plan (basePrice 0)
-await TenantSubscriptionService.setDefaultPlanId(null);      // clear
+await TenantFeatureGateService.getDefaultPlanId();          // string | null
+await TenantFeatureGateService.setDefaultPlanId(planId);    // only a free plan (basePrice 0)
+await TenantFeatureGateService.setDefaultPlanId(null);      // clear
 ```
 
 Stored as the `defaultPlanId` system setting on the ROOT tenant (same place as
@@ -438,7 +453,7 @@ The cache is invalidated automatically when:
 To manually invalidate (e.g., after plan feature edits):
 
 ```typescript
-await TenantSubscriptionService.invalidateFeatureCache(tenantId);
+await TenantFeatureGateService.invalidateFeatureCache(tenantId);
 ```
 
 ---

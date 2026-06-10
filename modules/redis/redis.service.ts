@@ -1,16 +1,12 @@
 import { Redis } from 'ioredis';
 import { env } from '@/modules/env';
 
-export const redisConnectionOptions = {
-  host: env.REDIS_HOST,
-  port: env.REDIS_PORT,
-  password: env.REDIS_PASSWORD || '',
-  maxRetriesPerRequest: null as null, // Required by BullMQ
-};
+// Single connection string (REDIS_URL). BullMQ requires maxRetriesPerRequest: null.
+const redisOptions = { maxRetriesPerRequest: null as null };
 
-const redisInstance = new Redis(redisConnectionOptions);
+const redisInstance = new Redis(env.REDIS_URL, redisOptions);
 
 /** Create an independent Redis connection (e.g. for Pub/Sub subscribers) */
-export const createRedisConnection = (): Redis => new Redis(redisConnectionOptions);
+export const createRedisConnection = (): Redis => new Redis(env.REDIS_URL, redisOptions);
 
 export default redisInstance;

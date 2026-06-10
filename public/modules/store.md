@@ -16,7 +16,10 @@ Tenant-aware e-commerce store. Hierarchical categories with typed spec templates
 
 ## Services
 
-- `store.service.ts`
+- `store.bundle.service.ts`
+- `store.category.service.ts`
+- `store.product.service.ts`
+- `store.variant.service.ts`
 
 ## DTOs
 
@@ -123,21 +126,21 @@ All entities live in the **tenant DB** (per-tenant DataSource, isolated by `tena
 
 ---
 
-## Service (`StoreService`)
+## Services
 
-A single static service backs every route. All methods resolve the tenant DataSource via `tenantDataSourceFor(tenantId)` and filter by `tenantId`. Reads are Redis-cached / de-duplicated via `singleFlight`; writes bust the relevant keys.
+Split by domain into four static services (each backs the matching routes). All methods resolve the tenant DataSource via `tenantDataSourceFor(tenantId)` and filter by `tenantId`. Reads are Redis-cached / de-duplicated via `singleFlight`; writes bust the relevant keys.
 
-| Area | Methods | Responsibility |
-|---|---|---|
-| Categories | `createCategory`, `updateCategory`, `getCategory`, `listCategories`, `deleteCategory` | CRUD with unique-`slug` enforcement; `getCategory`/`listCategories` optionally embed specs (`withSpecs`); `deleteCategory` refuses if products still reference it. |
-| Specs | `upsertSpec`, `deleteSpec` | Upsert (by `key`) / delete a category spec template. |
-| Products | `createProduct`, `updateProduct`, `getProduct`, `getProductDetail`, `listProducts`, `deleteProduct` | CRUD with unique-`slug`; `getProductDetail` joins images + spec values; `listProducts` supports search, status/category/featured filters and `specFilters`. Create/update/delete dispatch webhook events (see below). |
-| Images | `addImage`, `removeImage` | Add/remove product images; setting `isPrimary` demotes any existing primary. |
-| Spec values | `setSpecValues` | Upsert spec values for a product. |
-| Bundles | `createBundle`, `updateBundle`, `getBundle`, `listBundles`, `deleteBundle` | CRUD with unique-`slug`; `getBundle` with `withItems` enriches each item with `productName` / `productBasePrice` / `productCurrency`. |
-| Bundle items | `addBundleItem`, `updateBundleItem`, `removeBundleItem` | Manage bundle line items; `overridePrice: null` clears the override. |
-| Variant groups | `getVariantGroupForProduct`, `addToVariantGroup`, `updateVariantGroupItem`, `removeFromVariantGroup` | Membership model (see *Variant group flow*); a group shrinking below 2 items is dropped. |
-| Duplicate | `duplicateProduct` | Clone a product (see *Duplicate product*). |
+| Service (file) | Area | Methods | Responsibility |
+|---|---|---|---|
+| `StoreCategoryService` (`store.category.service.ts`) | Categories | `createCategory`, `updateCategory`, `getCategory`, `listCategories`, `deleteCategory` | CRUD with unique-`slug` enforcement; `getCategory`/`listCategories` optionally embed specs (`withSpecs`); `deleteCategory` refuses if products still reference it. |
+| `StoreCategoryService` | Specs | `upsertSpec`, `deleteSpec` | Upsert (by `key`) / delete a category spec template. |
+| `StoreProductService` (`store.product.service.ts`) | Products | `createProduct`, `updateProduct`, `getProduct`, `getProductDetail`, `listProducts`, `deleteProduct` | CRUD with unique-`slug`; `getProductDetail` joins images + spec values; `listProducts` supports search, status/category/featured filters and `specFilters`. Create/update/delete dispatch webhook events (see below). |
+| `StoreProductService` | Images | `addImage`, `removeImage` | Add/remove product images; setting `isPrimary` demotes any existing primary. |
+| `StoreProductService` | Spec values | `setSpecValues` | Upsert spec values for a product. |
+| `StoreProductService` | Duplicate | `duplicateProduct` | Clone a product (see *Duplicate product*). |
+| `StoreBundleService` (`store.bundle.service.ts`) | Bundles | `createBundle`, `updateBundle`, `getBundle`, `listBundles`, `deleteBundle` | CRUD with unique-`slug`; `getBundle` with `withItems` enriches each item with `productName` / `productBasePrice` / `productCurrency`. |
+| `StoreBundleService` | Bundle items | `addBundleItem`, `updateBundleItem`, `removeBundleItem` | Manage bundle line items; `overridePrice: null` clears the override. |
+| `StoreVariantService` (`store.variant.service.ts`) | Variant groups | `getVariantGroupForProduct`, `addToVariantGroup`, `updateVariantGroupItem`, `removeFromVariantGroup` | Membership model (see *Variant group flow*); a group shrinking below 2 items is dropped. |
 
 ### Webhook events
 
@@ -311,17 +314,17 @@ All rows isolated by `tenantId` via the per-tenant DataSource.
 
 ### Per-tenant behavior
 
-- `store.service.ts (all methods)` — Every read/write resolves the data source via tenantDataSourceFor(tenantId) and filters where: { tenantId, ... }, so each tenant has a completely isolated catalog (categories, specs, products, variants, bundles). This is structural isolation, not setting-driven branching.
-- `store.service.ts:createProduct/updateProduct/deleteProduct` — Dispatches product.created/updated/deleted via WebhookService.dispatchEvent(tenantId, ...), so the webhook endpoints/secrets actually fired are whatever that tenant has configured in the webhook module — per-tenant side effects.
-- `store.service.ts (cache keys)` — Redis cache keys are namespaced per tenant for category lists (store:cats:${tenantId}); other keys (store:product:${productId}, store:bundle:${bundleId}) rely on globally-unique UUIDs, so cache reads are effectively per-tenant via tenant-unique ids.
+- `store.{category,product,bundle,variant}.service.ts` — Every read/write resolves the data source via tenantDataSourceFor(tenantId) and filters where: { tenantId, ... }, so each tenant has a completely isolated catalog (categories, specs, products, variants, bundles). This is structural isolation, not setting-driven branching.
+- `store.product.service.ts:createProduct/updateProduct/deleteProduct` — Dispatches product.created/updated/deleted via WebhookService.dispatchEvent(tenantId, ...), so the webhook endpoints/secrets actually fired are whatever that tenant has configured in the webhook module — per-tenant side effects.
+- `store.{category,product,bundle}.service.ts (cache keys)` — Redis cache keys are namespaced per tenant for category lists (store:cats:${tenantId}); other keys (store:product:${productId}, store:bundle:${bundleId}) rely on globally-unique UUIDs, so cache reads are effectively per-tenant via tenant-unique ids.
 
 ### Candidates (global / hardcoded today → could be per-tenant)
 
 | What | Where | Why per-tenant | Suggested key |
 |---|---|---|---|
-| No per-tenant catalog limits (max categories / products / bundles / images) despite the platform having a tenant_subscription feature-key gating mechanism; createCategory/createProduct/createBundle/addImage create rows unconditionally. | `store.service.ts (createCategory, createProduct, createBundle, addImage)` | A multi-tenant SaaS typically gates catalog size by plan tier; today any tenant can create unlimited entities. Plausibly should read a per-tenant limit (via tenant_subscription feature keys or a setting) and reject over the cap. | `storeMaxProducts` |
+| No per-tenant catalog limits (max categories / products / bundles / images) despite the platform having a tenant_subscription feature-key gating mechanism; createCategory/createProduct/createBundle/addImage create rows unconditionally. | `store.{category,product,bundle}.service.ts` | A multi-tenant SaaS typically gates catalog size by plan tier; today any tenant can create unlimited entities. Plausibly should read a per-tenant limit (via tenant_subscription feature keys or a setting) and reject over the cap. | `storeMaxProducts` |
 | Hardcoded default currency 'USD' for products and bundles. | `store_product.entity.ts / store_bundle.entity.ts (currency column default) and store.seed.ts` | Different tenants operate in different markets; a tenant-level default currency would avoid forcing USD on every new product/bundle. It is currently a column default with no tenant override. | `storeDefaultCurrency` |
-| Hardcoded cache TTL constant CACHE_TTL = 300 (and the const is not even passed to redis.set in the shown code, but governs intended cache lifetime). | `store.service.ts (CACHE_TTL constant)` | Cache freshness is a global infra concern; reasonable to keep global, but if tenants want stricter freshness it could be per-tenant. Likely intentionally global shared-infra tuning. | — |
+| Cache TTL handling (the former dead `CACHE_TTL = 300` const was removed during the service split). | `store.*.service.ts (cache TTL)` | Cache freshness is a global infra concern; reasonable to keep global, but if tenants want stricter freshness it could be per-tenant. Likely intentionally global shared-infra tuning. | — |
 | Hardcoded inventory defaults trackInventory=true and allowBackorder=true on new products. | `store_product.entity.ts (trackInventory/allowBackorder column defaults)` | Whether a tenant's store tracks inventory or permits backorders is a store-wide policy; a per-tenant default would let a services-only tenant default to no inventory tracking instead of overriding each product. | `storeTrackInventoryByDefault` |
 
 ---
