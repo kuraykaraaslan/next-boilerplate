@@ -85,7 +85,7 @@ export async function POST(
   } catch (error: any) {
     return NextResponse.json(
       { success: false, message: error.message },
-      { status: 400 }
+      { status: error.statusCode ?? 400 }
     );
   }
 }

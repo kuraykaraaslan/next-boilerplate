@@ -22,21 +22,13 @@ export async function GET(
       tenantId
     });
 
-    const member = await TenantMemberService.getById(memberId);
-
-    // Verify member belongs to this tenant
-    if (member.tenantId !== tenantId) {
-      return NextResponse.json(
-        { message: "Member not found in this tenant" },
-        { status: 404 }
-      );
-    }
+    const member = await TenantMemberService.getById(memberId, tenantId);
 
     return NextResponse.json({ member }, { status: 200 });
   } catch (error: any) {
     return NextResponse.json(
       { message: error.message },
-      { status: 500 }
+      { status: error.statusCode ?? 500 }
     );
   }
 }
@@ -60,16 +52,7 @@ export async function PUT(
       tenantId
     });
 
-    // Get the member to be updated
-    const memberToUpdate = await TenantMemberService.getById(memberId);
-
-    // Verify member belongs to this tenant
-    if (memberToUpdate.tenantId !== tenantId) {
-      return NextResponse.json(
-        { message: "Member not found in this tenant" },
-        { status: 404 }
-      );
-    }
+    const memberToUpdate = await TenantMemberService.getById(memberId, tenantId);
 
     // Prevent non-owners from modifying owners
     if (memberToUpdate.memberRole === 'OWNER' && currentMember.memberRole !== 'OWNER') {
@@ -81,7 +64,7 @@ export async function PUT(
 
     const body = await request.json();
 
-    const updatedMember = await TenantMemberService.update(memberId, {
+    const updatedMember = await TenantMemberService.update(memberId, tenantId, {
       memberRole: body.memberRole || null,
       memberStatus: body.memberStatus || null,
     });
@@ -96,7 +79,7 @@ export async function PUT(
   } catch (error: any) {
     return NextResponse.json(
       { message: error.message },
-      { status: 500 }
+      { status: error.statusCode ?? 500 }
     );
   }
 }
@@ -120,16 +103,7 @@ export async function DELETE(
       tenantId
     });
 
-    // Get the member to be deleted
-    const memberToDelete = await TenantMemberService.getById(memberId);
-
-    // Verify member belongs to this tenant
-    if (memberToDelete.tenantId !== tenantId) {
-      return NextResponse.json(
-        { message: "Member not found in this tenant" },
-        { status: 404 }
-      );
-    }
+    const memberToDelete = await TenantMemberService.getById(memberId, tenantId);
 
     // Prevent non-owners from removing owners
     if (memberToDelete.memberRole === 'OWNER' && currentMember.memberRole !== 'OWNER') {
@@ -147,7 +121,7 @@ export async function DELETE(
       );
     }
 
-    await TenantMemberService.delete(memberId);
+    await TenantMemberService.delete(memberId, tenantId);
 
     // Clear tenant cache for the removed member
     await TenantSessionNextService.clearTenantCache(memberToDelete.userId, tenantId);
@@ -158,7 +132,7 @@ export async function DELETE(
   } catch (error: any) {
     return NextResponse.json(
       { message: error.message },
-      { status: 500 }
+      { status: error.statusCode ?? 500 }
     );
   }
 }

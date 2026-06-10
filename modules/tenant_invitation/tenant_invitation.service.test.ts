@@ -85,7 +85,10 @@ function makeRepo(overrides: Partial<{
 }
 
 function mockTenantDs(repo: ReturnType<typeof makeRepo>) {
-  (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => repo });
+  (tenantDataSourceFor as any).mockResolvedValue({
+    getRepository: () => repo,
+    transaction: async (fn: any) => fn({ getRepository: () => repo }),
+  });
 }
 
 function mockDefaultDs(repo: ReturnType<typeof makeRepo>) {
@@ -155,18 +158,18 @@ describe('TenantInvitationService.getByTenantId', () => {
 describe('TenantInvitationService.getById', () => {
   it('returns invitation when found', async () => {
     const repo = makeRepo();
-    mockDefaultDs(repo);
+    mockTenantDs(repo);
 
-    const result = await TenantInvitationService.getById(INVITATION_ID);
+    const result = await TenantInvitationService.getById(INVITATION_ID, TENANT_ID);
     expect(result.invitationId).toBe(INVITATION_ID);
     expect((result as any).token).toBeUndefined();
   });
 
   it('throws INVITATION_NOT_FOUND when not found', async () => {
     const repo = makeRepo({ findOne: vi.fn(async () => null) });
-    mockDefaultDs(repo);
+    mockTenantDs(repo);
 
-    await expect(TenantInvitationService.getById(INVITATION_ID)).rejects.toThrow(
+    await expect(TenantInvitationService.getById(INVITATION_ID, TENANT_ID)).rejects.toThrow(
       TenantInvitationMessages.INVITATION_NOT_FOUND
     );
   });
@@ -361,13 +364,13 @@ describe('TenantInvitationService.revoke', () => {
     );
   });
 
-  it('throws INVITATION_NOT_FOUND when invitation is not PENDING', async () => {
+  it('throws INVITATION_ONLY_PENDING_CAN_BE_REVOKED when invitation is not PENDING', async () => {
     const acceptedInvitation = { ...mockInvitation, status: 'ACCEPTED' as const };
     const repo = makeRepo({ findOne: vi.fn(async () => acceptedInvitation) });
     mockTenantDs(repo);
 
     await expect(TenantInvitationService.revoke(INVITATION_ID, TENANT_ID)).rejects.toThrow(
-      TenantInvitationMessages.INVITATION_NOT_FOUND
+      TenantInvitationMessages.INVITATION_ONLY_PENDING_CAN_BE_REVOKED
     );
   });
 });

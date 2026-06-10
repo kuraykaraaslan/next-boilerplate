@@ -55,6 +55,12 @@ const mockMember = {
 const mockUser = {
   userId: USER_ID,
   email: 'member@example.com',
+  phone: null,
+  userRole: 'USER' as const,
+  userStatus: 'ACTIVE' as const,
+  emailVerifiedAt: null,
+  createdAt: new Date(),
+  updatedAt: new Date(),
 };
 
 function makeRepo(overrides: Partial<{
@@ -64,6 +70,7 @@ function makeRepo(overrides: Partial<{
   create: ReturnType<typeof vi.fn>;
   save: ReturnType<typeof vi.fn>;
   update: ReturnType<typeof vi.fn>;
+  increment: ReturnType<typeof vi.fn>;
 }> = {}) {
   return {
     findOne: vi.fn(async () => mockMember),
@@ -72,6 +79,7 @@ function makeRepo(overrides: Partial<{
     create: vi.fn((data: any) => ({ ...mockMember, ...data })),
     save: vi.fn(async (entity: any) => ({ ...mockMember, ...entity })),
     update: vi.fn(async () => ({ affected: 1 })),
+    increment: vi.fn(async () => ({})),
     ...overrides,
   };
 }
@@ -81,7 +89,10 @@ function mockDefaultDs(repo: ReturnType<typeof makeRepo>) {
 }
 
 function mockTenantDs(repo: ReturnType<typeof makeRepo>) {
-  (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => repo });
+  (tenantDataSourceFor as any).mockResolvedValue({
+    getRepository: () => repo,
+    transaction: async (fn: any) => fn({ getRepository: () => repo }),
+  });
 }
 
 beforeEach(() => vi.clearAllMocks());
@@ -125,18 +136,18 @@ describe('TenantMemberService.getByTenantId', () => {
 describe('TenantMemberService.getById', () => {
   it('returns member when found', async () => {
     const repo = makeRepo();
-    mockDefaultDs(repo);
+    mockTenantDs(repo);
 
-    const result = await TenantMemberService.getById(MEMBER_ID);
+    const result = await TenantMemberService.getById(MEMBER_ID, TENANT_ID);
     expect(result.tenantMemberId).toBe(MEMBER_ID);
     expect(result.tenantId).toBe(TENANT_ID);
   });
 
   it('throws MEMBER_NOT_FOUND when member does not exist', async () => {
     const repo = makeRepo({ findOne: vi.fn(async () => null) });
-    mockDefaultDs(repo);
+    mockTenantDs(repo);
 
-    await expect(TenantMemberService.getById(MEMBER_ID)).rejects.toThrow(
+    await expect(TenantMemberService.getById(MEMBER_ID, TENANT_ID)).rejects.toThrow(
       TenantMemberMessages.MEMBER_NOT_FOUND
     );
   });
@@ -179,7 +190,7 @@ describe('TenantMemberService.getByTenantAndUser', () => {
 
   it('looks up by tenantMemberId when provided', async () => {
     const repo = makeRepo();
-    mockDefaultDs(repo);
+    mockTenantDs(repo);
 
     const result = await TenantMemberService.getByTenantAndUser({
       tenantMemberId: MEMBER_ID,
@@ -189,10 +200,10 @@ describe('TenantMemberService.getByTenantAndUser', () => {
     expect(result?.tenantMemberId).toBe(MEMBER_ID);
   });
 
-  it('returns null when tenantMemberId found but tenantId does not match', async () => {
-    const memberWithDifferentTenant = { ...mockMember, tenantId: 'different-tenant-id' };
-    const repo = makeRepo({ findOne: vi.fn(async () => memberWithDifferentTenant) });
-    mockDefaultDs(repo);
+  it('returns null when tenantMemberId found but userId does not match', async () => {
+    const memberWithDifferentUser = { ...mockMember, userId: 'different-user-id' };
+    const repo = makeRepo({ findOne: vi.fn(async () => memberWithDifferentUser) });
+    mockTenantDs(repo);
 
     const result = await TenantMemberService.getByTenantAndUser({
       tenantMemberId: MEMBER_ID,
@@ -243,20 +254,19 @@ describe('TenantMemberService.update', () => {
         .mockResolvedValueOnce(updatedMember),
       count: vi.fn(async () => 2),
     });
-    mockDefaultDs(repo);
     mockTenantDs(repo);
 
-    const result = await TenantMemberService.update(MEMBER_ID, { memberRole: 'ADMIN', memberStatus: null });
+    const result = await TenantMemberService.update(MEMBER_ID, TENANT_ID, { memberRole: 'ADMIN', memberStatus: null });
     expect(result.memberRole).toBe('ADMIN');
     expect(repo.update).toHaveBeenCalled();
   });
 
   it('throws MEMBER_NOT_FOUND when member does not exist', async () => {
     const repo = makeRepo({ findOne: vi.fn(async () => null) });
-    mockDefaultDs(repo);
+    mockTenantDs(repo);
 
     await expect(
-      TenantMemberService.update(MEMBER_ID, { memberRole: 'ADMIN', memberStatus: null })
+      TenantMemberService.update(MEMBER_ID, TENANT_ID, { memberRole: 'ADMIN', memberStatus: null })
     ).rejects.toThrow(TenantMemberMessages.MEMBER_NOT_FOUND);
   });
 
@@ -266,11 +276,10 @@ describe('TenantMemberService.update', () => {
       findOne: vi.fn(async () => ownerMember),
       count: vi.fn(async () => 1),
     });
-    mockDefaultDs(repo);
     mockTenantDs(repo);
 
     await expect(
-      TenantMemberService.update(MEMBER_ID, { memberRole: 'ADMIN', memberStatus: null })
+      TenantMemberService.update(MEMBER_ID, TENANT_ID, { memberRole: 'ADMIN', memberStatus: null })
     ).rejects.toThrow(TenantMemberMessages.CANNOT_DEMOTE_OWNER);
   });
 
@@ -283,10 +292,9 @@ describe('TenantMemberService.update', () => {
         .mockResolvedValueOnce(updatedMember),
       count: vi.fn(async () => 2),
     });
-    mockDefaultDs(repo);
     mockTenantDs(repo);
 
-    const result = await TenantMemberService.update(MEMBER_ID, { memberRole: 'ADMIN', memberStatus: null });
+    const result = await TenantMemberService.update(MEMBER_ID, TENANT_ID, { memberRole: 'ADMIN', memberStatus: null });
     expect(result.memberRole).toBe('ADMIN');
   });
 });
@@ -294,21 +302,20 @@ describe('TenantMemberService.update', () => {
 describe('TenantMemberService.delete', () => {
   it('soft-deletes a regular member', async () => {
     const repo = makeRepo({ count: vi.fn(async () => 1) });
-    mockDefaultDs(repo);
     mockTenantDs(repo);
 
-    await TenantMemberService.delete(MEMBER_ID);
+    await TenantMemberService.delete(MEMBER_ID, TENANT_ID);
     expect(repo.update).toHaveBeenCalledWith(
-      { tenantMemberId: MEMBER_ID },
+      { tenantMemberId: MEMBER_ID, tenantId: TENANT_ID },
       expect.objectContaining({ deletedAt: expect.any(Date) })
     );
   });
 
   it('throws MEMBER_NOT_FOUND when member does not exist', async () => {
     const repo = makeRepo({ findOne: vi.fn(async () => null) });
-    mockDefaultDs(repo);
+    mockTenantDs(repo);
 
-    await expect(TenantMemberService.delete(MEMBER_ID)).rejects.toThrow(
+    await expect(TenantMemberService.delete(MEMBER_ID, TENANT_ID)).rejects.toThrow(
       TenantMemberMessages.MEMBER_NOT_FOUND
     );
   });
@@ -319,10 +326,9 @@ describe('TenantMemberService.delete', () => {
       findOne: vi.fn(async () => ownerMember),
       count: vi.fn(async () => 1),
     });
-    mockDefaultDs(repo);
     mockTenantDs(repo);
 
-    await expect(TenantMemberService.delete(MEMBER_ID)).rejects.toThrow(
+    await expect(TenantMemberService.delete(MEMBER_ID, TENANT_ID)).rejects.toThrow(
       TenantMemberMessages.LAST_OWNER
     );
   });
@@ -333,12 +339,11 @@ describe('TenantMemberService.delete', () => {
       findOne: vi.fn(async () => ownerMember),
       count: vi.fn(async () => 2),
     });
-    mockDefaultDs(repo);
     mockTenantDs(repo);
 
-    await TenantMemberService.delete(MEMBER_ID);
+    await TenantMemberService.delete(MEMBER_ID, TENANT_ID);
     expect(repo.update).toHaveBeenCalledWith(
-      { tenantMemberId: MEMBER_ID },
+      { tenantMemberId: MEMBER_ID, tenantId: TENANT_ID },
       expect.objectContaining({ deletedAt: expect.any(Date) })
     );
   });

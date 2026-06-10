@@ -1,5 +1,7 @@
 # tenant_member — Posture Review
 
+> **Uygulandı:** 2026-06-10 — Critical IDOR (tenantId scope), High AppError, Medium SafeUserSchema + transaction, test mock güncellemeleri tamamlandı.
+
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`
 > **Services:** `tenant_member.service.ts`
 > **Overall grade:** D · **Findings:** 1c / 1h / 2m / 1l

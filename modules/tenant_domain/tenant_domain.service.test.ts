@@ -72,6 +72,11 @@ const mockDomain = {
   domainStatus: 'PENDING' as const,
   verificationToken: null,
   verifiedAt: null,
+  sslStatus: 'DISABLED' as const,
+  sslIssuedAt: null,
+  sslExpiresAt: null,
+  sslIssuer: null,
+  sslLastCheckedAt: null,
   createdAt: new Date(),
   updatedAt: new Date(),
 };
@@ -102,7 +107,10 @@ function mockDefaultDs(repo: ReturnType<typeof makeRepo>) {
 }
 
 function mockTenantDs(repo: ReturnType<typeof makeRepo>) {
-  (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => repo });
+  (tenantDataSourceFor as any).mockResolvedValue({
+    getRepository: () => repo,
+    transaction: async (fn: any) => fn({ getRepository: () => repo }),
+  });
 }
 
 beforeEach(() => vi.clearAllMocks());
@@ -131,9 +139,9 @@ describe('TenantDomainService.getByTenantId', () => {
 describe('TenantDomainService.getById', () => {
   it('returns domain when found in database', async () => {
     const repo = makeRepo();
-    mockDefaultDs(repo);
+    mockTenantDs(repo);
 
-    const result = await TenantDomainService.getById(DOMAIN_ID);
+    const result = await TenantDomainService.getById(DOMAIN_ID, TENANT_ID);
     expect(result.tenantDomainId).toBe(DOMAIN_ID);
     expect(result.domain).toBe('example.com');
   });
@@ -141,16 +149,16 @@ describe('TenantDomainService.getById', () => {
   it('returns cached domain when redis cache hit', async () => {
     (redis.get as any).mockResolvedValueOnce(JSON.stringify(mockDomain));
 
-    const result = await TenantDomainService.getById(DOMAIN_ID);
+    const result = await TenantDomainService.getById(DOMAIN_ID, TENANT_ID);
     expect(result.tenantDomainId).toBe(DOMAIN_ID);
-    expect(getDataSource).not.toHaveBeenCalled();
+    expect(tenantDataSourceFor).not.toHaveBeenCalled();
   });
 
   it('throws DOMAIN_NOT_FOUND when domain does not exist', async () => {
     const repo = makeRepo({ findOne: vi.fn(async () => null) });
-    mockDefaultDs(repo);
+    mockTenantDs(repo);
 
-    await expect(TenantDomainService.getById(DOMAIN_ID)).rejects.toThrow(TenantDomainMessages.DOMAIN_NOT_FOUND);
+    await expect(TenantDomainService.getById(DOMAIN_ID, TENANT_ID)).rejects.toThrow(TenantDomainMessages.DOMAIN_NOT_FOUND);
   });
 });
 
@@ -260,18 +268,17 @@ describe('TenantDomainService.update', () => {
         .mockResolvedValueOnce(mockDomain)
         .mockResolvedValueOnce(updatedDomain),
     });
-    mockDefaultDs(repo);
     mockTenantDs(repo);
 
-    const result = await TenantDomainService.update(DOMAIN_ID, { isPrimary: true });
+    const result = await TenantDomainService.update(DOMAIN_ID, TENANT_ID, { isPrimary: true });
     expect(result.isPrimary).toBe(true);
   });
 
   it('throws DOMAIN_NOT_FOUND when domain does not exist', async () => {
     const repo = makeRepo({ findOne: vi.fn(async () => null) });
-    mockDefaultDs(repo);
+    mockTenantDs(repo);
 
-    await expect(TenantDomainService.update(DOMAIN_ID, { isPrimary: true })).rejects.toThrow(
+    await expect(TenantDomainService.update(DOMAIN_ID, TENANT_ID, { isPrimary: true })).rejects.toThrow(
       TenantDomainMessages.DOMAIN_NOT_FOUND
     );
   });
@@ -280,9 +287,9 @@ describe('TenantDomainService.update', () => {
 describe('TenantDomainService.verifyDomain', () => {
   it('throws DOMAIN_NOT_FOUND when domain does not exist', async () => {
     const repo = makeRepo({ findOne: vi.fn(async () => null) });
-    mockDefaultDs(repo);
+    mockTenantDs(repo);
 
-    await expect(TenantDomainService.verifyDomain(DOMAIN_ID)).rejects.toThrow(
+    await expect(TenantDomainService.verifyDomain(DOMAIN_ID, TENANT_ID)).rejects.toThrow(
       TenantDomainMessages.DOMAIN_NOT_FOUND
     );
   });
@@ -290,20 +297,19 @@ describe('TenantDomainService.verifyDomain', () => {
   it('throws DOMAIN_ALREADY_VERIFIED when already verified', async () => {
     const verifiedDomain = { ...mockDomain, domainStatus: 'VERIFIED' as const };
     const repo = makeRepo({ findOne: vi.fn(async () => verifiedDomain) });
-    mockDefaultDs(repo);
+    mockTenantDs(repo);
 
-    await expect(TenantDomainService.verifyDomain(DOMAIN_ID)).rejects.toThrow(
+    await expect(TenantDomainService.verifyDomain(DOMAIN_ID, TENANT_ID)).rejects.toThrow(
       TenantDomainMessages.DOMAIN_ALREADY_VERIFIED
     );
   });
 
   it('throws DNS_VERIFICATION_FAILED when DNS check fails', async () => {
     const repo = makeRepo();
-    mockDefaultDs(repo);
     mockTenantDs(repo);
     (DNSVerificationService.checkVerification as any).mockResolvedValue(false);
 
-    await expect(TenantDomainService.verifyDomain(DOMAIN_ID)).rejects.toThrow(
+    await expect(TenantDomainService.verifyDomain(DOMAIN_ID, TENANT_ID)).rejects.toThrow(
       TenantDomainMessages.DNS_VERIFICATION_FAILED
     );
   });
@@ -315,14 +321,13 @@ describe('TenantDomainService.verifyDomain', () => {
         .mockResolvedValueOnce(mockDomain)
         .mockResolvedValueOnce(verifiedResult),
     });
-    mockDefaultDs(repo);
     mockTenantDs(repo);
     (DNSVerificationService.checkVerification as any).mockResolvedValue(true);
 
-    const result = await TenantDomainService.verifyDomain(DOMAIN_ID);
+    const result = await TenantDomainService.verifyDomain(DOMAIN_ID, TENANT_ID);
     expect(result.domainStatus).toBe('VERIFIED');
     expect(repo.update).toHaveBeenCalledWith(
-      { tenantDomainId: DOMAIN_ID },
+      { tenantDomainId: DOMAIN_ID, tenantId: TENANT_ID },
       expect.objectContaining({ domainStatus: 'VERIFIED' })
     );
   });
@@ -331,19 +336,18 @@ describe('TenantDomainService.verifyDomain', () => {
 describe('TenantDomainService.delete', () => {
   it('deletes a non-primary domain', async () => {
     const repo = makeRepo();
-    mockDefaultDs(repo);
     mockTenantDs(repo);
     (DNSVerificationService.deleteStoredToken as any).mockResolvedValue(undefined);
 
-    await TenantDomainService.delete(DOMAIN_ID);
-    expect(repo.delete).toHaveBeenCalledWith({ tenantDomainId: DOMAIN_ID });
+    await TenantDomainService.delete(DOMAIN_ID, TENANT_ID);
+    expect(repo.delete).toHaveBeenCalledWith({ tenantDomainId: DOMAIN_ID, tenantId: TENANT_ID });
   });
 
   it('throws DOMAIN_NOT_FOUND when domain does not exist', async () => {
     const repo = makeRepo({ findOne: vi.fn(async () => null) });
-    mockDefaultDs(repo);
+    mockTenantDs(repo);
 
-    await expect(TenantDomainService.delete(DOMAIN_ID)).rejects.toThrow(
+    await expect(TenantDomainService.delete(DOMAIN_ID, TENANT_ID)).rejects.toThrow(
       TenantDomainMessages.DOMAIN_NOT_FOUND
     );
   });
@@ -351,9 +355,9 @@ describe('TenantDomainService.delete', () => {
   it('throws CANNOT_DELETE_PRIMARY when trying to delete primary domain', async () => {
     const primaryDomain = { ...mockDomain, isPrimary: true };
     const repo = makeRepo({ findOne: vi.fn(async () => primaryDomain) });
-    mockDefaultDs(repo);
+    mockTenantDs(repo);
 
-    await expect(TenantDomainService.delete(DOMAIN_ID)).rejects.toThrow(
+    await expect(TenantDomainService.delete(DOMAIN_ID, TENANT_ID)).rejects.toThrow(
       TenantDomainMessages.CANNOT_DELETE_PRIMARY
     );
   });

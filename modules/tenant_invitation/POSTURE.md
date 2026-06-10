@@ -1,5 +1,7 @@
 # tenant_invitation — Posture Review
 
+> **Uygulandı:** 2026-06-10 — Critical IDOR (getById tenantId scope), High AppError (tüm throws), High revoke non-pending 409 CONFLICT, High send+accept transactions, Medium typed FindOptionsWhere, test mock güncellemeleri tamamlandı.
+
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`
 > **Services:** `tenant_invitation.service.ts`
 > **Overall grade:** D · **Findings:** 1c / 4h / 3m / 1l

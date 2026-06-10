@@ -6,10 +6,12 @@ import redis from '@/modules/redis';
 import { User as UserEntity } from '../user/entities/user.entity';
 import { TenantMember as TenantMemberEntity } from './entities/tenant_member.entity';
 import { SafeTenantMember, SafeTenantMemberSchema } from './tenant_member.types';
+import { SafeUserSchema } from '../user/user.types';
 import { CreateTenantMemberInput, UpdateTenantMemberInput, GetTenantMembersInput, GetTenantMemberInput } from './tenant_member.dto';
 import TenantMemberMessages from './tenant_member.messages';
 import type { TenantMemberRole } from './tenant_member.enums';
 import WebhookService from '@/modules/webhook/webhook.service';
+import { AppError, ErrorCode } from '@/modules/common/app-error';
 
 export default class TenantMemberService {
 
@@ -46,23 +48,27 @@ export default class TenantMemberService {
     const userMap = Object.fromEntries(users.map((u) => [u.userId, u]));
 
     return {
-      members: members.map((member) => ({ ...SafeTenantMemberSchema.parse(member), user: userMap[member.userId] as any })),
+      members: members.map((member) => ({
+        ...SafeTenantMemberSchema.parse(member),
+        user: userMap[member.userId] ? SafeUserSchema.parse(userMap[member.userId]) : undefined,
+      })),
       total,
     };
   }
 
-  static async getById(tenantMemberId: string): Promise<SafeTenantMember> {
-    const ds = await getDataSource();
-    const member = await ds.getRepository(TenantMemberEntity).findOne({ where: { tenantMemberId, deletedAt: IsNull() } });
-    if (!member) throw new Error(TenantMemberMessages.MEMBER_NOT_FOUND);
+  static async getById(tenantMemberId: string, tenantId: string): Promise<SafeTenantMember> {
+    const ds = await tenantDataSourceFor(tenantId);
+    const member = await ds.getRepository(TenantMemberEntity).findOne({ where: { tenantMemberId, tenantId, deletedAt: IsNull() } });
+    if (!member) throw new AppError(TenantMemberMessages.MEMBER_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
     return SafeTenantMemberSchema.parse(member);
   }
 
   static async getByTenantAndUser({ tenantMemberId, tenantId, userId }: GetTenantMemberInput): Promise<SafeTenantMember | null> {
     if (tenantMemberId) {
-      const ds = await getDataSource();
-      const member = await ds.getRepository(TenantMemberEntity).findOne({ where: { tenantMemberId, deletedAt: IsNull() } });
-      if (!member || member.tenantId !== tenantId || member.userId !== userId) return null;
+      if (!tenantId) return null;
+      const ds = await tenantDataSourceFor(tenantId);
+      const member = await ds.getRepository(TenantMemberEntity).findOne({ where: { tenantMemberId, tenantId, deletedAt: IsNull() } });
+      if (!member || member.userId !== userId) return null;
       return SafeTenantMemberSchema.parse(member);
     }
     if (!tenantId || !userId) return null;
@@ -75,7 +81,7 @@ export default class TenantMemberService {
     const ds = await tenantDataSourceFor(data.tenantId);
     const repo = ds.getRepository(TenantMemberEntity);
     const existing = await repo.findOne({ where: { tenantId: data.tenantId, userId: data.userId, deletedAt: IsNull() } });
-    if (existing) throw new Error(TenantMemberMessages.MEMBER_ALREADY_EXISTS);
+    if (existing) throw new AppError(TenantMemberMessages.MEMBER_ALREADY_EXISTS, 409, ErrorCode.CONFLICT);
 
     const member = repo.create(data as Partial<TenantMemberEntity>);
     const saved = await repo.save(member);
@@ -87,26 +93,26 @@ export default class TenantMemberService {
     return SafeTenantMemberSchema.parse(saved);
   }
 
-  static async update(tenantMemberId: string, data: UpdateTenantMemberInput): Promise<SafeTenantMember> {
-    const ds = await getDataSource();
+  static async update(tenantMemberId: string, tenantId: string, data: UpdateTenantMemberInput): Promise<SafeTenantMember> {
+    const ds = await tenantDataSourceFor(tenantId);
     const repo = ds.getRepository(TenantMemberEntity);
-    const member = await repo.findOne({ where: { tenantMemberId, deletedAt: IsNull() } });
-    if (!member) throw new Error(TenantMemberMessages.MEMBER_NOT_FOUND);
-
-    const tenantDs = await tenantDataSourceFor(member.tenantId);
-    const tenantRepo = tenantDs.getRepository(TenantMemberEntity);
+    const member = await repo.findOne({ where: { tenantMemberId, tenantId, deletedAt: IsNull() } });
+    if (!member) throw new AppError(TenantMemberMessages.MEMBER_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
 
     if (member.memberRole === 'OWNER' && data.memberRole && data.memberRole !== 'OWNER') {
-      const ownerCount = await tenantRepo.count({ where: { tenantId: member.tenantId, memberRole: 'OWNER', deletedAt: IsNull() } });
-      if (ownerCount <= 1) throw new Error(TenantMemberMessages.CANNOT_DEMOTE_OWNER);
+      const ownerCount = await repo.count({ where: { tenantId, memberRole: 'OWNER', deletedAt: IsNull() } });
+      if (ownerCount <= 1) throw new AppError(TenantMemberMessages.CANNOT_DEMOTE_OWNER, 409, ErrorCode.CONFLICT);
     }
 
     const updateData = Object.fromEntries(Object.entries(data).filter(([, v]) => v !== null));
-    await tenantRepo.update({ tenantMemberId }, updateData as Partial<TenantMemberEntity>);
-    await tenantRepo.increment({ tenantMemberId }, 'sessionVersion', 1);
-    await redis.del(`tenant:member:${member.userId}:${member.tenantId}`).catch(() => {});
-    const updated = await tenantRepo.findOne({ where: { tenantMemberId } });
-    await WebhookService.dispatchEvent(member.tenantId, 'member.updated', {
+    await ds.transaction(async (mgr) => {
+      const txRepo = mgr.getRepository(TenantMemberEntity);
+      await txRepo.update({ tenantMemberId, tenantId }, updateData as Partial<TenantMemberEntity>);
+      await txRepo.increment({ tenantMemberId, tenantId }, 'sessionVersion', 1);
+    });
+    await redis.del(`tenant:member:${member.userId}:${tenantId}`).catch(() => {});
+    const updated = await repo.findOne({ where: { tenantMemberId, tenantId } });
+    await WebhookService.dispatchEvent(tenantId, 'member.updated', {
       tenantMemberId,
       userId: updated!.userId,
       memberRole: updated!.memberRole,
@@ -114,22 +120,19 @@ export default class TenantMemberService {
     return SafeTenantMemberSchema.parse(updated!);
   }
 
-  static async delete(tenantMemberId: string): Promise<void> {
-    const ds = await getDataSource();
+  static async delete(tenantMemberId: string, tenantId: string): Promise<void> {
+    const ds = await tenantDataSourceFor(tenantId);
     const repo = ds.getRepository(TenantMemberEntity);
-    const member = await repo.findOne({ where: { tenantMemberId, deletedAt: IsNull() } });
-    if (!member) throw new Error(TenantMemberMessages.MEMBER_NOT_FOUND);
-
-    const tenantDs = await tenantDataSourceFor(member.tenantId);
-    const tenantRepo = tenantDs.getRepository(TenantMemberEntity);
+    const member = await repo.findOne({ where: { tenantMemberId, tenantId, deletedAt: IsNull() } });
+    if (!member) throw new AppError(TenantMemberMessages.MEMBER_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
 
     if (member.memberRole === 'OWNER') {
-      const ownerCount = await tenantRepo.count({ where: { tenantId: member.tenantId, memberRole: 'OWNER', deletedAt: IsNull() } });
-      if (ownerCount <= 1) throw new Error(TenantMemberMessages.LAST_OWNER);
+      const ownerCount = await repo.count({ where: { tenantId, memberRole: 'OWNER', deletedAt: IsNull() } });
+      if (ownerCount <= 1) throw new AppError(TenantMemberMessages.LAST_OWNER, 409, ErrorCode.CONFLICT);
     }
 
-    await tenantRepo.update({ tenantMemberId }, { deletedAt: new Date() });
-    await WebhookService.dispatchEvent(member.tenantId, 'member.deleted', {
+    await repo.update({ tenantMemberId, tenantId }, { deletedAt: new Date() });
+    await WebhookService.dispatchEvent(tenantId, 'member.deleted', {
       tenantMemberId,
       userId: member.userId,
     });

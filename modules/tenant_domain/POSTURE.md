@@ -1,5 +1,7 @@
 # tenant_domain — Posture Review
 
+> **Uygulandı:** 2026-06-10 — Critical IDOR (tenantId scope on getById/update/delete/verify), High AppError, High create+update transactions, Medium SUBDOMAIN_LIMIT_EXCEEDED message + JSON.parse try/catch, test mock güncellemeleri tamamlandı.
+
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`
 > **Services:** dns_verification.service.ts, ssl_provisioning.service.ts, tenant_domain.service.ts
 > **Overall grade:** D · **Findings:** 1c / 3h / 7m / 2l

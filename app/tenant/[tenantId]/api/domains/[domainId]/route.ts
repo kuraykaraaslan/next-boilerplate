@@ -21,7 +21,7 @@ export async function GET(
       tenantId
     });
 
-    const verificationInfo = await TenantDomainService.getVerificationInfo(domainId);
+    const verificationInfo = await TenantDomainService.getVerificationInfo(domainId, tenantId);
 
     return NextResponse.json({
       success: true,
@@ -30,7 +30,7 @@ export async function GET(
   } catch (error: any) {
     return NextResponse.json(
       { success: false, message: error.message },
-      { status: 400 }
+      { status: error.statusCode ?? 400 }
     );
   }
 }
@@ -54,7 +54,7 @@ export async function DELETE(
       tenantId
     });
 
-    await TenantDomainService.delete(domainId);
+    await TenantDomainService.delete(domainId, tenantId);
 
     return NextResponse.json({
       success: true,
@@ -63,7 +63,7 @@ export async function DELETE(
   } catch (error: any) {
     return NextResponse.json(
       { success: false, message: error.message },
-      { status: 400 }
+      { status: error.statusCode ?? 400 }
     );
   }
 }
