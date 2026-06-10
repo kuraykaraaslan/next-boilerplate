@@ -48,6 +48,7 @@ import {
   RefundPaymentDTO,
 } from './payment.dto';
 import { PAYMENT_MESSAGES } from './payment.messages';
+import { AppError, ErrorCode } from '@/modules/common/app-error';
 
 const PAYMENT_CACHE_TTL = env.TENANT_CACHE_TTL ?? (60 * 5);
 
@@ -116,7 +117,7 @@ export default class PaymentService {
     const provider = PaymentService.PROVIDERS.get(name);
     if (!provider) {
       Logger.error(`${PAYMENT_MESSAGES.PROVIDER_NOT_FOUND}: ${name}`);
-      throw new Error(`${PAYMENT_MESSAGES.PROVIDER_NOT_FOUND}: ${name}`);
+      throw new AppError(`${PAYMENT_MESSAGES.PROVIDER_NOT_FOUND}: ${name}`, 400, ErrorCode.VALIDATION_ERROR);
     }
     return provider;
   }
@@ -168,7 +169,7 @@ export default class PaymentService {
       return SafePaymentSchema.parse(saved);
     } catch (error) {
       Logger.error(`${PAYMENT_MESSAGES.PAYMENT_CREATE_FAILED}: ${error instanceof Error ? error.message : String(error)}`);
-      throw new Error(PAYMENT_MESSAGES.PAYMENT_CREATE_FAILED);
+      throw new AppError(PAYMENT_MESSAGES.PAYMENT_CREATE_FAILED, 500, ErrorCode.INTERNAL_ERROR);
     }
   }
 
@@ -182,7 +183,7 @@ export default class PaymentService {
     return singleFlight(cacheKey, async () => {
       const ds = await getDataSource();
       const payment = await ds.getRepository(PaymentEntity).findOne({ where: { paymentId, deletedAt: IsNull() } });
-      if (!payment) throw new Error(PAYMENT_MESSAGES.PAYMENT_NOT_FOUND);
+      if (!payment) throw new AppError(PAYMENT_MESSAGES.PAYMENT_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
 
       const parsed = SafePaymentSchema.parse(payment);
       await redis.setex(cacheKey, jitter(PAYMENT_CACHE_TTL), JSON.stringify(parsed)).catch(() => {});
@@ -200,7 +201,7 @@ export default class PaymentService {
     return singleFlight(cacheKey, async () => {
       const ds = await getDataSource();
       const payment = await ds.getRepository(PaymentEntity).findOne({ where: { paymentId, deletedAt: IsNull() } });
-      if (!payment) throw new Error(PAYMENT_MESSAGES.PAYMENT_NOT_FOUND);
+      if (!payment) throw new AppError(PAYMENT_MESSAGES.PAYMENT_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
       const transactions = await ds.getRepository(PaymentTransactionEntity).find({ where: { paymentId } });
 
       const parsed = PaymentWithTransactionsSchema.parse({ ...payment, transactions });
@@ -235,7 +236,7 @@ export default class PaymentService {
   static async update(paymentId: string, data: UpdatePaymentDTO): Promise<SafePayment> {
     const defaultDs = await getDataSource();
     const existing = await defaultDs.getRepository(PaymentEntity).findOne({ where: { paymentId } });
-    if (!existing) throw new Error(PAYMENT_MESSAGES.PAYMENT_NOT_FOUND);
+    if (!existing) throw new AppError(PAYMENT_MESSAGES.PAYMENT_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
 
     const ds = existing.tenantId
       ? await tenantDataSourceFor(existing.tenantId)
@@ -262,14 +263,14 @@ export default class PaymentService {
       return SafePaymentSchema.parse(updated!);
     } catch (error) {
       Logger.error(`${PAYMENT_MESSAGES.PAYMENT_UPDATE_FAILED}: ${error instanceof Error ? error.message : String(error)}`);
-      throw new Error(PAYMENT_MESSAGES.PAYMENT_UPDATE_FAILED);
+      throw new AppError(PAYMENT_MESSAGES.PAYMENT_UPDATE_FAILED, 500, ErrorCode.INTERNAL_ERROR);
     }
   }
 
   static async delete(paymentId: string): Promise<void> {
     const defaultDs = await getDataSource();
     const existing = await defaultDs.getRepository(PaymentEntity).findOne({ where: { paymentId } });
-    if (!existing) throw new Error(PAYMENT_MESSAGES.PAYMENT_NOT_FOUND);
+    if (!existing) throw new AppError(PAYMENT_MESSAGES.PAYMENT_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
 
     const ds = existing.tenantId ? await tenantDataSourceFor(existing.tenantId) : defaultDs;
     await ds.getRepository(PaymentEntity).update({ paymentId }, { deletedAt: new Date() });
@@ -279,7 +280,7 @@ export default class PaymentService {
   static async createTransaction(data: CreateTransactionDTO): Promise<PaymentTransaction> {
     const ds = await getDataSource();
     const payment = await ds.getRepository(PaymentEntity).findOne({ where: { paymentId: data.paymentId } });
-    if (!payment) throw new Error(PAYMENT_MESSAGES.PAYMENT_NOT_FOUND);
+    if (!payment) throw new AppError(PAYMENT_MESSAGES.PAYMENT_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
 
     try {
       const repo = ds.getRepository(PaymentTransactionEntity);
@@ -303,7 +304,7 @@ export default class PaymentService {
       return PaymentTransactionSchema.parse(saved);
     } catch (error) {
       Logger.error(`${PAYMENT_MESSAGES.TRANSACTION_CREATE_FAILED}: ${error instanceof Error ? error.message : String(error)}`);
-      throw new Error(PAYMENT_MESSAGES.TRANSACTION_CREATE_FAILED);
+      throw new AppError(PAYMENT_MESSAGES.TRANSACTION_CREATE_FAILED, 500, ErrorCode.INTERNAL_ERROR);
     }
   }
 
@@ -317,7 +318,7 @@ export default class PaymentService {
     return singleFlight(cacheKey, async () => {
       const ds = await getDataSource();
       const transaction = await ds.getRepository(PaymentTransactionEntity).findOne({ where: { transactionId } });
-      if (!transaction) throw new Error(PAYMENT_MESSAGES.TRANSACTION_NOT_FOUND);
+      if (!transaction) throw new AppError(PAYMENT_MESSAGES.TRANSACTION_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
 
       const parsed = PaymentTransactionSchema.parse(transaction);
       await redis.setex(cacheKey, jitter(PAYMENT_CACHE_TTL), JSON.stringify(parsed)).catch(() => {});
@@ -351,7 +352,7 @@ export default class PaymentService {
     const ds = await getDataSource();
     const repo = ds.getRepository(PaymentTransactionEntity);
     const existing = await repo.findOne({ where: { transactionId } });
-    if (!existing) throw new Error(PAYMENT_MESSAGES.TRANSACTION_NOT_FOUND);
+    if (!existing) throw new AppError(PAYMENT_MESSAGES.TRANSACTION_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
 
     try {
       await repo.update({ transactionId }, {
@@ -369,7 +370,7 @@ export default class PaymentService {
       return PaymentTransactionSchema.parse(updated!);
     } catch (error) {
       Logger.error(`${PAYMENT_MESSAGES.TRANSACTION_UPDATE_FAILED}: ${error instanceof Error ? error.message : String(error)}`);
-      throw new Error(PAYMENT_MESSAGES.TRANSACTION_UPDATE_FAILED);
+      throw new AppError(PAYMENT_MESSAGES.TRANSACTION_UPDATE_FAILED, 500, ErrorCode.INTERNAL_ERROR);
     }
   }
 
@@ -386,13 +387,13 @@ export default class PaymentService {
   static async refund(data: RefundPaymentDTO): Promise<PaymentTransaction> {
     const ds = await getDataSource();
     const payment = await ds.getRepository(PaymentEntity).findOne({ where: { paymentId: data.paymentId } });
-    if (!payment) throw new Error(PAYMENT_MESSAGES.PAYMENT_NOT_FOUND);
-    if (payment.status !== 'COMPLETED') throw new Error(PAYMENT_MESSAGES.REFUND_NOT_ALLOWED);
+    if (!payment) throw new AppError(PAYMENT_MESSAGES.PAYMENT_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
+    if (payment.status !== 'COMPLETED') throw new AppError(PAYMENT_MESSAGES.REFUND_NOT_ALLOWED, 422, ErrorCode.VALIDATION_ERROR);
 
     const refundAmount = data.amount || Number(payment.amount);
     const alreadyRefunded = Number(payment.refundedAmount) || 0;
     const maxRefundable = Number(payment.amount) - alreadyRefunded;
-    if (refundAmount > maxRefundable) throw new Error(PAYMENT_MESSAGES.REFUND_AMOUNT_EXCEEDS_PAYMENT);
+    if (refundAmount > maxRefundable) throw new AppError(PAYMENT_MESSAGES.REFUND_AMOUNT_EXCEEDS_PAYMENT, 422, ErrorCode.VALIDATION_ERROR);
 
     const transaction = await PaymentService.createTransaction({
       paymentId: data.paymentId,
@@ -475,7 +476,7 @@ export default class PaymentService {
   ): Promise<DirectChargeResult> {
     const provider = PaymentService.getProvider(providerName);
     if (!provider.supportsDirectCardPayment) {
-      throw new Error(PAYMENT_MESSAGES.DIRECT_PAYMENT_NOT_SUPPORTED);
+      throw new AppError(PAYMENT_MESSAGES.DIRECT_PAYMENT_NOT_SUPPORTED, 422, ErrorCode.VALIDATION_ERROR);
     }
     return provider.createPayment(tenantId, params);
   }
@@ -496,7 +497,7 @@ export default class PaymentService {
   ): Promise<ThreeDSInitResult> {
     const provider = PaymentService.getProvider(providerName);
     if (!provider.supports3dsCardPayment) {
-      throw new Error(PAYMENT_MESSAGES.DIRECT_PAYMENT_NOT_SUPPORTED);
+      throw new AppError(PAYMENT_MESSAGES.DIRECT_PAYMENT_NOT_SUPPORTED, 422, ErrorCode.VALIDATION_ERROR);
     }
     return provider.create3dsPayment(tenantId, params);
   }

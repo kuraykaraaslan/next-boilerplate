@@ -1,5 +1,7 @@
 export const SUBSCRIPTION_MESSAGES = {
   PLAN_NOT_FOUND: 'Subscription plan not found',
+  PRODUCT_NOT_FOUND_FOR_PLAN: 'Product not found for plan',
+  PLAN_REFERENCES_MISSING_PRODUCT: 'Plan references a missing product',
   PLAN_CREATE_FAILED: 'Failed to create subscription plan',
   PLAN_UPDATE_FAILED: 'Failed to update subscription plan',
   PLAN_DELETE_FAILED: 'Failed to delete subscription plan',

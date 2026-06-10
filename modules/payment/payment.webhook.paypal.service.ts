@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import axios from 'axios';
 import { PAYMENT_MESSAGES } from './payment.messages';
+import { AppError, ErrorCode } from '@/modules/common/app-error';
 import SettingService from '@/modules/setting/setting.service';
 import { ROOT_TENANT_ID } from '@/modules/tenant/tenant.constants';
 import Logger from '@/modules/logger';
@@ -14,7 +15,7 @@ export default class PaymentWebhookPaypalService {
     const clientId = await SettingService.getValue(ROOT_TENANT_ID, 'paypalClientId');
     const clientSecret = await SettingService.getValue(ROOT_TENANT_ID, 'paypalClientSecret');
     const sandbox = await SettingService.getValue(ROOT_TENANT_ID, 'paypalSandboxMode');
-    if (!clientId || !clientSecret) throw new Error(PAYMENT_MESSAGES.PROVIDER_NOT_CONFIGURED);
+    if (!clientId || !clientSecret) throw new AppError(PAYMENT_MESSAGES.PROVIDER_NOT_CONFIGURED, 503, ErrorCode.FEATURE_NOT_AVAILABLE);
 
     const baseUrl = sandbox === 'true'
       ? 'https://api-m.sandbox.paypal.com'
@@ -107,13 +108,13 @@ export default class PaymentWebhookPaypalService {
 
   static async handlePaypalEvent(rawBody: string, headers: PaypalWebhookHeaders): Promise<void> {
     const webhookId = await SettingService.getValue(ROOT_TENANT_ID, 'paypalWebhookId');
-    if (!webhookId) throw new Error(PAYMENT_MESSAGES.PROVIDER_NOT_CONFIGURED);
+    if (!webhookId) throw new AppError(PAYMENT_MESSAGES.PROVIDER_NOT_CONFIGURED, 503, ErrorCode.FEATURE_NOT_AVAILABLE);
 
     let event: PaypalWebhookEvent;
     try {
       event = JSON.parse(rawBody) as PaypalWebhookEvent;
     } catch {
-      throw new Error(PAYMENT_MESSAGES.WEBHOOK_PROCESSING_FAILED);
+      throw new AppError(PAYMENT_MESSAGES.WEBHOOK_PROCESSING_FAILED, 400, ErrorCode.VALIDATION_ERROR);
     }
 
     const isValid = await PaymentWebhookPaypalService.verifyPaypalSignature({
@@ -128,7 +129,7 @@ export default class PaymentWebhookPaypalService {
 
     if (!isValid) {
       Logger.warn('[Webhook:PayPal] Invalid signature');
-      throw new Error(PAYMENT_MESSAGES.PAYPAL_WEBHOOK_VERIFICATION_FAILED);
+      throw new AppError(PAYMENT_MESSAGES.PAYPAL_WEBHOOK_VERIFICATION_FAILED, 400, ErrorCode.VALIDATION_ERROR);
     }
 
     const normalized = PaymentWebhookPaypalService.normalizePaypalEvent(event);

@@ -1,5 +1,7 @@
 # payment — Posture Review
 
+> **Uygulandı:** 2026-06-10 — High AppError (payment.service.ts 17 site, webhook.service.ts 3 site, webhook.stripe.service.ts 3 site, webhook.paypal.service.ts 4 site → AppError ile doğru HTTP status kodları).
+
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`
 > **Services:** payment.service.ts, payment.proration.service.ts, payment.webhook.service.ts, payment.webhook.handlers.service.ts, payment.webhook.notifications.service.ts, payment.webhook.paypal.service.ts, payment.webhook.stripe.service.ts
 > **Overall grade:** C · **Findings:** 0c / 3h / 4m / 2l

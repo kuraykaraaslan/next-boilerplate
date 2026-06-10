@@ -1,5 +1,7 @@
 # payment_subscription — Posture Review
 
+> **Uygulandı:** 2026-06-10 — High AppError (tüm 21 throw → AppError: 404 NOT_FOUND, 409 CONFLICT, 500 INTERNAL_ERROR), Medium inline strings mesajlara taşındı (PRODUCT_NOT_FOUND_FOR_PLAN, PLAN_REFERENCES_MISSING_PRODUCT).
+
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`
 > **Services:** `payment_subscription.service.ts`, `payment_subscription.proration.service.ts`
 > **Overall grade:** C · **Findings:** 0c / 1h / 3m / 1l

@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import CryptoJS from 'crypto-js';
 import axios from 'axios';
 import { PAYMENT_MESSAGES } from './payment.messages';
+import { AppError, ErrorCode } from '@/modules/common/app-error';
 import SettingService from '@/modules/setting/setting.service';
 import { ROOT_TENANT_ID } from '@/modules/tenant/tenant.constants';
 import Logger from '@/modules/logger';
@@ -40,14 +41,14 @@ export default class PaymentWebhookService {
 
   // ── Iyzico ─────────────────────────────────────────────────────────────────
   static async handleIyzicoCallback(token: string): Promise<void> {
-    if (!token) throw new Error(PAYMENT_MESSAGES.IYZICO_CALLBACK_TOKEN_MISSING);
+    if (!token) throw new AppError(PAYMENT_MESSAGES.IYZICO_CALLBACK_TOKEN_MISSING, 400, ErrorCode.VALIDATION_ERROR);
 
     const [apiKey, secretKey, sandbox] = await Promise.all([
       SettingService.getValue(ROOT_TENANT_ID, 'iyzicoApiKey'),
       SettingService.getValue(ROOT_TENANT_ID, 'iyzicoSecretKey'),
       SettingService.getValue(ROOT_TENANT_ID, 'iyzicoSandboxMode'),
     ]);
-    if (!apiKey || !secretKey) throw new Error(PAYMENT_MESSAGES.PROVIDER_NOT_CONFIGURED);
+    if (!apiKey || !secretKey) throw new AppError(PAYMENT_MESSAGES.PROVIDER_NOT_CONFIGURED, 503, ErrorCode.FEATURE_NOT_AVAILABLE);
 
     const baseUrl = sandbox === 'true'
       ? 'https://sandbox-api.iyzipay.com'
@@ -73,7 +74,7 @@ export default class PaymentWebhookService {
       response = res.data;
     } catch (error) {
       Logger.error(`[Webhook:Iyzico] API error: ${error instanceof Error ? error.message : String(error)}`);
-      throw new Error(PAYMENT_MESSAGES.IYZICO_CALLBACK_VERIFICATION_FAILED);
+      throw new AppError(PAYMENT_MESSAGES.IYZICO_CALLBACK_VERIFICATION_FAILED, 502, ErrorCode.INTERNAL_ERROR);
     }
 
     const isSuccess = response.paymentStatus === 'SUCCESS' || response.status === 'success';

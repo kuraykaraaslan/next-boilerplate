@@ -1,5 +1,7 @@
 # payment_tax — Posture Review
 
+> **Uygulandı:** 2026-06-10 — High AppError (6 throw → AppError 404/500), High transaction (createClass + updateClass default-class promotion → ds.transaction), High dead cache kaldırıldı (singleFlight + redis.del'ler silinidi, redis import temizlendi).
+
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`
 > **Services:** `payment_tax.service.ts`
 > **Overall grade:** C · **Findings:** 0c / 4h / 4m / 1l

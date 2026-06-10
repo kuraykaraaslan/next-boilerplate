@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import crypto from 'crypto';
 import { PAYMENT_MESSAGES } from './payment.messages';
+import { AppError, ErrorCode } from '@/modules/common/app-error';
 import SettingService from '@/modules/setting/setting.service';
 import { ROOT_TENANT_ID } from '@/modules/tenant/tenant.constants';
 import Logger from '@/modules/logger';
@@ -98,18 +99,18 @@ export default class PaymentWebhookStripeService {
 
   static async handleStripeEvent(rawBody: string, signatureHeader: string): Promise<void> {
     const secret = await SettingService.getValue(ROOT_TENANT_ID, 'stripeWebhookSecret');
-    if (!secret) throw new Error(PAYMENT_MESSAGES.PROVIDER_NOT_CONFIGURED);
+    if (!secret) throw new AppError(PAYMENT_MESSAGES.PROVIDER_NOT_CONFIGURED, 503, ErrorCode.FEATURE_NOT_AVAILABLE);
 
     if (!PaymentWebhookStripeService.verifyStripeSignature(rawBody, signatureHeader, secret)) {
       Logger.warn('[Webhook:Stripe] Invalid signature');
-      throw new Error(PAYMENT_MESSAGES.STRIPE_WEBHOOK_VERIFICATION_FAILED);
+      throw new AppError(PAYMENT_MESSAGES.STRIPE_WEBHOOK_VERIFICATION_FAILED, 400, ErrorCode.VALIDATION_ERROR);
     }
 
     let event: StripeWebhookEvent;
     try {
       event = JSON.parse(rawBody) as StripeWebhookEvent;
     } catch {
-      throw new Error(PAYMENT_MESSAGES.WEBHOOK_PROCESSING_FAILED);
+      throw new AppError(PAYMENT_MESSAGES.WEBHOOK_PROCESSING_FAILED, 400, ErrorCode.VALIDATION_ERROR);
     }
 
     const normalized = PaymentWebhookStripeService.normalizeStripeEvent(event);

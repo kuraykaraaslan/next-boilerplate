@@ -21,6 +21,7 @@ import type {
   ChangePlanDTO, GetSubscriptionsQuery,
 } from './payment_subscription.dto'
 import { SUBSCRIPTION_MESSAGES } from './payment_subscription.messages'
+import { AppError, ErrorCode } from '@/modules/common/app-error'
 import ProrationService from './payment_subscription.proration.service'
 import type { BillingCycle } from './payment_subscription.enums'
 import WebhookService from '@/modules/webhook/webhook.service'
@@ -46,7 +47,7 @@ export default class PaymentSubscriptionService {
   private static async fetchProductOrThrow(tenantId: string, productId: string): Promise<ProductEntity> {
     const ds = await tenantDataSourceFor(tenantId)
     const product = await ds.getRepository(ProductEntity).findOne({ where: { tenantId, productId } })
-    if (!product) throw new Error('Product not found for plan.')
+    if (!product) throw new AppError(SUBSCRIPTION_MESSAGES.PRODUCT_NOT_FOUND_FOR_PLAN, 404, ErrorCode.NOT_FOUND)
     return product
   }
 
@@ -64,7 +65,7 @@ export default class PaymentSubscriptionService {
       })
     } catch (error) {
       Logger.error(`${SUBSCRIPTION_MESSAGES.PLAN_CREATE_FAILED}: ${error}`)
-      throw error instanceof Error ? error : new Error(SUBSCRIPTION_MESSAGES.PLAN_CREATE_FAILED)
+      throw error instanceof AppError ? error : new AppError(SUBSCRIPTION_MESSAGES.PLAN_CREATE_FAILED, 500, ErrorCode.INTERNAL_ERROR)
     }
   }
 
@@ -72,7 +73,7 @@ export default class PaymentSubscriptionService {
     const ds = await tenantDataSourceFor(tenantId)
     const repo = ds.getRepository(PlanEntity)
     const existing = await repo.findOne({ where: { tenantId, planId } })
-    if (!existing) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND)
+    if (!existing) throw new AppError(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     if (data.productId && data.productId !== existing.productId) {
       await PaymentSubscriptionService.fetchProductOrThrow(tenantId, data.productId)
     }
@@ -93,7 +94,7 @@ export default class PaymentSubscriptionService {
     return singleFlight(`sub:plan:${planId}:${withFeatures}`, async () => {
       const ds = await tenantDataSourceFor(tenantId)
       const plan = await ds.getRepository(PlanEntity).findOne({ where: { tenantId, planId } })
-      if (!plan) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND)
+      if (!plan) throw new AppError(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
       const product = await PaymentSubscriptionService.fetchProductOrThrow(tenantId, plan.productId)
       const base = {
         ...SubscriptionPlanSchema.parse(plan),
@@ -129,7 +130,7 @@ export default class PaymentSubscriptionService {
       return {
         data: rows.map((r) => {
           const product = productMap.get(r.productId)
-          if (!product) throw new Error(`Plan ${r.planId} references missing product ${r.productId}`)
+          if (!product) throw new AppError(SUBSCRIPTION_MESSAGES.PLAN_REFERENCES_MISSING_PRODUCT, 500, ErrorCode.INTERNAL_ERROR)
           return PlanWithProductSchema.parse({
             ...SubscriptionPlanSchema.parse(r),
             product: PaymentSubscriptionService.productSummary(product),
@@ -169,7 +170,7 @@ export default class PaymentSubscriptionService {
     const activeCount = await ds.getRepository(SubscriptionEntity).count({
       where: { tenantId, planId, status: 'ACTIVE' },
     })
-    if (activeCount > 0) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_HAS_ACTIVE_SUBSCRIBERS)
+    if (activeCount > 0) throw new AppError(SUBSCRIPTION_MESSAGES.PLAN_HAS_ACTIVE_SUBSCRIBERS, 409, ErrorCode.CONFLICT)
     await ds.getRepository(PlanEntity).softDelete({ tenantId, planId })
     await redis.del(`sub:plans:${tenantId}`)
     await redis.del(`sub:plan:${planId}`)
@@ -208,7 +209,7 @@ export default class PaymentSubscriptionService {
   static async createSubscription(tenantId: string, data: CreateSubscriptionDTO): Promise<Subscription> {
     const ds = await tenantDataSourceFor(tenantId)
     const plan = await ds.getRepository(PlanEntity).findOne({ where: { tenantId, planId: data.planId } })
-    if (!plan) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND)
+    if (!plan) throw new AppError(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     const product = await PaymentSubscriptionService.fetchProductOrThrow(tenantId, plan.productId)
 
     const cycle = (data.billingCycle ?? plan.interval) as BillingCycle
@@ -250,7 +251,7 @@ export default class PaymentSubscriptionService {
       return SubscriptionSchema.parse(saved)
     } catch (error) {
       Logger.error(`${SUBSCRIPTION_MESSAGES.SUBSCRIPTION_CREATE_FAILED}: ${error}`)
-      throw new Error(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_CREATE_FAILED)
+      throw new AppError(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_CREATE_FAILED, 500, ErrorCode.INTERNAL_ERROR)
     }
   }
 
@@ -258,10 +259,10 @@ export default class PaymentSubscriptionService {
     return singleFlight(`sub:id:${subscriptionId}:${withPlan}`, async () => {
       const ds = await tenantDataSourceFor(tenantId)
       const sub = await ds.getRepository(SubscriptionEntity).findOne({ where: { tenantId, subscriptionId } })
-      if (!sub) throw new Error(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_NOT_FOUND)
+      if (!sub) throw new AppError(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
       if (!withPlan) return SubscriptionSchema.parse(sub)
       const plan = await ds.getRepository(PlanEntity).findOne({ where: { tenantId, planId: sub.planId } })
-      if (!plan) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND)
+      if (!plan) throw new AppError(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
       const product = await PaymentSubscriptionService.fetchProductOrThrow(tenantId, plan.productId)
       const features = await ds.getRepository(PlanFeatureEntity).find({
         where: { tenantId, planId: sub.planId }, order: { sortOrder: 'ASC' },
@@ -297,8 +298,8 @@ export default class PaymentSubscriptionService {
     const ds = await tenantDataSourceFor(tenantId)
     const repo = ds.getRepository(SubscriptionEntity)
     const sub = await repo.findOne({ where: { tenantId, subscriptionId } })
-    if (!sub) throw new Error(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_NOT_FOUND)
-    if (sub.status === 'CANCELLED') throw new Error(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_ALREADY_CANCELLED)
+    if (!sub) throw new AppError(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
+    if (sub.status === 'CANCELLED') throw new AppError(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_ALREADY_CANCELLED, 409, ErrorCode.CONFLICT)
 
     sub.cancelAtPeriodEnd = dto.cancelAtPeriodEnd
     sub.cancellationReason = dto.reason ?? undefined
@@ -323,8 +324,8 @@ export default class PaymentSubscriptionService {
     const ds = await tenantDataSourceFor(tenantId)
     const repo = ds.getRepository(SubscriptionEntity)
     const sub = await repo.findOne({ where: { tenantId, subscriptionId } })
-    if (!sub) throw new Error(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_NOT_FOUND)
-    if (!['ACTIVE', 'TRIALING'].includes(sub.status)) throw new Error(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_NOT_ACTIVE)
+    if (!sub) throw new AppError(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
+    if (!['ACTIVE', 'TRIALING'].includes(sub.status)) throw new AppError(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_NOT_ACTIVE, 409, ErrorCode.CONFLICT)
 
     sub.status = 'PAUSED'
     sub.pausedAt = new Date()
@@ -345,8 +346,8 @@ export default class PaymentSubscriptionService {
     const ds = await tenantDataSourceFor(tenantId)
     const repo = ds.getRepository(SubscriptionEntity)
     const sub = await repo.findOne({ where: { tenantId, subscriptionId } })
-    if (!sub) throw new Error(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_NOT_FOUND)
-    if (sub.status !== 'PAUSED') throw new Error(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_NOT_ACTIVE)
+    if (!sub) throw new AppError(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
+    if (sub.status !== 'PAUSED') throw new AppError(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_NOT_ACTIVE, 409, ErrorCode.CONFLICT)
 
     sub.status = 'ACTIVE'
     sub.pausedAt = undefined
@@ -369,10 +370,10 @@ export default class PaymentSubscriptionService {
     const planRepo = ds.getRepository(PlanEntity)
 
     const sub = await subRepo.findOne({ where: { tenantId, subscriptionId } })
-    if (!sub) throw new Error(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_NOT_FOUND)
+    if (!sub) throw new AppError(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
 
     const newPlan = await planRepo.findOne({ where: { tenantId, planId: dto.newPlanId } })
-    if (!newPlan) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND)
+    if (!newPlan) throw new AppError(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     const newProduct = await PaymentSubscriptionService.fetchProductOrThrow(tenantId, newPlan.productId)
 
     const cycle = (dto.billingCycle ?? newPlan.interval) as BillingCycle
@@ -405,9 +406,9 @@ export default class PaymentSubscriptionService {
   ): Promise<ProrationPreview> {
     const ds = await tenantDataSourceFor(tenantId)
     const sub = await ds.getRepository(SubscriptionEntity).findOne({ where: { tenantId, subscriptionId } })
-    if (!sub) throw new Error(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_NOT_FOUND)
+    if (!sub) throw new AppError(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     const newPlan = await ds.getRepository(PlanEntity).findOne({ where: { tenantId, planId: dto.newPlanId } })
-    if (!newPlan) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND)
+    if (!newPlan) throw new AppError(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     const newProduct = await PaymentSubscriptionService.fetchProductOrThrow(tenantId, newPlan.productId)
 
     const cycle = (dto.billingCycle ?? newPlan.interval) as BillingCycle

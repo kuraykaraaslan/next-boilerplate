@@ -1,7 +1,7 @@
 import 'reflect-metadata'
 import { tenantDataSourceFor } from '@/modules/db'
-import redis, { singleFlight } from '@/modules/redis'
 import Logger from '@/modules/logger'
+import { AppError, ErrorCode } from '@/modules/common/app-error'
 import { TaxClass as TaxClassEntity } from './entities/tax_class.entity'
 import { TaxRate as TaxRateEntity } from './entities/tax_rate.entity'
 import {
@@ -30,37 +30,37 @@ export default class PaymentTaxService {
 
   static async createClass(tenantId: string, dto: CreateTaxClassDTO): Promise<SafeTaxClass> {
     const ds = await tenantDataSourceFor(tenantId)
-    const repo = ds.getRepository(TaxClassEntity)
-
-    // Only one default class per tenant — unset any prior default first.
-    if (dto.isDefault) {
-      await repo.update({ tenantId, isDefault: true }, { isDefault: false })
-    }
-
-    const entity = repo.create({
-      tenantId,
-      name: dto.name,
-      code: dto.code,
-      description: dto.description,
-      isDefault: dto.isDefault,
+    const saved = await ds.transaction(async (mgr) => {
+      const repo = mgr.getRepository(TaxClassEntity)
+      // Only one default class per tenant — unset any prior default first.
+      if (dto.isDefault) {
+        await repo.update({ tenantId, isDefault: true }, { isDefault: false })
+      }
+      const entity = repo.create({
+        tenantId,
+        name: dto.name,
+        code: dto.code,
+        description: dto.description,
+        isDefault: dto.isDefault,
+      })
+      return repo.save(entity)
     })
-    const saved = await repo.save(entity)
     return SafeTaxClassSchema.parse(saved)
   }
 
   static async updateClass(tenantId: string, classId: string, dto: UpdateTaxClassDTO): Promise<SafeTaxClass> {
     const ds = await tenantDataSourceFor(tenantId)
-    const repo = ds.getRepository(TaxClassEntity)
-    const row = await repo.findOne({ where: { tenantId, taxClassId: classId } })
-    if (!row) throw new Error(PAYMENT_TAX_MESSAGES.TAX_CLASS_NOT_FOUND)
-
-    // Promoting this class to default demotes the others.
-    if (dto.isDefault === true) {
-      await repo.update({ tenantId, isDefault: true }, { isDefault: false })
-    }
-
-    Object.assign(row, dto)
-    const saved = await repo.save(row)
+    const saved = await ds.transaction(async (mgr) => {
+      const repo = mgr.getRepository(TaxClassEntity)
+      const row = await repo.findOne({ where: { tenantId, taxClassId: classId } })
+      if (!row) throw new AppError(PAYMENT_TAX_MESSAGES.TAX_CLASS_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
+      // Promoting this class to default demotes the others.
+      if (dto.isDefault === true) {
+        await repo.update({ tenantId, isDefault: true }, { isDefault: false })
+      }
+      Object.assign(row, dto)
+      return repo.save(row)
+    })
     return SafeTaxClassSchema.parse(saved)
   }
 
@@ -77,7 +77,7 @@ export default class PaymentTaxService {
     const ds = await tenantDataSourceFor(tenantId)
     const repo = ds.getRepository(TaxClassEntity)
     const row = await repo.findOne({ where: { tenantId, taxClassId: classId } })
-    if (!row) throw new Error(PAYMENT_TAX_MESSAGES.TAX_CLASS_NOT_FOUND)
+    if (!row) throw new AppError(PAYMENT_TAX_MESSAGES.TAX_CLASS_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     await repo.softRemove(row)
   }
 
@@ -109,21 +109,18 @@ export default class PaymentTaxService {
     const ds = await tenantDataSourceFor(tenantId)
     const repo = ds.getRepository(TaxRateEntity)
     const row = await repo.findOne({ where: { tenantId, taxRateId: rateId } })
-    if (!row) throw new Error(PAYMENT_TAX_MESSAGES.TAX_RATE_NOT_FOUND)
+    if (!row) throw new AppError(PAYMENT_TAX_MESSAGES.TAX_RATE_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
 
     Object.assign(row, dto)
     const saved = await repo.save(row)
-    await redis.del(`pay:tax:${rateId}`)
     return TaxRateSchema.parse(saved)
   }
 
   static async getRate(tenantId: string, rateId: string): Promise<TaxRate> {
-    return singleFlight(`pay:tax:${rateId}`, async () => {
-      const ds = await tenantDataSourceFor(tenantId)
-      const row = await ds.getRepository(TaxRateEntity).findOne({ where: { tenantId, taxRateId: rateId } })
-      if (!row) throw new Error(PAYMENT_TAX_MESSAGES.TAX_RATE_NOT_FOUND)
-      return TaxRateSchema.parse(row)
-    })
+    const ds = await tenantDataSourceFor(tenantId)
+    const row = await ds.getRepository(TaxRateEntity).findOne({ where: { tenantId, taxRateId: rateId } })
+    if (!row) throw new AppError(PAYMENT_TAX_MESSAGES.TAX_RATE_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
+    return TaxRateSchema.parse(row)
   }
 
   static async listRates(tenantId: string, query: GetTaxRatesQuery): Promise<{ data: TaxRate[]; total: number }> {
@@ -147,9 +144,8 @@ export default class PaymentTaxService {
     const ds = await tenantDataSourceFor(tenantId)
     const repo = ds.getRepository(TaxRateEntity)
     const row = await repo.findOne({ where: { tenantId, taxRateId: rateId } })
-    if (!row) throw new Error(PAYMENT_TAX_MESSAGES.TAX_RATE_NOT_FOUND)
+    if (!row) throw new AppError(PAYMENT_TAX_MESSAGES.TAX_RATE_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     await repo.remove(row)
-    await redis.del(`pay:tax:${rateId}`)
   }
 
   // ============================================================================
@@ -189,7 +185,7 @@ export default class PaymentTaxService {
       return await PaymentTaxService.runCalculation(tenantId, dto)
     } catch (error) {
       Logger.error(`${PAYMENT_TAX_MESSAGES.CALCULATION_FAILED}: ${error}`)
-      throw new Error(PAYMENT_TAX_MESSAGES.CALCULATION_FAILED)
+      throw error instanceof AppError ? error : new AppError(PAYMENT_TAX_MESSAGES.CALCULATION_FAILED, 500, ErrorCode.INTERNAL_ERROR)
     }
   }
 
