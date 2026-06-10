@@ -1,5 +1,7 @@
 # notification_sms — Posture Review
 
+> **Uygulandı:** 2026-06-11 — Medium: assertSmsFeatureAccess moved outside swallow-all try/catch so plan/quota AppErrors propagate; Low: rate-limit key now tenant-scoped (sms:rate-limit:{tenantId}:{to}).
+
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`
 > **Services:** `notification_sms.service.ts`
 > **Overall grade:** B · **Findings:** 0c / 0h / 1m / 2l

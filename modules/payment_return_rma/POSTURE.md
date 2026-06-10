@@ -1,5 +1,7 @@
 # payment_return_rma — Posture Review
 
+> **Uygulandı:** 2026-06-11 — High: AppError on all throw sites (404/409/400/502); Medium: create() wrapped in transaction, outer catch no longer flattens AppErrors, dead Redis cache fully removed (CACHE_TTL+cacheKey+redis.del+singleFlight), audit entries for approve/reject/refund.
+
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`
 > **Services:** `payment_return_rma.service.ts`
 > **Overall grade:** C · **Findings:** 0c / 1h / 5m / 1l

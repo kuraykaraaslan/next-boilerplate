@@ -208,15 +208,17 @@ export default class SMSService {
       provider?: SMSProviderType;
     }
   ): Promise<void> {
+    if (!to?.trim() || !body?.trim()) {
+      Logger.warn("SMSService: Missing phone number or message body.");
+      return;
+    }
+
+    // Feature-gate runs OUTSIDE the swallow-all block so plan/quota denials
+    // (AppError) propagate to callers instead of being silently swallowed.
+    await SMSService.assertSmsFeatureAccess(tenantId);
+
     try {
-      if (!to?.trim() || !body?.trim()) {
-        Logger.warn("SMSService: Missing phone number or message body.");
-        return;
-      }
-
-      await SMSService.assertSmsFeatureAccess(tenantId);
-
-      const rateLimitKey = `${SMSService.RATE_LIMIT_PREFIX}${to}`;
+      const rateLimitKey = `${SMSService.RATE_LIMIT_PREFIX}${tenantId}:${to}`;
       const existing = await redis.get(rateLimitKey);
 
       if (existing) {

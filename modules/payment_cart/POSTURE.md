@@ -1,5 +1,7 @@
 # payment_cart — Posture Review
 
+> **Uygulandı:** 2026-06-11 — High: AppError on all 14 throw sites (404/409/422); Medium: mergeGuestIntoUser wrapped in transaction, IsNull() for nullable FK lookups, audit entries for coupon apply/remove/merge/convert; Low: duplicate redis.del removed.
+
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`
 > **Services:** `payment_cart.service.ts`
 > **Overall grade:** C · **Findings:** 0c / 1h / 4m / 1l
