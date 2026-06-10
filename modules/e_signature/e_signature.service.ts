@@ -23,6 +23,7 @@ import {
   CHALLENGE_TTL_SECONDS,
   TRANSACTION_REDIS_PREFIX,
 } from './e_signature.constants';
+import { AppError, ErrorCode } from '@/modules/common/app-error';
 import { E_SIGNATURE_MESSAGES } from './e_signature.messages';
 import type {
   CountryCode,
@@ -125,10 +126,10 @@ export default class ESignatureService {
       ?? ESignatureService.DEFAULT_PROVIDER_NAME;
     const provider = ESignatureService.PROVIDERS.get(name);
     if (!provider) {
-      throw new Error(`${E_SIGNATURE_MESSAGES.PROVIDER_FOR_COUNTRY_NOT_FOUND}: ${country ?? '-'}`);
+      throw new AppError(`${E_SIGNATURE_MESSAGES.PROVIDER_FOR_COUNTRY_NOT_FOUND}: ${country ?? '-'}`, 422, ErrorCode.VALIDATION_ERROR);
     }
     if (country && provider.supportedCountries.length && !provider.supportedCountries.includes(country)) {
-      throw new Error(`${E_SIGNATURE_MESSAGES.PROVIDER_FOR_COUNTRY_NOT_FOUND}: ${country}`);
+      throw new AppError(`${E_SIGNATURE_MESSAGES.PROVIDER_FOR_COUNTRY_NOT_FOUND}: ${country}`, 422, ErrorCode.VALIDATION_ERROR);
     }
     return provider;
   }
@@ -228,12 +229,12 @@ export default class ESignatureService {
 
     const validation = provider.validateIdentifier(params.identifier, params.country);
     if (!validation.ok) {
-      throw new Error(validation.error || E_SIGNATURE_MESSAGES.IDENTIFIER_INVALID);
+      throw new AppError(validation.error || E_SIGNATURE_MESSAGES.IDENTIFIER_INVALID, 422, ErrorCode.VALIDATION_ERROR);
     }
     const normalizedIdentifier = validation.normalized ?? params.identifier;
 
     if (!provider.hasCapability('login')) {
-      throw new Error(E_SIGNATURE_MESSAGES.PROVIDER_CAPABILITY_MISSING);
+      throw new AppError(E_SIGNATURE_MESSAGES.PROVIDER_CAPABILITY_MISSING, 422, ErrorCode.VALIDATION_ERROR);
     }
 
     const challenge = ESignatureService.generateChallenge();
@@ -326,7 +327,7 @@ export default class ESignatureService {
     // Scope check — initiating client IP+UA must match
     if ((record.ip && ip && record.ip !== ip) || (record.ua && ua && record.ua !== ua)) {
       Logger.warn(`e_signature txn ${transactionId} scope mismatch — possible session fixation`);
-      throw new Error(E_SIGNATURE_MESSAGES.TRANSACTION_SCOPE_MISMATCH);
+      throw new AppError(E_SIGNATURE_MESSAGES.TRANSACTION_SCOPE_MISMATCH, 403, ErrorCode.FORBIDDEN);
     }
     if (record.expiresAt * 1000 < Date.now()) {
       await ESignatureService.deleteTransaction(transactionId);

@@ -52,6 +52,11 @@ export const E_SIGNATURE_MESSAGES = {
   NOT_IMPLEMENTED: 'This capability is not implemented for the selected provider',
 
   ENCRYPTION_KEY_MISSING: 'SETTINGS_ENCRYPTION_KEY is required for encrypted tenant settings',
+  ENCRYPTED_VALUE_FORMAT_INVALID: 'Encrypted value has unexpected format',
+  ENCRYPTED_VALUE_AUTH_TAG_INVALID: 'Encrypted value has wrong auth tag length',
+
+  CERT_DER_DECODE_FAILED: 'Cannot decode certificate DER',
+  OCSP_RESPONSE_DECODE_FAILED: 'Cannot decode OCSP response',
 } as const;
 
 export type ESignatureMessageKey = keyof typeof E_SIGNATURE_MESSAGES;

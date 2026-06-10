@@ -1,5 +1,7 @@
 # ai — Posture Review
 
+> **Uygulandı:** 2026-06-10 — High AIError → AppError (3 site, 503 FEATURE_NOT_AVAILABLE), High ai.messages.ts oluşturuldu (PROVIDER_NOT_CONFIGURED key).
+
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`
 > **Services:** `ai.service.ts`
 > **Overall grade:** C · **Findings:** 0c / 2h / 2m / 2l

@@ -11,6 +11,7 @@ const WebhookMessages = {
   TEST_SENT: 'Test event dispatched.',
   FORBIDDEN: 'You do not have permission to manage webhooks.',
   REDELIVER_QUEUED: 'Webhook redelivery queued.',
+  TEST_DELIVERY_MESSAGE: 'This is a test delivery from the webhook system.',
 } as const;
 
 export default WebhookMessages;

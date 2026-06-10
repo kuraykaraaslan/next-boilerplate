@@ -6,6 +6,7 @@ import { WebhookDeliverySchema } from './webhook.types';
 import type { WebhookDelivery, WebhookMetrics } from './webhook.types';
 import type { ListDeliveriesInput } from './webhook.dto';
 import type { WebhookEvent } from './webhook.enums';
+import { AppError, ErrorCode } from '@/modules/common/app-error';
 import WebhookMessages from './webhook.messages';
 import Logger from '@/modules/logger';
 import TenantFeatureGateService from '@/modules/tenant_subscription/tenant_subscription.feature.service';
@@ -122,10 +123,10 @@ export default class WebhookService {
     const webhookRepo = ds.getRepository(WebhookEntity);
 
     const delivery = await deliveryRepo.findOne({ where: { deliveryId, tenantId, webhookId } });
-    if (!delivery) throw new Error(WebhookMessages.DELIVERY_NOT_FOUND);
+    if (!delivery) throw new AppError(WebhookMessages.DELIVERY_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
 
     const webhook = await webhookRepo.findOne({ where: { webhookId, tenantId } });
-    if (!webhook) throw new Error(WebhookMessages.NOT_FOUND);
+    if (!webhook) throw new AppError(WebhookMessages.NOT_FOUND, 404, ErrorCode.NOT_FOUND);
 
     delivery.status = 'PENDING';
     delivery.attempts = 0;
@@ -184,14 +185,14 @@ export default class WebhookService {
   static async sendTest(tenantId: string, webhookId: string): Promise<WebhookDelivery> {
     const ds = await tenantDataSourceFor(tenantId);
     const webhook = await ds.getRepository(WebhookEntity).findOne({ where: { webhookId, tenantId } });
-    if (!webhook) throw new Error(WebhookMessages.NOT_FOUND);
+    if (!webhook) throw new AppError(WebhookMessages.NOT_FOUND, 404, ErrorCode.NOT_FOUND);
 
     const envelope = {
       webhookId: webhook.webhookId,
       tenantId: webhook.tenantId,
       event: 'test',
       createdAt: new Date().toISOString(),
-      data: { message: 'This is a test delivery from the webhook system.' },
+      data: { message: WebhookMessages.TEST_DELIVERY_MESSAGE },
     };
     const requestBody = JSON.stringify(envelope);
 
@@ -246,7 +247,7 @@ export default class WebhookService {
   ): Promise<void> {
     const ds = await tenantDataSourceFor(tenantId);
     const webhook = await ds.getRepository(WebhookEntity).findOne({ where: { webhookId, tenantId } });
-    if (!webhook) throw new Error(WebhookMessages.NOT_FOUND);
+    if (!webhook) throw new AppError(WebhookMessages.NOT_FOUND, 404, ErrorCode.NOT_FOUND);
     await enqueueDelivery(webhook, event, samplePayload);
   }
 

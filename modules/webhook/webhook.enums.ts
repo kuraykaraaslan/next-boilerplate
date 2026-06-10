@@ -63,5 +63,5 @@ export const WEBHOOK_EVENTS: WebhookEvent[] = WebhookEventEnum.options;
 
 // ─── Shared ───────────────────────────────────────────────────────────────────
 
-export const WebhookDeliveryStatusEnum = z.enum(['PENDING', 'SUCCESS', 'FAILED']);
+export const WebhookDeliveryStatusEnum = z.enum(['PENDING', 'SUCCESS', 'FAILED', 'DEAD_LETTERED']);
 export type WebhookDeliveryStatus = z.infer<typeof WebhookDeliveryStatusEnum>;

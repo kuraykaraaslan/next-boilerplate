@@ -11,6 +11,7 @@ import {
   DEFAULT_EU_LOTL_URL,
   TRUST_LIST_CACHE_TTL_SECONDS,
 } from './e_signature.constants';
+import { AppError, ErrorCode } from '@/modules/common/app-error';
 import { E_SIGNATURE_MESSAGES } from './e_signature.messages';
 import type { CountryCode } from './e_signature.types';
 
@@ -94,7 +95,7 @@ export default class ESignatureTrustListService {
     try {
       lotlXml = await ESignatureETSI_TSLService.fetchLotl(url);
     } catch {
-      throw new Error(E_SIGNATURE_MESSAGES.TRUST_LIST_FETCH_FAILED);
+      throw new AppError(E_SIGNATURE_MESSAGES.TRUST_LIST_FETCH_FAILED, 503, ErrorCode.INTERNAL_ERROR);
     }
 
     const trustedLotlSignerPem = env.LOTL_SIGNER_CERT_PEM;
@@ -153,7 +154,7 @@ export default class ESignatureTrustListService {
         source: 'tr_kamusm',
       });
     } catch {
-      throw new Error(E_SIGNATURE_MESSAGES.TRUST_LIST_FETCH_FAILED);
+      throw new AppError(E_SIGNATURE_MESSAGES.TRUST_LIST_FETCH_FAILED, 503, ErrorCode.INTERNAL_ERROR);
     }
   }
 

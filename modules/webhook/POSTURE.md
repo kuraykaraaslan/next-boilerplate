@@ -1,5 +1,7 @@
 # webhook — Posture Review
 
+> **Uygulandı:** 2026-06-10 — High AppError (webhook.service.ts 4 site + webhook.crud.service.ts 4 site), High DEAD_LETTERED enum.ts'e eklendi, Medium inline test mesajı webhook.messages.ts'e taşındı.
+
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`
 > **Services:** webhook.service.ts, webhook.crud.service.ts, webhook.delivery.service.ts, webhook.metrics.service.ts
 > **Overall grade:** C · **Findings:** 0c / 2h / 4m / 1l

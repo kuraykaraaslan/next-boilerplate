@@ -74,6 +74,7 @@ vi.mock('@/modules/setting/setting.service', () => ({
 
 vi.mock('@/modules/tenant_usage/tenant_usage.service', () => ({
   TenantUsageService: {
+    getUsage: vi.fn(async () => ({ aiTokens: 0 })),
     incrementAiTokens: vi.fn(async () => {}),
     incrementApiCall: vi.fn(async () => 1),
     incrementStorageBytes: vi.fn(async () => {}),
@@ -144,7 +145,7 @@ vi.mock('./providers/google.provider', () => ({
 
 
 // Bypass feature gating in unit tests — tested separately in tenant_subscription/.
-vi.mock('@/modules/tenant_subscription/tenant_subscription.service', () => ({
+vi.mock('@/modules/tenant_subscription/tenant_subscription.feature.service', () => ({
   default: {
     assertFeatureAccess: vi.fn(async () => undefined),
     checkFeatureAccess: vi.fn(async () => ({ allowed: true, featureKey: '', type: 'BOOLEAN', limit: null, unlimited: null, current: null })),
@@ -152,7 +153,8 @@ vi.mock('@/modules/tenant_subscription/tenant_subscription.service', () => ({
 }));
 import AIService from './ai.service';
 import redis from '@/modules/redis';
-import { AIError, OpenAIModels, AnthropicModels, GoogleModels } from './ai.types';
+import { AppError } from '@/modules/common/app-error';
+import { OpenAIModels, AnthropicModels, GoogleModels } from './ai.types';
 
 const TENANT_ID = '550e8400-e29b-41d4-a716-446655440000';
 
@@ -293,7 +295,7 @@ describe('AIService.chat', () => {
 
     await expect(
       AIService.chat(TENANT_ID, { messages: [{ role: 'user', content: 'Hi' }], provider: 'openai' })
-    ).rejects.toThrow(AIError);
+    ).rejects.toThrow(AppError);
   });
 });
 
@@ -339,7 +341,7 @@ describe('AIService.embed', () => {
 
     await expect(
       AIService.embed(TENANT_ID, { input: 'test', provider: 'openai' })
-    ).rejects.toThrow(AIError);
+    ).rejects.toThrow(AppError);
   });
 });
 

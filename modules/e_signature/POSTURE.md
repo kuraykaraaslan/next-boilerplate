@@ -1,5 +1,7 @@
 # e_signature — Posture Review
 
+> **Uygulandı:** 2026-06-10 — Critical SettingService.create arg fix, High AppError (tüm throws → AppError across 6 files), Medium ESignatureService_isEncrypted → ESignatureEncryptionService.isEncrypted, Medium inline strings (CERT_DER_DECODE_FAILED, OCSP_RESPONSE_DECODE_FAILED, ENCRYPTED_VALUE_FORMAT_INVALID, ENCRYPTED_VALUE_AUTH_TAG_INVALID) messages.ts'e taşındı.
+
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`
 > **Services:** e_signature.cert.service.ts, e_signature.crypto.service.ts, e_signature.encryption.service.ts, e_signature.etsi_tsl.service.ts, e_signature.identity.service.ts, e_signature.ocsp.service.ts, e_signature.service.ts, e_signature.settings.service.ts, e_signature.trust_list.service.ts
 > **Overall grade:** D · **Findings:** 1c / 4h / 4m / 2l

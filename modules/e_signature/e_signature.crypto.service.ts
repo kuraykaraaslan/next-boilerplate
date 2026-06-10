@@ -2,6 +2,7 @@ import { createHash, createVerify, constants as cryptoConstants, KeyObject, crea
 import { X509Certificate, ExtendedKeyUsageExtension, KeyUsagesExtension, KeyUsageFlags, AuthorityKeyIdentifierExtension, SubjectKeyIdentifierExtension, AuthorityInfoAccessExtension } from '@peculiar/x509';
 import Logger from '@/modules/logger';
 import type { CountryCode, RawIdentityClaims } from './e_signature.types';
+import { AppError, ErrorCode } from '@/modules/common/app-error';
 import { E_SIGNATURE_MESSAGES } from './e_signature.messages';
 
 /**
@@ -52,7 +53,7 @@ export default class ESignatureCryptoService {
       return new X509Certificate(ab);
     } catch (err) {
       Logger.error(`certificate parse failed: ${err instanceof Error ? err.message : err}`);
-      throw new Error(E_SIGNATURE_MESSAGES.CERTIFICATE_PARSE_FAILED);
+      throw new AppError(E_SIGNATURE_MESSAGES.CERTIFICATE_PARSE_FAILED, 422, ErrorCode.VALIDATION_ERROR);
     }
   }
 
@@ -100,8 +101,8 @@ export default class ESignatureCryptoService {
   // ── Validity window ───────────────────────────────────────────────────────
   static assertValidityWindow(cert: Buffer, at: Date = new Date()): void {
     const c = ESignatureCryptoService.loadCertificate(cert);
-    if (at < c.notBefore) throw new Error(E_SIGNATURE_MESSAGES.CERTIFICATE_NOT_YET_VALID);
-    if (at > c.notAfter) throw new Error(E_SIGNATURE_MESSAGES.CERTIFICATE_EXPIRED);
+    if (at < c.notBefore) throw new AppError(E_SIGNATURE_MESSAGES.CERTIFICATE_NOT_YET_VALID, 422, ErrorCode.VALIDATION_ERROR);
+    if (at > c.notAfter) throw new AppError(E_SIGNATURE_MESSAGES.CERTIFICATE_EXPIRED, 422, ErrorCode.VALIDATION_ERROR);
   }
 
   // ── Key usage policy ──────────────────────────────────────────────────────
@@ -110,10 +111,10 @@ export default class ESignatureCryptoService {
   static assertKeyUsageForSignature(cert: Buffer): void {
     const c = ESignatureCryptoService.loadCertificate(cert);
     const ku = c.getExtension(KeyUsagesExtension);
-    if (!ku) throw new Error(E_SIGNATURE_MESSAGES.CERTIFICATE_KEY_USAGE_INVALID);
+    if (!ku) throw new AppError(E_SIGNATURE_MESSAGES.CERTIFICATE_KEY_USAGE_INVALID, 422, ErrorCode.VALIDATION_ERROR);
     const flags = ku.usages as unknown as number;
     if ((flags & KeyUsageFlags.nonRepudiation) === 0) {
-      throw new Error(E_SIGNATURE_MESSAGES.CERTIFICATE_KEY_USAGE_INVALID);
+      throw new AppError(E_SIGNATURE_MESSAGES.CERTIFICATE_KEY_USAGE_INVALID, 422, ErrorCode.VALIDATION_ERROR);
     }
   }
 
@@ -178,7 +179,7 @@ export default class ESignatureCryptoService {
     at?: Date;
   }): Promise<{ ok: boolean; leafIssuerDer?: Buffer }> {
     if (trustRootsPem.length === 0) {
-      throw new Error(E_SIGNATURE_MESSAGES.CERTIFICATE_TRUST_ROOT_MISSING);
+      throw new AppError(E_SIGNATURE_MESSAGES.CERTIFICATE_TRUST_ROOT_MISSING, 503, ErrorCode.FEATURE_NOT_AVAILABLE);
     }
     try {
       const leafCert = ESignatureCryptoService.loadCertificate(leaf);
@@ -191,12 +192,12 @@ export default class ESignatureCryptoService {
       const maxDepth = 8;
       for (let depth = 0; depth < maxDepth; depth++) {
         if (at < current.notBefore || at > current.notAfter) {
-          throw new Error(E_SIGNATURE_MESSAGES.CERTIFICATE_EXPIRED);
+          throw new AppError(E_SIGNATURE_MESSAGES.CERTIFICATE_EXPIRED, 422, ErrorCode.VALIDATION_ERROR);
         }
         // Self-signed → must match a trust root by DN + verify
         if (current.issuerName.toString() === current.subjectName.toString()) {
           const matched = rootCerts.find((r) => r.subjectName.toString() === current.subjectName.toString());
-          if (!matched) throw new Error(E_SIGNATURE_MESSAGES.CERTIFICATE_CHAIN_INVALID);
+          if (!matched) throw new AppError(E_SIGNATURE_MESSAGES.CERTIFICATE_CHAIN_INVALID, 422, ErrorCode.VALIDATION_ERROR);
           const ok = await current.verify({ publicKey: matched.publicKey });
           if (depth === 0) leafIssuerDer = Buffer.from(matched.rawData);
           return { ok, leafIssuerDer };
@@ -220,15 +221,13 @@ export default class ESignatureCryptoService {
           if (depth === 0) leafIssuerDer = Buffer.from(root.rawData);
           return { ok, leafIssuerDer };
         }
-        throw new Error(E_SIGNATURE_MESSAGES.CERTIFICATE_CHAIN_INVALID);
+        throw new AppError(E_SIGNATURE_MESSAGES.CERTIFICATE_CHAIN_INVALID, 422, ErrorCode.VALIDATION_ERROR);
       }
-      throw new Error(E_SIGNATURE_MESSAGES.CERTIFICATE_CHAIN_INVALID);
+      throw new AppError(E_SIGNATURE_MESSAGES.CERTIFICATE_CHAIN_INVALID, 422, ErrorCode.VALIDATION_ERROR);
     } catch (err) {
-      if (err instanceof Error && Object.values(E_SIGNATURE_MESSAGES).includes(err.message as never)) {
-        throw err;
-      }
+      if (err instanceof AppError) throw err;
       Logger.warn(`chain validation failed: ${err instanceof Error ? err.message : err}`);
-      throw new Error(E_SIGNATURE_MESSAGES.CERTIFICATE_CHAIN_INVALID);
+      throw new AppError(E_SIGNATURE_MESSAGES.CERTIFICATE_CHAIN_INVALID, 422, ErrorCode.VALIDATION_ERROR);
     }
   }
 

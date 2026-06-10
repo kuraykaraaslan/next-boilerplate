@@ -5,6 +5,7 @@ import { SafeWebhookSchema } from './webhook.types';
 import type { SafeWebhook } from './webhook.types';
 import type { CreateWebhookInput, UpdateWebhookInput, ListWebhooksInput } from './webhook.dto';
 import { assertSafeWebhookUrlSync } from './webhook.ssrf';
+import { AppError, ErrorCode } from '@/modules/common/app-error';
 import WebhookMessages from './webhook.messages';
 import Logger from '@/modules/logger';
 import { generateSecret } from './webhook.crypto';
@@ -30,7 +31,7 @@ export default class WebhookCrudService {
   static async getById(tenantId: string, webhookId: string): Promise<SafeWebhook> {
     const ds = await tenantDataSourceFor(tenantId);
     const row = await ds.getRepository(WebhookEntity).findOne({ where: { webhookId, tenantId } });
-    if (!row) throw new Error(WebhookMessages.NOT_FOUND);
+    if (!row) throw new AppError(WebhookMessages.NOT_FOUND, 404, ErrorCode.NOT_FOUND);
     return SafeWebhookSchema.parse(row);
   }
 
@@ -66,7 +67,7 @@ export default class WebhookCrudService {
     const repo = ds.getRepository(WebhookEntity);
 
     const row = await repo.findOne({ where: { webhookId, tenantId } });
-    if (!row) throw new Error(WebhookMessages.NOT_FOUND);
+    if (!row) throw new AppError(WebhookMessages.NOT_FOUND, 404, ErrorCode.NOT_FOUND);
 
     // Re-run the SSRF pre-check whenever the URL or allowlist changes.
     if (input.url !== undefined || input.ipAllowlist !== undefined) {
@@ -99,7 +100,7 @@ export default class WebhookCrudService {
     const ds = await tenantDataSourceFor(tenantId);
     const repo = ds.getRepository(WebhookEntity);
     const row = await repo.findOne({ where: { webhookId, tenantId } });
-    if (!row) throw new Error(WebhookMessages.NOT_FOUND);
+    if (!row) throw new AppError(WebhookMessages.NOT_FOUND, 404, ErrorCode.NOT_FOUND);
     await repo.remove(row);
   }
 
@@ -119,7 +120,7 @@ export default class WebhookCrudService {
     const repo = ds.getRepository(WebhookEntity);
 
     const row = await repo.findOne({ where: { webhookId, tenantId } });
-    if (!row) throw new Error(WebhookMessages.NOT_FOUND);
+    if (!row) throw new AppError(WebhookMessages.NOT_FOUND, 404, ErrorCode.NOT_FOUND);
 
     const newSecret = generateSecret();
     row.previousSecret = row.secret;

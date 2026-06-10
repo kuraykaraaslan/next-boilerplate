@@ -26,7 +26,9 @@ import type {
   EmbeddingResponse,
   ProviderConfig,
 } from './ai.types';
-import { AIError, OpenAIModels, AnthropicModels, GoogleModels } from './ai.types';
+import { AppError, ErrorCode } from '@/modules/common/app-error';
+import { OpenAIModels, AnthropicModels, GoogleModels } from './ai.types';
+import AiMessages from './ai.messages';
 
 interface TenantProviderBundle {
   openai: OpenAIProvider;
@@ -240,11 +242,7 @@ export default class AIService {
     const provider = await AIService.getProvider(tenantId, providerType);
 
     if (!provider.isConfigured()) {
-      throw new AIError(
-        `Provider ${provider.providerType} is not configured`,
-        provider.providerType,
-        'NOT_CONFIGURED'
-      );
+      throw new AppError(AiMessages.PROVIDER_NOT_CONFIGURED, 503, ErrorCode.FEATURE_NOT_AVAILABLE);
     }
 
     const response = await provider.chat(options);
@@ -274,11 +272,7 @@ export default class AIService {
     const provider = await AIService.getProvider(tenantId, providerType);
 
     if (!provider.isConfigured()) {
-      throw new AIError(
-        `Provider ${provider.providerType} is not configured`,
-        provider.providerType,
-        'NOT_CONFIGURED'
-      );
+      throw new AppError(AiMessages.PROVIDER_NOT_CONFIGURED, 503, ErrorCode.FEATURE_NOT_AVAILABLE);
     }
 
     const response = await provider.chatStream(options, onChunk);
@@ -305,11 +299,7 @@ export default class AIService {
     const provider = await AIService.getProvider(tenantId, options.provider);
 
     if (!provider.isConfigured()) {
-      throw new AIError(
-        `Provider ${provider.providerType} is not configured`,
-        provider.providerType,
-        'NOT_CONFIGURED'
-      );
+      throw new AppError(AiMessages.PROVIDER_NOT_CONFIGURED, 503, ErrorCode.FEATURE_NOT_AVAILABLE);
     }
 
     const response = await provider.embed(options);
