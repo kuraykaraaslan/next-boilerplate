@@ -1,3 +1,5 @@
+> **Uygulandı** — 2026-06-10: All 6 raw throw new Error → AppError (403 FORBIDDEN for self/role/membership-role guards, 404 NOT_FOUND for missing user/member); SafeUserSchema.parse(targetUser) replaces inline object with as-any casts; ImpersonationSessionMetaSchema (z.object+passthrough) replaces (session.metadata as any) probe; GLOBAL_ROLE_ORDER derived from UserRoleEnum.options; pruned unused message keys (NOT_IMPERSONATING, CANNOT_REFRESH_IMPERSONATION_SESSION, INSUFFICIENT_PRIVILEGES).
+
 # auth_impersonation — Posture Review
 
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`

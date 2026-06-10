@@ -1,3 +1,5 @@
+> **Uygulandı** — 2026-06-10: All 18 raw throw new Error → AppError (404 NOT_FOUND, 409 CONFLICT, 403 FORBIDDEN, 500 INTERNAL_ERROR); catch blocks add AppError guard before rethrowing; redis.get/setex wrapped in .catch(()=>null)/.catch(()=>{}) fail-open in getPageBySlug and listBlocks; SeoService.delete in deletePage made fire-and-forget (.catch + Logger.warn); Object.assign in updatePage/updateBlock replaced with explicit mutable-field assignment.
+
 # dynamic_page — Posture Review
 
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`

@@ -1,3 +1,5 @@
+> **Uygulandı** — 2026-06-10: Added optional actorId param to update() and reset(); fire-and-forget AuditLogService.log (SETTINGS_UPDATED) emitted when actorId is present; customCss/customJs capped at .max(50_000) in TenantBrandingSchema.
+
 # tenant_branding — Posture Review
 
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`

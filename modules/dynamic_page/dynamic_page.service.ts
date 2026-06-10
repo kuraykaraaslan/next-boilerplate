@@ -3,6 +3,7 @@ import { tenantDataSourceFor } from '@/modules/db'
 import redis, { singleFlight, jitter } from '@/modules/redis'
 import Logger from '@/modules/logger'
 import SeoService from '@/modules/seo/seo.service'
+import { AppError, ErrorCode } from '@/modules/common/app-error'
 // SEO writes happen directly from the editor against /api/seo; this module
 // only deletes the seo_meta row when the page is removed.
 import { DynamicPage as DynamicPageEntity } from './entities/dynamic_page.entity'
@@ -68,23 +69,25 @@ export default class DynamicPageService {
     const row = await ds.getRepository(DynamicPageEntity).findOne({
       where: { tenantId, dynamicPageId: pageId },
     })
-    if (!row) throw new Error(DynamicPageMessages.PAGE_NOT_FOUND)
+    if (!row) throw new AppError(DynamicPageMessages.PAGE_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     return DynamicPageRecordSchema.parse(row)
   }
 
   static async getPageBySlug(tenantId: string, slug: string): Promise<DynamicPageRecord> {
     const key = slugKey(tenantId, slug)
     return singleFlight(key, async () => {
-      const cached = await redis.get(key)
-      if (cached) return JSON.parse(cached) as DynamicPageRecord
+      const cached = await redis.get(key).catch(() => null)
+      if (cached) {
+        try { return JSON.parse(cached) as DynamicPageRecord } catch { await redis.del(key).catch(() => {}) }
+      }
 
       const ds = await tenantDataSourceFor(tenantId)
       const row = await ds.getRepository(DynamicPageEntity).findOne({
         where: { tenantId, slug },
       })
-      if (!row) throw new Error(DynamicPageMessages.PAGE_NOT_FOUND)
+      if (!row) throw new AppError(DynamicPageMessages.PAGE_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
       const parsed = DynamicPageRecordSchema.parse(row)
-      await redis.setex(key, jitter(SLUG_TTL), JSON.stringify(parsed))
+      await redis.setex(key, jitter(SLUG_TTL), JSON.stringify(parsed)).catch(() => {})
       return parsed
     })
   }
@@ -94,7 +97,7 @@ export default class DynamicPageService {
     const repo = ds.getRepository(DynamicPageEntity)
 
     const existing = await repo.findOne({ where: { tenantId, slug: dto.slug } })
-    if (existing) throw new Error(DynamicPageMessages.SLUG_TAKEN)
+    if (existing) throw new AppError(DynamicPageMessages.SLUG_TAKEN, 409, ErrorCode.CONFLICT)
 
     try {
       const { metadata, ...rest } = dto
@@ -102,8 +105,9 @@ export default class DynamicPageService {
       const saved = await repo.save(page) as DynamicPageEntity
       return DynamicPageRecordSchema.parse(saved)
     } catch (error) {
+      if (error instanceof AppError) throw error
       Logger.error(`${DynamicPageMessages.PAGE_CREATE_FAILED}: ${error}`)
-      throw new Error(DynamicPageMessages.PAGE_CREATE_FAILED)
+      throw new AppError(DynamicPageMessages.PAGE_CREATE_FAILED, 500, ErrorCode.INTERNAL_ERROR)
     }
   }
 
@@ -112,23 +116,32 @@ export default class DynamicPageService {
     const repo = ds.getRepository(DynamicPageEntity)
 
     const row = await repo.findOne({ where: { tenantId, dynamicPageId: pageId } })
-    if (!row) throw new Error(DynamicPageMessages.PAGE_NOT_FOUND)
+    if (!row) throw new AppError(DynamicPageMessages.PAGE_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
 
     const oldSlug = row.slug
     if (dto.slug && dto.slug !== oldSlug) {
       const conflict = await repo.findOne({ where: { tenantId, slug: dto.slug } })
-      if (conflict) throw new Error(DynamicPageMessages.SLUG_TAKEN)
+      if (conflict) throw new AppError(DynamicPageMessages.SLUG_TAKEN, 409, ErrorCode.CONFLICT)
     }
 
-    Object.assign(row, dto)
+    if (dto.title !== undefined) row.title = dto.title
+    if (dto.slug !== undefined) row.slug = dto.slug
+    if (dto.description !== undefined) row.description = dto.description
+    if (dto.keywords !== undefined) row.keywords = dto.keywords
+    if (dto.sections !== undefined) row.sections = dto.sections
+    if (dto.metadata !== undefined) row.metadata = dto.metadata ?? undefined
+    if (dto.status !== undefined) row.status = dto.status
+    if (dto.schemaVersion !== undefined) row.schemaVersion = dto.schemaVersion
+
     try {
       const saved = await repo.save(row)
-      await redis.del(slugKey(tenantId, saved.slug))
-      if (oldSlug !== saved.slug) await redis.del(slugKey(tenantId, oldSlug))
+      await redis.del(slugKey(tenantId, saved.slug)).catch(() => {})
+      if (oldSlug !== saved.slug) await redis.del(slugKey(tenantId, oldSlug)).catch(() => {})
       return DynamicPageRecordSchema.parse(saved)
     } catch (error) {
+      if (error instanceof AppError) throw error
       Logger.error(`${DynamicPageMessages.PAGE_UPDATE_FAILED}: ${error}`)
-      throw new Error(DynamicPageMessages.PAGE_UPDATE_FAILED)
+      throw new AppError(DynamicPageMessages.PAGE_UPDATE_FAILED, 500, ErrorCode.INTERNAL_ERROR)
     }
   }
 
@@ -136,10 +149,12 @@ export default class DynamicPageService {
     const ds = await tenantDataSourceFor(tenantId)
     const repo = ds.getRepository(DynamicPageEntity)
     const row = await repo.findOne({ where: { tenantId, dynamicPageId: pageId } })
-    if (!row) throw new Error(DynamicPageMessages.PAGE_NOT_FOUND)
+    if (!row) throw new AppError(DynamicPageMessages.PAGE_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     await repo.remove(row)
-    await redis.del(slugKey(tenantId, row.slug))
-    await SeoService.delete(tenantId, 'dynamic_page', pageId)
+    await redis.del(slugKey(tenantId, row.slug)).catch(() => {})
+    SeoService.delete(tenantId, 'dynamic_page', pageId).catch((err) =>
+      Logger.warn(`[DynamicPage] SEO cleanup failed for page ${pageId}: ${err}`)
+    )
   }
 
   // ─── Translations ─────────────────────────────────────────────────────────
@@ -171,8 +186,9 @@ export default class DynamicPageService {
       const saved = await repo.save(row)
       return DynamicPageTranslationRecordSchema.parse(saved)
     } catch (error) {
+      if (error instanceof AppError) throw error
       Logger.error(`${DynamicPageMessages.TRANSLATION_UPSERT_FAILED}: ${error}`)
-      throw new Error(DynamicPageMessages.TRANSLATION_UPSERT_FAILED)
+      throw new AppError(DynamicPageMessages.TRANSLATION_UPSERT_FAILED, 500, ErrorCode.INTERNAL_ERROR)
     }
   }
 
@@ -180,7 +196,7 @@ export default class DynamicPageService {
     const ds = await tenantDataSourceFor(tenantId)
     const repo = ds.getRepository(DynamicPageTranslationEntity)
     const row = await repo.findOne({ where: { tenantId, dynamicPageId: pageId, lang } })
-    if (!row) throw new Error(DynamicPageMessages.TRANSLATION_NOT_FOUND)
+    if (!row) throw new AppError(DynamicPageMessages.TRANSLATION_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     await repo.remove(row)
   }
 
@@ -189,8 +205,10 @@ export default class DynamicPageService {
   static async listBlocks(tenantId: string): Promise<DynamicPageBlockRecord[]> {
     const key = blocksKey(tenantId)
     return singleFlight(key, async () => {
-      const cached = await redis.get(key)
-      if (cached) return JSON.parse(cached) as DynamicPageBlockRecord[]
+      const cached = await redis.get(key).catch(() => null)
+      if (cached) {
+        try { return JSON.parse(cached) as DynamicPageBlockRecord[] } catch { await redis.del(key).catch(() => {}) }
+      }
 
       const ds = await tenantDataSourceFor(tenantId)
       const rows = await ds.getRepository(DynamicPageBlockEntity).find({
@@ -198,7 +216,7 @@ export default class DynamicPageService {
         order: { category: 'ASC', label: 'ASC' },
       })
       const parsed = rows.map((r) => DynamicPageBlockRecordSchema.parse(r))
-      await redis.setex(key, jitter(BLOCKS_TTL), JSON.stringify(parsed))
+      await redis.setex(key, jitter(BLOCKS_TTL), JSON.stringify(parsed)).catch(() => {})
       return parsed
     })
   }
@@ -206,7 +224,7 @@ export default class DynamicPageService {
   static async getBlock(tenantId: string, blockId: string): Promise<DynamicPageBlockRecord> {
     const ds = await tenantDataSourceFor(tenantId)
     const row = await ds.getRepository(DynamicPageBlockEntity).findOne({ where: { tenantId, blockId } })
-    if (!row) throw new Error(DynamicPageMessages.BLOCK_NOT_FOUND)
+    if (!row) throw new AppError(DynamicPageMessages.BLOCK_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     return DynamicPageBlockRecordSchema.parse(row)
   }
 
@@ -215,16 +233,17 @@ export default class DynamicPageService {
     const repo = ds.getRepository(DynamicPageBlockEntity)
 
     const existing = await repo.findOne({ where: { tenantId, type: dto.type } })
-    if (existing) throw new Error(DynamicPageMessages.BLOCK_TYPE_TAKEN)
+    if (existing) throw new AppError(DynamicPageMessages.BLOCK_TYPE_TAKEN, 409, ErrorCode.CONFLICT)
 
     try {
       const block = repo.create({ tenantId, ...dto })
       const saved = await repo.save(block)
-      await redis.del(blocksKey(tenantId))
+      await redis.del(blocksKey(tenantId)).catch(() => {})
       return DynamicPageBlockRecordSchema.parse(saved)
     } catch (error) {
+      if (error instanceof AppError) throw error
       Logger.error(`${DynamicPageMessages.BLOCK_CREATE_FAILED}: ${error}`)
-      throw new Error(DynamicPageMessages.BLOCK_CREATE_FAILED)
+      throw new AppError(DynamicPageMessages.BLOCK_CREATE_FAILED, 500, ErrorCode.INTERNAL_ERROR)
     }
   }
 
@@ -233,21 +252,31 @@ export default class DynamicPageService {
     const repo = ds.getRepository(DynamicPageBlockEntity)
 
     const row = await repo.findOne({ where: { tenantId, blockId } })
-    if (!row) throw new Error(DynamicPageMessages.BLOCK_NOT_FOUND)
+    if (!row) throw new AppError(DynamicPageMessages.BLOCK_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
 
     if (dto.type && dto.type !== row.type) {
       const conflict = await repo.findOne({ where: { tenantId, type: dto.type } })
-      if (conflict) throw new Error(DynamicPageMessages.BLOCK_TYPE_TAKEN)
+      if (conflict) throw new AppError(DynamicPageMessages.BLOCK_TYPE_TAKEN, 409, ErrorCode.CONFLICT)
     }
 
-    Object.assign(row, dto)
+    if (dto.type !== undefined) row.type = dto.type
+    if (dto.label !== undefined) row.label = dto.label
+    if (dto.category !== undefined) row.category = dto.category
+    if (dto.description !== undefined) row.description = dto.description
+    if (dto.schema !== undefined) row.schema = dto.schema
+    if (dto.defaultProps !== undefined) row.defaultProps = dto.defaultProps
+    if (dto.template !== undefined) row.template = dto.template
+    if (dto.script !== undefined) row.script = dto.script
+    if (dto.isSystem !== undefined) row.isSystem = dto.isSystem
+
     try {
       const saved = await repo.save(row)
-      await redis.del(blocksKey(tenantId))
+      await redis.del(blocksKey(tenantId)).catch(() => {})
       return DynamicPageBlockRecordSchema.parse(saved)
     } catch (error) {
+      if (error instanceof AppError) throw error
       Logger.error(`${DynamicPageMessages.BLOCK_UPDATE_FAILED}: ${error}`)
-      throw new Error(DynamicPageMessages.BLOCK_UPDATE_FAILED)
+      throw new AppError(DynamicPageMessages.BLOCK_UPDATE_FAILED, 500, ErrorCode.INTERNAL_ERROR)
     }
   }
 
@@ -255,10 +284,10 @@ export default class DynamicPageService {
     const ds = await tenantDataSourceFor(tenantId)
     const repo = ds.getRepository(DynamicPageBlockEntity)
     const row = await repo.findOne({ where: { tenantId, blockId } })
-    if (!row) throw new Error(DynamicPageMessages.BLOCK_NOT_FOUND)
-    if (row.isSystem) throw new Error(DynamicPageMessages.SYSTEM_BLOCK_PROTECTED)
+    if (!row) throw new AppError(DynamicPageMessages.BLOCK_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
+    if (row.isSystem) throw new AppError(DynamicPageMessages.SYSTEM_BLOCK_PROTECTED, 403, ErrorCode.FORBIDDEN)
     await repo.remove(row)
-    await redis.del(blocksKey(tenantId))
+    await redis.del(blocksKey(tenantId)).catch(() => {})
   }
 
 }
