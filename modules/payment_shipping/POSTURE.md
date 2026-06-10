@@ -1,5 +1,7 @@
 # payment_shipping — Posture Review
 
+> **Uygulandı:** 2026-06-11 — High: AppError on all throw sites (404/409/422/500), calculateShipping re-throws AppError unchanged; Medium: dead cache fully removed (CACHE_TTL+methodKey+singleFlight+redis.del); Low: audit entries for all 6 mutations, explicit column assignment replaces Object.assign.
+
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`
 > **Services:** `payment_shipping.service.ts`
 > **Overall grade:** C · **Findings:** 0c / 1h / 4m / 2l

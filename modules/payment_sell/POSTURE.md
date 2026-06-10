@@ -1,5 +1,7 @@
 # payment_sell — Posture Review
 
+> **Uygulandı:** 2026-06-11 — Critical: tenant-isolation fix in createTransaction/listTransactions (parent payment verified with tenantId); High: AppError on all throw sites + audit logs for checkout/status/refund; Medium: redis.del fail-open; Low: as any removed, @/ alias imports, unused PaymentCurrencyEnum removed.
+
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`
 > **Services:** `payment_sell.service.ts`, `payment_sell.webhook.service.ts`
 > **Overall grade:** D · **Findings:** 1c / 2h / 4m / 3l

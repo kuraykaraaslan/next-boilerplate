@@ -4,14 +4,16 @@ import { getDataSource, tenantDataSourceFor } from '@/modules/db'
 import redis, { singleFlight } from '@/modules/redis'
 import Logger from '@/modules/logger'
 import { env } from '@/modules/env'
-import BasePaymentProvider from '../payment_core/providers/base.provider'
-import StripeProvider from '../payment_core/providers/stripe.provider'
-import PaypalProvider from '../payment_core/providers/paypal.provider'
-import IyzicoProvider from '../payment_core/providers/iyzico.provider'
-import AlipayProvider from '../payment_core/providers/alipay.provider'
-import WeChatPayProvider from '../payment_core/providers/wechatpay.provider'
-import YooKassaProvider from '../payment_core/providers/yookassa.provider'
-import CloudPaymentsProvider from '../payment_core/providers/cloudpayments.provider'
+import { AppError, ErrorCode } from '@/modules/common/app-error'
+import AuditLogService from '@/modules/audit_log/audit_log.service'
+import BasePaymentProvider from '@/modules/payment_core/providers/base.provider'
+import StripeProvider from '@/modules/payment_core/providers/stripe.provider'
+import PaypalProvider from '@/modules/payment_core/providers/paypal.provider'
+import IyzicoProvider from '@/modules/payment_core/providers/iyzico.provider'
+import AlipayProvider from '@/modules/payment_core/providers/alipay.provider'
+import WeChatPayProvider from '@/modules/payment_core/providers/wechatpay.provider'
+import YooKassaProvider from '@/modules/payment_core/providers/yookassa.provider'
+import CloudPaymentsProvider from '@/modules/payment_core/providers/cloudpayments.provider'
 import { Payment as PaymentEntity } from './entities/payment.entity'
 import { PaymentTransaction as PaymentTransactionEntity } from './entities/payment_transaction.entity'
 import {
@@ -24,7 +26,7 @@ import type {
   RefundPaymentDTO, CreateTransactionDTO, GetTransactionsQuery,
 } from './payment_sell.dto'
 import { PAYMENT_SELL_MESSAGES } from './payment_sell.messages'
-import type { PaymentProvider } from '../payment_core/payment_core.enums'
+import type { PaymentProvider } from '@/modules/payment_core/payment_core.enums'
 
 const CACHE_TTL = env.TENANT_CACHE_TTL ?? 300
 
@@ -50,7 +52,7 @@ export default class PaymentSellService {
 
   static getProvider(name: PaymentProvider): BasePaymentProvider {
     const p = PaymentSellService.PROVIDERS.get(name)
-    if (!p) throw new Error(PAYMENT_SELL_MESSAGES.PAYMENT_NOT_FOUND)
+    if (!p) throw new AppError(PAYMENT_SELL_MESSAGES.PAYMENT_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     return p
   }
 
@@ -75,7 +77,7 @@ export default class PaymentSellService {
       })
     } catch (error) {
       Logger.error(`${PAYMENT_SELL_MESSAGES.CHECKOUT_CREATE_FAILED}: ${error}`)
-      throw new Error(PAYMENT_SELL_MESSAGES.CHECKOUT_CREATE_FAILED)
+      throw new AppError(PAYMENT_SELL_MESSAGES.CHECKOUT_CREATE_FAILED, 502, ErrorCode.INTERNAL_ERROR)
     }
 
     const payment = repo.create({
@@ -97,6 +99,15 @@ export default class PaymentSellService {
     })
     const saved = await repo.save(payment)
 
+    AuditLogService.log({
+      tenantId,
+      actorType: 'SYSTEM',
+      action: 'payment.checkout_created',
+      resourceType: 'payment',
+      resourceId: saved.paymentId,
+      metadata: { provider: data.provider, amount: data.amount, currency: data.currency },
+    }).catch(() => {})
+
     return CheckoutResultSchema.parse({
       paymentId: saved.paymentId,
       sessionId: session.sessionId,
@@ -114,7 +125,7 @@ export default class PaymentSellService {
     return singleFlight(`pay:sell:${paymentId}`, async () => {
       const ds = await tenantDataSourceFor(tenantId)
       const row = await ds.getRepository(PaymentEntity).findOne({ where: { tenantId, paymentId } })
-      if (!row) throw new Error(PAYMENT_SELL_MESSAGES.PAYMENT_NOT_FOUND)
+      if (!row) throw new AppError(PAYMENT_SELL_MESSAGES.PAYMENT_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
       return SafePaymentSchema.parse(row)
     })
   }
@@ -123,7 +134,7 @@ export default class PaymentSellService {
     return singleFlight(`pay:sell:tx:${paymentId}`, async () => {
       const ds = await tenantDataSourceFor(tenantId)
       const payment = await ds.getRepository(PaymentEntity).findOne({ where: { tenantId, paymentId } })
-      if (!payment) throw new Error(PAYMENT_SELL_MESSAGES.PAYMENT_NOT_FOUND)
+      if (!payment) throw new AppError(PAYMENT_SELL_MESSAGES.PAYMENT_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
       const transactions = await ds.getRepository(PaymentTransactionEntity).find({
         where: { paymentId },
         order: { createdAt: 'DESC' },
@@ -157,16 +168,29 @@ export default class PaymentSellService {
     const ds = await tenantDataSourceFor(tenantId)
     const repo = ds.getRepository(PaymentEntity)
     const row = await repo.findOne({ where: { tenantId, paymentId } })
-    if (!row) throw new Error(PAYMENT_SELL_MESSAGES.PAYMENT_NOT_FOUND)
+    if (!row) throw new AppError(PAYMENT_SELL_MESSAGES.PAYMENT_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
 
-    if (data.status === 'COMPLETED' && !row.paidAt) (data as any).paidAt = new Date()
-    if (data.status === 'CANCELLED' && !row.cancelledAt) (data as any).cancelledAt = new Date()
-    if (data.status === 'REFUNDED' && !row.refundedAt) (data as any).refundedAt = new Date()
+    const patch: UpdatePaymentDTO & { paidAt?: Date; cancelledAt?: Date; refundedAt?: Date } = { ...data }
+    if (data.status === 'COMPLETED' && !row.paidAt) patch.paidAt = new Date()
+    if (data.status === 'CANCELLED' && !row.cancelledAt) patch.cancelledAt = new Date()
+    if (data.status === 'REFUNDED' && !row.refundedAt) patch.refundedAt = new Date()
 
-    Object.assign(row, data)
+    Object.assign(row, patch)
     const saved = await repo.save(row)
-    await redis.del(`pay:sell:${paymentId}`)
-    await redis.del(`pay:sell:tx:${paymentId}`)
+    redis.del(`pay:sell:${paymentId}`).catch(() => {})
+    redis.del(`pay:sell:tx:${paymentId}`).catch(() => {})
+
+    if (data.status) {
+      AuditLogService.log({
+        tenantId,
+        actorType: 'SYSTEM',
+        action: 'payment.status_changed',
+        resourceType: 'payment',
+        resourceId: paymentId,
+        metadata: { status: data.status },
+      }).catch(() => {})
+    }
+
     return SafePaymentSchema.parse(saved)
   }
 
@@ -178,15 +202,15 @@ export default class PaymentSellService {
     const ds = await tenantDataSourceFor(tenantId)
     const repo = ds.getRepository(PaymentEntity)
     const payment = await repo.findOne({ where: { tenantId, paymentId } })
-    if (!payment) throw new Error(PAYMENT_SELL_MESSAGES.PAYMENT_NOT_FOUND)
+    if (!payment) throw new AppError(PAYMENT_SELL_MESSAGES.PAYMENT_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     if (!['COMPLETED', 'PARTIALLY_REFUNDED'].includes(payment.status)) {
-      throw new Error(PAYMENT_SELL_MESSAGES.PAYMENT_NOT_REFUNDABLE)
+      throw new AppError(PAYMENT_SELL_MESSAGES.PAYMENT_NOT_REFUNDABLE, 409, ErrorCode.CONFLICT)
     }
 
     const refundAmount = dto.amount ?? payment.amount
     const alreadyRefunded = Number(payment.refundedAmount ?? 0)
     if (refundAmount + alreadyRefunded > payment.amount) {
-      throw new Error(PAYMENT_SELL_MESSAGES.INVALID_REFUND_AMOUNT)
+      throw new AppError(PAYMENT_SELL_MESSAGES.INVALID_REFUND_AMOUNT, 422, ErrorCode.VALIDATION_ERROR)
     }
 
     try {
@@ -196,8 +220,9 @@ export default class PaymentSellService {
         await (provider as any).refundPayment(tenantId, payment.providerPaymentId!, refundAmount)
       }
     } catch (error) {
+      if (error instanceof AppError) throw error
       Logger.error(`${PAYMENT_SELL_MESSAGES.REFUND_FAILED}: ${error}`)
-      throw new Error(PAYMENT_SELL_MESSAGES.REFUND_FAILED)
+      throw new AppError(PAYMENT_SELL_MESSAGES.REFUND_FAILED, 502, ErrorCode.INTERNAL_ERROR)
     }
 
     const newRefunded = alreadyRefunded + refundAmount
@@ -206,7 +231,17 @@ export default class PaymentSellService {
     payment.status = isFullRefund ? 'REFUNDED' : 'PARTIALLY_REFUNDED'
     if (isFullRefund) payment.refundedAt = new Date()
     const saved = await repo.save(payment)
-    await redis.del(`pay:sell:${paymentId}`)
+    redis.del(`pay:sell:${paymentId}`).catch(() => {})
+
+    AuditLogService.log({
+      tenantId,
+      actorType: 'SYSTEM',
+      action: 'payment.refunded',
+      resourceType: 'payment',
+      resourceId: paymentId,
+      metadata: { refundAmount, isFullRefund },
+    }).catch(() => {})
+
     return SafePaymentSchema.parse(saved)
   }
 
@@ -216,10 +251,14 @@ export default class PaymentSellService {
 
   static async createTransaction(tenantId: string, data: CreateTransactionDTO): Promise<PaymentTransaction> {
     const ds = await tenantDataSourceFor(tenantId)
+    const paymentRepo = ds.getRepository(PaymentEntity)
+    const payment = await paymentRepo.findOne({ where: { tenantId, paymentId: data.paymentId } })
+    if (!payment) throw new AppError(PAYMENT_SELL_MESSAGES.PAYMENT_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
+
     const repo = ds.getRepository(PaymentTransactionEntity)
     const tx = repo.create({ ...data })
     const saved = await repo.save(tx)
-    await redis.del(`pay:sell:tx:${data.paymentId}`)
+    redis.del(`pay:sell:tx:${data.paymentId}`).catch(() => {})
     return PaymentTransactionSchema.parse(saved)
   }
 
@@ -227,6 +266,15 @@ export default class PaymentSellService {
     tenantId: string, query: GetTransactionsQuery,
   ): Promise<{ data: PaymentTransaction[]; total: number }> {
     const ds = await tenantDataSourceFor(tenantId)
+
+    // If filtering by a specific paymentId, verify it belongs to this tenant first.
+    if (query.paymentId) {
+      const payment = await ds.getRepository(PaymentEntity).findOne({
+        where: { tenantId, paymentId: query.paymentId },
+      })
+      if (!payment) throw new AppError(PAYMENT_SELL_MESSAGES.PAYMENT_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
+    }
+
     const where: Record<string, unknown> = {}
     if (query.paymentId) where['paymentId'] = query.paymentId
     if (query.type) where['type'] = query.type
@@ -248,8 +296,9 @@ export default class PaymentSellService {
     try {
       return await PaymentSellService.getProvider(provider).getPaymentStatus(tenantId, token)
     } catch (error) {
+      if (error instanceof AppError) throw error
       Logger.error(`${PAYMENT_SELL_MESSAGES.STATUS_FETCH_FAILED}: ${error}`)
-      throw new Error(PAYMENT_SELL_MESSAGES.STATUS_FETCH_FAILED)
+      throw new AppError(PAYMENT_SELL_MESSAGES.STATUS_FETCH_FAILED, 502, ErrorCode.INTERNAL_ERROR)
     }
   }
 

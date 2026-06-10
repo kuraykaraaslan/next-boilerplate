@@ -1,5 +1,7 @@
 # user_security — Posture Review
 
+> **Uygulandı:** 2026-06-11 — High: AppError on all throw sites in both services (404/409/400), raw SQL in verifyAuthentication replaced with QueryBuilder on UserSecurityEntity; Medium: JSONB read-modify-write in registerPasskey/deletePasskey/pushPasswordHistory wrapped in transactions, dynamic import() replaced with static; Low: user_security.messages.ts created for inline strings.
+
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`
 > **Services:** user_security.service.ts, user_security.passkey.service.ts
 > **Overall grade:** C · **Findings:** 0c / 2h / 4m / 1l

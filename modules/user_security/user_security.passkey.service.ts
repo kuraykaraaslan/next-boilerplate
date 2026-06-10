@@ -14,7 +14,9 @@ import type {
 
 import { getDataSource } from '@/modules/db';
 import { User as UserEntity } from '../user/entities/user.entity';
+import { UserSecurity as UserSecurityEntity } from './entities/user_security.entity';
 import redis from '@/modules/redis';
+import { AppError, ErrorCode } from '@/modules/common/app-error';
 import UserSecurityService from './user_security.service';
 import PasskeyMessages from './user_security.passkey.messages';
 import {
@@ -25,7 +27,7 @@ import {
   PASSKEY_MAX_PER_USER,
 } from './user_security.passkey.constants';
 import { StoredPasskey } from './user_security.types';
-import { SafeUser } from '../user/user.types';
+import { SafeUser, SafeUserSchema } from '../user/user.types';
 
 const isDev = env.NODE_ENV === 'development';
 
@@ -49,7 +51,7 @@ export default class UserSecurityPasskeyService {
     const userSecurity = await UserSecurityService.getByUserId(user.userId);
 
     if (userSecurity.passkeys.length >= PASSKEY_MAX_PER_USER) {
-      throw new Error(PasskeyMessages.PASSKEY_LIMIT_REACHED);
+      throw new AppError(PasskeyMessages.PASSKEY_LIMIT_REACHED, 409, ErrorCode.CONFLICT);
     }
 
     const excludeCredentials = userSecurity.passkeys.map((pk) => ({
@@ -90,7 +92,7 @@ export default class UserSecurityPasskeyService {
     label?: string;
   }): Promise<{ credentialId: string }> {
     const challenge = await redis.get(PASSKEY_REG_CHALLENGE_KEY(user.userId));
-    if (!challenge) throw new Error(PasskeyMessages.PASSKEY_CHALLENGE_EXPIRED);
+    if (!challenge) throw new AppError(PasskeyMessages.PASSKEY_CHALLENGE_EXPIRED, 400, ErrorCode.VALIDATION_ERROR);
 
     const verification = await verifyRegistrationResponse({
       response,
@@ -101,7 +103,7 @@ export default class UserSecurityPasskeyService {
     });
 
     if (!verification.verified || !verification.registrationInfo) {
-      throw new Error(PasskeyMessages.PASSKEY_REGISTRATION_FAILED);
+      throw new AppError(PasskeyMessages.PASSKEY_REGISTRATION_FAILED, 400, ErrorCode.VALIDATION_ERROR);
     }
 
     const { credential, aaguid } = verification.registrationInfo;
@@ -119,14 +121,19 @@ export default class UserSecurityPasskeyService {
       transports: (credential.transports ?? []) as string[],
     };
 
-    const userSecurity = await UserSecurityService.getByUserId(user.userId);
-
-    await UserSecurityService.updateUserSecurity(user.userId, {
-      passkeyEnabled: true,
-      passkeys: [...userSecurity.passkeys, newPasskey],
+    const ds = await getDataSource();
+    await ds.transaction(async (manager) => {
+      const repo = manager.getRepository(UserSecurityEntity);
+      const security = await repo.findOne({ where: { userId: user.userId } });
+      const currentPasskeys = (security?.passkeys ?? []) as StoredPasskey[];
+      await repo.update({ userId: user.userId }, {
+        passkeyEnabled: true,
+        passkeys: [...currentPasskeys, newPasskey] as any,
+      });
     });
 
     await redis.del(PASSKEY_REG_CHALLENGE_KEY(user.userId));
+    await UserSecurityService['clearCache'](user.userId);
 
     return { credentialId };
   }
@@ -138,12 +145,12 @@ export default class UserSecurityPasskeyService {
     if (email) {
       const ds = await getDataSource();
       const user = await ds.getRepository(UserEntity).findOne({ where: { email: email.toLowerCase() } });
-      if (!user) throw new Error(PasskeyMessages.USER_NOT_FOUND);
+      if (!user) throw new AppError(PasskeyMessages.USER_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
 
       const userSecurity = await UserSecurityService.getByUserId(user.userId);
 
       if (!userSecurity.passkeyEnabled || userSecurity.passkeys.length === 0) {
-        throw new Error(PasskeyMessages.PASSKEY_NOT_REGISTERED);
+        throw new AppError(PasskeyMessages.PASSKEY_NOT_REGISTERED, 404, ErrorCode.NOT_FOUND);
       }
 
       allowCredentials = userSecurity.passkeys.map((pk) => ({
@@ -176,35 +183,31 @@ export default class UserSecurityPasskeyService {
   }): Promise<SafeUser> {
     const ds = await getDataSource();
 
-    const rows = await ds.query<{ userId: string }[]>(
-      `
-      SELECT "userId"
-      FROM "users"
-      WHERE EXISTS (
-        SELECT 1
-        FROM jsonb_array_elements("passkeys") AS pk
-        WHERE pk->>'credentialId' = $1
+    const securityRow = await ds
+      .getRepository(UserSecurityEntity)
+      .createQueryBuilder('us')
+      .select('us.userId')
+      .where(
+        `EXISTS (SELECT 1 FROM jsonb_array_elements(us.passkeys) elem WHERE elem->>'credentialId' = :credId)`,
+        { credId: response.id },
       )
-      LIMIT 1
-    `,
-      [response.id]
-    );
+      .limit(1)
+      .getRawOne<{ us_userId: string }>();
 
-    let matchedUser =
-      rows.length > 0
-        ? await ds.getRepository(UserEntity).findOne({ where: { userId: rows[0].userId } })
-        : null;
+    let matchedUser = securityRow
+      ? await ds.getRepository(UserEntity).findOne({ where: { userId: securityRow.us_userId } })
+      : null;
 
     if (!matchedUser && email) {
       matchedUser = await ds.getRepository(UserEntity).findOne({ where: { email: email.toLowerCase() } });
     }
 
-    if (!matchedUser) throw new Error(PasskeyMessages.USER_NOT_FOUND);
+    if (!matchedUser) throw new AppError(PasskeyMessages.USER_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
 
     const userSecurity = await UserSecurityService.getByUserId(matchedUser.userId);
 
     const storedPasskey = userSecurity.passkeys.find((pk) => pk.credentialId === response.id);
-    if (!storedPasskey) throw new Error(PasskeyMessages.PASSKEY_NOT_REGISTERED);
+    if (!storedPasskey) throw new AppError(PasskeyMessages.PASSKEY_NOT_REGISTERED, 404, ErrorCode.NOT_FOUND);
 
     const userChallengeKey = PASSKEY_AUTH_CHALLENGE_KEY(matchedUser.userId);
     const residentChallengeKey = PASSKEY_EMAIL_CHALLENGE_KEY('_resident_');
@@ -217,7 +220,7 @@ export default class UserSecurityPasskeyService {
       usedKey = residentChallengeKey;
     }
 
-    if (!challenge) throw new Error(PasskeyMessages.PASSKEY_CHALLENGE_EXPIRED);
+    if (!challenge) throw new AppError(PasskeyMessages.PASSKEY_CHALLENGE_EXPIRED, 400, ErrorCode.VALIDATION_ERROR);
 
     const verification = await verifyAuthenticationResponse({
       response,
@@ -233,7 +236,7 @@ export default class UserSecurityPasskeyService {
       requireUserVerification: false,
     });
 
-    if (!verification.verified) throw new Error(PasskeyMessages.PASSKEY_AUTHENTICATION_FAILED);
+    if (!verification.verified) throw new AppError(PasskeyMessages.PASSKEY_AUTHENTICATION_FAILED, 400, ErrorCode.VALIDATION_ERROR);
 
     const updatedPasskeys = userSecurity.passkeys.map((pk) =>
       pk.credentialId === storedPasskey.credentialId
@@ -248,22 +251,26 @@ export default class UserSecurityPasskeyService {
     await UserSecurityService.updateUserSecurity(matchedUser.userId, { passkeys: updatedPasskeys });
     await redis.del(usedKey);
 
-    const { SafeUserSchema } = await import('../user/user.types');
     return SafeUserSchema.parse(matchedUser);
   }
 
   static async deletePasskey(user: SafeUser, credentialId: string): Promise<void> {
-    const userSecurity = await UserSecurityService.getByUserId(user.userId);
+    const ds = await getDataSource();
+    await ds.transaction(async (manager) => {
+      const repo = manager.getRepository(UserSecurityEntity);
+      const security = await repo.findOne({ where: { userId: user.userId } });
+      const currentPasskeys = (security?.passkeys ?? []) as StoredPasskey[];
 
-    const exists = userSecurity.passkeys.some((pk) => pk.credentialId === credentialId);
-    if (!exists) throw new Error(PasskeyMessages.PASSKEY_NOT_FOUND);
+      const exists = currentPasskeys.some((pk) => pk.credentialId === credentialId);
+      if (!exists) throw new AppError(PasskeyMessages.PASSKEY_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
 
-    const remaining = userSecurity.passkeys.filter((pk) => pk.credentialId !== credentialId);
-
-    await UserSecurityService.updateUserSecurity(user.userId, {
-      passkeys: remaining,
-      passkeyEnabled: remaining.length > 0,
+      const remaining = currentPasskeys.filter((pk) => pk.credentialId !== credentialId);
+      await repo.update({ userId: user.userId }, {
+        passkeys: remaining as any,
+        passkeyEnabled: remaining.length > 0,
+      });
     });
+    await UserSecurityService['clearCache'](user.userId);
   }
 
   static async listPasskeys(
