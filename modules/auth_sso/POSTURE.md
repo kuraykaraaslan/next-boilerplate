@@ -1,5 +1,7 @@
 # auth_sso — Posture Review
 
+> **Uygulandı:** 2026-06-11 — High: AppError (5 sites, 400/403/404); Medium: jwt.verify algorithm pinned to HS256, SSOProfile/TokensSchema.parse on provider output, fire-and-forget audit logs for register/link/unlink.
+
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`
 > **Services:** auth_sso.service.ts
 > **Overall grade:** C · **Findings:** 0c / 1h / 3m / 1l

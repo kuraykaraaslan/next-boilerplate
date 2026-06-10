@@ -18,6 +18,7 @@ import { SafeUser, SafeUserSchema } from '../user/user.types';
 import AuthMessages from './auth.messages';
 import AuthPolicyService from './auth.policy.service';
 import CaptchaService from './auth.captcha.service';
+import { AppError, ErrorCode } from '@/modules/common/app-error';
 
 export default class AuthService {
 
@@ -43,9 +44,9 @@ export default class AuthService {
     const accessPolicy = await AuthPolicyService.getAccessPolicy(tenantId);
     if (accessPolicy.captchaTriggerAttempts > 0
         && await CaptchaService.isRequired(email, accessPolicy.captchaTriggerAttempts)) {
-      if (!captchaToken) throw new Error(AuthMessages.CAPTCHA_REQUIRED);
+      if (!captchaToken) throw new AppError(AuthMessages.CAPTCHA_REQUIRED, 400, ErrorCode.VALIDATION_ERROR);
       const ok = await CaptchaService.verify(captchaToken);
-      if (!ok) throw new Error(AuthMessages.CAPTCHA_INVALID);
+      if (!ok) throw new AppError(AuthMessages.CAPTCHA_INVALID, 400, ErrorCode.VALIDATION_ERROR);
     }
 
     const ds = await getDataSource();
@@ -62,7 +63,7 @@ export default class AuthService {
       // Treat unknown-identity failures as captcha failures too — otherwise an
       // attacker probing usernames bypasses the threshold.
       await CaptchaService.recordFailure(email).catch(() => {});
-      throw new Error(AuthMessages.INVALID_EMAIL_OR_PASSWORD);
+      throw new AppError(AuthMessages.INVALID_EMAIL_OR_PASSWORD, 401, ErrorCode.INVALID_CREDENTIALS);
     }
 
     // KD-15 / KD-10: deny dormant/suspended accounts with a generic message
@@ -76,7 +77,7 @@ export default class AuthService {
         metadata: { reason: user.userStatus },
         ipAddress, userAgent,
       }).catch(() => {});
-      throw new Error(AuthMessages.ACCOUNT_DISABLED);
+      throw new AppError(AuthMessages.ACCOUNT_DISABLED, 403, ErrorCode.FORBIDDEN);
     }
 
     // KD-9: lockout enforcement — short-circuit before bcrypt to avoid timing oracle.
@@ -88,7 +89,7 @@ export default class AuthService {
         action: AuditActions.AUTH_ACCOUNT_LOCKED,
         ipAddress, userAgent,
       }).catch(() => {});
-      throw new Error(AuthMessages.ACCOUNT_LOCKED);
+      throw new AppError(AuthMessages.ACCOUNT_LOCKED, 403, ErrorCode.FORBIDDEN);
     }
 
     const lockoutPolicy = await AuthPolicyService.getLockoutPolicy(tenantId);
@@ -110,7 +111,7 @@ export default class AuthService {
         ipAddress, userAgent,
       }).catch(() => {});
       await CaptchaService.recordFailure(email).catch(() => {});
-      throw new Error(AuthMessages.INVALID_EMAIL_OR_PASSWORD);
+      throw new AppError(AuthMessages.INVALID_EMAIL_OR_PASSWORD, 401, ErrorCode.INVALID_CREDENTIALS);
     }
 
     // KD-7: password age check — reject if older than maxAgeDays (0 disables).
@@ -138,7 +139,7 @@ export default class AuthService {
           metadata: { reason: 'MFA_ENROLLMENT_REQUIRED' },
           ipAddress, userAgent,
         }).catch(() => {});
-        throw new Error(AuthMessages.MFA_ENROLLMENT_REQUIRED);
+        throw new AppError(AuthMessages.MFA_ENROLLMENT_REQUIRED, 403, ErrorCode.FORBIDDEN);
       }
     }
 
@@ -166,22 +167,27 @@ export default class AuthService {
 
   static async register({ email, password, phone, tenantId }: { email: string; password: string; phone?: string; tenantId?: string }): Promise<{ user: SafeUser }> {
     const existingUser = await UserService.getByEmail(email);
-    if (existingUser) throw new Error(AuthMessages.EMAIL_ALREADY_EXISTS);
+    if (existingUser) throw new AppError(AuthMessages.EMAIL_ALREADY_EXISTS, 409, ErrorCode.CONFLICT);
 
     // KD-5: enforce password policy at registration.
     const policy = await AuthPolicyService.getPasswordPolicy(tenantId);
     const policyError = AuthPolicyService.validatePassword(password, policy, { email });
-    if (policyError) throw new Error(policyError);
+    if (policyError) throw new AppError(policyError, 422, ErrorCode.VALIDATION_ERROR);
 
     const ds = await getDataSource();
     const hashed = await AuthService.hashPassword(password);
-    const newUser = ds.getRepository(UserEntity).create({
-      phone,
-      email: email.toLowerCase(),
-      password: hashed,
+
+    // Wrap user creation + password-history seed in a transaction so a history
+    // failure doesn't leave a user row without any history entry.
+    const parsedUser = await ds.transaction(async (manager) => {
+      const newUser = manager.getRepository(UserEntity).create({
+        phone,
+        email: email.toLowerCase(),
+        password: hashed,
+      });
+      const saved = await manager.getRepository(UserEntity).save(newUser);
+      return SafeUserSchema.parse(saved);
     });
-    const saved = await ds.getRepository(UserEntity).save(newUser);
-    const parsedUser = SafeUserSchema.parse(saved);
 
     // KD-7: seed password history so the very next change can't reuse this hash.
     await UserSecurityService.pushPasswordHistory(parsedUser.userId, hashed, policy.historyCount).catch(
@@ -202,28 +208,41 @@ export default class AuthService {
     const ds = await getDataSource();
     const repo = ds.getRepository(UserEntity);
     const user = await repo.findOne({ where: { userId } });
-    if (!user) throw new Error(AuthMessages.USER_NOT_FOUND);
+    if (!user) throw new AppError(AuthMessages.USER_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
 
     const policy = await AuthPolicyService.getPasswordPolicy(tenantId);
     const policyError = AuthPolicyService.validatePassword(newPassword, policy, { email: user.email });
-    if (policyError) throw new Error(policyError);
+    if (policyError) throw new AppError(policyError, 422, ErrorCode.VALIDATION_ERROR);
 
     // KD-7: reject reuse of any password whose hash is in the rotation history.
     const history = await UserSecurityService.getPasswordHistory(userId);
     for (const oldHash of history) {
       if (await bcrypt.compare(newPassword, oldHash)) {
-        throw new Error(AuthMessages.PASSWORD_REUSED);
+        throw new AppError(AuthMessages.PASSWORD_REUSED, 422, ErrorCode.VALIDATION_ERROR);
       }
     }
     // Also reject reuse of the current password.
     if (await bcrypt.compare(newPassword, user.password)) {
-      throw new Error(AuthMessages.PASSWORD_REUSED);
+      throw new AppError(AuthMessages.PASSWORD_REUSED, 422, ErrorCode.VALIDATION_ERROR);
     }
 
     const newHash = await AuthService.hashPassword(newPassword);
-    await repo.update({ userId }, { password: newHash });
-    await UserSecurityService.pushPasswordHistory(userId, newHash, policy.historyCount);
+
+    // Wrap password update + history push in a transaction.
+    await ds.transaction(async (manager) => {
+      await manager.getRepository(UserEntity).update({ userId }, { password: newHash });
+      await UserSecurityService.pushPasswordHistory(userId, newHash, policy.historyCount);
+    });
+
     await UserService.invalidate({ userId, email: user.email });
+
+    AuditLogService.log({
+      tenantId: tenantId ?? null,
+      actorId: userId,
+      actorType: 'USER',
+      action: AuditActions.AUTH_PASSWORD_CHANGED,
+      metadata: { userId },
+    }).catch(() => {});
   }
 
   private static readonly EMAIL_VERIFY_TTL_SECONDS = env.EMAIL_VERIFY_TTL_SECONDS ?? (60 * 60 * 24);
@@ -240,11 +259,11 @@ export default class AuthService {
   static async sendEmailVerification({ userId, email, name }: { userId: string; email: string; name?: string }): Promise<void> {
     const ds = await getDataSource();
     const user = await ds.getRepository(UserEntity).findOne({ where: { userId } });
-    if (!user) throw new Error(AuthMessages.USER_NOT_FOUND);
-    if (user.emailVerifiedAt) throw new Error(AuthMessages.EMAIL_ALREADY_VERIFIED);
+    if (!user) throw new AppError(AuthMessages.USER_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
+    if (user.emailVerifiedAt) throw new AppError(AuthMessages.EMAIL_ALREADY_VERIFIED, 409, ErrorCode.CONFLICT);
 
     const rateKey = AuthService.getEmailVerifyRateKey(userId);
-    if (await redis.get(rateKey)) throw new Error(AuthMessages.RATE_LIMIT_EXCEEDED);
+    if (await redis.get(rateKey)) throw new AppError(AuthMessages.RATE_LIMIT_EXCEEDED, 429, ErrorCode.RATE_LIMIT_EXCEEDED);
 
     const rawToken = crypto.randomBytes(32).toString('hex');
     const hashedToken = crypto.createHash('sha256').update(rawToken).digest('hex');
@@ -261,19 +280,27 @@ export default class AuthService {
     const ds = await getDataSource();
     const repo = ds.getRepository(UserEntity);
     const user = await repo.findOne({ where: { userId } });
-    if (!user) throw new Error(AuthMessages.USER_NOT_FOUND);
-    if (user.emailVerifiedAt) throw new Error(AuthMessages.EMAIL_ALREADY_VERIFIED);
+    if (!user) throw new AppError(AuthMessages.USER_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
+    if (user.emailVerifiedAt) throw new AppError(AuthMessages.EMAIL_ALREADY_VERIFIED, 409, ErrorCode.CONFLICT);
 
     const verifyKey = AuthService.getEmailVerifyKey(userId);
     const storedHash = await redis.get(verifyKey);
-    if (!storedHash) throw new Error(AuthMessages.VERIFICATION_TOKEN_EXPIRED);
+    if (!storedHash) throw new AppError(AuthMessages.VERIFICATION_TOKEN_EXPIRED, 400, ErrorCode.VALIDATION_ERROR);
 
     const inputHash = crypto.createHash('sha256').update(token).digest('hex');
-    if (inputHash !== storedHash) throw new Error(AuthMessages.INVALID_VERIFICATION_TOKEN);
+    if (inputHash !== storedHash) throw new AppError(AuthMessages.INVALID_VERIFICATION_TOKEN, 400, ErrorCode.VALIDATION_ERROR);
 
     await repo.update({ userId }, { emailVerifiedAt: new Date() });
     await redis.del(verifyKey);
     await redis.del(AuthService.getEmailVerifyRateKey(userId));
+
+    AuditLogService.log({
+      tenantId: null,
+      actorId: userId,
+      actorType: 'USER',
+      action: AuditActions.AUTH_EMAIL_VERIFIED,
+      metadata: { userId },
+    }).catch(() => {});
 
     Logger.info(`Email verified for user ${userId}`);
   }
@@ -327,6 +354,13 @@ export default class AuthService {
     for (const id of ids) {
       await UserService.invalidate({ userId: id }).catch(() => {});
     }
+
+    AuditLogService.log({
+      tenantId: tenantId ?? null,
+      actorType: 'SYSTEM',
+      action: AuditActions.AUTH_DORMANT_DISABLED,
+      metadata: { disabled: ids.length, scanned: dormantRows.length, thresholdDays: policy.days },
+    }).catch(() => {});
 
     Logger.info(`AuthService.disableDormantAccounts: disabled ${ids.length} dormant accounts (>${policy.days}d)`);
     return { scanned: dormantRows.length, disabled: ids.length };

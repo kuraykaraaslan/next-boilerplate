@@ -1,5 +1,7 @@
 # exchange_rate — Posture Review
 
+> **Uygulandı:** 2026-06-11 — High: AppError (503 outage/parse, 400 unsupported pair); Medium: amount guard (finite ≥ 0) in convert, ExchangeRateQuoteSchema now used as return type gate.
+
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`
 > **Services:** `exchange_rate.service.ts`
 > **Overall grade:** C · **Findings:** 0c / 1h / 2m / 1l

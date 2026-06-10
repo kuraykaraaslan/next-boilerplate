@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken';
 import { env } from '@/modules/env';
 import type { SSOProvider } from './auth_sso.enums';
 import type { SSOProfile, SSOTokens } from './auth_sso.types';
+import { SSOProfileSchema, SSOTokensSchema } from './auth_sso.types';
 import { getProvider } from './providers';
 import { getAllowedProviders, isProviderConfigured } from './auth_sso.config';
 import SSOMessages from './auth_sso.messages';
@@ -9,6 +10,9 @@ import UserSocialAccountService from '../user_social_account/user_social_account
 import UserService from '../user/user.service';
 import type { SafeUser } from '../user/user.types';
 import { ROOT_TENANT_ID } from '@/modules/tenant/tenant.constants';
+import AuditLogService from '../audit_log/audit_log.service';
+import { AuditActions } from '../audit_log/audit_log.enums';
+import { AppError, ErrorCode } from '@/modules/common/app-error';
 
 const LINK_STATE_TTL_SECONDS = 600;
 
@@ -38,7 +42,7 @@ export default class SSOService {
 
   static generateAuthUrl(provider: SSOProvider, state?: string): string {
     if (!isProviderConfigured(provider)) {
-      throw new Error(SSOMessages.PROVIDER_NOT_CONFIGURED);
+      throw new AppError(SSOMessages.PROVIDER_NOT_CONFIGURED, 400, ErrorCode.VALIDATION_ERROR);
     }
 
     const providerService = getProvider(provider);
@@ -55,17 +59,20 @@ export default class SSOService {
     tokens: SSOTokens;
   }> {
     if (!code) {
-      throw new Error(SSOMessages.CODE_NOT_FOUND);
+      throw new AppError(SSOMessages.CODE_NOT_FOUND, 400, ErrorCode.VALIDATION_ERROR);
     }
 
     if (!isProviderConfigured(provider)) {
-      throw new Error(SSOMessages.PROVIDER_NOT_CONFIGURED);
+      throw new AppError(SSOMessages.PROVIDER_NOT_CONFIGURED, 400, ErrorCode.VALIDATION_ERROR);
     }
 
     const providerService = getProvider(provider);
 
-    const tokens = await providerService.getTokens(code, state);
-    const profile = await providerService.getUserInfo(tokens.accessToken, tokens);
+    const rawTokens = await providerService.getTokens(code, state);
+    const rawProfile = await providerService.getUserInfo(rawTokens.accessToken, rawTokens);
+
+    const tokens = SSOTokensSchema.parse(rawTokens);
+    const profile = SSOProfileSchema.parse(rawProfile);
 
     return { profile, tokens };
   }
@@ -122,6 +129,13 @@ export default class SSOService {
       }
 
       const user = await UserService.getById(existingUserId);
+      AuditLogService.log({
+        tenantId: null,
+        actorId: user.userId,
+        actorType: 'USER',
+        action: AuditActions.AUTH_LOGIN,
+        metadata: { provider, method: 'sso' },
+      }).catch(() => {});
       return { user, isNewUser: false };
     }
 
@@ -139,6 +153,13 @@ export default class SSOService {
         );
 
         const user = await UserService.getById(existingUser.userId);
+        AuditLogService.log({
+          tenantId: null,
+          actorId: user.userId,
+          actorType: 'USER',
+          action: AuditActions.AUTH_LOGIN,
+          metadata: { provider, method: 'sso', emailLinked: true },
+        }).catch(() => {});
         return { user, isNewUser: false };
       }
     }
@@ -162,6 +183,14 @@ export default class SSOService {
       profile.picture ? profile.picture : undefined
     );
 
+    AuditLogService.log({
+      tenantId: null,
+      actorId: newUser.userId,
+      actorType: 'USER',
+      action: AuditActions.AUTH_REGISTER,
+      metadata: { provider, method: 'sso', emailIsSynthetic },
+    }).catch(() => {});
+
     return { user: newUser, isNewUser: true };
   }
 
@@ -180,6 +209,15 @@ export default class SSOService {
       tokens.refreshToken ? tokens.refreshToken : undefined,
       profile.picture ? profile.picture : undefined
     );
+
+    AuditLogService.log({
+      tenantId: null,
+      actorId: userId,
+      actorType: 'USER',
+      action: AuditActions.MEMBER_UPDATED,
+      resourceType: 'sso_account',
+      metadata: { provider, action: 'link' },
+    }).catch(() => {});
   }
 
   // ───── Link-from-profile flow (Connected Accounts) ────────────────────────
@@ -204,7 +242,7 @@ export default class SSOService {
   static parseLinkState(state: string | null | undefined): SSOLinkStatePayload | null {
     if (!state) return null;
     try {
-      const decoded = jwt.verify(state, env.CSRF_SECRET) as Partial<SSOLinkStatePayload> | string;
+      const decoded = jwt.verify(state, env.CSRF_SECRET, { algorithms: ['HS256'] }) as Partial<SSOLinkStatePayload> | string;
       if (typeof decoded === 'string') return null;
       if (decoded.a !== 'link' || !decoded.uid || !decoded.em) return null;
       return decoded as SSOLinkStatePayload;
@@ -240,10 +278,10 @@ export default class SSOService {
     const { profile, tokens } = await this.handleCallback(provider, code, state);
 
     if (!profile.email) {
-      throw new Error(SSOMessages.EMAIL_NOT_FOUND);
+      throw new AppError(SSOMessages.EMAIL_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
     }
     if (profile.email.toLowerCase() !== expectedEmail.toLowerCase()) {
-      throw new Error(SSOMessages.EMAIL_MISMATCH);
+      throw new AppError(SSOMessages.EMAIL_MISMATCH, 403, ErrorCode.FORBIDDEN);
     }
 
     await UserSocialAccountService.link(
@@ -255,11 +293,29 @@ export default class SSOService {
       profile.picture ? profile.picture : undefined,
     );
 
+    AuditLogService.log({
+      tenantId: null,
+      actorId: userId,
+      actorType: 'USER',
+      action: AuditActions.MEMBER_UPDATED,
+      resourceType: 'sso_account',
+      metadata: { provider, action: 'link_to_user' },
+    }).catch(() => {});
+
     return { profile };
   }
 
   static async unlinkAccount(userId: string, provider: SSOProvider): Promise<void> {
     await UserSocialAccountService.unlink(userId, provider);
+
+    AuditLogService.log({
+      tenantId: null,
+      actorId: userId,
+      actorType: 'USER',
+      action: AuditActions.MEMBER_UPDATED,
+      resourceType: 'sso_account',
+      metadata: { provider, action: 'unlink' },
+    }).catch(() => {});
   }
 
   static async getLinkedAccounts(userId: string) {

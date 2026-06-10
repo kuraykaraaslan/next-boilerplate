@@ -3,6 +3,8 @@ import { XMLParser } from 'fast-xml-parser'
 import redis, { jitter, singleFlight } from '@/modules/redis'
 import Logger from '@/modules/logger'
 import { EXCHANGE_RATE_MESSAGES } from './exchange_rate.messages'
+import { AppError, ErrorCode } from '@/modules/common/app-error'
+import { ExchangeRateQuoteSchema } from './exchange_rate.types'
 
 /**
  * ExchangeRateService — live FX rates from TCMB (Türkiye Cumhuriyet Merkez Bankası).
@@ -62,7 +64,7 @@ export default class ExchangeRateService {
           return stale
         }
         Logger.error(`${EXCHANGE_RATE_MESSAGES.FETCH_FAILED}: ${error instanceof Error ? error.message : String(error)}`)
-        throw new Error(EXCHANGE_RATE_MESSAGES.RATE_UNAVAILABLE)
+        throw new AppError(EXCHANGE_RATE_MESSAGES.RATE_UNAVAILABLE, 503, ErrorCode.INTERNAL_ERROR)
       }
     })
   }
@@ -75,32 +77,43 @@ export default class ExchangeRateService {
     try {
       doc = ExchangeRateService.parser.parse(xml) as TcmbDoc
     } catch {
-      throw new Error(EXCHANGE_RATE_MESSAGES.PARSE_FAILED)
+      throw new AppError(EXCHANGE_RATE_MESSAGES.PARSE_FAILED, 503, ErrorCode.INTERNAL_ERROR)
     }
     const currencies = doc?.Tarih_Date?.Currency
     const list: TcmbCurrency[] = Array.isArray(currencies) ? currencies : currencies ? [currencies] : []
     const usd = list.find((c) => c?.CurrencyCode === 'USD' || c?.Kod === 'USD')
     const selling = usd ? Number(usd.ForexSelling) : NaN
-    if (!Number.isFinite(selling) || selling <= 0) throw new Error(EXCHANGE_RATE_MESSAGES.PARSE_FAILED)
+    if (!Number.isFinite(selling) || selling <= 0) throw new AppError(EXCHANGE_RATE_MESSAGES.PARSE_FAILED, 503, ErrorCode.INTERNAL_ERROR)
     return selling
   }
 
   /**
-   * Multiplicative rate so that `amountTo = amountFrom * getRate(from, to)`.
+   * Multiplicative rate so that `amountTo = amountFrom * getRate(from, to).rate`.
    * Supports USD <-> TRY (and identity); throws `UNSUPPORTED_PAIR` otherwise.
+   * Returns a validated `ExchangeRateQuote` with `{ from, to, rate }`.
    */
-  static async getRate(from: string, to: string): Promise<number> {
+  static async getRate(from: string, to: string): Promise<{ from: string; to: string; rate: number }> {
     const f = from.toUpperCase()
     const t = to.toUpperCase()
-    if (f === t) return 1
-    if (f === 'USD' && t === 'TRY') return ExchangeRateService.getUsdTry()
-    if (f === 'TRY' && t === 'USD') return 1 / (await ExchangeRateService.getUsdTry())
-    throw new Error(EXCHANGE_RATE_MESSAGES.UNSUPPORTED_PAIR)
+    let rate: number
+    if (f === t) {
+      rate = 1
+    } else if (f === 'USD' && t === 'TRY') {
+      rate = await ExchangeRateService.getUsdTry()
+    } else if (f === 'TRY' && t === 'USD') {
+      rate = 1 / (await ExchangeRateService.getUsdTry())
+    } else {
+      throw new AppError(EXCHANGE_RATE_MESSAGES.UNSUPPORTED_PAIR, 400, ErrorCode.VALIDATION_ERROR)
+    }
+    return ExchangeRateQuoteSchema.parse({ from: f, to: t, rate })
   }
 
   /** Convert `amount` from one currency to another, rounded half-up to 2 decimals. */
   static async convert(amount: number, from: string, to: string): Promise<number> {
-    const rate = await ExchangeRateService.getRate(from, to)
+    if (!Number.isFinite(amount) || amount < 0) {
+      throw new AppError(EXCHANGE_RATE_MESSAGES.INVALID_AMOUNT, 400, ErrorCode.VALIDATION_ERROR)
+    }
+    const { rate } = await ExchangeRateService.getRate(from, to)
     return Math.round((amount * rate + Number.EPSILON) * 100) / 100
   }
 }

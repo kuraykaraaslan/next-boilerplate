@@ -1,5 +1,7 @@
 # auth — Posture Review
 
+> **Uygulandı:** 2026-06-11 — High: AppError migration across all 6 service files + crypto.randomInt for backup codes; Medium: transactions in register/resetPassword/changePassword, audit logs for password reset/change/email verify/dormant sweep, non-enumerating forgotPassword.
+
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`
 > **Services:** auth.service.ts, auth.captcha.service.ts, auth.otp.service.ts, auth.password.service.ts, auth.policy.service.ts, auth.totp.service.ts
 > **Overall grade:** C · **Findings:** 0c / 3h / 4m / 2l

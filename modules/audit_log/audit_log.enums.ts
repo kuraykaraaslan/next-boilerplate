@@ -17,6 +17,9 @@ export const AuditActions = {
   AUTH_TOTP_DISABLED:    'auth.totp_disabled',
   AUTH_ACCOUNT_LOCKED:   'auth.account_locked',
   AUTH_ACCOUNT_DISABLED: 'auth.account_disabled',
+  AUTH_FORGOT_PASSWORD:  'auth.forgot_password',
+  AUTH_EMAIL_VERIFIED:   'auth.email_verified',
+  AUTH_DORMANT_DISABLED: 'auth.dormant_disabled',
 
   // Tenant
   TENANT_CREATED: 'tenant.created',

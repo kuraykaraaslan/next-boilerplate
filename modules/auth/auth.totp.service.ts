@@ -1,9 +1,10 @@
 import { env } from '@/modules/env';
 import { authenticator } from 'otplib';
 import bcrypt from 'bcrypt';
+import crypto from 'crypto';
 import redis from '@/modules/redis';
 import AuthMessages from './auth.messages';
-import AuthService from './auth.service';
+import { AppError, ErrorCode } from '@/modules/common/app-error';
 import { SafeUser } from '../user/user.types';
 import { SafeUserSession } from '../user_session/user_session.types';
 import { OTPAction } from '../user_security/user_security.enums';
@@ -61,24 +62,22 @@ export default class TOTPService {
     const tempSecret = await redis.get(setupKey);
 
     if (!tempSecret) {
-      throw new Error(AuthMessages.INVALID_OTP);
+      throw new AppError(AuthMessages.INVALID_OTP, 400, ErrorCode.VALIDATION_ERROR);
     }
 
     const valid = TOTPService.verifyTokenWithSecret(otpToken, tempSecret);
     if (!valid) {
-      throw new Error(AuthMessages.INVALID_OTP);
+      throw new AppError(AuthMessages.INVALID_OTP, 401, ErrorCode.INVALID_CREDENTIALS);
     }
 
     const userSecurity = await UserSecurityService.getByUserId(user.userId);
 
     const newMethods = Array.from(new Set([...(userSecurity.otpMethods || []), 'TOTP_APP']));
 
-    // Generate backup codes
+    // Generate backup codes using crypto.randomInt for CSPRNG safety (KD-3).
     const codes: string[] = [];
-    const charset = '0123456789';
     const makeCode = () => {
-      let raw = '';
-      for (let i = 0; i < 8; i++) raw += charset[Math.floor(Math.random() * charset.length)];
+      const raw = Array.from({ length: 8 }, () => crypto.randomInt(0, 10).toString()).join('');
       return `${raw.slice(0, 4)}-${raw.slice(4, 8)}`;
     };
 
@@ -101,16 +100,16 @@ export default class TOTPService {
     const userSecurity = await UserSecurityService.getByUserId(user.userId);
 
     if (!userSecurity) {
-      throw new Error(AuthMessages.INVALID_OTP_METHOD);
+      throw new AppError(AuthMessages.INVALID_OTP_METHOD, 400, ErrorCode.VALIDATION_ERROR);
     }
 
     if (!userSecurity.otpMethods.includes('TOTP_APP' as any) || !userSecurity.otpSecret) {
-      throw new Error(AuthMessages.INVALID_OTP_METHOD);
+      throw new AppError(AuthMessages.INVALID_OTP_METHOD, 400, ErrorCode.VALIDATION_ERROR);
     }
 
     const ok = TOTPService.verifyTokenWithSecret(otpToken, userSecurity.otpSecret);
     if (!ok) {
-      throw new Error(AuthMessages.INVALID_OTP);
+      throw new AppError(AuthMessages.INVALID_OTP, 401, ErrorCode.INVALID_CREDENTIALS);
     }
 
     return { verified: true };
@@ -124,7 +123,7 @@ export default class TOTPService {
     } catch (_) {
       const consumed = await TOTPService.consumeBackupCode({ user, code: otpToken });
       if (!consumed.consumed) {
-        throw new Error(AuthMessages.INVALID_OTP);
+        throw new AppError(AuthMessages.INVALID_OTP, 401, ErrorCode.INVALID_CREDENTIALS);
       }
       return { verified: true, method: 'BACKUP_CODE' };
     }
@@ -134,16 +133,16 @@ export default class TOTPService {
     const userSecurity = await UserSecurityService.getByUserId(user.userId);
 
     if (!userSecurity) {
-      throw new Error(AuthMessages.INVALID_OTP_METHOD);
+      throw new AppError(AuthMessages.INVALID_OTP_METHOD, 400, ErrorCode.VALIDATION_ERROR);
     }
 
     if (!userSecurity.otpMethods.includes('TOTP_APP' as any) || !userSecurity.otpSecret) {
-      throw new Error(AuthMessages.INVALID_OTP_METHOD);
+      throw new AppError(AuthMessages.INVALID_OTP_METHOD, 400, ErrorCode.VALIDATION_ERROR);
     }
 
     const ok = TOTPService.verifyTokenWithSecret(otpToken, userSecurity.otpSecret);
     if (!ok) {
-      throw new Error(AuthMessages.INVALID_OTP);
+      throw new AppError(AuthMessages.INVALID_OTP, 401, ErrorCode.INVALID_CREDENTIALS);
     }
 
     const newMethods = (userSecurity.otpMethods || []).filter(m => m !== 'TOTP_APP');
@@ -160,18 +159,17 @@ export default class TOTPService {
     const userSecurity = await UserSecurityService.getByUserId(user.userId);
 
     if (!userSecurity) {
-      throw new Error(AuthMessages.INVALID_OTP_METHOD);
+      throw new AppError(AuthMessages.INVALID_OTP_METHOD, 400, ErrorCode.VALIDATION_ERROR);
     }
 
     if (!userSecurity.otpMethods.includes('TOTP_APP' as any) || !userSecurity.otpSecret) {
-      throw new Error(AuthMessages.INVALID_OTP_METHOD);
+      throw new AppError(AuthMessages.INVALID_OTP_METHOD, 400, ErrorCode.VALIDATION_ERROR);
     }
 
     const codes: string[] = [];
-    const charset = '0123456789';
+    // Use crypto.randomInt for CSPRNG safety (KD-3).
     const makeCode = () => {
-      let raw = '';
-      for (let i = 0; i < 8; i++) raw += charset[Math.floor(Math.random() * charset.length)];
+      const raw = Array.from({ length: 8 }, () => crypto.randomInt(0, 10).toString()).join('');
       return `${raw.slice(0, 4)}-${raw.slice(4, 8)}`;
     };
 
