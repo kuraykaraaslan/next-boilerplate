@@ -7,6 +7,7 @@ import { Tenant as TenantEntity } from './entities/tenant.entity';
 import { SafeTenant, SafeTenantSchema } from './tenant.types';
 import { CreateTenantInput, UpdateTenantInput, GetTenantsInput } from './tenant.dto';
 import TenantMessages from './tenant.messages';
+import { AppError, ErrorCode } from '@/modules/common/app-error';
 import TenantMemberService from '../tenant_member/tenant_member.service';
 import Logger from '@/modules/logger';
 import { isRootTenant } from './tenant.constants';
@@ -86,7 +87,7 @@ export default class TenantService {
     return singleFlight(cacheKey, async () => {
       const ds = await tenantDataSourceFor(tenantId);
       const tenant = await ds.getRepository(TenantEntity).findOne({ where: { tenantId, deletedAt: IsNull() } });
-      if (!tenant) throw new Error(TenantMessages.TENANT_NOT_FOUND);
+      if (!tenant) throw new AppError(TenantMessages.TENANT_NOT_FOUND, 404, ErrorCode.TENANT_NOT_FOUND);
 
       const parsed = SafeTenantSchema.parse(tenant);
       await redis.setex(cacheKey, jitter(TENANT_CACHE_TTL), JSON.stringify(parsed)).catch(() => {});
@@ -161,7 +162,7 @@ export default class TenantService {
     const ds = await tenantDataSourceFor(tenantId);
     const repo = ds.getRepository(TenantEntity);
     const tenant = await repo.findOne({ where: { tenantId, deletedAt: IsNull() } });
-    if (!tenant) throw new Error(TenantMessages.TENANT_NOT_FOUND);
+    if (!tenant) throw new AppError(TenantMessages.TENANT_NOT_FOUND, 404, ErrorCode.TENANT_NOT_FOUND);
 
     await repo.update({ tenantId }, data as any);
     const updated = await repo.findOne({ where: { tenantId } });
@@ -206,7 +207,7 @@ export default class TenantService {
     const ds = await tenantDataSourceFor(tenantId);
     const repo = ds.getRepository(TenantEntity);
     const tenant = await repo.findOne({ where: { tenantId, deletedAt: IsNull() } });
-    if (!tenant) throw new Error(TenantMessages.TENANT_NOT_FOUND);
+    if (!tenant) throw new AppError(TenantMessages.TENANT_NOT_FOUND, 404, ErrorCode.TENANT_NOT_FOUND);
     await repo.update({ tenantId }, { deletedAt: new Date() });
     await this.clearCache(tenantId);
     await WebhookService.dispatchPlatformEvent('tenant.deleted', {

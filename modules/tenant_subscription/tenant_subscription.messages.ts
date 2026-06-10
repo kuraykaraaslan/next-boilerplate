@@ -19,6 +19,8 @@ export const SUBSCRIPTION_MESSAGES = {
   SUBSCRIPTION_ASSIGN_FAILED: 'Failed to assign subscription',
   PLATFORM_PLAN_ASSIGN_FAILED: 'Failed to assign platform plan to tenant',
   PLATFORM_PLAN_ONLY_ROOT: 'Only root-tenant plans can be assigned to other tenants',
+  PLATFORM_PLAN_SELF_ASSIGN: 'Cannot assign a platform plan to the root tenant itself',
+  PLATFORM_PLAN_MISSING_PRODUCT: 'Source platform plan references a deleted product',
   SUBSCRIPTION_CANCEL_FAILED: 'Failed to cancel subscription',
   SUBSCRIPTION_ALREADY_CANCELLED: 'Subscription is already cancelled',
 
@@ -51,4 +53,7 @@ export const SUBSCRIPTION_MESSAGES = {
   FETCH_FAILED: 'Failed to fetch subscription data',
   UNAUTHORIZED: 'Unauthorized access',
   INVALID_REQUEST: 'Invalid request data',
+  PRODUCT_NOT_FOUND: 'Product not found for plan',
+  DEFAULT_PLAN_DELETED_PRODUCT: 'This plan references a deleted product and cannot be the default',
+  DEFAULT_PLAN_NOT_FREE: 'Only a free plan (base price 0) can be set as the default plan',
 } as const

@@ -8,6 +8,7 @@ import redis from '@/modules/redis';
 import AuditLogService from '@/modules/audit_log/audit_log.service';
 import type { FeatureAccessResult } from './tenant_subscription.types';
 import { SUBSCRIPTION_MESSAGES } from './tenant_subscription.messages';
+import { AppError, ErrorCode } from '@/modules/common/app-error';
 import TenantPlanService from './tenant_subscription.plan.service';
 
 /**
@@ -56,10 +57,10 @@ export default class TenantFeatureGateService {
     if (planId) {
       const plan = await TenantPlanService.getPlanById(ROOT_TENANT_ID, planId);
       if (!plan.product) {
-        throw new Error('This plan references a deleted product and cannot be the default.');
+        throw new AppError(SUBSCRIPTION_MESSAGES.DEFAULT_PLAN_DELETED_PRODUCT, 422, ErrorCode.VALIDATION_ERROR);
       }
       if (plan.product.basePrice !== 0) {
-        throw new Error('Only a free plan (base price 0) can be set as the default plan.');
+        throw new AppError(SUBSCRIPTION_MESSAGES.DEFAULT_PLAN_NOT_FREE, 422, ErrorCode.VALIDATION_ERROR);
       }
     }
     const SettingService = (await import('@/modules/setting/setting.service')).default;
@@ -210,7 +211,8 @@ export default class TenantFeatureGateService {
       return result;
     } catch (error) {
       Logger.error(`${SUBSCRIPTION_MESSAGES.FEATURE_CHECK_FAILED}: ${error instanceof Error ? error.message : String(error)}`);
-      throw new Error(SUBSCRIPTION_MESSAGES.FEATURE_CHECK_FAILED);
+      if (error instanceof AppError) throw error;
+      throw new AppError(SUBSCRIPTION_MESSAGES.FEATURE_CHECK_FAILED, 500, ErrorCode.INTERNAL_ERROR);
     }
   }
 
@@ -226,7 +228,7 @@ export default class TenantFeatureGateService {
       const message = result.type === 'LIMIT'
         ? SUBSCRIPTION_MESSAGES.FEATURE_LIMIT_REACHED
         : SUBSCRIPTION_MESSAGES.FEATURE_ACCESS_DENIED;
-      throw new Error(message);
+      throw new AppError(message, 403, ErrorCode.FEATURE_NOT_AVAILABLE);
     }
 
     return result;

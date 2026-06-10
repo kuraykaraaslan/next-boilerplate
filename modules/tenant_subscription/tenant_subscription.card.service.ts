@@ -8,6 +8,7 @@ import type { PaymentProvider, PaymentCurrency, CreditCardInput } from '@/module
 import type { CardBinInfo } from '@/modules/payment/payment.types';
 import type { TenantSubscription } from './tenant_subscription.types';
 import { SUBSCRIPTION_MESSAGES } from './tenant_subscription.messages';
+import { AppError, ErrorCode } from '@/modules/common/app-error';
 import { fetchProductOrThrow } from './tenant_subscription.helpers';
 import TenantSubscriptionService from './tenant_subscription.service';
 
@@ -47,7 +48,7 @@ export default class TenantCardCheckoutService {
   }> {
     const sysDs = await tenantDataSourceFor(tenantId);
     const plan = await sysDs.getRepository(SubscriptionPlanEntity).findOne({ where: { tenantId, planId } });
-    if (!plan) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND);
+    if (!plan) throw new AppError(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
     const product = await fetchProductOrThrow(tenantId, plan.productId);
 
     const baseAmount = Number(product.basePrice);
@@ -136,7 +137,7 @@ export default class TenantCardCheckoutService {
   > {
     const provider: PaymentProvider = params.provider ?? 'IYZICO';
     if (!PaymentService.supportsDirectCardPayment(provider)) {
-      throw new Error(SUBSCRIPTION_MESSAGES.CARD_PROVIDER_UNSUPPORTED);
+      throw new AppError(SUBSCRIPTION_MESSAGES.CARD_PROVIDER_UNSUPPORTED, 422, ErrorCode.VALIDATION_ERROR);
     }
 
     const bin = params.card.cardNumber.replace(/\D/g, '').slice(0, 8);
@@ -202,7 +203,7 @@ export default class TenantCardCheckoutService {
       );
       if (init.status !== 'success' || !init.htmlContent) {
         await PaymentService.markAsFailed(payment.paymentId, init.errorCode, init.errorMessage);
-        throw new Error(init.errorMessage || SUBSCRIPTION_MESSAGES.CARD_PAYMENT_FAILED);
+        throw new AppError(init.errorMessage || SUBSCRIPTION_MESSAGES.CARD_PAYMENT_FAILED, 422, ErrorCode.VALIDATION_ERROR);
       }
       // Mid-3DS: mark PROCESSING so the (idempotent) callback can finalize it.
       await PaymentService.update(payment.paymentId, { status: 'PROCESSING' });
@@ -213,7 +214,7 @@ export default class TenantCardCheckoutService {
 
     if (charge.status !== 'success') {
       await PaymentService.markAsFailed(payment.paymentId, charge.errorCode, charge.errorMessage);
-      throw new Error(charge.errorMessage || SUBSCRIPTION_MESSAGES.CARD_DECLINED);
+      throw new AppError(charge.errorMessage || SUBSCRIPTION_MESSAGES.CARD_DECLINED, 422, ErrorCode.VALIDATION_ERROR);
     }
 
     if (charge.providerPaymentId) {
@@ -250,7 +251,7 @@ export default class TenantCardCheckoutService {
 
     if (result.status !== 'success') {
       await PaymentService.markAsFailed(ourPaymentId, result.errorCode, result.errorMessage);
-      throw new Error(result.errorMessage || SUBSCRIPTION_MESSAGES.CARD_DECLINED);
+      throw new AppError(result.errorMessage || SUBSCRIPTION_MESSAGES.CARD_DECLINED, 422, ErrorCode.VALIDATION_ERROR);
     }
 
     if (result.providerPaymentId) {

@@ -12,6 +12,7 @@ import {
 } from './auth_saml.types';
 import type { UpsertSamlConfigInput } from './auth_saml.dto';
 import SamlMessages from './auth_saml.messages';
+import { AppError, ErrorCode } from '@/modules/common/app-error';
 import { SAML_NAME_ID_FORMATS } from './auth_saml.enums';
 import UserSocialAccountService from '../user_social_account/user_social_account.service';
 import UserService from '../user/user.service';
@@ -140,8 +141,8 @@ export default class SamlService {
 
   static async generateAuthUrl(tenantId: string, relayState = ''): Promise<string> {
     const config = await this.loadConfig(tenantId);
-    if (!config) throw new Error(SamlMessages.NOT_CONFIGURED);
-    if (!config.isEnabled) throw new Error(SamlMessages.NOT_ENABLED);
+    if (!config) throw new AppError(SamlMessages.NOT_CONFIGURED, 404, ErrorCode.NOT_FOUND);
+    if (!config.isEnabled) throw new AppError(SamlMessages.NOT_ENABLED, 403, ErrorCode.FORBIDDEN);
 
     const saml = this.buildSaml(config, tenantId);
     return saml.getAuthorizeUrlAsync(relayState, '', {});
@@ -158,14 +159,14 @@ export default class SamlService {
     isIdpInitiated = false,
   ): Promise<SamlProfile> {
     const config = await this.loadConfig(tenantId);
-    if (!config) throw new Error(SamlMessages.NOT_CONFIGURED);
-    if (!config.isEnabled) throw new Error(SamlMessages.NOT_ENABLED);
-    if (isIdpInitiated && !config.allowIdpInitiated) throw new Error(SamlMessages.IDP_INITIATED_DISABLED);
+    if (!config) throw new AppError(SamlMessages.NOT_CONFIGURED, 404, ErrorCode.NOT_FOUND);
+    if (!config.isEnabled) throw new AppError(SamlMessages.NOT_ENABLED, 403, ErrorCode.FORBIDDEN);
+    if (isIdpInitiated && !config.allowIdpInitiated) throw new AppError(SamlMessages.IDP_INITIATED_DISABLED, 403, ErrorCode.FORBIDDEN);
 
     const saml = this.buildSaml(config, tenantId);
     const { profile } = await saml.validatePostResponseAsync(body);
 
-    if (!profile) throw new Error(SamlMessages.INVALID_RESPONSE);
+    if (!profile) throw new AppError(SamlMessages.INVALID_RESPONSE, 400, ErrorCode.VALIDATION_ERROR);
 
     const attrs = (profile as Record<string, unknown>);
     const emailAttr = config.emailAttribute;
@@ -177,7 +178,7 @@ export default class SamlService {
       (profile as any).nameID ??
       null;
 
-    if (!rawEmail) throw new Error(SamlMessages.EMAIL_MISSING);
+    if (!rawEmail) throw new AppError(SamlMessages.EMAIL_MISSING, 400, ErrorCode.VALIDATION_ERROR);
 
     const email = Array.isArray(rawEmail) ? rawEmail[0] : rawEmail;
     const rawName = (attrs[nameAttr] as string | string[] | undefined) ?? null;
@@ -242,9 +243,9 @@ export default class SamlService {
     expectedEmail: string,
     profile: SamlProfile,
   ): Promise<void> {
-    if (!profile.email) throw new Error(SamlMessages.EMAIL_MISSING);
+    if (!profile.email) throw new AppError(SamlMessages.EMAIL_MISSING, 400, ErrorCode.VALIDATION_ERROR);
     if (profile.email.toLowerCase() !== expectedEmail.toLowerCase()) {
-      throw new Error(SamlMessages.EMAIL_MISMATCH);
+      throw new AppError(SamlMessages.EMAIL_MISMATCH, 400, ErrorCode.VALIDATION_ERROR);
     }
 
     await UserSocialAccountService.link(
@@ -314,14 +315,14 @@ export default class SamlService {
     profile: SamlProfile,
   ): Promise<{ user: SafeUser; jitProvisioned: boolean; memberCreated: boolean }> {
     const config = await this.loadConfig(tenantId);
-    if (!config) throw new Error(SamlMessages.NOT_CONFIGURED);
+    if (!config) throw new AppError(SamlMessages.NOT_CONFIGURED, 404, ErrorCode.NOT_FOUND);
 
     const existingRaw = await UserService.getByEmail(profile.email);
     let user: SafeUser | null = existingRaw ? SafeUserSchema.parse(existingRaw) : null;
     let jitProvisioned = false;
 
     if (!user) {
-      if (!config.allowJitProvisioning) throw new Error(SamlMessages.NOT_MEMBER);
+      if (!config.allowJitProvisioning) throw new AppError(SamlMessages.NOT_MEMBER, 403, ErrorCode.FORBIDDEN);
 
       const randomPwd = `saml_${Date.now()}_${crypto.randomBytes(16).toString('hex')}`;
       user = await UserService.create({ email: profile.email, password: randomPwd });
@@ -347,7 +348,7 @@ export default class SamlService {
     let memberCreated = false;
 
     if (!existingMember) {
-      if (!config.allowJitProvisioning) throw new Error(SamlMessages.NOT_MEMBER);
+      if (!config.allowJitProvisioning) throw new AppError(SamlMessages.NOT_MEMBER, 403, ErrorCode.FORBIDDEN);
 
       const mappedRole = this.mapSamlRoleToMemberRole(profile, config);
       await TenantMemberService.create({

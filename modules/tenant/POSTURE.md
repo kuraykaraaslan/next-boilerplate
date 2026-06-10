@@ -1,3 +1,5 @@
+> **Uygulandı** — 2026-06-10: All 4 raw Error throws → AppError (404 TENANT_NOT_FOUND) in tenant.service.ts; tenant.deletion.service.ts inline 'Tenant not found' literal → TenantMessages.TENANT_NOT_FOUND via AppError.
+
 # tenant — Posture Review
 
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`

@@ -1,3 +1,5 @@
+> **Uygulandı** — 2026-06-10: All 12 raw Error throws → AppError (NOT_CONFIGURED→404 NOT_FOUND, NOT_ENABLED/IDP_INITIATED_DISABLED/NOT_MEMBER→403 FORBIDDEN, INVALID_RESPONSE/EMAIL_MISSING/EMAIL_MISMATCH→400 VALIDATION_ERROR).
+
 # auth_saml — Posture Review
 
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`

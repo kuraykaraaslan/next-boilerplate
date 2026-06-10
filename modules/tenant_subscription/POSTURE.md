@@ -1,3 +1,5 @@
+> **Uygulandı** — 2026-06-10: All raw Error throws (46+) → AppError across 6 service files (404/409/422/500 with correct ErrorCodes); deletePlan fixed to count active subscriptions via tenantDataSourceFor (not getDataSource); assignPlatformPlan clone wrapped in ds.transaction(); inline message strings extracted to messages.ts (PLATFORM_PLAN_SELF_ASSIGN, PLATFORM_PLAN_MISSING_PRODUCT, PRODUCT_NOT_FOUND, DEFAULT_PLAN_DELETED_PRODUCT, DEFAULT_PLAN_NOT_FREE); AppError re-throw guards in all catch blocks.
+
 # tenant_subscription — Posture Review
 
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`

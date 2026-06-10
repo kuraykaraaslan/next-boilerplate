@@ -3,6 +3,8 @@ import { tenantDataSourceFor } from '@/modules/db';
 import { SubscriptionPlan as SubscriptionPlanEntity } from '../payment/entities/subscription_plan.entity';
 import { StoreProduct as ProductEntity } from '@/modules/store/entities/store_product.entity';
 import Logger from '@/modules/logger';
+import { AppError, ErrorCode } from '@/modules/common/app-error';
+import { SUBSCRIPTION_MESSAGES } from './tenant_subscription.messages';
 import { PlanProductSummarySchema } from './tenant_subscription.types';
 import type { PlanProductSummary } from './tenant_subscription.types';
 import type { WebhookEvent } from '@/modules/webhook/webhook.enums';
@@ -28,7 +30,7 @@ export function productSummary(p: ProductEntity): PlanProductSummary {
 export async function fetchProductOrThrow(tenantId: string, productId: string): Promise<ProductEntity> {
   const ds = await tenantDataSourceFor(tenantId);
   const product = await ds.getRepository(ProductEntity).findOne({ where: { tenantId, productId } });
-  if (!product) throw new Error('Product not found for plan.');
+  if (!product) throw new AppError(SUBSCRIPTION_MESSAGES.PRODUCT_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
   return product;
 }
 

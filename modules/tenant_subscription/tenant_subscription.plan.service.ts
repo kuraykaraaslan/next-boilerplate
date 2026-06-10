@@ -1,9 +1,10 @@
 import 'reflect-metadata';
-import { getDataSource, tenantDataSourceFor } from '@/modules/db';
+import { tenantDataSourceFor } from '@/modules/db';
 import { SubscriptionPlan as SubscriptionPlanEntity } from '../payment/entities/subscription_plan.entity';
 import { PlanFeature as PlanFeatureEntity } from '../payment/entities/plan_feature.entity';
 import { TenantSubscription as TenantSubscriptionEntity } from './entities/tenant_subscription.entity';
 import Logger from '@/modules/logger';
+import { AppError, ErrorCode } from '@/modules/common/app-error';
 import {
   SubscriptionPlanSchema,
   PlanWithFeaturesSchema,
@@ -68,7 +69,8 @@ export default class TenantPlanService {
       });
     } catch (error) {
       Logger.error(`${SUBSCRIPTION_MESSAGES.PLAN_CREATE_FAILED}: ${error instanceof Error ? error.message : String(error)}`);
-      throw error instanceof Error ? error : new Error(SUBSCRIPTION_MESSAGES.PLAN_CREATE_FAILED);
+      if (error instanceof AppError) throw error;
+      throw new AppError(SUBSCRIPTION_MESSAGES.PLAN_CREATE_FAILED, 500, ErrorCode.INTERNAL_ERROR);
     }
   }
 
@@ -76,7 +78,7 @@ export default class TenantPlanService {
     const ds = await tenantDataSourceFor(tenantId);
     const repo = ds.getRepository(SubscriptionPlanEntity);
     const existing = await repo.findOne({ where: { tenantId, planId } });
-    if (!existing) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND);
+    if (!existing) throw new AppError(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
     if (data.productId && data.productId !== existing.productId) {
       await fetchProductOrThrow(tenantId, data.productId);
     }
@@ -90,7 +92,7 @@ export default class TenantPlanService {
       } as any);
 
       const updated = await repo.findOne({ where: { tenantId, planId } });
-      if (!updated) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND);
+      if (!updated) throw new AppError(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
       await emitWebhook(tenantId, 'plan.updated', {
         planId: updated.planId,
         productId: updated.productId,
@@ -104,27 +106,28 @@ export default class TenantPlanService {
       });
     } catch (error) {
       Logger.error(`${SUBSCRIPTION_MESSAGES.PLAN_UPDATE_FAILED}: ${error instanceof Error ? error.message : String(error)}`);
-      throw error instanceof Error ? error : new Error(SUBSCRIPTION_MESSAGES.PLAN_UPDATE_FAILED);
+      if (error instanceof AppError) throw error;
+      throw new AppError(SUBSCRIPTION_MESSAGES.PLAN_UPDATE_FAILED, 500, ErrorCode.INTERNAL_ERROR);
     }
   }
 
   static async deletePlan(tenantId: string, planId: string): Promise<void> {
     const sysDs = await tenantDataSourceFor(tenantId);
     const existing = await sysDs.getRepository(SubscriptionPlanEntity).findOne({ where: { tenantId, planId } });
-    if (!existing) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND);
+    if (!existing) throw new AppError(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
 
-    const tenantDs = await getDataSource();
-    const activeCount = await tenantDs.getRepository(TenantSubscriptionEntity).count({
+    const activeCount = await sysDs.getRepository(TenantSubscriptionEntity).count({
       where: { tenantId, planId, status: 'ACTIVE' },
     });
-    if (activeCount > 0) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_HAS_SUBSCRIPTIONS);
+    if (activeCount > 0) throw new AppError(SUBSCRIPTION_MESSAGES.PLAN_HAS_SUBSCRIPTIONS, 409, ErrorCode.CONFLICT);
 
     try {
       await sysDs.getRepository(SubscriptionPlanEntity).delete({ tenantId, planId });
       await emitWebhook(tenantId, 'plan.deleted', { planId, productId: existing.productId });
     } catch (error) {
       Logger.error(`${SUBSCRIPTION_MESSAGES.PLAN_DELETE_FAILED}: ${error instanceof Error ? error.message : String(error)}`);
-      throw new Error(SUBSCRIPTION_MESSAGES.PLAN_DELETE_FAILED);
+      if (error instanceof AppError) throw error;
+      throw new AppError(SUBSCRIPTION_MESSAGES.PLAN_DELETE_FAILED, 500, ErrorCode.INTERNAL_ERROR);
     }
   }
 
@@ -146,7 +149,7 @@ export default class TenantPlanService {
   static async getPlanById(tenantId: string, planId: string): Promise<PlanWithProduct> {
     const ds = await tenantDataSourceFor(tenantId);
     const plan = await ds.getRepository(SubscriptionPlanEntity).findOne({ where: { tenantId, planId } });
-    if (!plan) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND);
+    if (!plan) throw new AppError(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
     const product = await fetchProductOrNull(tenantId, plan.productId);
     return PlanWithProductSchema.parse({
       ...SubscriptionPlanSchema.parse(plan),
@@ -157,7 +160,7 @@ export default class TenantPlanService {
   static async getPlanWithFeatures(tenantId: string, planId: string): Promise<PlanWithFeatures> {
     const ds = await tenantDataSourceFor(tenantId);
     const plan = await ds.getRepository(SubscriptionPlanEntity).findOne({ where: { tenantId, planId } });
-    if (!plan) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND);
+    if (!plan) throw new AppError(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
     const product = await fetchProductOrNull(tenantId, plan.productId);
     const features = await ds.getRepository(PlanFeatureEntity).find({ where: { tenantId, planId }, order: { sortOrder: 'ASC' } });
     return PlanWithFeaturesSchema.parse({
@@ -195,7 +198,7 @@ export default class TenantPlanService {
   static async addFeature(tenantId: string, planId: string, data: CreateFeatureDTO): Promise<PlanFeature> {
     const ds = await tenantDataSourceFor(tenantId);
     const plan = await ds.getRepository(SubscriptionPlanEntity).findOne({ where: { tenantId, planId } });
-    if (!plan) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND);
+    if (!plan) throw new AppError(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
 
     try {
       const repo = ds.getRepository(PlanFeatureEntity);
@@ -212,10 +215,11 @@ export default class TenantPlanService {
       return PlanFeatureSchema.parse(saved);
     } catch (error: unknown) {
       if (error && typeof error === 'object' && 'code' in error && (error as any).code === '23505') {
-        throw new Error(SUBSCRIPTION_MESSAGES.FEATURE_KEY_EXISTS);
+        throw new AppError(SUBSCRIPTION_MESSAGES.FEATURE_KEY_EXISTS, 409, ErrorCode.CONFLICT);
       }
       Logger.error(`${SUBSCRIPTION_MESSAGES.FEATURE_CREATE_FAILED}: ${error instanceof Error ? error.message : String(error)}`);
-      throw new Error(SUBSCRIPTION_MESSAGES.FEATURE_CREATE_FAILED);
+      if (error instanceof AppError) throw error;
+      throw new AppError(SUBSCRIPTION_MESSAGES.FEATURE_CREATE_FAILED, 500, ErrorCode.INTERNAL_ERROR);
     }
   }
 
@@ -223,7 +227,7 @@ export default class TenantPlanService {
     const ds = await tenantDataSourceFor(tenantId);
     const repo = ds.getRepository(PlanFeatureEntity);
     const existing = await repo.findOne({ where: { tenantId, featureId } });
-    if (!existing) throw new Error(SUBSCRIPTION_MESSAGES.FEATURE_NOT_FOUND);
+    if (!existing) throw new AppError(SUBSCRIPTION_MESSAGES.FEATURE_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
 
     try {
       await repo.update({ tenantId, featureId }, {
@@ -237,23 +241,25 @@ export default class TenantPlanService {
       return PlanFeatureSchema.parse(updated!);
     } catch (error: unknown) {
       if (error && typeof error === 'object' && 'code' in error && (error as any).code === '23505') {
-        throw new Error(SUBSCRIPTION_MESSAGES.FEATURE_KEY_EXISTS);
+        throw new AppError(SUBSCRIPTION_MESSAGES.FEATURE_KEY_EXISTS, 409, ErrorCode.CONFLICT);
       }
       Logger.error(`${SUBSCRIPTION_MESSAGES.FEATURE_UPDATE_FAILED}: ${error instanceof Error ? error.message : String(error)}`);
-      throw new Error(SUBSCRIPTION_MESSAGES.FEATURE_UPDATE_FAILED);
+      if (error instanceof AppError) throw error;
+      throw new AppError(SUBSCRIPTION_MESSAGES.FEATURE_UPDATE_FAILED, 500, ErrorCode.INTERNAL_ERROR);
     }
   }
 
   static async removeFeature(tenantId: string, featureId: string): Promise<void> {
     const ds = await tenantDataSourceFor(tenantId);
     const existing = await ds.getRepository(PlanFeatureEntity).findOne({ where: { tenantId, featureId } });
-    if (!existing) throw new Error(SUBSCRIPTION_MESSAGES.FEATURE_NOT_FOUND);
+    if (!existing) throw new AppError(SUBSCRIPTION_MESSAGES.FEATURE_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
 
     try {
       await ds.getRepository(PlanFeatureEntity).delete({ tenantId, featureId });
     } catch (error) {
       Logger.error(`${SUBSCRIPTION_MESSAGES.FEATURE_DELETE_FAILED}: ${error instanceof Error ? error.message : String(error)}`);
-      throw new Error(SUBSCRIPTION_MESSAGES.FEATURE_DELETE_FAILED);
+      if (error instanceof AppError) throw error;
+      throw new AppError(SUBSCRIPTION_MESSAGES.FEATURE_DELETE_FAILED, 500, ErrorCode.INTERNAL_ERROR);
     }
   }
 

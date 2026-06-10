@@ -3,6 +3,8 @@ import { IsNull, LessThan } from 'typeorm';
 import { tenantDataSourceFor, getDataSource } from '@/modules/db';
 import { Tenant } from './entities/tenant.entity';
 import Logger from '@/modules/logger';
+import TenantMessages from './tenant.messages';
+import { AppError, ErrorCode } from '@/modules/common/app-error';
 
 const DELETION_GRACE_DAYS = 30;
 
@@ -12,7 +14,7 @@ export default class TenantDeletionService {
     const ds = await tenantDataSourceFor(tenantId);
     const repo = ds.getRepository(Tenant);
     const tenant = await repo.findOne({ where: { tenantId } });
-    if (!tenant) throw new Error('Tenant not found');
+    if (!tenant) throw new AppError(TenantMessages.TENANT_NOT_FOUND, 404, ErrorCode.TENANT_NOT_FOUND);
 
     const now = new Date();
     const deleteAfter = new Date(now);

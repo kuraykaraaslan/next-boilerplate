@@ -20,6 +20,7 @@ import type {
   AssignSubscriptionDTO,
 } from './tenant_subscription.dto';
 import { SUBSCRIPTION_MESSAGES } from './tenant_subscription.messages';
+import { AppError, ErrorCode } from '@/modules/common/app-error';
 import { emitWebhook } from './tenant_subscription.helpers';
 import TenantFeatureGateService from './tenant_subscription.feature.service';
 
@@ -40,7 +41,7 @@ export default class TenantSubscriptionService {
   static async assignPlan(tenantId: string, data: AssignSubscriptionDTO): Promise<TenantSubscription> {
     const sysDs = await tenantDataSourceFor(tenantId);
     const plan = await sysDs.getRepository(SubscriptionPlanEntity).findOne({ where: { tenantId, planId: data.planId } });
-    if (!plan) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND);
+    if (!plan) throw new AppError(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
 
     const interval = (data.billingInterval ?? plan.interval) as 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'QUARTERLY' | 'YEARLY';
 
@@ -100,7 +101,8 @@ export default class TenantSubscriptionService {
       return TenantSubscriptionSchema.parse(saved);
     } catch (error) {
       Logger.error(`${SUBSCRIPTION_MESSAGES.SUBSCRIPTION_ASSIGN_FAILED}: ${error instanceof Error ? error.message : String(error)}`);
-      throw new Error(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_ASSIGN_FAILED);
+      if (error instanceof AppError) throw error;
+      throw new AppError(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_ASSIGN_FAILED, 500, ErrorCode.INTERNAL_ERROR);
     }
   }
 
@@ -120,8 +122,8 @@ export default class TenantSubscriptionService {
     const ds = await tenantDataSourceFor(tenantId);
     const repo = ds.getRepository(TenantSubscriptionEntity);
     const existing = await repo.findOne({ where: { tenantId } });
-    if (!existing) throw new Error(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_NOT_FOUND);
-    if (existing.status === 'CANCELLED') throw new Error(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_ALREADY_CANCELLED);
+    if (!existing) throw new AppError(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
+    if (existing.status === 'CANCELLED') throw new AppError(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_ALREADY_CANCELLED, 409, ErrorCode.CONFLICT);
 
     try {
       await repo.update({ tenantId }, { status: 'CANCELLED', cancelledAt: new Date() });
@@ -130,7 +132,8 @@ export default class TenantSubscriptionService {
       return TenantSubscriptionSchema.parse(updated!);
     } catch (error) {
       Logger.error(`${SUBSCRIPTION_MESSAGES.SUBSCRIPTION_CANCEL_FAILED}: ${error instanceof Error ? error.message : String(error)}`);
-      throw new Error(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_CANCEL_FAILED);
+      if (error instanceof AppError) throw error;
+      throw new AppError(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_CANCEL_FAILED, 500, ErrorCode.INTERNAL_ERROR);
     }
   }
 
@@ -155,8 +158,8 @@ export default class TenantSubscriptionService {
     const ds = await tenantDataSourceFor(tenantId);
     const repo = ds.getRepository(TenantSubscriptionEntity);
     const existing = await repo.findOne({ where: { tenantId } });
-    if (!existing) throw new Error(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_NOT_FOUND);
-    if (existing.status !== 'PAST_DUE') throw new Error(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_NOT_PAST_DUE);
+    if (!existing) throw new AppError(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
+    if (existing.status !== 'PAST_DUE') throw new AppError(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_NOT_PAST_DUE, 409, ErrorCode.CONFLICT);
 
     const gracePeriodDays = await this.getGracePeriodDays();
     const gracePeriodEndsAt = new Date(Date.now() + gracePeriodDays * 24 * 60 * 60 * 1000);
@@ -169,7 +172,8 @@ export default class TenantSubscriptionService {
       return TenantSubscriptionSchema.parse(updated!);
     } catch (error) {
       Logger.error(`${SUBSCRIPTION_MESSAGES.GRACE_PERIOD_START_FAILED}: ${error instanceof Error ? error.message : String(error)}`);
-      throw new Error(SUBSCRIPTION_MESSAGES.GRACE_PERIOD_START_FAILED);
+      if (error instanceof AppError) throw error;
+      throw new AppError(SUBSCRIPTION_MESSAGES.GRACE_PERIOD_START_FAILED, 500, ErrorCode.INTERNAL_ERROR);
     }
   }
 
@@ -213,7 +217,8 @@ export default class TenantSubscriptionService {
       return overdue.length;
     } catch (error) {
       Logger.error(`${SUBSCRIPTION_MESSAGES.SUBSCRIPTION_EXPIRE_FAILED}: ${error instanceof Error ? error.message : String(error)}`);
-      throw new Error(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_EXPIRE_FAILED);
+      if (error instanceof AppError) throw error;
+      throw new AppError(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_EXPIRE_FAILED, 500, ErrorCode.INTERNAL_ERROR);
     }
   }
 
@@ -226,38 +231,26 @@ export default class TenantSubscriptionService {
       const payment = await PaymentService.getById(paymentId);
 
       if (!payment) {
-        throw new Error(SUBSCRIPTION_MESSAGES.PAYMENT_NOT_FOUND);
+        throw new AppError(SUBSCRIPTION_MESSAGES.PAYMENT_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
       }
 
       if (payment.status === 'COMPLETED') {
         const existing = await this.getSubscription(payment.tenantId!);
         if (existing) {
-          return TenantSubscriptionSchema.parse({
-            subscriptionId: existing.subscriptionId,
-            tenantId: existing.tenantId,
-            planId: existing.planId,
-            status: existing.status,
-            billingInterval: existing.billingInterval,
-            currentPeriodStart: existing.currentPeriodStart,
-            currentPeriodEnd: existing.currentPeriodEnd,
-            trialEndsAt: existing.trialEndsAt,
-            cancelledAt: existing.cancelledAt,
-            createdAt: existing.createdAt,
-            updatedAt: existing.updatedAt,
-          });
+          return TenantSubscriptionSchema.parse(existing);
         }
-        throw new Error(SUBSCRIPTION_MESSAGES.PAYMENT_ALREADY_PROCESSED);
+        throw new AppError(SUBSCRIPTION_MESSAGES.PAYMENT_ALREADY_PROCESSED, 409, ErrorCode.CONFLICT);
       }
 
       if (payment.status !== 'PENDING' && payment.status !== 'PROCESSING') {
-        throw new Error(SUBSCRIPTION_MESSAGES.PAYMENT_INVALID_STATUS);
+        throw new AppError(SUBSCRIPTION_MESSAGES.PAYMENT_INVALID_STATUS, 422, ErrorCode.VALIDATION_ERROR);
       }
 
       const metadata = payment.metadata as { planId?: string; billingInterval?: string; tenantId?: string } || {};
       const { planId, billingInterval, tenantId } = metadata;
 
       if (!planId || !tenantId) {
-        throw new Error(SUBSCRIPTION_MESSAGES.INVALID_REQUEST);
+        throw new AppError(SUBSCRIPTION_MESSAGES.INVALID_REQUEST, 422, ErrorCode.VALIDATION_ERROR);
       }
 
       await PaymentService.markAsCompleted(paymentId);

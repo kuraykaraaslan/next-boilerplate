@@ -7,6 +7,7 @@ import { ExchangeRateService } from '@/modules/exchange_rate';
 import type { PaymentProvider, PaymentCurrency } from '@/modules/payment/payment.enums';
 import type { TenantSubscription } from './tenant_subscription.types';
 import { SUBSCRIPTION_MESSAGES } from './tenant_subscription.messages';
+import { AppError, ErrorCode } from '@/modules/common/app-error';
 import { fetchProductOrThrow } from './tenant_subscription.helpers';
 import TenantSubscriptionService from './tenant_subscription.service';
 
@@ -41,7 +42,7 @@ export default class TenantCheckoutService {
 
     const sysDs = await tenantDataSourceFor(tenantId);
     const plan = await sysDs.getRepository(SubscriptionPlanEntity).findOne({ where: { tenantId, planId } });
-    if (!plan) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND);
+    if (!plan) throw new AppError(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
     const product = await fetchProductOrThrow(tenantId, plan.productId);
 
     const billingInterval = plan.interval;
@@ -96,7 +97,8 @@ export default class TenantCheckoutService {
       return { paymentId: payment.paymentId, checkoutUrl: checkout.checkoutUrl };
     } catch (error) {
       Logger.error(`${SUBSCRIPTION_MESSAGES.PAYMENT_INITIATION_FAILED}: ${error instanceof Error ? error.message : String(error)}`);
-      throw new Error(SUBSCRIPTION_MESSAGES.PAYMENT_INITIATION_FAILED);
+      if (error instanceof AppError) throw error;
+      throw new AppError(SUBSCRIPTION_MESSAGES.PAYMENT_INITIATION_FAILED, 500, ErrorCode.INTERNAL_ERROR);
     }
   }
 
@@ -121,7 +123,7 @@ export default class TenantCheckoutService {
 
     const sysDs = await tenantDataSourceFor(params.tenantId);
     const plan = await sysDs.getRepository(SubscriptionPlanEntity).findOne({ where: { tenantId: params.tenantId, planId: params.planId } });
-    if (!plan) throw new Error(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND);
+    if (!plan) throw new AppError(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
     const product = await fetchProductOrThrow(params.tenantId, plan.productId);
 
     const billingInterval = plan.interval;
@@ -166,15 +168,15 @@ export default class TenantCheckoutService {
   }): Promise<TenantSubscription> {
     const provider: PaymentProvider = params.provider ?? 'STRIPE';
     const payment = await PaymentService.getById(params.paymentId);
-    if (!payment) throw new Error(SUBSCRIPTION_MESSAGES.PAYMENT_NOT_FOUND);
+    if (!payment) throw new AppError(SUBSCRIPTION_MESSAGES.PAYMENT_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
 
     const ref = (payment.metadata as { stripePaymentIntentId?: string } | null)?.stripePaymentIntentId
       || payment.providerPaymentId;
-    if (!ref) throw new Error(SUBSCRIPTION_MESSAGES.INVALID_REQUEST);
+    if (!ref) throw new AppError(SUBSCRIPTION_MESSAGES.INVALID_REQUEST, 422, ErrorCode.VALIDATION_ERROR);
 
     const status = await PaymentService.getProviderStatus({ tenantId: params.tenantId, token: ref, provider });
     if (status !== 'succeeded') {
-      throw new Error(SUBSCRIPTION_MESSAGES.CARD_PAYMENT_FAILED);
+      throw new AppError(SUBSCRIPTION_MESSAGES.CARD_PAYMENT_FAILED, 422, ErrorCode.VALIDATION_ERROR);
     }
 
     return TenantSubscriptionService.confirmPayment(params.paymentId);
