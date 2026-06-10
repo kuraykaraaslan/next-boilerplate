@@ -54,6 +54,9 @@ export default class ObservabilityService {
   static recordHttpRequest(sample: HttpRequestSample): void {
     const m = getMetrics();
     if (!m) return;
+    // `route` and `metric` values must stay low-cardinality (typed HttpRequestSample
+    // enforces this today). If a non-trusted caller is ever introduced, bound these
+    // to a known set before passing to Prometheus to prevent label-cardinality blowup.
     const labels = {
       method: sample.method,
       route: sample.route,
@@ -79,6 +82,7 @@ export default class ObservabilityService {
         if (userId) scope.setUser({ id: String(userId) });
         if (opts.fingerprint) scope.setFingerprint(opts.fingerprint);
         if (opts.level) scope.setLevel(opts.level);
+        // Callers must not place secrets or PII in `extra` — it is forwarded verbatim to Sentry.
         if (opts.extra) Object.entries(opts.extra).forEach(([k, v]) => scope.setExtra(k, v));
         sentry.captureException(err);
       });

@@ -1,3 +1,5 @@
+> **Uygulandı** — 2026-06-10: Added inline comments documenting the typed-trust contract for Prometheus label cardinality (route/metric must stay low-cardinality) and the redaction requirement for recordError opts.extra (callers must not place secrets/PII there).
+
 # observability — Posture Review
 
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`

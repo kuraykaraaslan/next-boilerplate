@@ -1,4 +1,6 @@
+import { randomUUID } from 'crypto';
 import redis from '@/modules/redis';
+import Logger from '@/modules/logger';
 
 const WINDOW_MS = 60_000; // 1 minute
 
@@ -23,22 +25,31 @@ export async function checkSlidingWindowRateLimit(
 
   const now = Date.now();
   const windowStart = now - WINDOW_MS;
-  const member = `${now}:${Math.random().toString(36).slice(2)}`;
+  const member = `${now}:${randomUUID().replace(/-/g, '')}`;
 
-  const pipe = redis.pipeline();
-  pipe.zremrangebyscore(key, '-inf', windowStart);
-  pipe.zadd(key, now, member);
-  pipe.zcard(key);
-  pipe.expire(key, 61);
-  const results = await pipe.exec();
+  try {
+    const pipe = redis.pipeline();
+    pipe.zremrangebyscore(key, '-inf', windowStart);
+    pipe.zadd(key, now, member);
+    pipe.zcard(key);
+    pipe.expire(key, 61);
+    const results = await pipe.exec();
 
-  const count = (results?.[2]?.[1] as number) ?? 0;
+    const count = (results?.[2]?.[1] as number) ?? 0;
 
-  return {
-    success: count <= limitPerMinute,
-    remaining: Math.max(limitPerMinute - count, 0),
-    limit: limitPerMinute,
-  };
+    if (count > limitPerMinute) {
+      Logger.warn(`[limiter] sliding-window limit hit: key=${key} count=${count} limit=${limitPerMinute}`);
+    }
+
+    return {
+      success: count <= limitPerMinute,
+      remaining: Math.max(limitPerMinute - count, 0),
+      limit: limitPerMinute,
+    };
+  } catch (err) {
+    Logger.warn(`[limiter] Redis pipeline error (fail-open): ${err instanceof Error ? err.message : String(err)}`);
+    return { success: true, remaining: limitPerMinute, limit: limitPerMinute };
+  }
 }
 
 export async function checkTenantPlanRateLimit(

@@ -1,3 +1,5 @@
+> **Uygulandı** — 2026-06-10: Replaced all z.coerce.boolean() with boolEnv() helper (z.preprocess(v => v === 'true' || v === '1', z.boolean())) so FLAG=false/FLAG=0 correctly resolve to false. Affected: DEBUG, DEBUG_LOCAL, DEBUG_TESTS, DEBUG_TESTS_REAL_SERVER, SMTP_SECURE, METRICS_ENABLED, OTEL_ENABLED, ENABLE_BACKGROUND_JOBS.
+
 # env — Posture Review
 
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`

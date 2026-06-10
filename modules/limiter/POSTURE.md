@@ -1,3 +1,5 @@
+> **Uygulandı** — 2026-06-10: Wrapped all Redis calls (incr/expire in limiter.service.ts; pipeline exec in limiter.tenant-plan.service.ts) in try/catch fail-open (returns {success:true} on Redis error); added Logger.warn on rate-limit hits and Redis errors; replaced Math.random() member suffix with randomUUID() for guaranteed uniqueness.
+
 # limiter — Posture Review
 
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`
