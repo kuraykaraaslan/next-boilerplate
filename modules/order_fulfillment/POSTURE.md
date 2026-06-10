@@ -1,3 +1,5 @@
+> **Uygulandı** — 2026-06-10: AppError (6 throws), create() transaction, webhook .catch(), removed dead CACHE_TTL + singleFlight, redis.del fail-open.
+
 # order_fulfillment — Posture Review
 
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`

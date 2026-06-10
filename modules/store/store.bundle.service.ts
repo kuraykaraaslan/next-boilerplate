@@ -14,6 +14,7 @@ import type {
   CreateBundleDTO, UpdateBundleDTO, AddBundleItemDTO, UpdateBundleItemDTO, GetBundlesQuery,
 } from './store.dto'
 import { STORE_MESSAGES } from './store.messages'
+import { AppError, ErrorCode } from '@/modules/common/app-error'
 
 /** Store bundle + bundle-item CRUD (split out of `StoreService`). */
 export default class StoreBundleService {
@@ -25,14 +26,15 @@ export default class StoreBundleService {
     const ds = await tenantDataSourceFor(tenantId)
     const repo = ds.getRepository(BundleEntity)
     const taken = await repo.findOne({ where: { tenantId, slug: data.slug } })
-    if (taken) throw new Error(STORE_MESSAGES.BUNDLE_SLUG_TAKEN)
+    if (taken) throw new AppError(STORE_MESSAGES.BUNDLE_SLUG_TAKEN, 409, ErrorCode.CONFLICT)
     try {
       const bundle = repo.create({ tenantId, ...data })
       const saved = await repo.save(bundle)
       return StoreBundleSchema.parse(saved)
     } catch (error) {
+      if (error instanceof AppError) throw error
       Logger.error(`${STORE_MESSAGES.BUNDLE_CREATE_FAILED}: ${error}`)
-      throw new Error(STORE_MESSAGES.BUNDLE_CREATE_FAILED)
+      throw new AppError(STORE_MESSAGES.BUNDLE_CREATE_FAILED, 500, ErrorCode.INTERNAL_ERROR)
     }
   }
 
@@ -40,14 +42,14 @@ export default class StoreBundleService {
     const ds = await tenantDataSourceFor(tenantId)
     const repo = ds.getRepository(BundleEntity)
     const bundle = await repo.findOne({ where: { tenantId, bundleId } })
-    if (!bundle) throw new Error(STORE_MESSAGES.BUNDLE_NOT_FOUND)
+    if (!bundle) throw new AppError(STORE_MESSAGES.BUNDLE_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     if (data.slug && data.slug !== bundle.slug) {
       const taken = await repo.findOne({ where: { tenantId, slug: data.slug } })
-      if (taken) throw new Error(STORE_MESSAGES.BUNDLE_SLUG_TAKEN)
+      if (taken) throw new AppError(STORE_MESSAGES.BUNDLE_SLUG_TAKEN, 409, ErrorCode.CONFLICT)
     }
     Object.assign(bundle, data)
     const saved = await repo.save(bundle)
-    await redis.del(`store:bundle:${bundleId}`)
+    await redis.del(`store:bundle:${bundleId}`).catch(() => {})
     return StoreBundleSchema.parse(saved)
   }
 
@@ -55,7 +57,7 @@ export default class StoreBundleService {
     return singleFlight(`store:bundle:${bundleId}:${withItems}`, async () => {
       const ds = await tenantDataSourceFor(tenantId)
       const bundle = await ds.getRepository(BundleEntity).findOne({ where: { tenantId, bundleId } })
-      if (!bundle) throw new Error(STORE_MESSAGES.BUNDLE_NOT_FOUND)
+      if (!bundle) throw new AppError(STORE_MESSAGES.BUNDLE_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
       if (!withItems) return StoreBundleSchema.parse(bundle)
       const items = await ds.getRepository(BundleItemEntity).find({
         where: { tenantId, bundleId }, order: { sortOrder: 'ASC' },
@@ -97,12 +99,12 @@ export default class StoreBundleService {
   static async addBundleItem(tenantId: string, bundleId: string, data: AddBundleItemDTO): Promise<StoreBundleItem> {
     const ds = await tenantDataSourceFor(tenantId)
     const bundle = await ds.getRepository(BundleEntity).findOne({ where: { tenantId, bundleId } })
-    if (!bundle) throw new Error(STORE_MESSAGES.BUNDLE_NOT_FOUND)
+    if (!bundle) throw new AppError(STORE_MESSAGES.BUNDLE_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     const product = await ds.getRepository(ProductEntity).findOne({ where: { tenantId, productId: data.productId } })
-    if (!product) throw new Error(STORE_MESSAGES.PRODUCT_NOT_FOUND)
+    if (!product) throw new AppError(STORE_MESSAGES.PRODUCT_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     const item = ds.getRepository(BundleItemEntity).create({ tenantId, bundleId, ...data })
     const saved = await ds.getRepository(BundleItemEntity).save(item)
-    await redis.del(`store:bundle:${bundleId}:true`)
+    await redis.del(`store:bundle:${bundleId}:true`).catch(() => {})
     return StoreBundleItemSchema.parse(saved)
   }
 
@@ -112,27 +114,27 @@ export default class StoreBundleService {
     const ds = await tenantDataSourceFor(tenantId)
     const repo = ds.getRepository(BundleItemEntity)
     const item = await repo.findOne({ where: { tenantId, bundleId, bundleItemId } })
-    if (!item) throw new Error(STORE_MESSAGES.BUNDLE_ITEM_NOT_FOUND)
+    if (!item) throw new AppError(STORE_MESSAGES.BUNDLE_ITEM_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     if (data.quantity !== undefined) item.quantity = data.quantity
     if (data.overridePrice !== undefined) item.overridePrice = data.overridePrice ?? undefined
     if (data.sortOrder !== undefined) item.sortOrder = data.sortOrder
     const saved = await repo.save(item)
-    await redis.del(`store:bundle:${bundleId}:true`)
+    await redis.del(`store:bundle:${bundleId}:true`).catch(() => {})
     return StoreBundleItemSchema.parse(saved)
   }
 
   static async removeBundleItem(tenantId: string, bundleId: string, bundleItemId: string): Promise<void> {
     const ds = await tenantDataSourceFor(tenantId)
     await ds.getRepository(BundleItemEntity).delete({ tenantId, bundleId, bundleItemId })
-    await redis.del(`store:bundle:${bundleId}:true`)
+    await redis.del(`store:bundle:${bundleId}:true`).catch(() => {})
   }
 
   static async deleteBundle(tenantId: string, bundleId: string): Promise<void> {
     const ds = await tenantDataSourceFor(tenantId)
     const bundle = await ds.getRepository(BundleEntity).findOne({ where: { tenantId, bundleId } })
-    if (!bundle) throw new Error(STORE_MESSAGES.BUNDLE_NOT_FOUND)
+    if (!bundle) throw new AppError(STORE_MESSAGES.BUNDLE_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     await ds.getRepository(BundleEntity).softDelete({ tenantId, bundleId })
-    await redis.del(`store:bundle:${bundleId}:true`)
-    await redis.del(`store:bundle:${bundleId}:false`)
+    await redis.del(`store:bundle:${bundleId}:true`).catch(() => {})
+    await redis.del(`store:bundle:${bundleId}:false`).catch(() => {})
   }
 }

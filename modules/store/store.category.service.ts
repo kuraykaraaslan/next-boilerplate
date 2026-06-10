@@ -13,6 +13,7 @@ import type {
   CreateCategoryDTO, UpdateCategoryDTO, GetCategoriesQuery, CreateSpecDTO,
 } from './store.dto'
 import { STORE_MESSAGES } from './store.messages'
+import { AppError, ErrorCode } from '@/modules/common/app-error'
 
 /** Store category + category-spec CRUD (split out of `StoreService`). */
 export default class StoreCategoryService {
@@ -24,15 +25,16 @@ export default class StoreCategoryService {
     const ds = await tenantDataSourceFor(tenantId)
     const repo = ds.getRepository(CategoryEntity)
     const existing = await repo.findOne({ where: { tenantId, slug: data.slug } })
-    if (existing) throw new Error(STORE_MESSAGES.CATEGORY_SLUG_TAKEN)
+    if (existing) throw new AppError(STORE_MESSAGES.CATEGORY_SLUG_TAKEN, 409, ErrorCode.CONFLICT)
     try {
       const category = repo.create({ tenantId, ...data })
       const saved = await repo.save(category)
-      await redis.del(`store:cats:${tenantId}`)
+      await redis.del(`store:cats:${tenantId}`).catch(() => {})
       return StoreCategorySchema.parse(saved)
     } catch (error) {
+      if (error instanceof AppError) throw error
       Logger.error(`${STORE_MESSAGES.CATEGORY_CREATE_FAILED}: ${error}`)
-      throw new Error(STORE_MESSAGES.CATEGORY_CREATE_FAILED)
+      throw new AppError(STORE_MESSAGES.CATEGORY_CREATE_FAILED, 500, ErrorCode.INTERNAL_ERROR)
     }
   }
 
@@ -40,15 +42,15 @@ export default class StoreCategoryService {
     const ds = await tenantDataSourceFor(tenantId)
     const repo = ds.getRepository(CategoryEntity)
     const category = await repo.findOne({ where: { tenantId, categoryId } })
-    if (!category) throw new Error(STORE_MESSAGES.CATEGORY_NOT_FOUND)
+    if (!category) throw new AppError(STORE_MESSAGES.CATEGORY_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     if (data.slug && data.slug !== category.slug) {
       const taken = await repo.findOne({ where: { tenantId, slug: data.slug } })
-      if (taken) throw new Error(STORE_MESSAGES.CATEGORY_SLUG_TAKEN)
+      if (taken) throw new AppError(STORE_MESSAGES.CATEGORY_SLUG_TAKEN, 409, ErrorCode.CONFLICT)
     }
     Object.assign(category, data)
     const saved = await repo.save(category)
-    await redis.del(`store:cats:${tenantId}`)
-    await redis.del(`store:cat:${categoryId}`)
+    await redis.del(`store:cats:${tenantId}`).catch(() => {})
+    await redis.del(`store:cat:${categoryId}`).catch(() => {})
     return StoreCategorySchema.parse(saved)
   }
 
@@ -56,7 +58,7 @@ export default class StoreCategoryService {
     return singleFlight(`store:cat:${categoryId}:${withSpecs}`, async () => {
       const ds = await tenantDataSourceFor(tenantId)
       const cat = await ds.getRepository(CategoryEntity).findOne({ where: { tenantId, categoryId } })
-      if (!cat) throw new Error(STORE_MESSAGES.CATEGORY_NOT_FOUND)
+      if (!cat) throw new AppError(STORE_MESSAGES.CATEGORY_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
       if (!withSpecs) return StoreCategorySchema.parse(cat)
       const specs = await ds.getRepository(SpecEntity).find({
         where: { tenantId, categoryId }, order: { sortOrder: 'ASC' },
@@ -99,11 +101,11 @@ export default class StoreCategoryService {
   static async deleteCategory(tenantId: string, categoryId: string): Promise<void> {
     const ds = await tenantDataSourceFor(tenantId)
     const productCount = await ds.getRepository(ProductEntity).count({ where: { tenantId, categoryId } })
-    if (productCount > 0) throw new Error(STORE_MESSAGES.CATEGORY_HAS_PRODUCTS)
+    if (productCount > 0) throw new AppError(STORE_MESSAGES.CATEGORY_HAS_PRODUCTS, 409, ErrorCode.CONFLICT)
     await ds.getRepository(CategoryEntity).softDelete({ tenantId, categoryId })
-    await redis.del(`store:cats:${tenantId}`)
-    await redis.del(`store:cat:${categoryId}:true`)
-    await redis.del(`store:cat:${categoryId}:false`)
+    await redis.del(`store:cats:${tenantId}`).catch(() => {})
+    await redis.del(`store:cat:${categoryId}:true`).catch(() => {})
+    await redis.del(`store:cat:${categoryId}:false`).catch(() => {})
   }
 
   // ============================================================================
@@ -120,13 +122,13 @@ export default class StoreCategoryService {
       spec = repo.create({ tenantId, categoryId, ...data })
     }
     const saved = await repo.save(spec)
-    await redis.del(`store:cat:${categoryId}:true`)
+    await redis.del(`store:cat:${categoryId}:true`).catch(() => {})
     return StoreCategorySpecSchema.parse(saved)
   }
 
   static async deleteSpec(tenantId: string, categoryId: string, specId: string): Promise<void> {
     const ds = await tenantDataSourceFor(tenantId)
     await ds.getRepository(SpecEntity).delete({ tenantId, categoryId, specId })
-    await redis.del(`store:cat:${categoryId}:true`)
+    await redis.del(`store:cat:${categoryId}:true`).catch(() => {})
   }
 }

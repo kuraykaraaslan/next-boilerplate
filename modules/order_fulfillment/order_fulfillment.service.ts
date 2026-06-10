@@ -1,10 +1,10 @@
 import 'reflect-metadata'
 import type { DataSource } from 'typeorm'
 import { tenantDataSourceFor } from '@/modules/db'
-import redis, { singleFlight } from '@/modules/redis'
+import redis from '@/modules/redis'
 import Logger from '@/modules/logger'
-import { env } from '@/modules/env'
 import WebhookService from '@/modules/webhook/webhook.service'
+import { AppError, ErrorCode } from '@/modules/common/app-error'
 import { Fulfillment as FulfillmentEntity } from './entities/fulfillment.entity'
 import { FulfillmentItem as FulfillmentItemEntity } from './entities/fulfillment_item.entity'
 import { FulfillmentEvent as FulfillmentEventEntity } from './entities/fulfillment_event.entity'
@@ -19,9 +19,6 @@ import type {
 import type { FulfillmentStatus } from './order_fulfillment.enums'
 import { ORDER_FULFILLMENT_MESSAGES } from './order_fulfillment.messages'
 
-// TTL used by tenant-scoped cache entries written via singleFlight.
-const CACHE_TTL = env.TENANT_CACHE_TTL ?? 300
-
 // Statuses that are terminal — no further transitions are allowed out of them.
 const TERMINAL_STATUSES: ReadonlySet<FulfillmentStatus> = new Set(['DELIVERED', 'CANCELLED', 'RETURNED'])
 
@@ -35,46 +32,54 @@ export default class OrderFulfillmentService {
 
   static async create(tenantId: string, dto: CreateFulfillmentDTO): Promise<FulfillmentWithItems> {
     const ds = await tenantDataSourceFor(tenantId)
-    const fulfillmentRepo = ds.getRepository(FulfillmentEntity)
-    const itemRepo = ds.getRepository(FulfillmentItemEntity)
 
+    let savedFulfillmentId: string
     try {
-      const fulfillment = fulfillmentRepo.create({
-        tenantId,
-        orderId: dto.orderId,
-        status: 'PENDING',
-        carrier: dto.carrier,
-        shippingMethodId: dto.shippingMethodId,
-        notes: dto.notes,
-        metadata: dto.metadata,
+      savedFulfillmentId = await ds.transaction(async (mgr) => {
+        const fulfillmentRepo = mgr.getRepository(FulfillmentEntity)
+        const itemRepo = mgr.getRepository(FulfillmentItemEntity)
+        const eventRepo = mgr.getRepository(FulfillmentEventEntity)
+
+        const fulfillment = fulfillmentRepo.create({
+          tenantId,
+          orderId: dto.orderId,
+          status: 'PENDING',
+          carrier: dto.carrier,
+          shippingMethodId: dto.shippingMethodId,
+          notes: dto.notes,
+          metadata: dto.metadata,
+        })
+        const savedFulfillment = await fulfillmentRepo.save(fulfillment)
+
+        const items = dto.items.map((item) => itemRepo.create({
+          tenantId,
+          fulfillmentId: savedFulfillment.fulfillmentId,
+          orderItemId: item.orderItemId,
+          productId: item.productId,
+          variantId: item.variantId,
+          sku: item.sku,
+          name: item.name,
+          quantity: item.quantity,
+        }))
+        await itemRepo.save(items)
+
+        const event = eventRepo.create({ tenantId, fulfillmentId: savedFulfillment.fulfillmentId, status: 'PENDING' })
+        await eventRepo.save(event)
+
+        return savedFulfillment.fulfillmentId
       })
-      const savedFulfillment = await fulfillmentRepo.save(fulfillment)
-
-      const items = dto.items.map((item) => itemRepo.create({
-        tenantId,
-        fulfillmentId: savedFulfillment.fulfillmentId,
-        orderItemId: item.orderItemId,
-        productId: item.productId,
-        variantId: item.variantId,
-        sku: item.sku,
-        name: item.name,
-        quantity: item.quantity,
-      }))
-      await itemRepo.save(items)
-
-      await OrderFulfillmentService.logEvent(ds, tenantId, savedFulfillment.fulfillmentId, 'PENDING')
-
-      await WebhookService.dispatchEvent(tenantId, 'fulfillment.created', {
-        fulfillmentId: savedFulfillment.fulfillmentId,
-        orderId: savedFulfillment.orderId,
-        status: savedFulfillment.status,
-      })
-
-      return OrderFulfillmentService.getById(tenantId, savedFulfillment.fulfillmentId)
     } catch (error) {
+      if (error instanceof AppError) throw error
       Logger.error(`${ORDER_FULFILLMENT_MESSAGES.FULFILLMENT_CREATE_FAILED}: ${error}`)
-      throw new Error(ORDER_FULFILLMENT_MESSAGES.FULFILLMENT_CREATE_FAILED)
+      throw new AppError(ORDER_FULFILLMENT_MESSAGES.FULFILLMENT_CREATE_FAILED, 500, ErrorCode.INTERNAL_ERROR)
     }
+
+    await WebhookService.dispatchEvent(tenantId, 'fulfillment.created', {
+      fulfillmentId: savedFulfillmentId,
+      status: 'PENDING',
+    }).catch((err) => Logger.warn(`fulfillment.created webhook failed: ${err?.message ?? err}`))
+
+    return OrderFulfillmentService.getById(tenantId, savedFulfillmentId)
   }
 
   // ============================================================================
@@ -82,22 +87,20 @@ export default class OrderFulfillmentService {
   // ============================================================================
 
   static async getById(tenantId: string, fulfillmentId: string): Promise<FulfillmentWithItems> {
-    return singleFlight(cacheKey(fulfillmentId), async () => {
-      const ds = await tenantDataSourceFor(tenantId)
-      const fulfillment = await ds.getRepository(FulfillmentEntity).findOne({ where: { tenantId, fulfillmentId } })
-      if (!fulfillment) throw new Error(ORDER_FULFILLMENT_MESSAGES.FULFILLMENT_NOT_FOUND)
+    const ds = await tenantDataSourceFor(tenantId)
+    const fulfillment = await ds.getRepository(FulfillmentEntity).findOne({ where: { tenantId, fulfillmentId } })
+    if (!fulfillment) throw new AppError(ORDER_FULFILLMENT_MESSAGES.FULFILLMENT_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
 
-      const items = await ds.getRepository(FulfillmentItemEntity).find({
-        where: { tenantId, fulfillmentId },
-        order: { createdAt: 'ASC' },
-      })
-      const events = await ds.getRepository(FulfillmentEventEntity).find({
-        where: { tenantId, fulfillmentId },
-        order: { createdAt: 'ASC' },
-      })
-
-      return FulfillmentWithItemsSchema.parse({ ...fulfillment, items, events })
+    const items = await ds.getRepository(FulfillmentItemEntity).find({
+      where: { tenantId, fulfillmentId },
+      order: { createdAt: 'ASC' },
     })
+    const events = await ds.getRepository(FulfillmentEventEntity).find({
+      where: { tenantId, fulfillmentId },
+      order: { createdAt: 'ASC' },
+    })
+
+    return FulfillmentWithItemsSchema.parse({ ...fulfillment, items, events })
   }
 
   static async list(tenantId: string, query: GetFulfillmentsQuery): Promise<{ data: SafeFulfillment[]; total: number }> {
@@ -126,11 +129,11 @@ export default class OrderFulfillmentService {
     const ds = await tenantDataSourceFor(tenantId)
     const repo = ds.getRepository(FulfillmentEntity)
     const row = await repo.findOne({ where: { tenantId, fulfillmentId } })
-    if (!row) throw new Error(ORDER_FULFILLMENT_MESSAGES.FULFILLMENT_NOT_FOUND)
+    if (!row) throw new AppError(ORDER_FULFILLMENT_MESSAGES.FULFILLMENT_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
 
     Object.assign(row, dto)
     await repo.save(row)
-    await redis.del(cacheKey(fulfillmentId))
+    await redis.del(cacheKey(fulfillmentId)).catch(() => {})
     return OrderFulfillmentService.getById(tenantId, fulfillmentId)
   }
 
@@ -138,7 +141,7 @@ export default class OrderFulfillmentService {
     const ds = await tenantDataSourceFor(tenantId)
     const repo = ds.getRepository(FulfillmentEntity)
     const row = await repo.findOne({ where: { tenantId, fulfillmentId } })
-    if (!row) throw new Error(ORDER_FULFILLMENT_MESSAGES.FULFILLMENT_NOT_FOUND)
+    if (!row) throw new AppError(ORDER_FULFILLMENT_MESSAGES.FULFILLMENT_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
 
     row.carrier = dto.carrier
     row.trackingNumber = dto.trackingNumber
@@ -148,7 +151,7 @@ export default class OrderFulfillmentService {
       ds, tenantId, fulfillmentId, row.status as FulfillmentStatus,
       `Tracking added: ${dto.carrier} ${dto.trackingNumber}`,
     )
-    await redis.del(cacheKey(fulfillmentId))
+    await redis.del(cacheKey(fulfillmentId)).catch(() => {})
     return OrderFulfillmentService.getById(tenantId, fulfillmentId)
   }
 
@@ -160,11 +163,11 @@ export default class OrderFulfillmentService {
     const ds = await tenantDataSourceFor(tenantId)
     const repo = ds.getRepository(FulfillmentEntity)
     const row = await repo.findOne({ where: { tenantId, fulfillmentId } })
-    if (!row) throw new Error(ORDER_FULFILLMENT_MESSAGES.FULFILLMENT_NOT_FOUND)
+    if (!row) throw new AppError(ORDER_FULFILLMENT_MESSAGES.FULFILLMENT_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
 
     const current = row.status as FulfillmentStatus
     if (TERMINAL_STATUSES.has(current) && current !== dto.status) {
-      throw new Error(ORDER_FULFILLMENT_MESSAGES.INVALID_STATUS_TRANSITION)
+      throw new AppError(ORDER_FULFILLMENT_MESSAGES.INVALID_STATUS_TRANSITION, 409, ErrorCode.CONFLICT)
     }
 
     row.status = dto.status
@@ -176,7 +179,7 @@ export default class OrderFulfillmentService {
 
     await repo.save(row)
     await OrderFulfillmentService.logEvent(ds, tenantId, fulfillmentId, dto.status, dto.message)
-    await redis.del(cacheKey(fulfillmentId))
+    await redis.del(cacheKey(fulfillmentId)).catch(() => {})
 
     // Map terminal/shipping transitions to webhook events (covers markShipped/cancel,
     // which delegate here). Other statuses (PENDING/PACKED) do not emit.
@@ -187,7 +190,7 @@ export default class OrderFulfillmentService {
         fulfillmentId,
         orderId: row.orderId,
         status: dto.status,
-      })
+      }).catch((err) => Logger.warn(`${evt} webhook failed: ${err?.message ?? err}`))
     }
 
     return OrderFulfillmentService.getById(tenantId, fulfillmentId)

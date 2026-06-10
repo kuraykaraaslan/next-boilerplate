@@ -30,4 +30,8 @@ export const STORE_MESSAGES = {
   BUNDLE_SLUG_TAKEN: 'A bundle with this slug already exists',
   BUNDLE_ITEM_NOT_FOUND: 'Bundle item not found',
   BUNDLE_ITEM_DUPLICATE: 'This product variant is already in the bundle',
+
+  VARIANT_GROUP_SELF: 'A product cannot be a variant of itself',
+  VARIANT_GROUP_ALREADY_MEMBER: 'Target product already belongs to a variant group',
+  VARIANT_GROUP_ITEM_NOT_FOUND: 'Variant group item not found',
 } as const

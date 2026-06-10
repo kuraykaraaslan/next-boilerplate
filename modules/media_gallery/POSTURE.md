@@ -1,3 +1,5 @@
+> **Uygulandı** — 2026-06-10: AppError (3 throws), addItem/updateItem/reorder wrapped in transactions, removed dead singleFlight + redis.del cache scaffolding.
+
 # media_gallery — Posture Review
 
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`

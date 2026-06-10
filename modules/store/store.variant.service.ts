@@ -11,6 +11,7 @@ import type {
   AddVariantGroupItemDTO, UpdateVariantGroupItemDTO,
 } from './store.dto'
 import { STORE_MESSAGES } from './store.messages'
+import { AppError, ErrorCode } from '@/modules/common/app-error'
 
 /** Store product variant-group management (split out of `StoreService`). */
 export default class StoreVariantService {
@@ -47,53 +48,55 @@ export default class StoreVariantService {
     tenantId: string, anchorProductId: string, data: AddVariantGroupItemDTO,
   ): Promise<{ group: StoreVariantGroup; item: StoreVariantGroupItem }> {
     if (data.productId === anchorProductId) {
-      throw new Error('A product cannot be a variant of itself.')
+      throw new AppError(STORE_MESSAGES.VARIANT_GROUP_SELF, 422, ErrorCode.VALIDATION_ERROR)
     }
     const ds = await tenantDataSourceFor(tenantId)
-    const productRepo = ds.getRepository(ProductEntity)
-    const itemRepo = ds.getRepository(VariantGroupItemEntity)
-    const groupRepo = ds.getRepository(VariantGroupEntity)
 
     const [anchor, target] = await Promise.all([
-      productRepo.findOne({ where: { tenantId, productId: anchorProductId } }),
-      productRepo.findOne({ where: { tenantId, productId: data.productId } }),
+      ds.getRepository(ProductEntity).findOne({ where: { tenantId, productId: anchorProductId } }),
+      ds.getRepository(ProductEntity).findOne({ where: { tenantId, productId: data.productId } }),
     ])
-    if (!anchor) throw new Error(STORE_MESSAGES.PRODUCT_NOT_FOUND)
-    if (!target) throw new Error(STORE_MESSAGES.PRODUCT_NOT_FOUND)
+    if (!anchor) throw new AppError(STORE_MESSAGES.PRODUCT_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
+    if (!target) throw new AppError(STORE_MESSAGES.PRODUCT_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
 
-    const targetExisting = await itemRepo.findOne({ where: { tenantId, productId: data.productId } })
+    const targetExisting = await ds.getRepository(VariantGroupItemEntity).findOne({ where: { tenantId, productId: data.productId } })
     if (targetExisting) {
-      throw new Error('Target product already belongs to a variant group.')
+      throw new AppError(STORE_MESSAGES.VARIANT_GROUP_ALREADY_MEMBER, 409, ErrorCode.CONFLICT)
     }
 
-    let groupId: string
-    const anchorMembership = await itemRepo.findOne({ where: { tenantId, productId: anchorProductId } })
-    if (anchorMembership) {
-      groupId = anchorMembership.variantGroupId
-    } else {
-      const group = groupRepo.create({ tenantId })
-      const saved = await groupRepo.save(group)
-      groupId = saved.variantGroupId
-      const anchorItem = itemRepo.create({
-        tenantId, variantGroupId: groupId, productId: anchorProductId, sortOrder: 0,
+    return ds.transaction(async (mgr) => {
+      const itemRepo = mgr.getRepository(VariantGroupItemEntity)
+      const groupRepo = mgr.getRepository(VariantGroupEntity)
+
+      let groupId: string
+      const anchorMembership = await itemRepo.findOne({ where: { tenantId, productId: anchorProductId } })
+      if (anchorMembership) {
+        groupId = anchorMembership.variantGroupId
+      } else {
+        const group = groupRepo.create({ tenantId })
+        const saved = await groupRepo.save(group)
+        groupId = saved.variantGroupId
+        const anchorItem = itemRepo.create({
+          tenantId, variantGroupId: groupId, productId: anchorProductId, sortOrder: 0,
+        })
+        await itemRepo.save(anchorItem)
+      }
+
+      const item = itemRepo.create({
+        tenantId,
+        variantGroupId: groupId,
+        productId: data.productId,
+        label: data.label,
+        sortOrder: data.sortOrder,
       })
-      await itemRepo.save(anchorItem)
-    }
+      const saved = await itemRepo.save(item)
+      const group = await groupRepo.findOneOrFail({ where: { tenantId, variantGroupId: groupId } })
 
-    const item = itemRepo.create({
-      tenantId,
-      variantGroupId: groupId,
-      productId: data.productId,
-      label: data.label,
-      sortOrder: data.sortOrder,
+      return {
+        group: StoreVariantGroupSchema.parse(group),
+        item: StoreVariantGroupItemSchema.parse(saved),
+      }
     })
-    const saved = await itemRepo.save(item)
-    const group = await groupRepo.findOneOrFail({ where: { tenantId, variantGroupId: groupId } })
-
-    return {
-      group: StoreVariantGroupSchema.parse(group),
-      item: StoreVariantGroupItemSchema.parse(saved),
-    }
   }
 
   static async updateVariantGroupItem(
@@ -102,7 +105,7 @@ export default class StoreVariantService {
     const ds = await tenantDataSourceFor(tenantId)
     const repo = ds.getRepository(VariantGroupItemEntity)
     const item = await repo.findOne({ where: { tenantId, itemId } })
-    if (!item) throw new Error('Variant group item not found.')
+    if (!item) throw new AppError(STORE_MESSAGES.VARIANT_GROUP_ITEM_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     if (data.label !== undefined) item.label = data.label ?? undefined
     if (data.sortOrder !== undefined) item.sortOrder = data.sortOrder
     const saved = await repo.save(item)
@@ -115,16 +118,19 @@ export default class StoreVariantService {
    */
   static async removeFromVariantGroup(tenantId: string, itemId: string): Promise<void> {
     const ds = await tenantDataSourceFor(tenantId)
-    const itemRepo = ds.getRepository(VariantGroupItemEntity)
-    const groupRepo = ds.getRepository(VariantGroupEntity)
-    const item = await itemRepo.findOne({ where: { tenantId, itemId } })
-    if (!item) throw new Error('Variant group item not found.')
+    const item = await ds.getRepository(VariantGroupItemEntity).findOne({ where: { tenantId, itemId } })
+    if (!item) throw new AppError(STORE_MESSAGES.VARIANT_GROUP_ITEM_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     const groupId = item.variantGroupId
-    await itemRepo.remove(item)
-    const remaining = await itemRepo.count({ where: { tenantId, variantGroupId: groupId } })
-    if (remaining < 2) {
-      await itemRepo.delete({ tenantId, variantGroupId: groupId })
-      await groupRepo.delete({ tenantId, variantGroupId: groupId })
-    }
+
+    await ds.transaction(async (mgr) => {
+      const itemRepo = mgr.getRepository(VariantGroupItemEntity)
+      const groupRepo = mgr.getRepository(VariantGroupEntity)
+      await itemRepo.remove(item)
+      const remaining = await itemRepo.count({ where: { tenantId, variantGroupId: groupId } })
+      if (remaining < 2) {
+        await itemRepo.delete({ tenantId, variantGroupId: groupId })
+        await groupRepo.delete({ tenantId, variantGroupId: groupId })
+      }
+    })
   }
 }

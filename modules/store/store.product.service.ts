@@ -15,6 +15,7 @@ import type {
   CreateProductDTO, UpdateProductDTO, GetProductsQuery, AddProductImageDTO, SetSpecValuesDTO,
 } from './store.dto'
 import { STORE_MESSAGES } from './store.messages'
+import { AppError, ErrorCode } from '@/modules/common/app-error'
 
 /** Store product CRUD + images + spec-values + duplicate (split out of `StoreService`). */
 export default class StoreProductService {
@@ -26,7 +27,7 @@ export default class StoreProductService {
     const ds = await tenantDataSourceFor(tenantId)
     const repo = ds.getRepository(ProductEntity)
     const taken = await repo.findOne({ where: { tenantId, slug: data.slug } })
-    if (taken) throw new Error(STORE_MESSAGES.PRODUCT_SLUG_TAKEN)
+    if (taken) throw new AppError(STORE_MESSAGES.PRODUCT_SLUG_TAKEN, 409, ErrorCode.CONFLICT)
     try {
       const product = repo.create({ tenantId, ...data })
       const saved = await repo.save(product)
@@ -35,11 +36,12 @@ export default class StoreProductService {
         slug: saved.slug,
         name: saved.name,
         status: saved.status,
-      })
+      }).catch((err) => Logger.warn(`product.created webhook failed: ${err?.message ?? err}`))
       return StoreProductSchema.parse(saved)
     } catch (error) {
+      if (error instanceof AppError) throw error
       Logger.error(`${STORE_MESSAGES.PRODUCT_CREATE_FAILED}: ${error}`)
-      throw new Error(STORE_MESSAGES.PRODUCT_CREATE_FAILED)
+      throw new AppError(STORE_MESSAGES.PRODUCT_CREATE_FAILED, 500, ErrorCode.INTERNAL_ERROR)
     }
   }
 
@@ -47,20 +49,20 @@ export default class StoreProductService {
     const ds = await tenantDataSourceFor(tenantId)
     const repo = ds.getRepository(ProductEntity)
     const product = await repo.findOne({ where: { tenantId, productId } })
-    if (!product) throw new Error(STORE_MESSAGES.PRODUCT_NOT_FOUND)
+    if (!product) throw new AppError(STORE_MESSAGES.PRODUCT_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     if (data.slug && data.slug !== product.slug) {
       const taken = await repo.findOne({ where: { tenantId, slug: data.slug } })
-      if (taken) throw new Error(STORE_MESSAGES.PRODUCT_SLUG_TAKEN)
+      if (taken) throw new AppError(STORE_MESSAGES.PRODUCT_SLUG_TAKEN, 409, ErrorCode.CONFLICT)
     }
     Object.assign(product, data)
     const saved = await repo.save(product)
-    await redis.del(`store:product:${productId}`)
+    await redis.del(`store:product:${productId}`).catch(() => {})
     await WebhookService.dispatchEvent(tenantId, 'product.updated', {
       productId: saved.productId,
       slug: saved.slug,
       name: saved.name,
       status: saved.status,
-    })
+    }).catch((err) => Logger.warn(`product.updated webhook failed: ${err?.message ?? err}`))
     return StoreProductSchema.parse(saved)
   }
 
@@ -68,7 +70,7 @@ export default class StoreProductService {
     return singleFlight(`store:product:${productId}`, async () => {
       const ds = await tenantDataSourceFor(tenantId)
       const product = await ds.getRepository(ProductEntity).findOne({ where: { tenantId, productId } })
-      if (!product) throw new Error(STORE_MESSAGES.PRODUCT_NOT_FOUND)
+      if (!product) throw new AppError(STORE_MESSAGES.PRODUCT_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
       return StoreProductSchema.parse(product)
     })
   }
@@ -77,7 +79,7 @@ export default class StoreProductService {
     return singleFlight(`store:product:detail:${productId}`, async () => {
       const ds = await tenantDataSourceFor(tenantId)
       const product = await ds.getRepository(ProductEntity).findOne({ where: { tenantId, productId } })
-      if (!product) throw new Error(STORE_MESSAGES.PRODUCT_NOT_FOUND)
+      if (!product) throw new AppError(STORE_MESSAGES.PRODUCT_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
 
       const [images, specValues] = await Promise.all([
         ds.getRepository(ImageEntity).find({ where: { tenantId, productId }, order: { isPrimary: 'DESC', sortOrder: 'ASC' } }),
@@ -144,15 +146,15 @@ export default class StoreProductService {
   static async deleteProduct(tenantId: string, productId: string): Promise<void> {
     const ds = await tenantDataSourceFor(tenantId)
     const product = await ds.getRepository(ProductEntity).findOne({ where: { tenantId, productId } })
-    if (!product) throw new Error(STORE_MESSAGES.PRODUCT_NOT_FOUND)
+    if (!product) throw new AppError(STORE_MESSAGES.PRODUCT_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     await ds.getRepository(ProductEntity).softDelete({ tenantId, productId })
-    await redis.del(`store:product:${productId}`)
-    await redis.del(`store:product:detail:${productId}`)
+    await redis.del(`store:product:${productId}`).catch(() => {})
+    await redis.del(`store:product:detail:${productId}`).catch(() => {})
     await WebhookService.dispatchEvent(tenantId, 'product.deleted', {
       productId,
       slug: product.slug,
       name: product.name,
-    })
+    }).catch((err) => Logger.warn(`product.deleted webhook failed: ${err?.message ?? err}`))
   }
 
   // ============================================================================
@@ -167,14 +169,14 @@ export default class StoreProductService {
     }
     const image = repo.create({ tenantId, productId, ...data })
     const saved = await repo.save(image)
-    await redis.del(`store:product:detail:${productId}`)
+    await redis.del(`store:product:detail:${productId}`).catch(() => {})
     return StoreProductImageSchema.parse(saved)
   }
 
   static async removeImage(tenantId: string, productId: string, imageId: string): Promise<void> {
     const ds = await tenantDataSourceFor(tenantId)
     await ds.getRepository(ImageEntity).delete({ tenantId, productId, imageId })
-    await redis.del(`store:product:detail:${productId}`)
+    await redis.del(`store:product:detail:${productId}`).catch(() => {})
   }
 
   // ============================================================================
@@ -195,7 +197,7 @@ export default class StoreProductService {
       const saved = await repo.save(existing)
       results.push(StoreProductSpecValueSchema.parse(saved))
     }
-    await redis.del(`store:product:detail:${productId}`)
+    await redis.del(`store:product:detail:${productId}`).catch(() => {})
     return results
   }
 
@@ -210,62 +212,64 @@ export default class StoreProductService {
    */
   static async duplicateProduct(tenantId: string, productId: string): Promise<StoreProduct> {
     const ds = await tenantDataSourceFor(tenantId)
-    const productRepo = ds.getRepository(ProductEntity)
-    const imageRepo = ds.getRepository(ImageEntity)
-    const specValueRepo = ds.getRepository(SpecValueEntity)
-
-    const src = await productRepo.findOne({ where: { tenantId, productId } })
-    if (!src) throw new Error(STORE_MESSAGES.PRODUCT_NOT_FOUND)
+    const src = await ds.getRepository(ProductEntity).findOne({ where: { tenantId, productId } })
+    if (!src) throw new AppError(STORE_MESSAGES.PRODUCT_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
 
     const suffix = Math.random().toString(36).slice(2, 8)
     let slug = `${src.slug}-copy-${suffix}`
-    if (await productRepo.findOne({ where: { tenantId, slug } })) {
+    if (await ds.getRepository(ProductEntity).findOne({ where: { tenantId, slug } })) {
       slug = `${src.slug}-copy-${Date.now().toString(36)}`
     }
 
-    const clone = productRepo.create({
-      tenantId,
-      categoryId: src.categoryId,
-      name: `${src.name} (Copy)`,
-      slug,
-      shortDescription: src.shortDescription,
-      details: src.details,
-      basePrice: src.basePrice,
-      currency: src.currency,
-      sku: undefined,
-      stockQuantity: src.stockQuantity,
-      trackInventory: src.trackInventory,
-      allowBackorder: src.allowBackorder,
-      weight: src.weight,
-      weightUnit: src.weightUnit,
-      dimensions: src.dimensions,
-      tags: src.tags,
-      status: 'DRAFT',
-      isFeatured: false,
-      isDigital: src.isDigital,
-      digitalDownloadUrl: src.digitalDownloadUrl,
-      seo: src.seo,
-      sortOrder: src.sortOrder,
+    return ds.transaction(async (mgr) => {
+      const productRepo = mgr.getRepository(ProductEntity)
+      const imageRepo = mgr.getRepository(ImageEntity)
+      const specValueRepo = mgr.getRepository(SpecValueEntity)
+
+      const clone = productRepo.create({
+        tenantId,
+        categoryId: src.categoryId,
+        name: `${src.name} (Copy)`,
+        slug,
+        shortDescription: src.shortDescription,
+        details: src.details,
+        basePrice: src.basePrice,
+        currency: src.currency,
+        sku: undefined,
+        stockQuantity: src.stockQuantity,
+        trackInventory: src.trackInventory,
+        allowBackorder: src.allowBackorder,
+        weight: src.weight,
+        weightUnit: src.weightUnit,
+        dimensions: src.dimensions,
+        tags: src.tags,
+        status: 'DRAFT',
+        isFeatured: false,
+        isDigital: src.isDigital,
+        digitalDownloadUrl: src.digitalDownloadUrl,
+        seo: src.seo,
+        sortOrder: src.sortOrder,
+      })
+      const savedClone = await productRepo.save(clone)
+
+      const specValues = await specValueRepo.find({ where: { tenantId, productId } })
+      if (specValues.length > 0) {
+        const cloneSpecs = specValues.map((sv) => specValueRepo.create({
+          tenantId, productId: savedClone.productId, specId: sv.specId, value: sv.value,
+        }))
+        await specValueRepo.save(cloneSpecs)
+      }
+
+      const images = await imageRepo.find({ where: { tenantId, productId } })
+      if (images.length > 0) {
+        const cloneImages = images.map((img) => imageRepo.create({
+          tenantId, productId: savedClone.productId,
+          url: img.url, altText: img.altText, sortOrder: img.sortOrder, isPrimary: img.isPrimary,
+        }))
+        await imageRepo.save(cloneImages)
+      }
+
+      return StoreProductSchema.parse(savedClone)
     })
-    const savedClone = await productRepo.save(clone)
-
-    const specValues = await specValueRepo.find({ where: { tenantId, productId } })
-    if (specValues.length > 0) {
-      const cloneSpecs = specValues.map((sv) => specValueRepo.create({
-        tenantId, productId: savedClone.productId, specId: sv.specId, value: sv.value,
-      }))
-      await specValueRepo.save(cloneSpecs)
-    }
-
-    const images = await imageRepo.find({ where: { tenantId, productId } })
-    if (images.length > 0) {
-      const cloneImages = images.map((img) => imageRepo.create({
-        tenantId, productId: savedClone.productId,
-        url: img.url, altText: img.altText, sortOrder: img.sortOrder, isPrimary: img.isPrimary,
-      }))
-      await imageRepo.save(cloneImages)
-    }
-
-    return StoreProductSchema.parse(savedClone)
   }
 }

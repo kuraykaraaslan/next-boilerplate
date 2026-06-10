@@ -1,3 +1,5 @@
+> **Uygulandı** — 2026-06-10: AppError across all 4 services (product/bundle/category/variant), redis.del fail-open, duplicateProduct transaction, addToVariantGroup + removeFromVariantGroup transactions, webhook .catch(), new VARIANT_GROUP_* message keys.
+
 # store — Posture Review
 
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`
