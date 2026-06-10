@@ -1,3 +1,5 @@
+> **Uygulandı** — 2026-06-10: Added user_preferences.messages.ts, all 3 raw Error throws → AppError (409 CONFLICT, 404 NOT_FOUND), removed data as any → Object.assign with UserPreferencesSchema.partial().parse(data), update/upsert use repo.save() instead of repo.update()+findOne.
+
 # user_preferences — Posture Review
 
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`

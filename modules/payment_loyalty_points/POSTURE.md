@@ -1,3 +1,5 @@
+> **Uygulandı** — 2026-06-10: 5 raw Error throws → AppError (404 NOT_FOUND, 409 CONFLICT), bustCache made fail-open (.catch(()=>{})), removed brittle message-string re-throw guard, moved 'Points expired' literal to POINTS_EXPIRED_REASON message key.
+
 # payment_loyalty_points — Posture Review
 
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`

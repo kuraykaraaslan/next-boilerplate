@@ -15,6 +15,7 @@ import type {
   CreateTierDTO, UpdateTierDTO,
 } from './payment_loyalty_points.dto'
 import { PAYMENT_LOYALTY_POINTS_MESSAGES } from './payment_loyalty_points.messages'
+import { AppError, ErrorCode } from '@/modules/common/app-error'
 
 const DEFAULT_TIER = 'BRONZE'
 
@@ -33,8 +34,8 @@ export default class PaymentLoyaltyPointsService {
   }
 
   private static async bustCache(userId: string, accountId: string): Promise<void> {
-    await redis.del(PaymentLoyaltyPointsService.userCacheKey(userId))
-    await redis.del(PaymentLoyaltyPointsService.accountCacheKey(accountId))
+    await redis.del(PaymentLoyaltyPointsService.userCacheKey(userId)).catch(() => {})
+    await redis.del(PaymentLoyaltyPointsService.accountCacheKey(accountId)).catch(() => {})
   }
 
   // ============================================================================
@@ -150,8 +151,8 @@ export default class PaymentLoyaltyPointsService {
         const txRepo = manager.getRepository(LoyaltyTransactionEntity)
 
         const account = await accountRepo.findOne({ where: { tenantId, userId: dto.userId } })
-        if (!account) throw new Error(PAYMENT_LOYALTY_POINTS_MESSAGES.ACCOUNT_NOT_FOUND)
-        if (account.balance < dto.points) throw new Error(PAYMENT_LOYALTY_POINTS_MESSAGES.INSUFFICIENT_POINTS)
+        if (!account) throw new AppError(PAYMENT_LOYALTY_POINTS_MESSAGES.ACCOUNT_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
+        if (account.balance < dto.points) throw new AppError(PAYMENT_LOYALTY_POINTS_MESSAGES.INSUFFICIENT_POINTS, 409, ErrorCode.CONFLICT)
         accountId = account.loyaltyAccountId
 
         account.balance -= dto.points
@@ -174,11 +175,7 @@ export default class PaymentLoyaltyPointsService {
       await PaymentLoyaltyPointsService.bustCache(dto.userId, accountId)
       return LoyaltyAccountSchema.parse(saved)
     } catch (error) {
-      // Re-throw domain errors without wrapping
-      if (error instanceof Error && (
-        error.message === PAYMENT_LOYALTY_POINTS_MESSAGES.ACCOUNT_NOT_FOUND ||
-        error.message === PAYMENT_LOYALTY_POINTS_MESSAGES.INSUFFICIENT_POINTS
-      )) throw error
+      if (error instanceof AppError) throw error
       Logger.error(`${PAYMENT_LOYALTY_POINTS_MESSAGES.REDEEM_FAILED}: ${error}`)
       throw error
     }
@@ -261,7 +258,7 @@ export default class PaymentLoyaltyPointsService {
   ): Promise<LoyaltyAccountEntity> {
     const accountRepo = manager.getRepository(LoyaltyAccountEntity)
     const account = await accountRepo.findOne({ where: { tenantId, loyaltyAccountId: accountId } })
-    if (!account) throw new Error(PAYMENT_LOYALTY_POINTS_MESSAGES.ACCOUNT_NOT_FOUND)
+    if (!account) throw new AppError(PAYMENT_LOYALTY_POINTS_MESSAGES.ACCOUNT_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
 
     const tiers = await manager.getRepository(LoyaltyTierEntity).find({
       where: { tenantId, isActive: true },
@@ -289,7 +286,7 @@ export default class PaymentLoyaltyPointsService {
     const ds = await tenantDataSourceFor(tenantId)
     const repo = ds.getRepository(LoyaltyTierEntity)
     const existing = await repo.findOne({ where: { tenantId, code: dto.code } })
-    if (existing) throw new Error(PAYMENT_LOYALTY_POINTS_MESSAGES.TIER_CODE_EXISTS)
+    if (existing) throw new AppError(PAYMENT_LOYALTY_POINTS_MESSAGES.TIER_CODE_EXISTS, 409, ErrorCode.CONFLICT)
     const saved = await repo.save(repo.create({ ...dto, tenantId }))
     return LoyaltyTierSchema.parse(saved)
   }
@@ -298,7 +295,7 @@ export default class PaymentLoyaltyPointsService {
     const ds = await tenantDataSourceFor(tenantId)
     const repo = ds.getRepository(LoyaltyTierEntity)
     const row = await repo.findOne({ where: { tenantId, loyaltyTierId: tierId } })
-    if (!row) throw new Error(PAYMENT_LOYALTY_POINTS_MESSAGES.TIER_NOT_FOUND)
+    if (!row) throw new AppError(PAYMENT_LOYALTY_POINTS_MESSAGES.TIER_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     Object.assign(row, dto)
     const saved = await repo.save(row)
     return LoyaltyTierSchema.parse(saved)
@@ -355,7 +352,7 @@ export default class PaymentLoyaltyPointsService {
             userId: account.userId,
             type: 'EXPIRE',
             points: -toExpire,
-            reason: 'Points expired',
+            reason: PAYMENT_LOYALTY_POINTS_MESSAGES.POINTS_EXPIRED_REASON,
             referenceType: 'loyalty_transaction',
             referenceId: lot.loyaltyTransactionId,
             balanceAfter: savedAccount.balance,

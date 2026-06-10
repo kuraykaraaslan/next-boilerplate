@@ -10,4 +10,5 @@ export const PAYMENT_LOYALTY_POINTS_MESSAGES = {
   REDEEM_FAILED: 'Failed to redeem points',
   ADJUST_FAILED: 'Failed to adjust points',
   EXPIRE_FAILED: 'Failed to expire points',
+  POINTS_EXPIRED_REASON: 'Points expired',
 } as const

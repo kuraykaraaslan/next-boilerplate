@@ -1,3 +1,5 @@
+> **Uygulandı** — 2026-06-10: Added user_profile.messages.ts, all 6 raw Error throws → AppError (409 CONFLICT, 404 NOT_FOUND), socialLinks read-modify-write (addSocialLink/removeSocialLink/updateSocialLink) wrapped in ds.transaction(), update/upsert changed from repo.update()+findOne to Object.assign()+repo.save() eliminating non-null assertion.
+
 # user_profile — Posture Review
 
 > **Reviewed:** 2026-06-03 against `00_Config_and_AI_Rules`
