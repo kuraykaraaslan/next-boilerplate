@@ -12,7 +12,7 @@ Tenant-scoped API keys for programmatic access (hashed at rest, scope-bound).
 
 ## Dependencies
 
-- **requires:** `db`, `env`, `common`
+- **requires:** `db`, `env`, `common`, `network`
 
 ## Services
 
@@ -34,10 +34,17 @@ Tenant-scoped API keys for programmatic access (hashed at rest, scope-bound).
 
 - `api_key.messages.ts`
 
+## Setting keys
+
+- `api_key.setting.keys.ts`
+
 ## Owned API routes
 
 - `tenant` GET/POST `/tenant/[tenantId]/api/api-keys`
 - `tenant` PUT/DELETE `/tenant/[tenantId]/api/api-keys/[apiKeyId]`
+- `tenant` POST `/tenant/[tenantId]/api/api-keys/[apiKeyId]/rotate`
+- `tenant` POST `/tenant/[tenantId]/api/api-keys/revoke-all`
+- `tenant` POST `/tenant/[tenantId]/api/api-keys/sweep-expired`
 - `tenant` POST `/tenant/[tenantId]/api/api-keys/verify`
 
 ## TypeORM entities

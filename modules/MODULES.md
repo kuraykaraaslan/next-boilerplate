@@ -3,7 +3,7 @@
 > **Single-page index of every business-logic module.** Every entry has a `README.md` (human) and a `module.json` (machine, validated against [module.schema.json](module.schema.json)).
 > Need the architectural picture? See [../AGENTS.md](../AGENTS.md).
 
-There are **42 modules** under `modules/`. Eighteen of them also have a Next/React extension under [`modules_next/`](../modules_next/COMPONENTS.md).
+There are **43 modules** under `modules/`. Eighteen of them also have a Next/React extension under [`modules_next/`](../modules_next/COMPONENTS.md).
 
 ## Layer rules (recap)
 
@@ -26,7 +26,8 @@ There are **42 modules** under `modules/`. Eighteen of them also have a Next/Rea
 | [db](db/) | TypeORM `DataSource` factory. Single DB by default; opt-in per-tenant DB isolation via `tenant_databases` rows. | `getDataSource`, `tenantDataSourceFor`, `clearTenantDsCache`, `TenantDatabase` | env |
 | [redis_idempotency](redis_idempotency/) | Redis-backed idempotency keys for retry-safe POST/PATCH. | `RedisIdempotencyService` | redis, env |
 | [limiter](limiter/) | Sliding-window rate limiter + tenant-plan quota enforcement. | `LimiterService`, `TenantPlanLimiterService` | redis, env, *tenant_subscription* |
-| [api_doc](api_doc/) | OpenAPI/Swagger spec builder + serving helpers. | — | env |
+| [network](network/) | Subnet (CIDR) allowlist matching + shared IP types/enums. Leaf module, zero deps. | `ipMatchesAllowlist`, `ipInSubnet`, `SubnetSchema`, `SubnetListSchema`, `IpVersionEnum` | — |
+| [api_doc](api_doc/) | OpenAPI/Swagger spec builder + serving helpers + per-tenant public-docs gate. | `ApiDocService` | env, setting |
 
 ### Identity (users, auth, sessions)
 
@@ -84,7 +85,7 @@ There are **42 modules** under `modules/`. Eighteen of them also have a Next/Rea
 | [storage](storage/) | Pluggable S3-compatible file storage (AWS S3, Cloudflare R2, DigitalOcean Spaces, MinIO). | — | env, setting |
 | [webhook](webhook/) | Outbound webhooks (system + tenant scope) with signed deliveries + retry + redelivery. | `Webhook`, `WebhookDelivery`, `SystemWebhook`, `SystemWebhookDelivery` | db, redis, env |
 | [audit_log](audit_log/) | Append-only audit trail (system + per-tenant). | `AuditLog`, `TenantAuditLog` | db, env, logger |
-| [api_key](api_key/) | Tenant-scoped API keys (hashed at rest, scope-bound). | `ApiKey` | db, env, common |
+| [api_key](api_key/) | Tenant-scoped API keys (hashed at rest, scope-bound, env-prefixed, subnet-pinned, rotatable). | `ApiKey` | db, env, common, network |
 | [api_doc](api_doc/) | OpenAPI / Swagger spec builder. | — | env |
 
 ### AI

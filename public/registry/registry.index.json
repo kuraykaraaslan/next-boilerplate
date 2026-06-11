@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-11T05:47:14.791Z",
+  "generatedAt": "2026-06-11T11:19:01.480Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -118,6 +118,40 @@
       "hasNextLayer": false
     },
     {
+      "id": "network",
+      "name": "Network",
+      "version": "1.0.0",
+      "description": "Network primitives: subnet (CIDR) allowlist matching, address classification, and the shared types/enums for IP-based access control. Dependency-free leaf module.",
+      "dir": "modules/network",
+      "icon": "fas fa-network-wired",
+      "tags": [
+        "infrastructure",
+        "core",
+        "leaf",
+        "security"
+      ],
+      "priority": 2,
+      "tier": "other",
+      "dependencies": {
+        "requires": []
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [
+          "network.enums.ts"
+        ],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
       "id": "redis",
       "name": "Redis",
       "version": "1.0.0",
@@ -173,7 +207,9 @@
         ]
       },
       "exports": {
-        "services": [],
+        "services": [
+          "db.tenant-provision.service.ts"
+        ],
         "dtos": [],
         "enums": [],
         "messageKeys": [],
@@ -2355,7 +2391,8 @@
         "requires": [
           "db",
           "env",
-          "common"
+          "common",
+          "network"
         ]
       },
       "exports": {
@@ -2371,7 +2408,9 @@
         "messageKeys": [
           "api_key.messages.ts"
         ],
-        "settingKeys": [],
+        "settingKeys": [
+          "api_key.setting.keys.ts"
+        ],
         "providers": [],
         "jobs": [],
         "entities": [
@@ -2751,11 +2790,14 @@
       "tier": "infrastructure",
       "dependencies": {
         "requires": [
-          "env"
+          "env",
+          "setting"
         ]
       },
       "exports": {
-        "services": [],
+        "services": [
+          "api_doc.service.ts"
+        ],
         "dtos": [],
         "enums": [],
         "messageKeys": [],
@@ -2944,6 +2986,36 @@
       "methods": [
         "PUT",
         "DELETE"
+      ],
+      "module": "api_key",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/api-keys/[apiKeyId]/rotate/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/api-keys/[apiKeyId]/rotate",
+      "methods": [
+        "POST"
+      ],
+      "module": "api_key",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/api-keys/revoke-all/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/api-keys/revoke-all",
+      "methods": [
+        "POST"
+      ],
+      "module": "api_key",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/api-keys/sweep-expired/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/api-keys/sweep-expired",
+      "methods": [
+        "POST"
       ],
       "module": "api_key",
       "dynamic": true
@@ -4746,8 +4818,13 @@
         "description",
         "keyHash",
         "scopes",
+        "keyEnv",
+        "ipAllowlist",
         "isActive",
         "lastUsedAt",
+        "lastUsedIp",
+        "usageCount",
+        "successorKeyId",
         "expiresAt",
         "createdAt",
         "updatedAt"
@@ -6239,6 +6316,8 @@
         "userStatus",
         "userRole",
         "emailVerifiedAt",
+        "consentVersion",
+        "consentAcceptedAt",
         "createdAt",
         "updatedAt",
         "deletedAt"
@@ -6633,6 +6712,18 @@
       "isClient": false,
       "isServer": false,
       "baseName": "StatusCodeBadge"
+    },
+    {
+      "id": "api_doc/ui/TryItOutPanel",
+      "module": "api_doc",
+      "filePath": "modules_next/api_doc/ui/TryItOutPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "TryItOutPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "TryItOutPanel"
     },
     {
       "id": "api_doc/ui/types",

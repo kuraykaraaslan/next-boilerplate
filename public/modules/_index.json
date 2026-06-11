@@ -40,6 +40,21 @@
     "componentCount": 0,
     "file": "logger.md"
   },
+  "network": {
+    "name": "Network",
+    "tier": "other",
+    "tags": [
+      "infrastructure",
+      "core",
+      "leaf",
+      "security"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 0,
+    "componentCount": 0,
+    "file": "network.md"
+  },
   "redis": {
     "name": "Redis",
     "tier": "infrastructure",
@@ -717,7 +732,7 @@
       "security"
     ],
     "hasNextLayer": true,
-    "routeCount": 3,
+    "routeCount": 6,
     "entityCount": 1,
     "componentCount": 2,
     "file": "api_key.md"
@@ -833,7 +848,7 @@
     "hasNextLayer": true,
     "routeCount": 0,
     "entityCount": 0,
-    "componentCount": 14,
+    "componentCount": 15,
     "file": "api_doc.md"
   },
   "payment_core": {

@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-11T05:47:14.791Z",
+  "generatedAt": "2026-06-11T11:19:01.480Z",
   "routes": [
     {
       "filePath": "app/internal/api/caddy-ask/route.ts",
@@ -143,6 +143,36 @@
       "methods": [
         "PUT",
         "DELETE"
+      ],
+      "module": "api_key",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/api-keys/[apiKeyId]/rotate/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/api-keys/[apiKeyId]/rotate",
+      "methods": [
+        "POST"
+      ],
+      "module": "api_key",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/api-keys/revoke-all/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/api-keys/revoke-all",
+      "methods": [
+        "POST"
+      ],
+      "module": "api_key",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/api-keys/sweep-expired/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/api-keys/sweep-expired",
+      "methods": [
+        "POST"
       ],
       "module": "api_key",
       "dynamic": true

@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-11T05:47:14.791Z",
+  "generatedAt": "2026-06-11T11:19:01.480Z",
   "modules": [
     {
       "id": "common",
@@ -105,6 +105,41 @@
       "readme": "# Logger Module\n\nWinston-based, framework-agnostic structured logging singleton. Use it instead of `console.*` across the codebase. Every log line is auto-tagged with the active tenant/user/request IDs carried through `AsyncLocalStorage`, so downstream code can log without threading context by hand.\n\n---\n\n## Exports\n\n| Export | Kind | Description |\n|---|---|---|\n| `Logger` (default) | class | Static `info`, `error`, `warn`, `debug` log methods plus `runWithContext` / `getContext`. |\n| `Logger` (named) | class | Same class, named re-export for convenience. |\n| `LogContext` | interface | Per-request context shape (`tenantId?`, `userId?`, `requestId?`, plus arbitrary string/number/boolean keys). |\n\nThe module has **no entities, no API routes, and no settings** — it is pure shared infrastructure. Its only dependency is `env` (used to pick the transport).\n\n---\n\n## Responsibilities\n\n- **Structured log lines.** Three process-wide Winston singletons (`infoLogger`, `errorLogger`, `warnLogger`, created by `makeLogger`) format each entry as `[<timestamp>] [<level>]<tags>: <message>` with a `MMM-DD-YYYY HH:mm:ss` timestamp.\n- **Automatic context tagging.** `currentContext()` reads the active `LogContext` from an `AsyncLocalStorage` store; the formatter appends `[tenant=… user=… req=…]` for whichever IDs are present.\n- **Argument serialization.** Extra args passed to `info/error/warn/debug` are serialized (`JSON.stringify` for objects, `String(...)` otherwise) and appended to the message.\n- **Transport selection.** `makeTransports` writes to the **Console** when `env.NODE_ENV` is `vercel` or `development`; otherwise it writes to a daily file `logs/<YYYY-MM-DD>.log`.\n- **`debug`** is emitted through the info logger with a `[DEBUG]` prefix (there is no separate debug transport/level).\n\n---\n\n## Context propagation\n\n```ts\nimport Logger from '@/modules/logger';\n\n// Wrap a request (typically in the proxy / route handler):\nLogger.runWithContext({ tenantId, userId, requestId }, async () => {\n  await doStuff(); // any Logger.* call inside is auto-tagged\n});\n\n// runWithContext merges over any already-active context.\nconst ctx = Logger.getContext(); // { tenantId, userId, requestId, ... }\n```\n\n---\n\n## Usage\n\n```ts\nimport Logger from '@/modules/logger';\n\nLogger.info('User created', { userId });\nLogger.error('DB failure', error);\nLogger.warn('Quota near limit', { used, limit });\nLogger.debug('Cache miss', { key });\n```\n\n---\n\n## Tenant Variability\n\n> What varies per tenant in this module — and what could. Audited 2026-06-03.\n\nA Winston-based, framework-agnostic structured logging singleton that auto-tags every log line with the active tenant/user/request IDs via AsyncLocalStorage, but is pure shared infrastructure with no per-tenant settings, entities, or behavior branching.\n\n### Candidates (global / hardcoded today → could be per-tenant)\n\n| What | Where | Why per-tenant | Suggested key |\n|---|---|---|---|\n| Global log level and transport choice are fixed at module load (makeLogger('info'/'warn'/'error') singletons; transport switches only on env.NODE_ENV). A tenant cannot raise verbosity (e.g. enable debug) for their own traffic, even though tenantId is already carried in LogContext and stamped on each line. | `logger.service.ts: makeLogger / makeTransports / static infoLogger\\|errorLogger\\|warnLogger` | Mostly intentional shared infra — the loggers are process-wide static singletons writing to one console/file sink, so true per-tenant level routing would require restructuring (per-context level filtering rather than per-tenant logger instances). Listing it because tenant-scoped log verbosity is a plausible SaaS feature and the tenantId context already exists to gate it; not a simple settings read today. | `logLevel` |\n\n---\n\n## Dependencies\n\n- `winston` — logging engine and transports.\n- `node:async_hooks` (`AsyncLocalStorage`) — request-scoped context store.\n- `@/modules/env` — `NODE_ENV` drives the console-vs-file transport choice.\n"
     },
     {
+      "id": "network",
+      "name": "Network",
+      "version": "1.0.0",
+      "description": "Network primitives: subnet (CIDR) allowlist matching, address classification, and the shared types/enums for IP-based access control. Dependency-free leaf module.",
+      "dir": "modules/network",
+      "icon": "fas fa-network-wired",
+      "tags": [
+        "infrastructure",
+        "core",
+        "leaf",
+        "security"
+      ],
+      "priority": 2,
+      "tier": "other",
+      "dependencies": {
+        "requires": []
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [
+          "network.enums.ts"
+        ],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": "# Network\n\nDependency-free leaf module providing **network primitives** shared across the\nplatform. Today it centralises subnet-based access control; it is the intended\nhome for future network-layer concerns (geo/ASN lookup, SSRF egress policy,\nproxy header parsing, rate-limit keying by network, …).\n\nEverything is modelled as a **subnet (CIDR)**: a single host is just a `/32`\n(IPv4) or `/128` (IPv6). A bare address is canonicalised to its host route.\n\n## Exports\n\nImport from the barrel: `import { ipMatchesAllowlist, SubnetListSchema } from '@/modules/network';`\n\n### Matching (`network.ip.ts`)\n- `ipMatchesAllowlist(ip, subnets)` — `true` when `ip` is permitted. An empty\n  list permits everything; a non-empty one **denies by default** and an\n  `unknown`/missing IP **fails closed**. IPv4 CIDR uses real mask arithmetic;\n  IPv6 matches by exact (normalised) address.\n- `ipInSubnet(ip, subnet)` — whether a single IP falls inside one subnet.\n- `parseSubnet(rule)` — `{ subnet, base, bits, version }` or `null` if invalid.\n- `normalizeSubnet(rule)` — canonical CIDR form (bare IP → `/32` / `/128`) or `null`.\n- `isValidSubnet(rule)` — boolean validity.\n- `normalizeIp(ip)` — collapse an IPv4-mapped IPv6 address (`::ffff:1.2.3.4`) to plain IPv4.\n- `parseSubnetString(value)` — split a comma/whitespace/newline-separated string into rules.\n\n### Types (`network.types.ts`)\n- `SubnetSchema` — Zod schema for a single subnet. Accepts a bare IP and\n  canonicalises it to `/32` / `/128`; rejects anything that is not a valid\n  address / CIDR block.\n- `SubnetListSchema` — array of subnets (capped at 64).\n- `Subnet`, `SubnetList`, `SubnetDescriptor` — inferred/structural types.\n\n### Enums (`network.enums.ts`)\n- `IpVersionEnum` — `'v4' | 'v6'`.\n\n## Consumers\n- **api_key** — per-key and tenant-default subnet allowlists are validated with\n  `SubnetListSchema` and enforced at verify time via `ipMatchesAllowlist`.\n\n> Candidate for consolidation: `webhook/webhook.ssrf.ts` also carries IP/CIDR\n> logic and could migrate here.\n"
+    },
+    {
       "id": "redis",
       "name": "Redis",
       "version": "1.0.0",
@@ -161,7 +196,9 @@
         ]
       },
       "exports": {
-        "services": [],
+        "services": [
+          "db.tenant-provision.service.ts"
+        ],
         "dtos": [],
         "enums": [],
         "messageKeys": [],
@@ -2391,7 +2428,8 @@
         "requires": [
           "db",
           "env",
-          "common"
+          "common",
+          "network"
         ]
       },
       "exports": {
@@ -2407,7 +2445,9 @@
         "messageKeys": [
           "api_key.messages.ts"
         ],
-        "settingKeys": [],
+        "settingKeys": [
+          "api_key.setting.keys.ts"
+        ],
         "providers": [],
         "jobs": [],
         "entities": [
@@ -2795,11 +2835,14 @@
       "tier": "infrastructure",
       "dependencies": {
         "requires": [
-          "env"
+          "env",
+          "setting"
         ]
       },
       "exports": {
-        "services": [],
+        "services": [
+          "api_doc.service.ts"
+        ],
         "dtos": [],
         "enums": [],
         "messageKeys": [],
@@ -2811,7 +2854,7 @@
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": true,
-      "readme": "# Api Doc Module\n\nUI-only module that renders interactive OpenAPI documentation. It takes an `ApiSpec` object and displays the info header, security schemes, and per-tag endpoint sections with parameters, request/response schemas, and code samples. No service, no database entity, no API routes.\n\nSource lives under `modules_next/api_doc/ui/`.\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `ui/types.ts` | OpenAPI-style type definitions (`ApiSpec`, `Operation`, `PathItem`, `Parameter`, `SchemaObject`, `ApiResponse`, `SecurityScheme`, `Server`, `Tag`, `CodeSample`, …) |\n| `ui/ApiDocsPage.tsx` | Root component; renders the spec header, security-scheme panel, common-responses panel, and one `ApiTagSection` per tag |\n| `ui/ApiTagSection.tsx` | Collapsible section grouping endpoints under a tag |\n| `ui/EndpointRow.tsx` | Collapsible row for one operation (method badge, path, lock/deprecated icons); expands to `OperationPanel` |\n| `ui/OperationPanel.tsx` | Tabbed detail view: Parameters, Request Body, Responses, and Code Samples (tab shown only when samples exist) |\n| `ui/ParameterTable.tsx` | Table of path/query/header/cookie parameters |\n| `ui/SchemaViewer.tsx` | Renders a `SchemaObject` (request/response body schema) |\n| `ui/ResponseCard.tsx` | Collapsible card for a single response (2xx open by default) |\n| `ui/CodeSamplePanel.tsx` | Multi-language code-sample viewer |\n| `ui/HttpMethodBadge.tsx` | Colored HTTP-method badge |\n| `ui/StatusCodeBadge.tsx` | HTTP status-code badge |\n| `ui/SecuritySchemeBadge.tsx` | Badge for a security scheme (`apiKey`, `http`, `oauth2`, …) |\n| `ui/ServerSelector.tsx` | Server/environment selector |\n| `ui/mockSpec.ts` | Two ready-made specs: `SYSTEM_SPEC` (platform/system API) and `TENANT_SPEC` (per-tenant API) |\n\n---\n\n## Variants\n\nThe same `ApiDocsPage` renders two specs depending on who is viewing:\n\n| Spec | Scope | Shown to |\n|---|---|---|\n| `SYSTEM_SPEC` | Platform/system API (users, tenants, plans, audit logs) | Root-tenant admins |\n| `TENANT_SPEC` | Per-tenant API (members, invitations, settings, domains) | Regular tenants |\n\nBoth currently come from `ui/mockSpec.ts`. Swap in a real spec fetched at runtime when one is available.\n\n---\n\n## Usage\n\nPass an `ApiSpec` to the root component:\n\n```tsx\nimport { ApiDocsPage } from '@/modules_next/api_doc/ui/ApiDocsPage';\nimport { SYSTEM_SPEC, TENANT_SPEC } from '@/modules_next/api_doc/ui/mockSpec';\n\n<ApiDocsPage spec={TENANT_SPEC} />\n```\n\nConsumed by two app pages, which select the variant by role:\n\n- `app/tenant/[tenantId]/admin/(tenant-scope)/api-docs/page.tsx` — root tenant gets `SYSTEM_SPEC`, others get `TENANT_SPEC` (via `isRootTenant`).\n- `app/tenant/[tenantId]/api-docs/page.tsx` — always `TENANT_SPEC`.\n\n---\n\n## Settings\n\nNone. This module has no setting keys, no entities, and no API routes.\n\n---\n\n## Tenant Variability\n\n> What varies per tenant in this module — and what could. Audited 2026-06-03.\n\nNo per-tenant variability — API documentation viewer module that renders interactive OpenAPI specs in two variants (system-level and tenant-level) based on user role; pure UI with no services, entities, or settings.\n\n---\n\n## Dependencies\n\n- `env` (per `module.json`)\n- Shared UI from `modules_next/common` (`cn`, `TabGroup`, `Badge`) and Font Awesome icons\n"
+      "readme": "# Api Doc Module\n\nUI-only module that renders interactive OpenAPI documentation. It takes an `ApiSpec` object and displays the info header, security schemes, and per-tag endpoint sections with parameters, request/response schemas, and code samples. No service, no database entity, no API routes.\n\nSource lives under `modules_next/api_doc/ui/`.\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `ui/types.ts` | OpenAPI-style type definitions (`ApiSpec`, `Operation`, `PathItem`, `Parameter`, `SchemaObject`, `ApiResponse`, `SecurityScheme`, `Server`, `Tag`, `CodeSample`, …) |\n| `ui/ApiDocsPage.tsx` | Root component; renders the spec header, security-scheme panel, common-responses panel, and one `ApiTagSection` per tag |\n| `ui/ApiTagSection.tsx` | Collapsible section grouping endpoints under a tag |\n| `ui/EndpointRow.tsx` | Collapsible row for one operation (method badge, path, lock/deprecated icons); expands to `OperationPanel` |\n| `ui/OperationPanel.tsx` | Tabbed detail view: Parameters, Request Body, Responses, and Code Samples (tab shown only when samples exist) |\n| `ui/ParameterTable.tsx` | Table of path/query/header/cookie parameters |\n| `ui/SchemaViewer.tsx` | Renders a `SchemaObject` (request/response body schema) |\n| `ui/ResponseCard.tsx` | Collapsible card for a single response (2xx open by default) |\n| `ui/CodeSamplePanel.tsx` | Multi-language code-sample viewer |\n| `ui/HttpMethodBadge.tsx` | Colored HTTP-method badge |\n| `ui/StatusCodeBadge.tsx` | HTTP status-code badge |\n| `ui/SecuritySchemeBadge.tsx` | Badge for a security scheme (`apiKey`, `http`, `oauth2`, …) |\n| `ui/ServerSelector.tsx` | Server/environment selector |\n| `ui/mockSpec.ts` | Two ready-made specs: `SYSTEM_SPEC` (platform/system API) and `TENANT_SPEC` (per-tenant API) |\n\n---\n\n## Variants\n\nThe same `ApiDocsPage` renders two specs depending on who is viewing:\n\n| Spec | Scope | Shown to |\n|---|---|---|\n| `SYSTEM_SPEC` | Platform/system API (users, tenants, plans, audit logs) | Root-tenant admins |\n| `TENANT_SPEC` | Per-tenant API (members, invitations, settings, domains) | Regular tenants |\n\nBoth currently come from `ui/mockSpec.ts`. Swap in a real spec fetched at runtime when one is available.\n\n---\n\n## Usage\n\nPass an `ApiSpec` to the root component:\n\n```tsx\nimport { ApiDocsPage } from '@/modules_next/api_doc/ui/ApiDocsPage';\nimport { SYSTEM_SPEC, TENANT_SPEC } from '@/modules_next/api_doc/ui/mockSpec';\n\n<ApiDocsPage spec={TENANT_SPEC} />\n```\n\nConsumed by two app pages, which select the variant by role:\n\n- `app/tenant/[tenantId]/admin/(tenant-scope)/api-docs/page.tsx` — root tenant gets `SYSTEM_SPEC`, others get `TENANT_SPEC` (via `isRootTenant`).\n- `app/tenant/[tenantId]/api-docs/page.tsx` — always `TENANT_SPEC`.\n\n---\n\n## Settings\n\n| Key | Type | Default | Purpose |\n|---|---|---|---|\n| `apiDocsPublic` | boolean | `false` | When true, allows a public-facing variant of the spec to be served without a logged-in session. |\n\nField metadata lives in `modules/api_doc/api_doc.settings.fields.ts` (`API_DOC_SETTINGS_FIELDS`, group `Visibility`).\n\n### Public docs\n\nBy default the docs pages rely on page-level session auth (admin and tenant routes are always private). The `apiDocsPublic` per-tenant setting opts a tenant into a public, session-less docs variant.\n\n- `modules/api_doc/api_doc.service.ts` exposes `ApiDocService.isPublic(tenantId): Promise<boolean>`, which reads the setting via `SettingService.getValue` and returns `true` only when the stored value is `'true'`. It defaults to `false` on any error or when unset.\n- A future public route can call `ApiDocService.isPublic(tenantId)` to decide whether to serve docs without a session. No public route or auth-middleware change ships with this module yet — internal/admin routes remain private regardless of this setting.\n\n---\n\n## Tenant Variability\n\n> What varies per tenant in this module — and what could. Audited 2026-06-03.\n\nNo per-tenant variability — API documentation viewer module that renders interactive OpenAPI specs in two variants (system-level and tenant-level) based on user role; pure UI with no services, entities, or settings.\n\n---\n\n## Dependencies\n\n- `env` (per `module.json`)\n- Shared UI from `modules_next/common` (`cn`, `TabGroup`, `Badge`) and Font Awesome icons\n"
     },
     {
       "id": "payment_core",
