@@ -40,11 +40,11 @@ export const API_KEY_SETTINGS_FIELDS: SettingFieldDef[] = [
   },
   {
     key: API_KEY_SETTING_KEYS.TENANT_IP_ALLOWLIST,
-    label: 'Tenant IP Allowlist',
-    description: 'Comma-separated IPs/CIDRs applied as a default to every key that does not declare its own allowlist. Leave blank to allow all.',
+    label: 'Tenant Subnet Allowlist',
+    description: 'Comma/space-separated subnets (CIDR) applied as a default to every key that does not declare its own allowlist. A single host is a /32 (e.g. 192.168.1.182/32). Leave blank to allow all.',
     group: 'Network',
     type: 'textarea',
-    placeholder: '203.0.113.0/24, 198.51.100.7',
+    placeholder: '203.0.113.0/24, 192.168.1.182/32',
   },
   {
     key: API_KEY_SETTING_KEYS.DEFAULT_RATE_LIMIT_PER_MINUTE,

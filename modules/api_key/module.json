@@ -7,5 +7,5 @@
   "icon": "fas fa-key",
   "tags": ["platform", "security"],
   "priority": 40,
-  "dependencies": { "requires": ["db", "env", "common"] }
+  "dependencies": { "requires": ["db", "env", "common", "network"] }
 }

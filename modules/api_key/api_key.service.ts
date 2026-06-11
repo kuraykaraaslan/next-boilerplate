@@ -9,7 +9,7 @@ import type { CreateApiKeyInput, UpdateApiKeyInput, ListApiKeysInput, RotateApiK
 import ApiKeyMessages from './api_key.messages';
 import type { ApiKeyScope, ApiKeyEnv } from './api_key.enums';
 import { API_KEY_SETTING_KEYS } from './api_key.setting.keys';
-import { ipMatchesAllowlist, parseAllowlistString } from './api_key.net';
+import { ipMatchesAllowlist, parseSubnetString } from '@/modules/network';
 import TenantFeatureGateService from '@/modules/tenant_subscription/tenant_subscription.feature.service';
 import { FEATURE_KEYS } from '@/modules/tenant_subscription/tenant_subscription.feature-keys';
 import { isRootTenant, ROOT_TENANT_ID } from '@/modules/tenant/tenant.constants';
@@ -148,7 +148,7 @@ export default class ApiKeyService {
       maxActiveKeys: num(API_KEY_SETTING_KEYS.MAX_ACTIVE_KEYS),
       maxTtlDays: num(API_KEY_SETTING_KEYS.MAX_TTL_DAYS),
       requireExpiry: values[API_KEY_SETTING_KEYS.REQUIRE_EXPIRY] === 'true',
-      tenantIpAllowlist: parseAllowlistString(values[API_KEY_SETTING_KEYS.TENANT_IP_ALLOWLIST]),
+      tenantIpAllowlist: parseSubnetString(values[API_KEY_SETTING_KEYS.TENANT_IP_ALLOWLIST]),
       defaultRateLimitPerMinute: num(API_KEY_SETTING_KEYS.DEFAULT_RATE_LIMIT_PER_MINUTE),
     };
   }

@@ -1,0 +1,22 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "network",
+  "name": "Network",
+  "description": "Network primitives: subnet (CIDR) allowlist matching, address classification, and the shared types/enums for IP-based access control. Dependency-free leaf module.",
+  "version": "1.0.0",
+  "icon": "fas fa-network-wired",
+  "tags": ["infrastructure", "core", "leaf", "security"],
+  "priority": 2,
+  "dependencies": { "requires": [] },
+  "exports": {
+    "ipMatchesAllowlist": "network.ip.ts",
+    "ipInSubnet": "network.ip.ts",
+    "normalizeIp": "network.ip.ts",
+    "normalizeSubnet": "network.ip.ts",
+    "parseSubnet": "network.ip.ts",
+    "parseSubnetString": "network.ip.ts",
+    "SubnetSchema": "network.types.ts",
+    "SubnetListSchema": "network.types.ts",
+    "IpVersionEnum": "network.enums.ts"
+  }
+}

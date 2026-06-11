@@ -1,24 +1,22 @@
 import { z } from 'zod';
 import { ApiKeyScopeEnum, ApiKeyEnvEnum } from './api_key.enums';
-
-// A single IPv4/IPv6 address or CIDR block. Kept deliberately permissive — the
-// runtime matcher (`ipMatchesAllowlist`) is the source of truth; this just
-// bounds length and strips empties.
-const IpRule = z.string().trim().min(1).max(64);
+// Subnet (CIDR) validation is owned by the network module. A single host is a
+// /32 — e.g. 192.168.1.182/32.
+import { SubnetListSchema } from '@/modules/network';
 
 export const CreateApiKeyDTO = z.object({
   name: z.string().min(1).max(100),
   description: z.string().max(500).optional(),
   scopes: z.array(ApiKeyScopeEnum).min(1),
   environment: ApiKeyEnvEnum.optional(),
-  ipAllowlist: z.array(IpRule).max(50).optional(),
+  ipAllowlist: SubnetListSchema.optional(),
   expiresAt: z.string().datetime().optional(),
 });
 
 export const UpdateApiKeyDTO = z.object({
   name: z.string().min(1).max(100).optional(),
   description: z.string().max(500).optional(),
-  ipAllowlist: z.array(IpRule).max(50).optional(),
+  ipAllowlist: SubnetListSchema.optional(),
   isActive: z.boolean().optional(),
 });
 
