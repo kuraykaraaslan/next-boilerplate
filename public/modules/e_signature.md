@@ -23,9 +23,11 @@ Multi-country e-identity login + e-signature (eIDAS/OIDC4IDA). Pluggable provide
 - `e_signature.etsi_tsl.service.ts`
 - `e_signature.identity.service.ts`
 - `e_signature.ocsp.service.ts`
+- `e_signature.provider.service.ts`
 - `e_signature.service.ts`
 - `e_signature.settings.service.ts`
 - `e_signature.trust_list.service.ts`
+- `e_signature.workflow.service.ts`
 
 ## DTOs
 
@@ -59,6 +61,7 @@ Multi-country e-identity login + e-signature (eIDAS/OIDC4IDA). Pluggable provide
 
 ## Next layer (modules_next/) surface
 
+- `e_signature/ui/SigningCertificatesBindModal` _(ui, client)_
 - `e_signature/ui/SigningCertificatesPanel` _(ui, client)_
 - `e_signature/ui/TenantESignatureSettingsPanel` _(ui, client)_
 

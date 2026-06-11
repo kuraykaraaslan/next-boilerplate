@@ -48,6 +48,16 @@ System-wide key-value settings store. Modules declare their keys in *.setting.ke
 - `setting/ui/PlatformSettingsTabs` _(ui, client)_
 - `setting/ui/settings-kit` _(ui, client)_
 - `setting/ui/SettingsPanelHost` _(ui, client)_
+- `setting/ui/tabs/platform-tab.shared` _(ui, client)_
+- `setting/ui/tabs/PlatformAiTab` _(ui, client)_
+- `setting/ui/tabs/PlatformAuthTab` _(ui, client)_
+- `setting/ui/tabs/PlatformEmailTab` _(ui, client)_
+- `setting/ui/tabs/PlatformNotificationsTab` _(ui, client)_
+- `setting/ui/tabs/PlatformPaymentTab` _(ui, client)_
+- `setting/ui/tabs/PlatformScimTab` _(ui, client)_
+- `setting/ui/tabs/PlatformSecurityTab` _(ui, client)_
+- `setting/ui/tabs/PlatformSmsTab` _(ui, client)_
+- `setting/ui/tabs/PlatformStorageTab` _(ui, client)_
 - `setting/ui/TenantSettingsPanels` _(ui, client)_
 
 ## README

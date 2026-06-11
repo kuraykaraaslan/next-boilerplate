@@ -16,6 +16,8 @@ OAuth 2.0 SSO with 12 providers: Google, GitHub, Apple, Microsoft, Facebook, Lin
 
 ## Services
 
+- `auth_sso.account.service.ts`
+- `auth_sso.flow.service.ts`
 - `auth_sso.service.ts`
 
 ## DTOs

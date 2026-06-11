@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-10T08:35:13.849Z",
+  "generatedAt": "2026-06-11T02:58:58.038Z",
   "routes": [
     {
       "filePath": "app/internal/api/caddy-ask/route.ts",
@@ -803,6 +803,19 @@
       "dynamic": true
     },
     {
+      "filePath": "app/tenant/[tenantId]/api/dynamic-pages/block-action/[blockType]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/dynamic-pages/block-action/[blockType]",
+      "methods": [
+        "GET",
+        "POST",
+        "PATCH",
+        "DELETE"
+      ],
+      "module": "dynamic_page",
+      "dynamic": true
+    },
+    {
       "filePath": "app/tenant/[tenantId]/api/dynamic-pages/block-definitions/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/dynamic-pages/block-definitions",
@@ -817,6 +830,52 @@
       "filePath": "app/tenant/[tenantId]/api/dynamic-pages/block-definitions/[blockId]/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/dynamic-pages/block-definitions/[blockId]",
+      "methods": [
+        "GET",
+        "PATCH",
+        "DELETE"
+      ],
+      "module": "dynamic_page",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/dynamic-pages/collections/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/dynamic-pages/collections",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "dynamic_page",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/dynamic-pages/collections/[collectionId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/dynamic-pages/collections/[collectionId]",
+      "methods": [
+        "GET",
+        "PATCH",
+        "DELETE"
+      ],
+      "module": "dynamic_page",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/dynamic-pages/collections/[collectionId]/items/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/dynamic-pages/collections/[collectionId]/items",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "dynamic_page",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/dynamic-pages/collections/[collectionId]/items/[itemId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/dynamic-pages/collections/[collectionId]/items/[itemId]",
       "methods": [
         "GET",
         "PATCH",

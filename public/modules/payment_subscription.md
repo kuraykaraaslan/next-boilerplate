@@ -16,6 +16,8 @@ Recurring subscription lifecycle: plans, plan features, subscriber management, p
 
 ## Services
 
+- `payment_subscription.lifecycle.service.ts`
+- `payment_subscription.plan.service.ts`
 - `payment_subscription.proration.service.ts`
 - `payment_subscription.service.ts`
 

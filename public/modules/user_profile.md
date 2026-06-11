@@ -30,6 +30,10 @@ Profile fields (avatar, bio, locale, timezone) — separated from the user entit
 
 - `user_profile.enums.ts`
 
+## Message keys
+
+- `user_profile.messages.ts`
+
 ## TypeORM entities
 
 - `UserProfile` (system) — `modules/user_profile/entities/user_profile.entity.ts`

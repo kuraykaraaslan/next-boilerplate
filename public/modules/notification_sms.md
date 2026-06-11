@@ -16,6 +16,8 @@ Pluggable SMS sender (Twilio, Nexmo, Clickatell, NetGSM).
 
 ## Services
 
+- `notification_sms.provider.service.ts`
+- `notification_sms.queue.service.ts`
 - `notification_sms.service.ts`
 
 ## Setting keys

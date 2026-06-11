@@ -16,6 +16,8 @@ Tenant-aware tax/VAT calculation engine: tax classes, destination-matched rates,
 
 ## Services
 
+- `payment_tax.calc.service.ts`
+- `payment_tax.crud.service.ts`
 - `payment_tax.service.ts`
 
 ## DTOs

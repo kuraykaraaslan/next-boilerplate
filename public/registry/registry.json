@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-10T08:35:13.849Z",
+  "generatedAt": "2026-06-11T02:58:58.038Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -539,7 +539,9 @@
         "enums": [
           "user_preferences.enums.ts"
         ],
-        "messageKeys": [],
+        "messageKeys": [
+          "user_preferences.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
@@ -580,7 +582,9 @@
         "enums": [
           "user_profile.enums.ts"
         ],
-        "messageKeys": [],
+        "messageKeys": [
+          "user_profile.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
@@ -615,6 +619,8 @@
       },
       "exports": {
         "services": [
+          "user_security.passkey.crud.service.ts",
+          "user_security.passkey.flow.service.ts",
           "user_security.passkey.service.ts",
           "user_security.service.ts"
         ],
@@ -623,6 +629,7 @@
           "user_security.enums.ts"
         ],
         "messageKeys": [
+          "user_security.messages.ts",
           "user_security.passkey.messages.ts"
         ],
         "settingKeys": [
@@ -664,6 +671,7 @@
       },
       "exports": {
         "services": [
+          "user_session.auth.service.ts",
           "user_session.cache.service.ts",
           "user_session.crud.service.ts",
           "user_session.service.ts",
@@ -758,11 +766,15 @@
       "exports": {
         "services": [
           "auth.captcha.service.ts",
+          "auth.credential.service.ts",
           "auth.otp.service.ts",
           "auth.password.service.ts",
+          "auth.policy.loader.service.ts",
           "auth.policy.service.ts",
+          "auth.policy.validator.service.ts",
           "auth.service.ts",
-          "auth.totp.service.ts"
+          "auth.totp.service.ts",
+          "auth.verification.service.ts"
         ],
         "dtos": [
           "auth.dto.ts"
@@ -811,6 +823,8 @@
       },
       "exports": {
         "services": [
+          "auth_saml.config.service.ts",
+          "auth_saml.flow.service.ts",
           "auth_saml.service.ts"
         ],
         "dtos": [
@@ -858,6 +872,8 @@
       },
       "exports": {
         "services": [
+          "auth_sso.account.service.ts",
+          "auth_sso.flow.service.ts",
           "auth_sso.service.ts"
         ],
         "dtos": [
@@ -948,7 +964,8 @@
       },
       "exports": {
         "services": [
-          "scim.service.ts"
+          "scim.service.ts",
+          "scim.user.service.ts"
         ],
         "dtos": [
           "scim.dto.ts"
@@ -1059,7 +1076,7 @@
       },
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false,
+      "hasNextLayer": true,
       "readme": "# Tenant Member Module\n\nTenant membership management with role-based access control. Maintains the per-tenant join table linking a user to a tenant with a role and status, enforces a role hierarchy, prevents demoting/removing the last owner, supports search by email, and soft-deletes members. Membership changes dispatch `member.*` webhooks.\n\n---\n\n## Entities\n\n| Entity | Table | Description |\n|---|---|---|\n| `TenantMember` | `tenant_members` | Membership record linking a `userId` to a `tenantId` with `memberRole`, `memberStatus`, optional SCIM `externalId`, and `sessionVersion`. Unique on `(tenantId, userId)`; soft-deleted via `deletedAt`. |\n\nLives in the **tenant DB** (resolved via `tenantDataSourceFor(tenantId)`). User records it joins to live in the **system DB**.\n\n---\n\n## Roles\n\n| Role | Permissions |\n|---|---|\n| `OWNER` | Full control, can manage admins |\n| `ADMIN` | Manage members, settings, billing |\n| `USER` | Standard access |\n\nRole changes are restricted by hierarchy (`ROLE_HIERARCHY = ['OWNER','ADMIN','USER']`) — you cannot promote someone to a role equal to or above your own. The route layer also forbids non-owners from modifying or removing owners.\n\n## Member Status\n\n| Status | Meaning |\n|---|---|\n| `ACTIVE` | Normal access |\n| `INACTIVE` | Disabled by admin |\n| `SUSPENDED` | Policy violation |\n| `PENDING` | Invited but not yet accepted |\n\nEnums are defined in `tenant_member.enums.ts` (`TenantMemberRoleEnum`, `TenantMemberStatusEnum`).\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `tenant_member.service.ts` | Core service: list/get, create, update, delete (soft), permission checks |\n| `tenant_member.types.ts` | `TenantMemberSchema` / `SafeTenantMemberSchema` (Zod) and inferred types |\n| `tenant_member.dto.ts` | Zod DTOs for create/update/get/list inputs |\n| `tenant_member.enums.ts` | `TenantMemberRoleEnum`, `TenantMemberStatusEnum` |\n| `tenant_member.messages.ts` | Error/success message strings |\n| `tenant_member.settings.fields.ts` | UI field metadata for the Members settings page |\n| `tenant_member.seed.ts` | Demo seed data |\n| `entities/tenant_member.entity.ts` | TypeORM entity |\n\n---\n\n## Service (`TenantMemberService`)\n\nAll methods are `static`. Tenant-scoped reads/writes resolve the per-tenant DataSource via `tenantDataSourceFor(tenantId)`; user lookups use the system `getDataSource()`.\n\n| Method | Responsibility |\n|---|---|\n| `getByTenantId({ tenantId, page, pageSize, search, memberRole, memberStatus })` | Paginated, filtered list of a tenant's members. `search` matches user email (ILIKE) against the system user table, then filters member rows by the matching `userId`s. Hydrates each member with its `user`. Returns `{ members, total }`. |\n| `getById(tenantMemberId)` | Fetch a single member by id from the system DataSource; throws `MEMBER_NOT_FOUND` if missing. |\n| `getByTenantAndUser({ tenantMemberId, tenantId, userId })` | Resolve a member by id (validated against tenant/user) or by `(tenantId, userId)`; returns `null` if not found. |\n| `create(data)` | Enforces the unique `(tenantId, userId)` membership (throws `MEMBER_ALREADY_EXISTS`), persists, and dispatches the `member.created` webhook to the member's tenant. |\n| `update(tenantMemberId, data)` | Updates role/status (skips `null` fields). Guards against demoting the last `OWNER` (`CANNOT_DEMOTE_OWNER`), increments `sessionVersion`, busts the Redis cache `tenant:member:<userId>:<tenantId>`, and dispatches `member.updated`. |\n| `delete(tenantMemberId)` | Soft-deletes (`deletedAt`). Guards against removing the last `OWNER` (`LAST_OWNER`) and dispatches `member.deleted`. |\n| `getUserTenants(userId)` | Lists a user's `ACTIVE`, non-deleted memberships across all tenants. |\n| `hasRole(member, requiredRole)` | Pure hierarchy check against `ROLE_HIERARCHY`. |\n| `checkPermission(tenantId, userId, requiredRole)` | Looks up the caller's `ACTIVE` member row in the tenant's own DataSource and gates by `hasRole`. Returns `false` if no membership. |\n\n---\n\n## API Routes\n\nTenant-scoped under `/tenant/[tenantId]/api/members`. All routes rate-limit and authenticate via `TenantSessionNextService.authenticateTenantByRequest`.\n\n| Method | Path | Min role | Description |\n|---|---|---|---|\n| GET | `/tenant/[tenantId]/api/members` | USER | List members (`?page=&pageSize=&search=&memberRole=&memberStatus=`) |\n| POST | `/tenant/[tenantId]/api/members` | ADMIN | Add a member (after `assertFeatureAccess` on `MAX_MEMBERS`) |\n| GET | `/tenant/[tenantId]/api/members/[memberId]` | USER | Get one member (404 if not in this tenant) |\n| PUT | `/tenant/[tenantId]/api/members/[memberId]` | ADMIN | Update role/status; non-owners cannot modify owners |\n| DELETE | `/tenant/[tenantId]/api/members/[memberId]` | ADMIN | Soft-remove; non-owners cannot remove owners; an owner cannot remove themselves |\n\nThe POST handler enforces the member limit via `tenant_subscription` feature `MAX_MEMBERS` (`assertFeatureAccess`). PUT/DELETE clear the session cache via `TenantSessionNextService.clearTenantCache`.\n\nSelf-registration into a tenant is handled by `POST /tenant/[tenantId]/api/auth/register`, which calls `TenantMemberService.create` for the new user (see *Settings* and *Tenant Variability*).\n\n---\n\n## Usage\n\n```typescript\nimport TenantMemberService from '@/modules/tenant_member/tenant_member.service';\n\n// List members\nconst { members, total } = await TenantMemberService.getByTenantId({\n  tenantId,\n  page: 1,\n  pageSize: 20,\n  search: 'alice',\n  memberRole: 'ADMIN',\n  memberStatus: 'ACTIVE',\n});\n\n// Change role\nawait TenantMemberService.update(memberId, { memberRole: 'ADMIN', memberStatus: null });\n\n// Soft-remove member\nawait TenantMemberService.delete(memberId);\n\n// Gate an action by role\nconst ok = await TenantMemberService.checkPermission(tenantId, userId, 'ADMIN');\n```\n\n---\n\n## Settings\n\nSurfaced at `/tenant/[tenantId]/admin/members/settings` (gear button in the Members page header) via the shared `ModuleSettingsPage` scaffold. UI field metadata: `tenant_member.settings.fields.ts`.\n\n| Key | Type | Default | Notes |\n|---|---|---|---|\n| `defaultMemberRole` | select (`USER` \\| `ADMIN`) | `USER` | Role assigned to new members on join / invitation accept. `OWNER` is intentionally excluded. The registration route passes `settings['defaultMemberRole'] \\|\\| 'USER'` to `create`, but currently fetches only `allowSelfRegistration` from `SettingService.getByKeys`, so the configured value is not yet read (see *Tenant Variability* → Candidates). |\n\nRead/written via `GET/PUT /tenant/[tenantId]/api/admin-settings`. See `docs/ROADMAP_SETTINGS.md`.\n\n---\n\n## Tenant Variability\n\n> What varies per tenant in this module — and what could. Audited 2026-06-03.\n\nManages per-tenant membership records (linking a user to a tenant with a role and status), with a per-tenant default-member-role setting and role-hierarchy permission checks resolved against each tenant's own member rows.\n\n### Per-tenant settings\n\n| Key | Type | Default | Scope | Controls | Read in |\n|---|---|---|---|---|---|\n| `defaultMemberRole` | string | `USER` | tenant | Role assigned to a new member when they self-register / accept an invitation into the tenant. Declared in settings.fields with a USER/ADMIN select; the registration route reads it (settings['defaultMemberRole'] \\|\\| 'USER') and passes it as memberRole to TenantMemberService.create. NOTE: the read is currently incompletely wired (see candidates) so it effectively defaults to USER today. | `route.ts` |\n\n*Scope: `tenant` = real tenants override · `root` = platform-only default (not per-tenant).*\n\n### Tenant-scoped data\n\n| Entity | Table | Tenant-variable columns |\n|---|---|---|\n| `TenantMember` | `tenant_members` | memberRole, memberStatus, externalId |\n\nAll rows isolated by `tenantId` via the per-tenant DataSource.\n\n### Per-tenant behavior\n\n- `tenant_member.service.ts:checkPermission` — Resolves the caller's role from the per-tenant member row via tenantDataSourceFor(tenantId), then gates by ROLE_HIERARCHY (OWNER>ADMIN>USER) — so the same user can hold different roles/permissions in different tenants.\n- `tenant_member.service.ts:getByTenantId` — Lists/paginates members scoped to one tenant via tenantDataSourceFor(tenantId); each tenant sees only its own membership rows.\n- `tenant_member.service.ts:create` — Enforces a per-tenant unique (tenantId,userId) membership and dispatches the 'member.created' webhook to that tenant's subscribers (WebhookService.dispatchEvent(saved.tenantId, ...)); update/delete likewise scope owner-count guards and webhooks to member.tenantId.\n- `route.ts:register POST` — Self-registration is gated per tenant by the allowSelfRegistration setting, and the joining member's role is taken from the tenant's defaultMemberRole setting (falling back to USER).\n\n### Candidates (global / hardcoded today → could be per-tenant)\n\n| What | Where | Why per-tenant | Suggested key |\n|---|---|---|---|\n| defaultMemberRole is declared and intended to drive the join/invitation role, but the registration route only fetches allowSelfRegistration via SettingService.getByKeys(tenantId, ['allowSelfRegistration']), so settings['defaultMemberRole'] is always undefined and the role silently falls back to 'USER' regardless of the tenant's configured value. | `route.ts (register POST, line 30 getByKeys + line 59 defaultRole)` | The per-tenant setting exists in tenant_member.settings.fields.ts and is surfaced in the UI/README, but is not actually read with its key, so a tenant admin's configured default role has no effect — a wiring gap, not an intentional global. | `defaultMemberRole` |\n| ROLE_HIERARCHY (['OWNER','ADMIN','USER']) and thus the entire permission model is a hardcoded static constant in the service, identical for every tenant. | `tenant_member.service.ts (TenantMemberService.ROLE_HIERARCHY, hasRole/checkPermission)` | Likely intentionally global since role semantics are a core invariant of the auth model; only worth surfacing if custom per-tenant roles/RBAC ever become a product requirement. | — |\n\n---\n\n## Dependencies\n\n- `db` — system + per-tenant DataSources (`getDataSource`, `tenantDataSourceFor`)\n- `tenant`, `user` — tenants joined and users hydrated into member rows\n- `redis` — busts the `tenant:member:<userId>:<tenantId>` cache on update\n- `webhook` — dispatches `member.created/updated/deleted` to the tenant's subscribers\n- `tenant_subscription` — `MAX_MEMBERS` feature gate enforced on the add-member route\n"
     },
     {
@@ -1107,7 +1124,7 @@
       },
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false,
+      "hasNextLayer": true,
       "readme": "# Tenant Invitation Module\n\nTenant membership invitations via hashed email token. Admins send/revoke invitations; invitees preview, accept, or decline them. Pending invitations are auto-accepted when a new user registers (or signs in via SAML) with a matching email. Acceptance binds the user to `tenant_member` with the invited role, and every lifecycle transition fires a tenant webhook.\n\n---\n\n## Entities\n\n| Entity | Table | DB | Description |\n|---|---|---|---|\n| `TenantInvitation` | `tenant_invitations` | tenant DB | One invitation per email token. Columns: `email`, `invitedByUserId`, `memberRole` (default `USER`), `token` (sha256 of the raw token, unique), `status` (default `PENDING`), `expiresAt`. Indexed on `tenantId`, `email`, `token`. |\n\nWrite and list paths resolve the per-tenant DataSource via `tenantDataSourceFor(tenantId)`, so rows are isolated by tenant. The two cache-backed point reads (`getById`, `getByToken`) query the system DataSource (`getDataSource()`).\n\n---\n\n## Invitation Status (`TenantInvitationStatusEnum`)\n\n| Status | Meaning |\n|---|---|\n| `PENDING` | Sent, awaiting response |\n| `ACCEPTED` | Invitee accepted and is now a member |\n| `DECLINED` | Invitee declined |\n| `REVOKED` | Admin cancelled the invitation (or it was superseded by a newer invite to the same email) |\n| `EXPIRED` | Past `expiresAt` (default TTL: 7 days) |\n\n`assertUsable` rejects any non-`PENDING`/expired invitation before accept/decline/preview.\n\n---\n\n## Service (`tenant_invitation.service.ts`)\n\n| Method | Responsibility |\n|---|---|\n| `send(tenantId, invitedByUserId, { email, memberRole })` | Normalizes the email, rejects if the user is already a member, revokes any stale `PENDING` invites to the same email, mints a raw token + sha256 hash, persists a `PENDING` row with `expiresAt`, clears any negative cache for the new token, and dispatches `invitation.sent`. Returns the safe invitation **and** the one-time `rawToken` (the route emails it). |\n| `preview(tenantId, rawToken)` | Public, unauthenticated lookup by token within the tenant. Asserts the invitation is usable and returns it plus `{ tenantId, name }` of the tenant. |\n| `accept(tenantId, userId, userEmail, rawToken)` | Validates token, requires `userEmail` to match the invited email, creates an `ACTIVE` `tenant_member` with `memberRole`, marks `ACCEPTED`, clears cache, dispatches `invitation.accepted`. |\n| `decline(tenantId, userEmail, rawToken)` | Validates token + email match, marks `DECLINED`, clears cache, dispatches `invitation.declined`. |\n| `revoke(invitationId, tenantId)` | Admin cancel; only `PENDING` invitations are revocable, marks `REVOKED`, clears cache, dispatches `invitation.revoked`. |\n| `autoAcceptForEmail(userId, email)` | Best-effort: finds all non-expired `PENDING` invites for the email (system DB), creates membership where missing, marks each `ACCEPTED`, clears cache. Errors per-invitation are swallowed. |\n| `getByTenantId({ tenantId, page, pageSize, status })` | Paginated, optionally status-filtered list of safe invitations for a tenant + total count. |\n| `getById(invitationId)` / `getByToken(rawToken)` | Cached point reads (see *Caching*). |\n| `hashToken` / `generateRawToken` | sha256 hashing and 32-byte random token helpers. |\n\n`SafeTenantInvitation` omits the `token` column, so the token hash is never returned through the service or API.\n\n---\n\n## API Routes\n\n| Method | Path | Auth | Description |\n|---|---|---|---|\n| GET | `/tenant/[tenantId]/api/invitations` | tenant ADMIN+ | List invitations (`?page=&pageSize=&status=`). |\n| POST | `/tenant/[tenantId]/api/invitations` | tenant ADMIN+ | Send an invitation; asserts the `MAX_MEMBERS` feature, then emails the raw token via `MailService.sendTenantInvitationEmail`. |\n| GET | `/tenant/[tenantId]/api/invitations/[invitationId]` | tenant ADMIN+ | Get a single invitation (404 if it belongs to another tenant). |\n| DELETE | `/tenant/[tenantId]/api/invitations/[invitationId]` | tenant ADMIN+ | Revoke an invitation. |\n| GET | `/tenant/[tenantId]/api/invitations/accept?token=` | public | Preview invitation + tenant info (no auth). |\n| POST | `/tenant/[tenantId]/api/invitations/accept` | logged-in user | Accept via `{ token }`. |\n| POST | `/tenant/[tenantId]/api/invitations/decline` | logged-in user | Decline via `{ token }`. |\n\nAll routes pass through the shared `Limiter.checkRateLimit`. The invitation cap is enforced via the `tenant_subscription` feature `FEATURE_KEYS.MAX_MEMBERS` (current active-member count is asserted before sending).\n\n---\n\n## Usage\n\n```typescript\nimport TenantInvitationService from '@/modules/tenant_invitation/tenant_invitation.service';\n\n// Send an invitation (returns the one-time rawToken to email)\nconst { invitation, rawToken } = await TenantInvitationService.send(tenantId, adminUserId, {\n  email: 'alice@example.com',\n  memberRole: 'USER',\n});\n\n// Accept via token (from email link) — userEmail must match the invited email\nawait TenantInvitationService.accept(tenantId, userId, userEmail, rawToken);\n\n// Revoke (only PENDING invitations)\nawait TenantInvitationService.revoke(invitationId, tenantId);\n\n// List\nconst { invitations, total } = await TenantInvitationService.getByTenantId({\n  tenantId, page: 1, pageSize: 20, status: 'PENDING',\n});\n```\n\n---\n\n## Auto-Accept on Registration\n\nOn registration, `AuthService` calls `TenantInvitationService.autoAcceptForEmail(userId, email)` to auto-accept every open, non-expired invitation matching that email. The SAML login flow (`auth_saml.service.ts`) makes the same best-effort call after provisioning the user.\n\n---\n\n## Caching\n\nInvitations are cached in Redis (TTL = `INVITATION_CACHE_TTL`, from `env.TENANT_CACHE_TTL`, default 5 min):\n\n| Key | Used by |\n|---|---|\n| `tenant_invitation:id:{invitationId}` | `getById` |\n| `tenant_invitation:token:{sha256(rawToken)}` | `getByToken` |\n\n`send` (when revoking stale PENDING invites for the same email), `accept`, `decline`, `revoke`, and `autoAcceptForEmail` all invalidate both keys for the affected invitation. Stale cache of an already-revoked or expired token would defeat the security guarantees, so any status transition clears the cache. `send` additionally clears any negative cache entry for the freshly-minted token.\n\n### Stampede + negative cache\n\n- **TTL jitter** (`jitter(...)`) on every cache write.\n- **In-process single-flight** (`singleFlight`) dedupes concurrent loaders.\n- **Negative cache** on `getByToken`: unknown tokens are cached as `__not_found__` for `NEGATIVE_CACHE_TTL` (= `min(60, INVITATION_CACHE_TTL)` seconds) — protects against token-guessing attacks on the public invite endpoint.\n\n---\n\n## Security\n\n- Tokens are random 32-byte hex (`generateRawToken`); only the sha256 hash is stored (`token` column) and looked up. The raw token is returned exactly once from `send` and never persisted or echoed back (`SafeTenantInvitation` omits `token`).\n- `accept`/`decline` require the authenticated user's email to match the invited email (`INVITATION_EMAIL_MISMATCH`), so a forwarded link cannot be claimed by a different account.\n- `send` rejects re-inviting an existing member and supersedes any prior `PENDING` invite to the same email (revoking it), preventing duplicate live tokens.\n- All point reads use the negative cache to blunt token-guessing on the public preview/accept endpoint.\n\n---\n\n## Settings\n\nSurfaced at `/tenant/[tenantId]/admin/invitations/settings` (gear button in the Invitations page header) via the shared `ModuleSettingsPage` scaffold. UI field metadata: `tenant_invitation.settings.fields.ts`. The `env:*` TTLs (`INVITATION_TTL_SECONDS`, `TENANT_CACHE_TTL`) are deployment config and are **not** exposed here.\n\n| Key | Type | Notes |\n|---|---|---|\n| `invitationNegativeCacheTtlSeconds` | number | Advertised negative-cache TTL (min 60s). **Declared in the settings UI but not wired** — the service uses the hardcoded `NEGATIVE_CACHE_TTL` constant and never reads this key (see *Tenant Variability*). |\n\nRead/written via `GET/PUT /tenant/[tenantId]/api/admin-settings`. See `docs/ROADMAP_SETTINGS.md`.\n\n---\n\n## Tenant Variability\n\n> What varies per tenant in this module — and what could. Audited 2026-06-03.\n\nManages per-tenant email-token membership invitations (send/accept/decline/revoke/list plus auto-accept on registration); invitation rows are tenant-scoped and webhooks fire per tenant, but all TTLs/limits are currently global env or hardcoded rather than per-tenant settings.\n\n### Tenant-scoped data\n\n| Entity | Table | Tenant-variable columns |\n|---|---|---|\n| `TenantInvitation` | `tenant_invitations` | email, invitedByUserId, memberRole, token, status, expiresAt |\n\nAll rows isolated by `tenantId` via the per-tenant DataSource.\n\n### Per-tenant behavior\n\n- `tenant_invitation.service.ts:send/accept/decline/revoke` — All write/list paths resolve the per-tenant DB via tenantDataSourceFor(tenantId), so each tenant has its own isolated set of invitation rows; queries are scoped by tenantId.\n- `tenant_invitation.service.ts:send/accept/decline/revoke` — Each lifecycle transition calls WebhookService.dispatchEvent(tenantId, 'invitation.*', ...), so webhook delivery (endpoints/secrets) is driven by the target tenant's webhook config.\n- `tenant_invitation.service.ts:accept/autoAcceptForEmail` — On accept, TenantMemberService.create runs against the invitation's tenant with invitation.memberRole, granting membership in that specific tenant.\n\n### Candidates (global / hardcoded today → could be per-tenant)\n\n| What | Where | Why per-tenant | Suggested key |\n|---|---|---|---|\n| invitationNegativeCacheTtlSeconds is declared as a tenant-editable settings field (and documented in README/settings page) but the service never reads it; the negative-cache TTL is hardcoded as NEGATIVE_CACHE_TTL = Math.min(60, INVITATION_CACHE_TTL). | `tenant_invitation.service.ts (NEGATIVE_CACHE_TTL const) / tenant_invitation.settings.fields.ts (TENANT_INVITATION_SETTINGS_FIELDS)` | The UI advertises a per-tenant control that is not wired to any SettingService.getValue read, so the setting has no effect; either wire it through per tenant or it is dead metadata. Low real-world tenant value (anti-token-guessing knob), but it is an explicit declared-not-wired gap. | `invitationNegativeCacheTtlSeconds` |\n| Invitation expiry window is a single global env value (7 days default) applied to every tenant. | `tenant_invitation.service.ts (INVITATION_TTL_SECONDS const, used in send())` | Tenants commonly want different invite link lifetimes (e.g. stricter security tenants want 24h); today it is deployment-wide env, not per tenant. | `invitationTtlSeconds` |\n| Positive cache TTL for invitations is global env (TENANT_CACHE_TTL, 5 min default) shared across all tenants. | `tenant_invitation.service.ts (INVITATION_CACHE_TTL const, used in getById/getByToken)` | Intentionally global shared-infra caching tuning; listing for completeness but it is reasonable to keep deployment-wide rather than per-tenant. | — |\n\n---\n\n## Dependencies\n\n`db`, `tenant`, `tenant_member` (membership on accept), `notification_mail` (invite email), `user` (existing-user lookup), `env`, plus `redis` (caching) and `webhook` (lifecycle event dispatch). Invitation caps are enforced through `tenant_subscription` at the route layer.\n"
     },
     {
@@ -1218,6 +1235,8 @@
         "services": [
           "dns_verification.service.ts",
           "ssl_provisioning.service.ts",
+          "tenant_domain.crud.service.ts",
+          "tenant_domain.dns.service.ts",
           "tenant_domain.service.ts"
         ],
         "dtos": [
@@ -1241,7 +1260,7 @@
       },
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false,
+      "hasNextLayer": true,
       "readme": "# Tenant Domain Module\n\nCustom domain / subdomain management for tenants: DNS-token verification (TXT or CNAME), primary-domain selection, per-tenant domain/subdomain caps, and SSL/TLS observability for certs minted by an external reverse proxy. Domain rows are Redis-cached and live in the per-tenant DB.\n\n---\n\n## Entities\n\n| Entity | Table | Description |\n|---|---|---|\n| `TenantDomain` | `tenant_domains` | One custom domain/subdomain per row, with verification + SSL/TLS observability columns |\n\nLives in the **tenant DB** (rows isolated by `tenantId` via the per-tenant DataSource). The `domain` column is globally unique; lookups by `tenantDomainId` / `domain` go through `getDataSource()` (system DB) for cross-tenant resolution, while writes use `tenantDataSourceFor(tenantId)`.\n\nColumns of note:\n\n- `domainStatus` — `PENDING` → `VERIFIED` → `ACTIVE` (or `INACTIVE` / `DNS_FAILED`)\n- `verificationToken`, `verifiedAt` — DNS-proof bookkeeping (`verificationToken` is stripped from API responses via `SafeTenantDomain`)\n- `sslStatus`, `sslIssuedAt`, `sslExpiresAt`, `sslIssuer`, `sslLastCheckedAt` — TLS observability written by the SSL cron\n\n---\n\n## Services\n\n| Service | Responsibility |\n|---|---|\n| `tenant_domain.service.ts` (`TenantDomainService`) | CRUD + lifecycle: `getByTenantId`, `getById`, `getByDomain`, `getPrimaryByTenantId`, `create`, `update`, `getVerificationInfo`, `initiateVerification`, `verifyDomain`, `delete`. Enforces per-tenant caps, single-primary invariant, and Redis cache invalidation. |\n| `dns_verification.service.ts` (`DNSVerificationService`) | Token generation, TXT/CNAME record name/value helpers, Redis storage of the pending token (24h TTL), DNS resolution + verification, and `recheckActiveDomains()` (cron health-check). |\n| `ssl_provisioning.service.ts` (`SSLProvisioningService`) | TLS observability. `isProvisioningAllowed(host)` is the Caddy `on_demand_tls.ask` gate; `probeCertificate(host)` opens a TLS handshake and parses the leaf cert; `recheckCertificates()` reconciles the `ssl*` columns (cron). The platform does **not** issue certs itself — a reverse proxy (Caddy/Traefik/cert-manager) does, via ACME/Let's Encrypt. |\n\n---\n\n## Domain Status\n\n| Status | Meaning |\n|---|---|\n| `PENDING` | Added, awaiting DNS verification |\n| `VERIFIED` | DNS check passed |\n| `ACTIVE` | Verified and serving traffic |\n| `INACTIVE` | Manually disabled |\n| `DNS_FAILED` | A periodic recheck found the TXT/CNAME no longer resolves; admin must re-verify |\n\n---\n\n## SSL Status\n\nLifecycle written by `SSLProvisioningService` (the cert itself is provisioned externally):\n\n`DISABLED` → `PENDING` → `PROVISIONING` → `ACTIVE` → `EXPIRING` → (`EXPIRED` / `FAILED`)\n\nA successful `isProvisioningAllowed` flips `DISABLED → PENDING`; `recheckCertificates` promotes to `ACTIVE`, downgrades to `EXPIRING` within 30 days of expiry, or `FAILED` on handshake error / past expiry.\n\n---\n\n## Verification Methods\n\n| Method | DNS record to add | Resolves to |\n|---|---|---|\n| `TXT` | `_verification.<domain>` → `TXT` | `verify=<token>` |\n| `CNAME` | `_verify-<token>.<domain>` → `CNAME` | `VERIFICATION_DOMAIN` (`env`, defaults to `verify.example.com`) |\n\nThe pending token is stored in Redis (`dns_verify:<tenantDomainId>`, 24h TTL) and deleted once verification succeeds.\n\n---\n\n## Usage\n\n```typescript\nimport TenantDomainService from '@/modules/tenant_domain/tenant_domain.service';\n\n// Add a domain (status starts at PENDING)\nconst domain = await TenantDomainService.create({\n  tenantId,\n  domain: 'app.acme.com',\n  isPrimary: false,\n});\n\n// Get the DNS record the user must add (defaults to TXT)\nconst info = await TenantDomainService.getVerificationInfo(domain.tenantDomainId);\n// info.recordName / info.recordValue — show these to the user\n\n// Re-check DNS and promote to VERIFIED\nawait TenantDomainService.verifyDomain(domain.tenantDomainId);\n\n// Make it the primary domain (un-sets the previous primary for this tenant)\nawait TenantDomainService.update(domain.tenantDomainId, { isPrimary: true });\n```\n\n---\n\n## API Routes\n\nTenant-scoped, **ADMIN+** (`requiredTenantRole: \"ADMIN\"`):\n\n| Method | Path | Description |\n|---|---|---|\n| GET | `/tenant/[tenantId]/api/domains` | List domains (paginated) |\n| POST | `/tenant/[tenantId]/api/domains` | Create a domain |\n| GET | `/tenant/[tenantId]/api/domains/[domainId]` | Get verification info for a domain |\n| DELETE | `/tenant/[tenantId]/api/domains/[domainId]` | Delete a domain (primary cannot be deleted) |\n| POST | `/tenant/[tenantId]/api/domains/[domainId]/verify` | Run DNS verification |\n\nDomain/subdomain limits are enforced in `TenantDomainService.create` from the per-tenant `maxDomains` / `maxSubdomains` settings (see *Settings*).\n\n### Internal / cron routes\n\n| Method | Path | Auth | Description |\n|---|---|---|---|\n| GET | `/internal/api/caddy-ask` | internal | Caddy `on_demand_tls.ask` gate → `isProvisioningAllowed` |\n| POST | `/tenant/[tenantId]/api/cron/dns-recheck` | Bearer `CRON_SECRET` | Run `recheckActiveDomains` |\n| POST | `/tenant/[tenantId]/api/cron/ssl-health` | Bearer `CRON_SECRET` | Run `recheckCertificates` |\n\n---\n\n## Jobs\n\n| Job | Queue | Default cadence | Runs |\n|---|---|---|---|\n| `tenant_domain.job.ts` | `tenant-domain-dns-recheck` | `0 */6 * * *` (every 6h) | `DNSVerificationService.recheckActiveDomains` — downgrades broken ACTIVE domains to `DNS_FAILED` |\n| `ssl_health.job.ts` | `tenant-domain-ssl-health` | `15 5 * * *` (daily 05:15) | `SSLProvisioningService.recheckCertificates` — reconciles `ssl*` columns |\n\nBoth run on a single shared BullMQ worker (`concurrency: 1`). Trigger via `scheduleDnsRecheckJob()` / `scheduleSslHealthJob()` at boot (self-hosted) or the `CRON_SECRET`-protected cron routes above (serverless).\n\n---\n\n## Settings\n\nSurfaced at `/tenant/[tenantId]/admin/domains/settings` (gear button in the Domains page header) via the shared `ModuleSettingsPage` scaffold. UI field metadata: `tenant_domain.settings.fields.ts`.\n\n| Key | Type | Default | Notes |\n|---|---|---|---|\n| `maxDomains` | number | `3` | Max custom (non-wildcard) domains. Read per-tenant via `SettingService.getByKey(tenantId, 'maxDomains')`; hardcoded fallback of 3 when unset. |\n| `maxSubdomains` | number | `1` | Max wildcard subdomains (ending in `TENANT_WILDCARD_DOMAIN`). Read per-tenant via `SettingService.getByKey(tenantId, 'maxSubdomains')`; hardcoded fallback of 1 when unset. |\n\nBoth are read in `TenantDomainService.create` before insert. Read/written via `GET/PUT /tenant/[tenantId]/api/admin-settings`. See `docs/ROADMAP_SETTINGS.md`.\n\n---\n\n## Security\n\n- API responses use `SafeTenantDomain`, which **omits `verificationToken`** — the pending DNS token is never returned via the listing/detail endpoints.\n- `isProvisioningAllowed` rejects IP literals, `localhost`/`*.localhost`, and any domain that is not `VERIFIED`/`ACTIVE`, keeping ACME (Let's Encrypt) rate-limits safe: a stranger pointing DNS at the platform cannot trigger unbounded cert issuance.\n- TLS probes use `rejectUnauthorized: true` — an untrusted/expired cert is reported as `FAILED`, not silently accepted.\n- Cron routes are gated by a Bearer token matching `env.CRON_SECRET`; the endpoint is disabled when the secret is unset.\n\n---\n\n## Tenant Variability\n\n> What varies per tenant in this module — and what could. Audited 2026-06-03.\n\nManages tenant custom domains/subdomains (DNS-token verification, SSL/TLS observability, primary-domain selection); strongly tenant-scoped — each tenant owns its domain rows in its own DB and configures its own domain/subdomain caps.\n\n### Per-tenant settings\n\n| Key | Type | Default | Scope | Controls | Read in |\n|---|---|---|---|---|---|\n| `maxDomains` | number | `3` | tenant | Maximum number of custom (non-wildcard) domains a tenant may register; enforced in create() before insert. Falls back to hardcoded 3 when unset. | `tenant_domain.service.ts` |\n| `maxSubdomains` | number | `1` | tenant | Maximum number of wildcard subdomains (domains ending in TENANT_WILDCARD_DOMAIN) a tenant may register; enforced in create(). Falls back to hardcoded 1 when unset. | `tenant_domain.service.ts` |\n\n*Scope: `tenant` = real tenants override · `root` = platform-only default (not per-tenant).*\n\n### Tenant-scoped data\n\n| Entity | Table | Tenant-variable columns |\n|---|---|---|\n| `TenantDomain` | `tenant_domains` | domain, isPrimary, domainStatus, verificationToken, verifiedAt, sslStatus, sslIssuedAt, sslExpiresAt, sslIssuer, sslLastCheckedAt |\n\nAll rows isolated by `tenantId` via the per-tenant DataSource.\n\n### Per-tenant behavior\n\n- `tenant_domain.service.ts:create` — Domain vs subdomain caps are enforced per tenant: counts existing rows for data.tenantId and rejects if >= the tenant's own maxDomains/maxSubdomains setting (or the 3/1 fallback). Setting a domain isPrimary also unsets the prior primary within that tenant only.\n- `ssl_provisioning.service.ts:isProvisioningAllowed` — On-demand TLS issuance is authorized per hostname only when that domain belongs to a tenant and is VERIFIED/ACTIVE; flips that tenant's domain sslStatus DISABLED->PENDING. Effectively gates cert minting per tenant domain state.\n- `dns_verification.service.ts:recheckActiveDomains` — Cron re-resolves each ACTIVE domain and, on failure, downgrades that specific tenant's row to DNS_FAILED and writes a per-tenant audit log (tenantId=d.tenantId) via tenantDataSourceFor(d.tenantId).\n\n### Candidates (global / hardcoded today → could be per-tenant)\n\n| What | Where | Why per-tenant | Suggested key |\n|---|---|---|---|\n| Hardcoded fallback caps of 3 custom domains and 1 subdomain when the tenant has no maxDomains/maxSubdomains setting row | `tenant_domain.service.ts:create` | The fallbacks (parseInt fallback to 3 and 1) are global constants applied to every tenant lacking an explicit override. The per-tenant keys already exist, but the DEFAULT itself is hardcoded rather than read from a platform/root default setting, so plans can't change the baseline without code edits. | `defaultMaxDomains` |\n| CNAME verification target domain and TXT/CNAME record prefixes (CNAME_TARGET_DOMAIN from env.VERIFICATION_DOMAIN, _verification/_verify prefixes) | `dns_verification.service.ts:CNAME_TARGET_DOMAIN` | Global via env var and module constants — same verification endpoint for all tenants. Intentionally global shared verification infrastructure; would only need to be per-tenant for white-label DNS instructions, which is not a current requirement. | — |\n| SSL recheck windows and DNS/SSL cron cadences (EXPIRING_WINDOW_DAYS=30, RECHECK_CONCURRENCY=5, ssl '15 5 * * *', dns '0 */6 * * *') | `ssl_provisioning.service.ts:EXPIRING_WINDOW_DAYS` | Hardcoded platform-wide constants run by a single shared worker (concurrency 1). Intentionally global shared infra/worker pool — not meaningfully a per-tenant concern. | — |\n\n---\n\n## Dependencies\n\n`db`, `tenant`, `env` (declared in `module.json`). Also uses `redis` (caching + token store), `setting` (per-tenant caps), `audit_log` (DNS-failure logging), and `logger`.\n"
     },
     {
@@ -1271,6 +1290,10 @@
           "tenant_subscription.card.service.ts",
           "tenant_subscription.checkout.service.ts",
           "tenant_subscription.feature.service.ts",
+          "tenant_subscription.grace.service.ts",
+          "tenant_subscription.lifecycle.service.ts",
+          "tenant_subscription.plan.crud.service.ts",
+          "tenant_subscription.plan.feature.service.ts",
           "tenant_subscription.plan.service.ts",
           "tenant_subscription.platform.service.ts",
           "tenant_subscription.service.ts"
@@ -1326,7 +1349,9 @@
         ],
         "dtos": [],
         "enums": [],
-        "messageKeys": [],
+        "messageKeys": [
+          "tenant_usage.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
         "jobs": [
@@ -1364,13 +1389,18 @@
       },
       "exports": {
         "services": [
+          "payment.checkout.service.ts",
+          "payment.crud.service.ts",
           "payment.proration.service.ts",
           "payment.service.ts",
+          "payment.transaction.service.ts",
           "payment.webhook.handlers.service.ts",
           "payment.webhook.notifications.service.ts",
+          "payment.webhook.payment.service.ts",
           "payment.webhook.paypal.service.ts",
           "payment.webhook.service.ts",
-          "payment.webhook.stripe.service.ts"
+          "payment.webhook.stripe.service.ts",
+          "payment.webhook.subscription.service.ts"
         ],
         "dtos": [
           "payment.dto.ts"
@@ -1459,7 +1489,9 @@
       },
       "exports": {
         "services": [
-          "coupon.service.ts"
+          "coupon.crud.service.ts",
+          "coupon.service.ts",
+          "coupon.validation.service.ts"
         ],
         "dtos": [
           "coupon.dto.ts"
@@ -1509,6 +1541,8 @@
       },
       "exports": {
         "services": [
+          "payment_sell.checkout.service.ts",
+          "payment_sell.crud.service.ts",
           "payment_sell.service.ts",
           "payment_sell.webhook.service.ts"
         ],
@@ -1599,6 +1633,8 @@
       },
       "exports": {
         "services": [
+          "payment_subscription.lifecycle.service.ts",
+          "payment_subscription.plan.service.ts",
           "payment_subscription.proration.service.ts",
           "payment_subscription.service.ts"
         ],
@@ -1650,6 +1686,9 @@
       },
       "exports": {
         "services": [
+          "payment_cart.calc.service.ts",
+          "payment_cart.crud.service.ts",
+          "payment_cart.item.service.ts",
           "payment_cart.service.ts"
         ],
         "dtos": [
@@ -1698,6 +1737,8 @@
       },
       "exports": {
         "services": [
+          "payment_shipping.calc.service.ts",
+          "payment_shipping.crud.service.ts",
           "payment_shipping.service.ts"
         ],
         "dtos": [
@@ -1750,8 +1791,12 @@
       },
       "exports": {
         "services": [
+          "invoice.adapter.service.ts",
+          "invoice.crud.service.ts",
+          "invoice.pdf.renderer.service.ts",
           "invoice.pdf.service.ts",
-          "invoice.service.ts"
+          "invoice.service.ts",
+          "invoice.transition.service.ts"
         ],
         "dtos": [],
         "enums": [
@@ -1836,12 +1881,18 @@
       "exports": {
         "services": [
           "notification_mail.account-templates.service.ts",
+          "notification_mail.provider.service.ts",
+          "notification_mail.queue.service.ts",
           "notification_mail.service.ts",
+          "notification_mail.templates.auth.service.ts",
+          "notification_mail.templates.invoice.service.ts",
           "notification_mail.templates.service.ts"
         ],
         "dtos": [],
         "enums": [],
-        "messageKeys": [],
+        "messageKeys": [
+          "notification_mail.messages.ts"
+        ],
         "settingKeys": [
           "notification_mail.setting.keys.ts"
         ],
@@ -1916,6 +1967,8 @@
       },
       "exports": {
         "services": [
+          "notification_sms.provider.service.ts",
+          "notification_sms.queue.service.ts",
           "notification_sms.service.ts"
         ],
         "dtos": [],
@@ -1996,6 +2049,8 @@
       },
       "exports": {
         "services": [
+          "payment_tax.calc.service.ts",
+          "payment_tax.crud.service.ts",
           "payment_tax.service.ts"
         ],
         "dtos": [
@@ -2094,6 +2149,8 @@
       },
       "exports": {
         "services": [
+          "payment_return_rma.crud.service.ts",
+          "payment_return_rma.lifecycle.service.ts",
           "payment_return_rma.service.ts"
         ],
         "dtos": [
@@ -2144,6 +2201,8 @@
       },
       "exports": {
         "services": [
+          "payment_loyalty_points.account.service.ts",
+          "payment_loyalty_points.ledger.service.ts",
           "payment_loyalty_points.service.ts"
         ],
         "dtos": [
@@ -2210,9 +2269,11 @@
           "e_signature.etsi_tsl.service.ts",
           "e_signature.identity.service.ts",
           "e_signature.ocsp.service.ts",
+          "e_signature.provider.service.ts",
           "e_signature.service.ts",
           "e_signature.settings.service.ts",
-          "e_signature.trust_list.service.ts"
+          "e_signature.trust_list.service.ts",
+          "e_signature.workflow.service.ts"
         ],
         "dtos": [
           "e_signature.dto.ts"
@@ -2371,7 +2432,7 @@
       },
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false,
+      "hasNextLayer": true,
       "readme": "# Api Key Module\n\nManages tenant-scoped API keys for programmatic authentication. Generates, hashes, and verifies keys with scopes and expiration tracking; creation is gated behind the `feature_api_keys` plan feature and isolated per tenant.\n\n---\n\n## Entities\n\n| Entity | Table | Description |\n|---|---|---|\n| `ApiKey` | `api_keys` | One API key per row: `name`, `description`, SHA-256 `keyHash` (unique index), `scopes`, `isActive`, `lastUsedAt`, `expiresAt`, `createdByUserId`. Indexed by `tenantId`. |\n\nLives in the **tenant DB**. All rows are isolated by `tenantId` via the per-tenant DataSource.\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `api_key.service.ts` | Core logic: create, getById, list, update, delete, verify, key generation/hashing |\n| `api_key.types.ts` | `ApiKey` / `SafeApiKey` zod schemas + types (`SafeApiKey` omits `keyHash`) |\n| `api_key.dto.ts` | `CreateApiKeyDTO`, `UpdateApiKeyDTO`, `ListApiKeysDTO` |\n| `api_key.enums.ts` | `ApiKeyScopeEnum` / `API_KEY_SCOPES` |\n| `api_key.messages.ts` | Error/success message strings |\n| `api_key.settings.fields.ts` | UI metadata for the settings page |\n| `api_key.seed.ts` | Demo-data seed (read/write, admin, SCIM, revoked keys) |\n| `entities/api_key.entity.ts` | TypeORM entity |\n\n---\n\n## Key Concepts\n\n- The raw key is shown **once** at creation — only its SHA-256 hash is stored (`keyHash`).\n- Raw key format: `sk_live_{first 8 chars of tenantId}_{24 random bytes hex}` (`generateRawKey`).\n- `SafeApiKey` omits `keyHash` and is the only shape returned to clients.\n- Scopes control what the key can access; `verify` can optionally enforce a `requiredScope`.\n\n## Scopes\n\n`ApiKeyScopeEnum` / `API_KEY_SCOPES` (lowercase values):\n\n| Scope | Access |\n|---|---|\n| `read` | Read-only operations |\n| `write` | Create/update operations |\n| `admin` | Full tenant admin access |\n| `scim:read` | SCIM 2.0 (RFC 7644) read — IdP provisioning bearer tokens |\n| `scim:write` | SCIM 2.0 (RFC 7644) write — IdP provisioning bearer tokens |\n\n---\n\n## Services / Responsibilities\n\n`ApiKeyService` (default export, all static):\n\n| Method | Responsibility |\n|---|---|\n| `create(tenantId, createdByUserId, input)` | Mints a key. Non-root tenants must have `feature_api_keys` in their plan (`TenantSubscriptionService.assertFeatureAccess`); root tenant bypasses. Returns `{ key: SafeApiKey, rawKey }`, clears the negative cache for the new hash, and dispatches the `api_key.created` webhook. |\n| `list({ tenantId, page, pageSize })` | Paginated list of the tenant's keys (`SafeApiKey[]` + total), newest first. |\n| `getById(tenantId, apiKeyId)` | Single key scoped to the tenant; Redis-cached under a tenant-scoped key. |\n| `update(tenantId, apiKeyId, input)` | Updates `name`/`description`/`isActive` on a tenant-owned key; clears cache. |\n| `delete(tenantId, apiKeyId)` | Removes a tenant-owned key, clears cache, dispatches the `api_key.deleted` webhook. |\n| `verify(rawKey, requiredScope?)` | Hot-path validation across all tenants by `keyHash`: rejects unknown/inactive/expired keys and insufficient scope, fire-and-forget updates `lastUsedAt`. |\n| `verifyFromAuthHeader(request, tenantId?, requiredScope?)` | Parses `Authorization: Bearer <key>`, calls `verify`, optionally pins to a tenant. Used by SCIM 2.0 and other machine-to-machine integrations. |\n| `generateRawKey` / `hashKey` | Raw-key generation and SHA-256 hashing helpers. |\n\n---\n\n## Usage\n\n```typescript\nimport ApiKeyService from '@/modules/api_key/api_key.service';\n\n// Create a key (raw secret is returned once — show it, never store it)\nconst { key, rawKey } = await ApiKeyService.create(tenantId, createdByUserId, {\n  name: 'CI Bot',\n  scopes: ['read', 'write'],\n  expiresAt: '2027-01-01T00:00:00.000Z',\n});\n// `rawKey` is the secret; `key` is the SafeApiKey (no hash)\n\n// Verify an incoming raw key (optionally enforce a scope)\nconst verified = await ApiKeyService.verify(rawKey, 'write');\n// throws if invalid, inactive, expired, or missing the scope\n\n// Verify from an Authorization: Bearer header (SCIM / M2M)\nconst fromHeader = await ApiKeyService.verifyFromAuthHeader(request, tenantId, 'scim:read');\n\n// Revoke (delete) a key\nawait ApiKeyService.delete(tenantId, apiKeyId);\n```\n\n---\n\n## API Routes\n\nManagement routes are tenant-scoped and require **ADMIN+** tenant role:\n\n| Method | Path | Description |\n|---|---|---|\n| GET | `/tenant/[tenantId]/api/api-keys` | List keys (paginated) |\n| POST | `/tenant/[tenantId]/api/api-keys` | Create a key (returns raw secret once) |\n| PUT | `/tenant/[tenantId]/api/api-keys/[apiKeyId]` | Update name/description/active status |\n| DELETE | `/tenant/[tenantId]/api/api-keys/[apiKeyId]` | Permanently revoke a key |\n\nPlus a public verification endpoint (the key itself is the auth — no session):\n\n| Method | Path | Description |\n|---|---|---|\n| POST | `/tenant/[tenantId]/api/api-keys/verify` | Validate a key from the `x-api-key` header (optional `scope` in body); 401 if the key's `tenantId` does not match the path |\n\nAdmin UI: `/tenant/[tenantId]/admin/api-keys` (+ `.../api-keys/settings`).\n\n---\n\n## Caching\n\nAPI key lookups are cached in Redis (TTL = `API_KEY_CACHE_TTL`, sourced from `env.TENANT_CACHE_TTL`, default 5 min):\n\n| Key | Used by |\n|---|---|\n| `api_key:hash:{sha256(rawKey)}` | `verify(rawKey)` — hot path on every authenticated API request |\n| `api_key:tenant:{tenantId}:{apiKeyId}` | `getById(tenantId, apiKeyId)` |\n| `api_key:id:{apiKeyId}` | invalidation key cleared on `update` / `delete` |\n\n`update` and `delete` invalidate by `apiKeyId`, `keyHash`, and `tenantId+apiKeyId`. `create` clears the negative cache for the freshly-minted hash. `lastUsedAt` writes are intentionally fire-and-forget and do **not** invalidate — the value isn't security-critical and refreshing it would defeat the cache.\n\n### Stampede + negative cache\n\n- **TTL jitter (±10%)** spreads expirations so a burst of keys minted in the same second don't refill simultaneously.\n- **In-process single-flight** (`modules/redis/redis.cache.ts`) dedupes concurrent loaders for the same key — if 100 requests miss on the same hash at the same time, only one DB query runs.\n- **Negative cache** on `verify`: an unknown hash is cached as `__not_found__` for up to `NEGATIVE_CACHE_TTL` (`Math.min(60, API_KEY_CACHE_TTL)`). Credential-stuffing attempts against random hashes hit Redis, not the DB. `create` clears the negative key for the new hash, so freshly-minted keys are immediately usable.\n\n---\n\n## Security\n\n- Raw keys are never stored — only their SHA-256 hash (`keyHash`, unique index) is persisted.\n- `SafeApiKey` (the only client-facing shape) omits `keyHash`; the raw key is returned exactly once, from `create`.\n- Creation is billing-gated for non-root tenants via `assertFeatureAccess(tenantId, FEATURE_API_KEYS)` (defense-in-depth on top of UI gating).\n- `verify` rejects inactive (`KEY_INACTIVE`), expired (`KEY_EXPIRED`), unknown (`INVALID_KEY`), and under-scoped (`INSUFFICIENT_SCOPE`) keys.\n- The negative cache blunts credential-stuffing by serving repeated unknown-hash guesses from Redis instead of the DB.\n\n---\n\n## Settings\n\nSurfaced at `/tenant/[tenantId]/admin/api-keys/settings` (gear button in the API Keys page header) via the shared `ModuleSettingsPage` scaffold. UI field metadata: `api_key.settings.fields.ts`. The `env:TENANT_CACHE_TTL` deployment var is **not** exposed here.\n\n| Key | Type | Notes |\n|---|---|---|\n| `apiKeyNegativeCacheTtlSeconds` | number | Negative-cache TTL for missing API keys (min 60s). |\n\n> **Not wired:** `apiKeyNegativeCacheTtlSeconds` is currently only a UI field — `api_key.service.ts` never reads it. The negative-cache window is hardcoded as `NEGATIVE_CACHE_TTL = Math.min(60, API_KEY_CACHE_TTL)` (`api_key.service.ts:17`), so changing this setting has no runtime effect yet.\n\nRead/written via `GET/PUT /tenant/[tenantId]/api/admin-settings`. See `docs/ROADMAP_SETTINGS.md`.\n\n---\n\n## Tenant Variability\n\n> What varies per tenant in this module — and what could. Audited 2026-06-03.\n\nThe api_key module issues, stores, and verifies per-tenant API keys (hashed, scoped, expirable) in each tenant's own database, gating creation on a per-tenant subscription feature, but exposes no working per-tenant settings (its one declared setting field is never read).\n\n### Tenant-scoped data\n\n| Entity | Table | Tenant-variable columns |\n|---|---|---|\n| `ApiKey` | `api_keys` | name, description, keyHash, scopes, isActive, expiresAt, createdByUserId, lastUsedAt |\n\nAll rows isolated by `tenantId` via the per-tenant DataSource.\n\n### Per-tenant behavior\n\n- `api_key.service.ts:create` — API key creation is feature-gated per tenant: TenantSubscriptionService.assertFeatureAccess(tenantId, FEATURE_KEYS.FEATURE_API_KEYS) blocks tenants whose plan lacks the feature_api_keys entitlement; the root tenant (isRootTenant) is short-circuited and bypasses the gate.\n- `api_key.service.ts:list/getById/create/update/delete` — All CRUD goes through tenantDataSourceFor(tenantId) and filters where:{tenantId}, so each tenant has its own isolated set of api_keys rows; cache keys are namespaced by tenantId (api_key:tenant:{tenantId}:{apiKeyId}).\n- `api_key.service.ts:generateRawKey` — The raw key string embeds a per-tenant prefix derived from the tenantId (first 8 hex chars of the dashless tenantId) into the sk_live_{prefix}_{secret} format.\n- `api_key.service.ts:verifyFromAuthHeader` — When a tenantId is supplied, verification rejects keys whose key.tenantId does not match, pinning a verified key to a specific tenant (used by SCIM / M2M callers). Note: the underlying verify() lookup uses the global getDataSource() and matches by keyHash across all tenants, so verification itself is not tenant-scoped at the DB level.\n\n### Candidates (global / hardcoded today → could be per-tenant)\n\n| What | Where | Why per-tenant | Suggested key |\n|---|---|---|---|\n| apiKeyNegativeCacheTtlSeconds is declared as a UI settings field but is never read by the service; NEGATIVE_CACHE_TTL is hardcoded as Math.min(60, API_KEY_CACHE_TTL) from the global env value, so the negative-cache window is identical for every tenant and the declared setting has no effect. | `api_key.settings.fields.ts (API_KEY_SETTINGS_FIELDS apiKeyNegativeCacheTtlSeconds) / api_key.service.ts (NEGATIVE_CACHE_TTL, line 17)` | The field exists specifically to let a tenant tune how long missing-key lookups are negatively cached (credential-stuffing defense), but no SettingService.getValue call wires it in. Reading it per request tenant would make the declared setting functional and let tenants tune their own attack-surface window. | `apiKeyNegativeCacheTtlSeconds` |\n| API_KEY_CACHE_TTL (positive cache TTL for valid keys) is sourced only from the global env.TENANT_CACHE_TTL (default 300s) and applied uniformly to all tenants. | `api_key.service.ts (API_KEY_CACHE_TTL, line 16)` | Positive lookup-cache freshness vs. Redis load is currently a single global deployment value. It could plausibly be per-tenant so high-traffic tenants tune it independently, but it is reasonable to keep global for operational consistency and to bound Redis memory — list as intentional-global rather than a strong candidate. | `apiKeyCacheTtlSeconds` |\n| Default/allowed API key scopes are a fixed global enum (read, write, admin, scim:read, scim:write) with no per-tenant restriction; any tenant can mint admin- or scim-scoped keys regardless of plan tier. | `api_key.enums.ts (API_KEY_SCOPES / ApiKeyScopeEnum) consumed in api_key.service.ts:create` | Plan tiers or security policies might want to restrict which scopes a given tenant can grant (e.g. only paid plans may issue scim:* tokens). Today scopes are validated only against the global enum, not against any per-tenant policy, so this is a plausible per-tenant gating point. | `apiKeyAllowedScopes` |\n| There is no per-tenant cap on the number of active API keys or a default key expiry/rotation policy; create() places no limit and expiresAt defaults to null (never expires). | `api_key.service.ts:create (no count check; expiresAt: input.expiresAt ? ... : null)` | Many SaaS products bound key count per plan and enforce a maximum/forced expiry for security. Both are currently unbounded and identical for all tenants, making them natural per-tenant policy settings. | `apiKeyMaxActiveKeys` |\n\n---\n\n## Dependencies\n\nRequires: `db`, `env`, `common`. At runtime also uses `redis` (cache/single-flight), `tenant_subscription` (feature gating), `tenant` (root-tenant check), and `webhook` (event dispatch).\n"
     },
     {
@@ -2447,6 +2508,8 @@
         "services": [
           "store.bundle.service.ts",
           "store.category.service.ts",
+          "store.product.crud.service.ts",
+          "store.product.media.service.ts",
           "store.product.service.ts",
           "store.variant.service.ts"
         ],
@@ -2528,7 +2591,7 @@
       },
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false,
+      "hasNextLayer": true,
       "readme": "# Webhook Module\n\nOutgoing webhook system. Tenant admins configure HTTP endpoints and subscribe to events. When an event fires, the system signs and delivers a JSON payload to all matching endpoints.\n\n---\n\n## Entities\n\n| Entity | Table | Description |\n|---|---|---|\n| `Webhook` | `webhooks` | Endpoint configuration per tenant |\n| `WebhookDelivery` | `webhook_deliveries` | Delivery attempt log |\n\nBoth live in the **tenant DB**.\n\n---\n\n## Events\n\nA single `WebhookEventEnum` covers both tenant-local and platform-wide\nevents. Every event is delivered only to webhooks owned by the appropriate\ntenant — platform-wide events fire on root-tenant webhooks\n(`tenantId = ROOT_TENANT_ID`); tenant-local events fire on regular tenant\nwebhooks.\n\n| Event | Scope | Fired when |\n|---|---|---|\n| `tenant.updated` | tenant | Tenant name/settings change |\n| `member.created/updated/deleted` | tenant | Tenant membership changes |\n| `invitation.sent/accepted/declined/revoked` | tenant | Invitation lifecycle |\n| `subscription.created/updated/cancelled` | tenant | Subscription lifecycle |\n| `subscription.paused/resumed` | tenant | Subscription pause/resume |\n| `payment.completed/failed/refunded` | tenant | Payment lifecycle |\n| `invoice.created/issued/paid` | tenant | Invoice lifecycle |\n| `coupon.created/updated/redeemed` | tenant | Coupon lifecycle |\n| `product.created/updated/deleted` | tenant | Store product changes |\n| `fulfillment.created/shipped/delivered/cancelled` | tenant | Order fulfillment lifecycle |\n| `document.signed` / `identity.verified` | tenant | E-signature / identity verification |\n| `api_key.created/deleted` | tenant | API key management |\n| `user.created/updated/deleted/suspended` | platform | Global user lifecycle |\n| `tenant.created/deleted/suspended` | platform | Tenant lifecycle |\n| `plan.created/updated/deleted` | platform | Subscription plan changes |\n| `subscription.assigned` | platform | Plan assignment from admin panel |\n\n`webhook.catalog.ts` is the single source of truth for event metadata (scope,\ngroup, label, description). It is typed `Record<WebhookEvent, …>`, so the enum\nand catalog cannot drift — adding an event to one without the other fails the\ntype-check. Both the admin event picker and `GET …/webhooks/events` consume it.\n\n---\n\n## API Routes (tenant-scoped, ADMIN+)\n\n| Method | Path | Description |\n|---|---|---|\n| GET | `/tenant/[id]/api/webhooks/events` | List subscribable events for this tenant's scope |\n| GET | `/tenant/[id]/api/webhooks/metrics` | Delivery metrics (`?webhookId=&days=`) |\n| GET | `/tenant/[id]/api/webhooks` | List endpoints |\n| POST | `/tenant/[id]/api/webhooks` | Create endpoint |\n| GET | `/tenant/[id]/api/webhooks/[wid]` | Get endpoint |\n| PATCH | `/tenant/[id]/api/webhooks/[wid]` | Update endpoint |\n| DELETE | `/tenant/[id]/api/webhooks/[wid]` | Delete endpoint |\n| POST | `/tenant/[id]/api/webhooks/[wid]/test` | Send test delivery (sync, `event:'test'`) |\n| POST | `/tenant/[id]/api/webhooks/[wid]/trigger` | Trigger a real catalog event with a sample payload (async) |\n| GET | `/tenant/[id]/api/webhooks/[wid]/deliveries` | List deliveries |\n| POST | `/tenant/[id]/api/webhooks/[wid]/deliveries/[did]/redeliver` | Re-queue failed delivery |\n\n### Platform webhooks (root-tenant admins only)\n\nMirror the routes above under `/tenant/[ROOT_TENANT_ID]/api/webhooks/...`.\nThe handlers require root-tenant admin auth and bind every operation to\n`tenantId = ROOT_TENANT_ID`. There is no separate service or table —\n`WebhookService` and the `Webhook`/`WebhookDelivery` tables back both\nsurfaces.\n\n---\n\n## Service layout\n\n`WebhookService` is the public coordinator (event dispatch, manual (re)delivery,\ntest delivery, metrics passthrough); the heavy machinery is split into focused\ncollaborators:\n\n| File | Responsibility |\n|---|---|\n| `webhook.service.ts` (`WebhookService`) | Dispatch (`dispatchEvent`/`dispatchPlatformEvent`), redeliver/replay, `sendTest`/`triggerEvent`, metrics delegators, the shared `QUEUE` handle |\n| `webhook.crud.service.ts` (`WebhookCrudService`) | Endpoint CRUD + `rotateSecret` |\n| `webhook.queue.ts` | BullMQ producer (`webhookQueue`) + worker (`webhookWorker`) + `enqueueDelivery` |\n| `webhook.delivery.service.ts` (`WebhookDeliveryService`) | Signed HTTP delivery, retry/dead-letter, circuit breaker |\n| `webhook.metrics.service.ts` (`WebhookMetricsService`) | `listDeliveries` + aggregate `getMetrics` |\n| `webhook.config.ts` | Delivery tuning constants/types + per-tenant `resolveDeliveryConfig` |\n| `webhook.filters.ts` | `passesEventFilter` (per-event payload matching) |\n| `webhook.crypto.ts` | `signPayload` / `generateSecret` |\n\n---\n\n## Security\n\nEvery request carries HMAC signature headers (secret is per-endpoint, never returned via the API):\n\n| Header | Signed value | Notes |\n|---|---|---|\n| `X-Webhook-Signature` | `HMAC-SHA256(secret, body)` | **v1**, legacy — kept during a deprecation window |\n| `X-Webhook-Signature-V2` | `HMAC-SHA256(secret, \"<timestamp>.<body>\")` | **v2**, replay-resistant (preferred) |\n| `X-Webhook-Timestamp` | unix seconds | bind the signature to a time; reject stale deliveries |\n| `X-Webhook-Signature-Prev` / `-V2-Prev` | as above with the previous secret | only during a secret-rotation window |\n\n**SSRF protection:** webhook URLs are user-controlled, so deliveries are guarded\n(`webhook.ssrf.ts`). The destination host is checked at create/update time (sync,\nno-DNS pre-check) **and** at delivery time (authoritative DNS resolution, rebinding-\nresistant). Private / loopback / link-local / metadata ranges (127/8, 10/8,\n172.16/12, 192.168/16, 169.254/16, `::1`, `fc00::/7`, `fe80::/10`, …) are blocked,\nredirects are not followed (`redirect: 'manual'`), and an explicit per-webhook\n`ipAllowlist` (IPs/CIDRs) is the override for intentionally-internal targets.\n\n### Verification example (Node.js, v2)\n\n```typescript\nimport crypto from 'crypto';\n\nfunction verifyWebhook(body: string, timestamp: string, signatureV2: string, secret: string): boolean {\n  const expected = 'sha256=' + crypto.createHmac('sha256', secret).update(`${timestamp}.${body}`).digest('hex');\n  // Reject deliveries older than 5 minutes to blunt replay.\n  if (Math.abs(Date.now() / 1000 - Number(timestamp)) > 300) return false;\n  return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(signatureV2));\n}\n```\n\n---\n\n## Delivery\n\n- Queue: BullMQ (`webhookDeliveryQueue`), concurrency 10\n- Timeout, max attempts, and backoff are **per-tenant settings** (see *Settings*); the values below are the defaults:\n  - Timeout: 15 seconds per attempt (`webhookRequestTimeoutMs`)\n  - Max attempts: 3 (`webhookMaxAttempts`)\n  - Backoff: exponential — 60s → 5min → 15min (`webhookRetryDelaysMs`)\n- Delivery record updated after each attempt with status, HTTP code, response body (truncated to 4 KB), and duration\n\n---\n\n## Endpoint configuration\n\nEach endpoint supports optional per-webhook configuration (DB columns added in\n`003_webhook_endpoint_capabilities.sql`):\n\n| Field | Purpose |\n|---|---|\n| `headers` | Extra HTTP headers merged into every request. **Reserved** names (`Content-Type`, `Content-Length`, `Host`, `User-Agent`, `X-Webhook-*`) are rejected at the DTO layer **and** stripped again in `webhook.delivery.service.ts` (defense in depth). Header values are validated single-line (no CR/LF). |\n| `eventFilters` | `{ \"<event>\": { \"<dot.path>\": value } }`. Before enqueue, the event's payload is matched against the filter for that event — non-matching deliveries are skipped. Events with no filter always deliver. |\n| `tags` | Free-form labels for organising endpoints in the admin UI. |\n\nAll three are editable from the create/edit modal on the Webhooks admin page and\nnever expose the signing secret (`SafeWebhook`).\n\n---\n\n## Reliability\n\n- **Per-endpoint rate limit** (`rateLimitPerMinute`, or the `webhookDefaultRateLimitPerMinute`\n  setting as fallback): a sliding-window limiter (`checkWebhookRateLimit`, reusing the\n  tenant-plan zset algorithm). When an endpoint is over its limit the delivery is **deferred**\n  ~60s via a BullMQ delay rather than dropped.\n- **Circuit breaker**: `consecutiveFailures` increments on each failed delivery and resets on\n  success. When it reaches `webhookCircuitBreakerThreshold` (default 10) the endpoint is\n  **auto-disabled** (`isActive=false`, `autoDisabledAt` set) and stops receiving events. The\n  admin UI shows an *Auto-disabled* badge; toggling the endpoint back on clears the breaker\n  (resets the counter and `autoDisabledAt`).\n\n---\n\n## Observability & manual trigger\n\n- **Metrics** (`WebhookService.getMetrics`, `GET …/webhooks/metrics`): counts by status,\n  success rate over terminal deliveries, average + p95 latency (`PERCENTILE_CONT`), and a\n  per-event breakdown over a time window. Surfaced as stat cards on the Webhooks admin page.\n- **Manual trigger** (`WebhookService.triggerEvent`, `POST …/webhooks/[wid]/trigger`): enqueue a\n  real `<event>` delivery with an admin-supplied sample payload to verify an integration\n  end-to-end — distinct from `/test` (which sends `event:'test'` synchronously). Available from\n  the row actions menu (\"Trigger event…\").\n\n---\n\n## Dispatching from other modules\n\n```typescript\nimport WebhookService from '@/modules/webhook/webhook.service';\n\n// Tenant-scoped event — call after a member is created:\nawait WebhookService.dispatchEvent(tenantId, 'member.created', {\n  tenantMemberId: member.tenantMemberId,\n  userId: member.userId,\n  role: member.memberRole,\n});\n\n// Platform-wide event (user.*, tenant.*, plan.*, subscription.assigned) —\n// routes to root-tenant webhooks without threading ROOT_TENANT_ID by hand:\nawait WebhookService.dispatchPlatformEvent('user.created', {\n  userId: user.userId,\n  email: user.email,\n});\n```\n\n`dispatchEvent` / `dispatchPlatformEvent` are fire-and-forget safe — they catch internal errors and log them without throwing, so a webhook failure never breaks the producing operation. Dispatch **after** the DB commit so a rolled-back operation cannot emit a phantom event.\n\nThese are already wired into the user, tenant, tenant_member, tenant_invitation, api_key, payment (inbound provider webhooks), tenant_subscription (plans + assignment), and payment_subscription (subscription lifecycle) services.\n\n---\n\n## Settings\n\nSurfaced at `/tenant/[tenantId]/admin/webhooks/settings` (gear button in the Webhooks page header) via the shared `ModuleSettingsPage` scaffold. UI field metadata: `webhook.settings.fields.ts`. The global worker-pool knob (`webhookWorkerConcurrency`) is intentionally **not** exposed here — it is a shared resource, not a per-tenant setting.\n\n| Key | Type | Default | Notes |\n|---|---|---|---|\n| `webhookMaxAttempts` | number | `3` | Retries before a delivery is dead-lettered (clamped 1-10). |\n| `webhookRetryDelaysMs` | text (CSV) | `60000,300000,900000` | Backoff delays between retries (ms). |\n| `webhookRequestTimeoutMs` | number | `15000` | Per-delivery request timeout (ms, clamped 1000-120000). |\n| `webhookCircuitBreakerThreshold` | number | `10` | Consecutive failures before an endpoint auto-disables (clamped 1-100000). |\n| `webhookDefaultRateLimitPerMinute` | number | — | Fallback per-endpoint rate limit (deliveries/min) when a webhook has none; blank = unlimited. |\n\n`webhook.config.ts` reads these per tenant at dispatch/delivery time via `SettingService.getByKeys` (Redis-cached), with the defaults above as fallback for any missing or unparseable value (`resolveDeliveryConfig`). Read/written via `GET/PUT /tenant/[tenantId]/api/admin-settings`. See `docs/ROADMAP_SETTINGS.md`.\n\n## Tenant Variability\n\n> What varies per tenant in this module — and what could. Audited 2026-06-03.\n\nA tenant-scoped outbound webhook system (subscriptions, signed/retried async deliveries, circuit breaker, metrics) where each real tenant owns its endpoints and deliveries and overrides delivery tuning via settings, with the root tenant holding platform-wide event webhooks.\n\n### Per-tenant settings\n\n| Key | Type | Default | Scope | Controls | Read in |\n|---|---|---|---|---|---|\n| `webhookMaxAttempts` | number | `3` | tenant | How many delivery attempts before a delivery is dead-lettered (clamped 1-10); written into each delivery's maxAttempts and the BullMQ job attempts. | `webhook.service.ts` |\n| `webhookRetryDelaysMs` | text | `60000,300000,900000` | tenant | Comma-separated exponential backoff delays (ms) between retries; first value seeds BullMQ backoff, subsequent values pick nextRetryAt per attempt. | `webhook.service.ts` |\n| `webhookRequestTimeoutMs` | number | `15000` | tenant | Per-request HTTP timeout for a delivery (clamped 1000-120000ms) via AbortSignal.timeout. | `webhook.service.ts` |\n| `webhookCircuitBreakerThreshold` | number | `10` | tenant | Consecutive failed deliveries before an endpoint is auto-disabled (clamped 1-100000); a success resets the counter. | `webhook.service.ts` |\n| `webhookDefaultRateLimitPerMinute` | number | — | tenant | Fallback per-endpoint delivery rate limit (deliveries/min) applied when a webhook row has no rateLimitPerMinute; blank/<=0 means unlimited. | `webhook.service.ts` |\n\n*Scope: `tenant` = real tenants override · `root` = platform-only default (not per-tenant).*\n\n### Tenant-scoped data\n\n| Entity | Table | Tenant-variable columns |\n|---|---|---|\n| `Webhook` | `webhooks` | url, secret, previousSecret, previousSecretExpiresAt, events, headers, eventFilters, tags, isActive, consecutiveFailures, autoDisabledAt, ipAllowlist, rateLimitPerMinute, name, description |\n| `WebhookDelivery` | `webhook_deliveries` | event, payload, status, attempts, maxAttempts, requestBody, responseStatus, responseBody, errorMessage, duration, nextRetryAt |\n\nAll rows isolated by `tenantId` via the per-tenant DataSource.\n\n### Per-tenant behavior\n\n- `webhook.service.ts:dispatchEvent / hasWebhookFeature` — Webhook dispatch is feature-gated per tenant: tenants whose active plan lacks the feature_webhooks subscription feature get no enqueue and no delivery; root tenant is short-circuited as always-allowed.\n- `webhook.config.ts:resolveDeliveryConfig` — Max attempts, retry backoff delays, request timeout, circuit-breaker threshold, and default rate limit are all resolved per tenantId from SettingService (with module defaults as fallback), so delivery reliability/timing differs per tenant.\n- `webhook.queue.ts:enqueueDelivery` — Per-endpoint sliding-window rate limit: effective limit is webhook.rateLimitPerMinute or the tenant's webhookDefaultRateLimitPerMinute; when exceeded the delivery is deferred ~60s rather than enqueued immediately.\n- `webhook.filters.ts:passesEventFilter` — Per-endpoint eventFilters (dot-path equality conditions) decide whether a matching event is actually delivered, so two tenants/endpoints subscribed to the same event can receive different subsets.\n- `webhook.delivery.service.ts (circuit breaker)` — Endpoints are auto-disabled once consecutiveFailures crosses the tenant-configured circuit-breaker threshold; the threshold and thus disable behavior varies per tenant.\n- `webhook.delivery.service.ts / webhook.ssrf.ts` — Per-endpoint custom headers are merged (reserved names stripped) and the per-endpoint ipAllowlist overrides the default SSRF private/reserved-range block, so destination policy differs per webhook.\n\n### Candidates (global / hardcoded today → could be per-tenant)\n\n| What | Where | Why per-tenant | Suggested key |\n|---|---|---|---|\n| BullMQ delivery worker concurrency is hardcoded to 10 in the shared WORKER definition. | `webhook.queue.ts (webhookWorker concurrency: 10)` | Intentionally global shared infrastructure (a single process-wide worker pool serves all tenants), so it is correctly NOT per-tenant; noted only for completeness. A per-tenant fairness/throughput cap would be a separate queue-level concern, not this knob. | — |\n| Secret rotation overlap window is a hardcoded 48h default parameter (overlapMs) rather than a tenant setting. | `webhook.service.ts:rotateSecret (overlapMs default 48*60*60*1000)` | How long the previous signing secret stays valid during rotation is a security/operability tradeoff that some tenants may want longer or shorter; today it is a fixed default with no per-tenant override surfaced in settings. | `webhookSecretRotationOverlapMs` |\n| Rate-limit deferral delay when an endpoint is over its limit is hardcoded to 60000ms. | `webhook.queue.ts:enqueueDelivery (deferDelayMs = 60_000)` | The deferral window is tied conceptually to the per-minute rate limit but is a fixed constant; tenants tuning rate limits cannot adjust how long over-limit deliveries are deferred. | `webhookRateLimitDeferMs` |\n| Response body capture cap is hardcoded to 4096 bytes. | `webhook.delivery.service.ts (responseBody slice(0, 4096))` | How much of the subscriber response is persisted for debugging is a per-tenant storage/observability tradeoff; currently global with no override. | `webhookResponseBodyMaxBytes` |\n\n### Platform/root-only settings (not per-tenant)\n\nConfigured once at the root tenant; identical for all tenants:\n\n- `webhookWorkerConcurrency` — Global BullMQ worker-pool concurrency (currently hardcoded to 10 in webhook.queue.ts (webhookWorker)). Documented as a shared-infra knob deliberately excluded from per-tenant settings; not actually read from the setting store today.\n"
     },
     {
@@ -2651,11 +2714,15 @@
       },
       "exports": {
         "services": [
-          "ai.service.ts"
+          "ai.provider.service.ts",
+          "ai.service.ts",
+          "ai.usage.service.ts"
         ],
         "dtos": [],
         "enums": [],
-        "messageKeys": [],
+        "messageKeys": [
+          "ai.messages.ts"
+        ],
         "settingKeys": [
           "ai.setting.keys.ts"
         ],
@@ -2697,6 +2764,11 @@
       },
       "exports": {
         "services": [
+          "dynamic_collection.crud.service.ts",
+          "dynamic_collection.item.service.ts",
+          "dynamic_collection.service.ts",
+          "dynamic_page.block.service.ts",
+          "dynamic_page.crud.service.ts",
           "dynamic_page.service.ts"
         ],
         "dtos": [
@@ -2712,6 +2784,8 @@
         "providers": [],
         "jobs": [],
         "entities": [
+          "dynamic_collection.entity.ts",
+          "dynamic_collection_item.entity.ts",
           "dynamic_page.entity.ts",
           "dynamic_page_block.entity.ts",
           "dynamic_page_translation.entity.ts"
@@ -3592,6 +3666,19 @@
       "dynamic": true
     },
     {
+      "filePath": "app/tenant/[tenantId]/api/dynamic-pages/block-action/[blockType]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/dynamic-pages/block-action/[blockType]",
+      "methods": [
+        "GET",
+        "POST",
+        "PATCH",
+        "DELETE"
+      ],
+      "module": "dynamic_page",
+      "dynamic": true
+    },
+    {
       "filePath": "app/tenant/[tenantId]/api/dynamic-pages/block-definitions/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/dynamic-pages/block-definitions",
@@ -3606,6 +3693,52 @@
       "filePath": "app/tenant/[tenantId]/api/dynamic-pages/block-definitions/[blockId]/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/dynamic-pages/block-definitions/[blockId]",
+      "methods": [
+        "GET",
+        "PATCH",
+        "DELETE"
+      ],
+      "module": "dynamic_page",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/dynamic-pages/collections/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/dynamic-pages/collections",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "dynamic_page",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/dynamic-pages/collections/[collectionId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/dynamic-pages/collections/[collectionId]",
+      "methods": [
+        "GET",
+        "PATCH",
+        "DELETE"
+      ],
+      "module": "dynamic_page",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/dynamic-pages/collections/[collectionId]/items/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/dynamic-pages/collections/[collectionId]/items",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "dynamic_page",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/dynamic-pages/collections/[collectionId]/items/[itemId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/dynamic-pages/collections/[collectionId]/items/[itemId]",
       "methods": [
         "GET",
         "PATCH",
@@ -4801,6 +4934,43 @@
       ]
     },
     {
+      "name": "DynamicCollection",
+      "filePath": "modules/dynamic_page/entities/dynamic_collection.entity.ts",
+      "module": "dynamic_page",
+      "schema": "system",
+      "tableName": "dynamic_collections",
+      "columns": [
+        "collectionId",
+        "tenantId",
+        "slug",
+        "label",
+        "description",
+        "fields",
+        "isSystem",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "DynamicCollectionItem",
+      "filePath": "modules/dynamic_page/entities/dynamic_collection_item.entity.ts",
+      "module": "dynamic_page",
+      "schema": "system",
+      "tableName": "dynamic_collection_items",
+      "columns": [
+        "itemId",
+        "collectionId",
+        "tenantId",
+        "data",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": [
+        "collection"
+      ]
+    },
+    {
       "name": "DynamicPage",
       "filePath": "modules/dynamic_page/entities/dynamic_page.entity.ts",
       "module": "dynamic_page",
@@ -4839,6 +5009,8 @@
         "defaultProps",
         "template",
         "script",
+        "serverHandler",
+        "allowedCollections",
         "isSystem",
         "createdAt",
         "updatedAt"
@@ -6355,6 +6527,18 @@
       "baseName": "AIChatBox"
     },
     {
+      "id": "ai/ui/AIUsageTab",
+      "module": "ai",
+      "filePath": "modules_next/ai/ui/AIUsageTab.tsx",
+      "kind": "ui",
+      "exports": [
+        "AIUsageTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "AIUsageTab"
+    },
+    {
       "id": "api_doc/ui/ApiDocsPage",
       "module": "api_doc",
       "filePath": "modules_next/api_doc/ui/ApiDocsPage.tsx",
@@ -6536,6 +6720,31 @@
       "isClient": false,
       "isServer": false,
       "baseName": "types"
+    },
+    {
+      "id": "api_key/ui/api-key-columns",
+      "module": "api_key",
+      "filePath": "modules_next/api_key/ui/api-key-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "SafeApiKey",
+        "buildApiKeyColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "api-key-columns"
+    },
+    {
+      "id": "api_key/ui/ApiKeyCreateModal",
+      "module": "api_key",
+      "filePath": "modules_next/api_key/ui/ApiKeyCreateModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "ApiKeyCreateModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ApiKeyCreateModal"
     },
     {
       "id": "audit_log/audit_log.service.next",
@@ -7490,6 +7699,37 @@
       "baseName": "isBrowser"
     },
     {
+      "id": "coupon/ui/coupon-edit.utils",
+      "module": "coupon",
+      "filePath": "modules_next/coupon/ui/coupon-edit.utils.ts",
+      "kind": "ui",
+      "exports": [
+        "Coupon",
+        "EditForm",
+        "statusVariant",
+        "statusOptions",
+        "toDatetimeLocal",
+        "buildScope",
+        "extractMessage"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "coupon-edit.utils"
+    },
+    {
+      "id": "coupon/ui/coupon-list-columns",
+      "module": "coupon",
+      "filePath": "modules_next/coupon/ui/coupon-list-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "CouponRow",
+        "buildCouponColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "coupon-list-columns"
+    },
+    {
       "id": "coupon/ui/CouponApplyForm",
       "module": "coupon",
       "filePath": "modules_next/coupon/ui/CouponApplyForm.tsx",
@@ -7500,6 +7740,18 @@
       "isClient": true,
       "isServer": false,
       "baseName": "CouponApplyForm"
+    },
+    {
+      "id": "coupon/ui/CouponArchiveModal",
+      "module": "coupon",
+      "filePath": "modules_next/coupon/ui/CouponArchiveModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "CouponArchiveModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CouponArchiveModal"
     },
     {
       "id": "coupon/ui/CouponBadge",
@@ -7514,6 +7766,18 @@
       "baseName": "CouponBadge"
     },
     {
+      "id": "coupon/ui/CouponCreateModal",
+      "module": "coupon",
+      "filePath": "modules_next/coupon/ui/CouponCreateModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "CouponCreateModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CouponCreateModal"
+    },
+    {
       "id": "coupon/ui/CouponRedemptionsList",
       "module": "coupon",
       "filePath": "modules_next/coupon/ui/CouponRedemptionsList.tsx",
@@ -7524,6 +7788,19 @@
       "isClient": true,
       "isServer": false,
       "baseName": "CouponRedemptionsList"
+    },
+    {
+      "id": "coupon/ui/CouponScopePanel",
+      "module": "coupon",
+      "filePath": "modules_next/coupon/ui/CouponScopePanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "ScopeFormState",
+        "CouponScopePanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CouponScopePanel"
     },
     {
       "id": "dynamic_page/dynamic/Blocks/CustomBlock",
@@ -7611,6 +7888,22 @@
       "baseName": "NavBarMarketing"
     },
     {
+      "id": "dynamic_page/dynamic/Blocks/NavBarMarketing.types",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Blocks/NavBarMarketing.types.ts",
+      "kind": "ui",
+      "exports": [
+        "NavLink",
+        "MegaItem",
+        "MegaSection",
+        "ICON_MAP_TYPE",
+        "ICON_MAP"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "NavBarMarketing.types"
+    },
+    {
       "id": "dynamic_page/dynamic/Blocks/NavBarSimple",
       "module": "dynamic_page",
       "filePath": "modules_next/dynamic_page/dynamic/Blocks/NavBarSimple.tsx",
@@ -7621,6 +7914,30 @@
       "isClient": true,
       "isServer": false,
       "baseName": "NavBarSimple"
+    },
+    {
+      "id": "dynamic_page/dynamic/Blocks/partials/NavBarMegaSection",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Blocks/partials/NavBarMegaSection.tsx",
+      "kind": "ui",
+      "exports": [
+        "NavBarMegaSection"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "NavBarMegaSection"
+    },
+    {
+      "id": "dynamic_page/dynamic/Blocks/partials/NavBarMobilePanel",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Blocks/partials/NavBarMobilePanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "NavBarMobilePanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "NavBarMobilePanel"
     },
     {
       "id": "dynamic_page/dynamic/Blocks/PopupModalBlock/animations",
@@ -7787,6 +8104,30 @@
       "baseName": "EditorTopBar"
     },
     {
+      "id": "dynamic_page/dynamic/Editor/hooks/useEditorDraft",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Editor/hooks/useEditorDraft.ts",
+      "kind": "hook",
+      "exports": [
+        "useEditorDraft"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "useEditorDraft"
+    },
+    {
+      "id": "dynamic_page/dynamic/Editor/hooks/useEditorKeyboard",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Editor/hooks/useEditorKeyboard.ts",
+      "kind": "hook",
+      "exports": [
+        "useEditorKeyboard"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "useEditorKeyboard"
+    },
+    {
       "id": "dynamic_page/dynamic/Editor/index",
       "module": "dynamic_page",
       "filePath": "modules_next/dynamic_page/dynamic/Editor/index.tsx",
@@ -7805,6 +8146,109 @@
       "isClient": true,
       "isServer": false,
       "baseName": "LeftSidebar"
+    },
+    {
+      "id": "dynamic_page/dynamic/Editor/partials/BlockPalette",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Editor/partials/BlockPalette.tsx",
+      "kind": "ui",
+      "exports": [
+        "AnyBlockDef",
+        "BlockPreview",
+        "BlockPalette",
+        "RECENTLY_USED_KEY",
+        "MAX_RECENT"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "BlockPalette"
+    },
+    {
+      "id": "dynamic_page/dynamic/Editor/partials/CanvasBlock",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Editor/partials/CanvasBlock.tsx",
+      "kind": "ui",
+      "exports": [
+        "SortableBlockProps",
+        "SortableBlock"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CanvasBlock"
+    },
+    {
+      "id": "dynamic_page/dynamic/Editor/partials/CanvasOverlays",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Editor/partials/CanvasOverlays.tsx",
+      "kind": "ui",
+      "exports": [
+        "QuickAddPopover",
+        "BlockContextMenu",
+        "InsertGap",
+        "SidebarDropTarget"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CanvasOverlays"
+    },
+    {
+      "id": "dynamic_page/dynamic/Editor/partials/LayersPanel",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Editor/partials/LayersPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "LayersPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "LayersPanel"
+    },
+    {
+      "id": "dynamic_page/dynamic/Editor/partials/PropFieldComplex",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Editor/partials/PropFieldComplex.tsx",
+      "kind": "ui",
+      "exports": [
+        "ImageField",
+        "NumberField",
+        "JsonField",
+        "RepeaterFieldWrapper"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PropFieldComplex"
+    },
+    {
+      "id": "dynamic_page/dynamic/Editor/partials/PropFieldRenderer",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Editor/partials/PropFieldRenderer.tsx",
+      "kind": "ui",
+      "exports": [
+        "PropFieldRenderer"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PropFieldRenderer"
+    },
+    {
+      "id": "dynamic_page/dynamic/Editor/partials/PropFieldSimple",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Editor/partials/PropFieldSimple.tsx",
+      "kind": "ui",
+      "exports": [
+        "TextField",
+        "UrlField",
+        "DatetimeField",
+        "TextareaField",
+        "RichTextField",
+        "ColorField",
+        "BooleanField",
+        "SelectField",
+        "MultiSelectField"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PropFieldSimple"
     },
     {
       "id": "dynamic_page/dynamic/Editor/PropsPanel",
@@ -7857,19 +8301,91 @@
       "baseName": "ShortcutsModal"
     },
     {
+      "id": "dynamic_page/dynamic/Editor/stores/editor.types",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Editor/stores/editor.types.ts",
+      "kind": "ui",
+      "exports": [
+        "PreviewMode",
+        "TranslationEntry",
+        "Router",
+        "SeoData",
+        "DefaultSeoData",
+        "EditorStore",
+        "initialState",
+        "draftKey",
+        "apiBase",
+        "apiFetch",
+        "selectSelectedBlock"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "editor.types"
+    },
+    {
       "id": "dynamic_page/dynamic/Editor/stores/editorStore",
       "module": "dynamic_page",
       "filePath": "modules_next/dynamic_page/dynamic/Editor/stores/editorStore.ts",
       "kind": "ui",
       "exports": [
-        "PreviewMode",
-        "selectSelectedBlock",
-        "SeoData",
-        "useEditorStore"
+        "useEditorStore",
+        "selectSelectedBlock"
       ],
       "isClient": false,
       "isServer": false,
       "baseName": "editorStore"
+    },
+    {
+      "id": "dynamic_page/dynamic/Editor/stores/slices/blockSlice",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Editor/stores/slices/blockSlice.ts",
+      "kind": "ui",
+      "exports": [
+        "BlockSlice",
+        "createBlockSlice"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "blockSlice"
+    },
+    {
+      "id": "dynamic_page/dynamic/Editor/stores/slices/persistSlice",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Editor/stores/slices/persistSlice.ts",
+      "kind": "ui",
+      "exports": [
+        "PersistSlice",
+        "createPersistSlice"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "persistSlice"
+    },
+    {
+      "id": "dynamic_page/dynamic/Editor/stores/slices/translationSlice",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Editor/stores/slices/translationSlice.ts",
+      "kind": "ui",
+      "exports": [
+        "TranslationSlice",
+        "createTranslationSlice"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "translationSlice"
+    },
+    {
+      "id": "dynamic_page/dynamic/Editor/stores/slices/uiSlice",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Editor/stores/slices/uiSlice.ts",
+      "kind": "ui",
+      "exports": [
+        "UiSlice",
+        "createUiSlice"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "uiSlice"
     },
     {
       "id": "dynamic_page/dynamic/Editor/TranslationModal",
@@ -7913,6 +8429,18 @@
       "isClient": true,
       "isServer": false,
       "baseName": "BaseBlock"
+    },
+    {
+      "id": "dynamic_page/dynamic/partials/BlockActionSandbox",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/partials/BlockActionSandbox.ts",
+      "kind": "ui",
+      "exports": [
+        "runBlockHandler"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "BlockActionSandbox"
     },
     {
       "id": "dynamic_page/dynamic/partials/BlockBackground",
@@ -8061,6 +8589,45 @@
       "baseName": "SiteChrome"
     },
     {
+      "id": "dynamic_page/ui/dynamic-page-columns",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/ui/dynamic-page-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "DynamicPage",
+        "STATUS_COLORS",
+        "DynamicPageColumnHandlers",
+        "buildDynamicPageColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "dynamic-page-columns"
+    },
+    {
+      "id": "dynamic_page/ui/DynamicPageCreateModal",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/ui/DynamicPageCreateModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "DynamicPageCreateModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "DynamicPageCreateModal"
+    },
+    {
+      "id": "e_signature/ui/SigningCertificatesBindModal",
+      "module": "e_signature",
+      "filePath": "modules_next/e_signature/ui/SigningCertificatesBindModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "SigningCertificatesBindModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SigningCertificatesBindModal"
+    },
+    {
       "id": "e_signature/ui/SigningCertificatesPanel",
       "module": "e_signature",
       "filePath": "modules_next/e_signature/ui/SigningCertificatesPanel.tsx",
@@ -8083,6 +8650,31 @@
       "isClient": true,
       "isServer": false,
       "baseName": "TenantESignatureSettingsPanel"
+    },
+    {
+      "id": "invoice/ui/EarsivSmsSignModal",
+      "module": "invoice",
+      "filePath": "modules_next/invoice/ui/EarsivSmsSignModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "EarsivSmsSignModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "EarsivSmsSignModal"
+    },
+    {
+      "id": "invoice/ui/InvoiceLineItemsTable",
+      "module": "invoice",
+      "filePath": "modules_next/invoice/ui/InvoiceLineItemsTable.tsx",
+      "kind": "ui",
+      "exports": [
+        "InvoiceLineItemsTable",
+        "Row"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "InvoiceLineItemsTable"
     },
     {
       "id": "invoice/ui/InvoiceTemplateSettings",
@@ -8229,6 +8821,30 @@
       "baseName": "CreditCardVisual"
     },
     {
+      "id": "payment/ui/PaymentProviderSelector",
+      "module": "payment",
+      "filePath": "modules_next/payment/ui/PaymentProviderSelector.tsx",
+      "kind": "ui",
+      "exports": [
+        "PaymentProviderSelector"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PaymentProviderSelector"
+    },
+    {
+      "id": "payment/ui/PaymentRefundModal",
+      "module": "payment",
+      "filePath": "modules_next/payment/ui/PaymentRefundModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "PaymentRefundModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PaymentRefundModal"
+    },
+    {
       "id": "payment/ui/PaymentStatusBadge",
       "module": "payment",
       "filePath": "modules_next/payment/ui/PaymentStatusBadge.tsx",
@@ -8346,6 +8962,7 @@
       "filePath": "modules_next/setting/ui/PlatformSettingsTabs.tsx",
       "kind": "ui",
       "exports": [
+        "PlatformSettingsTabs",
         "PlatformAuthTab",
         "PlatformEmailTab",
         "PlatformSmsTab",
@@ -8354,8 +8971,7 @@
         "PlatformAiTab",
         "PlatformSecurityTab",
         "PlatformNotificationsTab",
-        "PlatformScimTab",
-        "PlatformSettingsTabs"
+        "PlatformScimTab"
       ],
       "isClient": true,
       "isServer": false,
@@ -8389,6 +9005,130 @@
       "baseName": "SettingsPanelHost"
     },
     {
+      "id": "setting/ui/tabs/platform-tab.shared",
+      "module": "setting",
+      "filePath": "modules_next/setting/ui/tabs/platform-tab.shared.tsx",
+      "kind": "ui",
+      "exports": [
+        "SR",
+        "TabProps",
+        "b",
+        "bStr",
+        "SaveRow"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "platform-tab.shared"
+    },
+    {
+      "id": "setting/ui/tabs/PlatformAiTab",
+      "module": "setting",
+      "filePath": "modules_next/setting/ui/tabs/PlatformAiTab.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlatformAiTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PlatformAiTab"
+    },
+    {
+      "id": "setting/ui/tabs/PlatformAuthTab",
+      "module": "setting",
+      "filePath": "modules_next/setting/ui/tabs/PlatformAuthTab.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlatformAuthTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PlatformAuthTab"
+    },
+    {
+      "id": "setting/ui/tabs/PlatformEmailTab",
+      "module": "setting",
+      "filePath": "modules_next/setting/ui/tabs/PlatformEmailTab.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlatformEmailTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PlatformEmailTab"
+    },
+    {
+      "id": "setting/ui/tabs/PlatformNotificationsTab",
+      "module": "setting",
+      "filePath": "modules_next/setting/ui/tabs/PlatformNotificationsTab.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlatformNotificationsTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PlatformNotificationsTab"
+    },
+    {
+      "id": "setting/ui/tabs/PlatformPaymentTab",
+      "module": "setting",
+      "filePath": "modules_next/setting/ui/tabs/PlatformPaymentTab.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlatformPaymentTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PlatformPaymentTab"
+    },
+    {
+      "id": "setting/ui/tabs/PlatformScimTab",
+      "module": "setting",
+      "filePath": "modules_next/setting/ui/tabs/PlatformScimTab.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlatformScimTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PlatformScimTab"
+    },
+    {
+      "id": "setting/ui/tabs/PlatformSecurityTab",
+      "module": "setting",
+      "filePath": "modules_next/setting/ui/tabs/PlatformSecurityTab.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlatformSecurityTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PlatformSecurityTab"
+    },
+    {
+      "id": "setting/ui/tabs/PlatformSmsTab",
+      "module": "setting",
+      "filePath": "modules_next/setting/ui/tabs/PlatformSmsTab.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlatformSmsTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PlatformSmsTab"
+    },
+    {
+      "id": "setting/ui/tabs/PlatformStorageTab",
+      "module": "setting",
+      "filePath": "modules_next/setting/ui/tabs/PlatformStorageTab.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlatformStorageTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PlatformStorageTab"
+    },
+    {
       "id": "setting/ui/TenantSettingsPanels",
       "module": "setting",
       "filePath": "modules_next/setting/ui/TenantSettingsPanels.tsx",
@@ -8400,6 +9140,69 @@
       "isClient": true,
       "isServer": false,
       "baseName": "TenantSettingsPanels"
+    },
+    {
+      "id": "store/ui/BundleItemsPanel",
+      "module": "store",
+      "filePath": "modules_next/store/ui/BundleItemsPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "BundleItemsPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "BundleItemsPanel"
+    },
+    {
+      "id": "store/ui/CategorySpecAddModal",
+      "module": "store",
+      "filePath": "modules_next/store/ui/CategorySpecAddModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "CategorySpecAddModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CategorySpecAddModal"
+    },
+    {
+      "id": "store/ui/product-list-columns",
+      "module": "store",
+      "filePath": "modules_next/store/ui/product-list-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "ProductRow",
+        "ProductColumnHandlers",
+        "formatProductPrice",
+        "buildProductColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "product-list-columns"
+    },
+    {
+      "id": "store/ui/ProductCreateModal",
+      "module": "store",
+      "filePath": "modules_next/store/ui/ProductCreateModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "ProductCreateModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ProductCreateModal"
+    },
+    {
+      "id": "store/ui/ProductImagesPanel",
+      "module": "store",
+      "filePath": "modules_next/store/ui/ProductImagesPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "ProductImagesPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ProductImagesPanel"
     },
     {
       "id": "store/ui/ProductSpecValuesPanel",
@@ -8428,6 +9231,79 @@
       "isClient": true,
       "isServer": false,
       "baseName": "ProductStatusBadge"
+    },
+    {
+      "id": "store/ui/ProductVariantsPanel",
+      "module": "store",
+      "filePath": "modules_next/store/ui/ProductVariantsPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "ProductVariantsPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ProductVariantsPanel"
+    },
+    {
+      "id": "tenant_domain/ui/domain-list-columns",
+      "module": "tenant_domain",
+      "filePath": "modules_next/tenant_domain/ui/domain-list-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "DomainRow",
+        "STATUS_BADGE",
+        "STATUS_LABEL",
+        "SSL_BADGE",
+        "SSL_LABEL",
+        "DomainColumnHandlers",
+        "buildDomainColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "domain-list-columns"
+    },
+    {
+      "id": "tenant_invitation/ui/invitation-columns",
+      "module": "tenant_invitation",
+      "filePath": "modules_next/tenant_invitation/ui/invitation-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "InvitationRow",
+        "STATUS_BADGE",
+        "ROLE_BADGE",
+        "InvitationColumnHandlers",
+        "buildInvitationColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "invitation-columns"
+    },
+    {
+      "id": "tenant_invitation/ui/InvitationCreateModal",
+      "module": "tenant_invitation",
+      "filePath": "modules_next/tenant_invitation/ui/InvitationCreateModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "InvitationCreateModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "InvitationCreateModal"
+    },
+    {
+      "id": "tenant_member/ui/member-list-columns",
+      "module": "tenant_member",
+      "filePath": "modules_next/tenant_member/ui/member-list-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "MemberRow",
+        "ROLE_BADGE",
+        "MemberColumnHandlers",
+        "buildMemberColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "member-list-columns"
     },
     {
       "id": "tenant_session/tenant_session.service.next",
@@ -8477,6 +9353,18 @@
       "baseName": "tenant_subscription.grace-period"
     },
     {
+      "id": "tenant_subscription/ui/CurrentSubscriptionCard",
+      "module": "tenant_subscription",
+      "filePath": "modules_next/tenant_subscription/ui/CurrentSubscriptionCard.tsx",
+      "kind": "ui",
+      "exports": [
+        "CurrentSubscriptionCard"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CurrentSubscriptionCard"
+    },
+    {
       "id": "tenant_subscription/ui/FeatureGate",
       "module": "tenant_subscription",
       "filePath": "modules_next/tenant_subscription/ui/FeatureGate.tsx",
@@ -8501,6 +9389,43 @@
       "baseName": "GracePeriodBanner"
     },
     {
+      "id": "tenant_subscription/ui/plan-list-columns",
+      "module": "tenant_subscription",
+      "filePath": "modules_next/tenant_subscription/ui/plan-list-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlanRow",
+        "buildPlanColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "plan-list-columns"
+    },
+    {
+      "id": "tenant_subscription/ui/PlanCreateModal",
+      "module": "tenant_subscription",
+      "filePath": "modules_next/tenant_subscription/ui/PlanCreateModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlanCreateModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PlanCreateModal"
+    },
+    {
+      "id": "tenant_subscription/ui/PlanFeaturesPanel",
+      "module": "tenant_subscription",
+      "filePath": "modules_next/tenant_subscription/ui/PlanFeaturesPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlanFeaturesPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PlanFeaturesPanel"
+    },
+    {
       "id": "tenant_subscription/ui/PlanUsageMeter",
       "module": "tenant_subscription",
       "filePath": "modules_next/tenant_subscription/ui/PlanUsageMeter.tsx",
@@ -8511,6 +9436,24 @@
       "isClient": true,
       "isServer": false,
       "baseName": "PlanUsageMeter"
+    },
+    {
+      "id": "tenant_subscription/ui/subscription.helpers",
+      "module": "tenant_subscription",
+      "filePath": "modules_next/tenant_subscription/ui/subscription.helpers.ts",
+      "kind": "ui",
+      "exports": [
+        "Provider",
+        "STATUS_VARIANT",
+        "INTERVAL_LABEL",
+        "intervalLabel",
+        "intervalShortLabel",
+        "formatDate",
+        "formatPrice"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "subscription.helpers"
     },
     {
       "id": "tenant_subscription/ui/SubscriptionPlanCard",
@@ -8564,6 +9507,18 @@
       "baseName": "CreateTenantForm"
     },
     {
+      "id": "tenant/ui/TenantMembersTable",
+      "module": "tenant",
+      "filePath": "modules_next/tenant/ui/TenantMembersTable.tsx",
+      "kind": "ui",
+      "exports": [
+        "TenantMembersTable"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "TenantMembersTable"
+    },
+    {
       "id": "tenant/ui/TenantSelectorCard",
       "module": "tenant",
       "filePath": "modules_next/tenant/ui/TenantSelectorCard.tsx",
@@ -8577,6 +9532,18 @@
       "baseName": "TenantSelectorCard"
     },
     {
+      "id": "tenant/ui/TenantSubscriptionCard",
+      "module": "tenant",
+      "filePath": "modules_next/tenant/ui/TenantSubscriptionCard.tsx",
+      "kind": "ui",
+      "exports": [
+        "TenantSubscriptionCard"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "TenantSubscriptionCard"
+    },
+    {
       "id": "user_security/ui/PasskeysPanel",
       "module": "user_security",
       "filePath": "modules_next/user_security/ui/PasskeysPanel.tsx",
@@ -8587,6 +9554,18 @@
       "isClient": true,
       "isServer": false,
       "baseName": "PasskeysPanel"
+    },
+    {
+      "id": "user_session/ui/ActiveSessionsPanel",
+      "module": "user_session",
+      "filePath": "modules_next/user_session/ui/ActiveSessionsPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "ActiveSessionsPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ActiveSessionsPanel"
     },
     {
       "id": "user_session/user_session.service.next",
@@ -8610,6 +9589,31 @@
       "isClient": true,
       "isServer": false,
       "baseName": "SocialAccountsPanel"
+    },
+    {
+      "id": "user/ui/user-list-columns",
+      "module": "user",
+      "filePath": "modules_next/user/ui/user-list-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "UserRow",
+        "buildUserColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "user-list-columns"
+    },
+    {
+      "id": "user/ui/UserEditModal",
+      "module": "user",
+      "filePath": "modules_next/user/ui/UserEditModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "UserEditModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "UserEditModal"
     },
     {
       "id": "user/ui/UserMenu",
@@ -8685,6 +9689,70 @@
       "isClient": true,
       "isServer": false,
       "baseName": "UserStatusBadge"
+    },
+    {
+      "id": "webhook/ui/webhook-columns",
+      "module": "webhook",
+      "filePath": "modules_next/webhook/ui/webhook-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "buildWebhookColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "webhook-columns"
+    },
+    {
+      "id": "webhook/ui/webhook.types",
+      "module": "webhook",
+      "filePath": "modules_next/webhook/ui/webhook.types.ts",
+      "kind": "ui",
+      "exports": [
+        "Webhook",
+        "Delivery",
+        "statusVariant",
+        "STATUS_LABEL",
+        "extractMessage"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "webhook.types"
+    },
+    {
+      "id": "webhook/ui/WebhookDeliveryModal",
+      "module": "webhook",
+      "filePath": "modules_next/webhook/ui/WebhookDeliveryModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "WebhookDeliveryModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "WebhookDeliveryModal"
+    },
+    {
+      "id": "webhook/ui/WebhookFormModal",
+      "module": "webhook",
+      "filePath": "modules_next/webhook/ui/WebhookFormModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "WebhookFormModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "WebhookFormModal"
+    },
+    {
+      "id": "webhook/ui/WebhookTriggerModal",
+      "module": "webhook",
+      "filePath": "modules_next/webhook/ui/WebhookTriggerModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "WebhookTriggerModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "WebhookTriggerModal"
     }
   ]
 }

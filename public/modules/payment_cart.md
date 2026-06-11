@@ -16,6 +16,9 @@ Tenant-aware shopping cart for users and anonymous guests. Manages cart items, q
 
 ## Services
 
+- `payment_cart.calc.service.ts`
+- `payment_cart.crud.service.ts`
+- `payment_cart.item.service.ts`
 - `payment_cart.service.ts`
 
 ## DTOs

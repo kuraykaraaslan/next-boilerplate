@@ -16,6 +16,8 @@ Tenant-aware loyalty points program. Earn / redeem points, lifetime-driven tiers
 
 ## Services
 
+- `payment_loyalty_points.account.service.ts`
+- `payment_loyalty_points.ledger.service.ts`
 - `payment_loyalty_points.service.ts`
 
 ## DTOs

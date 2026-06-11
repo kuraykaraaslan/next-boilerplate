@@ -16,6 +16,8 @@ SAML 2.0 SSO with per-tenant IdP configuration (SamlConfig entity).
 
 ## Services
 
+- `auth_saml.config.service.ts`
+- `auth_saml.flow.service.ts`
 - `auth_saml.service.ts`
 
 ## DTOs

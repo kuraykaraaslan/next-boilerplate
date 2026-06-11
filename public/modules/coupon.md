@@ -16,7 +16,9 @@ Discount coupons + redemption tracking. Provider-aware (Stripe / PayPal / Iyzico
 
 ## Services
 
+- `coupon.crud.service.ts`
 - `coupon.service.ts`
+- `coupon.validation.service.ts`
 
 ## DTOs
 
@@ -50,9 +52,14 @@ Discount coupons + redemption tracking. Provider-aware (Stripe / PayPal / Iyzico
 
 ## Next layer (modules_next/) surface
 
+- `coupon/ui/coupon-edit.utils` _(ui)_
+- `coupon/ui/coupon-list-columns` _(ui, client)_
 - `coupon/ui/CouponApplyForm` _(ui, client)_
+- `coupon/ui/CouponArchiveModal` _(ui, client)_
 - `coupon/ui/CouponBadge` _(ui)_
+- `coupon/ui/CouponCreateModal` _(ui, client)_
 - `coupon/ui/CouponRedemptionsList` _(ui, client)_
+- `coupon/ui/CouponScopePanel` _(ui, client)_
 
 ## README
 

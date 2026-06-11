@@ -18,6 +18,8 @@ Tenant-aware e-commerce store. Hierarchical categories with typed spec templates
 
 - `store.bundle.service.ts`
 - `store.category.service.ts`
+- `store.product.crud.service.ts`
+- `store.product.media.service.ts`
 - `store.product.service.ts`
 - `store.variant.service.ts`
 
@@ -85,8 +87,14 @@ Tenant-aware e-commerce store. Hierarchical categories with typed spec templates
 
 ## Next layer (modules_next/) surface
 
+- `store/ui/BundleItemsPanel` _(ui, client)_
+- `store/ui/CategorySpecAddModal` _(ui, client)_
+- `store/ui/product-list-columns` _(ui, client)_
+- `store/ui/ProductCreateModal` _(ui, client)_
+- `store/ui/ProductImagesPanel` _(ui, client)_
 - `store/ui/ProductSpecValuesPanel` _(ui, client)_
 - `store/ui/ProductStatusBadge` _(ui, client)_
+- `store/ui/ProductVariantsPanel` _(ui, client)_
 
 ## README
 

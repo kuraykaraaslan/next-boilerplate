@@ -16,13 +16,18 @@ Pluggable payment processing (Stripe, PayPal, Iyzico) + subscription plans, plan
 
 ## Services
 
+- `payment.checkout.service.ts`
+- `payment.crud.service.ts`
 - `payment.proration.service.ts`
 - `payment.service.ts`
+- `payment.transaction.service.ts`
 - `payment.webhook.handlers.service.ts`
 - `payment.webhook.notifications.service.ts`
+- `payment.webhook.payment.service.ts`
 - `payment.webhook.paypal.service.ts`
 - `payment.webhook.service.ts`
 - `payment.webhook.stripe.service.ts`
+- `payment.webhook.subscription.service.ts`
 
 ## DTOs
 
@@ -71,6 +76,8 @@ Pluggable payment processing (Stripe, PayPal, Iyzico) + subscription plans, plan
 - `payment/ui/CardCheckoutModal` _(ui, client)_
 - `payment/ui/CreditCardForm` _(ui, client)_
 - `payment/ui/CreditCardVisual` _(ui, client)_
+- `payment/ui/PaymentProviderSelector` _(ui, client)_
+- `payment/ui/PaymentRefundModal` _(ui, client)_
 - `payment/ui/PaymentStatusBadge` _(ui, client)_
 - `payment/ui/PaymentSummaryCard` _(ui, client)_
 - `payment/ui/StripeExpressCheckoutModal` _(ui, client)_

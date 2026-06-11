@@ -16,8 +16,12 @@ Tenant-scoped invoicing with regional e-invoicing adapters (TR e-Arşiv, EU Pepp
 
 ## Services
 
+- `invoice.adapter.service.ts`
+- `invoice.crud.service.ts`
+- `invoice.pdf.renderer.service.ts`
 - `invoice.pdf.service.ts`
 - `invoice.service.ts`
+- `invoice.transition.service.ts`
 
 ## Entities
 
@@ -55,6 +59,8 @@ Tenant-scoped invoicing with regional e-invoicing adapters (TR e-Arşiv, EU Pepp
 
 ## Next layer (modules_next/) surface
 
+- `invoice/ui/EarsivSmsSignModal` _(ui, client)_
+- `invoice/ui/InvoiceLineItemsTable` _(ui, client)_
 - `invoice/ui/InvoiceTemplateSettings` _(ui, client)_
 
 ## README

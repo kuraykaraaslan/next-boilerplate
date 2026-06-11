@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-10T08:35:13.849Z",
+  "generatedAt": "2026-06-11T02:58:58.038Z",
   "entities": [
     {
       "name": "AiUsageLog",
@@ -164,6 +164,43 @@
       ]
     },
     {
+      "name": "DynamicCollection",
+      "filePath": "modules/dynamic_page/entities/dynamic_collection.entity.ts",
+      "module": "dynamic_page",
+      "schema": "system",
+      "tableName": "dynamic_collections",
+      "columns": [
+        "collectionId",
+        "tenantId",
+        "slug",
+        "label",
+        "description",
+        "fields",
+        "isSystem",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "DynamicCollectionItem",
+      "filePath": "modules/dynamic_page/entities/dynamic_collection_item.entity.ts",
+      "module": "dynamic_page",
+      "schema": "system",
+      "tableName": "dynamic_collection_items",
+      "columns": [
+        "itemId",
+        "collectionId",
+        "tenantId",
+        "data",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": [
+        "collection"
+      ]
+    },
+    {
       "name": "DynamicPage",
       "filePath": "modules/dynamic_page/entities/dynamic_page.entity.ts",
       "module": "dynamic_page",
@@ -202,6 +239,8 @@
         "defaultProps",
         "template",
         "script",
+        "serverHandler",
+        "allowedCollections",
         "isSystem",
         "createdAt",
         "updatedAt"

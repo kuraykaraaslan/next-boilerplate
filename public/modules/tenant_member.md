@@ -6,7 +6,7 @@
 - **dir:** `modules/tenant_member/`
 - **tags:** tenant
 - **icon:** `fas fa-users`
-- **hasNextLayer:** false
+- **hasNextLayer:** true
 
 Tenant-scoped membership join table with roles (owner/admin/member) and per-member permissions.
 
@@ -42,6 +42,10 @@ Tenant-scoped membership join table with roles (owner/admin/member) and per-memb
 ## TypeORM entities
 
 - `TenantMember` (tenant) — `modules/tenant_member/entities/tenant_member.entity.ts`
+
+## Next layer (modules_next/) surface
+
+- `tenant_member/ui/member-list-columns` _(ui, client)_
 
 ## README
 

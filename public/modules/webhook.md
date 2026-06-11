@@ -6,7 +6,7 @@
 - **dir:** `modules/webhook/`
 - **tags:** platform, integration
 - **icon:** `fas fa-rss`
-- **hasNextLayer:** false
+- **hasNextLayer:** true
 
 Subscriber-configured outbound webhooks (tenant-scoped; root tenant carries platform-wide events), signed deliveries, retry+redelivery.
 
@@ -55,6 +55,14 @@ Subscriber-configured outbound webhooks (tenant-scoped; root tenant carries plat
 
 - `Webhook` (tenant) — `modules/webhook/entities/webhook.entity.ts`
 - `WebhookDelivery` (tenant) — `modules/webhook/entities/webhook_delivery.entity.ts`
+
+## Next layer (modules_next/) surface
+
+- `webhook/ui/webhook-columns` _(ui, client)_
+- `webhook/ui/webhook.types` _(ui)_
+- `webhook/ui/WebhookDeliveryModal` _(ui, client)_
+- `webhook/ui/WebhookFormModal` _(ui, client)_
+- `webhook/ui/WebhookTriggerModal` _(ui, client)_
 
 ## README
 

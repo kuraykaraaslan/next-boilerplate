@@ -22,6 +22,10 @@ Usage metric tracking per tenant (API calls, storage GB, seats). Source for plan
 
 - `tenant_usage.entity.ts`
 
+## Message keys
+
+- `tenant_usage.messages.ts`
+
 ## Jobs
 
 - `tenant_usage.job.ts`

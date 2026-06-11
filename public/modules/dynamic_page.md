@@ -16,6 +16,11 @@ Tenant-aware block-based page builder with i18n support. Supports code blocks (P
 
 ## Services
 
+- `dynamic_collection.crud.service.ts`
+- `dynamic_collection.item.service.ts`
+- `dynamic_collection.service.ts`
+- `dynamic_page.block.service.ts`
+- `dynamic_page.crud.service.ts`
 - `dynamic_page.service.ts`
 
 ## DTOs
@@ -24,6 +29,8 @@ Tenant-aware block-based page builder with i18n support. Supports code blocks (P
 
 ## Entities
 
+- `dynamic_collection.entity.ts`
+- `dynamic_collection_item.entity.ts`
 - `dynamic_page.entity.ts`
 - `dynamic_page_block.entity.ts`
 - `dynamic_page_translation.entity.ts`
@@ -42,11 +49,18 @@ Tenant-aware block-based page builder with i18n support. Supports code blocks (P
 - `tenant` GET/PATCH/DELETE `/tenant/[tenantId]/api/dynamic-pages/[dynamicPageId]`
 - `tenant` GET/POST `/tenant/[tenantId]/api/dynamic-pages/[dynamicPageId]/translations`
 - `tenant` DELETE `/tenant/[tenantId]/api/dynamic-pages/[dynamicPageId]/translations/[lang]`
+- `tenant` GET/POST/PATCH/DELETE `/tenant/[tenantId]/api/dynamic-pages/block-action/[blockType]`
 - `tenant` GET/POST `/tenant/[tenantId]/api/dynamic-pages/block-definitions`
 - `tenant` GET/PATCH/DELETE `/tenant/[tenantId]/api/dynamic-pages/block-definitions/[blockId]`
+- `tenant` GET/POST `/tenant/[tenantId]/api/dynamic-pages/collections`
+- `tenant` GET/PATCH/DELETE `/tenant/[tenantId]/api/dynamic-pages/collections/[collectionId]`
+- `tenant` GET/POST `/tenant/[tenantId]/api/dynamic-pages/collections/[collectionId]/items`
+- `tenant` GET/PATCH/DELETE `/tenant/[tenantId]/api/dynamic-pages/collections/[collectionId]/items/[itemId]`
 
 ## TypeORM entities
 
+- `DynamicCollection` (system) — `modules/dynamic_page/entities/dynamic_collection.entity.ts`
+- `DynamicCollectionItem` (system) — `modules/dynamic_page/entities/dynamic_collection_item.entity.ts`
 - `DynamicPage` (system) — `modules/dynamic_page/entities/dynamic_page.entity.ts`
 - `DynamicPageBlock` (system) — `modules/dynamic_page/entities/dynamic_page_block.entity.ts`
 - `DynamicPageTranslation` (system) — `modules/dynamic_page/entities/dynamic_page_translation.entity.ts`
@@ -60,7 +74,10 @@ Tenant-aware block-based page builder with i18n support. Supports code blocks (P
 - `dynamic_page/dynamic/Blocks/HeroBlock` _(ui, client)_
 - `dynamic_page/dynamic/Blocks/NavBarCommerce` _(ui, client)_
 - `dynamic_page/dynamic/Blocks/NavBarMarketing` _(ui, client)_
+- `dynamic_page/dynamic/Blocks/NavBarMarketing.types` _(ui)_
 - `dynamic_page/dynamic/Blocks/NavBarSimple` _(ui, client)_
+- `dynamic_page/dynamic/Blocks/partials/NavBarMegaSection` _(ui, client)_
+- `dynamic_page/dynamic/Blocks/partials/NavBarMobilePanel` _(ui, client)_
 - `dynamic_page/dynamic/Blocks/PopupModalBlock/animations` _(ui)_
 - `dynamic_page/dynamic/Blocks/PopupModalBlock/CloseBtn` _(ui, client)_
 - `dynamic_page/dynamic/Blocks/PopupModalBlock/constants` _(ui)_
@@ -74,17 +91,32 @@ Tenant-aware block-based page builder with i18n support. Supports code blocks (P
 - `dynamic_page/dynamic/Editor/BackupModal` _(ui, client)_
 - `dynamic_page/dynamic/Editor/Canvas` _(ui, client)_
 - `dynamic_page/dynamic/Editor/EditorTopBar` _(ui, client)_
+- `dynamic_page/dynamic/Editor/hooks/useEditorDraft` _(hook, client)_
+- `dynamic_page/dynamic/Editor/hooks/useEditorKeyboard` _(hook, client)_
 - `dynamic_page/dynamic/Editor/index` _(ui, client)_
 - `dynamic_page/dynamic/Editor/LeftSidebar` _(ui, client)_
+- `dynamic_page/dynamic/Editor/partials/BlockPalette` _(ui, client)_
+- `dynamic_page/dynamic/Editor/partials/CanvasBlock` _(ui, client)_
+- `dynamic_page/dynamic/Editor/partials/CanvasOverlays` _(ui, client)_
+- `dynamic_page/dynamic/Editor/partials/LayersPanel` _(ui, client)_
+- `dynamic_page/dynamic/Editor/partials/PropFieldComplex` _(ui, client)_
+- `dynamic_page/dynamic/Editor/partials/PropFieldRenderer` _(ui, client)_
+- `dynamic_page/dynamic/Editor/partials/PropFieldSimple` _(ui, client)_
 - `dynamic_page/dynamic/Editor/PropsPanel` _(ui, client)_
 - `dynamic_page/dynamic/Editor/RepeaterField` _(ui, client)_
 - `dynamic_page/dynamic/Editor/RightSidebar` _(ui, client)_
 - `dynamic_page/dynamic/Editor/SeoModal` _(ui, client)_
 - `dynamic_page/dynamic/Editor/ShortcutsModal` _(ui, client)_
+- `dynamic_page/dynamic/Editor/stores/editor.types` _(ui)_
 - `dynamic_page/dynamic/Editor/stores/editorStore` _(ui)_
+- `dynamic_page/dynamic/Editor/stores/slices/blockSlice` _(ui)_
+- `dynamic_page/dynamic/Editor/stores/slices/persistSlice` _(ui)_
+- `dynamic_page/dynamic/Editor/stores/slices/translationSlice` _(ui)_
+- `dynamic_page/dynamic/Editor/stores/slices/uiSlice` _(ui)_
 - `dynamic_page/dynamic/Editor/TranslationModal` _(ui, client)_
 - `dynamic_page/dynamic/migrations/index` _(ui)_
 - `dynamic_page/dynamic/partials/BaseBlock` _(ui, client)_
+- `dynamic_page/dynamic/partials/BlockActionSandbox` _(ui)_
 - `dynamic_page/dynamic/partials/BlockBackground` _(ui)_
 - `dynamic_page/dynamic/partials/BlockErrorBoundary` _(ui, client)_
 - `dynamic_page/dynamic/partials/BlockSkeleton` _(ui)_
@@ -95,8 +127,7 @@ Tenant-aware block-based page builder with i18n support. Supports code blocks (P
 - `dynamic_page/dynamic/utils/BlockBg` _(util)_
 - `dynamic_page/dynamic/utils/BlockRegistry` _(util)_
 - `dynamic_page/DynamicPageRenderer` _(ui)_
-- `dynamic_page/PublicDynamicPage` _(ui)_
-- `dynamic_page/SiteChrome` _(ui)_
+- … and 4 more
 
 ## README
 

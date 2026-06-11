@@ -17,8 +17,16 @@ Pluggable email sender (SMTP, SES, Mailgun, Postmark, Resend, SendGrid). EJS tem
 ## Services
 
 - `notification_mail.account-templates.service.ts`
+- `notification_mail.provider.service.ts`
+- `notification_mail.queue.service.ts`
 - `notification_mail.service.ts`
+- `notification_mail.templates.auth.service.ts`
+- `notification_mail.templates.invoice.service.ts`
 - `notification_mail.templates.service.ts`
+
+## Message keys
+
+- `notification_mail.messages.ts`
 
 ## Setting keys
 

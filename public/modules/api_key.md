@@ -6,7 +6,7 @@
 - **dir:** `modules/api_key/`
 - **tags:** platform, security
 - **icon:** `fas fa-key`
-- **hasNextLayer:** false
+- **hasNextLayer:** true
 
 Tenant-scoped API keys for programmatic access (hashed at rest, scope-bound).
 
@@ -43,6 +43,11 @@ Tenant-scoped API keys for programmatic access (hashed at rest, scope-bound).
 ## TypeORM entities
 
 - `ApiKey` (tenant) — `modules/api_key/entities/api_key.entity.ts`
+
+## Next layer (modules_next/) surface
+
+- `api_key/ui/api-key-columns` _(ui, client)_
+- `api_key/ui/ApiKeyCreateModal` _(ui, client)_
 
 ## README
 

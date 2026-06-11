@@ -16,6 +16,8 @@ Customer return, exchange and refund (RMA) requests with line items and an appen
 
 ## Services
 
+- `payment_return_rma.crud.service.ts`
+- `payment_return_rma.lifecycle.service.ts`
 - `payment_return_rma.service.ts`
 
 ## DTOs

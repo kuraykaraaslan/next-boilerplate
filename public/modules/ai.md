@@ -16,11 +16,17 @@ Pluggable AI providers (Anthropic, OpenAI, Google). Chat, embeddings, streaming,
 
 ## Services
 
+- `ai.provider.service.ts`
 - `ai.service.ts`
+- `ai.usage.service.ts`
 
 ## Entities
 
 - `ai_usage_log.entity.ts`
+
+## Message keys
+
+- `ai.messages.ts`
 
 ## Setting keys
 
@@ -42,6 +48,7 @@ Pluggable AI providers (Anthropic, OpenAI, Google). Chat, embeddings, streaming,
 ## Next layer (modules_next/) surface
 
 - `ai/ui/AIChatBox` _(ui, client)_
+- `ai/ui/AIUsageTab` _(ui, client)_
 
 ## README
 

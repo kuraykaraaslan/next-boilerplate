@@ -6,7 +6,7 @@
 - **dir:** `modules/tenant_domain/`
 - **tags:** tenant, domain, infrastructure
 - **icon:** `fas fa-globe`
-- **hasNextLayer:** false
+- **hasNextLayer:** true
 
 Custom domain mapping per tenant + DNS verification (TXT/CNAME challenge).
 
@@ -18,6 +18,8 @@ Custom domain mapping per tenant + DNS verification (TXT/CNAME challenge).
 
 - `dns_verification.service.ts`
 - `ssl_provisioning.service.ts`
+- `tenant_domain.crud.service.ts`
+- `tenant_domain.dns.service.ts`
 - `tenant_domain.service.ts`
 
 ## DTOs
@@ -50,6 +52,10 @@ Custom domain mapping per tenant + DNS verification (TXT/CNAME challenge).
 ## TypeORM entities
 
 - `TenantDomain` (tenant) — `modules/tenant_domain/entities/tenant_domain.entity.ts`
+
+## Next layer (modules_next/) surface
+
+- `tenant_domain/ui/domain-list-columns` _(ui, client)_
 
 ## README
 

@@ -17,11 +17,15 @@ Credential auth: login, register, password reset, email verify, OTP, TOTP. Coord
 ## Services
 
 - `auth.captcha.service.ts`
+- `auth.credential.service.ts`
 - `auth.otp.service.ts`
 - `auth.password.service.ts`
+- `auth.policy.loader.service.ts`
 - `auth.policy.service.ts`
+- `auth.policy.validator.service.ts`
 - `auth.service.ts`
 - `auth.totp.service.ts`
+- `auth.verification.service.ts`
 
 ## DTOs
 

@@ -16,6 +16,7 @@ JWT access/refresh issuance + revocation, Redis-backed session cache, CRUD on Us
 
 ## Services
 
+- `user_session.auth.service.ts`
 - `user_session.cache.service.ts`
 - `user_session.crud.service.ts`
 - `user_session.service.ts`
@@ -39,6 +40,7 @@ JWT access/refresh issuance + revocation, Redis-backed session cache, CRUD on Us
 
 ## Next layer (modules_next/) surface
 
+- `user_session/ui/ActiveSessionsPanel` _(ui, client)_
 - `user_session/user_session.service.next` _(service.next)_
 
 ## README

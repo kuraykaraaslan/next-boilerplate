@@ -17,6 +17,7 @@ System for Cross-domain Identity Management (RFC 7643/7644). Lets enterprise IdP
 ## Services
 
 - `scim.service.ts`
+- `scim.user.service.ts`
 
 ## DTOs
 

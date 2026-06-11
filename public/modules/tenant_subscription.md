@@ -19,6 +19,10 @@ Tenant subscription state, plan + feature key resolution, grace period, expiry j
 - `tenant_subscription.card.service.ts`
 - `tenant_subscription.checkout.service.ts`
 - `tenant_subscription.feature.service.ts`
+- `tenant_subscription.grace.service.ts`
+- `tenant_subscription.lifecycle.service.ts`
+- `tenant_subscription.plan.crud.service.ts`
+- `tenant_subscription.plan.feature.service.ts`
 - `tenant_subscription.plan.service.ts`
 - `tenant_subscription.platform.service.ts`
 - `tenant_subscription.service.ts`
@@ -56,9 +60,14 @@ Tenant subscription state, plan + feature key resolution, grace period, expiry j
 - `tenant_subscription/hooks/use-feature-access` _(hook, client)_
 - `tenant_subscription/hooks/use-grace-period` _(hook, client)_
 - `tenant_subscription/tenant_subscription.grace-period` _(ui)_
+- `tenant_subscription/ui/CurrentSubscriptionCard` _(ui, client)_
 - `tenant_subscription/ui/FeatureGate` _(ui, client)_
 - `tenant_subscription/ui/GracePeriodBanner` _(ui, client)_
+- `tenant_subscription/ui/plan-list-columns` _(ui, client)_
+- `tenant_subscription/ui/PlanCreateModal` _(ui, client)_
+- `tenant_subscription/ui/PlanFeaturesPanel` _(ui, client)_
 - `tenant_subscription/ui/PlanUsageMeter` _(ui, client)_
+- `tenant_subscription/ui/subscription.helpers` _(ui)_
 - `tenant_subscription/ui/SubscriptionPlanCard` _(ui, client)_
 - `tenant_subscription/ui/UpgradePrompt` _(ui, client)_
 
