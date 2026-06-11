@@ -68,6 +68,10 @@ export const WEBHOOK_EVENT_CATALOG: Record<WebhookEvent, WebhookEventMeta> = {
   'api_key.deleted':        { scope: 'tenant', group: 'API Keys',      label: 'API key revoked',       description: 'An API key was revoked.' },
   'api_key.expired':        { scope: 'tenant', group: 'API Keys',      label: 'API key expired',       description: 'An API key passed its expiry and was deactivated by the expiry sweep.' },
   'api_key.rotated':        { scope: 'tenant', group: 'API Keys',      label: 'API key rotated',       description: 'An API key was rotated; a successor key was issued.' },
+  'auth.account_locked':    { scope: 'tenant', group: 'Security',      label: 'Account locked',        description: 'A user account was locked after too many failed login attempts.' },
+  'impersonation.started':  { scope: 'tenant', group: 'Security',      label: 'Impersonation started', description: 'An admin started impersonating a user.' },
+  'impersonation.ended':    { scope: 'tenant', group: 'Security',      label: 'Impersonation ended',   description: 'An impersonation session ended.' },
+  'audit.high_risk':        { scope: 'tenant', group: 'Security',      label: 'High-risk audit event', description: 'A high-risk action was recorded in the audit log (e.g. impersonation, account lock, permission denied).' },
 
   // ─── Platform-wide (root-tenant webhooks only) ──────────────────────────────
   'user.created':           { scope: 'platform', group: 'Users',         label: 'User created',          description: 'A new user account was registered.' },
