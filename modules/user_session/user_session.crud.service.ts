@@ -72,11 +72,16 @@ export default class UserSessionCrudService {
     return { userSession: SafeUserSessionSchema.parse(saved), rawAccessToken, rawRefreshToken };
   }
 
-  static async createImpersonationSession({ targetUser, impersonationMeta, userAgent, ipAddress }: {
+  static async createImpersonationSession({ targetUser, impersonationMeta, userAgent, ipAddress, ttlMs }: {
     targetUser: SafeUser;
     impersonationMeta: NonNullable<SessionMeta['impersonation']>;
     userAgent?: string;
     ipAddress?: string;
+    // Per-tenant impersonation TTL (ms). Resolved by the impersonation module
+    // (`ImpersonationService.getImpersonationTtlMs`) and threaded in here to keep
+    // a single source of truth without a user_session → auth_impersonation cycle.
+    // Falls back to the 1-hour default when omitted.
+    ttlMs?: number;
   }): Promise<{ userSession: SafeUserSession; rawAccessToken: string; rawRefreshToken: string }> {
     const userSessionId = uuidv4();
     const jwtPayload: TokenPayload = { userId: targetUser.userId, userSessionId, impersonation: impersonationMeta };
@@ -93,7 +98,7 @@ export default class UserSessionCrudService {
       refreshToken: UserSessionTokenService.hashToken(rawRefreshToken),
       userAgent,
       ipAddress,
-      sessionExpiry: new Date(Date.now() + IMPERSONATION_SESSION_TTL_MS),
+      sessionExpiry: new Date(Date.now() + (ttlMs && ttlMs > 0 ? ttlMs : IMPERSONATION_SESSION_TTL_MS)),
       metadata: metadata as unknown,
     });
     const saved = await repo.save(session);

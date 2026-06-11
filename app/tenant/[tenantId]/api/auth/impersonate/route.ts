@@ -40,7 +40,7 @@ export async function POST(
       return NextResponse.json({ error: parsed.error.issues }, { status: 400 });
     }
 
-    const { targetUserId } = parsed.data;
+    const { targetUserId, reason, stepUp } = parsed.data;
 
     const ipAddress = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || undefined;
     const userAgent = request.headers.get("user-agent") || undefined;
@@ -52,6 +52,8 @@ export async function POST(
         impersonatorSession: userSession,
         targetUserId,
         tenantId,
+        reason,
+        stepUp,
         ipAddress,
         userAgent,
       });
@@ -74,13 +76,29 @@ export async function POST(
 
     return response;
   } catch (error: any) {
-    const clientErrors = [
+    const msg = error?.message;
+    const forbidden = [
       ImpersonationMessages.CANNOT_IMPERSONATE_SELF,
       ImpersonationMessages.TARGET_MUST_BE_TENANT_USER,
-      ImpersonationMessages.TARGET_USER_NOT_FOUND,
-      ImpersonationMessages.TARGET_NOT_MEMBER_OF_TENANT,
+      ImpersonationMessages.IMPERSONATION_DISABLED_FOR_TENANT,
     ];
-    const status = clientErrors.includes(error.message) ? 400 : 500;
+    const unauthorized = [
+      ImpersonationMessages.STEP_UP_REQUIRED,
+      ImpersonationMessages.STEP_UP_INVALID_PASSWORD,
+      ImpersonationMessages.STEP_UP_INVALID_TOTP,
+    ];
+    const badRequest = [
+      ImpersonationMessages.TARGET_USER_NOT_FOUND,
+      ImpersonationMessages.TARGET_NOT_FOUND,
+      ImpersonationMessages.TARGET_NOT_MEMBER_OF_TENANT,
+      ImpersonationMessages.REASON_REQUIRED,
+      ImpersonationMessages.STEP_UP_METHOD_UNAVAILABLE,
+    ];
+    let status = 500;
+    if (msg === ImpersonationMessages.IMPERSONATION_CONCURRENCY_LIMIT_REACHED) status = 429;
+    else if (forbidden.includes(msg)) status = 403;
+    else if (unauthorized.includes(msg)) status = 401;
+    else if (badRequest.includes(msg)) status = 400;
     return NextResponse.json({ error: error.message }, { status });
   }
 }
@@ -106,9 +124,13 @@ export async function DELETE(
     if (impersonationSession) {
       const meta = (impersonationSession.metadata as any)?.impersonation;
       await ImpersonationService.endImpersonationSession(impersonationSession.userSessionId, {
-        actorId:      meta?.impersonatorUserId,
-        targetUserId: impersonationSession.userId,
-        tenantId:     meta?.tenantId,
+        actorId:                meta?.impersonatorUserId,
+        targetUserId:           impersonationSession.userId,
+        tenantId:               meta?.tenantId,
+        impersonationSessionId: meta?.impersonationSessionId,
+        startedAtMs:            impersonationSession.createdAt
+          ? new Date(impersonationSession.createdAt).getTime()
+          : undefined,
       });
     }
 
@@ -146,21 +168,22 @@ export async function GET(
       return NextResponse.json({ isImpersonating: false }, { status: 200 });
     }
 
-    const impersonationSession =
-      await ImpersonationService.getActiveImpersonationSession(accessToken);
+    // GOODTOHAVE #5 / #7 — banner context + auto-expiry (expiresAt / remainingMs).
+    const ctx = await ImpersonationService.getImpersonationContext(accessToken);
 
-    if (!impersonationSession) {
+    if (!ctx) {
       return NextResponse.json({ isImpersonating: false }, { status: 200 });
     }
 
-    const meta = (impersonationSession.metadata as any)?.impersonation;
-
     return NextResponse.json({
-      isImpersonating: true,
-      impersonationSession,
-      impersonatorUserId: meta?.impersonatorUserId ?? null,
-      tenantId:           meta?.tenantId ?? null,
-      targetTenantRole:   meta?.targetTenantRole ?? null,
+      isImpersonating:        true,
+      impersonatorUserId:     ctx.impersonatorUserId,
+      targetUserId:           ctx.targetUserId,
+      tenantId:               ctx.tenantId,
+      targetTenantRole:       ctx.targetTenantRole,
+      impersonationSessionId: ctx.impersonationSessionId,
+      expiresAt:              ctx.expiresAt,
+      remainingMs:            ctx.remainingMs,
     }, { status: 200 });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

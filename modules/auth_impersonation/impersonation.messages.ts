@@ -3,9 +3,31 @@ export enum ImpersonationMessages {
   CANNOT_IMPERSONATE_EQUAL_OR_HIGHER_GLOBAL_ROLE = "CANNOT_IMPERSONATE_EQUAL_OR_HIGHER_GLOBAL_ROLE",
   TARGET_MUST_BE_TENANT_USER = "TARGET_MUST_BE_TENANT_USER",
   TARGET_USER_NOT_FOUND = "TARGET_USER_NOT_FOUND",
+  // GENERIC not-found returned to tenant admins so a different-tenant target
+  // cannot be distinguished from a non-existent user (closes cross-tenant
+  // enumeration — see GOODTOHAVE #8).
+  TARGET_NOT_FOUND = "TARGET_NOT_FOUND",
+  // Retained for the system flow / backwards compatibility; the tenant flow now
+  // returns the generic TARGET_NOT_FOUND instead of revealing this distinctly.
   TARGET_NOT_MEMBER_OF_TENANT = "TARGET_NOT_MEMBER_OF_TENANT",
   IMPERSONATION_STARTED = "IMPERSONATION_STARTED",
   IMPERSONATION_ENDED = "IMPERSONATION_ENDED",
+  NOT_IMPERSONATING = "NOT_IMPERSONATING",
+
+  // Step-up re-authentication (GOODTOHAVE #3)
+  STEP_UP_REQUIRED = "STEP_UP_REQUIRED",
+  STEP_UP_INVALID_PASSWORD = "STEP_UP_INVALID_PASSWORD",
+  STEP_UP_INVALID_TOTP = "STEP_UP_INVALID_TOTP",
+  STEP_UP_METHOD_UNAVAILABLE = "STEP_UP_METHOD_UNAVAILABLE",
+
+  // Per-impersonator rate limiting (GOODTOHAVE #4)
+  IMPERSONATION_CONCURRENCY_LIMIT_REACHED = "IMPERSONATION_CONCURRENCY_LIMIT_REACHED",
+
+  // Reason / justification (GOODTOHAVE #6)
+  REASON_REQUIRED = "REASON_REQUIRED",
+
+  // Tenant opt-out (GOODTOHAVE #10)
+  IMPERSONATION_DISABLED_FOR_TENANT = "IMPERSONATION_DISABLED_FOR_TENANT",
 }
 
 export default ImpersonationMessages;

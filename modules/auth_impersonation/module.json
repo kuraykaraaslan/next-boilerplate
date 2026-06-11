@@ -7,5 +7,5 @@
   "icon": "fas fa-user-secret",
   "tags": ["identity", "auth", "admin"],
   "priority": 17,
-  "dependencies": { "requires": ["user", "user_session", "audit_log", "env"] }
+  "dependencies": { "requires": ["user", "user_session", "audit_log", "setting", "webhook", "redis", "auth", "env"] }
 }
