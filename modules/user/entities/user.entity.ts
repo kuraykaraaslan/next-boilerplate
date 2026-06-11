@@ -26,6 +26,13 @@ export class User {
   @Column({ nullable: true, type: 'timestamp' })
   emailVerifiedAt?: Date;
 
+  // GDPR / KVKK / LGPD consent captured at registration (Art. 7 GDPR, Art. 8 LGPD).
+  @Column({ nullable: true, type: 'varchar' })
+  consentVersion?: string;
+
+  @Column({ nullable: true, type: 'timestamp' })
+  consentAcceptedAt?: Date;
+
   @CreateDateColumn({ type: 'timestamp' })
   createdAt!: Date;
 

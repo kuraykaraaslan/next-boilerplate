@@ -18,8 +18,6 @@ export const GENERAL_KEYS = GeneralSettingKeySchema.options;
 // ============================================================================
 
 export const AuthSettingKeySchema = z.enum([
-  'allowRegistration', 'emailVerificationRequired', 'sessionDuration', 'maxLoginAttempts',
-  'ssoAllowedProviders',
   'jwtAccessTokenSecret', 'jwtAccessTokenExpiresIn', 'jwtRefreshTokenSecret', 'jwtRefreshTokenExpiresIn',
   'oauthGoogle', 'oauthGitHub', 'oauthMicrosoft', 'oauthLinkedIn', 'oauthApple', 'oauthTwitter', 'oauthMeta', 'oauthAutodesk',
   'googleClientId', 'googleClientSecret',
@@ -42,6 +40,8 @@ export const AuthSettingKeySchema = z.enum([
   'adminPanelIpAllowlist', 'adminRequireMfa',
   // ── External-access MFA (KD-16) ───────────────────────────────────────────
   'externalRequireMfa',
+  // ── TOTP branding (KD-22) ────────────────────────────────────────────────
+  'totpIssuer',
   // ── Social login (KD-18) ──────────────────────────────────────────────────
   'disableSocialLogin',
   // ── CAPTCHA threshold (KD-19) ─────────────────────────────────────────────

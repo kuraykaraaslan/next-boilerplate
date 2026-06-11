@@ -120,8 +120,8 @@ export default class AuthCredentialService {
     return { user: SafeUserSchema.parse(user), mustChangePassword };
   }
 
-  static async register({ email, password, phone, tenantId }: {
-    email: string; password: string; phone?: string; tenantId?: string;
+  static async register({ email, password, phone, tenantId, consentVersion }: {
+    email: string; password: string; phone?: string; tenantId?: string; consentVersion?: string;
   }): Promise<{ user: SafeUser }> {
     const existingUser = await UserService.getByEmail(email);
     if (existingUser) throw new AppError(AuthMessages.EMAIL_ALREADY_EXISTS, 409, ErrorCode.CONFLICT);
@@ -133,7 +133,13 @@ export default class AuthCredentialService {
     const ds = await getDataSource();
     const hashed = await AuthCredentialService.hashPassword(password);
     const parsedUser = await ds.transaction(async (manager) => {
-      const newUser = manager.getRepository(UserEntity).create({ phone, email: email.toLowerCase(), password: hashed });
+      const now = new Date();
+      const newUser = manager.getRepository(UserEntity).create({
+        phone,
+        email: email.toLowerCase(),
+        password: hashed,
+        ...(consentVersion ? { consentVersion, consentAcceptedAt: now } : {}),
+      });
       const saved = await manager.getRepository(UserEntity).save(newUser);
       return SafeUserSchema.parse(saved);
     });
@@ -174,6 +180,41 @@ export default class AuthCredentialService {
       tenantId: tenantId ?? null, actorId: userId, actorType: 'USER',
       action: AuditActions.AUTH_PASSWORD_CHANGED, metadata: { userId },
     }).catch(() => {});
+  }
+
+  /**
+   * GDPR Art. 17 / CCPA / KVKK right-to-erasure.
+   * Anonymises all PII fields while preserving the row for FK integrity.
+   * Clears all active sessions and security data after anonymisation.
+   */
+  static async eraseUserData(userId: string): Promise<void> {
+    const ds = await getDataSource();
+    const repo = ds.getRepository(UserEntity);
+    const user = await repo.findOne({ where: { userId } });
+    if (!user) throw new AppError(AuthMessages.USER_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
+
+    const anonymisedEmail = `erased-${userId}@erased.invalid`;
+    await ds.transaction(async (manager) => {
+      await manager.getRepository(UserEntity).update({ userId }, {
+        email: anonymisedEmail,
+        phone: undefined,
+        password: await bcrypt.hash(crypto.randomBytes(32).toString('hex'), 10),
+        userStatus: 'INACTIVE',
+        emailVerifiedAt: undefined,
+        consentVersion: undefined,
+        consentAcceptedAt: undefined,
+      });
+    });
+
+    await UserService.invalidate({ userId, email: user.email });
+
+    AuditLogService.log({
+      tenantId: null, actorId: userId, actorType: 'USER',
+      action: AuditActions.AUTH_DORMANT_DISABLED,
+      metadata: { reason: 'GDPR_ERASURE', userId },
+    }).catch(() => {});
+
+    Logger.info(`AuthCredentialService.eraseUserData: PII erased for user ${userId}`);
   }
 
   static checkIfUserHasRole(user: SafeUser, requiredRole: string): boolean {

@@ -37,12 +37,8 @@ export async function seedSetting(ctx: SeedContext): Promise<void> {
     { key: 'maintenanceMode', value: 'false', group: 'General', type: 'boolean' },
     { key: 'contactEmail', value: 'hello@demo.acme.test', group: 'General', type: 'string' },
 
-    // Auth — registration + numeric policy + json provider list
-    { key: 'allowRegistration', value: 'true', group: 'Auth', type: 'boolean' },
-    { key: 'emailVerificationRequired', value: 'true', group: 'Auth', type: 'boolean' },
-    { key: 'maxLoginAttempts', value: '5', group: 'Auth', type: 'number' },
+    // Auth — password policy
     { key: 'passwordMinLength', value: '12', group: 'Auth', type: 'number' },
-    { key: 'ssoAllowedProviders', value: JSON.stringify(['google', 'github']), group: 'Auth', type: 'json' },
 
     // Email — provider routing + numeric SMTP port
     { key: 'mailProvider', value: 'smtp', group: 'Email', type: 'string' },

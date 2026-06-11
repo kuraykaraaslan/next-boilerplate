@@ -104,7 +104,8 @@ export default class UserSessionAuthService {
       deviceFingerprint: session.deviceFingerprint ?? undefined,
     });
 
-    const sessionPolicy = await AuthPolicyService.getSessionPolicy();
+    const sessionTenantId = (session.metadata as import('./user_session.types').SessionMeta | null)?.tenantId;
+    const sessionPolicy = await AuthPolicyService.getSessionPolicy(sessionTenantId);
     const absoluteDeadline = session.createdAt.getTime() + sessionPolicy.absoluteMaxHours * 60 * 60 * 1000;
     if (Date.now() >= absoluteDeadline) {
       await repo.delete({ userSessionId: session.userSessionId });

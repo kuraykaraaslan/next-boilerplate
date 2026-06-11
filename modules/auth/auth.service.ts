@@ -16,6 +16,7 @@ export default class AuthService {
   static changePassword       = AuthCredentialService.changePassword.bind(AuthCredentialService);
   static checkIfUserHasRole   = AuthCredentialService.checkIfUserHasRole.bind(AuthCredentialService);
   static disableDormantAccounts = AuthCredentialService.disableDormantAccounts.bind(AuthCredentialService);
+  static eraseUserData          = AuthCredentialService.eraseUserData.bind(AuthCredentialService);
 
   // ──────────────────────────────────────────────
   // Email verification
@@ -23,5 +24,6 @@ export default class AuthService {
 
   static logout               = AuthVerificationService.logout.bind(AuthVerificationService);
   static sendEmailVerification = AuthVerificationService.sendEmailVerification.bind(AuthVerificationService);
+  // Pass tenantId to route auth email through the tenant's own mail provider.
   static verifyEmail          = AuthVerificationService.verifyEmail.bind(AuthVerificationService);
 }

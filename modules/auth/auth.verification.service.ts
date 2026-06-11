@@ -27,8 +27,8 @@ export default class AuthVerificationService {
 
   static async logout({ accessToken }: { accessToken: string }): Promise<void> {}
 
-  static async sendEmailVerification({ userId, email, name }: {
-    userId: string; email: string; name?: string;
+  static async sendEmailVerification({ userId, email, name, tenantId }: {
+    userId: string; email: string; name?: string; tenantId?: string;
   }): Promise<void> {
     const ds = await getDataSource();
     const user = await ds.getRepository(UserEntity).findOne({ where: { userId } });
@@ -45,7 +45,7 @@ export default class AuthVerificationService {
     await redis.set(verifyKey, hashedToken, 'EX', AuthVerificationService.EMAIL_VERIFY_TTL_SECONDS);
     await redis.set(rateKey, '1', 'EX', AuthVerificationService.EMAIL_VERIFY_RATE_LIMIT_SECONDS);
 
-    await MailAccountTemplatesService.sendVerifyEmail({ tenantId: ROOT_TENANT_ID, email, name, verifyToken: rawToken });
+    await MailAccountTemplatesService.sendVerifyEmail({ tenantId: tenantId ?? ROOT_TENANT_ID, email, name, verifyToken: rawToken });
     Logger.info(`Email verification sent for user ${userId}`);
   }
 

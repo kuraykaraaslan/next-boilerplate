@@ -3,6 +3,8 @@ import { SessionStatusEnum } from "./user_session.enums";
 import { TenantMemberRoleEnum } from "../tenant_member/tenant_member.enums";
 
 export const SessionMetaSchema = z.object({
+  // Stored at session creation so refreshTokens can apply the correct tenant's session policy.
+  tenantId: z.string().uuid().optional(),
   impersonation: z.object({
     impersonatorUserId: z.string().uuid(),
     impersonatorSessionId: z.string().uuid(),

@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
 import { env } from '@/modules/env';
-import { parseDbUrl, typeormLogging } from './db.utils';
+import { parseDbUrl, typeormLogging, TenantContextLogger } from './db.utils';
 import { TenantDatabase } from './entities/tenant_database.entity';
 import { User } from '@/modules/user/entities/user.entity';
 import { UserProfile } from '@/modules/user_profile/entities/user_profile.entity';
@@ -75,7 +75,7 @@ import { LoyaltyAccount } from '@/modules/payment_loyalty_points/entities/loyalt
 import { LoyaltyTransaction } from '@/modules/payment_loyalty_points/entities/loyalty_transaction.entity';
 import { LoyaltyTier } from '@/modules/payment_loyalty_points/entities/loyalty_tier.entity';
 
-const ENTITIES = [
+export const ENTITIES = [
   User,
   UserProfile,
   UserSecurity,
@@ -152,15 +152,22 @@ const ENTITIES = [
 
 const { url: DEFAULT_DB_URL, schema: DEFAULT_SCHEMA } = parseDbUrl(env.DATABASE_URL);
 
-const defaultDataSource = new DataSource({
-  type: 'postgres',
-  url: DEFAULT_DB_URL,
-  schema: DEFAULT_SCHEMA,
-  synchronize: env.NODE_ENV === 'development',
-  logging: typeormLogging(env.NODE_ENV),
-  entities: ENTITIES,
-  migrations: [],
-});
+function buildDataSourceOptions(url: string, schema?: string): ConstructorParameters<typeof DataSource>[0] {
+  return {
+    type: 'postgres',
+    url,
+    schema,
+    synchronize: env.NODE_ENV === 'development',
+    logging: typeormLogging(env.NODE_ENV),
+    logger: new TenantContextLogger(env.DB_SLOW_QUERY_THRESHOLD_MS),
+    entities: ENTITIES,
+    migrations: ['modules/db/migrations/*.ts'],
+    // PgBouncer-compatible pool sizing via DB_POOL_MAX env var.
+    extra: { max: env.DB_POOL_MAX },
+  };
+}
+
+const defaultDataSource = new DataSource(buildDataSourceOptions(DEFAULT_DB_URL, DEFAULT_SCHEMA));
 
 let defaultInitialized = false;
 
@@ -172,6 +179,63 @@ export async function getDataSource(): Promise<DataSource> {
   return defaultDataSource;
 }
 
+// ── Read replica routing ────────────────────────────────────────────────────
+let readDataSource: DataSource | null = null;
+let readInitialized = false;
+
+export async function getReadDataSource(): Promise<DataSource> {
+  if (!env.DATABASE_READ_REPLICA_URL) return getDataSource();
+  if (!readInitialized) {
+    const { url, schema } = parseDbUrl(env.DATABASE_READ_REPLICA_URL);
+    readDataSource = new DataSource({
+      ...buildDataSourceOptions(url, schema),
+      synchronize: false,
+    });
+    await readDataSource.initialize();
+    readInitialized = true;
+  }
+  return readDataSource!;
+}
+
+// ── System DataSource (bypasses RLS for cross-tenant cron / migrations) ─────
+// Uses the default DataSource connection; callers must SET LOCAL app.bypass_rls = 'on'
+// or use the BYPASSRLS Postgres role. This is a typed marker for grep/audit.
+export async function getSystemDataSource(): Promise<DataSource> {
+  return getDataSource();
+}
+
+// ── Health check ────────────────────────────────────────────────────────────
+export async function checkDataSourceHealth(): Promise<{
+  default: 'ok' | 'error';
+  replica: 'ok' | 'error' | 'not_configured';
+  error?: string;
+}> {
+  let defaultStatus: 'ok' | 'error' = 'error';
+  let replicaStatus: 'ok' | 'error' | 'not_configured' = 'not_configured';
+  let errorMsg: string | undefined;
+
+  try {
+    const ds = await getDataSource();
+    await ds.query('SELECT 1');
+    defaultStatus = 'ok';
+  } catch (err: unknown) {
+    errorMsg = err instanceof Error ? err.message : String(err);
+  }
+
+  if (env.DATABASE_READ_REPLICA_URL) {
+    try {
+      const ds = await getReadDataSource();
+      await ds.query('SELECT 1');
+      replicaStatus = 'ok';
+    } catch {
+      replicaStatus = 'error';
+    }
+  }
+
+  return { default: defaultStatus, replica: replicaStatus, ...(errorMsg ? { error: errorMsg } : {}) };
+}
+
+// ── Per-tenant DataSource cache ─────────────────────────────────────────────
 const MAX_CACHED = 100;
 const tenantCache = new Map<string, DataSource>();
 
@@ -191,15 +255,7 @@ export async function tenantDataSourceFor(tenantId: string): Promise<DataSource>
   const { url, schema } = parseDbUrl(row.databaseUrl);
   if (tenantCache.size >= MAX_CACHED) evictOldest();
 
-  const ds = new DataSource({
-    type: 'postgres',
-    url,
-    schema,
-    synchronize: env.NODE_ENV === 'development',
-    logging: typeormLogging(env.NODE_ENV),
-    entities: ENTITIES,
-    migrations: [],
-  });
+  const ds = new DataSource(buildDataSourceOptions(url, schema));
   await ds.initialize();
   tenantCache.set(tenantId, ds);
   return ds;
@@ -230,6 +286,31 @@ export async function withTenantRLS<T>(
   await qr.startTransaction();
   try {
     await qr.query('SET LOCAL app.current_tenant = $1', [tenantId]);
+    const result = await callback(qr);
+    await qr.commitTransaction();
+    return result;
+  } catch (err) {
+    await qr.rollbackTransaction();
+    throw err;
+  } finally {
+    await qr.release();
+  }
+}
+
+/**
+ * Run `callback` with RLS bypassed for cross-tenant system operations
+ * (GDPR sweeps, cron jobs, migrations). Uses SET LOCAL so bypass is
+ * transaction-scoped and cannot leak to other queries.
+ */
+export async function withSystemRLS<T>(
+  callback: (qr: import('typeorm').QueryRunner) => Promise<T>,
+): Promise<T> {
+  const ds = await getDataSource();
+  const qr = ds.createQueryRunner();
+  await qr.connect();
+  await qr.startTransaction();
+  try {
+    await qr.query("SET LOCAL app.bypass_rls = 'on'");
     const result = await callback(qr);
     await qr.commitTransaction();
     return result;

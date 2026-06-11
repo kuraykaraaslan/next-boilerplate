@@ -50,6 +50,7 @@ export default class UserSessionCrudService {
     }
 
     const repo = ds.getRepository(UserSessionEntity);
+    const sessionMeta: import('./user_session.types').SessionMeta = tenantId ? { tenantId } : {};
     const session = repo.create({
       userSessionId,
       userId: user.userId,
@@ -60,6 +61,7 @@ export default class UserSessionCrudService {
       ipAddress,
       otpVerifyNeeded,
       sessionExpiry: new Date(Date.now() + expiryMs),
+      metadata: sessionMeta as unknown,
     });
     const saved = await repo.save(session);
 

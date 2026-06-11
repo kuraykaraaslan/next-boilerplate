@@ -3,6 +3,22 @@ import { z } from 'zod';
 // Unlike z.coerce.boolean(), this treats "false"/"0" as false (coerce treats them as truthy).
 const boolEnv = () => z.preprocess(v => v === 'true' || v === '1', z.boolean());
 
+// ── Secret field names used for redaction in error output ───────────────────
+const SECRET_KEYS = new Set([
+  'ACCESS_TOKEN_SECRET', 'REFRESH_TOKEN_SECRET', 'CSRF_SECRET',
+  'SMTP_PASS', 'MAILGUN_API_KEY', 'POSTMARK_API_KEY', 'SENDGRID_API_KEY',
+  'RESEND_API_KEY', 'AWS_SES_SECRET_ACCESS_KEY', 'AWS_SECRET_ACCESS_KEY',
+  'AWS_S3_SECRET_ACCESS_KEY', 'TWILIO_AUTH_TOKEN', 'NEXMO_API_SECRET',
+  'CLICKATELL_API_KEY', 'NETGSM_PASSWORD', 'OPENAI_API_KEY', 'ANTHROPIC_API_KEY',
+  'GOOGLE_AI_API_KEY', 'GOOGLE_CLIENT_SECRET', 'GITHUB_CLIENT_SECRET',
+  'APPLE_PRIVATE_KEY', 'META_CLIENT_SECRET', 'MICROSOFT_CLIENT_SECRET',
+  'AUTODESK_CLIENT_SECRET', 'LINKEDIN_CLIENT_SECRET', 'TIKTOK_CLIENT_SECRET',
+  'TWITTER_CLIENT_SECRET', 'WECHAT_APP_SECRET', 'CRON_SECRET', 'DOTENV_KEY',
+  'SETTINGS_ENCRYPTION_KEY', 'LOTL_SIGNER_CERT_PEM', 'MOBIL_IMZA_AGGREGATOR_API_KEY',
+  'MOBIL_IMZA_CALLBACK_HMAC_SECRET', 'SMART_ID_RELYING_PARTY_UUID',
+  'BANKID_SE_CLIENT_KEY_PATH', 'VAPID_PRIVATE_KEY', 'METRICS_SECRET',
+]);
+
 const EnvSchema = z.object({
   // ── Core ────────────────────────────────────────────────────────────────────
   NODE_ENV: z.enum(['development', 'production', 'test', 'vercel']).default('development'),
@@ -15,6 +31,9 @@ const EnvSchema = z.object({
 
   // ── Database ────────────────────────────────────────────────────────────────
   DATABASE_URL: z.string().min(1),
+  DATABASE_READ_REPLICA_URL: z.string().optional(),
+  DB_POOL_MAX: z.coerce.number().default(10),
+  DB_SLOW_QUERY_THRESHOLD_MS: z.coerce.number().default(1000),
 
   // ── Redis ───────────────────────────────────────────────────────────────────
   REDIS_URL: z.string().default('redis://localhost:6379'),
@@ -186,56 +205,137 @@ const EnvSchema = z.object({
   PATH: z.string().optional(),
 
   // ── Rate Limiting ───────────────────────────────────────────────────────────
-  RATE_LIMIT_WINDOW_MS: z.coerce.number().default(15 * 60 * 1000), // 15 minutes
-  RATE_LIMIT_MAX: z.coerce.number().default(100), // limit each IP to 100 requests per windowMs
-  RATE_LIMIT_AUTH_WINDOW_MS: z.coerce.number().default(60 * 60 * 1000), // 1 hour
-  RATE_LIMIT_AUTH_MAX: z.coerce.number().default(500), // limit each IP to 500 requests per auth windowMs
+  RATE_LIMIT_WINDOW_MS: z.coerce.number().default(15 * 60 * 1000),
+  RATE_LIMIT_MAX: z.coerce.number().default(100),
+  RATE_LIMIT_AUTH_WINDOW_MS: z.coerce.number().default(60 * 60 * 1000),
+  RATE_LIMIT_AUTH_MAX: z.coerce.number().default(500),
 
   // ── E-Signature / E-Identity (eIDAS, OIDC4IDA) ──────────────────────────────
   EID_DEFAULT_PROVIDER: z.string().optional(),
-  EID_PROVIDER_MAP: z.string().optional(), // e.g. "TR:mobil_imza_aggregator,EE:smart_id,SE:bankid_se"
+  EID_PROVIDER_MAP: z.string().optional(),
   EID_REQUIRED_LOA: z.enum(['low', 'substantial', 'high']).optional(),
   EU_LOTL_URL: z.string().optional(),
-  LOTL_SIGNER_CERT_PEM: z.string().optional(), // out-of-band-distributed LOTL signing cert (PEM)
+  LOTL_SIGNER_CERT_PEM: z.string().optional(),
   TR_TRUST_ROOTS_PATH: z.string().optional(),
   TSA_DEFAULT_URL: z.string().optional(),
   MOBIL_IMZA_AGGREGATOR_BASE_URL: z.string().optional(),
   MOBIL_IMZA_AGGREGATOR_API_KEY: z.string().optional(),
   MOBIL_IMZA_AGGREGATOR_CUSTOMER_CODE: z.string().optional(),
   MOBIL_IMZA_CALLBACK_HMAC_SECRET: z.string().optional(),
-  // Smart-ID (EE/LV/LT) — SK ID Solutions v2 REST API
-  SMART_ID_BASE_URL: z.string().optional(), // e.g. https://rp-api.smart-id.com/v2
+  SMART_ID_BASE_URL: z.string().optional(),
   SMART_ID_RELYING_PARTY_UUID: z.string().optional(),
   SMART_ID_RELYING_PARTY_NAME: z.string().optional(),
-  // BankID Sweden (TLS client cert PEM paths on disk; cert-auth, not bearer)
   BANKID_SE_BASE_URL: z.string().optional(),
   BANKID_SE_CLIENT_CERT_PATH: z.string().optional(),
   BANKID_SE_CLIENT_KEY_PATH: z.string().optional(),
-  // US — Login.gov OIDC bridge (consumed by auth_sso; surfaced for the picker)
   LOGIN_GOV_CLIENT_ID: z.string().optional(),
   LOGIN_GOV_REDIRECT_URI: z.string().optional(),
-  SETTINGS_ENCRYPTION_KEY: z.string().optional(), // 64-hex (32 bytes) for AES-256-GCM
+  SETTINGS_ENCRYPTION_KEY: z.string().optional(),
 
   // ── Observability ───────────────────────────────────────────────────────────
-  // Sentry (error + trace sink). All optional — modules/observability is no-op
-  // when SENTRY_DSN is unset.
   SENTRY_DSN: z.string().optional(),
   SENTRY_ENVIRONMENT: z.string().optional(),
   SENTRY_TRACES_SAMPLE_RATE: z.coerce.number().min(0).max(1).default(0.1),
   SENTRY_PROFILES_SAMPLE_RATE: z.coerce.number().min(0).max(1).default(0),
-  // Prometheus scrape endpoint (`/internal/api/metrics`). Off by default.
   METRICS_ENABLED: boolEnv().default(false),
   METRICS_SECRET: z.string().optional(),
-  // OpenTelemetry — enable to ship traces to OTLP collector.
   OTEL_ENABLED: boolEnv().default(false),
   OTEL_EXPORTER_OTLP_ENDPOINT: z.string().optional(),
   OTEL_SERVICE_NAME: z.string().default('next-boilerplate'),
-  // Cron / background jobs — Next.js instrumentation hook starts queues only
-  // when set, so serverless deploys don't accidentally double-schedule.
   ENABLE_BACKGROUND_JOBS: boolEnv().default(false),
-  // Version tag (e.g. git short SHA) — surfaced in /internal/api/health and
-  // every Sentry event.
   APPLICATION_VERSION: z.string().default('dev'),
+
+  // ── Secrets manager (AWS SSM / HashiCorp Vault) ─────────────────────────────
+  // When set, env.service will call the registered secrets loader at boot.
+  SECRETS_MANAGER_PROVIDER: z.enum(['aws_ssm', 'vault', 'none']).default('none'),
+  SECRETS_MANAGER_PREFIX: z.string().optional(),
+  VAULT_ADDR: z.string().optional(),
+  VAULT_TOKEN: z.string().optional(),
+  VAULT_PATH: z.string().optional(),
+}).superRefine((data, ctx) => {
+  // Conditional required vars per mail provider
+  if (data.MAIL_PROVIDER === 'smtp' && !data.SMTP_HOST) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['SMTP_HOST'], message: 'SMTP_HOST is required when MAIL_PROVIDER=smtp' });
+  }
+  if (data.MAIL_PROVIDER === 'mailgun' && !data.MAILGUN_API_KEY) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['MAILGUN_API_KEY'], message: 'MAILGUN_API_KEY is required when MAIL_PROVIDER=mailgun' });
+  }
+  if (data.MAIL_PROVIDER === 'postmark' && !data.POSTMARK_API_KEY) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['POSTMARK_API_KEY'], message: 'POSTMARK_API_KEY is required when MAIL_PROVIDER=postmark' });
+  }
+  if (data.MAIL_PROVIDER === 'sendgrid' && !data.SENDGRID_API_KEY) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['SENDGRID_API_KEY'], message: 'SENDGRID_API_KEY is required when MAIL_PROVIDER=sendgrid' });
+  }
+  if (data.MAIL_PROVIDER === 'resend' && !data.RESEND_API_KEY) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['RESEND_API_KEY'], message: 'RESEND_API_KEY is required when MAIL_PROVIDER=resend' });
+  }
+  if (data.SECRETS_MANAGER_PROVIDER === 'vault' && !data.VAULT_ADDR) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['VAULT_ADDR'], message: 'VAULT_ADDR is required when SECRETS_MANAGER_PROVIDER=vault' });
+  }
 });
 
-export const env = EnvSchema.parse(process.env);
+export type Env = z.infer<typeof EnvSchema>;
+
+function parseEnv(raw: NodeJS.ProcessEnv): Env {
+  const result = EnvSchema.safeParse(raw);
+  if (!result.success) {
+    const flat = result.error.flatten();
+    const lines: string[] = ['[env] Boot-time configuration errors — fix all before starting:'];
+    for (const [field, messages] of Object.entries(flat.fieldErrors)) {
+      const redacted = SECRET_KEYS.has(field) ? '[REDACTED]' : (raw[field] ?? '(unset)');
+      lines.push(`  ${field} = ${redacted}  →  ${(messages as string[]).join(', ')}`);
+    }
+    for (const msg of flat.formErrors) {
+      lines.push(`  (global)  →  ${msg}`);
+    }
+    throw new Error(lines.join('\n'));
+  }
+  return result.data;
+}
+
+// ── Secrets manager loader interface ────────────────────────────────────────
+export type SecretsLoader = (prefix?: string) => Promise<Record<string, string>>;
+let _secretsLoader: SecretsLoader | null = null;
+
+export function registerSecretsLoader(loader: SecretsLoader): void {
+  _secretsLoader = loader;
+}
+
+// Merges remote secrets into process.env and re-parses. Call once at boot
+// (e.g. in Next.js instrumentation.ts) before any module reads `env`.
+export async function loadRemoteSecrets(): Promise<void> {
+  if (!_secretsLoader) return;
+  const parsed = parseEnv(process.env);
+  if (parsed.SECRETS_MANAGER_PROVIDER === 'none') return;
+  const remote = await _secretsLoader(parsed.SECRETS_MANAGER_PREFIX);
+  Object.assign(process.env, remote);
+  Object.assign(_env, parseEnv(process.env));
+}
+
+// Reload only secret fields from remote without full restart (rotation hook).
+export async function reloadSecrets(): Promise<void> {
+  await loadRemoteSecrets();
+}
+
+// ── Log non-secret active config at startup ──────────────────────────────────
+export function logBootConfig(parsed: Env): void {
+  const show = (k: string, v: unknown) => `${k}=${SECRET_KEYS.has(k) ? '[secret]' : v}`;
+  const items = [
+    show('NODE_ENV', parsed.NODE_ENV),
+    show('MAIL_PROVIDER', parsed.MAIL_PROVIDER),
+    show('SMS_DEFAULT_PROVIDER', parsed.SMS_DEFAULT_PROVIDER ?? 'unset'),
+    show('METRICS_ENABLED', parsed.METRICS_ENABLED),
+    show('OTEL_ENABLED', parsed.OTEL_ENABLED),
+    show('ENABLE_BACKGROUND_JOBS', parsed.ENABLE_BACKGROUND_JOBS),
+    show('SECRETS_MANAGER_PROVIDER', parsed.SECRETS_MANAGER_PROVIDER),
+    show('DATABASE_READ_REPLICA_URL', parsed.DATABASE_READ_REPLICA_URL ? 'set' : 'unset'),
+  ];
+  console.info(`[env] Boot config: ${items.join(' | ')}`);
+}
+
+// Mutable object for rotation support — `env` reference stays stable.
+const _env = parseEnv(process.env);
+logBootConfig(_env);
+
+// Freeze to prevent accidental mutation at runtime.
+export const env: Readonly<Env> = Object.freeze(_env) as Readonly<Env>;

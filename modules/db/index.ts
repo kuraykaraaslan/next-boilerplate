@@ -1,3 +1,14 @@
-export { getDataSource, tenantDataSourceFor, clearTenantDsCache } from './db';
+export {
+  getDataSource,
+  getReadDataSource,
+  getSystemDataSource,
+  tenantDataSourceFor,
+  clearTenantDsCache,
+  withTenantRLS,
+  withSystemRLS,
+  checkDataSourceHealth,
+  ENTITIES,
+} from './db';
 export { TenantDatabase } from './entities/tenant_database.entity';
-export { parseDbUrl } from './db.utils';
+export { parseDbUrl, tenantQueryContext } from './db.utils';
+export { default as TenantDatabaseService } from './db.tenant-provision.service';

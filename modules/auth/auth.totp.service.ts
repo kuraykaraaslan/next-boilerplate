@@ -10,13 +10,20 @@ import { SafeUser } from '../user/user.types';
 import { SafeUserSession } from '../user_session/user_session.types';
 import { OTPAction } from '../user_security/user_security.enums';
 import UserSecurityService from '../user_security/user_security.service';
+import SettingService from '../setting/setting.service';
 
 export default class TOTPService {
   static TOTP_STEP_SECONDS = env.TOTP_STEP_SECONDS ?? 30;
   static TOTP_WINDOW = env.TOTP_WINDOW ?? 1;
   static TOTP_DIGITS = env.OTP_LENGTH ?? 6;
   static SETUP_EXPIRY_SECONDS = env.TOTP_SETUP_EXPIRY_SECONDS ?? 600;
-  static ISSUER = env.TOTP_ISSUER || 'Relatia';
+  static DEFAULT_ISSUER = env.TOTP_ISSUER || 'App';
+
+  static async getIssuer(tenantId?: string): Promise<string> {
+    if (!tenantId) return TOTPService.DEFAULT_ISSUER;
+    const settings: Record<string, string> = await SettingService.getByKeys(tenantId, ['totpIssuer']).catch(() => ({}));
+    return settings['totpIssuer']?.trim() || TOTPService.DEFAULT_ISSUER;
+  }
 
   static setupOtpLib() {
     authenticator.options = {
@@ -35,16 +42,16 @@ export default class TOTPService {
     return authenticator.generateSecret();
   }
 
-  static getOtpauthURL({ user, secret }: { user: SafeUser; secret: string }) {
+  static async getOtpauthURL({ user, secret, tenantId }: { user: SafeUser; secret: string; tenantId?: string }) {
     TOTPService.setupOtpLib();
-    const label = user.email;
-    return authenticator.keyuri(label, TOTPService.ISSUER, secret);
+    const issuer = await TOTPService.getIssuer(tenantId);
+    return authenticator.keyuri(user.email, issuer, secret);
   }
 
   // Start TOTP setup: generate temporary secret and return otpauth URL
-  static async requestSetup({ user, userSession }: { user: SafeUser; userSession: SafeUserSession }) {
+  static async requestSetup({ user, userSession, tenantId }: { user: SafeUser; userSession: SafeUserSession; tenantId?: string }) {
     const tempSecret = TOTPService.generateSecret();
-    const otpauthUrl = TOTPService.getOtpauthURL({ user, secret: tempSecret });
+    const otpauthUrl = await TOTPService.getOtpauthURL({ user, secret: tempSecret, tenantId });
 
     const redisKey = TOTPService.getRedisKey({ userSessionId: userSession.userSessionId, action: 'setup' });
     await redis.set(redisKey, tempSecret, 'EX', TOTPService.SETUP_EXPIRY_SECONDS);
