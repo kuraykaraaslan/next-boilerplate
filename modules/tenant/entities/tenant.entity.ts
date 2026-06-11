@@ -24,6 +24,9 @@ export class Tenant {
   @DeleteDateColumn({ type: 'timestamp', nullable: true })
   deletedAt?: Date;
 
+  @Column({ nullable: true, type: 'varchar' })
+  region?: string;
+
   @Column({ nullable: true, type: 'timestamp' })
   deletionRequestedAt?: Date;
 

@@ -10,6 +10,7 @@
 import Logger from '@/modules/logger';
 import { initSentry, getSentry } from './sentry.init';
 import { initMetrics, getMetrics } from './metrics';
+import { initOtel } from './otel.init';
 import type {
   HttpRequestSample,
   ObservabilityTags,
@@ -28,7 +29,7 @@ export default class ObservabilityService {
   static async init(): Promise<void> {
     if (ObservabilityService._initStarted) return;
     ObservabilityService._initStarted = true;
-    await Promise.all([initSentry(), initMetrics()]);
+    await Promise.all([initSentry(), initMetrics(), initOtel()]);
   }
 
   /**

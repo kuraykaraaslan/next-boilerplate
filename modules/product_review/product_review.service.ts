@@ -20,12 +20,12 @@ export default class ProductReviewService {
   // Cache helpers
   // ============================================================================
 
-  private static async bustReview(reviewId: string): Promise<void> {
-    await redis.del(`review:${reviewId}`).catch(() => {})
+  private static async bustReview(tenantId: string, reviewId: string): Promise<void> {
+    await redis.del(`review:${tenantId}:${reviewId}`).catch(() => {})
   }
 
-  private static async bustSummary(productId: string): Promise<void> {
-    await redis.del(`review:summary:${productId}`).catch(() => {})
+  private static async bustSummary(tenantId: string, productId: string): Promise<void> {
+    await redis.del(`review:summary:${tenantId}:${productId}`).catch(() => {})
   }
 
   // ============================================================================
@@ -51,12 +51,12 @@ export default class ProductReviewService {
       metadata: dto.metadata,
     })
     const saved = await repo.save(review)
-    await ProductReviewService.bustSummary(dto.productId)
+    await ProductReviewService.bustSummary(tenantId, dto.productId)
     return SafeProductReviewSchema.parse(saved)
   }
 
   static async getById(tenantId: string, reviewId: string): Promise<SafeProductReview> {
-    return singleFlight(`review:${reviewId}`, async () => {
+    return singleFlight(`review:${tenantId}:${reviewId}`, async () => {
       const ds = await tenantDataSourceFor(tenantId)
       const row = await ds.getRepository(ProductReviewEntity).findOne({
         where: { tenantId, productReviewId: reviewId },
@@ -105,8 +105,8 @@ export default class ProductReviewService {
     row.status = 'PENDING'
 
     const saved = await repo.save(row)
-    await ProductReviewService.bustReview(reviewId)
-    await ProductReviewService.bustSummary(saved.productId)
+    await ProductReviewService.bustReview(tenantId, reviewId)
+    await ProductReviewService.bustSummary(tenantId, saved.productId)
     return SafeProductReviewSchema.parse(saved)
   }
 
@@ -127,8 +127,8 @@ export default class ProductReviewService {
     }
 
     const saved = await repo.save(row)
-    await ProductReviewService.bustReview(reviewId)
-    await ProductReviewService.bustSummary(saved.productId)
+    await ProductReviewService.bustReview(tenantId, reviewId)
+    await ProductReviewService.bustSummary(tenantId, saved.productId)
     return SafeProductReviewSchema.parse(saved)
   }
 
@@ -164,7 +164,7 @@ export default class ProductReviewService {
       return reviewRepo.save(review)
     })
 
-    await ProductReviewService.bustReview(reviewId)
+    await ProductReviewService.bustReview(tenantId, reviewId)
     return SafeProductReviewSchema.parse(saved)
   }
 
@@ -173,7 +173,7 @@ export default class ProductReviewService {
   // ============================================================================
 
   static async getProductSummary(tenantId: string, productId: string): Promise<ProductReviewSummary> {
-    return singleFlight(`review:summary:${productId}`, async () => {
+    return singleFlight(`review:summary:${tenantId}:${productId}`, async () => {
       const ds = await tenantDataSourceFor(tenantId)
       const rows = await ds.getRepository(ProductReviewEntity).find({
         where: { tenantId, productId, status: 'APPROVED' },
@@ -211,7 +211,7 @@ export default class ProductReviewService {
     if (!row) throw new AppError(PRODUCT_REVIEW_MESSAGES.REVIEW_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
 
     await repo.softRemove(row)
-    await ProductReviewService.bustReview(reviewId)
-    await ProductReviewService.bustSummary(row.productId)
+    await ProductReviewService.bustReview(tenantId, reviewId)
+    await ProductReviewService.bustSummary(tenantId, row.productId)
   }
 }

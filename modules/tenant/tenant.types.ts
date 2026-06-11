@@ -6,6 +6,7 @@ export const TenantSchema = z.object({
   tenantId: z.string().uuid(),
   name: z.string(),
   description: z.string().nullable(),
+  region: z.string().nullable().optional(),
   tenantStatus: TenantStatusEnum.default('ACTIVE'),
   createdAt: z.date().nullable(),
   updatedAt: z.date().nullable(),

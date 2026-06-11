@@ -6,6 +6,19 @@ import { TENANT_BRANDING_KEYS } from './tenant_branding.setting.keys';
 import { TenantBrandingSchema } from './tenant_branding.types';
 import type { TenantBranding } from './tenant_branding.types';
 
+// Patterns unsafe in injected CSS: IE expression(), JS URLs, data-URI backgrounds, @import exfiltration.
+const UNSAFE_CSS_PATTERNS = [
+  /expression\s*\(/gi,
+  /url\s*\(\s*['"]?\s*javascript:/gi,
+  /url\s*\(\s*['"]?\s*data:/gi,
+  /@import\b/gi,
+  /<\/?\s*script/gi,
+];
+
+function sanitizeCss(raw: string): string {
+  return UNSAFE_CSS_PATTERNS.reduce((s, p) => s.replace(p, '/* blocked */'), raw);
+}
+
 export default class TenantBrandingService {
 
   static async get(tenantId: string): Promise<TenantBranding> {
@@ -17,10 +30,11 @@ export default class TenantBrandingService {
     const updates: Record<string, string> = {};
 
     for (const key of TENANT_BRANDING_KEYS) {
-      const value = data[key];
-      if (value !== undefined) {
-        updates[key] = value;
-      }
+      let value = data[key];
+      if (value === undefined) continue;
+      if (key === 'customCss') value = sanitizeCss(value);
+      if (key === 'customJs') value = value.replace(/<\/?\s*script[^>]*>/gi, '/* blocked */');
+      updates[key] = value;
     }
 
     if (Object.keys(updates).length > 0) {

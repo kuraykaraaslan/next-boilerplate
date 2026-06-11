@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import redis from '@/modules/redis';
 import AuthMessages from './auth.messages';
+import { encryptFieldOpt, decryptFieldOpt } from '@/modules/common/field-encryption';
 import { AppError, ErrorCode } from '@/modules/common/app-error';
 import { SafeUser } from '../user/user.types';
 import { SafeUserSession } from '../user_session/user_session.types';
@@ -85,7 +86,7 @@ export default class TOTPService {
     const hashed = await Promise.all(codes.map((c) => bcrypt.hash(c, 10)));
 
     await UserSecurityService.updateUserSecurity(user.userId, {
-      otpSecret: tempSecret,
+      otpSecret: encryptFieldOpt(tempSecret),
       otpMethods: newMethods as any,
       otpBackupCodes: hashed as any,
     });
@@ -107,7 +108,8 @@ export default class TOTPService {
       throw new AppError(AuthMessages.INVALID_OTP_METHOD, 400, ErrorCode.VALIDATION_ERROR);
     }
 
-    const ok = TOTPService.verifyTokenWithSecret(otpToken, userSecurity.otpSecret);
+    const secret = decryptFieldOpt(userSecurity.otpSecret) ?? userSecurity.otpSecret;
+    const ok = TOTPService.verifyTokenWithSecret(otpToken, secret as string);
     if (!ok) {
       throw new AppError(AuthMessages.INVALID_OTP, 401, ErrorCode.INVALID_CREDENTIALS);
     }
@@ -140,7 +142,8 @@ export default class TOTPService {
       throw new AppError(AuthMessages.INVALID_OTP_METHOD, 400, ErrorCode.VALIDATION_ERROR);
     }
 
-    const ok = TOTPService.verifyTokenWithSecret(otpToken, userSecurity.otpSecret);
+    const secretForDisable = decryptFieldOpt(userSecurity.otpSecret) ?? userSecurity.otpSecret;
+    const ok = TOTPService.verifyTokenWithSecret(otpToken, secretForDisable as string);
     if (!ok) {
       throw new AppError(AuthMessages.INVALID_OTP, 401, ErrorCode.INVALID_CREDENTIALS);
     }

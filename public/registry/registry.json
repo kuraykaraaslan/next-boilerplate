@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-11T02:58:58.038Z",
+  "generatedAt": "2026-06-11T05:47:14.791Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -6120,6 +6120,7 @@
         "createdAt",
         "updatedAt",
         "deletedAt",
+        "region",
         "deletionRequestedAt",
         "deleteAfter"
       ],

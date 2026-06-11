@@ -210,3 +210,33 @@ export function clearTenantDsCache(tenantId: string): void {
   tenantCache.delete(tenantId);
   ds?.destroy().catch(() => {});
 }
+
+/**
+ * Run `callback` inside a transaction with `SET LOCAL app.current_tenant`
+ * applied so PostgreSQL RLS policies in migration 001_tenant_rls.sql are
+ * enforced on the shared DataSource.  Use this for any query that touches
+ * the default DataSource with tenant-scoped rows.
+ *
+ * Per-tenant DataSources (separate DB per tenant) already provide isolation
+ * at the database level and do not need this wrapper.
+ */
+export async function withTenantRLS<T>(
+  tenantId: string,
+  callback: (qr: import('typeorm').QueryRunner) => Promise<T>,
+): Promise<T> {
+  const ds = await getDataSource();
+  const qr = ds.createQueryRunner();
+  await qr.connect();
+  await qr.startTransaction();
+  try {
+    await qr.query('SET LOCAL app.current_tenant = $1', [tenantId]);
+    const result = await callback(qr);
+    await qr.commitTransaction();
+    return result;
+  } catch (err) {
+    await qr.rollbackTransaction();
+    throw err;
+  } finally {
+    await qr.release();
+  }
+}

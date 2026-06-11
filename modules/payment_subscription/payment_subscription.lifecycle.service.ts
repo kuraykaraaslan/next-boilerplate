@@ -228,6 +228,34 @@ export default class PaymentSubscriptionLifecycleService {
     return SubscriptionSchema.parse(saved);
   }
 
+  /**
+   * Called by payment webhook handlers when a renewal charge fails.
+   * Transitions the subscription to PAST_DUE and increments pastDueCount
+   * so external dunning logic can gate on the failure depth.
+   * On the configurable grace-period boundary callers should follow up with
+   * cancelSubscription({ cancelAtPeriodEnd: false }).
+   */
+  static async markPastDue(tenantId: string, subscriptionId: string): Promise<Subscription> {
+    const ds = await tenantDataSourceFor(tenantId);
+    const repo = ds.getRepository(SubscriptionEntity);
+    const sub = await repo.findOne({ where: { tenantId, subscriptionId } });
+    if (!sub) throw new AppError(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
+    if (['CANCELLED', 'EXPIRED'].includes(sub.status)) return SubscriptionSchema.parse(sub);
+
+    sub.status = 'PAST_DUE';
+    sub.pastDueCount = (sub.pastDueCount ?? 0) + 1;
+    const saved = await repo.save(sub);
+    await redis.del(`sub:id:${subscriptionId}:true`);
+    await redis.del(`sub:id:${subscriptionId}:false`);
+    await WebhookService.dispatchEvent(tenantId, 'subscription.past_due', {
+      subscriptionId: saved.subscriptionId,
+      userId: saved.userId,
+      planId: saved.planId,
+      pastDueCount: saved.pastDueCount,
+    });
+    return SubscriptionSchema.parse(saved);
+  }
+
   static async prorationPreview(
     tenantId: string,
     subscriptionId: string,

@@ -205,7 +205,12 @@ export default class StorageService {
         const ds = await tenantDataSourceFor(tenantId)
         const repo = ds.getRepository(UploadedFile)
         const row = await repo.findOne({ where: { tenantId, key, deletedAt: IsNull() } })
-        if (row) await repo.softRemove(row)
+        if (row) {
+          await repo.softRemove(row)
+          if (row.size && row.size > 0) {
+            await TenantUsageService.decrementStorageBytes(tenantId, row.size)
+          }
+        }
       } catch (auditError) {
         Logger.warn(
           `StorageService.deleteFile audit soft-delete failed: ${

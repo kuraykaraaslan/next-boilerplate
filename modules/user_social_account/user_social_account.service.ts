@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import { getDataSource } from '@/modules/db';
 import redis, { jitter, singleFlight } from '@/modules/redis';
 import { env } from '@/modules/env';
+import { encryptFieldOpt, decryptFieldOpt } from '@/modules/common/field-encryption';
 import { UserSocialAccount as UserSocialAccountEntity } from './entities/user_social_account.entity';
 import { SafeUserSocialAccount, SafeUserSocialAccountSchema } from './user_social_account.types';
 import { AppError, ErrorCode } from '@/modules/common/app-error';
@@ -80,14 +81,20 @@ export default class UserSocialAccountService {
 
     if (existing) {
       await repo.update({ userSocialAccountId: existing.userSocialAccountId }, {
-        accessToken, refreshToken, profilePicture,
+        accessToken: accessToken ? encryptFieldOpt(accessToken) : accessToken,
+        refreshToken: refreshToken ? encryptFieldOpt(refreshToken) : refreshToken,
+        profilePicture,
       });
       const updated = await repo.findOne({ where: { userSocialAccountId: existing.userSocialAccountId } });
       await this.clearCache({ userId, provider, providerId });
       return SafeUserSocialAccountSchema.parse(updated!);
     }
 
-    const account = repo.create({ userId, provider, providerId, accessToken, refreshToken, profilePicture });
+    const account = repo.create({
+      userId, provider, providerId, profilePicture,
+      accessToken: accessToken ? encryptFieldOpt(accessToken) : accessToken,
+      refreshToken: refreshToken ? encryptFieldOpt(refreshToken) : refreshToken,
+    });
     const saved = await repo.save(account);
     await this.clearCache({ userId, provider, providerId });
     return SafeUserSocialAccountSchema.parse(saved);
@@ -101,8 +108,27 @@ export default class UserSocialAccountService {
     const ds = await getDataSource();
     await ds.getRepository(UserSocialAccountEntity).update(
       { userSocialAccountId },
-      { accessToken, refreshToken }
+      {
+        accessToken: encryptFieldOpt(accessToken),
+        refreshToken: refreshToken ? encryptFieldOpt(refreshToken) : refreshToken,
+      }
     );
+  }
+
+  /** Return raw (decrypted) tokens for internal OAuth flows (token refresh, revocation). */
+  static async getRawTokens(
+    userSocialAccountId: string,
+  ): Promise<{ accessToken: string | null; refreshToken: string | null }> {
+    const ds = await getDataSource();
+    const row = await ds.getRepository(UserSocialAccountEntity).findOne({
+      where: { userSocialAccountId },
+      select: ['accessToken', 'refreshToken'],
+    });
+    if (!row) return { accessToken: null, refreshToken: null };
+    return {
+      accessToken: decryptFieldOpt(row.accessToken) as string | null,
+      refreshToken: decryptFieldOpt(row.refreshToken) as string | null,
+    };
   }
 
   static async unlink(userId: string, provider: SocialAccountProvider): Promise<void> {

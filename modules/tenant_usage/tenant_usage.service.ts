@@ -84,6 +84,21 @@ export class TenantUsageService {
     await TenantUsageService._increment(tenantId, 'smsSends', count);
   }
 
+  static async decrementStorageBytes(tenantId: string, bytes: number): Promise<void> {
+    if (!tenantId || bytes <= 0) return;
+    const month = TenantUsageService.currentMonth();
+    const key = TenantUsageService.redisKey(tenantId, 'storageBytes', month);
+    try {
+      await redis.decrby(key, bytes);
+    } catch (error) {
+      Logger.warn(
+        `TenantUsageService.decrementStorageBytes failed: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
+    }
+  }
+
   static async getUsage(
     tenantId: string,
     month?: string,

@@ -1,6 +1,7 @@
 import { randomUUID } from 'crypto';
 import redis from '@/modules/redis';
 import Logger from '@/modules/logger';
+import { TenantUsageService } from '@/modules/tenant_usage/tenant_usage.service';
 
 const WINDOW_MS = 60_000; // 1 minute
 
@@ -56,6 +57,8 @@ export async function checkTenantPlanRateLimit(
   tenantId: string,
   limitPerMinute: number,
 ): Promise<RateLimitResult> {
+  // Track every checked call toward the monthly usage counter (best-effort, non-blocking).
+  TenantUsageService.incrementApiCall(tenantId).catch(() => {});
   return checkSlidingWindowRateLimit(`tenant:${tenantId}:ratelimit`, limitPerMinute);
 }
 
