@@ -9,12 +9,15 @@ export default class SamlService {
   // Config management
   // ──────────────────────────────────────────────
 
-  static spEntityId    = AuthSamlConfigService.spEntityId.bind(AuthSamlConfigService);
-  static acsUrl        = AuthSamlConfigService.acsUrl.bind(AuthSamlConfigService);
-  static metadataUrl   = AuthSamlConfigService.metadataUrl.bind(AuthSamlConfigService);
-  static getConfig     = AuthSamlConfigService.getConfig.bind(AuthSamlConfigService);
-  static upsertConfig  = AuthSamlConfigService.upsertConfig.bind(AuthSamlConfigService);
-  static deleteConfig  = AuthSamlConfigService.deleteConfig.bind(AuthSamlConfigService);
+  static spEntityId       = AuthSamlConfigService.spEntityId.bind(AuthSamlConfigService);
+  static acsUrl           = AuthSamlConfigService.acsUrl.bind(AuthSamlConfigService);
+  static metadataUrl      = AuthSamlConfigService.metadataUrl.bind(AuthSamlConfigService);
+  static sloUrl           = AuthSamlConfigService.sloUrl.bind(AuthSamlConfigService);
+  static getConfig        = AuthSamlConfigService.getConfig.bind(AuthSamlConfigService);
+  static upsertConfig     = AuthSamlConfigService.upsertConfig.bind(AuthSamlConfigService);
+  static deleteConfig     = AuthSamlConfigService.deleteConfig.bind(AuthSamlConfigService);
+  static importMetadata   = AuthSamlConfigService.importMetadata.bind(AuthSamlConfigService);
+  static checkIdpCertExpiry = AuthSamlConfigService.checkIdpCertExpiry.bind(AuthSamlConfigService);
 
   // ──────────────────────────────────────────────
   // Auth flow / provisioning
