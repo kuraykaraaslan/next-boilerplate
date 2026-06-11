@@ -2,6 +2,8 @@ import { BaseSSOProvider } from './base.provider';
 import type { SSOProfile } from '../auth_sso.types';
 
 export class LinkedInProvider extends BaseSSOProvider {
+  protected override usesPkce = true;
+
   constructor() {
     super('linkedin');
   }

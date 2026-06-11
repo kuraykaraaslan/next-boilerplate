@@ -29,7 +29,7 @@ export async function GET(
       return NextResponse.json({ message: SSOMessages.INVALID_PROVIDER }, { status: 400 });
     }
 
-    if (!SSOService.isProviderEnabled(provider)) {
+    if (!(await SSOService.isProviderEnabled(provider, tenantId))) {
       return NextResponse.json({ message: SSOMessages.INVALID_PROVIDER }, { status: 400 });
     }
 
@@ -40,8 +40,12 @@ export async function GET(
       );
     }
 
-    const state = SSOService.signLinkState(user.userId, user.email, `/tenant/${tenantId}/admin/me`);
-    const url = SSOService.generateAuthUrl(provider as SSOProvider, state);
+    const state = SSOService.signLinkState(user.userId, user.email, `/tenant/${tenantId}/admin/me`, tenantId);
+    // GOODTOHAVE (i18n): locale-aware consent + login_hint with the known email.
+    const locale = request.headers.get('accept-language') ?? undefined;
+    const url = await SSOService.generateAuthUrl(provider as SSOProvider, state, {
+      tenantId, locale, loginHint: user.email,
+    });
 
     return NextResponse.json({ url, state });
   } catch (error: any) {

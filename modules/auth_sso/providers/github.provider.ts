@@ -61,6 +61,24 @@ export class GithubProvider extends BaseSSOProvider {
     }
   }
 
+  /** GitHub OAuth-app token revocation: DELETE /applications/{client_id}/token (Basic auth). */
+  override async revokeToken(token: string): Promise<boolean> {
+    if (!token || !this.config.clientId) return false;
+    try {
+      await axios.delete(`https://api.github.com/applications/${this.config.clientId}/token`, {
+        headers: {
+          Authorization: this.basicAuthHeader(),
+          Accept: 'application/vnd.github+json',
+          'X-GitHub-Api-Version': '2022-11-28',
+        },
+        data: { access_token: token },
+      });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   protected mapUserInfo(data: Record<string, unknown>): SSOProfile {
     const name = typeof data.name === 'string' ? data.name : undefined;
     let firstName: string | undefined;

@@ -44,12 +44,21 @@ export interface SSOProviderConfig {
   scopes: string[];
 }
 
+/** Locale-aware OAuth consent-screen options (GOODTOHAVE i18n). */
+export interface SSOAuthUrlOptions {
+  /** OAuth `ui_locales` — pre-selects the consent-screen language. */
+  uiLocales?: string;
+  /** OAuth `login_hint` — pre-fills the account selector with a known email. */
+  loginHint?: string;
+}
+
 export interface SSOProviderService {
   /**
    * Build the redirect URL the user is sent to. `state` should be high-entropy and
    * round-tripped on the callback. Providers that use PKCE derive the verifier from it.
+   * `options` carries locale-aware consent params (ui_locales / login_hint).
    */
-  generateAuthUrl(state?: string): string;
+  generateAuthUrl(state?: string, options?: SSOAuthUrlOptions): string;
   /**
    * Exchange the auth code for tokens. `state` must be the same value passed to
    * generateAuthUrl — providers that derive PKCE / nonce / verifier from state need it.
@@ -60,4 +69,8 @@ export interface SSOProviderService {
    * needs `openid` from it, OIDC providers prefer the `idToken`, etc.
    */
   getUserInfo(accessToken: string, tokens?: SSOTokens): Promise<SSOProfile>;
+  /** GOODTOHAVE: revoke a grant at the provider on unlink (RFC 7009 where supported). */
+  revokeToken?(token: string, tokenTypeHint?: 'access_token' | 'refresh_token'): Promise<boolean>;
+  /** GOODTOHAVE: rotate/revalidate a refresh token for a linked account. */
+  refreshTokens?(refreshToken: string): Promise<SSOTokens | null>;
 }

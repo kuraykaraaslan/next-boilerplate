@@ -12,6 +12,10 @@ const SSOMessages = {
   USER_INFO_FAILED: 'Failed to fetch user information',
   ID_TOKEN_MISSING: 'Identity token missing from provider response',
   ID_TOKEN_INVALID: 'Identity token failed signature verification',
+  SOCIAL_LOGIN_DISABLED: 'Social login is disabled for this tenant',
+  PROVIDER_NOT_ALLOWED: 'This SSO provider is not allowed for this tenant',
 } as const;
+
+export type SSOMessageKey = keyof typeof SSOMessages;
 
 export default SSOMessages;

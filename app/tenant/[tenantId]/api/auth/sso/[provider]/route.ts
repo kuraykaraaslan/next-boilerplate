@@ -27,7 +27,8 @@ export async function GET(
     const _rl = await Limiter.checkRateLimit(request);
     if (_rl) return _rl;
 
-    if (!SSOService.isProviderEnabled(provider)) {
+    // GOODTOHAVE (multi-tenancy): gate on this tenant's policy, not just env.
+    if (!(await SSOService.isProviderEnabled(provider, tenantId))) {
       return NextResponse.json(
         { message: SSOMessages.INVALID_PROVIDER },
         { status: 400 }
@@ -35,7 +36,9 @@ export async function GET(
     }
 
     const state = `${tenantId}.${crypto.randomUUID()}`;
-    const url = SSOService.generateAuthUrl(provider as SSOProvider, state);
+    // GOODTOHAVE (i18n): pass the browser locale through for the consent screen.
+    const locale = request.headers.get('accept-language') ?? undefined;
+    const url = await SSOService.generateAuthUrl(provider as SSOProvider, state, { tenantId, locale });
 
     return NextResponse.json({ url, state });
   } catch (error: any) {

@@ -5,5 +5,15 @@
   "button_label": "{{provider}} ile devam et",
   "modal_button": "SSO ile giriş yap",
   "modal_title": "Bir sağlayıcı seçin",
-  "close": "Kapat"
+  "close": "Kapat",
+  "errors": {
+    "EMAIL_NOT_FOUND": "SSO sağlayıcısı bir e-posta adresi döndürmedi.",
+    "EMAIL_MISMATCH": "SSO sağlayıcısının e-postası hesap e-postanızla eşleşmiyor.",
+    "EMAIL_NOT_VERIFIED": "SSO sağlayıcısının döndürdüğü e-posta doğrulanmamış.",
+    "PROVIDER_NOT_CONFIGURED": "Bu SSO sağlayıcısı yapılandırılmamış.",
+    "PROVIDER_NOT_ALLOWED": "Bu SSO sağlayıcısına bu kiracı için izin verilmiyor.",
+    "SOCIAL_LOGIN_DISABLED": "Bu kiracı için sosyal giriş devre dışı.",
+    "TOKEN_EXCHANGE_FAILED": "Yetkilendirme kodu token ile değiştirilemedi.",
+    "USER_INFO_FAILED": "Kullanıcı bilgileri alınamadı."
+  }
 }

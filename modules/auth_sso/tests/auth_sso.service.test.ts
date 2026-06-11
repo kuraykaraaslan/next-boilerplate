@@ -47,6 +47,44 @@ vi.mock('@/modules/redis', () => ({
 
 vi.mock('@/modules/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
 
+// SSO config-resolution service: no-tenant paths defer to the (mocked) global
+// config helpers; the AccessPolicy is only consulted when a tenantId is passed.
+vi.mock('@/modules/setting/setting.service', () => ({
+  default: { getByKeys: vi.fn(async () => ({})), getValue: vi.fn(async () => null) },
+}));
+vi.mock('@/modules/auth/auth.policy.service', () => ({
+  default: {
+    getAccessPolicy: vi.fn(async () => ({ disableSocialLogin: false, ssoAllowedProviders: [] })),
+    isSsoProviderAllowed: vi.fn((provider: string, policy: any) => {
+      if (policy.disableSocialLogin) return false;
+      if (!policy.ssoAllowedProviders?.length) return true;
+      return policy.ssoAllowedProviders.map((p: string) => p.toLowerCase()).includes(provider.toLowerCase());
+    }),
+    filterAllowedProviders: vi.fn((providers: string[], policy: any) =>
+      providers.filter((p) => {
+        if (policy.disableSocialLogin) return false;
+        if (!policy.ssoAllowedProviders?.length) return true;
+        return policy.ssoAllowedProviders.map((x: string) => x.toLowerCase()).includes(p.toLowerCase());
+      }),
+    ),
+  },
+}));
+vi.mock('@/modules/observability', () => ({ default: { recordTenantUsage: vi.fn() } }));
+vi.mock('@/modules/audit_log/audit_log.service', () => ({ default: { log: vi.fn(async () => {}) } }));
+
+// Per-tenant SSO config resolver: provider gating + configured-checks now route
+// through this service (async). Defaults mirror the env mock (google/github).
+vi.mock('../auth_sso.config.service', () => ({
+  default: {
+    isProviderConfigured: vi.fn(async (p: string) => ['google', 'github'].includes(p)),
+    isProviderEnabled: vi.fn(async () => true),
+    getAllowedProviders: vi.fn(async () => ['google', 'github']),
+    resolveConfig: vi.fn(async () => ({})),
+    resolveCallbackUrl: vi.fn(async (p: string) => `http://localhost:3000/api/auth/callback/${p}`),
+    checkClientSecretExpiry: vi.fn(async () => []),
+  },
+}));
+
 // Mock SSO config
 vi.mock('../auth_sso.config', () => ({
   isProviderConfigured: vi.fn((provider: string) => ['google', 'github'].includes(provider)),
@@ -110,6 +148,7 @@ vi.mock('../../user/user.service', () => ({
 }));
 
 import SSOService from '../auth_sso.service';
+import SsoConfigService from '../auth_sso.config.service';
 import SSOMessages from '../auth_sso.messages';
 import { isProviderConfigured, getAllowedProviders } from '../auth_sso.config';
 import { getProvider } from '../providers';
@@ -153,35 +192,35 @@ beforeEach(() => {
 });
 
 describe('SSOService.getAllowedProviders', () => {
-  it('returns configured providers from env', () => {
-    const providers = SSOService.getAllowedProviders();
+  it('returns the allowed providers (resolved per tenant/env)', async () => {
+    const providers = await SSOService.getAllowedProviders();
     expect(providers).toContain('google');
     expect(providers).toContain('github');
   });
 });
 
 describe('SSOService.isProviderEnabled', () => {
-  it('returns true for an allowed provider', () => {
-    expect(SSOService.isProviderEnabled('google')).toBe(true);
+  it('returns true for an allowed provider', async () => {
+    expect(await SSOService.isProviderEnabled('google')).toBe(true);
   });
 
-  it('returns false for a non-allowed provider', () => {
-    (getAllowedProviders as any).mockReturnValue(['google', 'github']);
-    expect(SSOService.isProviderEnabled('apple')).toBe(false);
+  it('returns false for a non-allowed provider', async () => {
+    (SsoConfigService.isProviderEnabled as any).mockResolvedValueOnce(false);
+    expect(await SSOService.isProviderEnabled('apple')).toBe(false);
   });
 });
 
 describe('SSOService.generateAuthUrl', () => {
-  it('returns a URL for a configured provider', () => {
-    const url = SSOService.generateAuthUrl('google', 'my-state');
+  it('returns a URL for a configured provider', async () => {
+    const url = await SSOService.generateAuthUrl('google', 'my-state');
     expect(url).toBeTruthy();
     expect(typeof url).toBe('string');
-    expect(mockProviderInstance.generateAuthUrl).toHaveBeenCalledWith('my-state');
+    expect(mockProviderInstance.generateAuthUrl).toHaveBeenCalledWith('my-state', expect.anything());
   });
 
-  it('throws PROVIDER_NOT_CONFIGURED for an unconfigured provider', () => {
-    (isProviderConfigured as any).mockReturnValue(false);
-    expect(() => SSOService.generateAuthUrl('apple')).toThrow(
+  it('throws PROVIDER_NOT_CONFIGURED for an unconfigured provider', async () => {
+    (SsoConfigService.isProviderConfigured as any).mockResolvedValueOnce(false);
+    await expect(SSOService.generateAuthUrl('apple')).rejects.toThrow(
       SSOMessages.PROVIDER_NOT_CONFIGURED
     );
   });

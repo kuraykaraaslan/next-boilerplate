@@ -2,7 +2,7 @@ import axios from 'axios';
 import crypto from 'crypto';
 import { env } from '@/modules/env';
 import type { SSOProvider } from '../auth_sso.enums';
-import type { SSOProfile, SSOTokens, SSOProviderConfig, SSOProviderService } from '../auth_sso.types';
+import type { SSOProfile, SSOTokens, SSOProviderConfig, SSOProviderService, SSOAuthUrlOptions } from '../auth_sso.types';
 import { SSO_CONFIGS, getCallbackUrl } from '../auth_sso.config';
 import SSOMessages from '../auth_sso.messages';
 
@@ -22,16 +22,27 @@ import SSOMessages from '../auth_sso.messages';
  * Basic auth: providers that require Confidential Client Basic auth (X, Autodesk)
  * call `basicAuthHeader()` and post without client_secret in the body.
  */
+export type AuthUrlOptions = SSOAuthUrlOptions;
+
 export abstract class BaseSSOProvider implements SSOProviderService {
   protected provider: SSOProvider;
   protected config: SSOProviderConfig;
+
+  /**
+   * GOODTOHAVE (security): when true, the generic authorize/token flow attaches a
+   * PKCE `code_challenge` (S256) and posts `code_verifier` on token exchange.
+   * Default false to preserve providers with bespoke token flows; standard
+   * authorization-code OIDC providers opt in. The verifier is derived
+   * deterministically from `state` (HMAC) — same scheme as Twitter/X.
+   */
+  protected usesPkce = false;
 
   constructor(provider: SSOProvider) {
     this.provider = provider;
     this.config = SSO_CONFIGS[provider];
   }
 
-  generateAuthUrl(state?: string): string {
+  generateAuthUrl(state?: string, options?: AuthUrlOptions): string {
     const params = new URLSearchParams({
       client_id: this.config.clientId,
       redirect_uri: getCallbackUrl(this.provider),
@@ -43,20 +54,37 @@ export abstract class BaseSSOProvider implements SSOProviderService {
       params.set('state', state);
     }
 
+    // GOODTOHAVE (i18n): locale-aware consent screen.
+    if (options?.uiLocales) params.set('ui_locales', options.uiLocales);
+    if (options?.loginHint) params.set('login_hint', options.loginHint);
+
+    // GOODTOHAVE (security): PKCE for all opted-in providers.
+    if (this.usesPkce && state) {
+      const verifier = this.pkceVerifier(state);
+      params.set('code_challenge', this.pkceChallenge(verifier));
+      params.set('code_challenge_method', 'S256');
+    }
+
     return `${this.config.authUrl}?${params.toString()}`;
   }
 
-  async getTokens(code: string, _state?: string): Promise<SSOTokens> {
+  async getTokens(code: string, state?: string): Promise<SSOTokens> {
     try {
+      const body: Record<string, string> = {
+        client_id: this.config.clientId,
+        client_secret: this.config.clientSecret,
+        code,
+        redirect_uri: getCallbackUrl(this.provider),
+        grant_type: 'authorization_code',
+      };
+      // GOODTOHAVE (security): include the PKCE verifier on token exchange.
+      if (this.usesPkce && state) {
+        body.code_verifier = this.pkceVerifier(state);
+      }
+
       const response = await axios.post(
         this.config.tokenUrl,
-        new URLSearchParams({
-          client_id: this.config.clientId,
-          client_secret: this.config.clientSecret,
-          code,
-          redirect_uri: getCallbackUrl(this.provider),
-          grant_type: 'authorization_code',
-        }),
+        new URLSearchParams(body),
         {
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -68,6 +96,45 @@ export abstract class BaseSSOProvider implements SSOProviderService {
       return this.normalizeTokens(response.data);
     } catch {
       throw new Error(SSOMessages.TOKEN_EXCHANGE_FAILED);
+    }
+  }
+
+  /**
+   * GOODTOHAVE (security/compliance): revoke an OAuth grant at the provider on
+   * unlink. Providers that expose an RFC 7009 revocation endpoint (or a vendor
+   * equivalent) override this. Default is a no-op returning false (no endpoint).
+   */
+  async revokeToken(_token: string, _tokenTypeHint: 'access_token' | 'refresh_token' = 'access_token'): Promise<boolean> {
+    return false;
+  }
+
+  /**
+   * GOODTOHAVE (security): refresh-token rotation/revalidation for linked social
+   * accounts. Standard OAuth `grant_type=refresh_token`. Providers without
+   * refresh support (or with custom flows) override or rely on the default,
+   * which returns null when no refresh is possible.
+   */
+  async refreshTokens(refreshToken: string): Promise<SSOTokens | null> {
+    if (!refreshToken) return null;
+    try {
+      const response = await axios.post(
+        this.config.tokenUrl,
+        new URLSearchParams({
+          client_id: this.config.clientId,
+          client_secret: this.config.clientSecret,
+          grant_type: 'refresh_token',
+          refresh_token: refreshToken,
+        }),
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            Accept: 'application/json',
+          },
+        }
+      );
+      return this.normalizeTokens(response.data);
+    } catch {
+      return null;
     }
   }
 

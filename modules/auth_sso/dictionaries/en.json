@@ -5,5 +5,15 @@
   "button_label": "Continue with {{provider}}",
   "modal_button": "Sign in with SSO",
   "modal_title": "Choose a provider",
-  "close": "Close"
+  "close": "Close",
+  "errors": {
+    "EMAIL_NOT_FOUND": "The SSO provider did not return an email address.",
+    "EMAIL_MISMATCH": "The SSO provider email does not match your account email.",
+    "EMAIL_NOT_VERIFIED": "The email returned by the SSO provider is not verified.",
+    "PROVIDER_NOT_CONFIGURED": "This SSO provider is not configured.",
+    "PROVIDER_NOT_ALLOWED": "This SSO provider is not allowed for this tenant.",
+    "SOCIAL_LOGIN_DISABLED": "Social login is disabled for this tenant.",
+    "TOKEN_EXCHANGE_FAILED": "Failed to exchange the authorization code for tokens.",
+    "USER_INFO_FAILED": "Failed to fetch user information."
+  }
 }

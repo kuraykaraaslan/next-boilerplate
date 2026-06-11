@@ -5,5 +5,15 @@
   "button_label": "Continuar con {{provider}}",
   "modal_button": "Iniciar sesión con SSO",
   "modal_title": "Elige un proveedor",
-  "close": "Cerrar"
+  "close": "Cerrar",
+  "errors": {
+    "EMAIL_NOT_FOUND": "El proveedor SSO no devolvió una dirección de correo.",
+    "EMAIL_MISMATCH": "El correo del proveedor SSO no coincide con el de tu cuenta.",
+    "EMAIL_NOT_VERIFIED": "El correo devuelto por el proveedor SSO no está verificado.",
+    "PROVIDER_NOT_CONFIGURED": "Este proveedor SSO no está configurado.",
+    "PROVIDER_NOT_ALLOWED": "Este proveedor SSO no está permitido para este inquilino.",
+    "SOCIAL_LOGIN_DISABLED": "El inicio de sesión social está deshabilitado para este inquilino.",
+    "TOKEN_EXCHANGE_FAILED": "No se pudo intercambiar el código de autorización por tokens.",
+    "USER_INFO_FAILED": "No se pudo obtener la información del usuario."
+  }
 }

@@ -1,13 +1,15 @@
-import { BaseSSOProvider } from './base.provider';
+import { BaseSSOProvider, type AuthUrlOptions } from './base.provider';
 import type { SSOProfile } from '../auth_sso.types';
 
 export class MicrosoftProvider extends BaseSSOProvider {
+  protected override usesPkce = true;
+
   constructor() {
     super('microsoft');
   }
 
-  generateAuthUrl(state?: string): string {
-    const url = super.generateAuthUrl(state);
+  override generateAuthUrl(state?: string, options?: AuthUrlOptions): string {
+    const url = super.generateAuthUrl(state, options);
     return `${url}&prompt=consent`;
   }
 
