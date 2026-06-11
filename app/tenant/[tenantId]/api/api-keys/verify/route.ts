@@ -27,7 +27,9 @@ export async function POST(
     const body = await request.json().catch(() => ({}));
     const requiredScope = body?.scope as ApiKeyScope | undefined;
 
-    const key = await ApiKeyService.verify(rawKey, requiredScope);
+    const key = await ApiKeyService.verify(rawKey, requiredScope, {
+      ip: Limiter.getIpFromRequest(request),
+    });
 
     if (key.tenantId !== tenantId) {
       return NextResponse.json({ message: 'Invalid or expired API key.' }, { status: 401 });

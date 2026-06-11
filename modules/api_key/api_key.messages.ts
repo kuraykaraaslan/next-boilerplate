@@ -9,7 +9,16 @@ const ApiKeyMessages = {
   CREATE_SUCCESS: 'API key created successfully.',
   DELETE_SUCCESS: 'API key revoked successfully.',
   UPDATE_SUCCESS: 'API key updated successfully.',
+  ROTATE_SUCCESS: 'API key rotated successfully.',
+  REVOKE_ALL_SUCCESS: 'All API keys for this tenant have been revoked.',
   FORBIDDEN: 'You do not have permission to manage API keys.',
+  // Lifecycle / policy enforcement
+  MAX_KEYS_REACHED: 'The maximum number of active API keys for this tenant has been reached.',
+  TTL_EXCEEDS_MAX: 'The requested expiry exceeds the maximum key lifetime allowed for this tenant.',
+  EXPIRY_REQUIRED: 'This tenant requires every API key to have an expiry date.',
+  // Network / security
+  IP_NOT_ALLOWED: 'This API key may not be used from the current IP address.',
+  RATE_LIMITED: 'API key rate limit exceeded. Please slow down.',
 } as const;
 
 export default ApiKeyMessages;

@@ -64,7 +64,10 @@ export const WEBHOOK_EVENT_CATALOG: Record<WebhookEvent, WebhookEventMeta> = {
   'document.signed':        { scope: 'tenant', group: 'E-Signature',   label: 'Document signed',       description: 'An e-signature document was signed.' },
   'identity.verified':      { scope: 'tenant', group: 'E-Signature',   label: 'Identity verified',     description: 'A signer identity was verified.' },
   'api_key.created':        { scope: 'tenant', group: 'API Keys',      label: 'API key created',       description: 'A new API key was issued.' },
+  'api_key.updated':        { scope: 'tenant', group: 'API Keys',      label: 'API key updated',       description: 'An API key was updated, deactivated, or flagged with a usage anomaly.' },
   'api_key.deleted':        { scope: 'tenant', group: 'API Keys',      label: 'API key revoked',       description: 'An API key was revoked.' },
+  'api_key.expired':        { scope: 'tenant', group: 'API Keys',      label: 'API key expired',       description: 'An API key passed its expiry and was deactivated by the expiry sweep.' },
+  'api_key.rotated':        { scope: 'tenant', group: 'API Keys',      label: 'API key rotated',       description: 'An API key was rotated; a successor key was issued.' },
 
   // ─── Platform-wide (root-tenant webhooks only) ──────────────────────────────
   'user.created':           { scope: 'platform', group: 'Users',         label: 'User created',          description: 'A new user account was registered.' },

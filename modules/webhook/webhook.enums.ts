@@ -43,7 +43,10 @@ export const WebhookEventEnum = z.enum([
   'document.signed',
   'identity.verified',
   'api_key.created',
+  'api_key.updated',
   'api_key.deleted',
+  'api_key.expired',
+  'api_key.rotated',
 
   // ─── Platform-wide events (only emitted to root-tenant webhooks) ─────────
   'user.created',

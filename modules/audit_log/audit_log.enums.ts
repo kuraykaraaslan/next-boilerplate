@@ -1,6 +1,8 @@
 import { z } from 'zod';
 
-export const AuditActorTypeEnum = z.enum(['USER', 'SYSTEM']);
+// API_KEY: actions performed by a machine credential (programmatic access),
+// e.g. failed key verification or usage anomalies.
+export const AuditActorTypeEnum = z.enum(['USER', 'SYSTEM', 'API_KEY']);
 export type AuditActorType = z.infer<typeof AuditActorTypeEnum>;
 
 // Predefined action constants — extend freely per domain

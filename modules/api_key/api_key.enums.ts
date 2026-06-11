@@ -17,3 +17,9 @@ export const API_KEY_SCOPES: ApiKeyScope[] = [
   'scim:read',
   'scim:write',
 ];
+
+// Environment namespace for a key. Baked into the raw-key prefix
+// (`sk_live_…` / `sk_test_…`) so test credentials can never be mistaken for
+// production ones and vice versa.
+export const ApiKeyEnvEnum = z.enum(['live', 'test']);
+export type ApiKeyEnv = z.infer<typeof ApiKeyEnvEnum>;
