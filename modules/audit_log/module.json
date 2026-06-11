@@ -7,5 +7,5 @@
   "icon": "fas fa-clipboard-list",
   "tags": ["platform", "security", "compliance"],
   "priority": 40,
-  "dependencies": { "requires": ["db", "env", "logger"] }
+  "dependencies": { "requires": ["db", "env", "logger", "common", "redis", "setting", "webhook", "tenant"] }
 }

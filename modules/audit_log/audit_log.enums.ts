@@ -5,6 +5,15 @@ import { z } from 'zod';
 export const AuditActorTypeEnum = z.enum(['USER', 'SYSTEM', 'API_KEY']);
 export type AuditActorType = z.infer<typeof AuditActorTypeEnum>;
 
+// Severity / risk classification for an audit action. Used to rank events for
+// triage, drive the high-risk webhook (audit.high_risk), and allow severity
+// filtering in getAll. Ordered low → critical.
+export const AuditSeverityEnum = z.enum(['low', 'medium', 'high', 'critical']);
+export type AuditSeverity = z.infer<typeof AuditSeverityEnum>;
+
+// Severities considered "high-risk" — these fire the real-time webhook.
+export const HIGH_RISK_SEVERITIES: readonly AuditSeverity[] = ['high', 'critical'] as const;
+
 // Predefined action constants — extend freely per domain
 export const AuditActions = {
   // Auth
@@ -72,3 +81,47 @@ export const AuditActions = {
 } as const;
 
 export type AuditAction = typeof AuditActions[keyof typeof AuditActions];
+
+// Per-action severity map. Actions not listed here default to `low` (see
+// severityForAction). The map is intentionally explicit for security-relevant
+// actions so triage and high-risk alerting stay deterministic.
+export const ACTION_SEVERITY: Readonly<Record<string, AuditSeverity>> = {
+  [AuditActions.AUTH_LOGIN]:            'low',
+  [AuditActions.AUTH_LOGOUT]:           'low',
+  [AuditActions.AUTH_REGISTER]:         'low',
+  [AuditActions.AUTH_EMAIL_VERIFIED]:   'low',
+  [AuditActions.AUTH_OTP_VERIFIED]:     'low',
+
+  [AuditActions.AUTH_LOGIN_FAILED]:     'medium',
+  [AuditActions.AUTH_PASSWORD_CHANGED]: 'medium',
+  [AuditActions.AUTH_PASSWORD_RESET]:   'medium',
+  [AuditActions.AUTH_FORGOT_PASSWORD]:  'medium',
+  [AuditActions.AUTH_TOTP_ENABLED]:     'medium',
+  [AuditActions.AUTH_TOTP_DISABLED]:    'medium',
+  [AuditActions.SETTINGS_UPDATED]:      'medium',
+  [AuditActions.MEMBER_ADDED]:          'medium',
+  [AuditActions.MEMBER_UPDATED]:        'medium',
+  [AuditActions.MEMBER_REMOVED]:        'medium',
+  [AuditActions.SUBSCRIPTION_UPDATED]:  'medium',
+  [AuditActions.SUBSCRIPTION_CANCELLED]:'medium',
+
+  [AuditActions.AUTH_ACCOUNT_LOCKED]:   'high',
+  [AuditActions.AUTH_ACCOUNT_DISABLED]: 'high',
+  [AuditActions.AUTH_DORMANT_DISABLED]: 'high',
+  [AuditActions.SESSION_INVALIDATED]:   'high',
+  [AuditActions.PERMISSION_DENIED]:     'high',
+  [AuditActions.TENANT_DELETED]:        'high',
+  [AuditActions.USER_DELETED]:          'high',
+  [AuditActions.DOMAIN_DNS_CHECK_FAILED]: 'high',
+
+  [AuditActions.IMPERSONATION_STARTED]: 'critical',
+  [AuditActions.IMPERSONATION_ENDED]:   'critical',
+} as const;
+
+/**
+ * Resolve the severity for an action string. Unknown / custom actions default
+ * to `low` so an unmapped action never accidentally pages a security team.
+ */
+export function severityForAction(action: string): AuditSeverity {
+  return ACTION_SEVERITY[action] ?? 'low';
+}
