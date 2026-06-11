@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { CurrencyCodeEnum } from '@/modules/common'
 import {
   PaymentProviderEnum,
   PaymentStatusEnum,
@@ -25,7 +26,7 @@ export const PaymentSchema = z.object({
   provider: PaymentProviderEnum,
   providerPaymentId: z.string().nullable(),
   amount: z.number(),
-  currency: z.string().max(3),
+  currency: CurrencyCodeEnum,
   status: PaymentStatusEnum,
   paymentMethod: PaymentMethodEnum.nullable(),
   description: z.string().nullable(),
@@ -60,7 +61,7 @@ export const PaymentTransactionSchema = z.object({
   type: TransactionTypeEnum,
   status: TransactionStatusEnum,
   amount: z.number(),
-  currency: z.string().max(3),
+  currency: CurrencyCodeEnum,
   fee: z.number().nullable(),
   net: z.number().nullable(),
   providerResponse: z.record(z.string(), z.any()).nullable(),

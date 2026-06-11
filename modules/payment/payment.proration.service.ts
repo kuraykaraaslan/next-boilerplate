@@ -1,3 +1,5 @@
+import type { CurrencyCode } from '@/modules/common'
+
 /**
  * Mid-period plan-change proration arithmetic. Stripe pre-computes prorated
  * line items on its side (`proration_behavior: 'create_prorations'`) and
@@ -16,7 +18,7 @@ export interface ProrationParams {
   daysRemainingInPeriod: number;
   /** Length of a full billing period (28–31 for monthly, 365 for yearly). */
   daysInFullPeriod: number;
-  currency: string;
+  currency: CurrencyCode;
 }
 
 export interface ProrationResult {
@@ -26,7 +28,7 @@ export interface ProrationResult {
   chargeAmount: number;
   /** Net (charge - credit). Positive ⇒ customer owes; negative ⇒ refund/credit balance. */
   netAmount: number;
-  currency: string;
+  currency: CurrencyCode;
 }
 
 function round4(n: number): number {

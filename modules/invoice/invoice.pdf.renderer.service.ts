@@ -1,7 +1,16 @@
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { money, formatMoney, type CurrencyCode } from '@/modules/common';
 import { Invoice } from './entities/invoice.entity';
 import { InvoiceLine } from './entities/invoice_line.entity';
+
+/** BCP-47 locale used by `formatMoney` for each supported PDF language. */
+const PDF_LOCALES: Record<PdfTemplateOptions['language'], string> = {
+  en: 'en-US',
+  tr: 'tr-TR',
+  de: 'de-DE',
+  fr: 'fr-FR',
+};
 
 export interface SellerInfo {
   legalName: string;
@@ -158,11 +167,14 @@ export default class InvoicePdfRendererService {
       doc.text(value, valX, totalsY, { align: 'right' });
       totalsY += 5;
     };
-    totalsRow(L.subtotal, `${Number(invoice.subtotal).toFixed(2)} ${invoice.currency}`);
-    if (Number(invoice.discountAmount) > 0) totalsRow(L.discount, `-${Number(invoice.discountAmount).toFixed(2)} ${invoice.currency}`);
+    const currency = invoice.currency as CurrencyCode;
+    const locale = PDF_LOCALES[tpl.language];
+    const fmt = (amount: number): string => formatMoney(money(amount, currency), locale);
+    totalsRow(L.subtotal, fmt(Number(invoice.subtotal)));
+    if (Number(invoice.discountAmount) > 0) totalsRow(L.discount, fmt(-Number(invoice.discountAmount)));
     totalsRow(invoice.taxScheme === 'KDV' ? L.vat : invoice.taxScheme === 'VAT' ? L.vat : L.tax,
-      `${Number(invoice.taxAmount).toFixed(2)} ${invoice.currency}`);
-    totalsRow(L.grandTotal, `${Number(invoice.totalAmount).toFixed(2)} ${invoice.currency}`, { bold: true, accent: true });
+      fmt(Number(invoice.taxAmount)));
+    totalsRow(L.grandTotal, fmt(Number(invoice.totalAmount)), { bold: true, accent: true });
 
     // Watermark
     if (tpl.watermark) {

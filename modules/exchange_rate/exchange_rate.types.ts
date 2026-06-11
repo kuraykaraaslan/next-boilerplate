@@ -1,11 +1,12 @@
 import { z } from 'zod'
+import { CurrencyCodeEnum } from '@/modules/common'
 
 /**
  * A resolved multiplicative FX rate: `amountTo = amountFrom * rate`.
  */
 export const ExchangeRateQuoteSchema = z.object({
-  from: z.string().length(3),
-  to: z.string().length(3),
+  from: CurrencyCodeEnum,
+  to: CurrencyCodeEnum,
   rate: z.number().positive(),
 })
 

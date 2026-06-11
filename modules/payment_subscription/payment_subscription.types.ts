@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { CurrencyCodeEnum } from '@/modules/common'
 import { PaymentProviderEnum } from '../payment_core/payment_core.enums'
 import {
   SubscriptionStatusEnum, BillingCycleEnum,
@@ -35,7 +36,7 @@ export const PlanProductSummarySchema = z.object({
   productId: z.string().uuid(),
   name: z.string(),
   slug: z.string(),
-  currency: z.string().max(3),
+  currency: CurrencyCodeEnum,
   basePrice: z.coerce.number(),
   shortDescription: z.string().nullable(),
   status: z.string(),
@@ -64,7 +65,7 @@ export const SubscriptionSchema = z.object({
   status: SubscriptionStatusEnum,
   billingCycle: BillingCycleEnum,
   amount: z.number(),
-  currency: z.string().max(3),
+  currency: CurrencyCodeEnum,
   trialEndsAt: z.date().nullable(),
   currentPeriodStart: z.date().nullable(),
   currentPeriodEnd: z.date().nullable(),
@@ -90,7 +91,7 @@ export const ProrationPreviewSchema = z.object({
   unusedCredit: z.number(),
   newCycleCharge: z.number(),
   immediateCharge: z.number(),
-  currency: z.string(),
+  currency: CurrencyCodeEnum,
   prorationDate: z.date(),
 })
 export type ProrationPreview = z.infer<typeof ProrationPreviewSchema>

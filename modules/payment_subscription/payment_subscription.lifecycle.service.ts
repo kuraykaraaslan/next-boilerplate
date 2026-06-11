@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import type { CurrencyCode } from '@/modules/common';
 import { tenantDataSourceFor } from '@/modules/db';
 import redis, { singleFlight } from '@/modules/redis';
 import Logger from '@/modules/logger';
@@ -277,7 +278,7 @@ export default class PaymentSubscriptionLifecycleService {
       cycle,
       sub.currentPeriodStart ?? new Date(),
       sub.currentPeriodEnd ?? new Date(),
-      sub.currency,
+      sub.currency as CurrencyCode,
     );
   }
 }

@@ -1,3 +1,4 @@
+import type { CurrencyCode } from '@/modules/common'
 import type { ProrationPreview } from './payment_subscription.types'
 import type { BillingCycle } from './payment_subscription.enums'
 
@@ -17,7 +18,7 @@ export default class ProrationService {
     billingCycle: BillingCycle,
     periodStart: Date,
     periodEnd: Date,
-    currency: string,
+    currency: CurrencyCode,
   ): ProrationPreview {
     const now = new Date()
     const totalMs = periodEnd.getTime() - periodStart.getTime()

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { TimezoneSchema, DEFAULT_TIMEZONE } from '@/modules/common';
 import {
   ThemeEnum,
   LanguageEnum,
@@ -14,7 +15,7 @@ export const UpdatePreferencesRequestSchema = z.object({
   smsNotifications: z.boolean().nullable().transform(val => val ?? false),
   pushNotifications: z.boolean().nullable().transform(val => val ?? false),
   newsletter: z.boolean().nullable().transform(val => val ?? true),
-  timezone: z.string().nullable().transform(val => val ?? 'UTC'),
+  timezone: TimezoneSchema.nullable().transform(val => val ?? DEFAULT_TIMEZONE),
   dateFormat: DateFormatEnum.nullable().optional().transform(val => val ?? 'DD_MM_YYYY'),
   timeFormat: TimeFormatEnum.nullable().optional().transform(val => val ?? 'H24'),
   firstDayOfWeek: FirstDayOfWeekEnum.nullable().transform(val => val ?? 'MON')

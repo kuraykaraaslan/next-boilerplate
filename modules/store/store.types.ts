@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { CurrencyCodeEnum } from '@/modules/common'
 import { ProductStatusEnum, BundleStatusEnum, CategorySpecTypeEnum, VariationDisplayTypeEnum } from './store.enums'
 
 // ============================================================================
@@ -71,7 +72,7 @@ export const StoreProductSchema = z.object({
   shortDescription: z.string().nullable(),
   details: z.string().nullable(),
   basePrice: z.coerce.number(),
-  currency: z.string().max(3),
+  currency: CurrencyCodeEnum,
   sku: z.string().nullable(),
   stockQuantity: z.coerce.number().int().nullable(),
   trackInventory: z.boolean(),
@@ -216,7 +217,7 @@ export const StoreBundleSchema = z.object({
   richDescription: z.unknown().nullable(),
   bundlePrice: z.coerce.number().nullable(),
   discountPercent: z.coerce.number().nullable(),
-  currency: z.string().max(3),
+  currency: CurrencyCodeEnum,
   imageUrl: z.string().nullable(),
   status: BundleStatusEnum,
   availableFrom: z.date().nullable(),
@@ -246,7 +247,7 @@ export type StoreBundleItem = z.infer<typeof StoreBundleItemSchema>
 export const StoreBundleItemWithProductSchema = StoreBundleItemSchema.extend({
   productName: z.string().nullable(),
   productBasePrice: z.coerce.number().nullable(),
-  productCurrency: z.string().nullable(),
+  productCurrency: CurrencyCodeEnum.nullable(),
 })
 export type StoreBundleItemWithProduct = z.infer<typeof StoreBundleItemWithProductSchema>
 

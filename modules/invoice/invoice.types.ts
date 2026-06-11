@@ -1,5 +1,26 @@
 import { z } from 'zod';
+import { CountryCodeEnum, CurrencyCodeEnum } from '@/modules/common';
 import { InvoiceStatusEnum, InvoiceRegionEnum, TaxSchemeEnum, InvoiceLineSourceEnum } from './invoice.enums';
+
+/**
+ * ISO 3166-1 alpha-2 country code as received at an input boundary. Accepts
+ * mixed-case input (`tr` / `Tr`) by upper-casing before validation, matching
+ * the persistence layer which stores the upper-cased form.
+ */
+const CustomerCountryCodeInput = z.preprocess(
+  (v) => (typeof v === 'string' ? v.toUpperCase() : v),
+  CountryCodeEnum,
+);
+
+/**
+ * ISO 4217 currency code as received at an input boundary. Accepts mixed-case
+ * input (`usd` / `Usd`) by upper-casing before validation, matching the
+ * persistence layer which stores the upper-cased form.
+ */
+const CurrencyCodeInput = z.preprocess(
+  (v) => (typeof v === 'string' ? v.toUpperCase() : v),
+  CurrencyCodeEnum,
+);
 
 export const InvoiceLineInputSchema = z.object({
   description: z.string().min(1),
@@ -17,9 +38,9 @@ export const CreateInvoiceInputSchema = z.object({
   customerName: z.string().min(1),
   customerTaxId: z.string().optional(),
   customerAddress: z.record(z.string(), z.unknown()).optional(),
-  customerCountryCode: z.string().length(2),
+  customerCountryCode: CustomerCountryCodeInput,
 
-  currency: z.string().length(3).optional(),
+  currency: CurrencyCodeInput.optional(),
   dueDate: z.date().optional(),
 
   lines: z.array(InvoiceLineInputSchema).min(1),
@@ -58,7 +79,7 @@ export const SafeInvoiceSchema = z.object({
   customerName: z.string(),
   customerTaxId: z.string().nullable().optional(),
   customerAddress: z.record(z.string(), z.unknown()).nullable().optional(),
-  customerCountryCode: z.string().length(2),
+  customerCountryCode: CountryCodeEnum,
   issueDate: z.date(),
   dueDate: z.date().nullable().optional(),
   paidAt: z.date().nullable().optional(),
@@ -66,7 +87,7 @@ export const SafeInvoiceSchema = z.object({
   discountAmount: z.number(),
   taxAmount: z.number(),
   totalAmount: z.number(),
-  currency: z.string().length(3),
+  currency: CurrencyCodeEnum,
   status: InvoiceStatusEnum,
   region: InvoiceRegionEnum,
   taxScheme: TaxSchemeEnum,
