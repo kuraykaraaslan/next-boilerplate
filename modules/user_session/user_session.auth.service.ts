@@ -26,8 +26,15 @@ export default class UserSessionAuthService {
     const cacheKey = `session:${decoded.userId}:${hashedToken}`;
     const idleKey = `session:idle:${decoded.userSessionId}`;
 
-    const sessionPolicy = await AuthPolicyService.getSessionPolicy(tenantId);
-    const idleTtl = Math.max(60, sessionPolicy.idleTimeoutMinutes * 60);
+    // Resolve the idle-timeout policy against the SESSION's own tenant. The
+    // caller may omit `tenantId` (e.g. token-only auth paths); falling back to
+    // the system default would silently ignore a tenant's configured idle
+    // timeout, so we prefer the explicit arg, then the tenantId stored in the
+    // session metadata, then the system default.
+    const resolveIdleTtl = async (sessionTenantId?: string): Promise<number> => {
+      const policy = await AuthPolicyService.getSessionPolicy(tenantId ?? sessionTenantId);
+      return Math.max(60, policy.idleTimeoutMinutes * 60);
+    };
 
     const cached = await redis.get(cacheKey);
 
@@ -37,6 +44,7 @@ export default class UserSessionAuthService {
         const alive = await redis.get(idleKey);
         if (!alive) throw new AppError(UserSessionMessages.SESSION_EXPIRED, 401, ErrorCode.SESSION_EXPIRED);
         if (!otpVerifyBypass && session.otpVerifyNeeded) throw new AppError(UserSessionMessages.OTP_REQUIRED, 401, ErrorCode.OTP_REQUIRED);
+        const idleTtl = await resolveIdleTtl(session.metadata?.tenantId);
         await redis.expire(idleKey, idleTtl).catch(() => {});
         return session;
       } catch (err: unknown) {
@@ -58,6 +66,8 @@ export default class UserSessionAuthService {
     }
     if (!otpVerifyBypass && session.otpVerifyNeeded) throw new AppError(UserSessionMessages.OTP_REQUIRED, 401, ErrorCode.OTP_REQUIRED);
 
+    const sessionTenantId = (session.metadata as SessionMeta | null)?.tenantId;
+    const idleTtl = await resolveIdleTtl(sessionTenantId);
     const lastActivityMs = (session.updatedAt ?? session.createdAt).getTime();
     if (Date.now() - lastActivityMs > idleTtl * 1000) {
       throw new AppError(UserSessionMessages.SESSION_EXPIRED, 401, ErrorCode.SESSION_EXPIRED);
