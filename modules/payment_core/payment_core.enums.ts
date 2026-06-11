@@ -1,6 +1,5 @@
 import { z } from 'zod'
-import { codes } from 'currency-codes-ts'
-import type { CurrencyCode } from 'currency-codes-ts/dist/types'
+import { CurrencyCodeEnum } from '@/modules/common'
 
 export const PaymentProviderEnum = z.enum([
   'STRIPE',
@@ -22,8 +21,10 @@ export const PaymentMethodEnum = z.enum([
   'OTHER',
 ])
 
-const currencyCodes = codes() as [CurrencyCode, ...CurrencyCode[]]
-export const PaymentCurrencyEnum = z.enum(currencyCodes)
+// Single-sourced from @/modules/common (ISO 4217, backed by currency-codes-ts)
+// so the platform has ONE currency enum. Alias kept as PaymentCurrencyEnum for
+// existing importers.
+export const PaymentCurrencyEnum = CurrencyCodeEnum
 
 export const WebhookEventTypeEnum = z.enum([
   'payment.completed',
