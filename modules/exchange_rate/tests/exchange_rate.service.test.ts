@@ -42,16 +42,16 @@ describe('ExchangeRateService', () => {
   })
 
   it('parses USD ForexSelling for USD->TRY', async () => {
-    expect(await ExchangeRateService.getRate('USD', 'TRY')).toBe(32.2567)
+    expect((await ExchangeRateService.getRate('USD', 'TRY')).rate).toBe(32.2567)
   })
 
   it('inverts the rate for TRY->USD', async () => {
-    expect(await ExchangeRateService.getRate('TRY', 'USD')).toBeCloseTo(1 / 32.2567, 6)
+    expect((await ExchangeRateService.getRate('TRY', 'USD')).rate).toBeCloseTo(1 / 32.2567, 6)
   })
 
   it('returns 1 for identity pairs without hitting TCMB', async () => {
-    expect(await ExchangeRateService.getRate('USD', 'USD')).toBe(1)
-    expect(await ExchangeRateService.getRate('TRY', 'TRY')).toBe(1)
+    expect((await ExchangeRateService.getRate('USD', 'USD')).rate).toBe(1)
+    expect((await ExchangeRateService.getRate('TRY', 'TRY')).rate).toBe(1)
     expect(axios.get).not.toHaveBeenCalled()
   })
 
@@ -72,7 +72,7 @@ describe('ExchangeRateService', () => {
     store.delete('fx:tcmb:usdtry')
     vi.mocked(axios.get).mockRejectedValueOnce(new Error('ETIMEDOUT'))
 
-    expect(await ExchangeRateService.getRate('USD', 'TRY')).toBe(32.2567)
+    expect((await ExchangeRateService.getRate('USD', 'TRY')).rate).toBe(32.2567)
   })
 
   it('throws when TCMB fails with a cold cache', async () => {

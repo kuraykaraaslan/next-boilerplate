@@ -125,6 +125,11 @@ function clean(obj: any) {
   return Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== undefined));
 }
 
+// A single repo whose findOne routes by the `where` key it receives, so one
+// repo instance can stand in for Plan / Product / Feature / Subscription lookups.
+// The source resolves every entity through tenantDataSourceFor(tenantId) (there
+// is no separate system datasource after the service split), so this repo is
+// registered on tenantDataSourceFor below.
 function makeSystemRepo(planOverride: any = mockPlan, featureOverride: any = mockFeature) {
   return {
     findOne: vi.fn(async ({ where }: any) => {
@@ -193,8 +198,11 @@ function makeTenantSubRepo(subOverride: any = mockSubscription) {
   };
 }
 
+// All plan/feature/product/subscription reads in the source resolve through
+// tenantDataSourceFor(tenantId), so register the system repo there.
 function mockSystemDs(planOverride?: any, featureOverride?: any) {
   const sysRepo = makeSystemRepo(planOverride, featureOverride);
+  (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => sysRepo });
   (getDataSource as any).mockResolvedValue({ getRepository: () => sysRepo });
   return sysRepo;
 }
@@ -246,17 +254,16 @@ describe('TenantPlanService.deletePlan', () => {
   beforeEach(() => vi.clearAllMocks());
 
   it('throws PLAN_NOT_FOUND when plan does not exist', async () => {
-    const sysRepo = makeSystemRepo(null);
-    (getDataSource as any).mockResolvedValue({ getRepository: () => sysRepo });
+    mockSystemDs(null);
     await expect(TenantPlanService.deletePlan(TENANT_ID, PLAN_ID))
       .rejects.toThrow(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND);
   });
 
   it('throws PLAN_HAS_SUBSCRIPTIONS when active subscriptions exist', async () => {
-    mockSystemDs();
-    const subRepo = makeTenantSubRepo();
-    subRepo.count = vi.fn(async () => 1);
-    (getDataSource as any).mockResolvedValue({ getRepository: () => subRepo });
+    // deletePlan resolves both the plan (findOne) and the active-subscription
+    // count through the same tenantDataSourceFor repo, so override count on it.
+    const sysRepo = mockSystemDs();
+    sysRepo.count = vi.fn(async () => 1);
 
     await expect(TenantPlanService.deletePlan(TENANT_ID, PLAN_ID))
       .rejects.toThrow(SUBSCRIPTION_MESSAGES.PLAN_HAS_SUBSCRIPTIONS);
@@ -264,9 +271,7 @@ describe('TenantPlanService.deletePlan', () => {
 
   it('deletes the plan when no active subscriptions exist', async () => {
     const sysRepo = mockSystemDs();
-    const subRepo = makeTenantSubRepo();
-    subRepo.count = vi.fn(async () => 0);
-    (getDataSource as any).mockResolvedValue({ getRepository: () => subRepo });
+    sysRepo.count = vi.fn(async () => 0);
 
     await expect(TenantPlanService.deletePlan(TENANT_ID, PLAN_ID)).resolves.toBeUndefined();
     expect(sysRepo.delete).toHaveBeenCalled();
@@ -339,7 +344,7 @@ describe('TenantPlanService.addFeature', () => {
   it('creates and returns a feature', async () => {
     const sysRepo = makeSystemRepo();
     sysRepo.save = vi.fn(async (e: any) => ({ ...mockFeature, ...e }));
-    (getDataSource as any).mockResolvedValue({ getRepository: () => sysRepo });
+    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => sysRepo });
 
     const result = await TenantPlanService.addFeature(TENANT_ID, PLAN_ID, {
       key: 'feature_chat',
@@ -357,7 +362,7 @@ describe('TenantPlanService.updateFeature', () => {
 
   it('throws FEATURE_NOT_FOUND when feature does not exist', async () => {
     const sysRepo = makeSystemRepo(mockPlan, null);
-    (getDataSource as any).mockResolvedValue({ getRepository: () => sysRepo });
+    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => sysRepo });
     await expect(TenantPlanService.updateFeature(TENANT_ID, FEATURE_ID, { label: 'New' }))
       .rejects.toThrow(SUBSCRIPTION_MESSAGES.FEATURE_NOT_FOUND);
   });
@@ -368,14 +373,14 @@ describe('TenantPlanService.removeFeature', () => {
 
   it('throws FEATURE_NOT_FOUND when feature does not exist', async () => {
     const sysRepo = makeSystemRepo(mockPlan, null);
-    (getDataSource as any).mockResolvedValue({ getRepository: () => sysRepo });
+    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => sysRepo });
     await expect(TenantPlanService.removeFeature(TENANT_ID, FEATURE_ID))
       .rejects.toThrow(SUBSCRIPTION_MESSAGES.FEATURE_NOT_FOUND);
   });
 
   it('deletes the feature successfully', async () => {
     const sysRepo = makeSystemRepo();
-    (getDataSource as any).mockResolvedValue({ getRepository: () => sysRepo });
+    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => sysRepo });
     await expect(TenantPlanService.removeFeature(TENANT_ID, FEATURE_ID)).resolves.toBeUndefined();
     expect(sysRepo.delete).toHaveBeenCalled();
   });

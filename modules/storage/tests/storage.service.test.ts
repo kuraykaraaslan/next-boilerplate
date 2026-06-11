@@ -69,7 +69,7 @@ const mockUploadResult = {
   size: 1024,
 };
 
-vi.mock('./providers/aws-s3.provider', () => ({
+vi.mock('../providers/aws-s3.provider', () => ({
   default: class MockAWSS3Provider {
     constructor(public config: any) {}
     async uploadFile() { return mockUploadResult; }
@@ -79,7 +79,7 @@ vi.mock('./providers/aws-s3.provider', () => ({
   },
 }));
 
-vi.mock('./providers/cloudflare-r2.provider', () => ({
+vi.mock('../providers/cloudflare-r2.provider', () => ({
   default: class MockCloudflareR2Provider {
     constructor(public config: any) {}
     async uploadFile() { return mockUploadResult; }
@@ -89,7 +89,7 @@ vi.mock('./providers/cloudflare-r2.provider', () => ({
   },
 }));
 
-vi.mock('./providers/digitalocean-spaces.provider', () => ({
+vi.mock('../providers/digitalocean-spaces.provider', () => ({
   default: class MockDOSpacesProvider {
     constructor(public config: any) {}
     async uploadFile() { return mockUploadResult; }
@@ -99,7 +99,7 @@ vi.mock('./providers/digitalocean-spaces.provider', () => ({
   },
 }));
 
-vi.mock('./providers/minio.provider', () => ({
+vi.mock('../providers/minio.provider', () => ({
   default: class MockMinIOProvider {
     constructor(public config: any) {}
     async uploadFile() { return mockUploadResult; }
@@ -111,10 +111,19 @@ vi.mock('./providers/minio.provider', () => ({
 
 
 // Bypass feature gating in unit tests — tested separately in tenant_subscription/.
-vi.mock('@/modules/tenant_subscription/tenant_subscription.service', () => ({
+// The gate lives in tenant_subscription.feature.service after the service split.
+vi.mock('@/modules/tenant_subscription/tenant_subscription.feature.service', () => ({
   default: {
     assertFeatureAccess: vi.fn(async () => undefined),
     checkFeatureAccess: vi.fn(async () => ({ allowed: true, featureKey: '', type: 'BOOLEAN', limit: null, unlimited: null, current: null })),
+  },
+}));
+// Usage tracking is a side-effect of uploads — stub it so unit tests stay
+// focused on storage behaviour (named export, not default).
+vi.mock('@/modules/tenant_usage/tenant_usage.service', () => ({
+  TenantUsageService: {
+    getUsage: vi.fn(async () => ({ storageBytes: 0 })),
+    incrementStorageBytes: vi.fn(async () => undefined),
   },
 }));
 import StorageService from '../storage.service';

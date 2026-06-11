@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // Env must contain real-looking aggregator config so the provider constructor
@@ -23,10 +24,10 @@ const redisStore = new Map<string, string>();
 vi.mock('@/modules/redis', () => ({
   default: {
     scanStream: vi.fn(async () => undefined),
-    get: vi.fn(async () => null),
-    set: vi.fn(async () => 'OK'),
-    setex: vi.fn(async () => 'OK'),
-    del: vi.fn(async () => 1),
+    get: vi.fn(async (k: string) => redisStore.get(k) ?? null),
+    set: vi.fn(async (k: string, v: string) => { redisStore.set(k, v); return 'OK'; }),
+    setex: vi.fn(async (k: string, _ttl: number, v: string) => { redisStore.set(k, v); return 'OK'; }),
+    del: vi.fn(async (k: string) => { redisStore.delete(k); return 1; }),
     ping: vi.fn(async () => 'PONG'),
     mget: vi.fn(async () => []),
     incrby: vi.fn(async () => 1),

@@ -33,7 +33,7 @@ vi.mock('@/modules/redis', () => ({
   jitter: (n: number) => n,
 }));
 vi.mock('@/modules/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
-vi.mock('../tenant_member/tenant_member.service', () => ({
+vi.mock('../../tenant_member/tenant_member.service', () => ({
   default: {
     getByTenantAndUser: vi.fn(async () => null),
     create: vi.fn(async () => ({})),

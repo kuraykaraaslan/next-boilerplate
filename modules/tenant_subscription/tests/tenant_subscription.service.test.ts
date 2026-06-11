@@ -208,23 +208,32 @@ function mockTenantDs(subOverride?: any) {
 
 // ─── assignPlan ───────────────────────────────────────────────────────────────
 
+// assignPlan resolves BOTH the plan and the tenant subscription through the same
+// tenantDataSourceFor(tenantId) datasource, so the registered DS must route by
+// entity name: SubscriptionPlan → plan repo, TenantSubscription → sub repo.
+function mockAssignPlanDs(planOverride: any, subRepo: ReturnType<typeof makeTenantSubRepo>) {
+  const planRepo = { findOne: vi.fn(async () => planOverride) };
+  const route = (entity: any) =>
+    (entity?.name === 'TenantSubscription' ? subRepo : planRepo) as any;
+  (tenantDataSourceFor as any).mockResolvedValue({ getRepository: route });
+  (getDataSource as any).mockResolvedValue({ getRepository: route });
+}
+
 describe('TenantSubscriptionService.assignPlan', () => {
   beforeEach(() => vi.clearAllMocks());
 
   it('throws PLAN_NOT_FOUND when plan does not exist', async () => {
-    mockSystemDs(null);
-    mockTenantDs();
+    mockAssignPlanDs(null, makeTenantSubRepo());
     await expect(
       TenantSubscriptionService.assignPlan(TENANT_ID, { planId: PLAN_ID, billingInterval: 'MONTHLY' })
     ).rejects.toThrow(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND);
   });
 
   it('creates subscription and returns it for a new tenant', async () => {
-    mockSystemDs();
     const subRepo = makeTenantSubRepo();
     subRepo.findOne = vi.fn(async () => null); // no existing subscription
     subRepo.save = vi.fn(async (e: any) => ({ ...mockSubscription, ...e }));
-    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => subRepo });
+    mockAssignPlanDs(mockPlan, subRepo);
 
     const result = await TenantSubscriptionService.assignPlan(TENANT_ID, {
       planId: PLAN_ID,
@@ -237,14 +246,11 @@ describe('TenantSubscriptionService.assignPlan', () => {
 
   it('sets status to TRIALING when plan has trial days', async () => {
     const planWithTrial = { ...mockPlan, trialDays: 14 };
-    const sysRepo = makeSystemRepo(planWithTrial);
-    (getDataSource as any).mockResolvedValue({ getRepository: () => sysRepo });
-
     const subRepo = makeTenantSubRepo();
     subRepo.findOne = vi.fn(async () => null);
     const trialSub = { ...mockSubscription, status: 'TRIALING', trialEndsAt: new Date() };
     subRepo.save = vi.fn(async () => trialSub);
-    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => subRepo });
+    mockAssignPlanDs(planWithTrial, subRepo);
 
     const result = await TenantSubscriptionService.assignPlan(TENANT_ID, {
       planId: PLAN_ID,

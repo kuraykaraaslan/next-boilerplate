@@ -58,6 +58,13 @@ function clean(obj: any) {
   return Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== undefined));
 }
 
+// The social-link mutators reassign `profile.socialLinks` on the entity they
+// read from findOne. Returning a deep clone keeps the module-level fixture
+// pristine so tests don't pollute each other.
+function cloneEntity(e: typeof mockProfileEntity) {
+  return { ...e, socialLinks: e.socialLinks.map((l) => ({ ...l })) };
+}
+
 function buildRepoMock(overrides: Record<string, any> = {}) {
   const findOne = vi.fn(async () => null as typeof mockProfileEntity | null);
   const save = vi.fn(async (data: any) => ({ ...mockProfileEntity, ...clean(data) }));
@@ -69,6 +76,11 @@ function buildRepoMock(overrides: Record<string, any> = {}) {
 
   (getDataSource as any).mockResolvedValue({
     getRepository: () => repo,
+    // The social-link mutators run inside a transaction; the manager exposes
+    // the same repository the non-transactional methods use.
+    transaction: vi.fn(async (cb: (mgr: { getRepository: () => typeof repo }) => unknown) =>
+      cb({ getRepository: () => repo }),
+    ),
   });
 
   return repo;
@@ -85,7 +97,7 @@ describe('UserProfileService.getByUserId', () => {
 
   it('returns parsed profile when found', async () => {
     const repo = buildRepoMock();
-    repo.findOne.mockResolvedValueOnce(mockProfileEntity);
+    repo.findOne.mockResolvedValueOnce(cloneEntity(mockProfileEntity));
 
     const result = await UserProfileService.getByUserId('user-1');
     expect(result).not.toBeNull();
@@ -99,7 +111,7 @@ describe('UserProfileService.create', () => {
 
   it('throws when profile already exists', async () => {
     const repo = buildRepoMock();
-    repo.findOne.mockResolvedValueOnce(mockProfileEntity);
+    repo.findOne.mockResolvedValueOnce(cloneEntity(mockProfileEntity));
 
     await expect(UserProfileService.create('user-1')).rejects.toThrow(
       'Profile already exists for this user'
@@ -137,7 +149,7 @@ describe('UserProfileService.update', () => {
     const repo = buildRepoMock();
     const updated = { ...mockProfileEntity, name: 'Updated Name' };
     repo.findOne
-      .mockResolvedValueOnce(mockProfileEntity)
+      .mockResolvedValueOnce(cloneEntity(mockProfileEntity))
       .mockResolvedValueOnce(updated);
 
     const result = await UserProfileService.update('user-1', { name: 'Updated Name' });
@@ -152,7 +164,7 @@ describe('UserProfileService.upsert', () => {
     const repo = buildRepoMock();
     const updated = { ...mockProfileEntity, biography: 'Updated bio' };
     repo.findOne
-      .mockResolvedValueOnce(mockProfileEntity)
+      .mockResolvedValueOnce(cloneEntity(mockProfileEntity))
       .mockResolvedValueOnce(updated);
 
     const result = await UserProfileService.upsert('user-1', { biography: 'Updated bio' });
@@ -177,7 +189,7 @@ describe('UserProfileService.delete', () => {
 
   it('calls delete on repository when profile exists', async () => {
     const repo = buildRepoMock();
-    repo.findOne.mockResolvedValueOnce(mockProfileEntity);
+    repo.findOne.mockResolvedValueOnce(cloneEntity(mockProfileEntity));
 
     await UserProfileService.delete('user-1');
     expect(repo.delete).toHaveBeenCalledWith({ userId: 'user-1' });
@@ -200,7 +212,7 @@ describe('UserProfileService.addSocialLink', () => {
     const updatedProfile = { ...mockProfileEntity, socialLinks: [mockSocialLink, newLink] as typeof mockProfileEntity['socialLinks'] };
 
     repo.findOne
-      .mockResolvedValueOnce(mockProfileEntity)
+      .mockResolvedValueOnce(cloneEntity(mockProfileEntity))
       .mockResolvedValueOnce(updatedProfile);
 
     const result = await UserProfileService.addSocialLink('user-1', newLink as any);
@@ -223,7 +235,7 @@ describe('UserProfileService.removeSocialLink', () => {
     const updatedProfile = { ...mockProfileEntity, socialLinks: [] };
 
     repo.findOne
-      .mockResolvedValueOnce(mockProfileEntity)
+      .mockResolvedValueOnce(cloneEntity(mockProfileEntity))
       .mockResolvedValueOnce(updatedProfile);
 
     const result = await UserProfileService.removeSocialLink('user-1', LINK_ID);
@@ -247,7 +259,7 @@ describe('UserProfileService.updateSocialLink', () => {
     const updatedProfile = { ...mockProfileEntity, socialLinks: [updatedLink] };
 
     repo.findOne
-      .mockResolvedValueOnce(mockProfileEntity)
+      .mockResolvedValueOnce(cloneEntity(mockProfileEntity))
       .mockResolvedValueOnce(updatedProfile);
 
     const result = await UserProfileService.updateSocialLink('user-1', LINK_ID, { url: 'https://github.com/new' });

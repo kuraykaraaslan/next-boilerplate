@@ -152,6 +152,7 @@ vi.mock('@/modules/tenant_subscription/tenant_subscription.feature.service', () 
   },
 }));
 import AIService from '../ai.service';
+import AIProviderService from '../ai.provider.service';
 import redis from '@/modules/redis';
 import { AppError } from '@/modules/common/app-error';
 import { OpenAIModels, AnthropicModels, GoogleModels } from '../ai.types';
@@ -167,7 +168,7 @@ beforeEach(() => {
   mockRedis.incrby.mockResolvedValue(30);
   mockRedis.expire.mockResolvedValue(1);
   // Reset per-tenant provider cache
-  (AIService as any)._tenantProviders?.clear?.();
+  (AIProviderService as any)._tenantProviders?.clear?.();
 });
 
 describe('AIService.listProviders', () => {
@@ -286,7 +287,7 @@ describe('AIService.chat', () => {
       embed: vi.fn(),
       listModels: () => [],
     };
-    (AIService as any)._tenantProviders.set(TENANT_ID, {
+    (AIProviderService as any)._tenantProviders.set(TENANT_ID, {
       openai: notConfigured,
       anthropic: notConfigured,
       google: notConfigured,
@@ -332,7 +333,7 @@ describe('AIService.embed', () => {
       embed: vi.fn(),
       listModels: () => [],
     };
-    (AIService as any)._tenantProviders.set(TENANT_ID, {
+    (AIProviderService as any)._tenantProviders.set(TENANT_ID, {
       openai: notConfigured,
       anthropic: notConfigured,
       google: notConfigured,
@@ -420,19 +421,19 @@ describe('AIService.reinitializeProvider', () => {
 
   it('replaces the openai provider instance', () => {
     AIService.reinitializeProvider(TENANT_ID, 'openai', { apiKey: 'new-key', defaultModel: 'gpt-4' });
-    const bundle = (AIService as any)._tenantProviders.get(TENANT_ID);
+    const bundle = (AIProviderService as any)._tenantProviders.get(TENANT_ID);
     expect(bundle?.openai).toBeTruthy();
   });
 
   it('replaces the anthropic provider instance', () => {
     AIService.reinitializeProvider(TENANT_ID, 'anthropic', { apiKey: 'new-anthropic-key' });
-    const bundle = (AIService as any)._tenantProviders.get(TENANT_ID);
+    const bundle = (AIProviderService as any)._tenantProviders.get(TENANT_ID);
     expect(bundle?.anthropic).toBeTruthy();
   });
 
   it('replaces the google provider instance', () => {
     AIService.reinitializeProvider(TENANT_ID, 'google', { apiKey: 'new-google-key' });
-    const bundle = (AIService as any)._tenantProviders.get(TENANT_ID);
+    const bundle = (AIProviderService as any)._tenantProviders.get(TENANT_ID);
     expect(bundle?.google).toBeTruthy();
   });
 });

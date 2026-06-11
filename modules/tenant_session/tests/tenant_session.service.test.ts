@@ -206,16 +206,25 @@ describe('TenantSessionService.authenticateTenantMembership', () => {
     expect(result.tenantMember.userId).toBe(mockMember.userId);
   });
 
-  it('returns cached result when redis cache is warm', async () => {
-    const cached = JSON.stringify({ tenant: mockTenant, tenantMember: mockMember });
+  it('returns cached result when redis cache is warm and sessionVersion matches', async () => {
+    // Source revalidates the cached entry against the DB sessionVersion before
+    // trusting the cache. When the versions match, it returns the cached value
+    // without falling through to the full singleFlight DB load.
+    const cachedMember = { ...mockMember, sessionVersion: 1 };
+    const cached = JSON.stringify({ tenant: mockTenant, tenantMember: cachedMember });
     (redis.get as any).mockResolvedValue(cached);
+    const { memberRepo } = mockTenantDs(mockTenant, { ...mockMember, sessionVersion: 1 } as any);
+
     const result = await TenantSessionService.authenticateTenantMembership({
       user: mockUser as any,
       tenantId: mockTenant.tenantId,
     });
+
     expect(result.tenant.tenantId).toBe(mockTenant.tenantId);
-    // tenantDataSourceFor should NOT have been called
-    expect(tenantDataSourceFor).not.toHaveBeenCalled();
+    // Only the lightweight sessionVersion revalidation query runs — the cache is
+    // trusted, so no setex re-write nor a second membership fetch occurs.
+    expect(memberRepo.findOne).toHaveBeenCalledTimes(1);
+    expect(redis.setex).not.toHaveBeenCalled();
   });
 
   it('throws INSUFFICIENT_TENANT_PERMISSIONS from cache when cached role is too low', async () => {

@@ -140,12 +140,12 @@ describe('GetPaymentsQuerySchema', () => {
 
 describe('GetProviderStatusRequestSchema', () => {
   it('accepts a valid token', () => {
-    const result = GetProviderStatusRequestSchema.safeParse({ token: 'stripe_token_123' });
+    const result = GetProviderStatusRequestSchema.safeParse({ tenantId: validUuid, token: 'stripe_token_123' });
     expect(result.success).toBe(true);
   });
 
   it('rejects empty token', () => {
-    const result = GetProviderStatusRequestSchema.safeParse({ token: '' });
+    const result = GetProviderStatusRequestSchema.safeParse({ tenantId: validUuid, token: '' });
     expect(result.success).toBe(false);
     if (!result.success) {
       expect(result.error.issues[0].message).toMatch(/required/i);
@@ -154,6 +154,7 @@ describe('GetProviderStatusRequestSchema', () => {
 
   it('accepts with optional provider', () => {
     const result = GetProviderStatusRequestSchema.safeParse({
+      tenantId: validUuid,
       token: 'stripe_token_123',
       provider: 'STRIPE',
     });

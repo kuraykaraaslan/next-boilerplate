@@ -32,7 +32,7 @@ vi.mock('@/modules/redis', () => ({
   jitter: (n: number) => n,
 }));
 vi.mock('@/modules/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
-vi.mock('../tenant_member/tenant_member.service', () => ({
+vi.mock('../../tenant_member/tenant_member.service', () => ({
   default: { create: vi.fn() },
 }));
 
@@ -309,7 +309,9 @@ describe('TenantService.provisionPersonal', () => {
     (TenantMemberService.create as any).mockResolvedValue({});
 
     await TenantService.provisionPersonal('user-1', 'bob@example.com');
-    expect(TenantPlanService.createPlan).toHaveBeenCalled();
+    // After the service split the inline Free-plan seed is disabled; seedDefaults
+    // now only seeds tenant settings (a platform plan is assigned solely when an
+    // operator-configured default plan exists, which getDefaultPlanId mocks to null).
     expect(SettingService.updateMany).toHaveBeenCalled();
   });
 });

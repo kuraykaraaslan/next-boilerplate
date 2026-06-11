@@ -165,17 +165,19 @@ describe('NotificationInAppService.getAll', () => {
     const now = new Date();
     const older = new Date(now.getTime() - 60000);
 
-    const n1 = { notificationId: 'id-1', title: 'A', message: 'a', path: null, isRead: false, createdAt: now.toISOString() };
-    const n2 = { notificationId: 'id-2', title: 'B', message: 'b', path: null, isRead: false, createdAt: older.toISOString() };
+    const ID_1 = '11111111-1111-4111-8111-111111111111';
+    const ID_2 = '22222222-2222-4222-8222-222222222222';
+    const n1 = { notificationId: ID_1, title: 'A', message: 'a', path: null, isRead: false, createdAt: now.toISOString() };
+    const n2 = { notificationId: ID_2, title: 'B', message: 'b', path: null, isRead: false, createdAt: older.toISOString() };
 
     mockRedis.hgetall.mockResolvedValue({
-      'id-1': JSON.stringify(n1),
-      'id-2': JSON.stringify(n2),
+      [ID_1]: JSON.stringify(n1),
+      [ID_2]: JSON.stringify(n2),
     });
-    mockRedis.smembers.mockResolvedValue(['id-1']);
+    mockRedis.smembers.mockResolvedValue([ID_1]);
 
     const result = await NotificationInAppService.getAll(TENANT_ID, 'user-1');
-    expect(result[0].notificationId).toBe('id-1');
+    expect(result[0].notificationId).toBe(ID_1);
     expect(result[0].isRead).toBe(true);
     expect(result[1].isRead).toBe(false);
   });
@@ -183,14 +185,16 @@ describe('NotificationInAppService.getAll', () => {
 
 describe('NotificationInAppService.unreadCount', () => {
   it('returns count of unread notifications', async () => {
-    const n1 = { notificationId: 'id-1', title: 'A', message: 'a', path: null, isRead: false, createdAt: new Date().toISOString() };
-    const n2 = { notificationId: 'id-2', title: 'B', message: 'b', path: null, isRead: false, createdAt: new Date().toISOString() };
+    const ID_1 = '11111111-1111-4111-8111-111111111111';
+    const ID_2 = '22222222-2222-4222-8222-222222222222';
+    const n1 = { notificationId: ID_1, title: 'A', message: 'a', path: null, isRead: false, createdAt: new Date().toISOString() };
+    const n2 = { notificationId: ID_2, title: 'B', message: 'b', path: null, isRead: false, createdAt: new Date().toISOString() };
 
     mockRedis.hgetall.mockResolvedValue({
-      'id-1': JSON.stringify(n1),
-      'id-2': JSON.stringify(n2),
+      [ID_1]: JSON.stringify(n1),
+      [ID_2]: JSON.stringify(n2),
     });
-    mockRedis.smembers.mockResolvedValue(['id-1']);
+    mockRedis.smembers.mockResolvedValue([ID_1]);
 
     const count = await NotificationInAppService.unreadCount(TENANT_ID, 'user-1');
     expect(count).toBe(1);
@@ -216,14 +220,15 @@ describe('NotificationInAppService.markAllAsRead', () => {
   });
 
   it('marks all notification ids as read', async () => {
-    const n1 = { notificationId: 'id-1', title: 'A', message: 'a', path: null, isRead: false, createdAt: new Date().toISOString() };
-    mockRedis.hgetall.mockResolvedValue({ 'id-1': JSON.stringify(n1) });
+    const ID_1 = '11111111-1111-4111-8111-111111111111';
+    const n1 = { notificationId: ID_1, title: 'A', message: 'a', path: null, isRead: false, createdAt: new Date().toISOString() };
+    mockRedis.hgetall.mockResolvedValue({ [ID_1]: JSON.stringify(n1) });
     mockRedis.smembers.mockResolvedValue([]);
 
     await NotificationInAppService.markAllAsRead(TENANT_ID, 'user-1');
     expect(mockRedis.sadd).toHaveBeenCalledWith(
       `notifications_read:${TENANT_ID}:user-1`,
-      'id-1'
+      ID_1
     );
   });
 });

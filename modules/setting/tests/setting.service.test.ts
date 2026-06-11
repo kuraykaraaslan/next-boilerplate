@@ -54,15 +54,26 @@ const mockSetting = {
 function makeSettingRepo(setting: typeof mockSetting | null = mockSetting) {
   const findOne = vi.fn(async () => setting);
   const find = vi.fn(async () => (setting ? [setting] : []));
-  const upsert = vi.fn(async () => {});
+  const insert = vi.fn(async () => {});
   const update = vi.fn(async () => {});
   const del = vi.fn(async () => {});
-  return { findOne, find, upsert, update, delete: del };
+  return { findOne, find, insert, update, delete: del };
+}
+
+function makeDs(repo: ReturnType<typeof makeSettingRepo>) {
+  return {
+    getRepository: () => repo,
+    // updateMany() wraps its work in a transaction; the manager exposes the
+    // same repository the rest of the service uses.
+    transaction: vi.fn(async (cb: (mgr: { getRepository: () => typeof repo }) => unknown) =>
+      cb({ getRepository: () => repo }),
+    ),
+  };
 }
 
 function setupSystemDs(setting: typeof mockSetting | null = mockSetting) {
   const repo = makeSettingRepo(setting);
-  (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => repo });
+  (tenantDataSourceFor as any).mockResolvedValue(makeDs(repo));
   return repo;
 }
 
@@ -159,16 +170,17 @@ describe('SettingService.create', () => {
 
   it('upserts and returns the setting', async () => {
     const repo = makeSettingRepo(mockSetting);
-    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => repo });
+    (tenantDataSourceFor as any).mockResolvedValue(makeDs(repo));
 
     const result = await SettingService.create(TENANT_ID, 'site_name', 'My App', 'general', 'string');
     expect(result.key).toBe('site_name');
-    expect(repo.upsert).toHaveBeenCalled();
+    // findOne returns an existing row, so create() takes the update path.
+    expect(repo.update).toHaveBeenCalled();
   });
 
   it('invalidates the all-settings cache after creation', async () => {
     const repo = makeSettingRepo(mockSetting);
-    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => repo });
+    (tenantDataSourceFor as any).mockResolvedValue(makeDs(repo));
 
     await SettingService.create(TENANT_ID, 'site_name', 'My App');
     expect(redis.del).toHaveBeenCalled();
@@ -191,7 +203,7 @@ describe('SettingService.update', () => {
     repo.findOne
       .mockResolvedValueOnce(mockSetting)                               // exists check
       .mockResolvedValueOnce({ ...mockSetting, value: 'New Value' });   // after update
-    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => repo });
+    (tenantDataSourceFor as any).mockResolvedValue(makeDs(repo));
 
     const result = await SettingService.update(TENANT_ID, 'site_name', 'New Value');
     expect(result.value).toBe('New Value');
@@ -200,7 +212,7 @@ describe('SettingService.update', () => {
   it('invalidates cache after update', async () => {
     const repo = makeSettingRepo(mockSetting);
     repo.findOne.mockResolvedValue(mockSetting);
-    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => repo });
+    (tenantDataSourceFor as any).mockResolvedValue(makeDs(repo));
 
     await SettingService.update(TENANT_ID, 'site_name', 'Updated');
     expect(redis.del).toHaveBeenCalled();
@@ -215,16 +227,17 @@ describe('SettingService.updateMany', () => {
 
   it('upserts all provided settings', async () => {
     const repo = makeSettingRepo(mockSetting);
-    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => repo });
+    (tenantDataSourceFor as any).mockResolvedValue(makeDs(repo));
 
     const result = await SettingService.updateMany(TENANT_ID, { site_name: 'App', theme: 'dark' });
-    expect(repo.upsert).toHaveBeenCalledTimes(2);
+    // Each key already exists (findOne returns a row), so both go via update.
+    expect(repo.update).toHaveBeenCalledTimes(2);
     expect(result).toHaveLength(2);
   });
 
   it('invalidates cache after batch update', async () => {
     const repo = makeSettingRepo(mockSetting);
-    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => repo });
+    (tenantDataSourceFor as any).mockResolvedValue(makeDs(repo));
 
     await SettingService.updateMany(TENANT_ID, { site_name: 'App' });
     expect(redis.del).toHaveBeenCalled();
@@ -245,16 +258,16 @@ describe('SettingService.delete', () => {
 
   it('deletes and returns the deleted setting', async () => {
     const repo = makeSettingRepo(mockSetting);
-    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => repo });
+    (tenantDataSourceFor as any).mockResolvedValue(makeDs(repo));
 
     const result = await SettingService.delete(TENANT_ID, 'site_name');
     expect(result?.key).toBe('site_name');
-    expect(repo.delete).toHaveBeenCalledWith({ key: 'site_name' });
+    expect(repo.delete).toHaveBeenCalledWith({ tenantId: TENANT_ID, key: 'site_name' });
   });
 
   it('invalidates cache after deletion', async () => {
     const repo = makeSettingRepo(mockSetting);
-    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => repo });
+    (tenantDataSourceFor as any).mockResolvedValue(makeDs(repo));
 
     await SettingService.delete(TENANT_ID, 'site_name');
     expect(redis.del).toHaveBeenCalled();
@@ -274,7 +287,7 @@ describe('SettingService.getAllAsRecord', () => {
     ];
     const repo = makeSettingRepo(mockSetting);
     repo.find.mockResolvedValue(twoSettings);
-    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => repo });
+    (tenantDataSourceFor as any).mockResolvedValue(makeDs(repo));
     // Make cache miss so DB is queried
     const result = await SettingService.getAllAsRecord(TENANT_ID);
     expect(result['site_name']).toBe('My App');
@@ -287,7 +300,7 @@ describe('SettingService.getByGroup', () => {
 
   it('returns settings that belong to the given group', async () => {
     const repo = makeSettingRepo(mockSetting);
-    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => repo });
+    (tenantDataSourceFor as any).mockResolvedValue(makeDs(repo));
 
     const result = await SettingService.getByGroup(TENANT_ID, 'general');
     expect(result).toHaveLength(1);
@@ -296,7 +309,7 @@ describe('SettingService.getByGroup', () => {
 
   it('returns empty array when no settings in group', async () => {
     const repo = makeSettingRepo(null);
-    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => repo });
+    (tenantDataSourceFor as any).mockResolvedValue(makeDs(repo));
     const result = await SettingService.getByGroup(TENANT_ID, 'nonexistent');
     expect(result).toHaveLength(0);
   });

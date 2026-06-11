@@ -37,7 +37,7 @@ vi.mock('@/modules/redis', () => ({
 vi.mock('@/modules/logger', () => ({
   default: { info: vi.fn(), error: vi.fn(), warn: vi.fn(), debug: vi.fn() },
 }));
-vi.mock('./dns_verification.service', () => ({
+vi.mock('../dns_verification.service', () => ({
   default: {
     getStoredData: vi.fn(async () => null),
     initiateVerification: vi.fn(),
