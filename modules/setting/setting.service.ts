@@ -5,6 +5,7 @@ import { Setting as SettingEntity } from './entities/setting.entity';
 import { Setting, SettingSchema } from './setting.types';
 import redis from '@/modules/redis';
 import SettingMessages from './setting.messages';
+import { AppError, ErrorCode } from '@/modules/common/app-error';
 
 export default class SettingService {
 
@@ -116,7 +117,7 @@ export default class SettingService {
     const ds = await tenantDataSourceFor(tenantId);
     const repo = ds.getRepository(SettingEntity);
     const existing = await repo.findOne({ where: { tenantId, key } });
-    if (!existing) throw new Error(SettingMessages.SETTING_NOT_FOUND);
+    if (!existing) throw new AppError(SettingMessages.SETTING_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
 
     await repo.update({ tenantId, key }, { value, updatedAt: new Date() });
     const updated = await repo.findOne({ where: { tenantId, key } });
@@ -127,30 +128,35 @@ export default class SettingService {
   }
 
   static async updateMany(tenantId: string, settings: Record<string, string>): Promise<Setting[]> {
-    const updatedSettings: Setting[] = [];
     const ds = await tenantDataSourceFor(tenantId);
-    const repo = ds.getRepository(SettingEntity);
     const now = new Date();
 
-    for (const key in settings) {
-      const existing = await repo.findOne({ where: { tenantId, key } });
-      if (existing) {
-        await repo.update({ tenantId, key }, { value: settings[key], updatedAt: now });
-      } else {
-        await repo.insert({
-          tenantId,
-          key,
-          value: settings[key],
-          group: 'general',
-          type: 'string',
-          createdAt: now,
-          updatedAt: now,
-        });
+    const updatedSettings = await ds.transaction(async (mgr) => {
+      const repo = mgr.getRepository(SettingEntity);
+      const result: Setting[] = [];
+      for (const key in settings) {
+        const existing = await repo.findOne({ where: { tenantId, key } });
+        if (existing) {
+          await repo.update({ tenantId, key }, { value: settings[key], updatedAt: now });
+        } else {
+          await repo.insert({
+            tenantId,
+            key,
+            value: settings[key],
+            group: 'general',
+            type: 'string',
+            createdAt: now,
+            updatedAt: now,
+          });
+        }
+        const saved = await repo.findOne({ where: { tenantId, key } });
+        result.push(SettingSchema.parse(saved!));
       }
-      const saved = await repo.findOne({ where: { tenantId, key } });
-      const parsed = SettingSchema.parse(saved!);
-      updatedSettings.push(parsed);
-      await this.setCache(this.getCacheKey(tenantId, key), JSON.stringify(parsed));
+      return result;
+    });
+
+    for (const parsed of updatedSettings) {
+      await this.setCache(this.getCacheKey(tenantId, parsed.key), JSON.stringify(parsed));
     }
     await this.invalidateAllCache(tenantId);
     return updatedSettings;

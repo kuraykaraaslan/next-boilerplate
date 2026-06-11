@@ -20,17 +20,17 @@ export class InvoiceLine {
   @Column({ type: 'int', default: 1 })
   quantity!: number;
 
-  @Column({ type: 'decimal', precision: 14, scale: 4 })
+  @Column({ type: 'decimal', precision: 14, scale: 4, transformer: { to: (v) => v, from: (v) => v == null ? v : parseFloat(v) } })
   unitPrice!: number;
 
   /** Decimal rate: 0.20 = 20%. */
-  @Column({ type: 'decimal', precision: 5, scale: 4, default: 0 })
+  @Column({ type: 'decimal', precision: 5, scale: 4, default: 0, transformer: { to: (v) => v, from: (v) => v == null ? v : parseFloat(v) } })
   taxRate!: number;
 
-  @Column({ type: 'decimal', precision: 14, scale: 4 })
+  @Column({ type: 'decimal', precision: 14, scale: 4, transformer: { to: (v) => v, from: (v) => v == null ? v : parseFloat(v) } })
   taxAmount!: number;
 
-  @Column({ type: 'decimal', precision: 14, scale: 4 })
+  @Column({ type: 'decimal', precision: 14, scale: 4, transformer: { to: (v) => v, from: (v) => v == null ? v : parseFloat(v) } })
   lineTotal!: number;
 
   /** 'subscription' | 'one_off' | 'usage' | 'credit' | 'proration' */

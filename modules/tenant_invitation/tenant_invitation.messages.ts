@@ -12,6 +12,7 @@ const TenantInvitationMessages = {
   INVITATION_ACCEPTED: "Invitation accepted successfully",
   INVITATION_DECLINED: "Invitation declined successfully",
   INVITATION_REVOKED_SUCCESS: "Invitation revoked successfully",
+  INVITATION_ONLY_PENDING_CAN_BE_REVOKED: "Only pending invitations can be revoked",
 } as const;
 
 export default TenantInvitationMessages;

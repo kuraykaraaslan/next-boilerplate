@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Limiter from '@/modules_next/limiter/limiter.service.next'
 import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next'
-import StoreService from '@/modules/store/store.service'
+import StoreBundleService from '@/modules/store/store.bundle.service'
 import { AddBundleItemDTO } from '@/modules/store/store.dto'
 
 type Ctx = { params: Promise<{ tenantId: string; bundleId: string }> }
@@ -14,7 +14,7 @@ export async function POST(request: NextRequest, { params }: Ctx) {
   } catch (e: any) { return NextResponse.json({ message: e.message }, { status: 403 }) }
   try {
     const dto = AddBundleItemDTO.parse(await request.json())
-    const item = await StoreService.addBundleItem(tenantId, bundleId, dto)
+    const item = await StoreBundleService.addBundleItem(tenantId, bundleId, dto)
     return NextResponse.json({ item }, { status: 201 })
   } catch (e: any) { return NextResponse.json({ message: e.message }, { status: 400 }) }
 }

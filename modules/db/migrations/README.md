@@ -5,6 +5,8 @@ Raw SQL migrations. Numbered, applied in order. Idempotent where reasonable so r
 | # | File | Purpose |
 |---|---|---|
 | 001 | [`001_tenant_rls.sql`](001_tenant_rls.sql) | Postgres row-level security for tenant-scoped tables — defense-in-depth on top of service-layer `where: { tenantId }` guards. |
+| 002 | [`002_drop_api_key_keyprefix.sql`](002_drop_api_key_keyprefix.sql) | Drop the display-only `keyPrefix` column from `api_keys` — keys are shown once at creation and only the SHA-256 `keyHash` is stored. |
+| 003 | [`003_webhook_endpoint_capabilities.sql`](003_webhook_endpoint_capabilities.sql) | Add webhook endpoint capability columns (custom headers, event filters, tags, circuit-breaker counters, IP allowlist, per-endpoint rate limit) + a `webhook_deliveries(event)` index for metrics. |
 
 ## Applying
 

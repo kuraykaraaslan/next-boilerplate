@@ -1,9 +1,55 @@
 import { NextRequest, NextResponse } from "next/server";
 import PaymentService from "@/modules/payment/payment.service";
+import TenantPlanService from "@/modules/tenant_subscription/tenant_subscription.plan.service";
 import { UpdatePaymentRequestSchema } from "@/modules/payment/payment.dto";
 import Limiter from "@/modules_next/limiter/limiter.service.next";
 
 import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next';
+
+/**
+ * Resolve "what is this payment for" from its metadata: a subscription (plan +
+ * product name), a store sale (order), or a plain payment. Best-effort — a deleted
+ * plan just degrades to the stored description.
+ */
+async function buildPaymentSubject(routeTenantId: string, payment: { description?: string | null; metadata?: unknown }) {
+  const md = (payment.metadata ?? {}) as Record<string, unknown>;
+  const type = typeof md.type === 'string' ? md.type : undefined;
+
+  if (type === 'subscription') {
+    const subject: {
+      kind: 'SUBSCRIPTION'; label: string; title: string | null;
+      planId?: string; productName?: string | null; billingInterval?: string;
+    } = {
+      kind: 'SUBSCRIPTION',
+      label: 'Subscription',
+      title: payment.description ?? null,
+      planId: typeof md.planId === 'string' ? md.planId : undefined,
+      billingInterval: typeof md.billingInterval === 'string' ? md.billingInterval : undefined,
+    };
+    const planTenantId = (typeof md.tenantId === 'string' && md.tenantId) || routeTenantId;
+    if (subject.planId) {
+      try {
+        const plan = await TenantPlanService.getPlanById(planTenantId, subject.planId);
+        subject.productName = plan.product?.name ?? null;
+        if (plan.product?.name) {
+          subject.title = `${plan.product.name}${subject.billingInterval ? ` (${subject.billingInterval.toLowerCase()})` : ''}`;
+        }
+      } catch { /* plan/product may have been deleted — keep the description */ }
+    }
+    return subject;
+  }
+
+  if (type === 'store_sale') {
+    return {
+      kind: 'STORE_SALE' as const,
+      label: 'Store sale',
+      title: payment.description ?? null,
+      orderId: typeof md.orderId === 'string' ? md.orderId : undefined,
+    };
+  }
+
+  return { kind: 'OTHER' as const, label: 'Payment', title: payment.description ?? null };
+}
 /**
  * GET /tenant/[tenantId]/api/payments/[paymentId]
  */
@@ -31,7 +77,8 @@ export async function GET(
     }
 
     const payment = await PaymentService.getByIdWithTransactions(paymentId);
-    return NextResponse.json({ payment }, { status: 200 });
+    const subject = await buildPaymentSubject(tenantId, payment);
+    return NextResponse.json({ payment, subject }, { status: 200 });
   } catch (error: any) {
     return NextResponse.json({ message: error.message }, { status: 500 });
   }

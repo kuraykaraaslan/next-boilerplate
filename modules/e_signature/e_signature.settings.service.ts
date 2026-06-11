@@ -121,11 +121,7 @@ export default class ESignatureSettingsService {
       if (incoming === undefined) continue;
       if (ESignatureSettingsService.isTenantSensitive(key)) {
         if (incoming === MASK || incoming === '') continue;
-        await SettingService.create(ROOT_TENANT_ID, 
-          tenantId,
-          key,
-          ESignatureEncryptionService.encryptOpt(incoming),
-        );
+        await SettingService.create(tenantId, key, ESignatureEncryptionService.encryptOpt(incoming));
       } else {
         await SettingService.create(tenantId, key, incoming);
       }
@@ -134,6 +130,5 @@ export default class ESignatureSettingsService {
 }
 
 function ESignatureService_isEncrypted(value: string): boolean {
-  // Inlined to avoid an extra import; mirrors ESignatureEncryptionService.isEncrypted
-  return value.startsWith('v1.');
+  return ESignatureEncryptionService.isEncrypted(value);
 }

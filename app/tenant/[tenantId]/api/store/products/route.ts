@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Limiter from '@/modules_next/limiter/limiter.service.next'
 import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next'
-import StoreService from '@/modules/store/store.service'
+import StoreProductService from '@/modules/store/store.product.service'
 import { CreateProductDTO, GetProductsQuery } from '@/modules/store/store.dto'
 
 export async function GET(
@@ -29,7 +29,7 @@ export async function GET(
       search: sp.get('search') ?? undefined,
       specFilters,
     })
-    const result = await StoreService.listProducts(tenantId, query)
+    const result = await StoreProductService.listProducts(tenantId, query)
     return NextResponse.json(result)
   } catch (e: any) { return NextResponse.json({ message: e.message }, { status: 500 }) }
 }
@@ -45,7 +45,7 @@ export async function POST(
   } catch (e: any) { return NextResponse.json({ message: e.message }, { status: 403 }) }
   try {
     const dto = CreateProductDTO.parse(await request.json())
-    const product = await StoreService.createProduct(tenantId, dto)
+    const product = await StoreProductService.createProduct(tenantId, dto)
     return NextResponse.json({ product }, { status: 201 })
   } catch (e: any) { return NextResponse.json({ message: e.message }, { status: 400 }) }
 }

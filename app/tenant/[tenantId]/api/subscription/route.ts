@@ -2,6 +2,7 @@ import Limiter from '@/modules_next/limiter/limiter.service.next';
 import { NextRequest, NextResponse } from 'next/server'
 import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next'
 import TenantSubscriptionService from '@/modules/tenant_subscription/tenant_subscription.service'
+import TenantCheckoutService from '@/modules/tenant_subscription/tenant_subscription.checkout.service'
 import { SUBSCRIPTION_MESSAGES } from '@/modules/tenant_subscription/tenant_subscription.messages'
 import { z } from 'zod'
 
@@ -12,6 +13,8 @@ const PurchaseSubscriptionRequestSchema = z.object({
   provider: z.enum(['STRIPE', 'PAYPAL', 'IYZICO']).optional(),
   customerEmail: z.string().email().optional(),
   customerName: z.string().optional(),
+  // iyzico hosted wallet path (MasterPass / BKM Express) → charge in TRY.
+  convertToTry: z.boolean().optional(),
 })
 
 /**
@@ -75,7 +78,7 @@ export async function POST(
     const url = new URL(request.url)
     const baseUrl = `${url.protocol}//${url.host}`
 
-    const result = await TenantSubscriptionService.purchaseSubscription({
+    const result = await TenantCheckoutService.purchaseSubscription({
       tenantId,
       planId: parsed.data.planId,
       successUrl: `${baseUrl}/tenant/${tenantId}/admin/settings?tab=subscription&paymentSuccess=true`,
@@ -83,6 +86,7 @@ export async function POST(
       provider: parsed.data.provider,
       customerEmail: parsed.data.customerEmail,
       customerName: parsed.data.customerName,
+      convertToTry: parsed.data.convertToTry,
     })
 
     return NextResponse.json({ success: true, ...result })

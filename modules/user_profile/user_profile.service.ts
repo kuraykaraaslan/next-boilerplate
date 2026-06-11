@@ -4,6 +4,8 @@ import redis, { jitter, singleFlight } from '@/modules/redis';
 import { env } from '@/modules/env';
 import { UserProfile as UserProfileEntity } from './entities/user_profile.entity';
 import { UserProfile, UserProfileSchema, SocialLinkItem } from './user_profile.types';
+import { AppError, ErrorCode } from '@/modules/common/app-error';
+import UserProfileMessages from './user_profile.messages';
 
 const USER_PROFILE_CACHE_TTL = env.SESSION_CACHE_TTL ?? (60 * 5);
 
@@ -36,7 +38,7 @@ export default class UserProfileService {
     const ds = await getDataSource();
     const repo = ds.getRepository(UserProfileEntity);
     const existing = await repo.findOne({ where: { userId } });
-    if (existing) throw new Error('Profile already exists for this user');
+    if (existing) throw new AppError(UserProfileMessages.PROFILE_EXISTS, 409, ErrorCode.CONFLICT);
 
     const profile = repo.create({
       userId,
@@ -55,18 +57,18 @@ export default class UserProfileService {
     const ds = await getDataSource();
     const repo = ds.getRepository(UserProfileEntity);
     const profile = await repo.findOne({ where: { userId } });
-    if (!profile) throw new Error('Profile not found');
+    if (!profile) throw new AppError(UserProfileMessages.PROFILE_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
 
-    await repo.update({ userId }, {
+    Object.assign(profile, {
       name: data.name || undefined,
       biography: data.biography || undefined,
       profilePicture: data.profilePicture || undefined,
       headerImage: data.headerImage || undefined,
       socialLinks: data.socialLinks,
     });
-    const updated = await repo.findOne({ where: { userId } });
+    const saved = await repo.save(profile);
     await this.clearCache(userId);
-    return UserProfileSchema.parse(updated!);
+    return UserProfileSchema.parse(saved);
   }
 
   static async upsert(userId: string, data: Partial<UserProfile>): Promise<UserProfile> {
@@ -75,16 +77,16 @@ export default class UserProfileService {
     const existing = await repo.findOne({ where: { userId } });
 
     if (existing) {
-      await repo.update({ userId }, {
+      Object.assign(existing, {
         name: data.name || undefined,
         biography: data.biography || undefined,
         profilePicture: data.profilePicture || undefined,
         headerImage: data.headerImage || undefined,
         socialLinks: data.socialLinks,
       });
-      const updated = await repo.findOne({ where: { userId } });
+      const saved = await repo.save(existing);
       await this.clearCache(userId);
-      return UserProfileSchema.parse(updated!);
+      return UserProfileSchema.parse(saved);
     }
 
     return this.create(userId, data);
@@ -94,49 +96,49 @@ export default class UserProfileService {
     const ds = await getDataSource();
     const repo = ds.getRepository(UserProfileEntity);
     const profile = await repo.findOne({ where: { userId } });
-    if (!profile) throw new Error('Profile not found');
+    if (!profile) throw new AppError(UserProfileMessages.PROFILE_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
     await repo.delete({ userId });
     await this.clearCache(userId);
   }
 
   static async addSocialLink(userId: string, link: SocialLinkItem): Promise<UserProfile> {
     const ds = await getDataSource();
-    const repo = ds.getRepository(UserProfileEntity);
-    const profile = await repo.findOne({ where: { userId } });
-    if (!profile) throw new Error('Profile not found');
-
-    const socialLinks = [...(profile.socialLinks as SocialLinkItem[]), link];
-    await repo.update({ userId }, { socialLinks });
-    const updated = await repo.findOne({ where: { userId } });
+    const saved = await ds.transaction(async (mgr) => {
+      const repo = mgr.getRepository(UserProfileEntity);
+      const profile = await repo.findOne({ where: { userId } });
+      if (!profile) throw new AppError(UserProfileMessages.PROFILE_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
+      profile.socialLinks = [...(profile.socialLinks as SocialLinkItem[]), link];
+      return repo.save(profile);
+    });
     await this.clearCache(userId);
-    return UserProfileSchema.parse(updated!);
+    return UserProfileSchema.parse(saved);
   }
 
   static async removeSocialLink(userId: string, linkId: string): Promise<UserProfile> {
     const ds = await getDataSource();
-    const repo = ds.getRepository(UserProfileEntity);
-    const profile = await repo.findOne({ where: { userId } });
-    if (!profile) throw new Error('Profile not found');
-
-    const socialLinks = (profile.socialLinks as SocialLinkItem[]).filter((l) => l.id !== linkId);
-    await repo.update({ userId }, { socialLinks });
-    const updated = await repo.findOne({ where: { userId } });
+    const saved = await ds.transaction(async (mgr) => {
+      const repo = mgr.getRepository(UserProfileEntity);
+      const profile = await repo.findOne({ where: { userId } });
+      if (!profile) throw new AppError(UserProfileMessages.PROFILE_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
+      profile.socialLinks = (profile.socialLinks as SocialLinkItem[]).filter((l) => l.id !== linkId);
+      return repo.save(profile);
+    });
     await this.clearCache(userId);
-    return UserProfileSchema.parse(updated!);
+    return UserProfileSchema.parse(saved);
   }
 
   static async updateSocialLink(userId: string, linkId: string, data: Partial<SocialLinkItem>): Promise<UserProfile> {
     const ds = await getDataSource();
-    const repo = ds.getRepository(UserProfileEntity);
-    const profile = await repo.findOne({ where: { userId } });
-    if (!profile) throw new Error('Profile not found');
-
-    const socialLinks = (profile.socialLinks as SocialLinkItem[]).map((l) =>
-      l.id === linkId ? { ...l, ...data } : l
-    );
-    await repo.update({ userId }, { socialLinks });
-    const updated = await repo.findOne({ where: { userId } });
+    const saved = await ds.transaction(async (mgr) => {
+      const repo = mgr.getRepository(UserProfileEntity);
+      const profile = await repo.findOne({ where: { userId } });
+      if (!profile) throw new AppError(UserProfileMessages.PROFILE_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
+      profile.socialLinks = (profile.socialLinks as SocialLinkItem[]).map((l) =>
+        l.id === linkId ? { ...l, ...data } : l
+      );
+      return repo.save(profile);
+    });
     await this.clearCache(userId);
-    return UserProfileSchema.parse(updated!);
+    return UserProfileSchema.parse(saved);
   }
 }

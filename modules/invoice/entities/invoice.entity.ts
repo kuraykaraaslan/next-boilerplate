@@ -55,16 +55,16 @@ export class Invoice {
   paidAt?: Date;
 
   // ── Amounts ─────────────────────────────────────────────────────────────────
-  @Column({ type: 'decimal', precision: 14, scale: 4 })
+  @Column({ type: 'decimal', precision: 14, scale: 4, transformer: { to: (v) => v, from: (v) => v == null ? v : parseFloat(v) } })
   subtotal!: number;
 
-  @Column({ type: 'decimal', precision: 14, scale: 4, default: 0 })
+  @Column({ type: 'decimal', precision: 14, scale: 4, default: 0, transformer: { to: (v) => v, from: (v) => v == null ? v : parseFloat(v) } })
   discountAmount!: number;
 
-  @Column({ type: 'decimal', precision: 14, scale: 4 })
+  @Column({ type: 'decimal', precision: 14, scale: 4, transformer: { to: (v) => v, from: (v) => v == null ? v : parseFloat(v) } })
   taxAmount!: number;
 
-  @Column({ type: 'decimal', precision: 14, scale: 4 })
+  @Column({ type: 'decimal', precision: 14, scale: 4, transformer: { to: (v) => v, from: (v) => v == null ? v : parseFloat(v) } })
   totalAmount!: number;
 
   @Column({ type: 'varchar', length: 3 })

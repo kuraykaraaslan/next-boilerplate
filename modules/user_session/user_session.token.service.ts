@@ -2,16 +2,13 @@ import { env } from '@/modules/env';
 import jwt, { Secret } from "jsonwebtoken";
 import crypto from "crypto";
 import UserSessionMessages from "./user_session.messages";
+import { AppError, ErrorCode } from '@/modules/common/app-error';
 
 const APPLICATION_DOMAIN = env.APPLICATION_DOMAIN || "localhost";
-const ACCESS_TOKEN_SECRET = env.ACCESS_TOKEN_SECRET || "your-default-access-token-secret";
+const ACCESS_TOKEN_SECRET = env.ACCESS_TOKEN_SECRET;
 const ACCESS_TOKEN_EXPIRES_IN = env.ACCESS_TOKEN_EXPIRES_IN || "1h";
-const REFRESH_TOKEN_SECRET = env.REFRESH_TOKEN_SECRET || "your-default-refresh-token-secret";
+const REFRESH_TOKEN_SECRET = env.REFRESH_TOKEN_SECRET;
 const REFRESH_TOKEN_EXPIRES_IN = env.REFRESH_TOKEN_EXPIRES_IN || "7d";
-
-if (!ACCESS_TOKEN_SECRET || !REFRESH_TOKEN_SECRET) {
-  throw new Error("Missing JWT secrets in environment variables");
-}
 
 export interface TokenPayload {
   userId: string;
@@ -66,15 +63,16 @@ export default class UserSessionTokenService {
       }) as TokenPayload;
 
       if (deviceFingerprint && decoded.deviceFingerprint !== deviceFingerprint) {
-        throw new Error(UserSessionMessages.DEVICE_FINGERPRINT_MISMATCH);
+        throw new AppError(UserSessionMessages.DEVICE_FINGERPRINT_MISMATCH, 401, ErrorCode.UNAUTHORIZED);
       }
 
       return decoded;
     } catch (error: unknown) {
+      if (error instanceof AppError) throw error;
       if (error instanceof jwt.TokenExpiredError) {
-        throw new Error(UserSessionMessages.TOKEN_EXPIRED);
+        throw new AppError(UserSessionMessages.TOKEN_EXPIRED, 401, ErrorCode.SESSION_EXPIRED);
       }
-      throw new Error(UserSessionMessages.INVALID_TOKEN);
+      throw new AppError(UserSessionMessages.INVALID_TOKEN, 401, ErrorCode.UNAUTHORIZED);
     }
   }
 
@@ -86,9 +84,9 @@ export default class UserSessionTokenService {
       }) as TokenPayload;
     } catch (error: unknown) {
       if (error instanceof jwt.TokenExpiredError) {
-        throw new Error(UserSessionMessages.TOKEN_EXPIRED);
+        throw new AppError(UserSessionMessages.TOKEN_EXPIRED, 401, ErrorCode.SESSION_EXPIRED);
       }
-      throw new Error(UserSessionMessages.INVALID_TOKEN);
+      throw new AppError(UserSessionMessages.INVALID_TOKEN, 401, ErrorCode.UNAUTHORIZED);
     }
   }
 }

@@ -7,9 +7,11 @@ import { Tenant as TenantEntity } from './entities/tenant.entity';
 import { SafeTenant, SafeTenantSchema } from './tenant.types';
 import { CreateTenantInput, UpdateTenantInput, GetTenantsInput } from './tenant.dto';
 import TenantMessages from './tenant.messages';
+import { AppError, ErrorCode } from '@/modules/common/app-error';
 import TenantMemberService from '../tenant_member/tenant_member.service';
 import Logger from '@/modules/logger';
 import { isRootTenant } from './tenant.constants';
+import WebhookService from '@/modules/webhook/webhook.service';
 
 const TENANT_CACHE_TTL = env.TENANT_CACHE_TTL ?? (60 * 5);
 
@@ -85,7 +87,7 @@ export default class TenantService {
     return singleFlight(cacheKey, async () => {
       const ds = await tenantDataSourceFor(tenantId);
       const tenant = await ds.getRepository(TenantEntity).findOne({ where: { tenantId, deletedAt: IsNull() } });
-      if (!tenant) throw new Error(TenantMessages.TENANT_NOT_FOUND);
+      if (!tenant) throw new AppError(TenantMessages.TENANT_NOT_FOUND, 404, ErrorCode.TENANT_NOT_FOUND);
 
       const parsed = SafeTenantSchema.parse(tenant);
       await redis.setex(cacheKey, jitter(TENANT_CACHE_TTL), JSON.stringify(parsed)).catch(() => {});
@@ -105,6 +107,11 @@ export default class TenantService {
     // Best-effort auto-seed: never fail tenant creation if a default cannot be applied.
     await this.seedDefaults(parsed.tenantId, defaults);
 
+    await WebhookService.dispatchPlatformEvent('tenant.created', {
+      tenantId: parsed.tenantId,
+      name: parsed.name,
+    });
+
     return parsed;
   }
 
@@ -118,15 +125,28 @@ export default class TenantService {
   private static async seedDefaults(tenantId: string, defaults?: SeedDefaults): Promise<void> {
     if (isRootTenant(tenantId)) return;
 
-    // Default plan + subscription seed disabled: plans now wrap StoreProduct,
-    // which requires a Category. A new tenant has no catalog yet, so the Free
-    // plan/subscription must be created manually from the admin UI once the
-    // operator has a category in place. The defaults?.skipPlan and
-    // defaults?.skipSubscription flags are kept for future re-enablement.
+    // Inline Free plan seed disabled: plans now wrap a StoreProduct (which
+    // requires a Category), so a brand-new tenant has no catalog to bind to.
+    // Instead, if the operator has configured a default plan (a free plan in
+    // the ROOT catalogue), we clone+assign it for free below. The
+    // defaults?.skipPlan / skipSubscription flags gate that step.
     void DEFAULT_FREE_PRODUCT;
     void DEFAULT_FREE_PLAN_BILLING;
-    void defaults?.skipPlan;
-    void defaults?.skipSubscription;
+
+    if (!defaults?.skipPlan && !defaults?.skipSubscription) {
+      try {
+        const { default: TenantPlatformPlanService } = await import('@/modules/tenant_subscription/tenant_subscription.platform.service');
+        const { default: TenantFeatureGateService } = await import('@/modules/tenant_subscription/tenant_subscription.feature.service');
+        const defaultPlanId = await TenantFeatureGateService.getDefaultPlanId();
+        if (defaultPlanId) {
+          // assignPlatformPlan clones the ROOT plan's category/product/plan/feature
+          // chain into this tenant and assigns it for free (priceOverride 0).
+          await TenantPlatformPlanService.assignPlatformPlan(tenantId, { planId: defaultPlanId, priceOverride: 0 });
+        }
+      } catch (err) {
+        Logger.warn(`[TenantService.seedDefaults] default plan assignment failed for ${tenantId}: ${err instanceof Error ? err.message : String(err)}`);
+      }
+    }
 
     if (!defaults?.skipSettings) {
       try {
@@ -142,11 +162,25 @@ export default class TenantService {
     const ds = await tenantDataSourceFor(tenantId);
     const repo = ds.getRepository(TenantEntity);
     const tenant = await repo.findOne({ where: { tenantId, deletedAt: IsNull() } });
-    if (!tenant) throw new Error(TenantMessages.TENANT_NOT_FOUND);
+    if (!tenant) throw new AppError(TenantMessages.TENANT_NOT_FOUND, 404, ErrorCode.TENANT_NOT_FOUND);
 
     await repo.update({ tenantId }, data as any);
     const updated = await repo.findOne({ where: { tenantId } });
     await this.clearCache(tenantId);
+
+    // tenant.updated fires to the tenant's own webhooks; a transition into
+    // SUSPENDED additionally raises the platform-wide tenant.suspended event.
+    await WebhookService.dispatchEvent(tenantId, 'tenant.updated', {
+      tenantId,
+      name: updated!.name,
+      tenantStatus: updated!.tenantStatus,
+    });
+    if (updated!.tenantStatus === 'SUSPENDED' && tenant.tenantStatus !== 'SUSPENDED') {
+      await WebhookService.dispatchPlatformEvent('tenant.suspended', {
+        tenantId,
+        name: updated!.name,
+      });
+    }
     return SafeTenantSchema.parse(updated!);
   }
 
@@ -173,8 +207,12 @@ export default class TenantService {
     const ds = await tenantDataSourceFor(tenantId);
     const repo = ds.getRepository(TenantEntity);
     const tenant = await repo.findOne({ where: { tenantId, deletedAt: IsNull() } });
-    if (!tenant) throw new Error(TenantMessages.TENANT_NOT_FOUND);
+    if (!tenant) throw new AppError(TenantMessages.TENANT_NOT_FOUND, 404, ErrorCode.TENANT_NOT_FOUND);
     await repo.update({ tenantId }, { deletedAt: new Date() });
     await this.clearCache(tenantId);
+    await WebhookService.dispatchPlatformEvent('tenant.deleted', {
+      tenantId,
+      name: tenant.name,
+    });
   }
 }

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Limiter from '@/modules_next/limiter/limiter.service.next'
 import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next'
-import StoreService from '@/modules/store/store.service'
+import StoreProductService from '@/modules/store/store.product.service'
 import { UpdateProductDTO } from '@/modules/store/store.dto'
 
 type Ctx = { params: Promise<{ tenantId: string; productId: string }> }
@@ -17,8 +17,8 @@ export async function GET(request: NextRequest, { params }: Ctx) {
   try {
     const detail = new URL(request.url).searchParams.get('detail') === 'true'
     const product = detail
-      ? await StoreService.getProductDetail(tenantId, productId)
-      : await StoreService.getProduct(tenantId, productId)
+      ? await StoreProductService.getProductDetail(tenantId, productId)
+      : await StoreProductService.getProduct(tenantId, productId)
     return NextResponse.json({ product })
   } catch (e: any) { return NextResponse.json({ message: e.message }, { status: 404 }) }
 }
@@ -29,7 +29,7 @@ export async function PUT(request: NextRequest, { params }: Ctx) {
   try { await auth(request, tenantId) } catch (e: any) { return NextResponse.json({ message: e.message }, { status: 403 }) }
   try {
     const dto = UpdateProductDTO.parse(await request.json())
-    const product = await StoreService.updateProduct(tenantId, productId, dto)
+    const product = await StoreProductService.updateProduct(tenantId, productId, dto)
     return NextResponse.json({ product })
   } catch (e: any) { return NextResponse.json({ message: e.message }, { status: 400 }) }
 }
@@ -39,7 +39,7 @@ export async function DELETE(request: NextRequest, { params }: Ctx) {
   const { tenantId, productId } = await params
   try { await auth(request, tenantId) } catch (e: any) { return NextResponse.json({ message: e.message }, { status: 403 }) }
   try {
-    await StoreService.deleteProduct(tenantId, productId)
+    await StoreProductService.deleteProduct(tenantId, productId)
     return NextResponse.json({ success: true })
   } catch (e: any) { return NextResponse.json({ message: e.message }, { status: 400 }) }
 }

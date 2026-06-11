@@ -1,11 +1,12 @@
 import Logger from '@/modules/logger'
 import { tenantDataSourceFor } from '@/modules/db'
 import redis from '@/modules/redis'
+import { AppError, ErrorCode } from '@/modules/common/app-error'
 import { Payment as PaymentEntity } from './entities/payment.entity'
 import PaymentSellService from './payment_sell.service'
 import { PAYMENT_SELL_MESSAGES } from './payment_sell.messages'
-import type { NormalizedWebhookEvent } from '../payment_core/payment_core.types'
-import type { PaymentProvider } from '../payment_core/payment_core.enums'
+import type { NormalizedWebhookEvent } from '@/modules/payment_core/payment_core.types'
+import type { PaymentProvider } from '@/modules/payment_core/payment_core.enums'
 
 export default class PaymentSellWebhookService {
 
@@ -51,10 +52,11 @@ export default class PaymentSellWebhookService {
           Logger.debug(`PaymentSellWebhook: unhandled action=${event.action} for provider=${provider}`)
       }
 
-      await redis.del(`pay:sell:${payment.paymentId}`)
+      redis.del(`pay:sell:${payment.paymentId}`).catch(() => {})
     } catch (error) {
+      if (error instanceof AppError) throw error
       Logger.error(`${PAYMENT_SELL_MESSAGES.WEBHOOK_PROCESSING_FAILED}: ${error}`)
-      throw new Error(PAYMENT_SELL_MESSAGES.WEBHOOK_PROCESSING_FAILED)
+      throw new AppError(PAYMENT_SELL_MESSAGES.WEBHOOK_PROCESSING_FAILED, 502, ErrorCode.INTERNAL_ERROR)
     }
   }
 }

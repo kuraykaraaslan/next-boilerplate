@@ -1,4 +1,4 @@
-# observability
+# Observability Module
 
 Single-facade entry point for Sentry (error + trace sink), Prometheus (metrics scrape), and OpenTelemetry (distributed tracing). Every call automatically inherits the active `tenantId` / `userId` / `requestId` from the [Logger](../logger/) AsyncLocalStorage context — service code never threads observability metadata manually.
 
@@ -75,3 +75,23 @@ When env toggles are on but the package is missing, the facade logs a warning at
 - **Logger context is the source of truth** for tenantId/userId/requestId. Don't thread them manually unless overriding.
 - **Backends are optional.** Code that imports `ObservabilityService` works without Sentry or prom-client installed.
 - **`recordError` doesn't re-throw** — caller decides whether to surface the error to the response.
+
+---
+
+## Tenant Variability
+
+> What varies per tenant in this module — and what could. Audited 2026-06-03.
+
+Infrastructure-only facade over Sentry/Prometheus/OTel that auto-tags errors/metrics with the active tenantId from the Logger ALS context; it has no per-tenant configuration surface — every backend is toggled by process-level env vars and tenantId is used only as a metric label / Sentry tag, never to branch behavior or read tenant config.
+
+### Candidates (global / hardcoded today → could be per-tenant)
+
+| What | Where | Why per-tenant | Suggested key |
+|---|---|---|---|
+| Sentry trace/profile sampling rates are global env values (SENTRY_TRACES_SAMPLE_RATE, SENTRY_PROFILES_SAMPLE_RATE) applied once at SDK init, so all tenants share the same sampling fraction. | `sentry.init.ts:initSentry (mod.init({ tracesSampleRate, profilesSampleRate }))` | An operator might want richer tracing for a specific debugging/enterprise tenant. However this is intentionally global: @sentry/nextjs is initialised once per process with a single client at boot, so a per-tenant override isn't reachable through the current SDK init path without a custom per-event tracesSampler. List as aspirational, not actionable today. | `sentryTracesSampleRate` |
+
+---
+
+## Dependencies
+
+Requires the [`env`](../env/) and [`logger`](../logger/) modules (`module.json` → `dependencies.requires`). Logger's AsyncLocalStorage context supplies the `tenantId` / `userId` / `requestId` that every error and metric is auto-tagged with; `env` gates every backend behind process-level toggles. Backend SDKs (`@sentry/nextjs`, `prom-client`, the OpenTelemetry packages) are optional peer installs imported lazily — see *Installation*.

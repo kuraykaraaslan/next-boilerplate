@@ -1,60 +1,24 @@
 'use client';
-import { use, useEffect, useState } from 'react';
+import { use, useEffect, useMemo, useState } from 'react';
 import { notFound, useRouter } from 'next/navigation';
 import { isRootTenant } from '@/modules/tenant/tenant.constants';
 import api from '@/modules_next/common/axios';
 import { Breadcrumb } from '@/modules_next/common/ui/Breadcrumb';
 import { PageHeader } from '@/modules_next/common/ui/PageHeader';
 import { Card } from '@/modules_next/common/ui/Card';
-import { Badge } from '@/modules_next/common/ui/Badge';
 import { Button } from '@/modules_next/common/ui/Button';
 import { Spinner } from '@/modules_next/common/ui/Spinner';
 import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
 import { Modal } from '@/modules_next/common/ui/Modal';
 import { Avatar } from '@/modules_next/common/ui/Avatar';
-import { ServerDataTable, type TableColumn } from '@/modules_next/common/ui/ServerDataTable';
-import { RowActionsMenu } from '@/modules_next/common/ui/RowActionsMenu';
+import { ServerDataTable } from '@/modules_next/common/ui/ServerDataTable';
 import { toast } from '@/modules_next/common/ui/toast.store';
 import { UserRoleBadge } from '@/modules_next/user/ui/UserRoleBadge';
 import { UserStatusBadge } from '@/modules_next/user/ui/UserStatusBadge';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBuilding, faArrowUpRightFromSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
-import type { UserRole, UserStatus } from '@/modules/user/user.enums';
-import type { TenantMemberRole as MemberRole, TenantMemberStatus as MemberStatus } from '@/modules/tenant_member/tenant_member.enums';
-import type { TenantStatus } from '@/modules/tenant/tenant.enums';
-
-type User = {
-  userId: string;
-  email: string;
-  phone: string | null;
-  userRole: UserRole;
-  userStatus: UserStatus;
-  emailVerifiedAt: string | null;
-  lastLoginAt: string | null;
-  createdAt: string;
-};
-
-type Membership = {
-  tenantMemberId: string;
-  tenantId: string;
-  memberRole: MemberRole;
-  memberStatus: MemberStatus;
-  createdAt: string | null;
-  tenant?: { tenantId: string; name: string; tenantStatus: TenantStatus } | null;
-};
-
-const memberRoleVariant: Record<MemberRole, 'primary' | 'warning' | 'neutral'> = {
-  OWNER: 'warning',
-  ADMIN: 'primary',
-  USER:  'neutral',
-};
-
-const memberStatusVariant: Record<MemberStatus, 'success' | 'warning' | 'neutral'> = {
-  ACTIVE:    'success',
-  INACTIVE:  'neutral',
-  SUSPENDED: 'warning',
-  PENDING:   'warning',
-};
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { type User, type Membership } from './user-detail.types';
+import { buildMembershipColumns } from './user-detail-columns';
 
 export default function UserDetailPage({ params }: { params: Promise<{ tenantId: string; userId: string }> }) {
   const { tenantId, userId } = use(params);
@@ -62,13 +26,13 @@ export default function UserDetailPage({ params }: { params: Promise<{ tenantId:
 
   const router = useRouter();
 
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser]             = useState<User | null>(null);
   const [memberships, setMemberships] = useState<Membership[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [pageError, setPageError] = useState('');
+  const [loading, setLoading]       = useState(true);
+  const [pageError, setPageError]   = useState('');
 
   const [showDelete, setShowDelete] = useState(false);
-  const [deleting, setDeleting] = useState(false);
+  const [deleting, setDeleting]     = useState(false);
   const [deleteError, setDeleteError] = useState('');
 
   useEffect(() => {
@@ -99,50 +63,10 @@ export default function UserDetailPage({ params }: { params: Promise<{ tenantId:
     }
   }
 
-  const membershipColumns: TableColumn<Membership>[] = [
-    {
-      key: 'tenant',
-      header: 'Tenant',
-      render: (m) => (
-        <div className="flex items-center gap-3">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-subtle text-primary shrink-0">
-            <FontAwesomeIcon icon={faBuilding} className="w-3.5 h-3.5" />
-          </span>
-          <p className="text-sm font-medium text-text-primary truncate">
-            {m.tenant?.name ?? m.tenantId}
-          </p>
-        </div>
-      ),
-    },
-    {
-      key: 'memberRole',
-      header: 'Role',
-      render: (m) => <Badge variant={memberRoleVariant[m.memberRole]}>{m.memberRole}</Badge>,
-    },
-    {
-      key: 'memberStatus',
-      header: 'Status',
-      render: (m) => <Badge variant={memberStatusVariant[m.memberStatus]} dot>{m.memberStatus}</Badge>,
-    },
-    {
-      key: '_actions',
-      header: '',
-      align: 'right',
-      render: (m) => (
-        <div onClick={(e) => e.stopPropagation()}>
-          <RowActionsMenu
-            actions={[
-              {
-                label: 'Open tenant',
-                icon: <FontAwesomeIcon icon={faArrowUpRightFromSquare} />,
-                onClick: () => router.push(`/tenant/${tenantId}/admin/tenants/${m.tenantId}`),
-              },
-            ]}
-          />
-        </div>
-      ),
-    },
-  ];
+  const membershipColumns = useMemo(
+    () => buildMembershipColumns((id) => router.push(`/tenant/${tenantId}/admin/tenants/${id}`)),
+    [router, tenantId],
+  );
 
   if (loading) {
     return <div className="flex justify-center py-20"><Spinner size="lg" /></div>;

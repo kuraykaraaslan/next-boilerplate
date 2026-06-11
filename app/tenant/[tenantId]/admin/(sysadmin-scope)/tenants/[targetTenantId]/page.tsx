@@ -1,5 +1,5 @@
 'use client';
-import { use, useCallback, useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import { useRouter, notFound } from 'next/navigation';
 import { isRootTenant } from '@/modules/tenant/tenant.constants';
 import api from '@/modules_next/common/axios';
@@ -16,13 +16,14 @@ import { ServerDataTable, type TableColumn } from '@/modules_next/common/ui/Serv
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faGlobe, faPeopleGroup, faGear,
-  faPlus, faTrash, faCheck, faBan, faUser, faCreditCard,
+  faTrash, faCheck, faBan, faCreditCard,
 } from '@fortawesome/free-solid-svg-icons';
 import type { TenantStatus } from '@/modules/tenant/tenant.enums';
-import type { TenantMemberRole as MemberRole, TenantMemberStatus as MemberStatus } from '@/modules/tenant_member/tenant_member.enums';
+import type { DomainStatus as _DS } from '@/modules/tenant_domain/tenant_domain.enums';
+import { TenantMembersTable } from '@/modules_next/tenant/ui/TenantMembersTable';
+import { TenantSubscriptionCard } from '@/modules_next/tenant/ui/TenantSubscriptionCard';
 
-// Subset of DomainStatus excluding DNS_FAILED — sysadmin view doesn't render that case.
-type DomainStatus = Exclude<import('@/modules/tenant_domain/tenant_domain.enums').DomainStatus, 'DNS_FAILED'>;
+type DomainStatus = Exclude<_DS, 'DNS_FAILED'>;
 
 type Domain = {
   tenantDomainId: string;
@@ -30,15 +31,6 @@ type Domain = {
   isPrimary: boolean;
   domainStatus: DomainStatus;
   createdAt: string | null;
-};
-
-type Member = {
-  tenantMemberId: string;
-  userId: string;
-  memberRole: MemberRole;
-  memberStatus: MemberStatus;
-  createdAt: string | null;
-  user?: { userId: string; email: string } | null;
 };
 
 type Tenant = {
@@ -51,35 +43,13 @@ type Tenant = {
   domains?: Domain[] | null;
 };
 
-const PAGE_SIZE = 10;
-
 const statusVariant: Record<TenantStatus, 'success' | 'warning' | 'error' | 'neutral'> = {
-  ACTIVE:   'success',
-  INACTIVE: 'neutral',
-  PENDING:  'warning',
-  SUSPENDED:'warning',
-  DELETED:  'error',
-  ARCHIVED: 'neutral',
-};
-
-const memberStatusVariant: Record<MemberStatus, 'success' | 'warning' | 'neutral'> = {
-  ACTIVE:    'success',
-  INACTIVE:  'neutral',
-  SUSPENDED: 'warning',
-  PENDING:   'warning',
-};
-
-const memberRoleVariant: Record<MemberRole, 'primary' | 'warning' | 'neutral'> = {
-  OWNER: 'warning',
-  ADMIN: 'primary',
-  USER:  'neutral',
+  ACTIVE: 'success', INACTIVE: 'neutral', PENDING: 'warning',
+  SUSPENDED: 'warning', DELETED: 'error', ARCHIVED: 'neutral',
 };
 
 const domainStatusVariant: Record<DomainStatus, 'success' | 'warning' | 'neutral'> = {
-  ACTIVE:   'success',
-  VERIFIED: 'success',
-  PENDING:  'warning',
-  INACTIVE: 'neutral',
+  ACTIVE: 'success', VERIFIED: 'success', PENDING: 'warning', INACTIVE: 'neutral',
 };
 
 const selectClass =
@@ -91,36 +61,19 @@ export default function TenantDetailPage({ params }: { params: Promise<{ tenantI
 
   const router = useRouter();
 
-  const [tenant, setTenant]   = useState<Tenant | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [tenant, setTenant]     = useState<Tenant | null>(null);
+  const [loading, setLoading]   = useState(true);
   const [pageError, setPageError] = useState('');
 
-  // Members
-  const [members, setMembers]       = useState<Member[]>([]);
-  const [memberTotal, setMemberTotal] = useState(0);
-  const [memberPage, setMemberPage] = useState(1);
-  const [membersLoading, setMembersLoading] = useState(false);
-
-  // Edit modal
   const [showEdit, setShowEdit] = useState(false);
   const [editValues, setEditValues] = useState({ name: '', description: '', tenantStatus: 'ACTIVE' as TenantStatus });
   const [saving, setSaving]     = useState(false);
   const [editError, setEditError] = useState('');
 
-  // Add member modal
-  const [showAddMember, setShowAddMember] = useState(false);
-  const [addMemberValues, setAddMemberValues] = useState({ userId: '', memberRole: 'USER' as MemberRole });
-  const [addingMember, setAddingMember] = useState(false);
-  const [addMemberError, setAddMemberError] = useState('');
-
-  // Delete confirm modal
   const [showDelete, setShowDelete] = useState(false);
   const [deleting, setDeleting]     = useState(false);
   const [deleteError, setDeleteError] = useState('');
 
-  const memberTotalPages = Math.max(1, Math.ceil(memberTotal / PAGE_SIZE));
-
-  // --- Fetch tenant ---
   useEffect(() => {
     setLoading(true);
     api.get(`/tenant/${tenantId}/api/tenants/${targetTenantId}`)
@@ -129,27 +82,6 @@ export default function TenantDetailPage({ params }: { params: Promise<{ tenantI
       .finally(() => setLoading(false));
   }, [tenantId, targetTenantId]);
 
-  // --- Fetch members ---
-  const fetchMembers = useCallback(async (p: number) => {
-    setMembersLoading(true);
-    try {
-      const res = await api.get(`/tenant/${targetTenantId}/api/members`, {
-        params: { page: p, pageSize: PAGE_SIZE },
-      });
-      setMembers(res.data.members ?? []);
-      setMemberTotal(res.data.total ?? 0);
-    } catch {
-      // silent — member list is secondary
-    } finally {
-      setMembersLoading(false);
-    }
-  }, [targetTenantId]);
-
-  useEffect(() => {
-    fetchMembers(memberPage);
-  }, [memberPage, fetchMembers]);
-
-  // --- Edit ---
   function openEdit() {
     if (!tenant) return;
     setEditValues({ name: tenant.name, description: tenant.description ?? '', tenantStatus: tenant.tenantStatus });
@@ -159,8 +91,7 @@ export default function TenantDetailPage({ params }: { params: Promise<{ tenantI
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
-    setSaving(true);
-    setEditError('');
+    setSaving(true); setEditError('');
     try {
       const res = await api.put(`/tenant/${tenantId}/api/tenants/${targetTenantId}`, {
         name: editValues.name,
@@ -176,7 +107,6 @@ export default function TenantDetailPage({ params }: { params: Promise<{ tenantI
     }
   }
 
-  // --- Quick status change ---
   async function handleStatusChange(newStatus: TenantStatus) {
     try {
       const res = await api.put(`/tenant/${tenantId}/api/tenants/${targetTenantId}`, { tenantStatus: newStatus });
@@ -186,41 +116,14 @@ export default function TenantDetailPage({ params }: { params: Promise<{ tenantI
     }
   }
 
-  // --- Delete ---
   async function handleDelete() {
-    setDeleting(true);
-    setDeleteError('');
+    setDeleting(true); setDeleteError('');
     try {
       await api.delete(`/tenant/${tenantId}/api/tenants/${targetTenantId}`);
       router.push(`/tenant/${tenantId}/admin/tenants`);
     } catch (err: any) {
       setDeleteError(err.response?.data?.message ?? err.message ?? 'Failed to delete tenant.');
       setDeleting(false);
-    }
-  }
-
-  // --- Add member ---
-  function openAddMember() {
-    setAddMemberValues({ userId: '', memberRole: 'USER' });
-    setAddMemberError('');
-    setShowAddMember(true);
-  }
-
-  async function handleAddMember(e: React.FormEvent) {
-    e.preventDefault();
-    setAddingMember(true);
-    setAddMemberError('');
-    try {
-      await api.post(`/tenant/${targetTenantId}/api/members`, {
-        userId: addMemberValues.userId.trim(),
-        memberRole: addMemberValues.memberRole,
-      });
-      setShowAddMember(false);
-      fetchMembers(memberPage);
-    } catch (err: any) {
-      setAddMemberError(err.response?.data?.message ?? err.message ?? 'Failed to add member.');
-    } finally {
-      setAddingMember(false);
     }
   }
 
@@ -249,10 +152,7 @@ export default function TenantDetailPage({ params }: { params: Promise<{ tenantI
       />
 
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* Left — main content */}
         <div className="lg:col-span-2 space-y-6">
-
-          {/* Details */}
           <Card title="Details">
             <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 text-sm">
               <div>
@@ -284,60 +184,7 @@ export default function TenantDetailPage({ params }: { params: Promise<{ tenantI
             </dl>
           </Card>
 
-          <ServerDataTable
-            columns={[
-              {
-                key: 'user',
-                header: 'User',
-                render: (m: Member) => (
-                  <div className="flex items-center gap-2">
-                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary-subtle text-primary text-xs shrink-0">
-                      <FontAwesomeIcon icon={faUser} />
-                    </span>
-                    <div>
-                      <p className="font-medium text-text-primary">{m.user?.email ?? m.userId}</p>
-                      {m.user?.email && <p className="text-xs text-text-secondary font-mono">{m.userId}</p>}
-                    </div>
-                  </div>
-                ),
-              },
-              {
-                key: 'memberRole',
-                header: 'Role',
-                render: (m: Member) => <Badge variant={memberRoleVariant[m.memberRole]}>{m.memberRole}</Badge>,
-              },
-              {
-                key: 'memberStatus',
-                header: 'Status',
-                render: (m: Member) => <Badge variant={memberStatusVariant[m.memberStatus]} dot>{m.memberStatus}</Badge>,
-              },
-              {
-                key: 'createdAt',
-                header: 'Joined',
-                render: (m: Member) => (
-                  <span className="text-text-secondary">
-                    {m.createdAt ? new Date(m.createdAt).toLocaleDateString() : '—'}
-                  </span>
-                ),
-              },
-            ] satisfies TableColumn<Member>[]}
-            rows={members}
-            getRowKey={(m) => m.tenantMemberId}
-            page={memberPage}
-            totalPages={memberTotalPages}
-            total={memberTotal}
-            pageSize={PAGE_SIZE}
-            onPageChange={setMemberPage}
-            loading={membersLoading}
-            emptyMessage="No members yet."
-            title="Members"
-            subtitle={`${memberTotal} total`}
-            headerRight={
-              <Button size="sm" variant="outline" iconLeft={<FontAwesomeIcon icon={faPlus} />} onClick={openAddMember}>
-                Add Member
-              </Button>
-            }
-          />
+          <TenantMembersTable targetTenantId={targetTenantId} />
 
           {tenant.domains && tenant.domains.length > 0 && (
             <ServerDataTable
@@ -358,42 +205,30 @@ export default function TenantDetailPage({ params }: { params: Promise<{ tenantI
           )}
         </div>
 
-        {/* Right sidebar — Actions */}
         <div className="space-y-4">
           <Card title="Actions">
             <div className="space-y-2">
               <a href={`/tenant/${targetTenantId}/admin/members`}>
-                <Button variant="outline" fullWidth iconLeft={<FontAwesomeIcon icon={faPeopleGroup} />}>
-                  View Members
-                </Button>
+                <Button variant="outline" fullWidth iconLeft={<FontAwesomeIcon icon={faPeopleGroup} />}>View Members</Button>
               </a>
               <a href={`/tenant/${targetTenantId}/admin/settings`}>
-                <Button variant="outline" fullWidth iconLeft={<FontAwesomeIcon icon={faGear} />}>
-                  Tenant Settings
-                </Button>
+                <Button variant="outline" fullWidth iconLeft={<FontAwesomeIcon icon={faGear} />}>Tenant Settings</Button>
               </a>
               <a href={`/tenant/${targetTenantId}/admin/subscription`}>
-                <Button variant="outline" fullWidth iconLeft={<FontAwesomeIcon icon={faCreditCard} />}>
-                  Subscription
-                </Button>
+                <Button variant="outline" fullWidth iconLeft={<FontAwesomeIcon icon={faCreditCard} />}>Subscription</Button>
               </a>
               <a href={`/tenant/${tenantId}/admin/payments?tenantId=${targetTenantId}`}>
-                <Button variant="outline" fullWidth iconLeft={<FontAwesomeIcon icon={faGlobe} />}>
-                  View Payments
-                </Button>
+                <Button variant="outline" fullWidth iconLeft={<FontAwesomeIcon icon={faGlobe} />}>View Payments</Button>
               </a>
             </div>
           </Card>
 
+          <TenantSubscriptionCard tenantId={tenantId} targetTenantId={targetTenantId} />
+
           <Card title="Status Management">
             <div className="space-y-2">
               {tenant.tenantStatus !== 'ACTIVE' && (
-                <Button
-                  variant="outline"
-                  fullWidth
-                  iconLeft={<FontAwesomeIcon icon={faCheck} />}
-                  onClick={() => handleStatusChange('ACTIVE')}
-                >
+                <Button variant="outline" fullWidth iconLeft={<FontAwesomeIcon icon={faCheck} />} onClick={() => handleStatusChange('ACTIVE')}>
                   Set Active
                 </Button>
               )}
@@ -409,12 +244,7 @@ export default function TenantDetailPage({ params }: { params: Promise<{ tenantI
                 </Button>
               )}
               {tenant.tenantStatus !== 'ARCHIVED' && (
-                <Button
-                  variant="ghost"
-                  fullWidth
-                  onClick={() => handleStatusChange('ARCHIVED')}
-                  className="!text-text-secondary"
-                >
+                <Button variant="ghost" fullWidth onClick={() => handleStatusChange('ARCHIVED')} className="!text-text-secondary">
                   Archive
                 </Button>
               )}
@@ -437,7 +267,6 @@ export default function TenantDetailPage({ params }: { params: Promise<{ tenantI
         </div>
       </div>
 
-      {/* Edit Modal */}
       <Modal
         open={showEdit}
         onClose={() => setShowEdit(false)}
@@ -452,26 +281,13 @@ export default function TenantDetailPage({ params }: { params: Promise<{ tenantI
       >
         <form id="edit-tenant-form" onSubmit={handleSave} className="space-y-4">
           {editError && <AlertBanner variant="error" message={editError} />}
-          <Input
-            id="edit-name"
-            label="Name"
-            required
-            placeholder="Acme Corp"
-            value={editValues.name}
-            onChange={(e) => setEditValues((v) => ({ ...v, name: e.target.value }))}
-          />
-          <Input
-            id="edit-desc"
-            label="Description"
-            placeholder="Optional description"
-            value={editValues.description}
-            onChange={(e) => setEditValues((v) => ({ ...v, description: e.target.value }))}
-          />
+          <Input id="edit-name" label="Name" required placeholder="Acme Corp" value={editValues.name}
+            onChange={(e) => setEditValues((v) => ({ ...v, name: e.target.value }))} />
+          <Input id="edit-desc" label="Description" placeholder="Optional description" value={editValues.description}
+            onChange={(e) => setEditValues((v) => ({ ...v, description: e.target.value }))} />
           <div className="flex flex-col gap-1">
             <label htmlFor="edit-status" className="text-xs font-medium text-text-secondary">Status</label>
-            <select
-              id="edit-status"
-              value={editValues.tenantStatus}
+            <select id="edit-status" value={editValues.tenantStatus}
               onChange={(e) => setEditValues((v) => ({ ...v, tenantStatus: e.target.value as TenantStatus }))}
               className={selectClass}
             >
@@ -485,46 +301,6 @@ export default function TenantDetailPage({ params }: { params: Promise<{ tenantI
         </form>
       </Modal>
 
-      {/* Add Member Modal */}
-      <Modal
-        open={showAddMember}
-        onClose={() => setShowAddMember(false)}
-        title="Add Member"
-        description="Add an existing user to this tenant"
-        footer={
-          <>
-            <Button variant="ghost" onClick={() => setShowAddMember(false)} disabled={addingMember}>Cancel</Button>
-            <Button form="add-member-form" type="submit" loading={addingMember}>Add</Button>
-          </>
-        }
-      >
-        <form id="add-member-form" onSubmit={handleAddMember} className="space-y-4">
-          {addMemberError && <AlertBanner variant="error" message={addMemberError} />}
-          <Input
-            id="add-userId"
-            label="User ID"
-            required
-            placeholder="UUID of the user"
-            value={addMemberValues.userId}
-            onChange={(e) => setAddMemberValues((v) => ({ ...v, userId: e.target.value }))}
-          />
-          <div className="flex flex-col gap-1">
-            <label htmlFor="add-role" className="text-xs font-medium text-text-secondary">Role</label>
-            <select
-              id="add-role"
-              value={addMemberValues.memberRole}
-              onChange={(e) => setAddMemberValues((v) => ({ ...v, memberRole: e.target.value as MemberRole }))}
-              className={selectClass}
-            >
-              <option value="USER">User</option>
-              <option value="ADMIN">Admin</option>
-              <option value="OWNER">Owner</option>
-            </select>
-          </div>
-        </form>
-      </Modal>
-
-      {/* Delete Confirm Modal */}
       <Modal
         open={showDelete}
         onClose={() => setShowDelete(false)}

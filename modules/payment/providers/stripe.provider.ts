@@ -2,6 +2,8 @@ import axios, { AxiosInstance } from 'axios'
 import BasePaymentProvider, {
   CheckoutSessionParams, CheckoutSessionResult,
   CustomerPortalParams, CustomerPortalResult,
+  WalletDescriptor,
+  PaymentIntentParams, PaymentIntentResult,
 } from './base.provider'
 import { PAYMENT_MESSAGES } from '../payment.messages'
 import SettingService from '@/modules/setting/setting.service'
@@ -9,6 +11,20 @@ import qs from 'querystring'
 
 export default class StripeProvider extends BasePaymentProvider {
   readonly name = 'stripe'
+
+  /** Stripe Express Checkout Element renders these client-side (Click to Pay = SRC). */
+  override get supportedWallets(): WalletDescriptor[] {
+    return [
+      { method: 'CARD', delivery: 'CLIENT_ELEMENT' },
+      { method: 'APPLE_PAY', delivery: 'CLIENT_ELEMENT' },
+      { method: 'GOOGLE_PAY', delivery: 'CLIENT_ELEMENT' },
+      { method: 'LINK', delivery: 'CLIENT_ELEMENT' },
+      { method: 'CLICK_TO_PAY', delivery: 'CLIENT_ELEMENT' },
+      { method: 'PAYPAL', delivery: 'CLIENT_ELEMENT' },
+      { method: 'AMAZON_PAY', delivery: 'CLIENT_ELEMENT' },
+      { method: 'CASH_APP_PAY', delivery: 'CLIENT_ELEMENT' },
+    ]
+  }
 
   private static readonly STRIPE_API_URL = 'https://api.stripe.com/v1'
 
@@ -53,6 +69,40 @@ export default class StripeProvider extends BasePaymentProvider {
       return response.data.status
     } catch (error) {
       throw new Error(PAYMENT_MESSAGES.STRIPE_GET_STATUS_FAILED)
+    }
+  }
+
+  /**
+   * PaymentIntent for the Express Checkout Element. `automatic_payment_methods`
+   * lets Stripe surface every eligible wallet (Apple/Google Pay, Click to Pay,
+   * Link, PayPal, …) from a single client Element.
+   */
+  override async createPaymentIntent(
+    tenantId: string,
+    params: PaymentIntentParams,
+  ): Promise<PaymentIntentResult> {
+    try {
+      const client = await this.getAuthenticatedAxios(tenantId)
+      const body: Record<string, any> = {
+        amount: Math.round(params.amount * 100), // Stripe uses minor units
+        currency: params.currency.toLowerCase(),
+        description: params.description,
+        'automatic_payment_methods[enabled]': 'true',
+      }
+      if (params.metadata) {
+        for (const [key, value] of Object.entries(params.metadata)) {
+          body[`metadata[${key}]`] = value
+        }
+      }
+      const response = await client.post('/payment_intents', qs.stringify(body))
+      const publishableKey = await SettingService.getValue(tenantId, 'stripePublishableKey').catch(() => null)
+      return {
+        clientSecret: response.data.client_secret,
+        publishableKey: publishableKey ?? null,
+        providerRef: response.data.id,
+      }
+    } catch (error) {
+      throw new Error(PAYMENT_MESSAGES.STRIPE_CREATE_INTENT_FAILED)
     }
   }
 

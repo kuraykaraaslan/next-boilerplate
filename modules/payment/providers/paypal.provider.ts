@@ -1,5 +1,5 @@
 import axios, { AxiosInstance } from 'axios'
-import BasePaymentProvider, { CheckoutSessionParams, CheckoutSessionResult } from './base.provider'
+import BasePaymentProvider, { CheckoutSessionParams, CheckoutSessionResult, WalletDescriptor } from './base.provider'
 import { PAYMENT_MESSAGES } from '../payment.messages'
 import SettingService from '@/modules/setting/setting.service'
 
@@ -10,6 +10,10 @@ interface CachedToken {
 
 export default class PaypalProvider extends BasePaymentProvider {
   readonly name = 'paypal'
+
+  override get supportedWallets(): WalletDescriptor[] {
+    return [{ method: 'PAYPAL', delivery: 'HOSTED_REDIRECT' }]
+  }
 
   // Per-tenant token cache. Provider instance is a singleton; each tenant
   // has its own PayPal credentials so the cache must be keyed by tenantId.

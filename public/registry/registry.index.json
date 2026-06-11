@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-05-26T21:49:04.137Z",
+  "generatedAt": "2026-06-11T02:58:58.038Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -375,6 +375,39 @@
       "hasNextLayer": false
     },
     {
+      "id": "seed",
+      "name": "Seed",
+      "version": "1.0.0",
+      "description": "Demo-data seeding framework. Each domain module ships a <module>.seed.ts exporting seed<Module>(ctx); the runner invokes them in dependency order against a target tenant.",
+      "dir": "modules/seed",
+      "icon": "fas fa-seedling",
+      "tags": [
+        "infrastructure",
+        "tooling"
+      ],
+      "priority": 9,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "tenant"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
       "id": "storage",
       "name": "File Storage",
       "version": "1.0.0",
@@ -493,7 +526,9 @@
         "enums": [
           "user_preferences.enums.ts"
         ],
-        "messageKeys": [],
+        "messageKeys": [
+          "user_preferences.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
@@ -533,7 +568,9 @@
         "enums": [
           "user_profile.enums.ts"
         ],
-        "messageKeys": [],
+        "messageKeys": [
+          "user_profile.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
@@ -567,6 +604,8 @@
       },
       "exports": {
         "services": [
+          "user_security.passkey.crud.service.ts",
+          "user_security.passkey.flow.service.ts",
           "user_security.passkey.service.ts",
           "user_security.service.ts"
         ],
@@ -575,6 +614,7 @@
           "user_security.enums.ts"
         ],
         "messageKeys": [
+          "user_security.messages.ts",
           "user_security.passkey.messages.ts"
         ],
         "settingKeys": [
@@ -615,6 +655,7 @@
       },
       "exports": {
         "services": [
+          "user_session.auth.service.ts",
           "user_session.cache.service.ts",
           "user_session.crud.service.ts",
           "user_session.service.ts",
@@ -707,11 +748,15 @@
       "exports": {
         "services": [
           "auth.captcha.service.ts",
+          "auth.credential.service.ts",
           "auth.otp.service.ts",
           "auth.password.service.ts",
+          "auth.policy.loader.service.ts",
           "auth.policy.service.ts",
+          "auth.policy.validator.service.ts",
           "auth.service.ts",
-          "auth.totp.service.ts"
+          "auth.totp.service.ts",
+          "auth.verification.service.ts"
         ],
         "dtos": [
           "auth.dto.ts"
@@ -759,6 +804,8 @@
       },
       "exports": {
         "services": [
+          "auth_saml.config.service.ts",
+          "auth_saml.flow.service.ts",
           "auth_saml.service.ts"
         ],
         "dtos": [
@@ -805,6 +852,8 @@
       },
       "exports": {
         "services": [
+          "auth_sso.account.service.ts",
+          "auth_sso.flow.service.ts",
           "auth_sso.service.ts"
         ],
         "dtos": [
@@ -893,7 +942,8 @@
       },
       "exports": {
         "services": [
-          "scim.service.ts"
+          "scim.service.ts",
+          "scim.user.service.ts"
         ],
         "dtos": [
           "scim.dto.ts"
@@ -1002,7 +1052,7 @@
       },
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "tenant_invitation",
@@ -1049,7 +1099,7 @@
       },
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "tenant_session",
@@ -1157,6 +1207,8 @@
         "services": [
           "dns_verification.service.ts",
           "ssl_provisioning.service.ts",
+          "tenant_domain.crud.service.ts",
+          "tenant_domain.dns.service.ts",
           "tenant_domain.service.ts"
         ],
         "dtos": [
@@ -1180,7 +1232,7 @@
       },
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "tenant_subscription",
@@ -1206,6 +1258,15 @@
       },
       "exports": {
         "services": [
+          "tenant_subscription.card.service.ts",
+          "tenant_subscription.checkout.service.ts",
+          "tenant_subscription.feature.service.ts",
+          "tenant_subscription.grace.service.ts",
+          "tenant_subscription.lifecycle.service.ts",
+          "tenant_subscription.plan.crud.service.ts",
+          "tenant_subscription.plan.feature.service.ts",
+          "tenant_subscription.plan.service.ts",
+          "tenant_subscription.platform.service.ts",
           "tenant_subscription.service.ts"
         ],
         "dtos": [
@@ -1258,7 +1319,9 @@
         ],
         "dtos": [],
         "enums": [],
-        "messageKeys": [],
+        "messageKeys": [
+          "tenant_usage.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
         "jobs": [
@@ -1295,9 +1358,18 @@
       },
       "exports": {
         "services": [
+          "payment.checkout.service.ts",
+          "payment.crud.service.ts",
           "payment.proration.service.ts",
           "payment.service.ts",
-          "payment.webhook.service.ts"
+          "payment.transaction.service.ts",
+          "payment.webhook.handlers.service.ts",
+          "payment.webhook.notifications.service.ts",
+          "payment.webhook.payment.service.ts",
+          "payment.webhook.paypal.service.ts",
+          "payment.webhook.service.ts",
+          "payment.webhook.stripe.service.ts",
+          "payment.webhook.subscription.service.ts"
         ],
         "dtos": [
           "payment.dto.ts"
@@ -1384,7 +1456,9 @@
       },
       "exports": {
         "services": [
-          "coupon.service.ts"
+          "coupon.crud.service.ts",
+          "coupon.service.ts",
+          "coupon.validation.service.ts"
         ],
         "dtos": [
           "coupon.dto.ts"
@@ -1433,6 +1507,8 @@
       },
       "exports": {
         "services": [
+          "payment_sell.checkout.service.ts",
+          "payment_sell.crud.service.ts",
           "payment_sell.service.ts",
           "payment_sell.webhook.service.ts"
         ],
@@ -1453,9 +1529,46 @@
           "payment_transaction.entity.ts"
         ]
       },
-      "hasReadme": false,
+      "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": true
+      "hasNextLayer": false
+    },
+    {
+      "id": "exchange_rate",
+      "name": "Exchange Rate",
+      "version": "1.0.0",
+      "description": "TCMB (Turkish Central Bank) FX rates with Redis caching. Converts plan prices to TRY when charging Turkish cards via iyzico.",
+      "dir": "modules/exchange_rate",
+      "icon": "fas fa-money-bill-transfer",
+      "tags": [
+        "billing",
+        "fx"
+      ],
+      "priority": 27,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "redis",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [
+          "exchange_rate.service.ts"
+        ],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [
+          "exchange_rate.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
     },
     {
       "id": "payment_subscription",
@@ -1484,6 +1597,8 @@
       },
       "exports": {
         "services": [
+          "payment_subscription.lifecycle.service.ts",
+          "payment_subscription.plan.service.ts",
           "payment_subscription.proration.service.ts",
           "payment_subscription.service.ts"
         ],
@@ -1503,6 +1618,106 @@
           "plan_feature.entity.ts",
           "subscription.entity.ts",
           "subscription_plan.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "payment_cart",
+      "name": "Payment Cart",
+      "version": "1.0.0",
+      "description": "Tenant-aware shopping cart for users and anonymous guests. Manages cart items, quantities, coupon codes, totals, guest-to-user merge, and conversion to checkout.",
+      "dir": "modules/payment_cart",
+      "icon": "fas fa-cart-shopping",
+      "tags": [
+        "payment",
+        "cart",
+        "ecommerce"
+      ],
+      "priority": 28,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "logger",
+          "coupon"
+        ]
+      },
+      "exports": {
+        "services": [
+          "payment_cart.calc.service.ts",
+          "payment_cart.crud.service.ts",
+          "payment_cart.item.service.ts",
+          "payment_cart.service.ts"
+        ],
+        "dtos": [
+          "payment_cart.dto.ts"
+        ],
+        "enums": [
+          "payment_cart.enums.ts"
+        ],
+        "messageKeys": [
+          "payment_cart.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "cart.entity.ts",
+          "cart_item.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "payment_shipping",
+      "name": "Payment Shipping",
+      "version": "1.0.0",
+      "description": "Tenant-aware shipping methods and a rate-calculation engine. Define carriers and rate rules (by country, region, weight, subtotal) and compute shipping quotes at checkout.",
+      "dir": "modules/payment_shipping",
+      "icon": "fas fa-truck",
+      "tags": [
+        "payment",
+        "shipping",
+        "ecommerce"
+      ],
+      "priority": 29,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "logger"
+        ]
+      },
+      "exports": {
+        "services": [
+          "payment_shipping.calc.service.ts",
+          "payment_shipping.crud.service.ts",
+          "payment_shipping.service.ts"
+        ],
+        "dtos": [
+          "payment_shipping.dto.ts"
+        ],
+        "enums": [
+          "payment_shipping.enums.ts"
+        ],
+        "messageKeys": [
+          "payment_shipping.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "shipping_method.entity.ts",
+          "shipping_rate.entity.ts"
         ]
       },
       "hasReadme": true,
@@ -1537,8 +1752,12 @@
       },
       "exports": {
         "services": [
+          "invoice.adapter.service.ts",
+          "invoice.crud.service.ts",
+          "invoice.pdf.renderer.service.ts",
           "invoice.pdf.service.ts",
-          "invoice.service.ts"
+          "invoice.service.ts",
+          "invoice.transition.service.ts"
         ],
         "dtos": [],
         "enums": [
@@ -1620,11 +1839,19 @@
       },
       "exports": {
         "services": [
-          "notification_mail.service.ts"
+          "notification_mail.account-templates.service.ts",
+          "notification_mail.provider.service.ts",
+          "notification_mail.queue.service.ts",
+          "notification_mail.service.ts",
+          "notification_mail.templates.auth.service.ts",
+          "notification_mail.templates.invoice.service.ts",
+          "notification_mail.templates.service.ts"
         ],
         "dtos": [],
         "enums": [],
-        "messageKeys": [],
+        "messageKeys": [
+          "notification_mail.messages.ts"
+        ],
         "settingKeys": [
           "notification_mail.setting.keys.ts"
         ],
@@ -1697,6 +1924,8 @@
       },
       "exports": {
         "services": [
+          "notification_sms.provider.service.ts",
+          "notification_sms.queue.service.ts",
           "notification_sms.service.ts"
         ],
         "dtos": [],
@@ -1751,6 +1980,206 @@
       "hasNextLayer": false
     },
     {
+      "id": "payment_tax",
+      "name": "Payment Tax",
+      "version": "1.0.0",
+      "description": "Tenant-aware tax/VAT calculation engine: tax classes, destination-matched rates, compound and price-inclusive computation.",
+      "dir": "modules/payment_tax",
+      "icon": "fas fa-percent",
+      "tags": [
+        "payment",
+        "tax",
+        "vat",
+        "compliance"
+      ],
+      "priority": 31,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "logger"
+        ]
+      },
+      "exports": {
+        "services": [
+          "payment_tax.calc.service.ts",
+          "payment_tax.crud.service.ts",
+          "payment_tax.service.ts"
+        ],
+        "dtos": [
+          "payment_tax.dto.ts"
+        ],
+        "enums": [
+          "payment_tax.enums.ts"
+        ],
+        "messageKeys": [
+          "payment_tax.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "tax_class.entity.ts",
+          "tax_rate.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "payment_wishlist",
+      "name": "Payment Wishlist",
+      "version": "1.0.0",
+      "description": "Tenant-aware wishlists / favorites. Users keep multiple named lists of products and variants, with optional public sharing via a share token.",
+      "dir": "modules/payment_wishlist",
+      "icon": "fas fa-heart",
+      "tags": [
+        "wishlist",
+        "ecommerce",
+        "favorites"
+      ],
+      "priority": 32,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "logger"
+        ]
+      },
+      "exports": {
+        "services": [
+          "payment_wishlist.service.ts"
+        ],
+        "dtos": [
+          "payment_wishlist.dto.ts"
+        ],
+        "enums": [
+          "payment_wishlist.enums.ts"
+        ],
+        "messageKeys": [
+          "payment_wishlist.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "wishlist.entity.ts",
+          "wishlist_item.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "payment_return_rma",
+      "name": "Payment Return / RMA",
+      "version": "1.0.0",
+      "description": "Customer return, exchange and refund (RMA) requests with line items and an append-only status-event log. Tenant-aware, references orders from a future order module.",
+      "dir": "modules/payment_return_rma",
+      "icon": "fas fa-rotate-left",
+      "tags": [
+        "return",
+        "rma",
+        "refund",
+        "ecommerce"
+      ],
+      "priority": 33,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "logger",
+          "payment_sell"
+        ]
+      },
+      "exports": {
+        "services": [
+          "payment_return_rma.crud.service.ts",
+          "payment_return_rma.lifecycle.service.ts",
+          "payment_return_rma.service.ts"
+        ],
+        "dtos": [
+          "payment_return_rma.dto.ts"
+        ],
+        "enums": [
+          "payment_return_rma.enums.ts"
+        ],
+        "messageKeys": [
+          "payment_return_rma.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "return_event.entity.ts",
+          "return_item.entity.ts",
+          "return_request.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "payment_loyalty_points",
+      "name": "Payment Loyalty Points",
+      "version": "1.0.0",
+      "description": "Tenant-aware loyalty points program. Earn / redeem points, lifetime-driven tiers with earn multipliers, manual adjustments, transaction ledger, and point expiry.",
+      "dir": "modules/payment_loyalty_points",
+      "icon": "fas fa-medal",
+      "tags": [
+        "loyalty",
+        "points",
+        "rewards",
+        "ecommerce"
+      ],
+      "priority": 34,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "logger"
+        ]
+      },
+      "exports": {
+        "services": [
+          "payment_loyalty_points.account.service.ts",
+          "payment_loyalty_points.ledger.service.ts",
+          "payment_loyalty_points.service.ts"
+        ],
+        "dtos": [
+          "payment_loyalty_points.dto.ts"
+        ],
+        "enums": [
+          "payment_loyalty_points.enums.ts"
+        ],
+        "messageKeys": [
+          "payment_loyalty_points.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "loyalty_account.entity.ts",
+          "loyalty_tier.entity.ts",
+          "loyalty_transaction.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
       "id": "e_signature",
       "name": "E-Signature & E-Identity",
       "version": "0.1.0",
@@ -1791,9 +2220,11 @@
           "e_signature.etsi_tsl.service.ts",
           "e_signature.identity.service.ts",
           "e_signature.ocsp.service.ts",
+          "e_signature.provider.service.ts",
           "e_signature.service.ts",
           "e_signature.settings.service.ts",
-          "e_signature.trust_list.service.ts"
+          "e_signature.trust_list.service.ts",
+          "e_signature.workflow.service.ts"
         ],
         "dtos": [
           "e_signature.dto.ts"
@@ -1857,7 +2288,7 @@
           "seo_meta.entity.ts"
         ]
       },
-      "hasReadme": false,
+      "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": true
     },
@@ -1949,7 +2380,7 @@
       },
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "audit_log",
@@ -2021,7 +2452,12 @@
       },
       "exports": {
         "services": [
-          "store.service.ts"
+          "store.bundle.service.ts",
+          "store.category.service.ts",
+          "store.product.crud.service.ts",
+          "store.product.media.service.ts",
+          "store.product.service.ts",
+          "store.variant.service.ts"
         ],
         "dtos": [
           "store.dto.ts"
@@ -2076,6 +2512,9 @@
       },
       "exports": {
         "services": [
+          "webhook.crud.service.ts",
+          "webhook.delivery.service.ts",
+          "webhook.metrics.service.ts",
           "webhook.service.ts"
         ],
         "dtos": [
@@ -2093,6 +2532,103 @@
         "entities": [
           "webhook.entity.ts",
           "webhook_delivery.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true
+    },
+    {
+      "id": "order_fulfillment",
+      "name": "Order Fulfillment",
+      "version": "1.0.0",
+      "description": "Tenant-aware fulfillment and shipment tracking for orders. Manages packing, carrier tracking, status lifecycle, and an append-only event log.",
+      "dir": "modules/order_fulfillment",
+      "icon": "fas fa-box",
+      "tags": [
+        "order",
+        "fulfillment",
+        "shipping",
+        "ecommerce"
+      ],
+      "priority": 41,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "logger"
+        ]
+      },
+      "exports": {
+        "services": [
+          "order_fulfillment.service.ts"
+        ],
+        "dtos": [
+          "order_fulfillment.dto.ts"
+        ],
+        "enums": [
+          "order_fulfillment.enums.ts"
+        ],
+        "messageKeys": [
+          "order_fulfillment.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "fulfillment.entity.ts",
+          "fulfillment_event.entity.ts",
+          "fulfillment_item.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "product_review",
+      "name": "Product Review",
+      "version": "1.0.0",
+      "description": "Tenant-aware product ratings and reviews with verified-purchase flags, helpful voting, moderation lifecycle, and cached per-product rating summaries.",
+      "dir": "modules/product_review",
+      "icon": "fas fa-star",
+      "tags": [
+        "review",
+        "rating",
+        "ecommerce",
+        "moderation"
+      ],
+      "priority": 42,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "logger"
+        ]
+      },
+      "exports": {
+        "services": [
+          "product_review.service.ts"
+        ],
+        "dtos": [
+          "product_review.dto.ts"
+        ],
+        "enums": [
+          "product_review.enums.ts"
+        ],
+        "messageKeys": [
+          "product_review.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "product_review.entity.ts",
+          "product_review_vote.entity.ts"
         ]
       },
       "hasReadme": true,
@@ -2120,11 +2656,15 @@
       },
       "exports": {
         "services": [
-          "ai.service.ts"
+          "ai.provider.service.ts",
+          "ai.service.ts",
+          "ai.usage.service.ts"
         ],
         "dtos": [],
         "enums": [],
-        "messageKeys": [],
+        "messageKeys": [
+          "ai.messages.ts"
+        ],
         "settingKeys": [
           "ai.setting.keys.ts"
         ],
@@ -2165,6 +2705,11 @@
       },
       "exports": {
         "services": [
+          "dynamic_collection.crud.service.ts",
+          "dynamic_collection.item.service.ts",
+          "dynamic_collection.service.ts",
+          "dynamic_page.block.service.ts",
+          "dynamic_page.crud.service.ts",
           "dynamic_page.service.ts"
         ],
         "dtos": [
@@ -2180,12 +2725,14 @@
         "providers": [],
         "jobs": [],
         "entities": [
+          "dynamic_collection.entity.ts",
+          "dynamic_collection_item.entity.ts",
           "dynamic_page.entity.ts",
           "dynamic_page_block.entity.ts",
           "dynamic_page_translation.entity.ts"
         ]
       },
-      "hasReadme": false,
+      "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": true
     },
@@ -2251,7 +2798,7 @@
         "jobs": [],
         "entities": []
       },
-      "hasReadme": false,
+      "hasReadme": true,
       "hasModuleJson": false,
       "hasNextLayer": false
     }
@@ -3057,6 +3604,19 @@
       "dynamic": true
     },
     {
+      "filePath": "app/tenant/[tenantId]/api/dynamic-pages/block-action/[blockType]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/dynamic-pages/block-action/[blockType]",
+      "methods": [
+        "GET",
+        "POST",
+        "PATCH",
+        "DELETE"
+      ],
+      "module": "dynamic_page",
+      "dynamic": true
+    },
+    {
       "filePath": "app/tenant/[tenantId]/api/dynamic-pages/block-definitions/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/dynamic-pages/block-definitions",
@@ -3071,6 +3631,52 @@
       "filePath": "app/tenant/[tenantId]/api/dynamic-pages/block-definitions/[blockId]/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/dynamic-pages/block-definitions/[blockId]",
+      "methods": [
+        "GET",
+        "PATCH",
+        "DELETE"
+      ],
+      "module": "dynamic_page",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/dynamic-pages/collections/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/dynamic-pages/collections",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "dynamic_page",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/dynamic-pages/collections/[collectionId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/dynamic-pages/collections/[collectionId]",
+      "methods": [
+        "GET",
+        "PATCH",
+        "DELETE"
+      ],
+      "module": "dynamic_page",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/dynamic-pages/collections/[collectionId]/items/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/dynamic-pages/collections/[collectionId]/items",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "dynamic_page",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/dynamic-pages/collections/[collectionId]/items/[itemId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/dynamic-pages/collections/[collectionId]/items/[itemId]",
       "methods": [
         "GET",
         "PATCH",
@@ -3215,6 +3821,26 @@
       "dynamic": true
     },
     {
+      "filePath": "app/tenant/[tenantId]/api/invoices/earsiv/sms/send/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/invoices/earsiv/sms/send",
+      "methods": [
+        "POST"
+      ],
+      "module": "invoice",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/invoices/earsiv/sms/verify/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/invoices/earsiv/sms/verify",
+      "methods": [
+        "POST"
+      ],
+      "module": "invoice",
+      "dynamic": true
+    },
+    {
       "filePath": "app/tenant/[tenantId]/api/invoices/preview/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/invoices/preview",
@@ -3346,6 +3972,16 @@
       "dynamic": true
     },
     {
+      "filePath": "app/tenant/[tenantId]/api/payments/bin-check/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/payments/bin-check",
+      "methods": [
+        "POST"
+      ],
+      "module": "payment",
+      "dynamic": true
+    },
+    {
       "filePath": "app/tenant/[tenantId]/api/payments/provider-status/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/payments/provider-status",
@@ -3372,6 +4008,16 @@
       "methods": [
         "GET",
         "PUT"
+      ],
+      "module": "payment",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/payments/wallets/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/payments/wallets",
+      "methods": [
+        "GET"
       ],
       "module": "payment",
       "dynamic": true
@@ -3417,6 +4063,17 @@
       "methods": [
         "PUT",
         "DELETE"
+      ],
+      "module": "plan",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/plans/default/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/plans/default",
+      "methods": [
+        "GET",
+        "PUT"
       ],
       "module": "plan",
       "dynamic": true
@@ -3615,6 +4272,7 @@
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/store/bundles/[bundleId]/items/[itemId]",
       "methods": [
+        "PATCH",
         "DELETE"
       ],
       "module": "store",
@@ -3802,6 +4460,56 @@
       "dynamic": true
     },
     {
+      "filePath": "app/tenant/[tenantId]/api/subscription/pay/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/subscription/pay",
+      "methods": [
+        "POST"
+      ],
+      "module": "subscription",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/subscription/pay/3ds-callback/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/subscription/pay/3ds-callback",
+      "methods": [
+        "POST"
+      ],
+      "module": "subscription",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/subscription/payment-intent/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/subscription/payment-intent",
+      "methods": [
+        "POST"
+      ],
+      "module": "subscription",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/subscription/payment-intent/confirm/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/subscription/payment-intent/confirm",
+      "methods": [
+        "POST"
+      ],
+      "module": "subscription",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/subscription/quote/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/subscription/quote",
+      "methods": [
+        "POST"
+      ],
+      "module": "subscription",
+      "dynamic": true
+    },
+    {
       "filePath": "app/tenant/[tenantId]/api/tenants/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/tenants",
@@ -3829,6 +4537,17 @@
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/tenants/[targetTenantId]/deletion-request",
       "methods": [
+        "POST"
+      ],
+      "module": "tenant",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/tenants/[targetTenantId]/subscription/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/tenants/[targetTenantId]/subscription",
+      "methods": [
+        "GET",
         "POST"
       ],
       "module": "tenant",
@@ -3959,6 +4678,36 @@
       ],
       "module": "webhook",
       "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/webhooks/[webhookId]/trigger/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/webhooks/[webhookId]/trigger",
+      "methods": [
+        "POST"
+      ],
+      "module": "webhook",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/webhooks/events/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/webhooks/events",
+      "methods": [
+        "GET"
+      ],
+      "module": "webhook",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/webhooks/metrics/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/webhooks/metrics",
+      "methods": [
+        "GET"
+      ],
+      "module": "webhook",
+      "dynamic": true
     }
   ],
   "entities": [
@@ -3996,7 +4745,6 @@
         "name",
         "description",
         "keyHash",
-        "keyPrefix",
         "scopes",
         "isActive",
         "lastUsedAt",
@@ -4024,6 +4772,52 @@
         "ipAddress",
         "userAgent",
         "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "Cart",
+      "filePath": "modules/payment_cart/entities/cart.entity.ts",
+      "module": "payment_cart",
+      "schema": "system",
+      "tableName": "carts",
+      "columns": [
+        "cartId",
+        "tenantId",
+        "userId",
+        "guestToken",
+        "status",
+        "currency",
+        "couponCode",
+        "subtotal",
+        "discountTotal",
+        "metadata",
+        "expiresAt",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "CartItem",
+      "filePath": "modules/payment_cart/entities/cart_item.entity.ts",
+      "module": "payment_cart",
+      "schema": "system",
+      "tableName": "cart_items",
+      "columns": [
+        "cartItemId",
+        "tenantId",
+        "cartId",
+        "productId",
+        "variantId",
+        "sku",
+        "name",
+        "unitPrice",
+        "quantity",
+        "metadata",
+        "createdAt",
+        "updatedAt"
       ],
       "relations": []
     },
@@ -4078,6 +4872,43 @@
       ]
     },
     {
+      "name": "DynamicCollection",
+      "filePath": "modules/dynamic_page/entities/dynamic_collection.entity.ts",
+      "module": "dynamic_page",
+      "schema": "system",
+      "tableName": "dynamic_collections",
+      "columns": [
+        "collectionId",
+        "tenantId",
+        "slug",
+        "label",
+        "description",
+        "fields",
+        "isSystem",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "DynamicCollectionItem",
+      "filePath": "modules/dynamic_page/entities/dynamic_collection_item.entity.ts",
+      "module": "dynamic_page",
+      "schema": "system",
+      "tableName": "dynamic_collection_items",
+      "columns": [
+        "itemId",
+        "collectionId",
+        "tenantId",
+        "data",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": [
+        "collection"
+      ]
+    },
+    {
       "name": "DynamicPage",
       "filePath": "modules/dynamic_page/entities/dynamic_page.entity.ts",
       "module": "dynamic_page",
@@ -4116,6 +4947,8 @@
         "defaultProps",
         "template",
         "script",
+        "serverHandler",
+        "allowedCollections",
         "isSystem",
         "createdAt",
         "updatedAt"
@@ -4142,6 +4975,71 @@
       "relations": [
         "page"
       ]
+    },
+    {
+      "name": "Fulfillment",
+      "filePath": "modules/order_fulfillment/entities/fulfillment.entity.ts",
+      "module": "order_fulfillment",
+      "schema": "system",
+      "tableName": "fulfillments",
+      "columns": [
+        "fulfillmentId",
+        "tenantId",
+        "orderId",
+        "status",
+        "carrier",
+        "trackingNumber",
+        "trackingUrl",
+        "shippingMethodId",
+        "notes",
+        "metadata",
+        "packedAt",
+        "shippedAt",
+        "deliveredAt",
+        "cancelledAt",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "FulfillmentEvent",
+      "filePath": "modules/order_fulfillment/entities/fulfillment_event.entity.ts",
+      "module": "order_fulfillment",
+      "schema": "system",
+      "tableName": "fulfillment_events",
+      "columns": [
+        "fulfillmentEventId",
+        "tenantId",
+        "fulfillmentId",
+        "status",
+        "message",
+        "metadata",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "FulfillmentItem",
+      "filePath": "modules/order_fulfillment/entities/fulfillment_item.entity.ts",
+      "module": "order_fulfillment",
+      "schema": "system",
+      "tableName": "fulfillment_items",
+      "columns": [
+        "fulfillmentItemId",
+        "tenantId",
+        "fulfillmentId",
+        "orderItemId",
+        "productId",
+        "variantId",
+        "sku",
+        "name",
+        "quantity",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
     },
     {
       "name": "Invoice",
@@ -4205,6 +5103,68 @@
         "sourceType",
         "sourceId",
         "metadata",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "LoyaltyAccount",
+      "filePath": "modules/payment_loyalty_points/entities/loyalty_account.entity.ts",
+      "module": "payment_loyalty_points",
+      "schema": "system",
+      "tableName": "loyalty_accounts",
+      "columns": [
+        "loyaltyAccountId",
+        "tenantId",
+        "userId",
+        "balance",
+        "lifetimePoints",
+        "tier",
+        "metadata",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "LoyaltyTier",
+      "filePath": "modules/payment_loyalty_points/entities/loyalty_tier.entity.ts",
+      "module": "payment_loyalty_points",
+      "schema": "system",
+      "tableName": "loyalty_tiers",
+      "columns": [
+        "loyaltyTierId",
+        "tenantId",
+        "name",
+        "code",
+        "minPoints",
+        "multiplier",
+        "benefits",
+        "sortOrder",
+        "isActive",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "LoyaltyTransaction",
+      "filePath": "modules/payment_loyalty_points/entities/loyalty_transaction.entity.ts",
+      "module": "payment_loyalty_points",
+      "schema": "system",
+      "tableName": "loyalty_transactions",
+      "columns": [
+        "loyaltyTransactionId",
+        "tenantId",
+        "accountId",
+        "userId",
+        "type",
+        "points",
+        "reason",
+        "referenceType",
+        "referenceId",
+        "balanceAfter",
+        "expiresAt",
         "createdAt"
       ],
       "relations": []
@@ -4434,6 +5394,48 @@
       "relations": []
     },
     {
+      "name": "ProductReview",
+      "filePath": "modules/product_review/entities/product_review.entity.ts",
+      "module": "product_review",
+      "schema": "system",
+      "tableName": "product_reviews",
+      "columns": [
+        "productReviewId",
+        "tenantId",
+        "productId",
+        "userId",
+        "authorName",
+        "rating",
+        "title",
+        "body",
+        "status",
+        "isVerifiedPurchase",
+        "helpfulCount",
+        "orderId",
+        "metadata",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "ProductReviewVote",
+      "filePath": "modules/product_review/entities/product_review_vote.entity.ts",
+      "module": "product_review",
+      "schema": "system",
+      "tableName": "product_review_votes",
+      "columns": [
+        "voteId",
+        "tenantId",
+        "reviewId",
+        "userId",
+        "isHelpful",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "PushSubscription",
       "filePath": "modules/notification_push/entities/push_subscription.entity.ts",
       "module": "notification_push",
@@ -4448,6 +5450,76 @@
         "auth",
         "createdAt",
         "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "ReturnEvent",
+      "filePath": "modules/payment_return_rma/entities/return_event.entity.ts",
+      "module": "payment_return_rma",
+      "schema": "system",
+      "tableName": "return_events",
+      "columns": [
+        "returnEventId",
+        "tenantId",
+        "returnRequestId",
+        "status",
+        "message",
+        "metadata",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "ReturnItem",
+      "filePath": "modules/payment_return_rma/entities/return_item.entity.ts",
+      "module": "payment_return_rma",
+      "schema": "system",
+      "tableName": "return_items",
+      "columns": [
+        "returnItemId",
+        "tenantId",
+        "returnRequestId",
+        "orderItemId",
+        "productId",
+        "variantId",
+        "sku",
+        "name",
+        "quantity",
+        "reason",
+        "condition",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "ReturnRequest",
+      "filePath": "modules/payment_return_rma/entities/return_request.entity.ts",
+      "module": "payment_return_rma",
+      "schema": "system",
+      "tableName": "return_requests",
+      "columns": [
+        "returnRequestId",
+        "tenantId",
+        "orderId",
+        "paymentId",
+        "userId",
+        "rmaNumber",
+        "type",
+        "status",
+        "reason",
+        "customerNote",
+        "adminNote",
+        "refundAmount",
+        "currency",
+        "metadata",
+        "approvedAt",
+        "receivedAt",
+        "refundedAt",
+        "cancelledAt",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
       ],
       "relations": []
     },
@@ -4517,6 +5589,57 @@
         "value",
         "group",
         "type",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "ShippingMethod",
+      "filePath": "modules/payment_shipping/entities/shipping_method.entity.ts",
+      "module": "payment_shipping",
+      "schema": "system",
+      "tableName": "shipping_methods",
+      "columns": [
+        "shippingMethodId",
+        "tenantId",
+        "name",
+        "code",
+        "carrier",
+        "description",
+        "isActive",
+        "sortOrder",
+        "metadata",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "ShippingRate",
+      "filePath": "modules/payment_shipping/entities/shipping_rate.entity.ts",
+      "module": "payment_shipping",
+      "schema": "system",
+      "tableName": "shipping_rates",
+      "columns": [
+        "shippingRateId",
+        "tenantId",
+        "shippingMethodId",
+        "name",
+        "countryCode",
+        "region",
+        "minWeight",
+        "maxWeight",
+        "minSubtotal",
+        "maxSubtotal",
+        "price",
+        "currency",
+        "freeThreshold",
+        "estimatedDaysMin",
+        "estimatedDaysMax",
+        "isActive",
+        "sortOrder",
         "createdAt",
         "updatedAt"
       ],
@@ -4879,6 +6002,49 @@
       "relations": []
     },
     {
+      "name": "TaxClass",
+      "filePath": "modules/payment_tax/entities/tax_class.entity.ts",
+      "module": "payment_tax",
+      "schema": "system",
+      "tableName": "tax_classes",
+      "columns": [
+        "taxClassId",
+        "tenantId",
+        "name",
+        "code",
+        "description",
+        "isDefault",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "TaxRate",
+      "filePath": "modules/payment_tax/entities/tax_rate.entity.ts",
+      "module": "payment_tax",
+      "schema": "system",
+      "tableName": "tax_rates",
+      "columns": [
+        "taxRateId",
+        "tenantId",
+        "taxClassId",
+        "name",
+        "countryCode",
+        "region",
+        "postalCodePattern",
+        "rate",
+        "isCompound",
+        "includedInPrice",
+        "priority",
+        "isActive",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "Tenant",
       "filePath": "modules/tenant/entities/tenant.entity.ts",
       "module": "tenant",
@@ -5207,7 +6373,14 @@
         "previousSecret",
         "previousSecretExpiresAt",
         "events",
+        "headers",
+        "eventFilters",
+        "tags",
         "isActive",
+        "consecutiveFailures",
+        "autoDisabledAt",
+        "ipAllowlist",
+        "rateLimitPerMinute",
         "createdAt",
         "updatedAt"
       ],
@@ -5238,6 +6411,43 @@
         "updatedAt"
       ],
       "relations": []
+    },
+    {
+      "name": "Wishlist",
+      "filePath": "modules/payment_wishlist/entities/wishlist.entity.ts",
+      "module": "payment_wishlist",
+      "schema": "system",
+      "tableName": "wishlists",
+      "columns": [
+        "wishlistId",
+        "tenantId",
+        "userId",
+        "name",
+        "isPublic",
+        "shareToken",
+        "metadata",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "WishlistItem",
+      "filePath": "modules/payment_wishlist/entities/wishlist_item.entity.ts",
+      "module": "payment_wishlist",
+      "schema": "system",
+      "tableName": "wishlist_items",
+      "columns": [
+        "wishlistItemId",
+        "tenantId",
+        "wishlistId",
+        "productId",
+        "variantId",
+        "note",
+        "createdAt"
+      ],
+      "relations": []
     }
   ],
   "components": [
@@ -5253,6 +6463,18 @@
       "isClient": true,
       "isServer": false,
       "baseName": "AIChatBox"
+    },
+    {
+      "id": "ai/ui/AIUsageTab",
+      "module": "ai",
+      "filePath": "modules_next/ai/ui/AIUsageTab.tsx",
+      "kind": "ui",
+      "exports": [
+        "AIUsageTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "AIUsageTab"
     },
     {
       "id": "api_doc/ui/ApiDocsPage",
@@ -5436,6 +6658,31 @@
       "isClient": false,
       "isServer": false,
       "baseName": "types"
+    },
+    {
+      "id": "api_key/ui/api-key-columns",
+      "module": "api_key",
+      "filePath": "modules_next/api_key/ui/api-key-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "SafeApiKey",
+        "buildApiKeyColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "api-key-columns"
+    },
+    {
+      "id": "api_key/ui/ApiKeyCreateModal",
+      "module": "api_key",
+      "filePath": "modules_next/api_key/ui/ApiKeyCreateModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "ApiKeyCreateModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ApiKeyCreateModal"
     },
     {
       "id": "audit_log/audit_log.service.next",
@@ -6390,6 +7637,37 @@
       "baseName": "isBrowser"
     },
     {
+      "id": "coupon/ui/coupon-edit.utils",
+      "module": "coupon",
+      "filePath": "modules_next/coupon/ui/coupon-edit.utils.ts",
+      "kind": "ui",
+      "exports": [
+        "Coupon",
+        "EditForm",
+        "statusVariant",
+        "statusOptions",
+        "toDatetimeLocal",
+        "buildScope",
+        "extractMessage"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "coupon-edit.utils"
+    },
+    {
+      "id": "coupon/ui/coupon-list-columns",
+      "module": "coupon",
+      "filePath": "modules_next/coupon/ui/coupon-list-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "CouponRow",
+        "buildCouponColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "coupon-list-columns"
+    },
+    {
       "id": "coupon/ui/CouponApplyForm",
       "module": "coupon",
       "filePath": "modules_next/coupon/ui/CouponApplyForm.tsx",
@@ -6400,6 +7678,18 @@
       "isClient": true,
       "isServer": false,
       "baseName": "CouponApplyForm"
+    },
+    {
+      "id": "coupon/ui/CouponArchiveModal",
+      "module": "coupon",
+      "filePath": "modules_next/coupon/ui/CouponArchiveModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "CouponArchiveModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CouponArchiveModal"
     },
     {
       "id": "coupon/ui/CouponBadge",
@@ -6414,6 +7704,18 @@
       "baseName": "CouponBadge"
     },
     {
+      "id": "coupon/ui/CouponCreateModal",
+      "module": "coupon",
+      "filePath": "modules_next/coupon/ui/CouponCreateModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "CouponCreateModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CouponCreateModal"
+    },
+    {
       "id": "coupon/ui/CouponRedemptionsList",
       "module": "coupon",
       "filePath": "modules_next/coupon/ui/CouponRedemptionsList.tsx",
@@ -6424,6 +7726,19 @@
       "isClient": true,
       "isServer": false,
       "baseName": "CouponRedemptionsList"
+    },
+    {
+      "id": "coupon/ui/CouponScopePanel",
+      "module": "coupon",
+      "filePath": "modules_next/coupon/ui/CouponScopePanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "ScopeFormState",
+        "CouponScopePanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CouponScopePanel"
     },
     {
       "id": "dynamic_page/dynamic/Blocks/CustomBlock",
@@ -6511,6 +7826,22 @@
       "baseName": "NavBarMarketing"
     },
     {
+      "id": "dynamic_page/dynamic/Blocks/NavBarMarketing.types",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Blocks/NavBarMarketing.types.ts",
+      "kind": "ui",
+      "exports": [
+        "NavLink",
+        "MegaItem",
+        "MegaSection",
+        "ICON_MAP_TYPE",
+        "ICON_MAP"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "NavBarMarketing.types"
+    },
+    {
       "id": "dynamic_page/dynamic/Blocks/NavBarSimple",
       "module": "dynamic_page",
       "filePath": "modules_next/dynamic_page/dynamic/Blocks/NavBarSimple.tsx",
@@ -6521,6 +7852,30 @@
       "isClient": true,
       "isServer": false,
       "baseName": "NavBarSimple"
+    },
+    {
+      "id": "dynamic_page/dynamic/Blocks/partials/NavBarMegaSection",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Blocks/partials/NavBarMegaSection.tsx",
+      "kind": "ui",
+      "exports": [
+        "NavBarMegaSection"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "NavBarMegaSection"
+    },
+    {
+      "id": "dynamic_page/dynamic/Blocks/partials/NavBarMobilePanel",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Blocks/partials/NavBarMobilePanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "NavBarMobilePanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "NavBarMobilePanel"
     },
     {
       "id": "dynamic_page/dynamic/Blocks/PopupModalBlock/animations",
@@ -6687,6 +8042,30 @@
       "baseName": "EditorTopBar"
     },
     {
+      "id": "dynamic_page/dynamic/Editor/hooks/useEditorDraft",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Editor/hooks/useEditorDraft.ts",
+      "kind": "hook",
+      "exports": [
+        "useEditorDraft"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "useEditorDraft"
+    },
+    {
+      "id": "dynamic_page/dynamic/Editor/hooks/useEditorKeyboard",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Editor/hooks/useEditorKeyboard.ts",
+      "kind": "hook",
+      "exports": [
+        "useEditorKeyboard"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "useEditorKeyboard"
+    },
+    {
       "id": "dynamic_page/dynamic/Editor/index",
       "module": "dynamic_page",
       "filePath": "modules_next/dynamic_page/dynamic/Editor/index.tsx",
@@ -6705,6 +8084,109 @@
       "isClient": true,
       "isServer": false,
       "baseName": "LeftSidebar"
+    },
+    {
+      "id": "dynamic_page/dynamic/Editor/partials/BlockPalette",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Editor/partials/BlockPalette.tsx",
+      "kind": "ui",
+      "exports": [
+        "AnyBlockDef",
+        "BlockPreview",
+        "BlockPalette",
+        "RECENTLY_USED_KEY",
+        "MAX_RECENT"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "BlockPalette"
+    },
+    {
+      "id": "dynamic_page/dynamic/Editor/partials/CanvasBlock",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Editor/partials/CanvasBlock.tsx",
+      "kind": "ui",
+      "exports": [
+        "SortableBlockProps",
+        "SortableBlock"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CanvasBlock"
+    },
+    {
+      "id": "dynamic_page/dynamic/Editor/partials/CanvasOverlays",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Editor/partials/CanvasOverlays.tsx",
+      "kind": "ui",
+      "exports": [
+        "QuickAddPopover",
+        "BlockContextMenu",
+        "InsertGap",
+        "SidebarDropTarget"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CanvasOverlays"
+    },
+    {
+      "id": "dynamic_page/dynamic/Editor/partials/LayersPanel",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Editor/partials/LayersPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "LayersPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "LayersPanel"
+    },
+    {
+      "id": "dynamic_page/dynamic/Editor/partials/PropFieldComplex",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Editor/partials/PropFieldComplex.tsx",
+      "kind": "ui",
+      "exports": [
+        "ImageField",
+        "NumberField",
+        "JsonField",
+        "RepeaterFieldWrapper"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PropFieldComplex"
+    },
+    {
+      "id": "dynamic_page/dynamic/Editor/partials/PropFieldRenderer",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Editor/partials/PropFieldRenderer.tsx",
+      "kind": "ui",
+      "exports": [
+        "PropFieldRenderer"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PropFieldRenderer"
+    },
+    {
+      "id": "dynamic_page/dynamic/Editor/partials/PropFieldSimple",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Editor/partials/PropFieldSimple.tsx",
+      "kind": "ui",
+      "exports": [
+        "TextField",
+        "UrlField",
+        "DatetimeField",
+        "TextareaField",
+        "RichTextField",
+        "ColorField",
+        "BooleanField",
+        "SelectField",
+        "MultiSelectField"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PropFieldSimple"
     },
     {
       "id": "dynamic_page/dynamic/Editor/PropsPanel",
@@ -6757,19 +8239,91 @@
       "baseName": "ShortcutsModal"
     },
     {
+      "id": "dynamic_page/dynamic/Editor/stores/editor.types",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Editor/stores/editor.types.ts",
+      "kind": "ui",
+      "exports": [
+        "PreviewMode",
+        "TranslationEntry",
+        "Router",
+        "SeoData",
+        "DefaultSeoData",
+        "EditorStore",
+        "initialState",
+        "draftKey",
+        "apiBase",
+        "apiFetch",
+        "selectSelectedBlock"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "editor.types"
+    },
+    {
       "id": "dynamic_page/dynamic/Editor/stores/editorStore",
       "module": "dynamic_page",
       "filePath": "modules_next/dynamic_page/dynamic/Editor/stores/editorStore.ts",
       "kind": "ui",
       "exports": [
-        "PreviewMode",
-        "selectSelectedBlock",
-        "SeoData",
-        "useEditorStore"
+        "useEditorStore",
+        "selectSelectedBlock"
       ],
       "isClient": false,
       "isServer": false,
       "baseName": "editorStore"
+    },
+    {
+      "id": "dynamic_page/dynamic/Editor/stores/slices/blockSlice",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Editor/stores/slices/blockSlice.ts",
+      "kind": "ui",
+      "exports": [
+        "BlockSlice",
+        "createBlockSlice"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "blockSlice"
+    },
+    {
+      "id": "dynamic_page/dynamic/Editor/stores/slices/persistSlice",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Editor/stores/slices/persistSlice.ts",
+      "kind": "ui",
+      "exports": [
+        "PersistSlice",
+        "createPersistSlice"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "persistSlice"
+    },
+    {
+      "id": "dynamic_page/dynamic/Editor/stores/slices/translationSlice",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Editor/stores/slices/translationSlice.ts",
+      "kind": "ui",
+      "exports": [
+        "TranslationSlice",
+        "createTranslationSlice"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "translationSlice"
+    },
+    {
+      "id": "dynamic_page/dynamic/Editor/stores/slices/uiSlice",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Editor/stores/slices/uiSlice.ts",
+      "kind": "ui",
+      "exports": [
+        "UiSlice",
+        "createUiSlice"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "uiSlice"
     },
     {
       "id": "dynamic_page/dynamic/Editor/TranslationModal",
@@ -6813,6 +8367,18 @@
       "isClient": true,
       "isServer": false,
       "baseName": "BaseBlock"
+    },
+    {
+      "id": "dynamic_page/dynamic/partials/BlockActionSandbox",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/partials/BlockActionSandbox.ts",
+      "kind": "ui",
+      "exports": [
+        "runBlockHandler"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "BlockActionSandbox"
     },
     {
       "id": "dynamic_page/dynamic/partials/BlockBackground",
@@ -6961,6 +8527,45 @@
       "baseName": "SiteChrome"
     },
     {
+      "id": "dynamic_page/ui/dynamic-page-columns",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/ui/dynamic-page-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "DynamicPage",
+        "STATUS_COLORS",
+        "DynamicPageColumnHandlers",
+        "buildDynamicPageColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "dynamic-page-columns"
+    },
+    {
+      "id": "dynamic_page/ui/DynamicPageCreateModal",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/ui/DynamicPageCreateModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "DynamicPageCreateModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "DynamicPageCreateModal"
+    },
+    {
+      "id": "e_signature/ui/SigningCertificatesBindModal",
+      "module": "e_signature",
+      "filePath": "modules_next/e_signature/ui/SigningCertificatesBindModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "SigningCertificatesBindModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SigningCertificatesBindModal"
+    },
+    {
       "id": "e_signature/ui/SigningCertificatesPanel",
       "module": "e_signature",
       "filePath": "modules_next/e_signature/ui/SigningCertificatesPanel.tsx",
@@ -6983,6 +8588,31 @@
       "isClient": true,
       "isServer": false,
       "baseName": "TenantESignatureSettingsPanel"
+    },
+    {
+      "id": "invoice/ui/EarsivSmsSignModal",
+      "module": "invoice",
+      "filePath": "modules_next/invoice/ui/EarsivSmsSignModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "EarsivSmsSignModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "EarsivSmsSignModal"
+    },
+    {
+      "id": "invoice/ui/InvoiceLineItemsTable",
+      "module": "invoice",
+      "filePath": "modules_next/invoice/ui/InvoiceLineItemsTable.tsx",
+      "kind": "ui",
+      "exports": [
+        "InvoiceLineItemsTable",
+        "Row"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "InvoiceLineItemsTable"
     },
     {
       "id": "invoice/ui/InvoiceTemplateSettings",
@@ -7092,6 +8722,67 @@
       "baseName": "withObservability.next"
     },
     {
+      "id": "payment/ui/CardCheckoutModal",
+      "module": "payment",
+      "filePath": "modules_next/payment/ui/CardCheckoutModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "CardCheckoutModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CardCheckoutModal"
+    },
+    {
+      "id": "payment/ui/CreditCardForm",
+      "module": "payment",
+      "filePath": "modules_next/payment/ui/CreditCardForm.tsx",
+      "kind": "ui",
+      "exports": [
+        "detectBrand",
+        "CreditCardForm"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CreditCardForm"
+    },
+    {
+      "id": "payment/ui/CreditCardVisual",
+      "module": "payment",
+      "filePath": "modules_next/payment/ui/CreditCardVisual.tsx",
+      "kind": "ui",
+      "exports": [
+        "CreditCardVisual"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CreditCardVisual"
+    },
+    {
+      "id": "payment/ui/PaymentProviderSelector",
+      "module": "payment",
+      "filePath": "modules_next/payment/ui/PaymentProviderSelector.tsx",
+      "kind": "ui",
+      "exports": [
+        "PaymentProviderSelector"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PaymentProviderSelector"
+    },
+    {
+      "id": "payment/ui/PaymentRefundModal",
+      "module": "payment",
+      "filePath": "modules_next/payment/ui/PaymentRefundModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "PaymentRefundModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PaymentRefundModal"
+    },
+    {
       "id": "payment/ui/PaymentStatusBadge",
       "module": "payment",
       "filePath": "modules_next/payment/ui/PaymentStatusBadge.tsx",
@@ -7115,6 +8806,30 @@
       "isClient": true,
       "isServer": false,
       "baseName": "PaymentSummaryCard"
+    },
+    {
+      "id": "payment/ui/StripeExpressCheckoutModal",
+      "module": "payment",
+      "filePath": "modules_next/payment/ui/StripeExpressCheckoutModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "StripeExpressCheckoutModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "StripeExpressCheckoutModal"
+    },
+    {
+      "id": "payment/ui/WalletBadges",
+      "module": "payment",
+      "filePath": "modules_next/payment/ui/WalletBadges.tsx",
+      "kind": "ui",
+      "exports": [
+        "WalletBadges"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "WalletBadges"
     },
     {
       "id": "redis_idempotency/withIdempotency",
@@ -7141,6 +8856,21 @@
       "baseName": "SeoPanel"
     },
     {
+      "id": "setting/setting-fields.types",
+      "module": "setting",
+      "filePath": "modules_next/setting/setting-fields.types.ts",
+      "kind": "ui",
+      "exports": [
+        "SettingFieldType",
+        "SettingFieldOption",
+        "SettingFieldDef",
+        "SECRET_MASK"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "setting-fields.types"
+    },
+    {
       "id": "setting/setting.types",
       "module": "setting",
       "filePath": "modules_next/setting/setting.types.ts",
@@ -7153,16 +8883,264 @@
       "baseName": "setting.types"
     },
     {
+      "id": "setting/ui/ModuleSettingsPage",
+      "module": "setting",
+      "filePath": "modules_next/setting/ui/ModuleSettingsPage.tsx",
+      "kind": "ui",
+      "exports": [
+        "ModuleSettingsPage"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ModuleSettingsPage"
+    },
+    {
       "id": "setting/ui/PlatformSettingsTabs",
       "module": "setting",
       "filePath": "modules_next/setting/ui/PlatformSettingsTabs.tsx",
       "kind": "ui",
       "exports": [
-        "PlatformSettingsTabs"
+        "PlatformSettingsTabs",
+        "PlatformAuthTab",
+        "PlatformEmailTab",
+        "PlatformSmsTab",
+        "PlatformStorageTab",
+        "PlatformPaymentTab",
+        "PlatformAiTab",
+        "PlatformSecurityTab",
+        "PlatformNotificationsTab",
+        "PlatformScimTab"
       ],
       "isClient": true,
       "isServer": false,
       "baseName": "PlatformSettingsTabs"
+    },
+    {
+      "id": "setting/ui/settings-kit",
+      "module": "setting",
+      "filePath": "modules_next/setting/ui/settings-kit.tsx",
+      "kind": "ui",
+      "exports": [
+        "SR",
+        "b",
+        "bStr",
+        "SaveRow"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "settings-kit"
+    },
+    {
+      "id": "setting/ui/SettingsPanelHost",
+      "module": "setting",
+      "filePath": "modules_next/setting/ui/SettingsPanelHost.tsx",
+      "kind": "ui",
+      "exports": [
+        "SettingsPanelHost"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SettingsPanelHost"
+    },
+    {
+      "id": "setting/ui/tabs/platform-tab.shared",
+      "module": "setting",
+      "filePath": "modules_next/setting/ui/tabs/platform-tab.shared.tsx",
+      "kind": "ui",
+      "exports": [
+        "SR",
+        "TabProps",
+        "b",
+        "bStr",
+        "SaveRow"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "platform-tab.shared"
+    },
+    {
+      "id": "setting/ui/tabs/PlatformAiTab",
+      "module": "setting",
+      "filePath": "modules_next/setting/ui/tabs/PlatformAiTab.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlatformAiTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PlatformAiTab"
+    },
+    {
+      "id": "setting/ui/tabs/PlatformAuthTab",
+      "module": "setting",
+      "filePath": "modules_next/setting/ui/tabs/PlatformAuthTab.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlatformAuthTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PlatformAuthTab"
+    },
+    {
+      "id": "setting/ui/tabs/PlatformEmailTab",
+      "module": "setting",
+      "filePath": "modules_next/setting/ui/tabs/PlatformEmailTab.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlatformEmailTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PlatformEmailTab"
+    },
+    {
+      "id": "setting/ui/tabs/PlatformNotificationsTab",
+      "module": "setting",
+      "filePath": "modules_next/setting/ui/tabs/PlatformNotificationsTab.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlatformNotificationsTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PlatformNotificationsTab"
+    },
+    {
+      "id": "setting/ui/tabs/PlatformPaymentTab",
+      "module": "setting",
+      "filePath": "modules_next/setting/ui/tabs/PlatformPaymentTab.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlatformPaymentTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PlatformPaymentTab"
+    },
+    {
+      "id": "setting/ui/tabs/PlatformScimTab",
+      "module": "setting",
+      "filePath": "modules_next/setting/ui/tabs/PlatformScimTab.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlatformScimTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PlatformScimTab"
+    },
+    {
+      "id": "setting/ui/tabs/PlatformSecurityTab",
+      "module": "setting",
+      "filePath": "modules_next/setting/ui/tabs/PlatformSecurityTab.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlatformSecurityTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PlatformSecurityTab"
+    },
+    {
+      "id": "setting/ui/tabs/PlatformSmsTab",
+      "module": "setting",
+      "filePath": "modules_next/setting/ui/tabs/PlatformSmsTab.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlatformSmsTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PlatformSmsTab"
+    },
+    {
+      "id": "setting/ui/tabs/PlatformStorageTab",
+      "module": "setting",
+      "filePath": "modules_next/setting/ui/tabs/PlatformStorageTab.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlatformStorageTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PlatformStorageTab"
+    },
+    {
+      "id": "setting/ui/TenantSettingsPanels",
+      "module": "setting",
+      "filePath": "modules_next/setting/ui/TenantSettingsPanels.tsx",
+      "kind": "ui",
+      "exports": [
+        "GeneralTab",
+        "BillingTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "TenantSettingsPanels"
+    },
+    {
+      "id": "store/ui/BundleItemsPanel",
+      "module": "store",
+      "filePath": "modules_next/store/ui/BundleItemsPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "BundleItemsPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "BundleItemsPanel"
+    },
+    {
+      "id": "store/ui/CategorySpecAddModal",
+      "module": "store",
+      "filePath": "modules_next/store/ui/CategorySpecAddModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "CategorySpecAddModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CategorySpecAddModal"
+    },
+    {
+      "id": "store/ui/product-list-columns",
+      "module": "store",
+      "filePath": "modules_next/store/ui/product-list-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "ProductRow",
+        "ProductColumnHandlers",
+        "formatProductPrice",
+        "buildProductColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "product-list-columns"
+    },
+    {
+      "id": "store/ui/ProductCreateModal",
+      "module": "store",
+      "filePath": "modules_next/store/ui/ProductCreateModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "ProductCreateModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ProductCreateModal"
+    },
+    {
+      "id": "store/ui/ProductImagesPanel",
+      "module": "store",
+      "filePath": "modules_next/store/ui/ProductImagesPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "ProductImagesPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ProductImagesPanel"
     },
     {
       "id": "store/ui/ProductSpecValuesPanel",
@@ -7191,6 +9169,79 @@
       "isClient": true,
       "isServer": false,
       "baseName": "ProductStatusBadge"
+    },
+    {
+      "id": "store/ui/ProductVariantsPanel",
+      "module": "store",
+      "filePath": "modules_next/store/ui/ProductVariantsPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "ProductVariantsPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ProductVariantsPanel"
+    },
+    {
+      "id": "tenant_domain/ui/domain-list-columns",
+      "module": "tenant_domain",
+      "filePath": "modules_next/tenant_domain/ui/domain-list-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "DomainRow",
+        "STATUS_BADGE",
+        "STATUS_LABEL",
+        "SSL_BADGE",
+        "SSL_LABEL",
+        "DomainColumnHandlers",
+        "buildDomainColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "domain-list-columns"
+    },
+    {
+      "id": "tenant_invitation/ui/invitation-columns",
+      "module": "tenant_invitation",
+      "filePath": "modules_next/tenant_invitation/ui/invitation-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "InvitationRow",
+        "STATUS_BADGE",
+        "ROLE_BADGE",
+        "InvitationColumnHandlers",
+        "buildInvitationColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "invitation-columns"
+    },
+    {
+      "id": "tenant_invitation/ui/InvitationCreateModal",
+      "module": "tenant_invitation",
+      "filePath": "modules_next/tenant_invitation/ui/InvitationCreateModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "InvitationCreateModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "InvitationCreateModal"
+    },
+    {
+      "id": "tenant_member/ui/member-list-columns",
+      "module": "tenant_member",
+      "filePath": "modules_next/tenant_member/ui/member-list-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "MemberRow",
+        "ROLE_BADGE",
+        "MemberColumnHandlers",
+        "buildMemberColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "member-list-columns"
     },
     {
       "id": "tenant_session/tenant_session.service.next",
@@ -7240,6 +9291,18 @@
       "baseName": "tenant_subscription.grace-period"
     },
     {
+      "id": "tenant_subscription/ui/CurrentSubscriptionCard",
+      "module": "tenant_subscription",
+      "filePath": "modules_next/tenant_subscription/ui/CurrentSubscriptionCard.tsx",
+      "kind": "ui",
+      "exports": [
+        "CurrentSubscriptionCard"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CurrentSubscriptionCard"
+    },
+    {
       "id": "tenant_subscription/ui/FeatureGate",
       "module": "tenant_subscription",
       "filePath": "modules_next/tenant_subscription/ui/FeatureGate.tsx",
@@ -7264,6 +9327,43 @@
       "baseName": "GracePeriodBanner"
     },
     {
+      "id": "tenant_subscription/ui/plan-list-columns",
+      "module": "tenant_subscription",
+      "filePath": "modules_next/tenant_subscription/ui/plan-list-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlanRow",
+        "buildPlanColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "plan-list-columns"
+    },
+    {
+      "id": "tenant_subscription/ui/PlanCreateModal",
+      "module": "tenant_subscription",
+      "filePath": "modules_next/tenant_subscription/ui/PlanCreateModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlanCreateModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PlanCreateModal"
+    },
+    {
+      "id": "tenant_subscription/ui/PlanFeaturesPanel",
+      "module": "tenant_subscription",
+      "filePath": "modules_next/tenant_subscription/ui/PlanFeaturesPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlanFeaturesPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PlanFeaturesPanel"
+    },
+    {
       "id": "tenant_subscription/ui/PlanUsageMeter",
       "module": "tenant_subscription",
       "filePath": "modules_next/tenant_subscription/ui/PlanUsageMeter.tsx",
@@ -7274,6 +9374,24 @@
       "isClient": true,
       "isServer": false,
       "baseName": "PlanUsageMeter"
+    },
+    {
+      "id": "tenant_subscription/ui/subscription.helpers",
+      "module": "tenant_subscription",
+      "filePath": "modules_next/tenant_subscription/ui/subscription.helpers.ts",
+      "kind": "ui",
+      "exports": [
+        "Provider",
+        "STATUS_VARIANT",
+        "INTERVAL_LABEL",
+        "intervalLabel",
+        "intervalShortLabel",
+        "formatDate",
+        "formatPrice"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "subscription.helpers"
     },
     {
       "id": "tenant_subscription/ui/SubscriptionPlanCard",
@@ -7327,6 +9445,18 @@
       "baseName": "CreateTenantForm"
     },
     {
+      "id": "tenant/ui/TenantMembersTable",
+      "module": "tenant",
+      "filePath": "modules_next/tenant/ui/TenantMembersTable.tsx",
+      "kind": "ui",
+      "exports": [
+        "TenantMembersTable"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "TenantMembersTable"
+    },
+    {
       "id": "tenant/ui/TenantSelectorCard",
       "module": "tenant",
       "filePath": "modules_next/tenant/ui/TenantSelectorCard.tsx",
@@ -7340,6 +9470,18 @@
       "baseName": "TenantSelectorCard"
     },
     {
+      "id": "tenant/ui/TenantSubscriptionCard",
+      "module": "tenant",
+      "filePath": "modules_next/tenant/ui/TenantSubscriptionCard.tsx",
+      "kind": "ui",
+      "exports": [
+        "TenantSubscriptionCard"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "TenantSubscriptionCard"
+    },
+    {
       "id": "user_security/ui/PasskeysPanel",
       "module": "user_security",
       "filePath": "modules_next/user_security/ui/PasskeysPanel.tsx",
@@ -7350,6 +9492,18 @@
       "isClient": true,
       "isServer": false,
       "baseName": "PasskeysPanel"
+    },
+    {
+      "id": "user_session/ui/ActiveSessionsPanel",
+      "module": "user_session",
+      "filePath": "modules_next/user_session/ui/ActiveSessionsPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "ActiveSessionsPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ActiveSessionsPanel"
     },
     {
       "id": "user_session/user_session.service.next",
@@ -7373,6 +9527,31 @@
       "isClient": true,
       "isServer": false,
       "baseName": "SocialAccountsPanel"
+    },
+    {
+      "id": "user/ui/user-list-columns",
+      "module": "user",
+      "filePath": "modules_next/user/ui/user-list-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "UserRow",
+        "buildUserColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "user-list-columns"
+    },
+    {
+      "id": "user/ui/UserEditModal",
+      "module": "user",
+      "filePath": "modules_next/user/ui/UserEditModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "UserEditModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "UserEditModal"
     },
     {
       "id": "user/ui/UserMenu",
@@ -7448,6 +9627,70 @@
       "isClient": true,
       "isServer": false,
       "baseName": "UserStatusBadge"
+    },
+    {
+      "id": "webhook/ui/webhook-columns",
+      "module": "webhook",
+      "filePath": "modules_next/webhook/ui/webhook-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "buildWebhookColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "webhook-columns"
+    },
+    {
+      "id": "webhook/ui/webhook.types",
+      "module": "webhook",
+      "filePath": "modules_next/webhook/ui/webhook.types.ts",
+      "kind": "ui",
+      "exports": [
+        "Webhook",
+        "Delivery",
+        "statusVariant",
+        "STATUS_LABEL",
+        "extractMessage"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "webhook.types"
+    },
+    {
+      "id": "webhook/ui/WebhookDeliveryModal",
+      "module": "webhook",
+      "filePath": "modules_next/webhook/ui/WebhookDeliveryModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "WebhookDeliveryModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "WebhookDeliveryModal"
+    },
+    {
+      "id": "webhook/ui/WebhookFormModal",
+      "module": "webhook",
+      "filePath": "modules_next/webhook/ui/WebhookFormModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "WebhookFormModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "WebhookFormModal"
+    },
+    {
+      "id": "webhook/ui/WebhookTriggerModal",
+      "module": "webhook",
+      "filePath": "modules_next/webhook/ui/WebhookTriggerModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "WebhookTriggerModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "WebhookTriggerModal"
     }
   ]
 }

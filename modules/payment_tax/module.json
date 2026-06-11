@@ -1,0 +1,11 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "payment_tax",
+  "name": "Payment Tax",
+  "description": "Tenant-aware tax/VAT calculation engine: tax classes, destination-matched rates, compound and price-inclusive computation.",
+  "version": "1.0.0",
+  "icon": "fas fa-percent",
+  "tags": ["payment", "tax", "vat", "compliance"],
+  "priority": 31,
+  "dependencies": { "requires": ["db", "env", "redis", "logger"] }
+}

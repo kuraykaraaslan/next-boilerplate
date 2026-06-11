@@ -9,8 +9,8 @@ export const TenantBrandingSchema = z.object({
   brandPrimaryColor: z.string().optional(),
   brandSecondaryColor: z.string().optional(),
   authWallpaper: z.string().optional(),
-  customCss: z.string().optional(),
-  customJs: z.string().optional(),
+  customCss: z.string().max(50_000).optional(),
+  customJs: z.string().max(50_000).optional(),
 })
 export type TenantBranding = z.infer<typeof TenantBrandingSchema>
 

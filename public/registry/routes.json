@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-05-26T21:49:04.137Z",
+  "generatedAt": "2026-06-11T02:58:58.038Z",
   "routes": [
     {
       "filePath": "app/internal/api/caddy-ask/route.ts",
@@ -803,6 +803,19 @@
       "dynamic": true
     },
     {
+      "filePath": "app/tenant/[tenantId]/api/dynamic-pages/block-action/[blockType]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/dynamic-pages/block-action/[blockType]",
+      "methods": [
+        "GET",
+        "POST",
+        "PATCH",
+        "DELETE"
+      ],
+      "module": "dynamic_page",
+      "dynamic": true
+    },
+    {
       "filePath": "app/tenant/[tenantId]/api/dynamic-pages/block-definitions/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/dynamic-pages/block-definitions",
@@ -817,6 +830,52 @@
       "filePath": "app/tenant/[tenantId]/api/dynamic-pages/block-definitions/[blockId]/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/dynamic-pages/block-definitions/[blockId]",
+      "methods": [
+        "GET",
+        "PATCH",
+        "DELETE"
+      ],
+      "module": "dynamic_page",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/dynamic-pages/collections/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/dynamic-pages/collections",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "dynamic_page",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/dynamic-pages/collections/[collectionId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/dynamic-pages/collections/[collectionId]",
+      "methods": [
+        "GET",
+        "PATCH",
+        "DELETE"
+      ],
+      "module": "dynamic_page",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/dynamic-pages/collections/[collectionId]/items/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/dynamic-pages/collections/[collectionId]/items",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "dynamic_page",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/dynamic-pages/collections/[collectionId]/items/[itemId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/dynamic-pages/collections/[collectionId]/items/[itemId]",
       "methods": [
         "GET",
         "PATCH",
@@ -961,6 +1020,26 @@
       "dynamic": true
     },
     {
+      "filePath": "app/tenant/[tenantId]/api/invoices/earsiv/sms/send/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/invoices/earsiv/sms/send",
+      "methods": [
+        "POST"
+      ],
+      "module": "invoice",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/invoices/earsiv/sms/verify/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/invoices/earsiv/sms/verify",
+      "methods": [
+        "POST"
+      ],
+      "module": "invoice",
+      "dynamic": true
+    },
+    {
       "filePath": "app/tenant/[tenantId]/api/invoices/preview/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/invoices/preview",
@@ -1092,6 +1171,16 @@
       "dynamic": true
     },
     {
+      "filePath": "app/tenant/[tenantId]/api/payments/bin-check/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/payments/bin-check",
+      "methods": [
+        "POST"
+      ],
+      "module": "payment",
+      "dynamic": true
+    },
+    {
       "filePath": "app/tenant/[tenantId]/api/payments/provider-status/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/payments/provider-status",
@@ -1118,6 +1207,16 @@
       "methods": [
         "GET",
         "PUT"
+      ],
+      "module": "payment",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/payments/wallets/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/payments/wallets",
+      "methods": [
+        "GET"
       ],
       "module": "payment",
       "dynamic": true
@@ -1163,6 +1262,17 @@
       "methods": [
         "PUT",
         "DELETE"
+      ],
+      "module": "plan",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/plans/default/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/plans/default",
+      "methods": [
+        "GET",
+        "PUT"
       ],
       "module": "plan",
       "dynamic": true
@@ -1361,6 +1471,7 @@
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/store/bundles/[bundleId]/items/[itemId]",
       "methods": [
+        "PATCH",
         "DELETE"
       ],
       "module": "store",
@@ -1548,6 +1659,56 @@
       "dynamic": true
     },
     {
+      "filePath": "app/tenant/[tenantId]/api/subscription/pay/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/subscription/pay",
+      "methods": [
+        "POST"
+      ],
+      "module": "subscription",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/subscription/pay/3ds-callback/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/subscription/pay/3ds-callback",
+      "methods": [
+        "POST"
+      ],
+      "module": "subscription",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/subscription/payment-intent/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/subscription/payment-intent",
+      "methods": [
+        "POST"
+      ],
+      "module": "subscription",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/subscription/payment-intent/confirm/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/subscription/payment-intent/confirm",
+      "methods": [
+        "POST"
+      ],
+      "module": "subscription",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/subscription/quote/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/subscription/quote",
+      "methods": [
+        "POST"
+      ],
+      "module": "subscription",
+      "dynamic": true
+    },
+    {
       "filePath": "app/tenant/[tenantId]/api/tenants/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/tenants",
@@ -1575,6 +1736,17 @@
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/tenants/[targetTenantId]/deletion-request",
       "methods": [
+        "POST"
+      ],
+      "module": "tenant",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/tenants/[targetTenantId]/subscription/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/tenants/[targetTenantId]/subscription",
+      "methods": [
+        "GET",
         "POST"
       ],
       "module": "tenant",
@@ -1702,6 +1874,36 @@
       "urlPath": "/tenant/[tenantId]/api/webhooks/[webhookId]/test",
       "methods": [
         "POST"
+      ],
+      "module": "webhook",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/webhooks/[webhookId]/trigger/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/webhooks/[webhookId]/trigger",
+      "methods": [
+        "POST"
+      ],
+      "module": "webhook",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/webhooks/events/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/webhooks/events",
+      "methods": [
+        "GET"
+      ],
+      "module": "webhook",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/webhooks/metrics/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/webhooks/metrics",
+      "methods": [
+        "GET"
       ],
       "module": "webhook",
       "dynamic": true

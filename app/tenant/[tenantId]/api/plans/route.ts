@@ -1,6 +1,6 @@
 import Limiter from '@/modules_next/limiter/limiter.service.next';
 import { NextRequest, NextResponse } from 'next/server'
-import TenantSubscriptionService from '@/modules/tenant_subscription/tenant_subscription.service'
+import TenantPlanService from '@/modules/tenant_subscription/tenant_subscription.plan.service'
 import { CreatePlanRequestSchema } from '@/modules/tenant_subscription/tenant_subscription.dto'
 import { SUBSCRIPTION_MESSAGES } from '@/modules/tenant_subscription/tenant_subscription.messages'
 import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next'
@@ -36,8 +36,8 @@ export async function GET(
     const includeFeatures = searchParams.get('includeFeatures') === 'true'
 
     const plans = includeFeatures
-      ? await TenantSubscriptionService.getPlansWithFeatures(tenantId, status || undefined)
-      : await TenantSubscriptionService.getPlans(tenantId, status || undefined)
+      ? await TenantPlanService.getPlansWithFeatures(tenantId, status || undefined)
+      : await TenantPlanService.getPlans(tenantId, status || undefined)
 
     return NextResponse.json({ success: true, plans })
   } catch (error: any) {
@@ -80,7 +80,7 @@ export async function POST(
       )
     }
 
-    const plan = await TenantSubscriptionService.createPlan(tenantId, parsed.data)
+    const plan = await TenantPlanService.createPlan(tenantId, parsed.data)
     return NextResponse.json({ success: true, plan }, { status: 201 })
   } catch (error: any) {
     return NextResponse.json(

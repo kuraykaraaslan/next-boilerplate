@@ -2,6 +2,8 @@ import redis from '@/modules/redis';
 import Logger from '@/modules/logger';
 import { tenantDataSourceFor } from '@/modules/db';
 import { TenantUsage } from './entities/tenant_usage.entity';
+import TenantUsageMessages from './tenant_usage.messages';
+import { AppError, ErrorCode } from '@/modules/common/app-error';
 
 const TTL_SECONDS = 32 * 24 * 60 * 60; // 32 days
 
@@ -96,43 +98,56 @@ export class TenantUsageService {
 
     const keys = METRICS.map((m) => TenantUsageService.redisKey(tenantId, m, targetMonth));
 
-    const results = await redis.mget(...keys);
-    const [rawApiCalls, rawAiTokens, rawStorageBytes, rawEmailSends, rawSmsSends] = results;
+    let redisResults: (string | null)[] | null = null;
+    try { redisResults = await redis.mget(...keys); } catch { /* fall through to DB */ }
 
-    const allNull = results.every((v) => v === null);
-
-    if (!allNull) {
-      return {
-        apiCalls: rawApiCalls !== null ? parseInt(rawApiCalls, 10) : 0,
-        aiTokens: rawAiTokens !== null ? parseInt(rawAiTokens, 10) : 0,
-        storageBytes: rawStorageBytes !== null ? parseInt(rawStorageBytes, 10) : 0,
-        emailSends: rawEmailSends !== null ? parseInt(rawEmailSends, 10) : 0,
-        smsSends: rawSmsSends !== null ? parseInt(rawSmsSends, 10) : 0,
-      };
+    if (redisResults) {
+      const [rawApiCalls, rawAiTokens, rawStorageBytes, rawEmailSends, rawSmsSends] = redisResults;
+      const allNull = redisResults.every((v) => v === null);
+      if (!allNull) {
+        return {
+          apiCalls: rawApiCalls !== null ? parseInt(rawApiCalls, 10) : 0,
+          aiTokens: rawAiTokens !== null ? parseInt(rawAiTokens, 10) : 0,
+          storageBytes: rawStorageBytes !== null ? parseInt(rawStorageBytes, 10) : 0,
+          emailSends: rawEmailSends !== null ? parseInt(rawEmailSends, 10) : 0,
+          smsSends: rawSmsSends !== null ? parseInt(rawSmsSends, 10) : 0,
+        };
+      }
     }
 
     // Fallback to DB
-    const ds = await tenantDataSourceFor(tenantId);
-    const repo = ds.getRepository(TenantUsage);
-    const row = await repo.findOne({ where: { tenantId, month: targetMonth } });
+    try {
+      const ds = await tenantDataSourceFor(tenantId);
+      const repo = ds.getRepository(TenantUsage);
+      const row = await repo.findOne({ where: { tenantId, month: targetMonth } });
 
-    if (!row) {
-      return { apiCalls: 0, aiTokens: 0, storageBytes: 0, emailSends: 0, smsSends: 0 };
+      if (!row) {
+        return { apiCalls: 0, aiTokens: 0, storageBytes: 0, emailSends: 0, smsSends: 0 };
+      }
+
+      return {
+        apiCalls: row.apiCalls,
+        aiTokens: Number(row.aiTokens),
+        storageBytes: Number(row.storageBytes),
+        emailSends: row.emailSends,
+        smsSends: row.smsSends ?? 0,
+      };
+    } catch (error) {
+      if (error instanceof AppError) throw error;
+      Logger.error(`[TenantUsage] getUsage DB fallback failed: ${error instanceof Error ? error.message : String(error)}`);
+      throw new AppError(TenantUsageMessages.FETCH_FAILED, 500, ErrorCode.INTERNAL_ERROR);
     }
-
-    return {
-      apiCalls: row.apiCalls,
-      aiTokens: Number(row.aiTokens),
-      storageBytes: Number(row.storageBytes),
-      emailSends: row.emailSends,
-      smsSends: row.smsSends ?? 0,
-    };
   }
 
   static async flushToDb(tenantId: string, month: string): Promise<void> {
     const keys = METRICS.map((m) => TenantUsageService.redisKey(tenantId, m, month));
 
-    const results = await redis.mget(...keys);
+    let results: (string | null)[];
+    try { results = await redis.mget(...keys); }
+    catch (err) {
+      Logger.warn(`[TenantUsage] flushToDb Redis read failed for ${tenantId}: ${err instanceof Error ? err.message : String(err)}`);
+      return;
+    }
     const [rawApiCalls, rawAiTokens, rawStorageBytes, rawEmailSends, rawSmsSends] = results;
 
     const apiCalls = rawApiCalls !== null ? parseInt(rawApiCalls, 10) : 0;

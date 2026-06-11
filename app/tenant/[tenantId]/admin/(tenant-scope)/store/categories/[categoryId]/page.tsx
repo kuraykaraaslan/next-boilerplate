@@ -1,13 +1,11 @@
 'use client';
 import { use, useCallback, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import api from '@/modules_next/common/axios';
 import { PageHeader } from '@/modules_next/common/ui/PageHeader';
 import { Breadcrumb } from '@/modules_next/common/ui/Breadcrumb';
 import { Input } from '@/modules_next/common/ui/Input';
 import { Select } from '@/modules_next/common/ui/Select';
 import { Card } from '@/modules_next/common/ui/Card';
-import { Modal } from '@/modules_next/common/ui/Modal';
 import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
 import { Badge } from '@/modules_next/common/ui/Badge';
 import { TabGroup } from '@/modules_next/common/ui/TabGroup';
@@ -18,41 +16,19 @@ import { Button } from '@/modules_next/common/ui/Button';
 import { toast } from '@/modules_next/common/ui/toast.store';
 import { SeoPanel } from '@/modules_next/seo/ui/SeoPanel';
 import { GalleryPanel } from '@/modules_next/media_gallery/ui/GalleryPanel';
+import { CategorySpecAddModal } from '@/modules_next/store/ui/CategorySpecAddModal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faSave, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 type Category = {
-  categoryId: string;
-  name: string;
-  slug: string;
-  description?: string | null;
-  isActive: boolean;
-  sortOrder: number;
+  categoryId: string; name: string; slug: string; description?: string | null;
+  isActive: boolean; sortOrder: number;
 };
 
 type Spec = {
-  specId: string;
-  key: string;
-  label: string;
-  type: string;
-  unit?: string | null;
-  isRequired: boolean;
-  isFilterable: boolean;
-  sortOrder: number;
+  specId: string; key: string; label: string; type: string; unit?: string | null;
+  isRequired: boolean; isFilterable: boolean; sortOrder: number;
 };
-
-type SpecForm = { key: string; label: string; type: string; unit: string; isRequired: boolean; isFilterable: boolean; sortOrder: string };
-const EMPTY_SPEC: SpecForm = { key: '', label: '', type: 'TEXT', unit: '', isRequired: false, isFilterable: true, sortOrder: '0' };
-
-const specTypeOptions = [
-  { value: 'TEXT',        label: 'Text'        },
-  { value: 'NUMBER',      label: 'Number'      },
-  { value: 'BOOLEAN',     label: 'Boolean'     },
-  { value: 'SELECT',      label: 'Select'      },
-  { value: 'MULTISELECT', label: 'Multi-Select' },
-  { value: 'DATE',        label: 'Date'        },
-  { value: 'COLOR',       label: 'Color'       },
-];
 
 function extractMessage(err: unknown, fallback: string) {
   const e = err as { response?: { data?: { message?: string } }; message?: string };
@@ -63,7 +39,6 @@ export default function CategoryDetailPage({
   params,
 }: { params: Promise<{ tenantId: string; categoryId: string }> }) {
   const { tenantId, categoryId } = use(params);
-  const router = useRouter();
 
   const [category, setCategory] = useState<Category | null>(null);
   const [specs, setSpecs]       = useState<Spec[]>([]);
@@ -75,11 +50,7 @@ export default function CategoryDetailPage({
   });
   const [saving, setSaving]     = useState(false);
   const [saveError, setSaveError] = useState('');
-
   const [showSpec, setShowSpec] = useState(false);
-  const [specForm, setSpecForm] = useState<SpecForm>(EMPTY_SPEC);
-  const [specSaving, setSpecSaving] = useState(false);
-  const [specError, setSpecError]   = useState('');
 
   const load = useCallback(async () => {
     setLoading(true); setLoadError('');
@@ -108,27 +79,6 @@ export default function CategoryDetailPage({
     } catch (err) {
       setSaveError(extractMessage(err, 'Failed to save.'));
     } finally { setSaving(false); }
-  }
-
-  async function handleAddSpec() {
-    setSpecSaving(true); setSpecError('');
-    try {
-      await api.post(`/tenant/${tenantId}/api/store/categories/${categoryId}/specs`, {
-        key: specForm.key,
-        label: specForm.label,
-        type: specForm.type,
-        unit: specForm.unit || undefined,
-        isRequired: specForm.isRequired,
-        isFilterable: specForm.isFilterable,
-        sortOrder: Number(specForm.sortOrder),
-      });
-      toast.success('Spec added');
-      setShowSpec(false);
-      setSpecForm(EMPTY_SPEC);
-      load();
-    } catch (err) {
-      setSpecError(extractMessage(err, 'Failed to add spec.'));
-    } finally { setSpecSaving(false); }
   }
 
   async function handleDeleteSpec(specId: string, label: string) {
@@ -194,8 +144,7 @@ export default function CategoryDetailPage({
             <div className="p-6 space-y-4">
               <h2 className="text-sm font-semibold text-text-primary">Settings</h2>
               <Select
-                id="cat-active"
-                label="Status"
+                id="cat-active" label="Status"
                 options={[{ value: 'true', label: 'Active' }, { value: 'false', label: 'Inactive' }]}
                 value={String(editForm.isActive)}
                 onChange={(e) => setEditForm((f) => ({ ...f, isActive: e.target.value === 'true' }))}
@@ -227,12 +176,6 @@ export default function CategoryDetailPage({
     </div>
   );
 
-  const tabs = [
-    { id: 'general', label: 'General',                           content: generalContent },
-    { id: 'gallery', label: 'Gallery', content: <GalleryPanel tenantId={tenantId} entityType="store_category" entityId={categoryId} /> },
-    { id: 'seo',     label: 'SEO',                               content: <SeoPanel     tenantId={tenantId} entityType="store_category" entityId={categoryId} /> },
-  ];
-
   return (
     <div className="space-y-6">
       <Breadcrumb items={[
@@ -248,43 +191,19 @@ export default function CategoryDetailPage({
 
       {saveError && <AlertBanner variant="error" message={saveError} />}
 
-      <TabGroup tabs={tabs} />
+      <TabGroup tabs={[
+        { id: 'general', label: 'General', content: generalContent },
+        { id: 'gallery', label: 'Gallery', content: <GalleryPanel tenantId={tenantId} entityType="store_category" entityId={categoryId} /> },
+        { id: 'seo',     label: 'SEO',     content: <SeoPanel     tenantId={tenantId} entityType="store_category" entityId={categoryId} /> },
+      ]} />
 
-      <Modal
+      <CategorySpecAddModal
         open={showSpec}
-        onClose={() => { setShowSpec(false); setSpecForm(EMPTY_SPEC); setSpecError(''); }}
-        title="Add Spec"
-        footer={
-          <>
-            <Button variant="ghost" onClick={() => setShowSpec(false)} disabled={specSaving}>Cancel</Button>
-            <Button variant="primary" onClick={handleAddSpec} loading={specSaving}>Add</Button>
-          </>
-        }
-      >
-        <div className="space-y-4">
-          {specError && <AlertBanner variant="error" message={specError} />}
-          <Input id="spec-label" label="Label" required value={specForm.label}
-            onChange={(e) => setSpecForm((f) => ({ ...f, label: e.target.value, key: f.key || e.target.value.toLowerCase().replace(/\s+/g, '_') }))} />
-          <Input id="spec-key" label="Key" required value={specForm.key}
-            onChange={(e) => setSpecForm((f) => ({ ...f, key: e.target.value }))}
-            hint="Lowercase snake_case, e.g. screen_size" />
-          <Select id="spec-type" label="Type" options={specTypeOptions} value={specForm.type}
-            onChange={(e) => setSpecForm((f) => ({ ...f, type: e.target.value }))} />
-          <Input id="spec-unit" label="Unit (optional)" value={specForm.unit}
-            onChange={(e) => setSpecForm((f) => ({ ...f, unit: e.target.value }))}
-            hint="e.g. kg, cm, W" />
-          <div className="flex gap-4">
-            <label className="flex items-center gap-2 text-sm text-text-primary cursor-pointer">
-              <input type="checkbox" checked={specForm.isRequired} onChange={(e) => setSpecForm((f) => ({ ...f, isRequired: e.target.checked }))} />
-              Required
-            </label>
-            <label className="flex items-center gap-2 text-sm text-text-primary cursor-pointer">
-              <input type="checkbox" checked={specForm.isFilterable} onChange={(e) => setSpecForm((f) => ({ ...f, isFilterable: e.target.checked }))} />
-              Filterable
-            </label>
-          </div>
-        </div>
-      </Modal>
+        tenantId={tenantId}
+        categoryId={categoryId}
+        onClose={() => setShowSpec(false)}
+        onAdded={load}
+      />
     </div>
   );
 }

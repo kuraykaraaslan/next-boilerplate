@@ -58,6 +58,21 @@ export const AssignSubscriptionRequestSchema = z.object({
   billingInterval: BillingIntervalEnum.optional(),
 })
 
+/**
+ * Root-admin only: clone a root/platform plan onto another tenant and assign it
+ * for free (no payment). `planId` is a plan in the ROOT tenant's catalogue.
+ */
+export const AssignPlatformPlanRequestSchema = z.object({
+  planId: z.string().uuid('Invalid plan ID'),
+  /** Optional override; defaults to the source plan's interval. */
+  billingInterval: BillingIntervalEnum.optional(),
+  /**
+   * Optional price for the cloned product the target tenant would see on a
+   * future self-service renewal. Omit to copy the source price; 0 = free.
+   */
+  priceOverride: z.coerce.number().nonnegative().optional(),
+})
+
 // ============================================================================
 // Type Exports
 // ============================================================================
@@ -68,3 +83,4 @@ export type GetPlansQuery = z.infer<typeof GetPlansQuerySchema>
 export type CreateFeatureDTO = z.infer<typeof CreateFeatureRequestSchema>
 export type UpdateFeatureDTO = z.infer<typeof UpdateFeatureRequestSchema>
 export type AssignSubscriptionDTO = z.infer<typeof AssignSubscriptionRequestSchema>
+export type AssignPlatformPlanDTO = z.infer<typeof AssignPlatformPlanRequestSchema>

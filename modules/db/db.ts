@@ -44,12 +44,36 @@ import { StoreVariantGroup } from '@/modules/store/entities/store_variant_group.
 import { StoreVariantGroupItem } from '@/modules/store/entities/store_variant_group_item.entity';
 import { StoreBundle } from '@/modules/store/entities/store_bundle.entity';
 import { StoreBundleItem } from '@/modules/store/entities/store_bundle_item.entity';
+import { StoreVariationType } from '@/modules/store/entities/store_variation_type.entity';
+import { StoreVariationOption } from '@/modules/store/entities/store_variation_option.entity';
+import { StoreProductVariant } from '@/modules/store/entities/store_product_variant.entity';
 import { SeoMeta } from '@/modules/seo/entities/seo_meta.entity';
 import { MediaGallery } from '@/modules/media_gallery/entities/media_gallery.entity';
 import { MediaGalleryItem } from '@/modules/media_gallery/entities/media_gallery_item.entity';
 import { DynamicPage } from '@/modules/dynamic_page/entities/dynamic_page.entity';
 import { DynamicPageTranslation } from '@/modules/dynamic_page/entities/dynamic_page_translation.entity';
 import { DynamicPageBlock } from '@/modules/dynamic_page/entities/dynamic_page_block.entity';
+import { DynamicCollection } from '@/modules/dynamic_page/entities/dynamic_collection.entity';
+import { DynamicCollectionItem } from '@/modules/dynamic_page/entities/dynamic_collection_item.entity';
+import { Fulfillment } from '@/modules/order_fulfillment/entities/fulfillment.entity';
+import { FulfillmentItem } from '@/modules/order_fulfillment/entities/fulfillment_item.entity';
+import { FulfillmentEvent } from '@/modules/order_fulfillment/entities/fulfillment_event.entity';
+import { Cart } from '@/modules/payment_cart/entities/cart.entity';
+import { CartItem } from '@/modules/payment_cart/entities/cart_item.entity';
+import { ShippingMethod } from '@/modules/payment_shipping/entities/shipping_method.entity';
+import { ShippingRate } from '@/modules/payment_shipping/entities/shipping_rate.entity';
+import { TaxClass } from '@/modules/payment_tax/entities/tax_class.entity';
+import { TaxRate } from '@/modules/payment_tax/entities/tax_rate.entity';
+import { Wishlist } from '@/modules/payment_wishlist/entities/wishlist.entity';
+import { WishlistItem } from '@/modules/payment_wishlist/entities/wishlist_item.entity';
+import { ProductReview } from '@/modules/product_review/entities/product_review.entity';
+import { ProductReviewVote } from '@/modules/product_review/entities/product_review_vote.entity';
+import { ReturnRequest } from '@/modules/payment_return_rma/entities/return_request.entity';
+import { ReturnItem } from '@/modules/payment_return_rma/entities/return_item.entity';
+import { ReturnEvent } from '@/modules/payment_return_rma/entities/return_event.entity';
+import { LoyaltyAccount } from '@/modules/payment_loyalty_points/entities/loyalty_account.entity';
+import { LoyaltyTransaction } from '@/modules/payment_loyalty_points/entities/loyalty_transaction.entity';
+import { LoyaltyTier } from '@/modules/payment_loyalty_points/entities/loyalty_tier.entity';
 
 const ENTITIES = [
   User,
@@ -94,12 +118,36 @@ const ENTITIES = [
   StoreVariantGroupItem,
   StoreBundle,
   StoreBundleItem,
+  StoreVariationType,
+  StoreVariationOption,
+  StoreProductVariant,
   SeoMeta,
   MediaGallery,
   MediaGalleryItem,
   DynamicPage,
   DynamicPageTranslation,
   DynamicPageBlock,
+  DynamicCollection,
+  DynamicCollectionItem,
+  Fulfillment,
+  FulfillmentItem,
+  FulfillmentEvent,
+  Cart,
+  CartItem,
+  ShippingMethod,
+  ShippingRate,
+  TaxClass,
+  TaxRate,
+  Wishlist,
+  WishlistItem,
+  ProductReview,
+  ProductReviewVote,
+  ReturnRequest,
+  ReturnItem,
+  ReturnEvent,
+  LoyaltyAccount,
+  LoyaltyTransaction,
+  LoyaltyTier,
 ];
 
 const { url: DEFAULT_DB_URL, schema: DEFAULT_SCHEMA } = parseDbUrl(env.DATABASE_URL);

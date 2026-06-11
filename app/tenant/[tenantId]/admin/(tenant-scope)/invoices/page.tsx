@@ -1,5 +1,5 @@
 'use client';
-import { use, useEffect, useState } from 'react';
+import { use, useCallback, useEffect, useState } from 'react';
 import api from '@/modules_next/common/axios';
 import { PageHeader } from '@/modules_next/common/ui/PageHeader';
 import { Card } from '@/modules_next/common/ui/Card';
@@ -7,9 +7,10 @@ import { Spinner } from '@/modules_next/common/ui/Spinner';
 import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
 import { Breadcrumb } from '@/modules_next/common/ui/Breadcrumb';
 import { Button } from '@/modules_next/common/ui/Button';
+import { EarsivSmsSignModal } from '@/modules_next/invoice/ui/EarsivSmsSignModal';
 import type { SafeInvoice } from '@/modules/invoice/invoice.types';
 
-type InvoiceRow = Pick<SafeInvoice, 'invoiceId' | 'invoiceNumber' | 'customerName' | 'customerEmail' | 'totalAmount' | 'currency' | 'status' | 'region'> & {
+type InvoiceRow = Pick<SafeInvoice, 'invoiceId' | 'invoiceNumber' | 'customerName' | 'customerEmail' | 'totalAmount' | 'currency' | 'status' | 'region' | 'earsivStatus' | 'earsivUuid'> & {
   issueDate: string;
 };
 
@@ -21,13 +22,22 @@ const STATUS_COLOR: Record<string, string> = {
   refunded: 'bg-warning-subtle text-warning-fg',
 };
 
+const EARSIV_LABEL: Record<string, string> = {
+  submitted: 'e-Arşiv · awaiting signature',
+  accepted: 'e-Arşiv · signed',
+  rejected: 'e-Arşiv · rejected',
+};
+
 export default function TenantInvoicesPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = use(params);
   const [invoices, setInvoices] = useState<InvoiceRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [signOpen, setSignOpen] = useState(false);
 
-  useEffect(() => {
+  const load = useCallback(() => {
     setLoading(true);
     api
       .get(`/tenant/${tenantId}/api/invoices?pageSize=50`)
@@ -35,6 +45,25 @@ export default function TenantInvoicesPage({ params }: { params: Promise<{ tenan
       .catch((e) => setError(e.response?.data?.message ?? 'Failed to load invoices'))
       .finally(() => setLoading(false));
   }, [tenantId]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const unsigned = invoices.filter((i) => i.region === 'TR' && i.earsivStatus === 'submitted');
+
+  const generate = useCallback(async (invoiceId: string) => {
+    setBusyId(invoiceId);
+    setError(null);
+    setNotice(null);
+    try {
+      await api.post(`/tenant/${tenantId}/api/invoices/${invoiceId}/issue`);
+      setNotice('Invoice issued. For Turkey, a GİB e-Arşiv draft was created — use "Sign via SMS" to finalize it.');
+      load();
+    } catch (e: any) {
+      setError(e.response?.data?.message ?? 'Failed to issue the invoice');
+    } finally {
+      setBusyId(null);
+    }
+  }, [tenantId, load]);
 
   if (loading) {
     return (
@@ -58,7 +87,16 @@ export default function TenantInvoicesPage({ params }: { params: Promise<{ tenan
         subtitle="Issued documents — TR e-Arşiv / EU Peppol / US Stripe Tax driven by Settings → Integrations → Invoicing."
       />
 
-      {error && <AlertBanner variant="error" message={error} />}
+      {error && <AlertBanner key={`e-${error}`} variant="error" message={error} dismissible />}
+      {notice && <AlertBanner key={`n-${notice}`} variant="success" message={notice} dismissible />}
+
+      {unsigned.length > 0 && (
+        <AlertBanner
+          variant="warning"
+          message={`${unsigned.length} e-Arşiv invoice${unsigned.length === 1 ? '' : 's'} awaiting signature at GİB. Sign via SMS to finalize.`}
+          action={{ label: 'Sign via SMS', onClick: () => setSignOpen(true) }}
+        />
+      )}
 
       <Card title={`${invoices.length} invoice${invoices.length === 1 ? '' : 's'}`}>
         {invoices.length === 0 ? (
@@ -96,17 +134,30 @@ export default function TenantInvoicesPage({ params }: { params: Promise<{ tenan
                       <span className={`rounded-md px-2 py-0.5 text-xs ${STATUS_COLOR[inv.status] ?? ''}`}>
                         {inv.status}
                       </span>
+                      {inv.region === 'TR' && inv.earsivStatus && (
+                        <div className="mt-1 text-[11px] text-text-secondary">{EARSIV_LABEL[inv.earsivStatus] ?? `e-Arşiv: ${inv.earsivStatus}`}</div>
+                      )}
                     </td>
                     <td className="py-2">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => {
-                          window.location.href = `/tenant/${tenantId}/admin/invoices/${inv.invoiceId}`;
-                        }}
-                      >
-                        Open
-                      </Button>
+                      <div className="flex items-center justify-end gap-2">
+                        {inv.status === 'draft' && (
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            loading={busyId === inv.invoiceId}
+                            onClick={() => generate(inv.invoiceId)}
+                          >
+                            {inv.region === 'TR' ? 'Issue e-Arşiv' : 'Issue'}
+                          </Button>
+                        )}
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => { window.location.href = `/tenant/${tenantId}/admin/invoices/${inv.invoiceId}`; }}
+                        >
+                          Open
+                        </Button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -115,6 +166,18 @@ export default function TenantInvoicesPage({ params }: { params: Promise<{ tenan
           </div>
         )}
       </Card>
+
+      <EarsivSmsSignModal
+        open={signOpen}
+        tenantId={tenantId}
+        unsignedCount={unsigned.length}
+        onClose={() => setSignOpen(false)}
+        onSigned={(count) => {
+          setSignOpen(false);
+          setNotice(`${count} e-Arşiv invoice(s) signed.`);
+          load();
+        }}
+      />
     </div>
   );
 }

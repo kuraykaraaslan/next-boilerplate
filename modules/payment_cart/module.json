@@ -1,0 +1,13 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "payment_cart",
+  "name": "Payment Cart",
+  "description": "Tenant-aware shopping cart for users and anonymous guests. Manages cart items, quantities, coupon codes, totals, guest-to-user merge, and conversion to checkout.",
+  "version": "1.0.0",
+  "icon": "fas fa-cart-shopping",
+  "tags": ["payment", "cart", "ecommerce"],
+  "priority": 28,
+  "dependencies": {
+    "requires": ["db", "env", "redis", "logger", "coupon"]
+  }
+}

@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import TenantMemberService from "@/modules/tenant_member/tenant_member.service";
 import Limiter from "@/modules_next/limiter/limiter.service.next";
 import TenantSessionNextService from "@/modules_next/tenant_session/tenant_session.service.next";
-import TenantSubscriptionService from "@/modules/tenant_subscription/tenant_subscription.service";
+import TenantFeatureGateService from "@/modules/tenant_subscription/tenant_subscription.feature.service";
 import { FEATURE_KEYS } from "@/modules/tenant_subscription/tenant_subscription.feature-keys";
 
 /**
@@ -90,7 +90,7 @@ export async function POST(
       memberStatus: 'ACTIVE',
     });
 
-    await TenantSubscriptionService.assertFeatureAccess(
+    await TenantFeatureGateService.assertFeatureAccess(
       tenantId,
       FEATURE_KEYS.MAX_MEMBERS,
       currentMemberCount,

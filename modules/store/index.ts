@@ -1,4 +1,7 @@
-export { default as StoreService } from './store.service'
+export { default as StoreCategoryService } from './store.category.service'
+export { default as StoreProductService } from './store.product.service'
+export { default as StoreBundleService } from './store.bundle.service'
+export { default as StoreVariantService } from './store.variant.service'
 export * from './store.enums'
 export * from './store.types'
 export * from './store.dto'

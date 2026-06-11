@@ -58,7 +58,11 @@ export default class DNSVerificationService {
     const key = `${DNS_VERIFICATION_PREFIX}${tenantDomainId}`;
     const data = await redis.get(key);
     if (!data) return null;
-    return JSON.parse(data);
+    try {
+      return JSON.parse(data);
+    } catch {
+      return null;
+    }
   }
 
   static async deleteStoredToken(tenantDomainId: string): Promise<void> {

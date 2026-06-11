@@ -1,28 +1,19 @@
 'use client';
+
 import { use, useEffect, useState, useMemo } from 'react';
 import api from '@/modules_next/common/axios';
 import { PageHeader } from '@/modules_next/common/ui/PageHeader';
-import { Badge } from '@/modules_next/common/ui/Badge';
 import { Button } from '@/modules_next/common/ui/Button';
 import { Input } from '@/modules_next/common/ui/Input';
 import { Select } from '@/modules_next/common/ui/Select';
 import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
 import { Modal } from '@/modules_next/common/ui/Modal';
-import { Avatar } from '@/modules_next/common/ui/Avatar';
-import { ServerDataTable, type TableColumn } from '@/modules_next/common/ui/ServerDataTable';
-import { RowActionsMenu } from '@/modules_next/common/ui/RowActionsMenu';
+import { ServerDataTable } from '@/modules_next/common/ui/ServerDataTable';
 import { toast } from '@/modules_next/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUserPlus, faSearch, faUser, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faUserPlus, faSearch, faUser, faGear } from '@fortawesome/free-solid-svg-icons';
 import type { TenantMemberRole as MemberRole } from '@/modules/tenant_member/tenant_member.enums';
-
-type Member = {
-  tenantMemberId: string;
-  memberRole: MemberRole;
-  memberStatus: string;
-  createdAt: string;
-  user: { userId: string; email: string };
-};
+import { buildMemberColumns, type MemberRow } from '@/modules_next/tenant_member/ui/member-list-columns';
 
 type SessionData = {
   tenantMember: { tenantMemberId: string; memberRole: MemberRole };
@@ -30,12 +21,6 @@ type SessionData = {
 };
 
 const PAGE_SIZE = 25;
-
-const ROLE_BADGE: Record<MemberRole, 'primary' | 'warning' | 'neutral'> = {
-  OWNER: 'primary',
-  ADMIN: 'warning',
-  USER:  'neutral',
-};
 
 function extractMessage(err: unknown, fallback: string): string {
   const e = err as { response?: { data?: { message?: string } }; message?: string };
@@ -45,7 +30,7 @@ function extractMessage(err: unknown, fallback: string): string {
 export default function TenantMembersPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = use(params);
 
-  const [members, setMembers] = useState<Member[]>([]);
+  const [members, setMembers] = useState<MemberRow[]>([]);
   const [session, setSession] = useState<SessionData | null>(null);
   const [page, setPage]       = useState(1);
   const [loading, setLoading] = useState(true);
@@ -58,7 +43,7 @@ export default function TenantMembersPage({ params }: { params: Promise<{ tenant
   const [inviting, setInviting]       = useState(false);
   const [inviteError, setInviteError] = useState('');
 
-  const [confirmDelete, setConfirmDelete] = useState<Member | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<MemberRow | null>(null);
   const [deleting, setDeleting]         = useState(false);
   const [deleteError, setDeleteError]   = useState('');
 
@@ -87,43 +72,29 @@ export default function TenantMembersPage({ params }: { params: Promise<{ tenant
   const pageRows = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   const roleOptions = useMemo(() => {
-    const base = [
-      { value: 'USER',  label: 'User'  },
-      { value: 'ADMIN', label: 'Admin' },
-    ];
-    if (session?.tenantMember.memberRole === 'OWNER') {
-      base.push({ value: 'OWNER', label: 'Owner' });
-    }
+    const base = [{ value: 'USER', label: 'User' }, { value: 'ADMIN', label: 'Admin' }];
+    if (session?.tenantMember.memberRole === 'OWNER') base.push({ value: 'OWNER', label: 'Owner' });
     return base;
   }, [session?.tenantMember.memberRole]);
 
-  function closeInvite() {
-    setShowInvite(false);
-    setInviteEmail('');
-    setInviteRole('USER');
-    setInviteError('');
-  }
+  function closeInvite() { setShowInvite(false); setInviteEmail(''); setInviteRole('USER'); setInviteError(''); }
 
   async function handleInvite(e: React.FormEvent) {
     e.preventDefault();
     if (!inviteEmail) return;
-    setInviting(true);
-    setInviteError('');
+    setInviting(true); setInviteError('');
     try {
       await api.post(`/tenant/${tenantId}/api/invitations`, { email: inviteEmail, memberRole: inviteRole });
       closeInvite();
       toast.success('Invitation sent.');
     } catch (err: unknown) {
       setInviteError(extractMessage(err, 'Failed to send invitation.'));
-    } finally {
-      setInviting(false);
-    }
+    } finally { setInviting(false); }
   }
 
   async function handleDelete() {
     if (!confirmDelete) return;
-    setDeleting(true);
-    setDeleteError('');
+    setDeleting(true); setDeleteError('');
     try {
       await api.delete(`/tenant/${tenantId}/api/members/${confirmDelete.tenantMemberId}`);
       setMembers((prev) => prev.filter((m) => m.tenantMemberId !== confirmDelete.tenantMemberId));
@@ -131,72 +102,30 @@ export default function TenantMembersPage({ params }: { params: Promise<{ tenant
       toast.success('Member removed.');
     } catch (err: unknown) {
       setDeleteError(extractMessage(err, 'Failed to remove member.'));
-    } finally {
-      setDeleting(false);
-    }
+    } finally { setDeleting(false); }
   }
 
-  function canDelete(member: Member): boolean {
+  function canDelete(member: MemberRow): boolean {
     if (!canManage) return false;
     if (member.tenantMemberId === session?.tenantMember.tenantMemberId) return false;
     if (member.memberRole === 'OWNER') return session?.tenantMember.memberRole === 'OWNER';
     return true;
   }
 
-  const columns: TableColumn<Member>[] = [
-    {
-      key: 'user',
-      header: 'Member',
-      render: (m) => (
-        <div className="flex items-center gap-3">
-          <Avatar name={m.user.email} size="sm" />
-          <p className="font-medium text-text-primary truncate">{m.user.email}</p>
-        </div>
-      ),
-    },
-    {
-      key: 'memberRole',
-      header: 'Role',
-      render: (m) => <Badge variant={ROLE_BADGE[m.memberRole]}>{m.memberRole}</Badge>,
-    },
-    {
-      key: 'createdAt',
-      header: 'Joined',
-      render: (m) => (
-        <span className="text-text-secondary">{new Date(m.createdAt).toLocaleDateString()}</span>
-      ),
-    },
-  ];
-
-  if (canManage) {
-    columns.push({
-      key: '_actions',
-      header: '',
-      align: 'right',
-      render: (m) =>
-        canDelete(m) ? (
-          <div onClick={(e) => e.stopPropagation()}>
-            <RowActionsMenu
-              actions={[
-                {
-                  label: 'Remove',
-                  icon: <FontAwesomeIcon icon={faTrash} />,
-                  onClick: () => { setConfirmDelete(m); setDeleteError(''); },
-                  variant: 'danger',
-                },
-              ]}
-            />
-          </div>
-        ) : null,
-    });
-  }
+  const columns = buildMemberColumns({
+    onRemove:  canManage ? (m) => { setConfirmDelete(m); setDeleteError(''); } : undefined,
+    canRemove: canDelete,
+  });
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Members"
         subtitle="People with access to this organization"
-        actions={canManage ? [{ label: 'Invite Member', onClick: () => setShowInvite(true) }] : []}
+        actions={[
+          { label: <FontAwesomeIcon icon={faGear} />, href: `/tenant/${tenantId}/admin/members/settings`, variant: 'ghost' as const },
+          ...(canManage ? [{ label: 'Invite Member', onClick: () => setShowInvite(true) }] : []),
+        ]}
       />
 
       {fetchError && <AlertBanner variant="error" message={fetchError} />}
@@ -205,19 +134,14 @@ export default function TenantMembersPage({ params }: { params: Promise<{ tenant
         columns={columns}
         rows={pageRows}
         getRowKey={(m) => m.tenantMemberId}
-        page={page}
-        totalPages={totalPages}
-        total={total}
-        pageSize={PAGE_SIZE}
+        page={page} totalPages={totalPages} total={total} pageSize={PAGE_SIZE}
         onPageChange={setPage}
         loading={loading}
         emptyMessage={search ? 'No members match your search.' : 'No members yet.'}
         toolbar={
           <div className="pb-4">
             <Input
-              id="member-search"
-              label="Search members"
-              placeholder="Search by email…"
+              id="member-search" label="Search members" placeholder="Search by email…"
               prefixIcon={<FontAwesomeIcon icon={faSearch} className="w-3.5 h-3.5" />}
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(1); }}
@@ -234,12 +158,7 @@ export default function TenantMembersPage({ params }: { params: Promise<{ tenant
         footer={
           <>
             <Button variant="ghost" onClick={closeInvite} disabled={inviting}>Cancel</Button>
-            <Button
-              form="invite-member-form"
-              type="submit"
-              loading={inviting}
-              iconLeft={<FontAwesomeIcon icon={faUserPlus} />}
-            >
+            <Button form="invite-member-form" type="submit" loading={inviting} iconLeft={<FontAwesomeIcon icon={faUserPlus} />}>
               Send Invite
             </Button>
           </>
@@ -248,22 +167,14 @@ export default function TenantMembersPage({ params }: { params: Promise<{ tenant
         <form id="invite-member-form" onSubmit={handleInvite} className="space-y-4">
           {inviteError && <AlertBanner variant="error" message={inviteError} />}
           <Input
-            id="invite-email"
-            label="Email address"
-            type="email"
-            required
+            id="invite-email" label="Email address" type="email" required
             placeholder="colleague@example.com"
             prefixIcon={<FontAwesomeIcon icon={faUser} className="w-3.5 h-3.5" />}
             value={inviteEmail}
             onChange={(e) => setInviteEmail(e.target.value)}
           />
-          <Select
-            id="invite-role"
-            label="Role"
-            options={roleOptions}
-            value={inviteRole}
-            onChange={(e) => setInviteRole(e.target.value as MemberRole)}
-          />
+          <Select id="invite-role" label="Role" options={roleOptions} value={inviteRole}
+            onChange={(e) => setInviteRole(e.target.value as MemberRole)} />
         </form>
       </Modal>
 

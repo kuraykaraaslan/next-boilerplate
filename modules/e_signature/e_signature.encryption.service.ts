@@ -1,5 +1,6 @@
 import { createCipheriv, createDecipheriv, randomBytes, type CipherGCM, type DecipherGCM } from 'node:crypto';
 import { env } from '@/modules/env';
+import { AppError, ErrorCode } from '@/modules/common/app-error';
 import { E_SIGNATURE_MESSAGES } from './e_signature.messages';
 
 /**
@@ -22,9 +23,9 @@ export default class ESignatureEncryptionService {
 
   private static loadKey(): Buffer {
     const raw = env.SETTINGS_ENCRYPTION_KEY;
-    if (!raw) throw new Error(E_SIGNATURE_MESSAGES.ENCRYPTION_KEY_MISSING);
+    if (!raw) throw new AppError(E_SIGNATURE_MESSAGES.ENCRYPTION_KEY_MISSING, 500, ErrorCode.INTERNAL_ERROR);
     if (!/^[0-9a-fA-F]{64}$/.test(raw)) {
-      throw new Error(`${E_SIGNATURE_MESSAGES.ENCRYPTION_KEY_MISSING}: expected 64 hex chars (32 bytes)`);
+      throw new AppError(`${E_SIGNATURE_MESSAGES.ENCRYPTION_KEY_MISSING}: expected 64 hex chars (32 bytes)`, 500, ErrorCode.INTERNAL_ERROR);
     }
     return Buffer.from(raw, 'hex');
   }
@@ -50,13 +51,13 @@ export default class ESignatureEncryptionService {
   static decrypt(encoded: string): string {
     const parts = encoded.split('.');
     if (parts.length !== 4 || parts[0] !== ESignatureEncryptionService.VERSION) {
-      throw new Error('encrypted value has unexpected format');
+      throw new AppError(E_SIGNATURE_MESSAGES.ENCRYPTED_VALUE_FORMAT_INVALID, 500, ErrorCode.INTERNAL_ERROR);
     }
     const iv = Buffer.from(parts[1], 'base64url');
     const ciphertext = Buffer.from(parts[2], 'base64url');
     const tag = Buffer.from(parts[3], 'base64url');
     if (tag.length !== ESignatureEncryptionService.TAG_BYTES) {
-      throw new Error('encrypted value has wrong auth tag length');
+      throw new AppError(E_SIGNATURE_MESSAGES.ENCRYPTED_VALUE_AUTH_TAG_INVALID, 500, ErrorCode.INTERNAL_ERROR);
     }
     const key = ESignatureEncryptionService.loadKey();
     const decipher = createDecipheriv(ESignatureEncryptionService.ALGORITHM, key, iv) as DecipherGCM;

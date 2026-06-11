@@ -31,12 +31,12 @@ export default class SMTPProvider extends BaseMailProvider {
       SettingService.getValue(tenantId, 'smtpPassword'),
       SettingService.getValue(tenantId, 'smtpSecure'),
     ]);
-    const portNum = Number(port ?? env.SMTP_PORT ?? env.MAIL_PORT ?? 587);
+    const portNum = Number(port ?? env.SMTP_PORT ?? 587);
     return {
-      host: host ?? env.SMTP_HOST ?? env.MAIL_HOST ?? '',
+      host: host ?? env.SMTP_HOST ?? '',
       port: portNum || 587,
-      user: user ?? env.SMTP_USER ?? env.MAIL_USER ?? '',
-      pass: pass ?? env.SMTP_PASS ?? env.MAIL_PASS ?? '',
+      user: user ?? env.SMTP_USER ?? '',
+      pass: pass ?? env.SMTP_PASS ?? '',
       secure: (secure ? secure === 'true' : env.SMTP_SECURE) || portNum === 465,
     };
   }

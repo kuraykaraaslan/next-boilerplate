@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { PaymentProviderEnum, PaymentMethodEnum, PaymentCurrencyEnum } from '../payment_core/payment_core.enums'
+import { PaymentProviderEnum, PaymentMethodEnum } from '../payment_core/payment_core.enums'
 import { PaymentStatusEnum, TransactionTypeEnum, TransactionStatusEnum } from './payment_sell.enums'
 
 export const BillingAddressSchema = z.object({

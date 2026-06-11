@@ -31,11 +31,12 @@ export const InvoiceSettingKeySchema = z.enum([
   'billingRegion',              // 'TR' | 'EU' | 'US' | 'OTHER'
 
   // ── TR e-Arşiv / e-Fatura specific ────────────────────────────────────────
-  'earsivIntegrator',           // 'foriba' | 'logo' | 'uyumsoft' | 'mock'
-  'earsivIntegratorBaseUrl',
-  'earsivIntegratorUsername',
-  'earsivIntegratorPassword',
-  'earsivAutoSubmit',           // 'true' | 'false'
+  'earsivIntegrator',           // 'gib_direct' | 'foriba' | 'logo' | 'uyumsoft' | 'mock'
+  'earsivIntegratorBaseUrl',    // optional — gib_direct defaults to the GİB TEST portal
+  'earsivIntegratorUsername',   // TCKN (11) / VKN (10) — gib_direct portal login
+  'earsivIntegratorPassword',   // gib_direct portal password / integrator API key
+  'earsivIntegratorSandbox',    // 'true' (default) | 'false' — pick GİB TEST vs PROD when no baseUrl
+  'earsivAutoSubmit',           // 'true' | 'false' — submit to GİB on issue()
   'earsivDocumentTypeOverride', // 'EARSIVFATURA' | 'TICARIFATURA' — auto by default
 
   // ── EU Peppol specific ────────────────────────────────────────────────────

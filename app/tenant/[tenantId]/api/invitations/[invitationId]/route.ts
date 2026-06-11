@@ -23,15 +23,11 @@ export async function GET(
       tenantId,
     });
 
-    const invitation = await TenantInvitationService.getById(invitationId);
-
-    if (invitation.tenantId !== tenantId) {
-      return NextResponse.json({ message: "Invitation not found" }, { status: 404 });
-    }
+    const invitation = await TenantInvitationService.getById(invitationId, tenantId);
 
     return NextResponse.json({ invitation }, { status: 200 });
   } catch (error: any) {
-    return NextResponse.json({ message: error.message }, { status: 500 });
+    return NextResponse.json({ message: error.message }, { status: error.statusCode ?? 500 });
   }
 }
 
@@ -58,6 +54,6 @@ export async function DELETE(
 
     return NextResponse.json({ message: "Invitation revoked successfully" }, { status: 200 });
   } catch (error: any) {
-    return NextResponse.json({ message: error.message }, { status: 500 });
+    return NextResponse.json({ message: error.message }, { status: error.statusCode ?? 500 });
   }
 }

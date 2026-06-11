@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import { getDataSource } from '@/modules/db';
 import Logger from '@/modules/logger';
 import { SigningCertificate } from './entities/signing_certificate.entity';
+import { AppError, ErrorCode } from '@/modules/common/app-error';
 import { E_SIGNATURE_MESSAGES } from './e_signature.messages';
 import type { BoundCertificate, CountryCode, RawIdentityClaims } from './e_signature.types';
 import type { LoA } from './e_signature.enums';
@@ -45,7 +46,7 @@ export default class ESignatureCertService {
       where: { certFingerprintSha256: claims.certFingerprintSha256.toUpperCase() },
     });
     if (existing && existing.userId !== userId) {
-      throw new Error(E_SIGNATURE_MESSAGES.BIND_CERT_ALREADY_BOUND);
+      throw new AppError(E_SIGNATURE_MESSAGES.BIND_CERT_ALREADY_BOUND, 409, ErrorCode.CONFLICT);
     }
     if (existing) {
       return existing;

@@ -1,22 +1,23 @@
 import { z } from 'zod';
 
+// Unlike z.coerce.boolean(), this treats "false"/"0" as false (coerce treats them as truthy).
+const boolEnv = () => z.preprocess(v => v === 'true' || v === '1', z.boolean());
+
 const EnvSchema = z.object({
   // ── Core ────────────────────────────────────────────────────────────────────
   NODE_ENV: z.enum(['development', 'production', 'test', 'vercel']).default('development'),
   PORT: z.coerce.number().default(3000),
   HOST: z.string().optional(),
-  DEBUG: z.coerce.boolean().optional(),
-  DEBUG_LOCAL: z.coerce.boolean().optional(),
-  DEBUG_TESTS: z.coerce.boolean().optional(),
-  DEBUG_TESTS_REAL_SERVER: z.coerce.boolean().optional(),
+  DEBUG: boolEnv().optional(),
+  DEBUG_LOCAL: boolEnv().optional(),
+  DEBUG_TESTS: boolEnv().optional(),
+  DEBUG_TESTS_REAL_SERVER: boolEnv().optional(),
 
   // ── Database ────────────────────────────────────────────────────────────────
   DATABASE_URL: z.string().min(1),
 
   // ── Redis ───────────────────────────────────────────────────────────────────
-  REDIS_HOST: z.string().default('localhost'),
-  REDIS_PORT: z.coerce.number().default(6379),
-  REDIS_PASSWORD: z.string().optional(),
+  REDIS_URL: z.string().default('redis://localhost:6379'),
 
   // ── Auth / Secrets ──────────────────────────────────────────────────────────
   ACCESS_TOKEN_SECRET: z.string().min(1),
@@ -90,15 +91,11 @@ const EnvSchema = z.object({
   // ── Mail ─────────────────────────────────────────────────────────────────────
   MAIL_PROVIDER: z.string().default('smtp'),
   MAIL_FROM: z.string().optional(),
-  MAIL_HOST: z.string().optional(),
-  MAIL_PORT: z.coerce.number().optional(),
-  MAIL_USER: z.string().optional(),
-  MAIL_PASS: z.string().optional(),
   SMTP_HOST: z.string().optional(),
   SMTP_PORT: z.coerce.number().optional(),
   SMTP_USER: z.string().optional(),
   SMTP_PASS: z.string().optional(),
-  SMTP_SECURE: z.coerce.boolean().optional(),
+  SMTP_SECURE: boolEnv().optional(),
   MAILGUN_API_KEY: z.string().optional(),
   MAILGUN_DOMAIN: z.string().optional(),
   MAILGUN_REGION: z.string().optional(),
@@ -227,15 +224,15 @@ const EnvSchema = z.object({
   SENTRY_TRACES_SAMPLE_RATE: z.coerce.number().min(0).max(1).default(0.1),
   SENTRY_PROFILES_SAMPLE_RATE: z.coerce.number().min(0).max(1).default(0),
   // Prometheus scrape endpoint (`/internal/api/metrics`). Off by default.
-  METRICS_ENABLED: z.coerce.boolean().default(false),
+  METRICS_ENABLED: boolEnv().default(false),
   METRICS_SECRET: z.string().optional(),
   // OpenTelemetry — enable to ship traces to OTLP collector.
-  OTEL_ENABLED: z.coerce.boolean().default(false),
+  OTEL_ENABLED: boolEnv().default(false),
   OTEL_EXPORTER_OTLP_ENDPOINT: z.string().optional(),
   OTEL_SERVICE_NAME: z.string().default('next-boilerplate'),
   // Cron / background jobs — Next.js instrumentation hook starts queues only
   // when set, so serverless deploys don't accidentally double-schedule.
-  ENABLE_BACKGROUND_JOBS: z.coerce.boolean().default(false),
+  ENABLE_BACKGROUND_JOBS: boolEnv().default(false),
   // Version tag (e.g. git short SHA) — surfaced in /internal/api/health and
   // every Sentry event.
   APPLICATION_VERSION: z.string().default('dev'),

@@ -3,10 +3,10 @@ import { NextRequest, NextResponse } from "next/server";
 import TenantInvitationService from "@/modules/tenant_invitation/tenant_invitation.service";
 import { SendInvitationDTO, GetInvitationsDTO } from "@/modules/tenant_invitation/tenant_invitation.dto";
 import TenantSessionNextService from "@/modules_next/tenant_session/tenant_session.service.next";
-import MailService from "@/modules/notification_mail/notification_mail.service";
+import MailAccountTemplatesService from "@/modules/notification_mail/notification_mail.account-templates.service";
 import Limiter from "@/modules_next/limiter/limiter.service.next";
 import TenantMemberService from "@/modules/tenant_member/tenant_member.service";
-import TenantSubscriptionService from "@/modules/tenant_subscription/tenant_subscription.service";
+import TenantFeatureGateService from "@/modules/tenant_subscription/tenant_subscription.feature.service";
 import { FEATURE_KEYS } from "@/modules/tenant_subscription/tenant_subscription.feature-keys";
 
 /**
@@ -74,7 +74,7 @@ export async function POST(
       memberStatus: 'ACTIVE',
     });
 
-    await TenantSubscriptionService.assertFeatureAccess(
+    await TenantFeatureGateService.assertFeatureAccess(
       tenantId,
       FEATURE_KEYS.MAX_MEMBERS,
       currentMemberCount,
@@ -98,7 +98,7 @@ export async function POST(
       m.default.getById(tenantId)
     );
 
-    await MailService.sendTenantInvitationEmail({
+    await MailAccountTemplatesService.sendTenantInvitationEmail({
       tenantId,
       email: invitation.email,
       tenantName: tenant.name,

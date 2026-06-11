@@ -242,7 +242,15 @@ export const StoreBundleItemSchema = z.object({
 })
 export type StoreBundleItem = z.infer<typeof StoreBundleItemSchema>
 
+/** Bundle item enriched with the referenced product's name + base price for display. */
+export const StoreBundleItemWithProductSchema = StoreBundleItemSchema.extend({
+  productName: z.string().nullable(),
+  productBasePrice: z.coerce.number().nullable(),
+  productCurrency: z.string().nullable(),
+})
+export type StoreBundleItemWithProduct = z.infer<typeof StoreBundleItemWithProductSchema>
+
 export const StoreBundleWithItemsSchema = StoreBundleSchema.omit({ deletedAt: true }).extend({
-  items: z.array(StoreBundleItemSchema),
+  items: z.array(StoreBundleItemWithProductSchema),
 })
 export type StoreBundleWithItems = z.infer<typeof StoreBundleWithItemsSchema>

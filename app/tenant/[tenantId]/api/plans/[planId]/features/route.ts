@@ -1,6 +1,6 @@
 import Limiter from '@/modules_next/limiter/limiter.service.next';
 import { NextRequest, NextResponse } from 'next/server'
-import TenantSubscriptionService from '@/modules/tenant_subscription/tenant_subscription.service'
+import TenantPlanService from '@/modules/tenant_subscription/tenant_subscription.plan.service'
 import { CreateFeatureRequestSchema } from '@/modules/tenant_subscription/tenant_subscription.dto'
 import { SUBSCRIPTION_MESSAGES } from '@/modules/tenant_subscription/tenant_subscription.messages'
 import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next'
@@ -39,7 +39,7 @@ export async function GET(
 
     }
 
-    const features = await TenantSubscriptionService.getFeaturesByPlan(tenantId, planId)
+    const features = await TenantPlanService.getFeaturesByPlan(tenantId, planId)
     return NextResponse.json({ success: true, features })
   } catch (error: any) {
     return NextResponse.json(
@@ -83,7 +83,7 @@ export async function POST(
       )
     }
 
-    const feature = await TenantSubscriptionService.addFeature(tenantId, planId, parsed.data)
+    const feature = await TenantPlanService.addFeature(tenantId, planId, parsed.data)
     return NextResponse.json({ success: true, feature }, { status: 201 })
   } catch (error: any) {
     return NextResponse.json(

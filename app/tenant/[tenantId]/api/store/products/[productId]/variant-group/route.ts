@@ -3,7 +3,7 @@ import Limiter from '@/modules_next/limiter/limiter.service.next'
 import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next'
 import { tenantDataSourceFor } from '@/modules/db'
 import { StoreProduct } from '@/modules/store/entities/store_product.entity'
-import StoreService from '@/modules/store/store.service'
+import StoreVariantService from '@/modules/store/store.variant.service'
 
 type Ctx = { params: Promise<{ tenantId: string; productId: string }> }
 
@@ -16,7 +16,7 @@ export async function GET(request: NextRequest, { params }: Ctx) {
   const { tenantId, productId } = await params
   try { await auth(request, tenantId) } catch (e: any) { return NextResponse.json({ message: e.message }, { status: 403 }) }
   try {
-    const result = await StoreService.getVariantGroupForProduct(tenantId, productId)
+    const result = await StoreVariantService.getVariantGroupForProduct(tenantId, productId)
     if (!result) return NextResponse.json({ group: null, items: [], products: {} })
 
     const ds = await tenantDataSourceFor(tenantId)

@@ -14,7 +14,14 @@ export const WebhookSchema = z.object({
   previousSecret: z.string().nullable(),
   previousSecretExpiresAt: z.date().nullable(),
   events: z.array(WebhookEventEnum),
+  headers: z.record(z.string(), z.string()).nullable(),
+  eventFilters: z.record(z.string(), z.record(z.string(), z.unknown())).nullable(),
+  tags: z.array(z.string()).nullable(),
   isActive: z.boolean(),
+  consecutiveFailures: z.number().int(),
+  autoDisabledAt: z.date().nullable(),
+  ipAllowlist: z.array(z.string()).nullable(),
+  rateLimitPerMinute: z.number().int().nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -47,3 +54,18 @@ export const WebhookDeliverySchema = z.object({
 });
 
 export type WebhookDelivery = z.infer<typeof WebhookDeliverySchema>;
+
+// ─── Metrics ───────────────────────────────────────────────────────────────────
+
+export interface WebhookMetrics {
+  /** Total deliveries in scope. */
+  total: number;
+  /** Delivery counts keyed by status (SUCCESS / PENDING / FAILED / DEAD_LETTERED). */
+  byStatus: Record<string, number>;
+  /** SUCCESS / (terminal deliveries), or null when there are none yet. */
+  successRate: number | null;
+  avgDurationMs: number | null;
+  p95DurationMs: number | null;
+  /** Per-event totals + success counts, top 20 by volume. */
+  byEvent: { event: string; count: number; success: number }[];
+}

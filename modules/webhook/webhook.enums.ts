@@ -21,9 +21,26 @@ export const WebhookEventEnum = z.enum([
   'subscription.created',
   'subscription.updated',
   'subscription.cancelled',
+  'subscription.paused',
+  'subscription.resumed',
   'payment.completed',
   'payment.failed',
   'payment.refunded',
+  'invoice.created',
+  'invoice.issued',
+  'invoice.paid',
+  'coupon.created',
+  'coupon.updated',
+  'coupon.redeemed',
+  'product.created',
+  'product.updated',
+  'product.deleted',
+  'fulfillment.created',
+  'fulfillment.shipped',
+  'fulfillment.delivered',
+  'fulfillment.cancelled',
+  'document.signed',
+  'identity.verified',
   'api_key.created',
   'api_key.deleted',
 
@@ -46,5 +63,5 @@ export const WEBHOOK_EVENTS: WebhookEvent[] = WebhookEventEnum.options;
 
 // ─── Shared ───────────────────────────────────────────────────────────────────
 
-export const WebhookDeliveryStatusEnum = z.enum(['PENDING', 'SUCCESS', 'FAILED']);
+export const WebhookDeliveryStatusEnum = z.enum(['PENDING', 'SUCCESS', 'FAILED', 'DEAD_LETTERED']);
 export type WebhookDeliveryStatus = z.infer<typeof WebhookDeliveryStatusEnum>;

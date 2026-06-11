@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Limiter from '@/modules_next/limiter/limiter.service.next'
 import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next'
-import StoreService from '@/modules/store/store.service'
+import StoreCategoryService from '@/modules/store/store.category.service'
 import { CreateCategoryDTO, GetCategoriesQuery } from '@/modules/store/store.dto'
 
 export async function GET(
@@ -26,7 +26,7 @@ export async function GET(
       withSpecs: sp.get('withSpecs') === 'true',
       withChildren: sp.get('withChildren') === 'true',
     })
-    const result = await StoreService.listCategories(tenantId, query)
+    const result = await StoreCategoryService.listCategories(tenantId, query)
     return NextResponse.json(result)
   } catch (err: any) {
     return NextResponse.json({ message: err.message }, { status: 500 })
@@ -48,7 +48,7 @@ export async function POST(
   try {
     const body = await request.json()
     const dto = CreateCategoryDTO.parse(body)
-    const category = await StoreService.createCategory(tenantId, dto)
+    const category = await StoreCategoryService.createCategory(tenantId, dto)
     return NextResponse.json({ category }, { status: 201 })
   } catch (err: any) {
     return NextResponse.json({ message: err.message }, { status: 400 })

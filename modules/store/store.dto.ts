@@ -218,6 +218,14 @@ export const AddBundleItemDTO = z.object({
 })
 export type AddBundleItemDTO = z.infer<typeof AddBundleItemDTO>
 
+export const UpdateBundleItemDTO = z.object({
+  quantity: z.coerce.number().int().positive().optional(),
+  // null clears the override, falling back to the product/variant base price
+  overridePrice: z.coerce.number().nonnegative().nullable().optional(),
+  sortOrder: z.coerce.number().int().nonnegative().optional(),
+})
+export type UpdateBundleItemDTO = z.infer<typeof UpdateBundleItemDTO>
+
 export const GetBundlesQuery = z.object({
   page: z.number().int().nonnegative().default(0),
   pageSize: z.number().int().positive().max(100).default(20),

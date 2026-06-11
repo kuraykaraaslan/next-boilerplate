@@ -1,0 +1,13 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "order_fulfillment",
+  "name": "Order Fulfillment",
+  "description": "Tenant-aware fulfillment and shipment tracking for orders. Manages packing, carrier tracking, status lifecycle, and an append-only event log.",
+  "version": "1.0.0",
+  "icon": "fas fa-box",
+  "tags": ["order", "fulfillment", "shipping", "ecommerce"],
+  "priority": 41,
+  "dependencies": {
+    "requires": ["db", "env", "redis", "logger"]
+  }
+}

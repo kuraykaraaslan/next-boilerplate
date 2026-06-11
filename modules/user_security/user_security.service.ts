@@ -2,8 +2,10 @@ import 'reflect-metadata';
 import { getDataSource } from '@/modules/db';
 import redis, { jitter, singleFlight } from '@/modules/redis';
 import { env } from '@/modules/env';
+import { AppError, ErrorCode } from '@/modules/common/app-error';
 import { UserSecurity as UserSecurityEntity } from './entities/user_security.entity';
 import { UserSecurity, UserSecuritySchema, SafeUserSecurity, SafeUserSecuritySchema } from './user_security.types';
+import UserSecurityMessages from './user_security.messages';
 
 const USER_SECURITY_CACHE_TTL = env.SESSION_CACHE_TTL ?? (60 * 5);
 
@@ -63,7 +65,7 @@ export default class UserSecurityService {
     const ds = await getDataSource();
     const repo = ds.getRepository(UserSecurityEntity);
     const existing = await repo.findOne({ where: { userId } });
-    if (existing) throw new Error('Security record already exists for this user');
+    if (existing) throw new AppError(UserSecurityMessages.SECURITY_RECORD_ALREADY_EXISTS, 409, ErrorCode.CONFLICT);
 
     const security = repo.create({ userId, otpMethods: [], otpBackupCodes: [], failedLoginAttempts: 0 });
     const saved = await repo.save(security);
@@ -75,7 +77,7 @@ export default class UserSecurityService {
     const ds = await getDataSource();
     const repo = ds.getRepository(UserSecurityEntity);
     const security = await repo.findOne({ where: { userId } });
-    if (!security) throw new Error('Security record not found');
+    if (!security) throw new AppError(UserSecurityMessages.SECURITY_RECORD_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
 
     await repo.update({ userId }, data as any);
     const updated = await repo.findOne({ where: { userId } });
@@ -117,7 +119,7 @@ export default class UserSecurityService {
     const ds = await getDataSource();
     const repo = ds.getRepository(UserSecurityEntity);
     const security = await repo.findOne({ where: { userId } });
-    if (!security) throw new Error('Security record not found');
+    if (!security) throw new AppError(UserSecurityMessages.SECURITY_RECORD_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
 
     const maxAttempts = options?.maxAttempts ?? 5;
     const lockDurationMinutes = options?.lockDurationMinutes ?? 15;
@@ -155,17 +157,19 @@ export default class UserSecurityService {
    */
   static async pushPasswordHistory(userId: string, passwordHash: string, historyCount: number): Promise<void> {
     const ds = await getDataSource();
-    const repo = ds.getRepository(UserSecurityEntity);
-    const security = await repo.findOne({ where: { userId } });
-    if (!security) throw new Error('Security record not found');
+    await ds.transaction(async (manager) => {
+      const repo = manager.getRepository(UserSecurityEntity);
+      const security = await repo.findOne({ where: { userId } });
+      if (!security) throw new AppError(UserSecurityMessages.SECURITY_RECORD_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
 
-    const existing = Array.isArray(security.passwordHistory) ? (security.passwordHistory as string[]) : [];
-    const next = [passwordHash, ...existing].slice(0, Math.max(0, historyCount));
+      const existing = Array.isArray(security.passwordHistory) ? (security.passwordHistory as string[]) : [];
+      const next = [passwordHash, ...existing].slice(0, Math.max(0, historyCount));
 
-    await repo.update({ userId }, {
-      passwordHistory: next as any,
-      passwordChangedAt: new Date(),
-      mustChangePassword: false,
+      await repo.update({ userId }, {
+        passwordHistory: next as any,
+        passwordChangedAt: new Date(),
+        mustChangePassword: false,
+      });
     });
     await this.clearCache(userId);
   }

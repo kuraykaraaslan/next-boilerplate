@@ -1,6 +1,6 @@
 import crypto from 'crypto'
 import axios, { AxiosInstance } from 'axios'
-import BasePaymentProvider, { CheckoutSessionParams, CheckoutSessionResult } from './base.provider'
+import BasePaymentProvider, { CheckoutSessionParams, CheckoutSessionResult, WalletDescriptor } from './base.provider'
 import { PAYMENT_MESSAGES } from '../payment.messages'
 import SettingService from '@/modules/setting/setting.service'
 
@@ -15,6 +15,10 @@ interface WeChatPayConfig {
 
 export default class WeChatPayProvider extends BasePaymentProvider {
   readonly name = 'wechatpay'
+
+  override get supportedWallets(): WalletDescriptor[] {
+    return [{ method: 'WECHAT_PAY', delivery: 'HOSTED_REDIRECT' }]
+  }
 
   private static readonly API_BASE = 'https://api.mch.weixin.qq.com'
 

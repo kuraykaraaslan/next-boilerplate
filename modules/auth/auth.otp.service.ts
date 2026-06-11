@@ -5,11 +5,12 @@ import { SafeUser } from "../user/user.types";
 import { SafeUserSession } from "../user_session/user_session.types";
 import { OTPMethod, OTPAction } from "../user_security/user_security.enums";
 import UserSessionService from "../user_session/user_session.service";
-import MailService from "../notification_mail/notification_mail.service";
+import MailTemplatesService from "../notification_mail/notification_mail.templates.service";
 import { ROOT_TENANT_ID } from '@/modules/tenant/tenant.constants';
 import SMSService from "../notification_sms/notification_sms.service";
 import AuthMessages from "./auth.messages";
 import Logger from "@/modules/logger";
+import { AppError, ErrorCode } from '@/modules/common/app-error';
 
 export default class OTPService {
   private static readonly OTP_LENGTH = env.OTP_LENGTH ?? 6;
@@ -71,7 +72,7 @@ export default class OTPService {
     action: OTPAction;
   }): Promise<{ otpToken: string }> {
     if (method === "TOTP_APP") {
-      throw new Error(AuthMessages.USE_AUTHENTICATOR_APP);
+      throw new AppError(AuthMessages.USE_AUTHENTICATOR_APP, 400, ErrorCode.VALIDATION_ERROR);
     }
 
     const rateKey = this.getRateKey(userSession.userSessionId, method);
@@ -79,7 +80,7 @@ export default class OTPService {
     // Check rate limit
     const rateCount = await redis.get(rateKey);
     if (rateCount && parseInt(rateCount) >= this.OTP_MAX_ATTEMPTS) {
-      throw new Error(AuthMessages.RATE_LIMIT_EXCEEDED);
+      throw new AppError(AuthMessages.RATE_LIMIT_EXCEEDED, 429, ErrorCode.RATE_LIMIT_EXCEEDED);
     }
 
     // Increment rate limit
@@ -91,7 +92,7 @@ export default class OTPService {
 
     // Validate delivery prerequisites before generating the OTP
     if (method === "SMS" && !user.phone) {
-      throw new Error(AuthMessages.USER_HAS_NO_PHONE_NUMBER);
+      throw new AppError(AuthMessages.USER_HAS_NO_PHONE_NUMBER, 422, ErrorCode.VALIDATION_ERROR);
     }
 
     // Generate OTP
@@ -105,7 +106,7 @@ export default class OTPService {
     // Send OTP — delivery failures are logged but must NOT propagate to the frontend
     switch (method) {
       case "EMAIL":
-        MailService.sendOTPEmail({ tenantId: ROOT_TENANT_ID, email: user.email, otpToken }).catch((err: unknown) => {
+        MailTemplatesService.sendOTPEmail({ tenantId: ROOT_TENANT_ID, email: user.email, otpToken }).catch((err: unknown) => {
           Logger.error(`OTPService: sendOTPEmail failed for user ${user.userId}: ${err instanceof Error ? err.message : err}`);
         });
         break;
@@ -120,7 +121,7 @@ export default class OTPService {
         break;
 
       default:
-        throw new Error(AuthMessages.INVALID_OTP_METHOD);
+        throw new AppError(AuthMessages.INVALID_OTP_METHOD, 400, ErrorCode.VALIDATION_ERROR);
     }
 
     Logger.info(`OTP sent via ${method} to user ${user.userId}`);
@@ -145,7 +146,7 @@ export default class OTPService {
     otpToken: string;
   }): Promise<{ verified: boolean }> {
     if (method === "TOTP_APP") {
-      throw new Error(AuthMessages.USE_AUTHENTICATOR_APP);
+      throw new AppError(AuthMessages.USE_AUTHENTICATOR_APP, 400, ErrorCode.VALIDATION_ERROR);
     }
 
     const otpKey = this.getOTPKey(userSession.userSessionId, method, action);
@@ -156,13 +157,13 @@ export default class OTPService {
     if (attempts && parseInt(attempts) >= this.OTP_MAX_ATTEMPTS) {
       // Clear the OTP on too many attempts
       await redis.del(otpKey);
-      throw new Error(AuthMessages.RATE_LIMIT_EXCEEDED);
+      throw new AppError(AuthMessages.RATE_LIMIT_EXCEEDED, 429, ErrorCode.RATE_LIMIT_EXCEEDED);
     }
 
     // Get stored OTP
     const storedHash = await redis.get(otpKey);
     if (!storedHash) {
-      throw new Error(AuthMessages.OTP_EXPIRED);
+      throw new AppError(AuthMessages.OTP_EXPIRED, 400, ErrorCode.VALIDATION_ERROR);
     }
 
     // Verify OTP
@@ -174,7 +175,7 @@ export default class OTPService {
       } else {
         await redis.setex(attemptKey, this.OTP_EXPIRY_SECONDS, "1");
       }
-      throw new Error(AuthMessages.INVALID_OTP);
+      throw new AppError(AuthMessages.INVALID_OTP, 401, ErrorCode.INVALID_CREDENTIALS);
     }
 
     // Clean up on success

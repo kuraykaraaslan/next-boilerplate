@@ -1,5 +1,21 @@
 import { NextResponse } from 'next/server';
+import { AppError, ErrorCode } from '@/modules/common/app-error';
 import { SCIM_SCHEMAS, SCIM_CONTENT_TYPE, type ScimErrorBody, type ScimErrorType } from './scim.types';
+
+/** AppError subclass that also carries a SCIM `scimType` vocab string.
+ *  The `status` getter keeps existing route catch blocks working
+ *  (`err?.status ?? 500`) without modification. */
+export class ScimError extends AppError {
+  readonly scimType?: ScimErrorType;
+
+  constructor(message: string, statusCode: number, code: ErrorCode, scimType?: ScimErrorType) {
+    super(message, statusCode, code);
+    this.name = 'ScimError';
+    this.scimType = scimType;
+  }
+
+  get status(): number { return this.statusCode; }
+}
 
 /**
  * Build a SCIM-spec compliant error response (RFC 7644 §3.12).

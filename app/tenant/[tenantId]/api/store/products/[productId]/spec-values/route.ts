@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Limiter from '@/modules_next/limiter/limiter.service.next'
 import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next'
-import StoreService from '@/modules/store/store.service'
+import StoreProductService from '@/modules/store/store.product.service'
 import { SetSpecValuesDTO } from '@/modules/store/store.dto'
 
 type Ctx = { params: Promise<{ tenantId: string; productId: string }> }
@@ -14,7 +14,7 @@ export async function PUT(request: NextRequest, { params }: Ctx) {
   } catch (e: any) { return NextResponse.json({ message: e.message }, { status: 403 }) }
   try {
     const dto = SetSpecValuesDTO.parse(await request.json())
-    const specValues = await StoreService.setSpecValues(tenantId, productId, dto)
+    const specValues = await StoreProductService.setSpecValues(tenantId, productId, dto)
     return NextResponse.json({ specValues })
   } catch (e: any) { return NextResponse.json({ message: e.message }, { status: 400 }) }
 }

@@ -9,27 +9,32 @@ export interface IdempotencyRecord {
   response?: { body: unknown; statusCode: number };
 }
 
-export class IdempotencyKey {
-  private static key(idempotencyKey: string): string {
-    return `idempotency:${idempotencyKey}`;
+export class RedisIdempotencyService {
+  private static key(tenantId: string, idempotencyKey: string): string {
+    return `idempotency:${tenantId}:${idempotencyKey}`;
   }
 
-  static async get(idempotencyKey: string): Promise<IdempotencyRecord | null> {
-    const raw = await redis.get(IdempotencyKey.key(idempotencyKey));
+  static async get(tenantId: string, idempotencyKey: string): Promise<IdempotencyRecord | null> {
+    const raw = await redis.get(RedisIdempotencyService.key(tenantId, idempotencyKey));
     if (!raw) return null;
-    return JSON.parse(raw) as IdempotencyRecord;
+    try {
+      return JSON.parse(raw) as IdempotencyRecord;
+    } catch {
+      return null;
+    }
   }
 
-  static async setPending(idempotencyKey: string): Promise<void> {
+  static async setPending(tenantId: string, idempotencyKey: string): Promise<void> {
     const record: IdempotencyRecord = { status: 'pending' };
-    await redis.set(IdempotencyKey.key(idempotencyKey), JSON.stringify(record), 'EX', TTL_SECONDS);
+    await redis.set(RedisIdempotencyService.key(tenantId, idempotencyKey), JSON.stringify(record), 'EX', TTL_SECONDS);
   }
 
   static async setCompleted(
+    tenantId: string,
     idempotencyKey: string,
     response: { body: unknown; statusCode: number },
   ): Promise<void> {
     const record: IdempotencyRecord = { status: 'completed', response };
-    await redis.set(IdempotencyKey.key(idempotencyKey), JSON.stringify(record), 'EX', TTL_SECONDS);
+    await redis.set(RedisIdempotencyService.key(tenantId, idempotencyKey), JSON.stringify(record), 'EX', TTL_SECONDS);
   }
 }

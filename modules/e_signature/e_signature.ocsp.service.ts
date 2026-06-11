@@ -13,6 +13,8 @@ import {
 } from 'pkijs';
 import { webcrypto } from 'node:crypto';
 import Logger from '@/modules/logger';
+import { AppError, ErrorCode } from '@/modules/common/app-error';
+import { E_SIGNATURE_MESSAGES } from './e_signature.messages';
 
 const OCSP_HTTP_TIMEOUT_MS = 10_000;
 const OCSP_CONTENT_TYPE_REQUEST = 'application/ocsp-request';
@@ -98,7 +100,7 @@ export default class ESignatureOCSPService {
   private static parsePkijs(der: Buffer): PkijsCertificate {
     const ab = der.buffer.slice(der.byteOffset, der.byteOffset + der.byteLength) as ArrayBuffer;
     const asn1 = asn1js.fromBER(ab);
-    if (asn1.offset === -1) throw new Error('cannot decode certificate DER');
+    if (asn1.offset === -1) throw new AppError(E_SIGNATURE_MESSAGES.CERT_DER_DECODE_FAILED, 500, ErrorCode.INTERNAL_ERROR);
     return new PkijsCertificate({ schema: asn1.result });
   }
 
@@ -131,7 +133,7 @@ export default class ESignatureOCSPService {
     responderUrl: string,
   ): Promise<OCSPCheckResult> {
     const asn1 = asn1js.fromBER(raw);
-    if (asn1.offset === -1) throw new Error('cannot decode OCSP response');
+    if (asn1.offset === -1) throw new AppError(E_SIGNATURE_MESSAGES.OCSP_RESPONSE_DECODE_FAILED, 500, ErrorCode.INTERNAL_ERROR);
     const ocspResp = new OCSPResponse({ schema: asn1.result });
 
     const responseStatus = ocspResp.responseStatus.valueBlock.valueDec;

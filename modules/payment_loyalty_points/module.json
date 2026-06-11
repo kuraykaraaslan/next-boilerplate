@@ -1,0 +1,13 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "payment_loyalty_points",
+  "name": "Payment Loyalty Points",
+  "description": "Tenant-aware loyalty points program. Earn / redeem points, lifetime-driven tiers with earn multipliers, manual adjustments, transaction ledger, and point expiry.",
+  "version": "1.0.0",
+  "icon": "fas fa-medal",
+  "tags": ["loyalty", "points", "rewards", "ecommerce"],
+  "priority": 34,
+  "dependencies": {
+    "requires": ["db", "env", "redis", "logger"]
+  }
+}

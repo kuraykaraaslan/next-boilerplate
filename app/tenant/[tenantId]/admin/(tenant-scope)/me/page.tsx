@@ -5,7 +5,6 @@ import { PageHeader } from '@/modules_next/common/ui/PageHeader';
 import { TabGroup } from '@/modules_next/common/ui/TabGroup';
 import { Card } from '@/modules_next/common/ui/Card';
 import { Badge } from '@/modules_next/common/ui/Badge';
-import { Button } from '@/modules_next/common/ui/Button';
 import { Spinner } from '@/modules_next/common/ui/Spinner';
 import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
 import { UserProfileForm, type UserProfileValues } from '@/modules_next/user/ui/UserProfileForm';
@@ -14,11 +13,9 @@ import { UserRoleBadge } from '@/modules_next/user/ui/UserRoleBadge';
 import { SocialAccountsPanel } from '@/modules_next/user/ui/SocialAccountsPanel';
 import { PasskeysPanel } from '@/modules_next/user_security/ui/PasskeysPanel';
 import { SigningCertificatesPanel } from '@/modules_next/e_signature/ui/SigningCertificatesPanel';
+import { ActiveSessionsPanel } from '@/modules_next/user_session/ui/ActiveSessionsPanel';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faEnvelope, faClock, faLayerGroup, faShieldHalved,
-  faCircleCheck, faCircleXmark, faDesktop, faRightFromBracket,
-} from '@fortawesome/free-solid-svg-icons';
+import { faEnvelope, faClock, faLayerGroup, faShieldHalved, faCircleCheck, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
 import type { SafeUserSession } from '@/modules/user_session/user_session.types';
 
 interface SecurityInfo {
@@ -190,51 +187,12 @@ export default function TenantMePage({ params }: { params: Promise<{ tenantId: s
                   </div>
                 </Card>
 
-                <Card title="Active Sessions" subtitle={`${sessions.length} active session${sessions.length !== 1 ? 's' : ''}`}>
-                  {sessions.length === 0 ? (
-                    <p className="text-sm text-text-secondary py-2">No active sessions found.</p>
-                  ) : (
-                    <div className="divide-y divide-border">
-                      {sessions.map((s) => {
-                        const isCurrent = s.userSessionId === currentSessionId;
-                        const ua = s.userAgent ?? 'Unknown device';
-                        const ip = s.ipAddress ?? 'Unknown IP';
-                        const created = s.createdAt ? new Date(s.createdAt).toLocaleString() : '—';
-                        const expiry = new Date(s.sessionExpiry).toLocaleString();
-
-                        return (
-                          <div key={s.userSessionId} className="flex items-start justify-between gap-4 py-3 flex-wrap">
-                            <div className="flex items-start gap-3 min-w-0">
-                              <FontAwesomeIcon
-                                icon={faDesktop}
-                                className="w-4 h-4 text-text-secondary mt-0.5 shrink-0"
-                                aria-hidden="true"
-                              />
-                              <div className="space-y-0.5 min-w-0">
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  <span className="text-sm font-medium text-text-primary truncate max-w-xs">{ua}</span>
-                                  {isCurrent && <Badge variant="success" dot>Current</Badge>}
-                                </div>
-                                <p className="text-xs text-text-secondary">{ip} · Started {created}</p>
-                                <p className="text-xs text-text-disabled">Expires {expiry}</p>
-                              </div>
-                            </div>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              loading={revoking === s.userSessionId}
-                              onClick={() => handleRevokeSession(s.userSessionId)}
-                              className="text-error border-error hover:bg-error-subtle shrink-0"
-                            >
-                              <FontAwesomeIcon icon={faRightFromBracket} className="w-3 h-3 mr-1.5" aria-hidden="true" />
-                              {isCurrent ? 'Sign out' : 'Revoke'}
-                            </Button>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </Card>
+                <ActiveSessionsPanel
+                  sessions={sessions}
+                  currentSessionId={currentSessionId}
+                  revoking={revoking}
+                  onRevoke={handleRevokeSession}
+                />
               </div>
             ),
           },
