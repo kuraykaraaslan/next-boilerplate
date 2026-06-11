@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-11T11:59:09.229Z",
+  "generatedAt": "2026-06-11T20:09:52.776Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -22,14 +22,15 @@
     {
       "id": "common",
       "name": "Common Primitives",
-      "version": "1.0.0",
-      "description": "AppError + ErrorCode enum + error-response helper. Dependency-free leaf module loaded by every other module.",
+      "version": "1.1.0",
+      "description": "Dependency-free leaf module loaded by every other module: AppError + ErrorCode enum (with retryable flag, statusCodeFor/isRetryable helpers) plus shared locale, country, currency, timezone, Money, pagination and log-context primitives.",
       "dir": "modules/common",
       "icon": "fas fa-cube",
       "tags": [
         "infrastructure",
         "core",
-        "leaf"
+        "leaf",
+        "i18n"
       ],
       "priority": 1,
       "tier": "infrastructure",
@@ -827,8 +828,8 @@
     {
       "id": "auth_saml",
       "name": "SAML SSO",
-      "version": "1.0.0",
-      "description": "SAML 2.0 SSO with per-tenant IdP configuration (SamlConfig entity).",
+      "version": "1.1.0",
+      "description": "SAML 2.0 SSO with per-tenant IdP config (SamlConfig): signature alg, dual-cert rotation, encrypted assertions, SLO, JIT-atomic provisioning, ABAC role mapping, metadata import, replay detection.",
       "dir": "modules/auth_saml",
       "icon": "fas fa-building-shield",
       "tags": [
@@ -845,13 +846,21 @@
           "user",
           "user_session",
           "tenant",
-          "env"
+          "env",
+          "setting",
+          "audit_log",
+          "observability",
+          "redis",
+          "common",
+          "logger"
         ]
       },
       "exports": {
         "services": [
           "auth_saml.config.service.ts",
+          "auth_saml.crypto.service.ts",
           "auth_saml.flow.service.ts",
+          "auth_saml.metadata.service.ts",
           "auth_saml.service.ts"
         ],
         "dtos": [
@@ -863,7 +872,9 @@
         "messageKeys": [
           "auth_saml.messages.ts"
         ],
-        "settingKeys": [],
+        "settingKeys": [
+          "auth_saml.setting.keys.ts"
+        ],
         "providers": [],
         "jobs": [],
         "entities": [
@@ -877,7 +888,7 @@
     {
       "id": "auth_sso",
       "name": "OAuth SSO",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "description": "OAuth 2.0 SSO with 12 providers: Google, GitHub, Apple, Microsoft, Facebook, LinkedIn, Twitter, Slack, TikTok, WeChat, Autodesk.",
       "dir": "modules/auth_sso",
       "icon": "fas fa-right-to-bracket",
@@ -893,12 +904,20 @@
           "user",
           "user_session",
           "user_social_account",
-          "env"
+          "env",
+          "auth",
+          "setting",
+          "audit_log",
+          "observability",
+          "redis",
+          "tenant",
+          "common"
         ]
       },
       "exports": {
         "services": [
           "auth_sso.account.service.ts",
+          "auth_sso.config.service.ts",
           "auth_sso.flow.service.ts",
           "auth_sso.service.ts"
         ],
@@ -911,7 +930,9 @@
         "messageKeys": [
           "auth_sso.messages.ts"
         ],
-        "settingKeys": [],
+        "settingKeys": [
+          "auth_sso.setting.keys.ts"
+        ],
         "providers": [],
         "jobs": [],
         "entities": []
@@ -5713,15 +5734,25 @@
         "idpEntityId",
         "idpSsoUrl",
         "idpCertificate",
+        "idpSloUrl",
+        "idpMetadataUrl",
+        "idpCertNotAfter",
         "spPrivateKey",
         "spCertificate",
+        "spPrivateKeySecondary",
+        "spCertificateSecondary",
         "emailAttribute",
         "nameAttribute",
         "roleAttribute",
         "allowJitProvisioning",
         "defaultMemberRole",
+        "roleMappingRules",
         "allowIdpInitiated",
         "signRequests",
+        "signatureAlgorithm",
+        "clockSkewMs",
+        "wantAssertionsSigned",
+        "honorSessionNotOnOrAfter",
         "nameIdFormat",
         "createdAt",
         "updatedAt"

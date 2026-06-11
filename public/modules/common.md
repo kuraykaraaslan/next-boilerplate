@@ -2,13 +2,13 @@
 
 - **id:** `common`
 - **tier:** infrastructure
-- **version:** 1.0.0
+- **version:** 1.1.0
 - **dir:** `modules/common/`
-- **tags:** infrastructure, core, leaf
+- **tags:** infrastructure, core, leaf, i18n
 - **icon:** `fas fa-cube`
 - **hasNextLayer:** true
 
-AppError + ErrorCode enum + error-response helper. Dependency-free leaf module loaded by every other module.
+Dependency-free leaf module loaded by every other module: AppError + ErrorCode enum (with retryable flag, statusCodeFor/isRetryable helpers) plus shared locale, country, currency, timezone, Money, pagination and log-context primitives.
 
 ## Next layer (modules_next/) surface
 
@@ -78,7 +78,9 @@ AppError + ErrorCode enum + error-response helper. Dependency-free leaf module l
 
 # Common Module
 
-Cross-module primitives that every other module is allowed to depend on. Currently exposes the canonical error class, the well-known error-code enum, and an error-response helper. Anything added here must be **dependency-free** (no DB, no Redis, no env, no `next/*`, no `react`) so it can be imported safely from the deepest leaf modules without creating cycles.
+Cross-module primitives that every other module is allowed to depend on. Exposes the canonical error class, the well-known error-code enum, an error-response helper, and a set of internationalization / value-object primitives (locale, country, currency, timezone, Money, pagination, log context).
+
+Anything added here must be **dependency-free** (no DB, no Redis, no env, no `next/*`, no `react`) so it can be imported safely from the deepest leaf modules without creating cycles. npm **data** libraries with no runtime side effects are allowed — `currency-codes-ts` (already a dependency, used by `payment_core`) is the single source for ISO 4217 codes.
 
 ---
 
@@ -90,57 +92,131 @@ None. This module owns no tables and touches no database — it is a pure infras
 
 ## Public API
 
-All exports live in [`app-error.ts`](app-error.ts).
+Import from the barrel `@/modules/common`, or from a specific file. The deep path `@/modules/common/app-error` is preserved unchanged.
+
+```ts
+import { AppError, ErrorCode, money, formatMoney, parseLocale } from '@/modules/common';
+import { AppError } from '@/modules/common/app-error'; // still valid
+```
+
+---
+
+## `app-error.ts` — errors
 
 | Export | Kind | Use |
 |---|---|---|
-| `AppError` | class | Throw inside services. Carries `statusCode` (HTTP) and a `code` (`ErrorCode`); `toJSON()` returns `{ code, message }`. |
-| `ErrorCode` | const enum + type | Object of every well-known error code (`UNAUTHORIZED`, `TENANT_NOT_FOUND`, `QUOTA_EXCEEDED`, …) and the matching union type. |
-| `toErrorResponse(error)` | function | Normalize an unknown error into `{ code, message }` for API responses. `AppError` keeps its code; any other `Error` maps to `INTERNAL_ERROR` with its message; non-errors map to `INTERNAL_ERROR` with a generic message. |
+| `AppError` | class | Throw inside services. Carries `statusCode` (HTTP), a `code` (`ErrorCode`), and `retryable` (default `false`). `toJSON()` returns `{ code, message, retryable }`. |
+| `ErrorCode` | const object + type | Every well-known error code and the matching union type. |
+| `toErrorResponse(error)` | function | Normalize an unknown error into `{ code, message }` for API responses. |
+| `statusCodeFor(error)` | function | `error instanceof AppError ? error.statusCode : 500`. Replaces the repeated inline check in route handlers. |
+| `isRetryable(error)` | function | `error instanceof AppError ? error.retryable : false`. Lets BullMQ workers / SDKs decide retry-vs-fail-fast. |
 
-The `module.json` manifest declares these three exports, no dependencies (`requires: []`), and `priority: 1` so it loads first. `index.ts` is intentionally empty — import from `app-error.ts` directly.
-
----
-
-## Error-code groups
-
-`ErrorCode` is grouped in source as:
-
-| Group | Codes |
-|---|---|
-| Authentication & Session | `UNAUTHORIZED`, `SESSION_EXPIRED`, `INVALID_CREDENTIALS`, `OTP_REQUIRED`, `TOTP_REQUIRED` |
-| Authorization | `FORBIDDEN`, `INSUFFICIENT_PERMISSIONS`, `INSUFFICIENT_SCOPE` |
-| Tenant | `TENANT_NOT_FOUND`, `TENANT_INACTIVE`, `TENANT_SUSPENDED`, `NOT_TENANT_MEMBER` |
-| Billing | `SUBSCRIPTION_REQUIRED`, `SUBSCRIPTION_EXPIRED`, `GRACE_PERIOD_EXPIRED`, `SEAT_LIMIT_REACHED`, `FEATURE_NOT_AVAILABLE`, `QUOTA_EXCEEDED` |
-| Rate limiting | `RATE_LIMIT_EXCEEDED` |
-| Resources | `NOT_FOUND`, `CONFLICT`, `VALIDATION_ERROR` |
-| Server | `INTERNAL_ERROR` |
-
-When you need a new code, add it under the matching group in [`app-error.ts`](app-error.ts) and use it from the throw site — don't reuse `INTERNAL_ERROR` as a catch-all.
-
----
-
-## Usage
+Constructor is backward compatible — existing 3-arg calls still work; pass `{ retryable: true }` as the optional 4th arg:
 
 ```ts
-import { AppError, ErrorCode } from "@/modules/common/app-error";
+throw new AppError('Gateway timed out', 503, ErrorCode.INTERNAL_ERROR, { retryable: true });
 
-if (!user) {
-  throw new AppError("User not found", 404, ErrorCode.NOT_FOUND);
+// route handler
+catch (err) {
+  return NextResponse.json(toErrorResponse(err), { status: statusCodeFor(err) });
 }
 ```
 
-In a route handler:
+### Error-code groups
+
+Authentication & Session, Authorization, Tenant, Billing, Rate limiting, Resources, **Internationalization & Jurisdiction** (`UNSUPPORTED_CURRENCY`, `UNSUPPORTED_LOCALE`, `UNSUPPORTED_TIMEZONE`, `COUNTRY_RESTRICTED`, `TAX_JURISDICTION_ERROR`, `CURRENCY_MISMATCH`), Server. Add new codes under the matching group — don't reuse `INTERNAL_ERROR` as a catch-all.
+
+---
+
+## `common.locale.ts` — BCP-47 locales
+
+| Export | Kind | Use |
+|---|---|---|
+| `LocaleCodeEnum` | Zod enum | Curated supported locales (`en-US`, `tr-TR`, `de-DE`, …). |
+| `LocaleCode` | type | `z.infer<typeof LocaleCodeEnum>`. |
+| `DEFAULT_LOCALE` | const | `'en-US'`. |
+| `LOCALES` | array | `{ code, label, nativeLabel }[]` for dropdowns. |
+| `isLocaleCode(v)` | guard | Exact membership check. |
+| `parseLocale(input?)` | function | Normalises casing/underscores, resolves a bare language (`tr` → `tr-TR`), returns `null` if unknown. |
 
 ```ts
-import { toErrorResponse } from "@/modules/common/app-error";
-
-try {
-  return NextResponse.json(await userService.get(id));
-} catch (err) {
-  return NextResponse.json(toErrorResponse(err), { status: err instanceof AppError ? err.statusCode : 500 });
-}
+parseLocale('tr');     // 'tr-TR'
+parseLocale('EN-us');  // 'en-US'
+parseLocale('zz');     // null
 ```
+
+---
+
+## `common.country.ts` — ISO 3166-1 alpha-2
+
+| Export | Kind | Use |
+|---|---|---|
+| `CountryCodeEnum` | Zod enum | Full ISO 3166-1 alpha-2 set (~249 codes), derived from `COUNTRIES`. |
+| `CountryCode` | type | `z.infer<…>`. |
+| `COUNTRIES` | array | `{ code, name }[]` (English short names). |
+| `isCountryCode(v)` | guard | Membership check (uppercase). |
+
+---
+
+## `common.currency.ts` — ISO 4217
+
+| Export | Kind | Use |
+|---|---|---|
+| `CurrencyCodeEnum` | Zod enum | `z.enum(codes())` from `currency-codes-ts` — same source as `payment_core`. |
+| `CurrencyCode` | type | `z.infer<…>`. |
+| `DEFAULT_CURRENCY` | const | `'USD'`. |
+| `isCurrencyCode(v)` | guard | Membership check (uppercase). |
+
+---
+
+## `common.timezone.ts` — IANA timezones
+
+| Export | Kind | Use |
+|---|---|---|
+| `TIMEZONES` | `string[]` | `Intl.supportedValuesOf('timeZone')`, computed once. |
+| `isTimezone(v)` | function | Case-sensitive membership check (also accepts the `UTC` default, which Intl omits in some runtimes). |
+| `TimezoneSchema` | Zod schema | `z.string().refine(isTimezone, 'Invalid IANA timezone')`. |
+| `Timezone` | type | `z.infer<…>` (string). |
+| `DEFAULT_TIMEZONE` | const | `'UTC'`. |
+
+---
+
+## `common.money.ts` — Money value object
+
+| Export | Kind | Use |
+|---|---|---|
+| `MoneySchema` | Zod schema | `{ amount: number, currency: CurrencyCodeEnum }`. |
+| `Money` | type | `z.infer<…>`. |
+| `money(amount, currency)` | function | Construct a `Money`. |
+| `formatMoney(m, locale?)` | function | `Intl.NumberFormat` currency string; Intl handles minor units (JPY 0, KWD 3). Defaults to `DEFAULT_LOCALE`. |
+| `addMoney`, `subtractMoney` | functions | Same-currency arithmetic; throw `AppError(…, 422, CURRENCY_MISMATCH)` on mismatch. |
+| `multiplyMoney(m, factor)` | function | Scale by a unitless factor. |
+
+```ts
+formatMoney(money(1234.5, 'USD'), 'en-US'); // "$1,234.50"
+formatMoney(money(1234, 'JPY'), 'en-US');   // "¥1,234"
+addMoney(money(10, 'USD'), money(5, 'EUR')); // throws CURRENCY_MISMATCH (422)
+```
+
+---
+
+## `common.pagination.ts` — pagination envelopes
+
+| Export | Kind | Use |
+|---|---|---|
+| `PaginatedResult<T>` | interface | `{ items, total, page, limit, pageCount }`. |
+| `CursorPage<T>` | interface | `{ items, nextCursor, hasMore }`. |
+| `PaginationDTO` | Zod DTO | `page` (≥1, default 1), `limit` (1–100, default 20), both coerced. |
+| `PaginationInput` | type | `z.infer<…>`. |
+| `paginate(items, total, page, limit)` | function | Wraps a page slice, computing `pageCount` via ceiling division. |
+
+---
+
+## `common.log-context.ts` — structured logging
+
+| Export | Kind | Use |
+|---|---|---|
+| `LogContext` | interface | Optional `tenantId`, `userId`, `requestId`, `traceId`, `region` — the minimum fields every structured log entry should carry. |
 
 ---
 
@@ -153,16 +229,17 @@ None. This module reads no settings and exposes no admin-settings keys.
 ## Rules
 
 - No imports from `@/modules/*` except other items in `common/`.
-- No `next/*`, no `react`, no browser APIs, no DB / Redis / env access.
+- No `next/*`, no `react`, no browser APIs, no DB / Redis / env access. (Pure npm data libs like `currency-codes-ts` are allowed.)
+- Domain enums use Zod (`z.enum`), never TS `enum`; types derive via `z.infer` / `type`.
 - Keep this module tiny — it is loaded by everything.
 
 ---
 
 ## Tenant Variability
 
-> What varies per tenant in this module — and what could. Audited 2026-06-03.
+> What varies per tenant in this module — and what could. Audited 2026-06-11.
 
-No per-tenant variability — Cross-module primitives (AppError, ErrorCode, toErrorResponse) with zero tenant variability — a dependency-free infrastructure leaf module intentionally designed to have no per-tenant logic, settings, or data.
+No per-tenant variability in the primitives themselves — they are dependency-free constants/validators. They are the *foundation* tenants build on: a tenant may pick its own `DEFAULT_LOCALE`, `DEFAULT_CURRENCY`, or company timezone, but that selection lives in tenant settings elsewhere; this module only guarantees the canonical spelling and validation.
 
 ---
 

@@ -3,9 +3,9 @@
   "id": "auth_sso",
   "name": "OAuth SSO",
   "description": "OAuth 2.0 SSO with 12 providers: Google, GitHub, Apple, Microsoft, Facebook, LinkedIn, Twitter, Slack, TikTok, WeChat, Autodesk.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "icon": "fas fa-right-to-bracket",
   "tags": ["identity", "auth", "sso"],
   "priority": 16,
-  "dependencies": { "requires": ["user", "user_session", "user_social_account", "env"] }
+  "dependencies": { "requires": ["user", "user_session", "user_social_account", "env", "auth", "setting", "audit_log", "observability", "redis", "tenant", "common"] }
 }

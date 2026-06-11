@@ -2,7 +2,7 @@
 
 - **id:** `auth_sso`
 - **tier:** identity
-- **version:** 1.0.0
+- **version:** 1.1.0
 - **dir:** `modules/auth_sso/`
 - **tags:** identity, auth, sso
 - **icon:** `fas fa-right-to-bracket`
@@ -12,11 +12,12 @@ OAuth 2.0 SSO with 12 providers: Google, GitHub, Apple, Microsoft, Facebook, Lin
 
 ## Dependencies
 
-- **requires:** `user`, `user_session`, `user_social_account`, `env`
+- **requires:** `user`, `user_session`, `user_social_account`, `env`, `auth`, `setting`, `audit_log`, `observability`, `redis`, `tenant`, `common`
 
 ## Services
 
 - `auth_sso.account.service.ts`
+- `auth_sso.config.service.ts`
 - `auth_sso.flow.service.ts`
 - `auth_sso.service.ts`
 
@@ -31,6 +32,10 @@ OAuth 2.0 SSO with 12 providers: Google, GitHub, Apple, Microsoft, Facebook, Lin
 ## Message keys
 
 - `auth_sso.messages.ts`
+
+## Setting keys
+
+- `auth_sso.setting.keys.ts`
 
 ## README
 

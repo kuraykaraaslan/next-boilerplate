@@ -5,7 +5,8 @@
     "tags": [
       "infrastructure",
       "core",
-      "leaf"
+      "leaf",
+      "i18n"
     ],
     "hasNextLayer": true,
     "routeCount": 0,

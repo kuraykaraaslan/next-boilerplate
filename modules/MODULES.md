@@ -19,7 +19,7 @@ There are **43 modules** under `modules/`. Eighteen of them also have a Next/Rea
 
 | Module | Description | Key exports | Deps |
 |---|---|---|---|
-| [common](common/) | `AppError` + `ErrorCode` enum + `toErrorResponse()`. Leaf module, zero deps. | `AppError`, `ErrorCode`, `toErrorResponse` | — |
+| [common](common/) | `AppError`/`ErrorCode`/`statusCodeFor` + library-sourced locale/country/currency/timezone primitives, Money value object, pagination & log-context types. Leaf, zero deps. | `AppError`, `ErrorCode`, `statusCodeFor`, `LocaleCodeEnum`, `CountryCodeEnum`, `CurrencyCodeEnum`, `TimezoneSchema`, `Money`, `PaginatedResult` | — |
 | [env](env/) | Zod-validated `env` object — single source of truth for env vars. | `env` | — |
 | [logger](logger/) | Winston structured logger. Use instead of `console.*`. | `logger` | env |
 | [redis](redis/) | Shared `ioredis` client, Pub/Sub-safe factory, BullMQ connection helper. | `redis`, `createRedisConnection`, `getBullMQConnection`, `createQueue` | env |
@@ -41,8 +41,8 @@ There are **43 modules** under `modules/`. Eighteen of them also have a Next/Rea
 | [user_social_account](user_social_account/) | Linked OAuth provider accounts (provider id, external user id). | `UserSocialAccount` | db, user |
 | [user_agent](user_agent/) | UA-string parser → device/OS/browser. Used to annotate sessions and audit logs. | — | — |
 | [auth](auth/) | Login, register, password reset, email verify, OTP, TOTP. Per-tenant policy (registration/verification/SSO providers/OTP TTLs/bcrypt cost/MFA methods), consent capture, dormant erasure, locale-aware mail/errors, lockout webhook + login-failure metrics. | `UserConsent` | user, user_session, user_security, notification_mail, notification_sms, setting, tenant, tenant_invitation, audit_log, webhook, observability, db, env, redis, common |
-| [auth_sso](auth_sso/) | OAuth SSO with 12 providers (Google, GitHub, Apple, Microsoft, Facebook, LinkedIn, Twitter, Slack, TikTok, WeChat, Autodesk). | — | user, user_session, user_social_account, env |
-| [auth_saml](auth_saml/) | SAML 2.0 SSO with per-tenant IdP config. | `SamlConfig` | db, user, user_session, tenant, env |
+| [auth_sso](auth_sso/) | OAuth SSO (12 providers) with per-tenant provider gating + BYO OAuth creds, PKCE-all, encrypted tokens, consent, revoke-on-unlink, locale-aware consent, typed registry, metrics. | — | user, user_session, user_social_account, env, auth, setting, audit_log, observability, redis, tenant, common |
+| [auth_saml](auth_saml/) | SAML 2.0 SSO per-tenant IdP config: signature alg, dual-cert rotation, encrypted assertions, SLO, JIT-atomic provisioning, ABAC, metadata import, replay detection, metrics. | `SamlConfig` | db, user, user_session, tenant, env, setting, audit_log, observability, redis, common, logger |
 | [auth_impersonation](auth_impersonation/) | Admin impersonation of a target user (always audited). Per-tenant TTL, system-flow route, step-up re-auth, concurrency cap, mandatory reason, tenant opt-out, duration tracking, anomaly webhooks. | — | user, user_session, audit_log, setting, webhook, redis, auth, env |
 | [e_signature](e_signature/) | Multi-country e-identity login + e-signature (eIDAS / OIDC4IDA). MVP: TR Mobil İmza login. Doc-signing interfaces scaffolded. | `SigningCertificate`, `TrustListEntry` | db, env, user, user_session, user_security, redis, redis_idempotency, limiter, audit_log, logger |
 

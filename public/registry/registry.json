@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-11T11:59:09.229Z",
+  "generatedAt": "2026-06-11T20:09:52.776Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -22,14 +22,15 @@
     {
       "id": "common",
       "name": "Common Primitives",
-      "version": "1.0.0",
-      "description": "AppError + ErrorCode enum + error-response helper. Dependency-free leaf module loaded by every other module.",
+      "version": "1.1.0",
+      "description": "Dependency-free leaf module loaded by every other module: AppError + ErrorCode enum (with retryable flag, statusCodeFor/isRetryable helpers) plus shared locale, country, currency, timezone, Money, pagination and log-context primitives.",
       "dir": "modules/common",
       "icon": "fas fa-cube",
       "tags": [
         "infrastructure",
         "core",
-        "leaf"
+        "leaf",
+        "i18n"
       ],
       "priority": 1,
       "tier": "infrastructure",
@@ -49,7 +50,7 @@
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": true,
-      "readme": "# Common Module\n\nCross-module primitives that every other module is allowed to depend on. Currently exposes the canonical error class, the well-known error-code enum, and an error-response helper. Anything added here must be **dependency-free** (no DB, no Redis, no env, no `next/*`, no `react`) so it can be imported safely from the deepest leaf modules without creating cycles.\n\n---\n\n## Entities\n\nNone. This module owns no tables and touches no database — it is a pure infrastructure leaf.\n\n---\n\n## Public API\n\nAll exports live in [`app-error.ts`](app-error.ts).\n\n| Export | Kind | Use |\n|---|---|---|\n| `AppError` | class | Throw inside services. Carries `statusCode` (HTTP) and a `code` (`ErrorCode`); `toJSON()` returns `{ code, message }`. |\n| `ErrorCode` | const enum + type | Object of every well-known error code (`UNAUTHORIZED`, `TENANT_NOT_FOUND`, `QUOTA_EXCEEDED`, …) and the matching union type. |\n| `toErrorResponse(error)` | function | Normalize an unknown error into `{ code, message }` for API responses. `AppError` keeps its code; any other `Error` maps to `INTERNAL_ERROR` with its message; non-errors map to `INTERNAL_ERROR` with a generic message. |\n\nThe `module.json` manifest declares these three exports, no dependencies (`requires: []`), and `priority: 1` so it loads first. `index.ts` is intentionally empty — import from `app-error.ts` directly.\n\n---\n\n## Error-code groups\n\n`ErrorCode` is grouped in source as:\n\n| Group | Codes |\n|---|---|\n| Authentication & Session | `UNAUTHORIZED`, `SESSION_EXPIRED`, `INVALID_CREDENTIALS`, `OTP_REQUIRED`, `TOTP_REQUIRED` |\n| Authorization | `FORBIDDEN`, `INSUFFICIENT_PERMISSIONS`, `INSUFFICIENT_SCOPE` |\n| Tenant | `TENANT_NOT_FOUND`, `TENANT_INACTIVE`, `TENANT_SUSPENDED`, `NOT_TENANT_MEMBER` |\n| Billing | `SUBSCRIPTION_REQUIRED`, `SUBSCRIPTION_EXPIRED`, `GRACE_PERIOD_EXPIRED`, `SEAT_LIMIT_REACHED`, `FEATURE_NOT_AVAILABLE`, `QUOTA_EXCEEDED` |\n| Rate limiting | `RATE_LIMIT_EXCEEDED` |\n| Resources | `NOT_FOUND`, `CONFLICT`, `VALIDATION_ERROR` |\n| Server | `INTERNAL_ERROR` |\n\nWhen you need a new code, add it under the matching group in [`app-error.ts`](app-error.ts) and use it from the throw site — don't reuse `INTERNAL_ERROR` as a catch-all.\n\n---\n\n## Usage\n\n```ts\nimport { AppError, ErrorCode } from \"@/modules/common/app-error\";\n\nif (!user) {\n  throw new AppError(\"User not found\", 404, ErrorCode.NOT_FOUND);\n}\n```\n\nIn a route handler:\n\n```ts\nimport { toErrorResponse } from \"@/modules/common/app-error\";\n\ntry {\n  return NextResponse.json(await userService.get(id));\n} catch (err) {\n  return NextResponse.json(toErrorResponse(err), { status: err instanceof AppError ? err.statusCode : 500 });\n}\n```\n\n---\n\n## Settings\n\nNone. This module reads no settings and exposes no admin-settings keys.\n\n---\n\n## Rules\n\n- No imports from `@/modules/*` except other items in `common/`.\n- No `next/*`, no `react`, no browser APIs, no DB / Redis / env access.\n- Keep this module tiny — it is loaded by everything.\n\n---\n\n## Tenant Variability\n\n> What varies per tenant in this module — and what could. Audited 2026-06-03.\n\nNo per-tenant variability — Cross-module primitives (AppError, ErrorCode, toErrorResponse) with zero tenant variability — a dependency-free infrastructure leaf module intentionally designed to have no per-tenant logic, settings, or data.\n\n---\n\n## Dependencies\n\nNone (`requires: []`). This is a leaf module; every other module may depend on it.\n"
+      "readme": "# Common Module\n\nCross-module primitives that every other module is allowed to depend on. Exposes the canonical error class, the well-known error-code enum, an error-response helper, and a set of internationalization / value-object primitives (locale, country, currency, timezone, Money, pagination, log context).\n\nAnything added here must be **dependency-free** (no DB, no Redis, no env, no `next/*`, no `react`) so it can be imported safely from the deepest leaf modules without creating cycles. npm **data** libraries with no runtime side effects are allowed — `currency-codes-ts` (already a dependency, used by `payment_core`) is the single source for ISO 4217 codes.\n\n---\n\n## Entities\n\nNone. This module owns no tables and touches no database — it is a pure infrastructure leaf.\n\n---\n\n## Public API\n\nImport from the barrel `@/modules/common`, or from a specific file. The deep path `@/modules/common/app-error` is preserved unchanged.\n\n```ts\nimport { AppError, ErrorCode, money, formatMoney, parseLocale } from '@/modules/common';\nimport { AppError } from '@/modules/common/app-error'; // still valid\n```\n\n---\n\n## `app-error.ts` — errors\n\n| Export | Kind | Use |\n|---|---|---|\n| `AppError` | class | Throw inside services. Carries `statusCode` (HTTP), a `code` (`ErrorCode`), and `retryable` (default `false`). `toJSON()` returns `{ code, message, retryable }`. |\n| `ErrorCode` | const object + type | Every well-known error code and the matching union type. |\n| `toErrorResponse(error)` | function | Normalize an unknown error into `{ code, message }` for API responses. |\n| `statusCodeFor(error)` | function | `error instanceof AppError ? error.statusCode : 500`. Replaces the repeated inline check in route handlers. |\n| `isRetryable(error)` | function | `error instanceof AppError ? error.retryable : false`. Lets BullMQ workers / SDKs decide retry-vs-fail-fast. |\n\nConstructor is backward compatible — existing 3-arg calls still work; pass `{ retryable: true }` as the optional 4th arg:\n\n```ts\nthrow new AppError('Gateway timed out', 503, ErrorCode.INTERNAL_ERROR, { retryable: true });\n\n// route handler\ncatch (err) {\n  return NextResponse.json(toErrorResponse(err), { status: statusCodeFor(err) });\n}\n```\n\n### Error-code groups\n\nAuthentication & Session, Authorization, Tenant, Billing, Rate limiting, Resources, **Internationalization & Jurisdiction** (`UNSUPPORTED_CURRENCY`, `UNSUPPORTED_LOCALE`, `UNSUPPORTED_TIMEZONE`, `COUNTRY_RESTRICTED`, `TAX_JURISDICTION_ERROR`, `CURRENCY_MISMATCH`), Server. Add new codes under the matching group — don't reuse `INTERNAL_ERROR` as a catch-all.\n\n---\n\n## `common.locale.ts` — BCP-47 locales\n\n| Export | Kind | Use |\n|---|---|---|\n| `LocaleCodeEnum` | Zod enum | Curated supported locales (`en-US`, `tr-TR`, `de-DE`, …). |\n| `LocaleCode` | type | `z.infer<typeof LocaleCodeEnum>`. |\n| `DEFAULT_LOCALE` | const | `'en-US'`. |\n| `LOCALES` | array | `{ code, label, nativeLabel }[]` for dropdowns. |\n| `isLocaleCode(v)` | guard | Exact membership check. |\n| `parseLocale(input?)` | function | Normalises casing/underscores, resolves a bare language (`tr` → `tr-TR`), returns `null` if unknown. |\n\n```ts\nparseLocale('tr');     // 'tr-TR'\nparseLocale('EN-us');  // 'en-US'\nparseLocale('zz');     // null\n```\n\n---\n\n## `common.country.ts` — ISO 3166-1 alpha-2\n\n| Export | Kind | Use |\n|---|---|---|\n| `CountryCodeEnum` | Zod enum | Full ISO 3166-1 alpha-2 set (~249 codes), derived from `COUNTRIES`. |\n| `CountryCode` | type | `z.infer<…>`. |\n| `COUNTRIES` | array | `{ code, name }[]` (English short names). |\n| `isCountryCode(v)` | guard | Membership check (uppercase). |\n\n---\n\n## `common.currency.ts` — ISO 4217\n\n| Export | Kind | Use |\n|---|---|---|\n| `CurrencyCodeEnum` | Zod enum | `z.enum(codes())` from `currency-codes-ts` — same source as `payment_core`. |\n| `CurrencyCode` | type | `z.infer<…>`. |\n| `DEFAULT_CURRENCY` | const | `'USD'`. |\n| `isCurrencyCode(v)` | guard | Membership check (uppercase). |\n\n---\n\n## `common.timezone.ts` — IANA timezones\n\n| Export | Kind | Use |\n|---|---|---|\n| `TIMEZONES` | `string[]` | `Intl.supportedValuesOf('timeZone')`, computed once. |\n| `isTimezone(v)` | function | Case-sensitive membership check (also accepts the `UTC` default, which Intl omits in some runtimes). |\n| `TimezoneSchema` | Zod schema | `z.string().refine(isTimezone, 'Invalid IANA timezone')`. |\n| `Timezone` | type | `z.infer<…>` (string). |\n| `DEFAULT_TIMEZONE` | const | `'UTC'`. |\n\n---\n\n## `common.money.ts` — Money value object\n\n| Export | Kind | Use |\n|---|---|---|\n| `MoneySchema` | Zod schema | `{ amount: number, currency: CurrencyCodeEnum }`. |\n| `Money` | type | `z.infer<…>`. |\n| `money(amount, currency)` | function | Construct a `Money`. |\n| `formatMoney(m, locale?)` | function | `Intl.NumberFormat` currency string; Intl handles minor units (JPY 0, KWD 3). Defaults to `DEFAULT_LOCALE`. |\n| `addMoney`, `subtractMoney` | functions | Same-currency arithmetic; throw `AppError(…, 422, CURRENCY_MISMATCH)` on mismatch. |\n| `multiplyMoney(m, factor)` | function | Scale by a unitless factor. |\n\n```ts\nformatMoney(money(1234.5, 'USD'), 'en-US'); // \"$1,234.50\"\nformatMoney(money(1234, 'JPY'), 'en-US');   // \"¥1,234\"\naddMoney(money(10, 'USD'), money(5, 'EUR')); // throws CURRENCY_MISMATCH (422)\n```\n\n---\n\n## `common.pagination.ts` — pagination envelopes\n\n| Export | Kind | Use |\n|---|---|---|\n| `PaginatedResult<T>` | interface | `{ items, total, page, limit, pageCount }`. |\n| `CursorPage<T>` | interface | `{ items, nextCursor, hasMore }`. |\n| `PaginationDTO` | Zod DTO | `page` (≥1, default 1), `limit` (1–100, default 20), both coerced. |\n| `PaginationInput` | type | `z.infer<…>`. |\n| `paginate(items, total, page, limit)` | function | Wraps a page slice, computing `pageCount` via ceiling division. |\n\n---\n\n## `common.log-context.ts` — structured logging\n\n| Export | Kind | Use |\n|---|---|---|\n| `LogContext` | interface | Optional `tenantId`, `userId`, `requestId`, `traceId`, `region` — the minimum fields every structured log entry should carry. |\n\n---\n\n## Settings\n\nNone. This module reads no settings and exposes no admin-settings keys.\n\n---\n\n## Rules\n\n- No imports from `@/modules/*` except other items in `common/`.\n- No `next/*`, no `react`, no browser APIs, no DB / Redis / env access. (Pure npm data libs like `currency-codes-ts` are allowed.)\n- Domain enums use Zod (`z.enum`), never TS `enum`; types derive via `z.infer` / `type`.\n- Keep this module tiny — it is loaded by everything.\n\n---\n\n## Tenant Variability\n\n> What varies per tenant in this module — and what could. Audited 2026-06-11.\n\nNo per-tenant variability in the primitives themselves — they are dependency-free constants/validators. They are the *foundation* tenants build on: a tenant may pick its own `DEFAULT_LOCALE`, `DEFAULT_CURRENCY`, or company timezone, but that selection lives in tenant settings elsewhere; this module only guarantees the canonical spelling and validation.\n\n---\n\n## Dependencies\n\nNone (`requires: []`). This is a leaf module; every other module may depend on it.\n"
     },
     {
       "id": "env",
@@ -847,8 +848,8 @@
     {
       "id": "auth_saml",
       "name": "SAML SSO",
-      "version": "1.0.0",
-      "description": "SAML 2.0 SSO with per-tenant IdP configuration (SamlConfig entity).",
+      "version": "1.1.0",
+      "description": "SAML 2.0 SSO with per-tenant IdP config (SamlConfig): signature alg, dual-cert rotation, encrypted assertions, SLO, JIT-atomic provisioning, ABAC role mapping, metadata import, replay detection.",
       "dir": "modules/auth_saml",
       "icon": "fas fa-building-shield",
       "tags": [
@@ -865,13 +866,21 @@
           "user",
           "user_session",
           "tenant",
-          "env"
+          "env",
+          "setting",
+          "audit_log",
+          "observability",
+          "redis",
+          "common",
+          "logger"
         ]
       },
       "exports": {
         "services": [
           "auth_saml.config.service.ts",
+          "auth_saml.crypto.service.ts",
           "auth_saml.flow.service.ts",
+          "auth_saml.metadata.service.ts",
           "auth_saml.service.ts"
         ],
         "dtos": [
@@ -883,7 +892,9 @@
         "messageKeys": [
           "auth_saml.messages.ts"
         ],
-        "settingKeys": [],
+        "settingKeys": [
+          "auth_saml.setting.keys.ts"
+        ],
         "providers": [],
         "jobs": [],
         "entities": [
@@ -898,7 +909,7 @@
     {
       "id": "auth_sso",
       "name": "OAuth SSO",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "description": "OAuth 2.0 SSO with 12 providers: Google, GitHub, Apple, Microsoft, Facebook, LinkedIn, Twitter, Slack, TikTok, WeChat, Autodesk.",
       "dir": "modules/auth_sso",
       "icon": "fas fa-right-to-bracket",
@@ -914,12 +925,20 @@
           "user",
           "user_session",
           "user_social_account",
-          "env"
+          "env",
+          "auth",
+          "setting",
+          "audit_log",
+          "observability",
+          "redis",
+          "tenant",
+          "common"
         ]
       },
       "exports": {
         "services": [
           "auth_sso.account.service.ts",
+          "auth_sso.config.service.ts",
           "auth_sso.flow.service.ts",
           "auth_sso.service.ts"
         ],
@@ -932,7 +951,9 @@
         "messageKeys": [
           "auth_sso.messages.ts"
         ],
-        "settingKeys": [],
+        "settingKeys": [
+          "auth_sso.setting.keys.ts"
+        ],
         "providers": [],
         "jobs": [],
         "entities": []
@@ -5776,15 +5797,25 @@
         "idpEntityId",
         "idpSsoUrl",
         "idpCertificate",
+        "idpSloUrl",
+        "idpMetadataUrl",
+        "idpCertNotAfter",
         "spPrivateKey",
         "spCertificate",
+        "spPrivateKeySecondary",
+        "spCertificateSecondary",
         "emailAttribute",
         "nameAttribute",
         "roleAttribute",
         "allowJitProvisioning",
         "defaultMemberRole",
+        "roleMappingRules",
         "allowIdpInitiated",
         "signRequests",
+        "signatureAlgorithm",
+        "clockSkewMs",
+        "wantAssertionsSigned",
+        "honorSessionNotOnOrAfter",
         "nameIdFormat",
         "createdAt",
         "updatedAt"
