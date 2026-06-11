@@ -7,8 +7,7 @@ import { Spinner } from '@/modules_next/common/ui/Spinner';
 import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
 import { Breadcrumb } from '@/modules_next/common/ui/Breadcrumb';
 import { Button } from '@/modules_next/common/ui/Button';
-import { Modal } from '@/modules_next/common/ui/Modal';
-import { Input } from '@/modules_next/common/ui/Input';
+import { EarsivSmsSignModal } from '@/modules_next/invoice/ui/EarsivSmsSignModal';
 import type { SafeInvoice } from '@/modules/invoice/invoice.types';
 
 type InvoiceRow = Pick<SafeInvoice, 'invoiceId' | 'invoiceNumber' | 'customerName' | 'customerEmail' | 'totalAmount' | 'currency' | 'status' | 'region' | 'earsivStatus' | 'earsivUuid'> & {
@@ -23,7 +22,6 @@ const STATUS_COLOR: Record<string, string> = {
   refunded: 'bg-warning-subtle text-warning-fg',
 };
 
-/** e-Arşiv sub-status, shown under the main status for TR invoices. */
 const EARSIV_LABEL: Record<string, string> = {
   submitted: 'e-Arşiv · awaiting signature',
   accepted: 'e-Arşiv · signed',
@@ -37,13 +35,7 @@ export default function TenantInvoicesPage({ params }: { params: Promise<{ tenan
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
-
-  // SMS signing modal
   const [signOpen, setSignOpen] = useState(false);
-  const [oid, setOid] = useState<string | null>(null);
-  const [code, setCode] = useState('');
-  const [signBusy, setSignBusy] = useState(false);
-  const [signError, setSignError] = useState<string | null>(null);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -56,17 +48,15 @@ export default function TenantInvoicesPage({ params }: { params: Promise<{ tenan
 
   useEffect(() => { load(); }, [load]);
 
-  // TR e-Arşiv drafts created at GİB but not yet legally signed.
   const unsigned = invoices.filter((i) => i.region === 'TR' && i.earsivStatus === 'submitted');
 
-  // Issue a draft → submits to the regional adapter (TR: creates the GİB e-Arşiv draft).
   const generate = useCallback(async (invoiceId: string) => {
     setBusyId(invoiceId);
     setError(null);
     setNotice(null);
     try {
       await api.post(`/tenant/${tenantId}/api/invoices/${invoiceId}/issue`);
-      setNotice('Invoice issued. For Turkey, a GİB e-Arşiv draft was created — use “Sign via SMS” to finalize it.');
+      setNotice('Invoice issued. For Turkey, a GİB e-Arşiv draft was created — use "Sign via SMS" to finalize it.');
       load();
     } catch (e: any) {
       setError(e.response?.data?.message ?? 'Failed to issue the invoice');
@@ -74,42 +64,6 @@ export default function TenantInvoicesPage({ params }: { params: Promise<{ tenan
       setBusyId(null);
     }
   }, [tenantId, load]);
-
-  const openSign = useCallback(() => {
-    setSignOpen(true);
-    setOid(null);
-    setCode('');
-    setSignError(null);
-  }, []);
-
-  const sendCode = useCallback(async () => {
-    setSignBusy(true);
-    setSignError(null);
-    try {
-      const res = await api.post(`/tenant/${tenantId}/api/invoices/earsiv/sms/send`);
-      setOid(res.data.oid);
-    } catch (e: any) {
-      setSignError(e.response?.data?.message ?? 'SMS kodu gönderilemedi');
-    } finally {
-      setSignBusy(false);
-    }
-  }, [tenantId]);
-
-  const verifyCode = useCallback(async () => {
-    if (!oid || !code) return;
-    setSignBusy(true);
-    setSignError(null);
-    try {
-      const res = await api.post(`/tenant/${tenantId}/api/invoices/earsiv/sms/verify`, { oid, code });
-      setSignOpen(false);
-      setNotice(`${res.data.signed ?? 0} e-Arşiv invoice(s) signed.`);
-      load();
-    } catch (e: any) {
-      setSignError(e.response?.data?.message ?? 'Could not verify the code');
-    } finally {
-      setSignBusy(false);
-    }
-  }, [tenantId, oid, code, load]);
 
   if (loading) {
     return (
@@ -140,7 +94,7 @@ export default function TenantInvoicesPage({ params }: { params: Promise<{ tenan
         <AlertBanner
           variant="warning"
           message={`${unsigned.length} e-Arşiv invoice${unsigned.length === 1 ? '' : 's'} awaiting signature at GİB. Sign via SMS to finalize.`}
-          action={{ label: 'Sign via SMS', onClick: openSign }}
+          action={{ label: 'Sign via SMS', onClick: () => setSignOpen(true) }}
         />
       )}
 
@@ -199,9 +153,7 @@ export default function TenantInvoicesPage({ params }: { params: Promise<{ tenan
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => {
-                            window.location.href = `/tenant/${tenantId}/admin/invoices/${inv.invoiceId}`;
-                          }}
+                          onClick={() => { window.location.href = `/tenant/${tenantId}/admin/invoices/${inv.invoiceId}`; }}
                         >
                           Open
                         </Button>
@@ -215,42 +167,17 @@ export default function TenantInvoicesPage({ params }: { params: Promise<{ tenan
         )}
       </Card>
 
-      <Modal
+      <EarsivSmsSignModal
         open={signOpen}
+        tenantId={tenantId}
+        unsignedCount={unsigned.length}
         onClose={() => setSignOpen(false)}
-        title="Sign e-Arşiv invoices via SMS"
-        description="GİB sends a one-time code to your registered phone to legally finalize the created e-Arşiv drafts."
-        footer={
-          oid ? (
-            <div className="flex justify-end gap-2">
-              <Button variant="ghost" onClick={() => setSignOpen(false)}>Cancel</Button>
-              <Button loading={signBusy} disabled={!code} onClick={verifyCode}>Verify &amp; sign</Button>
-            </div>
-          ) : (
-            <div className="flex justify-end gap-2">
-              <Button variant="ghost" onClick={() => setSignOpen(false)}>Cancel</Button>
-              <Button loading={signBusy} onClick={sendCode}>Send code</Button>
-            </div>
-          )
-        }
-      >
-        <div className="space-y-3">
-          {signError && <AlertBanner variant="error" message={signError} />}
-          <p className="text-sm text-text-secondary">
-            {unsigned.length} draft{unsigned.length === 1 ? '' : 's'} will be signed.
-          </p>
-          {oid && (
-            <Input
-              id="earsivSmsCode"
-              label="SMS code"
-              value={code}
-              inputMode="numeric"
-              placeholder="6-digit code"
-              onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-            />
-          )}
-        </div>
-      </Modal>
+        onSigned={(count) => {
+          setSignOpen(false);
+          setNotice(`${count} e-Arşiv invoice(s) signed.`);
+          load();
+        }}
+      />
     </div>
   );
 }

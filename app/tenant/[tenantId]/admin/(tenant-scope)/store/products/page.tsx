@@ -1,46 +1,22 @@
 'use client';
+
 import { use, useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '@/modules_next/common/axios';
-import { ServerDataTable, type TableColumn } from '@/modules_next/common/ui/ServerDataTable';
+import { ServerDataTable } from '@/modules_next/common/ui/ServerDataTable';
 import { PageHeader } from '@/modules_next/common/ui/PageHeader';
-import { Button } from '@/modules_next/common/ui/Button';
 import { Input } from '@/modules_next/common/ui/Input';
 import { Select } from '@/modules_next/common/ui/Select';
-import { Modal } from '@/modules_next/common/ui/Modal';
 import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
-import { RowActionsMenu } from '@/modules_next/common/ui/RowActionsMenu';
 import { toast } from '@/modules_next/common/ui/toast.store';
-import { ProductStatusBadge, StockBadge, type ProductStatus } from '@/modules_next/store/ui/ProductStatusBadge';
-import { CurrencySelector } from '@/modules_next/common/ui/CurrencySelector';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faSearch, faPenToSquare, faTrash, faCopy } from '@fortawesome/free-solid-svg-icons';
-
-type Product = {
-  productId: string;
-  name: string;
-  slug: string;
-  basePrice: number;
-  currency: string;
-  status: ProductStatus;
-  stockQuantity?: number | null;
-  isFeatured: boolean;
-  categoryId: string;
-  createdAt: string;
-};
+import { faPlus, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { buildProductColumns, type ProductRow } from '@/modules_next/store/ui/product-list-columns';
+import { ProductCreateModal } from '@/modules_next/store/ui/ProductCreateModal';
 
 type Category = { categoryId: string; name: string };
-type CreateForm = { name: string; slug: string; categoryId: string; basePrice: string; currency: string };
-const EMPTY_FORM: CreateForm = { name: '', slug: '', categoryId: '', basePrice: '0', currency: 'USD' };
 const PAGE_SIZE = 20;
 
-function slugify(s: string) {
-  return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-}
-function formatPrice(amount: number, currency: string) {
-  try { return new Intl.NumberFormat('en-US', { style: 'currency', currency, minimumFractionDigits: 2 }).format(amount); }
-  catch { return `${amount} ${currency}`; }
-}
 function extractMessage(err: unknown, fallback: string) {
   const e = err as { response?: { data?: { message?: string } }; message?: string };
   return e?.response?.data?.message ?? e?.message ?? fallback;
@@ -50,7 +26,7 @@ export default function StoreProductsPage({ params }: { params: Promise<{ tenant
   const { tenantId } = use(params);
   const router = useRouter();
 
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<ProductRow[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [total, setTotal]   = useState(0);
   const [page, setPage]     = useState(1);
@@ -60,9 +36,6 @@ export default function StoreProductsPage({ params }: { params: Promise<{ tenant
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState('');
   const [showCreate, setShowCreate] = useState(false);
-  const [form, setForm]     = useState<CreateForm>(EMPTY_FORM);
-  const [saving, setSaving] = useState(false);
-  const [formError, setFormError] = useState('');
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
@@ -90,30 +63,20 @@ export default function StoreProductsPage({ params }: { params: Promise<{ tenant
 
   function handleSearch(v: string) { setSearch(v); setPage(1); fetchProducts(1, v, status, catFilter); }
 
-  async function handleCreate() {
-    setSaving(true); setFormError('');
+  async function handleDuplicate(p: ProductRow) {
     try {
-      const res = await api.post(`/tenant/${tenantId}/api/store/products`, {
-        name: form.name,
-        slug: form.slug || slugify(form.name),
-        categoryId: form.categoryId,
-        basePrice: Number(form.basePrice),
-        currency: form.currency,
-        status: 'DRAFT',
-      });
-      toast.success('Product created');
-      setShowCreate(false);
-      setForm(EMPTY_FORM);
+      const res = await api.post(`/tenant/${tenantId}/api/store/products/${p.productId}/duplicate`);
+      toast.success('Product duplicated');
       router.push(`/tenant/${tenantId}/admin/store/products/${res.data.product.productId}`);
     } catch (err) {
-      setFormError(extractMessage(err, 'Failed to create product.'));
-    } finally { setSaving(false); }
+      toast.error(extractMessage(err, 'Failed to duplicate.'));
+    }
   }
 
-  async function handleDelete(productId: string, name: string) {
-    if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+  async function handleDelete(p: ProductRow) {
+    if (!confirm(`Delete "${p.name}"? This cannot be undone.`)) return;
     try {
-      await api.delete(`/tenant/${tenantId}/api/store/products/${productId}`);
+      await api.delete(`/tenant/${tenantId}/api/store/products/${p.productId}`);
       toast.success('Product deleted');
       fetchProducts(page, search, status, catFilter);
     } catch (err) {
@@ -121,15 +84,11 @@ export default function StoreProductsPage({ params }: { params: Promise<{ tenant
     }
   }
 
-  async function handleDuplicate(productId: string) {
-    try {
-      const res = await api.post(`/tenant/${tenantId}/api/store/products/${productId}/duplicate`);
-      toast.success('Product duplicated');
-      router.push(`/tenant/${tenantId}/admin/store/products/${res.data.product.productId}`);
-    } catch (err) {
-      toast.error(extractMessage(err, 'Failed to duplicate.'));
-    }
-  }
+  const columns = buildProductColumns({
+    onEdit:      (p) => router.push(`/tenant/${tenantId}/admin/store/products/${p.productId}`),
+    onDuplicate: handleDuplicate,
+    onDelete:    handleDelete,
+  });
 
   const statusOptions = [
     { value: '', label: 'All statuses' },
@@ -141,55 +100,6 @@ export default function StoreProductsPage({ params }: { params: Promise<{ tenant
   const catOptions = [
     { value: '', label: 'All categories' },
     ...categories.map((c) => ({ value: c.categoryId, label: c.name })),
-  ];
-
-  const columns: TableColumn<Product>[] = [
-    {
-      key: 'name', header: 'Product',
-      render: (p) => (
-        <div>
-          <p className="font-medium text-text-primary">{p.name}</p>
-          <p className="text-xs text-text-secondary">{p.slug}</p>
-        </div>
-      ),
-    },
-    {
-      key: 'price', header: 'Price',
-      render: (p) => <span className="tabular-nums font-semibold text-text-primary">{formatPrice(p.basePrice, p.currency)}</span>,
-    },
-    {
-      key: 'status', header: 'Status',
-      render: (p) => <ProductStatusBadge status={p.status} size="sm" dot />,
-    },
-    {
-      key: 'stock', header: 'Stock',
-      render: (p) => <StockBadge qty={p.stockQuantity} />,
-    },
-    {
-      key: 'createdAt', header: 'Created',
-      render: (p) => <span className="text-text-secondary">{new Date(p.createdAt).toLocaleDateString()}</span>,
-    },
-    {
-      key: '_actions', header: '', align: 'right',
-      render: (p) => (
-        <div onClick={(e) => e.stopPropagation()}>
-          <RowActionsMenu actions={[
-            {
-              label: 'Edit', icon: <FontAwesomeIcon icon={faPenToSquare} />,
-              onClick: () => router.push(`/tenant/${tenantId}/admin/store/products/${p.productId}`),
-            },
-            {
-              label: 'Duplicate', icon: <FontAwesomeIcon icon={faCopy} />,
-              onClick: () => handleDuplicate(p.productId),
-            },
-            {
-              label: 'Delete', icon: <FontAwesomeIcon icon={faTrash} />, variant: 'danger',
-              onClick: () => handleDelete(p.productId, p.name),
-            },
-          ]} />
-        </div>
-      ),
-    },
   ];
 
   return (
@@ -206,10 +116,7 @@ export default function StoreProductsPage({ params }: { params: Promise<{ tenant
         columns={columns}
         rows={products}
         getRowKey={(p) => p.productId}
-        page={page}
-        totalPages={totalPages}
-        total={total}
-        pageSize={PAGE_SIZE}
+        page={page} totalPages={totalPages} total={total} pageSize={PAGE_SIZE}
         onPageChange={setPage}
         onRowClick={(p) => router.push(`/tenant/${tenantId}/admin/store/products/${p.productId}`)}
         loading={loading}
@@ -218,8 +125,7 @@ export default function StoreProductsPage({ params }: { params: Promise<{ tenant
           <div className="flex flex-wrap gap-3 pb-4">
             <div className="flex-1 min-w-48">
               <Input
-                id="prod-search" label="Search"
-                placeholder="Search products…"
+                id="prod-search" label="Search" placeholder="Search products…"
                 prefixIcon={<FontAwesomeIcon icon={faSearch} className="w-3.5 h-3.5" />}
                 value={search}
                 onChange={(e) => handleSearch(e.target.value)}
@@ -235,36 +141,13 @@ export default function StoreProductsPage({ params }: { params: Promise<{ tenant
         }
       />
 
-      <Modal
+      <ProductCreateModal
         open={showCreate}
-        onClose={() => { setShowCreate(false); setForm(EMPTY_FORM); setFormError(''); }}
-        title="New Product"
-        footer={
-          <>
-            <Button variant="ghost" onClick={() => setShowCreate(false)} disabled={saving}>Cancel</Button>
-            <Button variant="primary" onClick={handleCreate} loading={saving}>Create &amp; Edit</Button>
-          </>
-        }
-      >
-        <div className="space-y-4">
-          {formError && <AlertBanner variant="error" message={formError} />}
-          <Input id="p-name" label="Name" required value={form.name}
-            onChange={(e) => setForm((f) => ({ ...f, name: e.target.value, slug: f.slug || slugify(e.target.value) }))} />
-          <Input id="p-slug" label="Slug" required value={form.slug}
-            onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))} />
-          <Select id="p-cat" label="Category" required options={[{ value: '', label: 'Select category…' }, ...catOptions.slice(1)]}
-            value={form.categoryId} onChange={(e) => setForm((f) => ({ ...f, categoryId: e.target.value }))} />
-          <div className="flex gap-3">
-            <div className="flex-1">
-              <Input id="p-price" label="Base Price" type="number" required value={form.basePrice}
-                onChange={(e) => setForm((f) => ({ ...f, basePrice: e.target.value }))} />
-            </div>
-            <div className="w-36">
-              <CurrencySelector id="p-currency" label="Currency" value={form.currency} onChange={(cur) => setForm((f) => ({ ...f, currency: cur }))} />
-            </div>
-          </div>
-        </div>
-      </Modal>
+        tenantId={tenantId}
+        categories={categories}
+        onClose={() => setShowCreate(false)}
+        onCreated={(id) => router.push(`/tenant/${tenantId}/admin/store/products/${id}`)}
+      />
     </div>
   );
 }
