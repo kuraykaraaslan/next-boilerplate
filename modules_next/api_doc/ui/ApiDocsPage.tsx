@@ -1,12 +1,24 @@
 'use client';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { cn } from '@/modules_next/common/utils/cn';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEnvelope, faFileContract, faArrowUpRightFromSquare, faShield } from '@fortawesome/free-solid-svg-icons';
+import { faEnvelope, faFileContract, faArrowUpRightFromSquare, faShield, faMagnifyingGlass, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { SecuritySchemeBadge } from './SecuritySchemeBadge';
 import { StatusCodeBadge } from './StatusCodeBadge';
 import { ApiTagSection } from './ApiTagSection';
-import type { ApiSpec } from './types';
+import type { ApiSpec, Operation, PathItem } from './types';
+
+/** True if an operation matches the search query (summary, path, operationId, method, description). */
+function matchesQuery(op: Operation, path: string, q: string): boolean {
+  const haystack = [
+    op.summary ?? '',
+    path,
+    op.operationId,
+    op.method,
+    op.description ?? '',
+  ].join(' ').toLowerCase();
+  return haystack.includes(q);
+}
 
 const STATUS_VARIANT: Record<string, string> = {
   ACTIVE:     'bg-success-subtle text-success-fg',
@@ -24,11 +36,26 @@ const COMMON_RESPONSES: [string, string][] = [
 export function ApiDocsPage({ spec }: { spec: ApiSpec }) {
   const statusCls = STATUS_VARIANT[spec.status] ?? 'bg-surface-overlay text-text-secondary';
   const secSchemes = spec.components?.securitySchemes ? Object.entries(spec.components.securitySchemes) : [];
+  const servers = spec.servers ?? [];
+
+  const [query, setQuery] = useState('');
+
+  // Filter paths' operations by the search query; only keep paths with matches.
+  const filteredPaths = useMemo<PathItem[]>(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return spec.paths;
+    return spec.paths
+      .map((pathItem) => ({
+        ...pathItem,
+        operations: pathItem.operations.filter((op) => matchesQuery(op, pathItem.path, q)),
+      }))
+      .filter((pathItem) => pathItem.operations.length > 0);
+  }, [spec.paths, query]);
 
   const tagPathsMap = useMemo(() => {
-    const map: Record<string, typeof spec.paths> = {};
+    const map: Record<string, PathItem[]> = {};
     spec.tags.forEach((t) => { map[t.name] = []; });
-    spec.paths.forEach((pathItem) => {
+    filteredPaths.forEach((pathItem) => {
       pathItem.operations.forEach((op) => {
         const tags = op.tags?.length ? op.tags : ['Default'];
         tags.forEach((tagName) => {
@@ -40,7 +67,12 @@ export function ApiDocsPage({ spec }: { spec: ApiSpec }) {
       });
     });
     return map;
-  }, [spec]);
+  }, [spec.tags, filteredPaths]);
+
+  const isSearching = query.trim().length > 0;
+  // When searching, only render tags that have at least one matching operation.
+  const visibleTags = spec.tags.filter((tag) => (tagPathsMap[tag.name] ?? []).length > 0);
+  const noResults = isSearching && visibleTags.length === 0;
 
   return (
     <div className="space-y-10 pb-16">
@@ -133,12 +165,57 @@ export function ApiDocsPage({ spec }: { spec: ApiSpec }) {
 
       <hr className="border-border" />
 
+      <div className="space-y-1.5">
+        <label htmlFor="api-docs-search" className="sr-only">Search endpoints</label>
+        <div className="relative">
+          <FontAwesomeIcon
+            icon={faMagnifyingGlass}
+            className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-xs text-text-disabled"
+            aria-hidden
+          />
+          <input
+            id="api-docs-search"
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search endpoints by summary, path, operationId, method…"
+            className="w-full rounded-xl border border-border bg-surface-raised pl-9 pr-10 py-2.5 text-sm text-text-primary placeholder:text-text-disabled focus:outline-none focus:border-primary transition-colors"
+          />
+          {query && (
+            <button
+              type="button"
+              onClick={() => setQuery('')}
+              aria-label="Clear search"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded p-1 text-text-disabled hover:text-text-primary hover:bg-surface-overlay transition-colors"
+            >
+              <FontAwesomeIcon icon={faXmark} className="text-xs" aria-hidden />
+            </button>
+          )}
+        </div>
+        {isSearching && !noResults && (
+          <p className="text-xs text-text-disabled px-1">
+            {visibleTags.length} matching tag{visibleTags.length === 1 ? '' : 's'}
+          </p>
+        )}
+      </div>
+
       <div className="space-y-8">
-        {spec.tags.map((tag) => (
-          <section key={tag.name} id={`tag-${tag.name}`} className="scroll-mt-20">
-            <ApiTagSection tag={tag} paths={tagPathsMap[tag.name] ?? []} defaultOpen />
-          </section>
-        ))}
+        {noResults ? (
+          <p className="text-sm text-text-disabled text-center py-10">
+            No endpoints match &ldquo;{query}&rdquo;.
+          </p>
+        ) : (
+          visibleTags.map((tag) => (
+            <section key={tag.name} id={`tag-${tag.name}`} className="scroll-mt-20">
+              <ApiTagSection
+                tag={tag}
+                paths={tagPathsMap[tag.name] ?? []}
+                servers={servers}
+                defaultOpen
+              />
+            </section>
+          ))
+        )}
       </div>
 
       <footer className="pt-6 border-t border-border flex flex-wrap items-center justify-between gap-4 text-xs text-text-disabled">

@@ -1,16 +1,46 @@
 'use client';
+import { useState } from 'react';
 import { cn } from '@/modules_next/common/utils/cn';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLock, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
+import { faLock, faTriangleExclamation, faLink, faCheck } from '@fortawesome/free-solid-svg-icons';
 import { TabGroup } from '@/modules_next/common/ui/TabGroup';
 import { Badge } from '@/modules_next/common/ui/Badge';
 import { ParameterTable } from './ParameterTable';
 import { SchemaViewer } from './SchemaViewer';
 import { ResponseCard } from './ResponseCard';
 import { CodeSamplePanel } from './CodeSamplePanel';
-import type { Operation } from './types';
+import { TryItOutPanel } from './TryItOutPanel';
+import type { Operation, Server } from './types';
 
-export function OperationPanel({ operation, className }: { operation: Operation; className?: string }) {
+export function OperationPanel({
+  operation,
+  path,
+  servers = [],
+  className,
+}: {
+  operation: Operation;
+  path?: string;
+  servers?: Server[];
+  className?: string;
+}) {
+  const [copied, setCopied] = useState(false);
+
+  function handleCopyPermalink() {
+    if (typeof window === 'undefined') return;
+    const anchor = `op-${operation.operationId}`;
+    window.location.hash = anchor;
+    const url = `${window.location.origin}${window.location.pathname}${window.location.search}#${anchor}`;
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(url).then(
+        () => {
+          setCopied(true);
+          setTimeout(() => setCopied(false), 1500);
+        },
+        () => {},
+      );
+    }
+  }
+
   const params = operation.parameters ?? [];
   const responses = operation.responses ?? [];
   const samples = operation.codeSamples ?? [];
@@ -118,6 +148,19 @@ export function OperationPanel({ operation, className }: { operation: Operation;
   return (
     <div className={cn('rounded-xl border border-border bg-surface-base overflow-hidden', className)}>
       <div className="px-5 py-4 border-b border-border bg-surface-raised space-y-2">
+        <div className="flex items-start justify-between gap-2">
+          <code className="font-mono text-xs text-text-disabled">{operation.operationId}</code>
+          <button
+            type="button"
+            onClick={handleCopyPermalink}
+            className="inline-flex items-center gap-1.5 rounded px-2 py-1 text-xs text-text-disabled hover:text-primary hover:bg-surface-overlay transition-colors shrink-0"
+            aria-label={`Copy permalink to ${operation.operationId}`}
+            title="Copy permalink"
+          >
+            <FontAwesomeIcon icon={copied ? faCheck : faLink} className="text-[10px]" aria-hidden />
+            {copied ? 'Copied' : 'Permalink'}
+          </button>
+        </div>
         {operation.deprecated && (
           <div className="flex items-center gap-2 text-xs text-warning-fg bg-warning-subtle rounded px-3 py-1.5">
             <FontAwesomeIcon icon={faTriangleExclamation} className="text-xs shrink-0" aria-hidden />
@@ -146,6 +189,12 @@ export function OperationPanel({ operation, className }: { operation: Operation;
       </div>
 
       <TabGroup tabs={tabs} label={`${operation.method} ${operation.operationId}`} lazy />
+
+      {path && (
+        <div className="border-t border-border p-4">
+          <TryItOutPanel operation={operation} path={path} servers={servers} />
+        </div>
+      )}
     </div>
   );
 }

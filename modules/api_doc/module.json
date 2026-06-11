@@ -6,5 +6,5 @@
   "version": "1.0.0",
   "icon": "fas fa-book",
   "tags": ["platform", "documentation"],
-  "dependencies": { "requires": ["env"] }
+  "dependencies": { "requires": ["env", "setting"] }
 }

@@ -3,16 +3,18 @@ import { cn } from '@/modules_next/common/utils/cn';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { EndpointRow } from './EndpointRow';
-import type { Tag, PathItem } from './types';
+import type { Tag, PathItem, Server } from './types';
 
 export function ApiTagSection({
   tag,
   paths,
+  servers = [],
   defaultOpen = true,
   className,
 }: {
   tag: Tag;
   paths: PathItem[];
+  servers?: Server[];
   defaultOpen?: boolean;
   className?: string;
 }) {
@@ -55,7 +57,7 @@ export function ApiTagSection({
         <div className="p-4 space-y-2 bg-surface-base">
           {paths.map((p) =>
             p.operations.map((op) => (
-              <EndpointRow key={op.operationId} path={p.path} operation={op} />
+              <EndpointRow key={op.operationId} path={p.path} operation={op} servers={servers} />
             ))
           )}
         </div>

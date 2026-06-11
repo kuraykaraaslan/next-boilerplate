@@ -60,7 +60,18 @@ Consumed by two app pages, which select the variant by role:
 
 ## Settings
 
-None. This module has no setting keys, no entities, and no API routes.
+| Key | Type | Default | Purpose |
+|---|---|---|---|
+| `apiDocsPublic` | boolean | `false` | When true, allows a public-facing variant of the spec to be served without a logged-in session. |
+
+Field metadata lives in `modules/api_doc/api_doc.settings.fields.ts` (`API_DOC_SETTINGS_FIELDS`, group `Visibility`).
+
+### Public docs
+
+By default the docs pages rely on page-level session auth (admin and tenant routes are always private). The `apiDocsPublic` per-tenant setting opts a tenant into a public, session-less docs variant.
+
+- `modules/api_doc/api_doc.service.ts` exposes `ApiDocService.isPublic(tenantId): Promise<boolean>`, which reads the setting via `SettingService.getValue` and returns `true` only when the stored value is `'true'`. It defaults to `false` on any error or when unset.
+- A future public route can call `ApiDocService.isPublic(tenantId)` to decide whether to serve docs without a session. No public route or auth-middleware change ships with this module yet — internal/admin routes remain private regardless of this setting.
 
 ---
 
