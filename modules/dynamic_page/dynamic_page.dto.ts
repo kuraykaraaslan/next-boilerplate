@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { BlockDataSchema, PageMetadataSchema, CURRENT_SCHEMA_VERSION } from './dynamic_page.types'
+import { BlockDataSchema, PageMetadataSchema, CollectionFieldSchema, CURRENT_SCHEMA_VERSION } from './dynamic_page.types'
 
 export const CreatePageDTO = z.object({
   slug: z.string().max(200).regex(
@@ -36,9 +36,36 @@ export const CreateBlockDTO = z.object({
   defaultProps: z.record(z.string(), z.unknown()).default({}),
   template: z.string().default(''),
   script: z.string().optional(),
+  serverHandler: z.string().optional(),
+  allowedCollections: z.array(z.string()).optional(),
   isSystem: z.boolean().default(false),
 })
 export type CreateBlockDTO = z.infer<typeof CreateBlockDTO>
 
 export const UpdateBlockDTO = CreateBlockDTO.partial()
 export type UpdateBlockDTO = z.infer<typeof UpdateBlockDTO>
+
+// ─── Collection DTOs ──────────────────────────────────────────────────────────
+
+export const CreateCollectionDTO = z.object({
+  slug: z.string().min(1).max(100).regex(
+    /^[a-z0-9_-]+$/,
+    'Slug can only contain lowercase letters, numbers, underscores, and hyphens',
+  ),
+  label: z.string().min(1).max(200),
+  description: z.string().optional(),
+  fields: z.array(CollectionFieldSchema).default([]),
+  isSystem: z.boolean().default(false),
+})
+export type CreateCollectionDTO = z.infer<typeof CreateCollectionDTO>
+
+export const UpdateCollectionDTO = CreateCollectionDTO.partial()
+export type UpdateCollectionDTO = z.infer<typeof UpdateCollectionDTO>
+
+export const CreateCollectionItemDTO = z.object({
+  data: z.record(z.string(), z.unknown()),
+})
+export type CreateCollectionItemDTO = z.infer<typeof CreateCollectionItemDTO>
+
+export const UpdateCollectionItemDTO = CreateCollectionItemDTO.partial()
+export type UpdateCollectionItemDTO = z.infer<typeof UpdateCollectionItemDTO>

@@ -38,6 +38,12 @@ export class DynamicPageBlock {
   @Column({ nullable: true, type: 'text' })
   script?: string
 
+  @Column({ nullable: true, type: 'text' })
+  serverHandler?: string
+
+  @Column({ type: 'jsonb', nullable: true })
+  allowedCollections?: string[]
+
   @Column({ type: 'boolean', default: false })
   isSystem!: boolean
 

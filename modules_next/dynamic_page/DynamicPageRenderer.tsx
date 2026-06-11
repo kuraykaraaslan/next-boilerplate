@@ -25,5 +25,5 @@ export default async function DynamicPageRenderer({ tenantId, sections, schemaVe
 
   const { sections: migratedSections } = migrateSections(rawSections, schemaVersion ?? 1)
 
-  return <ClientBlockList sections={migratedSections} dbDefs={dbDefs} />
+  return <ClientBlockList sections={migratedSections} dbDefs={dbDefs} tenantId={tenantId} />
 }

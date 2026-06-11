@@ -4,6 +4,8 @@ import type { SeedContext } from '@/modules/seed/seed.context';
 import { DynamicPage } from './entities/dynamic_page.entity';
 import { DynamicPageBlock } from './entities/dynamic_page_block.entity';
 import { DynamicPageTranslation } from './entities/dynamic_page_translation.entity';
+import { DynamicCollection } from './entities/dynamic_collection.entity';
+import { DynamicCollectionItem } from './entities/dynamic_collection_item.entity';
 
 /**
  * Demo-data seed for the `dynamic_page` module (CMS-style page builder).
@@ -365,14 +367,181 @@ export async function seedDynamicPage(ctx: SeedContext): Promise<void> {
     );
   }
 
+  // ── Collections (Wix-style CMS data tables) ────────────────────────────────
+
+  const postsCollection = await foc(ctx.repo<DynamicCollection>(DynamicCollection),
+    { tenantId, slug: 'posts' } as FindOptionsWhere<DynamicCollection>,
+    {
+      tenantId,
+      slug: 'posts',
+      label: 'Blog Posts',
+      description: 'Articles displayed by the Blog List block.',
+      fields: [
+        { name: 'title', type: 'text', label: 'Title', required: true },
+        { name: 'excerpt', type: 'text', label: 'Excerpt', required: false },
+        { name: 'coverImage', type: 'image', label: 'Cover Image', required: false },
+        { name: 'publishedAt', type: 'date', label: 'Published At', required: false },
+        { name: 'author', type: 'text', label: 'Author', required: false },
+      ],
+      isSystem: false,
+    },
+  );
+
+  const leadsCollection = await foc(ctx.repo<DynamicCollection>(DynamicCollection),
+    { tenantId, slug: 'leads' } as FindOptionsWhere<DynamicCollection>,
+    {
+      tenantId,
+      slug: 'leads',
+      label: 'Lead Form Submissions',
+      description: 'Contact form submissions collected by the Lead Form block.',
+      fields: [
+        { name: 'name', type: 'text', label: 'Full Name', required: true },
+        { name: 'email', type: 'email', label: 'Email', required: true },
+        { name: 'phone', type: 'text', label: 'Phone', required: false },
+        { name: 'message', type: 'richtext', label: 'Message', required: false },
+      ],
+      isSystem: false,
+    },
+  );
+
+  // Sample posts — only seed if the collection has no items yet (idempotent)
+  const itemRepo = ctx.repo<DynamicCollectionItem>(DynamicCollectionItem);
+  const existingCount = await itemRepo.count({ where: { tenantId, collectionId: postsCollection.collectionId } });
+  if (existingCount === 0) {
+    for (const post of [
+      { title: 'Getting Started with Next.js', excerpt: 'A beginner guide to Next.js App Router.', author: 'Alice', publishedAt: '2026-03-01' },
+      { title: 'Multi-Tenant Architecture Explained', excerpt: 'How to isolate tenant data with TypeORM.', author: 'Bob', publishedAt: '2026-04-15' },
+      { title: 'Scaling with Redis and BullMQ', excerpt: 'Background jobs and caching patterns.', author: 'Alice', publishedAt: '2026-05-10' },
+    ]) {
+      await itemRepo.save(itemRepo.create({ tenantId, collectionId: postsCollection.collectionId, data: post }));
+    }
+  }
+
+  // ── Data-driven block definitions ────────────────────────────────────────────
+
+  // Blog List block: fetches posts collection via its server handler
+  await foc(ctx.repo<DynamicPageBlock>(DynamicPageBlock),
+    { tenantId, type: 'blog-list' } as FindOptionsWhere<DynamicPageBlock>,
+    {
+      tenantId,
+      type: 'blog-list',
+      label: 'Blog List',
+      category: 'Content',
+      description: 'Renders paginated posts from the "posts" collection.',
+      schema: {
+        properties: {
+          limit: { type: 'number', title: 'Posts per page' },
+          heading: { type: 'string', title: 'Section heading' },
+        },
+      },
+      defaultProps: { limit: 6, heading: 'Latest Posts' },
+      template: '<section class="blog-list"><h2>{{heading}}</h2><div id="blog-list-{{blockId}}"><p>Loading...</p></div></section>',
+      script: [
+        '(function() {',
+        '  var ctx = window.__blockCtx && window.__blockCtx["blog-list"];',
+        '  if (!ctx) return;',
+        '  var container = document.getElementById("blog-list-{{blockId}}");',
+        '  if (!container) return;',
+        '  ctx.fetch("?limit={{limit}}")',
+        '    .then(function(r) { return r.json(); })',
+        '    .then(function(res) {',
+        '      var items = (res.items || []);',
+        '      container.innerHTML = items.map(function(i) {',
+        '        return "<article><h3>" + (i.data.title || "") + "</h3><p>" + (i.data.excerpt || "") + "</p></article>";',
+        '      }).join("") || "<p>No posts yet.</p>";',
+        '    })',
+        '    .catch(function() { container.innerHTML = "<p>Failed to load posts.</p>"; });',
+        '})();',
+      ].join('\n'),
+      serverHandler: [
+        'async function handler({ method, query, db, respond }) {',
+        '  if (method !== "GET") return respond({ message: "Method not allowed" }, 405);',
+        '  const limit = parseInt(query.limit || "6", 10);',
+        '  const page = parseInt(query.page || "0", 10);',
+        '  const result = await db.collection("posts").find({ limit, page, sort: "-createdAt" });',
+        '  return respond(result);',
+        '}',
+      ].join('\n'),
+      allowedCollections: ['posts'],
+      isSystem: false,
+    },
+  );
+
+  // Lead Form block: saves submissions to the "leads" collection via its server handler
+  await foc(ctx.repo<DynamicPageBlock>(DynamicPageBlock),
+    { tenantId, type: 'lead-form' } as FindOptionsWhere<DynamicPageBlock>,
+    {
+      tenantId,
+      type: 'lead-form',
+      label: 'Lead Form',
+      category: 'Marketing',
+      description: 'Contact form that saves submissions to the "leads" collection.',
+      schema: {
+        properties: {
+          heading: { type: 'string', title: 'Form heading' },
+          submitLabel: { type: 'string', title: 'Submit button label' },
+        },
+      },
+      defaultProps: { heading: 'Get in touch', submitLabel: 'Send message' },
+      template: [
+        '<section class="lead-form">',
+        '  <h2>{{heading}}</h2>',
+        '  <form id="lead-form-{{blockId}}">',
+        '    <input name="name" placeholder="Full name" required />',
+        '    <input name="email" type="email" placeholder="Email" required />',
+        '    <input name="phone" placeholder="Phone (optional)" />',
+        '    <textarea name="message" placeholder="Message"></textarea>',
+        '    <button type="submit">{{submitLabel}}</button>',
+        '    <p class="lead-form-status"></p>',
+        '  </form>',
+        '</section>',
+      ].join('\n'),
+      script: [
+        '(function() {',
+        '  var ctx = window.__blockCtx && window.__blockCtx["lead-form"];',
+        '  if (!ctx) return;',
+        '  var form = document.getElementById("lead-form-{{blockId}}");',
+        '  if (!form) return;',
+        '  form.addEventListener("submit", function(e) {',
+        '    e.preventDefault();',
+        '    var data = Object.fromEntries(new FormData(form));',
+        '    ctx.fetch("", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ data: data }) })',
+        '      .then(function(r) { return r.json(); })',
+        '      .then(function() {',
+        '        form.querySelector(".lead-form-status").textContent = "Thank you! We will be in touch.";',
+        '        form.reset();',
+        '      })',
+        '      .catch(function() {',
+        '        form.querySelector(".lead-form-status").textContent = "Something went wrong. Please try again.";',
+        '      });',
+        '  });',
+        '})();',
+      ].join('\n'),
+      serverHandler: [
+        'async function handler({ method, body, db, respond }) {',
+        '  if (method !== "POST") return respond({ message: "Method not allowed" }, 405);',
+        '  if (!body || !body.data) return respond({ message: "Missing data" }, 400);',
+        '  var data = body.data;',
+        '  if (!data.name || !data.email) return respond({ message: "name and email are required" }, 400);',
+        '  var item = await db.collection("leads").create({ name: data.name, email: data.email, phone: data.phone || null, message: data.message || null });',
+        '  return respond({ item }, 201);',
+        '}',
+      ].join('\n'),
+      allowedCollections: ['leads'],
+      isSystem: false,
+    },
+  );
+
   // ── Publish references other modules may consume ────────────────────────────
   refs.dynamicPageId = home.dynamicPageId;
   refs.dynamicPageBlockId = blocks['hero']?.blockId;
+  refs.dynamicCollectionId = postsCollection.collectionId;
 
   ctx.log(
-    `dynamic_page: 3 blocks, 4 pages (home/about published, summer-sale draft, legacy archived), 3 translations for ${tenantId}`,
+    `dynamic_page: 5 blocks, 4 pages, 3 translations, 2 collections (posts/${postsCollection.collectionId}, leads/${leadsCollection.collectionId}), 3 sample posts for ${tenantId}`,
   );
 
-  // touch `promo` so lint does not flag the unused binding (kept for readability)
+  // touch unused bindings
   void promo;
+  void leadsCollection;
 }

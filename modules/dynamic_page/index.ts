@@ -1,4 +1,5 @@
 export { default as DynamicPageService } from './dynamic_page.service'
+export { default as DynamicCollectionService } from './dynamic_collection.service'
 export * from './dynamic_page.enums'
 export * from './dynamic_page.types'
 export * from './dynamic_page.dto'

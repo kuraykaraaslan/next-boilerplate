@@ -1,46 +1,11 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
-import { cn } from '@/modules_next/common/utils/cn'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {
-  faBars, faXmark, faBolt, faArrowRight, faChevronDown,
-  faRocket, faCodeBranch, faChartLine, faPlug,
-  faBook, faRss, faClockRotateLeft, faCircleCheck,
-  faShield, faLifeRing, faUsers, faBriefcase,
-} from '@fortawesome/free-solid-svg-icons'
-import type { IconDefinition } from '@fortawesome/fontawesome-svg-core'
+import { faBars, faXmark, faBolt, faArrowRight } from '@fortawesome/free-solid-svg-icons'
 import type { BlockDefinition } from '../types'
-
-type NavLink = { label?: string; href?: string }
-type MegaItem = { icon?: string; label?: string; description?: string; href?: string }
-type MegaSection = {
-  trigger?: string
-  width?: string
-  items?: MegaItem[]
-  featuredEyebrow?: string
-  featuredTitle?: string
-  featuredDescription?: string
-  featuredPrimaryLabel?: string
-  featuredPrimaryHref?: string
-  featuredSecondaryLabel?: string
-  featuredSecondaryHref?: string
-}
-
-const ICON_MAP: Record<string, IconDefinition> = {
-  rocket: faRocket,
-  'code-branch': faCodeBranch,
-  'chart-line': faChartLine,
-  plug: faPlug,
-  book: faBook,
-  rss: faRss,
-  'clock-rotate-left': faClockRotateLeft,
-  'circle-check': faCircleCheck,
-  shield: faShield,
-  'life-ring': faLifeRing,
-  users: faUsers,
-  briefcase: faBriefcase,
-  bolt: faBolt,
-}
+import { ICON_MAP, type NavLink, type MegaSection } from './NavBarMarketing.types'
+import { NavBarMegaSection } from './partials/NavBarMegaSection'
+import { NavBarMobilePanel } from './partials/NavBarMobilePanel'
 
 function NavBarMarketing(rawProps: Record<string, unknown>) {
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -83,10 +48,7 @@ function NavBarMarketing(rawProps: Record<string, unknown>) {
             {announceCtaLabel && (
               <>
                 <span className="opacity-30">·</span>
-                <a
-                  href={announceCtaHref}
-                  className="font-semibold underline-offset-2 hover:underline inline-flex items-center gap-1"
-                >
+                <a href={announceCtaHref} className="font-semibold underline-offset-2 hover:underline inline-flex items-center gap-1">
                   {announceCtaLabel}
                   <FontAwesomeIcon icon={faArrowRight} className="w-2.5 h-2.5" aria-hidden="true" />
                 </a>
@@ -109,117 +71,17 @@ function NavBarMarketing(rawProps: Record<string, unknown>) {
             <nav className="hidden lg:flex items-center gap-0.5" aria-label="Main navigation">
               {megaSections.map((section, idx) => {
                 const id = `mega-${idx}`
-                const isOpen = openMega === id
-                const items = (section.items ?? []).filter((i) => i?.label)
-                const hasFeatured = Boolean(section.featuredTitle)
-                const width = section.width || (hasFeatured ? '600' : '400')
                 return (
-                  <div
+                  <NavBarMegaSection
                     key={id}
-                    className="relative"
-                    onMouseEnter={() => open(id)}
-                    onMouseLeave={scheduleClose}
-                  >
-                    <button
-                      type="button"
-                      aria-expanded={isOpen}
-                      aria-haspopup="true"
-                      onClick={() => setOpenMega(isOpen ? null : id)}
-                      className={cn(
-                        'inline-flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
-                        isOpen
-                          ? 'bg-[var(--surface-overlay)] text-[var(--text-primary)]'
-                          : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-overlay)]',
-                      )}
-                    >
-                      {section.trigger}
-                      <FontAwesomeIcon
-                        icon={faChevronDown}
-                        className={cn('w-2.5 h-2.5 transition-transform', isOpen && 'rotate-180')}
-                        aria-hidden="true"
-                      />
-                    </button>
-                    {isOpen && (
-                      <div
-                        onMouseEnter={cancelClose}
-                        onMouseLeave={scheduleClose}
-                        style={{ width: `${width}px` }}
-                        className="absolute left-0 top-full mt-1 rounded-xl border border-[var(--border)] bg-[var(--surface-raised)] shadow-xl overflow-hidden"
-                      >
-                        <div className={cn('grid', hasFeatured ? 'grid-cols-[1fr_188px]' : 'grid-cols-1')}>
-                          <div className="p-3">
-                            <div className={cn('grid gap-0.5', items.length > 4 ? 'grid-cols-2' : 'grid-cols-1')}>
-                              {items.map((item, iidx) => {
-                                const icon = item.icon ? ICON_MAP[item.icon] : undefined
-                                return (
-                                  <a
-                                    key={`${item.label}-${iidx}`}
-                                    href={item.href ?? '#'}
-                                    onClick={() => setOpenMega(null)}
-                                    className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-[var(--surface-overlay)] transition-colors group"
-                                  >
-                                    {icon && (
-                                      <div className="flex items-center justify-center w-8 h-8 rounded-md bg-[var(--primary-subtle)] text-[var(--primary)] shrink-0">
-                                        <FontAwesomeIcon icon={icon} className="w-3.5 h-3.5" aria-hidden="true" />
-                                      </div>
-                                    )}
-                                    <div className="min-w-0 flex-1">
-                                      <p className="text-sm font-medium text-[var(--text-primary)] truncate">
-                                        {item.label}
-                                      </p>
-                                      {item.description && (
-                                        <p className="text-xs text-[var(--text-secondary)] mt-0.5 leading-snug">
-                                          {item.description}
-                                        </p>
-                                      )}
-                                    </div>
-                                  </a>
-                                )
-                              })}
-                            </div>
-                          </div>
-                          {hasFeatured && (
-                            <div className="p-4 bg-[var(--surface-overlay)] border-l border-[var(--border)] flex flex-col justify-between gap-3">
-                              <div>
-                                {section.featuredEyebrow && (
-                                  <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--primary)] mb-1.5">
-                                    {section.featuredEyebrow}
-                                  </p>
-                                )}
-                                <p className="text-sm font-semibold text-[var(--text-primary)]">{section.featuredTitle}</p>
-                                {section.featuredDescription && (
-                                  <p className="text-xs text-[var(--text-secondary)] mt-1.5 leading-relaxed">
-                                    {section.featuredDescription}
-                                  </p>
-                                )}
-                              </div>
-                              <div className="flex flex-col gap-1.5">
-                                {section.featuredPrimaryLabel && (
-                                  <a
-                                    href={section.featuredPrimaryHref || '#'}
-                                    onClick={() => setOpenMega(null)}
-                                    className="inline-flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-semibold bg-[var(--primary)] text-[var(--primary-fg)] hover:opacity-90"
-                                  >
-                                    {section.featuredPrimaryLabel}
-                                    <FontAwesomeIcon icon={faArrowRight} className="w-2.5 h-2.5" aria-hidden="true" />
-                                  </a>
-                                )}
-                                {section.featuredSecondaryLabel && (
-                                  <a
-                                    href={section.featuredSecondaryHref || '#'}
-                                    onClick={() => setOpenMega(null)}
-                                    className="text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] text-center"
-                                  >
-                                    {section.featuredSecondaryLabel}
-                                  </a>
-                                )}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                    section={section}
+                    id={id}
+                    isOpen={openMega === id}
+                    iconMap={ICON_MAP}
+                    onOpen={open}
+                    onScheduleClose={scheduleClose}
+                    onCancelClose={cancelClose}
+                  />
                 )
               })}
 
@@ -270,84 +132,18 @@ function NavBarMarketing(rawProps: Record<string, unknown>) {
         </div>
 
         {mobileOpen && (
-          <nav aria-label="Mobile navigation" className="lg:hidden border-t border-[var(--border)] bg-[var(--surface-base)]">
-            <div className="px-4 py-3 space-y-0.5">
-              {megaSections.map((section, idx) => {
-                const id = `m-mega-${idx}`
-                const items = (section.items ?? []).filter((i) => i?.label)
-                const isExp = mobileExpanded === id
-                return (
-                  <div key={id}>
-                    <button
-                      type="button"
-                      aria-expanded={isExp}
-                      onClick={() => setMobileExpanded(isExp ? null : id)}
-                      className="flex items-center justify-between w-full px-3 py-2.5 rounded-lg text-sm font-medium text-[var(--text-primary)] hover:bg-[var(--surface-overlay)] transition-colors"
-                    >
-                      {section.trigger}
-                      <FontAwesomeIcon
-                        icon={faChevronDown}
-                        className={cn('w-3 h-3 text-[var(--text-secondary)] transition-transform', isExp && 'rotate-180')}
-                        aria-hidden="true"
-                      />
-                    </button>
-                    {isExp && (
-                      <div className="ml-3 mt-0.5 mb-1 border-l-2 border-[var(--border)] pl-3 space-y-0.5">
-                        {items.map((item, iidx) => {
-                          const icon = item.icon ? ICON_MAP[item.icon] : undefined
-                          return (
-                            <a
-                              key={`${item.label}-${iidx}`}
-                              href={item.href ?? '#'}
-                              onClick={() => setMobileOpen(false)}
-                              className="flex items-center gap-2.5 px-2 py-2 rounded-lg text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-overlay)] transition-colors"
-                            >
-                              {icon && <FontAwesomeIcon icon={icon} className="w-3.5 h-3.5 text-[var(--primary)] flex-shrink-0" aria-hidden="true" />}
-                              {item.label}
-                            </a>
-                          )
-                        })}
-                      </div>
-                    )}
-                  </div>
-                )
-              })}
-
-              {inlineLinks.map((link, idx) => (
-                <a
-                  key={`m-${link.label}-${idx}`}
-                  href={link.href ?? '#'}
-                  onClick={() => setMobileOpen(false)}
-                  className="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium text-[var(--text-primary)] hover:bg-[var(--surface-overlay)] transition-colors"
-                >
-                  {link.label}
-                </a>
-              ))}
-
-              {(signInLabel || ctaLabel) && (
-                <div className="pt-2 mt-1 border-t border-[var(--border)] space-y-1.5">
-                  {signInLabel && (
-                    <a
-                      href={signInHref}
-                      className="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-overlay)] transition-colors"
-                    >
-                      {signInLabel}
-                    </a>
-                  )}
-                  {ctaLabel && (
-                    <a
-                      href={ctaHref}
-                      onClick={() => setMobileOpen(false)}
-                      className="flex items-center justify-center gap-1.5 w-full px-3 py-2.5 rounded-lg text-sm font-semibold bg-[var(--primary)] text-[var(--primary-fg)]"
-                    >
-                      {ctaLabel}
-                      <FontAwesomeIcon icon={faArrowRight} className="w-3 h-3" aria-hidden="true" />
-                    </a>
-                  )}
-                </div>
-              )}
-            </div>
-          </nav>
+          <NavBarMobilePanel
+            megaSections={megaSections}
+            inlineLinks={inlineLinks}
+            signInLabel={signInLabel}
+            signInHref={signInHref}
+            ctaLabel={ctaLabel}
+            ctaHref={ctaHref}
+            iconMap={ICON_MAP}
+            mobileExpanded={mobileExpanded}
+            onSetMobileExpanded={setMobileExpanded}
+            onClose={() => setMobileOpen(false)}
+          />
         )}
       </header>
     </>
@@ -396,27 +192,23 @@ export const NavBarMarketingDefinition: BlockDefinition = {
         trigger: 'Resources',
         width: '480',
         items: [
-          { icon: 'book',                label: 'Documentation', description: 'Guides, API refs, quickstarts',     href: '/docs' },
-          { icon: 'rss',                 label: 'Blog',          description: 'Product news & engineering posts',  href: '/blog' },
-          { icon: 'clock-rotate-left',   label: 'Changelog',     description: 'Every release, documented',         href: '/changelog' },
-          { icon: 'circle-check',        label: 'System Status', description: 'Live uptime & incident reports',    href: '/status' },
+          { icon: 'book',              label: 'Documentation', description: 'Guides, API refs, quickstarts',     href: '/docs' },
+          { icon: 'rss',               label: 'Blog',          description: 'Product news & engineering posts',  href: '/blog' },
+          { icon: 'clock-rotate-left', label: 'Changelog',     description: 'Every release, documented',         href: '/changelog' },
+          { icon: 'circle-check',      label: 'System Status', description: 'Live uptime & incident reports',    href: '/status' },
         ],
-        featuredEyebrow: '',
-        featuredTitle: '',
-        featuredDescription: '',
-        featuredPrimaryLabel: '',
-        featuredPrimaryHref: '',
-        featuredSecondaryLabel: '',
-        featuredSecondaryHref: '',
+        featuredEyebrow: '', featuredTitle: '', featuredDescription: '',
+        featuredPrimaryLabel: '', featuredPrimaryHref: '',
+        featuredSecondaryLabel: '', featuredSecondaryHref: '',
       },
       {
         trigger: 'Solutions',
         width: '600',
         items: [
-          { icon: 'briefcase',   label: 'For Enterprise', description: 'SSO, audit logs, dedicated support',   href: '/enterprise' },
-          { icon: 'users',       label: 'For Teams',      description: 'Shared workspaces & role-based access', href: '/teams' },
-          { icon: 'shield',      label: 'Security',       description: 'SOC 2 Type II, GDPR, ISO 27001',        href: '/security' },
-          { icon: 'life-ring',   label: 'Support',        description: '24/7 chat, email and phone',            href: '/support' },
+          { icon: 'briefcase', label: 'For Enterprise', description: 'SSO, audit logs, dedicated support',   href: '/enterprise' },
+          { icon: 'users',     label: 'For Teams',      description: 'Shared workspaces & role-based access', href: '/teams' },
+          { icon: 'shield',    label: 'Security',       description: 'SOC 2 Type II, GDPR, ISO 27001',        href: '/security' },
+          { icon: 'life-ring', label: 'Support',        description: '24/7 chat, email and phone',            href: '/support' },
         ],
         featuredEyebrow: 'Customer story',
         featuredTitle: 'How Acme cut deploy time by 70%',
@@ -434,9 +226,7 @@ export const NavBarMarketingDefinition: BlockDefinition = {
     announceCtaLabel: { label: 'Announce: CTA Label', type: 'text', placeholder: 'Read more',                      group: 'Announcement bar' },
     announceCtaHref:  { label: 'Announce: CTA URL',   type: 'url',  placeholder: '/news',                          group: 'Announcement bar' },
     megaSections: {
-      label: 'Mega Menu Sections',
-      type: 'repeater',
-      group: 'Navigation',
+      label: 'Mega Menu Sections', type: 'repeater', group: 'Navigation',
       fields: {
         trigger: { label: 'Trigger Label', type: 'text', placeholder: 'Product' },
         width:   { label: 'Panel Width (px)', type: 'text', placeholder: '600' },
@@ -459,16 +249,14 @@ export const NavBarMarketingDefinition: BlockDefinition = {
       },
     },
     inlineLinks: {
-      label: 'Inline Links (next to mega menus)',
-      type: 'repeater',
-      group: 'Navigation',
+      label: 'Inline Links (next to mega menus)', type: 'repeater', group: 'Navigation',
       fields: {
         label: { label: 'Label', type: 'text', placeholder: 'Pricing' },
         href:  { label: 'URL',   type: 'url',  placeholder: '/pricing' },
       },
     },
-    signInLabel: { label: 'Sign-in Label', type: 'text', placeholder: 'Sign in', group: 'Right-side actions' },
-    signInHref:  { label: 'Sign-in URL',   type: 'url',  placeholder: '/login',  group: 'Right-side actions' },
+    signInLabel: { label: 'Sign-in Label', type: 'text', placeholder: 'Sign in',    group: 'Right-side actions' },
+    signInHref:  { label: 'Sign-in URL',   type: 'url',  placeholder: '/login',     group: 'Right-side actions' },
     ctaLabel:    { label: 'CTA Label',     type: 'text', placeholder: 'Start free', group: 'Right-side actions' },
     ctaHref:     { label: 'CTA URL',       type: 'url',  placeholder: '/signup',    group: 'Right-side actions' },
   },

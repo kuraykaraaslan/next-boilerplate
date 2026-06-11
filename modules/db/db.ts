@@ -53,6 +53,8 @@ import { MediaGalleryItem } from '@/modules/media_gallery/entities/media_gallery
 import { DynamicPage } from '@/modules/dynamic_page/entities/dynamic_page.entity';
 import { DynamicPageTranslation } from '@/modules/dynamic_page/entities/dynamic_page_translation.entity';
 import { DynamicPageBlock } from '@/modules/dynamic_page/entities/dynamic_page_block.entity';
+import { DynamicCollection } from '@/modules/dynamic_page/entities/dynamic_collection.entity';
+import { DynamicCollectionItem } from '@/modules/dynamic_page/entities/dynamic_collection_item.entity';
 import { Fulfillment } from '@/modules/order_fulfillment/entities/fulfillment.entity';
 import { FulfillmentItem } from '@/modules/order_fulfillment/entities/fulfillment_item.entity';
 import { FulfillmentEvent } from '@/modules/order_fulfillment/entities/fulfillment_event.entity';
@@ -125,6 +127,8 @@ const ENTITIES = [
   DynamicPage,
   DynamicPageTranslation,
   DynamicPageBlock,
+  DynamicCollection,
+  DynamicCollectionItem,
   Fulfillment,
   FulfillmentItem,
   FulfillmentEvent,

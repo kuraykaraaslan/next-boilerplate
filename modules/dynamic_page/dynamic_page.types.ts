@@ -61,9 +61,55 @@ export const DynamicPageBlockRecordSchema = z.object({
   defaultProps: z.record(z.string(), z.unknown()).default({}),
   template: z.string().default(''),
   script: z.string().nullish(),
+  serverHandler: z.string().nullish(),
+  allowedCollections: z.array(z.string()).nullish(),
   isSystem: z.boolean().default(false),
   createdAt: z.preprocess((v) => (typeof v === 'string' || v instanceof Date ? new Date(v) : v), z.date()),
   updatedAt: z.preprocess((v) => (typeof v === 'string' || v instanceof Date ? new Date(v) : v), z.date()),
+})
+
+// ─── Collection Field Definition ─────────────────────────────────────────────
+
+export const CollectionFieldSchema = z.object({
+  name: z.string().min(1).max(100).regex(/^[a-zA-Z_][a-zA-Z0-9_]*$/, 'Field name must start with a letter or underscore'),
+  type: z.enum(['text', 'number', 'boolean', 'date', 'url', 'email', 'richtext', 'image', 'json']),
+  label: z.string().min(1).max(200),
+  required: z.boolean().default(false),
+  options: z.array(z.string()).optional(),
+})
+
+export const DynamicCollectionRecordSchema = z.object({
+  collectionId: z.string(),
+  tenantId: z.string(),
+  slug: z.string(),
+  label: z.string(),
+  description: z.string().nullish(),
+  fields: z.array(CollectionFieldSchema).default([]),
+  isSystem: z.boolean().default(false),
+  createdAt: z.preprocess((v) => (typeof v === 'string' || v instanceof Date ? new Date(v) : v), z.date()),
+  updatedAt: z.preprocess((v) => (typeof v === 'string' || v instanceof Date ? new Date(v) : v), z.date()),
+})
+
+export const DynamicCollectionItemRecordSchema = z.object({
+  itemId: z.string(),
+  collectionId: z.string(),
+  tenantId: z.string(),
+  data: z.record(z.string(), z.unknown()).default({}),
+  createdAt: z.preprocess((v) => (typeof v === 'string' || v instanceof Date ? new Date(v) : v), z.date()),
+  updatedAt: z.preprocess((v) => (typeof v === 'string' || v instanceof Date ? new Date(v) : v), z.date()),
+})
+
+export const ListCollectionsQuerySchema = z.object({
+  page: z.coerce.number().int().nonnegative().default(0),
+  pageSize: z.coerce.number().int().positive().max(100).default(20),
+  search: z.string().optional(),
+})
+
+export const ListCollectionItemsQuerySchema = z.object({
+  page: z.coerce.number().int().nonnegative().default(0),
+  pageSize: z.coerce.number().int().positive().max(100).default(20),
+  sort: z.string().optional(),
+  filter: z.record(z.string(), z.string()).optional(),
 })
 
 export const ListPagesQuerySchema = z.object({
@@ -81,3 +127,8 @@ export type DynamicPageRecord = z.infer<typeof DynamicPageRecordSchema>
 export type DynamicPageTranslationRecord = z.infer<typeof DynamicPageTranslationRecordSchema>
 export type DynamicPageBlockRecord = z.infer<typeof DynamicPageBlockRecordSchema>
 export type ListPagesQuery = z.infer<typeof ListPagesQuerySchema>
+export type CollectionField = z.infer<typeof CollectionFieldSchema>
+export type DynamicCollectionRecord = z.infer<typeof DynamicCollectionRecordSchema>
+export type DynamicCollectionItemRecord = z.infer<typeof DynamicCollectionItemRecordSchema>
+export type ListCollectionsQuery = z.infer<typeof ListCollectionsQuerySchema>
+export type ListCollectionItemsQuery = z.infer<typeof ListCollectionItemsQuerySchema>
