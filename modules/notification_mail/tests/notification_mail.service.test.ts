@@ -73,7 +73,7 @@ vi.mock('ejs', () => ({
 }));
 
 // Mock mail providers as classes (required because service calls `new Provider()`)
-vi.mock('./providers/smtp.provider', () => ({
+vi.mock('../providers/smtp.provider', () => ({
   default: class MockSMTPProvider {
     name = 'smtp';
     isConfigured() { return true; }
@@ -81,7 +81,7 @@ vi.mock('./providers/smtp.provider', () => ({
   },
 }));
 
-vi.mock('./providers/sendgrid.provider', () => ({
+vi.mock('../providers/sendgrid.provider', () => ({
   default: class MockSendGridProvider {
     name = 'sendgrid';
     isConfigured() { return false; }
@@ -89,7 +89,7 @@ vi.mock('./providers/sendgrid.provider', () => ({
   },
 }));
 
-vi.mock('./providers/mailgun.provider', () => ({
+vi.mock('../providers/mailgun.provider', () => ({
   default: class MockMailgunProvider {
     name = 'mailgun';
     isConfigured() { return false; }
@@ -97,7 +97,7 @@ vi.mock('./providers/mailgun.provider', () => ({
   },
 }));
 
-vi.mock('./providers/ses.provider', () => ({
+vi.mock('../providers/ses.provider', () => ({
   default: class MockSESProvider {
     name = 'ses';
     isConfigured() { return false; }
@@ -105,7 +105,7 @@ vi.mock('./providers/ses.provider', () => ({
   },
 }));
 
-vi.mock('./providers/postmark.provider', () => ({
+vi.mock('../providers/postmark.provider', () => ({
   default: class MockPostmarkProvider {
     name = 'postmark';
     isConfigured() { return false; }
@@ -113,7 +113,7 @@ vi.mock('./providers/postmark.provider', () => ({
   },
 }));
 
-vi.mock('./providers/resend.provider', () => ({
+vi.mock('../providers/resend.provider', () => ({
   default: class MockResendProvider {
     name = 'resend';
     isConfigured() { return false; }
@@ -127,6 +127,14 @@ vi.mock('@/modules/tenant_subscription/tenant_subscription.feature.service', () 
   default: {
     assertFeatureAccess: vi.fn(async () => undefined),
     checkFeatureAccess: vi.fn(async () => ({ allowed: true, featureKey: '', type: 'BOOLEAN', limit: null, unlimited: null, current: null })),
+  },
+}));
+// Usage gate also runs inside assertMailFeatureAccess — stub it so the mail
+// path isn't blocked by a (DB-backed) usage lookup in unit tests.
+vi.mock('@/modules/tenant_usage/tenant_usage.service', () => ({
+  TenantUsageService: {
+    getUsage: vi.fn(async () => ({ emailSends: 0 })),
+    incrementEmailSends: vi.fn(async () => undefined),
   },
 }));
 import MailService from '../notification_mail.service';

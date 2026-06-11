@@ -48,7 +48,7 @@ vi.mock('@/modules/redis', () => ({
 vi.mock('@/modules/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
 
 // Mock SSO config
-vi.mock('./auth_sso.config', () => ({
+vi.mock('../auth_sso.config', () => ({
   isProviderConfigured: vi.fn((provider: string) => ['google', 'github'].includes(provider)),
   getAllowedProviders: vi.fn(() => ['google', 'github']),
   getCallbackUrl: vi.fn((provider: string) => `http://localhost:3000/api/auth/callback/${provider}`),
@@ -71,11 +71,11 @@ const mockProviderInstance = {
   })),
 };
 
-vi.mock('./providers', () => ({
+vi.mock('../providers', () => ({
   getProvider: vi.fn(() => mockProviderInstance),
 }));
 
-vi.mock('../user_social_account/user_social_account.service', () => ({
+vi.mock('../../user_social_account/user_social_account.service', () => ({
   default: {
     findUserIdByProvider: vi.fn(async () => null),
     getByUserId: vi.fn(async () => []),
@@ -85,7 +85,7 @@ vi.mock('../user_social_account/user_social_account.service', () => ({
   },
 }));
 
-vi.mock('../user/user.service', () => ({
+vi.mock('../../user/user.service', () => ({
   default: {
     getById: vi.fn(async (id: string) => ({
       userId: id,
