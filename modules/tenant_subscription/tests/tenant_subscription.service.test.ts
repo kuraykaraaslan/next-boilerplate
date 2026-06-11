@@ -56,10 +56,10 @@ vi.mock('@/modules/setting/setting.service', () => ({
   default: { getValue: vi.fn(async () => null) },
 }));
 
-import TenantPlanService from './tenant_subscription.plan.service';
+import TenantSubscriptionService from '../tenant_subscription.service';
 import { getDataSource, tenantDataSourceFor } from '@/modules/db';
 import redis from '@/modules/redis';
-import { SUBSCRIPTION_MESSAGES } from './tenant_subscription.messages';
+import { SUBSCRIPTION_MESSAGES } from '../tenant_subscription.messages';
 
 // ─── Fixtures ────────────────────────────────────────────────────────────────
 
@@ -206,178 +206,89 @@ function mockTenantDs(subOverride?: any) {
   return subRepo;
 }
 
-// ─── Plan CRUD ────────────────────────────────────────────────────────────────
+// ─── assignPlan ───────────────────────────────────────────────────────────────
 
-describe('TenantPlanService.createPlan', () => {
-  beforeEach(() => vi.clearAllMocks());
-
-  it('creates and returns a plan with product embedded', async () => {
-    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: makeMultiRepo() });
-    const result = await TenantPlanService.createPlan(TENANT_ID, {
-      productId: PRODUCT_ID,
-      interval: 'MONTHLY',
-      trialDays: 0,
-      status: 'ACTIVE',
-    });
-    expect(result.productId).toBe(PRODUCT_ID);
-    expect(result.interval).toBe('MONTHLY');
-    expect(result.product?.name).toBe('Basic Plan');
-  });
-});
-
-describe('TenantPlanService.updatePlan', () => {
-  beforeEach(() => vi.clearAllMocks());
-
-  it('throws PLAN_NOT_FOUND when plan does not exist', async () => {
-    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: makeMultiRepo(null) });
-    await expect(TenantPlanService.updatePlan(TENANT_ID, PLAN_ID, { interval: 'YEARLY' }))
-      .rejects.toThrow(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND);
-  });
-
-  it('returns updated plan with product', async () => {
-    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: makeMultiRepo() });
-    const result = await TenantPlanService.updatePlan(TENANT_ID, PLAN_ID, { interval: 'YEARLY' });
-    expect(result.product?.name).toBe('Basic Plan');
-    expect(result.productId).toBe(PRODUCT_ID);
-  });
-});
-
-describe('TenantPlanService.deletePlan', () => {
-  beforeEach(() => vi.clearAllMocks());
-
-  it('throws PLAN_NOT_FOUND when plan does not exist', async () => {
-    const sysRepo = makeSystemRepo(null);
-    (getDataSource as any).mockResolvedValue({ getRepository: () => sysRepo });
-    await expect(TenantPlanService.deletePlan(TENANT_ID, PLAN_ID))
-      .rejects.toThrow(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND);
-  });
-
-  it('throws PLAN_HAS_SUBSCRIPTIONS when active subscriptions exist', async () => {
-    mockSystemDs();
-    const subRepo = makeTenantSubRepo();
-    subRepo.count = vi.fn(async () => 1);
-    (getDataSource as any).mockResolvedValue({ getRepository: () => subRepo });
-
-    await expect(TenantPlanService.deletePlan(TENANT_ID, PLAN_ID))
-      .rejects.toThrow(SUBSCRIPTION_MESSAGES.PLAN_HAS_SUBSCRIPTIONS);
-  });
-
-  it('deletes the plan when no active subscriptions exist', async () => {
-    const sysRepo = mockSystemDs();
-    const subRepo = makeTenantSubRepo();
-    subRepo.count = vi.fn(async () => 0);
-    (getDataSource as any).mockResolvedValue({ getRepository: () => subRepo });
-
-    await expect(TenantPlanService.deletePlan(TENANT_ID, PLAN_ID)).resolves.toBeUndefined();
-    expect(sysRepo.delete).toHaveBeenCalled();
-  });
-});
-
-describe('TenantPlanService.getPlanById', () => {
-  beforeEach(() => vi.clearAllMocks());
-
-  it('throws PLAN_NOT_FOUND for unknown planId', async () => {
-    mockSystemDs(null);
-    await expect(TenantPlanService.getPlanById(TENANT_ID, 'unknown-id'))
-      .rejects.toThrow(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND);
-  });
-
-  it('returns the plan', async () => {
-    mockSystemDs();
-    const result = await TenantPlanService.getPlanById(TENANT_ID, PLAN_ID);
-    expect(result.planId).toBe(PLAN_ID);
-  });
-
-  it('returns a null product instead of throwing when the product was deleted', async () => {
-    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: makeMultiRepo(mockPlan, null) });
-    const result = await TenantPlanService.getPlanById(TENANT_ID, PLAN_ID);
-    expect(result.planId).toBe(PLAN_ID);
-    expect(result.product).toBeNull();
-  });
-});
-
-describe('TenantPlanService.getPlans', () => {
-  beforeEach(() => vi.clearAllMocks());
-
-  it('embeds a null product for plans whose product was deleted (no throw)', async () => {
-    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: makeMultiRepo(mockPlan, null) });
-    const result = await TenantPlanService.getPlans(TENANT_ID);
-    expect(result).toHaveLength(1);
-    expect(result[0].product).toBeNull();
-  });
-});
-
-describe('TenantPlanService.getPlansWithFeatures', () => {
-  beforeEach(() => vi.clearAllMocks());
-
-  it('embeds a null product for plans whose product was deleted (no throw)', async () => {
-    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: makeMultiRepo(mockPlan, null) });
-    const result = await TenantPlanService.getPlansWithFeatures(TENANT_ID);
-    expect(result).toHaveLength(1);
-    expect(result[0].product).toBeNull();
-  });
-});
-
-// ─── Feature CRUD ─────────────────────────────────────────────────────────────
-
-describe('TenantPlanService.addFeature', () => {
+describe('TenantSubscriptionService.assignPlan', () => {
   beforeEach(() => vi.clearAllMocks());
 
   it('throws PLAN_NOT_FOUND when plan does not exist', async () => {
     mockSystemDs(null);
+    mockTenantDs();
     await expect(
-      TenantPlanService.addFeature(TENANT_ID, PLAN_ID, {
-        key: 'f1',
-        label: 'F1',
-        type: 'BOOLEAN',
-        value: 'true',
-        sortOrder: 0,
-      })
+      TenantSubscriptionService.assignPlan(TENANT_ID, { planId: PLAN_ID, billingInterval: 'MONTHLY' })
     ).rejects.toThrow(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND);
   });
 
-  it('creates and returns a feature', async () => {
-    const sysRepo = makeSystemRepo();
-    sysRepo.save = vi.fn(async (e: any) => ({ ...mockFeature, ...e }));
-    (getDataSource as any).mockResolvedValue({ getRepository: () => sysRepo });
+  it('creates subscription and returns it for a new tenant', async () => {
+    mockSystemDs();
+    const subRepo = makeTenantSubRepo();
+    subRepo.findOne = vi.fn(async () => null); // no existing subscription
+    subRepo.save = vi.fn(async (e: any) => ({ ...mockSubscription, ...e }));
+    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => subRepo });
 
-    const result = await TenantPlanService.addFeature(TENANT_ID, PLAN_ID, {
-      key: 'feature_chat',
-      label: 'Chat',
-      type: 'BOOLEAN',
-      value: 'true',
-      sortOrder: 0,
+    const result = await TenantSubscriptionService.assignPlan(TENANT_ID, {
+      planId: PLAN_ID,
+      billingInterval: 'MONTHLY',
     });
-    expect(result.key).toBe('feature_chat');
+    expect(result.tenantId).toBe(TENANT_ID);
+    expect(result.planId).toBe(PLAN_ID);
+    expect(result.billingInterval).toBe('MONTHLY');
+  });
+
+  it('sets status to TRIALING when plan has trial days', async () => {
+    const planWithTrial = { ...mockPlan, trialDays: 14 };
+    const sysRepo = makeSystemRepo(planWithTrial);
+    (getDataSource as any).mockResolvedValue({ getRepository: () => sysRepo });
+
+    const subRepo = makeTenantSubRepo();
+    subRepo.findOne = vi.fn(async () => null);
+    const trialSub = { ...mockSubscription, status: 'TRIALING', trialEndsAt: new Date() };
+    subRepo.save = vi.fn(async () => trialSub);
+    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => subRepo });
+
+    const result = await TenantSubscriptionService.assignPlan(TENANT_ID, {
+      planId: PLAN_ID,
+      billingInterval: 'MONTHLY',
+    });
+    expect(result.status).toBe('TRIALING');
   });
 });
 
-describe('TenantPlanService.updateFeature', () => {
+// ─── cancelSubscription ───────────────────────────────────────────────────────
+
+describe('TenantSubscriptionService.cancelSubscription', () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it('throws FEATURE_NOT_FOUND when feature does not exist', async () => {
-    const sysRepo = makeSystemRepo(mockPlan, null);
-    (getDataSource as any).mockResolvedValue({ getRepository: () => sysRepo });
-    await expect(TenantPlanService.updateFeature(TENANT_ID, FEATURE_ID, { label: 'New' }))
-      .rejects.toThrow(SUBSCRIPTION_MESSAGES.FEATURE_NOT_FOUND);
-  });
-});
+  it('throws SUBSCRIPTION_NOT_FOUND when no subscription exists', async () => {
+    mockSystemDs();
+    const subRepo = makeTenantSubRepo(null);
+    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => subRepo });
 
-describe('TenantPlanService.removeFeature', () => {
-  beforeEach(() => vi.clearAllMocks());
-
-  it('throws FEATURE_NOT_FOUND when feature does not exist', async () => {
-    const sysRepo = makeSystemRepo(mockPlan, null);
-    (getDataSource as any).mockResolvedValue({ getRepository: () => sysRepo });
-    await expect(TenantPlanService.removeFeature(TENANT_ID, FEATURE_ID))
-      .rejects.toThrow(SUBSCRIPTION_MESSAGES.FEATURE_NOT_FOUND);
+    await expect(TenantSubscriptionService.cancelSubscription(TENANT_ID))
+      .rejects.toThrow(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_NOT_FOUND);
   });
 
-  it('deletes the feature successfully', async () => {
-    const sysRepo = makeSystemRepo();
-    (getDataSource as any).mockResolvedValue({ getRepository: () => sysRepo });
-    await expect(TenantPlanService.removeFeature(TENANT_ID, FEATURE_ID)).resolves.toBeUndefined();
-    expect(sysRepo.delete).toHaveBeenCalled();
+  it('throws SUBSCRIPTION_ALREADY_CANCELLED when already cancelled', async () => {
+    mockSystemDs();
+    const cancelledSub = { ...mockSubscription, status: 'CANCELLED' };
+    const subRepo = makeTenantSubRepo(cancelledSub);
+    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => subRepo });
+
+    await expect(TenantSubscriptionService.cancelSubscription(TENANT_ID))
+      .rejects.toThrow(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_ALREADY_CANCELLED);
+  });
+
+  it('cancels subscription and returns it', async () => {
+    mockSystemDs();
+    const cancelledSub = { ...mockSubscription, status: 'CANCELLED', cancelledAt: new Date() };
+    const subRepo = makeTenantSubRepo();
+    subRepo.findOne = vi.fn()
+      .mockResolvedValueOnce(mockSubscription) // existence check
+      .mockResolvedValueOnce(cancelledSub);    // after update
+    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => subRepo });
+
+    const result = await TenantSubscriptionService.cancelSubscription(TENANT_ID);
+    expect(result.status).toBe('CANCELLED');
   });
 });
 

@@ -56,10 +56,10 @@ vi.mock('@/modules/setting/setting.service', () => ({
   default: { getValue: vi.fn(async () => null) },
 }));
 
-import TenantSubscriptionService from './tenant_subscription.service';
+import TenantFeatureGateService from '../tenant_subscription.feature.service';
 import { getDataSource, tenantDataSourceFor } from '@/modules/db';
 import redis from '@/modules/redis';
-import { SUBSCRIPTION_MESSAGES } from './tenant_subscription.messages';
+import { SUBSCRIPTION_MESSAGES } from '../tenant_subscription.messages';
 
 // ─── Fixtures ────────────────────────────────────────────────────────────────
 
@@ -206,89 +206,151 @@ function mockTenantDs(subOverride?: any) {
   return subRepo;
 }
 
-// ─── assignPlan ───────────────────────────────────────────────────────────────
+// ─── checkFeatureAccess ───────────────────────────────────────────────────────
 
-describe('TenantSubscriptionService.assignPlan', () => {
-  beforeEach(() => vi.clearAllMocks());
-
-  it('throws PLAN_NOT_FOUND when plan does not exist', async () => {
-    mockSystemDs(null);
-    mockTenantDs();
-    await expect(
-      TenantSubscriptionService.assignPlan(TENANT_ID, { planId: PLAN_ID, billingInterval: 'MONTHLY' })
-    ).rejects.toThrow(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND);
+describe('TenantFeatureGateService.checkFeatureAccess', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    (redis.get as any).mockResolvedValue(null);
   });
 
-  it('creates subscription and returns it for a new tenant', async () => {
-    mockSystemDs();
-    const subRepo = makeTenantSubRepo();
-    subRepo.findOne = vi.fn(async () => null); // no existing subscription
-    subRepo.save = vi.fn(async (e: any) => ({ ...mockSubscription, ...e }));
-    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => subRepo });
-
-    const result = await TenantSubscriptionService.assignPlan(TENANT_ID, {
-      planId: PLAN_ID,
-      billingInterval: 'MONTHLY',
-    });
-    expect(result.tenantId).toBe(TENANT_ID);
-    expect(result.planId).toBe(PLAN_ID);
-    expect(result.billingInterval).toBe('MONTHLY');
-  });
-
-  it('sets status to TRIALING when plan has trial days', async () => {
-    const planWithTrial = { ...mockPlan, trialDays: 14 };
-    const sysRepo = makeSystemRepo(planWithTrial);
-    (getDataSource as any).mockResolvedValue({ getRepository: () => sysRepo });
-
-    const subRepo = makeTenantSubRepo();
-    subRepo.findOne = vi.fn(async () => null);
-    const trialSub = { ...mockSubscription, status: 'TRIALING', trialEndsAt: new Date() };
-    subRepo.save = vi.fn(async () => trialSub);
-    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => subRepo });
-
-    const result = await TenantSubscriptionService.assignPlan(TENANT_ID, {
-      planId: PLAN_ID,
-      billingInterval: 'MONTHLY',
-    });
-    expect(result.status).toBe('TRIALING');
-  });
-});
-
-// ─── cancelSubscription ───────────────────────────────────────────────────────
-
-describe('TenantSubscriptionService.cancelSubscription', () => {
-  beforeEach(() => vi.clearAllMocks());
-
-  it('throws SUBSCRIPTION_NOT_FOUND when no subscription exists', async () => {
+  it('returns denied when no subscription exists', async () => {
     mockSystemDs();
     const subRepo = makeTenantSubRepo(null);
     (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => subRepo });
 
-    await expect(TenantSubscriptionService.cancelSubscription(TENANT_ID))
-      .rejects.toThrow(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_NOT_FOUND);
+    const result = await TenantFeatureGateService.checkFeatureAccess(TENANT_ID, 'feature_chat');
+    expect(result.allowed).toBe(false);
   });
 
-  it('throws SUBSCRIPTION_ALREADY_CANCELLED when already cancelled', async () => {
+  it('returns allowed for BOOLEAN feature with value "true"', async () => {
     mockSystemDs();
-    const cancelledSub = { ...mockSubscription, status: 'CANCELLED' };
-    const subRepo = makeTenantSubRepo(cancelledSub);
-    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => subRepo });
+    mockTenantDs();
+    const cacheData = {
+      status: 'ACTIVE',
+      gracePeriodEndsAt: null,
+      features: [{ key: 'feature_chat', type: 'BOOLEAN', value: 'true' }],
+    };
+    (redis.get as any).mockResolvedValue(JSON.stringify(cacheData));
 
-    await expect(TenantSubscriptionService.cancelSubscription(TENANT_ID))
-      .rejects.toThrow(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_ALREADY_CANCELLED);
+    const result = await TenantFeatureGateService.checkFeatureAccess(TENANT_ID, 'feature_chat');
+    expect(result.allowed).toBe(true);
+    expect(result.type).toBe('BOOLEAN');
   });
 
-  it('cancels subscription and returns it', async () => {
-    mockSystemDs();
-    const cancelledSub = { ...mockSubscription, status: 'CANCELLED', cancelledAt: new Date() };
-    const subRepo = makeTenantSubRepo();
-    subRepo.findOne = vi.fn()
-      .mockResolvedValueOnce(mockSubscription) // existence check
-      .mockResolvedValueOnce(cancelledSub);    // after update
-    (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => subRepo });
+  it('returns denied for BOOLEAN feature with value "false"', async () => {
+    const cacheData = {
+      status: 'ACTIVE',
+      gracePeriodEndsAt: null,
+      features: [{ key: 'feature_export', type: 'BOOLEAN', value: 'false' }],
+    };
+    (redis.get as any).mockResolvedValue(JSON.stringify(cacheData));
 
-    const result = await TenantSubscriptionService.cancelSubscription(TENANT_ID);
-    expect(result.status).toBe('CANCELLED');
+    const result = await TenantFeatureGateService.checkFeatureAccess(TENANT_ID, 'feature_export');
+    expect(result.allowed).toBe(false);
+  });
+
+  it('returns allowed for LIMIT feature when under limit', async () => {
+    const cacheData = {
+      status: 'ACTIVE',
+      gracePeriodEndsAt: null,
+      features: [{ key: 'max_users', type: 'LIMIT', value: '10' }],
+    };
+    (redis.get as any).mockResolvedValue(JSON.stringify(cacheData));
+
+    const result = await TenantFeatureGateService.checkFeatureAccess(TENANT_ID, 'max_users', 5);
+    expect(result.allowed).toBe(true);
+    expect(result.type).toBe('LIMIT');
+  });
+
+  it('returns denied for LIMIT feature when at or over limit', async () => {
+    const cacheData = {
+      status: 'ACTIVE',
+      gracePeriodEndsAt: null,
+      features: [{ key: 'max_users', type: 'LIMIT', value: '10' }],
+    };
+    (redis.get as any).mockResolvedValue(JSON.stringify(cacheData));
+
+    const result = await TenantFeatureGateService.checkFeatureAccess(TENANT_ID, 'max_users', 10);
+    expect(result.allowed).toBe(false);
+  });
+
+  it('returns denied when subscription is CANCELLED', async () => {
+    const cacheData = {
+      status: 'CANCELLED',
+      gracePeriodEndsAt: null,
+      features: [{ key: 'feature_chat', type: 'BOOLEAN', value: 'true' }],
+    };
+    (redis.get as any).mockResolvedValue(JSON.stringify(cacheData));
+
+    const result = await TenantFeatureGateService.checkFeatureAccess(TENANT_ID, 'feature_chat');
+    expect(result.allowed).toBe(false);
+  });
+
+  it('returns denied for unknown feature key', async () => {
+    const cacheData = {
+      status: 'ACTIVE',
+      gracePeriodEndsAt: null,
+      features: [{ key: 'feature_chat', type: 'BOOLEAN', value: 'true' }],
+    };
+    (redis.get as any).mockResolvedValue(JSON.stringify(cacheData));
+
+    const result = await TenantFeatureGateService.checkFeatureAccess(TENANT_ID, 'nonexistent_feature');
+    expect(result.allowed).toBe(false);
   });
 });
 
+// ─── assertFeatureAccess ──────────────────────────────────────────────────────
+
+describe('TenantFeatureGateService.assertFeatureAccess', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    (redis.get as any).mockResolvedValue(null);
+  });
+
+  it('throws FEATURE_ACCESS_DENIED when boolean feature is denied', async () => {
+    const cacheData = {
+      status: 'ACTIVE',
+      gracePeriodEndsAt: null,
+      features: [{ key: 'feature_export', type: 'BOOLEAN', value: 'false' }],
+    };
+    (redis.get as any).mockResolvedValue(JSON.stringify(cacheData));
+
+    await expect(TenantFeatureGateService.assertFeatureAccess(TENANT_ID, 'feature_export'))
+      .rejects.toThrow(SUBSCRIPTION_MESSAGES.FEATURE_ACCESS_DENIED);
+  });
+
+  it('throws FEATURE_LIMIT_REACHED when limit feature is exceeded', async () => {
+    const cacheData = {
+      status: 'ACTIVE',
+      gracePeriodEndsAt: null,
+      features: [{ key: 'max_users', type: 'LIMIT', value: '5' }],
+    };
+    (redis.get as any).mockResolvedValue(JSON.stringify(cacheData));
+
+    await expect(TenantFeatureGateService.assertFeatureAccess(TENANT_ID, 'max_users', 5))
+      .rejects.toThrow(SUBSCRIPTION_MESSAGES.FEATURE_LIMIT_REACHED);
+  });
+
+  it('resolves when feature is allowed', async () => {
+    const cacheData = {
+      status: 'ACTIVE',
+      gracePeriodEndsAt: null,
+      features: [{ key: 'feature_chat', type: 'BOOLEAN', value: 'true' }],
+    };
+    (redis.get as any).mockResolvedValue(JSON.stringify(cacheData));
+
+    await expect(TenantFeatureGateService.assertFeatureAccess(TENANT_ID, 'feature_chat'))
+      .resolves.not.toThrow();
+  });
+});
+
+// ─── invalidateFeatureCache ───────────────────────────────────────────────────
+
+describe('TenantFeatureGateService.invalidateFeatureCache', () => {
+  it('calls redis.del with the correct feature cache key', async () => {
+    (redis.del as any).mockResolvedValue(1);
+    await TenantFeatureGateService.invalidateFeatureCache(TENANT_ID);
+    expect(redis.del).toHaveBeenCalledWith(`feature:sub:${TENANT_ID}`);
+  });
+});

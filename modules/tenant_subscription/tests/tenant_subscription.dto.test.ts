@@ -6,7 +6,7 @@ import {
   CreateFeatureRequestSchema,
   UpdateFeatureRequestSchema,
   AssignSubscriptionRequestSchema,
-} from './tenant_subscription.dto';
+} from '../tenant_subscription.dto';
 
 // ─── CreatePlanRequestSchema ──────────────────────────────────────────────────
 
