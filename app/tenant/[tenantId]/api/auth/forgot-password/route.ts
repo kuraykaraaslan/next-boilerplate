@@ -5,6 +5,7 @@ import PasswordService from "@/modules/auth/auth.password.service";
 import TenantService from "@/modules/tenant/tenant.service";
 import { ForgotPasswordDTO } from "@/modules/auth/auth.dto";
 import AuthMessages from "@/modules/auth/auth.messages";
+import { resolveLocale } from "@/modules/auth/auth.i18n";
 
 export async function POST(
   request: NextRequest,
@@ -28,7 +29,8 @@ export async function POST(
       }, { status: 400 });
     }
 
-    await PasswordService.forgotPassword({ email: parsedData.data.email });
+    const locale = resolveLocale(request.headers.get('accept-language'));
+    await PasswordService.forgotPassword({ email: parsedData.data.email, tenantId, locale });
 
     return NextResponse.json({ message: AuthMessages.FORGOT_PASSWORD_SUCCESSFUL }, { status: 200 });
   } catch (error: any) {

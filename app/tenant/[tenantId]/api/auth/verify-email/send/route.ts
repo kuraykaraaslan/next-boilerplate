@@ -5,6 +5,7 @@ import UserSessionNextService from "@/modules_next/user_session/user_session.ser
 import AuthService from "@/modules/auth/auth.service";
 import TenantService from "@/modules/tenant/tenant.service";
 import AuthMessages from "@/modules/auth/auth.messages";
+import { resolveLocale } from "@/modules/auth/auth.i18n";
 
 /**
  * Email verification is an onboarding endpoint — the user may not yet be a
@@ -36,7 +37,8 @@ export async function POST(
       return NextResponse.json({ error: AuthMessages.USER_NOT_AUTHENTICATED }, { status: 401 });
     }
 
-    await AuthService.sendEmailVerification({ userId, email });
+    const locale = resolveLocale(request.headers.get('accept-language'));
+    await AuthService.sendEmailVerification({ userId, email, tenantId, locale });
 
     return NextResponse.json({ message: AuthMessages.EMAIL_VERIFICATION_SENT }, { status: 200 });
   } catch (error: any) {

@@ -38,9 +38,14 @@ export async function POST(
       }, { status: 400 });
     }
 
-    const { email, password } = parsedData.data;
+    const { email, password, captchaToken } = parsedData.data;
 
-    const { user } = await AuthService.login({ email, password });
+    // Thread tenantId so per-tenant policy (email-verification, lockout,
+    // MFA), login-failure metrics (GTH-17) and the account-locked webhook
+    // (GTH-18) all resolve against the request tenant.
+    const ipAddress = request.headers.get('x-forwarded-for') ?? undefined;
+    const userAgent = request.headers.get('user-agent') ?? undefined;
+    const { user } = await AuthService.login({ email, password, captchaToken, tenantId, ipAddress, userAgent });
 
     if (!user) {
       throw new Error(AuthMessages.INVALID_CREDENTIALS);

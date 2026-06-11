@@ -1,6 +1,31 @@
-import type { PasswordPolicy, AdminPolicy } from './auth.policy.loader.service';
+import type { PasswordPolicy, AdminPolicy, AccessPolicy, MfaMethod } from './auth.policy.loader.service';
 
 export default class AuthPolicyValidatorService {
+
+  /**
+   * GTH-2: is a specific SSO provider allowed for this tenant? When the
+   * allow-list is empty, all providers are allowed (back-compat). When
+   * `disableSocialLogin` is set, no provider is allowed.
+   */
+  static isSsoProviderAllowed(provider: string, policy: AccessPolicy): boolean {
+    if (policy.disableSocialLogin) return false;
+    if (policy.ssoAllowedProviders.length === 0) return true;
+    return policy.ssoAllowedProviders.map((p) => p.toLowerCase()).includes(provider.toLowerCase());
+  }
+
+  /** GTH-2: narrow a provider list to those the tenant permits. */
+  static filterAllowedProviders(providers: string[], policy: AccessPolicy): string[] {
+    return providers.filter((p) => AuthPolicyValidatorService.isSsoProviderAllowed(p, policy));
+  }
+
+  /**
+   * GTH-13: is an MFA method allowed for this tenant? Empty allow-list = all
+   * methods allowed.
+   */
+  static isMfaMethodAllowed(method: MfaMethod, policy: AccessPolicy): boolean {
+    if (policy.mfaAllowedMethods.length === 0) return true;
+    return policy.mfaAllowedMethods.includes(method);
+  }
 
   static isAdminIpAllowed(requestIp: string | undefined, policy: AdminPolicy): boolean {
     if (policy.ipAllowlist.length === 0) return true;

@@ -29,5 +29,30 @@
   "otp_sent": "OTP gönderildi",
   "otp_send_failed": "OTP gönderilemedi",
   "otp_verified": "OTP doğrulandı",
-  "otp_verify_failed": "OTP doğrulanamadı"
+  "otp_verify_failed": "OTP doğrulanamadı",
+  "errors": {
+    "INVALID_CREDENTIALS": "Geçersiz kimlik bilgileri.",
+    "INVALID_EMAIL_OR_PASSWORD": "Geçersiz e-posta veya şifre.",
+    "ACCOUNT_LOCKED": "Hesabınız geçici olarak kilitlendi. Lütfen daha sonra tekrar deneyin.",
+    "ACCOUNT_DISABLED": "Bu hesap aktif değil.",
+    "RATE_LIMIT_EXCEEDED": "Çok fazla deneme yapıldı. Lütfen bekleyip tekrar deneyin.",
+    "REGISTRATION_DISABLED": "Bu kuruluş için kayıt şu anda devre dışı.",
+    "EMAIL_ALREADY_EXISTS": "Bu e-posta ile bir hesap zaten mevcut.",
+    "EMAIL_VERIFICATION_REQUIRED": "Giriş yapmadan önce lütfen e-posta adresinizi doğrulayın.",
+    "INVALID_OTP": "Doğrulama kodu hatalı.",
+    "OTP_EXPIRED": "Doğrulama kodunun süresi doldu.",
+    "SSO_PROVIDER_NOT_ALLOWED": "Bu giriş sağlayıcısı kuruluşunuz için etkin değil.",
+    "MFA_METHOD_NOT_ALLOWED": "Bu çok faktörlü doğrulama yöntemi kuruluşunuz tarafından izin verilmiyor.",
+    "MFA_ENROLLMENT_REQUIRED": "Çok faktörlü kimlik doğrulama kaydı gereklidir.",
+    "PASSWORD_REUSED": "Önceki bir şifreyi tekrar kullanamazsınız.",
+    "PASSWORD_EXPIRED": "Şifrenizin süresi doldu ve değiştirilmelidir.",
+    "PASSWORD_CHANGED_TOO_RECENTLY": "Şifreniz çok yakın zamanda değiştirildiği için tekrar değiştirilemez.",
+    "INVALID_TOKEN": "Bu bağlantı geçersiz veya süresi dolmuş."
+  },
+  "email_subjects": {
+    "otp": "Doğrulama kodunuz",
+    "verify_email": "E-postanızı doğrulayın",
+    "forgot_password": "Şifrenizi sıfırlayın",
+    "password_reset_success": "Şifreniz sıfırlandı"
+  }
 }

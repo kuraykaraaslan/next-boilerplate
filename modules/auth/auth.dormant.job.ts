@@ -25,9 +25,9 @@ export const dormantSweepQueue = new Queue(QUEUE_NAME, {
 export const dormantSweepWorker = new Worker(
   QUEUE_NAME,
   async (_job: Job) => {
-    const { scanned, disabled } = await AuthService.disableDormantAccounts();
-    Logger.info(`[CronJob:auth-dormant-sweep] scanned=${scanned} disabled=${disabled}`);
-    return { scanned, disabled };
+    const { scanned, disabled, erased } = await AuthService.disableDormantAccounts();
+    Logger.info(`[CronJob:auth-dormant-sweep] scanned=${scanned} disabled=${disabled} erased=${erased}`);
+    return { scanned, disabled, erased };
   },
   {
     connection: getBullMQConnection(),

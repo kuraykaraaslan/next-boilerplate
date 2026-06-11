@@ -9,14 +9,16 @@ import MailTemplatesService from "../notification_mail/notification_mail.templat
 import { ROOT_TENANT_ID } from '@/modules/tenant/tenant.constants';
 import SMSService from "../notification_sms/notification_sms.service";
 import AuthMessages from "./auth.messages";
+import AuthPolicyService from "./auth.policy.service";
+import { authEmailSubject } from "./auth.i18n";
+import type { AuthLocale } from "./dictionaries";
 import Logger from "@/modules/logger";
 import { AppError, ErrorCode } from '@/modules/common/app-error';
 
 export default class OTPService {
+  // GTH-3: env values are the fallback default only; per-tenant OTP knobs are
+  // resolved at runtime via AuthPolicyService.getOtpPolicy(tenantId).
   private static readonly OTP_LENGTH = env.OTP_LENGTH ?? 6;
-  private static readonly OTP_EXPIRY_SECONDS = env.OTP_EXPIRY_SECONDS ?? 600;
-  private static readonly OTP_RATE_LIMIT_SECONDS = env.OTP_RATE_LIMIT_SECONDS ?? 60;
-  private static readonly OTP_MAX_ATTEMPTS = env.OTP_MAX_ATTEMPTS ?? 5;
 
   /**
    * Generate a numeric OTP token
@@ -65,21 +67,36 @@ export default class OTPService {
     userSession,
     method,
     action,
+    tenantId,
+    locale,
   }: {
     user: SafeUser;
     userSession: SafeUserSession;
     method: OTPMethod;
     action: OTPAction;
+    /** GTH-3/5/13: per-tenant TTLs, mail routing, and MFA method allow-list. */
+    tenantId?: string;
+    /** GTH-10: recipient locale for the transactional email subject. */
+    locale?: AuthLocale;
   }): Promise<{ otpToken: string }> {
     if (method === "TOTP_APP") {
       throw new AppError(AuthMessages.USE_AUTHENTICATOR_APP, 400, ErrorCode.VALIDATION_ERROR);
     }
 
+    // GTH-13: enforce the tenant's MFA method allow-list. Empty = all allowed.
+    const accessPolicy = await AuthPolicyService.getAccessPolicy(tenantId);
+    if (accessPolicy.mfaAllowedMethods.length > 0 && !accessPolicy.mfaAllowedMethods.includes(method as any)) {
+      throw new AppError(AuthMessages.MFA_METHOD_NOT_ALLOWED, 403, ErrorCode.FORBIDDEN);
+    }
+
+    // GTH-3: per-tenant OTP knobs (length/expiry/rate-limit/attempts).
+    const otpPolicy = await AuthPolicyService.getOtpPolicy(tenantId);
+
     const rateKey = this.getRateKey(userSession.userSessionId, method);
 
     // Check rate limit
     const rateCount = await redis.get(rateKey);
-    if (rateCount && parseInt(rateCount) >= this.OTP_MAX_ATTEMPTS) {
+    if (rateCount && parseInt(rateCount) >= otpPolicy.maxAttempts) {
       throw new AppError(AuthMessages.RATE_LIMIT_EXCEEDED, 429, ErrorCode.RATE_LIMIT_EXCEEDED);
     }
 
@@ -87,7 +104,7 @@ export default class OTPService {
     if (rateCount) {
       await redis.incr(rateKey);
     } else {
-      await redis.setex(rateKey, this.OTP_RATE_LIMIT_SECONDS, "1");
+      await redis.setex(rateKey, otpPolicy.rateLimitSeconds, "1");
     }
 
     // Validate delivery prerequisites before generating the OTP
@@ -96,25 +113,29 @@ export default class OTPService {
     }
 
     // Generate OTP
-    const otpToken = this.generateToken();
+    const otpToken = this.generateToken(otpPolicy.length);
     const hashedToken = this.hashToken(otpToken);
 
     // Store OTP
     const otpKey = this.getOTPKey(userSession.userSessionId, method, action);
-    await redis.setex(otpKey, this.OTP_EXPIRY_SECONDS, hashedToken);
+    await redis.setex(otpKey, otpPolicy.expirySeconds, hashedToken);
+
+    // GTH-5: route auth mail/SMS through the request tenant's own provider +
+    // branding; fall back to the root tenant when no tenant context is present.
+    const deliveryTenantId = tenantId ?? ROOT_TENANT_ID;
 
     // Send OTP — delivery failures are logged but must NOT propagate to the frontend
     switch (method) {
       case "EMAIL":
-        MailTemplatesService.sendOTPEmail({ tenantId: ROOT_TENANT_ID, email: user.email, otpToken }).catch((err: unknown) => {
+        MailTemplatesService.sendOTPEmail({ tenantId: deliveryTenantId, email: user.email, otpToken, subject: authEmailSubject('otp', locale) }).catch((err: unknown) => {
           Logger.error(`OTPService: sendOTPEmail failed for user ${user.userId}: ${err instanceof Error ? err.message : err}`);
         });
         break;
 
       case "SMS":
-        SMSService.sendShortMessage(ROOT_TENANT_ID, {
+        SMSService.sendShortMessage(deliveryTenantId, {
           to: user.phone!,
-          body: `Your verification code is ${otpToken}. Valid for ${this.OTP_EXPIRY_SECONDS / 60} minutes.`,
+          body: `Your verification code is ${otpToken}. Valid for ${Math.round(otpPolicy.expirySeconds / 60)} minutes.`,
         }).catch((err: unknown) => {
           Logger.error(`OTPService: sendShortMessage failed for user ${user.userId}: ${err instanceof Error ? err.message : err}`);
         });
@@ -125,7 +146,7 @@ export default class OTPService {
     }
 
     Logger.info(`OTP sent via ${method} to user ${user.userId}`);
-    
+
     return { otpToken };
   }
 
@@ -138,23 +159,26 @@ export default class OTPService {
     method,
     action,
     otpToken,
+    tenantId,
   }: {
     user: SafeUser;
     userSession: SafeUserSession;
     method: OTPMethod;
     action: OTPAction;
     otpToken: string;
+    tenantId?: string;
   }): Promise<{ verified: boolean }> {
     if (method === "TOTP_APP") {
       throw new AppError(AuthMessages.USE_AUTHENTICATOR_APP, 400, ErrorCode.VALIDATION_ERROR);
     }
 
+    const otpPolicy = await AuthPolicyService.getOtpPolicy(tenantId);
     const otpKey = this.getOTPKey(userSession.userSessionId, method, action);
     const attemptKey = this.getAttemptKey(userSession.userSessionId, method, action);
 
     // Check attempt limit
     const attempts = await redis.get(attemptKey);
-    if (attempts && parseInt(attempts) >= this.OTP_MAX_ATTEMPTS) {
+    if (attempts && parseInt(attempts) >= otpPolicy.maxAttempts) {
       // Clear the OTP on too many attempts
       await redis.del(otpKey);
       throw new AppError(AuthMessages.RATE_LIMIT_EXCEEDED, 429, ErrorCode.RATE_LIMIT_EXCEEDED);
@@ -173,7 +197,7 @@ export default class OTPService {
       if (attempts) {
         await redis.incr(attemptKey);
       } else {
-        await redis.setex(attemptKey, this.OTP_EXPIRY_SECONDS, "1");
+        await redis.setex(attemptKey, otpPolicy.expirySeconds, "1");
       }
       throw new AppError(AuthMessages.INVALID_OTP, 401, ErrorCode.INVALID_CREDENTIALS);
     }

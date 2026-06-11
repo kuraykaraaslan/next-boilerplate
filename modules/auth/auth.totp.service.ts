@@ -11,6 +11,7 @@ import { SafeUserSession } from '../user_session/user_session.types';
 import { OTPAction } from '../user_security/user_security.enums';
 import UserSecurityService from '../user_security/user_security.service';
 import SettingService from '../setting/setting.service';
+import AuthPolicyService from './auth.policy.service';
 
 export default class TOTPService {
   static TOTP_STEP_SECONDS = env.TOTP_STEP_SECONDS ?? 30;
@@ -50,6 +51,12 @@ export default class TOTPService {
 
   // Start TOTP setup: generate temporary secret and return otpauth URL
   static async requestSetup({ user, userSession, tenantId }: { user: SafeUser; userSession: SafeUserSession; tenantId?: string }) {
+    // GTH-13: a tenant can ban TOTP via its MFA method allow-list. Empty = all allowed.
+    const accessPolicy = await AuthPolicyService.getAccessPolicy(tenantId);
+    if (accessPolicy.mfaAllowedMethods.length > 0 && !accessPolicy.mfaAllowedMethods.includes('TOTP_APP')) {
+      throw new AppError(AuthMessages.MFA_METHOD_NOT_ALLOWED, 403, ErrorCode.FORBIDDEN);
+    }
+
     const tempSecret = TOTPService.generateSecret();
     const otpauthUrl = await TOTPService.getOtpauthURL({ user, secret: tempSecret, tenantId });
 

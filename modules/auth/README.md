@@ -6,11 +6,12 @@ Core credential authentication: login, registration, email verification, passwor
 
 ## Entities
 
-The auth module owns **no tables of its own**. It reads and mutates entities owned by sibling modules, all in the **system (global) DB**:
+The auth module owns **one** table — `user_consents` (GTH-7) — and reads/mutates entities owned by sibling modules, all in the **system (global) DB**:
 
 | Entity | Table | Owner module | Used for |
 |---|---|---|---|
-| `User` | `users` | `user` | Identity, password hash, `userStatus`, `emailVerifiedAt` |
+| `UserConsent` | `user_consents` | **auth** | GTH-7: append-only ToS/Privacy consent records (document type + version + timestamp) captured at registration. Migration `006_auth_consent.sql`; registered in `@/modules/db`. |
+| `User` | `users` | `user` | Identity, password hash, `userStatus`, `emailVerifiedAt`, `consentVersion`/`consentAcceptedAt` |
 | `UserSecurity` | `user_securities` | `user_security` | Lockout state, login attempts, password history, OTP/TOTP secrets, backup codes, `lastLoginAt` |
 | `UserSession` | `user_sessions` | `user_session` | Sessions issued after authentication |
 
@@ -111,7 +112,7 @@ All auth routes are **tenant-scoped** under `/tenant/[tenantId]/api/auth/...` (t
 
 ## Dormant-account sweep
 
-`AuthService.disableDormantAccounts(tenantId?)` marks `ACTIVE` accounts `INACTIVE` when last activity (`user_securities.lastLoginAt`, falling back to `users.createdAt`) predates the dormant cutoff. With `dormantAccountAutoDisable=false` it becomes a dry-run (scans, disables nothing).
+`AuthService.disableDormantAccounts(tenantId?)` marks `ACTIVE` accounts `INACTIVE` when last activity (`user_securities.lastLoginAt`, falling back to `users.createdAt`) predates the dormant cutoff. With `dormantAccountAutoDisable=false` it becomes a dry-run (scans, disables nothing). Returns `{ scanned, disabled, erased }`. When `dormantDeleteAfterDays > 0` (GTH-8), accounts dormant beyond that window are additionally anonymised via `eraseUserData` (right-to-erasure).
 
 `auth.dormant.job.ts` exposes the BullMQ queue/worker (`auth-dormant-sweep`). Two trigger paths:
 - **Self-hosted:** call `scheduleDormantSweepJob()` once at startup (default cron `0 3 * * *`).
@@ -133,7 +134,40 @@ Setting keys are declared in `auth.setting.keys.ts` (`AUTH_KEYS` / `AuthSettingK
 - **Tokens:** email-verification, OTP, and reset tokens are random (`crypto.randomInt` / `randomBytes`), stored **hashed** (SHA-256) in Redis with TTLs and per-identity rate limits; only the hash is persisted.
 - **Generic errors:** dormant/suspended/locked accounts return generic messages so account liveness isn't leaked; failed logins for unknown identities are still audited (actorId null) and counted toward the CAPTCHA threshold.
 - **Admin hardening (KD-13):** `AuthPolicyService.isAdminIpAllowed` gates admin surfaces against the tenant's `adminPanelIpAllowlist` (exact IP + IPv4 CIDR); `adminRequireMfa` forces MFA for admin access.
-- **Transactional auth mail/SMS** are sent with `tenantId: ROOT_TENANT_ID`, so they always use platform provider config/branding (see Candidates below).
+- **Transactional auth mail/SMS** now route through the **request tenant's** own provider config + branding (`tenantId ?? ROOT_TENANT_ID`), so white-label tenants surface their own `From:` and DKIM/DMARC alignment (GTH-5).
+
+---
+
+## GOODTOHAVE features (implemented)
+
+### Security
+- **GTH-1 / GTH-12 — `allowRegistration` & `emailVerificationRequired` enforced.** `register` rejects with `REGISTRATION_DISABLED` when self-registration is off (invite-only). `login` blocks with `EMAIL_VERIFICATION_REQUIRED` when a verified email is required and the user is unverified. Resolved in `AuthPolicyService.getAccessPolicy`.
+- **GTH-2 — per-provider SSO allow-list.** `getAccessPolicy` exposes `ssoAllowedProviders`; `AuthPolicyService.isSsoProviderAllowed` / `filterAllowedProviders` narrow the offered provider list (empty list = all allowed; `disableSocialLogin` still denies everything).
+- **GTH-3 — per-tenant OTP / reset / email-verify TTLs & limits.** New policies `getOtpPolicy`, `getResetPolicy`, `getEmailVerifyPolicy` read per-tenant settings, falling back to the historical env vars then code defaults. The OTP/password/verification services consume them.
+- **GTH-4 — per-tenant TOTP issuer.** `TOTPService.getIssuer(tenantId)` reads the `totpIssuer` setting; falls back to `env.TOTP_ISSUER`.
+- **GTH-5 — per-tenant auth email delivery.** OTP, verification, forgot/reset mail is routed through the request tenant's mail provider/branding. Localized subject via the auth dictionaries (GTH-10).
+- **GTH-6 — per-tenant bcrypt cost.** `getCredentialPolicy(tenantId)` reads `bcryptCost` (validated 4–15, default 10). `hashPassword(password, tenantId)` and `resetPassword` honour it.
+
+### Compliance
+- **GTH-7 — consent-at-registration capture.** `register` writes a `UserConsent` row (document type + version) when `consentVersion` is supplied. Entity + migration `006_auth_consent.sql`.
+- **GTH-8 — right-to-erasure in the dormant sweep.** `dormantDeleteAfterDays` (0 = disable-only). When set, `disableDormantAccounts` anonymises PII via `eraseUserData` for accounts dormant beyond the window. Returns `{ scanned, disabled, erased }`.
+- **GTH-9 — `passwordMinAgeDays` guard.** `changePassword` rejects with `PASSWORD_CHANGED_TOO_RECENTLY` when the current password is younger than `minAgeDays`.
+
+### i18n
+- **GTH-10 — per-locale auth email subjects.** `auth.i18n.ts:authEmailSubject` resolves localized subjects from `dictionaries/{en,tr,es}.json` (`email_subjects`), threaded through the mail templates.
+- **GTH-11 — locale-aware error messages.** `auth.i18n.ts:resolveLocale` (Accept-Language → supported locale) + `translateAuthMessage` resolve `AuthMessages` keys against the `errors` namespace of the dictionaries. The route layer passes the header in (modules/ stays framework-free).
+
+### Multi-tenancy
+- **GTH-12 — dead setting keys revived.** `allowRegistration`, `emailVerificationRequired`, `ssoAllowedProviders` are now enforced; lockout uses `lockoutMaxAttempts` (the canonical key).
+- **GTH-13 — tenant MFA method allow-list.** `mfaAllowedMethods` (TOTP_APP/EMAIL/SMS; empty = all). Enforced in `OTPService.requestOTP` and `TOTPService.requestSetup`; helper `AuthPolicyService.isMfaMethodAllowed`.
+
+### DX
+- **GTH-15 — dormant-sweep tests.** Service-level (dry-run, disable, erase) + the `CRON_SECRET`-gated `POST /api/cron/dormant-sweep` path (`tests/auth.dormant.test.ts`, `tests/auth.dormant.cron.test.ts`).
+- **GTH-16 — OpenAPI / JSON-Schema export.** `auth.openapi.ts` (Zod v4 `z.toJSONSchema`, no extra dep) exposes every auth DTO at `GET /tenant/[tenantId]/api/auth/openapi`.
+
+### Monitoring
+- **GTH-17 — per-tenant login-failure metrics.** Each failure path emits `ObservabilityService.recordTenantUsage({ tenantId, metric: 'auth_login_failure:<reason>' })` (Prometheus counter labelled by tenant).
+- **GTH-18 — account-lockout webhook.** When a bad attempt crosses the lockout threshold, `WebhookService.dispatchEvent(tenantId, 'auth.account_locked', { … })` fires (best-effort, never blocks login).
 
 ---
 
@@ -166,8 +200,24 @@ The auth module handles login, registration, password/OTP/TOTP, captcha, and dor
 | `disableSocialLogin` | boolean | `false` | tenant | Completely disable social/OAuth login for the tenant. | `auth.policy.service.ts` |
 | `captchaTriggerAttempts` | number | `3` | tenant | Consecutive failed-login attempts (per identity) that trigger a CAPTCHA requirement on next attempt (0 disables). | `auth.policy.service.ts` |
 | `singleSessionOnly` | boolean | `false` | tenant | When true, a new session invalidates all other active sessions for the same user. | `auth.policy.service.ts` |
+| `allowRegistration` | boolean | `true` | tenant | GTH-1: when false, self-registration is rejected (invite-only). | `auth.credential.service.ts` |
+| `emailVerificationRequired` | boolean | `false` | tenant | GTH-1/12: require a verified email before credential login. | `auth.credential.service.ts` |
+| `ssoAllowedProviders` | text | — | tenant | GTH-2: CSV/JSON provider allow-list (empty = all). | `auth.policy.validator.service.ts` |
+| `mfaAllowedMethods` | text | — | tenant | GTH-13: CSV allow-list of MFA methods (TOTP_APP/EMAIL/SMS; empty = all). | `auth.otp.service.ts`, `auth.totp.service.ts` |
+| `totpIssuer` | text | env | tenant | GTH-4: authenticator-app brand label; falls back to `env.TOTP_ISSUER`. | `auth.totp.service.ts` |
+| `otpLength` | number | env/6 | tenant | GTH-3: OTP digit count. | `auth.otp.service.ts` |
+| `otpExpirySeconds` | number | env/600 | tenant | GTH-3: OTP lifetime. | `auth.otp.service.ts` |
+| `otpRateLimitSeconds` | number | env/60 | tenant | GTH-3: OTP rate-limit window. | `auth.otp.service.ts` |
+| `otpMaxAttempts` | number | env/5 | tenant | GTH-3: OTP attempt cap. | `auth.otp.service.ts` |
+| `resetTokenExpirySeconds` | number | env/3600 | tenant | GTH-3: password-reset token lifetime. | `auth.password.service.ts` |
+| `resetTokenLength` | number | env/6 | tenant | GTH-3: reset token digit count (min 4). | `auth.password.service.ts` |
+| `emailVerifyTtlSeconds` | number | env/86400 | tenant | GTH-3: email-verification token lifetime. | `auth.verification.service.ts` |
+| `emailVerifyRateLimitSeconds` | number | env/300 | tenant | GTH-3: verification-email resend interval. | `auth.verification.service.ts` |
+| `bcryptCost` | number | `10` | tenant | GTH-6: bcrypt cost factor (validated 4–15). | `auth.credential.service.ts` |
+| `passwordMinAgeDays` | number | `0` | tenant | GTH-9: minimum age before a password may be changed again (0 disables). | `auth.credential.service.ts` |
+| `dormantDeleteAfterDays` | number | `0` | tenant | GTH-8: anonymise dormant accounts after this many days of inactivity (0 = disable-only). | `auth.credential.service.ts` |
 
-*Scope: `tenant` = real tenants override · `root` = platform-only default (not per-tenant).*
+*Scope: `tenant` = real tenants override · `root` = platform-only default (not per-tenant). New GTH keys are surfaced in the Authentication settings page (`app/tenant/[tenantId]/admin/(tenant-scope)/auth/settings`) backed by `auth.settings.fields.ts`.*
 
 ### Per-tenant behavior
 
@@ -229,4 +279,4 @@ Configured once at the root tenant; identical for all tenants:
 
 ## Dependencies
 
-Requires: `user`, `user_session`, `user_security`, `notification_mail`, `notification_sms`, `setting`, `tenant`, `tenant_invitation`, `audit_log`, `env`, `redis`, `common`. Dormant sweep additionally uses BullMQ via `redis/redis.bullmq`. TOTP uses `otplib`; password/token hashing uses `bcrypt` and Node `crypto`.
+Requires: `user`, `user_session`, `user_security`, `notification_mail`, `notification_sms`, `setting`, `tenant`, `tenant_invitation`, `audit_log`, `webhook` (GTH-18), `observability` (GTH-17), `db`, `env`, `redis`, `common`. Dormant sweep additionally uses BullMQ via `redis/redis.bullmq`. TOTP uses `otplib`; password/token hashing uses `bcrypt` and Node `crypto`. OpenAPI export uses Zod v4's built-in `z.toJSONSchema()`.

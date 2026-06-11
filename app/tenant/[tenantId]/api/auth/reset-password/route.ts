@@ -37,7 +37,7 @@ export async function POST(
       }, { status: 400 });
     }
 
-    await PasswordService.resetPassword(parsedData.data);
+    await PasswordService.resetPassword({ ...parsedData.data, tenantId });
 
     const response = NextResponse.json({
       message: AuthMessages.PASSWORD_RESET_SUCCESSFUL,

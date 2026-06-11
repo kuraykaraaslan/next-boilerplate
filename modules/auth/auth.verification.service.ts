@@ -1,5 +1,4 @@
 import 'reflect-metadata';
-import { env } from '@/modules/env';
 import crypto from 'crypto';
 import { getDataSource } from '@/modules/db';
 import { User as UserEntity } from '../user/entities/user.entity';
@@ -10,12 +9,15 @@ import { ROOT_TENANT_ID } from '@/modules/tenant/tenant.constants';
 import AuditLogService from '../audit_log/audit_log.service';
 import { AuditActions } from '../audit_log/audit_log.enums';
 import AuthMessages from './auth.messages';
+import AuthPolicyService from './auth.policy.service';
+import { authEmailSubject } from './auth.i18n';
+import type { AuthLocale } from './dictionaries';
 import { AppError, ErrorCode } from '@/modules/common/app-error';
 
 export default class AuthVerificationService {
 
-  private static readonly EMAIL_VERIFY_TTL_SECONDS = env.EMAIL_VERIFY_TTL_SECONDS ?? (60 * 60 * 24);
-  private static readonly EMAIL_VERIFY_RATE_LIMIT_SECONDS = env.EMAIL_VERIFY_RATE_LIMIT_SECONDS ?? 300;
+  // GTH-3: env values are the fallback default; per-tenant email-verify TTL and
+  // rate-limit are resolved at runtime via AuthPolicyService.getEmailVerifyPolicy.
 
   private static getEmailVerifyKey(userId: string): string {
     return `email:verify:${userId}`;
@@ -27,8 +29,8 @@ export default class AuthVerificationService {
 
   static async logout({ accessToken }: { accessToken: string }): Promise<void> {}
 
-  static async sendEmailVerification({ userId, email, name, tenantId }: {
-    userId: string; email: string; name?: string; tenantId?: string;
+  static async sendEmailVerification({ userId, email, name, tenantId, locale }: {
+    userId: string; email: string; name?: string; tenantId?: string; locale?: AuthLocale;
   }): Promise<void> {
     const ds = await getDataSource();
     const user = await ds.getRepository(UserEntity).findOne({ where: { userId } });
@@ -38,14 +40,18 @@ export default class AuthVerificationService {
     const rateKey = AuthVerificationService.getEmailVerifyRateKey(userId);
     if (await redis.get(rateKey)) throw new AppError(AuthMessages.RATE_LIMIT_EXCEEDED, 429, ErrorCode.RATE_LIMIT_EXCEEDED);
 
+    // GTH-3: per-tenant email-verification TTL + rate-limit window.
+    const verifyPolicy = await AuthPolicyService.getEmailVerifyPolicy(tenantId);
+
     const rawToken = crypto.randomBytes(32).toString('hex');
     const hashedToken = crypto.createHash('sha256').update(rawToken).digest('hex');
 
     const verifyKey = AuthVerificationService.getEmailVerifyKey(userId);
-    await redis.set(verifyKey, hashedToken, 'EX', AuthVerificationService.EMAIL_VERIFY_TTL_SECONDS);
-    await redis.set(rateKey, '1', 'EX', AuthVerificationService.EMAIL_VERIFY_RATE_LIMIT_SECONDS);
+    await redis.set(verifyKey, hashedToken, 'EX', verifyPolicy.ttlSeconds);
+    await redis.set(rateKey, '1', 'EX', verifyPolicy.rateLimitSeconds);
 
-    await MailAccountTemplatesService.sendVerifyEmail({ tenantId: tenantId ?? ROOT_TENANT_ID, email, name, verifyToken: rawToken });
+    // GTH-5: route verification mail through the request tenant's provider/branding.
+    await MailAccountTemplatesService.sendVerifyEmail({ tenantId: tenantId ?? ROOT_TENANT_ID, email, name, verifyToken: rawToken, subject: authEmailSubject('verify_email', locale) });
     Logger.info(`Email verification sent for user ${userId}`);
   }
 

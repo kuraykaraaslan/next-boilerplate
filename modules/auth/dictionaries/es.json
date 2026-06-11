@@ -29,5 +29,30 @@
   "otp_sent": "OTP enviado",
   "otp_send_failed": "Error al enviar OTP",
   "otp_verified": "OTP verificado",
-  "otp_verify_failed": "Error al verificar OTP"
+  "otp_verify_failed": "Error al verificar OTP",
+  "errors": {
+    "INVALID_CREDENTIALS": "Credenciales inválidas.",
+    "INVALID_EMAIL_OR_PASSWORD": "Correo o contraseña inválidos.",
+    "ACCOUNT_LOCKED": "Su cuenta está bloqueada temporalmente. Inténtelo de nuevo más tarde.",
+    "ACCOUNT_DISABLED": "Esta cuenta no está activa.",
+    "RATE_LIMIT_EXCEEDED": "Demasiados intentos. Espere e inténtelo de nuevo.",
+    "REGISTRATION_DISABLED": "El registro está deshabilitado actualmente para esta organización.",
+    "EMAIL_ALREADY_EXISTS": "Ya existe una cuenta con este correo.",
+    "EMAIL_VERIFICATION_REQUIRED": "Verifique su correo electrónico antes de iniciar sesión.",
+    "INVALID_OTP": "El código de verificación es incorrecto.",
+    "OTP_EXPIRED": "El código de verificación ha expirado.",
+    "SSO_PROVIDER_NOT_ALLOWED": "Este proveedor de inicio de sesión no está habilitado para su organización.",
+    "MFA_METHOD_NOT_ALLOWED": "Su organización no permite este método de autenticación multifactor.",
+    "MFA_ENROLLMENT_REQUIRED": "Se requiere el registro de autenticación multifactor.",
+    "PASSWORD_REUSED": "No puede reutilizar una contraseña anterior.",
+    "PASSWORD_EXPIRED": "Su contraseña ha expirado y debe cambiarse.",
+    "PASSWORD_CHANGED_TOO_RECENTLY": "Su contraseña se cambió hace muy poco para volver a cambiarla.",
+    "INVALID_TOKEN": "Este enlace no es válido o ha expirado."
+  },
+  "email_subjects": {
+    "otp": "Su código de verificación",
+    "verify_email": "Verifique su correo electrónico",
+    "forgot_password": "Restablezca su contraseña",
+    "password_reset_success": "Su contraseña fue restablecida"
+  }
 }

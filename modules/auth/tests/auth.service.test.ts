@@ -54,29 +54,38 @@ vi.mock('./auth.captcha.service', () => ({
     verify: vi.fn(async () => true),
   },
 }));
-vi.mock('../user_security/user_security.service', () => ({
+vi.mock('@/modules/user_security/user_security.service', () => ({
   default: {
     isLocked: vi.fn(async () => false),
     recordLoginAttempt: vi.fn(async () => {}),
     getPasswordChangedAt: vi.fn(async () => null),
     pushPasswordHistory: vi.fn(async () => {}),
     getPasswordHistory: vi.fn(async () => []),
+    getSafeByUserId: vi.fn(async () => null),
   },
 }));
-vi.mock('./auth.policy.service', () => ({
+vi.mock('@/modules/observability', () => ({ default: { recordTenantUsage: vi.fn() } }));
+vi.mock('@/modules/webhook/webhook.service', () => ({ default: { dispatchEvent: vi.fn(async () => {}) } }));
+vi.mock('@/modules/auth/auth.policy.service', () => ({
   default: {
     getPasswordPolicy: vi.fn(async () => ({
       minLength: 8, requireUppercase: true, requireLowercase: true,
-      requireDigit: true, requireSpecial: true, historyCount: 3, maxAgeDays: 42,
+      requireDigit: true, requireSpecial: true, historyCount: 3, maxAgeDays: 42, minAgeDays: 0,
     })),
     getLockoutPolicy: vi.fn(async () => ({ maxAttempts: 5, lockDurationMinutes: 15 })),
     getSessionPolicy: vi.fn(async () => ({ absoluteMaxHours: 8, idleTimeoutMinutes: 30 })),
-    getDormantPolicy: vi.fn(async () => ({ days: 90, autoDisable: true })),
+    getDormantPolicy: vi.fn(async () => ({ days: 90, autoDisable: true, deleteAfterDays: 0 })),
     getAccessPolicy: vi.fn(async () => ({
       externalRequireMfa: false, disableSocialLogin: false,
       captchaTriggerAttempts: 0, singleSessionOnly: false,
+      allowRegistration: true, emailVerificationRequired: false,
+      ssoAllowedProviders: [], mfaAllowedMethods: [],
     })),
     getAdminPolicy: vi.fn(async () => ({ ipAllowlist: [], requireMfa: true })),
+    getCredentialPolicy: vi.fn(async () => ({ bcryptCost: 10 })),
+    getOtpPolicy: vi.fn(async () => ({ length: 6, expirySeconds: 600, rateLimitSeconds: 60, maxAttempts: 5 })),
+    getResetPolicy: vi.fn(async () => ({ tokenExpirySeconds: 3600, tokenLength: 6 })),
+    getEmailVerifyPolicy: vi.fn(async () => ({ ttlSeconds: 86400, rateLimitSeconds: 300 })),
     validatePassword: vi.fn(() => null),
     isAdminIpAllowed: vi.fn(() => true),
   },
@@ -85,6 +94,9 @@ vi.mock('./auth.policy.service', () => ({
 import { getDataSource } from '@/modules/db';
 import UserService from '../../user/user.service';
 import AuthMessages from '../auth.messages';
+import AuthPolicyService from '@/modules/auth/auth.policy.service';
+import WebhookService from '@/modules/webhook/webhook.service';
+import UserSecurityService from '@/modules/user_security/user_security.service';
 
 const mockUser = {
   userId: 'user-1',
@@ -146,5 +158,59 @@ describe('AuthService.login', () => {
     const result = await AuthService.login({ email: mockUser.email, password: 'correct_password' });
     expect(result.user.email).toBe(mockUser.email);
     expect((result.user as any).password).toBeUndefined();
+  });
+
+  it('blocks login when emailVerificationRequired and email is unverified (GTH-1/12)', async () => {
+    mockDataSource({ ...mockUser, emailVerifiedAt: null } as any);
+    (AuthPolicyService.getAccessPolicy as any).mockResolvedValueOnce({
+      externalRequireMfa: false, disableSocialLogin: false, captchaTriggerAttempts: 0, singleSessionOnly: false,
+      allowRegistration: true, emailVerificationRequired: true, ssoAllowedProviders: [], mfaAllowedMethods: [],
+    });
+    await expect(
+      AuthService.login({ email: mockUser.email, password: 'correct_password' }),
+    ).rejects.toThrow(AuthMessages.EMAIL_VERIFICATION_REQUIRED);
+  });
+
+  it('fires the account_locked webhook when a bad attempt crosses the threshold (GTH-18)', async () => {
+    mockDataSource(mockUser);
+    // First isLocked() (pre-bcrypt gate) = false, second (post bad attempt) = true.
+    (UserSecurityService.isLocked as any)
+      .mockResolvedValueOnce(false)
+      .mockResolvedValueOnce(true);
+    await expect(
+      AuthService.login({ email: mockUser.email, password: 'wrong_password', tenantId: 't1' }),
+    ).rejects.toThrow(AuthMessages.INVALID_EMAIL_OR_PASSWORD);
+    expect(WebhookService.dispatchEvent).toHaveBeenCalledWith('t1', 'auth.account_locked', expect.any(Object));
+  });
+});
+
+describe('AuthService.register — registration posture (GTH-1)', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('rejects registration when allowRegistration is false', async () => {
+    mockDataSource(null);
+    (AuthPolicyService.getAccessPolicy as any).mockResolvedValueOnce({
+      externalRequireMfa: false, disableSocialLogin: false, captchaTriggerAttempts: 0, singleSessionOnly: false,
+      allowRegistration: false, emailVerificationRequired: false, ssoAllowedProviders: [], mfaAllowedMethods: [],
+    });
+    await expect(
+      AuthService.register({ email: 'new@example.com', password: 'Secur3Pass!x' }),
+    ).rejects.toThrow(AuthMessages.REGISTRATION_DISABLED);
+  });
+});
+
+describe('AuthService.changePassword — minimum password age (GTH-9)', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('rejects a change when the password is younger than minAgeDays', async () => {
+    mockDataSource(mockUser);
+    (AuthPolicyService.getPasswordPolicy as any).mockResolvedValueOnce({
+      minLength: 8, requireUppercase: true, requireLowercase: true, requireDigit: true,
+      requireSpecial: true, historyCount: 3, maxAgeDays: 42, minAgeDays: 1,
+    });
+    (UserSecurityService.getPasswordChangedAt as any).mockResolvedValueOnce(new Date());
+    await expect(
+      AuthService.changePassword({ userId: 'user-1', newPassword: 'Brand0New!pwd' }),
+    ).rejects.toThrow(AuthMessages.PASSWORD_CHANGED_TOO_RECENTLY);
   });
 });

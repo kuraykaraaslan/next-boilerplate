@@ -12,13 +12,16 @@ import MailTemplatesService from '../notification_mail/notification_mail.templat
 import { ROOT_TENANT_ID } from '@/modules/tenant/tenant.constants';
 import AuthMessages from './auth.messages';
 import AuthPolicyService from './auth.policy.service';
+import { authEmailSubject } from './auth.i18n';
+import type { AuthLocale } from './dictionaries';
 import { AppError, ErrorCode } from '@/modules/common/app-error';
 import AuditLogService from '../audit_log/audit_log.service';
 import { AuditActions } from '../audit_log/audit_log.enums';
 
 export default class PasswordService {
 
-  private static readonly RESET_TOKEN_EXPIRY_SECONDS = env.RESET_TOKEN_EXPIRY_SECONDS ?? 3600;
+  // GTH-3: env values are the fallback default; per-tenant reset-token knobs are
+  // resolved at runtime via AuthPolicyService.getResetPolicy(tenantId).
   private static readonly RESET_TOKEN_LENGTH = Math.max(4, env.RESET_TOKEN_LENGTH ?? 6);
   private static readonly RATE_LIMIT_MAX_ATTEMPTS = 5;
   private static readonly RATE_LIMIT_WINDOW_SECONDS = 60;
@@ -42,7 +45,7 @@ export default class PasswordService {
     return `reset-password-rate:${email.toLowerCase()}`;
   }
 
-  static async forgotPassword({ email }: { email: string }): Promise<{ resetToken: string }> {
+  static async forgotPassword({ email, tenantId, locale }: { email: string; tenantId?: string; locale?: AuthLocale }): Promise<{ resetToken: string }> {
     const ds = await getDataSource();
     const user = await ds.getRepository(UserEntity).findOne({ where: { email } });
 
@@ -69,11 +72,14 @@ export default class PasswordService {
 
     await redis.del(tokenKey);
 
-    const resetToken = PasswordService.generateResetToken();
+    // GTH-3: per-tenant reset-token TTL/length.
+    const resetPolicy = await AuthPolicyService.getResetPolicy(tenantId);
+    const resetToken = PasswordService.generateResetToken(resetPolicy.tokenLength);
     const hashedToken = await PasswordService.hashToken(resetToken);
-    await redis.set(tokenKey, hashedToken, 'EX', PasswordService.RESET_TOKEN_EXPIRY_SECONDS);
+    await redis.set(tokenKey, hashedToken, 'EX', resetPolicy.tokenExpirySeconds);
 
-    MailTemplatesService.sendForgotPasswordEmail({ tenantId: ROOT_TENANT_ID, email: user.email, resetToken }).catch((err: unknown) => {
+    // GTH-5: route reset mail through the request tenant's provider/branding.
+    MailTemplatesService.sendForgotPasswordEmail({ tenantId: tenantId ?? ROOT_TENANT_ID, email: user.email, resetToken, subject: authEmailSubject('forgot_password', locale) }).catch((err: unknown) => {
       Logger.warn(`PasswordService: sendForgotPasswordEmail failed: ${err instanceof Error ? err.message : err}`);
     });
 
@@ -116,7 +122,9 @@ export default class PasswordService {
       }
     }
 
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    // GTH-6: per-tenant bcrypt cost.
+    const { bcryptCost } = await AuthPolicyService.getCredentialPolicy(tenantId);
+    const hashedPassword = await bcrypt.hash(newPassword, bcryptCost);
     const ds = await getDataSource();
 
     // Wrap password update + history push in a transaction.
@@ -129,14 +137,15 @@ export default class PasswordService {
     await redis.del(tokenKey);
 
     AuditLogService.log({
-      tenantId: null,
+      tenantId: tenantId ?? null,
       actorId: user.userId,
       actorType: 'USER',
       action: AuditActions.AUTH_PASSWORD_RESET,
       metadata: { email: user.email },
     }).catch(() => {});
 
-    MailTemplatesService.sendPasswordResetSuccessEmail({ tenantId: ROOT_TENANT_ID, email: user.email }).catch((err: unknown) => {
+    // GTH-5: route success mail through the request tenant's provider/branding.
+    MailTemplatesService.sendPasswordResetSuccessEmail({ tenantId: tenantId ?? ROOT_TENANT_ID, email: user.email }).catch((err: unknown) => {
       Logger.warn(`PasswordService: sendPasswordResetSuccessEmail failed: ${err instanceof Error ? err.message : err}`);
     });
   }

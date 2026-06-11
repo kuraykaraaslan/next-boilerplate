@@ -48,6 +48,45 @@ export const AuthSettingKeySchema = z.enum([
   'captchaTriggerAttempts',
   // ── Single-session enforcement (KD-21) ────────────────────────────────────
   'singleSessionOnly',
+  // ── Registration / verification posture (GTH-1 / GTH-12) ──────────────────
+  'allowRegistration', 'emailVerificationRequired',
+  // ── Per-provider SSO allow-list (GTH-2) ───────────────────────────────────
+  'ssoAllowedProviders',
+  // ── OTP / reset / email-verify per-tenant TTLs & limits (GTH-3) ───────────
+  'otpLength', 'otpExpirySeconds', 'otpRateLimitSeconds', 'otpMaxAttempts',
+  'resetTokenExpirySeconds', 'resetTokenLength',
+  'emailVerifyTtlSeconds', 'emailVerifyRateLimitSeconds',
+  // ── Per-tenant bcrypt cost (GTH-6) ────────────────────────────────────────
+  'bcryptCost',
+  // ── Compliance: password minimum age (GTH-9) ──────────────────────────────
+  'passwordMinAgeDays',
+  // ── Compliance: dormant-sweep erasure window (GTH-8) ──────────────────────
+  'dormantDeleteAfterDays',
+  // ── Tenant MFA method allow-list (GTH-13) ─────────────────────────────────
+  'mfaAllowedMethods',
 ]);
 export type AuthSettingKey = z.infer<typeof AuthSettingKeySchema>;
 export const AUTH_KEYS = AuthSettingKeySchema.options;
+
+// Ergonomic named accessors, kept in lockstep with the enum via `satisfies`.
+// Only the GOODTOHAVE keys are surfaced here; the policy loader reads the rest
+// by literal key. Centralised so runtime enforcement and the admin settings UI
+// never drift apart.
+export const AUTH_SETTING_KEYS = {
+  ALLOW_REGISTRATION: 'allowRegistration',
+  EMAIL_VERIFICATION_REQUIRED: 'emailVerificationRequired',
+  SSO_ALLOWED_PROVIDERS: 'ssoAllowedProviders',
+  OTP_LENGTH: 'otpLength',
+  OTP_EXPIRY_SECONDS: 'otpExpirySeconds',
+  OTP_RATE_LIMIT_SECONDS: 'otpRateLimitSeconds',
+  OTP_MAX_ATTEMPTS: 'otpMaxAttempts',
+  RESET_TOKEN_EXPIRY_SECONDS: 'resetTokenExpirySeconds',
+  RESET_TOKEN_LENGTH: 'resetTokenLength',
+  EMAIL_VERIFY_TTL_SECONDS: 'emailVerifyTtlSeconds',
+  EMAIL_VERIFY_RATE_LIMIT_SECONDS: 'emailVerifyRateLimitSeconds',
+  BCRYPT_COST: 'bcryptCost',
+  PASSWORD_MIN_AGE_DAYS: 'passwordMinAgeDays',
+  DORMANT_DELETE_AFTER_DAYS: 'dormantDeleteAfterDays',
+  MFA_ALLOWED_METHODS: 'mfaAllowedMethods',
+  TOTP_ISSUER: 'totpIssuer',
+} as const satisfies Record<string, AuthSettingKey>;

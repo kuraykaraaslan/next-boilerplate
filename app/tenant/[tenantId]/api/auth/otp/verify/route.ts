@@ -50,7 +50,7 @@ export async function POST(
 
     const userOTPMethods = userSecurity.otpMethods;
 
-    await OTPService.verifyOTP({ user, userSession, method, action, otpToken });
+    await OTPService.verifyOTP({ user, userSession, method, action, otpToken, tenantId });
     // Update user security settings based on action
 
     if (action === OTPActionEnum.enum.enable && !userOTPMethods.includes(method)) {

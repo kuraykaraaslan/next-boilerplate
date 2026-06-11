@@ -44,10 +44,12 @@ export async function POST(
       }, { status: 400 });
     }
 
-    const { email, password } = parsedData.data;
+    const { email, password, phone, consentVersion } = parsedData.data;
 
-    // Register the user
-    const { user } = await AuthService.register({ email, password });
+    // Register the user. Pass tenantId so the per-tenant password policy,
+    // allowRegistration posture (GTH-1), per-tenant bcrypt cost (GTH-6) and the
+    // consent record (GTH-7) are all applied in the service layer.
+    const { user } = await AuthService.register({ email, password, phone, tenantId, consentVersion });
 
     if (!user) {
       return NextResponse.json({

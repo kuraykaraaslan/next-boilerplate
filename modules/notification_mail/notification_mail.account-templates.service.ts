@@ -34,14 +34,16 @@ export default class MailAccountTemplatesService {
     email,
     name,
     verifyToken,
+    subject: subjectOverride,
   }: {
     tenantId: string;
     email: string;
     name?: string;
     verifyToken: string;
+    subject?: string;
   }): Promise<void> {
     try {
-      const subject = "Verify Your Email";
+      const subject = subjectOverride || "Verify Your Email";
       const verifyLink =
         MailService.FRONTEND_URL + "/auth/verify-email?token=" + verifyToken + "&email=" + email;
       const emailContent = await MailService.renderTemplate("verify_email.ejs", {

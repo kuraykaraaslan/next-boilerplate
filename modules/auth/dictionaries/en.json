@@ -29,5 +29,30 @@
   "otp_sent": "OTP sent",
   "otp_send_failed": "Failed to send OTP",
   "otp_verified": "OTP verified",
-  "otp_verify_failed": "Failed to verify OTP"
+  "otp_verify_failed": "Failed to verify OTP",
+  "errors": {
+    "INVALID_CREDENTIALS": "Invalid credentials.",
+    "INVALID_EMAIL_OR_PASSWORD": "Invalid email or password.",
+    "ACCOUNT_LOCKED": "Your account is temporarily locked. Please try again later.",
+    "ACCOUNT_DISABLED": "This account is not active.",
+    "RATE_LIMIT_EXCEEDED": "Too many attempts. Please wait and try again.",
+    "REGISTRATION_DISABLED": "Registration is currently disabled for this organization.",
+    "EMAIL_ALREADY_EXISTS": "An account with this email already exists.",
+    "EMAIL_VERIFICATION_REQUIRED": "Please verify your email address before signing in.",
+    "INVALID_OTP": "The verification code is incorrect.",
+    "OTP_EXPIRED": "The verification code has expired.",
+    "SSO_PROVIDER_NOT_ALLOWED": "This sign-in provider is not enabled for your organization.",
+    "MFA_METHOD_NOT_ALLOWED": "This multi-factor method is not allowed by your organization.",
+    "MFA_ENROLLMENT_REQUIRED": "Multi-factor authentication enrollment is required.",
+    "PASSWORD_REUSED": "You cannot reuse a previous password.",
+    "PASSWORD_EXPIRED": "Your password has expired and must be changed.",
+    "PASSWORD_CHANGED_TOO_RECENTLY": "Your password was changed too recently to change it again.",
+    "INVALID_TOKEN": "This link is invalid or has expired."
+  },
+  "email_subjects": {
+    "otp": "Your verification code",
+    "verify_email": "Verify your email",
+    "forgot_password": "Reset your password",
+    "password_reset_success": "Your password was reset"
+  }
 }

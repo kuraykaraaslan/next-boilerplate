@@ -36,10 +36,10 @@ export default class MailTemplatesAuthService {
   }
 
   static async sendForgotPasswordEmail({
-    tenantId, email, name, resetToken,
-  }: { tenantId: string; email: string; name?: string; resetToken: string }): Promise<void> {
+    tenantId, email, name, resetToken, subject: subjectOverride,
+  }: { tenantId: string; email: string; name?: string; resetToken: string; subject?: string }): Promise<void> {
     try {
-      const subject = 'Reset Your Password';
+      const subject = subjectOverride || 'Reset Your Password';
       const resetLink = MailService.FRONTEND_URL + MailService.FRONTEND_FORGOT_PASSWORD_PATH + '?resetToken=' + resetToken + '&email=' + email;
       const html = await MailService.renderTemplate('forgot_password.ejs', {
         ...getBaseTemplateVars(), subject, user: { name: name || email }, resetToken, resetLink, expiryTime: 1,
@@ -61,11 +61,11 @@ export default class MailTemplatesAuthService {
   }
 
   static async sendOTPEmail({
-    tenantId, email, name, otpToken,
-  }: { tenantId: string; email: string; name?: string | null; otpToken: string }): Promise<void> {
+    tenantId, email, name, otpToken, subject: subjectOverride,
+  }: { tenantId: string; email: string; name?: string | null; otpToken: string; subject?: string }): Promise<void> {
     try {
       if (!otpToken) throw new AppError(NotificationMailMessages.OTP_TOKEN_REQUIRED, 400, ErrorCode.VALIDATION_ERROR);
-      const subject = 'Your OTP Code';
+      const subject = subjectOverride || 'Your OTP Code';
       const html = await MailService.renderTemplate('otp.ejs', { ...getBaseTemplateVars(), subject, user: { name: name || email }, otpToken });
       await MailService.sendMail(tenantId, email, subject, html);
     } catch (error: unknown) {

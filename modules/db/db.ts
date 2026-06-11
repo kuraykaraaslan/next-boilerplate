@@ -4,6 +4,7 @@ import { env } from '@/modules/env';
 import { parseDbUrl, typeormLogging, TenantContextLogger } from './db.utils';
 import { TenantDatabase } from './entities/tenant_database.entity';
 import { User } from '@/modules/user/entities/user.entity';
+import { UserConsent } from '@/modules/auth/entities/user_consent.entity';
 import { UserProfile } from '@/modules/user_profile/entities/user_profile.entity';
 import { UserSecurity } from '@/modules/user_security/entities/user_security.entity';
 import { UserPreferences } from '@/modules/user_preferences/entities/user_preferences.entity';
@@ -77,6 +78,7 @@ import { LoyaltyTier } from '@/modules/payment_loyalty_points/entities/loyalty_t
 
 export const ENTITIES = [
   User,
+  UserConsent,
   UserProfile,
   UserSecurity,
   UserPreferences,

@@ -22,9 +22,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   try {
-    const { scanned, disabled } = await AuthService.disableDormantAccounts();
-    Logger.info(`[Cron:dormant-sweep] scanned=${scanned} disabled=${disabled}`);
-    return NextResponse.json({ success: true, scanned, disabled });
+    const { scanned, disabled, erased } = await AuthService.disableDormantAccounts();
+    Logger.info(`[Cron:dormant-sweep] scanned=${scanned} disabled=${disabled} erased=${erased}`);
+    return NextResponse.json({ success: true, scanned, disabled, erased });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
     Logger.error(`[Cron:dormant-sweep] Failed: ${message}`);

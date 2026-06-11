@@ -9,6 +9,7 @@ import TenantService from "@/modules/tenant/tenant.service";
 import AuthMessages from "@/modules/auth/auth.messages";
 import { RequestOTPDTO } from "@/modules/auth/auth.dto";
 import UserSecurityService from "@/modules/user_security/user_security.service";
+import { resolveLocale } from "@/modules/auth/auth.i18n";
 
 export async function POST(
   request: NextRequest,
@@ -61,7 +62,8 @@ export async function POST(
       );
     }
 
-    await OTPService.requestOTP({ user, userSession, method, action });
+    const locale = resolveLocale(request.headers.get('accept-language'));
+    await OTPService.requestOTP({ user, userSession, method, action, tenantId, locale });
 
     return NextResponse.json({ message: AuthMessages.OTP_SENT_SUCCESSFULLY });
 

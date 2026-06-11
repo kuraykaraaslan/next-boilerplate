@@ -94,7 +94,12 @@ export enum AuthMessages {
     // ── Admin guard (KD-13) ──────────────────────────────────────────────
     ADMIN_IP_NOT_ALLOWED = "ADMIN_IP_NOT_ALLOWED",
     // ── Social login (KD-18) ─────────────────────────────────────────────
-    SOCIAL_LOGIN_DISABLED = "SOCIAL_LOGIN_DISABLED"
+    SOCIAL_LOGIN_DISABLED = "SOCIAL_LOGIN_DISABLED",
+    // ── GOODTOHAVE ───────────────────────────────────────────────────────
+    EMAIL_VERIFICATION_REQUIRED = "EMAIL_VERIFICATION_REQUIRED",
+    SSO_PROVIDER_NOT_ALLOWED = "SSO_PROVIDER_NOT_ALLOWED",
+    MFA_METHOD_NOT_ALLOWED = "MFA_METHOD_NOT_ALLOWED",
+    PASSWORD_CHANGED_TOO_RECENTLY = "PASSWORD_CHANGED_TOO_RECENTLY"
 }
 
 
