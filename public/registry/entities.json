@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-11T11:19:01.480Z",
+  "generatedAt": "2026-06-11T11:59:09.229Z",
   "entities": [
     {
       "name": "AiUsageLog",
@@ -62,13 +62,18 @@
         "tenantId",
         "actorId",
         "actorType",
+        "onBehalfOfActorId",
         "action",
+        "severity",
         "resourceType",
         "resourceId",
         "metadata",
         "ipAddress",
         "userAgent",
-        "createdAt"
+        "prevHash",
+        "rowHash",
+        "createdAt",
+        "deletedAt"
       ],
       "relations": []
     },
@@ -1541,6 +1546,25 @@
         "createdAt",
         "updatedAt",
         "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "UserConsent",
+      "filePath": "modules/auth/entities/user_consent.entity.ts",
+      "module": "auth",
+      "schema": "system",
+      "tableName": "user_consents",
+      "columns": [
+        "userConsentId",
+        "userId",
+        "tenantId",
+        "documentType",
+        "documentVersion",
+        "locale",
+        "ipAddress",
+        "userAgent",
+        "createdAt"
       ],
       "relations": []
     },

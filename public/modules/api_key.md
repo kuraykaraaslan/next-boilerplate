@@ -68,7 +68,7 @@ Manages tenant-scoped API keys for programmatic authentication. Generates, hashe
 
 | Entity | Table | Description |
 |---|---|---|
-| `ApiKey` | `api_keys` | One API key per row: `name`, `description`, SHA-256 `keyHash` (unique index), `scopes`, `isActive`, `lastUsedAt`, `expiresAt`, `createdByUserId`. Indexed by `tenantId`. |
+| `ApiKey` | `api_keys` | One API key per row: `name`, `description`, SHA-256 `keyHash` (unique index), `scopes`, `keyEnv` (`live`/`test`), `ipAllowlist` (subnets), `isActive`, `lastUsedAt`, `lastUsedIp`, `usageCount`, `successorKeyId` (rotation), `expiresAt`, `createdByUserId`. Indexed by `tenantId`. |
 
 Lives in the **tenant DB**. All rows are isolated by `tenantId` via the per-tenant DataSource.
 
@@ -84,6 +84,7 @@ Lives in the **tenant DB**. All rows are isolated by `tenantId` via the per-tena
 | `api_key.enums.ts` | `ApiKeyScopeEnum` / `API_KEY_SCOPES` |
 | `api_key.messages.ts` | Error/success message strings |
 | `api_key.settings.fields.ts` | UI metadata for the settings page |
+| `api_key.setting.keys.ts` | Setting-key Zod enum + named accessors |
 | `api_key.seed.ts` | Demo-data seed (read/write, admin, SCIM, revoked keys) |
 | `entities/api_key.entity.ts` | TypeORM entity |
 
@@ -92,9 +93,12 @@ Lives in the **tenant DB**. All rows are isolated by `tenantId` via the per-tena
 ## Key Concepts
 
 - The raw key is shown **once** at creation — only its SHA-256 hash is stored (`keyHash`).
-- Raw key format: `sk_live_{first 8 chars of tenantId}_{24 random bytes hex}` (`generateRawKey`).
+- Raw key format: `sk_{env}_{first 8 chars of tenantId}_{24 random bytes hex}` where `{env}` is `live` or `test`, derived from `NODE_ENV` (production/vercel → `live`, else `test`) or an explicit `environment` on create. Prevents test keys being mistaken for production ones.
 - `SafeApiKey` omits `keyHash` and is the only shape returned to clients.
 - Scopes control what the key can access; `verify` can optionally enforce a `requiredScope`.
+- **Network pinning:** a key may declare an `ipAllowlist` of subnets (CIDR; a single host is a `/32`). Validation + matching is owned by [`@/modules/network`](../network/README.md) (`SubnetListSchema`, `ipMatchesAllowlist`). A tenant-wide default allowlist applies to keys that declare none.
+- **Lifecycle:** keys can be rotated (successor key + grace window), bulk-revoked for incident response, and swept on expiry. Per-tenant policy caps active-key count and max TTL, and can require an expiry.
+- **Observability:** every successful verify bumps `usageCount` and records `lastUsedIp`; a dormant key used from a new IP raises an anomaly audit event; failed verifications are audit-logged; per-key rate limiting is enforced from the tenant default.
 
 ## Scopes
 
@@ -121,9 +125,13 @@ Lives in the **tenant DB**. All rows are isolated by `tenantId` via the per-tena
 | `getById(tenantId, apiKeyId)` | Single key scoped to the tenant; Redis-cached under a tenant-scoped key. |
 | `update(tenantId, apiKeyId, input)` | Updates `name`/`description`/`isActive` on a tenant-owned key; clears cache. |
 | `delete(tenantId, apiKeyId)` | Removes a tenant-owned key, clears cache, dispatches the `api_key.deleted` webhook. |
-| `verify(rawKey, requiredScope?)` | Hot-path validation across all tenants by `keyHash`: rejects unknown/inactive/expired keys and insufficient scope, fire-and-forget updates `lastUsedAt`. |
-| `verifyFromAuthHeader(request, tenantId?, requiredScope?)` | Parses `Authorization: Bearer <key>`, calls `verify`, optionally pins to a tenant. Used by SCIM 2.0 and other machine-to-machine integrations. |
-| `generateRawKey` / `hashKey` | Raw-key generation and SHA-256 hashing helpers. |
+| `update(...)` also dispatches `api_key.updated` and supports `ipAllowlist`. | |
+| `rotate(tenantId, apiKeyId, createdByUserId, { graceSeconds })` | Mints a successor key (inherits scopes/allowlist/env), grace-expires (or immediately deactivates) the old key, dispatches `api_key.rotated`. Returns the new `{ key, rawKey }`. |
+| `revokeAll(tenantId, actorUserId?)` | Emergency incident-response: deactivates every active key, flushes caches, audit-logs, dispatches `api_key.updated`. Returns the revoked count. |
+| `sweepExpired(tenantId)` | Deactivates expired-but-active keys and dispatches `api_key.expired` per key (state hygiene; verify already rejects expired keys at request time). |
+| `verify(rawKey, requiredScope?, { ip? })` | Hot-path validation across all tenants by `keyHash`: rejects unknown/inactive/expired keys, insufficient scope, IP outside the (per-key or tenant-default) subnet allowlist, and over-rate-limit calls. Audit-logs failures, raises a dormant-new-IP anomaly, bumps `usageCount`/`lastUsedIp`. Negative-cache TTL is wired from the root setting `apiKeyNegativeCacheTtlSeconds`. |
+| `verifyFromAuthHeader(request, tenantId?, requiredScope?, { ip? })` | Parses `Authorization: Bearer <key>`, derives the client IP from proxy headers when not supplied, calls `verify`, optionally pins to a tenant. Used by SCIM 2.0 and other machine-to-machine integrations. |
+| `generateRawKey` / `hashKey` | Raw-key generation (env-prefixed) and SHA-256 hashing helpers. |
 
 ---
 
@@ -161,8 +169,11 @@ Management routes are tenant-scoped and require **ADMIN+** tenant role:
 |---|---|---|
 | GET | `/tenant/[tenantId]/api/api-keys` | List keys (paginated) |
 | POST | `/tenant/[tenantId]/api/api-keys` | Create a key (returns raw secret once) |
-| PUT | `/tenant/[tenantId]/api/api-keys/[apiKeyId]` | Update name/description/active status |
+| PUT | `/tenant/[tenantId]/api/api-keys/[apiKeyId]` | Update name/description/active status/IP allowlist |
 | DELETE | `/tenant/[tenantId]/api/api-keys/[apiKeyId]` | Permanently revoke a key |
+| POST | `/tenant/[tenantId]/api/api-keys/[apiKeyId]/rotate` | Rotate a key (successor + grace window) |
+| POST | `/tenant/[tenantId]/api/api-keys/revoke-all` | Emergency: revoke all active keys |
+| POST | `/tenant/[tenantId]/api/api-keys/sweep-expired` | Deactivate expired keys + emit `api_key.expired` |
 
 Plus a public verification endpoint (the key itself is the auth — no session):
 
@@ -190,7 +201,7 @@ API key lookups are cached in Redis (TTL = `API_KEY_CACHE_TTL`, sourced from `en
 
 - **TTL jitter (±10%)** spreads expirations so a burst of keys minted in the same second don't refill simultaneously.
 - **In-process single-flight** (`modules/redis/redis.cache.ts`) dedupes concurrent loaders for the same key — if 100 requests miss on the same hash at the same time, only one DB query runs.
-- **Negative cache** on `verify`: an unknown hash is cached as `__not_found__` for up to `NEGATIVE_CACHE_TTL` (`Math.min(60, API_KEY_CACHE_TTL)`). Credential-stuffing attempts against random hashes hit Redis, not the DB. `create` clears the negative key for the new hash, so freshly-minted keys are immediately usable.
+- **Negative cache** on `verify`: an unknown hash is cached as `__not_found__` for the TTL returned by `getNegativeCacheTtl()` — the root-tenant setting `apiKeyNegativeCacheTtlSeconds` (floored at 60s, capped at the positive TTL, memoised ~60s in-process), falling back to `Math.min(60, API_KEY_CACHE_TTL)`. Credential-stuffing attempts against random hashes hit Redis, not the DB. `create` clears the negative key for the new hash, so freshly-minted keys are immediately usable.
 
 ---
 
@@ -199,7 +210,9 @@ API key lookups are cached in Redis (TTL = `API_KEY_CACHE_TTL`, sourced from `en
 - Raw keys are never stored — only their SHA-256 hash (`keyHash`, unique index) is persisted.
 - `SafeApiKey` (the only client-facing shape) omits `keyHash`; the raw key is returned exactly once, from `create`.
 - Creation is billing-gated for non-root tenants via `assertFeatureAccess(tenantId, FEATURE_API_KEYS)` (defense-in-depth on top of UI gating).
-- `verify` rejects inactive (`KEY_INACTIVE`), expired (`KEY_EXPIRED`), unknown (`INVALID_KEY`), and under-scoped (`INSUFFICIENT_SCOPE`) keys.
+- `verify` rejects inactive (`KEY_INACTIVE`), expired (`KEY_EXPIRED`), unknown (`INVALID_KEY`), under-scoped (`INSUFFICIENT_SCOPE`), IP-blocked (`IP_NOT_ALLOWED`), and over-rate-limit (`RATE_LIMITED`) keys.
+- Every failed verification is audit-logged (`api_key.verify.failed`, actor type `API_KEY`); a dormant key first used from a new IP raises `api_key.anomaly.detected`.
+- Per-key subnet allowlists (and a tenant-wide default) restrict where a key may be used; per-key rate limiting caps verify throughput.
 - The negative cache blunts credential-stuffing by serving repeated unknown-hash guesses from Redis instead of the DB.
 
 ---
@@ -208,13 +221,28 @@ API key lookups are cached in Redis (TTL = `API_KEY_CACHE_TTL`, sourced from `en
 
 Surfaced at `/tenant/[tenantId]/admin/api-keys/settings` (gear button in the API Keys page header) via the shared `ModuleSettingsPage` scaffold. UI field metadata: `api_key.settings.fields.ts`. The `env:TENANT_CACHE_TTL` deployment var is **not** exposed here.
 
-| Key | Type | Notes |
-|---|---|---|
-| `apiKeyNegativeCacheTtlSeconds` | number | Negative-cache TTL for missing API keys (min 60s). |
+Setting keys are declared in `api_key.setting.keys.ts` (Zod enum + named accessors). UI field metadata: `api_key.settings.fields.ts`.
 
-> **Not wired:** `apiKeyNegativeCacheTtlSeconds` is currently only a UI field — `api_key.service.ts` never reads it. The negative-cache window is hardcoded as `NEGATIVE_CACHE_TTL = Math.min(60, API_KEY_CACHE_TTL)` (`api_key.service.ts:17`), so changing this setting has no runtime effect yet.
+| Key | Type | Group | Notes |
+|---|---|---|---|
+| `apiKeyNegativeCacheTtlSeconds` | number | Caching | Negative-cache TTL for missing keys (min 60s). **Wired** — read from the **root tenant** (the negative cache keys on a hash before the owning tenant is known) and applied in `verify`. |
+| `apiKeyMaxActiveKeys` | number | Lifecycle | Max active keys per tenant (0 = unlimited), enforced on `create`. |
+| `apiKeyMaxTtlDays` | number | Lifecycle | Cap on how far out a key may expire (0 = no cap). |
+| `apiKeyRequireExpiry` | boolean | Lifecycle | Require every new key to declare an expiry. |
+| `apiKeyTenantIpAllowlist` | textarea | Network | Default subnets (CIDR) applied to keys without their own allowlist. |
+| `apiKeyDefaultRateLimitPerMinute` | number | Network | Per-key verify rate limit (0 = unlimited). |
 
-Read/written via `GET/PUT /tenant/[tenantId]/api/admin-settings`. See `docs/ROADMAP_SETTINGS.md`.
+Read/written via the shared settings path. `env:TENANT_CACHE_TTL` (deployment var) is **not** exposed here.
+
+---
+
+## Webhook events
+
+`api_key.created`, `api_key.updated`, `api_key.deleted`, `api_key.expired`, `api_key.rotated` (see `modules/webhook`).
+
+## Dependencies
+
+Adds **[`network`](../network/README.md)** for subnet (CIDR) validation + matching (`SubnetListSchema`, `ipMatchesAllowlist`), on top of `db`, `env`, `common`.
 
 ---
 

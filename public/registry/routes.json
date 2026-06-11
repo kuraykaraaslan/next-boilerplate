@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-11T11:19:01.480Z",
+  "generatedAt": "2026-06-11T11:59:09.229Z",
   "routes": [
     {
       "filePath": "app/internal/api/caddy-ask/route.ts",
@@ -53,6 +53,16 @@
         "PUT"
       ],
       "module": "admin_setting",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/admin/impersonate/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/admin/impersonate",
+      "methods": [
+        "POST"
+      ],
+      "module": "impersonate",
       "dynamic": true
     },
     {
@@ -191,6 +201,56 @@
       "filePath": "app/tenant/[tenantId]/api/audit-logs/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/audit-logs",
+      "methods": [
+        "GET"
+      ],
+      "module": "audit_log",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/audit-logs/anonymize/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/audit-logs/anonymize",
+      "methods": [
+        "POST"
+      ],
+      "module": "audit_log",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/audit-logs/cross-tenant/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/audit-logs/cross-tenant",
+      "methods": [
+        "GET"
+      ],
+      "module": "audit_log",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/audit-logs/export/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/audit-logs/export",
+      "methods": [
+        "GET"
+      ],
+      "module": "audit_log",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/audit-logs/purge/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/audit-logs/purge",
+      "methods": [
+        "POST"
+      ],
+      "module": "audit_log",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/audit-logs/verify/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/audit-logs/verify",
       "methods": [
         "GET"
       ],
@@ -457,6 +517,16 @@
       "filePath": "app/tenant/[tenantId]/api/auth/me/tenants/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/auth/me/tenants",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/openapi/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/openapi",
       "methods": [
         "GET"
       ],

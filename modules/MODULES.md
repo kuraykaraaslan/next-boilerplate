@@ -40,10 +40,10 @@ There are **43 modules** under `modules/`. Eighteen of them also have a Next/Rea
 | [user_session](user_session/) | JWT access/refresh issuance + Redis cache + CRUD. **4 sub-services**: token, cache, crud, service. | `UserSession` | db, redis, env, user, user_agent |
 | [user_social_account](user_social_account/) | Linked OAuth provider accounts (provider id, external user id). | `UserSocialAccount` | db, user |
 | [user_agent](user_agent/) | UA-string parser → device/OS/browser. Used to annotate sessions and audit logs. | — | — |
-| [auth](auth/) | Login, register, password reset, email verify, OTP, TOTP. Coordinates user / user_session / user_security / mail. | — | user, user_session, user_security, notification_mail, redis, env, common |
+| [auth](auth/) | Login, register, password reset, email verify, OTP, TOTP. Per-tenant policy (registration/verification/SSO providers/OTP TTLs/bcrypt cost/MFA methods), consent capture, dormant erasure, locale-aware mail/errors, lockout webhook + login-failure metrics. | `UserConsent` | user, user_session, user_security, notification_mail, notification_sms, setting, tenant, tenant_invitation, audit_log, webhook, observability, db, env, redis, common |
 | [auth_sso](auth_sso/) | OAuth SSO with 12 providers (Google, GitHub, Apple, Microsoft, Facebook, LinkedIn, Twitter, Slack, TikTok, WeChat, Autodesk). | — | user, user_session, user_social_account, env |
 | [auth_saml](auth_saml/) | SAML 2.0 SSO with per-tenant IdP config. | `SamlConfig` | db, user, user_session, tenant, env |
-| [auth_impersonation](auth_impersonation/) | Admin impersonation of a target user (always audited). | — | user, user_session, audit_log, env |
+| [auth_impersonation](auth_impersonation/) | Admin impersonation of a target user (always audited). Per-tenant TTL, system-flow route, step-up re-auth, concurrency cap, mandatory reason, tenant opt-out, duration tracking, anomaly webhooks. | — | user, user_session, audit_log, setting, webhook, redis, auth, env |
 | [e_signature](e_signature/) | Multi-country e-identity login + e-signature (eIDAS / OIDC4IDA). MVP: TR Mobil İmza login. Doc-signing interfaces scaffolded. | `SigningCertificate`, `TrustListEntry` | db, env, user, user_session, user_security, redis, redis_idempotency, limiter, audit_log, logger |
 
 ### Tenancy
@@ -84,7 +84,7 @@ There are **43 modules** under `modules/`. Eighteen of them also have a Next/Rea
 | [setting](setting/) | System-wide key-value settings store. Each module declares its keys in `*.setting.keys.ts`. | `Setting` | db, env |
 | [storage](storage/) | Pluggable S3-compatible file storage (AWS S3, Cloudflare R2, DigitalOcean Spaces, MinIO). | — | env, setting |
 | [webhook](webhook/) | Outbound webhooks (system + tenant scope) with signed deliveries + retry + redelivery. | `Webhook`, `WebhookDelivery`, `SystemWebhook`, `SystemWebhookDelivery` | db, redis, env |
-| [audit_log](audit_log/) | Append-only audit trail (system + per-tenant). | `AuditLog`, `TenantAuditLog` | db, env, logger |
+| [audit_log](audit_log/) | Append-only audit trail (system + per-tenant) with hash-chain tamper-evidence, severity scoring, retention purge, GDPR erasure/export, date-range + cross-tenant queries, CSV/NDJSON export, high-risk webhooks. | `AuditLog`, `TenantAuditLog` | db, env, logger, common, redis, setting, webhook, tenant |
 | [api_key](api_key/) | Tenant-scoped API keys (hashed at rest, scope-bound, env-prefixed, subnet-pinned, rotatable). | `ApiKey` | db, env, common, network |
 | [api_doc](api_doc/) | OpenAPI / Swagger spec builder. | — | env |
 

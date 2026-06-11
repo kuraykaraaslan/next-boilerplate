@@ -264,8 +264,8 @@
       "core"
     ],
     "hasNextLayer": true,
-    "routeCount": 44,
-    "entityCount": 0,
+    "routeCount": 45,
+    "entityCount": 1,
     "componentCount": 7,
     "file": "auth.md"
   },
@@ -746,7 +746,7 @@
       "compliance"
     ],
     "hasNextLayer": true,
-    "routeCount": 1,
+    "routeCount": 6,
     "entityCount": 1,
     "componentCount": 2,
     "file": "audit_log.md"

@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-11T11:19:01.480Z",
+  "generatedAt": "2026-06-11T11:59:09.229Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -776,6 +776,14 @@
           "user_session",
           "user_security",
           "notification_mail",
+          "notification_sms",
+          "setting",
+          "tenant",
+          "tenant_invitation",
+          "audit_log",
+          "webhook",
+          "observability",
+          "db",
           "env",
           "redis",
           "common"
@@ -808,7 +816,9 @@
         "jobs": [
           "auth.dormant.job.ts"
         ],
-        "entities": []
+        "entities": [
+          "user_consent.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
@@ -929,6 +939,10 @@
           "user",
           "user_session",
           "audit_log",
+          "setting",
+          "webhook",
+          "redis",
+          "auth",
           "env"
         ]
       },
@@ -943,7 +957,9 @@
         "messageKeys": [
           "impersonation.messages.ts"
         ],
-        "settingKeys": [],
+        "settingKeys": [
+          "impersonation.setting.keys.ts"
+        ],
         "providers": [],
         "jobs": [],
         "entities": []
@@ -2439,7 +2455,12 @@
         "requires": [
           "db",
           "env",
-          "logger"
+          "logger",
+          "common",
+          "redis",
+          "setting",
+          "webhook",
+          "tenant"
         ]
       },
       "exports": {
@@ -2455,9 +2476,13 @@
         "messageKeys": [
           "audit_log.messages.ts"
         ],
-        "settingKeys": [],
+        "settingKeys": [
+          "audit_log.setting.keys.ts"
+        ],
         "providers": [],
-        "jobs": [],
+        "jobs": [
+          "audit_log.purge.job.ts"
+        ],
         "entities": [
           "audit_log.entity.ts"
         ]
@@ -2899,6 +2924,16 @@
       "dynamic": true
     },
     {
+      "filePath": "app/tenant/[tenantId]/api/admin/impersonate/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/admin/impersonate",
+      "methods": [
+        "POST"
+      ],
+      "module": "impersonate",
+      "dynamic": true
+    },
+    {
       "filePath": "app/tenant/[tenantId]/api/admin/subscription/customer-portal/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/admin/subscription/customer-portal",
@@ -3034,6 +3069,56 @@
       "filePath": "app/tenant/[tenantId]/api/audit-logs/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/audit-logs",
+      "methods": [
+        "GET"
+      ],
+      "module": "audit_log",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/audit-logs/anonymize/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/audit-logs/anonymize",
+      "methods": [
+        "POST"
+      ],
+      "module": "audit_log",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/audit-logs/cross-tenant/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/audit-logs/cross-tenant",
+      "methods": [
+        "GET"
+      ],
+      "module": "audit_log",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/audit-logs/export/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/audit-logs/export",
+      "methods": [
+        "GET"
+      ],
+      "module": "audit_log",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/audit-logs/purge/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/audit-logs/purge",
+      "methods": [
+        "POST"
+      ],
+      "module": "audit_log",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/audit-logs/verify/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/audit-logs/verify",
       "methods": [
         "GET"
       ],
@@ -3300,6 +3385,16 @@
       "filePath": "app/tenant/[tenantId]/api/auth/me/tenants/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/auth/me/tenants",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/openapi/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/openapi",
       "methods": [
         "GET"
       ],
@@ -4842,13 +4937,18 @@
         "tenantId",
         "actorId",
         "actorType",
+        "onBehalfOfActorId",
         "action",
+        "severity",
         "resourceType",
         "resourceId",
         "metadata",
         "ipAddress",
         "userAgent",
-        "createdAt"
+        "prevHash",
+        "rowHash",
+        "createdAt",
+        "deletedAt"
       ],
       "relations": []
     },
@@ -6321,6 +6421,25 @@
         "createdAt",
         "updatedAt",
         "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "UserConsent",
+      "filePath": "modules/auth/entities/user_consent.entity.ts",
+      "module": "auth",
+      "schema": "system",
+      "tableName": "user_consents",
+      "columns": [
+        "userConsentId",
+        "userId",
+        "tenantId",
+        "documentType",
+        "documentVersion",
+        "locale",
+        "ipAddress",
+        "userAgent",
+        "createdAt"
       ],
       "relations": []
     },
