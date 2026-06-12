@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, Index } from 'typeorm';
+import { DEFAULT_CURRENCY } from '@/modules/common';
 
 @Entity('carts')
 export class Cart {
@@ -22,7 +23,7 @@ export class Cart {
   @Column({ type: 'varchar', default: 'ACTIVE' })
   status!: string;
 
-  @Column({ type: 'varchar', length: 3, default: 'USD' })
+  @Column({ type: 'varchar', length: 3, default: DEFAULT_CURRENCY })
   currency!: string;
 
   @Column({ nullable: true, type: 'varchar' })

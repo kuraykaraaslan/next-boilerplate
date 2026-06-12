@@ -4,11 +4,8 @@
 
 ## Localization
 
-### Extended Language / Locale Support
-**Why:** The `LanguageEnum` only contains `EN`, `ES`, `FR`, `DE`, `CN`, `JP` — six languages — while a multi-country SaaS platform must support at minimum the languages of its operating markets (Arabic, Portuguese, Turkish, Korean, Russian, etc.).
-**Complexity:** Low
-**Multi-tenant relevance:** Individual tenants targeting specific markets need the platform to accept and persist their market's locale; a hardcoded six-item enum forces a code change for every new market.
-**Multi-country relevance:** Direct impact — the language field is the primary per-user localization signal used by every UI rendering path; an incomplete enum silently forces non-supported markets to fall back to English.
+### Extended Language / Locale Support — ✅ DONE
+**Resolved:** `LanguageEnum` is now an alias of `LanguageCodeEnum` from `@/modules/common` (full ISO 639-1 set, single-sourced from `countries-list`). The module no longer hardcodes a six-item list, and `DEFAULT_LANGUAGE` (`'en'`) is sourced from common. Note: stored values are now lowercase ISO codes (`en`, not `EN`); existing rows must be normalised (e.g. `EN→en`, `DE→de`, `JP→ja`, `CN→zh`).
 
 ### Full IANA Timezone Validation
 **Why:** `timezone` is stored as a free-form `varchar` with no server-side validation that the value is a valid IANA timezone identifier (e.g., `Europe/Istanbul`); invalid values silently pass through and cause runtime errors in date formatting.

@@ -38,7 +38,7 @@ import UserPreferencesService from '../user_preferences.service';
 const mockPrefsEntity = {
   userId: 'user-1',
   theme: 'SYSTEM',
-  language: 'EN',
+  language: 'en',
   emailNotifications: true,
   smsNotifications: false,
   pushNotifications: true,
@@ -81,7 +81,7 @@ describe('UserPreferencesService.getByUserId', () => {
     const result = await UserPreferencesService.getByUserId('user-1');
     expect(result).not.toBeNull();
     expect(result!.theme).toBe('SYSTEM');
-    expect(result!.language).toBe('EN');
+    expect(result!.language).toBe('en');
   });
 });
 
@@ -102,16 +102,16 @@ describe('UserPreferencesService.create', () => {
 
     const result = await UserPreferencesService.create('user-1');
     expect(result.theme).toBeDefined();
-    expect(result.language).toBe('EN');
+    expect(result.language).toBe('en');
   });
 
   it('merges provided data with defaults', async () => {
     const repo = buildRepoMock();
-    repo.save.mockResolvedValueOnce({ ...mockPrefsEntity, theme: 'DARK', language: 'FR' });
+    repo.save.mockResolvedValueOnce({ ...mockPrefsEntity, theme: 'DARK', language: 'fr' });
 
-    const result = await UserPreferencesService.create('user-1', { theme: 'DARK', language: 'FR' });
+    const result = await UserPreferencesService.create('user-1', { theme: 'DARK', language: 'fr' });
     expect(result.theme).toBe('DARK');
-    expect(result.language).toBe('FR');
+    expect(result.language).toBe('fr');
   });
 });
 
@@ -185,7 +185,7 @@ describe('UserPreferencesService.getOrCreateDefault', () => {
     repo.findOne.mockResolvedValueOnce(mockPrefsEntity);
 
     const result = await UserPreferencesService.getOrCreateDefault('user-1');
-    expect(result.language).toBe('EN');
+    expect(result.language).toBe('en');
     expect(repo.save).not.toHaveBeenCalled();
   });
 

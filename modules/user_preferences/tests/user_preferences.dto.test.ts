@@ -4,7 +4,7 @@ import { UpdatePreferencesRequestSchema } from '../user_preferences.dto';
 describe('UpdatePreferencesRequestSchema', () => {
   const validInput = {
     theme: 'DARK',
-    language: 'EN',
+    language: 'en',
     emailNotifications: true,
     smsNotifications: false,
     pushNotifications: true,
@@ -26,10 +26,10 @@ describe('UpdatePreferencesRequestSchema', () => {
     if (result.success) expect(result.data.theme).toBe('LIGHT');
   });
 
-  it('defaults language to EN when null', () => {
+  it('defaults language to en when null', () => {
     const result = UpdatePreferencesRequestSchema.safeParse({ ...validInput, language: null });
     expect(result.success).toBe(true);
-    if (result.success) expect(result.data.language).toBe('EN');
+    if (result.success) expect(result.data.language).toBe('en');
   });
 
   it('defaults emailNotifications to true when null', () => {
@@ -68,7 +68,7 @@ describe('UpdatePreferencesRequestSchema', () => {
   });
 
   it('rejects invalid language value', () => {
-    const result = UpdatePreferencesRequestSchema.safeParse({ ...validInput, language: 'TR' });
+    const result = UpdatePreferencesRequestSchema.safeParse({ ...validInput, language: 'xx' });
     expect(result.success).toBe(false);
   });
 
@@ -93,7 +93,7 @@ describe('UpdatePreferencesRequestSchema', () => {
   });
 
   it('accepts all valid language options', () => {
-    const languages = ['EN', 'ES', 'FR', 'DE', 'CN', 'JP'] as const;
+    const languages = ['en', 'es', 'fr', 'de', 'zh', 'ja'] as const;
     for (const language of languages) {
       const result = UpdatePreferencesRequestSchema.safeParse({ ...validInput, language });
       expect(result.success).toBe(true);

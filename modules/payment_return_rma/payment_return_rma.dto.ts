@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { CurrencyCodeInput, DEFAULT_CURRENCY } from '@/modules/common'
 import { ReturnTypeEnum, ReturnStatusEnum, ReturnItemConditionEnum } from './payment_return_rma.enums'
 
 // ============================================================================
@@ -28,7 +29,7 @@ export const CreateReturnDTO = z.object({
   type: ReturnTypeEnum.default('RETURN'),
   reason: z.string().optional(),
   customerNote: z.string().optional(),
-  currency: z.string().length(3).default('USD'),
+  currency: CurrencyCodeInput.default(DEFAULT_CURRENCY),
   metadata: z.record(z.string(), z.any()).optional(),
   items: z.array(ReturnItemInputSchema).min(1),
 })

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { TimezoneSchema, DEFAULT_TIMEZONE } from '@/modules/common';
+import { TimezoneSchema, DEFAULT_TIMEZONE, DEFAULT_LANGUAGE } from '@/modules/common';
 import {
   ThemeEnum,
   LanguageEnum,
@@ -10,7 +10,7 @@ import {
 
 export const UserPreferencesSchema = z.object({
   theme: ThemeEnum.default('SYSTEM'),
-  language: LanguageEnum.default('EN'),
+  language: LanguageEnum.default(DEFAULT_LANGUAGE),
   emailNotifications: z.boolean().default(true),
   smsNotifications: z.boolean().default(false),
   pushNotifications: z.boolean().default(true),
@@ -23,7 +23,7 @@ export const UserPreferencesSchema = z.object({
 
 export const UserPreferencesDefault: UserPreferences = {
   theme: 'SYSTEM',
-  language: 'EN',
+  language: DEFAULT_LANGUAGE,
   emailNotifications: true,
   smsNotifications: false,
   pushNotifications: true,

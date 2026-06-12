@@ -2,6 +2,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { isBrowser } from '@/modules_next/common/utils/isBrowser';
+import { CurrencyCodeEnum } from '@/modules/common';
 import { getCountryDataList } from 'countries-list';
 import * as Flags from 'country-flag-icons/react/3x2';
 import { cn } from '@/modules_next/common/utils/cn';
@@ -9,17 +10,18 @@ import { Button } from '@/modules_next/common/ui/Button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 
+// Best-effort currency → representative country, used only for the flag icon.
+// (@/modules/common is the source of truth for *which* currencies exist; this
+// map is a cosmetic lookup that common deliberately doesn't provide.)
 const currencyToCountry: Record<string, string> = {};
-const _seen = new Set<string>();
-
 for (const c of getCountryDataList()) {
   for (const cur of c.currency) {
     if (!currencyToCountry[cur]) currencyToCountry[cur] = c.iso2;
-    _seen.add(cur);
   }
 }
 
-const ALL_CURRENCIES = Array.from(_seen)
+// Canonical ISO 4217 currency list, single-sourced from @/modules/common.
+const ALL_CURRENCIES = [...CurrencyCodeEnum.options]
   .sort()
   .map((cur) => ({ value: cur, countryCode: currencyToCountry[cur] }));
 

@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { CountryCodeInput, CurrencyCodeInput, DEFAULT_CURRENCY } from '@/modules/common'
 
 // ============================================================================
 // Tax Class DTOs
@@ -27,7 +28,7 @@ export type UpdateTaxClassDTO = z.infer<typeof UpdateTaxClassDTO>
 export const CreateTaxRateDTO = z.object({
   taxClassId: z.string().uuid().optional(),
   name: z.string().min(1),
-  countryCode: z.string().length(2).optional(),
+  countryCode: CountryCodeInput.optional(),
   region: z.string().optional(),
   postalCodePattern: z.string().optional(),
   rate: z.number(),
@@ -41,7 +42,7 @@ export type CreateTaxRateDTO = z.infer<typeof CreateTaxRateDTO>
 export const UpdateTaxRateDTO = z.object({
   taxClassId: z.string().uuid().nullable().optional(),
   name: z.string().min(1).optional(),
-  countryCode: z.string().length(2).nullable().optional(),
+  countryCode: CountryCodeInput.nullable().optional(),
   region: z.string().nullable().optional(),
   postalCodePattern: z.string().nullable().optional(),
   rate: z.number().optional(),
@@ -57,9 +58,9 @@ export type UpdateTaxRateDTO = z.infer<typeof UpdateTaxRateDTO>
 // ============================================================================
 
 export const CalculateTaxDTO = z.object({
-  currency: z.string().length(3).default('USD'),
+  currency: CurrencyCodeInput.default(DEFAULT_CURRENCY),
   destination: z.object({
-    countryCode: z.string().length(2).optional(),
+    countryCode: CountryCodeInput.optional(),
     region: z.string().optional(),
     postalCode: z.string().optional(),
   }),
@@ -81,7 +82,7 @@ export type CalculateTaxDTO = z.infer<typeof CalculateTaxDTO>
 export const GetTaxRatesQuery = z.object({
   page: z.number().int().nonnegative().default(0),
   pageSize: z.number().int().positive().max(100).default(20),
-  countryCode: z.string().length(2).optional(),
+  countryCode: CountryCodeInput.optional(),
   taxClassId: z.string().uuid().optional(),
   isActive: z.boolean().optional(),
 })

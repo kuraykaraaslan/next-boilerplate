@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { CurrencyCodeInput, DEFAULT_CURRENCY } from '@/modules/common'
 import { CartStatusEnum } from './payment_cart.enums'
 
 export const AddCartItemDTO = z.object({
@@ -20,7 +21,7 @@ export type UpdateCartItemDTO = z.infer<typeof UpdateCartItemDTO>
 export const GetOrCreateCartDTO = z.object({
   userId: z.string().uuid().optional(),
   guestToken: z.string().optional(),
-  currency: z.string().length(3).default('USD'),
+  currency: CurrencyCodeInput.default(DEFAULT_CURRENCY),
 })
 export type GetOrCreateCartDTO = z.infer<typeof GetOrCreateCartDTO>
 

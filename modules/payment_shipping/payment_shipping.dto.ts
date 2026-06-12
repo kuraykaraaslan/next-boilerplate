@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { CountryCodeInput, CurrencyCodeInput, DEFAULT_CURRENCY } from '@/modules/common'
 import { ShippingCarrierEnum } from './payment_shipping.enums'
 
 // ============================================================================
@@ -34,14 +35,14 @@ export type UpdateShippingMethodDTO = z.infer<typeof UpdateShippingMethodDTO>
 export const CreateShippingRateDTO = z.object({
   shippingMethodId: z.string().uuid(),
   name: z.string().min(1),
-  countryCode: z.string().length(2).optional(),
+  countryCode: CountryCodeInput.optional(),
   region: z.string().optional(),
   minWeight: z.number().nonnegative().optional(),
   maxWeight: z.number().nonnegative().optional(),
   minSubtotal: z.number().nonnegative().optional(),
   maxSubtotal: z.number().nonnegative().optional(),
   price: z.number().nonnegative(),
-  currency: z.string().length(3).default('USD'),
+  currency: CurrencyCodeInput.default(DEFAULT_CURRENCY),
   freeThreshold: z.number().nonnegative().optional(),
   estimatedDaysMin: z.number().int().nonnegative().optional(),
   estimatedDaysMax: z.number().int().nonnegative().optional(),
@@ -52,14 +53,14 @@ export type CreateShippingRateDTO = z.infer<typeof CreateShippingRateDTO>
 
 export const UpdateShippingRateDTO = z.object({
   name: z.string().min(1).optional(),
-  countryCode: z.string().length(2).optional(),
+  countryCode: CountryCodeInput.optional(),
   region: z.string().optional(),
   minWeight: z.number().nonnegative().optional(),
   maxWeight: z.number().nonnegative().optional(),
   minSubtotal: z.number().nonnegative().optional(),
   maxSubtotal: z.number().nonnegative().optional(),
   price: z.number().nonnegative().optional(),
-  currency: z.string().length(3).optional(),
+  currency: CurrencyCodeInput.optional(),
   freeThreshold: z.number().nonnegative().optional(),
   estimatedDaysMin: z.number().int().nonnegative().optional(),
   estimatedDaysMax: z.number().int().nonnegative().optional(),
@@ -73,11 +74,11 @@ export type UpdateShippingRateDTO = z.infer<typeof UpdateShippingRateDTO>
 // ============================================================================
 
 export const CalculateShippingDTO = z.object({
-  countryCode: z.string().length(2).optional(),
+  countryCode: CountryCodeInput.optional(),
   region: z.string().optional(),
   weight: z.number().nonnegative().optional(),
   subtotal: z.number().nonnegative(),
-  currency: z.string().length(3).default('USD'),
+  currency: CurrencyCodeInput.default(DEFAULT_CURRENCY),
 })
 export type CalculateShippingDTO = z.infer<typeof CalculateShippingDTO>
 

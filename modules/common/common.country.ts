@@ -25,3 +25,14 @@ export const COUNTRIES: { code: CountryCode; name: string; native: string }[] =
 export function isCountryCode(v: string): v is CountryCode {
   return Object.prototype.hasOwnProperty.call(COUNTRY_DATA, v);
 }
+
+/**
+ * ISO 3166-1 alpha-2 country code as received at an input boundary. Accepts
+ * mixed-case input (`tr` / `Tr`) by upper-casing before validation, matching
+ * the persistence layer which stores the upper-cased form. Use this at every
+ * DTO / request boundary so the whole platform validates country the same way.
+ */
+export const CountryCodeInput = z.preprocess(
+  (v) => (typeof v === 'string' ? v.toUpperCase() : v),
+  CountryCodeEnum,
+);

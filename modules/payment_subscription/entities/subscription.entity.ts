@@ -1,5 +1,6 @@
 import 'reflect-metadata'
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, Index } from 'typeorm'
+import { DEFAULT_CURRENCY } from '@/modules/common'
 
 @Entity('subscriptions')
 export class Subscription {
@@ -40,7 +41,7 @@ export class Subscription {
   @Column({ type: 'decimal', precision: 12, scale: 2 })
   amount!: number
 
-  @Column({ type: 'varchar', length: 3, default: 'USD' })
+  @Column({ type: 'varchar', length: 3, default: DEFAULT_CURRENCY })
   currency!: string
 
   @Column({ nullable: true, type: 'timestamp' })

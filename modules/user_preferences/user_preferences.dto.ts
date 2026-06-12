@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { TimezoneSchema, DEFAULT_TIMEZONE } from '@/modules/common';
+import { TimezoneSchema, DEFAULT_TIMEZONE, DEFAULT_LANGUAGE } from '@/modules/common';
 import {
   ThemeEnum,
   LanguageEnum,
@@ -10,7 +10,7 @@ import {
 
 export const UpdatePreferencesRequestSchema = z.object({
   theme: ThemeEnum.nullable().transform(val => val ?? 'LIGHT'),
-  language: LanguageEnum.nullable().transform(val => val ?? 'EN'),
+  language: LanguageEnum.nullable().transform(val => val ?? DEFAULT_LANGUAGE),
   emailNotifications: z.boolean().nullable().transform(val => val ?? true),
   smsNotifications: z.boolean().nullable().transform(val => val ?? false),
   pushNotifications: z.boolean().nullable().transform(val => val ?? false),

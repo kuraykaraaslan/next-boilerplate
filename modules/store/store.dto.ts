@@ -1,16 +1,6 @@
 import { z } from 'zod'
-import { CurrencyCodeEnum } from '@/modules/common'
+import { CurrencyCodeInput, DEFAULT_CURRENCY } from '@/modules/common'
 import { ProductStatusEnum, BundleStatusEnum, CategorySpecTypeEnum, VariationDisplayTypeEnum } from './store.enums'
-
-/**
- * ISO 4217 currency code as received at an input boundary. Accepts mixed-case
- * input (`usd` / `Usd`) by upper-casing before validation, matching the
- * persistence layer which stores the upper-cased form.
- */
-const CurrencyCodeInput = z.preprocess(
-  (v) => (typeof v === 'string' ? v.toUpperCase() : v),
-  CurrencyCodeEnum,
-)
 
 // ============================================================================
 // Category DTOs
@@ -71,7 +61,7 @@ export const CreateProductDTO = z.object({
   shortDescription: z.string().max(500).optional(),
   details: z.string().optional(),
   basePrice: z.coerce.number().nonnegative(),
-  currency: CurrencyCodeInput.default('USD'),
+  currency: CurrencyCodeInput.default(DEFAULT_CURRENCY),
   sku: z.string().max(100).optional(),
   stockQuantity: z.coerce.number().int().nonnegative().optional(),
   trackInventory: z.boolean().default(true),
@@ -208,7 +198,7 @@ export const CreateBundleDTO = z.object({
   richDescription: z.unknown().optional(),
   bundlePrice: z.coerce.number().nonnegative().optional(),
   discountPercent: z.coerce.number().min(0).max(100).optional(),
-  currency: CurrencyCodeInput.default('USD'),
+  currency: CurrencyCodeInput.default(DEFAULT_CURRENCY),
   imageUrl: z.string().url().optional(),
   status: BundleStatusEnum.default('DRAFT'),
   availableFrom: z.date().optional(),

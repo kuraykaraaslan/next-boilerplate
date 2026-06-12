@@ -19,6 +19,9 @@ const LANGUAGE_CODES = Object.keys(LANGUAGE_DATA) as [string, ...string[]];
 export const LanguageCodeEnum = z.enum(LANGUAGE_CODES);
 export type LanguageCode = z.infer<typeof LanguageCodeEnum>;
 
+/** Platform default UI language (ISO 639-1). Pairs with `DEFAULT_LOCALE`. */
+export const DEFAULT_LANGUAGE: LanguageCode = 'en';
+
 export const LANGUAGES: { code: LanguageCode; name: string; native: string }[] =
   Object.entries(LANGUAGE_DATA).map(([code, l]) => ({
     code: code as LanguageCode,

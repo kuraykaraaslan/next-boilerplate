@@ -1,26 +1,11 @@
 import { z } from 'zod';
-import { CountryCodeEnum, CurrencyCodeEnum } from '@/modules/common';
-import { InvoiceStatusEnum, InvoiceRegionEnum, TaxSchemeEnum, InvoiceLineSourceEnum } from './invoice.enums';
-
-/**
- * ISO 3166-1 alpha-2 country code as received at an input boundary. Accepts
- * mixed-case input (`tr` / `Tr`) by upper-casing before validation, matching
- * the persistence layer which stores the upper-cased form.
- */
-const CustomerCountryCodeInput = z.preprocess(
-  (v) => (typeof v === 'string' ? v.toUpperCase() : v),
+import {
   CountryCodeEnum,
-);
-
-/**
- * ISO 4217 currency code as received at an input boundary. Accepts mixed-case
- * input (`usd` / `Usd`) by upper-casing before validation, matching the
- * persistence layer which stores the upper-cased form.
- */
-const CurrencyCodeInput = z.preprocess(
-  (v) => (typeof v === 'string' ? v.toUpperCase() : v),
   CurrencyCodeEnum,
-);
+  CountryCodeInput as CustomerCountryCodeInput,
+  CurrencyCodeInput,
+} from '@/modules/common';
+import { InvoiceStatusEnum, InvoiceRegionEnum, TaxSchemeEnum, InvoiceLineSourceEnum } from './invoice.enums';
 
 export const InvoiceLineInputSchema = z.object({
   description: z.string().min(1),

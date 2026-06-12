@@ -1,6 +1,5 @@
 import { z } from 'zod'
-import { codes } from 'currency-codes-ts'
-import type { CurrencyCode } from 'currency-codes-ts/dist/types'
+import { CurrencyCodeEnum } from '@/modules/common'
 
 // Payment Provider - matches Prisma PaymentProvider enum
 export const PaymentProviderEnum = z.enum([
@@ -42,9 +41,10 @@ export const TransactionTypeEnum = z.enum(['PAYMENT', 'REFUND', 'CHARGEBACK', 'P
 // Transaction Status - matches Prisma TransactionStatus enum
 export const TransactionStatusEnum = z.enum(['PENDING', 'PROCESSING', 'COMPLETED', 'FAILED', 'CANCELLED'])
 
-// ISO 4217 currency codes from currency-codes-ts package
-const currencyCodes = codes() as [CurrencyCode, ...CurrencyCode[]]
-export const PaymentCurrencyEnum = z.enum(currencyCodes)
+// Single-sourced from @/modules/common (ISO 4217, backed by currency-codes-ts)
+// so the platform has ONE currency enum. Alias kept as PaymentCurrencyEnum for
+// back-compat with existing payment consumers.
+export const PaymentCurrencyEnum = CurrencyCodeEnum
 
 // Card brand — detected client-side from the card BIN. Shared by the (provider-agnostic)
 // credit-card form and by direct-charge flows. Mirrors the brands the form's detectBrand()

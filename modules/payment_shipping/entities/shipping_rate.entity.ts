@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, Index } from 'typeorm';
+import { DEFAULT_CURRENCY } from '@/modules/common';
 
 @Entity('shipping_rates')
 export class ShippingRate {
@@ -40,7 +41,7 @@ export class ShippingRate {
   @Column({ type: 'decimal', precision: 12, scale: 2 })
   price!: number;
 
-  @Column({ type: 'varchar', length: 3, default: 'USD' })
+  @Column({ type: 'varchar', length: 3, default: DEFAULT_CURRENCY })
   currency!: string;
 
   // Subtotal at/above which shipping becomes free; null = never free via threshold.

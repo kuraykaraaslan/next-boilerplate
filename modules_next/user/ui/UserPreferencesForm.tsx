@@ -9,13 +9,15 @@ import type { UserPreferences } from '@/modules/user_preferences/user_preference
 
 export type UserPreferencesValues = UserPreferences;
 
+// Values are ISO 639-1 codes, matching @/modules/common LanguageCode (the single
+// source of truth validated by the user_preferences DTO).
 const LANGUAGE_OPTIONS = [
-  { value: 'EN', label: 'English' },
-  { value: 'ES', label: 'Español' },
-  { value: 'FR', label: 'Français' },
-  { value: 'DE', label: 'Deutsch' },
-  { value: 'CN', label: '中文' },
-  { value: 'JP', label: '日本語' },
+  { value: 'en', label: 'English' },
+  { value: 'es', label: 'Español' },
+  { value: 'fr', label: 'Français' },
+  { value: 'de', label: 'Deutsch' },
+  { value: 'zh', label: '中文' },
+  { value: 'ja', label: '日本語' },
 ];
 
 const THEME_OPTIONS = [
@@ -41,7 +43,7 @@ const FIRST_DAY_OPTIONS = [
 
 const DEFAULTS: UserPreferencesValues = {
   theme: 'LIGHT',
-  language: 'EN',
+  language: 'en',
   emailNotifications: true,
   smsNotifications: false,
   pushNotifications: false,

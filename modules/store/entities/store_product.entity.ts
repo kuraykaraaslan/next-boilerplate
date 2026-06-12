@@ -3,6 +3,7 @@ import {
   Entity, PrimaryGeneratedColumn, Column,
   CreateDateColumn, UpdateDateColumn, DeleteDateColumn, Index,
 } from 'typeorm'
+import { DEFAULT_CURRENCY } from '@/modules/common'
 
 @Entity('store_products')
 export class StoreProduct {
@@ -32,7 +33,7 @@ export class StoreProduct {
   @Column({ type: 'decimal', precision: 12, scale: 2, transformer: { to: (v) => v, from: (v) => v == null ? v : parseFloat(v) } })
   basePrice!: number
 
-  @Column({ type: 'varchar', length: 3, default: 'USD' })
+  @Column({ type: 'varchar', length: 3, default: DEFAULT_CURRENCY })
   currency!: string
 
   @Column({ nullable: true, type: 'varchar' })

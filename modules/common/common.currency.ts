@@ -21,3 +21,14 @@ const CURRENCY_SET: ReadonlySet<string> = new Set(CURRENCY_CODES);
 export function isCurrencyCode(v: string): v is CurrencyCode {
   return CURRENCY_SET.has(v);
 }
+
+/**
+ * ISO 4217 currency code as received at an input boundary. Accepts mixed-case
+ * input (`usd` / `Usd`) by upper-casing before validation, matching the
+ * persistence layer which stores the upper-cased form. Use this at every DTO /
+ * request boundary so the whole platform validates currency the same way.
+ */
+export const CurrencyCodeInput = z.preprocess(
+  (v) => (typeof v === 'string' ? v.toUpperCase() : v),
+  CurrencyCodeEnum,
+);

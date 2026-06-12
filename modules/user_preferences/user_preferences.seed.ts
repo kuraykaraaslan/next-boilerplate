@@ -3,6 +3,7 @@ import type { FindOptionsWhere } from 'typeorm';
 import type { SeedContext } from '@/modules/seed/seed.context';
 import { SEED_USER_ID, SEED_ADMIN_USER_ID } from '@/modules/seed/seed.context';
 import { UserPreferences } from './entities/user_preferences.entity';
+import type { Language } from './user_preferences.enums';
 
 /**
  * Demo data for the `user_preferences` module.
@@ -34,7 +35,7 @@ export async function seedUserPreferences(ctx: SeedContext): Promise<void> {
   type PrefDef = {
     userId: string;
     theme: 'LIGHT' | 'DARK' | 'SYSTEM';
-    language: 'EN' | 'ES' | 'FR' | 'DE' | 'CN' | 'JP';
+    language: Language;
     emailNotifications: boolean;
     smsNotifications: boolean;
     pushNotifications: boolean;
@@ -50,7 +51,7 @@ export async function seedUserPreferences(ctx: SeedContext): Promise<void> {
     {
       userId: seedUserId,
       theme: 'DARK',
-      language: 'EN',
+      language: 'en',
       emailNotifications: true,
       smsNotifications: true,
       pushNotifications: true,
@@ -64,7 +65,7 @@ export async function seedUserPreferences(ctx: SeedContext): Promise<void> {
     {
       userId: seedAdminUserId,
       theme: 'LIGHT',
-      language: 'DE',
+      language: 'de',
       emailNotifications: true,
       smsNotifications: false,
       pushNotifications: false,
@@ -78,7 +79,7 @@ export async function seedUserPreferences(ctx: SeedContext): Promise<void> {
     {
       userId: guestUserId,
       theme: 'SYSTEM',
-      language: 'JP',
+      language: 'ja',
       emailNotifications: false,
       smsNotifications: false,
       pushNotifications: true,

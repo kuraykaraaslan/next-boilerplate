@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { DEFAULT_LANGUAGE } from '@/modules/common';
 
 @Entity('user_preferences')
 export class UserPreferences {
@@ -12,7 +13,7 @@ export class UserPreferences {
   @Column({ type: 'varchar', default: 'SYSTEM' })
   theme!: string;
 
-  @Column({ type: 'varchar', default: 'EN' })
+  @Column({ type: 'varchar', default: DEFAULT_LANGUAGE })
   language!: string;
 
   @Column({ type: 'boolean', default: true })
