@@ -14,9 +14,12 @@ export interface CouponProviderSyncResult {
 export default abstract class BaseCouponProvider {
   abstract readonly name: string
 
-  abstract syncCoupon(coupon: Coupon): Promise<CouponProviderSyncResult>
+  /** Sync to the payment provider's coupon registry (if it has one). `tenantId` enables Stripe Connect resolution. */
+  abstract syncCoupon(coupon: Coupon, tenantId?: string): Promise<CouponProviderSyncResult>
 
+  /** Return provider-specific checkout params that apply the discount at payment time. */
   abstract getCheckoutCouponParam(
-    validation: CouponValidationResult
+    validation: CouponValidationResult,
+    tenantId?: string,
   ): Promise<Record<string, string>>
 }

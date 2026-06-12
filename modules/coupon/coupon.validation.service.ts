@@ -45,15 +45,25 @@ export default class CouponValidationService {
       categoryIds: dto.categoryIds,
       provider: dto.provider,
       amount: dto.amount,
+      currency: dto.currency,
+      countryCode: dto.countryCode,
     });
     if (!scopeCheck.ok) {
       return CouponValidationResultSchema.parse({ valid: false, message: scopeCheck.reason });
     }
 
-    if (coupon.maxUsesPerTenant !== null) {
+    if (coupon.maxUsesPerTenant !== null && coupon.maxUsesPerTenant !== undefined) {
       const tenantUses = await CouponCrudService.getRedemptionCount(dto.tenantId, coupon.couponId);
       if (tenantUses >= coupon.maxUsesPerTenant) {
         return CouponValidationResultSchema.parse({ valid: false, message: COUPON_MESSAGES.MAX_USES_PER_TENANT_REACHED });
+      }
+    }
+
+    // Per-user redemption cap
+    if (coupon.maxUsesPerUser !== null && coupon.maxUsesPerUser !== undefined && dto.userId) {
+      const userUses = await CouponCrudService.getRedemptionCountByUser(dto.tenantId, coupon.couponId, dto.userId);
+      if (userUses >= coupon.maxUsesPerUser) {
+        return CouponValidationResultSchema.parse({ valid: false, message: COUPON_MESSAGES.MAX_USES_PER_USER_REACHED });
       }
     }
 
@@ -72,9 +82,18 @@ export default class CouponValidationService {
       categoryIds?: string[];
       provider?: string;
       amount?: number;
+      currency?: string;
+      countryCode?: string;
     },
   ): { ok: true } | { ok: false; reason: string } {
     if (!scope) return { ok: true };
+
+    // Geo restriction (GOODTOHAVE: geographic)
+    if (scope.countryCodes && scope.countryCodes.length > 0 && ctx.countryCode) {
+      if (!scope.countryCodes.includes(ctx.countryCode.toUpperCase())) {
+        return { ok: false, reason: COUPON_MESSAGES.COUNTRY_RESTRICTED };
+      }
+    }
 
     if (scope.planIds !== undefined && ctx.planId) {
       if (!scope.planIds.includes(ctx.planId)) {
@@ -96,8 +115,15 @@ export default class CouponValidationService {
         return { ok: false, reason: COUPON_MESSAGES.PROVIDER_NOT_ELIGIBLE };
       }
     }
-    if (scope.minimumAmount !== undefined && ctx.amount !== undefined && ctx.amount < scope.minimumAmount) {
-      return { ok: false, reason: COUPON_MESSAGES.MINIMUM_AMOUNT_NOT_MET };
+
+    // Currency-aware minimum amount (GOODTOHAVE: currency-aware minimum)
+    if (scope.minimumAmount !== undefined && ctx.amount !== undefined) {
+      if (scope.minimumAmountCurrency && ctx.currency &&
+          scope.minimumAmountCurrency.toUpperCase() !== ctx.currency.toUpperCase()) {
+        // Currency mismatch: cannot compare amounts across different currencies, skip check
+      } else if (ctx.amount < scope.minimumAmount) {
+        return { ok: false, reason: COUPON_MESSAGES.MINIMUM_AMOUNT_NOT_MET };
+      }
     }
 
     return { ok: true };
@@ -114,19 +140,29 @@ export default class CouponValidationService {
   }
 
   // ──────────────────────────────────────────────
-  // Apply (redemption record + increment usedCount)
+  // Apply — race-condition-safe (GOODTOHAVE: race-safe maxUses)
+  //
+  // The old pattern: validate() reads usedCount, then apply() does a plain
+  // INCREMENT. Between the two calls, concurrent requests can each pass the
+  // maxUses check and all increment past the limit.
+  //
+  // Fix: inside the transaction, issue a conditional UPDATE that increments
+  // usedCount only when usedCount < maxUses. If 0 rows are affected, the limit
+  // was hit concurrently and we abort with MAX_USES_REACHED.
   // ──────────────────────────────────────────────
 
   static async apply(dto: ApplyCouponDTO): Promise<CouponRedemption> {
     const validation = await CouponValidationService.validate({
       code: dto.code,
       tenantId: dto.tenantId,
+      userId: dto.userId,
       planId: dto.planId,
       productIds: dto.productIds,
       categoryIds: dto.categoryIds,
       amount: dto.amount,
       currency: dto.currency,
       provider: dto.provider,
+      countryCode: dto.countryCode,
     });
 
     if (!validation.valid || !validation.coupon) {
@@ -135,14 +171,32 @@ export default class CouponValidationService {
 
     const discountAmount = validation.discountAmount!;
     const finalAmount = validation.finalAmount!;
+    const { couponId, code, maxUses } = validation.coupon;
 
     try {
       const tenantDs = await tenantDataSourceFor(dto.tenantId);
       const saved = await tenantDs.transaction(async (mgr) => {
+        const couponRepo = mgr.getRepository(CouponEntity);
+
+        // Race-condition-safe increment: UPDATE ... SET usedCount = usedCount + 1
+        // WHERE couponId = ? AND tenantId = ? AND (maxUses IS NULL OR usedCount < maxUses)
+        const result = await couponRepo
+          .createQueryBuilder()
+          .update(CouponEntity)
+          .set({ usedCount: () => '"usedCount" + 1' })
+          .where('tenantId = :tenantId AND couponId = :couponId', { tenantId: dto.tenantId, couponId })
+          .andWhere('(:maxUses::int IS NULL OR "usedCount" < :maxUses::int)', { maxUses: maxUses ?? null })
+          .execute();
+
+        if (result.affected === 0) {
+          // Concurrent request beat us to the last slot
+          throw new AppError(COUPON_MESSAGES.MAX_USES_REACHED, 422, ErrorCode.VALIDATION_ERROR);
+        }
+
         const redemptionRepo = mgr.getRepository(CouponRedemptionEntity);
         const redemption = redemptionRepo.create({
-          couponId: validation.coupon!.couponId,
-          couponCode: validation.coupon!.code,
+          couponId,
+          couponCode: code,
           tenantId: dto.tenantId,
           paymentId: dto.paymentId,
           userId: dto.userId,
@@ -151,18 +205,14 @@ export default class CouponValidationService {
           originalAmount: dto.amount,
           finalAmount,
         });
-        const result = await redemptionRepo.save(redemption);
-        await mgr
-          .getRepository(CouponEntity)
-          .increment({ tenantId: dto.tenantId, couponId: validation.coupon!.couponId }, 'usedCount', 1);
-        return result;
+        return redemptionRepo.save(redemption);
       });
 
-      await CouponCrudService.clearCache(dto.tenantId, { couponId: validation.coupon.couponId, code: validation.coupon.code });
+      await CouponCrudService.clearCache(dto.tenantId, { couponId, code });
 
       WebhookService.dispatchEvent(dto.tenantId, 'coupon.redeemed', {
-        couponId: validation.coupon.couponId,
-        code: validation.coupon.code,
+        couponId,
+        code,
         redemptionId: saved.redemptionId,
         userId: saved.userId ?? null,
         discountAmount,

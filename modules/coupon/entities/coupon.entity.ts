@@ -41,12 +41,14 @@ export class Coupon {
   /**
    * Flexible coupon scope. Any missing/null dimension means "applies to all".
    *
-   *   productIds      — limit to specific store products
-   *   planIds         — limit to specific subscription plans
-   *   categoryIds     — limit to products in these categories
-   *   providers       — limit to specific payment providers
-   *   appliesTo       — 'line' = discount each matching line, 'cart' = discount cart total
-   *   minimumAmount   — minimum subtotal (in coupon.currency)
+   *   productIds             — limit to specific store products
+   *   planIds                — limit to specific subscription plans
+   *   categoryIds            — limit to products in these categories
+   *   providers              — limit to specific payment providers
+   *   appliesTo              — 'line' = each matching line, 'cart' = cart total
+   *   minimumAmount          — minimum subtotal for the coupon to apply
+   *   minimumAmountCurrency  — ISO 4217 currency minimumAmount is expressed in
+   *   countryCodes           — ISO 3166-1 alpha-2 allow-list; null/empty = all
    */
   @Column({ type: 'jsonb', nullable: true })
   scope?: {
@@ -56,6 +58,8 @@ export class Coupon {
     providers?: string[]
     appliesTo?: 'line' | 'cart'
     minimumAmount?: number
+    minimumAmountCurrency?: string
+    countryCodes?: string[]
   };
 
   @Column({ nullable: true, type: 'int' })
@@ -63,6 +67,18 @@ export class Coupon {
 
   @Column({ nullable: true, type: 'int' })
   maxUsesPerTenant?: number;
+
+  /** Maximum redemptions per authenticated user. */
+  @Column({ nullable: true, type: 'int' })
+  maxUsesPerUser?: number;
+
+  /** BCP-47 locale → localised name, e.g. `{ "tr-TR": "İndirim" }` */
+  @Column({ type: 'jsonb', nullable: true })
+  nameI18n?: Record<string, string>;
+
+  /** BCP-47 locale → localised description */
+  @Column({ type: 'jsonb', nullable: true })
+  descriptionI18n?: Record<string, string>;
 
   @Column({ type: 'int', default: 0 })
   usedCount!: number;

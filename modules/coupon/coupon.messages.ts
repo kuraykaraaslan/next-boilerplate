@@ -14,9 +14,15 @@ export const COUPON_MESSAGES = {
   COUPON_NOT_STARTED: 'This coupon is not yet valid',
   MAX_USES_REACHED: 'This coupon has reached its maximum number of uses',
   MAX_USES_PER_TENANT_REACHED: 'You have already used this coupon the maximum number of times',
+  MAX_USES_PER_USER_REACHED: 'You have already redeemed this coupon the maximum number of times',
   MINIMUM_AMOUNT_NOT_MET: 'Your order does not meet the minimum amount required for this coupon',
   PLAN_NOT_ELIGIBLE: 'This coupon is not applicable to your selected plan',
   PROVIDER_NOT_ELIGIBLE: 'This coupon is not applicable to your selected payment provider',
+  COUNTRY_RESTRICTED: 'This coupon is not available in your country',
+  PLAN_QUOTA_EXCEEDED: 'Your plan does not allow creating more coupons',
+  BULK_CREATE_FAILED: 'Failed to generate coupon batch',
+  CSV_IMPORT_FAILED: 'Failed to import coupons from CSV',
+  CSV_ROW_INVALID: 'Invalid row in CSV import',
 
   // Apply
   APPLY_FAILED: 'Failed to apply coupon',
