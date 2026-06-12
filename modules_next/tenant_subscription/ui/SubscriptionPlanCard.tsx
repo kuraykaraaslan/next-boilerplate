@@ -22,7 +22,7 @@ type Plan = {
     currency: string;
     basePrice?: number;
     shortDescription?: string | null;
-  };
+  } | null;
   interval: string;  // DAILY | WEEKLY | MONTHLY | QUARTERLY | YEARLY
   trialDays?: number;
   features?: PlanFeature[];

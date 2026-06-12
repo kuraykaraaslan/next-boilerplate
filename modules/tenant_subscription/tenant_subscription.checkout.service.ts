@@ -53,7 +53,8 @@ export default class TenantCheckoutService {
     let currency = baseCurrency as PaymentCurrency;
     let exchangeRate: number | null = null;
     if (convertToTry && baseCurrency.toUpperCase() !== 'TRY') {
-      exchangeRate = await ExchangeRateService.getRate(baseCurrency, 'TRY');
+      const quote = await ExchangeRateService.getRate(baseCurrency, 'TRY');
+      exchangeRate = quote.rate;
       amount = Math.round((baseAmount * exchangeRate + Number.EPSILON) * 100) / 100;
       currency = 'TRY' as PaymentCurrency;
     }

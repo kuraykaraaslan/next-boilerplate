@@ -65,7 +65,7 @@ export default class TenantCardCheckoutService {
       baseCurrency.toUpperCase() !== 'TRY';
 
     if (wantsTry) {
-      const rate = await ExchangeRateService.getRate(baseCurrency, 'TRY');
+      const { rate } = await ExchangeRateService.getRate(baseCurrency, 'TRY');
       const chargedAmount = Math.round((baseAmount * rate + Number.EPSILON) * 100) / 100;
       return {
         plan, product, baseAmount, baseCurrency, binInfo,
