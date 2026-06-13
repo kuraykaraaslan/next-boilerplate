@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { PaymentTaxService, type TaxLine } from '@/modules/payment_tax';
+import { PaymentTaxService, type TaxLine, type CalculateTaxDTO } from '@/modules/payment_tax';
 import Logger from '@/modules/logger';
 
 /**
@@ -18,21 +18,11 @@ import Logger from '@/modules/logger';
  * fail-open (return `null`) so a tax-engine outage never blocks invoicing.
  */
 
-export interface InvoiceTaxInputLine {
-  /** Stable per-line key (we use the line index). */
-  reference: string;
-  /** Unit price (net or gross depending on the rate's `includedInPrice`). */
-  amount: number;
-  quantity: number;
-  /** Optional tax class code (STANDARD / REDUCED / DIGITAL / …). */
-  taxClassCode?: string;
-}
-
-export interface InvoiceTaxDestination {
-  countryCode?: string;
-  region?: string;
-  postalCode?: string;
-}
+// Reuse the payment_tax engine's canonical input shapes instead of redeclaring
+// them — one source of truth for the tax DTO. `amount` may be net or gross
+// depending on the matched rate's `includedInPrice`.
+export type InvoiceTaxInputLine = CalculateTaxDTO['lines'][number];
+export type InvoiceTaxDestination = CalculateTaxDTO['destination'];
 
 export interface InvoiceTaxLineResult {
   reference: string;
