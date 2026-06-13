@@ -37,6 +37,15 @@ const EnvSchema = z.object({
 
   // ── Redis ───────────────────────────────────────────────────────────────────
   REDIS_URL: z.string().default('redis://localhost:6379'),
+  // Sentinel mode: comma-separated host:port pairs (e.g. sentinel1:26379,sentinel2:26379)
+  REDIS_SENTINELS: z.string().optional(),
+  REDIS_SENTINEL_NAME: z.string().optional(),
+  REDIS_PASSWORD: z.string().optional(),
+  REDIS_SENTINEL_PASSWORD: z.string().optional(),
+  // Per-tenant query timeout (ms). 0 = disabled.
+  DB_QUERY_TIMEOUT_MS: z.coerce.number().default(0),
+  // Inactive user auto-deactivation (days). 0 = disabled.
+  USER_INACTIVE_DAYS: z.coerce.number().default(0),
 
   // ── Auth / Secrets ──────────────────────────────────────────────────────────
   ACCESS_TOKEN_SECRET: z.string().min(1),
