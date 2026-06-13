@@ -12,7 +12,8 @@ export type TenantUsageMetric =
   | 'aiTokens'
   | 'storageBytes'
   | 'emailSends'
-  | 'smsSends';
+  | 'smsSends'
+  | 'webhookCalls';
 
 const METRICS: TenantUsageMetric[] = [
   'apiCalls',
@@ -20,7 +21,17 @@ const METRICS: TenantUsageMetric[] = [
   'storageBytes',
   'emailSends',
   'smsSends',
+  'webhookCalls',
 ];
+
+export interface TenantUsageSnapshot {
+  apiCalls: number;
+  aiTokens: number;
+  storageBytes: number;
+  emailSends: number;
+  smsSends: number;
+  webhookCalls: number;
+}
 
 export class TenantUsageService {
   static currentMonth(): string {
@@ -84,6 +95,10 @@ export class TenantUsageService {
     await TenantUsageService._increment(tenantId, 'smsSends', count);
   }
 
+  static async incrementWebhookCall(tenantId: string, count: number = 1): Promise<void> {
+    await TenantUsageService._increment(tenantId, 'webhookCalls', count);
+  }
+
   static async decrementStorageBytes(tenantId: string, bytes: number): Promise<void> {
     if (!tenantId || bytes <= 0) return;
     const month = TenantUsageService.currentMonth();
@@ -102,13 +117,7 @@ export class TenantUsageService {
   static async getUsage(
     tenantId: string,
     month?: string,
-  ): Promise<{
-    apiCalls: number;
-    aiTokens: number;
-    storageBytes: number;
-    emailSends: number;
-    smsSends: number;
-  }> {
+  ): Promise<TenantUsageSnapshot> {
     const targetMonth = month ?? TenantUsageService.currentMonth();
 
     const keys = METRICS.map((m) => TenantUsageService.redisKey(tenantId, m, targetMonth));
@@ -117,7 +126,7 @@ export class TenantUsageService {
     try { redisResults = await redis.mget(...keys); } catch { /* fall through to DB */ }
 
     if (redisResults) {
-      const [rawApiCalls, rawAiTokens, rawStorageBytes, rawEmailSends, rawSmsSends] = redisResults;
+      const [rawApiCalls, rawAiTokens, rawStorageBytes, rawEmailSends, rawSmsSends, rawWebhookCalls] = redisResults;
       const allNull = redisResults.every((v) => v === null);
       if (!allNull) {
         return {
@@ -126,6 +135,7 @@ export class TenantUsageService {
           storageBytes: rawStorageBytes !== null ? parseInt(rawStorageBytes, 10) : 0,
           emailSends: rawEmailSends !== null ? parseInt(rawEmailSends, 10) : 0,
           smsSends: rawSmsSends !== null ? parseInt(rawSmsSends, 10) : 0,
+          webhookCalls: rawWebhookCalls !== null ? parseInt(rawWebhookCalls, 10) : 0,
         };
       }
     }
@@ -137,7 +147,7 @@ export class TenantUsageService {
       const row = await repo.findOne({ where: { tenantId, month: targetMonth } });
 
       if (!row) {
-        return { apiCalls: 0, aiTokens: 0, storageBytes: 0, emailSends: 0, smsSends: 0 };
+        return { apiCalls: 0, aiTokens: 0, storageBytes: 0, emailSends: 0, smsSends: 0, webhookCalls: 0 };
       }
 
       return {
@@ -146,6 +156,7 @@ export class TenantUsageService {
         storageBytes: Number(row.storageBytes),
         emailSends: row.emailSends,
         smsSends: row.smsSends ?? 0,
+        webhookCalls: row.webhookCalls ?? 0,
       };
     } catch (error) {
       if (error instanceof AppError) throw error;
@@ -163,20 +174,22 @@ export class TenantUsageService {
       Logger.warn(`[TenantUsage] flushToDb Redis read failed for ${tenantId}: ${err instanceof Error ? err.message : String(err)}`);
       return;
     }
-    const [rawApiCalls, rawAiTokens, rawStorageBytes, rawEmailSends, rawSmsSends] = results;
+    const [rawApiCalls, rawAiTokens, rawStorageBytes, rawEmailSends, rawSmsSends, rawWebhookCalls] = results;
 
     const apiCalls = rawApiCalls !== null ? parseInt(rawApiCalls, 10) : 0;
     const aiTokens = rawAiTokens !== null ? parseInt(rawAiTokens, 10) : 0;
     const storageBytes = rawStorageBytes !== null ? parseInt(rawStorageBytes, 10) : 0;
     const emailSends = rawEmailSends !== null ? parseInt(rawEmailSends, 10) : 0;
     const smsSends = rawSmsSends !== null ? parseInt(rawSmsSends, 10) : 0;
+    const webhookCalls = rawWebhookCalls !== null ? parseInt(rawWebhookCalls, 10) : 0;
 
     if (
       apiCalls === 0 &&
       aiTokens === 0 &&
       storageBytes === 0 &&
       emailSends === 0 &&
-      smsSends === 0
+      smsSends === 0 &&
+      webhookCalls === 0
     ) {
       return;
     }
@@ -193,6 +206,7 @@ export class TenantUsageService {
         storageBytes: 0,
         emailSends: 0,
         smsSends: 0,
+        webhookCalls: 0,
       });
     }
     row.apiCalls = apiCalls;
@@ -200,6 +214,47 @@ export class TenantUsageService {
     row.storageBytes = storageBytes;
     row.emailSends = emailSends;
     row.smsSends = smsSends;
+    row.webhookCalls = webhookCalls;
     await repo.save(row);
+  }
+
+  /**
+   * Multi-month usage history (most recent first), read from the persisted
+   * monthly rows. `months` bounds the window (default 12).
+   */
+  static async getHistory(tenantId: string, months = 12): Promise<Array<TenantUsageSnapshot & { month: string }>> {
+    const ds = await tenantDataSourceFor(tenantId);
+    const rows = await ds.getRepository(TenantUsage).find({
+      where: { tenantId },
+      order: { month: 'DESC' },
+      take: Math.min(Math.max(months, 1), 120),
+    });
+    return rows.map((r) => ({
+      month: r.month,
+      apiCalls: r.apiCalls,
+      aiTokens: Number(r.aiTokens),
+      storageBytes: Number(r.storageBytes),
+      emailSends: r.emailSends,
+      smsSends: r.smsSends ?? 0,
+      webhookCalls: r.webhookCalls ?? 0,
+    }));
+  }
+
+  /**
+   * Retention purge: delete persisted usage rows older than `keepMonths`
+   * (default 24). Meant for a scheduled job. Returns the number deleted.
+   */
+  static async purgeOldUsage(tenantId: string, keepMonths = 24): Promise<number> {
+    const cutoff = new Date();
+    cutoff.setMonth(cutoff.getMonth() - keepMonths);
+    const cutoffMonth = `${cutoff.getFullYear()}-${String(cutoff.getMonth() + 1).padStart(2, '0')}`;
+    const ds = await tenantDataSourceFor(tenantId);
+    const res = await ds.getRepository(TenantUsage)
+      .createQueryBuilder()
+      .delete()
+      .where('tenantId = :tenantId', { tenantId })
+      .andWhere('month < :cutoffMonth', { cutoffMonth })
+      .execute();
+    return res.affected ?? 0;
   }
 }

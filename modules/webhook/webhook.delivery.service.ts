@@ -6,6 +6,7 @@ import { WebhookDelivery as WebhookDeliveryEntity } from './entities/webhook_del
 import { isReservedHeaderName } from './webhook.dto';
 import { assertSafeWebhookUrl } from './webhook.ssrf';
 import Logger from '@/modules/logger';
+import { TenantUsageService } from '@/modules/tenant_usage/tenant_usage.service';
 import { signPayload } from './webhook.crypto';
 import { resolveDeliveryConfig, RETRY_DELAYS_MS, type DeliveryJobData } from './webhook.config';
 
@@ -80,6 +81,9 @@ export default class WebhookDeliveryService {
       responseStatus = response.status;
       responseBody = (await response.text()).slice(0, 4096);
       status = response.ok ? 'SUCCESS' : 'FAILED';
+
+      // Count the delivery attempt toward the tenant's monthly usage.
+      TenantUsageService.incrementWebhookCall(tenantId).catch(() => {});
 
       if (!response.ok) {
         errorMessage = `HTTP ${response.status}`;

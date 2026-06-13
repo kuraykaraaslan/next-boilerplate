@@ -4,7 +4,7 @@
 
 ## Metering Accuracy & Completeness
 
-### `apiCalls` Counter Not Actually Wired
+### ✅ `apiCalls` Counter Not Actually Wired
 **Why:** The README states "`apiCalls` increment is wired at the route-middleware layer (Limiter hook)" but this is aspirational — reviewing the codebase shows no call to `TenantUsageService.incrementApiCall` in the Limiter middleware; API call counts are always 0 in the DB.
 **Complexity:** Low
 **Multi-tenant relevance:** API-call metering is required for enforcing `API_RATE_LIMIT` feature keys and for per-tenant usage dashboards; a counter that is never incremented silently defeats both features.
@@ -16,7 +16,7 @@
 **Multi-tenant relevance:** Tenant admins and operators need endpoint-level granularity to debug unexpected usage spikes and to validate that billing correctly reflects actual consumption.
 **Multi-country relevance:** No direct country relevance, but enterprise API consumers in EU markets expect an itemized usage report to validate their invoices — a single aggregate count is insufficient for dispute resolution.
 
-### Webhook Call Counter
+### ✅ Webhook Call Counter
 **Why:** The module tracks `apiCalls`, `aiTokens`, `storageBytes`, `emailSends`, and `smsSends`, but not webhook delivery attempts — tenants on plans with `FEATURE_WEBHOOKS` have no metered visibility into their webhook consumption.
 **Complexity:** Low
 **Multi-tenant relevance:** Plans that cap webhook endpoints or delivery attempts need a counter; without it the feature gate for webhooks cannot enforce a per-period delivery quota.
@@ -30,7 +30,7 @@
 
 ## Historical Data & Reporting
 
-### Multi-Month Usage History Query
+### ✅ Multi-Month Usage History Query
 **Why:** `getUsage(tenantId, month)` fetches a single month; there is no `getUsageHistory(tenantId, fromMonth, toMonth)` — usage trend charts in the admin UI would require N sequential calls.
 **Complexity:** Low
 **Multi-tenant relevance:** Tenant admins want to see usage trends over the last 6 or 12 months to plan their next plan tier; single-month reads cannot power a trend chart.
@@ -64,7 +64,7 @@
 
 ## Compliance & Data Governance
 
-### Usage Data Retention Policy and Purge Job
+### ✅ Usage Data Retention Policy and Purge Job
 **Why:** `TenantUsage` rows accumulate indefinitely — there is no background job that purges usage records older than N months after a tenant is deleted or after the records have no billing relevance.
 **Complexity:** Low
 **Multi-tenant relevance:** After a tenant is hard-purged (`tenant_deletion`), its `TenantUsage` rows remain as orphaned personal data (they contain a `tenantId` which is personal data under GDPR if the tenant is an individual).

@@ -28,6 +28,9 @@ export class TenantUsage {
   @Column({ type: 'int', default: 0 })
   smsSends!: number;
 
+  @Column({ type: 'int', default: 0 })
+  webhookCalls!: number;
+
   @CreateDateColumn({ type: 'timestamp' })
   createdAt!: Date;
 
