@@ -6,7 +6,7 @@
 
 ## Security
 
-### Per-tenant configurable impersonation session TTL
+### ✅ Per-tenant configurable impersonation session TTL
 **Why:** The impersonation session lifetime is a hardcoded 1-hour constant (`IMPERSONATION_SESSION_TTL_MS = 60 * 60 * 1000`) in the session service. Ordinary sessions already vary their idle timeout and absolute max per tenant via `AuthPolicyService.getSessionPolicy`; impersonation sessions are inconsistently exempt.
 **Complexity:** Low
 **Multi-tenant relevance:** A high-security tenant (e.g. a financial-services tenant or a healthcare tenant) would need support impersonation windows of 15 minutes. A development/staging tenant might want longer. A fixed global TTL satisfies neither.
@@ -18,13 +18,13 @@
 **Multi-tenant relevance:** System admins managing dozens of tenants need a consistent, audited HTTP surface; lacking one means support operations bypass the module's audit trail entirely.
 **Multi-country relevance:** Privileged-access management requirements (NIS2, ISO 27001 A.9.4) demand that all privileged operations go through audited, access-controlled channels — a missing route means the audit trail has gaps.
 
-### Re-authentication (step-up) required before starting impersonation
+### ✅ Re-authentication (step-up) required before starting impersonation
 **Why:** Any session currently valid as `ADMIN` or `OWNER` can initiate impersonation with no additional credential confirmation. For impersonation — a high-risk privileged action — a step-up challenge (password re-entry or TOTP) should be required to prevent hijacked admin sessions from silently starting impersonation.
 **Complexity:** Medium
 **Multi-tenant relevance:** Tenant admins have varying MFA postures; a tenant with `adminRequireMfa=true` still does not get a re-auth challenge before impersonation begins.
 **Multi-country relevance:** EU NIS2 and PSD2 strong-customer-authentication requirements apply to privileged administrative operations. A step-up challenge before impersonation is the standard control mapped to these requirements.
 
-### Impersonation rate limiting per impersonator
+### ✅ Impersonation rate limiting per impersonator
 **Why:** The impersonation start routes are rate-limited via `Limiter`, but there is no per-impersonator cap on how many concurrent or sequential impersonation sessions can be created. A compromised admin account could spin up dozens of parallel impersonation sessions to exfiltrate data from multiple users simultaneously.
 **Complexity:** Low
 **Multi-tenant relevance:** Each tenant's admin role should be limited to a sensible number of concurrent impersonation sessions (e.g. 1 at a time) to prevent abuse.
@@ -40,7 +40,7 @@
 **Multi-tenant relevance:** Tenant admins using impersonation for support workflows need a clear, persistent indicator to avoid accidentally making changes they attribute to themselves.
 **Multi-country relevance:** Some national data-protection authorities (e.g. Germany's BfDI) require that administrator access to user data be clearly logged and disclosed at the time of access. A visible indicator in the admin UI supports this requirement.
 
-### Mandatory reason/justification field for impersonation start
+### ✅ Mandatory reason/justification field for impersonation start
 **Why:** `startSystemImpersonation` and `startTenantImpersonation` accept no free-text reason. Audit log entries capture `flow`, `tenantId`, and `targetTenantRole` but not the business justification. Compliance audits (SOC 2 Type II, ISO 27001) require that privileged access be tied to a tracked reason (ticket ID, customer request reference).
 **Complexity:** Low
 **Multi-tenant relevance:** Each tenant's SOC 2 or ISO 27001 audit requires a reason for every impersonation session in the audit log. Without a reason field, the platform cannot pass tenant-facing compliance audits.
@@ -56,7 +56,7 @@
 
 ## Multi-tenancy
 
-### Tenant-admin impersonation restricted to their own tenant members only
+### ✅ Tenant-admin impersonation restricted to their own tenant members only
 **Why:** `startTenantImpersonation` correctly gates on the target being a member of the request tenant, but there is no enforcement at the route layer preventing a tenant admin from supplying a `targetUserId` belonging to a different tenant and probing for `TARGET_NOT_MEMBER_OF_TENANT` to confirm user existence across tenants.
 **Complexity:** Low
 **Multi-tenant relevance:** Cross-tenant user enumeration via impersonation endpoint is a multi-tenancy isolation failure. A generic "not found" response (rather than "not a member of this tenant") would close the gap.
@@ -68,7 +68,7 @@
 **Multi-tenant relevance:** Impersonation-session visibility should be strictly scoped to the tenant whose admin is making the request, preventing cross-tenant information leakage.
 **Multi-country relevance:** GDPR data minimisation (Art. 5(1)(c)) requires that admins only see the data they have a legitimate need to see — cross-tenant session records do not meet this standard.
 
-### Tenant-level impersonation opt-out
+### ✅ Tenant-level impersonation opt-out
 **Why:** There is no setting that lets a tenant completely disable impersonation for its users. A tenant with high data-sensitivity (e.g. a legal-services or healthcare tenant) may require that even platform admins cannot impersonate their users, and all support must be provided through logged read-only tooling instead.
 **Complexity:** Medium
 **Multi-tenant relevance:** Enterprise procurement requirements for high-security SaaS products often include a clause prohibiting vendor-side admin access to user data. An impersonation opt-out is the standard control.
@@ -84,7 +84,7 @@
 **Multi-tenant relevance:** Tenant-level compliance reports (e.g. quarterly SOC 2 reports provided to enterprise tenants) require per-session duration for the access-review evidence package.
 **Multi-country relevance:** ISO 27001 Annex A.9.4 (privileged access management) controls require evidence that privileged sessions were bounded — duration in the log is the simplest evidence artefact.
 
-### Real-time alerting on unusual impersonation patterns
+### ✅ Real-time alerting on unusual impersonation patterns
 **Why:** There is no mechanism to alert when an admin starts more than N impersonation sessions in a time window, or when an impersonation targets a high-privilege user. The audit log captures individual events but nothing aggregates them into anomaly signals.
 **Complexity:** High
 **Multi-tenant relevance:** Per-tenant anomaly thresholds (e.g. alert when any single admin starts more than 3 impersonation sessions per hour) would require tenant-scoped metric emission that does not exist.
