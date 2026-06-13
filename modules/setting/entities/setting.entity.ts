@@ -19,6 +19,10 @@ export class Setting {
   @Column({ type: 'varchar', default: 'string' })
   type!: string;
 
+  // When true the value cannot be changed by tenant admins (only platform operators).
+  @Column({ type: 'boolean', default: false })
+  isLocked!: boolean;
+
   @CreateDateColumn({ type: 'timestamp' })
   createdAt!: Date;
 
