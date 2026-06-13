@@ -8,7 +8,21 @@ import { assertSafeWebhookUrlSync } from './webhook.ssrf';
 import { AppError, ErrorCode } from '@/modules/common/app-error';
 import WebhookMessages from './webhook.messages';
 import Logger from '@/modules/logger';
+import AuditLogService from '@/modules/audit_log/audit_log.service';
 import { generateSecret } from './webhook.crypto';
+
+/** Lifecycle audit trail for webhook administration (best-effort). */
+function auditWebhook(tenantId: string, actorId: string | null, action: string, webhookId: string, metadata?: Record<string, unknown>): void {
+  AuditLogService.log({
+    tenantId,
+    actorId: actorId ?? null,
+    actorType: actorId ? 'USER' : 'SYSTEM',
+    action,
+    resourceType: 'Webhook',
+    resourceId: webhookId,
+    metadata: metadata ?? {},
+  }).catch(() => {});
+}
 
 /**
  * Endpoint management for webhooks: CRUD plus signing-secret rotation. Split out
@@ -59,6 +73,7 @@ export default class WebhookCrudService {
     });
 
     const saved = await repo.save(entity);
+    auditWebhook(tenantId, createdByUserId, 'webhook.created', saved.webhookId, { name: saved.name, url: saved.url, events: saved.events });
     return SafeWebhookSchema.parse(saved);
   }
 
@@ -93,6 +108,7 @@ export default class WebhookCrudService {
     }
 
     const saved = await repo.save(row);
+    auditWebhook(tenantId, null, 'webhook.updated', saved.webhookId, { fields: Object.keys(input), isActive: saved.isActive });
     return SafeWebhookSchema.parse(saved);
   }
 
@@ -102,6 +118,7 @@ export default class WebhookCrudService {
     const row = await repo.findOne({ where: { webhookId, tenantId } });
     if (!row) throw new AppError(WebhookMessages.NOT_FOUND, 404, ErrorCode.NOT_FOUND);
     await repo.remove(row);
+    auditWebhook(tenantId, null, 'webhook.deleted', webhookId, { name: row.name });
   }
 
   /**
@@ -128,6 +145,7 @@ export default class WebhookCrudService {
     row.secret = newSecret;
 
     const saved = await repo.save(row);
+    auditWebhook(tenantId, null, 'webhook.secret_rotated', webhookId, { overlapMs });
     Logger.info(
       `[Webhook] Secret rotated for webhook=${webhookId} tenant=${tenantId} (overlap=${overlapMs}ms)`,
     );

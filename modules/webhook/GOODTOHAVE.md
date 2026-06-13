@@ -44,7 +44,7 @@
 **Multi-tenant relevance:** Tenants with strict data classification requirements (financial data, health data) need their webhook payload storage to be encrypted at rest with tenant-specific keys, not a shared platform key.
 **Multi-country relevance:** GDPR, HIPAA, and PCI-DSS all require encryption at rest for personal data; storing unencrypted webhook payloads that may contain PII is a compliance gap for any EU, US healthcare, or payment-processing customer.
 
-### SSRF Protection for IPv6-Literal CIDR Allowlist Entries
+### ✅ SSRF Protection for IPv6-Literal CIDR Allowlist Entries
 **Why:** The `matchesAllowEntry` function only supports IPv4 CIDR notation. IPv6 allowlist entries are silently treated as an exact-match string, so `matchesAllowEntry("2001:db8::1", "2001:db8::/32")` returns `false` — an operator who configures an IPv6 CIDR in the allowlist gets no effective override.
 **Complexity:** Medium
 **Multi-tenant relevance:** Enterprise tenants on IPv6-only internal networks (common in large enterprises and academic institutions) cannot use the IP allowlist to authorize their internal webhook targets.
@@ -76,7 +76,7 @@
 
 ## Observability & Operations
 
-### Audit Log for Webhook Lifecycle Events
+### ✅ Audit Log for Webhook Lifecycle Events
 **Why:** Endpoint create, update, delete, secret rotation, manual redeliver, and replay all emit only `Logger.info/warn` lines — no `AuditLogService` entries. Secret rotation in particular (changing a cryptographic credential) is a security-relevant event with no audit trail.
 **Complexity:** Low
 **Multi-tenant relevance:** Tenant admins need a tamper-evident record of who changed which webhook endpoint and when, especially for compliance reviews and incident investigations.
