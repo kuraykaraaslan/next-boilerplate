@@ -6,19 +6,19 @@
 
 ## Retention & Lifecycle
 
-### Per-Tenant Configurable Retention Policy
+### ✅ Per-Tenant Configurable Retention Policy
 **Why:** The service keeps all audit rows forever (`log()` always inserts, `getAll()` never prunes); there is no background job or per-tenant setting that applies an `auditLogRetentionDays` window, so storage grows unbounded.
 **Complexity:** Medium
 **Multi-tenant relevance:** A startup tenant may want 30-day retention to control DB size, while a regulated enterprise tenant may legally require 7 years — the policy must be configurable per tenant.
 **Multi-country relevance:** GDPR Article 5(1)(e) mandates data be kept no longer than necessary; equivalent laws in Brazil (LGPD), Canada (PIPEDA), and Japan (APPI) impose similar storage-limitation obligations that vary by data category and country.
 
-### Automated Retention Purge Job
+### ✅ Automated Retention Purge Job
 **Why:** Even when a retention setting exists, enforcement requires a scheduled background sweep that deletes or archives rows older than the tenant's retention window — this sweep does not exist today.
 **Complexity:** Medium
 **Multi-tenant relevance:** Automated purge protects each tenant's DB from unbounded growth without manual DBA intervention, and is a prerequisite for demonstrating GDPR compliance to enterprise customers.
 **Multi-country relevance:** Multiple jurisdictions (Germany BDSG, Australia Privacy Act, South Korea PIPA) impose maximum retention periods for audit data containing personal information; automated deletion is the only scalable enforcement mechanism.
 
-### Archive-Before-Delete (Cold Storage Export)
+### ✅ Archive-Before-Delete (Cold Storage Export)
 **Why:** Purging rows directly loses historical data that may be required for legal holds or retrospective investigations; a pre-purge export to cold storage (S3 / GCS) should precede deletion.
 **Complexity:** High
 **Multi-tenant relevance:** Enterprise tenants with legal-hold obligations cannot accept permanent deletion; exportable archives let tenants satisfy both storage-limitation and data-preservation requirements simultaneously.
@@ -28,19 +28,19 @@
 
 ## GDPR & Privacy Compliance
 
-### Right-to-Erasure (GDPR Art. 17) — Pseudonymization of `actorId`
+### ✅ Right-to-Erasure (GDPR Art. 17) — Pseudonymization of `actorId`
 **Why:** Audit rows store `actorId` (a direct user UUID) with no pseudonymization path; when a user exercises the right to erasure, the platform cannot delete or anonymize their identity in audit rows without compromising the audit trail's integrity.
 **Complexity:** Medium
 **Multi-tenant relevance:** Every tenant subject to GDPR (i.e. any tenant with EU users) must be able to respond to user erasure requests within 30 days; `actorId` anonymization is the minimum viable compliance path.
 **Multi-country relevance:** GDPR (EU/EEA/UK), LGPD (Brazil), PIPL (China), PDPA (Thailand), and similar laws across 130+ countries grant individuals erasure or anonymization rights over their personal data — the same mechanism covers all of them.
 
-### Right-to-Access Export (GDPR Art. 15) — Per-User Log Export
+### ✅ Right-to-Access Export (GDPR Art. 15) — Per-User Log Export
 **Why:** There is no endpoint to export all audit rows where `actorId` matches a specific user, which is a prerequisite for responding to Subject Access Requests (SARs).
 **Complexity:** Low
 **Multi-tenant relevance:** Tenant admins must be able to produce per-user audit history on demand; doing it manually via the paginated `getAll` endpoint is impractical for large audit trails.
 **Multi-country relevance:** GDPR Art. 15, UK GDPR, CCPA, LGPD, and equivalent laws all grant data-subject access rights that require exportable personal data summaries — this is not EU-only.
 
-### Consent-Aware Metadata Scrubbing
+### ✅ Consent-Aware Metadata Scrubbing
 **Why:** The `metadata` JSONB column can contain arbitrary fields from any module; modules may inadvertently store personal data (email addresses, names, free-text reasons) that must be scrubbed on erasure or after retention expiry.
 **Complexity:** High
 **Multi-tenant relevance:** Different tenants have different data-sensitivity profiles; a healthcare tenant's metadata may contain patient references requiring strict scrubbing, while a B2B SaaS tenant's metadata may only need user-ID anonymization.
@@ -50,7 +50,7 @@
 
 ## Tamper-Proofing & Integrity
 
-### Append-Only Row Signature / Hash Chain
+### ✅ Append-Only Row Signature / Hash Chain
 **Why:** The `AuditLog` entity has no integrity check; a database admin (or a compromised service) can delete or modify rows without any detection mechanism — the trail is only "append-only by convention."
 **Complexity:** High
 **Multi-tenant relevance:** Enterprise tenants undergoing security audits must demonstrate that audit logs cannot be retroactively altered; a cryptographic hash chain makes tampering detectable.
@@ -72,25 +72,25 @@
 
 ## Querying & Reporting
 
-### Date-Range Filter on `getAll`
+### ✅ Date-Range Filter on `getAll`
 **Why:** `GetAuditLogsDTO` has no `fromDate`/`toDate` fields; querying audit logs for a specific incident window requires reading all rows and filtering client-side, which is impractical at scale.
 **Complexity:** Low
 **Multi-tenant relevance:** Tenant admins investigating security incidents need to scope queries to a time window; unbounded queries over millions of rows will time out on large tenants.
 **Multi-country relevance:** Regulatory audit submissions (e.g. GDPR DPA investigations, SEC inquiries) require producing logs for a specific date range — a missing filter makes compliance response operationally expensive.
 
-### Bulk Export (CSV / NDJSON)
+### ✅ Bulk Export (CSV / NDJSON)
 **Why:** The only data access path is the paginated `getAll` API capped at 100 rows per page; exporting a full audit trail for a compliance submission requires N sequential API calls with no built-in export mechanism.
 **Complexity:** Medium
 **Multi-tenant relevance:** Enterprise tenants with years of audit history need a single-call export that streams all rows without saturating the API rate limiter.
 **Multi-country relevance:** Regulatory bodies in the EU, UK, Australia, and Singapore request log exports in structured formats (CSV, JSON) during audits; a native export endpoint is a practical compliance necessity.
 
-### Cross-Tenant Aggregated View (Root Admin)
+### ✅ Cross-Tenant Aggregated View (Root Admin)
 **Why:** Root-tenant admins can only query one tenant's logs at a time via `tenantId`; there is no cross-tenant aggregated view for platform-wide incident investigation (e.g. "show all `auth.login_failed` events across all tenants in the last hour").
 **Complexity:** Medium
 **Multi-tenant relevance:** Platform security teams need cross-tenant observability to detect coordinated attacks (e.g. credential-stuffing hitting multiple tenants simultaneously).
 **Multi-country relevance:** Multi-country platform operators running a regional cluster need cross-tenant visibility within their region to comply with local incident-reporting SLAs.
 
-### Severity / Risk Score per Action
+### ✅ Severity / Risk Score per Action
 **Why:** All audit events are treated equally; a `settings.updated` event and an `impersonation.started` event are stored and displayed identically, making triage of high-risk events manual and slow.
 **Complexity:** Low
 **Multi-tenant relevance:** Tenant admins benefit from a risk-ranked view (e.g. "critical events in the last 24h") rather than a chronological flat list — reduces time-to-detect for security incidents.
@@ -100,13 +100,13 @@
 
 ## Alert & Notification
 
-### Real-Time Alert on High-Risk Events
+### ✅ Real-Time Alert on High-Risk Events
 **Why:** Audit events are written to DB and logged via `Logger` but there is no mechanism to push a real-time alert (webhook, email, Slack) when a high-risk action is logged (e.g. `impersonation.started`, `auth.account_locked`, `permission.denied`).
 **Complexity:** Medium
 **Multi-tenant relevance:** Tenant admins need immediate notification of high-risk events in their tenant so they can respond within minutes, not hours when they next check the UI.
 **Multi-country relevance:** GDPR breach notification (72-hour window), NIS2 (24/72-hour windows), and sector-specific requirements mandate near-real-time detection and notification — a webhook on critical events is the enabling primitive.
 
-### Webhook Dispatch on Audit Events
+### ✅ Webhook Dispatch on Audit Events
 **Why:** The `WebhookService` is available in the codebase but `AuditLogService.log` never dispatches a webhook; external SIEM / SOAR integrations (Splunk, Datadog, PagerDuty) cannot receive real-time audit events.
 **Complexity:** Low
 **Multi-tenant relevance:** Enterprise tenants universally require feeding audit events into their existing SIEM tooling; a webhook payload per event type enables this without requiring a DB-level CDC pipeline.
@@ -116,13 +116,13 @@
 
 ## Actor Model
 
-### API-Key Actor Type
+### ✅ API-Key Actor Type
 **Why:** `AuditActorTypeEnum` only supports `USER` and `SYSTEM`; API-key-authenticated requests (M2M, SCIM) have no distinct actor type, so their audit entries are indistinguishable from system operations.
 **Complexity:** Low
 **Multi-tenant relevance:** Tenant admins need to differentiate between human user actions, automated system actions, and third-party API-key actions in their audit trail for incident attribution.
 **Multi-country relevance:** GDPR and equivalent privacy laws require tracking not just what happened but who/what caused it; distinguishing API key actors from user actors is necessary for data-processing accountability records.
 
-### Impersonation Context Propagation
+### ✅ Impersonation Context Propagation
 **Why:** When a platform admin impersonates a tenant user, subsequent actions should carry both the true actor (the admin) and the impersonated actor in the audit row; currently there is no dual-actor field, so impersonation actions appear as if performed directly by the impersonated user.
 **Complexity:** Medium
 **Multi-tenant relevance:** Tenants auditing their own logs cannot tell whether an action was performed by their user or by a platform admin impersonating them — a critical trust and transparency gap.
