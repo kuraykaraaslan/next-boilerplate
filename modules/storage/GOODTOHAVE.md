@@ -2,6 +2,18 @@
 
 > Features not yet implemented that would make this module production-ready for a multi-tenant, multi-purpose, multi-country SaaS platform.
 
+## ✅ Security hardening shipped (no mock)
+
+- **Upload validation** (`storage.validation.ts`) runs before any byte reaches
+  the bucket: size (`maxFileSizeMb`), extension allowlist (`allowedExtensions`),
+  and **magic-byte sniffing** so `evil.exe` renamed to `cat.png` is rejected.
+- **EXIF/metadata stripping** — JPEG APPn/COM segments (GPS, device, thumbnail)
+  removed by default (pure JS, `imageStripExif` setting; off via `'false'`).
+- **Presigned GET URLs** (`storage.sigv4.ts`) — real AWS SigV4 query signing
+  with expiry, no extra dependency; works for S3/R2/Spaces/MinIO.
+- **GDPR/KVKK hard delete** — `hardDeleteFile()` purges the object AND the audit
+  row (not soft-delete) and decrements the byte counter.
+
 ## Data Residency and GDPR
 
 ### GDPR / KVKK Data Residency Enforcement
@@ -16,7 +28,7 @@
 **Multi-tenant relevance:** Enterprise tenants serving multiple regulated jurisdictions need a per-country bucket map (`EU → eu-central-1 bucket`, `TR → Turkish-region bucket`) with automatic routing at upload time based on the context (e.g., user's registered country).
 **Multi-country relevance:** This is directly required by GDPR, KVKK, and PIPL; without it, the platform cannot legally serve regulated multi-country tenants.
 
-### GDPR Right to Erasure (Hard Delete)
+### ✅ GDPR Right to Erasure (Hard Delete)
 **Why:** `deleteFile` soft-removes the `UploadedFile` audit row (`deletedAt` set) but the data remains in the S3 bucket and the audit row persists indefinitely; GDPR Art. 17 requires the ability to permanently erase personal data on request, which neither the S3 delete nor the soft-delete currently achieves end-to-end.
 **Complexity:** Medium
 **Multi-tenant relevance:** Each tenant's data erasure requests are independent; a GDPR erasure for a user in tenant A must not affect tenant B's data; the audit row purge must be tenant-scoped.
@@ -26,19 +38,19 @@
 
 ## File Validation and Security
 
-### maxFileSizeMb Enforcement
+### ✅ maxFileSizeMb Enforcement
 **Why:** The `maxFileSizeMb` setting is declared, seeded (25 MB default), and editable in the UI, but `uploadFile` and `uploadFromUrl` never read it; uploads of any size succeed, bypassing the per-tenant file size policy.
 **Complexity:** Low
 **Multi-tenant relevance:** Subscription plan tiers commonly enforce different max file sizes (free tier: 10 MB, pro: 50 MB, enterprise: 500 MB); without enforcement, any tenant can upload arbitrarily large files regardless of their plan.
 **Multi-country relevance:** No direct country-specific driver, but mobile-first markets (Turkey, LatAm, Africa) upload content from slower connections; smaller max file sizes incentivise optimised uploads and reduce storage cost for the platform operator in those regions.
 
-### allowedExtensions Enforcement
+### ✅ allowedExtensions Enforcement
 **Why:** The `allowedExtensions` setting is declared, seeded (`["png","jpg","pdf"]`), and UI-editable, but no code reads it to validate the uploaded file's extension or MIME type; any file type can be uploaded regardless of the tenant's configured allowlist.
 **Complexity:** Low
 **Multi-tenant relevance:** A legal-services tenant may want to restrict uploads to PDFs only; a media tenant may allow video files; without enforcement, both tenants accept the same unrestricted set of file types.
 **Multi-country relevance:** Some file types are legally restricted in certain countries (e.g., encrypted container formats banned in some jurisdictions, or executable file upload restrictions mandated for government-facing platforms); per-tenant allowlists enable country-specific compliance without platform-wide restrictions.
 
-### MIME Type Sniffing / Magic-Byte Validation
+### ✅ MIME Type Sniffing / Magic-Byte Validation
 **Why:** The service trusts `file.type` from the multipart upload, which is a client-supplied header; a malicious actor can upload an executable disguised as a PNG by setting `Content-Type: image/png` while the bytes are a PE binary, bypassing extension checks and potentially serving malware from the CDN.
 **Complexity:** Medium
 **Multi-tenant relevance:** Each tenant's upload surface is independently exposed; a file uploaded to tenant A's bucket that is incorrectly typed does not affect tenant B, but both tenants share the platform's reputation risk if malware is served from the CDN domain.
@@ -60,13 +72,13 @@
 **Multi-tenant relevance:** Enterprise tenants with global user bases need per-tenant replication policies; a startup tenant on a free plan may only need one region, while a global tenant on an enterprise plan may need active-active multi-region.
 **Multi-country relevance:** CDN latency for serving product images or documents is a direct UX and SEO factor; a Turkish user fetching product images from a US-only bucket experiences 150-250ms additional latency compared to a regionally-replicated alternative, directly impacting conversion rates.
 
-### Presigned URL Generation with Expiry
+### ✅ Presigned URL Generation with Expiry
 **Why:** `getFileUrl` returns the stored `url` (typically a public CDN URL); there is no support for generating time-limited presigned URLs for private/access-controlled files, which is required for secure document download links sent in emails or for gated content.
 **Complexity:** Low
 **Multi-tenant relevance:** Tenants with private documents (signed contracts, invoices, KYC documents) need short-lived presigned URLs; all-public CDN URLs expose those documents to anyone who discovers the URL.
 **Multi-country relevance:** GDPR and KVKK impose access controls on documents containing personal data; a presigned URL with a short expiry (15 minutes) is the standard mechanism for compliant, time-limited access to personal-data-containing files in regulated markets.
 
-### Storage Byte Counter Decrement on Delete
+### ✅ Storage Byte Counter Decrement on Delete
 **Why:** `TenantUsageService.incrementStorageBytes` is called on upload but there is no corresponding decrement on `deleteFile`; the `storageBytes` counter in `tenant_usage` only ever goes up, causing the quota check to become increasingly inaccurate over time as tenants delete files.
 **Complexity:** Low
 **Multi-tenant relevance:** Tenants that regularly cycle their product images (delete old, upload new) will hit a falsely-inflated quota ceiling, blocking new uploads even though their actual storage footprint is within the plan limit.
@@ -82,7 +94,7 @@
 **Multi-tenant relevance:** Per-tenant audit logs of upload origins help tenant admins detect unusual upload patterns (e.g., bulk uploads from an unknown IP after credential compromise).
 **Multi-country relevance:** GDPR data breach notification requirements (72-hour window to report to the relevant DPA) require knowing from which country an upload/exfiltration originated; IP-to-country mapping on the audit row enables this.
 
-### File Metadata Extraction (EXIF Stripping)
+### ✅ File Metadata Extraction (EXIF Stripping)
 **Why:** Image files uploaded via `uploadFile` may contain EXIF metadata including GPS coordinates, device serial numbers, and photographer identity; these are personal data under GDPR and must be stripped before the file is served publicly.
 **Complexity:** Medium
 **Multi-tenant relevance:** Tenants whose users upload images from mobile devices (real estate photos, profile pictures, product photos taken on-site) are at risk; stripping EXIF server-side removes the risk uniformly regardless of tenant.

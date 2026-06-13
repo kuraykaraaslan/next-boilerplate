@@ -18,6 +18,8 @@ import { IsNull } from 'typeorm'
 import TenantFeatureGateService from '@/modules/tenant_subscription/tenant_subscription.feature.service'
 import { FEATURE_KEYS } from '@/modules/tenant_subscription/tenant_subscription.feature-keys'
 import { isRootTenant } from '@/modules/tenant/tenant.constants'
+import { validateUpload, type UploadValidationPolicy } from './storage.validation'
+import { presignS3GetUrl } from './storage.sigv4'
 
 export default class StorageService {
 
@@ -39,6 +41,17 @@ export default class StorageService {
     }
 
     return { providerName, config }
+  }
+
+  /** Resolve the per-tenant upload validation policy from settings. */
+  private static async getValidationPolicy(tenantId: string): Promise<UploadValidationPolicy> {
+    const s = await SettingService.getByKeys(tenantId, ['maxFileSizeMb', 'allowedExtensions', 'imageStripExif']).catch(() => ({} as Record<string, string>))
+    const maxMb = parseInt(s.maxFileSizeMb ?? '', 10)
+    return {
+      maxBytes: Number.isFinite(maxMb) && maxMb > 0 ? maxMb * 1024 * 1024 : 0,
+      allowedExtensions: (s.allowedExtensions ?? '').split(',').map((e) => e.trim().toLowerCase().replace(/^\./, '')).filter(Boolean),
+      stripExif: s.imageStripExif !== 'false', // strip by default (privacy)
+    }
   }
 
   /**
@@ -142,9 +155,14 @@ export default class StorageService {
   static async uploadFile(tenantId: string, data: UploadFileDTO): Promise<UploadResult> {
     await StorageService.assertStorageFeatureAccess(tenantId)
 
-    const { file, folder, filename, provider: requestedProvider } = data
+    const { file: rawFile, folder, filename, provider: requestedProvider } = data
 
     try {
+      // Validate content (size, extension, magic bytes) and strip EXIF before
+      // anything is written to the bucket.
+      const policy = await StorageService.getValidationPolicy(tenantId)
+      const file = await validateUpload(rawFile, policy)
+
       const { provider, resolvedName } = await StorageService.getProvider(tenantId, requestedProvider)
       const result = await provider.uploadFile(file, { folder, filename, tenantId })
 
@@ -236,6 +254,46 @@ export default class StorageService {
     } catch (error) {
       Logger.error(`Failed to get file URL: ${error instanceof Error ? error.message : String(error)}`)
       throw error
+    }
+  }
+
+  /**
+   * Generate a real, time-limited presigned GET URL (SigV4) for a private
+   * object. Lets a tenant share a download link without exposing credentials
+   * or making the bucket public. `expiresSeconds` defaults to 15 minutes.
+   */
+  static async getPresignedUrl(tenantId: string, key: string, expiresSeconds = 900): Promise<string> {
+    const { config } = await StorageService.getStorageSettings(tenantId)
+    if (!config.bucket || !config.accessKeyId || !config.secretAccessKey) {
+      throw new AppError(STORAGE_MESSAGES.PROVIDER_NOT_CONFIGURED, 422, ErrorCode.VALIDATION_ERROR)
+    }
+    return presignS3GetUrl(config, key, expiresSeconds)
+  }
+
+  /**
+   * GDPR / KVKK hard delete: permanently remove the object from the bucket AND
+   * the audit row (not a soft-delete), decrementing the tenant byte counter.
+   * Use for right-to-erasure requests where no record may remain.
+   */
+  static async hardDeleteFile(tenantId: string, data: DeleteFileDTO): Promise<void> {
+    const { key, provider: requestedProvider } = data
+    const { provider } = await StorageService.getProvider(tenantId, requestedProvider)
+    await provider.deleteFile(key)
+
+    try {
+      const ds = await tenantDataSourceFor(tenantId)
+      const repo = ds.getRepository(UploadedFile)
+      // withDeleted: also catch rows already soft-deleted.
+      const row = await repo.findOne({ where: { tenantId, key }, withDeleted: true })
+      if (row) {
+        const wasActive = !row.deletedAt
+        await repo.remove(row)
+        if (wasActive && row.size && row.size > 0) {
+          await TenantUsageService.decrementStorageBytes(tenantId, row.size)
+        }
+      }
+    } catch (auditError) {
+      Logger.warn(`StorageService.hardDeleteFile audit purge failed: ${auditError instanceof Error ? auditError.message : String(auditError)}`)
     }
   }
 }
