@@ -36,6 +36,17 @@ function makeTransports(level: string) {
   ];
 }
 
+// Structured-JSON output when LOG_FORMAT=json (machine ingestion / cloud log
+// pipelines); otherwise the human-readable single-line format.
+const JSON_FORMAT = process.env.LOG_FORMAT === 'json';
+
+// Info-log sampling under high load: LOG_SAMPLE_RATE in (0,1) keeps that
+// fraction of info logs; warn/error are never sampled.
+const SAMPLE_RATE = (() => {
+  const n = Number(process.env.LOG_SAMPLE_RATE);
+  return Number.isFinite(n) && n > 0 && n < 1 ? n : 1;
+})();
+
 function makeLogger(level: string) {
   return winston.createLogger({
     level,
@@ -44,6 +55,14 @@ function makeLogger(level: string) {
       json(),
       printf(({ level: l, message, timestamp: ts }) => {
         const ctx = currentContext();
+        if (JSON_FORMAT) {
+          return JSON.stringify({
+            ts, level: l, message,
+            ...(ctx.tenantId ? { tenantId: ctx.tenantId } : {}),
+            ...(ctx.userId ? { userId: ctx.userId } : {}),
+            ...(ctx.requestId ? { requestId: ctx.requestId } : {}),
+          });
+        }
         const tags: string[] = [];
         if (ctx.tenantId) tags.push(`tenant=${ctx.tenantId}`);
         if (ctx.userId) tags.push(`user=${ctx.userId}`);
@@ -56,10 +75,33 @@ function makeLogger(level: string) {
   });
 }
 
+// Mutable so the app can expand the denylist at boot (env LOG_REDACT_KEYS or
+// per-tenant security settings) without editing this file.
 const REDACTED_KEYS = new Set([
   'password', 'token', 'secret', 'authorization', 'apiKey', 'api_key',
   'accessToken', 'refreshToken', 'privateKey', 'creditCard', 'cvv', 'ssn',
 ]);
+for (const k of (process.env.LOG_REDACT_KEYS ?? '').split(',').map((s) => s.trim()).filter(Boolean)) {
+  REDACTED_KEYS.add(k);
+}
+
+// Value-level (pattern) redaction — catches PII/secrets that slip through as
+// plain string values regardless of their key name.
+const VALUE_PATTERNS: Array<{ re: RegExp; label: string }> = [
+  { re: /eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/g, label: '[JWT]' },
+  { re: /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g, label: '[EMAIL]' },
+  { re: /\b(?:\d[ -]?){13,19}\b/g, label: '[CARD]' },
+  { re: /\b[A-Z]{2}\d{2}[A-Z0-9]{11,30}\b/g, label: '[IBAN]' },
+];
+function redactString(s: string): string {
+  let out = s;
+  for (const { re, label } of VALUE_PATTERNS) out = out.replace(re, label);
+  return out;
+}
+
+// Tenants with temporarily-elevated (debug) logging, set at runtime.
+const elevatedTenants = new Set<string>();
+const GLOBAL_DEBUG = (process.env.LOG_LEVEL ?? '').toLowerCase() === 'debug';
 
 const MAX_REDACT_DEPTH = 10;
 const MAX_REDACT_KEYS = 2_000;
@@ -89,13 +131,24 @@ export default class Logger {
       }
       return result;
     }
+    if (typeof obj === 'string') return redactString(obj);
     return obj;
   }
 
   private static serialize(...args: unknown[]): string {
     return args
-      .map(a => (typeof a === 'object' && a !== null ? JSON.stringify(Logger.redact(a)) : String(a)))
+      .map(a => (typeof a === 'object' && a !== null ? JSON.stringify(Logger.redact(a)) : redactString(String(a))))
       .join(' ');
+  }
+
+  /** Expand the key-name redaction denylist at boot (env / tenant settings). */
+  static addRedactKeys(keys: string[]): void {
+    for (const k of keys) if (k) REDACTED_KEYS.add(k);
+  }
+
+  /** Temporarily elevate (or reset) debug logging for a single tenant. */
+  static setTenantDebug(tenantId: string, on: boolean): void {
+    if (on) elevatedTenants.add(tenantId); else elevatedTenants.delete(tenantId);
   }
 
   /**
@@ -116,7 +169,10 @@ export default class Logger {
   }
 
   static info(message: string, ...args: unknown[]) {
-    Logger.infoLogger.info(args.length > 0 ? `${message} ${Logger.serialize(...args)}` : message);
+    // Sampling under high load — drop a fraction of info logs (never warn/error).
+    // Elevated tenants always log in full.
+    if (SAMPLE_RATE < 1 && !elevatedTenants.has(currentContext().tenantId ?? '') && Math.random() > SAMPLE_RATE) return;
+    Logger.infoLogger.info(args.length > 0 ? `${message} ${Logger.serialize(...args)}` : redactString(message));
   }
 
   static error(message: string, ...args: unknown[]) {
@@ -128,7 +184,10 @@ export default class Logger {
   }
 
   static debug(message: string, ...args: unknown[]) {
-    const msg = args.length > 0 ? `[DEBUG] ${message} ${Logger.serialize(...args)}` : `[DEBUG] ${message}`;
+    // Only emit debug when globally enabled or the active tenant is elevated —
+    // keeps normal operation quiet while allowing targeted per-tenant tracing.
+    if (!GLOBAL_DEBUG && !elevatedTenants.has(currentContext().tenantId ?? '')) return;
+    const msg = args.length > 0 ? `[DEBUG] ${message} ${Logger.serialize(...args)}` : `[DEBUG] ${redactString(message)}`;
     Logger.infoLogger.info(msg);
   }
 }

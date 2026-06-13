@@ -20,13 +20,13 @@
 
 ## PII / Sensitive Data Handling
 
-### Pattern-Based PII Redaction (Beyond Key-Name Denylist)
+### ✅ Pattern-Based PII Redaction (Beyond Key-Name Denylist)
 **Why:** The existing `redact()` function blocks known key names (`password`, `token`, etc.), but it does not detect PII by value pattern — an email address, a phone number, or a credit card number logged under an unexpected key name (e.g. `query`, `input`, `value`) will pass through unredacted.
 **Complexity:** Medium
 **Multi-tenant relevance:** Different tenants may serialize user data under domain-specific field names; pattern-based detection catches leaks that a static denylist misses.
 **Multi-country relevance:** GDPR and CCPA require that PII not be stored in operational logs without explicit purpose. Pattern detection for emails, phone numbers, SSNs, and card numbers is a baseline expectation for EU/US compliance audits.
 
-### Tenant-Configurable Redact Key Expansion
+### ✅ Tenant-Configurable Redact Key Expansion
 **Why:** The `REDACTED_KEYS` set is a compile-time constant. A tenant handling medical records may need `patientId`, `diagnosisCode`, or `prescriptionId` redacted; a fintech tenant may need `accountNumber` and `ibanCode`. There is no mechanism for per-tenant denylist extension.
 **Complexity:** Low
 **Multi-tenant relevance:** Directly addresses the need for tenants in regulated industries (healthcare, finance, legal) to customise redaction without a platform code change.
@@ -36,7 +36,7 @@
 
 ## Structured Output & Transport
 
-### JSON-Structured Log Format Option
+### ✅ JSON-Structured Log Format Option
 **Why:** The current `printf` formatter produces a human-readable plain-text line (`[timestamp] [level] [tenant=X]: message`). Log aggregation platforms (Datadog, Splunk, Loki, CloudWatch Logs Insights) work best with JSON-structured lines that support field-based filtering and alerting without regex parsing.
 **Complexity:** Low
 **Multi-tenant relevance:** JSON logs allow a `tenantId` field that aggregators can index as a dimension, enabling per-tenant log search and alerting without text parsing.
@@ -48,7 +48,7 @@
 **Multi-tenant relevance:** Remote transports that accept a `tenantId` dimension allow per-tenant log isolation, dashboards, and alerts inside a shared log aggregation platform.
 **Multi-country relevance:** Multi-region deployments need region-local log sinks (e.g. EU logs to EU-hosted Datadog organization, US logs to US-hosted) to satisfy data-residency requirements.
 
-### Log Sampling Under High Load
+### ✅ Log Sampling Under High Load
 **Why:** In high-throughput production environments, logging every `debug` and `info` line at full volume can exceed egress budgets and storage quotas. There is no configurable sampling rate, so operators cannot reduce log volume during traffic spikes without changing code.
 **Complexity:** Low
 **Multi-tenant relevance:** High-volume tenants may produce disproportionate log noise; a per-tenant sampling rate would prevent one tenant's traffic from filling the shared log sink.
@@ -58,13 +58,13 @@
 
 ## Observability Integration
 
-### Correlation ID (Trace ID) Propagation via LogContext
+### ✅ Correlation ID (Trace ID) Propagation via LogContext
 **Why:** `LogContext` carries `requestId` but has no dedicated `traceId` or `spanId` field. Distributed tracing systems (OpenTelemetry, Jaeger) correlate logs to traces via standard `traceId`/`spanId` fields — without them, logs cannot be joined to trace spans in Grafana Tempo or similar.
 **Complexity:** Low
 **Multi-tenant relevance:** Trace correlation makes it possible to reconstruct the full request path for a specific tenant's failing request across microservices.
 **Multi-country relevance:** EU-market enterprise customers often require end-to-end request tracing for SLA auditing and DSAR (Data Subject Access Request) investigations.
 
-### Per-Tenant Log Level Elevation
+### ✅ Per-Tenant Log Level Elevation
 **Why:** The three process-wide Winston singletons share one log level. A debugging session for a specific tenant requires changing the global level, which floods logs with every tenant's debug output. The `tenantId` is already in `LogContext` and could gate elevated verbosity.
 **Complexity:** Medium
 **Multi-tenant relevance:** Core feature for enterprise support: temporarily elevate `debug` logging for one tenant without changing the global level or restarting the process.
