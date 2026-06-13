@@ -1,6 +1,7 @@
 import PaymentCartCrudService from './payment_cart.crud.service';
+import PaymentCartExpiryService from './payment_cart.expiry.service';
 
-export { PaymentCartCrudService };
+export { PaymentCartCrudService, PaymentCartExpiryService };
 
 export default class PaymentCartService {
 
@@ -39,4 +40,11 @@ export default class PaymentCartService {
   // ──────────────────────────────────────────────
 
   static list               = PaymentCartCrudService.list.bind(PaymentCartCrudService);
+
+  // ──────────────────────────────────────────────
+  // Expiry / abandonment
+  // ──────────────────────────────────────────────
+
+  static sweepAbandoned     = PaymentCartExpiryService.sweepAbandoned.bind(PaymentCartExpiryService);
+  static extendExpiry       = PaymentCartExpiryService.extend.bind(PaymentCartExpiryService);
 }

@@ -9,4 +9,6 @@ export const PAYMENT_CART_MESSAGES = {
   ITEM_ADD_FAILED: 'Failed to add item to cart',
   MERGE_FAILED: 'Failed to merge guest cart into user cart',
   COUPON_INVALID: 'Coupon code is not valid for this cart',
+  PRODUCT_UNAVAILABLE: 'This product is no longer available',
+  INSUFFICIENT_STOCK: 'Not enough stock available for the requested quantity',
 } as const

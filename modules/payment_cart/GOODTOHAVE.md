@@ -16,7 +16,7 @@
 **Multi-tenant relevance:** Tenants that sell international products (e.g. a marketplace) may present items priced in different currencies.
 **Multi-country relevance:** Cross-border carts are a fundamental multi-country scenario; the cart engine must either enforce single-currency or handle conversion.
 
-### Real-Time Price Validation on Cart Mutations
+### ✅ Real-Time Price Validation on Cart Mutations
 **Why:** `unitPrice` is stored as supplied at add-time and never re-validated against the current catalog price; a stale price in a long-lived cart leads to revenue leakage or customer disputes.
 **Complexity:** Medium
 **Multi-tenant relevance:** Each tenant's product prices are managed independently; a price change should propagate to open carts.
@@ -24,19 +24,19 @@
 
 ## Cart Lifecycle & Abandonment
 
-### Cart Expiry and Abandonment Automation
+### ✅ Cart Expiry and Abandonment Automation
 **Why:** `expiresAt` is modeled on the entity but never set by the service; `ABANDONED` status exists but is never automatically applied; abandonment detection and cart cleanup rely entirely on seed data literals.
 **Complexity:** Medium
 **Multi-tenant relevance:** Each tenant should configure its own abandonment threshold (e.g. a flash-sale store: 30 minutes; a B2B store: 7 days) via a `cartExpiryDays` or `cartExpiryHours` setting.
 **Multi-country relevance:** Session length expectations and shopping patterns differ by region; configurable abandonment windows accommodate this variation.
 
-### Abandoned Cart Recovery Notification
+### ✅ Abandoned Cart Recovery Notification
 **Why:** There is no hook or event emitted when a cart becomes abandoned, so no email/push recovery flow can be triggered.
 **Complexity:** Medium
 **Multi-tenant relevance:** Cart recovery emails are one of the highest-ROI retention tools; tenants should be able to enable/disable and customize them.
 **Multi-country relevance:** Recovery email timing and messaging vary by locale and local marketing regulations (e.g. GDPR consent requirements in the EU).
 
-### Cart Reservation / Stock Lock on Add
+### ✅ Cart Reservation / Stock Lock on Add
 **Why:** Adding an item to the cart does not reserve inventory; two customers can both add the last unit of a product, and only one will succeed at checkout — with no warning earlier.
 **Complexity:** High
 **Multi-tenant relevance:** Tenants with limited-stock products (events, limited editions) need per-tenant inventory reservation policies.

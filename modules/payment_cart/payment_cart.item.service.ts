@@ -14,6 +14,8 @@ import { PAYMENT_CART_MESSAGES } from './payment_cart.messages'
 import { AppError, ErrorCode } from '@/modules/common/app-error'
 import AuditLogService from '@/modules/audit_log/audit_log.service'
 import PaymentCartCalcService from './payment_cart.calc.service'
+import PaymentCartInventoryService from './payment_cart.inventory.service'
+import PaymentCartExpiryService from './payment_cart.expiry.service'
 
 export default class PaymentCartItemService {
 
@@ -26,6 +28,12 @@ export default class PaymentCartItemService {
     if (!cart) throw new AppError(PAYMENT_CART_MESSAGES.CART_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     if (cart.status !== 'ACTIVE') throw new AppError(PAYMENT_CART_MESSAGES.CART_NOT_ACTIVE, 409, ErrorCode.CONFLICT)
 
+    // Price validation + stock check against the store catalogue (source of
+    // truth). For catalogue products the server price wins (anti-manipulation);
+    // ad-hoc lines (no productId) keep the supplied price.
+    const resolved = await PaymentCartInventoryService.resolve(tenantId, dto.productId, dto.variantId)
+    const unitPrice = resolved ? resolved.unitPrice : dto.unitPrice
+
     const existing = await itemRepo.findOne({
       where: {
         tenantId, cartId,
@@ -34,8 +42,14 @@ export default class PaymentCartItemService {
       },
     })
 
+    const targetQty = existing && existing.productId === (dto.productId ?? null) && existing.variantId === (dto.variantId ?? null)
+      ? Number(existing.quantity) + Number(dto.quantity)
+      : Number(dto.quantity)
+    PaymentCartInventoryService.assertAvailable(resolved, targetQty)
+
     if (existing && existing.productId === (dto.productId ?? null) && existing.variantId === (dto.variantId ?? null)) {
-      existing.quantity = Number(existing.quantity) + Number(dto.quantity)
+      existing.quantity = targetQty
+      existing.unitPrice = unitPrice
       await itemRepo.save(existing)
     } else {
       await itemRepo.save(itemRepo.create({
@@ -44,11 +58,15 @@ export default class PaymentCartItemService {
         variantId: dto.variantId,
         sku: dto.sku,
         name: dto.name,
-        unitPrice: dto.unitPrice,
+        unitPrice,
         quantity: dto.quantity,
         metadata: dto.metadata,
       }))
     }
+    // Reserve the newly added units against catalogue stock.
+    await PaymentCartInventoryService.adjustReservation(tenantId, dto.productId, dto.variantId, Number(dto.quantity))
+    // Slide the cart's abandonment clock forward on activity.
+    await PaymentCartExpiryService.extend(tenantId, cartId)
 
     return PaymentCartCalcService.recalcAndSave(tenantId, cartId)
   }
@@ -59,11 +77,17 @@ export default class PaymentCartItemService {
     const item = await itemRepo.findOne({ where: { tenantId, cartId, cartItemId } })
     if (!item) throw new AppError(PAYMENT_CART_MESSAGES.CART_ITEM_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
 
+    const prevQty = Number(item.quantity)
     if (quantity <= 0) {
       await itemRepo.remove(item)
+      await PaymentCartInventoryService.adjustReservation(tenantId, item.productId, item.variantId, -prevQty)
     } else {
+      // Validate the new quantity against available stock before committing.
+      const resolved = await PaymentCartInventoryService.resolve(tenantId, item.productId, item.variantId)
+      PaymentCartInventoryService.assertAvailable(resolved, quantity)
       item.quantity = quantity
       await itemRepo.save(item)
+      await PaymentCartInventoryService.adjustReservation(tenantId, item.productId, item.variantId, quantity - prevQty)
     }
     return PaymentCartCalcService.recalcAndSave(tenantId, cartId)
   }
@@ -74,11 +98,17 @@ export default class PaymentCartItemService {
     const item = await itemRepo.findOne({ where: { tenantId, cartId, cartItemId } })
     if (!item) throw new AppError(PAYMENT_CART_MESSAGES.CART_ITEM_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     await itemRepo.remove(item)
+    await PaymentCartInventoryService.adjustReservation(tenantId, item.productId, item.variantId, -Number(item.quantity))
     return PaymentCartCalcService.recalcAndSave(tenantId, cartId)
   }
 
   static async clear(tenantId: string, cartId: string): Promise<CartWithItems> {
     const ds = await tenantDataSourceFor(tenantId)
+    // Release all reservations held by this cart's items.
+    const items = await ds.getRepository(CartItemEntity).find({ where: { tenantId, cartId } })
+    for (const it of items) {
+      await PaymentCartInventoryService.adjustReservation(tenantId, it.productId, it.variantId, -Number(it.quantity))
+    }
     const cart = await ds.getRepository(CartEntity).findOne({ where: { tenantId, cartId } })
     if (!cart) throw new AppError(PAYMENT_CART_MESSAGES.CART_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     await ds.getRepository(CartItemEntity).delete({ tenantId, cartId })
