@@ -20,6 +20,9 @@ import { AiUsageLog } from '@/modules/ai/entities/ai_usage_log.entity';
 import { NotificationLog } from '@/modules/notification_log/entities/notification_log.entity';
 import { TenantUsage } from '@/modules/tenant_usage/entities/tenant_usage.entity';
 import Logger from '@/modules/logger';
+import { createHash } from 'node:crypto';
+import redis from '@/modules/redis';
+import { AppError, ErrorCode } from '@/modules/common/app-error';
 
 export interface TenantExportData {
   exportedAt: string;
@@ -53,9 +56,37 @@ function stripFields<T>(rows: T[], fields: string[]): object[] {
   });
 }
 
+export interface ExportOptions {
+  /** GDPR redaction: pseudonymise direct identifiers (email/phone/IP/recipient). */
+  redactPii?: boolean;
+}
+
+export interface ExportManifest {
+  exportedAt: string;
+  tenantId: string;
+  redacted: boolean;
+  sha256: string;
+  sizeBytes: number;
+  counts: Record<string, number>;
+}
+
+const PII_FIELDS = ['email', 'phone', 'recipient', 'ipAddress', 'lastUsedIp', 'lastLoginIp', 'customerEmail'];
+
+function redactPiiDeep(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(redactPiiDeep);
+  if (value && typeof value === 'object') {
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+      out[k] = PII_FIELDS.includes(k) && v ? '[redacted]' : redactPiiDeep(v);
+    }
+    return out;
+  }
+  return value;
+}
+
 export default class TenantExportService {
 
-  static async exportTenantData(tenantId: string): Promise<Buffer> {
+  static async exportTenantData(tenantId: string, opts: ExportOptions = {}): Promise<Buffer> {
     const ds = await tenantDataSourceFor(tenantId);
 
     Logger.info(`[TenantExport] Starting export for tenant ${tenantId}`);
@@ -160,6 +191,47 @@ export default class TenantExportService {
       `${notificationLogs.length} notification logs`,
     );
 
-    return Buffer.from(JSON.stringify(exportData, null, 2), 'utf-8');
+    const finalData = opts.redactPii ? (redactPiiDeep(exportData) as TenantExportData) : exportData;
+    return Buffer.from(JSON.stringify(finalData, null, 2), 'utf-8');
+  }
+
+  /**
+   * Per-tenant export rate limit (one export per `windowSeconds`, default 1h).
+   * Throws 429 when called too soon. Exports are heavy and contain sensitive
+   * data, so they must not be triggerable on a tight loop.
+   */
+  static async assertNotRateLimited(tenantId: string, windowSeconds = 3600): Promise<void> {
+    const key = `tenant_export:rate:${tenantId}`;
+    const ok = await redis.set(key, '1', 'EX', windowSeconds, 'NX').catch(() => 'OK');
+    if (ok !== 'OK') {
+      throw new AppError('An export was requested recently. Please try again later.', 429, ErrorCode.RATE_LIMIT_EXCEEDED);
+    }
+  }
+
+  /**
+   * Rate-limited export that also returns a completeness/integrity manifest:
+   * a SHA-256 checksum, byte size, and per-collection row counts. The manifest
+   * lets the downloader verify the archive was not truncated or tampered with.
+   */
+  static async exportWithManifest(
+    tenantId: string,
+    opts: ExportOptions & { skipRateLimit?: boolean } = {},
+  ): Promise<{ buffer: Buffer; manifest: ExportManifest }> {
+    if (!opts.skipRateLimit) await this.assertNotRateLimited(tenantId);
+    const buffer = await this.exportTenantData(tenantId, opts);
+    const parsed = JSON.parse(buffer.toString('utf-8')) as Record<string, unknown>;
+    const counts: Record<string, number> = {};
+    for (const [k, v] of Object.entries(parsed)) {
+      if (Array.isArray(v)) counts[k] = v.length;
+    }
+    const manifest: ExportManifest = {
+      exportedAt: new Date().toISOString(),
+      tenantId,
+      redacted: Boolean(opts.redactPii),
+      sha256: createHash('sha256').update(buffer).digest('hex'),
+      sizeBytes: buffer.length,
+      counts,
+    };
+    return { buffer, manifest };
   }
 }

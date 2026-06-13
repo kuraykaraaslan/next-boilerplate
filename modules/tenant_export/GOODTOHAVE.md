@@ -22,19 +22,19 @@
 **Multi-tenant relevance:** Tenants with compliance obligations (SOC 2, ISO 27001) require a complete audit trail in their data export — a truncated export fails a compliance audit.
 **Multi-country relevance:** GDPR Art. 20 data portability must be complete; a truncated export that omits older audit events is legally insufficient and can expose the platform operator to regulatory fines.
 
-### Export Completeness Manifest and Checksum
+### ✅ Export Completeness Manifest and Checksum
 **Why:** There is no manifest or SHA-256 checksum included in the export — the tenant and their legal team cannot verify the integrity or completeness of the exported archive.
 **Complexity:** Low
 **Multi-tenant relevance:** Enterprise tenants with security teams will reject an export that cannot be verified as tamper-proof.
 **Multi-country relevance:** GDPR Art. 20 implicitly requires machine-readable structured data; a verifiable checksum is standard practice expected by EU DPAs and ISO 27001 auditors.
 
-### Personal Data Redaction Option
+### ✅ Personal Data Redaction Option
 **Why:** The export includes member data (names, emails via user hydration) with no option to produce a pseudonymized export for internal compliance testing or audit handover to a third party.
 **Complexity:** Medium
 **Multi-tenant relevance:** Tenants sharing an export with an external auditor or vendor need a redacted version that replaces PII with tokens.
 **Multi-country relevance:** GDPR Art. 25 (data minimization by design) encourages pseudonymization; several national implementations (Germany, Netherlands) have issued guidance recommending pseudonymized exports for audit purposes.
 
-### Export Rate Limiting Per Tenant
+### ✅ Export Rate Limiting Per Tenant
 **Why:** The `OWNER` role can trigger unlimited export jobs; a single large tenant generating back-to-back exports could exhaust DB connection pools or S3 throughput for all tenants on the platform.
 **Complexity:** Low
 **Multi-tenant relevance:** Export is a resource-intensive operation; per-tenant throttling (e.g., one export per 24 hours) prevents one tenant from degrading the platform for others.
