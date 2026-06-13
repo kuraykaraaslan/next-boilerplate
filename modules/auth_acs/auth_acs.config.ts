@@ -53,6 +53,16 @@ export const ACS_CATALOG: Record<AcsProvider, AcsProviderDescriptor> = {
     provider: 'kg_tunduk', protocol: 'oidc', country: 'KG', label: 'Tunduk',
     defaults: { attrNationalId: 'pin', attrFirstName: 'given_name', attrLastName: 'family_name', scopes: ['openid'], usesPkce: true },
   },
+  esia_ru: {
+    provider: 'esia_ru', protocol: 'oidc', country: 'RU', label: 'Госуслуги',
+    defaults: {
+      // Identity (oid) comes from the access_token JWT claim urn:esia:sbj_id.
+      attrNationalId: 'urn:esia:sbj_id', attrFirstName: 'firstName', attrLastName: 'lastName',
+      authUrl: 'https://esia.gosuslugi.ru/aas/oauth2/ac',
+      tokenUrl: 'https://esia.gosuslugi.ru/aas/oauth2/te',
+      scopes: ['openid', 'fullname'], usesPkce: false,
+    },
+  },
 
   // ── Europe (SAML / eIDAS family) ─────────────────────────────────────────────
   eu_eidas: {

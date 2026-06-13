@@ -85,6 +85,8 @@ export default class AuthAcsConfigService {
       redirectUri: entry.redirectUri ?? AuthAcsConfigService.callbackUrl(provider),
       scopes: entry.scopes ?? d.scopes ?? ['openid'],
       usesPkce: entry.usesPkce ?? d.usesPkce ?? false,
+      signingCert: entry.signingCert,
+      signingKey: entry.signingKey,
     };
     return cfg;
   }

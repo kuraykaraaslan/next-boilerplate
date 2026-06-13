@@ -12,6 +12,7 @@ import { KzEgovProvider } from './kz_egov.provider';
 import { KgTundukProvider } from './kg_tunduk.provider';
 import { UsLoginGovProvider } from './us_login_gov.provider';
 import { UsIdMeProvider } from './us_id_me.provider';
+import { EsiaProvider } from './esia_ru.provider';
 
 /**
  * Type-safe national-identity provider registry. Adding a provider to
@@ -32,6 +33,7 @@ const PROVIDER_FACTORIES: Record<AcsProvider, () => AcsProviderService> = {
   kg_tunduk: () => new KgTundukProvider(),
   us_login_gov: () => new UsLoginGovProvider(),
   us_id_me: () => new UsIdMeProvider(),
+  esia_ru: () => new EsiaProvider(),
 };
 
 export function getAcsProvider(provider: AcsProvider): AcsProviderService {

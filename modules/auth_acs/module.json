@@ -7,5 +7,5 @@
   "icon": "fas fa-id-card",
   "tags": ["identity", "auth", "sso", "saml", "oidc", "government"],
   "priority": 17,
-  "dependencies": { "requires": ["db", "user", "user_profile", "user_social_account", "user_session", "user_security", "tenant", "tenant_member", "auth_sso", "env", "audit_log", "observability", "redis", "common", "logger"] }
+  "dependencies": { "requires": ["db", "user", "user_profile", "user_social_account", "user_session", "user_security", "tenant", "tenant_member", "auth_sso", "auth_saml", "auth_oidc", "env", "audit_log", "observability", "redis", "common", "logger"] }
 }

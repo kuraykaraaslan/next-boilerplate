@@ -127,7 +127,7 @@ export abstract class BaseOidcProvider {
     }
     // Extension point: providers that must SIGN the token request (ESIA, Alipay)
     // add/replace signature fields here. Default no-op.
-    await this.decorateTokenBody(body);
+    await this.decorateTokenBody(body, state);
     try {
       const res = await axios.post(c.tokenUrl as string, new URLSearchParams(body), { headers, timeout: HTTP_TIMEOUT_MS });
       return this.normalizeOidcTokens(res.data as Record<string, unknown>);
@@ -224,8 +224,8 @@ export abstract class BaseOidcProvider {
   // ── signing extension points (default no-op) ────────────────────────────────
   /** Mutate authorize params to add a request signature/timestamp (ESIA, Alipay). */
   protected decorateAuthorizeParams(_params: URLSearchParams, _state: string): void {}
-  /** Mutate the token-request body to add/replace a signature (ESIA, Alipay). */
-  protected async decorateTokenBody(_body: Record<string, string>): Promise<void> {}
+  /** Mutate the token-request body to add/replace a signature (ESIA, Alipay). `state` is the relay state. */
+  protected async decorateTokenBody(_body: Record<string, string>, _state?: string): Promise<void> {}
 
   // ── helpers ────────────────────────────────────────────────────────────────
   protected normalizeOidcTokens(data: Record<string, unknown>): OidcTokens {

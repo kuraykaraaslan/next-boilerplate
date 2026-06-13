@@ -20,6 +20,7 @@ export const AcsProviderEnum = z.enum([
   'uz_oneid',     // Uzbekistan — OneID (OAuth2, sso.egov.uz)
   'kz_egov',      // Kazakhstan — eGov.kz (protocol TBC; gated off)
   'kg_tunduk',    // Kyrgyzstan — Tunduk (protocol TBC; gated off)
+  'esia_ru',      // Russia — Gosuslugi / ЕСИА (OAuth2 + PKCS#7-signed requests)
   // ── Europe (SAML / eIDAS family) ──────────────────────────────────────────
   'eu_eidas',     // eIDAS generic node
   'it_spid',      // Italy — SPID

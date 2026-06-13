@@ -82,6 +82,9 @@ export interface AcsResolvedConfig {
   redirectUri?: string;
   scopes?: string[];
   usesPkce?: boolean;
+  /** PEM cert + key used to PKCS#7-sign requests (Russia ESIA). */
+  signingCert?: string;
+  signingKey?: string;
 }
 
 /**
@@ -119,6 +122,8 @@ export const AcsProviderEnvEntrySchema = z.object({
   redirectUri: z.string().optional(),
   scopes: z.array(z.string()).optional(),
   usesPkce: z.boolean().optional(),
+  signingCert: z.string().optional(),
+  signingKey: z.string().optional(),
 }).strict();
 
 export const AcsProviderMapSchema = z.record(z.string(), AcsProviderEnvEntrySchema);
