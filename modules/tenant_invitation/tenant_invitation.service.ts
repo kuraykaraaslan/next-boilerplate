@@ -14,6 +14,7 @@ import TenantInvitationMessages from './tenant_invitation.messages';
 import TenantMemberService from '../tenant_member/tenant_member.service';
 import type { TenantMemberRole } from '../tenant_member/tenant_member.enums';
 import WebhookService from '@/modules/webhook/webhook.service';
+import SettingService from '@/modules/setting/setting.service';
 import { AppError, ErrorCode } from '@/modules/common/app-error';
 
 const INVITATION_TTL_SECONDS = env.INVITATION_TTL_SECONDS ?? (60 * 60 * 24 * 7);
@@ -101,8 +102,34 @@ export default class TenantInvitationService {
     });
   }
 
+  /** Per-tenant invitation TTL (`invitationTtlDays` setting); falls back to env. */
+  private static async resolveTtlMs(tenantId: string): Promise<number> {
+    const raw = await SettingService.getValue(tenantId, 'invitationTtlDays').catch(() => null);
+    const days = raw ? parseInt(raw, 10) : 0;
+    return Number.isFinite(days) && days > 0 ? days * 86_400_000 : INVITATION_TTL_SECONDS * 1000;
+  }
+
+  /**
+   * A tenant can restrict which roles may be granted via invitation
+   * (`invitationAllowedRoles`, CSV). OWNER can never be granted by invitation —
+   * ownership transfer is an explicit, separate flow.
+   */
+  private static async assertRoleAllowed(tenantId: string, memberRole: string): Promise<void> {
+    if (memberRole === 'OWNER') {
+      throw new AppError(TenantInvitationMessages.INVITATION_ROLE_NOT_ALLOWED, 422, ErrorCode.VALIDATION_ERROR);
+    }
+    const raw = await SettingService.getValue(tenantId, 'invitationAllowedRoles').catch(() => null);
+    if (raw) {
+      const allowed = raw.split(',').map((r) => r.trim().toUpperCase()).filter(Boolean);
+      if (allowed.length > 0 && !allowed.includes(memberRole.toUpperCase())) {
+        throw new AppError(TenantInvitationMessages.INVITATION_ROLE_NOT_ALLOWED, 422, ErrorCode.VALIDATION_ERROR);
+      }
+    }
+  }
+
   static async send(tenantId: string, invitedByUserId: string, { email, memberRole }: SendInvitationInput): Promise<{ invitation: SafeTenantInvitation; rawToken: string }> {
     const normalizedEmail = email.toLowerCase();
+    await TenantInvitationService.assertRoleAllowed(tenantId, memberRole);
 
     const sysDs = await getDataSource();
     const existingUser = await sysDs.getRepository(UserEntity).findOne({ where: { email: normalizedEmail } });
@@ -114,7 +141,7 @@ export default class TenantInvitationService {
     const ds = await tenantDataSourceFor(tenantId);
     const rawToken = TenantInvitationService.generateRawToken();
     const hashedToken = TenantInvitationService.hashToken(rawToken);
-    const expiresAt = new Date(Date.now() + INVITATION_TTL_SECONDS * 1000);
+    const expiresAt = new Date(Date.now() + (await TenantInvitationService.resolveTtlMs(tenantId)));
 
     const saved = await ds.transaction(async (mgr) => {
       const repo = mgr.getRepository(TenantInvitationEntity);
@@ -203,6 +230,50 @@ export default class TenantInvitationService {
       invitationId,
       email: invitation.email,
     });
+  }
+
+  /**
+   * Resend a PENDING invitation: rotates the token and extends the expiry
+   * (per-tenant TTL) without revoking + re-creating, so existing tracking holds.
+   * Returns the new raw token to email out.
+   */
+  static async resend(invitationId: string, tenantId: string): Promise<{ invitation: SafeTenantInvitation; rawToken: string }> {
+    const ds = await tenantDataSourceFor(tenantId);
+    const repo = ds.getRepository(TenantInvitationEntity);
+    const invitation = await repo.findOne({ where: { invitationId, tenantId } });
+    if (!invitation) throw new AppError(TenantInvitationMessages.INVITATION_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
+    if (invitation.status !== 'PENDING') throw new AppError(TenantInvitationMessages.INVITATION_ONLY_PENDING_CAN_BE_RESENT, 409, ErrorCode.CONFLICT);
+
+    const oldToken = invitation.token;
+    const rawToken = TenantInvitationService.generateRawToken();
+    invitation.token = TenantInvitationService.hashToken(rawToken);
+    invitation.expiresAt = new Date(Date.now() + (await TenantInvitationService.resolveTtlMs(tenantId)));
+    const saved = await repo.save(invitation);
+    await this.clearCache({ invitationId, token: oldToken });
+
+    await WebhookService.dispatchEvent(tenantId, 'invitation.sent', {
+      invitationId: saved.invitationId, email: saved.email, memberRole: saved.memberRole, resent: true,
+    });
+    return { invitation: SafeTenantInvitationSchema.parse(saved), rawToken };
+  }
+
+  /**
+   * Mark PENDING invitations past their expiry as EXPIRED. Meant for a
+   * scheduled per-tenant sweep; `accept` already rejects expired tokens, so this
+   * is state hygiene. Returns the number expired.
+   */
+  static async sweepExpired(tenantId: string): Promise<number> {
+    const ds = await tenantDataSourceFor(tenantId);
+    const repo = ds.getRepository(TenantInvitationEntity);
+    const stale = await repo.find({ where: { tenantId, status: 'PENDING' } });
+    const now = new Date();
+    const expired = stale.filter((i) => i.expiresAt < now);
+    if (expired.length === 0) return 0;
+    await Promise.all(expired.map(async (i) => {
+      await repo.update({ invitationId: i.invitationId }, { status: 'EXPIRED' });
+      await this.clearCache({ invitationId: i.invitationId, token: i.token });
+    }));
+    return expired.length;
   }
 
   static async autoAcceptForEmail(userId: string, email: string): Promise<void> {

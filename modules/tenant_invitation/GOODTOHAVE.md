@@ -10,7 +10,7 @@
 **Multi-tenant relevance:** Enterprise tenants migrating from a competitor platform need to mass-invite their existing users; single-at-a-time invites create unacceptable onboarding friction.
 **Multi-country relevance:** No direct country relevance, but enterprise sales in markets like DACH and Japan expect feature parity with established competitors that all offer CSV bulk invite.
 
-### Invitation Resend / Refresh Without Revoke-and-Reinvite
+### ✅ Invitation Resend / Refresh Without Revoke-and-Reinvite
 **Why:** Refreshing a pending invite requires revoking it and sending a new one (two webhooks, a new token, a new email); there is no `resend(invitationId)` method that rotates the token and resends the email in one atomic operation.
 **Complexity:** Low
 **Multi-tenant relevance:** Tenant admins regularly need to resend invite emails when the original email went to spam — making them revoke and recreate causes confusion for both the admin and the invitee.
@@ -30,7 +30,7 @@
 
 ## Security
 
-### Invitation TTL Wired to Per-Tenant Setting
+### ✅ Invitation TTL Wired to Per-Tenant Setting
 **Why:** `INVITATION_TTL_SECONDS` is a global env variable (7-day default); the README documents an `invitationTtlSeconds` per-tenant setting but the service never reads it — high-security tenants cannot enforce shorter invite windows.
 **Complexity:** Low
 **Multi-tenant relevance:** Financial-services tenants typically require invitation links to expire within 24 hours; the current global 7-day TTL fails their security policy.
@@ -56,7 +56,7 @@
 **Multi-tenant relevance:** A tenant operating in Turkey needs invitation emails in Turkish; a tenant operating in Germany needs them in German — a single-locale email template is incompatible with white-label multi-country deployments.
 **Multi-country relevance:** Turkish law (Law No. 6698 KVKK) and German law (BDSG) both require communications with data subjects to be in a language they can understand — sending a GDPR-adjacent invitation in English to a Turkish user is legally risky.
 
-### Invitation Role Options Restricted by Tenant's Allowed Roles
+### ✅ Invitation Role Options Restricted by Tenant's Allowed Roles
 **Why:** `memberRole` on invitations accepts any value from `TenantMemberRoleEnum` — but if a tenant is configured to only have `USER` and `ADMIN` (not `OWNER`), there is no validation preventing an admin from sending an `OWNER` invitation.
 **Complexity:** Low
 **Multi-tenant relevance:** Tenants with custom role policies need the invitation flow to respect their configured allowed-role list.
@@ -64,7 +64,7 @@
 
 ## Governance & Audit
 
-### Invitation Expiry Sweep Job
+### ✅ Invitation Expiry Sweep Job
 **Why:** Expired invitations (past `expiresAt`) remain in status `PENDING` in the database indefinitely — there is no background job that transitions them to `EXPIRED`, so the invitation list shows stale rows and counts are inaccurate.
 **Complexity:** Low
 **Multi-tenant relevance:** Tenant admins viewing pending invites see a list polluted with month-old expired invites; accurate counts are needed for the `MAX_INVITATIONS` feature gate.
