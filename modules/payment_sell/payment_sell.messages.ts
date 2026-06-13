@@ -13,6 +13,7 @@ export const PAYMENT_SELL_MESSAGES = {
 
   CHECKOUT_CREATE_FAILED: 'Failed to create checkout session',
   CHECKOUT_SESSION_EXPIRED: 'Checkout session has expired',
+  VELOCITY_EXCEEDED: 'Too many payment attempts. Please wait a few minutes and try again.',
 
   WEBHOOK_INVALID_SIGNATURE: 'Invalid webhook signature',
   WEBHOOK_UNKNOWN_EVENT: 'Unknown or unhandled webhook event type',

@@ -30,7 +30,7 @@
 **Multi-tenant relevance:** Each tenant has pending payments from abandoned checkouts that should expire after a configurable window to keep financial records clean.
 **Multi-country relevance:** Different providers use different session expiry windows (Stripe Checkout: 24h, Alipay: 15 min); per-provider expiry timing must match provider behavior.
 
-### Idempotency Key on Checkout Creation
+### ✅ Idempotency Key on Checkout Creation
 **Why:** `createCheckout` has no idempotency mechanism; a network timeout on the client side that triggers a retry will create a second `Payment` record and a second provider checkout session for the same intent.
 **Complexity:** Medium
 **Multi-tenant relevance:** All tenants are exposed to duplicate checkout sessions, which cause double-billing risk.
@@ -90,7 +90,7 @@
 
 ## Fraud & Risk
 
-### Velocity Check on Payment Attempts
+### ✅ Velocity Check on Payment Attempts
 **Why:** There is no rate limiting or velocity check on `createCheckout` per user/IP/card; a single compromised account or card can trigger unlimited payment attempts.
 **Complexity:** Medium
 **Multi-tenant relevance:** Excessive failed charges are billed by most providers (Stripe, Iyzico); the financial impact is per-tenant.

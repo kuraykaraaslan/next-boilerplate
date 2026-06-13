@@ -13,25 +13,61 @@ import type { CreatePaymentDTO, RefundPaymentDTO } from './payment_sell.dto'
 import { PAYMENT_SELL_MESSAGES } from './payment_sell.messages'
 import PaymentSellCrudService from './payment_sell.crud.service'
 import type { PaymentProvider } from '@/modules/payment_core/payment_core.enums'
+import { PaymentCircuitBreaker } from '@/modules/payment_core'
+import { RedisIdempotencyService } from '@/modules/redis_idempotency'
+
+// Velocity guard: too many checkout attempts from one customer in a short
+// window is a strong fraud / card-testing signal.
+const VELOCITY_MAX = 10
+const VELOCITY_WINDOW_SEC = 600 // 10 minutes
 
 export default class PaymentSellCheckoutService {
 
+  /** Reject card-testing / runaway checkout creation per customer (fraud guard). */
+  private static async assertVelocity(tenantId: string, identifier: string): Promise<void> {
+    const key = `pay:sell:velocity:${tenantId}:${identifier}`
+    try {
+      const n = await redis.incr(key)
+      if (n === 1) await redis.expire(key, VELOCITY_WINDOW_SEC)
+      if (n > VELOCITY_MAX) {
+        throw new AppError(PAYMENT_SELL_MESSAGES.VELOCITY_EXCEEDED, 429, ErrorCode.RATE_LIMIT_EXCEEDED)
+      }
+    } catch (err) {
+      if (err instanceof AppError) throw err // velocity rejection propagates; Redis errors fail open
+    }
+  }
+
   static async createCheckout(tenantId: string, data: CreatePaymentDTO): Promise<CheckoutResult> {
+    // Idempotency: a repeated submit with the same key returns the first result
+    // instead of creating a second checkout session (double-charge guard).
+    if (data.idempotencyKey) {
+      const claim = await RedisIdempotencyService.acquire(tenantId, `pay:sell:${data.idempotencyKey}`)
+      if (!claim.acquired && claim.existing?.status === 'completed' && claim.existing.response) {
+        return CheckoutResultSchema.parse(claim.existing.response.body)
+      }
+    }
+
+    // Fraud velocity guard, keyed by customer (email/user/phone) when available.
+    const velocityId = data.customerEmail ?? data.userId ?? data.customerPhone
+    if (velocityId) await this.assertVelocity(tenantId, velocityId)
+
     const provider = PaymentSellCrudService.getProvider(data.provider)
     const ds = await tenantDataSourceFor(tenantId)
     const repo = ds.getRepository(PaymentEntity)
 
     let session: Awaited<ReturnType<typeof provider.createCheckoutSession>>
     try {
-      session = await provider.createCheckoutSession(tenantId, {
+      // Circuit breaker: fail fast when this provider is in a failing state.
+      session = await PaymentCircuitBreaker.run(data.provider, () => provider.createCheckoutSession(tenantId, {
         amount: data.amount,
         currency: data.currency,
         description: data.description ?? '',
         metadata: data.metadata as Record<string, string> | undefined,
         successUrl: data.successUrl,
         cancelUrl: data.cancelUrl,
-      })
+      }))
     } catch (error) {
+      if (error instanceof AppError) throw error
       Logger.error(`${PAYMENT_SELL_MESSAGES.CHECKOUT_CREATE_FAILED}: ${error}`)
       throw new AppError(PAYMENT_SELL_MESSAGES.CHECKOUT_CREATE_FAILED, 502, ErrorCode.INTERNAL_ERROR)
     }
@@ -54,13 +90,20 @@ export default class PaymentSellCheckoutService {
       metadata: { provider: data.provider, amount: data.amount, currency: data.currency },
     }).catch(() => {})
 
-    return CheckoutResultSchema.parse({
+    const result = CheckoutResultSchema.parse({
       paymentId: saved.paymentId,
       sessionId: session.sessionId,
       checkoutUrl: session.checkoutUrl,
       provider: data.provider,
       expiresAt: data.expiresAt ?? null,
     })
+
+    // Record the idempotent result so a duplicate submit replays it.
+    if (data.idempotencyKey) {
+      await RedisIdempotencyService.setCompleted(tenantId, `pay:sell:${data.idempotencyKey}`, { body: result, statusCode: 200 }).catch(() => {})
+    }
+
+    return result
   }
 
   static async refund(tenantId: string, paymentId: string, dto: RefundPaymentDTO): Promise<SafePayment> {

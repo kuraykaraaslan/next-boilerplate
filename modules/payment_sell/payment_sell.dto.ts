@@ -22,6 +22,8 @@ export const CreatePaymentDTO = z.object({
   expiresAt: z.date().optional(),
   successUrl: z.string().url(),
   cancelUrl: z.string().url(),
+  /** Client-supplied key to make checkout creation idempotent (double-submit guard). */
+  idempotencyKey: z.string().min(8).max(255).optional(),
 })
 export type CreatePaymentDTO = z.infer<typeof CreatePaymentDTO>
 
