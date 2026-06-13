@@ -26,12 +26,16 @@ vi.mock('@/modules/env', () => ({
     GITHUB_CLIENT_ID: 'github-cid', GITHUB_CLIENT_SECRET: 'github-cs',
     MICROSOFT_CLIENT_ID: 'ms-cid', MICROSOFT_CLIENT_SECRET: 'ms-cs', MICROSOFT_TENANT_ID: 'common',
     LINKEDIN_CLIENT_ID: 'li-cid', LINKEDIN_CLIENT_SECRET: 'li-cs',
+    // Facebook provider config reads META_CLIENT_ID/SECRET (Meta rebrand).
     FACEBOOK_CLIENT_ID: 'fb-cid', FACEBOOK_CLIENT_SECRET: 'fb-cs',
+    META_CLIENT_ID: 'fb-cid', META_CLIENT_SECRET: 'fb-cs',
     APPLE_CLIENT_ID: 'com.example.app', APPLE_TEAM_ID: 'TEAMID123', APPLE_KEY_ID: 'KEYID123',
-    APPLE_PRIVATE_KEY: '-----BEGIN EC PRIVATE KEY-----\nMHQCAQEEILmAGT5XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n-----END EC PRIVATE KEY-----',
+    // Real P-256 key so the ES256 client_secret JWT actually signs in tests.
+    APPLE_PRIVATE_KEY: '-----BEGIN PRIVATE KEY-----\nMIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgHJK4al1q7Qn1XfSf\nhcyDdppYm2QtGVzOKAF51ePo5CuhRANCAAQPT1RNV1CazLhdfbZLGdt/bLo8J3hf\nNnmfLKY8zTGhQ5KeAO18NPbfaoqZ3fO9t/TGeWjWZy9fAodkAIdUA/5D\n-----END PRIVATE KEY-----\n',
     TWITTER_CLIENT_ID: 'tw-cid', TWITTER_CLIENT_SECRET: 'tw-cs',
     SLACK_CLIENT_ID: 'sl-cid', SLACK_CLIENT_SECRET: 'sl-cs',
-    TIKTOK_CLIENT_ID: 'tt-cid', TIKTOK_CLIENT_SECRET: 'tt-cs',
+    // TikTok provider config reads TIKTOK_CLIENT_KEY (not _CLIENT_ID).
+    TIKTOK_CLIENT_ID: 'tt-cid', TIKTOK_CLIENT_KEY: 'tt-cid', TIKTOK_CLIENT_SECRET: 'tt-cs',
     WECHAT_APP_ID: 'wx-appid', WECHAT_APP_SECRET: 'wx-secret',
     AUTODESK_CLIENT_ID: 'ad-cid', AUTODESK_CLIENT_SECRET: 'ad-cs',
     SSO_ALLOWED_PROVIDERS: 'google,github,microsoft,linkedin,facebook,apple,twitter,slack,tiktok,wechat,autodesk',
@@ -152,6 +156,8 @@ describe('callback flow: github', () => {
   it('synthesizes placeholder email when github email is null', async () => {
     mockTokenResponse({ access_token: 'ghp_token' });
     mockUserInfoResponse({ id: 99, login: 'silent-user', email: null });
+    // email == null → GitHub provider falls back to GET /user/emails (mock it empty).
+    mockUserInfoResponse([]);
 
     const result = await SSOFlowService.authenticateOrRegister('github', 'gh-code');
 
@@ -180,11 +186,8 @@ describe('callback flow: microsoft', () => {
 describe('callback flow: linkedin', () => {
   it('fetches profile and email from separate endpoints', async () => {
     mockTokenResponse({ access_token: 'li-at', expires_in: 5183944 });
-    // LinkedIn: GET /v2/me → profile; GET /v2/emailAddress → email
-    mockUserInfoResponse({ id: 'li-id-1', localizedFirstName: 'Carol', localizedLastName: 'Danvers', profilePicture: {} });
-    mockUserInfoResponse({
-      elements: [{ 'handle~': { emailAddress: 'carol@example.com' }, primary: true, type: 'EMAIL' }],
-    });
+    // LinkedIn now uses the OIDC userinfo endpoint (single call → sub/email/name/picture).
+    mockUserInfoResponse({ sub: 'li-id-1', email: 'carol@example.com', name: 'Carol Danvers', picture: 'https://pic.li/c' });
 
     const { profile } = await SSOFlowService.handleCallback('linkedin', 'li-code');
 
@@ -292,7 +295,7 @@ describe('callback flow: twitter', () => {
 // ── Slack ────────────────────────────────────────────────────────────────────
 describe('callback flow: slack', () => {
   it('exchanges code and maps user from openid.connect.userInfo', async () => {
-    mockTokenResponse({ access_token: 'sl-at', token_type: 'Bearer', authed_user: { id: 'U12345' } });
+    mockTokenResponse({ ok: true, access_token: 'sl-at', token_type: 'Bearer', authed_user: { id: 'U12345' } });
     mockUserInfoResponse({ ok: true, sub: 'U12345', email: 'slack@example.com', name: 'SlackUser', picture: 'https://avatars.slack-edge.com/u.png' });
 
     const { profile, tokens } = await SSOFlowService.handleCallback('slack', 'sl-code');
@@ -340,7 +343,8 @@ describe('callback flow: wechat', () => {
     const { profile, tokens } = await SSOFlowService.handleCallback('wechat', 'wx-code');
 
     expect(tokens.accessToken).toBe('wx-at');
-    expect(profile.sub).toBe('oABC123');
+    // sub prefers the stable cross-app unionid over the per-app openid when present.
+    expect(profile.sub).toBe('wx-union-1');
     expect(profile.email).toBeNull();
     // WeChat uses GET for token (not POST)
     expect(axiosPost).not.toHaveBeenCalled();
