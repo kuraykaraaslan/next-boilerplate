@@ -30,12 +30,18 @@ export interface SamlEngineConfig {
   nameIdFormat?: string;
   wantAssertionsSigned?: boolean;
   acceptedClockSkewMs?: number;
+  /** Whether to sign the AuthnRequest. Default true (sign whenever an SP key is present). */
+  signRequests?: boolean;
+  /** IdP Single Logout endpoint — enables LogoutRequest generation. */
+  logoutUrl?: string;
   /** RequestedAuthnContext class refs (e.g. eIDAS LoA, SPID SpidL2/L3). Enforces assurance. */
   authnContextClassRefs?: string[];
   /** AuthnContext comparison (default 'exact'). */
   racComparison?: 'exact' | 'minimum' | 'maximum' | 'better';
   /** Force re-authentication at the IdP (ignore existing IdP session). */
   forceAuthn?: boolean;
+  /** Omit RequestedAuthnContext entirely (only applies when no authnContextClassRefs). */
+  disableRequestedAuthnContext?: boolean;
   /** Redis key prefix for replay detection, e.g. `auth_acs:replay:tr_edevlet`. Replay is skipped when unset. */
   replayKeyPrefix?: string;
   /** Tag used on the replay-blocked metric. */
@@ -52,32 +58,73 @@ export interface SamlValidatedAssertion {
   sessionNotOnOrAfter: number | null;
 }
 
+/**
+ * Construct a @node-saml client from a neutral engine config. The single place
+ * node-saml is wired — reused by the engine base class AND the per-tenant SAML
+ * module (auth_saml) so the construction logic is never duplicated.
+ */
+export function buildSamlClient(c: SamlEngineConfig): SAML {
+  // Sign the AuthnRequest only when signing is enabled (default true) AND an SP
+  // private key is present. Lets an IdP that rejects signed requests get unsigned.
+  const signing = (c.signRequests ?? true) && Boolean(c.spPrivateKey);
+  return new SAML({
+    callbackUrl: c.callbackUrl,
+    entryPoint: c.idpSsoUrl,
+    issuer: c.spEntityId,
+    idpCert: c.idpCertificate ?? '',
+    privateKey: signing ? c.spPrivateKey : undefined,
+    // Decrypt EncryptedAssertion with the SP key when present.
+    decryptionPvk: c.spDecryptionKey ?? c.spPrivateKey ?? undefined,
+    signatureAlgorithm: (c.signatureAlgorithm as 'sha256' | 'sha512' | 'sha1') ?? 'sha256',
+    identifierFormat: c.nameIdFormat ?? undefined,
+    wantAssertionsSigned: c.wantAssertionsSigned ?? true,
+    acceptedClockSkewMs: typeof c.acceptedClockSkewMs === 'number' ? c.acceptedClockSkewMs : 5000,
+    logoutUrl: c.logoutUrl || undefined,
+    // RequestedAuthnContext: enforce an assurance level when configured (eIDAS/SPID).
+    // When none and the caller opted in, omit it entirely; otherwise leave node-saml's
+    // default untouched (preserves existing per-tenant SAML behaviour).
+    ...(c.authnContextClassRefs?.length
+      ? { authnContext: c.authnContextClassRefs, racComparison: c.racComparison ?? 'minimum' }
+      : c.disableRequestedAuthnContext
+        ? { disableRequestedAuthnContext: true }
+        : {}),
+    forceAuthn: c.forceAuthn ?? false,
+  } as ConstructorParameters<typeof SAML>[0]);
+}
+
+/**
+ * Assertion replay guard (Redis SET NX, fail-open). Shared by the engine and the
+ * per-tenant SAML flow. `keyPrefix` namespaces the cache key (`<prefix>:<idHash>`);
+ * `scope` tags the metric. No-op when there is no assertion ID.
+ */
+export async function assertSamlNotReplayed(opts: {
+  assertionId: string | null;
+  sessionNotOnOrAfter: number | null;
+  keyPrefix: string;
+  scope: string;
+}): Promise<void> {
+  if (!opts.assertionId) return;
+  const idHash = crypto.createHash('sha256').update(opts.assertionId).digest('hex');
+  const key = `${opts.keyPrefix}:${idHash}`;
+  const remainingMs = opts.sessionNotOnOrAfter ? opts.sessionNotOnOrAfter - Date.now() : 0;
+  const ttlSec = Math.min(60 * 60 * 24, Math.max(60, Math.ceil(remainingMs / 1000) + 60));
+  let stored: 'OK' | null = null;
+  try {
+    stored = (await redis.set(key, '1', 'EX', ttlSec, 'NX')) as 'OK' | null;
+  } catch {
+    return;
+  }
+  if (stored !== 'OK') {
+    ObservabilityService.recordTenantUsage({ tenantId: opts.scope, metric: 'saml_replay_blocked', value: 1 });
+    throw new AppError(SamlMessages.REPLAY_DETECTED, 400, ErrorCode.VALIDATION_ERROR);
+  }
+}
+
 export abstract class BaseSamlProvider {
   protected constructor(protected samlConfig: SamlEngineConfig) {}
 
   protected buildSaml(): SAML {
-    const c = this.samlConfig;
-    const signing = Boolean(c.spPrivateKey);
-    return new SAML({
-      callbackUrl: c.callbackUrl,
-      entryPoint: c.idpSsoUrl,
-      issuer: c.spEntityId,
-      idpCert: c.idpCertificate ?? '',
-      // Sign the AuthnRequest only when an SP private key is configured.
-      privateKey: signing ? c.spPrivateKey : undefined,
-      // Decrypt EncryptedAssertion with the SP key when present.
-      decryptionPvk: c.spDecryptionKey ?? c.spPrivateKey ?? undefined,
-      signatureAlgorithm: (c.signatureAlgorithm as 'sha256' | 'sha512' | 'sha1') ?? 'sha256',
-      identifierFormat: c.nameIdFormat ?? undefined,
-      wantAssertionsSigned: c.wantAssertionsSigned ?? true,
-      acceptedClockSkewMs: typeof c.acceptedClockSkewMs === 'number' ? c.acceptedClockSkewMs : 5000,
-      // RequestedAuthnContext: enforce an assurance level when configured (eIDAS/SPID),
-      // otherwise omit it entirely so IdPs that reject a forced context still work.
-      ...(c.authnContextClassRefs?.length
-        ? { authnContext: c.authnContextClassRefs, racComparison: c.racComparison ?? 'minimum' }
-        : { disableRequestedAuthnContext: true }),
-      forceAuthn: c.forceAuthn ?? false,
-    } as ConstructorParameters<typeof SAML>[0]);
+    return buildSamlClient(this.samlConfig);
   }
 
   /** Build the IdP redirect URL (SP-initiated SSO). */
@@ -142,23 +189,15 @@ export abstract class BaseSamlProvider {
     return assertionXml.match(/<(?:[\w-]+:)?Assertion[^>]*\bID="([^"]+)"/i)?.[1] ?? null;
   }
 
-  /** Reject an assertion ID already seen (Redis SET NX, fail-open on cache outage). */
+  /** Reject an assertion ID already seen (delegates to the shared guard). */
   protected async assertNotReplayed(assertion: SamlValidatedAssertion): Promise<void> {
     const prefix = this.samlConfig.replayKeyPrefix;
-    if (!prefix || !assertion.assertionId) return;
-    const idHash = crypto.createHash('sha256').update(assertion.assertionId).digest('hex');
-    const key = `${prefix}:${idHash}`;
-    const remainingMs = assertion.sessionNotOnOrAfter ? assertion.sessionNotOnOrAfter - Date.now() : 0;
-    const ttlSec = Math.min(60 * 60 * 24, Math.max(60, Math.ceil(remainingMs / 1000) + 60));
-    let stored: 'OK' | null = null;
-    try {
-      stored = (await redis.set(key, '1', 'EX', ttlSec, 'NX')) as 'OK' | null;
-    } catch {
-      return;
-    }
-    if (stored !== 'OK') {
-      ObservabilityService.recordTenantUsage({ tenantId: this.samlConfig.replayScope ?? 'saml', metric: 'saml_replay_blocked', value: 1 });
-      throw new AppError(SamlMessages.REPLAY_DETECTED, 400, ErrorCode.VALIDATION_ERROR);
-    }
+    if (!prefix) return;
+    await assertSamlNotReplayed({
+      assertionId: assertion.assertionId,
+      sessionNotOnOrAfter: assertion.sessionNotOnOrAfter,
+      keyPrefix: prefix,
+      scope: this.samlConfig.replayScope ?? 'saml',
+    });
   }
 }

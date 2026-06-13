@@ -31,8 +31,10 @@ export abstract class BaseSamlAcsProvider extends BaseSamlProvider implements Ac
       signatureAlgorithm: c.signatureAlgorithm,
       nameIdFormat: c.nameIdFormat,
       wantAssertionsSigned: c.wantAssertionsSigned,
-      // Enforce the configured assurance level (eIDAS LoA / SPID SpidL2-L3) when set.
+      // Enforce the configured assurance level (eIDAS LoA / SPID SpidL2-L3) when set;
+      // otherwise omit RequestedAuthnContext (no forced context).
       authnContextClassRefs: c.loa ? [c.loa] : undefined,
+      disableRequestedAuthnContext: !c.loa,
       replayKeyPrefix: `auth_acs:replay:${provider}`,
       replayScope: provider,
     });

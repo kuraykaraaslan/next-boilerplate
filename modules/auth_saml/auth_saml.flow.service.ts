@@ -1,9 +1,8 @@
 import crypto from 'crypto';
 import bcrypt from 'bcrypt';
 import { AppError, ErrorCode } from '@/modules/common/app-error';
-import redis from '@/modules/redis';
-import ObservabilityService from '@/modules/observability';
 import { tenantDataSourceFor } from '@/modules/db';
+import { BaseSamlProvider, assertSamlNotReplayed } from './saml.engine';
 import SamlMessages from './auth_saml.messages';
 import { SamlConfig } from './entities/saml_config.entity';
 import {
@@ -72,9 +71,9 @@ export default class AuthSamlFlowService {
     const assertionXml = typeof (profile as { getAssertionXml?: () => string }).getAssertionXml === 'function'
       ? (profile as { getAssertionXml: () => string }).getAssertionXml()
       : null;
-    const sessionNotOnOrAfter = AuthSamlFlowService.extractSessionNotOnOrAfter(assertionXml);
+    const sessionNotOnOrAfter = BaseSamlProvider.extractSessionNotOnOrAfter(assertionXml);
     const assertionId = (profile as { ID?: string }).ID
-      ?? AuthSamlFlowService.extractAssertionId(assertionXml)
+      ?? BaseSamlProvider.extractAssertionId(assertionXml)
       ?? null;
 
     const built: SamlProfile = {
@@ -106,39 +105,15 @@ export default class AuthSamlFlowService {
     const enabled = await AuthSamlConfigService.settingBool(
       tenantId, AUTH_SAML_SETTING_KEYS.REPLAY_DETECTION_ENABLED, AUTH_SAML_SETTING_DEFAULTS.REPLAY_DETECTION_ENABLED,
     );
-    if (!enabled || !profile.assertionId) return;
-
-    const idHash = crypto.createHash('sha256').update(profile.assertionId).digest('hex');
-    const key = `auth_saml:replay:${tenantId}:${idHash}`;
-    // TTL: time until NotOnOrAfter (+small grace), bounded to [60s, 24h].
-    const remainingMs = profile.sessionNotOnOrAfter ? profile.sessionNotOnOrAfter - Date.now() : 0;
-    const ttlSec = Math.min(60 * 60 * 24, Math.max(60, Math.ceil(remainingMs / 1000) + 60));
-
-    let stored: 'OK' | null = null;
-    try {
-      stored = (await redis.set(key, '1', 'EX', ttlSec, 'NX')) as 'OK' | null;
-    } catch {
-      // Redis unavailable → fail open (do not block logins on cache outage).
-      return;
-    }
-    if (stored !== 'OK') {
-      ObservabilityService.recordTenantUsage({ tenantId, metric: 'saml_replay_blocked', value: 1 });
-      throw new AppError(SamlMessages.REPLAY_DETECTED, 400, ErrorCode.VALIDATION_ERROR);
-    }
-  }
-
-  /** Pull `SessionNotOnOrAfter` (ms epoch) from the assertion's AuthnStatement. */
-  static extractSessionNotOnOrAfter(assertionXml: string | null): number | null {
-    if (!assertionXml) return null;
-    const m = assertionXml.match(/SessionNotOnOrAfter="([^"]+)"/);
-    if (!m) return null;
-    const t = Date.parse(m[1]);
-    return Number.isNaN(t) ? null : t;
-  }
-
-  private static extractAssertionId(assertionXml: string | null): string | null {
-    if (!assertionXml) return null;
-    return assertionXml.match(/<(?:[\w-]+:)?Assertion[^>]*\bID="([^"]+)"/i)?.[1] ?? null;
+    if (!enabled) return;
+    // Shared guard — preserves the per-tenant key (`auth_saml:replay:<tenantId>:<hash>`)
+    // and the `saml_replay_blocked` metric scope.
+    await assertSamlNotReplayed({
+      assertionId: profile.assertionId,
+      sessionNotOnOrAfter: profile.sessionNotOnOrAfter,
+      keyPrefix: `auth_saml:replay:${tenantId}`,
+      scope: tenantId,
+    });
   }
 
   static async generateMetadata(tenantId: string): Promise<SamlMetadata> {

@@ -1,4 +1,5 @@
 import { SAML } from '@node-saml/node-saml';
+import { buildSamlClient } from './saml.engine';
 import { tenantDataSourceFor } from '@/modules/db';
 import redis, { jitter, singleFlight } from '@/modules/redis';
 import { env } from '@/modules/env';
@@ -72,24 +73,23 @@ export default class AuthSamlConfigService {
    *   - logoutUrl      → IdP SLO endpoint (enables LogoutRequest generation).
    */
   static buildSaml(config: SamlConfig, tenantId: string): SAML {
-    const signing = config.signRequests && Boolean(config.spPrivateKey);
-    const algorithm = (config.signatureAlgorithm as SamlSignatureAlgorithm) || 'sha256';
-    return new SAML({
+    // Delegates node-saml construction to the shared engine builder. Behaviour is
+    // preserved: signing gated on signRequests, EMAIL nameId default, SP key as the
+    // decryption key, SLO via idpSloUrl, and node-saml's default RequestedAuthnContext
+    // (we do NOT opt into disableRequestedAuthnContext here).
+    return buildSamlClient({
       callbackUrl: AuthSamlConfigService.acsUrl(tenantId),
-      entryPoint: config.idpSsoUrl,
-      issuer: AuthSamlConfigService.spEntityId(tenantId),
-      idpCert: config.idpCertificate,
-      // Only supply the private key when request-signing is enabled, so an IdP
-      // that rejects signed requests (some on-prem ADFS) gets unsigned ones.
-      privateKey: signing ? (config.spPrivateKey ?? undefined) : undefined,
-      // Decrypt EncryptedAssertion with the SP private key when present.
-      decryptionPvk: config.spPrivateKey ?? undefined,
-      signatureAlgorithm: algorithm,
-      identifierFormat: config.nameIdFormat ?? SAML_NAME_ID_FORMATS.EMAIL,
+      idpSsoUrl: config.idpSsoUrl,
+      spEntityId: AuthSamlConfigService.spEntityId(tenantId),
+      idpCertificate: config.idpCertificate,
+      spPrivateKey: config.spPrivateKey ?? undefined,
+      signRequests: Boolean(config.signRequests),
+      signatureAlgorithm: (config.signatureAlgorithm as SamlSignatureAlgorithm) || 'sha256',
+      nameIdFormat: config.nameIdFormat ?? SAML_NAME_ID_FORMATS.EMAIL,
       wantAssertionsSigned: config.wantAssertionsSigned ?? true,
       acceptedClockSkewMs: typeof config.clockSkewMs === 'number' ? config.clockSkewMs : 5000,
       logoutUrl: config.idpSloUrl || undefined,
-    } as ConstructorParameters<typeof SAML>[0]);
+    });
   }
 
   static async getConfig(tenantId: string): Promise<SafeSamlConfig | null> {
