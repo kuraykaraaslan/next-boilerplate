@@ -37,6 +37,17 @@ export class TenantMember {
   @Column({ type: 'int', default: 0 })
   sessionVersion!: number;
 
+  // ── Suspension (reason + optional auto-expiry) ──────────────────────────
+  @Column({ type: 'varchar', length: 512, nullable: true })
+  suspensionReason?: string | null;
+
+  @Column({ type: 'timestamp', nullable: true })
+  suspendedUntil?: Date | null;
+
+  // ── Activity tracking ───────────────────────────────────────────────────
+  @Column({ type: 'timestamp', nullable: true })
+  lastActiveAt?: Date | null;
+
   @CreateDateColumn({ type: 'timestamp' })
   createdAt!: Date;
 

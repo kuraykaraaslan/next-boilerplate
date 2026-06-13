@@ -16,7 +16,7 @@
 **Multi-tenant relevance:** Enterprise tenants need departmental isolation within their own tenant; a billing manager should not have access to member management screens.
 **Multi-country relevance:** GDPR Art. 25 (data minimization) requires limiting access to personal data on a need-to-know basis — coarse-grained role checks cannot satisfy this at the resource level.
 
-### `defaultMemberRole` Setting Wired to Registration Route
+### ✅ `defaultMemberRole` Setting Wired to Registration Route
 **Why:** The `defaultMemberRole` setting is declared in `tenant_member.settings.fields.ts`, shown in the UI, and documented in the README, but the registration route only fetches `allowSelfRegistration` — the configured value is always `undefined` and silently falls back to `USER`.
 **Complexity:** Low
 **Multi-tenant relevance:** A tenant that configures `defaultMemberRole: ADMIN` expects new self-registering users to join as admins; the broken wiring means this setting has no effect, surprising tenant admins.
@@ -24,19 +24,19 @@
 
 ## Member Lifecycle
 
-### Member Suspension with Reason and Duration
+### ✅ Member Suspension with Reason and Duration
 **Why:** `memberStatus` can be `SUSPENDED` but `update` accepts no reason field and no automatic reinstatement date — suspension is manual and opaque with no audit trail of why it was applied.
 **Complexity:** Low
 **Multi-tenant relevance:** Enterprise HR processes require suspension to carry a reason (e.g., "on leave", "under investigation") and an expected reinstatement date for workforce management integrations.
 **Multi-country relevance:** German Works Council law (§ 87 BetrVG) and French labor law require documented justification for access suspension; a reason field allows the platform to generate a compliant audit record.
 
-### Member Last-Active Tracking
+### ✅ Member Last-Active Tracking
 **Why:** The `TenantMember` entity has no `lastActiveAt` column — there is no way to identify dormant members for automated seat reclamation, compliance-driven access reviews, or licence optimization.
 **Complexity:** Low
 **Multi-tenant relevance:** SaaS platforms with per-seat billing need to identify unused seats; tenant admins want to see who has not logged in for 90+ days to reclaim those seats.
 **Multi-country relevance:** ISO 27001 A.9.2.5 (review of user access rights) and SOC 2 CC6.2 require periodic access reviews — last-active data enables automated flagging of dormant accounts.
 
-### Membership Transfer to Another User (Ownership Transfer)
+### ✅ Membership Transfer to Another User (Ownership Transfer)
 **Why:** There is no service method to atomically transfer `OWNER` membership from one user to another — the only workaround is promoting the new user to OWNER and then demoting the old one, which requires two API calls and leaves a window where there are two owners.
 **Complexity:** Low
 **Multi-tenant relevance:** Founding member leaves the company, new CEO must take over the tenant — a single atomic transfer operation is safer than a multi-step workaround.
