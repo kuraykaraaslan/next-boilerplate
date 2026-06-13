@@ -33,6 +33,30 @@ export class FulfillmentItem {
   @Column({ type: 'int', default: 1 })
   quantity!: number;
 
+  // Quantity still backordered / awaiting restock for this line.
+  @Column({ type: 'int', default: 0 })
+  backorderedQuantity!: number;
+
+  // Customs / export per-line fields.
+  @Column({ nullable: true, type: 'varchar', length: 14 })
+  hsCode?: string;
+
+  @Column({ nullable: true, type: 'varchar', length: 2 })
+  countryOfOrigin?: string;
+
+  @Column({ nullable: true, type: 'decimal', precision: 12, scale: 2, transformer: { to: (v) => v, from: (v) => v == null ? v : parseFloat(v) } })
+  unitValue?: number | null;
+
+  // Dangerous-goods (ADR / IATA DGR) classification.
+  @Column({ type: 'boolean', default: false })
+  isDangerousGoods!: boolean;
+
+  @Column({ nullable: true, type: 'varchar', length: 20 })
+  hazmatClass?: string;
+
+  @Column({ nullable: true, type: 'varchar', length: 10 })
+  unNumber?: string;
+
   @CreateDateColumn({ type: 'timestamp' })
   createdAt!: Date;
 

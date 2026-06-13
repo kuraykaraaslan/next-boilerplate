@@ -33,6 +33,47 @@ export class Fulfillment {
   @Column({ nullable: true, type: 'uuid' })
   shippingMethodId?: string;
 
+  // Origin warehouse + country (multi-warehouse routing, customs origin).
+  @Index()
+  @Column({ nullable: true, type: 'uuid' })
+  warehouseId?: string;
+
+  @Column({ nullable: true, type: 'varchar', length: 2 })
+  originCountry?: string;
+
+  // Link to a payment_return_rma return request when this shipment is returned.
+  @Column({ nullable: true, type: 'uuid' })
+  returnRequestId?: string;
+
+  // Platform-hosted branded tracking token (tenant.com/track/{token}).
+  @Index({ unique: true })
+  @Column({ nullable: true, type: 'varchar' })
+  publicTrackingToken?: string;
+
+  // SLA / promised delivery date.
+  @Column({ nullable: true, type: 'timestamp' })
+  estimatedDeliveryAt?: Date | null;
+
+  // Split-shipment: true when this shipment covers only part of the order.
+  @Column({ type: 'boolean', default: false })
+  isPartial!: boolean;
+
+  // Customs / export documentation fields.
+  @Column({ nullable: true, type: 'decimal', precision: 8, scale: 3, transformer: { to: (v) => v, from: (v) => v == null ? v : parseFloat(v) } })
+  weightKg?: number | null;
+
+  @Column({ type: 'jsonb', nullable: true })
+  dimensions?: { length?: number; width?: number; height?: number; unit?: string };
+
+  @Column({ nullable: true, type: 'decimal', precision: 12, scale: 2, transformer: { to: (v) => v, from: (v) => v == null ? v : parseFloat(v) } })
+  declaredValue?: number | null;
+
+  @Column({ nullable: true, type: 'varchar', length: 3 })
+  customsCurrency?: string;
+
+  @Column({ type: 'jsonb', nullable: true })
+  customsData?: unknown;
+
   @Column({ nullable: true, type: 'text' })
   notes?: string;
 
@@ -50,6 +91,9 @@ export class Fulfillment {
 
   @Column({ nullable: true, type: 'timestamp' })
   cancelledAt?: Date;
+
+  @Column({ nullable: true, type: 'timestamp' })
+  returnedAt?: Date;
 
   @Index()
   @CreateDateColumn({ type: 'timestamp' })

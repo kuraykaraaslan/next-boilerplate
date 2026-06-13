@@ -60,6 +60,7 @@ import { DynamicCollectionItem } from '@/modules/dynamic_page/entities/dynamic_c
 import { Fulfillment } from '@/modules/order_fulfillment/entities/fulfillment.entity';
 import { FulfillmentItem } from '@/modules/order_fulfillment/entities/fulfillment_item.entity';
 import { FulfillmentEvent } from '@/modules/order_fulfillment/entities/fulfillment_event.entity';
+import { Warehouse } from '@/modules/order_fulfillment/entities/warehouse.entity';
 import { Cart } from '@/modules/payment_cart/entities/cart.entity';
 import { CartItem } from '@/modules/payment_cart/entities/cart_item.entity';
 import { ShippingMethod } from '@/modules/payment_shipping/entities/shipping_method.entity';
@@ -143,6 +144,7 @@ export const ENTITIES = [
   Fulfillment,
   FulfillmentItem,
   FulfillmentEvent,
+  Warehouse,
   Cart,
   CartItem,
   ShippingMethod,

@@ -11,4 +11,11 @@ export const ORDER_FULFILLMENT_MESSAGES = {
   TRACKING_REQUIRED: 'Tracking number and carrier are required',
 
   EVENT_LOG_FAILED: 'Failed to log fulfillment event',
+
+  CARRIER_NOT_ALLOWED: 'This carrier is not enabled for your tenant',
+  WAREHOUSE_NOT_FOUND: 'Warehouse not found',
+  WAREHOUSE_CODE_TAKEN: 'A warehouse with this code already exists',
+  TRACKING_NOT_AVAILABLE: 'Live tracking is not available for this shipment',
+  DANGEROUS_GOODS_INCOMPLETE: 'Dangerous goods items require a hazmat class and UN number',
+  PUBLIC_TRACKING_NOT_FOUND: 'No shipment found for this tracking link',
 } as const

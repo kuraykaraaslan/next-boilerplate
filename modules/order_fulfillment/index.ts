@@ -1,4 +1,8 @@
 export { default as OrderFulfillmentService } from './order_fulfillment.service'
+export { default as OrderFulfillmentWarehouseService } from './order_fulfillment.warehouse.service'
+export { default as OrderFulfillmentCarrierService } from './order_fulfillment.carrier.service'
+export { default as OrderFulfillmentAnalyticsService } from './order_fulfillment.analytics.service'
+export type { CustomsDeclaration } from './order_fulfillment.analytics.service'
 export * from './order_fulfillment.enums'
 export * from './order_fulfillment.types'
 export * from './order_fulfillment.dto'
