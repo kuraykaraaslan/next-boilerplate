@@ -4,13 +4,13 @@
 
 ## Multi-Currency Support
 
-### Additional Currency Pairs Beyond USD/TRY
+### ✅ Additional Currency Pairs Beyond USD/TRY
 **Why:** The service today only supports `USD <-> TRY` and throws `UNSUPPORTED_PAIR` for everything else. Any tenant pricing their subscription plans in EUR, GBP, CAD, or AED cannot convert to TRY at checkout, and no cross-currency conversion is possible for any other market.
 **Complexity:** Medium
 **Multi-tenant relevance:** Tenants whose plans are priced in non-USD currencies (common for EU or GCC-focused SaaS products) are completely blocked from TRY checkout.
 **Multi-country relevance:** Essential: the TCMB XML feed already publishes rates for EUR, GBP, CHF, JPY, AED, and dozens more — the code simply does not parse them yet.
 
-### Cross-Rate Derivation via Base Currency
+### ✅ Cross-Rate Derivation via Base Currency
 **Why:** Rather than fetching pair-specific rates, all rates can be expressed relative to TRY (the TCMB feed's base) and cross-rates (e.g. EUR→USD) can be derived as `EUR/TRY ÷ USD/TRY`. This gives O(1) query-time for any pair without additional API calls.
 **Complexity:** Medium
 **Multi-tenant relevance:** Tenants in different currency zones can then all be served by the same cached TCMB snapshot.
@@ -20,13 +20,13 @@
 
 ## Multiple Rate Sources / Provider Abstraction
 
-### Secondary FX Data Provider (Fallback)
+### ✅ Secondary FX Data Provider (Fallback)
 **Why:** The service uses a single source (TCMB) with a 30-day "last known good" fallback. If TCMB changes its XML schema or URL, the service degrades silently to stale data for up to 30 days. A secondary provider (ECB, Open Exchange Rates, Frankfurter.app) as a hot-standby or cross-check would eliminate this single point of failure.
 **Complexity:** Medium
 **Multi-tenant relevance:** All tenants share the same FX feed; a TCMB outage or schema change simultaneously breaks checkout for every tenant.
 **Multi-country relevance:** TCMB is authoritative only for TRY. For non-TRY markets (e.g. EUR-base with conversion to GBP), the ECB is more appropriate and legally recognised in some jurisdictions.
 
-### Provider Abstraction Layer
+### ✅ Provider Abstraction Layer
 **Why:** The rate-fetch logic (`getUsdTry`) is tightly coupled to TCMB's XML format, URL, and cache-key naming. Swapping or adding a provider requires editing the core service file. A `FxProvider` interface (similar to the `InvoiceAdapter` pattern already used in this codebase) would allow pluggable providers without changes to the core service.
 **Complexity:** Medium
 **Multi-tenant relevance:** Platform operators could select a provider per deployment environment (TCMB for TR prod, ECB mock for EU dev).
@@ -48,13 +48,13 @@
 **Multi-tenant relevance:** All tenants share the cache; a badly-behaved key for one currency pair should not invalidate rates for all pairs.
 **Multi-country relevance:** Prerequisite for any multi-currency rollout.
 
-### Cache Warmup Job
+### ✅ Cache Warmup Job
 **Why:** On a cold Redis restart (e.g. after a deploy or Redis failure), the first request for each currency pair triggers a live TCMB fetch. Under simultaneous load, `singleFlight` helps but there is still one live request per server process. A scheduled warmup job (e.g. every 4 hours) could pre-populate the cache before it expires, eliminating cold-start latency spikes at checkout.
 **Complexity:** Low
 **Multi-tenant relevance:** All tenants are affected simultaneously by a cold cache; a warmup job benefits the entire platform.
 **Multi-country relevance:** Warmup is especially important during market-open hours (08:00–10:00 TRT) when checkout traffic is highest and TCMB rates have just been updated.
 
-### Rate Staleness Alerting
+### ✅ Rate Staleness Alerting
 **Why:** When the TCMB fetch fails and the stale rate is served, a `Logger.warn` is emitted but there is no metric, alert, or admin notification. In production, a stale rate served for hours could cause meaningful pricing errors.
 **Complexity:** Low
 **Multi-tenant relevance:** Platform ops team needs a signal to act; all tenants are affected.
@@ -80,13 +80,13 @@
 
 ## Localisation and Legal
 
-### Configurable Rounding Mode per Currency
+### ✅ Configurable Rounding Mode per Currency
 **Why:** `convert()` rounds to 2 decimal places using half-up rounding, which is correct for most currencies. JPY and KWD use 0 and 3 decimal places respectively. A hardcoded 2-dp rounding produces incorrect amounts for these currencies.
 **Complexity:** Low
 **Multi-tenant relevance:** Tenants billing in non-standard-precision currencies get incorrect totals.
 **Multi-country relevance:** ISO 4217 defines different minor unit precision per currency; a production multi-currency platform must respect these.
 
-### Bid/Ask Spread Support
+### ✅ Bid/Ask Spread Support
 **Why:** TCMB publishes both `ForexBuying` and `ForexSelling` rates. The service always uses `ForexSelling`. For some checkout flows (e.g. refunds, where the bank buys back currency), the buying rate is the correct one to apply. Exposing the rate type as a parameter would allow callers to choose the appropriate rate.
 **Complexity:** Low
 **Multi-tenant relevance:** Tenants processing refunds across currencies need the correct directional rate to avoid systematic over- or under-refunding.
