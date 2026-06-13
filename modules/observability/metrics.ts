@@ -29,6 +29,7 @@ export interface MetricBundle {
   httpDuration: AnyHistogram;
   errors: AnyCounter;
   tenantUsage: AnyCounter;
+  rateLimitHits: AnyCounter;
 }
 
 let _bundle: MetricBundle | null = null;
@@ -71,8 +72,14 @@ export async function initMetrics(): Promise<MetricBundle | null> {
       labelNames: ['tenantId', 'metric'],
       registers: [registry],
     });
+    const rateLimitHits: AnyCounter = new prom.Counter({
+      name: 'rate_limit_hits_total',
+      help: 'Rate-limit rejections by scope',
+      labelNames: ['scope', 'tenantId'],
+      registers: [registry],
+    });
 
-    _bundle = { registry, httpRequests, httpDuration, errors, tenantUsage };
+    _bundle = { registry, httpRequests, httpDuration, errors, tenantUsage, rateLimitHits };
     Logger.info('[observability] Prometheus registry initialised');
     return _bundle;
   } catch (err) {

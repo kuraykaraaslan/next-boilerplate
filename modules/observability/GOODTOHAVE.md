@@ -4,7 +4,7 @@
 
 ## Per-Tenant Dashboards & Isolation
 
-### Tenant-Scoped Prometheus Label Cardinality Guard
+### ✅ Tenant-Scoped Prometheus Label Cardinality Guard
 **Why:** `recordHttpRequest` and `recordTenantUsage` accept `tenantId` as a free-form label. If the number of active tenants grows to hundreds or thousands, the Prometheus label cardinality (one series per `tenantId × route × status`) will blow up memory on the scrape server. There is no cap, aggregation, or top-N guard today.
 **Complexity:** Medium
 **Multi-tenant relevance:** Critical at scale — each new tenant adds Prometheus series. Without a guard, onboarding a large customer cohort can crash the metrics backend.
@@ -26,7 +26,7 @@
 
 ## Error Reporting
 
-### PII Redaction before Sentry Event Dispatch
+### ✅ PII Redaction before Sentry Event Dispatch
 **Why:** `recordError` forwards `opts.extra` verbatim to Sentry and the `beforeSend` hook attaches raw context from Logger's `AsyncLocalStorage`. If any context value contains an email, IP address, or name, it ships to Sentry — a third-party processor — without redaction. This is documented as a caller responsibility but not enforced.
 **Complexity:** Medium
 **Multi-tenant relevance:** Different tenants may handle different categories of personal data; a shared Sentry project would receive all tenants' PII in a single unscoped stream.

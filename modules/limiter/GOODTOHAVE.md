@@ -4,7 +4,7 @@
 
 ## Plan-Driven Quota Wiring
 
-### Automatic Plan-Limit Resolution
+### ✅ Automatic Plan-Limit Resolution
 **Why:** `checkTenantPlanRateLimit` receives `limitPerMinute` as a caller-supplied argument, but no in-repo code path resolves that value from the tenant's actual subscription plan feature key — callers must hard-code a number or write their own resolver, which defeats the purpose of plan-based enforcement.
 **Complexity:** Medium
 **Multi-tenant relevance:** Each tenant's plan defines their API throughput allowance; the limiter should pull that value from `tenant_subscription` automatically so upgrading a plan takes effect immediately without code changes.
@@ -36,13 +36,13 @@
 
 ## Observability & Transparency
 
-### Rate-Limit Hit Counter in Prometheus / Observability
+### ✅ Rate-Limit Hit Counter in Prometheus / Observability
 **Why:** Today, limit breaches are logged as `Logger.warn` lines only. There is no Prometheus counter or ObservabilityService call, so Grafana dashboards cannot show rate-limit hit rates, identify abusive tenants, or alert on sustained abuse.
 **Complexity:** Low
 **Multi-tenant relevance:** A per-tenant hit counter label lets operators see which tenant is consistently throttled and whether a plan upgrade is warranted.
 **Multi-country relevance:** A per-country dimension on the counter enables geo-based abuse detection without trawling log files.
 
-### `Retry-After` Propagation for Sliding-Window Limiter
+### ✅ `Retry-After` Propagation for Sliding-Window Limiter
 **Why:** The sliding-window `checkSlidingWindowRateLimit` returns `{ success, remaining, limit }` but does not return a `retryAfterMs` value. The HTTP adapter's `429` response therefore cannot set an accurate `Retry-After` header for tenant-plan limits, only for the fixed-window IP limiter.
 **Complexity:** Low
 **Multi-tenant relevance:** Enterprise tenants integrating the API programmatically depend on `Retry-After` to implement correct back-off; absent it they must guess or poll.
@@ -52,7 +52,7 @@
 
 ## Resilience & Fail-Behaviour Policy
 
-### Configurable Fail-Open vs. Fail-Closed Policy
+### ✅ Configurable Fail-Open vs. Fail-Closed Policy
 **Why:** Both services currently fail-open (return `{ success: true }`) on Redis errors. This is documented but not configurable — some tenants or scopes (e.g. `auth`) may prefer fail-closed (`429`) because an unenforced auth scope is a security risk.
 **Complexity:** Low
 **Multi-tenant relevance:** Security-sensitive tenants (e.g. financial-services customers) may contractually require fail-closed behavior on the auth scope; a single global fail-open policy cannot satisfy both audiences.

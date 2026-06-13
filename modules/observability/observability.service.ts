@@ -21,6 +21,39 @@ import type {
 export default class ObservabilityService {
   private static _initStarted = false;
 
+  // ── Label-cardinality guard ────────────────────────────────────────────
+  // Prometheus time-series count multiplies per distinct label value. An
+  // unbounded `tenantId` label (thousands of tenants) explodes memory. We cap
+  // the number of distinct tenant labels; overflow collapses to `other`.
+  private static readonly _MAX_TENANT_LABELS = 2000;
+  private static readonly _seenTenantLabels = new Set<string>();
+
+  /** Bound the tenantId label to a safe cardinality. */
+  static boundTenantLabel(tenantId: string | null | undefined): string {
+    if (!tenantId) return 'none';
+    const id = String(tenantId);
+    if (ObservabilityService._seenTenantLabels.has(id)) return id;
+    if (ObservabilityService._seenTenantLabels.size >= ObservabilityService._MAX_TENANT_LABELS) return 'other';
+    ObservabilityService._seenTenantLabels.add(id);
+    return id;
+  }
+
+  // ── PII redaction ──────────────────────────────────────────────────────
+  // Sentry `extra` is forwarded to a third-party processor; scrub obvious PII /
+  // secrets so they never leave the platform, even if a caller is careless.
+  private static readonly _PII_KEY = /pass|secret|token|authorization|cookie|api[-_]?key|email|phone|ssn|card|cvv|iban|otp|seed|private[-_]?key/i;
+  private static readonly _EMAIL_RE = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
+
+  /** Redact PII/secret values from an `extra` bag before it reaches Sentry. */
+  static redactExtra(extra: Record<string, unknown>): Record<string, unknown> {
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(extra)) {
+      if (ObservabilityService._PII_KEY.test(k)) { out[k] = '[redacted]'; continue; }
+      out[k] = typeof v === 'string' ? v.replace(ObservabilityService._EMAIL_RE, '[email]') : v;
+    }
+    return out;
+  }
+
   /**
    * Boot Sentry + Prometheus. Safe to call repeatedly — first call wins.
    * Called from `instrumentation.ts` (Next.js server boot) and from tests
@@ -62,7 +95,7 @@ export default class ObservabilityService {
       method: sample.method,
       route: sample.route,
       status: String(sample.status),
-      tenantId: sample.tenantId ?? 'none',
+      tenantId: ObservabilityService.boundTenantLabel(sample.tenantId),
     };
     m.httpRequests.inc(labels);
     m.httpDuration.observe(labels, sample.latencyMs / 1000);
@@ -83,15 +116,15 @@ export default class ObservabilityService {
         if (userId) scope.setUser({ id: String(userId) });
         if (opts.fingerprint) scope.setFingerprint(opts.fingerprint);
         if (opts.level) scope.setLevel(opts.level);
-        // Callers must not place secrets or PII in `extra` — it is forwarded verbatim to Sentry.
-        if (opts.extra) Object.entries(opts.extra).forEach(([k, v]) => scope.setExtra(k, v));
+        // Defense-in-depth: PII/secret keys and emails are redacted before send.
+        if (opts.extra) Object.entries(ObservabilityService.redactExtra(opts.extra)).forEach(([k, v]) => scope.setExtra(k, v));
         sentry.captureException(err);
       });
     }
     const m = getMetrics();
     if (m) {
-      const tenantId = opts.tenantId ?? Logger.getContext().tenantId ?? 'none';
-      m.errors.inc({ tenantId: String(tenantId), errorClass: err.constructor.name });
+      const tenantId = opts.tenantId ?? Logger.getContext().tenantId;
+      m.errors.inc({ tenantId: ObservabilityService.boundTenantLabel(tenantId as string | undefined), errorClass: err.constructor.name });
     }
   }
 
@@ -103,7 +136,14 @@ export default class ObservabilityService {
   static recordTenantUsage(sample: TenantUsageSample): void {
     const m = getMetrics();
     if (!m) return;
-    m.tenantUsage.inc({ tenantId: sample.tenantId, metric: sample.metric }, sample.value);
+    m.tenantUsage.inc({ tenantId: ObservabilityService.boundTenantLabel(sample.tenantId), metric: sample.metric }, sample.value);
+  }
+
+  /** Count a rate-limit rejection for Grafana/alerting. Best-effort. */
+  static recordRateLimitHit(scope: string, tenantId?: string | null): void {
+    const m = getMetrics();
+    if (!m) return;
+    m.rateLimitHits.inc({ scope, tenantId: ObservabilityService.boundTenantLabel(tenantId) });
   }
 
   /**
