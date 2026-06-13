@@ -72,5 +72,14 @@ export const TaxCalculationResultSchema = z.object({
   totalGross: z.number(),
   lines: z.array(TaxCalculationLineSchema),
   appliedRates: z.number().int(),
+  /** True when tax was zeroed by a customer exemption. */
+  exempt: z.boolean().default(false),
+  /** True when tax was zeroed by intra-EU B2B reverse charge. */
+  reverseCharge: z.boolean().default(false),
+  /** Reason when tax is zero (exemption / reverse-charge), else null. */
+  zeroRatedReason: z.string().nullable().default(null),
+  /** Echo of the applied rounding policy, for auditability. */
+  roundingMode: z.string().default('half-up'),
+  roundingLevel: z.string().default('line'),
 })
 export type TaxCalculationResult = z.infer<typeof TaxCalculationResultSchema>

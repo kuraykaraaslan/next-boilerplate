@@ -1,7 +1,9 @@
 import PaymentTaxCrudService from './payment_tax.crud.service';
 import PaymentTaxCalcService from './payment_tax.calc.service';
+import PaymentTaxReportService from './payment_tax.report.service';
+import { validateVatNumber, qualifiesForReverseCharge } from './payment_tax.vat';
 
-export { PaymentTaxCrudService, PaymentTaxCalcService };
+export { PaymentTaxCrudService, PaymentTaxCalcService, PaymentTaxReportService };
 
 export default class PaymentTaxService {
 
@@ -29,4 +31,17 @@ export default class PaymentTaxService {
   // ──────────────────────────────────────────────
 
   static calculateTax = PaymentTaxCalcService.calculateTax.bind(PaymentTaxCalcService);
+
+  // ──────────────────────────────────────────────
+  // VAT validation / reverse-charge (foundation for invoice & checkout)
+  // ──────────────────────────────────────────────
+
+  static validateVatNumber = validateVatNumber;
+  static qualifiesForReverseCharge = qualifiesForReverseCharge;
+
+  // ──────────────────────────────────────────────
+  // Reporting
+  // ──────────────────────────────────────────────
+
+  static getTaxReport = PaymentTaxReportService.getReport.bind(PaymentTaxReportService);
 }

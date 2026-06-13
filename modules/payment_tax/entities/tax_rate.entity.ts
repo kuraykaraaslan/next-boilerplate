@@ -55,6 +55,17 @@ export class TaxRate {
   @Column({ type: 'boolean', default: true })
   isActive!: boolean;
 
+  // ── Effective dating (rate-change history) ──────────────────────────────
+  // A rate only applies to a calculation whose date falls within the window.
+  // Null effectiveFrom = always-in-effect from creation; null effectiveTo =
+  // open-ended. Lets a tenant schedule a VAT change without deleting the old
+  // rate, preserving the audit history of what applied when.
+  @Column({ nullable: true, type: 'timestamp' })
+  effectiveFrom?: Date;
+
+  @Column({ nullable: true, type: 'timestamp' })
+  effectiveTo?: Date;
+
   @Index()
   @CreateDateColumn({ type: 'timestamp' })
   createdAt!: Date;

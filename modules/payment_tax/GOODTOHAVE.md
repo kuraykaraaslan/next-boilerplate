@@ -10,7 +10,7 @@
 **Multi-tenant relevance:** Any tenant selling digital services (SaaS, digital content) to EU consumers must apply destination-based VAT; the current engine applies rates based on `countryCode` but has no enforcement mechanism ensuring the correct member-state rate is used.
 **Multi-country relevance:** OSS covers 27 EU member states each with their own standard and reduced rates; the rate matrix must be complete and automatically applied based on buyer country.
 
-### VAT Number Validation and B2B Zero-Rating (Reverse Charge)
+### ✅ VAT Number Validation and B2B Zero-Rating (Reverse Charge)
 **Why:** The module has no concept of a buyer's VAT number; EU B2B transactions (reverse charge mechanism) should be zero-rated when the buyer has a valid EU VAT number in a different member state, but this logic is entirely absent.
 **Complexity:** Medium
 **Multi-tenant relevance:** Tenants selling B2B across EU borders who do not apply reverse charge will over-collect VAT and face compliance audits.
@@ -48,19 +48,19 @@
 
 ## Rounding & Precision
 
-### Zero-Decimal Currency Rounding Support
+### ✅ Zero-Decimal Currency Rounding Support
 **Why:** `round2()` always rounds to 2 decimal places; currencies like JPY, KRW, VND, and CLP have no minor units and must be rounded to 0 decimal places, producing incorrect tax amounts (e.g. `¥21.75` is not a valid JPY amount).
 **Complexity:** Low
 **Multi-tenant relevance:** Tenants targeting Japan, South Korea, Vietnam, or Chile need correct zero-decimal handling; all are exposed to this bug.
 **Multi-country relevance:** Zero-decimal currencies are dominant in East Asia and some Latin American markets; the fix requires only a per-currency decimal lookup.
 
-### Banker's Rounding (Half-Even) Option
+### ✅ Banker's Rounding (Half-Even) Option
 **Why:** `Math.round()` uses "round half up" (0.5 → 1), which can introduce systematic upward bias on large volumes of transactions; EU tax compliance guidance and some national standards require banker's rounding (half-even).
 **Complexity:** Low
 **Multi-tenant relevance:** High-volume tenants (thousands of transactions per day) accumulate rounding errors that may trigger audit scrutiny.
 **Multi-country relevance:** Several European tax authorities specify half-even rounding in their VAT guidance; the rounding mode should be per-tenant or per-jurisdiction configurable.
 
-### Line-Level vs. Order-Level Tax Rounding
+### ✅ Line-Level vs. Order-Level Tax Rounding
 **Why:** Taxes are currently rounded at the line level and summed; some tax jurisdictions require tax to be rounded at the order level (apply rate to total, then round once), which produces a different total.
 **Complexity:** Medium
 **Multi-tenant relevance:** Tenants operating in jurisdictions with order-level rounding requirements will have discrepancies between their calculated and reported tax amounts.
@@ -68,7 +68,7 @@
 
 ## Tax Exemptions & Special Cases
 
-### Customer-Level Tax Exemption (Reseller / Non-Profit)
+### ✅ Customer-Level Tax Exemption (Reseller / Non-Profit)
 **Why:** There is no way to mark a specific customer or user as tax-exempt (e.g. a reseller with a tax exemption certificate, or a non-profit organization); all customers receive the same tax calculation.
 **Complexity:** Medium
 **Multi-tenant relevance:** B2B tenants regularly deal with resellers and exempt organizations; tax exemption certificates must be stored and respected at checkout.
@@ -88,19 +88,19 @@
 
 ## Reporting & Compliance Output
 
-### Tax Report Generation (Period-Based)
+### ✅ Tax Report Generation (Period-Based)
 **Why:** There is no service method to aggregate tax collected for a given tenant across a date range; filing a VAT/GST return requires summing `taxAmount` by jurisdiction for the period, which must be queried from the `payment_sell` / invoice records — but there is no cross-module aggregate available.
 **Complexity:** Medium
 **Multi-tenant relevance:** Every tenant must file periodic tax returns; an aggregate reporting service per tenant eliminates manual spreadsheet work.
 **Multi-country relevance:** Tax reporting periods differ by country (monthly in Germany, quarterly in UK, annually in some US states); the reporting service needs to support flexible period parameters.
 
-### Tax Calculation Audit Log
+### ✅ Tax Calculation Audit Log
 **Why:** `calculateTax` returns a result but does not persist the calculation inputs or outputs; if a tax authority audits a past transaction, the calculation that produced the charged amount cannot be reproduced from the current live `TaxRate` rows (which may have changed since the transaction).
 **Complexity:** Medium
 **Multi-tenant relevance:** Every tenant is subject to tax audits; immutable audit records of tax calculations are a compliance necessity.
 **Multi-country relevance:** Tax record retention requirements range from 5 years (UK) to 10 years (Germany) to indefinite (some APAC jurisdictions); per-country retention policies must be supported.
 
-### Tax Rate Change History / Effective Date Support
+### ✅ Tax Rate Change History / Effective Date Support
 **Why:** `TaxRate` has no `effectiveFrom` / `effectiveTo` date columns; when a government changes a VAT rate (e.g. Turkey's 2023 KDV increase from 18% to 20%), updating the rate immediately applies it to all historical recalculations retroactively.
 **Complexity:** Medium
 **Multi-tenant relevance:** All tenants with recurring billing or refund scenarios are affected by retroactive rate application.

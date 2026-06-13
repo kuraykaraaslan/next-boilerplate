@@ -1,4 +1,6 @@
 export { default as PaymentTaxService } from './payment_tax.service'
+export { roundMoney, roundTo, currencyDecimals, type RoundingMode } from './payment_tax.rounding'
+export { validateVatNumber, qualifiesForReverseCharge, type VatValidationResult } from './payment_tax.vat'
 export * from './payment_tax.enums'
 export * from './payment_tax.types'
 export * from './payment_tax.dto'

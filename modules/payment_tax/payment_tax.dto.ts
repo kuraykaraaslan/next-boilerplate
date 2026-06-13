@@ -36,6 +36,8 @@ export const CreateTaxRateDTO = z.object({
   includedInPrice: z.boolean().default(false),
   priority: z.number().int().default(0),
   isActive: z.boolean().default(true),
+  effectiveFrom: z.coerce.date().optional(),
+  effectiveTo: z.coerce.date().optional(),
 })
 export type CreateTaxRateDTO = z.infer<typeof CreateTaxRateDTO>
 
@@ -50,6 +52,8 @@ export const UpdateTaxRateDTO = z.object({
   includedInPrice: z.boolean().optional(),
   priority: z.number().int().optional(),
   isActive: z.boolean().optional(),
+  effectiveFrom: z.coerce.date().nullable().optional(),
+  effectiveTo: z.coerce.date().nullable().optional(),
 })
 export type UpdateTaxRateDTO = z.infer<typeof UpdateTaxRateDTO>
 
@@ -72,6 +76,19 @@ export const CalculateTaxDTO = z.object({
       taxClassCode: z.string().optional(),
     }),
   ),
+  // ── Rounding policy ───────────────────────────────────────────────────────
+  /** 'half-up' (default, commercial) or 'half-even' (banker's rounding). */
+  roundingMode: z.enum(['half-up', 'half-even']).default('half-up'),
+  /** Round per line (default) or once at the order total. */
+  roundingLevel: z.enum(['line', 'order']).default('line'),
+  // ── Exemption / reverse-charge ────────────────────────────────────────────
+  /** Customer is tax-exempt (reseller / non-profit / diplomatic) → zeroes tax. */
+  exempt: z.boolean().default(false),
+  exemptionReason: z.string().optional(),
+  /** B2B intra-EU reverse charge: liability shifts to the buyer → zero-rated. */
+  reverseCharge: z.boolean().default(false),
+  /** Point-in-time for effective-dated rate selection (defaults to now). */
+  at: z.coerce.date().optional(),
 })
 export type CalculateTaxDTO = z.infer<typeof CalculateTaxDTO>
 
