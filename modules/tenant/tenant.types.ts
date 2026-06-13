@@ -7,6 +7,8 @@ export const TenantSchema = z.object({
   name: z.string(),
   description: z.string().nullable(),
   region: z.string().nullable().optional(),
+  slug: z.string().nullable().optional(),
+  metadata: z.record(z.string(), z.unknown()).nullable().optional(),
   tenantStatus: TenantStatusEnum.default('ACTIVE'),
   createdAt: z.date().nullable(),
   updatedAt: z.date().nullable(),

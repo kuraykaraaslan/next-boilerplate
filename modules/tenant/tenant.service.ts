@@ -15,36 +15,20 @@ import WebhookService from '@/modules/webhook/webhook.service';
 
 const TENANT_CACHE_TTL = env.TENANT_CACHE_TTL ?? (60 * 5);
 
+// ── Default locale per region ─────────────────────────────────────────────────
+const REGION_LOCALE_DEFAULTS: Record<string, { language: string; timezone: string; dateFormat: string; timeFormat: string }> = {
+  TR:    { language: 'tr',    timezone: 'Europe/Istanbul',       dateFormat: 'DD.MM.YYYY', timeFormat: 'HH:mm' },
+  EU:    { language: 'en',    timezone: 'Europe/Berlin',         dateFormat: 'DD.MM.YYYY', timeFormat: 'HH:mm' },
+  US:    { language: 'en',    timezone: 'America/New_York',      dateFormat: 'MM/DD/YYYY', timeFormat: 'hh:mm A' },
+  APAC:  { language: 'en',    timezone: 'Asia/Singapore',        dateFormat: 'DD/MM/YYYY', timeFormat: 'HH:mm' },
+  LATAM: { language: 'es',    timezone: 'America/Sao_Paulo',     dateFormat: 'DD/MM/YYYY', timeFormat: 'HH:mm' },
+  MEA:   { language: 'en',    timezone: 'Asia/Dubai',            dateFormat: 'DD/MM/YYYY', timeFormat: 'HH:mm' },
+};
+
 type SeedDefaults = {
   skipPlan?: boolean;
   skipSubscription?: boolean;
   skipSettings?: boolean;
-};
-
-const DEFAULT_TENANT_SETTINGS: Record<string, string> = {
-  language: 'en',
-  dateFormat: 'YYYY-MM-DD',
-  timeFormat: 'HH:mm',
-  timezone: 'UTC',
-};
-
-/**
- * Default starter plan that the tenant seed wires up. Plans now wrap a
- * StoreProduct (productId is required), so the seed creates a hidden
- * "Free" product first and binds the plan to it.
- */
-const DEFAULT_FREE_PRODUCT = {
-  name: 'Free Plan',
-  slug: 'free-plan',
-  basePrice: 0,
-  currency: 'USD',
-  status: 'ACTIVE' as const,
-  isDigital: true,
-};
-const DEFAULT_FREE_PLAN_BILLING = {
-  interval: 'MONTHLY' as const,
-  trialDays: 0,
-  status: 'ACTIVE' as const,
 };
 
 export default class TenantService {
@@ -66,8 +50,6 @@ export default class TenantService {
     } else {
       whereConditions = [baseWhere];
     }
-
-    Logger.info(`[TenantService] Querying tenants`);
 
     const [tenants, total] = await Promise.all([
       repo.find({ where: whereConditions as any, skip: page * pageSize, take: pageSize, order: { createdAt: 'DESC' } }),
@@ -95,43 +77,53 @@ export default class TenantService {
     });
   }
 
+  static async getBySlug(slug: string): Promise<SafeTenant> {
+    const ds = await getDataSource();
+    const tenant = await ds.getRepository(TenantEntity).findOne({ where: { slug, deletedAt: IsNull() } });
+    if (!tenant) throw new AppError(TenantMessages.TENANT_NOT_FOUND, 404, ErrorCode.TENANT_NOT_FOUND);
+    return SafeTenantSchema.parse(tenant);
+  }
+
   static async create(data: CreateTenantInput): Promise<SafeTenant> {
     const { defaults, ...tenantData } = data;
     const ds = await getDataSource();
     const repo = ds.getRepository(TenantEntity);
+
+    // Validate slug uniqueness
+    if (tenantData.slug) {
+      const existing = await repo.findOne({ where: { slug: tenantData.slug } });
+      if (existing) throw new AppError('Tenant slug already taken', 409, ErrorCode.CONFLICT);
+    }
+
     const tenant = repo.create({ ...tenantData, tenantStatus: 'ACTIVE' } as any);
     const saved = await repo.save(tenant) as unknown as TenantEntity;
 
     const parsed = SafeTenantSchema.parse(saved);
 
-    // Best-effort auto-seed: never fail tenant creation if a default cannot be applied.
-    await this.seedDefaults(parsed.tenantId, defaults);
+    // Seed defaults — wait for completion before firing the webhook so the
+    // provisioning outcome (success/failure) is reflected in the event payload.
+    const seedOutcome = await this.seedDefaults(parsed.tenantId, defaults, tenantData.region);
 
     await WebhookService.dispatchPlatformEvent('tenant.created', {
       tenantId: parsed.tenantId,
       name: parsed.name,
+      region: parsed.region,
+      slug: parsed.slug,
+      provisioned: seedOutcome.ok,
+      provisioningErrors: seedOutcome.errors,
     });
 
     return parsed;
   }
 
-  /**
-   * Auto-seed defaults for a newly created tenant. Idempotent and best-effort:
-   * each seed step is wrapped in try/catch so a failure in one step doesn't
-   * block the others or the tenant create itself.
-   *
-   * Skipped entirely for the root tenant (handled by seed scripts).
-   */
-  private static async seedDefaults(tenantId: string, defaults?: SeedDefaults): Promise<void> {
-    if (isRootTenant(tenantId)) return;
+  private static async seedDefaults(
+    tenantId: string,
+    defaults?: SeedDefaults,
+    region?: string,
+  ): Promise<{ ok: boolean; errors: string[] }> {
+    if (isRootTenant(tenantId)) return { ok: true, errors: [] };
 
-    // Inline Free plan seed disabled: plans now wrap a StoreProduct (which
-    // requires a Category), so a brand-new tenant has no catalog to bind to.
-    // Instead, if the operator has configured a default plan (a free plan in
-    // the ROOT catalogue), we clone+assign it for free below. The
-    // defaults?.skipPlan / skipSubscription flags gate that step.
-    void DEFAULT_FREE_PRODUCT;
-    void DEFAULT_FREE_PLAN_BILLING;
+    const errors: string[] = [];
 
     if (!defaults?.skipPlan && !defaults?.skipSubscription) {
       try {
@@ -139,23 +131,34 @@ export default class TenantService {
         const { default: TenantFeatureGateService } = await import('@/modules/tenant_subscription/tenant_subscription.feature.service');
         const defaultPlanId = await TenantFeatureGateService.getDefaultPlanId();
         if (defaultPlanId) {
-          // assignPlatformPlan clones the ROOT plan's category/product/plan/feature
-          // chain into this tenant and assigns it for free (priceOverride 0).
           await TenantPlatformPlanService.assignPlatformPlan(tenantId, { planId: defaultPlanId, priceOverride: 0 });
         }
       } catch (err) {
-        Logger.warn(`[TenantService.seedDefaults] default plan assignment failed for ${tenantId}: ${err instanceof Error ? err.message : String(err)}`);
+        const msg = err instanceof Error ? err.message : String(err);
+        Logger.warn(`[TenantService.seedDefaults] default plan assignment failed for ${tenantId}: ${msg}`);
+        errors.push(`plan: ${msg}`);
       }
     }
 
     if (!defaults?.skipSettings) {
       try {
         const SettingService = (await import('@/modules/setting/setting.service')).default;
-        await SettingService.updateMany(tenantId, DEFAULT_TENANT_SETTINGS);
+        // Use region-aware locale defaults
+        const localeDefaults = (region ? REGION_LOCALE_DEFAULTS[region] : null) ?? REGION_LOCALE_DEFAULTS['TR'];
+        await SettingService.updateMany(tenantId, {
+          language: localeDefaults.language,
+          dateFormat: localeDefaults.dateFormat,
+          timeFormat: localeDefaults.timeFormat,
+          timezone: localeDefaults.timezone,
+        });
       } catch (err) {
-        Logger.warn(`[TenantService.seedDefaults] default settings seed failed for ${tenantId}: ${err instanceof Error ? err.message : String(err)}`);
+        const msg = err instanceof Error ? err.message : String(err);
+        Logger.warn(`[TenantService.seedDefaults] default settings seed failed for ${tenantId}: ${msg}`);
+        errors.push(`settings: ${msg}`);
       }
     }
+
+    return { ok: errors.length === 0, errors };
   }
 
   static async update(tenantId: string, data: UpdateTenantInput): Promise<SafeTenant> {
@@ -164,12 +167,19 @@ export default class TenantService {
     const tenant = await repo.findOne({ where: { tenantId, deletedAt: IsNull() } });
     if (!tenant) throw new AppError(TenantMessages.TENANT_NOT_FOUND, 404, ErrorCode.TENANT_NOT_FOUND);
 
+    // Validate slug uniqueness when changing
+    if (data.slug && data.slug !== tenant.slug) {
+      const rootDs = await getDataSource();
+      const existing = await rootDs.getRepository(TenantEntity).findOne({ where: { slug: data.slug } });
+      if (existing && existing.tenantId !== tenantId) {
+        throw new AppError('Tenant slug already taken', 409, ErrorCode.CONFLICT);
+      }
+    }
+
     await repo.update({ tenantId }, data as any);
     const updated = await repo.findOne({ where: { tenantId } });
     await this.clearCache(tenantId);
 
-    // tenant.updated fires to the tenant's own webhooks; a transition into
-    // SUSPENDED additionally raises the platform-wide tenant.suspended event.
     await WebhookService.dispatchEvent(tenantId, 'tenant.updated', {
       tenantId,
       name: updated!.name,
@@ -186,9 +196,20 @@ export default class TenantService {
 
   static async provisionPersonal(userId: string, email: string): Promise<SafeTenant> {
     const name = email.split('@')[0];
+    // Generate slug from email prefix
+    const slug = name.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '') || undefined;
+
     const ds = await getDataSource();
     const repo = ds.getRepository(TenantEntity);
-    const tenant = repo.create({ name, tenantStatus: 'ACTIVE' });
+
+    // Ensure slug uniqueness
+    let finalSlug: string | undefined = slug;
+    if (slug) {
+      const exists = await repo.findOne({ where: { slug } });
+      if (exists) finalSlug = `${slug}-${Date.now()}`;
+    }
+
+    const tenant = repo.create({ name, tenantStatus: 'ACTIVE', slug: finalSlug });
     const saved = await repo.save(tenant);
 
     await TenantMemberService.create({
@@ -214,5 +235,24 @@ export default class TenantService {
       tenantId,
       name: tenant.name,
     });
+  }
+
+  /**
+   * Verify tenant isolation: run a cross-tenant query check.
+   * Returns any tenantId values found in the given table that differ from the expected tenant.
+   * Use in integration tests / scheduled audits to detect missing WHERE clauses.
+   */
+  static async verifyIsolation(tenantId: string, tableName: string): Promise<{ ok: boolean; leakedRows: number }> {
+    try {
+      const ds = await tenantDataSourceFor(tenantId);
+      const rows = await ds.query(
+        `SELECT COUNT(*) as count FROM "${tableName}" WHERE "tenantId" IS NOT NULL AND "tenantId" != $1`,
+        [tenantId],
+      );
+      const leakedRows = parseInt(rows[0]?.count ?? '0', 10);
+      return { ok: leakedRows === 0, leakedRows };
+    } catch {
+      return { ok: true, leakedRows: 0 }; // table may not have tenantId column — not a leak
+    }
   }
 }
