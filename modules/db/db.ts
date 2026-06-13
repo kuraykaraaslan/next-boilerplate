@@ -75,6 +75,9 @@ import { ReturnEvent } from '@/modules/payment_return_rma/entities/return_event.
 import { LoyaltyAccount } from '@/modules/payment_loyalty_points/entities/loyalty_account.entity';
 import { LoyaltyTransaction } from '@/modules/payment_loyalty_points/entities/loyalty_transaction.entity';
 import { LoyaltyTier } from '@/modules/payment_loyalty_points/entities/loyalty_tier.entity';
+import { BlogCategory } from '@/modules/blog/entities/blog_category.entity';
+import { BlogPost } from '@/modules/blog/entities/blog_post.entity';
+import { BlogComment } from '@/modules/blog/entities/blog_comment.entity';
 
 export const ENTITIES = [
   User,
@@ -150,6 +153,9 @@ export const ENTITIES = [
   LoyaltyAccount,
   LoyaltyTransaction,
   LoyaltyTier,
+  BlogCategory,
+  BlogPost,
+  BlogComment,
 ];
 
 const { url: DEFAULT_DB_URL, schema: DEFAULT_SCHEMA } = parseDbUrl(env.DATABASE_URL);

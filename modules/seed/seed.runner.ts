@@ -63,6 +63,7 @@ import { seedInvoice } from '@/modules/invoice/invoice.seed';
 import { seedMediaGallery } from '@/modules/media_gallery/media_gallery.seed';
 import { seedSeo } from '@/modules/seo/seo.seed';
 import { seedDynamicPage } from '@/modules/dynamic_page/dynamic_page.seed';
+import { seedBlog } from '@/modules/blog/blog.seed';
 
 // Cross-cutting (references many other ids — runs last) -----------------------
 import { seedAuditLog } from '@/modules/audit_log/audit_log.seed';
@@ -119,6 +120,7 @@ export const SEEDERS: Array<{ name: string; run: ModuleSeeder }> = [
   { name: 'media_gallery', run: seedMediaGallery },
   { name: 'seo', run: seedSeo },
   { name: 'dynamic_page', run: seedDynamicPage },
+  { name: 'blog', run: seedBlog },
   // cross-cutting, last
   { name: 'audit_log', run: seedAuditLog },
 ];

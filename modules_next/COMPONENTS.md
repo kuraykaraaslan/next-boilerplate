@@ -109,6 +109,7 @@ Detailed conventions: [common/ui/README.md](common/ui/README.md).
 | [audit_log](audit_log/ui/) | List + filter views |
 | [auth](auth/ui/) | `LoginForm`, `RegisterForm`, `ForgotPasswordForm`, `OAuthButtons`, `SessionExpiredBanner` |
 | [auth_saml](auth_saml/ui/) | SAML config form |
+| [blog](blog/ui/) | `PostStatusBadge`, `CommentStatusBadge`, `BlogPostCreateModal` |
 | [coupon](coupon/ui/) | Coupon list / redeem dialog |
 | [payment](payment/ui/) | `PaymentStatusBadge`, `PaymentSummaryCard` |
 | [tenant](tenant/ui/) | `CreateTenantForm`, `TenantSelectorCard` |

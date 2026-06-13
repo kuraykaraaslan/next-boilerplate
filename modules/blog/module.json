@@ -1,0 +1,13 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "blog",
+  "name": "Blog",
+  "description": "Tenant-scoped blog with posts, categories and threaded comments. Posts have a draft/published/archived lifecycle; comment moderation and anonymous-comment policy are per-tenant settings.",
+  "version": "1.0.0",
+  "icon": "fas fa-newspaper",
+  "tags": ["blog", "content", "cms", "comments", "moderation"],
+  "priority": 44,
+  "dependencies": {
+    "requires": ["db", "env", "redis", "logger", "setting"]
+  }
+}

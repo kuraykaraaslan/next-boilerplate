@@ -34,6 +34,8 @@ import {
   faLayerGroup,
   faFileAlt,
   faPuzzlePiece,
+  faNewspaper,
+  faFolderOpen,
 } from '@fortawesome/free-solid-svg-icons';
 
 type AdminShellProps = {
@@ -76,6 +78,13 @@ export function AdminShell({ children, tenantId }: AdminShellProps) {
       items: [
         { id: 'pages',  label: 'Pages',  href: `/tenant/${tenantId}/admin/pages`,  icon: <FontAwesomeIcon icon={faFileAlt} aria-hidden /> },
         { id: 'blocks', label: 'Blocks', href: `/tenant/${tenantId}/admin/blocks`, icon: <FontAwesomeIcon icon={faPuzzlePiece} aria-hidden /> },
+      ],
+    },
+    {
+      label: 'Blog',
+      items: [
+        { id: 'blog-posts',      label: 'Posts',      href: `/tenant/${tenantId}/admin/blog/posts`,      icon: <FontAwesomeIcon icon={faNewspaper} aria-hidden /> },
+        { id: 'blog-categories', label: 'Categories', href: `/tenant/${tenantId}/admin/blog/categories`, icon: <FontAwesomeIcon icon={faFolderOpen} aria-hidden /> },
       ],
     },
     {
