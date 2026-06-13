@@ -4,19 +4,19 @@
 
 ## Notification Schema & Typing
 
-### Notification Type / Category Field
+### ✅ Notification Type / Category Field
 **Why:** Without a `type` field (e.g. `info`, `warning`, `error`, `success`) the UI cannot render contextual icons or color-code notifications; callers embed semantics in free-text which breaks i18n.
 **Complexity:** Low
 **Multi-tenant relevance:** Each tenant's UI shell can apply its own color scheme or icon set per type.
 **Multi-country relevance:** Category codes are locale-neutral; translated labels are rendered by the UI layer, keeping the stored payload language-agnostic.
 
-### Structured Action / CTA Field
+### ✅ Structured Action / CTA Field
 **Why:** A `path` string is sufficient for simple navigation but cannot encode external URLs, parameterized actions (confirm/dismiss), or deep-link payloads needed by mobile/PWA consumers.
 **Complexity:** Low
 **Multi-tenant relevance:** Tenants may have different route structures; an `actions` array with `{ label, url, actionId }` lets each tenant configure its own CTA without changing the service.
 **Multi-country relevance:** Action labels can be translated per locale at render time when they are stored as i18n keys rather than human-readable strings.
 
-### Expiry / Scheduled Delivery Fields
+### ✅ Expiry / Scheduled Delivery Fields
 **Why:** Notifications about time-sensitive events (flash sales, meeting reminders) should auto-expire; there is currently no `expiresAt` field and no cleanup beyond the flat 7-day TTL.
 **Complexity:** Medium
 **Multi-tenant relevance:** Premium tenants could earn longer notification lifetimes; expiry per notification enables per-notification SLA independent of the global TTL.
@@ -26,7 +26,7 @@
 
 ## Retention & Capacity
 
-### Per-Tenant Configurable Retention Cap and TTL
+### ✅ Per-Tenant Configurable Retention Cap and TTL
 **Why:** `MAX_PER_USER = 50` and `TTL = 7 days` are hardcoded globals; a higher-tier tenant or enterprise customer may need 200 notifications retained for 30 days.
 **Complexity:** Low
 **Multi-tenant relevance:** Retention is a natural plan differentiator; reading `inAppMaxPerUser` and `inAppRetentionSeconds` from `SettingService` per tenant makes these plan-gated features without code changes.
@@ -42,19 +42,19 @@
 
 ## Delivery Controls & User Preferences
 
-### Per-User Notification Preference / Opt-Out
+### ✅ Per-User Notification Preference / Opt-Out
 **Why:** Users have no way to mute specific notification types or opt out of in-app notifications entirely; silence must be implemented by callers today.
 **Complexity:** Medium
 **Multi-tenant relevance:** Each tenant may expose different notification categories to users; preference keys must be namespaced `{tenantId}:{userId}:{category}` to avoid cross-tenant leakage.
 **Multi-country relevance:** GDPR Article 21 grants users the right to object to processing; an opt-out mechanism backed by per-user preferences supports compliance without legal ambiguity.
 
-### Push Fan-Out Toggle per Notification
+### ✅ Push Fan-Out Toggle per Notification
 **Why:** Every `push()` always fires a Web Push notification via `NotificationPushService`. Some in-app notifications are low-priority (activity feed items) and should not also trigger a browser push.
 **Complexity:** Low
 **Multi-tenant relevance:** Tenant plan or feature flags could gate push fan-out so lower-tier tenants do not generate push traffic they haven't paid for.
 **Multi-country relevance:** Some users in high-latency regions prefer not to receive push on slow connections; an explicit opt-in/opt-out on the notification payload supports this without changing the service.
 
-### Quiet Hours / Do-Not-Disturb Awareness
+### ✅ Quiet Hours / Do-Not-Disturb Awareness
 **Why:** Notifications published via pub/sub are delivered immediately regardless of user locale or time of day; there is no mechanism to delay non-urgent notifications outside the user's waking hours.
 **Complexity:** Medium
 **Multi-tenant relevance:** Tenant admins may want to restrict broadcast windows (e.g. no midnight pushes for their workforce product).

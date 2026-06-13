@@ -85,6 +85,7 @@ describe('NotificationInAppService.push', () => {
     const payload = { title: 'Hello', message: 'World', path: '/home' };
 
     const result = await NotificationInAppService.push(TENANT_ID, userId, payload);
+    if (!result) throw new Error('expected a notification');
 
     expect(result.title).toBe('Hello');
     expect(result.message).toBe('World');
@@ -104,7 +105,7 @@ describe('NotificationInAppService.push', () => {
 
   it('defaults path to null when not provided', async () => {
     const result = await NotificationInAppService.push(TENANT_ID, 'user-1', { title: 'T', message: 'M' });
-    expect(result.path).toBeNull();
+    expect(result?.path).toBeNull();
   });
 });
 
