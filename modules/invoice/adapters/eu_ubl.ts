@@ -1,5 +1,6 @@
 import type { Invoice } from '../entities/invoice.entity';
 import type { InvoiceLine } from '../entities/invoice_line.entity';
+import { readTaxBreakdown } from './xml.util';
 
 /**
  * Real UBL 2.1 / EN 16931 (Peppol BIS Billing 3.0) invoice serialiser.
@@ -85,6 +86,21 @@ export function buildUblInvoiceXml(params: BuildUblParams): string {
   </cac:InvoiceLine>`;
   }).join('\n');
 
+  // Per-rate tax summary (EN 16931 BG-23). One TaxSubtotal per rate when the
+  // engine breakdown is present; otherwise a single subtotal at the doc rate.
+  const breakdown = readTaxBreakdown(invoice.metadata) ?? [
+    { ratePercent: invoice.subtotal > 0 ? Math.round((invoice.taxAmount / invoice.subtotal) * 10000) / 100 : 0, taxableAmount: invoice.subtotal, taxAmount: invoice.taxAmount },
+  ];
+  const taxSubtotalXml = breakdown.map((b) => `    <cac:TaxSubtotal>
+      <cbc:TaxableAmount currencyID="${currency}">${money(b.taxableAmount)}</cbc:TaxableAmount>
+      <cbc:TaxAmount currencyID="${currency}">${money(b.taxAmount)}</cbc:TaxAmount>
+      <cac:TaxCategory>
+        <cbc:ID>${b.ratePercent > 0 ? 'S' : 'Z'}</cbc:ID>
+        <cbc:Percent>${money(b.ratePercent)}</cbc:Percent>
+        <cac:TaxScheme><cbc:ID>VAT</cbc:ID></cac:TaxScheme>
+      </cac:TaxCategory>
+    </cac:TaxSubtotal>`).join('\n');
+
   return `<?xml version="1.0" encoding="UTF-8"?>
 <Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
          xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
@@ -136,6 +152,7 @@ export function buildUblInvoiceXml(params: BuildUblParams): string {
   </cac:AccountingCustomerParty>
   <cac:TaxTotal>
     <cbc:TaxAmount currencyID="${currency}">${money(invoice.taxAmount)}</cbc:TaxAmount>
+${taxSubtotalXml}
   </cac:TaxTotal>
   <cac:LegalMonetaryTotal>
     <cbc:LineExtensionAmount currencyID="${currency}">${money(invoice.subtotal)}</cbc:LineExtensionAmount>

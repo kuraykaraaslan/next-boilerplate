@@ -1,6 +1,6 @@
 import type { Invoice } from '../entities/invoice.entity';
 import type { InvoiceLine } from '../entities/invoice_line.entity';
-import { xmlEscape, money, qty, pct, compactDate, readAddress } from './xml.util';
+import { xmlEscape, money, qty, pct, compactDate, readAddress, readTaxBreakdown } from './xml.util';
 
 /**
  * UN/CEFACT Cross Industry Invoice (CII) D16B serialiser — the XML at the heart
@@ -111,11 +111,15 @@ ${lineXml}
     <ram:ApplicableHeaderTradeDelivery/>
     <ram:ApplicableHeaderTradeSettlement>
       <ram:InvoiceCurrencyCode>${currency}</ram:InvoiceCurrencyCode>
-      <ram:ApplicableTradeTax>
-        <ram:CalculatedAmount>${money(invoice.taxAmount)}</ram:CalculatedAmount>
+${(readTaxBreakdown(invoice.metadata) ?? [
+        { ratePercent: invoice.subtotal > 0 ? Math.round((invoice.taxAmount / invoice.subtotal) * 10000) / 100 : 0, taxableAmount: invoice.subtotal, taxAmount: invoice.taxAmount },
+      ]).map((b) => `      <ram:ApplicableTradeTax>
+        <ram:CalculatedAmount>${money(b.taxAmount)}</ram:CalculatedAmount>
         <ram:TypeCode>VAT</ram:TypeCode>
-        <ram:BasisAmount>${money(invoice.subtotal)}</ram:BasisAmount>
-      </ram:ApplicableTradeTax>
+        <ram:BasisAmount>${money(b.taxableAmount)}</ram:BasisAmount>
+        <ram:CategoryCode>${b.ratePercent > 0 ? 'S' : 'Z'}</ram:CategoryCode>
+        <ram:RateApplicablePercent>${money(b.ratePercent)}</ram:RateApplicablePercent>
+      </ram:ApplicableTradeTax>`).join('\n')}
       <ram:SpecifiedTradeSettlementHeaderMonetarySummation>
         <ram:LineTotalAmount>${money(invoice.subtotal)}</ram:LineTotalAmount>
         <ram:TaxBasisTotalAmount>${money(invoice.subtotal)}</ram:TaxBasisTotalAmount>

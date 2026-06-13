@@ -28,6 +28,33 @@ export interface ParsedAddress {
   region: string;
 }
 
+export interface TaxBreakdownRow {
+  ratePercent: number;
+  taxableAmount: number;
+  taxAmount: number;
+}
+
+/**
+ * Read the per-rate tax breakdown persisted on `invoice.metadata.taxBreakdown`
+ * (written at create time from the payment_tax engine). Returns null when
+ * absent so builders fall back to the single blended rate.
+ */
+export function readTaxBreakdown(metadata: unknown): TaxBreakdownRow[] | null {
+  const md = (metadata ?? {}) as { taxBreakdown?: unknown };
+  if (!Array.isArray(md.taxBreakdown) || md.taxBreakdown.length === 0) return null;
+  const rows = md.taxBreakdown
+    .map((r) => {
+      const e = r as Record<string, unknown>;
+      return {
+        ratePercent: Number(e.ratePercent) || 0,
+        taxableAmount: Number(e.taxableAmount) || 0,
+        taxAmount: Number(e.taxAmount) || 0,
+      };
+    })
+    .filter((r) => r.taxableAmount > 0 || r.taxAmount > 0);
+  return rows.length > 0 ? rows : null;
+}
+
 /** Normalise a free-form address JSON object into common parts. */
 export function readAddress(addr: unknown): ParsedAddress {
   const a = (addr ?? {}) as Record<string, unknown>;

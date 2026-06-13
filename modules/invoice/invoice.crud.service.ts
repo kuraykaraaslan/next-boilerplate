@@ -141,7 +141,11 @@ export default class InvoiceCrudService {
         region,
         taxScheme,
         notes: parsed.notes,
-        metadata: parsed.metadata,
+        // Persist the per-rate tax breakdown so adapters can itemise each tax
+        // (UBL TaxSubtotal / CII ApplicableTradeTax / FatturaPA DatiRiepilogo).
+        metadata: engineResult
+          ? { ...(parsed.metadata as Record<string, unknown> | undefined), taxBreakdown: engineResult.taxBreakdown }
+          : parsed.metadata,
       }));
 
       for (const cl of computedLines) {
