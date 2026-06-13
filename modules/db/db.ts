@@ -26,6 +26,7 @@ import { Webhook } from '@/modules/webhook/entities/webhook.entity';
 import { WebhookDelivery } from '@/modules/webhook/entities/webhook_delivery.entity';
 import { SamlConfig } from '@/modules/auth_saml/entities/saml_config.entity';
 import { Setting } from '@/modules/setting/entities/setting.entity';
+import { SettingHistory } from '@/modules/setting/entities/setting_history.entity';
 import { Coupon } from '@/modules/coupon/entities/coupon.entity';
 import { SubscriptionPlan } from '@/modules/payment/entities/subscription_plan.entity';
 import { PlanFeature } from '@/modules/payment/entities/plan_feature.entity';
@@ -104,6 +105,7 @@ export const ENTITIES = [
   WebhookDelivery,
   SamlConfig,
   Setting,
+  SettingHistory,
   Coupon,
   SubscriptionPlan,
   PlanFeature,
@@ -267,6 +269,35 @@ export async function tenantDataSourceFor(tenantId: string): Promise<DataSource>
   await ds.initialize();
   tenantCache.set(tenantId, ds);
   return ds;
+}
+
+/**
+ * Apply a per-statement timeout for the duration of `callback`.
+ * Uses `SET LOCAL statement_timeout` so the timeout is transaction-scoped.
+ * When DB_QUERY_TIMEOUT_MS is 0 (default) the call is a no-op pass-through.
+ */
+export async function withQueryTimeout<T>(
+  tenantId: string,
+  timeoutMs: number,
+  callback: (qr: import('typeorm').QueryRunner) => Promise<T>,
+): Promise<T> {
+  const ds = await tenantDataSourceFor(tenantId);
+  const qr = ds.createQueryRunner();
+  await qr.connect();
+  await qr.startTransaction();
+  try {
+    if (timeoutMs > 0) {
+      await qr.query('SET LOCAL statement_timeout = $1', [timeoutMs]);
+    }
+    const result = await callback(qr);
+    await qr.commitTransaction();
+    return result;
+  } catch (err) {
+    await qr.rollbackTransaction();
+    throw err;
+  } finally {
+    await qr.release();
+  }
 }
 
 export function clearTenantDsCache(tenantId: string): void {

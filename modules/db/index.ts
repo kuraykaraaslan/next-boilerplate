@@ -6,6 +6,7 @@ export {
   clearTenantDsCache,
   withTenantRLS,
   withSystemRLS,
+  withQueryTimeout,
   checkDataSourceHealth,
   ENTITIES,
 } from './db';
