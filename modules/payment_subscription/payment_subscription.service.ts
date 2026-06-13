@@ -1,7 +1,16 @@
 import PaymentSubscriptionPlanService from './payment_subscription.plan.service';
 import PaymentSubscriptionLifecycleService from './payment_subscription.lifecycle.service';
+import PaymentSubscriptionDunningService from './payment_subscription.dunning.service';
+import PaymentSubscriptionMetricsService from './payment_subscription.metrics.service';
+import PaymentSubscriptionMeteredService from './payment_subscription.metered.service';
 
-export { PaymentSubscriptionPlanService, PaymentSubscriptionLifecycleService };
+export {
+  PaymentSubscriptionPlanService,
+  PaymentSubscriptionLifecycleService,
+  PaymentSubscriptionDunningService,
+  PaymentSubscriptionMetricsService,
+  PaymentSubscriptionMeteredService,
+};
 
 export default class PaymentSubscriptionService {
 
@@ -30,4 +39,28 @@ export default class PaymentSubscriptionService {
   static resumeSubscription  = PaymentSubscriptionLifecycleService.resumeSubscription.bind(PaymentSubscriptionLifecycleService);
   static changePlan          = PaymentSubscriptionLifecycleService.changePlan.bind(PaymentSubscriptionLifecycleService);
   static prorationPreview    = PaymentSubscriptionLifecycleService.prorationPreview.bind(PaymentSubscriptionLifecycleService);
+  static markPastDue         = PaymentSubscriptionLifecycleService.markPastDue.bind(PaymentSubscriptionLifecycleService);
+
+  // ──────────────────────────────────────────────
+  // Dunning (failed-payment retry lifecycle)
+  // ──────────────────────────────────────────────
+
+  static recordFailedPayment = PaymentSubscriptionDunningService.recordFailedPayment.bind(PaymentSubscriptionDunningService);
+  static recordRecovery      = PaymentSubscriptionDunningService.recordRecovery.bind(PaymentSubscriptionDunningService);
+  static runDunningCycle     = PaymentSubscriptionDunningService.runDunningCycle.bind(PaymentSubscriptionDunningService);
+
+  // ──────────────────────────────────────────────
+  // Metrics (MRR / ARR)
+  // ──────────────────────────────────────────────
+
+  static getRecurringRevenue = PaymentSubscriptionMetricsService.getRecurringRevenue.bind(PaymentSubscriptionMetricsService);
+
+  // ──────────────────────────────────────────────
+  // Metered / usage billing
+  // ──────────────────────────────────────────────
+
+  static recordUsage         = PaymentSubscriptionMeteredService.recordUsage.bind(PaymentSubscriptionMeteredService);
+  static getUsage            = PaymentSubscriptionMeteredService.getUsage.bind(PaymentSubscriptionMeteredService);
+  static computeOverage      = PaymentSubscriptionMeteredService.computeOverage.bind(PaymentSubscriptionMeteredService);
+  static resetUsage          = PaymentSubscriptionMeteredService.resetUsage.bind(PaymentSubscriptionMeteredService);
 }

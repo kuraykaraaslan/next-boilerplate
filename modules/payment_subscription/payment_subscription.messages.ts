@@ -12,6 +12,7 @@ export const SUBSCRIPTION_MESSAGES = {
   FEATURE_UPDATE_FAILED: 'Failed to update plan feature',
 
   SUBSCRIPTION_NOT_FOUND: 'Subscription not found',
+  INVALID_USAGE_QUANTITY: 'Usage quantity must be positive',
   SUBSCRIPTION_CREATE_FAILED: 'Failed to create subscription',
   SUBSCRIPTION_UPDATE_FAILED: 'Failed to update subscription',
   SUBSCRIPTION_CANCEL_FAILED: 'Failed to cancel subscription',

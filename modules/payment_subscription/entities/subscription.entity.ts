@@ -71,6 +71,11 @@ export class Subscription {
   @Column({ nullable: true, type: 'int' })
   pastDueCount?: number
 
+  // Accumulated metered/usage units for the current period, keyed by metric.
+  // Reset at renewal after the overage is billed.
+  @Column({ type: 'jsonb', nullable: true })
+  meteredUsage?: Record<string, number>
+
   @Column({ type: 'jsonb', nullable: true })
   metadata?: unknown
 

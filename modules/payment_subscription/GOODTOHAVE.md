@@ -4,7 +4,7 @@
 
 ## Dunning & Recovery
 
-### Automated Dunning Lifecycle (Retry → Grace → Cancel)
+### ✅ Automated Dunning Lifecycle (Retry → Grace → Cancel)
 **Why:** `pastDueCount` is a column on the `Subscription` entity but it is never incremented by the service; there is no scheduled job, retry logic, or grace-period policy that progresses a `PAST_DUE` subscription toward cancellation or recovery.
 **Complexity:** High
 **Multi-tenant relevance:** Each tenant configures its own dunning schedule (e.g. retry on day 3, 5, 7; grace period 14 days) to balance revenue recovery against customer churn.
@@ -24,7 +24,7 @@
 
 ## Billing Logic
 
-### Proration with Real Calendar-Month Accuracy
+### ✅ Proration with Real Calendar-Month Accuracy
 **Why:** `CYCLE_DAYS` uses approximate day counts (MONTHLY=30, QUARTERLY=91, YEARLY=365); a mid-March upgrade produces different credit amounts than a mid-February upgrade due to month-length differences, which is incorrect.
 **Complexity:** Medium
 **Multi-tenant relevance:** Billing disputes from incorrect proration amounts are per-tenant customer service overhead; all tenants are affected.
@@ -42,7 +42,7 @@
 **Multi-tenant relevance:** Monthly vs. annual pricing with a discount is the most common SaaS pricing pattern; the module should natively support it.
 **Multi-country relevance:** Annual plan discounts need to be expressed in the tenant's local currency and may need to account for local tax differences between billing frequencies.
 
-### Metered / Usage-Based Billing Support
+### ✅ Metered / Usage-Based Billing Support
 **Why:** The billing model is purely flat-rate; there is no mechanism for metered billing (e.g. "pay per API call", "pay per active seat") that reports usage and charges accordingly.
 **Complexity:** High
 **Multi-tenant relevance:** SaaS tenants in API, infra, and B2B segments almost universally offer some form of usage-based pricing.
@@ -104,7 +104,7 @@
 
 ## Observability & Analytics
 
-### Subscription MRR / ARR Calculation
+### ✅ Subscription MRR / ARR Calculation
 **Why:** There are no aggregate service methods for Monthly Recurring Revenue, Annual Recurring Revenue, churn rate, or net revenue retention; these are the primary KPIs for any subscription business.
 **Complexity:** Medium
 **Multi-tenant relevance:** Each tenant's revenue metrics are completely isolated; aggregate MRR must be computable per tenant.
