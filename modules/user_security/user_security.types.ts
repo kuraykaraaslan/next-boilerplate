@@ -14,6 +14,15 @@ export const StoredPasskeySchema = z.object({
 
 export type StoredPasskey = z.infer<typeof StoredPasskeySchema>;
 
+export const TrustedDeviceSchema = z.object({
+  idHash: z.string(),          // SHA-256 of the device token — never the raw token
+  label: z.string().nullable(),
+  createdAt: z.string(),
+  lastSeenAt: z.string().nullable(),
+  expiresAt: z.string(),
+});
+export type TrustedDevice = z.infer<typeof TrustedDeviceSchema>;
+
 export const UserSecuritySchema = z.object({
   otpMethods: z.array(OTPMethodEnum).nullish().transform(val => val ?? []),
   otpSecret: z.string().nullable(),
@@ -25,6 +34,7 @@ export const UserSecuritySchema = z.object({
   lockedUntil: z.date().nullable(),
   passkeyEnabled: z.boolean().nullish().transform(val => val ?? false),
   passkeys: z.array(StoredPasskeySchema).nullish().transform(val => val ?? []),
+  trustedDevices: z.array(TrustedDeviceSchema).nullish().transform(val => val ?? []),
   // ── KD-7: rotation history (bcrypt hashes, most recent first) ─────────
   passwordHistory: z.array(z.string()).nullish().transform(val => val ?? []),
   passwordChangedAt: z.date().nullable().optional(),
@@ -47,6 +57,7 @@ export const SafeUserSecurityDefault: z.infer<typeof SafeUserSecuritySchema> = {
   lockedUntil: null,
   passkeyEnabled: false,
   passkeys: [],
+  trustedDevices: [],
   passwordChangedAt: null,
   mustChangePassword: false,
 };

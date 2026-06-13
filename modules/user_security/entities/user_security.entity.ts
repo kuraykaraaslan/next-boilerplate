@@ -39,6 +39,10 @@ export class UserSecurity {
   @Column({ type: 'jsonb', default: '[]' })
   passkeys!: unknown[];
 
+  // ── Trusted devices (remember-this-device) — only SHA-256 token hashes ──
+  @Column({ type: 'jsonb', default: '[]' })
+  trustedDevices!: unknown[];
+
   // ── KD-7: password rotation history ─────────────────────────────────────
   @Column({ type: 'jsonb', default: '[]' })
   passwordHistory!: unknown[];

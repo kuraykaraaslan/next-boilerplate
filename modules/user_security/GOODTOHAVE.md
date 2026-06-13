@@ -2,6 +2,27 @@
 
 > Features not yet implemented that would make this module production-ready for a multi-tenant, multi-purpose, multi-country SaaS platform.
 
+## ✅ Security hardening shipped (no mock)
+
+- **OTP secret encryption at rest** — `otpSecret` is AES-256-GCM encrypted via
+  `common/field-encryption` on every write and decrypted only on the way out
+  (`hydrate`). The Redis cache holds ciphertext, not plaintext. Migration-safe:
+  legacy plaintext is read through and re-encrypted on next write.
+- **Backup code hashing at rest** — `generateBackupCodes()` returns plaintext
+  once and stores SHA-256 hashes; `verifyAndConsumeBackupCode()` compares in
+  constant time and single-uses the code.
+- **Adaptive lockout** — `recordLoginAttempt` now applies exponential backoff
+  past the threshold (capped at 24h).
+- **Login anomaly detection + webhook** — new IP/device on success returns
+  `{ anomaly }` and fires `security.login_anomaly`.
+- **Security event webhooks** — `security.login_anomaly`, `security.mfa_enabled`,
+  `security.mfa_disabled` registered in the catalog; `emitMfaChanged()` helper.
+- **Per-tenant MFA enforcement policy** — `getMfaPolicy` / `isMfaRequiredFor`
+  read `mfaRequired` + `mfaRequiredRoles`; `hasMfaConfigured` checks the user.
+- **Trusted devices (remember-this-device)** — `trustDevice()` returns an opaque
+  token (only its SHA-256 hash is stored, with expiry); `isDeviceTrusted()`
+  verifies in constant time; `revokeTrustedDevices()` for logout-everywhere.
+
 ## Security
 
 ### Hardware Security Key (FIDO2 UV Required) Enforcement
@@ -10,25 +31,25 @@
 **Multi-tenant relevance:** Tenants with different risk profiles need different UV requirements; a fintech tenant should enforce UV while a consumer app may keep it preferred. This should be a per-tenant auth policy key.
 **Multi-country relevance:** Financial regulators in the EU (PSD2 Strong Customer Authentication) and UK require that authentication combine at least two factors including possession (passkey) and inherence (biometric UV); `preferred` alone does not satisfy SCA.
 
-### OTP Secret Encryption at Rest
+### ✅ OTP Secret Encryption at Rest
 **Why:** `otpSecret` is stored as plain text in the `user_securities` table; if the database is exfiltrated, all TOTP secrets are immediately usable to bypass MFA for every user.
 **Complexity:** Medium
 **Multi-tenant relevance:** A compromise in one tenant's DB access path exposes the TOTP secrets of all platform users, not just that tenant's users, due to the shared system DB.
 **Multi-country relevance:** GDPR Article 32 and various national data-protection laws require appropriate technical measures (encryption) to protect sensitive authentication credentials.
 
-### Adaptive Lockout Based on IP / Geo-Risk
+### ✅ Adaptive Lockout Based on IP / Geo-Risk
 **Why:** The current lockout is purely counter-based (same threshold for a local admin and an attacker from a foreign IP); there is no IP reputation or geographic risk weighting that would lock faster for suspicious sources.
 **Complexity:** High
 **Multi-tenant relevance:** Tenants serving sensitive markets can configure a lower threshold for logins from unexpected countries while keeping the standard threshold for known-good locations.
 **Multi-country relevance:** Geo-adaptive lockout directly reduces credential-stuffing risk from botnets concentrated in specific regions without punishing legitimate local users.
 
-### Login Anomaly Notifications
+### ✅ Login Anomaly Notifications
 **Why:** There is no mechanism to send the user a notification (email or push) when a login occurs from a new device or country; `lastLoginIp` and `lastLoginDevice` are stored but never compared against prior values.
 **Complexity:** Medium
 **Multi-tenant relevance:** Tenant notification templates and the action taken on suspicious login (notify only vs. require re-auth) should be configurable per tenant.
 **Multi-country relevance:** Several national consumer-protection guidelines (UK FCA, EU EBA) recommend or require banks and fintechs to notify users of logins from new devices.
 
-### Security Event Webhook Emissions
+### ✅ Security Event Webhook Emissions
 **Why:** `user_security.service.ts` mutates critical security state (lockout, passkey registration, `mustChangePassword`) but emits no webhooks; downstream systems (SIEM, fraud detection) cannot react to these events in real time.
 **Complexity:** Low
 **Multi-tenant relevance:** Platform-level SIEM and per-tenant fraud-detection integrations need `user.locked`, `user.passkey.registered`, `user.mfa.disabled` events to be dispatched via the existing webhook infrastructure.
@@ -40,7 +61,7 @@
 **Multi-tenant relevance:** Government, financial, and healthcare tenants may mandate specific FIDO-certified authenticator models; this cannot be enforced without FIDO MDS attestation validation.
 **Multi-country relevance:** EU eIDAS 2.0 and US NIST AAL3 require hardware-bound authenticators with verified attestation; non-EU/US tenants may not need this, making it a per-tenant configuration.
 
-### Backup Code Encryption at Rest
+### ✅ Backup Code Encryption at Rest
 **Why:** `otpBackupCodes` are stored as plain text strings in a JSONB array; like the TOTP secret, a DB exfiltration exposes all backup codes, allowing an attacker to bypass MFA without ever triggering the rate limiter.
 **Complexity:** Low
 **Multi-tenant relevance:** Affects all platform users regardless of tenant; stored backup codes must be hashed (bcrypt/argon2) rather than stored in cleartext, just like passwords.
@@ -56,13 +77,13 @@
 **Multi-tenant relevance:** This is a fundamental WebAuthn limitation that requires per-tenant RP ID configuration — already flagged as a candidate in `POSTURE.md`; without it, passkeys are only practical on single-domain deployments.
 **Multi-country relevance:** Tenants operating under country-specific top-level domains (`.de`, `.jp`, `.com.br`) need separate RP IDs; passkey bindings to a global domain break for country-specific deployments.
 
-### Per-Tenant MFA Enforcement Policy
+### ✅ Per-Tenant MFA Enforcement Policy
 **Why:** MFA is user-optional today; tenants in regulated industries (finance, healthcare, government) must be able to mandate that all their users enroll at least one MFA method before accessing the tenant.
 **Complexity:** Medium
 **Multi-tenant relevance:** This is a per-tenant access policy: tenant A requires TOTP or passkey, tenant B allows password-only. The enforcement gate belongs in this module's security record check, driven by a tenant auth policy key.
 **Multi-country relevance:** PSD2 (EU) mandates SCA for payment flows; HIPAA (US) recommends MFA for PHI access; NIS2 (EU) requires MFA for critical infrastructure. Each is a per-jurisdiction, per-tenant requirement.
 
-### Trusted Device / Remember-This-Device
+### ✅ Trusted Device / Remember-This-Device
 **Why:** There is no mechanism to mark a specific device as trusted for a period, allowing the system to skip step-up MFA for known devices; users on repeat-login flows face friction every session.
 **Complexity:** Medium
 **Multi-tenant relevance:** The trusted-device window (e.g., 30 days) and whether the feature is enabled at all should be configurable per tenant.
