@@ -27,6 +27,9 @@ export const E_SIGNATURE_MESSAGES = {
   SIGNATURE_VERIFY_FAILED: 'Signature verification failed',
   SIGNATURE_FORMAT_UNSUPPORTED: 'Signature format is not supported by this provider',
 
+  DOCUMENT_SIGNING_CERT_MISSING: 'No signing certificate configured (private key + certificate PEM)',
+  DOCUMENT_SIGNING_FAILED: 'Failed to digitally sign the document',
+
   OCSP_UNREACHABLE: 'OCSP responder unreachable',
   OCSP_INVALID_RESPONSE: 'OCSP responder returned an invalid response',
   CRL_FETCH_FAILED: 'CRL fetch failed',

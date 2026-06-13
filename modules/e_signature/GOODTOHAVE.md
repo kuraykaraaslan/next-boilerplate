@@ -2,6 +2,21 @@
 
 > Features not yet implemented that would make this module production-ready for a multi-tenant, multi-purpose, multi-country SaaS platform.
 
+## ✅ Generic Document Signing (reusable across modules) ★ Implemented
+
+`ESignatureDocumentService` (`e_signature.document.service.ts`) provides
+platform-wide **document signing**, distinct from the mobile identity-challenge
+workflow. It produces a **real enveloped XAdES-BES / XML-DSig** signature via
+`xml-crypto` (RSA-SHA256, exclusive C14N, X.509 cert embedded in `KeyInfo`).
+Signing material (private key + certificate PEM) is supplied either inline
+(`signXmlWithKeys`) or by naming two encrypted setting keys
+(`signXml` / `signXmlIfConfigured` with `{ keyKey, certKey }`). Exposed on the
+`ESignatureService` facade as `signDocumentXml*`. First consumer: the `invoice`
+module (FatturaPA / Chorus Pro / ZUGFeRD), but it is intentionally generic so any
+module (contracts, archived records, e-gov submissions) can reuse it.
+**Remaining:** XAdES qualifying properties (signing time, cert digest, signature
+policy) and a PAdES path for PDF signing.
+
 ## Legal Compliance per Jurisdiction
 
 ### eIDAS QES (Qualified Electronic Signature) Enforcement Mode
