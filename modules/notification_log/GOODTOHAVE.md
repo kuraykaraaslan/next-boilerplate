@@ -32,13 +32,13 @@
 
 ## Querying & Filtering
 
-### Date-Range Filter in `list()`
+### ✅ Date-Range Filter in `list()`
 **Why:** The `NotificationLogQuery` interface has no `from`/`to` date filters; listing 30-day delivery history requires fetching all rows and filtering in memory at the route layer.
 **Complexity:** Low
 **Multi-tenant relevance:** Admin dashboards for busy tenants may have millions of log rows; without date filtering, the 200-row cap hides recent failures.
 **Multi-country relevance:** Compliance audits in some jurisdictions (GDPR, KVKK) require producing delivery records within a specific date window on demand.
 
-### Full-Text / Recipient Search
+### ✅ Full-Text / Recipient Search
 **Why:** There is no `ILIKE` or full-text search on `recipient`; finding "all notifications sent to +905551234567" requires an exact match; partial-email or phone prefix search is not supported.
 **Complexity:** Medium
 **Multi-tenant relevance:** Tenant support agents need to look up a user's notification history by partial email or phone; exact-match-only filtering forces unnecessary full scans.
@@ -54,13 +54,13 @@
 
 ## Retention & Archival
 
-### Automatic Log Retention / Pruning Policy
+### ✅ Automatic Log Retention / Pruning Policy
 **Why:** Rows accumulate indefinitely with no TTL or archival job; a tenant with 3 years of notifications will have an unbounded table that degrades query performance.
 **Complexity:** Medium
 **Multi-tenant relevance:** Per-tenant retention policies let premium tenants keep 2-year history while free-tier tenants retain 30 days, matching subscription plan value.
 **Multi-country relevance:** GDPR right-to-erasure requires deleting personal data (recipient email/phone) on request; a scheduled pruning job with per-tenant policy is the operational foundation for erasure compliance.
 
-### PII Anonymization on Expired Records
+### ✅ PII Anonymization on Expired Records
 **Why:** `recipient` stores email addresses and phone numbers in plain text; there is no mechanism to anonymize or redact these once a tenant's retention window expires.
 **Complexity:** Medium
 **Multi-tenant relevance:** Tenants operating in regulated markets must be able to demonstrate PII is not retained beyond policy; row-level anonymization preserves audit counts while erasing identity.
