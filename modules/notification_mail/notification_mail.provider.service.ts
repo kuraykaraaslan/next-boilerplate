@@ -1,5 +1,6 @@
 import { env } from '@/modules/env';
 import Logger from '@/modules/logger';
+import SettingService from '@/modules/setting/setting.service';
 import ejs from 'ejs';
 import path from 'path';
 import BaseMailProvider from './providers/base.provider';
@@ -35,8 +36,23 @@ export default class NotificationMailProviderService {
 
   static readonly TEMPLATE_PATH = path.join(__dirname, 'templates');
 
+  /** Resolve the tenant's preferred sender identity (falls back to env MAIL_FROM). */
+  static async resolveFrom(tenantId: string): Promise<string> {
+    try {
+      const s = await SettingService.getByKeys(tenantId, ['fromEmail', 'fromName']);
+      if (s.fromEmail) return s.fromName ? `${s.fromName} <${s.fromEmail}>` : s.fromEmail;
+    } catch { /* fall through to env default */ }
+    return env.MAIL_FROM || `${env.APPLICATION_NAME || 'Next Boilerplate'} <noreply@example.com>`;
+  }
+
   static async getProvider(tenantId: string, providerName?: MailProviderType): Promise<BaseMailProvider> {
-    const name = providerName || NotificationMailProviderService.DEFAULT_PROVIDER;
+    // Per-tenant provider selection: honour the `mailProvider` setting when the
+    // caller did not pin a provider explicitly.
+    let name = providerName;
+    if (!name) {
+      const configured = await SettingService.getValue(tenantId, 'mailProvider').catch(() => null);
+      name = (configured as MailProviderType) || NotificationMailProviderService.DEFAULT_PROVIDER;
+    }
     const provider = NotificationMailProviderService.PROVIDER_MAP.get(name);
     if (!provider) {
       Logger.warn(`NotificationMailProviderService: Unknown provider "${name}", falling back to SMTP`);

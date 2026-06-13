@@ -77,7 +77,12 @@ export default class NotificationMailQueueService {
   ): Promise<void> {
     try {
       await NotificationMailQueueService.assertMailFeatureAccess(tenantId);
-      await NotificationMailQueueService.QUEUE.add('sendMail', { tenantId, to, subject, html, provider });
+      await NotificationMailQueueService.QUEUE.add('sendMail', { tenantId, to, subject, html, provider }, {
+        attempts: 4,
+        backoff: { type: 'exponential', delay: 5000 },
+        removeOnComplete: 1000,
+        removeOnFail: 5000,
+      });
     } catch (error: unknown) {
       Logger.error(`MAIL sendMail ERROR: ${to} ${subject} ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
@@ -93,7 +98,8 @@ export default class NotificationMailQueueService {
   private static async _sendMail({ tenantId, to, subject, html, provider: providerName }: MailJobData): Promise<MailResult> {
     await NotificationMailQueueService.assertMailFeatureAccess(tenantId);
     const provider = await NotificationMailProviderService.getProvider(tenantId, providerName);
-    const options: MailOptions = { to, subject, html, from: NotificationMailQueueService.MAIL_FROM };
+    const from = await NotificationMailProviderService.resolveFrom(tenantId);
+    const options: MailOptions = { to, subject, html, from };
     let result: MailResult;
     try {
       result = await provider.sendMail(tenantId, options);

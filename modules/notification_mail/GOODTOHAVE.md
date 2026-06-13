@@ -4,13 +4,13 @@
 
 ## Per-Tenant Branding & Identity
 
-### Per-Tenant Sender Identity (From Email / Name)
+### ✅ Per-Tenant Sender Identity (From Email / Name)
 **Why:** `MAIL_FROM` is a static global built from `env.MAIL_FROM`/`APPLICATION_NAME`; the `fromEmail` and `fromName` settings keys exist and are seeded per tenant but are never read, so every tenant sends mail from the same platform address.
 **Complexity:** Low
 **Multi-tenant relevance:** Each tenant should appear as the sender of its own emails (e.g. "Acme Corp <noreply@acme.example>") rather than the platform brand; this is the most common white-label requirement.
 **Multi-country relevance:** Some countries require the sender domain to match a locally registered brand (e.g. consumer protection laws); per-tenant From identity lets each tenant configure a compliant sender address.
 
-### Per-Tenant Mail Provider Selection
+### ✅ Per-Tenant Mail Provider Selection
 **Why:** `DEFAULT_PROVIDER` is set once from `env.MAIL_PROVIDER`; the `mailProvider` setting key is declared and seeded per tenant but `getProvider()` never calls `SettingService.getValue(tenantId, 'mailProvider')`, so tenant admin selections have no effect.
 **Complexity:** Low
 **Multi-tenant relevance:** Different tenants may have existing contracts with different providers (SendGrid vs SES); reading the per-tenant `mailProvider` setting before the env default respects each tenant's explicit choice.
@@ -54,13 +54,13 @@
 
 ## Reliability & Failover
 
-### Automatic Provider Failover with Configurable Priority Order
+### ✅ Automatic Provider Failover with Configurable Priority Order
 **Why:** `getProvider()` walks `PROVIDER_MAP` insertion order on failure, which is arbitrary; there is no per-tenant priority list or health-aware selection, so failover may choose a provider worse than the one that failed.
 **Complexity:** Medium
 **Multi-tenant relevance:** Each tenant may have different provider contracts; a configurable priority list (e.g. `ses → sendgrid → smtp`) per tenant ensures failover respects cost and reliability preferences.
 **Multi-country relevance:** Regional provider outages (SES us-east-1 degradation) should trigger failover to a healthy regional provider, not necessarily the first in a static map.
 
-### BullMQ Retry Policy with Exponential Back-off
+### ✅ BullMQ Retry Policy with Exponential Back-off
 **Why:** The `mailQueue` worker has no explicit `attempts`, `backoff`, or `removeOnFail` configuration; a single transient provider error permanently fails the job with no retry.
 **Complexity:** Low
 **Multi-tenant relevance:** High-SLA tenants may require guaranteed delivery with configurable retry limits; lower-tier tenants can use the default single attempt.
