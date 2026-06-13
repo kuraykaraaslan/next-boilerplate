@@ -8,6 +8,7 @@ import Logger from '@/modules/logger';
 import { SafeTenantDomain, SafeTenantDomainSchema } from './tenant_domain.types';
 import { CreateTenantDomainInput, UpdateTenantDomainInput, GetTenantDomainsInput } from './tenant_domain.dto';
 import TenantDomainMessages from './tenant_domain.messages';
+import { isReservedDomain } from './tenant_domain.blocklist';
 import SettingService from '@/modules/setting/setting.service';
 import { AppError, ErrorCode } from '@/modules/common/app-error';
 
@@ -92,6 +93,11 @@ export default class TenantDomainCrudService {
   static async create(data: CreateTenantDomainInput): Promise<SafeTenantDomain> {
     const wildcardDomain = env.TENANT_WILDCARD_DOMAIN || 'example.com';
     const isSubdomain = data.domain.endsWith(`.${wildcardDomain}`);
+    // Reserved/blocklist check — but never block a legitimate self-service
+    // subdomain of the platform wildcard.
+    if (!isSubdomain && (await isReservedDomain(data.domain))) {
+      throw new AppError(TenantDomainMessages.DOMAIN_RESERVED, 422, ErrorCode.VALIDATION_ERROR);
+    }
     const ds = await tenantDataSourceFor(data.tenantId);
     const saved = await ds.transaction(async (mgr) => {
       const repo = mgr.getRepository(TenantDomainEntity);

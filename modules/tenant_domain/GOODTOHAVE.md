@@ -50,7 +50,7 @@
 **Multi-tenant relevance:** Platform operators managing many tenants regularly need to transfer assets between tenant accounts without going through the full delete-and-reverify cycle.
 **Multi-country relevance:** Business mergers and acquisitions require domain asset transfer; the legal requirement to preserve verification history differs by jurisdiction.
 
-### Domain Blocklist / Reserved Domains
+### ✅ Domain Blocklist / Reserved Domains
 **Why:** There is no mechanism to prevent tenants from claiming domains that should be reserved (e.g., `api.platform.com`, `admin.platform.com`, competitor domains), creating security and brand risks.
 **Complexity:** Low
 **Multi-tenant relevance:** A tenant claiming `api.{platform-domain}` as a custom domain could intercept platform API traffic in path-based tenancy mode.

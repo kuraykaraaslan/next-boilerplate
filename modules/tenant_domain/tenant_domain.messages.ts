@@ -1,6 +1,7 @@
 const TenantDomainMessages = {
   DOMAIN_NOT_FOUND: "Domain not found",
   DOMAIN_ALREADY_EXISTS: "Domain already exists",
+  DOMAIN_RESERVED: "This domain is reserved and cannot be claimed",
   DOMAIN_ALREADY_VERIFIED: "Domain is already verified",
   INVALID_DOMAIN_DATA: "Invalid domain data",
   CANNOT_DELETE_PRIMARY: "Cannot delete primary domain",
