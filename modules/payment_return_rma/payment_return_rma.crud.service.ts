@@ -1,5 +1,4 @@
 import 'reflect-metadata'
-import { randomUUID } from 'node:crypto'
 import { tenantDataSourceFor } from '@/modules/db'
 import Logger from '@/modules/logger'
 import { AppError, ErrorCode } from '@/modules/common/app-error'
@@ -19,6 +18,7 @@ import type {
 } from './payment_return_rma.dto'
 import type { ReturnStatus } from './payment_return_rma.enums'
 import { PAYMENT_RETURN_RMA_MESSAGES } from './payment_return_rma.messages'
+import PaymentReturnRmaPolicyService from './payment_return_rma.policy.service'
 import type { DataSource } from 'typeorm'
 
 export const TERMINAL_STATUSES: ReadonlySet<ReturnStatus> = new Set(['COMPLETED', 'CANCELLED', 'REJECTED'])
@@ -27,15 +27,22 @@ export default class PaymentReturnRmaCrudService {
 
   static async create(tenantId: string, dto: CreateReturnDTO): Promise<ReturnRequestWithItems> {
     const ds = await tenantDataSourceFor(tenantId)
+    const policy = await PaymentReturnRmaPolicyService.getPolicy(tenantId)
+    // Eligibility: return window + exchange policy (no-op when purchase date unknown).
+    PaymentReturnRmaPolicyService.assertEligible(policy, { type: dto.type, purchasedAt: dto.purchasedAt })
+    const autoApprove = PaymentReturnRmaPolicyService.shouldAutoApprove(policy, dto.items.map((i) => i.condition))
     try {
       const savedRequestId = await ds.transaction(async (mgr) => {
         const requestRepo = mgr.getRepository(ReturnRequestEntity)
         const itemRepo = mgr.getRepository(ReturnItemEntity)
-        const rmaNumber = `RMA-${randomUUID().slice(0, 8).toUpperCase()}`
+        // Gap-free, prefixed, sequential RMA number under an advisory lock.
+        const rmaNumber = await PaymentReturnRmaPolicyService.allocateRmaNumber(mgr, tenantId, policy.rmaPrefix, policy.rmaPadding)
         const request = requestRepo.create({
           tenantId, orderId: dto.orderId, paymentId: dto.paymentId, userId: dto.userId,
-          rmaNumber, type: dto.type, status: 'REQUESTED', reason: dto.reason,
+          rmaNumber, type: dto.type, status: autoApprove ? 'APPROVED' : 'REQUESTED', reason: dto.reason,
           customerNote: dto.customerNote, currency: dto.currency, metadata: dto.metadata,
+          slaDueAt: PaymentReturnRmaPolicyService.slaDueAt(policy),
+          approvedAt: autoApprove ? new Date() : undefined,
         })
         const savedRequest = await requestRepo.save(request)
         const items = dto.items.map((item) => itemRepo.create({
@@ -45,6 +52,7 @@ export default class PaymentReturnRmaCrudService {
         }))
         await itemRepo.save(items)
         await PaymentReturnRmaCrudService.logEvent(ds, tenantId, savedRequest.returnRequestId, 'REQUESTED')
+        if (autoApprove) await PaymentReturnRmaCrudService.logEvent(ds, tenantId, savedRequest.returnRequestId, 'APPROVED', 'Auto-approved by policy')
         return savedRequest.returnRequestId
       })
       return PaymentReturnRmaCrudService.getById(tenantId, savedRequestId)
@@ -100,6 +108,36 @@ export default class PaymentReturnRmaCrudService {
       throw new AppError(PAYMENT_RETURN_RMA_MESSAGES.INVALID_STATUS_TRANSITION, 409, ErrorCode.CONFLICT)
     }
     return { ds, row }
+  }
+
+  /**
+   * GDPR / data-retention sweep: for terminal returns older than `keepDays`,
+   * pseudonymise customer PII (userId, customerNote, customs data) while keeping
+   * the financial record; hard-delete after `deleteAfterDays` (0 = never).
+   * Returns counts. Intended for a scheduled job.
+   */
+  static async purgeOldReturns(tenantId: string, opts: { keepDays?: number; deleteAfterDays?: number } = {}): Promise<{ anonymized: number; deleted: number }> {
+    const ds = await tenantDataSourceFor(tenantId)
+    const repo = ds.getRepository(ReturnRequestEntity)
+    const now = Date.now()
+    const keepDays = opts.keepDays ?? 365
+    const terminal = ['COMPLETED', 'CANCELLED', 'REJECTED', 'REFUNDED']
+
+    const rows = await repo.find({ where: { tenantId } })
+    let anonymized = 0
+    let deleted = 0
+    for (const r of rows) {
+      if (!terminal.includes(r.status)) continue
+      const ageDays = (now - new Date(r.updatedAt).getTime()) / 86_400_000
+      if (opts.deleteAfterDays && opts.deleteAfterDays > 0 && ageDays > opts.deleteAfterDays) {
+        await repo.remove(r); deleted += 1; continue
+      }
+      if (ageDays > keepDays && (r.userId || r.customerNote || r.customsData)) {
+        await repo.update({ returnRequestId: r.returnRequestId }, { userId: null as never, customerNote: null as never, customsData: null as never })
+        anonymized += 1
+      }
+    }
+    return { anonymized, deleted }
   }
 
   static async logEvent(

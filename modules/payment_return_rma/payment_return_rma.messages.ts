@@ -12,5 +12,8 @@ export const PAYMENT_RETURN_RMA_MESSAGES = {
   INVALID_REFUND_AMOUNT: 'Invalid refund amount',
   REFUND_FAILED: 'Failed to process refund through the payment provider',
 
+  RETURN_WINDOW_EXPIRED: 'The return window for this purchase has expired',
+  EXCHANGES_NOT_ALLOWED: 'Exchanges are not enabled for this tenant',
+
   EVENT_LOG_FAILED: 'Failed to log return event',
 } as const

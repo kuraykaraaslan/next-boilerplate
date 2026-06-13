@@ -30,6 +30,8 @@ export const CreateReturnDTO = z.object({
   reason: z.string().optional(),
   customerNote: z.string().optional(),
   currency: CurrencyCodeInput.default(DEFAULT_CURRENCY),
+  /** Purchase date, from the order/payment — used for return-window eligibility. */
+  purchasedAt: z.coerce.date().optional(),
   metadata: z.record(z.string(), z.any()).optional(),
   items: z.array(ReturnItemInputSchema).min(1),
 })
@@ -52,6 +54,10 @@ export const RefundReturnDTO = z.object({
   note: z.string().optional(),
   /** Override / supply the payment to refund against (payment_sell). */
   paymentId: z.string().uuid().optional(),
+  /** CASH (provider refund) | STORE_CREDIT | GIFT_CARD. Defaults to tenant policy. */
+  refundMethod: z.enum(['CASH', 'STORE_CREDIT', 'GIFT_CARD']).optional(),
+  /** Loyalty points earned on the original purchase to claw back on refund. */
+  loyaltyPointsToReverse: z.number().int().nonnegative().optional(),
 })
 export type RefundReturnDTO = z.infer<typeof RefundReturnDTO>
 

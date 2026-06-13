@@ -50,8 +50,35 @@ export class ReturnRequest {
   @Column({ nullable: true, type: 'decimal', precision: 12, scale: 2 })
   refundAmount?: number;
 
+  // Restocking fee deducted from the refund (absolute amount).
+  @Column({ nullable: true, type: 'decimal', precision: 12, scale: 2 })
+  restockingFee?: number;
+
+  // CASH | STORE_CREDIT | GIFT_CARD — how the refund was issued.
+  @Column({ nullable: true, type: 'varchar' })
+  refundMethod?: string;
+
   @Column({ type: 'varchar', length: 3, default: DEFAULT_CURRENCY })
   currency!: string;
+
+  // ── Return shipment (prepaid label + tracking) ──────────────────────────
+  @Column({ nullable: true, type: 'varchar' })
+  returnCarrier?: string;
+
+  @Column({ nullable: true, type: 'varchar' })
+  returnTrackingNumber?: string;
+
+  @Column({ nullable: true, type: 'varchar' })
+  returnLabelUrl?: string;
+
+  // Cross-border customs documentation (HS codes, declared values, …).
+  @Column({ type: 'jsonb', nullable: true })
+  customsData?: unknown;
+
+  // SLA: when this return must reach its next milestone (escalation source).
+  @Index()
+  @Column({ nullable: true, type: 'timestamp' })
+  slaDueAt?: Date;
 
   @Column({ type: 'jsonb', nullable: true })
   metadata?: unknown;

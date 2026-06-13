@@ -1,7 +1,8 @@
 import PaymentReturnRmaCrudService from './payment_return_rma.crud.service';
 import PaymentReturnRmaLifecycleService from './payment_return_rma.lifecycle.service';
+import PaymentReturnRmaPolicyService from './payment_return_rma.policy.service';
 
-export { PaymentReturnRmaCrudService, PaymentReturnRmaLifecycleService };
+export { PaymentReturnRmaCrudService, PaymentReturnRmaLifecycleService, PaymentReturnRmaPolicyService };
 
 export default class PaymentReturnRmaService {
 
@@ -19,4 +20,10 @@ export default class PaymentReturnRmaService {
   static complete      = PaymentReturnRmaLifecycleService.complete.bind(PaymentReturnRmaLifecycleService);
   static cancel        = PaymentReturnRmaLifecycleService.cancel.bind(PaymentReturnRmaLifecycleService);
   static listEvents    = PaymentReturnRmaLifecycleService.listEvents.bind(PaymentReturnRmaLifecycleService);
+  static setTracking   = PaymentReturnRmaLifecycleService.setTracking.bind(PaymentReturnRmaLifecycleService);
+  static sweepSlaBreaches = PaymentReturnRmaLifecycleService.sweepSlaBreaches.bind(PaymentReturnRmaLifecycleService);
+
+  // Policy / retention
+  static getPolicy       = PaymentReturnRmaPolicyService.getPolicy.bind(PaymentReturnRmaPolicyService);
+  static purgeOldReturns = PaymentReturnRmaCrudService.purgeOldReturns.bind(PaymentReturnRmaCrudService);
 }
