@@ -6,13 +6,13 @@
 
 ## Security
 
-### Wire the `signRequests` column into the SAML client builder
+### ✅ Wire the `signRequests` column into the SAML client builder
 **Why:** The `signRequests` boolean is a visible, seeded, editable column on `SamlConfig` and is surfaced to tenant admins, but `buildSaml` never reads it — the SAML client is built the same way regardless of its value. Tenant admins who set it to `false` (for IdPs that reject signed requests) see no effect.
 **Complexity:** Low
 **Multi-tenant relevance:** Each tenant's IdP has different requirements. Okta and Azure AD accept signed requests; some on-premise ADFS deployments reject them. Without the per-tenant `signRequests` toggle, configurations that require unsigned requests will silently fail or be misconfigured.
 **Multi-country relevance:** Government IdPs in several countries (Germany's Elster, Belgium's eID, UK's Gov.UK Verify successor) have strict signature requirements that differ from commercial IdPs; per-tenant configurability is required to interoperate.
 
-### Per-tenant configurable signature algorithm (`samlSignatureAlgorithm`)
+### ✅ Per-tenant configurable signature algorithm (`samlSignatureAlgorithm`)
 **Why:** `signatureAlgorithm` is hardcoded to `'sha256'` for every tenant. Some legacy enterprise IdPs still use `sha1`, and future-looking IdPs require `sha512`. Tenant admins have no way to match their IdP's requirement.
 **Complexity:** Low
 **Multi-tenant relevance:** Enterprise tenants migrating from older IdPs (pre-2018 ADFS, legacy PingFederate) still require `sha1`. Blocking them on this prevents SAML SSO onboarding entirely.
@@ -24,13 +24,13 @@
 **Multi-tenant relevance:** Every tenant running production SSO must rotate its SP certificate periodically; a zero-downtime rotation path is table stakes for enterprise SAML deployments.
 **Multi-country relevance:** PCI-DSS 3.2.1 and EU eIDAS technical requirements both mandate regular cryptographic key rotation; dual-cert support (old + new cert accepted simultaneously during rollover) is the standard implementation.
 
-### IdP certificate expiry monitoring and alert
+### ✅ IdP certificate expiry monitoring and alert
 **Why:** `idpCertificate` is stored as a raw PEM/base64 blob with no expiry tracking. When the IdP's signing certificate expires, all SAML logins for that tenant fail with a cryptic signature-validation error. There is no proactive alert.
 **Complexity:** Medium
 **Multi-tenant relevance:** Each tenant has its own IdP cert with its own expiry. Without per-tenant expiry tracking, platform ops cannot proactively warn tenants before their SSO breaks.
 **Multi-country relevance:** Enterprise IdP certificates in regulated sectors (banking, government) often have fixed 1-year or 2-year lifetimes mandated by national PKI policy; silent expiry is an operational disaster.
 
-### Per-tenant configurable clock-skew tolerance (`samlClockSkewMs`)
+### ✅ Per-tenant configurable clock-skew tolerance (`samlClockSkewMs`)
 **Why:** `acceptedClockSkewMs` is hardcoded to 5000 ms. Enterprise IdPs with NTP drift (e.g. on-premise ADFS behind strict corporate firewalls) often require 30–60 seconds of tolerance. A single global value cannot satisfy both tight SaaS IdPs and corporate on-premise IdPs.
 **Complexity:** Low
 **Multi-tenant relevance:** Clock skew is an IdP-specific property; each tenant's IdP may have different NTP characteristics.
@@ -40,19 +40,19 @@
 
 ## Compliance
 
-### SAML assertion encryption support (EncryptedAssertion)
+### ✅ SAML assertion encryption support (EncryptedAssertion)
 **Why:** The current implementation validates signed assertions but does not decrypt encrypted assertions (`EncryptedAssertion`). Many high-assurance IdPs (healthcare, government, financial) send encrypted assertions as a mandatory security control; tenants relying on these IdPs cannot use the SAML module.
 **Complexity:** High
 **Multi-tenant relevance:** Enterprise healthcare and government tenants — the highest-value enterprise segment — require encrypted assertions as a non-negotiable IdP requirement.
 **Multi-country relevance:** EU eIDAS Level of Assurance "High" requires assertion encryption. Germany (BSI TR-03107), France (RGS), and UK (GPG 45) all require encryption for identity assertions at high assurance levels. Without it, the SAML module cannot be used in any EU public-sector SAML federation.
 
-### SAML Single Logout (SLO) support
+### ✅ SAML Single Logout (SLO) support
 **Why:** There is no SLO endpoint. When a user logs out of the IdP, the SP is never notified — the user's platform session remains active. Conversely, platform logout does not propagate to the IdP session. This breaks the security model for enterprise SSO where centralised session control is a compliance requirement.
 **Complexity:** High
 **Multi-tenant relevance:** Enterprise tenants using SAML expect SLO to be the mechanism by which IT helpdesks can terminate all user sessions centrally (e.g. when an employee is terminated).
 **Multi-country relevance:** GDPR Art. 32 and NIS2 Art. 21 require "appropriate technical measures" to protect personal data — a dangling authenticated session after IdP logout is a concrete gap. EU eIDAS federated identity guidelines mandate SLO for compliant service providers.
 
-### JIT provisioning transactional guarantee (user + membership atomicity)
+### ✅ JIT provisioning transactional guarantee (user + membership atomicity)
 **Why:** `resolveOrProvisionUser` creates a `User` row, then calls `TenantInvitationService.autoAcceptForEmail`, then creates a `TenantMember` row as separate, non-transactional writes. A failure after user creation but before membership creation leaves an orphaned user who can authenticate (via email/password) but has no tenant membership — they see an empty application state.
 **Complexity:** Medium
 **Multi-tenant relevance:** Orphaned users from JIT provisioning have caused silent onboarding failures in every multi-tenant SAML deployment encountered in practice; fixing this is a prerequisite for reliable enterprise onboarding.
