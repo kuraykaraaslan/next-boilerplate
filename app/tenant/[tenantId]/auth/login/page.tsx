@@ -23,6 +23,7 @@ export default function TenantLoginPage({ params }: { params: Promise<{ tenantId
   const { tenantId } = use(params);
   const [successMsg, setSuccessMsg] = useState('');
   const [ssoProviders, setSsoProviders] = useState<OAuthProvider[]>([]);
+  const [acsProviders, setAcsProviders] = useState<{ provider: string; label: string }[]>([]);
   const [tenantName, setTenantName] = useState('');
   const searchParams = useSearchParams();
   const redirectTo = safeRedirect(searchParams.get('redirect'));
@@ -34,6 +35,10 @@ export default function TenantLoginPage({ params }: { params: Promise<{ tenantId
     api.get(`/tenant/${tenantId}/api/auth/sso`)
       .then((res) => setSsoProviders((res.data?.providers ?? []) as OAuthProvider[]))
       .catch(() => setSsoProviders([]));
+
+    api.get(`/api/auth/acs`)
+      .then((res) => setAcsProviders((res.data?.providers ?? []) as { provider: string; label: string }[]))
+      .catch(() => setAcsProviders([]));
 
     api.get(`/tenant/${tenantId}/api/settings/public`)
       .then((res) => setTenantName(res.data?.settings?.brandName || res.data?.tenant?.name || ''))
@@ -93,15 +98,30 @@ export default function TenantLoginPage({ params }: { params: Promise<{ tenantId
         ) : (
           <>
             {ssoProviders.length > 0 && (
-              <>
-                <OAuthButtons providers={ssoProviders} onProvider={handleOAuth} />
+              <OAuthButtons providers={ssoProviders} onProvider={handleOAuth} />
+            )}
 
-                <div className="flex items-center gap-3">
-                  <div className="flex-1 h-px bg-border" aria-hidden="true" />
-                  <span className="text-xs text-text-secondary">or continue with email</span>
-                  <div className="flex-1 h-px bg-border" aria-hidden="true" />
-                </div>
-              </>
+            {acsProviders.length > 0 && (
+              <div className="space-y-2">
+                {acsProviders.map((p) => (
+                  <button
+                    key={p.provider}
+                    type="button"
+                    onClick={() => { window.location.href = `/api/auth/acs/${p.provider}/initiate?tenantId=${encodeURIComponent(tenantId)}`; }}
+                    className="w-full rounded-lg border border-border bg-surface px-4 py-2.5 text-sm font-medium text-text-primary hover:bg-surface-raised transition-colors"
+                  >
+                    {p.label}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {(ssoProviders.length > 0 || acsProviders.length > 0) && (
+              <div className="flex items-center gap-3">
+                <div className="flex-1 h-px bg-border" aria-hidden="true" />
+                <span className="text-xs text-text-secondary">or continue with email</span>
+                <div className="flex-1 h-px bg-border" aria-hidden="true" />
+              </div>
             )}
 
             <LoginForm onSubmit={handleLogin} />

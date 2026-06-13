@@ -1,0 +1,11 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "auth_acs",
+  "name": "National Identity Login",
+  "description": "National/government digital-identity login (e-Devlet TR/KKTC, eIDAS, SPID, Cl@ve, DE eID, Login.gov, ID.me, OneID, MyGov ID). Registry of SAML + OIDC providers keyed on a hashed national identifier (no email), with synthetic-email JIT + account-merge and platform-level config via ACS_PROVIDER_MAP.",
+  "version": "1.0.0",
+  "icon": "fas fa-id-card",
+  "tags": ["identity", "auth", "sso", "saml", "oidc", "government"],
+  "priority": 17,
+  "dependencies": { "requires": ["db", "user", "user_profile", "user_social_account", "user_session", "user_security", "tenant", "tenant_member", "auth_sso", "env", "audit_log", "observability", "redis", "common", "logger"] }
+}

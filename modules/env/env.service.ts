@@ -17,6 +17,7 @@ const SECRET_KEYS = new Set([
   'SETTINGS_ENCRYPTION_KEY', 'LOTL_SIGNER_CERT_PEM', 'MOBIL_IMZA_AGGREGATOR_API_KEY',
   'MOBIL_IMZA_CALLBACK_HMAC_SECRET', 'SMART_ID_RELYING_PARTY_UUID',
   'BANKID_SE_CLIENT_KEY_PATH', 'VAPID_PRIVATE_KEY', 'METRICS_SECRET',
+  'ACS_PROVIDER_MAP',
 ]);
 
 const EnvSchema = z.object({
@@ -184,6 +185,11 @@ const EnvSchema = z.object({
   TWITTER_CLIENT_SECRET: z.string().optional(),
   WECHAT_APP_ID: z.string().optional(),
   WECHAT_APP_SECRET: z.string().optional(),
+
+  // ── National identity providers (auth_acs) ──────────────────────────────────
+  // Single validated JSON blob keyed by provider (mirrors EID_PROVIDER_MAP).
+  // e.g. {"tr_edevlet":{"enabled":true,"idpSsoUrl":"…","idpCertificate":"…","spPrivateKey":"…"}}
+  ACS_PROVIDER_MAP: z.string().optional(),
 
   // ── AI providers ────────────────────────────────────────────────────────────
   AI_DEFAULT_PROVIDER: z.string().optional(),

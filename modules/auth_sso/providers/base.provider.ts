@@ -1,30 +1,29 @@
 import axios from 'axios';
-import crypto from 'crypto';
-import { env } from '@/modules/env';
+import { BaseOidcProvider } from '@/modules/auth_oidc/auth_oidc.engine';
 import type { SSOProvider } from '../auth_sso.enums';
 import type { SSOProfile, SSOTokens, SSOProviderConfig, SSOProviderService, SSOAuthUrlOptions } from '../auth_sso.types';
 import { SSO_CONFIGS, getCallbackUrl } from '../auth_sso.config';
 import SSOMessages from '../auth_sso.messages';
 
 /**
- * Base OAuth 2.0 / OIDC provider. Subclasses override `mapUserInfo` at minimum and
- * may override `generateAuthUrl` / `getTokens` / `getUserInfo` for vendor quirks.
+ * Base OAuth 2.0 / OIDC provider for the SOCIAL login catalog. Builds on the
+ * shared `auth_oidc` engine (PKCE, Basic confidential-client auth and client
+ * assertions are inherited — one implementation, shared with auth_acs and custom
+ * OIDC). Subclasses override `mapUserInfo` at minimum and may override
+ * `generateAuthUrl` / `getTokens` / `getUserInfo` for vendor quirks.
  *
  * Generic flow: GET /authorize → POST x-www-form-urlencoded /token → GET /userinfo
  * with `Authorization: Bearer`. All standard OAuth 2.0 + OIDC fields (`id_token`,
  * `expires_in`, `token_type`, `scope`, `refresh_token`) are passed through.
  *
- * PKCE: providers that need it (X/Twitter) call `pkceVerifier(state)` to derive a
- * deterministic verifier from `state` via HMAC(CSRF_SECRET, state). Verifier is
- * 256-bit, base64url, unrecoverable without the secret — equivalent security to
- * a random verifier when state itself is high-entropy.
- *
- * Basic auth: providers that require Confidential Client Basic auth (X, Autodesk)
- * call `basicAuthHeader()` and post without client_secret in the body.
+ * PKCE: providers that need it (X/Twitter) call the inherited `pkceVerifier(state)`
+ * (HMAC(CSRF_SECRET, `pkce:<provider>:<state>`)) — deterministic, 256-bit, base64url.
+ * Basic auth: providers needing Confidential-Client Basic auth (X, Autodesk) call
+ * the inherited `basicAuthHeader()` and post without client_secret in the body.
  */
 export type AuthUrlOptions = SSOAuthUrlOptions;
 
-export abstract class BaseSSOProvider implements SSOProviderService {
+export abstract class BaseSSOProvider extends BaseOidcProvider implements SSOProviderService {
   protected provider: SSOProvider;
   protected config: SSOProviderConfig;
 
@@ -38,8 +37,20 @@ export abstract class BaseSSOProvider implements SSOProviderService {
   protected usesPkce = false;
 
   constructor(provider: SSOProvider) {
+    const config = SSO_CONFIGS[provider];
+    super({
+      authUrl: config.authUrl,
+      tokenUrl: config.tokenUrl,
+      userInfoUrl: config.userInfoUrl,
+      clientId: config.clientId,
+      clientSecret: config.clientSecret,
+      redirectUri: getCallbackUrl(provider),
+      scopes: config.scopes,
+      // PKCE salt chosen so the inherited verifier matches the historical value exactly.
+      pkceSalt: `pkce:${provider}`,
+    });
     this.provider = provider;
-    this.config = SSO_CONFIGS[provider];
+    this.config = config;
   }
 
   generateAuthUrl(state?: string, options?: AuthUrlOptions): string {
@@ -170,27 +181,10 @@ export abstract class BaseSSOProvider implements SSOProviderService {
     };
   }
 
-  /** `Authorization: Basic base64(clientId:clientSecret)` for Confidential Client token calls. */
-  protected basicAuthHeader(): string {
-    const raw = `${this.config.clientId}:${this.config.clientSecret}`;
-    return `Basic ${Buffer.from(raw, 'utf8').toString('base64')}`;
-  }
-
-  /** Derive a PKCE verifier deterministically from `state`. 256-bit, base64url, 43 chars. */
-  protected pkceVerifier(state: string): string {
-    if (!state) {
-      throw new Error('PKCE verifier requires a non-empty state');
-    }
-    return crypto
-      .createHmac('sha256', env.CSRF_SECRET)
-      .update(`pkce:${this.provider}:${state}`)
-      .digest('base64url');
-  }
-
-  /** S256 challenge = base64url(SHA256(verifier)). */
-  protected pkceChallenge(verifier: string): string {
-    return crypto.createHash('sha256').update(verifier).digest('base64url');
-  }
+  // `basicAuthHeader()`, `pkceVerifier(state)` and `pkceChallenge(verifier)` are
+  // inherited from the shared auth_oidc engine (BaseOidcProvider) — single
+  // implementation, identical output (pkceSalt `pkce:<provider>` preserves the
+  // historical verifier value).
 
   protected getCallbackUrl(): string {
     return getCallbackUrl(this.provider);

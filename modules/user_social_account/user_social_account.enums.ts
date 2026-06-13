@@ -3,12 +3,14 @@ import { SSOProviderEnum } from '../auth_sso/auth_sso.enums';
 
 /**
  * Identifiers we can store in user_social_account.provider. This is the OAuth
- * SSO set plus 'saml' — a linked SAML identity counts as a connected account so
- * users can manage all federated logins from one panel.
+ * SSO set, plus 'saml' (a linked per-tenant SAML identity), plus the national
+ * identity providers stored as `acs:<provider>` (e.g. `acs:tr_edevlet`) — all
+ * count as connected accounts manageable from one panel.
  */
 export const SocialAccountProviderEnum = z.union([
   SSOProviderEnum,
   z.literal('saml'),
+  z.string().regex(/^acs:[a-z0-9_]+$/),
 ]);
 
 export type SocialAccountProvider = z.infer<typeof SocialAccountProviderEnum>;
