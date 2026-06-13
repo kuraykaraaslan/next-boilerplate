@@ -72,6 +72,7 @@ export interface AcsResolvedConfig {
 
   // OIDC / OAuth2
   issuer?: string;
+  jwksUri?: string;
   authUrl?: string;
   tokenUrl?: string;
   userInfoUrl?: string;
@@ -108,6 +109,7 @@ export const AcsProviderEnvEntrySchema = z.object({
   loa: z.string().optional(),
 
   issuer: z.string().optional(),
+  jwksUri: z.string().optional(),
   authUrl: z.string().optional(),
   tokenUrl: z.string().optional(),
   userInfoUrl: z.string().optional(),

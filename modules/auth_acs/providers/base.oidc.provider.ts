@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { env } from '@/modules/env';
 import { AppError, ErrorCode } from '@/modules/common/app-error';
 import { BaseOidcProvider } from '@/modules/auth_oidc/auth_oidc.engine';
 import type { AcsProvider } from '../auth_acs.enums';
@@ -20,6 +21,8 @@ export abstract class BaseOidcAcsProvider extends BaseOidcProvider implements Ac
   constructor(provider: AcsProvider) {
     const c = AuthAcsConfigService.resolveConfig(provider);
     super({
+      issuer: c.issuer,
+      jwksUri: c.jwksUri,
       authUrl: c.authUrl,
       tokenUrl: c.tokenUrl,
       userInfoUrl: c.userInfoUrl,
@@ -35,12 +38,24 @@ export abstract class BaseOidcAcsProvider extends BaseOidcProvider implements Ac
     this.config = c;
   }
 
+  /** Deterministic nonce derived from the relay state (recomputable on callback). */
+  protected deriveNonce(state: string): string {
+    return crypto.createHmac('sha256', env.CSRF_SECRET).update(`acs-nonce:${this.provider}:${state}`).digest('base64url');
+  }
+
+  /** Resolve discovery endpoints, then build the authorize URL with a bound nonce. */
+  override async generateAuthUrl(relayState: string): Promise<string> {
+    await this.ensureEndpoints();
+    return super.generateAuthUrl(relayState, { nonce: this.deriveNonce(relayState) });
+  }
+
   async validateCallback(body: Record<string, string>): Promise<AcsProfile> {
     const code = body.code;
     const state = body.state ?? '';
     if (!code) throw new AppError(AcsMessages.STATE_INVALID, 400, ErrorCode.VALIDATION_ERROR);
 
-    const claims = await this.getClaims(code, state);
+    // Verify the id_token nonce binds this callback to our authorize request.
+    const claims = await this.getClaims(code, state, { nonce: this.deriveNonce(state) });
     const mapped = this.mapClaims(claims);
     if (!mapped.nationalId) throw new AppError(AcsMessages.NATIONAL_ID_MISSING, 400, ErrorCode.VALIDATION_ERROR);
 

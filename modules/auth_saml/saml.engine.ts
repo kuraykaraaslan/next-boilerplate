@@ -30,6 +30,12 @@ export interface SamlEngineConfig {
   nameIdFormat?: string;
   wantAssertionsSigned?: boolean;
   acceptedClockSkewMs?: number;
+  /** RequestedAuthnContext class refs (e.g. eIDAS LoA, SPID SpidL2/L3). Enforces assurance. */
+  authnContextClassRefs?: string[];
+  /** AuthnContext comparison (default 'exact'). */
+  racComparison?: 'exact' | 'minimum' | 'maximum' | 'better';
+  /** Force re-authentication at the IdP (ignore existing IdP session). */
+  forceAuthn?: boolean;
   /** Redis key prefix for replay detection, e.g. `auth_acs:replay:tr_edevlet`. Replay is skipped when unset. */
   replayKeyPrefix?: string;
   /** Tag used on the replay-blocked metric. */
@@ -65,6 +71,12 @@ export abstract class BaseSamlProvider {
       identifierFormat: c.nameIdFormat ?? undefined,
       wantAssertionsSigned: c.wantAssertionsSigned ?? true,
       acceptedClockSkewMs: typeof c.acceptedClockSkewMs === 'number' ? c.acceptedClockSkewMs : 5000,
+      // RequestedAuthnContext: enforce an assurance level when configured (eIDAS/SPID),
+      // otherwise omit it entirely so IdPs that reject a forced context still work.
+      ...(c.authnContextClassRefs?.length
+        ? { authnContext: c.authnContextClassRefs, racComparison: c.racComparison ?? 'minimum' }
+        : { disableRequestedAuthnContext: true }),
+      forceAuthn: c.forceAuthn ?? false,
     } as ConstructorParameters<typeof SAML>[0]);
   }
 

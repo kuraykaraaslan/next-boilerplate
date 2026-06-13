@@ -157,7 +157,7 @@ describe('callback flow: github', () => {
     mockTokenResponse({ access_token: 'ghp_token' });
     mockUserInfoResponse({ id: 99, login: 'silent-user', email: null });
     // email == null → GitHub provider falls back to GET /user/emails (mock it empty).
-    mockUserInfoResponse([]);
+    axiosGet.mockResolvedValueOnce({ data: [] });
 
     const result = await SSOFlowService.authenticateOrRegister('github', 'gh-code');
 

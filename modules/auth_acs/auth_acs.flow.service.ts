@@ -9,6 +9,8 @@ import UserService from '@/modules/user/user.service';
 import UserSocialAccountService from '@/modules/user_social_account/user_social_account.service';
 import UserProfileService from '@/modules/user_profile/user_profile.service';
 import TenantMemberService from '@/modules/tenant_member/tenant_member.service';
+import { UserConsent as UserConsentEntity } from '@/modules/auth/entities/user_consent.entity';
+import Logger from '@/modules/logger';
 import type { SafeUser } from '@/modules/user/user.types';
 import { acsSocialProviderKey, type AcsProvider } from './auth_acs.enums';
 import type { AcsProfile } from './auth_acs.types';
@@ -100,6 +102,7 @@ export default class AuthAcsFlowService {
     // Best-effort post-commit side effects (non-critical, idempotent).
     const name = AuthAcsFlowService.fullName(profile);
     if (name) await UserProfileService.upsert(userId, { name }).catch(() => {});
+    await AuthAcsFlowService.recordConsent(userId, ctx);
     await AuthAcsFlowService.ensureMembership(ctx.tenantId, userId);
     await AuditLogService.log({
       tenantId: ctx.tenantId ?? null, actorType: 'SYSTEM',
@@ -110,6 +113,28 @@ export default class AuthAcsFlowService {
 
     const user = await UserService.getById(userId);
     return { user, isNewUser: true };
+  }
+
+  /**
+   * Record a verifiable consent row for a JIT-provisioned national-identity user
+   * (GDPR Art. 7 / KVKK), matching the auth_sso behaviour. Append-only, best-effort.
+   */
+  private static async recordConsent(userId: string, ctx: AcsFlowContext): Promise<void> {
+    try {
+      const ds = await getDataSource();
+      const repo = ds.getRepository(UserConsentEntity);
+      await repo.save(repo.create({
+        userId,
+        tenantId: ctx.tenantId ?? null,
+        documentType: 'terms_of_service',
+        documentVersion: 'acs-jit-v1',
+        locale: null,
+        ipAddress: ctx.ipAddress ?? null,
+        userAgent: ctx.userAgent ?? null,
+      }));
+    } catch (err) {
+      Logger.warn(`auth_acs: consent record failed for ${userId}: ${err instanceof Error ? err.message : String(err)}`);
+    }
   }
 
   /** Create an ACTIVE membership for the tenant if one does not already exist. */

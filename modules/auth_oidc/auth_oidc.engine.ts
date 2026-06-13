@@ -4,22 +4,28 @@ import jwt from 'jsonwebtoken';
 import { env } from '@/modules/env';
 import { AppError, ErrorCode } from '@/modules/common/app-error';
 import OidcMessages from './auth_oidc.messages';
+import { discover } from './auth_oidc.discovery';
+import { getSigningPem } from './auth_oidc.jwks';
 
 /**
  * Generic, config-driven OAuth2 / OIDC engine — the single home for the OAuth
  * protocol mechanics (authorize → token → userinfo, PKCE, refresh, `private_key_jwt`
- * and Basic confidential-client auth). NO coupling to any provider catalog.
+ * and Basic confidential-client auth) PLUS OIDC security: `.well-known` discovery,
+ * JWKS-verified `id_token` signatures, and `iss`/`aud`/`exp`/`nonce` validation.
+ * NO coupling to any provider catalog.
  *
- * Consumers (the social SSO catalog `auth_sso`, the government catalog `auth_acs`,
- * and any custom/BYO OIDC IdP) subclass `BaseOidcProvider`, pass a plain
- * `OidcEngineConfig`, and map the raw token bundle / claims into their own profile.
- * OAuth2-only providers (GitHub, Facebook, …) are supported too — `id_token` is
- * simply absent.
+ * Consumers (social SSO `auth_sso`, government `auth_acs`, custom/BYO OIDC)
+ * subclass `BaseOidcProvider` and map the raw token bundle / claims into their
+ * own profile. OAuth2-only providers (GitHub, Facebook, …) work too — `id_token`
+ * is simply absent and verification is skipped.
  */
 export interface OidcEngineConfig {
+  /** OIDC issuer; when set, missing endpoints + jwks_uri are auto-discovered. */
+  issuer?: string;
   authUrl?: string;
   tokenUrl?: string;
   userInfoUrl?: string;
+  jwksUri?: string;
   clientId?: string;
   clientSecret?: string;
   /** PEM private key for `private_key_jwt` client authentication (e.g. Login.gov). */
@@ -31,6 +37,8 @@ export interface OidcEngineConfig {
   useBasicAuth?: boolean;
   /** Salt that namespaces the deterministic PKCE verifier derived from `state`. */
   pkceSalt: string;
+  /** Leeway (seconds) for id_token exp/nbf. Default 60. */
+  clockToleranceSec?: number;
 }
 
 export interface OidcTokens {
@@ -46,14 +54,35 @@ export interface OidcTokens {
 export interface OidcAuthUrlOptions {
   uiLocales?: string;
   loginHint?: string;
+  /** OIDC nonce — bound into the id_token and verified on callback (replay defence). */
+  nonce?: string;
   extraParams?: Record<string, string>;
 }
+
+const HTTP_TIMEOUT_MS = 10_000;
 
 export abstract class BaseOidcProvider {
   protected constructor(protected oidcConfig: OidcEngineConfig) {}
 
-  /** Build the authorize redirect URL (with PKCE + optional locale/hint params). */
-  generateAuthUrl(state: string, options?: OidcAuthUrlOptions): string {
+  /** Resolve missing endpoints / jwks_uri from the issuer's discovery document. */
+  protected async ensureEndpoints(): Promise<void> {
+    const c = this.oidcConfig;
+    if (!c.issuer) return;
+    if (c.authUrl && c.tokenUrl && c.jwksUri) return;
+    try {
+      const doc = await discover(c.issuer);
+      c.authUrl ??= doc.authorization_endpoint;
+      c.tokenUrl ??= doc.token_endpoint;
+      c.userInfoUrl ??= doc.userinfo_endpoint;
+      c.jwksUri ??= doc.jwks_uri;
+    } catch {
+      // Discovery failure is non-fatal when endpoints were supplied explicitly.
+    }
+  }
+
+  /** Build the authorize redirect URL (with PKCE + optional nonce/locale params).
+   *  Returns synchronously here; subclasses may override async (e.g. to run discovery first). */
+  generateAuthUrl(state: string, options?: OidcAuthUrlOptions): string | Promise<string> {
     const c = this.oidcConfig;
     const params = new URLSearchParams({
       client_id: c.clientId ?? '',
@@ -62,6 +91,7 @@ export abstract class BaseOidcProvider {
       scope: (c.scopes ?? ['openid']).join(' '),
       state,
     });
+    if (options?.nonce) params.set('nonce', options.nonce);
     if (options?.uiLocales) params.set('ui_locales', options.uiLocales);
     if (options?.loginHint) params.set('login_hint', options.loginHint);
     for (const [k, v] of Object.entries(options?.extraParams ?? {})) params.set(k, v);
@@ -74,6 +104,7 @@ export abstract class BaseOidcProvider {
 
   /** Exchange an authorization code for a normalized token bundle. */
   protected async requestToken(code: string, state?: string): Promise<OidcTokens> {
+    await this.ensureEndpoints();
     const c = this.oidcConfig;
     const body: Record<string, string> = {
       grant_type: 'authorization_code',
@@ -92,7 +123,7 @@ export abstract class BaseOidcProvider {
       body.client_secret = c.clientSecret;
     }
     try {
-      const res = await axios.post(c.tokenUrl as string, new URLSearchParams(body), { headers });
+      const res = await axios.post(c.tokenUrl as string, new URLSearchParams(body), { headers, timeout: HTTP_TIMEOUT_MS });
       return this.normalizeOidcTokens(res.data as Record<string, unknown>);
     } catch {
       throw new AppError(OidcMessages.TOKEN_EXCHANGE_FAILED, 502, ErrorCode.INTERNAL_ERROR);
@@ -104,15 +135,70 @@ export abstract class BaseOidcProvider {
     const c = this.oidcConfig;
     if (!c.userInfoUrl) throw new AppError(OidcMessages.USER_INFO_FAILED, 502, ErrorCode.INTERNAL_ERROR);
     try {
-      const res = await axios.get(c.userInfoUrl, { headers: { Authorization: `Bearer ${accessToken}` } });
+      const res = await axios.get(c.userInfoUrl, { headers: { Authorization: `Bearer ${accessToken}` }, timeout: HTTP_TIMEOUT_MS });
       return res.data as Record<string, unknown>;
     } catch {
       throw new AppError(OidcMessages.USER_INFO_FAILED, 502, ErrorCode.INTERNAL_ERROR);
     }
   }
 
+  /**
+   * Verify an id_token's signature against the issuer JWKS and validate
+   * iss/aud/exp (+ nonce when provided). Refuses unverifiable tokens — NEVER
+   * trusts an unsigned/undecoded id_token.
+   */
+  protected async verifyIdToken(idToken: string, nonce?: string): Promise<Record<string, unknown>> {
+    await this.ensureEndpoints();
+    const c = this.oidcConfig;
+    if (!c.jwksUri) throw new AppError(OidcMessages.ID_TOKEN_UNVERIFIABLE, 400, ErrorCode.VALIDATION_ERROR);
+
+    const decoded = jwt.decode(idToken, { complete: true });
+    if (!decoded || typeof decoded === 'string' || !decoded.header?.kid) {
+      throw new AppError(OidcMessages.ID_TOKEN_INVALID, 400, ErrorCode.VALIDATION_ERROR);
+    }
+    const pem = await getSigningPem(c.jwksUri, decoded.header.kid);
+    if (!pem) throw new AppError(OidcMessages.ID_TOKEN_INVALID, 400, ErrorCode.VALIDATION_ERROR);
+
+    let claims: Record<string, unknown>;
+    try {
+      claims = jwt.verify(idToken, pem, {
+        algorithms: ['RS256', 'RS384', 'RS512', 'PS256', 'ES256', 'ES384'],
+        issuer: c.issuer,
+        audience: c.clientId,
+        clockTolerance: c.clockToleranceSec ?? 60,
+      }) as Record<string, unknown>;
+    } catch {
+      throw new AppError(OidcMessages.ID_TOKEN_INVALID, 400, ErrorCode.VALIDATION_ERROR);
+    }
+    if (nonce && claims.nonce !== nonce) {
+      throw new AppError(OidcMessages.NONCE_MISMATCH, 400, ErrorCode.VALIDATION_ERROR);
+    }
+    return claims;
+  }
+
+  /**
+   * Run code → tokens → claims. The id_token (when present) is JWKS-verified and
+   * its nonce checked; userinfo (when available) is merged and its `sub` is
+   * cross-checked against the verified id_token to prevent token substitution.
+   */
+  protected async getClaims(code: string, state?: string, opts?: { nonce?: string }): Promise<Record<string, unknown>> {
+    const tokens = await this.requestToken(code, state);
+    const verified = tokens.idToken ? await this.verifyIdToken(tokens.idToken, opts?.nonce) : null;
+
+    if (this.oidcConfig.userInfoUrl) {
+      const userinfo = await this.requestUserInfo(tokens.accessToken);
+      if (verified && verified.sub && userinfo.sub && verified.sub !== userinfo.sub) {
+        throw new AppError(OidcMessages.SUBJECT_MISMATCH, 400, ErrorCode.VALIDATION_ERROR);
+      }
+      return { ...(verified ?? {}), ...userinfo };
+    }
+    if (verified) return verified;
+    throw new AppError(OidcMessages.USER_INFO_FAILED, 502, ErrorCode.INTERNAL_ERROR);
+  }
+
   /** Standard OAuth refresh-token grant. Returns null when refresh is impossible. */
   protected async refresh(refreshToken: string): Promise<OidcTokens | null> {
+    await this.ensureEndpoints();
     const c = this.oidcConfig;
     if (!refreshToken) return null;
     const body: Record<string, string> = {
@@ -121,23 +207,12 @@ export abstract class BaseOidcProvider {
     if (c.clientSecret) body.client_secret = c.clientSecret;
     try {
       const res = await axios.post(c.tokenUrl as string, new URLSearchParams(body), {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded', Accept: 'application/json' },
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded', Accept: 'application/json' }, timeout: HTTP_TIMEOUT_MS,
       });
       return this.normalizeOidcTokens(res.data as Record<string, unknown>);
     } catch {
       return null;
     }
-  }
-
-  /** Convenience: code → tokens → claims (userinfo, falling back to id_token). */
-  protected async getClaims(code: string, state?: string): Promise<Record<string, unknown>> {
-    const tokens = await this.requestToken(code, state);
-    if (this.oidcConfig.userInfoUrl) return this.requestUserInfo(tokens.accessToken);
-    if (tokens.idToken) {
-      const decoded = jwt.decode(tokens.idToken);
-      if (decoded && typeof decoded === 'object') return decoded as Record<string, unknown>;
-    }
-    throw new AppError(OidcMessages.USER_INFO_FAILED, 502, ErrorCode.INTERNAL_ERROR);
   }
 
   // ── helpers ────────────────────────────────────────────────────────────────

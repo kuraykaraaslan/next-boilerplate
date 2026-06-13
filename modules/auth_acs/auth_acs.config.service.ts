@@ -75,6 +75,7 @@ export default class AuthAcsConfigService {
 
       // OIDC
       issuer: entry.issuer ?? d.issuer,
+      jwksUri: entry.jwksUri,
       authUrl: entry.authUrl ?? d.authUrl,
       tokenUrl: entry.tokenUrl ?? d.tokenUrl,
       userInfoUrl: entry.userInfoUrl ?? d.userInfoUrl,
