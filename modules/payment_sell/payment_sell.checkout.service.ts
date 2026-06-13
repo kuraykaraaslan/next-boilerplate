@@ -4,6 +4,7 @@ import redis from '@/modules/redis'
 import Logger from '@/modules/logger'
 import { AppError, ErrorCode } from '@/modules/common/app-error'
 import AuditLogService from '@/modules/audit_log/audit_log.service'
+import SettingService from '@/modules/setting/setting.service'
 import { Payment as PaymentEntity } from './entities/payment.entity'
 import {
   SafePaymentSchema, CheckoutResultSchema,
@@ -14,6 +15,7 @@ import { PAYMENT_SELL_MESSAGES } from './payment_sell.messages'
 import PaymentSellCrudService from './payment_sell.crud.service'
 import type { PaymentProvider } from '@/modules/payment_core/payment_core.enums'
 import { PaymentCircuitBreaker } from '@/modules/payment_core'
+import type BasePaymentProvider from '@/modules/payment_core/providers/base.provider'
 import { RedisIdempotencyService } from '@/modules/redis_idempotency'
 
 // Velocity guard: too many checkout attempts from one customer in a short
@@ -37,6 +39,38 @@ export default class PaymentSellCheckoutService {
     }
   }
 
+  // Provider → its per-tenant "enabled" setting flag.
+  private static readonly PROVIDER_ENABLED_KEY: Record<PaymentProvider, string> = {
+    STRIPE: 'stripeEnabled', PAYPAL: 'paypalEnabled', IYZICO: 'iyzicoEnabled',
+    ALIPAY: 'alipayEnabled', WECHATPAY: 'wechatPayEnabled',
+    YOOKASSA: 'yookassaEnabled', CLOUDPAYMENTS: 'cloudpaymentsEnabled',
+  }
+
+  /**
+   * Smart routing: build an ordered fallback chain starting with the preferred
+   * provider, then any other per-tenant enabled providers. Providers whose
+   * circuit breaker is open are pushed to the back so a failing gateway is tried
+   * last (or skipped). Only enabled providers are included.
+   */
+  private static async resolveProviderChain(tenantId: string, preferred: PaymentProvider): Promise<PaymentProvider[]> {
+    const all = Object.keys(this.PROVIDER_ENABLED_KEY) as PaymentProvider[]
+    const enabled: PaymentProvider[] = []
+    for (const p of all) {
+      const on = await SettingService.getValue(tenantId, this.PROVIDER_ENABLED_KEY[p]).catch(() => null)
+      if (on === 'true') enabled.push(p)
+    }
+    // If the tenant configured nothing, honour the explicit request.
+    const pool = enabled.length > 0 ? enabled : [preferred]
+    const ordered = [preferred, ...pool.filter((p) => p !== preferred)]
+    // Healthy first, open-breaker providers last.
+    const healthy: PaymentProvider[] = []
+    const degraded: PaymentProvider[] = []
+    for (const p of ordered) {
+      (await PaymentCircuitBreaker.isOpen(p)) ? degraded.push(p) : healthy.push(p)
+    }
+    return [...healthy, ...degraded]
+  }
+
   static async createCheckout(tenantId: string, data: CreatePaymentDTO): Promise<CheckoutResult> {
     // Idempotency: a repeated submit with the same key returns the first result
     // instead of creating a second checkout session (double-charge guard).
@@ -51,30 +85,41 @@ export default class PaymentSellCheckoutService {
     const velocityId = data.customerEmail ?? data.userId ?? data.customerPhone
     if (velocityId) await this.assertVelocity(tenantId, velocityId)
 
-    const provider = PaymentSellCrudService.getProvider(data.provider)
     const ds = await tenantDataSourceFor(tenantId)
     const repo = ds.getRepository(PaymentEntity)
 
-    let session: Awaited<ReturnType<typeof provider.createCheckoutSession>>
-    try {
-      // Circuit breaker: fail fast when this provider is in a failing state.
-      session = await PaymentCircuitBreaker.run(data.provider, () => provider.createCheckoutSession(tenantId, {
-        amount: data.amount,
-        currency: data.currency,
-        description: data.description ?? '',
-        metadata: data.metadata as Record<string, string> | undefined,
-        successUrl: data.successUrl,
-        cancelUrl: data.cancelUrl,
-      }))
-    } catch (error) {
-      if (error instanceof AppError) throw error
-      Logger.error(`${PAYMENT_SELL_MESSAGES.CHECKOUT_CREATE_FAILED}: ${error}`)
-      throw new AppError(PAYMENT_SELL_MESSAGES.CHECKOUT_CREATE_FAILED, 502, ErrorCode.INTERNAL_ERROR)
+    // Smart routing: try the preferred provider, then enabled fallbacks; skip /
+    // defer providers whose circuit breaker is open.
+    const chain = await this.resolveProviderChain(tenantId, data.provider)
+    let session: Awaited<ReturnType<BasePaymentProvider['createCheckoutSession']>> | undefined
+    let usedProvider: PaymentProvider = data.provider
+    let lastError: unknown
+    for (const p of chain) {
+      try {
+        const provider = PaymentSellCrudService.getProvider(p)
+        session = await PaymentCircuitBreaker.run(p, () => provider.createCheckoutSession(tenantId, {
+          amount: data.amount,
+          currency: data.currency,
+          description: data.description ?? '',
+          metadata: data.metadata as Record<string, string> | undefined,
+          successUrl: data.successUrl,
+          cancelUrl: data.cancelUrl,
+        }))
+        usedProvider = p
+        break
+      } catch (error) {
+        lastError = error
+        Logger.warn(`[payment_sell] provider ${p} failed, trying next in chain: ${error instanceof Error ? error.message : String(error)}`)
+      }
+    }
+    if (!session) {
+      Logger.error(`${PAYMENT_SELL_MESSAGES.CHECKOUT_CREATE_FAILED}: ${lastError}`)
+      throw new AppError(PAYMENT_SELL_MESSAGES.NO_PROVIDER_AVAILABLE, 502, ErrorCode.INTERNAL_ERROR)
     }
 
     const payment = repo.create({
       tenantId, userId: data.userId,
-      provider: data.provider, providerPaymentId: session.sessionId,
+      provider: usedProvider, providerPaymentId: session.sessionId,
       amount: data.amount, currency: data.currency,
       status: 'PENDING', paymentMethod: data.paymentMethod,
       description: data.description, metadata: data.metadata,
@@ -87,14 +132,14 @@ export default class PaymentSellCheckoutService {
     AuditLogService.log({
       tenantId, actorType: 'SYSTEM', action: 'payment.checkout_created',
       resourceType: 'payment', resourceId: saved.paymentId,
-      metadata: { provider: data.provider, amount: data.amount, currency: data.currency },
+      metadata: { provider: usedProvider, requestedProvider: data.provider, amount: data.amount, currency: data.currency },
     }).catch(() => {})
 
     const result = CheckoutResultSchema.parse({
       paymentId: saved.paymentId,
       sessionId: session.sessionId,
       checkoutUrl: session.checkoutUrl,
-      provider: data.provider,
+      provider: usedProvider,
       expiresAt: data.expiresAt ?? null,
     })
 
@@ -113,6 +158,16 @@ export default class PaymentSellCheckoutService {
     if (!payment) throw new AppError(PAYMENT_SELL_MESSAGES.PAYMENT_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     if (!['COMPLETED', 'PARTIALLY_REFUNDED'].includes(payment.status)) {
       throw new AppError(PAYMENT_SELL_MESSAGES.PAYMENT_NOT_REFUNDABLE, 409, ErrorCode.CONFLICT)
+    }
+    // Per-tenant refund window: reject refunds past `refundWindowDays` from
+    // the paid date (0 / unset = no limit).
+    const windowRaw = await SettingService.getValue(tenantId, 'refundWindowDays').catch(() => null)
+    const windowDays = windowRaw ? parseInt(windowRaw, 10) : 0
+    if (windowDays > 0 && payment.paidAt) {
+      const ageDays = (Date.now() - new Date(payment.paidAt).getTime()) / 86_400_000
+      if (ageDays > windowDays) {
+        throw new AppError(PAYMENT_SELL_MESSAGES.REFUND_WINDOW_EXPIRED, 409, ErrorCode.CONFLICT)
+      }
     }
     const refundAmount = dto.amount ?? payment.amount
     const alreadyRefunded = Number(payment.refundedAmount ?? 0)

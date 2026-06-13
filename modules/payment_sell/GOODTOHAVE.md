@@ -16,7 +16,7 @@
 **Multi-tenant relevance:** Most tenants have one primary payment provider; a default eliminates boilerplate from every checkout integration point.
 **Multi-country relevance:** A multi-country platform routes different tenant regions to different providers by default (Stripe for global, Iyzico for TR, YooKassa for RU); a per-tenant default makes this automatic.
 
-### Smart Provider Routing (Fallback Chain)
+### ✅ Smart Provider Routing (Fallback Chain)
 **Why:** If the primary provider returns an error at checkout creation time, the transaction fails with no retry through an alternative provider.
 **Complexity:** High
 **Multi-tenant relevance:** Each tenant configures a priority-ordered provider list as its fallback chain.
@@ -50,7 +50,7 @@
 
 ## Refunds
 
-### Per-Tenant Refund Window Policy
+### ✅ Per-Tenant Refund Window Policy
 **Why:** Refund eligibility is only gated by status (`COMPLETED` / `PARTIALLY_REFUNDED`); there is no configurable refund window (e.g. "refunds only within 30 days") enforced by the service.
 **Complexity:** Low
 **Multi-tenant relevance:** Refund policy is a per-tenant business decision; the service should read and enforce a tenant-configured `refundWindowDays` setting.
@@ -76,7 +76,7 @@
 **Multi-tenant relevance:** Every tenant filing VAT/GST returns needs tax amounts per transaction; the current schema cannot support this without joining to other tables that may not exist.
 **Multi-country relevance:** VAT/GST/sales tax reporting is mandatory in nearly every jurisdiction; the payment record must carry enough detail for tax filings.
 
-### Invoice Auto-Generation on Payment Completion
+### ✅ Invoice Auto-Generation on Payment Completion
 **Why:** There is no automatic invoice generation when a one-time payment succeeds; tenants must manually trigger invoice creation from a separate module.
 **Complexity:** Medium
 **Multi-tenant relevance:** Every tenant needs invoices for every sale; automating this on `payment.completed` removes a critical manual step.
@@ -96,7 +96,7 @@
 **Multi-tenant relevance:** Excessive failed charges are billed by most providers (Stripe, Iyzico); the financial impact is per-tenant.
 **Multi-country relevance:** Card-testing attack volumes differ by region; velocity thresholds should be configurable per tenant's risk profile.
 
-### Payment Analytics and Conversion Tracking
+### ✅ Payment Analytics and Conversion Tracking
 **Why:** No metrics or events are emitted from checkout creation, success, or failure; tenants cannot measure conversion rates, revenue by provider, or payment success rates.
 **Complexity:** Low
 **Multi-tenant relevance:** Each tenant needs isolated payment analytics to optimize its checkout.

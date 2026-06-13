@@ -14,6 +14,8 @@ export const PAYMENT_SELL_MESSAGES = {
   CHECKOUT_CREATE_FAILED: 'Failed to create checkout session',
   CHECKOUT_SESSION_EXPIRED: 'Checkout session has expired',
   VELOCITY_EXCEEDED: 'Too many payment attempts. Please wait a few minutes and try again.',
+  REFUND_WINDOW_EXPIRED: 'The refund window for this payment has expired',
+  NO_PROVIDER_AVAILABLE: 'No payment provider is currently available',
 
   WEBHOOK_INVALID_SIGNATURE: 'Invalid webhook signature',
   WEBHOOK_UNKNOWN_EVENT: 'Unknown or unhandled webhook event type',

@@ -25,6 +25,7 @@ import type {
 } from './payment_sell.dto'
 import { PAYMENT_SELL_MESSAGES } from './payment_sell.messages'
 import type { PaymentProvider } from '@/modules/payment_core/payment_core.enums'
+import PaymentSellInvoiceService from './payment_sell.invoice.service'
 
 export default class PaymentSellCrudService {
 
@@ -104,11 +105,17 @@ export default class PaymentSellCrudService {
     const row = await repo.findOne({ where: { tenantId, paymentId } })
     if (!row) throw new AppError(PAYMENT_SELL_MESSAGES.PAYMENT_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     const patch: UpdatePaymentDTO & { paidAt?: Date; cancelledAt?: Date; refundedAt?: Date } = { ...data }
-    if (data.status === 'COMPLETED' && !row.paidAt) patch.paidAt = new Date()
+    const firstCompletion = data.status === 'COMPLETED' && !row.paidAt
+    if (firstCompletion) patch.paidAt = new Date()
     if (data.status === 'CANCELLED' && !row.cancelledAt) patch.cancelledAt = new Date()
     if (data.status === 'REFUNDED' && !row.refundedAt) patch.refundedAt = new Date()
     Object.assign(row, patch)
     const saved = await repo.save(row)
+
+    // Auto-generate an invoice on first completion (best-effort, setting-gated).
+    if (firstCompletion) {
+      void PaymentSellInvoiceService.generateForPayment(tenantId, saved)
+    }
     redis.del(`pay:sell:${paymentId}`).catch(() => {})
     redis.del(`pay:sell:tx:${paymentId}`).catch(() => {})
     if (data.status) {
