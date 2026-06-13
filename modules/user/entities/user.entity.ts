@@ -33,6 +33,13 @@ export class User {
   @Column({ nullable: true, type: 'timestamp' })
   consentAcceptedAt?: Date;
 
+  // User's locale and country for tax, regulatory, and communication workflows.
+  @Column({ nullable: true, type: 'varchar', length: 10 })
+  locale?: string;
+
+  @Column({ nullable: true, type: 'varchar', length: 2 })
+  country?: string;
+
   @CreateDateColumn({ type: 'timestamp' })
   createdAt!: Date;
 
