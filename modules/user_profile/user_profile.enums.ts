@@ -1,5 +1,18 @@
 import { z } from 'zod';
 
+// Overall and per-field visibility for public-facing profile exposure (GDPR
+// data-minimization). TENANT = visible only to members of the same tenant.
+export const ProfileVisibilityEnum = z.enum(['PUBLIC', 'TENANT', 'PRIVATE']);
+export type ProfileVisibility = z.infer<typeof ProfileVisibilityEnum>;
+
+// Identity-verification status (KYC / verified-badge gate).
+export const VerificationStatusEnum = z.enum(['UNVERIFIED', 'PENDING', 'VERIFIED', 'REJECTED']);
+export type VerificationStatus = z.infer<typeof VerificationStatusEnum>;
+
+// Name ordering — GIVEN_FIRST (Western) vs FAMILY_FIRST (East Asian, Hungarian).
+export const NameOrderEnum = z.enum(['GIVEN_FIRST', 'FAMILY_FIRST']);
+export type NameOrder = z.infer<typeof NameOrderEnum>;
+
 export const SocialLinkPlatformEnum = z.enum([
   // Core Developer Platforms
   'GITHUB',
