@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import { Between, IsNull, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
 import { env } from '@/modules/env';
 import { getDataSource, tenantDataSourceFor } from '@/modules/db';
+import AuditLogService from '@/modules/audit_log/audit_log.service';
 import redis, { jitter, singleFlight } from '@/modules/redis';
 import { Payment as PaymentEntity } from './entities/payment.entity';
 import Logger from '@/modules/logger';
@@ -226,6 +227,59 @@ export default class PaymentCrudService {
 
     await PaymentCrudService.clearPaymentCache(data.paymentId);
     return transaction;
+  }
+
+  /**
+   * Record a chargeback/dispute opened against a payment (from a provider
+   * webhook or manual intake). Stores status/reason/amount + provider id and
+   * audits it; the payment row is the single source of dispute truth.
+   */
+  static async recordDispute(data: {
+    paymentId: string;
+    providerDisputeId?: string;
+    reason?: string;
+    amount?: number;
+    status?: string;
+  }): Promise<SafePayment> {
+    const ds = await getDataSource();
+    const payment = await ds.getRepository(PaymentEntity).findOne({ where: { paymentId: data.paymentId } });
+    if (!payment) throw new AppError(PAYMENT_MESSAGES.PAYMENT_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
+
+    const writeDs = payment.tenantId ? await tenantDataSourceFor(payment.tenantId) : ds;
+    await writeDs.getRepository(PaymentEntity).update({ paymentId: data.paymentId }, {
+      disputeStatus: data.status ?? 'NEEDS_RESPONSE',
+      disputeReason: data.reason,
+      disputeAmount: data.amount ?? Number(payment.amount),
+      providerDisputeId: data.providerDisputeId,
+      disputedAt: new Date(),
+    } as any);
+    await PaymentCrudService.clearPaymentCache(data.paymentId);
+
+    AuditLogService.log({
+      tenantId: payment.tenantId ?? null, actorType: 'SYSTEM', action: 'payment.disputed',
+      resourceType: 'payment', resourceId: data.paymentId,
+      metadata: { providerDisputeId: data.providerDisputeId, reason: data.reason, amount: data.amount },
+    }).catch(() => {});
+
+    return PaymentCrudService.getById(data.paymentId);
+  }
+
+  /** Resolve a dispute (WON / LOST). */
+  static async resolveDispute(paymentId: string, outcome: 'WON' | 'LOST'): Promise<SafePayment> {
+    const ds = await getDataSource();
+    const payment = await ds.getRepository(PaymentEntity).findOne({ where: { paymentId } });
+    if (!payment) throw new AppError(PAYMENT_MESSAGES.PAYMENT_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
+    const writeDs = payment.tenantId ? await tenantDataSourceFor(payment.tenantId) : ds;
+    await writeDs.getRepository(PaymentEntity).update({ paymentId }, {
+      disputeStatus: outcome,
+      disputeResolvedAt: new Date(),
+    } as any);
+    await PaymentCrudService.clearPaymentCache(paymentId);
+    AuditLogService.log({
+      tenantId: payment.tenantId ?? null, actorType: 'SYSTEM', action: 'payment.dispute_resolved',
+      resourceType: 'payment', resourceId: paymentId, metadata: { outcome },
+    }).catch(() => {});
+    return PaymentCrudService.getById(paymentId);
   }
 
   // Transaction delegates

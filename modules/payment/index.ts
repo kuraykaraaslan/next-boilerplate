@@ -1,4 +1,5 @@
 export { default as PaymentService } from './payment.service'
+export { getSettlementCurrency, toMinorUnits, fromMinorUnits, localizeProviderError } from './payment.util'
 export * from './payment.enums'
 export * from './payment.types'
 export * from './payment.dto'

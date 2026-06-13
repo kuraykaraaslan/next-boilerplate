@@ -39,6 +39,8 @@ export interface NormalizedEvent {
   action: InternalWebhookAction;
   providerPaymentId: string;
   tenantId?: string;
+  /** Provider's unique event id, when available — used for idempotent dispatch. */
+  eventId?: string;
   amount?: number;
   currency?: string;
   metadata?: Record<string, string | undefined>;

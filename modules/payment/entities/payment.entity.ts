@@ -75,6 +75,26 @@ export class Payment {
   @Column({ nullable: true, type: 'timestamp' })
   expiresAt?: Date;
 
+  // ── Chargeback / dispute tracking ───────────────────────────────────────
+  // null = no dispute; otherwise NEEDS_RESPONSE | UNDER_REVIEW | WON | LOST.
+  @Column({ nullable: true, type: 'varchar' })
+  disputeStatus?: string;
+
+  @Column({ nullable: true, type: 'varchar' })
+  disputeReason?: string;
+
+  @Column({ nullable: true, type: 'decimal', precision: 12, scale: 2, transformer: { to: (v) => v, from: (v) => v == null ? v : parseFloat(v) } })
+  disputeAmount?: number;
+
+  @Column({ nullable: true, type: 'varchar' })
+  providerDisputeId?: string;
+
+  @Column({ nullable: true, type: 'timestamp' })
+  disputedAt?: Date;
+
+  @Column({ nullable: true, type: 'timestamp' })
+  disputeResolvedAt?: Date;
+
   @Index()
   @CreateDateColumn({ type: 'timestamp' })
   createdAt!: Date;

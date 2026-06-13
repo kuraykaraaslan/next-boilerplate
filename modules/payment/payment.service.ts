@@ -16,6 +16,8 @@ export default class PaymentService {
   static update                  = PaymentCrudService.update.bind(PaymentCrudService);
   static delete                  = PaymentCrudService.delete.bind(PaymentCrudService);
   static refund                  = PaymentCrudService.refund.bind(PaymentCrudService);
+  static recordDispute           = PaymentCrudService.recordDispute.bind(PaymentCrudService);
+  static resolveDispute          = PaymentCrudService.resolveDispute.bind(PaymentCrudService);
 
   // ──────────────────────────────────────────────
   // Transaction CRUD
@@ -46,6 +48,7 @@ export default class PaymentService {
   static getWalletMatrix           = PaymentCheckoutService.getWalletMatrix.bind(PaymentCheckoutService);
   static createCustomerPortalSession = PaymentCheckoutService.createCustomerPortalSession.bind(PaymentCheckoutService);
   static createCheckoutSession     = PaymentCheckoutService.createCheckoutSession.bind(PaymentCheckoutService);
+  static resolveEnabledProvider    = PaymentCheckoutService.resolveEnabledProvider.bind(PaymentCheckoutService);
   static supportsDirectCardPayment = PaymentCheckoutService.supportsDirectCardPayment.bind(PaymentCheckoutService);
   static chargeWithCard            = PaymentCheckoutService.chargeWithCard.bind(PaymentCheckoutService);
   static supports3dsCardPayment    = PaymentCheckoutService.supports3dsCardPayment.bind(PaymentCheckoutService);

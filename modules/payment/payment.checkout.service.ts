@@ -26,6 +26,8 @@ import { PaymentProvider } from './payment.enums';
 import { CardBinInfo } from './payment.types';
 import { GetProviderStatusDTO } from './payment.dto';
 import { PAYMENT_MESSAGES } from './payment.messages';
+import SettingService from '@/modules/setting/setting.service';
+import AuditLogService from '@/modules/audit_log/audit_log.service';
 import { AppError, ErrorCode } from '@/modules/common/app-error';
 
 export default class PaymentCheckoutService {
@@ -159,12 +161,64 @@ export default class PaymentCheckoutService {
     return { ...result, provider: provider.name };
   }
 
+  // Provider → its per-tenant enable flag setting.
+  private static readonly ENABLED_KEY: Record<PaymentProvider, string> = {
+    STRIPE: 'stripeEnabled', PAYPAL: 'paypalEnabled', IYZICO: 'iyzicoEnabled',
+    ALIPAY: 'alipayEnabled', WECHATPAY: 'wechatPayEnabled',
+    YOOKASSA: 'yookassaEnabled', CLOUDPAYMENTS: 'cloudpaymentsEnabled',
+  };
+
+  /**
+   * Resolve the effective provider for a tenant: explicit choice, else the
+   * tenant's `paymentDefaultProvider` setting, else the platform default. Then
+   * enforce the per-tenant enable flag — a disabled provider is rejected so a
+   * caller can't transact through a channel the tenant turned off.
+   */
+  static async resolveEnabledProvider(tenantId: string, providerName?: PaymentProvider): Promise<PaymentProvider> {
+    let name = providerName;
+    if (!name) {
+      const configured = await SettingService.getValue(tenantId, 'paymentDefaultProvider').catch(() => null);
+      name = (configured?.toUpperCase() as PaymentProvider) || PaymentCheckoutService.DEFAULT_PROVIDER;
+    }
+    const flagKey = PaymentCheckoutService.ENABLED_KEY[name];
+    if (flagKey) {
+      const enabled = await SettingService.getValue(tenantId, flagKey).catch(() => null);
+      // Explicit 'false' disables; unset is treated as allowed (back-compat).
+      if (enabled === 'false') {
+        throw new AppError(`${PAYMENT_MESSAGES.PROVIDER_NOT_CONFIGURED}: ${name} is disabled`, 422, ErrorCode.VALIDATION_ERROR);
+      }
+    }
+    return name;
+  }
+
+  /** Reject card-testing / runaway checkout creation per customer (fraud guard). */
+  private static async assertCheckoutVelocity(tenantId: string, identifier?: string): Promise<void> {
+    if (!identifier) return;
+    const key = `pay:velocity:${tenantId}:${identifier}`;
+    try {
+      const n = await redis.incr(key);
+      if (n === 1) await redis.expire(key, 600);
+      if (n > 10) throw new AppError('Too many payment attempts. Please wait a few minutes.', 429, ErrorCode.RATE_LIMIT_EXCEEDED);
+    } catch (err) {
+      if (err instanceof AppError) throw err; // Redis errors fail open
+    }
+  }
+
   static async createCheckoutSession(
     tenantId: string,
     params: CheckoutSessionParams,
     providerName?: PaymentProvider,
   ): Promise<CheckoutSessionResult> {
-    return PaymentCheckoutService.getProvider(providerName).createCheckoutSession(tenantId, params);
+    const resolved = await PaymentCheckoutService.resolveEnabledProvider(tenantId, providerName);
+    await PaymentCheckoutService.assertCheckoutVelocity(tenantId, params.metadata?.customerEmail ?? params.metadata?.userId);
+    const result = await PaymentCheckoutService.getProvider(resolved).createCheckoutSession(tenantId, params);
+    // Card-data-touching event audit trail.
+    AuditLogService.log({
+      tenantId, actorType: 'SYSTEM', action: 'payment.checkout_session_created',
+      resourceType: 'payment', resourceId: null,
+      metadata: { provider: resolved, amount: params.amount, currency: params.currency },
+    }).catch(() => {});
+    return result;
   }
 
   static supportsDirectCardPayment(providerName?: PaymentProvider): boolean {
