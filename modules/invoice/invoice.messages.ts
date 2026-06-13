@@ -9,6 +9,12 @@ const InvoiceMessages = {
   REGIONAL_ADAPTER_FAILED: 'Regional invoice submission failed',
   REGIONAL_ADAPTER_NOT_CONFIGURED: 'Regional invoice adapter is not configured for this tenant',
   COMPANY_INFO_MISSING: 'Tenant company info is incomplete — set companyLegalName/companyTaxId/companyCountryCode in Settings',
+  LOCKED: 'Invoice is locked — an issued invoice is immutable; create a credit note to correct it',
+  CREDIT_NOTE_SOURCE_NOT_ISSUED: 'A credit note can only be created against an issued or paid invoice',
+  CREDIT_NOTE_LINE_INVALID: 'Credit note quantity exceeds the original invoice line quantity',
+  SIGNING_CERT_MISSING: 'No signing certificate configured — set invoiceSigningKeyPem/invoiceSigningCertPem in Settings → Invoicing',
+  SIGNING_FAILED: 'Failed to digitally sign the invoice document',
+  COUNTRY_GATEWAY_NOT_CONFIGURED: 'The e-invoice gateway for this country is not configured in Settings',
   FETCH_FAILED: 'Failed to fetch invoices',
   PROVIDER_PDF_UNAVAILABLE: 'The provider-issued invoice PDF could not be retrieved',
   // TR e-Arşiv (GİB direct portal) SMS finalisation

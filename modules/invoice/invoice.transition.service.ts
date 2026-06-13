@@ -8,7 +8,7 @@ import Logger from '@/modules/logger';
 import InvoiceMessages from './invoice.messages';
 import { AppError, ErrorCode } from '@/modules/common/app-error';
 import { SafeInvoiceSchema, type SafeInvoice } from './invoice.types';
-import { getInvoiceAdapter } from './adapters/registry';
+import { resolveInvoiceAdapter } from './adapters/registry';
 import MailTemplatesService from '@/modules/notification_mail/notification_mail.templates.service';
 import WebhookService from '@/modules/webhook/webhook.service';
 
@@ -21,20 +21,27 @@ export default class InvoiceTransitionService {
     if (!invoice) throw new AppError(InvoiceMessages.NOT_FOUND, 404, ErrorCode.NOT_FOUND);
     if (invoice.status !== 'draft') throw new AppError(InvoiceMessages.ALREADY_ISSUED, 409, ErrorCode.CONFLICT);
 
-    const adapter = getInvoiceAdapter(invoice.region);
+    // Issuer-country regime wins (FatturaPA/Chorus Pro/ZUGFeRD/CFDI/GST),
+    // otherwise the tenant's region adapter (TR e-Arşiv / EU Peppol / US).
+    const adapter = await resolveInvoiceAdapter(tenantId, invoice.region);
     if (adapter && await adapter.isConfigured(tenantId)) {
       try {
         const lines = await ds.getRepository(InvoiceLineEntity).find({ where: { tenantId, invoiceId } });
         const result = await adapter.submit(tenantId, invoice, lines);
-        if (invoice.region === 'TR') {
+        if (adapter.region === 'TR') {
           invoice.earsivUuid = result.externalId;
           invoice.earsivStatus = result.status;
           invoice.earsivIntegrator = (await SettingService.getValue(tenantId, 'earsivIntegrator')) ?? 'mock';
-        } else if (invoice.region === 'EU') {
+        } else if (adapter.region === 'EU') {
           invoice.peppolDocumentId = result.externalId;
           invoice.peppolStatus = result.status;
-        } else if (invoice.region === 'US' && result.externalId) {
-          invoice.stripeTaxCalculationId = result.externalId;
+        } else if (result.status !== 'noop') {
+          // Country-specific regimes (IT/FR/DE/MX/IN, …): persist the provider
+          // reference generically in metadata so no schema change is needed.
+          invoice.metadata = {
+            ...(invoice.metadata as Record<string, unknown> | undefined),
+            eInvoice: { provider: adapter.region, externalId: result.externalId ?? null, status: result.status },
+          };
         }
         // Provider-agnostic: when the e-invoicing provider returns its own
         // signed/legal PDF, persist its URL so we serve that document verbatim
@@ -129,8 +136,9 @@ export default class InvoiceTransitionService {
     invoice.status = 'void';
     await repo.save(invoice);
 
-    const adapter = getInvoiceAdapter(invoice.region);
-    if (adapter && (invoice.earsivUuid || invoice.peppolDocumentId)) {
+    const adapter = await resolveInvoiceAdapter(tenantId, invoice.region);
+    const eInvoice = (invoice.metadata as { eInvoice?: { externalId?: string } } | undefined)?.eInvoice;
+    if (adapter && (invoice.earsivUuid || invoice.peppolDocumentId || eInvoice?.externalId)) {
       await adapter.cancel(tenantId, invoice, reason).catch(() => {});
     }
 

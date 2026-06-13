@@ -1,7 +1,8 @@
 import InvoiceCrudService from './invoice.crud.service';
 import InvoiceAdapterService from './invoice.adapter.service';
+import InvoiceCreditNoteService from './invoice.creditnote.service';
 
-export { InvoiceCrudService, InvoiceAdapterService };
+export { InvoiceCrudService, InvoiceAdapterService, InvoiceCreditNoteService };
 
 export default class InvoiceService {
 
@@ -10,6 +11,7 @@ export default class InvoiceService {
   // ──────────────────────────────────────────────
 
   static create              = InvoiceCrudService.create.bind(InvoiceCrudService);
+  static updateDraft         = InvoiceCrudService.updateDraft.bind(InvoiceCrudService);
   static getById             = InvoiceCrudService.getById.bind(InvoiceCrudService);
   static getLines            = InvoiceCrudService.getLines.bind(InvoiceCrudService);
   static list                = InvoiceCrudService.list.bind(InvoiceCrudService);
@@ -17,6 +19,12 @@ export default class InvoiceService {
   static markPaid            = InvoiceCrudService.markPaid.bind(InvoiceCrudService);
   static markVoid            = InvoiceCrudService.markVoid.bind(InvoiceCrudService);
   static getNextInvoiceNumber = InvoiceCrudService.getNextInvoiceNumber.bind(InvoiceCrudService);
+
+  // ──────────────────────────────────────────────
+  // Credit notes
+  // ──────────────────────────────────────────────
+
+  static createCreditNote    = InvoiceCreditNoteService.create.bind(InvoiceCreditNoteService);
 
   // ──────────────────────────────────────────────
   // TR e-Arşiv Adapter

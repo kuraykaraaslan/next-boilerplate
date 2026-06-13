@@ -19,13 +19,17 @@ export const InvoiceSettingKeySchema = z.enum([
   'companyWebsite',
   'companyLogoUrl',
   'companyIban',
+  'companyProvince',            // 2-letter province/state (IT Provincia, etc.)
 
   // ── Invoice formatting ─────────────────────────────────────────────────────
   'invoiceNumberPrefix',        // e.g. 'INV'
   'invoiceNumberPadding',       // digits to zero-pad to (default 5)
+  'invoiceNumberResetPolicy',   // 'yearly' (default) | 'monthly' | 'fiscal' | 'never'
+  'invoiceFiscalYearStartMonth',// 1-12 — fiscal year start (used when resetPolicy = 'fiscal')
+  'invoiceCreditNotePrefix',    // credit note sequence prefix (default 'CN')
   'invoiceDefaultDueDays',      // 0 = on-receipt
   'invoiceDefaultCurrency',     // ISO 4217 (TRY/EUR/USD …)
-  'invoiceDefaultVatRate',      // 0.20 → 20 %
+  'invoiceDefaultVatRate',      // 0.20 → 20 % — fallback only; payment_tax is the source of truth
 
   // ── Region selector (drives which adapter to use) ─────────────────────────
   'billingRegion',              // 'TR' | 'EU' | 'US' | 'OTHER'
@@ -42,13 +46,51 @@ export const InvoiceSettingKeySchema = z.enum([
   // ── EU Peppol specific ────────────────────────────────────────────────────
   'peppolEndpointId',           // e.g. '0088:7300010000001'
   'peppolDocumentTypeId',
-  'peppolAccessPointUrl',
+  'peppolAccessPointUrl',       // real Access Point submission endpoint
+  'peppolAccessPointToken',     // optional bearer token for the Access Point
   'peppolAutoSubmit',
   'euVatNumber',                // tenant's own VAT id for cross-border
 
-  // ── US specific (Stripe Tax) ─────────────────────────────────────────────
-  'stripeTaxEnabled',           // 'true' | 'false'
-  'stripeTaxOrigin',            // JSON: { city, state, postal, country }
+  // ── Document signing (mali mühür / qualified seal) ────────────────────────
+  'invoiceSigningKeyPem',       // PEM private key (encrypted at rest)
+  'invoiceSigningCertPem',      // PEM X.509 certificate (encrypted at rest)
+
+  // ── IT FatturaPA / SdI ────────────────────────────────────────────────────
+  'fatturapaGatewayUrl',        // intermediary endpoint that forwards to SdI
+  'fatturapaGatewayToken',      // bearer token (encrypted at rest)
+  'fatturapaTransmitterCountry',// IdTrasmittente IdPaese (e.g. 'IT')
+  'fatturapaTransmitterCode',   // IdTrasmittente IdCodice (CF/VAT)
+  'fatturapaCodiceDestinatario',// 7-char recipient code ('0000000' for PEC)
+  'fatturapaPecDestinatario',   // recipient PEC when codiceDestinatario='0000000'
+  'fatturapaFormat',            // 'FPR12' (private) | 'FPA12' (public admin)
+  'fatturapaRegimeFiscale',     // e.g. 'RF01'
+
+  // ── FR Chorus Pro / Factur-X ──────────────────────────────────────────────
+  'chorusProGatewayUrl',
+  'chorusProToken',             // bearer token (encrypted at rest)
+  'chorusProSiret',
+
+  // ── DE ZUGFeRD / XRechnung ────────────────────────────────────────────────
+  'zugferdProfile',             // 'EN16931' | 'BASIC' | 'EXTENDED' | 'XRECHNUNG'
+  'zugferdGatewayUrl',          // optional transmission endpoint
+  'zugferdGatewayToken',
+
+  // ── MX CFDI 4.0 (PAC) ─────────────────────────────────────────────────────
+  'cfdiPacUrl',                 // PAC stamping endpoint
+  'cfdiPacToken',               // PAC token (encrypted at rest)
+  'cfdiRfcEmisor',
+  'cfdiRegimenFiscal',          // e.g. '601'
+  'cfdiSerie',
+  'cfdiUsoCfdi',                // receptor usage, e.g. 'G03'
+  'cfdiMetodoPago',             // 'PUE' | 'PPD'
+  'cfdiFormaPago',              // e.g. '03' | '99'
+  'cfdiReceptorRegimen',        // receptor tax regime (CFDI 4.0)
+
+  // ── IN GST e-invoice (IRP) ────────────────────────────────────────────────
+  'gstIrpUrl',                  // IRP/GSP endpoint
+  'gstIrpToken',                // IRP token (encrypted at rest)
+  'gstGstin',
+  'gstStateCode',               // GST state code, e.g. '29'
 
   // ── PDF template appearance (read by InvoicePdfService.buildPdf) ──────────
   'invoicePdfPrimaryColor',     // hex, default '#212529'
