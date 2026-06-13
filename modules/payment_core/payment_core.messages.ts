@@ -1,6 +1,7 @@
 export const PAYMENT_MESSAGES = {
   PROVIDER_NOT_FOUND: 'Payment provider not found',
   PROVIDER_NOT_CONFIGURED: 'Payment provider not configured',
+  PROVIDER_UNAVAILABLE: 'Payment provider is temporarily unavailable, please try again shortly',
   INVALID_TOKEN: 'Invalid payment token',
 
   PAYMENT_NOT_FOUND: 'Payment not found',

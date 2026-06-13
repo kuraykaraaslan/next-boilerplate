@@ -22,6 +22,10 @@ const SENSITIVE_KEYS = new Set([
   'invoiceSigningKeyPem', 'invoiceSigningCertPem',
   'fatturapaGatewayToken', 'chorusProToken', 'cfdiPacToken', 'gstIrpToken',
   'peppolAccessPointToken',
+  // Payment provider secret credentials (encrypt at rest).
+  'iyzicoApiKey', 'iyzicoSecretKey',
+  'alipayPrivateKey', 'wechatPayPrivateKey', 'wechatPayApiV3Key',
+  'yookassaSecretKey', 'cloudpaymentsApiSecret',
 ]);
 
 // ── IANA timezone validation ─────────────────────────────────────────────────

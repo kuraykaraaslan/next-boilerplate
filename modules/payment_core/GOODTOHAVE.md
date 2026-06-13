@@ -50,7 +50,7 @@
 
 ## Security
 
-### Credential Encryption at Rest
+### ✅ Credential Encryption at Rest
 **Why:** Provider API keys and private keys are stored as plain strings in the `settings` table via `SettingService`; a database breach exposes all tenant payment credentials.
 **Complexity:** High
 **Multi-tenant relevance:** Credential isolation is already per-tenant; adding encryption ensures a breach of one tenant's DB row does not expose another's.
@@ -76,7 +76,7 @@
 **Multi-tenant relevance:** A slow provider affects all tenants using it; early detection requires aggregate metrics across tenants.
 **Multi-country relevance:** Regional provider reliability varies significantly (e.g. YooKassa latency in Russia vs. Stripe latency globally); per-provider metrics reveal regional SLA gaps.
 
-### Provider Circuit Breaker
+### ✅ Provider Circuit Breaker
 **Why:** If a provider's API is degraded or returning errors, all checkout attempts for tenants using that provider will fail with full request latency; there is no circuit breaker to fail fast and surface a degraded status.
 **Complexity:** High
 **Multi-tenant relevance:** A tenant with many concurrent checkouts during a provider outage will generate significant error logs and customer complaints; a circuit breaker limits the blast radius.
@@ -90,7 +90,7 @@
 **Multi-tenant relevance:** A tenant can configure its preferred language for error messages displayed to buyers.
 **Multi-country relevance:** Turkish buyers using Iyzico, Russian buyers using YooKassa, and Chinese buyers using Alipay each need error messages in their own language.
 
-### Locale-Aware Amount Formatting Utility
+### ✅ Locale-Aware Amount Formatting Utility
 **Why:** The module re-exports currency metadata (`getCurrencyByCode`) but provides no utility to format a numeric amount as a locale-aware string (e.g. `1.234,56 TL` vs. `¥1,235` vs. `$1,234.56`).
 **Complexity:** Low
 **Multi-tenant relevance:** Admin UIs and invoice templates for each tenant need amounts formatted for that tenant's locale.
