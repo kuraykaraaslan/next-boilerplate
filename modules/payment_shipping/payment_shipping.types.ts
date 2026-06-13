@@ -74,5 +74,13 @@ export const ShippingQuoteSchema = z.object({
   estimatedDaysMin: z.number().int().nullable(),
   estimatedDaysMax: z.number().int().nullable(),
   isFree: z.boolean(),
+  /** Fees/duties breakdown (defaulted so existing callers are unaffected). */
+  handlingFee: z.number().default(0),
+  estimatedDuties: z.number().default(0),
+  packageCount: z.number().int().default(1),
+  chargeableWeight: z.number().nullable().default(null),
+  incoterm: z.string().nullable().default(null),
+  /** True when this quote came from a live carrier API rather than a stored rate. */
+  live: z.boolean().default(false),
 })
 export type ShippingQuote = z.infer<typeof ShippingQuoteSchema>

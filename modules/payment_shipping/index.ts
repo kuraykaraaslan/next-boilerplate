@@ -1,4 +1,7 @@
 export { default as PaymentShippingService } from './payment_shipping.service'
+export { default as PaymentShippingRulesService, dimensionalWeight, chargeableWeight } from './payment_shipping.rules.service'
+export type { ShippingCarrierAdapter, CarrierRate, CarrierTracking, CarrierRateRequest } from './adapters/base.carrier'
+export { getCarrierAdapter, carriersForOrigin } from './adapters/registry'
 export * from './payment_shipping.enums'
 export * from './payment_shipping.types'
 export * from './payment_shipping.dto'

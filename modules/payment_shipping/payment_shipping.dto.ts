@@ -79,6 +79,14 @@ export const CalculateShippingDTO = z.object({
   weight: z.number().nonnegative().optional(),
   subtotal: z.number().nonnegative(),
   currency: CurrencyCodeInput.default(DEFAULT_CURRENCY),
+  /** Parcel dimensions (cm) for dimensional-weight billing. */
+  dimensions: z.object({ length: z.number().nonnegative(), width: z.number().nonnegative(), height: z.number().nonnegative() }).optional(),
+  /** Declared customs value (cross-border duties estimate). */
+  declaredValue: z.number().nonnegative().optional(),
+  /** Incoterm — DDP includes duties in the quote. */
+  incoterm: z.enum(['DDP', 'DDU', 'DAP', 'EXW', 'FOB', 'CIF']).optional(),
+  /** SKUs in the shipment, for prohibited-item checks. */
+  skus: z.array(z.string()).optional(),
 })
 export type CalculateShippingDTO = z.infer<typeof CalculateShippingDTO>
 

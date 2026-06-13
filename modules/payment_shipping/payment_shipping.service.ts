@@ -1,7 +1,9 @@
 import PaymentShippingCrudService from './payment_shipping.crud.service';
 import PaymentShippingCalcService from './payment_shipping.calc.service';
+import PaymentShippingCarrierService from './payment_shipping.carrier.service';
+import PaymentShippingRulesService from './payment_shipping.rules.service';
 
-export { PaymentShippingCrudService, PaymentShippingCalcService };
+export { PaymentShippingCrudService, PaymentShippingCalcService, PaymentShippingCarrierService, PaymentShippingRulesService };
 
 export default class PaymentShippingService {
 
@@ -28,4 +30,12 @@ export default class PaymentShippingService {
   // ──────────────────────────────────────────────
 
   static calculateShipping = PaymentShippingCalcService.calculateShipping.bind(PaymentShippingCalcService);
+
+  // ──────────────────────────────────────────────
+  // Live carriers (UPS / FedEx / DHL / Royal Mail / Yurtiçi)
+  // ──────────────────────────────────────────────
+
+  static getLiveRates       = PaymentShippingCarrierService.getLiveRates.bind(PaymentShippingCarrierService);
+  static trackShipment      = PaymentShippingCarrierService.track.bind(PaymentShippingCarrierService);
+  static configuredCarriers = PaymentShippingCarrierService.configuredCarriers.bind(PaymentShippingCarrierService);
 }

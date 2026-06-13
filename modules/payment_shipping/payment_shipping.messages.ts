@@ -1,4 +1,5 @@
 export const PAYMENT_SHIPPING_MESSAGES = {
+  PROHIBITED: 'This item or destination cannot be shipped',
   METHOD_NOT_FOUND: 'Shipping method not found',
   METHOD_CREATE_FAILED: 'Failed to create shipping method',
   METHOD_UPDATE_FAILED: 'Failed to update shipping method',
