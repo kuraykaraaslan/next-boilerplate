@@ -271,6 +271,9 @@ export default class AuthCredentialService {
         consentVersion: undefined,
         consentAcceptedAt: undefined,
       });
+      // GDPR: revoke all sessions so the erased account cannot stay logged in.
+      // Raw SQL avoids an auth→user_session→auth import cycle.
+      await manager.query('DELETE FROM user_sessions WHERE "userId" = $1', [userId]);
     });
 
     await UserService.invalidate({ userId, email: user.email });

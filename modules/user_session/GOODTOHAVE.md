@@ -34,7 +34,7 @@
 **Multi-tenant relevance:** Financial and compliance tenants need step-up auth for high-value operations; the step-up policy (which operations trigger it, which methods are accepted) must be configurable per tenant.
 **Multi-country relevance:** PSD2 SCA in the EU requires step-up for every payment transaction; this cannot be satisfied with a session-level OTP gate alone.
 
-### Concurrent Session Count Limit Per Tenant
+### ✅ Concurrent Session Count Limit Per Tenant
 **Why:** `singleSessionOnly` is a boolean (all-or-nothing); there is no mid-range policy allowing, say, a maximum of 3 concurrent sessions — a common enterprise IAM feature.
 **Complexity:** Medium
 **Multi-tenant relevance:** Enterprise tenants often license per-seat and want to enforce that each user occupies only one seat at a time; a numeric cap is more flexible than a binary toggle.
@@ -72,7 +72,7 @@
 **Multi-tenant relevance:** Tenant admins reviewing suspicious sessions need readable location information, not raw IPs.
 **Multi-country relevance:** Persisting derived geo data alongside the raw IP raises GDPR considerations; the country code is generally safe as it is not directly identifying, but storing city may require a legitimate interest assessment in some jurisdictions.
 
-### Session Data Erasure on Account Deletion
+### ✅ Session Data Erasure on Account Deletion
 **Why:** `deleteAllSessions(userId)` is available and called by some auth flows, but there is no guarantee it is called atomically with user deletion in `UserService.delete`; orphaned session rows for deleted users remain in the DB.
 **Complexity:** Low
 **Multi-tenant relevance:** Tenant-initiated user removal (e.g., revoking a user's membership) should also terminate all that user's sessions to prevent access with a cached token.

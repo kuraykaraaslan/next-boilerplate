@@ -13,6 +13,8 @@ import UserSessionTokenService, { type TokenPayload } from './user_session.token
 import UserSessionCacheService from './user_session.cache.service';
 import type { SessionStatus } from './user_session.enums';
 import AuthPolicyService from '@/modules/auth/auth.policy.service';
+import SettingService from '@/modules/setting/setting.service';
+import { ROOT_TENANT_ID } from '@/modules/tenant/tenant.constants';
 import { AppError, ErrorCode } from '@/modules/common/app-error';
 import UserSessionAuthService from './user_session.auth.service';
 
@@ -69,7 +71,32 @@ export default class UserSessionCrudService {
       .setex(`session:idle:${userSessionId}`, Math.max(60, sessionPolicy.idleTimeoutMinutes * 60), '1')
       .catch(() => {});
 
+    // Concurrent-session cap: prune the oldest sessions beyond the configured
+    // ceiling (keeps the newest N, including the one just created).
+    await UserSessionCrudService.enforceConcurrentLimit(user.userId, tenantId).catch(() => {});
+
     return { userSession: SafeUserSessionSchema.parse(saved), rawAccessToken, rawRefreshToken };
+  }
+
+  /**
+   * Enforce `maxConcurrentSessions` (per-tenant setting, 0/unset = unlimited):
+   * keep the newest N sessions and delete the rest. Bounds credential-theft
+   * blast radius and stops unbounded session accumulation.
+   */
+  static async enforceConcurrentLimit(userId: string, tenantId?: string): Promise<number> {
+    const raw = await SettingService.getValue(tenantId ?? ROOT_TENANT_ID, 'maxConcurrentSessions').catch(() => null);
+    const max = raw ? parseInt(raw, 10) : 0;
+    if (!Number.isFinite(max) || max <= 0) return 0;
+
+    const ds = await getDataSource();
+    const repo = ds.getRepository(UserSessionEntity);
+    const sessions = await repo.find({ where: { userId }, order: { createdAt: 'DESC' } });
+    if (sessions.length <= max) return 0;
+
+    const stale = sessions.slice(max);
+    await repo.remove(stale);
+    await UserSessionCacheService.clearUserSessionCache(userId);
+    return stale.length;
   }
 
   static async createImpersonationSession({ targetUser, impersonationMeta, userAgent, ipAddress, ttlMs }: {
