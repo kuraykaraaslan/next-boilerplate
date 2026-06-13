@@ -4,13 +4,13 @@
 
 ## Per-Tenant VAPID Configuration
 
-### Per-Tenant VAPID Keys
+### ✅ Per-Tenant VAPID Keys
 **Why:** A single platform-wide VAPID key pair signs every Web Push for every tenant; the `vapidPublicKey`/`vapidPrivateKey` setting keys are declared in `notification_mail.setting.keys.ts` but never read by this module, so no tenant can send push from its own application identity.
 **Complexity:** Medium
 **Multi-tenant relevance:** VAPID identity is the sender identity for Web Push; white-label tenants appear to their users as the platform, not their own brand — the same problem mail has with the shared From address.
 **Multi-country relevance:** Some enterprise deployments require push notifications to originate from a domain controlled by the tenant's legal entity; per-tenant VAPID keys are the only way to satisfy this.
 
-### Per-Tenant Push Notifications Enable/Disable Toggle
+### ✅ Per-Tenant Push Notifications Enable/Disable Toggle
 **Why:** Push delivery always attempts as long as global VAPID env vars are set; the `pushNotificationsEnabled` setting key is declared but never consulted, so tenants cannot disable Web Push for their workspace.
 **Complexity:** Low
 **Multi-tenant relevance:** Some tenants (e.g. B2B SaaS for corporate environments where push is blocked by IT policy) need a hard disable switch so the service does not log hundreds of delivery errors for their users.
@@ -42,13 +42,13 @@
 
 ## Notification Payload
 
-### Rich Notification Payload Fields
+### ✅ Rich Notification Payload Fields
 **Why:** `PushPayload` only supports `{ title, body, icon?, url? }`; the Web Push API supports `badge`, `image`, `actions` (interactive buttons), `vibrate`, `tag` (deduplication), and `requireInteraction`.
 **Complexity:** Low
 **Multi-tenant relevance:** Different tenant verticals (e-commerce vs productivity) need different notification styles; action buttons on push can replace a separate in-app step.
 **Multi-country relevance:** Some locales have cultural expectations around notification style (badge count conventions differ between iOS/Android markets); extensible payload fields allow market-specific tuning.
 
-### Notification Deduplication via `tag`
+### ✅ Notification Deduplication via `tag`
 **Why:** There is no deduplication mechanism; if `push()` fires twice for the same event (e.g. due to a BullMQ retry), the user sees two identical push notifications.
 **Complexity:** Low
 **Multi-tenant relevance:** Idempotent push delivery is especially important for tenant-wide broadcasts where a retry of `sendToAll` would spam all users.

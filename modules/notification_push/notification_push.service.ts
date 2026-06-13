@@ -3,6 +3,7 @@ import { In } from 'typeorm';
 import { env } from '@/modules/env';
 import webpush from 'web-push';
 import { tenantDataSourceFor } from '@/modules/db';
+import SettingService from '@/modules/setting/setting.service';
 import redis, { jitter, singleFlight } from '@/modules/redis';
 import { PushSubscription as PushSubscriptionEntity } from './entities/push_subscription.entity';
 import { TenantMember } from '@/modules/tenant_member/entities/tenant_member.entity';
@@ -15,6 +16,10 @@ export interface PushPayload {
   body: string;
   icon?: string;
   url?: string;
+  /** Service-worker notification tag — same tag collapses/replaces (dedup). */
+  tag?: string;
+  /** Arbitrary structured data delivered to the service worker. */
+  data?: Record<string, unknown>;
 }
 
 const PUSH_CACHE_TTL = env.SESSION_CACHE_TTL ?? (60 * 5);
@@ -39,7 +44,42 @@ function ensureVapid() {
  * the per-tenant database, so the same browser endpoint registered against
  * tenant A is invisible to tenant B (no cross-tenant push bleed).
  */
+type VapidDetails = { subject: string; publicKey: string; privateKey: string };
+
 export default class NotificationPushService {
+
+  /**
+   * Per-tenant VAPID keys (white-label correctness): a tenant can ship push from
+   * its own application server identity. Returns null when the tenant has no
+   * keys, in which case the platform-wide env keys are used.
+   */
+  private static async resolveVapidDetails(tenantId: string): Promise<VapidDetails | null> {
+    const s = await SettingService.getByKeys(tenantId, ['vapidPublicKey', 'vapidPrivateKey', 'vapidContactEmail']).catch(() => ({} as Record<string, string>));
+    if (s.vapidPublicKey && s.vapidPrivateKey) {
+      return {
+        subject: `mailto:${s.vapidContactEmail || env.VAPID_CONTACT_EMAIL || 'info@example.com'}`,
+        publicKey: s.vapidPublicKey,
+        privateKey: s.vapidPrivateKey,
+      };
+    }
+    return null;
+  }
+
+  /** Per-tenant push enable toggle (`pushEnabled` setting, default on). */
+  static async isPushEnabled(tenantId: string): Promise<boolean> {
+    return (await SettingService.getValue(tenantId, 'pushEnabled').catch(() => null)) !== 'false';
+  }
+
+  /**
+   * Resolve send context: `false` → suppressed (push disabled); otherwise the
+   * per-tenant VAPID details (or null to use the global env keys, ensured here).
+   */
+  private static async prepareSend(tenantId: string): Promise<VapidDetails | null | false> {
+    if (!(await this.isPushEnabled(tenantId))) return false;
+    const vapid = await this.resolveVapidDetails(tenantId);
+    if (!vapid) ensureVapid();
+    return vapid;
+  }
 
   private static cacheKeyForUser(tenantId: string, userId: string): string {
     return `push_subscription:${tenantId}:${userId}`;
@@ -124,9 +164,10 @@ export default class NotificationPushService {
     userId: string,
     payload: PushPayload
   ): Promise<void> {
-    ensureVapid();
+    const vapid = await this.prepareSend(tenantId);
+    if (vapid === false) return;
     const subs = await this.getSubscriptionsForUser(tenantId, userId);
-    await Promise.allSettled(subs.map((sub) => this.sendToSubscription(tenantId, sub, payload)));
+    await Promise.allSettled(subs.map((sub) => this.sendToSubscription(tenantId, sub, payload, vapid ?? undefined)));
   }
 
   static async sendToUsers(
@@ -134,13 +175,14 @@ export default class NotificationPushService {
     userIds: string[],
     payload: PushPayload
   ): Promise<void> {
-    ensureVapid();
     if (!userIds.length) return;
+    const vapid = await this.prepareSend(tenantId);
+    if (vapid === false) return;
     const ds = await tenantDataSourceFor(tenantId);
     const subs = await ds.getRepository(PushSubscriptionEntity).find({
       where: { tenantId, userId: In(userIds) },
     });
-    await Promise.allSettled(subs.map((sub) => this.sendToSubscription(tenantId, sub, payload)));
+    await Promise.allSettled(subs.map((sub) => this.sendToSubscription(tenantId, sub, payload, vapid ?? undefined)));
   }
 
   /**
@@ -152,7 +194,8 @@ export default class NotificationPushService {
     role: string,
     payload: PushPayload
   ): Promise<void> {
-    ensureVapid();
+    const vapid = await this.prepareSend(tenantId);
+    if (vapid === false) return;
     const ds = await tenantDataSourceFor(tenantId);
     const members = await ds.getRepository(TenantMember).find({
       where: { tenantId, memberRole: role, memberStatus: 'ACTIVE' },
@@ -162,7 +205,7 @@ export default class NotificationPushService {
     const subs = await ds.getRepository(PushSubscriptionEntity).find({
       where: { tenantId, userId: In(members.map((m) => m.userId)) },
     });
-    await Promise.allSettled(subs.map((sub) => this.sendToSubscription(tenantId, sub, payload)));
+    await Promise.allSettled(subs.map((sub) => this.sendToSubscription(tenantId, sub, payload, vapid ?? undefined)));
   }
 
   static async sendToAdmins(tenantId: string, payload: PushPayload): Promise<void> {
@@ -174,21 +217,24 @@ export default class NotificationPushService {
    * to one tenant — there is no cross-tenant broadcast by design.
    */
   static async sendToAll(tenantId: string, payload: PushPayload): Promise<void> {
-    ensureVapid();
+    const vapid = await this.prepareSend(tenantId);
+    if (vapid === false) return;
     const ds = await tenantDataSourceFor(tenantId);
     const subs = await ds.getRepository(PushSubscriptionEntity).find({ where: { tenantId } });
-    await Promise.allSettled(subs.map((sub) => this.sendToSubscription(tenantId, sub, payload)));
+    await Promise.allSettled(subs.map((sub) => this.sendToSubscription(tenantId, sub, payload, vapid ?? undefined)));
   }
 
   private static async sendToSubscription(
     tenantId: string,
     sub: { id: string; endpoint: string; p256dh: string; auth: string; userId?: string },
-    payload: PushPayload
+    payload: PushPayload,
+    vapidDetails?: VapidDetails,
   ): Promise<void> {
     try {
       await webpush.sendNotification(
         { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
-        JSON.stringify(payload)
+        JSON.stringify(payload),
+        vapidDetails ? { vapidDetails } : undefined,
       );
     } catch (error: any) {
       if (error.statusCode === 410 || error.statusCode === 404) {
