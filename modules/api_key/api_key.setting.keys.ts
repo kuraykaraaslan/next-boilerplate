@@ -14,6 +14,7 @@ export const ApiKeySettingKeySchema = z.enum([
   'apiKeyRequireExpiry',
   'apiKeyTenantIpAllowlist',
   'apiKeyDefaultRateLimitPerMinute',
+  'apiKeyAllowedScopes',
 ]);
 export type ApiKeySettingKey = z.infer<typeof ApiKeySettingKeySchema>;
 export const API_KEY_SETTING_KEY_LIST = ApiKeySettingKeySchema.options;
@@ -26,4 +27,5 @@ export const API_KEY_SETTING_KEYS = {
   REQUIRE_EXPIRY: 'apiKeyRequireExpiry',
   TENANT_IP_ALLOWLIST: 'apiKeyTenantIpAllowlist',
   DEFAULT_RATE_LIMIT_PER_MINUTE: 'apiKeyDefaultRateLimitPerMinute',
+  ALLOWED_SCOPES: 'apiKeyAllowedScopes',
 } as const satisfies Record<string, ApiKeySettingKey>;

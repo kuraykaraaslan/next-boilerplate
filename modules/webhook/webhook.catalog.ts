@@ -68,6 +68,7 @@ export const WEBHOOK_EVENT_CATALOG: Record<WebhookEvent, WebhookEventMeta> = {
   'api_key.updated':        { scope: 'tenant', group: 'API Keys',      label: 'API key updated',       description: 'An API key was updated, deactivated, or flagged with a usage anomaly.' },
   'api_key.deleted':        { scope: 'tenant', group: 'API Keys',      label: 'API key revoked',       description: 'An API key was revoked.' },
   'api_key.expired':        { scope: 'tenant', group: 'API Keys',      label: 'API key expired',       description: 'An API key passed its expiry and was deactivated by the expiry sweep.' },
+  'api_key.expiring':       { scope: 'tenant', group: 'API Keys',      label: 'API key expiring soon', description: 'An API key is approaching its expiry (rotation reminder).' },
   'api_key.rotated':        { scope: 'tenant', group: 'API Keys',      label: 'API key rotated',       description: 'An API key was rotated; a successor key was issued.' },
   'auth.account_locked':    { scope: 'tenant', group: 'Security',      label: 'Account locked',        description: 'A user account was locked after too many failed login attempts.' },
   'security.login_anomaly': { scope: 'tenant', group: 'Security',      label: 'Login anomaly',         description: 'A login occurred from a new device, IP, or location for a user.' },

@@ -7,7 +7,8 @@ import { ApiKey as ApiKeyEntity } from './entities/api_key.entity';
 import { SafeApiKey, SafeApiKeySchema } from './api_key.types';
 import type { CreateApiKeyInput, UpdateApiKeyInput, ListApiKeysInput, RotateApiKeyInput } from './api_key.dto';
 import ApiKeyMessages from './api_key.messages';
-import type { ApiKeyScope, ApiKeyEnv } from './api_key.enums';
+import type { ApiKeyEnv } from './api_key.enums';
+import { scopeSatisfies, scopesWithinAllowlist } from './api_key.enums';
 import { API_KEY_SETTING_KEYS } from './api_key.setting.keys';
 import { ipMatchesAllowlist, parseSubnetString } from '@/modules/network';
 import TenantFeatureGateService from '@/modules/tenant_subscription/tenant_subscription.feature.service';
@@ -129,6 +130,7 @@ export default class ApiKeyService {
     requireExpiry: boolean;
     tenantIpAllowlist: string[];
     defaultRateLimitPerMinute: number;
+    allowedScopes: string[];
   }> {
     const keys = [
       API_KEY_SETTING_KEYS.MAX_ACTIVE_KEYS,
@@ -136,6 +138,7 @@ export default class ApiKeyService {
       API_KEY_SETTING_KEYS.REQUIRE_EXPIRY,
       API_KEY_SETTING_KEYS.TENANT_IP_ALLOWLIST,
       API_KEY_SETTING_KEYS.DEFAULT_RATE_LIMIT_PER_MINUTE,
+      API_KEY_SETTING_KEYS.ALLOWED_SCOPES,
     ];
     let values: Record<string, string> = {};
     try { values = await SettingService.getByKeys(tenantId, keys); } catch { values = {}; }
@@ -150,6 +153,7 @@ export default class ApiKeyService {
       requireExpiry: values[API_KEY_SETTING_KEYS.REQUIRE_EXPIRY] === 'true',
       tenantIpAllowlist: parseSubnetString(values[API_KEY_SETTING_KEYS.TENANT_IP_ALLOWLIST]),
       defaultRateLimitPerMinute: num(API_KEY_SETTING_KEYS.DEFAULT_RATE_LIMIT_PER_MINUTE),
+      allowedScopes: (values[API_KEY_SETTING_KEYS.ALLOWED_SCOPES] ?? '').split(',').map((s) => s.trim()).filter(Boolean),
     };
   }
 
@@ -201,6 +205,12 @@ export default class ApiKeyService {
 
     const policy = await this.getTenantPolicy(tenantId);
     const expiresAt = this.resolveExpiry(input.expiresAt, policy);
+
+    // Per-plan scope allowlist: a tenant can never mint a key with scopes
+    // beyond what its plan permits (prevents privilege escalation).
+    if (!scopesWithinAllowlist(input.scopes, policy.allowedScopes)) {
+      throw new AppError(ApiKeyMessages.SCOPE_NOT_ALLOWED, 403, ErrorCode.FORBIDDEN);
+    }
 
     const ds = await tenantDataSourceFor(tenantId);
     const repo = ds.getRepository(ApiKeyEntity);
@@ -427,6 +437,45 @@ export default class ApiKeyService {
     return expired.length;
   }
 
+  /**
+   * Rotation reminder: emit `api_key.expiring` for active keys whose expiry
+   * falls within `withinDays`. De-duplicated per key per day via a Redis marker
+   * so a daily cron does not spam consumers. Returns the number of reminders.
+   */
+  static async sweepExpiringSoon(tenantId: string, withinDays = 7): Promise<number> {
+    const ds = await tenantDataSourceFor(tenantId);
+    const repo = ds.getRepository(ApiKeyEntity);
+
+    const now = new Date();
+    const horizon = new Date(now.getTime() + withinDays * DAY_MS);
+    const soon = await repo
+      .createQueryBuilder('k')
+      .where('k.tenantId = :tenantId', { tenantId })
+      .andWhere('k.isActive = :active', { active: true })
+      .andWhere('k.expiresAt IS NOT NULL')
+      .andWhere('k.expiresAt > :now', { now })
+      .andWhere('k.expiresAt <= :horizon', { horizon })
+      .getMany();
+
+    let sent = 0;
+    for (const k of soon) {
+      const day = new Date().toISOString().slice(0, 10);
+      const dedupeKey = `api_key:expiring:${k.apiKeyId}:${day}`;
+      // Only notify once per key per day (NX marker, 2-day TTL).
+      const first = await redis.set(dedupeKey, '1', 'EX', 2 * 86_400, 'NX').catch(() => 'OK');
+      if (first !== 'OK') continue;
+      const daysLeft = Math.max(0, Math.ceil(((k.expiresAt as Date).getTime() - now.getTime()) / DAY_MS));
+      await WebhookService.dispatchEvent(tenantId, 'api_key.expiring', {
+        apiKeyId: k.apiKeyId,
+        name: k.name,
+        expiresAt: k.expiresAt?.toISOString() ?? null,
+        daysLeft,
+      }).catch(() => {});
+      sent += 1;
+    }
+    return sent;
+  }
+
   // ============================================================================
   // Verification (hot path)
   // ============================================================================
@@ -474,7 +523,7 @@ export default class ApiKeyService {
    * the tenant-wide default allowlist), feeds anomaly detection, and is recorded
    * as `lastUsedIp`.
    */
-  static async verify(rawKey: string, requiredScope?: ApiKeyScope, ctx?: VerifyContext): Promise<SafeApiKey> {
+  static async verify(rawKey: string, requiredScope?: string, ctx?: VerifyContext): Promise<SafeApiKey> {
     const ip = ctx?.ip ?? null;
     const hash = ApiKeyService.hashKey(rawKey);
     const cacheKey = `api_key:hash:${hash}`;
@@ -518,7 +567,7 @@ export default class ApiKeyService {
       throw new AppError(ApiKeyMessages.KEY_EXPIRED, 401, ErrorCode.UNAUTHORIZED);
     }
 
-    if (requiredScope && !row.scopes.includes(requiredScope)) {
+    if (requiredScope && !scopeSatisfies(row.scopes, requiredScope)) {
       this.auditFailure('insufficient_scope', row.tenantId, ip, row.apiKeyId);
       throw new AppError(ApiKeyMessages.INSUFFICIENT_SCOPE, 403, ErrorCode.FORBIDDEN);
     }
@@ -619,7 +668,7 @@ export default class ApiKeyService {
   static async verifyFromAuthHeader(
     request: { headers: { get: (name: string) => string | null } },
     tenantId?: string,
-    requiredScope?: ApiKeyScope,
+    requiredScope?: string,
     ctx?: VerifyContext,
   ): Promise<SafeApiKey> {
     const header = request.headers.get('authorization') || request.headers.get('Authorization');

@@ -47,6 +47,7 @@ export const WebhookEventEnum = z.enum([
   'api_key.updated',
   'api_key.deleted',
   'api_key.expired',
+  'api_key.expiring',
   'api_key.rotated',
   'auth.account_locked',
   'security.login_anomaly',

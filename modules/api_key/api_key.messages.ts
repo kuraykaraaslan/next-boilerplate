@@ -4,6 +4,7 @@ const ApiKeyMessages = {
   KEY_INACTIVE: 'API key is inactive.',
   KEY_EXPIRED: 'API key has expired.',
   INSUFFICIENT_SCOPE: 'API key does not have the required scope.',
+  SCOPE_NOT_ALLOWED: "One or more requested scopes are not permitted by this tenant's plan.",
   NAME_REQUIRED: 'API key name is required.',
   SCOPE_REQUIRED: 'At least one scope must be selected.',
   CREATE_SUCCESS: 'API key created successfully.',
