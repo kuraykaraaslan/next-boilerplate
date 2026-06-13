@@ -99,6 +99,9 @@ export abstract class BaseOidcProvider {
       params.set('code_challenge', this.pkceChallenge(this.pkceVerifier(state)));
       params.set('code_challenge_method', 'S256');
     }
+    // Extension point: providers that must SIGN the authorize request (Russia ESIA,
+    // Alipay) add their signature/timestamp params here. Default no-op.
+    this.decorateAuthorizeParams(params, state);
     return `${c.authUrl}?${params.toString()}`;
   }
 
@@ -122,6 +125,9 @@ export abstract class BaseOidcProvider {
     } else if (c.clientSecret) {
       body.client_secret = c.clientSecret;
     }
+    // Extension point: providers that must SIGN the token request (ESIA, Alipay)
+    // add/replace signature fields here. Default no-op.
+    await this.decorateTokenBody(body);
     try {
       const res = await axios.post(c.tokenUrl as string, new URLSearchParams(body), { headers, timeout: HTTP_TIMEOUT_MS });
       return this.normalizeOidcTokens(res.data as Record<string, unknown>);
@@ -214,6 +220,12 @@ export abstract class BaseOidcProvider {
       return null;
     }
   }
+
+  // ── signing extension points (default no-op) ────────────────────────────────
+  /** Mutate authorize params to add a request signature/timestamp (ESIA, Alipay). */
+  protected decorateAuthorizeParams(_params: URLSearchParams, _state: string): void {}
+  /** Mutate the token-request body to add/replace a signature (ESIA, Alipay). */
+  protected async decorateTokenBody(_body: Record<string, string>): Promise<void> {}
 
   // ── helpers ────────────────────────────────────────────────────────────────
   protected normalizeOidcTokens(data: Record<string, unknown>): OidcTokens {

@@ -12,6 +12,11 @@ import { TikTokProvider } from './tiktok.provider';
 import { SlackProvider } from './slack.provider';
 import { WeChatProvider } from './wechat.provider';
 import { AutodeskProvider } from './autodesk.provider';
+import { YandexProvider } from './yandex.provider';
+import { VkProvider } from './vk.provider';
+import { QQProvider } from './qq.provider';
+import { WeiboProvider } from './weibo.provider';
+import { AlipayProvider } from './alipay.provider';
 
 /**
  * Type-safe provider registry (GOODTOHAVE: DX). Replacing the `switch` with a
@@ -31,6 +36,11 @@ const PROVIDER_FACTORIES: Record<SSOProvider, () => BaseSSOProvider> = {
   slack: () => new SlackProvider(),
   wechat: () => new WeChatProvider(),
   autodesk: () => new AutodeskProvider(),
+  yandex: () => new YandexProvider(),
+  vk: () => new VkProvider(),
+  qq: () => new QQProvider(),
+  weibo: () => new WeiboProvider(),
+  alipay: () => new AlipayProvider(),
 };
 
 const providerInstances: Partial<Record<SSOProvider, SSOProviderService>> = {};

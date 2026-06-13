@@ -11,7 +11,12 @@ export const SSOProviderEnum = z.enum([
   'slack',
   'tiktok',
   'wechat',
-  'autodesk'
+  'autodesk',
+  'yandex',
+  'vk',
+  'qq',
+  'weibo',
+  'alipay'
 ]);
 
 export type SSOProvider = z.infer<typeof SSOProviderEnum>;

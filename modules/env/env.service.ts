@@ -17,7 +17,8 @@ const SECRET_KEYS = new Set([
   'SETTINGS_ENCRYPTION_KEY', 'LOTL_SIGNER_CERT_PEM', 'MOBIL_IMZA_AGGREGATOR_API_KEY',
   'MOBIL_IMZA_CALLBACK_HMAC_SECRET', 'SMART_ID_RELYING_PARTY_UUID',
   'BANKID_SE_CLIENT_KEY_PATH', 'VAPID_PRIVATE_KEY', 'METRICS_SECRET',
-  'ACS_PROVIDER_MAP',
+  'ACS_PROVIDER_MAP', 'YANDEX_CLIENT_SECRET', 'VK_CLIENT_SECRET',
+  'QQ_CLIENT_SECRET', 'WEIBO_CLIENT_SECRET', 'ALIPAY_PRIVATE_KEY',
 ]);
 
 const EnvSchema = z.object({
@@ -47,6 +48,13 @@ const EnvSchema = z.object({
   DB_QUERY_TIMEOUT_MS: z.coerce.number().default(0),
   // Inactive user auto-deactivation (days). 0 = disabled.
   USER_INACTIVE_DAYS: z.coerce.number().default(0),
+
+  // ── Messaging WebSocket service (standalone Socket.IO process) ───────────────
+  MESSAGING_WS_PORT: z.coerce.number().default(4001),
+  // Public URL the browser connects to (returned alongside the WS ticket).
+  MESSAGING_WS_PUBLIC_URL: z.string().optional(),
+  // CORS origin allowed by the WS server (defaults to permissive in dev).
+  MESSAGING_WS_CORS_ORIGIN: z.string().optional(),
 
   // ── Auth / Secrets ──────────────────────────────────────────────────────────
   ACCESS_TOKEN_SECRET: z.string().min(1),
@@ -185,6 +193,19 @@ const EnvSchema = z.object({
   TWITTER_CLIENT_SECRET: z.string().optional(),
   WECHAT_APP_ID: z.string().optional(),
   WECHAT_APP_SECRET: z.string().optional(),
+  // Russia / China consumer SSO
+  YANDEX_CLIENT_ID: z.string().optional(),
+  YANDEX_CLIENT_SECRET: z.string().optional(),
+  VK_CLIENT_ID: z.string().optional(),
+  VK_CLIENT_SECRET: z.string().optional(),
+  QQ_CLIENT_ID: z.string().optional(),
+  QQ_CLIENT_SECRET: z.string().optional(),
+  WEIBO_CLIENT_ID: z.string().optional(),
+  WEIBO_CLIENT_SECRET: z.string().optional(),
+  // Alipay uses RSA2 request signing: app id + PEM private key (+ Alipay public key for response verify).
+  ALIPAY_APP_ID: z.string().optional(),
+  ALIPAY_PRIVATE_KEY: z.string().optional(),
+  ALIPAY_PUBLIC_KEY: z.string().optional(),
 
   // ── National identity providers (auth_acs) ──────────────────────────────────
   // Single validated JSON blob keyed by provider (mirrors EID_PROVIDER_MAP).

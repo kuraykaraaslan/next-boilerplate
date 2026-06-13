@@ -108,6 +108,58 @@ export const SSO_CONFIGS: Record<SSOProvider, SSOProviderConfig> = {
     userInfoUrl: 'https://api.userprofile.autodesk.com/userinfo',
     scopes: ['openid', 'profile', 'email'],
   },
+  // ── Russia ──────────────────────────────────────────────────────────────────
+  yandex: {
+    clientId: env.YANDEX_CLIENT_ID || '',
+    clientSecret: env.YANDEX_CLIENT_SECRET || '',
+    callbackPath: '/api/auth/callback/yandex',
+    authUrl: 'https://oauth.yandex.ru/authorize',
+    tokenUrl: 'https://oauth.yandex.ru/token',
+    userInfoUrl: 'https://login.yandex.ru/info?format=json',
+    scopes: ['login:email', 'login:info', 'login:avatar'],
+  },
+  vk: {
+    // Classic VK OAuth (oauth.vk.com). NOTE: VK is migrating to "VK ID" (id.vk.com),
+    // whose token exchange additionally requires a `device_id` returned on the
+    // callback — not plumbed through the generic SSO callback yet.
+    clientId: env.VK_CLIENT_ID || '',
+    clientSecret: env.VK_CLIENT_SECRET || '',
+    callbackPath: '/api/auth/callback/vk',
+    authUrl: 'https://oauth.vk.com/authorize',
+    tokenUrl: 'https://oauth.vk.com/access_token',
+    userInfoUrl: 'https://api.vk.com/method/users.get',
+    scopes: ['email'],
+  },
+  // ── China ───────────────────────────────────────────────────────────────────
+  qq: {
+    clientId: env.QQ_CLIENT_ID || '',
+    clientSecret: env.QQ_CLIENT_SECRET || '',
+    callbackPath: '/api/auth/callback/qq',
+    authUrl: 'https://graph.qq.com/oauth2.0/authorize',
+    tokenUrl: 'https://graph.qq.com/oauth2.0/token',
+    userInfoUrl: 'https://graph.qq.com/user/get_user_info',
+    scopes: ['get_user_info'],
+  },
+  weibo: {
+    clientId: env.WEIBO_CLIENT_ID || '',
+    clientSecret: env.WEIBO_CLIENT_SECRET || '',
+    callbackPath: '/api/auth/callback/weibo',
+    authUrl: 'https://api.weibo.com/oauth2/authorize',
+    tokenUrl: 'https://api.weibo.com/oauth2/access_token',
+    userInfoUrl: 'https://api.weibo.com/2/users/show.json',
+    scopes: ['email'],
+  },
+  alipay: {
+    // Alipay open platform. Confidential client uses RSA2 request signing (not a
+    // static client_secret); the private key is supplied via env (see provider).
+    clientId: env.ALIPAY_APP_ID || '',
+    clientSecret: '',
+    callbackPath: '/api/auth/callback/alipay',
+    authUrl: 'https://openauth.alipay.com/oauth2/publicAppAuthorize.htm',
+    tokenUrl: 'https://openapi.alipay.com/gateway.do',
+    userInfoUrl: 'https://openapi.alipay.com/gateway.do',
+    scopes: ['auth_user'],
+  },
 };
 
 export function getCallbackUrl(provider: SSOProvider): string {

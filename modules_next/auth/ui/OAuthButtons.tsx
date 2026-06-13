@@ -12,6 +12,11 @@ import {
   faTiktok,
   faWeixin,
   faXTwitter,
+  faVk,
+  faYandex,
+  faQq,
+  faWeibo,
+  faAlipay,
 } from '@fortawesome/free-brands-svg-icons';
 import { faCube } from '@fortawesome/free-solid-svg-icons';
 import { Button } from '@/modules_next/common/ui/Button';
@@ -29,6 +34,11 @@ export const SSO_PROVIDERS = [
   'tiktok',
   'wechat',
   'autodesk',
+  'yandex',
+  'vk',
+  'qq',
+  'weibo',
+  'alipay',
 ] as const;
 
 export type OAuthProvider = (typeof SSO_PROVIDERS)[number];
@@ -45,6 +55,11 @@ const providerMeta: Record<OAuthProvider, { label: string; icon: React.ReactNode
   tiktok:    { label: 'Continue with TikTok',    icon: <FontAwesomeIcon icon={faTiktok} />,    iconClass: 'text-text-primary' },
   wechat:    { label: 'Continue with WeChat',    icon: <FontAwesomeIcon icon={faWeixin} />,    iconClass: 'text-[#07C160]' },
   autodesk:  { label: 'Continue with Autodesk',  icon: <FontAwesomeIcon icon={faCube} />,      iconClass: 'text-[#0696D7]' },
+  yandex:    { label: 'Continue with Yandex',    icon: <FontAwesomeIcon icon={faYandex} />,    iconClass: 'text-[#FC3F1D]' },
+  vk:        { label: 'Continue with VK',        icon: <FontAwesomeIcon icon={faVk} />,        iconClass: 'text-[#0077FF]' },
+  qq:        { label: 'Continue with QQ',        icon: <FontAwesomeIcon icon={faQq} />,        iconClass: 'text-[#12B7F5]' },
+  weibo:     { label: 'Continue with Weibo',     icon: <FontAwesomeIcon icon={faWeibo} />,     iconClass: 'text-[#E6162D]' },
+  alipay:    { label: 'Continue with Alipay',    icon: <FontAwesomeIcon icon={faAlipay} />,    iconClass: 'text-[#1677FF]' },
 };
 
 type OAuthButtonsProps = {
