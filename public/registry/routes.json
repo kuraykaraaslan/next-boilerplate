@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-11T20:09:52.776Z",
+  "generatedAt": "2026-06-13T15:50:35.947Z",
   "routes": [
     {
       "filePath": "app/internal/api/caddy-ask/route.ts",
@@ -711,6 +711,74 @@
         "POST"
       ],
       "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/blog/categories/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/blog/categories",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "blog",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/blog/categories/[categoryId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/blog/categories/[categoryId]",
+      "methods": [
+        "GET",
+        "PATCH",
+        "DELETE"
+      ],
+      "module": "blog",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/blog/comments/[commentId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/blog/comments/[commentId]",
+      "methods": [
+        "PATCH",
+        "DELETE"
+      ],
+      "module": "blog",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/blog/posts/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/blog/posts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "blog",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/blog/posts/[postId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/blog/posts/[postId]",
+      "methods": [
+        "GET",
+        "PATCH",
+        "DELETE"
+      ],
+      "module": "blog",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/blog/posts/[postId]/comments/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/blog/posts/[postId]/comments",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "blog",
       "dynamic": true
     },
     {

@@ -20,7 +20,14 @@ async function main() {
   if (user) {
     await userRepo.update(
       { email: adminEmail },
-      { userRole: 'ADMIN', userStatus: 'ACTIVE', password: hashed } as any,
+      {
+        userRole: 'ADMIN',
+        userStatus: 'ACTIVE',
+        password: hashed,
+        // Bootstrap admin must always be email-verified, otherwise login is
+        // blocked when the tenant's emailVerificationRequired policy is on.
+        emailVerifiedAt: user.emailVerifiedAt ?? new Date(),
+      } as any,
     );
     user = (await userRepo.findOne({ where: { email: adminEmail } }))!;
     console.log('Updated admin user:', adminEmail);
@@ -31,6 +38,7 @@ async function main() {
         password: hashed,
         userRole: 'ADMIN',
         userStatus: 'ACTIVE',
+        emailVerifiedAt: new Date(),
       }),
     );
     console.log('Created admin user:', adminEmail);

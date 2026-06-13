@@ -63,10 +63,17 @@ export const AnonymizeActorDTO = z.object({
 
 // Cross-tenant aggregated query (root tenant only).
 export const CrossTenantAuditQueryDTO = z.object({
+  // Optional single-tenant filter — when set, the root-tenant viewer scopes the
+  // aggregated view down to just this tenant's logs.
+  tenantId: z.string().uuid().nullable().optional(),
   action:   z.string().nullable().optional(),
   severity: AuditSeverityEnum.nullable().optional(),
   fromDate: DateLike.nullable().optional(),
   toDate:   DateLike.nullable().optional(),
+  page:     z.number().int().min(1).default(1),
+  pageSize: z.number().int().min(1).max(100).default(20),
+  // Retained for backward-compat callers that page via a hard cap instead of
+  // page/pageSize; ignored when page-based params are used.
   limit:    z.number().int().min(1).max(1000).default(200),
 });
 

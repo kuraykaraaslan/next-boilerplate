@@ -36,6 +36,10 @@ export default class InvoiceTransitionService {
         } else if (invoice.region === 'US' && result.externalId) {
           invoice.stripeTaxCalculationId = result.externalId;
         }
+        // Provider-agnostic: when the e-invoicing provider returns its own
+        // signed/legal PDF, persist its URL so we serve that document verbatim
+        // instead of self-rendering one.
+        if (result.pdfUrl) invoice.providerPdfUrl = result.pdfUrl;
       } catch (err) {
         Logger.warn(`[Invoice.issue] regional submit failed for ${invoice.invoiceNumber}: ${err instanceof Error ? err.message : err}`);
       }

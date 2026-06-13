@@ -16,12 +16,40 @@ export default class InvoicePdfService {
     const ds = await tenantDataSourceFor(tenantId);
     const invoice = await ds.getRepository(Invoice).findOne({ where: { tenantId, invoiceId } });
     if (!invoice) throw new Error(InvoiceMessages.NOT_FOUND);
+
+    // When the e-invoicing provider (e-Arşiv via Foriba/Logo, or any provider
+    // that returns a signed document) issued its own legal PDF, that document is
+    // authoritative — serve it verbatim and never substitute a self-rendered one.
+    if (invoice.providerPdfUrl) {
+      return InvoicePdfService.fetchProviderPdf(invoice.providerPdfUrl);
+    }
+
     const lines = await ds.getRepository(InvoiceLine).find({ where: { tenantId, invoiceId }, order: { createdAt: 'ASC' } });
     const [seller, tpl] = await Promise.all([
       InvoicePdfService.loadSeller(tenantId),
       InvoicePdfService.loadTemplateOptions(tenantId),
     ]);
     return InvoicePdfRendererService.buildPdf(invoice, lines, seller, tpl);
+  }
+
+  /**
+   * Download the provider-rendered legal PDF. We deliberately do NOT fall back
+   * to a self-rendered document on failure: a provider-backed invoice must show
+   * the official document or a clear error, never a look-alike we generated.
+   */
+  private static async fetchProviderPdf(url: string): Promise<Buffer> {
+    if (!/^https?:\/\//i.test(url)) {
+      throw new Error(InvoiceMessages.PROVIDER_PDF_UNAVAILABLE);
+    }
+    let res: Response;
+    try {
+      res = await fetch(url);
+    } catch {
+      throw new Error(InvoiceMessages.PROVIDER_PDF_UNAVAILABLE);
+    }
+    if (!res.ok) throw new Error(InvoiceMessages.PROVIDER_PDF_UNAVAILABLE);
+    const arrayBuffer = await res.arrayBuffer();
+    return Buffer.from(arrayBuffer);
   }
 
   static async renderPreview(tenantId: string): Promise<Buffer> {

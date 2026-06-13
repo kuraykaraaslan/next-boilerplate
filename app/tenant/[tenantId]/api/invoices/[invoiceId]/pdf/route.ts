@@ -30,7 +30,9 @@ export async function GET(request: NextRequest, { params }: Params) {
       },
     });
   } catch (error: any) {
-    const status = error.message === InvoiceMessages.NOT_FOUND ? 404 : 500;
+    const status = error.message === InvoiceMessages.NOT_FOUND ? 404
+      : error.message === InvoiceMessages.PROVIDER_PDF_UNAVAILABLE ? 502
+      : 500;
     return NextResponse.json(
       { success: false, message: error.message ?? 'PDF render failed' },
       { status },

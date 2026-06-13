@@ -9,7 +9,7 @@ import Limiter from '@/modules_next/limiter/limiter.service.next';
  * GET /tenant/[tenantId]/api/audit-logs/cross-tenant
  * Cross-tenant aggregated audit view — ROOT TENANT ONLY (the service rejects
  * non-root callers). Requires ADMIN role on the root tenant.
- * Query params: action, severity, fromDate, toDate, limit.
+ * Query params: tenantId, action, severity, fromDate, toDate, page, pageSize.
  */
 export async function GET(
   request: NextRequest,
@@ -27,14 +27,15 @@ export async function GET(
     });
 
     const { searchParams } = new URL(request.url);
-    const limitRaw = searchParams.get('limit');
 
     const { logs, total } = await AuditLogService.queryCrossTenant(tenantId, {
+      tenantId: searchParams.get('filterTenantId') ?? undefined,
       action:   searchParams.get('action')   ?? undefined,
       severity: (searchParams.get('severity') as any) ?? undefined,
       fromDate: searchParams.get('fromDate') ?? undefined,
       toDate:   searchParams.get('toDate')   ?? undefined,
-      limit:    limitRaw ? parseInt(limitRaw, 10) : 200,
+      page:     searchParams.get('page')     ? parseInt(searchParams.get('page')!,     10) : 1,
+      pageSize: searchParams.get('pageSize') ? parseInt(searchParams.get('pageSize')!, 10) : 20,
     });
 
     return NextResponse.json({ logs, total }, { status: 200 });

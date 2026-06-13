@@ -9,10 +9,10 @@ import type { EditorStore } from '../editor.types'
 
 export type BlockSlice = Pick<
   EditorStore,
-  | 'handleDragEnd' | 'addBlock' | 'deleteBlock' | 'duplicateBlock'
+  | 'handleDragEnd' | 'addBlock' | 'insertBlocks' | 'deleteBlock' | 'duplicateBlock'
   | 'toggleBlockHidden' | 'updateBlockProps' | 'updateBlockLabel'
   | 'moveBlock' | 'reorderBlocks' | 'copyBlock' | 'pasteBlock'
-  | 'snapshotForUndo' | 'undo' | 'redo'
+  | 'snapshotForUndo' | 'undo' | 'redo' | 'deleteSelected'
 >
 
 export const createBlockSlice: StateCreator<EditorStore, [], [], BlockSlice> = (set, get) => ({
@@ -59,6 +59,26 @@ export const createBlockSlice: StateCreator<EditorStore, [], [], BlockSlice> = (
     })
   },
 
+  insertBlocks: (blocks, atIndex) => {
+    if (get().activeLang !== 'en') return
+    if (blocks.length === 0) return
+    set((state) => {
+      const insertAt = atIndex ?? state.sections.length
+      const newSections = [
+        ...state.sections.slice(0, insertAt),
+        ...blocks,
+        ...state.sections.slice(insertAt),
+      ].map((b, i) => ({ ...b, order: i }))
+      return {
+        undoStack: [...state.undoStack.slice(-49), { sections: state.sections, selectedId: state.selectedId }],
+        redoStack: [],
+        isDirty: true,
+        sections: newSections,
+        selectedId: blocks[0].id,
+      }
+    })
+  },
+
   deleteBlock: (id) => {
     if (get().activeLang !== 'en') return
     set((state) => ({
@@ -67,6 +87,21 @@ export const createBlockSlice: StateCreator<EditorStore, [], [], BlockSlice> = (
       isDirty: true,
       sections: state.sections.filter((b) => b.id !== id).map((b, i) => ({ ...b, order: i })),
       selectedId: state.selectedId === id ? null : state.selectedId,
+      selectedIds: state.selectedIds.filter((s) => s !== id),
+    }))
+  },
+
+  deleteSelected: () => {
+    if (get().activeLang !== 'en') return
+    const ids = get().selectedIds
+    if (ids.length === 0) return
+    set((state) => ({
+      undoStack: [...state.undoStack.slice(-49), { sections: state.sections, selectedId: state.selectedId }],
+      redoStack: [],
+      isDirty: true,
+      sections: state.sections.filter((b) => !ids.includes(b.id)).map((b, i) => ({ ...b, order: i })),
+      selectedId: null,
+      selectedIds: [],
     }))
   },
 

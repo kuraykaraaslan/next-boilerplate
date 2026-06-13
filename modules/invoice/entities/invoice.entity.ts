@@ -106,6 +106,13 @@ export class Invoice {
   stripeTaxCalculationId?: string;
 
   // ── Files / extras ─────────────────────────────────────────────────────────
+  // Provider-rendered legal PDF (e-Arşiv/e-Fatura via Foriba/Logo, or any other
+  // e-invoicing provider that returns a signed document). When present this is
+  // the authoritative document and we serve it verbatim instead of rendering
+  // our own — a self-generated PDF must never stand in for the legal original.
+  @Column({ nullable: true, type: 'varchar' })
+  providerPdfUrl?: string;
+
   @Column({ nullable: true, type: 'varchar' })
   pdfStorageKey?: string;
 

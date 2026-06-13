@@ -810,6 +810,22 @@
     "componentCount": 0,
     "file": "product_review.md"
   },
+  "blog": {
+    "name": "Blog",
+    "tier": "other",
+    "tags": [
+      "blog",
+      "content",
+      "cms",
+      "comments",
+      "moderation"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 6,
+    "entityCount": 3,
+    "componentCount": 2,
+    "file": "blog.md"
+  },
   "ai": {
     "name": "AI",
     "tier": "ai",
@@ -836,7 +852,7 @@
     "hasNextLayer": true,
     "routeCount": 11,
     "entityCount": 5,
-    "componentCount": 64,
+    "componentCount": 84,
     "file": "dynamic_page.md"
   },
   "api_doc": {

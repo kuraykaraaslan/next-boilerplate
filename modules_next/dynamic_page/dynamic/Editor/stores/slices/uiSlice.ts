@@ -9,11 +9,22 @@ export type UiSlice = Pick<
   | 'setBackupOpen' | 'setSeoOpen' | 'setTranslationOpen'
   | 'setPreviewMode' | 'setShowShortcuts'
   | 'restoreDraft' | 'dismissDraft' | 'loadBlockDefs'
+  | 'toggleSelectId' | 'selectAll' | 'clearMultiSelect'
 >
 
 export const createUiSlice: StateCreator<EditorStore, [], [], UiSlice> = (set, get) => ({
   setTenantId: (v) => set({ tenantId: v }),
-  setSelectedId: (id) => set({ selectedId: id }),
+  setSelectedId: (id) => set({ selectedId: id, selectedIds: [] }),
+  toggleSelectId: (id) => set((state) => {
+    const isIn = state.selectedIds.includes(id)
+    const next = isIn ? state.selectedIds.filter((s) => s !== id) : [...state.selectedIds, id]
+    return { selectedIds: next, selectedId: next[next.length - 1] ?? null }
+  }),
+  selectAll: () => set((state) => ({
+    selectedIds: state.sections.map((b) => b.id),
+    selectedId: state.sections[0]?.id ?? null,
+  })),
+  clearMultiSelect: () => set({ selectedIds: [], selectedId: null }),
   setTitle: (v) => set({ title: v, isDirty: true }),
   setSlug: (v) => set({ slug: v, isDirty: true }),
   setStatus: (v) => set({ status: v, isDirty: true }),

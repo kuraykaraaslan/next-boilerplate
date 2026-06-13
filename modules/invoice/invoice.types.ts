@@ -82,6 +82,7 @@ export const SafeInvoiceSchema = z.object({
   peppolDocumentId: z.string().nullable().optional(),
   peppolStatus: z.string().nullable().optional(),
   stripeTaxCalculationId: z.string().nullable().optional(),
+  providerPdfUrl: z.string().nullable().optional(),
   pdfStorageKey: z.string().nullable().optional(),
   notes: z.string().nullable().optional(),
   metadata: z.record(z.string(), z.unknown()).nullable().optional(),

@@ -28,7 +28,6 @@ export async function seedTenantMember(ctx: SeedContext): Promise<void> {
   const ownerUserId = (refs.adminUserId as string) ?? SEED_ADMIN_USER_ID;
   const adminUserId = (refs.userId as string) ?? SEED_USER_ID;
   const memberUserId = 'a0000000-0000-4000-8000-000000000003';
-  const pendingUserId = 'a0000000-0000-4000-8000-000000000004';
 
   const now = new Date();
   const daysAgo = (n: number) => new Date(now.getTime() - n * 24 * 60 * 60 * 1000);
@@ -72,15 +71,6 @@ export async function seedTenantMember(ctx: SeedContext): Promise<void> {
       sessionVersion: 0,
       createdAt: daysAgo(14),
     },
-    // Invited member awaiting acceptance: USER, PENDING, no externalId yet.
-    {
-      userId: pendingUserId,
-      memberRole: 'USER',
-      memberStatus: 'PENDING',
-      externalId: null,
-      sessionVersion: 0,
-      createdAt: daysAgo(2),
-    },
   ];
 
   const memberRepo = ctx.repo<TenantMember>(TenantMember);
@@ -108,6 +98,6 @@ export async function seedTenantMember(ctx: SeedContext): Promise<void> {
   refs.ownerUserId = ownerUserId;
 
   ctx.log(
-    `tenant_member: 4 members (OWNER/ADMIN active, USER suspended, USER pending) for ${tenantId}`,
+    `tenant_member: 3 members (OWNER/ADMIN active, USER suspended) for ${tenantId}`,
   );
 }

@@ -64,7 +64,9 @@ function ResizeHandle({ blockId }: { blockId: string }) {
 export interface SortableBlockProps {
   block: BlockData
   isSelected: boolean
-  onSelect: () => void
+  isMultiSelected?: boolean
+  onSelect: (e: React.MouseEvent) => void
+  onDoubleClick?: () => void
   onDelete: () => void
   onDuplicate: () => void
   onToggleHidden: () => void
@@ -73,7 +75,7 @@ export interface SortableBlockProps {
 }
 
 export const SortableBlock = memo(
-  function SortableBlock({ block, isSelected, onSelect, onDelete, onDuplicate, onToggleHidden, onContextMenu, isTranslationMode }: SortableBlockProps) {
+  function SortableBlock({ block, isSelected, isMultiSelected, onSelect, onDoubleClick, onDelete, onDuplicate, onToggleHidden, onContextMenu, isTranslationMode }: SortableBlockProps) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: block.id })
     const blockDefs = useEditorStore((s) => s.blockDefs)
 
@@ -91,13 +93,20 @@ export const SortableBlock = memo(
         data-block-id={block.id}
         className={`relative group cursor-pointer ${block.hidden ? 'opacity-40' : ''}`}
         onClick={onSelect}
+        onDoubleClick={(e) => { e.stopPropagation(); onDoubleClick?.() }}
         onContextMenu={(e) => { e.preventDefault(); onContextMenu(e, block.id) }}
       >
+        {/* Intercepts all clicks on block content — prevents link navigation and form submission in editor */}
         <div
-          className="absolute inset-0 z-10 pointer-events-none transition-all"
+          className="absolute inset-0 z-10 transition-all"
           style={{
-            outline: isSelected ? '2px solid var(--primary)' : '2px solid transparent',
+            outline: isSelected
+              ? '2px solid var(--primary)'
+              : isMultiSelected
+                ? '2px dashed var(--primary)'
+                : '2px solid transparent',
             outlineOffset: '-2px',
+            backgroundColor: isMultiSelected && !isSelected ? 'color-mix(in srgb, var(--primary) 5%, transparent)' : undefined,
           }}
         />
         {block.hidden && (
@@ -156,5 +165,7 @@ export const SortableBlock = memo(
   (prev, next) =>
     prev.block === next.block &&
     prev.isSelected === next.isSelected &&
-    prev.isTranslationMode === next.isTranslationMode
+    prev.isMultiSelected === next.isMultiSelected &&
+    prev.isTranslationMode === next.isTranslationMode &&
+    prev.onDoubleClick === next.onDoubleClick
 )

@@ -12,7 +12,7 @@ import { ServerDataTable } from '@/modules_next/common/ui/ServerDataTable';
 import { toast } from '@/modules_next/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserPlus, faSearch, faUser, faGear } from '@fortawesome/free-solid-svg-icons';
-import type { TenantMemberRole as MemberRole } from '@/modules/tenant_member/tenant_member.enums';
+import type { TenantMemberRole as MemberRole, TenantMemberStatus as MemberStatus } from '@/modules/tenant_member/tenant_member.enums';
 import { buildMemberColumns, type MemberRow } from '@/modules_next/tenant_member/ui/member-list-columns';
 
 type SessionData = {
@@ -21,6 +21,13 @@ type SessionData = {
 };
 
 const PAGE_SIZE = 25;
+
+const STATUS_OPTIONS: { value: MemberStatus; label: string }[] = [
+  { value: 'ACTIVE', label: 'Active' },
+  { value: 'INACTIVE', label: 'Inactive' },
+  { value: 'SUSPENDED', label: 'Suspended' },
+  { value: 'PENDING', label: 'Pending' },
+];
 
 function extractMessage(err: unknown, fallback: string): string {
   const e = err as { response?: { data?: { message?: string } }; message?: string };
@@ -47,6 +54,12 @@ export default function TenantMembersPage({ params }: { params: Promise<{ tenant
   const [deleting, setDeleting]         = useState(false);
   const [deleteError, setDeleteError]   = useState('');
 
+  const [editMember, setEditMember]   = useState<MemberRow | null>(null);
+  const [editRole, setEditRole]       = useState<MemberRole>('USER');
+  const [editStatus, setEditStatus]   = useState<MemberStatus>('ACTIVE');
+  const [savingEdit, setSavingEdit]   = useState(false);
+  const [editError, setEditError]     = useState('');
+
   useEffect(() => {
     Promise.all([
       api.get(`/tenant/${tenantId}/api/auth/session`),
@@ -63,7 +76,7 @@ export default function TenantMembersPage({ params }: { params: Promise<{ tenant
   const canManage = session?.tenantMember.memberRole === 'ADMIN' || session?.tenantMember.memberRole === 'OWNER';
 
   const filtered = useMemo(
-    () => members.filter((m) => m.user.email.toLowerCase().includes(search.toLowerCase())),
+    () => members.filter((m) => (m.user?.email ?? '').toLowerCase().includes(search.toLowerCase())),
     [members, search],
   );
 
@@ -112,7 +125,45 @@ export default function TenantMembersPage({ params }: { params: Promise<{ tenant
     return true;
   }
 
+  function canEdit(member: MemberRow): boolean {
+    if (!canManage) return false;
+    // Only owners may modify other owners (mirrors the API guard).
+    if (member.memberRole === 'OWNER') return session?.tenantMember.memberRole === 'OWNER';
+    return true;
+  }
+
+  function openEdit(member: MemberRow) {
+    setEditMember(member);
+    setEditRole(member.memberRole);
+    setEditStatus((member.memberStatus as MemberStatus) ?? 'ACTIVE');
+    setEditError('');
+  }
+
+  async function handleEdit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!editMember) return;
+    setSavingEdit(true); setEditError('');
+    try {
+      const { data } = await api.put(
+        `/tenant/${tenantId}/api/members/${editMember.tenantMemberId}`,
+        { memberRole: editRole, memberStatus: editStatus },
+      );
+      const updated = data.member;
+      setMembers((prev) => prev.map((m) =>
+        m.tenantMemberId === editMember.tenantMemberId
+          ? { ...m, memberRole: updated?.memberRole ?? editRole, memberStatus: updated?.memberStatus ?? editStatus }
+          : m,
+      ));
+      setEditMember(null);
+      toast.success('Member updated.');
+    } catch (err: unknown) {
+      setEditError(extractMessage(err, 'Failed to update member.'));
+    } finally { setSavingEdit(false); }
+  }
+
   const columns = buildMemberColumns({
+    onEdit:    canManage ? openEdit : undefined,
+    canEdit,
     onRemove:  canManage ? (m) => { setConfirmDelete(m); setDeleteError(''); } : undefined,
     canRemove: canDelete,
   });
@@ -182,7 +233,7 @@ export default function TenantMembersPage({ params }: { params: Promise<{ tenant
         open={confirmDelete !== null}
         onClose={() => { setConfirmDelete(null); setDeleteError(''); }}
         title="Remove Member"
-        description={`Remove ${confirmDelete?.user.email} from this organization?`}
+        description={`Remove ${confirmDelete?.user?.email ?? 'this member'} from this organization?`}
         footer={
           <>
             <Button variant="ghost" onClick={() => { setConfirmDelete(null); setDeleteError(''); }} disabled={deleting}>
@@ -196,6 +247,31 @@ export default function TenantMembersPage({ params }: { params: Promise<{ tenant
         <p className="text-sm text-text-secondary">
           This will immediately revoke their access. This action cannot be undone.
         </p>
+      </Modal>
+
+      <Modal
+        open={editMember !== null}
+        onClose={() => { setEditMember(null); setEditError(''); }}
+        title="Edit Member"
+        description={editMember?.user?.email
+          ? `Update the role and status for ${editMember.user.email}.`
+          : 'Update the member’s role and status.'}
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => { setEditMember(null); setEditError(''); }} disabled={savingEdit}>
+              Cancel
+            </Button>
+            <Button form="edit-member-form" type="submit" loading={savingEdit}>Save Changes</Button>
+          </>
+        }
+      >
+        <form id="edit-member-form" onSubmit={handleEdit} className="space-y-4">
+          {editError && <AlertBanner variant="error" message={editError} />}
+          <Select id="edit-role" label="Role" options={roleOptions} value={editRole}
+            onChange={(e) => setEditRole(e.target.value as MemberRole)} />
+          <Select id="edit-status" label="Status" options={STATUS_OPTIONS} value={editStatus}
+            onChange={(e) => setEditStatus(e.target.value as MemberStatus)} />
+        </form>
       </Modal>
     </div>
   );

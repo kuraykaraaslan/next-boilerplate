@@ -187,6 +187,18 @@ export default class InvoicePdfRendererService {
       doc.restoreGraphicsState?.();
     }
 
+    // Voided stamp — a prominent red "VOIDED" mark rotated 45° across the page
+    // so a cancelled invoice can never be mistaken for a valid one.
+    if (invoice.status === 'void') {
+      doc.saveGraphicsState?.();
+      // @ts-expect-error — GState exists on jsPDF
+      doc.setGState?.(new doc.GState({ opacity: 0.22 }));
+      doc.setTextColor(200, 30, 30);
+      doc.setFontSize(90); doc.setFont(tpl.fontFamily, 'bold');
+      doc.text('VOIDED', pageW / 2, doc.internal.pageSize.getHeight() / 2, { align: 'center', angle: 45 });
+      doc.restoreGraphicsState?.();
+    }
+
     // Footer
     const footerY = doc.internal.pageSize.getHeight() - 15;
     doc.setTextColor(mr, mg, mb);

@@ -24,6 +24,7 @@ export const DefaultSeoData: SeoData = {
 export interface EditorStore {
   tenantId: string; loading: boolean; saving: boolean;
   sections: BlockData[]; selectedId: string | null;
+  selectedIds: string[];
   title: string; slug: string; status: string; description: string; keywords: string[];
   seoData: SeoData; backupOpen: boolean; seoOpen: boolean; translationOpen: boolean;
   isDirty: boolean; previewMode: PreviewMode;
@@ -37,6 +38,10 @@ export interface EditorStore {
 
   setTenantId: (v: string) => void
   setSelectedId: (id: string | null) => void
+  toggleSelectId: (id: string) => void
+  selectAll: () => void
+  clearMultiSelect: () => void
+  deleteSelected: () => void
   setTitle: (v: string) => void
   setSlug: (v: string) => void
   setStatus: (v: string) => void
@@ -53,6 +58,7 @@ export interface EditorStore {
   loadBlockDefs: () => Promise<void>
   handleDragEnd: (event: DragEndEvent) => void
   addBlock: (type: string, atIndex?: number) => void
+  insertBlocks: (blocks: BlockData[], atIndex?: number) => void
   deleteBlock: (id: string) => void
   duplicateBlock: (id: string) => void
   toggleBlockHidden: (id: string) => void
@@ -79,6 +85,7 @@ export interface EditorStore {
 export const initialState = {
   tenantId: '', loading: false, saving: false,
   sections: [] as BlockData[], selectedId: null as string | null,
+  selectedIds: [] as string[],
   clipboard: null as BlockData | null,
   title: '', slug: '', status: 'DRAFT', description: '', keywords: [] as string[],
   seoData: DefaultSeoData, backupOpen: false, seoOpen: false, translationOpen: false,

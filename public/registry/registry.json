@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-11T20:09:52.776Z",
+  "generatedAt": "2026-06-13T15:50:35.947Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -2780,6 +2780,63 @@
       "readme": "# Product Review Module\n\nTenant-scoped product ratings and reviews. A framework-agnostic service layer (no UI, no API routes) that lets shoppers rate (1–5) and review products, flag verified purchases, vote reviews as helpful, and run reviews through a moderation queue before they appear publicly. Per-product rating summaries (average + star distribution) are computed over approved reviews and cached.\n\n---\n\n## Entities\n\n| Entity | Table | Description |\n|---|---|---|\n| `ProductReview` | `product_reviews` | A single review for a `productId`, scoped to `tenantId`. Authored by a `userId` (registered) or an `authorName` (guest). Carries `rating` (1–5), optional `title`, `body`, `status`, `isVerifiedPurchase`, `helpfulCount`, optional `orderId` (proof-of-purchase ref), and `metadata` (jsonb). Soft-deletable. |\n| `ProductReviewVote` | `product_review_votes` | One helpful/not-helpful vote (`isHelpful`) per `userId` per `reviewId`, scoped to `tenantId`. The review's `helpfulCount` is the count of `isHelpful = true` votes. |\n\nBoth live in the **tenant DB**, reached via `tenantDataSourceFor(tenantId)`.\n\n---\n\n## Moderation lifecycle\n\n```\n            create / author-edit\n                    │\n                    ▼\n                 PENDING ──── moderate ────▶ APPROVED   (publicly visible, counts in summary)\n                    │                   ├──▶ REJECTED\n                    │                   └──▶ SPAM\n```\n\n- New reviews start `PENDING`.\n- Author edits (`update`) reset status back to `PENDING` (re-enter the queue).\n- `moderate` transitions to `APPROVED` / `REJECTED` / `SPAM`. A `note` is stored under\n  `metadata.moderationNote`.\n- Only `APPROVED` reviews are aggregated into the product summary. For public product\n  pages, call `list` with `status: 'APPROVED'`.\n\nStatuses are defined by `ReviewStatusEnum` (`PENDING` | `APPROVED` | `REJECTED` | `SPAM`).\n\n---\n\n## Service (`ProductReviewService`, all static)\n\n| Method | Description |\n| --- | --- |\n| `create(tenantId, dto)` | Create a review (status `PENDING`). Enforces integer rating 1–5; busts the product summary cache. |\n| `getById(tenantId, reviewId)` | Fetch one review (singleFlight cached). |\n| `list(tenantId, query)` | Paginated list with filters (`productId`, `userId`, `status`, `minRating`, `isVerifiedPurchase`) and `sort` (`recent` \\| `helpful` \\| `rating_high` \\| `rating_low`). |\n| `update(tenantId, reviewId, dto)` | Author edit (`rating`/`title`/`body`). Always resets status to `PENDING`. |\n| `moderate(tenantId, reviewId, dto)` | Set status to `APPROVED` / `REJECTED` / `SPAM`; optional `note` saved to `metadata.moderationNote`. |\n| `voteHelpful(tenantId, reviewId, dto)` | Upsert one vote per user, recompute `helpfulCount` from `isHelpful = true` votes. |\n| `getProductSummary(tenantId, productId)` | Aggregate over `APPROVED` reviews (cached). |\n| `delete(tenantId, reviewId)` | Soft delete. |\n\nDTOs are Zod-validated (`product_review.dto.ts`); return shapes are `SafeProductReview` (omits `deletedAt`) and `ProductReviewSummary` (`product_review.types.ts`). Error strings come from `PRODUCT_REVIEW_MESSAGES` (`product_review.messages.ts`).\n\n---\n\n## Summary aggregation\n\n`getProductSummary` scans `APPROVED` reviews for a product and returns:\n\n```ts\n{\n  productId,\n  totalReviews,                       // count of approved reviews\n  averageRating,                      // mean rating, rounded to 1 decimal (0 when none)\n  distribution: { '1': n, '2': n, '3': n, '4': n, '5': n }, // per-star counts\n}\n```\n\n---\n\n## Cache keys\n\n| Key | Written by | Busted by |\n| --- | --- | --- |\n| `review:<reviewId>` | `getById` (singleFlight) | `update`, `moderate`, `voteHelpful`, `delete` |\n| `review:summary:<productId>` | `getProductSummary` (singleFlight) | `create`, `update`, `moderate`, `delete` |\n\n---\n\n## Usage\n\n```ts\nimport { ProductReviewService } from '@/modules/product_review'\n\n// Shopper submits a review (enters moderation as PENDING)\nconst review = await ProductReviewService.create(tenantId, {\n  productId,\n  userId,\n  rating: 5,\n  title: 'Great product',\n  body: 'Exactly as described.',\n  isVerifiedPurchase: true,\n  orderId,\n})\n\n// Moderator approves it\nawait ProductReviewService.moderate(tenantId, review.productReviewId, { status: 'APPROVED' })\n\n// Another user marks it helpful\nawait ProductReviewService.voteHelpful(tenantId, review.productReviewId, { userId: otherUserId })\n\n// Public product page: approved reviews + rating summary\nconst { data } = await ProductReviewService.list(tenantId, { productId, status: 'APPROVED', sort: 'helpful' })\nconst summary = await ProductReviewService.getProductSummary(tenantId, productId)\n```\n\n---\n\n## Settings\n\nThis module exposes **no per-tenant settings** and reads none. All behavior (mandatory\nmoderation queue, 1–5 rating scale, anonymous-review allowance) is hardcoded — see\n*Tenant Variability* for candidates.\n\n---\n\n## Tenant Variability\n\n> What varies per tenant in this module — and what could. Audited 2026-06-03.\n\nA fully tenant-scoped product ratings/reviews module (reviews, helpful votes, moderation lifecycle, cached per-product rating summaries) that stores all data per real tenant via tenantDataSourceFor but exposes no per-tenant settings and no per-tenant behavioral branching.\n\n### Tenant-scoped data\n\n| Entity | Table | Tenant-variable columns |\n|---|---|---|\n| `ProductReview` | `product_reviews` | productId, userId, authorName, rating, title, body, status, isVerifiedPurchase, helpfulCount, orderId, metadata |\n| `ProductReviewVote` | `product_review_votes` | reviewId, userId, isHelpful |\n\nAll rows isolated by `tenantId` via the per-tenant DataSource.\n\n### Candidates (global / hardcoded today → could be per-tenant)\n\n| What | Where | Why per-tenant | Suggested key |\n|---|---|---|---|\n| New reviews are unconditionally created with status 'PENDING' (moderation always required), and any author edit forces status back to 'PENDING' | `product_review.service.ts:create / product_review.service.ts:update` | Whether reviews require moderation (auto-approve vs. queue) is a classic per-tenant policy; today every tenant is hardcoded to a mandatory moderation queue with no opt-out. | `reviewAutoApprove` |\n| Rating scale is hardcoded to integers 1-5 in create/update validation, the DTOs, and the summary distribution buckets | `product_review.service.ts:create/update (rating < 1 \\|\\| rating > 5) and product_review.dto.ts (min(1).max(5))` | Some tenants may want a different rating scale (e.g. 1-10 or thumbs); the 1-5 bound is global rather than configurable per tenant. | `reviewMaxRating` |\n| Reviews can be created with no userId (anonymous, authorName-only) and isVerifiedPurchase defaults to false with no enforcement | `product_review.service.ts:create and product_review.dto.ts (CreateReviewDTO userId optional, isVerifiedPurchase default false)` | Whether anonymous reviews are allowed, or whether only verified purchasers may review, is commonly a per-tenant store policy; here it is globally permissive with no gating. | `reviewRequireVerifiedPurchase` |\n| List page size is capped at a global max of 100 | `product_review.dto.ts:GetReviewsQuery (pageSize.max(100))` | Pagination limits are plausibly per-tenant/plan-tier, but this is minor and may be intentionally global as an infra safeguard. | `reviewListMaxPageSize` |\n\n---\n\n## Dependencies\n\n`db`, `env`, `redis`, `logger`.\n"
     },
     {
+      "id": "blog",
+      "name": "Blog",
+      "version": "1.0.0",
+      "description": "Tenant-scoped blog with posts, categories and threaded comments. Posts have a draft/published/archived lifecycle; comment moderation and anonymous-comment policy are per-tenant settings.",
+      "dir": "modules/blog",
+      "icon": "fas fa-newspaper",
+      "tags": [
+        "blog",
+        "content",
+        "cms",
+        "comments",
+        "moderation"
+      ],
+      "priority": 44,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "logger",
+          "setting"
+        ]
+      },
+      "exports": {
+        "services": [
+          "blog.category.service.ts",
+          "blog.comment.service.ts",
+          "blog.post.service.ts",
+          "blog.service.ts"
+        ],
+        "dtos": [
+          "blog.dto.ts"
+        ],
+        "enums": [
+          "blog.enums.ts"
+        ],
+        "messageKeys": [
+          "blog.messages.ts"
+        ],
+        "settingKeys": [
+          "blog.setting.keys.ts"
+        ],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "blog_category.entity.ts",
+          "blog_comment.entity.ts",
+          "blog_post.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true,
+      "readme": "# Blog Module\n\nTenant-scoped blogging: posts, categories and threaded comments. Every row is\nisolated by `tenantId` and every service method takes `tenantId` as its first\nargument (per `multi-tenancy-patterns.md`).\n\n## Public API\n\nImport from the barrel `@/modules/blog`:\n\n| Export | Type | Use |\n|---|---|---|\n| `BlogService` | class | Facade — `BlogService.posts` / `.categories` / `.comments` |\n| `BlogPostService` | class | Post CRUD + publish/unpublish + view counts |\n| `BlogCategoryService` | class | Category CRUD |\n| `BlogCommentService` | class | Comment create/list/moderate (setting-driven) |\n| `Create*DTO`, `Get*Query` | Zod | Input validation |\n| `Safe*Schema` | Zod | Output filtering (omits `deletedAt`) |\n| `BLOG_MESSAGES` | object | Error/message constants |\n| `BLOG_TENANT_KEYS` | string[] | Tenant setting keys |\n\n## Entities\n\n- `BlogPost` (`blog_posts`) — `title`, `slug` (unique per tenant), `content`, `authorId` (a tenant member userId), `categoryId`, `status` (`DRAFT`/`PUBLISHED`/`ARCHIVED`), `views`, `publishedAt`.\n- `BlogCategory` (`blog_categories`) — `title`, `slug` (unique per tenant), `keywords`.\n- `BlogComment` (`blog_comments`) — `postId`, `parentId` (threads), `userId` or anonymous `name`/`email`, `status` (`NOT_PUBLISHED`/`PUBLISHED`/`SPAM`).\n\n## Tenant settings\n\nRead at runtime via `SettingService.getValue(tenantId, key)` (defaults in `blog.setting.keys.ts`):\n\n- `blogAllowAnonymousComments` (default `true`) — if `false`, a comment must carry a `userId`.\n- `blogCommentModeration` (default `true`) — if `true`, new comments start `NOT_PUBLISHED`.\n\n## Routes (admin-only)\n\nAll under `app/tenant/[tenantId]/api/blog/`, gated by tenant `ADMIN` role:\n\n- `categories` (GET/POST), `categories/[categoryId]` (GET/PATCH/DELETE)\n- `posts` (GET/POST), `posts/[postId]` (GET/PATCH/DELETE)\n- `posts/[postId]/comments` (GET/POST), `comments/[commentId]` (PATCH moderate / DELETE)\n\n## Dependencies\n\n`db`, `env`, `redis`, `logger`, `setting`.\n\n## Example\n\n```typescript\nimport { BlogService } from '@/modules/blog'\n\nconst post = await BlogService.posts.create(tenantId, { title, slug, content, status: 'PUBLISHED' })\nawait BlogService.comments.create(tenantId, post.postId, { content: 'Nice!', name: 'Guest' })\n```\n"
+    },
+    {
       "id": "ai",
       "name": "AI",
       "version": "1.0.0",
@@ -3663,6 +3720,74 @@
         "POST"
       ],
       "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/blog/categories/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/blog/categories",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "blog",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/blog/categories/[categoryId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/blog/categories/[categoryId]",
+      "methods": [
+        "GET",
+        "PATCH",
+        "DELETE"
+      ],
+      "module": "blog",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/blog/comments/[commentId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/blog/comments/[commentId]",
+      "methods": [
+        "PATCH",
+        "DELETE"
+      ],
+      "module": "blog",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/blog/posts/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/blog/posts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "blog",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/blog/posts/[postId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/blog/posts/[postId]",
+      "methods": [
+        "GET",
+        "PATCH",
+        "DELETE"
+      ],
+      "module": "blog",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/blog/posts/[postId]/comments/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/blog/posts/[postId]/comments",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "blog",
       "dynamic": true
     },
     {
@@ -5037,6 +5162,74 @@
       "relations": []
     },
     {
+      "name": "BlogCategory",
+      "filePath": "modules/blog/entities/blog_category.entity.ts",
+      "module": "blog",
+      "schema": "system",
+      "tableName": "blog_categories",
+      "columns": [
+        "categoryId",
+        "tenantId",
+        "title",
+        "slug",
+        "description",
+        "image",
+        "keywords",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "BlogComment",
+      "filePath": "modules/blog/entities/blog_comment.entity.ts",
+      "module": "blog",
+      "schema": "system",
+      "tableName": "blog_comments",
+      "columns": [
+        "commentId",
+        "tenantId",
+        "postId",
+        "parentId",
+        "content",
+        "userId",
+        "name",
+        "email",
+        "status",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "BlogPost",
+      "filePath": "modules/blog/entities/blog_post.entity.ts",
+      "module": "blog",
+      "schema": "system",
+      "tableName": "blog_posts",
+      "columns": [
+        "postId",
+        "tenantId",
+        "title",
+        "slug",
+        "content",
+        "description",
+        "authorId",
+        "categoryId",
+        "image",
+        "keywords",
+        "status",
+        "views",
+        "publishedAt",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "Cart",
       "filePath": "modules/payment_cart/entities/cart.entity.ts",
       "module": "payment_cart",
@@ -5100,6 +5293,9 @@
         "scope",
         "maxUses",
         "maxUsesPerTenant",
+        "maxUsesPerUser",
+        "nameI18n",
+        "descriptionI18n",
         "usedCount",
         "status",
         "startsAt",
@@ -5336,6 +5532,7 @@
         "peppolDocumentId",
         "peppolStatus",
         "stripeTaxCalculationId",
+        "providerPdfUrl",
         "pdfStorageKey",
         "notes",
         "metadata",
@@ -7138,6 +7335,33 @@
       "baseName": "SessionExpiredBanner"
     },
     {
+      "id": "blog/ui/BlogPostCreateModal",
+      "module": "blog",
+      "filePath": "modules_next/blog/ui/BlogPostCreateModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "BlogPostCreateModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "BlogPostCreateModal"
+    },
+    {
+      "id": "blog/ui/BlogStatusBadge",
+      "module": "blog",
+      "filePath": "modules_next/blog/ui/BlogStatusBadge.tsx",
+      "kind": "ui",
+      "exports": [
+        "PostStatus",
+        "CommentStatus",
+        "PostStatusBadge",
+        "CommentStatusBadge"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "BlogStatusBadge"
+    },
+    {
       "id": "common/axios/axios.client",
       "module": "common",
       "filePath": "modules_next/common/axios/axios.client.ts",
@@ -8046,6 +8270,42 @@
       "baseName": "CouponScopePanel"
     },
     {
+      "id": "dynamic_page/dynamic/Blocks/BannerBlock",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Blocks/BannerBlock.tsx",
+      "kind": "ui",
+      "exports": [
+        "BannerBlockDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "BannerBlock"
+    },
+    {
+      "id": "dynamic_page/dynamic/Blocks/ContactFormBlock",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Blocks/ContactFormBlock.tsx",
+      "kind": "ui",
+      "exports": [
+        "ContactFormBlockDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ContactFormBlock"
+    },
+    {
+      "id": "dynamic_page/dynamic/Blocks/CTABlock",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Blocks/CTABlock.tsx",
+      "kind": "ui",
+      "exports": [
+        "CTABlockDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CTABlock"
+    },
+    {
       "id": "dynamic_page/dynamic/Blocks/CustomBlock",
       "module": "dynamic_page",
       "filePath": "modules_next/dynamic_page/dynamic/Blocks/CustomBlock.tsx",
@@ -8057,6 +8317,30 @@
       "isClient": true,
       "isServer": false,
       "baseName": "CustomBlock"
+    },
+    {
+      "id": "dynamic_page/dynamic/Blocks/FaqAccordionBlock",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Blocks/FaqAccordionBlock.tsx",
+      "kind": "ui",
+      "exports": [
+        "FaqAccordionBlockDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "FaqAccordionBlock"
+    },
+    {
+      "id": "dynamic_page/dynamic/Blocks/FeatureGridBlock",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Blocks/FeatureGridBlock.tsx",
+      "kind": "ui",
+      "exports": [
+        "FeatureGridBlockDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "FeatureGridBlock"
     },
     {
       "id": "dynamic_page/dynamic/Blocks/FooterColumns",
@@ -8095,6 +8379,18 @@
       "baseName": "FooterMinimal"
     },
     {
+      "id": "dynamic_page/dynamic/Blocks/GalleryBlock",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Blocks/GalleryBlock.tsx",
+      "kind": "ui",
+      "exports": [
+        "GalleryBlockDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "GalleryBlock"
+    },
+    {
       "id": "dynamic_page/dynamic/Blocks/HeroBlock",
       "module": "dynamic_page",
       "filePath": "modules_next/dynamic_page/dynamic/Blocks/HeroBlock.tsx",
@@ -8105,6 +8401,18 @@
       "isClient": true,
       "isServer": false,
       "baseName": "HeroBlock"
+    },
+    {
+      "id": "dynamic_page/dynamic/Blocks/LogoGridBlock",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Blocks/LogoGridBlock.tsx",
+      "kind": "ui",
+      "exports": [
+        "LogoGridBlockDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "LogoGridBlock"
     },
     {
       "id": "dynamic_page/dynamic/Blocks/NavBarCommerce",
@@ -8305,6 +8613,18 @@
       "baseName": "utils"
     },
     {
+      "id": "dynamic_page/dynamic/Blocks/PricingTableBlock",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Blocks/PricingTableBlock.tsx",
+      "kind": "ui",
+      "exports": [
+        "PricingTableBlockDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PricingTableBlock"
+    },
+    {
       "id": "dynamic_page/dynamic/Blocks/ProseBlock",
       "module": "dynamic_page",
       "filePath": "modules_next/dynamic_page/dynamic/Blocks/ProseBlock.tsx",
@@ -8315,6 +8635,66 @@
       "isClient": true,
       "isServer": false,
       "baseName": "ProseBlock"
+    },
+    {
+      "id": "dynamic_page/dynamic/Blocks/StatsBlock",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Blocks/StatsBlock.tsx",
+      "kind": "ui",
+      "exports": [
+        "StatsBlockDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "StatsBlock"
+    },
+    {
+      "id": "dynamic_page/dynamic/Blocks/TeamBlock",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Blocks/TeamBlock.tsx",
+      "kind": "ui",
+      "exports": [
+        "TeamBlockDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "TeamBlock"
+    },
+    {
+      "id": "dynamic_page/dynamic/Blocks/TestimonialsBlock",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Blocks/TestimonialsBlock.tsx",
+      "kind": "ui",
+      "exports": [
+        "TestimonialsBlockDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "TestimonialsBlock"
+    },
+    {
+      "id": "dynamic_page/dynamic/Blocks/TimelineBlock",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Blocks/TimelineBlock.tsx",
+      "kind": "ui",
+      "exports": [
+        "TimelineBlockDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "TimelineBlock"
+    },
+    {
+      "id": "dynamic_page/dynamic/Blocks/VideoBlock",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Blocks/VideoBlock.tsx",
+      "kind": "ui",
+      "exports": [
+        "VideoBlockDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "VideoBlock"
     },
     {
       "id": "dynamic_page/dynamic/Editor/BackupModal",
@@ -8435,6 +8815,32 @@
       "baseName": "CanvasOverlays"
     },
     {
+      "id": "dynamic_page/dynamic/Editor/partials/ColorTokenField",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Editor/partials/ColorTokenField.tsx",
+      "kind": "ui",
+      "exports": [
+        "ColorTokenField"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ColorTokenField"
+    },
+    {
+      "id": "dynamic_page/dynamic/Editor/partials/IconPickerField",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Editor/partials/IconPickerField.tsx",
+      "kind": "ui",
+      "exports": [
+        "ICON_MAP",
+        "getIconDef",
+        "IconPickerField"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "IconPickerField"
+    },
+    {
       "id": "dynamic_page/dynamic/Editor/partials/LayersPanel",
       "module": "dynamic_page",
       "filePath": "modules_next/dynamic_page/dynamic/Editor/partials/LayersPanel.tsx",
@@ -8445,6 +8851,18 @@
       "isClient": true,
       "isServer": false,
       "baseName": "LayersPanel"
+    },
+    {
+      "id": "dynamic_page/dynamic/Editor/partials/LinkField",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/Editor/partials/LinkField.tsx",
+      "kind": "ui",
+      "exports": [
+        "LinkField"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "LinkField"
     },
     {
       "id": "dynamic_page/dynamic/Editor/partials/PropFieldComplex",
@@ -8667,7 +9085,8 @@
         "BaseBlockConfig",
         "BASE_BLOCK_DEFAULT_PROPS",
         "BASE_BLOCK_SCHEMA_FIELDS",
-        "parseBaseBlockProps"
+        "parseBaseBlockProps",
+        "getBlockContentClass"
       ],
       "isClient": true,
       "isServer": false,
@@ -8761,7 +9180,10 @@
       "exports": [
         "FieldType",
         "FieldOption",
+        "ResponsiveValue",
+        "LinkValue",
         "FieldSchema",
+        "BlockVariant",
         "BlockDefinition"
       ],
       "isClient": false,
@@ -8797,6 +9219,48 @@
       "isClient": false,
       "isServer": false,
       "baseName": "BlockRegistry"
+    },
+    {
+      "id": "dynamic_page/dynamic/utils/defineBlock",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/utils/defineBlock.ts",
+      "kind": "util",
+      "exports": [
+        "defineBlock"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "defineBlock"
+    },
+    {
+      "id": "dynamic_page/dynamic/utils/responsive",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/utils/responsive.ts",
+      "kind": "util",
+      "exports": [
+        "resolveResponsiveProp",
+        "setResponsiveProp",
+        "getBreakpointValue"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "responsive"
+    },
+    {
+      "id": "dynamic_page/dynamic/utils/savedSections",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/dynamic/utils/savedSections.ts",
+      "kind": "util",
+      "exports": [
+        "SavedSection",
+        "getSavedSections",
+        "saveSection",
+        "deleteSavedSection",
+        "hydrateSavedSection"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "savedSections"
     },
     {
       "id": "dynamic_page/DynamicPageRenderer",
@@ -8857,6 +9321,19 @@
       "isClient": true,
       "isServer": false,
       "baseName": "DynamicPageCreateModal"
+    },
+    {
+      "id": "dynamic_page/ui/page-templates",
+      "module": "dynamic_page",
+      "filePath": "modules_next/dynamic_page/ui/page-templates.ts",
+      "kind": "ui",
+      "exports": [
+        "PageTemplate",
+        "PAGE_TEMPLATES"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "page-templates"
     },
     {
       "id": "e_signature/ui/SigningCertificatesBindModal",

@@ -1,6 +1,8 @@
 'use client';
 import { useEffect } from 'react';
 import { Button } from '@/modules_next/common/ui/Button';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 
 export default function TenantAdminError({
   error,
@@ -15,7 +17,7 @@ export default function TenantAdminError({
 
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 p-6 text-center">
-      <div className="text-error text-5xl" aria-hidden="true">⚠️</div>
+      <div className="text-error text-5xl" aria-hidden="true"><FontAwesomeIcon icon={faTriangleExclamation} /></div>
       <h2 className="text-xl font-semibold text-text-primary">Something went wrong</h2>
       <p className="text-text-secondary text-sm max-w-md">
         {error.message || 'An unexpected error occurred. Please try again.'}

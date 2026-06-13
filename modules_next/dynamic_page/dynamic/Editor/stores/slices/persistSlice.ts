@@ -91,8 +91,10 @@ export const createPersistSlice: StateCreator<EditorStore, [], [], PersistSlice>
           if (draft.savedAt) set({ pendingDraft: { savedAt: draft.savedAt, title: draft.title ?? '', pageId } })
         }
       } catch {}
-    } catch {
-      toast.error('Failed to load page')
+    } catch (err) {
+      console.error('[loadPage] Failed:', err)
+      const msg = (err as { message?: string })?.message ?? String(err)
+      toast.error(msg ? `Failed to load page: ${msg}` : 'Failed to load page')
     } finally {
       set({ loading: false })
     }

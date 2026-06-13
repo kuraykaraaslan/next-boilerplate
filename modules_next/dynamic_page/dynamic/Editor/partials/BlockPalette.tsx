@@ -1,13 +1,15 @@
 'use client'
 
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState, useEffect } from 'react'
 import { useDraggable } from '@dnd-kit/core'
 import type { BlockDefinition, DynamicPageBlockRecord } from '../../types'
 import { getCodeBlocks } from '../../utils/BlockRegistry'
 import { useEditorStore } from '../stores/editorStore'
 import TemplateBlockRenderer from '../../partials/TemplateBlockRenderer'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faChevronRight } from '@fortawesome/free-solid-svg-icons'
+import { faChevronRight, faTrash } from '@fortawesome/free-solid-svg-icons'
+import { getSavedSections, deleteSavedSection, hydrateSavedSection, type SavedSection } from '../../utils/savedSections'
+import { toast } from '@/modules_next/common/ui/toast.store'
 
 export type AnyBlockDef = BlockDefinition | DynamicPageBlockRecord
 
@@ -92,8 +94,21 @@ interface BlockPaletteProps {
 }
 
 export function BlockPalette({ search, onSearchChange, hovered, onMouseEnter, onMouseLeave, recentlyUsed, open, onToggleCategory }: BlockPaletteProps) {
-  const rawAddBlock = useEditorStore((s) => s.addBlock)
-  const blockDefs   = useEditorStore((s) => s.blockDefs)
+  const rawAddBlock    = useEditorStore((s) => s.addBlock)
+  const insertBlocks   = useEditorStore((s) => s.insertBlocks)
+  const blockDefs      = useEditorStore((s) => s.blockDefs)
+  const [savedSections, setSavedSections] = useState<SavedSection[]>([])
+
+  useEffect(() => {
+    setSavedSections(getSavedSections())
+    const refresh = () => setSavedSections(getSavedSections())
+    window.addEventListener('storage', refresh)
+    window.addEventListener('dp-sections-updated', refresh)
+    return () => {
+      window.removeEventListener('storage', refresh)
+      window.removeEventListener('dp-sections-updated', refresh)
+    }
+  }, [])
 
   const allDefs: AnyBlockDef[] = useMemo(() => [...getCodeBlocks(), ...blockDefs], [blockDefs])
 
@@ -180,6 +195,54 @@ export function BlockPalette({ search, onSearchChange, hovered, onMouseEnter, on
                 </div>
               </div>
             )}
+
+            {savedSections.length > 0 && (
+              <div className="mb-1">
+                <button
+                  onClick={() => onToggleCategory('__saved')}
+                  className="w-full flex items-center justify-between px-4 py-2 transition-colors text-[var(--text-primary)]/50"
+                >
+                  <span className="text-xs font-semibold uppercase tracking-widest">Saved Sections</span>
+                  <Chevron open={open['__saved'] ?? true} />
+                </button>
+                {(open['__saved'] ?? true) && (
+                  <div className="px-3 pb-2 space-y-1.5">
+                    {savedSections.map((sec) => (
+                      <div key={sec.id} className="flex items-center gap-1.5">
+                        <button
+                          onClick={() => {
+                            const blocks = hydrateSavedSection(sec)
+                            insertBlocks(blocks)
+                            setTimeout(() => {
+                              if (blocks[0]) document.querySelector(`[data-block-id="${blocks[0].id}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+                            }, 60)
+                          }}
+                          className="flex-1 text-left p-2.5 rounded-lg border border-[var(--primary)]/20 bg-[var(--primary)]/5 hover:border-[var(--primary)]/50 transition-all"
+                        >
+                          <div className="text-sm font-medium text-[var(--primary)]">{sec.name}</div>
+                          <div className="text-xs text-[var(--text-primary)]/40">
+                            {sec.blocks.length} block{sec.blocks.length !== 1 ? 's' : ''}
+                          </div>
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (!confirm(`Delete saved section "${sec.name}"?`)) return
+                            deleteSavedSection(sec.id)
+                            setSavedSections(getSavedSections())
+                            toast.success('Section deleted')
+                          }}
+                          className="p-1.5 rounded-md text-[var(--text-primary)]/30 hover:text-red-500 hover:bg-red-500/10 transition-colors"
+                          title="Delete saved section"
+                        >
+                          <FontAwesomeIcon icon={faTrash} className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
             {orderedCategories.map((cat) => (
               <div key={cat}>
                 <button

@@ -67,11 +67,18 @@ Tenant-aware block-based page builder with i18n support. Supports code blocks (P
 
 ## Next layer (modules_next/) surface
 
+- `dynamic_page/dynamic/Blocks/BannerBlock` _(ui, client)_
+- `dynamic_page/dynamic/Blocks/ContactFormBlock` _(ui, client)_
+- `dynamic_page/dynamic/Blocks/CTABlock` _(ui, client)_
 - `dynamic_page/dynamic/Blocks/CustomBlock` _(ui, client)_
+- `dynamic_page/dynamic/Blocks/FaqAccordionBlock` _(ui, client)_
+- `dynamic_page/dynamic/Blocks/FeatureGridBlock` _(ui, client)_
 - `dynamic_page/dynamic/Blocks/FooterColumns` _(ui, client)_
 - `dynamic_page/dynamic/Blocks/FooterCommerce` _(ui, client)_
 - `dynamic_page/dynamic/Blocks/FooterMinimal` _(ui, client)_
+- `dynamic_page/dynamic/Blocks/GalleryBlock` _(ui, client)_
 - `dynamic_page/dynamic/Blocks/HeroBlock` _(ui, client)_
+- `dynamic_page/dynamic/Blocks/LogoGridBlock` _(ui, client)_
 - `dynamic_page/dynamic/Blocks/NavBarCommerce` _(ui, client)_
 - `dynamic_page/dynamic/Blocks/NavBarMarketing` _(ui, client)_
 - `dynamic_page/dynamic/Blocks/NavBarMarketing.types` _(ui)_
@@ -87,7 +94,13 @@ Tenant-aware block-based page builder with i18n support. Supports code blocks (P
 - `dynamic_page/dynamic/Blocks/PopupModalBlock/PopupOverlay` _(ui, client)_
 - `dynamic_page/dynamic/Blocks/PopupModalBlock/types` _(ui)_
 - `dynamic_page/dynamic/Blocks/PopupModalBlock/utils` _(ui)_
+- `dynamic_page/dynamic/Blocks/PricingTableBlock` _(ui, client)_
 - `dynamic_page/dynamic/Blocks/ProseBlock` _(ui, client)_
+- `dynamic_page/dynamic/Blocks/StatsBlock` _(ui, client)_
+- `dynamic_page/dynamic/Blocks/TeamBlock` _(ui, client)_
+- `dynamic_page/dynamic/Blocks/TestimonialsBlock` _(ui, client)_
+- `dynamic_page/dynamic/Blocks/TimelineBlock` _(ui, client)_
+- `dynamic_page/dynamic/Blocks/VideoBlock` _(ui, client)_
 - `dynamic_page/dynamic/Editor/BackupModal` _(ui, client)_
 - `dynamic_page/dynamic/Editor/Canvas` _(ui, client)_
 - `dynamic_page/dynamic/Editor/EditorTopBar` _(ui, client)_
@@ -98,7 +111,10 @@ Tenant-aware block-based page builder with i18n support. Supports code blocks (P
 - `dynamic_page/dynamic/Editor/partials/BlockPalette` _(ui, client)_
 - `dynamic_page/dynamic/Editor/partials/CanvasBlock` _(ui, client)_
 - `dynamic_page/dynamic/Editor/partials/CanvasOverlays` _(ui, client)_
+- `dynamic_page/dynamic/Editor/partials/ColorTokenField` _(ui, client)_
+- `dynamic_page/dynamic/Editor/partials/IconPickerField` _(ui, client)_
 - `dynamic_page/dynamic/Editor/partials/LayersPanel` _(ui, client)_
+- `dynamic_page/dynamic/Editor/partials/LinkField` _(ui, client)_
 - `dynamic_page/dynamic/Editor/partials/PropFieldComplex` _(ui, client)_
 - `dynamic_page/dynamic/Editor/partials/PropFieldRenderer` _(ui, client)_
 - `dynamic_page/dynamic/Editor/partials/PropFieldSimple` _(ui, client)_
@@ -111,23 +127,7 @@ Tenant-aware block-based page builder with i18n support. Supports code blocks (P
 - `dynamic_page/dynamic/Editor/stores/editorStore` _(ui)_
 - `dynamic_page/dynamic/Editor/stores/slices/blockSlice` _(ui)_
 - `dynamic_page/dynamic/Editor/stores/slices/persistSlice` _(ui)_
-- `dynamic_page/dynamic/Editor/stores/slices/translationSlice` _(ui)_
-- `dynamic_page/dynamic/Editor/stores/slices/uiSlice` _(ui)_
-- `dynamic_page/dynamic/Editor/TranslationModal` _(ui, client)_
-- `dynamic_page/dynamic/migrations/index` _(ui)_
-- `dynamic_page/dynamic/partials/BaseBlock` _(ui, client)_
-- `dynamic_page/dynamic/partials/BlockActionSandbox` _(ui)_
-- `dynamic_page/dynamic/partials/BlockBackground` _(ui)_
-- `dynamic_page/dynamic/partials/BlockErrorBoundary` _(ui, client)_
-- `dynamic_page/dynamic/partials/BlockSkeleton` _(ui)_
-- `dynamic_page/dynamic/partials/ClientBlockList` _(ui, client)_
-- `dynamic_page/dynamic/partials/PreviewContext` _(ui, client)_
-- `dynamic_page/dynamic/partials/TemplateBlockRenderer` _(ui, client)_
-- `dynamic_page/dynamic/types` _(ui)_
-- `dynamic_page/dynamic/utils/BlockBg` _(util)_
-- `dynamic_page/dynamic/utils/BlockRegistry` _(util)_
-- `dynamic_page/DynamicPageRenderer` _(ui)_
-- … and 4 more
+- … and 24 more
 
 ## README
 

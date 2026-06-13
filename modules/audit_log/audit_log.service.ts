@@ -306,10 +306,7 @@ export default class AuditLogService {
    * tenant's audit table for matching events within a time window. Used by the
    * platform security team for cross-tenant incident investigation.
    */
-  static async queryCrossTenant(
-    callerTenantId: string,
-    input: CrossTenantAuditQueryInput,
-  ): Promise<{ logs: AuditLog[]; total: number }> {
+  static async queryCrossTenant(callerTenantId: string, input: CrossTenantAuditQueryInput) {
     if (!isRootTenant(callerTenantId)) {
       throw new AppError(AuditLogMessages.ROOT_ONLY, 403, ErrorCode.FORBIDDEN);
     }
@@ -317,27 +314,48 @@ export default class AuditLogService {
     if (!parsed.success) {
       throw new AppError(AuditLogMessages.INVALID_INPUT, 400, ErrorCode.VALIDATION_ERROR);
     }
-    const { action, severity, fromDate, toDate, limit } = parsed.data;
+    const { tenantId: filterTenantId, action, severity, fromDate, toDate, page, pageSize } = parsed.data;
 
     try {
       const systemDs = await getSystemDataSource();
-      const tenants = await systemDs.getRepository(Tenant).find();
+      const allTenants = await systemDs.getRepository(Tenant).find();
+      // When a tenant filter is supplied, scope the scan to just that tenant.
+      const scope = filterTenantId
+        ? allTenants.filter((t) => t.tenantId === filterTenantId)
+        : allTenants;
+      const tenantNameMap = Object.fromEntries(allTenants.map((t) => [t.tenantId, t.name]));
 
-      const aggregated: AuditLog[] = [];
-      for (const tenant of tenants) {
+      // For a global page N we never need more than offset+pageSize rows from any
+      // single tenant, so fetch that many per tenant, merge-sort, then slice.
+      const need = page * pageSize;
+
+      const aggregated: (AuditLog & { tenant: { tenantId: string; name: string } })[] = [];
+      let total = 0;
+      for (const tenant of scope) {
         const where: FindOptionsWhere<AuditLogRow> = { tenantId: tenant.tenantId };
         if (action) where.action = ILike(`%${action}%`);
         if (severity) where.severity = severity;
         AuditLogService.applyDateRange(where, fromDate ?? null, toDate ?? null);
 
         const ds = await tenantDataSourceFor(tenant.tenantId);
-        const rows = await ds.getRepository(AuditLogRow).find({ where, order: { createdAt: 'DESC' }, take: limit });
-        for (const r of rows) aggregated.push(AuditLogSchema.parse(r));
+        const repo = ds.getRepository(AuditLogRow);
+        const [rows, count] = await Promise.all([
+          repo.find({ where, order: { createdAt: 'DESC' }, take: need }),
+          repo.count({ where }),
+        ]);
+        total += count;
+        for (const r of rows) {
+          aggregated.push({
+            ...AuditLogSchema.parse(r),
+            tenant: { tenantId: tenant.tenantId, name: tenantNameMap[tenant.tenantId] ?? tenant.tenantId },
+          });
+        }
       }
 
       aggregated.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-      const sliced = aggregated.slice(0, limit);
-      return { logs: sliced, total: aggregated.length };
+      const offset = (page - 1) * pageSize;
+      const logs = aggregated.slice(offset, offset + pageSize);
+      return { logs, total };
     } catch (error) {
       if (error instanceof AppError) throw error;
       Logger.error(`[AuditLog] queryCrossTenant failed: ${error instanceof Error ? error.message : String(error)}`);

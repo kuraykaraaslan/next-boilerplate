@@ -4,6 +4,7 @@ import type { FindOptionsWhere } from 'typeorm';
 import { getDataSource, tenantDataSourceFor } from '@/modules/db';
 import redis from '@/modules/redis';
 import { User as UserEntity } from '../user/entities/user.entity';
+import { Tenant as TenantEntity } from '../tenant/entities/tenant.entity';
 import { TenantMember as TenantMemberEntity } from './entities/tenant_member.entity';
 import { SafeTenantMember, SafeTenantMemberSchema } from './tenant_member.types';
 import { SafeUserSchema } from '../user/user.types';
@@ -138,12 +139,26 @@ export default class TenantMemberService {
     });
   }
 
-  static async getUserTenants(userId: string): Promise<SafeTenantMember[]> {
+  static async getUserTenants(userId: string) {
     const ds = await getDataSource();
     const members = await ds.getRepository(TenantMemberEntity).find({
       where: { userId, memberStatus: 'ACTIVE', deletedAt: IsNull() },
     });
-    return members.map((m) => SafeTenantMemberSchema.parse(m));
+
+    // Hydrate each membership with its tenant so the UI can show the tenant
+    // name instead of falling back to the raw tenantId (uuid).
+    const tenantIds = members.map((m) => m.tenantId);
+    const tenants = tenantIds.length
+      ? await ds.getRepository(TenantEntity).find({ where: { tenantId: In(tenantIds) } })
+      : [];
+    const tenantMap = Object.fromEntries(
+      tenants.map((t) => [t.tenantId, { tenantId: t.tenantId, name: t.name, tenantStatus: t.tenantStatus }]),
+    );
+
+    return members.map((m) => ({
+      ...SafeTenantMemberSchema.parse(m),
+      tenant: tenantMap[m.tenantId],
+    }));
   }
 
   static hasRole(member: SafeTenantMember, requiredRole: TenantMemberRole): boolean {

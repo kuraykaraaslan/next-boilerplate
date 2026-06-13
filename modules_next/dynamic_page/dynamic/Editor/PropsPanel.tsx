@@ -87,6 +87,20 @@ export default function PropsPanel({ block, onChange, collapseButton }: Props) {
     }
   }
 
+  // Must be above any early returns — Rules of Hooks
+  const panelRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const focusFirst = () => {
+      const el = panelRef.current?.querySelector<HTMLElement>('input[type="text"], input[type="url"], textarea')
+      if (el) {
+        el.focus()
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+      }
+    }
+    window.addEventListener('dp-focus-first-field', focusFirst)
+    return () => window.removeEventListener('dp-focus-first-field', focusFirst)
+  }, [])
+
   if (!block) {
     return (
       <div className="w-72 flex-shrink-0 flex flex-col border-l border-[var(--text-primary)]/10 bg-[var(--surface-raised)]">
@@ -144,8 +158,20 @@ export default function PropsPanel({ block, onChange, collapseButton }: Props) {
     />
   )
 
+  const applyVariant = (variantId: string) => {
+    const variant = codeDef?.variants?.find((v) => v.id === variantId)
+    if (!variant) return
+    snapshotForUndo()
+    const next = { ...localPropsRef.current, ...variant.overrides, variant: variantId }
+    localPropsRef.current = next
+    setLocalProps(next)
+    onChange(next)
+  }
+
+  const activeVariantId = (localProps.variant as string | undefined) ?? codeDef?.defaultVariant
+
   return (
-    <div className="w-72 flex-shrink-0 flex flex-col border-l border-[var(--text-primary)]/10 overflow-y-auto bg-[var(--surface-raised)]">
+    <div ref={panelRef} className="w-72 flex-shrink-0 flex flex-col border-l border-[var(--text-primary)]/10 overflow-y-auto bg-[var(--surface-raised)]">
       <div className="px-4 py-4 border-b border-[var(--text-primary)]/10 flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
@@ -169,6 +195,37 @@ export default function PropsPanel({ block, onChange, collapseButton }: Props) {
         </div>
         {collapseButton}
       </div>
+
+      {codeDef?.variants && codeDef.variants.length > 1 && (
+        <div className="px-4 pt-3 pb-0 border-b border-[var(--text-primary)]/10">
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-primary)]/35 mb-2">Layout</p>
+          <div className="flex flex-wrap gap-1.5 pb-3">
+            {codeDef.variants.map((variant) => (
+              <button
+                key={variant.id}
+                type="button"
+                title={variant.description}
+                onClick={() => applyVariant(variant.id)}
+                className={`flex flex-col items-center gap-1 px-2 py-1.5 rounded-lg border text-[10px] font-medium transition-colors ${
+                  activeVariantId === variant.id
+                    ? 'border-[var(--primary)] bg-[var(--primary)]/8 text-[var(--primary)]'
+                    : 'border-[var(--text-primary)]/10 text-[var(--text-primary)]/50 hover:border-[var(--text-primary)]/30 hover:text-[var(--text-primary)]/80'
+                }`}
+              >
+                {variant.thumbnail ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={variant.thumbnail} alt={variant.label} className="w-12 h-8 object-cover rounded" />
+                ) : (
+                  <span className="w-12 h-8 rounded bg-[var(--surface-overlay)] flex items-center justify-center text-[var(--text-primary)]/20 text-[8px]">
+                    {variant.label[0]}
+                  </span>
+                )}
+                {variant.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {Object.keys(schema).length > 4 && (
         <div className="px-4 pt-3 pb-0 border-b border-[var(--text-primary)]/10">

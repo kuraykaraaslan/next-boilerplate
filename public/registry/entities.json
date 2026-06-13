@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-11T20:09:52.776Z",
+  "generatedAt": "2026-06-13T15:50:35.947Z",
   "entities": [
     {
       "name": "AiUsageLog",
@@ -78,6 +78,74 @@
       "relations": []
     },
     {
+      "name": "BlogCategory",
+      "filePath": "modules/blog/entities/blog_category.entity.ts",
+      "module": "blog",
+      "schema": "system",
+      "tableName": "blog_categories",
+      "columns": [
+        "categoryId",
+        "tenantId",
+        "title",
+        "slug",
+        "description",
+        "image",
+        "keywords",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "BlogComment",
+      "filePath": "modules/blog/entities/blog_comment.entity.ts",
+      "module": "blog",
+      "schema": "system",
+      "tableName": "blog_comments",
+      "columns": [
+        "commentId",
+        "tenantId",
+        "postId",
+        "parentId",
+        "content",
+        "userId",
+        "name",
+        "email",
+        "status",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "BlogPost",
+      "filePath": "modules/blog/entities/blog_post.entity.ts",
+      "module": "blog",
+      "schema": "system",
+      "tableName": "blog_posts",
+      "columns": [
+        "postId",
+        "tenantId",
+        "title",
+        "slug",
+        "content",
+        "description",
+        "authorId",
+        "categoryId",
+        "image",
+        "keywords",
+        "status",
+        "views",
+        "publishedAt",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "Cart",
       "filePath": "modules/payment_cart/entities/cart.entity.ts",
       "module": "payment_cart",
@@ -141,6 +209,9 @@
         "scope",
         "maxUses",
         "maxUsesPerTenant",
+        "maxUsesPerUser",
+        "nameI18n",
+        "descriptionI18n",
         "usedCount",
         "status",
         "startsAt",
@@ -377,6 +448,7 @@
         "peppolDocumentId",
         "peppolStatus",
         "stripeTaxCalculationId",
+        "providerPdfUrl",
         "pdfStorageKey",
         "notes",
         "metadata",

@@ -10,6 +10,7 @@ const InvoiceMessages = {
   REGIONAL_ADAPTER_NOT_CONFIGURED: 'Regional invoice adapter is not configured for this tenant',
   COMPANY_INFO_MISSING: 'Tenant company info is incomplete — set companyLegalName/companyTaxId/companyCountryCode in Settings',
   FETCH_FAILED: 'Failed to fetch invoices',
+  PROVIDER_PDF_UNAVAILABLE: 'The provider-issued invoice PDF could not be retrieved',
   // TR e-Arşiv (GİB direct portal) SMS finalisation
   EARSIV_NOT_GIB_DIRECT: 'e-Arşiv SMS signing is only available with the gib_direct integrator',
   EARSIV_NOT_CONFIGURED: 'e-Arşiv (gib_direct) is not configured — set TCKN/VKN + password in Settings → Invoicing',
