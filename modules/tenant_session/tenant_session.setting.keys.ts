@@ -7,7 +7,7 @@ import { z } from 'zod';
 export const TenantSecuritySettingKeySchema = z.enum([
   'twoFactorRequired', 'passwordMinLength', 'passwordRequireUppercase',
   'passwordRequireNumbers', 'passwordRequireSymbols',
-  'sessionTimeout', 'maxLoginAttempts', 'ipWhitelist', 'ipBlacklist',
+  'sessionTimeout', 'maxLoginAttempts', 'maxConcurrentSessions', 'ipWhitelist', 'ipBlacklist',
   'ssoEnabled', 'ssoProvider', 'ssoConfig',
 ]);
 export type TenantSecuritySettingKey = z.infer<typeof TenantSecuritySettingKeySchema>;
