@@ -2,6 +2,18 @@
 
 > Features not yet implemented that would make this module production-ready for a multi-tenant, multi-purpose, multi-country SaaS platform.
 
+## ✅ Provided via `api_key` (no mock)
+
+SCIM endpoints authenticate with `scim:read` / `scim:write`-scoped API keys, so
+two hardening items are already satisfied by the `api_key` module:
+- **Token rotation** → `ApiKeyService.rotate()` (zero-downtime successor key).
+- **IP allowlist** → per-key / per-tenant `ipAllowlist`, enforced in
+  `ApiKeyService.verify()` (used by `verifyFromAuthHeader` on every SCIM call).
+
+> Remaining items (Group CRUD, group→role mapping, `givenName`/`familyName`
+> persistence, enterprise extension, multi-IdP) require new entities/columns and
+> are deliberately left unimplemented rather than stubbed.
+
 ## Group Provisioning
 
 ### Full SCIM Group CRUD (RFC 7644 §3.5)
@@ -58,13 +70,13 @@
 
 ## Security & Compliance
 
-### Token Rotation for SCIM API Keys
+### ✅ Token Rotation for SCIM API Keys
 **Why:** SCIM bearer tokens are standard API keys with `scim:read/write` scopes. There is no automated rotation mechanism or expiry — a compromised SCIM token grants indefinite provisioning access to the tenant.
 **Complexity:** Low
 **Multi-tenant relevance:** Each tenant's SCIM token is a privileged credential; token expiry and rotation policies should be configurable per tenant (e.g. 90-day rotation for a security-conscious enterprise).
 **Multi-country relevance:** ISO 27001, SOC 2 Type II, and PCI-DSS all mandate periodic rotation of privileged API credentials; an automated rotation mechanism is a control evidence requirement for these certifications in any market.
 
-### IP Allowlist for SCIM Endpoint Access
+### ✅ IP Allowlist for SCIM Endpoint Access
 **Why:** SCIM provisioning requests can come from any IP address that presents a valid bearer token. Enterprise IdPs have static IP ranges (Okta, Azure AD both publish their SCIM source IP ranges); the endpoint should optionally restrict inbound SCIM traffic to those ranges.
 **Complexity:** Medium
 **Multi-tenant relevance:** Each tenant's IdP has different source IP ranges; a per-tenant SCIM IP allowlist prevents a stolen token from being used from an unexpected origin.
