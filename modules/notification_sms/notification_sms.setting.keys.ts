@@ -9,7 +9,7 @@ import { z } from 'zod';
 // ============================================================================
 
 export const SmsSettingKeySchema = z.enum([
-  'smsProvider', 'smsEnabled',
+  'smsProvider', 'smsEnabled', 'smsAllowedCountries',
   // ── Twilio ───────────────────────────────────────────────────────────────
   'twilioAccountSid', 'twilioAuthToken', 'twilioPhoneNumber',
   // ── Vonage / Nexmo ───────────────────────────────────────────────────────

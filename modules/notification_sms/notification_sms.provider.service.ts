@@ -1,5 +1,6 @@
 import { env } from '@/modules/env';
 import Logger from '@/modules/logger';
+import SettingService from '@/modules/setting/setting.service';
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber';
 import BaseSMSProvider from './providers/base.provider';
 import TwilioProvider from './providers/twilio.provider';
@@ -57,7 +58,14 @@ export default class NotificationSmsProviderService {
   }
 
   static async getProvider(tenantId: string, providerName?: SMSProviderType): Promise<BaseSMSProvider> {
-    const name = providerName || NotificationSmsProviderService.DEFAULT_PROVIDER_NAME;
+    // Per-tenant provider selection: honour the `smsProvider` setting unless the
+    // caller pinned a provider explicitly.
+    let name = providerName;
+    if (!name) {
+      const configured = await SettingService.getValue(tenantId, 'smsProvider').catch(() => null);
+      name = (configured && NotificationSmsProviderService.isValidProviderName(configured) ? configured as SMSProviderType : null)
+        || NotificationSmsProviderService.DEFAULT_PROVIDER_NAME;
+    }
     const provider = NotificationSmsProviderService.PROVIDER_MAP.get(name);
     if (!provider) {
       Logger.warn(`NotificationSmsProviderService: Unknown provider "${name}", falling back to default`);
@@ -120,6 +128,19 @@ export default class NotificationSmsProviderService {
     const allowed = NotificationSmsProviderService.ALLOWED_COUNTRIES;
     if (!allowed || allowed.length === 0) return true;
     return allowed.includes(regionCode);
+  }
+
+  /**
+   * Per-tenant country allowlist (`smsAllowedCountries`, CSV of ISO-2 codes).
+   * Falls back to the platform `ALLOWED_COUNTRIES` env list when unset.
+   */
+  static async isAllowedCountryForTenant(tenantId: string, regionCode: string): Promise<boolean> {
+    const raw = await SettingService.getValue(tenantId, 'smsAllowedCountries').catch(() => null);
+    if (raw) {
+      const list = raw.split(',').map((c) => c.trim().toUpperCase()).filter(Boolean);
+      if (list.length > 0) return list.includes(regionCode.toUpperCase());
+    }
+    return NotificationSmsProviderService.isAllowedCountry(regionCode);
   }
 
   static isValidPhoneNumber(phoneNumber: string): boolean {

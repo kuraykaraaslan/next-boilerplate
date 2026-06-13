@@ -3,6 +3,7 @@ import Logger from '@/modules/logger';
 import { Queue, Worker, Job } from 'bullmq';
 import { getBullMQConnection } from '@/modules/redis/redis.bullmq';
 import redis from '@/modules/redis';
+import SettingService from '@/modules/setting/setting.service';
 import { TenantUsageService } from '@/modules/tenant_usage/tenant_usage.service';
 import NotificationLogService from '@/modules/notification_log/notification_log.service';
 import TenantFeatureGateService from '@/modules/tenant_subscription/tenant_subscription.feature.service';
@@ -59,6 +60,60 @@ export default class NotificationSmsQueueService {
     await TenantFeatureGateService.assertFeatureAccess(tenantId, FEATURE_KEYS.FEATURE_SMS_MONTHLY_QUOTA, usage.smsSends);
   }
 
+  // ── Per-tenant enable toggle + opt-out (STOP keyword) suppression ─────────
+
+  private static optOutKey(tenantId: string): string {
+    return `sms:optout:${tenantId}`;
+  }
+
+  /** Whether SMS is enabled for the tenant (`smsEnabled` setting, default on). */
+  static async isSmsEnabled(tenantId: string): Promise<boolean> {
+    const raw = await SettingService.getValue(tenantId, 'smsEnabled').catch(() => null);
+    return raw !== 'false';
+  }
+
+  static async isOptedOut(tenantId: string, to: string): Promise<boolean> {
+    return (await redis.sismember(NotificationSmsQueueService.optOutKey(tenantId), to).catch(() => 0)) === 1;
+  }
+
+  static async recordOptOut(tenantId: string, to: string): Promise<void> {
+    await redis.sadd(NotificationSmsQueueService.optOutKey(tenantId), to).catch(() => {});
+  }
+
+  static async recordOptIn(tenantId: string, to: string): Promise<void> {
+    await redis.srem(NotificationSmsQueueService.optOutKey(tenantId), to).catch(() => {});
+  }
+
+  /**
+   * Handle an inbound SMS keyword (carrier reply). STOP/UNSUBSCRIBE/IPTAL opts
+   * the sender out; START/UNSTOP opts back in. Returns the action taken.
+   */
+  static async handleInboundKeyword(tenantId: string, from: string, text: string): Promise<'opted_out' | 'opted_in' | 'none'> {
+    const kw = text.trim().toUpperCase();
+    if (['STOP', 'UNSUBSCRIBE', 'IPTAL', 'DUR'].includes(kw)) {
+      await NotificationSmsQueueService.recordOptOut(tenantId, from);
+      return 'opted_out';
+    }
+    if (['START', 'UNSTOP', 'BASLA'].includes(kw)) {
+      await NotificationSmsQueueService.recordOptIn(tenantId, from);
+      return 'opted_in';
+    }
+    return 'none';
+  }
+
+  /** Tenant disabled SMS or recipient opted out → must not send. */
+  private static async isSuppressed(tenantId: string, to: string): Promise<boolean> {
+    if (!(await NotificationSmsQueueService.isSmsEnabled(tenantId))) {
+      Logger.info(`[sms] suppressed: SMS disabled for tenant ${tenantId}`);
+      return true;
+    }
+    if (await NotificationSmsQueueService.isOptedOut(tenantId, to)) {
+      Logger.info(`[sms] suppressed: ${to} has opted out (STOP)`);
+      return true;
+    }
+    return false;
+  }
+
   static async sendShortMessage(
     tenantId: string,
     { to, body, provider }: { to: string; body: string; provider?: SMSProviderType },
@@ -68,6 +123,7 @@ export default class NotificationSmsQueueService {
       return;
     }
     await NotificationSmsQueueService.assertSmsFeatureAccess(tenantId);
+    if (await NotificationSmsQueueService.isSuppressed(tenantId, to)) return;
     try {
       const rateLimitKey = `${NotificationSmsQueueService.RATE_LIMIT_PREFIX}${tenantId}:${to}`;
       const existing = await redis.get(rateLimitKey);
@@ -108,7 +164,10 @@ export default class NotificationSmsQueueService {
     }
     const { number, regionCode } = parsed;
 
-    if (!NotificationSmsProviderService.isAllowedCountry(regionCode)) {
+    // Opt-out / disable can change between enqueue and delivery — re-check.
+    if (await NotificationSmsQueueService.isSuppressed(tenantId, number)) return;
+
+    if (!(await NotificationSmsProviderService.isAllowedCountryForTenant(tenantId, regionCode))) {
       Logger.error(`NotificationSmsQueueService: Country ${regionCode} is not allowed for number: ${to}`);
       return;
     }

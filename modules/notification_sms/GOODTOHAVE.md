@@ -4,19 +4,19 @@
 
 ## Per-Tenant Configuration Gaps
 
-### Per-Tenant SMS Provider Selection (Wire Up `smsProvider` Setting)
+### ✅ Per-Tenant SMS Provider Selection (Wire Up `smsProvider` Setting)
 **Why:** The `smsProvider` setting key is declared, seeded, and shown in the tenant admin UI, but the backend never reads it; `DEFAULT_PROVIDER_NAME` is always the global `env.SMS_DEFAULT_PROVIDER`, so a tenant admin's provider choice has zero effect.
 **Complexity:** Low
 **Multi-tenant relevance:** Different tenants have existing contracts with different SMS providers (Twilio vs Nexmo vs NetGSM); honoring the per-tenant `smsProvider` setting is the minimum requirement for a configurable multi-tenant system.
 **Multi-country relevance:** Provider coverage and per-message pricing vary dramatically by destination country; tenants operating in Turkey use NetGSM, those in Europe/US use Twilio or Nexmo — the per-tenant setting is the vehicle for this regional specialization.
 
-### Per-Tenant SMS Enable/Disable Toggle (Wire Up `smsEnabled` Setting)
+### ✅ Per-Tenant SMS Enable/Disable Toggle (Wire Up `smsEnabled` Setting)
 **Why:** The `smsEnabled` setting key is declared and shown in the UI but never read by any service method; a tenant admin who disables SMS in their settings still has SMS messages delivered.
 **Complexity:** Low
 **Multi-tenant relevance:** Tenants on plans that include SMS credits should be able to temporarily suspend SMS (e.g. during a cost review) without the platform operator needing to intervene.
 **Multi-country relevance:** Tenants operating in markets where SMS is heavily regulated (e.g. India's TRAI DLT registration requirement) may need to disable SMS while completing regulatory onboarding.
 
-### Per-Tenant Country Allowlist (`smsAllowedCountries`)
+### ✅ Per-Tenant Country Allowlist (`smsAllowedCountries`)
 **Why:** `ALLOWED_COUNTRIES` is built once from `env.SMS_ALLOWED_COUNTRIES` and applied uniformly to all tenants; a tenant that should only send to Turkey cannot enforce that without platform operator involvement.
 **Complexity:** Low
 **Multi-tenant relevance:** Each tenant may have different geographic licensing for SMS (e.g. a Turkish e-commerce tenant should only send to +90 numbers); per-tenant allowlists enforce this without operator configuration changes.
@@ -60,7 +60,7 @@
 **Multi-tenant relevance:** Each tenant may operate under a different registered sender ID; the per-tenant `netgsmPhoneNumber` (msgheader) partially covers this for NetGSM but is not generalized across providers.
 **Multi-country relevance:** Unregistered sender IDs are blocked or fined by regulators in 30+ countries; a sender ID registry (per tenant, per country, per provider) is the production-grade solution.
 
-### Opt-Out / STOP Keyword Handling
+### ✅ Opt-Out / STOP Keyword Handling
 **Why:** Recipients can reply STOP to most carrier networks but the platform has no mechanism to record, honor, or forward those opt-outs; continued sending to opted-out numbers violates CAN-SPAM, GDPR, TCPA, and most national regulations.
 **Complexity:** High
 **Multi-tenant relevance:** Opt-out state is per-tenant (a user opting out of tenant A's SMS should still receive tenant B's OTPs if they consent); per-tenant opt-out lists prevent cross-tenant leakage.
