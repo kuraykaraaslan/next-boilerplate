@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import SettingService from '@/modules/setting/setting.service';
 import AuditLogService from '@/modules/audit_log/audit_log.service';
 import { AuditActions } from '@/modules/audit_log/audit_log.enums';
+import { AppError, ErrorCode } from '@/modules/common/app-error';
 import { TENANT_BRANDING_KEYS } from './tenant_branding.setting.keys';
 import { TenantBrandingSchema } from './tenant_branding.types';
 import type { TenantBranding } from './tenant_branding.types';
@@ -19,6 +20,31 @@ function sanitizeCss(raw: string): string {
   return UNSAFE_CSS_PATTERNS.reduce((s, p) => s.replace(p, '/* blocked */'), raw);
 }
 
+// URL-bearing keys: must be absolute http(s) or root-relative — never
+// javascript:/data:/vbscript: (stored-XSS via logo/link rendering).
+const URL_KEYS = new Set<string>([
+  'brandLogoLight', 'brandLogoDark', 'brandFavicon', 'authWallpaper',
+  'privacyPolicyUrl', 'termsOfServiceUrl',
+]);
+const COLOR_KEYS = new Set<string>(['brandPrimaryColor', 'brandSecondaryColor']);
+
+function assertSafeUrl(key: string, value: string): void {
+  if (value === '') return; // clearing the value
+  if (value.startsWith('/')) return; // root-relative is safe
+  let url: URL;
+  try { url = new URL(value); } catch { throw new AppError(`Invalid URL for ${key}`, 422, ErrorCode.VALIDATION_ERROR); }
+  if (url.protocol !== 'https:' && url.protocol !== 'http:') {
+    throw new AppError(`URL for ${key} must use http(s)`, 422, ErrorCode.VALIDATION_ERROR);
+  }
+}
+
+function assertHexColor(key: string, value: string): void {
+  if (value === '') return;
+  if (!/^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(value.trim())) {
+    throw new AppError(`Color for ${key} must be a hex value like #1a2b3c`, 422, ErrorCode.VALIDATION_ERROR);
+  }
+}
+
 export default class TenantBrandingService {
 
   static async get(tenantId: string): Promise<TenantBranding> {
@@ -34,6 +60,8 @@ export default class TenantBrandingService {
       if (value === undefined) continue;
       if (key === 'customCss') value = sanitizeCss(value);
       if (key === 'customJs') value = value.replace(/<\/?\s*script[^>]*>/gi, '/* blocked */');
+      if (URL_KEYS.has(key)) assertSafeUrl(key, value);
+      if (COLOR_KEYS.has(key)) assertHexColor(key, value);
       updates[key] = value;
     }
 

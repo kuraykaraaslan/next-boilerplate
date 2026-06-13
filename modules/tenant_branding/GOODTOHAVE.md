@@ -4,19 +4,19 @@
 
 ## Asset Management & Security
 
-### Logo/Favicon URL Validation and Hosted Upload
+### ✅ Logo/Favicon URL Validation and Hosted Upload
 **Why:** `brandLogoLight`, `brandLogoDark`, `brandFavicon`, and `authWallpaper` accept arbitrary URL strings with no validation — a tenant can point them to an external domain that goes offline, or inject a CSP-busting URL.
 **Complexity:** Medium
 **Multi-tenant relevance:** Tenant A's broken external CDN link should not cause a 404 on Tenant A's login page; operator-hosted storage ensures SLA-level availability per tenant.
 **Multi-country relevance:** Self-hosting assets avoids cross-border data flows for images that may contain personal data (e.g., avatars used as logos), which matters under GDPR and PIPL.
 
-### Custom CSS/JS Sanitization and Content-Security-Policy Gating
+### ✅ Custom CSS/JS Sanitization and Content-Security-Policy Gating
 **Why:** `customCss` and `customJs` are stored verbatim up to 50 KB with no sanitization, XSS scanning, or CSP enforcement — a malicious tenant admin can inject scripts that exfiltrate tokens from all users of that tenant.
 **Complexity:** High
 **Multi-tenant relevance:** In a shared-shell multi-tenant app, injected JS from one tenant can read cookies or localStorage that might contain cross-tenant session data if the shell is not fully isolated.
 **Multi-country relevance:** GDPR Art. 32 requires appropriate technical measures to ensure security — unvalidated JS injection is a reportable vulnerability under GDPR breach notification rules.
 
-### Branding Version History / Rollback
+### ✅ Branding Version History / Rollback
 **Why:** `update` overwrites values in-place; there is no audit trail of previous branding states, and `reset` is irreversible — a mistaken CSS deploy cannot be rolled back.
 **Complexity:** Medium
 **Multi-tenant relevance:** Tenant admins performing white-label rebrands need a safety net; enterprise tenants expect change history for governance audits.
@@ -38,7 +38,7 @@
 
 ## Compliance & Governance
 
-### GDPR-Required Legal Links (Privacy Policy, Terms of Service)
+### ✅ GDPR-Required Legal Links (Privacy Policy, Terms of Service)
 **Why:** There are no branding fields for per-tenant Privacy Policy URL, Terms of Service URL, or Cookie Policy URL — these are legally required on login pages and consent flows in the EU, UK, and many APAC countries.
 **Complexity:** Low
 **Multi-tenant relevance:** Each tenant has its own legal documents; a shared platform URL is not acceptable — the tenant's own ToS must be presented to their users.

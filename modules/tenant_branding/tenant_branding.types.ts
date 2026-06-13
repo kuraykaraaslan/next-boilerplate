@@ -11,6 +11,8 @@ export const TenantBrandingSchema = z.object({
   authWallpaper: z.string().optional(),
   customCss: z.string().max(50_000).optional(),
   customJs: z.string().max(50_000).optional(),
+  privacyPolicyUrl: z.string().optional(),
+  termsOfServiceUrl: z.string().optional(),
 })
 export type TenantBranding = z.infer<typeof TenantBrandingSchema>
 
