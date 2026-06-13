@@ -36,6 +36,58 @@ export class StoreProduct {
   @Column({ type: 'varchar', length: 3, default: DEFAULT_CURRENCY })
   currency!: string
 
+  // Multi-currency price list: { "EUR": 9.0, "TRY": 350.0 } — explicit prices
+  // per currency (purchasing-power pricing, not FX conversion).
+  @Column({ type: 'jsonb', nullable: true })
+  priceList?: Record<string, number>
+
+  // Per-country list-price overrides: { "DE": { amount, currency }, ... }.
+  @Column({ type: 'jsonb', nullable: true })
+  countryPrices?: Record<string, { amount: number; currency: string }>
+
+  // Promotional pricing (time-bounded).
+  @Column({ nullable: true, type: 'decimal', precision: 12, scale: 2, transformer: { to: (v) => v, from: (v) => v == null ? v : parseFloat(v) } })
+  salePrice?: number
+
+  @Column({ nullable: true, type: 'timestamp' })
+  saleStartsAt?: Date | null
+
+  @Column({ nullable: true, type: 'timestamp' })
+  saleEndsAt?: Date | null
+
+  // Tax configuration — class drives payment_tax rate selection; inclusive flag
+  // declares whether basePrice already contains tax.
+  @Column({ nullable: true, type: 'varchar', length: 50 })
+  taxClass?: string
+
+  @Column({ type: 'boolean', default: false })
+  priceIncludesTax!: boolean
+
+  // Per-language content overrides: { "tr": { name, shortDescription, details } }.
+  @Column({ type: 'jsonb', nullable: true })
+  translations?: Record<string, { name?: string; shortDescription?: string; details?: string }>
+
+  // Country availability: allowlist (if set, only these) and blocklist.
+  @Column({ type: 'jsonb', nullable: true })
+  availableCountries?: string[]
+
+  @Column({ type: 'jsonb', nullable: true })
+  restrictedCountries?: string[]
+
+  // Warehouse-split inventory: { "TR-IST": 40, "DE-BER": 12 }.
+  @Column({ type: 'jsonb', nullable: true })
+  warehouseStock?: Record<string, number>
+
+  // Pre-order / backorder UX semantics + dates.
+  @Column({ type: 'varchar', default: 'IN_STOCK' })
+  fulfillmentType!: string
+
+  @Column({ nullable: true, type: 'timestamp' })
+  restockDate?: Date | null
+
+  @Column({ nullable: true, type: 'timestamp' })
+  preorderReleaseDate?: Date | null
+
   @Column({ nullable: true, type: 'varchar' })
   sku?: string
 

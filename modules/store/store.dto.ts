@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { CurrencyCodeInput, DEFAULT_CURRENCY } from '@/modules/common'
-import { ProductStatusEnum, BundleStatusEnum, CategorySpecTypeEnum, VariationDisplayTypeEnum } from './store.enums'
+import { ProductStatusEnum, BundleStatusEnum, CategorySpecTypeEnum, VariationDisplayTypeEnum, FulfillmentTypeEnum } from './store.enums'
 
 // ============================================================================
 // Category DTOs
@@ -11,6 +11,9 @@ export const CreateCategoryDTO = z.object({
   name: z.string().min(1).max(200),
   slug: z.string().min(1).max(200).regex(/^[a-z0-9-]+$/),
   description: z.string().optional(),
+  translations: z.record(z.string(), z.object({
+    name: z.string().optional(), description: z.string().optional(),
+  })).optional(),
   imageUrl: z.string().url().optional(),
   sortOrder: z.coerce.number().int().nonnegative().default(0),
   isActive: z.boolean().default(true),
@@ -62,6 +65,24 @@ export const CreateProductDTO = z.object({
   details: z.string().optional(),
   basePrice: z.coerce.number().nonnegative(),
   currency: CurrencyCodeInput.default(DEFAULT_CURRENCY),
+  priceList: z.record(z.string(), z.coerce.number().nonnegative()).optional(),
+  countryPrices: z.record(z.string(), z.object({
+    amount: z.coerce.number().nonnegative(), currency: z.string(),
+  })).optional(),
+  salePrice: z.coerce.number().nonnegative().optional(),
+  saleStartsAt: z.coerce.date().optional(),
+  saleEndsAt: z.coerce.date().optional(),
+  taxClass: z.string().max(50).optional(),
+  priceIncludesTax: z.boolean().default(false),
+  translations: z.record(z.string(), z.object({
+    name: z.string().optional(), shortDescription: z.string().optional(), details: z.string().optional(),
+  })).optional(),
+  availableCountries: z.array(z.string()).optional(),
+  restrictedCountries: z.array(z.string()).optional(),
+  warehouseStock: z.record(z.string(), z.coerce.number().int().nonnegative()).optional(),
+  fulfillmentType: FulfillmentTypeEnum.default('IN_STOCK'),
+  restockDate: z.coerce.date().optional(),
+  preorderReleaseDate: z.coerce.date().optional(),
   sku: z.string().max(100).optional(),
   stockQuantity: z.coerce.number().int().nonnegative().optional(),
   trackInventory: z.boolean().default(true),
@@ -177,6 +198,10 @@ export const CreateVariantDTO = z.object({
   sku: z.string().max(100).optional(),
   price: z.coerce.number().nonnegative().optional(),
   stockQuantity: z.coerce.number().int().nonnegative().optional(),
+  warehouseStock: z.record(z.string(), z.coerce.number().int().nonnegative()).optional(),
+  salePrice: z.coerce.number().nonnegative().optional(),
+  saleStartsAt: z.coerce.date().optional(),
+  saleEndsAt: z.coerce.date().optional(),
   weight: z.coerce.number().nonnegative().optional(),
   imageUrl: z.string().url().optional(),
   isActive: z.boolean().default(true),

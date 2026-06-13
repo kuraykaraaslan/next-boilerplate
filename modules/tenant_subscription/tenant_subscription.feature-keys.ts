@@ -5,6 +5,8 @@ export const FEATURE_KEYS = {
   STORAGE_GB: 'storage_gb',
   MAX_DOMAINS: 'max_domains',
   MAX_AI_REQUESTS: 'max_ai_requests',
+  MAX_PRODUCTS: 'max_products',
+  MAX_CATEGORIES: 'max_categories',
 
   // BOOLEAN features — value is 'true' | 'false'
   CUSTOM_DOMAIN: 'custom_domain',

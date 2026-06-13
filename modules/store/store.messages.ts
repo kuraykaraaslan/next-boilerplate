@@ -12,7 +12,11 @@ export const STORE_MESSAGES = {
   PRODUCT_CREATE_FAILED: 'Failed to create product',
   PRODUCT_UPDATE_FAILED: 'Failed to update product',
   PRODUCT_SLUG_TAKEN: 'A product with this slug already exists',
+  PRODUCT_SKU_TAKEN: 'A product with this SKU already exists in this tenant',
   PRODUCT_INSUFFICIENT_STOCK: 'Insufficient stock for this product',
+  PRODUCT_NOT_AVAILABLE_IN_COUNTRY: 'This product is not available in the requested country',
+  CATALOG_LIMIT_REACHED: 'Your plan\'s catalog limit has been reached',
+  PRODUCT_APPROVAL_REQUIRED: 'This product must be reviewed and approved before it can go live',
 
   VARIANT_NOT_FOUND: 'Product variant not found',
   VARIANT_CREATE_FAILED: 'Failed to create product variant',

@@ -1,6 +1,19 @@
 import { z } from 'zod'
 import { CurrencyCodeEnum } from '@/modules/common'
-import { ProductStatusEnum, BundleStatusEnum, CategorySpecTypeEnum, VariationDisplayTypeEnum } from './store.enums'
+import { ProductStatusEnum, BundleStatusEnum, CategorySpecTypeEnum, VariationDisplayTypeEnum, FulfillmentTypeEnum } from './store.enums'
+
+// Shared shapes for the internationalisation / pricing extensions.
+export const PriceListSchema = z.record(z.string(), z.coerce.number()).nullable().optional()
+export const CountryPricesSchema = z.record(z.string(), z.object({
+  amount: z.coerce.number(), currency: z.string(),
+})).nullable().optional()
+export const ProductTranslationsSchema = z.record(z.string(), z.object({
+  name: z.string().optional(), shortDescription: z.string().optional(), details: z.string().optional(),
+})).nullable().optional()
+export const CategoryTranslationsSchema = z.record(z.string(), z.object({
+  name: z.string().optional(), description: z.string().optional(),
+})).nullable().optional()
+export const WarehouseStockSchema = z.record(z.string(), z.coerce.number().int()).nullable().optional()
 
 // ============================================================================
 // Category
@@ -13,6 +26,7 @@ export const StoreCategorySchema = z.object({
   name: z.string(),
   slug: z.string(),
   description: z.string().nullable(),
+  translations: CategoryTranslationsSchema,
   imageUrl: z.string().nullable(),
   sortOrder: z.coerce.number().int(),
   isActive: z.boolean(),
@@ -73,6 +87,20 @@ export const StoreProductSchema = z.object({
   details: z.string().nullable(),
   basePrice: z.coerce.number(),
   currency: CurrencyCodeEnum,
+  priceList: PriceListSchema,
+  countryPrices: CountryPricesSchema,
+  salePrice: z.coerce.number().nullable().optional(),
+  saleStartsAt: z.date().nullable().optional(),
+  saleEndsAt: z.date().nullable().optional(),
+  taxClass: z.string().nullable().optional(),
+  priceIncludesTax: z.boolean().default(false),
+  translations: ProductTranslationsSchema,
+  availableCountries: z.array(z.string()).nullable().optional(),
+  restrictedCountries: z.array(z.string()).nullable().optional(),
+  warehouseStock: WarehouseStockSchema,
+  fulfillmentType: FulfillmentTypeEnum.default('IN_STOCK'),
+  restockDate: z.date().nullable().optional(),
+  preorderReleaseDate: z.date().nullable().optional(),
   sku: z.string().nullable(),
   stockQuantity: z.coerce.number().int().nullable(),
   trackInventory: z.boolean(),
@@ -159,6 +187,10 @@ export const StoreProductVariantSchema = z.object({
   sku: z.string().nullable(),
   price: z.coerce.number().nullable(),
   stockQuantity: z.coerce.number().int().nullable(),
+  warehouseStock: WarehouseStockSchema,
+  salePrice: z.coerce.number().nullable().optional(),
+  saleStartsAt: z.date().nullable().optional(),
+  saleEndsAt: z.date().nullable().optional(),
   weight: z.coerce.number().nullable(),
   imageUrl: z.string().nullable(),
   isActive: z.boolean(),

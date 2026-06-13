@@ -35,6 +35,20 @@ export class StoreProductVariant {
   @Column({ nullable: true, type: 'int' })
   stockQuantity?: number
 
+  // Warehouse-split inventory for this variant: { "TR-IST": 10, ... }.
+  @Column({ type: 'jsonb', nullable: true })
+  warehouseStock?: Record<string, number>
+
+  // Promotional pricing (time-bounded) at the variant level.
+  @Column({ nullable: true, type: 'decimal', precision: 12, scale: 2, transformer: { to: (v) => v, from: (v) => v == null ? v : parseFloat(v) } })
+  salePrice?: number
+
+  @Column({ nullable: true, type: 'timestamp' })
+  saleStartsAt?: Date | null
+
+  @Column({ nullable: true, type: 'timestamp' })
+  saleEndsAt?: Date | null
+
   @Column({ nullable: true, type: 'decimal', precision: 8, scale: 3, transformer: { to: (v) => v, from: (v) => v == null ? v : parseFloat(v) } })
   weight?: number
 

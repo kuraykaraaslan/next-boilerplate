@@ -26,6 +26,10 @@ export class StoreCategory {
   @Column({ nullable: true, type: 'text' })
   description?: string
 
+  // Per-language overrides: { "tr": { name, description }, ... }.
+  @Column({ type: 'jsonb', nullable: true })
+  translations?: Record<string, { name?: string; description?: string }>
+
   @Column({ nullable: true, type: 'varchar' })
   imageUrl?: string
 

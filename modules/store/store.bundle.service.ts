@@ -14,6 +14,8 @@ import type {
   CreateBundleDTO, UpdateBundleDTO, AddBundleItemDTO, UpdateBundleItemDTO, GetBundlesQuery,
 } from './store.dto'
 import { STORE_MESSAGES } from './store.messages'
+import SettingService from '@/modules/setting/setting.service'
+import { isCurrencyCode } from '@/modules/common'
 import { AppError, ErrorCode } from '@/modules/common/app-error'
 
 /** Store bundle + bundle-item CRUD (split out of `StoreService`). */
@@ -28,7 +30,13 @@ export default class StoreBundleService {
     const taken = await repo.findOne({ where: { tenantId, slug: data.slug } })
     if (taken) throw new AppError(STORE_MESSAGES.BUNDLE_SLUG_TAKEN, 409, ErrorCode.CONFLICT)
     try {
-      const bundle = repo.create({ tenantId, ...data })
+      const payload: CreateBundleDTO = { ...data }
+      // Tenant-configurable default currency when caller left the USD default.
+      if (data.currency === 'USD') {
+        const s = await SettingService.getByKeys(tenantId, ['storeDefaultCurrency']).catch(() => ({} as Record<string, string>))
+        if (s.storeDefaultCurrency && isCurrencyCode(s.storeDefaultCurrency)) payload.currency = s.storeDefaultCurrency
+      }
+      const bundle = repo.create({ tenantId, ...payload })
       const saved = await repo.save(bundle)
       return StoreBundleSchema.parse(saved)
     } catch (error) {

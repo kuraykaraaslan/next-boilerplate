@@ -14,6 +14,12 @@ export default class StoreProductService {
   static listProducts     = StoreProductCrudService.listProducts.bind(StoreProductCrudService);
   static deleteProduct    = StoreProductCrudService.deleteProduct.bind(StoreProductCrudService);
 
+  // Approval workflow + bulk status
+  static submitForReview  = StoreProductCrudService.submitForReview.bind(StoreProductCrudService);
+  static approve          = StoreProductCrudService.approve.bind(StoreProductCrudService);
+  static reject           = StoreProductCrudService.reject.bind(StoreProductCrudService);
+  static bulkSetStatus    = StoreProductCrudService.bulkSetStatus.bind(StoreProductCrudService);
+
   // Images + spec values + duplicate
   static addImage           = StoreProductMediaService.addImage.bind(StoreProductMediaService);
   static removeImage        = StoreProductMediaService.removeImage.bind(StoreProductMediaService);
