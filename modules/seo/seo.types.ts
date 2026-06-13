@@ -16,6 +16,9 @@ export const SeoMetaSchema = z.object({
   twitterTitle:       z.string().nullable().optional(),
   twitterDescription: z.string().nullable().optional(),
   twitterCard:        z.string().nullable().optional(),
+  localized:     z.record(z.string(), z.record(z.string(), z.string())).nullable().optional(),
+  alternates:    z.record(z.string(), z.string()).nullable().optional(),
+  xDefaultUrl:   z.string().nullable().optional(),
   noIndex:       z.boolean(),
   updatedAt:     z.date(),
 });

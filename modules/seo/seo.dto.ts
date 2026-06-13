@@ -12,6 +12,9 @@ export const UpsertSeoDTO = z.object({
   twitterTitle:       z.string().max(200).optional().or(z.literal('')),
   twitterDescription: z.string().max(500).optional().or(z.literal('')),
   twitterCard:        z.string().max(50).optional().or(z.literal('')),
+  localized:     z.record(z.string(), z.record(z.string(), z.string())).optional(),
+  alternates:    z.record(z.string(), z.string().url()).optional(),
+  xDefaultUrl:   z.string().url().optional().or(z.literal('')),
   noIndex:       z.boolean().default(false),
 });
 export type UpsertSeoDTO = z.infer<typeof UpsertSeoDTO>;

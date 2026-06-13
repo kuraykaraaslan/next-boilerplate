@@ -2,10 +2,12 @@ import 'reflect-metadata';
 import { tenantDataSourceFor } from '@/modules/db';
 import redis, { jitter, singleFlight } from '@/modules/redis';
 import { env } from '@/modules/env';
+import SettingService from '@/modules/setting/setting.service';
 import { SeoMeta as SeoMetaEntity } from './entities/seo_meta.entity';
 import { SeoMetaSchema, type SeoMeta } from './seo.types';
 import type { UpsertSeoDTO } from './seo.dto';
 import { SEO_MESSAGES } from './seo.messages';
+import SeoRenderService, { type SitemapUrlEntry } from './seo.render.service';
 import { AppError, ErrorCode } from '@/modules/common/app-error';
 
 const SEO_CACHE_TTL = env.TENANT_CACHE_TTL ?? (60 * 5);
@@ -69,5 +71,60 @@ export default class SeoService {
     const ds = await tenantDataSourceFor(tenantId);
     await ds.getRepository(SeoMetaEntity).delete({ tenantId, entityType, entityId });
     await redis.del(cacheKey(tenantId, entityType, entityId)).catch(() => {});
+  }
+
+  // ── Settings-aware rendering helpers ───────────────────────────────────────
+
+  /**
+   * Generate the tenant's `robots.txt`, honouring the `metaRobots` and
+   * `sitemapEnabled` settings and pointing at the tenant's sitemap URL.
+   */
+  static async getRobotsTxt(tenantId: string, opts?: { baseUrl?: string }): Promise<string> {
+    const s = await SettingService.getByKeys(tenantId, ['metaRobots', 'sitemapEnabled', 'siteBaseUrl', 'robotsDisallow'])
+      .catch(() => ({} as Record<string, string>));
+    const base = (opts?.baseUrl ?? s.siteBaseUrl ?? '').replace(/\/$/, '');
+    const sitemapEnabled = s.sitemapEnabled !== 'false';
+    const disallow = (s.robotsDisallow ?? '').split(',').map((d) => d.trim()).filter(Boolean);
+    return SeoRenderService.robotsTxt({
+      metaRobots: s.metaRobots,
+      disallow: disallow.length > 0 ? disallow : undefined,
+      sitemapUrl: sitemapEnabled && base ? `${base}/sitemap.xml` : null,
+      host: base || null,
+    });
+  }
+
+  /**
+   * Build a tenant sitemap (or sitemap index when the URL count exceeds the
+   * per-file limit). Returns either a single `urlset` or an index referencing
+   * page-level sitemaps; callers serve the chosen file.
+   */
+  static buildSitemap(entries: SitemapUrlEntry[], opts?: { baseUrl?: string; page?: number }): { kind: 'urlset' | 'index'; xml: string } {
+    if (SeoRenderService.needsSitemapIndex(entries.length)) {
+      const chunks = SeoRenderService.chunkSitemap(entries);
+      if (opts?.page !== undefined) {
+        return { kind: 'urlset', xml: SeoRenderService.sitemapXml(chunks[opts.page] ?? []) };
+      }
+      const base = (opts?.baseUrl ?? '').replace(/\/$/, '');
+      const sitemaps = chunks.map((_, i) => ({ loc: `${base}/sitemap-${i}.xml` }));
+      return { kind: 'index', xml: SeoRenderService.sitemapIndexXml(sitemaps) };
+    }
+    return { kind: 'urlset', xml: SeoRenderService.sitemapXml(entries) };
+  }
+
+  /** Render the full per-locale `<head>` SEO block for a stored entity. */
+  static async renderHead(
+    tenantId: string,
+    entityType: string,
+    entityId: string,
+    opts?: { locale?: string; ogLocale?: string },
+  ): Promise<string | null> {
+    const meta = await this.get(tenantId, entityType, entityId);
+    if (!meta) return null;
+    const s = await SettingService.getByKeys(tenantId, ['siteName', 'googleSearchConsoleId'])
+      .catch(() => ({} as Record<string, string>));
+    return SeoRenderService.headTags(meta, {
+      locale: opts?.locale, ogLocale: opts?.ogLocale,
+      siteName: s.siteName, gscTokens: s.googleSearchConsoleId,
+    });
   }
 }

@@ -49,6 +49,19 @@ export class SeoMeta {
   @Column({ nullable: true, type: 'varchar', length: 50 })
   twitterCard?: string;
 
+  // Per-locale overrides for title/description/OG/canonical, keyed by BCP-47
+  // locale: { "de": { ogTitle, ogDescription, canonicalUrl, ... }, ... }
+  @Column({ type: 'jsonb', nullable: true })
+  localized?: Record<string, Record<string, string>>;
+
+  // hreflang alternates: locale → absolute URL of that locale's variant.
+  @Column({ type: 'jsonb', nullable: true })
+  alternates?: Record<string, string>;
+
+  // x-default hreflang target (language-chooser / default-locale URL).
+  @Column({ nullable: true, type: 'varchar' })
+  xDefaultUrl?: string;
+
   @Column({ type: 'boolean', default: false })
   noIndex!: boolean;
 
