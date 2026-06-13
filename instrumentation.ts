@@ -63,6 +63,15 @@ export async function register() {
           await scheduleDnsRecheckJob();
         },
       ],
+      [
+        'messaging-moderation-ai',
+        async () => {
+          const { startModerationWorker } = await import(
+            '@/modules/messaging/messaging.moderation.queue'
+          );
+          startModerationWorker();
+        },
+      ],
     ];
 
     for (const [name, run] of schedulers) {

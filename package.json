@@ -22,7 +22,9 @@
     "tenant:seed-root": "tsx scripts/migrate-to-root-tenant.ts",
     "tenant:seed-default": "tsx scripts/default-tenant.ts",
     "registry:snapshot": "node scripts/build-registry-snapshot.mjs",
-    "mcp:server": "node scripts/mcp-server.mjs"
+    "mcp:server": "node scripts/mcp-server.mjs",
+    "ws:dev": "tsx watch modules/messaging/server/index.ts",
+    "ws:start": "tsx modules/messaging/server/index.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.971.0",
@@ -45,6 +47,7 @@
     "@simplewebauthn/browser": "^13.3.0",
     "@simplewebauthn/server": "^13.3.0",
     "@simplewebauthn/types": "^12.0.0",
+    "@socket.io/redis-adapter": "^8.3.0",
     "@stripe/react-stripe-js": "^6.5.0",
     "@stripe/stripe-js": "^9.7.0",
     "@tinymce/tinymce-react": "^6.3.0",
@@ -89,6 +92,7 @@
     "react-i18next": "^16.5.3",
     "react-phone-number-input": "^3.4.14",
     "reflect-metadata": "^0.2.2",
+    "socket.io": "^4.8.3",
     "swagger-ui-react": "^5.31.0",
     "tailwind-merge": "^2.6.1",
     "typeorm": "^0.3.28",
@@ -122,6 +126,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.1.2",
     "jsdom": "^29.1.1",
+    "socket.io-client": "^4.8.3",
     "tailwindcss": "^4",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
