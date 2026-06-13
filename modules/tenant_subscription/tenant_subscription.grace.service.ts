@@ -11,6 +11,7 @@ import type { TenantSubscription, GracePeriodStatus } from './tenant_subscriptio
 import { SUBSCRIPTION_MESSAGES } from './tenant_subscription.messages';
 import { AppError, ErrorCode } from '@/modules/common/app-error';
 import TenantFeatureGateService from './tenant_subscription.feature.service';
+import WebhookService from '@/modules/webhook/webhook.service';
 
 export default class TenantSubscriptionGraceService {
 
@@ -84,6 +85,9 @@ export default class TenantSubscriptionGraceService {
       for (const sub of overdue) {
         await repo.update({ tenantId: sub.tenantId }, { status: 'EXPIRED' } as any);
         await TenantFeatureGateService.invalidateFeatureCache(sub.tenantId);
+        await WebhookService.dispatchEvent(sub.tenantId, 'subscription.expired', {
+          tenantId: sub.tenantId, planId: sub.planId ?? null, expiredAt: now,
+        }).catch(() => {});
         Logger.info(`Subscription expired for tenant ${sub.tenantId} — grace period ended`);
       }
 

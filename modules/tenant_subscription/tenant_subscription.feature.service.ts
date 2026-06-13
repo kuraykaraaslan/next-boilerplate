@@ -6,6 +6,7 @@ import { ROOT_TENANT_ID } from '@/modules/tenant/tenant.constants';
 import Logger from '@/modules/logger';
 import redis from '@/modules/redis';
 import AuditLogService from '@/modules/audit_log/audit_log.service';
+import { TenantUsageService, type TenantUsageMetric } from '@/modules/tenant_usage/tenant_usage.service';
 import type { FeatureAccessResult } from './tenant_subscription.types';
 import { SUBSCRIPTION_MESSAGES } from './tenant_subscription.messages';
 import { AppError, ErrorCode } from '@/modules/common/app-error';
@@ -232,5 +233,21 @@ export default class TenantFeatureGateService {
     }
 
     return result;
+  }
+
+  /**
+   * Real-time usage gating: read the tenant's live `TenantUsage` counter for
+   * `usageMetric` and assert it is within the plan's LIMIT for `featureKey`.
+   * Callers no longer have to fetch and pass the current count themselves.
+   */
+  static async assertUsageWithinLimit(
+    tenantId: string,
+    featureKey: string,
+    usageMetric: TenantUsageMetric,
+    options?: { gracePercent?: number },
+  ): Promise<FeatureAccessResult> {
+    const usage = await TenantUsageService.getUsage(tenantId);
+    const current = (usage as unknown as Record<string, number>)[usageMetric] ?? 0;
+    return this.assertFeatureAccess(tenantId, featureKey, current, options);
   }
 }

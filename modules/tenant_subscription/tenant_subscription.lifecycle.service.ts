@@ -6,6 +6,7 @@ import { TenantSubscription as TenantSubscriptionEntity } from './entities/tenan
 import { ROOT_TENANT_ID } from '@/modules/tenant/tenant.constants';
 import Logger from '@/modules/logger';
 import PaymentService from '@/modules/payment/payment.service';
+import WebhookService from '@/modules/webhook/webhook.service';
 import {
   TenantSubscriptionSchema,
   TenantSubscriptionWithPlanSchema,
@@ -111,6 +112,9 @@ export default class TenantSubscriptionLifecycleService {
       await repo.update({ tenantId }, { status: 'CANCELLED', cancelledAt: new Date() });
       const updated = await repo.findOne({ where: { tenantId } });
       await TenantFeatureGateService.invalidateFeatureCache(tenantId);
+      await WebhookService.dispatchEvent(tenantId, 'subscription.cancelled', {
+        tenantId, planId: updated?.planId ?? null, cancelledAt: updated?.cancelledAt ?? new Date(),
+      }).catch(() => {});
       return TenantSubscriptionSchema.parse(updated!);
     } catch (error) {
       Logger.error(`${SUBSCRIPTION_MESSAGES.SUBSCRIPTION_CANCEL_FAILED}: ${error instanceof Error ? error.message : String(error)}`);

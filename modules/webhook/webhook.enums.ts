@@ -24,6 +24,7 @@ export const WebhookEventEnum = z.enum([
   'subscription.paused',
   'subscription.resumed',
   'subscription.past_due',
+  'subscription.expired',
   'payment.completed',
   'payment.failed',
   'payment.refunded',

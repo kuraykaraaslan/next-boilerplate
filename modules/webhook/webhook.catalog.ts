@@ -45,6 +45,7 @@ export const WEBHOOK_EVENT_CATALOG: Record<WebhookEvent, WebhookEventMeta> = {
   'subscription.paused':    { scope: 'tenant', group: 'Subscriptions', label: 'Subscription paused',    description: 'A subscription was paused.' },
   'subscription.resumed':   { scope: 'tenant', group: 'Subscriptions', label: 'Subscription resumed',   description: 'A paused subscription was resumed.' },
   'subscription.past_due':  { scope: 'tenant', group: 'Subscriptions', label: 'Subscription past due',  description: 'A renewal charge failed and the subscription entered past-due state.' },
+  'subscription.expired':   { scope: 'tenant', group: 'Subscriptions', label: 'Subscription expired',   description: 'A subscription expired after its grace period ended.' },
   'payment.completed':      { scope: 'tenant', group: 'Payments',      label: 'Payment completed',     description: 'A payment succeeded.' },
   'payment.failed':         { scope: 'tenant', group: 'Payments',      label: 'Payment failed',        description: 'A payment attempt failed.' },
   'payment.refunded':       { scope: 'tenant', group: 'Payments',      label: 'Payment refunded',      description: 'A payment was refunded.' },

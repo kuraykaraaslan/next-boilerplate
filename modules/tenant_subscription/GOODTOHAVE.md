@@ -42,13 +42,13 @@
 
 ## Feature Gating
 
-### Usage-Based Feature Gating Against Real-Time `TenantUsage` Counters
+### ✅ Usage-Based Feature Gating Against Real-Time `TenantUsage` Counters
 **Why:** `checkFeatureAccess` for `LIMIT` features compares a caller-supplied `currentCount` against the plan limit, but the caller is responsible for fetching the count — `MAX_AI_REQUESTS` should be automatically checked against `TenantUsage.aiTokens` without the route needing to manually count.
 **Complexity:** Medium
 **Multi-tenant relevance:** Each tenant's usage counter is isolated in Redis/DB; the feature gate should pull from it directly rather than trusting caller-supplied counts, which can be stale or incorrect.
 **Multi-country relevance:** No direct country relevance, but automated metering reduces the risk of over-provisioning that could expose the operator to free-tier abuse at scale.
 
-### Feature Access Audit Trail When Access Is Denied
+### ✅ Feature Access Audit Trail When Access Is Denied
 **Why:** `assertFeatureAccess` throws an error but the denial is not logged to the audit log — a tenant hitting a feature wall repeatedly has no record in the audit log for support investigations.
 **Complexity:** Low
 **Multi-tenant relevance:** Support teams debugging "why can't I use X?" for a specific tenant need a queryable record of feature denials and the plan limit that was hit.
@@ -78,7 +78,7 @@
 
 ## Developer Experience
 
-### Webhook for `subscription.cancelled` and `subscription.expired`
+### ✅ Webhook for `subscription.cancelled` and `subscription.expired`
 **Why:** `cancelSubscription` does not emit a webhook — integrators cannot react to cancellation events (e.g., trigger a win-back campaign, notify a CRM, disable access in a downstream service).
 **Complexity:** Low
 **Multi-tenant relevance:** Each tenant's subscription state is consumed by external systems (billing platforms, CRMs, support tools) that need real-time event notifications.
