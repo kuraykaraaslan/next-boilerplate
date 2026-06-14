@@ -5,4 +5,5 @@ export const PRODUCT_REVIEW_MESSAGES = {
   REVIEW_UPDATE_FAILED: 'Failed to update review',
   VOTE_FAILED: 'Failed to record vote',
   INVALID_STATUS: 'Invalid review status',
+  VERIFIED_PURCHASE_REQUIRED: 'Only verified purchasers may review this product',
 } as const

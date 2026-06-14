@@ -5,6 +5,12 @@ import { ReviewStatusEnum } from './product_review.enums'
 // Review DTOs
 // ============================================================================
 
+export const ReviewMediaItemSchema = z.object({
+  url: z.string().url(),
+  type: z.enum(['IMAGE', 'VIDEO']).default('IMAGE'),
+})
+export type ReviewMediaItem = z.infer<typeof ReviewMediaItemSchema>
+
 export const CreateReviewDTO = z.object({
   productId: z.string().uuid(),
   userId: z.string().uuid().optional(),
@@ -13,6 +19,9 @@ export const CreateReviewDTO = z.object({
   title: z.string().optional(),
   body: z.string().min(1),
   orderId: z.string().uuid().optional(),
+  media: z.array(ReviewMediaItemSchema).max(10).optional(),
+  // isVerifiedPurchase is no longer trusted from the client — the service
+  // verifies it against real purchase history. Retained for back-compat (ignored).
   isVerifiedPurchase: z.boolean().default(false),
   metadata: z.record(z.string(), z.any()).optional(),
 })
@@ -22,8 +31,15 @@ export const UpdateReviewDTO = z.object({
   rating: z.number().int().min(1).max(5).optional(),
   title: z.string().optional(),
   body: z.string().min(1).optional(),
+  media: z.array(ReviewMediaItemSchema).max(10).optional(),
 })
 export type UpdateReviewDTO = z.infer<typeof UpdateReviewDTO>
+
+export const ReviewEraseDTO = z.object({
+  userId: z.string().uuid(),
+  mode: z.enum(['DELETE', 'ANONYMIZE']).default('ANONYMIZE'),
+})
+export type ReviewEraseDTO = z.infer<typeof ReviewEraseDTO>
 
 export const ModerateReviewDTO = z.object({
   status: ReviewStatusEnum,

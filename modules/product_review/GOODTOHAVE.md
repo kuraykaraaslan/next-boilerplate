@@ -4,7 +4,7 @@
 
 ## Moderation Workflow
 
-### Configurable Auto-Approval Policy
+### ✅ Configurable Auto-Approval Policy
 **Why:** Every review enters `PENDING` status unconditionally and requires manual moderation. Tenants with low-risk product catalogs (e.g. a digital SaaS tool) or high review volume would benefit from auto-approving reviews from verified purchasers or users with a clean history.
 **Complexity:** Low
 **Multi-tenant relevance:** This is explicitly identified in the POSTURE.md as a candidate per-tenant setting (`reviewAutoApprove`); it is not yet implemented.
@@ -60,13 +60,13 @@
 
 ## Verified Purchase Enforcement
 
-### Purchase Verification at Create Time
+### ✅ Purchase Verification at Create Time
 **Why:** `isVerifiedPurchase` defaults to `false` and is set by the caller with no enforcement. Any caller can pass `isVerifiedPurchase: true` without the module verifying that the user actually bought the product. The POSTURE.md identifies `reviewRequireVerifiedPurchase` as a candidate per-tenant setting but it is not implemented.
 **Complexity:** Medium
 **Multi-tenant relevance:** Tenants with competitive review environments (B2C marketplaces, SaaS with competitor reviews) need verified-purchase gating to prevent fake positive reviews.
 **Multi-country relevance:** Some markets have higher fake-review fraud rates; enforcement intensity should be a per-tenant (and implicitly per-market) decision.
 
-### Order-Based Eligibility Check
+### ✅ Order-Based Eligibility Check
 **Why:** `orderId` is an optional soft reference on the review entity, but the service does not verify that the `orderId` belongs to the reviewing user for the correct product. A user could supply any order UUID and claim verified purchase status.
 **Complexity:** Medium
 **Multi-tenant relevance:** Each tenant has its own order database; the check requires a cross-module lookup into the order/payment records for the correct tenant.
@@ -76,7 +76,7 @@
 
 ## Content Richness
 
-### Review Media Attachments (Images / Videos)
+### ✅ Review Media Attachments (Images / Videos)
 **Why:** Text-only reviews are sufficient for SaaS products but insufficient for physical goods e-commerce. Allowing reviewers to upload photos or short videos is a standard feature on any consumer-facing product review system and significantly increases review credibility and conversion rates.
 **Complexity:** High
 **Multi-tenant relevance:** Tenants selling physical products need media reviews; tenants selling software do not. This should be a per-tenant feature toggle.
@@ -142,7 +142,7 @@
 
 ## Compliance and Legal
 
-### Right to Erasure (GDPR / KVKK)
+### ✅ Right to Erasure (GDPR / KVKK)
 **Why:** `delete()` is a soft delete (`softRemove`) that keeps the row in the database with `deletedAt` set. If a user exercises their right to erasure under GDPR (EU) or KVKK (TR), the review content, `userId`, and `authorName` must be hard-deleted or anonymised, not merely soft-deleted.
 **Complexity:** Medium
 **Multi-tenant relevance:** Each tenant is the data controller for its users' reviews; GDPR erasure requests are per-tenant obligations.

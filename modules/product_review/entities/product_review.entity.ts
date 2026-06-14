@@ -41,6 +41,10 @@ export class ProductReview {
   @Column({ type: 'int', default: 0 })
   helpfulCount!: number;
 
+  // Customer-uploaded review media: [{ url, type: 'IMAGE'|'VIDEO' }, ...].
+  @Column({ type: 'jsonb', nullable: true })
+  media?: Array<{ url: string; type: string }>;
+
   @Index()
   @Column({ nullable: true, type: 'uuid' })
   orderId?: string;

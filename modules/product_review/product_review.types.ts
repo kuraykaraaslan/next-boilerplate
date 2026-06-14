@@ -13,6 +13,7 @@ export const ProductReviewSchema = z.object({
   status: ReviewStatusEnum,
   isVerifiedPurchase: z.boolean(),
   helpfulCount: z.number().int(),
+  media: z.array(z.object({ url: z.string(), type: z.string() })).nullable().optional(),
   orderId: z.string().uuid().nullable(),
   metadata: z.record(z.string(), z.any()).nullable(),
   createdAt: z.date(),
