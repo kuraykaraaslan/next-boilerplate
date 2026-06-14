@@ -37,6 +37,7 @@ import {
   faNewspaper,
   faFolderOpen,
   faWallet,
+  faGaugeHigh,
 } from '@fortawesome/free-solid-svg-icons';
 
 type AdminShellProps = {
@@ -105,6 +106,7 @@ export function AdminShell({ children, tenantId }: AdminShellProps) {
         { id: 'invoices', label: 'Invoices', href: `/tenant/${tenantId}/admin/invoices`, icon: <FontAwesomeIcon icon={faFileInvoice} aria-hidden /> },
         { id: 'coupons',  label: 'Coupons',  href: `/tenant/${tenantId}/admin/coupons`,  icon: <FontAwesomeIcon icon={faKey} aria-hidden /> },
         { id: 'wallet',   label: 'Wallet',   href: `/tenant/${tenantId}/admin/wallet`,   icon: <FontAwesomeIcon icon={faWallet} aria-hidden /> },
+        { id: 'metering', label: 'Metering', href: `/tenant/${tenantId}/admin/metering`, icon: <FontAwesomeIcon icon={faGaugeHigh} aria-hidden /> },
       ],
     },
     {

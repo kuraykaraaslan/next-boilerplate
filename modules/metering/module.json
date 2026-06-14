@@ -1,0 +1,13 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "metering",
+  "name": "Metering",
+  "description": "Event-based usage metering with metered / overage billing. Records immutable usage events per meter (SUM/MAX/LAST aggregation), keeps a Redis hot counter for fast current-period reads, and settles overages on a two-rail model: prepaid wallet credits are debited first, the remainder is invoiced as a draft. Quantities and money are integer minor units; runs are idempotent and persisted.",
+  "version": "1.0.0",
+  "icon": "fas fa-gauge-high",
+  "tags": ["metering", "usage", "billing", "overage", "credits"],
+  "priority": 48,
+  "dependencies": {
+    "requires": ["db", "env", "logger", "common", "redis", "wallet", "invoice", "tenant_subscription", "webhook", "audit_log"]
+  }
+}

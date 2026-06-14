@@ -57,6 +57,7 @@ import { DynamicPageTranslation } from '@/modules/dynamic_page/entities/dynamic_
 import { DynamicPageBlock } from '@/modules/dynamic_page/entities/dynamic_page_block.entity';
 import { DynamicCollection } from '@/modules/dynamic_page/entities/dynamic_collection.entity';
 import { DynamicCollectionItem } from '@/modules/dynamic_page/entities/dynamic_collection_item.entity';
+import { DynamicPageVersion } from '@/modules/dynamic_page/entities/dynamic_page_version.entity';
 import { Fulfillment } from '@/modules/order_fulfillment/entities/fulfillment.entity';
 import { FulfillmentItem } from '@/modules/order_fulfillment/entities/fulfillment_item.entity';
 import { FulfillmentEvent } from '@/modules/order_fulfillment/entities/fulfillment_event.entity';
@@ -91,6 +92,9 @@ import { ScimGroupMember } from '@/modules/scim/entities/scim_group_member.entit
 import { WalletAccount } from '@/modules/wallet/entities/wallet_account.entity';
 import { WalletTransaction } from '@/modules/wallet/entities/wallet_transaction.entity';
 import { WalletPosting } from '@/modules/wallet/entities/wallet_posting.entity';
+import { MeterDefinition } from '@/modules/metering/entities/meter_definition.entity';
+import { MeteredUsageEvent } from '@/modules/metering/entities/metered_usage_event.entity';
+import { MeteredBillingRun } from '@/modules/metering/entities/metered_billing_run.entity';
 
 export const ENTITIES = [
   User,
@@ -148,6 +152,7 @@ export const ENTITIES = [
   DynamicPageBlock,
   DynamicCollection,
   DynamicCollectionItem,
+  DynamicPageVersion,
   Fulfillment,
   FulfillmentItem,
   FulfillmentEvent,
@@ -182,6 +187,9 @@ export const ENTITIES = [
   WalletAccount,
   WalletTransaction,
   WalletPosting,
+  MeterDefinition,
+  MeteredUsageEvent,
+  MeteredBillingRun,
 ];
 
 const { url: DEFAULT_DB_URL, schema: DEFAULT_SCHEMA } = parseDbUrl(env.DATABASE_URL);
