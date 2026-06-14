@@ -6,6 +6,13 @@ import type {
   DeepPartial,
   ObjectLiteral,
 } from 'typeorm';
+import { SeedFaker } from './seed.faker';
+
+/** Named seed profiles control how much data each module produces. */
+export type SeedProfile = 'minimal' | 'demo' | 'stress';
+
+/** Per-profile multiplier for "how many rows" decisions in seeders. */
+export const PROFILE_SCALE: Record<SeedProfile, number> = { minimal: 1, demo: 5, stress: 100 };
 
 // ============================================================================
 // Deterministic ids
@@ -59,6 +66,16 @@ export interface SeedContext {
   systemDs: DataSource;
   tenantId: string;
   refs: SeedRefs;
+  /** Active named profile (minimal/demo/stress) — scales row counts. */
+  profile: SeedProfile;
+  /** Default locale + country + currencies for locale/country-aware data. */
+  locale: string;
+  country: string;
+  currencies: string[];
+  /** Deterministic, locale-aware data generator for realistic seed data. */
+  faker: SeedFaker;
+  /** Profile-scaled count: `ctx.count(2)` → 2 (minimal), 10 (demo), 200 (stress). */
+  count(base: number): number;
   /**
    * find-or-create: returns the row matched by `where`, otherwise inserts
    * `create`. Every seed uses this so re-running reuses existing rows by a
@@ -77,12 +94,28 @@ export interface SeedContext {
   log(message: string): void;
 }
 
-export function makeSeedContext(ds: DataSource, systemDs: DataSource, tenantId: string): SeedContext {
+export function makeSeedContext(
+  ds: DataSource,
+  systemDs: DataSource,
+  tenantId: string,
+  opts: { profile?: SeedProfile; locale?: string; country?: string; currencies?: string[] } = {},
+): SeedContext {
+  const profile = opts.profile ?? 'demo';
+  const locale = opts.locale ?? 'en';
+  const country = opts.country ?? 'US';
+  const currencies = opts.currencies ?? ['USD', 'EUR', 'TRY'];
+  const scale = PROFILE_SCALE[profile];
   return {
     ds,
     systemDs,
     tenantId,
     refs: { userId: SEED_USER_ID, adminUserId: SEED_ADMIN_USER_ID },
+    profile,
+    locale,
+    country,
+    currencies,
+    faker: new SeedFaker(`${tenantId}:${profile}`, locale),
+    count(base: number) { return Math.max(0, Math.round(base * scale)); },
     async foc(repo, where, create) {
       const found = await repo.findOne({ where });
       if (found) return found;
