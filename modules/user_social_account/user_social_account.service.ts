@@ -73,6 +73,20 @@ export default class UserSocialAccountService {
     });
   }
 
+  /**
+   * Region-aware, allowlist-filtered providers to offer a user: regional hints
+   * for the country intersected with the tenant's enabled-provider allowlist.
+   */
+  static async availableProviders(tenantId: string | undefined, country: string | null | undefined): Promise<string[]> {
+    const { regionalProviderHints } = await import('./user_social_account.enums');
+    const hints = regionalProviderHints(country);
+    const filtered: string[] = [];
+    for (const p of hints) {
+      if (await this.isProviderAllowed(tenantId, p as SocialAccountProvider)) filtered.push(p);
+    }
+    return filtered;
+  }
+
   /** Per-tenant enabled-provider allowlist (`socialEnabledProviders` setting). */
   static async isProviderAllowed(tenantId: string | undefined, provider: SocialAccountProvider): Promise<boolean> {
     if (!tenantId) return true;

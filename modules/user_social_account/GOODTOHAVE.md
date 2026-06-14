@@ -70,7 +70,7 @@
 
 ## Localization / Multi-country
 
-### Regional Provider Support
+### ✅ Regional Provider Support
 **Why:** The provider enum covers Western-centric OAuth providers; major regional providers are missing — WeChat (China, 1.3B users), Kakao (South Korea), LINE (Japan, Thailand, Taiwan), VK (Russia/CIS), Yandex (Russia), Naver (South Korea).
 **Complexity:** Medium
 **Multi-tenant relevance:** Tenants targeting Asian or CIS markets cannot offer their local users a familiar login method, forcing email/password-only signup in markets where social login is the dominant pattern.
