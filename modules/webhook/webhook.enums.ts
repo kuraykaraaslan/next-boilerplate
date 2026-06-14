@@ -75,6 +75,7 @@ export const WebhookEventEnum = z.enum([
   'wallet.transaction.created',
   'usage.threshold',
   'usage.overage',
+  'notification.failure_rate_high',
 
   // ─── Platform-wide events (only emitted to root-tenant webhooks) ─────────
   'user.created',

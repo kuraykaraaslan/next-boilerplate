@@ -96,6 +96,7 @@ export const WEBHOOK_EVENT_CATALOG: Record<WebhookEvent, WebhookEventMeta> = {
   'wallet.transaction.created': { scope: 'tenant', group: 'Wallet',     label: 'Wallet transaction',    description: 'A balanced wallet ledger transaction was posted (issue, transfer, spend, capture, refund).' },
   'usage.threshold':        { scope: 'tenant', group: 'Usage',         label: 'Usage threshold',       description: 'A metered usage metric crossed an alert threshold (e.g. 80% / 95% of quota).' },
   'usage.overage':          { scope: 'tenant', group: 'Usage',         label: 'Usage overage',         description: 'A metered usage metric exceeded its plan quota (overage billing trigger).' },
+  'notification.failure_rate_high': { scope: 'tenant', group: 'Notifications', label: 'Notification failure rate high', description: 'Outbound notification failure rate exceeded the alert threshold.' },
 
   // ─── Platform-wide (root-tenant webhooks only) ──────────────────────────────
   'user.created':           { scope: 'platform', group: 'Users',         label: 'User created',          description: 'A new user account was registered.' },

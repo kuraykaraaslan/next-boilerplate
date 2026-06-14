@@ -53,6 +53,24 @@ export class NotificationLog {
   @Column({ nullable: true, type: 'text' })
   error?: string;
 
+  // Delivery attempt count (retries before final status).
+  @Column({ type: 'int', default: 1 })
+  attempts!: number;
+
+  // Template / event type that triggered this notification.
+  @Index()
+  @Column({ nullable: true, type: 'varchar' })
+  eventType?: string;
+
+  // ISO country of the recipient (analytics / deliverability by region).
+  @Index()
+  @Column({ nullable: true, type: 'varchar', length: 2 })
+  recipientCountry?: string;
+
+  // End-to-end delivery latency in milliseconds (enqueue -> provider ack).
+  @Column({ nullable: true, type: 'int' })
+  latencyMs?: number;
+
   @CreateDateColumn({ type: 'timestamp' })
   sentAt!: Date;
 }

@@ -133,8 +133,8 @@ export default class NotificationSmsDeliveryService {
     const qb = ds.getRepository(NotificationLog).createQueryBuilder('n')
       .select('n.status', 'status').addSelect('COUNT(*)', 'count')
       .where('n."tenantId" = :tenantId AND n."channel" = :channel', { tenantId, channel: 'sms' })
-    if (opts?.from) qb.andWhere('n."createdAt" >= :from', { from: opts.from })
-    if (opts?.to) qb.andWhere('n."createdAt" <= :to', { to: opts.to })
+    if (opts?.from) qb.andWhere('n."sentAt" >= :from', { from: opts.from })
+    if (opts?.to) qb.andWhere('n."sentAt" <= :to', { to: opts.to })
     const rows = await qb.groupBy('n.status').getRawMany<{ status: string; count: string }>()
     const counts = { sent: 0, failed: 0, pending: 0 }
     for (const r of rows) {
