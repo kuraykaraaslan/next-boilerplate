@@ -1,0 +1,31 @@
+import { NextRequest, NextResponse } from 'next/server'
+import Limiter from '@/modules_next/limiter/limiter.service.next'
+import StorePublicService from '@/modules/store/store.public.service'
+
+/**
+ * GET /tenant/[tenantId]/api/storefront/products
+ * Public customer-facing product listing (ACTIVE + country-available only).
+ * Query: page, pageSize, categoryId, search, isFeatured, locale, currency, country
+ */
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ tenantId: string }> },
+) {
+  const rl = await Limiter.checkRateLimit(request, 'api'); if (rl) return rl
+  const { tenantId } = await params
+  try {
+    const sp = new URL(request.url).searchParams
+    const result = await StorePublicService.listProducts(tenantId, {
+      page: sp.get('page') ? Number(sp.get('page')) : 0,
+      pageSize: sp.get('pageSize') ? Number(sp.get('pageSize')) : 20,
+      categoryId: sp.get('categoryId') ?? undefined,
+      search: sp.get('search') ?? undefined,
+      isFeatured: sp.get('isFeatured') ? sp.get('isFeatured') === 'true' : undefined,
+    }, {
+      locale: sp.get('locale') ?? undefined,
+      currency: sp.get('currency') ?? undefined,
+      country: sp.get('country') ?? undefined,
+    })
+    return NextResponse.json(result)
+  } catch (e: any) { return NextResponse.json({ message: e.message }, { status: 500 }) }
+}

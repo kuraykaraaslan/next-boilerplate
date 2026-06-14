@@ -70,13 +70,13 @@
 
 ## Order and Storefront
 
-### ⏭️ Public Storefront API (Customer-Facing Product Browsing) — DEFERRED (route layer; pricing/localization/availability resolvers now ready via StorePricingService)
+### ✅ Public Storefront API (Customer-Facing Product Browsing)
 **Why:** Every route in the store module requires tenant `ADMIN` role; there is no public or authenticated-customer API for listing products, fetching a product detail page, or browsing categories — the store is catalog-only with no customer-facing surface.
 **Complexity:** High
 **Multi-tenant relevance:** Each tenant's public storefront must scope product listings to that tenant's `ACTIVE` products, apply that tenant's locale settings (language, currency), and enforce that tenant's regional availability rules.
 **Multi-country relevance:** A public product listing API with locale and currency parameters is the foundation of any multi-country storefront; without it, the store module has no path to serving customers in any country.
 
-### ⏭️ Shopping Cart and Order Management — DEFERRED (handled by payment_cart/payment modules; out of catalog scope)
+### ✅ Shopping Cart and Order Management (via payment_cart + payment; cart validates against store catalogue)
 **Why:** The module has no cart, order, or checkout concept; it is a catalog only — products can be browsed by admins but not purchased by customers through the platform.
 **Complexity:** High
 **Multi-tenant relevance:** Each tenant's orders are isolated; multi-currency, multi-tax, and multi-warehouse logic must all be applied per-tenant at checkout time.
