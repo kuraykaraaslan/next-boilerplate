@@ -26,6 +26,15 @@ type WalletAccount = {
 
 type Member = { userId: string; tenantMemberId: string; user?: { email?: string } };
 
+type Posting = {
+  walletPostingId: string;
+  transactionId: string;
+  amount: string;
+  currency: string;
+  balanceAfter: string;
+  createdAt: string;
+};
+
 function extractMessage(err: unknown, fallback: string): string {
   const e = err as { response?: { data?: { message?: string } }; message?: string };
   return e?.response?.data?.message ?? e?.message ?? fallback;
@@ -38,6 +47,10 @@ export default function WalletPage({ params }: { params: Promise<{ tenantId: str
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState('');
+
+  const [statementAccount, setStatementAccount] = useState<WalletAccount | null>(null);
+  const [postings, setPostings] = useState<Posting[]>([]);
+  const [statementLoading, setStatementLoading] = useState(false);
 
   const [issueOpen, setIssueOpen] = useState(false);
   const [userId, setUserId] = useState('');
@@ -108,6 +121,28 @@ export default function WalletPage({ params }: { params: Promise<{ tenantId: str
     }
   }
 
+  async function openStatement(account: WalletAccount) {
+    setStatementAccount(account);
+    setStatementLoading(true);
+    setPostings([]);
+    try {
+      const res = await api.get(
+        `/tenant/${tenantId}/api/wallet/accounts/${account.walletAccountId}/statement?pageSize=100`,
+      );
+      setPostings(res.data.data ?? []);
+    } catch (err: unknown) {
+      toast.error(extractMessage(err, 'Failed to load statement.'));
+    } finally {
+      setStatementLoading(false);
+    }
+  }
+
+  const statementOwnerLabel = statementAccount
+    ? statementAccount.ownerId
+      ? userMap[statementAccount.ownerId]?.email ?? statementAccount.ownerId
+      : statementAccount.kind
+    : '';
+
   return (
     <div className="p-4 lg:p-6 space-y-4">
       <PageHeader
@@ -130,13 +165,14 @@ export default function WalletPage({ params }: { params: Promise<{ tenantId: str
               <th className="px-3 py-2 text-left font-medium">Currency</th>
               <th className="px-3 py-2 text-right font-medium">Balance (minor)</th>
               <th className="px-3 py-2 text-left font-medium">Status</th>
+              <th className="px-3 py-2 text-right font-medium">Statement</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={5} className="px-3 py-6 text-center text-text-secondary">Loading…</td></tr>
+              <tr><td colSpan={6} className="px-3 py-6 text-center text-text-secondary">Loading…</td></tr>
             ) : accounts.length === 0 ? (
-              <tr><td colSpan={5} className="px-3 py-6 text-center text-text-secondary">No wallet accounts yet.</td></tr>
+              <tr><td colSpan={6} className="px-3 py-6 text-center text-text-secondary">No wallet accounts yet.</td></tr>
             ) : (
               accounts.map((a) => (
                 <tr key={a.walletAccountId} className="border-t border-border">
@@ -163,6 +199,9 @@ export default function WalletPage({ params }: { params: Promise<{ tenantId: str
                   <td className="px-3 py-2 text-text-primary">{a.currency}</td>
                   <td className="px-3 py-2 text-right tabular-nums text-text-primary">{a.cachedBalance}</td>
                   <td className="px-3 py-2 text-text-secondary">{a.status}</td>
+                  <td className="px-3 py-2 text-right">
+                    <Button size="sm" variant="ghost" onClick={() => openStatement(a)}>View</Button>
+                  </td>
                 </tr>
               ))
             )}
@@ -196,6 +235,44 @@ export default function WalletPage({ params }: { params: Promise<{ tenantId: str
               {submitting ? 'Issuing…' : 'Issue'}
             </Button>
           </div>
+        </div>
+      </Modal>
+
+      <Modal
+        open={!!statementAccount}
+        onClose={() => setStatementAccount(null)}
+        title={statementAccount ? `Statement — ${statementOwnerLabel} (${statementAccount.currency})` : 'Statement'}
+      >
+        <div className="overflow-x-auto rounded-lg border border-border">
+          <table className="w-full text-sm">
+            <thead className="bg-surface-overlay text-text-secondary">
+              <tr>
+                <th className="px-3 py-2 text-left font-medium">Date</th>
+                <th className="px-3 py-2 text-right font-medium">Amount</th>
+                <th className="px-3 py-2 text-right font-medium">Balance after</th>
+              </tr>
+            </thead>
+            <tbody>
+              {statementLoading ? (
+                <tr><td colSpan={3} className="px-3 py-6 text-center text-text-secondary">Loading…</td></tr>
+              ) : postings.length === 0 ? (
+                <tr><td colSpan={3} className="px-3 py-6 text-center text-text-secondary">No movements yet.</td></tr>
+              ) : (
+                postings.map((p) => {
+                  const negative = p.amount.startsWith('-');
+                  return (
+                    <tr key={p.walletPostingId} className="border-t border-border">
+                      <td className="px-3 py-2 text-text-secondary">{new Date(p.createdAt).toLocaleString()}</td>
+                      <td className={`px-3 py-2 text-right tabular-nums ${negative ? 'text-error' : 'text-success'}`}>
+                        {negative ? '' : '+'}{p.amount}
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums text-text-primary">{p.balanceAfter}</td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
         </div>
       </Modal>
     </div>
