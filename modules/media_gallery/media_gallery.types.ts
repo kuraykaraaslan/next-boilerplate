@@ -20,6 +20,7 @@ export const MediaGalleryItemSchema = z.object({
   uploadedFileId: z.string().uuid(),
   altText:        z.string().nullable().optional(),
   title:          z.string().nullable().optional(),
+  tags:           z.array(z.string()).nullable().optional(),
   sortOrder:      z.number().int(),
   isPrimary:      z.boolean(),
   createdAt:      z.date(),
@@ -34,6 +35,8 @@ export type MediaGalleryItem = z.infer<typeof MediaGalleryItemSchema>;
 export const MediaGalleryItemViewSchema = MediaGalleryItemSchema.extend({
   url:      z.string(),
   mimeType: z.string().nullable().optional(),
+  isVideo:  z.boolean().optional(),
+  srcset:   z.string().nullable().optional(),
 });
 export type MediaGalleryItemView = z.infer<typeof MediaGalleryItemViewSchema>;
 

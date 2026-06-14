@@ -4,6 +4,7 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Index,
   ManyToOne,
   JoinColumn,
@@ -50,6 +51,14 @@ export class MediaGalleryItem {
   @Column({ type: 'boolean', default: false })
   isPrimary!: boolean;
 
+  // Free-form tags for tag-based gallery search.
+  @Column({ type: 'jsonb', nullable: true })
+  tags?: string[] | null;
+
   @CreateDateColumn({ type: 'timestamp' })
   createdAt!: Date;
+
+  // Soft delete + restore.
+  @DeleteDateColumn({ type: 'timestamp', nullable: true })
+  deletedAt?: Date | null;
 }
