@@ -42,7 +42,7 @@
 **Multi-tenant relevance:** Tenants may have their own S3 buckets or CDN configurations; the upload path should be routable per tenant.
 **Multi-country relevance:** Data residency requirements (GDPR, China PIPL) may mandate that user images be stored in a specific geographic region; an unmanaged external URL gives no control over where the data lives.
 
-### ⏭️ Avatar Moderation (NSFW Detection) — DEFERRED (external moderation service; no-mock)
+### ✅ Avatar Moderation (NSFW Detection)
 **Why:** There is no content moderation on profile pictures; in multi-tenant SaaS with end-user-uploaded avatars, inappropriate images can appear across all tenants sharing the system DB.
 **Complexity:** High
 **Multi-tenant relevance:** Tenants serving children or regulated industries (education, healthcare) have legal obligations to prevent NSFW content; they cannot control what other tenants' users upload to a shared profile store.

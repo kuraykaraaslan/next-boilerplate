@@ -4,6 +4,7 @@ import redis, { jitter, singleFlight } from '@/modules/redis';
 import { env } from '@/modules/env';
 import StorageService from '@/modules/storage/storage.service';
 import SettingService from '@/modules/setting/setting.service';
+import UserProfileModerationService from './user_profile.moderation.service';
 import { UserProfile as UserProfileEntity } from './entities/user_profile.entity';
 import {
   UserProfile,
@@ -223,23 +224,39 @@ export default class UserProfileService {
    * the profile picture. Replaces hot-linking to arbitrary external URLs with a
    * managed object the platform controls (residency, lifecycle, validation).
    */
+  /**
+   * Moderate a freshly-uploaded image; if it fails content moderation, delete
+   * the stored object and throw. No-op when moderation isn't configured.
+   */
+  private static async assertImageClean(tenantId: string, url: string, key: string): Promise<void> {
+    const verdict = await UserProfileModerationService.moderateImageUrl(tenantId, url);
+    if (verdict?.flagged) {
+      await StorageService.deleteFile(tenantId, { key }).catch(() => {});
+      throw new AppError(UserProfileMessages.IMAGE_REJECTED_MODERATION, 422, ErrorCode.VALIDATION_ERROR);
+    }
+  }
+
   static async uploadAvatar(tenantId: string, userId: string, file: File): Promise<UserProfile> {
     const result = await StorageService.uploadFile(tenantId, { file, folder: `avatars/${userId}` });
+    await this.assertImageClean(tenantId, result.url, result.key);
     return this.update(userId, { profilePicture: result.url }, tenantId);
   }
 
   static async uploadHeaderImage(tenantId: string, userId: string, file: File): Promise<UserProfile> {
     const result = await StorageService.uploadFile(tenantId, { file, folder: `headers/${userId}` });
+    await this.assertImageClean(tenantId, result.url, result.key);
     return this.update(userId, { headerImage: result.url }, tenantId);
   }
 
   /**
    * Pull an external image URL into the tenant's own bucket and set it as the
    * avatar — protects against third-party hosts going offline / serving
-   * malicious content and enforces data residency.
+   * malicious content and enforces data residency. The stored object is run
+   * through content moderation before it is set.
    */
   static async setAvatarFromUrl(tenantId: string, userId: string, url: string): Promise<UserProfile> {
     const result = await StorageService.uploadFromUrl(tenantId, { url, folder: `avatars/${userId}` });
+    await this.assertImageClean(tenantId, result.url, result.key);
     return this.update(userId, { profilePicture: result.url }, tenantId);
   }
 
