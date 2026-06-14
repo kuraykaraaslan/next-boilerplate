@@ -38,6 +38,8 @@ import {
   faFolderOpen,
   faWallet,
   faGaugeHigh,
+  faClipboardCheck,
+  faLifeRing,
 } from '@fortawesome/free-solid-svg-icons';
 
 type AdminShellProps = {
@@ -107,6 +109,13 @@ export function AdminShell({ children, tenantId }: AdminShellProps) {
         { id: 'coupons',  label: 'Coupons',  href: `/tenant/${tenantId}/admin/coupons`,  icon: <FontAwesomeIcon icon={faKey} aria-hidden /> },
         { id: 'wallet',   label: 'Wallet',   href: `/tenant/${tenantId}/admin/wallet`,   icon: <FontAwesomeIcon icon={faWallet} aria-hidden /> },
         { id: 'metering', label: 'Metering', href: `/tenant/${tenantId}/admin/metering`, icon: <FontAwesomeIcon icon={faGaugeHigh} aria-hidden /> },
+      ],
+    },
+    {
+      label: 'Operations',
+      items: [
+        { id: 'approvals', label: 'Approvals',      href: `/tenant/${tenantId}/admin/back-office/approvals`, icon: <FontAwesomeIcon icon={faClipboardCheck} aria-hidden /> },
+        { id: 'support',   label: 'Support Tickets', href: `/tenant/${tenantId}/admin/back-office/support`,    icon: <FontAwesomeIcon icon={faLifeRing} aria-hidden /> },
       ],
     },
     {

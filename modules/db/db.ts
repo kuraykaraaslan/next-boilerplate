@@ -95,6 +95,9 @@ import { WalletPosting } from '@/modules/wallet/entities/wallet_posting.entity';
 import { MeterDefinition } from '@/modules/metering/entities/meter_definition.entity';
 import { MeteredUsageEvent } from '@/modules/metering/entities/metered_usage_event.entity';
 import { MeteredBillingRun } from '@/modules/metering/entities/metered_billing_run.entity';
+import { ApprovalQueueItem } from '@/modules/back_office/entities/approval_queue_item.entity';
+import { SupportTicket } from '@/modules/back_office/entities/support_ticket.entity';
+import { SupportTicketMessage } from '@/modules/back_office/entities/support_ticket_message.entity';
 
 export const ENTITIES = [
   User,
@@ -190,6 +193,9 @@ export const ENTITIES = [
   MeterDefinition,
   MeteredUsageEvent,
   MeteredBillingRun,
+  ApprovalQueueItem,
+  SupportTicket,
+  SupportTicketMessage,
 ];
 
 const { url: DEFAULT_DB_URL, schema: DEFAULT_SCHEMA } = parseDbUrl(env.DATABASE_URL);
