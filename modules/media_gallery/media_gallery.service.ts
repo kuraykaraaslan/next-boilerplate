@@ -16,6 +16,7 @@ import {
 import type { AddGalleryItemDTO, UpdateGalleryItemDTO, ReorderGalleryItemsDTO, BulkAddGalleryItemsDTO, GallerySearchDTO } from './media_gallery.dto';
 import { MEDIA_GALLERY_MESSAGES } from './media_gallery.messages';
 import MediaGalleryUrlService from './media_gallery.url';
+import MediaGalleryIntelligenceService from './media_gallery.intelligence.service';
 
 function toView(item: ItemEntity, file: UploadedFile | undefined): MediaGalleryItemView {
   const url = file?.url ?? '';
@@ -94,15 +95,53 @@ export default class MediaGalleryService {
     const gallery = await MediaGalleryService.getOrCreate(tenantId, entityType, entityId);
     await MediaGalleryService.assertWithinItemCap(tenantId, gallery.galleryId, 1);
 
+    // Safety + intelligence (all best-effort / gated on per-tenant config):
+    //  - CSAM scan blocks the add when a match is reported
+    //  - content + perceptual hashes enable dedup
+    //  - auto alt-text fills missing accessibility text
+    const isImage = MediaGalleryUrlService.isImage(file.mimeType);
+    let altText = dto.altText;
+    let contentHash: string | null = null;
+    let perceptualHash: string | null = null;
+    if (isImage && file.url) {
+      const csam = await MediaGalleryIntelligenceService.csamScan(tenantId, file.url);
+      if (csam?.match) throw new AppError(MEDIA_GALLERY_MESSAGES.CSAM_DETECTED, 422, ErrorCode.VALIDATION_ERROR);
+      contentHash = await MediaGalleryIntelligenceService.contentHashFromUrl(file.url);
+      perceptualHash = await MediaGalleryIntelligenceService.perceptualHash(tenantId, file.url);
+      if (!altText) altText = (await MediaGalleryIntelligenceService.generateAltText(tenantId, file.url)) ?? undefined;
+    }
+
     const item = await ds.transaction(async (mgr) => {
       const repo = mgr.getRepository(ItemEntity);
       if (dto.isPrimary) {
         await repo.update({ tenantId, galleryId: gallery.galleryId }, { isPrimary: false });
       }
-      return repo.save(repo.create({ tenantId, galleryId: gallery.galleryId, ...dto }));
+      return repo.save(repo.create({ tenantId, galleryId: gallery.galleryId, ...dto, altText, contentHash, perceptualHash }));
     });
 
     return toView(item, file);
+  }
+
+  /**
+   * Find duplicate / near-duplicate items by exact content hash (always) or
+   * perceptual-hash similarity within a Hamming-distance threshold.
+   */
+  static async findDuplicates(
+    tenantId: string, opts: { contentHash?: string | null; perceptualHash?: string | null; maxDistance?: number },
+  ): Promise<ItemEntity[]> {
+    const ds = await tenantDataSourceFor(tenantId);
+    const repo = ds.getRepository(ItemEntity);
+    if (opts.contentHash) {
+      const exact = await repo.find({ where: { tenantId, contentHash: opts.contentHash } });
+      if (exact.length > 0) return exact;
+    }
+    if (opts.perceptualHash) {
+      const max = opts.maxDistance ?? 5;
+      const candidates = await repo.createQueryBuilder('i')
+        .where('i."tenantId" = :tenantId AND i."perceptualHash" IS NOT NULL', { tenantId }).getMany();
+      return candidates.filter((c) => MediaGalleryIntelligenceService.hammingDistance(c.perceptualHash ?? '', opts.perceptualHash as string) <= max);
+    }
+    return [];
   }
 
   /** Enforce the per-tenant gallery item cap (`mediaGalleryMaxItems` setting). */

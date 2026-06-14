@@ -55,6 +55,15 @@ export class MediaGalleryItem {
   @Column({ type: 'jsonb', nullable: true })
   tags?: string[] | null;
 
+  // Exact-content dedup (sha256 of the bytes) + perceptual hash (near-dup).
+  @Index()
+  @Column({ nullable: true, type: 'varchar', length: 64 })
+  contentHash?: string | null;
+
+  @Index()
+  @Column({ nullable: true, type: 'varchar', length: 64 })
+  perceptualHash?: string | null;
+
   @CreateDateColumn({ type: 'timestamp' })
   createdAt!: Date;
 

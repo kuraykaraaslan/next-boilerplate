@@ -21,6 +21,8 @@ export const MediaGalleryItemSchema = z.object({
   altText:        z.string().nullable().optional(),
   title:          z.string().nullable().optional(),
   tags:           z.array(z.string()).nullable().optional(),
+  contentHash:    z.string().nullable().optional(),
+  perceptualHash: z.string().nullable().optional(),
   sortOrder:      z.number().int(),
   isPrimary:      z.boolean(),
   createdAt:      z.date(),

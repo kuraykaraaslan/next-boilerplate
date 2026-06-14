@@ -4,19 +4,19 @@
 
 ## Content Safety
 
-### CSAM Detection and Hash-Matching
+### ✅ CSAM Detection and Hash-Matching
 **Why:** The module accepts any image uploaded via `StorageService` without scanning for Child Sexual Abuse Material; platforms that host user-generated imagery are legally obligated in many jurisdictions (EU DSA, UK Online Safety Act, US NCMEC) to detect and report CSAM.
 **Complexity:** High
 **Multi-tenant relevance:** CSAM scanning must apply to every tenant's gallery — a platform-level obligation that a single tenant's misconfiguration cannot bypass; the scan must run before the URL is persisted in `MediaGalleryItem`.
 **Multi-country relevance:** EU DSA (Digital Services Act) imposes mandatory CSAM detection on platforms with >1M EU users; UK Online Safety Act creates criminal liability; US 18 USC 2258A mandates NCMEC CyberTipline reporting — all three impose obligations at the platform layer regardless of which tenant uploaded the image.
 
-### ⏭️ Perceptual Hash (pHash) Deduplication — DEFERRED (needs image-decode lib; no-mock)
+### ✅ Perceptual Hash (pHash) Deduplication
 **Why:** The same image can be uploaded multiple times (resized, recompressed, slightly cropped) and stored as separate `UploadedFile` rows, wasting storage quota and bandwidth without the gallery having any awareness of near-duplicate images.
 **Complexity:** Medium
 **Multi-tenant relevance:** Per-tenant storage quota is metered against `TenantUsage.storageBytes`; deduplication within a tenant's gallery prevents quota abuse by repeated re-uploads of the same marketing asset.
 **Multi-country relevance:** CDN egress costs are higher in some regions (Asia-Pacific, LatAm); deduplication reduces the number of unique objects that must be edge-cached or replicated across regions.
 
-### AI-Powered Alt Text Generation
+### ✅ AI-Powered Alt Text Generation
 **Why:** `altText` on `MediaGalleryItem` is manually filled in or left empty; empty alt text fails WCAG 2.1 accessibility requirements, which are legally mandated in the EU (EN 301 549), US (ADA/Section 508), and increasingly in other markets.
 **Complexity:** Medium
 **Multi-tenant relevance:** Tenants in regulated industries (public sector, healthcare, education) have legal accessibility obligations; the platform's `ai` module already exists and could auto-generate alt text at upload time as a per-tenant opt-in.
