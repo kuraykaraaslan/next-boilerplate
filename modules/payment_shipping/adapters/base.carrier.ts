@@ -45,6 +45,46 @@ export interface CarrierTracking {
   events: CarrierTrackingEvent[]
 }
 
+export interface CarrierAddress {
+  name: string
+  company?: string
+  phone?: string
+  email?: string
+  street1: string
+  street2?: string
+  city: string
+  state?: string
+  postalCode: string
+  countryCode: string
+}
+
+export interface CarrierLabelRequest {
+  from: CarrierAddress
+  to: CarrierAddress
+  weightKg: number
+  dimensionsCm?: { length: number; width: number; height: number }
+  serviceCode?: string
+  /** Preferred label format; carrier may downgrade. */
+  labelFormat?: 'PDF' | 'ZPL' | 'PNG'
+  reference?: string
+  declaredValue?: number
+  currency?: string
+  /** Generate a return label (reverse from/to) rather than an outbound label. */
+  isReturn?: boolean
+}
+
+export interface CarrierLabel {
+  carrier: string
+  trackingNumber: string
+  labelFormat: 'PDF' | 'ZPL' | 'PNG'
+  /** Base64-encoded label payload (always present on success). */
+  labelBase64: string
+  /** Carrier-hosted label URL when the API returns one. */
+  labelUrl?: string | null
+  cost?: number | null
+  currency?: string | null
+}
+
 export interface ShippingCarrierAdapter {
   /** Matches the ShippingCarrierEnum code. */
   readonly code: string
@@ -53,4 +93,10 @@ export interface ShippingCarrierAdapter {
   isConfigured(tenantId: string): Promise<boolean>
   getRates(tenantId: string, req: CarrierRateRequest): Promise<CarrierRate[]>
   track(tenantId: string, trackingNumber: string): Promise<CarrierTracking | null>
+  /**
+   * Generate a shipping label via the carrier's real label API. Optional —
+   * adapters for carriers without an integrated label API (or partner-gated
+   * ones) omit it; callers treat a missing method / null as "not available".
+   */
+  createLabel?(tenantId: string, req: CarrierLabelRequest): Promise<CarrierLabel | null>
 }

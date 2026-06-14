@@ -17,7 +17,9 @@ import {
 import type {
   CreateFulfillmentDTO, UpdateFulfillmentDTO, GetFulfillmentsQuery,
   AddTrackingDTO, UpdateStatusDTO, BulkUpdateStatusDTO, AnalyticsQuery,
+  GenerateLabelDTO, LabelAddress,
 } from './order_fulfillment.dto'
+import type { CarrierAddress, CarrierLabel } from '@/modules/payment_shipping/adapters/base.carrier'
 import type { FulfillmentStatus, OrderFulfillmentState } from './order_fulfillment.enums'
 import OrderFulfillmentCarrierService from './order_fulfillment.carrier.service'
 import OrderFulfillmentAnalyticsService, { type CustomsDeclaration } from './order_fulfillment.analytics.service'
@@ -434,5 +436,109 @@ export default class OrderFulfillmentService {
 
   static getAnalytics(tenantId: string, query?: AnalyticsQuery): Promise<FulfillmentAnalytics> {
     return OrderFulfillmentAnalyticsService.getAnalytics(tenantId, query ?? {})
+  }
+
+  // ============================================================================
+  // Shipping / return label generation
+  // ============================================================================
+
+  /** Map a warehouse to a carrier address (origin). */
+  private static warehouseToAddress(wh: { name: string; country: string; city?: string | null; address?: { line1?: string; line2?: string; postalCode?: string; region?: string } | null }): CarrierAddress | null {
+    const a = wh.address
+    if (!a?.line1 || !wh.city || !a.postalCode) return null
+    return {
+      name: wh.name, street1: a.line1, street2: a.line2, city: wh.city,
+      state: a.region, postalCode: a.postalCode, countryCode: wh.country,
+    }
+  }
+
+  private static labelAddr(a: LabelAddress): CarrierAddress {
+    return {
+      name: a.name, company: a.company, phone: a.phone, email: a.email,
+      street1: a.street1, street2: a.street2, city: a.city, state: a.state,
+      postalCode: a.postalCode, countryCode: a.countryCode,
+    }
+  }
+
+  /**
+   * Generate a shipping (or return) label via the carrier's real label API,
+   * persist the returned tracking number, and return the label payload (base64)
+   * for the caller to print. `from` defaults to the fulfillment's warehouse and
+   * `to` to the order's shipping address (fulfillment.metadata.shippingAddress).
+   */
+  static async generateLabel(
+    tenantId: string, fulfillmentId: string, dto: GenerateLabelDTO, opts?: { isReturn?: boolean },
+  ): Promise<{ label: CarrierLabel; fulfillment: FulfillmentWithItems }> {
+    const ds = await tenantDataSourceFor(tenantId)
+    const repo = ds.getRepository(FulfillmentEntity)
+    const row = await repo.findOne({ where: { tenantId, fulfillmentId } })
+    if (!row) throw new AppError(ORDER_FULFILLMENT_MESSAGES.FULFILLMENT_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
+    if (!row.carrier) throw new AppError(ORDER_FULFILLMENT_MESSAGES.CARRIER_REQUIRED, 422, ErrorCode.VALIDATION_ERROR)
+    await OrderFulfillmentCarrierService.assertCarrierAllowed(tenantId, row.carrier)
+
+    // Resolve origin (warehouse) and destination (order) addresses.
+    let from: CarrierAddress | null = dto.from ? this.labelAddr(dto.from) : null
+    if (!from && row.warehouseId) {
+      const wh = await OrderFulfillmentWarehouseService.getById(tenantId, row.warehouseId).catch(() => null)
+      if (wh) from = this.warehouseToAddress(wh)
+    }
+    const meta = (row.metadata ?? {}) as Record<string, unknown>
+    let to: CarrierAddress | null = dto.to ? this.labelAddr(dto.to) : null
+    if (!to && meta.shippingAddress && typeof meta.shippingAddress === 'object') {
+      const parsed = LabelAddressSafe(meta.shippingAddress)
+      if (parsed) to = this.labelAddr(parsed)
+    }
+    if (!from || !to) throw new AppError(ORDER_FULFILLMENT_MESSAGES.LABEL_ADDRESS_REQUIRED, 422, ErrorCode.VALIDATION_ERROR)
+
+    const isReturn = opts?.isReturn === true
+    const label = await OrderFulfillmentCarrierService.createLabel(tenantId, row.carrier, {
+      // Return labels reverse the direction (customer → warehouse).
+      from: isReturn ? to : from,
+      to: isReturn ? from : to,
+      weightKg: dto.weightKg ?? row.weightKg ?? 0.5,
+      dimensionsCm: row.dimensions?.length && row.dimensions?.width && row.dimensions?.height
+        ? { length: row.dimensions.length, width: row.dimensions.width, height: row.dimensions.height } : undefined,
+      serviceCode: dto.serviceCode,
+      labelFormat: dto.labelFormat,
+      reference: row.orderId,
+      isReturn,
+    })
+    if (!label) throw new AppError(ORDER_FULFILLMENT_MESSAGES.LABEL_NOT_AVAILABLE, 422, ErrorCode.VALIDATION_ERROR)
+
+    // Persist tracking + label metadata (the base64 blob is returned, not stored).
+    if (!isReturn) row.trackingNumber = label.trackingNumber
+    row.metadata = {
+      ...meta,
+      [isReturn ? 'returnLabel' : 'label']: {
+        carrier: label.carrier, trackingNumber: label.trackingNumber,
+        format: label.labelFormat, url: label.labelUrl ?? null, generatedAt: new Date().toISOString(),
+      },
+    }
+    await repo.save(row)
+    await OrderFulfillmentService.logEvent(ds, tenantId, fulfillmentId, row.status as FulfillmentStatus,
+      `${isReturn ? 'Return label' : 'Label'} generated: ${label.carrier} ${label.trackingNumber}`)
+    await redis.del(cacheKey(fulfillmentId)).catch(() => {})
+
+    return { label, fulfillment: await OrderFulfillmentService.getById(tenantId, fulfillmentId) }
+  }
+
+  /** Generate a prepaid return label (reverse logistics). */
+  static generateReturnLabel(tenantId: string, fulfillmentId: string, dto: GenerateLabelDTO): Promise<{ label: CarrierLabel; fulfillment: FulfillmentWithItems }> {
+    return OrderFulfillmentService.generateLabel(tenantId, fulfillmentId, dto, { isReturn: true })
+  }
+
+  static labelCapableCarriers = OrderFulfillmentCarrierService.labelCapableCarriers.bind(OrderFulfillmentCarrierService)
+}
+
+// Lenient parse of an order shipping address stored in fulfillment metadata.
+function LabelAddressSafe(value: unknown): LabelAddress | null {
+  if (!value || typeof value !== 'object') return null
+  const a = value as Record<string, unknown>
+  const str = (v: unknown) => (typeof v === 'string' ? v : undefined)
+  if (!str(a.name) || !str(a.street1) || !str(a.city) || !str(a.postalCode) || !str(a.countryCode)) return null
+  return {
+    name: a.name as string, company: str(a.company), phone: str(a.phone), email: str(a.email),
+    street1: a.street1 as string, street2: str(a.street2), city: a.city as string,
+    state: str(a.state), postalCode: a.postalCode as string, countryCode: a.countryCode as string,
   }
 }

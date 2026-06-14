@@ -3,7 +3,7 @@ import redis from '@/modules/redis'
 import Logger from '@/modules/logger'
 import SettingService from '@/modules/setting/setting.service'
 import type { CountryCode } from '@/modules/common'
-import type { ShippingCarrierAdapter, CarrierRateRequest, CarrierRate, CarrierTracking } from './base.carrier'
+import type { ShippingCarrierAdapter, CarrierRateRequest, CarrierRate, CarrierTracking, CarrierLabelRequest, CarrierLabel } from './base.carrier'
 
 /**
  * USPS adapter (US) — the USPS APIs platform (OAuth2 client-credentials) for
@@ -85,6 +85,60 @@ export default class UspsCarrier implements ShippingCarrierAdapter {
       }
     } catch (err) {
       Logger.warn(`[ship:usps] track failed: ${err instanceof Error ? err.message : String(err)}`)
+      return null
+    }
+  }
+
+  /** USPS Domestic Labels API v3 (/labels/v3/label) — real label generation. */
+  async createLabel(tenantId: string, req: CarrierLabelRequest): Promise<CarrierLabel | null> {
+    const c = await this.creds(tenantId)
+    if (!c.clientId || !c.clientSecret) return null
+    if (req.from.countryCode !== 'US' || req.to.countryCode !== 'US') return null // domestic only
+    const tok = await this.token(tenantId, c.clientId, c.clientSecret)
+    if (!tok) return null
+
+    const imageType = req.labelFormat === 'ZPL' ? 'ZPL' : 'PDF'
+    const addr = (a: typeof req.from) => ({
+      firstName: a.name, ...(a.company ? { firm: a.company } : {}),
+      streetAddress: a.street1, ...(a.street2 ? { secondaryAddress: a.street2 } : {}),
+      city: a.city, state: a.state ?? '', ZIPCode: a.postalCode,
+      ...(a.phone ? { phone: a.phone } : {}),
+    })
+    try {
+      const lbs = Math.max(0.1, Math.round(req.weightKg * 2.20462 * 10) / 10)
+      const body: any = {
+        imageInfo: { imageType, labelType: '4X6LABEL' },
+        toAddress: addr(req.to),
+        fromAddress: addr(req.from),
+        packageDescription: {
+          mailClass: req.serviceCode || 'USPS_GROUND_ADVANTAGE',
+          weight: lbs,
+          ...(req.dimensionsCm ? {
+            length: Math.ceil(req.dimensionsCm.length / 2.54),
+            width: Math.ceil(req.dimensionsCm.width / 2.54),
+            height: Math.ceil(req.dimensionsCm.height / 2.54),
+          } : {}),
+          processingCategory: 'MACHINABLE', rateIndicator: 'DR',
+          destinationEntryFacilityType: 'NONE',
+          ...(req.isReturn ? { extraServices: [] } : {}),
+        },
+      }
+      const res = await axios.post(`${this.BASE}/labels/v3/label`, body, {
+        headers: { Authorization: `Bearer ${tok}`, 'Content-Type': 'application/json', Accept: 'application/json' }, timeout: 15000,
+      })
+      const data = res.data ?? {}
+      const trackingNumber = data?.labelMetadata?.trackingNumber ?? data?.trackingNumber
+      const labelBase64 = data?.labelImage ?? data?.labelMetadata?.labelImage
+      if (!trackingNumber || !labelBase64) return null
+      return {
+        carrier: 'USPS', trackingNumber,
+        labelFormat: imageType === 'ZPL' ? 'ZPL' : 'PDF',
+        labelBase64,
+        cost: Number(data?.labelMetadata?.postage) || null,
+        currency: 'USD',
+      }
+    } catch (err) {
+      Logger.warn(`[ship:usps] label failed: ${err instanceof Error ? err.message : String(err)}`)
       return null
     }
   }

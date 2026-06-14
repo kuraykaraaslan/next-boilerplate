@@ -3,7 +3,7 @@ import redis from '@/modules/redis'
 import Logger from '@/modules/logger'
 import SettingService from '@/modules/setting/setting.service'
 import type { CountryCode } from '@/modules/common'
-import type { ShippingCarrierAdapter, CarrierRateRequest, CarrierRate, CarrierTracking } from './base.carrier'
+import type { ShippingCarrierAdapter, CarrierRateRequest, CarrierRate, CarrierTracking, CarrierLabelRequest, CarrierLabel } from './base.carrier'
 
 /**
  * FedEx adapter — OAuth2 + the FedEx Rate ("rates/quotes") and Track APIs.
@@ -102,6 +102,65 @@ export default class FedexCarrier implements ShippingCarrierAdapter {
       }
     } catch (err) {
       Logger.warn(`[ship:fedex] track failed: ${err instanceof Error ? err.message : String(err)}`)
+      return null
+    }
+  }
+
+  /** FedEx Ship API (/ship/v1/shipments) — real label generation. */
+  async createLabel(tenantId: string, req: CarrierLabelRequest): Promise<CarrierLabel | null> {
+    const c = await this.creds(tenantId)
+    if (!c.clientId || !c.clientSecret || !c.account) return null
+    const tok = await this.token(tenantId, c.clientId, c.clientSecret, c.sandbox)
+    if (!tok) return null
+
+    const imageType = req.labelFormat === 'ZPL' ? 'ZPLII' : req.labelFormat === 'PNG' ? 'PNG' : 'PDF'
+    const party = (a: typeof req.from) => ({
+      contact: { personName: a.name, ...(a.company ? { companyName: a.company } : {}), ...(a.phone ? { phoneNumber: a.phone } : {}) },
+      address: {
+        streetLines: [a.street1, ...(a.street2 ? [a.street2] : [])],
+        city: a.city, ...(a.state ? { stateOrProvinceCode: a.state } : {}),
+        postalCode: a.postalCode, countryCode: a.countryCode,
+      },
+    })
+    try {
+      const body: any = {
+        labelResponseOptions: 'LABEL',
+        accountNumber: { value: c.account },
+        requestedShipment: {
+          shipper: party(req.from),
+          recipients: [party(req.to)],
+          shipDatestamp: new Date().toISOString().slice(0, 10),
+          serviceType: req.serviceCode || 'FEDEX_GROUND',
+          packagingType: 'YOUR_PACKAGING',
+          pickupType: 'USE_SCHEDULED_PICKUP',
+          blockInsightVisibility: false,
+          shippingChargesPayment: { paymentType: 'SENDER' },
+          labelSpecification: { imageType, labelStockType: imageType === 'ZPLII' ? 'STOCK_4X6' : 'PAPER_4X6' },
+          ...(req.isReturn ? { shipmentSpecialServices: { specialServiceTypes: ['RETURN_SHIPMENT'], returnShipmentDetail: { returnType: 'PRINT_RETURN_LABEL' } } } : {}),
+          requestedPackageLineItems: [{
+            weight: { units: 'KG', value: req.weightKg },
+            ...(req.dimensionsCm ? { dimensions: { length: req.dimensionsCm.length, width: req.dimensionsCm.width, height: req.dimensionsCm.height, units: 'CM' } } : {}),
+          }],
+        },
+      }
+      const res = await axios.post(`${this.base(c.sandbox)}/ship/v1/shipments`, body, {
+        headers: { Authorization: `Bearer ${tok}`, 'Content-Type': 'application/json', 'X-locale': 'en_US' }, timeout: 15000,
+      })
+      const shipment = res.data?.output?.transactionShipments?.[0]
+      const piece = shipment?.pieceResponses?.[0]
+      const doc = piece?.packageDocuments?.[0]
+      const trackingNumber = piece?.trackingNumber ?? shipment?.masterTrackingNumber
+      if (!doc?.encodedLabel || !trackingNumber) return null
+      return {
+        carrier: 'FEDEX', trackingNumber,
+        labelFormat: imageType === 'ZPLII' ? 'ZPL' : (imageType as 'PDF' | 'PNG'),
+        labelBase64: doc.encodedLabel,
+        labelUrl: doc?.url ?? null,
+        cost: Number(shipment?.shipmentAdvisoryDetails?.totalNetCharge ?? piece?.netRateAmount) || null,
+        currency: piece?.currency ?? null,
+      }
+    } catch (err) {
+      Logger.warn(`[ship:fedex] label failed: ${err instanceof Error ? err.message : String(err)}`)
       return null
     }
   }

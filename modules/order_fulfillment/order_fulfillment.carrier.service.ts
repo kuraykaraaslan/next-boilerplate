@@ -1,7 +1,7 @@
 import 'reflect-metadata'
 import SettingService from '@/modules/setting/setting.service'
 import PaymentShippingCarrierService from '@/modules/payment_shipping/payment_shipping.carrier.service'
-import type { CarrierTracking } from '@/modules/payment_shipping/adapters/base.carrier'
+import type { CarrierTracking, CarrierLabelRequest, CarrierLabel } from '@/modules/payment_shipping/adapters/base.carrier'
 import type { CalculateShippingDTO } from '@/modules/payment_shipping/payment_shipping.dto'
 import type { FulfillmentStatus } from './order_fulfillment.enums'
 import { ORDER_FULFILLMENT_MESSAGES } from './order_fulfillment.messages'
@@ -45,6 +45,16 @@ export default class OrderFulfillmentCarrierService {
   /** Live tracking lookup against the carrier's real API. */
   static track(tenantId: string, carrier: string, trackingNumber: string): Promise<CarrierTracking | null> {
     return PaymentShippingCarrierService.track(tenantId, carrier, trackingNumber)
+  }
+
+  /** Generate a real shipping/return label via the carrier's label API. */
+  static createLabel(tenantId: string, carrier: string, req: CarrierLabelRequest): Promise<CarrierLabel | null> {
+    return PaymentShippingCarrierService.createLabel(tenantId, carrier, req)
+  }
+
+  /** Carriers that support integrated label generation for this tenant. */
+  static labelCapableCarriers(tenantId: string): Promise<string[]> {
+    return PaymentShippingCarrierService.labelCapableCarriers(tenantId)
   }
 
   /**

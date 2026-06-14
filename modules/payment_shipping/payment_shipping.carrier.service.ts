@@ -3,7 +3,7 @@ import { ShippingQuoteSchema, type ShippingQuote } from './payment_shipping.type
 import type { CalculateShippingDTO } from './payment_shipping.dto'
 import PaymentShippingRulesService, { chargeableWeight } from './payment_shipping.rules.service'
 import { carriersForOrigin, getCarrierAdapter, allCarrierAdapters } from './adapters/registry'
-import type { CarrierRate, CarrierTracking } from './adapters/base.carrier'
+import type { CarrierRate, CarrierTracking, CarrierLabelRequest, CarrierLabel } from './adapters/base.carrier'
 
 /**
  * Live carrier rates + tracking over the real carrier adapters (UPS, FedEx,
@@ -69,6 +69,26 @@ export default class PaymentShippingCarrierService {
     const adapter = getCarrierAdapter(carrier)
     if (!adapter) return null
     return adapter.track(tenantId, trackingNumber)
+  }
+
+  /**
+   * Generate a shipping label via the named carrier's real label API. Returns
+   * null when the carrier has no label integration or is unconfigured (no mock).
+   */
+  static async createLabel(tenantId: string, carrier: string, req: CarrierLabelRequest): Promise<CarrierLabel | null> {
+    const adapter = getCarrierAdapter(carrier)
+    if (!adapter?.createLabel) return null
+    return adapter.createLabel(tenantId, req)
+  }
+
+  /** Carriers that support integrated label generation for this tenant. */
+  static async labelCapableCarriers(tenantId: string): Promise<string[]> {
+    const out: string[] = []
+    for (const a of allCarrierAdapters()) {
+      if (!a.createLabel) continue
+      try { if (await a.isConfigured(tenantId)) out.push(a.code) } catch { /* skip */ }
+    }
+    return out
   }
 
   /** Which carriers are configured (live) for this tenant — for admin UIs. */

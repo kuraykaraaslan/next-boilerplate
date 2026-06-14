@@ -2,7 +2,7 @@ import axios from 'axios'
 import Logger from '@/modules/logger'
 import SettingService from '@/modules/setting/setting.service'
 import type { CountryCode } from '@/modules/common'
-import type { ShippingCarrierAdapter, CarrierRateRequest, CarrierRate, CarrierTracking } from './base.carrier'
+import type { ShippingCarrierAdapter, CarrierRateRequest, CarrierRate, CarrierTracking, CarrierLabelRequest, CarrierLabel } from './base.carrier'
 
 /**
  * DHL Express adapter — the MyDHL API (Basic auth) for rates, plus the public
@@ -78,6 +78,65 @@ export default class DhlCarrier implements ShippingCarrierAdapter {
       }
     } catch (err) {
       Logger.warn(`[ship:dhl] track failed: ${err instanceof Error ? err.message : String(err)}`)
+      return null
+    }
+  }
+
+  /** DHL Express MyDHL API (/shipments) — real label generation. */
+  async createLabel(tenantId: string, req: CarrierLabelRequest): Promise<CarrierLabel | null> {
+    const c = await this.creds(tenantId)
+    if (!c.user || !c.pass || !c.account) return null
+
+    const encodingFormat = req.labelFormat === 'ZPL' ? 'zpl' : req.labelFormat === 'PNG' ? 'png' : 'pdf'
+    const party = (a: typeof req.from) => ({
+      postalAddress: {
+        postalCode: a.postalCode, cityName: a.city, countryCode: a.countryCode,
+        addressLine1: a.street1, ...(a.street2 ? { addressLine2: a.street2 } : {}),
+      },
+      contactInformation: {
+        companyName: a.company || a.name, fullName: a.name,
+        ...(a.phone ? { phone: a.phone } : {}), ...(a.email ? { email: a.email } : {}),
+      },
+    })
+    try {
+      const planned = new Date(Date.now() + 86_400_000).toISOString().slice(0, 19) + ' GMT+00:00'
+      const customsDeclarable = req.from.countryCode !== req.to.countryCode
+      const body: any = {
+        plannedShippingDateAndTime: planned,
+        pickup: { isRequested: false },
+        productCode: req.serviceCode || 'P',
+        accounts: [{ typeCode: 'shipper', number: c.account }],
+        outputImageProperties: { encodingFormat, imageOptions: [{ typeCode: 'label', templateName: 'ECOM26_84_001' }] },
+        customerDetails: { shipperDetails: party(req.from), receiverDetails: party(req.to) },
+        content: {
+          packages: [{
+            weight: req.weightKg,
+            dimensions: {
+              length: req.dimensionsCm?.length ?? 1, width: req.dimensionsCm?.width ?? 1, height: req.dimensionsCm?.height ?? 1,
+            },
+          }],
+          isCustomsDeclarable: customsDeclarable,
+          description: req.reference ?? 'Shipment',
+          incoterm: 'DAP',
+          unitOfMeasurement: 'metric',
+        },
+      }
+      const res = await axios.post(`${this.base(c.sandbox)}/shipments`, body, {
+        auth: { username: c.user, password: c.pass },
+        headers: { 'Content-Type': 'application/json' }, timeout: 20000,
+      })
+      const doc = res.data?.documents?.find((d: any) => d?.typeCode === 'label') ?? res.data?.documents?.[0]
+      const trackingNumber = res.data?.shipmentTrackingNumber
+      if (!doc?.content || !trackingNumber) return null
+      return {
+        carrier: 'DHL', trackingNumber,
+        labelFormat: encodingFormat === 'zpl' ? 'ZPL' : encodingFormat === 'png' ? 'PNG' : 'PDF',
+        labelBase64: doc.content,
+        cost: Number(res.data?.shipmentCharges?.[0]?.price) || null,
+        currency: res.data?.shipmentCharges?.[0]?.currencyType ?? null,
+      }
+    } catch (err) {
+      Logger.warn(`[ship:dhl] label failed: ${err instanceof Error ? err.message : String(err)}`)
       return null
     }
   }

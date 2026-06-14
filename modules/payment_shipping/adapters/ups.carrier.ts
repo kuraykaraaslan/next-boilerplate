@@ -3,7 +3,7 @@ import redis from '@/modules/redis'
 import Logger from '@/modules/logger'
 import SettingService from '@/modules/setting/setting.service'
 import type { CountryCode } from '@/modules/common'
-import type { ShippingCarrierAdapter, CarrierRateRequest, CarrierRate, CarrierTracking } from './base.carrier'
+import type { ShippingCarrierAdapter, CarrierRateRequest, CarrierRate, CarrierTracking, CarrierLabelRequest, CarrierLabel } from './base.carrier'
 
 /**
  * UPS adapter — OAuth2 client-credentials + the UPS Rating ("Shop") and
@@ -108,6 +108,65 @@ export default class UpsCarrier implements ShippingCarrierAdapter {
       }
     } catch (err) {
       Logger.warn(`[ship:ups] track failed: ${err instanceof Error ? err.message : String(err)}`)
+      return null
+    }
+  }
+
+  /** UPS Shipping API (/api/shipments) — real label generation. */
+  async createLabel(tenantId: string, req: CarrierLabelRequest): Promise<CarrierLabel | null> {
+    const c = await this.creds(tenantId)
+    if (!c.clientId || !c.clientSecret || !c.account) return null
+    const tok = await this.token(tenantId, c.clientId, c.clientSecret, c.sandbox)
+    if (!tok) return null
+
+    const fmt = req.labelFormat === 'ZPL' ? 'ZPL' : req.labelFormat === 'PNG' ? 'GIF' : 'PDF'
+    const addr = (a: typeof req.from) => ({
+      Name: a.company || a.name,
+      AttentionName: a.name,
+      ...(a.phone ? { Phone: { Number: a.phone } } : {}),
+      Address: {
+        AddressLine: [a.street1, ...(a.street2 ? [a.street2] : [])],
+        City: a.city, ...(a.state ? { StateProvinceCode: a.state } : {}),
+        PostalCode: a.postalCode, CountryCode: a.countryCode,
+      },
+    })
+    try {
+      const body: any = {
+        ShipmentRequest: {
+          Shipment: {
+            Description: req.reference ?? 'Shipment',
+            Shipper: { ...addr(req.from), ShipperNumber: c.account },
+            ShipTo: addr(req.to),
+            ShipFrom: addr(req.from),
+            PaymentInformation: { ShipmentCharge: { Type: '01', BillShipper: { AccountNumber: c.account } } },
+            Service: { Code: req.serviceCode || '03' },
+            ...(req.isReturn ? { ReturnService: { Code: '9' } } : {}),
+            Package: {
+              Packaging: { Code: '02' },
+              PackageWeight: { UnitOfMeasurement: { Code: 'KGS' }, Weight: String(req.weightKg) },
+              ...(req.dimensionsCm ? { Dimensions: { UnitOfMeasurement: { Code: 'CM' }, Length: String(req.dimensionsCm.length), Width: String(req.dimensionsCm.width), Height: String(req.dimensionsCm.height) } } : {}),
+            },
+          },
+          LabelSpecification: { LabelImageFormat: { Code: fmt } },
+        },
+      }
+      const res = await axios.post(`${this.base(c.sandbox)}/api/shipments/v2409/ship`, body, {
+        headers: { Authorization: `Bearer ${tok}`, 'Content-Type': 'application/json' }, timeout: 15000,
+      })
+      const results = res.data?.ShipmentResponse?.ShipmentResults
+      const pkg = Array.isArray(results?.PackageResults) ? results.PackageResults[0] : results?.PackageResults
+      const graphic = pkg?.ShippingLabel?.GraphicImage
+      const trackingNumber = pkg?.TrackingNumber ?? results?.ShipmentIdentificationNumber
+      if (!graphic || !trackingNumber) return null
+      return {
+        carrier: 'UPS', trackingNumber,
+        labelFormat: fmt === 'GIF' ? 'PNG' : (fmt as 'PDF' | 'ZPL'),
+        labelBase64: graphic,
+        cost: Number(results?.ShipmentCharges?.TotalCharges?.MonetaryValue) || null,
+        currency: results?.ShipmentCharges?.TotalCharges?.CurrencyCode ?? null,
+      }
+    } catch (err) {
+      Logger.warn(`[ship:ups] label failed: ${err instanceof Error ? err.message : String(err)}`)
       return null
     }
   }

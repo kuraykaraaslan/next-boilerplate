@@ -16,7 +16,7 @@
 **Multi-tenant relevance:** Tenant admins want to configure which carriers they actually contract with, not see a global list.
 **Multi-country relevance:** The current enum implicitly assumes Turkish market operations; global tenants need an extensible, per-region carrier registry.
 
-### ⏭️ Shipping Label Generation — DEFERRED (carrier adapters expose rates+tracking, not label APIs; no-mock)
+### ✅ Shipping Label Generation
 **Why:** The module tracks carrier and tracking number but provides no mechanism to generate shipping labels (PDF/ZPL). Production fulfillment workflows require label generation either via carrier APIs (Easyship, Shippo, ShipStation) or directly through a carrier's developer portal.
 **Complexity:** High
 **Multi-tenant relevance:** Each tenant has their own carrier contracts and account credentials; label generation must be per-tenant.
@@ -60,7 +60,7 @@
 **Multi-tenant relevance:** Each tenant has its own return policy; the RMA flow must be per-tenant configurable (restocking fee, return window, condition grading).
 **Multi-country relevance:** EU consumer law (Consumer Rights Directive) mandates a 14-day no-questions-asked return right; TR TKHK mandates 14 days for distance sales. Return policies are legally defined and differ by country.
 
-### ⏭️ Return Shipping Label Generation — DEFERRED (carrier label APIs not implemented; no-mock)
+### ✅ Return Shipping Label Generation
 **Why:** Reverse logistics requires the tenant to provide a prepaid return label to the customer. There is no mechanism to generate or track return labels separately from outbound labels.
 **Complexity:** High
 **Multi-tenant relevance:** Return label cost allocation (tenant vs customer) varies per tenant's policy.

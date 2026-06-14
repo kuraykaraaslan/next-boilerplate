@@ -124,3 +124,32 @@ export const AnalyticsQuery = z.object({
   to: z.coerce.date().optional(),
 })
 export type AnalyticsQuery = z.infer<typeof AnalyticsQuery>
+
+// ============================================================================
+// Shipping label generation
+// ============================================================================
+
+export const LabelAddressSchema = z.object({
+  name: z.string().min(1),
+  company: z.string().optional(),
+  phone: z.string().optional(),
+  email: z.string().email().optional(),
+  street1: z.string().min(1),
+  street2: z.string().optional(),
+  city: z.string().min(1),
+  state: z.string().optional(),
+  postalCode: z.string().min(1),
+  countryCode: z.string().length(2),
+})
+export type LabelAddress = z.infer<typeof LabelAddressSchema>
+
+export const GenerateLabelDTO = z.object({
+  // When omitted, `from` is derived from the fulfillment's warehouse and `to`
+  // from the order address in fulfillment metadata.
+  from: LabelAddressSchema.optional(),
+  to: LabelAddressSchema.optional(),
+  serviceCode: z.string().optional(),
+  labelFormat: z.enum(['PDF', 'ZPL', 'PNG']).default('PDF'),
+  weightKg: z.coerce.number().positive().optional(),
+})
+export type GenerateLabelDTO = z.infer<typeof GenerateLabelDTO>
