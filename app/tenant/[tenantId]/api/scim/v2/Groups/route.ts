@@ -1,13 +1,14 @@
 import { NextRequest } from 'next/server';
 import ApiKeyService from '@/modules/api_key/api_key.service';
 import ScimService from '@/modules/scim/scim.service';
+import { CreateScimGroupDTO } from '@/modules/scim/scim.dto';
 import { scimError, scimResponse } from '@/modules/scim/scim.errors';
 import ScimMessages from '@/modules/scim/scim.messages';
+import type { ScimErrorType } from '@/modules/scim/scim.types';
 
 /**
  * GET /tenant/{tenantId}/api/scim/v2/Groups
- * Returns an empty list — SCIM Groups are not yet mapped onto our
- * tenant role model. Most IdPs accept an empty response gracefully.
+ * RFC 7644 §3.4.2 — list provisioned groups (empty when Groups are disabled).
  */
 export async function GET(
   request: NextRequest,
@@ -19,17 +20,21 @@ export async function GET(
   } catch {
     return scimError(401, ScimMessages.INVALID_BEARER_TOKEN);
   }
-
-  const { searchParams } = new URL(request.url);
-  const startIndex = parseInt(searchParams.get('startIndex') || '1', 10);
-  const count = parseInt(searchParams.get('count') || '100', 10);
-  const list = await ScimService.listGroups(tenantId, { startIndex, count });
-  return scimResponse(list);
+  try {
+    const { searchParams } = new URL(request.url);
+    const startIndex = parseInt(searchParams.get('startIndex') || '1', 10);
+    const count = parseInt(searchParams.get('count') || '100', 10);
+    const idp = searchParams.get('idp') ?? undefined;
+    const list = await ScimService.listGroups(tenantId, { startIndex, count, idp });
+    return scimResponse(list);
+  } catch (err: any) {
+    return scimError(err?.status ?? err?.statusCode ?? 500, err?.message ?? ScimMessages.INTERNAL_ERROR, err?.scimType as ScimErrorType | undefined);
+  }
 }
 
 /**
  * POST /tenant/{tenantId}/api/scim/v2/Groups
- * SCIM Groups are not implemented — RFC 7644 §3.12 allows `501 Not Implemented`.
+ * RFC 7644 §3.3 — create a group (501 when Groups are disabled for the tenant).
  */
 export async function POST(
   request: NextRequest,
@@ -41,5 +46,21 @@ export async function POST(
   } catch {
     return scimError(401, ScimMessages.INVALID_BEARER_TOKEN);
   }
-  return scimError(501, ScimMessages.GROUPS_NOT_IMPLEMENTED);
+  let body: unknown;
+  try { body = await request.json(); } catch { return scimError(400, ScimMessages.INVALID_PAYLOAD, 'invalidSyntax'); }
+  const parsed = CreateScimGroupDTO.safeParse(body);
+  if (!parsed.success) {
+    return scimError(400, parsed.error.issues.map((i) => i.message).join('; '), 'invalidValue');
+  }
+  try {
+    const idp = new URL(request.url).searchParams.get('idp') ?? undefined;
+    const group = await ScimService.createGroup(tenantId, { ...parsed.data, idp });
+    return scimResponse(group, {
+      status: 201,
+      location: `/tenant/${tenantId}/api/scim/v2/Groups/${group.id}`,
+      etag: group.meta.version,
+    });
+  } catch (err: any) {
+    return scimError(err?.status ?? err?.statusCode ?? 500, err?.message ?? ScimMessages.INTERNAL_ERROR, err?.scimType as ScimErrorType | undefined);
+  }
 }

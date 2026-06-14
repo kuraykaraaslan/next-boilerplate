@@ -55,6 +55,7 @@ export const ScimUserSchema = z.object({
   name: ScimNameSchema.optional(),
   displayName: z.string().optional(),
   emails: z.array(ScimEmailSchema).optional(),
+  phoneNumbers: z.array(z.object({ value: z.string(), type: z.string().optional(), primary: z.boolean().optional() })).optional(),
   active: z.boolean().default(true),
   meta: ScimMetaSchema,
 });
