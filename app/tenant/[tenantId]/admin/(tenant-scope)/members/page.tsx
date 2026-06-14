@@ -1,6 +1,7 @@
 'use client';
 
-import { use, useEffect, useState, useMemo } from 'react';
+import { use, useEffect, useState, useMemo, useRef, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import api from '@/modules_next/common/axios';
 import { PageHeader } from '@/modules_next/common/ui/PageHeader';
 import { Button } from '@/modules_next/common/ui/Button';
@@ -34,7 +35,7 @@ function extractMessage(err: unknown, fallback: string): string {
   return e?.response?.data?.message ?? e?.message ?? fallback;
 }
 
-export default function TenantMembersPage({ params }: { params: Promise<{ tenantId: string }> }) {
+function TenantMembersPageInner({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = use(params);
 
   const [members, setMembers] = useState<MemberRow[]>([]);
@@ -59,6 +60,12 @@ export default function TenantMembersPage({ params }: { params: Promise<{ tenant
   const [editStatus, setEditStatus]   = useState<MemberStatus>('ACTIVE');
   const [savingEdit, setSavingEdit]   = useState(false);
   const [editError, setEditError]     = useState('');
+
+  // Deep-link: /admin/members?member=<tenantMemberId> opens that member's editor
+  // (used by e.g. the Wallet page's "member settings" link).
+  const searchParams = useSearchParams();
+  const deepLinkMemberId = searchParams.get('member');
+  const deepLinkOpenedRef = useRef(false);
 
   useEffect(() => {
     Promise.all([
@@ -138,6 +145,16 @@ export default function TenantMembersPage({ params }: { params: Promise<{ tenant
     setEditStatus((member.memberStatus as MemberStatus) ?? 'ACTIVE');
     setEditError('');
   }
+
+  // Once members are loaded, auto-open the editor for a deep-linked member.
+  useEffect(() => {
+    if (deepLinkOpenedRef.current || !deepLinkMemberId || members.length === 0) return;
+    const target = members.find((m) => m.tenantMemberId === deepLinkMemberId);
+    if (target) {
+      openEdit(target);
+      deepLinkOpenedRef.current = true;
+    }
+  }, [deepLinkMemberId, members]);
 
   async function handleEdit(e: React.FormEvent) {
     e.preventDefault();
@@ -274,5 +291,13 @@ export default function TenantMembersPage({ params }: { params: Promise<{ tenant
         </form>
       </Modal>
     </div>
+  );
+}
+
+export default function TenantMembersPage({ params }: { params: Promise<{ tenantId: string }> }) {
+  return (
+    <Suspense fallback={null}>
+      <TenantMembersPageInner params={params} />
+    </Suspense>
   );
 }
