@@ -1,17 +1,46 @@
 import { isIP } from 'net';
 import { OSName, DeviceType, BrowserName } from './user_agent.enums';
-import { GeoLocation, DeviceInfo, GeoLocationSchema } from './user_agent.types';
-import Logger from '@/modules/logger';
+import { GeoLocation, DeviceInfo } from './user_agent.types';
+import UserAgentGeoService from './user_agent.geo.service';
 
-const NULL_GEO: GeoLocation = { city: null, state: null, country: null, countryCode: null, latitude: null, longitude: null };
+// Common bot / crawler UA signatures (search engines, social, monitoring, AI).
+const BOT_PATTERNS: Array<{ re: RegExp; name: string }> = [
+  { re: /googlebot/i, name: 'Googlebot' },
+  { re: /bingbot/i, name: 'Bingbot' },
+  { re: /slurp/i, name: 'Yahoo! Slurp' },
+  { re: /duckduckbot/i, name: 'DuckDuckBot' },
+  { re: /baiduspider/i, name: 'Baiduspider' },
+  { re: /yandex(bot|images)/i, name: 'YandexBot' },
+  { re: /facebookexternalhit|facebot/i, name: 'Facebook' },
+  { re: /twitterbot/i, name: 'Twitterbot' },
+  { re: /linkedinbot/i, name: 'LinkedInBot' },
+  { re: /whatsapp/i, name: 'WhatsApp' },
+  { re: /telegrambot/i, name: 'TelegramBot' },
+  { re: /slackbot/i, name: 'Slackbot' },
+  { re: /discordbot/i, name: 'Discordbot' },
+  { re: /(gptbot|chatgpt|claudebot|anthropic|ccbot|google-extended|perplexitybot)/i, name: 'AI Crawler' },
+  { re: /(ahrefsbot|semrushbot|mj12bot|dotbot|petalbot)/i, name: 'SEO Crawler' },
+  { re: /(uptimerobot|pingdom|statuscake)/i, name: 'Monitor' },
+  { re: /(curl|wget|python-requests|axios|go-http-client|java\/|okhttp|headlesschrome|phantomjs)/i, name: 'Automation' },
+  { re: /(bot|crawler|spider|crawl)/i, name: 'Generic Bot' },
+];
 
-function isPrivateOrReservedIp(ip: string): boolean {
-  if (!ip || ip === '0.0.0.0' || ip === '127.0.0.1' || ip === 'localhost') return true;
-  if (ip.startsWith('10.') || ip.startsWith('192.168.') || ip.startsWith('::1') || ip.startsWith('fe80:') || ip.startsWith('fc') || ip.startsWith('fd')) return true;
-  if (ip.startsWith('169.254.')) return true;
-  const m = ip.match(/^172\.(\d+)\./);
-  if (m && parseInt(m[1], 10) >= 16 && parseInt(m[1], 10) <= 31) return true;
-  return false;
+// Country → default BCP-47 locale (locale inference from geo).
+const COUNTRY_LOCALE: Record<string, string> = {
+  TR: 'tr-TR', US: 'en-US', GB: 'en-GB', DE: 'de-DE', FR: 'fr-FR', ES: 'es-ES', IT: 'it-IT',
+  NL: 'nl-NL', BE: 'nl-BE', PT: 'pt-PT', BR: 'pt-BR', RU: 'ru-RU', JP: 'ja-JP', KR: 'ko-KR',
+  CN: 'zh-CN', TW: 'zh-TW', SA: 'ar-SA', AE: 'ar-AE', IN: 'hi-IN', PL: 'pl-PL', SE: 'sv-SE',
+  NO: 'nb-NO', DK: 'da-DK', FI: 'fi-FI', GR: 'el-GR', CZ: 'cs-CZ', UA: 'uk-UA', MX: 'es-MX',
+};
+
+/** Great-circle distance (km) between two lat/lon points. */
+function haversineKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371;
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(a));
 }
 
 export default class UserAgentService {
@@ -53,6 +82,7 @@ export default class UserAgentService {
     const browserInfo = this.detectBrowser(userAgent);
     const deviceType = this.detectDeviceType(userAgent);
     const deviceName = this.generateDeviceName(osInfo.name, browserInfo.name, deviceType);
+    const bot = this.detectBot(userAgent);
 
     return {
       osName: osInfo.name,
@@ -61,7 +91,45 @@ export default class UserAgentService {
       browserVersion: browserInfo.version,
       deviceType,
       deviceName,
+      isBot: bot !== null,
+      botName: bot,
     };
+  }
+
+  /** Detect bot/crawler from the UA string; returns the bot name or null. */
+  static detectBot(userAgent: string): string | null {
+    if (!userAgent) return null;
+    for (const { re, name } of BOT_PATTERNS) if (re.test(userAgent)) return name;
+    return null;
+  }
+
+  /**
+   * Augment device info with UA Client Hints (Sec-CH-UA* headers), which modern
+   * browsers send instead of a detailed UA string. Hints win when present.
+   */
+  static applyClientHints(base: DeviceInfo, hints: {
+    'sec-ch-ua-platform'?: string | null;
+    'sec-ch-ua-mobile'?: string | null;
+    'sec-ch-ua'?: string | null;
+  }): DeviceInfo {
+    const out = { ...base };
+    const platform = hints['sec-ch-ua-platform']?.replace(/"/g, '').trim();
+    if (platform) {
+      const p = platform.toLowerCase();
+      if (p.includes('android')) out.osName = 'Android';
+      else if (p.includes('ios')) out.osName = 'iOS';
+      else if (p.includes('windows')) out.osName = 'Windows';
+      else if (p.includes('mac')) out.osName = 'macOS';
+      else if (p.includes('linux')) out.osName = 'Linux';
+    }
+    if (hints['sec-ch-ua-mobile'] === '?1') out.deviceType = 'Mobile';
+    const ua = hints['sec-ch-ua'];
+    if (ua) {
+      if (/edge/i.test(ua)) out.browserName = 'Edge';
+      else if (/chrome|chromium/i.test(ua)) out.browserName = 'Chrome';
+      else if (/firefox/i.test(ua)) out.browserName = 'Firefox';
+    }
+    return out;
   }
 
   /**
@@ -186,48 +254,54 @@ export default class UserAgentService {
    * Get geo-location from IP address using ip-api.com
    * Free tier: 45 requests per minute
    */
-  static async getGeoLocation(ip: string): Promise<GeoLocation> {
-    try {
-      if (!isIP(ip) || isPrivateOrReservedIp(ip)) return NULL_GEO;
+  /**
+   * Geo-location for an IP. Delegates to the configurable, cached geo provider
+   * (UserAgentGeoService) with Tor/proxy flags. `tenantId` selects the tenant's
+   * configured provider; omit for the default (ip-api).
+   */
+  static async getGeoLocation(ip: string, tenantId?: string): Promise<GeoLocation> {
+    return UserAgentGeoService.lookup(ip, tenantId);
+  }
 
-      const safeIp = encodeURIComponent(ip);
-      const response = await fetch(
-        `https://ip-api.com/json/${safeIp}?fields=status,country,countryCode,region,city,lat,lon`,
-        { method: 'GET', headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(3000) },
-      );
+  /** Infer a default BCP-47 locale from a geo country code. */
+  static inferLocale(countryCode: string | null | undefined): string | null {
+    if (!countryCode) return null;
+    return COUNTRY_LOCALE[countryCode.toUpperCase()] ?? null;
+  }
 
-      if (!response.ok) {
-        Logger.warn(`IP API returned ${response.status} for ${ip}`);
-        return NULL_GEO;
+  /** IP version helper (0 = invalid, 4, or 6). */
+  static ipVersion(ip: string): 0 | 4 | 6 {
+    return isIP(ip) as 0 | 4 | 6;
+  }
+
+  /**
+   * Suspicious-login / anomaly detection comparing a prior known login context
+   * to the current one: new country, impossible travel (great-circle distance
+   * over elapsed time), Tor/proxy, or a new device. Pure — caller supplies the
+   * prior context from history.
+   */
+  static detectAnomaly(
+    prev: { geo?: GeoLocation | null; at?: Date | null; deviceName?: string | null } | null,
+    current: { geo?: GeoLocation | null; at?: Date; deviceName?: string | null },
+  ): { suspicious: boolean; reasons: string[] } {
+    const reasons: string[] = [];
+    const g = current.geo;
+    if (g?.isTor) reasons.push('tor_exit_node');
+    if (g?.isProxy) reasons.push('proxy');
+    if (g?.isVpn) reasons.push('vpn');
+    if (prev?.geo && g) {
+      if (prev.geo.countryCode && g.countryCode && prev.geo.countryCode !== g.countryCode) {
+        reasons.push('new_country');
+        // Impossible travel: > 900 km/h implied speed between the two logins.
+        if (prev.geo.latitude != null && prev.geo.longitude != null && g.latitude != null && g.longitude != null && prev.at && current.at) {
+          const hours = Math.abs(current.at.getTime() - new Date(prev.at).getTime()) / 3_600_000;
+          const km = haversineKm(prev.geo.latitude, prev.geo.longitude, g.latitude, g.longitude);
+          if (hours > 0 && km / hours > 900) reasons.push('impossible_travel');
+        }
       }
-
-      const raw = await response.json();
-
-      if (raw.status !== 'success') {
-        Logger.warn(`Failed to get geo-location for IP ${ip}: ${raw.message || 'Unknown error'}`);
-        return NULL_GEO;
-      }
-
-      const result = GeoLocationSchema.safeParse({
-        city: raw.city || null,
-        state: raw.region || null,
-        country: raw.country || null,
-        countryCode: raw.countryCode || null,
-        latitude: raw.lat || null,
-        longitude: raw.lon || null,
-      });
-      return result.success ? result.data : NULL_GEO;
-    } catch (error) {
-      Logger.error(`Error getting geo-location for IP ${ip}: ${(error as Error).message}`);
-      return {
-        city: null,
-        state: null,
-        country: null,
-        countryCode: null,
-        latitude: null,
-        longitude: null,
-      };
     }
+    if (prev?.deviceName && current.deviceName && prev.deviceName !== current.deviceName) reasons.push('new_device');
+    return { suspicious: reasons.length > 0, reasons };
   }
 
   /**
