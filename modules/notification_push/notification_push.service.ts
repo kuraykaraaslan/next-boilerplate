@@ -24,6 +24,10 @@ export interface PushPayload {
 
 const PUSH_CACHE_TTL = env.SESSION_CACHE_TTL ?? (60 * 5);
 
+function TenantMonth(): string {
+  return new Date().toISOString().slice(0, 7); // YYYY-MM
+}
+
 let vapidInitialised = false;
 
 function ensureVapid() {
@@ -114,7 +118,8 @@ export default class NotificationPushService {
   static async subscribe(
     tenantId: string,
     userId: string,
-    subscription: { endpoint: string; keys: { p256dh: string; auth: string } }
+    subscription: { endpoint: string; keys: { p256dh: string; auth: string } },
+    opts?: { categories?: string[]; consent?: boolean },
   ): Promise<void> {
     const ds = await tenantDataSourceFor(tenantId);
     const repo = ds.getRepository(PushSubscriptionEntity);
@@ -122,27 +127,102 @@ export default class NotificationPushService {
       where: { tenantId, endpoint: subscription.endpoint },
     });
     if (existing) {
+      // Ownership verification: an endpoint already owned by a different user
+      // cannot be silently re-bound without going through unsubscribe first.
+      if (existing.userId !== userId) {
+        throw new AppError(NotificationPushMessages.SUBSCRIPTION_OWNERSHIP_MISMATCH, 409, ErrorCode.CONFLICT);
+      }
       await repo.update(
         { tenantId, endpoint: subscription.endpoint },
         {
           userId,
           p256dh: subscription.keys.p256dh,
           auth: subscription.keys.auth,
+          ...(opts?.categories !== undefined ? { categories: opts.categories } : {}),
+          ...(opts?.consent ? { consentAt: new Date() } : {}),
         }
       );
-      if (existing.userId !== userId) {
-        await this.clearCacheForUser(tenantId, existing.userId);
-      }
     } else {
+      // Per-user subscription cap (setting pushMaxSubscriptionsPerUser, default 10).
+      const maxRaw = await SettingService.getValue(tenantId, 'pushMaxSubscriptionsPerUser').catch(() => null);
+      const max = Number(maxRaw) > 0 ? Number(maxRaw) : 10;
+      const count = await repo.count({ where: { tenantId, userId } });
+      if (count >= max) {
+        throw new AppError(NotificationPushMessages.SUBSCRIPTION_LIMIT_REACHED, 429, ErrorCode.RATE_LIMIT_EXCEEDED);
+      }
       await repo.save(repo.create({
         tenantId,
         userId,
         endpoint: subscription.endpoint,
         p256dh: subscription.keys.p256dh,
         auth: subscription.keys.auth,
+        categories: opts?.categories ?? null,
+        consentAt: opts?.consent ? new Date() : null,
       }));
     }
     await this.clearCacheForUser(tenantId, userId);
+  }
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // Category preferences + quiet hours
+  // ──────────────────────────────────────────────────────────────────────────
+
+  /** Whether a subscription should receive a payload of the given category. */
+  private static wantsCategory(sub: { categories?: string[] | null }, category?: string): boolean {
+    if (!category) return true;
+    if (!sub.categories || sub.categories.length === 0) return true; // all-categories
+    return sub.categories.includes(category);
+  }
+
+  /**
+   * Quiet-hours check: true when the user's local time (from user_preferences
+   * timezone) falls within the tenant's configured quiet window. Non-urgent
+   * notifications are suppressed during this window.
+   */
+  static async isWithinQuietHours(tenantId: string, userId: string): Promise<boolean> {
+    try {
+      const s = await SettingService.getByKeys(tenantId, ['pushQuietHoursStart', 'pushQuietHoursEnd']);
+      const start = Number(s.pushQuietHoursStart);
+      const end = Number(s.pushQuietHoursEnd);
+      if (!Number.isFinite(start) || !Number.isFinite(end) || start === end) return false;
+
+      const { default: UserPreferencesService } = await import('@/modules/user_preferences/user_preferences.service');
+      const prefs = await UserPreferencesService.getByUserId(userId).catch(() => null);
+      const tz = prefs?.timezone || 'UTC';
+      const hour = Number(new Intl.DateTimeFormat('en-US', { hour: 'numeric', hour12: false, timeZone: tz }).format(new Date()));
+      // Window may wrap midnight (e.g. 22→7).
+      return start < end ? (hour >= start && hour < end) : (hour >= start || hour < end);
+    } catch {
+      return false;
+    }
+  }
+
+  /** Best-effort delivery metric counters (per tenant, rolling). */
+  private static async recordOutcome(tenantId: string, ok: boolean): Promise<void> {
+    try {
+      const key = `push:metrics:${tenantId}:${TenantMonth()}`;
+      await redis.hincrby(key, ok ? 'sent' : 'failed', 1);
+      await redis.expire(key, 40 * 24 * 60 * 60);
+    } catch { /* ignore */ }
+  }
+
+  /** Per-tenant push delivery success-rate metrics for the current month. */
+  static async getDeliveryMetrics(tenantId: string): Promise<{ sent: number; failed: number; successRate: number }> {
+    try {
+      const h = await redis.hgetall(`push:metrics:${tenantId}:${TenantMonth()}`);
+      const sent = Number(h.sent) || 0;
+      const failed = Number(h.failed) || 0;
+      const total = sent + failed;
+      return { sent, failed, successRate: total ? Math.round((sent / total) * 1000) / 10 : 0 };
+    } catch { return { sent: 0, failed: 0, successRate: 0 }; }
+  }
+
+  /** Stale-subscription report: endpoints not refreshed in `days` days. */
+  static async listStaleSubscriptions(tenantId: string, days = 90): Promise<number> {
+    const ds = await tenantDataSourceFor(tenantId);
+    const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+    const { LessThan } = await import('typeorm');
+    return ds.getRepository(PushSubscriptionEntity).count({ where: { tenantId, updatedAt: LessThan(cutoff) } });
   }
 
   static async unsubscribe(tenantId: string, userId: string): Promise<void> {
@@ -162,11 +242,15 @@ export default class NotificationPushService {
   static async sendToUser(
     tenantId: string,
     userId: string,
-    payload: PushPayload
+    payload: PushPayload,
+    opts?: { category?: string; respectQuietHours?: boolean },
   ): Promise<void> {
     const vapid = await this.prepareSend(tenantId);
     if (vapid === false) return;
-    const subs = await this.getSubscriptionsForUser(tenantId, userId);
+    // Quiet hours suppress non-urgent (respectQuietHours) deliveries.
+    if (opts?.respectQuietHours && await this.isWithinQuietHours(tenantId, userId)) return;
+    const subs = (await this.getSubscriptionsForUser(tenantId, userId))
+      .filter((sub) => this.wantsCategory(sub, opts?.category));
     await Promise.allSettled(subs.map((sub) => this.sendToSubscription(tenantId, sub, payload, vapid ?? undefined)));
   }
 
@@ -236,7 +320,11 @@ export default class NotificationPushService {
         JSON.stringify(payload),
         vapidDetails ? { vapidDetails } : undefined,
       );
+      await this.recordOutcome(tenantId, true);
+      await this.logDelivery(tenantId, sub, payload, 'sent');
     } catch (error: any) {
+      await this.recordOutcome(tenantId, false);
+      await this.logDelivery(tenantId, sub, payload, 'failed', error?.message);
       if (error.statusCode === 410 || error.statusCode === 404) {
         Logger.warn(`Push subscription ${sub.id} expired (${error.statusCode}), removing.`);
         const ds = await tenantDataSourceFor(tenantId);
@@ -246,5 +334,21 @@ export default class NotificationPushService {
         Logger.error(`Push notification failed for ${sub.id}: ${error.message}`);
       }
     }
+  }
+
+  /** Audit each push attempt to the central notification_log (best-effort). */
+  private static async logDelivery(
+    tenantId: string,
+    sub: { endpoint: string; userId?: string },
+    payload: PushPayload,
+    status: 'sent' | 'failed',
+    error?: string,
+  ): Promise<void> {
+    try {
+      const { default: NotificationLogService } = await import('@/modules/notification_log/notification_log.service');
+      await NotificationLogService.log(tenantId, 'push', sub.userId ?? sub.endpoint, status, {
+        subject: payload.title, provider: 'web-push', error,
+      });
+    } catch { /* never let logging break delivery */ }
   }
 }

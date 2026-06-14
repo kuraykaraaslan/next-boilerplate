@@ -20,19 +20,19 @@
 
 ## Delivery Tracking & Reliability
 
-### Audit Log Integration (Write to notification_log)
+### ✅ Audit Log Integration (Write to notification_log)
 **Why:** The `notification_log` entity comment marks `push` as "future"; no `NotificationLogService.log()` call exists in this module, so push delivery attempts are invisible in the unified audit log.
 **Complexity:** Low
 **Multi-tenant relevance:** Tenant admin dashboards already query the `notification_log` table by channel; adding `push` rows gives a complete delivery picture without a separate UI component.
 **Multi-country relevance:** Audit completeness matters for compliance in regulated markets; a gap in the audit log for push events creates a documentation hole for GDPR Data Protection Impact Assessments.
 
-### BullMQ Queue for Push Delivery (Async Fanout)
+### ✅ BullMQ Queue for Push Delivery (Async Fanout)
 **Why:** `sendToAll` and `sendToRole` fan out with `Promise.allSettled` synchronously inside the request/inapp call path; for a tenant with 10,000 subscribers this blocks the caller for seconds.
 **Complexity:** Medium
 **Multi-tenant relevance:** Large tenants with many subscribers should not degrade smaller tenants' real-time notification delivery; async queuing decouples fanout volume from send latency.
 **Multi-country relevance:** Push endpoints in different regions have variable response times; synchronous fanout in mixed-geography deployments creates unpredictable latency spikes.
 
-### Subscription Health / Token Staleness Report
+### ✅ Subscription Health / Token Staleness Report
 **Why:** Expired push endpoints are cleaned up lazily on send failure (410/404); there is no proactive scan or admin report showing the percentage of stale subscriptions per tenant.
 **Complexity:** Low
 **Multi-tenant relevance:** A tenant with 90% stale subscriptions wastes quota and generates log noise; a periodic staleness report per tenant enables proactive cleanup.
@@ -58,19 +58,19 @@
 
 ## User Control & Consent
 
-### Granular Per-Category Subscription Preferences
+### ✅ Granular Per-Category Subscription Preferences
 **Why:** A user either has a push subscription or does not; there is no way to subscribe to "security alerts" but not "marketing updates"; all push notifications share one subscription record.
 **Complexity:** Medium
 **Multi-tenant relevance:** Different tenants offer different notification categories; a tenant admin should be able to define categories, and users should opt in per category.
 **Multi-country relevance:** GDPR and ePrivacy Directive require explicit, granular consent for marketing communications; a category-level subscription model ensures non-marketing alerts (security, OTP) can still be delivered to users who declined marketing push.
 
-### Explicit Push Permission / Consent Recording
+### ✅ Explicit Push Permission / Consent Recording
 **Why:** The `subscribe` endpoint upserts a `PushSubscription` row but records no user consent timestamp or consent context (which page, what was shown); this is unverifiable if a user disputes receiving push.
 **Complexity:** Low
 **Multi-tenant relevance:** Each tenant has its own consent flow; recording `consentedAt`, `consentContext`, and `userAgent` per subscription lets tenants demonstrate per-tenant consent.
 **Multi-country relevance:** GDPR Recital 32 requires consent to be "freely given, specific, informed, and unambiguous"; a stored consent record with timestamp and context is the evidence requirement.
 
-### Quiet Hours / Time-Zone-Aware Delivery
+### ✅ Quiet Hours / Time-Zone-Aware Delivery
 **Why:** Push notifications are sent immediately regardless of user locale or time of day; a broadcast at 23:00 UTC hits Japanese users at 08:00 local time but Turkish users at 02:00 AM.
 **Complexity:** Medium
 **Multi-tenant relevance:** Tenant admins for workforce tools need to control broadcast windows to avoid disturbing employees outside business hours.
@@ -80,13 +80,13 @@
 
 ## Security
 
-### Subscription Ownership Verification
+### ✅ Subscription Ownership Verification
 **Why:** The `subscribe` endpoint trusts the `userId` from the session but does not verify the `endpoint` URL is a legitimate push service; a malicious client could register arbitrary endpoints to probe for valid push subscriptions.
 **Complexity:** Low
 **Multi-tenant relevance:** Each tenant's subscription table is isolated but the endpoint format is not validated; a per-tenant allowlist of known push service domains (fcm.googleapis.com, mozilla.com, etc.) is a low-cost hardening step.
 **Multi-country relevance:** Some regions have country-specific push infrastructure (Huawei Push for China); validating against known push service domains helps detect spoofed endpoints.
 
-### Push Subscription Limit per User
+### ✅ Push Subscription Limit per User
 **Why:** There is no cap on how many `PushSubscription` rows a single user can create; a user could subscribe the same browser endpoint repeatedly, accumulating unlimited rows.
 **Complexity:** Low
 **Multi-tenant relevance:** Tenants hosting power-users with many devices benefit from an upper bound (e.g. 20 subscriptions per user per tenant) to prevent DB bloat.
@@ -96,13 +96,13 @@
 
 ## Observability
 
-### Push Delivery Success Rate Metrics per Tenant
+### ✅ Push Delivery Success Rate Metrics per Tenant
 **Why:** There is no aggregated view of push delivery success vs failure rates per tenant; logging individual errors via `Logger` is not queryable for trend analysis.
 **Complexity:** Medium
 **Multi-tenant relevance:** Platform operators need to know which tenants have poor push delivery (e.g. 80% expired subscriptions) to proactively offer guidance or flag for cleanup.
 **Multi-country relevance:** Push success rates differ by country due to browser distribution and network conditions; country-level metrics help identify deployment regions that need alternative channels.
 
-### VAPID Contact Email per Tenant
+### ✅ VAPID Contact Email per Tenant
 **Why:** The `mailto:` contact sent to push services is hardcoded from `env.VAPID_CONTACT_EMAIL` (defaulting to `info@example.com`); push services use this to contact the sender on deliverability issues, so it should point to a real address.
 **Complexity:** Low
 **Multi-tenant relevance:** Each tenant or the platform operator should have a monitored address registered; a single fallback pointing to `info@example.com` means deliverability notices go unread.

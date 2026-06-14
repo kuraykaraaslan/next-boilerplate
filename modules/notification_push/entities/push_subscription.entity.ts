@@ -39,6 +39,14 @@ export class PushSubscription {
   @Column({ type: 'varchar' })
   auth!: string;
 
+  // Per-category subscription preferences (empty/null = subscribed to all).
+  @Column({ type: 'jsonb', nullable: true })
+  categories?: string[] | null;
+
+  // Explicit push-permission consent timestamp (GDPR / audit).
+  @Column({ nullable: true, type: 'timestamp' })
+  consentAt?: Date | null;
+
   @CreateDateColumn({ type: 'timestamp' })
   createdAt!: Date;
 
