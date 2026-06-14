@@ -3,6 +3,7 @@ import { getBullMQConnection } from '@/modules/redis/redis.bullmq';
 import { getDataSource } from '@/modules/db';
 import { Tenant } from '@/modules/tenant/entities/tenant.entity';
 import { TenantUsageService } from './tenant_usage.service';
+import { TenantUsageAlertsService } from './tenant_usage.alerts.service';
 import Logger from '@/modules/logger';
 
 /**
@@ -34,17 +35,21 @@ export const usageFlushWorker = new Worker(
     const month = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}`;
 
     let flushed = 0;
+    let alerts = 0;
     for (const t of tenants) {
       try {
         await TenantUsageService.flushToDb(t.tenantId, month);
         flushed += 1;
+        // After flushing, evaluate quota alerts/overage (best-effort).
+        const res = await TenantUsageAlertsService.evaluateAlerts(t.tenantId).catch(() => null);
+        if (res) alerts += res.thresholds + res.overages;
       } catch (err) {
         const message = err instanceof Error ? err.message : 'unknown';
         Logger.warn(`[CronJob:usage-flush] flush failed for ${t.tenantId}: ${message}`);
       }
     }
-    Logger.info(`[CronJob:usage-flush] flushed=${flushed}/${tenants.length} month=${month}`);
-    return { flushed, total: tenants.length, month };
+    Logger.info(`[CronJob:usage-flush] flushed=${flushed}/${tenants.length} alerts=${alerts} month=${month}`);
+    return { flushed, total: tenants.length, alerts, month };
   },
   { connection: getBullMQConnection(), concurrency: 1 },
 );

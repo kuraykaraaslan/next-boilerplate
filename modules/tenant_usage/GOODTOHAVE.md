@@ -10,7 +10,7 @@
 **Multi-tenant relevance:** API-call metering is required for enforcing `API_RATE_LIMIT` feature keys and for per-tenant usage dashboards; a counter that is never incremented silently defeats both features.
 **Multi-country relevance:** No direct country relevance, but SaaS platforms selling to enterprise customers in regulated markets use API usage as a billing signal — inaccurate counters undermine billing integrity.
 
-### Per-Endpoint API Call Breakdown (Not Just Total Count)
+### ✅ Per-Endpoint API Call Breakdown (Not Just Total Count)
 **Why:** `apiCalls` is a single integer per month — there is no breakdown by endpoint, HTTP method, or resource type; an operator cannot identify which API endpoint is consuming the most of a tenant's quota.
 **Complexity:** Medium
 **Multi-tenant relevance:** Tenant admins and operators need endpoint-level granularity to debug unexpected usage spikes and to validate that billing correctly reflects actual consumption.
@@ -36,13 +36,13 @@
 **Multi-tenant relevance:** Tenant admins want to see usage trends over the last 6 or 12 months to plan their next plan tier; single-month reads cannot power a trend chart.
 **Multi-country relevance:** No direct country relevance.
 
-### Daily-Granularity Usage Counters (Within a Month)
+### ✅ Daily-Granularity Usage Counters (Within a Month)
 **Why:** Usage is aggregated at monthly (`YYYY-MM`) granularity — daily spikes within a month are invisible; a tenant that sends 10,000 emails on one day and 0 on every other day looks identical to one that sends ~320/day.
 **Complexity:** Medium
 **Multi-tenant relevance:** High-resolution metering is needed for overage pricing (charge per unit above the plan limit, billed daily) and for anomaly detection (unexpected spike on a specific day may indicate a bug).
 **Multi-country relevance:** Some jurisdictions (EU OSS VAT) require usage records at day-level granularity for tax reporting — monthly aggregates are not sufficient for tax authority audit trails.
 
-### Usage Watermark / Peak Usage Tracking
+### ✅ Usage Watermark / Peak Usage Tracking
 **Why:** Counters represent the cumulative sum for the month — a plan with `STORAGE_GB: 10` should track the high-water mark of storage used (not the sum of all uploads), because storage is a capacity limit not a flow limit.
 **Complexity:** Medium
 **Multi-tenant relevance:** `storageBytes` summing all uploads over time is semantically incorrect for storage-capacity enforcement — deletes reduce actual consumption but the counter never decreases.
@@ -50,7 +50,7 @@
 
 ## Billing Integration
 
-### Overage Billing Trigger When Quota Is Exceeded
+### ✅ Overage Billing Trigger When Quota Is Exceeded
 **Why:** When `assertFeatureAccess` denies access due to a LIMIT being reached, there is no event or hook to charge the tenant for overage — the service blocks the action but does not initiate a metered charge.
 **Complexity:** High
 **Multi-tenant relevance:** Usage-based billing (pay-per-seat-above-plan, pay-per-GB-above-plan) is a common enterprise pricing model; without an overage hook the platform can only hard-block, which is a worse UX than charging a per-unit overage rate.
@@ -78,13 +78,13 @@
 
 ## Developer Experience & Observability
 
-### Usage Alerting: Threshold Webhooks Before Quota Is Exhausted
+### ✅ Usage Alerting: Threshold Webhooks Before Quota Is Exhausted
 **Why:** There is no mechanism to notify a tenant (via webhook or email) when their usage reaches 80% or 95% of a plan limit — tenants discover they have hit the wall only when `assertFeatureAccess` starts throwing errors.
 **Complexity:** Medium
 **Multi-tenant relevance:** Proactive usage alerts prevent service disruptions and give tenants time to upgrade before hitting the hard block; this reduces support tickets and involuntary churn.
 **Multi-country relevance:** No direct country relevance, but enterprise tenants in regulated industries (banking, healthcare) cannot tolerate unexpected service disruptions — advance warning is a contractual SLA requirement in many enterprise deals.
 
-### Platform-Wide Usage Aggregation for Operator Dashboard
+### ✅ Platform-Wide Usage Aggregation for Operator Dashboard
 **Why:** `getUsage` is per-tenant only — there is no `getAggregatedUsage(fromMonth, toMonth)` that rolls up `aiTokens`, `storageBytes`, and `emailSends` across all tenants for operator-level capacity planning and cost allocation.
 **Complexity:** Low
 **Multi-tenant relevance:** Platform operators need to know total AI token consumption across all tenants to negotiate LLM provider pricing tiers and to forecast infrastructure costs.

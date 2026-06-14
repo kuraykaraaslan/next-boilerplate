@@ -45,6 +45,19 @@ export class TenantUsageService {
     return `tenant:${tenantId}:usage:${metric}:${month}`;
   }
 
+  /** Current day key (YYYY-MM-DD) for daily-granularity counters. */
+  static currentDay(): string {
+    return new Date().toISOString().slice(0, 10);
+  }
+
+  static dailyKey(tenantId: string, metric: string, day: string): string {
+    return `tenant:${tenantId}:usage:${metric}:day:${day}`;
+  }
+
+  static endpointKey(tenantId: string, month: string): string {
+    return `tenant:${tenantId}:usage:endpoint:${month}`;
+  }
+
   /**
    * Generic increment helper. Used by all increment* methods so that the
    * Redis key format / TTL handling stays consistent. Increment failures are
@@ -64,6 +77,20 @@ export class TenantUsageService {
       if (newCount === delta) {
         await redis.expire(key, TTL_SECONDS);
       }
+      // Daily-granularity counter (within the month) — best-effort.
+      try {
+        const dayKey = TenantUsageService.dailyKey(tenantId, metric, TenantUsageService.currentDay());
+        const dayCount = await redis.incrby(dayKey, delta);
+        if (dayCount === delta) await redis.expire(dayKey, TTL_SECONDS);
+      } catch { /* ignore daily counter errors */ }
+      // Peak/watermark for gauge-style metrics (e.g. storageBytes).
+      if (metric === 'storageBytes') {
+        try {
+          const peakKey = `${key}:peak`;
+          const peak = Number(await redis.get(peakKey)) || 0;
+          if (newCount > peak) { await redis.set(peakKey, String(newCount)); await redis.expire(peakKey, TTL_SECONDS); }
+        } catch { /* ignore */ }
+      }
       return newCount;
     } catch (error) {
       Logger.warn(
@@ -75,8 +102,50 @@ export class TenantUsageService {
     }
   }
 
-  static async incrementApiCall(tenantId: string): Promise<number> {
+  static async incrementApiCall(tenantId: string, endpoint?: string): Promise<number> {
+    // Per-endpoint breakdown (not just total) — best-effort hash counter.
+    if (endpoint) {
+      try {
+        const hkey = TenantUsageService.endpointKey(tenantId, TenantUsageService.currentMonth());
+        await redis.hincrby(hkey, endpoint, 1);
+        await redis.expire(hkey, TTL_SECONDS);
+      } catch { /* ignore */ }
+    }
     return TenantUsageService._increment(tenantId, 'apiCalls', 1);
+  }
+
+  /** Daily usage series for a metric (most recent `days`, oldest first). */
+  static async getDailyUsage(tenantId: string, metric: TenantUsageMetric, days = 30): Promise<Array<{ day: string; value: number }>> {
+    const out: Array<{ day: string; value: number }> = [];
+    const keys: string[] = [];
+    const dayLabels: string[] = [];
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date(); d.setDate(d.getDate() - i);
+      const day = d.toISOString().slice(0, 10);
+      dayLabels.push(day);
+      keys.push(TenantUsageService.dailyKey(tenantId, metric, day));
+    }
+    let vals: (string | null)[] = [];
+    try { vals = await redis.mget(...keys); } catch { vals = keys.map(() => null); }
+    dayLabels.forEach((day, i) => out.push({ day, value: vals[i] ? parseInt(vals[i] as string, 10) : 0 }));
+    return out;
+  }
+
+  /** Per-endpoint API-call breakdown for a month. */
+  static async getEndpointBreakdown(tenantId: string, month?: string): Promise<Record<string, number>> {
+    const hkey = TenantUsageService.endpointKey(tenantId, month ?? TenantUsageService.currentMonth());
+    try {
+      const h = await redis.hgetall(hkey);
+      const out: Record<string, number> = {};
+      for (const [k, v] of Object.entries(h)) out[k] = parseInt(v, 10) || 0;
+      return out;
+    } catch { return {}; }
+  }
+
+  /** Peak observed value for a gauge metric this month (e.g. storageBytes). */
+  static async getPeak(tenantId: string, metric: TenantUsageMetric, month?: string): Promise<number> {
+    const key = `${TenantUsageService.redisKey(tenantId, metric, month ?? TenantUsageService.currentMonth())}:peak`;
+    try { return Number(await redis.get(key)) || 0; } catch { return 0; }
   }
 
   static async incrementAiTokens(tenantId: string, tokens: number): Promise<void> {

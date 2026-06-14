@@ -94,6 +94,8 @@ export const WEBHOOK_EVENT_CATALOG: Record<WebhookEvent, WebhookEventMeta> = {
   'impersonation.ended':    { scope: 'tenant', group: 'Security',      label: 'Impersonation ended',   description: 'An impersonation session ended.' },
   'audit.high_risk':        { scope: 'tenant', group: 'Security',      label: 'High-risk audit event', description: 'A high-risk action was recorded in the audit log (e.g. impersonation, account lock, permission denied).' },
   'wallet.transaction.created': { scope: 'tenant', group: 'Wallet',     label: 'Wallet transaction',    description: 'A balanced wallet ledger transaction was posted (issue, transfer, spend, capture, refund).' },
+  'usage.threshold':        { scope: 'tenant', group: 'Usage',         label: 'Usage threshold',       description: 'A metered usage metric crossed an alert threshold (e.g. 80% / 95% of quota).' },
+  'usage.overage':          { scope: 'tenant', group: 'Usage',         label: 'Usage overage',         description: 'A metered usage metric exceeded its plan quota (overage billing trigger).' },
 
   // ─── Platform-wide (root-tenant webhooks only) ──────────────────────────────
   'user.created':           { scope: 'platform', group: 'Users',         label: 'User created',          description: 'A new user account was registered.' },
