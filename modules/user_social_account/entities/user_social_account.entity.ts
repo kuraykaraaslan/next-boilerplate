@@ -23,6 +23,17 @@ export class UserSocialAccount {
   @Column({ nullable: true, type: 'text' })
   refreshToken?: string;
 
+  // OAuth access-token expiry — drives proactive refresh + token-health checks.
+  @Column({ nullable: true, type: 'timestamp' })
+  accessTokenExpiresAt?: Date | null;
+
+  // Granted OAuth scopes (audit + capability checks).
+  @Column({ type: 'jsonb', nullable: true })
+  scopes?: string[] | null;
+
+  @Column({ nullable: true, type: 'timestamp' })
+  lastRefreshedAt?: Date | null;
+
   @Column({ nullable: true, type: 'varchar' })
   profilePicture?: string;
 
