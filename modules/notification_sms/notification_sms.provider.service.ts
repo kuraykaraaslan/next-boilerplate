@@ -100,6 +100,15 @@ export default class NotificationSmsProviderService {
   }
 
   static async getProviderForRegion(tenantId: string, regionCode: string): Promise<BaseSMSProvider> {
+    // Per-tenant region→provider override takes precedence over the global map.
+    try {
+      const { default: NotificationSmsDeliveryService } = await import('./notification_sms.delivery.service');
+      const override = await NotificationSmsDeliveryService.resolveRegionProvider(tenantId, regionCode);
+      if (override && NotificationSmsProviderService.isValidProviderName(override)) {
+        return NotificationSmsProviderService.getProvider(tenantId, override as SMSProviderType);
+      }
+    } catch { /* fall through to global map */ }
+
     const providerName = NotificationSmsProviderService.REGION_PROVIDER_MAP.get(regionCode.toUpperCase());
     if (providerName) {
       return NotificationSmsProviderService.getProvider(tenantId, providerName);

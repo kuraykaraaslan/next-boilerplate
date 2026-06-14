@@ -176,15 +176,26 @@ export default class NotificationSmsQueueService {
       ? await NotificationSmsProviderService.getProvider(tenantId, explicitProvider)
       : await NotificationSmsProviderService.getProviderForRegion(tenantId, regionCode);
 
+    const { default: NotificationSmsDeliveryService } = await import('./notification_sms.delivery.service');
+
+    // Circuit breaker: skip a provider that has been failing (cooldown window).
+    if (!(await NotificationSmsDeliveryService.isProviderHealthy(tenantId, provider.name))) {
+      Logger.warn(`[sms] provider ${provider.name} breaker open — skipping send to ${number}`);
+      await NotificationLogService.log(tenantId, 'sms', number, 'failed', { provider: provider.name, error: 'provider_circuit_open' });
+      return { success: false, error: 'provider_circuit_open' };
+    }
+
     let result: SMSResult;
     try {
       result = await provider.sendShortMessage(tenantId, { to: number, body });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
+      await NotificationSmsDeliveryService.recordProviderResult(tenantId, provider.name, false);
       await NotificationLogService.log(tenantId, 'sms', number, 'failed', { provider: provider.name, error: message });
       throw err;
     }
 
+    await NotificationSmsDeliveryService.recordProviderResult(tenantId, provider.name, Boolean(result?.success));
     if (result?.success) {
       await TenantUsageService.incrementSmsSends(tenantId, 1);
       await NotificationLogService.log(tenantId, 'sms', number, 'sent', {

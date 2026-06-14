@@ -10,6 +10,9 @@ import { z } from 'zod';
 
 export const SmsSettingKeySchema = z.enum([
   'smsProvider', 'smsEnabled', 'smsAllowedCountries',
+  // ── Routing / rate limit / compliance ──────────────────────────────────────
+  'smsRegionProviderMap', 'smsRateLimitWindowSeconds',
+  'smsSenderIds', 'smsDltTemplateId', 'smsDefaultSenderId',
   // ── Twilio ───────────────────────────────────────────────────────────────
   'twilioAccountSid', 'twilioAuthToken', 'twilioPhoneNumber',
   // ── Vonage / Nexmo ───────────────────────────────────────────────────────
