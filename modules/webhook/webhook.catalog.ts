@@ -117,6 +117,7 @@ export const WEBHOOK_EVENT_CATALOG: Record<WebhookEvent, WebhookEventMeta> = {
   'user.erased':            { scope: 'platform', group: 'Users',         label: 'User erased',           description: 'A user account was anonymized under GDPR right-to-erasure.' },
   'social_account.linked':   { scope: 'platform', group: 'Users',        label: 'Social account linked',   description: 'A social login provider was linked to a user.' },
   'social_account.unlinked': { scope: 'platform', group: 'Users',        label: 'Social account unlinked', description: 'A social login provider was unlinked from a user.' },
+  'esignature.cert_expiring': { scope: 'platform', group: 'E-Signature', label: 'Signing cert expiring',  description: 'A signing certificate is nearing expiry.' },
   'tenant.created':         { scope: 'platform', group: 'Tenants',       label: 'Tenant created',        description: 'A new tenant was provisioned.' },
   'tenant.deleted':         { scope: 'platform', group: 'Tenants',       label: 'Tenant deleted',        description: 'A tenant was deleted.' },
   'tenant.suspended':       { scope: 'platform', group: 'Tenants',       label: 'Tenant suspended',      description: 'A tenant was suspended.' },

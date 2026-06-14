@@ -17,6 +17,13 @@ export const ESignatureSystemSettingKeySchema = z.enum([
   'trTrustRootsPath',
   'euLotlUrl',
   'tsaDefaultUrl',
+  // Compliance policy / enforcement
+  'esigEnforcementMode',       // NONE | AES | QES (minimum signature level)
+  'esigEsignActMode',          // 'true' → capture ESIGN/UETA intent+consent
+  'esigCountryMinLoa',         // JSON { "DE": "high", ... } per-country min LoA
+  'esigArchivalEnabled',
+  'esigArchivalRetentionDays',
+  'esigRateLimitPerHour',
 ]);
 export type ESignatureSystemSettingKey = z.infer<typeof ESignatureSystemSettingKeySchema>;
 export const E_SIGNATURE_KEYS = ESignatureSystemSettingKeySchema.options;

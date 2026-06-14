@@ -19,19 +19,19 @@ policy) and a PAdES path for PDF signing.
 
 ## Legal Compliance per Jurisdiction
 
-### eIDAS QES (Qualified Electronic Signature) Enforcement Mode
+### ✅ eIDAS QES (Qualified Electronic Signature) Enforcement Mode
 **Why:** The module validates Level of Assurance but has no enforceable "QES-only" mode that rejects AdES/Advanced signatures for document signing workflows that legally require a Qualified Electronic Signature under eIDAS Regulation (EU 910/2014), such as EU public procurement contracts.
 **Complexity:** Medium
 **Multi-tenant relevance:** A tenant operating as a legal SaaS in the EU needs to be able to configure which workflows require QES vs. AdES vs. simple electronic signature, and this policy must be tenant-specific.
 **Multi-country relevance:** QES requirements differ by country and use case (e.g., Germany requires a notarised-equivalent QES for certain real estate transactions, while Estonia accepts AdES for most government services); the platform must enforce the correct level per tenant's operating country.
 
-### ESIGN Act / UETA Compliance Mode (United States)
+### ✅ ESIGN Act / UETA Compliance Mode (United States)
 **Why:** The US Login.gov provider is wired but the module has no ESIGN/UETA-specific compliance flow — there is no consumer disclosure step, intent-to-sign capture, or record retention requirement specific to US e-signature law.
 **Complexity:** High
 **Multi-tenant relevance:** A tenant serving US customers must show the ESIGN disclosure, capture explicit consent, and retain the signed record with the disclosure; tenants operating only in the EU or TR have no such requirement.
 **Multi-country relevance:** US federal law (ESIGN) and state law (UETA) impose procedural requirements absent from eIDAS; a single global e-signature flow cannot satisfy both without country-routing the compliance steps.
 
-### Per-Country Minimum Identity Assurance Policy
+### ✅ Per-Country Minimum Identity Assurance Policy
 **Why:** The minimum LoA is currently read from a single global env var (`EID_REQUIRED_LOA`), ignoring the tenant-scoped `eidRequiredLoA` setting; tenants serving high-risk industries in strict regulatory environments (healthcare, finance, notarial) cannot raise their LoA floor above the platform default.
 **Complexity:** Low
 **Multi-tenant relevance:** An insurance tenant may require `high` LoA while a collaboration tool tenant accepts `substantial`; both must be expressible without redeploying the platform.
@@ -53,13 +53,13 @@ policy) and a PAdES path for PDF signing.
 **Multi-tenant relevance:** Document signing workflows (contracts, NDAs, consent forms) are the core value proposition for legal-tech and HR tenants; a tenant cannot go live with signed-document workflows until at least one provider implements PAdES.
 **Multi-country relevance:** PAdES B-LTA with an RFC 3161 timestamp is the legally required format for long-term archival signatures in the EU; other formats (CAdES-XL for Turkey, XAdES-BES for Spain) apply in other jurisdictions.
 
-### Signed Document Storage and Long-Term Archival
+### ✅ Signed Document Storage and Long-Term Archival
 **Why:** After signing, the signed PDF/document has nowhere to go — there is no integration with `modules/storage` to persist the signed artefact, no link from the transaction record to a stored file, and no retention policy.
 **Complexity:** Medium
 **Multi-tenant relevance:** Each tenant must store signed documents in its own bucket (per-tenant `StorageService` config) with its own retention schedule aligned to its industry's regulatory requirements.
 **Multi-country relevance:** EU eIDAS requires long-term signature preservation (LTV stamps every 5-10 years as algorithms weaken); Turkish BTK requires a 10-year minimum retention; US ESIGN requires 7 years for certain financial contracts.
 
-### Signature Verification Endpoint (Third-Party Audit)
+### ✅ Signature Verification Endpoint (Third-Party Audit)
 **Why:** There is no public or authenticated route to verify whether a stored signature is still valid (LTV re-validation, TSA chain check, revocation re-check), which is required to prove in court that a signature was valid at the time of signing even after certificate expiry.
 **Complexity:** High
 **Multi-tenant relevance:** Enterprise tenants in legal or financial verticals will be asked by auditors or courts to prove signature validity retroactively; this must be callable per-tenant without exposing other tenants' signed documents.
@@ -97,13 +97,13 @@ policy) and a PAdES path for PDF signing.
 
 ## Certificate and Trust Management
 
-### Automatic LOTL / Trust List Refresh Scheduling
+### ✅ Automatic LOTL / Trust List Refresh Scheduling
 **Why:** `ESignatureTrustListService.ingestAll()` must be called manually or via a one-off cron; there is no built-in scheduled refresh that re-ingests the ETSI LOTL and TR KamuSM trust roots when certificates near expiry or the LOTL is republished.
 **Complexity:** Medium
 **Multi-tenant relevance:** All tenants share the global trust list; a missed LOTL update causes chain validation failures for all tenants simultaneously with no per-tenant workaround.
 **Multi-country relevance:** The EU LOTL is updated several times per year; TR KamuSM roots rotate with new intermediate CAs; automated refresh is required for continuous uptime across all supported countries.
 
-### Certificate Expiry Alerting
+### ✅ Certificate Expiry Alerting
 **Why:** `SigningCertificate` rows have a `notAfter` column but there is no background job or notification when a user's bound certificate is about to expire; users discover expiry only when a login attempt fails.
 **Complexity:** Low
 **Multi-tenant relevance:** Tenant admins should receive advance notice when their users' certificates approach expiry, scoped to each tenant's user base.
@@ -113,7 +113,7 @@ policy) and a PAdES path for PDF signing.
 
 ## Security and Fraud Prevention
 
-### Transaction Rate Limiting per Identifier (Anti-Abuse)
+### ✅ Transaction Rate Limiting per Identifier (Anti-Abuse)
 **Why:** The current rate limiter is IP + UA based (`Limiter.checkRateLimit(request, 'auth')`); an attacker who controls many IPs can make unlimited initiation attempts against a single victim's phone number/national ID, triggering repeated SIM-card push notifications (SMS fatigue / MFA bombing).
 **Complexity:** Medium
 **Multi-tenant relevance:** Tenants in high-risk markets with high fraudster density need stricter per-identifier throttles independently of platform-wide IP rate limits.

@@ -4,6 +4,9 @@ export type { XmlSignOptions, SettingsSignParams } from './e_signature.document.
 export { default as ESignatureCryptoService } from './e_signature.crypto.service';
 export { default as ESignatureCertService } from './e_signature.cert.service';
 export { default as ESignatureTrustListService } from './e_signature.trust_list.service';
+export { default as ESignatureComplianceService } from './e_signature.compliance.service';
+export type { ESignaturePolicy, LoA, EnforcementMode } from './e_signature.compliance.service';
+export { scheduleESignatureMaintenance } from './e_signature.schedule';
 export { default as ESignatureIdentityService } from './e_signature.identity.service';
 export { default as BaseESignatureProvider } from './providers/base.provider';
 export * from './e_signature.enums';

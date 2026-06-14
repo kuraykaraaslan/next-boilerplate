@@ -96,6 +96,7 @@ export const WebhookEventEnum = z.enum([
   'user.erased',
   'social_account.linked',
   'social_account.unlinked',
+  'esignature.cert_expiring',
   'tenant.created',
   'tenant.deleted',
   'tenant.suspended',
