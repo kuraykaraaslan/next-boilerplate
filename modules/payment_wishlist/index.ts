@@ -1,4 +1,5 @@
 export { default as PaymentWishlistService } from './payment_wishlist.service'
+export { default as PaymentWishlistPriceWatchService } from './payment_wishlist.price_watch.service'
 export * from './payment_wishlist.enums'
 export * from './payment_wishlist.types'
 export * from './payment_wishlist.dto'

@@ -59,6 +59,8 @@ export const WEBHOOK_EVENT_CATALOG: Record<WebhookEvent, WebhookEventMeta> = {
   'product.created':        { scope: 'tenant', group: 'Products',      label: 'Product created',       description: 'A store product was created.' },
   'product.updated':        { scope: 'tenant', group: 'Products',      label: 'Product updated',       description: 'A store product was updated.' },
   'product.deleted':        { scope: 'tenant', group: 'Products',      label: 'Product deleted',       description: 'A store product was deleted.' },
+  'wishlist.price_drop':    { scope: 'tenant', group: 'Wishlist',      label: 'Wishlist price drop',   description: 'A wishlisted product dropped in price.' },
+  'wishlist.back_in_stock': { scope: 'tenant', group: 'Wishlist',      label: 'Wishlist back in stock', description: 'A wishlisted product is back in stock.' },
   'fulfillment.created':    { scope: 'tenant', group: 'Fulfillment',   label: 'Fulfillment created',   description: 'An order fulfillment was created.' },
   'fulfillment.processing': { scope: 'tenant', group: 'Fulfillment',   label: 'Fulfillment processing', description: 'A fulfillment entered processing.' },
   'fulfillment.backordered':{ scope: 'tenant', group: 'Fulfillment',   label: 'Fulfillment backordered', description: 'A fulfillment was backordered.' },
@@ -91,6 +93,7 @@ export const WEBHOOK_EVENT_CATALOG: Record<WebhookEvent, WebhookEventMeta> = {
   'impersonation.started':  { scope: 'tenant', group: 'Security',      label: 'Impersonation started', description: 'An admin started impersonating a user.' },
   'impersonation.ended':    { scope: 'tenant', group: 'Security',      label: 'Impersonation ended',   description: 'An impersonation session ended.' },
   'audit.high_risk':        { scope: 'tenant', group: 'Security',      label: 'High-risk audit event', description: 'A high-risk action was recorded in the audit log (e.g. impersonation, account lock, permission denied).' },
+  'wallet.transaction.created': { scope: 'tenant', group: 'Wallet',     label: 'Wallet transaction',    description: 'A balanced wallet ledger transaction was posted (issue, transfer, spend, capture, refund).' },
 
   // ─── Platform-wide (root-tenant webhooks only) ──────────────────────────────
   'user.created':           { scope: 'platform', group: 'Users',         label: 'User created',          description: 'A new user account was registered.' },

@@ -38,6 +38,8 @@ export const WebhookEventEnum = z.enum([
   'product.created',
   'product.updated',
   'product.deleted',
+  'wishlist.price_drop',
+  'wishlist.back_in_stock',
   'fulfillment.created',
   'fulfillment.processing',
   'fulfillment.backordered',
@@ -70,6 +72,7 @@ export const WebhookEventEnum = z.enum([
   'impersonation.started',
   'impersonation.ended',
   'audit.high_risk',
+  'wallet.transaction.created',
 
   // ─── Platform-wide events (only emitted to root-tenant webhooks) ─────────
   'user.created',

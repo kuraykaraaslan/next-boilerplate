@@ -24,6 +24,12 @@ export const WishlistItemSchema = z.object({
   productId: z.string().uuid(),
   variantId: z.string().uuid().nullable(),
   note: z.string().nullable(),
+  lastKnownPrice: z.coerce.number().nullable().optional(),
+  lastKnownCurrency: z.string().nullable().optional(),
+  lastKnownInStock: z.boolean().nullable().optional(),
+  addedToCartAt: z.date().nullable().optional(),
+  notifiedPriceDropAt: z.date().nullable().optional(),
+  notifiedBackInStockAt: z.date().nullable().optional(),
   createdAt: z.date(),
 })
 export type WishlistItem = z.infer<typeof WishlistItemSchema>

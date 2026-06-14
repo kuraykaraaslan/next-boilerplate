@@ -69,6 +69,7 @@ import { TaxClass } from '@/modules/payment_tax/entities/tax_class.entity';
 import { TaxRate } from '@/modules/payment_tax/entities/tax_rate.entity';
 import { Wishlist } from '@/modules/payment_wishlist/entities/wishlist.entity';
 import { WishlistItem } from '@/modules/payment_wishlist/entities/wishlist_item.entity';
+import { WishlistPricePoint } from '@/modules/payment_wishlist/entities/wishlist_price_point.entity';
 import { ProductReview } from '@/modules/product_review/entities/product_review.entity';
 import { ProductReviewVote } from '@/modules/product_review/entities/product_review_vote.entity';
 import { ReturnRequest } from '@/modules/payment_return_rma/entities/return_request.entity';
@@ -84,6 +85,9 @@ import { Conversation } from '@/modules/messaging/entities/conversation.entity';
 import { ConversationParticipant } from '@/modules/messaging/entities/conversation_participant.entity';
 import { Message } from '@/modules/messaging/entities/message.entity';
 import { MessageReport } from '@/modules/messaging/entities/message_report.entity';
+import { WalletAccount } from '@/modules/wallet/entities/wallet_account.entity';
+import { WalletTransaction } from '@/modules/wallet/entities/wallet_transaction.entity';
+import { WalletPosting } from '@/modules/wallet/entities/wallet_posting.entity';
 
 export const ENTITIES = [
   User,
@@ -153,6 +157,7 @@ export const ENTITIES = [
   TaxRate,
   Wishlist,
   WishlistItem,
+  WishlistPricePoint,
   ProductReview,
   ProductReviewVote,
   ReturnRequest,
@@ -168,6 +173,9 @@ export const ENTITIES = [
   ConversationParticipant,
   Message,
   MessageReport,
+  WalletAccount,
+  WalletTransaction,
+  WalletPosting,
 ];
 
 const { url: DEFAULT_DB_URL, schema: DEFAULT_SCHEMA } = parseDbUrl(env.DATABASE_URL);

@@ -4,25 +4,25 @@
 
 ## Product Intelligence
 
-### Price Drop and Back-in-Stock Notifications
+### ✅ Price Drop and Back-in-Stock Notifications
 **Why:** The wishlist stores product references but emits no events and triggers no notifications when a wishlisted product's price drops or restocks; this is the primary commercial value of a wishlist feature.
 **Complexity:** Medium
 **Multi-tenant relevance:** Each tenant configures notification channels (email, SMS, push) and triggers (price drop threshold, stock alert) independently.
 **Multi-country relevance:** Notification timing and channel preferences vary by country (SMS preferred in some MENA markets, email in the EU); notification compliance (GDPR opt-in) also differs by jurisdiction.
 
-### Wishlist Item Price Tracking History
+### ✅ Wishlist Item Price Tracking History
 **Why:** There is no price history stored on `WishlistItem`; when an item's catalog price changes, there is no record of what it was when it was added, so price-drop logic has nothing to compare against.
 **Complexity:** Low
 **Multi-tenant relevance:** Price history is per-tenant product catalog data; each tenant's pricing changes are independent.
 **Multi-country relevance:** Price comparisons must be currency-aware; a product priced in TRY that depreciates in USD terms needs currency-normalized comparison logic.
 
-### Real-Time Stock and Availability Display
+### ✅ Real-Time Stock and Availability Display
 **Why:** `WishlistItem` stores only `productId` and `variantId` as references; fetching live stock levels requires joining with the inventory module, which the wishlist service does not do; callers see only the bare wishlist data with no availability signal.
 **Complexity:** Medium
 **Multi-tenant relevance:** Each tenant's inventory system is different; availability data should be injected via a configurable hook rather than a hardcoded join.
 **Multi-country relevance:** Stock may be country-specific (some products available only in certain regions); availability checks must respect buyer location.
 
-### Add-All-to-Cart Action
+### ✅ Add-All-to-Cart Action
 **Why:** There is no `addAllToCart(wishlistId)` method that bulk-adds all wishlist items to the cart; users must move items one by one, which is a UX gap common in wishlist implementations.
 **Complexity:** Low
 **Multi-tenant relevance:** The implementation requires coordination with `payment_cart`; a cross-module service method makes this a platform-level feature rather than per-tenant custom code.
@@ -56,7 +56,7 @@
 
 ## Commerce Integration
 
-### Cart Conversion Tracking per Wishlist Item
+### ✅ Cart Conversion Tracking per Wishlist Item
 **Why:** There is no way to mark a `WishlistItem` as "purchased" or link it to a `cartId` / `orderId`; repeat purchase signals and wishlist-to-purchase analytics are impossible.
 **Complexity:** Medium
 **Multi-tenant relevance:** Each tenant's merchandising team needs to know which wishlist items convert to purchases to optimize promotion targeting.
@@ -90,13 +90,13 @@
 
 ## Privacy & GDPR
 
-### Wishlist Data Export (GDPR Data Portability)
+### ✅ Wishlist Data Export (GDPR Data Portability)
 **Why:** There is no `exportUserWishlists(tenantId, userId)` method to export all wishlist data for a user in a portable format; GDPR Article 20 grants users the right to data portability.
 **Complexity:** Low
 **Multi-tenant relevance:** Each tenant is a data controller and must fulfill portability requests for its users independently.
 **Multi-country relevance:** GDPR applies across the EU/EEA; KVKK (Turkey) and UK GDPR have similar portability requirements; portability support is mandatory for deployments in these regions.
 
-### Wishlist Anonymization on User Deletion (Right to Erasure)
+### ✅ Wishlist Anonymization on User Deletion (Right to Erasure)
 **Why:** There is no `deleteUserWishlists(tenantId, userId)` or anonymization method; when a user's account is deleted, their wishlist records persist with the original `userId` reference, violating GDPR's right to erasure.
 **Complexity:** Low
 **Multi-tenant relevance:** Each tenant must process erasure requests for its own users; orphaned wishlist records with a deleted user's ID are a PII compliance risk.
