@@ -4,25 +4,25 @@
 
 ## Program Configuration
 
-### Per-Tenant Default Tier Code
+### ✅ Per-Tenant Default Tier Code
 **Why:** The fallback tier `BRONZE` is a hardcoded constant; a tenant whose entry tier is named `STANDARD`, `STARTER`, or a localized code will get an inconsistent fallback that may not match any of their configured `LoyaltyTier` rows.
 **Complexity:** Low
 **Multi-tenant relevance:** Tenants fully own their tier ladder structure; the entry-level tier code should be per-tenant configuration.
 **Multi-country relevance:** Tier naming conventions differ by culture and language; a configurable default accommodates localized tier hierarchies.
 
-### Per-Tenant Default Point Expiry Policy
+### ✅ Per-Tenant Default Point Expiry Policy
 **Why:** Point expiry is only triggered when a caller explicitly passes `expiresInDays` per earn call; there is no tenant-wide default expiry window, so a tenant cannot enforce a "points expire in 365 days" policy without patching every earn call.
 **Complexity:** Low
 **Multi-tenant relevance:** Expiry policy is a core loyalty-program business decision that differs per tenant (e.g. airline programs expire in 18 months, retail programs in 12 months).
 **Multi-country relevance:** Some jurisdictions (e.g. certain EU consumer protection rules) restrict how loyalty points can expire; per-tenant control is needed to comply with local law.
 
-### Per-Tenant Earn Rate Configuration (Points per Currency Unit)
+### ✅ Per-Tenant Earn Rate Configuration (Points per Currency Unit)
 **Why:** The caller controls exactly how many points to grant per earn call; there is no tenant-configurable "earn 1 point per 1 USD" base rate that automatically converts a payment amount to points.
 **Complexity:** Medium
 **Multi-tenant relevance:** Earn rate is the primary lever a loyalty program manager adjusts; it should be a tenant setting, not caller-side business logic scattered across integration points.
 **Multi-country relevance:** Earn rates are often currency-dependent (e.g. 1 point per 1 USD but 100 points per 100 TRY) and need per-currency or per-country overrides.
 
-### Per-Tenant Multiplier Toggle
+### ✅ Per-Tenant Multiplier Toggle
 **Why:** Tier-multiplier application is controlled only by the per-request `applyMultiplier` flag; there is no tenant-level switch to enable or disable tier multipliers program-wide, making it easy to accidentally skip them.
 **Complexity:** Low
 **Multi-tenant relevance:** Some tenants may want a flat earn program (no multipliers) while others use tiered multipliers; this should be a program policy, not a per-call flag.
@@ -30,19 +30,19 @@
 
 ## Redemption & Checkout Integration
 
-### Points-to-Currency Conversion Rate
+### ✅ Points-to-Currency Conversion Rate
 **Why:** There is no concept of how much a loyalty point is worth in monetary terms; the `redeem` method debits points but there is no conversion to a cart discount amount.
 **Complexity:** Medium
 **Multi-tenant relevance:** Each tenant sets its own point redemption value (e.g. 100 points = $1, 500 points = 1 TRY).
 **Multi-country relevance:** Redemption rates should be currency-aware; a global points program serving multiple countries needs per-currency conversion rates.
 
-### Maximum Redemption Per Transaction / Percentage Cap
+### ✅ Maximum Redemption Per Transaction / Percentage Cap
 **Why:** There is no cap on how many points a customer can redeem per order; a customer with a large balance could pay entirely with points, bypassing revenue entirely.
 **Complexity:** Low
 **Multi-tenant relevance:** Each tenant sets its own redemption limits as a percentage of order value or a maximum point count per order.
 **Multi-country relevance:** Redemption caps are a business policy that may vary by country (e.g. stricter limits in markets with high discount-seeking behavior).
 
-### Checkout Integration Hook
+### ✅ Checkout Integration Hook
 **Why:** There is no standard hook or event that signals to the cart/checkout that a redemption has been applied; `payment_cart` and `payment_sell` cannot natively consume a loyalty discount without custom integration code per tenant.
 **Complexity:** Medium
 **Multi-tenant relevance:** Every tenant using both loyalty and cart modules needs this integration; it should be standardized in the module, not reimplemented per tenant.
@@ -98,7 +98,7 @@
 **Multi-tenant relevance:** Multi-language tenants (e.g. a platform operating in both English and Arabic) need localized tier names.
 **Multi-country relevance:** Displaying Bronze/Silver/Gold in Turkish (Bronz/Gümüş/Altın) or Arabic requires i18n support at the data layer.
 
-### GDPR-Compliant Account Deletion
+### ✅ GDPR-Compliant Account Deletion
 **Why:** There is no `deleteAccount` or `anonymizeAccount` method; deleting a user's loyalty account on GDPR erasure requests requires manual DB operations that may leave orphaned transaction rows.
 **Complexity:** Medium
 **Multi-tenant relevance:** Each tenant is a data controller under GDPR and must fulfill erasure requests for its users.

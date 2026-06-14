@@ -1,4 +1,6 @@
 export { default as PaymentLoyaltyPointsService } from './payment_loyalty_points.service'
+export { default as PaymentLoyaltyPointsCheckoutService } from './payment_loyalty_points.checkout.service'
+export type { LoyaltyConfig } from './payment_loyalty_points.checkout.service'
 export * from './payment_loyalty_points.enums'
 export * from './payment_loyalty_points.types'
 export * from './payment_loyalty_points.dto'
