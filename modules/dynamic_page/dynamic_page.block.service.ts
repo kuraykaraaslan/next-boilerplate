@@ -106,4 +106,52 @@ export default class DynamicPageBlockService {
     await repo.remove(row)
     await redis.del(blocksKey(tenantId)).catch(() => {})
   }
+
+  // ── Block ACL ───────────────────────────────────────────────────────────────
+
+  /** Blocks a given role may insert (role-restricted blocks filtered out). */
+  static async blocksForRole(tenantId: string, role: string | null | undefined): Promise<DynamicPageBlockRecord[]> {
+    const all = await this.listBlocks(tenantId)
+    return all.filter((b) => {
+      const roles = (b as { allowedRoles?: string[] | null }).allowedRoles
+      return !roles || roles.length === 0 || (!!role && roles.map((r) => r.toUpperCase()).includes(role.toUpperCase()))
+    })
+  }
+
+  // ── Import / export ─────────────────────────────────────────────────────────
+
+  /** Export all non-system blocks for backup / cross-tenant transfer. */
+  static async exportBlocks(tenantId: string): Promise<object[]> {
+    const ds = await tenantDataSourceFor(tenantId)
+    const rows = await ds.getRepository(DynamicPageBlockEntity).find({ where: { tenantId } })
+    return rows.filter((r) => !r.isSystem).map((r) => ({
+      type: r.type, label: r.label, category: r.category, description: r.description,
+      schema: r.schema, defaultProps: r.defaultProps, template: r.template, script: r.script,
+      serverHandler: r.serverHandler, allowedCollections: r.allowedCollections, allowedRoles: r.allowedRoles,
+    }))
+  }
+
+  /**
+   * Import blocks from an export payload. Existing blocks (same type) are updated
+   * unless `overwrite` is false. Returns counts. System blocks are never touched.
+   */
+  static async importBlocks(tenantId: string, blocks: Array<Record<string, unknown>>, opts: { overwrite?: boolean } = {}): Promise<{ created: number; updated: number; skipped: number }> {
+    const ds = await tenantDataSourceFor(tenantId)
+    const repo = ds.getRepository(DynamicPageBlockEntity)
+    let created = 0, updated = 0, skipped = 0
+    for (const b of blocks) {
+      const type = String(b.type ?? '')
+      if (!type) { skipped++; continue }
+      const existing = await repo.findOne({ where: { tenantId, type } })
+      if (existing) {
+        if (existing.isSystem || opts.overwrite === false) { skipped++; continue }
+        Object.assign(existing, { ...b, tenantId, isSystem: existing.isSystem })
+        await repo.save(existing); updated++
+      } else {
+        await repo.save(repo.create({ ...(b as object), tenantId, isSystem: false } as Partial<DynamicPageBlockEntity>)); created++
+      }
+    }
+    await redis.del(blocksKey(tenantId)).catch(() => {})
+    return { created, updated, skipped }
+  }
 }

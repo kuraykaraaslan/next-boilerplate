@@ -1,5 +1,7 @@
 export enum DynamicPageStatus {
   DRAFT = 'DRAFT',
+  PENDING_REVIEW = 'PENDING_REVIEW',
+  APPROVED = 'APPROVED',
   PUBLISHED = 'PUBLISHED',
   ARCHIVED = 'ARCHIVED',
 }

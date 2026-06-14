@@ -106,6 +106,8 @@ export const WEBHOOK_EVENT_CATALOG: Record<WebhookEvent, WebhookEventMeta> = {
   'metering.usage.recorded': { scope: 'tenant', group: 'Usage',        label: 'Metering usage recorded', description: 'A metered usage event was recorded against a meter.' },
   'metering.billing.completed': { scope: 'tenant', group: 'Usage',     label: 'Metering billing completed', description: 'A metered/overage billing run settled (wallet credits debited and/or remainder invoiced).' },
   'notification.failure_rate_high': { scope: 'tenant', group: 'Notifications', label: 'Notification failure rate high', description: 'Outbound notification failure rate exceeded the alert threshold.' },
+  'page.published':         { scope: 'tenant', group: 'CMS',           label: 'Page published',        description: 'A dynamic CMS page was published.' },
+  'page.invalidated':       { scope: 'tenant', group: 'CMS',           label: 'Page cache invalidated', description: 'A dynamic CMS page changed; CDN/edge cache should be purged.' },
 
   // ─── Platform-wide (root-tenant webhooks only) ──────────────────────────────
   'user.created':           { scope: 'platform', group: 'Users',         label: 'User created',          description: 'A new user account was registered.' },

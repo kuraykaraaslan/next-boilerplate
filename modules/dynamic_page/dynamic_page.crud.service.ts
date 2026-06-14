@@ -116,6 +116,16 @@ export default class DynamicPageCrudService {
       if (conflict) throw new AppError(DynamicPageMessages.SLUG_TAKEN, 409, ErrorCode.CONFLICT)
     }
 
+    // Snapshot the pre-update content into version history (best-effort).
+    try {
+      const { DynamicPageVersion } = await import('./entities/dynamic_page_version.entity')
+      await ds.getRepository(DynamicPageVersion).save({
+        tenantId, dynamicPageId: pageId, revision: row.revision ?? 1,
+        title: row.title, description: row.description, sections: row.sections,
+        metadata: row.metadata, status: row.status,
+      })
+    } catch { /* version history is best-effort */ }
+
     if (dto.title !== undefined) row.title = dto.title
     if (dto.slug !== undefined) row.slug = dto.slug
     if (dto.description !== undefined) row.description = dto.description
@@ -123,12 +133,25 @@ export default class DynamicPageCrudService {
     if (dto.sections !== undefined) row.sections = dto.sections
     if (dto.metadata !== undefined) row.metadata = dto.metadata ?? undefined
     if (dto.status !== undefined) row.status = dto.status
+    if (dto.publishAt !== undefined) row.publishAt = dto.publishAt
+    if (dto.expireAt !== undefined) row.expireAt = dto.expireAt
+    if (dto.cacheTtlSeconds !== undefined) row.cacheTtlSeconds = dto.cacheTtlSeconds
+    if (dto.audienceCountries !== undefined) row.audienceCountries = dto.audienceCountries
+    if (dto.audienceLanguages !== undefined) row.audienceLanguages = dto.audienceLanguages
+    if (dto.audienceRoles !== undefined) row.audienceRoles = dto.audienceRoles
     if (dto.schemaVersion !== undefined) row.schemaVersion = dto.schemaVersion
+    row.revision = (row.revision ?? 1) + 1
 
     try {
       const saved = await repo.save(row)
       await redis.del(slugKey(tenantId, saved.slug)).catch(() => {})
       if (oldSlug !== saved.slug) await redis.del(slugKey(tenantId, oldSlug)).catch(() => {})
+      // CDN-friendly cache invalidation webhook so edges can purge this page.
+      try {
+        const { default: WebhookService } = await import('@/modules/webhook/webhook.service')
+        await WebhookService.dispatchEvent(tenantId, 'page.invalidated', { dynamicPageId: pageId, slug: saved.slug })
+        if (dto.status === 'PUBLISHED') await WebhookService.dispatchEvent(tenantId, 'page.published', { dynamicPageId: pageId, slug: saved.slug })
+      } catch { /* webhook best-effort */ }
       return DynamicPageRecordSchema.parse(saved)
     } catch (error) {
       if (error instanceof AppError) throw error

@@ -36,8 +36,38 @@ export class DynamicPage {
   @Column({ type: 'varchar', default: 'DRAFT' })
   status!: string
 
+  // Scheduling: page goes live at publishAt and is hidden after expireAt.
+  @Index()
+  @Column({ nullable: true, type: 'timestamp' })
+  publishAt?: Date | null
+
+  @Column({ nullable: true, type: 'timestamp' })
+  expireAt?: Date | null
+
+  // Configurable CDN/cache TTL (seconds) for this page's rendered output.
+  @Column({ nullable: true, type: 'int' })
+  cacheTtlSeconds?: number | null
+
+  // Password protection (bcrypt hash; null = public).
+  @Column({ nullable: true, type: 'varchar' })
+  passwordHash?: string | null
+
+  // Audience targeting — empty/null = everyone.
+  @Column({ type: 'jsonb', nullable: true })
+  audienceCountries?: string[] | null
+
+  @Column({ type: 'jsonb', nullable: true })
+  audienceLanguages?: string[] | null
+
+  @Column({ type: 'jsonb', nullable: true })
+  audienceRoles?: string[] | null
+
   @Column({ type: 'int', default: 2 })
   schemaVersion!: number
+
+  // Monotonic content revision (bumped on each content update for history).
+  @Column({ type: 'int', default: 1 })
+  revision!: number
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt!: Date

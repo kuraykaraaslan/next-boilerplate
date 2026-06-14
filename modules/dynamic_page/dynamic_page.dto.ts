@@ -11,7 +11,13 @@ export const CreatePageDTO = z.object({
   keywords: z.array(z.string()).default([]),
   sections: z.array(BlockDataSchema).default([]),
   metadata: PageMetadataSchema,
-  status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).default('DRAFT'),
+  status: z.enum(['DRAFT', 'PENDING_REVIEW', 'APPROVED', 'PUBLISHED', 'ARCHIVED']).default('DRAFT'),
+  publishAt: z.coerce.date().nullable().optional(),
+  expireAt: z.coerce.date().nullable().optional(),
+  cacheTtlSeconds: z.number().int().nonnegative().nullable().optional(),
+  audienceCountries: z.array(z.string()).nullable().optional(),
+  audienceLanguages: z.array(z.string()).nullable().optional(),
+  audienceRoles: z.array(z.string()).nullable().optional(),
   schemaVersion: z.number().int().min(1).default(CURRENT_SCHEMA_VERSION),
 })
 export type CreatePageDTO = z.infer<typeof CreatePageDTO>

@@ -85,6 +85,8 @@ export const WebhookEventEnum = z.enum([
   'metering.usage.recorded',
   'metering.billing.completed',
   'notification.failure_rate_high',
+  'page.published',
+  'page.invalidated',
 
   // ─── Platform-wide events (only emitted to root-tenant webhooks) ─────────
   'user.created',

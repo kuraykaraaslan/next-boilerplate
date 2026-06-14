@@ -44,6 +44,10 @@ export class DynamicPageBlock {
   @Column({ type: 'jsonb', nullable: true })
   allowedCollections?: string[]
 
+  // Block access control: roles allowed to insert/use this block (null = all).
+  @Column({ type: 'jsonb', nullable: true })
+  allowedRoles?: string[] | null
+
   @Column({ type: 'boolean', default: false })
   isSystem!: boolean
 
