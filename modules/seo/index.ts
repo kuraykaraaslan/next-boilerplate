@@ -1,6 +1,8 @@
 export { default as SeoService } from './seo.service';
 export { default as SeoRenderService } from './seo.render.service';
 export type { SitemapUrlEntry, SitemapImage } from './seo.render.service';
+export { default as SeoWebVitalsService, RecordWebVitalDTO, WebVitalMetricEnum } from './seo.web_vitals.service';
+export type { WebVitalSummary, WebVitalMetric } from './seo.web_vitals.service';
 export * from './seo.enums';
 export * from './seo.types';
 export * from './seo.dto';

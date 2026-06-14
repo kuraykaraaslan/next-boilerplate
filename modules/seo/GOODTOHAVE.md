@@ -70,7 +70,7 @@
 **Multi-tenant relevance:** Each tenant needs its own `robots.txt` at its root URL, referencing its own sitemap URL and specifying which admin/API paths to disallow.
 **Multi-country relevance:** Some country-specific crawlers (Yandex for Russia/CIS, Baidu for China) have specific `User-agent` disallow rules; a generated `robots.txt` can include country-crawler-aware directives.
 
-### ⏭️ Core Web Vitals Tracking per Tenant — DEFERRED (needs client-side RUM beacon; no-mock)
+### ✅ Core Web Vitals Tracking per Tenant
 **Why:** The `googleTagId` analytics setting exists but there is no structured mechanism for collecting or surfacing Core Web Vitals (LCP, FID/INP, CLS) per tenant; Core Web Vitals are a direct Google ranking factor.
 **Complexity:** High
 **Multi-tenant relevance:** A tenant's CWV scores are independent of other tenants; each tenant's admin should see CWV metrics for their own pages without cross-tenant data bleed.
