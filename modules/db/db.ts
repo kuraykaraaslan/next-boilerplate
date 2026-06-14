@@ -85,6 +85,7 @@ import { Conversation } from '@/modules/messaging/entities/conversation.entity';
 import { ConversationParticipant } from '@/modules/messaging/entities/conversation_participant.entity';
 import { Message } from '@/modules/messaging/entities/message.entity';
 import { MessageReport } from '@/modules/messaging/entities/message_report.entity';
+import { TenantExportJob } from '@/modules/tenant_export/entities/tenant_export_job.entity';
 import { ScimGroup } from '@/modules/scim/entities/scim_group.entity';
 import { ScimGroupMember } from '@/modules/scim/entities/scim_group_member.entity';
 import { WalletAccount } from '@/modules/wallet/entities/wallet_account.entity';
@@ -175,6 +176,7 @@ export const ENTITIES = [
   ConversationParticipant,
   Message,
   MessageReport,
+  TenantExportJob,
   ScimGroup,
   ScimGroupMember,
   WalletAccount,

@@ -271,6 +271,23 @@ export default class StorageService {
   }
 
   /**
+   * Upload a server-generated buffer (e.g. a data export archive) directly to
+   * the tenant's bucket, bypassing the image-oriented upload validation. Used by
+   * trusted server flows that produce non-user-uploaded content.
+   */
+  static async uploadServerBuffer(
+    tenantId: string,
+    data: { buffer: Buffer; filename: string; contentType?: string; folder?: string },
+  ): Promise<UploadResult> {
+    const { provider, resolvedName } = await StorageService.getProvider(tenantId)
+    const file = new File([new Uint8Array(data.buffer)], data.filename, { type: data.contentType ?? 'application/octet-stream' })
+    const result = await provider.uploadFile(file, { folder: data.folder, filename: data.filename, tenantId })
+    const uploadResult: UploadResult = { ...result, provider: resolvedName }
+    await StorageService.persistUploadAudit(tenantId, undefined, uploadResult, data.contentType ?? 'application/octet-stream')
+    return uploadResult
+  }
+
+  /**
    * GDPR / KVKK hard delete: permanently remove the object from the bucket AND
    * the audit row (not a soft-delete), decrementing the tenant byte counter.
    * Use for right-to-erasure requests where no record may remain.

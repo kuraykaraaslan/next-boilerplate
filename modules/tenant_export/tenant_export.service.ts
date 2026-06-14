@@ -59,6 +59,10 @@ function stripFields<T>(rows: T[], fields: string[]): object[] {
 export interface ExportOptions {
   /** GDPR redaction: pseudonymise direct identifiers (email/phone/IP/recipient). */
   redactPii?: boolean;
+  /** Restrict the export to a subset of collections (keys of TenantExportData). */
+  collections?: string[];
+  /** Override the audit-log row cap (default from setting `exportAuditLogCap` or 1000). */
+  auditLogCap?: number;
 }
 
 export interface ExportManifest {
@@ -89,7 +93,17 @@ export default class TenantExportService {
   static async exportTenantData(tenantId: string, opts: ExportOptions = {}): Promise<Buffer> {
     const ds = await tenantDataSourceFor(tenantId);
 
-    Logger.info(`[TenantExport] Starting export for tenant ${tenantId}`);
+    // Configurable audit-log export cap (documented): opts override → setting → 1000.
+    let auditCap = opts.auditLogCap;
+    if (auditCap == null) {
+      try {
+        const { default: SettingService } = await import('@/modules/setting/setting.service');
+        const raw = await SettingService.getValue(tenantId, 'exportAuditLogCap').catch(() => null);
+        auditCap = Number(raw) > 0 ? Number(raw) : 1000;
+      } catch { auditCap = 1000; }
+    }
+
+    Logger.info(`[TenantExport] Starting export for tenant ${tenantId} (auditCap=${auditCap})`);
 
     const [
       members,
@@ -117,7 +131,7 @@ export default class TenantExportService {
       ds.getRepository(AuditLog).find({
         where: { tenantId },
         order: { createdAt: 'DESC' },
-        take: 1000,
+        take: auditCap,
       }),
       ds.getRepository(Webhook).find({ where: { tenantId } }),
       ds.getRepository(WebhookDelivery).find({ where: { tenantId }, order: { createdAt: 'DESC' }, take: 5000 }),
@@ -191,7 +205,13 @@ export default class TenantExportService {
       `${notificationLogs.length} notification logs`,
     );
 
-    const finalData = opts.redactPii ? (redactPiiDeep(exportData) as TenantExportData) : exportData;
+    let finalData: Record<string, unknown> = opts.redactPii ? (redactPiiDeep(exportData) as Record<string, unknown>) : (exportData as unknown as Record<string, unknown>);
+
+    // Selective collection export: keep metadata keys + only the requested collections.
+    if (opts.collections && opts.collections.length > 0) {
+      const keep = new Set([...opts.collections, 'exportedAt', 'tenantId']);
+      finalData = Object.fromEntries(Object.entries(finalData).filter(([k]) => keep.has(k)));
+    }
     return Buffer.from(JSON.stringify(finalData, null, 2), 'utf-8');
   }
 
