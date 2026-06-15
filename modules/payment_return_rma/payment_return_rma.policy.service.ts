@@ -1,9 +1,22 @@
 import 'reflect-metadata'
 import type { EntityManager } from 'typeorm'
+import redis, { jitter, singleFlight } from '@/modules/redis'
+import { env } from '@/modules/env'
 import SettingService from '@/modules/setting/setting.service'
 import { AppError, ErrorCode } from '@/modules/common/app-error'
 import { ReturnRequest as ReturnRequestEntity } from './entities/return_request.entity'
 import { PAYMENT_RETURN_RMA_MESSAGES } from './payment_return_rma.messages'
+
+// The return policy is derived from ~8 tenant settings and read on every return
+// create/quote, yet changes only when an admin edits the policy. Consolidate it
+// into one cached object. Settings are edited through the generic SettingService
+// (no local write hook here), so freshness is bounded by TTL rather than explicit
+// invalidation — a short window of stale policy is acceptable for returns.
+const POLICY_CACHE_TTL = env.TENANT_CACHE_TTL ?? (60 * 5)
+
+function policyCacheKey(tenantId: string): string {
+  return `payment_return_rma:policy:${tenantId}`
+}
 
 export interface ReturnPolicy {
   windowDays: number          // 0 = no window enforcement
@@ -19,23 +32,38 @@ export interface ReturnPolicy {
 export default class PaymentReturnRmaPolicyService {
   /** Per-tenant return policy from settings, with sensible defaults. */
   static async getPolicy(tenantId: string): Promise<ReturnPolicy> {
-    const s = await SettingService.getByKeys(tenantId, [
-      'returnWindowDays', 'rmaNumberPrefix', 'rmaNumberPadding', 'returnAutoApprove',
-      'restockingFeePercent', 'returnSlaHours', 'returnDefaultRefundMethod', 'returnExchangesAllowed',
-    ]).catch(() => ({} as Record<string, string | null>))
-    const num = (v: string | null | undefined, d: number) => {
-      const n = parseInt(v ?? '', 10); return Number.isFinite(n) && n >= 0 ? n : d
+    const key = policyCacheKey(tenantId)
+    const cached = await redis.get(key).catch(() => null)
+    if (cached) {
+      try { return JSON.parse(cached) as ReturnPolicy } catch { await redis.del(key).catch(() => {}) }
     }
-    return {
-      windowDays: num(s.returnWindowDays, 30),
-      rmaPrefix: (s.rmaNumberPrefix || 'RMA').toUpperCase(),
-      rmaPadding: num(s.rmaNumberPadding, 6),
-      autoApprove: s.returnAutoApprove === 'true',
-      restockingFeePercent: num(s.restockingFeePercent, 0),
-      slaHours: num(s.returnSlaHours, 72),
-      defaultRefundMethod: (s.returnDefaultRefundMethod || 'CASH').toUpperCase(),
-      exchangesAllowed: s.returnExchangesAllowed !== 'false',
-    }
+
+    return singleFlight(key, async () => {
+      const s = await SettingService.getByKeys(tenantId, [
+        'returnWindowDays', 'rmaNumberPrefix', 'rmaNumberPadding', 'returnAutoApprove',
+        'restockingFeePercent', 'returnSlaHours', 'returnDefaultRefundMethod', 'returnExchangesAllowed',
+      ]).catch(() => ({} as Record<string, string | null>))
+      const num = (v: string | null | undefined, d: number) => {
+        const n = parseInt(v ?? '', 10); return Number.isFinite(n) && n >= 0 ? n : d
+      }
+      const policy: ReturnPolicy = {
+        windowDays: num(s.returnWindowDays, 30),
+        rmaPrefix: (s.rmaNumberPrefix || 'RMA').toUpperCase(),
+        rmaPadding: num(s.rmaNumberPadding, 6),
+        autoApprove: s.returnAutoApprove === 'true',
+        restockingFeePercent: num(s.restockingFeePercent, 0),
+        slaHours: num(s.returnSlaHours, 72),
+        defaultRefundMethod: (s.returnDefaultRefundMethod || 'CASH').toUpperCase(),
+        exchangesAllowed: s.returnExchangesAllowed !== 'false',
+      }
+      await redis.setex(key, jitter(POLICY_CACHE_TTL), JSON.stringify(policy)).catch(() => {})
+      return policy
+    })
+  }
+
+  /** Evict the cached return policy (call after editing return settings). */
+  static async invalidatePolicy(tenantId: string): Promise<void> {
+    await redis.del(policyCacheKey(tenantId)).catch(() => {})
   }
 
   /**

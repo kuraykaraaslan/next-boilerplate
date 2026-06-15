@@ -13,6 +13,7 @@ import type {
   CreateShippingRateDTO, UpdateShippingRateDTO,
 } from './payment_shipping.dto'
 import { PAYMENT_SHIPPING_MESSAGES } from './payment_shipping.messages'
+import { clearShippingRuleCache } from './payment_shipping.cache'
 
 export default class PaymentShippingCrudService {
 
@@ -32,6 +33,7 @@ export default class PaymentShippingCrudService {
       resourceType: 'shipping_method', resourceId: saved.shippingMethodId,
       metadata: { code: dto.code },
     }).catch(() => {})
+    await clearShippingRuleCache(tenantId)
     return SafeShippingMethodSchema.parse(saved)
   }
 
@@ -56,6 +58,7 @@ export default class PaymentShippingCrudService {
       tenantId, actorType: 'SYSTEM', action: 'shipping_method.updated',
       resourceType: 'shipping_method', resourceId: methodId,
     }).catch(() => {})
+    await clearShippingRuleCache(tenantId)
     return SafeShippingMethodSchema.parse(saved)
   }
 
@@ -93,6 +96,7 @@ export default class PaymentShippingCrudService {
     const row = await repo.findOne({ where: { tenantId, shippingMethodId: methodId } })
     if (!row) throw new AppError(PAYMENT_SHIPPING_MESSAGES.METHOD_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     await repo.softRemove(row)
+    await clearShippingRuleCache(tenantId)
     AuditLogService.log({
       tenantId, actorType: 'SYSTEM', action: 'shipping_method.deleted',
       resourceType: 'shipping_method', resourceId: methodId,
@@ -118,6 +122,7 @@ export default class PaymentShippingCrudService {
       resourceType: 'shipping_rate', resourceId: saved.shippingRateId,
       metadata: { shippingMethodId: dto.shippingMethodId },
     }).catch(() => {})
+    await clearShippingRuleCache(tenantId)
     return ShippingRateSchema.parse(saved)
   }
 
@@ -149,6 +154,7 @@ export default class PaymentShippingCrudService {
       tenantId, actorType: 'SYSTEM', action: 'shipping_rate.updated',
       resourceType: 'shipping_rate', resourceId: rateId,
     }).catch(() => {})
+    await clearShippingRuleCache(tenantId)
     return ShippingRateSchema.parse(saved)
   }
 
@@ -159,6 +165,7 @@ export default class PaymentShippingCrudService {
     if (!row) throw new AppError(PAYMENT_SHIPPING_MESSAGES.RATE_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     const methodId = row.shippingMethodId
     await repo.remove(row)
+    await clearShippingRuleCache(tenantId)
     AuditLogService.log({
       tenantId, actorType: 'SYSTEM', action: 'shipping_rate.deleted',
       resourceType: 'shipping_rate', resourceId: rateId,

@@ -30,6 +30,7 @@ export default class StoreCategoryService {
       const category = repo.create({ tenantId, ...data })
       const saved = await repo.save(category)
       await redis.del(`store:cats:${tenantId}`).catch(() => {})
+      await redis.del(`store:public:cats:${tenantId}`).catch(() => {})
       return StoreCategorySchema.parse(saved)
     } catch (error) {
       if (error instanceof AppError) throw error
@@ -50,6 +51,7 @@ export default class StoreCategoryService {
     Object.assign(category, data)
     const saved = await repo.save(category)
     await redis.del(`store:cats:${tenantId}`).catch(() => {})
+    await redis.del(`store:public:cats:${tenantId}`).catch(() => {})
     await redis.del(`store:cat:${categoryId}`).catch(() => {})
     return StoreCategorySchema.parse(saved)
   }
@@ -104,6 +106,7 @@ export default class StoreCategoryService {
     if (productCount > 0) throw new AppError(STORE_MESSAGES.CATEGORY_HAS_PRODUCTS, 409, ErrorCode.CONFLICT)
     await ds.getRepository(CategoryEntity).softDelete({ tenantId, categoryId })
     await redis.del(`store:cats:${tenantId}`).catch(() => {})
+    await redis.del(`store:public:cats:${tenantId}`).catch(() => {})
     await redis.del(`store:cat:${categoryId}:true`).catch(() => {})
     await redis.del(`store:cat:${categoryId}:false`).catch(() => {})
   }

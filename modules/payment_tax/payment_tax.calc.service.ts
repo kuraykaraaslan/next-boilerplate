@@ -1,11 +1,10 @@
 import 'reflect-metadata'
 import { z } from 'zod'
-import { tenantDataSourceFor } from '@/modules/db'
 import Logger from '@/modules/logger'
 import AuditLogService from '@/modules/audit_log/audit_log.service'
 import { AppError, ErrorCode } from '@/modules/common/app-error'
 import { TaxClass as TaxClassEntity } from './entities/tax_class.entity'
-import { TaxRate as TaxRateEntity } from './entities/tax_rate.entity'
+import { getTaxRuleData } from './payment_tax.cache'
 import {
   TaxCalculationResultSchema,
   type TaxLine, type TaxCalculationLine, type TaxCalculationResult,
@@ -73,11 +72,8 @@ export default class PaymentTaxCalcService {
       })
     }
 
-    const ds = await tenantDataSourceFor(tenantId)
-    const classRepo = ds.getRepository(TaxClassEntity)
-    const rateRepo = ds.getRepository(TaxRateEntity)
-
-    const classes = await classRepo.find({ where: { tenantId } })
+    // Tax classes + active rates from the per-tenant read-through cache.
+    const { classes, rates } = await getTaxRuleData(tenantId)
     const classByCode = new Map<string, TaxClassEntity>()
     let defaultClass: TaxClassEntity | undefined
     for (const c of classes) {
@@ -86,10 +82,7 @@ export default class PaymentTaxCalcService {
     }
 
     const at = dto.at ?? new Date()
-    const allRates = (await rateRepo.find({
-      where: { tenantId, isActive: true },
-      order: { priority: 'ASC', createdAt: 'ASC' },
-    })).filter((rate) => {
+    const allRates = rates.filter((rate) => {
       // Effective-dating: only rates whose window contains `at` apply.
       if (rate.effectiveFrom && new Date(rate.effectiveFrom) > at) return false
       if (rate.effectiveTo && new Date(rate.effectiveTo) < at) return false

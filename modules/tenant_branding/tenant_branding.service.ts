@@ -1,4 +1,6 @@
 import 'reflect-metadata';
+import redis, { jitter, singleFlight } from '@/modules/redis';
+import { env } from '@/modules/env';
 import SettingService from '@/modules/setting/setting.service';
 import AuditLogService from '@/modules/audit_log/audit_log.service';
 import { AuditActions } from '@/modules/audit_log/audit_log.enums';
@@ -6,6 +8,17 @@ import { AppError, ErrorCode } from '@/modules/common/app-error';
 import { TENANT_BRANDING_KEYS } from './tenant_branding.setting.keys';
 import { TenantBrandingSchema } from './tenant_branding.types';
 import type { TenantBranding } from './tenant_branding.types';
+
+// Branding is read on virtually every page render (logo, colours, custom CSS)
+// but changes only when an admin updates it — an ideal read-through cache target.
+// The underlying SettingService keys are cached individually; this consolidates
+// the whole branding object into one key so a render does a single GET + no Zod
+// re-parse. Invalidated explicitly on update()/reset().
+const BRANDING_CACHE_TTL = env.TENANT_CACHE_TTL ?? (60 * 5);
+
+function cacheKey(tenantId: string): string {
+  return `tenant_branding:${tenantId}`;
+}
 
 // Patterns unsafe in injected CSS: IE expression(), JS URLs, data-URI backgrounds, @import exfiltration.
 const UNSAFE_CSS_PATTERNS = [
@@ -48,8 +61,23 @@ function assertHexColor(key: string, value: string): void {
 export default class TenantBrandingService {
 
   static async get(tenantId: string): Promise<TenantBranding> {
-    const raw = await SettingService.getByKeys(tenantId, [...TENANT_BRANDING_KEYS]);
-    return TenantBrandingSchema.parse(raw);
+    const key = cacheKey(tenantId);
+    const cached = await redis.get(key).catch(() => null);
+    if (cached) {
+      try { return TenantBrandingSchema.parse(JSON.parse(cached)); } catch { await redis.del(key).catch(() => {}); }
+    }
+
+    return singleFlight(key, async () => {
+      const raw = await SettingService.getByKeys(tenantId, [...TENANT_BRANDING_KEYS]);
+      const parsed = TenantBrandingSchema.parse(raw);
+      await redis.setex(key, jitter(BRANDING_CACHE_TTL), JSON.stringify(parsed)).catch(() => {});
+      return parsed;
+    });
+  }
+
+  /** Drop the consolidated branding cache (called after any settings write). */
+  private static async invalidate(tenantId: string): Promise<void> {
+    await redis.del(cacheKey(tenantId)).catch(() => {});
   }
 
   static async update(tenantId: string, data: Partial<TenantBranding>, actorId?: string): Promise<TenantBranding> {
@@ -67,6 +95,7 @@ export default class TenantBrandingService {
 
     if (Object.keys(updates).length > 0) {
       await SettingService.updateMany(tenantId, updates);
+      await this.invalidate(tenantId);
     }
 
     if (actorId) {
@@ -87,6 +116,7 @@ export default class TenantBrandingService {
     for (const key of TENANT_BRANDING_KEYS) {
       await SettingService.delete(tenantId, key).catch(() => {});
     }
+    await this.invalidate(tenantId);
 
     if (actorId) {
       AuditLogService.log({

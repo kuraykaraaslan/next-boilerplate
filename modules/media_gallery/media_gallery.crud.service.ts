@@ -16,6 +16,7 @@ import type { AddGalleryItemDTO, UpdateGalleryItemDTO, ReorderGalleryItemsDTO } 
 import { MEDIA_GALLERY_MESSAGES } from './media_gallery.messages';
 import MediaGalleryUrlService from './media_gallery.url';
 import MediaGalleryIntelligenceService from './media_gallery.intelligence.service';
+import { invalidateFileUsage } from './media_gallery.query.service';
 import { toView } from './media_gallery.view';
 
 export async function getOrCreate(tenantId: string, entityType: string, entityId: string): Promise<MediaGallery> {
@@ -82,6 +83,7 @@ export async function addItem(
     return repo.save(repo.create({ tenantId, galleryId: gallery.galleryId, ...dto, altText, contentHash, perceptualHash }));
   });
 
+  await invalidateFileUsage(tenantId, item.uploadedFileId);
   return toView(item, file);
 }
 
@@ -137,6 +139,7 @@ export async function removeItem(tenantId: string, itemId: string): Promise<void
   const item = await repo.findOne({ where: { tenantId, itemId } });
   if (!item) throw new AppError(MEDIA_GALLERY_MESSAGES.ITEM_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
   await repo.delete({ tenantId, itemId });
+  await invalidateFileUsage(tenantId, item.uploadedFileId);
 }
 
 export async function reorder(

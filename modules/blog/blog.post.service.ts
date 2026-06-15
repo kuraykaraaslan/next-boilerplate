@@ -1,12 +1,24 @@
 import 'reflect-metadata'
 import { ILike } from 'typeorm'
 import { tenantDataSourceFor } from '@/modules/db'
+import redis, { jitter, singleFlight } from '@/modules/redis'
+import { env } from '@/modules/env'
 import Logger from '@/modules/logger'
 import { BlogPost as PostEntity } from './entities/blog_post.entity'
 import { SafeBlogPostSchema, type SafeBlogPost } from './blog.types'
 import type { CreatePostDTO, UpdatePostDTO, GetPostsQuery } from './blog.dto'
 import { BLOG_MESSAGES } from './blog.messages'
 import { AppError, ErrorCode } from '@/modules/common/app-error'
+
+// Published posts are read-heavy and change rarely → read-through cache the
+// single-post detail path. List/search results are paginated and filter-heavy
+// (poor cache keys), so only by-id reads are cached. The `views` counter lags by
+// at most one TTL window (display-only, intentionally not invalidated per view).
+const POST_CACHE_TTL = env.TENANT_CACHE_TTL ?? (60 * 5)
+
+function postCacheKey(tenantId: string, postId: string): string {
+  return `blog:post:${tenantId}:${postId}`
+}
 
 /** Tenant-scoped blog post CRUD + publishing lifecycle. */
 export default class BlogPostService {
@@ -32,10 +44,24 @@ export default class BlogPostService {
   }
 
   static async getById(tenantId: string, postId: string): Promise<SafeBlogPost> {
-    const ds = await tenantDataSourceFor(tenantId)
-    const row = await ds.getRepository(PostEntity).findOne({ where: { tenantId, postId } })
-    if (!row) throw new AppError(BLOG_MESSAGES.POST_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
-    return SafeBlogPostSchema.parse(row)
+    const key = postCacheKey(tenantId, postId)
+    const cached = await redis.get(key).catch(() => null)
+    if (cached) {
+      try { return SafeBlogPostSchema.parse(JSON.parse(cached)) } catch { await redis.del(key).catch(() => {}) }
+    }
+    return singleFlight(key, async () => {
+      const ds = await tenantDataSourceFor(tenantId)
+      const row = await ds.getRepository(PostEntity).findOne({ where: { tenantId, postId } })
+      if (!row) throw new AppError(BLOG_MESSAGES.POST_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
+      const parsed = SafeBlogPostSchema.parse(row)
+      await redis.setex(key, jitter(POST_CACHE_TTL), JSON.stringify(parsed)).catch(() => {})
+      return parsed
+    })
+  }
+
+  /** Evict the cached post (called after any write to it). */
+  private static async invalidate(tenantId: string, postId: string): Promise<void> {
+    await redis.del(postCacheKey(tenantId, postId)).catch(() => {})
   }
 
   static async list(tenantId: string, query: GetPostsQuery): Promise<{ data: SafeBlogPost[]; total: number }> {
@@ -73,6 +99,7 @@ export default class BlogPostService {
     }
     Object.assign(row, data)
     const saved = await repo.save(row)
+    await this.invalidate(tenantId, postId)
     return SafeBlogPostSchema.parse(saved)
   }
 
@@ -95,5 +122,6 @@ export default class BlogPostService {
     const row = await repo.findOne({ where: { tenantId, postId } })
     if (!row) throw new AppError(BLOG_MESSAGES.POST_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     await repo.softRemove(row)
+    await this.invalidate(tenantId, postId)
   }
 }

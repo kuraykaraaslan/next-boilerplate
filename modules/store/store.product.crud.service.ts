@@ -1,5 +1,5 @@
 import 'reflect-metadata'
-import { ILike, Not } from 'typeorm'
+import { ILike, Not, In } from 'typeorm'
 import { tenantDataSourceFor } from '@/modules/db'
 import redis, { singleFlight } from '@/modules/redis'
 import Logger from '@/modules/logger'
@@ -112,9 +112,12 @@ export default class StoreProductCrudService {
         throw new AppError(STORE_MESSAGES.PRODUCT_APPROVAL_REQUIRED, 422, ErrorCode.VALIDATION_ERROR)
       }
     }
+    const oldSlug = product.slug
     Object.assign(product, data)
     const saved = await repo.save(product)
     await redis.del(`store:product:${productId}`).catch(() => {})
+    await redis.del(`store:public:product:${tenantId}:${oldSlug}`).catch(() => {})
+    if (saved.slug !== oldSlug) await redis.del(`store:public:product:${tenantId}:${saved.slug}`).catch(() => {})
     await WebhookService.dispatchEvent(tenantId, 'product.updated', {
       productId: saved.productId, slug: saved.slug, name: saved.name, status: saved.status,
     }).catch((err) => Logger.warn(`product.updated webhook failed: ${err?.message ?? err}`))
@@ -188,6 +191,7 @@ export default class StoreProductCrudService {
     await ds.getRepository(ProductEntity).softDelete({ tenantId, productId })
     await redis.del(`store:product:${productId}`).catch(() => {})
     await redis.del(`store:product:detail:${productId}`).catch(() => {})
+    await redis.del(`store:public:product:${tenantId}:${product.slug}`).catch(() => {})
     await WebhookService.dispatchEvent(tenantId, 'product.deleted', {
       productId, slug: product.slug, name: product.name,
     }).catch((err) => Logger.warn(`product.deleted webhook failed: ${err?.message ?? err}`))
@@ -203,6 +207,7 @@ export default class StoreProductCrudService {
     product.status = status
     const saved = await repo.save(product)
     await redis.del(`store:product:${productId}`).catch(() => {})
+    await redis.del(`store:public:product:${tenantId}:${saved.slug}`).catch(() => {})
     await WebhookService.dispatchEvent(tenantId, 'product.updated', {
       productId: saved.productId, slug: saved.slug, name: saved.name, status: saved.status,
     }).catch((err) => Logger.warn(`product.updated webhook failed: ${err?.message ?? err}`))
@@ -228,12 +233,17 @@ export default class StoreProductCrudService {
   static async bulkSetStatus(tenantId: string, productIds: string[], status: StoreProduct['status']): Promise<number> {
     if (productIds.length === 0) return 0
     const ds = await tenantDataSourceFor(tenantId)
+    // Capture slugs first so we can evict the storefront-by-slug cache too.
+    const affected = await ds.getRepository(ProductEntity).find({
+      where: { tenantId, productId: In(productIds) }, select: ['productId', 'slug'],
+    })
     const result = await ds.getRepository(ProductEntity)
       .createQueryBuilder()
       .update(ProductEntity).set({ status })
       .where('"tenantId" = :tenantId AND "productId" IN (:...ids)', { tenantId, ids: productIds })
       .execute()
     for (const id of productIds) await redis.del(`store:product:${id}`).catch(() => {})
+    for (const p of affected) await redis.del(`store:public:product:${tenantId}:${p.slug}`).catch(() => {})
     return result.affected ?? 0
   }
 }

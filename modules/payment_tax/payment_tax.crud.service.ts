@@ -12,6 +12,7 @@ import type {
   CreateTaxRateDTO, UpdateTaxRateDTO, GetTaxRatesQuery,
 } from './payment_tax.dto'
 import { PAYMENT_TAX_MESSAGES } from './payment_tax.messages'
+import { clearTaxRuleCache } from './payment_tax.cache'
 
 export default class PaymentTaxCrudService {
 
@@ -32,6 +33,7 @@ export default class PaymentTaxCrudService {
       })
       return repo.save(entity)
     })
+    await clearTaxRuleCache(tenantId)
     return SafeTaxClassSchema.parse(saved)
   }
 
@@ -47,6 +49,7 @@ export default class PaymentTaxCrudService {
       Object.assign(row, dto)
       return repo.save(row)
     })
+    await clearTaxRuleCache(tenantId)
     return SafeTaxClassSchema.parse(saved)
   }
 
@@ -65,6 +68,7 @@ export default class PaymentTaxCrudService {
     const row = await repo.findOne({ where: { tenantId, taxClassId: classId } })
     if (!row) throw new AppError(PAYMENT_TAX_MESSAGES.TAX_CLASS_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     await repo.softRemove(row)
+    await clearTaxRuleCache(tenantId)
   }
 
   // ──────────────────────────────────────────────
@@ -82,6 +86,7 @@ export default class PaymentTaxCrudService {
       priority: dto.priority, isActive: dto.isActive,
     })
     const saved = await repo.save(entity)
+    await clearTaxRuleCache(tenantId)
     return TaxRateSchema.parse(saved)
   }
 
@@ -92,6 +97,7 @@ export default class PaymentTaxCrudService {
     if (!row) throw new AppError(PAYMENT_TAX_MESSAGES.TAX_RATE_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     Object.assign(row, dto)
     const saved = await repo.save(row)
+    await clearTaxRuleCache(tenantId)
     return TaxRateSchema.parse(saved)
   }
 
@@ -124,5 +130,6 @@ export default class PaymentTaxCrudService {
     const row = await repo.findOne({ where: { tenantId, taxRateId: rateId } })
     if (!row) throw new AppError(PAYMENT_TAX_MESSAGES.TAX_RATE_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     await repo.remove(row)
+    await clearTaxRuleCache(tenantId)
   }
 }

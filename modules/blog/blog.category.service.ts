@@ -1,6 +1,8 @@
 import 'reflect-metadata'
 import { ILike } from 'typeorm'
 import { tenantDataSourceFor } from '@/modules/db'
+import redis, { jitter, singleFlight } from '@/modules/redis'
+import { env } from '@/modules/env'
 import Logger from '@/modules/logger'
 import { BlogCategory as CategoryEntity } from './entities/blog_category.entity'
 import { BlogPost as PostEntity } from './entities/blog_post.entity'
@@ -8,6 +10,13 @@ import { SafeBlogCategorySchema, type SafeBlogCategory } from './blog.types'
 import type { CreateCategoryDTO, UpdateCategoryDTO, GetCategoriesQuery } from './blog.dto'
 import { BLOG_MESSAGES } from './blog.messages'
 import { AppError, ErrorCode } from '@/modules/common/app-error'
+
+// Categories rarely change but are read on every category page → cache by-id reads.
+const CATEGORY_CACHE_TTL = env.TENANT_CACHE_TTL ?? (60 * 5)
+
+function categoryCacheKey(tenantId: string, categoryId: string): string {
+  return `blog:category:${tenantId}:${categoryId}`
+}
 
 /** Tenant-scoped blog category CRUD. */
 export default class BlogCategoryService {
@@ -27,10 +36,24 @@ export default class BlogCategoryService {
   }
 
   static async getById(tenantId: string, categoryId: string): Promise<SafeBlogCategory> {
-    const ds = await tenantDataSourceFor(tenantId)
-    const row = await ds.getRepository(CategoryEntity).findOne({ where: { tenantId, categoryId } })
-    if (!row) throw new AppError(BLOG_MESSAGES.CATEGORY_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
-    return SafeBlogCategorySchema.parse(row)
+    const key = categoryCacheKey(tenantId, categoryId)
+    const cached = await redis.get(key).catch(() => null)
+    if (cached) {
+      try { return SafeBlogCategorySchema.parse(JSON.parse(cached)) } catch { await redis.del(key).catch(() => {}) }
+    }
+    return singleFlight(key, async () => {
+      const ds = await tenantDataSourceFor(tenantId)
+      const row = await ds.getRepository(CategoryEntity).findOne({ where: { tenantId, categoryId } })
+      if (!row) throw new AppError(BLOG_MESSAGES.CATEGORY_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
+      const parsed = SafeBlogCategorySchema.parse(row)
+      await redis.setex(key, jitter(CATEGORY_CACHE_TTL), JSON.stringify(parsed)).catch(() => {})
+      return parsed
+    })
+  }
+
+  /** Evict the cached category (called after any write to it). */
+  private static async invalidate(tenantId: string, categoryId: string): Promise<void> {
+    await redis.del(categoryCacheKey(tenantId, categoryId)).catch(() => {})
   }
 
   static async list(tenantId: string, query: GetCategoriesQuery): Promise<{ data: SafeBlogCategory[]; total: number }> {
@@ -57,6 +80,7 @@ export default class BlogCategoryService {
     }
     Object.assign(row, data)
     const saved = await repo.save(row)
+    await this.invalidate(tenantId, categoryId)
     return SafeBlogCategorySchema.parse(saved)
   }
 
@@ -68,5 +92,6 @@ export default class BlogCategoryService {
     const row = await repo.findOne({ where: { tenantId, categoryId } })
     if (!row) throw new AppError(BLOG_MESSAGES.CATEGORY_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     await repo.softRemove(row)
+    await this.invalidate(tenantId, categoryId)
   }
 }

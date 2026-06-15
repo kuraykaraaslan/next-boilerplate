@@ -1,13 +1,12 @@
 import 'reflect-metadata'
-import { tenantDataSourceFor } from '@/modules/db'
 import Logger from '@/modules/logger'
 import { AppError, ErrorCode } from '@/modules/common/app-error'
-import { ShippingMethod as ShippingMethodEntity } from './entities/shipping_method.entity'
 import { ShippingRate as ShippingRateEntity } from './entities/shipping_rate.entity'
 import { ShippingQuoteSchema, type ShippingQuote } from './payment_shipping.types'
 import type { CalculateShippingDTO } from './payment_shipping.dto'
 import { PAYMENT_SHIPPING_MESSAGES } from './payment_shipping.messages'
 import PaymentShippingRulesService, { chargeableWeight } from './payment_shipping.rules.service'
+import { getShippingRuleData } from './payment_shipping.cache'
 
 export default class PaymentShippingCalcService {
 
@@ -25,11 +24,9 @@ export default class PaymentShippingCalcService {
       const duties = dto.incoterm === 'DDP' ? PaymentShippingRulesService.estimateDuties(dto.declaredValue ?? dto.subtotal, policy) : 0
       const matchWeight = chargeable > 0 ? chargeable : dto.weight
 
-      const ds = await tenantDataSourceFor(tenantId)
-      const methods = await ds.getRepository(ShippingMethodEntity).find({ where: { tenantId, isActive: true } })
+      const { methods, rates } = await getShippingRuleData(tenantId)
       if (methods.length === 0) return []
 
-      const rates = await ds.getRepository(ShippingRateEntity).find({ where: { tenantId, isActive: true } })
       const methodById = new Map(methods.map((m) => [m.shippingMethodId, m]))
       const cheapestByMethod = new Map<string, ShippingQuote>()
 
