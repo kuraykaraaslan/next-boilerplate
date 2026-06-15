@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-15T07:45:45.027Z",
+  "generatedAt": "2026-06-15T10:40:42.438Z",
   "entities": [
     {
       "name": "AiUsageLog",
@@ -20,6 +20,26 @@
         "outputTokens",
         "totalTokens",
         "costUsd",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "AnalyticsEvent",
+      "filePath": "modules/analytics/entities/analytics_event.entity.ts",
+      "module": "analytics",
+      "schema": "system",
+      "tableName": "analytics_events",
+      "columns": [
+        "eventId",
+        "tenantId",
+        "name",
+        "userId",
+        "anonymousId",
+        "sessionId",
+        "properties",
+        "path",
+        "referrer",
         "createdAt"
       ],
       "relations": []
@@ -215,6 +235,27 @@
         "metadata",
         "createdAt",
         "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "ConsentRecord",
+      "filePath": "modules/gdpr_consent/entities/consent_record.entity.ts",
+      "module": "gdpr_consent",
+      "schema": "system",
+      "tableName": "consent_records",
+      "columns": [
+        "consentId",
+        "tenantId",
+        "subjectUserId",
+        "subjectAnonymousId",
+        "purpose",
+        "granted",
+        "policyVersion",
+        "source",
+        "ipAddress",
+        "userAgent",
+        "createdAt"
       ],
       "relations": []
     },
@@ -446,6 +487,44 @@
         "metadata",
         "status",
         "changedByUserId",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "FeatureFlag",
+      "filePath": "modules/feature_flags/entities/feature_flag.entity.ts",
+      "module": "feature_flags",
+      "schema": "system",
+      "tableName": "feature_flags",
+      "columns": [
+        "flagId",
+        "tenantId",
+        "key",
+        "name",
+        "description",
+        "enabled",
+        "rolloutPercentage",
+        "targetingRules",
+        "createdByUserId",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "FeatureFlagOverride",
+      "filePath": "modules/feature_flags/entities/feature_flag_override.entity.ts",
+      "module": "feature_flags",
+      "schema": "system",
+      "tableName": "feature_flag_overrides",
+      "columns": [
+        "overrideId",
+        "tenantId",
+        "flagKey",
+        "subjectType",
+        "subjectId",
+        "enabled",
         "createdAt"
       ],
       "relations": []
@@ -1238,6 +1317,27 @@
       "relations": []
     },
     {
+      "name": "SearchDocument",
+      "filePath": "modules/search/entities/search_document.entity.ts",
+      "module": "search",
+      "schema": "system",
+      "tableName": "search_documents",
+      "columns": [
+        "docId",
+        "tenantId",
+        "entityType",
+        "entityId",
+        "title",
+        "body",
+        "url",
+        "metadata",
+        "language",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "SeoMeta",
       "filePath": "modules/seo/entities/seo_meta.entity.ts",
       "module": "seo",
@@ -1354,8 +1454,8 @@
     },
     {
       "name": "SigningCertificate",
-      "filePath": "modules/e_signature/entities/signing_certificate.entity.ts",
-      "module": "e_signature",
+      "filePath": "modules/auth_e_signature/entities/signing_certificate.entity.ts",
+      "module": "auth_e_signature",
       "schema": "system",
       "tableName": "signing_certificates",
       "columns": [
@@ -2028,6 +2128,9 @@
         "size",
         "mimeType",
         "url",
+        "ipAddress",
+        "userAgent",
+        "country",
         "scanStatus",
         "scanProvider",
         "scanResult",

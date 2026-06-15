@@ -16,6 +16,7 @@ SAML 2.0 SSO with per-tenant IdP config (SamlConfig): signature alg, dual-cert r
 
 ## Services
 
+- `auth_saml.config.crud.service.ts`
 - `auth_saml.config.service.ts`
 - `auth_saml.crypto.service.ts`
 - `auth_saml.flow.callback.service.ts`

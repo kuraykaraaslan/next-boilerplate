@@ -53,6 +53,7 @@ System-wide key-value settings store. Modules declare their keys in *.setting.ke
 - `setting/ui/PlatformSettingsTabs` _(ui, client)_
 - `setting/ui/settings-kit` _(ui, client)_
 - `setting/ui/SettingsPanelHost` _(ui, client)_
+- `setting/ui/tabs/AllowedExtensionsField` _(ui, client)_
 - `setting/ui/tabs/platform-tab.shared` _(ui, client)_
 - `setting/ui/tabs/PlatformAiTab` _(ui, client)_
 - `setting/ui/tabs/PlatformAuthTab` _(ui, client)_

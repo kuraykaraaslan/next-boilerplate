@@ -16,7 +16,9 @@ Tenant-scoped membership join table with roles (owner/admin/member) and per-memb
 
 ## Services
 
+- `tenant_member.read.service.ts`
 - `tenant_member.service.ts`
+- `tenant_member.write.service.ts`
 
 ## DTOs
 

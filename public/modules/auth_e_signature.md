@@ -1,0 +1,35 @@
+# E-Signature Identity Login
+
+- **id:** `auth_e_signature`
+- **tier:** other
+- **version:** 1.0.0
+- **dir:** `modules/auth_e_signature/`
+- **tags:** auth, identity, signature, eidas
+- **icon:** `fas fa-id-card`
+- **hasNextLayer:** true
+
+E-signature / e-identity login consumer: matches and binds qualified electronic-signature certificates (TR Mobil İmza, Smart-ID, BankID, eIDAS QSCD) to user accounts and runs the login/bind workflow. Consumes the e_signature engine for provider/crypto/identity primitives; owns the certificate↔user binding (signing_certificates).
+
+## Dependencies
+
+- **requires:** `db`, `e_signature`, `user`, `user_session`, `user_security`, `tenant`, `tenant_member`, `env`, `audit_log`, `webhook`, `redis`, `limiter`, `common`, `logger`
+
+## Services
+
+- `auth_e_signature.cert.service.ts`
+- `auth_e_signature.flow.service.ts`
+- `auth_e_signature.service.ts`
+
+## Entities
+
+- `signing_certificate.entity.ts`
+
+## TypeORM entities
+
+- `SigningCertificate` (system) — `modules/auth_e_signature/entities/signing_certificate.entity.ts`
+
+## Next layer (modules_next/) surface
+
+- `auth_e_signature/ui/ESignatureLoginPanel` _(ui, client)_
+- `auth_e_signature/ui/SigningCertificatesBindModal` _(ui, client)_
+- `auth_e_signature/ui/SigningCertificatesPanel` _(ui, client)_

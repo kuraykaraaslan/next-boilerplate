@@ -18,7 +18,9 @@ Tenant CRUD, lifecycle (active/suspended/deleted), soft-deletion service. Founda
 
 - `tenant.deletion.service.ts`
 - `tenant.onboarding.service.ts`
+- `tenant.read.service.ts`
 - `tenant.service.ts`
+- `tenant.write.service.ts`
 
 ## DTOs
 

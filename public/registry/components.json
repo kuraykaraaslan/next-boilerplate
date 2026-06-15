@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-15T07:45:45.027Z",
+  "generatedAt": "2026-06-15T10:40:42.438Z",
   "components": [
     {
       "id": "ai/ui/AIChatBox",
@@ -27,6 +27,16 @@
       "isClient": true,
       "isServer": false,
       "baseName": "AIUsageTab"
+    },
+    {
+      "id": "ai/ui/UsageChart",
+      "module": "ai",
+      "filePath": "modules_next/ai/ui/UsageChart.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "UsageChart"
     },
     {
       "id": "api_doc/ui/ApiDocsPage",
@@ -272,6 +282,42 @@
       "baseName": "AuditLogFilters"
     },
     {
+      "id": "auth_e_signature/ui/ESignatureLoginPanel",
+      "module": "auth_e_signature",
+      "filePath": "modules_next/auth_e_signature/ui/ESignatureLoginPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "ESignatureLoginPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ESignatureLoginPanel"
+    },
+    {
+      "id": "auth_e_signature/ui/SigningCertificatesBindModal",
+      "module": "auth_e_signature",
+      "filePath": "modules_next/auth_e_signature/ui/SigningCertificatesBindModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "SigningCertificatesBindModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SigningCertificatesBindModal"
+    },
+    {
+      "id": "auth_e_signature/ui/SigningCertificatesPanel",
+      "module": "auth_e_signature",
+      "filePath": "modules_next/auth_e_signature/ui/SigningCertificatesPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "SigningCertificatesPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SigningCertificatesPanel"
+    },
+    {
       "id": "auth_saml/ui/SamlAttributeForm",
       "module": "auth_saml",
       "filePath": "modules_next/auth_saml/ui/SamlAttributeForm.tsx",
@@ -321,18 +367,6 @@
       "isClient": false,
       "isServer": false,
       "baseName": "auth.admin-guard.next"
-    },
-    {
-      "id": "auth/ui/ESignatureLoginPanel",
-      "module": "auth",
-      "filePath": "modules_next/auth/ui/ESignatureLoginPanel.tsx",
-      "kind": "ui",
-      "exports": [
-        "ESignatureLoginPanel"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "ESignatureLoginPanel"
     },
     {
       "id": "auth/ui/ForgotPasswordForm",
@@ -396,6 +430,34 @@
       "isClient": true,
       "isServer": false,
       "baseName": "SessionExpiredBanner"
+    },
+    {
+      "id": "back_office/ui/approval-columns",
+      "module": "back_office",
+      "filePath": "modules_next/back_office/ui/approval-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "ApprovalRow",
+        "buildApprovalColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "approval-columns"
+    },
+    {
+      "id": "back_office/ui/support-ticket-columns",
+      "module": "back_office",
+      "filePath": "modules_next/back_office/ui/support-ticket-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "TicketRow",
+        "buildTicketColumns",
+        "TICKET_STATUS_VARIANT",
+        "TICKET_PRIORITY_VARIANT"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "support-ticket-columns"
     },
     {
       "id": "blog/ui/BlogPostCreateModal",
@@ -1203,6 +1265,19 @@
       "isClient": true,
       "isServer": false,
       "baseName": "Tooltip"
+    },
+    {
+      "id": "common/utils/cacheHeaders",
+      "module": "common",
+      "filePath": "modules_next/common/utils/cacheHeaders.ts",
+      "kind": "util",
+      "exports": [
+        "PUBLIC_CACHE",
+        "NO_STORE"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "cacheHeaders"
     },
     {
       "id": "common/utils/cn",
@@ -2399,30 +2474,6 @@
       "baseName": "page-templates"
     },
     {
-      "id": "e_signature/ui/SigningCertificatesBindModal",
-      "module": "e_signature",
-      "filePath": "modules_next/e_signature/ui/SigningCertificatesBindModal.tsx",
-      "kind": "ui",
-      "exports": [
-        "SigningCertificatesBindModal"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "SigningCertificatesBindModal"
-    },
-    {
-      "id": "e_signature/ui/SigningCertificatesPanel",
-      "module": "e_signature",
-      "filePath": "modules_next/e_signature/ui/SigningCertificatesPanel.tsx",
-      "kind": "ui",
-      "exports": [
-        "SigningCertificatesPanel"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "SigningCertificatesPanel"
-    },
-    {
       "id": "e_signature/ui/TenantESignatureSettingsPanel",
       "module": "e_signature",
       "filePath": "modules_next/e_signature/ui/TenantESignatureSettingsPanel.tsx",
@@ -2435,6 +2486,31 @@
       "baseName": "TenantESignatureSettingsPanel"
     },
     {
+      "id": "feature_flags/ui/feature-flag-columns",
+      "module": "feature_flags",
+      "filePath": "modules_next/feature_flags/ui/feature-flag-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "FlagRow",
+        "buildFlagColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "feature-flag-columns"
+    },
+    {
+      "id": "gdpr_consent/ui/ConsentBanner",
+      "module": "gdpr_consent",
+      "filePath": "modules_next/gdpr_consent/ui/ConsentBanner.tsx",
+      "kind": "ui",
+      "exports": [
+        "ConsentBanner"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ConsentBanner"
+    },
+    {
       "id": "invoice/ui/EarsivSmsSignModal",
       "module": "invoice",
       "filePath": "modules_next/invoice/ui/EarsivSmsSignModal.tsx",
@@ -2445,6 +2521,19 @@
       "isClient": true,
       "isServer": false,
       "baseName": "EarsivSmsSignModal"
+    },
+    {
+      "id": "invoice/ui/invoice-list-columns",
+      "module": "invoice",
+      "filePath": "modules_next/invoice/ui/invoice-list-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "InvoiceRow",
+        "buildInvoiceColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "invoice-list-columns"
     },
     {
       "id": "invoice/ui/InvoiceLineItemsTable",
@@ -2506,6 +2595,23 @@
       "isClient": true,
       "isServer": false,
       "baseName": "GalleryPanel"
+    },
+    {
+      "id": "metering/ui/metering-columns",
+      "module": "metering",
+      "filePath": "modules_next/metering/ui/metering-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "MeterRow",
+        "UsageRow",
+        "BillingRunRow",
+        "buildMeterColumns",
+        "buildUsageColumns",
+        "buildBillingRunColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "metering-columns"
     },
     {
       "id": "module.types.ts/",
@@ -2798,6 +2904,18 @@
       "isClient": true,
       "isServer": false,
       "baseName": "SettingsPanelHost"
+    },
+    {
+      "id": "setting/ui/tabs/AllowedExtensionsField",
+      "module": "setting",
+      "filePath": "modules_next/setting/ui/tabs/AllowedExtensionsField.tsx",
+      "kind": "ui",
+      "exports": [
+        "AllowedExtensionsField"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "AllowedExtensionsField"
     },
     {
       "id": "setting/ui/tabs/platform-tab.shared",
@@ -3484,6 +3602,21 @@
       "isClient": true,
       "isServer": false,
       "baseName": "UserStatusBadge"
+    },
+    {
+      "id": "wallet/ui/wallet-account-columns",
+      "module": "wallet",
+      "filePath": "modules_next/wallet/ui/wallet-account-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "WalletAccountRow",
+        "buildWalletAccountColumns",
+        "WalletPostingRow",
+        "buildWalletPostingColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "wallet-account-columns"
     },
     {
       "id": "webhook/ui/webhook-columns",

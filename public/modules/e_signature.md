@@ -17,9 +17,11 @@ Multi-country e-identity login + e-signature (eIDAS/OIDC4IDA). Pluggable provide
 
 ## Services
 
-- `e_signature.cert.service.ts`
 - `e_signature.compliance.service.ts`
+- `e_signature.crypto.chain.service.ts`
+- `e_signature.crypto.parse.service.ts`
 - `e_signature.crypto.service.ts`
+- `e_signature.crypto.verify.service.ts`
 - `e_signature.document.service.ts`
 - `e_signature.encryption.service.ts`
 - `e_signature.etsi_tsl.service.ts`
@@ -37,7 +39,6 @@ Multi-country e-identity login + e-signature (eIDAS/OIDC4IDA). Pluggable provide
 
 ## Entities
 
-- `signing_certificate.entity.ts`
 - `trust_list_entry.entity.ts`
 
 ## Enums
@@ -58,13 +59,10 @@ Multi-country e-identity login + e-signature (eIDAS/OIDC4IDA). Pluggable provide
 
 ## TypeORM entities
 
-- `SigningCertificate` (system) — `modules/e_signature/entities/signing_certificate.entity.ts`
 - `TrustListEntry` (system) — `modules/e_signature/entities/trust_list_entry.entity.ts`
 
 ## Next layer (modules_next/) surface
 
-- `e_signature/ui/SigningCertificatesBindModal` _(ui, client)_
-- `e_signature/ui/SigningCertificatesPanel` _(ui, client)_
 - `e_signature/ui/TenantESignatureSettingsPanel` _(ui, client)_
 
 ## README

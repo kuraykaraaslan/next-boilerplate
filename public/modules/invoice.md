@@ -66,6 +66,7 @@ Tenant-scoped invoicing with regional e-invoicing adapters (TR e-Arşiv, EU Pepp
 ## Next layer (modules_next/) surface
 
 - `invoice/ui/EarsivSmsSignModal` _(ui, client)_
+- `invoice/ui/invoice-list-columns` _(ui, client)_
 - `invoice/ui/InvoiceLineItemsTable` _(ui, client)_
 - `invoice/ui/InvoiceTemplateSettings` _(ui, client)_
 

@@ -97,6 +97,9 @@ import { SupportTicket } from '@/modules/back_office/entities/support_ticket.ent
 import { SupportTicketMessage } from '@/modules/back_office/entities/support_ticket_message.entity';
 import { FeatureFlag } from '@/modules/feature_flags/entities/feature_flag.entity';
 import { FeatureFlagOverride } from '@/modules/feature_flags/entities/feature_flag_override.entity';
+import { ConsentRecord } from '@/modules/terms_consent/entities/consent_record.entity';
+import { AnalyticsEvent } from '@/modules/analytics/entities/analytics_event.entity';
+import { SearchDocument } from '@/modules/search/entities/search_document.entity';
 
 export const ENTITIES = [
   User, UserConsent, UserProfile, UserSecurity, UserPreferences, UserSession,
@@ -118,5 +121,5 @@ export const ENTITIES = [
   MessageReport, TenantExportJob, ScimGroup, ScimGroupMember, WalletAccount,
   WalletTransaction, WalletPosting, MeterDefinition, MeteredUsageEvent,
   MeteredBillingRun, ApprovalQueueItem, SupportTicket, SupportTicketMessage,
-  FeatureFlag, FeatureFlagOverride,
+  FeatureFlag, FeatureFlagOverride, ConsentRecord, AnalyticsEvent, SearchDocument,
 ];

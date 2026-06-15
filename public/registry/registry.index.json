@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-15T07:45:45.027Z",
+  "generatedAt": "2026-06-15T10:40:42.438Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -470,7 +470,8 @@
         ],
         "optional": [
           "redis",
-          "tenant_usage"
+          "tenant_usage",
+          "user_agent"
         ]
       },
       "exports": {
@@ -667,8 +668,10 @@
           "user_security.crud.service.ts",
           "user_security.login.service.ts",
           "user_security.mfa.service.ts",
+          "user_security.passkey.authenticate.service.ts",
           "user_security.passkey.crud.service.ts",
           "user_security.passkey.flow.service.ts",
+          "user_security.passkey.register.service.ts",
           "user_security.passkey.service.ts",
           "user_security.service.ts"
         ],
@@ -928,6 +931,7 @@
       },
       "exports": {
         "services": [
+          "auth_saml.config.crud.service.ts",
           "auth_saml.config.service.ts",
           "auth_saml.crypto.service.ts",
           "auth_saml.flow.callback.service.ts",
@@ -1205,7 +1209,9 @@
         "services": [
           "tenant.deletion.service.ts",
           "tenant.onboarding.service.ts",
-          "tenant.service.ts"
+          "tenant.read.service.ts",
+          "tenant.service.ts",
+          "tenant.write.service.ts"
         ],
         "dtos": [
           "tenant.dto.ts"
@@ -1252,7 +1258,9 @@
       },
       "exports": {
         "services": [
-          "tenant_member.service.ts"
+          "tenant_member.read.service.ts",
+          "tenant_member.service.ts",
+          "tenant_member.write.service.ts"
         ],
         "dtos": [
           "tenant_member.dto.ts"
@@ -1836,13 +1844,15 @@
       },
       "exports": {
         "services": [
+          "payment_subscription.crud.service.ts",
           "payment_subscription.dunning.service.ts",
           "payment_subscription.lifecycle.service.ts",
           "payment_subscription.metered.service.ts",
           "payment_subscription.metrics.service.ts",
           "payment_subscription.plan.service.ts",
           "payment_subscription.proration.service.ts",
-          "payment_subscription.service.ts"
+          "payment_subscription.service.ts",
+          "payment_subscription.transitions.service.ts"
         ],
         "dtos": [
           "payment_subscription.dto.ts"
@@ -2482,9 +2492,11 @@
       },
       "exports": {
         "services": [
-          "e_signature.cert.service.ts",
           "e_signature.compliance.service.ts",
+          "e_signature.crypto.chain.service.ts",
+          "e_signature.crypto.parse.service.ts",
           "e_signature.crypto.service.ts",
+          "e_signature.crypto.verify.service.ts",
           "e_signature.document.service.ts",
           "e_signature.encryption.service.ts",
           "e_signature.etsi_tsl.service.ts",
@@ -2511,7 +2523,6 @@
         "providers": [],
         "jobs": [],
         "entities": [
-          "signing_certificate.entity.ts",
           "trust_list_entry.entity.ts"
         ]
       },
@@ -2561,6 +2572,59 @@
         ]
       },
       "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true
+    },
+    {
+      "id": "auth_e_signature",
+      "name": "E-Signature Identity Login",
+      "version": "1.0.0",
+      "description": "E-signature / e-identity login consumer: matches and binds qualified electronic-signature certificates (TR Mobil İmza, Smart-ID, BankID, eIDAS QSCD) to user accounts and runs the login/bind workflow. Consumes the e_signature engine for provider/crypto/identity primitives; owns the certificate↔user binding (signing_certificates).",
+      "dir": "modules/auth_e_signature",
+      "icon": "fas fa-id-card",
+      "tags": [
+        "auth",
+        "identity",
+        "signature",
+        "eidas"
+      ],
+      "priority": 36,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "e_signature",
+          "user",
+          "user_session",
+          "user_security",
+          "tenant",
+          "tenant_member",
+          "env",
+          "audit_log",
+          "webhook",
+          "redis",
+          "limiter",
+          "common",
+          "logger"
+        ]
+      },
+      "exports": {
+        "services": [
+          "auth_e_signature.cert.service.ts",
+          "auth_e_signature.flow.service.ts",
+          "auth_e_signature.service.ts"
+        ],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "signing_certificate.entity.ts"
+        ]
+      },
+      "hasReadme": false,
       "hasModuleJson": true,
       "hasNextLayer": true
     },
@@ -2808,7 +2872,9 @@
         "services": [
           "webhook.crud.service.ts",
           "webhook.delivery.service.ts",
+          "webhook.dispatch.service.ts",
           "webhook.metrics.service.ts",
+          "webhook.redeliver.service.ts",
           "webhook.service.ts"
         ],
         "dtos": [
@@ -3061,6 +3127,58 @@
       "hasNextLayer": false
     },
     {
+      "id": "gdpr_consent",
+      "name": "GDPR Consent",
+      "version": "1.0.0",
+      "description": "Per-tenant cookie-consent banner configuration plus an append-only consent ledger that records each subject's grant/withdraw decision per purpose (necessary/functional/analytics/marketing). Public capture for anonymous visitors, latest-wins state derivation, and audit-logged writes. Data export/erasure is handled by tenant_export.",
+      "dir": "modules/gdpr_consent",
+      "icon": "fas fa-shield-halved",
+      "tags": [
+        "platform",
+        "gdpr",
+        "privacy",
+        "consent",
+        "compliance"
+      ],
+      "priority": 47,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "common",
+          "audit_log",
+          "setting"
+        ]
+      },
+      "exports": {
+        "services": [
+          "gdpr_consent.service.ts"
+        ],
+        "dtos": [
+          "gdpr_consent.dto.ts"
+        ],
+        "enums": [
+          "gdpr_consent.enums.ts"
+        ],
+        "messageKeys": [
+          "gdpr_consent.messages.ts"
+        ],
+        "settingKeys": [
+          "gdpr_consent.setting.keys.ts"
+        ],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "consent_record.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true
+    },
+    {
       "id": "wallet",
       "name": "Wallet",
       "version": "1.0.0",
@@ -3114,7 +3232,56 @@
       },
       "hasReadme": false,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
+    },
+    {
+      "id": "feature_flags",
+      "name": "Feature Flags",
+      "version": "1.0.0",
+      "description": "Tenant-scoped feature flags with master switch, deterministic percentage rollout, attribute-based targeting rules, and per-subject (user/segment) overrides. Read-through cached for hot-path evaluation; every write is audit-logged.",
+      "dir": "modules/feature_flags",
+      "icon": "fas fa-toggle-on",
+      "tags": [
+        "platform",
+        "feature-flags",
+        "rollout",
+        "experimentation"
+      ],
+      "priority": 48,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "common",
+          "audit_log"
+        ]
+      },
+      "exports": {
+        "services": [
+          "feature_flags.service.ts"
+        ],
+        "dtos": [
+          "feature_flags.dto.ts"
+        ],
+        "enums": [
+          "feature_flags.enums.ts"
+        ],
+        "messageKeys": [
+          "feature_flags.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "feature_flag.entity.ts",
+          "feature_flag_override.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true
     },
     {
       "id": "metering",
@@ -3175,7 +3342,7 @@
       },
       "hasReadme": false,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "back_office",
@@ -3239,7 +3406,7 @@
       },
       "hasReadme": false,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "ai",
@@ -3343,6 +3510,99 @@
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": true
+    },
+    {
+      "id": "search",
+      "name": "Search",
+      "version": "1.0.0",
+      "description": "Tenant-scoped full-text search over arbitrary content. Owning modules push documents (title/body/url/metadata keyed by entityType+entityId); the default PostgreSQL FTS provider ranks results with ts_rank and returns ts_headline snippets. Provider abstraction leaves room for Meilisearch/Elastic. All queries are parameterized and tenant-scoped.",
+      "dir": "modules/search",
+      "icon": "fas fa-magnifying-glass",
+      "tags": [
+        "platform",
+        "search",
+        "full-text"
+      ],
+      "priority": 55,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [
+          "search.service.ts"
+        ],
+        "dtos": [
+          "search.dto.ts"
+        ],
+        "enums": [
+          "search.enums.ts"
+        ],
+        "messageKeys": [
+          "search.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "search_document.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "analytics",
+      "name": "Analytics",
+      "version": "1.0.0",
+      "description": "Tenant-scoped product analytics: append-only event tracking (page views, signups, custom events) plus aggregate reads — top-line summary (total events, unique users/sessions, top events), GROUP BY date_trunc timeseries with dense gap-filling, and top-events. Tracking works for anonymous visitors; summaries are short-cached in Redis. Distinct from metering (billing) and observability (ops metrics).",
+      "dir": "modules/analytics",
+      "icon": "fas fa-chart-line",
+      "tags": [
+        "platform",
+        "analytics",
+        "events",
+        "metrics"
+      ],
+      "priority": 56,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [
+          "analytics.service.ts"
+        ],
+        "dtos": [
+          "analytics.dto.ts"
+        ],
+        "enums": [
+          "analytics.enums.ts"
+        ],
+        "messageKeys": [
+          "analytics.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "analytics_event.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
     },
     {
       "id": "api_doc",
@@ -3586,6 +3846,36 @@
         "GET"
       ],
       "module": "ai",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/analytics/summary/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/analytics/summary",
+      "methods": [
+        "GET"
+      ],
+      "module": "analytic",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/analytics/timeseries/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/analytics/timeseries",
+      "methods": [
+        "GET"
+      ],
+      "module": "analytic",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/analytics/track/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/analytics/track",
+      "methods": [
+        "POST"
+      ],
+      "module": "analytic",
       "dynamic": true
     },
     {
@@ -3922,6 +4212,26 @@
       "urlPath": "/tenant/[tenantId]/api/auth/me/security",
       "methods": [
         "GET"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/me/security/e-signature/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/me/security/e-signature",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/me/security/e-signature/[id]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/me/security/e-signature/[id]",
+      "methods": [
+        "DELETE"
       ],
       "module": "auth",
       "dynamic": true
@@ -4319,6 +4629,38 @@
       "dynamic": true
     },
     {
+      "filePath": "app/tenant/[tenantId]/api/consent/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/consent",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "consent",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/consent/config/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/consent/config",
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "module": "consent",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/consent/records/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/consent/records",
+      "methods": [
+        "GET"
+      ],
+      "module": "consent",
+      "dynamic": true
+    },
+    {
       "filePath": "app/tenant/[tenantId]/api/conversations/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/conversations",
@@ -4671,6 +5013,60 @@
         "POST"
       ],
       "module": "tenant_export",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/feature-flags/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/feature-flags",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "feature_flag",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/feature-flags/[key]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/feature-flags/[key]",
+      "methods": [
+        "GET",
+        "PATCH",
+        "DELETE"
+      ],
+      "module": "feature_flag",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/feature-flags/[key]/overrides/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/feature-flags/[key]/overrides",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "feature_flag",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/feature-flags/[key]/overrides/[overrideId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/feature-flags/[key]/overrides/[overrideId]",
+      "methods": [
+        "DELETE"
+      ],
+      "module": "feature_flag",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/feature-flags/evaluate/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/feature-flags/evaluate",
+      "methods": [
+        "POST"
+      ],
+      "module": "feature_flag",
       "dynamic": true
     },
     {
@@ -5248,6 +5644,27 @@
         "DELETE"
       ],
       "module": "scim",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/search/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/search",
+      "methods": [
+        "GET"
+      ],
+      "module": "search",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/search/index/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/search/index",
+      "methods": [
+        "POST",
+        "DELETE"
+      ],
+      "module": "search",
       "dynamic": true
     },
     {
@@ -5908,6 +6325,26 @@
       "relations": []
     },
     {
+      "name": "AnalyticsEvent",
+      "filePath": "modules/analytics/entities/analytics_event.entity.ts",
+      "module": "analytics",
+      "schema": "system",
+      "tableName": "analytics_events",
+      "columns": [
+        "eventId",
+        "tenantId",
+        "name",
+        "userId",
+        "anonymousId",
+        "sessionId",
+        "properties",
+        "path",
+        "referrer",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "ApiKey",
       "filePath": "modules/api_key/entities/api_key.entity.ts",
       "module": "api_key",
@@ -6098,6 +6535,27 @@
         "metadata",
         "createdAt",
         "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "ConsentRecord",
+      "filePath": "modules/gdpr_consent/entities/consent_record.entity.ts",
+      "module": "gdpr_consent",
+      "schema": "system",
+      "tableName": "consent_records",
+      "columns": [
+        "consentId",
+        "tenantId",
+        "subjectUserId",
+        "subjectAnonymousId",
+        "purpose",
+        "granted",
+        "policyVersion",
+        "source",
+        "ipAddress",
+        "userAgent",
+        "createdAt"
       ],
       "relations": []
     },
@@ -6329,6 +6787,44 @@
         "metadata",
         "status",
         "changedByUserId",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "FeatureFlag",
+      "filePath": "modules/feature_flags/entities/feature_flag.entity.ts",
+      "module": "feature_flags",
+      "schema": "system",
+      "tableName": "feature_flags",
+      "columns": [
+        "flagId",
+        "tenantId",
+        "key",
+        "name",
+        "description",
+        "enabled",
+        "rolloutPercentage",
+        "targetingRules",
+        "createdByUserId",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "FeatureFlagOverride",
+      "filePath": "modules/feature_flags/entities/feature_flag_override.entity.ts",
+      "module": "feature_flags",
+      "schema": "system",
+      "tableName": "feature_flag_overrides",
+      "columns": [
+        "overrideId",
+        "tenantId",
+        "flagKey",
+        "subjectType",
+        "subjectId",
+        "enabled",
         "createdAt"
       ],
       "relations": []
@@ -7121,6 +7617,27 @@
       "relations": []
     },
     {
+      "name": "SearchDocument",
+      "filePath": "modules/search/entities/search_document.entity.ts",
+      "module": "search",
+      "schema": "system",
+      "tableName": "search_documents",
+      "columns": [
+        "docId",
+        "tenantId",
+        "entityType",
+        "entityId",
+        "title",
+        "body",
+        "url",
+        "metadata",
+        "language",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "SeoMeta",
       "filePath": "modules/seo/entities/seo_meta.entity.ts",
       "module": "seo",
@@ -7237,8 +7754,8 @@
     },
     {
       "name": "SigningCertificate",
-      "filePath": "modules/e_signature/entities/signing_certificate.entity.ts",
-      "module": "e_signature",
+      "filePath": "modules/auth_e_signature/entities/signing_certificate.entity.ts",
+      "module": "auth_e_signature",
       "schema": "system",
       "tableName": "signing_certificates",
       "columns": [
@@ -7911,6 +8428,9 @@
         "size",
         "mimeType",
         "url",
+        "ipAddress",
+        "userAgent",
+        "country",
         "scanStatus",
         "scanProvider",
         "scanResult",
@@ -8331,6 +8851,16 @@
       "baseName": "AIUsageTab"
     },
     {
+      "id": "ai/ui/UsageChart",
+      "module": "ai",
+      "filePath": "modules_next/ai/ui/UsageChart.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "UsageChart"
+    },
+    {
       "id": "api_doc/ui/ApiDocsPage",
       "module": "api_doc",
       "filePath": "modules_next/api_doc/ui/ApiDocsPage.tsx",
@@ -8574,6 +9104,42 @@
       "baseName": "AuditLogFilters"
     },
     {
+      "id": "auth_e_signature/ui/ESignatureLoginPanel",
+      "module": "auth_e_signature",
+      "filePath": "modules_next/auth_e_signature/ui/ESignatureLoginPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "ESignatureLoginPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ESignatureLoginPanel"
+    },
+    {
+      "id": "auth_e_signature/ui/SigningCertificatesBindModal",
+      "module": "auth_e_signature",
+      "filePath": "modules_next/auth_e_signature/ui/SigningCertificatesBindModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "SigningCertificatesBindModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SigningCertificatesBindModal"
+    },
+    {
+      "id": "auth_e_signature/ui/SigningCertificatesPanel",
+      "module": "auth_e_signature",
+      "filePath": "modules_next/auth_e_signature/ui/SigningCertificatesPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "SigningCertificatesPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SigningCertificatesPanel"
+    },
+    {
       "id": "auth_saml/ui/SamlAttributeForm",
       "module": "auth_saml",
       "filePath": "modules_next/auth_saml/ui/SamlAttributeForm.tsx",
@@ -8623,18 +9189,6 @@
       "isClient": false,
       "isServer": false,
       "baseName": "auth.admin-guard.next"
-    },
-    {
-      "id": "auth/ui/ESignatureLoginPanel",
-      "module": "auth",
-      "filePath": "modules_next/auth/ui/ESignatureLoginPanel.tsx",
-      "kind": "ui",
-      "exports": [
-        "ESignatureLoginPanel"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "ESignatureLoginPanel"
     },
     {
       "id": "auth/ui/ForgotPasswordForm",
@@ -8698,6 +9252,34 @@
       "isClient": true,
       "isServer": false,
       "baseName": "SessionExpiredBanner"
+    },
+    {
+      "id": "back_office/ui/approval-columns",
+      "module": "back_office",
+      "filePath": "modules_next/back_office/ui/approval-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "ApprovalRow",
+        "buildApprovalColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "approval-columns"
+    },
+    {
+      "id": "back_office/ui/support-ticket-columns",
+      "module": "back_office",
+      "filePath": "modules_next/back_office/ui/support-ticket-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "TicketRow",
+        "buildTicketColumns",
+        "TICKET_STATUS_VARIANT",
+        "TICKET_PRIORITY_VARIANT"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "support-ticket-columns"
     },
     {
       "id": "blog/ui/BlogPostCreateModal",
@@ -9505,6 +10087,19 @@
       "isClient": true,
       "isServer": false,
       "baseName": "Tooltip"
+    },
+    {
+      "id": "common/utils/cacheHeaders",
+      "module": "common",
+      "filePath": "modules_next/common/utils/cacheHeaders.ts",
+      "kind": "util",
+      "exports": [
+        "PUBLIC_CACHE",
+        "NO_STORE"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "cacheHeaders"
     },
     {
       "id": "common/utils/cn",
@@ -10701,30 +11296,6 @@
       "baseName": "page-templates"
     },
     {
-      "id": "e_signature/ui/SigningCertificatesBindModal",
-      "module": "e_signature",
-      "filePath": "modules_next/e_signature/ui/SigningCertificatesBindModal.tsx",
-      "kind": "ui",
-      "exports": [
-        "SigningCertificatesBindModal"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "SigningCertificatesBindModal"
-    },
-    {
-      "id": "e_signature/ui/SigningCertificatesPanel",
-      "module": "e_signature",
-      "filePath": "modules_next/e_signature/ui/SigningCertificatesPanel.tsx",
-      "kind": "ui",
-      "exports": [
-        "SigningCertificatesPanel"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "SigningCertificatesPanel"
-    },
-    {
       "id": "e_signature/ui/TenantESignatureSettingsPanel",
       "module": "e_signature",
       "filePath": "modules_next/e_signature/ui/TenantESignatureSettingsPanel.tsx",
@@ -10737,6 +11308,31 @@
       "baseName": "TenantESignatureSettingsPanel"
     },
     {
+      "id": "feature_flags/ui/feature-flag-columns",
+      "module": "feature_flags",
+      "filePath": "modules_next/feature_flags/ui/feature-flag-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "FlagRow",
+        "buildFlagColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "feature-flag-columns"
+    },
+    {
+      "id": "gdpr_consent/ui/ConsentBanner",
+      "module": "gdpr_consent",
+      "filePath": "modules_next/gdpr_consent/ui/ConsentBanner.tsx",
+      "kind": "ui",
+      "exports": [
+        "ConsentBanner"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ConsentBanner"
+    },
+    {
       "id": "invoice/ui/EarsivSmsSignModal",
       "module": "invoice",
       "filePath": "modules_next/invoice/ui/EarsivSmsSignModal.tsx",
@@ -10747,6 +11343,19 @@
       "isClient": true,
       "isServer": false,
       "baseName": "EarsivSmsSignModal"
+    },
+    {
+      "id": "invoice/ui/invoice-list-columns",
+      "module": "invoice",
+      "filePath": "modules_next/invoice/ui/invoice-list-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "InvoiceRow",
+        "buildInvoiceColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "invoice-list-columns"
     },
     {
       "id": "invoice/ui/InvoiceLineItemsTable",
@@ -10808,6 +11417,23 @@
       "isClient": true,
       "isServer": false,
       "baseName": "GalleryPanel"
+    },
+    {
+      "id": "metering/ui/metering-columns",
+      "module": "metering",
+      "filePath": "modules_next/metering/ui/metering-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "MeterRow",
+        "UsageRow",
+        "BillingRunRow",
+        "buildMeterColumns",
+        "buildUsageColumns",
+        "buildBillingRunColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "metering-columns"
     },
     {
       "id": "module.types.ts/",
@@ -11100,6 +11726,18 @@
       "isClient": true,
       "isServer": false,
       "baseName": "SettingsPanelHost"
+    },
+    {
+      "id": "setting/ui/tabs/AllowedExtensionsField",
+      "module": "setting",
+      "filePath": "modules_next/setting/ui/tabs/AllowedExtensionsField.tsx",
+      "kind": "ui",
+      "exports": [
+        "AllowedExtensionsField"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "AllowedExtensionsField"
     },
     {
       "id": "setting/ui/tabs/platform-tab.shared",
@@ -11786,6 +12424,21 @@
       "isClient": true,
       "isServer": false,
       "baseName": "UserStatusBadge"
+    },
+    {
+      "id": "wallet/ui/wallet-account-columns",
+      "module": "wallet",
+      "filePath": "modules_next/wallet/ui/wallet-account-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "WalletAccountRow",
+        "buildWalletAccountColumns",
+        "WalletPostingRow",
+        "buildWalletPostingColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "wallet-account-columns"
     },
     {
       "id": "webhook/ui/webhook-columns",

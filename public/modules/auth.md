@@ -77,6 +77,8 @@ Credential auth: login, register, password reset, email verify, OTP, TOTP. Coord
 - `tenant` GET/PUT `/tenant/[tenantId]/api/auth/me/preferences`
 - `tenant` GET/PUT `/tenant/[tenantId]/api/auth/me/profile`
 - `tenant` GET `/tenant/[tenantId]/api/auth/me/security`
+- `tenant` GET `/tenant/[tenantId]/api/auth/me/security/e-signature`
+- `tenant` DELETE `/tenant/[tenantId]/api/auth/me/security/e-signature/[id]`
 - `tenant` GET `/tenant/[tenantId]/api/auth/me/sessions`
 - `tenant` DELETE `/tenant/[tenantId]/api/auth/me/sessions/[sessionId]`
 - `tenant` GET `/tenant/[tenantId]/api/auth/me/social-accounts`
@@ -112,7 +114,6 @@ Credential auth: login, register, password reset, email verify, OTP, TOTP. Coord
 ## Next layer (modules_next/) surface
 
 - `auth/auth.admin-guard.next` _(ui)_
-- `auth/ui/ESignatureLoginPanel` _(ui, client)_
 - `auth/ui/ForgotPasswordForm` _(ui, client)_
 - `auth/ui/LoginForm` _(ui, client)_
 - `auth/ui/OAuthButtons` _(ui, client)_

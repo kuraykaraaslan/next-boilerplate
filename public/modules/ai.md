@@ -49,6 +49,7 @@ Pluggable AI providers (Anthropic, OpenAI, Google). Chat, embeddings, streaming,
 
 - `ai/ui/AIChatBox` _(ui, client)_
 - `ai/ui/AIUsageTab` _(ui, client)_
+- `ai/ui/UsageChart` _(ui, client)_
 
 ## README
 

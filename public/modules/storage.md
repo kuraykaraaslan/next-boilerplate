@@ -13,7 +13,7 @@ Pluggable S3-compatible file storage (AWS S3, Cloudflare R2, DigitalOcean Spaces
 ## Dependencies
 
 - **requires:** `env`, `setting`
-- **optional:** `redis`, `tenant_usage`
+- **optional:** `redis`, `tenant_usage`, `user_agent`
 
 ## Services
 
@@ -78,6 +78,8 @@ Multi-provider, tenant-aware cloud storage abstraction. A unified S3-compatible 
 | `storage.types.ts` | `UploadOptions`, `UploadFromUrlOptions`, `ProviderUploadResult`, `UploadResult`, `S3Config` |
 | `storage.dto.ts` | `UploadFileDTO`, `UploadFromUrlDTO`, `DeleteFileDTO`, `GetFileUrlDTO` |
 | `storage.enums.ts` | `StorageProviderType`, `StorageFolder`, `StorageExtension`, `StorageMimeType` |
+| `storage.folders.ts` | Runtime folder registry (`registerStorageFolder`, `isValidStorageFolder`) — modules add folders without editing the core enum |
+| `storage.mime-groups.ts` | MIME group definitions + `expandMimeGroups` (group → MIME types) |
 | `storage.validation.ts` | Pre-upload validation: size, extension allowlist, magic-byte sniffing, EXIF strip, content-derived MIME (`deriveMimeType`) + `allowedMimeTypes` allowlist |
 | `storage.messages.ts` | Error/success message strings |
 | `storage.setting.keys.ts` | `STORAGE_KEYS` setting key constants |
@@ -192,7 +194,7 @@ type UploadResult = {
 
 Every successful upload:
 
-1. Inserts an `UploadedFile` row in the tenant DB (`entities/uploaded_file.entity.ts`) — `key`, `bucket`, `provider`, `size`, `mimeType`, `url`, `userId`, `createdAt`. The row is keyed by `tenantId` and indexed on `userId`/`key`.
+1. Inserts an `UploadedFile` row in the tenant DB (`entities/uploaded_file.entity.ts`) — `key`, `bucket`, `provider`, `size`, `mimeType`, `url`, `userId`, `createdAt`, plus upload origin (`ipAddress`, `userAgent`, `country` inferred from the IP) and scan columns (`scanStatus`, `scanProvider`, `scanResult`, `scannedAt`). The row is keyed by `tenantId` and indexed on `userId`/`key`/`country`.
 2. Calls `TenantUsageService.incrementStorageBytes(tenantId, result.size)` so the `storageBytes` quota counter (`tenant_usage`) tracks reality.
 
 `deleteFile` soft-removes the matching `UploadedFile` row (`deletedAt` set) — the byte counter is increment-only (audit-friendly; decrement is a future task).
@@ -215,8 +217,27 @@ Storage setting keys (`STORAGE_KEYS`, declared in `storage.setting.keys.ts`) are
 | `s3Endpoint` | string | — | `storage.service.ts` — custom endpoint (R2 / Spaces / MinIO); undefined falls back to provider default. |
 | `maxFileSizeMb` | number | `25` | `getValidationPolicy` — enforced in `validateUpload`. |
 | `allowedExtensions` | json | `["png","jpg","pdf"]` | `getValidationPolicy` — enforced in `validateUpload`. |
-| `allowedMimeTypes` | csv | — (empty = allow all) | `getValidationPolicy` — content-derived MIME matched against this allowlist in `validateUpload`. |
+| `allowedMimeGroups` | csv | `images,documents` | `getValidationPolicy` — group keys expanded to MIME types (see below). |
+| `allowedMimeTypes` | csv | — (empty) | `getValidationPolicy` — explicit MIME types added on top of the selected groups. |
 | `imageStripExif` | bool | `true` | `getValidationPolicy` — strips JPEG EXIF/metadata unless `'false'`. |
+
+#### MIME allowlist by group (`storage.mime-groups.ts`)
+
+Rather than listing raw MIME strings, tenants pick **groups**; the effective
+allowlist is `expandMimeGroups(allowedMimeGroups) ∪ allowedMimeTypes`. Both empty
+⇒ unrestricted (provider-level type checks still apply). The content-derived MIME
+(`deriveMimeType`) is matched against this set in `validateUpload`.
+
+| Group | Covers |
+|---|---|
+| `images` | jpeg, png, webp, avif, gif, bmp, ico, svg |
+| `documents` | pdf, txt, markdown, html, docx, odt, epub |
+| `spreadsheets` | csv, xlsx, ods |
+| `presentations` | pptx |
+| `archives` | zip, gzip |
+| `audio` | mpeg/mp3 |
+| `video` | mp4 |
+| `data` | json, xml, yaml |
 
 ### Virus scanning keys (`STORAGE_SCAN_KEYS`, `storage.scan.setting.keys.ts`)
 

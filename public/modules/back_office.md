@@ -6,7 +6,7 @@
 - **dir:** `modules/back_office/`
 - **tags:** back-office, moderation, approval, support, tickets, queue
 - **icon:** `fas fa-clipboard-check`
-- **hasNextLayer:** false
+- **hasNextLayer:** true
 
 Generic moderation / approval queue and support-ticket desk. Any owning module can route an entity through human review via the entity-agnostic approval queue (with a tamper-evident per-tenant decision hash chain and an in-memory decision-handler hook), and customers can open support tickets with per-tenant monotonic ticket numbers, agent assignment, internal notes, first-response + resolution SLA tracking. Every decision is recorded in the append-only audit log; submitters/requesters are notified in-app and webhooks fire on each lifecycle event.
 
@@ -57,3 +57,8 @@ Generic moderation / approval queue and support-ticket desk. Any owning module c
 - `ApprovalQueueItem` (system) — `modules/back_office/entities/approval_queue_item.entity.ts`
 - `SupportTicket` (system) — `modules/back_office/entities/support_ticket.entity.ts`
 - `SupportTicketMessage` (system) — `modules/back_office/entities/support_ticket_message.entity.ts`
+
+## Next layer (modules_next/) surface
+
+- `back_office/ui/approval-columns` _(ui, client)_
+- `back_office/ui/support-ticket-columns` _(ui, client)_

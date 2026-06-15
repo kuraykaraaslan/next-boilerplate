@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-15T07:45:45.027Z",
+  "generatedAt": "2026-06-15T10:40:42.438Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -482,7 +482,8 @@
         ],
         "optional": [
           "redis",
-          "tenant_usage"
+          "tenant_usage",
+          "user_agent"
         ]
       },
       "exports": {
@@ -515,7 +516,7 @@
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false,
-      "readme": "# Storage Module\n\nMulti-provider, tenant-aware cloud storage abstraction. A unified S3-compatible API for upload (multipart `File` or from URL), delete, and URL generation across AWS S3, Cloudflare R2, DigitalOcean Spaces and MinIO. Each tenant resolves its own provider, bucket and credentials from Setting rows; every successful upload is recorded in a per-tenant `UploadedFile` audit ledger and metered against the tenant's storage quota.\n\n---\n\n## Entities\n\n| Entity | Table | DB | Description |\n|---|---|---|---|\n| `UploadedFile` | `uploaded_files` | tenant | Immutable audit row per successful upload (`key`, `bucket`, `provider`, `size`, `mimeType`, `url`, `userId`). Soft-deleted (`deletedAt`) on delete; joined with `TenantUsage.storageBytes` for billing/quota. Indexed on `tenantId`, `userId`, `key`. |\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `storage.service.ts` | Core: per-tenant provider resolution, feature-gating, upload (`uploadFile` / `uploadFromUrl`), `deleteFile`, `getFileUrl`, audit persistence |\n| `storage.types.ts` | `UploadOptions`, `UploadFromUrlOptions`, `ProviderUploadResult`, `UploadResult`, `S3Config` |\n| `storage.dto.ts` | `UploadFileDTO`, `UploadFromUrlDTO`, `DeleteFileDTO`, `GetFileUrlDTO` |\n| `storage.enums.ts` | `StorageProviderType`, `StorageFolder`, `StorageExtension`, `StorageMimeType` |\n| `storage.validation.ts` | Pre-upload validation: size, extension allowlist, magic-byte sniffing, EXIF strip, content-derived MIME (`deriveMimeType`) + `allowedMimeTypes` allowlist |\n| `storage.messages.ts` | Error/success message strings |\n| `storage.setting.keys.ts` | `STORAGE_KEYS` setting key constants |\n| `storage.scan.setting.keys.ts` | `STORAGE_SCAN_KEYS` virus-scan setting key constants |\n| `storage.scan.enums.ts` | `VirusScanProvider`, `VirusScanStatus`, `VirusScanMode`, `VirusScanInfectedAction` |\n| `storage.scan.types.ts` | `ScanConfig`, `ScanResult` |\n| `storage.scanner-factory.ts` | `getScanConfig(tenantId)` + `createScanner(config)` |\n| `storage.scan.service.ts` | `scan(config, bytes, filename)` + `handleInfected(...)` (quarantine/delete) |\n| `storage.scan.job.ts` | BullMQ async scan queue/worker + `enqueueVirusScan` |\n| `scanners/base.scanner.ts` | Abstract `FileScanner` base class |\n| `scanners/virustotal.scanner.ts` | VirusTotal v3 adapter |\n| `storage.seed.ts` | Demo seed for the `UploadedFile` ledger (5 providers, 1 soft-deleted) |\n| `s3.client.ts` | Shared `@aws-sdk/client-s3` client built from `env` (env-level credentials) |\n| `entities/uploaded_file.entity.ts` | `UploadedFile` audit entity |\n| `providers/base.provider.ts` | Abstract `BaseStorageProvider` base class |\n| `providers/aws-s3.provider.ts` | AWS S3 |\n| `providers/cloudflare-r2.provider.ts` | Cloudflare R2 |\n| `providers/digitalocean-spaces.provider.ts` | DigitalOcean Spaces |\n| `providers/minio.provider.ts` | MinIO (self-hosted) |\n\n---\n\n## Service / Responsibilities\n\n`StorageService` (default export) is fully tenant-scoped — every public method takes `tenantId`:\n\n| Method | Responsibility |\n|---|---|\n| `uploadFile(tenantId, data)` | Feature-gate, resolve the tenant's provider, upload a `File`, persist the audit row, return `UploadResult` (with `uploadedFileId`). |\n| `uploadFromUrl(tenantId, data)` | Same as above but fetches the bytes from a remote URL. |\n| `deleteFile(tenantId, data)` | Delete the object from the bucket and soft-remove the matching `UploadedFile` audit row. |\n| `getFileUrl(tenantId, data)` | Return the object URL from the tenant's resolved provider. |\n\nPrivate helpers:\n\n- `getStorageSettings(tenantId)` — reads `STORAGE_KEYS` via `SettingService.getByKeys` and builds the per-tenant `S3Config` (provider, bucket, region, credentials, endpoint).\n- `createProvider(name, config)` — maps the resolved provider name to the concrete provider class.\n- `getProvider(tenantId, providerName?)` — resolves the tenant default provider unless the request explicitly overrides it.\n- `persistUploadAudit(...)` — best-effort: writes the `UploadedFile` row into the tenant DataSource and increments `TenantUsageService.incrementStorageBytes`. Failures are logged, never thrown.\n- `assertStorageFeatureAccess(tenantId)` — defense-in-depth billing gate (see *Security*).\n\n---\n\n## Providers\n\nThe active provider is resolved per tenant from the `storageProvider` setting (or overridden per request via the DTO `provider` field). Each provider extends `BaseStorageProvider` and implements `uploadFile`, `uploadFromUrl`, `deleteFile`, `getFileUrl`.\n\n`StorageProviderType` values: `aws-s3`, `s3`, `cloudflare-r2`, `digitalocean-spaces`, `minio`. The service `createProvider` switch routes `aws-s3`, `cloudflare-r2`, `digitalocean-spaces` and `minio` to their classes (an unmapped name throws `PROVIDER_NOT_FOUND`).\n\n### Adding a New Provider\n\n1. Extend `BaseStorageProvider` in `providers/`\n2. Add the value to `StorageProviderTypeSchema` in `storage.enums.ts`\n3. Register it in the `createProvider` switch in `storage.service.ts`\n4. Add any new setting keys in `storage.setting.keys.ts`\n\n---\n\n## API Routes\n\n| Method | Path | Scope | Description |\n|---|---|---|---|\n| POST | `/tenant/[tenantId]/api/storage` | tenant, authenticated | Multipart upload (`FormData`: `file`, optional `folder` default `general`, optional `provider`). Rate-limited (`api`). Returns `uploadedFileId`, `url`, `key`, `bucket`, `size`, `provider`. |\n\nStorage settings are read/written through the shared admin-settings surface (`GET/PUT /tenant/[tenantId]/api/admin-settings`), not a storage-specific route.\n\n---\n\n## Usage\n\n```typescript\nimport StorageService from '@/modules/storage/storage.service';\n\n// Upload a file (tenantId-first)\nconst result = await StorageService.uploadFile(tenantId, {\n  file,\n  folder: 'users',\n  filename: `${userId}.webp`,\n  tenantId,\n});\n// result.url, result.key, result.bucket, result.size, result.provider, result.uploadedFileId\n\n// Upload from a remote URL\nconst fromUrl = await StorageService.uploadFromUrl(tenantId, {\n  url: 'https://example.com/avatar.png',\n  folder: 'users',\n});\n\n// Delete a file (soft-deletes the audit row)\nawait StorageService.deleteFile(tenantId, { key: result.key });\n\n// Get the object URL\nconst url = await StorageService.getFileUrl(tenantId, { key: result.key });\n```\n\n### Upload Result\n\n```typescript\ntype UploadResult = {\n  url: string;\n  key: string;\n  bucket: string;\n  size?: number;\n  provider: StorageProviderType;\n  uploadedFileId?: string;\n};\n```\n\n---\n\n## Usage tracking & audit\n\nEvery successful upload:\n\n1. Inserts an `UploadedFile` row in the tenant DB (`entities/uploaded_file.entity.ts`) — `key`, `bucket`, `provider`, `size`, `mimeType`, `url`, `userId`, `createdAt`. The row is keyed by `tenantId` and indexed on `userId`/`key`.\n2. Calls `TenantUsageService.incrementStorageBytes(tenantId, result.size)` so the `storageBytes` quota counter (`tenant_usage`) tracks reality.\n\n`deleteFile` soft-removes the matching `UploadedFile` row (`deletedAt` set) — the byte counter is increment-only (audit-friendly; decrement is a future task).\n\nAudit / usage failures are swallowed — they never break the upload itself (the bytes are already in the bucket at that point).\n\n---\n\n## Settings\n\nStorage setting keys (`STORAGE_KEYS`, declared in `storage.setting.keys.ts`) are seeded per tenant under the `Storage` group in `setting/setting.seed.ts` and read at runtime by `storage.service.ts` via `SettingService.getByKeys`.\n\n| Key | Type | Default | Read in / Notes |\n|---|---|---|---|\n| `storageProvider` | string | `s3` (seed) / `aws-s3` (service fallback) | `storage.service.ts` — selects the backend (`aws-s3` \\| `s3` \\| `cloudflare-r2` \\| `digitalocean-spaces` \\| `minio`). |\n| `s3Bucket` | string | — | `storage.service.ts` — destination bucket. |\n| `s3Region` | string | `us-east-1` | `storage.service.ts` — bucket region. |\n| `s3AccessKey` | string | — | `storage.service.ts` — credential access key id. |\n| `s3SecretKey` | string | — | `storage.service.ts` — credential secret key. |\n| `s3Endpoint` | string | — | `storage.service.ts` — custom endpoint (R2 / Spaces / MinIO); undefined falls back to provider default. |\n| `maxFileSizeMb` | number | `25` | `getValidationPolicy` — enforced in `validateUpload`. |\n| `allowedExtensions` | json | `[\"png\",\"jpg\",\"pdf\"]` | `getValidationPolicy` — enforced in `validateUpload`. |\n| `allowedMimeTypes` | csv | — (empty = allow all) | `getValidationPolicy` — content-derived MIME matched against this allowlist in `validateUpload`. |\n| `imageStripExif` | bool | `true` | `getValidationPolicy` — strips JPEG EXIF/metadata unless `'false'`. |\n\n### Virus scanning keys (`STORAGE_SCAN_KEYS`, `storage.scan.setting.keys.ts`)\n\n| Key | Type | Default | Notes |\n|---|---|---|---|\n| `virusScanEnabled` | bool | `false` | Master switch; also requires `virusScanApiKey` to take effect. |\n| `virusScanMode` | enum | `async` | `sync` blocks the upload until scanned; `async` scans in the background. |\n| `virusScanProvider` | enum | `virustotal` | Online scanner backend. |\n| `virusScanApiKey` | string | — | Provider API key (secret). |\n| `virusScanTimeoutSeconds` | number | `30` | Per-scan time budget. |\n| `virusScanInfectedAction` | enum | `quarantine` | `quarantine` (move to quarantine folder) or `delete`. |\n| `virusScanQuarantineFolder` | string | `quarantine` | Destination folder prefix for quarantined objects. |\n\n`s3.client.ts` builds a separate, env-credentialed `@aws-sdk/client-s3` instance from `env` (`AWS_REGION`/`AWS_ACCESS_KEY_ID`/…) — independent of the per-tenant Setting credentials above.\n\n---\n\n## Security\n\n`assertStorageFeatureAccess(tenantId)` gates `uploadFile` / `uploadFromUrl` before any provider work:\n\n- Short-circuits for the root tenant (`isRootTenant`).\n- Asserts the tenant's active plan grants `FEATURE_STORAGE_UPLOAD` (boolean).\n- Asserts `FEATURE_STORAGE_QUOTA_BYTES` (limit) is not exhausted, comparing against the tenant's `TenantUsage.storageBytes`.\n\nThe quota check is best-effort and non-atomic — the post-upload byte increment can briefly push usage above the ceiling under concurrent uploads.\n\n### Upload validation & MIME\n\n`validateUpload` (`storage.validation.ts`) runs before the bytes reach the bucket:\nsize (`maxFileSizeMb`), extension allowlist (`allowedExtensions`), magic-byte\nsniffing, optional EXIF stripping, and a **content-derived MIME** check. The real\nMIME is derived from the verified content (`deriveMimeType`) — never the client's\n`file.type` header — and matched against the per-tenant `allowedMimeTypes`\nallowlist; the derived MIME is what gets stored on the object and audit row.\n\n### Virus scanning\n\nWhen `virusScanEnabled` (+ `virusScanApiKey`) is set, uploads are scanned via a\npluggable online scanner (`scanners/`, first adapter VirusTotal):\n\n- **sync** (`virusScanMode=sync`) — the buffer is scanned before the bucket write;\n  an infected file is rejected with `SCAN_INFECTED` and never stored.\n- **async** (default) — the object is stored as `scanStatus='pending'` and a BullMQ\n  job (`storage.scan.job.ts`) downloads it via a presigned URL, scans it, writes the\n  result to the `UploadedFile` scan columns, then quarantines/deletes it if infected\n  (`virusScanInfectedAction`). `uploadFromUrl` always scans asynchronously;\n  `uploadServerBuffer` (trusted server output) is not scanned.\n\n---\n\n## Tenant Variability\n\n> What varies per tenant in this module — and what could. Audited 2026-06-03.\n\nThe storage module uploads/deletes files to S3-compatible providers (AWS S3, Cloudflare R2, DigitalOcean Spaces, MinIO) and is fully tenant-aware: each real tenant has its own provider, bucket, credentials and limits in Setting rows, its own UploadedFile audit ledger, and upload access is gated per-tenant via subscription feature-keys + a storage quota.\n\n### Per-tenant settings\n\n| Key | Type | Default | Scope | Controls | Read in |\n|---|---|---|---|---|---|\n| `storageProvider` | string | `aws-s3` | tenant | Which S3-compatible backend the tenant's uploads go to (aws-s3 \\| s3 \\| cloudflare-r2 \\| digitalocean-spaces \\| minio); service default 'aws-s3', seed default 's3'. | `storage.service.ts` |\n| `s3Bucket` | string | — | tenant | Destination bucket name for this tenant's objects. | `storage.service.ts` |\n| `s3Region` | string | `us-east-1` | tenant | AWS/S3 region for the tenant's bucket. | `storage.service.ts` |\n| `s3AccessKey` | string | — | tenant | Access key id for the tenant's storage credentials. | `storage.service.ts` |\n| `s3SecretKey` | string | — | tenant | Secret access key for the tenant's storage credentials. | `storage.service.ts` |\n| `s3Endpoint` | string | — | tenant | Custom S3 endpoint URL (for R2 / Spaces / self-hosted MinIO); undefined falls back to provider default. | `storage.service.ts` |\n| `maxFileSizeMb` | number | `25` | tenant | Intended per-tenant max upload size in MB (seeded/UI-editable but not yet enforced in the service). | `setting.seed.ts` |\n| `allowedExtensions` | json | `[\"png\",\"jpg\",\"pdf\"]` | tenant | Intended per-tenant allowlist of upload file extensions (seeded/UI-editable but not yet enforced in the service). | `setting.seed.ts` |\n\n*Scope: `tenant` = real tenants override · `root` = platform-only default (not per-tenant).*\n\n### Tenant-scoped data\n\n| Entity | Table | Tenant-variable columns |\n|---|---|---|\n| `UploadedFile` | `uploaded_files` | userId, key, bucket, provider, size, mimeType, url |\n\nAll rows isolated by `tenantId` via the per-tenant DataSource.\n\n### Per-tenant behavior\n\n- `storage.service.ts:getStorageSettings` — Reads storageProvider + s3Bucket/region/credentials/endpoint via SettingService.getByKeys(tenantId,...) so the resolved provider and S3Config are entirely per-tenant; each tenant uploads to its own bucket with its own credentials.\n- `storage.service.ts:getProvider` — Selects the concrete provider class (AWS S3 / R2 / Spaces / MinIO) from the tenant's resolved storageProvider setting, unless the request explicitly overrides it.\n- `storage.service.ts:assertStorageFeatureAccess` — Gates uploadFile/uploadFromUrl per tenant: asserts the tenant's active plan grants FEATURE_STORAGE_UPLOAD and that FEATURE_STORAGE_QUOTA_BYTES is not exhausted (compared against the tenant's TenantUsage.storageBytes). Root tenant is short-circuited (isRootTenant).\n- `storage.service.ts:persistUploadAudit` — Writes the UploadedFile audit row into tenantDataSourceFor(tenantId) and increments TenantUsageService.storageBytes for that tenant, so each tenant has its own file ledger and usage counter.\n\n### Candidates (global / hardcoded today → could be per-tenant)\n\n| What | Where | Why per-tenant | Suggested key |\n|---|---|---|---|\n| Per-tenant max upload size is not enforced; uploadFile/uploadFromUrl accept any file size regardless of the tenant's configured limit. | `storage.service.ts:uploadFile / uploadFromUrl` | The maxFileSizeMb setting is declared in storage.setting.keys.ts, seeded per-tenant (value '25'), and exposed in the settings UI, but it is never read anywhere in the service — uploads are size-gated only by the subscription quota, not this per-tenant ceiling. | `maxFileSizeMb` |\n| Per-tenant allowed file extensions are not enforced; any extension/mime type is accepted on upload. | `storage.service.ts:uploadFile / uploadFromUrl` | allowedExtensions is declared in storage.setting.keys.ts and seeded per-tenant (['png','jpg','pdf']) and UI-editable, but no code reads it to validate the uploaded file's extension. | `allowedExtensions` |\n\n---\n\n## Dependencies\n\nRequires `env` and `setting` (per `module.json`). At runtime also uses `tenant_usage` (quota counter), `tenant_subscription` (feature-key gating), `tenant`/`db` (per-tenant DataSource), and `logger`.\n"
+      "readme": "# Storage Module\n\nMulti-provider, tenant-aware cloud storage abstraction. A unified S3-compatible API for upload (multipart `File` or from URL), delete, and URL generation across AWS S3, Cloudflare R2, DigitalOcean Spaces and MinIO. Each tenant resolves its own provider, bucket and credentials from Setting rows; every successful upload is recorded in a per-tenant `UploadedFile` audit ledger and metered against the tenant's storage quota.\n\n---\n\n## Entities\n\n| Entity | Table | DB | Description |\n|---|---|---|---|\n| `UploadedFile` | `uploaded_files` | tenant | Immutable audit row per successful upload (`key`, `bucket`, `provider`, `size`, `mimeType`, `url`, `userId`). Soft-deleted (`deletedAt`) on delete; joined with `TenantUsage.storageBytes` for billing/quota. Indexed on `tenantId`, `userId`, `key`. |\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `storage.service.ts` | Core: per-tenant provider resolution, feature-gating, upload (`uploadFile` / `uploadFromUrl`), `deleteFile`, `getFileUrl`, audit persistence |\n| `storage.types.ts` | `UploadOptions`, `UploadFromUrlOptions`, `ProviderUploadResult`, `UploadResult`, `S3Config` |\n| `storage.dto.ts` | `UploadFileDTO`, `UploadFromUrlDTO`, `DeleteFileDTO`, `GetFileUrlDTO` |\n| `storage.enums.ts` | `StorageProviderType`, `StorageFolder`, `StorageExtension`, `StorageMimeType` |\n| `storage.folders.ts` | Runtime folder registry (`registerStorageFolder`, `isValidStorageFolder`) — modules add folders without editing the core enum |\n| `storage.mime-groups.ts` | MIME group definitions + `expandMimeGroups` (group → MIME types) |\n| `storage.validation.ts` | Pre-upload validation: size, extension allowlist, magic-byte sniffing, EXIF strip, content-derived MIME (`deriveMimeType`) + `allowedMimeTypes` allowlist |\n| `storage.messages.ts` | Error/success message strings |\n| `storage.setting.keys.ts` | `STORAGE_KEYS` setting key constants |\n| `storage.scan.setting.keys.ts` | `STORAGE_SCAN_KEYS` virus-scan setting key constants |\n| `storage.scan.enums.ts` | `VirusScanProvider`, `VirusScanStatus`, `VirusScanMode`, `VirusScanInfectedAction` |\n| `storage.scan.types.ts` | `ScanConfig`, `ScanResult` |\n| `storage.scanner-factory.ts` | `getScanConfig(tenantId)` + `createScanner(config)` |\n| `storage.scan.service.ts` | `scan(config, bytes, filename)` + `handleInfected(...)` (quarantine/delete) |\n| `storage.scan.job.ts` | BullMQ async scan queue/worker + `enqueueVirusScan` |\n| `scanners/base.scanner.ts` | Abstract `FileScanner` base class |\n| `scanners/virustotal.scanner.ts` | VirusTotal v3 adapter |\n| `storage.seed.ts` | Demo seed for the `UploadedFile` ledger (5 providers, 1 soft-deleted) |\n| `s3.client.ts` | Shared `@aws-sdk/client-s3` client built from `env` (env-level credentials) |\n| `entities/uploaded_file.entity.ts` | `UploadedFile` audit entity |\n| `providers/base.provider.ts` | Abstract `BaseStorageProvider` base class |\n| `providers/aws-s3.provider.ts` | AWS S3 |\n| `providers/cloudflare-r2.provider.ts` | Cloudflare R2 |\n| `providers/digitalocean-spaces.provider.ts` | DigitalOcean Spaces |\n| `providers/minio.provider.ts` | MinIO (self-hosted) |\n\n---\n\n## Service / Responsibilities\n\n`StorageService` (default export) is fully tenant-scoped — every public method takes `tenantId`:\n\n| Method | Responsibility |\n|---|---|\n| `uploadFile(tenantId, data)` | Feature-gate, resolve the tenant's provider, upload a `File`, persist the audit row, return `UploadResult` (with `uploadedFileId`). |\n| `uploadFromUrl(tenantId, data)` | Same as above but fetches the bytes from a remote URL. |\n| `deleteFile(tenantId, data)` | Delete the object from the bucket and soft-remove the matching `UploadedFile` audit row. |\n| `getFileUrl(tenantId, data)` | Return the object URL from the tenant's resolved provider. |\n\nPrivate helpers:\n\n- `getStorageSettings(tenantId)` — reads `STORAGE_KEYS` via `SettingService.getByKeys` and builds the per-tenant `S3Config` (provider, bucket, region, credentials, endpoint).\n- `createProvider(name, config)` — maps the resolved provider name to the concrete provider class.\n- `getProvider(tenantId, providerName?)` — resolves the tenant default provider unless the request explicitly overrides it.\n- `persistUploadAudit(...)` — best-effort: writes the `UploadedFile` row into the tenant DataSource and increments `TenantUsageService.incrementStorageBytes`. Failures are logged, never thrown.\n- `assertStorageFeatureAccess(tenantId)` — defense-in-depth billing gate (see *Security*).\n\n---\n\n## Providers\n\nThe active provider is resolved per tenant from the `storageProvider` setting (or overridden per request via the DTO `provider` field). Each provider extends `BaseStorageProvider` and implements `uploadFile`, `uploadFromUrl`, `deleteFile`, `getFileUrl`.\n\n`StorageProviderType` values: `aws-s3`, `s3`, `cloudflare-r2`, `digitalocean-spaces`, `minio`. The service `createProvider` switch routes `aws-s3`, `cloudflare-r2`, `digitalocean-spaces` and `minio` to their classes (an unmapped name throws `PROVIDER_NOT_FOUND`).\n\n### Adding a New Provider\n\n1. Extend `BaseStorageProvider` in `providers/`\n2. Add the value to `StorageProviderTypeSchema` in `storage.enums.ts`\n3. Register it in the `createProvider` switch in `storage.service.ts`\n4. Add any new setting keys in `storage.setting.keys.ts`\n\n---\n\n## API Routes\n\n| Method | Path | Scope | Description |\n|---|---|---|---|\n| POST | `/tenant/[tenantId]/api/storage` | tenant, authenticated | Multipart upload (`FormData`: `file`, optional `folder` default `general`, optional `provider`). Rate-limited (`api`). Returns `uploadedFileId`, `url`, `key`, `bucket`, `size`, `provider`. |\n\nStorage settings are read/written through the shared admin-settings surface (`GET/PUT /tenant/[tenantId]/api/admin-settings`), not a storage-specific route.\n\n---\n\n## Usage\n\n```typescript\nimport StorageService from '@/modules/storage/storage.service';\n\n// Upload a file (tenantId-first)\nconst result = await StorageService.uploadFile(tenantId, {\n  file,\n  folder: 'users',\n  filename: `${userId}.webp`,\n  tenantId,\n});\n// result.url, result.key, result.bucket, result.size, result.provider, result.uploadedFileId\n\n// Upload from a remote URL\nconst fromUrl = await StorageService.uploadFromUrl(tenantId, {\n  url: 'https://example.com/avatar.png',\n  folder: 'users',\n});\n\n// Delete a file (soft-deletes the audit row)\nawait StorageService.deleteFile(tenantId, { key: result.key });\n\n// Get the object URL\nconst url = await StorageService.getFileUrl(tenantId, { key: result.key });\n```\n\n### Upload Result\n\n```typescript\ntype UploadResult = {\n  url: string;\n  key: string;\n  bucket: string;\n  size?: number;\n  provider: StorageProviderType;\n  uploadedFileId?: string;\n};\n```\n\n---\n\n## Usage tracking & audit\n\nEvery successful upload:\n\n1. Inserts an `UploadedFile` row in the tenant DB (`entities/uploaded_file.entity.ts`) — `key`, `bucket`, `provider`, `size`, `mimeType`, `url`, `userId`, `createdAt`, plus upload origin (`ipAddress`, `userAgent`, `country` inferred from the IP) and scan columns (`scanStatus`, `scanProvider`, `scanResult`, `scannedAt`). The row is keyed by `tenantId` and indexed on `userId`/`key`/`country`.\n2. Calls `TenantUsageService.incrementStorageBytes(tenantId, result.size)` so the `storageBytes` quota counter (`tenant_usage`) tracks reality.\n\n`deleteFile` soft-removes the matching `UploadedFile` row (`deletedAt` set) — the byte counter is increment-only (audit-friendly; decrement is a future task).\n\nAudit / usage failures are swallowed — they never break the upload itself (the bytes are already in the bucket at that point).\n\n---\n\n## Settings\n\nStorage setting keys (`STORAGE_KEYS`, declared in `storage.setting.keys.ts`) are seeded per tenant under the `Storage` group in `setting/setting.seed.ts` and read at runtime by `storage.service.ts` via `SettingService.getByKeys`.\n\n| Key | Type | Default | Read in / Notes |\n|---|---|---|---|\n| `storageProvider` | string | `s3` (seed) / `aws-s3` (service fallback) | `storage.service.ts` — selects the backend (`aws-s3` \\| `s3` \\| `cloudflare-r2` \\| `digitalocean-spaces` \\| `minio`). |\n| `s3Bucket` | string | — | `storage.service.ts` — destination bucket. |\n| `s3Region` | string | `us-east-1` | `storage.service.ts` — bucket region. |\n| `s3AccessKey` | string | — | `storage.service.ts` — credential access key id. |\n| `s3SecretKey` | string | — | `storage.service.ts` — credential secret key. |\n| `s3Endpoint` | string | — | `storage.service.ts` — custom endpoint (R2 / Spaces / MinIO); undefined falls back to provider default. |\n| `maxFileSizeMb` | number | `25` | `getValidationPolicy` — enforced in `validateUpload`. |\n| `allowedExtensions` | json | `[\"png\",\"jpg\",\"pdf\"]` | `getValidationPolicy` — enforced in `validateUpload`. |\n| `allowedMimeGroups` | csv | `images,documents` | `getValidationPolicy` — group keys expanded to MIME types (see below). |\n| `allowedMimeTypes` | csv | — (empty) | `getValidationPolicy` — explicit MIME types added on top of the selected groups. |\n| `imageStripExif` | bool | `true` | `getValidationPolicy` — strips JPEG EXIF/metadata unless `'false'`. |\n\n#### MIME allowlist by group (`storage.mime-groups.ts`)\n\nRather than listing raw MIME strings, tenants pick **groups**; the effective\nallowlist is `expandMimeGroups(allowedMimeGroups) ∪ allowedMimeTypes`. Both empty\n⇒ unrestricted (provider-level type checks still apply). The content-derived MIME\n(`deriveMimeType`) is matched against this set in `validateUpload`.\n\n| Group | Covers |\n|---|---|\n| `images` | jpeg, png, webp, avif, gif, bmp, ico, svg |\n| `documents` | pdf, txt, markdown, html, docx, odt, epub |\n| `spreadsheets` | csv, xlsx, ods |\n| `presentations` | pptx |\n| `archives` | zip, gzip |\n| `audio` | mpeg/mp3 |\n| `video` | mp4 |\n| `data` | json, xml, yaml |\n\n### Virus scanning keys (`STORAGE_SCAN_KEYS`, `storage.scan.setting.keys.ts`)\n\n| Key | Type | Default | Notes |\n|---|---|---|---|\n| `virusScanEnabled` | bool | `false` | Master switch; also requires `virusScanApiKey` to take effect. |\n| `virusScanMode` | enum | `async` | `sync` blocks the upload until scanned; `async` scans in the background. |\n| `virusScanProvider` | enum | `virustotal` | Online scanner backend. |\n| `virusScanApiKey` | string | — | Provider API key (secret). |\n| `virusScanTimeoutSeconds` | number | `30` | Per-scan time budget. |\n| `virusScanInfectedAction` | enum | `quarantine` | `quarantine` (move to quarantine folder) or `delete`. |\n| `virusScanQuarantineFolder` | string | `quarantine` | Destination folder prefix for quarantined objects. |\n\n`s3.client.ts` builds a separate, env-credentialed `@aws-sdk/client-s3` instance from `env` (`AWS_REGION`/`AWS_ACCESS_KEY_ID`/…) — independent of the per-tenant Setting credentials above.\n\n---\n\n## Security\n\n`assertStorageFeatureAccess(tenantId)` gates `uploadFile` / `uploadFromUrl` before any provider work:\n\n- Short-circuits for the root tenant (`isRootTenant`).\n- Asserts the tenant's active plan grants `FEATURE_STORAGE_UPLOAD` (boolean).\n- Asserts `FEATURE_STORAGE_QUOTA_BYTES` (limit) is not exhausted, comparing against the tenant's `TenantUsage.storageBytes`.\n\nThe quota check is best-effort and non-atomic — the post-upload byte increment can briefly push usage above the ceiling under concurrent uploads.\n\n### Upload validation & MIME\n\n`validateUpload` (`storage.validation.ts`) runs before the bytes reach the bucket:\nsize (`maxFileSizeMb`), extension allowlist (`allowedExtensions`), magic-byte\nsniffing, optional EXIF stripping, and a **content-derived MIME** check. The real\nMIME is derived from the verified content (`deriveMimeType`) — never the client's\n`file.type` header — and matched against the per-tenant `allowedMimeTypes`\nallowlist; the derived MIME is what gets stored on the object and audit row.\n\n### Virus scanning\n\nWhen `virusScanEnabled` (+ `virusScanApiKey`) is set, uploads are scanned via a\npluggable online scanner (`scanners/`, first adapter VirusTotal):\n\n- **sync** (`virusScanMode=sync`) — the buffer is scanned before the bucket write;\n  an infected file is rejected with `SCAN_INFECTED` and never stored.\n- **async** (default) — the object is stored as `scanStatus='pending'` and a BullMQ\n  job (`storage.scan.job.ts`) downloads it via a presigned URL, scans it, writes the\n  result to the `UploadedFile` scan columns, then quarantines/deletes it if infected\n  (`virusScanInfectedAction`). `uploadFromUrl` always scans asynchronously;\n  `uploadServerBuffer` (trusted server output) is not scanned.\n\n---\n\n## Tenant Variability\n\n> What varies per tenant in this module — and what could. Audited 2026-06-03.\n\nThe storage module uploads/deletes files to S3-compatible providers (AWS S3, Cloudflare R2, DigitalOcean Spaces, MinIO) and is fully tenant-aware: each real tenant has its own provider, bucket, credentials and limits in Setting rows, its own UploadedFile audit ledger, and upload access is gated per-tenant via subscription feature-keys + a storage quota.\n\n### Per-tenant settings\n\n| Key | Type | Default | Scope | Controls | Read in |\n|---|---|---|---|---|---|\n| `storageProvider` | string | `aws-s3` | tenant | Which S3-compatible backend the tenant's uploads go to (aws-s3 \\| s3 \\| cloudflare-r2 \\| digitalocean-spaces \\| minio); service default 'aws-s3', seed default 's3'. | `storage.service.ts` |\n| `s3Bucket` | string | — | tenant | Destination bucket name for this tenant's objects. | `storage.service.ts` |\n| `s3Region` | string | `us-east-1` | tenant | AWS/S3 region for the tenant's bucket. | `storage.service.ts` |\n| `s3AccessKey` | string | — | tenant | Access key id for the tenant's storage credentials. | `storage.service.ts` |\n| `s3SecretKey` | string | — | tenant | Secret access key for the tenant's storage credentials. | `storage.service.ts` |\n| `s3Endpoint` | string | — | tenant | Custom S3 endpoint URL (for R2 / Spaces / self-hosted MinIO); undefined falls back to provider default. | `storage.service.ts` |\n| `maxFileSizeMb` | number | `25` | tenant | Intended per-tenant max upload size in MB (seeded/UI-editable but not yet enforced in the service). | `setting.seed.ts` |\n| `allowedExtensions` | json | `[\"png\",\"jpg\",\"pdf\"]` | tenant | Intended per-tenant allowlist of upload file extensions (seeded/UI-editable but not yet enforced in the service). | `setting.seed.ts` |\n\n*Scope: `tenant` = real tenants override · `root` = platform-only default (not per-tenant).*\n\n### Tenant-scoped data\n\n| Entity | Table | Tenant-variable columns |\n|---|---|---|\n| `UploadedFile` | `uploaded_files` | userId, key, bucket, provider, size, mimeType, url |\n\nAll rows isolated by `tenantId` via the per-tenant DataSource.\n\n### Per-tenant behavior\n\n- `storage.service.ts:getStorageSettings` — Reads storageProvider + s3Bucket/region/credentials/endpoint via SettingService.getByKeys(tenantId,...) so the resolved provider and S3Config are entirely per-tenant; each tenant uploads to its own bucket with its own credentials.\n- `storage.service.ts:getProvider` — Selects the concrete provider class (AWS S3 / R2 / Spaces / MinIO) from the tenant's resolved storageProvider setting, unless the request explicitly overrides it.\n- `storage.service.ts:assertStorageFeatureAccess` — Gates uploadFile/uploadFromUrl per tenant: asserts the tenant's active plan grants FEATURE_STORAGE_UPLOAD and that FEATURE_STORAGE_QUOTA_BYTES is not exhausted (compared against the tenant's TenantUsage.storageBytes). Root tenant is short-circuited (isRootTenant).\n- `storage.service.ts:persistUploadAudit` — Writes the UploadedFile audit row into tenantDataSourceFor(tenantId) and increments TenantUsageService.storageBytes for that tenant, so each tenant has its own file ledger and usage counter.\n\n### Candidates (global / hardcoded today → could be per-tenant)\n\n| What | Where | Why per-tenant | Suggested key |\n|---|---|---|---|\n| Per-tenant max upload size is not enforced; uploadFile/uploadFromUrl accept any file size regardless of the tenant's configured limit. | `storage.service.ts:uploadFile / uploadFromUrl` | The maxFileSizeMb setting is declared in storage.setting.keys.ts, seeded per-tenant (value '25'), and exposed in the settings UI, but it is never read anywhere in the service — uploads are size-gated only by the subscription quota, not this per-tenant ceiling. | `maxFileSizeMb` |\n| Per-tenant allowed file extensions are not enforced; any extension/mime type is accepted on upload. | `storage.service.ts:uploadFile / uploadFromUrl` | allowedExtensions is declared in storage.setting.keys.ts and seeded per-tenant (['png','jpg','pdf']) and UI-editable, but no code reads it to validate the uploaded file's extension. | `allowedExtensions` |\n\n---\n\n## Dependencies\n\nRequires `env` and `setting` (per `module.json`). At runtime also uses `tenant_usage` (quota counter), `tenant_subscription` (feature-key gating), `tenant`/`db` (per-tenant DataSource), and `logger`.\n"
     },
     {
       "id": "user",
@@ -683,8 +684,10 @@
           "user_security.crud.service.ts",
           "user_security.login.service.ts",
           "user_security.mfa.service.ts",
+          "user_security.passkey.authenticate.service.ts",
           "user_security.passkey.crud.service.ts",
           "user_security.passkey.flow.service.ts",
+          "user_security.passkey.register.service.ts",
           "user_security.passkey.service.ts",
           "user_security.service.ts"
         ],
@@ -949,6 +952,7 @@
       },
       "exports": {
         "services": [
+          "auth_saml.config.crud.service.ts",
           "auth_saml.config.service.ts",
           "auth_saml.crypto.service.ts",
           "auth_saml.flow.callback.service.ts",
@@ -1231,7 +1235,9 @@
         "services": [
           "tenant.deletion.service.ts",
           "tenant.onboarding.service.ts",
-          "tenant.service.ts"
+          "tenant.read.service.ts",
+          "tenant.service.ts",
+          "tenant.write.service.ts"
         ],
         "dtos": [
           "tenant.dto.ts"
@@ -1279,7 +1285,9 @@
       },
       "exports": {
         "services": [
-          "tenant_member.service.ts"
+          "tenant_member.read.service.ts",
+          "tenant_member.service.ts",
+          "tenant_member.write.service.ts"
         ],
         "dtos": [
           "tenant_member.dto.ts"
@@ -1875,13 +1883,15 @@
       },
       "exports": {
         "services": [
+          "payment_subscription.crud.service.ts",
           "payment_subscription.dunning.service.ts",
           "payment_subscription.lifecycle.service.ts",
           "payment_subscription.metered.service.ts",
           "payment_subscription.metrics.service.ts",
           "payment_subscription.plan.service.ts",
           "payment_subscription.proration.service.ts",
-          "payment_subscription.service.ts"
+          "payment_subscription.service.ts",
+          "payment_subscription.transitions.service.ts"
         ],
         "dtos": [
           "payment_subscription.dto.ts"
@@ -2534,9 +2544,11 @@
       },
       "exports": {
         "services": [
-          "e_signature.cert.service.ts",
           "e_signature.compliance.service.ts",
+          "e_signature.crypto.chain.service.ts",
+          "e_signature.crypto.parse.service.ts",
           "e_signature.crypto.service.ts",
+          "e_signature.crypto.verify.service.ts",
           "e_signature.document.service.ts",
           "e_signature.encryption.service.ts",
           "e_signature.etsi_tsl.service.ts",
@@ -2563,7 +2575,6 @@
         "providers": [],
         "jobs": [],
         "entities": [
-          "signing_certificate.entity.ts",
           "trust_list_entry.entity.ts"
         ]
       },
@@ -2617,6 +2628,60 @@
       "hasModuleJson": true,
       "hasNextLayer": true,
       "readme": "# Seo Module\n\nPolymorphic SEO-metadata store. A single `SeoMeta` row holds title, description, keywords, Open Graph, Twitter card, canonical URL and `noIndex` flags, attachable to any entity via an `entityType` + `entityId` pair. Every row is tenant-scoped and reads are Redis-cached.\n\n---\n\n## Entities\n\n| Entity | Table | Description |\n|---|---|---|\n| `SeoMeta` | `seo_meta` | Polymorphic SEO metadata for one entity, unique per `(tenantId, entityType, entityId)` |\n\nLives in the **tenant DB**. Columns: `seoId` (uuid PK), `tenantId`, `entityType` (varchar 50), `entityId` (uuid), `title`, `description`, `keywords` (jsonb string array), `ogTitle`, `ogDescription`, `ogImageUrl`, `canonicalUrl`, `twitterTitle`, `twitterDescription`, `twitterCard`, `noIndex` (bool, default `false`), `updatedAt`. `tenantId`, `entityType` and `entityId` are indexed, with a `@Unique` constraint across the three.\n\n### Entity types\n\n`SeoEntityTypeEnum` (`seo.enums.ts`) constrains the polymorphic `entityType` at the route boundary:\n\n| Value | Attaches to |\n|---|---|\n| `store_category` | Store category |\n| `store_product` | Store product |\n| `store_bundle` | Store bundle |\n| `dynamic_page` | Dynamic page |\n\n`entityId` is a bare cross-module uuid — there are no cross-DB foreign keys.\n\n---\n\n## Service / Responsibilities\n\n`SeoService` (`seo.service.ts`) — static methods, all keyed by `(tenantId, entityType, entityId)` and resolving the per-tenant DataSource via `tenantDataSourceFor(tenantId)`:\n\n| Method | Responsibility |\n|---|---|\n| `upsert(tenantId, entityType, entityId, dto)` | Find-or-create the row, `Object.assign` the DTO, save, then invalidate the cache key. Returns the parsed `SeoMeta`. |\n| `get(tenantId, entityType, entityId)` | Read the row, wrapped in `singleFlight` on the cache key to collapse concurrent reads. Returns `SeoMeta` or `null`. |\n| `delete(tenantId, entityType, entityId)` | Delete the row and invalidate the cache key. |\n\nResults are validated/shaped through `SeoMetaSchema` (`seo.types.ts`) before return. Write payloads are validated by `UpsertSeoDTO` (`seo.dto.ts`): string length caps (title/og/twitter titles ≤ 200, descriptions ≤ 500, ≤ 30 keywords of ≤ 100 chars each), URL validation for `ogImageUrl`/`canonicalUrl`, and `noIndex` defaulting to `false`. `SEO_MESSAGES` (`seo.messages.ts`) holds the `NOT_FOUND` / `UPSERT_FAILED` message strings.\n\n### Caching\n\n`get` is cached under the tenant-namespaced Redis key `seo:{tenantId}:{entityType}:{entityId}`; `upsert` and `delete` `redis.del` that same key so the next read repopulates.\n\n---\n\n## API Routes\n\nTenant-scoped, **ADMIN+** (`TenantSessionNextService.authenticateTenantByRequest` with `requiredTenantRole: 'ADMIN'`), rate-limited via `Limiter.checkRateLimit`. `entityType` + `entityId` are validated with `SeoRouteParamsDTO` (enum + uuid).\n\n| Method | Path | Description |\n|---|---|---|\n| GET | `/tenant/[tenantId]/api/seo/[entityType]/[entityId]` | Read SEO metadata (`{ seo }`, `null` if none) |\n| PUT | `/tenant/[tenantId]/api/seo/[entityType]/[entityId]` | Upsert SEO metadata from an `UpsertSeoDTO` body |\n\n---\n\n## Settings\n\nThis module has no settings — no per-tenant or system-only setting keys. Behavior is identical across tenants; only the data varies.\n\n---\n\n## Tenant Variability\n\n> What varies per tenant in this module — and what could. Audited 2026-06-03.\n\nA polymorphic SEO-metadata store (title/description/OpenGraph/Twitter/canonical/noIndex) attachable to any entity via entityType+entityId; fully per-tenant by data — every row is tenantId-keyed and read/written through tenantDataSourceFor(tenantId) — with no per-tenant settings or behavioral branching.\n\n### Tenant-scoped data\n\n| Entity | Table | Tenant-variable columns |\n|---|---|---|\n| `SeoMeta` | `seo_meta` | entityType, entityId, title, description, keywords, ogTitle, ogDescription, ogImageUrl, canonicalUrl, twitterTitle, twitterDescription, twitterCard, noIndex |\n\nAll rows isolated by `tenantId` via the per-tenant DataSource.\n\n### Per-tenant behavior\n\n- `seo.service.ts` — All CRUD (upsert/get/delete) resolves the per-tenant DataSource via tenantDataSourceFor(tenantId) and filters every query by { tenantId, entityType, entityId }, so each tenant sees only its own SEO metadata rows; results are isolated by tenant-namespaced Redis cache key seo:{tenantId}:{entityType}:{entityId}.\n\n---\n\n## Seed\n\n`seedSeo` (`seo.seed.ts`) seeds four demo `seo_meta` rows (product, category, bundle, dynamic page) per tenant, idempotently via `ctx.foc` keyed on the `@Unique` constraint. `entityId`s are read from `ctx.refs` (published by the store seed) with deterministic literal fallbacks; the dynamic-page row sets `noIndex: true`.\n\n---\n\n## Usage example\n\n```typescript\nimport SeoService from '@/modules/seo/seo.service';\n\n// Upsert SEO metadata for a store product\nawait SeoService.upsert(tenantId, 'store_product', productId, {\n  title: 'Test Laptop — 15.6\" Performance Notebook',\n  description: 'A configurable 15.6\" demo laptop.',\n  keywords: ['laptop', 'notebook', 'SSD'],\n  ogImageUrl: 'https://example.com/og.png',\n  canonicalUrl: 'https://example.com/products/test-laptop',\n  twitterCard: 'summary_large_image',\n  noIndex: false,\n});\n\n// Read it back (Redis-cached, single-flighted)\nconst seo = await SeoService.get(tenantId, 'store_product', productId);\n```\n\n---\n\n## Dependencies\n\nRequires `db` (per-tenant DataSource) and `redis` (cache + `singleFlight`), per `module.json`.\n"
+    },
+    {
+      "id": "auth_e_signature",
+      "name": "E-Signature Identity Login",
+      "version": "1.0.0",
+      "description": "E-signature / e-identity login consumer: matches and binds qualified electronic-signature certificates (TR Mobil İmza, Smart-ID, BankID, eIDAS QSCD) to user accounts and runs the login/bind workflow. Consumes the e_signature engine for provider/crypto/identity primitives; owns the certificate↔user binding (signing_certificates).",
+      "dir": "modules/auth_e_signature",
+      "icon": "fas fa-id-card",
+      "tags": [
+        "auth",
+        "identity",
+        "signature",
+        "eidas"
+      ],
+      "priority": 36,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "e_signature",
+          "user",
+          "user_session",
+          "user_security",
+          "tenant",
+          "tenant_member",
+          "env",
+          "audit_log",
+          "webhook",
+          "redis",
+          "limiter",
+          "common",
+          "logger"
+        ]
+      },
+      "exports": {
+        "services": [
+          "auth_e_signature.cert.service.ts",
+          "auth_e_signature.flow.service.ts",
+          "auth_e_signature.service.ts"
+        ],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "signing_certificate.entity.ts"
+        ]
+      },
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": true,
+      "readme": ""
     },
     {
       "id": "media_gallery",
@@ -2866,7 +2931,9 @@
         "services": [
           "webhook.crud.service.ts",
           "webhook.delivery.service.ts",
+          "webhook.dispatch.service.ts",
           "webhook.metrics.service.ts",
+          "webhook.redeliver.service.ts",
           "webhook.service.ts"
         ],
         "dtos": [
@@ -3124,6 +3191,59 @@
       "readme": "# Messaging\n\nTenant-scoped real-time messaging: 1-1 and group conversations, persisted\nmessages (soft-delete), read/delivery cursors, typing indicators, online/offline\npresence, and participant roles (`owner` / `admin` / `member`).\n\n## Architecture\n\n**HTTP writes, WebSocket receives. Redis is the bridge.**\n\n- **Writes** (send message, mark read, manage participants) go through the\n  Next.js API routes under `app/tenant/[tenantId]/api/conversations/…`. They\n  reuse the existing session auth, Zod validation, rate limiting and per-tenant\n  DataSource, then **publish** a realtime event to Redis (`msg:rt` channel).\n- **Realtime delivery** happens through a **standalone Socket.IO process**\n  (`modules/messaging/server/`), run separately from Next.js (App Router cannot\n  host a long-lived WS server). It subscribes to `msg:rt` and emits into rooms.\n- Clients send only **typing / presence / read** signals over the socket; the\n  message body itself is always an HTTP POST.\n\n```\nbrowser ──POST /messages──▶ Next API ──persist──▶ Postgres\n                               │\n                               └─publish msg:rt──▶ Redis ──▶ WS service ──emit──▶ browser(s)\nbrowser ──typing/read────────────────────────────▶ WS service ──broadcast──▶ browser(s)\n```\n\nTwo Redis mechanisms, different hops:\n- `@socket.io/redis-adapter` — socket↔socket fan-out *within* the WS cluster.\n- `msg:rt` pub/sub — Next HTTP process → WS cluster handoff of persisted events.\n\n## WebSocket auth (short-lived single-use ticket)\n\n1. `POST /tenant/{tenantId}/api/messaging/ws-ticket` (session-authed) → `{ ticket, expiresIn, wsUrl }`.\n2. `io(wsUrl, { auth: { ticket }, transports: ['websocket'] })`.\n3. The WS service consumes the ticket atomically (`GETDEL`, 30s TTL, single-use)\n   and binds `{ userId, tenantId }` to the socket. Replays are rejected.\n\n## Entities\n\n- `conversations` — direct (1-1, deduped via `dedupeKey`) or group threads.\n- `conversation_participants` — membership + role + read/delivery **cursors**\n  (`lastReadMessageId` / `lastDeliveredMessageId`); receipts are watermarks, not\n  per-message rows.\n- `messages` — persisted messages, soft-deleted, cursor-paginated.\n\n## Running\n\n```bash\nnpm run dev        # Next.js app (HTTP API)\nnpm run ws:dev     # standalone Socket.IO service (watch mode)\n# production: npm run build && npm run start  +  npm run ws:start\n```\n\nEnv: `MESSAGING_WS_PORT` (default 4001), `MESSAGING_WS_PUBLIC_URL`,\n`MESSAGING_WS_CORS_ORIGIN`. The WS service shares the same `.env`, Redis and DB\nas the app.\n\n> **Production note:** `synchronize` only creates tables in development. For\n> production add a migration under `modules/db/migrations/` for the three tables\n> and the **partial unique index** on `conversations(tenantId, dedupeKey)`.\n> Socket.IO across multiple instances needs sticky sessions or (as configured\n> here) `transports: ['websocket']`.\n\n## Moderation\n\nPer-tenant content moderation with three enforcement modes plus user reports and manual review.\n\n**Policy** (`messagingModerationMode` setting): `OFF` | `LOG` | `REPORT` | `AUTO`.\n- **OFF** — no scanning.\n- **LOG** — violations are delivered but written to the moderation log (AuditLog `message.flagged`).\n- **REPORT** — like LOG, plus surfaced in the moderator queue + admins notified.\n- **AUTO** — **pre-delivery quarantine**: a violating message is held (`PENDING`, not delivered) until a\n  moderator approves (delivered late) or rejects it.\n\n**Detection** = keyword blocklist first (synchronous, deterministic), then an optional async AI (LLM)\nbackstop via `AIService` (BullMQ worker, requires `ENABLE_BACKGROUND_JOBS=true`). Keyword hits gate\ndelivery immediately; AI never blocks the send path (unless `messagingModerationAiHold=true` + AUTO).\n\n**Status & visibility** (`Message.moderationStatus`): recipients see `CLEAN | FLAGGED | APPROVED`;\n`PENDING | REJECTED | HIDDEN` are hidden from recipients (sender sees own with a marker, admins see all).\n\n**Settings** (`SettingService`, ADMIN UI via the settings route): `messagingModerationMode`,\n`messagingModerationKeywords` (JSON array of literals + `/regex/` entries), `messagingModerationUseAi`,\n`messagingModerationAiHold`, `messagingModerationAiThreshold`, `messagingModerationReportThreshold`.\n\n**User reports** are always available; `messagingModerationReportThreshold>0` auto-quarantines after N reports.\n\nModeration API (under `/tenant/[tenantId]/api/`):\n```\nPOST   conversations/[conversationId]/messages/[messageId]/report   # any participant\nGET    messaging/moderation/queue                                   # ADMIN — flagged/pending + open reports\nPOST   messaging/moderation/messages/[messageId]                    # ADMIN — { action: approve|reject|hide|dismiss }\nGET/PUT messaging/moderation/settings                              # ADMIN — read/update policy\n```\nRealtime: a held message emits `message:moderated {status:'PENDING'}` to the sender only; on approve the\nmessage is delivered late via `message:new`; on reject/hide recipients get `message:moderated` + `message:deleted`.\n\n## Client sketch\n\n```ts\nconst { ticket, wsUrl } = await fetch(`/tenant/${tenantId}/api/messaging/ws-ticket`, { method: 'POST' }).then(r => r.json());\nconst socket = io(wsUrl, { auth: { ticket }, transports: ['websocket'] });\nsocket.emit('join', { conversationId });\nsocket.on('message:new', (msg) => { /* render */ });\nsocket.emit('typing:start', { conversationId });\n// send a message over HTTP:\nawait fetch(`/tenant/${tenantId}/api/conversations/${conversationId}/messages`, {\n  method: 'POST', body: JSON.stringify({ body: 'hi' }),\n});\n```\n"
     },
     {
+      "id": "gdpr_consent",
+      "name": "GDPR Consent",
+      "version": "1.0.0",
+      "description": "Per-tenant cookie-consent banner configuration plus an append-only consent ledger that records each subject's grant/withdraw decision per purpose (necessary/functional/analytics/marketing). Public capture for anonymous visitors, latest-wins state derivation, and audit-logged writes. Data export/erasure is handled by tenant_export.",
+      "dir": "modules/gdpr_consent",
+      "icon": "fas fa-shield-halved",
+      "tags": [
+        "platform",
+        "gdpr",
+        "privacy",
+        "consent",
+        "compliance"
+      ],
+      "priority": 47,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "common",
+          "audit_log",
+          "setting"
+        ]
+      },
+      "exports": {
+        "services": [
+          "gdpr_consent.service.ts"
+        ],
+        "dtos": [
+          "gdpr_consent.dto.ts"
+        ],
+        "enums": [
+          "gdpr_consent.enums.ts"
+        ],
+        "messageKeys": [
+          "gdpr_consent.messages.ts"
+        ],
+        "settingKeys": [
+          "gdpr_consent.setting.keys.ts"
+        ],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "consent_record.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true,
+      "readme": "# gdpr_consent\n\nTenant-scoped **cookie / consent management** — a configurable consent banner and\nan **append-only consent ledger** that records every subject's grant/withdraw\ndecision per purpose. Framework-agnostic (`modules/` layer); the Next bindings\n(admin UI, public banner component, API routes) live under `app/` and\n`modules_next/`.\n\n> Data **export / erasure** (GDPR portability and right-to-be-forgotten) is\n> handled by `tenant_export` — this module is **consent capture only** and does\n> not duplicate that surface.\n\n## What it does\n\nA subject is identified by **either** an authenticated `subjectUserId` **or** an\nanonymous `subjectAnonymousId` (banner visitors). Each consent decision appends\nONE immutable row to the ledger — rows are never updated or deleted. The current\nstate for a subject is derived by taking the **latest decision per purpose**\n(later wins). The `necessary` purpose is strictly required and is always reported\nas granted.\n\nPurposes: `necessary` · `functional` · `analytics` · `marketing`.\nSources: `banner` · `api` · `import` · `admin`.\n\n## Public API\n\n```ts\nimport { GdprConsentService } from \"@/modules/gdpr_consent\";\n\n// Anonymous banner submission (one row per decision)\nawait GdprConsentService.recordMany(\n  tenantId,\n  [{ purpose: \"analytics\", granted: true }, { purpose: \"marketing\", granted: false }],\n  { anonymousId },\n  { ipAddress, userAgent, source: \"banner\" },\n);\n\n// Single decision / withdrawal\nawait GdprConsentService.record(tenantId, { purpose: \"marketing\", granted: true, userId });\nawait GdprConsentService.withdraw(tenantId, \"marketing\", { userId });\n\n// Current state (latest per purpose; necessary always true)\nconst state = await GdprConsentService.getState(tenantId, { userId });\n\n// Admin ledger + banner config\nconst { data, total } = await GdprConsentService.list(tenantId, { page: 0, pageSize: 50 });\nconst cfg = await GdprConsentService.getBannerConfig(tenantId);\nawait GdprConsentService.updateBannerConfig(tenantId, { enabled: true }, actorId);\n```\n\nThe pure state deriver is exported for unit use / edge contexts:\n`deriveConsentState(records)`.\n\n## Entities\n\n| Entity | Table | Notes |\n|---|---|---|\n| `ConsentRecord` | `consent_records` | Append-only. Indexed on `tenantId`, `subjectUserId`, `subjectAnonymousId`. `@CreateDateColumn` only — no update column. |\n\n## Settings\n\nStored via `SettingService` (keys owned by this module — `GDPR_CONSENT_KEYS`):\n\n| Key | Meaning |\n|---|---|\n| `consentBannerEnabled` | `'true'`/`'false'` — show the banner |\n| `consentPolicyVersion` | policy version captured on each decision |\n| `consentBannerTitle` | banner heading |\n| `consentBannerMessage` | banner body text |\n| `consentPurposes` | JSON array of `{ key, label, description, required }` |\n\n`getBannerConfig` falls back to sensible defaults (disabled, version `1`, the four\nstandard purposes) when keys are unset or malformed.\n\n## Dependencies\n\n`db`, `env`, `redis`, `common`, `audit_log`, `setting`.\n\n## HTTP surface\n\n- `POST /tenant/{tenantId}/api/consent` — **public** record (single or many decisions); rate-limited, captures IP + user-agent, source `banner`.\n- `GET /tenant/{tenantId}/api/consent?userId=|anonymousId=` — **public** current state; rate-limited.\n- `GET /tenant/{tenantId}/api/consent/config` — **public** banner config (so the banner can render).\n- `PATCH /tenant/{tenantId}/api/consent/config` — **admin** update banner config.\n- `GET /tenant/{tenantId}/api/consent/records` — **admin** paginated ledger.\n\nUI: public banner `modules_next/gdpr_consent/ui/ConsentBanner.tsx`; admin page\n`/tenant/{tenantId}/admin/consent`.\n"
+    },
+    {
       "id": "wallet",
       "name": "Wallet",
       "version": "1.0.0",
@@ -3177,8 +3297,58 @@
       },
       "hasReadme": false,
       "hasModuleJson": true,
-      "hasNextLayer": false,
+      "hasNextLayer": true,
       "readme": ""
+    },
+    {
+      "id": "feature_flags",
+      "name": "Feature Flags",
+      "version": "1.0.0",
+      "description": "Tenant-scoped feature flags with master switch, deterministic percentage rollout, attribute-based targeting rules, and per-subject (user/segment) overrides. Read-through cached for hot-path evaluation; every write is audit-logged.",
+      "dir": "modules/feature_flags",
+      "icon": "fas fa-toggle-on",
+      "tags": [
+        "platform",
+        "feature-flags",
+        "rollout",
+        "experimentation"
+      ],
+      "priority": 48,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "common",
+          "audit_log"
+        ]
+      },
+      "exports": {
+        "services": [
+          "feature_flags.service.ts"
+        ],
+        "dtos": [
+          "feature_flags.dto.ts"
+        ],
+        "enums": [
+          "feature_flags.enums.ts"
+        ],
+        "messageKeys": [
+          "feature_flags.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "feature_flag.entity.ts",
+          "feature_flag_override.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true,
+      "readme": "# feature_flags\n\nTenant-scoped **feature flags** — gate features, run percentage rollouts, target\nby attribute, and pin per-user/segment overrides. Framework-agnostic\n(`modules/` layer); the Next bindings (admin UI + API routes) live under\n`app/` and `modules_next/`.\n\n## What it does\n\nA flag is identified by a stable `key` (e.g. `new-checkout`). Evaluation against\na context follows a strict precedence:\n\n1. **Master switch** — `enabled = false` → off for everyone.\n2. **Override** — an explicit per-subject decision (a `user` id, or a\n   `segment` like `plan:pro`) wins next.\n3. **Targeting rule** — the first matching attribute rule decides\n   (`eq`/`neq`/`in`/`nin`/`contains`).\n4. **Percentage rollout** — a deterministic SHA-256 bucket of `(key, subject)`\n   in `[0,100)` compared against `rolloutPercentage`. Raising the percentage\n   only ever *adds* subjects; nobody flips back off.\n\nUnknown keys evaluate to **off** (`not_found`) — a missing flag is never\nsilently on.\n\n## Public API\n\n```ts\nimport { FeatureFlagsService } from \"@/modules/feature_flags\";\n\n// Evaluate one flag for a request context\nconst { enabled } = await FeatureFlagsService.evaluate(tenantId, \"new-checkout\", {\n  userId,\n  attributes: { plan: \"pro\", country: \"TR\" },\n});\n\n// Bootstrap a whole client at once\nconst map = await FeatureFlagsService.evaluateAll(tenantId, { userId });\n\n// Admin CRUD\nawait FeatureFlagsService.create(tenantId, { key: \"new-checkout\", name: \"New checkout\", enabled: true, rolloutPercentage: 10 }, actorId);\nawait FeatureFlagsService.update(tenantId, \"new-checkout\", { rolloutPercentage: 50 }, actorId);\nawait FeatureFlagsService.setOverride(tenantId, \"new-checkout\", { subjectType: \"user\", subjectId, enabled: true }, actorId);\n```\n\nThe pure evaluator is exported for unit use / edge contexts:\n`evaluateFlag(flag, overrides, ctx)`, `rolloutBucket(key, subject)`,\n`ruleMatches(rule, ctx)`.\n\n## Entities\n\n| Entity | Table | Notes |\n|---|---|---|\n| `FeatureFlag` | `feature_flags` | Unique `(tenantId, key)`. Holds master switch, rollout %, JSON targeting rules. |\n| `FeatureFlagOverride` | `feature_flag_overrides` | Unique `(tenantId, flagKey, subjectType, subjectId)`. |\n\n## Caching\n\nThe full per-tenant flag-set (flags + overrides) is cached in Redis under\n`feature_flags:{tenantId}` (`TENANT_CACHE_TTL`, default 5 min, jittered) and\ninvalidated on every write, so hot-path `evaluate()` stays a single GET.\n\n## Dependencies\n\n`db`, `env`, `redis`, `common`, `audit_log`.\n\n## HTTP surface\n\n- `GET/POST /tenant/{tenantId}/api/feature-flags` — list / create (admin)\n- `GET/PATCH/DELETE /tenant/{tenantId}/api/feature-flags/{key}` — read / update / delete (admin)\n- `GET/POST /tenant/{tenantId}/api/feature-flags/{key}/overrides` — list / upsert override (admin)\n- `DELETE /tenant/{tenantId}/api/feature-flags/{key}/overrides/{overrideId}` — remove override (admin)\n- `POST /tenant/{tenantId}/api/feature-flags/evaluate` — evaluate one or all flags for a context (authenticated)\n\nAdmin UI: `/tenant/{tenantId}/admin/feature-flags`.\n"
     },
     {
       "id": "metering",
@@ -3239,7 +3409,7 @@
       },
       "hasReadme": false,
       "hasModuleJson": true,
-      "hasNextLayer": false,
+      "hasNextLayer": true,
       "readme": ""
     },
     {
@@ -3304,7 +3474,7 @@
       },
       "hasReadme": false,
       "hasModuleJson": true,
-      "hasNextLayer": false,
+      "hasNextLayer": true,
       "readme": ""
     },
     {
@@ -3411,6 +3581,101 @@
       "hasModuleJson": true,
       "hasNextLayer": true,
       "readme": "# Dynamic Page Module\n\nA tenant-scoped, block-based CMS / page builder. Each tenant owns an independent set of pages (with per-language translations) and a reusable library of block definitions. Published pages are rendered on the public site under `/tenant/[tenantId]/[...slug]`.\n\n---\n\n## Entities\n\nAll three entities live in the **tenant DB** (each row is isolated by `tenantId`).\n\n| Entity | Table | Description |\n|---|---|---|\n| `DynamicPage` | `dynamic_pages` | A page: `slug`, `title`, `description`, `keywords[]`, `sections` (block instances), SEO `metadata`, `status`, `schemaVersion`. Unique `(tenantId, slug)`. |\n| `DynamicPageTranslation` | `dynamic_page_translations` | Per-language override of a page's `title`, `description` and `sections`, keyed by `lang`. Unique `(dynamicPageId, lang)`, `ON DELETE CASCADE` with its page. |\n| `DynamicPageBlock` | `dynamic_page_blocks` | A reusable block definition shown in the editor: `type`, `label`, `category`, `schema`, `defaultProps`, `template`, optional `script`, `isSystem` flag. Unique `(tenantId, type)`. |\n\n`status` is one of `DynamicPageStatus`: `DRAFT`, `PUBLISHED`, `ARCHIVED`. Page `sections` and translation `sections` are arrays of `BlockData` (`{ id, type, order, props, hidden?, label?, className? }`). `metadata` follows `PageMetadataSchema` (OpenGraph / Twitter / `canonical` / `robots`). `CURRENT_SCHEMA_VERSION` is `2`.\n\n---\n\n## Service / Responsibilities\n\n`DynamicPageService` (all methods take `tenantId` and resolve the per-tenant DataSource via `tenantDataSourceFor`):\n\n**Pages**\n- `listPages` — paginated, filterable (`search` over title/slug, `status`) and sortable list scoped to the tenant.\n- `getPage` — fetch one page by id.\n- `getPageBySlug` — fetch by slug, **Redis-cached** (`dp:slug:${tenantId}:${slug}`, `SLUG_TTL = 3600s`) behind `singleFlight`; backs the public renderer.\n- `createPage` — enforces slug uniqueness per tenant (`SLUG_TAKEN`); stamps `schemaVersion = CURRENT_SCHEMA_VERSION`.\n- `updatePage` — re-checks slug uniqueness on change; invalidates the slug cache for the old and new slug.\n- `deletePage` — removes the page, drops its slug cache, and deletes the linked SEO row via `SeoService.delete(tenantId, 'dynamic_page', pageId)`.\n\n**Translations**\n- `getTranslations` — list a page's translations ordered by `lang`.\n- `upsertTranslation` — insert or update the `(page, lang)` translation.\n- `deleteTranslation` — remove a single language for a page (`TRANSLATION_NOT_FOUND` if absent).\n\n**Blocks (block library)**\n- `listBlocks` — list the tenant's block definitions, **Redis-cached** (`dp:blocks:${tenantId}`, `BLOCKS_TTL = 300s`) behind `singleFlight`.\n- `getBlock` — fetch one block by id.\n- `createBlock` / `updateBlock` — enforce `type` uniqueness per tenant (`BLOCK_TYPE_TAKEN`); each invalidates the block-library cache.\n- `deleteBlock` — blocked with `SYSTEM_BLOCK_PROTECTED` when `isSystem` is set; otherwise removes the block and invalidates the cache.\n\nCache TTLs are jittered (`jitter()`) to avoid stampedes. Validation is via Zod (`*RecordSchema`); inputs come from the DTOs below.\n\n---\n\n## DTOs\n\nDefined in `dynamic_page.dto.ts` (Zod):\n\n- `CreatePageDTO` / `UpdatePageDTO` (partial) — `slug` (lowercase slash-separated segments, no leading/trailing slash, defaults `''`), `title`, `description?`, `keywords[]`, `sections[]`, `metadata`, `status` (default `DRAFT`), `schemaVersion`.\n- `UpsertTranslationDTO` — `lang`, `title`, `description?`, `sections[]`.\n- `CreateBlockDTO` / `UpdateBlockDTO` (partial) — `type` (`[a-zA-Z0-9_-]+`), `label`, `category` (default `General`), `description?`, `schema`, `defaultProps`, `template`, `script?`, `isSystem` (default `false`).\n\n`ListPagesQuerySchema` drives `listPages`: `page`, `pageSize` (≤100), `search?`, `status?`, `sortBy` (`title|slug|status|createdAt|updatedAt`), `sortDir` (`asc|desc`).\n\n---\n\n## API Routes (tenant-scoped, ADMIN+)\n\nEvery handler calls `TenantSessionNextService.authenticateTenantByRequest({ … requiredTenantRole: 'ADMIN' })`.\n\n| Method | Path | Description |\n|---|---|---|\n| GET | `/tenant/[id]/api/dynamic-pages` | List pages (query params per `ListPagesQuerySchema`) |\n| POST | `/tenant/[id]/api/dynamic-pages` | Create page |\n| GET | `/tenant/[id]/api/dynamic-pages/[dynamicPageId]` | Get page |\n| PATCH | `/tenant/[id]/api/dynamic-pages/[dynamicPageId]` | Update page |\n| DELETE | `/tenant/[id]/api/dynamic-pages/[dynamicPageId]` | Delete page |\n| GET | `/tenant/[id]/api/dynamic-pages/[dynamicPageId]/translations` | List translations |\n| POST | `/tenant/[id]/api/dynamic-pages/[dynamicPageId]/translations` | Upsert a translation |\n| DELETE | `/tenant/[id]/api/dynamic-pages/[dynamicPageId]/translations/[lang]` | Delete a translation |\n| GET | `/tenant/[id]/api/dynamic-pages/block-definitions` | List block definitions |\n| POST | `/tenant/[id]/api/dynamic-pages/block-definitions` | Create block definition |\n| GET | `/tenant/[id]/api/dynamic-pages/block-definitions/[blockId]` | Get block definition |\n| PATCH | `/tenant/[id]/api/dynamic-pages/block-definitions/[blockId]` | Update block definition |\n| DELETE | `/tenant/[id]/api/dynamic-pages/block-definitions/[blockId]` | Delete block definition |\n\n### Public rendering\n\nPublished pages are served by the App Router page at `app/tenant/[tenantId]/[...slug]/page.tsx`, which delegates to `modules_next/dynamic_page/PublicDynamicPage`. It loads via `getPageBySlug`, renders **only** `PUBLISHED` pages (`notFound()` otherwise), supports up to `MAX_SLUG_DEPTH = 4` slug segments, skips reserved `__`-prefixed paths, and resolves a `?lang=` translation when present.\n\n---\n\n## Settings\n\nThis module declares **no** settings keys and reads no `SettingService` config — every tenant's content is fully independent with no platform/root-only configuration.\n\n---\n\n## Tenant Variability\n\n> What varies per tenant in this module — and what could. Audited 2026-06-03.\n\nA tenant-scoped, block-based CMS / page builder (pages, per-language translations, and a reusable block library) whose entire surface is per-tenant data stored in each tenant's own DB; it declares no settings keys and reads no SettingService config, so every tenant has fully independent content with no platform/root-only configuration.\n\n### Tenant-scoped data\n\n| Entity | Table | Tenant-variable columns |\n|---|---|---|\n| `DynamicPage` | `dynamic_pages` | slug, title, description, keywords, sections, metadata, status, schemaVersion |\n| `DynamicPageTranslation` | `dynamic_page_translations` | dynamicPageId, lang, title, description, sections |\n| `DynamicPageBlock` | `dynamic_page_blocks` | type, label, category, description, schema, defaultProps, template, script, isSystem |\n\nAll rows isolated by `tenantId` via the per-tenant DataSource.\n\n### Per-tenant behavior\n\n- `dynamic_page.service.ts` — Every method takes tenantId and resolves the per-tenant DataSource via tenantDataSourceFor(tenantId), then scopes every query with WHERE tenantId = :tenantId; uniqueness is per tenant (slug unique per tenant in createPage/updatePage, block type unique per tenant in createBlock/updateBlock), so each tenant has an isolated set of pages, translations and blocks.\n- `dynamic_page.service.ts:getPageBySlug/listBlocks` — Redis caches are namespaced per tenant via dp:slug:${tenantId}:${slug} and dp:blocks:${tenantId}, and invalidated on that tenant's writes, so cached page/block reads are isolated per tenant.\n- `dynamic_page.service.ts:deleteBlock` — Blocks flagged isSystem (a per-tenant column) are protected from deletion (SYSTEM_BLOCK_PROTECTED), so which blocks are deletable depends on each tenant's own block rows.\n\n### Candidates (global / hardcoded today → could be per-tenant)\n\n| What | Where | Why per-tenant | Suggested key |\n|---|---|---|---|\n| Slug-cache TTL (SLUG_TTL = 3600s) and block-library cache TTL (BLOCKS_TTL = 300s) are hardcoded module constants | `dynamic_page.service.ts (SLUG_TTL, BLOCKS_TTL)` | Cache freshness for published-page lookups and the editor's block list is identical for every tenant; a tenant with rapidly-changing marketing pages might want shorter TTLs while a static-site tenant prefers longer. Low priority — these are shared Redis-cache tuning knobs, not content, and a global default is reasonable. | `dynamicPageCacheTtlSeconds` |\n| Default page status on create is hardcoded to DRAFT | `dynamic_page.dto.ts (CreatePageDTO.status default 'DRAFT')` | Whether newly created pages start as DRAFT vs PUBLISHED is an editorial-workflow choice that plausibly differs per tenant (e.g. a tenant with no review process may want PUBLISHED by default). Currently a fixed global default with no per-tenant override. | `dynamicPageDefaultStatus` |\n\n---\n\n## Dependencies\n\n`requires`: `db`, `env`, `redis`, `logger`, `seo` (per `module.json`). The service also imports `SeoService` to delete the page's SEO meta row on page deletion.\n"
+    },
+    {
+      "id": "search",
+      "name": "Search",
+      "version": "1.0.0",
+      "description": "Tenant-scoped full-text search over arbitrary content. Owning modules push documents (title/body/url/metadata keyed by entityType+entityId); the default PostgreSQL FTS provider ranks results with ts_rank and returns ts_headline snippets. Provider abstraction leaves room for Meilisearch/Elastic. All queries are parameterized and tenant-scoped.",
+      "dir": "modules/search",
+      "icon": "fas fa-magnifying-glass",
+      "tags": [
+        "platform",
+        "search",
+        "full-text"
+      ],
+      "priority": 55,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [
+          "search.service.ts"
+        ],
+        "dtos": [
+          "search.dto.ts"
+        ],
+        "enums": [
+          "search.enums.ts"
+        ],
+        "messageKeys": [
+          "search.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "search_document.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": "# search\n\nTenant-scoped **full-text search** over arbitrary content. Owning modules push\ndocuments into the index; consumers query them ranked by relevance.\nFramework-agnostic (`modules/` layer); the Next bindings (admin console + API\nroutes) live under `app/`.\n\n## What it does\n\nA `SearchDocument` represents one searchable source record, identified by\n`(entityType, entityId)` — e.g. `('blog_post', '42')`. Owning modules call\n`SearchService.index()` whenever their data changes and `remove()` on deletion.\nRe-indexing the same source **upserts** on the `(tenantId, entityType, entityId)`\nunique key.\n\nThe default **PostgreSQL FTS provider**:\n\n- Builds the document `tsvector` from `title || ' ' || body` at query time.\n- Parses the user query with **`websearch_to_tsquery`** (Google-style syntax:\n  quoted phrases, `or`, `-exclude`).\n- Ranks with **`ts_rank`** (most relevant first) and returns a\n  **`ts_headline`** snippet with `<b>…</b>` match markers.\n- Binds all user input as SQL **parameters** — never interpolated — so it is\n  injection-safe, and constrains every query to `tenantId`.\n\nThe query string is normalized (control chars stripped, whitespace collapsed,\ncapped at 200 chars) and a blank query throws `EMPTY_QUERY` (400).\n\n## Public API\n\n```ts\nimport { SearchService } from \"@/modules/search\";\n\n// Keep the index in sync (call from the owning module's create/update/delete)\nawait SearchService.index(tenantId, {\n  entityType: \"blog_post\",\n  entityId: post.id,\n  title: post.title,\n  body: post.contentText,\n  url: `/blog/${post.slug}`,\n  metadata: { author: post.authorName },\n});\nawait SearchService.remove(tenantId, \"blog_post\", post.id);\n\n// Query\nconst { hits, total } = await SearchService.search(tenantId, \"checkout -legacy\", {\n  entityType: \"blog_post\", // optional filter\n  limit: 20,\n  offset: 0,\n});\n```\n\nPure helpers are exported for reuse: `normalizeQuery(raw)`, `isBlankQuery(raw)`.\n\n## Provider abstraction\n\n`SearchProviderBase` (`providers/base.provider.ts`) defines `index` / `remove` /\n`search`. `getSearchProvider()` (`search.provider-factory.ts`) returns the active\nbackend. Adding Meilisearch/Elastic = implement the base class + a factory case;\n`SearchProviderEnum` is the extension point.\n\n## Entities\n\n| Entity | Table | Notes |\n|---|---|---|\n| `SearchDocument` | `search_documents` | Unique `(tenantId, entityType, entityId)`. Holds title/body/url/metadata + `language`. |\n\n## Dependencies\n\n`db`, `env`, `redis`, `common`.\n\n## HTTP surface\n\n- `GET /tenant/{tenantId}/api/search?q=…&entityType=…&limit=&offset=` — search (authenticated)\n- `POST /tenant/{tenantId}/api/search/index` — upsert a document (admin)\n- `DELETE /tenant/{tenantId}/api/search/index` — remove a document (admin)\n\nAdmin console: `/tenant/{tenantId}/admin/search`.\n"
+    },
+    {
+      "id": "analytics",
+      "name": "Analytics",
+      "version": "1.0.0",
+      "description": "Tenant-scoped product analytics: append-only event tracking (page views, signups, custom events) plus aggregate reads — top-line summary (total events, unique users/sessions, top events), GROUP BY date_trunc timeseries with dense gap-filling, and top-events. Tracking works for anonymous visitors; summaries are short-cached in Redis. Distinct from metering (billing) and observability (ops metrics).",
+      "dir": "modules/analytics",
+      "icon": "fas fa-chart-line",
+      "tags": [
+        "platform",
+        "analytics",
+        "events",
+        "metrics"
+      ],
+      "priority": 56,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [
+          "analytics.service.ts"
+        ],
+        "dtos": [
+          "analytics.dto.ts"
+        ],
+        "enums": [
+          "analytics.enums.ts"
+        ],
+        "messageKeys": [
+          "analytics.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "analytics_event.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": "# analytics\n\nTenant-scoped **product analytics** — track behavioural events and read\naggregates over them (active users, top events, daily timeseries).\nFramework-agnostic (`modules/` layer); the Next bindings (admin dashboard + API\nroutes) live under `app/` and `modules_next/`.\n\n> Not to be confused with `metering` (usage-based **billing**) or\n> `observability` (ops/infra metrics). This module is about *product behaviour*:\n> what users do.\n\n## What it does\n\nA single append-only `AnalyticsEvent` row is written per tracked event. Reads are\npure aggregates over a date range:\n\n- **summary** — `totalEvents`, `uniqueUsers` (COUNT DISTINCT userId),\n  `uniqueSessions` (COUNT DISTINCT sessionId), and the top 10 events by count.\n- **timeseries** — counts grouped by `date_trunc(interval, createdAt)`, returned\n  as a **dense** series (missing buckets filled with `0`) for charts/tables.\n- **topEvents** — the top N events by count.\n\nTracking works for **anonymous visitors** — every identity field is optional, so\na public page can post a `page_view` with only an `anonymousId`.\n\n## Public API\n\n```ts\nimport { AnalyticsService } from \"@/modules/analytics\";\n\n// Track (await the save; safe to fire-and-forget at the route layer)\nawait AnalyticsService.track(tenantId, {\n  name: \"page_view\",\n  anonymousId,\n  sessionId,\n  path: \"/pricing\",\n  referrer: document.referrer,\n});\n\n// Aggregates (from/to default to last 30 days → now)\nconst s  = await AnalyticsService.summary(tenantId, { from, to });\nconst ts = await AnalyticsService.timeseries(tenantId, { interval: \"day\", from, to });\nconst te = await AnalyticsService.topEvents(tenantId, { limit: 10 });\n```\n\nThe pure timeseries gap-filler is exported for unit use:\n`fillTimeseriesGaps(points, from, to, interval)` and `truncateToBucket(date, interval)`.\n\n## Entities\n\n| Entity | Table | Notes |\n|---|---|---|\n| `AnalyticsEvent` | `analytics_events` | Append-only (no `updatedAt`). Composite `(tenantId, name, createdAt)` index backs the aggregate queries; `properties` is `jsonb`. |\n\n## Caching\n\n`summary()` is cached in Redis under\n`analytics:summary:{tenantId}:{fromMs}:{toMs}` (`TENANT_CACHE_TTL`, default 60s,\njittered), behind a single-flight to collapse concurrent misses.\n\n## Dependencies\n\n`db`, `env`, `redis`, `common`.\n\n## HTTP surface\n\n- `POST /tenant/{tenantId}/api/analytics/track` — track an event (soft auth: attaches `userId` if signed in, otherwise anonymous). Rate-limited.\n- `GET /tenant/{tenantId}/api/analytics/summary` — top-line summary (admin).\n- `GET /tenant/{tenantId}/api/analytics/timeseries` — dense daily/weekly/… series (admin).\n\nAdmin UI: `/tenant/{tenantId}/admin/analytics`.\n"
     },
     {
       "id": "api_doc",
@@ -3656,6 +3921,36 @@
         "GET"
       ],
       "module": "ai",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/analytics/summary/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/analytics/summary",
+      "methods": [
+        "GET"
+      ],
+      "module": "analytic",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/analytics/timeseries/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/analytics/timeseries",
+      "methods": [
+        "GET"
+      ],
+      "module": "analytic",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/analytics/track/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/analytics/track",
+      "methods": [
+        "POST"
+      ],
+      "module": "analytic",
       "dynamic": true
     },
     {
@@ -3992,6 +4287,26 @@
       "urlPath": "/tenant/[tenantId]/api/auth/me/security",
       "methods": [
         "GET"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/me/security/e-signature/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/me/security/e-signature",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/me/security/e-signature/[id]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/me/security/e-signature/[id]",
+      "methods": [
+        "DELETE"
       ],
       "module": "auth",
       "dynamic": true
@@ -4389,6 +4704,38 @@
       "dynamic": true
     },
     {
+      "filePath": "app/tenant/[tenantId]/api/consent/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/consent",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "consent",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/consent/config/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/consent/config",
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "module": "consent",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/consent/records/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/consent/records",
+      "methods": [
+        "GET"
+      ],
+      "module": "consent",
+      "dynamic": true
+    },
+    {
       "filePath": "app/tenant/[tenantId]/api/conversations/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/conversations",
@@ -4741,6 +5088,60 @@
         "POST"
       ],
       "module": "tenant_export",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/feature-flags/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/feature-flags",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "feature_flag",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/feature-flags/[key]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/feature-flags/[key]",
+      "methods": [
+        "GET",
+        "PATCH",
+        "DELETE"
+      ],
+      "module": "feature_flag",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/feature-flags/[key]/overrides/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/feature-flags/[key]/overrides",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "feature_flag",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/feature-flags/[key]/overrides/[overrideId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/feature-flags/[key]/overrides/[overrideId]",
+      "methods": [
+        "DELETE"
+      ],
+      "module": "feature_flag",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/feature-flags/evaluate/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/feature-flags/evaluate",
+      "methods": [
+        "POST"
+      ],
+      "module": "feature_flag",
       "dynamic": true
     },
     {
@@ -5318,6 +5719,27 @@
         "DELETE"
       ],
       "module": "scim",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/search/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/search",
+      "methods": [
+        "GET"
+      ],
+      "module": "search",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/search/index/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/search/index",
+      "methods": [
+        "POST",
+        "DELETE"
+      ],
+      "module": "search",
       "dynamic": true
     },
     {
@@ -5978,6 +6400,26 @@
       "relations": []
     },
     {
+      "name": "AnalyticsEvent",
+      "filePath": "modules/analytics/entities/analytics_event.entity.ts",
+      "module": "analytics",
+      "schema": "system",
+      "tableName": "analytics_events",
+      "columns": [
+        "eventId",
+        "tenantId",
+        "name",
+        "userId",
+        "anonymousId",
+        "sessionId",
+        "properties",
+        "path",
+        "referrer",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "ApiKey",
       "filePath": "modules/api_key/entities/api_key.entity.ts",
       "module": "api_key",
@@ -6168,6 +6610,27 @@
         "metadata",
         "createdAt",
         "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "ConsentRecord",
+      "filePath": "modules/gdpr_consent/entities/consent_record.entity.ts",
+      "module": "gdpr_consent",
+      "schema": "system",
+      "tableName": "consent_records",
+      "columns": [
+        "consentId",
+        "tenantId",
+        "subjectUserId",
+        "subjectAnonymousId",
+        "purpose",
+        "granted",
+        "policyVersion",
+        "source",
+        "ipAddress",
+        "userAgent",
+        "createdAt"
       ],
       "relations": []
     },
@@ -6399,6 +6862,44 @@
         "metadata",
         "status",
         "changedByUserId",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "FeatureFlag",
+      "filePath": "modules/feature_flags/entities/feature_flag.entity.ts",
+      "module": "feature_flags",
+      "schema": "system",
+      "tableName": "feature_flags",
+      "columns": [
+        "flagId",
+        "tenantId",
+        "key",
+        "name",
+        "description",
+        "enabled",
+        "rolloutPercentage",
+        "targetingRules",
+        "createdByUserId",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "FeatureFlagOverride",
+      "filePath": "modules/feature_flags/entities/feature_flag_override.entity.ts",
+      "module": "feature_flags",
+      "schema": "system",
+      "tableName": "feature_flag_overrides",
+      "columns": [
+        "overrideId",
+        "tenantId",
+        "flagKey",
+        "subjectType",
+        "subjectId",
+        "enabled",
         "createdAt"
       ],
       "relations": []
@@ -7191,6 +7692,27 @@
       "relations": []
     },
     {
+      "name": "SearchDocument",
+      "filePath": "modules/search/entities/search_document.entity.ts",
+      "module": "search",
+      "schema": "system",
+      "tableName": "search_documents",
+      "columns": [
+        "docId",
+        "tenantId",
+        "entityType",
+        "entityId",
+        "title",
+        "body",
+        "url",
+        "metadata",
+        "language",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "SeoMeta",
       "filePath": "modules/seo/entities/seo_meta.entity.ts",
       "module": "seo",
@@ -7307,8 +7829,8 @@
     },
     {
       "name": "SigningCertificate",
-      "filePath": "modules/e_signature/entities/signing_certificate.entity.ts",
-      "module": "e_signature",
+      "filePath": "modules/auth_e_signature/entities/signing_certificate.entity.ts",
+      "module": "auth_e_signature",
       "schema": "system",
       "tableName": "signing_certificates",
       "columns": [
@@ -7981,6 +8503,9 @@
         "size",
         "mimeType",
         "url",
+        "ipAddress",
+        "userAgent",
+        "country",
         "scanStatus",
         "scanProvider",
         "scanResult",
@@ -8401,6 +8926,16 @@
       "baseName": "AIUsageTab"
     },
     {
+      "id": "ai/ui/UsageChart",
+      "module": "ai",
+      "filePath": "modules_next/ai/ui/UsageChart.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "UsageChart"
+    },
+    {
       "id": "api_doc/ui/ApiDocsPage",
       "module": "api_doc",
       "filePath": "modules_next/api_doc/ui/ApiDocsPage.tsx",
@@ -8644,6 +9179,42 @@
       "baseName": "AuditLogFilters"
     },
     {
+      "id": "auth_e_signature/ui/ESignatureLoginPanel",
+      "module": "auth_e_signature",
+      "filePath": "modules_next/auth_e_signature/ui/ESignatureLoginPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "ESignatureLoginPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ESignatureLoginPanel"
+    },
+    {
+      "id": "auth_e_signature/ui/SigningCertificatesBindModal",
+      "module": "auth_e_signature",
+      "filePath": "modules_next/auth_e_signature/ui/SigningCertificatesBindModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "SigningCertificatesBindModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SigningCertificatesBindModal"
+    },
+    {
+      "id": "auth_e_signature/ui/SigningCertificatesPanel",
+      "module": "auth_e_signature",
+      "filePath": "modules_next/auth_e_signature/ui/SigningCertificatesPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "SigningCertificatesPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SigningCertificatesPanel"
+    },
+    {
       "id": "auth_saml/ui/SamlAttributeForm",
       "module": "auth_saml",
       "filePath": "modules_next/auth_saml/ui/SamlAttributeForm.tsx",
@@ -8693,18 +9264,6 @@
       "isClient": false,
       "isServer": false,
       "baseName": "auth.admin-guard.next"
-    },
-    {
-      "id": "auth/ui/ESignatureLoginPanel",
-      "module": "auth",
-      "filePath": "modules_next/auth/ui/ESignatureLoginPanel.tsx",
-      "kind": "ui",
-      "exports": [
-        "ESignatureLoginPanel"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "ESignatureLoginPanel"
     },
     {
       "id": "auth/ui/ForgotPasswordForm",
@@ -8768,6 +9327,34 @@
       "isClient": true,
       "isServer": false,
       "baseName": "SessionExpiredBanner"
+    },
+    {
+      "id": "back_office/ui/approval-columns",
+      "module": "back_office",
+      "filePath": "modules_next/back_office/ui/approval-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "ApprovalRow",
+        "buildApprovalColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "approval-columns"
+    },
+    {
+      "id": "back_office/ui/support-ticket-columns",
+      "module": "back_office",
+      "filePath": "modules_next/back_office/ui/support-ticket-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "TicketRow",
+        "buildTicketColumns",
+        "TICKET_STATUS_VARIANT",
+        "TICKET_PRIORITY_VARIANT"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "support-ticket-columns"
     },
     {
       "id": "blog/ui/BlogPostCreateModal",
@@ -9575,6 +10162,19 @@
       "isClient": true,
       "isServer": false,
       "baseName": "Tooltip"
+    },
+    {
+      "id": "common/utils/cacheHeaders",
+      "module": "common",
+      "filePath": "modules_next/common/utils/cacheHeaders.ts",
+      "kind": "util",
+      "exports": [
+        "PUBLIC_CACHE",
+        "NO_STORE"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "cacheHeaders"
     },
     {
       "id": "common/utils/cn",
@@ -10771,30 +11371,6 @@
       "baseName": "page-templates"
     },
     {
-      "id": "e_signature/ui/SigningCertificatesBindModal",
-      "module": "e_signature",
-      "filePath": "modules_next/e_signature/ui/SigningCertificatesBindModal.tsx",
-      "kind": "ui",
-      "exports": [
-        "SigningCertificatesBindModal"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "SigningCertificatesBindModal"
-    },
-    {
-      "id": "e_signature/ui/SigningCertificatesPanel",
-      "module": "e_signature",
-      "filePath": "modules_next/e_signature/ui/SigningCertificatesPanel.tsx",
-      "kind": "ui",
-      "exports": [
-        "SigningCertificatesPanel"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "SigningCertificatesPanel"
-    },
-    {
       "id": "e_signature/ui/TenantESignatureSettingsPanel",
       "module": "e_signature",
       "filePath": "modules_next/e_signature/ui/TenantESignatureSettingsPanel.tsx",
@@ -10807,6 +11383,31 @@
       "baseName": "TenantESignatureSettingsPanel"
     },
     {
+      "id": "feature_flags/ui/feature-flag-columns",
+      "module": "feature_flags",
+      "filePath": "modules_next/feature_flags/ui/feature-flag-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "FlagRow",
+        "buildFlagColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "feature-flag-columns"
+    },
+    {
+      "id": "gdpr_consent/ui/ConsentBanner",
+      "module": "gdpr_consent",
+      "filePath": "modules_next/gdpr_consent/ui/ConsentBanner.tsx",
+      "kind": "ui",
+      "exports": [
+        "ConsentBanner"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ConsentBanner"
+    },
+    {
       "id": "invoice/ui/EarsivSmsSignModal",
       "module": "invoice",
       "filePath": "modules_next/invoice/ui/EarsivSmsSignModal.tsx",
@@ -10817,6 +11418,19 @@
       "isClient": true,
       "isServer": false,
       "baseName": "EarsivSmsSignModal"
+    },
+    {
+      "id": "invoice/ui/invoice-list-columns",
+      "module": "invoice",
+      "filePath": "modules_next/invoice/ui/invoice-list-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "InvoiceRow",
+        "buildInvoiceColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "invoice-list-columns"
     },
     {
       "id": "invoice/ui/InvoiceLineItemsTable",
@@ -10878,6 +11492,23 @@
       "isClient": true,
       "isServer": false,
       "baseName": "GalleryPanel"
+    },
+    {
+      "id": "metering/ui/metering-columns",
+      "module": "metering",
+      "filePath": "modules_next/metering/ui/metering-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "MeterRow",
+        "UsageRow",
+        "BillingRunRow",
+        "buildMeterColumns",
+        "buildUsageColumns",
+        "buildBillingRunColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "metering-columns"
     },
     {
       "id": "module.types.ts/",
@@ -11170,6 +11801,18 @@
       "isClient": true,
       "isServer": false,
       "baseName": "SettingsPanelHost"
+    },
+    {
+      "id": "setting/ui/tabs/AllowedExtensionsField",
+      "module": "setting",
+      "filePath": "modules_next/setting/ui/tabs/AllowedExtensionsField.tsx",
+      "kind": "ui",
+      "exports": [
+        "AllowedExtensionsField"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "AllowedExtensionsField"
     },
     {
       "id": "setting/ui/tabs/platform-tab.shared",
@@ -11856,6 +12499,21 @@
       "isClient": true,
       "isServer": false,
       "baseName": "UserStatusBadge"
+    },
+    {
+      "id": "wallet/ui/wallet-account-columns",
+      "module": "wallet",
+      "filePath": "modules_next/wallet/ui/wallet-account-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "WalletAccountRow",
+        "buildWalletAccountColumns",
+        "WalletPostingRow",
+        "buildWalletPostingColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "wallet-account-columns"
     },
     {
       "id": "webhook/ui/webhook-columns",

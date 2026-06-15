@@ -11,7 +11,7 @@
     "hasNextLayer": true,
     "routeCount": 0,
     "entityCount": 0,
-    "componentCount": 63,
+    "componentCount": 64,
     "file": "common.md"
   },
   "env": {
@@ -136,7 +136,7 @@
     "hasNextLayer": true,
     "routeCount": 3,
     "entityCount": 2,
-    "componentCount": 17,
+    "componentCount": 18,
     "file": "setting.md"
   },
   "user_agent": {
@@ -266,9 +266,9 @@
       "core"
     ],
     "hasNextLayer": true,
-    "routeCount": 52,
+    "routeCount": 54,
     "entityCount": 1,
-    "componentCount": 7,
+    "componentCount": 6,
     "file": "auth.md"
   },
   "auth_oidc": {
@@ -590,7 +590,7 @@
     "hasNextLayer": true,
     "routeCount": 9,
     "entityCount": 2,
-    "componentCount": 3,
+    "componentCount": 4,
     "file": "invoice.md"
   },
   "notification_inapp": {
@@ -728,8 +728,8 @@
     ],
     "hasNextLayer": true,
     "routeCount": 1,
-    "entityCount": 2,
-    "componentCount": 3,
+    "entityCount": 1,
+    "componentCount": 1,
     "file": "e_signature.md"
   },
   "seo": {
@@ -744,6 +744,21 @@
     "entityCount": 1,
     "componentCount": 2,
     "file": "seo.md"
+  },
+  "auth_e_signature": {
+    "name": "E-Signature Identity Login",
+    "tier": "other",
+    "tags": [
+      "auth",
+      "identity",
+      "signature",
+      "eidas"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 0,
+    "entityCount": 1,
+    "componentCount": 3,
+    "file": "auth_e_signature.md"
   },
   "media_gallery": {
     "name": "Media Gallery",
@@ -875,6 +890,22 @@
     "componentCount": 0,
     "file": "messaging.md"
   },
+  "gdpr_consent": {
+    "name": "GDPR Consent",
+    "tier": "other",
+    "tags": [
+      "platform",
+      "gdpr",
+      "privacy",
+      "consent",
+      "compliance"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 0,
+    "entityCount": 1,
+    "componentCount": 1,
+    "file": "gdpr_consent.md"
+  },
   "wallet": {
     "name": "Wallet",
     "tier": "other",
@@ -885,11 +916,26 @@
       "double-entry",
       "billing"
     ],
-    "hasNextLayer": false,
+    "hasNextLayer": true,
     "routeCount": 6,
     "entityCount": 3,
-    "componentCount": 0,
+    "componentCount": 1,
     "file": "wallet.md"
+  },
+  "feature_flags": {
+    "name": "Feature Flags",
+    "tier": "other",
+    "tags": [
+      "platform",
+      "feature-flags",
+      "rollout",
+      "experimentation"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 0,
+    "entityCount": 2,
+    "componentCount": 1,
+    "file": "feature_flags.md"
   },
   "metering": {
     "name": "Metering",
@@ -901,10 +947,10 @@
       "overage",
       "credits"
     ],
-    "hasNextLayer": false,
+    "hasNextLayer": true,
     "routeCount": 5,
     "entityCount": 3,
-    "componentCount": 0,
+    "componentCount": 1,
     "file": "metering.md"
   },
   "back_office": {
@@ -918,10 +964,10 @@
       "tickets",
       "queue"
     ],
-    "hasNextLayer": false,
+    "hasNextLayer": true,
     "routeCount": 5,
     "entityCount": 3,
-    "componentCount": 0,
+    "componentCount": 2,
     "file": "back_office.md"
   },
   "ai": {
@@ -934,7 +980,7 @@
     "hasNextLayer": true,
     "routeCount": 6,
     "entityCount": 1,
-    "componentCount": 2,
+    "componentCount": 3,
     "file": "ai.md"
   },
   "dynamic_page": {
@@ -952,6 +998,35 @@
     "entityCount": 6,
     "componentCount": 84,
     "file": "dynamic_page.md"
+  },
+  "search": {
+    "name": "Search",
+    "tier": "other",
+    "tags": [
+      "platform",
+      "search",
+      "full-text"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 2,
+    "entityCount": 1,
+    "componentCount": 0,
+    "file": "search.md"
+  },
+  "analytics": {
+    "name": "Analytics",
+    "tier": "other",
+    "tags": [
+      "platform",
+      "analytics",
+      "events",
+      "metrics"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 1,
+    "componentCount": 0,
+    "file": "analytics.md"
   },
   "api_doc": {
     "name": "API Documentation",

@@ -18,7 +18,9 @@ Subscriber-configured outbound webhooks (tenant-scoped; root tenant carries plat
 
 - `webhook.crud.service.ts`
 - `webhook.delivery.service.ts`
+- `webhook.dispatch.service.ts`
 - `webhook.metrics.service.ts`
+- `webhook.redeliver.service.ts`
 - `webhook.service.ts`
 
 ## DTOs

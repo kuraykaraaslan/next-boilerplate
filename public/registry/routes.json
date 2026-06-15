@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-15T07:45:45.027Z",
+  "generatedAt": "2026-06-15T10:40:42.438Z",
   "routes": [
     {
       "filePath": "app/api/auth/acs/route.ts",
@@ -174,6 +174,36 @@
         "GET"
       ],
       "module": "ai",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/analytics/summary/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/analytics/summary",
+      "methods": [
+        "GET"
+      ],
+      "module": "analytic",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/analytics/timeseries/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/analytics/timeseries",
+      "methods": [
+        "GET"
+      ],
+      "module": "analytic",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/analytics/track/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/analytics/track",
+      "methods": [
+        "POST"
+      ],
+      "module": "analytic",
       "dynamic": true
     },
     {
@@ -510,6 +540,26 @@
       "urlPath": "/tenant/[tenantId]/api/auth/me/security",
       "methods": [
         "GET"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/me/security/e-signature/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/me/security/e-signature",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/me/security/e-signature/[id]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/me/security/e-signature/[id]",
+      "methods": [
+        "DELETE"
       ],
       "module": "auth",
       "dynamic": true
@@ -907,6 +957,38 @@
       "dynamic": true
     },
     {
+      "filePath": "app/tenant/[tenantId]/api/consent/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/consent",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "consent",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/consent/config/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/consent/config",
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "module": "consent",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/consent/records/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/consent/records",
+      "methods": [
+        "GET"
+      ],
+      "module": "consent",
+      "dynamic": true
+    },
+    {
       "filePath": "app/tenant/[tenantId]/api/conversations/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/conversations",
@@ -1259,6 +1341,60 @@
         "POST"
       ],
       "module": "tenant_export",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/feature-flags/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/feature-flags",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "feature_flag",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/feature-flags/[key]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/feature-flags/[key]",
+      "methods": [
+        "GET",
+        "PATCH",
+        "DELETE"
+      ],
+      "module": "feature_flag",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/feature-flags/[key]/overrides/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/feature-flags/[key]/overrides",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "feature_flag",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/feature-flags/[key]/overrides/[overrideId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/feature-flags/[key]/overrides/[overrideId]",
+      "methods": [
+        "DELETE"
+      ],
+      "module": "feature_flag",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/feature-flags/evaluate/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/feature-flags/evaluate",
+      "methods": [
+        "POST"
+      ],
+      "module": "feature_flag",
       "dynamic": true
     },
     {
@@ -1836,6 +1972,27 @@
         "DELETE"
       ],
       "module": "scim",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/search/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/search",
+      "methods": [
+        "GET"
+      ],
+      "module": "search",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/search/index/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/search/index",
+      "methods": [
+        "POST",
+        "DELETE"
+      ],
+      "module": "search",
       "dynamic": true
     },
     {

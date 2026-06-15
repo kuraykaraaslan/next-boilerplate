@@ -6,7 +6,7 @@
 - **dir:** `modules/metering/`
 - **tags:** metering, usage, billing, overage, credits
 - **icon:** `fas fa-gauge-high`
-- **hasNextLayer:** false
+- **hasNextLayer:** true
 
 Event-based usage metering with metered / overage billing. Records immutable usage events per meter (SUM/MAX/LAST aggregation), keeps a Redis hot counter for fast current-period reads, and settles overages on a two-rail model: prepaid wallet credits are debited first, the remainder is invoiced as a draft. Quantities and money are integer minor units; runs are idempotent and persisted.
 
@@ -54,3 +54,7 @@ Event-based usage metering with metered / overage billing. Records immutable usa
 - `MeterDefinition` (system) — `modules/metering/entities/meter_definition.entity.ts`
 - `MeteredBillingRun` (system) — `modules/metering/entities/metered_billing_run.entity.ts`
 - `MeteredUsageEvent` (system) — `modules/metering/entities/metered_usage_event.entity.ts`
+
+## Next layer (modules_next/) surface
+
+- `metering/ui/metering-columns` _(ui, client)_

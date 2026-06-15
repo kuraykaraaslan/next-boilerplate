@@ -3,7 +3,7 @@
 > **Single-page index of every business-logic module.** Every entry has a `README.md` (human) and a `module.json` (machine, validated against [module.schema.json](module.schema.json)).
 > Need the architectural picture? See [../AGENTS.md](../AGENTS.md).
 
-There are **43 modules** under `modules/`. Eighteen of them also have a Next/React extension under [`modules_next/`](../modules_next/COMPONENTS.md).
+There are **47 modules** under `modules/`. Eighteen of them also have a Next/React extension under [`modules_next/`](../modules_next/COMPONENTS.md).
 
 ## Layer rules (recap)
 
@@ -87,6 +87,10 @@ There are **43 modules** under `modules/`. Eighteen of them also have a Next/Rea
 | [audit_log](audit_log/) | Append-only audit trail (system + per-tenant) with hash-chain tamper-evidence, severity scoring, retention purge, GDPR erasure/export, date-range + cross-tenant queries, CSV/NDJSON export, high-risk webhooks. | `AuditLog`, `TenantAuditLog` | db, env, logger, common, redis, setting, webhook, tenant |
 | [api_key](api_key/) | Tenant-scoped API keys (hashed at rest, scope-bound, env-prefixed, subnet-pinned, rotatable). | `ApiKey` | db, env, common, network |
 | [api_doc](api_doc/) | OpenAPI / Swagger spec builder. | — | env |
+| [feature_flags](feature_flags/) | Tenant-scoped feature flags: master switch, deterministic percentage rollout, attribute targeting rules, per-subject (user/segment) overrides. Read-through cached; audit-logged. | `FeatureFlag`, `FeatureFlagOverride` | db, env, redis, common, audit_log |
+| [analytics](analytics/) | Product event analytics: track events, summary (total/unique users/sessions/top events) + dense timeseries via `date_trunc` with gap-filling. | `AnalyticsEvent` | db, env, redis, common |
+| [search](search/) | Tenant-scoped full-text search; PostgreSQL FTS provider (`websearch_to_tsquery` + `ts_rank` + `ts_headline`) behind a provider abstraction. Parameterized, injection-safe. | `SearchDocument` | db, env, redis, common |
+| [gdpr_consent](gdpr_consent/) | Cookie-consent banner config + append-only consent ledger (record/withdraw per purpose, latest-state derivation). Complements `tenant_export` (portability/erasure). | `ConsentRecord` | db, env, redis, common, audit_log, setting |
 
 ### AI
 
