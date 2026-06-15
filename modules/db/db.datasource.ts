@@ -6,6 +6,13 @@ import { ENTITIES } from './db.entities';
 
 const { url: DEFAULT_DB_URL, schema: DEFAULT_SCHEMA } = parseDbUrl(env.DATABASE_URL);
 
+// Direct (unpooled) connection for DDL: dev schema synchronize, migrations and
+// heavy cross-tenant system jobs. PgBouncer / Neon *pooled* connections are
+// transaction-scoped and unsuited to long DDL sessions, so prefer a dedicated
+// direct URL when one is configured.
+const HAS_UNPOOLED = !!env.DATABASE_URL_UNPOOLED && env.DATABASE_URL_UNPOOLED !== env.DATABASE_URL;
+const { url: UNPOOLED_DB_URL, schema: UNPOOLED_SCHEMA } = parseDbUrl(env.DATABASE_URL_UNPOOLED ?? env.DATABASE_URL);
+
 export function buildDataSourceOptions(url: string, schema?: string): ConstructorParameters<typeof DataSource>[0] {
   return {
     type: 'postgres',
@@ -21,16 +28,40 @@ export function buildDataSourceOptions(url: string, schema?: string): Constructo
   };
 }
 
-const defaultDataSource = new DataSource(buildDataSourceOptions(DEFAULT_DB_URL, DEFAULT_SCHEMA));
+const defaultDataSource = new DataSource({
+  ...buildDataSourceOptions(DEFAULT_DB_URL, DEFAULT_SCHEMA),
+  // With a dedicated unpooled URL, schema sync runs over it (see getDataSource);
+  // the pooled runtime connection then only serves queries.
+  synchronize: HAS_UNPOOLED ? false : env.NODE_ENV === 'development',
+});
 
 let defaultInitialized = false;
 
 export async function getDataSource(): Promise<DataSource> {
   if (!defaultInitialized) {
     await defaultDataSource.initialize();
+    // Run dev auto-sync over the direct connection rather than the pooler.
+    if (HAS_UNPOOLED && env.NODE_ENV === 'development') {
+      await synchronizeViaUnpooled();
+    }
     defaultInitialized = true;
   }
   return defaultDataSource;
+}
+
+// Apply `synchronize` over a short-lived direct connection, then drop it —
+// keeps DDL off the pooled connection while preserving dev auto-sync.
+async function synchronizeViaUnpooled(): Promise<void> {
+  const ds = new DataSource({
+    ...buildDataSourceOptions(UNPOOLED_DB_URL, UNPOOLED_SCHEMA),
+    synchronize: false,
+  });
+  await ds.initialize();
+  try {
+    await ds.synchronize();
+  } finally {
+    await ds.destroy();
+  }
 }
 
 // ── Read replica routing ────────────────────────────────────────────────────
@@ -52,10 +83,23 @@ export async function getReadDataSource(): Promise<DataSource> {
 }
 
 // ── System DataSource (bypasses RLS for cross-tenant cron / migrations) ─────
-// Uses the default DataSource connection; callers must SET LOCAL app.bypass_rls = 'on'
-// or use the BYPASSRLS Postgres role. This is a typed marker for grep/audit.
+// Prefers the direct (unpooled) connection when configured so heavy cross-tenant
+// jobs don't consume pooled slots; otherwise reuses the default DataSource.
+// Callers must SET LOCAL app.bypass_rls = 'on' or use the BYPASSRLS Postgres role.
+let systemDataSource: DataSource | null = null;
+let systemInitialized = false;
+
 export async function getSystemDataSource(): Promise<DataSource> {
-  return getDataSource();
+  if (!HAS_UNPOOLED) return getDataSource();
+  if (!systemInitialized) {
+    systemDataSource = new DataSource({
+      ...buildDataSourceOptions(UNPOOLED_DB_URL, UNPOOLED_SCHEMA),
+      synchronize: false,
+    });
+    await systemDataSource.initialize();
+    systemInitialized = true;
+  }
+  return systemDataSource!;
 }
 
 // ── Health check ────────────────────────────────────────────────────────────

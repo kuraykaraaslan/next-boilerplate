@@ -15,6 +15,10 @@ export const coreFields = {
 
   // ── Database ────────────────────────────────────────────────────────────────
   DATABASE_URL: z.string().min(1),
+  // Direct (non-pooled) connection. Used for DDL — dev schema sync, migrations,
+  // and heavy cross-tenant system jobs — which are unsuited to a PgBouncer /
+  // Neon pooled connection. Falls back to DATABASE_URL when unset.
+  DATABASE_URL_UNPOOLED: z.string().optional(),
   DATABASE_READ_REPLICA_URL: z.string().optional(),
   DB_POOL_MAX: z.coerce.number().default(10),
   DB_SLOW_QUERY_THRESHOLD_MS: z.coerce.number().default(1000),

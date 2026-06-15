@@ -14,8 +14,10 @@ import { DataSource } from 'typeorm';
 import { parseDbUrl } from './db.utils';
 import { ENTITIES } from './db';
 
-const DATABASE_URL = process.env.DATABASE_URL;
-if (!DATABASE_URL) throw new Error('[db.migration-datasource] DATABASE_URL is required');
+// Migrations are DDL: prefer the direct (unpooled) connection — a PgBouncer /
+// Neon pooled connection is transaction-scoped and unsuited to migrations.
+const DATABASE_URL = process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL;
+if (!DATABASE_URL) throw new Error('[db.migration-datasource] DATABASE_URL (or DATABASE_URL_UNPOOLED) is required');
 
 const { url, schema } = parseDbUrl(DATABASE_URL);
 
