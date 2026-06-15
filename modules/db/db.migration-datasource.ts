@@ -1,14 +1,19 @@
 /**
  * TypeORM CLI data source for running migrations.
  *
- * Usage:
- *   npx typeorm-ts-node-commonjs migration:run -d modules/db/db.migration-datasource.ts
- *   npx typeorm-ts-node-commonjs migration:generate -d modules/db/db.migration-datasource.ts -n MigrationName
- *   npx typeorm-ts-node-commonjs migration:revert  -d modules/db/db.migration-datasource.ts
+ * Run through tsx (resolves TS + the `@/*` tsconfig path alias; the plain
+ * `typeorm` CLI does neither). Convenience npm scripts wrap these:
+ *   npm run db:migration:generate -- modules/db/migrations/100_init
+ *   npm run db:migration:run
+ *   npm run db:migration:revert
+ *
+ * Or directly:
+ *   npx tsx ./node_modules/typeorm/cli.js migration:run -d modules/db/db.migration-datasource.ts
  */
 import 'reflect-metadata';
-import * as dotenv from 'dotenv';
-dotenv.config();
+// Must run before `./db` (which transitively imports `@/modules/env`) so .env is
+// loaded before env validation executes at import time.
+import 'dotenv/config';
 
 import { DataSource } from 'typeorm';
 import { parseDbUrl } from './db.utils';
