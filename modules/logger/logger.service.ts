@@ -24,8 +24,20 @@ function currentContext(): LogContext {
   return contextStore.getStore() ?? {};
 }
 
+// Serverless platforms (Vercel, AWS Lambda) and the edge runtime expose a
+// read-only filesystem (only /tmp is writable), so winston's File transport
+// crashes at construction trying to mkdir `logs/`. Detect those and log to the
+// console instead — which is also what their log drains ingest.
+function isServerless(): boolean {
+  return !!(
+    process.env.VERCEL ||
+    process.env.AWS_LAMBDA_FUNCTION_NAME ||
+    process.env.NEXT_RUNTIME === 'edge'
+  );
+}
+
 function makeTransports(level: string) {
-  if (env.NODE_ENV === 'vercel' || env.NODE_ENV === 'development') {
+  if (env.NODE_ENV === 'vercel' || env.NODE_ENV === 'development' || isServerless()) {
     return [new winston.transports.Console()];
   }
   return [
