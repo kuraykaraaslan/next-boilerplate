@@ -1,7 +1,27 @@
 import type { NextConfig } from "next";
+import bundleAnalyzer from "@next/bundle-analyzer";
+
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+});
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  // Tree-shake large icon/chart packages so only the symbols actually used
+  // land in each route's client bundle (Next rewrites barrel imports to deep
+  // paths at build time).
+  experimental: {
+    optimizePackageImports: [
+      "@fortawesome/free-solid-svg-icons",
+      "@fortawesome/free-brands-svg-icons",
+      "@fortawesome/react-fontawesome",
+      "chart.js",
+      "react-chartjs-2",
+      "react-i18next",
+      "countries-list",
+      "countries-and-timezones",
+    ],
+  },
   images: {
     remotePatterns: [
       {
@@ -44,4 +64,4 @@ const nextConfig: NextConfig = {
   }
 };
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig);
