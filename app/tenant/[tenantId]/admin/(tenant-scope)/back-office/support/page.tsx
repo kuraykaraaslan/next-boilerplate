@@ -7,20 +7,17 @@ import { Badge } from '@/modules_next/common/ui/Badge';
 import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
 import { Modal } from '@/modules_next/common/ui/Modal';
 import { PageHeader } from '@/modules_next/common/ui/PageHeader';
+import { ServerDataTable } from '@/modules_next/common/ui/ServerDataTable';
 import { toast } from '@/modules_next/common/ui/toast.store';
 import api from '@/modules_next/common/axios';
+import {
+  buildTicketColumns,
+  TICKET_STATUS_VARIANT as STATUS_VARIANT,
+  TICKET_PRIORITY_VARIANT as PRIORITY_VARIANT,
+  type TicketRow as Ticket,
+} from '@/modules_next/back_office/ui/support-ticket-columns';
 
-type Ticket = {
-  ticketId: string;
-  ticketNumber: string;
-  requesterEmail: string;
-  subject: string;
-  status: string;
-  priority: string;
-  category: string | null;
-  assignedToUserId: string | null;
-  createdAt: string;
-};
+const PAGE_SIZE = 25;
 
 type TicketMessage = {
   ticketMessageId: string;
@@ -31,20 +28,6 @@ type TicketMessage = {
 };
 
 type TicketDetail = Ticket & { messages: TicketMessage[] };
-
-const STATUS_VARIANT: Record<string, 'success' | 'error' | 'warning' | 'info' | 'neutral' | 'primary'> = {
-  OPEN: 'warning',
-  PENDING: 'info',
-  RESOLVED: 'success',
-  CLOSED: 'neutral',
-};
-
-const PRIORITY_VARIANT: Record<string, 'success' | 'error' | 'warning' | 'info' | 'neutral' | 'primary'> = {
-  LOW: 'neutral',
-  NORMAL: 'info',
-  HIGH: 'warning',
-  URGENT: 'error',
-};
 
 const STATUS_FILTER_OPTIONS = [
   { value: '', label: 'All statuses' },
@@ -63,6 +46,7 @@ export default function SupportPage({ params }: { params: Promise<{ tenantId: st
   const { tenantId } = use(params);
 
   const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
@@ -139,6 +123,12 @@ export default function SupportPage({ params }: { params: Promise<{ tenantId: st
     }
   }
 
+  const total = tickets.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const pageRows = tickets.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  const columns = buildTicketColumns((t) => openDetail(t.ticketId));
+
   return (
     <div className="p-4 lg:p-6 space-y-4">
       <PageHeader
@@ -159,40 +149,19 @@ export default function SupportPage({ params }: { params: Promise<{ tenantId: st
 
       {fetchError && <AlertBanner variant="error" message={fetchError} />}
 
-      <div className="overflow-x-auto rounded-lg border border-border">
-        <table className="w-full text-sm">
-          <thead className="bg-surface-overlay text-text-secondary">
-            <tr>
-              <th className="px-3 py-2 text-left font-medium">Number</th>
-              <th className="px-3 py-2 text-left font-medium">Subject</th>
-              <th className="px-3 py-2 text-left font-medium">Requester</th>
-              <th className="px-3 py-2 text-left font-medium">Priority</th>
-              <th className="px-3 py-2 text-left font-medium">Status</th>
-              <th className="px-3 py-2 text-right font-medium">Open</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr><td colSpan={6} className="px-3 py-6 text-center text-text-secondary">Loading…</td></tr>
-            ) : tickets.length === 0 ? (
-              <tr><td colSpan={6} className="px-3 py-6 text-center text-text-secondary">No tickets in this view.</td></tr>
-            ) : (
-              tickets.map((t) => (
-                <tr key={t.ticketId} className="border-t border-border">
-                  <td className="px-3 py-2 font-mono text-xs text-text-primary">{t.ticketNumber}</td>
-                  <td className="px-3 py-2 text-text-primary">{t.subject}</td>
-                  <td className="px-3 py-2 text-text-secondary">{t.requesterEmail}</td>
-                  <td className="px-3 py-2"><Badge variant={PRIORITY_VARIANT[t.priority] ?? 'neutral'}>{t.priority}</Badge></td>
-                  <td className="px-3 py-2"><Badge variant={STATUS_VARIANT[t.status] ?? 'neutral'}>{t.status}</Badge></td>
-                  <td className="px-3 py-2 text-right">
-                    <Button size="sm" variant="ghost" onClick={() => openDetail(t.ticketId)}>View</Button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      <ServerDataTable
+        columns={columns}
+        rows={pageRows}
+        getRowKey={(t) => t.ticketId}
+        onRowClick={(t) => openDetail(t.ticketId)}
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        pageSize={PAGE_SIZE}
+        onPageChange={setPage}
+        loading={loading}
+        emptyMessage="No tickets in this view."
+      />
 
       <Modal
         open={!!detail}

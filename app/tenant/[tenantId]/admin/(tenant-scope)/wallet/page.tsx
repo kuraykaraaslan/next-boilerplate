@@ -6,34 +6,21 @@ import { Select } from '@/modules_next/common/ui/Select';
 import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
 import { Modal } from '@/modules_next/common/ui/Modal';
 import { PageHeader } from '@/modules_next/common/ui/PageHeader';
-import Link from 'next/link';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
+import { ServerDataTable } from '@/modules_next/common/ui/ServerDataTable';
 import { toast } from '@/modules_next/common/ui/toast.store';
 import api from '@/modules_next/common/axios';
 import { CurrencySelector } from '@/modules_next/common/ui/CurrencySelector';
 import { DEFAULT_CURRENCY } from '@/modules/common';
+import {
+  buildWalletAccountColumns,
+  buildWalletPostingColumns,
+  type WalletAccountRow,
+  type WalletPostingRow,
+} from '@/modules_next/wallet/ui/wallet-account-columns';
 
-type WalletAccount = {
-  walletAccountId: string;
-  ownerType: string;
-  ownerId: string | null;
-  kind: string;
-  currency: string;
-  cachedBalance: string;
-  status: string;
-};
+const PAGE_SIZE = 25;
 
 type Member = { userId: string; tenantMemberId: string; user?: { email?: string } };
-
-type Posting = {
-  walletPostingId: string;
-  transactionId: string;
-  amount: string;
-  currency: string;
-  balanceAfter: string;
-  createdAt: string;
-};
 
 function extractMessage(err: unknown, fallback: string): string {
   const e = err as { response?: { data?: { message?: string } }; message?: string };
@@ -43,13 +30,14 @@ function extractMessage(err: unknown, fallback: string): string {
 export default function WalletPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = use(params);
 
-  const [accounts, setAccounts] = useState<WalletAccount[]>([]);
+  const [accounts, setAccounts] = useState<WalletAccountRow[]>([]);
   const [members, setMembers] = useState<Member[]>([]);
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState('');
 
-  const [statementAccount, setStatementAccount] = useState<WalletAccount | null>(null);
-  const [postings, setPostings] = useState<Posting[]>([]);
+  const [statementAccount, setStatementAccount] = useState<WalletAccountRow | null>(null);
+  const [postings, setPostings] = useState<WalletPostingRow[]>([]);
   const [statementLoading, setStatementLoading] = useState(false);
 
   const [issueOpen, setIssueOpen] = useState(false);
@@ -121,7 +109,7 @@ export default function WalletPage({ params }: { params: Promise<{ tenantId: str
     }
   }
 
-  async function openStatement(account: WalletAccount) {
+  const openStatement = useCallback(async (account: WalletAccountRow) => {
     setStatementAccount(account);
     setStatementLoading(true);
     setPostings([]);
@@ -135,7 +123,14 @@ export default function WalletPage({ params }: { params: Promise<{ tenantId: str
     } finally {
       setStatementLoading(false);
     }
-  }
+  }, [tenantId]);
+
+  const total = accounts.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const pageRows = accounts.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  const columns = buildWalletAccountColumns({ tenantId, userMap, onStatement: openStatement });
+  const postingColumns = buildWalletPostingColumns();
 
   const statementOwnerLabel = statementAccount
     ? statementAccount.ownerId
@@ -156,58 +151,18 @@ export default function WalletPage({ params }: { params: Promise<{ tenantId: str
 
       {fetchError && <AlertBanner variant="error" message={fetchError} />}
 
-      <div className="overflow-x-auto rounded-lg border border-border">
-        <table className="w-full text-sm">
-          <thead className="bg-surface-overlay text-text-secondary">
-            <tr>
-              <th className="px-3 py-2 text-left font-medium">Kind</th>
-              <th className="px-3 py-2 text-left font-medium">Owner</th>
-              <th className="px-3 py-2 text-left font-medium">Currency</th>
-              <th className="px-3 py-2 text-right font-medium">Balance (minor)</th>
-              <th className="px-3 py-2 text-left font-medium">Status</th>
-              <th className="px-3 py-2 text-right font-medium">Statement</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr><td colSpan={6} className="px-3 py-6 text-center text-text-secondary">Loading…</td></tr>
-            ) : accounts.length === 0 ? (
-              <tr><td colSpan={6} className="px-3 py-6 text-center text-text-secondary">No wallet accounts yet.</td></tr>
-            ) : (
-              accounts.map((a) => (
-                <tr key={a.walletAccountId} className="border-t border-border">
-                  <td className="px-3 py-2 text-text-primary">{a.kind}</td>
-                  <td className="px-3 py-2 text-text-secondary">
-                    {a.kind === 'USER_WALLET' && a.ownerId ? (
-                      <span className="inline-flex items-center gap-2">
-                        <span className="text-text-primary">{userMap[a.ownerId]?.email ?? a.ownerId}</span>
-                        {userMap[a.ownerId]?.tenantMemberId && (
-                          <Link
-                            href={`/tenant/${tenantId}/admin/members?member=${userMap[a.ownerId].tenantMemberId}`}
-                            title="Open member settings"
-                            aria-label="Open member settings"
-                            className="text-text-secondary hover:text-primary transition-colors"
-                          >
-                            <FontAwesomeIcon icon={faUpRightFromSquare} className="w-3 h-3" aria-hidden />
-                          </Link>
-                        )}
-                      </span>
-                    ) : (
-                      '—'
-                    )}
-                  </td>
-                  <td className="px-3 py-2 text-text-primary">{a.currency}</td>
-                  <td className="px-3 py-2 text-right tabular-nums text-text-primary">{a.cachedBalance}</td>
-                  <td className="px-3 py-2 text-text-secondary">{a.status}</td>
-                  <td className="px-3 py-2 text-right">
-                    <Button size="sm" variant="ghost" onClick={() => openStatement(a)}>View</Button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      <ServerDataTable
+        columns={columns}
+        rows={pageRows}
+        getRowKey={(a) => a.walletAccountId}
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        pageSize={PAGE_SIZE}
+        onPageChange={setPage}
+        loading={loading}
+        emptyMessage="No wallet accounts yet."
+      />
 
       <Modal open={issueOpen} onClose={() => setIssueOpen(false)} title="Issue credits">
         <div className="space-y-3">
@@ -243,37 +198,17 @@ export default function WalletPage({ params }: { params: Promise<{ tenantId: str
         onClose={() => setStatementAccount(null)}
         title={statementAccount ? `Statement — ${statementOwnerLabel} (${statementAccount.currency})` : 'Statement'}
       >
-        <div className="overflow-x-auto rounded-lg border border-border">
-          <table className="w-full text-sm">
-            <thead className="bg-surface-overlay text-text-secondary">
-              <tr>
-                <th className="px-3 py-2 text-left font-medium">Date</th>
-                <th className="px-3 py-2 text-right font-medium">Amount</th>
-                <th className="px-3 py-2 text-right font-medium">Balance after</th>
-              </tr>
-            </thead>
-            <tbody>
-              {statementLoading ? (
-                <tr><td colSpan={3} className="px-3 py-6 text-center text-text-secondary">Loading…</td></tr>
-              ) : postings.length === 0 ? (
-                <tr><td colSpan={3} className="px-3 py-6 text-center text-text-secondary">No movements yet.</td></tr>
-              ) : (
-                postings.map((p) => {
-                  const negative = p.amount.startsWith('-');
-                  return (
-                    <tr key={p.walletPostingId} className="border-t border-border">
-                      <td className="px-3 py-2 text-text-secondary">{new Date(p.createdAt).toLocaleString()}</td>
-                      <td className={`px-3 py-2 text-right tabular-nums ${negative ? 'text-error' : 'text-success'}`}>
-                        {negative ? '' : '+'}{p.amount}
-                      </td>
-                      <td className="px-3 py-2 text-right tabular-nums text-text-primary">{p.balanceAfter}</td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
+        <ServerDataTable
+          columns={postingColumns}
+          rows={postings}
+          getRowKey={(p) => p.walletPostingId}
+          page={1}
+          totalPages={1}
+          onPageChange={() => {}}
+          loading={statementLoading}
+          hidePagination
+          emptyMessage="No movements yet."
+        />
       </Modal>
     </div>
   );

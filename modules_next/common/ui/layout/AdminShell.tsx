@@ -41,6 +41,10 @@ import {
   faClipboardCheck,
   faLifeRing,
   faHouse,
+  faToggleOn,
+  faMagnifyingGlass,
+  faChartLine,
+  faCookieBite,
 } from '@fortawesome/free-solid-svg-icons';
 
 type AdminShellProps = {
@@ -126,6 +130,14 @@ export function AdminShell({ children, tenantId }: AdminShellProps) {
       ],
     },
     {
+      label: 'Insights',
+      items: [
+        { id: 'analytics',     label: 'Analytics',     href: `/tenant/${tenantId}/admin/analytics`,     icon: <FontAwesomeIcon icon={faChartLine} aria-hidden /> },
+        { id: 'feature-flags', label: 'Feature Flags', href: `/tenant/${tenantId}/admin/feature-flags`, icon: <FontAwesomeIcon icon={faToggleOn} aria-hidden /> },
+        { id: 'search',        label: 'Search',        href: `/tenant/${tenantId}/admin/search`,        icon: <FontAwesomeIcon icon={faMagnifyingGlass} aria-hidden /> },
+      ],
+    },
+    {
       label: 'Store',
       items: [
         { id: 'store-categories', label: 'Categories', href: `/tenant/${tenantId}/admin/store/categories`, icon: <FontAwesomeIcon icon={faTag} aria-hidden /> },
@@ -153,6 +165,7 @@ export function AdminShell({ children, tenantId }: AdminShellProps) {
       items: [
         { id: 'settings', label: 'Settings', href: `/tenant/${tenantId}/admin/settings`, icon: <FontAwesomeIcon icon={faGear} aria-hidden /> },
         { id: 'branding', label: 'Branding', href: `/tenant/${tenantId}/admin/settings/branding`, icon: <FontAwesomeIcon icon={faShieldHalved} aria-hidden /> },
+        { id: 'consent',  label: 'Consent',  href: `/tenant/${tenantId}/admin/consent`,          icon: <FontAwesomeIcon icon={faCookieBite} aria-hidden /> },
       ],
     },
     {

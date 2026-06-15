@@ -64,7 +64,11 @@ export type UpdateMeterDTO = z.infer<typeof UpdateMeterDTO>;
 export const ListMetersQuery = z.object({
   page: z.coerce.number().int().nonnegative().default(0),
   pageSize: z.coerce.number().int().positive().max(100).default(20),
-  active: z.coerce.boolean().optional(),
+  // Query strings arrive as text; treat 'false'/'0'/'' as false rather than
+  // coercing every non-empty string to true (z.coerce.boolean would do that).
+  active: z
+    .preprocess((v) => (typeof v === 'string' ? !['false', '0', ''].includes(v.toLowerCase()) : v), z.boolean())
+    .optional(),
   q: z.string().optional(),
 });
 export type ListMetersQuery = z.infer<typeof ListMetersQuery>;
