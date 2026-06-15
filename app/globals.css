@@ -2,9 +2,9 @@
 @import "@fortawesome/fontawesome-svg-core/styles.css";
 
 :root {
-  --primary:         #3b82f6;
-  --primary-hover:   #2563eb;
-  --primary-active:  #1d4ed8;
+  --primary:         #2563eb;
+  --primary-hover:   #1d4ed8;
+  --primary-active:  #1e40af;
   --primary-subtle:  #eff6ff;
   --primary-fg:      #ffffff;
 
@@ -18,8 +18,8 @@
   --surface-sunken:  #e5e7eb;
 
   --text-primary:    #111827;
-  --text-secondary:  #6b7280;
-  --text-disabled:   #9ca3af;
+  --text-secondary:  #4b5563;
+  --text-disabled:   #6b7280;
   --text-inverse:    #ffffff;
 
   --border:          #e5e7eb;

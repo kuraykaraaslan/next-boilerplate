@@ -132,6 +132,7 @@ export function WebhookFormModal({ open, onClose, initialData, isRoot, eventGrou
       onClose={handleClose}
       title={title}
       size="lg"
+      className="max-w-3xl"
       footer={
         <>
           <Button variant="ghost" onClick={handleClose} disabled={saving}>Cancel</Button>
@@ -141,75 +142,83 @@ export function WebhookFormModal({ open, onClose, initialData, isRoot, eventGrou
     >
       <div className="space-y-4">
         {formError && <AlertBanner variant="error" message={formError} />}
-        <Input id="webhook-name" label="Name" placeholder="My webhook" value={form.name} required
-          onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))} />
-        <Input id="webhook-url" label="URL" placeholder="https://your-service.com/webhook" value={form.url} required
-          onChange={(e) => setForm((p) => ({ ...p, url: e.target.value }))} />
-        <Input id="webhook-description" label="Description (optional)" placeholder="What is this webhook for?"
-          value={form.description} onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))} />
 
-        <div>
-          <p className="text-sm font-medium text-text-primary mb-2">Events</p>
-          <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
-            {eventGroups.map(({ group, events }) => (
-              <div key={group}>
-                <p className="text-xs font-semibold text-text-secondary uppercase tracking-wide mb-1">{group}</p>
-                <div className="flex flex-wrap gap-2">
-                  {events.map(({ event: ev, description }) => {
-                    const selected = form.events.includes(ev);
-                    return (
-                      <button key={ev} type="button" title={description} onClick={() => toggleEvent(ev)}
-                        className={`rounded-full border px-2.5 py-0.5 text-xs font-mono transition-colors ${
-                          selected ? 'bg-primary text-primary-fg border-primary' : 'bg-surface-base text-text-secondary border-border hover:border-primary'
-                        }`}>
-                        {ev}
-                      </button>
-                    );
-                  })}
-                </div>
+        <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2">
+          {/* Left column: core fields */}
+          <div className="space-y-4">
+            <Input id="webhook-name" label="Name" placeholder="My webhook" value={form.name} required
+              onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))} />
+            <Input id="webhook-url" label="URL" placeholder="https://your-service.com/webhook" value={form.url} required
+              onChange={(e) => setForm((p) => ({ ...p, url: e.target.value }))} />
+            <Input id="webhook-description" label="Description (optional)" placeholder="What is this webhook for?"
+              value={form.description} onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))} />
+            <Input id="webhook-tags" label="Tags (optional, comma-separated)" placeholder="billing, prod"
+              value={form.tagsText} onChange={(e) => setForm((p) => ({ ...p, tagsText: e.target.value }))} />
+            <Input id="webhook-rate-limit" label="Rate limit (optional, deliveries/minute)" type="number" placeholder="Unlimited"
+              value={form.rateLimitText} onChange={(e) => setForm((p) => ({ ...p, rateLimitText: e.target.value }))} />
+
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm font-medium text-text-primary">Custom headers (optional)</p>
+                <Button type="button" variant="ghost" size="sm" onClick={addHeaderRow}>Add header</Button>
               </div>
-            ))}
-          </div>
-        </div>
-
-        <Input id="webhook-tags" label="Tags (optional, comma-separated)" placeholder="billing, prod"
-          value={form.tagsText} onChange={(e) => setForm((p) => ({ ...p, tagsText: e.target.value }))} />
-        <Input id="webhook-rate-limit" label="Rate limit (optional, deliveries/minute)" type="number" placeholder="Unlimited"
-          value={form.rateLimitText} onChange={(e) => setForm((p) => ({ ...p, rateLimitText: e.target.value }))} />
-
-        <div>
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-sm font-medium text-text-primary">Custom headers (optional)</p>
-            <Button type="button" variant="ghost" size="sm" onClick={addHeaderRow}>Add header</Button>
-          </div>
-          {form.headerRows.length === 0 ? (
-            <p className="text-xs text-text-secondary">No custom headers. Reserved headers (Content-Type, X-Webhook-*, User-Agent) can&apos;t be overridden.</p>
-          ) : (
-            <div className="space-y-2">
-              {form.headerRows.map((row, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <input className="flex-1 rounded-md border border-border bg-surface-base px-2.5 py-1.5 text-sm font-mono"
-                    placeholder="X-Custom-Header" value={row.key} onChange={(e) => updateHeaderRow(i, 'key', e.target.value)} />
-                  <input className="flex-1 rounded-md border border-border bg-surface-base px-2.5 py-1.5 text-sm font-mono"
-                    placeholder="value" value={row.value} onChange={(e) => updateHeaderRow(i, 'value', e.target.value)} />
-                  <button type="button" onClick={() => removeHeaderRow(i)}
-                    className="text-text-secondary hover:text-error px-1" aria-label="Remove header">
-                    <FontAwesomeIcon icon={faTrash} />
-                  </button>
+              {form.headerRows.length === 0 ? (
+                <p className="text-xs text-text-secondary">No custom headers. Reserved headers (Content-Type, X-Webhook-*, User-Agent) can&apos;t be overridden.</p>
+              ) : (
+                <div className="space-y-2">
+                  {form.headerRows.map((row, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <input className="min-w-0 flex-1 rounded-md border border-border bg-surface-base px-2.5 py-1.5 text-sm font-mono"
+                        placeholder="X-Custom-Header" value={row.key} onChange={(e) => updateHeaderRow(i, 'key', e.target.value)} />
+                      <input className="min-w-0 flex-1 rounded-md border border-border bg-surface-base px-2.5 py-1.5 text-sm font-mono"
+                        placeholder="value" value={row.value} onChange={(e) => updateHeaderRow(i, 'value', e.target.value)} />
+                      <button type="button" onClick={() => removeHeaderRow(i)}
+                        className="text-text-secondary hover:text-error px-1" aria-label="Remove header">
+                        <FontAwesomeIcon icon={faTrash} />
+                      </button>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
-          )}
-        </div>
+          </div>
 
-        <div>
-          <p className="text-sm font-medium text-text-primary mb-1">Event filters (optional, advanced)</p>
-          <p className="text-xs text-text-secondary mb-2">
-            JSON map of <code>{'{ "event": { "data.path": value } }'}</code>. A delivery is skipped when the payload doesn&apos;t match.
-          </p>
-          <textarea className="w-full rounded-md border border-border bg-surface-base px-2.5 py-1.5 text-sm font-mono min-h-24"
-            placeholder={'{\n  "payment.completed": { "currency": "USD" }\n}'}
-            value={form.filtersText} onChange={(e) => setForm((p) => ({ ...p, filtersText: e.target.value }))} />
+          {/* Right column: events + filters */}
+          <div className="space-y-4">
+            <div>
+              <p className="text-sm font-medium text-text-primary mb-2">Events</p>
+              <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
+                {eventGroups.map(({ group, events }) => (
+                  <div key={group}>
+                    <p className="text-xs font-semibold text-text-secondary uppercase tracking-wide mb-1">{group}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {events.map(({ event: ev, description }) => {
+                        const selected = form.events.includes(ev);
+                        return (
+                          <button key={ev} type="button" title={description} onClick={() => toggleEvent(ev)}
+                            className={`rounded-full border px-2.5 py-0.5 text-xs font-mono transition-colors ${
+                              selected ? 'bg-primary text-primary-fg border-primary' : 'bg-surface-base text-text-secondary border-border hover:border-primary'
+                            }`}>
+                            {ev}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <p className="text-sm font-medium text-text-primary mb-1">Event filters (optional, advanced)</p>
+              <p className="text-xs text-text-secondary mb-2">
+                JSON map of <code>{'{ "event": { "data.path": value } }'}</code>. A delivery is skipped when the payload doesn&apos;t match.
+              </p>
+              <textarea className="w-full rounded-md border border-border bg-surface-base px-2.5 py-1.5 text-sm font-mono min-h-24"
+                placeholder={'{\n  "payment.completed": { "currency": "USD" }\n}'}
+                value={form.filtersText} onChange={(e) => setForm((p) => ({ ...p, filtersText: e.target.value }))} />
+            </div>
+          </div>
         </div>
       </div>
     </Modal>
