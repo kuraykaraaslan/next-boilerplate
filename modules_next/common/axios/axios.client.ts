@@ -30,6 +30,11 @@ async function ensureCSRFToken(): Promise<string | null> {
 }
 
 const axiosInstance = axios.create({
+  // Same-origin by default (NEXT_PUBLIC_API_URL unset → relative requests). In a
+  // subdomain-per-tenant deployment the browser must call its own origin so the
+  // proxy resolves the host to the right tenant; an absolute cross-subdomain
+  // base URL breaks CORS and tenant isolation. Only set NEXT_PUBLIC_API_URL for
+  // a dedicated, CORS-enabled API on a separate origin.
   baseURL: process.env.NEXT_PUBLIC_API_URL,
   withCredentials: true,
 });
