@@ -70,7 +70,9 @@ DECLARE
     'audit_logs',
     'api_keys',
     'payments',
-    'payment_transactions',
+    -- payment_transactions is scoped indirectly via its parent payment
+    -- (FK paymentId → payments.paymentId); it carries no own "tenantId"
+    -- column, so it gets no direct RLS policy here.
     'subscription_plans',
     'plan_features',
     'coupons',

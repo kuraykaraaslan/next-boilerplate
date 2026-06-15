@@ -36,7 +36,7 @@ Defense-in-depth: migration `001_tenant_rls.sql` enables Postgres row-level secu
 **Negative**
 - Two ways to change schema (entity decorators for dev synchronize, SQL for prod) creates drift risk. Mitigation: a CI step that runs the migrations and then `synchronize` against an empty DB and asserts the resulting schema matches the entities (TBD).
 - RLS adds a per-query session-variable round-trip. Mitigation: TypeORM connection pool reuse + `SET LOCAL` is cheap.
-- Existing scripts that do cross-tenant work (`scripts/migrate-to-root-tenant.ts`, cron jobs) must connect as a role with `BYPASSRLS` or explicitly `SET LOCAL app.bypass_rls = 'on'`. Documented in [`modules/db/migrations/001_tenant_rls.sql`](../../modules/db/migrations/001_tenant_rls.sql).
+- Scripts that do cross-tenant work (`scripts/db-deploy.ts`, cron jobs) must connect as a role with `BYPASSRLS` or explicitly `SET LOCAL app.bypass_rls = 'on'`. Documented in [`modules/db/migrations/001_tenant_rls.sql`](../../modules/db/migrations/001_tenant_rls.sql).
 
 ## Alternatives considered
 

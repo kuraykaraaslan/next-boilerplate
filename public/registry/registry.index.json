@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-15T12:43:04.870Z",
+  "generatedAt": "2026-06-15T19:34:42.077Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -5022,6 +5022,16 @@
       "filePath": "app/tenant/[tenantId]/api/cron/expire-subscriptions/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/cron/expire-subscriptions",
+      "methods": [
+        "POST"
+      ],
+      "module": "cron",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/cron/gift-card-expiry/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/cron/gift-card-expiry",
       "methods": [
         "POST"
       ],

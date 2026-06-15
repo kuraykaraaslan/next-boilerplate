@@ -109,10 +109,10 @@ Strict **one-way dependency**:
 │   │   └── module.types.ts   ← React-aware runtime types
 │   └── <module>/             ← per-module: ui/, hooks/, *.service.next.ts
 │
-├── scripts/                  ← one-off CLI scripts
-│   ├── default-admin.ts      ← seed system admin
-│   ├── default-tenant.ts     ← seed default tenant
-│   └── migrate-api-keys.ts   ← data migration helper
+├── scripts/                  ← CLI scripts
+│   ├── db-deploy.ts          ← schema sync + SQL migrations + fresh-DB seed (wired into vercel-build)
+│   ├── db-reset.ts           ← drop & recreate the schema (dev)
+│   └── create-tenant.ts      ← provision a new tenant
 │
 └── public/                   ← static assets served at /
 ```

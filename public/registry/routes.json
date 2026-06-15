@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-15T12:43:04.870Z",
+  "generatedAt": "2026-06-15T19:34:42.077Z",
   "routes": [
     {
       "filePath": "app/api/auth/acs/route.ts",
@@ -1179,6 +1179,16 @@
       "filePath": "app/tenant/[tenantId]/api/cron/expire-subscriptions/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/cron/expire-subscriptions",
+      "methods": [
+        "POST"
+      ],
+      "module": "cron",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/cron/gift-card-expiry/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/cron/gift-card-expiry",
       "methods": [
         "POST"
       ],

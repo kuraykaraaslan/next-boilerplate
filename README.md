@@ -41,17 +41,11 @@ npm install
 cp .env.example .env
 # Edit .env with your database, Redis, and secret values
 
-# 3. Run database migrations
-npm run typeorm:migrate
+# 3. Sync schema, apply SQL/RLS migrations, and seed PLATFORM + ACME tenants
+#    (the seed step runs only on a fresh database — no tenant rows yet)
+npm run db:deploy
 
-# 4. Seed default admin + root tenant + demo tenant
-npx tsx scripts/default-admin.ts
-npx tsx scripts/default-tenant.ts
-
-# (Existing prod DB?) Promote current global admins onto the root tenant:
-# npx tsx scripts/migrate-to-root-tenant.ts
-
-# 5. Start dev server
+# 4. Start dev server
 npm run dev
 ```
 

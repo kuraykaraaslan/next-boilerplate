@@ -12,10 +12,16 @@ Raw SQL migrations. Numbered, applied in order. Idempotent where reasonable so r
 ## Applying
 
 ```bash
-psql "$DATABASE_URL" -f modules/db/migrations/001_tenant_rls.sql
+npm run db:deploy
 ```
 
-For production, integrate these into your migration runner of choice (Flyway, Sqitch, `node-pg-migrate`, or TypeORM's `migration:run`). The boilerplate currently relies on `synchronize: true` in development — see [ADR 0003 — migrations](../../../docs/adr/) (to be written) for the production story.
+[`scripts/db-deploy.ts`](../../../scripts/db-deploy.ts) is the production runner and is wired into `vercel-build`, so every Vercel deploy brings the database fully up to date. Two idempotent phases over the direct (unpooled) connection:
+
+1. **Schema sync** — create/alter tables from the TypeORM entities (`synchronize`). This is what creates `tenant_databases` et al. in production, where the runtime DataSource keeps `synchronize: false`.
+2. **SQL migrations** — apply every `*.sql` file here in numbered order exactly once, tracked in a `_sql_migrations` table so re-runs are no-ops.
+3. **Bootstrap seed** — only on a fresh database (no tenant rows): create the `PLATFORM` (root) and `ACME` (demo) tenants and their admin users. Skipped entirely once any tenant exists, so it never touches an established database.
+
+Safe to re-run. A single file can still be applied by hand with `psql "$DATABASE_URL" -f modules/db/migrations/00X_*.sql`.
 
 ## Runtime contract (RLS)
 
