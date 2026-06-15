@@ -17,6 +17,7 @@ import { UserSecurity as UserSecurityEntity } from './entities/user_security.ent
 import redis from '@/modules/redis';
 import { AppError, ErrorCode } from '@/modules/common/app-error';
 import UserSecurityService from './user_security.service';
+import { clearCache } from './user_security.helpers';
 import PasskeyMessages from './user_security.passkey.messages';
 import {
   PASSKEY_REG_CHALLENGE_KEY,
@@ -132,7 +133,7 @@ export default class UserSecurityPasskeyFlowService {
     });
 
     await redis.del(PASSKEY_REG_CHALLENGE_KEY(user.userId));
-    await UserSecurityService['clearCache'](user.userId);
+    await clearCache(user.userId);
 
     return { credentialId };
   }

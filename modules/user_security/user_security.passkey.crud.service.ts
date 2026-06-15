@@ -2,6 +2,7 @@ import { getDataSource } from '@/modules/db';
 import { UserSecurity as UserSecurityEntity } from './entities/user_security.entity';
 import { AppError, ErrorCode } from '@/modules/common/app-error';
 import UserSecurityService from './user_security.service';
+import { clearCache } from './user_security.helpers';
 import PasskeyMessages from './user_security.passkey.messages';
 import { StoredPasskey } from './user_security.types';
 import { SafeUser } from '../user/user.types';
@@ -24,7 +25,7 @@ export default class UserSecurityPasskeyCrudService {
         passkeyEnabled: remaining.length > 0,
       });
     });
-    await UserSecurityService['clearCache'](user.userId);
+    await clearCache(user.userId);
   }
 
   static async listPasskeys(
