@@ -20,8 +20,17 @@ Multi-provider, tenant-aware cloud storage abstraction. A unified S3-compatible 
 | `storage.types.ts` | `UploadOptions`, `UploadFromUrlOptions`, `ProviderUploadResult`, `UploadResult`, `S3Config` |
 | `storage.dto.ts` | `UploadFileDTO`, `UploadFromUrlDTO`, `DeleteFileDTO`, `GetFileUrlDTO` |
 | `storage.enums.ts` | `StorageProviderType`, `StorageFolder`, `StorageExtension`, `StorageMimeType` |
+| `storage.validation.ts` | Pre-upload validation: size, extension allowlist, magic-byte sniffing, EXIF strip, content-derived MIME (`deriveMimeType`) + `allowedMimeTypes` allowlist |
 | `storage.messages.ts` | Error/success message strings |
 | `storage.setting.keys.ts` | `STORAGE_KEYS` setting key constants |
+| `storage.scan.setting.keys.ts` | `STORAGE_SCAN_KEYS` virus-scan setting key constants |
+| `storage.scan.enums.ts` | `VirusScanProvider`, `VirusScanStatus`, `VirusScanMode`, `VirusScanInfectedAction` |
+| `storage.scan.types.ts` | `ScanConfig`, `ScanResult` |
+| `storage.scanner-factory.ts` | `getScanConfig(tenantId)` + `createScanner(config)` |
+| `storage.scan.service.ts` | `scan(config, bytes, filename)` + `handleInfected(...)` (quarantine/delete) |
+| `storage.scan.job.ts` | BullMQ async scan queue/worker + `enqueueVirusScan` |
+| `scanners/base.scanner.ts` | Abstract `FileScanner` base class |
+| `scanners/virustotal.scanner.ts` | VirusTotal v3 adapter |
 | `storage.seed.ts` | Demo seed for the `UploadedFile` ledger (5 providers, 1 soft-deleted) |
 | `s3.client.ts` | Shared `@aws-sdk/client-s3` client built from `env` (env-level credentials) |
 | `entities/uploaded_file.entity.ts` | `UploadedFile` audit entity |
@@ -146,8 +155,22 @@ Storage setting keys (`STORAGE_KEYS`, declared in `storage.setting.keys.ts`) are
 | `s3AccessKey` | string | — | `storage.service.ts` — credential access key id. |
 | `s3SecretKey` | string | — | `storage.service.ts` — credential secret key. |
 | `s3Endpoint` | string | — | `storage.service.ts` — custom endpoint (R2 / Spaces / MinIO); undefined falls back to provider default. |
-| `maxFileSizeMb` | number | `25` | Seeded/UI-editable; **declared but not yet enforced** in the service. |
-| `allowedExtensions` | json | `["png","jpg","pdf"]` | Seeded/UI-editable; **declared but not yet enforced** in the service. |
+| `maxFileSizeMb` | number | `25` | `getValidationPolicy` — enforced in `validateUpload`. |
+| `allowedExtensions` | json | `["png","jpg","pdf"]` | `getValidationPolicy` — enforced in `validateUpload`. |
+| `allowedMimeTypes` | csv | — (empty = allow all) | `getValidationPolicy` — content-derived MIME matched against this allowlist in `validateUpload`. |
+| `imageStripExif` | bool | `true` | `getValidationPolicy` — strips JPEG EXIF/metadata unless `'false'`. |
+
+### Virus scanning keys (`STORAGE_SCAN_KEYS`, `storage.scan.setting.keys.ts`)
+
+| Key | Type | Default | Notes |
+|---|---|---|---|
+| `virusScanEnabled` | bool | `false` | Master switch; also requires `virusScanApiKey` to take effect. |
+| `virusScanMode` | enum | `async` | `sync` blocks the upload until scanned; `async` scans in the background. |
+| `virusScanProvider` | enum | `virustotal` | Online scanner backend. |
+| `virusScanApiKey` | string | — | Provider API key (secret). |
+| `virusScanTimeoutSeconds` | number | `30` | Per-scan time budget. |
+| `virusScanInfectedAction` | enum | `quarantine` | `quarantine` (move to quarantine folder) or `delete`. |
+| `virusScanQuarantineFolder` | string | `quarantine` | Destination folder prefix for quarantined objects. |
 
 `s3.client.ts` builds a separate, env-credentialed `@aws-sdk/client-s3` instance from `env` (`AWS_REGION`/`AWS_ACCESS_KEY_ID`/…) — independent of the per-tenant Setting credentials above.
 
@@ -161,7 +184,29 @@ Storage setting keys (`STORAGE_KEYS`, declared in `storage.setting.keys.ts`) are
 - Asserts the tenant's active plan grants `FEATURE_STORAGE_UPLOAD` (boolean).
 - Asserts `FEATURE_STORAGE_QUOTA_BYTES` (limit) is not exhausted, comparing against the tenant's `TenantUsage.storageBytes`.
 
-The quota check is best-effort and non-atomic — the post-upload byte increment can briefly push usage above the ceiling under concurrent uploads. Per-tenant `maxFileSizeMb` / `allowedExtensions` are **not** enforced today (see *Tenant Variability*), so uploads are size-gated only by the subscription quota.
+The quota check is best-effort and non-atomic — the post-upload byte increment can briefly push usage above the ceiling under concurrent uploads.
+
+### Upload validation & MIME
+
+`validateUpload` (`storage.validation.ts`) runs before the bytes reach the bucket:
+size (`maxFileSizeMb`), extension allowlist (`allowedExtensions`), magic-byte
+sniffing, optional EXIF stripping, and a **content-derived MIME** check. The real
+MIME is derived from the verified content (`deriveMimeType`) — never the client's
+`file.type` header — and matched against the per-tenant `allowedMimeTypes`
+allowlist; the derived MIME is what gets stored on the object and audit row.
+
+### Virus scanning
+
+When `virusScanEnabled` (+ `virusScanApiKey`) is set, uploads are scanned via a
+pluggable online scanner (`scanners/`, first adapter VirusTotal):
+
+- **sync** (`virusScanMode=sync`) — the buffer is scanned before the bucket write;
+  an infected file is rejected with `SCAN_INFECTED` and never stored.
+- **async** (default) — the object is stored as `scanStatus='pending'` and a BullMQ
+  job (`storage.scan.job.ts`) downloads it via a presigned URL, scans it, writes the
+  result to the `UploadedFile` scan columns, then quarantines/deletes it if infected
+  (`virusScanInfectedAction`). `uploadFromUrl` always scans asynchronously;
+  `uploadServerBuffer` (trusted server output) is not scanned.
 
 ---
 

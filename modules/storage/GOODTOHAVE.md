@@ -7,6 +7,12 @@
 - **Upload validation** (`storage.validation.ts`) runs before any byte reaches
   the bucket: size (`maxFileSizeMb`), extension allowlist (`allowedExtensions`),
   and **magic-byte sniffing** so `evil.exe` renamed to `cat.png` is rejected.
+- **Content-derived MIME validation** — the real MIME is derived from the
+  (magic-byte-verified) content via `deriveMimeType`, enforced against the
+  per-tenant `allowedMimeTypes` allowlist, and stamped onto the stored object +
+  audit row instead of the client's spoofable `file.type` header.
+- **Online virus scanning** — pluggable scanner abstraction + VirusTotal adapter,
+  sync (block) or async (quarantine) per tenant. See "Virus / Malware Scanning".
 - **EXIF/metadata stripping** — JPEG APPn/COM segments (GPS, device, thumbnail)
   removed by default (pure JS, `imageStripExif` setting; off via `'false'`).
 - **Presigned GET URLs** (`storage.sigv4.ts`) — real AWS SigV4 query signing
@@ -56,7 +62,22 @@
 **Multi-tenant relevance:** Each tenant's upload surface is independently exposed; a file uploaded to tenant A's bucket that is incorrectly typed does not affect tenant B, but both tenants share the platform's reputation risk if malware is served from the CDN domain.
 **Multi-country relevance:** GDPR, UK Online Safety Act, and Australian Online Safety Act all impose platform liability for hosting and serving malware; magic-byte validation is a baseline security control required for compliance in multiple markets.
 
-### Virus / Malware Scanning
+### ✅ Virus / Malware Scanning
+**Status:** Shipped. Pluggable online scanner abstraction (`scanners/base.scanner.ts`,
+first adapter `scanners/virustotal.scanner.ts`) wired into the upload flow with a
+per-tenant **hybrid** model (`virusScanMode = sync | async`):
+- **sync** — the buffer is scanned BEFORE it reaches the bucket; an infected file
+  is rejected with `STORAGE_MESSAGES.SCAN_INFECTED` and never stored.
+- **async** — the object is stored as `scanStatus='pending'` and a BullMQ job
+  (`storage.scan.job.ts`) downloads it via a presigned URL, scans it, writes the
+  result to the `UploadedFile` scan columns, and quarantines/deletes it if infected
+  (`virusScanInfectedAction = quarantine | delete`).
+
+Settings: `virusScanEnabled`, `virusScanMode`, `virusScanProvider`, `virusScanApiKey`,
+`virusScanTimeoutSeconds`, `virusScanInfectedAction`, `virusScanQuarantineFolder`
+(`STORAGE_SCAN_KEYS`). `uploadFromUrl` always scans asynchronously; server-generated
+buffers (`uploadServerBuffer`) are trusted and not scanned.
+
 **Why:** There is no antivirus scan of uploaded files before the `UploadedFile` audit row is created and the URL is returned; a tenant user can upload a malware-containing PDF that is immediately accessible to all gallery/document consumers.
 **Complexity:** High
 **Multi-tenant relevance:** A malware upload in one tenant's storage does not automatically cross-contaminate other tenants' buckets (per-tenant bucket isolation), but a shared CDN domain means the platform's reputation is impacted if malware is served from any tenant.

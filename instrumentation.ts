@@ -72,6 +72,13 @@ export async function register() {
           startModerationWorker();
         },
       ],
+      [
+        'storage-virus-scan',
+        async () => {
+          const { startVirusScanWorker } = await import('@/modules/storage/storage.scan.job');
+          startVirusScanWorker();
+        },
+      ],
     ];
 
     for (const [name, run] of schedulers) {

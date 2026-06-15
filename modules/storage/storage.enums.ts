@@ -15,6 +15,7 @@ export const StorageFolderSchema = z.enum([
   'audios',
   'files',
   'content',
+  'quarantine',
   'branding/logos',
   'branding/favicon',
   'branding/wallpapers',

@@ -11,6 +11,10 @@ import { validateUpload } from './storage.validation'
 import { presignS3GetUrl } from './storage.sigv4'
 import { getProvider, getStorageSettings, getValidationPolicy } from './storage.provider-factory'
 import { persistUploadAudit, assertStorageFeatureAccess } from './storage.audit'
+import { getScanConfig } from './storage.scanner-factory'
+import { scan } from './storage.scan.service'
+import { enqueueVirusScan } from './storage.scan.job'
+import type { VirusScanStatus } from './storage.scan.enums'
 
 /** Upload a file to storage for a tenant. */
 export async function uploadFile(tenantId: string, data: UploadFileDTO): Promise<UploadResult> {
@@ -20,15 +24,37 @@ export async function uploadFile(tenantId: string, data: UploadFileDTO): Promise
 
   try {
     // Validate content (size, extension, magic bytes) and strip EXIF before
-    // anything is written to the bucket.
+    // anything is written to the bucket. `mimeType` is content-derived, not the
+    // client's spoofable header.
     const policy = await getValidationPolicy(tenantId)
-    const file = await validateUpload(rawFile, policy)
+    const { file, mimeType } = await validateUpload(rawFile, policy)
+
+    const scanCfg = await getScanConfig(tenantId)
+    let scanStatus: VirusScanStatus = scanCfg.enabled ? 'pending' : 'skipped'
+
+    // Synchronous mode: scan BEFORE the bytes reach the bucket so an infected
+    // file is never stored or served.
+    if (scanCfg.enabled && scanCfg.mode === 'sync') {
+      const bytes = new Uint8Array(await file.arrayBuffer())
+      const res = await scan(scanCfg, bytes, file.name)
+      if (res.status === 'infected') {
+        throw new AppError(STORAGE_MESSAGES.SCAN_INFECTED, 422, ErrorCode.VALIDATION_ERROR)
+      }
+      scanStatus = res.status // 'clean' | 'error'
+    }
 
     const { provider, resolvedName } = await getProvider(tenantId, requestedProvider)
     const result = await provider.uploadFile(file, { folder, filename, tenantId })
 
     const uploadResult: UploadResult = { ...result, provider: resolvedName }
-    const uploadedFileId = await persistUploadAudit(tenantId, undefined, uploadResult, file.type)
+    const uploadedFileId = await persistUploadAudit(tenantId, undefined, uploadResult, mimeType, scanStatus)
+
+    // Asynchronous mode: object is stored as 'pending'; scan in the background.
+    if (scanCfg.enabled && scanCfg.mode === 'async' && uploadedFileId) {
+      await enqueueVirusScan(uploadedFileId, result.key, tenantId).catch((e) =>
+        Logger.warn(`enqueue virus scan failed: ${e instanceof Error ? e.message : String(e)}`),
+      )
+    }
 
     return { ...uploadResult, uploadedFileId }
   } catch (error) {
@@ -47,8 +73,21 @@ export async function uploadFromUrl(tenantId: string, data: UploadFromUrlDTO): P
     const { provider, resolvedName } = await getProvider(tenantId, requestedProvider)
     const result = await provider.uploadFromUrl(url, { url, folder, filename, tenantId })
 
+    // URL uploads have no in-memory buffer at this layer, so scanning is always
+    // performed asynchronously (the sync-mode setting does not apply here).
+    const scanCfg = await getScanConfig(tenantId)
+    const scanStatus: VirusScanStatus = scanCfg.enabled ? 'pending' : 'skipped'
+
     const uploadResult: UploadResult = { ...result, provider: resolvedName }
-    const uploadedFileId = await persistUploadAudit(tenantId, undefined, uploadResult, 'application/octet-stream')
+    const uploadedFileId = await persistUploadAudit(
+      tenantId, undefined, uploadResult, 'application/octet-stream', scanStatus,
+    )
+
+    if (scanCfg.enabled && uploadedFileId) {
+      await enqueueVirusScan(uploadedFileId, result.key, tenantId).catch((e) =>
+        Logger.warn(`enqueue virus scan failed: ${e instanceof Error ? e.message : String(e)}`),
+      )
+    }
 
     return { ...uploadResult, uploadedFileId }
   } catch (error) {

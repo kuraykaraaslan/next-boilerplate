@@ -49,6 +49,21 @@ export class UploadedFile {
   @Column({ nullable: true, type: 'varchar' })
   url?: string;
 
+  // ── Virus scan ────────────────────────────────────────────────────────────
+  // skipped (scanning off) | pending (queued) | clean | infected | error
+  @Index()
+  @Column({ type: 'varchar', default: 'skipped' })
+  scanStatus!: string;
+
+  @Column({ nullable: true, type: 'varchar' })
+  scanProvider?: string; // e.g. 'virustotal'
+
+  @Column({ nullable: true, type: 'text' })
+  scanResult?: string; // threat name / engine summary
+
+  @Column({ nullable: true, type: 'timestamp' })
+  scannedAt?: Date;
+
   @CreateDateColumn({ type: 'timestamp' })
   createdAt!: Date;
 

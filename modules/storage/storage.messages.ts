@@ -11,4 +11,9 @@ export const STORAGE_MESSAGES = {
   EMPTY_FILE: 'File is empty',
   PROVIDER_NOT_FOUND: 'Storage provider not found',
   PROVIDER_NOT_CONFIGURED: 'Storage provider not configured',
+  SCAN_INFECTED: 'File failed the virus scan and was rejected',
+  SCAN_FAILED: 'Virus scan could not be completed',
+  SCAN_TIMEOUT: 'Virus scan timed out',
+  SCAN_PROVIDER_ERROR: 'Virus scan provider is unavailable',
+  SCAN_DISABLED: 'Virus scanning is not enabled for this tenant',
 } as const

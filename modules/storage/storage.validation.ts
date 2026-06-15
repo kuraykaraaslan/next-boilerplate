@@ -18,6 +18,7 @@ import { STORAGE_MESSAGES } from './storage.messages'
 export interface UploadValidationPolicy {
   maxBytes: number            // 0 = unlimited
   allowedExtensions: string[] // empty = allow all
+  allowedMimeTypes: string[]  // empty = allow all (matched against content-derived MIME)
   stripExif: boolean
 }
 
@@ -43,6 +44,37 @@ const TEXTUAL = new Set(['txt', 'csv', 'json', 'xml', 'svg', 'md', 'html', 'yaml
 
 // Office/zip-container formats share the ZIP signature.
 const ZIP_FAMILY = new Set(['zip', 'docx', 'xlsx', 'pptx', 'odt', 'ods', 'epub'])
+
+/**
+ * Canonical MIME type per extension. Used to derive the *real* MIME from the
+ * (already magic-byte-validated) extension instead of trusting the client's
+ * `file.type` header. Unknown extensions fall back to octet-stream.
+ */
+const EXT_MIME: Record<string, string> = {
+  jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', gif: 'image/gif',
+  webp: 'image/webp', bmp: 'image/bmp', avif: 'image/avif', ico: 'image/x-icon',
+  svg: 'image/svg+xml',
+  pdf: 'application/pdf', zip: 'application/zip', gz: 'application/gzip',
+  mp4: 'video/mp4', mp3: 'audio/mpeg',
+  txt: 'text/plain', csv: 'text/csv', json: 'application/json', xml: 'application/xml',
+  md: 'text/markdown', html: 'text/html', yaml: 'application/x-yaml', yml: 'application/x-yaml',
+  docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  pptx: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  odt: 'application/vnd.oasis.opendocument.text',
+  ods: 'application/vnd.oasis.opendocument.spreadsheet',
+  epub: 'application/epub+zip',
+}
+
+/**
+ * Derive the real MIME type from the validated extension. Because
+ * `magicConsistent` has already confirmed the bytes match the extension, the
+ * extension is a trustworthy (content-grounded) signal — unlike the
+ * client-supplied `file.type` header.
+ */
+export function deriveMimeType(ext: string): string {
+  return EXT_MIME[ext] ?? 'application/octet-stream'
+}
 
 function extOf(filename: string): string {
   const i = filename.lastIndexOf('.')
@@ -82,9 +114,13 @@ export function stripJpegMetadata(buf: Uint8Array): Uint8Array {
 
 /**
  * Validate (and optionally sanitise) an upload. Returns the file to actually
- * store — the same instance, or a new one with metadata stripped.
+ * store (same instance, or a new one with metadata stripped) plus the *real*
+ * content-derived MIME type — never the client-supplied `file.type`.
  */
-export async function validateUpload(file: File, policy: UploadValidationPolicy): Promise<File> {
+export async function validateUpload(
+  file: File,
+  policy: UploadValidationPolicy,
+): Promise<{ file: File; mimeType: string }> {
   if (!file || file.size === 0) throw new AppError(STORAGE_MESSAGES.EMPTY_FILE, 422, ErrorCode.VALIDATION_ERROR)
 
   if (policy.maxBytes > 0 && file.size > policy.maxBytes) {
@@ -102,11 +138,23 @@ export async function validateUpload(file: File, policy: UploadValidationPolicy)
     throw new AppError(STORAGE_MESSAGES.MIME_MISMATCH, 422, ErrorCode.VALIDATION_ERROR)
   }
 
+  // Derive the true MIME from the (now content-verified) extension and enforce
+  // the tenant's MIME allowlist against it — not against the spoofable header.
+  const mimeType = deriveMimeType(ext)
+  if (policy.allowedMimeTypes.length > 0 && !policy.allowedMimeTypes.includes(mimeType)) {
+    throw new AppError(STORAGE_MESSAGES.INVALID_MIME_TYPE, 422, ErrorCode.VALIDATION_ERROR)
+  }
+
   if (policy.stripExif && (ext === 'jpg' || ext === 'jpeg')) {
     const stripped = stripJpegMetadata(bytes)
     if (stripped.length !== bytes.length) {
-      return new File([stripped as unknown as BlobPart], file.name, { type: file.type })
+      return { file: new File([stripped as unknown as BlobPart], file.name, { type: mimeType }), mimeType }
     }
   }
-  return file
+  // Re-stamp the file with the derived MIME so the provider's ContentType and
+  // the audit row both carry the real type rather than the client's header.
+  if (file.type !== mimeType) {
+    return { file: new File([bytes as unknown as BlobPart], file.name, { type: mimeType }), mimeType }
+  }
+  return { file, mimeType }
 }

@@ -126,10 +126,36 @@ vi.mock('@/modules/tenant_usage/tenant_usage.service', () => ({
     incrementStorageBytes: vi.fn(async () => undefined),
   },
 }));
+// Virus-scan deps are mocked so we control mode/result and avoid a real BullMQ
+// (redis) connection at import time.
+vi.mock('../storage.scan.job', () => ({
+  enqueueVirusScan: vi.fn(async () => undefined),
+  startVirusScanWorker: vi.fn(),
+}));
+vi.mock('../storage.scanner-factory', () => ({
+  getScanConfig: vi.fn(),
+  createScanner: vi.fn(),
+}));
+vi.mock('../storage.scan.service', () => ({
+  scan: vi.fn(),
+  handleInfected: vi.fn(),
+}));
+
 import StorageService from '../storage.service';
 import SettingService from '@/modules/setting/setting.service';
+import { tenantDataSourceFor } from '@/modules/db';
+import { getScanConfig } from '../storage.scanner-factory';
+import { scan } from '../storage.scan.service';
+import { enqueueVirusScan } from '../storage.scan.job';
 
 const TEST_TENANT_ID = '11111111-1111-4111-8111-111111111111';
+
+const DISABLED_SCAN = {
+  enabled: false, mode: 'async' as const, provider: 'virustotal' as const,
+  apiKey: '', timeoutMs: 30000, infectedAction: 'quarantine' as const, quarantineFolder: 'quarantine',
+};
+const validJpeg = () =>
+  new File([new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10])], 'photo.jpg', { type: 'image/jpeg' });
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -140,11 +166,12 @@ beforeEach(() => {
     s3AccessKey: 'test-access-key',
     s3SecretKey: 'test-secret-key',
   });
+  (getScanConfig as any).mockResolvedValue(DISABLED_SCAN);
 });
 
 describe('StorageService.uploadFile', () => {
   it('uploads a file and returns UploadResult with provider', async () => {
-    const file = new File(['content'], 'photo.jpg', { type: 'image/jpeg' });
+    const file = new File([new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10])], 'photo.jpg', { type: 'image/jpeg' });
 
     const result = await StorageService.uploadFile(TEST_TENANT_ID, { file });
 
@@ -155,14 +182,17 @@ describe('StorageService.uploadFile', () => {
   });
 
   it('passes the tenantId to SettingService.getByKeys', async () => {
-    const file = new File(['content'], 'photo.jpg', { type: 'image/jpeg' });
+    const file = new File([new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10])], 'photo.jpg', { type: 'image/jpeg' });
     await StorageService.uploadFile(TEST_TENANT_ID, { file });
     expect((SettingService.getByKeys as any).mock.calls[0][0]).toBe(TEST_TENANT_ID);
   });
 
   it('propagates provider errors when settings fail to load', async () => {
-    (SettingService.getByKeys as any).mockRejectedValueOnce(new Error('Settings unavailable'));
-    const file = new File(['content'], 'photo.jpg', { type: 'image/jpeg' });
+    // Persistent rejection: getValidationPolicy/getScanConfig swallow their own
+    // read failures, but getProvider's getStorageSettings does not — so the
+    // upload still fails when settings are truly unavailable.
+    (SettingService.getByKeys as any).mockRejectedValue(new Error('Settings unavailable'));
+    const file = new File([new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10])], 'photo.jpg', { type: 'image/jpeg' });
     await expect(StorageService.uploadFile(TEST_TENANT_ID, { file })).rejects.toThrow();
   });
 });
@@ -215,6 +245,49 @@ describe('StorageService.getFileUrl', () => {
   });
 });
 
+describe('StorageService.uploadFile virus scanning', () => {
+  it('sync mode: rejects an infected file', async () => {
+    (getScanConfig as any).mockResolvedValue({ ...DISABLED_SCAN, enabled: true, mode: 'sync' });
+    (scan as any).mockResolvedValue({ status: 'infected', provider: 'virustotal', threat: 'EICAR' });
+
+    await expect(StorageService.uploadFile(TEST_TENANT_ID, { file: validJpeg() }))
+      .rejects.toThrow(/virus scan/i);
+    expect(enqueueVirusScan).not.toHaveBeenCalled();
+  });
+
+  it('sync mode: clean file uploads successfully', async () => {
+    (getScanConfig as any).mockResolvedValue({ ...DISABLED_SCAN, enabled: true, mode: 'sync' });
+    (scan as any).mockResolvedValue({ status: 'clean', provider: 'virustotal' });
+
+    const result = await StorageService.uploadFile(TEST_TENANT_ID, { file: validJpeg() });
+    expect(result.url).toBeTruthy();
+    expect(enqueueVirusScan).not.toHaveBeenCalled();
+  });
+
+  it('async mode: uploads then enqueues a background scan', async () => {
+    (getScanConfig as any).mockResolvedValue({ ...DISABLED_SCAN, enabled: true, mode: 'async' });
+    // Audit persist must return an uploadedFileId for the enqueue to fire.
+    (tenantDataSourceFor as any).mockResolvedValue({
+      getRepository: () => ({
+        create: (r: any) => r,
+        save: async (r: any) => ({ ...r, uploadedFileId: 'uf-1' }),
+      }),
+    });
+
+    const result = await StorageService.uploadFile(TEST_TENANT_ID, { file: validJpeg() });
+    expect(result.url).toBeTruthy();
+    expect(scan).not.toHaveBeenCalled(); // no inline scan in async mode
+    expect(enqueueVirusScan).toHaveBeenCalledTimes(1);
+  });
+
+  it('disabled: neither scans nor enqueues', async () => {
+    const result = await StorageService.uploadFile(TEST_TENANT_ID, { file: validJpeg() });
+    expect(result.url).toBeTruthy();
+    expect(scan).not.toHaveBeenCalled();
+    expect(enqueueVirusScan).not.toHaveBeenCalled();
+  });
+});
+
 describe('StorageService with cloudflare-r2 provider', () => {
   it('uses cloudflare-r2 when settings specify it', async () => {
     (SettingService.getByKeys as any).mockResolvedValue({
@@ -226,7 +299,7 @@ describe('StorageService with cloudflare-r2 provider', () => {
       s3Endpoint: 'https://accountid.r2.cloudflarestorage.com',
     });
 
-    const file = new File(['content'], 'photo.jpg', { type: 'image/jpeg' });
+    const file = new File([new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10])], 'photo.jpg', { type: 'image/jpeg' });
     const result = await StorageService.uploadFile(TEST_TENANT_ID, { file });
     expect(result.provider).toBe('cloudflare-r2');
   });

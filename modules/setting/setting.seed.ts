@@ -50,6 +50,16 @@ export async function seedSetting(ctx: SeedContext): Promise<void> {
     { key: 'storageProvider', value: 's3', group: 'Storage', type: 'string' },
     { key: 'maxFileSizeMb', value: '25', group: 'Storage', type: 'number' },
     { key: 'allowedExtensions', value: JSON.stringify(['png', 'jpg', 'pdf']), group: 'Storage', type: 'json' },
+    // Storage — content-derived MIME allowlist (comma-separated; empty = allow all)
+    { key: 'allowedMimeTypes', value: '', group: 'Storage', type: 'string' },
+    // Storage — virus scanning (off by default; needs an API key to activate)
+    { key: 'virusScanEnabled', value: 'false', group: 'Storage', type: 'boolean' },
+    { key: 'virusScanMode', value: 'async', group: 'Storage', type: 'string' },
+    { key: 'virusScanProvider', value: 'virustotal', group: 'Storage', type: 'string' },
+    { key: 'virusScanApiKey', value: '', group: 'Storage', type: 'string' },
+    { key: 'virusScanTimeoutSeconds', value: '30', group: 'Storage', type: 'number' },
+    { key: 'virusScanInfectedAction', value: 'quarantine', group: 'Storage', type: 'string' },
+    { key: 'virusScanQuarantineFolder', value: 'quarantine', group: 'Storage', type: 'string' },
 
     // Localization — formats + week start + currency placement
     { key: 'defaultTimezone', value: 'Europe/Istanbul', group: 'Localization', type: 'string' },

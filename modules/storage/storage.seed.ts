@@ -48,6 +48,9 @@ export async function seedStorage(ctx: SeedContext): Promise<void> {
     userId?: string;
     createdAt: Date;
     deletedAt?: Date;
+    scanStatus?: string;
+    scanProvider?: string;
+    scannedAt?: Date;
   };
 
   const fileDefs: FileDef[] = [
@@ -61,6 +64,9 @@ export async function seedStorage(ctx: SeedContext): Promise<void> {
       url: 'https://demo-assets.s3.amazonaws.com/users/avatar.png',
       userId,
       createdAt: daysAgo(21),
+      scanStatus: 'clean',
+      scanProvider: 'virustotal',
+      scannedAt: daysAgo(21),
     },
     {
       // Tenant logo on Cloudflare R2 (admin-uploaded branding).

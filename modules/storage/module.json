@@ -2,12 +2,12 @@
   "$schema": "../module.schema.json",
   "id": "storage",
   "name": "File Storage",
-  "description": "Pluggable S3-compatible file storage (AWS S3, Cloudflare R2, DigitalOcean Spaces, MinIO).",
-  "version": "1.0.0",
+  "description": "Pluggable S3-compatible file storage (AWS S3, Cloudflare R2, DigitalOcean Spaces, MinIO) with content-derived MIME validation and optional online virus scanning (VirusTotal).",
+  "version": "1.1.0",
   "icon": "fas fa-cloud-arrow-up",
-  "tags": ["platform", "storage"],
+  "tags": ["platform", "storage", "security"],
   "priority": 10,
-  "dependencies": { "requires": ["env", "setting"] },
+  "dependencies": { "requires": ["env", "setting"], "optional": ["redis", "tenant_usage"] },
   "settings": { "keys": "STORAGE_KEYS" },
-  "settingKeys": ["STORAGE_KEYS"]
+  "settingKeys": ["STORAGE_KEYS", "STORAGE_SCAN_KEYS"]
 }

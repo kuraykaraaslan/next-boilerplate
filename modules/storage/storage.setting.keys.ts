@@ -6,7 +6,7 @@ import { z } from 'zod';
 
 export const StorageSettingKeySchema = z.enum([
   'storageProvider', 's3Bucket', 's3Region', 's3AccessKey', 's3SecretKey', 's3Endpoint',
-  'maxFileSizeMb', 'allowedExtensions', 'imageStripExif',
+  'maxFileSizeMb', 'allowedExtensions', 'allowedMimeTypes', 'imageStripExif',
 ]);
 export type StorageSettingKey = z.infer<typeof StorageSettingKeySchema>;
 export const STORAGE_KEYS = StorageSettingKeySchema.options;

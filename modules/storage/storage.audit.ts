@@ -6,6 +6,8 @@ import { UploadedFile } from './entities/uploaded_file.entity'
 import TenantFeatureGateService from '@/modules/tenant_subscription/tenant_subscription.feature.service'
 import { FEATURE_KEYS } from '@/modules/tenant_subscription/tenant_subscription.feature-keys'
 import { isRootTenant } from '@/modules/tenant/tenant.constants'
+import type { VirusScanStatus } from './storage.scan.enums'
+import type { ScanResult } from './storage.scan.types'
 
 /**
  * Persist an UploadedFile audit row + increment the tenant_usage.storageBytes
@@ -17,6 +19,7 @@ export async function persistUploadAudit(
   userId: string | undefined,
   result: UploadResult,
   mimeType: string,
+  scanStatus: VirusScanStatus = 'skipped',
 ): Promise<string | undefined> {
   const size = result.size ?? 0
   let uploadedFileId: string | undefined
@@ -32,6 +35,7 @@ export async function persistUploadAudit(
       size,
       mimeType: mimeType || 'application/octet-stream',
       url: result.url,
+      scanStatus,
     })
     const saved = await repo.save(row)
     uploadedFileId = saved.uploadedFileId
@@ -45,6 +49,34 @@ export async function persistUploadAudit(
   }
 
   return uploadedFileId
+}
+
+/**
+ * Update the scan columns of an UploadedFile audit row after an async scan
+ * resolves. Best-effort: a failed write is logged, not thrown.
+ */
+export async function updateScanResult(
+  tenantId: string,
+  uploadedFileId: string,
+  res: ScanResult,
+): Promise<void> {
+  try {
+    const ds = await tenantDataSourceFor(tenantId)
+    const repo = ds.getRepository(UploadedFile)
+    await repo.update(
+      { uploadedFileId, tenantId },
+      {
+        scanStatus: res.status,
+        scanProvider: res.provider,
+        scanResult: res.detail ?? res.threat,
+        scannedAt: new Date(),
+      },
+    )
+  } catch (error) {
+    Logger.warn(
+      `StorageService.updateScanResult failed: ${error instanceof Error ? error.message : String(error)}`,
+    )
+  }
 }
 
 /**
