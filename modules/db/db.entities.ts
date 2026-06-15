@@ -95,6 +95,8 @@ import { MeteredBillingRun } from '@/modules/metering/entities/metered_billing_r
 import { ApprovalQueueItem } from '@/modules/back_office/entities/approval_queue_item.entity';
 import { SupportTicket } from '@/modules/back_office/entities/support_ticket.entity';
 import { SupportTicketMessage } from '@/modules/back_office/entities/support_ticket_message.entity';
+import { FeatureFlag } from '@/modules/feature_flags/entities/feature_flag.entity';
+import { FeatureFlagOverride } from '@/modules/feature_flags/entities/feature_flag_override.entity';
 
 export const ENTITIES = [
   User, UserConsent, UserProfile, UserSecurity, UserPreferences, UserSession,
@@ -116,4 +118,5 @@ export const ENTITIES = [
   MessageReport, TenantExportJob, ScimGroup, ScimGroupMember, WalletAccount,
   WalletTransaction, WalletPosting, MeterDefinition, MeteredUsageEvent,
   MeteredBillingRun, ApprovalQueueItem, SupportTicket, SupportTicketMessage,
+  FeatureFlag, FeatureFlagOverride,
 ];

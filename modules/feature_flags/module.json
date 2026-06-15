@@ -1,0 +1,13 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "feature_flags",
+  "name": "Feature Flags",
+  "description": "Tenant-scoped feature flags with master switch, deterministic percentage rollout, attribute-based targeting rules, and per-subject (user/segment) overrides. Read-through cached for hot-path evaluation; every write is audit-logged.",
+  "version": "1.0.0",
+  "icon": "fas fa-toggle-on",
+  "tags": ["platform", "feature-flags", "rollout", "experimentation"],
+  "priority": 48,
+  "dependencies": {
+    "requires": ["db", "env", "redis", "common", "audit_log"]
+  }
+}
