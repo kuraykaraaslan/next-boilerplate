@@ -1,0 +1,23 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "gdpr_consent",
+  "name": "GDPR Consent",
+  "description": "Per-tenant cookie-consent banner configuration plus an append-only consent ledger that records each subject's grant/withdraw decision per purpose (necessary/functional/analytics/marketing). Public capture for anonymous visitors, latest-wins state derivation, and audit-logged writes. Data export/erasure is handled by tenant_export.",
+  "version": "1.0.0",
+  "icon": "fas fa-shield-halved",
+  "tags": ["platform", "gdpr", "privacy", "consent", "compliance"],
+  "priority": 47,
+  "dependencies": {
+    "requires": ["db", "env", "redis", "common", "audit_log", "setting"]
+  },
+  "settingKeys": [
+    "consentBannerEnabled",
+    "consentPolicyVersion",
+    "consentBannerTitle",
+    "consentBannerMessage",
+    "consentPurposes"
+  ],
+  "settings": {
+    "keys": "GDPR_CONSENT_KEYS"
+  }
+}
