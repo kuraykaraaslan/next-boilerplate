@@ -1,0 +1,13 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "support",
+  "name": "Support Desk",
+  "description": "Customer support-ticket desk. Customers open support tickets with per-tenant monotonic ticket numbers (e.g. TICK-2026-00001), agent assignment, internal agent-only notes, threaded messages, and first-response + resolution SLA tracking. Ticket status flows OPEN → PENDING (agent replied) → RESOLVED → CLOSED; the first agent reply records the first-response time. Lifecycle changes are written to the append-only audit log; requesters/agents are notified in-app and webhooks fire on each event.",
+  "version": "1.0.0",
+  "icon": "fas fa-life-ring",
+  "tags": ["support", "tickets", "helpdesk", "sla", "back-office"],
+  "priority": 48,
+  "dependencies": {
+    "requires": ["db", "env", "logger", "common", "webhook", "audit_log", "notification_inapp"]
+  }
+}

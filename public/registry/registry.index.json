@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-15T11:05:18.588Z",
+  "generatedAt": "2026-06-15T11:29:20.551Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -3353,19 +3353,73 @@
       "hasNextLayer": true
     },
     {
-      "id": "back_office",
-      "name": "Back-Office",
+      "id": "support",
+      "name": "Support Desk",
       "version": "1.0.0",
-      "description": "Generic moderation / approval queue and support-ticket desk. Any owning module can route an entity through human review via the entity-agnostic approval queue (with a tamper-evident per-tenant decision hash chain and an in-memory decision-handler hook), and customers can open support tickets with per-tenant monotonic ticket numbers, agent assignment, internal notes, first-response + resolution SLA tracking. Every decision is recorded in the append-only audit log; submitters/requesters are notified in-app and webhooks fire on each lifecycle event.",
-      "dir": "modules/back_office",
-      "icon": "fas fa-clipboard-check",
+      "description": "Customer support-ticket desk. Customers open support tickets with per-tenant monotonic ticket numbers (e.g. TICK-2026-00001), agent assignment, internal agent-only notes, threaded messages, and first-response + resolution SLA tracking. Ticket status flows OPEN → PENDING (agent replied) → RESOLVED → CLOSED; the first agent reply records the first-response time. Lifecycle changes are written to the append-only audit log; requesters/agents are notified in-app and webhooks fire on each event.",
+      "dir": "modules/support",
+      "icon": "fas fa-life-ring",
       "tags": [
-        "back-office",
-        "moderation",
-        "approval",
         "support",
         "tickets",
-        "queue"
+        "helpdesk",
+        "sla",
+        "back-office"
+      ],
+      "priority": 48,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "logger",
+          "common",
+          "webhook",
+          "audit_log",
+          "notification_inapp"
+        ]
+      },
+      "exports": {
+        "services": [
+          "support.lifecycle.service.ts",
+          "support.read.service.ts",
+          "support.service.ts",
+          "support.write.service.ts"
+        ],
+        "dtos": [
+          "support.dto.ts"
+        ],
+        "enums": [
+          "support.enums.ts"
+        ],
+        "messageKeys": [
+          "support.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "support_ticket.entity.ts",
+          "support_ticket_message.entity.ts"
+        ]
+      },
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": true
+    },
+    {
+      "id": "approval",
+      "name": "Approval Queue",
+      "version": "1.0.0",
+      "description": "Generic, entity-agnostic moderation / approval queue. Any owning module can route an entity through human review via the queue (keyed by entityType + entityId) with a tamper-evident per-tenant decision hash chain and an in-memory decision-handler hook. Open items are PENDING / IN_REVIEW / ESCALATED; terminal items are APPROVED / REJECTED, with a partial unique index enforcing at most one open item per entity and SLA-by-priority due dates. Every decision is recorded in the append-only audit log; submitters are notified in-app and webhooks fire on each lifecycle event.",
+      "dir": "modules/approval",
+      "icon": "fas fa-clipboard-check",
+      "tags": [
+        "approval",
+        "moderation",
+        "queue",
+        "review",
+        "back-office"
       ],
       "priority": 49,
       "tier": "other",
@@ -3375,41 +3429,32 @@
           "env",
           "logger",
           "common",
-          "redis",
           "webhook",
           "audit_log",
-          "notification_inapp",
-          "tenant_member"
+          "notification_inapp"
         ]
       },
       "exports": {
         "services": [
-          "back_office.approval.decide.service.ts",
-          "back_office.approval.read.service.ts",
-          "back_office.approval.service.ts",
-          "back_office.approval.submit.service.ts",
-          "back_office.service.ts",
-          "back_office.support.lifecycle.service.ts",
-          "back_office.support.read.service.ts",
-          "back_office.support.service.ts",
-          "back_office.support.write.service.ts"
+          "approval.decide.service.ts",
+          "approval.read.service.ts",
+          "approval.service.ts",
+          "approval.submit.service.ts"
         ],
         "dtos": [
-          "back_office.dto.ts"
+          "approval.dto.ts"
         ],
         "enums": [
-          "back_office.enums.ts"
+          "approval.enums.ts"
         ],
         "messageKeys": [
-          "back_office.messages.ts"
+          "approval.messages.ts"
         ],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
         "entities": [
-          "approval_queue_item.entity.ts",
-          "support_ticket.entity.ts",
-          "support_ticket_message.entity.ts"
+          "approval_queue_item.entity.ts"
         ]
       },
       "hasReadme": false,
@@ -4012,6 +4057,28 @@
       "dynamic": true
     },
     {
+      "filePath": "app/tenant/[tenantId]/api/approvals/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/approvals",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "approval",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/approvals/[approvalItemId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/approvals/[approvalItemId]",
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "module": "approval",
+      "dynamic": true
+    },
+    {
       "filePath": "app/tenant/[tenantId]/api/audit-logs/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/audit-logs",
@@ -4575,60 +4642,6 @@
         "POST"
       ],
       "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/back-office/approvals/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/back-office/approvals",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "back_office",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/back-office/approvals/[approvalItemId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/back-office/approvals/[approvalItemId]",
-      "methods": [
-        "GET",
-        "PATCH"
-      ],
-      "module": "back_office",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/back-office/support/tickets/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/back-office/support/tickets",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "back_office",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/back-office/support/tickets/[ticketId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/back-office/support/tickets/[ticketId]",
-      "methods": [
-        "GET",
-        "PATCH"
-      ],
-      "module": "back_office",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/back-office/support/tickets/[ticketId]/messages/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/back-office/support/tickets/[ticketId]/messages",
-      "methods": [
-        "POST"
-      ],
-      "module": "back_office",
       "dynamic": true
     },
     {
@@ -6131,6 +6144,38 @@
       "dynamic": true
     },
     {
+      "filePath": "app/tenant/[tenantId]/api/support/tickets/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/support/tickets",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "support",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/support/tickets/[ticketId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/support/tickets/[ticketId]",
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "module": "support",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/support/tickets/[ticketId]/messages/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/support/tickets/[ticketId]/messages",
+      "methods": [
+        "POST"
+      ],
+      "module": "support",
+      "dynamic": true
+    },
+    {
       "filePath": "app/tenant/[tenantId]/api/tenants/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/tenants",
@@ -6532,8 +6577,8 @@
     },
     {
       "name": "ApprovalQueueItem",
-      "filePath": "modules/back_office/entities/approval_queue_item.entity.ts",
-      "module": "back_office",
+      "filePath": "modules/approval/entities/approval_queue_item.entity.ts",
+      "module": "approval",
       "schema": "system",
       "tableName": "approval_queue_items",
       "columns": [
@@ -8289,8 +8334,8 @@
     },
     {
       "name": "SupportTicket",
-      "filePath": "modules/back_office/entities/support_ticket.entity.ts",
-      "module": "back_office",
+      "filePath": "modules/support/entities/support_ticket.entity.ts",
+      "module": "support",
       "schema": "system",
       "tableName": "support_tickets",
       "columns": [
@@ -8316,8 +8361,8 @@
     },
     {
       "name": "SupportTicketMessage",
-      "filePath": "modules/back_office/entities/support_ticket_message.entity.ts",
-      "module": "back_office",
+      "filePath": "modules/support/entities/support_ticket_message.entity.ts",
+      "module": "support",
       "schema": "system",
       "tableName": "support_ticket_messages",
       "columns": [
@@ -9240,6 +9285,19 @@
       "baseName": "ApiKeyCreateModal"
     },
     {
+      "id": "approval/ui/approval-columns",
+      "module": "approval",
+      "filePath": "modules_next/approval/ui/approval-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "ApprovalRow",
+        "buildApprovalColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "approval-columns"
+    },
+    {
       "id": "audit_log/audit_log.service.next",
       "module": "audit_log",
       "filePath": "modules_next/audit_log/audit_log.service.next.ts",
@@ -9413,34 +9471,6 @@
       "baseName": "SessionExpiredBanner"
     },
     {
-      "id": "back_office/ui/approval-columns",
-      "module": "back_office",
-      "filePath": "modules_next/back_office/ui/approval-columns.tsx",
-      "kind": "ui",
-      "exports": [
-        "ApprovalRow",
-        "buildApprovalColumns"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "approval-columns"
-    },
-    {
-      "id": "back_office/ui/support-ticket-columns",
-      "module": "back_office",
-      "filePath": "modules_next/back_office/ui/support-ticket-columns.tsx",
-      "kind": "ui",
-      "exports": [
-        "TicketRow",
-        "buildTicketColumns",
-        "TICKET_STATUS_VARIANT",
-        "TICKET_PRIORITY_VARIANT"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "support-ticket-columns"
-    },
-    {
       "id": "blog/ui/BlogPostCreateModal",
       "module": "blog",
       "filePath": "modules_next/blog/ui/BlogPostCreateModal.tsx",
@@ -9490,18 +9520,6 @@
       "baseName": "index"
     },
     {
-      "id": "common/hooks/use-page-title.hook",
-      "module": "common",
-      "filePath": "modules_next/common/hooks/use-page-title.hook.ts",
-      "kind": "hook",
-      "exports": [
-        "usePageTitle"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "use-page-title.hook"
-    },
-    {
       "id": "common/module.types",
       "module": "common",
       "filePath": "modules_next/common/module.types.ts",
@@ -9516,6 +9534,19 @@
       "isClient": false,
       "isServer": false,
       "baseName": "module.types"
+    },
+    {
+      "id": "common/page-metadata",
+      "module": "common",
+      "filePath": "modules_next/common/page-metadata.ts",
+      "kind": "ui",
+      "exports": [
+        "DEFAULT_APP_NAME",
+        "pageTitle"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "page-metadata"
     },
     {
       "id": "common/ui/AlertBanner",
@@ -12137,6 +12168,21 @@
       "isClient": true,
       "isServer": false,
       "baseName": "ProductVariantsPanel"
+    },
+    {
+      "id": "support/ui/support-ticket-columns",
+      "module": "support",
+      "filePath": "modules_next/support/ui/support-ticket-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "TicketRow",
+        "buildTicketColumns",
+        "TICKET_STATUS_VARIANT",
+        "TICKET_PRIORITY_VARIANT"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "support-ticket-columns"
     },
     {
       "id": "tenant_domain/ui/domain-list-columns",

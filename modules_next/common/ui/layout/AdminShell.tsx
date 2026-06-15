@@ -126,8 +126,8 @@ export function AdminShell({ children, tenantId }: AdminShellProps) {
     {
       label: 'Operations',
       items: [
-        { id: 'approvals', label: 'Approvals',      href: `/tenant/${tenantId}/admin/back-office/approvals`, icon: <FontAwesomeIcon icon={faClipboardCheck} aria-hidden /> },
-        { id: 'support',   label: 'Support Tickets', href: `/tenant/${tenantId}/admin/back-office/support`,    icon: <FontAwesomeIcon icon={faLifeRing} aria-hidden /> },
+        { id: 'approvals', label: 'Approvals',      href: `/tenant/${tenantId}/admin/approvals`, icon: <FontAwesomeIcon icon={faClipboardCheck} aria-hidden /> },
+        { id: 'support',   label: 'Support Tickets', href: `/tenant/${tenantId}/admin/support`,    icon: <FontAwesomeIcon icon={faLifeRing} aria-hidden /> },
       ],
     },
     {

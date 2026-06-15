@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-15T11:05:18.588Z",
+  "generatedAt": "2026-06-15T11:29:20.551Z",
   "routes": [
     {
       "filePath": "app/api/auth/acs/route.ts",
@@ -329,6 +329,28 @@
         "POST"
       ],
       "module": "api_key",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/approvals/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/approvals",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "approval",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/approvals/[approvalItemId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/approvals/[approvalItemId]",
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "module": "approval",
       "dynamic": true
     },
     {
@@ -895,60 +917,6 @@
         "POST"
       ],
       "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/back-office/approvals/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/back-office/approvals",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "back_office",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/back-office/approvals/[approvalItemId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/back-office/approvals/[approvalItemId]",
-      "methods": [
-        "GET",
-        "PATCH"
-      ],
-      "module": "back_office",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/back-office/support/tickets/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/back-office/support/tickets",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "back_office",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/back-office/support/tickets/[ticketId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/back-office/support/tickets/[ticketId]",
-      "methods": [
-        "GET",
-        "PATCH"
-      ],
-      "module": "back_office",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/back-office/support/tickets/[ticketId]/messages/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/back-office/support/tickets/[ticketId]/messages",
-      "methods": [
-        "POST"
-      ],
-      "module": "back_office",
       "dynamic": true
     },
     {
@@ -2448,6 +2416,38 @@
         "POST"
       ],
       "module": "subscription",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/support/tickets/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/support/tickets",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "support",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/support/tickets/[ticketId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/support/tickets/[ticketId]",
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "module": "support",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/support/tickets/[ticketId]/messages/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/support/tickets/[ticketId]/messages",
+      "methods": [
+        "POST"
+      ],
+      "module": "support",
       "dynamic": true
     },
     {

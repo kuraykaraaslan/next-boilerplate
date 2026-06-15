@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-15T11:05:18.588Z",
+  "generatedAt": "2026-06-15T11:29:20.551Z",
   "entities": [
     {
       "name": "Agreement",
@@ -141,8 +141,8 @@
     },
     {
       "name": "ApprovalQueueItem",
-      "filePath": "modules/back_office/entities/approval_queue_item.entity.ts",
-      "module": "back_office",
+      "filePath": "modules/approval/entities/approval_queue_item.entity.ts",
+      "module": "approval",
       "schema": "system",
       "tableName": "approval_queue_items",
       "columns": [
@@ -1898,8 +1898,8 @@
     },
     {
       "name": "SupportTicket",
-      "filePath": "modules/back_office/entities/support_ticket.entity.ts",
-      "module": "back_office",
+      "filePath": "modules/support/entities/support_ticket.entity.ts",
+      "module": "support",
       "schema": "system",
       "tableName": "support_tickets",
       "columns": [
@@ -1925,8 +1925,8 @@
     },
     {
       "name": "SupportTicketMessage",
-      "filePath": "modules/back_office/entities/support_ticket_message.entity.ts",
-      "module": "back_office",
+      "filePath": "modules/support/entities/support_ticket_message.entity.ts",
+      "module": "support",
       "schema": "system",
       "tableName": "support_ticket_messages",
       "columns": [

@@ -15,6 +15,7 @@ Dependency-free leaf module loaded by every other module: AppError + ErrorCode e
 - `common/axios/axios.client` _(axios, client)_
 - `common/axios/index` _(axios)_
 - `common/module.types` _(type)_
+- `common/page-metadata` _(ui)_
 - `common/ui/AlertBanner` _(ui, client)_
 - `common/ui/Avatar` _(ui, client)_
 - `common/ui/AvatarUpload` _(ui, client)_
@@ -71,8 +72,7 @@ Dependency-free leaf module loaded by every other module: AppError + ErrorCode e
 - `common/ui/ThemeToggle` _(ui, client)_
 - `common/ui/toast.store` _(ui)_
 - `common/ui/ToastContainer` _(ui, client)_
-- `common/ui/Toggle` _(ui, client)_
-- … and 4 more
+- … and 5 more
 
 ## README
 

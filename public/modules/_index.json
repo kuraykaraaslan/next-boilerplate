@@ -956,22 +956,37 @@
     "componentCount": 1,
     "file": "metering.md"
   },
-  "back_office": {
-    "name": "Back-Office",
+  "support": {
+    "name": "Support Desk",
     "tier": "other",
     "tags": [
-      "back-office",
-      "moderation",
-      "approval",
       "support",
       "tickets",
-      "queue"
+      "helpdesk",
+      "sla",
+      "back-office"
     ],
     "hasNextLayer": true,
-    "routeCount": 5,
-    "entityCount": 3,
-    "componentCount": 2,
-    "file": "back_office.md"
+    "routeCount": 3,
+    "entityCount": 2,
+    "componentCount": 1,
+    "file": "support.md"
+  },
+  "approval": {
+    "name": "Approval Queue",
+    "tier": "other",
+    "tags": [
+      "approval",
+      "moderation",
+      "queue",
+      "review",
+      "back-office"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 2,
+    "entityCount": 1,
+    "componentCount": 1,
+    "file": "approval.md"
   },
   "ai": {
     "name": "AI",

@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-15T11:05:18.588Z",
+  "generatedAt": "2026-06-15T11:29:20.551Z",
   "components": [
     {
       "id": "ai/ui/AIChatBox",
@@ -259,6 +259,19 @@
       "baseName": "ApiKeyCreateModal"
     },
     {
+      "id": "approval/ui/approval-columns",
+      "module": "approval",
+      "filePath": "modules_next/approval/ui/approval-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "ApprovalRow",
+        "buildApprovalColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "approval-columns"
+    },
+    {
       "id": "audit_log/audit_log.service.next",
       "module": "audit_log",
       "filePath": "modules_next/audit_log/audit_log.service.next.ts",
@@ -432,34 +445,6 @@
       "baseName": "SessionExpiredBanner"
     },
     {
-      "id": "back_office/ui/approval-columns",
-      "module": "back_office",
-      "filePath": "modules_next/back_office/ui/approval-columns.tsx",
-      "kind": "ui",
-      "exports": [
-        "ApprovalRow",
-        "buildApprovalColumns"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "approval-columns"
-    },
-    {
-      "id": "back_office/ui/support-ticket-columns",
-      "module": "back_office",
-      "filePath": "modules_next/back_office/ui/support-ticket-columns.tsx",
-      "kind": "ui",
-      "exports": [
-        "TicketRow",
-        "buildTicketColumns",
-        "TICKET_STATUS_VARIANT",
-        "TICKET_PRIORITY_VARIANT"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "support-ticket-columns"
-    },
-    {
       "id": "blog/ui/BlogPostCreateModal",
       "module": "blog",
       "filePath": "modules_next/blog/ui/BlogPostCreateModal.tsx",
@@ -509,18 +494,6 @@
       "baseName": "index"
     },
     {
-      "id": "common/hooks/use-page-title.hook",
-      "module": "common",
-      "filePath": "modules_next/common/hooks/use-page-title.hook.ts",
-      "kind": "hook",
-      "exports": [
-        "usePageTitle"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "use-page-title.hook"
-    },
-    {
       "id": "common/module.types",
       "module": "common",
       "filePath": "modules_next/common/module.types.ts",
@@ -535,6 +508,19 @@
       "isClient": false,
       "isServer": false,
       "baseName": "module.types"
+    },
+    {
+      "id": "common/page-metadata",
+      "module": "common",
+      "filePath": "modules_next/common/page-metadata.ts",
+      "kind": "ui",
+      "exports": [
+        "DEFAULT_APP_NAME",
+        "pageTitle"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "page-metadata"
     },
     {
       "id": "common/ui/AlertBanner",
@@ -3156,6 +3142,21 @@
       "isClient": true,
       "isServer": false,
       "baseName": "ProductVariantsPanel"
+    },
+    {
+      "id": "support/ui/support-ticket-columns",
+      "module": "support",
+      "filePath": "modules_next/support/ui/support-ticket-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "TicketRow",
+        "buildTicketColumns",
+        "TICKET_STATUS_VARIANT",
+        "TICKET_PRIORITY_VARIANT"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "support-ticket-columns"
     },
     {
       "id": "tenant_domain/ui/domain-list-columns",
