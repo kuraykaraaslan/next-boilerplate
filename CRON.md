@@ -80,6 +80,18 @@ Opens a TLS handshake against every active tenant custom domain, parses the leaf
 | BullMQ scheduler | `scheduleSslHealthJob()` from `modules/tenant_domain/ssl_health.job.ts` |
 | HTTP endpoint | `POST /api/tenant/00000000-0000-4000-8000-000000000000/api/cron/ssl-health` |
 
+### `gift-card-expiry`
+
+Flips gift cards past their `expiresAt` (still holding a balance) to `EXPIRED` across every active tenant, writing a ledger row and dispatching `gift_card.expired`. Idempotent — already-expired cards are skipped.
+
+| Property | Value |
+|---|---|
+| Service method | `expireGiftCardsForTenant(tenantId)` per active tenant |
+| Default schedule | Daily at 02:30 (`30 2 * * *`) |
+| BullMQ queue | `gift-card-expiry` |
+| BullMQ scheduler | `scheduleGiftCardExpiryJob()` from `modules/gift_card/gift_card.expiry.job.ts` |
+| HTTP endpoint | `POST /api/tenant/00000000-0000-4000-8000-000000000000/api/cron/gift-card-expiry` |
+
 ---
 
 ## Option A — BullMQ (Self-hosted / Always-on)

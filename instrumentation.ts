@@ -79,6 +79,13 @@ export async function register() {
           startVirusScanWorker();
         },
       ],
+      [
+        'gift-card-expiry',
+        async () => {
+          const { scheduleGiftCardExpiryJob } = await import('@/modules/gift_card/gift_card.expiry.job');
+          await scheduleGiftCardExpiryJob();
+        },
+      ],
     ];
 
     for (const [name, run] of schedulers) {
