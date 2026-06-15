@@ -4,6 +4,7 @@ import TenantSessionNextService from '@/modules_next/tenant_session/tenant_sessi
 import TenantSubscriptionService from '@/modules/tenant_subscription/tenant_subscription.service'
 import TenantCheckoutService from '@/modules/tenant_subscription/tenant_subscription.checkout.service'
 import { SUBSCRIPTION_MESSAGES } from '@/modules/tenant_subscription/tenant_subscription.messages'
+import { withIdempotency } from '@/modules_next/redis_idempotency/withIdempotency'
 import { z } from 'zod'
 
 // Schema for purchase request
@@ -51,7 +52,7 @@ export async function GET(
  * POST /tenant/[tenantId]/api/subscription
  * Initiate subscription purchase - returns checkout URL
  */
-export async function POST(
+export const POST = withIdempotency(async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ tenantId: string }> }
 ) {
@@ -96,7 +97,7 @@ export async function POST(
       { status: 500 }
     )
   }
-}
+})
 
 /**
  * DELETE /tenant/[tenantId]/api/subscription

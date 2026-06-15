@@ -37,11 +37,14 @@ export async function POST(
     }
 
     const { to, body: message, provider, direct } = parsed.data;
+    // Pass the client's Idempotency-Key down to the queue/worker so a retried
+    // request (or a worker retry) doesn't deliver the same SMS twice.
+    const idempotencyKey = request.headers.get("Idempotency-Key") ?? undefined;
 
     if (direct) {
-      await SMSService.sendShortMessageDirect(tenantId, { to, body: message, provider });
+      await SMSService.sendShortMessageDirect(tenantId, { to, body: message, provider, idempotencyKey });
     } else {
-      await SMSService.sendShortMessage(tenantId, { to, body: message, provider });
+      await SMSService.sendShortMessage(tenantId, { to, body: message, provider, idempotencyKey });
     }
 
     return NextResponse.json({ message: "SMS queued for delivery" }, { status: 200 });

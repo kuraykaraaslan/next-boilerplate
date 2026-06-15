@@ -61,6 +61,8 @@ export const CreateSubscriptionDTO = z.object({
   currentPeriodStart: z.date().optional(),
   currentPeriodEnd: z.date().optional(),
   metadata: z.record(z.string(), z.any()).optional(),
+  /** Exactly-once guard; auto-derived from providerSubscriptionId when omitted. */
+  idempotencyKey: z.string().optional(),
 })
 export type CreateSubscriptionDTO = z.infer<typeof CreateSubscriptionDTO>
 

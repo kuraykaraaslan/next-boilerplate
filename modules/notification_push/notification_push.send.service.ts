@@ -8,6 +8,7 @@ import Logger from '@/modules/logger';
 import { PushPayload, VapidDetails, prepareSend, clearCacheForUser } from './notification_push.config';
 import { getSubscriptionsForUser } from './notification_push.subscription.service';
 import { wantsCategory, isWithinQuietHours, recordOutcome } from './notification_push.metrics.service';
+import { RedisIdempotencyService } from '@/modules/redis_idempotency';
 
 async function sendToSubscription(
   tenantId: string,
@@ -57,15 +58,18 @@ export async function sendToUser(
   tenantId: string,
   userId: string,
   payload: PushPayload,
-  opts?: { category?: string; respectQuietHours?: boolean },
+  opts?: { category?: string; respectQuietHours?: boolean; idempotencyKey?: string },
 ): Promise<void> {
-  const vapid = await prepareSend(tenantId);
-  if (vapid === false) return;
-  // Quiet hours suppress non-urgent (respectQuietHours) deliveries.
-  if (opts?.respectQuietHours && await isWithinQuietHours(tenantId, userId)) return;
-  const subs = (await getSubscriptionsForUser(tenantId, userId))
-    .filter((sub) => wantsCategory(sub, opts?.category));
-  await Promise.allSettled(subs.map((sub) => sendToSubscription(tenantId, sub, payload, vapid ?? undefined)));
+  // Optional exactly-once guard so a retried event doesn't push twice to a user.
+  return RedisIdempotencyService.run(tenantId, opts?.idempotencyKey, async () => {
+    const vapid = await prepareSend(tenantId);
+    if (vapid === false) return;
+    // Quiet hours suppress non-urgent (respectQuietHours) deliveries.
+    if (opts?.respectQuietHours && await isWithinQuietHours(tenantId, userId)) return;
+    const subs = (await getSubscriptionsForUser(tenantId, userId))
+      .filter((sub) => wantsCategory(sub, opts?.category));
+    await Promise.allSettled(subs.map((sub) => sendToSubscription(tenantId, sub, payload, vapid ?? undefined)));
+  });
 }
 
 export async function sendToUsers(

@@ -11,12 +11,14 @@ import { FEATURE_KEYS } from '@/modules/tenant_subscription/tenant_subscription.
 import { isRootTenant } from '@/modules/tenant/tenant.constants';
 import type { SMSResult } from './providers/base.provider';
 import NotificationSmsProviderService, { type SMSProviderType } from './notification_sms.provider.service';
+import { RedisIdempotencyService } from '@/modules/redis_idempotency';
 
 interface SMSJobData {
   tenantId: string;
   to: string;
   body: string;
   provider?: SMSProviderType;
+  idempotencyKey?: string;
 }
 
 export default class NotificationSmsQueueService {
@@ -34,9 +36,12 @@ export default class NotificationSmsQueueService {
   static readonly WORKER = new Worker<SMSJobData>(
     NotificationSmsQueueService.QUEUE_NAME,
     async (job: Job<SMSJobData>) => {
-      const { tenantId, to, body, provider } = job.data;
+      const { tenantId, to, body, provider, idempotencyKey } = job.data;
       Logger.info(`SMS Worker ${job.id} processing...`);
-      await NotificationSmsQueueService._sendShortMessage({ tenantId, to, body, provider });
+      // Guard worker retries from re-sending an already-delivered SMS.
+      await RedisIdempotencyService.run(tenantId, idempotencyKey, () =>
+        NotificationSmsQueueService._sendShortMessage({ tenantId, to, body, provider }),
+      );
     },
     { connection: getBullMQConnection() },
   );
@@ -116,7 +121,7 @@ export default class NotificationSmsQueueService {
 
   static async sendShortMessage(
     tenantId: string,
-    { to, body, provider }: { to: string; body: string; provider?: SMSProviderType },
+    { to, body, provider, idempotencyKey }: { to: string; body: string; provider?: SMSProviderType; idempotencyKey?: string },
   ): Promise<void> {
     if (!to?.trim() || !body?.trim()) {
       Logger.warn('NotificationSmsQueueService: Missing phone number or message body.');
@@ -132,7 +137,8 @@ export default class NotificationSmsQueueService {
         return;
       }
       await redis.set(rateLimitKey, '1', 'EX', NotificationSmsQueueService.RATE_LIMIT_SECONDS);
-      await NotificationSmsQueueService.QUEUE.add('sendShortMessage', { tenantId, to, body, provider });
+      await NotificationSmsQueueService.QUEUE.add('sendShortMessage', { tenantId, to, body, provider, idempotencyKey },
+        idempotencyKey ? { jobId: `sms:${tenantId}:${idempotencyKey}` } : undefined);
       Logger.info(`NotificationSmsQueueService: Queued SMS to ${to}`);
     } catch (error: unknown) {
       Logger.error(`NotificationSmsQueueService.sendShortMessage error: ${error instanceof Error ? error.message : error}`);
@@ -141,10 +147,12 @@ export default class NotificationSmsQueueService {
 
   static async sendShortMessageDirect(
     tenantId: string,
-    { to, body, provider }: { to: string; body: string; provider?: SMSProviderType },
+    { to, body, provider, idempotencyKey }: { to: string; body: string; provider?: SMSProviderType; idempotencyKey?: string },
   ): Promise<SMSResult | void> {
     await NotificationSmsQueueService.assertSmsFeatureAccess(tenantId);
-    return NotificationSmsQueueService._sendShortMessage({ tenantId, to, body, provider });
+    return RedisIdempotencyService.run(tenantId, idempotencyKey, () =>
+      NotificationSmsQueueService._sendShortMessage({ tenantId, to, body, provider }),
+    );
   }
 
   private static async _sendShortMessage({

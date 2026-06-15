@@ -4,6 +4,7 @@ import TenantSessionNextService from '@/modules_next/tenant_session/tenant_sessi
 import InvoiceService from '@/modules/invoice/invoice.service';
 import { CreateInvoiceInputSchema } from '@/modules/invoice/invoice.types';
 import InvoiceMessages from '@/modules/invoice/invoice.messages';
+import { withIdempotency } from '@/modules_next/redis_idempotency/withIdempotency';
 
 /**
  * GET /tenant/[tenantId]/api/invoices?status=&page=&pageSize=
@@ -41,7 +42,7 @@ export async function GET(
   }
 }
 
-export async function POST(
+export const POST = withIdempotency(async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ tenantId: string }> },
 ) {
@@ -72,4 +73,4 @@ export async function POST(
       { status },
     );
   }
-}
+})

@@ -13,6 +13,9 @@ export const EarnPointsDTO = z.object({
   referenceId: z.string().uuid().optional(),
   applyMultiplier: z.boolean().default(true),
   expiresInDays: z.number().int().positive().optional(),
+  // Optional client/caller-supplied key for exactly-once point grants. When
+  // omitted, an earn tied to a (referenceType, referenceId) is auto-deduped.
+  idempotencyKey: z.string().optional(),
 })
 export type EarnPointsDTO = z.infer<typeof EarnPointsDTO>
 
@@ -22,6 +25,7 @@ export const RedeemPointsDTO = z.object({
   reason: z.string().optional(),
   referenceType: z.string().optional(),
   referenceId: z.string().uuid().optional(),
+  idempotencyKey: z.string().optional(),
 })
 export type RedeemPointsDTO = z.infer<typeof RedeemPointsDTO>
 
@@ -29,6 +33,7 @@ export const AdjustPointsDTO = z.object({
   userId: z.string().uuid(),
   points: z.number().int(),
   reason: z.string(),
+  idempotencyKey: z.string().optional(),
 })
 export type AdjustPointsDTO = z.infer<typeof AdjustPointsDTO>
 

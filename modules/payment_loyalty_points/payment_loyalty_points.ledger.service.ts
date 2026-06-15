@@ -10,6 +10,7 @@ import { LoyaltyAccountSchema, LoyaltyTransactionSchema, type LoyaltyAccount, ty
 import type { EarnPointsDTO, RedeemPointsDTO, AdjustPointsDTO, GetTransactionsQuery } from './payment_loyalty_points.dto'
 import { PAYMENT_LOYALTY_POINTS_MESSAGES } from './payment_loyalty_points.messages'
 import PaymentLoyaltyPointsAccountService from './payment_loyalty_points.account.service'
+import { RedisIdempotencyService } from '@/modules/redis_idempotency'
 
 const DEFAULT_TIER = 'BRONZE'
 
@@ -48,6 +49,16 @@ export default class PaymentLoyaltyPointsLedgerService {
   // ──────────────────────────────────────────────
 
   static async earn(tenantId: string, dto: EarnPointsDTO): Promise<LoyaltyAccount> {
+    // Double-grant guard: explicit key, else auto-dedupe an earn bound to a
+    // specific source (e.g. one payment grants its points exactly once).
+    const key = dto.idempotencyKey
+      ?? (dto.referenceType && dto.referenceId ? `loyalty:earn:${dto.referenceType}:${dto.referenceId}` : undefined)
+    return RedisIdempotencyService.run(tenantId, key, () =>
+      PaymentLoyaltyPointsLedgerService.runEarn(tenantId, dto),
+    )
+  }
+
+  private static async runEarn(tenantId: string, dto: EarnPointsDTO): Promise<LoyaltyAccount> {
     const ds = await tenantDataSourceFor(tenantId)
     let accountId = ''
     try {
@@ -88,6 +99,14 @@ export default class PaymentLoyaltyPointsLedgerService {
   }
 
   static async redeem(tenantId: string, dto: RedeemPointsDTO): Promise<LoyaltyAccount> {
+    const key = dto.idempotencyKey
+      ?? (dto.referenceType && dto.referenceId ? `loyalty:redeem:${dto.referenceType}:${dto.referenceId}` : undefined)
+    return RedisIdempotencyService.run(tenantId, key, () =>
+      PaymentLoyaltyPointsLedgerService.runRedeem(tenantId, dto),
+    )
+  }
+
+  private static async runRedeem(tenantId: string, dto: RedeemPointsDTO): Promise<LoyaltyAccount> {
     const ds = await tenantDataSourceFor(tenantId)
     let accountId = ''
     try {
@@ -118,6 +137,12 @@ export default class PaymentLoyaltyPointsLedgerService {
   }
 
   static async adjust(tenantId: string, dto: AdjustPointsDTO): Promise<LoyaltyAccount> {
+    return RedisIdempotencyService.run(tenantId, dto.idempotencyKey, () =>
+      PaymentLoyaltyPointsLedgerService.runAdjust(tenantId, dto),
+    )
+  }
+
+  private static async runAdjust(tenantId: string, dto: AdjustPointsDTO): Promise<LoyaltyAccount> {
     const ds = await tenantDataSourceFor(tenantId)
     let accountId = ''
     try {

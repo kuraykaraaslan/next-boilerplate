@@ -120,6 +120,68 @@ export class RedisIdempotencyService {
     }
   }
 
+  /**
+   * Release a key (delete the record) so a legitimate retry can re-run the
+   * operation — called when the wrapped operation throws before completing, so a
+   * transient failure isn't permanently "claimed" for the next 24h.
+   */
+  static async release(tenantId: string, idempotencyKey: string): Promise<void> {
+    try {
+      await redis.del(RedisIdempotencyService.key(tenantId, idempotencyKey));
+    } catch (err) {
+      Logger.warn(`[idempotency] release failed (degraded): ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+
+  /**
+   * Wrap a side-effecting operation with exactly-once semantics keyed by
+   * `idempotencyKey`. This is the canonical entry point for write paths:
+   *
+   *  - No key supplied → run unguarded (backward compatible).
+   *  - First caller claims the key, runs the op, and stores the result.
+   *  - A duplicate that arrives *after* completion replays the stored result.
+   *  - A duplicate that arrives while the first is still in flight is refused
+   *    with 409 rather than risking a second side effect (double charge / mail / …).
+   *  - If the op throws, the claim is released so a real retry can proceed.
+   *  - If Redis is unavailable the op runs unguarded (fail-open).
+   *
+   * Stored results round-trip through JSON, so callers that need class instances
+   * should re-parse the returned value (e.g. via their Zod schema).
+   */
+  static async run<T>(
+    tenantId: string,
+    idempotencyKey: string | undefined | null,
+    operation: () => Promise<T>,
+  ): Promise<T> {
+    if (!idempotencyKey) return operation();
+    RedisIdempotencyService.validateKey(idempotencyKey);
+
+    const claim = await RedisIdempotencyService.acquire(tenantId, idempotencyKey);
+
+    if (claim.acquired || claim.degraded) {
+      // We own the key (or Redis is down → proceed without the guarantee).
+      try {
+        const result = await operation();
+        await RedisIdempotencyService.setCompleted(tenantId, idempotencyKey, { body: result, statusCode: 200 });
+        return result;
+      } catch (err) {
+        if (!claim.degraded) await RedisIdempotencyService.release(tenantId, idempotencyKey);
+        throw err;
+      }
+    }
+
+    // Another caller already claimed this key.
+    if (claim.existing?.status === 'completed' && claim.existing.response) {
+      return claim.existing.response.body as T;
+    }
+    // Still in flight elsewhere — refuse rather than double-execute.
+    throw new AppError(
+      'A request with this Idempotency-Key is already being processed.',
+      409,
+      ErrorCode.CONFLICT,
+    );
+  }
+
   /** Best-effort cumulative counters for dashboards. */
   static async getStats(): Promise<{ hit: number; miss: number; collision: number }> {
     try {

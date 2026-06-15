@@ -11,6 +11,7 @@ import { PAYMENT_RETURN_RMA_MESSAGES } from './payment_return_rma.messages'
 import PaymentReturnRmaCrudService from './payment_return_rma.crud.service'
 import PaymentReturnRmaPolicyService from './payment_return_rma.policy.service'
 import { PaymentLoyaltyPointsService } from '@/modules/payment_loyalty_points'
+import { RedisIdempotencyService } from '@/modules/redis_idempotency'
 import { tenantDataSourceFor } from '@/modules/db'
 
 export default class PaymentReturnRmaLifecycleService {
@@ -51,6 +52,16 @@ export default class PaymentReturnRmaLifecycleService {
   }
 
   static async refund(tenantId: string, returnRequestId: string, dto: RefundReturnDTO): Promise<ReturnRequestWithItems> {
+    // Refund is the single most dangerous op here: it sends a real refund to the
+    // payment provider and reverses loyalty points. Key idempotency on the RMA id
+    // so a retried/double-submitted refund replays the first result instead of
+    // charging the provider (and clawing back points) twice.
+    return RedisIdempotencyService.run(tenantId, `rma:refund:${returnRequestId}`, () =>
+      PaymentReturnRmaLifecycleService.runRefund(tenantId, returnRequestId, dto),
+    )
+  }
+
+  private static async runRefund(tenantId: string, returnRequestId: string, dto: RefundReturnDTO): Promise<ReturnRequestWithItems> {
     const { ds, row } = await PaymentReturnRmaCrudService.loadMutable(tenantId, returnRequestId)
     if (dto.refundAmount !== undefined && dto.refundAmount < 0) {
       throw new AppError(PAYMENT_RETURN_RMA_MESSAGES.INVALID_REFUND_AMOUNT, 400, ErrorCode.VALIDATION_ERROR)
@@ -87,6 +98,7 @@ export default class PaymentReturnRmaLifecycleService {
         userId: row.userId,
         points: -dto.loyaltyPointsToReverse,
         reason: `Return refund ${row.rmaNumber}`,
+        idempotencyKey: `loyalty:adjust:rma:${returnRequestId}`,
       }).catch((e: unknown) => Logger.warn(`[rma] loyalty reversal failed: ${e instanceof Error ? e.message : String(e)}`))
     }
 

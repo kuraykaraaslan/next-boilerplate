@@ -16,8 +16,17 @@ import ProrationService from './payment_subscription.proration.service';
 import type { BillingCycle } from './payment_subscription.enums';
 import WebhookService from '@/modules/webhook/webhook.service';
 import PaymentSubscriptionPlanService from './payment_subscription.plan.service';
+import { RedisIdempotencyService } from '@/modules/redis_idempotency';
 
 export async function createSubscription(tenantId: string, data: CreateSubscriptionDTO): Promise<Subscription> {
+  // Avoid creating two subscriptions (and two billing schedules) on a retry.
+  // Explicit key wins; otherwise dedupe on the provider's subscription id.
+  const key = data.idempotencyKey
+    ?? (data.providerSubscriptionId ? `sub:create:${data.providerSubscriptionId}` : undefined);
+  return RedisIdempotencyService.run(tenantId, key, () => runCreateSubscription(tenantId, data));
+}
+
+async function runCreateSubscription(tenantId: string, data: CreateSubscriptionDTO): Promise<Subscription> {
   const ds = await tenantDataSourceFor(tenantId);
   const plan = await ds.getRepository(PlanEntity).findOne({ where: { tenantId, planId: data.planId } });
   if (!plan) throw new AppError(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND, 404, ErrorCode.NOT_FOUND);

@@ -47,6 +47,9 @@ export const CreateFulfillmentDTO = z.object({
   notes: z.string().optional(),
   metadata: z.record(z.string(), z.any()).optional(),
   items: z.array(FulfillmentItemInputSchema).min(1),
+  /** Exactly-once guard for retried creates (an order may have several partial
+   *  fulfillments, so there is no safe auto-key — supply one per logical create). */
+  idempotencyKey: z.string().optional(),
 })
 export type CreateFulfillmentDTO = z.infer<typeof CreateFulfillmentDTO>
 

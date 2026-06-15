@@ -2,13 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import Limiter from '@/modules_next/limiter/limiter.service.next';
 import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next';
 import { WalletService, TransferCreditsDTO } from '@/modules/wallet';
+import { withIdempotency } from '@/modules_next/redis_idempotency/withIdempotency';
 
 /**
  * POST /tenant/[tenantId]/api/wallet/transfer
  * Peer-to-peer credit transfer. The authenticated user is always the sender;
- * the body supplies the recipient and amount.
+ * the body supplies the recipient and amount. Idempotent via `Idempotency-Key`.
  */
-export async function POST(request: NextRequest, { params }: { params: Promise<{ tenantId: string }> }) {
+export const POST = withIdempotency(async function POST(request: NextRequest, { params }: { params: Promise<{ tenantId: string }> }) {
   try {
     const _rl = await Limiter.checkRateLimit(request);
     if (_rl) return _rl;
@@ -25,4 +26,4 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     const e = error as { message?: string; statusCode?: number };
     return NextResponse.json({ message: e.message }, { status: e.statusCode ?? 500 });
   }
-}
+})

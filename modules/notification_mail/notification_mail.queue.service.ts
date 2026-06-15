@@ -9,6 +9,7 @@ import { FEATURE_KEYS } from '@/modules/tenant_subscription/tenant_subscription.
 import { isRootTenant } from '@/modules/tenant/tenant.constants';
 import type { MailOptions, MailResult } from './providers/base.provider';
 import NotificationMailProviderService, { type MailProviderType } from './notification_mail.provider.service';
+import { RedisIdempotencyService } from '@/modules/redis_idempotency';
 
 interface MailJobData {
   tenantId: string;
@@ -16,6 +17,7 @@ interface MailJobData {
   subject: string;
   html: string;
   provider?: MailProviderType;
+  idempotencyKey?: string;
 }
 
 export default class NotificationMailQueueService {
@@ -46,9 +48,13 @@ export default class NotificationMailQueueService {
   static readonly WORKER = new Worker<MailJobData>(
     NotificationMailQueueService.QUEUE_NAME,
     async (job: Job<MailJobData>) => {
-      const { tenantId, to, subject, html, provider } = job.data;
+      const { tenantId, to, subject, html, provider, idempotencyKey } = job.data;
       Logger.info(`MAIL Worker processing job ${job.id}...`);
-      await NotificationMailQueueService._sendMail({ tenantId, to, subject, html, provider });
+      // Worker retries (attempts: 4) must not re-send a mail the provider already
+      // accepted: guard the actual send on the idempotency key when supplied.
+      await RedisIdempotencyService.run(tenantId, idempotencyKey, () =>
+        NotificationMailQueueService._sendMail({ tenantId, to, subject, html, provider }),
+      );
     },
     { connection: getBullMQConnection(), concurrency: 5 },
   );
@@ -74,14 +80,17 @@ export default class NotificationMailQueueService {
 
   static async sendMail(
     tenantId: string, to: string, subject: string, html: string, provider?: MailProviderType,
+    idempotencyKey?: string,
   ): Promise<void> {
     try {
       await NotificationMailQueueService.assertMailFeatureAccess(tenantId);
-      await NotificationMailQueueService.QUEUE.add('sendMail', { tenantId, to, subject, html, provider }, {
+      await NotificationMailQueueService.QUEUE.add('sendMail', { tenantId, to, subject, html, provider, idempotencyKey }, {
         attempts: 4,
         backoff: { type: 'exponential', delay: 5000 },
         removeOnComplete: 1000,
         removeOnFail: 5000,
+        // Same key → BullMQ refuses the duplicate enqueue (first-line dedupe).
+        ...(idempotencyKey ? { jobId: `mail:${tenantId}:${idempotencyKey}` } : {}),
       });
     } catch (error: unknown) {
       Logger.error(`MAIL sendMail ERROR: ${to} ${subject} ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -90,9 +99,12 @@ export default class NotificationMailQueueService {
 
   static async sendMailDirect(
     tenantId: string, to: string, subject: string, html: string, provider?: MailProviderType,
+    idempotencyKey?: string,
   ): Promise<MailResult> {
     await NotificationMailQueueService.assertMailFeatureAccess(tenantId);
-    return NotificationMailQueueService._sendMail({ tenantId, to, subject, html, provider });
+    return RedisIdempotencyService.run(tenantId, idempotencyKey, () =>
+      NotificationMailQueueService._sendMail({ tenantId, to, subject, html, provider }),
+    );
   }
 
   private static async _sendMail({ tenantId, to, subject, html, provider: providerName }: MailJobData): Promise<MailResult> {

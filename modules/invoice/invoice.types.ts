@@ -34,6 +34,8 @@ export const CreateInvoiceInputSchema = z.object({
   subscriptionId: z.string().uuid().optional(),
   notes: z.string().optional(),
   metadata: z.record(z.string(), z.unknown()).optional(),
+  /** Exactly-once guard; auto-derived from paymentId when omitted. */
+  idempotencyKey: z.string().optional(),
 });
 export type CreateInvoiceInput = z.infer<typeof CreateInvoiceInputSchema>;
 

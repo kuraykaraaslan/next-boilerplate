@@ -16,8 +16,16 @@ import {
 import WebhookService from '@/modules/webhook/webhook.service';
 import InvoiceTaxService from './invoice.tax.service';
 import { allocateNumber } from './invoice.number.service';
+import { RedisIdempotencyService } from '@/modules/redis_idempotency';
 
 export async function create(tenantId: string, input: CreateInvoiceInput): Promise<SafeInvoice> {
+  // Prevent a retried request from emitting two invoices (two sequence numbers)
+  // for the same payment. Explicit key wins; else dedupe on paymentId.
+  const key = input.idempotencyKey ?? (input.paymentId ? `invoice:create:${input.paymentId}` : undefined);
+  return RedisIdempotencyService.run(tenantId, key, () => runCreate(tenantId, input));
+}
+
+async function runCreate(tenantId: string, input: CreateInvoiceInput): Promise<SafeInvoice> {
   if (!isRootTenant(tenantId)) {
     await TenantFeatureGateService.assertFeatureAccess(tenantId, FEATURE_KEYS.FEATURE_INVOICING);
   }

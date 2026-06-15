@@ -130,6 +130,8 @@ export const ApplyCouponRequestSchema = z.object({
   provider: z.string().optional(),
   /** ISO 3166-1 alpha-2 country code — for geo-restriction enforcement. */
   countryCode: z.string().length(2).transform((v) => v.toUpperCase()).optional(),
+  /** Exactly-once guard; auto-derived from paymentId when omitted. */
+  idempotencyKey: z.string().optional(),
 })
 
 // ── Bulk ──────────────────────────────────────────────────────────────────────

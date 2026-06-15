@@ -2,12 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import PaymentService from "@/modules/payment/payment.service";
 import { RefundPaymentRequestSchema } from "@/modules/payment/payment.dto";
 import Limiter from "@/modules_next/limiter/limiter.service.next";
+import { withIdempotency } from '@/modules_next/redis_idempotency/withIdempotency';
 
 import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next';
 /**
  * POST /tenant/[tenantId]/api/payments/[paymentId]/refund
+ * Idempotent via the `Idempotency-Key` header (guards a double refund).
  */
-export async function POST(
+export const POST = withIdempotency(async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ tenantId: string; paymentId: string }> }
 ) {
@@ -46,4 +48,4 @@ export async function POST(
   } catch (error: any) {
     return NextResponse.json({ message: error.message }, { status: 500 });
   }
-}
+})

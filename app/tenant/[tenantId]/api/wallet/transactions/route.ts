@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import Limiter from '@/modules_next/limiter/limiter.service.next';
 import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next';
 import { WalletService, ListTransactionsQuery, PostTransactionDTO } from '@/modules/wallet';
+import { withIdempotency } from '@/modules_next/redis_idempotency/withIdempotency';
 
 /**
  * GET /tenant/[tenantId]/api/wallet/transactions
@@ -30,7 +31,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  * POST /tenant/[tenantId]/api/wallet/transactions
  * Post a raw balanced double-entry transaction from explicit legs (admin).
  */
-export async function POST(request: NextRequest, { params }: { params: Promise<{ tenantId: string }> }) {
+export const POST = withIdempotency(async function POST(request: NextRequest, { params }: { params: Promise<{ tenantId: string }> }) {
   try {
     const _rl = await Limiter.checkRateLimit(request);
     if (_rl) return _rl;
@@ -46,4 +47,4 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     const e = error as { message?: string; statusCode?: number };
     return NextResponse.json({ message: e.message }, { status: e.statusCode ?? 500 });
   }
-}
+})

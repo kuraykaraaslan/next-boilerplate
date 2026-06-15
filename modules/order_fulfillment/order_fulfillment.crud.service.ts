@@ -18,8 +18,14 @@ import { ORDER_FULFILLMENT_MESSAGES } from './order_fulfillment.messages'
 import { cacheKey } from './order_fulfillment.constants'
 import { getById } from './order_fulfillment.read.service'
 import { logEvent } from './order_fulfillment.events'
+import { RedisIdempotencyService } from '@/modules/redis_idempotency'
 
 export async function create(tenantId: string, dto: CreateFulfillmentDTO): Promise<FulfillmentWithItems> {
+  // Retried create guard (e.g. order_fulfillment.created webhook double-fire).
+  return RedisIdempotencyService.run(tenantId, dto.idempotencyKey, () => runCreate(tenantId, dto))
+}
+
+async function runCreate(tenantId: string, dto: CreateFulfillmentDTO): Promise<FulfillmentWithItems> {
   const ds = await tenantDataSourceFor(tenantId)
 
   // Carrier allowlist + dangerous-goods completeness up-front.

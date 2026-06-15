@@ -4,6 +4,7 @@ import TenantSessionNextService from '@/modules_next/tenant_session/tenant_sessi
 import CouponService from '@/modules/coupon/coupon.service'
 import { ApplyCouponRequestSchema } from '@/modules/coupon/coupon.dto'
 import { COUPON_MESSAGES } from '@/modules/coupon/coupon.messages'
+import { withIdempotency } from '@/modules_next/redis_idempotency/withIdempotency'
 
 type Params = { params: Promise<{ tenantId: string }> }
 
@@ -11,8 +12,9 @@ type Params = { params: Promise<{ tenantId: string }> }
  * POST /tenant/[tenantId]/api/coupons/apply
  * Apply a coupon code — validates, records redemption, increments usedCount.
  * Returns the redemption record + final discounted amount.
+ * Idempotent via the `Idempotency-Key` header (and service-level guard).
  */
-export async function POST(request: NextRequest, { params }: Params) {
+export const POST = withIdempotency(async function POST(request: NextRequest, { params }: Params) {
   try {
   const _rl = await Limiter.checkRateLimit(request, 'api');
   if (_rl) return _rl;
@@ -43,4 +45,4 @@ export async function POST(request: NextRequest, { params }: Params) {
       { status }
     )
   }
-}
+})

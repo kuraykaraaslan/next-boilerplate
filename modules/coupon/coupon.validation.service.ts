@@ -10,6 +10,7 @@ import { CouponRedemptionSchema, CouponValidationResultSchema } from './coupon.t
 import type { Coupon, CouponRedemption, CouponValidationResult } from './coupon.types';
 import type { ValidateCouponDTO, ApplyCouponDTO, CouponScope } from './coupon.dto';
 import CouponCrudService from './coupon.crud.service';
+import { RedisIdempotencyService } from '@/modules/redis_idempotency';
 
 export default class CouponValidationService {
 
@@ -152,6 +153,15 @@ export default class CouponValidationService {
   // ──────────────────────────────────────────────
 
   static async apply(dto: ApplyCouponDTO): Promise<CouponRedemption> {
+    // The conditional UPDATE below is race-safe for the maxUses cap, but a
+    // retried apply with the same logical request would still create a second
+    // redemption + increment. Guard exactly-once on an explicit key, else the
+    // payment the coupon is applied to.
+    const key = dto.idempotencyKey ?? (dto.paymentId ? `coupon:apply:${dto.paymentId}` : undefined);
+    return RedisIdempotencyService.run(dto.tenantId, key, () => CouponValidationService.runApply(dto));
+  }
+
+  private static async runApply(dto: ApplyCouponDTO): Promise<CouponRedemption> {
     const validation = await CouponValidationService.validate({
       code: dto.code,
       tenantId: dto.tenantId,
