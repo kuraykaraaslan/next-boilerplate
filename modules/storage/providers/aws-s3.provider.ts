@@ -3,7 +3,8 @@ import BaseStorageProvider from './base.provider'
 import type { UploadOptions, UploadFromUrlOptions, ProviderUploadResult, S3Config } from '../storage.types'
 import Logger from '@/modules/logger'
 import { v4 as uuidv4 } from 'uuid'
-import { StorageFolderSchema, StorageExtensionSchema, StorageMimeTypeSchema } from '../storage.enums'
+import { StorageExtensionSchema, StorageMimeTypeSchema } from '../storage.enums'
+import { isValidStorageFolder } from '../storage.folders'
 
 export default class AWSS3Provider extends BaseStorageProvider {
   private s3Client: S3Client
@@ -22,7 +23,7 @@ export default class AWSS3Provider extends BaseStorageProvider {
   /** Validate MIME type and extension consistency */
   private validateFile(file: File, folder: string) {
     if (!file) throw new Error('No file provided')
-    if (!StorageFolderSchema.safeParse(folder).success) {
+    if (!isValidStorageFolder(folder)) {
       throw new Error('INVALID_FOLDER_NAME')
     }
 
@@ -39,7 +40,7 @@ export default class AWSS3Provider extends BaseStorageProvider {
 
   /** Validate folder name */
   private validateFolder(folder: string) {
-    if (!StorageFolderSchema.safeParse(folder).success) {
+    if (!isValidStorageFolder(folder)) {
       throw new Error('INVALID_FOLDER_NAME')
     }
   }

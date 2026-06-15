@@ -18,7 +18,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   const _rl = await Limiter.checkRateLimit(request, 'api');
   if (_rl) return _rl;
 
-    await UserSessionNextService.authenticateUserByRequest({ request });
+    const auth = await UserSessionNextService.authenticateUserByRequest({ request });
 
     const { tenantId } = await params;
     const formData = await request.formData();
@@ -33,11 +33,22 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       );
     }
 
+    // Capture upload origin for fraud / GDPR audit (country is inferred from IP
+    // server-side). Same header extraction the session/audit layers use.
+    const ip =
+      request.headers.get('x-forwarded-for')?.split(',')[0].trim() ??
+      request.headers.get('x-real-ip') ??
+      undefined;
+    const userAgent = request.headers.get('user-agent') ?? undefined;
+    const userId = (auth as any)?.user?.userId ?? (auth as any)?.user?.id ?? undefined;
+
     const result = await StorageService.uploadFile(tenantId, {
       file,
       folder: folder,
       tenantId,
       provider,
+      userId,
+      origin: { ip, userAgent },
     });
 
     return NextResponse.json({

@@ -7,7 +7,7 @@
   "icon": "fas fa-cloud-arrow-up",
   "tags": ["platform", "storage", "security"],
   "priority": 10,
-  "dependencies": { "requires": ["env", "setting"], "optional": ["redis", "tenant_usage"] },
+  "dependencies": { "requires": ["env", "setting"], "optional": ["redis", "tenant_usage", "user_agent"] },
   "settings": { "keys": "STORAGE_KEYS" },
   "settingKeys": ["STORAGE_KEYS", "STORAGE_SCAN_KEYS"]
 }

@@ -49,6 +49,17 @@ export class UploadedFile {
   @Column({ nullable: true, type: 'varchar' })
   url?: string;
 
+  // ── Upload origin (fraud / GDPR audit: "who uploaded this, from where?") ────
+  @Column({ nullable: true, type: 'varchar' })
+  ipAddress?: string;
+
+  @Column({ nullable: true, type: 'varchar' })
+  userAgent?: string;
+
+  @Index()
+  @Column({ nullable: true, type: 'varchar' })
+  country?: string; // ISO country code inferred from the IP
+
   // ── Virus scan ────────────────────────────────────────────────────────────
   // skipped (scanning off) | pending (queued) | clean | infected | error
   @Index()

@@ -20,7 +20,7 @@ import type { VirusScanStatus } from './storage.scan.enums'
 export async function uploadFile(tenantId: string, data: UploadFileDTO): Promise<UploadResult> {
   await assertStorageFeatureAccess(tenantId)
 
-  const { file: rawFile, folder, filename, provider: requestedProvider } = data
+  const { file: rawFile, folder, filename, provider: requestedProvider, userId, origin } = data
 
   try {
     // Validate content (size, extension, magic bytes) and strip EXIF before
@@ -47,7 +47,7 @@ export async function uploadFile(tenantId: string, data: UploadFileDTO): Promise
     const result = await provider.uploadFile(file, { folder, filename, tenantId })
 
     const uploadResult: UploadResult = { ...result, provider: resolvedName }
-    const uploadedFileId = await persistUploadAudit(tenantId, undefined, uploadResult, mimeType, scanStatus)
+    const uploadedFileId = await persistUploadAudit(tenantId, userId, uploadResult, mimeType, scanStatus, origin)
 
     // Asynchronous mode: object is stored as 'pending'; scan in the background.
     if (scanCfg.enabled && scanCfg.mode === 'async' && uploadedFileId) {
@@ -67,7 +67,7 @@ export async function uploadFile(tenantId: string, data: UploadFileDTO): Promise
 export async function uploadFromUrl(tenantId: string, data: UploadFromUrlDTO): Promise<UploadResult> {
   await assertStorageFeatureAccess(tenantId)
 
-  const { url, folder, filename, provider: requestedProvider } = data
+  const { url, folder, filename, provider: requestedProvider, userId, origin } = data
 
   try {
     const { provider, resolvedName } = await getProvider(tenantId, requestedProvider)
@@ -80,7 +80,7 @@ export async function uploadFromUrl(tenantId: string, data: UploadFromUrlDTO): P
 
     const uploadResult: UploadResult = { ...result, provider: resolvedName }
     const uploadedFileId = await persistUploadAudit(
-      tenantId, undefined, uploadResult, 'application/octet-stream', scanStatus,
+      tenantId, userId, uploadResult, 'application/octet-stream', scanStatus, origin,
     )
 
     if (scanCfg.enabled && uploadedFileId) {

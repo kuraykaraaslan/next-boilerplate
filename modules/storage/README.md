@@ -20,6 +20,8 @@ Multi-provider, tenant-aware cloud storage abstraction. A unified S3-compatible 
 | `storage.types.ts` | `UploadOptions`, `UploadFromUrlOptions`, `ProviderUploadResult`, `UploadResult`, `S3Config` |
 | `storage.dto.ts` | `UploadFileDTO`, `UploadFromUrlDTO`, `DeleteFileDTO`, `GetFileUrlDTO` |
 | `storage.enums.ts` | `StorageProviderType`, `StorageFolder`, `StorageExtension`, `StorageMimeType` |
+| `storage.folders.ts` | Runtime folder registry (`registerStorageFolder`, `isValidStorageFolder`) — modules add folders without editing the core enum |
+| `storage.mime-groups.ts` | MIME group definitions + `expandMimeGroups` (group → MIME types) |
 | `storage.validation.ts` | Pre-upload validation: size, extension allowlist, magic-byte sniffing, EXIF strip, content-derived MIME (`deriveMimeType`) + `allowedMimeTypes` allowlist |
 | `storage.messages.ts` | Error/success message strings |
 | `storage.setting.keys.ts` | `STORAGE_KEYS` setting key constants |
@@ -134,7 +136,7 @@ type UploadResult = {
 
 Every successful upload:
 
-1. Inserts an `UploadedFile` row in the tenant DB (`entities/uploaded_file.entity.ts`) — `key`, `bucket`, `provider`, `size`, `mimeType`, `url`, `userId`, `createdAt`. The row is keyed by `tenantId` and indexed on `userId`/`key`.
+1. Inserts an `UploadedFile` row in the tenant DB (`entities/uploaded_file.entity.ts`) — `key`, `bucket`, `provider`, `size`, `mimeType`, `url`, `userId`, `createdAt`, plus upload origin (`ipAddress`, `userAgent`, `country` inferred from the IP) and scan columns (`scanStatus`, `scanProvider`, `scanResult`, `scannedAt`). The row is keyed by `tenantId` and indexed on `userId`/`key`/`country`.
 2. Calls `TenantUsageService.incrementStorageBytes(tenantId, result.size)` so the `storageBytes` quota counter (`tenant_usage`) tracks reality.
 
 `deleteFile` soft-removes the matching `UploadedFile` row (`deletedAt` set) — the byte counter is increment-only (audit-friendly; decrement is a future task).

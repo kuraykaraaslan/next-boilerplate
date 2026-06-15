@@ -112,7 +112,13 @@ buffers (`uploadServerBuffer`) are trusted and not scanned.
 
 ## Audit and Compliance
 
-### Upload Origin Tracking (IP, User Agent, Country)
+### ✅ Upload Origin Tracking (IP, User Agent, Country)
+**Status:** Shipped. `UploadedFile` now carries `ipAddress`, `userAgent`, and
+`country` (indexed). The upload route extracts IP/User-Agent from request headers
+and passes them as `origin` on the DTO; `persistUploadAudit` infers the country
+from the IP via `UserAgentService.getGeoLocation` (best-effort, never blocks the
+upload) and stores all three on the audit row.
+
 **Why:** The `UploadedFile` entity records `userId` but not the IP address, user agent, or inferred country from which the upload originated; this information is required for fraud investigation and GDPR audit responses ("who uploaded this file from where?").
 **Complexity:** Low
 **Multi-tenant relevance:** Per-tenant audit logs of upload origins help tenant admins detect unusual upload patterns (e.g., bulk uploads from an unknown IP after credential compromise).
@@ -128,7 +134,14 @@ buffers (`uploadServerBuffer`) are trusted and not scanned.
 
 ## Developer Experience
 
-### Folder Taxonomy Extensibility
+### ✅ Folder Taxonomy Extensibility
+**Status:** Shipped. `storage.folders.ts` holds a runtime registry seeded with the
+base `StorageFolder` enum; modules add their own folder at init via
+`registerStorageFolder('legal-docs')` (slug-validated, nesting allowed). The
+providers now gate uploads with `isValidStorageFolder(folder)` instead of the
+hardcoded `StorageFolderSchema.safeParse`, so a new module no longer needs to edit
+the core enum.
+
 **Why:** `StorageFolder` is a hardcoded Zod enum (`general`, `categories`, `users`, `posts`, etc.); adding a new folder type for a new module requires editing the enum in the storage module, coupling all modules to the storage enum.
 **Complexity:** Low
 **Multi-tenant relevance:** Modules added for specific tenant verticals (e.g., `legal-docs` for a legal-tech tenant, `medical-records` for a health tenant) cannot define their own folder without modifying the core storage module.

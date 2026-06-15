@@ -6,8 +6,10 @@ import { UploadedFile } from './entities/uploaded_file.entity'
 import TenantFeatureGateService from '@/modules/tenant_subscription/tenant_subscription.feature.service'
 import { FEATURE_KEYS } from '@/modules/tenant_subscription/tenant_subscription.feature-keys'
 import { isRootTenant } from '@/modules/tenant/tenant.constants'
+import UserAgentService from '@/modules/user_agent/user_agent.service'
 import type { VirusScanStatus } from './storage.scan.enums'
 import type { ScanResult } from './storage.scan.types'
+import type { UploadOrigin } from './storage.dto'
 
 /**
  * Persist an UploadedFile audit row + increment the tenant_usage.storageBytes
@@ -20,9 +22,22 @@ export async function persistUploadAudit(
   result: UploadResult,
   mimeType: string,
   scanStatus: VirusScanStatus = 'skipped',
+  origin?: UploadOrigin,
 ): Promise<string | undefined> {
   const size = result.size ?? 0
   let uploadedFileId: string | undefined
+
+  // Infer the upload's country from its IP (best-effort; never blocks the audit).
+  let country: string | undefined
+  if (origin?.ip) {
+    try {
+      const geo = await UserAgentService.getGeoLocation(origin.ip, tenantId)
+      country = geo.countryCode ?? geo.country ?? undefined
+    } catch {
+      /* geo lookup is non-critical */
+    }
+  }
+
   try {
     const ds = await tenantDataSourceFor(tenantId)
     const repo = ds.getRepository(UploadedFile)
@@ -36,6 +51,9 @@ export async function persistUploadAudit(
       mimeType: mimeType || 'application/octet-stream',
       url: result.url,
       scanStatus,
+      ipAddress: origin?.ip,
+      userAgent: origin?.userAgent,
+      country,
     })
     const saved = await repo.save(row)
     uploadedFileId = saved.uploadedFileId

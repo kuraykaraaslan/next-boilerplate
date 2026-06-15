@@ -51,6 +51,9 @@ export async function seedStorage(ctx: SeedContext): Promise<void> {
     scanStatus?: string;
     scanProvider?: string;
     scannedAt?: Date;
+    ipAddress?: string;
+    userAgent?: string;
+    country?: string;
   };
 
   const fileDefs: FileDef[] = [
@@ -67,6 +70,9 @@ export async function seedStorage(ctx: SeedContext): Promise<void> {
       scanStatus: 'clean',
       scanProvider: 'virustotal',
       scannedAt: daysAgo(21),
+      ipAddress: '203.0.113.7',
+      userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+      country: 'TR',
     },
     {
       // Tenant logo on Cloudflare R2 (admin-uploaded branding).
