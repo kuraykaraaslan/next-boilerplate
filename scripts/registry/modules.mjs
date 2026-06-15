@@ -1,0 +1,101 @@
+// Module inventory — walks modules/<id>/ and collects manifest + exports.
+
+import { readdir } from 'node:fs/promises';
+import path from 'node:path';
+import {
+  MODULES_DIR, MODULES_NEXT_DIR, listDirs, rel, readJson, readText, exists,
+} from './fs-utils.mjs';
+
+// --- module tier classification ------------------------------------------
+
+const TIER_BY_ID = {
+  common: 'infrastructure', env: 'infrastructure', logger: 'infrastructure',
+  redis: 'infrastructure', db: 'infrastructure', redis_idempotency: 'infrastructure',
+  limiter: 'infrastructure', api_doc: 'infrastructure',
+
+  user: 'identity', user_profile: 'identity', user_security: 'identity',
+  user_preferences: 'identity', user_session: 'identity', user_social_account: 'identity',
+  user_agent: 'identity', auth: 'identity', auth_sso: 'identity', auth_saml: 'identity',
+  auth_impersonation: 'identity',
+
+  tenant: 'tenancy', tenant_member: 'tenancy', tenant_invitation: 'tenancy',
+  tenant_setting: 'tenancy', tenant_session: 'tenancy', tenant_branding: 'tenancy',
+  tenant_domain: 'tenancy', tenant_subscription: 'tenancy', tenant_usage: 'tenancy',
+  tenant_export: 'tenancy',
+
+  notification_mail: 'notifications', notification_sms: 'notifications',
+  notification_push: 'notifications', notification_inapp: 'notifications',
+
+  payment: 'billing', coupon: 'billing',
+
+  setting: 'platform', storage: 'platform', webhook: 'platform',
+  audit_log: 'platform', api_key: 'platform',
+
+  ai: 'ai',
+};
+
+const FILE_BUCKETS = [
+  ['services',    /\.service\.ts$/],
+  ['dtos',        /\.dto\.ts$/],
+  ['enums',       /\.enums\.ts$/],
+  ['messageKeys', /\.messages\.ts$/],
+  ['settingKeys', /\.setting\.keys\.ts$/],
+  ['providers',   /\.provider\.ts$/],
+  ['jobs',        /\.job\.ts$/],
+];
+
+async function collectModuleExports(moduleDir) {
+  const out = { services: [], dtos: [], enums: [], messageKeys: [], settingKeys: [], providers: [], jobs: [], entities: [] };
+
+  let entries;
+  try { entries = await readdir(moduleDir, { withFileTypes: true }); }
+  catch { return out; }
+
+  for (const e of entries) {
+    if (!e.isFile()) continue;
+    if (e.name.endsWith('.test.ts') || e.name.endsWith('.test.tsx')) continue;
+    for (const [bucket, re] of FILE_BUCKETS) {
+      if (re.test(e.name)) { out[bucket].push(e.name); break; }
+    }
+  }
+
+  const entitiesDir = path.join(moduleDir, 'entities');
+  if (await exists(entitiesDir)) {
+    const ents = await readdir(entitiesDir);
+    out.entities = ents.filter((n) => n.endsWith('.entity.ts'));
+  }
+
+  return out;
+}
+
+export async function collectModules() {
+  const ids = await listDirs(MODULES_DIR);
+  const modules = [];
+  for (const id of ids) {
+    const dir = path.join(MODULES_DIR, id);
+    const moduleJson = await readJson(path.join(dir, 'module.json'));
+    const readme = await readText(path.join(dir, 'README.md'));
+    const exports = await collectModuleExports(dir);
+    const hasNextLayer = await exists(path.join(MODULES_NEXT_DIR, id));
+
+    modules.push({
+      id,
+      name: moduleJson?.name ?? id,
+      version: moduleJson?.version ?? '0.0.0',
+      description: moduleJson?.description ?? '',
+      dir: rel(dir),
+      icon: moduleJson?.icon,
+      tags: moduleJson?.tags ?? [],
+      priority: moduleJson?.priority ?? 100,
+      tier: TIER_BY_ID[id] ?? 'other',
+      dependencies: moduleJson?.dependencies ?? { requires: [], optional: [], conflicts: [] },
+      exports,
+      hasReadme: !!readme,
+      hasModuleJson: !!moduleJson,
+      hasNextLayer,
+      readme: readme ?? '',
+    });
+  }
+  modules.sort((a, b) => (a.priority - b.priority) || a.id.localeCompare(b.id));
+  return modules;
+}
