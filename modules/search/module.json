@@ -1,0 +1,13 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "search",
+  "name": "Search",
+  "description": "Tenant-scoped full-text search over arbitrary content. Owning modules push documents (title/body/url/metadata keyed by entityType+entityId); the default PostgreSQL FTS provider ranks results with ts_rank and returns ts_headline snippets. Provider abstraction leaves room for Meilisearch/Elastic. All queries are parameterized and tenant-scoped.",
+  "version": "1.0.0",
+  "icon": "fas fa-magnifying-glass",
+  "tags": ["platform", "search", "full-text"],
+  "priority": 55,
+  "dependencies": {
+    "requires": ["db", "env", "redis", "common"]
+  }
+}
