@@ -6,13 +6,14 @@ import { StoreCategorySpec } from './entities/store_category_spec.entity';
 import { StoreProduct } from './entities/store_product.entity';
 import { StoreProductImage } from './entities/store_product_image.entity';
 import { StoreProductSpecValue } from './entities/store_product_spec_value.entity';
-import { StoreVariationType } from './entities/store_variation_type.entity';
-import { StoreVariationOption } from './entities/store_variation_option.entity';
-import { StoreProductVariant } from './entities/store_product_variant.entity';
 import { StoreVariantGroup } from './entities/store_variant_group.entity';
 import { StoreVariantGroupItem } from './entities/store_variant_group_item.entity';
 import { StoreBundle } from './entities/store_bundle.entity';
 import { StoreBundleItem } from './entities/store_bundle_item.entity';
+import {
+  elecSpecDefs, accSpecDefs, LAPTOP_DETAILS, LAPTOP_SEO, LAPTOP_DIMENSIONS,
+} from './store.seed.data';
+import { seedLaptopVariations } from './store.seed.variations';
 
 /**
  * Reference seed: this is the template every other `<module>.seed.ts` follows.
@@ -20,12 +21,12 @@ import { StoreBundleItem } from './entities/store_bundle_item.entity';
  * Rules of the house:
  *  - Always go through `ctx.foc(repo, where, create)` with a natural key in
  *    `where` (slug / code / sku / composite) so re-runs reuse rows.
- *  - Use *valid* enum values (read the module's `*.enums.ts`) — store statuses
- *    are DRAFT/ACTIVE/ARCHIVED/OUT_OF_STOCK, never PUBLISHED.
- *  - Numbers are numbers (decimals are mapped back to `number` by the entity
- *    transformers); never pass stringified amounts.
- *  - Cover each entity with 2–3 *varied* rows.
+ *  - Use *valid* enum values (read the module's `*.enums.ts`).
+ *  - Numbers are numbers; never pass stringified amounts.
  *  - Publish anything other modules depend on into `ctx.refs`.
+ *
+ * Spec/laptop data live in `store.seed.data`; the variation matrix in
+ * `store.seed.variations`.
  */
 export async function seedStore(ctx: SeedContext): Promise<void> {
   const { tenantId, foc, refs } = ctx;
@@ -35,7 +36,7 @@ export async function seedStore(ctx: SeedContext): Promise<void> {
     { tenantId, slug: 'test-electronics' } as FindOptionsWhere<StoreCategory>,
     { tenantId, name: 'Electronics', slug: 'test-electronics', description: 'Phones, laptops and gadgets', sortOrder: 1, isActive: true },
   );
-  const gaming = await foc(ctx.repo<StoreCategory>(StoreCategory),
+  await foc(ctx.repo<StoreCategory>(StoreCategory),
     { tenantId, slug: 'test-gaming' } as FindOptionsWhere<StoreCategory>,
     { tenantId, parentId: electronics.categoryId, name: 'Gaming', slug: 'test-gaming', description: 'Gaming hardware', sortOrder: 2, isActive: true },
   );
@@ -45,51 +46,22 @@ export async function seedStore(ctx: SeedContext): Promise<void> {
   );
 
   // ── Category spec templates (the filterable attribute schema) ───────────────
-  type SpecDef = { key: string; label: string; type: string; unit?: string; options?: string[]; isRequired?: boolean; isFilterable?: boolean; sortOrder: number };
-  const elecSpecDefs: SpecDef[] = [
-    { key: 'ram',         label: 'RAM',          type: 'NUMBER',  unit: 'GB',   isRequired: true, isFilterable: true, sortOrder: 1 },
-    { key: 'storage',     label: 'Storage',      type: 'NUMBER',  unit: 'GB',   isFilterable: true, sortOrder: 2 },
-    { key: 'screen',      label: 'Screen Size',  type: 'NUMBER',  unit: 'inch', isFilterable: true, sortOrder: 3 },
-    { key: 'color',       label: 'Color',        type: 'SELECT',  options: ['Black', 'Silver', 'Red'], isFilterable: true, sortOrder: 4 },
-    { key: 'touchscreen', label: 'Touchscreen',  type: 'BOOLEAN', isFilterable: false, sortOrder: 5 },
-  ];
-  const accSpecDefs: SpecDef[] = [
-    { key: 'color',        label: 'Color',        type: 'SELECT', options: ['Black', 'White'], isFilterable: true, sortOrder: 1 },
-    { key: 'connectivity', label: 'Connectivity', type: 'SELECT', options: ['USB', 'Bluetooth', 'Wireless'], isFilterable: true, sortOrder: 2 },
-  ];
   const elecSpecs: Record<string, StoreCategorySpec> = {};
   for (const def of elecSpecDefs) {
-    elecSpecs[def.key as string] = await foc(ctx.repo<StoreCategorySpec>(StoreCategorySpec),
+    elecSpecs[def.key] = await foc(ctx.repo<StoreCategorySpec>(StoreCategorySpec),
       { tenantId, categoryId: electronics.categoryId, key: def.key } as FindOptionsWhere<StoreCategorySpec>,
       { tenantId, categoryId: electronics.categoryId, ...def },
     );
   }
   const accSpecs: Record<string, StoreCategorySpec> = {};
   for (const def of accSpecDefs) {
-    accSpecs[def.key as string] = await foc(ctx.repo<StoreCategorySpec>(StoreCategorySpec),
+    accSpecs[def.key] = await foc(ctx.repo<StoreCategorySpec>(StoreCategorySpec),
       { tenantId, categoryId: accessories.categoryId, key: def.key } as FindOptionsWhere<StoreCategorySpec>,
       { tenantId, categoryId: accessories.categoryId, ...def },
     );
   }
 
   // ── Products (physical / digital / draft variations) ───────────────────────
-  const LAPTOP_DETAILS = [
-    'The **Test Laptop** is a seeded demo product that exercises the full catalog feature set.',
-    '',
-    '## Highlights',
-    '- 15.6" Full-HD (1920×1080) IPS display',
-    '- Configurable memory (8–32 GB) and SSD storage (256 GB – 1 TB)',
-    '- Backlit keyboard, all-day battery, Wi-Fi 6E',
-    '',
-    'Pick a RAM + storage combination — pricing updates per variant.',
-  ].join('\n');
-  const LAPTOP_SEO = {
-    title: 'Test Laptop — 15.6" Performance Notebook',
-    description: 'A configurable 15.6" demo laptop with up to 32 GB RAM and a 1 TB SSD. Fast, light, built for everyday work and play.',
-    keywords: ['laptop', 'notebook', '16GB RAM', 'SSD', 'demo'],
-  };
-  const LAPTOP_DIMENSIONS = { length: 35.8, width: 24.7, height: 1.8, unit: 'cm' };
-
   const productRepo = ctx.repo<StoreProduct>(StoreProduct);
   const laptop = await foc(productRepo,
     { tenantId, slug: 'test-laptop' } as FindOptionsWhere<StoreProduct>,
@@ -159,49 +131,7 @@ export async function seedStore(ctx: SeedContext): Promise<void> {
   }
 
   // ── Product variations (RAM × Storage → 3×3 sellable variants) ─────────────
-  const variationTypeRepo = ctx.repo<StoreVariationType>(StoreVariationType);
-  const variationOptionRepo = ctx.repo<StoreVariationOption>(StoreVariationOption);
-  const variantRepo = ctx.repo<StoreProductVariant>(StoreProductVariant);
-
-  const ramType = await foc(variationTypeRepo,
-    { tenantId, productId: laptop.productId, name: 'RAM' } as FindOptionsWhere<StoreVariationType>,
-    { tenantId, productId: laptop.productId, name: 'RAM', displayType: 'BUTTON', sortOrder: 1 },
-  );
-  const storageType = await foc(variationTypeRepo,
-    { tenantId, productId: laptop.productId, name: 'Storage' } as FindOptionsWhere<StoreVariationType>,
-    { tenantId, productId: laptop.productId, name: 'Storage', displayType: 'BUTTON', sortOrder: 2 },
-  );
-
-  const ramOpts =     [{ label: '8 GB', value: '8', delta: 0 }, { label: '16 GB', value: '16', delta: 150 }, { label: '32 GB', value: '32', delta: 400 }];
-  const storageOpts = [{ label: '256 GB', value: '256', delta: 0 }, { label: '512 GB', value: '512', delta: 120 }, { label: '1 TB', value: '1024', delta: 300 }];
-
-  const mkOption = (typeId: string, o: { label: string; value: string }, sortOrder: number) =>
-    foc(variationOptionRepo,
-      { tenantId, variationTypeId: typeId, value: o.value } as FindOptionsWhere<StoreVariationOption>,
-      { tenantId, variationTypeId: typeId, label: o.label, value: o.value, sortOrder },
-    );
-  const ramRows: StoreVariationOption[] = [];
-  for (let i = 0; i < ramOpts.length; i++) ramRows.push(await mkOption(ramType.variationTypeId, ramOpts[i], i + 1));
-  const storageRows: StoreVariationOption[] = [];
-  for (let i = 0; i < storageOpts.length; i++) storageRows.push(await mkOption(storageType.variationTypeId, storageOpts[i], i + 1));
-
-  let firstVariantId: string | undefined;
-  let variantSort = 0;
-  for (let r = 0; r < ramOpts.length; r++) {
-    for (let s = 0; s < storageOpts.length; s++) {
-      const sku = `TEST-LAPTOP-${ramOpts[r].value}-${storageOpts[s].value}`;
-      const variant = await foc(variantRepo,
-        { tenantId, productId: laptop.productId, sku } as FindOptionsWhere<StoreProductVariant>,
-        {
-          tenantId, productId: laptop.productId,
-          optionIds: [ramRows[r].optionId, storageRows[s].optionId], sku,
-          price: Math.round((1299.99 + ramOpts[r].delta + storageOpts[s].delta) * 100) / 100,
-          stockQuantity: 5 + r * 3 + s, isActive: true, sortOrder: variantSort++,
-        },
-      );
-      firstVariantId ??= variant.variantId;
-    }
-  }
+  const firstVariantId = await seedLaptopVariations(ctx, laptop);
 
   // ── Variant groups (cross-sell families) ───────────────────────────────────
   const laptopGroup = await foc(ctx.repo<StoreVariantGroup>(StoreVariantGroup),
