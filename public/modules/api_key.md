@@ -16,7 +16,10 @@ Tenant-scoped API keys for programmatic access (hashed at rest, scope-bound).
 
 ## Services
 
+- `api_key.crud.service.ts`
+- `api_key.rotation.service.ts`
 - `api_key.service.ts`
+- `api_key.verify.service.ts`
 
 ## DTOs
 

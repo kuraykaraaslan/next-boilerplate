@@ -18,9 +18,11 @@ Tenant-aware e-commerce store. Hierarchical categories with typed spec templates
 
 - `store.bundle.service.ts`
 - `store.category.service.ts`
+- `store.pricing.service.ts`
 - `store.product.crud.service.ts`
 - `store.product.media.service.ts`
 - `store.product.service.ts`
+- `store.public.service.ts`
 - `store.variant.service.ts`
 
 ## DTOs

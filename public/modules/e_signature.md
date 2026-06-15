@@ -18,7 +18,9 @@ Multi-country e-identity login + e-signature (eIDAS/OIDC4IDA). Pluggable provide
 ## Services
 
 - `e_signature.cert.service.ts`
+- `e_signature.compliance.service.ts`
 - `e_signature.crypto.service.ts`
+- `e_signature.document.service.ts`
 - `e_signature.encryption.service.ts`
 - `e_signature.etsi_tsl.service.ts`
 - `e_signature.identity.service.ts`

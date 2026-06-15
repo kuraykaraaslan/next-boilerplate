@@ -49,6 +49,10 @@ Credential auth: login, register, password reset, email verify, OTP, TOTP. Coord
 
 ## Owned API routes
 
+- `system` GET `/api/auth/acs`
+- `system` GET/POST `/api/auth/acs/[provider]/callback`
+- `system` GET `/api/auth/acs/[provider]/initiate`
+- `system` GET `/api/auth/acs/[provider]/metadata`
 - `tenant` GET `/tenant/[tenantId]/api/auth`
 - `tenant` POST `/tenant/[tenantId]/api/auth/callback`
 - `tenant` POST `/tenant/[tenantId]/api/auth/change-password`
@@ -60,7 +64,9 @@ Credential auth: login, register, password reset, email verify, OTP, TOTP. Coord
 - `tenant` GET/POST/DELETE `/tenant/[tenantId]/api/auth/impersonate`
 - `tenant` POST `/tenant/[tenantId]/api/auth/login`
 - `tenant` POST `/tenant/[tenantId]/api/auth/logout`
+- `tenant` POST `/tenant/[tenantId]/api/auth/me/complete-email`
 - `tenant` GET `/tenant/[tenantId]/api/auth/me/device-info`
+- `tenant` POST `/tenant/[tenantId]/api/auth/me/merge-identity`
 - `tenant` GET/DELETE `/tenant/[tenantId]/api/auth/me/notifications`
 - `tenant` PUT/DELETE `/tenant/[tenantId]/api/auth/me/notifications/[notificationId]`
 - `tenant` PUT `/tenant/[tenantId]/api/auth/me/notifications/read-all`
@@ -73,6 +79,7 @@ Credential auth: login, register, password reset, email verify, OTP, TOTP. Coord
 - `tenant` GET `/tenant/[tenantId]/api/auth/me/social-accounts`
 - `tenant` DELETE `/tenant/[tenantId]/api/auth/me/social-accounts/[provider]`
 - `tenant` GET `/tenant/[tenantId]/api/auth/me/social-accounts/connect/[provider]`
+- `tenant` GET `/tenant/[tenantId]/api/auth/me/social-accounts/connect/acs/[provider]`
 - `tenant` GET `/tenant/[tenantId]/api/auth/me/social-accounts/connect/saml`
 - `tenant` GET `/tenant/[tenantId]/api/auth/me/tenants`
 - `tenant` GET `/tenant/[tenantId]/api/auth/openapi`

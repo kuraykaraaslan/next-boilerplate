@@ -16,6 +16,7 @@ Profile fields (avatar, bio, locale, timezone) — separated from the user entit
 
 ## Services
 
+- `user_profile.moderation.service.ts`
 - `user_profile.service.ts`
 
 ## DTOs

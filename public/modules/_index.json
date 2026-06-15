@@ -135,7 +135,7 @@
     ],
     "hasNextLayer": true,
     "routeCount": 3,
-    "entityCount": 1,
+    "entityCount": 2,
     "componentCount": 17,
     "file": "setting.md"
   },
@@ -265,10 +265,26 @@
       "core"
     ],
     "hasNextLayer": true,
-    "routeCount": 45,
+    "routeCount": 52,
     "entityCount": 1,
     "componentCount": 7,
     "file": "auth.md"
+  },
+  "auth_oidc": {
+    "name": "OAuth2/OIDC Engine",
+    "tier": "other",
+    "tags": [
+      "identity",
+      "auth",
+      "oauth",
+      "oidc",
+      "engine"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 0,
+    "componentCount": 0,
+    "file": "auth_oidc.md"
   },
   "auth_saml": {
     "name": "SAML SSO",
@@ -299,6 +315,23 @@
     "componentCount": 0,
     "file": "auth_sso.md"
   },
+  "auth_acs": {
+    "name": "National Identity Login",
+    "tier": "other",
+    "tags": [
+      "identity",
+      "auth",
+      "sso",
+      "saml",
+      "oidc",
+      "government"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 0,
+    "componentCount": 0,
+    "file": "auth_acs.md"
+  },
   "auth_impersonation": {
     "name": "Admin Impersonation",
     "tier": "identity",
@@ -323,8 +356,8 @@
       "sso"
     ],
     "hasNextLayer": false,
-    "routeCount": 7,
-    "entityCount": 0,
+    "routeCount": 8,
+    "entityCount": 2,
     "componentCount": 0,
     "file": "scim.md"
   },
@@ -457,7 +490,7 @@
     ],
     "hasNextLayer": false,
     "routeCount": 1,
-    "entityCount": 0,
+    "entityCount": 1,
     "componentCount": 0,
     "file": "tenant_export.md"
   },
@@ -649,7 +682,7 @@
     ],
     "hasNextLayer": false,
     "routeCount": 0,
-    "entityCount": 2,
+    "entityCount": 3,
     "componentCount": 0,
     "file": "payment_wishlist.md"
   },
@@ -706,9 +739,9 @@
       "metadata"
     ],
     "hasNextLayer": true,
-    "routeCount": 1,
+    "routeCount": 2,
     "entityCount": 1,
-    "componentCount": 1,
+    "componentCount": 2,
     "file": "seo.md"
   },
   "media_gallery": {
@@ -791,7 +824,7 @@
     ],
     "hasNextLayer": false,
     "routeCount": 0,
-    "entityCount": 3,
+    "entityCount": 4,
     "componentCount": 0,
     "file": "order_fulfillment.md"
   },
@@ -826,6 +859,70 @@
     "componentCount": 2,
     "file": "blog.md"
   },
+  "messaging": {
+    "name": "Messaging",
+    "tier": "other",
+    "tags": [
+      "messaging",
+      "chat",
+      "realtime",
+      "websocket"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 4,
+    "entityCount": 4,
+    "componentCount": 0,
+    "file": "messaging.md"
+  },
+  "wallet": {
+    "name": "Wallet",
+    "tier": "other",
+    "tags": [
+      "wallet",
+      "credits",
+      "ledger",
+      "double-entry",
+      "billing"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 6,
+    "entityCount": 3,
+    "componentCount": 0,
+    "file": "wallet.md"
+  },
+  "metering": {
+    "name": "Metering",
+    "tier": "other",
+    "tags": [
+      "metering",
+      "usage",
+      "billing",
+      "overage",
+      "credits"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 5,
+    "entityCount": 3,
+    "componentCount": 0,
+    "file": "metering.md"
+  },
+  "back_office": {
+    "name": "Back-Office",
+    "tier": "other",
+    "tags": [
+      "back-office",
+      "moderation",
+      "approval",
+      "support",
+      "tickets",
+      "queue"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 5,
+    "entityCount": 3,
+    "componentCount": 0,
+    "file": "back_office.md"
+  },
   "ai": {
     "name": "AI",
     "tier": "ai",
@@ -851,7 +948,7 @@
     ],
     "hasNextLayer": true,
     "routeCount": 11,
-    "entityCount": 5,
+    "entityCount": 6,
     "componentCount": 84,
     "file": "dynamic_page.md"
   },

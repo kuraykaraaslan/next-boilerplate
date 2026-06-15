@@ -16,8 +16,10 @@ One-time product / service payment processing. Uses payment_core providers (Stri
 
 ## Services
 
+- `payment_sell.analytics.service.ts`
 - `payment_sell.checkout.service.ts`
 - `payment_sell.crud.service.ts`
+- `payment_sell.invoice.service.ts`
 - `payment_sell.service.ts`
 - `payment_sell.webhook.service.ts`
 

@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-13T15:50:35.947Z",
+  "generatedAt": "2026-06-14T22:49:34.358Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -379,7 +379,8 @@
         "providers": [],
         "jobs": [],
         "entities": [
-          "setting.entity.ts"
+          "setting.entity.ts",
+          "setting_history.entity.ts"
         ]
       },
       "hasReadme": true,
@@ -405,6 +406,7 @@
       },
       "exports": {
         "services": [
+          "user_agent.geo.service.ts",
           "user_agent.service.ts"
         ],
         "dtos": [],
@@ -612,6 +614,7 @@
       },
       "exports": {
         "services": [
+          "user_profile.moderation.service.ts",
           "user_profile.service.ts"
         ],
         "dtos": [
@@ -755,6 +758,7 @@
       },
       "exports": {
         "services": [
+          "social_identity_merge.service.ts",
           "user_social_account.service.ts"
         ],
         "dtos": [],
@@ -844,6 +848,45 @@
       "hasModuleJson": true,
       "hasNextLayer": true,
       "readme": "# Auth Module\n\nCore credential authentication: login, registration, email verification, password management (change/forgot/reset), OTP (email/SMS), TOTP/2FA, CAPTCHA brute-force gating, and dormant-account sweeps. Operates against the **global `User` table** and is tenant-aware via `AuthPolicyService`, which resolves password / lockout / session / dormant / admin / access policies per request tenant (system ROOT value wins, tenant value applied as fallback). Uses bcrypt for hashing and Redis for token TTLs and rate limiting.\n\n---\n\n## Entities\n\nThe auth module owns **one** table — `user_consents` (GTH-7) — and reads/mutates entities owned by sibling modules, all in the **system (global) DB**:\n\n| Entity | Table | Owner module | Used for |\n|---|---|---|---|\n| `UserConsent` | `user_consents` | **auth** | GTH-7: append-only ToS/Privacy consent records (document type + version + timestamp) captured at registration. Migration `006_auth_consent.sql`; registered in `@/modules/db`. |\n| `User` | `users` | `user` | Identity, password hash, `userStatus`, `emailVerifiedAt`, `consentVersion`/`consentAcceptedAt` |\n| `UserSecurity` | `user_securities` | `user_security` | Lockout state, login attempts, password history, OTP/TOTP secrets, backup codes, `lastLoginAt` |\n| `UserSession` | `user_sessions` | `user_session` | Sessions issued after authentication |\n\nSettings are read via the `setting` module; transactional mail/SMS via `notification_mail` / `notification_sms`.\n\n---\n\n## Services / Responsibilities\n\n| Service | File | Responsibility |\n|---|---|---|\n| `AuthService` | `auth.service.ts` | Orchestrator: `login`, `register`, `changePassword`, `sendEmailVerification` / `verifyEmail`, `disableDormantAccounts`, `checkIfUserHasRole`, password hashing. Wires in policy, captcha, lockout, audit logging. |\n| `AuthPolicyService` | `auth.policy.service.ts` | Resolves per-tenant policies (`getPasswordPolicy`, `getLockoutPolicy`, `getSessionPolicy`, `getDormantPolicy`, `getAdminPolicy`, `getAccessPolicy`) with sysadmin > tenant precedence and code defaults. Also `validatePassword` (complexity, identity-substring, sequential/repeated runs) and `isAdminIpAllowed` (exact IP + IPv4 CIDR). |\n| `PasswordService` | `auth.password.service.ts` | `forgotPassword` (rate-limited reset token), `resetPassword` (policy + history enforced), `validateResetToken`, `invalidateResetToken`. |\n| `OTPService` | `auth.otp.service.ts` | One-time codes over EMAIL/SMS: `requestOTP`, `verifyOTP`, `invalidateSessionOTPs`. Redis-backed TTL, rate limit, and attempt caps. |\n| `TOTPService` | `auth.totp.service.ts` | Authenticator-app 2FA via `otplib`: `requestSetup`, `verifyAndEnable`, `verifyAuthenticate`, `verifyAuthenticateOrBackup`, `disable`, `generateBackupCodes`, `consumeBackupCode`. |\n| `CaptchaService` | `auth.captcha.service.ts` | KD-19 brute-force gate: per-identity failure counter (30 min rolling window) and reCAPTCHA token verification (fail-closed when `recaptchaServerKey` unset). |\n\nSupporting files: `auth.dto.ts` (Zod DTOs for every flow), `auth.messages.ts` (error/success message keys), `auth.setting.keys.ts` (`AUTH_KEYS` / `AuthSettingKeySchema`), `auth.dormant.job.ts` (BullMQ scheduled sweep), `dictionaries/{en,es,tr}.json` (localization).\n\n---\n\n## Auth Flows\n\n### Login\n```typescript\nimport AuthService from '@/modules/auth/auth.service';\n\nconst { user, mustChangePassword } = await AuthService.login({\n  email, password, captchaToken, tenantId, ipAddress, userAgent,\n});\n// Throws AuthMessages.CAPTCHA_REQUIRED/INVALID, ACCOUNT_LOCKED/DISABLED,\n// INVALID_EMAIL_OR_PASSWORD, or MFA_ENROLLMENT_REQUIRED depending on policy.\n```\nLogin short-circuits in policy order: CAPTCHA gate (before bcrypt), unknown identity, non-`ACTIVE` status, lockout, password compare, password-age forced-change flag, then `externalRequireMfa` enrolment check. All failure/success paths are audit-logged.\n\n### Register\n```typescript\nconst { user } = await AuthService.register({ email, password, phone, tenantId });\n// Enforces password policy, seeds password history, provisions a personal\n// tenant, and auto-accepts any pending invitations for the email.\n```\n\n### Change password\n```typescript\nawait AuthService.changePassword({ userId, newPassword, tenantId });\n// Enforces complexity + rejects reuse of current password or history hashes.\n// Caller must verify the current password first.\n```\n\n### OTP (email/SMS one-time code)\n```typescript\nimport OTPService from '@/modules/auth/auth.otp.service';\n\nawait OTPService.requestOTP({ user, userSession, method: 'EMAIL', action: 'authenticate' });\nawait OTPService.verifyOTP({ user, userSession, method: 'EMAIL', action: 'authenticate', otpToken });\n```\n\n### TOTP (authenticator app)\n```typescript\nimport TOTPService from '@/modules/auth/auth.totp.service';\n\nconst { secret, otpauthUrl } = await TOTPService.requestSetup({ user, userSession });\nconst { enabled, backupCodes } = await TOTPService.verifyAndEnable({ user, userSession, otpToken });\nawait TOTPService.verifyAuthenticateOrBackup({ user, otpToken }); // TOTP, falls back to a backup code\n```\n\n### Forgot / reset password\n```typescript\nimport PasswordService from '@/modules/auth/auth.password.service';\n\nconst { resetToken } = await PasswordService.forgotPassword({ email });\nawait PasswordService.resetPassword({ email, resetToken, newPassword, tenantId });\n```\n\n---\n\n## API Routes\n\nAll auth routes are **tenant-scoped** under `/tenant/[tenantId]/api/auth/...` (the route layer derives the tenant context).\n\n| Method | Path | Purpose |\n|---|---|---|\n| POST | `/tenant/[tenantId]/api/auth/login` | Credential login |\n| POST | `/tenant/[tenantId]/api/auth/register` | Self-registration |\n| POST | `/tenant/[tenantId]/api/auth/logout` | End session |\n| POST | `/tenant/[tenantId]/api/auth/refresh` | Refresh tokens |\n| POST | `/tenant/[tenantId]/api/auth/change-password` | Change password (authenticated) |\n| POST | `/tenant/[tenantId]/api/auth/forgot-password` | Request reset token |\n| POST | `/tenant/[tenantId]/api/auth/reset-password` | Reset password with token |\n| POST | `/tenant/[tenantId]/api/auth/verify-email/send` · `/verify` | Send / consume email-verification token |\n| POST | `/tenant/[tenantId]/api/auth/otp/send` · `/verify` | Request / verify OTP code |\n| POST | `/tenant/[tenantId]/api/auth/totp/setup` · `/enable` · `/disable` | TOTP lifecycle |\n| GET | `/tenant/[tenantId]/api/auth/me/*` | Current-user profile, sessions, security, social accounts, notifications, preferences |\n| — | `/tenant/[tenantId]/api/auth/{sso,saml,callback,csrf,session,impersonate,e-signature}/*` | Provider/SSO, SAML, OAuth callback, CSRF, session, impersonation, e-signature surfaces |\n\n---\n\n## Dormant-account sweep\n\n`AuthService.disableDormantAccounts(tenantId?)` marks `ACTIVE` accounts `INACTIVE` when last activity (`user_securities.lastLoginAt`, falling back to `users.createdAt`) predates the dormant cutoff. With `dormantAccountAutoDisable=false` it becomes a dry-run (scans, disables nothing). Returns `{ scanned, disabled, erased }`. When `dormantDeleteAfterDays > 0` (GTH-8), accounts dormant beyond that window are additionally anonymised via `eraseUserData` (right-to-erasure).\n\n`auth.dormant.job.ts` exposes the BullMQ queue/worker (`auth-dormant-sweep`). Two trigger paths:\n- **Self-hosted:** call `scheduleDormantSweepJob()` once at startup (default cron `0 3 * * *`).\n- **Serverless:** `POST /api/cron/dormant-sweep` on the root tenant with the `CRON_SECRET` bearer token.\n\n---\n\n## Settings\n\nSetting keys are declared in `auth.setting.keys.ts` (`AUTH_KEYS` / `AuthSettingKeySchema`). Policy-bearing keys are resolved at request time by `AuthPolicyService` with **system ROOT value > tenant value > code default** precedence. See the Tenant Variability section below for the full per-tenant list and defaults, and the platform/root-only credential keys.\n\n---\n\n## Security\n\n- **Password hashing:** bcrypt, cost 10. Password complexity (length, char classes), identity-substring rejection, and sequential/repeated-run detection live in `AuthPolicyService.validatePassword`; reuse is blocked against the current hash and the rotation history (`passwordHistoryCount`).\n- **Lockout (KD-9):** failed attempts are recorded via `UserSecurityService`; the lock is checked **before** bcrypt to avoid a timing oracle. Thresholds from `lockoutMaxAttempts` / `lockoutDurationMinutes`.\n- **CAPTCHA (KD-19):** consecutive failures per identity (including unknown identities, to stop username probing) trigger a required reCAPTCHA after `captchaTriggerAttempts`; verification is **fail-closed** when `recaptchaServerKey` is unset.\n- **Tokens:** email-verification, OTP, and reset tokens are random (`crypto.randomInt` / `randomBytes`), stored **hashed** (SHA-256) in Redis with TTLs and per-identity rate limits; only the hash is persisted.\n- **Generic errors:** dormant/suspended/locked accounts return generic messages so account liveness isn't leaked; failed logins for unknown identities are still audited (actorId null) and counted toward the CAPTCHA threshold.\n- **Admin hardening (KD-13):** `AuthPolicyService.isAdminIpAllowed` gates admin surfaces against the tenant's `adminPanelIpAllowlist` (exact IP + IPv4 CIDR); `adminRequireMfa` forces MFA for admin access.\n- **Transactional auth mail/SMS** now route through the **request tenant's** own provider config + branding (`tenantId ?? ROOT_TENANT_ID`), so white-label tenants surface their own `From:` and DKIM/DMARC alignment (GTH-5).\n\n---\n\n## GOODTOHAVE features (implemented)\n\n### Security\n- **GTH-1 / GTH-12 — `allowRegistration` & `emailVerificationRequired` enforced.** `register` rejects with `REGISTRATION_DISABLED` when self-registration is off (invite-only). `login` blocks with `EMAIL_VERIFICATION_REQUIRED` when a verified email is required and the user is unverified. Resolved in `AuthPolicyService.getAccessPolicy`.\n- **GTH-2 — per-provider SSO allow-list.** `getAccessPolicy` exposes `ssoAllowedProviders`; `AuthPolicyService.isSsoProviderAllowed` / `filterAllowedProviders` narrow the offered provider list (empty list = all allowed; `disableSocialLogin` still denies everything).\n- **GTH-3 — per-tenant OTP / reset / email-verify TTLs & limits.** New policies `getOtpPolicy`, `getResetPolicy`, `getEmailVerifyPolicy` read per-tenant settings, falling back to the historical env vars then code defaults. The OTP/password/verification services consume them.\n- **GTH-4 — per-tenant TOTP issuer.** `TOTPService.getIssuer(tenantId)` reads the `totpIssuer` setting; falls back to `env.TOTP_ISSUER`.\n- **GTH-5 — per-tenant auth email delivery.** OTP, verification, forgot/reset mail is routed through the request tenant's mail provider/branding. Localized subject via the auth dictionaries (GTH-10).\n- **GTH-6 — per-tenant bcrypt cost.** `getCredentialPolicy(tenantId)` reads `bcryptCost` (validated 4–15, default 10). `hashPassword(password, tenantId)` and `resetPassword` honour it.\n\n### Compliance\n- **GTH-7 — consent-at-registration capture.** `register` writes a `UserConsent` row (document type + version) when `consentVersion` is supplied. Entity + migration `006_auth_consent.sql`.\n- **GTH-8 — right-to-erasure in the dormant sweep.** `dormantDeleteAfterDays` (0 = disable-only). When set, `disableDormantAccounts` anonymises PII via `eraseUserData` for accounts dormant beyond the window. Returns `{ scanned, disabled, erased }`.\n- **GTH-9 — `passwordMinAgeDays` guard.** `changePassword` rejects with `PASSWORD_CHANGED_TOO_RECENTLY` when the current password is younger than `minAgeDays`.\n\n### i18n\n- **GTH-10 — per-locale auth email subjects.** `auth.i18n.ts:authEmailSubject` resolves localized subjects from `dictionaries/{en,tr,es}.json` (`email_subjects`), threaded through the mail templates.\n- **GTH-11 — locale-aware error messages.** `auth.i18n.ts:resolveLocale` (Accept-Language → supported locale) + `translateAuthMessage` resolve `AuthMessages` keys against the `errors` namespace of the dictionaries. The route layer passes the header in (modules/ stays framework-free).\n\n### Multi-tenancy\n- **GTH-12 — dead setting keys revived.** `allowRegistration`, `emailVerificationRequired`, `ssoAllowedProviders` are now enforced; lockout uses `lockoutMaxAttempts` (the canonical key).\n- **GTH-13 — tenant MFA method allow-list.** `mfaAllowedMethods` (TOTP_APP/EMAIL/SMS; empty = all). Enforced in `OTPService.requestOTP` and `TOTPService.requestSetup`; helper `AuthPolicyService.isMfaMethodAllowed`.\n\n### DX\n- **GTH-15 — dormant-sweep tests.** Service-level (dry-run, disable, erase) + the `CRON_SECRET`-gated `POST /api/cron/dormant-sweep` path (`tests/auth.dormant.test.ts`, `tests/auth.dormant.cron.test.ts`).\n- **GTH-16 — OpenAPI / JSON-Schema export.** `auth.openapi.ts` (Zod v4 `z.toJSONSchema`, no extra dep) exposes every auth DTO at `GET /tenant/[tenantId]/api/auth/openapi`.\n\n### Monitoring\n- **GTH-17 — per-tenant login-failure metrics.** Each failure path emits `ObservabilityService.recordTenantUsage({ tenantId, metric: 'auth_login_failure:<reason>' })` (Prometheus counter labelled by tenant).\n- **GTH-18 — account-lockout webhook.** When a bad attempt crosses the lockout threshold, `WebhookService.dispatchEvent(tenantId, 'auth.account_locked', { … })` fires (best-effort, never blocks login).\n\n---\n\n## Tenant Variability\n\n> What varies per tenant in this module — and what could. Audited 2026-06-03.\n\nThe auth module handles login, registration, password/OTP/TOTP, captcha, and dormant-account sweeps against the global User table, and is tenant-aware via AuthPolicyService, which resolves password/lockout/session/dormant/admin/access policies per request tenant (system ROOT value wins, tenant value applied as fallback).\n\n### Per-tenant settings\n\n| Key | Type | Default | Scope | Controls | Read in |\n|---|---|---|---|---|---|\n| `passwordMinLength` | number | `8` | tenant | Minimum password length enforced at register/change/reset. | `auth.policy.service.ts` |\n| `passwordRequireUppercase` | boolean | `true` | tenant | Require an uppercase letter in passwords. | `auth.policy.service.ts` |\n| `passwordRequireLowercase` | boolean | `true` | tenant | Require a lowercase letter in passwords. | `auth.policy.service.ts` |\n| `passwordRequireDigit` | boolean | `true` | tenant | Require a digit in passwords. | `auth.policy.service.ts` |\n| `passwordRequireSpecial` | boolean | `true` | tenant | Require a special character in passwords. | `auth.policy.service.ts` |\n| `passwordHistoryCount` | number | `3` | tenant | How many prior password hashes are kept and blocked from reuse. | `auth.policy.service.ts` |\n| `passwordMaxAgeDays` | number | `42` | tenant | Password expiry age; on login, older passwords force a change (0 disables). | `auth.policy.service.ts` |\n| `lockoutMaxAttempts` | number | `5` | tenant | Failed-login attempts before the account is locked. | `auth.policy.service.ts` |\n| `lockoutDurationMinutes` | number | `15` | tenant | How long an account stays locked after exceeding max attempts. | `auth.policy.service.ts` |\n| `sessionAbsoluteMaxHours` | number | `8` | tenant | Absolute max session lifetime before forced re-auth. | `auth.policy.service.ts` |\n| `sessionIdleTimeoutMinutes` | number | `30` | tenant | Idle timeout before a session is invalidated. | `auth.policy.service.ts` |\n| `dormantAccountDays` | number | `90` | tenant | Inactivity threshold (days) after which accounts are swept as dormant (0 disables). | `auth.policy.service.ts` |\n| `dormantAccountAutoDisable` | boolean | `true` | tenant | Whether the dormant sweep actually disables accounts (false = dry-run/report). | `auth.policy.service.ts` |\n| `adminPanelIpAllowlist` | text | — | tenant | Comma-separated IP/CIDR allowlist for admin surfaces (empty = open). | `auth.policy.service.ts` |\n| `adminRequireMfa` | boolean | `true` | tenant | Require MFA for admin-panel access. | `auth.policy.service.ts` |\n| `externalRequireMfa` | boolean | `false` | tenant | Force MFA enrollment/verification for logins originating outside the LAN; login blocked until enrolled. | `auth.policy.service.ts` |\n| `disableSocialLogin` | boolean | `false` | tenant | Completely disable social/OAuth login for the tenant. | `auth.policy.service.ts` |\n| `captchaTriggerAttempts` | number | `3` | tenant | Consecutive failed-login attempts (per identity) that trigger a CAPTCHA requirement on next attempt (0 disables). | `auth.policy.service.ts` |\n| `singleSessionOnly` | boolean | `false` | tenant | When true, a new session invalidates all other active sessions for the same user. | `auth.policy.service.ts` |\n| `allowRegistration` | boolean | `true` | tenant | GTH-1: when false, self-registration is rejected (invite-only). | `auth.credential.service.ts` |\n| `emailVerificationRequired` | boolean | `false` | tenant | GTH-1/12: require a verified email before credential login. | `auth.credential.service.ts` |\n| `ssoAllowedProviders` | text | — | tenant | GTH-2: CSV/JSON provider allow-list (empty = all). | `auth.policy.validator.service.ts` |\n| `mfaAllowedMethods` | text | — | tenant | GTH-13: CSV allow-list of MFA methods (TOTP_APP/EMAIL/SMS; empty = all). | `auth.otp.service.ts`, `auth.totp.service.ts` |\n| `totpIssuer` | text | env | tenant | GTH-4: authenticator-app brand label; falls back to `env.TOTP_ISSUER`. | `auth.totp.service.ts` |\n| `otpLength` | number | env/6 | tenant | GTH-3: OTP digit count. | `auth.otp.service.ts` |\n| `otpExpirySeconds` | number | env/600 | tenant | GTH-3: OTP lifetime. | `auth.otp.service.ts` |\n| `otpRateLimitSeconds` | number | env/60 | tenant | GTH-3: OTP rate-limit window. | `auth.otp.service.ts` |\n| `otpMaxAttempts` | number | env/5 | tenant | GTH-3: OTP attempt cap. | `auth.otp.service.ts` |\n| `resetTokenExpirySeconds` | number | env/3600 | tenant | GTH-3: password-reset token lifetime. | `auth.password.service.ts` |\n| `resetTokenLength` | number | env/6 | tenant | GTH-3: reset token digit count (min 4). | `auth.password.service.ts` |\n| `emailVerifyTtlSeconds` | number | env/86400 | tenant | GTH-3: email-verification token lifetime. | `auth.verification.service.ts` |\n| `emailVerifyRateLimitSeconds` | number | env/300 | tenant | GTH-3: verification-email resend interval. | `auth.verification.service.ts` |\n| `bcryptCost` | number | `10` | tenant | GTH-6: bcrypt cost factor (validated 4–15). | `auth.credential.service.ts` |\n| `passwordMinAgeDays` | number | `0` | tenant | GTH-9: minimum age before a password may be changed again (0 disables). | `auth.credential.service.ts` |\n| `dormantDeleteAfterDays` | number | `0` | tenant | GTH-8: anonymise dormant accounts after this many days of inactivity (0 = disable-only). | `auth.credential.service.ts` |\n\n*Scope: `tenant` = real tenants override · `root` = platform-only default (not per-tenant). New GTH keys are surfaced in the Authentication settings page (`app/tenant/[tenantId]/admin/(tenant-scope)/auth/settings`) backed by `auth.settings.fields.ts`.*\n\n### Per-tenant behavior\n\n- `auth.service.ts:login` — CAPTCHA gating (captchaTriggerAttempts), lockout thresholds (lockoutMaxAttempts/lockoutDurationMinutes), password-age forced change (passwordMaxAgeDays), and external-MFA enforcement (externalRequireMfa) are all resolved via AuthPolicyService.get*Policy(tenantId), so login behavior differs per tenant.\n- `auth.service.ts:register` — Password complexity and history seeding use getPasswordPolicy(tenantId) (passwordMinLength/require*/passwordHistoryCount), so accepted passwords vary per tenant.\n- `auth.service.ts:changePassword` — Password complexity + reuse-history depth resolved from getPasswordPolicy(tenantId).\n- `auth.service.ts:disableDormantAccounts` — Dormant cutoff window and whether accounts are actually disabled come from getDormantPolicy(tenantId) (dormantAccountDays/dormantAccountAutoDisable).\n- `auth.password.service.ts:resetPassword` — Reset password complexity + history enforced via getPasswordPolicy(tenantId).\n- `auth.policy.service.ts:getAdminPolicy / isAdminIpAllowed` — Admin IP allowlist (adminPanelIpAllowlist) and admin MFA requirement (adminRequireMfa) are resolved per tenant; isAdminIpAllowed gates admin access against the tenant CIDR/IP list.\n- `user_session.crud.service.ts:createSession/getSession` — Session lifetime/idle timeout (getSessionPolicy(tenantId)) and single-session enforcement (getAccessPolicy(tenantId).singleSessionOnly) vary per tenant; note getSession at line ~201 calls getSessionPolicy() with NO tenantId, falling back to system/defaults.\n\n### Candidates (global / hardcoded today → could be per-tenant)\n\n| What | Where | Why per-tenant | Suggested key |\n|---|---|---|---|\n| allowRegistration is declared in AuthSettingKeySchema and seeded per-tenant ('true') but no auth service reads it; self-registration is unconditionally allowed in AuthService.register. | `auth.service.ts:register (key declared in auth.setting.keys.ts, seeded in setting.seed.ts)` | A tenant that wants invite-only signup cannot turn off open registration; the key exists and is seeded but is never consulted, so the per-tenant toggle is inert. | `allowRegistration` |\n| emailVerificationRequired is declared and seeded per-tenant but never read; AuthService never gates login/registration on a verified email. | `auth.service.ts (key declared in auth.setting.keys.ts, seeded in setting.seed.ts)` | Tenants requiring verified email before access have no enforcement path; the setting is dead. | `emailVerificationRequired` |\n| maxLoginAttempts is declared and seeded per-tenant ('5') but unused; lockout actually uses the separate lockoutMaxAttempts key, leaving two overlapping knobs where one is inert. | `auth.setting.keys.ts / setting.seed.ts (lockout read in auth.policy.service.ts via lockoutMaxAttempts)` | Redundant/dead per-tenant key that can confuse tenant admins versus the lockoutMaxAttempts key that is actually enforced. | `lockoutMaxAttempts` |\n| ssoAllowedProviders is declared and seeded per-tenant as a JSON list but no auth code reads it; disableSocialLogin only toggles all social login on/off. | `auth.setting.keys.ts / setting.seed.ts` | Tenants cannot restrict which specific OAuth providers are offered (e.g. allow Google but not GitHub); the per-tenant provider allowlist is declared but never enforced. | `ssoAllowedProviders` |\n| Email-verification token TTL and rate-limit window are hardcoded from env (EMAIL_VERIFY_TTL_SECONDS, EMAIL_VERIFY_RATE_LIMIT_SECONDS), global across all tenants. | `auth.service.ts (EMAIL_VERIFY_TTL_SECONDS / EMAIL_VERIFY_RATE_LIMIT_SECONDS)` | Plausibly per-tenant (different security postures want different verification windows), but currently a single global env value. | `emailVerifyTtlSeconds` |\n| Password-reset token TTL/length and forgot-password rate limit are hardcoded from env/constants, global across tenants. | `auth.password.service.ts (RESET_TOKEN_EXPIRY_SECONDS, RESET_TOKEN_LENGTH, RATE_LIMIT_MAX_ATTEMPTS, RATE_LIMIT_WINDOW_SECONDS)` | Reset-link lifetime and reset rate limiting are reasonable per-tenant security knobs but are fixed globally. | `resetTokenExpirySeconds` |\n| OTP length, expiry, rate-limit window and max attempts are hardcoded from env, global across tenants. | `auth.otp.service.ts (OTP_LENGTH, OTP_EXPIRY_SECONDS, OTP_RATE_LIMIT_SECONDS, OTP_MAX_ATTEMPTS)` | MFA delivery code lifetime/attempt budget could vary per tenant security policy; currently a single global config. | `otpExpirySeconds` |\n| TOTP issuer label, step, window and digits are hardcoded from env (issuer defaults to 'Relatia'), global across tenants. | `auth.totp.service.ts (TOTP_ISSUER, TOTP_STEP_SECONDS, TOTP_WINDOW, TOTP_DIGITS)` | Authenticator-app issuer label is brand-facing and would ideally match each tenant's name/branding, but is a single global value. | `totpIssuer` |\n| All transactional auth emails/SMS (verify, OTP, forgot/reset) are sent with tenantId: ROOT_TENANT_ID, so they always use platform mail/SMS provider config and branding, never the request tenant's. | `auth.service.ts:sendEmailVerification, auth.otp.service.ts:requestOTP, auth.password.service.ts:forgotPassword/resetPassword` | Tenants with their own mail provider/branding (tenant_branding) won't have it applied to auth emails because delivery is hardcoded to the root tenant context. | — |\n\n### Platform/root-only settings (not per-tenant)\n\nConfigured once at the root tenant; identical for all tenants:\n\n- `recaptchaServerKey` — Google reCAPTCHA secret used to verify CAPTCHA tokens; read only at ROOT_TENANT_ID in auth.captcha.service.ts (fail-closed when unset).\n- `jwtAccessTokenSecret` — Platform JWT access-token signing secret (declared in auth.setting.keys.ts; platform credential).\n- `jwtRefreshTokenSecret` — Platform JWT refresh-token signing secret (platform credential).\n- `jwtAccessTokenExpiresIn` — Platform JWT access-token lifetime (declared in auth.setting.keys.ts).\n- `jwtRefreshTokenExpiresIn` — Platform JWT refresh-token lifetime (declared in auth.setting.keys.ts).\n- `googleClientId` — Google OAuth client id (platform OAuth credential, declared in auth.setting.keys.ts).\n- `googleClientSecret` — Google OAuth client secret (platform OAuth credential).\n- `githubClientId` — GitHub OAuth client id (platform OAuth credential).\n- `githubClientSecret` — GitHub OAuth client secret (platform OAuth credential).\n- `appleClientId` — Apple Sign-in client id (platform OAuth credential).\n- `appleTeamId` — Apple developer team id (platform OAuth credential).\n- `appleKeyId` — Apple key id (platform OAuth credential).\n- `applePrivateKey` — Apple private key for Sign-in (platform OAuth credential).\n- `metaClientId` — Meta/Facebook OAuth client id (platform OAuth credential).\n- `metaClientSecret` — Meta/Facebook OAuth client secret (platform OAuth credential).\n- `autodeskClientId` — Autodesk OAuth client id (platform OAuth credential).\n- `autodeskClientSecret` — Autodesk OAuth client secret (platform OAuth credential).\n- `gitlabToken` — GitLab integration token (platform credential).\n- `gitlabUser` — GitLab integration user (platform credential).\n- `oauthGoogle` — Enable/disable Google OAuth provider (declared in auth.setting.keys.ts).\n- `oauthGitHub` — Enable/disable GitHub OAuth provider (declared in auth.setting.keys.ts).\n- `oauthMicrosoft` — Enable/disable Microsoft OAuth provider (declared in auth.setting.keys.ts).\n- `oauthLinkedIn` — Enable/disable LinkedIn OAuth provider (declared in auth.setting.keys.ts).\n- `oauthApple` — Enable/disable Apple OAuth provider (declared in auth.setting.keys.ts).\n- `oauthTwitter` — Enable/disable Twitter OAuth provider (declared in auth.setting.keys.ts).\n- `oauthMeta` — Enable/disable Meta OAuth provider (declared in auth.setting.keys.ts).\n- `oauthAutodesk` — Enable/disable Autodesk OAuth provider (declared in auth.setting.keys.ts).\n\n---\n\n## Dependencies\n\nRequires: `user`, `user_session`, `user_security`, `notification_mail`, `notification_sms`, `setting`, `tenant`, `tenant_invitation`, `audit_log`, `webhook` (GTH-18), `observability` (GTH-17), `db`, `env`, `redis`, `common`. Dormant sweep additionally uses BullMQ via `redis/redis.bullmq`. TOTP uses `otplib`; password/token hashing uses `bcrypt` and Node `crypto`. OpenAPI export uses Zod v4's built-in `z.toJSONSchema()`.\n"
+    },
+    {
+      "id": "auth_oidc",
+      "name": "OAuth2/OIDC Engine",
+      "version": "1.0.0",
+      "description": "Generic, config-driven OAuth2/OIDC protocol engine (authorize → token → userinfo, PKCE, refresh, private_key_jwt, Basic confidential-client auth) plus a custom/bring-your-own OIDC provider. Consumed by auth_sso (social catalog) and auth_acs (government catalog); the OIDC analogue of auth_saml.",
+      "dir": "modules/auth_oidc",
+      "icon": "fas fa-key",
+      "tags": [
+        "identity",
+        "auth",
+        "oauth",
+        "oidc",
+        "engine"
+      ],
+      "priority": 15,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "env",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [
+          "auth_oidc.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": ""
     },
     {
       "id": "auth_saml",
@@ -964,6 +1007,67 @@
       "readme": "# Auth Sso Module\n\nOAuth2 / OIDC social login and account-linking for 11 providers. Handles auth-URL generation, callback token exchange, user-info mapping, automatic user creation/linking, signed link-intent state for the Connected Accounts flow, and placeholder-email synthesis for providers that withhold an email. Entirely platform-global — provider gating and OAuth client credentials come from process-level env vars.\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `auth_sso.service.ts` | `SSOService` — auth URL generation, callback handling, authenticate-or-register, account link/unlink, signed link-state |\n| `auth_sso.config.ts` | `SSO_CONFIGS` per-provider OAuth config (from env), `getCallbackUrl`, `isProviderConfigured`, `getAllowedProviders` |\n| `auth_sso.types.ts` | `SSOProfile`, `SSOTokens`, `SSOCallbackResult`, `SSOProviderConfig`, `SSOProviderService` (Zod schemas + interfaces) |\n| `auth_sso.dto.ts` | Request DTOs: `GenerateAuthUrlDTO`, `HandleCallbackDTO`, `AuthenticateOrRegisterDTO`, `LinkAccountDTO`, `UnlinkAccountDTO`, `GetLinkedAccountsDTO` |\n| `auth_sso.enums.ts` | `SSOProviderEnum` / `SSOProvider` (Zod enum of the 11 providers) |\n| `auth_sso.messages.ts` | `SSOMessages` error/success strings |\n| `providers/base.provider.ts` | `BaseSSOProvider` abstract class — generic OAuth2 flow, PKCE + Basic-auth helpers, token normalisation |\n| `providers/index.ts` | `getProvider(provider)` — lazy, cached provider instance factory |\n| `providers/google.provider.ts` | Google OAuth2 |\n| `providers/github.provider.ts` | GitHub OAuth2 |\n| `providers/microsoft.provider.ts` | Microsoft OAuth2 |\n| `providers/apple.provider.ts` | Sign in with Apple (dynamic ES256-signed client secret) |\n| `providers/facebook.provider.ts` | Facebook Login |\n| `providers/linkedin.provider.ts` | LinkedIn OAuth2 |\n| `providers/slack.provider.ts` | Slack OpenID Connect |\n| `providers/tiktok.provider.ts` | TikTok Login |\n| `providers/twitter.provider.ts` | Twitter/X OAuth2 (PKCE + Basic auth) |\n| `providers/wechat.provider.ts` | WeChat OAuth (`openid` round-tripped to userinfo) |\n| `providers/autodesk.provider.ts` | Autodesk OAuth2 (Basic auth) |\n| `dictionaries/` | Localization (EN, ES, TR) |\n\n---\n\n## Supported Providers\n\n`google` · `apple` · `facebook` · `github` · `linkedin` · `microsoft` · `twitter` · `slack` · `tiktok` · `wechat` · `autodesk`\n\nEach provider is gated two ways: it must be **configured** (`isProviderConfigured` — a non-empty `clientId` derived from env) and **allowed** (`getAllowedProviders` — present in `env.SSO_ALLOWED_PROVIDERS` AND configured).\n\n---\n\n## Service responsibilities (`SSOService`)\n\n| Method | Responsibility |\n|---|---|\n| `getAllowedProviders()` | Configured providers that are also in `env.SSO_ALLOWED_PROVIDERS`. |\n| `isProviderEnabled(provider)` | Whether the provider is in the allowed list. |\n| `generateAuthUrl(provider, state?)` | Build the provider redirect URL; throws `PROVIDER_NOT_CONFIGURED` if unconfigured. |\n| `handleCallback(provider, code, state?)` | Exchange `code` for tokens and fetch the mapped `{ profile, tokens }`. |\n| `authenticateOrRegister(provider, code, state?)` | Sign-in flow: find existing social account → else link to a user matched by **real** email → else create a new user. Returns `{ user, isNewUser }`. |\n| `linkAccount(userId, provider, code)` | Link a provider to a known user (no email check). |\n| `signLinkState(userId, email, returnPath?)` | JWT (`CSRF_SECRET`, 600s TTL) encoding a `link` intent: initiating user + expected email + optional return path. |\n| `parseLinkState(state)` | Decode/verify a link-state token; returns `null` if it isn't a valid link token. |\n| `safeReturnPath(input)` | Open-redirect guard: app-relative paths only (`/`, not `//`); falls back to the root-tenant profile (see Tenant Variability). |\n| `linkToUser(userId, expectedEmail, provider, code, state?)` | Complete a Connected-Accounts link; **rejects** missing/synthetic emails and any email mismatch (`EMAIL_NOT_FOUND` / `EMAIL_MISMATCH`). |\n| `unlinkAccount(userId, provider)` | Remove a linked social account. |\n| `getLinkedAccounts(userId)` | List a user's linked social accounts. |\n| `synthesizeSSOEmail(provider, sub)` | Build a stable `${provider}-${sub}@noreply.invalid` placeholder for providers that withhold an email. |\n| `isPlaceholderEmail(email)` | Detect a synthesized placeholder so login flows can prompt for a real address. |\n\nLinked-account persistence is delegated to `UserSocialAccountService`; user lookup/creation to `UserService`.\n\n---\n\n## Entities\n\nThis module owns **no entity / DB table**. Linked social accounts are persisted by the `user_social_account` module; users by the `user` module.\n\n---\n\n## API Routes\n\nAll routes are tenant-scoped under `/tenant/[tenantId]/api/...`.\n\n| Method | Path | Auth | Description |\n|---|---|---|---|\n| GET | `/tenant/[tenantId]/api/auth/sso` | public | List allowed providers (`{ providers }`). |\n| GET | `/tenant/[tenantId]/api/auth/sso/[provider]` | public, rate-limited | Generate the OAuth redirect URL. `state = \"<tenantId>.<uuid>\"`. Returns `{ url, state }`; 400 if the provider isn't enabled. |\n| GET | `/tenant/[tenantId]/api/auth/me/social-accounts/connect/[provider]` | authenticated, rate-limited | Start a **link** flow from the me page. Rejects placeholder-email accounts, mints a signed link-state via `signLinkState`, returns `{ url, state }`. |\n\nEach provider's OAuth callback returns to the per-provider `callbackPath` (`/api/auth/callback/<provider>`, see `SSO_CONFIGS`); the handler calls `authenticateOrRegister` (sign-in) or `linkToUser` (link, when `parseLinkState` matches).\n\n---\n\n## Settings\n\nThis module reads **no setting keys**. Provider gating and OAuth client config come exclusively from process-level env vars:\n\n| Env var | Purpose |\n|---|---|\n| `SSO_ALLOWED_PROVIDERS` | Comma-separated allow-list of provider ids. |\n| `APPLICATION_HOST` | Base host used to build callback URLs (defaults to `http://localhost:3000`). |\n| `CSRF_SECRET` | Signs link-state JWTs and derives deterministic PKCE verifiers. |\n| `<PROVIDER>_CLIENT_ID` / `<PROVIDER>_CLIENT_SECRET` | Per-provider OAuth credentials (e.g. `GOOGLE_CLIENT_ID`, `META_CLIENT_*`, `TIKTOK_CLIENT_KEY`, `WECHAT_APP_*`). See `SSO_CONFIGS`. |\n\nPer-tenant SSO setting keys exist elsewhere (`ssoAllowedProviders` in `auth`; `ssoEnabled` / `ssoProvider` / `ssoConfig` in `tenant_session`; `disableSocialLogin` in `auth`) but are **not** consulted by this module — see *Tenant Variability*.\n\n---\n\n## Security\n\n- **State / CSRF.** `generateAuthUrl` is called with a high-entropy `state` (`<tenantId>.<uuid>`) that providers round-trip on the callback. Twitter/X derives a PKCE verifier deterministically from `state` via `HMAC(CSRF_SECRET, state)` — 256-bit, base64url, unrecoverable without the secret.\n- **Link-intent integrity.** `signLinkState` / `parseLinkState` use a `CSRF_SECRET`-signed JWT (600s TTL) so the callback can prove the link is applied to the same user that initiated it. `linkToUser` additionally enforces an exact (case-insensitive) email match and rejects missing/synthetic emails (the \"ancak aynı mail adresi ise\" requirement).\n- **Open-redirect guard.** `safeReturnPath` accepts app-relative paths only (must start with `/`, not `//`) and falls back to a safe profile path.\n- **Placeholder emails.** Providers that never return an email (Apple in some flows, Twitter/X, TikTok, WeChat) get a synthesized `…@noreply.invalid` address (RFC 6761 reserved TLD — cannot collide with real addresses). `authenticateOrRegister` never matches an existing user by a synthetic email.\n- **Confidential clients.** Providers requiring HTTP Basic auth (X, Autodesk) use `basicAuthHeader()` instead of posting the client secret in the body; Apple's client secret is a dynamically generated ES256 JWT.\n\n---\n\n## Flow\n\n```typescript\nimport SSOService from '@/modules/auth_sso/auth_sso.service';\n\n// 1. Generate the redirect URL (state binds the flow to the tenant + a nonce)\nconst state = `${tenantId}.${crypto.randomUUID()}`;\nconst url = SSOService.generateAuthUrl('google', state);\n// Redirect the user to `url`\n\n// 2. In the OAuth callback route, sign in or register:\nconst { user, isNewUser } = await SSOService.authenticateOrRegister('google', code, state);\n// user is created, linked, or returned — depending on the social account / email match\n```\n\n```typescript\n// Connected Accounts: link a provider to the signed-in user\nconst state = SSOService.signLinkState(user.userId, user.email, `/tenant/${tenantId}/admin/me`);\nconst url = SSOService.generateAuthUrl('github', state);\n// …on callback, after parseLinkState confirms the intent:\nawait SSOService.linkToUser(user.userId, user.email, 'github', code, state);\n```\n\n---\n\n## Adding a New Provider\n\n1. Create `providers/<name>.provider.ts` extending `BaseSSOProvider` (override `mapUserInfo` at minimum; override `generateAuthUrl` / `getTokens` / `getUserInfo` for vendor quirks).\n2. Add the provider id to `SSOProviderEnum` in `auth_sso.enums.ts`.\n3. Add its config (URLs, scopes, env-backed `clientId`/`clientSecret`) to `SSO_CONFIGS` in `auth_sso.config.ts`.\n4. Register the class in the `getProvider` switch in `providers/index.ts`.\n\n---\n\n## Tenant Variability\n\n> What varies per tenant in this module — and what could. Audited 2026-06-03.\n\nauth_sso implements OAuth2 social login/account-linking for 11 providers, but is entirely platform-global: provider gating and OAuth client credentials come from process-level env vars, with no per-tenant setting reads, no tenant-scoped entity, and no tenantId-aware branching.\n\n### Candidates (global / hardcoded today → could be per-tenant)\n\n| What | Where | Why per-tenant | Suggested key |\n|---|---|---|---|\n| Allowed/enabled provider list is global, read from process env SSO_ALLOWED_PROVIDERS, so every tenant gets the same SSO buttons; a tenant cannot enable/disable providers for itself | `auth_sso.config.ts:getAllowedProviders / auth_sso.service.ts:getAllowedProviders,isProviderEnabled` | Routes already run under /tenant/[tenantId]/api/auth/sso and the per-tenant keys 'ssoAllowedProviders' (auth.setting.keys.ts) and 'ssoEnabled' (tenant_session.setting.keys.ts) already exist, but the service never consults them — it filters env.SSO_ALLOWED_PROVIDERS instead. A tenant admin should be able to choose which providers appear. | `ssoAllowedProviders` |\n| OAuth client credentials (clientId/clientSecret) for every provider are hardcoded to global env vars (GOOGLE_CLIENT_ID, etc.) in SSO_CONFIGS, so all tenants share one OAuth app per provider; a tenant cannot bring its own OAuth client | `auth_sso.config.ts:SSO_CONFIGS / isProviderConfigured` | isProviderConfigured and getProvider read only the env-derived SSO_CONFIGS map with no tenantId, while the sibling auth_saml.service.ts resolves config per tenant via generateAuthUrl(tenantId, ...). The per-tenant 'ssoConfig'/'ssoProvider' keys (tenant_session.setting.keys.ts) exist for exactly this but are unused here. | `ssoConfig` |\n| Whether SSO/social login is available at all is global; the per-tenant 'ssoEnabled' (tenant_session) and 'disableSocialLogin' (auth) flags exist but are never checked by SSOService before generating auth URLs or authenticating | `auth_sso.service.ts:generateAuthUrl,authenticateOrRegister,isProviderEnabled` | These methods gate only on env-based provider configuration, ignoring the tenant-scoped enable/disable setting keys, so a tenant cannot turn social login off for its users. | `ssoEnabled` |\n| safeReturnPath / signLinkState fallback redirect is hardcoded to the ROOT_TENANT_ID profile path (/tenant/<ROOT>/admin/me) instead of the requesting tenant's profile path | `auth_sso.service.ts:safeReturnPath` | On a tampered/expired link state the user is bounced to the root tenant's /admin/me regardless of which tenant initiated the flow; the fallback should be derived from the request's tenantId so users stay within their own tenant. | — |\n\n---\n\n## Dependencies\n\nRequires: `user`, `user_session`, `user_social_account`, `env`.\n"
     },
     {
+      "id": "auth_acs",
+      "name": "National Identity Login",
+      "version": "1.0.0",
+      "description": "National/government digital-identity login (e-Devlet TR/KKTC, eIDAS, SPID, Cl@ve, DE eID, Login.gov, ID.me, OneID, MyGov ID). Registry of SAML + OIDC providers keyed on a hashed national identifier (no email), with synthetic-email JIT + account-merge and platform-level config via ACS_PROVIDER_MAP.",
+      "dir": "modules/auth_acs",
+      "icon": "fas fa-id-card",
+      "tags": [
+        "identity",
+        "auth",
+        "sso",
+        "saml",
+        "oidc",
+        "government"
+      ],
+      "priority": 17,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "user",
+          "user_profile",
+          "user_social_account",
+          "user_session",
+          "user_security",
+          "tenant",
+          "tenant_member",
+          "auth_sso",
+          "auth_saml",
+          "auth_oidc",
+          "env",
+          "audit_log",
+          "observability",
+          "redis",
+          "common",
+          "logger"
+        ]
+      },
+      "exports": {
+        "services": [
+          "auth_acs.config.service.ts",
+          "auth_acs.flow.service.ts",
+          "auth_acs.service.ts"
+        ],
+        "dtos": [],
+        "enums": [
+          "auth_acs.enums.ts"
+        ],
+        "messageKeys": [
+          "auth_acs.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": ""
+    },
+    {
       "id": "auth_impersonation",
       "name": "Admin Impersonation",
       "version": "1.0.0",
@@ -991,7 +1095,11 @@
       },
       "exports": {
         "services": [
-          "impersonation.service.ts"
+          "impersonation.flow.service.ts",
+          "impersonation.mint.service.ts",
+          "impersonation.service.ts",
+          "impersonation.session.service.ts",
+          "impersonation.settings.service.ts"
         ],
         "dtos": [
           "impersonation.dto.ts"
@@ -1038,6 +1146,8 @@
       },
       "exports": {
         "services": [
+          "scim.group.service.ts",
+          "scim.policy.service.ts",
           "scim.service.ts",
           "scim.user.service.ts"
         ],
@@ -1051,7 +1161,10 @@
         "settingKeys": [],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "scim_group.entity.ts",
+          "scim_group_member.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
@@ -1082,6 +1195,7 @@
       "exports": {
         "services": [
           "tenant.deletion.service.ts",
+          "tenant.onboarding.service.ts",
           "tenant.service.ts"
         ],
         "dtos": [
@@ -1419,6 +1533,7 @@
       },
       "exports": {
         "services": [
+          "tenant_usage.alerts.service.ts",
           "tenant_usage.service.ts"
         ],
         "dtos": [],
@@ -1525,6 +1640,7 @@
       },
       "exports": {
         "services": [
+          "tenant_export.job.service.ts",
           "tenant_export.service.ts"
         ],
         "dtos": [],
@@ -1533,7 +1649,9 @@
         "settingKeys": [],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "tenant_export_job.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
@@ -1615,8 +1733,10 @@
       },
       "exports": {
         "services": [
+          "payment_sell.analytics.service.ts",
           "payment_sell.checkout.service.ts",
           "payment_sell.crud.service.ts",
+          "payment_sell.invoice.service.ts",
           "payment_sell.service.ts",
           "payment_sell.webhook.service.ts"
         ],
@@ -1707,7 +1827,10 @@
       },
       "exports": {
         "services": [
+          "payment_subscription.dunning.service.ts",
           "payment_subscription.lifecycle.service.ts",
+          "payment_subscription.metered.service.ts",
+          "payment_subscription.metrics.service.ts",
           "payment_subscription.plan.service.ts",
           "payment_subscription.proration.service.ts",
           "payment_subscription.service.ts"
@@ -1762,6 +1885,8 @@
         "services": [
           "payment_cart.calc.service.ts",
           "payment_cart.crud.service.ts",
+          "payment_cart.expiry.service.ts",
+          "payment_cart.inventory.service.ts",
           "payment_cart.item.service.ts",
           "payment_cart.service.ts"
         ],
@@ -1812,7 +1937,9 @@
       "exports": {
         "services": [
           "payment_shipping.calc.service.ts",
+          "payment_shipping.carrier.service.ts",
           "payment_shipping.crud.service.ts",
+          "payment_shipping.rules.service.ts",
           "payment_shipping.service.ts"
         ],
         "dtos": [
@@ -1866,10 +1993,13 @@
       "exports": {
         "services": [
           "invoice.adapter.service.ts",
+          "invoice.creditnote.service.ts",
           "invoice.crud.service.ts",
           "invoice.pdf.renderer.service.ts",
           "invoice.pdf.service.ts",
           "invoice.service.ts",
+          "invoice.signature.service.ts",
+          "invoice.tax.service.ts",
           "invoice.transition.service.ts"
         ],
         "dtos": [],
@@ -2041,6 +2171,7 @@
       },
       "exports": {
         "services": [
+          "notification_sms.delivery.service.ts",
           "notification_sms.provider.service.ts",
           "notification_sms.queue.service.ts",
           "notification_sms.service.ts"
@@ -2125,6 +2256,7 @@
         "services": [
           "payment_tax.calc.service.ts",
           "payment_tax.crud.service.ts",
+          "payment_tax.report.service.ts",
           "payment_tax.service.ts"
         ],
         "dtos": [
@@ -2173,6 +2305,7 @@
       },
       "exports": {
         "services": [
+          "payment_wishlist.price_watch.service.ts",
           "payment_wishlist.service.ts"
         ],
         "dtos": [
@@ -2189,7 +2322,8 @@
         "jobs": [],
         "entities": [
           "wishlist.entity.ts",
-          "wishlist_item.entity.ts"
+          "wishlist_item.entity.ts",
+          "wishlist_price_point.entity.ts"
         ]
       },
       "hasReadme": true,
@@ -2225,6 +2359,7 @@
         "services": [
           "payment_return_rma.crud.service.ts",
           "payment_return_rma.lifecycle.service.ts",
+          "payment_return_rma.policy.service.ts",
           "payment_return_rma.service.ts"
         ],
         "dtos": [
@@ -2276,6 +2411,7 @@
       "exports": {
         "services": [
           "payment_loyalty_points.account.service.ts",
+          "payment_loyalty_points.checkout.service.ts",
           "payment_loyalty_points.ledger.service.ts",
           "payment_loyalty_points.service.ts"
         ],
@@ -2338,7 +2474,9 @@
       "exports": {
         "services": [
           "e_signature.cert.service.ts",
+          "e_signature.compliance.service.ts",
           "e_signature.crypto.service.ts",
+          "e_signature.document.service.ts",
           "e_signature.encryption.service.ts",
           "e_signature.etsi_tsl.service.ts",
           "e_signature.identity.service.ts",
@@ -2394,7 +2532,9 @@
       },
       "exports": {
         "services": [
-          "seo.service.ts"
+          "seo.render.service.ts",
+          "seo.service.ts",
+          "seo.web_vitals.service.ts"
         ],
         "dtos": [
           "seo.dto.ts"
@@ -2440,6 +2580,7 @@
       },
       "exports": {
         "services": [
+          "media_gallery.intelligence.service.ts",
           "media_gallery.service.ts"
         ],
         "dtos": [
@@ -2487,7 +2628,10 @@
       },
       "exports": {
         "services": [
-          "api_key.service.ts"
+          "api_key.crud.service.ts",
+          "api_key.rotation.service.ts",
+          "api_key.service.ts",
+          "api_key.verify.service.ts"
         ],
         "dtos": [
           "api_key.dto.ts"
@@ -2594,9 +2738,11 @@
         "services": [
           "store.bundle.service.ts",
           "store.category.service.ts",
+          "store.pricing.service.ts",
           "store.product.crud.service.ts",
           "store.product.media.service.ts",
           "store.product.service.ts",
+          "store.public.service.ts",
           "store.variant.service.ts"
         ],
         "dtos": [
@@ -2705,7 +2851,14 @@
       },
       "exports": {
         "services": [
-          "order_fulfillment.service.ts"
+          "order_fulfillment.analytics.service.ts",
+          "order_fulfillment.carrier.service.ts",
+          "order_fulfillment.crud.service.ts",
+          "order_fulfillment.label.service.ts",
+          "order_fulfillment.read.service.ts",
+          "order_fulfillment.service.ts",
+          "order_fulfillment.status.service.ts",
+          "order_fulfillment.warehouse.service.ts"
         ],
         "dtos": [
           "order_fulfillment.dto.ts"
@@ -2722,7 +2875,8 @@
         "entities": [
           "fulfillment.entity.ts",
           "fulfillment_event.entity.ts",
-          "fulfillment_item.entity.ts"
+          "fulfillment_item.entity.ts",
+          "warehouse.entity.ts"
         ]
       },
       "hasReadme": true,
@@ -2837,6 +2991,244 @@
       "readme": "# Blog Module\n\nTenant-scoped blogging: posts, categories and threaded comments. Every row is\nisolated by `tenantId` and every service method takes `tenantId` as its first\nargument (per `multi-tenancy-patterns.md`).\n\n## Public API\n\nImport from the barrel `@/modules/blog`:\n\n| Export | Type | Use |\n|---|---|---|\n| `BlogService` | class | Facade — `BlogService.posts` / `.categories` / `.comments` |\n| `BlogPostService` | class | Post CRUD + publish/unpublish + view counts |\n| `BlogCategoryService` | class | Category CRUD |\n| `BlogCommentService` | class | Comment create/list/moderate (setting-driven) |\n| `Create*DTO`, `Get*Query` | Zod | Input validation |\n| `Safe*Schema` | Zod | Output filtering (omits `deletedAt`) |\n| `BLOG_MESSAGES` | object | Error/message constants |\n| `BLOG_TENANT_KEYS` | string[] | Tenant setting keys |\n\n## Entities\n\n- `BlogPost` (`blog_posts`) — `title`, `slug` (unique per tenant), `content`, `authorId` (a tenant member userId), `categoryId`, `status` (`DRAFT`/`PUBLISHED`/`ARCHIVED`), `views`, `publishedAt`.\n- `BlogCategory` (`blog_categories`) — `title`, `slug` (unique per tenant), `keywords`.\n- `BlogComment` (`blog_comments`) — `postId`, `parentId` (threads), `userId` or anonymous `name`/`email`, `status` (`NOT_PUBLISHED`/`PUBLISHED`/`SPAM`).\n\n## Tenant settings\n\nRead at runtime via `SettingService.getValue(tenantId, key)` (defaults in `blog.setting.keys.ts`):\n\n- `blogAllowAnonymousComments` (default `true`) — if `false`, a comment must carry a `userId`.\n- `blogCommentModeration` (default `true`) — if `true`, new comments start `NOT_PUBLISHED`.\n\n## Routes (admin-only)\n\nAll under `app/tenant/[tenantId]/api/blog/`, gated by tenant `ADMIN` role:\n\n- `categories` (GET/POST), `categories/[categoryId]` (GET/PATCH/DELETE)\n- `posts` (GET/POST), `posts/[postId]` (GET/PATCH/DELETE)\n- `posts/[postId]/comments` (GET/POST), `comments/[commentId]` (PATCH moderate / DELETE)\n\n## Dependencies\n\n`db`, `env`, `redis`, `logger`, `setting`.\n\n## Example\n\n```typescript\nimport { BlogService } from '@/modules/blog'\n\nconst post = await BlogService.posts.create(tenantId, { title, slug, content, status: 'PUBLISHED' })\nawait BlogService.comments.create(tenantId, post.postId, { content: 'Nice!', name: 'Guest' })\n```\n"
     },
     {
+      "id": "messaging",
+      "name": "Messaging",
+      "version": "1.0.0",
+      "description": "Tenant-scoped real-time messaging: 1-1 and group conversations, persisted messages with soft-delete, read/delivery cursors, typing + presence, participant roles. HTTP for writes, a standalone Socket.IO service for realtime fan-out via Redis pub/sub.",
+      "dir": "modules/messaging",
+      "icon": "fas fa-comments",
+      "tags": [
+        "messaging",
+        "chat",
+        "realtime",
+        "websocket"
+      ],
+      "priority": 46,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "logger",
+          "user_session",
+          "tenant_session",
+          "tenant_member",
+          "webhook"
+        ]
+      },
+      "exports": {
+        "services": [
+          "messaging.crud.service.ts",
+          "messaging.lifecycle.service.ts",
+          "messaging.moderation.service.ts",
+          "messaging.policy.service.ts",
+          "messaging.service.ts",
+          "messaging.ticket.service.ts"
+        ],
+        "dtos": [
+          "messaging.dto.ts"
+        ],
+        "enums": [
+          "messaging.enums.ts"
+        ],
+        "messageKeys": [
+          "messaging.messages.ts"
+        ],
+        "settingKeys": [
+          "messaging.moderation.setting.keys.ts"
+        ],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "conversation.entity.ts",
+          "conversation_participant.entity.ts",
+          "message.entity.ts",
+          "message_report.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": "# Messaging\n\nTenant-scoped real-time messaging: 1-1 and group conversations, persisted\nmessages (soft-delete), read/delivery cursors, typing indicators, online/offline\npresence, and participant roles (`owner` / `admin` / `member`).\n\n## Architecture\n\n**HTTP writes, WebSocket receives. Redis is the bridge.**\n\n- **Writes** (send message, mark read, manage participants) go through the\n  Next.js API routes under `app/tenant/[tenantId]/api/conversations/…`. They\n  reuse the existing session auth, Zod validation, rate limiting and per-tenant\n  DataSource, then **publish** a realtime event to Redis (`msg:rt` channel).\n- **Realtime delivery** happens through a **standalone Socket.IO process**\n  (`modules/messaging/server/`), run separately from Next.js (App Router cannot\n  host a long-lived WS server). It subscribes to `msg:rt` and emits into rooms.\n- Clients send only **typing / presence / read** signals over the socket; the\n  message body itself is always an HTTP POST.\n\n```\nbrowser ──POST /messages──▶ Next API ──persist──▶ Postgres\n                               │\n                               └─publish msg:rt──▶ Redis ──▶ WS service ──emit──▶ browser(s)\nbrowser ──typing/read────────────────────────────▶ WS service ──broadcast──▶ browser(s)\n```\n\nTwo Redis mechanisms, different hops:\n- `@socket.io/redis-adapter` — socket↔socket fan-out *within* the WS cluster.\n- `msg:rt` pub/sub — Next HTTP process → WS cluster handoff of persisted events.\n\n## WebSocket auth (short-lived single-use ticket)\n\n1. `POST /tenant/{tenantId}/api/messaging/ws-ticket` (session-authed) → `{ ticket, expiresIn, wsUrl }`.\n2. `io(wsUrl, { auth: { ticket }, transports: ['websocket'] })`.\n3. The WS service consumes the ticket atomically (`GETDEL`, 30s TTL, single-use)\n   and binds `{ userId, tenantId }` to the socket. Replays are rejected.\n\n## Entities\n\n- `conversations` — direct (1-1, deduped via `dedupeKey`) or group threads.\n- `conversation_participants` — membership + role + read/delivery **cursors**\n  (`lastReadMessageId` / `lastDeliveredMessageId`); receipts are watermarks, not\n  per-message rows.\n- `messages` — persisted messages, soft-deleted, cursor-paginated.\n\n## Running\n\n```bash\nnpm run dev        # Next.js app (HTTP API)\nnpm run ws:dev     # standalone Socket.IO service (watch mode)\n# production: npm run build && npm run start  +  npm run ws:start\n```\n\nEnv: `MESSAGING_WS_PORT` (default 4001), `MESSAGING_WS_PUBLIC_URL`,\n`MESSAGING_WS_CORS_ORIGIN`. The WS service shares the same `.env`, Redis and DB\nas the app.\n\n> **Production note:** `synchronize` only creates tables in development. For\n> production add a migration under `modules/db/migrations/` for the three tables\n> and the **partial unique index** on `conversations(tenantId, dedupeKey)`.\n> Socket.IO across multiple instances needs sticky sessions or (as configured\n> here) `transports: ['websocket']`.\n\n## Moderation\n\nPer-tenant content moderation with three enforcement modes plus user reports and manual review.\n\n**Policy** (`messagingModerationMode` setting): `OFF` | `LOG` | `REPORT` | `AUTO`.\n- **OFF** — no scanning.\n- **LOG** — violations are delivered but written to the moderation log (AuditLog `message.flagged`).\n- **REPORT** — like LOG, plus surfaced in the moderator queue + admins notified.\n- **AUTO** — **pre-delivery quarantine**: a violating message is held (`PENDING`, not delivered) until a\n  moderator approves (delivered late) or rejects it.\n\n**Detection** = keyword blocklist first (synchronous, deterministic), then an optional async AI (LLM)\nbackstop via `AIService` (BullMQ worker, requires `ENABLE_BACKGROUND_JOBS=true`). Keyword hits gate\ndelivery immediately; AI never blocks the send path (unless `messagingModerationAiHold=true` + AUTO).\n\n**Status & visibility** (`Message.moderationStatus`): recipients see `CLEAN | FLAGGED | APPROVED`;\n`PENDING | REJECTED | HIDDEN` are hidden from recipients (sender sees own with a marker, admins see all).\n\n**Settings** (`SettingService`, ADMIN UI via the settings route): `messagingModerationMode`,\n`messagingModerationKeywords` (JSON array of literals + `/regex/` entries), `messagingModerationUseAi`,\n`messagingModerationAiHold`, `messagingModerationAiThreshold`, `messagingModerationReportThreshold`.\n\n**User reports** are always available; `messagingModerationReportThreshold>0` auto-quarantines after N reports.\n\nModeration API (under `/tenant/[tenantId]/api/`):\n```\nPOST   conversations/[conversationId]/messages/[messageId]/report   # any participant\nGET    messaging/moderation/queue                                   # ADMIN — flagged/pending + open reports\nPOST   messaging/moderation/messages/[messageId]                    # ADMIN — { action: approve|reject|hide|dismiss }\nGET/PUT messaging/moderation/settings                              # ADMIN — read/update policy\n```\nRealtime: a held message emits `message:moderated {status:'PENDING'}` to the sender only; on approve the\nmessage is delivered late via `message:new`; on reject/hide recipients get `message:moderated` + `message:deleted`.\n\n## Client sketch\n\n```ts\nconst { ticket, wsUrl } = await fetch(`/tenant/${tenantId}/api/messaging/ws-ticket`, { method: 'POST' }).then(r => r.json());\nconst socket = io(wsUrl, { auth: { ticket }, transports: ['websocket'] });\nsocket.emit('join', { conversationId });\nsocket.on('message:new', (msg) => { /* render */ });\nsocket.emit('typing:start', { conversationId });\n// send a message over HTTP:\nawait fetch(`/tenant/${tenantId}/api/conversations/${conversationId}/messages`, {\n  method: 'POST', body: JSON.stringify({ body: 'hi' }),\n});\n```\n"
+    },
+    {
+      "id": "wallet",
+      "name": "Wallet",
+      "version": "1.0.0",
+      "description": "Internal credit / wallet ledger. Double-entry accounting where every movement is a balanced transaction whose signed postings sum to zero, with per-account tamper-evident hash chains, peer-to-peer credit transfers, issue/spend flows, and booking capture/refund. Balances are integer minor units; chain verification + reconciliation included.",
+      "dir": "modules/wallet",
+      "icon": "fas fa-wallet",
+      "tags": [
+        "wallet",
+        "credits",
+        "ledger",
+        "double-entry",
+        "billing"
+      ],
+      "priority": 47,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "logger",
+          "common",
+          "redis",
+          "webhook",
+          "audit_log"
+        ]
+      },
+      "exports": {
+        "services": [
+          "wallet.crud.service.ts",
+          "wallet.posting.service.ts",
+          "wallet.reconcile.service.ts",
+          "wallet.service.ts"
+        ],
+        "dtos": [
+          "wallet.dto.ts"
+        ],
+        "enums": [
+          "wallet.enums.ts"
+        ],
+        "messageKeys": [
+          "wallet.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "wallet_account.entity.ts",
+          "wallet_posting.entity.ts",
+          "wallet_transaction.entity.ts"
+        ]
+      },
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": ""
+    },
+    {
+      "id": "metering",
+      "name": "Metering",
+      "version": "1.0.0",
+      "description": "Event-based usage metering with metered / overage billing. Records immutable usage events per meter (SUM/MAX/LAST aggregation), keeps a Redis hot counter for fast current-period reads, and settles overages on a two-rail model: prepaid wallet credits are debited first, the remainder is invoiced as a draft. Quantities and money are integer minor units; runs are idempotent and persisted.",
+      "dir": "modules/metering",
+      "icon": "fas fa-gauge-high",
+      "tags": [
+        "metering",
+        "usage",
+        "billing",
+        "overage",
+        "credits"
+      ],
+      "priority": 48,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "logger",
+          "common",
+          "redis",
+          "wallet",
+          "invoice",
+          "tenant_subscription",
+          "webhook",
+          "audit_log"
+        ]
+      },
+      "exports": {
+        "services": [
+          "metering.billing.service.ts",
+          "metering.meter.service.ts",
+          "metering.record.service.ts",
+          "metering.service.ts"
+        ],
+        "dtos": [
+          "metering.dto.ts"
+        ],
+        "enums": [
+          "metering.enums.ts"
+        ],
+        "messageKeys": [
+          "metering.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "meter_definition.entity.ts",
+          "metered_billing_run.entity.ts",
+          "metered_usage_event.entity.ts"
+        ]
+      },
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": ""
+    },
+    {
+      "id": "back_office",
+      "name": "Back-Office",
+      "version": "1.0.0",
+      "description": "Generic moderation / approval queue and support-ticket desk. Any owning module can route an entity through human review via the entity-agnostic approval queue (with a tamper-evident per-tenant decision hash chain and an in-memory decision-handler hook), and customers can open support tickets with per-tenant monotonic ticket numbers, agent assignment, internal notes, first-response + resolution SLA tracking. Every decision is recorded in the append-only audit log; submitters/requesters are notified in-app and webhooks fire on each lifecycle event.",
+      "dir": "modules/back_office",
+      "icon": "fas fa-clipboard-check",
+      "tags": [
+        "back-office",
+        "moderation",
+        "approval",
+        "support",
+        "tickets",
+        "queue"
+      ],
+      "priority": 49,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "logger",
+          "common",
+          "redis",
+          "webhook",
+          "audit_log",
+          "notification_inapp",
+          "tenant_member"
+        ]
+      },
+      "exports": {
+        "services": [
+          "back_office.approval.service.ts",
+          "back_office.service.ts",
+          "back_office.support.service.ts"
+        ],
+        "dtos": [
+          "back_office.dto.ts"
+        ],
+        "enums": [
+          "back_office.enums.ts"
+        ],
+        "messageKeys": [
+          "back_office.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "approval_queue_item.entity.ts",
+          "support_ticket.entity.ts",
+          "support_ticket_message.entity.ts"
+        ]
+      },
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": ""
+    },
+    {
       "id": "ai",
       "name": "AI",
       "version": "1.0.0",
@@ -2912,6 +3304,7 @@
           "dynamic_collection.service.ts",
           "dynamic_page.block.service.ts",
           "dynamic_page.crud.service.ts",
+          "dynamic_page.publishing.service.ts",
           "dynamic_page.service.ts"
         ],
         "dtos": [
@@ -2931,7 +3324,8 @@
           "dynamic_collection_item.entity.ts",
           "dynamic_page.entity.ts",
           "dynamic_page_block.entity.ts",
-          "dynamic_page_translation.entity.ts"
+          "dynamic_page_translation.entity.ts",
+          "dynamic_page_version.entity.ts"
         ]
       },
       "hasReadme": true,
@@ -3012,6 +3406,47 @@
     }
   ],
   "routes": [
+    {
+      "filePath": "app/api/auth/acs/route.ts",
+      "scope": "system",
+      "urlPath": "/api/auth/acs",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/api/auth/acs/[provider]/callback/route.ts",
+      "scope": "system",
+      "urlPath": "/api/auth/acs/[provider]/callback",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/api/auth/acs/[provider]/initiate/route.ts",
+      "scope": "system",
+      "urlPath": "/api/auth/acs/[provider]/initiate",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/api/auth/acs/[provider]/metadata/route.ts",
+      "scope": "system",
+      "urlPath": "/api/auth/acs/[provider]/metadata",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
     {
       "filePath": "app/internal/api/caddy-ask/route.ts",
       "scope": "system",
@@ -3379,11 +3814,31 @@
       "dynamic": true
     },
     {
+      "filePath": "app/tenant/[tenantId]/api/auth/me/complete-email/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/me/complete-email",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
       "filePath": "app/tenant/[tenantId]/api/auth/me/device-info/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/auth/me/device-info",
       "methods": [
         "GET"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/me/merge-identity/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/me/merge-identity",
+      "methods": [
+        "POST"
       ],
       "module": "auth",
       "dynamic": true
@@ -3506,6 +3961,16 @@
       "filePath": "app/tenant/[tenantId]/api/auth/me/social-accounts/connect/[provider]/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/auth/me/social-accounts/connect/[provider]",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/me/social-accounts/connect/acs/[provider]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/me/social-accounts/connect/acs/[provider]",
       "methods": [
         "GET"
       ],
@@ -3723,6 +4188,60 @@
       "dynamic": true
     },
     {
+      "filePath": "app/tenant/[tenantId]/api/back-office/approvals/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/back-office/approvals",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "back_office",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/back-office/approvals/[approvalItemId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/back-office/approvals/[approvalItemId]",
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "module": "back_office",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/back-office/support/tickets/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/back-office/support/tickets",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "back_office",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/back-office/support/tickets/[ticketId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/back-office/support/tickets/[ticketId]",
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "module": "back_office",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/back-office/support/tickets/[ticketId]/messages/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/back-office/support/tickets/[ticketId]/messages",
+      "methods": [
+        "POST"
+      ],
+      "module": "back_office",
+      "dynamic": true
+    },
+    {
       "filePath": "app/tenant/[tenantId]/api/blog/categories/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/blog/categories",
@@ -3788,6 +4307,69 @@
         "POST"
       ],
       "module": "blog",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/conversations/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/conversations",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "conversation",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/conversations/[conversationId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/conversations/[conversationId]",
+      "methods": [
+        "GET"
+      ],
+      "module": "conversation",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/conversations/[conversationId]/messages/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/conversations/[conversationId]/messages",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "conversation",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/conversations/[conversationId]/messages/[messageId]/report/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/conversations/[conversationId]/messages/[messageId]/report",
+      "methods": [
+        "POST"
+      ],
+      "module": "conversation",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/conversations/[conversationId]/participants/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/conversations/[conversationId]/participants",
+      "methods": [
+        "POST",
+        "DELETE"
+      ],
+      "module": "conversation",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/conversations/[conversationId]/read/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/conversations/[conversationId]/read",
+      "methods": [
+        "POST"
+      ],
+      "module": "conversation",
       "dynamic": true
     },
     {
@@ -4282,6 +4864,101 @@
       "dynamic": true
     },
     {
+      "filePath": "app/tenant/[tenantId]/api/messaging/moderation/messages/[messageId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/messaging/moderation/messages/[messageId]",
+      "methods": [
+        "POST"
+      ],
+      "module": "messaging",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/messaging/moderation/queue/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/messaging/moderation/queue",
+      "methods": [
+        "GET"
+      ],
+      "module": "messaging",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/messaging/moderation/settings/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/messaging/moderation/settings",
+      "methods": [
+        "GET",
+        "PUT"
+      ],
+      "module": "messaging",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/messaging/ws-ticket/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/messaging/ws-ticket",
+      "methods": [
+        "POST"
+      ],
+      "module": "messaging",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/metering/billing/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/metering/billing",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "metering",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/metering/events/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/metering/events",
+      "methods": [
+        "POST"
+      ],
+      "module": "metering",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/metering/meters/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/metering/meters",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "metering",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/metering/meters/[meterId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/metering/meters/[meterId]",
+      "methods": [
+        "GET",
+        "PATCH",
+        "DELETE"
+      ],
+      "module": "metering",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/metering/usage/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/metering/usage",
+      "methods": [
+        "GET"
+      ],
+      "module": "metering",
+      "dynamic": true
+    },
+    {
       "filePath": "app/tenant/[tenantId]/api/notifications/push/subscribe/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/notifications/push/subscribe",
@@ -4501,6 +5178,16 @@
       "dynamic": true
     },
     {
+      "filePath": "app/tenant/[tenantId]/api/scim/v2/Health/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/scim/v2/Health",
+      "methods": [
+        "GET"
+      ],
+      "module": "scim",
+      "dynamic": true
+    },
+    {
       "filePath": "app/tenant/[tenantId]/api/scim/v2/ResourceTypes/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/scim/v2/ResourceTypes",
@@ -4561,6 +5248,17 @@
       "methods": [
         "GET",
         "PUT"
+      ],
+      "module": "seo",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/seo/web-vitals/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/seo/web-vitals",
+      "methods": [
+        "GET",
+        "POST"
       ],
       "module": "seo",
       "dynamic": true
@@ -4794,6 +5492,36 @@
       "dynamic": true
     },
     {
+      "filePath": "app/tenant/[tenantId]/api/storefront/categories/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/storefront/categories",
+      "methods": [
+        "GET"
+      ],
+      "module": "storefront",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/storefront/products/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/storefront/products",
+      "methods": [
+        "GET"
+      ],
+      "module": "storefront",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/storefront/products/[slug]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/storefront/products/[slug]",
+      "methods": [
+        "GET"
+      ],
+      "module": "storefront",
+      "dynamic": true
+    },
+    {
       "filePath": "app/tenant/[tenantId]/api/subscription/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/subscription",
@@ -4983,6 +5711,68 @@
       "dynamic": true
     },
     {
+      "filePath": "app/tenant/[tenantId]/api/wallet/accounts/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/wallet/accounts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "wallet",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/wallet/accounts/[accountId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/wallet/accounts/[accountId]",
+      "methods": [
+        "GET"
+      ],
+      "module": "wallet",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/wallet/accounts/[accountId]/statement/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/wallet/accounts/[accountId]/statement",
+      "methods": [
+        "GET"
+      ],
+      "module": "wallet",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/wallet/transactions/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/wallet/transactions",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "wallet",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/wallet/transfer/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/wallet/transfer",
+      "methods": [
+        "POST"
+      ],
+      "module": "wallet",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/wallet/verify/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/wallet/verify",
+      "methods": [
+        "POST"
+      ],
+      "module": "wallet",
+      "dynamic": true
+    },
+    {
       "filePath": "app/tenant/[tenantId]/api/webhooks/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/webhooks",
@@ -5136,6 +5926,33 @@
       "relations": []
     },
     {
+      "name": "ApprovalQueueItem",
+      "filePath": "modules/back_office/entities/approval_queue_item.entity.ts",
+      "module": "back_office",
+      "schema": "system",
+      "tableName": "approval_queue_items",
+      "columns": [
+        "approvalItemId",
+        "tenantId",
+        "entityType",
+        "entityId",
+        "submittedByUserId",
+        "status",
+        "priority",
+        "reason",
+        "decisionNote",
+        "reviewedByUserId",
+        "reviewedAt",
+        "slaDueAt",
+        "prevHash",
+        "rowHash",
+        "metadata",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "AuditLog",
       "filePath": "modules/audit_log/entities/audit_log.entity.ts",
       "module": "audit_log",
@@ -5276,6 +6093,50 @@
       "relations": []
     },
     {
+      "name": "Conversation",
+      "filePath": "modules/messaging/entities/conversation.entity.ts",
+      "module": "messaging",
+      "schema": "system",
+      "tableName": "conversations",
+      "columns": [
+        "conversationId",
+        "tenantId",
+        "type",
+        "title",
+        "createdByUserId",
+        "dedupeKey",
+        "lastMessageAt",
+        "lastMessagePreview",
+        "metadata",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "ConversationParticipant",
+      "filePath": "modules/messaging/entities/conversation_participant.entity.ts",
+      "module": "messaging",
+      "schema": "system",
+      "tableName": "conversation_participants",
+      "columns": [
+        "participantId",
+        "tenantId",
+        "conversationId",
+        "userId",
+        "role",
+        "lastReadMessageId",
+        "lastReadAt",
+        "lastDeliveredMessageId",
+        "mutedUntil",
+        "joinedAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "Coupon",
       "filePath": "modules/coupon/entities/coupon.entity.ts",
       "module": "coupon",
@@ -5381,7 +6242,15 @@
         "sections",
         "metadata",
         "status",
+        "publishAt",
+        "expireAt",
+        "cacheTtlSeconds",
+        "passwordHash",
+        "audienceCountries",
+        "audienceLanguages",
+        "audienceRoles",
         "schemaVersion",
+        "revision",
         "createdAt",
         "updatedAt"
       ],
@@ -5406,6 +6275,7 @@
         "script",
         "serverHandler",
         "allowedCollections",
+        "allowedRoles",
         "isSystem",
         "createdAt",
         "updatedAt"
@@ -5434,6 +6304,27 @@
       ]
     },
     {
+      "name": "DynamicPageVersion",
+      "filePath": "modules/dynamic_page/entities/dynamic_page_version.entity.ts",
+      "module": "dynamic_page",
+      "schema": "system",
+      "tableName": "dynamic_page_versions",
+      "columns": [
+        "versionId",
+        "tenantId",
+        "dynamicPageId",
+        "revision",
+        "title",
+        "description",
+        "sections",
+        "metadata",
+        "status",
+        "changedByUserId",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "Fulfillment",
       "filePath": "modules/order_fulfillment/entities/fulfillment.entity.ts",
       "module": "order_fulfillment",
@@ -5448,12 +6339,24 @@
         "trackingNumber",
         "trackingUrl",
         "shippingMethodId",
+        "warehouseId",
+        "originCountry",
+        "returnRequestId",
+        "publicTrackingToken",
+        "estimatedDeliveryAt",
+        "isPartial",
+        "weightKg",
+        "dimensions",
+        "declaredValue",
+        "customsCurrency",
+        "customsData",
         "notes",
         "metadata",
         "packedAt",
         "shippedAt",
         "deliveredAt",
         "cancelledAt",
+        "returnedAt",
         "createdAt",
         "updatedAt",
         "deletedAt"
@@ -5493,6 +6396,13 @@
         "sku",
         "name",
         "quantity",
+        "backorderedQuantity",
+        "hsCode",
+        "countryOfOrigin",
+        "unitValue",
+        "isDangerousGoods",
+        "hazmatClass",
+        "unNumber",
         "createdAt",
         "updatedAt"
       ],
@@ -5657,11 +6567,140 @@
         "title",
         "sortOrder",
         "isPrimary",
-        "createdAt"
+        "tags",
+        "contentHash",
+        "perceptualHash",
+        "createdAt",
+        "deletedAt"
       ],
       "relations": [
         "uploadedFile"
       ]
+    },
+    {
+      "name": "Message",
+      "filePath": "modules/messaging/entities/message.entity.ts",
+      "module": "messaging",
+      "schema": "system",
+      "tableName": "messages",
+      "columns": [
+        "messageId",
+        "tenantId",
+        "conversationId",
+        "senderUserId",
+        "body",
+        "contentType",
+        "attachments",
+        "replyToMessageId",
+        "metadata",
+        "editedAt",
+        "moderationStatus",
+        "moderationReason",
+        "moderationScore",
+        "moderationLabels",
+        "moderatedByUserId",
+        "moderatedAt",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "MessageReport",
+      "filePath": "modules/messaging/entities/message_report.entity.ts",
+      "module": "messaging",
+      "schema": "system",
+      "tableName": "message_reports",
+      "columns": [
+        "messageReportId",
+        "tenantId",
+        "conversationId",
+        "messageId",
+        "reporterUserId",
+        "reason",
+        "note",
+        "status",
+        "resolvedByUserId",
+        "resolutionAction",
+        "resolvedAt",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "MeterDefinition",
+      "filePath": "modules/metering/entities/meter_definition.entity.ts",
+      "module": "metering",
+      "schema": "system",
+      "tableName": "meter_definitions",
+      "columns": [
+        "meterId",
+        "tenantId",
+        "key",
+        "name",
+        "unit",
+        "aggregation",
+        "unitPriceMinor",
+        "currency",
+        "includedQuantity",
+        "active",
+        "metadata",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "MeteredBillingRun",
+      "filePath": "modules/metering/entities/metered_billing_run.entity.ts",
+      "module": "metering",
+      "schema": "system",
+      "tableName": "metered_billing_runs",
+      "columns": [
+        "billingRunId",
+        "tenantId",
+        "subjectType",
+        "subjectId",
+        "periodKey",
+        "status",
+        "lines",
+        "currency",
+        "totalMinor",
+        "walletDebitedMinor",
+        "invoicedMinor",
+        "walletTransactionId",
+        "invoiceId",
+        "idempotencyKey",
+        "error",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "MeteredUsageEvent",
+      "filePath": "modules/metering/entities/metered_usage_event.entity.ts",
+      "module": "metering",
+      "schema": "system",
+      "tableName": "metered_usage_events",
+      "columns": [
+        "usageEventId",
+        "tenantId",
+        "meterId",
+        "meterKey",
+        "subjectType",
+        "subjectId",
+        "quantity",
+        "idempotencyKey",
+        "occurredAt",
+        "periodKey",
+        "metadata",
+        "createdAt"
+      ],
+      "relations": []
     },
     {
       "name": "NotificationLog",
@@ -5679,6 +6718,10 @@
         "status",
         "providerMessageId",
         "error",
+        "attempts",
+        "eventType",
+        "recipientCountry",
+        "latencyMs",
         "sentAt"
       ],
       "relations": []
@@ -5712,6 +6755,12 @@
         "cancelledAt",
         "refundedAt",
         "expiresAt",
+        "disputeStatus",
+        "disputeReason",
+        "disputeAmount",
+        "providerDisputeId",
+        "disputedAt",
+        "disputeResolvedAt",
         "createdAt",
         "updatedAt",
         "deletedAt"
@@ -5869,6 +6918,7 @@
         "status",
         "isVerifiedPurchase",
         "helpfulCount",
+        "media",
         "orderId",
         "metadata",
         "createdAt",
@@ -5906,6 +6956,8 @@
         "endpoint",
         "p256dh",
         "auth",
+        "categories",
+        "consentAt",
         "createdAt",
         "updatedAt"
       ],
@@ -5969,7 +7021,14 @@
         "customerNote",
         "adminNote",
         "refundAmount",
+        "restockingFee",
+        "refundMethod",
         "currency",
+        "returnCarrier",
+        "returnTrackingNumber",
+        "returnLabelUrl",
+        "customsData",
+        "slaDueAt",
         "metadata",
         "approvedAt",
         "receivedAt",
@@ -6020,6 +7079,39 @@
       "relations": []
     },
     {
+      "name": "ScimGroup",
+      "filePath": "modules/scim/entities/scim_group.entity.ts",
+      "module": "scim",
+      "schema": "system",
+      "tableName": "scim_groups",
+      "columns": [
+        "scimGroupId",
+        "tenantId",
+        "idp",
+        "displayName",
+        "externalId",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "ScimGroupMember",
+      "filePath": "modules/scim/entities/scim_group_member.entity.ts",
+      "module": "scim",
+      "schema": "system",
+      "tableName": "scim_group_members",
+      "columns": [
+        "id",
+        "tenantId",
+        "scimGroupId",
+        "tenantMemberId",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "SeoMeta",
       "filePath": "modules/seo/entities/seo_meta.entity.ts",
       "module": "seo",
@@ -6040,6 +7132,9 @@
         "twitterTitle",
         "twitterDescription",
         "twitterCard",
+        "localized",
+        "alternates",
+        "xDefaultUrl",
         "noIndex",
         "updatedAt"
       ],
@@ -6057,8 +7152,26 @@
         "value",
         "group",
         "type",
+        "isLocked",
         "createdAt",
         "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "SettingHistory",
+      "filePath": "modules/setting/entities/setting_history.entity.ts",
+      "module": "setting",
+      "schema": "system",
+      "tableName": "setting_history",
+      "columns": [
+        "historyId",
+        "tenantId",
+        "key",
+        "previousValue",
+        "newValue",
+        "changedByUserId",
+        "createdAt"
       ],
       "relations": []
     },
@@ -6200,6 +7313,7 @@
         "name",
         "slug",
         "description",
+        "translations",
         "imageUrl",
         "sortOrder",
         "isActive",
@@ -6249,6 +7363,20 @@
         "details",
         "basePrice",
         "currency",
+        "priceList",
+        "countryPrices",
+        "salePrice",
+        "saleStartsAt",
+        "saleEndsAt",
+        "taxClass",
+        "priceIncludesTax",
+        "translations",
+        "availableCountries",
+        "restrictedCountries",
+        "warehouseStock",
+        "fulfillmentType",
+        "restockDate",
+        "preorderReleaseDate",
         "sku",
         "stockQuantity",
         "trackInventory",
@@ -6319,6 +7447,10 @@
         "sku",
         "price",
         "stockQuantity",
+        "warehouseStock",
+        "salePrice",
+        "saleStartsAt",
+        "saleEndsAt",
         "weight",
         "imageUrl",
         "isActive",
@@ -6426,6 +7558,7 @@
         "pausedAt",
         "pausedUntil",
         "pastDueCount",
+        "meteredUsage",
         "metadata",
         "createdAt",
         "updatedAt",
@@ -6470,6 +7603,52 @@
       "relations": []
     },
     {
+      "name": "SupportTicket",
+      "filePath": "modules/back_office/entities/support_ticket.entity.ts",
+      "module": "back_office",
+      "schema": "system",
+      "tableName": "support_tickets",
+      "columns": [
+        "ticketId",
+        "tenantId",
+        "ticketNumber",
+        "requesterUserId",
+        "requesterEmail",
+        "subject",
+        "status",
+        "priority",
+        "category",
+        "assignedToUserId",
+        "firstResponseAt",
+        "resolvedAt",
+        "slaDueAt",
+        "metadata",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "SupportTicketMessage",
+      "filePath": "modules/back_office/entities/support_ticket_message.entity.ts",
+      "module": "back_office",
+      "schema": "system",
+      "tableName": "support_ticket_messages",
+      "columns": [
+        "ticketMessageId",
+        "tenantId",
+        "ticketId",
+        "authorUserId",
+        "authorType",
+        "body",
+        "internal",
+        "attachments",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "TaxClass",
       "filePath": "modules/payment_tax/entities/tax_class.entity.ts",
       "module": "payment_tax",
@@ -6507,6 +7686,8 @@
         "includedInPrice",
         "priority",
         "isActive",
+        "effectiveFrom",
+        "effectiveTo",
         "createdAt",
         "updatedAt"
       ],
@@ -6523,10 +7704,12 @@
         "name",
         "description",
         "tenantStatus",
+        "slug",
+        "region",
+        "metadata",
         "createdAt",
         "updatedAt",
         "deletedAt",
-        "region",
         "deletionRequestedAt",
         "deleteAfter"
       ],
@@ -6571,6 +7754,33 @@
       "relations": []
     },
     {
+      "name": "TenantExportJob",
+      "filePath": "modules/tenant_export/entities/tenant_export_job.entity.ts",
+      "module": "tenant_export",
+      "schema": "tenant",
+      "tableName": "tenant_export_jobs",
+      "columns": [
+        "exportJobId",
+        "tenantId",
+        "requestedByUserId",
+        "status",
+        "format",
+        "redacted",
+        "collections",
+        "deliverToEmail",
+        "storageKey",
+        "downloadUrl",
+        "sizeBytes",
+        "sha256",
+        "error",
+        "expiresAt",
+        "completedAt",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "TenantInvitation",
       "filePath": "modules/tenant_invitation/entities/tenant_invitation.entity.ts",
       "module": "tenant_invitation",
@@ -6604,6 +7814,9 @@
         "memberStatus",
         "externalId",
         "sessionVersion",
+        "suspensionReason",
+        "suspendedUntil",
+        "lastActiveAt",
         "createdAt",
         "updatedAt",
         "deletedAt"
@@ -6647,6 +7860,7 @@
         "storageBytes",
         "emailSends",
         "smsSends",
+        "webhookCalls",
         "createdAt",
         "updatedAt"
       ],
@@ -6709,6 +7923,8 @@
         "emailVerifiedAt",
         "consentVersion",
         "consentAcceptedAt",
+        "locale",
+        "country",
         "createdAt",
         "updatedAt",
         "deletedAt"
@@ -6749,10 +7965,18 @@
         "smsNotifications",
         "pushNotifications",
         "newsletter",
+        "currency",
+        "numberFormat",
+        "measurementSystem",
         "timezone",
         "dateFormat",
         "timeFormat",
         "firstDayOfWeek",
+        "productUpdates",
+        "promotionalOffers",
+        "newsletterConsentAt",
+        "marketingConsentAt",
+        "schemaVersion",
         "createdAt",
         "updatedAt"
       ],
@@ -6768,10 +7992,21 @@
         "userProfileId",
         "userId",
         "name",
+        "firstName",
+        "lastName",
+        "displayName",
+        "nameOrder",
+        "pronouns",
         "biography",
         "profilePicture",
         "headerImage",
         "socialLinks",
+        "visibility",
+        "fieldVisibility",
+        "isVerified",
+        "verificationStatus",
+        "customFields",
+        "anonymizedAt",
         "createdAt",
         "updatedAt"
       ],
@@ -6796,6 +8031,7 @@
         "lockedUntil",
         "passkeyEnabled",
         "passkeys",
+        "trustedDevices",
         "passwordHistory",
         "passwordChangedAt",
         "mustChangePassword",
@@ -6840,9 +8076,99 @@
         "providerId",
         "accessToken",
         "refreshToken",
+        "accessTokenExpiresAt",
+        "scopes",
+        "lastRefreshedAt",
         "profilePicture",
         "createdAt",
         "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "WalletAccount",
+      "filePath": "modules/wallet/entities/wallet_account.entity.ts",
+      "module": "wallet",
+      "schema": "system",
+      "tableName": "wallet_accounts",
+      "columns": [
+        "walletAccountId",
+        "tenantId",
+        "ownerType",
+        "ownerId",
+        "kind",
+        "currency",
+        "cachedBalance",
+        "allowOverdraft",
+        "status",
+        "metadata",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "WalletPosting",
+      "filePath": "modules/wallet/entities/wallet_posting.entity.ts",
+      "module": "wallet",
+      "schema": "system",
+      "tableName": "wallet_postings",
+      "columns": [
+        "walletPostingId",
+        "seq",
+        "tenantId",
+        "transactionId",
+        "accountId",
+        "amount",
+        "currency",
+        "balanceAfter",
+        "prevHash",
+        "rowHash",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "WalletTransaction",
+      "filePath": "modules/wallet/entities/wallet_transaction.entity.ts",
+      "module": "wallet",
+      "schema": "system",
+      "tableName": "wallet_transactions",
+      "columns": [
+        "walletTransactionId",
+        "tenantId",
+        "type",
+        "referenceType",
+        "referenceId",
+        "description",
+        "currency",
+        "idempotencyKey",
+        "metadata",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "Warehouse",
+      "filePath": "modules/order_fulfillment/entities/warehouse.entity.ts",
+      "module": "order_fulfillment",
+      "schema": "system",
+      "tableName": "fulfillment_warehouses",
+      "columns": [
+        "warehouseId",
+        "tenantId",
+        "code",
+        "name",
+        "country",
+        "city",
+        "address",
+        "isActive",
+        "isDefault",
+        "sortOrder",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
       ],
       "relations": []
     },
@@ -6935,7 +8261,32 @@
         "productId",
         "variantId",
         "note",
+        "lastKnownPrice",
+        "lastKnownCurrency",
+        "lastKnownInStock",
+        "addedToCartAt",
+        "notifiedPriceDropAt",
+        "notifiedBackInStockAt",
         "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "WishlistPricePoint",
+      "filePath": "modules/payment_wishlist/entities/wishlist_price_point.entity.ts",
+      "module": "payment_wishlist",
+      "schema": "system",
+      "tableName": "wishlist_price_points",
+      "columns": [
+        "pricePointId",
+        "tenantId",
+        "wishlistItemId",
+        "productId",
+        "variantId",
+        "price",
+        "currency",
+        "inStock",
+        "recordedAt"
       ],
       "relations": []
     }
@@ -9636,6 +10987,18 @@
       "isClient": true,
       "isServer": false,
       "baseName": "SeoPanel"
+    },
+    {
+      "id": "seo/web-vitals.client",
+      "module": "seo",
+      "filePath": "modules_next/seo/web-vitals.client.ts",
+      "kind": "ui",
+      "exports": [
+        "reportWebVitals"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "web-vitals.client"
     },
     {
       "id": "setting/setting-fields.types",

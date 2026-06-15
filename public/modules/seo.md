@@ -16,7 +16,9 @@ Polymorphic SEO metadata (title, description, Open Graph, canonical, noIndex) at
 
 ## Services
 
+- `seo.render.service.ts`
 - `seo.service.ts`
+- `seo.web_vitals.service.ts`
 
 ## DTOs
 
@@ -37,6 +39,7 @@ Polymorphic SEO metadata (title, description, Open Graph, canonical, noIndex) at
 ## Owned API routes
 
 - `tenant` GET/PUT `/tenant/[tenantId]/api/seo/[entityType]/[entityId]`
+- `tenant` GET/POST `/tenant/[tenantId]/api/seo/web-vitals`
 
 ## TypeORM entities
 
@@ -45,6 +48,7 @@ Polymorphic SEO metadata (title, description, Open Graph, canonical, noIndex) at
 ## Next layer (modules_next/) surface
 
 - `seo/ui/SeoPanel` _(ui, client)_
+- `seo/web-vitals.client` _(ui, client)_
 
 ## README
 

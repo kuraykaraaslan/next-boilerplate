@@ -18,6 +18,8 @@ Tenant-aware shopping cart for users and anonymous guests. Manages cart items, q
 
 - `payment_cart.calc.service.ts`
 - `payment_cart.crud.service.ts`
+- `payment_cart.expiry.service.ts`
+- `payment_cart.inventory.service.ts`
 - `payment_cart.item.service.ts`
 - `payment_cart.service.ts`
 

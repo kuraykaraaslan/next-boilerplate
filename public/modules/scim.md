@@ -16,12 +16,19 @@ System for Cross-domain Identity Management (RFC 7643/7644). Lets enterprise IdP
 
 ## Services
 
+- `scim.group.service.ts`
+- `scim.policy.service.ts`
 - `scim.service.ts`
 - `scim.user.service.ts`
 
 ## DTOs
 
 - `scim.dto.ts`
+
+## Entities
+
+- `scim_group.entity.ts`
+- `scim_group_member.entity.ts`
 
 ## Message keys
 
@@ -31,11 +38,17 @@ System for Cross-domain Identity Management (RFC 7643/7644). Lets enterprise IdP
 
 - `tenant` GET/POST `/tenant/[tenantId]/api/scim/v2/Groups`
 - `tenant` GET/PUT/PATCH/DELETE `/tenant/[tenantId]/api/scim/v2/Groups/[scimGroupId]`
+- `tenant` GET `/tenant/[tenantId]/api/scim/v2/Health`
 - `tenant` GET `/tenant/[tenantId]/api/scim/v2/ResourceTypes`
 - `tenant` GET `/tenant/[tenantId]/api/scim/v2/Schemas`
 - `tenant` GET `/tenant/[tenantId]/api/scim/v2/ServiceProviderConfig`
 - `tenant` GET/POST `/tenant/[tenantId]/api/scim/v2/Users`
 - `tenant` GET/PUT/PATCH/DELETE `/tenant/[tenantId]/api/scim/v2/Users/[scimUserId]`
+
+## TypeORM entities
+
+- `ScimGroup` (system) — `modules/scim/entities/scim_group.entity.ts`
+- `ScimGroupMember` (system) — `modules/scim/entities/scim_group_member.entity.ts`
 
 ## README
 

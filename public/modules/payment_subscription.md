@@ -16,7 +16,10 @@ Recurring subscription lifecycle: plans, plan features, subscriber management, p
 
 ## Services
 
+- `payment_subscription.dunning.service.ts`
 - `payment_subscription.lifecycle.service.ts`
+- `payment_subscription.metered.service.ts`
+- `payment_subscription.metrics.service.ts`
 - `payment_subscription.plan.service.ts`
 - `payment_subscription.proration.service.ts`
 - `payment_subscription.service.ts`

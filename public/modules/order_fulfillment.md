@@ -16,7 +16,14 @@ Tenant-aware fulfillment and shipment tracking for orders. Manages packing, carr
 
 ## Services
 
+- `order_fulfillment.analytics.service.ts`
+- `order_fulfillment.carrier.service.ts`
+- `order_fulfillment.crud.service.ts`
+- `order_fulfillment.label.service.ts`
+- `order_fulfillment.read.service.ts`
 - `order_fulfillment.service.ts`
+- `order_fulfillment.status.service.ts`
+- `order_fulfillment.warehouse.service.ts`
 
 ## DTOs
 
@@ -27,6 +34,7 @@ Tenant-aware fulfillment and shipment tracking for orders. Manages packing, carr
 - `fulfillment.entity.ts`
 - `fulfillment_event.entity.ts`
 - `fulfillment_item.entity.ts`
+- `warehouse.entity.ts`
 
 ## Enums
 
@@ -41,6 +49,7 @@ Tenant-aware fulfillment and shipment tracking for orders. Manages packing, carr
 - `Fulfillment` (system) — `modules/order_fulfillment/entities/fulfillment.entity.ts`
 - `FulfillmentEvent` (system) — `modules/order_fulfillment/entities/fulfillment_event.entity.ts`
 - `FulfillmentItem` (system) — `modules/order_fulfillment/entities/fulfillment_item.entity.ts`
+- `Warehouse` (system) — `modules/order_fulfillment/entities/warehouse.entity.ts`
 
 ## README
 

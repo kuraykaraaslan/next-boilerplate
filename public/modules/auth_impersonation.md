@@ -16,7 +16,11 @@ Allow a system admin to assume a target user's session (always audited).
 
 ## Services
 
+- `impersonation.flow.service.ts`
+- `impersonation.mint.service.ts`
 - `impersonation.service.ts`
+- `impersonation.session.service.ts`
+- `impersonation.settings.service.ts`
 
 ## DTOs
 

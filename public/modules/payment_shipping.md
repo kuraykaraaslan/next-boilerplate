@@ -17,7 +17,9 @@ Tenant-aware shipping methods and a rate-calculation engine. Define carriers and
 ## Services
 
 - `payment_shipping.calc.service.ts`
+- `payment_shipping.carrier.service.ts`
 - `payment_shipping.crud.service.ts`
+- `payment_shipping.rules.service.ts`
 - `payment_shipping.service.ts`
 
 ## DTOs

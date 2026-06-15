@@ -21,6 +21,7 @@ Tenant-aware block-based page builder with i18n support. Supports code blocks (P
 - `dynamic_collection.service.ts`
 - `dynamic_page.block.service.ts`
 - `dynamic_page.crud.service.ts`
+- `dynamic_page.publishing.service.ts`
 - `dynamic_page.service.ts`
 
 ## DTOs
@@ -34,6 +35,7 @@ Tenant-aware block-based page builder with i18n support. Supports code blocks (P
 - `dynamic_page.entity.ts`
 - `dynamic_page_block.entity.ts`
 - `dynamic_page_translation.entity.ts`
+- `dynamic_page_version.entity.ts`
 
 ## Enums
 
@@ -64,6 +66,7 @@ Tenant-aware block-based page builder with i18n support. Supports code blocks (P
 - `DynamicPage` (system) — `modules/dynamic_page/entities/dynamic_page.entity.ts`
 - `DynamicPageBlock` (system) — `modules/dynamic_page/entities/dynamic_page_block.entity.ts`
 - `DynamicPageTranslation` (system) — `modules/dynamic_page/entities/dynamic_page_translation.entity.ts`
+- `DynamicPageVersion` (system) — `modules/dynamic_page/entities/dynamic_page_version.entity.ts`
 
 ## Next layer (modules_next/) surface
 

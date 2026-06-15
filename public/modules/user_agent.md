@@ -12,6 +12,7 @@ Parse User-Agent header into device/OS/browser metadata. Used to annotate sessio
 
 ## Services
 
+- `user_agent.geo.service.ts`
 - `user_agent.service.ts`
 
 ## Enums

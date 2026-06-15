@@ -25,6 +25,7 @@ System-wide key-value settings store. Modules declare their keys in *.setting.ke
 ## Entities
 
 - `setting.entity.ts`
+- `setting_history.entity.ts`
 
 ## Message keys
 
@@ -39,6 +40,7 @@ System-wide key-value settings store. Modules declare their keys in *.setting.ke
 ## TypeORM entities
 
 - `Setting` (system) — `modules/setting/entities/setting.entity.ts`
+- `SettingHistory` (system) — `modules/setting/entities/setting_history.entity.ts`
 
 ## Next layer (modules_next/) surface
 

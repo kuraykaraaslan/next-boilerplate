@@ -17,10 +17,13 @@ Tenant-scoped invoicing with regional e-invoicing adapters (TR e-Arşiv, EU Pepp
 ## Services
 
 - `invoice.adapter.service.ts`
+- `invoice.creditnote.service.ts`
 - `invoice.crud.service.ts`
 - `invoice.pdf.renderer.service.ts`
 - `invoice.pdf.service.ts`
 - `invoice.service.ts`
+- `invoice.signature.service.ts`
+- `invoice.tax.service.ts`
 - `invoice.transition.service.ts`
 
 ## Entities

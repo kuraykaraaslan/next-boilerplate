@@ -1,8 +1,49 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-13T15:50:35.947Z",
+  "generatedAt": "2026-06-14T22:49:34.358Z",
   "routes": [
+    {
+      "filePath": "app/api/auth/acs/route.ts",
+      "scope": "system",
+      "urlPath": "/api/auth/acs",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": false
+    },
+    {
+      "filePath": "app/api/auth/acs/[provider]/callback/route.ts",
+      "scope": "system",
+      "urlPath": "/api/auth/acs/[provider]/callback",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/api/auth/acs/[provider]/initiate/route.ts",
+      "scope": "system",
+      "urlPath": "/api/auth/acs/[provider]/initiate",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/api/auth/acs/[provider]/metadata/route.ts",
+      "scope": "system",
+      "urlPath": "/api/auth/acs/[provider]/metadata",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
     {
       "filePath": "app/internal/api/caddy-ask/route.ts",
       "scope": "system",
@@ -370,11 +411,31 @@
       "dynamic": true
     },
     {
+      "filePath": "app/tenant/[tenantId]/api/auth/me/complete-email/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/me/complete-email",
+      "methods": [
+        "POST"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
       "filePath": "app/tenant/[tenantId]/api/auth/me/device-info/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/auth/me/device-info",
       "methods": [
         "GET"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/me/merge-identity/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/me/merge-identity",
+      "methods": [
+        "POST"
       ],
       "module": "auth",
       "dynamic": true
@@ -497,6 +558,16 @@
       "filePath": "app/tenant/[tenantId]/api/auth/me/social-accounts/connect/[provider]/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/auth/me/social-accounts/connect/[provider]",
+      "methods": [
+        "GET"
+      ],
+      "module": "auth",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/auth/me/social-accounts/connect/acs/[provider]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/auth/me/social-accounts/connect/acs/[provider]",
       "methods": [
         "GET"
       ],
@@ -714,6 +785,60 @@
       "dynamic": true
     },
     {
+      "filePath": "app/tenant/[tenantId]/api/back-office/approvals/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/back-office/approvals",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "back_office",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/back-office/approvals/[approvalItemId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/back-office/approvals/[approvalItemId]",
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "module": "back_office",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/back-office/support/tickets/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/back-office/support/tickets",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "back_office",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/back-office/support/tickets/[ticketId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/back-office/support/tickets/[ticketId]",
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "module": "back_office",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/back-office/support/tickets/[ticketId]/messages/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/back-office/support/tickets/[ticketId]/messages",
+      "methods": [
+        "POST"
+      ],
+      "module": "back_office",
+      "dynamic": true
+    },
+    {
       "filePath": "app/tenant/[tenantId]/api/blog/categories/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/blog/categories",
@@ -779,6 +904,69 @@
         "POST"
       ],
       "module": "blog",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/conversations/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/conversations",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "conversation",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/conversations/[conversationId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/conversations/[conversationId]",
+      "methods": [
+        "GET"
+      ],
+      "module": "conversation",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/conversations/[conversationId]/messages/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/conversations/[conversationId]/messages",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "conversation",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/conversations/[conversationId]/messages/[messageId]/report/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/conversations/[conversationId]/messages/[messageId]/report",
+      "methods": [
+        "POST"
+      ],
+      "module": "conversation",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/conversations/[conversationId]/participants/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/conversations/[conversationId]/participants",
+      "methods": [
+        "POST",
+        "DELETE"
+      ],
+      "module": "conversation",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/conversations/[conversationId]/read/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/conversations/[conversationId]/read",
+      "methods": [
+        "POST"
+      ],
+      "module": "conversation",
       "dynamic": true
     },
     {
@@ -1273,6 +1461,101 @@
       "dynamic": true
     },
     {
+      "filePath": "app/tenant/[tenantId]/api/messaging/moderation/messages/[messageId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/messaging/moderation/messages/[messageId]",
+      "methods": [
+        "POST"
+      ],
+      "module": "messaging",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/messaging/moderation/queue/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/messaging/moderation/queue",
+      "methods": [
+        "GET"
+      ],
+      "module": "messaging",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/messaging/moderation/settings/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/messaging/moderation/settings",
+      "methods": [
+        "GET",
+        "PUT"
+      ],
+      "module": "messaging",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/messaging/ws-ticket/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/messaging/ws-ticket",
+      "methods": [
+        "POST"
+      ],
+      "module": "messaging",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/metering/billing/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/metering/billing",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "metering",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/metering/events/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/metering/events",
+      "methods": [
+        "POST"
+      ],
+      "module": "metering",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/metering/meters/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/metering/meters",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "metering",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/metering/meters/[meterId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/metering/meters/[meterId]",
+      "methods": [
+        "GET",
+        "PATCH",
+        "DELETE"
+      ],
+      "module": "metering",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/metering/usage/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/metering/usage",
+      "methods": [
+        "GET"
+      ],
+      "module": "metering",
+      "dynamic": true
+    },
+    {
       "filePath": "app/tenant/[tenantId]/api/notifications/push/subscribe/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/notifications/push/subscribe",
@@ -1492,6 +1775,16 @@
       "dynamic": true
     },
     {
+      "filePath": "app/tenant/[tenantId]/api/scim/v2/Health/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/scim/v2/Health",
+      "methods": [
+        "GET"
+      ],
+      "module": "scim",
+      "dynamic": true
+    },
+    {
       "filePath": "app/tenant/[tenantId]/api/scim/v2/ResourceTypes/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/scim/v2/ResourceTypes",
@@ -1552,6 +1845,17 @@
       "methods": [
         "GET",
         "PUT"
+      ],
+      "module": "seo",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/seo/web-vitals/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/seo/web-vitals",
+      "methods": [
+        "GET",
+        "POST"
       ],
       "module": "seo",
       "dynamic": true
@@ -1785,6 +2089,36 @@
       "dynamic": true
     },
     {
+      "filePath": "app/tenant/[tenantId]/api/storefront/categories/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/storefront/categories",
+      "methods": [
+        "GET"
+      ],
+      "module": "storefront",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/storefront/products/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/storefront/products",
+      "methods": [
+        "GET"
+      ],
+      "module": "storefront",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/storefront/products/[slug]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/storefront/products/[slug]",
+      "methods": [
+        "GET"
+      ],
+      "module": "storefront",
+      "dynamic": true
+    },
+    {
       "filePath": "app/tenant/[tenantId]/api/subscription/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/subscription",
@@ -1971,6 +2305,68 @@
         "GET"
       ],
       "module": "user",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/wallet/accounts/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/wallet/accounts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "wallet",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/wallet/accounts/[accountId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/wallet/accounts/[accountId]",
+      "methods": [
+        "GET"
+      ],
+      "module": "wallet",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/wallet/accounts/[accountId]/statement/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/wallet/accounts/[accountId]/statement",
+      "methods": [
+        "GET"
+      ],
+      "module": "wallet",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/wallet/transactions/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/wallet/transactions",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "wallet",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/wallet/transfer/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/wallet/transfer",
+      "methods": [
+        "POST"
+      ],
+      "module": "wallet",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/wallet/verify/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/wallet/verify",
+      "methods": [
+        "POST"
+      ],
+      "module": "wallet",
       "dynamic": true
     },
     {

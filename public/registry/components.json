@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-13T15:50:35.947Z",
+  "generatedAt": "2026-06-14T22:49:34.358Z",
   "components": [
     {
       "id": "ai/ui/AIChatBox",
@@ -2698,6 +2698,18 @@
       "isClient": true,
       "isServer": false,
       "baseName": "SeoPanel"
+    },
+    {
+      "id": "seo/web-vitals.client",
+      "module": "seo",
+      "filePath": "modules_next/seo/web-vitals.client.ts",
+      "kind": "ui",
+      "exports": [
+        "reportWebVitals"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "web-vitals.client"
     },
     {
       "id": "setting/setting-fields.types",

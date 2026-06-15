@@ -16,6 +16,7 @@ Tenant-aware wishlists / favorites. Users keep multiple named lists of products 
 
 ## Services
 
+- `payment_wishlist.price_watch.service.ts`
 - `payment_wishlist.service.ts`
 
 ## DTOs
@@ -26,6 +27,7 @@ Tenant-aware wishlists / favorites. Users keep multiple named lists of products 
 
 - `wishlist.entity.ts`
 - `wishlist_item.entity.ts`
+- `wishlist_price_point.entity.ts`
 
 ## Enums
 
@@ -39,6 +41,7 @@ Tenant-aware wishlists / favorites. Users keep multiple named lists of products 
 
 - `Wishlist` (system) — `modules/payment_wishlist/entities/wishlist.entity.ts`
 - `WishlistItem` (system) — `modules/payment_wishlist/entities/wishlist_item.entity.ts`
+- `WishlistPricePoint` (system) — `modules/payment_wishlist/entities/wishlist_price_point.entity.ts`
 
 ## README
 
