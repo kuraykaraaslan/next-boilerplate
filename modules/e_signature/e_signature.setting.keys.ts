@@ -41,8 +41,18 @@ export const E_SIGNATURE_SENSITIVE_KEYS: readonly ESignatureSystemSettingKey[] =
 export const ESignatureTenantSettingKeySchema = z.enum([
   'eidEnabled',
   'eidRequiredLoA',
+  // Turkey — Mobil Imza aggregator account
   'mobilImzaAggregatorApiKey',          // sensitive
   'mobilImzaAggregatorCustomerCode',
+  // Baltics (EE/LV/LT) — Smart-ID relying-party account (SK ID Solutions)
+  'smartIdBaseUrl',
+  'smartIdRelyingPartyUuid',
+  'smartIdRelyingPartyName',
+  // Sweden — BankID relying-party endpoint (mTLS cert/key stay system-level)
+  'bankIdSeBaseUrl',
+  // United States — Login.gov OIDC client
+  'loginGovClientId',
+  'loginGovRedirectUri',
 ]);
 export type ESignatureTenantSettingKey = z.infer<typeof ESignatureTenantSettingKeySchema>;
 export const E_SIGNATURE_TENANT_KEYS = ESignatureTenantSettingKeySchema.options;

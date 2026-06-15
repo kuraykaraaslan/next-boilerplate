@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Logger from '@/modules/logger';
 import Limiter from '@/modules_next/limiter/limiter.service.next';
-import ESignatureService from '@/modules/e_signature/e_signature.service';
+import AuthESignatureService from '@/modules/auth_e_signature/auth_e_signature.service';
 import UserService from '@/modules/user/user.service';
 import UserSecurityService from '@/modules/user_security/user_security.service';
 import UserSessionNextService from '@/modules_next/user_session/user_session.service.next';
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest, ctx: RouteContext) {
     const ip = Limiter.getIpFromRequest(request);
     const ua = request.headers.get('user-agent') || null;
 
-    const result = await ESignatureService.pollStatus({ transactionId, ip, ua });
+    const result = await AuthESignatureService.completeLogin({ transactionId, ip, ua });
 
     if (result.status !== 'signed') {
       return NextResponse.json({ success: true, data: result });

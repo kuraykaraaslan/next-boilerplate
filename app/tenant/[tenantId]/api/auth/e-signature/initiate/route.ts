@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Logger from '@/modules/logger';
 import Limiter from '@/modules_next/limiter/limiter.service.next';
-import ESignatureService from '@/modules/e_signature/e_signature.service';
+import AuthESignatureService from '@/modules/auth_e_signature/auth_e_signature.service';
 import { InitiateLoginDTO } from '@/modules/e_signature/e_signature.dto';
 import AuditLogService from '@/modules/audit_log/audit_log.service';
 import TenantService from '@/modules/tenant/tenant.service';
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest, ctx: RouteContext) {
     const ip = Limiter.getIpFromRequest(request);
     const ua = request.headers.get('user-agent') || null;
 
-    const result = await ESignatureService.initiateLogin({
+    const result = await AuthESignatureService.initiate({
       country: parsed.data.country,
       identifier: parsed.data.identifier,
       providerOverride: parsed.data.providerOverride,

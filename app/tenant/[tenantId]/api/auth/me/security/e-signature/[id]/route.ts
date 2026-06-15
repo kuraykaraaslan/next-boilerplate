@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import Limiter from '@/modules_next/limiter/limiter.service.next';
 import Logger from '@/modules/logger';
 import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next';
-import ESignatureCertService from '@/modules/e_signature/e_signature.cert.service';
+import AuthESignatureCertService from '@/modules/auth_e_signature/auth_e_signature.cert.service';
 import AuditLogService from '@/modules/audit_log/audit_log.service';
 
 interface RouteContext {
@@ -23,14 +23,14 @@ export async function DELETE(request: NextRequest, ctx: RouteContext) {
     const { user } = await TenantSessionNextService.authenticateTenantByRequest({ request, tenantId });
 
     // Ownership check — a user may only revoke their own certificates.
-    const certs = await ESignatureCertService.findByUser(user.userId);
+    const certs = await AuthESignatureCertService.findByUser(user.userId);
     const target = certs.find((c) => c.signingCertificateId === id);
     if (!target) {
       return NextResponse.json({ success: false, error: { message: 'Certificate not found' } }, { status: 404 });
     }
 
     if (!target.revokedAt) {
-      await ESignatureCertService.revoke(id);
+      await AuthESignatureCertService.revoke(id);
 
       const ip = Limiter.getIpFromRequest(request);
       const ua = request.headers.get('user-agent') || null;

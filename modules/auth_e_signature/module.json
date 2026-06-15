@@ -1,0 +1,13 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "auth_e_signature",
+  "name": "E-Signature Identity Login",
+  "description": "E-signature / e-identity login consumer: matches and binds qualified electronic-signature certificates (TR Mobil İmza, Smart-ID, BankID, eIDAS QSCD) to user accounts and runs the login/bind workflow. Consumes the e_signature engine for provider/crypto/identity primitives; owns the certificate↔user binding (signing_certificates).",
+  "version": "1.0.0",
+  "icon": "fas fa-id-card",
+  "tags": ["auth", "identity", "signature", "eidas"],
+  "priority": 36,
+  "dependencies": {
+    "requires": ["db", "e_signature", "user", "user_session", "user_security", "tenant", "tenant_member", "env", "audit_log", "webhook", "redis", "limiter", "common", "logger"]
+  }
+}

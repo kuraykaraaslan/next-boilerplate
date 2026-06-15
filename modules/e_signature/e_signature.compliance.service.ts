@@ -1,13 +1,10 @@
 import 'reflect-metadata'
 import { SignedXml } from 'xml-crypto'
-import { LessThan, MoreThan } from 'typeorm'
-import { getDataSource } from '@/modules/db'
 import redis from '@/modules/redis'
 import Logger from '@/modules/logger'
 import { AppError, ErrorCode } from '@/modules/common/app-error'
 import SettingService from '@/modules/setting/setting.service'
 import { ROOT_TENANT_ID } from '@/modules/tenant/tenant.constants'
-import { SigningCertificate } from './entities/signing_certificate.entity'
 import ESignatureCryptoService from './e_signature.crypto.service'
 
 export type LoA = 'low' | 'substantial' | 'high'
@@ -148,41 +145,10 @@ export default class ESignatureComplianceService {
     return { signatureValid, certValid, chainValid, reasons, signedAt: at }
   }
 
-  // ── Certificate expiry alerting ─────────────────────────────────────────────
-
-  /**
-   * Find signing certificates expiring within `withinDays` and emit a
-   * platform webhook per certificate (deduped per cert per day). Meant for a
-   * scheduled sweep.
-   */
-  static async sweepExpiringCerts(withinDays = 30): Promise<number> {
-    const ds = await getDataSource()
-    const now = new Date()
-    const cutoff = new Date(now.getTime() + withinDays * 24 * 60 * 60 * 1000)
-    const rows = await ds.getRepository(SigningCertificate).find({
-      where: { notAfter: LessThan(cutoff) as never, revokedAt: undefined },
-    })
-    const expiringSoon = rows.filter((c) => c.notAfter > now && !c.revokedAt)
-    let alerted = 0
-    const { default: WebhookService } = await import('@/modules/webhook/webhook.service')
-    for (const cert of expiringSoon) {
-      const dedup = `esig:certalert:${cert.signingCertificateId}:${now.toISOString().slice(0, 10)}`
-      try { if (await redis.set(dedup, '1', 'EX', 86400, 'NX') === null) continue } catch { /* fail-open */ }
-      await WebhookService.dispatchPlatformEvent('esignature.cert_expiring', {
-        signingCertificateId: cert.signingCertificateId, userId: cert.userId,
-        country: cert.country, notAfter: cert.notAfter.toISOString(),
-        daysRemaining: Math.ceil((cert.notAfter.getTime() - now.getTime()) / 86_400_000),
-      }).catch((e) => Logger.warn(`[e_signature] cert-expiry webhook failed: ${e instanceof Error ? e.message : e}`))
-      alerted++
-    }
-    return alerted
-  }
-
-  /** Active certificates (not expired, not revoked) — for a compliance dashboard. */
-  static async listActiveCerts(): Promise<SigningCertificate[]> {
-    const ds = await getDataSource()
-    return ds.getRepository(SigningCertificate).find({ where: { notAfter: MoreThan(new Date()) as never } })
-  }
+  // Certificate-expiry alerting and active-cert listing operate on the
+  // certificate↔user binding table, which is an auth concern. They live in the
+  // consumer module now: see AuthESignatureCertAlertsService in
+  // modules/auth_e_signature/auth_e_signature.cert_alerts.ts.
 
   // ── Long-term archival ──────────────────────────────────────────────────────
 

@@ -2,7 +2,6 @@ export { default as ESignatureService } from './e_signature.service';
 export { default as ESignatureDocumentService } from './e_signature.document.service';
 export type { XmlSignOptions, SettingsSignParams } from './e_signature.document.service';
 export { default as ESignatureCryptoService } from './e_signature.crypto.service';
-export { default as ESignatureCertService } from './e_signature.cert.service';
 export { default as ESignatureTrustListService } from './e_signature.trust_list.service';
 export { default as ESignatureComplianceService } from './e_signature.compliance.service';
 export type { ESignaturePolicy, LoA, EnforcementMode } from './e_signature.compliance.service';

@@ -5,7 +5,7 @@ import api from '@/modules_next/common/axios';
 import { BrandLogo } from '@/modules_next/common/ui/BrandLogo';
 import { LoginForm } from '@/modules_next/auth/ui/LoginForm';
 import { OAuthButtons, type OAuthProvider } from '@/modules_next/auth/ui/OAuthButtons';
-import { ESignatureLoginPanel } from '@/modules_next/auth/ui/ESignatureLoginPanel';
+import { ESignatureLoginPanel } from '@/modules_next/auth_e_signature/ui/ESignatureLoginPanel';
 import { Spinner } from '@/modules_next/common/ui/Spinner';
 import { isRootTenant } from '@/modules/tenant/tenant.constants';
 

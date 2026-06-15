@@ -2,13 +2,13 @@ import 'reflect-metadata'
 import { createQueue, createWorker } from '@/modules/redis'
 import Logger from '@/modules/logger'
 import ESignatureTrustListService from './e_signature.trust_list.service'
-import ESignatureComplianceService from './e_signature.compliance.service'
 
 /**
- * Scheduled e-signature maintenance: automatic LOTL / national trust-list
- * refresh (EU LOTL + TR KamuSM) and signing-certificate expiry alerting. Trust
- * lists drift (TSPs added/removed, certs rotated) so a stale list silently
- * breaks QES validation — this keeps it fresh and surfaces expiring certs.
+ * Scheduled e-signature engine maintenance: automatic LOTL / national
+ * trust-list refresh (EU LOTL + TR KamuSM). Trust lists drift (TSPs
+ * added/removed, certs rotated) so a stale list silently breaks QES validation
+ * — this keeps it fresh. Signing-certificate expiry alerting (an auth concern)
+ * is scheduled separately by modules/auth_e_signature.
  */
 const QUEUE_NAME = 'e-signature-maintenance'
 
@@ -22,9 +22,8 @@ function startWorker() {
     const tl = await ESignatureTrustListService.ingestAll().catch((e) => {
       Logger.warn(`[e_signature] trust-list refresh failed: ${e instanceof Error ? e.message : e}`); return { etsi: 0, tr: 0 }
     })
-    const expiringAlerts = await ESignatureComplianceService.sweepExpiringCerts(30).catch(() => 0)
-    Logger.info(`[e_signature] maintenance: LOTL=${tl.etsi} TR=${tl.tr} certExpiryAlerts=${expiringAlerts}`)
-    return { ...tl, expiringAlerts }
+    Logger.info(`[e_signature] maintenance: LOTL=${tl.etsi} TR=${tl.tr}`)
+    return { ...tl }
   }, { concurrency: 1 })
   _worker.on('failed', (job, err) => Logger.error(`[e_signature] maintenance job ${job?.id} failed: ${err.message}`))
   return _worker

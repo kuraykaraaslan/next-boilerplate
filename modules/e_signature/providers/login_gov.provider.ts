@@ -46,13 +46,16 @@ export default class LoginGovProvider extends BaseESignatureProvider {
       : { ok: false, error: 'Identifier required' };
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  initiateLogin(_input: InitiateLoginInput): Promise<InitiateLoginOutput> {
+  initiateLogin(input: InitiateLoginInput): Promise<InitiateLoginOutput> {
     // Hand off to auth_sso OIDC flow. The route layer should detect this
-    // provider and redirect instead of polling.
+    // provider and redirect instead of polling. A tenant may register its own
+    // Login.gov OIDC client; surface that client id so the bridge picks the
+    // right registration, falling back to the system-wide client.
+    const clientId = input.credentials?.extra?.clientId ?? env.LOGIN_GOV_CLIENT_ID;
     return Promise.reject(new Error(
       `${E_SIGNATURE_MESSAGES.PROVIDER_CAPABILITY_MISSING}: ` +
-      'Login.gov uses an OIDC redirect flow. Bridge via /api/auth/sso/login_gov on the root tenant.',
+      'Login.gov uses an OIDC redirect flow. Bridge via /api/auth/sso/login_gov on the root tenant' +
+      (clientId ? ` (client ${clientId}).` : '.'),
     ));
   }
 

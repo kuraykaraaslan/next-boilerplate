@@ -8,6 +8,13 @@ import {
   Index,
 } from 'typeorm';
 
+/**
+ * A signing certificate bound to a user — the certificate↔user mapping that
+ * powers e-signature login. This is an auth concern (it links a cryptographic
+ * identity to an account), so it lives in the `auth_e_signature` consumer
+ * module rather than the `e_signature` engine. The table name is unchanged
+ * (`signing_certificates`) so no DB migration is required.
+ */
 @Entity('signing_certificates')
 @Index('uq_signing_certificates_fingerprint', ['certFingerprintSha256'], { unique: true })
 @Index('idx_signing_certificates_user', ['userId'])

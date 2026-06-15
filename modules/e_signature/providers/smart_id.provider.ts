@@ -119,12 +119,16 @@ export default class SmartIdProvider extends BaseESignatureProvider {
     const nonce = Buffer.concat([Buffer.from(input.challenge, 'utf8'), randomBytes(32)]);
     const hash = createHash('sha512').update(nonce).digest();
     const http = this.resolveHttp(input.credentials);
+    // A tenant may operate its own Smart-ID relying-party account; honor the
+    // per-tenant UUID/name when present, otherwise fall back to the system env.
+    const relyingPartyUUID = input.credentials?.extra?.relyingPartyUuid ?? env.SMART_ID_RELYING_PARTY_UUID;
+    const relyingPartyName = input.credentials?.extra?.relyingPartyName ?? env.SMART_ID_RELYING_PARTY_NAME;
     try {
       const { data } = await http.post<{ sessionID: string }>(
         `/authentication/etsi/${encodeURIComponent(input.identifier)}`,
         {
-          relyingPartyUUID: env.SMART_ID_RELYING_PARTY_UUID,
-          relyingPartyName: env.SMART_ID_RELYING_PARTY_NAME,
+          relyingPartyUUID,
+          relyingPartyName,
           certificateLevel: 'QUALIFIED',
           hash: hash.toString('base64'),
           hashType: 'SHA512',

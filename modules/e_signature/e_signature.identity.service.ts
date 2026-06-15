@@ -1,4 +1,4 @@
-import ESignatureCertService from './e_signature.cert.service';
+import { createHash } from 'node:crypto';
 import type {
   CountryCode,
   RawIdentityClaims,
@@ -15,6 +15,13 @@ import type { LoA } from './e_signature.enums';
  * https://openid.net/specs/openid-connect-4-identity-assurance-1_0.html
  */
 export default class ESignatureIdentityService {
+  // ── National ID hashing ────────────────────────────────────────────────
+  // We never store the plaintext national identifier. The hash is salted with
+  // the country code so the same digits in two countries never collide.
+  static hashNationalId(plaintext: string, country: CountryCode): string {
+    return createHash('sha256').update(`${country}:${plaintext}`).digest('hex');
+  }
+
   static normalize({
     raw,
     providerName,
@@ -34,7 +41,7 @@ export default class ESignatureIdentityService {
       national_id: raw.nationalId
         ? {
             country: nationalIdCountry,
-            value_hash: ESignatureCertService.hashNationalId(raw.nationalId, nationalIdCountry),
+            value_hash: ESignatureIdentityService.hashNationalId(raw.nationalId, nationalIdCountry),
           }
         : null,
       country,

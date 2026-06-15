@@ -1,4 +1,4 @@
-import type { CountryCode, TransactionRecord, VerifiedIdentity } from './e_signature.types';
+import type { CountryCode, RawIdentityClaims, TransactionRecord, VerifiedIdentity } from './e_signature.types';
 
 export type InitiateLoginPurpose = 'login' | 'bind' | 'sign';
 
@@ -28,6 +28,8 @@ export type LoginStatusResult =
       identity: VerifiedIdentity;
       certificate: Buffer;
       transactionRecord: TransactionRecord;
-      matchedUserId: string | null;
-      boundSigningCertificateId: string | null;
+      // Raw provider claims, handed to the consumer (auth_e_signature) so it can
+      // match/bind the certificate to a user without re-parsing it. The engine
+      // itself performs no user matching or binding.
+      rawClaims: RawIdentityClaims;
     };

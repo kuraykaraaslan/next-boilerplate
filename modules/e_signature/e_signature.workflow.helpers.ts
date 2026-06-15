@@ -1,15 +1,13 @@
 import { randomBytes } from 'node:crypto';
 import { env } from '@/modules/env';
 import redis from '@/modules/redis';
-import { getDataSource } from '@/modules/db';
-import { User as UserEntity } from '@/modules/user/entities/user.entity';
 import ESignatureSettingsService from './e_signature.settings.service';
 import { ProviderCredentials } from './providers/base.provider';
 import {
   CHALLENGE_DISPLAY_MAX_LENGTH,
   TRANSACTION_REDIS_PREFIX,
 } from './e_signature.constants';
-import type { CountryCode, TransactionRecord } from './e_signature.types';
+import type { TransactionRecord } from './e_signature.types';
 import type { LoA } from './e_signature.enums';
 
 export function generateChallenge(): string {
@@ -53,37 +51,54 @@ export async function resolveTenantCredentials(
   providerName: string,
   tenantId: string,
 ): Promise<ProviderCredentials | undefined> {
-  if (providerName !== 'mobil_imza_aggregator') return undefined;
-  const [apiKey, customerCode] = await Promise.all([
-    ESignatureSettingsService.getTenantInternal(tenantId, 'mobilImzaAggregatorApiKey'),
-    ESignatureSettingsService.getTenantInternal(tenantId, 'mobilImzaAggregatorCustomerCode'),
-  ]);
-  if (!apiKey && !customerCode) return undefined;
-  return {
-    apiKey: apiKey ?? undefined,
-    customerCode: customerCode ?? undefined,
-  };
+  const get = (key: Parameters<typeof ESignatureSettingsService.getTenantInternal>[1]) =>
+    ESignatureSettingsService.getTenantInternal(tenantId, key);
+
+  switch (providerName) {
+    case 'mobil_imza_aggregator': {
+      const [apiKey, customerCode] = await Promise.all([
+        get('mobilImzaAggregatorApiKey'),
+        get('mobilImzaAggregatorCustomerCode'),
+      ]);
+      if (!apiKey && !customerCode) return undefined;
+      return { apiKey: apiKey ?? undefined, customerCode: customerCode ?? undefined };
+    }
+    case 'smart_id': {
+      const [baseUrl, uuid, name] = await Promise.all([
+        get('smartIdBaseUrl'),
+        get('smartIdRelyingPartyUuid'),
+        get('smartIdRelyingPartyName'),
+      ]);
+      if (!baseUrl && !uuid && !name) return undefined;
+      const extra: Record<string, string> = {};
+      if (uuid) extra.relyingPartyUuid = uuid;
+      if (name) extra.relyingPartyName = name;
+      return {
+        baseUrl: baseUrl ?? undefined,
+        extra: Object.keys(extra).length ? extra : undefined,
+      };
+    }
+    case 'bankid_se': {
+      const baseUrl = await get('bankIdSeBaseUrl');
+      if (!baseUrl) return undefined;
+      return { baseUrl };
+    }
+    case 'login_gov': {
+      const [clientId, redirectUri] = await Promise.all([
+        get('loginGovClientId'),
+        get('loginGovRedirectUri'),
+      ]);
+      if (!clientId && !redirectUri) return undefined;
+      const extra: Record<string, string> = {};
+      if (clientId) extra.clientId = clientId;
+      if (redirectUri) extra.redirectUri = redirectUri;
+      return { extra };
+    }
+    default:
+      return undefined;
+  }
 }
 
 export function loaRank(loa: LoA): number {
   return { low: 1, substantial: 2, high: 3 }[loa];
-}
-
-export async function findUserByCountryFallback({
-  country,
-  identifier,
-  nationalIdHash,
-}: {
-  country: CountryCode;
-  identifier: string;
-  nationalIdHash: string | null;
-}): Promise<string | null> {
-  const ds = await getDataSource();
-  const repo = ds.getRepository(UserEntity);
-  if (country === 'TR') {
-    const byPhone = await repo.findOne({ where: { phone: identifier } });
-    if (byPhone) return byPhone.userId;
-  }
-  void nationalIdHash;
-  return null;
 }

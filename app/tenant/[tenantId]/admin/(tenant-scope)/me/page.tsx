@@ -12,7 +12,7 @@ import { UserPreferencesForm, type UserPreferencesValues } from '@/modules_next/
 import { UserRoleBadge } from '@/modules_next/user/ui/UserRoleBadge';
 import { SocialAccountsPanel } from '@/modules_next/user/ui/SocialAccountsPanel';
 import { PasskeysPanel } from '@/modules_next/user_security/ui/PasskeysPanel';
-import { SigningCertificatesPanel } from '@/modules_next/e_signature/ui/SigningCertificatesPanel';
+import { SigningCertificatesPanel } from '@/modules_next/auth_e_signature/ui/SigningCertificatesPanel';
 import { ActiveSessionsPanel } from '@/modules_next/user_session/ui/ActiveSessionsPanel';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faClock, faLayerGroup, faShieldHalved, faCircleCheck, faCircleXmark } from '@fortawesome/free-solid-svg-icons';

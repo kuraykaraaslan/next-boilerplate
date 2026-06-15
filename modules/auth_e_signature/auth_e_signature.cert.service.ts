@@ -1,14 +1,19 @@
 import 'reflect-metadata';
 import { getDataSource } from '@/modules/db';
-import Logger from '@/modules/logger';
-import { SigningCertificate } from './entities/signing_certificate.entity';
 import { AppError, ErrorCode } from '@/modules/common/app-error';
-import { E_SIGNATURE_MESSAGES } from './e_signature.messages';
-import type { BoundCertificate, CountryCode, RawIdentityClaims } from './e_signature.types';
-import type { LoA } from './e_signature.enums';
-import { createHash } from 'node:crypto';
+import Logger from '@/modules/logger';
+import ESignatureIdentityService from '@/modules/e_signature/e_signature.identity.service';
+import { E_SIGNATURE_MESSAGES } from '@/modules/e_signature/e_signature.messages';
+import type { BoundCertificate, CountryCode, RawIdentityClaims } from '@/modules/e_signature/e_signature.types';
+import type { LoA } from '@/modules/e_signature/e_signature.enums';
+import { SigningCertificate } from './entities/signing_certificate.entity';
 
-export default class ESignatureCertService {
+/**
+ * Certificate ↔ user binding store for e-signature login. Consumes the
+ * `e_signature` engine for the (pure) national-id hash; everything else here is
+ * the auth-layer mapping between a verified certificate and an account.
+ */
+export default class AuthESignatureCertService {
   static async findByFingerprint(fingerprint: string): Promise<SigningCertificate | null> {
     const ds = await getDataSource();
     return ds.getRepository(SigningCertificate).findOne({
@@ -61,7 +66,7 @@ export default class ESignatureCertService {
       issuerDN: claims.issuerDN,
       subjectDN,
       commonName: claims.commonName,
-      nationalIdHash: claims.nationalId ? ESignatureCertService.hashNationalId(claims.nationalId, country) : null,
+      nationalIdHash: claims.nationalId ? ESignatureIdentityService.hashNationalId(claims.nationalId, country) : null,
       loa,
       notBefore: new Date(claims.notBefore),
       notAfter: new Date(claims.notAfter),
@@ -87,13 +92,6 @@ export default class ESignatureCertService {
     await ds
       .getRepository(SigningCertificate)
       .update({ signingCertificateId }, { revokedAt: new Date() });
-  }
-
-  // ── National ID hashing ────────────────────────────────────────────────
-  // We never store the plaintext national identifier. Hash is salted with
-  // the country code so the same digits in two countries never collide.
-  static hashNationalId(plaintext: string, country: CountryCode): string {
-    return createHash('sha256').update(`${country}:${plaintext}`).digest('hex');
   }
 
   static toBound(entity: SigningCertificate): BoundCertificate {

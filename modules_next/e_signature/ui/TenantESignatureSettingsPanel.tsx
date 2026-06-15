@@ -9,7 +9,7 @@ import { Select } from '@/modules_next/common/ui/Select';
 import { Spinner } from '@/modules_next/common/ui/Spinner';
 import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSave, faKey, faIdCard, faShieldHalved } from '@fortawesome/free-solid-svg-icons';
+import { faSave, faKey, faIdCard, faGlobe, faFingerprint, faLink } from '@fortawesome/free-solid-svg-icons';
 
 type SR = Record<string, string>;
 
@@ -32,6 +32,12 @@ export function TenantESignatureSettingsPanel({ tenantId }: { tenantId: string }
     eidRequiredLoA: '',
     mobilImzaAggregatorApiKey: '',
     mobilImzaAggregatorCustomerCode: '',
+    smartIdBaseUrl: '',
+    smartIdRelyingPartyUuid: '',
+    smartIdRelyingPartyName: '',
+    bankIdSeBaseUrl: '',
+    loginGovClientId: '',
+    loginGovRedirectUri: '',
   });
 
   function b(v: string | undefined) { return v === 'true'; }
@@ -47,6 +53,12 @@ export function TenantESignatureSettingsPanel({ tenantId }: { tenantId: string }
         eidRequiredLoA: data.eidRequiredLoA ?? '',
         mobilImzaAggregatorApiKey: data.mobilImzaAggregatorApiKey ?? '',
         mobilImzaAggregatorCustomerCode: data.mobilImzaAggregatorCustomerCode ?? '',
+        smartIdBaseUrl: data.smartIdBaseUrl ?? '',
+        smartIdRelyingPartyUuid: data.smartIdRelyingPartyUuid ?? '',
+        smartIdRelyingPartyName: data.smartIdRelyingPartyName ?? '',
+        bankIdSeBaseUrl: data.bankIdSeBaseUrl ?? '',
+        loginGovClientId: data.loginGovClientId ?? '',
+        loginGovRedirectUri: data.loginGovRedirectUri ?? '',
       });
     } catch (err: unknown) {
       const ax = err as { response?: { data?: { error?: { message?: string } } }; message?: string };
@@ -149,14 +161,94 @@ export function TenantESignatureSettingsPanel({ tenantId }: { tenantId: string }
         </form>
       </Card>
 
-      <Card title="Other regions" subtitle="Workspaces inherit system-level providers for non-Turkish regions today. Per-tenant credentials for Smart-ID (EE/LV/LT), BankID (SE) and Login.gov (US) will be configurable here in v1.2.">
-        <div className="flex items-start gap-3 text-sm text-text-secondary">
-          <FontAwesomeIcon icon={faShieldHalved} className="w-4 h-4 mt-0.5" />
-          <p>
-            Smart-ID, BankID and Login.gov configuration is currently shared across all workspaces and is managed in
-            {' '}<a className="text-primary underline" href="/system/admin/settings#e-signature">System Settings → E-Signature</a>.
-          </p>
-        </div>
+      <Card title="Smart-ID relying party (Baltics — EE / LV / LT)"
+        subtitle="Use a dedicated SK ID Solutions relying-party account for this workspace. When a field is blank, the workspace falls back to the system-wide Smart-ID configuration.">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            save({
+              smartIdBaseUrl: f.smartIdBaseUrl,
+              smartIdRelyingPartyUuid: f.smartIdRelyingPartyUuid,
+              smartIdRelyingPartyName: f.smartIdRelyingPartyName,
+            });
+          }}
+          className="space-y-4"
+        >
+          <Input
+            id="tenantSmartIdRpUuid"
+            label="Relying party UUID"
+            prefixIcon={<FontAwesomeIcon icon={faFingerprint} className="w-3.5 h-3.5" />}
+            value={f.smartIdRelyingPartyUuid}
+            onChange={(e) => setF((p) => ({ ...p, smartIdRelyingPartyUuid: e.target.value }))}
+          />
+          <Input
+            id="tenantSmartIdRpName"
+            label="Relying party name"
+            prefixIcon={<FontAwesomeIcon icon={faIdCard} className="w-3.5 h-3.5" />}
+            value={f.smartIdRelyingPartyName}
+            onChange={(e) => setF((p) => ({ ...p, smartIdRelyingPartyName: e.target.value }))}
+          />
+          <Input
+            id="tenantSmartIdBaseUrl"
+            label="API base URL"
+            placeholder="Leave blank to use the system endpoint"
+            prefixIcon={<FontAwesomeIcon icon={faGlobe} className="w-3.5 h-3.5" />}
+            value={f.smartIdBaseUrl}
+            onChange={(e) => setF((p) => ({ ...p, smartIdBaseUrl: e.target.value }))}
+          />
+          <div className="flex justify-end">
+            <Button type="submit" loading={saving} iconLeft={<FontAwesomeIcon icon={faSave} />}>Save</Button>
+          </div>
+        </form>
+      </Card>
+
+      <Card title="BankID relying party (Sweden)"
+        subtitle="Point this workspace at its own BankID RP endpoint. The mTLS client certificate and key remain system-level (configured via environment); leave the base URL blank to inherit the system endpoint.">
+        <form
+          onSubmit={(e) => { e.preventDefault(); save({ bankIdSeBaseUrl: f.bankIdSeBaseUrl }); }}
+          className="space-y-4"
+        >
+          <Input
+            id="tenantBankIdSeBaseUrl"
+            label="API base URL"
+            placeholder="Leave blank to use the system endpoint"
+            prefixIcon={<FontAwesomeIcon icon={faGlobe} className="w-3.5 h-3.5" />}
+            value={f.bankIdSeBaseUrl}
+            onChange={(e) => setF((p) => ({ ...p, bankIdSeBaseUrl: e.target.value }))}
+          />
+          <div className="flex justify-end">
+            <Button type="submit" loading={saving} iconLeft={<FontAwesomeIcon icon={faSave} />}>Save</Button>
+          </div>
+        </form>
+      </Card>
+
+      <Card title="Login.gov OIDC client (United States)"
+        subtitle="Register this workspace's own Login.gov OIDC client. When blank, the workspace falls back to the system-wide Login.gov client. Login.gov uses an OIDC redirect flow rather than QR/PIN polling.">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            save({ loginGovClientId: f.loginGovClientId, loginGovRedirectUri: f.loginGovRedirectUri });
+          }}
+          className="space-y-4"
+        >
+          <Input
+            id="tenantLoginGovClientId"
+            label="Client ID"
+            prefixIcon={<FontAwesomeIcon icon={faIdCard} className="w-3.5 h-3.5" />}
+            value={f.loginGovClientId}
+            onChange={(e) => setF((p) => ({ ...p, loginGovClientId: e.target.value }))}
+          />
+          <Input
+            id="tenantLoginGovRedirectUri"
+            label="Redirect URI"
+            prefixIcon={<FontAwesomeIcon icon={faLink} className="w-3.5 h-3.5" />}
+            value={f.loginGovRedirectUri}
+            onChange={(e) => setF((p) => ({ ...p, loginGovRedirectUri: e.target.value }))}
+          />
+          <div className="flex justify-end">
+            <Button type="submit" loading={saving} iconLeft={<FontAwesomeIcon icon={faSave} />}>Save</Button>
+          </div>
+        </form>
       </Card>
     </div>
   );

@@ -1,8 +1,6 @@
 import { env } from '@/modules/env';
 import Logger from '@/modules/logger';
-import WebhookService from '@/modules/webhook/webhook.service';
 import ESignatureCryptoService from './e_signature.crypto.service';
-import ESignatureCertService from './e_signature.cert.service';
 import ESignatureTrustListService from './e_signature.trust_list.service';
 import ESignatureIdentityService from './e_signature.identity.service';
 import ESignatureProviderService from './e_signature.provider.service';
@@ -11,7 +9,7 @@ import { E_SIGNATURE_MESSAGES } from './e_signature.messages';
 import type { LoA } from './e_signature.enums';
 import type { LoginStatusResult } from './e_signature.workflow.types';
 import {
-  deleteTransaction, findUserByCountryFallback, loadTransaction, loaRank, resolveTenantCredentials,
+  deleteTransaction, loadTransaction, loaRank, resolveTenantCredentials,
 } from './e_signature.workflow.helpers';
 
 export async function pollStatus({
@@ -121,59 +119,19 @@ export async function pollStatus({
     loa,
   });
 
-  const bound = await ESignatureCertService.findByFingerprint(rawClaims.certFingerprintSha256);
-  let matchedUserId: string | null = bound?.userId ?? null;
-  let boundSigningCertificateId: string | null = bound?.signingCertificateId ?? null;
-
-  if (!matchedUserId && record.purpose === 'login') {
-    matchedUserId = await findUserByCountryFallback({
-      country: record.country,
-      identifier: record.identifier,
-      nationalIdHash: identity.national_id?.value_hash ?? null,
-    });
-  }
-
-  if (record.purpose === 'bind' && record.initiatingUserId) {
-    const newBound = await ESignatureCertService.bind({
-      userId: record.initiatingUserId,
-      providerName: provider.name,
-      country: record.country,
-      claims: rawClaims,
-      loa,
-      subjectDN: rawClaims.commonName ? `CN=${rawClaims.commonName}` : `serial=${rawClaims.certSerialHex}`,
-    });
-    matchedUserId = record.initiatingUserId;
-    boundSigningCertificateId = newBound.signingCertificateId;
-  }
-
-  if (boundSigningCertificateId) {
-    await ESignatureCertService.markUsed(boundSigningCertificateId).catch(() => {});
-  }
-
+  // The engine stops here: it has cryptographically verified the signature and
+  // certificate and produced a normalized identity. User matching, certificate
+  // ↔ user binding and the `identity.verified` / `document.signed` webhooks are
+  // the consumer's job (see modules/auth_e_signature) — keeping them out avoids
+  // the engine depending on the auth layer. We return the raw claims so the
+  // consumer can bind without re-parsing the certificate.
   await deleteTransaction(transactionId);
-
-  if (record.tenantId) {
-    await WebhookService.dispatchEvent(record.tenantId, 'identity.verified', {
-      transactionId,
-      country: record.country,
-      matchedUserId: matchedUserId ?? null,
-      purpose: record.purpose,
-    });
-    if (record.purpose === 'sign') {
-      await WebhookService.dispatchEvent(record.tenantId, 'document.signed', {
-        transactionId,
-        country: record.country,
-        matchedUserId: matchedUserId ?? null,
-      });
-    }
-  }
 
   return {
     status: 'signed',
     identity,
     certificate: poll.certificate,
     transactionRecord: record,
-    matchedUserId,
-    boundSigningCertificateId,
+    rawClaims,
   };
 }

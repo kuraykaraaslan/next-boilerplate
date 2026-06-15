@@ -21,6 +21,7 @@ import { seedSetting } from '@/modules/setting/setting.seed';
 import { seedApiKey } from '@/modules/api_key/api_key.seed';
 import { seedAuthSaml } from '@/modules/auth_saml/auth_saml.seed';
 import { seedESignature } from '@/modules/e_signature/e_signature.seed';
+import { seedAuthESignature } from '@/modules/auth_e_signature/auth_e_signature.seed';
 import { seedStorage } from '@/modules/storage/storage.seed';
 import { seedWebhook } from '@/modules/webhook/webhook.seed';
 import { seedAi } from '@/modules/ai/ai.seed';
@@ -102,6 +103,7 @@ export const SEEDERS: SeederEntry[] = [
   { name: 'api_key', run: seedApiKey, tier: 1, deps: ['tenant'] },
   { name: 'auth_saml', run: seedAuthSaml, tier: 1, deps: ['tenant'] },
   { name: 'e_signature', run: seedESignature, tier: 1, deps: ['tenant'] },
+  { name: 'auth_e_signature', run: seedAuthESignature, tier: 1, deps: ['tenant', 'user'] },
   { name: 'storage', run: seedStorage, tier: 1, deps: ['tenant'] },
   { name: 'webhook', run: seedWebhook, tier: 1, deps: ['tenant'] },
   { name: 'ai', run: seedAi, tier: 1, deps: ['tenant'] },

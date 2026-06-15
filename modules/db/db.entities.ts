@@ -7,7 +7,7 @@ import { UserSecurity } from '@/modules/user_security/entities/user_security.ent
 import { UserPreferences } from '@/modules/user_preferences/entities/user_preferences.entity';
 import { UserSession } from '@/modules/user_session/entities/user_session.entity';
 import { UserSocialAccount } from '@/modules/user_social_account/entities/user_social_account.entity';
-import { SigningCertificate } from '@/modules/e_signature/entities/signing_certificate.entity';
+import { SigningCertificate } from '@/modules/auth_e_signature/entities/signing_certificate.entity';
 import { TrustListEntry } from '@/modules/e_signature/entities/trust_list_entry.entity';
 import { Tenant } from '@/modules/tenant/entities/tenant.entity';
 import { TenantDomain } from '@/modules/tenant_domain/entities/tenant_domain.entity';

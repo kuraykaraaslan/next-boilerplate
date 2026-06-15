@@ -46,14 +46,17 @@ export default class BankIdSeProvider extends BaseESignatureProvider {
       : { ok: false, error: E_SIGNATURE_MESSAGES.IDENTIFIER_INVALID };
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  initiateLogin(_input: InitiateLoginInput): Promise<InitiateLoginOutput> {
+  initiateLogin(input: InitiateLoginInput): Promise<InitiateLoginOutput> {
     if (!this.isConfigured()) {
       return Promise.reject(new Error(E_SIGNATURE_MESSAGES.PROVIDER_NOT_CONFIGURED));
     }
-    // TODO: POST /auth with personalNumber + requirement.certificatePolicies
+    // A tenant may point at its own BankID RP endpoint; honor the per-tenant
+    // base URL when present, falling back to the system-level endpoint. The
+    // mTLS client cert/key remain system-level (file paths in env).
+    const baseUrl = input.credentials?.baseUrl ?? env.BANKID_SE_BASE_URL;
+    // TODO: POST `${baseUrl}/auth` with personalNumber + requirement.certificatePolicies
     // and return { providerTxnId: orderRef, displayCode: autoStartToken? }.
-    return Promise.reject(new Error(`${E_SIGNATURE_MESSAGES.NOT_IMPLEMENTED}: BankID Sweden /auth flow`));
+    return Promise.reject(new Error(`${E_SIGNATURE_MESSAGES.NOT_IMPLEMENTED}: BankID Sweden /auth flow (${baseUrl})`));
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

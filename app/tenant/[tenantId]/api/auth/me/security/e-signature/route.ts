@@ -3,8 +3,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import Limiter from '@/modules_next/limiter/limiter.service.next';
 import Logger from '@/modules/logger';
 import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next';
-import ESignatureCertService from '@/modules/e_signature/e_signature.cert.service';
-import type { SigningCertificate } from '@/modules/e_signature/entities/signing_certificate.entity';
+import AuthESignatureCertService from '@/modules/auth_e_signature/auth_e_signature.cert.service';
+import type { SigningCertificate } from '@/modules/auth_e_signature/entities/signing_certificate.entity';
 
 interface RouteContext {
   params: Promise<{ tenantId: string }>;
@@ -43,7 +43,7 @@ export async function GET(request: NextRequest, ctx: RouteContext) {
     const { tenantId } = await ctx.params;
     const { user } = await TenantSessionNextService.authenticateTenantByRequest({ request, tenantId });
 
-    const certs = await ESignatureCertService.findByUser(user.userId);
+    const certs = await AuthESignatureCertService.findByUser(user.userId);
 
     return NextResponse.json({ success: true, data: certs.map(toClientCert) });
   } catch (err) {
