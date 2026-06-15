@@ -103,7 +103,7 @@ describe('TenantService.update', () => {
     });
     mockTenantDs(repo);
 
-    const result = await TenantService.update(TENANT_ID, { name: 'Updated Name', description: null, region: null });
+    const result = await TenantService.update(TENANT_ID, { name: 'Updated Name', description: null, region: undefined });
     expect(result.name).toBe('Updated Name');
     expect(repo.update).toHaveBeenCalled();
   });
@@ -113,7 +113,7 @@ describe('TenantService.update', () => {
     mockTenantDs(repo);
 
     await expect(
-      TenantService.update(TENANT_ID, { name: 'X', description: null, region: null })
+      TenantService.update(TENANT_ID, { name: 'X', description: null, region: undefined })
     ).rejects.toThrow(TenantMessages.TENANT_NOT_FOUND);
   });
 });
