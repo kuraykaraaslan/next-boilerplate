@@ -43,7 +43,7 @@ export const SSO_PROVIDERS = [
 
 export type OAuthProvider = (typeof SSO_PROVIDERS)[number];
 
-const providerMeta: Record<OAuthProvider, { label: string; icon: React.ReactNode; iconClass: string }> = {
+export const providerMeta: Record<OAuthProvider, { label: string; icon: React.ReactNode; iconClass: string }> = {
   google:    { label: 'Continue with Google',    icon: <FontAwesomeIcon icon={faGoogle} />,    iconClass: 'text-[#EA4335]' },
   apple:     { label: 'Continue with Apple',     icon: <FontAwesomeIcon icon={faApple} />,     iconClass: 'text-text-primary' },
   facebook:  { label: 'Continue with Facebook',  icon: <FontAwesomeIcon icon={faFacebook} />,  iconClass: 'text-[#1877F2]' },

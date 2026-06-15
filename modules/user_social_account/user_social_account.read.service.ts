@@ -3,9 +3,11 @@ import { In } from 'typeorm';
 import { getDataSource } from '@/modules/db';
 import redis, { jitter, singleFlight } from '@/modules/redis';
 import { UserSocialAccount as UserSocialAccountEntity } from './entities/user_social_account.entity';
-import { SafeUserSocialAccount, SafeUserSocialAccountSchema } from './user_social_account.types';
+import { SafeUserSocialAccount, SafeUserSocialAccountSchema, ConnectedAccount } from './user_social_account.types';
 import type { SocialAccountProvider } from './user_social_account.enums';
 import { SOCIAL_ACCOUNT_CACHE_TTL } from './user_social_account.helpers';
+import { describeProvider } from './user_social_account.presentation';
+import { batchTokenHealth } from './user_social_account.token.service';
 
 export async function getByUserId(userId: string): Promise<SafeUserSocialAccount[]> {
   const cacheKey = `user_social_account:user:${userId}`;
@@ -21,6 +23,34 @@ export async function getByUserId(userId: string): Promise<SafeUserSocialAccount
     const parsed = accounts.map((a) => SafeUserSocialAccountSchema.parse(a));
     await redis.setex(cacheKey, jitter(SOCIAL_ACCOUNT_CACHE_TTL), JSON.stringify(parsed)).catch(() => {});
     return parsed;
+  });
+}
+
+/**
+ * All of a user's linked identities, enriched for display: each row classified
+ * via `describeProvider` (kind/group/label/icon) with OAuth token-health folded
+ * in. Unifies social (OIDC/SSO), enterprise (SAML) and government (ACS) accounts
+ * into one list a single panel can render.
+ */
+export async function listConnectedAccounts(userId: string): Promise<ConnectedAccount[]> {
+  const accounts = await getByUserId(userId);
+
+  // Token health only applies to OAuth accounts (SAML/ACS store no tokens).
+  const oauthIds = accounts
+    .map((a) => ({ id: a.userSocialAccountId, kind: describeProvider(a.provider).kind }))
+    .filter((a) => a.kind === 'oauth')
+    .map((a) => a.id);
+  const health = oauthIds.length ? await batchTokenHealth(oauthIds) : [];
+  const healthById = new Map(health.map((h) => [h.userSocialAccountId, h]));
+
+  return accounts.map((a) => {
+    const descriptor = describeProvider(a.provider);
+    const h = descriptor.kind === 'oauth' ? healthById.get(a.userSocialAccountId) : undefined;
+    return {
+      ...a,
+      ...descriptor,
+      ...(h ? { tokenExpired: h.expired, tokenExpiresAt: h.expiresAt } : {}),
+    };
   });
 }
 

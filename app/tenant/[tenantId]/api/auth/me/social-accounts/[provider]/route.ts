@@ -19,7 +19,10 @@ export async function DELETE(
 
     const { user } = await UserSessionNextService.authenticateUserByRequest({ request });
 
-    const { provider } = await params;
+    const { provider: rawProvider } = await params;
+    // Government providers are keyed with a colon (`acs:tr_edevlet`) and arrive
+    // URL-encoded from the client; decode before validating against the enum.
+    const provider = decodeURIComponent(rawProvider);
     const parsed = SocialAccountProviderEnum.safeParse(provider);
     if (!parsed.success) {
       return NextResponse.json({ message: `Invalid provider: ${provider}` }, { status: 400 });

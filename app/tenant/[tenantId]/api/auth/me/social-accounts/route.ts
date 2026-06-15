@@ -11,6 +11,9 @@ import Limiter from '@/modules_next/limiter/limiter.service.next';
  * the system schema (one user can be a member of many tenants), so this returns
  * the same list as the system endpoint — the route exists per-tenant only so the
  * panel can run in tenant scope without crossing scope boundaries.
+ *
+ * Each account is enriched (kind/group/displayName/icon + OAuth token health) so
+ * one panel can render social, enterprise SAML and government identities alike.
  */
 export async function GET(request: NextRequest) {
   try {
@@ -19,7 +22,7 @@ export async function GET(request: NextRequest) {
 
     const { user } = await UserSessionNextService.authenticateUserByRequest({ request });
 
-    const accounts = await UserSocialAccountService.getByUserId(user.userId);
+    const accounts = await UserSocialAccountService.listConnectedAccounts(user.userId);
 
     return NextResponse.json({ accounts }, { status: 200 });
   } catch (error: any) {

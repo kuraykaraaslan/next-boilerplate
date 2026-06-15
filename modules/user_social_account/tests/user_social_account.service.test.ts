@@ -41,6 +41,8 @@ vi.mock('@/modules/logger', () => ({
 import UserSocialAccountService from '../user_social_account.service';
 import { getDataSource } from '@/modules/db';
 import UserSocialAccountMessages from '../user_social_account.messages';
+import { describeProvider } from '../user_social_account.presentation';
+import { ACS_CATALOG } from '@/modules/auth_acs/auth_acs.config';
 
 // ─── Fixtures ────────────────────────────────────────────────────────────────
 
@@ -231,6 +233,54 @@ describe('UserSocialAccountService.unlink', () => {
     const repo = mockSystemDs();
     await UserSocialAccountService.unlink(USER_ID, 'google');
     expect(repo.delete).toHaveBeenCalledWith({ userSocialAccountId: SOCIAL_ACCOUNT_ID });
+  });
+});
+
+// ─── describeProvider ─────────────────────────────────────────────────────────
+
+describe('describeProvider', () => {
+  it('classifies an OAuth/OIDC social provider', () => {
+    expect(describeProvider('google')).toMatchObject({
+      kind: 'oauth', group: 'social', displayName: 'Google', protocol: 'oidc', iconSlug: 'google',
+    });
+  });
+
+  it('classifies the enterprise SAML identity', () => {
+    expect(describeProvider('saml')).toMatchObject({
+      kind: 'saml', group: 'enterprise', displayName: 'Enterprise SSO (SAML)', protocol: 'saml',
+    });
+  });
+
+  it('classifies a government ACS provider using the catalog', () => {
+    const d = describeProvider('acs:tr_edevlet');
+    expect(d).toMatchObject({
+      kind: 'acs', group: 'government', country: 'TR', protocol: 'saml', iconSlug: 'acs:tr_edevlet',
+    });
+    expect(d.displayName).toBe(ACS_CATALOG.tr_edevlet.label);
+  });
+});
+
+// ─── listConnectedAccounts ────────────────────────────────────────────────────
+
+describe('UserSocialAccountService.listConnectedAccounts', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('enriches each account with its descriptor and OAuth token health', async () => {
+    mockSystemDs();
+    const result = await UserSocialAccountService.listConnectedAccounts(USER_ID);
+    expect(result).toHaveLength(1);
+    expect(result[0]).toMatchObject({
+      provider: 'google', kind: 'oauth', group: 'social', displayName: 'Google',
+    });
+    // OAuth accounts carry token health; mockAccount has no expiry → not expired.
+    expect(result[0].tokenExpired).toBe(false);
+  });
+
+  it('omits token-health fields for non-OAuth (SAML) accounts', async () => {
+    mockSystemDs({ find: vi.fn(async () => [{ ...mockAccount, provider: 'saml', providerId: 'nameid-1' }]) });
+    const result = await UserSocialAccountService.listConnectedAccounts(USER_ID);
+    expect(result[0]).toMatchObject({ kind: 'saml', group: 'enterprise' });
+    expect(result[0].tokenExpired).toBeUndefined();
   });
 });
 

@@ -1,10 +1,10 @@
 import 'reflect-metadata';
-import type { SafeUserSocialAccount } from './user_social_account.types';
+import type { SafeUserSocialAccount, ConnectedAccount } from './user_social_account.types';
 import type { SocialAccountProvider } from './user_social_account.enums';
 import { type SocialLinkContext } from './user_social_account.helpers';
 import {
   getByUserId, getByProviderAndProviderId, findUserIdByProvider,
-  isProviderAllowed, availableProviders, listForTenant,
+  isProviderAllowed, availableProviders, listForTenant, listConnectedAccounts,
 } from './user_social_account.read.service';
 import {
   updateTokens, isTokenExpired, refreshIfNeeded, getRawTokens, batchTokenHealth,
@@ -22,6 +22,11 @@ export type { SocialLinkContext };
 export default class UserSocialAccountService {
   static getByUserId(userId: string): Promise<SafeUserSocialAccount[]> {
     return getByUserId(userId);
+  }
+
+  /** All of a user's linked identities, enriched for display (social/SAML/government). */
+  static listConnectedAccounts(userId: string): Promise<ConnectedAccount[]> {
+    return listConnectedAccounts(userId);
   }
 
   static getByProviderAndProviderId(provider: SocialAccountProvider, providerId: string): Promise<SafeUserSocialAccount | null> {

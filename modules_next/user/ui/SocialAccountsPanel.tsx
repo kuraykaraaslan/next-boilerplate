@@ -8,10 +8,12 @@ import { Spinner } from '@/modules_next/common/ui/Spinner';
 import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
 import { Modal } from '@/modules_next/common/ui/Modal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLink, faUnlink, faPlus, faBuildingShield } from '@fortawesome/free-solid-svg-icons';
-import { SSO_PROVIDERS, type OAuthProvider } from '@/modules_next/auth/ui/OAuthButtons';
+import { faLink, faUnlink, faPlus, faBuildingShield, faLandmark } from '@fortawesome/free-solid-svg-icons';
+import { SSO_PROVIDERS, providerMeta, type OAuthProvider } from '@/modules_next/auth/ui/OAuthButtons';
 
 type Connectable = OAuthProvider | 'saml';
+
+type AccountGroup = 'social' | 'enterprise' | 'government';
 
 type SocialAccount = {
   provider: string;
@@ -19,12 +21,50 @@ type SocialAccount = {
   profilePicture?: string | null;
   createdAt?: string | null;
   updatedAt?: string | null;
+  // Enrichment from the API (optional — fall back gracefully if absent).
+  kind?: 'oauth' | 'saml' | 'acs';
+  group?: AccountGroup;
+  displayName?: string;
+  iconSlug?: string;
+  country?: string;
+  protocol?: 'oidc' | 'saml';
+  tokenExpired?: boolean;
 };
 
 function providerLabel(p: string): string {
   if (p === 'saml') return 'SAML SSO';
+  if (p.startsWith('acs:')) return p.slice('acs:'.length);
   return p.charAt(0).toUpperCase() + p.slice(1).toLowerCase();
 }
+
+/** Friendly label, preferring the server-enriched displayName. */
+function accountLabel(acc: SocialAccount): string {
+  return acc.displayName ?? providerLabel(acc.provider);
+}
+
+/** Which display group an account belongs to (falls back to provider parsing). */
+function accountGroup(acc: SocialAccount): AccountGroup {
+  if (acc.group) return acc.group;
+  if (acc.provider === 'saml') return 'enterprise';
+  if (acc.provider.startsWith('acs:')) return 'government';
+  return 'social';
+}
+
+/** Icon for an account row, keyed on its group/provider. */
+function accountIcon(acc: SocialAccount) {
+  const group = accountGroup(acc);
+  if (group === 'enterprise') return <FontAwesomeIcon icon={faBuildingShield} className="w-4 h-4" />;
+  if (group === 'government') return <FontAwesomeIcon icon={faLandmark} className="w-4 h-4" />;
+  const meta = providerMeta[acc.provider as OAuthProvider];
+  if (meta) return <span className={meta.iconClass}>{meta.icon}</span>;
+  return <span className="text-sm font-bold">{accountLabel(acc).charAt(0).toUpperCase()}</span>;
+}
+
+const GROUP_SECTIONS: { key: AccountGroup; title: string }[] = [
+  { key: 'social', title: 'Social logins' },
+  { key: 'enterprise', title: 'Enterprise SSO' },
+  { key: 'government', title: 'Government identities' },
+];
 
 export type SocialAccountsPanelProps = {
   /**
@@ -109,7 +149,8 @@ export function SocialAccountsPanel({
   async function handleUnlink(provider: string) {
     setUnlinking(true);
     try {
-      await api.delete(`${apiBase}/me/social-accounts/${provider}`);
+      // Government providers are colon-keyed (`acs:tr_edevlet`) — encode for the path.
+      await api.delete(`${apiBase}/me/social-accounts/${encodeURIComponent(provider)}`);
       setAccounts((p) => p.filter((a) => a.provider !== provider));
       setConfirm(null);
     } catch (e: any) {
@@ -147,36 +188,48 @@ export function SocialAccountsPanel({
                 <p className="text-sm">No connected accounts</p>
               </div>
             ) : (
-              <div className="divide-y divide-border">
-                {accounts.map((acc) => (
-                  <div key={acc.provider} className="flex items-center justify-between gap-4 py-3">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-subtle text-primary text-sm font-bold shrink-0">
-                        {acc.provider === 'saml'
-                          ? <FontAwesomeIcon icon={faBuildingShield} className="w-4 h-4" />
-                          : acc.provider.charAt(0).toUpperCase()}
-                      </span>
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <p className="text-sm font-medium text-text-primary">{providerLabel(acc.provider)}</p>
-                          <Badge variant="success" size="sm" dot>Connected</Badge>
-                        </div>
-                        <p className="text-xs text-text-secondary truncate">{acc.providerId}</p>
-                        {acc.createdAt && (
-                          <p className="text-xs text-text-disabled">
-                            Since {new Date(acc.createdAt).toLocaleDateString()}
-                          </p>
-                        )}
+              <div className="space-y-5">
+                {GROUP_SECTIONS.map(({ key, title }) => {
+                  const inGroup = accounts.filter((a) => accountGroup(a) === key);
+                  if (inGroup.length === 0) return null;
+                  return (
+                    <div key={key}>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-text-secondary mb-1">{title}</p>
+                      <div className="divide-y divide-border">
+                        {inGroup.map((acc) => (
+                          <div key={acc.provider} className="flex items-center justify-between gap-4 py-3">
+                            <div className="flex items-center gap-3 min-w-0">
+                              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-subtle text-primary text-sm font-bold shrink-0">
+                                {accountIcon(acc)}
+                              </span>
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <p className="text-sm font-medium text-text-primary">{accountLabel(acc)}</p>
+                                  <Badge variant="success" size="sm" dot>Connected</Badge>
+                                  {acc.tokenExpired && (
+                                    <Badge variant="warning" size="sm">Token expired</Badge>
+                                  )}
+                                </div>
+                                <p className="text-xs text-text-secondary truncate">{acc.providerId}</p>
+                                {acc.createdAt && (
+                                  <p className="text-xs text-text-disabled">
+                                    Since {new Date(acc.createdAt).toLocaleDateString()}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                            <Button size="sm" variant="ghost"
+                              className="!text-error shrink-0"
+                              onClick={() => setConfirm(acc.provider)}>
+                              <FontAwesomeIcon icon={faUnlink} className="w-3.5 h-3.5 mr-1" />
+                              Unlink
+                            </Button>
+                          </div>
+                        ))}
                       </div>
                     </div>
-                    <Button size="sm" variant="ghost"
-                      className="!text-error shrink-0"
-                      onClick={() => setConfirm(acc.provider)}>
-                      <FontAwesomeIcon icon={faUnlink} className="w-3.5 h-3.5 mr-1" />
-                      Unlink
-                    </Button>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
 
@@ -209,7 +262,11 @@ export function SocialAccountsPanel({
         open={!!confirmProvider}
         onClose={() => setConfirm(null)}
         title="Unlink Account"
-        description={`Are you sure you want to unlink your ${confirmProvider ? providerLabel(confirmProvider) : ''} account?`}
+        description={`Are you sure you want to unlink your ${
+          confirmProvider
+            ? accountLabel(accounts.find((a) => a.provider === confirmProvider) ?? { provider: confirmProvider, providerId: '' })
+            : ''
+        } account?`}
         footer={
           <>
             <Button variant="ghost" onClick={() => setConfirm(null)} disabled={unlinking}>Cancel</Button>
