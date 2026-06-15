@@ -1,15 +1,13 @@
-import { Skeleton } from '@/modules_next/common/ui/Skeleton';
+import { Spinner } from '@/modules_next/common/ui/Spinner';
 
 export default function TenantAuthLoading() {
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <div className="w-full max-w-sm space-y-4 p-6 rounded-xl border border-border">
-        <Skeleton className="h-8 w-3/4 mx-auto" />
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-10 w-full" />
-      </div>
+    <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-6 text-center">
+      <Spinner size="xl" />
+      <h2 className="text-xl font-semibold text-text-primary">Loading…</h2>
+      <p className="text-text-secondary text-sm max-w-sm">
+        Please wait while we get things ready.
+      </p>
     </div>
   );
 }

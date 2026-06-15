@@ -1,15 +1,13 @@
-import { SkeletonCard, SkeletonTable } from '@/modules_next/common/ui/Skeleton';
+import { Spinner } from '@/modules_next/common/ui/Spinner';
 
 export default function TenantAdminLoading() {
   return (
-    <div className="p-6 space-y-6">
-      <div className="h-8 w-48 animate-pulse motion-reduce:animate-none rounded bg-surface-overlay" aria-hidden="true" />
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <SkeletonCard key={i} />
-        ))}
-      </div>
-      <SkeletonTable rows={6} cols={4} />
+    <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 p-6 text-center">
+      <Spinner size="xl" />
+      <h2 className="text-xl font-semibold text-text-primary">Loading…</h2>
+      <p className="text-text-secondary text-sm max-w-md">
+        Please wait while we prepare your dashboard.
+      </p>
     </div>
   );
 }
