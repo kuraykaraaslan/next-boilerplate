@@ -18,8 +18,15 @@ import { ProductImagesPanel } from '@/modules_next/store/ui/ProductImagesPanel';
 import { SeoPanel } from '@/modules_next/seo/ui/SeoPanel';
 import { GalleryPanel } from '@/modules_next/media_gallery/ui/GalleryPanel';
 import { CurrencySelector } from '@/modules_next/common/ui/CurrencySelector';
-import { RichTextEditor } from '@/modules_next/common/ui/RichTextEditor';
+import dynamic from 'next/dynamic';
 import { ProductSpecValuesPanel } from '@/modules_next/store/ui/ProductSpecValuesPanel';
+
+// Quill + its CSS (~150KB) only load when the product editor actually mounts,
+// keeping the rest of the admin product page light.
+const RichTextEditor = dynamic(
+  () => import('@/modules_next/common/ui/RichTextEditor').then((m) => m.RichTextEditor),
+  { ssr: false, loading: () => <div className="h-44 rounded-md border border-border bg-surface-sunken animate-pulse" /> },
+);
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave, faCopy } from '@fortawesome/free-solid-svg-icons';
 import {

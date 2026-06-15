@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import DynamicPageService from '@/modules/dynamic_page/dynamic_page.service'
@@ -23,13 +24,20 @@ function joinSlug(segments: string[] | undefined): string {
   return (segments ?? []).join('/')
 }
 
-async function loadPage(tenantId: string, slugPath: string): Promise<DynamicPageRecord | null> {
+// React `cache()` dedupes these within a single request render pass:
+// generateMetadata() and the page component both resolve the same slug +
+// translations, so without this they'd each hit the service (and Redis) twice.
+const loadPage = cache(async (tenantId: string, slugPath: string): Promise<DynamicPageRecord | null> => {
   try {
     return await DynamicPageService.getPageBySlug(tenantId, slugPath)
   } catch {
     return null
   }
-}
+})
+
+const loadTranslations = cache((tenantId: string, pageId: string) =>
+  DynamicPageService.getTranslations(tenantId, pageId),
+)
 
 async function resolveTranslation(
   page: DynamicPageRecord,
@@ -39,7 +47,7 @@ async function resolveTranslation(
   const base = { title: page.title, description: page.description ?? undefined }
   if (!lang || lang === 'en') return base
   try {
-    const translations = await DynamicPageService.getTranslations(tenantId, page.dynamicPageId)
+    const translations = await loadTranslations(tenantId, page.dynamicPageId)
     const tr = translations.find((t) => t.lang === lang)
     return {
       title: tr?.title ?? page.title,
