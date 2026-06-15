@@ -60,8 +60,9 @@ async function checkMaintenance(req: NextRequest, pathname: string): Promise<Nex
 async function handleDomainMode(req: NextRequest, host: string, pathname: string): Promise<NextResponse> {
     let tenantId: string | null = null;
 
-    // Root surface: localhost (dev) or {root subdomain}.{wildcard} (prod)
-    if (isLocalhost(host) || host === `${ROOT_SUBDOMAIN}.${WILDCARD_DOMAIN}`) {
+    // Root surface: localhost (dev), the bare apex {wildcard}, or
+    // {root subdomain}.{wildcard} (prod) — all resolve to the root tenant.
+    if (isLocalhost(host) || host === WILDCARD_DOMAIN || host === `${ROOT_SUBDOMAIN}.${WILDCARD_DOMAIN}`) {
         tenantId = ROOT_TENANT_ID;
     } else {
         try {
@@ -117,8 +118,14 @@ function handlePathMode(req: NextRequest, pathname: string): NextResponse {
 
 export async function proxy(req: NextRequest) {
     const { pathname } = req.nextUrl;
-    let host = req.headers.get("host") || "";
-    host = host.replace(/:\d+$/, ""); // Portu kaldır
+    // Behind Vercel (and most reverse proxies) the externally-requested host
+    // arrives in `x-forwarded-host`; the `host` header can be the internal /
+    // deployment host. Prefer the forwarded value, take the first if a proxy
+    // chained several, then strip the port.
+    let host = (req.headers.get("x-forwarded-host") || req.headers.get("host") || "")
+        .split(",")[0]
+        .trim()
+        .replace(/:\d+$/, "");
 
     // ❌ Hariç path (static assets, _next)
     if (isExcluded(pathname)) {

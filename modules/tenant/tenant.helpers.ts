@@ -68,5 +68,40 @@ export async function seedDefaults(
     }
   }
 
+  await provisionWildcardSubdomain(tenantId, errors);
+
   return { ok: errors.length === 0, errors };
+}
+
+/**
+ * Auto-provision the tenant's `<slug>.<wildcard>` subdomain so it routes
+ * immediately, without a manual admin step. The subdomain lives under the
+ * platform's own wildcard TLS cert, so no DNS/ACME verification is needed — it
+ * is created `ACTIVE` (the proxy's `getByDomain` lookup ignores status anyway).
+ * Best-effort and idempotent: never fails tenant creation.
+ */
+async function provisionWildcardSubdomain(tenantId: string, errors: string[]): Promise<void> {
+  const wildcard = env.TENANT_WILDCARD_DOMAIN;
+  if (!wildcard) return;
+  try {
+    const { tenantDataSourceFor } = await import('@/modules/db');
+    const { Tenant } = await import('./entities/tenant.entity');
+    const { TenantDomain } = await import('@/modules/tenant_domain/entities/tenant_domain.entity');
+    const ds = await tenantDataSourceFor(tenantId);
+
+    const tenant = await ds.getRepository(Tenant).findOne({ where: { tenantId } });
+    if (!tenant?.slug) return; // no slug → no deterministic subdomain to mint
+
+    const domain = `${tenant.slug}.${wildcard}`;
+    const repo = ds.getRepository(TenantDomain);
+    const existing = await repo.findOne({ where: { domain } });
+    if (existing) return;
+
+    await repo.save(repo.create({ tenantId, domain, isPrimary: true, domainStatus: 'ACTIVE' }));
+    Logger.info(`[TenantService.seedDefaults] provisioned wildcard subdomain ${domain} → ${tenantId}`);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    Logger.warn(`[TenantService.seedDefaults] wildcard subdomain provisioning failed for ${tenantId}: ${msg}`);
+    errors.push(`subdomain: ${msg}`);
+  }
 }
