@@ -1,3 +1,62 @@
+# Terms & Consent
+
+- **id:** `terms_consent`
+- **tier:** other
+- **version:** 1.0.0
+- **dir:** `modules/terms_consent/`
+- **tags:** platform, legal, agreements, terms, consent, gdpr, kvkk, compliance
+- **icon:** `fas fa-file-contract`
+- **hasNextLayer:** true
+
+Legal agreements + consent. Versioned, immutable, hash-stamped agreement documents (terms of use, privacy/KVKK, distance-selling, pre-information, refund policy, cookie, custom) with an append-only acceptance ledger. Reusable agreements record version+hash on acceptance; order-specific documents (distance-selling/pre-information) are rendered per order and stored verbatim. Also keeps the cookie-consent banner + per-purpose consent ledger. Checkout integration enforces required agreement acceptance before payment. Data export/erasure stays with tenant_export.
+
+## Dependencies
+
+- **requires:** `db`, `env`, `redis`, `common`, `audit_log`, `setting`
+
+## Services
+
+- `terms_consent.agreements.service.ts`
+- `terms_consent.service.ts`
+
+## DTOs
+
+- `terms_consent.agreements.dto.ts`
+- `terms_consent.dto.ts`
+
+## Entities
+
+- `agreement.entity.ts`
+- `agreement_acceptance.entity.ts`
+- `agreement_version.entity.ts`
+- `consent_record.entity.ts`
+
+## Enums
+
+- `terms_consent.enums.ts`
+
+## Message keys
+
+- `terms_consent.messages.ts`
+
+## Setting keys
+
+- `terms_consent.setting.keys.ts`
+
+## TypeORM entities
+
+- `Agreement` (system) — `modules/terms_consent/entities/agreement.entity.ts`
+- `AgreementAcceptance` (system) — `modules/terms_consent/entities/agreement_acceptance.entity.ts`
+- `AgreementVersion` (system) — `modules/terms_consent/entities/agreement_version.entity.ts`
+- `ConsentRecord` (system) — `modules/terms_consent/entities/consent_record.entity.ts`
+
+## Next layer (modules_next/) surface
+
+- `terms_consent/ui/AcceptanceGate` _(ui, client)_
+- `terms_consent/ui/ConsentBanner` _(ui, client)_
+
+## README
+
 # terms_consent
 
 **Legal agreements + consent** for a tenant. Two facets in one module:

@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-15T10:40:42.438Z",
+  "generatedAt": "2026-06-15T11:05:18.588Z",
   "routes": [
     {
       "filePath": "app/api/auth/acs/route.ts",
@@ -114,6 +114,69 @@
         "POST"
       ],
       "module": "subscription",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/agreements/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/agreements",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "agreement",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/agreements/[agreementId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/agreements/[agreementId]",
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "module": "agreement",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/agreements/[agreementId]/versions/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/agreements/[agreementId]/versions",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "agreement",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/agreements/[agreementId]/versions/[versionId]/publish/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/agreements/[agreementId]/versions/[versionId]/publish",
+      "methods": [
+        "POST"
+      ],
+      "module": "agreement",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/agreements/accept/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/agreements/accept",
+      "methods": [
+        "POST"
+      ],
+      "module": "agreement",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/agreements/acceptances/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/agreements/acceptances",
+      "methods": [
+        "GET"
+      ],
+      "module": "agreement",
       "dynamic": true
     },
     {
@@ -954,6 +1017,26 @@
         "POST"
       ],
       "module": "blog",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/checkout/agreements/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/checkout/agreements",
+      "methods": [
+        "POST"
+      ],
+      "module": "checkout",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/checkout/agreements/accept/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/checkout/agreements/accept",
+      "methods": [
+        "POST"
+      ],
+      "module": "checkout",
       "dynamic": true
     },
     {

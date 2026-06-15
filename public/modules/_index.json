@@ -11,7 +11,7 @@
     "hasNextLayer": true,
     "routeCount": 0,
     "entityCount": 0,
-    "componentCount": 64,
+    "componentCount": 65,
     "file": "common.md"
   },
   "env": {
@@ -890,21 +890,24 @@
     "componentCount": 0,
     "file": "messaging.md"
   },
-  "gdpr_consent": {
-    "name": "GDPR Consent",
+  "terms_consent": {
+    "name": "Terms & Consent",
     "tier": "other",
     "tags": [
       "platform",
-      "gdpr",
-      "privacy",
+      "legal",
+      "agreements",
+      "terms",
       "consent",
+      "gdpr",
+      "kvkk",
       "compliance"
     ],
     "hasNextLayer": true,
     "routeCount": 0,
-    "entityCount": 1,
-    "componentCount": 1,
-    "file": "gdpr_consent.md"
+    "entityCount": 4,
+    "componentCount": 2,
+    "file": "terms_consent.md"
   },
   "wallet": {
     "name": "Wallet",

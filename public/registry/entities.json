@@ -1,8 +1,76 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-15T10:40:42.438Z",
+  "generatedAt": "2026-06-15T11:05:18.588Z",
   "entities": [
+    {
+      "name": "Agreement",
+      "filePath": "modules/terms_consent/entities/agreement.entity.ts",
+      "module": "terms_consent",
+      "schema": "system",
+      "tableName": "agreements",
+      "columns": [
+        "agreementId",
+        "tenantId",
+        "type",
+        "key",
+        "title",
+        "description",
+        "requiresAcceptance",
+        "isActive",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "AgreementAcceptance",
+      "filePath": "modules/terms_consent/entities/agreement_acceptance.entity.ts",
+      "module": "terms_consent",
+      "schema": "system",
+      "tableName": "agreement_acceptances",
+      "columns": [
+        "acceptanceId",
+        "tenantId",
+        "agreementId",
+        "agreementType",
+        "versionId",
+        "subjectUserId",
+        "subjectAnonymousId",
+        "accepted",
+        "contentHash",
+        "contentSnapshot",
+        "versionLabel",
+        "orderRef",
+        "context",
+        "ipAddress",
+        "userAgent",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "AgreementVersion",
+      "filePath": "modules/terms_consent/entities/agreement_version.entity.ts",
+      "module": "terms_consent",
+      "schema": "system",
+      "tableName": "agreement_versions",
+      "columns": [
+        "versionId",
+        "agreementId",
+        "tenantId",
+        "version",
+        "content",
+        "contentHash",
+        "language",
+        "status",
+        "effectiveFrom",
+        "publishedAt",
+        "isCurrent",
+        "createdAt"
+      ],
+      "relations": []
+    },
     {
       "name": "AiUsageLog",
       "filePath": "modules/ai/entities/ai_usage_log.entity.ts",
@@ -240,8 +308,8 @@
     },
     {
       "name": "ConsentRecord",
-      "filePath": "modules/gdpr_consent/entities/consent_record.entity.ts",
-      "module": "gdpr_consent",
+      "filePath": "modules/terms_consent/entities/consent_record.entity.ts",
+      "module": "terms_consent",
       "schema": "system",
       "tableName": "consent_records",
       "columns": [

@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-15T10:40:42.438Z",
+  "generatedAt": "2026-06-15T11:05:18.588Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -3127,17 +3127,20 @@
       "hasNextLayer": false
     },
     {
-      "id": "gdpr_consent",
-      "name": "GDPR Consent",
+      "id": "terms_consent",
+      "name": "Terms & Consent",
       "version": "1.0.0",
-      "description": "Per-tenant cookie-consent banner configuration plus an append-only consent ledger that records each subject's grant/withdraw decision per purpose (necessary/functional/analytics/marketing). Public capture for anonymous visitors, latest-wins state derivation, and audit-logged writes. Data export/erasure is handled by tenant_export.",
-      "dir": "modules/gdpr_consent",
-      "icon": "fas fa-shield-halved",
+      "description": "Legal agreements + consent. Versioned, immutable, hash-stamped agreement documents (terms of use, privacy/KVKK, distance-selling, pre-information, refund policy, cookie, custom) with an append-only acceptance ledger. Reusable agreements record version+hash on acceptance; order-specific documents (distance-selling/pre-information) are rendered per order and stored verbatim. Also keeps the cookie-consent banner + per-purpose consent ledger. Checkout integration enforces required agreement acceptance before payment. Data export/erasure stays with tenant_export.",
+      "dir": "modules/terms_consent",
+      "icon": "fas fa-file-contract",
       "tags": [
         "platform",
-        "gdpr",
-        "privacy",
+        "legal",
+        "agreements",
+        "terms",
         "consent",
+        "gdpr",
+        "kvkk",
         "compliance"
       ],
       "priority": 47,
@@ -3154,23 +3157,28 @@
       },
       "exports": {
         "services": [
-          "gdpr_consent.service.ts"
+          "terms_consent.agreements.service.ts",
+          "terms_consent.service.ts"
         ],
         "dtos": [
-          "gdpr_consent.dto.ts"
+          "terms_consent.agreements.dto.ts",
+          "terms_consent.dto.ts"
         ],
         "enums": [
-          "gdpr_consent.enums.ts"
+          "terms_consent.enums.ts"
         ],
         "messageKeys": [
-          "gdpr_consent.messages.ts"
+          "terms_consent.messages.ts"
         ],
         "settingKeys": [
-          "gdpr_consent.setting.keys.ts"
+          "terms_consent.setting.keys.ts"
         ],
         "providers": [],
         "jobs": [],
         "entities": [
+          "agreement.entity.ts",
+          "agreement_acceptance.entity.ts",
+          "agreement_version.entity.ts",
           "consent_record.entity.ts"
         ]
       },
@@ -3786,6 +3794,69 @@
         "POST"
       ],
       "module": "subscription",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/agreements/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/agreements",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "agreement",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/agreements/[agreementId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/agreements/[agreementId]",
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "module": "agreement",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/agreements/[agreementId]/versions/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/agreements/[agreementId]/versions",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "agreement",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/agreements/[agreementId]/versions/[versionId]/publish/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/agreements/[agreementId]/versions/[versionId]/publish",
+      "methods": [
+        "POST"
+      ],
+      "module": "agreement",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/agreements/accept/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/agreements/accept",
+      "methods": [
+        "POST"
+      ],
+      "module": "agreement",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/agreements/acceptances/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/agreements/acceptances",
+      "methods": [
+        "GET"
+      ],
+      "module": "agreement",
       "dynamic": true
     },
     {
@@ -4626,6 +4697,26 @@
         "POST"
       ],
       "module": "blog",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/checkout/agreements/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/checkout/agreements",
+      "methods": [
+        "POST"
+      ],
+      "module": "checkout",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/checkout/agreements/accept/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/checkout/agreements/accept",
+      "methods": [
+        "POST"
+      ],
+      "module": "checkout",
       "dynamic": true
     },
     {
@@ -6304,6 +6395,74 @@
   ],
   "entities": [
     {
+      "name": "Agreement",
+      "filePath": "modules/terms_consent/entities/agreement.entity.ts",
+      "module": "terms_consent",
+      "schema": "system",
+      "tableName": "agreements",
+      "columns": [
+        "agreementId",
+        "tenantId",
+        "type",
+        "key",
+        "title",
+        "description",
+        "requiresAcceptance",
+        "isActive",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "AgreementAcceptance",
+      "filePath": "modules/terms_consent/entities/agreement_acceptance.entity.ts",
+      "module": "terms_consent",
+      "schema": "system",
+      "tableName": "agreement_acceptances",
+      "columns": [
+        "acceptanceId",
+        "tenantId",
+        "agreementId",
+        "agreementType",
+        "versionId",
+        "subjectUserId",
+        "subjectAnonymousId",
+        "accepted",
+        "contentHash",
+        "contentSnapshot",
+        "versionLabel",
+        "orderRef",
+        "context",
+        "ipAddress",
+        "userAgent",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "AgreementVersion",
+      "filePath": "modules/terms_consent/entities/agreement_version.entity.ts",
+      "module": "terms_consent",
+      "schema": "system",
+      "tableName": "agreement_versions",
+      "columns": [
+        "versionId",
+        "agreementId",
+        "tenantId",
+        "version",
+        "content",
+        "contentHash",
+        "language",
+        "status",
+        "effectiveFrom",
+        "publishedAt",
+        "isCurrent",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "AiUsageLog",
       "filePath": "modules/ai/entities/ai_usage_log.entity.ts",
       "module": "ai",
@@ -6540,8 +6699,8 @@
     },
     {
       "name": "ConsentRecord",
-      "filePath": "modules/gdpr_consent/entities/consent_record.entity.ts",
-      "module": "gdpr_consent",
+      "filePath": "modules/terms_consent/entities/consent_record.entity.ts",
+      "module": "terms_consent",
       "schema": "system",
       "tableName": "consent_records",
       "columns": [
@@ -9331,6 +9490,18 @@
       "baseName": "index"
     },
     {
+      "id": "common/hooks/use-page-title.hook",
+      "module": "common",
+      "filePath": "modules_next/common/hooks/use-page-title.hook.ts",
+      "kind": "hook",
+      "exports": [
+        "usePageTitle"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "use-page-title.hook"
+    },
+    {
       "id": "common/module.types",
       "module": "common",
       "filePath": "modules_next/common/module.types.ts",
@@ -11321,18 +11492,6 @@
       "baseName": "feature-flag-columns"
     },
     {
-      "id": "gdpr_consent/ui/ConsentBanner",
-      "module": "gdpr_consent",
-      "filePath": "modules_next/gdpr_consent/ui/ConsentBanner.tsx",
-      "kind": "ui",
-      "exports": [
-        "ConsentBanner"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "ConsentBanner"
-    },
-    {
       "id": "invoice/ui/EarsivSmsSignModal",
       "module": "invoice",
       "filePath": "modules_next/invoice/ui/EarsivSmsSignModal.tsx",
@@ -12277,6 +12436,31 @@
       "isClient": true,
       "isServer": false,
       "baseName": "TenantSubscriptionCard"
+    },
+    {
+      "id": "terms_consent/ui/AcceptanceGate",
+      "module": "terms_consent",
+      "filePath": "modules_next/terms_consent/ui/AcceptanceGate.tsx",
+      "kind": "ui",
+      "exports": [
+        "AcceptanceGateOrder",
+        "AcceptanceGate"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "AcceptanceGate"
+    },
+    {
+      "id": "terms_consent/ui/ConsentBanner",
+      "module": "terms_consent",
+      "filePath": "modules_next/terms_consent/ui/ConsentBanner.tsx",
+      "kind": "ui",
+      "exports": [
+        "ConsentBanner"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ConsentBanner"
     },
     {
       "id": "user_security/ui/PasskeysPanel",

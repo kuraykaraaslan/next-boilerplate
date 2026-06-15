@@ -90,7 +90,7 @@ There are **47 modules** under `modules/`. Eighteen of them also have a Next/Rea
 | [feature_flags](feature_flags/) | Tenant-scoped feature flags: master switch, deterministic percentage rollout, attribute targeting rules, per-subject (user/segment) overrides. Read-through cached; audit-logged. | `FeatureFlag`, `FeatureFlagOverride` | db, env, redis, common, audit_log |
 | [analytics](analytics/) | Product event analytics: track events, summary (total/unique users/sessions/top events) + dense timeseries via `date_trunc` with gap-filling. | `AnalyticsEvent` | db, env, redis, common |
 | [search](search/) | Tenant-scoped full-text search; PostgreSQL FTS provider (`websearch_to_tsquery` + `ts_rank` + `ts_headline`) behind a provider abstraction. Parameterized, injection-safe. | `SearchDocument` | db, env, redis, common |
-| [gdpr_consent](gdpr_consent/) | Cookie-consent banner config + append-only consent ledger (record/withdraw per purpose, latest-state derivation). Complements `tenant_export` (portability/erasure). | `ConsentRecord` | db, env, redis, common, audit_log, setting |
+| [terms_consent](terms_consent/) | Legal agreements + consent. Versioned, immutable, hash-stamped agreement documents (terms, privacy/KVKK, distance-selling, pre-information, refund, cookie, custom) with an append-only acceptance ledger (reusable docs → version+hash; order-specific → verbatim snapshot). Plus the cookie-consent banner + per-purpose ledger. Checkout gate enforces acceptance before payment. Complements `tenant_export`. | `Agreement`, `AgreementVersion`, `AgreementAcceptance`, `ConsentRecord` | db, env, redis, common, audit_log, setting |
 
 ### AI
 

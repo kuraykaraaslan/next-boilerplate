@@ -45,6 +45,7 @@ import {
   faMagnifyingGlass,
   faChartLine,
   faCookieBite,
+  faFileContract,
 } from '@fortawesome/free-solid-svg-icons';
 
 type AdminShellProps = {
@@ -165,6 +166,7 @@ export function AdminShell({ children, tenantId }: AdminShellProps) {
       items: [
         { id: 'settings', label: 'Settings', href: `/tenant/${tenantId}/admin/settings`, icon: <FontAwesomeIcon icon={faGear} aria-hidden /> },
         { id: 'branding', label: 'Branding', href: `/tenant/${tenantId}/admin/settings/branding`, icon: <FontAwesomeIcon icon={faShieldHalved} aria-hidden /> },
+        { id: 'agreements', label: 'Agreements', href: `/tenant/${tenantId}/admin/terms`,    icon: <FontAwesomeIcon icon={faFileContract} aria-hidden /> },
         { id: 'consent',  label: 'Consent',  href: `/tenant/${tenantId}/admin/consent`,          icon: <FontAwesomeIcon icon={faCookieBite} aria-hidden /> },
       ],
     },
@@ -199,10 +201,19 @@ export function AdminShell({ children, tenantId }: AdminShellProps) {
   // Pick the most specific (longest) matching href so the Dashboard item
   // (href = the admin root, a prefix of every admin page) only wins on the
   // index route, and nested routes (e.g. settings/branding) beat their parents.
-  const activeId = navGroups
+  const activeItem = navGroups
     .flatMap((g) => g.items)
     .filter((item) => item.href && pathname.startsWith(item.href))
-    .sort((a, b) => b.href.length - a.href.length)[0]?.id;
+    .sort((a, b) => b.href.length - a.href.length)[0];
+  const activeId = activeItem?.id;
+
+  // Mirror the root layout's `%s | Next Boilerplate` title template for client
+  // routes, which can't export `metadata`. The active nav item's label is the
+  // closest thing we have to a page title.
+  const activeLabel = activeItem?.label;
+  useEffect(() => {
+    document.title = activeLabel ? `${activeLabel} | Next Boilerplate` : 'Next Boilerplate';
+  }, [activeLabel]);
 
   const profileHref = `/tenant/${tenantId}/admin/me`;
   const logoutHref = `/tenant/${tenantId}/auth/logout`;

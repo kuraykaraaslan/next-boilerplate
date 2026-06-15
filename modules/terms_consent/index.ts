@@ -1,7 +1,13 @@
 export { default as TermsConsentService } from './terms_consent.service';
+export { default as AgreementService } from './terms_consent.agreements.service';
 export { deriveConsentState } from './terms_consent.state';
+export { sha256Hex, interpolate, renderOrderTemplate, buildOrderVars } from './terms_consent.render';
+export type { SellerLegal } from './terms_consent.render';
+export type { ConsentSubject, ConsentMeta } from './terms_consent.service';
 export * from './terms_consent.enums';
 export * from './terms_consent.types';
+export * from './terms_consent.agreements.types';
 export * from './terms_consent.dto';
+export * from './terms_consent.agreements.dto';
 export * from './terms_consent.messages';
 export * from './terms_consent.setting.keys';

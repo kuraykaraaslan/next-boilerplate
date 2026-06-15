@@ -98,6 +98,9 @@ import { SupportTicketMessage } from '@/modules/back_office/entities/support_tic
 import { FeatureFlag } from '@/modules/feature_flags/entities/feature_flag.entity';
 import { FeatureFlagOverride } from '@/modules/feature_flags/entities/feature_flag_override.entity';
 import { ConsentRecord } from '@/modules/terms_consent/entities/consent_record.entity';
+import { Agreement } from '@/modules/terms_consent/entities/agreement.entity';
+import { AgreementVersion } from '@/modules/terms_consent/entities/agreement_version.entity';
+import { AgreementAcceptance } from '@/modules/terms_consent/entities/agreement_acceptance.entity';
 import { AnalyticsEvent } from '@/modules/analytics/entities/analytics_event.entity';
 import { SearchDocument } from '@/modules/search/entities/search_document.entity';
 
@@ -122,4 +125,5 @@ export const ENTITIES = [
   WalletTransaction, WalletPosting, MeterDefinition, MeteredUsageEvent,
   MeteredBillingRun, ApprovalQueueItem, SupportTicket, SupportTicketMessage,
   FeatureFlag, FeatureFlagOverride, ConsentRecord, AnalyticsEvent, SearchDocument,
+  Agreement, AgreementVersion, AgreementAcceptance,
 ];

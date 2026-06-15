@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-15T10:40:42.438Z",
+  "generatedAt": "2026-06-15T11:05:18.588Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -3191,17 +3191,20 @@
       "readme": "# Messaging\n\nTenant-scoped real-time messaging: 1-1 and group conversations, persisted\nmessages (soft-delete), read/delivery cursors, typing indicators, online/offline\npresence, and participant roles (`owner` / `admin` / `member`).\n\n## Architecture\n\n**HTTP writes, WebSocket receives. Redis is the bridge.**\n\n- **Writes** (send message, mark read, manage participants) go through the\n  Next.js API routes under `app/tenant/[tenantId]/api/conversations/…`. They\n  reuse the existing session auth, Zod validation, rate limiting and per-tenant\n  DataSource, then **publish** a realtime event to Redis (`msg:rt` channel).\n- **Realtime delivery** happens through a **standalone Socket.IO process**\n  (`modules/messaging/server/`), run separately from Next.js (App Router cannot\n  host a long-lived WS server). It subscribes to `msg:rt` and emits into rooms.\n- Clients send only **typing / presence / read** signals over the socket; the\n  message body itself is always an HTTP POST.\n\n```\nbrowser ──POST /messages──▶ Next API ──persist──▶ Postgres\n                               │\n                               └─publish msg:rt──▶ Redis ──▶ WS service ──emit──▶ browser(s)\nbrowser ──typing/read────────────────────────────▶ WS service ──broadcast──▶ browser(s)\n```\n\nTwo Redis mechanisms, different hops:\n- `@socket.io/redis-adapter` — socket↔socket fan-out *within* the WS cluster.\n- `msg:rt` pub/sub — Next HTTP process → WS cluster handoff of persisted events.\n\n## WebSocket auth (short-lived single-use ticket)\n\n1. `POST /tenant/{tenantId}/api/messaging/ws-ticket` (session-authed) → `{ ticket, expiresIn, wsUrl }`.\n2. `io(wsUrl, { auth: { ticket }, transports: ['websocket'] })`.\n3. The WS service consumes the ticket atomically (`GETDEL`, 30s TTL, single-use)\n   and binds `{ userId, tenantId }` to the socket. Replays are rejected.\n\n## Entities\n\n- `conversations` — direct (1-1, deduped via `dedupeKey`) or group threads.\n- `conversation_participants` — membership + role + read/delivery **cursors**\n  (`lastReadMessageId` / `lastDeliveredMessageId`); receipts are watermarks, not\n  per-message rows.\n- `messages` — persisted messages, soft-deleted, cursor-paginated.\n\n## Running\n\n```bash\nnpm run dev        # Next.js app (HTTP API)\nnpm run ws:dev     # standalone Socket.IO service (watch mode)\n# production: npm run build && npm run start  +  npm run ws:start\n```\n\nEnv: `MESSAGING_WS_PORT` (default 4001), `MESSAGING_WS_PUBLIC_URL`,\n`MESSAGING_WS_CORS_ORIGIN`. The WS service shares the same `.env`, Redis and DB\nas the app.\n\n> **Production note:** `synchronize` only creates tables in development. For\n> production add a migration under `modules/db/migrations/` for the three tables\n> and the **partial unique index** on `conversations(tenantId, dedupeKey)`.\n> Socket.IO across multiple instances needs sticky sessions or (as configured\n> here) `transports: ['websocket']`.\n\n## Moderation\n\nPer-tenant content moderation with three enforcement modes plus user reports and manual review.\n\n**Policy** (`messagingModerationMode` setting): `OFF` | `LOG` | `REPORT` | `AUTO`.\n- **OFF** — no scanning.\n- **LOG** — violations are delivered but written to the moderation log (AuditLog `message.flagged`).\n- **REPORT** — like LOG, plus surfaced in the moderator queue + admins notified.\n- **AUTO** — **pre-delivery quarantine**: a violating message is held (`PENDING`, not delivered) until a\n  moderator approves (delivered late) or rejects it.\n\n**Detection** = keyword blocklist first (synchronous, deterministic), then an optional async AI (LLM)\nbackstop via `AIService` (BullMQ worker, requires `ENABLE_BACKGROUND_JOBS=true`). Keyword hits gate\ndelivery immediately; AI never blocks the send path (unless `messagingModerationAiHold=true` + AUTO).\n\n**Status & visibility** (`Message.moderationStatus`): recipients see `CLEAN | FLAGGED | APPROVED`;\n`PENDING | REJECTED | HIDDEN` are hidden from recipients (sender sees own with a marker, admins see all).\n\n**Settings** (`SettingService`, ADMIN UI via the settings route): `messagingModerationMode`,\n`messagingModerationKeywords` (JSON array of literals + `/regex/` entries), `messagingModerationUseAi`,\n`messagingModerationAiHold`, `messagingModerationAiThreshold`, `messagingModerationReportThreshold`.\n\n**User reports** are always available; `messagingModerationReportThreshold>0` auto-quarantines after N reports.\n\nModeration API (under `/tenant/[tenantId]/api/`):\n```\nPOST   conversations/[conversationId]/messages/[messageId]/report   # any participant\nGET    messaging/moderation/queue                                   # ADMIN — flagged/pending + open reports\nPOST   messaging/moderation/messages/[messageId]                    # ADMIN — { action: approve|reject|hide|dismiss }\nGET/PUT messaging/moderation/settings                              # ADMIN — read/update policy\n```\nRealtime: a held message emits `message:moderated {status:'PENDING'}` to the sender only; on approve the\nmessage is delivered late via `message:new`; on reject/hide recipients get `message:moderated` + `message:deleted`.\n\n## Client sketch\n\n```ts\nconst { ticket, wsUrl } = await fetch(`/tenant/${tenantId}/api/messaging/ws-ticket`, { method: 'POST' }).then(r => r.json());\nconst socket = io(wsUrl, { auth: { ticket }, transports: ['websocket'] });\nsocket.emit('join', { conversationId });\nsocket.on('message:new', (msg) => { /* render */ });\nsocket.emit('typing:start', { conversationId });\n// send a message over HTTP:\nawait fetch(`/tenant/${tenantId}/api/conversations/${conversationId}/messages`, {\n  method: 'POST', body: JSON.stringify({ body: 'hi' }),\n});\n```\n"
     },
     {
-      "id": "gdpr_consent",
-      "name": "GDPR Consent",
+      "id": "terms_consent",
+      "name": "Terms & Consent",
       "version": "1.0.0",
-      "description": "Per-tenant cookie-consent banner configuration plus an append-only consent ledger that records each subject's grant/withdraw decision per purpose (necessary/functional/analytics/marketing). Public capture for anonymous visitors, latest-wins state derivation, and audit-logged writes. Data export/erasure is handled by tenant_export.",
-      "dir": "modules/gdpr_consent",
-      "icon": "fas fa-shield-halved",
+      "description": "Legal agreements + consent. Versioned, immutable, hash-stamped agreement documents (terms of use, privacy/KVKK, distance-selling, pre-information, refund policy, cookie, custom) with an append-only acceptance ledger. Reusable agreements record version+hash on acceptance; order-specific documents (distance-selling/pre-information) are rendered per order and stored verbatim. Also keeps the cookie-consent banner + per-purpose consent ledger. Checkout integration enforces required agreement acceptance before payment. Data export/erasure stays with tenant_export.",
+      "dir": "modules/terms_consent",
+      "icon": "fas fa-file-contract",
       "tags": [
         "platform",
-        "gdpr",
-        "privacy",
+        "legal",
+        "agreements",
+        "terms",
         "consent",
+        "gdpr",
+        "kvkk",
         "compliance"
       ],
       "priority": 47,
@@ -3218,30 +3221,35 @@
       },
       "exports": {
         "services": [
-          "gdpr_consent.service.ts"
+          "terms_consent.agreements.service.ts",
+          "terms_consent.service.ts"
         ],
         "dtos": [
-          "gdpr_consent.dto.ts"
+          "terms_consent.agreements.dto.ts",
+          "terms_consent.dto.ts"
         ],
         "enums": [
-          "gdpr_consent.enums.ts"
+          "terms_consent.enums.ts"
         ],
         "messageKeys": [
-          "gdpr_consent.messages.ts"
+          "terms_consent.messages.ts"
         ],
         "settingKeys": [
-          "gdpr_consent.setting.keys.ts"
+          "terms_consent.setting.keys.ts"
         ],
         "providers": [],
         "jobs": [],
         "entities": [
+          "agreement.entity.ts",
+          "agreement_acceptance.entity.ts",
+          "agreement_version.entity.ts",
           "consent_record.entity.ts"
         ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": true,
-      "readme": "# gdpr_consent\n\nTenant-scoped **cookie / consent management** — a configurable consent banner and\nan **append-only consent ledger** that records every subject's grant/withdraw\ndecision per purpose. Framework-agnostic (`modules/` layer); the Next bindings\n(admin UI, public banner component, API routes) live under `app/` and\n`modules_next/`.\n\n> Data **export / erasure** (GDPR portability and right-to-be-forgotten) is\n> handled by `tenant_export` — this module is **consent capture only** and does\n> not duplicate that surface.\n\n## What it does\n\nA subject is identified by **either** an authenticated `subjectUserId` **or** an\nanonymous `subjectAnonymousId` (banner visitors). Each consent decision appends\nONE immutable row to the ledger — rows are never updated or deleted. The current\nstate for a subject is derived by taking the **latest decision per purpose**\n(later wins). The `necessary` purpose is strictly required and is always reported\nas granted.\n\nPurposes: `necessary` · `functional` · `analytics` · `marketing`.\nSources: `banner` · `api` · `import` · `admin`.\n\n## Public API\n\n```ts\nimport { GdprConsentService } from \"@/modules/gdpr_consent\";\n\n// Anonymous banner submission (one row per decision)\nawait GdprConsentService.recordMany(\n  tenantId,\n  [{ purpose: \"analytics\", granted: true }, { purpose: \"marketing\", granted: false }],\n  { anonymousId },\n  { ipAddress, userAgent, source: \"banner\" },\n);\n\n// Single decision / withdrawal\nawait GdprConsentService.record(tenantId, { purpose: \"marketing\", granted: true, userId });\nawait GdprConsentService.withdraw(tenantId, \"marketing\", { userId });\n\n// Current state (latest per purpose; necessary always true)\nconst state = await GdprConsentService.getState(tenantId, { userId });\n\n// Admin ledger + banner config\nconst { data, total } = await GdprConsentService.list(tenantId, { page: 0, pageSize: 50 });\nconst cfg = await GdprConsentService.getBannerConfig(tenantId);\nawait GdprConsentService.updateBannerConfig(tenantId, { enabled: true }, actorId);\n```\n\nThe pure state deriver is exported for unit use / edge contexts:\n`deriveConsentState(records)`.\n\n## Entities\n\n| Entity | Table | Notes |\n|---|---|---|\n| `ConsentRecord` | `consent_records` | Append-only. Indexed on `tenantId`, `subjectUserId`, `subjectAnonymousId`. `@CreateDateColumn` only — no update column. |\n\n## Settings\n\nStored via `SettingService` (keys owned by this module — `GDPR_CONSENT_KEYS`):\n\n| Key | Meaning |\n|---|---|\n| `consentBannerEnabled` | `'true'`/`'false'` — show the banner |\n| `consentPolicyVersion` | policy version captured on each decision |\n| `consentBannerTitle` | banner heading |\n| `consentBannerMessage` | banner body text |\n| `consentPurposes` | JSON array of `{ key, label, description, required }` |\n\n`getBannerConfig` falls back to sensible defaults (disabled, version `1`, the four\nstandard purposes) when keys are unset or malformed.\n\n## Dependencies\n\n`db`, `env`, `redis`, `common`, `audit_log`, `setting`.\n\n## HTTP surface\n\n- `POST /tenant/{tenantId}/api/consent` — **public** record (single or many decisions); rate-limited, captures IP + user-agent, source `banner`.\n- `GET /tenant/{tenantId}/api/consent?userId=|anonymousId=` — **public** current state; rate-limited.\n- `GET /tenant/{tenantId}/api/consent/config` — **public** banner config (so the banner can render).\n- `PATCH /tenant/{tenantId}/api/consent/config` — **admin** update banner config.\n- `GET /tenant/{tenantId}/api/consent/records` — **admin** paginated ledger.\n\nUI: public banner `modules_next/gdpr_consent/ui/ConsentBanner.tsx`; admin page\n`/tenant/{tenantId}/admin/consent`.\n"
+      "readme": "# terms_consent\n\n**Legal agreements + consent** for a tenant. Two facets in one module:\n\n1. **Agreements** — versioned, immutable, hash-stamped legal documents (terms of\n   use, privacy/KVKK, distance-selling, pre-information, refund policy, cookie,\n   custom) with an append-only **acceptance ledger**.\n2. **Cookie consent** — the consent banner config + per-purpose consent ledger\n   (necessary/functional/analytics/marketing).\n\nFramework-agnostic (`modules/` layer); Next bindings (admin UI, `ConsentBanner`,\n`AcceptanceGate`, API routes) live under `app/` and `modules_next/`. Data\nexport/erasure stays with [`tenant_export`](../tenant_export/).\n\n## \"Do we store the accepted document verbatim?\" — yes, hybrid\n\nTo prove *exactly* what a user agreed to (TR Mesafeli Sözleşmeler Yönetmeliği,\nKVKK, GDPR), the strategy is:\n\n- **Reusable agreements** (terms, privacy): each `AgreementVersion` is frozen +\n  SHA-256 hashed on publish. An acceptance stores `versionId` + `contentHash` —\n  the text isn't duplicated per acceptance, but the hash proves integrity and the\n  immutable version reproduces the exact text.\n- **Order-specific agreements** (distance-selling, pre-information): rendered per\n  order from a `{{placeholder}}` template + order/seller data, then stored\n  **verbatim** in `AgreementAcceptance.contentSnapshot` (+ its hash), bound to the\n  `orderRef`. There is no reusable version for these — the document is unique to\n  the order.\n\nEither way `contentHash` is tamper-evidence and the exact accepted text is\nrecoverable.\n\n## Entities\n\n| Entity | Table | Notes |\n|---|---|---|\n| `Agreement` | `agreements` | Definition: type, key (unique per tenant), title, requiresAcceptance. |\n| `AgreementVersion` | `agreement_versions` | Immutable once published; `content` (+ template), `contentHash`, `isCurrent`. |\n| `AgreementAcceptance` | `agreement_acceptances` | Append-only ledger; versionId+hash (reusable) or contentSnapshot+hash+orderRef (order-specific). |\n| `ConsentRecord` | `consent_records` | Cookie/purpose consent ledger. |\n\n## Public API\n\n```ts\nimport { AgreementService, TermsConsentService } from \"@/modules/terms_consent\";\n\n// Author & publish a reusable agreement\nconst a = await AgreementService.create(tenantId, { type: \"terms_of_use\", key: \"terms\", title: \"Terms of Use\" }, actorId);\nconst v = await AgreementService.createVersion(tenantId, a.agreementId, { content: \"…\" }, actorId);\nawait AgreementService.publishVersion(tenantId, a.agreementId, v.versionId, actorId);\n\n// Accept the current version (e.g. at signup)\nawait AgreementService.accept(tenantId, { type: \"terms_of_use\", subject: { userId } }, meta);\n\n// Checkout (order-specific, verbatim)\nconst docs = await AgreementService.renderCheckoutAgreements(tenantId, order); // render for display\nawait AgreementService.acceptCheckoutAgreements(tenantId, { order, subject: { userId } }, meta);\nawait AgreementService.assertCheckoutAgreementsAccepted(tenantId, order.orderRef, { userId }); // gate before payment\n\n// Cookie consent (unchanged facet)\nawait TermsConsentService.recordMany(tenantId, decisions, { anonymousId }, meta);\n```\n\nPure helpers: `sha256Hex`, `interpolate`, `renderOrderTemplate`, `buildOrderVars`,\n`deriveConsentState`.\n\n## Order-specific templates\n\nDistance-selling / pre-information version `content` is a template. Available\nplaceholders: `{{order.ref}}`, `{{order.date}}`, `{{order.total}}`,\n`{{order.currency}}`, `{{order.items}}`, `{{buyer.name|email|phone|address}}`,\n`{{seller.name|address|taxOffice|taxId|mersis|email|phone}}`. Seller identity is\nread from settings (`legalSeller*`).\n\n## Settings\n\nCookie banner: `consentBannerEnabled`, `consentPolicyVersion`,\n`consentBannerTitle`, `consentBannerMessage`, `consentPurposes`.\nCheckout/legal: `checkoutRequiredAgreements` (JSON array of types), `legalSeller*`.\n\n## Checkout integration\n\n`payment.checkout.operations.createCheckoutSession` calls\n`AgreementService.assertCheckoutAgreementsAccepted` whenever the checkout carries\n`metadata.orderRef` — so a payment can't proceed unless the order's required\nagreements were accepted. No `orderRef` or no required types → no-op.\n\n## HTTP surface\n\n- `GET/POST /tenant/{id}/api/agreements` · `GET/PATCH /tenant/{id}/api/agreements/{agreementId}` (admin)\n- `GET/POST /tenant/{id}/api/agreements/{agreementId}/versions` · `POST …/versions/{versionId}/publish` (admin)\n- `POST /tenant/{id}/api/agreements/accept` (public) · `GET /tenant/{id}/api/agreements/acceptances` (admin)\n- `POST /tenant/{id}/api/checkout/agreements` (render) · `POST /tenant/{id}/api/checkout/agreements/accept`\n- Cookie consent: `GET/POST /tenant/{id}/api/consent`, `GET/PATCH /tenant/{id}/api/consent/config`, `GET /tenant/{id}/api/consent/records`\n\nAdmin UI: `/tenant/{id}/admin/terms` (agreements), `/tenant/{id}/admin/consent` (cookie banner).\n\n## Dependencies\n\n`db`, `env`, `redis`, `common`, `audit_log`, `setting`.\n"
     },
     {
       "id": "wallet",
@@ -3861,6 +3869,69 @@
         "POST"
       ],
       "module": "subscription",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/agreements/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/agreements",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "agreement",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/agreements/[agreementId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/agreements/[agreementId]",
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "module": "agreement",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/agreements/[agreementId]/versions/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/agreements/[agreementId]/versions",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "agreement",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/agreements/[agreementId]/versions/[versionId]/publish/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/agreements/[agreementId]/versions/[versionId]/publish",
+      "methods": [
+        "POST"
+      ],
+      "module": "agreement",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/agreements/accept/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/agreements/accept",
+      "methods": [
+        "POST"
+      ],
+      "module": "agreement",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/agreements/acceptances/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/agreements/acceptances",
+      "methods": [
+        "GET"
+      ],
+      "module": "agreement",
       "dynamic": true
     },
     {
@@ -4701,6 +4772,26 @@
         "POST"
       ],
       "module": "blog",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/checkout/agreements/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/checkout/agreements",
+      "methods": [
+        "POST"
+      ],
+      "module": "checkout",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/checkout/agreements/accept/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/checkout/agreements/accept",
+      "methods": [
+        "POST"
+      ],
+      "module": "checkout",
       "dynamic": true
     },
     {
@@ -6379,6 +6470,74 @@
   ],
   "entities": [
     {
+      "name": "Agreement",
+      "filePath": "modules/terms_consent/entities/agreement.entity.ts",
+      "module": "terms_consent",
+      "schema": "system",
+      "tableName": "agreements",
+      "columns": [
+        "agreementId",
+        "tenantId",
+        "type",
+        "key",
+        "title",
+        "description",
+        "requiresAcceptance",
+        "isActive",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "AgreementAcceptance",
+      "filePath": "modules/terms_consent/entities/agreement_acceptance.entity.ts",
+      "module": "terms_consent",
+      "schema": "system",
+      "tableName": "agreement_acceptances",
+      "columns": [
+        "acceptanceId",
+        "tenantId",
+        "agreementId",
+        "agreementType",
+        "versionId",
+        "subjectUserId",
+        "subjectAnonymousId",
+        "accepted",
+        "contentHash",
+        "contentSnapshot",
+        "versionLabel",
+        "orderRef",
+        "context",
+        "ipAddress",
+        "userAgent",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "AgreementVersion",
+      "filePath": "modules/terms_consent/entities/agreement_version.entity.ts",
+      "module": "terms_consent",
+      "schema": "system",
+      "tableName": "agreement_versions",
+      "columns": [
+        "versionId",
+        "agreementId",
+        "tenantId",
+        "version",
+        "content",
+        "contentHash",
+        "language",
+        "status",
+        "effectiveFrom",
+        "publishedAt",
+        "isCurrent",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "AiUsageLog",
       "filePath": "modules/ai/entities/ai_usage_log.entity.ts",
       "module": "ai",
@@ -6615,8 +6774,8 @@
     },
     {
       "name": "ConsentRecord",
-      "filePath": "modules/gdpr_consent/entities/consent_record.entity.ts",
-      "module": "gdpr_consent",
+      "filePath": "modules/terms_consent/entities/consent_record.entity.ts",
+      "module": "terms_consent",
       "schema": "system",
       "tableName": "consent_records",
       "columns": [
@@ -9406,6 +9565,18 @@
       "baseName": "index"
     },
     {
+      "id": "common/hooks/use-page-title.hook",
+      "module": "common",
+      "filePath": "modules_next/common/hooks/use-page-title.hook.ts",
+      "kind": "hook",
+      "exports": [
+        "usePageTitle"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "use-page-title.hook"
+    },
+    {
       "id": "common/module.types",
       "module": "common",
       "filePath": "modules_next/common/module.types.ts",
@@ -11396,18 +11567,6 @@
       "baseName": "feature-flag-columns"
     },
     {
-      "id": "gdpr_consent/ui/ConsentBanner",
-      "module": "gdpr_consent",
-      "filePath": "modules_next/gdpr_consent/ui/ConsentBanner.tsx",
-      "kind": "ui",
-      "exports": [
-        "ConsentBanner"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "ConsentBanner"
-    },
-    {
       "id": "invoice/ui/EarsivSmsSignModal",
       "module": "invoice",
       "filePath": "modules_next/invoice/ui/EarsivSmsSignModal.tsx",
@@ -12352,6 +12511,31 @@
       "isClient": true,
       "isServer": false,
       "baseName": "TenantSubscriptionCard"
+    },
+    {
+      "id": "terms_consent/ui/AcceptanceGate",
+      "module": "terms_consent",
+      "filePath": "modules_next/terms_consent/ui/AcceptanceGate.tsx",
+      "kind": "ui",
+      "exports": [
+        "AcceptanceGateOrder",
+        "AcceptanceGate"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "AcceptanceGate"
+    },
+    {
+      "id": "terms_consent/ui/ConsentBanner",
+      "module": "terms_consent",
+      "filePath": "modules_next/terms_consent/ui/ConsentBanner.tsx",
+      "kind": "ui",
+      "exports": [
+        "ConsentBanner"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ConsentBanner"
     },
     {
       "id": "user_security/ui/PasskeysPanel",

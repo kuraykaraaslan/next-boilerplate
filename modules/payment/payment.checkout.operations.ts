@@ -17,6 +17,7 @@ import { PAYMENT_MESSAGES } from './payment.messages';
 import AuditLogService from '@/modules/audit_log/audit_log.service';
 import { AppError, ErrorCode } from '@/modules/common/app-error';
 import { getProvider, resolveEnabledProvider } from './payment.checkout.registry';
+import AgreementService from '@/modules/terms_consent/terms_consent.agreements.service';
 
 export async function createCustomerPortalSession(
   tenantId: string,
@@ -56,6 +57,16 @@ export async function createCheckoutSession(
 ): Promise<CheckoutSessionResult> {
   const resolved = await resolveEnabledProvider(tenantId, providerName);
   await assertCheckoutVelocity(tenantId, params.metadata?.customerEmail ?? params.metadata?.userId);
+  // Legal gate: when the caller ties this checkout to an order (metadata.orderRef),
+  // every tenant-required agreement (e.g. distance-selling, pre-information) must
+  // already be accepted for that order + subject. No orderRef, or a tenant with no
+  // required agreements → no-op, so existing callers are unaffected.
+  if (params.metadata?.orderRef) {
+    await AgreementService.assertCheckoutAgreementsAccepted(tenantId, params.metadata.orderRef, {
+      userId: params.metadata.userId,
+      anonymousId: params.metadata.anonymousId,
+    });
+  }
   const result = await getProvider(resolved).createCheckoutSession(tenantId, params);
   // Card-data-touching event audit trail.
   AuditLogService.log({

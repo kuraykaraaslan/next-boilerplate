@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-15T10:40:42.438Z",
+  "generatedAt": "2026-06-15T11:05:18.588Z",
   "components": [
     {
       "id": "ai/ui/AIChatBox",
@@ -507,6 +507,18 @@
       "isClient": false,
       "isServer": false,
       "baseName": "index"
+    },
+    {
+      "id": "common/hooks/use-page-title.hook",
+      "module": "common",
+      "filePath": "modules_next/common/hooks/use-page-title.hook.ts",
+      "kind": "hook",
+      "exports": [
+        "usePageTitle"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "use-page-title.hook"
     },
     {
       "id": "common/module.types",
@@ -2499,18 +2511,6 @@
       "baseName": "feature-flag-columns"
     },
     {
-      "id": "gdpr_consent/ui/ConsentBanner",
-      "module": "gdpr_consent",
-      "filePath": "modules_next/gdpr_consent/ui/ConsentBanner.tsx",
-      "kind": "ui",
-      "exports": [
-        "ConsentBanner"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "ConsentBanner"
-    },
-    {
       "id": "invoice/ui/EarsivSmsSignModal",
       "module": "invoice",
       "filePath": "modules_next/invoice/ui/EarsivSmsSignModal.tsx",
@@ -3455,6 +3455,31 @@
       "isClient": true,
       "isServer": false,
       "baseName": "TenantSubscriptionCard"
+    },
+    {
+      "id": "terms_consent/ui/AcceptanceGate",
+      "module": "terms_consent",
+      "filePath": "modules_next/terms_consent/ui/AcceptanceGate.tsx",
+      "kind": "ui",
+      "exports": [
+        "AcceptanceGateOrder",
+        "AcceptanceGate"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "AcceptanceGate"
+    },
+    {
+      "id": "terms_consent/ui/ConsentBanner",
+      "module": "terms_consent",
+      "filePath": "modules_next/terms_consent/ui/ConsentBanner.tsx",
+      "kind": "ui",
+      "exports": [
+        "ConsentBanner"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ConsentBanner"
     },
     {
       "id": "user_security/ui/PasskeysPanel",
