@@ -40,6 +40,7 @@ import {
   faGaugeHigh,
   faClipboardCheck,
   faLifeRing,
+  faHouse,
 } from '@fortawesome/free-solid-svg-icons';
 
 type AdminShellProps = {
@@ -77,6 +78,12 @@ export function AdminShell({ children, tenantId }: AdminShellProps) {
   }, [tenantId]);
 
   const tenantNavGroups = [
+    {
+      label: 'Overview',
+      items: [
+        { id: 'dashboard', label: 'Dashboard', href: `/tenant/${tenantId}/admin`, icon: <FontAwesomeIcon icon={faHouse} aria-hidden /> },
+      ],
+    },
     {
       label: 'Content',
       items: [
@@ -176,9 +183,13 @@ export function AdminShell({ children, tenantId }: AdminShellProps) {
 
   const navGroups = [...tenantNavGroups, ...platformNavGroups];
 
+  // Pick the most specific (longest) matching href so the Dashboard item
+  // (href = the admin root, a prefix of every admin page) only wins on the
+  // index route, and nested routes (e.g. settings/branding) beat their parents.
   const activeId = navGroups
     .flatMap((g) => g.items)
-    .find((item) => item.href && pathname.startsWith(item.href))?.id;
+    .filter((item) => item.href && pathname.startsWith(item.href))
+    .sort((a, b) => b.href.length - a.href.length)[0]?.id;
 
   const profileHref = `/tenant/${tenantId}/admin/me`;
   const logoutHref = `/tenant/${tenantId}/auth/logout`;
