@@ -1,23 +1,18 @@
 'use client';
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { Card } from '@/modules_next/common/ui/Card';
 import { DateRangePicker, DateRange } from '@/modules_next/common/ui/DateRangePicker';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRobot, faChartBar } from '@fortawesome/free-solid-svg-icons';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  LineElement,
-  PointElement,
-  Filler,
-  Tooltip,
-  Legend,
-} from 'chart.js';
-import { Line } from 'react-chartjs-2';
 import { cn } from '@/modules_next/common/utils/cn';
 
-ChartJS.register(CategoryScale, LinearScale, LineElement, PointElement, Filler, Tooltip, Legend);
+// chart.js + react-chartjs-2 are heavy and only needed once this tab paints a
+// chart — code-split them out of the admin bundle.
+const UsageChart = dynamic(() => import('./UsageChart'), {
+  ssr: false,
+  loading: () => <div className="h-64 rounded bg-surface-sunken animate-pulse" />,
+});
 
 type UsageEntry = { daily: Record<string, number>; total: number };
 type Preset = '1d' | '7d' | '30d' | 'custom';
@@ -132,14 +127,7 @@ export function AIUsageTab({ usage }: Props) {
         {visibleDates.length === 0 ? (
           <p className="text-sm text-text-secondary py-4">Bu aralıkta veri yok.</p>
         ) : (
-          <Line
-            data={chartData}
-            options={{
-              responsive: true,
-              plugins: { legend: { position: 'top' } },
-              scales: { y: { beginAtZero: true } },
-            }}
-          />
+          <UsageChart data={chartData} />
         )}
       </Card>
     </div>
