@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Limiter from '@/modules_next/limiter/limiter.service.next'
 import StorePublicService from '@/modules/store/store.public.service'
+import { PUBLIC_CACHE } from '@/modules_next/common/utils/cacheHeaders'
 
 /**
  * GET /tenant/[tenantId]/api/storefront/products/[slug]
@@ -20,7 +21,7 @@ export async function GET(
       currency: sp.get('currency') ?? undefined,
       country: sp.get('country') ?? undefined,
     })
-    return NextResponse.json({ product })
+    return NextResponse.json({ product }, { headers: PUBLIC_CACHE.medium })
   } catch (e: any) {
     const status = e?.statusCode ?? 500
     return NextResponse.json({ message: e.message }, { status })

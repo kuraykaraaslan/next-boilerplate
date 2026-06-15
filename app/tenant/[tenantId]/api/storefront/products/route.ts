@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Limiter from '@/modules_next/limiter/limiter.service.next'
 import StorePublicService from '@/modules/store/store.public.service'
+import { PUBLIC_CACHE, NO_STORE } from '@/modules_next/common/utils/cacheHeaders'
 
 /**
  * GET /tenant/[tenantId]/api/storefront/products
@@ -26,6 +27,8 @@ export async function GET(
       currency: sp.get('currency') ?? undefined,
       country: sp.get('country') ?? undefined,
     })
-    return NextResponse.json(result)
+    // Free-text search produces unbounded permutations — keep those off the CDN.
+    const headers = sp.get('search') ? NO_STORE : PUBLIC_CACHE.short
+    return NextResponse.json(result, { headers })
   } catch (e: any) { return NextResponse.json({ message: e.message }, { status: 500 }) }
 }

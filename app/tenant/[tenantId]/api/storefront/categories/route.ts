@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Limiter from '@/modules_next/limiter/limiter.service.next'
 import StorePublicService from '@/modules/store/store.public.service'
+import { PUBLIC_CACHE } from '@/modules_next/common/utils/cacheHeaders'
 
 /**
  * GET /tenant/[tenantId]/api/storefront/categories
@@ -15,6 +16,6 @@ export async function GET(
   try {
     const sp = new URL(request.url).searchParams
     const categories = await StorePublicService.listCategories(tenantId, { locale: sp.get('locale') ?? undefined })
-    return NextResponse.json({ categories })
+    return NextResponse.json({ categories }, { headers: PUBLIC_CACHE.medium })
   } catch (e: any) { return NextResponse.json({ message: e.message }, { status: 500 }) }
 }

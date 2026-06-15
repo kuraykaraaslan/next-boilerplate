@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { tenantDataSourceFor } from '@/modules/db';
-import redis, { singleFlight } from '@/modules/redis';
+import redis, { jitter, singleFlight } from '@/modules/redis';
+import { env } from '@/modules/env';
 import Logger from '@/modules/logger';
 import { SubscriptionPlan as PlanEntity } from './entities/subscription_plan.entity';
 import { PlanFeature as PlanFeatureEntity } from './entities/plan_feature.entity';
@@ -85,7 +86,18 @@ export default class PaymentSubscriptionPlanService {
   }
 
   static async getPlan(tenantId: string, planId: string, withFeatures = false): Promise<PlanWithProduct | PlanWithFeatures> {
-    return singleFlight(`sub:plan:${planId}:${withFeatures}`, async () => {
+    // Read-through Redis cache. The matching `redis.del('sub:plan:<id>:<bool>')`
+    // calls in updatePlan/deletePlan/upsertFeature already invalidate these keys —
+    // they previously deleted keys nobody wrote, so this only adds the write side.
+    const cacheKey = `sub:plan:${planId}:${withFeatures}`;
+    const cached = await redis.get(cacheKey).catch(() => null);
+    if (cached) {
+      try {
+        const obj = JSON.parse(cached);
+        return withFeatures ? PlanWithFeaturesSchema.parse(obj) : PlanWithProductSchema.parse(obj);
+      } catch { await redis.del(cacheKey).catch(() => {}); }
+    }
+    return singleFlight(cacheKey, async () => {
       const ds = await tenantDataSourceFor(tenantId);
       const plan = await ds.getRepository(PlanEntity).findOne({ where: { tenantId, planId } });
       if (!plan) throw new AppError(SUBSCRIPTION_MESSAGES.PLAN_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
@@ -94,11 +106,16 @@ export default class PaymentSubscriptionPlanService {
         ...SubscriptionPlanSchema.parse(plan),
         product: PaymentSubscriptionPlanService.productSummary(product),
       };
-      if (!withFeatures) return PlanWithProductSchema.parse(base);
-      const features = await ds.getRepository(PlanFeatureEntity).find({
-        where: { tenantId, planId }, order: { sortOrder: 'ASC' },
-      });
-      return PlanWithFeaturesSchema.parse({ ...base, features });
+      const result = withFeatures
+        ? PlanWithFeaturesSchema.parse({
+            ...base,
+            features: await ds.getRepository(PlanFeatureEntity).find({
+              where: { tenantId, planId }, order: { sortOrder: 'ASC' },
+            }),
+          })
+        : PlanWithProductSchema.parse(base);
+      await redis.setex(cacheKey, jitter(env.TENANT_CACHE_TTL ?? 300), JSON.stringify(result)).catch(() => {});
+      return result;
     });
   }
 

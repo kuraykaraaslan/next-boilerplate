@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import SettingService from '@/modules/setting/setting.service';
 import TenantService from '@/modules/tenant/tenant.service';
 import { TENANT_BRANDING_KEYS } from '@/modules/tenant_branding/tenant_branding.setting.keys'
+import { PUBLIC_CACHE } from '@/modules_next/common/utils/cacheHeaders'
 
 
 /**
@@ -34,7 +35,7 @@ export async function GET(
       success: true,
       settings,
       tenant: tenant ? { name: tenant.name } : null,
-    }, { status: 200 });
+    }, { status: 200, headers: PUBLIC_CACHE.long });
   } catch (error: any) {
     return NextResponse.json(
       { success: false, message: error.message },
