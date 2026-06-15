@@ -31,9 +31,15 @@ type ESignatureLoginPanelProps = {
   onSuccess: () => void;
   onNeedsBinding?: (identityFingerprint: string) => void;
   className?: string;
+  /**
+   * API scope prefix for the e-signature endpoints. Defaults to '/system'
+   * (platform login). Tenant login pages should pass `/tenant/${tenantId}`
+   * so the session is created in the correct tenant scope.
+   */
+  apiBase?: string;
 };
 
-export function ESignatureLoginPanel({ onSuccess, onNeedsBinding, className }: ESignatureLoginPanelProps) {
+export function ESignatureLoginPanel({ onSuccess, onNeedsBinding, className, apiBase = '/system' }: ESignatureLoginPanelProps) {
   const [countries, setCountries] = useState<CountryHint[]>([]);
   const [selectedCountry, setSelectedCountry] = useState<string>('');
   const [selectedProviderId, setSelectedProviderId] = useState<string>('');
@@ -49,7 +55,7 @@ export function ESignatureLoginPanel({ onSuccess, onNeedsBinding, className }: E
 
   useEffect(() => {
     let active = true;
-    api.get('/system/api/auth/e-signature/countries')
+    api.get(`${apiBase}/api/auth/e-signature/countries`)
       .then((res) => {
         if (!active) return;
         const list = (res.data?.data ?? []) as CountryHint[];
@@ -61,7 +67,7 @@ export function ESignatureLoginPanel({ onSuccess, onNeedsBinding, className }: E
       })
       .catch(() => setCountries([]));
     return () => { active = false; };
-  }, [selectedCountry]);
+  }, [selectedCountry, apiBase]);
 
   useEffect(() => () => stopPolling(), []);
 
@@ -99,7 +105,7 @@ export function ESignatureLoginPanel({ onSuccess, onNeedsBinding, className }: E
       return;
     }
     try {
-      const res = await api.get(`/system/api/auth/e-signature/status/${id}`);
+      const res = await api.get(`${apiBase}/api/auth/e-signature/status/${id}`);
       const data = res.data?.data;
       if (data?.status === 'signed') {
         setPhase('success');
@@ -139,7 +145,7 @@ export function ESignatureLoginPanel({ onSuccess, onNeedsBinding, className }: E
     }
     setPhase('submitting');
     try {
-      const res = await api.post('/system/api/auth/e-signature/initiate', {
+      const res = await api.post(`${apiBase}/api/auth/e-signature/initiate`, {
         country: selectedCountry,
         identifier: identifier.trim(),
         providerOverride: selectedProvider.id,
@@ -170,6 +176,12 @@ export function ESignatureLoginPanel({ onSuccess, onNeedsBinding, className }: E
 
   return (
     <div className={className}>
+      <div className="flex items-center gap-3 mb-4">
+        <div className="flex-1 h-px bg-border" aria-hidden="true" />
+        <span className="text-xs text-text-secondary">or with e-signature</span>
+        <div className="flex-1 h-px bg-border" aria-hidden="true" />
+      </div>
+
       {phase === 'idle' || phase === 'submitting' || phase === 'error' ? (
         <Form onSubmit={handleSubmit} error={error}>
           <div className="grid grid-cols-2 gap-3">

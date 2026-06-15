@@ -5,6 +5,7 @@ import api from '@/modules_next/common/axios';
 import { BrandLogo } from '@/modules_next/common/ui/BrandLogo';
 import { LoginForm } from '@/modules_next/auth/ui/LoginForm';
 import { OAuthButtons, type OAuthProvider } from '@/modules_next/auth/ui/OAuthButtons';
+import { ESignatureLoginPanel } from '@/modules_next/auth/ui/ESignatureLoginPanel';
 import { Spinner } from '@/modules_next/common/ui/Spinner';
 import { isRootTenant } from '@/modules/tenant/tenant.constants';
 
@@ -45,20 +46,27 @@ export default function TenantLoginPage({ params }: { params: Promise<{ tenantId
       .catch(() => setTenantName(''));
   }, [tenantId]);
 
+  // Shared post-login redirect. Both password and e-signature logins create a
+  // session whose refresh token has `notBefore: 5s`, so we wait past that
+  // window before navigating to avoid a NotBeforeError → login bounce.
+  function finishLogin(message: string) {
+    setSuccessMsg(message);
+    // Root tenant context = platform login → user picks which workspace
+    // to enter (select-tenant). All other tenants land directly in their
+    // own admin area. Never redirect into select-tenant from a non-root
+    // tenant context.
+    const defaultRedirect = isRootTenant(tenantId)
+      ? `/tenant/${tenantId}/auth/select-tenant`
+      : `/tenant/${tenantId}/admin/me`;
+    setTimeout(() => {
+      window.location.href = redirectTo ?? defaultRedirect;
+    }, POST_LOGIN_REDIRECT_DELAY_MS);
+  }
+
   async function handleLogin(values: { email: string; password: string; rememberMe: boolean }) {
     try {
       await api.post(`/tenant/${tenantId}/api/auth/login`, { email: values.email, password: values.password });
-      setSuccessMsg(`Signed in as ${values.email}`);
-      // Root tenant context = platform login → user picks which workspace
-      // to enter (select-tenant). All other tenants land directly in their
-      // own admin area. Never redirect into select-tenant from a non-root
-      // tenant context.
-      const defaultRedirect = isRootTenant(tenantId)
-        ? `/tenant/${tenantId}/auth/select-tenant`
-        : `/tenant/${tenantId}/admin/me`;
-      setTimeout(() => {
-        window.location.href = redirectTo ?? defaultRedirect;
-      }, POST_LOGIN_REDIRECT_DELAY_MS);
+      finishLogin(`Signed in as ${values.email}`);
     } catch (err: any) {
       throw new Error(err.response?.data?.error ?? err.message ?? 'Login failed.');
     }
@@ -125,6 +133,13 @@ export default function TenantLoginPage({ params }: { params: Promise<{ tenantId
             )}
 
             <LoginForm onSubmit={handleLogin} />
+
+            {/* E-signature (e-imza) login. The panel self-hides when no
+                providers are configured for this tenant (countries empty). */}
+            <ESignatureLoginPanel
+              apiBase={`/tenant/${tenantId}`}
+              onSuccess={() => finishLogin('Signed in with e-signature')}
+            />
 
             <p className="text-center text-xs text-text-secondary">
               <a href={`/tenant/${tenantId}/auth/forgot-password`} className="text-primary hover:underline">
