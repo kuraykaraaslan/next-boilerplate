@@ -17,6 +17,7 @@ Append-only audit trail for sensitive actions, stored per-tenant (platform event
 ## Services
 
 - `audit_log.service.ts`
+- `audit_log.write.service.ts`
 
 ## DTOs
 

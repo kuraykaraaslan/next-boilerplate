@@ -17,6 +17,9 @@ Usage metric tracking per tenant (API calls, storage GB, seats). Source for plan
 ## Services
 
 - `tenant_usage.alerts.service.ts`
+- `tenant_usage.flush.service.ts`
+- `tenant_usage.increment.service.ts`
+- `tenant_usage.read.service.ts`
 - `tenant_usage.service.ts`
 
 ## Entities

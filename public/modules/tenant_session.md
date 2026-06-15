@@ -16,6 +16,7 @@ Tenant-scoped session handling: bind a user session to a specific tenant, resolv
 
 ## Services
 
+- `tenant_session.resolve.service.ts`
 - `tenant_session.service.ts`
 
 ## Message keys

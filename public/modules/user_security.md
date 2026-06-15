@@ -16,6 +16,9 @@ Password hashing, account lock, TOTP secret, WebAuthn/Passkey credentials.
 
 ## Services
 
+- `user_security.crud.service.ts`
+- `user_security.login.service.ts`
+- `user_security.mfa.service.ts`
 - `user_security.passkey.crud.service.ts`
 - `user_security.passkey.flow.service.ts`
 - `user_security.passkey.service.ts`

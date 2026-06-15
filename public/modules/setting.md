@@ -16,7 +16,10 @@ System-wide key-value settings store. Modules declare their keys in *.setting.ke
 
 ## Services
 
+- `setting.admin.service.ts`
+- `setting.read.service.ts`
 - `setting.service.ts`
+- `setting.write.service.ts`
 
 ## DTOs
 

@@ -16,9 +16,15 @@ Generic moderation / approval queue and support-ticket desk. Any owning module c
 
 ## Services
 
+- `back_office.approval.decide.service.ts`
+- `back_office.approval.read.service.ts`
 - `back_office.approval.service.ts`
+- `back_office.approval.submit.service.ts`
 - `back_office.service.ts`
+- `back_office.support.lifecycle.service.ts`
+- `back_office.support.read.service.ts`
 - `back_office.support.service.ts`
+- `back_office.support.write.service.ts`
 
 ## DTOs
 

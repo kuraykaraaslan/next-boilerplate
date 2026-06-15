@@ -16,6 +16,8 @@ Event-based usage metering with metered / overage billing. Records immutable usa
 
 ## Services
 
+- `metering.billing.read.service.ts`
+- `metering.billing.run.service.ts`
 - `metering.billing.service.ts`
 - `metering.meter.service.ts`
 - `metering.record.service.ts`

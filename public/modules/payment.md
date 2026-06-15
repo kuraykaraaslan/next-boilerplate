@@ -17,7 +17,10 @@ Pluggable payment processing (Stripe, PayPal, Iyzico) + subscription plans, plan
 ## Services
 
 - `payment.checkout.service.ts`
+- `payment.crud.dispute.service.ts`
+- `payment.crud.read.service.ts`
 - `payment.crud.service.ts`
+- `payment.crud.write.service.ts`
 - `payment.proration.service.ts`
 - `payment.service.ts`
 - `payment.transaction.service.ts`

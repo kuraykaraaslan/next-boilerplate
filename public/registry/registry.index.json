@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-14T22:49:34.358Z",
+  "generatedAt": "2026-06-15T07:45:45.027Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -357,7 +357,10 @@
       },
       "exports": {
         "services": [
-          "setting.service.ts"
+          "setting.admin.service.ts",
+          "setting.read.service.ts",
+          "setting.service.ts",
+          "setting.write.service.ts"
         ],
         "dtos": [
           "setting.dto.ts"
@@ -449,13 +452,14 @@
     {
       "id": "storage",
       "name": "File Storage",
-      "version": "1.0.0",
-      "description": "Pluggable S3-compatible file storage (AWS S3, Cloudflare R2, DigitalOcean Spaces, MinIO).",
+      "version": "1.1.0",
+      "description": "Pluggable S3-compatible file storage (AWS S3, Cloudflare R2, DigitalOcean Spaces, MinIO) with content-derived MIME validation and optional online virus scanning (VirusTotal).",
       "dir": "modules/storage",
       "icon": "fas fa-cloud-arrow-up",
       "tags": [
         "platform",
-        "storage"
+        "storage",
+        "security"
       ],
       "priority": 10,
       "tier": "platform",
@@ -463,26 +467,35 @@
         "requires": [
           "env",
           "setting"
+        ],
+        "optional": [
+          "redis",
+          "tenant_usage"
         ]
       },
       "exports": {
         "services": [
+          "storage.scan.service.ts",
           "storage.service.ts"
         ],
         "dtos": [
           "storage.dto.ts"
         ],
         "enums": [
-          "storage.enums.ts"
+          "storage.enums.ts",
+          "storage.scan.enums.ts"
         ],
         "messageKeys": [
           "storage.messages.ts"
         ],
         "settingKeys": [
+          "storage.scan.setting.keys.ts",
           "storage.setting.keys.ts"
         ],
         "providers": [],
-        "jobs": [],
+        "jobs": [
+          "storage.scan.job.ts"
+        ],
         "entities": [
           "uploaded_file.entity.ts"
         ]
@@ -514,6 +527,9 @@
       },
       "exports": {
         "services": [
+          "user.admin.service.ts",
+          "user.crud.service.ts",
+          "user.read.service.ts",
           "user.service.ts"
         ],
         "dtos": [
@@ -599,8 +615,12 @@
       },
       "exports": {
         "services": [
+          "user_profile.media.service.ts",
           "user_profile.moderation.service.ts",
-          "user_profile.service.ts"
+          "user_profile.read.service.ts",
+          "user_profile.service.ts",
+          "user_profile.social.service.ts",
+          "user_profile.write.service.ts"
         ],
         "dtos": [
           "user_profile.dto.ts"
@@ -644,6 +664,9 @@
       },
       "exports": {
         "services": [
+          "user_security.crud.service.ts",
+          "user_security.login.service.ts",
+          "user_security.mfa.service.ts",
           "user_security.passkey.crud.service.ts",
           "user_security.passkey.flow.service.ts",
           "user_security.passkey.service.ts",
@@ -741,7 +764,10 @@
       "exports": {
         "services": [
           "social_identity_merge.service.ts",
-          "user_social_account.service.ts"
+          "user_social_account.link.service.ts",
+          "user_social_account.read.service.ts",
+          "user_social_account.service.ts",
+          "user_social_account.token.service.ts"
         ],
         "dtos": [],
         "enums": [
@@ -797,6 +823,9 @@
       "exports": {
         "services": [
           "auth.captcha.service.ts",
+          "auth.credential.lifecycle.service.ts",
+          "auth.credential.login.service.ts",
+          "auth.credential.register.service.ts",
           "auth.credential.service.ts",
           "auth.otp.service.ts",
           "auth.password.service.ts",
@@ -901,6 +930,9 @@
         "services": [
           "auth_saml.config.service.ts",
           "auth_saml.crypto.service.ts",
+          "auth_saml.flow.callback.service.ts",
+          "auth_saml.flow.metadata.service.ts",
+          "auth_saml.flow.provision.service.ts",
           "auth_saml.flow.service.ts",
           "auth_saml.metadata.service.ts",
           "auth_saml.service.ts"
@@ -1124,7 +1156,10 @@
           "scim.group.service.ts",
           "scim.policy.service.ts",
           "scim.service.ts",
-          "scim.user.service.ts"
+          "scim.user.patch.service.ts",
+          "scim.user.read.service.ts",
+          "scim.user.service.ts",
+          "scim.user.write.service.ts"
         ],
         "dtos": [
           "scim.dto.ts"
@@ -1264,6 +1299,8 @@
       },
       "exports": {
         "services": [
+          "tenant_invitation.lifecycle.service.ts",
+          "tenant_invitation.read.service.ts",
           "tenant_invitation.service.ts"
         ],
         "dtos": [
@@ -1310,6 +1347,7 @@
       },
       "exports": {
         "services": [
+          "tenant_session.resolve.service.ts",
           "tenant_session.service.ts"
         ],
         "dtos": [],
@@ -1501,6 +1539,9 @@
       "exports": {
         "services": [
           "tenant_usage.alerts.service.ts",
+          "tenant_usage.flush.service.ts",
+          "tenant_usage.increment.service.ts",
+          "tenant_usage.read.service.ts",
           "tenant_usage.service.ts"
         ],
         "dtos": [],
@@ -1545,7 +1586,10 @@
       "exports": {
         "services": [
           "payment.checkout.service.ts",
+          "payment.crud.dispute.service.ts",
+          "payment.crud.read.service.ts",
           "payment.crud.service.ts",
+          "payment.crud.write.service.ts",
           "payment.proration.service.ts",
           "payment.service.ts",
           "payment.transaction.service.ts",
@@ -1645,7 +1689,11 @@
       },
       "exports": {
         "services": [
+          "coupon.analytics.service.ts",
+          "coupon.bulk.service.ts",
+          "coupon.crud.core.service.ts",
           "coupon.crud.service.ts",
+          "coupon.redemption.service.ts",
           "coupon.service.ts",
           "coupon.validation.service.ts"
         ],
@@ -1951,10 +1999,13 @@
       "exports": {
         "services": [
           "invoice.adapter.service.ts",
+          "invoice.create.service.ts",
           "invoice.creditnote.service.ts",
           "invoice.crud.service.ts",
+          "invoice.number.service.ts",
           "invoice.pdf.renderer.service.ts",
           "invoice.pdf.service.ts",
+          "invoice.read.service.ts",
           "invoice.service.ts",
           "invoice.signature.service.ts",
           "invoice.tax.service.ts",
@@ -2085,7 +2136,10 @@
       },
       "exports": {
         "services": [
-          "notification_push.service.ts"
+          "notification_push.metrics.service.ts",
+          "notification_push.send.service.ts",
+          "notification_push.service.ts",
+          "notification_push.subscription.service.ts"
         ],
         "dtos": [],
         "enums": [],
@@ -2165,7 +2219,10 @@
       },
       "exports": {
         "services": [
-          "notification_log.service.ts"
+          "notification_log.alerts.service.ts",
+          "notification_log.read.service.ts",
+          "notification_log.service.ts",
+          "notification_log.write.service.ts"
         ],
         "dtos": [],
         "enums": [],
@@ -2256,6 +2313,10 @@
       },
       "exports": {
         "services": [
+          "payment_wishlist.cart.service.ts",
+          "payment_wishlist.crud.service.ts",
+          "payment_wishlist.gdpr.service.ts",
+          "payment_wishlist.items.service.ts",
           "payment_wishlist.price_watch.service.ts",
           "payment_wishlist.service.ts"
         ],
@@ -2526,7 +2587,10 @@
       },
       "exports": {
         "services": [
+          "media_gallery.bulk.service.ts",
+          "media_gallery.crud.service.ts",
           "media_gallery.intelligence.service.ts",
+          "media_gallery.query.service.ts",
           "media_gallery.service.ts"
         ],
         "dtos": [
@@ -2628,7 +2692,8 @@
       },
       "exports": {
         "services": [
-          "audit_log.service.ts"
+          "audit_log.service.ts",
+          "audit_log.write.service.ts"
         ],
         "dtos": [
           "audit_log.dto.ts"
@@ -2849,6 +2914,9 @@
       },
       "exports": {
         "services": [
+          "product_review.crud.service.ts",
+          "product_review.engagement.service.ts",
+          "product_review.gdpr.service.ts",
           "product_review.service.ts"
         ],
         "dtos": [
@@ -2957,6 +3025,9 @@
       },
       "exports": {
         "services": [
+          "messaging.crud.conversation.service.ts",
+          "messaging.crud.message.service.ts",
+          "messaging.crud.participant.service.ts",
           "messaging.crud.service.ts",
           "messaging.lifecycle.service.ts",
           "messaging.moderation.service.ts",
@@ -3077,6 +3148,8 @@
       },
       "exports": {
         "services": [
+          "metering.billing.read.service.ts",
+          "metering.billing.run.service.ts",
           "metering.billing.service.ts",
           "metering.meter.service.ts",
           "metering.record.service.ts",
@@ -3136,9 +3209,15 @@
       },
       "exports": {
         "services": [
+          "back_office.approval.decide.service.ts",
+          "back_office.approval.read.service.ts",
           "back_office.approval.service.ts",
+          "back_office.approval.submit.service.ts",
           "back_office.service.ts",
-          "back_office.support.service.ts"
+          "back_office.support.lifecycle.service.ts",
+          "back_office.support.read.service.ts",
+          "back_office.support.service.ts",
+          "back_office.support.write.service.ts"
         ],
         "dtos": [
           "back_office.dto.ts"
@@ -7832,6 +7911,10 @@
         "size",
         "mimeType",
         "url",
+        "scanStatus",
+        "scanProvider",
+        "scanResult",
+        "scannedAt",
         "createdAt",
         "deletedAt"
       ],
@@ -8585,6 +8668,7 @@
       "exports": [
         "SSO_PROVIDERS",
         "OAuthProvider",
+        "providerMeta",
         "OAuthButtons"
       ],
       "isClient": true,

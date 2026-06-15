@@ -16,7 +16,11 @@ Discount coupons + redemption tracking. Provider-aware (Stripe / PayPal / Iyzico
 
 ## Services
 
+- `coupon.analytics.service.ts`
+- `coupon.bulk.service.ts`
+- `coupon.crud.core.service.ts`
 - `coupon.crud.service.ts`
+- `coupon.redemption.service.ts`
 - `coupon.service.ts`
 - `coupon.validation.service.ts`
 

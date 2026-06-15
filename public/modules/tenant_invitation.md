@@ -16,6 +16,8 @@ Email invitation flow: create / accept / decline / revoke. Bound to tenant_membe
 
 ## Services
 
+- `tenant_invitation.lifecycle.service.ts`
+- `tenant_invitation.read.service.ts`
 - `tenant_invitation.service.ts`
 
 ## DTOs

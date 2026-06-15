@@ -170,7 +170,8 @@
     "tier": "platform",
     "tags": [
       "platform",
-      "storage"
+      "storage",
+      "security"
     ],
     "hasNextLayer": false,
     "routeCount": 1,

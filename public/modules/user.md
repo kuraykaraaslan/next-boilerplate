@@ -16,6 +16,9 @@ Core user CRUD: create, find, update, deactivate. Foundation for every auth and 
 
 ## Services
 
+- `user.admin.service.ts`
+- `user.crud.service.ts`
+- `user.read.service.ts`
 - `user.service.ts`
 
 ## DTOs

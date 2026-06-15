@@ -16,6 +16,10 @@ Tenant-aware wishlists / favorites. Users keep multiple named lists of products 
 
 ## Services
 
+- `payment_wishlist.cart.service.ts`
+- `payment_wishlist.crud.service.ts`
+- `payment_wishlist.gdpr.service.ts`
+- `payment_wishlist.items.service.ts`
 - `payment_wishlist.price_watch.service.ts`
 - `payment_wishlist.service.ts`
 

@@ -16,6 +16,9 @@ Tenant-scoped real-time messaging: 1-1 and group conversations, persisted messag
 
 ## Services
 
+- `messaging.crud.conversation.service.ts`
+- `messaging.crud.message.service.ts`
+- `messaging.crud.participant.service.ts`
 - `messaging.crud.service.ts`
 - `messaging.lifecycle.service.ts`
 - `messaging.moderation.service.ts`

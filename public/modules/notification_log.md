@@ -16,7 +16,10 @@ Unified outbound notification audit log across mail, sms, push, inapp channels.
 
 ## Services
 
+- `notification_log.alerts.service.ts`
+- `notification_log.read.service.ts`
 - `notification_log.service.ts`
+- `notification_log.write.service.ts`
 
 ## Entities
 

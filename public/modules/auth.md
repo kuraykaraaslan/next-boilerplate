@@ -17,6 +17,9 @@ Credential auth: login, register, password reset, email verify, OTP, TOTP. Coord
 ## Services
 
 - `auth.captcha.service.ts`
+- `auth.credential.lifecycle.service.ts`
+- `auth.credential.login.service.ts`
+- `auth.credential.register.service.ts`
 - `auth.credential.service.ts`
 - `auth.otp.service.ts`
 - `auth.password.service.ts`

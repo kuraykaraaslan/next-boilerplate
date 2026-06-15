@@ -17,7 +17,10 @@ Per-user linked OAuth provider accounts (provider id, external user id, tokens).
 ## Services
 
 - `social_identity_merge.service.ts`
+- `user_social_account.link.service.ts`
+- `user_social_account.read.service.ts`
 - `user_social_account.service.ts`
+- `user_social_account.token.service.ts`
 
 ## Entities
 

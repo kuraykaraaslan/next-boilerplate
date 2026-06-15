@@ -16,7 +16,10 @@ Polymorphic ordered image gallery attachable to any entity type. Items wrap Uplo
 
 ## Services
 
+- `media_gallery.bulk.service.ts`
+- `media_gallery.crud.service.ts`
 - `media_gallery.intelligence.service.ts`
+- `media_gallery.query.service.ts`
 - `media_gallery.service.ts`
 
 ## DTOs

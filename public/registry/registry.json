@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-14T22:49:34.358Z",
+  "generatedAt": "2026-06-15T07:45:45.027Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -366,7 +366,10 @@
       },
       "exports": {
         "services": [
-          "setting.service.ts"
+          "setting.admin.service.ts",
+          "setting.read.service.ts",
+          "setting.service.ts",
+          "setting.write.service.ts"
         ],
         "dtos": [
           "setting.dto.ts"
@@ -461,13 +464,14 @@
     {
       "id": "storage",
       "name": "File Storage",
-      "version": "1.0.0",
-      "description": "Pluggable S3-compatible file storage (AWS S3, Cloudflare R2, DigitalOcean Spaces, MinIO).",
+      "version": "1.1.0",
+      "description": "Pluggable S3-compatible file storage (AWS S3, Cloudflare R2, DigitalOcean Spaces, MinIO) with content-derived MIME validation and optional online virus scanning (VirusTotal).",
       "dir": "modules/storage",
       "icon": "fas fa-cloud-arrow-up",
       "tags": [
         "platform",
-        "storage"
+        "storage",
+        "security"
       ],
       "priority": 10,
       "tier": "platform",
@@ -475,26 +479,35 @@
         "requires": [
           "env",
           "setting"
+        ],
+        "optional": [
+          "redis",
+          "tenant_usage"
         ]
       },
       "exports": {
         "services": [
+          "storage.scan.service.ts",
           "storage.service.ts"
         ],
         "dtos": [
           "storage.dto.ts"
         ],
         "enums": [
-          "storage.enums.ts"
+          "storage.enums.ts",
+          "storage.scan.enums.ts"
         ],
         "messageKeys": [
           "storage.messages.ts"
         ],
         "settingKeys": [
+          "storage.scan.setting.keys.ts",
           "storage.setting.keys.ts"
         ],
         "providers": [],
-        "jobs": [],
+        "jobs": [
+          "storage.scan.job.ts"
+        ],
         "entities": [
           "uploaded_file.entity.ts"
         ]
@@ -502,7 +515,7 @@
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false,
-      "readme": "# Storage Module\n\nMulti-provider, tenant-aware cloud storage abstraction. A unified S3-compatible API for upload (multipart `File` or from URL), delete, and URL generation across AWS S3, Cloudflare R2, DigitalOcean Spaces and MinIO. Each tenant resolves its own provider, bucket and credentials from Setting rows; every successful upload is recorded in a per-tenant `UploadedFile` audit ledger and metered against the tenant's storage quota.\n\n---\n\n## Entities\n\n| Entity | Table | DB | Description |\n|---|---|---|---|\n| `UploadedFile` | `uploaded_files` | tenant | Immutable audit row per successful upload (`key`, `bucket`, `provider`, `size`, `mimeType`, `url`, `userId`). Soft-deleted (`deletedAt`) on delete; joined with `TenantUsage.storageBytes` for billing/quota. Indexed on `tenantId`, `userId`, `key`. |\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `storage.service.ts` | Core: per-tenant provider resolution, feature-gating, upload (`uploadFile` / `uploadFromUrl`), `deleteFile`, `getFileUrl`, audit persistence |\n| `storage.types.ts` | `UploadOptions`, `UploadFromUrlOptions`, `ProviderUploadResult`, `UploadResult`, `S3Config` |\n| `storage.dto.ts` | `UploadFileDTO`, `UploadFromUrlDTO`, `DeleteFileDTO`, `GetFileUrlDTO` |\n| `storage.enums.ts` | `StorageProviderType`, `StorageFolder`, `StorageExtension`, `StorageMimeType` |\n| `storage.messages.ts` | Error/success message strings |\n| `storage.setting.keys.ts` | `STORAGE_KEYS` setting key constants |\n| `storage.seed.ts` | Demo seed for the `UploadedFile` ledger (5 providers, 1 soft-deleted) |\n| `s3.client.ts` | Shared `@aws-sdk/client-s3` client built from `env` (env-level credentials) |\n| `entities/uploaded_file.entity.ts` | `UploadedFile` audit entity |\n| `providers/base.provider.ts` | Abstract `BaseStorageProvider` base class |\n| `providers/aws-s3.provider.ts` | AWS S3 |\n| `providers/cloudflare-r2.provider.ts` | Cloudflare R2 |\n| `providers/digitalocean-spaces.provider.ts` | DigitalOcean Spaces |\n| `providers/minio.provider.ts` | MinIO (self-hosted) |\n\n---\n\n## Service / Responsibilities\n\n`StorageService` (default export) is fully tenant-scoped — every public method takes `tenantId`:\n\n| Method | Responsibility |\n|---|---|\n| `uploadFile(tenantId, data)` | Feature-gate, resolve the tenant's provider, upload a `File`, persist the audit row, return `UploadResult` (with `uploadedFileId`). |\n| `uploadFromUrl(tenantId, data)` | Same as above but fetches the bytes from a remote URL. |\n| `deleteFile(tenantId, data)` | Delete the object from the bucket and soft-remove the matching `UploadedFile` audit row. |\n| `getFileUrl(tenantId, data)` | Return the object URL from the tenant's resolved provider. |\n\nPrivate helpers:\n\n- `getStorageSettings(tenantId)` — reads `STORAGE_KEYS` via `SettingService.getByKeys` and builds the per-tenant `S3Config` (provider, bucket, region, credentials, endpoint).\n- `createProvider(name, config)` — maps the resolved provider name to the concrete provider class.\n- `getProvider(tenantId, providerName?)` — resolves the tenant default provider unless the request explicitly overrides it.\n- `persistUploadAudit(...)` — best-effort: writes the `UploadedFile` row into the tenant DataSource and increments `TenantUsageService.incrementStorageBytes`. Failures are logged, never thrown.\n- `assertStorageFeatureAccess(tenantId)` — defense-in-depth billing gate (see *Security*).\n\n---\n\n## Providers\n\nThe active provider is resolved per tenant from the `storageProvider` setting (or overridden per request via the DTO `provider` field). Each provider extends `BaseStorageProvider` and implements `uploadFile`, `uploadFromUrl`, `deleteFile`, `getFileUrl`.\n\n`StorageProviderType` values: `aws-s3`, `s3`, `cloudflare-r2`, `digitalocean-spaces`, `minio`. The service `createProvider` switch routes `aws-s3`, `cloudflare-r2`, `digitalocean-spaces` and `minio` to their classes (an unmapped name throws `PROVIDER_NOT_FOUND`).\n\n### Adding a New Provider\n\n1. Extend `BaseStorageProvider` in `providers/`\n2. Add the value to `StorageProviderTypeSchema` in `storage.enums.ts`\n3. Register it in the `createProvider` switch in `storage.service.ts`\n4. Add any new setting keys in `storage.setting.keys.ts`\n\n---\n\n## API Routes\n\n| Method | Path | Scope | Description |\n|---|---|---|---|\n| POST | `/tenant/[tenantId]/api/storage` | tenant, authenticated | Multipart upload (`FormData`: `file`, optional `folder` default `general`, optional `provider`). Rate-limited (`api`). Returns `uploadedFileId`, `url`, `key`, `bucket`, `size`, `provider`. |\n\nStorage settings are read/written through the shared admin-settings surface (`GET/PUT /tenant/[tenantId]/api/admin-settings`), not a storage-specific route.\n\n---\n\n## Usage\n\n```typescript\nimport StorageService from '@/modules/storage/storage.service';\n\n// Upload a file (tenantId-first)\nconst result = await StorageService.uploadFile(tenantId, {\n  file,\n  folder: 'users',\n  filename: `${userId}.webp`,\n  tenantId,\n});\n// result.url, result.key, result.bucket, result.size, result.provider, result.uploadedFileId\n\n// Upload from a remote URL\nconst fromUrl = await StorageService.uploadFromUrl(tenantId, {\n  url: 'https://example.com/avatar.png',\n  folder: 'users',\n});\n\n// Delete a file (soft-deletes the audit row)\nawait StorageService.deleteFile(tenantId, { key: result.key });\n\n// Get the object URL\nconst url = await StorageService.getFileUrl(tenantId, { key: result.key });\n```\n\n### Upload Result\n\n```typescript\ntype UploadResult = {\n  url: string;\n  key: string;\n  bucket: string;\n  size?: number;\n  provider: StorageProviderType;\n  uploadedFileId?: string;\n};\n```\n\n---\n\n## Usage tracking & audit\n\nEvery successful upload:\n\n1. Inserts an `UploadedFile` row in the tenant DB (`entities/uploaded_file.entity.ts`) — `key`, `bucket`, `provider`, `size`, `mimeType`, `url`, `userId`, `createdAt`. The row is keyed by `tenantId` and indexed on `userId`/`key`.\n2. Calls `TenantUsageService.incrementStorageBytes(tenantId, result.size)` so the `storageBytes` quota counter (`tenant_usage`) tracks reality.\n\n`deleteFile` soft-removes the matching `UploadedFile` row (`deletedAt` set) — the byte counter is increment-only (audit-friendly; decrement is a future task).\n\nAudit / usage failures are swallowed — they never break the upload itself (the bytes are already in the bucket at that point).\n\n---\n\n## Settings\n\nStorage setting keys (`STORAGE_KEYS`, declared in `storage.setting.keys.ts`) are seeded per tenant under the `Storage` group in `setting/setting.seed.ts` and read at runtime by `storage.service.ts` via `SettingService.getByKeys`.\n\n| Key | Type | Default | Read in / Notes |\n|---|---|---|---|\n| `storageProvider` | string | `s3` (seed) / `aws-s3` (service fallback) | `storage.service.ts` — selects the backend (`aws-s3` \\| `s3` \\| `cloudflare-r2` \\| `digitalocean-spaces` \\| `minio`). |\n| `s3Bucket` | string | — | `storage.service.ts` — destination bucket. |\n| `s3Region` | string | `us-east-1` | `storage.service.ts` — bucket region. |\n| `s3AccessKey` | string | — | `storage.service.ts` — credential access key id. |\n| `s3SecretKey` | string | — | `storage.service.ts` — credential secret key. |\n| `s3Endpoint` | string | — | `storage.service.ts` — custom endpoint (R2 / Spaces / MinIO); undefined falls back to provider default. |\n| `maxFileSizeMb` | number | `25` | Seeded/UI-editable; **declared but not yet enforced** in the service. |\n| `allowedExtensions` | json | `[\"png\",\"jpg\",\"pdf\"]` | Seeded/UI-editable; **declared but not yet enforced** in the service. |\n\n`s3.client.ts` builds a separate, env-credentialed `@aws-sdk/client-s3` instance from `env` (`AWS_REGION`/`AWS_ACCESS_KEY_ID`/…) — independent of the per-tenant Setting credentials above.\n\n---\n\n## Security\n\n`assertStorageFeatureAccess(tenantId)` gates `uploadFile` / `uploadFromUrl` before any provider work:\n\n- Short-circuits for the root tenant (`isRootTenant`).\n- Asserts the tenant's active plan grants `FEATURE_STORAGE_UPLOAD` (boolean).\n- Asserts `FEATURE_STORAGE_QUOTA_BYTES` (limit) is not exhausted, comparing against the tenant's `TenantUsage.storageBytes`.\n\nThe quota check is best-effort and non-atomic — the post-upload byte increment can briefly push usage above the ceiling under concurrent uploads. Per-tenant `maxFileSizeMb` / `allowedExtensions` are **not** enforced today (see *Tenant Variability*), so uploads are size-gated only by the subscription quota.\n\n---\n\n## Tenant Variability\n\n> What varies per tenant in this module — and what could. Audited 2026-06-03.\n\nThe storage module uploads/deletes files to S3-compatible providers (AWS S3, Cloudflare R2, DigitalOcean Spaces, MinIO) and is fully tenant-aware: each real tenant has its own provider, bucket, credentials and limits in Setting rows, its own UploadedFile audit ledger, and upload access is gated per-tenant via subscription feature-keys + a storage quota.\n\n### Per-tenant settings\n\n| Key | Type | Default | Scope | Controls | Read in |\n|---|---|---|---|---|---|\n| `storageProvider` | string | `aws-s3` | tenant | Which S3-compatible backend the tenant's uploads go to (aws-s3 \\| s3 \\| cloudflare-r2 \\| digitalocean-spaces \\| minio); service default 'aws-s3', seed default 's3'. | `storage.service.ts` |\n| `s3Bucket` | string | — | tenant | Destination bucket name for this tenant's objects. | `storage.service.ts` |\n| `s3Region` | string | `us-east-1` | tenant | AWS/S3 region for the tenant's bucket. | `storage.service.ts` |\n| `s3AccessKey` | string | — | tenant | Access key id for the tenant's storage credentials. | `storage.service.ts` |\n| `s3SecretKey` | string | — | tenant | Secret access key for the tenant's storage credentials. | `storage.service.ts` |\n| `s3Endpoint` | string | — | tenant | Custom S3 endpoint URL (for R2 / Spaces / self-hosted MinIO); undefined falls back to provider default. | `storage.service.ts` |\n| `maxFileSizeMb` | number | `25` | tenant | Intended per-tenant max upload size in MB (seeded/UI-editable but not yet enforced in the service). | `setting.seed.ts` |\n| `allowedExtensions` | json | `[\"png\",\"jpg\",\"pdf\"]` | tenant | Intended per-tenant allowlist of upload file extensions (seeded/UI-editable but not yet enforced in the service). | `setting.seed.ts` |\n\n*Scope: `tenant` = real tenants override · `root` = platform-only default (not per-tenant).*\n\n### Tenant-scoped data\n\n| Entity | Table | Tenant-variable columns |\n|---|---|---|\n| `UploadedFile` | `uploaded_files` | userId, key, bucket, provider, size, mimeType, url |\n\nAll rows isolated by `tenantId` via the per-tenant DataSource.\n\n### Per-tenant behavior\n\n- `storage.service.ts:getStorageSettings` — Reads storageProvider + s3Bucket/region/credentials/endpoint via SettingService.getByKeys(tenantId,...) so the resolved provider and S3Config are entirely per-tenant; each tenant uploads to its own bucket with its own credentials.\n- `storage.service.ts:getProvider` — Selects the concrete provider class (AWS S3 / R2 / Spaces / MinIO) from the tenant's resolved storageProvider setting, unless the request explicitly overrides it.\n- `storage.service.ts:assertStorageFeatureAccess` — Gates uploadFile/uploadFromUrl per tenant: asserts the tenant's active plan grants FEATURE_STORAGE_UPLOAD and that FEATURE_STORAGE_QUOTA_BYTES is not exhausted (compared against the tenant's TenantUsage.storageBytes). Root tenant is short-circuited (isRootTenant).\n- `storage.service.ts:persistUploadAudit` — Writes the UploadedFile audit row into tenantDataSourceFor(tenantId) and increments TenantUsageService.storageBytes for that tenant, so each tenant has its own file ledger and usage counter.\n\n### Candidates (global / hardcoded today → could be per-tenant)\n\n| What | Where | Why per-tenant | Suggested key |\n|---|---|---|---|\n| Per-tenant max upload size is not enforced; uploadFile/uploadFromUrl accept any file size regardless of the tenant's configured limit. | `storage.service.ts:uploadFile / uploadFromUrl` | The maxFileSizeMb setting is declared in storage.setting.keys.ts, seeded per-tenant (value '25'), and exposed in the settings UI, but it is never read anywhere in the service — uploads are size-gated only by the subscription quota, not this per-tenant ceiling. | `maxFileSizeMb` |\n| Per-tenant allowed file extensions are not enforced; any extension/mime type is accepted on upload. | `storage.service.ts:uploadFile / uploadFromUrl` | allowedExtensions is declared in storage.setting.keys.ts and seeded per-tenant (['png','jpg','pdf']) and UI-editable, but no code reads it to validate the uploaded file's extension. | `allowedExtensions` |\n\n---\n\n## Dependencies\n\nRequires `env` and `setting` (per `module.json`). At runtime also uses `tenant_usage` (quota counter), `tenant_subscription` (feature-key gating), `tenant`/`db` (per-tenant DataSource), and `logger`.\n"
+      "readme": "# Storage Module\n\nMulti-provider, tenant-aware cloud storage abstraction. A unified S3-compatible API for upload (multipart `File` or from URL), delete, and URL generation across AWS S3, Cloudflare R2, DigitalOcean Spaces and MinIO. Each tenant resolves its own provider, bucket and credentials from Setting rows; every successful upload is recorded in a per-tenant `UploadedFile` audit ledger and metered against the tenant's storage quota.\n\n---\n\n## Entities\n\n| Entity | Table | DB | Description |\n|---|---|---|---|\n| `UploadedFile` | `uploaded_files` | tenant | Immutable audit row per successful upload (`key`, `bucket`, `provider`, `size`, `mimeType`, `url`, `userId`). Soft-deleted (`deletedAt`) on delete; joined with `TenantUsage.storageBytes` for billing/quota. Indexed on `tenantId`, `userId`, `key`. |\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `storage.service.ts` | Core: per-tenant provider resolution, feature-gating, upload (`uploadFile` / `uploadFromUrl`), `deleteFile`, `getFileUrl`, audit persistence |\n| `storage.types.ts` | `UploadOptions`, `UploadFromUrlOptions`, `ProviderUploadResult`, `UploadResult`, `S3Config` |\n| `storage.dto.ts` | `UploadFileDTO`, `UploadFromUrlDTO`, `DeleteFileDTO`, `GetFileUrlDTO` |\n| `storage.enums.ts` | `StorageProviderType`, `StorageFolder`, `StorageExtension`, `StorageMimeType` |\n| `storage.validation.ts` | Pre-upload validation: size, extension allowlist, magic-byte sniffing, EXIF strip, content-derived MIME (`deriveMimeType`) + `allowedMimeTypes` allowlist |\n| `storage.messages.ts` | Error/success message strings |\n| `storage.setting.keys.ts` | `STORAGE_KEYS` setting key constants |\n| `storage.scan.setting.keys.ts` | `STORAGE_SCAN_KEYS` virus-scan setting key constants |\n| `storage.scan.enums.ts` | `VirusScanProvider`, `VirusScanStatus`, `VirusScanMode`, `VirusScanInfectedAction` |\n| `storage.scan.types.ts` | `ScanConfig`, `ScanResult` |\n| `storage.scanner-factory.ts` | `getScanConfig(tenantId)` + `createScanner(config)` |\n| `storage.scan.service.ts` | `scan(config, bytes, filename)` + `handleInfected(...)` (quarantine/delete) |\n| `storage.scan.job.ts` | BullMQ async scan queue/worker + `enqueueVirusScan` |\n| `scanners/base.scanner.ts` | Abstract `FileScanner` base class |\n| `scanners/virustotal.scanner.ts` | VirusTotal v3 adapter |\n| `storage.seed.ts` | Demo seed for the `UploadedFile` ledger (5 providers, 1 soft-deleted) |\n| `s3.client.ts` | Shared `@aws-sdk/client-s3` client built from `env` (env-level credentials) |\n| `entities/uploaded_file.entity.ts` | `UploadedFile` audit entity |\n| `providers/base.provider.ts` | Abstract `BaseStorageProvider` base class |\n| `providers/aws-s3.provider.ts` | AWS S3 |\n| `providers/cloudflare-r2.provider.ts` | Cloudflare R2 |\n| `providers/digitalocean-spaces.provider.ts` | DigitalOcean Spaces |\n| `providers/minio.provider.ts` | MinIO (self-hosted) |\n\n---\n\n## Service / Responsibilities\n\n`StorageService` (default export) is fully tenant-scoped — every public method takes `tenantId`:\n\n| Method | Responsibility |\n|---|---|\n| `uploadFile(tenantId, data)` | Feature-gate, resolve the tenant's provider, upload a `File`, persist the audit row, return `UploadResult` (with `uploadedFileId`). |\n| `uploadFromUrl(tenantId, data)` | Same as above but fetches the bytes from a remote URL. |\n| `deleteFile(tenantId, data)` | Delete the object from the bucket and soft-remove the matching `UploadedFile` audit row. |\n| `getFileUrl(tenantId, data)` | Return the object URL from the tenant's resolved provider. |\n\nPrivate helpers:\n\n- `getStorageSettings(tenantId)` — reads `STORAGE_KEYS` via `SettingService.getByKeys` and builds the per-tenant `S3Config` (provider, bucket, region, credentials, endpoint).\n- `createProvider(name, config)` — maps the resolved provider name to the concrete provider class.\n- `getProvider(tenantId, providerName?)` — resolves the tenant default provider unless the request explicitly overrides it.\n- `persistUploadAudit(...)` — best-effort: writes the `UploadedFile` row into the tenant DataSource and increments `TenantUsageService.incrementStorageBytes`. Failures are logged, never thrown.\n- `assertStorageFeatureAccess(tenantId)` — defense-in-depth billing gate (see *Security*).\n\n---\n\n## Providers\n\nThe active provider is resolved per tenant from the `storageProvider` setting (or overridden per request via the DTO `provider` field). Each provider extends `BaseStorageProvider` and implements `uploadFile`, `uploadFromUrl`, `deleteFile`, `getFileUrl`.\n\n`StorageProviderType` values: `aws-s3`, `s3`, `cloudflare-r2`, `digitalocean-spaces`, `minio`. The service `createProvider` switch routes `aws-s3`, `cloudflare-r2`, `digitalocean-spaces` and `minio` to their classes (an unmapped name throws `PROVIDER_NOT_FOUND`).\n\n### Adding a New Provider\n\n1. Extend `BaseStorageProvider` in `providers/`\n2. Add the value to `StorageProviderTypeSchema` in `storage.enums.ts`\n3. Register it in the `createProvider` switch in `storage.service.ts`\n4. Add any new setting keys in `storage.setting.keys.ts`\n\n---\n\n## API Routes\n\n| Method | Path | Scope | Description |\n|---|---|---|---|\n| POST | `/tenant/[tenantId]/api/storage` | tenant, authenticated | Multipart upload (`FormData`: `file`, optional `folder` default `general`, optional `provider`). Rate-limited (`api`). Returns `uploadedFileId`, `url`, `key`, `bucket`, `size`, `provider`. |\n\nStorage settings are read/written through the shared admin-settings surface (`GET/PUT /tenant/[tenantId]/api/admin-settings`), not a storage-specific route.\n\n---\n\n## Usage\n\n```typescript\nimport StorageService from '@/modules/storage/storage.service';\n\n// Upload a file (tenantId-first)\nconst result = await StorageService.uploadFile(tenantId, {\n  file,\n  folder: 'users',\n  filename: `${userId}.webp`,\n  tenantId,\n});\n// result.url, result.key, result.bucket, result.size, result.provider, result.uploadedFileId\n\n// Upload from a remote URL\nconst fromUrl = await StorageService.uploadFromUrl(tenantId, {\n  url: 'https://example.com/avatar.png',\n  folder: 'users',\n});\n\n// Delete a file (soft-deletes the audit row)\nawait StorageService.deleteFile(tenantId, { key: result.key });\n\n// Get the object URL\nconst url = await StorageService.getFileUrl(tenantId, { key: result.key });\n```\n\n### Upload Result\n\n```typescript\ntype UploadResult = {\n  url: string;\n  key: string;\n  bucket: string;\n  size?: number;\n  provider: StorageProviderType;\n  uploadedFileId?: string;\n};\n```\n\n---\n\n## Usage tracking & audit\n\nEvery successful upload:\n\n1. Inserts an `UploadedFile` row in the tenant DB (`entities/uploaded_file.entity.ts`) — `key`, `bucket`, `provider`, `size`, `mimeType`, `url`, `userId`, `createdAt`. The row is keyed by `tenantId` and indexed on `userId`/`key`.\n2. Calls `TenantUsageService.incrementStorageBytes(tenantId, result.size)` so the `storageBytes` quota counter (`tenant_usage`) tracks reality.\n\n`deleteFile` soft-removes the matching `UploadedFile` row (`deletedAt` set) — the byte counter is increment-only (audit-friendly; decrement is a future task).\n\nAudit / usage failures are swallowed — they never break the upload itself (the bytes are already in the bucket at that point).\n\n---\n\n## Settings\n\nStorage setting keys (`STORAGE_KEYS`, declared in `storage.setting.keys.ts`) are seeded per tenant under the `Storage` group in `setting/setting.seed.ts` and read at runtime by `storage.service.ts` via `SettingService.getByKeys`.\n\n| Key | Type | Default | Read in / Notes |\n|---|---|---|---|\n| `storageProvider` | string | `s3` (seed) / `aws-s3` (service fallback) | `storage.service.ts` — selects the backend (`aws-s3` \\| `s3` \\| `cloudflare-r2` \\| `digitalocean-spaces` \\| `minio`). |\n| `s3Bucket` | string | — | `storage.service.ts` — destination bucket. |\n| `s3Region` | string | `us-east-1` | `storage.service.ts` — bucket region. |\n| `s3AccessKey` | string | — | `storage.service.ts` — credential access key id. |\n| `s3SecretKey` | string | — | `storage.service.ts` — credential secret key. |\n| `s3Endpoint` | string | — | `storage.service.ts` — custom endpoint (R2 / Spaces / MinIO); undefined falls back to provider default. |\n| `maxFileSizeMb` | number | `25` | `getValidationPolicy` — enforced in `validateUpload`. |\n| `allowedExtensions` | json | `[\"png\",\"jpg\",\"pdf\"]` | `getValidationPolicy` — enforced in `validateUpload`. |\n| `allowedMimeTypes` | csv | — (empty = allow all) | `getValidationPolicy` — content-derived MIME matched against this allowlist in `validateUpload`. |\n| `imageStripExif` | bool | `true` | `getValidationPolicy` — strips JPEG EXIF/metadata unless `'false'`. |\n\n### Virus scanning keys (`STORAGE_SCAN_KEYS`, `storage.scan.setting.keys.ts`)\n\n| Key | Type | Default | Notes |\n|---|---|---|---|\n| `virusScanEnabled` | bool | `false` | Master switch; also requires `virusScanApiKey` to take effect. |\n| `virusScanMode` | enum | `async` | `sync` blocks the upload until scanned; `async` scans in the background. |\n| `virusScanProvider` | enum | `virustotal` | Online scanner backend. |\n| `virusScanApiKey` | string | — | Provider API key (secret). |\n| `virusScanTimeoutSeconds` | number | `30` | Per-scan time budget. |\n| `virusScanInfectedAction` | enum | `quarantine` | `quarantine` (move to quarantine folder) or `delete`. |\n| `virusScanQuarantineFolder` | string | `quarantine` | Destination folder prefix for quarantined objects. |\n\n`s3.client.ts` builds a separate, env-credentialed `@aws-sdk/client-s3` instance from `env` (`AWS_REGION`/`AWS_ACCESS_KEY_ID`/…) — independent of the per-tenant Setting credentials above.\n\n---\n\n## Security\n\n`assertStorageFeatureAccess(tenantId)` gates `uploadFile` / `uploadFromUrl` before any provider work:\n\n- Short-circuits for the root tenant (`isRootTenant`).\n- Asserts the tenant's active plan grants `FEATURE_STORAGE_UPLOAD` (boolean).\n- Asserts `FEATURE_STORAGE_QUOTA_BYTES` (limit) is not exhausted, comparing against the tenant's `TenantUsage.storageBytes`.\n\nThe quota check is best-effort and non-atomic — the post-upload byte increment can briefly push usage above the ceiling under concurrent uploads.\n\n### Upload validation & MIME\n\n`validateUpload` (`storage.validation.ts`) runs before the bytes reach the bucket:\nsize (`maxFileSizeMb`), extension allowlist (`allowedExtensions`), magic-byte\nsniffing, optional EXIF stripping, and a **content-derived MIME** check. The real\nMIME is derived from the verified content (`deriveMimeType`) — never the client's\n`file.type` header — and matched against the per-tenant `allowedMimeTypes`\nallowlist; the derived MIME is what gets stored on the object and audit row.\n\n### Virus scanning\n\nWhen `virusScanEnabled` (+ `virusScanApiKey`) is set, uploads are scanned via a\npluggable online scanner (`scanners/`, first adapter VirusTotal):\n\n- **sync** (`virusScanMode=sync`) — the buffer is scanned before the bucket write;\n  an infected file is rejected with `SCAN_INFECTED` and never stored.\n- **async** (default) — the object is stored as `scanStatus='pending'` and a BullMQ\n  job (`storage.scan.job.ts`) downloads it via a presigned URL, scans it, writes the\n  result to the `UploadedFile` scan columns, then quarantines/deletes it if infected\n  (`virusScanInfectedAction`). `uploadFromUrl` always scans asynchronously;\n  `uploadServerBuffer` (trusted server output) is not scanned.\n\n---\n\n## Tenant Variability\n\n> What varies per tenant in this module — and what could. Audited 2026-06-03.\n\nThe storage module uploads/deletes files to S3-compatible providers (AWS S3, Cloudflare R2, DigitalOcean Spaces, MinIO) and is fully tenant-aware: each real tenant has its own provider, bucket, credentials and limits in Setting rows, its own UploadedFile audit ledger, and upload access is gated per-tenant via subscription feature-keys + a storage quota.\n\n### Per-tenant settings\n\n| Key | Type | Default | Scope | Controls | Read in |\n|---|---|---|---|---|---|\n| `storageProvider` | string | `aws-s3` | tenant | Which S3-compatible backend the tenant's uploads go to (aws-s3 \\| s3 \\| cloudflare-r2 \\| digitalocean-spaces \\| minio); service default 'aws-s3', seed default 's3'. | `storage.service.ts` |\n| `s3Bucket` | string | — | tenant | Destination bucket name for this tenant's objects. | `storage.service.ts` |\n| `s3Region` | string | `us-east-1` | tenant | AWS/S3 region for the tenant's bucket. | `storage.service.ts` |\n| `s3AccessKey` | string | — | tenant | Access key id for the tenant's storage credentials. | `storage.service.ts` |\n| `s3SecretKey` | string | — | tenant | Secret access key for the tenant's storage credentials. | `storage.service.ts` |\n| `s3Endpoint` | string | — | tenant | Custom S3 endpoint URL (for R2 / Spaces / self-hosted MinIO); undefined falls back to provider default. | `storage.service.ts` |\n| `maxFileSizeMb` | number | `25` | tenant | Intended per-tenant max upload size in MB (seeded/UI-editable but not yet enforced in the service). | `setting.seed.ts` |\n| `allowedExtensions` | json | `[\"png\",\"jpg\",\"pdf\"]` | tenant | Intended per-tenant allowlist of upload file extensions (seeded/UI-editable but not yet enforced in the service). | `setting.seed.ts` |\n\n*Scope: `tenant` = real tenants override · `root` = platform-only default (not per-tenant).*\n\n### Tenant-scoped data\n\n| Entity | Table | Tenant-variable columns |\n|---|---|---|\n| `UploadedFile` | `uploaded_files` | userId, key, bucket, provider, size, mimeType, url |\n\nAll rows isolated by `tenantId` via the per-tenant DataSource.\n\n### Per-tenant behavior\n\n- `storage.service.ts:getStorageSettings` — Reads storageProvider + s3Bucket/region/credentials/endpoint via SettingService.getByKeys(tenantId,...) so the resolved provider and S3Config are entirely per-tenant; each tenant uploads to its own bucket with its own credentials.\n- `storage.service.ts:getProvider` — Selects the concrete provider class (AWS S3 / R2 / Spaces / MinIO) from the tenant's resolved storageProvider setting, unless the request explicitly overrides it.\n- `storage.service.ts:assertStorageFeatureAccess` — Gates uploadFile/uploadFromUrl per tenant: asserts the tenant's active plan grants FEATURE_STORAGE_UPLOAD and that FEATURE_STORAGE_QUOTA_BYTES is not exhausted (compared against the tenant's TenantUsage.storageBytes). Root tenant is short-circuited (isRootTenant).\n- `storage.service.ts:persistUploadAudit` — Writes the UploadedFile audit row into tenantDataSourceFor(tenantId) and increments TenantUsageService.storageBytes for that tenant, so each tenant has its own file ledger and usage counter.\n\n### Candidates (global / hardcoded today → could be per-tenant)\n\n| What | Where | Why per-tenant | Suggested key |\n|---|---|---|---|\n| Per-tenant max upload size is not enforced; uploadFile/uploadFromUrl accept any file size regardless of the tenant's configured limit. | `storage.service.ts:uploadFile / uploadFromUrl` | The maxFileSizeMb setting is declared in storage.setting.keys.ts, seeded per-tenant (value '25'), and exposed in the settings UI, but it is never read anywhere in the service — uploads are size-gated only by the subscription quota, not this per-tenant ceiling. | `maxFileSizeMb` |\n| Per-tenant allowed file extensions are not enforced; any extension/mime type is accepted on upload. | `storage.service.ts:uploadFile / uploadFromUrl` | allowedExtensions is declared in storage.setting.keys.ts and seeded per-tenant (['png','jpg','pdf']) and UI-editable, but no code reads it to validate the uploaded file's extension. | `allowedExtensions` |\n\n---\n\n## Dependencies\n\nRequires `env` and `setting` (per `module.json`). At runtime also uses `tenant_usage` (quota counter), `tenant_subscription` (feature-key gating), `tenant`/`db` (per-tenant DataSource), and `logger`.\n"
     },
     {
       "id": "user",
@@ -527,6 +540,9 @@
       },
       "exports": {
         "services": [
+          "user.admin.service.ts",
+          "user.crud.service.ts",
+          "user.read.service.ts",
           "user.service.ts"
         ],
         "dtos": [
@@ -614,8 +630,12 @@
       },
       "exports": {
         "services": [
+          "user_profile.media.service.ts",
           "user_profile.moderation.service.ts",
-          "user_profile.service.ts"
+          "user_profile.read.service.ts",
+          "user_profile.service.ts",
+          "user_profile.social.service.ts",
+          "user_profile.write.service.ts"
         ],
         "dtos": [
           "user_profile.dto.ts"
@@ -660,6 +680,9 @@
       },
       "exports": {
         "services": [
+          "user_security.crud.service.ts",
+          "user_security.login.service.ts",
+          "user_security.mfa.service.ts",
           "user_security.passkey.crud.service.ts",
           "user_security.passkey.flow.service.ts",
           "user_security.passkey.service.ts",
@@ -759,7 +782,10 @@
       "exports": {
         "services": [
           "social_identity_merge.service.ts",
-          "user_social_account.service.ts"
+          "user_social_account.link.service.ts",
+          "user_social_account.read.service.ts",
+          "user_social_account.service.ts",
+          "user_social_account.token.service.ts"
         ],
         "dtos": [],
         "enums": [
@@ -816,6 +842,9 @@
       "exports": {
         "services": [
           "auth.captcha.service.ts",
+          "auth.credential.lifecycle.service.ts",
+          "auth.credential.login.service.ts",
+          "auth.credential.register.service.ts",
           "auth.credential.service.ts",
           "auth.otp.service.ts",
           "auth.password.service.ts",
@@ -922,6 +951,9 @@
         "services": [
           "auth_saml.config.service.ts",
           "auth_saml.crypto.service.ts",
+          "auth_saml.flow.callback.service.ts",
+          "auth_saml.flow.metadata.service.ts",
+          "auth_saml.flow.provision.service.ts",
           "auth_saml.flow.service.ts",
           "auth_saml.metadata.service.ts",
           "auth_saml.service.ts"
@@ -1149,7 +1181,10 @@
           "scim.group.service.ts",
           "scim.policy.service.ts",
           "scim.service.ts",
-          "scim.user.service.ts"
+          "scim.user.patch.service.ts",
+          "scim.user.read.service.ts",
+          "scim.user.service.ts",
+          "scim.user.write.service.ts"
         ],
         "dtos": [
           "scim.dto.ts"
@@ -1292,6 +1327,8 @@
       },
       "exports": {
         "services": [
+          "tenant_invitation.lifecycle.service.ts",
+          "tenant_invitation.read.service.ts",
           "tenant_invitation.service.ts"
         ],
         "dtos": [
@@ -1339,6 +1376,7 @@
       },
       "exports": {
         "services": [
+          "tenant_session.resolve.service.ts",
           "tenant_session.service.ts"
         ],
         "dtos": [],
@@ -1534,6 +1572,9 @@
       "exports": {
         "services": [
           "tenant_usage.alerts.service.ts",
+          "tenant_usage.flush.service.ts",
+          "tenant_usage.increment.service.ts",
+          "tenant_usage.read.service.ts",
           "tenant_usage.service.ts"
         ],
         "dtos": [],
@@ -1579,7 +1620,10 @@
       "exports": {
         "services": [
           "payment.checkout.service.ts",
+          "payment.crud.dispute.service.ts",
+          "payment.crud.read.service.ts",
           "payment.crud.service.ts",
+          "payment.crud.write.service.ts",
           "payment.proration.service.ts",
           "payment.service.ts",
           "payment.transaction.service.ts",
@@ -1681,7 +1725,11 @@
       },
       "exports": {
         "services": [
+          "coupon.analytics.service.ts",
+          "coupon.bulk.service.ts",
+          "coupon.crud.core.service.ts",
           "coupon.crud.service.ts",
+          "coupon.redemption.service.ts",
           "coupon.service.ts",
           "coupon.validation.service.ts"
         ],
@@ -1993,10 +2041,13 @@
       "exports": {
         "services": [
           "invoice.adapter.service.ts",
+          "invoice.create.service.ts",
           "invoice.creditnote.service.ts",
           "invoice.crud.service.ts",
+          "invoice.number.service.ts",
           "invoice.pdf.renderer.service.ts",
           "invoice.pdf.service.ts",
+          "invoice.read.service.ts",
           "invoice.service.ts",
           "invoice.signature.service.ts",
           "invoice.tax.service.ts",
@@ -2130,7 +2181,10 @@
       },
       "exports": {
         "services": [
-          "notification_push.service.ts"
+          "notification_push.metrics.service.ts",
+          "notification_push.send.service.ts",
+          "notification_push.service.ts",
+          "notification_push.subscription.service.ts"
         ],
         "dtos": [],
         "enums": [],
@@ -2212,7 +2266,10 @@
       },
       "exports": {
         "services": [
-          "notification_log.service.ts"
+          "notification_log.alerts.service.ts",
+          "notification_log.read.service.ts",
+          "notification_log.service.ts",
+          "notification_log.write.service.ts"
         ],
         "dtos": [],
         "enums": [],
@@ -2305,6 +2362,10 @@
       },
       "exports": {
         "services": [
+          "payment_wishlist.cart.service.ts",
+          "payment_wishlist.crud.service.ts",
+          "payment_wishlist.gdpr.service.ts",
+          "payment_wishlist.items.service.ts",
           "payment_wishlist.price_watch.service.ts",
           "payment_wishlist.service.ts"
         ],
@@ -2580,7 +2641,10 @@
       },
       "exports": {
         "services": [
+          "media_gallery.bulk.service.ts",
+          "media_gallery.crud.service.ts",
           "media_gallery.intelligence.service.ts",
+          "media_gallery.query.service.ts",
           "media_gallery.service.ts"
         ],
         "dtos": [
@@ -2684,7 +2748,8 @@
       },
       "exports": {
         "services": [
-          "audit_log.service.ts"
+          "audit_log.service.ts",
+          "audit_log.write.service.ts"
         ],
         "dtos": [
           "audit_log.dto.ts"
@@ -2909,6 +2974,9 @@
       },
       "exports": {
         "services": [
+          "product_review.crud.service.ts",
+          "product_review.engagement.service.ts",
+          "product_review.gdpr.service.ts",
           "product_review.service.ts"
         ],
         "dtos": [
@@ -3019,6 +3087,9 @@
       },
       "exports": {
         "services": [
+          "messaging.crud.conversation.service.ts",
+          "messaging.crud.message.service.ts",
+          "messaging.crud.participant.service.ts",
           "messaging.crud.service.ts",
           "messaging.lifecycle.service.ts",
           "messaging.moderation.service.ts",
@@ -3141,6 +3212,8 @@
       },
       "exports": {
         "services": [
+          "metering.billing.read.service.ts",
+          "metering.billing.run.service.ts",
           "metering.billing.service.ts",
           "metering.meter.service.ts",
           "metering.record.service.ts",
@@ -3201,9 +3274,15 @@
       },
       "exports": {
         "services": [
+          "back_office.approval.decide.service.ts",
+          "back_office.approval.read.service.ts",
           "back_office.approval.service.ts",
+          "back_office.approval.submit.service.ts",
           "back_office.service.ts",
-          "back_office.support.service.ts"
+          "back_office.support.lifecycle.service.ts",
+          "back_office.support.read.service.ts",
+          "back_office.support.service.ts",
+          "back_office.support.write.service.ts"
         ],
         "dtos": [
           "back_office.dto.ts"
@@ -7902,6 +7981,10 @@
         "size",
         "mimeType",
         "url",
+        "scanStatus",
+        "scanProvider",
+        "scanResult",
+        "scannedAt",
         "createdAt",
         "deletedAt"
       ],
@@ -8655,6 +8738,7 @@
       "exports": [
         "SSO_PROVIDERS",
         "OAuthProvider",
+        "providerMeta",
         "OAuthButtons"
       ],
       "isClient": true,

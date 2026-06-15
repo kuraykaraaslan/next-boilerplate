@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-14T22:49:34.358Z",
+  "generatedAt": "2026-06-15T07:45:45.027Z",
   "entities": [
     {
       "name": "AiUsageLog",
@@ -2028,6 +2028,10 @@
         "size",
         "mimeType",
         "url",
+        "scanStatus",
+        "scanProvider",
+        "scanResult",
+        "scannedAt",
         "createdAt",
         "deletedAt"
       ],

@@ -16,6 +16,9 @@ Tenant-aware product ratings and reviews with verified-purchase flags, helpful v
 
 ## Services
 
+- `product_review.crud.service.ts`
+- `product_review.engagement.service.ts`
+- `product_review.gdpr.service.ts`
 - `product_review.service.ts`
 
 ## DTOs
