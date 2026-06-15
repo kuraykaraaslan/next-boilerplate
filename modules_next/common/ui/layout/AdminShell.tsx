@@ -201,19 +201,10 @@ export function AdminShell({ children, tenantId }: AdminShellProps) {
   // Pick the most specific (longest) matching href so the Dashboard item
   // (href = the admin root, a prefix of every admin page) only wins on the
   // index route, and nested routes (e.g. settings/branding) beat their parents.
-  const activeItem = navGroups
+  const activeId = navGroups
     .flatMap((g) => g.items)
     .filter((item) => item.href && pathname.startsWith(item.href))
-    .sort((a, b) => b.href.length - a.href.length)[0];
-  const activeId = activeItem?.id;
-
-  // Mirror the root layout's `%s | Next Boilerplate` title template for client
-  // routes, which can't export `metadata`. The active nav item's label is the
-  // closest thing we have to a page title.
-  const activeLabel = activeItem?.label;
-  useEffect(() => {
-    document.title = activeLabel ? `${activeLabel} | Next Boilerplate` : 'Next Boilerplate';
-  }, [activeLabel]);
+    .sort((a, b) => b.href.length - a.href.length)[0]?.id;
 
   const profileHref = `/tenant/${tenantId}/admin/me`;
   const logoutHref = `/tenant/${tenantId}/auth/logout`;

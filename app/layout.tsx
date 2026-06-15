@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import FontAwesomeConfig from '@/modules_next/common/ui/layout/FontAwesomeConfig';
 import { SkipToContent } from '@/modules_next/common/ui/SkipToContent';
+import { DEFAULT_APP_NAME } from '@/modules_next/common/page-metadata';
 import { Providers } from './providers';
 import './globals.css';
 
@@ -12,7 +13,10 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'Next Boilerplate',
+  title: {
+    default: DEFAULT_APP_NAME,
+    template: `%s | ${DEFAULT_APP_NAME}`,
+  },
   description: 'Multi-tenant SaaS boilerplate',
 };
 
