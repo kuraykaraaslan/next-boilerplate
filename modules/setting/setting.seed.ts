@@ -50,7 +50,10 @@ export async function seedSetting(ctx: SeedContext): Promise<void> {
     { key: 'storageProvider', value: 's3', group: 'Storage', type: 'string' },
     { key: 'maxFileSizeMb', value: '25', group: 'Storage', type: 'number' },
     { key: 'allowedExtensions', value: JSON.stringify(['png', 'jpg', 'pdf']), group: 'Storage', type: 'json' },
-    // Storage — content-derived MIME allowlist (comma-separated; empty = allow all)
+    // Storage — MIME allowlist by group (comma-separated group keys: images,
+    // documents, spreadsheets, presentations, archives, audio, video, data) plus
+    // optional explicit MIME types; both empty = allow all.
+    { key: 'allowedMimeGroups', value: 'images,documents', group: 'Storage', type: 'string' },
     { key: 'allowedMimeTypes', value: '', group: 'Storage', type: 'string' },
     // Storage — virus scanning (off by default; needs an API key to activate)
     { key: 'virusScanEnabled', value: 'false', group: 'Storage', type: 'boolean' },

@@ -9,8 +9,11 @@
   and **magic-byte sniffing** so `evil.exe` renamed to `cat.png` is rejected.
 - **Content-derived MIME validation** — the real MIME is derived from the
   (magic-byte-verified) content via `deriveMimeType`, enforced against the
-  per-tenant `allowedMimeTypes` allowlist, and stamped onto the stored object +
-  audit row instead of the client's spoofable `file.type` header.
+  per-tenant allowlist, and stamped onto the stored object + audit row instead of
+  the client's spoofable `file.type` header. The allowlist is configured by
+  **group** (`allowedMimeGroups`: images, documents, spreadsheets, presentations,
+  archives, audio, video, data — `storage.mime-groups.ts`), optionally augmented
+  with explicit `allowedMimeTypes`.
 - **Online virus scanning** — pluggable scanner abstraction + VirusTotal adapter,
   sync (block) or async (quarantine) per tenant. See "Virus / Malware Scanning".
 - **EXIF/metadata stripping** — JPEG APPn/COM segments (GPS, device, thumbnail)

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { deriveMimeType, validateUpload, type UploadValidationPolicy } from '../storage.validation'
+import { expandMimeGroups, MIME_GROUP_TYPES } from '../storage.mime-groups'
 
 const PNG_HEADER = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
 const JPEG_HEADER = new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10])
@@ -21,6 +22,43 @@ describe('deriveMimeType', () => {
 
   it('falls back to octet-stream for unknown extensions', () => {
     expect(deriveMimeType('xyz')).toBe('application/octet-stream')
+  })
+})
+
+describe('expandMimeGroups', () => {
+  it('expands a group to its MIME types', () => {
+    expect(expandMimeGroups(['images'])).toEqual(MIME_GROUP_TYPES.images)
+  })
+
+  it('merges and de-duplicates across groups (case/space-insensitive)', () => {
+    const out = expandMimeGroups([' Images ', 'documents'])
+    expect(out).toContain('image/png')
+    expect(out).toContain('application/pdf')
+    expect(new Set(out).size).toBe(out.length)
+  })
+
+  it('ignores unknown group keys', () => {
+    expect(expandMimeGroups(['nope', 'images'])).toEqual(MIME_GROUP_TYPES.images)
+  })
+
+  it('returns empty for no groups', () => {
+    expect(expandMimeGroups([])).toEqual([])
+  })
+})
+
+describe('validateUpload with group-derived allowlist', () => {
+  it('accepts a file whose MIME falls in an allowed group', async () => {
+    const file = new File([PNG_HEADER as unknown as BlobPart], 'image.png', { type: 'image/png' })
+    const { mimeType } = await validateUpload(file, policy({ allowedMimeTypes: expandMimeGroups(['images']) }))
+    expect(mimeType).toBe('image/png')
+  })
+
+  it('rejects a file outside the selected groups', async () => {
+    // 'documents' group does not include images.
+    const file = new File([PNG_HEADER as unknown as BlobPart], 'image.png', { type: 'image/png' })
+    await expect(
+      validateUpload(file, policy({ allowedMimeTypes: expandMimeGroups(['documents']) })),
+    ).rejects.toThrow(/Invalid MIME type/i)
   })
 })
 

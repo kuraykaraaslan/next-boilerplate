@@ -10,6 +10,7 @@ import { S3Config } from './storage.types'
 import { STORAGE_MESSAGES } from './storage.messages'
 import SettingService from '@/modules/setting/setting.service'
 import { STORAGE_KEYS } from './storage.setting.keys'
+import { expandMimeGroups } from './storage.mime-groups'
 import type { UploadValidationPolicy } from './storage.validation'
 
 /**
@@ -34,12 +35,19 @@ export async function getStorageSettings(tenantId: string): Promise<{ providerNa
 
 /** Resolve the per-tenant upload validation policy from settings. */
 export async function getValidationPolicy(tenantId: string): Promise<UploadValidationPolicy> {
-  const s = await SettingService.getByKeys(tenantId, ['maxFileSizeMb', 'allowedExtensions', 'allowedMimeTypes', 'imageStripExif']).catch(() => ({} as Record<string, string>))
+  const s = await SettingService.getByKeys(tenantId, ['maxFileSizeMb', 'allowedExtensions', 'allowedMimeGroups', 'allowedMimeTypes', 'imageStripExif']).catch(() => ({} as Record<string, string>))
   const maxMb = parseInt(s.maxFileSizeMb ?? '', 10)
+
+  // Effective MIME allowlist = selected groups (expanded) ∪ explicit MIME types.
+  // Both empty → unrestricted (the provider-level type checks still apply).
+  const groups = (s.allowedMimeGroups ?? '').split(',').map((g) => g.trim().toLowerCase()).filter(Boolean)
+  const explicit = (s.allowedMimeTypes ?? '').split(',').map((m) => m.trim().toLowerCase()).filter(Boolean)
+  const allowedMimeTypes = [...new Set([...expandMimeGroups(groups), ...explicit])]
+
   return {
     maxBytes: Number.isFinite(maxMb) && maxMb > 0 ? maxMb * 1024 * 1024 : 0,
     allowedExtensions: (s.allowedExtensions ?? '').split(',').map((e) => e.trim().toLowerCase().replace(/^\./, '')).filter(Boolean),
-    allowedMimeTypes: (s.allowedMimeTypes ?? '').split(',').map((m) => m.trim().toLowerCase()).filter(Boolean),
+    allowedMimeTypes,
     stripExif: s.imageStripExif !== 'false', // strip by default (privacy)
   }
 }

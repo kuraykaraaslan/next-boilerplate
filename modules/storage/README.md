@@ -157,8 +157,27 @@ Storage setting keys (`STORAGE_KEYS`, declared in `storage.setting.keys.ts`) are
 | `s3Endpoint` | string | — | `storage.service.ts` — custom endpoint (R2 / Spaces / MinIO); undefined falls back to provider default. |
 | `maxFileSizeMb` | number | `25` | `getValidationPolicy` — enforced in `validateUpload`. |
 | `allowedExtensions` | json | `["png","jpg","pdf"]` | `getValidationPolicy` — enforced in `validateUpload`. |
-| `allowedMimeTypes` | csv | — (empty = allow all) | `getValidationPolicy` — content-derived MIME matched against this allowlist in `validateUpload`. |
+| `allowedMimeGroups` | csv | `images,documents` | `getValidationPolicy` — group keys expanded to MIME types (see below). |
+| `allowedMimeTypes` | csv | — (empty) | `getValidationPolicy` — explicit MIME types added on top of the selected groups. |
 | `imageStripExif` | bool | `true` | `getValidationPolicy` — strips JPEG EXIF/metadata unless `'false'`. |
+
+#### MIME allowlist by group (`storage.mime-groups.ts`)
+
+Rather than listing raw MIME strings, tenants pick **groups**; the effective
+allowlist is `expandMimeGroups(allowedMimeGroups) ∪ allowedMimeTypes`. Both empty
+⇒ unrestricted (provider-level type checks still apply). The content-derived MIME
+(`deriveMimeType`) is matched against this set in `validateUpload`.
+
+| Group | Covers |
+|---|---|
+| `images` | jpeg, png, webp, avif, gif, bmp, ico, svg |
+| `documents` | pdf, txt, markdown, html, docx, odt, epub |
+| `spreadsheets` | csv, xlsx, ods |
+| `presentations` | pptx |
+| `archives` | zip, gzip |
+| `audio` | mpeg/mp3 |
+| `video` | mp4 |
+| `data` | json, xml, yaml |
 
 ### Virus scanning keys (`STORAGE_SCAN_KEYS`, `storage.scan.setting.keys.ts`)
 
