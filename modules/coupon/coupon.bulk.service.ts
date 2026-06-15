@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import crypto from 'crypto';
+import { In } from 'typeorm';
 import { tenantDataSourceFor } from '@/modules/db';
 import { Coupon as CouponEntity } from './entities/coupon.entity';
 import Logger from '@/modules/logger';
@@ -97,30 +98,42 @@ export async function importFromCsv(tenantId: string, csvContent: string): Promi
   const ds = await tenantDataSourceFor(tenantId);
   const repo = ds.getRepository(CouponEntity);
 
-  for (const row of rows) {
-    try {
-      const existing = await repo.findOne({ where: { tenantId, code: row.code } });
-      if (existing) { result.skipped++; continue; }
+  // Resolve all existing codes in a single query instead of one findOne per row.
+  const codes = rows.map((r) => r.code);
+  const existing = await repo.find({ where: { tenantId, code: In(codes) }, select: { code: true } });
+  const taken = new Set(existing.map((e) => e.code));
 
-      const entity = repo.create({
-        tenantId,
-        code: row.code,
-        name: row.name,
-        discountType: row.discountType,
-        discountValue: row.discountValue,
-        status: row.status,
-        usedCount: 0,
-        ...(row.currency && { currency: row.currency }),
-        ...(row.maxUses && { maxUses: row.maxUses }),
-        ...(row.maxUsesPerUser && { maxUsesPerUser: row.maxUsesPerUser }),
-        ...(row.startsAt && { startsAt: row.startsAt }),
-        ...(row.expiresAt && { expiresAt: row.expiresAt }),
-      });
-      await repo.save(entity);
-      result.imported++;
+  const toInsert: CouponEntity[] = [];
+  for (const row of rows) {
+    // Skip rows that already exist in the DB or are duplicated within this CSV.
+    if (taken.has(row.code)) { result.skipped++; continue; }
+    taken.add(row.code);
+    toInsert.push(repo.create({
+      tenantId,
+      code: row.code,
+      name: row.name,
+      discountType: row.discountType,
+      discountValue: row.discountValue,
+      status: row.status,
+      usedCount: 0,
+      ...(row.currency && { currency: row.currency }),
+      ...(row.maxUses && { maxUses: row.maxUses }),
+      ...(row.maxUsesPerUser && { maxUsesPerUser: row.maxUsesPerUser }),
+      ...(row.startsAt && { startsAt: row.startsAt }),
+      ...(row.expiresAt && { expiresAt: row.expiresAt }),
+    }));
+  }
+
+  if (toInsert.length > 0) {
+    try {
+      await repo.save(toInsert);
+      result.imported += toInsert.length;
     } catch (err) {
-      result.errors.push({ row: rows.indexOf(row) + 2, reason: err instanceof Error ? err.message : String(err) });
-      result.skipped++;
+      // Batch insert is all-or-nothing; surface the failure rather than silently
+      // reporting a partial import.
+      Logger.error(`${COUPON_MESSAGES.BULK_CREATE_FAILED}: ${err}`);
+      result.errors.push({ row: 0, reason: err instanceof Error ? err.message : String(err) });
+      result.skipped += toInsert.length;
     }
   }
 

@@ -1,4 +1,5 @@
 import 'reflect-metadata'
+import { In } from 'typeorm'
 import { tenantDataSourceFor } from '@/modules/db'
 import Logger from '@/modules/logger'
 import WebhookService from '@/modules/webhook/webhook.service'
@@ -55,18 +56,18 @@ export default class PaymentWishlistPriceWatchService {
     const pointRepo = ds.getRepository(PricePointEntity)
     const wishlistRepo = ds.getRepository(WishlistEntity)
 
-    // Cache product + owner email lookups across the sweep.
+    // Prefetch every distinct product referenced by the wishlist items in a
+    // single query instead of a findOne the first time each product is seen.
     const productCache = new Map<string, ReturnType<typeof StoreProductSchema.parse> | null>()
     const emailCache = new Map<string, string | null>()
+    const distinctProductIds = Array.from(new Set(items.map((i) => i.productId)))
+    const productRows = await productRepo.find({ where: { tenantId, productId: In(distinctProductIds) } })
+    for (const id of distinctProductIds) productCache.set(id, null)
+    for (const row of productRows) productCache.set(row.productId, StoreProductSchema.parse(row))
 
     for (const item of items) {
       result.scanned++
-      let product = productCache.get(item.productId)
-      if (product === undefined) {
-        const row = await productRepo.findOne({ where: { tenantId, productId: item.productId } })
-        product = row ? StoreProductSchema.parse(row) : null
-        productCache.set(item.productId, product)
-      }
+      const product = productCache.get(item.productId)
       if (!product) continue
 
       const price = StorePricingService.resolvePrice(product)

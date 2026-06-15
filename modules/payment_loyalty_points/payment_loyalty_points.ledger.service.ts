@@ -1,5 +1,5 @@
 import 'reflect-metadata'
-import { LessThanOrEqual, type EntityManager } from 'typeorm'
+import { LessThanOrEqual, In, type EntityManager } from 'typeorm'
 import { tenantDataSourceFor } from '@/modules/db'
 import Logger from '@/modules/logger'
 import { AppError, ErrorCode } from '@/modules/common/app-error'
@@ -201,28 +201,42 @@ export default class PaymentLoyaltyPointsLedgerService {
           where: { tenantId, type: 'EARN', expiresAt: LessThanOrEqual(now) },
           order: { createdAt: 'ASC' },
         })
+        if (expiredLots.length === 0) return 0
+
+        // Load every affected account in one query and mutate the in-memory copies
+        // as we walk the lots in FIFO order (so multiple lots on the same account
+        // see the running balance). Persist accounts/lots/new tx rows in batches at
+        // the end instead of one round-trip per lot.
+        const accountIds = Array.from(new Set(expiredLots.map((l) => l.accountId)))
+        const accounts = await accountRepo.find({ where: { tenantId, loyaltyAccountId: In(accountIds) } })
+        const accountById = new Map(accounts.map((a) => [a.loyaltyAccountId, a]))
+
+        const changedAccounts = new Set<LoyaltyAccountEntity>()
+        const lotsToSave: LoyaltyTransactionEntity[] = []
+        const newTxs: LoyaltyTransactionEntity[] = []
         let processed = 0
+
         for (const lot of expiredLots) {
-          const account = await accountRepo.findOne({ where: { tenantId, loyaltyAccountId: lot.accountId } })
+          const account = accountById.get(lot.accountId)
           if (!account) continue
           const toExpire = Math.min(account.balance, lot.points)
-          if (toExpire <= 0) {
-            lot.expiresAt = undefined
-            await txRepo.save(lot)
-            continue
-          }
+          lot.expiresAt = undefined
+          lotsToSave.push(lot)
+          if (toExpire <= 0) continue
           account.balance -= toExpire
-          const savedAccount = await accountRepo.save(account)
-          await txRepo.save(txRepo.create({
+          changedAccounts.add(account)
+          newTxs.push(txRepo.create({
             tenantId, accountId: account.loyaltyAccountId, userId: account.userId,
             type: 'EXPIRE', points: -toExpire, reason: PAYMENT_LOYALTY_POINTS_MESSAGES.POINTS_EXPIRED_REASON,
             referenceType: 'loyalty_transaction', referenceId: lot.loyaltyTransactionId,
-            balanceAfter: savedAccount.balance,
+            balanceAfter: account.balance,
           }))
-          lot.expiresAt = undefined
-          await txRepo.save(lot)
           processed += 1
         }
+
+        if (changedAccounts.size > 0) await accountRepo.save(Array.from(changedAccounts))
+        if (newTxs.length > 0) await txRepo.save(newTxs)
+        if (lotsToSave.length > 0) await txRepo.save(lotsToSave)
         return processed
       })
     } catch (error) {

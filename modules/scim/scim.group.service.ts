@@ -47,9 +47,8 @@ export default class ScimGroupService {
     };
   }
 
-  private static async toScimGroup(tenantId: string, g: ScimGroupEntity): Promise<ScimGroup> {
-    const ds = await tenantDataSourceFor(tenantId);
-    const members = await ds.getRepository(ScimGroupMemberEntity).find({ where: { tenantId, scimGroupId: g.scimGroupId } });
+  /** Assemble a SCIM Group from an entity + its already-loaded members (no I/O). */
+  private static buildScimGroup(tenantId: string, g: ScimGroupEntity, members: ScimGroupMemberEntity[]): ScimGroup {
     return {
       schemas: [SCIM_SCHEMAS.GROUP],
       id: g.scimGroupId,
@@ -58,6 +57,12 @@ export default class ScimGroupService {
       members: members.map((m) => ({ value: m.tenantMemberId, $ref: `../Users/${m.tenantMemberId}`, type: 'User' })),
       meta: this.meta(tenantId, g),
     } as ScimGroup;
+  }
+
+  private static async toScimGroup(tenantId: string, g: ScimGroupEntity): Promise<ScimGroup> {
+    const ds = await tenantDataSourceFor(tenantId);
+    const members = await ds.getRepository(ScimGroupMemberEntity).find({ where: { tenantId, scimGroupId: g.scimGroupId } });
+    return this.buildScimGroup(tenantId, g, members);
   }
 
   static async listGroups(tenantId: string, query: { startIndex?: number; count?: number; idp?: string }): Promise<ScimListResponse<ScimGroup>> {
@@ -73,7 +78,19 @@ export default class ScimGroupService {
     const [rows, total] = await ds.getRepository(ScimGroupEntity).findAndCount({
       where: where as never, order: { createdAt: 'DESC' }, skip: startIndex - 1, take: count,
     });
-    const Resources = await Promise.all(rows.map((g) => this.toScimGroup(tenantId, g)));
+    // Fetch members for every group in one query, then assemble in-memory —
+    // avoids the per-group member lookup (N+1) that toScimGroup() would do.
+    const groupIds = rows.map((g) => g.scimGroupId);
+    const allMembers = groupIds.length
+      ? await ds.getRepository(ScimGroupMemberEntity).find({ where: { tenantId, scimGroupId: In(groupIds) } })
+      : [];
+    const membersByGroup = new Map<string, ScimGroupMemberEntity[]>();
+    for (const m of allMembers) {
+      const arr = membersByGroup.get(m.scimGroupId) ?? [];
+      arr.push(m);
+      membersByGroup.set(m.scimGroupId, arr);
+    }
+    const Resources = rows.map((g) => this.buildScimGroup(tenantId, g, membersByGroup.get(g.scimGroupId) ?? []));
     return { schemas: [SCIM_SCHEMAS.LIST_RESPONSE], totalResults: total, startIndex, itemsPerPage: Resources.length, Resources };
   }
 

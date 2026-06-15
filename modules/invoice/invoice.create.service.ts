@@ -142,9 +142,10 @@ async function runCreate(tenantId: string, input: CreateInvoiceInput): Promise<S
         : parsed.metadata,
     }));
 
-    for (const cl of computedLines) {
-      await lineRepo.save(lineRepo.create({ ...cl, tenantId, invoiceId: inv.invoiceId }));
-    }
+    // Batch-insert all lines in one round-trip instead of N sequential saves.
+    await lineRepo.save(
+      computedLines.map((cl) => lineRepo.create({ ...cl, tenantId, invoiceId: inv.invoiceId })),
+    );
 
     return inv;
   });
