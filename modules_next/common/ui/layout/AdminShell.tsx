@@ -46,6 +46,7 @@ import {
   faChartLine,
   faCookieBite,
   faFileContract,
+  faGift,
 } from '@fortawesome/free-solid-svg-icons';
 
 type AdminShellProps = {
@@ -119,6 +120,7 @@ export function AdminShell({ children, tenantId }: AdminShellProps) {
         { id: 'payments', label: 'Payments', href: `/tenant/${tenantId}/admin/payments`, icon: <FontAwesomeIcon icon={faCreditCard} aria-hidden /> },
         { id: 'invoices', label: 'Invoices', href: `/tenant/${tenantId}/admin/invoices`, icon: <FontAwesomeIcon icon={faFileInvoice} aria-hidden /> },
         { id: 'coupons',  label: 'Coupons',  href: `/tenant/${tenantId}/admin/coupons`,  icon: <FontAwesomeIcon icon={faKey} aria-hidden /> },
+        { id: 'gift-cards', label: 'Gift Cards', href: `/tenant/${tenantId}/admin/gift-cards`, icon: <FontAwesomeIcon icon={faGift} aria-hidden /> },
         { id: 'wallet',   label: 'Wallet',   href: `/tenant/${tenantId}/admin/wallet`,   icon: <FontAwesomeIcon icon={faWallet} aria-hidden /> },
         { id: 'metering', label: 'Metering', href: `/tenant/${tenantId}/admin/metering`, icon: <FontAwesomeIcon icon={faGaugeHigh} aria-hidden /> },
       ],
@@ -157,6 +159,7 @@ export function AdminShell({ children, tenantId }: AdminShellProps) {
       label: 'Developer',
       items: [
         { id: 'api-keys', label: 'API Keys', href: `/tenant/${tenantId}/admin/api-keys`, icon: <FontAwesomeIcon icon={faKey} aria-hidden /> },
+        { id: 'integrations', label: 'Integrations', href: `/tenant/${tenantId}/admin/integrations`, icon: <FontAwesomeIcon icon={faPlug} aria-hidden /> },
         { id: 'api-docs', label: 'API Docs', href: `/tenant/${tenantId}/admin/api-docs`, icon: <FontAwesomeIcon icon={faBook} aria-hidden /> },
         { id: 'ai',       label: 'AI',       href: `/tenant/${tenantId}/admin/ai`,       icon: <FontAwesomeIcon icon={faRobot} aria-hidden /> },
       ],

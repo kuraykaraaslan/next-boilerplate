@@ -103,6 +103,12 @@ import { AgreementVersion } from '@/modules/terms_consent/entities/agreement_ver
 import { AgreementAcceptance } from '@/modules/terms_consent/entities/agreement_acceptance.entity';
 import { AnalyticsEvent } from '@/modules/analytics/entities/analytics_event.entity';
 import { SearchDocument } from '@/modules/search/entities/search_document.entity';
+import { GiftCard } from '@/modules/gift_card/entities/gift_card.entity';
+import { GiftCardTransaction } from '@/modules/gift_card/entities/gift_card_transaction.entity';
+import { Connector } from '@/modules/integrations_hub/entities/connector.entity';
+import { ConnectedApp } from '@/modules/integrations_hub/entities/connected_app.entity';
+import { OAuthToken } from '@/modules/integrations_hub/entities/oauth_token.entity';
+import { IntegrationEvent } from '@/modules/integrations_hub/entities/integration_event.entity';
 
 export const ENTITIES = [
   User, UserConsent, UserProfile, UserSecurity, UserPreferences, UserSession,
@@ -125,5 +131,6 @@ export const ENTITIES = [
   WalletTransaction, WalletPosting, MeterDefinition, MeteredUsageEvent,
   MeteredBillingRun, ApprovalQueueItem, SupportTicket, SupportTicketMessage,
   FeatureFlag, FeatureFlagOverride, ConsentRecord, AnalyticsEvent, SearchDocument,
-  Agreement, AgreementVersion, AgreementAcceptance,
+  Agreement, AgreementVersion, AgreementAcceptance, GiftCard, GiftCardTransaction,
+  Connector, ConnectedApp, OAuthToken, IntegrationEvent,
 ];

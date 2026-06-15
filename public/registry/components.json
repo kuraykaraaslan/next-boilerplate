@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-15T11:29:20.551Z",
+  "generatedAt": "2026-06-15T12:43:04.870Z",
   "components": [
     {
       "id": "ai/ui/AIChatBox",
@@ -2495,6 +2495,56 @@
       "isClient": true,
       "isServer": false,
       "baseName": "feature-flag-columns"
+    },
+    {
+      "id": "gift_card/ui/gift-card-list-columns",
+      "module": "gift_card",
+      "filePath": "modules_next/gift_card/ui/gift-card-list-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "GiftCardRow",
+        "buildGiftCardColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "gift-card-list-columns"
+    },
+    {
+      "id": "gift_card/ui/GiftCardIssueModal",
+      "module": "gift_card",
+      "filePath": "modules_next/gift_card/ui/GiftCardIssueModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "GiftCardIssueModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "GiftCardIssueModal"
+    },
+    {
+      "id": "integrations_hub/ui/connected-apps-columns",
+      "module": "integrations_hub",
+      "filePath": "modules_next/integrations_hub/ui/connected-apps-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "ConnectedAppRow",
+        "buildConnectedAppColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "connected-apps-columns"
+    },
+    {
+      "id": "integrations_hub/ui/ConnectorFormModal",
+      "module": "integrations_hub",
+      "filePath": "modules_next/integrations_hub/ui/ConnectorFormModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "ConnectorFormModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ConnectorFormModal"
     },
     {
       "id": "invoice/ui/EarsivSmsSignModal",

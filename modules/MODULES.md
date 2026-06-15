@@ -76,6 +76,7 @@ There are **47 modules** under `modules/`. Eighteen of them also have a Next/Rea
 |---|---|---|---|---|
 | [payment](payment/) | Payment processing + subscription plans + plan features + webhook handler. | `Payment`, `PaymentTransaction`, `SubscriptionPlan`, `PlanFeature` | Stripe, PayPal, Iyzico | db, env, setting, common |
 | [coupon](coupon/) | Discount coupons + redemption tracking. Provider-aware. | `Coupon`, `CouponRedemption` | Stripe, PayPal, Iyzico | db, env, payment, common |
+| [gift_card](gift_card/) | Prepaid gift cards: hash-protected codes, balance tracking, redemption into a user's wallet, void/adjust + expiry sweep. | `GiftCard`, `GiftCardTransaction` | — | db, env, wallet, payment, webhook, tenant_subscription |
 
 ### Platform
 
@@ -93,6 +94,7 @@ There are **47 modules** under `modules/`. Eighteen of them also have a Next/Rea
 | [terms_consent](terms_consent/) | Legal agreements + consent. Versioned, immutable, hash-stamped agreement documents (terms, privacy/KVKK, distance-selling, pre-information, refund, cookie, custom) with an append-only acceptance ledger (reusable docs → version+hash; order-specific → verbatim snapshot). Plus the cookie-consent banner + per-purpose ledger. Checkout gate enforces acceptance before payment. Complements `tenant_export`. | `Agreement`, `AgreementVersion`, `AgreementAcceptance`, `ConsentRecord` | db, env, redis, common, audit_log, setting |
 | [approval](approval/) | Generic, entity-agnostic moderation / approval queue keyed by `(entityType, entityId)`. Tamper-evident per-tenant decision hash chain + in-memory decision-handler hook; partial unique index enforces one open item per entity; SLA-by-priority. Audit-logged, in-app notified, webhooks per event. | `ApprovalQueueItem` | db, env, logger, common, webhook, audit_log, notification_inapp |
 | [support](support/) | Customer support-ticket desk: per-tenant monotonic ticket numbers, agent assignment, internal notes, threaded messages, first-response + resolution SLA tracking (OPEN → PENDING → RESOLVED → CLOSED). Audit-logged, in-app notified, webhooks per event. | `SupportTicket`, `SupportTicketMessage` | db, env, logger, common, webhook, audit_log, notification_inapp |
+| [integrations_hub](integrations_hub/) | Zapier-like connector hub: per-tenant connector catalog, connection state, AES-256-GCM-encrypted OAuth tokens (authorization-code + refresh). Outbound triggers bridge onto `webhook`; inbound actions authenticate via `api_key`. | `Connector`, `ConnectedApp`, `OAuthToken`, `IntegrationEvent` | db, env, logger, common, redis, webhook, api_key, setting, tenant_subscription, audit_log |
 
 ### AI
 

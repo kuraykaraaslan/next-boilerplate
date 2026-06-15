@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-15T11:29:20.551Z",
+  "generatedAt": "2026-06-15T12:43:04.870Z",
   "routes": [
     {
       "filePath": "app/api/auth/acs/route.ts",
@@ -1449,6 +1449,59 @@
       "dynamic": true
     },
     {
+      "filePath": "app/tenant/[tenantId]/api/gift-cards/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/gift-cards",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "gift_card",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/gift-cards/[giftCardId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/gift-cards/[giftCardId]",
+      "methods": [
+        "GET",
+        "PATCH",
+        "DELETE"
+      ],
+      "module": "gift_card",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/gift-cards/[giftCardId]/transactions/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/gift-cards/[giftCardId]/transactions",
+      "methods": [
+        "GET"
+      ],
+      "module": "gift_card",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/gift-cards/balance/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/gift-cards/balance",
+      "methods": [
+        "POST"
+      ],
+      "module": "gift_card",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/gift-cards/redeem/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/gift-cards/redeem",
+      "methods": [
+        "POST"
+      ],
+      "module": "gift_card",
+      "dynamic": true
+    },
+    {
       "filePath": "app/tenant/[tenantId]/api/health/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/health",
@@ -1456,6 +1509,100 @@
         "GET"
       ],
       "module": "health",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/integrations/actions/[actionKey]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/integrations/actions/[actionKey]",
+      "methods": [
+        "POST"
+      ],
+      "module": "integration",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/integrations/connect/api-key/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/integrations/connect/api-key",
+      "methods": [
+        "POST"
+      ],
+      "module": "integration",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/integrations/connected/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/integrations/connected",
+      "methods": [
+        "GET"
+      ],
+      "module": "integration",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/integrations/connected/[connectedAppId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/integrations/connected/[connectedAppId]",
+      "methods": [
+        "GET",
+        "DELETE"
+      ],
+      "module": "integration",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/integrations/connectors/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/integrations/connectors",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "integration",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/integrations/connectors/[connectorKey]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/integrations/connectors/[connectorKey]",
+      "methods": [
+        "GET",
+        "PUT",
+        "DELETE"
+      ],
+      "module": "integration",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/integrations/oauth/callback/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/integrations/oauth/callback",
+      "methods": [
+        "GET"
+      ],
+      "module": "integration",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/integrations/oauth/start/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/integrations/oauth/start",
+      "methods": [
+        "POST"
+      ],
+      "module": "integration",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/integrations/triggers/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/integrations/triggers",
+      "methods": [
+        "POST"
+      ],
+      "module": "integration",
       "dynamic": true
     },
     {

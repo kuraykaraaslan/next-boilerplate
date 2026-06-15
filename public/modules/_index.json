@@ -988,6 +988,21 @@
     "componentCount": 1,
     "file": "approval.md"
   },
+  "gift_card": {
+    "name": "Gift Card",
+    "tier": "other",
+    "tags": [
+      "billing",
+      "commerce",
+      "gift-card",
+      "wallet"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 5,
+    "entityCount": 2,
+    "componentCount": 2,
+    "file": "gift_card.md"
+  },
   "ai": {
     "name": "AI",
     "tier": "ai",
@@ -1016,6 +1031,22 @@
     "entityCount": 6,
     "componentCount": 84,
     "file": "dynamic_page.md"
+  },
+  "integrations_hub": {
+    "name": "Integrations Hub",
+    "tier": "other",
+    "tags": [
+      "platform",
+      "integrations",
+      "oauth",
+      "webhook",
+      "developer"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 0,
+    "entityCount": 4,
+    "componentCount": 2,
+    "file": "integrations_hub.md"
   },
   "search": {
     "name": "Search",

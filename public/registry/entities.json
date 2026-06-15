@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-15T11:29:20.551Z",
+  "generatedAt": "2026-06-15T12:43:04.870Z",
   "entities": [
     {
       "name": "Agreement",
@@ -301,6 +301,56 @@
         "unitPrice",
         "quantity",
         "metadata",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "ConnectedApp",
+      "filePath": "modules/integrations_hub/entities/connected_app.entity.ts",
+      "module": "integrations_hub",
+      "schema": "system",
+      "tableName": "connected_apps",
+      "columns": [
+        "connectedAppId",
+        "tenantId",
+        "connectorKey",
+        "status",
+        "connectedByUserId",
+        "externalAccountId",
+        "externalAccountName",
+        "webhookId",
+        "apiKeyId",
+        "config",
+        "lastSyncAt",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "Connector",
+      "filePath": "modules/integrations_hub/entities/connector.entity.ts",
+      "module": "integrations_hub",
+      "schema": "system",
+      "tableName": "connectors",
+      "columns": [
+        "connectorId",
+        "tenantId",
+        "key",
+        "name",
+        "category",
+        "authType",
+        "iconUrl",
+        "isEnabled",
+        "triggers",
+        "actions",
+        "oauthAuthUrl",
+        "oauthTokenUrl",
+        "oauthScopes",
+        "clientIdSettingKey",
+        "clientSecretSettingKey",
         "createdAt",
         "updatedAt"
       ],
@@ -682,6 +732,73 @@
       "relations": []
     },
     {
+      "name": "GiftCard",
+      "filePath": "modules/gift_card/entities/gift_card.entity.ts",
+      "module": "gift_card",
+      "schema": "system",
+      "tableName": "gift_cards",
+      "columns": [
+        "giftCardId",
+        "tenantId",
+        "code",
+        "codeHash",
+        "status",
+        "initialAmount",
+        "remainingAmount",
+        "currency",
+        "purchaserUserId",
+        "purchaserPaymentId",
+        "recipientEmail",
+        "recipientUserId",
+        "message",
+        "expiresAt",
+        "lastRedeemedAt",
+        "metadata",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "GiftCardTransaction",
+      "filePath": "modules/gift_card/entities/gift_card_transaction.entity.ts",
+      "module": "gift_card",
+      "schema": "system",
+      "tableName": "gift_card_transactions",
+      "columns": [
+        "giftCardTransactionId",
+        "tenantId",
+        "giftCardId",
+        "type",
+        "amount",
+        "balanceAfter",
+        "walletTransactionId",
+        "userId",
+        "note",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "IntegrationEvent",
+      "filePath": "modules/integrations_hub/entities/integration_event.entity.ts",
+      "module": "integrations_hub",
+      "schema": "system",
+      "tableName": "integration_events",
+      "columns": [
+        "integrationEventId",
+        "tenantId",
+        "connectedAppId",
+        "direction",
+        "eventKey",
+        "status",
+        "payload",
+        "error",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "Invoice",
       "filePath": "modules/invoice/entities/invoice.entity.ts",
       "module": "invoice",
@@ -996,6 +1113,26 @@
         "recipientCountry",
         "latencyMs",
         "sentAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "OAuthToken",
+      "filePath": "modules/integrations_hub/entities/oauth_token.entity.ts",
+      "module": "integrations_hub",
+      "schema": "system",
+      "tableName": "integration_oauth_tokens",
+      "columns": [
+        "oauthTokenId",
+        "tenantId",
+        "connectedAppId",
+        "accessTokenEnc",
+        "refreshTokenEnc",
+        "scope",
+        "tokenType",
+        "expiresAt",
+        "createdAt",
+        "updatedAt"
       ],
       "relations": []
     },

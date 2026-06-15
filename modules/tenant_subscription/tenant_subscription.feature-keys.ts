@@ -53,6 +53,12 @@ export const FEATURE_KEYS = {
 
   // Invoicing / e-invoicing
   FEATURE_INVOICING: 'feature_invoicing',
+
+  // Gift cards
+  FEATURE_GIFT_CARDS: 'feature_gift_cards',
+
+  // Integrations hub (third-party connectors)
+  FEATURE_INTEGRATIONS: 'feature_integrations',
 } as const;
 
 export type FeatureKey = (typeof FEATURE_KEYS)[keyof typeof FEATURE_KEYS];

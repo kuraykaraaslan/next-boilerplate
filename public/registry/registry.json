@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-15T11:29:20.551Z",
+  "generatedAt": "2026-06-15T12:43:04.870Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -3532,6 +3532,64 @@
       "readme": ""
     },
     {
+      "id": "gift_card",
+      "name": "Gift Card",
+      "version": "1.0.0",
+      "description": "Prepaid gift cards: issue (single + bulk) hash-protected codes, track redeemable balance, and redeem into a user's wallet. Redemption posts a wallet credit in the card's currency; supports partial redemption, void, admin balance adjustment, and an expiry sweep. Builds on wallet (credit) and payment (purchase-backed issuing).",
+      "dir": "modules/gift_card",
+      "icon": "fas fa-gift",
+      "tags": [
+        "billing",
+        "commerce",
+        "gift-card",
+        "wallet"
+      ],
+      "priority": 49,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "logger",
+          "common",
+          "redis",
+          "wallet",
+          "payment",
+          "webhook",
+          "tenant_subscription"
+        ]
+      },
+      "exports": {
+        "services": [
+          "gift_card.crud.service.ts",
+          "gift_card.redemption.service.ts",
+          "gift_card.service.ts"
+        ],
+        "dtos": [
+          "gift_card.dto.ts"
+        ],
+        "enums": [
+          "gift_card.enums.ts"
+        ],
+        "messageKeys": [
+          "gift_card.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [
+          "gift_card.expiry.job.ts"
+        ],
+        "entities": [
+          "gift_card.entity.ts",
+          "gift_card_transaction.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true,
+      "readme": "# gift_card\n\nPrepaid gift cards built on top of `wallet` (credit) and `payment` (purchase-backed\nissuing). A gift card holds a redeemable balance in integer minor units; redeeming\nit posts a wallet credit to the redeeming user.\n\n## What it does\n\n- **Issue** single or bulk cards with a hash-protected code. The human-readable\n  `code` (e.g. `GC-7K4M-9PQ2-XR3T`) is returned **once** from `issue()`; the\n  database only stores its SHA-256 `codeHash` (api_key-style), so a leaked row\n  never exposes a spendable code.\n- **Redeem** (full or partial) into the user's wallet via\n  `WalletService.issue(...)`. The card's `remainingAmount` is decremented and a\n  REDEEM ledger row is written, linked to the resulting wallet transaction.\n- **Balance check** by raw code (read-only).\n- **Void** (forfeit remaining balance) and **adjust** (signed admin correction).\n- **Expiry sweep** (`gift_card.expiry.job.ts`) flips past-due cards to `EXPIRED`.\n\nIssuing is feature-gated via `FEATURE_KEYS.FEATURE_GIFT_CARDS`\n(`TenantSubscriptionService.assertFeatureAccess`); the root tenant bypasses.\n\n## Public API — `GiftCardService`\n\n| Method | Description |\n|---|---|\n| `issue(tenantId, dto)` | Issue 1..N cards. Returns `{ giftCards, rawCodes }`; raw codes shown once. |\n| `getAll(tenantId, query)` | Paginated list (filter by `status` / `purchaserUserId` / code search). |\n| `getById(tenantId, giftCardId)` | Single card (Redis-cached). |\n| `getByCode(tenantId, rawCode)` | Resolve by raw code via hash; `null` when unknown (negative-cached). |\n| `listTransactions(tenantId, giftCardId)` | Append-only ledger for a card. |\n| `checkBalance(tenantId, rawCode)` | Read-only `{ status, remainingAmount, currency, expiresAt }`. |\n| `redeem(tenantId, dto)` | Redeem (partial/full) → wallet credit. Returns `RedeemResult`. |\n| `void(tenantId, giftCardId, reason?)` | Void a card, forfeit remaining balance. |\n| `adjust(tenantId, giftCardId, dto)` | Apply a signed delta to the balance. |\n| `issueForCompletedPayment(tenantId, paymentId, recipient?)` | Issue a card backed by a COMPLETED payment (call from the payment-success path). |\n\n## Entities\n\n- `GiftCard` → `gift_cards` — `code` (Unique per tenant), `codeHash` (unique),\n  `status`, `initialAmount`/`remainingAmount` (minor units), `currency`,\n  purchaser/recipient refs, `expiresAt`.\n- `GiftCardTransaction` → `gift_card_transactions` — append-only ledger\n  (`ISSUE | REDEEM | ADJUST | VOID`), signed `amount`, `balanceAfter`,\n  `walletTransactionId`.\n\n## Webhook events\n\n`gift_card.issued`, `gift_card.redeemed`, `gift_card.voided`, `gift_card.expired`\n(group **Gift Cards**, tenant scope).\n\n## Integration notes\n\n- **Redemption** calls `WalletService.issue(tenantId, { userId, amount, currency, referenceType: 'gift_card', referenceId })`. The wallet credit is posted **before** the card is mutated, so a wallet failure never burns balance.\n- **Purchase** there is no generic post-payment event bus yet; the payment-success\n  route should call `GiftCardService.issueForCompletedPayment(...)` explicitly.\n"
+    },
+    {
       "id": "ai",
       "name": "AI",
       "version": "1.0.0",
@@ -3635,6 +3693,68 @@
       "hasModuleJson": true,
       "hasNextLayer": true,
       "readme": "# Dynamic Page Module\n\nA tenant-scoped, block-based CMS / page builder. Each tenant owns an independent set of pages (with per-language translations) and a reusable library of block definitions. Published pages are rendered on the public site under `/tenant/[tenantId]/[...slug]`.\n\n---\n\n## Entities\n\nAll three entities live in the **tenant DB** (each row is isolated by `tenantId`).\n\n| Entity | Table | Description |\n|---|---|---|\n| `DynamicPage` | `dynamic_pages` | A page: `slug`, `title`, `description`, `keywords[]`, `sections` (block instances), SEO `metadata`, `status`, `schemaVersion`. Unique `(tenantId, slug)`. |\n| `DynamicPageTranslation` | `dynamic_page_translations` | Per-language override of a page's `title`, `description` and `sections`, keyed by `lang`. Unique `(dynamicPageId, lang)`, `ON DELETE CASCADE` with its page. |\n| `DynamicPageBlock` | `dynamic_page_blocks` | A reusable block definition shown in the editor: `type`, `label`, `category`, `schema`, `defaultProps`, `template`, optional `script`, `isSystem` flag. Unique `(tenantId, type)`. |\n\n`status` is one of `DynamicPageStatus`: `DRAFT`, `PUBLISHED`, `ARCHIVED`. Page `sections` and translation `sections` are arrays of `BlockData` (`{ id, type, order, props, hidden?, label?, className? }`). `metadata` follows `PageMetadataSchema` (OpenGraph / Twitter / `canonical` / `robots`). `CURRENT_SCHEMA_VERSION` is `2`.\n\n---\n\n## Service / Responsibilities\n\n`DynamicPageService` (all methods take `tenantId` and resolve the per-tenant DataSource via `tenantDataSourceFor`):\n\n**Pages**\n- `listPages` — paginated, filterable (`search` over title/slug, `status`) and sortable list scoped to the tenant.\n- `getPage` — fetch one page by id.\n- `getPageBySlug` — fetch by slug, **Redis-cached** (`dp:slug:${tenantId}:${slug}`, `SLUG_TTL = 3600s`) behind `singleFlight`; backs the public renderer.\n- `createPage` — enforces slug uniqueness per tenant (`SLUG_TAKEN`); stamps `schemaVersion = CURRENT_SCHEMA_VERSION`.\n- `updatePage` — re-checks slug uniqueness on change; invalidates the slug cache for the old and new slug.\n- `deletePage` — removes the page, drops its slug cache, and deletes the linked SEO row via `SeoService.delete(tenantId, 'dynamic_page', pageId)`.\n\n**Translations**\n- `getTranslations` — list a page's translations ordered by `lang`.\n- `upsertTranslation` — insert or update the `(page, lang)` translation.\n- `deleteTranslation` — remove a single language for a page (`TRANSLATION_NOT_FOUND` if absent).\n\n**Blocks (block library)**\n- `listBlocks` — list the tenant's block definitions, **Redis-cached** (`dp:blocks:${tenantId}`, `BLOCKS_TTL = 300s`) behind `singleFlight`.\n- `getBlock` — fetch one block by id.\n- `createBlock` / `updateBlock` — enforce `type` uniqueness per tenant (`BLOCK_TYPE_TAKEN`); each invalidates the block-library cache.\n- `deleteBlock` — blocked with `SYSTEM_BLOCK_PROTECTED` when `isSystem` is set; otherwise removes the block and invalidates the cache.\n\nCache TTLs are jittered (`jitter()`) to avoid stampedes. Validation is via Zod (`*RecordSchema`); inputs come from the DTOs below.\n\n---\n\n## DTOs\n\nDefined in `dynamic_page.dto.ts` (Zod):\n\n- `CreatePageDTO` / `UpdatePageDTO` (partial) — `slug` (lowercase slash-separated segments, no leading/trailing slash, defaults `''`), `title`, `description?`, `keywords[]`, `sections[]`, `metadata`, `status` (default `DRAFT`), `schemaVersion`.\n- `UpsertTranslationDTO` — `lang`, `title`, `description?`, `sections[]`.\n- `CreateBlockDTO` / `UpdateBlockDTO` (partial) — `type` (`[a-zA-Z0-9_-]+`), `label`, `category` (default `General`), `description?`, `schema`, `defaultProps`, `template`, `script?`, `isSystem` (default `false`).\n\n`ListPagesQuerySchema` drives `listPages`: `page`, `pageSize` (≤100), `search?`, `status?`, `sortBy` (`title|slug|status|createdAt|updatedAt`), `sortDir` (`asc|desc`).\n\n---\n\n## API Routes (tenant-scoped, ADMIN+)\n\nEvery handler calls `TenantSessionNextService.authenticateTenantByRequest({ … requiredTenantRole: 'ADMIN' })`.\n\n| Method | Path | Description |\n|---|---|---|\n| GET | `/tenant/[id]/api/dynamic-pages` | List pages (query params per `ListPagesQuerySchema`) |\n| POST | `/tenant/[id]/api/dynamic-pages` | Create page |\n| GET | `/tenant/[id]/api/dynamic-pages/[dynamicPageId]` | Get page |\n| PATCH | `/tenant/[id]/api/dynamic-pages/[dynamicPageId]` | Update page |\n| DELETE | `/tenant/[id]/api/dynamic-pages/[dynamicPageId]` | Delete page |\n| GET | `/tenant/[id]/api/dynamic-pages/[dynamicPageId]/translations` | List translations |\n| POST | `/tenant/[id]/api/dynamic-pages/[dynamicPageId]/translations` | Upsert a translation |\n| DELETE | `/tenant/[id]/api/dynamic-pages/[dynamicPageId]/translations/[lang]` | Delete a translation |\n| GET | `/tenant/[id]/api/dynamic-pages/block-definitions` | List block definitions |\n| POST | `/tenant/[id]/api/dynamic-pages/block-definitions` | Create block definition |\n| GET | `/tenant/[id]/api/dynamic-pages/block-definitions/[blockId]` | Get block definition |\n| PATCH | `/tenant/[id]/api/dynamic-pages/block-definitions/[blockId]` | Update block definition |\n| DELETE | `/tenant/[id]/api/dynamic-pages/block-definitions/[blockId]` | Delete block definition |\n\n### Public rendering\n\nPublished pages are served by the App Router page at `app/tenant/[tenantId]/[...slug]/page.tsx`, which delegates to `modules_next/dynamic_page/PublicDynamicPage`. It loads via `getPageBySlug`, renders **only** `PUBLISHED` pages (`notFound()` otherwise), supports up to `MAX_SLUG_DEPTH = 4` slug segments, skips reserved `__`-prefixed paths, and resolves a `?lang=` translation when present.\n\n---\n\n## Settings\n\nThis module declares **no** settings keys and reads no `SettingService` config — every tenant's content is fully independent with no platform/root-only configuration.\n\n---\n\n## Tenant Variability\n\n> What varies per tenant in this module — and what could. Audited 2026-06-03.\n\nA tenant-scoped, block-based CMS / page builder (pages, per-language translations, and a reusable block library) whose entire surface is per-tenant data stored in each tenant's own DB; it declares no settings keys and reads no SettingService config, so every tenant has fully independent content with no platform/root-only configuration.\n\n### Tenant-scoped data\n\n| Entity | Table | Tenant-variable columns |\n|---|---|---|\n| `DynamicPage` | `dynamic_pages` | slug, title, description, keywords, sections, metadata, status, schemaVersion |\n| `DynamicPageTranslation` | `dynamic_page_translations` | dynamicPageId, lang, title, description, sections |\n| `DynamicPageBlock` | `dynamic_page_blocks` | type, label, category, description, schema, defaultProps, template, script, isSystem |\n\nAll rows isolated by `tenantId` via the per-tenant DataSource.\n\n### Per-tenant behavior\n\n- `dynamic_page.service.ts` — Every method takes tenantId and resolves the per-tenant DataSource via tenantDataSourceFor(tenantId), then scopes every query with WHERE tenantId = :tenantId; uniqueness is per tenant (slug unique per tenant in createPage/updatePage, block type unique per tenant in createBlock/updateBlock), so each tenant has an isolated set of pages, translations and blocks.\n- `dynamic_page.service.ts:getPageBySlug/listBlocks` — Redis caches are namespaced per tenant via dp:slug:${tenantId}:${slug} and dp:blocks:${tenantId}, and invalidated on that tenant's writes, so cached page/block reads are isolated per tenant.\n- `dynamic_page.service.ts:deleteBlock` — Blocks flagged isSystem (a per-tenant column) are protected from deletion (SYSTEM_BLOCK_PROTECTED), so which blocks are deletable depends on each tenant's own block rows.\n\n### Candidates (global / hardcoded today → could be per-tenant)\n\n| What | Where | Why per-tenant | Suggested key |\n|---|---|---|---|\n| Slug-cache TTL (SLUG_TTL = 3600s) and block-library cache TTL (BLOCKS_TTL = 300s) are hardcoded module constants | `dynamic_page.service.ts (SLUG_TTL, BLOCKS_TTL)` | Cache freshness for published-page lookups and the editor's block list is identical for every tenant; a tenant with rapidly-changing marketing pages might want shorter TTLs while a static-site tenant prefers longer. Low priority — these are shared Redis-cache tuning knobs, not content, and a global default is reasonable. | `dynamicPageCacheTtlSeconds` |\n| Default page status on create is hardcoded to DRAFT | `dynamic_page.dto.ts (CreatePageDTO.status default 'DRAFT')` | Whether newly created pages start as DRAFT vs PUBLISHED is an editorial-workflow choice that plausibly differs per tenant (e.g. a tenant with no review process may want PUBLISHED by default). Currently a fixed global default with no per-tenant override. | `dynamicPageDefaultStatus` |\n\n---\n\n## Dependencies\n\n`requires`: `db`, `env`, `redis`, `logger`, `seo` (per `module.json`). The service also imports `SeoService` to delete the page's SEO meta row on page deletion.\n"
+    },
+    {
+      "id": "integrations_hub",
+      "name": "Integrations Hub",
+      "version": "1.0.0",
+      "description": "Third-party connector hub (Zapier-like). Owns a per-tenant connector catalog, connection state, and encrypted OAuth tokens. Outbound triggers bridge onto the webhook module (signing/retry/circuit-breaker reused); inbound actions authenticate via the api_key module. OAuth2 authorization-code + refresh flows with AES-256-GCM token storage.",
+      "dir": "modules/integrations_hub",
+      "icon": "fas fa-plug",
+      "tags": [
+        "platform",
+        "integrations",
+        "oauth",
+        "webhook",
+        "developer"
+      ],
+      "priority": 54,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "logger",
+          "common",
+          "redis",
+          "webhook",
+          "api_key",
+          "setting",
+          "tenant_subscription",
+          "audit_log"
+        ]
+      },
+      "exports": {
+        "services": [
+          "integrations_hub.action.service.ts",
+          "integrations_hub.connector.service.ts",
+          "integrations_hub.oauth.service.ts",
+          "integrations_hub.service.ts",
+          "integrations_hub.trigger.service.ts"
+        ],
+        "dtos": [
+          "integrations_hub.dto.ts"
+        ],
+        "enums": [
+          "integrations_hub.enums.ts"
+        ],
+        "messageKeys": [
+          "integrations_hub.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "connected_app.entity.ts",
+          "connector.entity.ts",
+          "integration_event.entity.ts",
+          "oauth_token.entity.ts"
+        ]
+      },
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true,
+      "readme": "# integrations_hub\n\nA Zapier-like hub for connecting third-party apps. It deliberately does **not**\nre-implement delivery, retries, signing, or key verification — outbound triggers\nbridge onto the `webhook` module and inbound actions authenticate via the\n`api_key` module. This module owns the **connector catalog**, **connection\nstate**, and **encrypted OAuth tokens**.\n\n## What it does\n\n- **Connector catalog** — per-tenant definitions of available integrations\n  (`OAUTH2 | API_KEY | WEBHOOK_ONLY`), including the trigger/action catalog and\n  OAuth endpoints. Client secrets are never stored here; only the **setting key**\n  that holds them (resolved at runtime via `SettingService`).\n- **Connect** — API-key connectors mint a scoped `ApiKey` (returned once); OAuth2\n  connectors run a real authorization-code exchange and store **AES-256-GCM\n  encrypted** tokens (`@/modules/common/field-encryption`).\n- **Outbound triggers** — `fireTrigger(...)` dispatches an\n  `integration.trigger_fired` webhook event carrying the connector + event key, so\n  the connector's endpoint receives it with the webhook module's signing/retry\n  guarantees.\n- **Inbound actions** — `handleInboundAction(...)` verifies the inbound API key\n  (`write` scope), resolves the connected app, validates the action against the\n  catalog, and records it.\n- **Event audit** — every outbound/inbound call is logged to `integration_events`.\n\nConnecting is gated behind `FEATURE_KEYS.FEATURE_INTEGRATIONS`\n(`assertFeatureAccess`); the root tenant bypasses.\n\n## Public API — `IntegrationsHubService`\n\n| Method | Description |\n|---|---|\n| `listConnectors(tenantId)` / `getConnector(tenantId, key)` | Read the catalog. |\n| `upsertConnector(tenantId, dto)` / `deleteConnector(tenantId, key)` | Manage catalog entries. |\n| `connectApiKey(tenantId, userId, dto)` | Connect an API-key connector; returns `{ connectedApp, rawKey }` (key shown once). |\n| `beginOAuthConnect(tenantId, userId, dto)` | Returns `{ authorizeUrl, state }` to start an OAuth connect. |\n| `completeOAuthConnect(tenantId, { code, state })` | Exchange the code, store encrypted tokens, create the connection. |\n| `getAccessToken(tenantId, connectedAppId)` | Valid access token, auto-refreshing near expiry. |\n| `refreshTokenIfNeeded(tenantId, connectedAppId)` | Force a refresh-token exchange. |\n| `listConnectedApps(tenantId, query)` / `getConnectedApp` / `disconnect` | Manage live connections. |\n| `fireTrigger(tenantId, dto)` | Bridge an outbound trigger onto the webhook system. |\n| `handleInboundAction(tenantId, rawKey, actionKey, payload, ctx?)` | Authenticate + dispatch an inbound action. |\n| `listEvents(tenantId, connectedAppId)` | Read the integration event log. |\n\n## Entities\n\n- `Connector` → `connectors` — catalog (`key` unique per tenant), auth type,\n  trigger/action catalog, OAuth endpoints, client-secret **setting key** refs.\n- `ConnectedApp` → `connected_apps` — a tenant's live connection; links a\n  `webhookId` (outbound) and/or `apiKeyId` (inbound).\n- `OAuthToken` → `integration_oauth_tokens` — AES-256-GCM encrypted access/refresh\n  tokens, one row per connected app.\n- `IntegrationEvent` → `integration_events` — append-only outbound/inbound audit.\n\n## Webhook events\n\n`integration.connected`, `integration.disconnected`, `integration.trigger_fired`,\n`integration.error` (group **Integrations**, tenant scope).\n\n## Routes\n\n- `GET/POST /api/integrations/connectors`, `GET/PUT/DELETE /api/integrations/connectors/[key]`\n- `POST /api/integrations/connect/api-key`\n- `POST /api/integrations/oauth/start`, `GET /api/integrations/oauth/callback` (public, state-validated)\n- `GET /api/integrations/connected`, `GET/DELETE /api/integrations/connected/[connectedAppId]`\n- `POST /api/integrations/triggers` (fire), `POST /api/integrations/actions/[actionKey]` (inbound, API-key auth)\n"
     },
     {
       "id": "search",
@@ -5250,6 +5370,59 @@
       "dynamic": true
     },
     {
+      "filePath": "app/tenant/[tenantId]/api/gift-cards/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/gift-cards",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "gift_card",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/gift-cards/[giftCardId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/gift-cards/[giftCardId]",
+      "methods": [
+        "GET",
+        "PATCH",
+        "DELETE"
+      ],
+      "module": "gift_card",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/gift-cards/[giftCardId]/transactions/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/gift-cards/[giftCardId]/transactions",
+      "methods": [
+        "GET"
+      ],
+      "module": "gift_card",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/gift-cards/balance/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/gift-cards/balance",
+      "methods": [
+        "POST"
+      ],
+      "module": "gift_card",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/gift-cards/redeem/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/gift-cards/redeem",
+      "methods": [
+        "POST"
+      ],
+      "module": "gift_card",
+      "dynamic": true
+    },
+    {
       "filePath": "app/tenant/[tenantId]/api/health/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/health",
@@ -5257,6 +5430,100 @@
         "GET"
       ],
       "module": "health",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/integrations/actions/[actionKey]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/integrations/actions/[actionKey]",
+      "methods": [
+        "POST"
+      ],
+      "module": "integration",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/integrations/connect/api-key/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/integrations/connect/api-key",
+      "methods": [
+        "POST"
+      ],
+      "module": "integration",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/integrations/connected/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/integrations/connected",
+      "methods": [
+        "GET"
+      ],
+      "module": "integration",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/integrations/connected/[connectedAppId]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/integrations/connected/[connectedAppId]",
+      "methods": [
+        "GET",
+        "DELETE"
+      ],
+      "module": "integration",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/integrations/connectors/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/integrations/connectors",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "integration",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/integrations/connectors/[connectorKey]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/integrations/connectors/[connectorKey]",
+      "methods": [
+        "GET",
+        "PUT",
+        "DELETE"
+      ],
+      "module": "integration",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/integrations/oauth/callback/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/integrations/oauth/callback",
+      "methods": [
+        "GET"
+      ],
+      "module": "integration",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/integrations/oauth/start/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/integrations/oauth/start",
+      "methods": [
+        "POST"
+      ],
+      "module": "integration",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/integrations/triggers/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/integrations/triggers",
+      "methods": [
+        "POST"
+      ],
+      "module": "integration",
       "dynamic": true
     },
     {
@@ -6819,6 +7086,56 @@
       "relations": []
     },
     {
+      "name": "ConnectedApp",
+      "filePath": "modules/integrations_hub/entities/connected_app.entity.ts",
+      "module": "integrations_hub",
+      "schema": "system",
+      "tableName": "connected_apps",
+      "columns": [
+        "connectedAppId",
+        "tenantId",
+        "connectorKey",
+        "status",
+        "connectedByUserId",
+        "externalAccountId",
+        "externalAccountName",
+        "webhookId",
+        "apiKeyId",
+        "config",
+        "lastSyncAt",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "Connector",
+      "filePath": "modules/integrations_hub/entities/connector.entity.ts",
+      "module": "integrations_hub",
+      "schema": "system",
+      "tableName": "connectors",
+      "columns": [
+        "connectorId",
+        "tenantId",
+        "key",
+        "name",
+        "category",
+        "authType",
+        "iconUrl",
+        "isEnabled",
+        "triggers",
+        "actions",
+        "oauthAuthUrl",
+        "oauthTokenUrl",
+        "oauthScopes",
+        "clientIdSettingKey",
+        "clientSecretSettingKey",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "ConsentRecord",
       "filePath": "modules/terms_consent/entities/consent_record.entity.ts",
       "module": "terms_consent",
@@ -7194,6 +7511,73 @@
       "relations": []
     },
     {
+      "name": "GiftCard",
+      "filePath": "modules/gift_card/entities/gift_card.entity.ts",
+      "module": "gift_card",
+      "schema": "system",
+      "tableName": "gift_cards",
+      "columns": [
+        "giftCardId",
+        "tenantId",
+        "code",
+        "codeHash",
+        "status",
+        "initialAmount",
+        "remainingAmount",
+        "currency",
+        "purchaserUserId",
+        "purchaserPaymentId",
+        "recipientEmail",
+        "recipientUserId",
+        "message",
+        "expiresAt",
+        "lastRedeemedAt",
+        "metadata",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "GiftCardTransaction",
+      "filePath": "modules/gift_card/entities/gift_card_transaction.entity.ts",
+      "module": "gift_card",
+      "schema": "system",
+      "tableName": "gift_card_transactions",
+      "columns": [
+        "giftCardTransactionId",
+        "tenantId",
+        "giftCardId",
+        "type",
+        "amount",
+        "balanceAfter",
+        "walletTransactionId",
+        "userId",
+        "note",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "IntegrationEvent",
+      "filePath": "modules/integrations_hub/entities/integration_event.entity.ts",
+      "module": "integrations_hub",
+      "schema": "system",
+      "tableName": "integration_events",
+      "columns": [
+        "integrationEventId",
+        "tenantId",
+        "connectedAppId",
+        "direction",
+        "eventKey",
+        "status",
+        "payload",
+        "error",
+        "createdAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "Invoice",
       "filePath": "modules/invoice/entities/invoice.entity.ts",
       "module": "invoice",
@@ -7508,6 +7892,26 @@
         "recipientCountry",
         "latencyMs",
         "sentAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "OAuthToken",
+      "filePath": "modules/integrations_hub/entities/oauth_token.entity.ts",
+      "module": "integrations_hub",
+      "schema": "system",
+      "tableName": "integration_oauth_tokens",
+      "columns": [
+        "oauthTokenId",
+        "tenantId",
+        "connectedAppId",
+        "accessTokenEnc",
+        "refreshTokenEnc",
+        "scope",
+        "tokenType",
+        "expiresAt",
+        "createdAt",
+        "updatedAt"
       ],
       "relations": []
     },
@@ -11597,6 +12001,56 @@
       "isClient": true,
       "isServer": false,
       "baseName": "feature-flag-columns"
+    },
+    {
+      "id": "gift_card/ui/gift-card-list-columns",
+      "module": "gift_card",
+      "filePath": "modules_next/gift_card/ui/gift-card-list-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "GiftCardRow",
+        "buildGiftCardColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "gift-card-list-columns"
+    },
+    {
+      "id": "gift_card/ui/GiftCardIssueModal",
+      "module": "gift_card",
+      "filePath": "modules_next/gift_card/ui/GiftCardIssueModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "GiftCardIssueModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "GiftCardIssueModal"
+    },
+    {
+      "id": "integrations_hub/ui/connected-apps-columns",
+      "module": "integrations_hub",
+      "filePath": "modules_next/integrations_hub/ui/connected-apps-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "ConnectedAppRow",
+        "buildConnectedAppColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "connected-apps-columns"
+    },
+    {
+      "id": "integrations_hub/ui/ConnectorFormModal",
+      "module": "integrations_hub",
+      "filePath": "modules_next/integrations_hub/ui/ConnectorFormModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "ConnectorFormModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ConnectorFormModal"
     },
     {
       "id": "invoice/ui/EarsivSmsSignModal",
