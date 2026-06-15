@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ConsentPurposeEnum, ConsentSourceEnum } from './gdpr_consent.enums';
+import { ConsentPurposeEnum, ConsentSourceEnum } from './terms_consent.enums';
 
 export const ConsentRecordSchema = z.object({
   consentId: z.string().uuid(),

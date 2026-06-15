@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { deriveConsentState } from '../gdpr_consent.state';
-import type { ConsentRecord } from '../gdpr_consent.types';
+import { deriveConsentState } from '../terms_consent.state';
+import type { ConsentRecord } from '../terms_consent.types';
 
 function rec(over: Partial<ConsentRecord>): ConsentRecord {
   return {

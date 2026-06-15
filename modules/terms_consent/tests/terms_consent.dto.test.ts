@@ -4,7 +4,7 @@ import {
   RecordManyDTO,
   ListConsentQuery,
   UpdateBannerConfigDTO,
-} from '../gdpr_consent.dto';
+} from '../terms_consent.dto';
 
 describe('RecordConsentDTO', () => {
   it('accepts a minimal single decision', () => {

@@ -1,0 +1,31 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "terms_consent",
+  "name": "Terms & Consent",
+  "description": "Legal agreements + consent. Versioned, immutable, hash-stamped agreement documents (terms of use, privacy/KVKK, distance-selling, pre-information, refund policy, cookie, custom) with an append-only acceptance ledger. Reusable agreements record version+hash on acceptance; order-specific documents (distance-selling/pre-information) are rendered per order and stored verbatim. Also keeps the cookie-consent banner + per-purpose consent ledger. Checkout integration enforces required agreement acceptance before payment. Data export/erasure stays with tenant_export.",
+  "version": "1.0.0",
+  "icon": "fas fa-file-contract",
+  "tags": ["platform", "legal", "agreements", "terms", "consent", "gdpr", "kvkk", "compliance"],
+  "priority": 47,
+  "dependencies": {
+    "requires": ["db", "env", "redis", "common", "audit_log", "setting"]
+  },
+  "settingKeys": [
+    "consentBannerEnabled",
+    "consentPolicyVersion",
+    "consentBannerTitle",
+    "consentBannerMessage",
+    "consentPurposes",
+    "checkoutRequiredAgreements",
+    "legalSellerName",
+    "legalSellerAddress",
+    "legalSellerTaxOffice",
+    "legalSellerTaxId",
+    "legalSellerMersis",
+    "legalSellerEmail",
+    "legalSellerPhone"
+  ],
+  "settings": {
+    "keys": "TERMS_CONSENT_KEYS"
+  }
+}

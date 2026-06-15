@@ -1,4 +1,4 @@
-# gdpr_consent
+# terms_consent
 
 Tenant-scoped **cookie / consent management** — a configurable consent banner and
 an **append-only consent ledger** that records every subject's grant/withdraw
@@ -25,10 +25,10 @@ Sources: `banner` · `api` · `import` · `admin`.
 ## Public API
 
 ```ts
-import { GdprConsentService } from "@/modules/gdpr_consent";
+import { TermsConsentService } from "@/modules/terms_consent";
 
 // Anonymous banner submission (one row per decision)
-await GdprConsentService.recordMany(
+await TermsConsentService.recordMany(
   tenantId,
   [{ purpose: "analytics", granted: true }, { purpose: "marketing", granted: false }],
   { anonymousId },
@@ -36,16 +36,16 @@ await GdprConsentService.recordMany(
 );
 
 // Single decision / withdrawal
-await GdprConsentService.record(tenantId, { purpose: "marketing", granted: true, userId });
-await GdprConsentService.withdraw(tenantId, "marketing", { userId });
+await TermsConsentService.record(tenantId, { purpose: "marketing", granted: true, userId });
+await TermsConsentService.withdraw(tenantId, "marketing", { userId });
 
 // Current state (latest per purpose; necessary always true)
-const state = await GdprConsentService.getState(tenantId, { userId });
+const state = await TermsConsentService.getState(tenantId, { userId });
 
 // Admin ledger + banner config
-const { data, total } = await GdprConsentService.list(tenantId, { page: 0, pageSize: 50 });
-const cfg = await GdprConsentService.getBannerConfig(tenantId);
-await GdprConsentService.updateBannerConfig(tenantId, { enabled: true }, actorId);
+const { data, total } = await TermsConsentService.list(tenantId, { page: 0, pageSize: 50 });
+const cfg = await TermsConsentService.getBannerConfig(tenantId);
+await TermsConsentService.updateBannerConfig(tenantId, { enabled: true }, actorId);
 ```
 
 The pure state deriver is exported for unit use / edge contexts:
@@ -59,7 +59,7 @@ The pure state deriver is exported for unit use / edge contexts:
 
 ## Settings
 
-Stored via `SettingService` (keys owned by this module — `GDPR_CONSENT_KEYS`):
+Stored via `SettingService` (keys owned by this module — `TERMS_CONSENT_KEYS`):
 
 | Key | Meaning |
 |---|---|
@@ -84,5 +84,5 @@ standard purposes) when keys are unset or malformed.
 - `PATCH /tenant/{tenantId}/api/consent/config` — **admin** update banner config.
 - `GET /tenant/{tenantId}/api/consent/records` — **admin** paginated ledger.
 
-UI: public banner `modules_next/gdpr_consent/ui/ConsentBanner.tsx`; admin page
+UI: public banner `modules_next/terms_consent/ui/ConsentBanner.tsx`; admin page
 `/tenant/{tenantId}/admin/consent`.

@@ -4,22 +4,22 @@ import { AppError, ErrorCode } from '@/modules/common/app-error';
 import AuditLogService from '@/modules/audit_log/audit_log.service';
 import SettingService from '@/modules/setting/setting.service';
 import { ConsentRecord as ConsentRecordEntity } from './entities/consent_record.entity';
-import { ConsentPurposeEnum } from './gdpr_consent.enums';
+import { ConsentPurposeEnum } from './terms_consent.enums';
 import {
   ConsentRecordSchema,
   BannerConfigSchema,
   type ConsentRecord,
   type BannerConfig,
   type BannerPurpose,
-} from './gdpr_consent.types';
-import { GDPR_CONSENT_KEYS } from './gdpr_consent.setting.keys';
-import { deriveConsentState } from './gdpr_consent.state';
-import { GDPR_CONSENT_MESSAGES as MSG } from './gdpr_consent.messages';
+} from './terms_consent.types';
+import { TERMS_CONSENT_KEYS } from './terms_consent.setting.keys';
+import { deriveConsentState } from './terms_consent.state';
+import { TERMS_CONSENT_MESSAGES as MSG } from './terms_consent.messages';
 import type {
   RecordConsentInput,
   ListConsentQueryInput,
   UpdateBannerConfigInput,
-} from './gdpr_consent.dto';
+} from './terms_consent.dto';
 
 // Identifies the consenting subject — exactly one of the two is set.
 export interface ConsentSubject {
@@ -64,7 +64,7 @@ const DEFAULT_PURPOSES: BannerPurpose[] = [
   },
 ];
 
-export default class GdprConsentService {
+export default class TermsConsentService {
   // ── Ledger writes ────────────────────────────────────────────────────────────
 
   /**
@@ -199,7 +199,7 @@ export default class GdprConsentService {
 
   /** Read and parse the per-tenant banner config, falling back to defaults. */
   static async getBannerConfig(tenantId: string): Promise<BannerConfig> {
-    const raw = await SettingService.getByKeys(tenantId, [...GDPR_CONSENT_KEYS]);
+    const raw = await SettingService.getByKeys(tenantId, [...TERMS_CONSENT_KEYS]);
 
     let purposes: BannerPurpose[] = DEFAULT_PURPOSES;
     const rawPurposes = raw.consentPurposes;

@@ -1,4 +1,4 @@
-import type { ConsentRecord } from './gdpr_consent.types';
+import type { ConsentRecord } from './terms_consent.types';
 
 /**
  * Derive the current consent state from an append-only ledger. For each purpose

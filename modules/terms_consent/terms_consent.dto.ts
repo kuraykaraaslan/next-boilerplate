@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ConsentPurposeEnum, ConsentSourceEnum } from './gdpr_consent.enums';
+import { ConsentPurposeEnum, ConsentSourceEnum } from './terms_consent.enums';
 
 // A single consent decision for one purpose.
 export const RecordConsentDTO = z.object({
