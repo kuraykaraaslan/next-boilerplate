@@ -1,0 +1,72 @@
+import Logger from '@/modules/logger'
+import { AppError, ErrorCode } from '@/modules/common/app-error'
+import BaseStorageProvider from './providers/base.provider'
+import AWSS3Provider from './providers/aws-s3.provider'
+import CloudflareR2Provider from './providers/cloudflare-r2.provider'
+import DigitalOceanSpacesProvider from './providers/digitalocean-spaces.provider'
+import MinIOProvider from './providers/minio.provider'
+import { StorageProviderType } from './storage.enums'
+import { S3Config } from './storage.types'
+import { STORAGE_MESSAGES } from './storage.messages'
+import SettingService from '@/modules/setting/setting.service'
+import { STORAGE_KEYS } from './storage.setting.keys'
+import type { UploadValidationPolicy } from './storage.validation'
+
+/**
+ * Read storage settings from SettingService and build S3Config for a tenant.
+ * Each tenant has its own S3 bucket / credentials in Setting rows.
+ */
+export async function getStorageSettings(tenantId: string): Promise<{ providerName: StorageProviderType; config: S3Config }> {
+  const settings = await SettingService.getByKeys(tenantId, [...STORAGE_KEYS])
+
+  const providerName = (settings.storageProvider || 'aws-s3') as StorageProviderType
+
+  const config: S3Config = {
+    bucket: settings.s3Bucket || '',
+    region: settings.s3Region || 'us-east-1',
+    accessKeyId: settings.s3AccessKey || '',
+    secretAccessKey: settings.s3SecretKey || '',
+    endpoint: settings.s3Endpoint || undefined,
+  }
+
+  return { providerName, config }
+}
+
+/** Resolve the per-tenant upload validation policy from settings. */
+export async function getValidationPolicy(tenantId: string): Promise<UploadValidationPolicy> {
+  const s = await SettingService.getByKeys(tenantId, ['maxFileSizeMb', 'allowedExtensions', 'imageStripExif']).catch(() => ({} as Record<string, string>))
+  const maxMb = parseInt(s.maxFileSizeMb ?? '', 10)
+  return {
+    maxBytes: Number.isFinite(maxMb) && maxMb > 0 ? maxMb * 1024 * 1024 : 0,
+    allowedExtensions: (s.allowedExtensions ?? '').split(',').map((e) => e.trim().toLowerCase().replace(/^\./, '')).filter(Boolean),
+    stripExif: s.imageStripExif !== 'false', // strip by default (privacy)
+  }
+}
+
+/** Create a provider instance from config. */
+export function createProvider(providerName: StorageProviderType, config: S3Config): BaseStorageProvider {
+  switch (providerName) {
+    case 'aws-s3':
+      return new AWSS3Provider(config)
+    case 'cloudflare-r2':
+      return new CloudflareR2Provider(config)
+    case 'digitalocean-spaces':
+      return new DigitalOceanSpacesProvider(config)
+    case 'minio':
+      return new MinIOProvider(config)
+    default:
+      Logger.error(`${STORAGE_MESSAGES.PROVIDER_NOT_FOUND}: ${providerName}`)
+      throw new AppError(`${STORAGE_MESSAGES.PROVIDER_NOT_FOUND}: ${providerName}`, 400, ErrorCode.VALIDATION_ERROR)
+  }
+}
+
+/** Get a configured provider instance for a tenant. */
+export async function getProvider(
+  tenantId: string,
+  providerName?: StorageProviderType,
+): Promise<{ provider: BaseStorageProvider; resolvedName: StorageProviderType }> {
+  const { providerName: defaultName, config } = await getStorageSettings(tenantId)
+  const resolvedName = providerName || defaultName
+  const provider = createProvider(resolvedName, config)
+  return { provider, resolvedName }
+}

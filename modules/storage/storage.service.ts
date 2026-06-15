@@ -1,316 +1,44 @@
-import Logger from '@/modules/logger'
-import { AppError, ErrorCode } from '@/modules/common/app-error'
-import BaseStorageProvider from './providers/base.provider'
-import AWSS3Provider from './providers/aws-s3.provider'
-import CloudflareR2Provider from './providers/cloudflare-r2.provider'
-import DigitalOceanSpacesProvider from './providers/digitalocean-spaces.provider'
-import MinIOProvider from './providers/minio.provider'
-import { StorageProviderType } from './storage.enums'
 import { UploadFileDTO, UploadFromUrlDTO, DeleteFileDTO, GetFileUrlDTO } from './storage.dto'
-import { UploadResult, S3Config } from './storage.types'
-import { STORAGE_MESSAGES } from './storage.messages'
-import SettingService from '@/modules/setting/setting.service'
-import { STORAGE_KEYS } from './storage.setting.keys'
-import { TenantUsageService } from '@/modules/tenant_usage/tenant_usage.service'
-import { tenantDataSourceFor } from '@/modules/db'
-import { UploadedFile } from './entities/uploaded_file.entity'
-import { IsNull } from 'typeorm'
-import TenantFeatureGateService from '@/modules/tenant_subscription/tenant_subscription.feature.service'
-import { FEATURE_KEYS } from '@/modules/tenant_subscription/tenant_subscription.feature-keys'
-import { isRootTenant } from '@/modules/tenant/tenant.constants'
-import { validateUpload, type UploadValidationPolicy } from './storage.validation'
-import { presignS3GetUrl } from './storage.sigv4'
+import { UploadResult } from './storage.types'
+import {
+  uploadFile, uploadFromUrl, deleteFile, getFileUrl,
+  getPresignedUrl, uploadServerBuffer, hardDeleteFile,
+} from './storage.operations'
 
+/**
+ * Storage service facade. The implementation is split across focused modules
+ * (`storage.provider-factory`, `storage.audit`, `storage.operations`); this
+ * class preserves the single `StorageService.*` entry point its callers depend on.
+ */
 export default class StorageService {
-
-  /**
-   * Read storage settings from SettingService and build S3Config for a tenant.
-   * Each tenant has its own S3 bucket / credentials in Setting rows.
-   */
-  private static async getStorageSettings(tenantId: string): Promise<{ providerName: StorageProviderType; config: S3Config }> {
-    const settings = await SettingService.getByKeys(tenantId, [...STORAGE_KEYS])
-
-    const providerName = (settings.storageProvider || 'aws-s3') as StorageProviderType
-
-    const config: S3Config = {
-      bucket: settings.s3Bucket || '',
-      region: settings.s3Region || 'us-east-1',
-      accessKeyId: settings.s3AccessKey || '',
-      secretAccessKey: settings.s3SecretKey || '',
-      endpoint: settings.s3Endpoint || undefined,
-    }
-
-    return { providerName, config }
+  static uploadFile(tenantId: string, data: UploadFileDTO): Promise<UploadResult> {
+    return uploadFile(tenantId, data)
   }
 
-  /** Resolve the per-tenant upload validation policy from settings. */
-  private static async getValidationPolicy(tenantId: string): Promise<UploadValidationPolicy> {
-    const s = await SettingService.getByKeys(tenantId, ['maxFileSizeMb', 'allowedExtensions', 'imageStripExif']).catch(() => ({} as Record<string, string>))
-    const maxMb = parseInt(s.maxFileSizeMb ?? '', 10)
-    return {
-      maxBytes: Number.isFinite(maxMb) && maxMb > 0 ? maxMb * 1024 * 1024 : 0,
-      allowedExtensions: (s.allowedExtensions ?? '').split(',').map((e) => e.trim().toLowerCase().replace(/^\./, '')).filter(Boolean),
-      stripExif: s.imageStripExif !== 'false', // strip by default (privacy)
-    }
+  static uploadFromUrl(tenantId: string, data: UploadFromUrlDTO): Promise<UploadResult> {
+    return uploadFromUrl(tenantId, data)
   }
 
-  /**
-   * Create a provider instance from config
-   */
-  private static createProvider(providerName: StorageProviderType, config: S3Config): BaseStorageProvider {
-    switch (providerName) {
-      case 'aws-s3':
-        return new AWSS3Provider(config)
-      case 'cloudflare-r2':
-        return new CloudflareR2Provider(config)
-      case 'digitalocean-spaces':
-        return new DigitalOceanSpacesProvider(config)
-      case 'minio':
-        return new MinIOProvider(config)
-      default:
-        Logger.error(`${STORAGE_MESSAGES.PROVIDER_NOT_FOUND}: ${providerName}`)
-        throw new AppError(`${STORAGE_MESSAGES.PROVIDER_NOT_FOUND}: ${providerName}`, 400, ErrorCode.VALIDATION_ERROR)
-    }
+  static deleteFile(tenantId: string, data: DeleteFileDTO): Promise<void> {
+    return deleteFile(tenantId, data)
   }
 
-  /**
-   * Get a configured provider instance for a tenant
-   */
-  private static async getProvider(
-    tenantId: string,
-    providerName?: StorageProviderType
-  ): Promise<{ provider: BaseStorageProvider; resolvedName: StorageProviderType }> {
-    const { providerName: defaultName, config } = await StorageService.getStorageSettings(tenantId)
-    const resolvedName = providerName || defaultName
-    const provider = StorageService.createProvider(resolvedName, config)
-    return { provider, resolvedName }
+  static getFileUrl(tenantId: string, data: GetFileUrlDTO): Promise<string> {
+    return getFileUrl(tenantId, data)
   }
 
-  /**
-   * Persist an UploadedFile audit row + increment the tenant_usage.storageBytes
-   * counter. Best-effort: failures are logged but do not fail the upload —
-   * the file is already in the bucket at this point.
-   */
-  private static async persistUploadAudit(
-    tenantId: string,
-    userId: string | undefined,
-    result: UploadResult,
-    mimeType: string,
-  ): Promise<string | undefined> {
-    const size = result.size ?? 0
-    let uploadedFileId: string | undefined
-    try {
-      const ds = await tenantDataSourceFor(tenantId)
-      const repo = ds.getRepository(UploadedFile)
-      const row = repo.create({
-        tenantId,
-        userId,
-        key: result.key,
-        bucket: result.bucket,
-        provider: result.provider,
-        size,
-        mimeType: mimeType || 'application/octet-stream',
-        url: result.url,
-      })
-      const saved = await repo.save(row)
-      uploadedFileId = saved.uploadedFileId
-      if (size > 0) {
-        await TenantUsageService.incrementStorageBytes(tenantId, size)
-      }
-    } catch (error) {
-      Logger.warn(
-        `StorageService.persistUploadAudit failed: ${error instanceof Error ? error.message : String(error)}`,
-      )
-    }
-
-    return uploadedFileId
+  static getPresignedUrl(tenantId: string, key: string, expiresSeconds = 900): Promise<string> {
+    return getPresignedUrl(tenantId, key, expiresSeconds)
   }
 
-  /**
-   * Defense-in-depth billing gate for uploads. Asserts the tenant's active
-   * plan grants `feature_storage_upload` (BOOLEAN) and that the cumulative
-   * `feature_storage_quota_bytes` LIMIT (compared against
-   * TenantUsage.storageBytes for the current month) is not exhausted.
-   *
-   * Root tenant is short-circuited. Best-effort — LIMIT check is not atomic
-   * and the post-upload bytes counter increment can briefly push usage
-   * above the ceiling under concurrent uploads.
-   */
-  private static async assertStorageFeatureAccess(tenantId: string): Promise<void> {
-    if (isRootTenant(tenantId)) return
-
-    await TenantFeatureGateService.assertFeatureAccess(tenantId, FEATURE_KEYS.FEATURE_STORAGE_UPLOAD)
-
-    const usage = await TenantUsageService.getUsage(tenantId)
-    await TenantFeatureGateService.assertFeatureAccess(
-      tenantId,
-      FEATURE_KEYS.FEATURE_STORAGE_QUOTA_BYTES,
-      usage.storageBytes,
-    )
-  }
-
-  /**
-   * Upload a file to storage for a tenant
-   */
-  static async uploadFile(tenantId: string, data: UploadFileDTO): Promise<UploadResult> {
-    await StorageService.assertStorageFeatureAccess(tenantId)
-
-    const { file: rawFile, folder, filename, provider: requestedProvider } = data
-
-    try {
-      // Validate content (size, extension, magic bytes) and strip EXIF before
-      // anything is written to the bucket.
-      const policy = await StorageService.getValidationPolicy(tenantId)
-      const file = await validateUpload(rawFile, policy)
-
-      const { provider, resolvedName } = await StorageService.getProvider(tenantId, requestedProvider)
-      const result = await provider.uploadFile(file, { folder, filename, tenantId })
-
-      const uploadResult: UploadResult = {
-        ...result,
-        provider: resolvedName,
-      }
-
-      const uploadedFileId = await StorageService.persistUploadAudit(tenantId, undefined, uploadResult, file.type)
-
-      return { ...uploadResult, uploadedFileId }
-    } catch (error) {
-      Logger.error(`${STORAGE_MESSAGES.UPLOAD_FAILED}: ${error instanceof Error ? error.message : String(error)}`)
-      throw error
-    }
-  }
-
-  /**
-   * Upload a file from URL to storage for a tenant
-   */
-  static async uploadFromUrl(tenantId: string, data: UploadFromUrlDTO): Promise<UploadResult> {
-    await StorageService.assertStorageFeatureAccess(tenantId)
-
-    const { url, folder, filename, provider: requestedProvider } = data
-
-    try {
-      const { provider, resolvedName } = await StorageService.getProvider(tenantId, requestedProvider)
-      const result = await provider.uploadFromUrl(url, { url, folder, filename, tenantId })
-
-      const uploadResult: UploadResult = {
-        ...result,
-        provider: resolvedName,
-      }
-
-      const uploadedFileId = await StorageService.persistUploadAudit(tenantId, undefined, uploadResult, 'application/octet-stream')
-
-      return { ...uploadResult, uploadedFileId }
-    } catch (error) {
-      Logger.error(`${STORAGE_MESSAGES.UPLOAD_FAILED}: ${error instanceof Error ? error.message : String(error)}`)
-      throw error
-    }
-  }
-
-  /**
-   * Delete a file from a tenant's storage.
-   * Soft-deletes the matching UploadedFile audit row so we keep an immutable
-   * record of what existed. Storage byte counter is increment-only (audit
-   * friendly); a future decrement pass can be added in tenant_usage.
-   */
-  static async deleteFile(tenantId: string, data: DeleteFileDTO): Promise<void> {
-    const { key, provider: requestedProvider } = data
-
-    try {
-      const { provider } = await StorageService.getProvider(tenantId, requestedProvider)
-      await provider.deleteFile(key)
-
-      try {
-        const ds = await tenantDataSourceFor(tenantId)
-        const repo = ds.getRepository(UploadedFile)
-        const row = await repo.findOne({ where: { tenantId, key, deletedAt: IsNull() } })
-        if (row) {
-          await repo.softRemove(row)
-          if (row.size && row.size > 0) {
-            await TenantUsageService.decrementStorageBytes(tenantId, row.size)
-          }
-        }
-      } catch (auditError) {
-        Logger.warn(
-          `StorageService.deleteFile audit soft-delete failed: ${
-            auditError instanceof Error ? auditError.message : String(auditError)
-          }`,
-        )
-      }
-    } catch (error) {
-      Logger.error(`${STORAGE_MESSAGES.DELETE_FAILED}: ${error instanceof Error ? error.message : String(error)}`)
-      throw error
-    }
-  }
-
-  /**
-   * Get file URL from a tenant's storage
-   */
-  static async getFileUrl(tenantId: string, data: GetFileUrlDTO): Promise<string> {
-    const { key, provider: requestedProvider } = data
-
-    try {
-      const { provider } = await StorageService.getProvider(tenantId, requestedProvider)
-      return provider.getFileUrl(key)
-    } catch (error) {
-      Logger.error(`Failed to get file URL: ${error instanceof Error ? error.message : String(error)}`)
-      throw error
-    }
-  }
-
-  /**
-   * Generate a real, time-limited presigned GET URL (SigV4) for a private
-   * object. Lets a tenant share a download link without exposing credentials
-   * or making the bucket public. `expiresSeconds` defaults to 15 minutes.
-   */
-  static async getPresignedUrl(tenantId: string, key: string, expiresSeconds = 900): Promise<string> {
-    const { config } = await StorageService.getStorageSettings(tenantId)
-    if (!config.bucket || !config.accessKeyId || !config.secretAccessKey) {
-      throw new AppError(STORAGE_MESSAGES.PROVIDER_NOT_CONFIGURED, 422, ErrorCode.VALIDATION_ERROR)
-    }
-    return presignS3GetUrl(config, key, expiresSeconds)
-  }
-
-  /**
-   * Upload a server-generated buffer (e.g. a data export archive) directly to
-   * the tenant's bucket, bypassing the image-oriented upload validation. Used by
-   * trusted server flows that produce non-user-uploaded content.
-   */
-  static async uploadServerBuffer(
+  static uploadServerBuffer(
     tenantId: string,
     data: { buffer: Buffer; filename: string; contentType?: string; folder?: string },
   ): Promise<UploadResult> {
-    const { provider, resolvedName } = await StorageService.getProvider(tenantId)
-    const file = new File([new Uint8Array(data.buffer)], data.filename, { type: data.contentType ?? 'application/octet-stream' })
-    const result = await provider.uploadFile(file, { folder: data.folder, filename: data.filename, tenantId })
-    const uploadResult: UploadResult = { ...result, provider: resolvedName }
-    await StorageService.persistUploadAudit(tenantId, undefined, uploadResult, data.contentType ?? 'application/octet-stream')
-    return uploadResult
+    return uploadServerBuffer(tenantId, data)
   }
 
-  /**
-   * GDPR / KVKK hard delete: permanently remove the object from the bucket AND
-   * the audit row (not a soft-delete), decrementing the tenant byte counter.
-   * Use for right-to-erasure requests where no record may remain.
-   */
-  static async hardDeleteFile(tenantId: string, data: DeleteFileDTO): Promise<void> {
-    const { key, provider: requestedProvider } = data
-    const { provider } = await StorageService.getProvider(tenantId, requestedProvider)
-    await provider.deleteFile(key)
-
-    try {
-      const ds = await tenantDataSourceFor(tenantId)
-      const repo = ds.getRepository(UploadedFile)
-      // withDeleted: also catch rows already soft-deleted.
-      const row = await repo.findOne({ where: { tenantId, key }, withDeleted: true })
-      if (row) {
-        const wasActive = !row.deletedAt
-        await repo.remove(row)
-        if (wasActive && row.size && row.size > 0) {
-          await TenantUsageService.decrementStorageBytes(tenantId, row.size)
-        }
-      }
-    } catch (auditError) {
-      Logger.warn(`StorageService.hardDeleteFile audit purge failed: ${auditError instanceof Error ? auditError.message : String(auditError)}`)
-    }
+  static hardDeleteFile(tenantId: string, data: DeleteFileDTO): Promise<void> {
+    return hardDeleteFile(tenantId, data)
   }
 }
