@@ -14,6 +14,32 @@ One-time product / service payment processing. Uses payment_core providers (Stri
 
 - **requires:** `db`, `env`, `setting`, `redis`, `logger`, `payment_core`
 
+## Services
+
+- `payment_sell.analytics.service.ts`
+- `payment_sell.checkout.service.ts`
+- `payment_sell.crud.service.ts`
+- `payment_sell.invoice.service.ts`
+- `payment_sell.service.ts`
+- `payment_sell.webhook.service.ts`
+
+## DTOs
+
+- `payment_sell.dto.ts`
+
+## Entities
+
+- `payment.entity.ts`
+- `payment_transaction.entity.ts`
+
+## Enums
+
+- `payment_sell.enums.ts`
+
+## Message keys
+
+- `payment_sell.messages.ts`
+
 ## TypeORM entities
 
 - `Payment` (system) — `modules/payment_sell/server/entities/payment.entity.ts`

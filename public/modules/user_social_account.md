@@ -14,6 +14,26 @@ Per-user linked OAuth provider accounts (provider id, external user id, tokens).
 
 - **requires:** `db`, `user`
 
+## Services
+
+- `social_identity_merge.service.ts`
+- `user_social_account.link.service.ts`
+- `user_social_account.read.service.ts`
+- `user_social_account.service.ts`
+- `user_social_account.token.service.ts`
+
+## Entities
+
+- `user_social_account.entity.ts`
+
+## Enums
+
+- `user_social_account.enums.ts`
+
+## Message keys
+
+- `user_social_account.messages.ts`
+
 ## TypeORM entities
 
 - `UserSocialAccount` (system) — `modules/user_social_account/server/entities/user_social_account.entity.ts`

@@ -6,13 +6,33 @@
 - **dir:** `modules/setting/`
 - **tags:** platform, configuration
 - **icon:** `fas fa-gear`
-- **hasNextLayer:** false
+- **hasNextLayer:** true
 
 System-wide key-value settings store. Modules declare their keys in *.setting.keys.ts; the setting service stores/reads them.
 
 ## Dependencies
 
 - **requires:** `db`, `env`
+
+## Services
+
+- `setting.admin.service.ts`
+- `setting.read.service.ts`
+- `setting.service.ts`
+- `setting.write.service.ts`
+
+## DTOs
+
+- `setting.dto.ts`
+
+## Entities
+
+- `setting.entity.ts`
+- `setting_history.entity.ts`
+
+## Message keys
+
+- `setting.messages.ts`
 
 ## Owned API routes
 
@@ -24,6 +44,26 @@ System-wide key-value settings store. Modules declare their keys in *.setting.ke
 
 - `Setting` (system) — `modules/setting/server/entities/setting.entity.ts`
 - `SettingHistory` (system) — `modules/setting/server/entities/setting_history.entity.ts`
+
+## Next layer (modules_next/) surface
+
+- `setting/ui/ModuleSettingsPage` _(ui, client)_
+- `setting/ui/PlatformSettingsTabs` _(ui, client)_
+- `setting/ui/setting.types` _(ui)_
+- `setting/ui/settings-kit` _(ui, client)_
+- `setting/ui/SettingsPanelHost` _(ui, client)_
+- `setting/ui/tabs/AllowedExtensionsField` _(ui, client)_
+- `setting/ui/tabs/platform-tab.shared` _(ui, client)_
+- `setting/ui/tabs/PlatformAiTab` _(ui, client)_
+- `setting/ui/tabs/PlatformAuthTab` _(ui, client)_
+- `setting/ui/tabs/PlatformEmailTab` _(ui, client)_
+- `setting/ui/tabs/PlatformNotificationsTab` _(ui, client)_
+- `setting/ui/tabs/PlatformPaymentTab` _(ui, client)_
+- `setting/ui/tabs/PlatformScimTab` _(ui, client)_
+- `setting/ui/tabs/PlatformSecurityTab` _(ui, client)_
+- `setting/ui/tabs/PlatformSmsTab` _(ui, client)_
+- `setting/ui/tabs/PlatformStorageTab` _(ui, client)_
+- `setting/ui/TenantSettingsPanels` _(ui, client)_
 
 ## README
 

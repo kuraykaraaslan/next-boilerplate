@@ -132,6 +132,11 @@
       "items": { "$ref": "#/definitions/widget" },
       "description": "Dashboard widgets"
     },
+    "slots": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/slotContribution" },
+      "description": "Components this module contributes into named slots exposed by other modules"
+    },
     "exports": {
       "type": "object",
       "additionalProperties": { "type": "string" },
@@ -187,6 +192,10 @@
         "permissions": {
           "type": "array",
           "items": { "type": "string" }
+        },
+        "group": {
+          "type": "string",
+          "description": "Sidebar section label this item is grouped under (e.g. 'Content', 'Commerce')"
         },
         "children": {
           "type": "array",
@@ -255,6 +264,32 @@
         "size": { "type": "string", "enum": ["small", "medium", "large", "full"] },
         "order": { "type": "integer" },
         "permissions": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "slotContribution": {
+      "type": "object",
+      "required": ["slot", "component"],
+      "properties": {
+        "slot": {
+          "type": "string",
+          "description": "Target slot name exposed by a host, e.g. 'user.profile.tabs'"
+        },
+        "component": {
+          "type": "string",
+          "description": "Contributed component id, e.g. 'payment/ui/BillingProfileTab'"
+        },
+        "order": { "type": "integer", "default": 100 },
+        "scope": {
+          "type": "string",
+          "enum": ["system", "tenant", "both"],
+          "default": "both"
+        },
+        "permissions": { "type": "array", "items": { "type": "string" } },
+        "props": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "Static props merged into the rendered component"
+        }
       }
     }
   }

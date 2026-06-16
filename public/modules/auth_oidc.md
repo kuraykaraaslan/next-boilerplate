@@ -13,3 +13,7 @@ Generic, config-driven OAuth2/OIDC protocol engine (authorize → token → user
 ## Dependencies
 
 - **requires:** `env`, `common`
+
+## Message keys
+
+- `auth_oidc.messages.ts`

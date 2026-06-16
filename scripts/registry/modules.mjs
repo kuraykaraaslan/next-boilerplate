@@ -3,7 +3,7 @@
 import { readdir } from 'node:fs/promises';
 import path from 'node:path';
 import {
-  MODULES_DIR, MODULES_NEXT_DIR, listDirs, rel, readJson, readText, exists,
+  MODULES_DIR, listDirs, rel, readJson, readText, exists,
 } from './fs-utils.mjs';
 
 // --- module tier classification ------------------------------------------
@@ -47,8 +47,11 @@ const FILE_BUCKETS = [
 async function collectModuleExports(moduleDir) {
   const out = { services: [], dtos: [], enums: [], messageKeys: [], settingKeys: [], providers: [], jobs: [], entities: [] };
 
+  // Business-logic export buckets now live under modules/<id>/server/.
+  const serverDir = path.join(moduleDir, 'server');
+
   let entries;
-  try { entries = await readdir(moduleDir, { withFileTypes: true }); }
+  try { entries = await readdir(serverDir, { withFileTypes: true }); }
   catch { return out; }
 
   for (const e of entries) {
@@ -59,7 +62,7 @@ async function collectModuleExports(moduleDir) {
     }
   }
 
-  const entitiesDir = path.join(moduleDir, 'entities');
+  const entitiesDir = path.join(serverDir, 'entities');
   if (await exists(entitiesDir)) {
     const ents = await readdir(entitiesDir);
     out.entities = ents.filter((n) => n.endsWith('.entity.ts'));
@@ -76,7 +79,9 @@ export async function collectModules() {
     const moduleJson = await readJson(path.join(dir, 'module.json'));
     const readme = await readText(path.join(dir, 'README.md'));
     const exports = await collectModuleExports(dir);
-    const hasNextLayer = await exists(path.join(MODULES_NEXT_DIR, id));
+    // "next layer" now = presence of a ui/ or hooks/ folder in the package.
+    const hasNextLayer =
+      (await exists(path.join(dir, 'ui'))) || (await exists(path.join(dir, 'hooks')));
 
     modules.push({
       id,

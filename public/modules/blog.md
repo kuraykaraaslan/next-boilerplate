@@ -6,13 +6,42 @@
 - **dir:** `modules/blog/`
 - **tags:** blog, content, cms, comments, moderation
 - **icon:** `fas fa-newspaper`
-- **hasNextLayer:** false
+- **hasNextLayer:** true
 
 Tenant-scoped blog with posts, categories and threaded comments. Posts have a draft/published/archived lifecycle; comment moderation and anonymous-comment policy are per-tenant settings.
 
 ## Dependencies
 
 - **requires:** `db`, `env`, `redis`, `logger`, `setting`
+
+## Services
+
+- `blog.category.service.ts`
+- `blog.comment.service.ts`
+- `blog.post.service.ts`
+- `blog.service.ts`
+
+## DTOs
+
+- `blog.dto.ts`
+
+## Entities
+
+- `blog_category.entity.ts`
+- `blog_comment.entity.ts`
+- `blog_post.entity.ts`
+
+## Enums
+
+- `blog.enums.ts`
+
+## Message keys
+
+- `blog.messages.ts`
+
+## Setting keys
+
+- `blog.setting.keys.ts`
 
 ## Owned API routes
 
@@ -28,6 +57,11 @@ Tenant-scoped blog with posts, categories and threaded comments. Posts have a dr
 - `BlogCategory` (system) — `modules/blog/server/entities/blog_category.entity.ts`
 - `BlogComment` (system) — `modules/blog/server/entities/blog_comment.entity.ts`
 - `BlogPost` (system) — `modules/blog/server/entities/blog_post.entity.ts`
+
+## Next layer (modules_next/) surface
+
+- `blog/ui/BlogPostCreateModal` _(ui, client)_
+- `blog/ui/BlogStatusBadge` _(ui, client)_
 
 ## README
 

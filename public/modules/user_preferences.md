@@ -14,6 +14,26 @@ Per-user preferences: theme, language, timezone, notification opt-ins.
 
 - **requires:** `db`, `user`
 
+## Services
+
+- `user_preferences.service.ts`
+
+## DTOs
+
+- `user_preferences.dto.ts`
+
+## Entities
+
+- `user_preferences.entity.ts`
+
+## Enums
+
+- `user_preferences.enums.ts`
+
+## Message keys
+
+- `user_preferences.messages.ts`
+
 ## TypeORM entities
 
 - `UserPreferences` (system) — `modules/user_preferences/server/entities/user_preferences.entity.ts`

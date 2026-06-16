@@ -10,6 +10,10 @@
 
 Zod-validated env var access. Single source of truth — never read process.env directly outside this module.
 
+## Services
+
+- `env.service.ts`
+
 ## README
 
 # Env Module

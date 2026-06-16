@@ -14,6 +14,10 @@ Redis-backed idempotency-key store for safely retryable POST/PATCH operations.
 
 - **requires:** `redis`, `env`
 
+## Services
+
+- `redis_idempotency.service.ts`
+
 ## README
 
 # Redis Idempotency Module

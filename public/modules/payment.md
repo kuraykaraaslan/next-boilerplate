@@ -6,13 +6,54 @@
 - **dir:** `modules/payment/`
 - **tags:** billing, payment
 - **icon:** `fas fa-credit-card`
-- **hasNextLayer:** false
+- **hasNextLayer:** true
 
 Pluggable payment processing (Stripe, PayPal, Iyzico) + subscription plans, plan features, payment transactions, webhook handling.
 
 ## Dependencies
 
 - **requires:** `db`, `env`, `setting`, `common`
+
+## Services
+
+- `payment.checkout.service.ts`
+- `payment.crud.dispute.service.ts`
+- `payment.crud.read.service.ts`
+- `payment.crud.service.ts`
+- `payment.crud.write.service.ts`
+- `payment.proration.service.ts`
+- `payment.service.ts`
+- `payment.transaction.service.ts`
+- `payment.webhook.handlers.service.ts`
+- `payment.webhook.notifications.service.ts`
+- `payment.webhook.payment.service.ts`
+- `payment.webhook.paypal.service.ts`
+- `payment.webhook.service.ts`
+- `payment.webhook.stripe.service.ts`
+- `payment.webhook.subscription.service.ts`
+
+## DTOs
+
+- `payment.dto.ts`
+
+## Entities
+
+- `payment.entity.ts`
+- `payment_transaction.entity.ts`
+- `plan_feature.entity.ts`
+- `subscription_plan.entity.ts`
+
+## Enums
+
+- `payment.enums.ts`
+
+## Message keys
+
+- `payment.messages.ts`
+
+## Setting keys
+
+- `payment.setting.keys.ts`
 
 ## Owned API routes
 
@@ -32,6 +73,18 @@ Pluggable payment processing (Stripe, PayPal, Iyzico) + subscription plans, plan
 - `PaymentTransaction` (system) — `modules/payment/server/entities/payment_transaction.entity.ts`
 - `PlanFeature` (system) — `modules/payment/server/entities/plan_feature.entity.ts`
 - `SubscriptionPlan` (system) — `modules/payment/server/entities/subscription_plan.entity.ts`
+
+## Next layer (modules_next/) surface
+
+- `payment/ui/CardCheckoutModal` _(ui, client)_
+- `payment/ui/CreditCardForm` _(ui, client)_
+- `payment/ui/CreditCardVisual` _(ui, client)_
+- `payment/ui/PaymentProviderSelector` _(ui, client)_
+- `payment/ui/PaymentRefundModal` _(ui, client)_
+- `payment/ui/PaymentStatusBadge` _(ui, client)_
+- `payment/ui/PaymentSummaryCard` _(ui, client)_
+- `payment/ui/StripeExpressCheckoutModal` _(ui, client)_
+- `payment/ui/WalletBadges` _(ui, client)_
 
 ## README
 

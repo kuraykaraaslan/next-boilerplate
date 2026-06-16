@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T07:09:29.332Z",
+  "generatedAt": "2026-06-16T07:25:32.755Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -49,7 +49,7 @@
       },
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "env",
@@ -69,7 +69,9 @@
         "requires": []
       },
       "exports": {
-        "services": [],
+        "services": [
+          "env.service.ts"
+        ],
         "dtos": [],
         "enums": [],
         "messageKeys": [],
@@ -101,7 +103,9 @@
         ]
       },
       "exports": {
-        "services": [],
+        "services": [
+          "logger.service.ts"
+        ],
         "dtos": [],
         "enums": [],
         "messageKeys": [],
@@ -135,7 +139,9 @@
       "exports": {
         "services": [],
         "dtos": [],
-        "enums": [],
+        "enums": [
+          "network.enums.ts"
+        ],
         "messageKeys": [],
         "settingKeys": [],
         "providers": [],
@@ -167,7 +173,9 @@
         ]
       },
       "exports": {
-        "services": [],
+        "services": [
+          "redis.service.ts"
+        ],
         "dtos": [],
         "enums": [],
         "messageKeys": [],
@@ -200,14 +208,18 @@
         ]
       },
       "exports": {
-        "services": [],
+        "services": [
+          "db.tenant-provision.service.ts"
+        ],
         "dtos": [],
         "enums": [],
         "messageKeys": [],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "tenant_database.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
@@ -237,7 +249,10 @@
         ]
       },
       "exports": {
-        "services": [],
+        "services": [
+          "limiter.service.ts",
+          "limiter.tenant-plan.service.ts"
+        ],
         "dtos": [],
         "enums": [],
         "messageKeys": [],
@@ -271,7 +286,9 @@
         ]
       },
       "exports": {
-        "services": [],
+        "services": [
+          "observability.service.ts"
+        ],
         "dtos": [],
         "enums": [],
         "messageKeys": [],
@@ -304,7 +321,9 @@
         ]
       },
       "exports": {
-        "services": [],
+        "services": [
+          "redis_idempotency.service.ts"
+        ],
         "dtos": [],
         "enums": [],
         "messageKeys": [],
@@ -337,18 +356,30 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
+        "services": [
+          "setting.admin.service.ts",
+          "setting.read.service.ts",
+          "setting.service.ts",
+          "setting.write.service.ts"
+        ],
+        "dtos": [
+          "setting.dto.ts"
+        ],
         "enums": [],
-        "messageKeys": [],
+        "messageKeys": [
+          "setting.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "setting.entity.ts",
+          "setting_history.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "user_agent",
@@ -367,9 +398,14 @@
         "requires": []
       },
       "exports": {
-        "services": [],
+        "services": [
+          "user_agent.geo.service.ts",
+          "user_agent.service.ts"
+        ],
         "dtos": [],
-        "enums": [],
+        "enums": [
+          "user_agent.enums.ts"
+        ],
         "messageKeys": [],
         "settingKeys": [],
         "providers": [],
@@ -439,14 +475,31 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
-        "settingKeys": [],
+        "services": [
+          "storage.scan.service.ts",
+          "storage.service.ts"
+        ],
+        "dtos": [
+          "storage.dto.ts"
+        ],
+        "enums": [
+          "storage.enums.ts",
+          "storage.scan.enums.ts"
+        ],
+        "messageKeys": [
+          "storage.messages.ts"
+        ],
+        "settingKeys": [
+          "storage.scan.setting.keys.ts",
+          "storage.setting.keys.ts"
+        ],
         "providers": [],
-        "jobs": [],
-        "entities": []
+        "jobs": [
+          "storage.scan.job.ts"
+        ],
+        "entities": [
+          "uploaded_file.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
@@ -474,18 +527,31 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
+        "services": [
+          "user.admin.service.ts",
+          "user.crud.service.ts",
+          "user.read.service.ts",
+          "user.service.ts"
+        ],
+        "dtos": [
+          "user.dto.ts"
+        ],
+        "enums": [
+          "user.enums.ts"
+        ],
+        "messageKeys": [
+          "user.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "user.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "user_preferences",
@@ -507,14 +573,24 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
+        "services": [
+          "user_preferences.service.ts"
+        ],
+        "dtos": [
+          "user_preferences.dto.ts"
+        ],
+        "enums": [
+          "user_preferences.enums.ts"
+        ],
+        "messageKeys": [
+          "user_preferences.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "user_preferences.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
@@ -539,14 +615,29 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
+        "services": [
+          "user_profile.media.service.ts",
+          "user_profile.moderation.service.ts",
+          "user_profile.read.service.ts",
+          "user_profile.service.ts",
+          "user_profile.social.service.ts",
+          "user_profile.write.service.ts"
+        ],
+        "dtos": [
+          "user_profile.dto.ts"
+        ],
+        "enums": [
+          "user_profile.enums.ts"
+        ],
+        "messageKeys": [
+          "user_profile.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "user_profile.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
@@ -573,18 +664,37 @@
         ]
       },
       "exports": {
-        "services": [],
+        "services": [
+          "user_security.crud.service.ts",
+          "user_security.login.service.ts",
+          "user_security.mfa.service.ts",
+          "user_security.passkey.authenticate.service.ts",
+          "user_security.passkey.crud.service.ts",
+          "user_security.passkey.flow.service.ts",
+          "user_security.passkey.register.service.ts",
+          "user_security.passkey.service.ts",
+          "user_security.service.ts"
+        ],
         "dtos": [],
-        "enums": [],
-        "messageKeys": [],
-        "settingKeys": [],
+        "enums": [
+          "user_security.enums.ts"
+        ],
+        "messageKeys": [
+          "user_security.messages.ts",
+          "user_security.passkey.messages.ts"
+        ],
+        "settingKeys": [
+          "user_security.setting.keys.ts"
+        ],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "user_security.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "user_session",
@@ -610,18 +720,30 @@
         ]
       },
       "exports": {
-        "services": [],
+        "services": [
+          "user_session.auth.service.ts",
+          "user_session.cache.service.ts",
+          "user_session.crud.service.ts",
+          "user_session.service.ts",
+          "user_session.token.service.ts"
+        ],
         "dtos": [],
-        "enums": [],
-        "messageKeys": [],
+        "enums": [
+          "user_session.enums.ts"
+        ],
+        "messageKeys": [
+          "user_session.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "user_session.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "user_social_account",
@@ -643,14 +765,26 @@
         ]
       },
       "exports": {
-        "services": [],
+        "services": [
+          "social_identity_merge.service.ts",
+          "user_social_account.link.service.ts",
+          "user_social_account.read.service.ts",
+          "user_social_account.service.ts",
+          "user_social_account.token.service.ts"
+        ],
         "dtos": [],
-        "enums": [],
-        "messageKeys": [],
+        "enums": [
+          "user_social_account.enums.ts"
+        ],
+        "messageKeys": [
+          "user_social_account.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "user_social_account.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
@@ -690,18 +824,42 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
+        "services": [
+          "auth.captcha.service.ts",
+          "auth.credential.lifecycle.service.ts",
+          "auth.credential.login.service.ts",
+          "auth.credential.register.service.ts",
+          "auth.credential.service.ts",
+          "auth.otp.service.ts",
+          "auth.password.service.ts",
+          "auth.policy.loader.service.ts",
+          "auth.policy.service.ts",
+          "auth.policy.validator.service.ts",
+          "auth.service.ts",
+          "auth.totp.service.ts",
+          "auth.verification.service.ts"
+        ],
+        "dtos": [
+          "auth.dto.ts"
+        ],
         "enums": [],
-        "messageKeys": [],
-        "settingKeys": [],
+        "messageKeys": [
+          "auth.messages.ts"
+        ],
+        "settingKeys": [
+          "auth.setting.keys.ts"
+        ],
         "providers": [],
-        "jobs": [],
-        "entities": []
+        "jobs": [
+          "auth.dormant.job.ts"
+        ],
+        "entities": [
+          "user_consent.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "auth_oidc",
@@ -729,7 +887,9 @@
         "services": [],
         "dtos": [],
         "enums": [],
-        "messageKeys": [],
+        "messageKeys": [
+          "auth_oidc.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
@@ -770,18 +930,38 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
-        "settingKeys": [],
+        "services": [
+          "auth_saml.config.crud.service.ts",
+          "auth_saml.config.service.ts",
+          "auth_saml.crypto.service.ts",
+          "auth_saml.flow.callback.service.ts",
+          "auth_saml.flow.metadata.service.ts",
+          "auth_saml.flow.provision.service.ts",
+          "auth_saml.flow.service.ts",
+          "auth_saml.metadata.service.ts",
+          "auth_saml.service.ts"
+        ],
+        "dtos": [
+          "auth_saml.dto.ts"
+        ],
+        "enums": [
+          "auth_saml.enums.ts"
+        ],
+        "messageKeys": [
+          "auth_saml.messages.ts"
+        ],
+        "settingKeys": [
+          "auth_saml.setting.keys.ts"
+        ],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "saml_config.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "auth_sso",
@@ -813,11 +993,24 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
-        "settingKeys": [],
+        "services": [
+          "auth_sso.account.service.ts",
+          "auth_sso.config.service.ts",
+          "auth_sso.flow.service.ts",
+          "auth_sso.service.ts"
+        ],
+        "dtos": [
+          "auth_sso.dto.ts"
+        ],
+        "enums": [
+          "auth_sso.enums.ts"
+        ],
+        "messageKeys": [
+          "auth_sso.messages.ts"
+        ],
+        "settingKeys": [
+          "auth_sso.setting.keys.ts"
+        ],
         "providers": [],
         "jobs": [],
         "entities": []
@@ -865,10 +1058,18 @@
         ]
       },
       "exports": {
-        "services": [],
+        "services": [
+          "auth_acs.config.service.ts",
+          "auth_acs.flow.service.ts",
+          "auth_acs.service.ts"
+        ],
         "dtos": [],
-        "enums": [],
-        "messageKeys": [],
+        "enums": [
+          "auth_acs.enums.ts"
+        ],
+        "messageKeys": [
+          "auth_acs.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
@@ -905,11 +1106,23 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
+        "services": [
+          "impersonation.flow.service.ts",
+          "impersonation.mint.service.ts",
+          "impersonation.service.ts",
+          "impersonation.session.service.ts",
+          "impersonation.settings.service.ts"
+        ],
+        "dtos": [
+          "impersonation.dto.ts"
+        ],
         "enums": [],
-        "messageKeys": [],
-        "settingKeys": [],
+        "messageKeys": [
+          "impersonation.messages.ts"
+        ],
+        "settingKeys": [
+          "impersonation.setting.keys.ts"
+        ],
         "providers": [],
         "jobs": [],
         "entities": []
@@ -943,14 +1156,29 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
+        "services": [
+          "scim.group.service.ts",
+          "scim.policy.service.ts",
+          "scim.service.ts",
+          "scim.user.patch.service.ts",
+          "scim.user.read.service.ts",
+          "scim.user.service.ts",
+          "scim.user.write.service.ts"
+        ],
+        "dtos": [
+          "scim.dto.ts"
+        ],
         "enums": [],
-        "messageKeys": [],
+        "messageKeys": [
+          "scim.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "scim_group.entity.ts",
+          "scim_group_member.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
@@ -978,18 +1206,36 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
-        "settingKeys": [],
+        "services": [
+          "tenant.deletion.service.ts",
+          "tenant.onboarding.service.ts",
+          "tenant.read.service.ts",
+          "tenant.service.ts",
+          "tenant.write.service.ts"
+        ],
+        "dtos": [
+          "tenant.dto.ts"
+        ],
+        "enums": [
+          "tenant.enums.ts"
+        ],
+        "messageKeys": [
+          "tenant.messages.ts"
+        ],
+        "settingKeys": [
+          "tenant.setting.keys.ts"
+        ],
         "providers": [],
-        "jobs": [],
-        "entities": []
+        "jobs": [
+          "tenant.deletion.job.ts"
+        ],
+        "entities": [
+          "tenant.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "tenant_member",
@@ -1011,18 +1257,30 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
+        "services": [
+          "tenant_member.read.service.ts",
+          "tenant_member.service.ts",
+          "tenant_member.write.service.ts"
+        ],
+        "dtos": [
+          "tenant_member.dto.ts"
+        ],
+        "enums": [
+          "tenant_member.enums.ts"
+        ],
+        "messageKeys": [
+          "tenant_member.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "tenant_member.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "tenant_invitation",
@@ -1048,18 +1306,30 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
+        "services": [
+          "tenant_invitation.lifecycle.service.ts",
+          "tenant_invitation.read.service.ts",
+          "tenant_invitation.service.ts"
+        ],
+        "dtos": [
+          "tenant_invitation.dto.ts"
+        ],
+        "enums": [
+          "tenant_invitation.enums.ts"
+        ],
+        "messageKeys": [
+          "tenant_invitation.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "tenant_invitation.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "tenant_session",
@@ -1084,11 +1354,18 @@
         ]
       },
       "exports": {
-        "services": [],
+        "services": [
+          "tenant_session.resolve.service.ts",
+          "tenant_session.service.ts"
+        ],
         "dtos": [],
         "enums": [],
-        "messageKeys": [],
-        "settingKeys": [],
+        "messageKeys": [
+          "tenant_session.messages.ts"
+        ],
+        "settingKeys": [
+          "tenant_session.setting.keys.ts"
+        ],
         "providers": [],
         "jobs": [],
         "entities": []
@@ -1119,11 +1396,15 @@
         ]
       },
       "exports": {
-        "services": [],
+        "services": [
+          "tenant_branding.service.ts"
+        ],
         "dtos": [],
         "enums": [],
         "messageKeys": [],
-        "settingKeys": [],
+        "settingKeys": [
+          "tenant_branding.setting.keys.ts"
+        ],
         "providers": [],
         "jobs": [],
         "entities": []
@@ -1154,18 +1435,35 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
+        "services": [
+          "dns_verification.service.ts",
+          "ssl_provisioning.service.ts",
+          "tenant_domain.crud.service.ts",
+          "tenant_domain.dns.service.ts",
+          "tenant_domain.service.ts"
+        ],
+        "dtos": [
+          "tenant_domain.dto.ts"
+        ],
+        "enums": [
+          "tenant_domain.enums.ts"
+        ],
+        "messageKeys": [
+          "tenant_domain.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
-        "jobs": [],
-        "entities": []
+        "jobs": [
+          "ssl_health.job.ts",
+          "tenant_domain.job.ts"
+        ],
+        "entities": [
+          "tenant_domain.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "tenant_subscription",
@@ -1190,18 +1488,41 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
-        "settingKeys": [],
+        "services": [
+          "tenant_subscription.card.service.ts",
+          "tenant_subscription.checkout.service.ts",
+          "tenant_subscription.feature.service.ts",
+          "tenant_subscription.grace.service.ts",
+          "tenant_subscription.lifecycle.service.ts",
+          "tenant_subscription.plan.crud.service.ts",
+          "tenant_subscription.plan.feature.service.ts",
+          "tenant_subscription.plan.service.ts",
+          "tenant_subscription.platform.service.ts",
+          "tenant_subscription.service.ts"
+        ],
+        "dtos": [
+          "tenant_subscription.dto.ts"
+        ],
+        "enums": [
+          "tenant_subscription.enums.ts"
+        ],
+        "messageKeys": [
+          "tenant_subscription.messages.ts"
+        ],
+        "settingKeys": [
+          "tenant_subscription.setting.keys.ts"
+        ],
         "providers": [],
-        "jobs": [],
-        "entities": []
+        "jobs": [
+          "tenant_subscription.job.ts"
+        ],
+        "entities": [
+          "tenant_subscription.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "tenant_usage",
@@ -1224,14 +1545,26 @@
         ]
       },
       "exports": {
-        "services": [],
+        "services": [
+          "tenant_usage.alerts.service.ts",
+          "tenant_usage.flush.service.ts",
+          "tenant_usage.increment.service.ts",
+          "tenant_usage.read.service.ts",
+          "tenant_usage.service.ts"
+        ],
         "dtos": [],
         "enums": [],
-        "messageKeys": [],
+        "messageKeys": [
+          "tenant_usage.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
-        "jobs": [],
-        "entities": []
+        "jobs": [
+          "tenant_usage.job.ts"
+        ],
+        "entities": [
+          "tenant_usage.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
@@ -1259,18 +1592,47 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
-        "settingKeys": [],
+        "services": [
+          "payment.checkout.service.ts",
+          "payment.crud.dispute.service.ts",
+          "payment.crud.read.service.ts",
+          "payment.crud.service.ts",
+          "payment.crud.write.service.ts",
+          "payment.proration.service.ts",
+          "payment.service.ts",
+          "payment.transaction.service.ts",
+          "payment.webhook.handlers.service.ts",
+          "payment.webhook.notifications.service.ts",
+          "payment.webhook.payment.service.ts",
+          "payment.webhook.paypal.service.ts",
+          "payment.webhook.service.ts",
+          "payment.webhook.stripe.service.ts",
+          "payment.webhook.subscription.service.ts"
+        ],
+        "dtos": [
+          "payment.dto.ts"
+        ],
+        "enums": [
+          "payment.enums.ts"
+        ],
+        "messageKeys": [
+          "payment.messages.ts"
+        ],
+        "settingKeys": [
+          "payment.setting.keys.ts"
+        ],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "payment.entity.ts",
+          "payment_transaction.entity.ts",
+          "plan_feature.entity.ts",
+          "subscription_plan.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "tenant_export",
@@ -1294,14 +1656,19 @@
         ]
       },
       "exports": {
-        "services": [],
+        "services": [
+          "tenant_export.job.service.ts",
+          "tenant_export.service.ts"
+        ],
         "dtos": [],
         "enums": [],
         "messageKeys": [],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "tenant_export_job.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
@@ -1329,18 +1696,35 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
+        "services": [
+          "coupon.analytics.service.ts",
+          "coupon.bulk.service.ts",
+          "coupon.crud.core.service.ts",
+          "coupon.crud.service.ts",
+          "coupon.redemption.service.ts",
+          "coupon.service.ts",
+          "coupon.validation.service.ts"
+        ],
+        "dtos": [
+          "coupon.dto.ts"
+        ],
+        "enums": [
+          "coupon.enums.ts"
+        ],
+        "messageKeys": [
+          "coupon.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "coupon.entity.ts",
+          "coupon_redemption.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "payment_sell",
@@ -1367,14 +1751,30 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
+        "services": [
+          "payment_sell.analytics.service.ts",
+          "payment_sell.checkout.service.ts",
+          "payment_sell.crud.service.ts",
+          "payment_sell.invoice.service.ts",
+          "payment_sell.service.ts",
+          "payment_sell.webhook.service.ts"
+        ],
+        "dtos": [
+          "payment_sell.dto.ts"
+        ],
+        "enums": [
+          "payment_sell.enums.ts"
+        ],
+        "messageKeys": [
+          "payment_sell.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "payment.entity.ts",
+          "payment_transaction.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
@@ -1400,10 +1800,14 @@
         ]
       },
       "exports": {
-        "services": [],
+        "services": [
+          "exchange_rate.service.ts"
+        ],
         "dtos": [],
         "enums": [],
-        "messageKeys": [],
+        "messageKeys": [
+          "exchange_rate.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
@@ -1439,14 +1843,34 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
+        "services": [
+          "payment_subscription.crud.service.ts",
+          "payment_subscription.dunning.service.ts",
+          "payment_subscription.lifecycle.service.ts",
+          "payment_subscription.metered.service.ts",
+          "payment_subscription.metrics.service.ts",
+          "payment_subscription.plan.service.ts",
+          "payment_subscription.proration.service.ts",
+          "payment_subscription.service.ts",
+          "payment_subscription.transitions.service.ts"
+        ],
+        "dtos": [
+          "payment_subscription.dto.ts"
+        ],
+        "enums": [
+          "payment_subscription.enums.ts"
+        ],
+        "messageKeys": [
+          "payment_subscription.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "plan_feature.entity.ts",
+          "subscription.entity.ts",
+          "subscription_plan.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
@@ -1476,14 +1900,30 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
+        "services": [
+          "payment_cart.calc.service.ts",
+          "payment_cart.crud.service.ts",
+          "payment_cart.expiry.service.ts",
+          "payment_cart.inventory.service.ts",
+          "payment_cart.item.service.ts",
+          "payment_cart.service.ts"
+        ],
+        "dtos": [
+          "payment_cart.dto.ts"
+        ],
+        "enums": [
+          "payment_cart.enums.ts"
+        ],
+        "messageKeys": [
+          "payment_cart.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "cart.entity.ts",
+          "cart_item.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
@@ -1512,14 +1952,29 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
+        "services": [
+          "payment_shipping.calc.service.ts",
+          "payment_shipping.carrier.service.ts",
+          "payment_shipping.crud.service.ts",
+          "payment_shipping.rules.service.ts",
+          "payment_shipping.service.ts"
+        ],
+        "dtos": [
+          "payment_shipping.dto.ts"
+        ],
+        "enums": [
+          "payment_shipping.enums.ts"
+        ],
+        "messageKeys": [
+          "payment_shipping.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "shipping_method.entity.ts",
+          "shipping_rate.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
@@ -1552,18 +2007,40 @@
         ]
       },
       "exports": {
-        "services": [],
+        "services": [
+          "invoice.adapter.service.ts",
+          "invoice.create.service.ts",
+          "invoice.creditnote.service.ts",
+          "invoice.crud.service.ts",
+          "invoice.number.service.ts",
+          "invoice.pdf.renderer.service.ts",
+          "invoice.pdf.service.ts",
+          "invoice.read.service.ts",
+          "invoice.service.ts",
+          "invoice.signature.service.ts",
+          "invoice.tax.service.ts",
+          "invoice.transition.service.ts"
+        ],
         "dtos": [],
-        "enums": [],
-        "messageKeys": [],
-        "settingKeys": [],
+        "enums": [
+          "invoice.enums.ts"
+        ],
+        "messageKeys": [
+          "invoice.messages.ts"
+        ],
+        "settingKeys": [
+          "invoice.setting.keys.ts"
+        ],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "invoice.entity.ts",
+          "invoice_line.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "notification_inapp",
@@ -1585,10 +2062,14 @@
         ]
       },
       "exports": {
-        "services": [],
+        "services": [
+          "notification_inapp.service.ts"
+        ],
         "dtos": [],
         "enums": [],
-        "messageKeys": [],
+        "messageKeys": [
+          "notification_inapp.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
@@ -1596,7 +2077,7 @@
       },
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "notification_mail",
@@ -1619,11 +2100,23 @@
         ]
       },
       "exports": {
-        "services": [],
+        "services": [
+          "notification_mail.account-templates.service.ts",
+          "notification_mail.provider.service.ts",
+          "notification_mail.queue.service.ts",
+          "notification_mail.service.ts",
+          "notification_mail.templates.auth.service.ts",
+          "notification_mail.templates.invoice.service.ts",
+          "notification_mail.templates.service.ts"
+        ],
         "dtos": [],
         "enums": [],
-        "messageKeys": [],
-        "settingKeys": [],
+        "messageKeys": [
+          "notification_mail.messages.ts"
+        ],
+        "settingKeys": [
+          "notification_mail.setting.keys.ts"
+        ],
         "providers": [],
         "jobs": [],
         "entities": []
@@ -1652,14 +2145,23 @@
         ]
       },
       "exports": {
-        "services": [],
+        "services": [
+          "notification_push.metrics.service.ts",
+          "notification_push.send.service.ts",
+          "notification_push.service.ts",
+          "notification_push.subscription.service.ts"
+        ],
         "dtos": [],
         "enums": [],
-        "messageKeys": [],
+        "messageKeys": [
+          "notification_push.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "push_subscription.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
@@ -1686,11 +2188,18 @@
         ]
       },
       "exports": {
-        "services": [],
+        "services": [
+          "notification_sms.delivery.service.ts",
+          "notification_sms.provider.service.ts",
+          "notification_sms.queue.service.ts",
+          "notification_sms.service.ts"
+        ],
         "dtos": [],
         "enums": [],
         "messageKeys": [],
-        "settingKeys": [],
+        "settingKeys": [
+          "notification_sms.setting.keys.ts"
+        ],
         "providers": [],
         "jobs": [],
         "entities": []
@@ -1719,14 +2228,21 @@
         ]
       },
       "exports": {
-        "services": [],
+        "services": [
+          "notification_log.alerts.service.ts",
+          "notification_log.read.service.ts",
+          "notification_log.service.ts",
+          "notification_log.write.service.ts"
+        ],
         "dtos": [],
         "enums": [],
         "messageKeys": [],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "notification_log.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
@@ -1756,14 +2272,28 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
+        "services": [
+          "payment_tax.calc.service.ts",
+          "payment_tax.crud.service.ts",
+          "payment_tax.report.service.ts",
+          "payment_tax.service.ts"
+        ],
+        "dtos": [
+          "payment_tax.dto.ts"
+        ],
+        "enums": [
+          "payment_tax.enums.ts"
+        ],
+        "messageKeys": [
+          "payment_tax.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "tax_class.entity.ts",
+          "tax_rate.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
@@ -1792,14 +2322,31 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
+        "services": [
+          "payment_wishlist.cart.service.ts",
+          "payment_wishlist.crud.service.ts",
+          "payment_wishlist.gdpr.service.ts",
+          "payment_wishlist.items.service.ts",
+          "payment_wishlist.price_watch.service.ts",
+          "payment_wishlist.service.ts"
+        ],
+        "dtos": [
+          "payment_wishlist.dto.ts"
+        ],
+        "enums": [
+          "payment_wishlist.enums.ts"
+        ],
+        "messageKeys": [
+          "payment_wishlist.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "wishlist.entity.ts",
+          "wishlist_item.entity.ts",
+          "wishlist_price_point.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
@@ -1830,14 +2377,29 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
+        "services": [
+          "payment_return_rma.crud.service.ts",
+          "payment_return_rma.lifecycle.service.ts",
+          "payment_return_rma.policy.service.ts",
+          "payment_return_rma.service.ts"
+        ],
+        "dtos": [
+          "payment_return_rma.dto.ts"
+        ],
+        "enums": [
+          "payment_return_rma.enums.ts"
+        ],
+        "messageKeys": [
+          "payment_return_rma.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "return_event.entity.ts",
+          "return_item.entity.ts",
+          "return_request.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
@@ -1867,14 +2429,29 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
+        "services": [
+          "payment_loyalty_points.account.service.ts",
+          "payment_loyalty_points.checkout.service.ts",
+          "payment_loyalty_points.ledger.service.ts",
+          "payment_loyalty_points.service.ts"
+        ],
+        "dtos": [
+          "payment_loyalty_points.dto.ts"
+        ],
+        "enums": [
+          "payment_loyalty_points.enums.ts"
+        ],
+        "messageKeys": [
+          "payment_loyalty_points.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "loyalty_account.entity.ts",
+          "loyalty_tier.entity.ts",
+          "loyalty_transaction.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
@@ -1914,18 +2491,44 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
-        "settingKeys": [],
+        "services": [
+          "e_signature.compliance.service.ts",
+          "e_signature.crypto.chain.service.ts",
+          "e_signature.crypto.parse.service.ts",
+          "e_signature.crypto.service.ts",
+          "e_signature.crypto.verify.service.ts",
+          "e_signature.document.service.ts",
+          "e_signature.encryption.service.ts",
+          "e_signature.etsi_tsl.service.ts",
+          "e_signature.identity.service.ts",
+          "e_signature.ocsp.service.ts",
+          "e_signature.provider.service.ts",
+          "e_signature.service.ts",
+          "e_signature.settings.service.ts",
+          "e_signature.trust_list.service.ts",
+          "e_signature.workflow.service.ts"
+        ],
+        "dtos": [
+          "e_signature.dto.ts"
+        ],
+        "enums": [
+          "e_signature.enums.ts"
+        ],
+        "messageKeys": [
+          "e_signature.messages.ts"
+        ],
+        "settingKeys": [
+          "e_signature.setting.keys.ts"
+        ],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "trust_list_entry.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "seo",
@@ -1947,18 +2550,30 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
+        "services": [
+          "seo.render.service.ts",
+          "seo.service.ts",
+          "seo.web_vitals.service.ts"
+        ],
+        "dtos": [
+          "seo.dto.ts"
+        ],
+        "enums": [
+          "seo.enums.ts"
+        ],
+        "messageKeys": [
+          "seo.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "seo_meta.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "auth_e_signature",
@@ -1994,18 +2609,24 @@
         ]
       },
       "exports": {
-        "services": [],
+        "services": [
+          "auth_e_signature.cert.service.ts",
+          "auth_e_signature.flow.service.ts",
+          "auth_e_signature.service.ts"
+        ],
         "dtos": [],
         "enums": [],
         "messageKeys": [],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "signing_certificate.entity.ts"
+        ]
       },
       "hasReadme": false,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "media_gallery",
@@ -2029,18 +2650,33 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
+        "services": [
+          "media_gallery.bulk.service.ts",
+          "media_gallery.crud.service.ts",
+          "media_gallery.intelligence.service.ts",
+          "media_gallery.query.service.ts",
+          "media_gallery.service.ts"
+        ],
+        "dtos": [
+          "media_gallery.dto.ts"
+        ],
+        "enums": [
+          "media_gallery.enums.ts"
+        ],
+        "messageKeys": [
+          "media_gallery.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "media_gallery.entity.ts",
+          "media_gallery_item.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "api_key",
@@ -2064,18 +2700,33 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
-        "settingKeys": [],
+        "services": [
+          "api_key.crud.service.ts",
+          "api_key.rotation.service.ts",
+          "api_key.service.ts",
+          "api_key.verify.service.ts"
+        ],
+        "dtos": [
+          "api_key.dto.ts"
+        ],
+        "enums": [
+          "api_key.enums.ts"
+        ],
+        "messageKeys": [
+          "api_key.messages.ts"
+        ],
+        "settingKeys": [
+          "api_key.setting.keys.ts"
+        ],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "api_key.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "audit_log",
@@ -2104,18 +2755,33 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
-        "settingKeys": [],
+        "services": [
+          "audit_log.service.ts",
+          "audit_log.write.service.ts"
+        ],
+        "dtos": [
+          "audit_log.dto.ts"
+        ],
+        "enums": [
+          "audit_log.enums.ts"
+        ],
+        "messageKeys": [
+          "audit_log.messages.ts"
+        ],
+        "settingKeys": [
+          "audit_log.setting.keys.ts"
+        ],
         "providers": [],
-        "jobs": [],
-        "entities": []
+        "jobs": [
+          "audit_log.purge.job.ts"
+        ],
+        "entities": [
+          "audit_log.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "store",
@@ -2141,18 +2807,46 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
+        "services": [
+          "store.bundle.service.ts",
+          "store.category.service.ts",
+          "store.pricing.service.ts",
+          "store.product.crud.service.ts",
+          "store.product.media.service.ts",
+          "store.product.service.ts",
+          "store.public.service.ts",
+          "store.variant.service.ts"
+        ],
+        "dtos": [
+          "store.dto.ts"
+        ],
+        "enums": [
+          "store.enums.ts"
+        ],
+        "messageKeys": [
+          "store.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "store_bundle.entity.ts",
+          "store_bundle_item.entity.ts",
+          "store_category.entity.ts",
+          "store_category_spec.entity.ts",
+          "store_product.entity.ts",
+          "store_product_image.entity.ts",
+          "store_product_spec_value.entity.ts",
+          "store_product_variant.entity.ts",
+          "store_variant_group.entity.ts",
+          "store_variant_group_item.entity.ts",
+          "store_variation_option.entity.ts",
+          "store_variation_type.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "webhook",
@@ -2175,18 +2869,34 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
+        "services": [
+          "webhook.crud.service.ts",
+          "webhook.delivery.service.ts",
+          "webhook.dispatch.service.ts",
+          "webhook.metrics.service.ts",
+          "webhook.redeliver.service.ts",
+          "webhook.service.ts"
+        ],
+        "dtos": [
+          "webhook.dto.ts"
+        ],
+        "enums": [
+          "webhook.enums.ts"
+        ],
+        "messageKeys": [
+          "webhook.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "webhook.entity.ts",
+          "webhook_delivery.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "order_fulfillment",
@@ -2212,14 +2922,34 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
+        "services": [
+          "order_fulfillment.analytics.service.ts",
+          "order_fulfillment.carrier.service.ts",
+          "order_fulfillment.crud.service.ts",
+          "order_fulfillment.label.service.ts",
+          "order_fulfillment.read.service.ts",
+          "order_fulfillment.service.ts",
+          "order_fulfillment.status.service.ts",
+          "order_fulfillment.warehouse.service.ts"
+        ],
+        "dtos": [
+          "order_fulfillment.dto.ts"
+        ],
+        "enums": [
+          "order_fulfillment.enums.ts"
+        ],
+        "messageKeys": [
+          "order_fulfillment.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "fulfillment.entity.ts",
+          "fulfillment_event.entity.ts",
+          "fulfillment_item.entity.ts",
+          "warehouse.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
@@ -2249,14 +2979,28 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
+        "services": [
+          "product_review.crud.service.ts",
+          "product_review.engagement.service.ts",
+          "product_review.gdpr.service.ts",
+          "product_review.service.ts"
+        ],
+        "dtos": [
+          "product_review.dto.ts"
+        ],
+        "enums": [
+          "product_review.enums.ts"
+        ],
+        "messageKeys": [
+          "product_review.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "product_review.entity.ts",
+          "product_review_vote.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
@@ -2288,18 +3032,35 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
-        "settingKeys": [],
+        "services": [
+          "blog.category.service.ts",
+          "blog.comment.service.ts",
+          "blog.post.service.ts",
+          "blog.service.ts"
+        ],
+        "dtos": [
+          "blog.dto.ts"
+        ],
+        "enums": [
+          "blog.enums.ts"
+        ],
+        "messageKeys": [
+          "blog.messages.ts"
+        ],
+        "settingKeys": [
+          "blog.setting.keys.ts"
+        ],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "blog_category.entity.ts",
+          "blog_comment.entity.ts",
+          "blog_post.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "messaging",
@@ -2329,14 +3090,37 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
-        "settingKeys": [],
+        "services": [
+          "messaging.crud.conversation.service.ts",
+          "messaging.crud.message.service.ts",
+          "messaging.crud.participant.service.ts",
+          "messaging.crud.service.ts",
+          "messaging.lifecycle.service.ts",
+          "messaging.moderation.service.ts",
+          "messaging.policy.service.ts",
+          "messaging.service.ts",
+          "messaging.ticket.service.ts"
+        ],
+        "dtos": [
+          "messaging.dto.ts"
+        ],
+        "enums": [
+          "messaging.enums.ts"
+        ],
+        "messageKeys": [
+          "messaging.messages.ts"
+        ],
+        "settingKeys": [
+          "messaging.moderation.setting.keys.ts"
+        ],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "conversation.entity.ts",
+          "conversation_participant.entity.ts",
+          "message.entity.ts",
+          "message_report.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
@@ -2372,18 +3156,35 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
-        "settingKeys": [],
+        "services": [
+          "terms_consent.agreements.service.ts",
+          "terms_consent.service.ts"
+        ],
+        "dtos": [
+          "terms_consent.agreements.dto.ts",
+          "terms_consent.dto.ts"
+        ],
+        "enums": [
+          "terms_consent.enums.ts"
+        ],
+        "messageKeys": [
+          "terms_consent.messages.ts"
+        ],
+        "settingKeys": [
+          "terms_consent.setting.keys.ts"
+        ],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "agreement.entity.ts",
+          "agreement_acceptance.entity.ts",
+          "agreement_version.entity.ts",
+          "consent_record.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "wallet",
@@ -2413,18 +3214,33 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
+        "services": [
+          "wallet.crud.service.ts",
+          "wallet.posting.service.ts",
+          "wallet.reconcile.service.ts",
+          "wallet.service.ts"
+        ],
+        "dtos": [
+          "wallet.dto.ts"
+        ],
+        "enums": [
+          "wallet.enums.ts"
+        ],
+        "messageKeys": [
+          "wallet.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "wallet_account.entity.ts",
+          "wallet_posting.entity.ts",
+          "wallet_transaction.entity.ts"
+        ]
       },
       "hasReadme": false,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "feature_flags",
@@ -2451,18 +3267,29 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
+        "services": [
+          "feature_flags.service.ts"
+        ],
+        "dtos": [
+          "feature_flags.dto.ts"
+        ],
+        "enums": [
+          "feature_flags.enums.ts"
+        ],
+        "messageKeys": [
+          "feature_flags.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "feature_flag.entity.ts",
+          "feature_flag_override.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "metering",
@@ -2495,18 +3322,35 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
+        "services": [
+          "metering.billing.read.service.ts",
+          "metering.billing.run.service.ts",
+          "metering.billing.service.ts",
+          "metering.meter.service.ts",
+          "metering.record.service.ts",
+          "metering.service.ts"
+        ],
+        "dtos": [
+          "metering.dto.ts"
+        ],
+        "enums": [
+          "metering.enums.ts"
+        ],
+        "messageKeys": [
+          "metering.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "meter_definition.entity.ts",
+          "metered_billing_run.entity.ts",
+          "metered_usage_event.entity.ts"
+        ]
       },
       "hasReadme": false,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "support",
@@ -2536,18 +3380,32 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
+        "services": [
+          "support.lifecycle.service.ts",
+          "support.read.service.ts",
+          "support.service.ts",
+          "support.write.service.ts"
+        ],
+        "dtos": [
+          "support.dto.ts"
+        ],
+        "enums": [
+          "support.enums.ts"
+        ],
+        "messageKeys": [
+          "support.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "support_ticket.entity.ts",
+          "support_ticket_message.entity.ts"
+        ]
       },
       "hasReadme": false,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "approval",
@@ -2577,18 +3435,31 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
+        "services": [
+          "approval.decide.service.ts",
+          "approval.read.service.ts",
+          "approval.service.ts",
+          "approval.submit.service.ts"
+        ],
+        "dtos": [
+          "approval.dto.ts"
+        ],
+        "enums": [
+          "approval.enums.ts"
+        ],
+        "messageKeys": [
+          "approval.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "approval_queue_item.entity.ts"
+        ]
       },
       "hasReadme": false,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "gift_card",
@@ -2619,18 +3490,33 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
+        "services": [
+          "gift_card.crud.service.ts",
+          "gift_card.redemption.service.ts",
+          "gift_card.service.ts"
+        ],
+        "dtos": [
+          "gift_card.dto.ts"
+        ],
+        "enums": [
+          "gift_card.enums.ts"
+        ],
+        "messageKeys": [
+          "gift_card.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
-        "jobs": [],
-        "entities": []
+        "jobs": [
+          "gift_card.expiry.job.ts"
+        ],
+        "entities": [
+          "gift_card.entity.ts",
+          "gift_card_transaction.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "ai",
@@ -2652,18 +3538,28 @@
         ]
       },
       "exports": {
-        "services": [],
+        "services": [
+          "ai.provider.service.ts",
+          "ai.service.ts",
+          "ai.usage.service.ts"
+        ],
         "dtos": [],
         "enums": [],
-        "messageKeys": [],
-        "settingKeys": [],
+        "messageKeys": [
+          "ai.messages.ts"
+        ],
+        "settingKeys": [
+          "ai.setting.keys.ts"
+        ],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "ai_usage_log.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "dynamic_page",
@@ -2691,18 +3587,39 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
+        "services": [
+          "dynamic_collection.crud.service.ts",
+          "dynamic_collection.item.service.ts",
+          "dynamic_collection.service.ts",
+          "dynamic_page.block.service.ts",
+          "dynamic_page.crud.service.ts",
+          "dynamic_page.publishing.service.ts",
+          "dynamic_page.service.ts"
+        ],
+        "dtos": [
+          "dynamic_page.dto.ts"
+        ],
+        "enums": [
+          "dynamic_page.enums.ts"
+        ],
+        "messageKeys": [
+          "dynamic_page.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "dynamic_collection.entity.ts",
+          "dynamic_collection_item.entity.ts",
+          "dynamic_page.entity.ts",
+          "dynamic_page_block.entity.ts",
+          "dynamic_page_translation.entity.ts",
+          "dynamic_page_version.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "integrations_hub",
@@ -2735,18 +3652,35 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
+        "services": [
+          "integrations_hub.action.service.ts",
+          "integrations_hub.connector.service.ts",
+          "integrations_hub.oauth.service.ts",
+          "integrations_hub.service.ts",
+          "integrations_hub.trigger.service.ts"
+        ],
+        "dtos": [
+          "integrations_hub.dto.ts"
+        ],
+        "enums": [
+          "integrations_hub.enums.ts"
+        ],
+        "messageKeys": [
+          "integrations_hub.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "connected_app.entity.ts",
+          "connector.entity.ts",
+          "integration_event.entity.ts",
+          "oauth_token.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "search",
@@ -2771,14 +3705,24 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
+        "services": [
+          "search.service.ts"
+        ],
+        "dtos": [
+          "search.dto.ts"
+        ],
+        "enums": [
+          "search.enums.ts"
+        ],
+        "messageKeys": [
+          "search.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "search_document.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
@@ -2808,14 +3752,24 @@
         ]
       },
       "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
+        "services": [
+          "analytics.service.ts"
+        ],
+        "dtos": [
+          "analytics.dto.ts"
+        ],
+        "enums": [
+          "analytics.enums.ts"
+        ],
+        "messageKeys": [
+          "analytics.messages.ts"
+        ],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
-        "entities": []
+        "entities": [
+          "analytics_event.entity.ts"
+        ]
       },
       "hasReadme": true,
       "hasModuleJson": true,
@@ -2841,7 +3795,9 @@
         ]
       },
       "exports": {
-        "services": [],
+        "services": [
+          "api_doc.service.ts"
+        ],
         "dtos": [],
         "enums": [],
         "messageKeys": [],
@@ -2852,7 +3808,7 @@
       },
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "payment_core",
@@ -2871,9 +3827,15 @@
       "exports": {
         "services": [],
         "dtos": [],
-        "enums": [],
-        "messageKeys": [],
-        "settingKeys": [],
+        "enums": [
+          "payment_core.enums.ts"
+        ],
+        "messageKeys": [
+          "payment_core.messages.ts"
+        ],
+        "settingKeys": [
+          "payment_core.setting.keys.ts"
+        ],
         "providers": [],
         "jobs": [],
         "entities": []
@@ -8491,26 +9453,3540 @@
   ],
   "components": [
     {
-      "id": "module.types.ts/",
-      "module": "module.types.ts",
-      "filePath": "modules_next/module.types.ts",
-      "kind": "type",
+      "id": "ai/ui/AIChatBox",
+      "module": "ai",
+      "filePath": "modules/ai/ui/AIChatBox.tsx",
+      "kind": "ui",
       "exports": [
-        "ModuleScope",
-        "SettingsTabJson",
-        "MenuItemJson",
-        "MenuItem",
-        "RouteJson",
-        "ApiEndpointJson",
-        "Permission",
-        "WidgetJson",
-        "ModuleHooks",
-        "ModuleDependencies",
-        "ModuleJson"
+        "ChatMessage",
+        "AIChatBox"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "AIChatBox"
+    },
+    {
+      "id": "ai/ui/AIUsageTab",
+      "module": "ai",
+      "filePath": "modules/ai/ui/AIUsageTab.tsx",
+      "kind": "ui",
+      "exports": [
+        "AIUsageTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "AIUsageTab"
+    },
+    {
+      "id": "ai/ui/UsageChart",
+      "module": "ai",
+      "filePath": "modules/ai/ui/UsageChart.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "UsageChart"
+    },
+    {
+      "id": "api_doc/ui/ApiDocsPage",
+      "module": "api_doc",
+      "filePath": "modules/api_doc/ui/ApiDocsPage.tsx",
+      "kind": "ui",
+      "exports": [
+        "ApiDocsPage"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ApiDocsPage"
+    },
+    {
+      "id": "api_doc/ui/ApiTagSection",
+      "module": "api_doc",
+      "filePath": "modules/api_doc/ui/ApiTagSection.tsx",
+      "kind": "ui",
+      "exports": [
+        "ApiTagSection"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ApiTagSection"
+    },
+    {
+      "id": "api_doc/ui/CodeSamplePanel",
+      "module": "api_doc",
+      "filePath": "modules/api_doc/ui/CodeSamplePanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "CodeSamplePanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CodeSamplePanel"
+    },
+    {
+      "id": "api_doc/ui/EndpointRow",
+      "module": "api_doc",
+      "filePath": "modules/api_doc/ui/EndpointRow.tsx",
+      "kind": "ui",
+      "exports": [
+        "EndpointRow"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "EndpointRow"
+    },
+    {
+      "id": "api_doc/ui/HttpMethodBadge",
+      "module": "api_doc",
+      "filePath": "modules/api_doc/ui/HttpMethodBadge.tsx",
+      "kind": "ui",
+      "exports": [
+        "HttpMethodBadge"
       ],
       "isClient": false,
       "isServer": false,
-      "baseName": "module.types"
+      "baseName": "HttpMethodBadge"
+    },
+    {
+      "id": "api_doc/ui/mockSpec",
+      "module": "api_doc",
+      "filePath": "modules/api_doc/ui/mockSpec.ts",
+      "kind": "ui",
+      "exports": [
+        "SYSTEM_SPEC",
+        "TENANT_SPEC"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "mockSpec"
+    },
+    {
+      "id": "api_doc/ui/OperationPanel",
+      "module": "api_doc",
+      "filePath": "modules/api_doc/ui/OperationPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "OperationPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "OperationPanel"
+    },
+    {
+      "id": "api_doc/ui/ParameterTable",
+      "module": "api_doc",
+      "filePath": "modules/api_doc/ui/ParameterTable.tsx",
+      "kind": "ui",
+      "exports": [
+        "ParameterTable"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "ParameterTable"
+    },
+    {
+      "id": "api_doc/ui/ResponseCard",
+      "module": "api_doc",
+      "filePath": "modules/api_doc/ui/ResponseCard.tsx",
+      "kind": "ui",
+      "exports": [
+        "ResponseCard"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ResponseCard"
+    },
+    {
+      "id": "api_doc/ui/SchemaViewer",
+      "module": "api_doc",
+      "filePath": "modules/api_doc/ui/SchemaViewer.tsx",
+      "kind": "ui",
+      "exports": [
+        "SchemaViewer"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SchemaViewer"
+    },
+    {
+      "id": "api_doc/ui/SecuritySchemeBadge",
+      "module": "api_doc",
+      "filePath": "modules/api_doc/ui/SecuritySchemeBadge.tsx",
+      "kind": "ui",
+      "exports": [
+        "SecuritySchemeBadge"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "SecuritySchemeBadge"
+    },
+    {
+      "id": "api_doc/ui/ServerSelector",
+      "module": "api_doc",
+      "filePath": "modules/api_doc/ui/ServerSelector.tsx",
+      "kind": "ui",
+      "exports": [
+        "ServerSelector"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ServerSelector"
+    },
+    {
+      "id": "api_doc/ui/StatusCodeBadge",
+      "module": "api_doc",
+      "filePath": "modules/api_doc/ui/StatusCodeBadge.tsx",
+      "kind": "ui",
+      "exports": [
+        "StatusCodeBadge"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "StatusCodeBadge"
+    },
+    {
+      "id": "api_doc/ui/TryItOutPanel",
+      "module": "api_doc",
+      "filePath": "modules/api_doc/ui/TryItOutPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "TryItOutPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "TryItOutPanel"
+    },
+    {
+      "id": "api_doc/ui/types",
+      "module": "api_doc",
+      "filePath": "modules/api_doc/ui/types.ts",
+      "kind": "ui",
+      "exports": [
+        "ApiSpecStatus",
+        "SecuritySchemeType",
+        "SecurityScheme",
+        "Server",
+        "Tag",
+        "SchemaObject",
+        "Parameter",
+        "MediaTypeObject",
+        "RequestBody",
+        "ResponseHeader",
+        "ApiResponse",
+        "CodeSample",
+        "Operation",
+        "PathItem",
+        "ApiSpec"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "types"
+    },
+    {
+      "id": "api_key/ui/api-key-columns",
+      "module": "api_key",
+      "filePath": "modules/api_key/ui/api-key-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "SafeApiKey",
+        "buildApiKeyColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "api-key-columns"
+    },
+    {
+      "id": "api_key/ui/ApiKeyCreateModal",
+      "module": "api_key",
+      "filePath": "modules/api_key/ui/ApiKeyCreateModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "ApiKeyCreateModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ApiKeyCreateModal"
+    },
+    {
+      "id": "approval/ui/approval-columns",
+      "module": "approval",
+      "filePath": "modules/approval/ui/approval-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "ApprovalRow",
+        "buildApprovalColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "approval-columns"
+    },
+    {
+      "id": "audit_log/ui/AuditLogFilters",
+      "module": "audit_log",
+      "filePath": "modules/audit_log/ui/AuditLogFilters.tsx",
+      "kind": "ui",
+      "exports": [
+        "AuditLogFilterValues",
+        "AuditLogFilters"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "AuditLogFilters"
+    },
+    {
+      "id": "auth_e_signature/ui/ESignatureLoginPanel",
+      "module": "auth_e_signature",
+      "filePath": "modules/auth_e_signature/ui/ESignatureLoginPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "ESignatureLoginPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ESignatureLoginPanel"
+    },
+    {
+      "id": "auth_e_signature/ui/SigningCertificatesBindModal",
+      "module": "auth_e_signature",
+      "filePath": "modules/auth_e_signature/ui/SigningCertificatesBindModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "SigningCertificatesBindModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SigningCertificatesBindModal"
+    },
+    {
+      "id": "auth_e_signature/ui/SigningCertificatesPanel",
+      "module": "auth_e_signature",
+      "filePath": "modules/auth_e_signature/ui/SigningCertificatesPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "SigningCertificatesPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SigningCertificatesPanel"
+    },
+    {
+      "id": "auth_saml/ui/SamlAttributeForm",
+      "module": "auth_saml",
+      "filePath": "modules/auth_saml/ui/SamlAttributeForm.tsx",
+      "kind": "ui",
+      "exports": [
+        "SamlAttributeForm"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SamlAttributeForm"
+    },
+    {
+      "id": "auth_saml/ui/SamlConfigForm",
+      "module": "auth_saml",
+      "filePath": "modules/auth_saml/ui/SamlConfigForm.tsx",
+      "kind": "ui",
+      "exports": [
+        "SamlConfigFormValues",
+        "SamlConfigForm"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SamlConfigForm"
+    },
+    {
+      "id": "auth_saml/ui/SamlMetadataCard",
+      "module": "auth_saml",
+      "filePath": "modules/auth_saml/ui/SamlMetadataCard.tsx",
+      "kind": "ui",
+      "exports": [
+        "SamlMetadataCard"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SamlMetadataCard"
+    },
+    {
+      "id": "auth/ui/ForgotPasswordForm",
+      "module": "auth",
+      "filePath": "modules/auth/ui/ForgotPasswordForm.tsx",
+      "kind": "ui",
+      "exports": [
+        "ForgotPasswordForm"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ForgotPasswordForm"
+    },
+    {
+      "id": "auth/ui/LoginForm",
+      "module": "auth",
+      "filePath": "modules/auth/ui/LoginForm.tsx",
+      "kind": "ui",
+      "exports": [
+        "LoginForm"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "LoginForm"
+    },
+    {
+      "id": "auth/ui/OAuthButtons",
+      "module": "auth",
+      "filePath": "modules/auth/ui/OAuthButtons.tsx",
+      "kind": "ui",
+      "exports": [
+        "SSO_PROVIDERS",
+        "OAuthProvider",
+        "providerMeta",
+        "OAuthButtons"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "OAuthButtons"
+    },
+    {
+      "id": "auth/ui/RegisterForm",
+      "module": "auth",
+      "filePath": "modules/auth/ui/RegisterForm.tsx",
+      "kind": "ui",
+      "exports": [
+        "RegisterForm"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "RegisterForm"
+    },
+    {
+      "id": "auth/ui/SessionExpiredBanner",
+      "module": "auth",
+      "filePath": "modules/auth/ui/SessionExpiredBanner.tsx",
+      "kind": "ui",
+      "exports": [
+        "SessionExpiredBanner"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SessionExpiredBanner"
+    },
+    {
+      "id": "blog/ui/BlogPostCreateModal",
+      "module": "blog",
+      "filePath": "modules/blog/ui/BlogPostCreateModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "BlogPostCreateModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "BlogPostCreateModal"
+    },
+    {
+      "id": "blog/ui/BlogStatusBadge",
+      "module": "blog",
+      "filePath": "modules/blog/ui/BlogStatusBadge.tsx",
+      "kind": "ui",
+      "exports": [
+        "PostStatus",
+        "CommentStatus",
+        "PostStatusBadge",
+        "CommentStatusBadge"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "BlogStatusBadge"
+    },
+    {
+      "id": "common/ui/AlertBanner",
+      "module": "common",
+      "filePath": "modules/common/ui/AlertBanner.tsx",
+      "kind": "ui",
+      "exports": [
+        "AlertAction",
+        "AlertBanner"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "AlertBanner"
+    },
+    {
+      "id": "common/ui/Avatar",
+      "module": "common",
+      "filePath": "modules/common/ui/Avatar.tsx",
+      "kind": "ui",
+      "exports": [
+        "Avatar",
+        "AvatarGroup"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Avatar"
+    },
+    {
+      "id": "common/ui/AvatarUpload",
+      "module": "common",
+      "filePath": "modules/common/ui/AvatarUpload.tsx",
+      "kind": "ui",
+      "exports": [
+        "AvatarUpload"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "AvatarUpload"
+    },
+    {
+      "id": "common/ui/Badge",
+      "module": "common",
+      "filePath": "modules/common/ui/Badge.tsx",
+      "kind": "ui",
+      "exports": [
+        "Badge"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Badge"
+    },
+    {
+      "id": "common/ui/BrandLogo",
+      "module": "common",
+      "filePath": "modules/common/ui/BrandLogo.tsx",
+      "kind": "ui",
+      "exports": [
+        "BrandLogo"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "BrandLogo"
+    },
+    {
+      "id": "common/ui/Breadcrumb",
+      "module": "common",
+      "filePath": "modules/common/ui/Breadcrumb.tsx",
+      "kind": "ui",
+      "exports": [
+        "BreadcrumbItem",
+        "Breadcrumb"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Breadcrumb"
+    },
+    {
+      "id": "common/ui/Button",
+      "module": "common",
+      "filePath": "modules/common/ui/Button.tsx",
+      "kind": "ui",
+      "exports": [
+        "Button"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Button"
+    },
+    {
+      "id": "common/ui/Card",
+      "module": "common",
+      "filePath": "modules/common/ui/Card.tsx",
+      "kind": "ui",
+      "exports": [
+        "Card"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Card"
+    },
+    {
+      "id": "common/ui/ColorPicker",
+      "module": "common",
+      "filePath": "modules/common/ui/ColorPicker.tsx",
+      "kind": "ui",
+      "exports": [
+        "DEFAULT_COLOR_SWATCHES",
+        "ColorPickerProps",
+        "ColorPicker"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ColorPicker"
+    },
+    {
+      "id": "common/ui/ContextMenu",
+      "module": "common",
+      "filePath": "modules/common/ui/ContextMenu.tsx",
+      "kind": "ui",
+      "exports": [
+        "ContextMenuItem",
+        "ContextMenuProps",
+        "ContextMenu"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ContextMenu"
+    },
+    {
+      "id": "common/ui/CurrencySelector",
+      "module": "common",
+      "filePath": "modules/common/ui/CurrencySelector.tsx",
+      "kind": "ui",
+      "exports": [
+        "CurrencySelector"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CurrencySelector"
+    },
+    {
+      "id": "common/ui/DateRangePicker",
+      "module": "common",
+      "filePath": "modules/common/ui/DateRangePicker.tsx",
+      "kind": "ui",
+      "exports": [
+        "DateRange",
+        "DateRangePicker"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "DateRangePicker"
+    },
+    {
+      "id": "common/ui/DemoModeNotice",
+      "module": "common",
+      "filePath": "modules/common/ui/DemoModeNotice.tsx",
+      "kind": "ui",
+      "exports": [
+        "DemoModeNotice"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "DemoModeNotice"
+    },
+    {
+      "id": "common/ui/Drawer",
+      "module": "common",
+      "filePath": "modules/common/ui/Drawer.tsx",
+      "kind": "ui",
+      "exports": [
+        "Drawer"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Drawer"
+    },
+    {
+      "id": "common/ui/EmptyState",
+      "module": "common",
+      "filePath": "modules/common/ui/EmptyState.tsx",
+      "kind": "ui",
+      "exports": [
+        "EmptyState"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "EmptyState"
+    },
+    {
+      "id": "common/ui/FileInput",
+      "module": "common",
+      "filePath": "modules/common/ui/FileInput.tsx",
+      "kind": "ui",
+      "exports": [
+        "FileInput"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "FileInput"
+    },
+    {
+      "id": "common/ui/Form",
+      "module": "common",
+      "filePath": "modules/common/ui/Form.tsx",
+      "kind": "ui",
+      "exports": [
+        "Form"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Form"
+    },
+    {
+      "id": "common/ui/ImageGallery",
+      "module": "common",
+      "filePath": "modules/common/ui/ImageGallery.tsx",
+      "kind": "ui",
+      "exports": [
+        "ImageGalleryImage",
+        "ImageGalleryProps",
+        "ImageGallery"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ImageGallery"
+    },
+    {
+      "id": "common/ui/Input",
+      "module": "common",
+      "filePath": "modules/common/ui/Input.tsx",
+      "kind": "ui",
+      "exports": [
+        "Input"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Input"
+    },
+    {
+      "id": "common/ui/layout/AdminShell",
+      "module": "common",
+      "filePath": "modules/common/ui/layout/AdminShell.tsx",
+      "kind": "ui",
+      "exports": [
+        "AdminShell"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "AdminShell"
+    },
+    {
+      "id": "common/ui/layout/AppShell",
+      "module": "common",
+      "filePath": "modules/common/ui/layout/AppShell.tsx",
+      "kind": "ui",
+      "exports": [
+        "AppShell"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "AppShell"
+    },
+    {
+      "id": "common/ui/layout/AppSidebar",
+      "module": "common",
+      "filePath": "modules/common/ui/layout/AppSidebar.tsx",
+      "kind": "ui",
+      "exports": [
+        "AppSidebarNavItem",
+        "AppSidebarNavGroup",
+        "AppSidebarFooterRenderContext",
+        "AppSidebar"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "AppSidebar"
+    },
+    {
+      "id": "common/ui/layout/AppTopBar",
+      "module": "common",
+      "filePath": "modules/common/ui/layout/AppTopBar.tsx",
+      "kind": "ui",
+      "exports": [
+        "AppTopBar"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "AppTopBar"
+    },
+    {
+      "id": "common/ui/layout/FontAwesomeConfig",
+      "module": "common",
+      "filePath": "modules/common/ui/layout/FontAwesomeConfig.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "FontAwesomeConfig"
+    },
+    {
+      "id": "common/ui/Modal",
+      "module": "common",
+      "filePath": "modules/common/ui/Modal.tsx",
+      "kind": "ui",
+      "exports": [
+        "Modal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Modal"
+    },
+    {
+      "id": "common/ui/NotificationMenu",
+      "module": "common",
+      "filePath": "modules/common/ui/NotificationMenu.tsx",
+      "kind": "ui",
+      "exports": [
+        "NotificationItem",
+        "NotificationMenu"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "NotificationMenu"
+    },
+    {
+      "id": "common/ui/PageHeader",
+      "module": "common",
+      "filePath": "modules/common/ui/PageHeader.tsx",
+      "kind": "ui",
+      "exports": [
+        "PageHeaderAction",
+        "PageHeader"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PageHeader"
+    },
+    {
+      "id": "common/ui/Pagination",
+      "module": "common",
+      "filePath": "modules/common/ui/Pagination.tsx",
+      "kind": "ui",
+      "exports": [
+        "Pagination"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Pagination"
+    },
+    {
+      "id": "common/ui/RadioGroup",
+      "module": "common",
+      "filePath": "modules/common/ui/RadioGroup.tsx",
+      "kind": "ui",
+      "exports": [
+        "RadioOption",
+        "RadioGroup"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "RadioGroup"
+    },
+    {
+      "id": "common/ui/RichTextEditor/BubbleMenu",
+      "module": "common",
+      "filePath": "modules/common/ui/RichTextEditor/BubbleMenu.tsx",
+      "kind": "ui",
+      "exports": [
+        "BubbleMenu"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "BubbleMenu"
+    },
+    {
+      "id": "common/ui/RichTextEditor/EmojiPicker",
+      "module": "common",
+      "filePath": "modules/common/ui/RichTextEditor/EmojiPicker.tsx",
+      "kind": "ui",
+      "exports": [
+        "EmojiPicker"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "EmojiPicker"
+    },
+    {
+      "id": "common/ui/RichTextEditor/ImageInsertModal",
+      "module": "common",
+      "filePath": "modules/common/ui/RichTextEditor/ImageInsertModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "ImageInsertModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ImageInsertModal"
+    },
+    {
+      "id": "common/ui/RichTextEditor/ImageOverlay",
+      "module": "common",
+      "filePath": "modules/common/ui/RichTextEditor/ImageOverlay.tsx",
+      "kind": "ui",
+      "exports": [
+        "ImageOverlay"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ImageOverlay"
+    },
+    {
+      "id": "common/ui/RichTextEditor/index",
+      "module": "common",
+      "filePath": "modules/common/ui/RichTextEditor/index.tsx",
+      "kind": "ui",
+      "exports": [
+        "RichTextEditor"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "index"
+    },
+    {
+      "id": "common/ui/RichTextEditor/markdown",
+      "module": "common",
+      "filePath": "modules/common/ui/RichTextEditor/markdown.ts",
+      "kind": "ui",
+      "exports": [
+        "applyMarkdownShortcuts"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "markdown"
+    },
+    {
+      "id": "common/ui/RichTextEditor/PopupOverlays",
+      "module": "common",
+      "filePath": "modules/common/ui/RichTextEditor/PopupOverlays.tsx",
+      "kind": "ui",
+      "exports": [
+        "PopupOverlaysProps",
+        "PopupOverlays"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PopupOverlays"
+    },
+    {
+      "id": "common/ui/RichTextEditor/quill-helpers",
+      "module": "common",
+      "filePath": "modules/common/ui/RichTextEditor/quill-helpers.ts",
+      "kind": "ui",
+      "exports": [
+        "updateCounts",
+        "detectTriggers"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "quill-helpers"
+    },
+    {
+      "id": "common/ui/RichTextEditor/sanitize",
+      "module": "common",
+      "filePath": "modules/common/ui/RichTextEditor/sanitize.ts",
+      "kind": "ui",
+      "exports": [
+        "sanitizePastedHTML",
+        "resolveImageSrc"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "sanitize"
+    },
+    {
+      "id": "common/ui/RichTextEditor/store",
+      "module": "common",
+      "filePath": "modules/common/ui/RichTextEditor/store.ts",
+      "kind": "ui",
+      "exports": [
+        "RichTextEditorState",
+        "RichTextEditorActions",
+        "RichTextEditorStore",
+        "createRichTextEditorStore",
+        "RichTextEditorStoreHook",
+        "RichTextEditorStoreProvider",
+        "useRteStore",
+        "useRteStoreApi"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "store"
+    },
+    {
+      "id": "common/ui/RichTextEditor/SuggestionPopup",
+      "module": "common",
+      "filePath": "modules/common/ui/RichTextEditor/SuggestionPopup.tsx",
+      "kind": "ui",
+      "exports": [
+        "SuggestionItem",
+        "SuggestionPopup"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SuggestionPopup"
+    },
+    {
+      "id": "common/ui/RichTextEditor/TableInsertModal",
+      "module": "common",
+      "filePath": "modules/common/ui/RichTextEditor/TableInsertModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "TableInsertModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "TableInsertModal"
+    },
+    {
+      "id": "common/ui/RichTextEditor/Toolbar",
+      "module": "common",
+      "filePath": "modules/common/ui/RichTextEditor/Toolbar.tsx",
+      "kind": "ui",
+      "exports": [
+        "ToolbarProps",
+        "Toolbar",
+        "QuillFormatFn"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Toolbar"
+    },
+    {
+      "id": "common/ui/RichTextEditor/types",
+      "module": "common",
+      "filePath": "modules/common/ui/RichTextEditor/types.ts",
+      "kind": "ui",
+      "exports": [
+        "RichTextEditorHandle",
+        "MentionUser",
+        "SlashCommand",
+        "RichTextEditorProps",
+        "Range",
+        "QuillFormats",
+        "QuillInstance",
+        "TriggerState",
+        "ImageSelection",
+        "BubbleState"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "types"
+    },
+    {
+      "id": "common/ui/RichTextEditor/useEditorActions",
+      "module": "common",
+      "filePath": "modules/common/ui/RichTextEditor/useEditorActions.ts",
+      "kind": "ui",
+      "exports": [
+        "UseEditorActionsArgs",
+        "useEditorActions"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "useEditorActions"
+    },
+    {
+      "id": "common/ui/RichTextEditor/useQuillSetup",
+      "module": "common",
+      "filePath": "modules/common/ui/RichTextEditor/useQuillSetup.ts",
+      "kind": "ui",
+      "exports": [
+        "UseQuillSetupOptions",
+        "useQuillSetup"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "useQuillSetup"
+    },
+    {
+      "id": "common/ui/RichTextEditor/useTriggerKeyboard",
+      "module": "common",
+      "filePath": "modules/common/ui/RichTextEditor/useTriggerKeyboard.ts",
+      "kind": "ui",
+      "exports": [
+        "UseTriggerKeyboardArgs",
+        "useTriggerKeyboard"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "useTriggerKeyboard"
+    },
+    {
+      "id": "common/ui/RowActionsMenu",
+      "module": "common",
+      "filePath": "modules/common/ui/RowActionsMenu.tsx",
+      "kind": "ui",
+      "exports": [
+        "RowActionsMenu"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "RowActionsMenu"
+    },
+    {
+      "id": "common/ui/SearchBar",
+      "module": "common",
+      "filePath": "modules/common/ui/SearchBar.tsx",
+      "kind": "ui",
+      "exports": [
+        "SearchBar"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SearchBar"
+    },
+    {
+      "id": "common/ui/Select",
+      "module": "common",
+      "filePath": "modules/common/ui/Select.tsx",
+      "kind": "ui",
+      "exports": [
+        "SelectOption",
+        "Select"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Select"
+    },
+    {
+      "id": "common/ui/ServerDataTable",
+      "module": "common",
+      "filePath": "modules/common/ui/ServerDataTable.tsx",
+      "kind": "ui",
+      "exports": [
+        "TableColumn",
+        "ServerDataTable"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ServerDataTable"
+    },
+    {
+      "id": "common/ui/Skeleton",
+      "module": "common",
+      "filePath": "modules/common/ui/Skeleton.tsx",
+      "kind": "ui",
+      "exports": [
+        "Skeleton",
+        "SkeletonText",
+        "SkeletonCard",
+        "SkeletonTable"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Skeleton"
+    },
+    {
+      "id": "common/ui/SkipToContent",
+      "module": "common",
+      "filePath": "modules/common/ui/SkipToContent.tsx",
+      "kind": "ui",
+      "exports": [
+        "SkipToContent"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SkipToContent"
+    },
+    {
+      "id": "common/ui/Spinner",
+      "module": "common",
+      "filePath": "modules/common/ui/Spinner.tsx",
+      "kind": "ui",
+      "exports": [
+        "Spinner"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Spinner"
+    },
+    {
+      "id": "common/ui/TabGroup",
+      "module": "common",
+      "filePath": "modules/common/ui/TabGroup.tsx",
+      "kind": "ui",
+      "exports": [
+        "Tab",
+        "TabGroup"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "TabGroup"
+    },
+    {
+      "id": "common/ui/ThemeToggle",
+      "module": "common",
+      "filePath": "modules/common/ui/ThemeToggle.tsx",
+      "kind": "ui",
+      "exports": [
+        "ThemeToggle"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ThemeToggle"
+    },
+    {
+      "id": "common/ui/toast.store",
+      "module": "common",
+      "filePath": "modules/common/ui/toast.store.ts",
+      "kind": "ui",
+      "exports": [
+        "useToastStore",
+        "toast"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "toast.store"
+    },
+    {
+      "id": "common/ui/ToastContainer",
+      "module": "common",
+      "filePath": "modules/common/ui/ToastContainer.tsx",
+      "kind": "ui",
+      "exports": [
+        "ToastContainer"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ToastContainer"
+    },
+    {
+      "id": "common/ui/Toggle",
+      "module": "common",
+      "filePath": "modules/common/ui/Toggle.tsx",
+      "kind": "ui",
+      "exports": [
+        "Toggle"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Toggle"
+    },
+    {
+      "id": "common/ui/Tooltip",
+      "module": "common",
+      "filePath": "modules/common/ui/Tooltip.tsx",
+      "kind": "ui",
+      "exports": [
+        "Tooltip"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Tooltip"
+    },
+    {
+      "id": "coupon/ui/coupon-edit.utils",
+      "module": "coupon",
+      "filePath": "modules/coupon/ui/coupon-edit.utils.ts",
+      "kind": "ui",
+      "exports": [
+        "Coupon",
+        "EditForm",
+        "statusVariant",
+        "statusOptions",
+        "toDatetimeLocal",
+        "buildScope",
+        "extractMessage"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "coupon-edit.utils"
+    },
+    {
+      "id": "coupon/ui/coupon-list-columns",
+      "module": "coupon",
+      "filePath": "modules/coupon/ui/coupon-list-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "CouponRow",
+        "buildCouponColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "coupon-list-columns"
+    },
+    {
+      "id": "coupon/ui/CouponApplyForm",
+      "module": "coupon",
+      "filePath": "modules/coupon/ui/CouponApplyForm.tsx",
+      "kind": "ui",
+      "exports": [
+        "CouponApplyForm"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CouponApplyForm"
+    },
+    {
+      "id": "coupon/ui/CouponArchiveModal",
+      "module": "coupon",
+      "filePath": "modules/coupon/ui/CouponArchiveModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "CouponArchiveModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CouponArchiveModal"
+    },
+    {
+      "id": "coupon/ui/CouponBadge",
+      "module": "coupon",
+      "filePath": "modules/coupon/ui/CouponBadge.tsx",
+      "kind": "ui",
+      "exports": [
+        "CouponBadge"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "CouponBadge"
+    },
+    {
+      "id": "coupon/ui/CouponCreateModal",
+      "module": "coupon",
+      "filePath": "modules/coupon/ui/CouponCreateModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "CouponCreateModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CouponCreateModal"
+    },
+    {
+      "id": "coupon/ui/CouponRedemptionsList",
+      "module": "coupon",
+      "filePath": "modules/coupon/ui/CouponRedemptionsList.tsx",
+      "kind": "ui",
+      "exports": [
+        "CouponRedemptionsList"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CouponRedemptionsList"
+    },
+    {
+      "id": "coupon/ui/CouponScopePanel",
+      "module": "coupon",
+      "filePath": "modules/coupon/ui/CouponScopePanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "ScopeFormState",
+        "CouponScopePanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CouponScopePanel"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic-page-columns",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic-page-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "DynamicPage",
+        "STATUS_COLORS",
+        "DynamicPageColumnHandlers",
+        "buildDynamicPageColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "dynamic-page-columns"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Blocks/BannerBlock",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/BannerBlock.tsx",
+      "kind": "ui",
+      "exports": [
+        "BannerBlockDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "BannerBlock"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Blocks/ContactFormBlock",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/ContactFormBlock.tsx",
+      "kind": "ui",
+      "exports": [
+        "ContactFormBlockDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ContactFormBlock"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Blocks/CTABlock",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/CTABlock.tsx",
+      "kind": "ui",
+      "exports": [
+        "CTABlockDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CTABlock"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Blocks/CustomBlock",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/CustomBlock.tsx",
+      "kind": "ui",
+      "exports": [
+        "CustomFieldSchema",
+        "CustomBlockDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CustomBlock"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Blocks/FaqAccordionBlock",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/FaqAccordionBlock.tsx",
+      "kind": "ui",
+      "exports": [
+        "FaqAccordionBlockDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "FaqAccordionBlock"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Blocks/FeatureGridBlock",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/FeatureGridBlock.tsx",
+      "kind": "ui",
+      "exports": [
+        "FeatureGridBlockDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "FeatureGridBlock"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Blocks/FooterColumns",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/FooterColumns.tsx",
+      "kind": "ui",
+      "exports": [
+        "FooterColumnsDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "FooterColumns"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Blocks/FooterCommerce",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/FooterCommerce.tsx",
+      "kind": "ui",
+      "exports": [
+        "FooterCommerceDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "FooterCommerce"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Blocks/FooterMinimal",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/FooterMinimal.tsx",
+      "kind": "ui",
+      "exports": [
+        "FooterMinimalDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "FooterMinimal"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Blocks/GalleryBlock",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/GalleryBlock.tsx",
+      "kind": "ui",
+      "exports": [
+        "GalleryBlockDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "GalleryBlock"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Blocks/HeroBlock",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/HeroBlock.tsx",
+      "kind": "ui",
+      "exports": [
+        "HeroBlockDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "HeroBlock"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Blocks/LogoGridBlock",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/LogoGridBlock.tsx",
+      "kind": "ui",
+      "exports": [
+        "LogoGridBlockDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "LogoGridBlock"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Blocks/NavBarCommerce",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/NavBarCommerce.tsx",
+      "kind": "ui",
+      "exports": [
+        "NavBarCommerceDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "NavBarCommerce"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Blocks/NavBarMarketing",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/NavBarMarketing.tsx",
+      "kind": "ui",
+      "exports": [
+        "NavBarMarketingDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "NavBarMarketing"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Blocks/NavBarMarketing.types",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/NavBarMarketing.types.ts",
+      "kind": "ui",
+      "exports": [
+        "NavLink",
+        "MegaItem",
+        "MegaSection",
+        "ICON_MAP_TYPE",
+        "ICON_MAP"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "NavBarMarketing.types"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Blocks/NavBarSimple",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/NavBarSimple.tsx",
+      "kind": "ui",
+      "exports": [
+        "NavBarSimpleDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "NavBarSimple"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Blocks/partials/NavBarMegaSection",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/partials/NavBarMegaSection.tsx",
+      "kind": "ui",
+      "exports": [
+        "NavBarMegaSection"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "NavBarMegaSection"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Blocks/partials/NavBarMobilePanel",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/partials/NavBarMobilePanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "NavBarMobilePanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "NavBarMobilePanel"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Blocks/PopupModalBlock/animations",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/PopupModalBlock/animations.ts",
+      "kind": "ui",
+      "exports": [
+        "injectKeyframes",
+        "ENTRY_DEF",
+        "EXIT_DEF",
+        "buildAnim"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "animations"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Blocks/PopupModalBlock/CloseBtn",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/PopupModalBlock/CloseBtn.tsx",
+      "kind": "ui",
+      "exports": [
+        "CloseBtn"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CloseBtn"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Blocks/PopupModalBlock/constants",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/PopupModalBlock/constants.ts",
+      "kind": "ui",
+      "exports": [
+        "SIZE_CLASS",
+        "POS_CLASS",
+        "RADIUS_CLASS",
+        "CLOSE_POS_CLASS",
+        "CLOSE_SIZE"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "constants"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Blocks/PopupModalBlock/EditorPreview",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/PopupModalBlock/EditorPreview.tsx",
+      "kind": "ui",
+      "exports": [
+        "EditorPreview"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "EditorPreview"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Blocks/PopupModalBlock/index",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/PopupModalBlock/index.tsx",
+      "kind": "ui",
+      "exports": [
+        "PopupModalBlockDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "index"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Blocks/PopupModalBlock/PopupCard",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/PopupModalBlock/PopupCard.tsx",
+      "kind": "ui",
+      "exports": [
+        "PopupCard"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PopupCard"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Blocks/PopupModalBlock/PopupOverlay",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/PopupModalBlock/PopupOverlay.tsx",
+      "kind": "ui",
+      "exports": [
+        "PopupOverlay"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PopupOverlay"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Blocks/PopupModalBlock/types",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/PopupModalBlock/types.ts",
+      "kind": "ui",
+      "exports": [
+        "PopupButton",
+        "AnimPhase",
+        "CloseBtnProps",
+        "CardProps"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "types"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Blocks/PopupModalBlock/utils",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/PopupModalBlock/utils.ts",
+      "kind": "ui",
+      "exports": [
+        "parseButtons",
+        "getStorage",
+        "hasSeen",
+        "markSeen",
+        "matchesDevice"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "utils"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Blocks/PricingTableBlock",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/PricingTableBlock.tsx",
+      "kind": "ui",
+      "exports": [
+        "PricingTableBlockDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PricingTableBlock"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Blocks/ProseBlock",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/ProseBlock.tsx",
+      "kind": "ui",
+      "exports": [
+        "ProseBlockDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ProseBlock"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Blocks/StatsBlock",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/StatsBlock.tsx",
+      "kind": "ui",
+      "exports": [
+        "StatsBlockDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "StatsBlock"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Blocks/TeamBlock",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/TeamBlock.tsx",
+      "kind": "ui",
+      "exports": [
+        "TeamBlockDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "TeamBlock"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Blocks/TestimonialsBlock",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/TestimonialsBlock.tsx",
+      "kind": "ui",
+      "exports": [
+        "TestimonialsBlockDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "TestimonialsBlock"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Blocks/TimelineBlock",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/TimelineBlock.tsx",
+      "kind": "ui",
+      "exports": [
+        "TimelineBlockDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "TimelineBlock"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Blocks/VideoBlock",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/VideoBlock.tsx",
+      "kind": "ui",
+      "exports": [
+        "VideoBlockDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "VideoBlock"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Editor/BackupModal",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/BackupModal.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "BackupModal"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Editor/Canvas",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/Canvas.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Canvas"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Editor/EditorTopBar",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/EditorTopBar.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "EditorTopBar"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Editor/hooks/useEditorDraft",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/hooks/useEditorDraft.ts",
+      "kind": "ui",
+      "exports": [
+        "useEditorDraft"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "useEditorDraft"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Editor/hooks/useEditorKeyboard",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/hooks/useEditorKeyboard.ts",
+      "kind": "ui",
+      "exports": [
+        "useEditorKeyboard"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "useEditorKeyboard"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Editor/index",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/index.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "index"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Editor/LeftSidebar",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/LeftSidebar.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "LeftSidebar"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Editor/partials/BlockPalette",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/partials/BlockPalette.tsx",
+      "kind": "ui",
+      "exports": [
+        "AnyBlockDef",
+        "BlockPreview",
+        "BlockPalette",
+        "RECENTLY_USED_KEY",
+        "MAX_RECENT"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "BlockPalette"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Editor/partials/CanvasBlock",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/partials/CanvasBlock.tsx",
+      "kind": "ui",
+      "exports": [
+        "SortableBlockProps",
+        "SortableBlock"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CanvasBlock"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Editor/partials/CanvasOverlays",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/partials/CanvasOverlays.tsx",
+      "kind": "ui",
+      "exports": [
+        "QuickAddPopover",
+        "BlockContextMenu",
+        "InsertGap",
+        "SidebarDropTarget"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CanvasOverlays"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Editor/partials/ColorTokenField",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/partials/ColorTokenField.tsx",
+      "kind": "ui",
+      "exports": [
+        "ColorTokenField"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ColorTokenField"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Editor/partials/IconPickerField",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/partials/IconPickerField.tsx",
+      "kind": "ui",
+      "exports": [
+        "ICON_MAP",
+        "getIconDef",
+        "IconPickerField"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "IconPickerField"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Editor/partials/LayersPanel",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/partials/LayersPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "LayersPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "LayersPanel"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Editor/partials/LinkField",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/partials/LinkField.tsx",
+      "kind": "ui",
+      "exports": [
+        "LinkField"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "LinkField"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Editor/partials/PropFieldComplex",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/partials/PropFieldComplex.tsx",
+      "kind": "ui",
+      "exports": [
+        "ImageField",
+        "NumberField",
+        "JsonField",
+        "RepeaterFieldWrapper"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PropFieldComplex"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Editor/partials/PropFieldRenderer",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/partials/PropFieldRenderer.tsx",
+      "kind": "ui",
+      "exports": [
+        "PropFieldRenderer"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PropFieldRenderer"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Editor/partials/PropFieldSimple",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/partials/PropFieldSimple.tsx",
+      "kind": "ui",
+      "exports": [
+        "TextField",
+        "UrlField",
+        "DatetimeField",
+        "TextareaField",
+        "RichTextField",
+        "ColorField",
+        "BooleanField",
+        "SelectField",
+        "MultiSelectField"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PropFieldSimple"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Editor/PropsPanel",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/PropsPanel.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PropsPanel"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Editor/RepeaterField",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/RepeaterField.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "RepeaterField"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Editor/RightSidebar",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/RightSidebar.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "RightSidebar"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Editor/SeoModal",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/SeoModal.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SeoModal"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Editor/ShortcutsModal",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/ShortcutsModal.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ShortcutsModal"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Editor/stores/editor.types",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/stores/editor.types.ts",
+      "kind": "ui",
+      "exports": [
+        "PreviewMode",
+        "TranslationEntry",
+        "Router",
+        "SeoData",
+        "DefaultSeoData",
+        "EditorStore",
+        "initialState",
+        "draftKey",
+        "apiBase",
+        "apiFetch",
+        "selectSelectedBlock"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "editor.types"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Editor/stores/editorStore",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/stores/editorStore.ts",
+      "kind": "ui",
+      "exports": [
+        "useEditorStore",
+        "selectSelectedBlock"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "editorStore"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Editor/stores/slices/blockSlice",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/stores/slices/blockSlice.ts",
+      "kind": "ui",
+      "exports": [
+        "BlockSlice",
+        "createBlockSlice"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "blockSlice"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Editor/stores/slices/persistSlice",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/stores/slices/persistSlice.ts",
+      "kind": "ui",
+      "exports": [
+        "PersistSlice",
+        "createPersistSlice"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "persistSlice"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Editor/stores/slices/translationSlice",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/stores/slices/translationSlice.ts",
+      "kind": "ui",
+      "exports": [
+        "TranslationSlice",
+        "createTranslationSlice"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "translationSlice"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Editor/stores/slices/uiSlice",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/stores/slices/uiSlice.ts",
+      "kind": "ui",
+      "exports": [
+        "UiSlice",
+        "createUiSlice"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "uiSlice"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Editor/TranslationModal",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/TranslationModal.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "TranslationModal"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/migrations/index",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/migrations/index.ts",
+      "kind": "ui",
+      "exports": [
+        "CURRENT_SCHEMA_VERSION",
+        "BlockSchemas",
+        "MigrationContext",
+        "normalizeRepeaters",
+        "detectSchemaVersion",
+        "migrateSections",
+        "needsMigration"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "index"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/partials/BaseBlock",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/partials/BaseBlock.tsx",
+      "kind": "ui",
+      "exports": [
+        "BaseBlockConfig",
+        "BASE_BLOCK_DEFAULT_PROPS",
+        "BASE_BLOCK_SCHEMA_FIELDS",
+        "parseBaseBlockProps",
+        "getBlockContentClass"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "BaseBlock"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/partials/BlockActionSandbox",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/partials/BlockActionSandbox.ts",
+      "kind": "ui",
+      "exports": [
+        "runBlockHandler"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "BlockActionSandbox"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/partials/BlockBackground",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/partials/BlockBackground.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "BlockBackground"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/partials/BlockErrorBoundary",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/partials/BlockErrorBoundary.tsx",
+      "kind": "ui",
+      "exports": [
+        "BlockRenderErrorBoundary",
+        "BlockEditorErrorBoundary"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "BlockErrorBoundary"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/partials/BlockSkeleton",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/partials/BlockSkeleton.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "BlockSkeleton"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/partials/ClientBlockList",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/partials/ClientBlockList.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ClientBlockList"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/partials/PreviewContext",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/partials/PreviewContext.tsx",
+      "kind": "ui",
+      "exports": [
+        "PreviewMode",
+        "PreviewContext",
+        "PreviewProvider",
+        "usePreviewMode"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PreviewContext"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/partials/TemplateBlockRenderer",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/partials/TemplateBlockRenderer.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "TemplateBlockRenderer"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/types",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/types.ts",
+      "kind": "ui",
+      "exports": [
+        "FieldType",
+        "FieldOption",
+        "ResponsiveValue",
+        "LinkValue",
+        "FieldSchema",
+        "BlockVariant",
+        "BlockDefinition"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "types"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/utils/BlockBg",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/utils/BlockBg.ts",
+      "kind": "ui",
+      "exports": [
+        "BgType",
+        "BgProps",
+        "parseBgProps",
+        "BG_DEFAULT_PROPS",
+        "BG_SCHEMA_FIELDS"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "BlockBg"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/utils/BlockRegistry",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/utils/BlockRegistry.ts",
+      "kind": "ui",
+      "exports": [
+        "CODE_BLOCKS",
+        "getCodeBlock",
+        "getCodeBlocks"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "BlockRegistry"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/utils/defineBlock",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/utils/defineBlock.ts",
+      "kind": "ui",
+      "exports": [
+        "defineBlock"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "defineBlock"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/utils/responsive",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/utils/responsive.ts",
+      "kind": "ui",
+      "exports": [
+        "resolveResponsiveProp",
+        "setResponsiveProp",
+        "getBreakpointValue"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "responsive"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/utils/savedSections",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/utils/savedSections.ts",
+      "kind": "ui",
+      "exports": [
+        "SavedSection",
+        "getSavedSections",
+        "saveSection",
+        "deleteSavedSection",
+        "hydrateSavedSection"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "savedSections"
+    },
+    {
+      "id": "dynamic_page/ui/DynamicPageCreateModal",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/DynamicPageCreateModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "DynamicPageCreateModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "DynamicPageCreateModal"
+    },
+    {
+      "id": "dynamic_page/ui/DynamicPageRenderer",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/DynamicPageRenderer.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "DynamicPageRenderer"
+    },
+    {
+      "id": "dynamic_page/ui/page-templates",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/page-templates.ts",
+      "kind": "ui",
+      "exports": [
+        "PageTemplate",
+        "PAGE_TEMPLATES"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "page-templates"
+    },
+    {
+      "id": "dynamic_page/ui/PublicDynamicPage",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/PublicDynamicPage.tsx",
+      "kind": "ui",
+      "exports": [
+        "MAX_SLUG_DEPTH",
+        "buildPublicPageMetadata"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "PublicDynamicPage"
+    },
+    {
+      "id": "dynamic_page/ui/SiteChrome",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/SiteChrome.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "SiteChrome"
+    },
+    {
+      "id": "e_signature/ui/TenantESignatureSettingsPanel",
+      "module": "e_signature",
+      "filePath": "modules/e_signature/ui/TenantESignatureSettingsPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "TenantESignatureSettingsPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "TenantESignatureSettingsPanel"
+    },
+    {
+      "id": "feature_flags/ui/feature-flag-columns",
+      "module": "feature_flags",
+      "filePath": "modules/feature_flags/ui/feature-flag-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "FlagRow",
+        "buildFlagColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "feature-flag-columns"
+    },
+    {
+      "id": "gift_card/ui/gift-card-list-columns",
+      "module": "gift_card",
+      "filePath": "modules/gift_card/ui/gift-card-list-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "GiftCardRow",
+        "buildGiftCardColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "gift-card-list-columns"
+    },
+    {
+      "id": "gift_card/ui/GiftCardIssueModal",
+      "module": "gift_card",
+      "filePath": "modules/gift_card/ui/GiftCardIssueModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "GiftCardIssueModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "GiftCardIssueModal"
+    },
+    {
+      "id": "integrations_hub/ui/connected-apps-columns",
+      "module": "integrations_hub",
+      "filePath": "modules/integrations_hub/ui/connected-apps-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "ConnectedAppRow",
+        "buildConnectedAppColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "connected-apps-columns"
+    },
+    {
+      "id": "integrations_hub/ui/ConnectorFormModal",
+      "module": "integrations_hub",
+      "filePath": "modules/integrations_hub/ui/ConnectorFormModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "ConnectorFormModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ConnectorFormModal"
+    },
+    {
+      "id": "invoice/ui/EarsivSmsSignModal",
+      "module": "invoice",
+      "filePath": "modules/invoice/ui/EarsivSmsSignModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "EarsivSmsSignModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "EarsivSmsSignModal"
+    },
+    {
+      "id": "invoice/ui/invoice-list-columns",
+      "module": "invoice",
+      "filePath": "modules/invoice/ui/invoice-list-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "InvoiceRow",
+        "buildInvoiceColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "invoice-list-columns"
+    },
+    {
+      "id": "invoice/ui/InvoiceLineItemsTable",
+      "module": "invoice",
+      "filePath": "modules/invoice/ui/InvoiceLineItemsTable.tsx",
+      "kind": "ui",
+      "exports": [
+        "InvoiceLineItemsTable",
+        "Row"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "InvoiceLineItemsTable"
+    },
+    {
+      "id": "invoice/ui/InvoiceTemplateSettings",
+      "module": "invoice",
+      "filePath": "modules/invoice/ui/InvoiceTemplateSettings.tsx",
+      "kind": "ui",
+      "exports": [
+        "InvoiceTemplateSettings"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "InvoiceTemplateSettings"
+    },
+    {
+      "id": "media_gallery/ui/GalleryPanel",
+      "module": "media_gallery",
+      "filePath": "modules/media_gallery/ui/GalleryPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "GalleryPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "GalleryPanel"
+    },
+    {
+      "id": "metering/ui/metering-columns",
+      "module": "metering",
+      "filePath": "modules/metering/ui/metering-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "MeterRow",
+        "UsageRow",
+        "BillingRunRow",
+        "buildMeterColumns",
+        "buildUsageColumns",
+        "buildBillingRunColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "metering-columns"
+    },
+    {
+      "id": "notification_inapp/hooks/use-notifications.hook",
+      "module": "notification_inapp",
+      "filePath": "modules/notification_inapp/hooks/use-notifications.hook.ts",
+      "kind": "hook",
+      "exports": [
+        "useNotifications"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "use-notifications.hook"
+    },
+    {
+      "id": "payment/ui/CardCheckoutModal",
+      "module": "payment",
+      "filePath": "modules/payment/ui/CardCheckoutModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "CardCheckoutModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CardCheckoutModal"
+    },
+    {
+      "id": "payment/ui/CreditCardForm",
+      "module": "payment",
+      "filePath": "modules/payment/ui/CreditCardForm.tsx",
+      "kind": "ui",
+      "exports": [
+        "detectBrand",
+        "CreditCardForm"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CreditCardForm"
+    },
+    {
+      "id": "payment/ui/CreditCardVisual",
+      "module": "payment",
+      "filePath": "modules/payment/ui/CreditCardVisual.tsx",
+      "kind": "ui",
+      "exports": [
+        "CreditCardVisual"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CreditCardVisual"
+    },
+    {
+      "id": "payment/ui/PaymentProviderSelector",
+      "module": "payment",
+      "filePath": "modules/payment/ui/PaymentProviderSelector.tsx",
+      "kind": "ui",
+      "exports": [
+        "PaymentProviderSelector"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PaymentProviderSelector"
+    },
+    {
+      "id": "payment/ui/PaymentRefundModal",
+      "module": "payment",
+      "filePath": "modules/payment/ui/PaymentRefundModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "PaymentRefundModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PaymentRefundModal"
+    },
+    {
+      "id": "payment/ui/PaymentStatusBadge",
+      "module": "payment",
+      "filePath": "modules/payment/ui/PaymentStatusBadge.tsx",
+      "kind": "ui",
+      "exports": [
+        "PaymentStatus",
+        "PaymentStatusBadge"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PaymentStatusBadge"
+    },
+    {
+      "id": "payment/ui/PaymentSummaryCard",
+      "module": "payment",
+      "filePath": "modules/payment/ui/PaymentSummaryCard.tsx",
+      "kind": "ui",
+      "exports": [
+        "PaymentSummaryCard"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PaymentSummaryCard"
+    },
+    {
+      "id": "payment/ui/StripeExpressCheckoutModal",
+      "module": "payment",
+      "filePath": "modules/payment/ui/StripeExpressCheckoutModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "StripeExpressCheckoutModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "StripeExpressCheckoutModal"
+    },
+    {
+      "id": "payment/ui/WalletBadges",
+      "module": "payment",
+      "filePath": "modules/payment/ui/WalletBadges.tsx",
+      "kind": "ui",
+      "exports": [
+        "WalletBadges"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "WalletBadges"
+    },
+    {
+      "id": "seo/ui/index",
+      "module": "seo",
+      "filePath": "modules/seo/ui/index.ts",
+      "kind": "ui",
+      "exports": [
+        "SeoPanel"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "index"
+    },
+    {
+      "id": "seo/ui/SeoPanel",
+      "module": "seo",
+      "filePath": "modules/seo/ui/SeoPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "SeoPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SeoPanel"
+    },
+    {
+      "id": "seo/ui/web-vitals.client",
+      "module": "seo",
+      "filePath": "modules/seo/ui/web-vitals.client.ts",
+      "kind": "ui",
+      "exports": [
+        "reportWebVitals"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "web-vitals.client"
+    },
+    {
+      "id": "setting/ui/ModuleSettingsPage",
+      "module": "setting",
+      "filePath": "modules/setting/ui/ModuleSettingsPage.tsx",
+      "kind": "ui",
+      "exports": [
+        "ModuleSettingsPage"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ModuleSettingsPage"
+    },
+    {
+      "id": "setting/ui/PlatformSettingsTabs",
+      "module": "setting",
+      "filePath": "modules/setting/ui/PlatformSettingsTabs.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlatformSettingsTabs",
+        "PlatformAuthTab",
+        "PlatformEmailTab",
+        "PlatformSmsTab",
+        "PlatformStorageTab",
+        "PlatformPaymentTab",
+        "PlatformAiTab",
+        "PlatformSecurityTab",
+        "PlatformNotificationsTab",
+        "PlatformScimTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PlatformSettingsTabs"
+    },
+    {
+      "id": "setting/ui/setting.types",
+      "module": "setting",
+      "filePath": "modules/setting/ui/setting.types.ts",
+      "kind": "ui",
+      "exports": [
+        "SettingsTabProps"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "setting.types"
+    },
+    {
+      "id": "setting/ui/settings-kit",
+      "module": "setting",
+      "filePath": "modules/setting/ui/settings-kit.tsx",
+      "kind": "ui",
+      "exports": [
+        "SR",
+        "b",
+        "bStr",
+        "SaveRow"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "settings-kit"
+    },
+    {
+      "id": "setting/ui/SettingsPanelHost",
+      "module": "setting",
+      "filePath": "modules/setting/ui/SettingsPanelHost.tsx",
+      "kind": "ui",
+      "exports": [
+        "SettingsPanelHost"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SettingsPanelHost"
+    },
+    {
+      "id": "setting/ui/tabs/AllowedExtensionsField",
+      "module": "setting",
+      "filePath": "modules/setting/ui/tabs/AllowedExtensionsField.tsx",
+      "kind": "ui",
+      "exports": [
+        "AllowedExtensionsField"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "AllowedExtensionsField"
+    },
+    {
+      "id": "setting/ui/tabs/platform-tab.shared",
+      "module": "setting",
+      "filePath": "modules/setting/ui/tabs/platform-tab.shared.tsx",
+      "kind": "ui",
+      "exports": [
+        "SR",
+        "TabProps",
+        "b",
+        "bStr",
+        "SaveRow"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "platform-tab.shared"
+    },
+    {
+      "id": "setting/ui/tabs/PlatformAiTab",
+      "module": "setting",
+      "filePath": "modules/setting/ui/tabs/PlatformAiTab.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlatformAiTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PlatformAiTab"
+    },
+    {
+      "id": "setting/ui/tabs/PlatformAuthTab",
+      "module": "setting",
+      "filePath": "modules/setting/ui/tabs/PlatformAuthTab.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlatformAuthTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PlatformAuthTab"
+    },
+    {
+      "id": "setting/ui/tabs/PlatformEmailTab",
+      "module": "setting",
+      "filePath": "modules/setting/ui/tabs/PlatformEmailTab.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlatformEmailTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PlatformEmailTab"
+    },
+    {
+      "id": "setting/ui/tabs/PlatformNotificationsTab",
+      "module": "setting",
+      "filePath": "modules/setting/ui/tabs/PlatformNotificationsTab.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlatformNotificationsTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PlatformNotificationsTab"
+    },
+    {
+      "id": "setting/ui/tabs/PlatformPaymentTab",
+      "module": "setting",
+      "filePath": "modules/setting/ui/tabs/PlatformPaymentTab.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlatformPaymentTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PlatformPaymentTab"
+    },
+    {
+      "id": "setting/ui/tabs/PlatformScimTab",
+      "module": "setting",
+      "filePath": "modules/setting/ui/tabs/PlatformScimTab.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlatformScimTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PlatformScimTab"
+    },
+    {
+      "id": "setting/ui/tabs/PlatformSecurityTab",
+      "module": "setting",
+      "filePath": "modules/setting/ui/tabs/PlatformSecurityTab.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlatformSecurityTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PlatformSecurityTab"
+    },
+    {
+      "id": "setting/ui/tabs/PlatformSmsTab",
+      "module": "setting",
+      "filePath": "modules/setting/ui/tabs/PlatformSmsTab.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlatformSmsTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PlatformSmsTab"
+    },
+    {
+      "id": "setting/ui/tabs/PlatformStorageTab",
+      "module": "setting",
+      "filePath": "modules/setting/ui/tabs/PlatformStorageTab.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlatformStorageTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PlatformStorageTab"
+    },
+    {
+      "id": "setting/ui/TenantSettingsPanels",
+      "module": "setting",
+      "filePath": "modules/setting/ui/TenantSettingsPanels.tsx",
+      "kind": "ui",
+      "exports": [
+        "GeneralTab",
+        "BillingTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "TenantSettingsPanels"
+    },
+    {
+      "id": "store/ui/BundleItemsPanel",
+      "module": "store",
+      "filePath": "modules/store/ui/BundleItemsPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "BundleItemsPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "BundleItemsPanel"
+    },
+    {
+      "id": "store/ui/CategorySpecAddModal",
+      "module": "store",
+      "filePath": "modules/store/ui/CategorySpecAddModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "CategorySpecAddModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CategorySpecAddModal"
+    },
+    {
+      "id": "store/ui/product-list-columns",
+      "module": "store",
+      "filePath": "modules/store/ui/product-list-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "ProductRow",
+        "ProductColumnHandlers",
+        "formatProductPrice",
+        "buildProductColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "product-list-columns"
+    },
+    {
+      "id": "store/ui/ProductCreateModal",
+      "module": "store",
+      "filePath": "modules/store/ui/ProductCreateModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "ProductCreateModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ProductCreateModal"
+    },
+    {
+      "id": "store/ui/ProductImagesPanel",
+      "module": "store",
+      "filePath": "modules/store/ui/ProductImagesPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "ProductImagesPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ProductImagesPanel"
+    },
+    {
+      "id": "store/ui/ProductSpecValuesPanel",
+      "module": "store",
+      "filePath": "modules/store/ui/ProductSpecValuesPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "ProductSpecValuesPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ProductSpecValuesPanel"
+    },
+    {
+      "id": "store/ui/ProductStatusBadge",
+      "module": "store",
+      "filePath": "modules/store/ui/ProductStatusBadge.tsx",
+      "kind": "ui",
+      "exports": [
+        "ProductStatus",
+        "BundleStatus",
+        "ProductStatusBadge",
+        "BundleStatusBadge",
+        "StockBadge"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ProductStatusBadge"
+    },
+    {
+      "id": "store/ui/ProductVariantsPanel",
+      "module": "store",
+      "filePath": "modules/store/ui/ProductVariantsPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "ProductVariantsPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ProductVariantsPanel"
+    },
+    {
+      "id": "support/ui/support-ticket-columns",
+      "module": "support",
+      "filePath": "modules/support/ui/support-ticket-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "TicketRow",
+        "buildTicketColumns",
+        "TICKET_STATUS_VARIANT",
+        "TICKET_PRIORITY_VARIANT"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "support-ticket-columns"
+    },
+    {
+      "id": "tenant_domain/ui/domain-list-columns",
+      "module": "tenant_domain",
+      "filePath": "modules/tenant_domain/ui/domain-list-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "DomainRow",
+        "STATUS_BADGE",
+        "STATUS_LABEL",
+        "SSL_BADGE",
+        "SSL_LABEL",
+        "DomainColumnHandlers",
+        "buildDomainColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "domain-list-columns"
+    },
+    {
+      "id": "tenant_invitation/ui/invitation-columns",
+      "module": "tenant_invitation",
+      "filePath": "modules/tenant_invitation/ui/invitation-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "InvitationRow",
+        "STATUS_BADGE",
+        "ROLE_BADGE",
+        "InvitationColumnHandlers",
+        "buildInvitationColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "invitation-columns"
+    },
+    {
+      "id": "tenant_invitation/ui/InvitationCreateModal",
+      "module": "tenant_invitation",
+      "filePath": "modules/tenant_invitation/ui/InvitationCreateModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "InvitationCreateModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "InvitationCreateModal"
+    },
+    {
+      "id": "tenant_member/ui/member-list-columns",
+      "module": "tenant_member",
+      "filePath": "modules/tenant_member/ui/member-list-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "MemberRow",
+        "ROLE_BADGE",
+        "MemberColumnHandlers",
+        "buildMemberColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "member-list-columns"
+    },
+    {
+      "id": "tenant_subscription/hooks/use-feature-access",
+      "module": "tenant_subscription",
+      "filePath": "modules/tenant_subscription/hooks/use-feature-access.ts",
+      "kind": "hook",
+      "exports": [
+        "useFeatureAccess"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "use-feature-access"
+    },
+    {
+      "id": "tenant_subscription/hooks/use-grace-period",
+      "module": "tenant_subscription",
+      "filePath": "modules/tenant_subscription/hooks/use-grace-period.ts",
+      "kind": "hook",
+      "exports": [
+        "useGracePeriod"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "use-grace-period"
+    },
+    {
+      "id": "tenant_subscription/ui/CurrentSubscriptionCard",
+      "module": "tenant_subscription",
+      "filePath": "modules/tenant_subscription/ui/CurrentSubscriptionCard.tsx",
+      "kind": "ui",
+      "exports": [
+        "CurrentSubscriptionCard"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CurrentSubscriptionCard"
+    },
+    {
+      "id": "tenant_subscription/ui/FeatureGate",
+      "module": "tenant_subscription",
+      "filePath": "modules/tenant_subscription/ui/FeatureGate.tsx",
+      "kind": "ui",
+      "exports": [
+        "FeatureGate"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "FeatureGate"
+    },
+    {
+      "id": "tenant_subscription/ui/GracePeriodBanner",
+      "module": "tenant_subscription",
+      "filePath": "modules/tenant_subscription/ui/GracePeriodBanner.tsx",
+      "kind": "ui",
+      "exports": [
+        "GracePeriodBanner"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "GracePeriodBanner"
+    },
+    {
+      "id": "tenant_subscription/ui/plan-list-columns",
+      "module": "tenant_subscription",
+      "filePath": "modules/tenant_subscription/ui/plan-list-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlanRow",
+        "buildPlanColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "plan-list-columns"
+    },
+    {
+      "id": "tenant_subscription/ui/PlanCreateModal",
+      "module": "tenant_subscription",
+      "filePath": "modules/tenant_subscription/ui/PlanCreateModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlanCreateModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PlanCreateModal"
+    },
+    {
+      "id": "tenant_subscription/ui/PlanFeaturesPanel",
+      "module": "tenant_subscription",
+      "filePath": "modules/tenant_subscription/ui/PlanFeaturesPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlanFeaturesPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PlanFeaturesPanel"
+    },
+    {
+      "id": "tenant_subscription/ui/PlanUsageMeter",
+      "module": "tenant_subscription",
+      "filePath": "modules/tenant_subscription/ui/PlanUsageMeter.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlanUsageMeter"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PlanUsageMeter"
+    },
+    {
+      "id": "tenant_subscription/ui/subscription.helpers",
+      "module": "tenant_subscription",
+      "filePath": "modules/tenant_subscription/ui/subscription.helpers.ts",
+      "kind": "ui",
+      "exports": [
+        "Provider",
+        "STATUS_VARIANT",
+        "INTERVAL_LABEL",
+        "intervalLabel",
+        "intervalShortLabel",
+        "formatDate",
+        "formatPrice"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "subscription.helpers"
+    },
+    {
+      "id": "tenant_subscription/ui/SubscriptionPlanCard",
+      "module": "tenant_subscription",
+      "filePath": "modules/tenant_subscription/ui/SubscriptionPlanCard.tsx",
+      "kind": "ui",
+      "exports": [
+        "SubscriptionPlanCard"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SubscriptionPlanCard"
+    },
+    {
+      "id": "tenant_subscription/ui/UpgradePrompt",
+      "module": "tenant_subscription",
+      "filePath": "modules/tenant_subscription/ui/UpgradePrompt.tsx",
+      "kind": "ui",
+      "exports": [
+        "UpgradePrompt"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "UpgradePrompt"
+    },
+    {
+      "id": "tenant/ui/CreateTenantForm",
+      "module": "tenant",
+      "filePath": "modules/tenant/ui/CreateTenantForm.tsx",
+      "kind": "ui",
+      "exports": [
+        "CreateTenantValues",
+        "CreateTenantForm"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "CreateTenantForm"
+    },
+    {
+      "id": "tenant/ui/tenant.constants",
+      "module": "tenant",
+      "filePath": "modules/tenant/ui/tenant.constants.ts",
+      "kind": "ui",
+      "exports": [
+        "ROOT_TENANT_ID",
+        "ROOT_TENANT_NAME",
+        "isRootTenant"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "tenant.constants"
+    },
+    {
+      "id": "tenant/ui/TenantMembersTable",
+      "module": "tenant",
+      "filePath": "modules/tenant/ui/TenantMembersTable.tsx",
+      "kind": "ui",
+      "exports": [
+        "TenantMembersTable"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "TenantMembersTable"
+    },
+    {
+      "id": "tenant/ui/TenantSelectorCard",
+      "module": "tenant",
+      "filePath": "modules/tenant/ui/TenantSelectorCard.tsx",
+      "kind": "ui",
+      "exports": [
+        "TenantSummary",
+        "TenantSelectorCard"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "TenantSelectorCard"
+    },
+    {
+      "id": "tenant/ui/TenantSubscriptionCard",
+      "module": "tenant",
+      "filePath": "modules/tenant/ui/TenantSubscriptionCard.tsx",
+      "kind": "ui",
+      "exports": [
+        "TenantSubscriptionCard"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "TenantSubscriptionCard"
+    },
+    {
+      "id": "terms_consent/ui/AcceptanceGate",
+      "module": "terms_consent",
+      "filePath": "modules/terms_consent/ui/AcceptanceGate.tsx",
+      "kind": "ui",
+      "exports": [
+        "AcceptanceGateOrder",
+        "AcceptanceGate"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "AcceptanceGate"
+    },
+    {
+      "id": "terms_consent/ui/ConsentBanner",
+      "module": "terms_consent",
+      "filePath": "modules/terms_consent/ui/ConsentBanner.tsx",
+      "kind": "ui",
+      "exports": [
+        "ConsentBanner"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ConsentBanner"
+    },
+    {
+      "id": "user_security/ui/PasskeysPanel",
+      "module": "user_security",
+      "filePath": "modules/user_security/ui/PasskeysPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "PasskeysPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "PasskeysPanel"
+    },
+    {
+      "id": "user_session/ui/ActiveSessionsPanel",
+      "module": "user_session",
+      "filePath": "modules/user_session/ui/ActiveSessionsPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "ActiveSessionsPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ActiveSessionsPanel"
+    },
+    {
+      "id": "user/ui/SocialAccountsPanel",
+      "module": "user",
+      "filePath": "modules/user/ui/SocialAccountsPanel.tsx",
+      "kind": "ui",
+      "exports": [
+        "SocialAccountsPanelProps",
+        "SocialAccountsPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SocialAccountsPanel"
+    },
+    {
+      "id": "user/ui/user-list-columns",
+      "module": "user",
+      "filePath": "modules/user/ui/user-list-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "UserRow",
+        "buildUserColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "user-list-columns"
+    },
+    {
+      "id": "user/ui/UserEditModal",
+      "module": "user",
+      "filePath": "modules/user/ui/UserEditModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "UserEditModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "UserEditModal"
+    },
+    {
+      "id": "user/ui/UserMenu",
+      "module": "user",
+      "filePath": "modules/user/ui/UserMenu.tsx",
+      "kind": "ui",
+      "exports": [
+        "UserMenuUser",
+        "UserMenu"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "UserMenu"
+    },
+    {
+      "id": "user/ui/UserPreferencesForm",
+      "module": "user",
+      "filePath": "modules/user/ui/UserPreferencesForm.tsx",
+      "kind": "ui",
+      "exports": [
+        "UserPreferencesValues",
+        "UserPreferencesForm"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "UserPreferencesForm"
+    },
+    {
+      "id": "user/ui/UserProfileCard",
+      "module": "user",
+      "filePath": "modules/user/ui/UserProfileCard.tsx",
+      "kind": "ui",
+      "exports": [
+        "UserProfileCard"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "UserProfileCard"
+    },
+    {
+      "id": "user/ui/UserProfileForm",
+      "module": "user",
+      "filePath": "modules/user/ui/UserProfileForm.tsx",
+      "kind": "ui",
+      "exports": [
+        "UserProfileValues",
+        "UserProfileForm"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "UserProfileForm"
+    },
+    {
+      "id": "user/ui/UserRoleBadge",
+      "module": "user",
+      "filePath": "modules/user/ui/UserRoleBadge.tsx",
+      "kind": "ui",
+      "exports": [
+        "UserRoleBadge"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "UserRoleBadge"
+    },
+    {
+      "id": "user/ui/UserStatusBadge",
+      "module": "user",
+      "filePath": "modules/user/ui/UserStatusBadge.tsx",
+      "kind": "ui",
+      "exports": [
+        "UserStatusBadge"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "UserStatusBadge"
+    },
+    {
+      "id": "wallet/ui/wallet-account-columns",
+      "module": "wallet",
+      "filePath": "modules/wallet/ui/wallet-account-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "WalletAccountRow",
+        "buildWalletAccountColumns",
+        "WalletPostingRow",
+        "buildWalletPostingColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "wallet-account-columns"
+    },
+    {
+      "id": "webhook/ui/webhook-columns",
+      "module": "webhook",
+      "filePath": "modules/webhook/ui/webhook-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "buildWebhookColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "webhook-columns"
+    },
+    {
+      "id": "webhook/ui/webhook.types",
+      "module": "webhook",
+      "filePath": "modules/webhook/ui/webhook.types.ts",
+      "kind": "ui",
+      "exports": [
+        "Webhook",
+        "Delivery",
+        "statusVariant",
+        "STATUS_LABEL",
+        "extractMessage"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "webhook.types"
+    },
+    {
+      "id": "webhook/ui/WebhookDeliveryModal",
+      "module": "webhook",
+      "filePath": "modules/webhook/ui/WebhookDeliveryModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "WebhookDeliveryModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "WebhookDeliveryModal"
+    },
+    {
+      "id": "webhook/ui/WebhookFormModal",
+      "module": "webhook",
+      "filePath": "modules/webhook/ui/WebhookFormModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "WebhookFormModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "WebhookFormModal"
+    },
+    {
+      "id": "webhook/ui/WebhookTriggerModal",
+      "module": "webhook",
+      "filePath": "modules/webhook/ui/WebhookTriggerModal.tsx",
+      "kind": "ui",
+      "exports": [
+        "WebhookTriggerModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "WebhookTriggerModal"
     }
   ]
 }

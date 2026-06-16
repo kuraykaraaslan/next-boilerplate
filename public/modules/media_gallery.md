@@ -6,13 +6,38 @@
 - **dir:** `modules/media_gallery/`
 - **tags:** media, gallery, images
 - **icon:** `fas fa-images`
-- **hasNextLayer:** false
+- **hasNextLayer:** true
 
 Polymorphic ordered image gallery attachable to any entity type. Items wrap UploadedFile rows (storage module) and add gallery-side overlay: sortOrder, isPrimary, altText, title.
 
 ## Dependencies
 
 - **requires:** `db`, `redis`, `storage`
+
+## Services
+
+- `media_gallery.bulk.service.ts`
+- `media_gallery.crud.service.ts`
+- `media_gallery.intelligence.service.ts`
+- `media_gallery.query.service.ts`
+- `media_gallery.service.ts`
+
+## DTOs
+
+- `media_gallery.dto.ts`
+
+## Entities
+
+- `media_gallery.entity.ts`
+- `media_gallery_item.entity.ts`
+
+## Enums
+
+- `media_gallery.enums.ts`
+
+## Message keys
+
+- `media_gallery.messages.ts`
 
 ## Owned API routes
 
@@ -24,6 +49,10 @@ Polymorphic ordered image gallery attachable to any entity type. Items wrap Uplo
 
 - `MediaGallery` (system) — `modules/media_gallery/server/entities/media_gallery.entity.ts`
 - `MediaGalleryItem` (system) — `modules/media_gallery/server/entities/media_gallery_item.entity.ts`
+
+## Next layer (modules_next/) surface
+
+- `media_gallery/ui/GalleryPanel` _(ui, client)_
 
 ## README
 

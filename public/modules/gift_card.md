@@ -6,13 +6,40 @@
 - **dir:** `modules/gift_card/`
 - **tags:** billing, commerce, gift-card, wallet
 - **icon:** `fas fa-gift`
-- **hasNextLayer:** false
+- **hasNextLayer:** true
 
 Prepaid gift cards: issue (single + bulk) hash-protected codes, track redeemable balance, and redeem into a user's wallet. Redemption posts a wallet credit in the card's currency; supports partial redemption, void, admin balance adjustment, and an expiry sweep. Builds on wallet (credit) and payment (purchase-backed issuing).
 
 ## Dependencies
 
 - **requires:** `db`, `env`, `logger`, `common`, `redis`, `wallet`, `payment`, `webhook`, `tenant_subscription`
+
+## Services
+
+- `gift_card.crud.service.ts`
+- `gift_card.redemption.service.ts`
+- `gift_card.service.ts`
+
+## DTOs
+
+- `gift_card.dto.ts`
+
+## Entities
+
+- `gift_card.entity.ts`
+- `gift_card_transaction.entity.ts`
+
+## Enums
+
+- `gift_card.enums.ts`
+
+## Message keys
+
+- `gift_card.messages.ts`
+
+## Jobs
+
+- `gift_card.expiry.job.ts`
 
 ## Owned API routes
 
@@ -26,6 +53,11 @@ Prepaid gift cards: issue (single + bulk) hash-protected codes, track redeemable
 
 - `GiftCard` (system) — `modules/gift_card/server/entities/gift_card.entity.ts`
 - `GiftCardTransaction` (system) — `modules/gift_card/server/entities/gift_card_transaction.entity.ts`
+
+## Next layer (modules_next/) surface
+
+- `gift_card/ui/gift-card-list-columns` _(ui, client)_
+- `gift_card/ui/GiftCardIssueModal` _(ui, client)_
 
 ## README
 

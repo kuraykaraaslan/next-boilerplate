@@ -1,7 +1,7 @@
-// modules_next/ component + hook inventory.
+// modules/<id>/{ui,hooks}/ component + hook inventory.
 
 import path from 'node:path';
-import { MODULES_NEXT_DIR, walk, rel, readText } from './fs-utils.mjs';
+import { MODULES_DIR, walk, rel, readText } from './fs-utils.mjs';
 
 function parseNamedExports(source) {
   const out = new Set();
@@ -28,17 +28,16 @@ function detectClientServer(source) {
 
 function kindForFile(file) {
   const r = rel(file);
-  if (/\/ui\//.test(r))                return 'ui';
-  if (/\/hooks\//.test(r))             return 'hook';
-  if (/\.service\.next\.ts$/.test(r))  return 'service.next';
-  if (/\/axios\//.test(r))             return 'axios';
-  if (/\/utils\//.test(r))             return 'util';
-  if (/module\.types\.ts$/.test(r))    return 'type';
+  if (/^modules\/[^/]+\/hooks\//.test(r)) return 'hook';
   return 'ui';
 }
 
 export async function collectComponents() {
-  const files = await walk(MODULES_NEXT_DIR, (full, name) => {
+  // React components/hooks now live under modules/<id>/ui/ and modules/<id>/hooks/.
+  const files = await walk(MODULES_DIR, (full, name) => {
+    // Only the layer directly under the module root: modules/<id>/{ui,hooks}/**
+    // (not stray ui/hooks subfolders nested inside server/).
+    if (!/^modules\/[^/]+\/(ui|hooks)\//.test(rel(full))) return false;
     if (name.endsWith('.test.ts') || name.endsWith('.test.tsx')) return false;
     return name.endsWith('.ts') || name.endsWith('.tsx');
   });

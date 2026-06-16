@@ -8,10 +8,10 @@
       "leaf",
       "i18n"
     ],
-    "hasNextLayer": false,
+    "hasNextLayer": true,
     "routeCount": 0,
     "entityCount": 0,
-    "componentCount": 0,
+    "componentCount": 59,
     "file": "common.md"
   },
   "env": {
@@ -133,10 +133,10 @@
       "platform",
       "configuration"
     ],
-    "hasNextLayer": false,
+    "hasNextLayer": true,
     "routeCount": 3,
     "entityCount": 2,
-    "componentCount": 0,
+    "componentCount": 17,
     "file": "setting.md"
   },
   "user_agent": {
@@ -186,10 +186,10 @@
       "identity",
       "core"
     ],
-    "hasNextLayer": false,
+    "hasNextLayer": true,
     "routeCount": 4,
     "entityCount": 1,
-    "componentCount": 0,
+    "componentCount": 9,
     "file": "user.md"
   },
   "user_preferences": {
@@ -224,10 +224,10 @@
       "identity",
       "security"
     ],
-    "hasNextLayer": false,
+    "hasNextLayer": true,
     "routeCount": 0,
     "entityCount": 1,
-    "componentCount": 0,
+    "componentCount": 1,
     "file": "user_security.md"
   },
   "user_session": {
@@ -238,10 +238,10 @@
       "auth",
       "core"
     ],
-    "hasNextLayer": false,
+    "hasNextLayer": true,
     "routeCount": 0,
     "entityCount": 1,
-    "componentCount": 0,
+    "componentCount": 1,
     "file": "user_session.md"
   },
   "user_social_account": {
@@ -265,10 +265,10 @@
       "auth",
       "core"
     ],
-    "hasNextLayer": false,
+    "hasNextLayer": true,
     "routeCount": 54,
     "entityCount": 1,
-    "componentCount": 0,
+    "componentCount": 5,
     "file": "auth.md"
   },
   "auth_oidc": {
@@ -296,10 +296,10 @@
       "sso",
       "enterprise"
     ],
-    "hasNextLayer": false,
+    "hasNextLayer": true,
     "routeCount": 0,
     "entityCount": 1,
-    "componentCount": 0,
+    "componentCount": 3,
     "file": "auth_saml.md"
   },
   "auth_sso": {
@@ -369,10 +369,10 @@
       "tenant",
       "core"
     ],
-    "hasNextLayer": false,
+    "hasNextLayer": true,
     "routeCount": 5,
     "entityCount": 1,
-    "componentCount": 0,
+    "componentCount": 5,
     "file": "tenant.md"
   },
   "tenant_member": {
@@ -381,10 +381,10 @@
     "tags": [
       "tenant"
     ],
-    "hasNextLayer": false,
+    "hasNextLayer": true,
     "routeCount": 2,
     "entityCount": 1,
-    "componentCount": 0,
+    "componentCount": 1,
     "file": "tenant_member.md"
   },
   "tenant_invitation": {
@@ -394,10 +394,10 @@
       "tenant",
       "onboarding"
     ],
-    "hasNextLayer": false,
+    "hasNextLayer": true,
     "routeCount": 4,
     "entityCount": 1,
-    "componentCount": 0,
+    "componentCount": 2,
     "file": "tenant_invitation.md"
   },
   "tenant_session": {
@@ -435,10 +435,10 @@
       "domain",
       "infrastructure"
     ],
-    "hasNextLayer": false,
+    "hasNextLayer": true,
     "routeCount": 3,
     "entityCount": 1,
-    "componentCount": 0,
+    "componentCount": 1,
     "file": "tenant_domain.md"
   },
   "tenant_subscription": {
@@ -448,10 +448,10 @@
       "tenant",
       "billing"
     ],
-    "hasNextLayer": false,
+    "hasNextLayer": true,
     "routeCount": 0,
     "entityCount": 1,
-    "componentCount": 0,
+    "componentCount": 12,
     "file": "tenant_subscription.md"
   },
   "tenant_usage": {
@@ -475,10 +475,10 @@
       "billing",
       "payment"
     ],
-    "hasNextLayer": false,
+    "hasNextLayer": true,
     "routeCount": 9,
     "entityCount": 4,
-    "componentCount": 0,
+    "componentCount": 9,
     "file": "payment.md"
   },
   "tenant_export": {
@@ -502,10 +502,10 @@
       "billing",
       "marketing"
     ],
-    "hasNextLayer": false,
+    "hasNextLayer": true,
     "routeCount": 5,
     "entityCount": 2,
-    "componentCount": 0,
+    "componentCount": 8,
     "file": "coupon.md"
   },
   "payment_sell": {
@@ -587,10 +587,10 @@
       "compliance",
       "tax"
     ],
-    "hasNextLayer": false,
+    "hasNextLayer": true,
     "routeCount": 9,
     "entityCount": 2,
-    "componentCount": 0,
+    "componentCount": 4,
     "file": "invoice.md"
   },
   "notification_inapp": {
@@ -600,10 +600,10 @@
       "notifications",
       "in-app"
     ],
-    "hasNextLayer": false,
+    "hasNextLayer": true,
     "routeCount": 2,
     "entityCount": 0,
-    "componentCount": 0,
+    "componentCount": 1,
     "file": "notification_inapp.md"
   },
   "notification_mail": {
@@ -726,10 +726,10 @@
       "signature",
       "eidas"
     ],
-    "hasNextLayer": false,
+    "hasNextLayer": true,
     "routeCount": 1,
     "entityCount": 1,
-    "componentCount": 0,
+    "componentCount": 1,
     "file": "e_signature.md"
   },
   "seo": {
@@ -739,10 +739,10 @@
       "seo",
       "metadata"
     ],
-    "hasNextLayer": false,
+    "hasNextLayer": true,
     "routeCount": 2,
     "entityCount": 1,
-    "componentCount": 0,
+    "componentCount": 3,
     "file": "seo.md"
   },
   "auth_e_signature": {
@@ -754,10 +754,10 @@
       "signature",
       "eidas"
     ],
-    "hasNextLayer": false,
+    "hasNextLayer": true,
     "routeCount": 0,
     "entityCount": 1,
-    "componentCount": 0,
+    "componentCount": 3,
     "file": "auth_e_signature.md"
   },
   "media_gallery": {
@@ -768,10 +768,10 @@
       "gallery",
       "images"
     ],
-    "hasNextLayer": false,
+    "hasNextLayer": true,
     "routeCount": 3,
     "entityCount": 2,
-    "componentCount": 0,
+    "componentCount": 1,
     "file": "media_gallery.md"
   },
   "api_key": {
@@ -781,10 +781,10 @@
       "platform",
       "security"
     ],
-    "hasNextLayer": false,
+    "hasNextLayer": true,
     "routeCount": 6,
     "entityCount": 1,
-    "componentCount": 0,
+    "componentCount": 2,
     "file": "api_key.md"
   },
   "audit_log": {
@@ -795,10 +795,10 @@
       "security",
       "compliance"
     ],
-    "hasNextLayer": false,
+    "hasNextLayer": true,
     "routeCount": 6,
     "entityCount": 1,
-    "componentCount": 0,
+    "componentCount": 1,
     "file": "audit_log.md"
   },
   "store": {
@@ -810,10 +810,10 @@
       "products",
       "catalog"
     ],
-    "hasNextLayer": false,
+    "hasNextLayer": true,
     "routeCount": 17,
     "entityCount": 12,
-    "componentCount": 0,
+    "componentCount": 8,
     "file": "store.md"
   },
   "webhook": {
@@ -823,10 +823,10 @@
       "platform",
       "integration"
     ],
-    "hasNextLayer": false,
+    "hasNextLayer": true,
     "routeCount": 10,
     "entityCount": 2,
-    "componentCount": 0,
+    "componentCount": 5,
     "file": "webhook.md"
   },
   "order_fulfillment": {
@@ -869,10 +869,10 @@
       "comments",
       "moderation"
     ],
-    "hasNextLayer": false,
+    "hasNextLayer": true,
     "routeCount": 6,
     "entityCount": 3,
-    "componentCount": 0,
+    "componentCount": 2,
     "file": "blog.md"
   },
   "messaging": {
@@ -903,10 +903,10 @@
       "kvkk",
       "compliance"
     ],
-    "hasNextLayer": false,
+    "hasNextLayer": true,
     "routeCount": 0,
     "entityCount": 4,
-    "componentCount": 0,
+    "componentCount": 2,
     "file": "terms_consent.md"
   },
   "wallet": {
@@ -919,10 +919,10 @@
       "double-entry",
       "billing"
     ],
-    "hasNextLayer": false,
+    "hasNextLayer": true,
     "routeCount": 6,
     "entityCount": 3,
-    "componentCount": 0,
+    "componentCount": 1,
     "file": "wallet.md"
   },
   "feature_flags": {
@@ -934,10 +934,10 @@
       "rollout",
       "experimentation"
     ],
-    "hasNextLayer": false,
+    "hasNextLayer": true,
     "routeCount": 0,
     "entityCount": 2,
-    "componentCount": 0,
+    "componentCount": 1,
     "file": "feature_flags.md"
   },
   "metering": {
@@ -950,10 +950,10 @@
       "overage",
       "credits"
     ],
-    "hasNextLayer": false,
+    "hasNextLayer": true,
     "routeCount": 5,
     "entityCount": 3,
-    "componentCount": 0,
+    "componentCount": 1,
     "file": "metering.md"
   },
   "support": {
@@ -966,10 +966,10 @@
       "sla",
       "back-office"
     ],
-    "hasNextLayer": false,
+    "hasNextLayer": true,
     "routeCount": 3,
     "entityCount": 2,
-    "componentCount": 0,
+    "componentCount": 1,
     "file": "support.md"
   },
   "approval": {
@@ -982,10 +982,10 @@
       "review",
       "back-office"
     ],
-    "hasNextLayer": false,
+    "hasNextLayer": true,
     "routeCount": 2,
     "entityCount": 1,
-    "componentCount": 0,
+    "componentCount": 1,
     "file": "approval.md"
   },
   "gift_card": {
@@ -997,10 +997,10 @@
       "gift-card",
       "wallet"
     ],
-    "hasNextLayer": false,
+    "hasNextLayer": true,
     "routeCount": 5,
     "entityCount": 2,
-    "componentCount": 0,
+    "componentCount": 2,
     "file": "gift_card.md"
   },
   "ai": {
@@ -1010,10 +1010,10 @@
       "platform",
       "ai"
     ],
-    "hasNextLayer": false,
+    "hasNextLayer": true,
     "routeCount": 6,
     "entityCount": 1,
-    "componentCount": 0,
+    "componentCount": 3,
     "file": "ai.md"
   },
   "dynamic_page": {
@@ -1026,10 +1026,10 @@
       "builder",
       "i18n"
     ],
-    "hasNextLayer": false,
+    "hasNextLayer": true,
     "routeCount": 11,
     "entityCount": 6,
-    "componentCount": 0,
+    "componentCount": 84,
     "file": "dynamic_page.md"
   },
   "integrations_hub": {
@@ -1042,10 +1042,10 @@
       "webhook",
       "developer"
     ],
-    "hasNextLayer": false,
+    "hasNextLayer": true,
     "routeCount": 0,
     "entityCount": 4,
-    "componentCount": 0,
+    "componentCount": 2,
     "file": "integrations_hub.md"
   },
   "search": {
@@ -1084,10 +1084,10 @@
       "platform",
       "documentation"
     ],
-    "hasNextLayer": false,
+    "hasNextLayer": true,
     "routeCount": 0,
     "entityCount": 0,
-    "componentCount": 0,
+    "componentCount": 15,
     "file": "api_doc.md"
   },
   "payment_core": {

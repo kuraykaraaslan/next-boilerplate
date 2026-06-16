@@ -6,13 +6,44 @@
 - **dir:** `modules/dynamic_page/`
 - **tags:** cms, pages, blocks, builder, i18n
 - **icon:** `fas fa-file-alt`
-- **hasNextLayer:** false
+- **hasNextLayer:** true
 
 Tenant-aware block-based page builder with i18n support. Supports code blocks (Prose, Hero, Popup Modal, Custom) and custom HTML template blocks. Public pages served at /tenant/[tenantId]/p/[slug].
 
 ## Dependencies
 
 - **requires:** `db`, `env`, `redis`, `logger`, `seo`
+
+## Services
+
+- `dynamic_collection.crud.service.ts`
+- `dynamic_collection.item.service.ts`
+- `dynamic_collection.service.ts`
+- `dynamic_page.block.service.ts`
+- `dynamic_page.crud.service.ts`
+- `dynamic_page.publishing.service.ts`
+- `dynamic_page.service.ts`
+
+## DTOs
+
+- `dynamic_page.dto.ts`
+
+## Entities
+
+- `dynamic_collection.entity.ts`
+- `dynamic_collection_item.entity.ts`
+- `dynamic_page.entity.ts`
+- `dynamic_page_block.entity.ts`
+- `dynamic_page_translation.entity.ts`
+- `dynamic_page_version.entity.ts`
+
+## Enums
+
+- `dynamic_page.enums.ts`
+
+## Message keys
+
+- `dynamic_page.messages.ts`
 
 ## Owned API routes
 
@@ -36,6 +67,70 @@ Tenant-aware block-based page builder with i18n support. Supports code blocks (P
 - `DynamicPageBlock` (system) — `modules/dynamic_page/server/entities/dynamic_page_block.entity.ts`
 - `DynamicPageTranslation` (system) — `modules/dynamic_page/server/entities/dynamic_page_translation.entity.ts`
 - `DynamicPageVersion` (system) — `modules/dynamic_page/server/entities/dynamic_page_version.entity.ts`
+
+## Next layer (modules_next/) surface
+
+- `dynamic_page/ui/dynamic-page-columns` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/BannerBlock` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/ContactFormBlock` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/CTABlock` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/CustomBlock` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/FaqAccordionBlock` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/FeatureGridBlock` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/FooterColumns` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/FooterCommerce` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/FooterMinimal` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/GalleryBlock` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/HeroBlock` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/LogoGridBlock` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/NavBarCommerce` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/NavBarMarketing` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/NavBarMarketing.types` _(ui)_
+- `dynamic_page/ui/dynamic/Blocks/NavBarSimple` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/partials/NavBarMegaSection` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/partials/NavBarMobilePanel` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/PopupModalBlock/animations` _(ui)_
+- `dynamic_page/ui/dynamic/Blocks/PopupModalBlock/CloseBtn` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/PopupModalBlock/constants` _(ui)_
+- `dynamic_page/ui/dynamic/Blocks/PopupModalBlock/EditorPreview` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/PopupModalBlock/index` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/PopupModalBlock/PopupCard` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/PopupModalBlock/PopupOverlay` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/PopupModalBlock/types` _(ui)_
+- `dynamic_page/ui/dynamic/Blocks/PopupModalBlock/utils` _(ui)_
+- `dynamic_page/ui/dynamic/Blocks/PricingTableBlock` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/ProseBlock` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/StatsBlock` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/TeamBlock` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/TestimonialsBlock` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/TimelineBlock` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/VideoBlock` _(ui, client)_
+- `dynamic_page/ui/dynamic/Editor/BackupModal` _(ui, client)_
+- `dynamic_page/ui/dynamic/Editor/Canvas` _(ui, client)_
+- `dynamic_page/ui/dynamic/Editor/EditorTopBar` _(ui, client)_
+- `dynamic_page/ui/dynamic/Editor/hooks/useEditorDraft` _(ui, client)_
+- `dynamic_page/ui/dynamic/Editor/hooks/useEditorKeyboard` _(ui, client)_
+- `dynamic_page/ui/dynamic/Editor/index` _(ui, client)_
+- `dynamic_page/ui/dynamic/Editor/LeftSidebar` _(ui, client)_
+- `dynamic_page/ui/dynamic/Editor/partials/BlockPalette` _(ui, client)_
+- `dynamic_page/ui/dynamic/Editor/partials/CanvasBlock` _(ui, client)_
+- `dynamic_page/ui/dynamic/Editor/partials/CanvasOverlays` _(ui, client)_
+- `dynamic_page/ui/dynamic/Editor/partials/ColorTokenField` _(ui, client)_
+- `dynamic_page/ui/dynamic/Editor/partials/IconPickerField` _(ui, client)_
+- `dynamic_page/ui/dynamic/Editor/partials/LayersPanel` _(ui, client)_
+- `dynamic_page/ui/dynamic/Editor/partials/LinkField` _(ui, client)_
+- `dynamic_page/ui/dynamic/Editor/partials/PropFieldComplex` _(ui, client)_
+- `dynamic_page/ui/dynamic/Editor/partials/PropFieldRenderer` _(ui, client)_
+- `dynamic_page/ui/dynamic/Editor/partials/PropFieldSimple` _(ui, client)_
+- `dynamic_page/ui/dynamic/Editor/PropsPanel` _(ui, client)_
+- `dynamic_page/ui/dynamic/Editor/RepeaterField` _(ui, client)_
+- `dynamic_page/ui/dynamic/Editor/RightSidebar` _(ui, client)_
+- `dynamic_page/ui/dynamic/Editor/SeoModal` _(ui, client)_
+- `dynamic_page/ui/dynamic/Editor/ShortcutsModal` _(ui, client)_
+- `dynamic_page/ui/dynamic/Editor/stores/editor.types` _(ui)_
+- `dynamic_page/ui/dynamic/Editor/stores/editorStore` _(ui)_
+- `dynamic_page/ui/dynamic/Editor/stores/slices/blockSlice` _(ui)_
+- … and 24 more
 
 ## README
 

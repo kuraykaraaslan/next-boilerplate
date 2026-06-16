@@ -14,6 +14,41 @@ Tenant-scoped real-time messaging: 1-1 and group conversations, persisted messag
 
 - **requires:** `db`, `env`, `redis`, `logger`, `user_session`, `tenant_session`, `tenant_member`, `webhook`
 
+## Services
+
+- `messaging.crud.conversation.service.ts`
+- `messaging.crud.message.service.ts`
+- `messaging.crud.participant.service.ts`
+- `messaging.crud.service.ts`
+- `messaging.lifecycle.service.ts`
+- `messaging.moderation.service.ts`
+- `messaging.policy.service.ts`
+- `messaging.service.ts`
+- `messaging.ticket.service.ts`
+
+## DTOs
+
+- `messaging.dto.ts`
+
+## Entities
+
+- `conversation.entity.ts`
+- `conversation_participant.entity.ts`
+- `message.entity.ts`
+- `message_report.entity.ts`
+
+## Enums
+
+- `messaging.enums.ts`
+
+## Message keys
+
+- `messaging.messages.ts`
+
+## Setting keys
+
+- `messaging.moderation.setting.keys.ts`
+
 ## Owned API routes
 
 - `tenant` POST `/tenant/[tenantId]/api/messaging/moderation/messages/[messageId]`

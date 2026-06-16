@@ -6,7 +6,7 @@
 - **dir:** `modules/integrations_hub/`
 - **tags:** platform, integrations, oauth, webhook, developer
 - **icon:** `fas fa-plug`
-- **hasNextLayer:** false
+- **hasNextLayer:** true
 
 Third-party connector hub (Zapier-like). Owns a per-tenant connector catalog, connection state, and encrypted OAuth tokens. Outbound triggers bridge onto the webhook module (signing/retry/circuit-breaker reused); inbound actions authenticate via the api_key module. OAuth2 authorization-code + refresh flows with AES-256-GCM token storage.
 
@@ -14,12 +14,44 @@ Third-party connector hub (Zapier-like). Owns a per-tenant connector catalog, co
 
 - **requires:** `db`, `env`, `logger`, `common`, `redis`, `webhook`, `api_key`, `setting`, `tenant_subscription`, `audit_log`
 
+## Services
+
+- `integrations_hub.action.service.ts`
+- `integrations_hub.connector.service.ts`
+- `integrations_hub.oauth.service.ts`
+- `integrations_hub.service.ts`
+- `integrations_hub.trigger.service.ts`
+
+## DTOs
+
+- `integrations_hub.dto.ts`
+
+## Entities
+
+- `connected_app.entity.ts`
+- `connector.entity.ts`
+- `integration_event.entity.ts`
+- `oauth_token.entity.ts`
+
+## Enums
+
+- `integrations_hub.enums.ts`
+
+## Message keys
+
+- `integrations_hub.messages.ts`
+
 ## TypeORM entities
 
 - `ConnectedApp` (system) — `modules/integrations_hub/server/entities/connected_app.entity.ts`
 - `Connector` (system) — `modules/integrations_hub/server/entities/connector.entity.ts`
 - `IntegrationEvent` (system) — `modules/integrations_hub/server/entities/integration_event.entity.ts`
 - `OAuthToken` (system) — `modules/integrations_hub/server/entities/oauth_token.entity.ts`
+
+## Next layer (modules_next/) surface
+
+- `integrations_hub/ui/connected-apps-columns` _(ui, client)_
+- `integrations_hub/ui/ConnectorFormModal` _(ui, client)_
 
 ## README
 

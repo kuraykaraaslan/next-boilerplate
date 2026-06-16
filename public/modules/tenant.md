@@ -6,13 +6,45 @@
 - **dir:** `modules/tenant/`
 - **tags:** tenant, core
 - **icon:** `fas fa-building`
-- **hasNextLayer:** false
+- **hasNextLayer:** true
 
 Tenant CRUD, lifecycle (active/suspended/deleted), soft-deletion service. Foundation of multi-tenancy.
 
 ## Dependencies
 
 - **requires:** `db`, `env`, `logger`, `common`
+
+## Services
+
+- `tenant.deletion.service.ts`
+- `tenant.onboarding.service.ts`
+- `tenant.read.service.ts`
+- `tenant.service.ts`
+- `tenant.write.service.ts`
+
+## DTOs
+
+- `tenant.dto.ts`
+
+## Entities
+
+- `tenant.entity.ts`
+
+## Enums
+
+- `tenant.enums.ts`
+
+## Message keys
+
+- `tenant.messages.ts`
+
+## Setting keys
+
+- `tenant.setting.keys.ts`
+
+## Jobs
+
+- `tenant.deletion.job.ts`
 
 ## Owned API routes
 
@@ -25,6 +57,14 @@ Tenant CRUD, lifecycle (active/suspended/deleted), soft-deletion service. Founda
 ## TypeORM entities
 
 - `Tenant` (tenant) — `modules/tenant/server/entities/tenant.entity.ts`
+
+## Next layer (modules_next/) surface
+
+- `tenant/ui/CreateTenantForm` _(ui, client)_
+- `tenant/ui/tenant.constants` _(ui)_
+- `tenant/ui/TenantMembersTable` _(ui, client)_
+- `tenant/ui/TenantSelectorCard` _(ui, client)_
+- `tenant/ui/TenantSubscriptionCard` _(ui, client)_
 
 ## README
 

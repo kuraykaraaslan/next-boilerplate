@@ -36,6 +36,8 @@ export interface MenuItemJson {
   icon?: string;
   order?: number;
   scope?: ModuleScope;
+  /** Sidebar section label this item is grouped under (e.g. 'Content'). */
+  group?: string;
   permissions?: string[];
   children?: MenuItemJson[];
   badge?: {
@@ -115,6 +117,23 @@ export interface WidgetJson {
 }
 
 // ============================================================================
+// Slot Contribution
+// ============================================================================
+
+/** A component a module contributes into a named slot exposed by another module. */
+export interface SlotContributionJson {
+  /** Target slot name, e.g. 'user.profile.tabs'. */
+  slot: string;
+  /** Contributed component id, e.g. 'payment/ui/BillingProfileTab'. */
+  component: string;
+  order?: number;
+  scope?: ModuleScope;
+  permissions?: string[];
+  /** Static props merged into the rendered component. */
+  props?: Record<string, unknown>;
+}
+
+// ============================================================================
 // Module Hooks
 // ============================================================================
 
@@ -171,5 +190,6 @@ export interface ModuleJson {
   }>;
   hooks?: ModuleHooks;
   widgets?: WidgetJson[];
+  slots?: SlotContributionJson[];
   exports?: Record<string, string>;
 }

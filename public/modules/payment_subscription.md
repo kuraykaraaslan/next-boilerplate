@@ -14,6 +14,36 @@ Recurring subscription lifecycle: plans, plan features, subscriber management, p
 
 - **requires:** `db`, `env`, `setting`, `redis`, `logger`, `payment_core`
 
+## Services
+
+- `payment_subscription.crud.service.ts`
+- `payment_subscription.dunning.service.ts`
+- `payment_subscription.lifecycle.service.ts`
+- `payment_subscription.metered.service.ts`
+- `payment_subscription.metrics.service.ts`
+- `payment_subscription.plan.service.ts`
+- `payment_subscription.proration.service.ts`
+- `payment_subscription.service.ts`
+- `payment_subscription.transitions.service.ts`
+
+## DTOs
+
+- `payment_subscription.dto.ts`
+
+## Entities
+
+- `plan_feature.entity.ts`
+- `subscription.entity.ts`
+- `subscription_plan.entity.ts`
+
+## Enums
+
+- `payment_subscription.enums.ts`
+
+## Message keys
+
+- `payment_subscription.messages.ts`
+
 ## TypeORM entities
 
 - `PlanFeature` (system) — `modules/payment_subscription/server/entities/plan_feature.entity.ts`

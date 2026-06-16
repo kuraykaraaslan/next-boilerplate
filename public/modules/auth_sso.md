@@ -14,6 +14,29 @@ OAuth 2.0 SSO with 12 providers: Google, GitHub, Apple, Microsoft, Facebook, Lin
 
 - **requires:** `user`, `user_session`, `user_social_account`, `env`, `auth`, `setting`, `audit_log`, `observability`, `redis`, `tenant`, `common`
 
+## Services
+
+- `auth_sso.account.service.ts`
+- `auth_sso.config.service.ts`
+- `auth_sso.flow.service.ts`
+- `auth_sso.service.ts`
+
+## DTOs
+
+- `auth_sso.dto.ts`
+
+## Enums
+
+- `auth_sso.enums.ts`
+
+## Message keys
+
+- `auth_sso.messages.ts`
+
+## Setting keys
+
+- `auth_sso.setting.keys.ts`
+
 ## README
 
 # Auth Sso Module

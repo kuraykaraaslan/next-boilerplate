@@ -15,6 +15,11 @@ Sliding-window rate limiter + tenant-plan-based quota enforcement (seat/feature/
 - **requires:** `redis`, `env`
 - **optional:** `tenant_subscription`
 
+## Services
+
+- `limiter.service.ts`
+- `limiter.tenant-plan.service.ts`
+
 ## README
 
 # Limiter Module

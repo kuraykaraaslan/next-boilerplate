@@ -14,6 +14,31 @@ Tenant-aware loyalty points program. Earn / redeem points, lifetime-driven tiers
 
 - **requires:** `db`, `env`, `redis`, `logger`
 
+## Services
+
+- `payment_loyalty_points.account.service.ts`
+- `payment_loyalty_points.checkout.service.ts`
+- `payment_loyalty_points.ledger.service.ts`
+- `payment_loyalty_points.service.ts`
+
+## DTOs
+
+- `payment_loyalty_points.dto.ts`
+
+## Entities
+
+- `loyalty_account.entity.ts`
+- `loyalty_tier.entity.ts`
+- `loyalty_transaction.entity.ts`
+
+## Enums
+
+- `payment_loyalty_points.enums.ts`
+
+## Message keys
+
+- `payment_loyalty_points.messages.ts`
+
 ## TypeORM entities
 
 - `LoyaltyAccount` (system) — `modules/payment_loyalty_points/server/entities/loyalty_account.entity.ts`

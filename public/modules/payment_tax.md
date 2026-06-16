@@ -14,6 +14,30 @@ Tenant-aware tax/VAT calculation engine: tax classes, destination-matched rates,
 
 - **requires:** `db`, `env`, `redis`, `logger`
 
+## Services
+
+- `payment_tax.calc.service.ts`
+- `payment_tax.crud.service.ts`
+- `payment_tax.report.service.ts`
+- `payment_tax.service.ts`
+
+## DTOs
+
+- `payment_tax.dto.ts`
+
+## Entities
+
+- `tax_class.entity.ts`
+- `tax_rate.entity.ts`
+
+## Enums
+
+- `payment_tax.enums.ts`
+
+## Message keys
+
+- `payment_tax.messages.ts`
+
 ## TypeORM entities
 
 - `TaxClass` (system) — `modules/payment_tax/server/entities/tax_class.entity.ts`

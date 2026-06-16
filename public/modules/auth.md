@@ -6,13 +6,49 @@
 - **dir:** `modules/auth/`
 - **tags:** identity, auth, core
 - **icon:** `fas fa-shield-halved`
-- **hasNextLayer:** false
+- **hasNextLayer:** true
 
 Credential auth: login, register, password reset, email verify, OTP, TOTP. Coordinates user, user_session, user_security, notification_mail.
 
 ## Dependencies
 
 - **requires:** `user`, `user_session`, `user_security`, `notification_mail`, `notification_sms`, `setting`, `tenant`, `tenant_invitation`, `audit_log`, `webhook`, `observability`, `db`, `env`, `redis`, `common`
+
+## Services
+
+- `auth.captcha.service.ts`
+- `auth.credential.lifecycle.service.ts`
+- `auth.credential.login.service.ts`
+- `auth.credential.register.service.ts`
+- `auth.credential.service.ts`
+- `auth.otp.service.ts`
+- `auth.password.service.ts`
+- `auth.policy.loader.service.ts`
+- `auth.policy.service.ts`
+- `auth.policy.validator.service.ts`
+- `auth.service.ts`
+- `auth.totp.service.ts`
+- `auth.verification.service.ts`
+
+## DTOs
+
+- `auth.dto.ts`
+
+## Entities
+
+- `user_consent.entity.ts`
+
+## Message keys
+
+- `auth.messages.ts`
+
+## Setting keys
+
+- `auth.setting.keys.ts`
+
+## Jobs
+
+- `auth.dormant.job.ts`
 
 ## Owned API routes
 
@@ -74,6 +110,14 @@ Credential auth: login, register, password reset, email verify, OTP, TOTP. Coord
 ## TypeORM entities
 
 - `UserConsent` (system) — `modules/auth/server/entities/user_consent.entity.ts`
+
+## Next layer (modules_next/) surface
+
+- `auth/ui/ForgotPasswordForm` _(ui, client)_
+- `auth/ui/LoginForm` _(ui, client)_
+- `auth/ui/OAuthButtons` _(ui, client)_
+- `auth/ui/RegisterForm` _(ui, client)_
+- `auth/ui/SessionExpiredBanner` _(ui, client)_
 
 ## README
 

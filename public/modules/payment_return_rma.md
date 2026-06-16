@@ -14,6 +14,31 @@ Customer return, exchange and refund (RMA) requests with line items and an appen
 
 - **requires:** `db`, `env`, `redis`, `logger`, `payment_sell`
 
+## Services
+
+- `payment_return_rma.crud.service.ts`
+- `payment_return_rma.lifecycle.service.ts`
+- `payment_return_rma.policy.service.ts`
+- `payment_return_rma.service.ts`
+
+## DTOs
+
+- `payment_return_rma.dto.ts`
+
+## Entities
+
+- `return_event.entity.ts`
+- `return_item.entity.ts`
+- `return_request.entity.ts`
+
+## Enums
+
+- `payment_return_rma.enums.ts`
+
+## Message keys
+
+- `payment_return_rma.messages.ts`
+
 ## TypeORM entities
 
 - `ReturnEvent` (system) — `modules/payment_return_rma/server/entities/return_event.entity.ts`

@@ -14,6 +14,32 @@ Tenant-aware shopping cart for users and anonymous guests. Manages cart items, q
 
 - **requires:** `db`, `env`, `redis`, `logger`, `coupon`
 
+## Services
+
+- `payment_cart.calc.service.ts`
+- `payment_cart.crud.service.ts`
+- `payment_cart.expiry.service.ts`
+- `payment_cart.inventory.service.ts`
+- `payment_cart.item.service.ts`
+- `payment_cart.service.ts`
+
+## DTOs
+
+- `payment_cart.dto.ts`
+
+## Entities
+
+- `cart.entity.ts`
+- `cart_item.entity.ts`
+
+## Enums
+
+- `payment_cart.enums.ts`
+
+## Message keys
+
+- `payment_cart.messages.ts`
+
 ## TypeORM entities
 
 - `Cart` (system) — `modules/payment_cart/server/entities/cart.entity.ts`

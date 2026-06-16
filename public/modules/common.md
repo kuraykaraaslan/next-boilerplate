@@ -6,9 +6,71 @@
 - **dir:** `modules/common/`
 - **tags:** infrastructure, core, leaf, i18n
 - **icon:** `fas fa-cube`
-- **hasNextLayer:** false
+- **hasNextLayer:** true
 
 Dependency-free leaf module loaded by every other module: AppError + ErrorCode enum (with retryable flag, statusCodeFor/isRetryable helpers) plus shared locale, country, currency, timezone, Money, pagination and log-context primitives.
+
+## Next layer (modules_next/) surface
+
+- `common/ui/AlertBanner` _(ui, client)_
+- `common/ui/Avatar` _(ui, client)_
+- `common/ui/AvatarUpload` _(ui, client)_
+- `common/ui/Badge` _(ui, client)_
+- `common/ui/BrandLogo` _(ui)_
+- `common/ui/Breadcrumb` _(ui, client)_
+- `common/ui/Button` _(ui, client)_
+- `common/ui/Card` _(ui, client)_
+- `common/ui/ColorPicker` _(ui, client)_
+- `common/ui/ContextMenu` _(ui, client)_
+- `common/ui/CurrencySelector` _(ui, client)_
+- `common/ui/DateRangePicker` _(ui, client)_
+- `common/ui/DemoModeNotice` _(ui, client)_
+- `common/ui/Drawer` _(ui, client)_
+- `common/ui/EmptyState` _(ui, client)_
+- `common/ui/FileInput` _(ui, client)_
+- `common/ui/Form` _(ui, client)_
+- `common/ui/ImageGallery` _(ui, client)_
+- `common/ui/Input` _(ui, client)_
+- `common/ui/layout/AdminShell` _(ui, client)_
+- `common/ui/layout/AppShell` _(ui, client)_
+- `common/ui/layout/AppSidebar` _(ui, client)_
+- `common/ui/layout/AppTopBar` _(ui, client)_
+- `common/ui/layout/FontAwesomeConfig` _(ui, client)_
+- `common/ui/Modal` _(ui, client)_
+- `common/ui/NotificationMenu` _(ui, client)_
+- `common/ui/PageHeader` _(ui, client)_
+- `common/ui/Pagination` _(ui, client)_
+- `common/ui/RadioGroup` _(ui, client)_
+- `common/ui/RichTextEditor/BubbleMenu` _(ui, client)_
+- `common/ui/RichTextEditor/EmojiPicker` _(ui, client)_
+- `common/ui/RichTextEditor/ImageInsertModal` _(ui, client)_
+- `common/ui/RichTextEditor/ImageOverlay` _(ui, client)_
+- `common/ui/RichTextEditor/index` _(ui, client)_
+- `common/ui/RichTextEditor/markdown` _(ui)_
+- `common/ui/RichTextEditor/PopupOverlays` _(ui, client)_
+- `common/ui/RichTextEditor/quill-helpers` _(ui, client)_
+- `common/ui/RichTextEditor/sanitize` _(ui)_
+- `common/ui/RichTextEditor/store` _(ui, client)_
+- `common/ui/RichTextEditor/SuggestionPopup` _(ui, client)_
+- `common/ui/RichTextEditor/TableInsertModal` _(ui, client)_
+- `common/ui/RichTextEditor/Toolbar` _(ui, client)_
+- `common/ui/RichTextEditor/types` _(ui)_
+- `common/ui/RichTextEditor/useEditorActions` _(ui, client)_
+- `common/ui/RichTextEditor/useQuillSetup` _(ui, client)_
+- `common/ui/RichTextEditor/useTriggerKeyboard` _(ui, client)_
+- `common/ui/RowActionsMenu` _(ui, client)_
+- `common/ui/SearchBar` _(ui, client)_
+- `common/ui/Select` _(ui, client)_
+- `common/ui/ServerDataTable` _(ui, client)_
+- `common/ui/Skeleton` _(ui, client)_
+- `common/ui/SkipToContent` _(ui, client)_
+- `common/ui/Spinner` _(ui, client)_
+- `common/ui/TabGroup` _(ui, client)_
+- `common/ui/ThemeToggle` _(ui, client)_
+- `common/ui/toast.store` _(ui)_
+- `common/ui/ToastContainer` _(ui, client)_
+- `common/ui/Toggle` _(ui, client)_
+- `common/ui/Tooltip` _(ui, client)_
 
 ## README
 

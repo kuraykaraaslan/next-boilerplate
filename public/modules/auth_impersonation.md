@@ -14,6 +14,26 @@ Allow a system admin to assume a target user's session (always audited).
 
 - **requires:** `user`, `user_session`, `audit_log`, `setting`, `webhook`, `redis`, `auth`, `env`
 
+## Services
+
+- `impersonation.flow.service.ts`
+- `impersonation.mint.service.ts`
+- `impersonation.service.ts`
+- `impersonation.session.service.ts`
+- `impersonation.settings.service.ts`
+
+## DTOs
+
+- `impersonation.dto.ts`
+
+## Message keys
+
+- `impersonation.messages.ts`
+
+## Setting keys
+
+- `impersonation.setting.keys.ts`
+
 ## README
 
 # Auth Impersonation Module

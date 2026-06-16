@@ -14,6 +14,26 @@ Tenant-scoped product analytics: append-only event tracking (page views, signups
 
 - **requires:** `db`, `env`, `redis`, `common`
 
+## Services
+
+- `analytics.service.ts`
+
+## DTOs
+
+- `analytics.dto.ts`
+
+## Entities
+
+- `analytics_event.entity.ts`
+
+## Enums
+
+- `analytics.enums.ts`
+
+## Message keys
+
+- `analytics.messages.ts`
+
 ## TypeORM entities
 
 - `AnalyticsEvent` (system) — `modules/analytics/server/entities/analytics_event.entity.ts`

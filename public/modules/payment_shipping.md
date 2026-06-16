@@ -14,6 +14,31 @@ Tenant-aware shipping methods and a rate-calculation engine. Define carriers and
 
 - **requires:** `db`, `env`, `redis`, `logger`
 
+## Services
+
+- `payment_shipping.calc.service.ts`
+- `payment_shipping.carrier.service.ts`
+- `payment_shipping.crud.service.ts`
+- `payment_shipping.rules.service.ts`
+- `payment_shipping.service.ts`
+
+## DTOs
+
+- `payment_shipping.dto.ts`
+
+## Entities
+
+- `shipping_method.entity.ts`
+- `shipping_rate.entity.ts`
+
+## Enums
+
+- `payment_shipping.enums.ts`
+
+## Message keys
+
+- `payment_shipping.messages.ts`
+
 ## TypeORM entities
 
 - `ShippingMethod` (system) — `modules/payment_shipping/server/entities/shipping_method.entity.ts`

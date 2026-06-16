@@ -14,6 +14,10 @@ Sentry + Prometheus + OTel facade. Auto-tags every log/trace/metric with the act
 
 - **requires:** `env`, `logger`
 
+## Services
+
+- `observability.service.ts`
+
 ## README
 
 # Observability Module

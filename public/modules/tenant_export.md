@@ -14,6 +14,15 @@ Export all per-tenant data into a downloadable archive (GDPR-friendly).
 
 - **requires:** `db`, `tenant`, `storage`
 
+## Services
+
+- `tenant_export.job.service.ts`
+- `tenant_export.service.ts`
+
+## Entities
+
+- `tenant_export_job.entity.ts`
+
 ## Owned API routes
 
 - `tenant` POST `/tenant/[tenantId]/api/export`

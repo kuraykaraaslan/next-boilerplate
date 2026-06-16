@@ -15,6 +15,37 @@ Pluggable S3-compatible file storage (AWS S3, Cloudflare R2, DigitalOcean Spaces
 - **requires:** `env`, `setting`
 - **optional:** `redis`, `tenant_usage`, `user_agent`
 
+## Services
+
+- `storage.scan.service.ts`
+- `storage.service.ts`
+
+## DTOs
+
+- `storage.dto.ts`
+
+## Entities
+
+- `uploaded_file.entity.ts`
+
+## Enums
+
+- `storage.enums.ts`
+- `storage.scan.enums.ts`
+
+## Message keys
+
+- `storage.messages.ts`
+
+## Setting keys
+
+- `storage.scan.setting.keys.ts`
+- `storage.setting.keys.ts`
+
+## Jobs
+
+- `storage.scan.job.ts`
+
 ## Owned API routes
 
 - `tenant` POST `/tenant/[tenantId]/api/storage`

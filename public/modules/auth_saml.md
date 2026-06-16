@@ -6,7 +6,7 @@
 - **dir:** `modules/auth_saml/`
 - **tags:** identity, auth, sso, enterprise
 - **icon:** `fas fa-building-shield`
-- **hasNextLayer:** false
+- **hasNextLayer:** true
 
 SAML 2.0 SSO with per-tenant IdP config (SamlConfig): signature alg, dual-cert rotation, encrypted assertions, SLO, JIT-atomic provisioning, ABAC role mapping, metadata import, replay detection.
 
@@ -14,9 +14,47 @@ SAML 2.0 SSO with per-tenant IdP config (SamlConfig): signature alg, dual-cert r
 
 - **requires:** `db`, `user`, `user_session`, `tenant`, `env`, `setting`, `audit_log`, `observability`, `redis`, `common`, `logger`
 
+## Services
+
+- `auth_saml.config.crud.service.ts`
+- `auth_saml.config.service.ts`
+- `auth_saml.crypto.service.ts`
+- `auth_saml.flow.callback.service.ts`
+- `auth_saml.flow.metadata.service.ts`
+- `auth_saml.flow.provision.service.ts`
+- `auth_saml.flow.service.ts`
+- `auth_saml.metadata.service.ts`
+- `auth_saml.service.ts`
+
+## DTOs
+
+- `auth_saml.dto.ts`
+
+## Entities
+
+- `saml_config.entity.ts`
+
+## Enums
+
+- `auth_saml.enums.ts`
+
+## Message keys
+
+- `auth_saml.messages.ts`
+
+## Setting keys
+
+- `auth_saml.setting.keys.ts`
+
 ## TypeORM entities
 
 - `SamlConfig` (system) — `modules/auth_saml/server/entities/saml_config.entity.ts`
+
+## Next layer (modules_next/) surface
+
+- `auth_saml/ui/SamlAttributeForm` _(ui, client)_
+- `auth_saml/ui/SamlConfigForm` _(ui, client)_
+- `auth_saml/ui/SamlMetadataCard` _(ui, client)_
 
 ## README
 

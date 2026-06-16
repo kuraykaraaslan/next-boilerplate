@@ -6,7 +6,7 @@
 - **dir:** `modules/user_session/`
 - **tags:** identity, auth, core
 - **icon:** `fas fa-id-badge`
-- **hasNextLayer:** false
+- **hasNextLayer:** true
 
 JWT access/refresh issuance + revocation, Redis-backed session cache, CRUD on UserSession rows.
 
@@ -14,9 +14,33 @@ JWT access/refresh issuance + revocation, Redis-backed session cache, CRUD on Us
 
 - **requires:** `db`, `redis`, `env`, `user`, `user_agent`
 
+## Services
+
+- `user_session.auth.service.ts`
+- `user_session.cache.service.ts`
+- `user_session.crud.service.ts`
+- `user_session.service.ts`
+- `user_session.token.service.ts`
+
+## Entities
+
+- `user_session.entity.ts`
+
+## Enums
+
+- `user_session.enums.ts`
+
+## Message keys
+
+- `user_session.messages.ts`
+
 ## TypeORM entities
 
 - `UserSession` (system) — `modules/user_session/server/entities/user_session.entity.ts`
+
+## Next layer (modules_next/) surface
+
+- `user_session/ui/ActiveSessionsPanel` _(ui, client)_
 
 ## README
 

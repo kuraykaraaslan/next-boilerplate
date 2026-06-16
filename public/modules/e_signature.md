@@ -6,7 +6,7 @@
 - **dir:** `modules/e_signature/`
 - **tags:** auth, identity, signature, eidas
 - **icon:** `fas fa-id-card`
-- **hasNextLayer:** false
+- **hasNextLayer:** true
 
 Multi-country e-identity login + e-signature (eIDAS/OIDC4IDA). Pluggable providers (TR Mobil İmza, Smart-ID, BankID, itsme, FranceConnect, eIDAS-nPA, Signicat).
 
@@ -15,6 +15,44 @@ Multi-country e-identity login + e-signature (eIDAS/OIDC4IDA). Pluggable provide
 - **requires:** `db`, `env`, `user`, `user_session`, `user_security`, `redis`, `redis_idempotency`, `limiter`, `audit_log`, `logger`
 - **optional:** `storage`, `tenant_setting`
 
+## Services
+
+- `e_signature.compliance.service.ts`
+- `e_signature.crypto.chain.service.ts`
+- `e_signature.crypto.parse.service.ts`
+- `e_signature.crypto.service.ts`
+- `e_signature.crypto.verify.service.ts`
+- `e_signature.document.service.ts`
+- `e_signature.encryption.service.ts`
+- `e_signature.etsi_tsl.service.ts`
+- `e_signature.identity.service.ts`
+- `e_signature.ocsp.service.ts`
+- `e_signature.provider.service.ts`
+- `e_signature.service.ts`
+- `e_signature.settings.service.ts`
+- `e_signature.trust_list.service.ts`
+- `e_signature.workflow.service.ts`
+
+## DTOs
+
+- `e_signature.dto.ts`
+
+## Entities
+
+- `trust_list_entry.entity.ts`
+
+## Enums
+
+- `e_signature.enums.ts`
+
+## Message keys
+
+- `e_signature.messages.ts`
+
+## Setting keys
+
+- `e_signature.setting.keys.ts`
+
 ## Owned API routes
 
 - `tenant` GET/PUT `/tenant/[tenantId]/api/e-signature/settings`
@@ -22,6 +60,10 @@ Multi-country e-identity login + e-signature (eIDAS/OIDC4IDA). Pluggable provide
 ## TypeORM entities
 
 - `TrustListEntry` (system) — `modules/e_signature/server/entities/trust_list_entry.entity.ts`
+
+## Next layer (modules_next/) surface
+
+- `e_signature/ui/TenantESignatureSettingsPanel` _(ui, client)_
 
 ## README
 

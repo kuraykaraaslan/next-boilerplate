@@ -8,7 +8,7 @@ import { Button } from '@nb/common/ui/Button';
 import { Input } from '@nb/common/ui/Input';
 import { AlertBanner } from '@nb/common/ui/AlertBanner';
 import { toast } from '@nb/common/ui/toast.store';
-import TemplateBlockRenderer from '@nb/dynamic_page/server/dynamic/partials/TemplateBlockRenderer';
+import TemplateBlockRenderer from '@nb/dynamic_page/ui/dynamic/partials/TemplateBlockRenderer';
 import type { DynamicPageBlockRecord } from '@nb/dynamic_page/server/dynamic_page.types';
 
 type BlockDef = Pick<DynamicPageBlockRecord, 'blockId' | 'type' | 'label' | 'category' | 'defaultProps' | 'isSystem'> & {

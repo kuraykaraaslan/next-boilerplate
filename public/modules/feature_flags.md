@@ -6,7 +6,7 @@
 - **dir:** `modules/feature_flags/`
 - **tags:** platform, feature-flags, rollout, experimentation
 - **icon:** `fas fa-toggle-on`
-- **hasNextLayer:** false
+- **hasNextLayer:** true
 
 Tenant-scoped feature flags with master switch, deterministic percentage rollout, attribute-based targeting rules, and per-subject (user/segment) overrides. Read-through cached for hot-path evaluation; every write is audit-logged.
 
@@ -14,10 +14,35 @@ Tenant-scoped feature flags with master switch, deterministic percentage rollout
 
 - **requires:** `db`, `env`, `redis`, `common`, `audit_log`
 
+## Services
+
+- `feature_flags.service.ts`
+
+## DTOs
+
+- `feature_flags.dto.ts`
+
+## Entities
+
+- `feature_flag.entity.ts`
+- `feature_flag_override.entity.ts`
+
+## Enums
+
+- `feature_flags.enums.ts`
+
+## Message keys
+
+- `feature_flags.messages.ts`
+
 ## TypeORM entities
 
 - `FeatureFlag` (system) — `modules/feature_flags/server/entities/feature_flag.entity.ts`
 - `FeatureFlagOverride` (system) — `modules/feature_flags/server/entities/feature_flag_override.entity.ts`
+
+## Next layer (modules_next/) surface
+
+- `feature_flags/ui/feature-flag-columns` _(ui, client)_
 
 ## README
 

@@ -14,6 +14,33 @@ Tenant-aware wishlists / favorites. Users keep multiple named lists of products 
 
 - **requires:** `db`, `env`, `redis`, `logger`
 
+## Services
+
+- `payment_wishlist.cart.service.ts`
+- `payment_wishlist.crud.service.ts`
+- `payment_wishlist.gdpr.service.ts`
+- `payment_wishlist.items.service.ts`
+- `payment_wishlist.price_watch.service.ts`
+- `payment_wishlist.service.ts`
+
+## DTOs
+
+- `payment_wishlist.dto.ts`
+
+## Entities
+
+- `wishlist.entity.ts`
+- `wishlist_item.entity.ts`
+- `wishlist_price_point.entity.ts`
+
+## Enums
+
+- `payment_wishlist.enums.ts`
+
+## Message keys
+
+- `payment_wishlist.messages.ts`
+
 ## TypeORM entities
 
 - `Wishlist` (system) — `modules/payment_wishlist/server/entities/wishlist.entity.ts`

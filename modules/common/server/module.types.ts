@@ -1,6 +1,6 @@
-import { ComponentType } from 'react';
-import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
-import type { ModuleScope, MenuItem, Permission } from '@/modules_next/module.types';
+import type { ComponentType } from 'react';
+import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+import type { ModuleScope, MenuItem, Permission } from './module-manifest.types';
 
 export type { ModuleScope, MenuItem, Permission };
 
@@ -49,6 +49,23 @@ export interface Widget {
 }
 
 // ============================================================================
+// Slot Contribution (runtime)
+// ============================================================================
+
+export interface SlotContribution {
+  /** Synthesized unique id: `${moduleId}:${slot}:${componentId}`. */
+  id: string;
+  slot: string;
+  /** Component id (e.g. 'payment/ui/BillingProfileTab'); resolved to a lazy component at render. */
+  componentId: string;
+  order: number;
+  scope: ModuleScope;
+  permissions: string[];
+  props: Record<string, unknown>;
+  moduleId: string;
+}
+
+// ============================================================================
 // Loaded Module (runtime)
 // ============================================================================
 
@@ -64,11 +81,12 @@ export interface LoadedModule {
   enabled: boolean;
   priority: number;
   path: string;
-  dependencies: import('@/modules_next/module.types').ModuleDependencies;
+  dependencies: import('./module-manifest.types').ModuleDependencies;
   settingsTabs: SettingsTab[];
   menuItems: MenuItem[];
   permissions: Permission[];
   widgets: Widget[];
+  slots: SlotContribution[];
 }
 
 // ============================================================================
@@ -84,4 +102,5 @@ export interface ModuleRegistry {
   getMenuItems(scope?: ModuleScope): MenuItem[];
   getPermissions(): Permission[];
   getWidgets(scope?: ModuleScope): Widget[];
+  getSlotContributions(slot: string, scope?: ModuleScope): SlotContribution[];
 }

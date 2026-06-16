@@ -14,6 +14,19 @@ Tenant-scoped session handling: bind a user session to a specific tenant, resolv
 
 - **requires:** `db`, `redis`, `user_session`, `tenant`, `env`
 
+## Services
+
+- `tenant_session.resolve.service.ts`
+- `tenant_session.service.ts`
+
+## Message keys
+
+- `tenant_session.messages.ts`
+
+## Setting keys
+
+- `tenant_session.setting.keys.ts`
+
 ## README
 
 # Tenant Session Module

@@ -14,6 +14,10 @@ Winston-based structured logger. Use instead of console.* across the codebase.
 
 - **requires:** `env`
 
+## Services
+
+- `logger.service.ts`
+
 ## README
 
 # Logger Module

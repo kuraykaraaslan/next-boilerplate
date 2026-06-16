@@ -14,6 +14,26 @@ Tenant-scoped full-text search over arbitrary content. Owning modules push docum
 
 - **requires:** `db`, `env`, `redis`, `common`
 
+## Services
+
+- `search.service.ts`
+
+## DTOs
+
+- `search.dto.ts`
+
+## Entities
+
+- `search_document.entity.ts`
+
+## Enums
+
+- `search.enums.ts`
+
+## Message keys
+
+- `search.messages.ts`
+
 ## Owned API routes
 
 - `tenant` GET `/tenant/[tenantId]/api/search`

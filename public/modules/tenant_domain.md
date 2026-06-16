@@ -6,13 +6,42 @@
 - **dir:** `modules/tenant_domain/`
 - **tags:** tenant, domain, infrastructure
 - **icon:** `fas fa-globe`
-- **hasNextLayer:** false
+- **hasNextLayer:** true
 
 Custom domain mapping per tenant + DNS verification (TXT/CNAME challenge).
 
 ## Dependencies
 
 - **requires:** `db`, `tenant`, `env`
+
+## Services
+
+- `dns_verification.service.ts`
+- `ssl_provisioning.service.ts`
+- `tenant_domain.crud.service.ts`
+- `tenant_domain.dns.service.ts`
+- `tenant_domain.service.ts`
+
+## DTOs
+
+- `tenant_domain.dto.ts`
+
+## Entities
+
+- `tenant_domain.entity.ts`
+
+## Enums
+
+- `tenant_domain.enums.ts`
+
+## Message keys
+
+- `tenant_domain.messages.ts`
+
+## Jobs
+
+- `ssl_health.job.ts`
+- `tenant_domain.job.ts`
 
 ## Owned API routes
 
@@ -23,6 +52,10 @@ Custom domain mapping per tenant + DNS verification (TXT/CNAME challenge).
 ## TypeORM entities
 
 - `TenantDomain` (tenant) — `modules/tenant_domain/server/entities/tenant_domain.entity.ts`
+
+## Next layer (modules_next/) surface
+
+- `tenant_domain/ui/domain-list-columns` _(ui, client)_
 
 ## README
 

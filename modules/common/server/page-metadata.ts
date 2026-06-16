@@ -1,3 +1,6 @@
+// React's `cache` is a server-side request-memoization API (not a component/hook),
+// so it is a legitimate server-layer dependency here.
+// eslint-disable-next-line no-restricted-imports
 import { cache } from 'react';
 import type { Metadata } from 'next';
 import TenantBrandingService from '@nb/tenant_branding/server/tenant_branding.service';
