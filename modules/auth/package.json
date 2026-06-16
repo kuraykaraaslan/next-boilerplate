@@ -1,0 +1,43 @@
+{
+  "name": "@nb/auth",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/auth.admin-guard.next": "./server/auth.admin-guard.next.ts",
+    "./server/auth.captcha.service": "./server/auth.captcha.service.ts",
+    "./server/auth.credential.helpers": "./server/auth.credential.helpers.ts",
+    "./server/auth.credential.lifecycle.service": "./server/auth.credential.lifecycle.service.ts",
+    "./server/auth.credential.login.service": "./server/auth.credential.login.service.ts",
+    "./server/auth.credential.register.service": "./server/auth.credential.register.service.ts",
+    "./server/auth.credential.service": "./server/auth.credential.service.ts",
+    "./server/auth.dormant.job": "./server/auth.dormant.job.ts",
+    "./server/auth.dto": "./server/auth.dto.ts",
+    "./server/auth.i18n": "./server/auth.i18n.ts",
+    "./server/auth.messages": "./server/auth.messages.ts",
+    "./server/auth.openapi": "./server/auth.openapi.ts",
+    "./server/auth.otp.service": "./server/auth.otp.service.ts",
+    "./server/auth.password.service": "./server/auth.password.service.ts",
+    "./server/auth.policy.loader.service": "./server/auth.policy.loader.service.ts",
+    "./server/auth.policy.service": "./server/auth.policy.service.ts",
+    "./server/auth.policy.validator.service": "./server/auth.policy.validator.service.ts",
+    "./server/auth.service": "./server/auth.service.ts",
+    "./server/auth.setting.keys": "./server/auth.setting.keys.ts",
+    "./server/auth.settings.fields": "./server/auth.settings.fields.ts",
+    "./server/auth.totp.service": "./server/auth.totp.service.ts",
+    "./server/auth.verification.service": "./server/auth.verification.service.ts",
+    "./server/dictionaries/index": "./server/dictionaries/index.ts",
+    "./server/dictionaries": "./server/dictionaries/index.ts",
+    "./server/entities/user_consent.entity": "./server/entities/user_consent.entity.ts",
+    "./ui/ForgotPasswordForm": "./ui/ForgotPasswordForm.tsx",
+    "./ui/LoginForm": "./ui/LoginForm.tsx",
+    "./ui/OAuthButtons": "./ui/OAuthButtons.tsx",
+    "./ui/RegisterForm": "./ui/RegisterForm.tsx",
+    "./ui/SessionExpiredBanner": "./ui/SessionExpiredBanner.tsx",
+    "./module.json": "./module.json"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "next": "*"
+  }
+}

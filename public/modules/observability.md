@@ -6,22 +6,13 @@
 - **dir:** `modules/observability/`
 - **tags:** observability, infra, core
 - **icon:** `fas fa-chart-line`
-- **hasNextLayer:** true
+- **hasNextLayer:** false
 
 Sentry + Prometheus + OTel facade. Auto-tags every log/trace/metric with the active tenantId/userId/requestId via Logger AsyncLocalStorage context. Lazy-loaded — no-op when SENTRY_DSN / METRICS_ENABLED / OTEL_ENABLED are unset.
 
 ## Dependencies
 
 - **requires:** `env`, `logger`
-
-## Services
-
-- `observability.service.ts`
-
-## Next layer (modules_next/) surface
-
-- `observability/index` _(ui)_
-- `observability/withObservability.next` _(ui)_
 
 ## README
 

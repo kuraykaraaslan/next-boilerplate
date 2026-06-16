@@ -1,0 +1,15 @@
+{
+  "name": "@nb/redis",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/index": "./server/index.ts",
+    "./server": "./server/index.ts",
+    "./server/redis.bullmq": "./server/redis.bullmq.ts",
+    "./server/redis.cache": "./server/redis.cache.ts",
+    "./server/redis.service": "./server/redis.service.ts",
+    ".": "./server/index.ts",
+    "./module.json": "./module.json"
+  }
+}

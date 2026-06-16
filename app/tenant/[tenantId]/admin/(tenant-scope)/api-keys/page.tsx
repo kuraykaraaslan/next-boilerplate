@@ -1,16 +1,16 @@
 'use client';
 import { use, useEffect, useState } from 'react';
-import api from '@/modules_next/common/axios';
-import { PageHeader } from '@/modules_next/common/ui/PageHeader';
-import { Button } from '@/modules_next/common/ui/Button';
-import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
-import { Modal } from '@/modules_next/common/ui/Modal';
-import { ServerDataTable } from '@/modules_next/common/ui/ServerDataTable';
-import { toast } from '@/modules_next/common/ui/toast.store';
+import api from '@nb/common/server/axios';
+import { PageHeader } from '@nb/common/ui/PageHeader';
+import { Button } from '@nb/common/ui/Button';
+import { AlertBanner } from '@nb/common/ui/AlertBanner';
+import { Modal } from '@nb/common/ui/Modal';
+import { ServerDataTable } from '@nb/common/ui/ServerDataTable';
+import { toast } from '@nb/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCopy, faCheck, faGear } from '@fortawesome/free-solid-svg-icons';
-import { buildApiKeyColumns, type SafeApiKey } from '@/modules_next/api_key/ui/api-key-columns';
-import { ApiKeyCreateModal } from '@/modules_next/api_key/ui/ApiKeyCreateModal';
+import { buildApiKeyColumns, type SafeApiKey } from '@nb/api_key/ui/api-key-columns';
+import { ApiKeyCreateModal } from '@nb/api_key/ui/ApiKeyCreateModal';
 
 const PAGE_SIZE = 25;
 

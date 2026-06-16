@@ -1,16 +1,16 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import api from '@/modules_next/common/axios';
-import { ServerDataTable, type TableColumn } from '@/modules_next/common/ui/ServerDataTable';
-import { Input } from '@/modules_next/common/ui/Input';
-import { Select } from '@/modules_next/common/ui/Select';
-import { Badge } from '@/modules_next/common/ui/Badge';
-import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
-import { Drawer } from '@/modules_next/common/ui/Drawer';
+import api from '@nb/common/server/axios';
+import { ServerDataTable, type TableColumn } from '@nb/common/ui/ServerDataTable';
+import { Input } from '@nb/common/ui/Input';
+import { Select } from '@nb/common/ui/Select';
+import { Badge } from '@nb/common/ui/Badge';
+import { AlertBanner } from '@nb/common/ui/AlertBanner';
+import { Drawer } from '@nb/common/ui/Drawer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
-import type { AuditSeverity } from '@/modules/audit_log/audit_log.enums';
+import type { AuditSeverity } from '@nb/audit_log/server/audit_log.enums';
 
 type AuditLogRow = {
   auditLogId: string;

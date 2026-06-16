@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { env } from '@/modules/env';
+import { env } from '@nb/env';
 
 /**
  * GET /internal/api/health

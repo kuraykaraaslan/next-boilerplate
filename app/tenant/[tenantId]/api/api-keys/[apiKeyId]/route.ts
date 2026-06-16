@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Limiter from '@/modules_next/limiter/limiter.service.next';
-import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next';
-import ApiKeyService from '@/modules/api_key/api_key.service';
-import { UpdateApiKeyDTO } from '@/modules/api_key/api_key.dto';
+import Limiter from '@nb/limiter/server/limiter.service.next';
+import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
+import ApiKeyService from '@nb/api_key/server/api_key.service';
+import { UpdateApiKeyDTO } from '@nb/api_key/server/api_key.dto';
 
 /**
  * PUT /tenant/[tenantId]/api/api-keys/[apiKeyId]

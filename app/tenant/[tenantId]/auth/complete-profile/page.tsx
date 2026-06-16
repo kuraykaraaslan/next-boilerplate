@@ -1,7 +1,7 @@
 'use client';
 import { use, useState } from 'react';
-import api from '@/modules_next/common/axios';
-import { Spinner } from '@/modules_next/common/ui/Spinner';
+import api from '@nb/common/server/axios';
+import { Spinner } from '@nb/common/ui/Spinner';
 
 /**
  * Shown right after a no-email login (national identity / e-Devlet, or any

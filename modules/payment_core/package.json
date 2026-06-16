@@ -1,0 +1,25 @@
+{
+  "name": "@nb/payment_core",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/index": "./server/index.ts",
+    "./server": "./server/index.ts",
+    "./server/payment_core.circuit": "./server/payment_core.circuit.ts",
+    "./server/payment_core.enums": "./server/payment_core.enums.ts",
+    "./server/payment_core.format": "./server/payment_core.format.ts",
+    "./server/payment_core.messages": "./server/payment_core.messages.ts",
+    "./server/payment_core.setting.keys": "./server/payment_core.setting.keys.ts",
+    "./server/payment_core.types": "./server/payment_core.types.ts",
+    "./server/providers/alipay.provider": "./server/providers/alipay.provider.ts",
+    "./server/providers/base.provider": "./server/providers/base.provider.ts",
+    "./server/providers/cloudpayments.provider": "./server/providers/cloudpayments.provider.ts",
+    "./server/providers/iyzico.provider": "./server/providers/iyzico.provider.ts",
+    "./server/providers/paypal.provider": "./server/providers/paypal.provider.ts",
+    "./server/providers/stripe.provider": "./server/providers/stripe.provider.ts",
+    "./server/providers/wechatpay.provider": "./server/providers/wechatpay.provider.ts",
+    "./server/providers/yookassa.provider": "./server/providers/yookassa.provider.ts",
+    ".": "./server/index.ts"
+  }
+}

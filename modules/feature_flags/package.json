@@ -1,0 +1,25 @@
+{
+  "name": "@nb/feature_flags",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/entities/feature_flag.entity": "./server/entities/feature_flag.entity.ts",
+    "./server/entities/feature_flag_override.entity": "./server/entities/feature_flag_override.entity.ts",
+    "./server/feature_flags.dto": "./server/feature_flags.dto.ts",
+    "./server/feature_flags.enums": "./server/feature_flags.enums.ts",
+    "./server/feature_flags.eval": "./server/feature_flags.eval.ts",
+    "./server/feature_flags.messages": "./server/feature_flags.messages.ts",
+    "./server/feature_flags.service": "./server/feature_flags.service.ts",
+    "./server/feature_flags.types": "./server/feature_flags.types.ts",
+    "./server/index": "./server/index.ts",
+    "./server": "./server/index.ts",
+    "./ui/feature-flag-columns": "./ui/feature-flag-columns.tsx",
+    ".": "./server/index.ts",
+    "./module.json": "./module.json"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "next": "*"
+  }
+}

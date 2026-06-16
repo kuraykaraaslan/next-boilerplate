@@ -1,14 +1,14 @@
 // path: app/tenant/[tenantId]/api/auth/totp/setup/route.ts
-import Limiter from '@/modules_next/limiter/limiter.service.next';
-import Logger from '@/modules/logger';
+import Limiter from '@nb/limiter/server/limiter.service.next';
+import Logger from '@nb/logger';
 import { NextRequest, NextResponse } from "next/server";
-import UserSessionNextService from "@/modules_next/user_session/user_session.service.next";
-import TOTPService from "@/modules/auth/auth.totp.service";
-import TenantMemberService from "@/modules/tenant_member/tenant_member.service";
-import TenantService from "@/modules/tenant/tenant.service";
-import AuthMessages from "@/modules/auth/auth.messages";
-import { TOTPSetupDTO } from "@/modules/auth/auth.dto";
-import UserSecurityService from "@/modules/user_security/user_security.service";
+import UserSessionNextService from "@nb/user_session/server/user_session.service.next";
+import TOTPService from "@nb/auth/server/auth.totp.service";
+import TenantMemberService from "@nb/tenant_member/server/tenant_member.service";
+import TenantService from "@nb/tenant/server/tenant.service";
+import AuthMessages from "@nb/auth/server/auth.messages";
+import { TOTPSetupDTO } from "@nb/auth/server/auth.dto";
+import UserSecurityService from "@nb/user_security/server/user_security.service";
 
 export async function POST(
   request: NextRequest,

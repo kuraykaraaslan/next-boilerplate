@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Limiter from '@/modules_next/limiter/limiter.service.next';
-import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next';
-import { WalletService, TransferCreditsDTO } from '@/modules/wallet';
-import { withIdempotency } from '@/modules_next/redis_idempotency/withIdempotency';
+import Limiter from '@nb/limiter/server/limiter.service.next';
+import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
+import { WalletService, TransferCreditsDTO } from '@nb/wallet';
+import { withIdempotency } from '@nb/redis_idempotency/server/withIdempotency';
 
 /**
  * POST /tenant/[tenantId]/api/wallet/transfer

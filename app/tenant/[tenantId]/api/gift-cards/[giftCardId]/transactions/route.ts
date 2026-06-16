@@ -1,8 +1,8 @@
-import Limiter from '@/modules_next/limiter/limiter.service.next';
+import Limiter from '@nb/limiter/server/limiter.service.next';
 import { NextRequest, NextResponse } from 'next/server';
-import GiftCardService from '@/modules/gift_card/gift_card.service';
-import { GIFT_CARD_MESSAGES } from '@/modules/gift_card/gift_card.messages';
-import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next';
+import GiftCardService from '@nb/gift_card/server/gift_card.service';
+import { GIFT_CARD_MESSAGES } from '@nb/gift_card/server/gift_card.messages';
+import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
 
 type Params = { params: Promise<{ tenantId: string; giftCardId: string }> };
 

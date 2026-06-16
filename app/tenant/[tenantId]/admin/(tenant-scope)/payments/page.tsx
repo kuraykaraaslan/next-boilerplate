@@ -1,16 +1,16 @@
 'use client';
 import { use, useCallback, useEffect, useState } from 'react';
-import api from '@/modules_next/common/axios';
-import { ServerDataTable, type TableColumn } from '@/modules_next/common/ui/ServerDataTable';
-import { Input } from '@/modules_next/common/ui/Input';
-import { Select } from '@/modules_next/common/ui/Select';
-import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
-import { PageHeader } from '@/modules_next/common/ui/PageHeader';
-import { RowActionsMenu } from '@/modules_next/common/ui/RowActionsMenu';
-import { PaymentStatusBadge, type PaymentStatus } from '@/modules_next/payment/ui/PaymentStatusBadge';
+import api from '@nb/common/server/axios';
+import { ServerDataTable, type TableColumn } from '@nb/common/ui/ServerDataTable';
+import { Input } from '@nb/common/ui/Input';
+import { Select } from '@nb/common/ui/Select';
+import { AlertBanner } from '@nb/common/ui/AlertBanner';
+import { PageHeader } from '@nb/common/ui/PageHeader';
+import { RowActionsMenu } from '@nb/common/ui/RowActionsMenu';
+import { PaymentStatusBadge, type PaymentStatus } from '@nb/payment/ui/PaymentStatusBadge';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faEye, faGear } from '@fortawesome/free-solid-svg-icons';
-import type { SafePayment } from '@/modules/payment/payment.types';
+import type { SafePayment } from '@nb/payment/server/payment.types';
 
 type Payment = Pick<SafePayment, 'paymentId' | 'amount' | 'currency' | 'provider' | 'customerEmail' | 'customerName' | 'tenantId' | 'userId'> & {
   status: PaymentStatus;

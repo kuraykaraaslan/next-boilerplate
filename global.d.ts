@@ -1,7 +1,7 @@
-import type { SafeUser } from '@/modules/user/user.types';
-import type { SafeUserSession } from '@/modules/user_session/user_session.types';
-import type { SafeTenant } from '@/modules/tenant/tenant.types';
-import type { SafeTenantMember } from '@/modules/tenant_member/tenant_member.types';
+import type { SafeUser } from '@nb/user/server/user.types';
+import type { SafeUserSession } from '@nb/user_session/server/user_session.types';
+import type { SafeTenant } from '@nb/tenant/server/tenant.types';
+import type { SafeTenantMember } from '@nb/tenant_member/server/tenant_member.types';
 
 declare module 'swagger-ui-react' {
   import { ComponentType } from 'react';

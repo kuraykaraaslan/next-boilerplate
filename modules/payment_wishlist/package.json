@@ -1,0 +1,26 @@
+{
+  "name": "@nb/payment_wishlist",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/entities/wishlist.entity": "./server/entities/wishlist.entity.ts",
+    "./server/entities/wishlist_item.entity": "./server/entities/wishlist_item.entity.ts",
+    "./server/entities/wishlist_price_point.entity": "./server/entities/wishlist_price_point.entity.ts",
+    "./server/index": "./server/index.ts",
+    "./server": "./server/index.ts",
+    "./server/payment_wishlist.cart.service": "./server/payment_wishlist.cart.service.ts",
+    "./server/payment_wishlist.crud.service": "./server/payment_wishlist.crud.service.ts",
+    "./server/payment_wishlist.dto": "./server/payment_wishlist.dto.ts",
+    "./server/payment_wishlist.enums": "./server/payment_wishlist.enums.ts",
+    "./server/payment_wishlist.gdpr.service": "./server/payment_wishlist.gdpr.service.ts",
+    "./server/payment_wishlist.items.service": "./server/payment_wishlist.items.service.ts",
+    "./server/payment_wishlist.messages": "./server/payment_wishlist.messages.ts",
+    "./server/payment_wishlist.price_watch.service": "./server/payment_wishlist.price_watch.service.ts",
+    "./server/payment_wishlist.seed": "./server/payment_wishlist.seed.ts",
+    "./server/payment_wishlist.service": "./server/payment_wishlist.service.ts",
+    "./server/payment_wishlist.types": "./server/payment_wishlist.types.ts",
+    ".": "./server/index.ts",
+    "./module.json": "./module.json"
+  }
+}

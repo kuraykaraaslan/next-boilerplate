@@ -1,0 +1,26 @@
+{
+  "name": "@nb/tenant_member",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/entities/tenant_member.entity": "./server/entities/tenant_member.entity.ts",
+    "./server/tenant_member.dto": "./server/tenant_member.dto.ts",
+    "./server/tenant_member.enums": "./server/tenant_member.enums.ts",
+    "./server/tenant_member.helpers": "./server/tenant_member.helpers.ts",
+    "./server/tenant_member.messages": "./server/tenant_member.messages.ts",
+    "./server/tenant_member.read.service": "./server/tenant_member.read.service.ts",
+    "./server/tenant_member.seed": "./server/tenant_member.seed.ts",
+    "./server/tenant_member.service": "./server/tenant_member.service.ts",
+    "./server/tenant_member.settings.fields": "./server/tenant_member.settings.fields.ts",
+    "./server/tenant_member.types": "./server/tenant_member.types.ts",
+    "./server/tenant_member.write.service": "./server/tenant_member.write.service.ts",
+    "./server/tests/tenant_member.test-setup": "./server/tests/tenant_member.test-setup.ts",
+    "./ui/member-list-columns": "./ui/member-list-columns.tsx",
+    "./module.json": "./module.json"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "next": "*"
+  }
+}

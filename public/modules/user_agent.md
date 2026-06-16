@@ -10,15 +10,6 @@
 
 Parse User-Agent header into device/OS/browser metadata. Used to annotate sessions and audit logs.
 
-## Services
-
-- `user_agent.geo.service.ts`
-- `user_agent.service.ts`
-
-## Enums
-
-- `user_agent.enums.ts`
-
 ## README
 
 # User Agent Module

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import SSLProvisioningService from '@/modules/tenant_domain/ssl_provisioning.service';
-import Logger from '@/modules/logger';
+import SSLProvisioningService from '@nb/tenant_domain/server/ssl_provisioning.service';
+import Logger from '@nb/logger';
 
 /**
  * GET /internal/api/caddy-ask?domain=example.com

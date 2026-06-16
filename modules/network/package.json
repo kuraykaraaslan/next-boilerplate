@@ -1,0 +1,15 @@
+{
+  "name": "@nb/network",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/index": "./server/index.ts",
+    "./server": "./server/index.ts",
+    "./server/network.enums": "./server/network.enums.ts",
+    "./server/network.ip": "./server/network.ip.ts",
+    "./server/network.types": "./server/network.types.ts",
+    ".": "./server/index.ts",
+    "./module.json": "./module.json"
+  }
+}

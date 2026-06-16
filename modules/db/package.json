@@ -1,0 +1,22 @@
+{
+  "name": "@nb/db",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/db.datasource": "./server/db.datasource.ts",
+    "./server/db.deploy": "./server/db.deploy.ts",
+    "./server/db.entities": "./server/db.entities.ts",
+    "./server/db.migration-datasource": "./server/db.migration-datasource.ts",
+    "./server/db.rls": "./server/db.rls.ts",
+    "./server/db.tenant-provision.service": "./server/db.tenant-provision.service.ts",
+    "./server/db.tenant": "./server/db.tenant.ts",
+    "./server/db": "./server/db.ts",
+    "./server/db.utils": "./server/db.utils.ts",
+    "./server/entities/tenant_database.entity": "./server/entities/tenant_database.entity.ts",
+    "./server/index": "./server/index.ts",
+    "./server": "./server/index.ts",
+    ".": "./server/index.ts",
+    "./module.json": "./module.json"
+  }
+}

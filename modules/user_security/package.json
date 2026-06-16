@@ -1,0 +1,34 @@
+{
+  "name": "@nb/user_security",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/entities/user_security.entity": "./server/entities/user_security.entity.ts",
+    "./server/tests/user_security.test-setup": "./server/tests/user_security.test-setup.ts",
+    "./server/user_security.crud.service": "./server/user_security.crud.service.ts",
+    "./server/user_security.enums": "./server/user_security.enums.ts",
+    "./server/user_security.helpers": "./server/user_security.helpers.ts",
+    "./server/user_security.login.service": "./server/user_security.login.service.ts",
+    "./server/user_security.messages": "./server/user_security.messages.ts",
+    "./server/user_security.mfa.service": "./server/user_security.mfa.service.ts",
+    "./server/user_security.passkey.authenticate.service": "./server/user_security.passkey.authenticate.service.ts",
+    "./server/user_security.passkey.config": "./server/user_security.passkey.config.ts",
+    "./server/user_security.passkey.constants": "./server/user_security.passkey.constants.ts",
+    "./server/user_security.passkey.crud.service": "./server/user_security.passkey.crud.service.ts",
+    "./server/user_security.passkey.flow.service": "./server/user_security.passkey.flow.service.ts",
+    "./server/user_security.passkey.messages": "./server/user_security.passkey.messages.ts",
+    "./server/user_security.passkey.register.service": "./server/user_security.passkey.register.service.ts",
+    "./server/user_security.passkey.service": "./server/user_security.passkey.service.ts",
+    "./server/user_security.seed": "./server/user_security.seed.ts",
+    "./server/user_security.service": "./server/user_security.service.ts",
+    "./server/user_security.setting.keys": "./server/user_security.setting.keys.ts",
+    "./server/user_security.types": "./server/user_security.types.ts",
+    "./ui/PasskeysPanel": "./ui/PasskeysPanel.tsx",
+    "./module.json": "./module.json"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "next": "*"
+  }
+}

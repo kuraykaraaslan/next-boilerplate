@@ -1,4 +1,4 @@
-import { Spinner } from '@/modules_next/common/ui/Spinner';
+import { Spinner } from '@nb/common/ui/Spinner';
 
 export default function TenantAuthLoading() {
   return (

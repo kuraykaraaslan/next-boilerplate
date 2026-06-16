@@ -1,0 +1,19 @@
+{
+  "name": "@nb/observability",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/index": "./server/index.ts",
+    "./server": "./server/index.ts",
+    "./server/metrics": "./server/metrics.ts",
+    "./server/observability.next-index": "./server/observability.next-index.ts",
+    "./server/observability.service": "./server/observability.service.ts",
+    "./server/observability.types": "./server/observability.types.ts",
+    "./server/otel.init": "./server/otel.init.ts",
+    "./server/sentry.init": "./server/sentry.init.ts",
+    "./server/withObservability.next": "./server/withObservability.next.ts",
+    ".": "./server/index.ts",
+    "./module.json": "./module.json"
+  }
+}

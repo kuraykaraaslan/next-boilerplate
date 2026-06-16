@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Limiter from '@/modules_next/limiter/limiter.service.next';
-import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next';
-import { MeteringService, RecordUsageDTO } from '@/modules/metering';
+import Limiter from '@nb/limiter/server/limiter.service.next';
+import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
+import { MeteringService, RecordUsageDTO } from '@nb/metering';
 
 /**
  * POST /tenant/[tenantId]/api/metering/events

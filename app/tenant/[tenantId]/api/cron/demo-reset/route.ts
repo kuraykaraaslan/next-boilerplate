@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { env } from '@/modules/env';
-import { resetAndRedeploy, resolveDeployTarget } from '@/modules/db/db.deploy';
-import Logger from '@/modules/logger';
+import { env } from '@nb/env';
+import { resetAndRedeploy, resolveDeployTarget } from '@nb/db/server/db.deploy';
+import Logger from '@nb/logger';
 
 // Schema sync + reseed needs the full Node runtime (pg, typeorm, bcrypt, fs)
 // and runs longer than the default serverless budget.

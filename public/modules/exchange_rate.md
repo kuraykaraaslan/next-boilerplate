@@ -14,14 +14,6 @@ TCMB (Turkish Central Bank) FX rates with Redis caching. Converts plan prices to
 
 - **requires:** `redis`, `common`
 
-## Services
-
-- `exchange_rate.service.ts`
-
-## Message keys
-
-- `exchange_rate.messages.ts`
-
 ## README
 
 # Exchange Rate Module

@@ -14,17 +14,9 @@ TypeORM DataSource factory — single shared DB for all entities, optional per-t
 
 - **requires:** `env`
 
-## Services
-
-- `db.tenant-provision.service.ts`
-
-## Entities
-
-- `tenant_database.entity.ts`
-
 ## TypeORM entities
 
-- `TenantDatabase` (system) — `modules/db/entities/tenant_database.entity.ts`
+- `TenantDatabase` (system) — `modules/db/server/entities/tenant_database.entity.ts`
 
 ## README
 

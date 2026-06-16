@@ -13,17 +13,3 @@ National/government digital-identity login (e-Devlet TR/KKTC, eIDAS, SPID, Cl@ve
 ## Dependencies
 
 - **requires:** `db`, `user`, `user_profile`, `user_social_account`, `user_session`, `user_security`, `tenant`, `tenant_member`, `auth_sso`, `auth_saml`, `auth_oidc`, `env`, `audit_log`, `observability`, `redis`, `common`, `logger`
-
-## Services
-
-- `auth_acs.config.service.ts`
-- `auth_acs.flow.service.ts`
-- `auth_acs.service.ts`
-
-## Enums
-
-- `auth_acs.enums.ts`
-
-## Message keys
-
-- `auth_acs.messages.ts`

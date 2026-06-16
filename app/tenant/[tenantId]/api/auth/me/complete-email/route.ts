@@ -1,11 +1,11 @@
 // path: app/tenant/[tenantId]/api/auth/me/complete-email/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import UserSessionNextService from '@/modules_next/user_session/user_session.service.next';
-import AuthVerificationService from '@/modules/auth/auth.verification.service';
-import SSOService from '@/modules/auth_sso/auth_sso.service';
-import UserService from '@/modules/user/user.service';
-import Limiter from '@/modules_next/limiter/limiter.service.next';
-import { AppError, ErrorCode } from '@/modules/common/app-error';
+import UserSessionNextService from '@nb/user_session/server/user_session.service.next';
+import AuthVerificationService from '@nb/auth/server/auth.verification.service';
+import SSOService from '@nb/auth_sso/server/auth_sso.service';
+import UserService from '@nb/user/server/user.service';
+import Limiter from '@nb/limiter/server/limiter.service.next';
+import { AppError, ErrorCode } from '@nb/common/server/app-error';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 

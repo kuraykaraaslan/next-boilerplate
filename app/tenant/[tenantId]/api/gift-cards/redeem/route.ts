@@ -1,10 +1,10 @@
-import Limiter from '@/modules_next/limiter/limiter.service.next';
+import Limiter from '@nb/limiter/server/limiter.service.next';
 import { NextRequest, NextResponse } from 'next/server';
-import GiftCardService from '@/modules/gift_card/gift_card.service';
-import { RedeemGiftCardRequestSchema } from '@/modules/gift_card/gift_card.dto';
-import { GIFT_CARD_MESSAGES } from '@/modules/gift_card/gift_card.messages';
-import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next';
-import { withIdempotency } from '@/modules_next/redis_idempotency/withIdempotency';
+import GiftCardService from '@nb/gift_card/server/gift_card.service';
+import { RedeemGiftCardRequestSchema } from '@nb/gift_card/server/gift_card.dto';
+import { GIFT_CARD_MESSAGES } from '@nb/gift_card/server/gift_card.messages';
+import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
+import { withIdempotency } from '@nb/redis_idempotency/server/withIdempotency';
 
 /**
  * POST /tenant/[tenantId]/api/gift-cards/redeem

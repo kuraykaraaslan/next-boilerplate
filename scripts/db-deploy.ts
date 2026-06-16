@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import 'dotenv/config';
-import { deployDatabase, resolveDeployTarget } from '@/modules/db/db.deploy';
+import { deployDatabase, resolveDeployTarget } from '@nb/db/server/db.deploy';
 
 /**
  * Production deploy migration — wired into `vercel-build` so a fresh or

@@ -1,6 +1,6 @@
-import { ApiDocsPage } from '@/modules_next/api_doc/ui/ApiDocsPage';
-import { SYSTEM_SPEC, TENANT_SPEC } from '@/modules_next/api_doc/ui/mockSpec';
-import { isRootTenant } from '@/modules/tenant/tenant.constants';
+import { ApiDocsPage } from '@nb/api_doc/ui/ApiDocsPage';
+import { SYSTEM_SPEC, TENANT_SPEC } from '@nb/api_doc/ui/mockSpec';
+import { isRootTenant } from '@nb/tenant/server/tenant.constants';
 
 /**
  * Tenant admin → API Docs.

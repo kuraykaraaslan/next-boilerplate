@@ -1,0 +1,43 @@
+{
+  "name": "@nb/coupon",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/coupon.analytics.service": "./server/coupon.analytics.service.ts",
+    "./server/coupon.bulk.service": "./server/coupon.bulk.service.ts",
+    "./server/coupon.cache": "./server/coupon.cache.ts",
+    "./server/coupon.crud.core.service": "./server/coupon.crud.core.service.ts",
+    "./server/coupon.crud.service": "./server/coupon.crud.service.ts",
+    "./server/coupon.dto": "./server/coupon.dto.ts",
+    "./server/coupon.enums": "./server/coupon.enums.ts",
+    "./server/coupon.messages": "./server/coupon.messages.ts",
+    "./server/coupon.redemption.service": "./server/coupon.redemption.service.ts",
+    "./server/coupon.seed": "./server/coupon.seed.ts",
+    "./server/coupon.service": "./server/coupon.service.ts",
+    "./server/coupon.types": "./server/coupon.types.ts",
+    "./server/coupon.validation.service": "./server/coupon.validation.service.ts",
+    "./server/entities/coupon.entity": "./server/entities/coupon.entity.ts",
+    "./server/entities/coupon_redemption.entity": "./server/entities/coupon_redemption.entity.ts",
+    "./server/index": "./server/index.ts",
+    "./server": "./server/index.ts",
+    "./server/providers/base.coupon.provider": "./server/providers/base.coupon.provider.ts",
+    "./server/providers/iyzico.coupon.provider": "./server/providers/iyzico.coupon.provider.ts",
+    "./server/providers/paypal.coupon.provider": "./server/providers/paypal.coupon.provider.ts",
+    "./server/providers/stripe.coupon.provider": "./server/providers/stripe.coupon.provider.ts",
+    "./ui/CouponApplyForm": "./ui/CouponApplyForm.tsx",
+    "./ui/CouponArchiveModal": "./ui/CouponArchiveModal.tsx",
+    "./ui/CouponBadge": "./ui/CouponBadge.tsx",
+    "./ui/CouponCreateModal": "./ui/CouponCreateModal.tsx",
+    "./ui/CouponRedemptionsList": "./ui/CouponRedemptionsList.tsx",
+    "./ui/CouponScopePanel": "./ui/CouponScopePanel.tsx",
+    "./ui/coupon-edit.utils": "./ui/coupon-edit.utils.ts",
+    "./ui/coupon-list-columns": "./ui/coupon-list-columns.tsx",
+    ".": "./server/index.ts",
+    "./module.json": "./module.json"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "next": "*"
+  }
+}

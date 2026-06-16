@@ -1,16 +1,16 @@
 'use client';
 import { use, useState, useEffect, useCallback, useMemo } from 'react';
-import { Button } from '@/modules_next/common/ui/Button';
-import { Input } from '@/modules_next/common/ui/Input';
-import { Select } from '@/modules_next/common/ui/Select';
-import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
-import { Modal } from '@/modules_next/common/ui/Modal';
-import { PageHeader } from '@/modules_next/common/ui/PageHeader';
-import { ServerDataTable } from '@/modules_next/common/ui/ServerDataTable';
-import { toast } from '@/modules_next/common/ui/toast.store';
-import api from '@/modules_next/common/axios';
-import { CurrencySelector } from '@/modules_next/common/ui/CurrencySelector';
-import { DEFAULT_CURRENCY } from '@/modules/common';
+import { Button } from '@nb/common/ui/Button';
+import { Input } from '@nb/common/ui/Input';
+import { Select } from '@nb/common/ui/Select';
+import { AlertBanner } from '@nb/common/ui/AlertBanner';
+import { Modal } from '@nb/common/ui/Modal';
+import { PageHeader } from '@nb/common/ui/PageHeader';
+import { ServerDataTable } from '@nb/common/ui/ServerDataTable';
+import { toast } from '@nb/common/ui/toast.store';
+import api from '@nb/common/server/axios';
+import { CurrencySelector } from '@nb/common/ui/CurrencySelector';
+import { DEFAULT_CURRENCY } from '@nb/common';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import {
@@ -20,7 +20,7 @@ import {
   type MeterRow,
   type UsageRow,
   type BillingRunRow,
-} from '@/modules_next/metering/ui/metering-columns';
+} from '@nb/metering/ui/metering-columns';
 
 function extractMessage(err: unknown, fallback: string): string {
   const e = err as { response?: { data?: { message?: string } }; message?: string };

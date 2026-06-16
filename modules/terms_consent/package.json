@@ -1,0 +1,33 @@
+{
+  "name": "@nb/terms_consent",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/entities/agreement.entity": "./server/entities/agreement.entity.ts",
+    "./server/entities/agreement_acceptance.entity": "./server/entities/agreement_acceptance.entity.ts",
+    "./server/entities/agreement_version.entity": "./server/entities/agreement_version.entity.ts",
+    "./server/entities/consent_record.entity": "./server/entities/consent_record.entity.ts",
+    "./server/index": "./server/index.ts",
+    "./server": "./server/index.ts",
+    "./server/terms_consent.agreements.dto": "./server/terms_consent.agreements.dto.ts",
+    "./server/terms_consent.agreements.service": "./server/terms_consent.agreements.service.ts",
+    "./server/terms_consent.agreements.types": "./server/terms_consent.agreements.types.ts",
+    "./server/terms_consent.dto": "./server/terms_consent.dto.ts",
+    "./server/terms_consent.enums": "./server/terms_consent.enums.ts",
+    "./server/terms_consent.messages": "./server/terms_consent.messages.ts",
+    "./server/terms_consent.render": "./server/terms_consent.render.ts",
+    "./server/terms_consent.service": "./server/terms_consent.service.ts",
+    "./server/terms_consent.setting.keys": "./server/terms_consent.setting.keys.ts",
+    "./server/terms_consent.state": "./server/terms_consent.state.ts",
+    "./server/terms_consent.types": "./server/terms_consent.types.ts",
+    "./ui/AcceptanceGate": "./ui/AcceptanceGate.tsx",
+    "./ui/ConsentBanner": "./ui/ConsentBanner.tsx",
+    ".": "./server/index.ts",
+    "./module.json": "./module.json"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "next": "*"
+  }
+}

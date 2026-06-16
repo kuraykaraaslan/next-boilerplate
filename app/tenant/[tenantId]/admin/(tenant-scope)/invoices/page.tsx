@@ -1,13 +1,13 @@
 'use client';
 import { use, useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import api from '@/modules_next/common/axios';
-import { PageHeader } from '@/modules_next/common/ui/PageHeader';
-import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
-import { Breadcrumb } from '@/modules_next/common/ui/Breadcrumb';
-import { ServerDataTable } from '@/modules_next/common/ui/ServerDataTable';
-import { EarsivSmsSignModal } from '@/modules_next/invoice/ui/EarsivSmsSignModal';
-import { buildInvoiceColumns, type InvoiceRow } from '@/modules_next/invoice/ui/invoice-list-columns';
+import api from '@nb/common/server/axios';
+import { PageHeader } from '@nb/common/ui/PageHeader';
+import { AlertBanner } from '@nb/common/ui/AlertBanner';
+import { Breadcrumb } from '@nb/common/ui/Breadcrumb';
+import { ServerDataTable } from '@nb/common/ui/ServerDataTable';
+import { EarsivSmsSignModal } from '@nb/invoice/ui/EarsivSmsSignModal';
+import { buildInvoiceColumns, type InvoiceRow } from '@nb/invoice/ui/invoice-list-columns';
 
 const PAGE_SIZE = 25;
 

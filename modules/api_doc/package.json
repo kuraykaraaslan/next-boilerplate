@@ -1,0 +1,30 @@
+{
+  "name": "@nb/api_doc",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/api_doc.service": "./server/api_doc.service.ts",
+    "./server/api_doc.settings.fields": "./server/api_doc.settings.fields.ts",
+    "./ui/ApiDocsPage": "./ui/ApiDocsPage.tsx",
+    "./ui/ApiTagSection": "./ui/ApiTagSection.tsx",
+    "./ui/CodeSamplePanel": "./ui/CodeSamplePanel.tsx",
+    "./ui/EndpointRow": "./ui/EndpointRow.tsx",
+    "./ui/HttpMethodBadge": "./ui/HttpMethodBadge.tsx",
+    "./ui/OperationPanel": "./ui/OperationPanel.tsx",
+    "./ui/ParameterTable": "./ui/ParameterTable.tsx",
+    "./ui/ResponseCard": "./ui/ResponseCard.tsx",
+    "./ui/SchemaViewer": "./ui/SchemaViewer.tsx",
+    "./ui/SecuritySchemeBadge": "./ui/SecuritySchemeBadge.tsx",
+    "./ui/ServerSelector": "./ui/ServerSelector.tsx",
+    "./ui/StatusCodeBadge": "./ui/StatusCodeBadge.tsx",
+    "./ui/TryItOutPanel": "./ui/TryItOutPanel.tsx",
+    "./ui/mockSpec": "./ui/mockSpec.ts",
+    "./ui/types": "./ui/types.ts",
+    "./module.json": "./module.json"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "next": "*"
+  }
+}

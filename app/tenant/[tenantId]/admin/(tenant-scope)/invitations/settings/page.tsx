@@ -1,7 +1,7 @@
 'use client';
 import { use } from 'react';
-import { ModuleSettingsPage } from '@/modules_next/setting/ui/ModuleSettingsPage';
-import { TENANT_INVITATION_SETTINGS_FIELDS } from '@/modules/tenant_invitation/tenant_invitation.settings.fields';
+import { ModuleSettingsPage } from '@nb/setting/ui/ModuleSettingsPage';
+import { TENANT_INVITATION_SETTINGS_FIELDS } from '@nb/tenant_invitation/server/tenant_invitation.settings.fields';
 
 export default function InvitationsSettingsPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = use(params);

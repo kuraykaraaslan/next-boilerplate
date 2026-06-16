@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { env } from '@/modules/env';
-import AuthService from '@/modules/auth/auth.service';
-import Logger from '@/modules/logger';
+import { env } from '@nb/env';
+import AuthService from '@nb/auth/server/auth.service';
+import Logger from '@nb/logger';
 
 // POST /tenant/[tenantId]/api/cron/dormant-sweep
 // Protected by Bearer token matching CRON_SECRET.

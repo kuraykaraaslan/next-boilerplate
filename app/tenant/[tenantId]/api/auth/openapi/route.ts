@@ -3,7 +3,7 @@
 // Integrators (identity brokers, middleware vendors) can fetch this to codegen
 // against the auth API. Public read-only document; no tenant data is exposed.
 import { NextResponse } from 'next/server';
-import { buildAuthOpenApiDocument } from '@/modules/auth/auth.openapi';
+import { buildAuthOpenApiDocument } from '@nb/auth/server/auth.openapi';
 
 export async function GET(): Promise<NextResponse> {
   return NextResponse.json(buildAuthOpenApiDocument(), {

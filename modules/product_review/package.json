@@ -1,0 +1,24 @@
+{
+  "name": "@nb/product_review",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/entities/product_review.entity": "./server/entities/product_review.entity.ts",
+    "./server/entities/product_review_vote.entity": "./server/entities/product_review_vote.entity.ts",
+    "./server/index": "./server/index.ts",
+    "./server": "./server/index.ts",
+    "./server/product_review.crud.service": "./server/product_review.crud.service.ts",
+    "./server/product_review.dto": "./server/product_review.dto.ts",
+    "./server/product_review.engagement.service": "./server/product_review.engagement.service.ts",
+    "./server/product_review.enums": "./server/product_review.enums.ts",
+    "./server/product_review.gdpr.service": "./server/product_review.gdpr.service.ts",
+    "./server/product_review.helpers": "./server/product_review.helpers.ts",
+    "./server/product_review.messages": "./server/product_review.messages.ts",
+    "./server/product_review.seed": "./server/product_review.seed.ts",
+    "./server/product_review.service": "./server/product_review.service.ts",
+    "./server/product_review.types": "./server/product_review.types.ts",
+    ".": "./server/index.ts",
+    "./module.json": "./module.json"
+  }
+}

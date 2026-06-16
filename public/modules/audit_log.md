@@ -6,42 +6,13 @@
 - **dir:** `modules/audit_log/`
 - **tags:** platform, security, compliance
 - **icon:** `fas fa-clipboard-list`
-- **hasNextLayer:** true
+- **hasNextLayer:** false
 
 Append-only audit trail for sensitive actions, stored per-tenant (platform events land on ROOT_TENANT_ID).
 
 ## Dependencies
 
 - **requires:** `db`, `env`, `logger`, `common`, `redis`, `setting`, `webhook`, `tenant`
-
-## Services
-
-- `audit_log.service.ts`
-- `audit_log.write.service.ts`
-
-## DTOs
-
-- `audit_log.dto.ts`
-
-## Entities
-
-- `audit_log.entity.ts`
-
-## Enums
-
-- `audit_log.enums.ts`
-
-## Message keys
-
-- `audit_log.messages.ts`
-
-## Setting keys
-
-- `audit_log.setting.keys.ts`
-
-## Jobs
-
-- `audit_log.purge.job.ts`
 
 ## Owned API routes
 
@@ -54,12 +25,7 @@ Append-only audit trail for sensitive actions, stored per-tenant (platform event
 
 ## TypeORM entities
 
-- `AuditLog` (tenant) — `modules/audit_log/entities/audit_log.entity.ts`
-
-## Next layer (modules_next/) surface
-
-- `audit_log/audit_log.service.next` _(service.next)_
-- `audit_log/ui/AuditLogFilters` _(ui, client)_
+- `AuditLog` (tenant) — `modules/audit_log/server/entities/audit_log.entity.ts`
 
 ## README
 

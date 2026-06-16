@@ -1,0 +1,18 @@
+{
+  "name": "@nb/env",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/env.schema.core": "./server/env.schema.core.ts",
+    "./server/env.schema.platform": "./server/env.schema.platform.ts",
+    "./server/env.schema.providers": "./server/env.schema.providers.ts",
+    "./server/env.schema.shared": "./server/env.schema.shared.ts",
+    "./server/env.schema": "./server/env.schema.ts",
+    "./server/env.service": "./server/env.service.ts",
+    "./server/index": "./server/index.ts",
+    "./server": "./server/index.ts",
+    ".": "./server/index.ts",
+    "./module.json": "./module.json"
+  }
+}

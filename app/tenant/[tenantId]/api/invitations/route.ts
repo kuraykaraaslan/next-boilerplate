@@ -1,13 +1,13 @@
 // path: app/tenant/[tenantId]/api/invitations/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import TenantInvitationService from "@/modules/tenant_invitation/tenant_invitation.service";
-import { SendInvitationDTO, GetInvitationsDTO } from "@/modules/tenant_invitation/tenant_invitation.dto";
-import TenantSessionNextService from "@/modules_next/tenant_session/tenant_session.service.next";
-import MailAccountTemplatesService from "@/modules/notification_mail/notification_mail.account-templates.service";
-import Limiter from "@/modules_next/limiter/limiter.service.next";
-import TenantMemberService from "@/modules/tenant_member/tenant_member.service";
-import TenantFeatureGateService from "@/modules/tenant_subscription/tenant_subscription.feature.service";
-import { FEATURE_KEYS } from "@/modules/tenant_subscription/tenant_subscription.feature-keys";
+import TenantInvitationService from "@nb/tenant_invitation/server/tenant_invitation.service";
+import { SendInvitationDTO, GetInvitationsDTO } from "@nb/tenant_invitation/server/tenant_invitation.dto";
+import TenantSessionNextService from "@nb/tenant_session/server/tenant_session.service.next";
+import MailAccountTemplatesService from "@nb/notification_mail/server/notification_mail.account-templates.service";
+import Limiter from "@nb/limiter/server/limiter.service.next";
+import TenantMemberService from "@nb/tenant_member/server/tenant_member.service";
+import TenantFeatureGateService from "@nb/tenant_subscription/server/tenant_subscription.feature.service";
+import { FEATURE_KEYS } from "@nb/tenant_subscription/server/tenant_subscription.feature-keys";
 
 /**
  * GET /tenant/[tenantId]/api/invitations
@@ -94,7 +94,7 @@ export async function POST(
     );
 
     // Fetch tenant name for the email
-    const tenant = await import("@/modules/tenant/tenant.service").then((m) =>
+    const tenant = await import("@nb/tenant/server/tenant.service").then((m) =>
       m.default.getById(tenantId)
     );
 

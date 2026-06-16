@@ -6,51 +6,13 @@
 - **dir:** `modules/store/`
 - **tags:** store, ecommerce, products, catalog
 - **icon:** `fas fa-store`
-- **hasNextLayer:** true
+- **hasNextLayer:** false
 
 Tenant-aware e-commerce store. Hierarchical categories with typed spec templates; products with Tiptap richtext descriptions, spec values, multiple images, tags, SEO; variation types (Color, Size, …) with options and swatches; product variants with independent SKU / price / stock per combination; product bundles with per-item quantity and price overrides. Admin-only — no storefront UI layer.
 
 ## Dependencies
 
 - **requires:** `db`, `env`, `redis`, `logger`
-
-## Services
-
-- `store.bundle.service.ts`
-- `store.category.service.ts`
-- `store.pricing.service.ts`
-- `store.product.crud.service.ts`
-- `store.product.media.service.ts`
-- `store.product.service.ts`
-- `store.public.service.ts`
-- `store.variant.service.ts`
-
-## DTOs
-
-- `store.dto.ts`
-
-## Entities
-
-- `store_bundle.entity.ts`
-- `store_bundle_item.entity.ts`
-- `store_category.entity.ts`
-- `store_category_spec.entity.ts`
-- `store_product.entity.ts`
-- `store_product_image.entity.ts`
-- `store_product_spec_value.entity.ts`
-- `store_product_variant.entity.ts`
-- `store_variant_group.entity.ts`
-- `store_variant_group_item.entity.ts`
-- `store_variation_option.entity.ts`
-- `store_variation_type.entity.ts`
-
-## Enums
-
-- `store.enums.ts`
-
-## Message keys
-
-- `store.messages.ts`
 
 ## Owned API routes
 
@@ -74,29 +36,18 @@ Tenant-aware e-commerce store. Hierarchical categories with typed spec templates
 
 ## TypeORM entities
 
-- `StoreBundle` (system) — `modules/store/entities/store_bundle.entity.ts`
-- `StoreBundleItem` (system) — `modules/store/entities/store_bundle_item.entity.ts`
-- `StoreCategory` (system) — `modules/store/entities/store_category.entity.ts`
-- `StoreCategorySpec` (system) — `modules/store/entities/store_category_spec.entity.ts`
-- `StoreProduct` (system) — `modules/store/entities/store_product.entity.ts`
-- `StoreProductImage` (system) — `modules/store/entities/store_product_image.entity.ts`
-- `StoreProductSpecValue` (system) — `modules/store/entities/store_product_spec_value.entity.ts`
-- `StoreProductVariant` (system) — `modules/store/entities/store_product_variant.entity.ts`
-- `StoreVariantGroup` (system) — `modules/store/entities/store_variant_group.entity.ts`
-- `StoreVariantGroupItem` (system) — `modules/store/entities/store_variant_group_item.entity.ts`
-- `StoreVariationOption` (system) — `modules/store/entities/store_variation_option.entity.ts`
-- `StoreVariationType` (system) — `modules/store/entities/store_variation_type.entity.ts`
-
-## Next layer (modules_next/) surface
-
-- `store/ui/BundleItemsPanel` _(ui, client)_
-- `store/ui/CategorySpecAddModal` _(ui, client)_
-- `store/ui/product-list-columns` _(ui, client)_
-- `store/ui/ProductCreateModal` _(ui, client)_
-- `store/ui/ProductImagesPanel` _(ui, client)_
-- `store/ui/ProductSpecValuesPanel` _(ui, client)_
-- `store/ui/ProductStatusBadge` _(ui, client)_
-- `store/ui/ProductVariantsPanel` _(ui, client)_
+- `StoreBundle` (system) — `modules/store/server/entities/store_bundle.entity.ts`
+- `StoreBundleItem` (system) — `modules/store/server/entities/store_bundle_item.entity.ts`
+- `StoreCategory` (system) — `modules/store/server/entities/store_category.entity.ts`
+- `StoreCategorySpec` (system) — `modules/store/server/entities/store_category_spec.entity.ts`
+- `StoreProduct` (system) — `modules/store/server/entities/store_product.entity.ts`
+- `StoreProductImage` (system) — `modules/store/server/entities/store_product_image.entity.ts`
+- `StoreProductSpecValue` (system) — `modules/store/server/entities/store_product_spec_value.entity.ts`
+- `StoreProductVariant` (system) — `modules/store/server/entities/store_product_variant.entity.ts`
+- `StoreVariantGroup` (system) — `modules/store/server/entities/store_variant_group.entity.ts`
+- `StoreVariantGroupItem` (system) — `modules/store/server/entities/store_variant_group_item.entity.ts`
+- `StoreVariationOption` (system) — `modules/store/server/entities/store_variation_option.entity.ts`
+- `StoreVariationType` (system) — `modules/store/server/entities/store_variation_type.entity.ts`
 
 ## README
 

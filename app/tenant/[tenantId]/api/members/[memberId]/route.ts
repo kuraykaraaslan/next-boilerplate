@@ -1,8 +1,8 @@
 // path: app/tenant/[tenantId]/api/members/[memberId]/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import TenantMemberService from "@/modules/tenant_member/tenant_member.service";
-import TenantSessionNextService from "@/modules_next/tenant_session/tenant_session.service.next";
-import Limiter from "@/modules_next/limiter/limiter.service.next";
+import TenantMemberService from "@nb/tenant_member/server/tenant_member.service";
+import TenantSessionNextService from "@nb/tenant_session/server/tenant_session.service.next";
+import Limiter from "@nb/limiter/server/limiter.service.next";
 
 /**
  * GET /tenant/[tenantId]/api/members/[memberId]

@@ -6,21 +6,13 @@
 - **dir:** `modules/redis_idempotency/`
 - **tags:** infrastructure, reliability
 - **icon:** `fas fa-key`
-- **hasNextLayer:** true
+- **hasNextLayer:** false
 
 Redis-backed idempotency-key store for safely retryable POST/PATCH operations.
 
 ## Dependencies
 
 - **requires:** `redis`, `env`
-
-## Services
-
-- `redis_idempotency.service.ts`
-
-## Next layer (modules_next/) surface
-
-- `redis_idempotency/withIdempotency` _(ui)_
 
 ## README
 

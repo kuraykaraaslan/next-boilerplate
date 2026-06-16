@@ -1,0 +1,15 @@
+{
+  "name": "@nb/seed",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/index": "./server/index.ts",
+    "./server": "./server/index.ts",
+    "./server/seed.context": "./server/seed.context.ts",
+    "./server/seed.faker": "./server/seed.faker.ts",
+    "./server/seed.runner": "./server/seed.runner.ts",
+    ".": "./server/index.ts",
+    "./module.json": "./module.json"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "name": "@nb/integrations_hub",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/entities/connected_app.entity": "./server/entities/connected_app.entity.ts",
+    "./server/entities/connector.entity": "./server/entities/connector.entity.ts",
+    "./server/entities/integration_event.entity": "./server/entities/integration_event.entity.ts",
+    "./server/entities/oauth_token.entity": "./server/entities/oauth_token.entity.ts",
+    "./server/index": "./server/index.ts",
+    "./server": "./server/index.ts",
+    "./server/integrations_hub.action.service": "./server/integrations_hub.action.service.ts",
+    "./server/integrations_hub.connector.service": "./server/integrations_hub.connector.service.ts",
+    "./server/integrations_hub.dto": "./server/integrations_hub.dto.ts",
+    "./server/integrations_hub.enums": "./server/integrations_hub.enums.ts",
+    "./server/integrations_hub.messages": "./server/integrations_hub.messages.ts",
+    "./server/integrations_hub.oauth.service": "./server/integrations_hub.oauth.service.ts",
+    "./server/integrations_hub.service": "./server/integrations_hub.service.ts",
+    "./server/integrations_hub.trigger.service": "./server/integrations_hub.trigger.service.ts",
+    "./server/integrations_hub.types": "./server/integrations_hub.types.ts",
+    "./ui/ConnectorFormModal": "./ui/ConnectorFormModal.tsx",
+    "./ui/connected-apps-columns": "./ui/connected-apps-columns.tsx",
+    ".": "./server/index.ts",
+    "./module.json": "./module.json"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "next": "*"
+  }
+}

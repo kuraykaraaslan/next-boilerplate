@@ -1,4 +1,4 @@
-import type { ProductStatus } from '@/modules_next/store/ui/ProductStatusBadge';
+import type { ProductStatus } from '@nb/store/ui/ProductStatusBadge';
 
 export type Product = {
   productId: string; categoryId: string;

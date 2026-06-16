@@ -1,0 +1,19 @@
+{
+  "name": "@nb/tenant_usage",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/entities/tenant_usage.entity": "./server/entities/tenant_usage.entity.ts",
+    "./server/tenant_usage.alerts.service": "./server/tenant_usage.alerts.service.ts",
+    "./server/tenant_usage.flush.service": "./server/tenant_usage.flush.service.ts",
+    "./server/tenant_usage.increment.service": "./server/tenant_usage.increment.service.ts",
+    "./server/tenant_usage.job": "./server/tenant_usage.job.ts",
+    "./server/tenant_usage.keys": "./server/tenant_usage.keys.ts",
+    "./server/tenant_usage.messages": "./server/tenant_usage.messages.ts",
+    "./server/tenant_usage.read.service": "./server/tenant_usage.read.service.ts",
+    "./server/tenant_usage.seed": "./server/tenant_usage.seed.ts",
+    "./server/tenant_usage.service": "./server/tenant_usage.service.ts",
+    "./module.json": "./module.json"
+  }
+}

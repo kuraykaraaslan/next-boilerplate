@@ -1,0 +1,20 @@
+{
+  "name": "@nb/auth_impersonation",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/impersonation.dto": "./server/impersonation.dto.ts",
+    "./server/impersonation.flow.service": "./server/impersonation.flow.service.ts",
+    "./server/impersonation.guards": "./server/impersonation.guards.ts",
+    "./server/impersonation.messages": "./server/impersonation.messages.ts",
+    "./server/impersonation.mint.service": "./server/impersonation.mint.service.ts",
+    "./server/impersonation.service": "./server/impersonation.service.ts",
+    "./server/impersonation.session.service": "./server/impersonation.session.service.ts",
+    "./server/impersonation.setting.keys": "./server/impersonation.setting.keys.ts",
+    "./server/impersonation.settings.fields": "./server/impersonation.settings.fields.ts",
+    "./server/impersonation.settings.service": "./server/impersonation.settings.service.ts",
+    "./server/tests/impersonation.test-setup": "./server/tests/impersonation.test-setup.ts",
+    "./module.json": "./module.json"
+  }
+}

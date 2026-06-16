@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Logger from '@/modules/logger';
-import Limiter from '@/modules_next/limiter/limiter.service.next';
-import AuthESignatureService from '@/modules/auth_e_signature/auth_e_signature.service';
-import { InitiateLoginDTO } from '@/modules/e_signature/e_signature.dto';
-import AuditLogService from '@/modules/audit_log/audit_log.service';
-import TenantService from '@/modules/tenant/tenant.service';
+import Logger from '@nb/logger';
+import Limiter from '@nb/limiter/server/limiter.service.next';
+import AuthESignatureService from '@nb/auth_e_signature/server/auth_e_signature.service';
+import { InitiateLoginDTO } from '@nb/e_signature/server/e_signature.dto';
+import AuditLogService from '@nb/audit_log/server/audit_log.service';
+import TenantService from '@nb/tenant/server/tenant.service';
 
 interface RouteContext {
   params: Promise<{ tenantId: string }>;

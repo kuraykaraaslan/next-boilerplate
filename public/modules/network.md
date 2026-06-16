@@ -10,10 +10,6 @@
 
 Network primitives: subnet (CIDR) allowlist matching, address classification, and the shared types/enums for IP-based access control. Dependency-free leaf module.
 
-## Enums
-
-- `network.enums.ts`
-
 ## README
 
 # Network

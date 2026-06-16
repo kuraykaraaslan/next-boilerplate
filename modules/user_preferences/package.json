@@ -1,0 +1,16 @@
+{
+  "name": "@nb/user_preferences",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/entities/user_preferences.entity": "./server/entities/user_preferences.entity.ts",
+    "./server/user_preferences.dto": "./server/user_preferences.dto.ts",
+    "./server/user_preferences.enums": "./server/user_preferences.enums.ts",
+    "./server/user_preferences.messages": "./server/user_preferences.messages.ts",
+    "./server/user_preferences.seed": "./server/user_preferences.seed.ts",
+    "./server/user_preferences.service": "./server/user_preferences.service.ts",
+    "./server/user_preferences.types": "./server/user_preferences.types.ts",
+    "./module.json": "./module.json"
+  }
+}

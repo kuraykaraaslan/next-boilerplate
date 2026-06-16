@@ -1,0 +1,31 @@
+{
+  "name": "@nb/wallet",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/entities/wallet_account.entity": "./server/entities/wallet_account.entity.ts",
+    "./server/entities/wallet_posting.entity": "./server/entities/wallet_posting.entity.ts",
+    "./server/entities/wallet_transaction.entity": "./server/entities/wallet_transaction.entity.ts",
+    "./server/index": "./server/index.ts",
+    "./server": "./server/index.ts",
+    "./server/wallet.constants": "./server/wallet.constants.ts",
+    "./server/wallet.crud.service": "./server/wallet.crud.service.ts",
+    "./server/wallet.dto": "./server/wallet.dto.ts",
+    "./server/wallet.enums": "./server/wallet.enums.ts",
+    "./server/wallet.messages": "./server/wallet.messages.ts",
+    "./server/wallet.posting.core": "./server/wallet.posting.core.ts",
+    "./server/wallet.posting.flows": "./server/wallet.posting.flows.ts",
+    "./server/wallet.posting.service": "./server/wallet.posting.service.ts",
+    "./server/wallet.reconcile.service": "./server/wallet.reconcile.service.ts",
+    "./server/wallet.service": "./server/wallet.service.ts",
+    "./server/wallet.types": "./server/wallet.types.ts",
+    "./ui/wallet-account-columns": "./ui/wallet-account-columns.tsx",
+    ".": "./server/index.ts",
+    "./module.json": "./module.json"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "next": "*"
+  }
+}

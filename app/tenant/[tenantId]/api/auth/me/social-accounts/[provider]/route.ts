@@ -1,9 +1,9 @@
 // path: app/tenant/[tenantId]/api/auth/me/social-accounts/[provider]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import UserSessionNextService from '@/modules_next/user_session/user_session.service.next';
-import UserSocialAccountService from '@/modules/user_social_account/user_social_account.service';
-import { SocialAccountProviderEnum } from '@/modules/user_social_account/user_social_account.enums';
-import Limiter from '@/modules_next/limiter/limiter.service.next';
+import UserSessionNextService from '@nb/user_session/server/user_session.service.next';
+import UserSocialAccountService from '@nb/user_social_account/server/user_social_account.service';
+import { SocialAccountProviderEnum } from '@nb/user_social_account/server/user_social_account.enums';
+import Limiter from '@nb/limiter/server/limiter.service.next';
 
 /**
  * DELETE /tenant/[tenantId]/api/auth/me/social-accounts/[provider]

@@ -6,35 +6,13 @@
 - **dir:** `modules/tenant_member/`
 - **tags:** tenant
 - **icon:** `fas fa-users`
-- **hasNextLayer:** true
+- **hasNextLayer:** false
 
 Tenant-scoped membership join table with roles (owner/admin/member) and per-member permissions.
 
 ## Dependencies
 
 - **requires:** `db`, `tenant`, `user`
-
-## Services
-
-- `tenant_member.read.service.ts`
-- `tenant_member.service.ts`
-- `tenant_member.write.service.ts`
-
-## DTOs
-
-- `tenant_member.dto.ts`
-
-## Entities
-
-- `tenant_member.entity.ts`
-
-## Enums
-
-- `tenant_member.enums.ts`
-
-## Message keys
-
-- `tenant_member.messages.ts`
 
 ## Owned API routes
 
@@ -43,11 +21,7 @@ Tenant-scoped membership join table with roles (owner/admin/member) and per-memb
 
 ## TypeORM entities
 
-- `TenantMember` (tenant) — `modules/tenant_member/entities/tenant_member.entity.ts`
-
-## Next layer (modules_next/) surface
-
-- `tenant_member/ui/member-list-columns` _(ui, client)_
+- `TenantMember` (tenant) — `modules/tenant_member/server/entities/tenant_member.entity.ts`
 
 ## README
 

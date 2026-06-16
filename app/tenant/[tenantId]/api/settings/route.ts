@@ -1,9 +1,9 @@
 // path: app/tenant/[tenantId]/api/settings/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import TenantSessionNextService from "@/modules_next/tenant_session/tenant_session.service.next";
-import SettingService from '@/modules/setting/setting.service';
-import SettingMessages from "@/modules/setting/setting.messages";
-import Limiter from "@/modules_next/limiter/limiter.service.next";
+import TenantSessionNextService from "@nb/tenant_session/server/tenant_session.service.next";
+import SettingService from '@nb/setting/server/setting.service';
+import SettingMessages from "@nb/setting/server/setting.messages";
+import Limiter from "@nb/limiter/server/limiter.service.next";
 
 /**
  * GET /tenant/[tenantId]/api/settings

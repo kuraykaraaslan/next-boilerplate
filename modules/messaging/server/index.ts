@@ -3,17 +3,17 @@ import 'dotenv/config';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { createAdapter } from '@socket.io/redis-adapter';
-import { createRedisConnection } from '@/modules/redis';
-import { env } from '@/modules/env';
-import Logger from '@/modules/logger';
-import { WS_EVENTS } from '../messaging.enums';
+import { createRedisConnection } from '@nb/redis';
+import { env } from '@nb/env';
+import Logger from '@nb/logger';
+import { WS_EVENTS } from './messaging.enums';
 import {
   RT_CHANNEL,
   RtEventSchema,
   conversationRoom,
   userRoom,
   type RtEvent,
-} from '../messaging.realtime';
+} from './messaging.realtime';
 import { registerSocketAuth } from './socket.auth';
 import { registerHandlers } from './socket.handlers';
 

@@ -1,17 +1,17 @@
 'use client';
 import { use, useCallback, useEffect, useState } from 'react';
 import { notFound } from 'next/navigation';
-import { isRootTenant } from '@/modules/tenant/tenant.constants';
-import api from '@/modules_next/common/axios';
-import { ServerDataTable, type TableColumn } from '@/modules_next/common/ui/ServerDataTable';
-import { Badge } from '@/modules_next/common/ui/Badge';
-import { Button } from '@/modules_next/common/ui/Button';
-import { Input } from '@/modules_next/common/ui/Input';
-import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
-import { Modal } from '@/modules_next/common/ui/Modal';
+import { isRootTenant } from '@nb/tenant/server/tenant.constants';
+import api from '@nb/common/server/axios';
+import { ServerDataTable, type TableColumn } from '@nb/common/ui/ServerDataTable';
+import { Badge } from '@nb/common/ui/Badge';
+import { Button } from '@nb/common/ui/Button';
+import { Input } from '@nb/common/ui/Input';
+import { AlertBanner } from '@nb/common/ui/AlertBanner';
+import { Modal } from '@nb/common/ui/Modal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faSearch } from '@fortawesome/free-solid-svg-icons';
-import type { TenantStatus } from '@/modules/tenant/tenant.enums';
+import type { TenantStatus } from '@nb/tenant/server/tenant.enums';
 
 type HealthStatus = 'active' | 'trialing' | 'past_due' | 'grace_period' | 'suspended' | 'pending_deletion' | 'no_subscription' | 'expired';
 

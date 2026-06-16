@@ -1,11 +1,11 @@
-import Logger from '@/modules/logger';
+import Logger from '@nb/logger';
 // path: app/tenant/[tenantId]/api/members/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import TenantMemberService from "@/modules/tenant_member/tenant_member.service";
-import Limiter from "@/modules_next/limiter/limiter.service.next";
-import TenantSessionNextService from "@/modules_next/tenant_session/tenant_session.service.next";
-import TenantFeatureGateService from "@/modules/tenant_subscription/tenant_subscription.feature.service";
-import { FEATURE_KEYS } from "@/modules/tenant_subscription/tenant_subscription.feature-keys";
+import TenantMemberService from "@nb/tenant_member/server/tenant_member.service";
+import Limiter from "@nb/limiter/server/limiter.service.next";
+import TenantSessionNextService from "@nb/tenant_session/server/tenant_session.service.next";
+import TenantFeatureGateService from "@nb/tenant_subscription/server/tenant_subscription.feature.service";
+import { FEATURE_KEYS } from "@nb/tenant_subscription/server/tenant_subscription.feature-keys";
 
 /**
  * GET /tenant/[tenantId]/api/members

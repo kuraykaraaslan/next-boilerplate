@@ -6,7 +6,7 @@
 - **dir:** `modules/limiter/`
 - **tags:** infrastructure, security, billing
 - **icon:** `fas fa-gauge-high`
-- **hasNextLayer:** true
+- **hasNextLayer:** false
 
 Sliding-window rate limiter + tenant-plan-based quota enforcement (seat/feature/usage limits).
 
@@ -14,16 +14,6 @@ Sliding-window rate limiter + tenant-plan-based quota enforcement (seat/feature/
 
 - **requires:** `redis`, `env`
 - **optional:** `tenant_subscription`
-
-## Services
-
-- `limiter.service.ts`
-- `limiter.tenant-plan.service.ts`
-
-## Next layer (modules_next/) surface
-
-- `limiter/limiter.rate-limiters` _(ui)_
-- `limiter/limiter.service.next` _(service.next)_
 
 ## README
 

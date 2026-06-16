@@ -1,26 +1,26 @@
 'use client';
 import { use, useState, useEffect, useCallback } from 'react';
-import { Card } from '@/modules_next/common/ui/Card';
-import { Badge } from '@/modules_next/common/ui/Badge';
-import { Button } from '@/modules_next/common/ui/Button';
-import { Spinner } from '@/modules_next/common/ui/Spinner';
-import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
-import { Input } from '@/modules_next/common/ui/Input';
-import { Select } from '@/modules_next/common/ui/Select';
-import { Breadcrumb } from '@/modules_next/common/ui/Breadcrumb';
-import { PageHeader } from '@/modules_next/common/ui/PageHeader';
-import { toast } from '@/modules_next/common/ui/toast.store';
+import { Card } from '@nb/common/ui/Card';
+import { Badge } from '@nb/common/ui/Badge';
+import { Button } from '@nb/common/ui/Button';
+import { Spinner } from '@nb/common/ui/Spinner';
+import { AlertBanner } from '@nb/common/ui/AlertBanner';
+import { Input } from '@nb/common/ui/Input';
+import { Select } from '@nb/common/ui/Select';
+import { Breadcrumb } from '@nb/common/ui/Breadcrumb';
+import { PageHeader } from '@nb/common/ui/PageHeader';
+import { toast } from '@nb/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPercent, faDollarSign, faTrash, faSave } from '@fortawesome/free-solid-svg-icons';
-import api from '@/modules_next/common/axios';
-import type { DiscountType } from '@/modules/coupon/coupon.enums';
-import { CouponScopePanel } from '@/modules_next/coupon/ui/CouponScopePanel';
-import { CouponArchiveModal } from '@/modules_next/coupon/ui/CouponArchiveModal';
+import api from '@nb/common/server/axios';
+import type { DiscountType } from '@nb/coupon/server/coupon.enums';
+import { CouponScopePanel } from '@nb/coupon/ui/CouponScopePanel';
+import { CouponArchiveModal } from '@nb/coupon/ui/CouponArchiveModal';
 import {
   type Coupon, type EditForm,
   statusVariant, statusOptions,
   toDatetimeLocal, buildScope, extractMessage,
-} from '@/modules_next/coupon/ui/coupon-edit.utils';
+} from '@nb/coupon/ui/coupon-edit.utils';
 
 export default function CouponEditPage({ params }: { params: Promise<{ tenantId: string; couponId: string }> }) {
   const { tenantId, couponId } = use(params);

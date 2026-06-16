@@ -1,0 +1,30 @@
+{
+  "name": "@nb/approval",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/approval.chain": "./server/approval.chain.ts",
+    "./server/approval.constants": "./server/approval.constants.ts",
+    "./server/approval.decide.service": "./server/approval.decide.service.ts",
+    "./server/approval.dto": "./server/approval.dto.ts",
+    "./server/approval.enums": "./server/approval.enums.ts",
+    "./server/approval.handlers": "./server/approval.handlers.ts",
+    "./server/approval.messages": "./server/approval.messages.ts",
+    "./server/approval.read.service": "./server/approval.read.service.ts",
+    "./server/approval.service": "./server/approval.service.ts",
+    "./server/approval.submit.service": "./server/approval.submit.service.ts",
+    "./server/approval.types": "./server/approval.types.ts",
+    "./server/entities/approval_queue_item.entity": "./server/entities/approval_queue_item.entity.ts",
+    "./server/index": "./server/index.ts",
+    "./server": "./server/index.ts",
+    "./server/tests/fake_ds": "./server/tests/fake_ds.ts",
+    "./ui/approval-columns": "./ui/approval-columns.tsx",
+    ".": "./server/index.ts",
+    "./module.json": "./module.json"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "next": "*"
+  }
+}

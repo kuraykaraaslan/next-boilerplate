@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Badge } from '@/modules_next/common/ui/Badge';
-import type { TableColumn } from '@/modules_next/common/ui/ServerDataTable';
+import { Badge } from '@nb/common/ui/Badge';
+import type { TableColumn } from '@nb/common/ui/ServerDataTable';
 import { type ServiceRow, statusVariant } from './fleet.types';
 
 export const fleetColumns: TableColumn<ServiceRow>[] = [

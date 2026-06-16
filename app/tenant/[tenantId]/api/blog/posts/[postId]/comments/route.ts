@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import Limiter from '@/modules_next/limiter/limiter.service.next'
-import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next'
-import BlogCommentService from '@/modules/blog/blog.comment.service'
-import { CreateCommentDTO, GetCommentsQuery } from '@/modules/blog/blog.dto'
+import Limiter from '@nb/limiter/server/limiter.service.next'
+import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next'
+import BlogCommentService from '@nb/blog/server/blog.comment.service'
+import { CreateCommentDTO, GetCommentsQuery } from '@nb/blog/server/blog.dto'
 
 type Ctx = { params: Promise<{ tenantId: string; postId: string }> }
 

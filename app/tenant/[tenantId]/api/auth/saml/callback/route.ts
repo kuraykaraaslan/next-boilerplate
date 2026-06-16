@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import SamlService from '@/modules/auth_saml/auth_saml.service';
-import SamlMessages from '@/modules/auth_saml/auth_saml.messages';
-import SSOService from '@/modules/auth_sso/auth_sso.service';
-import UserSessionNextService from '@/modules_next/user_session/user_session.service.next';
-import UserSecurityService from '@/modules/user_security/user_security.service';
-import TenantMemberService from '@/modules/tenant_member/tenant_member.service';
-import TenantService from '@/modules/tenant/tenant.service';
-import MailTemplatesService from '@/modules/notification_mail/notification_mail.templates.service';
-import AuditLogService from '@/modules/audit_log/audit_log.service';
-import Limiter from '@/modules_next/limiter/limiter.service.next';
-import { env } from '@/modules/env';
+import SamlService from '@nb/auth_saml/server/auth_saml.service';
+import SamlMessages from '@nb/auth_saml/server/auth_saml.messages';
+import SSOService from '@nb/auth_sso/server/auth_sso.service';
+import UserSessionNextService from '@nb/user_session/server/user_session.service.next';
+import UserSecurityService from '@nb/user_security/server/user_security.service';
+import TenantMemberService from '@nb/tenant_member/server/tenant_member.service';
+import TenantService from '@nb/tenant/server/tenant.service';
+import MailTemplatesService from '@nb/notification_mail/server/notification_mail.templates.service';
+import AuditLogService from '@nb/audit_log/server/audit_log.service';
+import Limiter from '@nb/limiter/server/limiter.service.next';
+import { env } from '@nb/env';
 
 type Params = { params: Promise<{ tenantId: string }> };
 

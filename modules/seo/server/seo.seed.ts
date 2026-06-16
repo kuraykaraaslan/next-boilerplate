@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import type { FindOptionsWhere } from 'typeorm';
-import type { SeedContext } from '@/modules/seed/seed.context';
+import type { SeedContext } from '@nb/seed/server/seed.context';
 import { SeoMeta } from './entities/seo_meta.entity';
 
 /**

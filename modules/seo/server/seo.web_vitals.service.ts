@@ -1,6 +1,6 @@
 import 'reflect-metadata'
 import { z } from 'zod'
-import redis from '@/modules/redis'
+import redis from '@nb/redis'
 
 /**
  * Core Web Vitals RUM ingestion + aggregation, per tenant. Real, no-mock: the

@@ -1,0 +1,22 @@
+{
+  "name": "@nb/search",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/entities/search_document.entity": "./server/entities/search_document.entity.ts",
+    "./server/index": "./server/index.ts",
+    "./server": "./server/index.ts",
+    "./server/providers/base.provider": "./server/providers/base.provider.ts",
+    "./server/providers/postgres.provider": "./server/providers/postgres.provider.ts",
+    "./server/search.dto": "./server/search.dto.ts",
+    "./server/search.enums": "./server/search.enums.ts",
+    "./server/search.messages": "./server/search.messages.ts",
+    "./server/search.provider-factory": "./server/search.provider-factory.ts",
+    "./server/search.query": "./server/search.query.ts",
+    "./server/search.service": "./server/search.service.ts",
+    "./server/search.types": "./server/search.types.ts",
+    ".": "./server/index.ts",
+    "./module.json": "./module.json"
+  }
+}

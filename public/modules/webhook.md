@@ -6,39 +6,13 @@
 - **dir:** `modules/webhook/`
 - **tags:** platform, integration
 - **icon:** `fas fa-rss`
-- **hasNextLayer:** true
+- **hasNextLayer:** false
 
 Subscriber-configured outbound webhooks (tenant-scoped; root tenant carries platform-wide events), signed deliveries, retry+redelivery.
 
 ## Dependencies
 
 - **requires:** `db`, `redis`, `env`
-
-## Services
-
-- `webhook.crud.service.ts`
-- `webhook.delivery.service.ts`
-- `webhook.dispatch.service.ts`
-- `webhook.metrics.service.ts`
-- `webhook.redeliver.service.ts`
-- `webhook.service.ts`
-
-## DTOs
-
-- `webhook.dto.ts`
-
-## Entities
-
-- `webhook.entity.ts`
-- `webhook_delivery.entity.ts`
-
-## Enums
-
-- `webhook.enums.ts`
-
-## Message keys
-
-- `webhook.messages.ts`
 
 ## Owned API routes
 
@@ -55,16 +29,8 @@ Subscriber-configured outbound webhooks (tenant-scoped; root tenant carries plat
 
 ## TypeORM entities
 
-- `Webhook` (tenant) — `modules/webhook/entities/webhook.entity.ts`
-- `WebhookDelivery` (tenant) — `modules/webhook/entities/webhook_delivery.entity.ts`
-
-## Next layer (modules_next/) surface
-
-- `webhook/ui/webhook-columns` _(ui, client)_
-- `webhook/ui/webhook.types` _(ui)_
-- `webhook/ui/WebhookDeliveryModal` _(ui, client)_
-- `webhook/ui/WebhookFormModal` _(ui, client)_
-- `webhook/ui/WebhookTriggerModal` _(ui, client)_
+- `Webhook` (tenant) — `modules/webhook/server/entities/webhook.entity.ts`
+- `WebhookDelivery` (tenant) — `modules/webhook/server/entities/webhook_delivery.entity.ts`
 
 ## README
 

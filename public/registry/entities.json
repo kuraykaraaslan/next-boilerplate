@@ -1,11 +1,11 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T06:44:17.266Z",
+  "generatedAt": "2026-06-16T07:09:29.332Z",
   "entities": [
     {
       "name": "Agreement",
-      "filePath": "modules/terms_consent/entities/agreement.entity.ts",
+      "filePath": "modules/terms_consent/server/entities/agreement.entity.ts",
       "module": "terms_consent",
       "schema": "system",
       "tableName": "agreements",
@@ -25,7 +25,7 @@
     },
     {
       "name": "AgreementAcceptance",
-      "filePath": "modules/terms_consent/entities/agreement_acceptance.entity.ts",
+      "filePath": "modules/terms_consent/server/entities/agreement_acceptance.entity.ts",
       "module": "terms_consent",
       "schema": "system",
       "tableName": "agreement_acceptances",
@@ -51,7 +51,7 @@
     },
     {
       "name": "AgreementVersion",
-      "filePath": "modules/terms_consent/entities/agreement_version.entity.ts",
+      "filePath": "modules/terms_consent/server/entities/agreement_version.entity.ts",
       "module": "terms_consent",
       "schema": "system",
       "tableName": "agreement_versions",
@@ -73,7 +73,7 @@
     },
     {
       "name": "AiUsageLog",
-      "filePath": "modules/ai/entities/ai_usage_log.entity.ts",
+      "filePath": "modules/ai/server/entities/ai_usage_log.entity.ts",
       "module": "ai",
       "schema": "system",
       "tableName": "ai_usage_logs",
@@ -94,7 +94,7 @@
     },
     {
       "name": "AnalyticsEvent",
-      "filePath": "modules/analytics/entities/analytics_event.entity.ts",
+      "filePath": "modules/analytics/server/entities/analytics_event.entity.ts",
       "module": "analytics",
       "schema": "system",
       "tableName": "analytics_events",
@@ -114,7 +114,7 @@
     },
     {
       "name": "ApiKey",
-      "filePath": "modules/api_key/entities/api_key.entity.ts",
+      "filePath": "modules/api_key/server/entities/api_key.entity.ts",
       "module": "api_key",
       "schema": "tenant",
       "tableName": "api_keys",
@@ -141,7 +141,7 @@
     },
     {
       "name": "ApprovalQueueItem",
-      "filePath": "modules/approval/entities/approval_queue_item.entity.ts",
+      "filePath": "modules/approval/server/entities/approval_queue_item.entity.ts",
       "module": "approval",
       "schema": "system",
       "tableName": "approval_queue_items",
@@ -168,7 +168,7 @@
     },
     {
       "name": "AuditLog",
-      "filePath": "modules/audit_log/entities/audit_log.entity.ts",
+      "filePath": "modules/audit_log/server/entities/audit_log.entity.ts",
       "module": "audit_log",
       "schema": "tenant",
       "tableName": "audit_logs",
@@ -194,7 +194,7 @@
     },
     {
       "name": "BlogCategory",
-      "filePath": "modules/blog/entities/blog_category.entity.ts",
+      "filePath": "modules/blog/server/entities/blog_category.entity.ts",
       "module": "blog",
       "schema": "system",
       "tableName": "blog_categories",
@@ -214,7 +214,7 @@
     },
     {
       "name": "BlogComment",
-      "filePath": "modules/blog/entities/blog_comment.entity.ts",
+      "filePath": "modules/blog/server/entities/blog_comment.entity.ts",
       "module": "blog",
       "schema": "system",
       "tableName": "blog_comments",
@@ -236,7 +236,7 @@
     },
     {
       "name": "BlogPost",
-      "filePath": "modules/blog/entities/blog_post.entity.ts",
+      "filePath": "modules/blog/server/entities/blog_post.entity.ts",
       "module": "blog",
       "schema": "system",
       "tableName": "blog_posts",
@@ -262,7 +262,7 @@
     },
     {
       "name": "Cart",
-      "filePath": "modules/payment_cart/entities/cart.entity.ts",
+      "filePath": "modules/payment_cart/server/entities/cart.entity.ts",
       "module": "payment_cart",
       "schema": "system",
       "tableName": "carts",
@@ -286,7 +286,7 @@
     },
     {
       "name": "CartItem",
-      "filePath": "modules/payment_cart/entities/cart_item.entity.ts",
+      "filePath": "modules/payment_cart/server/entities/cart_item.entity.ts",
       "module": "payment_cart",
       "schema": "system",
       "tableName": "cart_items",
@@ -308,7 +308,7 @@
     },
     {
       "name": "ConnectedApp",
-      "filePath": "modules/integrations_hub/entities/connected_app.entity.ts",
+      "filePath": "modules/integrations_hub/server/entities/connected_app.entity.ts",
       "module": "integrations_hub",
       "schema": "system",
       "tableName": "connected_apps",
@@ -331,7 +331,7 @@
     },
     {
       "name": "Connector",
-      "filePath": "modules/integrations_hub/entities/connector.entity.ts",
+      "filePath": "modules/integrations_hub/server/entities/connector.entity.ts",
       "module": "integrations_hub",
       "schema": "system",
       "tableName": "connectors",
@@ -358,7 +358,7 @@
     },
     {
       "name": "ConsentRecord",
-      "filePath": "modules/terms_consent/entities/consent_record.entity.ts",
+      "filePath": "modules/terms_consent/server/entities/consent_record.entity.ts",
       "module": "terms_consent",
       "schema": "system",
       "tableName": "consent_records",
@@ -379,7 +379,7 @@
     },
     {
       "name": "Conversation",
-      "filePath": "modules/messaging/entities/conversation.entity.ts",
+      "filePath": "modules/messaging/server/entities/conversation.entity.ts",
       "module": "messaging",
       "schema": "system",
       "tableName": "conversations",
@@ -401,7 +401,7 @@
     },
     {
       "name": "ConversationParticipant",
-      "filePath": "modules/messaging/entities/conversation_participant.entity.ts",
+      "filePath": "modules/messaging/server/entities/conversation_participant.entity.ts",
       "module": "messaging",
       "schema": "system",
       "tableName": "conversation_participants",
@@ -423,7 +423,7 @@
     },
     {
       "name": "Coupon",
-      "filePath": "modules/coupon/entities/coupon.entity.ts",
+      "filePath": "modules/coupon/server/entities/coupon.entity.ts",
       "module": "coupon",
       "schema": "system",
       "tableName": "coupons",
@@ -453,7 +453,7 @@
     },
     {
       "name": "CouponRedemption",
-      "filePath": "modules/coupon/entities/coupon_redemption.entity.ts",
+      "filePath": "modules/coupon/server/entities/coupon_redemption.entity.ts",
       "module": "coupon",
       "schema": "system",
       "tableName": "coupon_redemptions",
@@ -476,7 +476,7 @@
     },
     {
       "name": "DynamicCollection",
-      "filePath": "modules/dynamic_page/entities/dynamic_collection.entity.ts",
+      "filePath": "modules/dynamic_page/server/entities/dynamic_collection.entity.ts",
       "module": "dynamic_page",
       "schema": "system",
       "tableName": "dynamic_collections",
@@ -495,7 +495,7 @@
     },
     {
       "name": "DynamicCollectionItem",
-      "filePath": "modules/dynamic_page/entities/dynamic_collection_item.entity.ts",
+      "filePath": "modules/dynamic_page/server/entities/dynamic_collection_item.entity.ts",
       "module": "dynamic_page",
       "schema": "system",
       "tableName": "dynamic_collection_items",
@@ -513,7 +513,7 @@
     },
     {
       "name": "DynamicPage",
-      "filePath": "modules/dynamic_page/entities/dynamic_page.entity.ts",
+      "filePath": "modules/dynamic_page/server/entities/dynamic_page.entity.ts",
       "module": "dynamic_page",
       "schema": "system",
       "tableName": "dynamic_pages",
@@ -543,7 +543,7 @@
     },
     {
       "name": "DynamicPageBlock",
-      "filePath": "modules/dynamic_page/entities/dynamic_page_block.entity.ts",
+      "filePath": "modules/dynamic_page/server/entities/dynamic_page_block.entity.ts",
       "module": "dynamic_page",
       "schema": "system",
       "tableName": "dynamic_page_blocks",
@@ -569,7 +569,7 @@
     },
     {
       "name": "DynamicPageTranslation",
-      "filePath": "modules/dynamic_page/entities/dynamic_page_translation.entity.ts",
+      "filePath": "modules/dynamic_page/server/entities/dynamic_page_translation.entity.ts",
       "module": "dynamic_page",
       "schema": "system",
       "tableName": "dynamic_page_translations",
@@ -590,7 +590,7 @@
     },
     {
       "name": "DynamicPageVersion",
-      "filePath": "modules/dynamic_page/entities/dynamic_page_version.entity.ts",
+      "filePath": "modules/dynamic_page/server/entities/dynamic_page_version.entity.ts",
       "module": "dynamic_page",
       "schema": "system",
       "tableName": "dynamic_page_versions",
@@ -611,7 +611,7 @@
     },
     {
       "name": "FeatureFlag",
-      "filePath": "modules/feature_flags/entities/feature_flag.entity.ts",
+      "filePath": "modules/feature_flags/server/entities/feature_flag.entity.ts",
       "module": "feature_flags",
       "schema": "system",
       "tableName": "feature_flags",
@@ -632,7 +632,7 @@
     },
     {
       "name": "FeatureFlagOverride",
-      "filePath": "modules/feature_flags/entities/feature_flag_override.entity.ts",
+      "filePath": "modules/feature_flags/server/entities/feature_flag_override.entity.ts",
       "module": "feature_flags",
       "schema": "system",
       "tableName": "feature_flag_overrides",
@@ -649,7 +649,7 @@
     },
     {
       "name": "Fulfillment",
-      "filePath": "modules/order_fulfillment/entities/fulfillment.entity.ts",
+      "filePath": "modules/order_fulfillment/server/entities/fulfillment.entity.ts",
       "module": "order_fulfillment",
       "schema": "system",
       "tableName": "fulfillments",
@@ -688,7 +688,7 @@
     },
     {
       "name": "FulfillmentEvent",
-      "filePath": "modules/order_fulfillment/entities/fulfillment_event.entity.ts",
+      "filePath": "modules/order_fulfillment/server/entities/fulfillment_event.entity.ts",
       "module": "order_fulfillment",
       "schema": "system",
       "tableName": "fulfillment_events",
@@ -705,7 +705,7 @@
     },
     {
       "name": "FulfillmentItem",
-      "filePath": "modules/order_fulfillment/entities/fulfillment_item.entity.ts",
+      "filePath": "modules/order_fulfillment/server/entities/fulfillment_item.entity.ts",
       "module": "order_fulfillment",
       "schema": "system",
       "tableName": "fulfillment_items",
@@ -733,7 +733,7 @@
     },
     {
       "name": "GiftCard",
-      "filePath": "modules/gift_card/entities/gift_card.entity.ts",
+      "filePath": "modules/gift_card/server/entities/gift_card.entity.ts",
       "module": "gift_card",
       "schema": "system",
       "tableName": "gift_cards",
@@ -761,7 +761,7 @@
     },
     {
       "name": "GiftCardTransaction",
-      "filePath": "modules/gift_card/entities/gift_card_transaction.entity.ts",
+      "filePath": "modules/gift_card/server/entities/gift_card_transaction.entity.ts",
       "module": "gift_card",
       "schema": "system",
       "tableName": "gift_card_transactions",
@@ -781,7 +781,7 @@
     },
     {
       "name": "IntegrationEvent",
-      "filePath": "modules/integrations_hub/entities/integration_event.entity.ts",
+      "filePath": "modules/integrations_hub/server/entities/integration_event.entity.ts",
       "module": "integrations_hub",
       "schema": "system",
       "tableName": "integration_events",
@@ -800,7 +800,7 @@
     },
     {
       "name": "Invoice",
-      "filePath": "modules/invoice/entities/invoice.entity.ts",
+      "filePath": "modules/invoice/server/entities/invoice.entity.ts",
       "module": "invoice",
       "schema": "system",
       "tableName": "invoices",
@@ -844,7 +844,7 @@
     },
     {
       "name": "InvoiceLine",
-      "filePath": "modules/invoice/entities/invoice_line.entity.ts",
+      "filePath": "modules/invoice/server/entities/invoice_line.entity.ts",
       "module": "invoice",
       "schema": "system",
       "tableName": "invoice_lines",
@@ -867,7 +867,7 @@
     },
     {
       "name": "LoyaltyAccount",
-      "filePath": "modules/payment_loyalty_points/entities/loyalty_account.entity.ts",
+      "filePath": "modules/payment_loyalty_points/server/entities/loyalty_account.entity.ts",
       "module": "payment_loyalty_points",
       "schema": "system",
       "tableName": "loyalty_accounts",
@@ -886,7 +886,7 @@
     },
     {
       "name": "LoyaltyTier",
-      "filePath": "modules/payment_loyalty_points/entities/loyalty_tier.entity.ts",
+      "filePath": "modules/payment_loyalty_points/server/entities/loyalty_tier.entity.ts",
       "module": "payment_loyalty_points",
       "schema": "system",
       "tableName": "loyalty_tiers",
@@ -907,7 +907,7 @@
     },
     {
       "name": "LoyaltyTransaction",
-      "filePath": "modules/payment_loyalty_points/entities/loyalty_transaction.entity.ts",
+      "filePath": "modules/payment_loyalty_points/server/entities/loyalty_transaction.entity.ts",
       "module": "payment_loyalty_points",
       "schema": "system",
       "tableName": "loyalty_transactions",
@@ -929,7 +929,7 @@
     },
     {
       "name": "MediaGallery",
-      "filePath": "modules/media_gallery/entities/media_gallery.entity.ts",
+      "filePath": "modules/media_gallery/server/entities/media_gallery.entity.ts",
       "module": "media_gallery",
       "schema": "system",
       "tableName": "media_galleries",
@@ -944,7 +944,7 @@
     },
     {
       "name": "MediaGalleryItem",
-      "filePath": "modules/media_gallery/entities/media_gallery_item.entity.ts",
+      "filePath": "modules/media_gallery/server/entities/media_gallery_item.entity.ts",
       "module": "media_gallery",
       "schema": "system",
       "tableName": "media_gallery_items",
@@ -969,7 +969,7 @@
     },
     {
       "name": "Message",
-      "filePath": "modules/messaging/entities/message.entity.ts",
+      "filePath": "modules/messaging/server/entities/message.entity.ts",
       "module": "messaging",
       "schema": "system",
       "tableName": "messages",
@@ -998,7 +998,7 @@
     },
     {
       "name": "MessageReport",
-      "filePath": "modules/messaging/entities/message_report.entity.ts",
+      "filePath": "modules/messaging/server/entities/message_report.entity.ts",
       "module": "messaging",
       "schema": "system",
       "tableName": "message_reports",
@@ -1022,7 +1022,7 @@
     },
     {
       "name": "MeterDefinition",
-      "filePath": "modules/metering/entities/meter_definition.entity.ts",
+      "filePath": "modules/metering/server/entities/meter_definition.entity.ts",
       "module": "metering",
       "schema": "system",
       "tableName": "meter_definitions",
@@ -1046,7 +1046,7 @@
     },
     {
       "name": "MeteredBillingRun",
-      "filePath": "modules/metering/entities/metered_billing_run.entity.ts",
+      "filePath": "modules/metering/server/entities/metered_billing_run.entity.ts",
       "module": "metering",
       "schema": "system",
       "tableName": "metered_billing_runs",
@@ -1072,7 +1072,7 @@
     },
     {
       "name": "MeteredUsageEvent",
-      "filePath": "modules/metering/entities/metered_usage_event.entity.ts",
+      "filePath": "modules/metering/server/entities/metered_usage_event.entity.ts",
       "module": "metering",
       "schema": "system",
       "tableName": "metered_usage_events",
@@ -1094,7 +1094,7 @@
     },
     {
       "name": "NotificationLog",
-      "filePath": "modules/notification_log/entities/notification_log.entity.ts",
+      "filePath": "modules/notification_log/server/entities/notification_log.entity.ts",
       "module": "notification_log",
       "schema": "system",
       "tableName": "notification_logs",
@@ -1118,7 +1118,7 @@
     },
     {
       "name": "OAuthToken",
-      "filePath": "modules/integrations_hub/entities/oauth_token.entity.ts",
+      "filePath": "modules/integrations_hub/server/entities/oauth_token.entity.ts",
       "module": "integrations_hub",
       "schema": "system",
       "tableName": "integration_oauth_tokens",
@@ -1138,7 +1138,7 @@
     },
     {
       "name": "Payment",
-      "filePath": "modules/payment/entities/payment.entity.ts",
+      "filePath": "modules/payment/server/entities/payment.entity.ts",
       "module": "payment",
       "schema": "system",
       "tableName": "payments",
@@ -1179,7 +1179,7 @@
     },
     {
       "name": "Payment",
-      "filePath": "modules/payment_sell/entities/payment.entity.ts",
+      "filePath": "modules/payment_sell/server/entities/payment.entity.ts",
       "module": "payment_sell",
       "schema": "system",
       "tableName": "payments",
@@ -1214,7 +1214,7 @@
     },
     {
       "name": "PaymentTransaction",
-      "filePath": "modules/payment/entities/payment_transaction.entity.ts",
+      "filePath": "modules/payment/server/entities/payment_transaction.entity.ts",
       "module": "payment",
       "schema": "system",
       "tableName": "payment_transactions",
@@ -1243,7 +1243,7 @@
     },
     {
       "name": "PaymentTransaction",
-      "filePath": "modules/payment_sell/entities/payment_transaction.entity.ts",
+      "filePath": "modules/payment_sell/server/entities/payment_transaction.entity.ts",
       "module": "payment_sell",
       "schema": "system",
       "tableName": "payment_transactions",
@@ -1272,7 +1272,7 @@
     },
     {
       "name": "PlanFeature",
-      "filePath": "modules/payment/entities/plan_feature.entity.ts",
+      "filePath": "modules/payment/server/entities/plan_feature.entity.ts",
       "module": "payment",
       "schema": "system",
       "tableName": "plan_features",
@@ -1292,7 +1292,7 @@
     },
     {
       "name": "PlanFeature",
-      "filePath": "modules/payment_subscription/entities/plan_feature.entity.ts",
+      "filePath": "modules/payment_subscription/server/entities/plan_feature.entity.ts",
       "module": "payment_subscription",
       "schema": "system",
       "tableName": "plan_features",
@@ -1312,7 +1312,7 @@
     },
     {
       "name": "ProductReview",
-      "filePath": "modules/product_review/entities/product_review.entity.ts",
+      "filePath": "modules/product_review/server/entities/product_review.entity.ts",
       "module": "product_review",
       "schema": "system",
       "tableName": "product_reviews",
@@ -1339,7 +1339,7 @@
     },
     {
       "name": "ProductReviewVote",
-      "filePath": "modules/product_review/entities/product_review_vote.entity.ts",
+      "filePath": "modules/product_review/server/entities/product_review_vote.entity.ts",
       "module": "product_review",
       "schema": "system",
       "tableName": "product_review_votes",
@@ -1355,7 +1355,7 @@
     },
     {
       "name": "PushSubscription",
-      "filePath": "modules/notification_push/entities/push_subscription.entity.ts",
+      "filePath": "modules/notification_push/server/entities/push_subscription.entity.ts",
       "module": "notification_push",
       "schema": "system",
       "tableName": "push_subscriptions",
@@ -1375,7 +1375,7 @@
     },
     {
       "name": "ReturnEvent",
-      "filePath": "modules/payment_return_rma/entities/return_event.entity.ts",
+      "filePath": "modules/payment_return_rma/server/entities/return_event.entity.ts",
       "module": "payment_return_rma",
       "schema": "system",
       "tableName": "return_events",
@@ -1392,7 +1392,7 @@
     },
     {
       "name": "ReturnItem",
-      "filePath": "modules/payment_return_rma/entities/return_item.entity.ts",
+      "filePath": "modules/payment_return_rma/server/entities/return_item.entity.ts",
       "module": "payment_return_rma",
       "schema": "system",
       "tableName": "return_items",
@@ -1414,7 +1414,7 @@
     },
     {
       "name": "ReturnRequest",
-      "filePath": "modules/payment_return_rma/entities/return_request.entity.ts",
+      "filePath": "modules/payment_return_rma/server/entities/return_request.entity.ts",
       "module": "payment_return_rma",
       "schema": "system",
       "tableName": "return_requests",
@@ -1452,7 +1452,7 @@
     },
     {
       "name": "SamlConfig",
-      "filePath": "modules/auth_saml/entities/saml_config.entity.ts",
+      "filePath": "modules/auth_saml/server/entities/saml_config.entity.ts",
       "module": "auth_saml",
       "schema": "system",
       "tableName": "saml_configs",
@@ -1490,7 +1490,7 @@
     },
     {
       "name": "ScimGroup",
-      "filePath": "modules/scim/entities/scim_group.entity.ts",
+      "filePath": "modules/scim/server/entities/scim_group.entity.ts",
       "module": "scim",
       "schema": "system",
       "tableName": "scim_groups",
@@ -1508,7 +1508,7 @@
     },
     {
       "name": "ScimGroupMember",
-      "filePath": "modules/scim/entities/scim_group_member.entity.ts",
+      "filePath": "modules/scim/server/entities/scim_group_member.entity.ts",
       "module": "scim",
       "schema": "system",
       "tableName": "scim_group_members",
@@ -1523,7 +1523,7 @@
     },
     {
       "name": "SearchDocument",
-      "filePath": "modules/search/entities/search_document.entity.ts",
+      "filePath": "modules/search/server/entities/search_document.entity.ts",
       "module": "search",
       "schema": "system",
       "tableName": "search_documents",
@@ -1573,7 +1573,7 @@
     },
     {
       "name": "Setting",
-      "filePath": "modules/setting/entities/setting.entity.ts",
+      "filePath": "modules/setting/server/entities/setting.entity.ts",
       "module": "setting",
       "schema": "system",
       "tableName": "settings",
@@ -1591,7 +1591,7 @@
     },
     {
       "name": "SettingHistory",
-      "filePath": "modules/setting/entities/setting_history.entity.ts",
+      "filePath": "modules/setting/server/entities/setting_history.entity.ts",
       "module": "setting",
       "schema": "system",
       "tableName": "setting_history",
@@ -1608,7 +1608,7 @@
     },
     {
       "name": "ShippingMethod",
-      "filePath": "modules/payment_shipping/entities/shipping_method.entity.ts",
+      "filePath": "modules/payment_shipping/server/entities/shipping_method.entity.ts",
       "module": "payment_shipping",
       "schema": "system",
       "tableName": "shipping_methods",
@@ -1630,7 +1630,7 @@
     },
     {
       "name": "ShippingRate",
-      "filePath": "modules/payment_shipping/entities/shipping_rate.entity.ts",
+      "filePath": "modules/payment_shipping/server/entities/shipping_rate.entity.ts",
       "module": "payment_shipping",
       "schema": "system",
       "tableName": "shipping_rates",
@@ -1659,7 +1659,7 @@
     },
     {
       "name": "SigningCertificate",
-      "filePath": "modules/auth_e_signature/entities/signing_certificate.entity.ts",
+      "filePath": "modules/auth_e_signature/server/entities/signing_certificate.entity.ts",
       "module": "auth_e_signature",
       "schema": "system",
       "tableName": "signing_certificates",
@@ -1686,7 +1686,7 @@
     },
     {
       "name": "StoreBundle",
-      "filePath": "modules/store/entities/store_bundle.entity.ts",
+      "filePath": "modules/store/server/entities/store_bundle.entity.ts",
       "module": "store",
       "schema": "system",
       "tableName": "store_bundles",
@@ -1713,7 +1713,7 @@
     },
     {
       "name": "StoreBundleItem",
-      "filePath": "modules/store/entities/store_bundle_item.entity.ts",
+      "filePath": "modules/store/server/entities/store_bundle_item.entity.ts",
       "module": "store",
       "schema": "system",
       "tableName": "store_bundle_items",
@@ -1733,7 +1733,7 @@
     },
     {
       "name": "StoreCategory",
-      "filePath": "modules/store/entities/store_category.entity.ts",
+      "filePath": "modules/store/server/entities/store_category.entity.ts",
       "module": "store",
       "schema": "system",
       "tableName": "store_categories",
@@ -1756,7 +1756,7 @@
     },
     {
       "name": "StoreCategorySpec",
-      "filePath": "modules/store/entities/store_category_spec.entity.ts",
+      "filePath": "modules/store/server/entities/store_category_spec.entity.ts",
       "module": "store",
       "schema": "system",
       "tableName": "store_category_specs",
@@ -1780,7 +1780,7 @@
     },
     {
       "name": "StoreProduct",
-      "filePath": "modules/store/entities/store_product.entity.ts",
+      "filePath": "modules/store/server/entities/store_product.entity.ts",
       "module": "store",
       "schema": "system",
       "tableName": "store_products",
@@ -1830,7 +1830,7 @@
     },
     {
       "name": "StoreProductImage",
-      "filePath": "modules/store/entities/store_product_image.entity.ts",
+      "filePath": "modules/store/server/entities/store_product_image.entity.ts",
       "module": "store",
       "schema": "system",
       "tableName": "store_product_images",
@@ -1849,7 +1849,7 @@
     },
     {
       "name": "StoreProductSpecValue",
-      "filePath": "modules/store/entities/store_product_spec_value.entity.ts",
+      "filePath": "modules/store/server/entities/store_product_spec_value.entity.ts",
       "module": "store",
       "schema": "system",
       "tableName": "store_product_spec_values",
@@ -1866,7 +1866,7 @@
     },
     {
       "name": "StoreProductVariant",
-      "filePath": "modules/store/entities/store_product_variant.entity.ts",
+      "filePath": "modules/store/server/entities/store_product_variant.entity.ts",
       "module": "store",
       "schema": "system",
       "tableName": "store_product_variants",
@@ -1894,7 +1894,7 @@
     },
     {
       "name": "StoreVariantGroup",
-      "filePath": "modules/store/entities/store_variant_group.entity.ts",
+      "filePath": "modules/store/server/entities/store_variant_group.entity.ts",
       "module": "store",
       "schema": "system",
       "tableName": "store_variant_groups",
@@ -1909,7 +1909,7 @@
     },
     {
       "name": "StoreVariantGroupItem",
-      "filePath": "modules/store/entities/store_variant_group_item.entity.ts",
+      "filePath": "modules/store/server/entities/store_variant_group_item.entity.ts",
       "module": "store",
       "schema": "system",
       "tableName": "store_variant_group_items",
@@ -1927,7 +1927,7 @@
     },
     {
       "name": "StoreVariationOption",
-      "filePath": "modules/store/entities/store_variation_option.entity.ts",
+      "filePath": "modules/store/server/entities/store_variation_option.entity.ts",
       "module": "store",
       "schema": "system",
       "tableName": "store_variation_options",
@@ -1946,7 +1946,7 @@
     },
     {
       "name": "StoreVariationType",
-      "filePath": "modules/store/entities/store_variation_type.entity.ts",
+      "filePath": "modules/store/server/entities/store_variation_type.entity.ts",
       "module": "store",
       "schema": "system",
       "tableName": "store_variation_types",
@@ -1964,7 +1964,7 @@
     },
     {
       "name": "Subscription",
-      "filePath": "modules/payment_subscription/entities/subscription.entity.ts",
+      "filePath": "modules/payment_subscription/server/entities/subscription.entity.ts",
       "module": "payment_subscription",
       "schema": "system",
       "tableName": "subscriptions",
@@ -1999,7 +1999,7 @@
     },
     {
       "name": "SubscriptionPlan",
-      "filePath": "modules/payment/entities/subscription_plan.entity.ts",
+      "filePath": "modules/payment/server/entities/subscription_plan.entity.ts",
       "module": "payment",
       "schema": "system",
       "tableName": "subscription_plans",
@@ -2017,7 +2017,7 @@
     },
     {
       "name": "SubscriptionPlan",
-      "filePath": "modules/payment_subscription/entities/subscription_plan.entity.ts",
+      "filePath": "modules/payment_subscription/server/entities/subscription_plan.entity.ts",
       "module": "payment_subscription",
       "schema": "system",
       "tableName": "subscription_plans",
@@ -2035,7 +2035,7 @@
     },
     {
       "name": "SupportTicket",
-      "filePath": "modules/support/entities/support_ticket.entity.ts",
+      "filePath": "modules/support/server/entities/support_ticket.entity.ts",
       "module": "support",
       "schema": "system",
       "tableName": "support_tickets",
@@ -2062,7 +2062,7 @@
     },
     {
       "name": "SupportTicketMessage",
-      "filePath": "modules/support/entities/support_ticket_message.entity.ts",
+      "filePath": "modules/support/server/entities/support_ticket_message.entity.ts",
       "module": "support",
       "schema": "system",
       "tableName": "support_ticket_messages",
@@ -2081,7 +2081,7 @@
     },
     {
       "name": "TaxClass",
-      "filePath": "modules/payment_tax/entities/tax_class.entity.ts",
+      "filePath": "modules/payment_tax/server/entities/tax_class.entity.ts",
       "module": "payment_tax",
       "schema": "system",
       "tableName": "tax_classes",
@@ -2100,7 +2100,7 @@
     },
     {
       "name": "TaxRate",
-      "filePath": "modules/payment_tax/entities/tax_rate.entity.ts",
+      "filePath": "modules/payment_tax/server/entities/tax_rate.entity.ts",
       "module": "payment_tax",
       "schema": "system",
       "tableName": "tax_rates",
@@ -2126,7 +2126,7 @@
     },
     {
       "name": "Tenant",
-      "filePath": "modules/tenant/entities/tenant.entity.ts",
+      "filePath": "modules/tenant/server/entities/tenant.entity.ts",
       "module": "tenant",
       "schema": "tenant",
       "tableName": "tenants",
@@ -2148,7 +2148,7 @@
     },
     {
       "name": "TenantDatabase",
-      "filePath": "modules/db/entities/tenant_database.entity.ts",
+      "filePath": "modules/db/server/entities/tenant_database.entity.ts",
       "module": "db",
       "schema": "system",
       "tableName": "tenant_databases",
@@ -2162,7 +2162,7 @@
     },
     {
       "name": "TenantDomain",
-      "filePath": "modules/tenant_domain/entities/tenant_domain.entity.ts",
+      "filePath": "modules/tenant_domain/server/entities/tenant_domain.entity.ts",
       "module": "tenant_domain",
       "schema": "tenant",
       "tableName": "tenant_domains",
@@ -2186,7 +2186,7 @@
     },
     {
       "name": "TenantExportJob",
-      "filePath": "modules/tenant_export/entities/tenant_export_job.entity.ts",
+      "filePath": "modules/tenant_export/server/entities/tenant_export_job.entity.ts",
       "module": "tenant_export",
       "schema": "tenant",
       "tableName": "tenant_export_jobs",
@@ -2213,7 +2213,7 @@
     },
     {
       "name": "TenantInvitation",
-      "filePath": "modules/tenant_invitation/entities/tenant_invitation.entity.ts",
+      "filePath": "modules/tenant_invitation/server/entities/tenant_invitation.entity.ts",
       "module": "tenant_invitation",
       "schema": "tenant",
       "tableName": "tenant_invitations",
@@ -2233,7 +2233,7 @@
     },
     {
       "name": "TenantMember",
-      "filePath": "modules/tenant_member/entities/tenant_member.entity.ts",
+      "filePath": "modules/tenant_member/server/entities/tenant_member.entity.ts",
       "module": "tenant_member",
       "schema": "tenant",
       "tableName": "tenant_members",
@@ -2256,7 +2256,7 @@
     },
     {
       "name": "TenantSubscription",
-      "filePath": "modules/tenant_subscription/entities/tenant_subscription.entity.ts",
+      "filePath": "modules/tenant_subscription/server/entities/tenant_subscription.entity.ts",
       "module": "tenant_subscription",
       "schema": "tenant",
       "tableName": "tenant_subscriptions",
@@ -2278,7 +2278,7 @@
     },
     {
       "name": "TenantUsage",
-      "filePath": "modules/tenant_usage/entities/tenant_usage.entity.ts",
+      "filePath": "modules/tenant_usage/server/entities/tenant_usage.entity.ts",
       "module": "tenant_usage",
       "schema": "tenant",
       "tableName": "tenant_usage",
@@ -2299,7 +2299,7 @@
     },
     {
       "name": "TrustListEntry",
-      "filePath": "modules/e_signature/entities/trust_list_entry.entity.ts",
+      "filePath": "modules/e_signature/server/entities/trust_list_entry.entity.ts",
       "module": "e_signature",
       "schema": "system",
       "tableName": "trust_list_entries",
@@ -2319,7 +2319,7 @@
     },
     {
       "name": "UploadedFile",
-      "filePath": "modules/storage/entities/uploaded_file.entity.ts",
+      "filePath": "modules/storage/server/entities/uploaded_file.entity.ts",
       "module": "storage",
       "schema": "system",
       "tableName": "uploaded_files",
@@ -2347,7 +2347,7 @@
     },
     {
       "name": "User",
-      "filePath": "modules/user/entities/user.entity.ts",
+      "filePath": "modules/user/server/entities/user.entity.ts",
       "module": "user",
       "schema": "system",
       "tableName": "users",
@@ -2371,7 +2371,7 @@
     },
     {
       "name": "UserConsent",
-      "filePath": "modules/auth/entities/user_consent.entity.ts",
+      "filePath": "modules/auth/server/entities/user_consent.entity.ts",
       "module": "auth",
       "schema": "system",
       "tableName": "user_consents",
@@ -2390,7 +2390,7 @@
     },
     {
       "name": "UserPreferences",
-      "filePath": "modules/user_preferences/entities/user_preferences.entity.ts",
+      "filePath": "modules/user_preferences/server/entities/user_preferences.entity.ts",
       "module": "user_preferences",
       "schema": "system",
       "tableName": "user_preferences",
@@ -2422,7 +2422,7 @@
     },
     {
       "name": "UserProfile",
-      "filePath": "modules/user_profile/entities/user_profile.entity.ts",
+      "filePath": "modules/user_profile/server/entities/user_profile.entity.ts",
       "module": "user_profile",
       "schema": "system",
       "tableName": "user_profiles",
@@ -2452,7 +2452,7 @@
     },
     {
       "name": "UserSecurity",
-      "filePath": "modules/user_security/entities/user_security.entity.ts",
+      "filePath": "modules/user_security/server/entities/user_security.entity.ts",
       "module": "user_security",
       "schema": "system",
       "tableName": "user_securities",
@@ -2480,7 +2480,7 @@
     },
     {
       "name": "UserSession",
-      "filePath": "modules/user_session/entities/user_session.entity.ts",
+      "filePath": "modules/user_session/server/entities/user_session.entity.ts",
       "module": "user_session",
       "schema": "system",
       "tableName": "user_sessions",
@@ -2503,7 +2503,7 @@
     },
     {
       "name": "UserSocialAccount",
-      "filePath": "modules/user_social_account/entities/user_social_account.entity.ts",
+      "filePath": "modules/user_social_account/server/entities/user_social_account.entity.ts",
       "module": "user_social_account",
       "schema": "system",
       "tableName": "user_social_accounts",
@@ -2525,7 +2525,7 @@
     },
     {
       "name": "WalletAccount",
-      "filePath": "modules/wallet/entities/wallet_account.entity.ts",
+      "filePath": "modules/wallet/server/entities/wallet_account.entity.ts",
       "module": "wallet",
       "schema": "system",
       "tableName": "wallet_accounts",
@@ -2548,7 +2548,7 @@
     },
     {
       "name": "WalletPosting",
-      "filePath": "modules/wallet/entities/wallet_posting.entity.ts",
+      "filePath": "modules/wallet/server/entities/wallet_posting.entity.ts",
       "module": "wallet",
       "schema": "system",
       "tableName": "wallet_postings",
@@ -2569,7 +2569,7 @@
     },
     {
       "name": "WalletTransaction",
-      "filePath": "modules/wallet/entities/wallet_transaction.entity.ts",
+      "filePath": "modules/wallet/server/entities/wallet_transaction.entity.ts",
       "module": "wallet",
       "schema": "system",
       "tableName": "wallet_transactions",
@@ -2589,7 +2589,7 @@
     },
     {
       "name": "Warehouse",
-      "filePath": "modules/order_fulfillment/entities/warehouse.entity.ts",
+      "filePath": "modules/order_fulfillment/server/entities/warehouse.entity.ts",
       "module": "order_fulfillment",
       "schema": "system",
       "tableName": "fulfillment_warehouses",
@@ -2612,7 +2612,7 @@
     },
     {
       "name": "Webhook",
-      "filePath": "modules/webhook/entities/webhook.entity.ts",
+      "filePath": "modules/webhook/server/entities/webhook.entity.ts",
       "module": "webhook",
       "schema": "tenant",
       "tableName": "webhooks",
@@ -2642,7 +2642,7 @@
     },
     {
       "name": "WebhookDelivery",
-      "filePath": "modules/webhook/entities/webhook_delivery.entity.ts",
+      "filePath": "modules/webhook/server/entities/webhook_delivery.entity.ts",
       "module": "webhook",
       "schema": "tenant",
       "tableName": "webhook_deliveries",
@@ -2668,7 +2668,7 @@
     },
     {
       "name": "Wishlist",
-      "filePath": "modules/payment_wishlist/entities/wishlist.entity.ts",
+      "filePath": "modules/payment_wishlist/server/entities/wishlist.entity.ts",
       "module": "payment_wishlist",
       "schema": "system",
       "tableName": "wishlists",
@@ -2688,7 +2688,7 @@
     },
     {
       "name": "WishlistItem",
-      "filePath": "modules/payment_wishlist/entities/wishlist_item.entity.ts",
+      "filePath": "modules/payment_wishlist/server/entities/wishlist_item.entity.ts",
       "module": "payment_wishlist",
       "schema": "system",
       "tableName": "wishlist_items",
@@ -2711,7 +2711,7 @@
     },
     {
       "name": "WishlistPricePoint",
-      "filePath": "modules/payment_wishlist/entities/wishlist_price_point.entity.ts",
+      "filePath": "modules/payment_wishlist/server/entities/wishlist_price_point.entity.ts",
       "module": "payment_wishlist",
       "schema": "system",
       "tableName": "wishlist_price_points",

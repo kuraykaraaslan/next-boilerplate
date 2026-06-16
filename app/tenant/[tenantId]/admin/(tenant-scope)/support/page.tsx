@@ -1,21 +1,21 @@
 'use client';
 import { use, useState, useEffect, useCallback } from 'react';
-import { Button } from '@/modules_next/common/ui/Button';
-import { Input } from '@/modules_next/common/ui/Input';
-import { Select } from '@/modules_next/common/ui/Select';
-import { Badge } from '@/modules_next/common/ui/Badge';
-import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
-import { Modal } from '@/modules_next/common/ui/Modal';
-import { PageHeader } from '@/modules_next/common/ui/PageHeader';
-import { ServerDataTable } from '@/modules_next/common/ui/ServerDataTable';
-import { toast } from '@/modules_next/common/ui/toast.store';
-import api from '@/modules_next/common/axios';
+import { Button } from '@nb/common/ui/Button';
+import { Input } from '@nb/common/ui/Input';
+import { Select } from '@nb/common/ui/Select';
+import { Badge } from '@nb/common/ui/Badge';
+import { AlertBanner } from '@nb/common/ui/AlertBanner';
+import { Modal } from '@nb/common/ui/Modal';
+import { PageHeader } from '@nb/common/ui/PageHeader';
+import { ServerDataTable } from '@nb/common/ui/ServerDataTable';
+import { toast } from '@nb/common/ui/toast.store';
+import api from '@nb/common/server/axios';
 import {
   buildTicketColumns,
   TICKET_STATUS_VARIANT as STATUS_VARIANT,
   TICKET_PRIORITY_VARIANT as PRIORITY_VARIANT,
   type TicketRow as Ticket,
-} from '@/modules_next/support/ui/support-ticket-columns';
+} from '@nb/support/ui/support-ticket-columns';
 
 const PAGE_SIZE = 25;
 

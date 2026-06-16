@@ -1,0 +1,25 @@
+{
+  "name": "@nb/payment_cart",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/entities/cart.entity": "./server/entities/cart.entity.ts",
+    "./server/entities/cart_item.entity": "./server/entities/cart_item.entity.ts",
+    "./server/index": "./server/index.ts",
+    "./server": "./server/index.ts",
+    "./server/payment_cart.calc.service": "./server/payment_cart.calc.service.ts",
+    "./server/payment_cart.crud.service": "./server/payment_cart.crud.service.ts",
+    "./server/payment_cart.dto": "./server/payment_cart.dto.ts",
+    "./server/payment_cart.enums": "./server/payment_cart.enums.ts",
+    "./server/payment_cart.expiry.service": "./server/payment_cart.expiry.service.ts",
+    "./server/payment_cart.inventory.service": "./server/payment_cart.inventory.service.ts",
+    "./server/payment_cart.item.service": "./server/payment_cart.item.service.ts",
+    "./server/payment_cart.messages": "./server/payment_cart.messages.ts",
+    "./server/payment_cart.seed": "./server/payment_cart.seed.ts",
+    "./server/payment_cart.service": "./server/payment_cart.service.ts",
+    "./server/payment_cart.types": "./server/payment_cart.types.ts",
+    ".": "./server/index.ts",
+    "./module.json": "./module.json"
+  }
+}

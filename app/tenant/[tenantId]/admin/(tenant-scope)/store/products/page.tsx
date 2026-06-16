@@ -2,17 +2,17 @@
 
 import { use, useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import api from '@/modules_next/common/axios';
-import { ServerDataTable } from '@/modules_next/common/ui/ServerDataTable';
-import { PageHeader } from '@/modules_next/common/ui/PageHeader';
-import { Input } from '@/modules_next/common/ui/Input';
-import { Select } from '@/modules_next/common/ui/Select';
-import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
-import { toast } from '@/modules_next/common/ui/toast.store';
+import api from '@nb/common/server/axios';
+import { ServerDataTable } from '@nb/common/ui/ServerDataTable';
+import { PageHeader } from '@nb/common/ui/PageHeader';
+import { Input } from '@nb/common/ui/Input';
+import { Select } from '@nb/common/ui/Select';
+import { AlertBanner } from '@nb/common/ui/AlertBanner';
+import { toast } from '@nb/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faSearch } from '@fortawesome/free-solid-svg-icons';
-import { buildProductColumns, type ProductRow } from '@/modules_next/store/ui/product-list-columns';
-import { ProductCreateModal } from '@/modules_next/store/ui/ProductCreateModal';
+import { buildProductColumns, type ProductRow } from '@nb/store/ui/product-list-columns';
+import { ProductCreateModal } from '@nb/store/ui/ProductCreateModal';
 
 type Category = { categoryId: string; name: string };
 const PAGE_SIZE = 20;

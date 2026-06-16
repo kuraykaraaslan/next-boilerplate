@@ -2,19 +2,19 @@
 
 import { use, useEffect, useState, useMemo, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import api from '@/modules_next/common/axios';
-import { PageHeader } from '@/modules_next/common/ui/PageHeader';
-import { Button } from '@/modules_next/common/ui/Button';
-import { Input } from '@/modules_next/common/ui/Input';
-import { Select } from '@/modules_next/common/ui/Select';
-import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
-import { Modal } from '@/modules_next/common/ui/Modal';
-import { ServerDataTable } from '@/modules_next/common/ui/ServerDataTable';
-import { toast } from '@/modules_next/common/ui/toast.store';
+import api from '@nb/common/server/axios';
+import { PageHeader } from '@nb/common/ui/PageHeader';
+import { Button } from '@nb/common/ui/Button';
+import { Input } from '@nb/common/ui/Input';
+import { Select } from '@nb/common/ui/Select';
+import { AlertBanner } from '@nb/common/ui/AlertBanner';
+import { Modal } from '@nb/common/ui/Modal';
+import { ServerDataTable } from '@nb/common/ui/ServerDataTable';
+import { toast } from '@nb/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserPlus, faSearch, faUser, faGear } from '@fortawesome/free-solid-svg-icons';
-import type { TenantMemberRole as MemberRole, TenantMemberStatus as MemberStatus } from '@/modules/tenant_member/tenant_member.enums';
-import { buildMemberColumns, type MemberRow } from '@/modules_next/tenant_member/ui/member-list-columns';
+import type { TenantMemberRole as MemberRole, TenantMemberStatus as MemberStatus } from '@nb/tenant_member/server/tenant_member.enums';
+import { buildMemberColumns, type MemberRow } from '@nb/tenant_member/ui/member-list-columns';
 
 type SessionData = {
   tenantMember: { tenantMemberId: string; memberRole: MemberRole };

@@ -1,0 +1,13 @@
+{
+  "name": "@nb/logger",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/index": "./server/index.ts",
+    "./server": "./server/index.ts",
+    "./server/logger.service": "./server/logger.service.ts",
+    ".": "./server/index.ts",
+    "./module.json": "./module.json"
+  }
+}

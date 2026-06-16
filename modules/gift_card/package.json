@@ -1,0 +1,30 @@
+{
+  "name": "@nb/gift_card",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/entities/gift_card.entity": "./server/entities/gift_card.entity.ts",
+    "./server/entities/gift_card_transaction.entity": "./server/entities/gift_card_transaction.entity.ts",
+    "./server/gift_card.cache": "./server/gift_card.cache.ts",
+    "./server/gift_card.crud.service": "./server/gift_card.crud.service.ts",
+    "./server/gift_card.crypto": "./server/gift_card.crypto.ts",
+    "./server/gift_card.dto": "./server/gift_card.dto.ts",
+    "./server/gift_card.enums": "./server/gift_card.enums.ts",
+    "./server/gift_card.expiry.job": "./server/gift_card.expiry.job.ts",
+    "./server/gift_card.messages": "./server/gift_card.messages.ts",
+    "./server/gift_card.redemption.service": "./server/gift_card.redemption.service.ts",
+    "./server/gift_card.service": "./server/gift_card.service.ts",
+    "./server/gift_card.types": "./server/gift_card.types.ts",
+    "./server/index": "./server/index.ts",
+    "./server": "./server/index.ts",
+    "./ui/GiftCardIssueModal": "./ui/GiftCardIssueModal.tsx",
+    "./ui/gift-card-list-columns": "./ui/gift-card-list-columns.tsx",
+    ".": "./server/index.ts",
+    "./module.json": "./module.json"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "next": "*"
+  }
+}

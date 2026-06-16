@@ -1,30 +1,30 @@
 'use client';
 import { use, useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import api from '@/modules_next/common/axios';
-import { PageHeader } from '@/modules_next/common/ui/PageHeader';
-import { Breadcrumb } from '@/modules_next/common/ui/Breadcrumb';
-import { Button } from '@/modules_next/common/ui/Button';
-import { Input } from '@/modules_next/common/ui/Input';
-import { Select } from '@/modules_next/common/ui/Select';
-import { Card } from '@/modules_next/common/ui/Card';
-import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
-import { TabGroup } from '@/modules_next/common/ui/TabGroup';
-import { Spinner } from '@/modules_next/common/ui/Spinner';
-import { toast } from '@/modules_next/common/ui/toast.store';
-import { ProductStatusBadge } from '@/modules_next/store/ui/ProductStatusBadge';
-import { ProductVariantsPanel } from '@/modules_next/store/ui/ProductVariantsPanel';
-import { ProductImagesPanel } from '@/modules_next/store/ui/ProductImagesPanel';
+import api from '@nb/common/server/axios';
+import { PageHeader } from '@nb/common/ui/PageHeader';
+import { Breadcrumb } from '@nb/common/ui/Breadcrumb';
+import { Button } from '@nb/common/ui/Button';
+import { Input } from '@nb/common/ui/Input';
+import { Select } from '@nb/common/ui/Select';
+import { Card } from '@nb/common/ui/Card';
+import { AlertBanner } from '@nb/common/ui/AlertBanner';
+import { TabGroup } from '@nb/common/ui/TabGroup';
+import { Spinner } from '@nb/common/ui/Spinner';
+import { toast } from '@nb/common/ui/toast.store';
+import { ProductStatusBadge } from '@nb/store/ui/ProductStatusBadge';
+import { ProductVariantsPanel } from '@nb/store/ui/ProductVariantsPanel';
+import { ProductImagesPanel } from '@nb/store/ui/ProductImagesPanel';
 import { SeoPanel } from '@nb/seo/ui';
-import { GalleryPanel } from '@/modules_next/media_gallery/ui/GalleryPanel';
-import { CurrencySelector } from '@/modules_next/common/ui/CurrencySelector';
+import { GalleryPanel } from '@nb/media_gallery/ui/GalleryPanel';
+import { CurrencySelector } from '@nb/common/ui/CurrencySelector';
 import dynamic from 'next/dynamic';
-import { ProductSpecValuesPanel } from '@/modules_next/store/ui/ProductSpecValuesPanel';
+import { ProductSpecValuesPanel } from '@nb/store/ui/ProductSpecValuesPanel';
 
 // Quill + its CSS (~150KB) only load when the product editor actually mounts,
 // keeping the rest of the admin product page light.
 const RichTextEditor = dynamic(
-  () => import('@/modules_next/common/ui/RichTextEditor').then((m) => m.RichTextEditor),
+  () => import('@nb/common/ui/RichTextEditor').then((m) => m.RichTextEditor),
   { ssr: false, loading: () => <div className="h-44 rounded-md border border-border bg-surface-sunken animate-pulse" /> },
 );
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -33,7 +33,7 @@ import {
   type Product, type VariantGroupItemRow, type VariantProductInfo, type EditForm,
   statusOptions, extractMessage,
 } from './product-edit.utils';
-import type { ProductStatus } from '@/modules_next/store/ui/ProductStatusBadge';
+import type { ProductStatus } from '@nb/store/ui/ProductStatusBadge';
 
 export default function ProductDetailPage({ params }: { params: Promise<{ tenantId: string; productId: string }> }) {
   const { tenantId, productId } = use(params);

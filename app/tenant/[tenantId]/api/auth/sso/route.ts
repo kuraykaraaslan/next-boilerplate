@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import SSOService from '@/modules/auth_sso/auth_sso.service';
+import SSOService from '@nb/auth_sso/server/auth_sso.service';
 
 export async function GET(
   _request: Request,

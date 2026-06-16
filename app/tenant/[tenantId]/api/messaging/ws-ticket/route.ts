@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Limiter from '@/modules_next/limiter/limiter.service.next';
-import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next';
-import MessagingTicketService from '@/modules/messaging/messaging.ticket.service';
-import { env } from '@/modules/env';
+import Limiter from '@nb/limiter/server/limiter.service.next';
+import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
+import MessagingTicketService from '@nb/messaging/server/messaging.ticket.service';
+import { env } from '@nb/env';
 
 /**
  * POST /tenant/[tenantId]/api/messaging/ws-ticket

@@ -6,35 +6,13 @@
 - **dir:** `modules/tenant_invitation/`
 - **tags:** tenant, onboarding
 - **icon:** `fas fa-envelope-open`
-- **hasNextLayer:** true
+- **hasNextLayer:** false
 
 Email invitation flow: create / accept / decline / revoke. Bound to tenant_member on acceptance.
 
 ## Dependencies
 
 - **requires:** `db`, `tenant`, `tenant_member`, `notification_mail`, `user`, `env`
-
-## Services
-
-- `tenant_invitation.lifecycle.service.ts`
-- `tenant_invitation.read.service.ts`
-- `tenant_invitation.service.ts`
-
-## DTOs
-
-- `tenant_invitation.dto.ts`
-
-## Entities
-
-- `tenant_invitation.entity.ts`
-
-## Enums
-
-- `tenant_invitation.enums.ts`
-
-## Message keys
-
-- `tenant_invitation.messages.ts`
 
 ## Owned API routes
 
@@ -45,12 +23,7 @@ Email invitation flow: create / accept / decline / revoke. Bound to tenant_membe
 
 ## TypeORM entities
 
-- `TenantInvitation` (tenant) — `modules/tenant_invitation/entities/tenant_invitation.entity.ts`
-
-## Next layer (modules_next/) surface
-
-- `tenant_invitation/ui/invitation-columns` _(ui, client)_
-- `tenant_invitation/ui/InvitationCreateModal` _(ui, client)_
+- `TenantInvitation` (tenant) — `modules/tenant_invitation/server/entities/tenant_invitation.entity.ts`
 
 ## README
 

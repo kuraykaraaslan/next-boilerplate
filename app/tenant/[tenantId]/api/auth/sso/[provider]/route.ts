@@ -1,12 +1,12 @@
 import crypto from 'crypto';
-import Logger from '@/modules/logger';
+import Logger from '@nb/logger';
 import { NextRequest, NextResponse } from 'next/server';
-import SSOService from '@/modules/auth_sso/auth_sso.service';
-import Limiter from '@/modules_next/limiter/limiter.service.next';
-import { GenerateAuthUrlDTO } from '@/modules/auth_sso/auth_sso.dto';
-import SSOMessages from '@/modules/auth_sso/auth_sso.messages';
-import AuthMessages from '@/modules/auth/auth.messages';
-import { SSOProvider } from '@/modules/auth_sso/auth_sso.enums';
+import SSOService from '@nb/auth_sso/server/auth_sso.service';
+import Limiter from '@nb/limiter/server/limiter.service.next';
+import { GenerateAuthUrlDTO } from '@nb/auth_sso/server/auth_sso.dto';
+import SSOMessages from '@nb/auth_sso/server/auth_sso.messages';
+import AuthMessages from '@nb/auth/server/auth.messages';
+import { SSOProvider } from '@nb/auth_sso/server/auth_sso.enums';
 
 export async function GET(
   request: NextRequest,

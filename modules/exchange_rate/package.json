@@ -1,0 +1,15 @@
+{
+  "name": "@nb/exchange_rate",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/exchange_rate.messages": "./server/exchange_rate.messages.ts",
+    "./server/exchange_rate.service": "./server/exchange_rate.service.ts",
+    "./server/exchange_rate.types": "./server/exchange_rate.types.ts",
+    "./server/index": "./server/index.ts",
+    "./server": "./server/index.ts",
+    ".": "./server/index.ts",
+    "./module.json": "./module.json"
+  }
+}

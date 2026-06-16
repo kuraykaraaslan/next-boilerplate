@@ -1,8 +1,8 @@
-import Limiter from '@/modules_next/limiter/limiter.service.next';
+import Limiter from '@nb/limiter/server/limiter.service.next';
 import { NextRequest, NextResponse } from 'next/server'
-import TenantPlanService from '@/modules/tenant_subscription/tenant_subscription.plan.service'
-import { SUBSCRIPTION_MESSAGES } from '@/modules/tenant_subscription/tenant_subscription.messages'
-import { PUBLIC_CACHE } from '@/modules_next/common/utils/cacheHeaders'
+import TenantPlanService from '@nb/tenant_subscription/server/tenant_subscription.plan.service'
+import { SUBSCRIPTION_MESSAGES } from '@nb/tenant_subscription/server/tenant_subscription.messages'
+import { PUBLIC_CACHE } from '@nb/common/server/utils/cacheHeaders'
 
 /**
  * GET /tenant/[tenantId]/api/plans/public

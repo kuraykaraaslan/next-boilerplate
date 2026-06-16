@@ -1,18 +1,18 @@
 'use client';
 import { use, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/modules_next/common/ui/Button';
-import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
-import { Badge } from '@/modules_next/common/ui/Badge';
-import { Modal } from '@/modules_next/common/ui/Modal';
-import { PageHeader } from '@/modules_next/common/ui/PageHeader';
-import { EmptyState } from '@/modules_next/common/ui/EmptyState';
-import { toast } from '@/modules_next/common/ui/toast.store';
-import api from '@/modules_next/common/axios';
+import { Button } from '@nb/common/ui/Button';
+import { AlertBanner } from '@nb/common/ui/AlertBanner';
+import { Badge } from '@nb/common/ui/Badge';
+import { Modal } from '@nb/common/ui/Modal';
+import { PageHeader } from '@nb/common/ui/PageHeader';
+import { EmptyState } from '@nb/common/ui/EmptyState';
+import { toast } from '@nb/common/ui/toast.store';
+import api from '@nb/common/server/axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlug } from '@fortawesome/free-solid-svg-icons';
-import { ConnectorFormModal } from '@/modules_next/integrations_hub/ui/ConnectorFormModal';
-import type { Connector } from '@/modules/integrations_hub/integrations_hub.types';
+import { ConnectorFormModal } from '@nb/integrations_hub/ui/ConnectorFormModal';
+import type { Connector } from '@nb/integrations_hub/server/integrations_hub.types';
 
 function extractMessage(err: unknown, fallback: string): string {
   const e = err as { response?: { data?: { message?: string } }; message?: string };

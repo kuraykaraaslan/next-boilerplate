@@ -14,10 +14,6 @@ Shared ioredis client + BullMQ connection helpers + Pub/Sub-safe createRedisConn
 
 - **requires:** `env`
 
-## Services
-
-- `redis.service.ts`
-
 ## README
 
 # Redis Module

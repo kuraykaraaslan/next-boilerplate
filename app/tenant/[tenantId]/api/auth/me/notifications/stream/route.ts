@@ -1,7 +1,7 @@
 // path: app/tenant/[tenantId]/api/auth/me/notifications/stream/route.ts
 import { NextRequest } from "next/server";
-import TenantSessionNextService from "@/modules_next/tenant_session/tenant_session.service.next";
-import NotificationInAppService from "@/modules/notification_inapp/notification_inapp.service";
+import TenantSessionNextService from "@nb/tenant_session/server/tenant_session.service.next";
+import NotificationInAppService from "@nb/notification_inapp/server/notification_inapp.service";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";

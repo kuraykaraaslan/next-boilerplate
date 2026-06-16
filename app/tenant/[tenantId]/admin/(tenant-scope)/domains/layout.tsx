@@ -1,4 +1,4 @@
-import { pageTitle } from '@/modules_next/common/page-metadata';
+import { pageTitle } from '@nb/common/server/page-metadata';
 
 export const generateMetadata = pageTitle('Domains');
 

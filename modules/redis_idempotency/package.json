@@ -1,0 +1,14 @@
+{
+  "name": "@nb/redis_idempotency",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/index": "./server/index.ts",
+    "./server": "./server/index.ts",
+    "./server/redis_idempotency.service": "./server/redis_idempotency.service.ts",
+    "./server/withIdempotency": "./server/withIdempotency.ts",
+    ".": "./server/index.ts",
+    "./module.json": "./module.json"
+  }
+}

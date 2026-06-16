@@ -1,0 +1,34 @@
+{
+  "name": "@nb/metering",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/entities/meter_definition.entity": "./server/entities/meter_definition.entity.ts",
+    "./server/entities/metered_billing_run.entity": "./server/entities/metered_billing_run.entity.ts",
+    "./server/entities/metered_usage_event.entity": "./server/entities/metered_usage_event.entity.ts",
+    "./server/index": "./server/index.ts",
+    "./server": "./server/index.ts",
+    "./server/metering.billing.compute": "./server/metering.billing.compute.ts",
+    "./server/metering.billing.helpers": "./server/metering.billing.helpers.ts",
+    "./server/metering.billing.read.service": "./server/metering.billing.read.service.ts",
+    "./server/metering.billing.run.service": "./server/metering.billing.run.service.ts",
+    "./server/metering.billing.service": "./server/metering.billing.service.ts",
+    "./server/metering.constants": "./server/metering.constants.ts",
+    "./server/metering.dto": "./server/metering.dto.ts",
+    "./server/metering.enums": "./server/metering.enums.ts",
+    "./server/metering.messages": "./server/metering.messages.ts",
+    "./server/metering.meter.service": "./server/metering.meter.service.ts",
+    "./server/metering.record.service": "./server/metering.record.service.ts",
+    "./server/metering.service": "./server/metering.service.ts",
+    "./server/metering.types": "./server/metering.types.ts",
+    "./server/tests/metering.test-setup": "./server/tests/metering.test-setup.ts",
+    "./ui/metering-columns": "./ui/metering-columns.tsx",
+    ".": "./server/index.ts",
+    "./module.json": "./module.json"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "next": "*"
+  }
+}

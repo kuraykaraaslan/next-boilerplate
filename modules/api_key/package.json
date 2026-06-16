@@ -1,0 +1,32 @@
+{
+  "name": "@nb/api_key",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/api_key.cache": "./server/api_key.cache.ts",
+    "./server/api_key.crud.service": "./server/api_key.crud.service.ts",
+    "./server/api_key.crypto": "./server/api_key.crypto.ts",
+    "./server/api_key.dto": "./server/api_key.dto.ts",
+    "./server/api_key.enums": "./server/api_key.enums.ts",
+    "./server/api_key.messages": "./server/api_key.messages.ts",
+    "./server/api_key.policy": "./server/api_key.policy.ts",
+    "./server/api_key.rotation.service": "./server/api_key.rotation.service.ts",
+    "./server/api_key.seed": "./server/api_key.seed.ts",
+    "./server/api_key.service": "./server/api_key.service.ts",
+    "./server/api_key.setting.keys": "./server/api_key.setting.keys.ts",
+    "./server/api_key.settings.fields": "./server/api_key.settings.fields.ts",
+    "./server/api_key.types": "./server/api_key.types.ts",
+    "./server/api_key.verify.helpers": "./server/api_key.verify.helpers.ts",
+    "./server/api_key.verify.service": "./server/api_key.verify.service.ts",
+    "./server/entities/api_key.entity": "./server/entities/api_key.entity.ts",
+    "./server/tests/api_key.test-utils": "./server/tests/api_key.test-utils.ts",
+    "./ui/ApiKeyCreateModal": "./ui/ApiKeyCreateModal.tsx",
+    "./ui/api-key-columns": "./ui/api-key-columns.tsx",
+    "./module.json": "./module.json"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "next": "*"
+  }
+}

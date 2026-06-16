@@ -1,22 +1,22 @@
 'use client';
 import { use, useEffect, useState } from 'react';
-import api from '@/modules_next/common/axios';
-import { PageHeader } from '@/modules_next/common/ui/PageHeader';
-import { TabGroup } from '@/modules_next/common/ui/TabGroup';
-import { Card } from '@/modules_next/common/ui/Card';
-import { Badge } from '@/modules_next/common/ui/Badge';
-import { Spinner } from '@/modules_next/common/ui/Spinner';
-import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
-import { UserProfileForm, type UserProfileValues } from '@/modules_next/user/ui/UserProfileForm';
-import { UserPreferencesForm, type UserPreferencesValues } from '@/modules_next/user/ui/UserPreferencesForm';
-import { UserRoleBadge } from '@/modules_next/user/ui/UserRoleBadge';
-import { SocialAccountsPanel } from '@/modules_next/user/ui/SocialAccountsPanel';
-import { PasskeysPanel } from '@/modules_next/user_security/ui/PasskeysPanel';
-import { SigningCertificatesPanel } from '@/modules_next/auth_e_signature/ui/SigningCertificatesPanel';
-import { ActiveSessionsPanel } from '@/modules_next/user_session/ui/ActiveSessionsPanel';
+import api from '@nb/common/server/axios';
+import { PageHeader } from '@nb/common/ui/PageHeader';
+import { TabGroup } from '@nb/common/ui/TabGroup';
+import { Card } from '@nb/common/ui/Card';
+import { Badge } from '@nb/common/ui/Badge';
+import { Spinner } from '@nb/common/ui/Spinner';
+import { AlertBanner } from '@nb/common/ui/AlertBanner';
+import { UserProfileForm, type UserProfileValues } from '@nb/user/ui/UserProfileForm';
+import { UserPreferencesForm, type UserPreferencesValues } from '@nb/user/ui/UserPreferencesForm';
+import { UserRoleBadge } from '@nb/user/ui/UserRoleBadge';
+import { SocialAccountsPanel } from '@nb/user/ui/SocialAccountsPanel';
+import { PasskeysPanel } from '@nb/user_security/ui/PasskeysPanel';
+import { SigningCertificatesPanel } from '@nb/auth_e_signature/ui/SigningCertificatesPanel';
+import { ActiveSessionsPanel } from '@nb/user_session/ui/ActiveSessionsPanel';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faClock, faLayerGroup, faShieldHalved, faCircleCheck, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
-import type { SafeUserSession } from '@/modules/user_session/user_session.types';
+import type { SafeUserSession } from '@nb/user_session/server/user_session.types';
 
 interface SecurityInfo {
   email?: string;

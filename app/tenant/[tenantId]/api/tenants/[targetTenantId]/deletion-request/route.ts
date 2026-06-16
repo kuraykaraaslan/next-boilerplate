@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import TenantDeletionService from '@/modules/tenant/tenant.deletion.service';
-import Limiter from '@/modules_next/limiter/limiter.service.next';
-import Logger from '@/modules/logger';
-import { authenticateAdminRequest } from '@/modules_next/auth/auth.admin-guard.next';
+import TenantDeletionService from '@nb/tenant/server/tenant.deletion.service';
+import Limiter from '@nb/limiter/server/limiter.service.next';
+import Logger from '@nb/logger';
+import { authenticateAdminRequest } from '@nb/auth/server/auth.admin-guard.next';
 
 /**
  * POST /tenant/[tenantId]/api/tenants/[targetTenantId]/deletion-request

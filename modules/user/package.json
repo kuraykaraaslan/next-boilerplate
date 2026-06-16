@@ -1,0 +1,33 @@
+{
+  "name": "@nb/user",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/entities/user.entity": "./server/entities/user.entity.ts",
+    "./server/user.admin.service": "./server/user.admin.service.ts",
+    "./server/user.crud.service": "./server/user.crud.service.ts",
+    "./server/user.dto": "./server/user.dto.ts",
+    "./server/user.enums": "./server/user.enums.ts",
+    "./server/user.helpers": "./server/user.helpers.ts",
+    "./server/user.messages": "./server/user.messages.ts",
+    "./server/user.read.service": "./server/user.read.service.ts",
+    "./server/user.seed": "./server/user.seed.ts",
+    "./server/user.service": "./server/user.service.ts",
+    "./server/user.types": "./server/user.types.ts",
+    "./ui/SocialAccountsPanel": "./ui/SocialAccountsPanel.tsx",
+    "./ui/UserEditModal": "./ui/UserEditModal.tsx",
+    "./ui/UserMenu": "./ui/UserMenu.tsx",
+    "./ui/UserPreferencesForm": "./ui/UserPreferencesForm.tsx",
+    "./ui/UserProfileCard": "./ui/UserProfileCard.tsx",
+    "./ui/UserProfileForm": "./ui/UserProfileForm.tsx",
+    "./ui/UserRoleBadge": "./ui/UserRoleBadge.tsx",
+    "./ui/UserStatusBadge": "./ui/UserStatusBadge.tsx",
+    "./ui/user-list-columns": "./ui/user-list-columns.tsx",
+    "./module.json": "./module.json"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "next": "*"
+  }
+}

@@ -2,17 +2,17 @@
 
 import { use, useCallback, useEffect, useState } from 'react';
 import { notFound } from 'next/navigation';
-import { isRootTenant } from '@/modules/tenant/tenant.constants';
-import api from '@/modules_next/common/axios';
-import { PageHeader } from '@/modules_next/common/ui/PageHeader';
-import { Card } from '@/modules_next/common/ui/Card';
-import { Badge } from '@/modules_next/common/ui/Badge';
-import { Spinner } from '@/modules_next/common/ui/Spinner';
-import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
-import { ServerDataTable } from '@/modules_next/common/ui/ServerDataTable';
+import { isRootTenant } from '@nb/tenant/server/tenant.constants';
+import api from '@nb/common/server/axios';
+import { PageHeader } from '@nb/common/ui/PageHeader';
+import { Card } from '@nb/common/ui/Card';
+import { Badge } from '@nb/common/ui/Badge';
+import { Spinner } from '@nb/common/ui/Spinner';
+import { AlertBanner } from '@nb/common/ui/AlertBanner';
+import { ServerDataTable } from '@nb/common/ui/ServerDataTable';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDatabase, faServer, faRotateRight } from '@fortawesome/free-solid-svg-icons';
-import { cn } from '@/modules_next/common/utils/cn';
+import { cn } from '@nb/common/server/utils/cn';
 import {
   type HealthData, type ServiceCheck, type QueueRow,
   formatUptime, formatTimestamp, overallConfig,

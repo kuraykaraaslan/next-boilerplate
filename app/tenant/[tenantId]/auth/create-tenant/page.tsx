@@ -1,10 +1,10 @@
 'use client';
 import { use, useState } from 'react';
-import api from '@/modules_next/common/axios';
-import { BrandLogo } from '@/modules_next/common/ui/BrandLogo';
-import { Form } from '@/modules_next/common/ui/Form';
-import { Input } from '@/modules_next/common/ui/Input';
-import { Button } from '@/modules_next/common/ui/Button';
+import api from '@nb/common/server/axios';
+import { BrandLogo } from '@nb/common/ui/BrandLogo';
+import { Form } from '@nb/common/ui/Form';
+import { Input } from '@nb/common/ui/Input';
+import { Button } from '@nb/common/ui/Button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBuilding, faGlobe } from '@fortawesome/free-solid-svg-icons';
 

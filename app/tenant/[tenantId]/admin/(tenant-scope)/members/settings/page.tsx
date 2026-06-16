@@ -1,7 +1,7 @@
 'use client';
 import { use } from 'react';
-import { ModuleSettingsPage } from '@/modules_next/setting/ui/ModuleSettingsPage';
-import { TENANT_MEMBER_SETTINGS_FIELDS } from '@/modules/tenant_member/tenant_member.settings.fields';
+import { ModuleSettingsPage } from '@nb/setting/ui/ModuleSettingsPage';
+import { TENANT_MEMBER_SETTINGS_FIELDS } from '@nb/tenant_member/server/tenant_member.settings.fields';
 
 export default function MembersSettingsPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = use(params);

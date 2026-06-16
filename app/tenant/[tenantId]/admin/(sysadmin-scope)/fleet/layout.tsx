@@ -1,5 +1,5 @@
-import { AdminShell } from '@/modules_next/common/ui/layout/AdminShell';
-import { pageTitle } from '@/modules_next/common/page-metadata';
+import { AdminShell } from '@nb/common/ui/layout/AdminShell';
+import { pageTitle } from '@nb/common/server/page-metadata';
 
 export const generateMetadata = pageTitle('Fleet');
 

@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import TenantSessionNextService from "@/modules_next/tenant_session/tenant_session.service.next";
-import ImpersonationService from "@/modules/auth_impersonation/impersonation.service";
-import ImpersonationMessages from "@/modules/auth_impersonation/impersonation.messages";
-import { StartTenantImpersonationDTO } from "@/modules/auth_impersonation/impersonation.dto";
-import Limiter from "@/modules_next/limiter/limiter.service.next";
+import TenantSessionNextService from "@nb/tenant_session/server/tenant_session.service.next";
+import ImpersonationService from "@nb/auth_impersonation/server/impersonation.service";
+import ImpersonationMessages from "@nb/auth_impersonation/server/impersonation.messages";
+import { StartTenantImpersonationDTO } from "@nb/auth_impersonation/server/impersonation.dto";
+import Limiter from "@nb/limiter/server/limiter.service.next";
 
 function getCookieOptions(request: NextRequest, maxAge: number) {
   const origin = request.headers.get("origin") || "";

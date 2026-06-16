@@ -6,45 +6,13 @@
 - **dir:** `modules/invoice/`
 - **tags:** invoice, billing, compliance, tax
 - **icon:** `fas fa-file-invoice`
-- **hasNextLayer:** true
+- **hasNextLayer:** false
 
 Tenant-scoped invoicing with regional e-invoicing adapters (TR e-Arşiv, EU Peppol, US Stripe Tax). Each tenant issues its own invoices keyed to its own subscription / payment flow.
 
 ## Dependencies
 
 - **requires:** `db`, `tenant`, `setting`, `audit_log`, `tenant_subscription`, `payment`, `notification_mail`
-
-## Services
-
-- `invoice.adapter.service.ts`
-- `invoice.create.service.ts`
-- `invoice.creditnote.service.ts`
-- `invoice.crud.service.ts`
-- `invoice.number.service.ts`
-- `invoice.pdf.renderer.service.ts`
-- `invoice.pdf.service.ts`
-- `invoice.read.service.ts`
-- `invoice.service.ts`
-- `invoice.signature.service.ts`
-- `invoice.tax.service.ts`
-- `invoice.transition.service.ts`
-
-## Entities
-
-- `invoice.entity.ts`
-- `invoice_line.entity.ts`
-
-## Enums
-
-- `invoice.enums.ts`
-
-## Message keys
-
-- `invoice.messages.ts`
-
-## Setting keys
-
-- `invoice.setting.keys.ts`
 
 ## Owned API routes
 
@@ -60,15 +28,8 @@ Tenant-scoped invoicing with regional e-invoicing adapters (TR e-Arşiv, EU Pepp
 
 ## TypeORM entities
 
-- `Invoice` (system) — `modules/invoice/entities/invoice.entity.ts`
-- `InvoiceLine` (system) — `modules/invoice/entities/invoice_line.entity.ts`
-
-## Next layer (modules_next/) surface
-
-- `invoice/ui/EarsivSmsSignModal` _(ui, client)_
-- `invoice/ui/invoice-list-columns` _(ui, client)_
-- `invoice/ui/InvoiceLineItemsTable` _(ui, client)_
-- `invoice/ui/InvoiceTemplateSettings` _(ui, client)_
+- `Invoice` (system) — `modules/invoice/server/entities/invoice.entity.ts`
+- `InvoiceLine` (system) — `modules/invoice/server/entities/invoice_line.entity.ts`
 
 ## README
 

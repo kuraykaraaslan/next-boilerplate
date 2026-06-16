@@ -1,0 +1,29 @@
+{
+  "name": "@nb/payment_subscription",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/entities/plan_feature.entity": "./server/entities/plan_feature.entity.ts",
+    "./server/entities/subscription.entity": "./server/entities/subscription.entity.ts",
+    "./server/entities/subscription_plan.entity": "./server/entities/subscription_plan.entity.ts",
+    "./server/index": "./server/index.ts",
+    "./server": "./server/index.ts",
+    "./server/payment_subscription.crud.service": "./server/payment_subscription.crud.service.ts",
+    "./server/payment_subscription.dto": "./server/payment_subscription.dto.ts",
+    "./server/payment_subscription.dunning.service": "./server/payment_subscription.dunning.service.ts",
+    "./server/payment_subscription.enums": "./server/payment_subscription.enums.ts",
+    "./server/payment_subscription.lifecycle.service": "./server/payment_subscription.lifecycle.service.ts",
+    "./server/payment_subscription.messages": "./server/payment_subscription.messages.ts",
+    "./server/payment_subscription.metered.service": "./server/payment_subscription.metered.service.ts",
+    "./server/payment_subscription.metrics.service": "./server/payment_subscription.metrics.service.ts",
+    "./server/payment_subscription.plan.service": "./server/payment_subscription.plan.service.ts",
+    "./server/payment_subscription.proration.service": "./server/payment_subscription.proration.service.ts",
+    "./server/payment_subscription.seed": "./server/payment_subscription.seed.ts",
+    "./server/payment_subscription.service": "./server/payment_subscription.service.ts",
+    "./server/payment_subscription.transitions.service": "./server/payment_subscription.transitions.service.ts",
+    "./server/payment_subscription.types": "./server/payment_subscription.types.ts",
+    ".": "./server/index.ts",
+    "./module.json": "./module.json"
+  }
+}

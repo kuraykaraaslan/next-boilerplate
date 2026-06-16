@@ -1,0 +1,24 @@
+{
+  "name": "@nb/payment_return_rma",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/entities/return_event.entity": "./server/entities/return_event.entity.ts",
+    "./server/entities/return_item.entity": "./server/entities/return_item.entity.ts",
+    "./server/entities/return_request.entity": "./server/entities/return_request.entity.ts",
+    "./server/index": "./server/index.ts",
+    "./server": "./server/index.ts",
+    "./server/payment_return_rma.crud.service": "./server/payment_return_rma.crud.service.ts",
+    "./server/payment_return_rma.dto": "./server/payment_return_rma.dto.ts",
+    "./server/payment_return_rma.enums": "./server/payment_return_rma.enums.ts",
+    "./server/payment_return_rma.lifecycle.service": "./server/payment_return_rma.lifecycle.service.ts",
+    "./server/payment_return_rma.messages": "./server/payment_return_rma.messages.ts",
+    "./server/payment_return_rma.policy.service": "./server/payment_return_rma.policy.service.ts",
+    "./server/payment_return_rma.seed": "./server/payment_return_rma.seed.ts",
+    "./server/payment_return_rma.service": "./server/payment_return_rma.service.ts",
+    "./server/payment_return_rma.types": "./server/payment_return_rma.types.ts",
+    ".": "./server/index.ts",
+    "./module.json": "./module.json"
+  }
+}

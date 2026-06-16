@@ -1,11 +1,11 @@
 // path: app/tenant/[tenantId]/api/auth/me/social-accounts/connect/saml/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import Logger from '@/modules/logger';
-import UserSessionNextService from '@/modules_next/user_session/user_session.service.next';
-import SSOService from '@/modules/auth_sso/auth_sso.service';
-import SamlService from '@/modules/auth_saml/auth_saml.service';
-import SamlMessages from '@/modules/auth_saml/auth_saml.messages';
-import Limiter from '@/modules_next/limiter/limiter.service.next';
+import Logger from '@nb/logger';
+import UserSessionNextService from '@nb/user_session/server/user_session.service.next';
+import SSOService from '@nb/auth_sso/server/auth_sso.service';
+import SamlService from '@nb/auth_saml/server/auth_saml.service';
+import SamlMessages from '@nb/auth_saml/server/auth_saml.messages';
+import Limiter from '@nb/limiter/server/limiter.service.next';
 
 /**
  * GET /tenant/[tenantId]/api/auth/me/social-accounts/connect/saml

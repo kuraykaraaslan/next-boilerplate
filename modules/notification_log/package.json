@@ -1,0 +1,16 @@
+{
+  "name": "@nb/notification_log",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/entities/notification_log.entity": "./server/entities/notification_log.entity.ts",
+    "./server/notification_log.alerts.service": "./server/notification_log.alerts.service.ts",
+    "./server/notification_log.read.service": "./server/notification_log.read.service.ts",
+    "./server/notification_log.seed": "./server/notification_log.seed.ts",
+    "./server/notification_log.service": "./server/notification_log.service.ts",
+    "./server/notification_log.types": "./server/notification_log.types.ts",
+    "./server/notification_log.write.service": "./server/notification_log.write.service.ts",
+    "./module.json": "./module.json"
+  }
+}

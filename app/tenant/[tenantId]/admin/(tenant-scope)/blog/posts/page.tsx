@@ -1,15 +1,15 @@
 'use client';
 import { use, useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import api from '@/modules_next/common/axios';
-import { ServerDataTable, type TableColumn } from '@/modules_next/common/ui/ServerDataTable';
-import { PageHeader } from '@/modules_next/common/ui/PageHeader';
-import { Input } from '@/modules_next/common/ui/Input';
-import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
-import { RowActionsMenu } from '@/modules_next/common/ui/RowActionsMenu';
-import { toast } from '@/modules_next/common/ui/toast.store';
-import { PostStatusBadge, type PostStatus } from '@/modules_next/blog/ui/BlogStatusBadge';
-import { BlogPostCreateModal } from '@/modules_next/blog/ui/BlogPostCreateModal';
+import api from '@nb/common/server/axios';
+import { ServerDataTable, type TableColumn } from '@nb/common/ui/ServerDataTable';
+import { PageHeader } from '@nb/common/ui/PageHeader';
+import { Input } from '@nb/common/ui/Input';
+import { AlertBanner } from '@nb/common/ui/AlertBanner';
+import { RowActionsMenu } from '@nb/common/ui/RowActionsMenu';
+import { toast } from '@nb/common/ui/toast.store';
+import { PostStatusBadge, type PostStatus } from '@nb/blog/ui/BlogStatusBadge';
+import { BlogPostCreateModal } from '@nb/blog/ui/BlogPostCreateModal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faSearch, faPenToSquare, faTrash, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 

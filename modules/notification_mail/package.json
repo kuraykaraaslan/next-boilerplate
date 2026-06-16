@@ -1,0 +1,26 @@
+{
+  "name": "@nb/notification_mail",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/notification_mail.account-templates.service": "./server/notification_mail.account-templates.service.ts",
+    "./server/notification_mail.messages": "./server/notification_mail.messages.ts",
+    "./server/notification_mail.provider.service": "./server/notification_mail.provider.service.ts",
+    "./server/notification_mail.queue.service": "./server/notification_mail.queue.service.ts",
+    "./server/notification_mail.service": "./server/notification_mail.service.ts",
+    "./server/notification_mail.setting.keys": "./server/notification_mail.setting.keys.ts",
+    "./server/notification_mail.template-vars": "./server/notification_mail.template-vars.ts",
+    "./server/notification_mail.templates.auth.service": "./server/notification_mail.templates.auth.service.ts",
+    "./server/notification_mail.templates.invoice.service": "./server/notification_mail.templates.invoice.service.ts",
+    "./server/notification_mail.templates.service": "./server/notification_mail.templates.service.ts",
+    "./server/providers/base.provider": "./server/providers/base.provider.ts",
+    "./server/providers/mailgun.provider": "./server/providers/mailgun.provider.ts",
+    "./server/providers/postmark.provider": "./server/providers/postmark.provider.ts",
+    "./server/providers/resend.provider": "./server/providers/resend.provider.ts",
+    "./server/providers/sendgrid.provider": "./server/providers/sendgrid.provider.ts",
+    "./server/providers/ses.provider": "./server/providers/ses.provider.ts",
+    "./server/providers/smtp.provider": "./server/providers/smtp.provider.ts",
+    "./module.json": "./module.json"
+  }
+}

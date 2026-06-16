@@ -6,31 +6,13 @@
 - **dir:** `modules/ai/`
 - **tags:** platform, ai
 - **icon:** `fas fa-robot`
-- **hasNextLayer:** true
+- **hasNextLayer:** false
 
 Pluggable AI providers (Anthropic, OpenAI, Google). Chat, embeddings, streaming, usage tracking.
 
 ## Dependencies
 
 - **requires:** `env`, `setting`
-
-## Services
-
-- `ai.provider.service.ts`
-- `ai.service.ts`
-- `ai.usage.service.ts`
-
-## Entities
-
-- `ai_usage_log.entity.ts`
-
-## Message keys
-
-- `ai.messages.ts`
-
-## Setting keys
-
-- `ai.setting.keys.ts`
 
 ## Owned API routes
 
@@ -43,13 +25,7 @@ Pluggable AI providers (Anthropic, OpenAI, Google). Chat, embeddings, streaming,
 
 ## TypeORM entities
 
-- `AiUsageLog` (system) — `modules/ai/entities/ai_usage_log.entity.ts`
-
-## Next layer (modules_next/) surface
-
-- `ai/ui/AIChatBox` _(ui, client)_
-- `ai/ui/AIUsageTab` _(ui, client)_
-- `ai/ui/UsageChart` _(ui, client)_
+- `AiUsageLog` (system) — `modules/ai/server/entities/ai_usage_log.entity.ts`
 
 ## README
 

@@ -1,15 +1,15 @@
 // path: app/tenant/[tenantId]/api/auth/login/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import AuthService from "@/modules/auth/auth.service";
-import UserSessionNextService from "@/modules_next/user_session/user_session.service.next";
-import TenantMemberService from "@/modules/tenant_member/tenant_member.service";
-import TenantService from "@/modules/tenant/tenant.service";
-import Limiter from "@/modules_next/limiter/limiter.service.next";
-import { LoginDTO } from "@/modules/auth/auth.dto";
-import MailTemplatesService from "@/modules/notification_mail/notification_mail.templates.service";
-import { SafeUserSecuritySchema } from '@/modules/user_security/user_security.types';
-import AuthMessages from "@/modules/auth/auth.messages";
-import UserSecurityService from "@/modules/user_security/user_security.service";
+import AuthService from "@nb/auth/server/auth.service";
+import UserSessionNextService from "@nb/user_session/server/user_session.service.next";
+import TenantMemberService from "@nb/tenant_member/server/tenant_member.service";
+import TenantService from "@nb/tenant/server/tenant.service";
+import Limiter from "@nb/limiter/server/limiter.service.next";
+import { LoginDTO } from "@nb/auth/server/auth.dto";
+import MailTemplatesService from "@nb/notification_mail/server/notification_mail.templates.service";
+import { SafeUserSecuritySchema } from '@nb/user_security/server/user_security.types';
+import AuthMessages from "@nb/auth/server/auth.messages";
+import UserSecurityService from "@nb/user_security/server/user_security.service";
 
 export async function POST(
   request: NextRequest,

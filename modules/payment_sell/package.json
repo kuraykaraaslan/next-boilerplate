@@ -1,0 +1,25 @@
+{
+  "name": "@nb/payment_sell",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/entities/payment.entity": "./server/entities/payment.entity.ts",
+    "./server/entities/payment_transaction.entity": "./server/entities/payment_transaction.entity.ts",
+    "./server/index": "./server/index.ts",
+    "./server": "./server/index.ts",
+    "./server/payment_sell.analytics.service": "./server/payment_sell.analytics.service.ts",
+    "./server/payment_sell.checkout.service": "./server/payment_sell.checkout.service.ts",
+    "./server/payment_sell.crud.service": "./server/payment_sell.crud.service.ts",
+    "./server/payment_sell.dto": "./server/payment_sell.dto.ts",
+    "./server/payment_sell.enums": "./server/payment_sell.enums.ts",
+    "./server/payment_sell.invoice.service": "./server/payment_sell.invoice.service.ts",
+    "./server/payment_sell.messages": "./server/payment_sell.messages.ts",
+    "./server/payment_sell.seed": "./server/payment_sell.seed.ts",
+    "./server/payment_sell.service": "./server/payment_sell.service.ts",
+    "./server/payment_sell.types": "./server/payment_sell.types.ts",
+    "./server/payment_sell.webhook.service": "./server/payment_sell.webhook.service.ts",
+    ".": "./server/index.ts",
+    "./module.json": "./module.json"
+  }
+}

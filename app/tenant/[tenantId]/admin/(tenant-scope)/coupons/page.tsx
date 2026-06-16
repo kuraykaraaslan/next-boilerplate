@@ -1,15 +1,15 @@
 'use client';
 import { use, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/modules_next/common/ui/Button';
-import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
-import { Modal } from '@/modules_next/common/ui/Modal';
-import { PageHeader } from '@/modules_next/common/ui/PageHeader';
-import { ServerDataTable } from '@/modules_next/common/ui/ServerDataTable';
-import { toast } from '@/modules_next/common/ui/toast.store';
-import api from '@/modules_next/common/axios';
-import { CouponCreateModal } from '@/modules_next/coupon/ui/CouponCreateModal';
-import { buildCouponColumns, type CouponRow } from '@/modules_next/coupon/ui/coupon-list-columns';
+import { Button } from '@nb/common/ui/Button';
+import { AlertBanner } from '@nb/common/ui/AlertBanner';
+import { Modal } from '@nb/common/ui/Modal';
+import { PageHeader } from '@nb/common/ui/PageHeader';
+import { ServerDataTable } from '@nb/common/ui/ServerDataTable';
+import { toast } from '@nb/common/ui/toast.store';
+import api from '@nb/common/server/axios';
+import { CouponCreateModal } from '@nb/coupon/ui/CouponCreateModal';
+import { buildCouponColumns, type CouponRow } from '@nb/coupon/ui/coupon-list-columns';
 
 const PAGE_SIZE = 25;
 

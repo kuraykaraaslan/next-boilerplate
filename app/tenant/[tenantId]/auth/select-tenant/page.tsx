@@ -1,15 +1,15 @@
 'use client';
 import { use, useEffect, useState } from 'react';
-import api from '@/modules_next/common/axios';
-import { BrandLogo } from '@/modules_next/common/ui/BrandLogo';
-import { Button } from '@/modules_next/common/ui/Button';
-import { Spinner } from '@/modules_next/common/ui/Spinner';
-import { Modal } from '@/modules_next/common/ui/Modal';
-import { Input } from '@/modules_next/common/ui/Input';
-import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
+import api from '@nb/common/server/axios';
+import { BrandLogo } from '@nb/common/ui/BrandLogo';
+import { Button } from '@nb/common/ui/Button';
+import { Spinner } from '@nb/common/ui/Spinner';
+import { Modal } from '@nb/common/ui/Modal';
+import { Input } from '@nb/common/ui/Input';
+import { AlertBanner } from '@nb/common/ui/AlertBanner';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBuilding, faPlus, faCog, faChevronRight } from '@fortawesome/free-solid-svg-icons';
-import { isRootTenant } from '@/modules/tenant/tenant.constants';
+import { isRootTenant } from '@nb/tenant/server/tenant.constants';
 
 type TenantMembership = {
   tenantMemberId: string;

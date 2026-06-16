@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Limiter from '@/modules_next/limiter/limiter.service.next';
-import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next';
-import MessagingCrudService from '@/modules/messaging/messaging.crud.service';
-import { CreateConversationDTO, ListConversationsDTO } from '@/modules/messaging/messaging.dto';
+import Limiter from '@nb/limiter/server/limiter.service.next';
+import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
+import MessagingCrudService from '@nb/messaging/server/messaging.crud.service';
+import { CreateConversationDTO, ListConversationsDTO } from '@nb/messaging/server/messaging.dto';
 
 /**
  * GET /tenant/[tenantId]/api/conversations

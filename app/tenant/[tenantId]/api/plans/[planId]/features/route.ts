@@ -1,9 +1,9 @@
-import Limiter from '@/modules_next/limiter/limiter.service.next';
+import Limiter from '@nb/limiter/server/limiter.service.next';
 import { NextRequest, NextResponse } from 'next/server'
-import TenantPlanService from '@/modules/tenant_subscription/tenant_subscription.plan.service'
-import { CreateFeatureRequestSchema } from '@/modules/tenant_subscription/tenant_subscription.dto'
-import { SUBSCRIPTION_MESSAGES } from '@/modules/tenant_subscription/tenant_subscription.messages'
-import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next'
+import TenantPlanService from '@nb/tenant_subscription/server/tenant_subscription.plan.service'
+import { CreateFeatureRequestSchema } from '@nb/tenant_subscription/server/tenant_subscription.dto'
+import { SUBSCRIPTION_MESSAGES } from '@nb/tenant_subscription/server/tenant_subscription.messages'
+import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next'
 
 /**
  * GET /tenant/[tenantId]/api/plans/[planId]/features

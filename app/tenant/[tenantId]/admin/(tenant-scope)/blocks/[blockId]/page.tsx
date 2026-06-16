@@ -2,14 +2,14 @@
 
 import { use, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import api from '@/modules_next/common/axios';
-import { PageHeader } from '@/modules_next/common/ui/PageHeader';
-import { Button } from '@/modules_next/common/ui/Button';
-import { Input } from '@/modules_next/common/ui/Input';
-import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
-import { toast } from '@/modules_next/common/ui/toast.store';
-import TemplateBlockRenderer from '@/modules_next/dynamic_page/dynamic/partials/TemplateBlockRenderer';
-import type { DynamicPageBlockRecord } from '@/modules/dynamic_page/dynamic_page.types';
+import api from '@nb/common/server/axios';
+import { PageHeader } from '@nb/common/ui/PageHeader';
+import { Button } from '@nb/common/ui/Button';
+import { Input } from '@nb/common/ui/Input';
+import { AlertBanner } from '@nb/common/ui/AlertBanner';
+import { toast } from '@nb/common/ui/toast.store';
+import TemplateBlockRenderer from '@nb/dynamic_page/server/dynamic/partials/TemplateBlockRenderer';
+import type { DynamicPageBlockRecord } from '@nb/dynamic_page/server/dynamic_page.types';
 
 type BlockDef = Pick<DynamicPageBlockRecord, 'blockId' | 'type' | 'label' | 'category' | 'defaultProps' | 'isSystem'> & {
   description: string;

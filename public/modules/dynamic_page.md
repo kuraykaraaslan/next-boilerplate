@@ -6,44 +6,13 @@
 - **dir:** `modules/dynamic_page/`
 - **tags:** cms, pages, blocks, builder, i18n
 - **icon:** `fas fa-file-alt`
-- **hasNextLayer:** true
+- **hasNextLayer:** false
 
 Tenant-aware block-based page builder with i18n support. Supports code blocks (Prose, Hero, Popup Modal, Custom) and custom HTML template blocks. Public pages served at /tenant/[tenantId]/p/[slug].
 
 ## Dependencies
 
 - **requires:** `db`, `env`, `redis`, `logger`, `seo`
-
-## Services
-
-- `dynamic_collection.crud.service.ts`
-- `dynamic_collection.item.service.ts`
-- `dynamic_collection.service.ts`
-- `dynamic_page.block.service.ts`
-- `dynamic_page.crud.service.ts`
-- `dynamic_page.publishing.service.ts`
-- `dynamic_page.service.ts`
-
-## DTOs
-
-- `dynamic_page.dto.ts`
-
-## Entities
-
-- `dynamic_collection.entity.ts`
-- `dynamic_collection_item.entity.ts`
-- `dynamic_page.entity.ts`
-- `dynamic_page_block.entity.ts`
-- `dynamic_page_translation.entity.ts`
-- `dynamic_page_version.entity.ts`
-
-## Enums
-
-- `dynamic_page.enums.ts`
-
-## Message keys
-
-- `dynamic_page.messages.ts`
 
 ## Owned API routes
 
@@ -61,76 +30,12 @@ Tenant-aware block-based page builder with i18n support. Supports code blocks (P
 
 ## TypeORM entities
 
-- `DynamicCollection` (system) — `modules/dynamic_page/entities/dynamic_collection.entity.ts`
-- `DynamicCollectionItem` (system) — `modules/dynamic_page/entities/dynamic_collection_item.entity.ts`
-- `DynamicPage` (system) — `modules/dynamic_page/entities/dynamic_page.entity.ts`
-- `DynamicPageBlock` (system) — `modules/dynamic_page/entities/dynamic_page_block.entity.ts`
-- `DynamicPageTranslation` (system) — `modules/dynamic_page/entities/dynamic_page_translation.entity.ts`
-- `DynamicPageVersion` (system) — `modules/dynamic_page/entities/dynamic_page_version.entity.ts`
-
-## Next layer (modules_next/) surface
-
-- `dynamic_page/dynamic/Blocks/BannerBlock` _(ui, client)_
-- `dynamic_page/dynamic/Blocks/ContactFormBlock` _(ui, client)_
-- `dynamic_page/dynamic/Blocks/CTABlock` _(ui, client)_
-- `dynamic_page/dynamic/Blocks/CustomBlock` _(ui, client)_
-- `dynamic_page/dynamic/Blocks/FaqAccordionBlock` _(ui, client)_
-- `dynamic_page/dynamic/Blocks/FeatureGridBlock` _(ui, client)_
-- `dynamic_page/dynamic/Blocks/FooterColumns` _(ui, client)_
-- `dynamic_page/dynamic/Blocks/FooterCommerce` _(ui, client)_
-- `dynamic_page/dynamic/Blocks/FooterMinimal` _(ui, client)_
-- `dynamic_page/dynamic/Blocks/GalleryBlock` _(ui, client)_
-- `dynamic_page/dynamic/Blocks/HeroBlock` _(ui, client)_
-- `dynamic_page/dynamic/Blocks/LogoGridBlock` _(ui, client)_
-- `dynamic_page/dynamic/Blocks/NavBarCommerce` _(ui, client)_
-- `dynamic_page/dynamic/Blocks/NavBarMarketing` _(ui, client)_
-- `dynamic_page/dynamic/Blocks/NavBarMarketing.types` _(ui)_
-- `dynamic_page/dynamic/Blocks/NavBarSimple` _(ui, client)_
-- `dynamic_page/dynamic/Blocks/partials/NavBarMegaSection` _(ui, client)_
-- `dynamic_page/dynamic/Blocks/partials/NavBarMobilePanel` _(ui, client)_
-- `dynamic_page/dynamic/Blocks/PopupModalBlock/animations` _(ui)_
-- `dynamic_page/dynamic/Blocks/PopupModalBlock/CloseBtn` _(ui, client)_
-- `dynamic_page/dynamic/Blocks/PopupModalBlock/constants` _(ui)_
-- `dynamic_page/dynamic/Blocks/PopupModalBlock/EditorPreview` _(ui, client)_
-- `dynamic_page/dynamic/Blocks/PopupModalBlock/index` _(ui, client)_
-- `dynamic_page/dynamic/Blocks/PopupModalBlock/PopupCard` _(ui, client)_
-- `dynamic_page/dynamic/Blocks/PopupModalBlock/PopupOverlay` _(ui, client)_
-- `dynamic_page/dynamic/Blocks/PopupModalBlock/types` _(ui)_
-- `dynamic_page/dynamic/Blocks/PopupModalBlock/utils` _(ui)_
-- `dynamic_page/dynamic/Blocks/PricingTableBlock` _(ui, client)_
-- `dynamic_page/dynamic/Blocks/ProseBlock` _(ui, client)_
-- `dynamic_page/dynamic/Blocks/StatsBlock` _(ui, client)_
-- `dynamic_page/dynamic/Blocks/TeamBlock` _(ui, client)_
-- `dynamic_page/dynamic/Blocks/TestimonialsBlock` _(ui, client)_
-- `dynamic_page/dynamic/Blocks/TimelineBlock` _(ui, client)_
-- `dynamic_page/dynamic/Blocks/VideoBlock` _(ui, client)_
-- `dynamic_page/dynamic/Editor/BackupModal` _(ui, client)_
-- `dynamic_page/dynamic/Editor/Canvas` _(ui, client)_
-- `dynamic_page/dynamic/Editor/EditorTopBar` _(ui, client)_
-- `dynamic_page/dynamic/Editor/hooks/useEditorDraft` _(hook, client)_
-- `dynamic_page/dynamic/Editor/hooks/useEditorKeyboard` _(hook, client)_
-- `dynamic_page/dynamic/Editor/index` _(ui, client)_
-- `dynamic_page/dynamic/Editor/LeftSidebar` _(ui, client)_
-- `dynamic_page/dynamic/Editor/partials/BlockPalette` _(ui, client)_
-- `dynamic_page/dynamic/Editor/partials/CanvasBlock` _(ui, client)_
-- `dynamic_page/dynamic/Editor/partials/CanvasOverlays` _(ui, client)_
-- `dynamic_page/dynamic/Editor/partials/ColorTokenField` _(ui, client)_
-- `dynamic_page/dynamic/Editor/partials/IconPickerField` _(ui, client)_
-- `dynamic_page/dynamic/Editor/partials/LayersPanel` _(ui, client)_
-- `dynamic_page/dynamic/Editor/partials/LinkField` _(ui, client)_
-- `dynamic_page/dynamic/Editor/partials/PropFieldComplex` _(ui, client)_
-- `dynamic_page/dynamic/Editor/partials/PropFieldRenderer` _(ui, client)_
-- `dynamic_page/dynamic/Editor/partials/PropFieldSimple` _(ui, client)_
-- `dynamic_page/dynamic/Editor/PropsPanel` _(ui, client)_
-- `dynamic_page/dynamic/Editor/RepeaterField` _(ui, client)_
-- `dynamic_page/dynamic/Editor/RightSidebar` _(ui, client)_
-- `dynamic_page/dynamic/Editor/SeoModal` _(ui, client)_
-- `dynamic_page/dynamic/Editor/ShortcutsModal` _(ui, client)_
-- `dynamic_page/dynamic/Editor/stores/editor.types` _(ui)_
-- `dynamic_page/dynamic/Editor/stores/editorStore` _(ui)_
-- `dynamic_page/dynamic/Editor/stores/slices/blockSlice` _(ui)_
-- `dynamic_page/dynamic/Editor/stores/slices/persistSlice` _(ui)_
-- … and 24 more
+- `DynamicCollection` (system) — `modules/dynamic_page/server/entities/dynamic_collection.entity.ts`
+- `DynamicCollectionItem` (system) — `modules/dynamic_page/server/entities/dynamic_collection_item.entity.ts`
+- `DynamicPage` (system) — `modules/dynamic_page/server/entities/dynamic_page.entity.ts`
+- `DynamicPageBlock` (system) — `modules/dynamic_page/server/entities/dynamic_page_block.entity.ts`
+- `DynamicPageTranslation` (system) — `modules/dynamic_page/server/entities/dynamic_page_translation.entity.ts`
+- `DynamicPageVersion` (system) — `modules/dynamic_page/server/entities/dynamic_page_version.entity.ts`
 
 ## README
 

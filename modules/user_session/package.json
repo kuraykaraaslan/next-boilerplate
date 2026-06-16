@@ -1,0 +1,25 @@
+{
+  "name": "@nb/user_session",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/entities/user_session.entity": "./server/entities/user_session.entity.ts",
+    "./server/user_session.auth.service": "./server/user_session.auth.service.ts",
+    "./server/user_session.cache.service": "./server/user_session.cache.service.ts",
+    "./server/user_session.crud.service": "./server/user_session.crud.service.ts",
+    "./server/user_session.enums": "./server/user_session.enums.ts",
+    "./server/user_session.messages": "./server/user_session.messages.ts",
+    "./server/user_session.seed": "./server/user_session.seed.ts",
+    "./server/user_session.service.next": "./server/user_session.service.next.ts",
+    "./server/user_session.service": "./server/user_session.service.ts",
+    "./server/user_session.token.service": "./server/user_session.token.service.ts",
+    "./server/user_session.types": "./server/user_session.types.ts",
+    "./ui/ActiveSessionsPanel": "./ui/ActiveSessionsPanel.tsx",
+    "./module.json": "./module.json"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "next": "*"
+  }
+}

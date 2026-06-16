@@ -1,8 +1,8 @@
 import type { Server, Socket } from 'socket.io';
-import MessagingPolicyService from '../messaging.policy.service';
-import MessagingLifecycleService from '../messaging.lifecycle.service';
-import { WS_EVENTS } from '../messaging.enums';
-import { conversationRoom } from '../messaging.realtime';
+import MessagingPolicyService from './messaging.policy.service';
+import MessagingLifecycleService from './messaging.lifecycle.service';
+import { WS_EVENTS } from './messaging.enums';
+import { conversationRoom } from './messaging.realtime';
 import type { SocketData } from './socket.auth';
 import {
   touchPresence,

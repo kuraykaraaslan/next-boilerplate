@@ -1,8 +1,8 @@
 'use client';
 import { use } from 'react';
-import { Breadcrumb } from '@/modules_next/common/ui/Breadcrumb';
-import { PageHeader } from '@/modules_next/common/ui/PageHeader';
-import { TenantESignatureSettingsPanel } from '@/modules_next/e_signature/ui/TenantESignatureSettingsPanel';
+import { Breadcrumb } from '@nb/common/ui/Breadcrumb';
+import { PageHeader } from '@nb/common/ui/PageHeader';
+import { TenantESignatureSettingsPanel } from '@nb/e_signature/ui/TenantESignatureSettingsPanel';
 
 export default function ESignatureSettingsPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = use(params);

@@ -6,35 +6,13 @@
 - **dir:** `modules/api_doc/`
 - **tags:** platform, documentation
 - **icon:** `fas fa-book`
-- **hasNextLayer:** true
+- **hasNextLayer:** false
 
 OpenAPI/Swagger spec builder + helpers for serving per-tenant API docs.
 
 ## Dependencies
 
 - **requires:** `env`, `setting`
-
-## Services
-
-- `api_doc.service.ts`
-
-## Next layer (modules_next/) surface
-
-- `api_doc/ui/ApiDocsPage` _(ui, client)_
-- `api_doc/ui/ApiTagSection` _(ui, client)_
-- `api_doc/ui/CodeSamplePanel` _(ui, client)_
-- `api_doc/ui/EndpointRow` _(ui, client)_
-- `api_doc/ui/HttpMethodBadge` _(ui)_
-- `api_doc/ui/mockSpec` _(ui)_
-- `api_doc/ui/OperationPanel` _(ui, client)_
-- `api_doc/ui/ParameterTable` _(ui)_
-- `api_doc/ui/ResponseCard` _(ui, client)_
-- `api_doc/ui/SchemaViewer` _(ui, client)_
-- `api_doc/ui/SecuritySchemeBadge` _(ui)_
-- `api_doc/ui/ServerSelector` _(ui, client)_
-- `api_doc/ui/StatusCodeBadge` _(ui)_
-- `api_doc/ui/TryItOutPanel` _(ui, client)_
-- `api_doc/ui/types` _(ui)_
 
 ## README
 

@@ -1,7 +1,7 @@
 'use client';
 import { use } from 'react';
-import { SettingsPanelHost } from '@/modules_next/setting/ui/SettingsPanelHost';
-import { GeneralTab } from '@/modules_next/setting/ui/TenantSettingsPanels';
+import { SettingsPanelHost } from '@nb/setting/ui/SettingsPanelHost';
+import { GeneralTab } from '@nb/setting/ui/TenantSettingsPanels';
 
 export default function GeneralSettingsPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = use(params);

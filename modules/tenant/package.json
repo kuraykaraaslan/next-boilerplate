@@ -1,0 +1,36 @@
+{
+  "name": "@nb/tenant",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/dictionaries/index": "./server/dictionaries/index.ts",
+    "./server/dictionaries": "./server/dictionaries/index.ts",
+    "./server/entities/tenant.entity": "./server/entities/tenant.entity.ts",
+    "./server/tenant.constants": "./server/tenant.constants.ts",
+    "./server/tenant.deletion.job": "./server/tenant.deletion.job.ts",
+    "./server/tenant.deletion.service": "./server/tenant.deletion.service.ts",
+    "./server/tenant.dto": "./server/tenant.dto.ts",
+    "./server/tenant.enums": "./server/tenant.enums.ts",
+    "./server/tenant.helpers": "./server/tenant.helpers.ts",
+    "./server/tenant.messages": "./server/tenant.messages.ts",
+    "./server/tenant.onboarding.service": "./server/tenant.onboarding.service.ts",
+    "./server/tenant.read.service": "./server/tenant.read.service.ts",
+    "./server/tenant.seed": "./server/tenant.seed.ts",
+    "./server/tenant.service": "./server/tenant.service.ts",
+    "./server/tenant.setting.keys": "./server/tenant.setting.keys.ts",
+    "./server/tenant.types": "./server/tenant.types.ts",
+    "./server/tenant.write.service": "./server/tenant.write.service.ts",
+    "./server/tests/tenant.test-setup": "./server/tests/tenant.test-setup.ts",
+    "./ui/CreateTenantForm": "./ui/CreateTenantForm.tsx",
+    "./ui/TenantMembersTable": "./ui/TenantMembersTable.tsx",
+    "./ui/TenantSelectorCard": "./ui/TenantSelectorCard.tsx",
+    "./ui/TenantSubscriptionCard": "./ui/TenantSubscriptionCard.tsx",
+    "./ui/tenant.constants": "./ui/tenant.constants.ts",
+    "./module.json": "./module.json"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "next": "*"
+  }
+}

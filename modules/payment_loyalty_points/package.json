@@ -1,0 +1,24 @@
+{
+  "name": "@nb/payment_loyalty_points",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/entities/loyalty_account.entity": "./server/entities/loyalty_account.entity.ts",
+    "./server/entities/loyalty_tier.entity": "./server/entities/loyalty_tier.entity.ts",
+    "./server/entities/loyalty_transaction.entity": "./server/entities/loyalty_transaction.entity.ts",
+    "./server/index": "./server/index.ts",
+    "./server": "./server/index.ts",
+    "./server/payment_loyalty_points.account.service": "./server/payment_loyalty_points.account.service.ts",
+    "./server/payment_loyalty_points.checkout.service": "./server/payment_loyalty_points.checkout.service.ts",
+    "./server/payment_loyalty_points.dto": "./server/payment_loyalty_points.dto.ts",
+    "./server/payment_loyalty_points.enums": "./server/payment_loyalty_points.enums.ts",
+    "./server/payment_loyalty_points.ledger.service": "./server/payment_loyalty_points.ledger.service.ts",
+    "./server/payment_loyalty_points.messages": "./server/payment_loyalty_points.messages.ts",
+    "./server/payment_loyalty_points.seed": "./server/payment_loyalty_points.seed.ts",
+    "./server/payment_loyalty_points.service": "./server/payment_loyalty_points.service.ts",
+    "./server/payment_loyalty_points.types": "./server/payment_loyalty_points.types.ts",
+    ".": "./server/index.ts",
+    "./module.json": "./module.json"
+  }
+}

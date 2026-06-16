@@ -1,19 +1,19 @@
 'use client';
 
 import { use, useEffect, useMemo, useState } from 'react';
-import api from '@/modules_next/common/axios';
-import { PageHeader } from '@/modules_next/common/ui/PageHeader';
-import { Input } from '@/modules_next/common/ui/Input';
-import { Select } from '@/modules_next/common/ui/Select';
-import { Badge } from '@/modules_next/common/ui/Badge';
-import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
-import { Drawer } from '@/modules_next/common/ui/Drawer';
-import { ServerDataTable, type TableColumn } from '@/modules_next/common/ui/ServerDataTable';
-import { DateRangePicker, type DateRange } from '@/modules_next/common/ui/DateRangePicker';
+import api from '@nb/common/server/axios';
+import { PageHeader } from '@nb/common/ui/PageHeader';
+import { Input } from '@nb/common/ui/Input';
+import { Select } from '@nb/common/ui/Select';
+import { Badge } from '@nb/common/ui/Badge';
+import { AlertBanner } from '@nb/common/ui/AlertBanner';
+import { Drawer } from '@nb/common/ui/Drawer';
+import { ServerDataTable, type TableColumn } from '@nb/common/ui/ServerDataTable';
+import { DateRangePicker, type DateRange } from '@nb/common/ui/DateRangePicker';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faGear, faDownload } from '@fortawesome/free-solid-svg-icons';
-import type { AuditSeverity } from '@/modules/audit_log/audit_log.enums';
-import { isRootTenant } from '@/modules/tenant/tenant.constants';
+import type { AuditSeverity } from '@nb/audit_log/server/audit_log.enums';
+import { isRootTenant } from '@nb/tenant/server/tenant.constants';
 
 type AuditLogRow = {
   auditLogId: string;

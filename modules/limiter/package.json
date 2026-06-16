@@ -1,0 +1,16 @@
+{
+  "name": "@nb/limiter",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/index": "./server/index.ts",
+    "./server": "./server/index.ts",
+    "./server/limiter.rate-limiters": "./server/limiter.rate-limiters.ts",
+    "./server/limiter.service.next": "./server/limiter.service.next.ts",
+    "./server/limiter.service": "./server/limiter.service.ts",
+    "./server/limiter.tenant-plan.service": "./server/limiter.tenant-plan.service.ts",
+    ".": "./server/index.ts",
+    "./module.json": "./module.json"
+  }
+}

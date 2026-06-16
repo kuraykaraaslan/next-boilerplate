@@ -14,14 +14,6 @@ White-label branding: logo, favicon, colors, font, custom CSS — read by the pr
 
 - **requires:** `db`, `tenant_setting`, `storage`
 
-## Services
-
-- `tenant_branding.service.ts`
-
-## Setting keys
-
-- `tenant_branding.setting.keys.ts`
-
 ## README
 
 # Tenant Branding Module

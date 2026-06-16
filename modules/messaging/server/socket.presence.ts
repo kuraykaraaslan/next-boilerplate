@@ -1,5 +1,5 @@
-import redis from '@/modules/redis';
-import { tenantKey } from '@/modules/redis';
+import redis from '@nb/redis';
+import { tenantKey } from '@nb/redis';
 
 /**
  * Ephemeral presence + typing state, stored only in Redis (never persisted to

@@ -1,16 +1,16 @@
 'use client';
 import { use, useCallback, useEffect, useState } from 'react';
-import api from '@/modules_next/common/axios';
-import { PageHeader } from '@/modules_next/common/ui/PageHeader';
-import { Card } from '@/modules_next/common/ui/Card';
-import { Badge } from '@/modules_next/common/ui/Badge';
-import { Spinner } from '@/modules_next/common/ui/Spinner';
-import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
-import { Breadcrumb } from '@/modules_next/common/ui/Breadcrumb';
-import { ServerDataTable, type TableColumn } from '@/modules_next/common/ui/ServerDataTable';
+import api from '@nb/common/server/axios';
+import { PageHeader } from '@nb/common/ui/PageHeader';
+import { Card } from '@nb/common/ui/Card';
+import { Badge } from '@nb/common/ui/Badge';
+import { Spinner } from '@nb/common/ui/Spinner';
+import { AlertBanner } from '@nb/common/ui/AlertBanner';
+import { Breadcrumb } from '@nb/common/ui/Breadcrumb';
+import { ServerDataTable, type TableColumn } from '@nb/common/ui/ServerDataTable';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGear, faUserPlus, faRightToBracket, faClock } from '@fortawesome/free-solid-svg-icons';
-import type { SafeSamlConfig } from '@/modules/auth_saml/auth_saml.types';
+import type { SafeSamlConfig } from '@nb/auth_saml/server/auth_saml.types';
 
 type AuditLog = {
   auditLogId: string;

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Limiter from '@/modules_next/limiter/limiter.service.next';
-import { AgreementService, RenderCheckoutDTO } from '@/modules/terms_consent';
+import Limiter from '@nb/limiter/server/limiter.service.next';
+import { AgreementService, RenderCheckoutDTO } from '@nb/terms_consent';
 
 /**
  * POST /tenant/[tenantId]/api/checkout/agreements

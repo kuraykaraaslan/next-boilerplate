@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import TenantSubscriptionService from "@/modules/tenant_subscription/tenant_subscription.service";
-import TenantPlanService from "@/modules/tenant_subscription/tenant_subscription.plan.service";
-import TenantPlatformPlanService from "@/modules/tenant_subscription/tenant_subscription.platform.service";
-import { AssignPlatformPlanRequestSchema } from "@/modules/tenant_subscription/tenant_subscription.dto";
-import { SUBSCRIPTION_MESSAGES } from "@/modules/tenant_subscription/tenant_subscription.messages";
-import Limiter from "@/modules_next/limiter/limiter.service.next";
-import { authenticateAdminRequest } from "@/modules_next/auth/auth.admin-guard.next";
-import { ROOT_TENANT_ID } from "@/modules/tenant/tenant.constants";
-import AuditLogService from "@/modules/audit_log/audit_log.service";
+import TenantSubscriptionService from "@nb/tenant_subscription/server/tenant_subscription.service";
+import TenantPlanService from "@nb/tenant_subscription/server/tenant_subscription.plan.service";
+import TenantPlatformPlanService from "@nb/tenant_subscription/server/tenant_subscription.platform.service";
+import { AssignPlatformPlanRequestSchema } from "@nb/tenant_subscription/server/tenant_subscription.dto";
+import { SUBSCRIPTION_MESSAGES } from "@nb/tenant_subscription/server/tenant_subscription.messages";
+import Limiter from "@nb/limiter/server/limiter.service.next";
+import { authenticateAdminRequest } from "@nb/auth/server/auth.admin-guard.next";
+import { ROOT_TENANT_ID } from "@nb/tenant/server/tenant.constants";
+import AuditLogService from "@nb/audit_log/server/audit_log.service";
 
 /**
  * GET /tenant/[tenantId]/api/tenants/[targetTenantId]/subscription

@@ -1,10 +1,10 @@
 import { NextRequest } from 'next/server';
-import ApiKeyService from '@/modules/api_key/api_key.service';
-import ScimService from '@/modules/scim/scim.service';
-import { UpdateScimUserDTO, PatchScimUserDTO } from '@/modules/scim/scim.dto';
-import { scimError, scimResponse, scimNoContent } from '@/modules/scim/scim.errors';
-import ScimMessages from '@/modules/scim/scim.messages';
-import type { ScimErrorType } from '@/modules/scim/scim.types';
+import ApiKeyService from '@nb/api_key/server/api_key.service';
+import ScimService from '@nb/scim/server/scim.service';
+import { UpdateScimUserDTO, PatchScimUserDTO } from '@nb/scim/server/scim.dto';
+import { scimError, scimResponse, scimNoContent } from '@nb/scim/server/scim.errors';
+import ScimMessages from '@nb/scim/server/scim.messages';
+import type { ScimErrorType } from '@nb/scim/server/scim.types';
 
 type Ctx = { params: Promise<{ tenantId: string; scimUserId: string }> };
 

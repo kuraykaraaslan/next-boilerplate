@@ -1,0 +1,22 @@
+{
+  "name": "@nb/user_profile",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/entities/user_profile.entity": "./server/entities/user_profile.entity.ts",
+    "./server/user_profile.dto": "./server/user_profile.dto.ts",
+    "./server/user_profile.enums": "./server/user_profile.enums.ts",
+    "./server/user_profile.helpers": "./server/user_profile.helpers.ts",
+    "./server/user_profile.media.service": "./server/user_profile.media.service.ts",
+    "./server/user_profile.messages": "./server/user_profile.messages.ts",
+    "./server/user_profile.moderation.service": "./server/user_profile.moderation.service.ts",
+    "./server/user_profile.read.service": "./server/user_profile.read.service.ts",
+    "./server/user_profile.seed": "./server/user_profile.seed.ts",
+    "./server/user_profile.service": "./server/user_profile.service.ts",
+    "./server/user_profile.social.service": "./server/user_profile.social.service.ts",
+    "./server/user_profile.types": "./server/user_profile.types.ts",
+    "./server/user_profile.write.service": "./server/user_profile.write.service.ts",
+    "./module.json": "./module.json"
+  }
+}

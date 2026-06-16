@@ -1,9 +1,9 @@
 // path: app/tenant/[tenantId]/api/audit-logs/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import AuditLogService from '@/modules/audit_log/audit_log.service';
-import { AppError } from '@/modules/common/app-error';
-import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next';
-import Limiter from '@/modules_next/limiter/limiter.service.next';
+import AuditLogService from '@nb/audit_log/server/audit_log.service';
+import { AppError } from '@nb/common/server/app-error';
+import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
+import Limiter from '@nb/limiter/server/limiter.service.next';
 
 /**
  * GET /tenant/[tenantId]/api/audit-logs

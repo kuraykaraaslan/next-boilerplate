@@ -14,24 +14,9 @@ Web Push (VAPID) — subscription storage + send.
 
 - **requires:** `db`, `env`
 
-## Services
-
-- `notification_push.metrics.service.ts`
-- `notification_push.send.service.ts`
-- `notification_push.service.ts`
-- `notification_push.subscription.service.ts`
-
-## Entities
-
-- `push_subscription.entity.ts`
-
-## Message keys
-
-- `notification_push.messages.ts`
-
 ## TypeORM entities
 
-- `PushSubscription` (system) — `modules/notification_push/entities/push_subscription.entity.ts`
+- `PushSubscription` (system) — `modules/notification_push/server/entities/push_subscription.entity.ts`
 
 ## README
 

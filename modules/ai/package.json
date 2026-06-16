@@ -1,0 +1,32 @@
+{
+  "name": "@nb/ai",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/ai.messages": "./server/ai.messages.ts",
+    "./server/ai.provider.service": "./server/ai.provider.service.ts",
+    "./server/ai.seed": "./server/ai.seed.ts",
+    "./server/ai.service": "./server/ai.service.ts",
+    "./server/ai.setting.keys": "./server/ai.setting.keys.ts",
+    "./server/ai.types": "./server/ai.types.ts",
+    "./server/ai.usage.service": "./server/ai.usage.service.ts",
+    "./server/entities/ai_usage_log.entity": "./server/entities/ai_usage_log.entity.ts",
+    "./server/providers/anthropic.provider": "./server/providers/anthropic.provider.ts",
+    "./server/providers/base.provider": "./server/providers/base.provider.ts",
+    "./server/providers/google.helpers": "./server/providers/google.helpers.ts",
+    "./server/providers/google.provider": "./server/providers/google.provider.ts",
+    "./server/providers/google.transport": "./server/providers/google.transport.ts",
+    "./server/providers/openai.helpers": "./server/providers/openai.helpers.ts",
+    "./server/providers/openai.provider": "./server/providers/openai.provider.ts",
+    "./server/providers/openai.transport": "./server/providers/openai.transport.ts",
+    "./ui/AIChatBox": "./ui/AIChatBox.tsx",
+    "./ui/AIUsageTab": "./ui/AIUsageTab.tsx",
+    "./ui/UsageChart": "./ui/UsageChart.tsx",
+    "./module.json": "./module.json"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "next": "*"
+  }
+}

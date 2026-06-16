@@ -2,14 +2,14 @@
 import 'reflect-metadata';
 import { IsNull, MoreThan } from 'typeorm';
 import { NextRequest, NextResponse } from 'next/server';
-import Logger from '@/modules/logger';
-import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next';
-import Limiter from '@/modules_next/limiter/limiter.service.next';
-import { getDataSource, tenantDataSourceFor } from '@/modules/db';
-import { TenantMember as TenantMemberEntity } from '@/modules/tenant_member/entities/tenant_member.entity';
-import { Tenant as TenantEntity } from '@/modules/tenant/entities/tenant.entity';
-import { TenantDomain as TenantDomainEntity } from '@/modules/tenant_domain/entities/tenant_domain.entity';
-import { TenantInvitation as TenantInvitationEntity } from '@/modules/tenant_invitation/entities/tenant_invitation.entity';
+import Logger from '@nb/logger';
+import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
+import Limiter from '@nb/limiter/server/limiter.service.next';
+import { getDataSource, tenantDataSourceFor } from '@nb/db';
+import { TenantMember as TenantMemberEntity } from '@nb/tenant_member/server/entities/tenant_member.entity';
+import { Tenant as TenantEntity } from '@nb/tenant/server/entities/tenant.entity';
+import { TenantDomain as TenantDomainEntity } from '@nb/tenant_domain/server/entities/tenant_domain.entity';
+import { TenantInvitation as TenantInvitationEntity } from '@nb/tenant_invitation/server/entities/tenant_invitation.entity';
 
 /**
  * GET /tenant/[tenantId]/api/auth/me/tenants

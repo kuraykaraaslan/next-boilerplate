@@ -6,30 +6,13 @@
 - **dir:** `modules/tenant_session/`
 - **tags:** tenant, auth
 - **icon:** `fas fa-id-badge`
-- **hasNextLayer:** true
+- **hasNextLayer:** false
 
 Tenant-scoped session handling: bind a user session to a specific tenant, resolve tenant from request.
 
 ## Dependencies
 
 - **requires:** `db`, `redis`, `user_session`, `tenant`, `env`
-
-## Services
-
-- `tenant_session.resolve.service.ts`
-- `tenant_session.service.ts`
-
-## Message keys
-
-- `tenant_session.messages.ts`
-
-## Setting keys
-
-- `tenant_session.setting.keys.ts`
-
-## Next layer (modules_next/) surface
-
-- `tenant_session/tenant_session.service.next` _(service.next)_
 
 ## README
 

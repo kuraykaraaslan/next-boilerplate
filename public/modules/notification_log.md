@@ -14,20 +14,9 @@ Unified outbound notification audit log across mail, sms, push, inapp channels.
 
 - **requires:** `db`, `tenant`
 
-## Services
-
-- `notification_log.alerts.service.ts`
-- `notification_log.read.service.ts`
-- `notification_log.service.ts`
-- `notification_log.write.service.ts`
-
-## Entities
-
-- `notification_log.entity.ts`
-
 ## TypeORM entities
 
-- `NotificationLog` (system) — `modules/notification_log/entities/notification_log.entity.ts`
+- `NotificationLog` (system) — `modules/notification_log/server/entities/notification_log.entity.ts`
 
 ## README
 

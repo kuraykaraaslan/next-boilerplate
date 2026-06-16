@@ -1,0 +1,31 @@
+{
+  "name": "@nb/blog",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/blog.category.service": "./server/blog.category.service.ts",
+    "./server/blog.comment.service": "./server/blog.comment.service.ts",
+    "./server/blog.dto": "./server/blog.dto.ts",
+    "./server/blog.enums": "./server/blog.enums.ts",
+    "./server/blog.messages": "./server/blog.messages.ts",
+    "./server/blog.post.service": "./server/blog.post.service.ts",
+    "./server/blog.seed": "./server/blog.seed.ts",
+    "./server/blog.service": "./server/blog.service.ts",
+    "./server/blog.setting.keys": "./server/blog.setting.keys.ts",
+    "./server/blog.types": "./server/blog.types.ts",
+    "./server/entities/blog_category.entity": "./server/entities/blog_category.entity.ts",
+    "./server/entities/blog_comment.entity": "./server/entities/blog_comment.entity.ts",
+    "./server/entities/blog_post.entity": "./server/entities/blog_post.entity.ts",
+    "./server/index": "./server/index.ts",
+    "./server": "./server/index.ts",
+    "./ui/BlogPostCreateModal": "./ui/BlogPostCreateModal.tsx",
+    "./ui/BlogStatusBadge": "./ui/BlogStatusBadge.tsx",
+    ".": "./server/index.ts",
+    "./module.json": "./module.json"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "next": "*"
+  }
+}

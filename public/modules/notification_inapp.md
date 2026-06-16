@@ -6,7 +6,7 @@
 - **dir:** `modules/notification_inapp/`
 - **tags:** notifications, in-app
 - **icon:** `fas fa-bell`
-- **hasNextLayer:** true
+- **hasNextLayer:** false
 
 In-app notification feed with unread counts. Consumed by the notification menu in the app shell.
 
@@ -14,22 +14,10 @@ In-app notification feed with unread counts. Consumed by the notification menu i
 
 - **requires:** `db`, `user`
 
-## Services
-
-- `notification_inapp.service.ts`
-
-## Message keys
-
-- `notification_inapp.messages.ts`
-
 ## Owned API routes
 
 - `tenant` POST/DELETE `/tenant/[tenantId]/api/notifications/push/subscribe`
 - `tenant` GET/POST `/tenant/[tenantId]/api/notifications/sms/send`
-
-## Next layer (modules_next/) surface
-
-- `notification_inapp/hooks/use-notifications.hook` _(hook, client)_
 
 ## README
 

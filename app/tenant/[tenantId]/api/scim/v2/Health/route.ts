@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import ApiKeyService from '@/modules/api_key/api_key.service';
-import ScimService from '@/modules/scim/scim.service';
-import { scimError } from '@/modules/scim/scim.errors';
-import ScimMessages from '@/modules/scim/scim.messages';
+import ApiKeyService from '@nb/api_key/server/api_key.service';
+import ScimService from '@nb/scim/server/scim.service';
+import { scimError } from '@nb/scim/server/scim.errors';
+import ScimMessages from '@nb/scim/server/scim.messages';
 
 /**
  * GET /tenant/{tenantId}/api/scim/v2/Health

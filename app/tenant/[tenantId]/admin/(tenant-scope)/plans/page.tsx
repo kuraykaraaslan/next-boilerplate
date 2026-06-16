@@ -1,13 +1,13 @@
 'use client';
 import { use, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
-import { PageHeader } from '@/modules_next/common/ui/PageHeader';
-import { ServerDataTable } from '@/modules_next/common/ui/ServerDataTable';
-import { toast } from '@/modules_next/common/ui/toast.store';
-import api from '@/modules_next/common/axios';
-import { buildPlanColumns, type PlanRow } from '@/modules_next/tenant_subscription/ui/plan-list-columns';
-import { PlanCreateModal } from '@/modules_next/tenant_subscription/ui/PlanCreateModal';
+import { AlertBanner } from '@nb/common/ui/AlertBanner';
+import { PageHeader } from '@nb/common/ui/PageHeader';
+import { ServerDataTable } from '@nb/common/ui/ServerDataTable';
+import { toast } from '@nb/common/ui/toast.store';
+import api from '@nb/common/server/axios';
+import { buildPlanColumns, type PlanRow } from '@nb/tenant_subscription/ui/plan-list-columns';
+import { PlanCreateModal } from '@nb/tenant_subscription/ui/PlanCreateModal';
 
 const PAGE_SIZE = 25;
 

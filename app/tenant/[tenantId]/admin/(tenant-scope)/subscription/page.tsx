@@ -1,28 +1,28 @@
 'use client';
 import { use, useEffect, useState, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import api from '@/modules_next/common/axios';
-import { PageHeader } from '@/modules_next/common/ui/PageHeader';
-import { Spinner } from '@/modules_next/common/ui/Spinner';
-import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
-import { Card } from '@/modules_next/common/ui/Card';
-import { Button } from '@/modules_next/common/ui/Button';
-import { Modal } from '@/modules_next/common/ui/Modal';
-import { SubscriptionPlanCard } from '@/modules_next/tenant_subscription/ui/SubscriptionPlanCard';
-import { GracePeriodBanner } from '@/modules_next/tenant_subscription/ui/GracePeriodBanner';
-import { CurrentSubscriptionCard } from '@/modules_next/tenant_subscription/ui/CurrentSubscriptionCard';
-import { CardCheckoutModal } from '@/modules_next/payment/ui/CardCheckoutModal';
-import { StripeExpressCheckoutModal } from '@/modules_next/payment/ui/StripeExpressCheckoutModal';
-import { PaymentProviderSelector } from '@/modules_next/payment/ui/PaymentProviderSelector';
-import type { WalletMethod } from '@/modules/payment/payment.enums';
+import api from '@nb/common/server/axios';
+import { PageHeader } from '@nb/common/ui/PageHeader';
+import { Spinner } from '@nb/common/ui/Spinner';
+import { AlertBanner } from '@nb/common/ui/AlertBanner';
+import { Card } from '@nb/common/ui/Card';
+import { Button } from '@nb/common/ui/Button';
+import { Modal } from '@nb/common/ui/Modal';
+import { SubscriptionPlanCard } from '@nb/tenant_subscription/ui/SubscriptionPlanCard';
+import { GracePeriodBanner } from '@nb/tenant_subscription/ui/GracePeriodBanner';
+import { CurrentSubscriptionCard } from '@nb/tenant_subscription/ui/CurrentSubscriptionCard';
+import { CardCheckoutModal } from '@nb/payment/ui/CardCheckoutModal';
+import { StripeExpressCheckoutModal } from '@nb/payment/ui/StripeExpressCheckoutModal';
+import { PaymentProviderSelector } from '@nb/payment/ui/PaymentProviderSelector';
+import type { WalletMethod } from '@nb/payment/server/payment.enums';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCreditCard, faWarning, faRotateRight } from '@fortawesome/free-solid-svg-icons';
 import type {
   PlanWithFeatures,
   TenantSubscriptionWithPlan,
   GracePeriodStatus,
-} from '@/modules/tenant_subscription/tenant_subscription.types';
-import type { Provider } from '@/modules_next/tenant_subscription/ui/subscription.helpers';
+} from '@nb/tenant_subscription/server/tenant_subscription.types';
+import type { Provider } from '@nb/tenant_subscription/ui/subscription.helpers';
 
 export default function TenantSubscriptionPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = use(params);

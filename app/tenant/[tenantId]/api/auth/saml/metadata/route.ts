@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import SamlService from '@/modules/auth_saml/auth_saml.service';
+import SamlService from '@nb/auth_saml/server/auth_saml.service';
 
 type Params = { params: Promise<{ tenantId: string }> };
 

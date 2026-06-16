@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import Limiter from '@/modules_next/limiter/limiter.service.next'
-import StorePublicService from '@/modules/store/store.public.service'
-import { PUBLIC_CACHE, NO_STORE } from '@/modules_next/common/utils/cacheHeaders'
+import Limiter from '@nb/limiter/server/limiter.service.next'
+import StorePublicService from '@nb/store/server/store.public.service'
+import { PUBLIC_CACHE, NO_STORE } from '@nb/common/server/utils/cacheHeaders'
 
 /**
  * GET /tenant/[tenantId]/api/storefront/products

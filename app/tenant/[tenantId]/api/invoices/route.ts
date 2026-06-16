@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Limiter from '@/modules_next/limiter/limiter.service.next';
-import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next';
-import InvoiceService from '@/modules/invoice/invoice.service';
-import { CreateInvoiceInputSchema } from '@/modules/invoice/invoice.types';
-import InvoiceMessages from '@/modules/invoice/invoice.messages';
-import { withIdempotency } from '@/modules_next/redis_idempotency/withIdempotency';
+import Limiter from '@nb/limiter/server/limiter.service.next';
+import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
+import InvoiceService from '@nb/invoice/server/invoice.service';
+import { CreateInvoiceInputSchema } from '@nb/invoice/server/invoice.types';
+import InvoiceMessages from '@nb/invoice/server/invoice.messages';
+import { withIdempotency } from '@nb/redis_idempotency/server/withIdempotency';
 
 /**
  * GET /tenant/[tenantId]/api/invoices?status=&page=&pageSize=

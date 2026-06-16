@@ -1,0 +1,17 @@
+{
+  "name": "@nb/notification_inapp",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/notification_inapp.messages": "./server/notification_inapp.messages.ts",
+    "./server/notification_inapp.service": "./server/notification_inapp.service.ts",
+    "./server/notification_inapp.types": "./server/notification_inapp.types.ts",
+    "./hooks/use-notifications.hook": "./hooks/use-notifications.hook.ts",
+    "./module.json": "./module.json"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "next": "*"
+  }
+}

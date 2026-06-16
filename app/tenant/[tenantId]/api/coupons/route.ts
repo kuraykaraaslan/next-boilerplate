@@ -1,9 +1,9 @@
-import Limiter from '@/modules_next/limiter/limiter.service.next';
+import Limiter from '@nb/limiter/server/limiter.service.next';
 import { NextRequest, NextResponse } from 'next/server'
-import CouponService from '@/modules/coupon/coupon.service'
-import { CreateCouponRequestSchema, GetCouponsQuerySchema } from '@/modules/coupon/coupon.dto'
-import { COUPON_MESSAGES } from '@/modules/coupon/coupon.messages'
-import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next'
+import CouponService from '@nb/coupon/server/coupon.service'
+import { CreateCouponRequestSchema, GetCouponsQuerySchema } from '@nb/coupon/server/coupon.dto'
+import { COUPON_MESSAGES } from '@nb/coupon/server/coupon.messages'
+import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next'
 
 /**
  * GET /tenant/[tenantId]/api/coupons

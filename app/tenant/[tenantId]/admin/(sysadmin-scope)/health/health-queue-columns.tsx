@@ -1,8 +1,8 @@
 'use client';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircle } from '@fortawesome/free-solid-svg-icons';
-import { cn } from '@/modules_next/common/utils/cn';
-import type { TableColumn } from '@/modules_next/common/ui/ServerDataTable';
+import { cn } from '@nb/common/server/utils/cn';
+import type { TableColumn } from '@nb/common/ui/ServerDataTable';
 import type { QueueRow } from './health.types';
 
 export const queueColumns: TableColumn<QueueRow>[] = [

@@ -1,0 +1,31 @@
+{
+  "name": "@nb/media_gallery",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/entities/media_gallery.entity": "./server/entities/media_gallery.entity.ts",
+    "./server/entities/media_gallery_item.entity": "./server/entities/media_gallery_item.entity.ts",
+    "./server/index": "./server/index.ts",
+    "./server": "./server/index.ts",
+    "./server/media_gallery.bulk.service": "./server/media_gallery.bulk.service.ts",
+    "./server/media_gallery.crud.service": "./server/media_gallery.crud.service.ts",
+    "./server/media_gallery.dto": "./server/media_gallery.dto.ts",
+    "./server/media_gallery.enums": "./server/media_gallery.enums.ts",
+    "./server/media_gallery.intelligence.service": "./server/media_gallery.intelligence.service.ts",
+    "./server/media_gallery.messages": "./server/media_gallery.messages.ts",
+    "./server/media_gallery.query.service": "./server/media_gallery.query.service.ts",
+    "./server/media_gallery.seed": "./server/media_gallery.seed.ts",
+    "./server/media_gallery.service": "./server/media_gallery.service.ts",
+    "./server/media_gallery.types": "./server/media_gallery.types.ts",
+    "./server/media_gallery.url": "./server/media_gallery.url.ts",
+    "./server/media_gallery.view": "./server/media_gallery.view.ts",
+    "./ui/GalleryPanel": "./ui/GalleryPanel.tsx",
+    ".": "./server/index.ts",
+    "./module.json": "./module.json"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "next": "*"
+  }
+}

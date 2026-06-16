@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { env } from '@/modules/env';
-import SSLProvisioningService from '@/modules/tenant_domain/ssl_provisioning.service';
-import Logger from '@/modules/logger';
+import { env } from '@nb/env';
+import SSLProvisioningService from '@nb/tenant_domain/server/ssl_provisioning.service';
+import Logger from '@nb/logger';
 
 /**
  * POST /tenant/[tenantId]/api/cron/ssl-health

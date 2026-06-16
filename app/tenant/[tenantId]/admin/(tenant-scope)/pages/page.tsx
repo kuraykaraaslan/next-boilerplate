@@ -2,21 +2,21 @@
 
 import { use, useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import api from '@/modules_next/common/axios';
-import { ServerDataTable } from '@/modules_next/common/ui/ServerDataTable';
-import { PageHeader } from '@/modules_next/common/ui/PageHeader';
-import { Button } from '@/modules_next/common/ui/Button';
-import { Input } from '@/modules_next/common/ui/Input';
-import { Select } from '@/modules_next/common/ui/Select';
-import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
-import { toast } from '@/modules_next/common/ui/toast.store';
+import api from '@nb/common/server/axios';
+import { ServerDataTable } from '@nb/common/ui/ServerDataTable';
+import { PageHeader } from '@nb/common/ui/PageHeader';
+import { Button } from '@nb/common/ui/Button';
+import { Input } from '@nb/common/ui/Input';
+import { Select } from '@nb/common/ui/Select';
+import { AlertBanner } from '@nb/common/ui/AlertBanner';
+import { toast } from '@nb/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faSearch, faPenToSquare, faBars, faWindowMinimize } from '@fortawesome/free-solid-svg-icons';
 import {
   buildDynamicPageColumns,
   type DynamicPage,
-} from '@/modules_next/dynamic_page/ui/dynamic-page-columns';
-import { DynamicPageCreateModal } from '@/modules_next/dynamic_page/ui/DynamicPageCreateModal';
+} from '@nb/dynamic_page/ui/dynamic-page-columns';
+import { DynamicPageCreateModal } from '@nb/dynamic_page/ui/DynamicPageCreateModal';
 
 const PAGE_SIZE = 20;
 

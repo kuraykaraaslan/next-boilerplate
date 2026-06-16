@@ -1,18 +1,18 @@
 'use client';
 import { use, useEffect, useState } from 'react';
 import { notFound } from 'next/navigation';
-import { isRootTenant } from '@/modules/tenant/tenant.constants';
-import api from '@/modules_next/common/axios';
-import { Card } from '@/modules_next/common/ui/Card';
-import { Badge } from '@/modules_next/common/ui/Badge';
-import { Spinner } from '@/modules_next/common/ui/Spinner';
-import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
-import { Breadcrumb } from '@/modules_next/common/ui/Breadcrumb';
-import { PageHeader } from '@/modules_next/common/ui/PageHeader';
-import { ServerDataTable, type TableColumn } from '@/modules_next/common/ui/ServerDataTable';
-import { PaymentSummaryCard } from '@/modules_next/payment/ui/PaymentSummaryCard';
-import { PaymentStatusBadge, type PaymentStatus } from '@/modules_next/payment/ui/PaymentStatusBadge';
-import { PaymentRefundModal } from '@/modules_next/payment/ui/PaymentRefundModal';
+import { isRootTenant } from '@nb/tenant/server/tenant.constants';
+import api from '@nb/common/server/axios';
+import { Card } from '@nb/common/ui/Card';
+import { Badge } from '@nb/common/ui/Badge';
+import { Spinner } from '@nb/common/ui/Spinner';
+import { AlertBanner } from '@nb/common/ui/AlertBanner';
+import { Breadcrumb } from '@nb/common/ui/Breadcrumb';
+import { PageHeader } from '@nb/common/ui/PageHeader';
+import { ServerDataTable, type TableColumn } from '@nb/common/ui/ServerDataTable';
+import { PaymentSummaryCard } from '@nb/payment/ui/PaymentSummaryCard';
+import { PaymentStatusBadge, type PaymentStatus } from '@nb/payment/ui/PaymentStatusBadge';
+import { PaymentRefundModal } from '@nb/payment/ui/PaymentRefundModal';
 
 type Transaction = {
   transactionId: string; type: string; status: string;

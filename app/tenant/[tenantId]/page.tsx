@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import PublicDynamicPage, { buildPublicPageMetadata } from '@/modules_next/dynamic_page/PublicDynamicPage'
+import PublicDynamicPage, { buildPublicPageMetadata } from '@nb/dynamic_page/server/PublicDynamicPage'
 
 interface Params { tenantId: string }
 interface Props { params: Promise<Params>; searchParams: Promise<{ lang?: string }> }

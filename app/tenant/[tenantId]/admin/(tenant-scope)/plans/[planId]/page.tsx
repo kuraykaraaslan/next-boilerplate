@@ -1,22 +1,22 @@
 'use client';
 import { use, useState, useEffect, useCallback } from 'react';
 import { notFound, useRouter } from 'next/navigation';
-import { isRootTenant } from '@/modules/tenant/tenant.constants';
-import { Card } from '@/modules_next/common/ui/Card';
-import { Badge } from '@/modules_next/common/ui/Badge';
-import { Button } from '@/modules_next/common/ui/Button';
-import { Spinner } from '@/modules_next/common/ui/Spinner';
-import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
-import { Modal } from '@/modules_next/common/ui/Modal';
-import { Input } from '@/modules_next/common/ui/Input';
-import { Select } from '@/modules_next/common/ui/Select';
-import { Breadcrumb } from '@/modules_next/common/ui/Breadcrumb';
-import { PageHeader } from '@/modules_next/common/ui/PageHeader';
-import { toast } from '@/modules_next/common/ui/toast.store';
+import { isRootTenant } from '@nb/tenant/server/tenant.constants';
+import { Card } from '@nb/common/ui/Card';
+import { Badge } from '@nb/common/ui/Badge';
+import { Button } from '@nb/common/ui/Button';
+import { Spinner } from '@nb/common/ui/Spinner';
+import { AlertBanner } from '@nb/common/ui/AlertBanner';
+import { Modal } from '@nb/common/ui/Modal';
+import { Input } from '@nb/common/ui/Input';
+import { Select } from '@nb/common/ui/Select';
+import { Breadcrumb } from '@nb/common/ui/Breadcrumb';
+import { PageHeader } from '@nb/common/ui/PageHeader';
+import { toast } from '@nb/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faSave, faTag } from '@fortawesome/free-solid-svg-icons';
-import api from '@/modules_next/common/axios';
-import { PlanFeaturesPanel } from '@/modules_next/tenant_subscription/ui/PlanFeaturesPanel';
+import api from '@nb/common/server/axios';
+import { PlanFeaturesPanel } from '@nb/tenant_subscription/ui/PlanFeaturesPanel';
 import {
   type Plan, type SearchProduct, type EditForm,
   statusVariant, INTERVAL_LABEL, INTERVAL_OPTIONS, STATUS_OPTIONS,

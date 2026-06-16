@@ -1,0 +1,18 @@
+{
+  "name": "@nb/notification_push",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/entities/push_subscription.entity": "./server/entities/push_subscription.entity.ts",
+    "./server/notification_push.config": "./server/notification_push.config.ts",
+    "./server/notification_push.messages": "./server/notification_push.messages.ts",
+    "./server/notification_push.metrics.service": "./server/notification_push.metrics.service.ts",
+    "./server/notification_push.queue": "./server/notification_push.queue.ts",
+    "./server/notification_push.seed": "./server/notification_push.seed.ts",
+    "./server/notification_push.send.service": "./server/notification_push.send.service.ts",
+    "./server/notification_push.service": "./server/notification_push.service.ts",
+    "./server/notification_push.subscription.service": "./server/notification_push.subscription.service.ts",
+    "./module.json": "./module.json"
+  }
+}

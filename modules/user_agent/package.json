@@ -1,0 +1,15 @@
+{
+  "name": "@nb/user_agent",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/user_agent.enums": "./server/user_agent.enums.ts",
+    "./server/user_agent.geo.service": "./server/user_agent.geo.service.ts",
+    "./server/user_agent.geo": "./server/user_agent.geo.ts",
+    "./server/user_agent.parse": "./server/user_agent.parse.ts",
+    "./server/user_agent.service": "./server/user_agent.service.ts",
+    "./server/user_agent.types": "./server/user_agent.types.ts",
+    "./module.json": "./module.json"
+  }
+}

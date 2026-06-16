@@ -6,7 +6,7 @@
 - **dir:** `modules/user_security/`
 - **tags:** identity, security
 - **icon:** `fas fa-lock`
-- **hasNextLayer:** true
+- **hasNextLayer:** false
 
 Password hashing, account lock, TOTP secret, WebAuthn/Passkey credentials.
 
@@ -14,42 +14,9 @@ Password hashing, account lock, TOTP secret, WebAuthn/Passkey credentials.
 
 - **requires:** `db`, `user`, `env`
 
-## Services
-
-- `user_security.crud.service.ts`
-- `user_security.login.service.ts`
-- `user_security.mfa.service.ts`
-- `user_security.passkey.authenticate.service.ts`
-- `user_security.passkey.crud.service.ts`
-- `user_security.passkey.flow.service.ts`
-- `user_security.passkey.register.service.ts`
-- `user_security.passkey.service.ts`
-- `user_security.service.ts`
-
-## Entities
-
-- `user_security.entity.ts`
-
-## Enums
-
-- `user_security.enums.ts`
-
-## Message keys
-
-- `user_security.messages.ts`
-- `user_security.passkey.messages.ts`
-
-## Setting keys
-
-- `user_security.setting.keys.ts`
-
 ## TypeORM entities
 
-- `UserSecurity` (system) — `modules/user_security/entities/user_security.entity.ts`
-
-## Next layer (modules_next/) surface
-
-- `user_security/ui/PasskeysPanel` _(ui, client)_
+- `UserSecurity` (system) — `modules/user_security/server/entities/user_security.entity.ts`
 
 ## README
 

@@ -1,14 +1,14 @@
 'use client';
 import { use, useState, useEffect, useCallback } from 'react';
-import { Button } from '@/modules_next/common/ui/Button';
-import { Input } from '@/modules_next/common/ui/Input';
-import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
-import { Modal } from '@/modules_next/common/ui/Modal';
-import { PageHeader } from '@/modules_next/common/ui/PageHeader';
-import { ServerDataTable } from '@/modules_next/common/ui/ServerDataTable';
-import { toast } from '@/modules_next/common/ui/toast.store';
-import api from '@/modules_next/common/axios';
-import { buildFlagColumns, type FlagRow as Flag } from '@/modules_next/feature_flags/ui/feature-flag-columns';
+import { Button } from '@nb/common/ui/Button';
+import { Input } from '@nb/common/ui/Input';
+import { AlertBanner } from '@nb/common/ui/AlertBanner';
+import { Modal } from '@nb/common/ui/Modal';
+import { PageHeader } from '@nb/common/ui/PageHeader';
+import { ServerDataTable } from '@nb/common/ui/ServerDataTable';
+import { toast } from '@nb/common/ui/toast.store';
+import api from '@nb/common/server/axios';
+import { buildFlagColumns, type FlagRow as Flag } from '@nb/feature_flags/ui/feature-flag-columns';
 
 const PAGE_SIZE = 25;
 

@@ -1,0 +1,17 @@
+{
+  "name": "@nb/auth_oidc",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/auth_oidc.cms": "./server/auth_oidc.cms.ts",
+    "./server/auth_oidc.custom": "./server/auth_oidc.custom.ts",
+    "./server/auth_oidc.discovery": "./server/auth_oidc.discovery.ts",
+    "./server/auth_oidc.engine.helpers": "./server/auth_oidc.engine.helpers.ts",
+    "./server/auth_oidc.engine": "./server/auth_oidc.engine.ts",
+    "./server/auth_oidc.engine.types": "./server/auth_oidc.engine.types.ts",
+    "./server/auth_oidc.jwks": "./server/auth_oidc.jwks.ts",
+    "./server/auth_oidc.messages": "./server/auth_oidc.messages.ts",
+    "./module.json": "./module.json"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "name": "@nb/tenant_domain",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/dns_verification.service": "./server/dns_verification.service.ts",
+    "./server/entities/tenant_domain.entity": "./server/entities/tenant_domain.entity.ts",
+    "./server/ssl_health.job": "./server/ssl_health.job.ts",
+    "./server/ssl_provisioning.service": "./server/ssl_provisioning.service.ts",
+    "./server/tenant_domain.blocklist": "./server/tenant_domain.blocklist.ts",
+    "./server/tenant_domain.crud.service": "./server/tenant_domain.crud.service.ts",
+    "./server/tenant_domain.dns.service": "./server/tenant_domain.dns.service.ts",
+    "./server/tenant_domain.dto": "./server/tenant_domain.dto.ts",
+    "./server/tenant_domain.enums": "./server/tenant_domain.enums.ts",
+    "./server/tenant_domain.job": "./server/tenant_domain.job.ts",
+    "./server/tenant_domain.messages": "./server/tenant_domain.messages.ts",
+    "./server/tenant_domain.seed": "./server/tenant_domain.seed.ts",
+    "./server/tenant_domain.service": "./server/tenant_domain.service.ts",
+    "./server/tenant_domain.settings.fields": "./server/tenant_domain.settings.fields.ts",
+    "./server/tenant_domain.types": "./server/tenant_domain.types.ts",
+    "./ui/domain-list-columns": "./ui/domain-list-columns.tsx",
+    "./module.json": "./module.json"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "next": "*"
+  }
+}

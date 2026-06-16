@@ -1,13 +1,13 @@
 'use client';
 import { use, useState, useEffect, useCallback } from 'react';
-import { Button } from '@/modules_next/common/ui/Button';
-import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
-import { Badge } from '@/modules_next/common/ui/Badge';
-import { PageHeader } from '@/modules_next/common/ui/PageHeader';
-import { ServerDataTable, type TableColumn } from '@/modules_next/common/ui/ServerDataTable';
-import { toast } from '@/modules_next/common/ui/toast.store';
-import api from '@/modules_next/common/axios';
-import type { GiftCard, GiftCardTransaction } from '@/modules/gift_card/gift_card.types';
+import { Button } from '@nb/common/ui/Button';
+import { AlertBanner } from '@nb/common/ui/AlertBanner';
+import { Badge } from '@nb/common/ui/Badge';
+import { PageHeader } from '@nb/common/ui/PageHeader';
+import { ServerDataTable, type TableColumn } from '@nb/common/ui/ServerDataTable';
+import { toast } from '@nb/common/ui/toast.store';
+import api from '@nb/common/server/axios';
+import type { GiftCard, GiftCardTransaction } from '@nb/gift_card/server/gift_card.types';
 
 function extractMessage(err: unknown, fallback: string): string {
   const e = err as { response?: { data?: { message?: string } }; message?: string };

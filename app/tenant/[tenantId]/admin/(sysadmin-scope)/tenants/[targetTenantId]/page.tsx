@@ -1,27 +1,27 @@
 'use client';
 import { use, useEffect, useState } from 'react';
 import { useRouter, notFound } from 'next/navigation';
-import { isRootTenant } from '@/modules/tenant/tenant.constants';
-import api from '@/modules_next/common/axios';
-import { Card } from '@/modules_next/common/ui/Card';
-import { Badge } from '@/modules_next/common/ui/Badge';
-import { Button } from '@/modules_next/common/ui/Button';
-import { Input } from '@/modules_next/common/ui/Input';
-import { Spinner } from '@/modules_next/common/ui/Spinner';
-import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
-import { Modal } from '@/modules_next/common/ui/Modal';
-import { Breadcrumb } from '@/modules_next/common/ui/Breadcrumb';
-import { PageHeader } from '@/modules_next/common/ui/PageHeader';
-import { ServerDataTable, type TableColumn } from '@/modules_next/common/ui/ServerDataTable';
+import { isRootTenant } from '@nb/tenant/server/tenant.constants';
+import api from '@nb/common/server/axios';
+import { Card } from '@nb/common/ui/Card';
+import { Badge } from '@nb/common/ui/Badge';
+import { Button } from '@nb/common/ui/Button';
+import { Input } from '@nb/common/ui/Input';
+import { Spinner } from '@nb/common/ui/Spinner';
+import { AlertBanner } from '@nb/common/ui/AlertBanner';
+import { Modal } from '@nb/common/ui/Modal';
+import { Breadcrumb } from '@nb/common/ui/Breadcrumb';
+import { PageHeader } from '@nb/common/ui/PageHeader';
+import { ServerDataTable, type TableColumn } from '@nb/common/ui/ServerDataTable';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faGlobe, faPeopleGroup, faGear,
   faTrash, faCheck, faBan, faCreditCard,
 } from '@fortawesome/free-solid-svg-icons';
-import type { TenantStatus } from '@/modules/tenant/tenant.enums';
-import type { DomainStatus as _DS } from '@/modules/tenant_domain/tenant_domain.enums';
-import { TenantMembersTable } from '@/modules_next/tenant/ui/TenantMembersTable';
-import { TenantSubscriptionCard } from '@/modules_next/tenant/ui/TenantSubscriptionCard';
+import type { TenantStatus } from '@nb/tenant/server/tenant.enums';
+import type { DomainStatus as _DS } from '@nb/tenant_domain/server/tenant_domain.enums';
+import { TenantMembersTable } from '@nb/tenant/ui/TenantMembersTable';
+import { TenantSubscriptionCard } from '@nb/tenant/ui/TenantSubscriptionCard';
 
 type DomainStatus = Exclude<_DS, 'DNS_FAILED'>;
 

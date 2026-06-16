@@ -1,0 +1,30 @@
+{
+  "name": "@nb/audit_log",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/audit_log.dto": "./server/audit_log.dto.ts",
+    "./server/audit_log.enums": "./server/audit_log.enums.ts",
+    "./server/audit_log.hash": "./server/audit_log.hash.ts",
+    "./server/audit_log.messages": "./server/audit_log.messages.ts",
+    "./server/audit_log.purge.job": "./server/audit_log.purge.job.ts",
+    "./server/audit_log.query": "./server/audit_log.query.ts",
+    "./server/audit_log.seed": "./server/audit_log.seed.ts",
+    "./server/audit_log.serialize": "./server/audit_log.serialize.ts",
+    "./server/audit_log.service.next": "./server/audit_log.service.next.ts",
+    "./server/audit_log.service": "./server/audit_log.service.ts",
+    "./server/audit_log.setting.keys": "./server/audit_log.setting.keys.ts",
+    "./server/audit_log.settings.fields": "./server/audit_log.settings.fields.ts",
+    "./server/audit_log.types": "./server/audit_log.types.ts",
+    "./server/audit_log.write.service": "./server/audit_log.write.service.ts",
+    "./server/entities/audit_log.entity": "./server/entities/audit_log.entity.ts",
+    "./server/tests/audit_log.test-setup": "./server/tests/audit_log.test-setup.ts",
+    "./ui/AuditLogFilters": "./ui/AuditLogFilters.tsx",
+    "./module.json": "./module.json"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "next": "*"
+  }
+}

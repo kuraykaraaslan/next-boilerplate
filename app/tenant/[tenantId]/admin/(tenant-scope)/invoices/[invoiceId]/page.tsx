@@ -1,18 +1,18 @@
 'use client';
 import { use, useCallback, useEffect, useState } from 'react';
-import api from '@/modules_next/common/axios';
-import { PageHeader, type PageHeaderAction } from '@/modules_next/common/ui/PageHeader';
-import { Card } from '@/modules_next/common/ui/Card';
-import { Badge } from '@/modules_next/common/ui/Badge';
-import { Spinner } from '@/modules_next/common/ui/Spinner';
-import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
-import { Breadcrumb } from '@/modules_next/common/ui/Breadcrumb';
-import { Button } from '@/modules_next/common/ui/Button';
-import { Modal } from '@/modules_next/common/ui/Modal';
-import { Input } from '@/modules_next/common/ui/Input';
-import { toast } from '@/modules_next/common/ui/toast.store';
-import { InvoiceLineItemsTable, Row } from '@/modules_next/invoice/ui/InvoiceLineItemsTable';
-import type { SafeInvoice, SafeInvoiceLine } from '@/modules/invoice/invoice.types';
+import api from '@nb/common/server/axios';
+import { PageHeader, type PageHeaderAction } from '@nb/common/ui/PageHeader';
+import { Card } from '@nb/common/ui/Card';
+import { Badge } from '@nb/common/ui/Badge';
+import { Spinner } from '@nb/common/ui/Spinner';
+import { AlertBanner } from '@nb/common/ui/AlertBanner';
+import { Breadcrumb } from '@nb/common/ui/Breadcrumb';
+import { Button } from '@nb/common/ui/Button';
+import { Modal } from '@nb/common/ui/Modal';
+import { Input } from '@nb/common/ui/Input';
+import { toast } from '@nb/common/ui/toast.store';
+import { InvoiceLineItemsTable, Row } from '@nb/invoice/ui/InvoiceLineItemsTable';
+import type { SafeInvoice, SafeInvoiceLine } from '@nb/invoice/server/invoice.types';
 
 const STATUS_VARIANT: Record<string, 'success' | 'error' | 'warning' | 'info' | 'neutral'> = {
   draft: 'neutral', issued: 'info', paid: 'success', void: 'error', refunded: 'warning',

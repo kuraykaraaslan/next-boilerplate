@@ -1,4 +1,4 @@
-import DynamicPageEditor from '@/modules_next/dynamic_page/dynamic/Editor'
+import DynamicPageEditor from '@nb/dynamic_page/server/dynamic/Editor'
 
 export default function PageEditorPage() {
   return <DynamicPageEditor />

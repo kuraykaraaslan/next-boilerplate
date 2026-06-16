@@ -1,8 +1,8 @@
 // path: app/tenant/[tenantId]/api/auth/me/notifications/read-all/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import TenantSessionNextService from "@/modules_next/tenant_session/tenant_session.service.next";
-import NotificationInAppService from "@/modules/notification_inapp/notification_inapp.service";
-import Limiter from "@/modules_next/limiter/limiter.service.next";
+import TenantSessionNextService from "@nb/tenant_session/server/tenant_session.service.next";
+import NotificationInAppService from "@nb/notification_inapp/server/notification_inapp.service";
+import Limiter from "@nb/limiter/server/limiter.service.next";
 
 /**
  * PUT /tenant/[tenantId]/api/auth/me/notifications/read-all

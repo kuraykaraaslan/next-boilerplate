@@ -1,8 +1,8 @@
 // proxy.ts
 import { NextRequest, NextResponse } from "next/server";
-import SettingService from "@/modules/setting/setting.service";
-import TenantDomainService from "@/modules/tenant_domain/tenant_domain.service";
-import { ROOT_TENANT_ID } from "@/modules/tenant/tenant.constants";
+import SettingService from "@nb/setting/server/setting.service";
+import TenantDomainService from "@nb/tenant_domain/server/tenant_domain.service";
+import { ROOT_TENANT_ID } from "@nb/tenant/server/tenant.constants";
 
 const EXCLUDED_PATHS = [
     /^\/_next\/?/,

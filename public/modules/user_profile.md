@@ -14,34 +14,9 @@ Profile fields (avatar, bio, locale, timezone) — separated from the user entit
 
 - **requires:** `db`, `user`
 
-## Services
-
-- `user_profile.media.service.ts`
-- `user_profile.moderation.service.ts`
-- `user_profile.read.service.ts`
-- `user_profile.service.ts`
-- `user_profile.social.service.ts`
-- `user_profile.write.service.ts`
-
-## DTOs
-
-- `user_profile.dto.ts`
-
-## Entities
-
-- `user_profile.entity.ts`
-
-## Enums
-
-- `user_profile.enums.ts`
-
-## Message keys
-
-- `user_profile.messages.ts`
-
 ## TypeORM entities
 
-- `UserProfile` (system) — `modules/user_profile/entities/user_profile.entity.ts`
+- `UserProfile` (system) — `modules/user_profile/server/entities/user_profile.entity.ts`
 
 ## README
 

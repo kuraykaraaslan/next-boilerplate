@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import UserSessionNextService from "@/modules_next/user_session/user_session.service.next";
-import AIService from "@/modules/ai/ai.service";
-import Limiter from "@/modules_next/limiter/limiter.service.next";
+import UserSessionNextService from "@nb/user_session/server/user_session.service.next";
+import AIService from "@nb/ai/server/ai.service";
+import Limiter from "@nb/limiter/server/limiter.service.next";
 import { z } from "zod";
 
 const EmbedDTO = z.object({

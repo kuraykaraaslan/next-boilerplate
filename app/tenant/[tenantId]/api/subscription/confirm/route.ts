@@ -1,8 +1,8 @@
-import Limiter from '@/modules_next/limiter/limiter.service.next';
+import Limiter from '@nb/limiter/server/limiter.service.next';
 import { NextRequest, NextResponse } from 'next/server'
-import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next'
-import TenantSubscriptionService from '@/modules/tenant_subscription/tenant_subscription.service'
-import { SUBSCRIPTION_MESSAGES } from '@/modules/tenant_subscription/tenant_subscription.messages'
+import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next'
+import TenantSubscriptionService from '@nb/tenant_subscription/server/tenant_subscription.service'
+import { SUBSCRIPTION_MESSAGES } from '@nb/tenant_subscription/server/tenant_subscription.messages'
 import { z } from 'zod'
 
 const ConfirmPaymentRequestSchema = z.object({

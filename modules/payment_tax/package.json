@@ -1,0 +1,26 @@
+{
+  "name": "@nb/payment_tax",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/entities/tax_class.entity": "./server/entities/tax_class.entity.ts",
+    "./server/entities/tax_rate.entity": "./server/entities/tax_rate.entity.ts",
+    "./server/index": "./server/index.ts",
+    "./server": "./server/index.ts",
+    "./server/payment_tax.cache": "./server/payment_tax.cache.ts",
+    "./server/payment_tax.calc.service": "./server/payment_tax.calc.service.ts",
+    "./server/payment_tax.crud.service": "./server/payment_tax.crud.service.ts",
+    "./server/payment_tax.dto": "./server/payment_tax.dto.ts",
+    "./server/payment_tax.enums": "./server/payment_tax.enums.ts",
+    "./server/payment_tax.messages": "./server/payment_tax.messages.ts",
+    "./server/payment_tax.report.service": "./server/payment_tax.report.service.ts",
+    "./server/payment_tax.rounding": "./server/payment_tax.rounding.ts",
+    "./server/payment_tax.seed": "./server/payment_tax.seed.ts",
+    "./server/payment_tax.service": "./server/payment_tax.service.ts",
+    "./server/payment_tax.types": "./server/payment_tax.types.ts",
+    "./server/payment_tax.vat": "./server/payment_tax.vat.ts",
+    ".": "./server/index.ts",
+    "./module.json": "./module.json"
+  }
+}

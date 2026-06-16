@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import Limiter from '@/modules_next/limiter/limiter.service.next'
-import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next'
-import StoreVariantService from '@/modules/store/store.variant.service'
-import { UpdateVariantGroupItemDTO } from '@/modules/store/store.dto'
+import Limiter from '@nb/limiter/server/limiter.service.next'
+import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next'
+import StoreVariantService from '@nb/store/server/store.variant.service'
+import { UpdateVariantGroupItemDTO } from '@nb/store/server/store.dto'
 
 type Ctx = { params: Promise<{ tenantId: string; productId: string; itemId: string }> }
 

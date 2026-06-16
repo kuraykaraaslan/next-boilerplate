@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Limiter from '@/modules_next/limiter/limiter.service.next';
-import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next';
-import MessagingCrudService from '@/modules/messaging/messaging.crud.service';
+import Limiter from '@nb/limiter/server/limiter.service.next';
+import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
+import MessagingCrudService from '@nb/messaging/server/messaging.crud.service';
 
 /**
  * GET /tenant/[tenantId]/api/conversations/[conversationId]

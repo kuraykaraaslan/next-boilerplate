@@ -6,40 +6,13 @@
 - **dir:** `modules/api_key/`
 - **tags:** platform, security
 - **icon:** `fas fa-key`
-- **hasNextLayer:** true
+- **hasNextLayer:** false
 
 Tenant-scoped API keys for programmatic access (hashed at rest, scope-bound).
 
 ## Dependencies
 
 - **requires:** `db`, `env`, `common`, `network`
-
-## Services
-
-- `api_key.crud.service.ts`
-- `api_key.rotation.service.ts`
-- `api_key.service.ts`
-- `api_key.verify.service.ts`
-
-## DTOs
-
-- `api_key.dto.ts`
-
-## Entities
-
-- `api_key.entity.ts`
-
-## Enums
-
-- `api_key.enums.ts`
-
-## Message keys
-
-- `api_key.messages.ts`
-
-## Setting keys
-
-- `api_key.setting.keys.ts`
 
 ## Owned API routes
 
@@ -52,12 +25,7 @@ Tenant-scoped API keys for programmatic access (hashed at rest, scope-bound).
 
 ## TypeORM entities
 
-- `ApiKey` (tenant) — `modules/api_key/entities/api_key.entity.ts`
-
-## Next layer (modules_next/) surface
-
-- `api_key/ui/api-key-columns` _(ui, client)_
-- `api_key/ui/ApiKeyCreateModal` _(ui, client)_
+- `ApiKey` (tenant) — `modules/api_key/server/entities/api_key.entity.ts`
 
 ## README
 

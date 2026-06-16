@@ -6,7 +6,7 @@
 - **dir:** `modules/tenant_subscription/`
 - **tags:** tenant, billing
 - **icon:** `fas fa-credit-card`
-- **hasNextLayer:** true
+- **hasNextLayer:** false
 
 Tenant subscription state, plan + feature key resolution, grace period, expiry job.
 
@@ -14,62 +14,9 @@ Tenant subscription state, plan + feature key resolution, grace period, expiry j
 
 - **requires:** `db`, `tenant`, `payment`, `redis`, `env`
 
-## Services
-
-- `tenant_subscription.card.service.ts`
-- `tenant_subscription.checkout.service.ts`
-- `tenant_subscription.feature.service.ts`
-- `tenant_subscription.grace.service.ts`
-- `tenant_subscription.lifecycle.service.ts`
-- `tenant_subscription.plan.crud.service.ts`
-- `tenant_subscription.plan.feature.service.ts`
-- `tenant_subscription.plan.service.ts`
-- `tenant_subscription.platform.service.ts`
-- `tenant_subscription.service.ts`
-
-## DTOs
-
-- `tenant_subscription.dto.ts`
-
-## Entities
-
-- `tenant_subscription.entity.ts`
-
-## Enums
-
-- `tenant_subscription.enums.ts`
-
-## Message keys
-
-- `tenant_subscription.messages.ts`
-
-## Setting keys
-
-- `tenant_subscription.setting.keys.ts`
-
-## Jobs
-
-- `tenant_subscription.job.ts`
-
 ## TypeORM entities
 
-- `TenantSubscription` (tenant) — `modules/tenant_subscription/entities/tenant_subscription.entity.ts`
-
-## Next layer (modules_next/) surface
-
-- `tenant_subscription/hooks/use-feature-access` _(hook, client)_
-- `tenant_subscription/hooks/use-grace-period` _(hook, client)_
-- `tenant_subscription/tenant_subscription.grace-period` _(ui)_
-- `tenant_subscription/ui/CurrentSubscriptionCard` _(ui, client)_
-- `tenant_subscription/ui/FeatureGate` _(ui, client)_
-- `tenant_subscription/ui/GracePeriodBanner` _(ui, client)_
-- `tenant_subscription/ui/plan-list-columns` _(ui, client)_
-- `tenant_subscription/ui/PlanCreateModal` _(ui, client)_
-- `tenant_subscription/ui/PlanFeaturesPanel` _(ui, client)_
-- `tenant_subscription/ui/PlanUsageMeter` _(ui, client)_
-- `tenant_subscription/ui/subscription.helpers` _(ui)_
-- `tenant_subscription/ui/SubscriptionPlanCard` _(ui, client)_
-- `tenant_subscription/ui/UpgradePrompt` _(ui, client)_
+- `TenantSubscription` (tenant) — `modules/tenant_subscription/server/entities/tenant_subscription.entity.ts`
 
 ## README
 

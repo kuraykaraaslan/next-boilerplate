@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import AuthAcsService from '@/modules/auth_acs/auth_acs.service';
-import { signAcsRelay } from '@/modules/auth_acs/auth_acs.relay';
-import Limiter from '@/modules_next/limiter/limiter.service.next';
-import { env } from '@/modules/env';
-import { ROOT_TENANT_ID } from '@/modules/tenant/tenant.constants';
+import AuthAcsService from '@nb/auth_acs/server/auth_acs.service';
+import { signAcsRelay } from '@nb/auth_acs/server/auth_acs.relay';
+import Limiter from '@nb/limiter/server/limiter.service.next';
+import { env } from '@nb/env';
+import { ROOT_TENANT_ID } from '@nb/tenant/server/tenant.constants';
 
 type Params = { params: Promise<{ provider: string }> };
 

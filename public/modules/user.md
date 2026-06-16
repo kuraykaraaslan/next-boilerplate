@@ -6,36 +6,13 @@
 - **dir:** `modules/user/`
 - **tags:** identity, core
 - **icon:** `fas fa-user`
-- **hasNextLayer:** true
+- **hasNextLayer:** false
 
 Core user CRUD: create, find, update, deactivate. Foundation for every auth and tenancy flow.
 
 ## Dependencies
 
 - **requires:** `db`, `env`, `logger`, `common`
-
-## Services
-
-- `user.admin.service.ts`
-- `user.crud.service.ts`
-- `user.read.service.ts`
-- `user.service.ts`
-
-## DTOs
-
-- `user.dto.ts`
-
-## Entities
-
-- `user.entity.ts`
-
-## Enums
-
-- `user.enums.ts`
-
-## Message keys
-
-- `user.messages.ts`
 
 ## Owned API routes
 
@@ -46,19 +23,7 @@ Core user CRUD: create, find, update, deactivate. Foundation for every auth and 
 
 ## TypeORM entities
 
-- `User` (system) — `modules/user/entities/user.entity.ts`
-
-## Next layer (modules_next/) surface
-
-- `user/ui/SocialAccountsPanel` _(ui, client)_
-- `user/ui/user-list-columns` _(ui, client)_
-- `user/ui/UserEditModal` _(ui, client)_
-- `user/ui/UserMenu` _(ui, client)_
-- `user/ui/UserPreferencesForm` _(ui, client)_
-- `user/ui/UserProfileCard` _(ui, client)_
-- `user/ui/UserProfileForm` _(ui, client)_
-- `user/ui/UserRoleBadge` _(ui, client)_
-- `user/ui/UserStatusBadge` _(ui, client)_
+- `User` (system) — `modules/user/server/entities/user.entity.ts`
 
 ## README
 

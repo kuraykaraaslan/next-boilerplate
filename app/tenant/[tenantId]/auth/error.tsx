@@ -1,6 +1,6 @@
 'use client';
 import { useEffect } from 'react';
-import { Button } from '@/modules_next/common/ui/Button';
+import { Button } from '@nb/common/ui/Button';
 
 export default function TenantAuthError({
   error,

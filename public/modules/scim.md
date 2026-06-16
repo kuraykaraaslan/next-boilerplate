@@ -14,29 +14,6 @@ System for Cross-domain Identity Management (RFC 7643/7644). Lets enterprise IdP
 
 - **requires:** `db`, `user`, `tenant_member`, `api_key`, `audit_log`
 
-## Services
-
-- `scim.group.service.ts`
-- `scim.policy.service.ts`
-- `scim.service.ts`
-- `scim.user.patch.service.ts`
-- `scim.user.read.service.ts`
-- `scim.user.service.ts`
-- `scim.user.write.service.ts`
-
-## DTOs
-
-- `scim.dto.ts`
-
-## Entities
-
-- `scim_group.entity.ts`
-- `scim_group_member.entity.ts`
-
-## Message keys
-
-- `scim.messages.ts`
-
 ## Owned API routes
 
 - `tenant` GET/POST `/tenant/[tenantId]/api/scim/v2/Groups`
@@ -50,8 +27,8 @@ System for Cross-domain Identity Management (RFC 7643/7644). Lets enterprise IdP
 
 ## TypeORM entities
 
-- `ScimGroup` (system) — `modules/scim/entities/scim_group.entity.ts`
-- `ScimGroupMember` (system) — `modules/scim/entities/scim_group_member.entity.ts`
+- `ScimGroup` (system) — `modules/scim/server/entities/scim_group.entity.ts`
+- `ScimGroupMember` (system) — `modules/scim/server/entities/scim_group_member.entity.ts`
 
 ## README
 

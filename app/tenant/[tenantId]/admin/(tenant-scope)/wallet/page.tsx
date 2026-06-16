@@ -1,22 +1,22 @@
 'use client';
 import { use, useState, useEffect, useCallback, useMemo } from 'react';
-import { Button } from '@/modules_next/common/ui/Button';
-import { Input } from '@/modules_next/common/ui/Input';
-import { Select } from '@/modules_next/common/ui/Select';
-import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
-import { Modal } from '@/modules_next/common/ui/Modal';
-import { PageHeader } from '@/modules_next/common/ui/PageHeader';
-import { ServerDataTable } from '@/modules_next/common/ui/ServerDataTable';
-import { toast } from '@/modules_next/common/ui/toast.store';
-import api from '@/modules_next/common/axios';
-import { CurrencySelector } from '@/modules_next/common/ui/CurrencySelector';
-import { DEFAULT_CURRENCY } from '@/modules/common';
+import { Button } from '@nb/common/ui/Button';
+import { Input } from '@nb/common/ui/Input';
+import { Select } from '@nb/common/ui/Select';
+import { AlertBanner } from '@nb/common/ui/AlertBanner';
+import { Modal } from '@nb/common/ui/Modal';
+import { PageHeader } from '@nb/common/ui/PageHeader';
+import { ServerDataTable } from '@nb/common/ui/ServerDataTable';
+import { toast } from '@nb/common/ui/toast.store';
+import api from '@nb/common/server/axios';
+import { CurrencySelector } from '@nb/common/ui/CurrencySelector';
+import { DEFAULT_CURRENCY } from '@nb/common';
 import {
   buildWalletAccountColumns,
   buildWalletPostingColumns,
   type WalletAccountRow,
   type WalletPostingRow,
-} from '@/modules_next/wallet/ui/wallet-account-columns';
+} from '@nb/wallet/ui/wallet-account-columns';
 
 const PAGE_SIZE = 25;
 

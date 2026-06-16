@@ -1,0 +1,30 @@
+{
+  "name": "@nb/support",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/entities/support_ticket.entity": "./server/entities/support_ticket.entity.ts",
+    "./server/entities/support_ticket_message.entity": "./server/entities/support_ticket_message.entity.ts",
+    "./server/index": "./server/index.ts",
+    "./server": "./server/index.ts",
+    "./server/support.constants": "./server/support.constants.ts",
+    "./server/support.dto": "./server/support.dto.ts",
+    "./server/support.enums": "./server/support.enums.ts",
+    "./server/support.lifecycle.service": "./server/support.lifecycle.service.ts",
+    "./server/support.messages": "./server/support.messages.ts",
+    "./server/support.numbering": "./server/support.numbering.ts",
+    "./server/support.read.service": "./server/support.read.service.ts",
+    "./server/support.service": "./server/support.service.ts",
+    "./server/support.types": "./server/support.types.ts",
+    "./server/support.write.service": "./server/support.write.service.ts",
+    "./server/tests/fake_ds": "./server/tests/fake_ds.ts",
+    "./ui/support-ticket-columns": "./ui/support-ticket-columns.tsx",
+    ".": "./server/index.ts",
+    "./module.json": "./module.json"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "next": "*"
+  }
+}

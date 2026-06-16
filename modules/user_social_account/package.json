@@ -1,0 +1,21 @@
+{
+  "name": "@nb/user_social_account",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/entities/user_social_account.entity": "./server/entities/user_social_account.entity.ts",
+    "./server/social_identity_merge.service": "./server/social_identity_merge.service.ts",
+    "./server/user_social_account.enums": "./server/user_social_account.enums.ts",
+    "./server/user_social_account.helpers": "./server/user_social_account.helpers.ts",
+    "./server/user_social_account.link.service": "./server/user_social_account.link.service.ts",
+    "./server/user_social_account.messages": "./server/user_social_account.messages.ts",
+    "./server/user_social_account.presentation": "./server/user_social_account.presentation.ts",
+    "./server/user_social_account.read.service": "./server/user_social_account.read.service.ts",
+    "./server/user_social_account.seed": "./server/user_social_account.seed.ts",
+    "./server/user_social_account.service": "./server/user_social_account.service.ts",
+    "./server/user_social_account.token.service": "./server/user_social_account.token.service.ts",
+    "./server/user_social_account.types": "./server/user_social_account.types.ts",
+    "./module.json": "./module.json"
+  }
+}

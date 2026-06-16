@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Limiter from '@/modules_next/limiter/limiter.service.next';
-import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next';
-import WebhookCrudService from '@/modules/webhook/webhook.crud.service';
-import { CreateWebhookDTO, ListWebhooksDTO } from '@/modules/webhook/webhook.dto';
+import Limiter from '@nb/limiter/server/limiter.service.next';
+import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
+import WebhookCrudService from '@nb/webhook/server/webhook.crud.service';
+import { CreateWebhookDTO, ListWebhooksDTO } from '@nb/webhook/server/webhook.dto';
 
 /**
  * GET /tenant/[tenantId]/api/webhooks

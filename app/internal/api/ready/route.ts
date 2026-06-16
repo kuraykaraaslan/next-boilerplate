@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { getDataSource } from '@/modules/db';
-import redis from '@/modules/redis';
-import { env } from '@/modules/env';
+import { getDataSource } from '@nb/db';
+import redis from '@nb/redis';
+import { env } from '@nb/env';
 
 /**
  * GET /internal/api/ready

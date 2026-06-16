@@ -1,0 +1,17 @@
+{
+  "name": "@nb/tenant_session",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/tenant_session.membership": "./server/tenant_session.membership.ts",
+    "./server/tenant_session.messages": "./server/tenant_session.messages.ts",
+    "./server/tenant_session.policy": "./server/tenant_session.policy.ts",
+    "./server/tenant_session.resolve.service": "./server/tenant_session.resolve.service.ts",
+    "./server/tenant_session.service.next": "./server/tenant_session.service.next.ts",
+    "./server/tenant_session.service": "./server/tenant_session.service.ts",
+    "./server/tenant_session.setting.keys": "./server/tenant_session.setting.keys.ts",
+    "./server/tenant_session.types": "./server/tenant_session.types.ts",
+    "./module.json": "./module.json"
+  }
+}

@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import Limiter from '@/modules_next/limiter/limiter.service.next'
-import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next'
-import { tenantDataSourceFor } from '@/modules/db'
-import { StoreProduct } from '@/modules/store/entities/store_product.entity'
-import StoreVariantService from '@/modules/store/store.variant.service'
+import Limiter from '@nb/limiter/server/limiter.service.next'
+import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next'
+import { tenantDataSourceFor } from '@nb/db'
+import { StoreProduct } from '@nb/store/server/entities/store_product.entity'
+import StoreVariantService from '@nb/store/server/store.variant.service'
 
 type Ctx = { params: Promise<{ tenantId: string; productId: string }> }
 

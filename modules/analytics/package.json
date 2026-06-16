@@ -1,0 +1,19 @@
+{
+  "name": "@nb/analytics",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/analytics.dto": "./server/analytics.dto.ts",
+    "./server/analytics.enums": "./server/analytics.enums.ts",
+    "./server/analytics.messages": "./server/analytics.messages.ts",
+    "./server/analytics.service": "./server/analytics.service.ts",
+    "./server/analytics.timeseries": "./server/analytics.timeseries.ts",
+    "./server/analytics.types": "./server/analytics.types.ts",
+    "./server/entities/analytics_event.entity": "./server/entities/analytics_event.entity.ts",
+    "./server/index": "./server/index.ts",
+    "./server": "./server/index.ts",
+    ".": "./server/index.ts",
+    "./module.json": "./module.json"
+  }
+}

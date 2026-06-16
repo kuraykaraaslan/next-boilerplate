@@ -1,13 +1,13 @@
 'use client';
 import { use, useState, useEffect, useCallback } from 'react';
-import { Button } from '@/modules_next/common/ui/Button';
-import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
-import { Modal } from '@/modules_next/common/ui/Modal';
-import { PageHeader } from '@/modules_next/common/ui/PageHeader';
-import { ServerDataTable } from '@/modules_next/common/ui/ServerDataTable';
-import { toast } from '@/modules_next/common/ui/toast.store';
-import api from '@/modules_next/common/axios';
-import { buildConnectedAppColumns, type ConnectedAppRow } from '@/modules_next/integrations_hub/ui/connected-apps-columns';
+import { Button } from '@nb/common/ui/Button';
+import { AlertBanner } from '@nb/common/ui/AlertBanner';
+import { Modal } from '@nb/common/ui/Modal';
+import { PageHeader } from '@nb/common/ui/PageHeader';
+import { ServerDataTable } from '@nb/common/ui/ServerDataTable';
+import { toast } from '@nb/common/ui/toast.store';
+import api from '@nb/common/server/axios';
+import { buildConnectedAppColumns, type ConnectedAppRow } from '@nb/integrations_hub/ui/connected-apps-columns';
 
 const PAGE_SIZE = 25;
 

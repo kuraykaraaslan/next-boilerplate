@@ -1,10 +1,10 @@
 // path: app/tenant/[tenantId]/api/auth/me/security/e-signature/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import Limiter from '@/modules_next/limiter/limiter.service.next';
-import Logger from '@/modules/logger';
-import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next';
-import AuthESignatureCertService from '@/modules/auth_e_signature/auth_e_signature.cert.service';
-import AuditLogService from '@/modules/audit_log/audit_log.service';
+import Limiter from '@nb/limiter/server/limiter.service.next';
+import Logger from '@nb/logger';
+import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
+import AuthESignatureCertService from '@nb/auth_e_signature/server/auth_e_signature.cert.service';
+import AuditLogService from '@nb/audit_log/server/audit_log.service';
 
 interface RouteContext {
   params: Promise<{ tenantId: string; id: string }>;

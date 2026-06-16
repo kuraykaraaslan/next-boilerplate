@@ -1,7 +1,7 @@
 'use client';
 import { use } from 'react';
-import { ModuleSettingsPage } from '@/modules_next/setting/ui/ModuleSettingsPage';
-import { AUTH_SSO_SETTINGS_FIELDS } from '@/modules/auth_sso/auth_sso.settings.fields';
+import { ModuleSettingsPage } from '@nb/setting/ui/ModuleSettingsPage';
+import { AUTH_SSO_SETTINGS_FIELDS } from '@nb/auth_sso/server/auth_sso.settings.fields';
 
 export default function SsoSettingsPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = use(params);

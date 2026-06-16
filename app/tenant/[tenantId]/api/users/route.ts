@@ -1,9 +1,9 @@
-import Limiter from '@/modules_next/limiter/limiter.service.next';
+import Limiter from '@nb/limiter/server/limiter.service.next';
 
 import { NextRequest, NextResponse } from "next/server";
-import UserService from "@/modules/user/user.service";
-import { CreateUserRequestSchema } from "@/modules/user/user.dto";
-import { authenticateAdminRequest } from "@/modules_next/auth/auth.admin-guard.next";
+import UserService from "@nb/user/server/user.service";
+import { CreateUserRequestSchema } from "@nb/user/server/user.dto";
+import { authenticateAdminRequest } from "@nb/auth/server/auth.admin-guard.next";
 
 /**
  * GET /tenant/[tenantId]/api/users

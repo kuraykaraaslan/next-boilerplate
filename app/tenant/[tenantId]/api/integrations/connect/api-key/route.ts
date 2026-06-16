@@ -1,9 +1,9 @@
-import Limiter from '@/modules_next/limiter/limiter.service.next';
+import Limiter from '@nb/limiter/server/limiter.service.next';
 import { NextRequest, NextResponse } from 'next/server';
-import IntegrationsHubService from '@/modules/integrations_hub/integrations_hub.service';
-import { ConnectApiKeyRequestSchema } from '@/modules/integrations_hub/integrations_hub.dto';
-import { INTEGRATIONS_HUB_MESSAGES as MSG } from '@/modules/integrations_hub/integrations_hub.messages';
-import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next';
+import IntegrationsHubService from '@nb/integrations_hub/server/integrations_hub.service';
+import { ConnectApiKeyRequestSchema } from '@nb/integrations_hub/server/integrations_hub.dto';
+import { INTEGRATIONS_HUB_MESSAGES as MSG } from '@nb/integrations_hub/server/integrations_hub.messages';
+import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
 
 /** POST /tenant/[tenantId]/api/integrations/connect/api-key — connect an API-key connector (admin). */
 export async function POST(

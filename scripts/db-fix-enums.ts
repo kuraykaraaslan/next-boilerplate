@@ -1,8 +1,8 @@
 import 'reflect-metadata';
 import 'dotenv/config';
 import { Client } from 'pg';
-import { env } from '@/modules/env';
-import { parseDbUrl } from '@/modules/db/db.utils';
+import { env } from '@nb/env';
+import { parseDbUrl } from '@nb/db/server/db.utils';
 
 type EnumDependency = {
   enumName: string;

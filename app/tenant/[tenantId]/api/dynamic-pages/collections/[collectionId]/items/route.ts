@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import Limiter from '@/modules_next/limiter/limiter.service.next'
-import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next'
-import DynamicCollectionService from '@/modules/dynamic_page/dynamic_collection.service'
-import { CreateCollectionItemDTO } from '@/modules/dynamic_page/dynamic_page.dto'
-import { ListCollectionItemsQuerySchema } from '@/modules/dynamic_page/dynamic_page.types'
-import { AppError } from '@/modules/common/app-error'
+import Limiter from '@nb/limiter/server/limiter.service.next'
+import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next'
+import DynamicCollectionService from '@nb/dynamic_page/server/dynamic_collection.service'
+import { CreateCollectionItemDTO } from '@nb/dynamic_page/server/dynamic_page.dto'
+import { ListCollectionItemsQuerySchema } from '@nb/dynamic_page/server/dynamic_page.types'
+import { AppError } from '@nb/common/server/app-error'
 
 export async function GET(
   request: NextRequest,

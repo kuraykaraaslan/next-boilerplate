@@ -1,0 +1,28 @@
+{
+  "name": "@nb/auth_e_signature",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/auth_e_signature.cert.service": "./server/auth_e_signature.cert.service.ts",
+    "./server/auth_e_signature.cert_alerts": "./server/auth_e_signature.cert_alerts.ts",
+    "./server/auth_e_signature.flow.service": "./server/auth_e_signature.flow.service.ts",
+    "./server/auth_e_signature.match": "./server/auth_e_signature.match.ts",
+    "./server/auth_e_signature.schedule": "./server/auth_e_signature.schedule.ts",
+    "./server/auth_e_signature.seed": "./server/auth_e_signature.seed.ts",
+    "./server/auth_e_signature.service": "./server/auth_e_signature.service.ts",
+    "./server/auth_e_signature.types": "./server/auth_e_signature.types.ts",
+    "./server/entities/signing_certificate.entity": "./server/entities/signing_certificate.entity.ts",
+    "./server/index": "./server/index.ts",
+    "./server": "./server/index.ts",
+    "./ui/ESignatureLoginPanel": "./ui/ESignatureLoginPanel.tsx",
+    "./ui/SigningCertificatesBindModal": "./ui/SigningCertificatesBindModal.tsx",
+    "./ui/SigningCertificatesPanel": "./ui/SigningCertificatesPanel.tsx",
+    ".": "./server/index.ts",
+    "./module.json": "./module.json"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "next": "*"
+  }
+}

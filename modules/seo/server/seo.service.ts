@@ -1,14 +1,14 @@
 import 'reflect-metadata';
-import { tenantDataSourceFor } from '@/modules/db';
-import redis, { jitter, singleFlight } from '@/modules/redis';
-import { env } from '@/modules/env';
-import SettingService from '@/modules/setting/setting.service';
+import { tenantDataSourceFor } from '@nb/db';
+import redis, { jitter, singleFlight } from '@nb/redis';
+import { env } from '@nb/env';
+import SettingService from '@nb/setting/server/setting.service';
 import { SeoMeta as SeoMetaEntity } from './entities/seo_meta.entity';
 import { SeoMetaSchema, type SeoMeta } from './seo.types';
 import type { UpsertSeoDTO } from './seo.dto';
 import { SEO_MESSAGES } from './seo.messages';
 import SeoRenderService, { type SitemapUrlEntry } from './seo.render.service';
-import { AppError, ErrorCode } from '@/modules/common/app-error';
+import { AppError, ErrorCode } from '@nb/common/server/app-error';
 
 const SEO_CACHE_TTL = env.TENANT_CACHE_TTL ?? (60 * 5);
 

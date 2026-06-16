@@ -6,40 +6,13 @@
 - **dir:** `modules/coupon/`
 - **tags:** billing, marketing
 - **icon:** `fas fa-ticket`
-- **hasNextLayer:** true
+- **hasNextLayer:** false
 
 Discount coupons + redemption tracking. Provider-aware (Stripe / PayPal / Iyzico) so codes sync with the payment processor.
 
 ## Dependencies
 
 - **requires:** `db`, `env`, `payment`, `common`
-
-## Services
-
-- `coupon.analytics.service.ts`
-- `coupon.bulk.service.ts`
-- `coupon.crud.core.service.ts`
-- `coupon.crud.service.ts`
-- `coupon.redemption.service.ts`
-- `coupon.service.ts`
-- `coupon.validation.service.ts`
-
-## DTOs
-
-- `coupon.dto.ts`
-
-## Entities
-
-- `coupon.entity.ts`
-- `coupon_redemption.entity.ts`
-
-## Enums
-
-- `coupon.enums.ts`
-
-## Message keys
-
-- `coupon.messages.ts`
 
 ## Owned API routes
 
@@ -51,19 +24,8 @@ Discount coupons + redemption tracking. Provider-aware (Stripe / PayPal / Iyzico
 
 ## TypeORM entities
 
-- `Coupon` (system) — `modules/coupon/entities/coupon.entity.ts`
-- `CouponRedemption` (system) — `modules/coupon/entities/coupon_redemption.entity.ts`
-
-## Next layer (modules_next/) surface
-
-- `coupon/ui/coupon-edit.utils` _(ui)_
-- `coupon/ui/coupon-list-columns` _(ui, client)_
-- `coupon/ui/CouponApplyForm` _(ui, client)_
-- `coupon/ui/CouponArchiveModal` _(ui, client)_
-- `coupon/ui/CouponBadge` _(ui)_
-- `coupon/ui/CouponCreateModal` _(ui, client)_
-- `coupon/ui/CouponRedemptionsList` _(ui, client)_
-- `coupon/ui/CouponScopePanel` _(ui, client)_
+- `Coupon` (system) — `modules/coupon/server/entities/coupon.entity.ts`
+- `CouponRedemption` (system) — `modules/coupon/server/entities/coupon_redemption.entity.ts`
 
 ## README
 

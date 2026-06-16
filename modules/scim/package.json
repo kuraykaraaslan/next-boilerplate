@@ -1,0 +1,24 @@
+{
+  "name": "@nb/scim",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/entities/scim_group.entity": "./server/entities/scim_group.entity.ts",
+    "./server/entities/scim_group_member.entity": "./server/entities/scim_group_member.entity.ts",
+    "./server/scim.dto": "./server/scim.dto.ts",
+    "./server/scim.errors": "./server/scim.errors.ts",
+    "./server/scim.group.service": "./server/scim.group.service.ts",
+    "./server/scim.messages": "./server/scim.messages.ts",
+    "./server/scim.policy.service": "./server/scim.policy.service.ts",
+    "./server/scim.service": "./server/scim.service.ts",
+    "./server/scim.types": "./server/scim.types.ts",
+    "./server/scim.user.patch.service": "./server/scim.user.patch.service.ts",
+    "./server/scim.user.profile": "./server/scim.user.profile.ts",
+    "./server/scim.user.read.service": "./server/scim.user.read.service.ts",
+    "./server/scim.user.serialize": "./server/scim.user.serialize.ts",
+    "./server/scim.user.service": "./server/scim.user.service.ts",
+    "./server/scim.user.write.service": "./server/scim.user.write.service.ts",
+    "./module.json": "./module.json"
+  }
+}

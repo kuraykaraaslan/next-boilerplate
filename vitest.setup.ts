@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { ROOT_TENANT_ID } from '@/modules/tenant/tenant.constants';
+import { ROOT_TENANT_ID } from '@nb/tenant/server/tenant.constants';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Tenant-aware test fixtures

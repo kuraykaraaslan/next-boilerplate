@@ -1,7 +1,7 @@
 import type { Server, Socket } from 'socket.io';
-import MessagingTicketService from '../messaging.ticket.service';
-import { userRoom } from '../messaging.realtime';
-import MessagingMessages from '../messaging.messages';
+import MessagingTicketService from './messaging.ticket.service';
+import { userRoom } from './messaging.realtime';
+import MessagingMessages from './messaging.messages';
 
 /**
  * Socket carries its resolved identity in `socket.data` after a successful

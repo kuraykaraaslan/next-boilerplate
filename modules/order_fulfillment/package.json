@@ -1,0 +1,31 @@
+{
+  "name": "@nb/order_fulfillment",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/entities/fulfillment.entity": "./server/entities/fulfillment.entity.ts",
+    "./server/entities/fulfillment_event.entity": "./server/entities/fulfillment_event.entity.ts",
+    "./server/entities/fulfillment_item.entity": "./server/entities/fulfillment_item.entity.ts",
+    "./server/entities/warehouse.entity": "./server/entities/warehouse.entity.ts",
+    "./server/index": "./server/index.ts",
+    "./server": "./server/index.ts",
+    "./server/order_fulfillment.analytics.service": "./server/order_fulfillment.analytics.service.ts",
+    "./server/order_fulfillment.carrier.service": "./server/order_fulfillment.carrier.service.ts",
+    "./server/order_fulfillment.constants": "./server/order_fulfillment.constants.ts",
+    "./server/order_fulfillment.crud.service": "./server/order_fulfillment.crud.service.ts",
+    "./server/order_fulfillment.dto": "./server/order_fulfillment.dto.ts",
+    "./server/order_fulfillment.enums": "./server/order_fulfillment.enums.ts",
+    "./server/order_fulfillment.events": "./server/order_fulfillment.events.ts",
+    "./server/order_fulfillment.label.service": "./server/order_fulfillment.label.service.ts",
+    "./server/order_fulfillment.messages": "./server/order_fulfillment.messages.ts",
+    "./server/order_fulfillment.read.service": "./server/order_fulfillment.read.service.ts",
+    "./server/order_fulfillment.seed": "./server/order_fulfillment.seed.ts",
+    "./server/order_fulfillment.service": "./server/order_fulfillment.service.ts",
+    "./server/order_fulfillment.status.service": "./server/order_fulfillment.status.service.ts",
+    "./server/order_fulfillment.types": "./server/order_fulfillment.types.ts",
+    "./server/order_fulfillment.warehouse.service": "./server/order_fulfillment.warehouse.service.ts",
+    ".": "./server/index.ts",
+    "./module.json": "./module.json"
+  }
+}

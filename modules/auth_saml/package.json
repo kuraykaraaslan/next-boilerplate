@@ -1,0 +1,36 @@
+{
+  "name": "@nb/auth_saml",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/auth_saml.config.crud.service": "./server/auth_saml.config.crud.service.ts",
+    "./server/auth_saml.config.helpers": "./server/auth_saml.config.helpers.ts",
+    "./server/auth_saml.config.service": "./server/auth_saml.config.service.ts",
+    "./server/auth_saml.crypto.service": "./server/auth_saml.crypto.service.ts",
+    "./server/auth_saml.dto": "./server/auth_saml.dto.ts",
+    "./server/auth_saml.enums": "./server/auth_saml.enums.ts",
+    "./server/auth_saml.flow.callback.service": "./server/auth_saml.flow.callback.service.ts",
+    "./server/auth_saml.flow.metadata.service": "./server/auth_saml.flow.metadata.service.ts",
+    "./server/auth_saml.flow.provision.service": "./server/auth_saml.flow.provision.service.ts",
+    "./server/auth_saml.flow.roles": "./server/auth_saml.flow.roles.ts",
+    "./server/auth_saml.flow.service": "./server/auth_saml.flow.service.ts",
+    "./server/auth_saml.messages": "./server/auth_saml.messages.ts",
+    "./server/auth_saml.metadata.service": "./server/auth_saml.metadata.service.ts",
+    "./server/auth_saml.seed": "./server/auth_saml.seed.ts",
+    "./server/auth_saml.service": "./server/auth_saml.service.ts",
+    "./server/auth_saml.setting.keys": "./server/auth_saml.setting.keys.ts",
+    "./server/auth_saml.settings.fields": "./server/auth_saml.settings.fields.ts",
+    "./server/auth_saml.types": "./server/auth_saml.types.ts",
+    "./server/entities/saml_config.entity": "./server/entities/saml_config.entity.ts",
+    "./server/saml.engine": "./server/saml.engine.ts",
+    "./ui/SamlAttributeForm": "./ui/SamlAttributeForm.tsx",
+    "./ui/SamlConfigForm": "./ui/SamlConfigForm.tsx",
+    "./ui/SamlMetadataCard": "./ui/SamlMetadataCard.tsx",
+    "./module.json": "./module.json"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "next": "*"
+  }
+}

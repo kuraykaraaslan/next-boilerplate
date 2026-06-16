@@ -1,9 +1,9 @@
 'use client';
 import { use, useState, useEffect, useCallback } from 'react';
-import { Select } from '@/modules_next/common/ui/Select';
-import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
-import { PageHeader } from '@/modules_next/common/ui/PageHeader';
-import api from '@/modules_next/common/axios';
+import { Select } from '@nb/common/ui/Select';
+import { AlertBanner } from '@nb/common/ui/AlertBanner';
+import { PageHeader } from '@nb/common/ui/PageHeader';
+import api from '@nb/common/server/axios';
 
 type Summary = {
   totalEvents: number;

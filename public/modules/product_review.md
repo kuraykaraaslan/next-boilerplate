@@ -14,34 +14,10 @@ Tenant-aware product ratings and reviews with verified-purchase flags, helpful v
 
 - **requires:** `db`, `env`, `redis`, `logger`
 
-## Services
-
-- `product_review.crud.service.ts`
-- `product_review.engagement.service.ts`
-- `product_review.gdpr.service.ts`
-- `product_review.service.ts`
-
-## DTOs
-
-- `product_review.dto.ts`
-
-## Entities
-
-- `product_review.entity.ts`
-- `product_review_vote.entity.ts`
-
-## Enums
-
-- `product_review.enums.ts`
-
-## Message keys
-
-- `product_review.messages.ts`
-
 ## TypeORM entities
 
-- `ProductReview` (system) — `modules/product_review/entities/product_review.entity.ts`
-- `ProductReviewVote` (system) — `modules/product_review/entities/product_review_vote.entity.ts`
+- `ProductReview` (system) — `modules/product_review/server/entities/product_review.entity.ts`
+- `ProductReviewVote` (system) — `modules/product_review/server/entities/product_review_vote.entity.ts`
 
 ## README
 

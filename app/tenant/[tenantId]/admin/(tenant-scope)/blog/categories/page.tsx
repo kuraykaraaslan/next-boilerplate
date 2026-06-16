@@ -1,14 +1,14 @@
 'use client';
 import { use, useCallback, useEffect, useState } from 'react';
-import api from '@/modules_next/common/axios';
-import { ServerDataTable, type TableColumn } from '@/modules_next/common/ui/ServerDataTable';
-import { PageHeader } from '@/modules_next/common/ui/PageHeader';
-import { Button } from '@/modules_next/common/ui/Button';
-import { Input } from '@/modules_next/common/ui/Input';
-import { Modal } from '@/modules_next/common/ui/Modal';
-import { AlertBanner } from '@/modules_next/common/ui/AlertBanner';
-import { RowActionsMenu } from '@/modules_next/common/ui/RowActionsMenu';
-import { toast } from '@/modules_next/common/ui/toast.store';
+import api from '@nb/common/server/axios';
+import { ServerDataTable, type TableColumn } from '@nb/common/ui/ServerDataTable';
+import { PageHeader } from '@nb/common/ui/PageHeader';
+import { Button } from '@nb/common/ui/Button';
+import { Input } from '@nb/common/ui/Input';
+import { Modal } from '@nb/common/ui/Modal';
+import { AlertBanner } from '@nb/common/ui/AlertBanner';
+import { RowActionsMenu } from '@nb/common/ui/RowActionsMenu';
+import { toast } from '@nb/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faSearch, faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
 

@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Limiter from '@/modules_next/limiter/limiter.service.next';
-import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next';
-import InvoicePdfService from '@/modules/invoice/invoice.pdf.service';
-import InvoiceService from '@/modules/invoice/invoice.service';
-import InvoiceMessages from '@/modules/invoice/invoice.messages';
+import Limiter from '@nb/limiter/server/limiter.service.next';
+import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
+import InvoicePdfService from '@nb/invoice/server/invoice.pdf.service';
+import InvoiceService from '@nb/invoice/server/invoice.service';
+import InvoiceMessages from '@nb/invoice/server/invoice.messages';
 
 type Params = { params: Promise<{ tenantId: string; invoiceId: string }> };
 

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { env } from '@/modules/env';
-import TenantSubscriptionService from '@/modules/tenant_subscription/tenant_subscription.service';
-import Logger from '@/modules/logger';
+import { env } from '@nb/env';
+import TenantSubscriptionService from '@nb/tenant_subscription/server/tenant_subscription.service';
+import Logger from '@nb/logger';
 
 // POST /tenant/[tenantId]/api/cron/expire-subscriptions
 // Protected by Bearer token matching CRON_SECRET env var.

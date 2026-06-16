@@ -14,42 +14,12 @@ Tenant-aware fulfillment and shipment tracking for orders. Manages packing, carr
 
 - **requires:** `db`, `env`, `redis`, `logger`
 
-## Services
-
-- `order_fulfillment.analytics.service.ts`
-- `order_fulfillment.carrier.service.ts`
-- `order_fulfillment.crud.service.ts`
-- `order_fulfillment.label.service.ts`
-- `order_fulfillment.read.service.ts`
-- `order_fulfillment.service.ts`
-- `order_fulfillment.status.service.ts`
-- `order_fulfillment.warehouse.service.ts`
-
-## DTOs
-
-- `order_fulfillment.dto.ts`
-
-## Entities
-
-- `fulfillment.entity.ts`
-- `fulfillment_event.entity.ts`
-- `fulfillment_item.entity.ts`
-- `warehouse.entity.ts`
-
-## Enums
-
-- `order_fulfillment.enums.ts`
-
-## Message keys
-
-- `order_fulfillment.messages.ts`
-
 ## TypeORM entities
 
-- `Fulfillment` (system) — `modules/order_fulfillment/entities/fulfillment.entity.ts`
-- `FulfillmentEvent` (system) — `modules/order_fulfillment/entities/fulfillment_event.entity.ts`
-- `FulfillmentItem` (system) — `modules/order_fulfillment/entities/fulfillment_item.entity.ts`
-- `Warehouse` (system) — `modules/order_fulfillment/entities/warehouse.entity.ts`
+- `Fulfillment` (system) — `modules/order_fulfillment/server/entities/fulfillment.entity.ts`
+- `FulfillmentEvent` (system) — `modules/order_fulfillment/server/entities/fulfillment_event.entity.ts`
+- `FulfillmentItem` (system) — `modules/order_fulfillment/server/entities/fulfillment_item.entity.ts`
+- `Warehouse` (system) — `modules/order_fulfillment/server/entities/warehouse.entity.ts`
 
 ## README
 

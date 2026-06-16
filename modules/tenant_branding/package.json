@@ -1,0 +1,12 @@
+{
+  "name": "@nb/tenant_branding",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/tenant_branding.service": "./server/tenant_branding.service.ts",
+    "./server/tenant_branding.setting.keys": "./server/tenant_branding.setting.keys.ts",
+    "./server/tenant_branding.types": "./server/tenant_branding.types.ts",
+    "./module.json": "./module.json"
+  }
+}

@@ -1,5 +1,5 @@
-import Logger from '@/modules/logger';
-import { env } from '@/modules/env';
+import Logger from '@nb/logger';
+import { env } from '@nb/env';
 import { NextRequest, NextResponse } from 'next/server';
 
 const CSRF_COOKIE_NAME = 'csrf-token';

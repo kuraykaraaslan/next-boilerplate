@@ -1,7 +1,7 @@
 'use client';
 import { use } from 'react';
-import { SettingsPanelHost } from '@/modules_next/setting/ui/SettingsPanelHost';
-import { PlatformStorageTab } from '@/modules_next/setting/ui/PlatformSettingsTabs';
+import { SettingsPanelHost } from '@nb/setting/ui/SettingsPanelHost';
+import { PlatformStorageTab } from '@nb/setting/ui/PlatformSettingsTabs';
 
 export default function StorageSettingsPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = use(params);

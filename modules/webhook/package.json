@@ -1,0 +1,38 @@
+{
+  "name": "@nb/webhook",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/entities/webhook.entity": "./server/entities/webhook.entity.ts",
+    "./server/entities/webhook_delivery.entity": "./server/entities/webhook_delivery.entity.ts",
+    "./server/webhook.catalog": "./server/webhook.catalog.ts",
+    "./server/webhook.config": "./server/webhook.config.ts",
+    "./server/webhook.crud.service": "./server/webhook.crud.service.ts",
+    "./server/webhook.crypto": "./server/webhook.crypto.ts",
+    "./server/webhook.delivery.service": "./server/webhook.delivery.service.ts",
+    "./server/webhook.dispatch.service": "./server/webhook.dispatch.service.ts",
+    "./server/webhook.dto": "./server/webhook.dto.ts",
+    "./server/webhook.enums": "./server/webhook.enums.ts",
+    "./server/webhook.filters": "./server/webhook.filters.ts",
+    "./server/webhook.messages": "./server/webhook.messages.ts",
+    "./server/webhook.metrics.service": "./server/webhook.metrics.service.ts",
+    "./server/webhook.queue": "./server/webhook.queue.ts",
+    "./server/webhook.redeliver.service": "./server/webhook.redeliver.service.ts",
+    "./server/webhook.seed": "./server/webhook.seed.ts",
+    "./server/webhook.service": "./server/webhook.service.ts",
+    "./server/webhook.settings.fields": "./server/webhook.settings.fields.ts",
+    "./server/webhook.ssrf": "./server/webhook.ssrf.ts",
+    "./server/webhook.types": "./server/webhook.types.ts",
+    "./ui/WebhookDeliveryModal": "./ui/WebhookDeliveryModal.tsx",
+    "./ui/WebhookFormModal": "./ui/WebhookFormModal.tsx",
+    "./ui/WebhookTriggerModal": "./ui/WebhookTriggerModal.tsx",
+    "./ui/webhook-columns": "./ui/webhook-columns.tsx",
+    "./ui/webhook.types": "./ui/webhook.types.ts",
+    "./module.json": "./module.json"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "next": "*"
+  }
+}

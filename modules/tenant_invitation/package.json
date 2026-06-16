@@ -1,0 +1,27 @@
+{
+  "name": "@nb/tenant_invitation",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/entities/tenant_invitation.entity": "./server/entities/tenant_invitation.entity.ts",
+    "./server/tenant_invitation.dto": "./server/tenant_invitation.dto.ts",
+    "./server/tenant_invitation.enums": "./server/tenant_invitation.enums.ts",
+    "./server/tenant_invitation.helpers": "./server/tenant_invitation.helpers.ts",
+    "./server/tenant_invitation.lifecycle.service": "./server/tenant_invitation.lifecycle.service.ts",
+    "./server/tenant_invitation.messages": "./server/tenant_invitation.messages.ts",
+    "./server/tenant_invitation.read.service": "./server/tenant_invitation.read.service.ts",
+    "./server/tenant_invitation.seed": "./server/tenant_invitation.seed.ts",
+    "./server/tenant_invitation.service": "./server/tenant_invitation.service.ts",
+    "./server/tenant_invitation.settings.fields": "./server/tenant_invitation.settings.fields.ts",
+    "./server/tenant_invitation.types": "./server/tenant_invitation.types.ts",
+    "./server/tests/tenant_invitation.test-setup": "./server/tests/tenant_invitation.test-setup.ts",
+    "./ui/InvitationCreateModal": "./ui/InvitationCreateModal.tsx",
+    "./ui/invitation-columns": "./ui/invitation-columns.tsx",
+    "./module.json": "./module.json"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "next": "*"
+  }
+}

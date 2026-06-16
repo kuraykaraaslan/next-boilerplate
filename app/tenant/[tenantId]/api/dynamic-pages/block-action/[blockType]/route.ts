@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import Limiter from '@/modules_next/limiter/limiter.service.next'
-import DynamicPageService from '@/modules/dynamic_page/dynamic_page.service'
-import { runBlockHandler } from '@/modules_next/dynamic_page/dynamic/partials/BlockActionSandbox'
-import { AppError } from '@/modules/common/app-error'
-import DynamicPageMessages from '@/modules/dynamic_page/dynamic_page.messages'
+import Limiter from '@nb/limiter/server/limiter.service.next'
+import DynamicPageService from '@nb/dynamic_page/server/dynamic_page.service'
+import { runBlockHandler } from '@nb/dynamic_page/server/dynamic/partials/BlockActionSandbox'
+import { AppError } from '@nb/common/server/app-error'
+import DynamicPageMessages from '@nb/dynamic_page/server/dynamic_page.messages'
 
 async function handleBlockAction(
   request: NextRequest,

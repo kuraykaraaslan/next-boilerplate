@@ -1,16 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import AuthAcsService from '@/modules/auth_acs/auth_acs.service';
-import AcsMessages from '@/modules/auth_acs/auth_acs.messages';
-import { parseAcsRelay } from '@/modules/auth_acs/auth_acs.relay';
-import SSOService from '@/modules/auth_sso/auth_sso.service';
-import UserSessionNextService from '@/modules_next/user_session/user_session.service.next';
-import UserSecurityService from '@/modules/user_security/user_security.service';
-import TenantMemberService from '@/modules/tenant_member/tenant_member.service';
-import TenantService from '@/modules/tenant/tenant.service';
-import AuditLogService from '@/modules/audit_log/audit_log.service';
-import Limiter from '@/modules_next/limiter/limiter.service.next';
-import { env } from '@/modules/env';
-import { ROOT_TENANT_ID } from '@/modules/tenant/tenant.constants';
+import AuthAcsService from '@nb/auth_acs/server/auth_acs.service';
+import AcsMessages from '@nb/auth_acs/server/auth_acs.messages';
+import { parseAcsRelay } from '@nb/auth_acs/server/auth_acs.relay';
+import SSOService from '@nb/auth_sso/server/auth_sso.service';
+import UserSessionNextService from '@nb/user_session/server/user_session.service.next';
+import UserSecurityService from '@nb/user_security/server/user_security.service';
+import TenantMemberService from '@nb/tenant_member/server/tenant_member.service';
+import TenantService from '@nb/tenant/server/tenant.service';
+import AuditLogService from '@nb/audit_log/server/audit_log.service';
+import Limiter from '@nb/limiter/server/limiter.service.next';
+import { env } from '@nb/env';
+import { ROOT_TENANT_ID } from '@nb/tenant/server/tenant.constants';
 
 type Params = { params: Promise<{ provider: string }> };
 
