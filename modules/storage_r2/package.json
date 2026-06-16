@@ -1,0 +1,15 @@
+{
+  "name": "@nb/storage_r2",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/providers/cloudflare-r2.provider": "./server/providers/cloudflare-r2.provider.ts",
+    "./server/storage.extension": "./server/storage.extension.ts",
+    "./module.json": "./module.json"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "next": "*"
+  }
+}

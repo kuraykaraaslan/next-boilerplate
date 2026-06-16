@@ -25,5 +25,12 @@
   ],
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/notification_sms",
-  "license": "CC-BY-NC-ND-4.0"
+  "license": "CC-BY-NC-ND-4.0",
+  "extensionPoints": [
+    {
+      "id": "sms:provider",
+      "kind": "provider",
+      "description": "An SMS sending backend. Satellite modules like sms_twilio contribute their implementation here."
+    }
+  ]
 }

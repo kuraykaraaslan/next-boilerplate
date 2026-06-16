@@ -27,7 +27,7 @@ import { collectEntities } from './registry/entities.mjs';
 import { collectComponents } from './registry/components.mjs';
 import { markdownForModule } from './registry/markdown.mjs';
 import { buildModuleRuntime } from './registry/module-runtime.mjs';
-import { renderComponentMap, renderApiHandlerMap } from './registry/codegen.mjs';
+import { renderComponentMap, renderApiHandlerMap, renderExtensionMap } from './registry/codegen.mjs';
 
 async function main() {
   const t0 = Date.now();
@@ -94,7 +94,7 @@ async function main() {
   // Plugin runtime artifacts (committed source, not public/): the runtime JSON
   // (menu/slots/widgets data, server-readable) and the lazy component map
   // (React, client-only). Split across server/ and ui/ to respect the boundary.
-  const { runtimeJson, componentImports, apiHandlerImports } = buildModuleRuntime(modules, components);
+  const { runtimeJson, componentImports, apiHandlerImports, extensionImports } = buildModuleRuntime(modules, components);
   const SERVER_GEN = path.join(REPO_ROOT, 'modules/common/server/generated');
   const UI_GEN     = path.join(REPO_ROOT, 'modules/common/ui/generated');
   await mkdir(SERVER_GEN, { recursive: true });
@@ -106,6 +106,7 @@ async function main() {
   );
   await writeFile(path.join(UI_GEN, 'module-components.ts'), renderComponentMap(componentImports), 'utf8');
   await writeFile(path.join(SERVER_GEN, 'api-handlers.ts'), renderApiHandlerMap(apiHandlerImports), 'utf8');
+  await writeFile(path.join(SERVER_GEN, 'module-extensions.ts'), renderExtensionMap(extensionImports), 'utf8');
 
   // Per-module markdown chunks.
   const indexMap = {};

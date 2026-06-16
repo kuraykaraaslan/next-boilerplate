@@ -7,7 +7,6 @@ export type { MailProviderType } from './notification_mail.provider.service';
 export default class MailService {
 
   // Provider
-  static readonly PROVIDER_MAP    = NotificationMailProviderService.PROVIDER_MAP;
   static readonly DEFAULT_PROVIDER = NotificationMailProviderService.DEFAULT_PROVIDER;
   static readonly TEMPLATE_PATH   = NotificationMailProviderService.TEMPLATE_PATH;
 

@@ -1,0 +1,22 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "mail_mailgun",
+  "name": "Mail — Mailgun",
+  "description": "Mailgun email backend for the notification_mail module.",
+  "version": "1.0.0",
+  "icon": "fas fa-envelope",
+  "tags": ["notifications", "mail", "provider"],
+  "priority": 33,
+  "enabled": true,
+  "author": "Kuray Karaaslan",
+  "license": "CC-BY-NC-ND-4.0",
+  "dependencies": { "requires": ["notification_mail", "env", "setting"] },
+  "extensions": [
+    {
+      "point": "mail:provider",
+      "key": "mailgun",
+      "export": "mail_mailgun/server/mail.extension",
+      "metadata": { "label": "Mailgun" }
+    }
+  ]
+}

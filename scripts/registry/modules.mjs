@@ -31,7 +31,7 @@ const TIER_BY_ID = {
   setting: 'platform', storage: 'platform', webhook: 'platform',
   audit_log: 'platform', api_key: 'platform',
 
-  ai: 'ai',
+  ai: 'ai', ai_openai: 'ai', ai_anthropic: 'ai', ai_google: 'ai',
 };
 
 const FILE_BUCKETS = [
@@ -77,6 +77,7 @@ export async function collectModules() {
   for (const id of ids) {
     const dir = path.join(MODULES_DIR, id);
     const moduleJson = await readJson(path.join(dir, 'module.json'));
+    const packageJson = await readJson(path.join(dir, 'package.json'));
     const readme = await readText(path.join(dir, 'README.md'));
     const exports = await collectModuleExports(dir);
     // "next layer" now = presence of a ui/ or hooks/ folder in the package.
@@ -106,6 +107,11 @@ export async function collectModules() {
       apiRoutes: moduleJson?.apiRoutes ?? [],
       widgets: moduleJson?.widgets ?? [],
       slots: moduleJson?.slots ?? [],
+      extensionPoints: moduleJson?.extensionPoints ?? [],
+      extensions: moduleJson?.extensions ?? [],
+      // package.json `exports` keys (e.g. './server/x.route') — used to validate
+      // that an extension's `export` is actually published by its module.
+      pkgExports: packageJson?.exports ? Object.keys(packageJson.exports) : [],
       settingsTabs: moduleJson?.settings?.tabs ?? [],
       modulePermissions: moduleJson?.permissions ?? [],
       hasReadme: !!readme,

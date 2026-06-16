@@ -1,0 +1,15 @@
+{
+  "name": "@nb/mail_smtp",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/mail.extension": "./server/mail.extension.ts",
+    "./server/providers/smtp.provider": "./server/providers/smtp.provider.ts",
+    "./module.json": "./module.json"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "next": "*"
+  }
+}

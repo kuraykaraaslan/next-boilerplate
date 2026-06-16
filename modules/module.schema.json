@@ -137,6 +137,16 @@
       "items": { "$ref": "#/definitions/slotContribution" },
       "description": "Components this module contributes into named slots exposed by other modules"
     },
+    "extensionPoints": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/extensionPoint" },
+      "description": "Named extension points this module (the host) exposes for satellite modules to contribute into (e.g. 'ai:provider')"
+    },
+    "extensions": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/extensionContribution" },
+      "description": "Contributions this module makes into extension points exposed by other (host) modules"
+    },
     "apiRoutes": {
       "type": "array",
       "description": "Tenant API endpoints owned by this module, served by the catch-all dispatcher",
@@ -280,6 +290,54 @@
         "size": { "type": "string", "enum": ["small", "medium", "large", "full"] },
         "order": { "type": "integer" },
         "permissions": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "extensionPoint": {
+      "type": "object",
+      "required": ["id", "kind"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*:[a-z][a-z0-9_]*$",
+          "description": "Globally-unique, host-namespaced point id, e.g. 'ai:provider', 'payment:gateway'"
+        },
+        "kind": {
+          "type": "string",
+          "enum": ["provider", "hook"],
+          "description": "provider = a keyed backend implementation; hook = a fn invoked at this named point"
+        },
+        "description": { "type": "string" }
+      }
+    },
+    "extensionContribution": {
+      "type": "object",
+      "required": ["point", "export"],
+      "properties": {
+        "point": {
+          "type": "string",
+          "description": "Target extension point id exposed by a host, e.g. 'ai:provider'"
+        },
+        "key": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Stable key for provider contributions (e.g. 'openai'). Required for provider points, ignored for hooks."
+        },
+        "export": {
+          "type": "string",
+          "description": "Server export id resolved to '@nb/<export>', e.g. 'ai_openai/server/openai.extension'. Must be listed in the module's package.json exports."
+        },
+        "order": { "type": "integer", "default": 100 },
+        "scope": {
+          "type": "string",
+          "enum": ["system", "tenant", "both"],
+          "default": "both"
+        },
+        "permissions": { "type": "array", "items": { "type": "string" } },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "Static metadata merged into the runtime contribution record (label, models, etc.) — readable without importing the contribution's code."
+        }
       }
     },
     "slotContribution": {

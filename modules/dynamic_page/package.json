@@ -132,6 +132,7 @@
     "./ui/pages.page": "./ui/pages.page.tsx",
     "./ui/public-dynamic-page.component": "./ui/public-dynamic-page.component.tsx",
     "./ui/site-chrome.component": "./ui/site-chrome.component.tsx",
+    "./ui/tenant-welcome.component": "./ui/tenant-welcome.component.tsx",
     ".": "./server/index.ts",
     "./module.json": "./module.json"
   },

@@ -47,7 +47,7 @@ vi.mock('@nb/db', () => ({
 }));
 
 import ESignatureService from '../e_signature.service';
-import MobilImzaAggregatorProvider from '../providers/mobil_imza_aggregator.provider';
+import MobilImzaAggregatorProvider from '@nb/esign_mobil_imza/server/providers/mobil_imza_aggregator.provider';
 
 beforeEach(() => {
   redisStore.clear();
@@ -55,29 +55,29 @@ beforeEach(() => {
 });
 
 describe('ESignatureService.resolveProvider', () => {
-  it('picks the country-mapped provider', () => {
-    const p = ESignatureService.resolveProvider({ country: 'TR' });
+  it('picks the country-mapped provider', async () => {
+    const p = await ESignatureService.resolveProvider({ country: 'TR' });
     expect(p.name).toBe('mobil_imza_aggregator');
   });
 
-  it('honours an explicit providerOverride', () => {
-    const p = ESignatureService.resolveProvider({ country: 'TR', providerOverride: 'mobil_imza_aggregator' });
+  it('honours an explicit providerOverride', async () => {
+    const p = await ESignatureService.resolveProvider({ country: 'TR', providerOverride: 'mobil_imza_aggregator' });
     expect(p.name).toBe('mobil_imza_aggregator');
   });
 
-  it('falls back to the default provider when country has no mapping', () => {
-    expect(() => ESignatureService.resolveProvider({ country: 'GB' })).toThrowError(/No e-signature provider/i);
+  it('falls back to the default provider when country has no mapping', async () => {
+    await expect(ESignatureService.resolveProvider({ country: 'GB' })).rejects.toThrowError(/No e-signature provider/i);
   });
 
-  it('throws for an unknown provider name', () => {
-    expect(() => ESignatureService.resolveProvider({ providerOverride: 'does-not-exist' }))
-      .toThrowError(/No e-signature provider/i);
+  it('throws for an unknown provider name', async () => {
+    await expect(ESignatureService.resolveProvider({ providerOverride: 'does-not-exist' }))
+      .rejects.toThrowError(/No e-signature provider/i);
   });
 });
 
 describe('ESignatureService.listCountryHints', () => {
-  it('groups providers by country with full hint metadata', () => {
-    const hints = ESignatureService.listCountryHints();
+  it('groups providers by country with full hint metadata', async () => {
+    const hints = await ESignatureService.listCountryHints();
     expect(hints).toHaveLength(1);
     expect(hints[0].country).toBe('TR');
     expect(hints[0].providers).toHaveLength(1);

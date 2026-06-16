@@ -1,0 +1,22 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "esign_mobil_imza",
+  "name": "e-Signature — Mobil İmza",
+  "description": "Mobil İmza national e-signature / eID provider for the e_signature module.",
+  "version": "1.0.0",
+  "icon": "fas fa-signature",
+  "tags": ["e_signature", "eid", "provider"],
+  "priority": 71,
+  "enabled": true,
+  "author": "Kuray Karaaslan",
+  "license": "CC-BY-NC-ND-4.0",
+  "dependencies": { "requires": ["e_signature", "env", "setting"] },
+  "extensions": [
+    {
+      "point": "esign:provider",
+      "key": "mobil_imza_aggregator",
+      "export": "esign_mobil_imza/server/esign.extension",
+      "metadata": { "label": "Mobil İmza", "countries": ["TR"] }
+    }
+  ]
+}

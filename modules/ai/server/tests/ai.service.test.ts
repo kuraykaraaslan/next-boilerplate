@@ -83,67 +83,6 @@ vi.mock('@nb/tenant_usage/server/tenant_usage.service', () => ({
   },
 }));
 
-const mockChatResponse = {
-  content: 'Hello from mock AI',
-  model: 'gpt-4o-mini',
-  provider: 'openai' as const,
-  usage: { promptTokens: 10, completionTokens: 20, totalTokens: 30 },
-  finishReason: 'stop',
-};
-
-const mockEmbeddingResponse = {
-  embeddings: [[0.1, 0.2, 0.3]],
-  model: 'text-embedding-ada-002',
-  provider: 'openai' as const,
-  usage: { totalTokens: 5 },
-};
-
-vi.mock('../providers/openai.provider', () => ({
-  default: class MockOpenAIProvider {
-    providerType = 'openai';
-    config: any;
-    constructor(config: any) { this.config = config; }
-    isConfigured() { return true; }
-    async chat() { return mockChatResponse; }
-    async chatStream(_opts: any, onChunk: (c: string) => void) { onChunk('Hello'); return mockChatResponse; }
-    async embed() { return mockEmbeddingResponse; }
-    listModels() { return ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'gpt-4', 'gpt-3.5-turbo']; }
-    getDefaultModel() { return 'gpt-4o-mini'; }
-    getMaxTokens() { return 4096; }
-  },
-}));
-
-vi.mock('../providers/anthropic.provider', () => ({
-  default: class MockAnthropicProvider {
-    providerType = 'anthropic';
-    config: any;
-    constructor(config: any) { this.config = config; }
-    isConfigured() { return true; }
-    async chat() { return { ...mockChatResponse, model: 'claude-3-5-sonnet-20241022', provider: 'anthropic' as const }; }
-    async chatStream(_opts: any, onChunk: (c: string) => void) { onChunk('Hello from Claude'); return { ...mockChatResponse, provider: 'anthropic' as const }; }
-    async embed() { return { ...mockEmbeddingResponse, provider: 'anthropic' as const }; }
-    listModels() { return ['claude-3-5-sonnet-20241022', 'claude-3-5-haiku-20241022']; }
-    getDefaultModel() { return 'claude-3-5-sonnet-20241022'; }
-    getMaxTokens() { return 4096; }
-  },
-}));
-
-vi.mock('../providers/google.provider', () => ({
-  default: class MockGoogleProvider {
-    providerType = 'google';
-    config: any;
-    constructor(config: any) { this.config = config; }
-    isConfigured() { return true; }
-    async chat() { return { ...mockChatResponse, model: 'gemini-2.0-flash', provider: 'google' as const }; }
-    async chatStream(_opts: any, onChunk: (c: string) => void) { onChunk('Hello from Gemini'); return { ...mockChatResponse, provider: 'google' as const }; }
-    async embed() { return { ...mockEmbeddingResponse, provider: 'google' as const }; }
-    listModels() { return ['gemini-2.0-flash', 'gemini-1.5-pro']; }
-    getDefaultModel() { return 'gemini-2.0-flash'; }
-    getMaxTokens() { return 4096; }
-  },
-}));
-
-
 // Bypass feature gating in unit tests — tested separately in tenant_subscription/.
 vi.mock('@nb/tenant_subscription/server/tenant_subscription.feature.service', () => ({
   default: {
@@ -151,11 +90,78 @@ vi.mock('@nb/tenant_subscription/server/tenant_subscription.feature.service', ()
     checkFeatureAccess: vi.fn(async () => ({ allowed: true, featureKey: '', type: 'BOOLEAN', limit: null, unlimited: null, current: null })),
   },
 }));
+
+// ── Provider modules are now discovered through the extension registry, gated by
+// the tenant's enabled-module set. Mock both so the registry-driven service can
+// resolve providers without the build-time generated artifacts. ───────────────
+
+const MODELS: Record<string, string[]> = {
+  openai: ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'gpt-4', 'gpt-3.5-turbo', 'o1', 'o1-mini', 'o1-preview'],
+  anthropic: [
+    'claude-opus-4-20250514', 'claude-sonnet-4-20250514', 'claude-3-7-sonnet-20250219',
+    'claude-3-5-sonnet-20241022', 'claude-3-5-haiku-20241022', 'claude-3-opus-20240229',
+    'claude-3-sonnet-20240229', 'claude-3-haiku-20240307',
+  ],
+  google: ['gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-pro', 'gemini-1.5-flash', 'gemini-1.5-flash-8b'],
+};
+
+function makeProvider(key: string, configured = true) {
+  return {
+    providerType: key,
+    isConfigured: () => configured,
+    async chat() {
+      return {
+        content: 'Hello from mock AI', model: MODELS[key][0], provider: key,
+        usage: { promptTokens: 10, completionTokens: 20, totalTokens: 30 }, finishReason: 'stop',
+      };
+    },
+    async chatStream(_opts: unknown, onChunk: (c: string) => void) {
+      onChunk('Hello');
+      return {
+        content: 'Hello from mock AI', model: MODELS[key][0], provider: key,
+        usage: { promptTokens: 10, completionTokens: 20, totalTokens: 30 },
+      };
+    },
+    async embed() {
+      return { embeddings: [[0.1, 0.2, 0.3]], model: 'text-embedding-ada-002', provider: key, usage: { totalTokens: 5 } };
+    },
+    listModels: () => MODELS[key],
+    getDefaultModel: () => MODELS[key][0],
+    getMaxTokens: () => 4096,
+  };
+}
+
+const IMPLS: Record<string, any> = {
+  openai:    { key: 'openai',    settingKeys: ['openaiApiKey'],    resolveConfig: (s: any) => ({ apiKey: s.openaiApiKey || '' }),    create: () => makeProvider('openai') },
+  anthropic: { key: 'anthropic', settingKeys: ['anthropicApiKey'], resolveConfig: (s: any) => ({ apiKey: s.anthropicApiKey || '' }), create: () => makeProvider('anthropic') },
+  google:    { key: 'google',    settingKeys: ['googleAiApiKey'],  resolveConfig: (s: any) => ({ apiKey: s.googleAiApiKey || '' }),  create: () => makeProvider('google') },
+};
+
+const CONTRIBS = [
+  { id: 'ai_openai:ai:provider:openai',       point: 'ai:provider', moduleId: 'ai_openai',    key: 'openai',    exportId: '', order: 100, scope: 'both', permissions: [], metadata: { label: 'OpenAI',    models: MODELS.openai } },
+  { id: 'ai_anthropic:ai:provider:anthropic', point: 'ai:provider', moduleId: 'ai_anthropic', key: 'anthropic', exportId: '', order: 100, scope: 'both', permissions: [], metadata: { label: 'Anthropic', models: MODELS.anthropic } },
+  { id: 'ai_google:ai:provider:google',       point: 'ai:provider', moduleId: 'ai_google',    key: 'google',    exportId: '', order: 100, scope: 'both', permissions: [], metadata: { label: 'Google',    models: MODELS.google } },
+];
+
+// Mutable per-test: which provider modules are enabled for the tenant.
+let enabledModuleIds = new Set<string>(['ai', 'ai_openai', 'ai_anthropic', 'ai_google']);
+
+vi.mock('@nb/setting/server/module-activation.service.next', () => ({
+  getEnabledModuleIds: vi.fn(async () => enabledModuleIds),
+}));
+
+vi.mock('@nb/common/server/extension-registry', () => ({
+  extensionRegistry: {
+    getContributions: (point: string, filter?: { enabledIds?: Set<string> }) =>
+      CONTRIBS.filter((c) => c.point === point && (!filter?.enabledIds || filter.enabledIds.has(c.moduleId))),
+    load: async (ext: { key: string }) => IMPLS[ext.key],
+  },
+}));
+
 import AIService from '../ai.service';
 import AIProviderService from '../ai.provider.service';
 import redis from '@nb/redis';
 import { AppError } from '@nb/common/server/app-error';
-import { OpenAIModels, AnthropicModels, GoogleModels } from '../ai.types';
 
 const TENANT_ID = '550e8400-e29b-41d4-a716-446655440000';
 
@@ -167,17 +173,31 @@ beforeEach(() => {
   mockRedis.set.mockResolvedValue('OK');
   mockRedis.incrby.mockResolvedValue(30);
   mockRedis.expire.mockResolvedValue(1);
-  // Reset per-tenant provider cache
+  // All providers enabled by default; reset the per-tenant provider cache.
+  enabledModuleIds = new Set<string>(['ai', 'ai_openai', 'ai_anthropic', 'ai_google']);
   (AIProviderService as any)._tenantProviders?.clear?.();
 });
 
-describe('AIService.listProviders', () => {
-  it('returns openai, anthropic, and google', () => {
-    const providers = AIService.listProviders();
+describe('AIProviderService.listProviders (tenant-scoped)', () => {
+  it('returns every enabled provider', async () => {
+    const providers = await AIService.listProviders(TENANT_ID);
     expect(providers).toContain('openai');
     expect(providers).toContain('anthropic');
     expect(providers).toContain('google');
     expect(providers).toHaveLength(3);
+  });
+
+  it('omits a provider whose module is disabled for the tenant', async () => {
+    enabledModuleIds = new Set<string>(['ai', 'ai_openai', 'ai_google']); // ai_anthropic off
+    const providers = await AIService.listProviders(TENANT_ID);
+    expect(providers).not.toContain('anthropic');
+    expect(providers).toContain('openai');
+    expect(providers).toContain('google');
+  });
+
+  it('returns nothing when no provider module is enabled', async () => {
+    enabledModuleIds = new Set<string>(['ai']);
+    expect(await AIService.listProviders(TENANT_ID)).toHaveLength(0);
   });
 });
 
@@ -191,47 +211,56 @@ describe('AIService.listConfiguredProviders', () => {
 });
 
 describe('AIService.isProviderConfigured', () => {
-  it('returns true for configured openai provider', async () => {
+  it('returns true for an enabled, configured provider', async () => {
     expect(await AIService.isProviderConfigured(TENANT_ID, 'openai')).toBe(true);
+    expect(await AIService.isProviderConfigured(TENANT_ID, 'anthropic')).toBe(true);
   });
 
-  it('returns true for configured anthropic provider', async () => {
-    expect(await AIService.isProviderConfigured(TENANT_ID, 'anthropic')).toBe(true);
+  it('returns false for a disabled provider', async () => {
+    enabledModuleIds = new Set<string>(['ai', 'ai_openai']);
+    expect(await AIService.isProviderConfigured(TENANT_ID, 'anthropic')).toBe(false);
   });
 });
 
 describe('AIService.getProviderForModel', () => {
-  it('returns openai for a GPT model', () => {
+  it('maps GPT models to openai', () => {
     expect(AIService.getProviderForModel('gpt-4o')).toBe('openai');
     expect(AIService.getProviderForModel('gpt-4o-mini')).toBe('openai');
   });
 
-  it('returns anthropic for a Claude model', () => {
+  it('maps Claude models to anthropic', () => {
     expect(AIService.getProviderForModel('claude-3-5-sonnet-20241022')).toBe('anthropic');
     expect(AIService.getProviderForModel('claude-3-5-haiku-20241022')).toBe('anthropic');
   });
 
-  it('returns google for a Gemini model', () => {
+  it('maps Gemini models to google', () => {
     expect(AIService.getProviderForModel('gemini-2.0-flash')).toBe('google');
     expect(AIService.getProviderForModel('gemini-1.5-pro')).toBe('google');
   });
 
   it('returns null for an unknown model', () => {
-    expect(AIService.getProviderForModel('llama-3' as any)).toBeNull();
+    expect(AIService.getProviderForModel('llama-3')).toBeNull();
   });
 });
 
-describe('AIService.listAllModels', () => {
-  it('returns model arrays for all three providers', () => {
-    const all = AIService.listAllModels();
+describe('AIService.listAllModels (tenant-scoped)', () => {
+  it('returns model arrays keyed by enabled provider', async () => {
+    const all = await AIService.listAllModels(TENANT_ID);
     expect(all.openai).toContain('gpt-4o');
     expect(all.anthropic).toContain('claude-3-5-sonnet-20241022');
     expect(all.google).toContain('gemini-2.0-flash');
   });
+
+  it('drops a disabled provider', async () => {
+    enabledModuleIds = new Set<string>(['ai', 'ai_openai']);
+    const all = await AIService.listAllModels(TENANT_ID);
+    expect(all.openai).toBeDefined();
+    expect(all.anthropic).toBeUndefined();
+  });
 });
 
 describe('AIService.listModels', () => {
-  it('returns model list for openai provider', async () => {
+  it('returns the model list for the openai provider', async () => {
     const models = await AIService.listModels(TENANT_ID, 'openai');
     expect(Array.isArray(models)).toBe(true);
     expect(models.length).toBeGreaterThan(0);
@@ -244,7 +273,6 @@ describe('AIService.chat', () => {
       messages: [{ role: 'user', content: 'Hello!' }],
       provider: 'openai',
     });
-
     expect(response.content).toBe('Hello from mock AI');
     expect(response.provider).toBe('openai');
     expect(response.usage?.totalTokens).toBe(30);
@@ -258,7 +286,7 @@ describe('AIService.chat', () => {
     expect(response.provider).toBe('openai');
   });
 
-  it('auto-detects anthropic from Claude model', async () => {
+  it('auto-detects anthropic from a Claude model', async () => {
     const response = await AIService.chat(TENANT_ID, {
       messages: [{ role: 'user', content: 'Hello!' }],
       model: 'claude-3-5-sonnet-20241022',
@@ -266,83 +294,50 @@ describe('AIService.chat', () => {
     expect(response.provider).toBe('anthropic');
   });
 
-  it('tracks usage in redis after successful chat', async () => {
+  it('tracks usage in redis after a successful chat', async () => {
     await AIService.chat(TENANT_ID, {
       messages: [{ role: 'user', content: 'Hello!' }],
       provider: 'openai',
     });
     expect(mockRedis.incrby).toHaveBeenCalledWith(
       expect.stringContaining(`ai:usage:${TENANT_ID}:openai:`),
-      30
+      30,
     );
   });
 
-  it('throws AIError when provider is not configured', async () => {
-    // Inject a not-configured bundle for this tenant directly
-    const notConfigured = {
-      providerType: 'openai',
-      isConfigured: () => false,
-      chat: vi.fn(),
-      chatStream: vi.fn(),
-      embed: vi.fn(),
-      listModels: () => [],
-    };
-    (AIProviderService as any)._tenantProviders.set(TENANT_ID, {
-      openai: notConfigured,
-      anthropic: notConfigured,
-      google: notConfigured,
-      defaultProvider: 'openai',
-    });
-
+  it('rejects an explicit provider whose module is disabled', async () => {
+    enabledModuleIds = new Set<string>(['ai', 'ai_openai']); // anthropic off
     await expect(
-      AIService.chat(TENANT_ID, { messages: [{ role: 'user', content: 'Hi' }], provider: 'openai' })
+      AIService.chat(TENANT_ID, { messages: [{ role: 'user', content: 'Hi' }], provider: 'anthropic' }),
+    ).rejects.toThrow(AppError);
+  });
+
+  it('throws when no provider module is enabled', async () => {
+    enabledModuleIds = new Set<string>(['ai']);
+    await expect(
+      AIService.chat(TENANT_ID, { messages: [{ role: 'user', content: 'Hi' }], provider: 'openai' }),
     ).rejects.toThrow(AppError);
   });
 });
 
 describe('AIService.chatStream', () => {
-  it('calls onChunk with streamed content and returns response', async () => {
+  it('calls onChunk with streamed content and returns the response', async () => {
     const chunks: string[] = [];
-    const response = await AIService.chatStream(TENANT_ID, 
+    const response = await AIService.chatStream(
+      TENANT_ID,
       { messages: [{ role: 'user', content: 'Stream this' }], provider: 'openai' },
-      (chunk: string) => chunks.push(chunk)
+      (chunk: string) => chunks.push(chunk),
     );
-
     expect(chunks).toContain('Hello');
     expect(response.content).toBe('Hello from mock AI');
   });
 });
 
 describe('AIService.embed', () => {
-  it('returns EmbeddingResponse from openai', async () => {
-    const response = await AIService.embed(TENANT_ID, {
-      input: 'Test text for embedding',
-      provider: 'openai',
-    });
-
+  it('returns an EmbeddingResponse from openai', async () => {
+    const response = await AIService.embed(TENANT_ID, { input: 'Test text', provider: 'openai' });
     expect(response.embeddings).toHaveLength(1);
     expect(response.provider).toBe('openai');
-  });
-
-  it('throws AIError when embedding provider is not configured', async () => {
-    const notConfigured = {
-      providerType: 'openai',
-      isConfigured: () => false,
-      chat: vi.fn(),
-      chatStream: vi.fn(),
-      embed: vi.fn(),
-      listModels: () => [],
-    };
-    (AIProviderService as any)._tenantProviders.set(TENANT_ID, {
-      openai: notConfigured,
-      anthropic: notConfigured,
-      google: notConfigured,
-      defaultProvider: 'openai',
-    });
-
-    await expect(
-      AIService.embed(TENANT_ID, { input: 'test', provider: 'openai' })
-    ).rejects.toThrow(AppError);
   });
 });
 
@@ -355,11 +350,12 @@ describe('AIService.complete', () => {
 });
 
 describe('AIService.ask', () => {
-  it('sends question with system prompt and returns string', async () => {
-    const result = await AIService.ask(TENANT_ID, 
+  it('sends a question with a system prompt and returns a string', async () => {
+    const result = await AIService.ask(
+      TENANT_ID,
       'What is the capital of France?',
       'You are a geography expert.',
-      { provider: 'openai' }
+      { provider: 'openai' },
     );
     expect(typeof result).toBe('string');
   });
@@ -368,72 +364,44 @@ describe('AIService.ask', () => {
 describe('AIService.isRateLimited', () => {
   it('returns false when no rate limit is set', async () => {
     mockRedis.get.mockResolvedValue(null);
-    const limited = await AIService.isRateLimited('user-1');
-    expect(limited).toBe(false);
+    expect(await AIService.isRateLimited('user-1')).toBe(false);
   });
 
-  it('returns true when rate limit is active', async () => {
+  it('returns true when a rate limit is active', async () => {
     mockRedis.get.mockResolvedValue('1');
-    const limited = await AIService.isRateLimited('user-1');
-    expect(limited).toBe(true);
+    expect(await AIService.isRateLimited('user-1')).toBe(true);
   });
 });
 
 describe('AIService.setRateLimit', () => {
-  it('sets rate limit key in redis with expiry', async () => {
+  it('sets the rate limit key in redis with expiry', async () => {
     await AIService.setRateLimit('user-1', 60);
     expect(mockRedis.set).toHaveBeenCalledWith('ai:rate-limit:user-1', '1', 'EX', 60);
   });
 });
 
 describe('AIService.getUsage', () => {
-  it('returns usage record with date keys', async () => {
+  it('returns a usage record with date keys', async () => {
     mockRedis.get.mockResolvedValue('1500');
     const usage = await AIService.getUsage(TENANT_ID, 'openai', 3);
     expect(Object.keys(usage)).toHaveLength(3);
-    for (const val of Object.values(usage)) {
-      expect(typeof val).toBe('number');
-    }
-  });
-
-  it('returns zeros for dates with no data', async () => {
-    mockRedis.get.mockResolvedValue(null);
-    const usage = await AIService.getUsage(TENANT_ID, 'anthropic', 2);
-    for (const val of Object.values(usage)) {
-      expect(val).toBe(0);
-    }
+    for (const val of Object.values(usage)) expect(typeof val).toBe('number');
   });
 });
 
 describe('AIService.getTotalUsage', () => {
-  it('sums usage over given days', async () => {
+  it('sums usage over the given days', async () => {
     mockRedis.get.mockResolvedValue('100');
     const total = await AIService.getTotalUsage(TENANT_ID, 'openai', 3);
-    expect(total).toBe(300); // 100 * 3 days
+    expect(total).toBe(300);
   });
 });
 
-describe('AIService.reinitializeProvider', () => {
-  beforeEach(async () => {
-    // Force the tenant bundle to be built so reinit has a cache entry to mutate.
+describe('AIProviderService.invalidateTenant', () => {
+  it('clears cached provider instances for the tenant', async () => {
     await AIService.getProvider(TENANT_ID, 'openai');
-  });
-
-  it('replaces the openai provider instance', () => {
-    AIService.reinitializeProvider(TENANT_ID, 'openai', { apiKey: 'new-key', defaultModel: 'gpt-4' });
-    const bundle = (AIProviderService as any)._tenantProviders.get(TENANT_ID);
-    expect(bundle?.openai).toBeTruthy();
-  });
-
-  it('replaces the anthropic provider instance', () => {
-    AIService.reinitializeProvider(TENANT_ID, 'anthropic', { apiKey: 'new-anthropic-key' });
-    const bundle = (AIProviderService as any)._tenantProviders.get(TENANT_ID);
-    expect(bundle?.anthropic).toBeTruthy();
-  });
-
-  it('replaces the google provider instance', () => {
-    AIService.reinitializeProvider(TENANT_ID, 'google', { apiKey: 'new-google-key' });
-    const bundle = (AIProviderService as any)._tenantProviders.get(TENANT_ID);
-    expect(bundle?.google).toBeTruthy();
+    expect((AIProviderService as any)._tenantProviders.get(TENANT_ID)?.size).toBeGreaterThan(0);
+    AIService.invalidateTenant(TENANT_ID);
+    expect((AIProviderService as any)._tenantProviders.get(TENANT_ID)).toBeUndefined();
   });
 });

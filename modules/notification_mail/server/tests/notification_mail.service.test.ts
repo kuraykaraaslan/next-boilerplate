@@ -72,52 +72,34 @@ vi.mock('ejs', () => ({
   renderFile: vi.fn(async (_path: string, data: any) => `<html>Mocked ${data?.subject || 'email'}</html>`),
 }));
 
-// Mock mail providers as classes (required because service calls `new Provider()`)
-vi.mock('../providers/smtp.provider', () => ({
-  default: class MockSMTPProvider {
-    name = 'smtp';
-    isConfigured() { return true; }
-    async sendMail() { return { success: true, messageId: 'test-id' }; }
-  },
+// Providers now live in satellite modules discovered through the extension
+// registry (point `mail:provider`), gated by the tenant's enabled modules. Mock
+// both seams: smtp configured, the rest not (preserving the old expectations).
+const MAIL_CONFIGURED: Record<string, boolean> = {
+  smtp: true, sendgrid: false, mailgun: false, ses: false, postmark: false, resend: false,
+};
+function mockMailProvider(key: string) {
+  return {
+    name: key,
+    async isConfigured() { return MAIL_CONFIGURED[key]; },
+    async sendMail() { return MAIL_CONFIGURED[key] ? { success: true, messageId: 'test-id' } : { success: false }; },
+  };
+}
+const MAIL_CONTRIBS = ['smtp', 'sendgrid', 'mailgun', 'ses', 'postmark', 'resend'].map((key) => ({
+  id: `mail_${key}:mail:provider:${key}`, point: 'mail:provider', moduleId: `mail_${key}`, key, metadata: {},
 }));
 
-vi.mock('../providers/sendgrid.provider', () => ({
-  default: class MockSendGridProvider {
-    name = 'sendgrid';
-    isConfigured() { return false; }
-    async sendMail() { return { success: false }; }
-  },
+vi.mock('@nb/setting/server/module-activation.service.next', () => ({
+  getEnabledModuleIds: vi.fn(async () => new Set(MAIL_CONTRIBS.map((c) => c.moduleId).concat('notification_mail'))),
 }));
 
-vi.mock('../providers/mailgun.provider', () => ({
-  default: class MockMailgunProvider {
-    name = 'mailgun';
-    isConfigured() { return false; }
-    async sendMail() { return { success: false }; }
-  },
-}));
-
-vi.mock('../providers/ses.provider', () => ({
-  default: class MockSESProvider {
-    name = 'ses';
-    isConfigured() { return false; }
-    async sendMail() { return { success: false }; }
-  },
-}));
-
-vi.mock('../providers/postmark.provider', () => ({
-  default: class MockPostmarkProvider {
-    name = 'postmark';
-    isConfigured() { return false; }
-    async sendMail() { return { success: false }; }
-  },
-}));
-
-vi.mock('../providers/resend.provider', () => ({
-  default: class MockResendProvider {
-    name = 'resend';
-    isConfigured() { return false; }
-    async sendMail() { return { success: false }; }
+vi.mock('@nb/common/server/extension-registry', () => ({
+  extensionRegistry: {
+    getContributions: (point: string, filter?: { enabledIds?: Set<string> }) =>
+      point === 'mail:provider'
+        ? MAIL_CONTRIBS.filter((c) => !filter?.enabledIds || filter.enabledIds.has(c.moduleId))
+        : [],
+    load: async (ext: { key: string }) => mockMailProvider(ext.key),
   },
 }));
 

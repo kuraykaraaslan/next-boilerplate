@@ -2,7 +2,7 @@
   "$schema": "../module.schema.json",
   "id": "e_signature",
   "name": "E-Signature & E-Identity",
-  "description": "Multi-country e-identity login + e-signature (eIDAS/OIDC4IDA). Pluggable providers (TR Mobil İmza, Smart-ID, BankID, itsme, FranceConnect, eIDAS-nPA, Signicat).",
+  "description": "Multi-country e-identity login + e-signature (eIDAS/OIDC4IDA). Pluggable providers (TR Mobil \u0130mza, Smart-ID, BankID, itsme, FranceConnect, eIDAS-nPA, Signicat).",
   "version": "0.1.0",
   "icon": "fas fa-id-card",
   "tags": [
@@ -43,6 +43,13 @@
     {
       "path": "/api/e-signature/settings",
       "handler": "e_signature/server/e-signature-settings.route"
+    }
+  ],
+  "extensionPoints": [
+    {
+      "id": "esign:provider",
+      "kind": "provider",
+      "description": "A national e-signature / eID backend. Satellite modules like esign_mobil_imza contribute their implementation here."
     }
   ]
 }

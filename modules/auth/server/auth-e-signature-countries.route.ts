@@ -14,7 +14,7 @@ export async function GET(_request: Request, ctx: RouteContext) {
     if (!tenant || tenant.tenantStatus !== 'ACTIVE') {
       return NextResponse.json({ success: false, error: { message: 'Tenant not found or inactive' } }, { status: 404 });
     }
-    return NextResponse.json({ success: true, data: ESignatureService.listCountryHints() });
+    return NextResponse.json({ success: true, data: await ESignatureService.listCountryHints() });
   } catch (err) {
     Logger.warn(`tenant e-signature countries failed: ${err instanceof Error ? err.message : err}`);
     return NextResponse.json({ success: false, error: { message: 'Failed to load country hints' } }, { status: 500 });

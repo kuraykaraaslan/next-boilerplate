@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T11:25:23.978Z",
+  "generatedAt": "2026-06-16T15:46:40.136Z",
   "components": [
     {
       "id": "ai/ui/ai-chat-box.component",
@@ -2820,6 +2820,16 @@
       "isClient": false,
       "isServer": false,
       "baseName": "site-chrome.component"
+    },
+    {
+      "id": "dynamic_page/ui/tenant-welcome.component",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/tenant-welcome.component.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "tenant-welcome.component"
     },
     {
       "id": "e_signature/ui/tenant-e-signature-settings-panel.component",

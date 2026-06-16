@@ -12,7 +12,6 @@ export default class SMSService {
 
   static readonly phoneLibInstance = NotificationSmsProviderService.phoneLibInstance;
   static readonly ALLOWED_COUNTRIES = NotificationSmsProviderService.ALLOWED_COUNTRIES;
-  static readonly PROVIDER_MAP      = NotificationSmsProviderService.PROVIDER_MAP;
   static readonly DEFAULT_PROVIDER_NAME = NotificationSmsProviderService.DEFAULT_PROVIDER_NAME;
   static readonly REGION_PROVIDER_MAP   = NotificationSmsProviderService.REGION_PROVIDER_MAP;
 

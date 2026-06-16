@@ -1,30 +1,21 @@
 import { env } from '@nb/env';
-import BaseESignatureProvider from './providers/base.provider';
-import MobilImzaAggregatorProvider from './providers/mobil_imza_aggregator.provider';
-import SmartIdProvider from './providers/smart_id.provider';
-import BankIdSeProvider from './providers/bankid_se.provider';
-import LoginGovProvider from './providers/login_gov.provider';
+import { extensionRegistry, type RuntimeExtension } from '@nb/common/server/extension-registry';
 import { AppError, ErrorCode } from '@nb/common/server/app-error';
 import { E_SIGNATURE_MESSAGES } from './e_signature.messages';
+import type BaseESignatureProvider from './providers/base.provider';
 import type { CountryCode, CountryHint } from './e_signature.types';
 
+/**
+ * Extension point satellite e-signature / eID provider modules contribute into.
+ * NOTE: the e-signature provider API is tenant-agnostic (env-keyed config, no
+ * tenantId), so discovery here is platform-level — gated by each satellite's
+ * manifest `enabled`, not by per-tenant module activation. (The other provider
+ * hosts — ai/storage/mail/sms/payment — gate per tenant because their APIs
+ * carry a tenantId.)
+ */
+const ESIGN_PROVIDER_POINT = 'esign:provider';
+
 export default class ESignatureProviderService {
-
-  // ──────────────────────────────────────────────
-  // Constants
-  // ──────────────────────────────────────────────
-
-  private static readonly mobilImzaProvider = new MobilImzaAggregatorProvider();
-  private static readonly smartIdProvider = new SmartIdProvider();
-  private static readonly bankIdSeProvider = new BankIdSeProvider();
-  private static readonly loginGovProvider = new LoginGovProvider();
-
-  private static readonly PROVIDERS = new Map<string, BaseESignatureProvider>([
-    ['mobil_imza_aggregator', ESignatureProviderService.mobilImzaProvider],
-    ['smart_id', ESignatureProviderService.smartIdProvider],
-    ['bankid_se', ESignatureProviderService.bankIdSeProvider],
-    ['login_gov', ESignatureProviderService.loginGovProvider],
-  ]);
 
   private static readonly DEFAULT_PROVIDER_NAME: string =
     env.EID_DEFAULT_PROVIDER || 'mobil_imza_aggregator';
@@ -41,9 +32,7 @@ export default class ESignatureProviderService {
     if (raw) {
       for (const pair of raw.split(',').map((s) => s.trim()).filter(Boolean)) {
         const [country, providerName] = pair.split(':').map((s) => s.trim());
-        if (country && providerName && ESignatureProviderService.PROVIDERS.has(providerName)) {
-          map.set(country.toUpperCase(), providerName);
-        }
+        if (country && providerName) map.set(country.toUpperCase(), providerName);
       }
     } else {
       map.set('TR', 'mobil_imza_aggregator');
@@ -56,22 +45,43 @@ export default class ESignatureProviderService {
     return map;
   }
 
+  private static keyOf(c: RuntimeExtension): string {
+    return c.key ?? (c.metadata?.key as string);
+  }
+
+  private static contributions(): RuntimeExtension[] {
+    return extensionRegistry.getContributions(ESIGN_PROVIDER_POINT);
+  }
+
+  private static async loadByName(name: string): Promise<BaseESignatureProvider | undefined> {
+    const c = ESignatureProviderService.contributions().find((x) => ESignatureProviderService.keyOf(x) === name);
+    return c ? extensionRegistry.load<BaseESignatureProvider>(c) : undefined;
+  }
+
+  private static async loadAll(): Promise<BaseESignatureProvider[]> {
+    const out: BaseESignatureProvider[] = [];
+    for (const c of ESignatureProviderService.contributions()) {
+      out.push(await extensionRegistry.load<BaseESignatureProvider>(c));
+    }
+    return out;
+  }
+
   // ──────────────────────────────────────────────
   // Public Methods
   // ──────────────────────────────────────────────
 
-  static resolveProvider({
+  static async resolveProvider({
     country,
     providerOverride,
   }: {
     country?: CountryCode;
     providerOverride?: string;
-  }): BaseESignatureProvider {
+  }): Promise<BaseESignatureProvider> {
     const name =
       providerOverride
       ?? (country ? ESignatureProviderService.COUNTRY_MAP.get(country) : undefined)
       ?? ESignatureProviderService.DEFAULT_PROVIDER_NAME;
-    const provider = ESignatureProviderService.PROVIDERS.get(name);
+    const provider = await ESignatureProviderService.loadByName(name);
     if (!provider) {
       throw new AppError(`${E_SIGNATURE_MESSAGES.PROVIDER_FOR_COUNTRY_NOT_FOUND}: ${country ?? '-'}`, 422, ErrorCode.VALIDATION_ERROR);
     }
@@ -81,9 +91,9 @@ export default class ESignatureProviderService {
     return provider;
   }
 
-  static listCountryHints({ includeUnconfigured = false }: { includeUnconfigured?: boolean } = {}): CountryHint[] {
+  static async listCountryHints({ includeUnconfigured = false }: { includeUnconfigured?: boolean } = {}): Promise<CountryHint[]> {
     const grouped = new Map<string, CountryHint['providers']>();
-    for (const provider of ESignatureProviderService.PROVIDERS.values()) {
+    for (const provider of await ESignatureProviderService.loadAll()) {
       if (!includeUnconfigured && !provider.isConfigured()) continue;
       for (const country of provider.supportedCountries) {
         if (!grouped.has(country)) grouped.set(country, []);
@@ -102,15 +112,15 @@ export default class ESignatureProviderService {
       .map(([country, providers]) => ({ country: country as CountryCode, providers }));
   }
 
-  static listProvidersAdmin(): Array<{
+  static async listProvidersAdmin(): Promise<Array<{
     id: string;
     displayName: string;
     countries: readonly CountryCode[];
     capabilities: readonly string[];
     loa: string;
     configured: boolean;
-  }> {
-    return Array.from(ESignatureProviderService.PROVIDERS.values()).map((p) => ({
+  }>> {
+    return (await ESignatureProviderService.loadAll()).map((p) => ({
       id: p.name,
       displayName: p.displayName,
       countries: p.supportedCountries,
@@ -120,11 +130,11 @@ export default class ESignatureProviderService {
     }));
   }
 
-  static getProviderByName(name: string): BaseESignatureProvider | undefined {
-    return ESignatureProviderService.PROVIDERS.get(name);
+  static async getProviderByName(name: string): Promise<BaseESignatureProvider | undefined> {
+    return ESignatureProviderService.loadByName(name);
   }
 
-  static listProviders(): string[] {
-    return Array.from(ESignatureProviderService.PROVIDERS.keys());
+  static async listProviders(): Promise<string[]> {
+    return ESignatureProviderService.contributions().map(ESignatureProviderService.keyOf);
   }
 }

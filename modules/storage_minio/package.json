@@ -1,0 +1,15 @@
+{
+  "name": "@nb/storage_minio",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/providers/minio.provider": "./server/providers/minio.provider.ts",
+    "./server/storage.extension": "./server/storage.extension.ts",
+    "./module.json": "./module.json"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "next": "*"
+  }
+}

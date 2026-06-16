@@ -1,34 +1,29 @@
 import { env } from '@nb/env';
 import Logger from '@nb/logger';
 import SettingService from '@nb/setting/server/setting.service';
+import { extensionRegistry } from '@nb/common/server/extension-registry';
+import { getEnabledModuleIds } from '@nb/setting/server/module-activation.service.next';
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber';
-import BaseSMSProvider from './providers/base.provider';
-import TwilioProvider from './providers/twilio.provider';
-import NetGSMProvider from './providers/netgsm.provider';
-import ClickatellProvider from './providers/clickatell.provider';
-import NexmoProvider from './providers/nexmo.provider';
+import type BaseSMSProvider from './providers/base.provider';
 
 export type SMSProviderType = 'twilio' | 'netgsm' | 'clickatell' | 'nexmo';
+
+/** Extension point satellite SMS-provider modules contribute into. */
+const SMS_PROVIDER_POINT = 'sms:provider';
 
 export default class NotificationSmsProviderService {
 
   static readonly phoneLibInstance = PhoneNumberUtil.getInstance();
   static readonly ALLOWED_COUNTRIES = env.SMS_ALLOWED_COUNTRIES?.split(',').map((c) => c.trim());
 
-  private static readonly twilioProvider = new TwilioProvider();
-  private static readonly netgsmProvider = new NetGSMProvider();
-  private static readonly clickatellProvider = new ClickatellProvider();
-  private static readonly nexmoProvider = new NexmoProvider();
-
-  static readonly PROVIDER_MAP = new Map<SMSProviderType, BaseSMSProvider>([
-    ['twilio', NotificationSmsProviderService.twilioProvider],
-    ['netgsm', NotificationSmsProviderService.netgsmProvider],
-    ['clickatell', NotificationSmsProviderService.clickatellProvider],
-    ['nexmo', NotificationSmsProviderService.nexmoProvider],
-  ]);
-
   static readonly DEFAULT_PROVIDER_NAME: SMSProviderType =
     (env.SMS_DEFAULT_PROVIDER as SMSProviderType) || 'twilio';
+
+  /** Enabled SMS-provider contributions for a tenant. */
+  private static async contributions(tenantId: string) {
+    const enabledIds = await getEnabledModuleIds(tenantId);
+    return extensionRegistry.getContributions(SMS_PROVIDER_POINT, { enabledIds });
+  }
 
   static readonly REGION_PROVIDER_MAP: Map<string, SMSProviderType> =
     NotificationSmsProviderService.buildRegionProviderMap();
@@ -58,6 +53,11 @@ export default class NotificationSmsProviderService {
   }
 
   static async getProvider(tenantId: string, providerName?: SMSProviderType): Promise<BaseSMSProvider> {
+    const contribs = await NotificationSmsProviderService.contributions(tenantId);
+    if (contribs.length === 0) {
+      throw new Error('No SMS provider module is enabled for this tenant');
+    }
+
     // Per-tenant provider selection: honour the `smsProvider` setting unless the
     // caller pinned a provider explicitly.
     let name = providerName;
@@ -66,26 +66,39 @@ export default class NotificationSmsProviderService {
       name = (configured && NotificationSmsProviderService.isValidProviderName(configured) ? configured as SMSProviderType : null)
         || NotificationSmsProviderService.DEFAULT_PROVIDER_NAME;
     }
-    const provider = NotificationSmsProviderService.PROVIDER_MAP.get(name);
-    if (!provider) {
-      Logger.warn(`NotificationSmsProviderService: Unknown provider "${name}", falling back to default`);
-      return NotificationSmsProviderService.PROVIDER_MAP.get(NotificationSmsProviderService.DEFAULT_PROVIDER_NAME)!;
-    }
-    if (!(await provider.isConfigured(tenantId))) {
-      Logger.warn(`NotificationSmsProviderService: Provider "${name}" not configured for tenant ${tenantId}, trying fallback`);
-      for (const [, p] of NotificationSmsProviderService.PROVIDER_MAP) {
+
+    const keyOf = (c: { key: string | null; metadata: Record<string, unknown> }) => c.key ?? (c.metadata?.key as string);
+    const firstConfigured = async (): Promise<BaseSMSProvider | undefined> => {
+      for (const c of contribs) {
+        const p = await extensionRegistry.load<BaseSMSProvider>(c);
         if (await p.isConfigured(tenantId)) {
           Logger.info(`NotificationSmsProviderService: Using fallback provider "${p.name}"`);
           return p;
         }
       }
+      return undefined;
+    };
+
+    const chosen = contribs.find((c) => keyOf(c) === name);
+    if (!chosen) {
+      Logger.warn(`NotificationSmsProviderService: provider "${name}" is unknown/disabled, falling back`);
+      return (await firstConfigured()) ?? extensionRegistry.load<BaseSMSProvider>(contribs[0]);
+    }
+
+    const provider = await extensionRegistry.load<BaseSMSProvider>(chosen);
+    if (!(await provider.isConfigured(tenantId))) {
+      Logger.warn(`NotificationSmsProviderService: provider "${name}" not configured for tenant ${tenantId}, trying fallback`);
+      return (await firstConfigured()) ?? provider;
     }
     return provider;
   }
 
   static async listProviders(tenantId: string): Promise<{ name: SMSProviderType; configured: boolean }[]> {
+    const contribs = await NotificationSmsProviderService.contributions(tenantId);
     const result: { name: SMSProviderType; configured: boolean }[] = [];
-    for (const [name, provider] of NotificationSmsProviderService.PROVIDER_MAP) {
+    for (const c of contribs) {
+      const name = (c.key ?? (c.metadata?.key as string)) as SMSProviderType;
+      const provider = await extensionRegistry.load<BaseSMSProvider>(c);
       result.push({ name, configured: await provider.isConfigured(tenantId) });
     }
     return result;

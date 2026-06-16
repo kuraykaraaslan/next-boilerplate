@@ -69,44 +69,30 @@ vi.mock('@nb/setting/server/setting.service', () => ({
   },
 }));
 
-// Mock SMS providers as classes implementing the tenant-aware contract.
-vi.mock('./providers/twilio.provider', () => ({
-  default: class MockTwilioProvider {
-    readonly name = 'Twilio';
-    async isConfigured(_tenantId: string) { return true; }
-    async sendShortMessage(_tenantId: string, _opts: { to: string; body: string }) {
-      return { success: true };
-    }
-  },
+// Providers now live in satellite modules discovered through the extension
+// registry (point `sms:provider`), gated by the tenant's enabled modules.
+function mockSmsProvider(key: string) {
+  return {
+    name: key,
+    async isConfigured(_tenantId: string) { return true; },
+    async sendShortMessage(_tenantId: string, _opts: { to: string; body: string }) { return { success: true }; },
+  };
+}
+const SMS_CONTRIBS = ['twilio', 'netgsm', 'clickatell', 'nexmo'].map((key) => ({
+  id: `sms_${key}:sms:provider:${key}`, point: 'sms:provider', moduleId: `sms_${key}`, key, metadata: {},
 }));
 
-vi.mock('./providers/netgsm.provider', () => ({
-  default: class MockNetGSMProvider {
-    readonly name = 'NetGSM';
-    async isConfigured(_tenantId: string) { return true; }
-    async sendShortMessage(_tenantId: string, _opts: { to: string; body: string }) {
-      return { success: true };
-    }
-  },
+vi.mock('@nb/setting/server/module-activation.service.next', () => ({
+  getEnabledModuleIds: vi.fn(async () => new Set(SMS_CONTRIBS.map((c) => c.moduleId).concat('notification_sms'))),
 }));
 
-vi.mock('./providers/clickatell.provider', () => ({
-  default: class MockClickatellProvider {
-    readonly name = 'Clickatell';
-    async isConfigured(_tenantId: string) { return true; }
-    async sendShortMessage(_tenantId: string, _opts: { to: string; body: string }) {
-      return { success: true };
-    }
-  },
-}));
-
-vi.mock('./providers/nexmo.provider', () => ({
-  default: class MockNexmoProvider {
-    readonly name = 'Nexmo';
-    async isConfigured(_tenantId: string) { return true; }
-    async sendShortMessage(_tenantId: string, _opts: { to: string; body: string }) {
-      return { success: true };
-    }
+vi.mock('@nb/common/server/extension-registry', () => ({
+  extensionRegistry: {
+    getContributions: (point: string, filter?: { enabledIds?: Set<string> }) =>
+      point === 'sms:provider'
+        ? SMS_CONTRIBS.filter((c) => !filter?.enabledIds || filter.enabledIds.has(c.moduleId))
+        : [],
+    load: async (ext: { key: string }) => mockSmsProvider(ext.key),
   },
 }));
 

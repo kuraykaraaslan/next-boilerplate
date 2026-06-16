@@ -36,11 +36,7 @@
     "./server/entities/trust_list_entry.entity": "./server/entities/trust_list_entry.entity.ts",
     "./server/index": "./server/index.ts",
     "./server": "./server/index.ts",
-    "./server/providers/bankid_se.provider": "./server/providers/bankid_se.provider.ts",
     "./server/providers/base.provider": "./server/providers/base.provider.ts",
-    "./server/providers/login_gov.provider": "./server/providers/login_gov.provider.ts",
-    "./server/providers/mobil_imza_aggregator.provider": "./server/providers/mobil_imza_aggregator.provider.ts",
-    "./server/providers/smart_id.provider": "./server/providers/smart_id.provider.ts",
     "./ui/tenant-e-signature-settings-panel.component": "./ui/tenant-e-signature-settings-panel.component.tsx",
     ".": "./server/index.ts",
     "./module.json": "./module.json"

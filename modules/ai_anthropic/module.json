@@ -1,0 +1,38 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "ai_anthropic",
+  "name": "AI — Anthropic",
+  "description": "Anthropic (Claude) provider for the AI module. Contributes chat and streaming.",
+  "version": "1.0.0",
+  "icon": "fas fa-robot",
+  "tags": ["ai", "provider"],
+  "priority": 52,
+  "enabled": true,
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/ai_anthropic",
+  "license": "CC-BY-NC-ND-4.0",
+  "dependencies": {
+    "requires": ["ai", "env", "setting"]
+  },
+  "extensions": [
+    {
+      "point": "ai:provider",
+      "key": "anthropic",
+      "export": "ai_anthropic/server/anthropic.extension",
+      "metadata": {
+        "label": "Anthropic",
+        "defaultModel": "claude-3-5-sonnet-20241022",
+        "models": [
+          "claude-opus-4-20250514",
+          "claude-sonnet-4-20250514",
+          "claude-3-7-sonnet-20250219",
+          "claude-3-5-sonnet-20241022",
+          "claude-3-5-haiku-20241022",
+          "claude-3-opus-20240229",
+          "claude-3-sonnet-20240229",
+          "claude-3-haiku-20240307"
+        ]
+      }
+    }
+  ]
+}

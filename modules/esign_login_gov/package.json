@@ -1,0 +1,15 @@
+{
+  "name": "@nb/esign_login_gov",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/esign.extension": "./server/esign.extension.ts",
+    "./server/providers/login_gov.provider": "./server/providers/login_gov.provider.ts",
+    "./module.json": "./module.json"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "next": "*"
+  }
+}

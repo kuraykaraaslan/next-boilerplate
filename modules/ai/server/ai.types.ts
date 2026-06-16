@@ -4,46 +4,18 @@ import { z } from 'zod';
 // Provider Types
 // ============================================================================
 
-export type AIProviderType = 'openai' | 'anthropic' | 'google';
+// Open-ended: provider keys are supplied by satellite provider modules
+// (point `ai:provider`), not fixed in the host. Validate at API boundaries
+// against the set of enabled providers rather than a closed union.
+export type AIProviderType = string;
 
 // ============================================================================
 // Model Definitions
 // ============================================================================
 
-export const OpenAIModels = [
-  'gpt-4o',
-  'gpt-4o-mini',
-  'gpt-4-turbo',
-  'gpt-4',
-  'gpt-3.5-turbo',
-  'o1',
-  'o1-mini',
-  'o1-preview',
-] as const;
-
-export const AnthropicModels = [
-  'claude-opus-4-20250514',
-  'claude-sonnet-4-20250514',
-  'claude-3-7-sonnet-20250219',
-  'claude-3-5-sonnet-20241022',
-  'claude-3-5-haiku-20241022',
-  'claude-3-opus-20240229',
-  'claude-3-sonnet-20240229',
-  'claude-3-haiku-20240307',
-] as const;
-
-export const GoogleModels = [
-  'gemini-2.0-flash',
-  'gemini-2.0-flash-lite',
-  'gemini-1.5-pro',
-  'gemini-1.5-flash',
-  'gemini-1.5-flash-8b',
-] as const;
-
-export type OpenAIModel = typeof OpenAIModels[number];
-export type AnthropicModel = typeof AnthropicModels[number];
-export type GoogleModel = typeof GoogleModels[number];
-export type AIModel = OpenAIModel | AnthropicModel | GoogleModel;
+// Model ids are likewise open-ended — each provider module owns its own model
+// list (manifest `metadata.models` + the provider's `listModels()`).
+export type AIModel = string;
 
 // ============================================================================
 // Message Types

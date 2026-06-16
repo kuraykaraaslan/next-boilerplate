@@ -1,0 +1,22 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "storage_s3",
+  "name": "Storage — AWS S3",
+  "description": "AWS S3 storage backend for the storage module.",
+  "version": "1.0.0",
+  "icon": "fas fa-hard-drive",
+  "tags": ["storage", "provider"],
+  "priority": 41,
+  "enabled": true,
+  "author": "Kuray Karaaslan",
+  "license": "CC-BY-NC-ND-4.0",
+  "dependencies": { "requires": ["storage", "env", "setting"] },
+  "extensions": [
+    {
+      "point": "storage:provider",
+      "key": "aws-s3",
+      "export": "storage_s3/server/storage.extension",
+      "metadata": { "label": "AWS S3" }
+    }
+  ]
+}

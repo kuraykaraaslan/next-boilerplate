@@ -1,0 +1,35 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "ai_google",
+  "name": "AI — Google",
+  "description": "Google (Gemini) provider for the AI module. Contributes chat, streaming and embeddings.",
+  "version": "1.0.0",
+  "icon": "fas fa-robot",
+  "tags": ["ai", "provider"],
+  "priority": 53,
+  "enabled": true,
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/ai_google",
+  "license": "CC-BY-NC-ND-4.0",
+  "dependencies": {
+    "requires": ["ai", "env", "setting"]
+  },
+  "extensions": [
+    {
+      "point": "ai:provider",
+      "key": "google",
+      "export": "ai_google/server/google.extension",
+      "metadata": {
+        "label": "Google",
+        "defaultModel": "gemini-2.0-flash",
+        "models": [
+          "gemini-2.0-flash",
+          "gemini-2.0-flash-lite",
+          "gemini-1.5-pro",
+          "gemini-1.5-flash",
+          "gemini-1.5-flash-8b"
+        ]
+      }
+    }
+  ]
+}

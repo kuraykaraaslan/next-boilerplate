@@ -123,7 +123,7 @@ export default class SSOAccountService {
       const account = accounts.find((a) => a.provider === provider);
       if (account) {
         const { accessToken, refreshToken } = await UserSocialAccountService.getRawTokens(account.userSocialAccountId);
-        const providerService = getProvider(provider);
+        const providerService = await getProvider(provider);
         if (providerService.revokeToken) {
           const token = refreshToken ?? accessToken;
           if (token) revoked = await providerService.revokeToken(token, refreshToken ? 'refresh_token' : 'access_token');

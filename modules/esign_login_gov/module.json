@@ -1,0 +1,22 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "esign_login_gov",
+  "name": "e-Signature — Login.gov",
+  "description": "Login.gov national e-signature / eID provider for the e_signature module.",
+  "version": "1.0.0",
+  "icon": "fas fa-signature",
+  "tags": ["e_signature", "eid", "provider"],
+  "priority": 74,
+  "enabled": true,
+  "author": "Kuray Karaaslan",
+  "license": "CC-BY-NC-ND-4.0",
+  "dependencies": { "requires": ["e_signature", "env", "setting"] },
+  "extensions": [
+    {
+      "point": "esign:provider",
+      "key": "login_gov",
+      "export": "esign_login_gov/server/esign.extension",
+      "metadata": { "label": "Login.gov", "countries": ["US"] }
+    }
+  ]
+}

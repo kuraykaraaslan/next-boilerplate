@@ -1,0 +1,15 @@
+{
+  "name": "@nb/sms_nexmo",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/providers/nexmo.provider": "./server/providers/nexmo.provider.ts",
+    "./server/sms.extension": "./server/sms.extension.ts",
+    "./module.json": "./module.json"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "next": "*"
+  }
+}

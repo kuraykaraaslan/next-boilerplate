@@ -8,7 +8,7 @@ import type { InitiateLoginParams, InitiateLoginResult } from './e_signature.wor
 import { generateChallenge, resolveTenantCredentials, saveTransaction } from './e_signature.workflow.helpers';
 
 export async function initiateLogin(params: InitiateLoginParams): Promise<InitiateLoginResult> {
-  const provider = ESignatureProviderService.resolveProvider({
+  const provider = await ESignatureProviderService.resolveProvider({
     country: params.country,
     providerOverride: params.providerOverride,
   });

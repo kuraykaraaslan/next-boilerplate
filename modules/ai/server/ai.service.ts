@@ -127,7 +127,6 @@ export default class AIService {
   static listModels             = AIProviderService.listModels.bind(AIProviderService);
   static listAllModels          = AIProviderService.listAllModels.bind(AIProviderService);
   static getProviderForModel    = AIProviderService.getProviderForModel.bind(AIProviderService);
-  static reinitializeProvider   = AIProviderService.reinitializeProvider.bind(AIProviderService);
   static invalidateTenant       = AIProviderService.invalidateTenant.bind(AIProviderService);
 
   // ──────────────────────────────────────────────

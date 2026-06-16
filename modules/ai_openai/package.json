@@ -1,0 +1,17 @@
+{
+  "name": "@nb/ai_openai",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/openai.extension": "./server/openai.extension.ts",
+    "./server/providers/openai.helpers": "./server/providers/openai.helpers.ts",
+    "./server/providers/openai.provider": "./server/providers/openai.provider.ts",
+    "./server/providers/openai.transport": "./server/providers/openai.transport.ts",
+    "./module.json": "./module.json"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "next": "*"
+  }
+}

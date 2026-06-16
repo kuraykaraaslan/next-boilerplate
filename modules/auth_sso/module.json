@@ -34,5 +34,12 @@
       "path": "/admin/sso/settings",
       "component": "auth_sso/ui/sso-settings.page"
     }
+  ],
+  "extensionPoints": [
+    {
+      "id": "auth_sso:provider",
+      "kind": "provider",
+      "description": "An OAuth/OIDC SSO provider implementation. Satellite modules like auth_sso_google contribute their provider here; the host discovers them via the extension registry."
+    }
   ]
 }

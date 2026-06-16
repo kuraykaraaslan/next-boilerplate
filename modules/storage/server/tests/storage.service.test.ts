@@ -69,43 +69,39 @@ const mockUploadResult = {
   size: 1024,
 };
 
-vi.mock('../providers/aws-s3.provider', () => ({
-  default: class MockAWSS3Provider {
-    constructor(public config: any) {}
-    async uploadFile() { return mockUploadResult; }
-    async uploadFromUrl() { return mockUploadResult; }
-    async deleteFile() {}
-    getFileUrl(key: string) { return `https://test-bucket.s3.us-east-1.amazonaws.com/${key}`; }
-  },
+// Providers now live in satellite modules discovered through the extension
+// registry (point `storage:provider`), gated by the tenant's enabled modules.
+// Mock both seams so the factory resolves a provider without the real S3 SDK.
+const FILE_URL_BY_KEY: Record<string, (key: string) => string> = {
+  'aws-s3': (k) => `https://test-bucket.s3.us-east-1.amazonaws.com/${k}`,
+  'cloudflare-r2': (k) => `https://r2.example.com/${k}`,
+  'digitalocean-spaces': (k) => `https://spaces.example.com/${k}`,
+  'minio': (k) => `https://minio.example.com/${k}`,
+};
+function mockStorageProvider(key: string) {
+  return {
+    async uploadFile() { return mockUploadResult; },
+    async uploadFromUrl() { return mockUploadResult; },
+    async deleteFile() {},
+    getFileUrl(k: string) { return FILE_URL_BY_KEY[key](k); },
+  };
+}
+const STORAGE_CONTRIBS = (['aws-s3', 'cloudflare-r2', 'digitalocean-spaces', 'minio'] as const).map((key) => ({
+  id: `storage_${key}:storage:provider:${key}`, point: 'storage:provider',
+  moduleId: `storage_${key}`, key, metadata: {},
 }));
 
-vi.mock('../providers/cloudflare-r2.provider', () => ({
-  default: class MockCloudflareR2Provider {
-    constructor(public config: any) {}
-    async uploadFile() { return mockUploadResult; }
-    async uploadFromUrl() { return mockUploadResult; }
-    async deleteFile() {}
-    getFileUrl(key: string) { return `https://r2.example.com/${key}`; }
-  },
+vi.mock('@nb/setting/server/module-activation.service.next', () => ({
+  getEnabledModuleIds: vi.fn(async () => new Set(STORAGE_CONTRIBS.map((c) => c.moduleId).concat('storage'))),
 }));
 
-vi.mock('../providers/digitalocean-spaces.provider', () => ({
-  default: class MockDOSpacesProvider {
-    constructor(public config: any) {}
-    async uploadFile() { return mockUploadResult; }
-    async uploadFromUrl() { return mockUploadResult; }
-    async deleteFile() {}
-    getFileUrl(key: string) { return `https://spaces.example.com/${key}`; }
-  },
-}));
-
-vi.mock('../providers/minio.provider', () => ({
-  default: class MockMinIOProvider {
-    constructor(public config: any) {}
-    async uploadFile() { return mockUploadResult; }
-    async uploadFromUrl() { return mockUploadResult; }
-    async deleteFile() {}
-    getFileUrl(key: string) { return `https://minio.example.com/${key}`; }
+vi.mock('@nb/common/server/extension-registry', () => ({
+  extensionRegistry: {
+    getContributions: (point: string, filter?: { enabledIds?: Set<string> }) =>
+      point === 'storage:provider'
+        ? STORAGE_CONTRIBS.filter((c) => !filter?.enabledIds || filter.enabledIds.has(c.moduleId))
+        : [],
+    load: async (ext: { key: string }) => ({ key: ext.key, create: () => mockStorageProvider(ext.key) }),
   },
 }));
 

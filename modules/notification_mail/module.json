@@ -25,5 +25,12 @@
   ],
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/notification_mail",
-  "license": "CC-BY-NC-ND-4.0"
+  "license": "CC-BY-NC-ND-4.0",
+  "extensionPoints": [
+    {
+      "id": "mail:provider",
+      "kind": "provider",
+      "description": "An email sending backend. Satellite modules like mail_smtp contribute their implementation here."
+    }
+  ]
 }

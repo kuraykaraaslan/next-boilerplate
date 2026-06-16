@@ -10,10 +10,6 @@
     "./server/notification_sms.service": "./server/notification_sms.service.ts",
     "./server/notification_sms.setting.keys": "./server/notification_sms.setting.keys.ts",
     "./server/providers/base.provider": "./server/providers/base.provider.ts",
-    "./server/providers/clickatell.provider": "./server/providers/clickatell.provider.ts",
-    "./server/providers/netgsm.provider": "./server/providers/netgsm.provider.ts",
-    "./server/providers/nexmo.provider": "./server/providers/nexmo.provider.ts",
-    "./server/providers/twilio.provider": "./server/providers/twilio.provider.ts",
     "./module.json": "./module.json"
   }
 }

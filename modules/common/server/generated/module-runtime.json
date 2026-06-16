@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-16T11:25:23.978Z",
+  "generatedAt": "2026-06-16T15:46:40.136Z",
   "menu": [
     {
       "id": "settings",
@@ -2311,6 +2311,387 @@
       "moduleId": "payment"
     }
   ],
+  "extensionPoints": [
+    {
+      "id": "ai:provider",
+      "kind": "provider",
+      "description": "A backend AI provider (chat / embeddings / streaming). Satellite modules like ai_openai contribute their implementation here.",
+      "moduleId": "ai"
+    },
+    {
+      "id": "auth_sso:provider",
+      "kind": "provider",
+      "description": "An OAuth/OIDC SSO provider implementation. Satellite modules like auth_sso_google contribute their provider here; the host discovers them via the extension registry.",
+      "moduleId": "auth_sso"
+    },
+    {
+      "id": "esign:provider",
+      "kind": "provider",
+      "description": "A national e-signature / eID backend. Satellite modules like esign_mobil_imza contribute their implementation here.",
+      "moduleId": "e_signature"
+    },
+    {
+      "id": "mail:provider",
+      "kind": "provider",
+      "description": "An email sending backend. Satellite modules like mail_smtp contribute their implementation here.",
+      "moduleId": "notification_mail"
+    },
+    {
+      "id": "sms:provider",
+      "kind": "provider",
+      "description": "An SMS sending backend. Satellite modules like sms_twilio contribute their implementation here.",
+      "moduleId": "notification_sms"
+    },
+    {
+      "id": "storage:provider",
+      "kind": "provider",
+      "description": "An S3-compatible storage backend. Satellite modules like storage_s3 contribute their implementation here.",
+      "moduleId": "storage"
+    }
+  ],
+  "extensions": [
+    {
+      "id": "ai_anthropic:ai:provider:anthropic",
+      "point": "ai:provider",
+      "moduleId": "ai_anthropic",
+      "key": "anthropic",
+      "exportId": "ai_anthropic/server/anthropic.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "label": "Anthropic",
+        "defaultModel": "claude-3-5-sonnet-20241022",
+        "models": [
+          "claude-opus-4-20250514",
+          "claude-sonnet-4-20250514",
+          "claude-3-7-sonnet-20250219",
+          "claude-3-5-sonnet-20241022",
+          "claude-3-5-haiku-20241022",
+          "claude-3-opus-20240229",
+          "claude-3-sonnet-20240229",
+          "claude-3-haiku-20240307"
+        ]
+      }
+    },
+    {
+      "id": "ai_google:ai:provider:google",
+      "point": "ai:provider",
+      "moduleId": "ai_google",
+      "key": "google",
+      "exportId": "ai_google/server/google.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "label": "Google",
+        "defaultModel": "gemini-2.0-flash",
+        "models": [
+          "gemini-2.0-flash",
+          "gemini-2.0-flash-lite",
+          "gemini-1.5-pro",
+          "gemini-1.5-flash",
+          "gemini-1.5-flash-8b"
+        ]
+      }
+    },
+    {
+      "id": "ai_openai:ai:provider:openai",
+      "point": "ai:provider",
+      "moduleId": "ai_openai",
+      "key": "openai",
+      "exportId": "ai_openai/server/openai.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "label": "OpenAI",
+        "defaultModel": "gpt-4o-mini",
+        "models": [
+          "gpt-4o",
+          "gpt-4o-mini",
+          "gpt-4-turbo",
+          "gpt-4",
+          "gpt-3.5-turbo",
+          "o1",
+          "o1-mini",
+          "o1-preview"
+        ]
+      }
+    },
+    {
+      "id": "auth_sso_google:auth_sso:provider:google",
+      "point": "auth_sso:provider",
+      "moduleId": "auth_sso_google",
+      "key": "google",
+      "exportId": "auth_sso_google/server/google.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "label": "Google"
+      }
+    },
+    {
+      "id": "esign_bankid_se:esign:provider:bankid_se",
+      "point": "esign:provider",
+      "moduleId": "esign_bankid_se",
+      "key": "bankid_se",
+      "exportId": "esign_bankid_se/server/esign.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "label": "BankID (SE)",
+        "countries": [
+          "SE"
+        ]
+      }
+    },
+    {
+      "id": "esign_login_gov:esign:provider:login_gov",
+      "point": "esign:provider",
+      "moduleId": "esign_login_gov",
+      "key": "login_gov",
+      "exportId": "esign_login_gov/server/esign.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "label": "Login.gov",
+        "countries": [
+          "US"
+        ]
+      }
+    },
+    {
+      "id": "esign_mobil_imza:esign:provider:mobil_imza_aggregator",
+      "point": "esign:provider",
+      "moduleId": "esign_mobil_imza",
+      "key": "mobil_imza_aggregator",
+      "exportId": "esign_mobil_imza/server/esign.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "label": "Mobil İmza",
+        "countries": [
+          "TR"
+        ]
+      }
+    },
+    {
+      "id": "esign_smart_id:esign:provider:smart_id",
+      "point": "esign:provider",
+      "moduleId": "esign_smart_id",
+      "key": "smart_id",
+      "exportId": "esign_smart_id/server/esign.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "label": "Smart-ID",
+        "countries": [
+          "EE",
+          "LV",
+          "LT"
+        ]
+      }
+    },
+    {
+      "id": "mail_mailgun:mail:provider:mailgun",
+      "point": "mail:provider",
+      "moduleId": "mail_mailgun",
+      "key": "mailgun",
+      "exportId": "mail_mailgun/server/mail.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "label": "Mailgun"
+      }
+    },
+    {
+      "id": "mail_postmark:mail:provider:postmark",
+      "point": "mail:provider",
+      "moduleId": "mail_postmark",
+      "key": "postmark",
+      "exportId": "mail_postmark/server/mail.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "label": "Postmark"
+      }
+    },
+    {
+      "id": "mail_resend:mail:provider:resend",
+      "point": "mail:provider",
+      "moduleId": "mail_resend",
+      "key": "resend",
+      "exportId": "mail_resend/server/mail.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "label": "Resend"
+      }
+    },
+    {
+      "id": "mail_sendgrid:mail:provider:sendgrid",
+      "point": "mail:provider",
+      "moduleId": "mail_sendgrid",
+      "key": "sendgrid",
+      "exportId": "mail_sendgrid/server/mail.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "label": "SendGrid"
+      }
+    },
+    {
+      "id": "mail_ses:mail:provider:ses",
+      "point": "mail:provider",
+      "moduleId": "mail_ses",
+      "key": "ses",
+      "exportId": "mail_ses/server/mail.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "label": "Amazon SES"
+      }
+    },
+    {
+      "id": "mail_smtp:mail:provider:smtp",
+      "point": "mail:provider",
+      "moduleId": "mail_smtp",
+      "key": "smtp",
+      "exportId": "mail_smtp/server/mail.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "label": "SMTP"
+      }
+    },
+    {
+      "id": "sms_clickatell:sms:provider:clickatell",
+      "point": "sms:provider",
+      "moduleId": "sms_clickatell",
+      "key": "clickatell",
+      "exportId": "sms_clickatell/server/sms.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "label": "Clickatell",
+        "regions": []
+      }
+    },
+    {
+      "id": "sms_netgsm:sms:provider:netgsm",
+      "point": "sms:provider",
+      "moduleId": "sms_netgsm",
+      "key": "netgsm",
+      "exportId": "sms_netgsm/server/sms.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "label": "NetGSM",
+        "regions": [
+          "TR"
+        ]
+      }
+    },
+    {
+      "id": "sms_nexmo:sms:provider:nexmo",
+      "point": "sms:provider",
+      "moduleId": "sms_nexmo",
+      "key": "nexmo",
+      "exportId": "sms_nexmo/server/sms.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "label": "Vonage (Nexmo)",
+        "regions": []
+      }
+    },
+    {
+      "id": "sms_twilio:sms:provider:twilio",
+      "point": "sms:provider",
+      "moduleId": "sms_twilio",
+      "key": "twilio",
+      "exportId": "sms_twilio/server/sms.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "label": "Twilio",
+        "regions": [
+          "US",
+          "GB",
+          "DE",
+          "FR"
+        ]
+      }
+    },
+    {
+      "id": "storage_minio:storage:provider:minio",
+      "point": "storage:provider",
+      "moduleId": "storage_minio",
+      "key": "minio",
+      "exportId": "storage_minio/server/storage.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "label": "MinIO"
+      }
+    },
+    {
+      "id": "storage_r2:storage:provider:cloudflare-r2",
+      "point": "storage:provider",
+      "moduleId": "storage_r2",
+      "key": "cloudflare-r2",
+      "exportId": "storage_r2/server/storage.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "label": "Cloudflare R2"
+      }
+    },
+    {
+      "id": "storage_s3:storage:provider:aws-s3",
+      "point": "storage:provider",
+      "moduleId": "storage_s3",
+      "key": "aws-s3",
+      "exportId": "storage_s3/server/storage.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "label": "AWS S3"
+      }
+    },
+    {
+      "id": "storage_spaces:storage:provider:digitalocean-spaces",
+      "point": "storage:provider",
+      "moduleId": "storage_spaces",
+      "key": "digitalocean-spaces",
+      "exportId": "storage_spaces/server/storage.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "label": "DigitalOcean Spaces"
+      }
+    }
+  ],
   "settingsTabs": [],
   "permissions": [],
   "modules": [
@@ -2328,6 +2709,57 @@
         "ai"
       ],
       "priority": 50,
+      "enabled": true,
+      "tier": "ai"
+    },
+    {
+      "id": "ai_anthropic",
+      "name": "AI — Anthropic",
+      "icon": "fas fa-robot",
+      "version": "1.0.0",
+      "description": "Anthropic (Claude) provider for the AI module. Contributes chat and streaming.",
+      "author": "Kuray Karaaslan",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/ai_anthropic",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "ai",
+        "provider"
+      ],
+      "priority": 52,
+      "enabled": true,
+      "tier": "ai"
+    },
+    {
+      "id": "ai_google",
+      "name": "AI — Google",
+      "icon": "fas fa-robot",
+      "version": "1.0.0",
+      "description": "Google (Gemini) provider for the AI module. Contributes chat, streaming and embeddings.",
+      "author": "Kuray Karaaslan",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/ai_google",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "ai",
+        "provider"
+      ],
+      "priority": 53,
+      "enabled": true,
+      "tier": "ai"
+    },
+    {
+      "id": "ai_openai",
+      "name": "AI — OpenAI",
+      "icon": "fas fa-robot",
+      "version": "1.0.0",
+      "description": "OpenAI (and OpenAI-compatible) provider for the AI module. Contributes chat, streaming and embeddings.",
+      "author": "Kuray Karaaslan",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/ai_openai",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "ai",
+        "provider"
+      ],
+      "priority": 51,
       "enabled": true,
       "tier": "ai"
     },
@@ -2556,6 +2988,25 @@
       "tier": "identity"
     },
     {
+      "id": "auth_sso_google",
+      "name": "Google SSO",
+      "icon": "fab fa-google",
+      "version": "1.0.0",
+      "description": "Google OAuth/OIDC provider, contributed into the auth_sso:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_sso_google",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "identity",
+        "auth",
+        "sso",
+        "provider"
+      ],
+      "priority": 17,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
       "id": "blog",
       "name": "Blog",
       "icon": "fas fa-newspaper",
@@ -2687,6 +3138,78 @@
       "tier": "infrastructure"
     },
     {
+      "id": "esign_bankid_se",
+      "name": "e-Signature — BankID (SE)",
+      "icon": "fas fa-signature",
+      "version": "1.0.0",
+      "description": "BankID (SE) national e-signature / eID provider for the e_signature module.",
+      "author": "Kuray Karaaslan",
+      "homepage": "",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "e_signature",
+        "eid",
+        "provider"
+      ],
+      "priority": 73,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "esign_login_gov",
+      "name": "e-Signature — Login.gov",
+      "icon": "fas fa-signature",
+      "version": "1.0.0",
+      "description": "Login.gov national e-signature / eID provider for the e_signature module.",
+      "author": "Kuray Karaaslan",
+      "homepage": "",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "e_signature",
+        "eid",
+        "provider"
+      ],
+      "priority": 74,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "esign_mobil_imza",
+      "name": "e-Signature — Mobil İmza",
+      "icon": "fas fa-signature",
+      "version": "1.0.0",
+      "description": "Mobil İmza national e-signature / eID provider for the e_signature module.",
+      "author": "Kuray Karaaslan",
+      "homepage": "",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "e_signature",
+        "eid",
+        "provider"
+      ],
+      "priority": 71,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "esign_smart_id",
+      "name": "e-Signature — Smart-ID",
+      "icon": "fas fa-signature",
+      "version": "1.0.0",
+      "description": "Smart-ID national e-signature / eID provider for the e_signature module.",
+      "author": "Kuray Karaaslan",
+      "homepage": "",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "e_signature",
+        "eid",
+        "provider"
+      ],
+      "priority": 72,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
       "id": "exchange_rate",
       "name": "Exchange Rate",
       "icon": "fas fa-money-bill-transfer",
@@ -2814,6 +3337,114 @@
       "priority": 2,
       "enabled": true,
       "tier": "infrastructure"
+    },
+    {
+      "id": "mail_mailgun",
+      "name": "Mail — Mailgun",
+      "icon": "fas fa-envelope",
+      "version": "1.0.0",
+      "description": "Mailgun email backend for the notification_mail module.",
+      "author": "Kuray Karaaslan",
+      "homepage": "",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "notifications",
+        "mail",
+        "provider"
+      ],
+      "priority": 33,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "mail_postmark",
+      "name": "Mail — Postmark",
+      "icon": "fas fa-envelope",
+      "version": "1.0.0",
+      "description": "Postmark email backend for the notification_mail module.",
+      "author": "Kuray Karaaslan",
+      "homepage": "",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "notifications",
+        "mail",
+        "provider"
+      ],
+      "priority": 35,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "mail_resend",
+      "name": "Mail — Resend",
+      "icon": "fas fa-envelope",
+      "version": "1.0.0",
+      "description": "Resend email backend for the notification_mail module.",
+      "author": "Kuray Karaaslan",
+      "homepage": "",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "notifications",
+        "mail",
+        "provider"
+      ],
+      "priority": 36,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "mail_sendgrid",
+      "name": "Mail — SendGrid",
+      "icon": "fas fa-envelope",
+      "version": "1.0.0",
+      "description": "SendGrid email backend for the notification_mail module.",
+      "author": "Kuray Karaaslan",
+      "homepage": "",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "notifications",
+        "mail",
+        "provider"
+      ],
+      "priority": 32,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "mail_ses",
+      "name": "Mail — Amazon SES",
+      "icon": "fas fa-envelope",
+      "version": "1.0.0",
+      "description": "Amazon SES email backend for the notification_mail module.",
+      "author": "Kuray Karaaslan",
+      "homepage": "",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "notifications",
+        "mail",
+        "provider"
+      ],
+      "priority": 34,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "mail_smtp",
+      "name": "Mail — SMTP",
+      "icon": "fas fa-envelope",
+      "version": "1.0.0",
+      "description": "SMTP email backend for the notification_mail module.",
+      "author": "Kuray Karaaslan",
+      "homepage": "",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "notifications",
+        "mail",
+        "provider"
+      ],
+      "priority": 31,
+      "enabled": true,
+      "tier": "other"
     },
     {
       "id": "media_gallery",
@@ -3335,6 +3966,78 @@
       "tier": "platform"
     },
     {
+      "id": "sms_clickatell",
+      "name": "SMS — Clickatell",
+      "icon": "fas fa-comment-sms",
+      "version": "1.0.0",
+      "description": "Clickatell SMS backend for the notification_sms module.",
+      "author": "Kuray Karaaslan",
+      "homepage": "",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "notifications",
+        "sms",
+        "provider"
+      ],
+      "priority": 63,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "sms_netgsm",
+      "name": "SMS — NetGSM",
+      "icon": "fas fa-comment-sms",
+      "version": "1.0.0",
+      "description": "NetGSM SMS backend for the notification_sms module.",
+      "author": "Kuray Karaaslan",
+      "homepage": "",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "notifications",
+        "sms",
+        "provider"
+      ],
+      "priority": 62,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "sms_nexmo",
+      "name": "SMS — Vonage (Nexmo)",
+      "icon": "fas fa-comment-sms",
+      "version": "1.0.0",
+      "description": "Vonage (Nexmo) SMS backend for the notification_sms module.",
+      "author": "Kuray Karaaslan",
+      "homepage": "",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "notifications",
+        "sms",
+        "provider"
+      ],
+      "priority": 64,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "sms_twilio",
+      "name": "SMS — Twilio",
+      "icon": "fas fa-comment-sms",
+      "version": "1.0.0",
+      "description": "Twilio SMS backend for the notification_sms module.",
+      "author": "Kuray Karaaslan",
+      "homepage": "",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "notifications",
+        "sms",
+        "provider"
+      ],
+      "priority": 61,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
       "id": "storage",
       "name": "File Storage",
       "icon": "fas fa-cloud-arrow-up",
@@ -3351,6 +4054,74 @@
       "priority": 10,
       "enabled": true,
       "tier": "platform"
+    },
+    {
+      "id": "storage_minio",
+      "name": "Storage — MinIO",
+      "icon": "fas fa-hard-drive",
+      "version": "1.0.0",
+      "description": "MinIO storage backend for the storage module.",
+      "author": "Kuray Karaaslan",
+      "homepage": "",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "storage",
+        "provider"
+      ],
+      "priority": 44,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "storage_r2",
+      "name": "Storage — Cloudflare R2",
+      "icon": "fas fa-hard-drive",
+      "version": "1.0.0",
+      "description": "Cloudflare R2 storage backend for the storage module.",
+      "author": "Kuray Karaaslan",
+      "homepage": "",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "storage",
+        "provider"
+      ],
+      "priority": 42,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "storage_s3",
+      "name": "Storage — AWS S3",
+      "icon": "fas fa-hard-drive",
+      "version": "1.0.0",
+      "description": "AWS S3 storage backend for the storage module.",
+      "author": "Kuray Karaaslan",
+      "homepage": "",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "storage",
+        "provider"
+      ],
+      "priority": 41,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "storage_spaces",
+      "name": "Storage — DigitalOcean Spaces",
+      "icon": "fas fa-hard-drive",
+      "version": "1.0.0",
+      "description": "DigitalOcean Spaces storage backend for the storage module.",
+      "author": "Kuray Karaaslan",
+      "homepage": "",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "storage",
+        "provider"
+      ],
+      "priority": 43,
+      "enabled": true,
+      "tier": "other"
     },
     {
       "id": "store",

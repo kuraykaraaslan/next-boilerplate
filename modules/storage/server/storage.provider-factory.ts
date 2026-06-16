@@ -1,10 +1,9 @@
 import Logger from '@nb/logger'
 import { AppError, ErrorCode } from '@nb/common/server/app-error'
-import BaseStorageProvider from './providers/base.provider'
-import AWSS3Provider from './providers/aws-s3.provider'
-import CloudflareR2Provider from './providers/cloudflare-r2.provider'
-import DigitalOceanSpacesProvider from './providers/digitalocean-spaces.provider'
-import MinIOProvider from './providers/minio.provider'
+import { extensionRegistry } from '@nb/common/server/extension-registry'
+import { getEnabledModuleIds } from '@nb/setting/server/module-activation.service.next'
+import type BaseStorageProvider from './providers/base.provider'
+import type { StorageProviderContribution } from './storage.provider.types'
 import { StorageProviderType } from './storage.enums'
 import { S3Config } from './storage.types'
 import { STORAGE_MESSAGES } from './storage.messages'
@@ -12,6 +11,9 @@ import SettingService from '@nb/setting/server/setting.service'
 import { STORAGE_KEYS } from './storage.setting.keys'
 import { expandMimeGroups } from './storage.mime-groups'
 import type { UploadValidationPolicy } from './storage.validation'
+
+/** Extension point satellite storage-provider modules contribute into. */
+const STORAGE_PROVIDER_POINT = 'storage:provider'
 
 /**
  * Read storage settings from SettingService and build S3Config for a tenant.
@@ -52,21 +54,26 @@ export async function getValidationPolicy(tenantId: string): Promise<UploadValid
   }
 }
 
-/** Create a provider instance from config. */
-export function createProvider(providerName: StorageProviderType, config: S3Config): BaseStorageProvider {
-  switch (providerName) {
-    case 'aws-s3':
-      return new AWSS3Provider(config)
-    case 'cloudflare-r2':
-      return new CloudflareR2Provider(config)
-    case 'digitalocean-spaces':
-      return new DigitalOceanSpacesProvider(config)
-    case 'minio':
-      return new MinIOProvider(config)
-    default:
-      Logger.error(`${STORAGE_MESSAGES.PROVIDER_NOT_FOUND}: ${providerName}`)
-      throw new AppError(`${STORAGE_MESSAGES.PROVIDER_NOT_FOUND}: ${providerName}`, 400, ErrorCode.VALIDATION_ERROR)
+/**
+ * Create a provider instance from config, discovered through the extension
+ * registry (point `storage:provider`) and gated by the tenant's enabled-module
+ * set — so a disabled provider module (e.g. `storage_minio`) is rejected here.
+ */
+export async function createProvider(
+  tenantId: string,
+  providerName: StorageProviderType,
+  config: S3Config,
+): Promise<BaseStorageProvider> {
+  const enabledIds = await getEnabledModuleIds(tenantId)
+  const contrib = extensionRegistry
+    .getContributions(STORAGE_PROVIDER_POINT, { enabledIds })
+    .find((c) => (c.key ?? c.metadata?.key) === providerName)
+  if (!contrib) {
+    Logger.error(`${STORAGE_MESSAGES.PROVIDER_NOT_FOUND}: ${providerName}`)
+    throw new AppError(`${STORAGE_MESSAGES.PROVIDER_NOT_FOUND}: ${providerName}`, 400, ErrorCode.VALIDATION_ERROR)
   }
+  const impl = await extensionRegistry.load<StorageProviderContribution>(contrib)
+  return impl.create(config)
 }
 
 /** Get a configured provider instance for a tenant. */
@@ -76,6 +83,6 @@ export async function getProvider(
 ): Promise<{ provider: BaseStorageProvider; resolvedName: StorageProviderType }> {
   const { providerName: defaultName, config } = await getStorageSettings(tenantId)
   const resolvedName = providerName || defaultName
-  const provider = createProvider(resolvedName, config)
+  const provider = await createProvider(tenantId, resolvedName, config)
   return { provider, resolvedName }
 }

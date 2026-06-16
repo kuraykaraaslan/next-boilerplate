@@ -1,76 +1,73 @@
 import { env } from '@nb/env';
 import Logger from '@nb/logger';
 import SettingService from '@nb/setting/server/setting.service';
-import { AI_KEYS } from './ai.setting.keys';
-import BaseAIProvider from './providers/base.provider';
-import OpenAIProvider from './providers/openai.provider';
-import AnthropicProvider from './providers/anthropic.provider';
-import GoogleProvider from './providers/google.provider';
-import type { AIProviderType, AIModel, ProviderConfig } from './ai.types';
-import { OpenAIModels, AnthropicModels, GoogleModels } from './ai.types';
+import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { extensionRegistry, type RuntimeExtension } from '@nb/common/server/extension-registry';
+import { getEnabledModuleIds } from '@nb/setting/server/module-activation.service.next';
+import type BaseAIProvider from './providers/base.provider';
+import type { AIProviderContribution } from './ai.provider.types';
+import type { AIProviderType, AIModel } from './ai.types';
+import AiMessages from './ai.messages';
 
-export interface TenantProviderBundle {
-  openai: OpenAIProvider;
-  anthropic: AnthropicProvider;
-  google: GoogleProvider;
-  defaultProvider: AIProviderType;
+/** The extension point satellite provider modules contribute into. */
+const AI_PROVIDER_POINT = 'ai:provider';
+
+/** Code-free view of a provider contribution, taken from the manifest metadata. */
+interface ProviderMeta {
+  key: string;
+  label?: string;
+  models: string[];
+  order: number;
+  moduleId: string;
 }
 
-export default class AIProviderService {
+function metaOf(c: RuntimeExtension): ProviderMeta {
+  const md = c.metadata ?? {};
+  return {
+    key: c.key ?? String(md.key ?? ''),
+    label: typeof md.label === 'string' ? md.label : undefined,
+    models: Array.isArray(md.models) ? (md.models as string[]) : [],
+    order: c.order,
+    moduleId: c.moduleId,
+  };
+}
 
-  // ──────────────────────────────────────────────
-  // Constants
-  // ──────────────────────────────────────────────
+/**
+ * Resolves and caches AI provider instances per tenant. Providers are not
+ * hardcoded: they are discovered from the extension registry (point
+ * `ai:provider`) and gated by the tenant's enabled-module set, so enabling or
+ * disabling a satellite module (e.g. `ai_anthropic`) adds or removes a provider
+ * with no host change. Gating is enforced live on every call; the cache only
+ * holds already-built instances and is keyed by (tenant, providerKey).
+ */
+export default class AIProviderService {
 
   private static readonly FALLBACK_DEFAULT_PROVIDER: AIProviderType =
     (env.AI_DEFAULT_PROVIDER as AIProviderType) || 'openai';
 
-  private static readonly _tenantProviders = new Map<string, TenantProviderBundle>();
+  // tenantId -> (providerKey -> instance)
+  private static readonly _tenantProviders = new Map<string, Map<string, BaseAIProvider>>();
 
   // ──────────────────────────────────────────────
-  // Private Helpers
+  // Discovery (manifest-metadata only — no satellite code loaded)
   // ──────────────────────────────────────────────
 
-  private static async buildTenantBundle(tenantId: string): Promise<TenantProviderBundle> {
-    const settings = await SettingService.getByKeys(tenantId, [...AI_KEYS]);
-
-    const openaiCfg: ProviderConfig = {
-      apiKey: settings.openaiApiKey || env.OPENAI_API_KEY || '',
-      defaultModel: settings.openaiDefaultModel || env.OPENAI_DEFAULT_MODEL || 'gpt-4o-mini',
-      maxTokens: settings.openaiMaxTokens ? Number(settings.openaiMaxTokens) : (env.OPENAI_MAX_TOKENS ?? 4096),
-      baseUrl: settings.openaiBaseUrl || undefined,
-    };
-
-    const anthropicCfg: ProviderConfig = {
-      apiKey: settings.anthropicApiKey || env.ANTHROPIC_API_KEY || '',
-      defaultModel: settings.anthropicDefaultModel || env.ANTHROPIC_DEFAULT_MODEL || 'claude-3-5-sonnet-20241022',
-      maxTokens: settings.anthropicMaxTokens ? Number(settings.anthropicMaxTokens) : (env.ANTHROPIC_MAX_TOKENS ?? 4096),
-    };
-
-    const googleCfg: ProviderConfig = {
-      apiKey: settings.googleAiApiKey || env.GOOGLE_AI_API_KEY || '',
-      defaultModel: settings.googleDefaultModel || env.GOOGLE_DEFAULT_MODEL || 'gemini-2.0-flash',
-      maxTokens: settings.googleMaxTokens ? Number(settings.googleMaxTokens) : (env.GOOGLE_MAX_TOKENS ?? 4096),
-    };
-
-    const defaultProvider =
-      (settings.aiDefaultProvider as AIProviderType | undefined) || AIProviderService.FALLBACK_DEFAULT_PROVIDER;
-
-    return {
-      openai: new OpenAIProvider(openaiCfg),
-      anthropic: new AnthropicProvider(anthropicCfg),
-      google: new GoogleProvider(googleCfg),
-      defaultProvider,
-    };
+  /** Enabled provider contributions for a tenant. */
+  private static async enabledContributions(tenantId: string): Promise<RuntimeExtension[]> {
+    const enabledIds = await getEnabledModuleIds(tenantId);
+    return extensionRegistry.getContributions(AI_PROVIDER_POINT, { enabledIds });
   }
 
-  private static async getTenantBundle(tenantId: string): Promise<TenantProviderBundle> {
-    let bundle = AIProviderService._tenantProviders.get(tenantId);
-    if (!bundle) {
-      bundle = await AIProviderService.buildTenantBundle(tenantId);
-      AIProviderService._tenantProviders.set(tenantId, bundle);
-    }
-    return bundle;
+  private static async enabledMetas(tenantId: string): Promise<ProviderMeta[]> {
+    return (await AIProviderService.enabledContributions(tenantId)).map(metaOf).filter((m) => m.key);
+  }
+
+  private static async resolveDefaultKey(tenantId: string, metas: ProviderMeta[]): Promise<string | undefined> {
+    if (metas.length === 0) return undefined;
+    const rec = await SettingService.getByKeys(tenantId, ['aiDefaultProvider']).catch(() => ({} as Record<string, string>));
+    const want = rec.aiDefaultProvider || AIProviderService.FALLBACK_DEFAULT_PROVIDER;
+    if (metas.some((m) => m.key === want)) return want;
+    return metas[0].key; // lowest-order enabled provider
   }
 
   // ──────────────────────────────────────────────
@@ -78,43 +75,82 @@ export default class AIProviderService {
   // ──────────────────────────────────────────────
 
   static async getProvider(tenantId: string, providerType?: AIProviderType): Promise<BaseAIProvider> {
-    const bundle = await AIProviderService.getTenantBundle(tenantId);
-    const type = providerType || bundle.defaultProvider;
-
-    switch (type) {
-      case 'openai':
-        return bundle.openai;
-      case 'anthropic':
-        return bundle.anthropic;
-      case 'google':
-        return bundle.google;
-      default:
-        Logger.warn(`AIProviderService: Unknown provider "${type}", falling back to default`);
-        return bundle[bundle.defaultProvider] as BaseAIProvider;
+    const metas = await AIProviderService.enabledMetas(tenantId);
+    if (metas.length === 0) {
+      throw new AppError(AiMessages.PROVIDER_NOT_CONFIGURED, 503, ErrorCode.FEATURE_NOT_AVAILABLE);
     }
+
+    let key: string | undefined;
+    if (providerType) {
+      if (!metas.some((m) => m.key === providerType)) {
+        // Explicit choice that is unknown or disabled for this tenant.
+        throw new AppError(`${AiMessages.PROVIDER_NOT_CONFIGURED}: "${providerType}"`, 503, ErrorCode.FEATURE_NOT_AVAILABLE);
+      }
+      key = providerType;
+    } else {
+      key = await AIProviderService.resolveDefaultKey(tenantId, metas);
+    }
+    if (!key) {
+      throw new AppError(AiMessages.PROVIDER_NOT_CONFIGURED, 503, ErrorCode.FEATURE_NOT_AVAILABLE);
+    }
+
+    let perTenant = AIProviderService._tenantProviders.get(tenantId);
+    if (!perTenant) {
+      perTenant = new Map<string, BaseAIProvider>();
+      AIProviderService._tenantProviders.set(tenantId, perTenant);
+    }
+    let instance = perTenant.get(key);
+    if (!instance) {
+      instance = await AIProviderService.build(tenantId, key);
+      perTenant.set(key, instance);
+    }
+    return instance;
+  }
+
+  /** Load the contribution implementation and instantiate it from tenant settings. */
+  private static async build(tenantId: string, key: string): Promise<BaseAIProvider> {
+    const contrib = (await AIProviderService.enabledContributions(tenantId)).find(
+      (c) => (c.key ?? c.metadata?.key) === key,
+    );
+    if (!contrib) {
+      throw new AppError(`${AiMessages.PROVIDER_NOT_CONFIGURED}: "${key}"`, 503, ErrorCode.FEATURE_NOT_AVAILABLE);
+    }
+    const impl = await extensionRegistry.load<AIProviderContribution>(contrib);
+    const settings = await SettingService.getByKeys(tenantId, [...impl.settingKeys]);
+    const config = impl.resolveConfig(settings);
+    return impl.create(config);
   }
 
   static async getDefaultProvider(tenantId: string): Promise<BaseAIProvider> {
-    const bundle = await AIProviderService.getTenantBundle(tenantId);
-    return AIProviderService.getProvider(tenantId, bundle.defaultProvider);
+    return AIProviderService.getProvider(tenantId);
   }
 
-  static listProviders(): AIProviderType[] {
-    return ['openai', 'anthropic', 'google'];
+  /** Provider keys enabled for the tenant (lowest-order first). */
+  static async listProviders(tenantId: string): Promise<AIProviderType[]> {
+    return (await AIProviderService.enabledMetas(tenantId)).map((m) => m.key);
   }
 
   static async listConfiguredProviders(tenantId: string): Promise<AIProviderType[]> {
-    const bundle = await AIProviderService.getTenantBundle(tenantId);
+    const metas = await AIProviderService.enabledMetas(tenantId);
     const out: AIProviderType[] = [];
-    if (bundle.openai.isConfigured()) out.push('openai');
-    if (bundle.anthropic.isConfigured()) out.push('anthropic');
-    if (bundle.google.isConfigured()) out.push('google');
+    for (const m of metas) {
+      try {
+        const provider = await AIProviderService.getProvider(tenantId, m.key);
+        if (provider.isConfigured()) out.push(m.key);
+      } catch {
+        // disabled/unbuildable — skip
+      }
+    }
     return out;
   }
 
   static async isProviderConfigured(tenantId: string, providerType: AIProviderType): Promise<boolean> {
-    const provider = await AIProviderService.getProvider(tenantId, providerType);
-    return provider.isConfigured();
+    try {
+      const provider = await AIProviderService.getProvider(tenantId, providerType);
+      return provider.isConfigured();
+    } catch {
+      return false;
+    }
   }
 
   static async listModels(tenantId: string, providerType?: AIProviderType): Promise<string[]> {
@@ -122,32 +158,33 @@ export default class AIProviderService {
     return provider.listModels();
   }
 
-  static listAllModels(): Record<AIProviderType, string[]> {
-    return {
-      openai: [...OpenAIModels],
-      anthropic: [...AnthropicModels],
-      google: [...GoogleModels],
-    };
+  /** Models per enabled provider for the tenant, from manifest metadata (no code load). */
+  static async listAllModels(tenantId: string): Promise<Record<string, string[]>> {
+    const metas = await AIProviderService.enabledMetas(tenantId);
+    const out: Record<string, string[]> = {};
+    for (const m of metas) out[m.key] = m.models;
+    return out;
   }
 
+  /**
+   * Resolve which provider serves a model id, scanning ALL registered providers'
+   * declared models (not just the tenant's enabled set) so a model belonging to
+   * a disabled provider still maps to it — `getProvider` then rejects it cleanly
+   * rather than silently routing to the wrong provider. Returns null if no
+   * provider claims the model.
+   */
   static getProviderForModel(model: AIModel): AIProviderType | null {
-    if (OpenAIModels.includes(model as typeof OpenAIModels[number])) return 'openai';
-    if (AnthropicModels.includes(model as typeof AnthropicModels[number])) return 'anthropic';
-    if (GoogleModels.includes(model as typeof GoogleModels[number])) return 'google';
+    const all = extensionRegistry.getContributions(AI_PROVIDER_POINT);
+    for (const c of all) {
+      const m = metaOf(c);
+      if (m.key && m.models.includes(model)) return m.key;
+    }
     return null;
   }
 
-  static reinitializeProvider(tenantId: string, providerType: AIProviderType, config: ProviderConfig): void {
-    const bundle = AIProviderService._tenantProviders.get(tenantId);
-    if (!bundle) return;
-    switch (providerType) {
-      case 'openai':    bundle.openai = new OpenAIProvider(config); break;
-      case 'anthropic': bundle.anthropic = new AnthropicProvider(config); break;
-      case 'google':    bundle.google = new GoogleProvider(config); break;
-    }
-  }
-
+  /** Drop cached provider instances for a tenant (call after a settings change). */
   static invalidateTenant(tenantId: string): void {
     AIProviderService._tenantProviders.delete(tenantId);
+    Logger.info(`AIProviderService: invalidated provider cache for tenant ${tenantId}`);
   }
 }

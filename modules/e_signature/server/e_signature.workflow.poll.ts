@@ -34,7 +34,7 @@ export async function pollStatus({
     return { status: 'expired', failureReason: E_SIGNATURE_MESSAGES.TRANSACTION_EXPIRED };
   }
 
-  const provider = ESignatureProviderService.getProviderByName(record.providerName);
+  const provider = await ESignatureProviderService.getProviderByName(record.providerName);
   if (!provider) {
     await deleteTransaction(transactionId);
     return { status: 'failed', failureReason: E_SIGNATURE_MESSAGES.PROVIDER_NOT_FOUND };

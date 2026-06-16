@@ -1,0 +1,11 @@
+{
+  "name": "@nb/auth_sso_google",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/google.extension": "./server/google.extension.ts",
+    "./server/providers/google.provider": "./server/providers/google.provider.ts",
+    "./module.json": "./module.json"
+  }
+}

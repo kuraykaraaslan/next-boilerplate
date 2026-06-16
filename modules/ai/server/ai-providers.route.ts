@@ -28,7 +28,7 @@ export async function GET(
       return NextResponse.json({ success: false, message: err.message }, { status: 403 });
 
     }
-    const all = AIService.listProviders();
+    const all = await AIService.listProviders(tenantId);
     const configured = await AIService.listConfiguredProviders(tenantId);
 
     const providers = all.map((type) => ({
