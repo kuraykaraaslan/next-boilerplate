@@ -12,7 +12,9 @@ Dependency-free leaf module loaded by every other module: AppError + ErrorCode e
 
 ## Next layer (modules_next/) surface
 
+- `common/ui/admin-dashboard.page` _(ui, client)_
 - `common/ui/alert-banner.component` _(ui, client)_
+- `common/ui/auth-shell.component` _(ui)_
 - `common/ui/avatar-upload.component` _(ui, client)_
 - `common/ui/avatar.component` _(ui, client)_
 - `common/ui/badge.component` _(ui, client)_
@@ -45,6 +47,7 @@ Dependency-free leaf module loaded by every other module: AppError + ErrorCode e
 - `common/ui/page-header.component` _(ui, client)_
 - `common/ui/pagination.component` _(ui, client)_
 - `common/ui/radio-group.component` _(ui, client)_
+- `common/ui/recent-activity-table.component` _(ui, client)_
 - `common/ui/RichTextEditor/bubble-menu.component` _(ui, client)_
 - `common/ui/RichTextEditor/emoji-picker.component` _(ui, client)_
 - `common/ui/RichTextEditor/image-insert-modal.component` _(ui, client)_
@@ -69,10 +72,7 @@ Dependency-free leaf module loaded by every other module: AppError + ErrorCode e
 - `common/ui/skeleton.component` _(ui, client)_
 - `common/ui/skip-to-content.component` _(ui, client)_
 - `common/ui/slot-error-boundary.component` _(ui, client)_
-- `common/ui/slot.component` _(ui, client)_
-- `common/ui/spinner.component` _(ui, client)_
-- `common/ui/tab-group.component` _(ui, client)_
-- … and 5 more
+- … and 8 more
 
 ## README
 

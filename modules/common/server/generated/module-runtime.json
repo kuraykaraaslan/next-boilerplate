@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-16T10:36:59.808Z",
+  "generatedAt": "2026-06-16T10:52:22.295Z",
   "menu": [
     {
       "id": "settings",
@@ -410,6 +410,12 @@
     }
   ],
   "pageRoutes": [
+    {
+      "path": "/admin",
+      "componentId": "common/ui/admin-dashboard.page",
+      "permissions": [],
+      "moduleId": "common"
+    },
     {
       "path": "/admin/ai",
       "componentId": "ai/ui/ai.page",

@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T10:36:59.808Z",
+  "generatedAt": "2026-06-16T10:52:22.295Z",
   "components": [
     {
       "id": "ai/ui/ai-chat-box.component",
@@ -728,6 +728,16 @@
       "baseName": "blog-status-badge.component"
     },
     {
+      "id": "common/ui/admin-dashboard.page",
+      "module": "common",
+      "filePath": "modules/common/ui/admin-dashboard.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "admin-dashboard.page"
+    },
+    {
       "id": "common/ui/alert-banner.component",
       "module": "common",
       "filePath": "modules/common/ui/alert-banner.component.tsx",
@@ -739,6 +749,18 @@
       "isClient": true,
       "isServer": false,
       "baseName": "alert-banner.component"
+    },
+    {
+      "id": "common/ui/auth-shell.component",
+      "module": "common",
+      "filePath": "modules/common/ui/auth-shell.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "AuthShell"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "auth-shell.component"
     },
     {
       "id": "common/ui/avatar-upload.component",
@@ -1138,6 +1160,18 @@
       "isClient": true,
       "isServer": false,
       "baseName": "radio-group.component"
+    },
+    {
+      "id": "common/ui/recent-activity-table.component",
+      "module": "common",
+      "filePath": "modules/common/ui/recent-activity-table.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "RecentActivityTable"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "recent-activity-table.component"
     },
     {
       "id": "common/ui/RichTextEditor/bubble-menu.component",

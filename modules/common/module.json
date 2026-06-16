@@ -63,5 +63,11 @@
   },
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/common",
-  "license": "CC-BY-NC-ND-4.0"
+  "license": "CC-BY-NC-ND-4.0",
+  "routes": [
+    {
+      "path": "/admin",
+      "component": "common/ui/admin-dashboard.page"
+    }
+  ]
 }

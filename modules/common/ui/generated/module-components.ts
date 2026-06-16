@@ -31,6 +31,7 @@ export const moduleComponents: Record<string, ComponentType<any>> = {
   "blog/ui/blog-categories.page": lazy(() => import("@nb/blog/ui/blog-categories.page").then((m) => { const M = m as Record<string, any>; return { default: M.default ?? M["blog-categories.page"] }; })),
   "blog/ui/blog-posts-post-id.page": lazy(() => import("@nb/blog/ui/blog-posts-post-id.page").then((m) => { const M = m as Record<string, any>; return { default: M.default ?? M["blog-posts-post-id.page"] }; })),
   "blog/ui/blog-posts.page": lazy(() => import("@nb/blog/ui/blog-posts.page").then((m) => { const M = m as Record<string, any>; return { default: M.default ?? M["blog-posts.page"] }; })),
+  "common/ui/admin-dashboard.page": lazy(() => import("@nb/common/ui/admin-dashboard.page").then((m) => { const M = m as Record<string, any>; return { default: M.default ?? M["admin-dashboard.page"] }; })),
   "coupon/ui/coupons-coupon-id.page": lazy(() => import("@nb/coupon/ui/coupons-coupon-id.page").then((m) => { const M = m as Record<string, any>; return { default: M.default ?? M["coupons-coupon-id.page"] }; })),
   "coupon/ui/coupons.page": lazy(() => import("@nb/coupon/ui/coupons.page").then((m) => { const M = m as Record<string, any>; return { default: M.default ?? M["coupons.page"] }; })),
   "dynamic_page/ui/blocks-block-id.page": lazy(() => import("@nb/dynamic_page/ui/blocks-block-id.page").then((m) => { const M = m as Record<string, any>; return { default: M.default ?? M["blocks-block-id.page"] }; })),

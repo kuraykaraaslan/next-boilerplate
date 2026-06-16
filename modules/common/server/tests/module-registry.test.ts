@@ -54,8 +54,8 @@ describe('findPageRoute (dynamic admin routing)', () => {
   });
 
   it('returns undefined for paths no module page claims (catch-all 404s)', () => {
-    expect(moduleRegistry.findPageRoute('/admin')).toBeUndefined();
     expect(moduleRegistry.findPageRoute('/admin/totally-unknown')).toBeUndefined();
+    expect(moduleRegistry.findPageRoute('/nope/nope')).toBeUndefined();
   });
 });
 

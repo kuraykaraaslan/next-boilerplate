@@ -18,7 +18,7 @@ import {
   faClockRotateLeft,
 } from '@fortawesome/free-solid-svg-icons';
 import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
-import { RecentActivityTable } from './recent-activity-table';
+import { RecentActivityTable } from './recent-activity-table.component';
 
 // Each stat card is backed by a list endpoint we already expose; we ask for a
 // single row (`pageSize=1`) and read the `total` the API returns. A per-request
