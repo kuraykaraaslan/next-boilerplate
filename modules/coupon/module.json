@@ -2,7 +2,7 @@
   "$schema": "../module.schema.json",
   "id": "coupon",
   "name": "Coupon",
-  "description": "Discount coupons + redemption tracking. Provider-aware (Stripe / PayPal / Iyzico) so codes sync with the payment processor.",
+  "description": "Discount coupons + redemption tracking. Validation and discount are computed locally (the code is the single source of truth); at checkout the discount is turned into gateway params via the payment:coupon extension point (Stripe / PayPal / Iyzico) — nothing is synced to the processor's coupon registry.",
   "version": "1.0.0",
   "icon": "fas fa-ticket",
   "tags": [

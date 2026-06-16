@@ -164,6 +164,11 @@
       "id": "payment:gateway",
       "kind": "provider",
       "description": "A payment gateway implementation (Stripe, PayPal, Iyzico, ...). Satellite modules like payment_stripe contribute their gateway here; the host discovers them via the extension registry."
+    },
+    {
+      "id": "payment:coupon",
+      "kind": "provider",
+      "description": "A gateway-specific coupon-checkout adapter. The coupon module validates a LOCAL code + computes the discount server-side, then asks the matching gateway adapter to turn it into checkout params (a one-off Stripe coupon, an iyzico negative basket line, a PayPal discount line). Nothing is synced to the gateway's coupon registry; the local code is the single source of truth. Payment gateway satellites contribute their adapter here."
     }
   ]
 }

@@ -4,7 +4,9 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./server/paypal.coupon.extension": "./server/paypal.coupon.extension.ts",
     "./server/paypal.extension": "./server/paypal.extension.ts",
+    "./server/providers/paypal.coupon.adapter": "./server/providers/paypal.coupon.adapter.ts",
     "./server/providers/paypal.provider": "./server/providers/paypal.provider.ts",
     "./module.json": "./module.json"
   }

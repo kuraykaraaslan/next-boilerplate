@@ -30,6 +30,14 @@
       "metadata": {
         "label": "PayPal"
       }
+    },
+    {
+      "point": "payment:coupon",
+      "key": "paypal",
+      "export": "payment_paypal/server/paypal.coupon.extension",
+      "metadata": {
+        "label": "PayPal"
+      }
     }
   ]
 }

@@ -7,11 +7,12 @@
   "icon": "fab fa-stripe",
   "tags": ["billing", "payment", "gateway"],
   "priority": 26,
-  "dependencies": { "requires": ["payment", "env", "setting", "common"] },
+  "dependencies": { "requires": ["payment", "env", "setting", "tenant", "common"] },
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_stripe",
   "license": "CC-BY-NC-ND-4.0",
   "extensions": [
-    { "point": "payment:gateway", "key": "stripe", "export": "payment_stripe/server/stripe.extension", "metadata": { "label": "Stripe" } }
+    { "point": "payment:gateway", "key": "stripe", "export": "payment_stripe/server/stripe.extension", "metadata": { "label": "Stripe" } },
+    { "point": "payment:coupon", "key": "stripe", "export": "payment_stripe/server/stripe.coupon.extension", "metadata": { "label": "Stripe" } }
   ]
 }

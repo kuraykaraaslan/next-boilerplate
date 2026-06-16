@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-16T20:25:26.262Z",
+  "generatedAt": "2026-06-16T20:41:54.845Z",
   "menu": [
     {
       "id": "settings",
@@ -2349,6 +2349,12 @@
       "moduleId": "notification_mail"
     },
     {
+      "id": "payment:coupon",
+      "kind": "provider",
+      "description": "A gateway-specific coupon-checkout adapter. The coupon module validates a LOCAL code + computes the discount server-side, then asks the matching gateway adapter to turn it into checkout params (a one-off Stripe coupon, an iyzico negative basket line, a PayPal discount line). Nothing is synced to the gateway's coupon registry; the local code is the single source of truth. Payment gateway satellites contribute their adapter here.",
+      "moduleId": "payment"
+    },
+    {
       "id": "payment:gateway",
       "kind": "provider",
       "description": "A payment gateway implementation (Stripe, PayPal, Iyzico, ...). Satellite modules like payment_stripe contribute their gateway here; the host discovers them via the extension registry.",
@@ -3118,6 +3124,19 @@
       }
     },
     {
+      "id": "payment_iyzico:payment:coupon:iyzico",
+      "point": "payment:coupon",
+      "moduleId": "payment_iyzico",
+      "key": "iyzico",
+      "exportId": "payment_iyzico/server/iyzico.coupon.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "label": "Iyzico"
+      }
+    },
+    {
       "id": "payment_iyzico:payment:gateway:iyzico",
       "point": "payment:gateway",
       "moduleId": "payment_iyzico",
@@ -3131,6 +3150,19 @@
       }
     },
     {
+      "id": "payment_paypal:payment:coupon:paypal",
+      "point": "payment:coupon",
+      "moduleId": "payment_paypal",
+      "key": "paypal",
+      "exportId": "payment_paypal/server/paypal.coupon.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "label": "PayPal"
+      }
+    },
+    {
       "id": "payment_paypal:payment:gateway:paypal",
       "point": "payment:gateway",
       "moduleId": "payment_paypal",
@@ -3141,6 +3173,19 @@
       "permissions": [],
       "metadata": {
         "label": "PayPal"
+      }
+    },
+    {
+      "id": "payment_stripe:payment:coupon:stripe",
+      "point": "payment:coupon",
+      "moduleId": "payment_stripe",
+      "key": "stripe",
+      "exportId": "payment_stripe/server/stripe.coupon.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "label": "Stripe"
       }
     },
     {
@@ -4201,7 +4246,7 @@
       "name": "Coupon",
       "icon": "fas fa-ticket",
       "version": "1.0.0",
-      "description": "Discount coupons + redemption tracking. Provider-aware (Stripe / PayPal / Iyzico) so codes sync with the payment processor.",
+      "description": "Discount coupons + redemption tracking. Validation and discount are computed locally (the code is the single source of truth); at checkout the discount is turned into gateway params via the payment:coupon extension point (Stripe / PayPal / Iyzico) — nothing is synced to the processor's coupon registry.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/coupon",
       "license": "CC-BY-NC-ND-4.0",

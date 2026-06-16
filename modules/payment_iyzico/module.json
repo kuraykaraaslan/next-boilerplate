@@ -30,6 +30,14 @@
       "metadata": {
         "label": "Iyzico"
       }
+    },
+    {
+      "point": "payment:coupon",
+      "key": "iyzico",
+      "export": "payment_iyzico/server/iyzico.coupon.extension",
+      "metadata": {
+        "label": "Iyzico"
+      }
     }
   ]
 }

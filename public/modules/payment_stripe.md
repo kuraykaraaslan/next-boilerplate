@@ -12,4 +12,4 @@ Stripe payment gateway, contributed into the payment:gateway extension point.
 
 ## Dependencies
 
-- **requires:** `payment`, `env`, `setting`, `common`
+- **requires:** `payment`, `env`, `setting`, `tenant`, `common`

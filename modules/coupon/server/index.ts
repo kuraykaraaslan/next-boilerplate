@@ -1,4 +1,5 @@
 export { default as CouponService } from './coupon.service'
+export { default as CouponCheckoutService } from './coupon.checkout.service'
 export * from './coupon.enums'
 export * from './coupon.types'
 export * from './coupon.dto'

@@ -8,7 +8,7 @@
 - **icon:** `fas fa-ticket`
 - **hasNextLayer:** true
 
-Discount coupons + redemption tracking. Provider-aware (Stripe / PayPal / Iyzico) so codes sync with the payment processor.
+Discount coupons + redemption tracking. Validation and discount are computed locally (the code is the single source of truth); at checkout the discount is turned into gateway params via the payment:coupon extension point (Stripe / PayPal / Iyzico) — nothing is synced to the processor's coupon registry.
 
 ## Dependencies
 
@@ -18,6 +18,7 @@ Discount coupons + redemption tracking. Provider-aware (Stripe / PayPal / Iyzico
 
 - `coupon.analytics.service.ts`
 - `coupon.bulk.service.ts`
+- `coupon.checkout.service.ts`
 - `coupon.crud.core.service.ts`
 - `coupon.crud.service.ts`
 - `coupon.redemption.service.ts`

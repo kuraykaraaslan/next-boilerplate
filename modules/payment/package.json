@@ -16,6 +16,7 @@
     "./server/payment.checkout.operations": "./server/payment.checkout.operations.ts",
     "./server/payment.checkout.registry": "./server/payment.checkout.registry.ts",
     "./server/payment.checkout.service": "./server/payment.checkout.service.ts",
+    "./server/payment.coupon.types": "./server/payment.coupon.types.ts",
     "./server/payment.crud.dispute.service": "./server/payment.crud.dispute.service.ts",
     "./server/payment.crud.helpers": "./server/payment.crud.helpers.ts",
     "./server/payment.crud.read.service": "./server/payment.crud.read.service.ts",

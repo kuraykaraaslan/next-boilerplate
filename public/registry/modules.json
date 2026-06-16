@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T20:25:26.262Z",
+  "generatedAt": "2026-06-16T20:41:54.845Z",
   "modules": [
     {
       "id": "common",
@@ -5688,6 +5688,11 @@
           "id": "payment:gateway",
           "kind": "provider",
           "description": "A payment gateway implementation (Stripe, PayPal, Iyzico, ...). Satellite modules like payment_stripe contribute their gateway here; the host discovers them via the extension registry."
+        },
+        {
+          "id": "payment:coupon",
+          "kind": "provider",
+          "description": "A gateway-specific coupon-checkout adapter. The coupon module validates a LOCAL code + computes the discount server-side, then asks the matching gateway adapter to turn it into checkout params (a one-off Stripe coupon, an iyzico negative basket line, a PayPal discount line). Nothing is synced to the gateway's coupon registry; the local code is the single source of truth. Payment gateway satellites contribute their adapter here."
         }
       ],
       "extensions": [],
@@ -5704,6 +5709,7 @@
         "./server/payment.checkout.operations",
         "./server/payment.checkout.registry",
         "./server/payment.checkout.service",
+        "./server/payment.coupon.types",
         "./server/payment.crud.dispute.service",
         "./server/payment.crud.helpers",
         "./server/payment.crud.read.service",
@@ -5846,7 +5852,7 @@
       "id": "coupon",
       "name": "Coupon",
       "version": "1.0.0",
-      "description": "Discount coupons + redemption tracking. Provider-aware (Stripe / PayPal / Iyzico) so codes sync with the payment processor.",
+      "description": "Discount coupons + redemption tracking. Validation and discount are computed locally (the code is the single source of truth); at checkout the discount is turned into gateway params via the payment:coupon extension point (Stripe / PayPal / Iyzico) — nothing is synced to the processor's coupon registry.",
       "author": "Kuray Karaaslan",
       "license": "CC-BY-NC-ND-4.0",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/coupon",
@@ -5870,6 +5876,7 @@
         "services": [
           "coupon.analytics.service.ts",
           "coupon.bulk.service.ts",
+          "coupon.checkout.service.ts",
           "coupon.crud.core.service.ts",
           "coupon.crud.service.ts",
           "coupon.redemption.service.ts",
@@ -5945,6 +5952,7 @@
         "./server/coupon.analytics.service",
         "./server/coupon.bulk.service",
         "./server/coupon.cache",
+        "./server/coupon.checkout.service",
         "./server/coupon.crud.core.service",
         "./server/coupon.crud.service",
         "./server/coupon.dto",
@@ -5964,10 +5972,6 @@
         "./server/entities/coupon_redemption.entity",
         "./server/index",
         "./server",
-        "./server/providers/base.coupon.provider",
-        "./server/providers/iyzico.coupon.provider",
-        "./server/providers/paypal.coupon.provider",
-        "./server/providers/stripe.coupon.provider",
         "./ui/coupon-apply-form.component",
         "./ui/coupon-archive-modal.component",
         "./ui/coupon-badge.component",
@@ -6166,12 +6170,22 @@
           "metadata": {
             "label": "Iyzico"
           }
+        },
+        {
+          "point": "payment:coupon",
+          "key": "iyzico",
+          "export": "payment_iyzico/server/iyzico.coupon.extension",
+          "metadata": {
+            "label": "Iyzico"
+          }
         }
       ],
       "pkgExports": [
+        "./server/iyzico.coupon.extension",
         "./server/iyzico.extension",
         "./server/providers/iyzico.body",
         "./server/providers/iyzico.client",
+        "./server/providers/iyzico.coupon.adapter",
         "./server/providers/iyzico.provider",
         "./module.json"
       ],
@@ -6232,10 +6246,20 @@
           "metadata": {
             "label": "PayPal"
           }
+        },
+        {
+          "point": "payment:coupon",
+          "key": "paypal",
+          "export": "payment_paypal/server/paypal.coupon.extension",
+          "metadata": {
+            "label": "PayPal"
+          }
         }
       ],
       "pkgExports": [
+        "./server/paypal.coupon.extension",
         "./server/paypal.extension",
+        "./server/providers/paypal.coupon.adapter",
         "./server/providers/paypal.provider",
         "./module.json"
       ],
@@ -6355,6 +6379,7 @@
           "payment",
           "env",
           "setting",
+          "tenant",
           "common"
         ]
       },
@@ -6383,10 +6408,20 @@
           "metadata": {
             "label": "Stripe"
           }
+        },
+        {
+          "point": "payment:coupon",
+          "key": "stripe",
+          "export": "payment_stripe/server/stripe.coupon.extension",
+          "metadata": {
+            "label": "Stripe"
+          }
         }
       ],
       "pkgExports": [
+        "./server/providers/stripe.coupon.adapter",
         "./server/providers/stripe.provider",
+        "./server/stripe.coupon.extension",
         "./server/stripe.extension",
         "./module.json"
       ],
