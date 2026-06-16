@@ -1,0 +1,11 @@
+{
+  "name": "@nb/auth_sso_slack",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/providers/slack.provider": "./server/providers/slack.provider.ts",
+    "./server/slack.extension": "./server/slack.extension.ts",
+    "./module.json": "./module.json"
+  }
+}

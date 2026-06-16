@@ -1,0 +1,11 @@
+{
+  "name": "@nb/auth_sso_vk",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/providers/vk.provider": "./server/providers/vk.provider.ts",
+    "./server/vk.extension": "./server/vk.extension.ts",
+    "./module.json": "./module.json"
+  }
+}

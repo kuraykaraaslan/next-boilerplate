@@ -1,0 +1,11 @@
+{
+  "name": "@nb/auth_sso_qq",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/providers/qq.provider": "./server/providers/qq.provider.ts",
+    "./server/qq.extension": "./server/qq.extension.ts",
+    "./module.json": "./module.json"
+  }
+}

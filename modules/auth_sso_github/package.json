@@ -1,0 +1,11 @@
+{
+  "name": "@nb/auth_sso_github",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/github.extension": "./server/github.extension.ts",
+    "./server/providers/github.provider": "./server/providers/github.provider.ts",
+    "./module.json": "./module.json"
+  }
+}

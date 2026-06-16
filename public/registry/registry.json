@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T15:46:40.136Z",
+  "generatedAt": "2026-06-16T15:50:09.856Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -2338,25 +2338,9 @@
         "./server/auth_sso.types",
         "./server/dictionaries/index",
         "./server/dictionaries",
-        "./server/providers/alipay.provider",
-        "./server/providers/apple.jwks",
-        "./server/providers/apple.provider",
-        "./server/providers/autodesk.provider",
         "./server/providers/base.provider",
-        "./server/providers/facebook.provider",
-        "./server/providers/github.provider",
         "./server/providers/index",
         "./server/providers",
-        "./server/providers/linkedin.provider",
-        "./server/providers/microsoft.provider",
-        "./server/providers/qq.provider",
-        "./server/providers/slack.provider",
-        "./server/providers/tiktok.provider",
-        "./server/providers/twitter.provider",
-        "./server/providers/vk.provider",
-        "./server/providers/wechat.provider",
-        "./server/providers/weibo.provider",
-        "./server/providers/yandex.provider",
         "./ui/sso-settings.page",
         "./module.json"
       ],
@@ -2577,6 +2561,327 @@
       "readme": "# Auth Impersonation Module\n\nLets a system admin (platform super-admin) or a tenant `OWNER`/`ADMIN` assume a target user's session for testing and support. Every impersonation is gated by role checks, requires a **mandatory reason**, optionally requires **step-up re-authentication**, runs in a dedicated tracked session with a **per-tenant TTL**, is **rate-limited per impersonator**, and is written to the audit log + emitted as a webhook. The module composes `user`, `user_session`, `tenant_member`, `audit_log`, `setting`, `webhook`, `redis`, and `auth` (TOTP step-up only).\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `impersonation.service.ts` | Core logic: start (system / tenant flows), end, look up the active session, banner/expiry context, per-tenant settings resolvers, step-up verification, concurrency cap, anomaly alerting. |\n| `impersonation.dto.ts` | `StartSystemImpersonationDTO`, `StartTenantImpersonationDTO`, `StepUpCredentialDTO` (Zod). Both start DTOs require `reason` and accept an optional `stepUp`. |\n| `impersonation.messages.ts` | `ImpersonationMessages` error/status string enum. |\n| `impersonation.setting.keys.ts` | `ImpersonationSettingKeySchema` (Zod enum) + named accessors + defaults. |\n| `impersonation.settings.fields.ts` | `IMPERSONATION_SETTINGS_FIELDS` — admin-UI metadata for the settings page. |\n| `module.json` | Module manifest. |\n\nImpersonation sessions are stored as ordinary `UserSession` rows (in the **system DB**) tagged with `metadata.impersonation` (now also carrying `impersonationSessionId` and `reason`).\n\n---\n\n## Settings (per-tenant)\n\nAll keys are read against the **target tenant** (the tenant whose user is being impersonated), so a high-security tenant constrains how its users may be impersonated regardless of which flow initiates the request. Edit them at\n`/tenant/[tenantId]/admin/impersonation/settings` (ModuleSettingsPage).\n\n| Key | Type | Default | Effect |\n|---|---|---|---|\n| `impersonationSessionTtlMinutes` | number | `60` | Per-tenant impersonation session lifetime (clamped to `[1, 1440]`). Consumed by the user_session orchestrator via `getImpersonationTtlMs`. |\n| `impersonationRequireStepUp` | boolean | `false` | When `true`, the start flow requires a step-up credential (password re-entry or TOTP). |\n| `impersonationMaxConcurrentPerImpersonator` | number | `0` (unlimited) | Max simultaneous active impersonation sessions a single admin may hold against this tenant. |\n| `impersonationDisabled` | boolean | `false` | When `true`, **all** impersonation of this tenant's users is blocked — including the platform/system flow. |\n| `impersonationAlertStartsPerHour` | number | `0` (off) | Emit an anomaly signal (audit + log) when one admin exceeds this many starts within an hour. |\n\n### TTL resolver (for the user_session orchestrator)\n\n```ts\nImpersonationService.getImpersonationTtlMs(tenantId: string): Promise<number>\n```\n\nReads `impersonationSessionTtlMinutes` from the target tenant, clamps to `[1, 1440]` minutes, falls back to 60 minutes on unset/invalid, and returns **milliseconds**. The orchestrator in `user_session` calls this when minting the impersonation session.\n\n---\n\n## Service responsibilities (`ImpersonationService`)\n\n| Method | Responsibility |\n|---|---|\n| `startSystemImpersonation` | Platform-admin flow. Requires `reason`. Blocks if the tenant opted out. Loads the target `User`, asserts not-self + **global role dominance** (`{ USER: 0, ADMIN: 1 }`). Enforces **step-up** (if the tenant requires it) and the **per-impersonator concurrency cap**. Resolves the target's tenant role from `TenantMember` (defaulting to `'USER'`) unless `targetTenantRole` is supplied, mints the session, logs `IMPERSONATION_STARTED` (`flow: 'system'`), and emits `impersonation.started`. |\n| `startTenantImpersonation` | Tenant `OWNER`/`ADMIN` flow. Requires `reason`. Blocks if the tenant opted out. Returns a **generic `TARGET_NOT_FOUND`** whether the user does not exist *or* is not a member of this tenant (closes cross-tenant enumeration). Throws `TARGET_MUST_BE_TENANT_USER` unless `memberRole === 'USER'`. Enforces step-up + concurrency cap, mints the session (`targetTenantRole: 'USER'`), logs/emits as above (`flow: 'tenant'`). |\n| `endImpersonationSession` | Deletes the impersonation `UserSession`. When an `actorId` is provided, logs `IMPERSONATION_ENDED` with the **computed duration** (from `startedAtMs`) and the shared `impersonationSessionId` linking START→END, and emits `impersonation.ended`. |\n| `getActiveImpersonationSession` | Hashes the raw access token and returns the session only if it carries `metadata.impersonation` and has not expired — otherwise `null`. |\n| `getImpersonationContext` | Disclosure-banner + auto-expiry context: `{ isImpersonating, impersonatorUserId, targetUserId, tenantId, targetTenantRole, impersonationSessionId, expiresAt, remainingMs }`, or `null`. |\n| `getImpersonationTtlMs` | Per-tenant TTL resolver (see above). |\n| `isImpersonationDisabled` | Whether the tenant has opted out. |\n\nBoth start flows return `{ userSession, rawAccessToken, rawRefreshToken }`.\n\n---\n\n## Step-up re-authentication\n\nWhen the target tenant sets `impersonationRequireStepUp=true`, the start flow requires a `stepUp` credential:\n\n- **password** — verified locally against the impersonator's stored bcrypt hash (`STEP_UP_INVALID_PASSWORD` on mismatch).\n- **totp** — delegated to `auth.totp.service` (`STEP_UP_INVALID_TOTP` on mismatch).\n\nMissing credential → `STEP_UP_REQUIRED` (401). No usable method (e.g. no password on file) → `STEP_UP_METHOD_UNAVAILABLE`.\n\n## Tenant opt-out\n\n`impersonationDisabled=true` makes both flows throw `IMPERSONATION_DISABLED_FOR_TENANT` (403) — the system/platform flow is **not** exempt. Use for high-sensitivity tenants whose contracts prohibit vendor-side access.\n\n---\n\n## Role hierarchy\n\n- **Global (system flow):** `{ USER: 0, ADMIN: 1 }` — impersonator must strictly outrank the target (`CANNOT_IMPERSONATE_EQUAL_OR_HIGHER_GLOBAL_ROLE`). Unknown roles fall back to `0`.\n- **Tenant flow:** the target must be a member of the tenant with `memberRole === 'USER'`.\n- No self-impersonation (`CANNOT_IMPERSONATE_SELF`).\n\n---\n\n## API Routes\n\n| Method | Path | Scope | Description |\n|---|---|---|---|\n| POST | `/tenant/[tenantId]/api/admin/impersonate` | **platform super-admin** (root-tenant `ADMIN`) | **System flow.** `StartSystemImpersonationDTO` (`targetUserId`, `tenantId`, `reason`, optional `targetTenantRole`, optional `stepUp`). Gated by `authenticateAdminRequest`. Sets impersonation tokens and backs up the caller's tokens. |\n| POST | `/tenant/[tenantId]/api/auth/impersonate` | tenant `ADMIN`+ | **Tenant flow.** `StartTenantImpersonationDTO` (`targetUserId`, `reason`, optional `stepUp`). |\n| DELETE | `/tenant/[tenantId]/api/auth/impersonate` | impersonating session | Exit impersonation; ends the session (records duration) and restores the original tokens. |\n| GET | `/tenant/[tenantId]/api/auth/impersonate` | impersonating session | Banner/expiry status: `isImpersonating`, `impersonatorUserId`, `targetUserId`, `tenantId`, `targetTenantRole`, `impersonationSessionId`, **`expiresAt`**, **`remainingMs`**. |\n| GET | `/tenant/[tenantId]/api/users/[userId]/impersonation-sessions` | admin | Paginated list, **scoped to the requesting tenant** (`metadata.impersonation.tenantId = [tenantId]`). `?page=&pageSize=&activeOnly=`. |\n\nMutating routes are rate-limited via `Limiter` (per-route), independent of the per-impersonator concurrency cap.\n\n---\n\n## Disclosure banner & auto-expiry (UI)\n\n`GET …/api/auth/impersonate` returns `expiresAt` and `remainingMs` so the client can render a persistent disclosure banner (\"You are impersonating … as <impersonatorUserId>\") and a live countdown, and warn before the session lapses. `getImpersonationContext` is the underlying service helper.\n\n---\n\n## Monitoring & alerting\n\n- **Duration tracking (#11):** START and END audit entries share an `impersonationSessionId`; END records `durationMs`. Both entries carry dual-actor info — `actorId`/`metadata.impersonatorId` = the impersonator, `onBehalfOfActorId` = the target.\n- **Webhooks (#12):** every start emits `impersonation.started` and every end emits `impersonation.ended` (best-effort, fire-and-forget).\n- **Anomaly hook (#12):** a per-impersonator hourly counter in Redis. When a single admin exceeds `impersonationAlertStartsPerHour` starts in an hour, an anomaly is logged (warning) and an extra `IMPERSONATION_STARTED` audit entry is written with `metadata.anomaly=true`, which feeds the existing `audit.high_risk` webhook pipeline.\n\n---\n\n## Usage\n\n```typescript\nimport ImpersonationService from '@/modules/auth_impersonation/impersonation.service';\n\n// Tenant OWNER/ADMIN impersonates a tenant USER:\nconst { userSession, rawAccessToken, rawRefreshToken } =\n  await ImpersonationService.startTenantImpersonation({\n    impersonatorUser, impersonatorMember, impersonatorSession,\n    targetUserId, tenantId,\n    reason: 'Support ticket #1234',          // required\n    stepUp: { password: '…' },                // required only if the tenant opts in\n    ipAddress, userAgent,\n  });\n\n// End impersonation (records duration + emits impersonation.ended):\nawait ImpersonationService.endImpersonationSession(userSession.userSessionId, {\n  actorId: impersonatorUser.userId,\n  targetUserId,\n  tenantId,\n  impersonationSessionId: '…',  // from session metadata\n  startedAtMs: Date.now(),      // or session.createdAt\n});\n```\n\n---\n\n## Security summary\n\n- No self-impersonation; global role dominance (system) / tenant-USER-only (tenant).\n- Mandatory `reason` stored in the audit metadata (SOC 2 / ISO 27001 / GDPR purpose limitation).\n- Optional step-up re-auth (password or TOTP) per tenant.\n- Per-impersonator concurrency cap (Redis-counted via active session rows).\n- Per-tenant TTL; per-tenant full opt-out (binds the platform flow too).\n- Cross-tenant enumeration closed via generic `TARGET_NOT_FOUND`; session-list API tenant-scoped.\n- Fully audited + webhook-emitted; reversible via backup cookies.\n\n---\n\n## Dependencies\n\n`requires`: `user`, `user_session`, `audit_log`, `setting`, `webhook`, `redis`, `env`. Reads `tenant_member` and `auth` (TOTP step-up) at runtime.\n"
     },
     {
+      "id": "auth_sso_alipay",
+      "name": "Alipay SSO",
+      "version": "1.0.0",
+      "description": "Alipay OAuth/OIDC provider, contributed into the auth_sso:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_sso_alipay",
+      "dir": "modules/auth_sso_alipay",
+      "icon": "fab fa-alipay",
+      "tags": [
+        "identity",
+        "auth",
+        "sso",
+        "provider"
+      ],
+      "priority": 17,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "auth_sso",
+          "env",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "auth_sso:provider",
+          "key": "alipay",
+          "export": "auth_sso_alipay/server/alipay.extension",
+          "metadata": {
+            "label": "Alipay"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/alipay.extension",
+        "./server/providers/alipay.provider",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": ""
+    },
+    {
+      "id": "auth_sso_apple",
+      "name": "Apple SSO",
+      "version": "1.0.0",
+      "description": "Apple OAuth/OIDC provider, contributed into the auth_sso:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_sso_apple",
+      "dir": "modules/auth_sso_apple",
+      "icon": "fab fa-apple",
+      "tags": [
+        "identity",
+        "auth",
+        "sso",
+        "provider"
+      ],
+      "priority": 17,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "auth_sso",
+          "env",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "auth_sso:provider",
+          "key": "apple",
+          "export": "auth_sso_apple/server/apple.extension",
+          "metadata": {
+            "label": "Apple"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/apple.extension",
+        "./server/providers/apple.jwks",
+        "./server/providers/apple.provider",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": ""
+    },
+    {
+      "id": "auth_sso_autodesk",
+      "name": "Autodesk SSO",
+      "version": "1.0.0",
+      "description": "Autodesk OAuth/OIDC provider, contributed into the auth_sso:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_sso_autodesk",
+      "dir": "modules/auth_sso_autodesk",
+      "icon": "fas fa-cube",
+      "tags": [
+        "identity",
+        "auth",
+        "sso",
+        "provider"
+      ],
+      "priority": 17,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "auth_sso",
+          "env",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "auth_sso:provider",
+          "key": "autodesk",
+          "export": "auth_sso_autodesk/server/autodesk.extension",
+          "metadata": {
+            "label": "Autodesk"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/autodesk.extension",
+        "./server/providers/autodesk.provider",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": ""
+    },
+    {
+      "id": "auth_sso_facebook",
+      "name": "Facebook SSO",
+      "version": "1.0.0",
+      "description": "Facebook OAuth/OIDC provider, contributed into the auth_sso:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_sso_facebook",
+      "dir": "modules/auth_sso_facebook",
+      "icon": "fab fa-facebook",
+      "tags": [
+        "identity",
+        "auth",
+        "sso",
+        "provider"
+      ],
+      "priority": 17,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "auth_sso",
+          "env",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "auth_sso:provider",
+          "key": "facebook",
+          "export": "auth_sso_facebook/server/facebook.extension",
+          "metadata": {
+            "label": "Facebook"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/facebook.extension",
+        "./server/providers/facebook.provider",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": ""
+    },
+    {
+      "id": "auth_sso_github",
+      "name": "GitHub SSO",
+      "version": "1.0.0",
+      "description": "GitHub OAuth/OIDC provider, contributed into the auth_sso:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_sso_github",
+      "dir": "modules/auth_sso_github",
+      "icon": "fab fa-github",
+      "tags": [
+        "identity",
+        "auth",
+        "sso",
+        "provider"
+      ],
+      "priority": 17,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "auth_sso",
+          "env",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "auth_sso:provider",
+          "key": "github",
+          "export": "auth_sso_github/server/github.extension",
+          "metadata": {
+            "label": "GitHub"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/github.extension",
+        "./server/providers/github.provider",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": ""
+    },
+    {
       "id": "auth_sso_google",
       "name": "Google SSO",
       "version": "1.0.0",
@@ -2631,6 +2936,646 @@
       "pkgExports": [
         "./server/google.extension",
         "./server/providers/google.provider",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": ""
+    },
+    {
+      "id": "auth_sso_linkedin",
+      "name": "LinkedIn SSO",
+      "version": "1.0.0",
+      "description": "LinkedIn OAuth/OIDC provider, contributed into the auth_sso:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_sso_linkedin",
+      "dir": "modules/auth_sso_linkedin",
+      "icon": "fab fa-linkedin",
+      "tags": [
+        "identity",
+        "auth",
+        "sso",
+        "provider"
+      ],
+      "priority": 17,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "auth_sso",
+          "env",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "auth_sso:provider",
+          "key": "linkedin",
+          "export": "auth_sso_linkedin/server/linkedin.extension",
+          "metadata": {
+            "label": "LinkedIn"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/linkedin.extension",
+        "./server/providers/linkedin.provider",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": ""
+    },
+    {
+      "id": "auth_sso_microsoft",
+      "name": "Microsoft SSO",
+      "version": "1.0.0",
+      "description": "Microsoft OAuth/OIDC provider, contributed into the auth_sso:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_sso_microsoft",
+      "dir": "modules/auth_sso_microsoft",
+      "icon": "fab fa-microsoft",
+      "tags": [
+        "identity",
+        "auth",
+        "sso",
+        "provider"
+      ],
+      "priority": 17,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "auth_sso",
+          "env",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "auth_sso:provider",
+          "key": "microsoft",
+          "export": "auth_sso_microsoft/server/microsoft.extension",
+          "metadata": {
+            "label": "Microsoft"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/microsoft.extension",
+        "./server/providers/microsoft.provider",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": ""
+    },
+    {
+      "id": "auth_sso_qq",
+      "name": "QQ SSO",
+      "version": "1.0.0",
+      "description": "QQ OAuth/OIDC provider, contributed into the auth_sso:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_sso_qq",
+      "dir": "modules/auth_sso_qq",
+      "icon": "fab fa-qq",
+      "tags": [
+        "identity",
+        "auth",
+        "sso",
+        "provider"
+      ],
+      "priority": 17,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "auth_sso",
+          "env",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "auth_sso:provider",
+          "key": "qq",
+          "export": "auth_sso_qq/server/qq.extension",
+          "metadata": {
+            "label": "QQ"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/providers/qq.provider",
+        "./server/qq.extension",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": ""
+    },
+    {
+      "id": "auth_sso_slack",
+      "name": "Slack SSO",
+      "version": "1.0.0",
+      "description": "Slack OAuth/OIDC provider, contributed into the auth_sso:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_sso_slack",
+      "dir": "modules/auth_sso_slack",
+      "icon": "fab fa-slack",
+      "tags": [
+        "identity",
+        "auth",
+        "sso",
+        "provider"
+      ],
+      "priority": 17,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "auth_sso",
+          "env",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "auth_sso:provider",
+          "key": "slack",
+          "export": "auth_sso_slack/server/slack.extension",
+          "metadata": {
+            "label": "Slack"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/providers/slack.provider",
+        "./server/slack.extension",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": ""
+    },
+    {
+      "id": "auth_sso_tiktok",
+      "name": "TikTok SSO",
+      "version": "1.0.0",
+      "description": "TikTok OAuth/OIDC provider, contributed into the auth_sso:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_sso_tiktok",
+      "dir": "modules/auth_sso_tiktok",
+      "icon": "fab fa-tiktok",
+      "tags": [
+        "identity",
+        "auth",
+        "sso",
+        "provider"
+      ],
+      "priority": 17,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "auth_sso",
+          "env",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "auth_sso:provider",
+          "key": "tiktok",
+          "export": "auth_sso_tiktok/server/tiktok.extension",
+          "metadata": {
+            "label": "TikTok"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/providers/tiktok.provider",
+        "./server/tiktok.extension",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": ""
+    },
+    {
+      "id": "auth_sso_twitter",
+      "name": "X (Twitter) SSO",
+      "version": "1.0.0",
+      "description": "X (Twitter) OAuth/OIDC provider, contributed into the auth_sso:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_sso_twitter",
+      "dir": "modules/auth_sso_twitter",
+      "icon": "fab fa-x-twitter",
+      "tags": [
+        "identity",
+        "auth",
+        "sso",
+        "provider"
+      ],
+      "priority": 17,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "auth_sso",
+          "env",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "auth_sso:provider",
+          "key": "twitter",
+          "export": "auth_sso_twitter/server/twitter.extension",
+          "metadata": {
+            "label": "X (Twitter)"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/providers/twitter.provider",
+        "./server/twitter.extension",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": ""
+    },
+    {
+      "id": "auth_sso_vk",
+      "name": "VK SSO",
+      "version": "1.0.0",
+      "description": "VK OAuth/OIDC provider, contributed into the auth_sso:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_sso_vk",
+      "dir": "modules/auth_sso_vk",
+      "icon": "fab fa-vk",
+      "tags": [
+        "identity",
+        "auth",
+        "sso",
+        "provider"
+      ],
+      "priority": 17,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "auth_sso",
+          "env",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "auth_sso:provider",
+          "key": "vk",
+          "export": "auth_sso_vk/server/vk.extension",
+          "metadata": {
+            "label": "VK"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/providers/vk.provider",
+        "./server/vk.extension",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": ""
+    },
+    {
+      "id": "auth_sso_wechat",
+      "name": "WeChat SSO",
+      "version": "1.0.0",
+      "description": "WeChat OAuth/OIDC provider, contributed into the auth_sso:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_sso_wechat",
+      "dir": "modules/auth_sso_wechat",
+      "icon": "fab fa-weixin",
+      "tags": [
+        "identity",
+        "auth",
+        "sso",
+        "provider"
+      ],
+      "priority": 17,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "auth_sso",
+          "env",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "auth_sso:provider",
+          "key": "wechat",
+          "export": "auth_sso_wechat/server/wechat.extension",
+          "metadata": {
+            "label": "WeChat"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/providers/wechat.provider",
+        "./server/wechat.extension",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": ""
+    },
+    {
+      "id": "auth_sso_weibo",
+      "name": "Weibo SSO",
+      "version": "1.0.0",
+      "description": "Weibo OAuth/OIDC provider, contributed into the auth_sso:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_sso_weibo",
+      "dir": "modules/auth_sso_weibo",
+      "icon": "fab fa-weibo",
+      "tags": [
+        "identity",
+        "auth",
+        "sso",
+        "provider"
+      ],
+      "priority": 17,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "auth_sso",
+          "env",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "auth_sso:provider",
+          "key": "weibo",
+          "export": "auth_sso_weibo/server/weibo.extension",
+          "metadata": {
+            "label": "Weibo"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/providers/weibo.provider",
+        "./server/weibo.extension",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": ""
+    },
+    {
+      "id": "auth_sso_yandex",
+      "name": "Yandex SSO",
+      "version": "1.0.0",
+      "description": "Yandex OAuth/OIDC provider, contributed into the auth_sso:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_sso_yandex",
+      "dir": "modules/auth_sso_yandex",
+      "icon": "fab fa-yandex",
+      "tags": [
+        "identity",
+        "auth",
+        "sso",
+        "provider"
+      ],
+      "priority": 17,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "auth_sso",
+          "env",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "auth_sso:provider",
+          "key": "yandex",
+          "export": "auth_sso_yandex/server/yandex.extension",
+          "metadata": {
+            "label": "Yandex"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/providers/yandex.provider",
+        "./server/yandex.extension",
         "./module.json"
       ],
       "settingsTabs": [],

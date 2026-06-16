@@ -1,0 +1,11 @@
+{
+  "name": "@nb/auth_sso_microsoft",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/microsoft.extension": "./server/microsoft.extension.ts",
+    "./server/providers/microsoft.provider": "./server/providers/microsoft.provider.ts",
+    "./module.json": "./module.json"
+  }
+}

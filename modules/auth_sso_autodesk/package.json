@@ -1,0 +1,11 @@
+{
+  "name": "@nb/auth_sso_autodesk",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/autodesk.extension": "./server/autodesk.extension.ts",
+    "./server/providers/autodesk.provider": "./server/providers/autodesk.provider.ts",
+    "./module.json": "./module.json"
+  }
+}

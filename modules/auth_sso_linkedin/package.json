@@ -1,0 +1,11 @@
+{
+  "name": "@nb/auth_sso_linkedin",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/linkedin.extension": "./server/linkedin.extension.ts",
+    "./server/providers/linkedin.provider": "./server/providers/linkedin.provider.ts",
+    "./module.json": "./module.json"
+  }
+}

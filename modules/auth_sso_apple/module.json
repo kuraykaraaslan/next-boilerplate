@@ -1,0 +1,35 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "auth_sso_apple",
+  "name": "Apple SSO",
+  "description": "Apple OAuth/OIDC provider, contributed into the auth_sso:provider extension point.",
+  "version": "1.0.0",
+  "icon": "fab fa-apple",
+  "tags": [
+    "identity",
+    "auth",
+    "sso",
+    "provider"
+  ],
+  "priority": 17,
+  "dependencies": {
+    "requires": [
+      "auth_sso",
+      "env",
+      "common"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_sso_apple",
+  "license": "CC-BY-NC-ND-4.0",
+  "extensions": [
+    {
+      "point": "auth_sso:provider",
+      "key": "apple",
+      "export": "auth_sso_apple/server/apple.extension",
+      "metadata": {
+        "label": "Apple"
+      }
+    }
+  ]
+}

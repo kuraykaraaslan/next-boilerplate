@@ -1,0 +1,35 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "auth_sso_linkedin",
+  "name": "LinkedIn SSO",
+  "description": "LinkedIn OAuth/OIDC provider, contributed into the auth_sso:provider extension point.",
+  "version": "1.0.0",
+  "icon": "fab fa-linkedin",
+  "tags": [
+    "identity",
+    "auth",
+    "sso",
+    "provider"
+  ],
+  "priority": 17,
+  "dependencies": {
+    "requires": [
+      "auth_sso",
+      "env",
+      "common"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_sso_linkedin",
+  "license": "CC-BY-NC-ND-4.0",
+  "extensions": [
+    {
+      "point": "auth_sso:provider",
+      "key": "linkedin",
+      "export": "auth_sso_linkedin/server/linkedin.extension",
+      "metadata": {
+        "label": "LinkedIn"
+      }
+    }
+  ]
+}

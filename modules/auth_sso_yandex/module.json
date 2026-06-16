@@ -1,0 +1,35 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "auth_sso_yandex",
+  "name": "Yandex SSO",
+  "description": "Yandex OAuth/OIDC provider, contributed into the auth_sso:provider extension point.",
+  "version": "1.0.0",
+  "icon": "fab fa-yandex",
+  "tags": [
+    "identity",
+    "auth",
+    "sso",
+    "provider"
+  ],
+  "priority": 17,
+  "dependencies": {
+    "requires": [
+      "auth_sso",
+      "env",
+      "common"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_sso_yandex",
+  "license": "CC-BY-NC-ND-4.0",
+  "extensions": [
+    {
+      "point": "auth_sso:provider",
+      "key": "yandex",
+      "export": "auth_sso_yandex/server/yandex.extension",
+      "metadata": {
+        "label": "Yandex"
+      }
+    }
+  ]
+}

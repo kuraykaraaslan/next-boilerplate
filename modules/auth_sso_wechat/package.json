@@ -1,0 +1,11 @@
+{
+  "name": "@nb/auth_sso_wechat",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/providers/wechat.provider": "./server/providers/wechat.provider.ts",
+    "./server/wechat.extension": "./server/wechat.extension.ts",
+    "./module.json": "./module.json"
+  }
+}

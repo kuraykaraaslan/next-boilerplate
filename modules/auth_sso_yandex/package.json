@@ -1,0 +1,11 @@
+{
+  "name": "@nb/auth_sso_yandex",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/providers/yandex.provider": "./server/providers/yandex.provider.ts",
+    "./server/yandex.extension": "./server/yandex.extension.ts",
+    "./module.json": "./module.json"
+  }
+}
