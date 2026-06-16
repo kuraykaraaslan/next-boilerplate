@@ -1,0 +1,17 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "payment_stripe",
+  "name": "Stripe Gateway",
+  "description": "Stripe payment gateway, contributed into the payment:gateway extension point.",
+  "version": "1.0.0",
+  "icon": "fab fa-stripe",
+  "tags": ["billing", "payment", "gateway"],
+  "priority": 26,
+  "dependencies": { "requires": ["payment", "env", "setting", "common"] },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_stripe",
+  "license": "CC-BY-NC-ND-4.0",
+  "extensions": [
+    { "point": "payment:gateway", "key": "stripe", "export": "payment_stripe/server/stripe.extension", "metadata": { "label": "Stripe" } }
+  ]
+}

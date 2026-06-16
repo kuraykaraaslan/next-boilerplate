@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-16T15:50:09.856Z",
+  "generatedAt": "2026-06-16T18:15:58.625Z",
   "menu": [
     {
       "id": "settings",
@@ -2337,6 +2337,12 @@
       "moduleId": "notification_mail"
     },
     {
+      "id": "payment:gateway",
+      "kind": "provider",
+      "description": "A payment gateway implementation (Stripe, PayPal, Iyzico, ...). Satellite modules like payment_stripe contribute their gateway here; the host discovers them via the extension registry.",
+      "moduleId": "payment"
+    },
+    {
       "id": "sms:provider",
       "kind": "provider",
       "description": "An SMS sending backend. Satellite modules like sms_twilio contribute their implementation here.",
@@ -2769,6 +2775,19 @@
       "permissions": [],
       "metadata": {
         "label": "SMTP"
+      }
+    },
+    {
+      "id": "payment_stripe:payment:gateway:stripe",
+      "point": "payment:gateway",
+      "moduleId": "payment_stripe",
+      "key": "stripe",
+      "exportId": "payment_stripe/server/stripe.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "label": "Stripe"
       }
     },
     {
@@ -4243,6 +4262,24 @@
         "ecommerce"
       ],
       "priority": 29,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "payment_stripe",
+      "name": "Stripe Gateway",
+      "icon": "fab fa-stripe",
+      "version": "1.0.0",
+      "description": "Stripe payment gateway, contributed into the payment:gateway extension point.",
+      "author": "Kuray Karaaslan",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_stripe",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "billing",
+        "payment",
+        "gateway"
+      ],
+      "priority": 26,
       "enabled": true,
       "tier": "other"
     },

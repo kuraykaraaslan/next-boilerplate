@@ -119,7 +119,7 @@ export async function payWithCard(params: {
   // Auto-3DS: commercial or Turkish cards go through 3D Secure when possible.
   const use3ds =
     !!params.callbackUrl &&
-    PaymentService.supports3dsCardPayment(provider) &&
+    (await PaymentService.supports3dsCardPayment(provider)) &&
     !!(binInfo?.force3ds || binInfo?.isTurkish);
 
   if (use3ds) {

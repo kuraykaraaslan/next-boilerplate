@@ -35,6 +35,7 @@ export const moduleExtensions: Record<string, () => Promise<ExtensionModule>> = 
   "mail_sendgrid:mail:provider:sendgrid": () => import("@nb/mail_sendgrid/server/mail.extension") as Promise<ExtensionModule>,
   "mail_ses:mail:provider:ses": () => import("@nb/mail_ses/server/mail.extension") as Promise<ExtensionModule>,
   "mail_smtp:mail:provider:smtp": () => import("@nb/mail_smtp/server/mail.extension") as Promise<ExtensionModule>,
+  "payment_stripe:payment:gateway:stripe": () => import("@nb/payment_stripe/server/stripe.extension") as Promise<ExtensionModule>,
   "sms_clickatell:sms:provider:clickatell": () => import("@nb/sms_clickatell/server/sms.extension") as Promise<ExtensionModule>,
   "sms_netgsm:sms:provider:netgsm": () => import("@nb/sms_netgsm/server/sms.extension") as Promise<ExtensionModule>,
   "sms_nexmo:sms:provider:nexmo": () => import("@nb/sms_nexmo/server/sms.extension") as Promise<ExtensionModule>,

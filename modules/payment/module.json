@@ -158,5 +158,12 @@
       "path": "/api/plans",
       "handler": "payment/server/plans.route"
     }
+  ],
+  "extensionPoints": [
+    {
+      "id": "payment:gateway",
+      "kind": "provider",
+      "description": "A payment gateway implementation (Stripe, PayPal, Iyzico, ...). Satellite modules like payment_stripe contribute their gateway here; the host discovers them via the extension registry."
+    }
   ]
 }

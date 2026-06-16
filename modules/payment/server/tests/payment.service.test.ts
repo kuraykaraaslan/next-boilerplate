@@ -50,7 +50,7 @@ vi.mock('stripe', () => ({
   })),
 }));
 
-vi.mock('../providers/stripe.provider', () => ({
+vi.mock('@nb/payment_stripe/server/providers/stripe.provider', () => ({
   default: class MockStripeProvider {
     async getPaymentStatus() { return { status: 'succeeded' }; }
     async createCheckoutSession() {

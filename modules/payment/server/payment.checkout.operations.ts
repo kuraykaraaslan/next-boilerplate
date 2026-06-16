@@ -28,7 +28,7 @@ export async function createCustomerPortalSession(
     returnUrl: string;
   },
 ): Promise<{ url: string | null; note?: string; provider: string }> {
-  const provider = getProvider(params.provider);
+  const provider = await getProvider(params.provider);
   const result = await provider.createCustomerPortalSession(tenantId, {
     customerExternalId: params.customerExternalId,
     customerEmail: params.customerEmail,
@@ -67,7 +67,7 @@ export async function createCheckoutSession(
       anonymousId: params.metadata.anonymousId,
     });
   }
-  const result = await getProvider(resolved).createCheckoutSession(tenantId, params);
+  const result = await (await getProvider(resolved)).createCheckoutSession(tenantId, params);
   // Card-data-touching event audit trail.
   AuditLogService.log({
     tenantId, actorType: 'SYSTEM', action: 'payment.checkout_session_created',
@@ -77,8 +77,8 @@ export async function createCheckoutSession(
   return result;
 }
 
-export function supportsDirectCardPayment(providerName?: PaymentProvider): boolean {
-  return getProvider(providerName).supportsDirectCardPayment;
+export async function supportsDirectCardPayment(providerName?: PaymentProvider): Promise<boolean> {
+  return (await getProvider(providerName)).supportsDirectCardPayment;
 }
 
 export async function chargeWithCard(
@@ -86,15 +86,15 @@ export async function chargeWithCard(
   params: DirectChargeParams,
   providerName?: PaymentProvider,
 ): Promise<DirectChargeResult> {
-  const provider = getProvider(providerName);
+  const provider = await getProvider(providerName);
   if (!provider.supportsDirectCardPayment) {
     throw new AppError(PAYMENT_MESSAGES.DIRECT_PAYMENT_NOT_SUPPORTED, 422, ErrorCode.VALIDATION_ERROR);
   }
   return provider.createPayment(tenantId, params);
 }
 
-export function supports3dsCardPayment(providerName?: PaymentProvider): boolean {
-  return getProvider(providerName).supports3dsCardPayment;
+export async function supports3dsCardPayment(providerName?: PaymentProvider): Promise<boolean> {
+  return (await getProvider(providerName)).supports3dsCardPayment;
 }
 
 export async function start3dsCharge(
@@ -102,7 +102,7 @@ export async function start3dsCharge(
   params: ThreeDSInitParams,
   providerName?: PaymentProvider,
 ): Promise<ThreeDSInitResult> {
-  const provider = getProvider(providerName);
+  const provider = await getProvider(providerName);
   if (!provider.supports3dsCardPayment) {
     throw new AppError(PAYMENT_MESSAGES.DIRECT_PAYMENT_NOT_SUPPORTED, 422, ErrorCode.VALIDATION_ERROR);
   }
@@ -114,7 +114,7 @@ export async function complete3dsCharge(
   params: ThreeDSCompleteParams,
   providerName?: PaymentProvider,
 ): Promise<DirectChargeResult> {
-  return getProvider(providerName).complete3dsPayment(tenantId, params);
+  return (await getProvider(providerName)).complete3dsPayment(tenantId, params);
 }
 
 export async function createPaymentIntent(
@@ -122,13 +122,13 @@ export async function createPaymentIntent(
   params: PaymentIntentParams,
   providerName?: PaymentProvider,
 ): Promise<PaymentIntentResult> {
-  return getProvider(providerName).createPaymentIntent(tenantId, params);
+  return (await getProvider(providerName)).createPaymentIntent(tenantId, params);
 }
 
 export async function getProviderStatus(data: GetProviderStatusDTO): Promise<any> {
   const { tenantId, token, provider } = data;
   try {
-    return await getProvider(provider).getPaymentStatus(tenantId, token);
+    return await (await getProvider(provider)).getPaymentStatus(tenantId, token);
   } catch (error) {
     Logger.error(`${PAYMENT_MESSAGES.GET_STATUS_FAILED}: ${error instanceof Error ? error.message : String(error)}`);
     throw error;

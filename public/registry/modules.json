@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T15:50:09.856Z",
+  "generatedAt": "2026-06-16T18:15:58.625Z",
   "modules": [
     {
       "id": "common",
@@ -4805,7 +4805,13 @@
           }
         }
       ],
-      "extensionPoints": [],
+      "extensionPoints": [
+        {
+          "id": "payment:gateway",
+          "kind": "provider",
+          "description": "A payment gateway implementation (Stripe, PayPal, Iyzico, ...). Satellite modules like payment_stripe contribute their gateway here; the host discovers them via the extension registry."
+        }
+      ],
       "extensions": [],
       "pkgExports": [
         "./server/checkout-agreements-accept.route",
@@ -4827,6 +4833,7 @@
         "./server/payment.crud.write.service",
         "./server/payment.dto",
         "./server/payment.enums",
+        "./server/payment.gateway.types",
         "./server/payment.messages",
         "./server/payment.proration.service",
         "./server/payment.seed.data",
@@ -4866,7 +4873,6 @@
         "./server/providers/iyzico.client",
         "./server/providers/iyzico.provider",
         "./server/providers/paypal.provider",
-        "./server/providers/stripe.provider",
         "./server/providers/wechatpay.provider",
         "./server/providers/yookassa.provider",
         "./server/tests/payment.crud.test-setup",
@@ -5198,6 +5204,70 @@
       "hasModuleJson": true,
       "hasNextLayer": false,
       "readme": "# Payment Sell Module\n\nOne-time product / service payment processing. It owns the `Payment` and `PaymentTransaction` records and delegates the actual gateway work (checkout sessions, refunds, status, customer portal, webhooks) to the shared **payment_core** providers (Stripe, PayPal, Iyzico, Alipay, WeChat Pay, YooKassa, CloudPayments). Checkout, lookups, and refunds are tenant-aware; the chosen provider reads each tenant's own API credentials from payment_core settings.\n\n---\n\n## Entities\n\n| Entity | Table | DB | Description |\n|---|---|---|---|\n| `Payment` | `payments` | tenant | A single one-time charge: provider, `providerPaymentId`, amount/currency, status, customer + billing details, refund and failure fields, soft-deleted (`deletedAt`). Indexed on `userId`, `tenantId`, `provider`, `providerPaymentId`, `currency`, `status`, `createdAt`. |\n| `PaymentTransaction` | `payment_transactions` | system | A ledger entry attached to a `Payment` (`type` = `PAYMENT`/`REFUND`/`CHARGEBACK`/`PAYOUT`): amount, `fee`, `net`, raw `providerResponse`, error fields, optional `parentTransactionId`, and request context (`ipAddress`, `userAgent`). Has no `tenantId` column, so it lives in the system DB. |\n\n---\n\n## Services\n\n### `PaymentSellService` (`payment_sell.service.ts`)\n\nHolds a static `PROVIDERS` map of the seven payment_core providers and resolves one with `getProvider(name)`.\n\n| Method | Responsibility |\n|---|---|\n| `createCheckout(tenantId, data)` | Calls `provider.createCheckoutSession(tenantId, …)`, persists a `PENDING` `Payment` (storing the returned `sessionId` as `providerPaymentId`), and returns a `CheckoutResult` (`paymentId`, `sessionId`, `checkoutUrl`, `provider`, `expiresAt`). |\n| `getById(tenantId, paymentId)` | Single-flighted lookup of one payment, returned as `SafePayment` (omits `deletedAt`). |\n| `getWithTransactions(tenantId, paymentId)` | Payment plus its transactions (newest first). |\n| `list(tenantId, query)` | Paginated, filterable list (`userId`, `provider`, `status`, `currency`, date range) ordered by `createdAt DESC`. |\n| `update(tenantId, paymentId, data)` | Patches a payment; auto-stamps `paidAt`/`cancelledAt`/`refundedAt` when status moves to `COMPLETED`/`CANCELLED`/`REFUNDED`, then busts the `pay:sell:*` caches. |\n| `refund(tenantId, paymentId, dto)` | Refunds via `provider.refundPayment` when supported; only `COMPLETED`/`PARTIALLY_REFUNDED` payments are eligible and the cumulative refund may not exceed the original amount. Sets status to `REFUNDED` (full) or `PARTIALLY_REFUNDED`. |\n| `createTransaction(tenantId, data)` | Inserts a `PaymentTransaction` and busts that payment's transaction cache. |\n| `listTransactions(tenantId, query)` | Paginated transactions filtered by `paymentId`, `type`, `status`. |\n| `getProviderStatus(tenantId, token, provider)` | Proxies `provider.getPaymentStatus(tenantId, token)`. |\n| `getCustomerPortal(tenantId, provider, customerExternalId?, customerEmail?, returnUrl?)` | Creates a provider customer-portal session; `returnUrl` defaults to `'/'`. |\n\nReads are cached/deduplicated with Redis (`singleFlight`, keys `pay:sell:<paymentId>` and `pay:sell:tx:<paymentId>`) and invalidated on writes.\n\n### `PaymentSellWebhookService` (`payment_sell.webhook.service.ts`)\n\n`handle(event, provider)` consumes a payment_core `NormalizedWebhookEvent`. It requires `event.tenantId`, opens that tenant's DataSource, finds the `Payment` by `providerPaymentId`, and maps the normalized action to a status update via `PaymentSellService.update`:\n\n| Action | Effect |\n|---|---|\n| `payment.completed` | status → `COMPLETED` |\n| `payment.failed` | status → `FAILED` (+ `failureCode` / `failureMessage`) |\n| `payment.expired` | status → `EXPIRED` |\n| `payment.refunded` | status → `REFUNDED` |\n\nUnknown actions and missing payments are logged and skipped (no throw); processing errors are logged and rethrown.\n\n---\n\n## Enums & DTOs\n\n- **Enums** (`payment_sell.enums.ts`): `PaymentStatusEnum` (`PENDING`, `PROCESSING`, `COMPLETED`, `FAILED`, `REFUNDED`, `PARTIALLY_REFUNDED`, `CANCELLED`, `EXPIRED`), `TransactionTypeEnum` (`PAYMENT`/`REFUND`/`CHARGEBACK`/`PAYOUT`), `TransactionStatusEnum` (`PENDING`/`PROCESSING`/`COMPLETED`/`FAILED`/`CANCELLED`). Provider/method/currency enums are re-exported from payment_core.\n- **DTOs** (`payment_sell.dto.ts`): `CreatePaymentDTO` (requires `provider`, `amount`, `currency`, `successUrl`, `cancelUrl`), `UpdatePaymentDTO`, `GetPaymentsQuery`, `RefundPaymentDTO`, `CreateTransactionDTO`, `GetTransactionsQuery`. Zod output schemas (`SafePayment`, `PaymentWithTransactions`, `CheckoutResult`, `PaymentTransaction`) live in `payment_sell.types.ts`.\n\n---\n\n## Settings\n\nThis module declares **no settings of its own**. All provider configuration — which gateways are enabled and their API credentials/sandbox flags (`stripeSecretKey`, `paypalClientId`/`Secret`, `iyzicoApiKey`, `<provider>Enabled`, …) — lives in **payment_core** (`payment_core.setting.keys.ts`) and is read per tenant by the providers it delegates to.\n\n---\n\n## Usage\n\n```typescript\nimport { PaymentSellService } from '@/modules/payment_sell'\n\n// Start a one-time checkout for a tenant\nconst checkout = await PaymentSellService.createCheckout(tenantId, {\n  provider: 'STRIPE',\n  amount: 1299.99,\n  currency: 'USD',\n  successUrl: 'https://app.example.com/checkout/success',\n  cancelUrl: 'https://app.example.com/checkout/cancel',\n  customerEmail: 'buyer@example.com',\n})\n// → { paymentId, sessionId, checkoutUrl, provider, expiresAt }\n\n// Later, refund (full or partial) — only COMPLETED / PARTIALLY_REFUNDED are eligible\nawait PaymentSellService.refund(tenantId, checkout.paymentId, { amount: 29.5, reason: 'one item returned' })\n```\n\n`payment_return_rma` calls `PaymentSellService.refund(tenantId, paymentId, …)` when an approved RMA carries a `paymentId`.\n\n---\n\n## Tenant Variability\n\n> What varies per tenant in this module — and what could. Audited 2026-06-03.\n\nProcesses one-time product/service payments (checkout, refunds, transactions, webhooks) by delegating to payment_core providers; it is fully tenant-aware — payments are stored in each tenant's DB via tenantDataSourceFor(tenantId) and the chosen provider reads that tenant's API credentials — but the module itself declares no settings, so its only per-tenant config lives in payment_core.\n\n### Tenant-scoped data\n\n| Entity | Table | Tenant-variable columns |\n|---|---|---|\n| `Payment` | `payments` | provider, providerPaymentId, amount, currency, status, paymentMethod, description, metadata, customerEmail, customerName, customerPhone, billingAddress, refundedAmount, failureCode, failureMessage |\n\nAll rows isolated by `tenantId` via the per-tenant DataSource.\n\n### Per-tenant behavior\n\n- `payment_sell.service.ts:createCheckout` — Resolves a tenant-scoped DataSource via tenantDataSourceFor(tenantId) and calls provider.createCheckoutSession(tenantId, ...); each provider then reads that tenant's own API credentials (stripeSecretKey, paypalClientId/Secret, iyzicoApiKey, etc.) from SettingService.getValue(tenantId, key) in payment_core — so which keys/account the charge runs against, and whether sandbox vs live, is per tenant.\n- `payment_sell.service.ts:refund` — Calls provider.refundPayment(tenantId, ...) which authenticates with the requesting tenant's provider credentials; refunds execute against that tenant's payment account.\n- `payment_sell.service.ts:getProviderStatus / getCustomerPortal` — Both pass tenantId into the provider so status lookups and customer-portal session creation use the tenant's provider credentials; portal availability also depends on which provider the tenant routed through.\n- `payment_sell.webhook.service.ts:handle` — Reads event.tenantId, opens that tenant's DataSource, and looks up/updates the payment in the correct tenant DB — webhook side effects are isolated per tenant.\n- `payment_sell.service.ts (all reads/writes: getById, list, update, refund, createCheckout)` — Every Payment query is scoped with where:{ tenantId } against tenantDataSourceFor(tenantId), so each tenant only ever sees/mutates its own payments.\n\n### Candidates (global / hardcoded today → could be per-tenant)\n\n| What | Where | Why per-tenant | Suggested key |\n|---|---|---|---|\n| Allowed/enabled payment providers are not gated per tenant — createCheckout/createTransaction accept any provider from the DTO (PaymentProviderEnum) and look it up in the hardcoded static PROVIDERS map; a tenant can request STRIPE/PAYPAL/IYZICO/ALIPAY/etc. even if it has no credentials configured for it (the failure only surfaces later when the provider reads empty settings). | `payment_sell.service.ts:getProvider / createCheckout (static PROVIDERS map)` | Tenants operate in different regions and onboard different providers; checkout should be restricted to the providers a tenant has actually enabled. payment_core already exposes per-tenant <provider>Enabled flags (stripeEnabled, paypalEnabled, ...) that are not consulted here, so a tenant admin's enable/disable choice has no effect on what createCheckout will attempt. | `enabledPaymentProviders` |\n| No per-tenant default payment provider — callers must always pass data.provider explicitly; there is no tenant-level fallback when none is specified. | `payment_sell.dto.ts:CreatePaymentDTO.provider (required) / service createCheckout` | Most tenants have one primary provider; a per-tenant default would let checkout omit the provider and route to the tenant's preferred gateway, and pairs naturally with the enabled-providers gate above. | `defaultPaymentProvider` |\n| Customer-portal returnUrl falls back to the global literal '/' when the caller omits it. | `payment_sell.service.ts:getCustomerPortal (returnUrl ?? '/')` | Each tenant has its own app/branding domain; the post-portal landing page should default to a tenant-configured billing/return URL rather than the root path. | `billingPortalReturnUrl` |\n| Refund eligibility/limits are fixed in code — only COMPLETED/PARTIALLY_REFUNDED payments are refundable and refunds are capped only at the original amount; there is no per-tenant refund window or partial-refund policy. | `payment_sell.service.ts:refund` | Refund policy (allowed window in days, whether partial refunds are permitted) is a business decision that commonly varies per merchant/tenant; today it is globally hardcoded. | `refundWindowDays` |\n\n---\n\n## Dependencies\n\n`db`, `env`, `setting`, `redis`, `logger`, `payment_core`.\n"
+    },
+    {
+      "id": "payment_stripe",
+      "name": "Stripe Gateway",
+      "version": "1.0.0",
+      "description": "Stripe payment gateway, contributed into the payment:gateway extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_stripe",
+      "dir": "modules/payment_stripe",
+      "icon": "fab fa-stripe",
+      "tags": [
+        "billing",
+        "payment",
+        "gateway"
+      ],
+      "priority": 26,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "payment",
+          "env",
+          "setting",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "payment:gateway",
+          "key": "stripe",
+          "export": "payment_stripe/server/stripe.extension",
+          "metadata": {
+            "label": "Stripe"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/providers/stripe.provider",
+        "./server/stripe.extension",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": ""
     },
     {
       "id": "exchange_rate",

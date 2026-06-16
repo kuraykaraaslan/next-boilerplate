@@ -762,6 +762,20 @@
     "componentCount": 0,
     "file": "payment_sell.md"
   },
+  "payment_stripe": {
+    "name": "Stripe Gateway",
+    "tier": "other",
+    "tags": [
+      "billing",
+      "payment",
+      "gateway"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 0,
+    "componentCount": 0,
+    "file": "payment_stripe.md"
+  },
   "exchange_rate": {
     "name": "Exchange Rate",
     "tier": "other",

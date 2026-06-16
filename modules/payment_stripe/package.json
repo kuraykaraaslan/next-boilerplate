@@ -1,0 +1,11 @@
+{
+  "name": "@nb/payment_stripe",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/providers/stripe.provider": "./server/providers/stripe.provider.ts",
+    "./server/stripe.extension": "./server/stripe.extension.ts",
+    "./module.json": "./module.json"
+  }
+}

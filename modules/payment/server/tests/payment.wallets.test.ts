@@ -11,7 +11,7 @@ vi.mock('@nb/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: v
 vi.mock('@nb/setting/server/setting.service', () => ({ default: { getValue: vi.fn(async () => null) } }));
 
 import IyzicoProvider from '../providers/iyzico.provider';
-import StripeProvider from '../providers/stripe.provider';
+import StripeProvider from '@nb/payment_stripe/server/providers/stripe.provider';
 import PaypalProvider from '../providers/paypal.provider';
 import PaymentService from '../payment.service';
 import { WalletDescriptorSchema } from '../payment.enums';
@@ -38,13 +38,13 @@ describe('provider supportedWallets', () => {
 });
 
 describe('PaymentService wallet capability', () => {
-  it('getSupportedWallets routes to the provider', () => {
-    expect(PaymentService.getSupportedWallets('IYZICO').map((d) => d.method)).toContain('MASTERPASS');
-    expect(PaymentService.getSupportedWallets('STRIPE').map((d) => d.method)).toContain('CLICK_TO_PAY');
+  it('getSupportedWallets routes to the provider', async () => {
+    expect((await PaymentService.getSupportedWallets('IYZICO')).map((d) => d.method)).toContain('MASTERPASS');
+    expect((await PaymentService.getSupportedWallets('STRIPE')).map((d) => d.method)).toContain('CLICK_TO_PAY');
   });
 
-  it('getWalletMatrix covers every registered provider', () => {
-    const matrix = PaymentService.getWalletMatrix();
+  it('getWalletMatrix covers every registered provider', async () => {
+    const matrix = await PaymentService.getWalletMatrix();
     const providers = matrix.map((row) => row.provider);
     expect(providers).toEqual(expect.arrayContaining(['STRIPE', 'PAYPAL', 'IYZICO']));
     const iyzico = matrix.find((row) => row.provider === 'IYZICO');

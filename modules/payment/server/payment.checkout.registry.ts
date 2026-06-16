@@ -1,7 +1,9 @@
 import { env } from '@nb/env';
 import Logger from '@nb/logger';
-import BasePaymentProvider, { WalletDescriptor } from './providers/base.provider';
-import StripeProvider from './providers/stripe.provider';
+import { extensionRegistry } from '@nb/common/server/extension-registry';
+import type BasePaymentProvider from './providers/base.provider';
+import { type WalletDescriptor } from './providers/base.provider';
+import type { PaymentGatewayContribution } from './payment.gateway.types';
 import PaypalProvider from './providers/paypal.provider';
 import IyzicoProvider from './providers/iyzico.provider';
 import AlipayProvider from './providers/alipay.provider';
@@ -13,46 +15,78 @@ import { PAYMENT_MESSAGES } from './payment.messages';
 import SettingService from '@nb/setting/server/setting.service';
 import { AppError, ErrorCode } from '@nb/common/server/app-error';
 
-const PROVIDERS = new Map<PaymentProvider, BasePaymentProvider>([
-  ['STRIPE', new StripeProvider()],
-  ['PAYPAL', new PaypalProvider()],
-  ['IYZICO', new IyzicoProvider()],
-  ['ALIPAY', new AlipayProvider()],
-  ['WECHATPAY', new WeChatPayProvider()],
-  ['YOOKASSA', new YooKassaProvider()],
-  ['CLOUDPAYMENTS', new CloudPaymentsProvider()],
+const PAYMENT_GATEWAY_POINT = 'payment:gateway';
+
+/**
+ * Not-yet-migrated gateways, still in-tree (Partial — shrinks as gateways move
+ * into their own satellite module, payment_<key>, discovered via the extension
+ * registry).
+ */
+const FALLBACK = new Map<PaymentProvider, () => BasePaymentProvider>([
+  ['PAYPAL', () => new PaypalProvider()],
+  ['IYZICO', () => new IyzicoProvider()],
+  ['ALIPAY', () => new AlipayProvider()],
+  ['WECHATPAY', () => new WeChatPayProvider()],
+  ['YOOKASSA', () => new YooKassaProvider()],
+  ['CLOUDPAYMENTS', () => new CloudPaymentsProvider()],
 ]);
+
+const instances = new Map<PaymentProvider, BasePaymentProvider>();
 
 export const DEFAULT_PROVIDER: PaymentProvider =
   (env.PAYMENT_DEFAULT_PROVIDER?.toUpperCase() as PaymentProvider) || 'STRIPE';
 
-export function getProvider(providerName?: PaymentProvider): BasePaymentProvider {
+/**
+ * Resolve a gateway implementation. Satellite contributions (extension registry)
+ * win; otherwise the in-tree fallback factory is used. Async — satellite
+ * implementations are lazy-loaded — and cached per provider.
+ */
+export async function getProvider(providerName?: PaymentProvider): Promise<BasePaymentProvider> {
   const name = providerName || DEFAULT_PROVIDER;
-  const provider = PROVIDERS.get(name);
-  if (!provider) {
-    Logger.error(`${PAYMENT_MESSAGES.PROVIDER_NOT_FOUND}: ${name}`);
-    throw new AppError(`${PAYMENT_MESSAGES.PROVIDER_NOT_FOUND}: ${name}`, 400, ErrorCode.VALIDATION_ERROR);
+  const cached = instances.get(name);
+  if (cached) return cached;
+
+  let impl: BasePaymentProvider;
+  const contrib = extensionRegistry
+    .getContributions(PAYMENT_GATEWAY_POINT)
+    .find((c) => c.key === name.toLowerCase());
+  if (contrib) {
+    const c = await extensionRegistry.load<PaymentGatewayContribution>(contrib);
+    impl = c.create();
+  } else {
+    const factory = FALLBACK.get(name);
+    if (!factory) {
+      Logger.error(`${PAYMENT_MESSAGES.PROVIDER_NOT_FOUND}: ${name}`);
+      throw new AppError(`${PAYMENT_MESSAGES.PROVIDER_NOT_FOUND}: ${name}`, 400, ErrorCode.VALIDATION_ERROR);
+    }
+    impl = factory();
   }
-  return provider;
+  instances.set(name, impl);
+  return impl;
 }
 
 export function getAvailableProviders(): PaymentProvider[] {
-  return Array.from(PROVIDERS.keys());
+  const fromExtensions = extensionRegistry
+    .getContributions(PAYMENT_GATEWAY_POINT)
+    .flatMap((c) => (c.key ? [c.key.toUpperCase() as PaymentProvider] : []));
+  return [...new Set([...fromExtensions, ...FALLBACK.keys()])];
 }
 
 export function getDefaultProvider(): PaymentProvider {
   return DEFAULT_PROVIDER;
 }
 
-export function getSupportedWallets(providerName?: PaymentProvider): WalletDescriptor[] {
-  return getProvider(providerName).supportedWallets;
+export async function getSupportedWallets(providerName?: PaymentProvider): Promise<WalletDescriptor[]> {
+  return (await getProvider(providerName)).supportedWallets;
 }
 
-export function getWalletMatrix(): { provider: PaymentProvider; wallets: WalletDescriptor[] }[] {
-  return Array.from(PROVIDERS.entries()).map(([provider, impl]) => ({
-    provider,
-    wallets: impl.supportedWallets,
-  }));
+export async function getWalletMatrix(): Promise<{ provider: PaymentProvider; wallets: WalletDescriptor[] }[]> {
+  return Promise.all(
+    getAvailableProviders().map(async (provider) => ({
+      provider,
+      wallets: (await getProvider(provider)).supportedWallets,
+    })),
+  );
 }
 
 // Provider → its per-tenant enable flag setting.

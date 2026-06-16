@@ -56,7 +56,7 @@ async function lookupBinCountry(bin: string): Promise<{ country: string | null; 
 
 export async function checkBin(tenantId: string, bin: string, providerName?: PaymentProvider): Promise<CardBinInfo> {
   const clean = bin.replace(/\D/g, '').slice(0, 8);
-  const provider = getProvider(providerName);
+  const provider = await getProvider(providerName);
 
   const [providerRes, countryRes] = await Promise.allSettled([
     provider.checkBin(tenantId, clean),

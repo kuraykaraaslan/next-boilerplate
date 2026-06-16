@@ -32,7 +32,7 @@ import { checkBin } from './payment.checkout.bin';
  * entry point its callers depend on.
  */
 export default class PaymentCheckoutService {
-  static getProvider(providerName?: PaymentProvider): BasePaymentProvider {
+  static getProvider(providerName?: PaymentProvider): Promise<BasePaymentProvider> {
     return getProvider(providerName);
   }
 
@@ -44,11 +44,11 @@ export default class PaymentCheckoutService {
     return getDefaultProvider();
   }
 
-  static getSupportedWallets(providerName?: PaymentProvider): WalletDescriptor[] {
+  static getSupportedWallets(providerName?: PaymentProvider): Promise<WalletDescriptor[]> {
     return getSupportedWallets(providerName);
   }
 
-  static getWalletMatrix(): { provider: PaymentProvider; wallets: WalletDescriptor[] }[] {
+  static getWalletMatrix(): Promise<{ provider: PaymentProvider; wallets: WalletDescriptor[] }[]> {
     return getWalletMatrix();
   }
 
@@ -67,7 +67,7 @@ export default class PaymentCheckoutService {
     return createCheckoutSession(tenantId, params, providerName);
   }
 
-  static supportsDirectCardPayment(providerName?: PaymentProvider): boolean {
+  static supportsDirectCardPayment(providerName?: PaymentProvider): Promise<boolean> {
     return supportsDirectCardPayment(providerName);
   }
 
@@ -75,7 +75,7 @@ export default class PaymentCheckoutService {
     return chargeWithCard(tenantId, params, providerName);
   }
 
-  static supports3dsCardPayment(providerName?: PaymentProvider): boolean {
+  static supports3dsCardPayment(providerName?: PaymentProvider): Promise<boolean> {
     return supports3dsCardPayment(providerName);
   }
 
