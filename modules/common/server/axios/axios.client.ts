@@ -2,6 +2,7 @@
 
 import axios from 'axios';
 import { AuthMessages } from '@nb/auth/server/auth.messages';
+import UserSessionMessages from '@nb/user_session/server/user_session.messages';
 
 const CSRF_HEADER_NAME = 'x-csrf-token';
 const CSRF_COOKIE_NAME = 'csrf-token';
@@ -97,7 +98,8 @@ axiosInstance.interceptors.response.use(
 
     if (
       message === AuthMessages.TOKEN_EXPIRED ||
-      message === AuthMessages.USER_NOT_AUTHENTICATED
+      message === AuthMessages.USER_NOT_AUTHENTICATED ||
+      message === UserSessionMessages.SESSION_EXPIRED
     ) {
       return Promise.reject({
         config: response.config,
@@ -120,6 +122,17 @@ axiosInstance.interceptors.response.use(
     }
 
     const message = error.response?.data?.message || error.message;
+
+    // A dead session can't be refreshed — the refresh token is bound to the same
+    // session, so a refresh would just fail with SESSION_EXPIRED again. Skip the
+    // refresh round-trip and send the user straight to login.
+    if (message === UserSessionMessages.SESSION_EXPIRED) {
+      if (typeof window !== 'undefined') {
+        const { loginUrl } = getAuthContext(originalRequest?.url);
+        window.location.href = buildLoginUrlWithRedirect(loginUrl);
+      }
+      return Promise.reject(error);
+    }
 
     const shouldRefresh =
       message === AuthMessages.TOKEN_EXPIRED ||

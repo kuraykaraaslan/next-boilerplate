@@ -5,7 +5,7 @@ import { DefaultSeoData, draftKey, apiBase, apiFetch } from '../editor.types'
 export type UiSlice = Pick<
   EditorStore,
   | 'setTenantId' | 'setSelectedId' | 'setTitle' | 'setSlug' | 'setStatus'
-  | 'setDescription' | 'setKeywords' | 'setSeoField'
+  | 'setDescription' | 'setKeywords' | 'setLayout' | 'setSeoField'
   | 'setBackupOpen' | 'setSeoOpen' | 'setTranslationOpen'
   | 'setPreviewMode' | 'setShowShortcuts'
   | 'restoreDraft' | 'dismissDraft' | 'loadBlockDefs'
@@ -30,6 +30,7 @@ export const createUiSlice: StateCreator<EditorStore, [], [], UiSlice> = (set, g
   setStatus: (v) => set({ status: v, isDirty: true }),
   setDescription: (v) => set({ description: v, isDirty: true }),
   setKeywords: (v) => set({ keywords: v, isDirty: true }),
+  setLayout: (v) => set({ layout: v, isDirty: true }),
   setSeoField: (key, value) => set((state) => ({ seoData: { ...state.seoData, [key]: value }, isDirty: true })),
   setBackupOpen: (v) => set({ backupOpen: v }),
   setSeoOpen: (v) => set({ seoOpen: v }),

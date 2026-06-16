@@ -5,8 +5,10 @@ import DynamicPageService from '@nb/dynamic_page/server/dynamic_page.service'
 import { SeoService } from '@nb/seo/server'
 import DynamicPageRenderer from './dynamic-page-renderer.component'
 import SiteChrome from './site-chrome.component'
+import TenantWelcome from './tenant-welcome.component'
 import type { BlockData } from './dynamic/types'
 import type { DynamicPageRecord } from '@nb/dynamic_page/server/dynamic_page.types'
+import { resolvePageLayout } from '@nb/dynamic_page/server/dynamic_page.types'
 
 export const MAX_SLUG_DEPTH = 4
 
@@ -94,7 +96,19 @@ export default async function PublicDynamicPage({ tenantId, slugSegments, lang }
   if (isReservedPath(slugSegments) || (slugSegments?.length ?? 0) > MAX_SLUG_DEPTH) notFound()
 
   const page = await loadPage(tenantId, joinSlug(slugSegments))
-  if (!page || page.status !== 'PUBLISHED') notFound()
+  if (!page || page.status !== 'PUBLISHED') {
+    // The tenant root ("/") must NEVER 404 — when no published page is set as
+    // the home, fall back to the welcome hero (still wrapped in nav/footer
+    // chrome if the tenant has configured one). Deeper unmatched paths 404.
+    if ((slugSegments?.length ?? 0) === 0) {
+      return (
+        <SiteChrome tenantId={tenantId} lang={lang} layout={null}>
+          <TenantWelcome tenantId={tenantId} />
+        </SiteChrome>
+      )
+    }
+    notFound()
+  }
 
   const now = new Date()
   const meta = (page.metadata ?? {}) as Record<string, string>
@@ -104,7 +118,7 @@ export default async function PublicDynamicPage({ tenantId, slugSegments, lang }
   const tr = await resolveTranslation(page, tenantId, lang)
 
   return (
-    <SiteChrome tenantId={tenantId} lang={lang}>
+    <SiteChrome tenantId={tenantId} lang={lang} layout={resolvePageLayout(page.metadata)}>
       <DynamicPageRenderer
         tenantId={tenantId}
         sections={page.sections as BlockData[]}

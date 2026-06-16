@@ -2,6 +2,27 @@ import { z } from 'zod'
 
 export const CURRENT_SCHEMA_VERSION = 2 as const
 
+// ─── Page Layouts ────────────────────────────────────────────────────────────
+// Available site-chrome layouts. A page's `metadata.layout` references one of
+// these; extend this list as new layouts ship. `null` means "no chrome".
+export const PAGE_LAYOUTS = ['default'] as const
+export type PageLayout = (typeof PAGE_LAYOUTS)[number]
+export const DEFAULT_PAGE_LAYOUT: PageLayout = 'default'
+
+// Resolve a page's effective layout from its metadata:
+// - key absent (legacy pages, no metadata) → DEFAULT_PAGE_LAYOUT (keep chrome)
+// - explicit empty/null → null (render bare, no nav/footer)
+// - non-empty string → that layout slug
+export function resolvePageLayout(
+  metadata: Record<string, unknown> | null | undefined,
+): string | null {
+  if (metadata && typeof metadata === 'object' && 'layout' in metadata) {
+    const layout = (metadata as { layout?: unknown }).layout
+    return typeof layout === 'string' && layout ? layout : null
+  }
+  return DEFAULT_PAGE_LAYOUT
+}
+
 export const BlockDataSchema = z.object({
   id: z.string(),
   type: z.string(),
@@ -21,6 +42,14 @@ export const PageMetadataSchema = z.object({
   twitterCard: z.string().optional(),
   canonical: z.string().optional(),
   robots: z.string().optional(),
+  // Page schedule window (read by the public renderer) — kept here so a metadata
+  // round-trip through the editor preserves them instead of stripping them.
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
+  // Per-page site-chrome layout selector. A layout slug picks which chrome
+  // (nav + footer) wraps the page; `null` renders the page bare (no nav/footer).
+  // Today there is a single layout; the field is a string to grow into many.
+  layout: z.string().nullable().optional(),
 }).nullish()
 
 export const DynamicPageRecordSchema = z.object({

@@ -8,12 +8,15 @@ import { toast } from '@nb/common/ui/toast.store'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCopy } from '@fortawesome/free-solid-svg-icons'
 import { PropFieldRenderer } from './partials/prop-field-renderer.component'
+import { PAGE_LAYOUTS } from '@nb/dynamic_page/server/dynamic_page.types'
 
 interface Props {
   block: BlockData | null
   onChange: (props: Record<string, unknown>) => void
   collapseButton?: React.ReactNode
 }
+
+const NO_LAYOUT = '__none__'
 
 function shouldShow(field: FieldSchema, props: Record<string, unknown>): boolean {
   if (!field.showIf) return true
@@ -31,6 +34,9 @@ export default function PropsPanel({ block, onChange, collapseButton }: Props) {
   const localPropsRef = useRef<Record<string, unknown>>({})
   const blockDefs     = useEditorStore((s) => s.blockDefs)
   const tenantId      = useEditorStore((s) => s.tenantId)
+  const layout        = useEditorStore((s) => s.layout)
+  const setLayout     = useEditorStore((s) => s.setLayout)
+  const activeLang    = useEditorStore((s) => s.activeLang)
   const snapshotForUndo  = useEditorStore((s) => s.snapshotForUndo)
   const updateBlockLabel = useEditorStore((s) => s.updateBlockLabel)
   const debounceRef      = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -105,11 +111,39 @@ export default function PropsPanel({ block, onChange, collapseButton }: Props) {
     return (
       <div className="w-72 flex-shrink-0 flex flex-col border-l border-[var(--text-primary)]/10 bg-[var(--surface-raised)]">
         <div className="px-4 py-3 border-b border-[var(--text-primary)]/10 flex items-center justify-between">
-          <p className="text-xs font-semibold tracking-widest text-[var(--text-primary)]/40">PROPERTIES</p>
+          <p className="text-xs font-semibold tracking-widest text-[var(--text-primary)]/40">PAGE SETTINGS</p>
           {collapseButton}
         </div>
-        <div className="flex-1 flex items-center justify-center">
-          <p className="text-xs text-center px-6 text-[var(--text-primary)]/30">
+
+        {activeLang === 'en' ? (
+          <div className="p-4 space-y-4">
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-primary)]/35 mb-2">Layout</p>
+              <select
+                value={layout ?? NO_LAYOUT}
+                onChange={(e) => setLayout(e.target.value === NO_LAYOUT ? null : e.target.value)}
+                className="w-full text-xs bg-[var(--surface-overlay)] border border-[var(--text-primary)]/10 rounded-md px-2.5 py-2 text-[var(--text-primary)] outline-none focus:border-[var(--primary)]/40 transition-colors"
+              >
+                <option value={NO_LAYOUT}>None — no navbar / footer</option>
+                {PAGE_LAYOUTS.map((l) => (
+                  <option key={l} value={l}>{l.charAt(0).toUpperCase() + l.slice(1)}</option>
+                ))}
+              </select>
+              <p className="text-[11px] text-[var(--text-primary)]/40 leading-snug mt-1.5">
+                Pick the site chrome that wraps this page. <strong>None</strong> renders it bare.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="flex-1 flex items-center justify-center">
+            <p className="text-xs text-center px-6 text-[var(--text-primary)]/30">
+              Page settings are edited in the default (EN) language.
+            </p>
+          </div>
+        )}
+
+        <div className="flex-1 flex items-end justify-center pb-6">
+          <p className="text-[11px] text-center px-6 text-[var(--text-primary)]/25">
             Click a block on the canvas to edit its properties.
           </p>
         </div>

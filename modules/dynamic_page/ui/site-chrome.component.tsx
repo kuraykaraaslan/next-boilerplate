@@ -8,6 +8,12 @@ import type { DynamicPageRecord } from '@nb/dynamic_page/server/dynamic_page.typ
 interface Props {
   tenantId: string
   lang?: string
+  /**
+   * Site-chrome layout slug. A truthy layout wraps the page in nav + footer;
+   * `null`/empty renders the page bare (no nav, no footer). Today every layout
+   * maps to the same `__nav`/`__footer` chrome — future layouts can vary it.
+   */
+  layout?: string | null
   children: ReactNode
 }
 
@@ -37,7 +43,10 @@ async function loadChromePart(
   return { sections, schemaVersion: page.schemaVersion }
 }
 
-export default async function SiteChrome({ tenantId, lang, children }: Props) {
+export default async function SiteChrome({ tenantId, lang, layout, children }: Props) {
+  // No layout selected → render the page bare, skipping all chrome loads.
+  if (!layout) return <>{children}</>
+
   const [nav, footer, dbDefs] = await Promise.all([
     loadChromePart(tenantId, '__nav', lang),
     loadChromePart(tenantId, '__footer', lang),

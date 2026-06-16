@@ -4,6 +4,7 @@ import { migrateSections, needsMigration, CURRENT_SCHEMA_VERSION } from '../../.
 import type { BlockData } from '../../../types'
 import type { EditorStore, SeoData, TranslationEntry } from '../editor.types'
 import { DefaultSeoData, draftKey, apiBase, apiFetch, initialState } from '../editor.types'
+import { resolvePageLayout } from '@nb/dynamic_page/server/dynamic_page.types'
 
 export type PersistSlice = Pick<EditorStore, 'loadPage' | 'handleSave' | 'reset'>
 
@@ -61,12 +62,17 @@ export const createPersistSlice: StateCreator<EditorStore, [], [], PersistSlice>
           }
         : DefaultSeoData
 
+      const rawMetadata: Record<string, unknown> | null =
+        raw.metadata && typeof raw.metadata === 'object' ? raw.metadata : null
+
       set({
         title: raw.title ?? '',
         slug: raw.slug ?? '',
         status: raw.status ?? 'DRAFT',
         description: raw.description ?? '',
         keywords: Array.isArray(raw.keywords) ? raw.keywords : [],
+        pageMetadata: rawMetadata,
+        layout: resolvePageLayout(rawMetadata),
         seoData: loadedSeoData,
         sections: enSections,
         enSections,
@@ -103,13 +109,17 @@ export const createPersistSlice: StateCreator<EditorStore, [], [], PersistSlice>
   handleSave: async (mode, pageId, router) => {
     const {
       tenantId, title, slug, status, description, keywords, seoData,
+      layout, pageMetadata,
       sections, enSections, activeLang, translationCache, dirtyLangs, savedLangs,
     } = get()
     if (!title.trim()) { toast.error('Title is required'); return }
 
     const enSectionsToSave = activeLang === 'en' ? sections : enSections
+    // Merge onto any existing metadata so the layout selector doesn't clobber
+    // other page-level keys (e.g. schedule window).
+    const metadata = { ...(pageMetadata ?? {}), layout }
     const body = {
-      title, slug, status, description, keywords,
+      title, slug, status, description, keywords, metadata,
       sections: enSectionsToSave.map((s, i) => ({ ...s, order: i })),
     }
 

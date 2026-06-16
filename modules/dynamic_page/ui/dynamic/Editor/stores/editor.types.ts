@@ -1,6 +1,7 @@
 import type { DragEndEvent } from '@dnd-kit/core'
 import type { BlockData } from '../../types'
 import type { DynamicPageBlockRecord } from '@nb/dynamic_page/server/dynamic_page.types'
+import { DEFAULT_PAGE_LAYOUT } from '@nb/dynamic_page/server/dynamic_page.types'
 
 export type { DynamicPageBlockRecord }
 export type PreviewMode = 'mobile' | 'tablet' | 'desktop'
@@ -26,6 +27,7 @@ export interface EditorStore {
   sections: BlockData[]; selectedId: string | null;
   selectedIds: string[];
   title: string; slug: string; status: string; description: string; keywords: string[];
+  layout: string | null; pageMetadata: Record<string, unknown> | null;
   seoData: SeoData; backupOpen: boolean; seoOpen: boolean; translationOpen: boolean;
   isDirty: boolean; previewMode: PreviewMode;
   undoStack: { sections: BlockData[]; selectedId: string | null }[];
@@ -47,6 +49,7 @@ export interface EditorStore {
   setStatus: (v: string) => void
   setDescription: (v: string) => void
   setKeywords: (v: string[]) => void
+  setLayout: (v: string | null) => void
   setSeoField: <K extends keyof SeoData>(key: K, value: SeoData[K]) => void
   setBackupOpen: (v: boolean) => void
   setSeoOpen: (v: boolean) => void
@@ -88,6 +91,7 @@ export const initialState = {
   selectedIds: [] as string[],
   clipboard: null as BlockData | null,
   title: '', slug: '', status: 'DRAFT', description: '', keywords: [] as string[],
+  layout: DEFAULT_PAGE_LAYOUT as string | null, pageMetadata: null as Record<string, unknown> | null,
   seoData: DefaultSeoData, backupOpen: false, seoOpen: false, translationOpen: false,
   isDirty: false, previewMode: 'desktop' as PreviewMode,
   undoStack: [] as { sections: BlockData[]; selectedId: string | null }[],
