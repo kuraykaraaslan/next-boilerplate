@@ -14,6 +14,7 @@ import { SocialAccountsPanel } from '@nb/user/ui/SocialAccountsPanel';
 import { PasskeysPanel } from '@nb/user_security/ui/PasskeysPanel';
 import { SigningCertificatesPanel } from '@nb/auth_e_signature/ui/SigningCertificatesPanel';
 import { ActiveSessionsPanel } from '@nb/user_session/ui/ActiveSessionsPanel';
+import { useSlotContributions } from '@nb/common/ui/Slot';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faClock, faLayerGroup, faShieldHalved, faCircleCheck, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
 import type { SafeUserSession } from '@nb/user_session/server/user_session.types';
@@ -35,6 +36,9 @@ const ROLE_VARIANT: Record<string, 'success' | 'warning' | 'neutral' | 'primary'
 
 export default function TenantMePage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = use(params);
+  // Plugin-contributed profile tabs (e.g. payment's Billing tab) via the
+  // `user.profile.tabs` slot — appear/disappear with the contributing module.
+  const profileSlotTabs = useSlotContributions('user.profile.tabs');
 
   const [profile, setProfile] = useState<UserProfileValues>({ name: null, biography: null, profilePicture: null });
   const [memberRole, setMemberRole] = useState<string | null>(null);
@@ -223,6 +227,11 @@ export default function TenantMePage({ params }: { params: Promise<{ tenantId: s
             label: 'Connected Accounts',
             content: <SocialAccountsPanel apiBase={`/tenant/${tenantId}/api/auth`} />,
           },
+          ...profileSlotTabs.map(({ id, Component, props }) => ({
+            id,
+            label: String(props.label ?? id),
+            content: <Component tenantId={tenantId} {...props} />,
+          })),
         ]}
       />
     </div>

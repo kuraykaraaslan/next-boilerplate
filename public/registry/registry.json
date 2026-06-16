@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T07:29:58.324Z",
+  "generatedAt": "2026-06-16T07:38:04.586Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -1871,7 +1871,17 @@
       "enabled": true,
       "menu": [],
       "widgets": [],
-      "slots": [],
+      "slots": [
+        {
+          "slot": "user.profile.tabs",
+          "component": "payment/ui/BillingProfileTab",
+          "order": 50,
+          "scope": "both",
+          "props": {
+            "label": "Billing"
+          }
+        }
+      ],
       "settingsTabs": [],
       "modulePermissions": [],
       "hasReadme": true,
@@ -10667,6 +10677,19 @@
       "baseName": "module-components"
     },
     {
+      "id": "common/ui/icon-map",
+      "module": "common",
+      "filePath": "modules/common/ui/icon-map.ts",
+      "kind": "ui",
+      "exports": [
+        "DEFAULT_ICON",
+        "resolveIcon"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "icon-map"
+    },
+    {
       "id": "common/ui/ImageGallery",
       "module": "common",
       "filePath": "modules/common/ui/ImageGallery.tsx",
@@ -10764,6 +10787,19 @@
       "isClient": true,
       "isServer": false,
       "baseName": "Modal"
+    },
+    {
+      "id": "common/ui/module-enabled.context",
+      "module": "common",
+      "filePath": "modules/common/ui/module-enabled.context.tsx",
+      "kind": "ui",
+      "exports": [
+        "ModuleEnabledProvider",
+        "useModuleEnabled"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "module-enabled.context"
     },
     {
       "id": "common/ui/NotificationMenu",
@@ -11121,6 +11157,32 @@
       "isClient": true,
       "isServer": false,
       "baseName": "SkipToContent"
+    },
+    {
+      "id": "common/ui/Slot",
+      "module": "common",
+      "filePath": "modules/common/ui/Slot.tsx",
+      "kind": "ui",
+      "exports": [
+        "ResolvedContribution",
+        "useSlotContributions",
+        "Slot"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "Slot"
+    },
+    {
+      "id": "common/ui/SlotErrorBoundary",
+      "module": "common",
+      "filePath": "modules/common/ui/SlotErrorBoundary.tsx",
+      "kind": "ui",
+      "exports": [
+        "SlotErrorBoundary"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "SlotErrorBoundary"
     },
     {
       "id": "common/ui/Spinner",
@@ -12543,6 +12605,18 @@
       "isClient": true,
       "isServer": false,
       "baseName": "use-notifications.hook"
+    },
+    {
+      "id": "payment/ui/BillingProfileTab",
+      "module": "payment",
+      "filePath": "modules/payment/ui/BillingProfileTab.tsx",
+      "kind": "ui",
+      "exports": [
+        "BillingProfileTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "BillingProfileTab"
     },
     {
       "id": "payment/ui/CardCheckoutModal",

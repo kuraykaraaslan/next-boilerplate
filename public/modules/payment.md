@@ -76,6 +76,7 @@ Pluggable payment processing (Stripe, PayPal, Iyzico) + subscription plans, plan
 
 ## Next layer (modules_next/) surface
 
+- `payment/ui/BillingProfileTab` _(ui, client)_
 - `payment/ui/CardCheckoutModal` _(ui, client)_
 - `payment/ui/CreditCardForm` _(ui, client)_
 - `payment/ui/CreditCardVisual` _(ui, client)_

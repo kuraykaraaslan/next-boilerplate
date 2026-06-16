@@ -9,5 +9,14 @@
   "priority": 25,
   "dependencies": { "requires": ["db", "env", "setting", "common"] },
   "settings": { "keys": "PAYMENT_KEYS" },
-  "settingKeys": ["PAYMENT_KEYS"]
+  "settingKeys": ["PAYMENT_KEYS"],
+  "slots": [
+    {
+      "slot": "user.profile.tabs",
+      "component": "payment/ui/BillingProfileTab",
+      "order": 50,
+      "scope": "both",
+      "props": { "label": "Billing" }
+    }
+  ]
 }

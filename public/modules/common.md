@@ -30,6 +30,7 @@ Dependency-free leaf module loaded by every other module: AppError + ErrorCode e
 - `common/ui/FileInput` _(ui, client)_
 - `common/ui/Form` _(ui, client)_
 - `common/ui/generated/module-components` _(ui)_
+- `common/ui/icon-map` _(ui)_
 - `common/ui/ImageGallery` _(ui, client)_
 - `common/ui/Input` _(ui, client)_
 - `common/ui/layout/AdminShell` _(ui, client)_
@@ -38,6 +39,7 @@ Dependency-free leaf module loaded by every other module: AppError + ErrorCode e
 - `common/ui/layout/AppTopBar` _(ui, client)_
 - `common/ui/layout/FontAwesomeConfig` _(ui, client)_
 - `common/ui/Modal` _(ui, client)_
+- `common/ui/module-enabled.context` _(ui, client)_
 - `common/ui/NotificationMenu` _(ui, client)_
 - `common/ui/PageHeader` _(ui, client)_
 - `common/ui/Pagination` _(ui, client)_
@@ -65,13 +67,12 @@ Dependency-free leaf module loaded by every other module: AppError + ErrorCode e
 - `common/ui/ServerDataTable` _(ui, client)_
 - `common/ui/Skeleton` _(ui, client)_
 - `common/ui/SkipToContent` _(ui, client)_
+- `common/ui/Slot` _(ui, client)_
+- `common/ui/SlotErrorBoundary` _(ui, client)_
 - `common/ui/Spinner` _(ui, client)_
 - `common/ui/TabGroup` _(ui, client)_
 - `common/ui/ThemeToggle` _(ui, client)_
-- `common/ui/toast.store` _(ui)_
-- `common/ui/ToastContainer` _(ui, client)_
-- `common/ui/Toggle` _(ui, client)_
-- `common/ui/Tooltip` _(ui, client)_
+- … and 4 more
 
 ## README
 

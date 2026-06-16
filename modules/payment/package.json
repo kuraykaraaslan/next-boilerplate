@@ -49,6 +49,7 @@
     "./server/providers/wechatpay.provider": "./server/providers/wechatpay.provider.ts",
     "./server/providers/yookassa.provider": "./server/providers/yookassa.provider.ts",
     "./server/tests/payment.crud.test-setup": "./server/tests/payment.crud.test-setup.ts",
+    "./ui/BillingProfileTab": "./ui/BillingProfileTab.tsx",
     "./ui/CardCheckoutModal": "./ui/CardCheckoutModal.tsx",
     "./ui/CreditCardForm": "./ui/CreditCardForm.tsx",
     "./ui/CreditCardVisual": "./ui/CreditCardVisual.tsx",

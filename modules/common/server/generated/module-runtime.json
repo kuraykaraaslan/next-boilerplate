@@ -1,8 +1,21 @@
 {
-  "generatedAt": "2026-06-16T07:29:58.324Z",
+  "generatedAt": "2026-06-16T07:38:04.586Z",
   "menu": [],
   "widgets": [],
-  "slots": [],
+  "slots": [
+    {
+      "id": "payment:user.profile.tabs:payment/ui/BillingProfileTab",
+      "slot": "user.profile.tabs",
+      "componentId": "payment/ui/BillingProfileTab",
+      "order": 50,
+      "scope": "both",
+      "permissions": [],
+      "props": {
+        "label": "Billing"
+      },
+      "moduleId": "payment"
+    }
+  ],
   "settingsTabs": [],
   "permissions": [],
   "modules": [
