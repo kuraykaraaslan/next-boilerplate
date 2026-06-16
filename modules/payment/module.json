@@ -10,6 +10,11 @@
   "dependencies": { "requires": ["db", "env", "setting", "common"] },
   "settings": { "keys": "PAYMENT_KEYS" },
   "settingKeys": ["PAYMENT_KEYS"],
+  "menu": [
+    { "id": "plans", "label": "Plans", "href": "/admin/plans", "icon": "fas fa-credit-card", "group": "Commerce", "order": 10, "scope": "tenant" },
+    { "id": "payments", "label": "Payments", "href": "/admin/payments", "icon": "fas fa-credit-card", "group": "Commerce", "order": 11, "scope": "tenant" },
+    { "id": "invoices", "label": "Invoices", "href": "/admin/invoices", "icon": "fas fa-file-invoice", "group": "Commerce", "order": 12, "scope": "tenant" }
+  ],
   "slots": [
     {
       "slot": "user.profile.tabs",

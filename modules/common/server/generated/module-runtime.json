@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-16T07:43:12.538Z",
+  "generatedAt": "2026-06-16T07:48:24.938Z",
   "menu": [
     {
       "id": "modules",
@@ -11,6 +11,39 @@
       "scope": "tenant",
       "permissions": [],
       "moduleId": "setting"
+    },
+    {
+      "id": "plans",
+      "label": "Plans",
+      "href": "/admin/plans",
+      "icon": "fas fa-credit-card",
+      "group": "Commerce",
+      "order": 10,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "payment"
+    },
+    {
+      "id": "payments",
+      "label": "Payments",
+      "href": "/admin/payments",
+      "icon": "fas fa-credit-card",
+      "group": "Commerce",
+      "order": 11,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "payment"
+    },
+    {
+      "id": "invoices",
+      "label": "Invoices",
+      "href": "/admin/invoices",
+      "icon": "fas fa-file-invoice",
+      "group": "Commerce",
+      "order": 12,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "payment"
     }
   ],
   "widgets": [],

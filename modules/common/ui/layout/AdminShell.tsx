@@ -9,6 +9,9 @@ import { UserMenu } from '@nb/user/ui/UserMenu';
 import { NotificationMenu } from '@nb/common/ui/NotificationMenu';
 import { useNotifications } from '@nb/notification_inapp/hooks/use-notifications.hook';
 import { isRootTenant } from '@nb/tenant/server/tenant.constants';
+import { moduleRegistry } from '@nb/common/server/module-registry';
+import { useModuleEnabled } from '@nb/common/ui/module-enabled.context';
+import { resolveIcon, DEFAULT_ICON } from '@nb/common/ui/icon-map';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faUsers,
@@ -116,9 +119,8 @@ export function AdminShell({ children, tenantId }: AdminShellProps) {
     {
       label: 'Commerce',
       items: [
-        { id: 'plans',    label: 'Plans',    href: `/tenant/${tenantId}/admin/plans`,    icon: <FontAwesomeIcon icon={faCreditCard} aria-hidden /> },
-        { id: 'payments', label: 'Payments', href: `/tenant/${tenantId}/admin/payments`, icon: <FontAwesomeIcon icon={faCreditCard} aria-hidden /> },
-        { id: 'invoices', label: 'Invoices', href: `/tenant/${tenantId}/admin/invoices`, icon: <FontAwesomeIcon icon={faFileInvoice} aria-hidden /> },
+        // Plans / Payments / Invoices are now registered by the payment module's
+        // manifest (modules/payment/module.json) and merged in dynamically below.
         { id: 'coupons',  label: 'Coupons',  href: `/tenant/${tenantId}/admin/coupons`,  icon: <FontAwesomeIcon icon={faKey} aria-hidden /> },
         { id: 'gift-cards', label: 'Gift Cards', href: `/tenant/${tenantId}/admin/gift-cards`, icon: <FontAwesomeIcon icon={faGift} aria-hidden /> },
         { id: 'wallet',   label: 'Wallet',   href: `/tenant/${tenantId}/admin/wallet`,   icon: <FontAwesomeIcon icon={faWallet} aria-hidden /> },
@@ -199,7 +201,38 @@ export function AdminShell({ children, tenantId }: AdminShellProps) {
     },
   ] : [];
 
-  const navGroups = [...tenantNavGroups, ...platformNavGroups];
+  const hardcodedGroups = [...tenantNavGroups, ...platformNavGroups];
+
+  // Registry-driven menu: every enabled module's manifest-declared menu items
+  // are merged into the sidebar (grouped by `group`, deduped by href). Modules
+  // register their own admin pages this way, and disabling a module drops its
+  // items. Hardcoded groups above remain as the base until every module's menu
+  // is fully seeded into manifests (incremental cutover).
+  const enabledIds = useModuleEnabled();
+  const registryItems = moduleRegistry.getMenuItems({
+    scope: isRoot ? undefined : 'tenant',
+    enabledIds,
+  });
+  const navGroups = hardcodedGroups.map((g) => ({ ...g, items: [...g.items] }));
+  const seenHrefs = new Set(navGroups.flatMap((g) => g.items.map((i) => i.href)));
+  for (const it of registryItems) {
+    const href = `/tenant/${tenantId}${it.href}`;
+    if (seenHrefs.has(href)) continue;
+    seenHrefs.add(href);
+    const node = {
+      id: it.id,
+      label: it.label,
+      href,
+      icon: <FontAwesomeIcon icon={resolveIcon(it.icon) ?? DEFAULT_ICON} aria-hidden />,
+    };
+    const groupLabel = it.group ?? 'Plugins';
+    let group = navGroups.find((g) => g.label === groupLabel);
+    if (!group) {
+      group = { label: groupLabel, items: [] };
+      navGroups.push(group);
+    }
+    group.items.push(node);
+  }
 
   // Pick the most specific (longest) matching href so the Dashboard item
   // (href = the admin root, a prefix of every admin page) only wins on the

@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T07:43:12.538Z",
+  "generatedAt": "2026-06-16T07:48:24.938Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -1845,7 +1845,35 @@
         ]
       },
       "enabled": true,
-      "menu": [],
+      "menu": [
+        {
+          "id": "plans",
+          "label": "Plans",
+          "href": "/admin/plans",
+          "icon": "fas fa-credit-card",
+          "group": "Commerce",
+          "order": 10,
+          "scope": "tenant"
+        },
+        {
+          "id": "payments",
+          "label": "Payments",
+          "href": "/admin/payments",
+          "icon": "fas fa-credit-card",
+          "group": "Commerce",
+          "order": 11,
+          "scope": "tenant"
+        },
+        {
+          "id": "invoices",
+          "label": "Invoices",
+          "href": "/admin/invoices",
+          "icon": "fas fa-file-invoice",
+          "group": "Commerce",
+          "order": 12,
+          "scope": "tenant"
+        }
+      ],
       "widgets": [],
       "slots": [
         {
