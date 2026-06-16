@@ -40,7 +40,7 @@
     "./server/providers/login_gov.provider": "./server/providers/login_gov.provider.ts",
     "./server/providers/mobil_imza_aggregator.provider": "./server/providers/mobil_imza_aggregator.provider.ts",
     "./server/providers/smart_id.provider": "./server/providers/smart_id.provider.ts",
-    "./ui/TenantESignatureSettingsPanel": "./ui/TenantESignatureSettingsPanel.tsx",
+    "./ui/tenant-e-signature-settings-panel.component": "./ui/tenant-e-signature-settings-panel.component.tsx",
     ".": "./server/index.ts",
     "./module.json": "./module.json"
   },

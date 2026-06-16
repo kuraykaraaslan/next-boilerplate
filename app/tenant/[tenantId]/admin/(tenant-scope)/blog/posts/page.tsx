@@ -2,14 +2,14 @@
 import { use, useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '@nb/common/server/axios';
-import { ServerDataTable, type TableColumn } from '@nb/common/ui/ServerDataTable';
-import { PageHeader } from '@nb/common/ui/PageHeader';
-import { Input } from '@nb/common/ui/Input';
-import { AlertBanner } from '@nb/common/ui/AlertBanner';
-import { RowActionsMenu } from '@nb/common/ui/RowActionsMenu';
+import { ServerDataTable, type TableColumn } from '@nb/common/ui/server-data-table.component';
+import { PageHeader } from '@nb/common/ui/page-header.component';
+import { Input } from '@nb/common/ui/input.component';
+import { AlertBanner } from '@nb/common/ui/alert-banner.component';
+import { RowActionsMenu } from '@nb/common/ui/row-actions-menu.component';
 import { toast } from '@nb/common/ui/toast.store';
-import { PostStatusBadge, type PostStatus } from '@nb/blog/ui/BlogStatusBadge';
-import { BlogPostCreateModal } from '@nb/blog/ui/BlogPostCreateModal';
+import { PostStatusBadge, type PostStatus } from '@nb/blog/ui/blog-status-badge.component';
+import { BlogPostCreateModal } from '@nb/blog/ui/blog-post-create-modal.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faSearch, faPenToSquare, faTrash, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 

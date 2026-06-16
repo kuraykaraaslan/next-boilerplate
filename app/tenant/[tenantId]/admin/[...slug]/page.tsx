@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { moduleRegistry } from '@nb/common/server/module-registry';
 import { getEnabledModuleIds } from '@nb/setting/server/module-activation.service.next';
-import { DynamicAdminPage } from '@nb/common/ui/DynamicAdminPage';
+import { DynamicAdminPage } from '@nb/common/ui/dynamic-admin-page.component';
 
 // Catch-all dynamic admin route. Admin pages that live INSIDE their module
 // (declared in module.json `routes`) are served here: the path is resolved to a

@@ -57,4 +57,4 @@ Event-based usage metering with metered / overage billing. Records immutable usa
 
 ## Next layer (modules_next/) surface
 
-- `metering/ui/metering-columns` _(ui, client)_
+- `metering/ui/metering-columns.component` _(ui, client)_

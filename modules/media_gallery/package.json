@@ -20,7 +20,7 @@
     "./server/media_gallery.types": "./server/media_gallery.types.ts",
     "./server/media_gallery.url": "./server/media_gallery.url.ts",
     "./server/media_gallery.view": "./server/media_gallery.view.ts",
-    "./ui/GalleryPanel": "./ui/GalleryPanel.tsx",
+    "./ui/gallery-panel.component": "./ui/gallery-panel.component.tsx",
     ".": "./server/index.ts",
     "./module.json": "./module.json"
   },

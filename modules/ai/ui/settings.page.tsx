@@ -1,6 +1,6 @@
 'use client';
-import { SettingsPanelHost } from '@nb/setting/ui/SettingsPanelHost';
-import { PlatformAiTab } from '@nb/setting/ui/PlatformSettingsTabs';
+import { SettingsPanelHost } from '@nb/setting/ui/settings-panel-host.component';
+import { PlatformAiTab } from '@nb/setting/ui/platform-settings-tabs.component';
 
 /**
  * AI settings page. Served by the catch-all dynamic admin route via the ai

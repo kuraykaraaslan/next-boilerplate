@@ -20,7 +20,7 @@
     "./server/audit_log.write.service": "./server/audit_log.write.service.ts",
     "./server/entities/audit_log.entity": "./server/entities/audit_log.entity.ts",
     "./server/tests/audit_log.test-setup": "./server/tests/audit_log.test-setup.ts",
-    "./ui/AuditLogFilters": "./ui/AuditLogFilters.tsx",
+    "./ui/audit-log-filters.component": "./ui/audit-log-filters.component.tsx",
     "./module.json": "./module.json"
   },
   "peerDependencies": {

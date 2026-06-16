@@ -1,10 +1,10 @@
 'use client';
 import { use, useState, useEffect, useCallback } from 'react';
-import { Button } from '@nb/common/ui/Button';
-import { AlertBanner } from '@nb/common/ui/AlertBanner';
-import { Badge } from '@nb/common/ui/Badge';
-import { PageHeader } from '@nb/common/ui/PageHeader';
-import { ServerDataTable, type TableColumn } from '@nb/common/ui/ServerDataTable';
+import { Button } from '@nb/common/ui/button.component';
+import { AlertBanner } from '@nb/common/ui/alert-banner.component';
+import { Badge } from '@nb/common/ui/badge.component';
+import { PageHeader } from '@nb/common/ui/page-header.component';
+import { ServerDataTable, type TableColumn } from '@nb/common/ui/server-data-table.component';
 import { toast } from '@nb/common/ui/toast.store';
 import api from '@nb/common/server/axios';
 import type { GiftCard, GiftCardTransaction } from '@nb/gift_card/server/gift_card.types';

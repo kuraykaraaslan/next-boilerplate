@@ -63,7 +63,7 @@ Multi-country e-identity login + e-signature (eIDAS/OIDC4IDA). Pluggable provide
 
 ## Next layer (modules_next/) surface
 
-- `e_signature/ui/TenantESignatureSettingsPanel` _(ui, client)_
+- `e_signature/ui/tenant-e-signature-settings-panel.component` _(ui, client)_
 
 ## README
 

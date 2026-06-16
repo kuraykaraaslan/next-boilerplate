@@ -50,8 +50,8 @@ Third-party connector hub (Zapier-like). Owns a per-tenant connector catalog, co
 
 ## Next layer (modules_next/) surface
 
-- `integrations_hub/ui/connected-apps-columns` _(ui, client)_
-- `integrations_hub/ui/ConnectorFormModal` _(ui, client)_
+- `integrations_hub/ui/connected-apps-columns.component` _(ui, client)_
+- `integrations_hub/ui/connector-form-modal.component` _(ui, client)_
 
 ## README
 

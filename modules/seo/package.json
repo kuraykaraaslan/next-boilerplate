@@ -23,9 +23,9 @@
     "./server/seo.service": "./server/seo.service.ts",
     "./server/seo.types": "./server/seo.types.ts",
     "./server/seo.web_vitals.service": "./server/seo.web_vitals.service.ts",
-    "./ui/SeoPanel": "./ui/SeoPanel.tsx",
     "./ui/index": "./ui/index.ts",
     "./ui": "./ui/index.ts",
+    "./ui/seo-panel.component": "./ui/seo-panel.component.tsx",
     "./ui/web-vitals.client": "./ui/web-vitals.client.ts",
     ".": "./server/index.ts",
     "./module.json": "./module.json"

@@ -1,12 +1,12 @@
 'use client';
 import { use, useState, useEffect, useCallback } from 'react';
-import { Button } from '@nb/common/ui/Button';
-import { Input } from '@nb/common/ui/Input';
-import { Select } from '@nb/common/ui/Select';
-import { Badge } from '@nb/common/ui/Badge';
-import { AlertBanner } from '@nb/common/ui/AlertBanner';
-import { Modal } from '@nb/common/ui/Modal';
-import { PageHeader } from '@nb/common/ui/PageHeader';
+import { Button } from '@nb/common/ui/button.component';
+import { Input } from '@nb/common/ui/input.component';
+import { Select } from '@nb/common/ui/select.component';
+import { Badge } from '@nb/common/ui/badge.component';
+import { AlertBanner } from '@nb/common/ui/alert-banner.component';
+import { Modal } from '@nb/common/ui/modal.component';
+import { PageHeader } from '@nb/common/ui/page-header.component';
 import { toast } from '@nb/common/ui/toast.store';
 import api from '@nb/common/server/axios';
 

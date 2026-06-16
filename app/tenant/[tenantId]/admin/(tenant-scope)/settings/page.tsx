@@ -3,10 +3,10 @@
 import { use, useState } from 'react';
 import Link from 'next/link';
 import api from '@nb/common/server/axios';
-import { PageHeader } from '@nb/common/ui/PageHeader';
-import { Card } from '@nb/common/ui/Card';
-import { Button } from '@nb/common/ui/Button';
-import { AlertBanner } from '@nb/common/ui/AlertBanner';
+import { PageHeader } from '@nb/common/ui/page-header.component';
+import { Card } from '@nb/common/ui/card.component';
+import { Button } from '@nb/common/ui/button.component';
+import { AlertBanner } from '@nb/common/ui/alert-banner.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import {

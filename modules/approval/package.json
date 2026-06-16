@@ -19,7 +19,7 @@
     "./server/index": "./server/index.ts",
     "./server": "./server/index.ts",
     "./server/tests/fake_ds": "./server/tests/fake_ds.ts",
-    "./ui/approval-columns": "./ui/approval-columns.tsx",
+    "./ui/approval-columns.component": "./ui/approval-columns.component.tsx",
     ".": "./server/index.ts",
     "./module.json": "./module.json"
   },

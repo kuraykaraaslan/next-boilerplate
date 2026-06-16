@@ -1,6 +1,6 @@
 'use client';
 import { use } from 'react';
-import { ModuleSettingsPage } from '@nb/setting/ui/ModuleSettingsPage';
+import { ModuleSettingsPage } from '@nb/setting/ui/module-settings-page.component';
 import { WEBHOOK_SETTINGS_FIELDS } from '@nb/webhook/server/webhook.settings.fields';
 
 export default function WebhooksSettingsPage({ params }: { params: Promise<{ tenantId: string }> }) {

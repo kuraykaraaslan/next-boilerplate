@@ -1,18 +1,18 @@
 'use client';
 import { use, useEffect, useState } from 'react';
 import api from '@nb/common/server/axios';
-import { Card } from '@nb/common/ui/Card';
-import { Button } from '@nb/common/ui/Button';
-import { Input } from '@nb/common/ui/Input';
-import { AlertBanner } from '@nb/common/ui/AlertBanner';
-import { Modal } from '@nb/common/ui/Modal';
-import { PageHeader } from '@nb/common/ui/PageHeader';
-import { ServerDataTable, type TableColumn } from '@nb/common/ui/ServerDataTable';
+import { Card } from '@nb/common/ui/card.component';
+import { Button } from '@nb/common/ui/button.component';
+import { Input } from '@nb/common/ui/input.component';
+import { AlertBanner } from '@nb/common/ui/alert-banner.component';
+import { Modal } from '@nb/common/ui/modal.component';
+import { PageHeader } from '@nb/common/ui/page-header.component';
+import { ServerDataTable, type TableColumn } from '@nb/common/ui/server-data-table.component';
 import { toast } from '@nb/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faInfoCircle, faGear } from '@fortawesome/free-solid-svg-icons';
 import type { TenantMemberRole as MemberRole } from '@nb/tenant_member/server/tenant_member.enums';
-import { buildDomainColumns, type DomainRow } from '@nb/tenant_domain/ui/domain-list-columns';
+import { buildDomainColumns, type DomainRow } from '@nb/tenant_domain/ui/domain-list-columns.component';
 
 type SessionData = { tenantMember: { tenantMemberId: string; memberRole: MemberRole }; tenant: { name: string } };
 type DnsRecord = { type: string; name: string; value: string };

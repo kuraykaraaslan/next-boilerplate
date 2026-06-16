@@ -30,6 +30,6 @@ E-signature / e-identity login consumer: matches and binds qualified electronic-
 
 ## Next layer (modules_next/) surface
 
-- `auth_e_signature/ui/ESignatureLoginPanel` _(ui, client)_
-- `auth_e_signature/ui/SigningCertificatesBindModal` _(ui, client)_
-- `auth_e_signature/ui/SigningCertificatesPanel` _(ui, client)_
+- `auth_e_signature/ui/e-signature-login-panel.component` _(ui, client)_
+- `auth_e_signature/ui/signing-certificates-bind-modal.component` _(ui, client)_
+- `auth_e_signature/ui/signing-certificates-panel.component` _(ui, client)_

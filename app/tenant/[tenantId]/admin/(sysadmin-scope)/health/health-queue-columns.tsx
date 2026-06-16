@@ -2,7 +2,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircle } from '@fortawesome/free-solid-svg-icons';
 import { cn } from '@nb/common/server/utils/cn';
-import type { TableColumn } from '@nb/common/ui/ServerDataTable';
+import type { TableColumn } from '@nb/common/ui/server-data-table.component';
 import type { QueueRow } from './health.types';
 
 export const queueColumns: TableColumn<QueueRow>[] = [

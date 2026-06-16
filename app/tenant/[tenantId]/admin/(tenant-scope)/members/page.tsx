@@ -3,18 +3,18 @@
 import { use, useEffect, useState, useMemo, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import api from '@nb/common/server/axios';
-import { PageHeader } from '@nb/common/ui/PageHeader';
-import { Button } from '@nb/common/ui/Button';
-import { Input } from '@nb/common/ui/Input';
-import { Select } from '@nb/common/ui/Select';
-import { AlertBanner } from '@nb/common/ui/AlertBanner';
-import { Modal } from '@nb/common/ui/Modal';
-import { ServerDataTable } from '@nb/common/ui/ServerDataTable';
+import { PageHeader } from '@nb/common/ui/page-header.component';
+import { Button } from '@nb/common/ui/button.component';
+import { Input } from '@nb/common/ui/input.component';
+import { Select } from '@nb/common/ui/select.component';
+import { AlertBanner } from '@nb/common/ui/alert-banner.component';
+import { Modal } from '@nb/common/ui/modal.component';
+import { ServerDataTable } from '@nb/common/ui/server-data-table.component';
 import { toast } from '@nb/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserPlus, faSearch, faUser, faGear } from '@fortawesome/free-solid-svg-icons';
 import type { TenantMemberRole as MemberRole, TenantMemberStatus as MemberStatus } from '@nb/tenant_member/server/tenant_member.enums';
-import { buildMemberColumns, type MemberRow } from '@nb/tenant_member/ui/member-list-columns';
+import { buildMemberColumns, type MemberRow } from '@nb/tenant_member/ui/member-list-columns.component';
 
 type SessionData = {
   tenantMember: { tenantMemberId: string; memberRole: MemberRole };

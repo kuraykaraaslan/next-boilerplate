@@ -52,8 +52,8 @@ Legal agreements + consent. Versioned, immutable, hash-stamped agreement documen
 
 ## Next layer (modules_next/) surface
 
-- `terms_consent/ui/AcceptanceGate` _(ui, client)_
-- `terms_consent/ui/ConsentBanner` _(ui, client)_
+- `terms_consent/ui/acceptance-gate.component` _(ui, client)_
+- `terms_consent/ui/consent-banner.component` _(ui, client)_
 
 ## README
 

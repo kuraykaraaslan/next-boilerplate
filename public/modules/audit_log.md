@@ -58,7 +58,7 @@ Append-only audit trail for sensitive actions, stored per-tenant (platform event
 
 ## Next layer (modules_next/) surface
 
-- `audit_log/ui/AuditLogFilters` _(ui, client)_
+- `audit_log/ui/audit-log-filters.component` _(ui, client)_
 
 ## README
 

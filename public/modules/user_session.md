@@ -40,7 +40,7 @@ JWT access/refresh issuance + revocation, Redis-backed session cache, CRUD on Us
 
 ## Next layer (modules_next/) surface
 
-- `user_session/ui/ActiveSessionsPanel` _(ui, client)_
+- `user_session/ui/active-sessions-panel.component` _(ui, client)_
 
 ## README
 

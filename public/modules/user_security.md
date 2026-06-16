@@ -49,7 +49,7 @@ Password hashing, account lock, TOTP secret, WebAuthn/Passkey credentials.
 
 ## Next layer (modules_next/) surface
 
-- `user_security/ui/PasskeysPanel` _(ui, client)_
+- `user_security/ui/passkeys-panel.component` _(ui, client)_
 
 ## README
 

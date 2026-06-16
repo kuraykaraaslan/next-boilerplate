@@ -1,8 +1,8 @@
 'use client';
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
-import { Card } from '@nb/common/ui/Card';
-import { DateRangePicker, DateRange } from '@nb/common/ui/DateRangePicker';
+import { Card } from '@nb/common/ui/card.component';
+import { DateRangePicker, DateRange } from '@nb/common/ui/date-range-picker.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRobot, faChartBar } from '@fortawesome/free-solid-svg-icons';
 import { cn } from '@nb/common/server/utils/cn';

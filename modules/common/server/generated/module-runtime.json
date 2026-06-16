@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-16T08:46:44.563Z",
+  "generatedAt": "2026-06-16T08:52:19.160Z",
   "menu": [
     {
       "id": "settings",
@@ -426,9 +426,9 @@
   "widgets": [],
   "slots": [
     {
-      "id": "payment:user.profile.tabs:payment/ui/BillingProfileTab",
+      "id": "payment:user.profile.tabs:payment/ui/billing-profile-tab.component",
       "slot": "user.profile.tabs",
-      "componentId": "payment/ui/BillingProfileTab",
+      "componentId": "payment/ui/billing-profile-tab.component",
       "order": 50,
       "scope": "both",
       "permissions": [],

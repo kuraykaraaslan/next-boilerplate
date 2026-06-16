@@ -1,6 +1,6 @@
 'use client';
 import { use } from 'react';
-import { ModuleSettingsPage } from '@nb/setting/ui/ModuleSettingsPage';
+import { ModuleSettingsPage } from '@nb/setting/ui/module-settings-page.component';
 import { API_DOC_SETTINGS_FIELDS } from '@nb/api_doc/server/api_doc.settings.fields';
 
 export default function ApiDocsSettingsPage({ params }: { params: Promise<{ tenantId: string }> }) {

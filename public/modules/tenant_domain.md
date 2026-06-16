@@ -55,7 +55,7 @@ Custom domain mapping per tenant + DNS verification (TXT/CNAME challenge).
 
 ## Next layer (modules_next/) surface
 
-- `tenant_domain/ui/domain-list-columns` _(ui, client)_
+- `tenant_domain/ui/domain-list-columns.component` _(ui, client)_
 
 ## README
 

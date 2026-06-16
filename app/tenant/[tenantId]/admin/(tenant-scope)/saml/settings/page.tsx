@@ -1,12 +1,12 @@
 'use client';
 import { use, useCallback, useEffect, useState } from 'react';
 import api from '@nb/common/server/axios';
-import { PageHeader } from '@nb/common/ui/PageHeader';
-import { Card } from '@nb/common/ui/Card';
-import { Spinner } from '@nb/common/ui/Spinner';
-import { AlertBanner } from '@nb/common/ui/AlertBanner';
-import { Breadcrumb } from '@nb/common/ui/Breadcrumb';
-import { SamlConfigForm } from '@nb/auth_saml/ui/SamlConfigForm';
+import { PageHeader } from '@nb/common/ui/page-header.component';
+import { Card } from '@nb/common/ui/card.component';
+import { Spinner } from '@nb/common/ui/spinner.component';
+import { AlertBanner } from '@nb/common/ui/alert-banner.component';
+import { Breadcrumb } from '@nb/common/ui/breadcrumb.component';
+import { SamlConfigForm } from '@nb/auth_saml/ui/saml-config-form.component';
 import type { SafeSamlConfig } from '@nb/auth_saml/server/auth_saml.types';
 import type { UpsertSamlConfigInput } from '@nb/auth_saml/server/auth_saml.dto';
 

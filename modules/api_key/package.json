@@ -21,8 +21,8 @@
     "./server/api_key.verify.service": "./server/api_key.verify.service.ts",
     "./server/entities/api_key.entity": "./server/entities/api_key.entity.ts",
     "./server/tests/api_key.test-utils": "./server/tests/api_key.test-utils.ts",
-    "./ui/ApiKeyCreateModal": "./ui/ApiKeyCreateModal.tsx",
-    "./ui/api-key-columns": "./ui/api-key-columns.tsx",
+    "./ui/api-key-columns.component": "./ui/api-key-columns.component.tsx",
+    "./ui/api-key-create-modal.component": "./ui/api-key-create-modal.component.tsx",
     "./module.json": "./module.json"
   },
   "peerDependencies": {

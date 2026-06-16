@@ -1,4 +1,4 @@
-import { AdminShell } from '@nb/common/ui/layout/AdminShell';
+import { AdminShell } from '@nb/common/ui/layout/admin-shell.component';
 import { pageTitle } from '@nb/common/server/page-metadata';
 
 export const generateMetadata = pageTitle('Fleet');

@@ -1,11 +1,11 @@
 'use client';
 import { use, useEffect, useState, useCallback } from 'react';
 import api from '@nb/common/server/axios';
-import { PageHeader } from '@nb/common/ui/PageHeader';
-import { Button } from '@nb/common/ui/Button';
-import { Modal } from '@nb/common/ui/Modal';
-import { AlertBanner } from '@nb/common/ui/AlertBanner';
-import { ServerDataTable } from '@nb/common/ui/ServerDataTable';
+import { PageHeader } from '@nb/common/ui/page-header.component';
+import { Button } from '@nb/common/ui/button.component';
+import { Modal } from '@nb/common/ui/modal.component';
+import { AlertBanner } from '@nb/common/ui/alert-banner.component';
+import { ServerDataTable } from '@nb/common/ui/server-data-table.component';
 import { toast } from '@nb/common/ui/toast.store';
 import { isRootTenant } from '@nb/tenant/server/tenant.constants';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -15,10 +15,10 @@ import type { WebhookMetrics } from '@nb/webhook/server/webhook.types';
 import { groupedCatalogForScope, scopeForTenant } from '@nb/webhook/server/webhook.catalog';
 
 import { type Webhook, type Delivery, extractMessage } from '@nb/webhook/ui/webhook.types';
-import { WebhookFormModal } from '@nb/webhook/ui/WebhookFormModal';
-import { WebhookTriggerModal } from '@nb/webhook/ui/WebhookTriggerModal';
-import { WebhookDeliveryModal } from '@nb/webhook/ui/WebhookDeliveryModal';
-import { buildWebhookColumns } from '@nb/webhook/ui/webhook-columns';
+import { WebhookFormModal } from '@nb/webhook/ui/webhook-form-modal.component';
+import { WebhookTriggerModal } from '@nb/webhook/ui/webhook-trigger-modal.component';
+import { WebhookDeliveryModal } from '@nb/webhook/ui/webhook-delivery-modal.component';
+import { buildWebhookColumns } from '@nb/webhook/ui/webhook-columns.component';
 
 const PAGE_SIZE = 20;
 

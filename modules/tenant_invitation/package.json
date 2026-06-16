@@ -16,8 +16,8 @@
     "./server/tenant_invitation.settings.fields": "./server/tenant_invitation.settings.fields.ts",
     "./server/tenant_invitation.types": "./server/tenant_invitation.types.ts",
     "./server/tests/tenant_invitation.test-setup": "./server/tests/tenant_invitation.test-setup.ts",
-    "./ui/InvitationCreateModal": "./ui/InvitationCreateModal.tsx",
-    "./ui/invitation-columns": "./ui/invitation-columns.tsx",
+    "./ui/invitation-columns.component": "./ui/invitation-columns.component.tsx",
+    "./ui/invitation-create-modal.component": "./ui/invitation-create-modal.component.tsx",
     "./module.json": "./module.json"
   },
   "peerDependencies": {

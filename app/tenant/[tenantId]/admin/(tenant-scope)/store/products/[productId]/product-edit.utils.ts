@@ -1,4 +1,4 @@
-import type { ProductStatus } from '@nb/store/ui/ProductStatusBadge';
+import type { ProductStatus } from '@nb/store/ui/product-status-badge.component';
 
 export type Product = {
   productId: string; categoryId: string;

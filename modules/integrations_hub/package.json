@@ -19,8 +19,8 @@
     "./server/integrations_hub.service": "./server/integrations_hub.service.ts",
     "./server/integrations_hub.trigger.service": "./server/integrations_hub.trigger.service.ts",
     "./server/integrations_hub.types": "./server/integrations_hub.types.ts",
-    "./ui/ConnectorFormModal": "./ui/ConnectorFormModal.tsx",
-    "./ui/connected-apps-columns": "./ui/connected-apps-columns.tsx",
+    "./ui/connected-apps-columns.component": "./ui/connected-apps-columns.component.tsx",
+    "./ui/connector-form-modal.component": "./ui/connector-form-modal.component.tsx",
     ".": "./server/index.ts",
     "./module.json": "./module.json"
   },

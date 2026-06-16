@@ -21,8 +21,8 @@
     "./server/terms_consent.setting.keys": "./server/terms_consent.setting.keys.ts",
     "./server/terms_consent.state": "./server/terms_consent.state.ts",
     "./server/terms_consent.types": "./server/terms_consent.types.ts",
-    "./ui/AcceptanceGate": "./ui/AcceptanceGate.tsx",
-    "./ui/ConsentBanner": "./ui/ConsentBanner.tsx",
+    "./ui/acceptance-gate.component": "./ui/acceptance-gate.component.tsx",
+    "./ui/consent-banner.component": "./ui/consent-banner.component.tsx",
     ".": "./server/index.ts",
     "./module.json": "./module.json"
   },

@@ -1,21 +1,21 @@
 'use client';
 import { use, useState, useEffect, useCallback } from 'react';
-import { Card } from '@nb/common/ui/Card';
-import { Badge } from '@nb/common/ui/Badge';
-import { Button } from '@nb/common/ui/Button';
-import { Spinner } from '@nb/common/ui/Spinner';
-import { AlertBanner } from '@nb/common/ui/AlertBanner';
-import { Input } from '@nb/common/ui/Input';
-import { Select } from '@nb/common/ui/Select';
-import { Breadcrumb } from '@nb/common/ui/Breadcrumb';
-import { PageHeader } from '@nb/common/ui/PageHeader';
+import { Card } from '@nb/common/ui/card.component';
+import { Badge } from '@nb/common/ui/badge.component';
+import { Button } from '@nb/common/ui/button.component';
+import { Spinner } from '@nb/common/ui/spinner.component';
+import { AlertBanner } from '@nb/common/ui/alert-banner.component';
+import { Input } from '@nb/common/ui/input.component';
+import { Select } from '@nb/common/ui/select.component';
+import { Breadcrumb } from '@nb/common/ui/breadcrumb.component';
+import { PageHeader } from '@nb/common/ui/page-header.component';
 import { toast } from '@nb/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPercent, faDollarSign, faTrash, faSave } from '@fortawesome/free-solid-svg-icons';
 import api from '@nb/common/server/axios';
 import type { DiscountType } from '@nb/coupon/server/coupon.enums';
-import { CouponScopePanel } from '@nb/coupon/ui/CouponScopePanel';
-import { CouponArchiveModal } from '@nb/coupon/ui/CouponArchiveModal';
+import { CouponScopePanel } from '@nb/coupon/ui/coupon-scope-panel.component';
+import { CouponArchiveModal } from '@nb/coupon/ui/coupon-archive-modal.component';
 import {
   type Coupon, type EditForm,
   statusVariant, statusOptions,

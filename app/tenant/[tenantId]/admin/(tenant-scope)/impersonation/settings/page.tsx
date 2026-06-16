@@ -1,6 +1,6 @@
 'use client';
 import { use } from 'react';
-import { ModuleSettingsPage } from '@nb/setting/ui/ModuleSettingsPage';
+import { ModuleSettingsPage } from '@nb/setting/ui/module-settings-page.component';
 import { IMPERSONATION_SETTINGS_FIELDS } from '@nb/auth_impersonation/server/impersonation.settings.fields';
 
 export default function ImpersonationSettingsPage({ params }: { params: Promise<{ tenantId: string }> }) {

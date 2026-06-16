@@ -56,7 +56,7 @@
   "slots": [
     {
       "slot": "user.profile.tabs",
-      "component": "payment/ui/BillingProfileTab",
+      "component": "payment/ui/billing-profile-tab.component",
       "order": 50,
       "scope": "both",
       "props": {

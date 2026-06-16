@@ -1,8 +1,8 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBuilding, faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
-import { Badge } from '@nb/common/ui/Badge';
-import { RowActionsMenu } from '@nb/common/ui/RowActionsMenu';
-import type { TableColumn } from '@nb/common/ui/ServerDataTable';
+import { Badge } from '@nb/common/ui/badge.component';
+import { RowActionsMenu } from '@nb/common/ui/row-actions-menu.component';
+import type { TableColumn } from '@nb/common/ui/server-data-table.component';
 import { type Membership, memberRoleVariant, memberStatusVariant } from './user-detail.types';
 
 export function buildMembershipColumns(onOpenTenant: (tenantId: string) => void): TableColumn<Membership>[] {

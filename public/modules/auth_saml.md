@@ -52,9 +52,9 @@ SAML 2.0 SSO with per-tenant IdP config (SamlConfig): signature alg, dual-cert r
 
 ## Next layer (modules_next/) surface
 
-- `auth_saml/ui/SamlAttributeForm` _(ui, client)_
-- `auth_saml/ui/SamlConfigForm` _(ui, client)_
-- `auth_saml/ui/SamlMetadataCard` _(ui, client)_
+- `auth_saml/ui/saml-attribute-form.component` _(ui, client)_
+- `auth_saml/ui/saml-config-form.component` _(ui, client)_
+- `auth_saml/ui/saml-metadata-card.component` _(ui, client)_
 
 ## README
 

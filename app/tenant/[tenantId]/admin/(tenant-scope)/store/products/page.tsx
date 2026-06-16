@@ -3,16 +3,16 @@
 import { use, useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '@nb/common/server/axios';
-import { ServerDataTable } from '@nb/common/ui/ServerDataTable';
-import { PageHeader } from '@nb/common/ui/PageHeader';
-import { Input } from '@nb/common/ui/Input';
-import { Select } from '@nb/common/ui/Select';
-import { AlertBanner } from '@nb/common/ui/AlertBanner';
+import { ServerDataTable } from '@nb/common/ui/server-data-table.component';
+import { PageHeader } from '@nb/common/ui/page-header.component';
+import { Input } from '@nb/common/ui/input.component';
+import { Select } from '@nb/common/ui/select.component';
+import { AlertBanner } from '@nb/common/ui/alert-banner.component';
 import { toast } from '@nb/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faSearch } from '@fortawesome/free-solid-svg-icons';
-import { buildProductColumns, type ProductRow } from '@nb/store/ui/product-list-columns';
-import { ProductCreateModal } from '@nb/store/ui/ProductCreateModal';
+import { buildProductColumns, type ProductRow } from '@nb/store/ui/product-list-columns.component';
+import { ProductCreateModal } from '@nb/store/ui/product-create-modal.component';
 
 type Category = { categoryId: string; name: string };
 const PAGE_SIZE = 20;

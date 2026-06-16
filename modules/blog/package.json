@@ -19,8 +19,8 @@
     "./server/entities/blog_post.entity": "./server/entities/blog_post.entity.ts",
     "./server/index": "./server/index.ts",
     "./server": "./server/index.ts",
-    "./ui/BlogPostCreateModal": "./ui/BlogPostCreateModal.tsx",
-    "./ui/BlogStatusBadge": "./ui/BlogStatusBadge.tsx",
+    "./ui/blog-post-create-modal.component": "./ui/blog-post-create-modal.component.tsx",
+    "./ui/blog-status-badge.component": "./ui/blog-status-badge.component.tsx",
     ".": "./server/index.ts",
     "./module.json": "./module.json"
   },

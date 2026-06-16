@@ -1,9 +1,9 @@
 'use client';
 import { use, useEffect, useState } from 'react';
 import api from '@nb/common/server/axios';
-import { PageHeader } from '@nb/common/ui/PageHeader';
-import { Card } from '@nb/common/ui/Card';
-import { Spinner } from '@nb/common/ui/Spinner';
+import { PageHeader } from '@nb/common/ui/page-header.component';
+import { Card } from '@nb/common/ui/card.component';
+import { Spinner } from '@nb/common/ui/spinner.component';
 import { isRootTenant } from '@nb/tenant/server/tenant.constants';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {

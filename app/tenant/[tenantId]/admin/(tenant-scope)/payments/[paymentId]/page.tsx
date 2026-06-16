@@ -3,16 +3,16 @@ import { use, useEffect, useState } from 'react';
 import { notFound } from 'next/navigation';
 import { isRootTenant } from '@nb/tenant/server/tenant.constants';
 import api from '@nb/common/server/axios';
-import { Card } from '@nb/common/ui/Card';
-import { Badge } from '@nb/common/ui/Badge';
-import { Spinner } from '@nb/common/ui/Spinner';
-import { AlertBanner } from '@nb/common/ui/AlertBanner';
-import { Breadcrumb } from '@nb/common/ui/Breadcrumb';
-import { PageHeader } from '@nb/common/ui/PageHeader';
-import { ServerDataTable, type TableColumn } from '@nb/common/ui/ServerDataTable';
-import { PaymentSummaryCard } from '@nb/payment/ui/PaymentSummaryCard';
-import { PaymentStatusBadge, type PaymentStatus } from '@nb/payment/ui/PaymentStatusBadge';
-import { PaymentRefundModal } from '@nb/payment/ui/PaymentRefundModal';
+import { Card } from '@nb/common/ui/card.component';
+import { Badge } from '@nb/common/ui/badge.component';
+import { Spinner } from '@nb/common/ui/spinner.component';
+import { AlertBanner } from '@nb/common/ui/alert-banner.component';
+import { Breadcrumb } from '@nb/common/ui/breadcrumb.component';
+import { PageHeader } from '@nb/common/ui/page-header.component';
+import { ServerDataTable, type TableColumn } from '@nb/common/ui/server-data-table.component';
+import { PaymentSummaryCard } from '@nb/payment/ui/payment-summary-card.component';
+import { PaymentStatusBadge, type PaymentStatus } from '@nb/payment/ui/payment-status-badge.component';
+import { PaymentRefundModal } from '@nb/payment/ui/payment-refund-modal.component';
 
 type Transaction = {
   transactionId: string; type: string; status: string;

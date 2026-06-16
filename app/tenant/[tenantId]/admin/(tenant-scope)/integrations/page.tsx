@@ -1,17 +1,17 @@
 'use client';
 import { use, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@nb/common/ui/Button';
-import { AlertBanner } from '@nb/common/ui/AlertBanner';
-import { Badge } from '@nb/common/ui/Badge';
-import { Modal } from '@nb/common/ui/Modal';
-import { PageHeader } from '@nb/common/ui/PageHeader';
-import { EmptyState } from '@nb/common/ui/EmptyState';
+import { Button } from '@nb/common/ui/button.component';
+import { AlertBanner } from '@nb/common/ui/alert-banner.component';
+import { Badge } from '@nb/common/ui/badge.component';
+import { Modal } from '@nb/common/ui/modal.component';
+import { PageHeader } from '@nb/common/ui/page-header.component';
+import { EmptyState } from '@nb/common/ui/empty-state.component';
 import { toast } from '@nb/common/ui/toast.store';
 import api from '@nb/common/server/axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlug } from '@fortawesome/free-solid-svg-icons';
-import { ConnectorFormModal } from '@nb/integrations_hub/ui/ConnectorFormModal';
+import { ConnectorFormModal } from '@nb/integrations_hub/ui/connector-form-modal.component';
 import type { Connector } from '@nb/integrations_hub/server/integrations_hub.types';
 
 function extractMessage(err: unknown, fallback: string): string {

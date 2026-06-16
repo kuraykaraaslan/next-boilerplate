@@ -14,7 +14,7 @@
     "./server/feature_flags.types": "./server/feature_flags.types.ts",
     "./server/index": "./server/index.ts",
     "./server": "./server/index.ts",
-    "./ui/feature-flag-columns": "./ui/feature-flag-columns.tsx",
+    "./ui/feature-flag-columns.component": "./ui/feature-flag-columns.component.tsx",
     ".": "./server/index.ts",
     "./module.json": "./module.json"
   },

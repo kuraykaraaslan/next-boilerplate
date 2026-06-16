@@ -16,7 +16,7 @@
     "./server/tenant_member.types": "./server/tenant_member.types.ts",
     "./server/tenant_member.write.service": "./server/tenant_member.write.service.ts",
     "./server/tests/tenant_member.test-setup": "./server/tests/tenant_member.test-setup.ts",
-    "./ui/member-list-columns": "./ui/member-list-columns.tsx",
+    "./ui/member-list-columns.component": "./ui/member-list-columns.component.tsx",
     "./module.json": "./module.json"
   },
   "peerDependencies": {

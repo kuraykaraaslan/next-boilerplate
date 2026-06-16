@@ -24,7 +24,7 @@
     "./server/user_security.service": "./server/user_security.service.ts",
     "./server/user_security.setting.keys": "./server/user_security.setting.keys.ts",
     "./server/user_security.types": "./server/user_security.types.ts",
-    "./ui/PasskeysPanel": "./ui/PasskeysPanel.tsx",
+    "./ui/passkeys-panel.component": "./ui/passkeys-panel.component.tsx",
     "./module.json": "./module.json"
   },
   "peerDependencies": {

@@ -15,7 +15,7 @@
     "./server/user_session.service": "./server/user_session.service.ts",
     "./server/user_session.token.service": "./server/user_session.token.service.ts",
     "./server/user_session.types": "./server/user_session.types.ts",
-    "./ui/ActiveSessionsPanel": "./ui/ActiveSessionsPanel.tsx",
+    "./ui/active-sessions-panel.component": "./ui/active-sessions-panel.component.tsx",
     "./module.json": "./module.json"
   },
   "peerDependencies": {

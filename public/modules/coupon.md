@@ -56,14 +56,14 @@ Discount coupons + redemption tracking. Provider-aware (Stripe / PayPal / Iyzico
 
 ## Next layer (modules_next/) surface
 
+- `coupon/ui/coupon-apply-form.component` _(ui, client)_
+- `coupon/ui/coupon-archive-modal.component` _(ui, client)_
+- `coupon/ui/coupon-badge.component` _(ui)_
+- `coupon/ui/coupon-create-modal.component` _(ui, client)_
 - `coupon/ui/coupon-edit.utils` _(ui)_
-- `coupon/ui/coupon-list-columns` _(ui, client)_
-- `coupon/ui/CouponApplyForm` _(ui, client)_
-- `coupon/ui/CouponArchiveModal` _(ui, client)_
-- `coupon/ui/CouponBadge` _(ui)_
-- `coupon/ui/CouponCreateModal` _(ui, client)_
-- `coupon/ui/CouponRedemptionsList` _(ui, client)_
-- `coupon/ui/CouponScopePanel` _(ui, client)_
+- `coupon/ui/coupon-list-columns.component` _(ui, client)_
+- `coupon/ui/coupon-redemptions-list.component` _(ui, client)_
+- `coupon/ui/coupon-scope-panel.component` _(ui, client)_
 
 ## README
 

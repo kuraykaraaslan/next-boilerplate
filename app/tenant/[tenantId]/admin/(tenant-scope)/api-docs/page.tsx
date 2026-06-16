@@ -1,4 +1,4 @@
-import { ApiDocsPage } from '@nb/api_doc/ui/ApiDocsPage';
+import { ApiDocsPage } from '@nb/api_doc/ui/api-docs-page.component';
 import { SYSTEM_SPEC, TENANT_SPEC } from '@nb/api_doc/ui/mockSpec';
 import { isRootTenant } from '@nb/tenant/server/tenant.constants';
 

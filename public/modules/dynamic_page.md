@@ -70,66 +70,66 @@ Tenant-aware block-based page builder with i18n support. Supports code blocks (P
 
 ## Next layer (modules_next/) surface
 
-- `dynamic_page/ui/dynamic-page-columns` _(ui, client)_
-- `dynamic_page/ui/dynamic/Blocks/BannerBlock` _(ui, client)_
-- `dynamic_page/ui/dynamic/Blocks/ContactFormBlock` _(ui, client)_
-- `dynamic_page/ui/dynamic/Blocks/CTABlock` _(ui, client)_
-- `dynamic_page/ui/dynamic/Blocks/CustomBlock` _(ui, client)_
-- `dynamic_page/ui/dynamic/Blocks/FaqAccordionBlock` _(ui, client)_
-- `dynamic_page/ui/dynamic/Blocks/FeatureGridBlock` _(ui, client)_
-- `dynamic_page/ui/dynamic/Blocks/FooterColumns` _(ui, client)_
-- `dynamic_page/ui/dynamic/Blocks/FooterCommerce` _(ui, client)_
-- `dynamic_page/ui/dynamic/Blocks/FooterMinimal` _(ui, client)_
-- `dynamic_page/ui/dynamic/Blocks/GalleryBlock` _(ui, client)_
-- `dynamic_page/ui/dynamic/Blocks/HeroBlock` _(ui, client)_
-- `dynamic_page/ui/dynamic/Blocks/LogoGridBlock` _(ui, client)_
-- `dynamic_page/ui/dynamic/Blocks/NavBarCommerce` _(ui, client)_
-- `dynamic_page/ui/dynamic/Blocks/NavBarMarketing` _(ui, client)_
+- `dynamic_page/ui/dynamic-page-columns.component` _(ui, client)_
+- `dynamic_page/ui/dynamic-page-create-modal.component` _(ui, client)_
+- `dynamic_page/ui/dynamic-page-renderer.component` _(ui)_
+- `dynamic_page/ui/dynamic/Blocks/banner-block.component` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/contact-form-block.component` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/cta-block.component` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/custom-block.component` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/faq-accordion-block.component` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/feature-grid-block.component` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/footer-columns.component` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/footer-commerce.component` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/footer-minimal.component` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/gallery-block.component` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/hero-block.component` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/logo-grid-block.component` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/nav-bar-commerce.component` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/nav-bar-marketing.component` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/nav-bar-simple.component` _(ui, client)_
 - `dynamic_page/ui/dynamic/Blocks/NavBarMarketing.types` _(ui)_
-- `dynamic_page/ui/dynamic/Blocks/NavBarSimple` _(ui, client)_
-- `dynamic_page/ui/dynamic/Blocks/partials/NavBarMegaSection` _(ui, client)_
-- `dynamic_page/ui/dynamic/Blocks/partials/NavBarMobilePanel` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/partials/nav-bar-mega-section.component` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/partials/nav-bar-mobile-panel.component` _(ui, client)_
 - `dynamic_page/ui/dynamic/Blocks/PopupModalBlock/animations` _(ui)_
-- `dynamic_page/ui/dynamic/Blocks/PopupModalBlock/CloseBtn` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/PopupModalBlock/close-btn.component` _(ui, client)_
 - `dynamic_page/ui/dynamic/Blocks/PopupModalBlock/constants` _(ui)_
-- `dynamic_page/ui/dynamic/Blocks/PopupModalBlock/EditorPreview` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/PopupModalBlock/editor-preview.component` _(ui, client)_
 - `dynamic_page/ui/dynamic/Blocks/PopupModalBlock/index` _(ui, client)_
-- `dynamic_page/ui/dynamic/Blocks/PopupModalBlock/PopupCard` _(ui, client)_
-- `dynamic_page/ui/dynamic/Blocks/PopupModalBlock/PopupOverlay` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/PopupModalBlock/popup-card.component` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/PopupModalBlock/popup-overlay.component` _(ui, client)_
 - `dynamic_page/ui/dynamic/Blocks/PopupModalBlock/types` _(ui)_
 - `dynamic_page/ui/dynamic/Blocks/PopupModalBlock/utils` _(ui)_
-- `dynamic_page/ui/dynamic/Blocks/PricingTableBlock` _(ui, client)_
-- `dynamic_page/ui/dynamic/Blocks/ProseBlock` _(ui, client)_
-- `dynamic_page/ui/dynamic/Blocks/StatsBlock` _(ui, client)_
-- `dynamic_page/ui/dynamic/Blocks/TeamBlock` _(ui, client)_
-- `dynamic_page/ui/dynamic/Blocks/TestimonialsBlock` _(ui, client)_
-- `dynamic_page/ui/dynamic/Blocks/TimelineBlock` _(ui, client)_
-- `dynamic_page/ui/dynamic/Blocks/VideoBlock` _(ui, client)_
-- `dynamic_page/ui/dynamic/Editor/BackupModal` _(ui, client)_
-- `dynamic_page/ui/dynamic/Editor/Canvas` _(ui, client)_
-- `dynamic_page/ui/dynamic/Editor/EditorTopBar` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/pricing-table-block.component` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/prose-block.component` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/stats-block.component` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/team-block.component` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/testimonials-block.component` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/timeline-block.component` _(ui, client)_
+- `dynamic_page/ui/dynamic/Blocks/video-block.component` _(ui, client)_
+- `dynamic_page/ui/dynamic/Editor/backup-modal.component` _(ui, client)_
+- `dynamic_page/ui/dynamic/Editor/canvas.component` _(ui, client)_
+- `dynamic_page/ui/dynamic/Editor/editor-top-bar.component` _(ui, client)_
 - `dynamic_page/ui/dynamic/Editor/hooks/useEditorDraft` _(ui, client)_
 - `dynamic_page/ui/dynamic/Editor/hooks/useEditorKeyboard` _(ui, client)_
 - `dynamic_page/ui/dynamic/Editor/index` _(ui, client)_
-- `dynamic_page/ui/dynamic/Editor/LeftSidebar` _(ui, client)_
-- `dynamic_page/ui/dynamic/Editor/partials/BlockPalette` _(ui, client)_
-- `dynamic_page/ui/dynamic/Editor/partials/CanvasBlock` _(ui, client)_
-- `dynamic_page/ui/dynamic/Editor/partials/CanvasOverlays` _(ui, client)_
-- `dynamic_page/ui/dynamic/Editor/partials/ColorTokenField` _(ui, client)_
-- `dynamic_page/ui/dynamic/Editor/partials/IconPickerField` _(ui, client)_
-- `dynamic_page/ui/dynamic/Editor/partials/LayersPanel` _(ui, client)_
-- `dynamic_page/ui/dynamic/Editor/partials/LinkField` _(ui, client)_
-- `dynamic_page/ui/dynamic/Editor/partials/PropFieldComplex` _(ui, client)_
-- `dynamic_page/ui/dynamic/Editor/partials/PropFieldRenderer` _(ui, client)_
-- `dynamic_page/ui/dynamic/Editor/partials/PropFieldSimple` _(ui, client)_
-- `dynamic_page/ui/dynamic/Editor/PropsPanel` _(ui, client)_
-- `dynamic_page/ui/dynamic/Editor/RepeaterField` _(ui, client)_
-- `dynamic_page/ui/dynamic/Editor/RightSidebar` _(ui, client)_
-- `dynamic_page/ui/dynamic/Editor/SeoModal` _(ui, client)_
-- `dynamic_page/ui/dynamic/Editor/ShortcutsModal` _(ui, client)_
+- `dynamic_page/ui/dynamic/Editor/left-sidebar.component` _(ui, client)_
+- `dynamic_page/ui/dynamic/Editor/partials/block-palette.component` _(ui, client)_
+- `dynamic_page/ui/dynamic/Editor/partials/canvas-block.component` _(ui, client)_
+- `dynamic_page/ui/dynamic/Editor/partials/canvas-overlays.component` _(ui, client)_
+- `dynamic_page/ui/dynamic/Editor/partials/color-token-field.component` _(ui, client)_
+- `dynamic_page/ui/dynamic/Editor/partials/icon-picker-field.component` _(ui, client)_
+- `dynamic_page/ui/dynamic/Editor/partials/layers-panel.component` _(ui, client)_
+- `dynamic_page/ui/dynamic/Editor/partials/link-field.component` _(ui, client)_
+- `dynamic_page/ui/dynamic/Editor/partials/prop-field-complex.component` _(ui, client)_
+- `dynamic_page/ui/dynamic/Editor/partials/prop-field-renderer.component` _(ui, client)_
+- `dynamic_page/ui/dynamic/Editor/partials/prop-field-simple.component` _(ui, client)_
+- `dynamic_page/ui/dynamic/Editor/props-panel.component` _(ui, client)_
+- `dynamic_page/ui/dynamic/Editor/repeater-field.component` _(ui, client)_
+- `dynamic_page/ui/dynamic/Editor/right-sidebar.component` _(ui, client)_
+- `dynamic_page/ui/dynamic/Editor/seo-modal.component` _(ui, client)_
+- `dynamic_page/ui/dynamic/Editor/shortcuts-modal.component` _(ui, client)_
 - `dynamic_page/ui/dynamic/Editor/stores/editor.types` _(ui)_
-- `dynamic_page/ui/dynamic/Editor/stores/editorStore` _(ui)_
-- `dynamic_page/ui/dynamic/Editor/stores/slices/blockSlice` _(ui)_
 - … and 24 more
 
 ## README

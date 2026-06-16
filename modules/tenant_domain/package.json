@@ -19,7 +19,7 @@
     "./server/tenant_domain.service": "./server/tenant_domain.service.ts",
     "./server/tenant_domain.settings.fields": "./server/tenant_domain.settings.fields.ts",
     "./server/tenant_domain.types": "./server/tenant_domain.types.ts",
-    "./ui/domain-list-columns": "./ui/domain-list-columns.tsx",
+    "./ui/domain-list-columns.component": "./ui/domain-list-columns.component.tsx",
     "./module.json": "./module.json"
   },
   "peerDependencies": {

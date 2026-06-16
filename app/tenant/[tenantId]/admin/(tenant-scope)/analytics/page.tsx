@@ -1,8 +1,8 @@
 'use client';
 import { use, useState, useEffect, useCallback } from 'react';
-import { Select } from '@nb/common/ui/Select';
-import { AlertBanner } from '@nb/common/ui/AlertBanner';
-import { PageHeader } from '@nb/common/ui/PageHeader';
+import { Select } from '@nb/common/ui/select.component';
+import { AlertBanner } from '@nb/common/ui/alert-banner.component';
+import { PageHeader } from '@nb/common/ui/page-header.component';
 import api from '@nb/common/server/axios';
 
 type Summary = {

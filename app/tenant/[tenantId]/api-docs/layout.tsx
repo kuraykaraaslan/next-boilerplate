@@ -1,4 +1,4 @@
-import { AdminShell } from '@nb/common/ui/layout/AdminShell';
+import { AdminShell } from '@nb/common/ui/layout/admin-shell.component';
 
 export default async function TenantApiDocsLayout({
   children,

@@ -3,12 +3,12 @@
 import { use, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '@nb/common/server/axios';
-import { PageHeader } from '@nb/common/ui/PageHeader';
-import { Button } from '@nb/common/ui/Button';
-import { Input } from '@nb/common/ui/Input';
-import { AlertBanner } from '@nb/common/ui/AlertBanner';
+import { PageHeader } from '@nb/common/ui/page-header.component';
+import { Button } from '@nb/common/ui/button.component';
+import { Input } from '@nb/common/ui/input.component';
+import { AlertBanner } from '@nb/common/ui/alert-banner.component';
 import { toast } from '@nb/common/ui/toast.store';
-import TemplateBlockRenderer from '@nb/dynamic_page/ui/dynamic/partials/TemplateBlockRenderer';
+import TemplateBlockRenderer from '@nb/dynamic_page/ui/dynamic/partials/template-block-renderer.component';
 import type { DynamicPageBlockRecord } from '@nb/dynamic_page/server/dynamic_page.types';
 
 type BlockDef = Pick<DynamicPageBlockRecord, 'blockId' | 'type' | 'label' | 'category' | 'defaultProps' | 'isSystem'> & {

@@ -3,16 +3,16 @@ import { use, useEffect, useState } from 'react';
 import { useRouter, notFound } from 'next/navigation';
 import { isRootTenant } from '@nb/tenant/server/tenant.constants';
 import api from '@nb/common/server/axios';
-import { Card } from '@nb/common/ui/Card';
-import { Badge } from '@nb/common/ui/Badge';
-import { Button } from '@nb/common/ui/Button';
-import { Input } from '@nb/common/ui/Input';
-import { Spinner } from '@nb/common/ui/Spinner';
-import { AlertBanner } from '@nb/common/ui/AlertBanner';
-import { Modal } from '@nb/common/ui/Modal';
-import { Breadcrumb } from '@nb/common/ui/Breadcrumb';
-import { PageHeader } from '@nb/common/ui/PageHeader';
-import { ServerDataTable, type TableColumn } from '@nb/common/ui/ServerDataTable';
+import { Card } from '@nb/common/ui/card.component';
+import { Badge } from '@nb/common/ui/badge.component';
+import { Button } from '@nb/common/ui/button.component';
+import { Input } from '@nb/common/ui/input.component';
+import { Spinner } from '@nb/common/ui/spinner.component';
+import { AlertBanner } from '@nb/common/ui/alert-banner.component';
+import { Modal } from '@nb/common/ui/modal.component';
+import { Breadcrumb } from '@nb/common/ui/breadcrumb.component';
+import { PageHeader } from '@nb/common/ui/page-header.component';
+import { ServerDataTable, type TableColumn } from '@nb/common/ui/server-data-table.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faGlobe, faPeopleGroup, faGear,
@@ -20,8 +20,8 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import type { TenantStatus } from '@nb/tenant/server/tenant.enums';
 import type { DomainStatus as _DS } from '@nb/tenant_domain/server/tenant_domain.enums';
-import { TenantMembersTable } from '@nb/tenant/ui/TenantMembersTable';
-import { TenantSubscriptionCard } from '@nb/tenant/ui/TenantSubscriptionCard';
+import { TenantMembersTable } from '@nb/tenant/ui/tenant-members-table.component';
+import { TenantSubscriptionCard } from '@nb/tenant/ui/tenant-subscription-card.component';
 
 type DomainStatus = Exclude<_DS, 'DNS_FAILED'>;
 

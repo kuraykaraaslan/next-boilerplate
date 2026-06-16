@@ -1,16 +1,16 @@
 'use client';
 import { use, useEffect, useState } from 'react';
 import api from '@nb/common/server/axios';
-import { PageHeader } from '@nb/common/ui/PageHeader';
-import { Button } from '@nb/common/ui/Button';
-import { AlertBanner } from '@nb/common/ui/AlertBanner';
-import { Modal } from '@nb/common/ui/Modal';
-import { ServerDataTable } from '@nb/common/ui/ServerDataTable';
+import { PageHeader } from '@nb/common/ui/page-header.component';
+import { Button } from '@nb/common/ui/button.component';
+import { AlertBanner } from '@nb/common/ui/alert-banner.component';
+import { Modal } from '@nb/common/ui/modal.component';
+import { ServerDataTable } from '@nb/common/ui/server-data-table.component';
 import { toast } from '@nb/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCopy, faCheck, faGear } from '@fortawesome/free-solid-svg-icons';
-import { buildApiKeyColumns, type SafeApiKey } from '@nb/api_key/ui/api-key-columns';
-import { ApiKeyCreateModal } from '@nb/api_key/ui/ApiKeyCreateModal';
+import { buildApiKeyColumns, type SafeApiKey } from '@nb/api_key/ui/api-key-columns.component';
+import { ApiKeyCreateModal } from '@nb/api_key/ui/api-key-create-modal.component';
 
 const PAGE_SIZE = 25;
 

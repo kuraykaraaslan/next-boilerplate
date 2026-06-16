@@ -47,7 +47,7 @@ Tenant-scoped membership join table with roles (owner/admin/member) and per-memb
 
 ## Next layer (modules_next/) surface
 
-- `tenant_member/ui/member-list-columns` _(ui, client)_
+- `tenant_member/ui/member-list-columns.component` _(ui, client)_
 
 ## README
 

@@ -29,11 +29,11 @@
     "./server/dictionaries/index": "./server/dictionaries/index.ts",
     "./server/dictionaries": "./server/dictionaries/index.ts",
     "./server/entities/user_consent.entity": "./server/entities/user_consent.entity.ts",
-    "./ui/ForgotPasswordForm": "./ui/ForgotPasswordForm.tsx",
-    "./ui/LoginForm": "./ui/LoginForm.tsx",
-    "./ui/OAuthButtons": "./ui/OAuthButtons.tsx",
-    "./ui/RegisterForm": "./ui/RegisterForm.tsx",
-    "./ui/SessionExpiredBanner": "./ui/SessionExpiredBanner.tsx",
+    "./ui/forgot-password-form.component": "./ui/forgot-password-form.component.tsx",
+    "./ui/login-form.component": "./ui/login-form.component.tsx",
+    "./ui/o-auth-buttons.component": "./ui/o-auth-buttons.component.tsx",
+    "./ui/register-form.component": "./ui/register-form.component.tsx",
+    "./ui/session-expired-banner.component": "./ui/session-expired-banner.component.tsx",
     "./module.json": "./module.json"
   },
   "peerDependencies": {

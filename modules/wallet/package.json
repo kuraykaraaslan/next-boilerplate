@@ -20,7 +20,7 @@
     "./server/wallet.reconcile.service": "./server/wallet.reconcile.service.ts",
     "./server/wallet.service": "./server/wallet.service.ts",
     "./server/wallet.types": "./server/wallet.types.ts",
-    "./ui/wallet-account-columns": "./ui/wallet-account-columns.tsx",
+    "./ui/wallet-account-columns.component": "./ui/wallet-account-columns.component.tsx",
     ".": "./server/index.ts",
     "./module.json": "./module.json"
   },

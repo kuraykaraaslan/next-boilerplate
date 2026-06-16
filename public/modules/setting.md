@@ -47,24 +47,24 @@ System-wide key-value settings store. Modules declare their keys in *.setting.ke
 
 ## Next layer (modules_next/) surface
 
-- `setting/ui/ModuleManagerPage` _(ui, client)_
-- `setting/ui/ModuleSettingsPage` _(ui, client)_
-- `setting/ui/PlatformSettingsTabs` _(ui, client)_
+- `setting/ui/module-manager-page.component` _(ui, client)_
+- `setting/ui/module-settings-page.component` _(ui, client)_
+- `setting/ui/platform-settings-tabs.component` _(ui, client)_
 - `setting/ui/setting.types` _(ui)_
-- `setting/ui/settings-kit` _(ui, client)_
-- `setting/ui/SettingsPanelHost` _(ui, client)_
-- `setting/ui/tabs/AllowedExtensionsField` _(ui, client)_
-- `setting/ui/tabs/platform-tab.shared` _(ui, client)_
-- `setting/ui/tabs/PlatformAiTab` _(ui, client)_
-- `setting/ui/tabs/PlatformAuthTab` _(ui, client)_
-- `setting/ui/tabs/PlatformEmailTab` _(ui, client)_
-- `setting/ui/tabs/PlatformNotificationsTab` _(ui, client)_
-- `setting/ui/tabs/PlatformPaymentTab` _(ui, client)_
-- `setting/ui/tabs/PlatformScimTab` _(ui, client)_
-- `setting/ui/tabs/PlatformSecurityTab` _(ui, client)_
-- `setting/ui/tabs/PlatformSmsTab` _(ui, client)_
-- `setting/ui/tabs/PlatformStorageTab` _(ui, client)_
-- `setting/ui/TenantSettingsPanels` _(ui, client)_
+- `setting/ui/settings-kit.component` _(ui, client)_
+- `setting/ui/settings-panel-host.component` _(ui, client)_
+- `setting/ui/tabs/allowed-extensions-field.component` _(ui, client)_
+- `setting/ui/tabs/platform-ai-tab.component` _(ui, client)_
+- `setting/ui/tabs/platform-auth-tab.component` _(ui, client)_
+- `setting/ui/tabs/platform-email-tab.component` _(ui, client)_
+- `setting/ui/tabs/platform-notifications-tab.component` _(ui, client)_
+- `setting/ui/tabs/platform-payment-tab.component` _(ui, client)_
+- `setting/ui/tabs/platform-scim-tab.component` _(ui, client)_
+- `setting/ui/tabs/platform-security-tab.component` _(ui, client)_
+- `setting/ui/tabs/platform-sms-tab.component` _(ui, client)_
+- `setting/ui/tabs/platform-storage-tab.component` _(ui, client)_
+- `setting/ui/tabs/platform-tab.shared.component` _(ui, client)_
+- `setting/ui/tenant-settings-panels.component` _(ui, client)_
 
 ## README
 

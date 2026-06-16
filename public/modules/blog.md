@@ -60,8 +60,8 @@ Tenant-scoped blog with posts, categories and threaded comments. Posts have a dr
 
 ## Next layer (modules_next/) surface
 
-- `blog/ui/BlogPostCreateModal` _(ui, client)_
-- `blog/ui/BlogStatusBadge` _(ui, client)_
+- `blog/ui/blog-post-create-modal.component` _(ui, client)_
+- `blog/ui/blog-status-badge.component` _(ui, client)_
 
 ## README
 

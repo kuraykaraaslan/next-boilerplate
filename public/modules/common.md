@@ -12,67 +12,67 @@ Dependency-free leaf module loaded by every other module: AppError + ErrorCode e
 
 ## Next layer (modules_next/) surface
 
-- `common/ui/AlertBanner` _(ui, client)_
-- `common/ui/Avatar` _(ui, client)_
-- `common/ui/AvatarUpload` _(ui, client)_
-- `common/ui/Badge` _(ui, client)_
-- `common/ui/BrandLogo` _(ui)_
-- `common/ui/Breadcrumb` _(ui, client)_
-- `common/ui/Button` _(ui, client)_
-- `common/ui/Card` _(ui, client)_
-- `common/ui/ColorPicker` _(ui, client)_
-- `common/ui/ContextMenu` _(ui, client)_
-- `common/ui/CurrencySelector` _(ui, client)_
-- `common/ui/DateRangePicker` _(ui, client)_
-- `common/ui/DemoModeNotice` _(ui, client)_
-- `common/ui/Drawer` _(ui, client)_
-- `common/ui/DynamicAdminPage` _(ui, client)_
-- `common/ui/EmptyState` _(ui, client)_
-- `common/ui/FileInput` _(ui, client)_
-- `common/ui/Form` _(ui, client)_
+- `common/ui/alert-banner.component` _(ui, client)_
+- `common/ui/avatar-upload.component` _(ui, client)_
+- `common/ui/avatar.component` _(ui, client)_
+- `common/ui/badge.component` _(ui, client)_
+- `common/ui/brand-logo.component` _(ui)_
+- `common/ui/breadcrumb.component` _(ui, client)_
+- `common/ui/button.component` _(ui, client)_
+- `common/ui/button.test.component` _(ui)_
+- `common/ui/card.component` _(ui, client)_
+- `common/ui/color-picker.component` _(ui, client)_
+- `common/ui/context-menu.component` _(ui, client)_
+- `common/ui/currency-selector.component` _(ui, client)_
+- `common/ui/date-range-picker.component` _(ui, client)_
+- `common/ui/demo-mode-notice.component` _(ui, client)_
+- `common/ui/drawer.component` _(ui, client)_
+- `common/ui/dynamic-admin-page.component` _(ui, client)_
+- `common/ui/empty-state.component` _(ui, client)_
+- `common/ui/file-input.component` _(ui, client)_
+- `common/ui/form.component` _(ui, client)_
 - `common/ui/generated/module-components` _(ui)_
 - `common/ui/icon-map` _(ui)_
-- `common/ui/ImageGallery` _(ui, client)_
-- `common/ui/Input` _(ui, client)_
-- `common/ui/layout/AdminShell` _(ui, client)_
-- `common/ui/layout/AppShell` _(ui, client)_
-- `common/ui/layout/AppSidebar` _(ui, client)_
-- `common/ui/layout/AppTopBar` _(ui, client)_
-- `common/ui/layout/FontAwesomeConfig` _(ui, client)_
-- `common/ui/Modal` _(ui, client)_
-- `common/ui/module-enabled.context` _(ui, client)_
-- `common/ui/NotificationMenu` _(ui, client)_
-- `common/ui/PageHeader` _(ui, client)_
-- `common/ui/Pagination` _(ui, client)_
-- `common/ui/RadioGroup` _(ui, client)_
-- `common/ui/RichTextEditor/BubbleMenu` _(ui, client)_
-- `common/ui/RichTextEditor/EmojiPicker` _(ui, client)_
-- `common/ui/RichTextEditor/ImageInsertModal` _(ui, client)_
-- `common/ui/RichTextEditor/ImageOverlay` _(ui, client)_
+- `common/ui/image-gallery.component` _(ui, client)_
+- `common/ui/input.component` _(ui, client)_
+- `common/ui/layout/admin-shell.component` _(ui, client)_
+- `common/ui/layout/app-shell.component` _(ui, client)_
+- `common/ui/layout/app-sidebar.component` _(ui, client)_
+- `common/ui/layout/app-top-bar.component` _(ui, client)_
+- `common/ui/layout/font-awesome-config.component` _(ui, client)_
+- `common/ui/modal.component` _(ui, client)_
+- `common/ui/module-enabled.context.component` _(ui, client)_
+- `common/ui/notification-menu.component` _(ui, client)_
+- `common/ui/page-header.component` _(ui, client)_
+- `common/ui/pagination.component` _(ui, client)_
+- `common/ui/radio-group.component` _(ui, client)_
+- `common/ui/RichTextEditor/bubble-menu.component` _(ui, client)_
+- `common/ui/RichTextEditor/emoji-picker.component` _(ui, client)_
+- `common/ui/RichTextEditor/image-insert-modal.component` _(ui, client)_
+- `common/ui/RichTextEditor/image-overlay.component` _(ui, client)_
 - `common/ui/RichTextEditor/index` _(ui, client)_
 - `common/ui/RichTextEditor/markdown` _(ui)_
-- `common/ui/RichTextEditor/PopupOverlays` _(ui, client)_
+- `common/ui/RichTextEditor/popup-overlays.component` _(ui, client)_
 - `common/ui/RichTextEditor/quill-helpers` _(ui, client)_
 - `common/ui/RichTextEditor/sanitize` _(ui)_
 - `common/ui/RichTextEditor/store` _(ui, client)_
-- `common/ui/RichTextEditor/SuggestionPopup` _(ui, client)_
-- `common/ui/RichTextEditor/TableInsertModal` _(ui, client)_
-- `common/ui/RichTextEditor/Toolbar` _(ui, client)_
+- `common/ui/RichTextEditor/suggestion-popup.component` _(ui, client)_
+- `common/ui/RichTextEditor/table-insert-modal.component` _(ui, client)_
+- `common/ui/RichTextEditor/toolbar.component` _(ui, client)_
 - `common/ui/RichTextEditor/types` _(ui)_
 - `common/ui/RichTextEditor/useEditorActions` _(ui, client)_
 - `common/ui/RichTextEditor/useQuillSetup` _(ui, client)_
 - `common/ui/RichTextEditor/useTriggerKeyboard` _(ui, client)_
-- `common/ui/RowActionsMenu` _(ui, client)_
-- `common/ui/SearchBar` _(ui, client)_
-- `common/ui/Select` _(ui, client)_
-- `common/ui/ServerDataTable` _(ui, client)_
-- `common/ui/Skeleton` _(ui, client)_
-- `common/ui/SkipToContent` _(ui, client)_
-- `common/ui/Slot` _(ui, client)_
-- `common/ui/SlotErrorBoundary` _(ui, client)_
-- `common/ui/Spinner` _(ui, client)_
-- `common/ui/TabGroup` _(ui, client)_
-- … and 5 more
+- `common/ui/row-actions-menu.component` _(ui, client)_
+- `common/ui/search-bar.component` _(ui, client)_
+- `common/ui/select.component` _(ui, client)_
+- `common/ui/server-data-table.component` _(ui, client)_
+- `common/ui/skeleton.component` _(ui, client)_
+- `common/ui/skeleton.test.component` _(ui)_
+- `common/ui/skip-to-content.component` _(ui, client)_
+- `common/ui/slot-error-boundary.component` _(ui, client)_
+- `common/ui/slot.component` _(ui, client)_
+- … and 7 more
 
 ## README
 

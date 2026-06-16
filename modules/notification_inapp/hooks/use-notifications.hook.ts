@@ -1,7 +1,7 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import api from '@nb/common/server/axios';
-import type { NotificationItem } from '@nb/common/ui/NotificationMenu';
+import type { NotificationItem } from '@nb/common/ui/notification-menu.component';
 import type { Notification as InAppNotification } from '@nb/notification_inapp/server/notification_inapp.types';
 
 function formatTimestamp(iso: string): string {

@@ -59,16 +59,16 @@ Tenant subscription state, plan + feature key resolution, grace period, expiry j
 
 - `tenant_subscription/hooks/use-feature-access` _(hook, client)_
 - `tenant_subscription/hooks/use-grace-period` _(hook, client)_
-- `tenant_subscription/ui/CurrentSubscriptionCard` _(ui, client)_
-- `tenant_subscription/ui/FeatureGate` _(ui, client)_
-- `tenant_subscription/ui/GracePeriodBanner` _(ui, client)_
-- `tenant_subscription/ui/plan-list-columns` _(ui, client)_
-- `tenant_subscription/ui/PlanCreateModal` _(ui, client)_
-- `tenant_subscription/ui/PlanFeaturesPanel` _(ui, client)_
-- `tenant_subscription/ui/PlanUsageMeter` _(ui, client)_
+- `tenant_subscription/ui/current-subscription-card.component` _(ui, client)_
+- `tenant_subscription/ui/feature-gate.component` _(ui, client)_
+- `tenant_subscription/ui/grace-period-banner.component` _(ui, client)_
+- `tenant_subscription/ui/plan-create-modal.component` _(ui, client)_
+- `tenant_subscription/ui/plan-features-panel.component` _(ui, client)_
+- `tenant_subscription/ui/plan-list-columns.component` _(ui, client)_
+- `tenant_subscription/ui/plan-usage-meter.component` _(ui, client)_
+- `tenant_subscription/ui/subscription-plan-card.component` _(ui, client)_
 - `tenant_subscription/ui/subscription.helpers` _(ui)_
-- `tenant_subscription/ui/SubscriptionPlanCard` _(ui, client)_
-- `tenant_subscription/ui/UpgradePrompt` _(ui, client)_
+- `tenant_subscription/ui/upgrade-prompt.component` _(ui, client)_
 
 ## README
 

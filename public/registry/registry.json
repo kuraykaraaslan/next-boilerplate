@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T08:46:44.563Z",
+  "generatedAt": "2026-06-16T08:52:19.160Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -2141,7 +2141,7 @@
       "slots": [
         {
           "slot": "user.profile.tabs",
-          "component": "payment/ui/BillingProfileTab",
+          "component": "payment/ui/billing-profile-tab.component",
           "order": 50,
           "scope": "both",
           "props": {
@@ -10758,64 +10758,64 @@
       "baseName": "usage-tab.component"
     },
     {
-      "id": "api_doc/ui/ApiDocsPage",
+      "id": "api_doc/ui/api-docs-page.component",
       "module": "api_doc",
-      "filePath": "modules/api_doc/ui/ApiDocsPage.tsx",
+      "filePath": "modules/api_doc/ui/api-docs-page.component.tsx",
       "kind": "ui",
       "exports": [
         "ApiDocsPage"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "ApiDocsPage"
+      "baseName": "api-docs-page.component"
     },
     {
-      "id": "api_doc/ui/ApiTagSection",
+      "id": "api_doc/ui/api-tag-section.component",
       "module": "api_doc",
-      "filePath": "modules/api_doc/ui/ApiTagSection.tsx",
+      "filePath": "modules/api_doc/ui/api-tag-section.component.tsx",
       "kind": "ui",
       "exports": [
         "ApiTagSection"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "ApiTagSection"
+      "baseName": "api-tag-section.component"
     },
     {
-      "id": "api_doc/ui/CodeSamplePanel",
+      "id": "api_doc/ui/code-sample-panel.component",
       "module": "api_doc",
-      "filePath": "modules/api_doc/ui/CodeSamplePanel.tsx",
+      "filePath": "modules/api_doc/ui/code-sample-panel.component.tsx",
       "kind": "ui",
       "exports": [
         "CodeSamplePanel"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "CodeSamplePanel"
+      "baseName": "code-sample-panel.component"
     },
     {
-      "id": "api_doc/ui/EndpointRow",
+      "id": "api_doc/ui/endpoint-row.component",
       "module": "api_doc",
-      "filePath": "modules/api_doc/ui/EndpointRow.tsx",
+      "filePath": "modules/api_doc/ui/endpoint-row.component.tsx",
       "kind": "ui",
       "exports": [
         "EndpointRow"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "EndpointRow"
+      "baseName": "endpoint-row.component"
     },
     {
-      "id": "api_doc/ui/HttpMethodBadge",
+      "id": "api_doc/ui/http-method-badge.component",
       "module": "api_doc",
-      "filePath": "modules/api_doc/ui/HttpMethodBadge.tsx",
+      "filePath": "modules/api_doc/ui/http-method-badge.component.tsx",
       "kind": "ui",
       "exports": [
         "HttpMethodBadge"
       ],
       "isClient": false,
       "isServer": false,
-      "baseName": "HttpMethodBadge"
+      "baseName": "http-method-badge.component"
     },
     {
       "id": "api_doc/ui/mockSpec",
@@ -10831,100 +10831,100 @@
       "baseName": "mockSpec"
     },
     {
-      "id": "api_doc/ui/OperationPanel",
+      "id": "api_doc/ui/operation-panel.component",
       "module": "api_doc",
-      "filePath": "modules/api_doc/ui/OperationPanel.tsx",
+      "filePath": "modules/api_doc/ui/operation-panel.component.tsx",
       "kind": "ui",
       "exports": [
         "OperationPanel"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "OperationPanel"
+      "baseName": "operation-panel.component"
     },
     {
-      "id": "api_doc/ui/ParameterTable",
+      "id": "api_doc/ui/parameter-table.component",
       "module": "api_doc",
-      "filePath": "modules/api_doc/ui/ParameterTable.tsx",
+      "filePath": "modules/api_doc/ui/parameter-table.component.tsx",
       "kind": "ui",
       "exports": [
         "ParameterTable"
       ],
       "isClient": false,
       "isServer": false,
-      "baseName": "ParameterTable"
+      "baseName": "parameter-table.component"
     },
     {
-      "id": "api_doc/ui/ResponseCard",
+      "id": "api_doc/ui/response-card.component",
       "module": "api_doc",
-      "filePath": "modules/api_doc/ui/ResponseCard.tsx",
+      "filePath": "modules/api_doc/ui/response-card.component.tsx",
       "kind": "ui",
       "exports": [
         "ResponseCard"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "ResponseCard"
+      "baseName": "response-card.component"
     },
     {
-      "id": "api_doc/ui/SchemaViewer",
+      "id": "api_doc/ui/schema-viewer.component",
       "module": "api_doc",
-      "filePath": "modules/api_doc/ui/SchemaViewer.tsx",
+      "filePath": "modules/api_doc/ui/schema-viewer.component.tsx",
       "kind": "ui",
       "exports": [
         "SchemaViewer"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "SchemaViewer"
+      "baseName": "schema-viewer.component"
     },
     {
-      "id": "api_doc/ui/SecuritySchemeBadge",
+      "id": "api_doc/ui/security-scheme-badge.component",
       "module": "api_doc",
-      "filePath": "modules/api_doc/ui/SecuritySchemeBadge.tsx",
+      "filePath": "modules/api_doc/ui/security-scheme-badge.component.tsx",
       "kind": "ui",
       "exports": [
         "SecuritySchemeBadge"
       ],
       "isClient": false,
       "isServer": false,
-      "baseName": "SecuritySchemeBadge"
+      "baseName": "security-scheme-badge.component"
     },
     {
-      "id": "api_doc/ui/ServerSelector",
+      "id": "api_doc/ui/server-selector.component",
       "module": "api_doc",
-      "filePath": "modules/api_doc/ui/ServerSelector.tsx",
+      "filePath": "modules/api_doc/ui/server-selector.component.tsx",
       "kind": "ui",
       "exports": [
         "ServerSelector"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "ServerSelector"
+      "baseName": "server-selector.component"
     },
     {
-      "id": "api_doc/ui/StatusCodeBadge",
+      "id": "api_doc/ui/status-code-badge.component",
       "module": "api_doc",
-      "filePath": "modules/api_doc/ui/StatusCodeBadge.tsx",
+      "filePath": "modules/api_doc/ui/status-code-badge.component.tsx",
       "kind": "ui",
       "exports": [
         "StatusCodeBadge"
       ],
       "isClient": false,
       "isServer": false,
-      "baseName": "StatusCodeBadge"
+      "baseName": "status-code-badge.component"
     },
     {
-      "id": "api_doc/ui/TryItOutPanel",
+      "id": "api_doc/ui/try-it-out-panel.component",
       "module": "api_doc",
-      "filePath": "modules/api_doc/ui/TryItOutPanel.tsx",
+      "filePath": "modules/api_doc/ui/try-it-out-panel.component.tsx",
       "kind": "ui",
       "exports": [
         "TryItOutPanel"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "TryItOutPanel"
+      "baseName": "try-it-out-panel.component"
     },
     {
       "id": "api_doc/ui/types",
@@ -10953,9 +10953,9 @@
       "baseName": "types"
     },
     {
-      "id": "api_key/ui/api-key-columns",
+      "id": "api_key/ui/api-key-columns.component",
       "module": "api_key",
-      "filePath": "modules/api_key/ui/api-key-columns.tsx",
+      "filePath": "modules/api_key/ui/api-key-columns.component.tsx",
       "kind": "ui",
       "exports": [
         "SafeApiKey",
@@ -10963,24 +10963,24 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "api-key-columns"
+      "baseName": "api-key-columns.component"
     },
     {
-      "id": "api_key/ui/ApiKeyCreateModal",
+      "id": "api_key/ui/api-key-create-modal.component",
       "module": "api_key",
-      "filePath": "modules/api_key/ui/ApiKeyCreateModal.tsx",
+      "filePath": "modules/api_key/ui/api-key-create-modal.component.tsx",
       "kind": "ui",
       "exports": [
         "ApiKeyCreateModal"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "ApiKeyCreateModal"
+      "baseName": "api-key-create-modal.component"
     },
     {
-      "id": "approval/ui/approval-columns",
+      "id": "approval/ui/approval-columns.component",
       "module": "approval",
-      "filePath": "modules/approval/ui/approval-columns.tsx",
+      "filePath": "modules/approval/ui/approval-columns.component.tsx",
       "kind": "ui",
       "exports": [
         "ApprovalRow",
@@ -10988,12 +10988,12 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "approval-columns"
+      "baseName": "approval-columns.component"
     },
     {
-      "id": "audit_log/ui/AuditLogFilters",
+      "id": "audit_log/ui/audit-log-filters.component",
       "module": "audit_log",
-      "filePath": "modules/audit_log/ui/AuditLogFilters.tsx",
+      "filePath": "modules/audit_log/ui/audit-log-filters.component.tsx",
       "kind": "ui",
       "exports": [
         "AuditLogFilterValues",
@@ -11001,60 +11001,60 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "AuditLogFilters"
+      "baseName": "audit-log-filters.component"
     },
     {
-      "id": "auth_e_signature/ui/ESignatureLoginPanel",
+      "id": "auth_e_signature/ui/e-signature-login-panel.component",
       "module": "auth_e_signature",
-      "filePath": "modules/auth_e_signature/ui/ESignatureLoginPanel.tsx",
+      "filePath": "modules/auth_e_signature/ui/e-signature-login-panel.component.tsx",
       "kind": "ui",
       "exports": [
         "ESignatureLoginPanel"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "ESignatureLoginPanel"
+      "baseName": "e-signature-login-panel.component"
     },
     {
-      "id": "auth_e_signature/ui/SigningCertificatesBindModal",
+      "id": "auth_e_signature/ui/signing-certificates-bind-modal.component",
       "module": "auth_e_signature",
-      "filePath": "modules/auth_e_signature/ui/SigningCertificatesBindModal.tsx",
+      "filePath": "modules/auth_e_signature/ui/signing-certificates-bind-modal.component.tsx",
       "kind": "ui",
       "exports": [
         "SigningCertificatesBindModal"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "SigningCertificatesBindModal"
+      "baseName": "signing-certificates-bind-modal.component"
     },
     {
-      "id": "auth_e_signature/ui/SigningCertificatesPanel",
+      "id": "auth_e_signature/ui/signing-certificates-panel.component",
       "module": "auth_e_signature",
-      "filePath": "modules/auth_e_signature/ui/SigningCertificatesPanel.tsx",
+      "filePath": "modules/auth_e_signature/ui/signing-certificates-panel.component.tsx",
       "kind": "ui",
       "exports": [
         "SigningCertificatesPanel"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "SigningCertificatesPanel"
+      "baseName": "signing-certificates-panel.component"
     },
     {
-      "id": "auth_saml/ui/SamlAttributeForm",
+      "id": "auth_saml/ui/saml-attribute-form.component",
       "module": "auth_saml",
-      "filePath": "modules/auth_saml/ui/SamlAttributeForm.tsx",
+      "filePath": "modules/auth_saml/ui/saml-attribute-form.component.tsx",
       "kind": "ui",
       "exports": [
         "SamlAttributeForm"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "SamlAttributeForm"
+      "baseName": "saml-attribute-form.component"
     },
     {
-      "id": "auth_saml/ui/SamlConfigForm",
+      "id": "auth_saml/ui/saml-config-form.component",
       "module": "auth_saml",
-      "filePath": "modules/auth_saml/ui/SamlConfigForm.tsx",
+      "filePath": "modules/auth_saml/ui/saml-config-form.component.tsx",
       "kind": "ui",
       "exports": [
         "SamlConfigFormValues",
@@ -11062,48 +11062,48 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "SamlConfigForm"
+      "baseName": "saml-config-form.component"
     },
     {
-      "id": "auth_saml/ui/SamlMetadataCard",
+      "id": "auth_saml/ui/saml-metadata-card.component",
       "module": "auth_saml",
-      "filePath": "modules/auth_saml/ui/SamlMetadataCard.tsx",
+      "filePath": "modules/auth_saml/ui/saml-metadata-card.component.tsx",
       "kind": "ui",
       "exports": [
         "SamlMetadataCard"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "SamlMetadataCard"
+      "baseName": "saml-metadata-card.component"
     },
     {
-      "id": "auth/ui/ForgotPasswordForm",
+      "id": "auth/ui/forgot-password-form.component",
       "module": "auth",
-      "filePath": "modules/auth/ui/ForgotPasswordForm.tsx",
+      "filePath": "modules/auth/ui/forgot-password-form.component.tsx",
       "kind": "ui",
       "exports": [
         "ForgotPasswordForm"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "ForgotPasswordForm"
+      "baseName": "forgot-password-form.component"
     },
     {
-      "id": "auth/ui/LoginForm",
+      "id": "auth/ui/login-form.component",
       "module": "auth",
-      "filePath": "modules/auth/ui/LoginForm.tsx",
+      "filePath": "modules/auth/ui/login-form.component.tsx",
       "kind": "ui",
       "exports": [
         "LoginForm"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "LoginForm"
+      "baseName": "login-form.component"
     },
     {
-      "id": "auth/ui/OAuthButtons",
+      "id": "auth/ui/o-auth-buttons.component",
       "module": "auth",
-      "filePath": "modules/auth/ui/OAuthButtons.tsx",
+      "filePath": "modules/auth/ui/o-auth-buttons.component.tsx",
       "kind": "ui",
       "exports": [
         "SSO_PROVIDERS",
@@ -11113,48 +11113,48 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "OAuthButtons"
+      "baseName": "o-auth-buttons.component"
     },
     {
-      "id": "auth/ui/RegisterForm",
+      "id": "auth/ui/register-form.component",
       "module": "auth",
-      "filePath": "modules/auth/ui/RegisterForm.tsx",
+      "filePath": "modules/auth/ui/register-form.component.tsx",
       "kind": "ui",
       "exports": [
         "RegisterForm"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "RegisterForm"
+      "baseName": "register-form.component"
     },
     {
-      "id": "auth/ui/SessionExpiredBanner",
+      "id": "auth/ui/session-expired-banner.component",
       "module": "auth",
-      "filePath": "modules/auth/ui/SessionExpiredBanner.tsx",
+      "filePath": "modules/auth/ui/session-expired-banner.component.tsx",
       "kind": "ui",
       "exports": [
         "SessionExpiredBanner"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "SessionExpiredBanner"
+      "baseName": "session-expired-banner.component"
     },
     {
-      "id": "blog/ui/BlogPostCreateModal",
+      "id": "blog/ui/blog-post-create-modal.component",
       "module": "blog",
-      "filePath": "modules/blog/ui/BlogPostCreateModal.tsx",
+      "filePath": "modules/blog/ui/blog-post-create-modal.component.tsx",
       "kind": "ui",
       "exports": [
         "BlogPostCreateModal"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "BlogPostCreateModal"
+      "baseName": "blog-post-create-modal.component"
     },
     {
-      "id": "blog/ui/BlogStatusBadge",
+      "id": "blog/ui/blog-status-badge.component",
       "module": "blog",
-      "filePath": "modules/blog/ui/BlogStatusBadge.tsx",
+      "filePath": "modules/blog/ui/blog-status-badge.component.tsx",
       "kind": "ui",
       "exports": [
         "PostStatus",
@@ -11164,12 +11164,12 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "BlogStatusBadge"
+      "baseName": "blog-status-badge.component"
     },
     {
-      "id": "common/ui/AlertBanner",
+      "id": "common/ui/alert-banner.component",
       "module": "common",
-      "filePath": "modules/common/ui/AlertBanner.tsx",
+      "filePath": "modules/common/ui/alert-banner.component.tsx",
       "kind": "ui",
       "exports": [
         "AlertAction",
@@ -11177,12 +11177,24 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "AlertBanner"
+      "baseName": "alert-banner.component"
     },
     {
-      "id": "common/ui/Avatar",
+      "id": "common/ui/avatar-upload.component",
       "module": "common",
-      "filePath": "modules/common/ui/Avatar.tsx",
+      "filePath": "modules/common/ui/avatar-upload.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "AvatarUpload"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "avatar-upload.component"
+    },
+    {
+      "id": "common/ui/avatar.component",
+      "module": "common",
+      "filePath": "modules/common/ui/avatar.component.tsx",
       "kind": "ui",
       "exports": [
         "Avatar",
@@ -11190,48 +11202,36 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "Avatar"
+      "baseName": "avatar.component"
     },
     {
-      "id": "common/ui/AvatarUpload",
+      "id": "common/ui/badge.component",
       "module": "common",
-      "filePath": "modules/common/ui/AvatarUpload.tsx",
-      "kind": "ui",
-      "exports": [
-        "AvatarUpload"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "AvatarUpload"
-    },
-    {
-      "id": "common/ui/Badge",
-      "module": "common",
-      "filePath": "modules/common/ui/Badge.tsx",
+      "filePath": "modules/common/ui/badge.component.tsx",
       "kind": "ui",
       "exports": [
         "Badge"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "Badge"
+      "baseName": "badge.component"
     },
     {
-      "id": "common/ui/BrandLogo",
+      "id": "common/ui/brand-logo.component",
       "module": "common",
-      "filePath": "modules/common/ui/BrandLogo.tsx",
+      "filePath": "modules/common/ui/brand-logo.component.tsx",
       "kind": "ui",
       "exports": [
         "BrandLogo"
       ],
       "isClient": false,
       "isServer": false,
-      "baseName": "BrandLogo"
+      "baseName": "brand-logo.component"
     },
     {
-      "id": "common/ui/Breadcrumb",
+      "id": "common/ui/breadcrumb.component",
       "module": "common",
-      "filePath": "modules/common/ui/Breadcrumb.tsx",
+      "filePath": "modules/common/ui/breadcrumb.component.tsx",
       "kind": "ui",
       "exports": [
         "BreadcrumbItem",
@@ -11239,36 +11239,46 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "Breadcrumb"
+      "baseName": "breadcrumb.component"
     },
     {
-      "id": "common/ui/Button",
+      "id": "common/ui/button.component",
       "module": "common",
-      "filePath": "modules/common/ui/Button.tsx",
+      "filePath": "modules/common/ui/button.component.tsx",
       "kind": "ui",
       "exports": [
         "Button"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "Button"
+      "baseName": "button.component"
     },
     {
-      "id": "common/ui/Card",
+      "id": "common/ui/button.test.component",
       "module": "common",
-      "filePath": "modules/common/ui/Card.tsx",
+      "filePath": "modules/common/ui/button.test.component.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "button.test.component"
+    },
+    {
+      "id": "common/ui/card.component",
+      "module": "common",
+      "filePath": "modules/common/ui/card.component.tsx",
       "kind": "ui",
       "exports": [
         "Card"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "Card"
+      "baseName": "card.component"
     },
     {
-      "id": "common/ui/ColorPicker",
+      "id": "common/ui/color-picker.component",
       "module": "common",
-      "filePath": "modules/common/ui/ColorPicker.tsx",
+      "filePath": "modules/common/ui/color-picker.component.tsx",
       "kind": "ui",
       "exports": [
         "DEFAULT_COLOR_SWATCHES",
@@ -11277,12 +11287,12 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "ColorPicker"
+      "baseName": "color-picker.component"
     },
     {
-      "id": "common/ui/ContextMenu",
+      "id": "common/ui/context-menu.component",
       "module": "common",
-      "filePath": "modules/common/ui/ContextMenu.tsx",
+      "filePath": "modules/common/ui/context-menu.component.tsx",
       "kind": "ui",
       "exports": [
         "ContextMenuItem",
@@ -11291,24 +11301,24 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "ContextMenu"
+      "baseName": "context-menu.component"
     },
     {
-      "id": "common/ui/CurrencySelector",
+      "id": "common/ui/currency-selector.component",
       "module": "common",
-      "filePath": "modules/common/ui/CurrencySelector.tsx",
+      "filePath": "modules/common/ui/currency-selector.component.tsx",
       "kind": "ui",
       "exports": [
         "CurrencySelector"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "CurrencySelector"
+      "baseName": "currency-selector.component"
     },
     {
-      "id": "common/ui/DateRangePicker",
+      "id": "common/ui/date-range-picker.component",
       "module": "common",
-      "filePath": "modules/common/ui/DateRangePicker.tsx",
+      "filePath": "modules/common/ui/date-range-picker.component.tsx",
       "kind": "ui",
       "exports": [
         "DateRange",
@@ -11316,79 +11326,79 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "DateRangePicker"
+      "baseName": "date-range-picker.component"
     },
     {
-      "id": "common/ui/DemoModeNotice",
+      "id": "common/ui/demo-mode-notice.component",
       "module": "common",
-      "filePath": "modules/common/ui/DemoModeNotice.tsx",
+      "filePath": "modules/common/ui/demo-mode-notice.component.tsx",
       "kind": "ui",
       "exports": [
         "DemoModeNotice"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "DemoModeNotice"
+      "baseName": "demo-mode-notice.component"
     },
     {
-      "id": "common/ui/Drawer",
+      "id": "common/ui/drawer.component",
       "module": "common",
-      "filePath": "modules/common/ui/Drawer.tsx",
+      "filePath": "modules/common/ui/drawer.component.tsx",
       "kind": "ui",
       "exports": [
         "Drawer"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "Drawer"
+      "baseName": "drawer.component"
     },
     {
-      "id": "common/ui/DynamicAdminPage",
+      "id": "common/ui/dynamic-admin-page.component",
       "module": "common",
-      "filePath": "modules/common/ui/DynamicAdminPage.tsx",
+      "filePath": "modules/common/ui/dynamic-admin-page.component.tsx",
       "kind": "ui",
       "exports": [
         "DynamicAdminPage"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "DynamicAdminPage"
+      "baseName": "dynamic-admin-page.component"
     },
     {
-      "id": "common/ui/EmptyState",
+      "id": "common/ui/empty-state.component",
       "module": "common",
-      "filePath": "modules/common/ui/EmptyState.tsx",
+      "filePath": "modules/common/ui/empty-state.component.tsx",
       "kind": "ui",
       "exports": [
         "EmptyState"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "EmptyState"
+      "baseName": "empty-state.component"
     },
     {
-      "id": "common/ui/FileInput",
+      "id": "common/ui/file-input.component",
       "module": "common",
-      "filePath": "modules/common/ui/FileInput.tsx",
+      "filePath": "modules/common/ui/file-input.component.tsx",
       "kind": "ui",
       "exports": [
         "FileInput"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "FileInput"
+      "baseName": "file-input.component"
     },
     {
-      "id": "common/ui/Form",
+      "id": "common/ui/form.component",
       "module": "common",
-      "filePath": "modules/common/ui/Form.tsx",
+      "filePath": "modules/common/ui/form.component.tsx",
       "kind": "ui",
       "exports": [
         "Form"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "Form"
+      "baseName": "form.component"
     },
     {
       "id": "common/ui/generated/module-components",
@@ -11416,9 +11426,9 @@
       "baseName": "icon-map"
     },
     {
-      "id": "common/ui/ImageGallery",
+      "id": "common/ui/image-gallery.component",
       "module": "common",
-      "filePath": "modules/common/ui/ImageGallery.tsx",
+      "filePath": "modules/common/ui/image-gallery.component.tsx",
       "kind": "ui",
       "exports": [
         "ImageGalleryImage",
@@ -11427,48 +11437,48 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "ImageGallery"
+      "baseName": "image-gallery.component"
     },
     {
-      "id": "common/ui/Input",
+      "id": "common/ui/input.component",
       "module": "common",
-      "filePath": "modules/common/ui/Input.tsx",
+      "filePath": "modules/common/ui/input.component.tsx",
       "kind": "ui",
       "exports": [
         "Input"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "Input"
+      "baseName": "input.component"
     },
     {
-      "id": "common/ui/layout/AdminShell",
+      "id": "common/ui/layout/admin-shell.component",
       "module": "common",
-      "filePath": "modules/common/ui/layout/AdminShell.tsx",
+      "filePath": "modules/common/ui/layout/admin-shell.component.tsx",
       "kind": "ui",
       "exports": [
         "AdminShell"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "AdminShell"
+      "baseName": "admin-shell.component"
     },
     {
-      "id": "common/ui/layout/AppShell",
+      "id": "common/ui/layout/app-shell.component",
       "module": "common",
-      "filePath": "modules/common/ui/layout/AppShell.tsx",
+      "filePath": "modules/common/ui/layout/app-shell.component.tsx",
       "kind": "ui",
       "exports": [
         "AppShell"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "AppShell"
+      "baseName": "app-shell.component"
     },
     {
-      "id": "common/ui/layout/AppSidebar",
+      "id": "common/ui/layout/app-sidebar.component",
       "module": "common",
-      "filePath": "modules/common/ui/layout/AppSidebar.tsx",
+      "filePath": "modules/common/ui/layout/app-sidebar.component.tsx",
       "kind": "ui",
       "exports": [
         "AppSidebarNavItem",
@@ -11478,46 +11488,46 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "AppSidebar"
+      "baseName": "app-sidebar.component"
     },
     {
-      "id": "common/ui/layout/AppTopBar",
+      "id": "common/ui/layout/app-top-bar.component",
       "module": "common",
-      "filePath": "modules/common/ui/layout/AppTopBar.tsx",
+      "filePath": "modules/common/ui/layout/app-top-bar.component.tsx",
       "kind": "ui",
       "exports": [
         "AppTopBar"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "AppTopBar"
+      "baseName": "app-top-bar.component"
     },
     {
-      "id": "common/ui/layout/FontAwesomeConfig",
+      "id": "common/ui/layout/font-awesome-config.component",
       "module": "common",
-      "filePath": "modules/common/ui/layout/FontAwesomeConfig.tsx",
+      "filePath": "modules/common/ui/layout/font-awesome-config.component.tsx",
       "kind": "ui",
       "exports": [],
       "isClient": true,
       "isServer": false,
-      "baseName": "FontAwesomeConfig"
+      "baseName": "font-awesome-config.component"
     },
     {
-      "id": "common/ui/Modal",
+      "id": "common/ui/modal.component",
       "module": "common",
-      "filePath": "modules/common/ui/Modal.tsx",
+      "filePath": "modules/common/ui/modal.component.tsx",
       "kind": "ui",
       "exports": [
         "Modal"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "Modal"
+      "baseName": "modal.component"
     },
     {
-      "id": "common/ui/module-enabled.context",
+      "id": "common/ui/module-enabled.context.component",
       "module": "common",
-      "filePath": "modules/common/ui/module-enabled.context.tsx",
+      "filePath": "modules/common/ui/module-enabled.context.component.tsx",
       "kind": "ui",
       "exports": [
         "ModuleEnabledProvider",
@@ -11525,12 +11535,12 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "module-enabled.context"
+      "baseName": "module-enabled.context.component"
     },
     {
-      "id": "common/ui/NotificationMenu",
+      "id": "common/ui/notification-menu.component",
       "module": "common",
-      "filePath": "modules/common/ui/NotificationMenu.tsx",
+      "filePath": "modules/common/ui/notification-menu.component.tsx",
       "kind": "ui",
       "exports": [
         "NotificationItem",
@@ -11538,12 +11548,12 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "NotificationMenu"
+      "baseName": "notification-menu.component"
     },
     {
-      "id": "common/ui/PageHeader",
+      "id": "common/ui/page-header.component",
       "module": "common",
-      "filePath": "modules/common/ui/PageHeader.tsx",
+      "filePath": "modules/common/ui/page-header.component.tsx",
       "kind": "ui",
       "exports": [
         "PageHeaderAction",
@@ -11551,24 +11561,24 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "PageHeader"
+      "baseName": "page-header.component"
     },
     {
-      "id": "common/ui/Pagination",
+      "id": "common/ui/pagination.component",
       "module": "common",
-      "filePath": "modules/common/ui/Pagination.tsx",
+      "filePath": "modules/common/ui/pagination.component.tsx",
       "kind": "ui",
       "exports": [
         "Pagination"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "Pagination"
+      "baseName": "pagination.component"
     },
     {
-      "id": "common/ui/RadioGroup",
+      "id": "common/ui/radio-group.component",
       "module": "common",
-      "filePath": "modules/common/ui/RadioGroup.tsx",
+      "filePath": "modules/common/ui/radio-group.component.tsx",
       "kind": "ui",
       "exports": [
         "RadioOption",
@@ -11576,55 +11586,55 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "RadioGroup"
+      "baseName": "radio-group.component"
     },
     {
-      "id": "common/ui/RichTextEditor/BubbleMenu",
+      "id": "common/ui/RichTextEditor/bubble-menu.component",
       "module": "common",
-      "filePath": "modules/common/ui/RichTextEditor/BubbleMenu.tsx",
+      "filePath": "modules/common/ui/RichTextEditor/bubble-menu.component.tsx",
       "kind": "ui",
       "exports": [
         "BubbleMenu"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "BubbleMenu"
+      "baseName": "bubble-menu.component"
     },
     {
-      "id": "common/ui/RichTextEditor/EmojiPicker",
+      "id": "common/ui/RichTextEditor/emoji-picker.component",
       "module": "common",
-      "filePath": "modules/common/ui/RichTextEditor/EmojiPicker.tsx",
+      "filePath": "modules/common/ui/RichTextEditor/emoji-picker.component.tsx",
       "kind": "ui",
       "exports": [
         "EmojiPicker"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "EmojiPicker"
+      "baseName": "emoji-picker.component"
     },
     {
-      "id": "common/ui/RichTextEditor/ImageInsertModal",
+      "id": "common/ui/RichTextEditor/image-insert-modal.component",
       "module": "common",
-      "filePath": "modules/common/ui/RichTextEditor/ImageInsertModal.tsx",
+      "filePath": "modules/common/ui/RichTextEditor/image-insert-modal.component.tsx",
       "kind": "ui",
       "exports": [
         "ImageInsertModal"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "ImageInsertModal"
+      "baseName": "image-insert-modal.component"
     },
     {
-      "id": "common/ui/RichTextEditor/ImageOverlay",
+      "id": "common/ui/RichTextEditor/image-overlay.component",
       "module": "common",
-      "filePath": "modules/common/ui/RichTextEditor/ImageOverlay.tsx",
+      "filePath": "modules/common/ui/RichTextEditor/image-overlay.component.tsx",
       "kind": "ui",
       "exports": [
         "ImageOverlay"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "ImageOverlay"
+      "baseName": "image-overlay.component"
     },
     {
       "id": "common/ui/RichTextEditor/index",
@@ -11651,9 +11661,9 @@
       "baseName": "markdown"
     },
     {
-      "id": "common/ui/RichTextEditor/PopupOverlays",
+      "id": "common/ui/RichTextEditor/popup-overlays.component",
       "module": "common",
-      "filePath": "modules/common/ui/RichTextEditor/PopupOverlays.tsx",
+      "filePath": "modules/common/ui/RichTextEditor/popup-overlays.component.tsx",
       "kind": "ui",
       "exports": [
         "PopupOverlaysProps",
@@ -11661,7 +11671,7 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "PopupOverlays"
+      "baseName": "popup-overlays.component"
     },
     {
       "id": "common/ui/RichTextEditor/quill-helpers",
@@ -11709,9 +11719,9 @@
       "baseName": "store"
     },
     {
-      "id": "common/ui/RichTextEditor/SuggestionPopup",
+      "id": "common/ui/RichTextEditor/suggestion-popup.component",
       "module": "common",
-      "filePath": "modules/common/ui/RichTextEditor/SuggestionPopup.tsx",
+      "filePath": "modules/common/ui/RichTextEditor/suggestion-popup.component.tsx",
       "kind": "ui",
       "exports": [
         "SuggestionItem",
@@ -11719,24 +11729,24 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "SuggestionPopup"
+      "baseName": "suggestion-popup.component"
     },
     {
-      "id": "common/ui/RichTextEditor/TableInsertModal",
+      "id": "common/ui/RichTextEditor/table-insert-modal.component",
       "module": "common",
-      "filePath": "modules/common/ui/RichTextEditor/TableInsertModal.tsx",
+      "filePath": "modules/common/ui/RichTextEditor/table-insert-modal.component.tsx",
       "kind": "ui",
       "exports": [
         "TableInsertModal"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "TableInsertModal"
+      "baseName": "table-insert-modal.component"
     },
     {
-      "id": "common/ui/RichTextEditor/Toolbar",
+      "id": "common/ui/RichTextEditor/toolbar.component",
       "module": "common",
-      "filePath": "modules/common/ui/RichTextEditor/Toolbar.tsx",
+      "filePath": "modules/common/ui/RichTextEditor/toolbar.component.tsx",
       "kind": "ui",
       "exports": [
         "ToolbarProps",
@@ -11745,7 +11755,7 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "Toolbar"
+      "baseName": "toolbar.component"
     },
     {
       "id": "common/ui/RichTextEditor/types",
@@ -11808,33 +11818,33 @@
       "baseName": "useTriggerKeyboard"
     },
     {
-      "id": "common/ui/RowActionsMenu",
+      "id": "common/ui/row-actions-menu.component",
       "module": "common",
-      "filePath": "modules/common/ui/RowActionsMenu.tsx",
+      "filePath": "modules/common/ui/row-actions-menu.component.tsx",
       "kind": "ui",
       "exports": [
         "RowActionsMenu"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "RowActionsMenu"
+      "baseName": "row-actions-menu.component"
     },
     {
-      "id": "common/ui/SearchBar",
+      "id": "common/ui/search-bar.component",
       "module": "common",
-      "filePath": "modules/common/ui/SearchBar.tsx",
+      "filePath": "modules/common/ui/search-bar.component.tsx",
       "kind": "ui",
       "exports": [
         "SearchBar"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "SearchBar"
+      "baseName": "search-bar.component"
     },
     {
-      "id": "common/ui/Select",
+      "id": "common/ui/select.component",
       "module": "common",
-      "filePath": "modules/common/ui/Select.tsx",
+      "filePath": "modules/common/ui/select.component.tsx",
       "kind": "ui",
       "exports": [
         "SelectOption",
@@ -11842,12 +11852,12 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "Select"
+      "baseName": "select.component"
     },
     {
-      "id": "common/ui/ServerDataTable",
+      "id": "common/ui/server-data-table.component",
       "module": "common",
-      "filePath": "modules/common/ui/ServerDataTable.tsx",
+      "filePath": "modules/common/ui/server-data-table.component.tsx",
       "kind": "ui",
       "exports": [
         "TableColumn",
@@ -11855,12 +11865,12 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "ServerDataTable"
+      "baseName": "server-data-table.component"
     },
     {
-      "id": "common/ui/Skeleton",
+      "id": "common/ui/skeleton.component",
       "module": "common",
-      "filePath": "modules/common/ui/Skeleton.tsx",
+      "filePath": "modules/common/ui/skeleton.component.tsx",
       "kind": "ui",
       "exports": [
         "Skeleton",
@@ -11870,24 +11880,46 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "Skeleton"
+      "baseName": "skeleton.component"
     },
     {
-      "id": "common/ui/SkipToContent",
+      "id": "common/ui/skeleton.test.component",
       "module": "common",
-      "filePath": "modules/common/ui/SkipToContent.tsx",
+      "filePath": "modules/common/ui/skeleton.test.component.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "skeleton.test.component"
+    },
+    {
+      "id": "common/ui/skip-to-content.component",
+      "module": "common",
+      "filePath": "modules/common/ui/skip-to-content.component.tsx",
       "kind": "ui",
       "exports": [
         "SkipToContent"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "SkipToContent"
+      "baseName": "skip-to-content.component"
     },
     {
-      "id": "common/ui/Slot",
+      "id": "common/ui/slot-error-boundary.component",
       "module": "common",
-      "filePath": "modules/common/ui/Slot.tsx",
+      "filePath": "modules/common/ui/slot-error-boundary.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "SlotErrorBoundary"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "slot-error-boundary.component"
+    },
+    {
+      "id": "common/ui/slot.component",
+      "module": "common",
+      "filePath": "modules/common/ui/slot.component.tsx",
       "kind": "ui",
       "exports": [
         "ResolvedContribution",
@@ -11896,36 +11928,24 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "Slot"
+      "baseName": "slot.component"
     },
     {
-      "id": "common/ui/SlotErrorBoundary",
+      "id": "common/ui/spinner.component",
       "module": "common",
-      "filePath": "modules/common/ui/SlotErrorBoundary.tsx",
-      "kind": "ui",
-      "exports": [
-        "SlotErrorBoundary"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "SlotErrorBoundary"
-    },
-    {
-      "id": "common/ui/Spinner",
-      "module": "common",
-      "filePath": "modules/common/ui/Spinner.tsx",
+      "filePath": "modules/common/ui/spinner.component.tsx",
       "kind": "ui",
       "exports": [
         "Spinner"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "Spinner"
+      "baseName": "spinner.component"
     },
     {
-      "id": "common/ui/TabGroup",
+      "id": "common/ui/tab-group.component",
       "module": "common",
-      "filePath": "modules/common/ui/TabGroup.tsx",
+      "filePath": "modules/common/ui/tab-group.component.tsx",
       "kind": "ui",
       "exports": [
         "Tab",
@@ -11933,19 +11953,31 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "TabGroup"
+      "baseName": "tab-group.component"
     },
     {
-      "id": "common/ui/ThemeToggle",
+      "id": "common/ui/theme-toggle.component",
       "module": "common",
-      "filePath": "modules/common/ui/ThemeToggle.tsx",
+      "filePath": "modules/common/ui/theme-toggle.component.tsx",
       "kind": "ui",
       "exports": [
         "ThemeToggle"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "ThemeToggle"
+      "baseName": "theme-toggle.component"
+    },
+    {
+      "id": "common/ui/toast-container.component",
+      "module": "common",
+      "filePath": "modules/common/ui/toast-container.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "ToastContainer"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "toast-container.component"
     },
     {
       "id": "common/ui/toast.store",
@@ -11961,40 +11993,76 @@
       "baseName": "toast.store"
     },
     {
-      "id": "common/ui/ToastContainer",
+      "id": "common/ui/toggle.component",
       "module": "common",
-      "filePath": "modules/common/ui/ToastContainer.tsx",
-      "kind": "ui",
-      "exports": [
-        "ToastContainer"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "ToastContainer"
-    },
-    {
-      "id": "common/ui/Toggle",
-      "module": "common",
-      "filePath": "modules/common/ui/Toggle.tsx",
+      "filePath": "modules/common/ui/toggle.component.tsx",
       "kind": "ui",
       "exports": [
         "Toggle"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "Toggle"
+      "baseName": "toggle.component"
     },
     {
-      "id": "common/ui/Tooltip",
+      "id": "common/ui/tooltip.component",
       "module": "common",
-      "filePath": "modules/common/ui/Tooltip.tsx",
+      "filePath": "modules/common/ui/tooltip.component.tsx",
       "kind": "ui",
       "exports": [
         "Tooltip"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "Tooltip"
+      "baseName": "tooltip.component"
+    },
+    {
+      "id": "coupon/ui/coupon-apply-form.component",
+      "module": "coupon",
+      "filePath": "modules/coupon/ui/coupon-apply-form.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "CouponApplyForm"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "coupon-apply-form.component"
+    },
+    {
+      "id": "coupon/ui/coupon-archive-modal.component",
+      "module": "coupon",
+      "filePath": "modules/coupon/ui/coupon-archive-modal.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "CouponArchiveModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "coupon-archive-modal.component"
+    },
+    {
+      "id": "coupon/ui/coupon-badge.component",
+      "module": "coupon",
+      "filePath": "modules/coupon/ui/coupon-badge.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "CouponBadge"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "coupon-badge.component"
+    },
+    {
+      "id": "coupon/ui/coupon-create-modal.component",
+      "module": "coupon",
+      "filePath": "modules/coupon/ui/coupon-create-modal.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "CouponCreateModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "coupon-create-modal.component"
     },
     {
       "id": "coupon/ui/coupon-edit.utils",
@@ -12015,9 +12083,9 @@
       "baseName": "coupon-edit.utils"
     },
     {
-      "id": "coupon/ui/coupon-list-columns",
+      "id": "coupon/ui/coupon-list-columns.component",
       "module": "coupon",
-      "filePath": "modules/coupon/ui/coupon-list-columns.tsx",
+      "filePath": "modules/coupon/ui/coupon-list-columns.component.tsx",
       "kind": "ui",
       "exports": [
         "CouponRow",
@@ -12025,72 +12093,24 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "coupon-list-columns"
+      "baseName": "coupon-list-columns.component"
     },
     {
-      "id": "coupon/ui/CouponApplyForm",
+      "id": "coupon/ui/coupon-redemptions-list.component",
       "module": "coupon",
-      "filePath": "modules/coupon/ui/CouponApplyForm.tsx",
-      "kind": "ui",
-      "exports": [
-        "CouponApplyForm"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "CouponApplyForm"
-    },
-    {
-      "id": "coupon/ui/CouponArchiveModal",
-      "module": "coupon",
-      "filePath": "modules/coupon/ui/CouponArchiveModal.tsx",
-      "kind": "ui",
-      "exports": [
-        "CouponArchiveModal"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "CouponArchiveModal"
-    },
-    {
-      "id": "coupon/ui/CouponBadge",
-      "module": "coupon",
-      "filePath": "modules/coupon/ui/CouponBadge.tsx",
-      "kind": "ui",
-      "exports": [
-        "CouponBadge"
-      ],
-      "isClient": false,
-      "isServer": false,
-      "baseName": "CouponBadge"
-    },
-    {
-      "id": "coupon/ui/CouponCreateModal",
-      "module": "coupon",
-      "filePath": "modules/coupon/ui/CouponCreateModal.tsx",
-      "kind": "ui",
-      "exports": [
-        "CouponCreateModal"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "CouponCreateModal"
-    },
-    {
-      "id": "coupon/ui/CouponRedemptionsList",
-      "module": "coupon",
-      "filePath": "modules/coupon/ui/CouponRedemptionsList.tsx",
+      "filePath": "modules/coupon/ui/coupon-redemptions-list.component.tsx",
       "kind": "ui",
       "exports": [
         "CouponRedemptionsList"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "CouponRedemptionsList"
+      "baseName": "coupon-redemptions-list.component"
     },
     {
-      "id": "coupon/ui/CouponScopePanel",
+      "id": "coupon/ui/coupon-scope-panel.component",
       "module": "coupon",
-      "filePath": "modules/coupon/ui/CouponScopePanel.tsx",
+      "filePath": "modules/coupon/ui/coupon-scope-panel.component.tsx",
       "kind": "ui",
       "exports": [
         "ScopeFormState",
@@ -12098,12 +12118,12 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "CouponScopePanel"
+      "baseName": "coupon-scope-panel.component"
     },
     {
-      "id": "dynamic_page/ui/dynamic-page-columns",
+      "id": "dynamic_page/ui/dynamic-page-columns.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic-page-columns.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic-page-columns.component.tsx",
       "kind": "ui",
       "exports": [
         "DynamicPage",
@@ -12113,48 +12133,70 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "dynamic-page-columns"
+      "baseName": "dynamic-page-columns.component"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Blocks/BannerBlock",
+      "id": "dynamic_page/ui/dynamic-page-create-modal.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/BannerBlock.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic-page-create-modal.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "DynamicPageCreateModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "dynamic-page-create-modal.component"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic-page-renderer.component",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic-page-renderer.component.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "dynamic-page-renderer.component"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Blocks/banner-block.component",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/banner-block.component.tsx",
       "kind": "ui",
       "exports": [
         "BannerBlockDefinition"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "BannerBlock"
+      "baseName": "banner-block.component"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Blocks/ContactFormBlock",
+      "id": "dynamic_page/ui/dynamic/Blocks/contact-form-block.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/ContactFormBlock.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/contact-form-block.component.tsx",
       "kind": "ui",
       "exports": [
         "ContactFormBlockDefinition"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "ContactFormBlock"
+      "baseName": "contact-form-block.component"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Blocks/CTABlock",
+      "id": "dynamic_page/ui/dynamic/Blocks/cta-block.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/CTABlock.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/cta-block.component.tsx",
       "kind": "ui",
       "exports": [
         "CTABlockDefinition"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "CTABlock"
+      "baseName": "cta-block.component"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Blocks/CustomBlock",
+      "id": "dynamic_page/ui/dynamic/Blocks/custom-block.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/CustomBlock.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/custom-block.component.tsx",
       "kind": "ui",
       "exports": [
         "CustomFieldSchema",
@@ -12162,127 +12204,139 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "CustomBlock"
+      "baseName": "custom-block.component"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Blocks/FaqAccordionBlock",
+      "id": "dynamic_page/ui/dynamic/Blocks/faq-accordion-block.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/FaqAccordionBlock.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/faq-accordion-block.component.tsx",
       "kind": "ui",
       "exports": [
         "FaqAccordionBlockDefinition"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "FaqAccordionBlock"
+      "baseName": "faq-accordion-block.component"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Blocks/FeatureGridBlock",
+      "id": "dynamic_page/ui/dynamic/Blocks/feature-grid-block.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/FeatureGridBlock.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/feature-grid-block.component.tsx",
       "kind": "ui",
       "exports": [
         "FeatureGridBlockDefinition"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "FeatureGridBlock"
+      "baseName": "feature-grid-block.component"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Blocks/FooterColumns",
+      "id": "dynamic_page/ui/dynamic/Blocks/footer-columns.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/FooterColumns.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/footer-columns.component.tsx",
       "kind": "ui",
       "exports": [
         "FooterColumnsDefinition"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "FooterColumns"
+      "baseName": "footer-columns.component"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Blocks/FooterCommerce",
+      "id": "dynamic_page/ui/dynamic/Blocks/footer-commerce.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/FooterCommerce.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/footer-commerce.component.tsx",
       "kind": "ui",
       "exports": [
         "FooterCommerceDefinition"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "FooterCommerce"
+      "baseName": "footer-commerce.component"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Blocks/FooterMinimal",
+      "id": "dynamic_page/ui/dynamic/Blocks/footer-minimal.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/FooterMinimal.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/footer-minimal.component.tsx",
       "kind": "ui",
       "exports": [
         "FooterMinimalDefinition"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "FooterMinimal"
+      "baseName": "footer-minimal.component"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Blocks/GalleryBlock",
+      "id": "dynamic_page/ui/dynamic/Blocks/gallery-block.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/GalleryBlock.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/gallery-block.component.tsx",
       "kind": "ui",
       "exports": [
         "GalleryBlockDefinition"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "GalleryBlock"
+      "baseName": "gallery-block.component"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Blocks/HeroBlock",
+      "id": "dynamic_page/ui/dynamic/Blocks/hero-block.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/HeroBlock.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/hero-block.component.tsx",
       "kind": "ui",
       "exports": [
         "HeroBlockDefinition"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "HeroBlock"
+      "baseName": "hero-block.component"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Blocks/LogoGridBlock",
+      "id": "dynamic_page/ui/dynamic/Blocks/logo-grid-block.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/LogoGridBlock.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/logo-grid-block.component.tsx",
       "kind": "ui",
       "exports": [
         "LogoGridBlockDefinition"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "LogoGridBlock"
+      "baseName": "logo-grid-block.component"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Blocks/NavBarCommerce",
+      "id": "dynamic_page/ui/dynamic/Blocks/nav-bar-commerce.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/NavBarCommerce.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/nav-bar-commerce.component.tsx",
       "kind": "ui",
       "exports": [
         "NavBarCommerceDefinition"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "NavBarCommerce"
+      "baseName": "nav-bar-commerce.component"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Blocks/NavBarMarketing",
+      "id": "dynamic_page/ui/dynamic/Blocks/nav-bar-marketing.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/NavBarMarketing.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/nav-bar-marketing.component.tsx",
       "kind": "ui",
       "exports": [
         "NavBarMarketingDefinition"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "NavBarMarketing"
+      "baseName": "nav-bar-marketing.component"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/Blocks/nav-bar-simple.component",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/nav-bar-simple.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "NavBarSimpleDefinition"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "nav-bar-simple.component"
     },
     {
       "id": "dynamic_page/ui/dynamic/Blocks/NavBarMarketing.types",
@@ -12301,40 +12355,28 @@
       "baseName": "NavBarMarketing.types"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Blocks/NavBarSimple",
+      "id": "dynamic_page/ui/dynamic/Blocks/partials/nav-bar-mega-section.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/NavBarSimple.tsx",
-      "kind": "ui",
-      "exports": [
-        "NavBarSimpleDefinition"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "NavBarSimple"
-    },
-    {
-      "id": "dynamic_page/ui/dynamic/Blocks/partials/NavBarMegaSection",
-      "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/partials/NavBarMegaSection.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/partials/nav-bar-mega-section.component.tsx",
       "kind": "ui",
       "exports": [
         "NavBarMegaSection"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "NavBarMegaSection"
+      "baseName": "nav-bar-mega-section.component"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Blocks/partials/NavBarMobilePanel",
+      "id": "dynamic_page/ui/dynamic/Blocks/partials/nav-bar-mobile-panel.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/partials/NavBarMobilePanel.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/partials/nav-bar-mobile-panel.component.tsx",
       "kind": "ui",
       "exports": [
         "NavBarMobilePanel"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "NavBarMobilePanel"
+      "baseName": "nav-bar-mobile-panel.component"
     },
     {
       "id": "dynamic_page/ui/dynamic/Blocks/PopupModalBlock/animations",
@@ -12352,16 +12394,16 @@
       "baseName": "animations"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Blocks/PopupModalBlock/CloseBtn",
+      "id": "dynamic_page/ui/dynamic/Blocks/PopupModalBlock/close-btn.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/PopupModalBlock/CloseBtn.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/PopupModalBlock/close-btn.component.tsx",
       "kind": "ui",
       "exports": [
         "CloseBtn"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "CloseBtn"
+      "baseName": "close-btn.component"
     },
     {
       "id": "dynamic_page/ui/dynamic/Blocks/PopupModalBlock/constants",
@@ -12380,16 +12422,16 @@
       "baseName": "constants"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Blocks/PopupModalBlock/EditorPreview",
+      "id": "dynamic_page/ui/dynamic/Blocks/PopupModalBlock/editor-preview.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/PopupModalBlock/EditorPreview.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/PopupModalBlock/editor-preview.component.tsx",
       "kind": "ui",
       "exports": [
         "EditorPreview"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "EditorPreview"
+      "baseName": "editor-preview.component"
     },
     {
       "id": "dynamic_page/ui/dynamic/Blocks/PopupModalBlock/index",
@@ -12404,28 +12446,28 @@
       "baseName": "index"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Blocks/PopupModalBlock/PopupCard",
+      "id": "dynamic_page/ui/dynamic/Blocks/PopupModalBlock/popup-card.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/PopupModalBlock/PopupCard.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/PopupModalBlock/popup-card.component.tsx",
       "kind": "ui",
       "exports": [
         "PopupCard"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "PopupCard"
+      "baseName": "popup-card.component"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Blocks/PopupModalBlock/PopupOverlay",
+      "id": "dynamic_page/ui/dynamic/Blocks/PopupModalBlock/popup-overlay.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/PopupModalBlock/PopupOverlay.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/PopupModalBlock/popup-overlay.component.tsx",
       "kind": "ui",
       "exports": [
         "PopupOverlay"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "PopupOverlay"
+      "baseName": "popup-overlay.component"
     },
     {
       "id": "dynamic_page/ui/dynamic/Blocks/PopupModalBlock/types",
@@ -12459,118 +12501,118 @@
       "baseName": "utils"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Blocks/PricingTableBlock",
+      "id": "dynamic_page/ui/dynamic/Blocks/pricing-table-block.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/PricingTableBlock.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/pricing-table-block.component.tsx",
       "kind": "ui",
       "exports": [
         "PricingTableBlockDefinition"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "PricingTableBlock"
+      "baseName": "pricing-table-block.component"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Blocks/ProseBlock",
+      "id": "dynamic_page/ui/dynamic/Blocks/prose-block.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/ProseBlock.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/prose-block.component.tsx",
       "kind": "ui",
       "exports": [
         "ProseBlockDefinition"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "ProseBlock"
+      "baseName": "prose-block.component"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Blocks/StatsBlock",
+      "id": "dynamic_page/ui/dynamic/Blocks/stats-block.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/StatsBlock.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/stats-block.component.tsx",
       "kind": "ui",
       "exports": [
         "StatsBlockDefinition"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "StatsBlock"
+      "baseName": "stats-block.component"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Blocks/TeamBlock",
+      "id": "dynamic_page/ui/dynamic/Blocks/team-block.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/TeamBlock.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/team-block.component.tsx",
       "kind": "ui",
       "exports": [
         "TeamBlockDefinition"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "TeamBlock"
+      "baseName": "team-block.component"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Blocks/TestimonialsBlock",
+      "id": "dynamic_page/ui/dynamic/Blocks/testimonials-block.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/TestimonialsBlock.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/testimonials-block.component.tsx",
       "kind": "ui",
       "exports": [
         "TestimonialsBlockDefinition"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "TestimonialsBlock"
+      "baseName": "testimonials-block.component"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Blocks/TimelineBlock",
+      "id": "dynamic_page/ui/dynamic/Blocks/timeline-block.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/TimelineBlock.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/timeline-block.component.tsx",
       "kind": "ui",
       "exports": [
         "TimelineBlockDefinition"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "TimelineBlock"
+      "baseName": "timeline-block.component"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Blocks/VideoBlock",
+      "id": "dynamic_page/ui/dynamic/Blocks/video-block.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/VideoBlock.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Blocks/video-block.component.tsx",
       "kind": "ui",
       "exports": [
         "VideoBlockDefinition"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "VideoBlock"
+      "baseName": "video-block.component"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Editor/BackupModal",
+      "id": "dynamic_page/ui/dynamic/Editor/backup-modal.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Editor/BackupModal.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/backup-modal.component.tsx",
       "kind": "ui",
       "exports": [],
       "isClient": true,
       "isServer": false,
-      "baseName": "BackupModal"
+      "baseName": "backup-modal.component"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Editor/Canvas",
+      "id": "dynamic_page/ui/dynamic/Editor/canvas.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Editor/Canvas.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/canvas.component.tsx",
       "kind": "ui",
       "exports": [],
       "isClient": true,
       "isServer": false,
-      "baseName": "Canvas"
+      "baseName": "canvas.component"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Editor/EditorTopBar",
+      "id": "dynamic_page/ui/dynamic/Editor/editor-top-bar.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Editor/EditorTopBar.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/editor-top-bar.component.tsx",
       "kind": "ui",
       "exports": [],
       "isClient": true,
       "isServer": false,
-      "baseName": "EditorTopBar"
+      "baseName": "editor-top-bar.component"
     },
     {
       "id": "dynamic_page/ui/dynamic/Editor/hooks/useEditorDraft",
@@ -12607,19 +12649,19 @@
       "baseName": "index"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Editor/LeftSidebar",
+      "id": "dynamic_page/ui/dynamic/Editor/left-sidebar.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Editor/LeftSidebar.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/left-sidebar.component.tsx",
       "kind": "ui",
       "exports": [],
       "isClient": true,
       "isServer": false,
-      "baseName": "LeftSidebar"
+      "baseName": "left-sidebar.component"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Editor/partials/BlockPalette",
+      "id": "dynamic_page/ui/dynamic/Editor/partials/block-palette.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Editor/partials/BlockPalette.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/partials/block-palette.component.tsx",
       "kind": "ui",
       "exports": [
         "AnyBlockDef",
@@ -12630,12 +12672,12 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "BlockPalette"
+      "baseName": "block-palette.component"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Editor/partials/CanvasBlock",
+      "id": "dynamic_page/ui/dynamic/Editor/partials/canvas-block.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Editor/partials/CanvasBlock.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/partials/canvas-block.component.tsx",
       "kind": "ui",
       "exports": [
         "SortableBlockProps",
@@ -12643,12 +12685,12 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "CanvasBlock"
+      "baseName": "canvas-block.component"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Editor/partials/CanvasOverlays",
+      "id": "dynamic_page/ui/dynamic/Editor/partials/canvas-overlays.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Editor/partials/CanvasOverlays.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/partials/canvas-overlays.component.tsx",
       "kind": "ui",
       "exports": [
         "QuickAddPopover",
@@ -12658,24 +12700,24 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "CanvasOverlays"
+      "baseName": "canvas-overlays.component"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Editor/partials/ColorTokenField",
+      "id": "dynamic_page/ui/dynamic/Editor/partials/color-token-field.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Editor/partials/ColorTokenField.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/partials/color-token-field.component.tsx",
       "kind": "ui",
       "exports": [
         "ColorTokenField"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "ColorTokenField"
+      "baseName": "color-token-field.component"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Editor/partials/IconPickerField",
+      "id": "dynamic_page/ui/dynamic/Editor/partials/icon-picker-field.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Editor/partials/IconPickerField.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/partials/icon-picker-field.component.tsx",
       "kind": "ui",
       "exports": [
         "ICON_MAP",
@@ -12684,36 +12726,36 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "IconPickerField"
+      "baseName": "icon-picker-field.component"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Editor/partials/LayersPanel",
+      "id": "dynamic_page/ui/dynamic/Editor/partials/layers-panel.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Editor/partials/LayersPanel.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/partials/layers-panel.component.tsx",
       "kind": "ui",
       "exports": [
         "LayersPanel"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "LayersPanel"
+      "baseName": "layers-panel.component"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Editor/partials/LinkField",
+      "id": "dynamic_page/ui/dynamic/Editor/partials/link-field.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Editor/partials/LinkField.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/partials/link-field.component.tsx",
       "kind": "ui",
       "exports": [
         "LinkField"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "LinkField"
+      "baseName": "link-field.component"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Editor/partials/PropFieldComplex",
+      "id": "dynamic_page/ui/dynamic/Editor/partials/prop-field-complex.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Editor/partials/PropFieldComplex.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/partials/prop-field-complex.component.tsx",
       "kind": "ui",
       "exports": [
         "ImageField",
@@ -12723,24 +12765,24 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "PropFieldComplex"
+      "baseName": "prop-field-complex.component"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Editor/partials/PropFieldRenderer",
+      "id": "dynamic_page/ui/dynamic/Editor/partials/prop-field-renderer.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Editor/partials/PropFieldRenderer.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/partials/prop-field-renderer.component.tsx",
       "kind": "ui",
       "exports": [
         "PropFieldRenderer"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "PropFieldRenderer"
+      "baseName": "prop-field-renderer.component"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Editor/partials/PropFieldSimple",
+      "id": "dynamic_page/ui/dynamic/Editor/partials/prop-field-simple.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Editor/partials/PropFieldSimple.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/partials/prop-field-simple.component.tsx",
       "kind": "ui",
       "exports": [
         "TextField",
@@ -12755,57 +12797,57 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "PropFieldSimple"
+      "baseName": "prop-field-simple.component"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Editor/PropsPanel",
+      "id": "dynamic_page/ui/dynamic/Editor/props-panel.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Editor/PropsPanel.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/props-panel.component.tsx",
       "kind": "ui",
       "exports": [],
       "isClient": true,
       "isServer": false,
-      "baseName": "PropsPanel"
+      "baseName": "props-panel.component"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Editor/RepeaterField",
+      "id": "dynamic_page/ui/dynamic/Editor/repeater-field.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Editor/RepeaterField.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/repeater-field.component.tsx",
       "kind": "ui",
       "exports": [],
       "isClient": true,
       "isServer": false,
-      "baseName": "RepeaterField"
+      "baseName": "repeater-field.component"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Editor/RightSidebar",
+      "id": "dynamic_page/ui/dynamic/Editor/right-sidebar.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Editor/RightSidebar.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/right-sidebar.component.tsx",
       "kind": "ui",
       "exports": [],
       "isClient": true,
       "isServer": false,
-      "baseName": "RightSidebar"
+      "baseName": "right-sidebar.component"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Editor/SeoModal",
+      "id": "dynamic_page/ui/dynamic/Editor/seo-modal.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Editor/SeoModal.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/seo-modal.component.tsx",
       "kind": "ui",
       "exports": [],
       "isClient": true,
       "isServer": false,
-      "baseName": "SeoModal"
+      "baseName": "seo-modal.component"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Editor/ShortcutsModal",
+      "id": "dynamic_page/ui/dynamic/Editor/shortcuts-modal.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Editor/ShortcutsModal.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/shortcuts-modal.component.tsx",
       "kind": "ui",
       "exports": [],
       "isClient": true,
       "isServer": false,
-      "baseName": "ShortcutsModal"
+      "baseName": "shortcuts-modal.component"
     },
     {
       "id": "dynamic_page/ui/dynamic/Editor/stores/editor.types",
@@ -12895,14 +12937,14 @@
       "baseName": "uiSlice"
     },
     {
-      "id": "dynamic_page/ui/dynamic/Editor/TranslationModal",
+      "id": "dynamic_page/ui/dynamic/Editor/translation-modal.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/Editor/TranslationModal.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/Editor/translation-modal.component.tsx",
       "kind": "ui",
       "exports": [],
       "isClient": true,
       "isServer": false,
-      "baseName": "TranslationModal"
+      "baseName": "translation-modal.component"
     },
     {
       "id": "dynamic_page/ui/dynamic/migrations/index",
@@ -12923,9 +12965,9 @@
       "baseName": "index"
     },
     {
-      "id": "dynamic_page/ui/dynamic/partials/BaseBlock",
+      "id": "dynamic_page/ui/dynamic/partials/base-block.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/partials/BaseBlock.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/partials/base-block.component.tsx",
       "kind": "ui",
       "exports": [
         "BaseBlockConfig",
@@ -12936,7 +12978,40 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "BaseBlock"
+      "baseName": "base-block.component"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/partials/block-background.component",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/partials/block-background.component.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "block-background.component"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/partials/block-error-boundary.component",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/partials/block-error-boundary.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "BlockRenderErrorBoundary",
+        "BlockEditorErrorBoundary"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "block-error-boundary.component"
+    },
+    {
+      "id": "dynamic_page/ui/dynamic/partials/block-skeleton.component",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/dynamic/partials/block-skeleton.component.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "block-skeleton.component"
     },
     {
       "id": "dynamic_page/ui/dynamic/partials/BlockActionSandbox",
@@ -12951,52 +13026,19 @@
       "baseName": "BlockActionSandbox"
     },
     {
-      "id": "dynamic_page/ui/dynamic/partials/BlockBackground",
+      "id": "dynamic_page/ui/dynamic/partials/client-block-list.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/partials/BlockBackground.tsx",
-      "kind": "ui",
-      "exports": [],
-      "isClient": false,
-      "isServer": false,
-      "baseName": "BlockBackground"
-    },
-    {
-      "id": "dynamic_page/ui/dynamic/partials/BlockErrorBoundary",
-      "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/partials/BlockErrorBoundary.tsx",
-      "kind": "ui",
-      "exports": [
-        "BlockRenderErrorBoundary",
-        "BlockEditorErrorBoundary"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "BlockErrorBoundary"
-    },
-    {
-      "id": "dynamic_page/ui/dynamic/partials/BlockSkeleton",
-      "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/partials/BlockSkeleton.tsx",
-      "kind": "ui",
-      "exports": [],
-      "isClient": false,
-      "isServer": false,
-      "baseName": "BlockSkeleton"
-    },
-    {
-      "id": "dynamic_page/ui/dynamic/partials/ClientBlockList",
-      "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/partials/ClientBlockList.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/partials/client-block-list.component.tsx",
       "kind": "ui",
       "exports": [],
       "isClient": true,
       "isServer": false,
-      "baseName": "ClientBlockList"
+      "baseName": "client-block-list.component"
     },
     {
-      "id": "dynamic_page/ui/dynamic/partials/PreviewContext",
+      "id": "dynamic_page/ui/dynamic/partials/preview-context.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/partials/PreviewContext.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/partials/preview-context.component.tsx",
       "kind": "ui",
       "exports": [
         "PreviewMode",
@@ -13006,17 +13048,17 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "PreviewContext"
+      "baseName": "preview-context.component"
     },
     {
-      "id": "dynamic_page/ui/dynamic/partials/TemplateBlockRenderer",
+      "id": "dynamic_page/ui/dynamic/partials/template-block-renderer.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/dynamic/partials/TemplateBlockRenderer.tsx",
+      "filePath": "modules/dynamic_page/ui/dynamic/partials/template-block-renderer.component.tsx",
       "kind": "ui",
       "exports": [],
       "isClient": true,
       "isServer": false,
-      "baseName": "TemplateBlockRenderer"
+      "baseName": "template-block-renderer.component"
     },
     {
       "id": "dynamic_page/ui/dynamic/types",
@@ -13109,28 +13151,6 @@
       "baseName": "savedSections"
     },
     {
-      "id": "dynamic_page/ui/DynamicPageCreateModal",
-      "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/DynamicPageCreateModal.tsx",
-      "kind": "ui",
-      "exports": [
-        "DynamicPageCreateModal"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "DynamicPageCreateModal"
-    },
-    {
-      "id": "dynamic_page/ui/DynamicPageRenderer",
-      "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/DynamicPageRenderer.tsx",
-      "kind": "ui",
-      "exports": [],
-      "isClient": false,
-      "isServer": false,
-      "baseName": "DynamicPageRenderer"
-    },
-    {
       "id": "dynamic_page/ui/page-templates",
       "module": "dynamic_page",
       "filePath": "modules/dynamic_page/ui/page-templates.ts",
@@ -13144,9 +13164,9 @@
       "baseName": "page-templates"
     },
     {
-      "id": "dynamic_page/ui/PublicDynamicPage",
+      "id": "dynamic_page/ui/public-dynamic-page.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/PublicDynamicPage.tsx",
+      "filePath": "modules/dynamic_page/ui/public-dynamic-page.component.tsx",
       "kind": "ui",
       "exports": [
         "MAX_SLUG_DEPTH",
@@ -13154,34 +13174,34 @@
       ],
       "isClient": false,
       "isServer": false,
-      "baseName": "PublicDynamicPage"
+      "baseName": "public-dynamic-page.component"
     },
     {
-      "id": "dynamic_page/ui/SiteChrome",
+      "id": "dynamic_page/ui/site-chrome.component",
       "module": "dynamic_page",
-      "filePath": "modules/dynamic_page/ui/SiteChrome.tsx",
+      "filePath": "modules/dynamic_page/ui/site-chrome.component.tsx",
       "kind": "ui",
       "exports": [],
       "isClient": false,
       "isServer": false,
-      "baseName": "SiteChrome"
+      "baseName": "site-chrome.component"
     },
     {
-      "id": "e_signature/ui/TenantESignatureSettingsPanel",
+      "id": "e_signature/ui/tenant-e-signature-settings-panel.component",
       "module": "e_signature",
-      "filePath": "modules/e_signature/ui/TenantESignatureSettingsPanel.tsx",
+      "filePath": "modules/e_signature/ui/tenant-e-signature-settings-panel.component.tsx",
       "kind": "ui",
       "exports": [
         "TenantESignatureSettingsPanel"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "TenantESignatureSettingsPanel"
+      "baseName": "tenant-e-signature-settings-panel.component"
     },
     {
-      "id": "feature_flags/ui/feature-flag-columns",
+      "id": "feature_flags/ui/feature-flag-columns.component",
       "module": "feature_flags",
-      "filePath": "modules/feature_flags/ui/feature-flag-columns.tsx",
+      "filePath": "modules/feature_flags/ui/feature-flag-columns.component.tsx",
       "kind": "ui",
       "exports": [
         "FlagRow",
@@ -13189,12 +13209,24 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "feature-flag-columns"
+      "baseName": "feature-flag-columns.component"
     },
     {
-      "id": "gift_card/ui/gift-card-list-columns",
+      "id": "gift_card/ui/gift-card-issue-modal.component",
       "module": "gift_card",
-      "filePath": "modules/gift_card/ui/gift-card-list-columns.tsx",
+      "filePath": "modules/gift_card/ui/gift-card-issue-modal.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "GiftCardIssueModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "gift-card-issue-modal.component"
+    },
+    {
+      "id": "gift_card/ui/gift-card-list-columns.component",
+      "module": "gift_card",
+      "filePath": "modules/gift_card/ui/gift-card-list-columns.component.tsx",
       "kind": "ui",
       "exports": [
         "GiftCardRow",
@@ -13202,24 +13234,12 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "gift-card-list-columns"
+      "baseName": "gift-card-list-columns.component"
     },
     {
-      "id": "gift_card/ui/GiftCardIssueModal",
-      "module": "gift_card",
-      "filePath": "modules/gift_card/ui/GiftCardIssueModal.tsx",
-      "kind": "ui",
-      "exports": [
-        "GiftCardIssueModal"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "GiftCardIssueModal"
-    },
-    {
-      "id": "integrations_hub/ui/connected-apps-columns",
+      "id": "integrations_hub/ui/connected-apps-columns.component",
       "module": "integrations_hub",
-      "filePath": "modules/integrations_hub/ui/connected-apps-columns.tsx",
+      "filePath": "modules/integrations_hub/ui/connected-apps-columns.component.tsx",
       "kind": "ui",
       "exports": [
         "ConnectedAppRow",
@@ -13227,49 +13247,36 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "connected-apps-columns"
+      "baseName": "connected-apps-columns.component"
     },
     {
-      "id": "integrations_hub/ui/ConnectorFormModal",
+      "id": "integrations_hub/ui/connector-form-modal.component",
       "module": "integrations_hub",
-      "filePath": "modules/integrations_hub/ui/ConnectorFormModal.tsx",
+      "filePath": "modules/integrations_hub/ui/connector-form-modal.component.tsx",
       "kind": "ui",
       "exports": [
         "ConnectorFormModal"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "ConnectorFormModal"
+      "baseName": "connector-form-modal.component"
     },
     {
-      "id": "invoice/ui/EarsivSmsSignModal",
+      "id": "invoice/ui/earsiv-sms-sign-modal.component",
       "module": "invoice",
-      "filePath": "modules/invoice/ui/EarsivSmsSignModal.tsx",
+      "filePath": "modules/invoice/ui/earsiv-sms-sign-modal.component.tsx",
       "kind": "ui",
       "exports": [
         "EarsivSmsSignModal"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "EarsivSmsSignModal"
+      "baseName": "earsiv-sms-sign-modal.component"
     },
     {
-      "id": "invoice/ui/invoice-list-columns",
+      "id": "invoice/ui/invoice-line-items-table.component",
       "module": "invoice",
-      "filePath": "modules/invoice/ui/invoice-list-columns.tsx",
-      "kind": "ui",
-      "exports": [
-        "InvoiceRow",
-        "buildInvoiceColumns"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "invoice-list-columns"
-    },
-    {
-      "id": "invoice/ui/InvoiceLineItemsTable",
-      "module": "invoice",
-      "filePath": "modules/invoice/ui/InvoiceLineItemsTable.tsx",
+      "filePath": "modules/invoice/ui/invoice-line-items-table.component.tsx",
       "kind": "ui",
       "exports": [
         "InvoiceLineItemsTable",
@@ -13277,36 +13284,49 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "InvoiceLineItemsTable"
+      "baseName": "invoice-line-items-table.component"
     },
     {
-      "id": "invoice/ui/InvoiceTemplateSettings",
+      "id": "invoice/ui/invoice-list-columns.component",
       "module": "invoice",
-      "filePath": "modules/invoice/ui/InvoiceTemplateSettings.tsx",
+      "filePath": "modules/invoice/ui/invoice-list-columns.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "InvoiceRow",
+        "buildInvoiceColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "invoice-list-columns.component"
+    },
+    {
+      "id": "invoice/ui/invoice-template-settings.component",
+      "module": "invoice",
+      "filePath": "modules/invoice/ui/invoice-template-settings.component.tsx",
       "kind": "ui",
       "exports": [
         "InvoiceTemplateSettings"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "InvoiceTemplateSettings"
+      "baseName": "invoice-template-settings.component"
     },
     {
-      "id": "media_gallery/ui/GalleryPanel",
+      "id": "media_gallery/ui/gallery-panel.component",
       "module": "media_gallery",
-      "filePath": "modules/media_gallery/ui/GalleryPanel.tsx",
+      "filePath": "modules/media_gallery/ui/gallery-panel.component.tsx",
       "kind": "ui",
       "exports": [
         "GalleryPanel"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "GalleryPanel"
+      "baseName": "gallery-panel.component"
     },
     {
-      "id": "metering/ui/metering-columns",
+      "id": "metering/ui/metering-columns.component",
       "module": "metering",
-      "filePath": "modules/metering/ui/metering-columns.tsx",
+      "filePath": "modules/metering/ui/metering-columns.component.tsx",
       "kind": "ui",
       "exports": [
         "MeterRow",
@@ -13318,7 +13338,7 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "metering-columns"
+      "baseName": "metering-columns.component"
     },
     {
       "id": "notification_inapp/hooks/use-notifications.hook",
@@ -13333,33 +13353,33 @@
       "baseName": "use-notifications.hook"
     },
     {
-      "id": "payment/ui/BillingProfileTab",
+      "id": "payment/ui/billing-profile-tab.component",
       "module": "payment",
-      "filePath": "modules/payment/ui/BillingProfileTab.tsx",
+      "filePath": "modules/payment/ui/billing-profile-tab.component.tsx",
       "kind": "ui",
       "exports": [
         "BillingProfileTab"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "BillingProfileTab"
+      "baseName": "billing-profile-tab.component"
     },
     {
-      "id": "payment/ui/CardCheckoutModal",
+      "id": "payment/ui/card-checkout-modal.component",
       "module": "payment",
-      "filePath": "modules/payment/ui/CardCheckoutModal.tsx",
+      "filePath": "modules/payment/ui/card-checkout-modal.component.tsx",
       "kind": "ui",
       "exports": [
         "CardCheckoutModal"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "CardCheckoutModal"
+      "baseName": "card-checkout-modal.component"
     },
     {
-      "id": "payment/ui/CreditCardForm",
+      "id": "payment/ui/credit-card-form.component",
       "module": "payment",
-      "filePath": "modules/payment/ui/CreditCardForm.tsx",
+      "filePath": "modules/payment/ui/credit-card-form.component.tsx",
       "kind": "ui",
       "exports": [
         "detectBrand",
@@ -13367,48 +13387,48 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "CreditCardForm"
+      "baseName": "credit-card-form.component"
     },
     {
-      "id": "payment/ui/CreditCardVisual",
+      "id": "payment/ui/credit-card-visual.component",
       "module": "payment",
-      "filePath": "modules/payment/ui/CreditCardVisual.tsx",
+      "filePath": "modules/payment/ui/credit-card-visual.component.tsx",
       "kind": "ui",
       "exports": [
         "CreditCardVisual"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "CreditCardVisual"
+      "baseName": "credit-card-visual.component"
     },
     {
-      "id": "payment/ui/PaymentProviderSelector",
+      "id": "payment/ui/payment-provider-selector.component",
       "module": "payment",
-      "filePath": "modules/payment/ui/PaymentProviderSelector.tsx",
+      "filePath": "modules/payment/ui/payment-provider-selector.component.tsx",
       "kind": "ui",
       "exports": [
         "PaymentProviderSelector"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "PaymentProviderSelector"
+      "baseName": "payment-provider-selector.component"
     },
     {
-      "id": "payment/ui/PaymentRefundModal",
+      "id": "payment/ui/payment-refund-modal.component",
       "module": "payment",
-      "filePath": "modules/payment/ui/PaymentRefundModal.tsx",
+      "filePath": "modules/payment/ui/payment-refund-modal.component.tsx",
       "kind": "ui",
       "exports": [
         "PaymentRefundModal"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "PaymentRefundModal"
+      "baseName": "payment-refund-modal.component"
     },
     {
-      "id": "payment/ui/PaymentStatusBadge",
+      "id": "payment/ui/payment-status-badge.component",
       "module": "payment",
-      "filePath": "modules/payment/ui/PaymentStatusBadge.tsx",
+      "filePath": "modules/payment/ui/payment-status-badge.component.tsx",
       "kind": "ui",
       "exports": [
         "PaymentStatus",
@@ -13416,43 +13436,43 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "PaymentStatusBadge"
+      "baseName": "payment-status-badge.component"
     },
     {
-      "id": "payment/ui/PaymentSummaryCard",
+      "id": "payment/ui/payment-summary-card.component",
       "module": "payment",
-      "filePath": "modules/payment/ui/PaymentSummaryCard.tsx",
+      "filePath": "modules/payment/ui/payment-summary-card.component.tsx",
       "kind": "ui",
       "exports": [
         "PaymentSummaryCard"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "PaymentSummaryCard"
+      "baseName": "payment-summary-card.component"
     },
     {
-      "id": "payment/ui/StripeExpressCheckoutModal",
+      "id": "payment/ui/stripe-express-checkout-modal.component",
       "module": "payment",
-      "filePath": "modules/payment/ui/StripeExpressCheckoutModal.tsx",
+      "filePath": "modules/payment/ui/stripe-express-checkout-modal.component.tsx",
       "kind": "ui",
       "exports": [
         "StripeExpressCheckoutModal"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "StripeExpressCheckoutModal"
+      "baseName": "stripe-express-checkout-modal.component"
     },
     {
-      "id": "payment/ui/WalletBadges",
+      "id": "payment/ui/wallet-badges.component",
       "module": "payment",
-      "filePath": "modules/payment/ui/WalletBadges.tsx",
+      "filePath": "modules/payment/ui/wallet-badges.component.tsx",
       "kind": "ui",
       "exports": [
         "WalletBadges"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "WalletBadges"
+      "baseName": "wallet-badges.component"
     },
     {
       "id": "seo/ui/index",
@@ -13467,16 +13487,16 @@
       "baseName": "index"
     },
     {
-      "id": "seo/ui/SeoPanel",
+      "id": "seo/ui/seo-panel.component",
       "module": "seo",
-      "filePath": "modules/seo/ui/SeoPanel.tsx",
+      "filePath": "modules/seo/ui/seo-panel.component.tsx",
       "kind": "ui",
       "exports": [
         "SeoPanel"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "SeoPanel"
+      "baseName": "seo-panel.component"
     },
     {
       "id": "seo/ui/web-vitals.client",
@@ -13491,33 +13511,33 @@
       "baseName": "web-vitals.client"
     },
     {
-      "id": "setting/ui/ModuleManagerPage",
+      "id": "setting/ui/module-manager-page.component",
       "module": "setting",
-      "filePath": "modules/setting/ui/ModuleManagerPage.tsx",
+      "filePath": "modules/setting/ui/module-manager-page.component.tsx",
       "kind": "ui",
       "exports": [
         "ModuleManagerPage"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "ModuleManagerPage"
+      "baseName": "module-manager-page.component"
     },
     {
-      "id": "setting/ui/ModuleSettingsPage",
+      "id": "setting/ui/module-settings-page.component",
       "module": "setting",
-      "filePath": "modules/setting/ui/ModuleSettingsPage.tsx",
+      "filePath": "modules/setting/ui/module-settings-page.component.tsx",
       "kind": "ui",
       "exports": [
         "ModuleSettingsPage"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "ModuleSettingsPage"
+      "baseName": "module-settings-page.component"
     },
     {
-      "id": "setting/ui/PlatformSettingsTabs",
+      "id": "setting/ui/platform-settings-tabs.component",
       "module": "setting",
-      "filePath": "modules/setting/ui/PlatformSettingsTabs.tsx",
+      "filePath": "modules/setting/ui/platform-settings-tabs.component.tsx",
       "kind": "ui",
       "exports": [
         "PlatformSettingsTabs",
@@ -13533,7 +13553,7 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "PlatformSettingsTabs"
+      "baseName": "platform-settings-tabs.component"
     },
     {
       "id": "setting/ui/setting.types",
@@ -13548,9 +13568,9 @@
       "baseName": "setting.types"
     },
     {
-      "id": "setting/ui/settings-kit",
+      "id": "setting/ui/settings-kit.component",
       "module": "setting",
-      "filePath": "modules/setting/ui/settings-kit.tsx",
+      "filePath": "modules/setting/ui/settings-kit.component.tsx",
       "kind": "ui",
       "exports": [
         "SR",
@@ -13560,36 +13580,144 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "settings-kit"
+      "baseName": "settings-kit.component"
     },
     {
-      "id": "setting/ui/SettingsPanelHost",
+      "id": "setting/ui/settings-panel-host.component",
       "module": "setting",
-      "filePath": "modules/setting/ui/SettingsPanelHost.tsx",
+      "filePath": "modules/setting/ui/settings-panel-host.component.tsx",
       "kind": "ui",
       "exports": [
         "SettingsPanelHost"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "SettingsPanelHost"
+      "baseName": "settings-panel-host.component"
     },
     {
-      "id": "setting/ui/tabs/AllowedExtensionsField",
+      "id": "setting/ui/tabs/allowed-extensions-field.component",
       "module": "setting",
-      "filePath": "modules/setting/ui/tabs/AllowedExtensionsField.tsx",
+      "filePath": "modules/setting/ui/tabs/allowed-extensions-field.component.tsx",
       "kind": "ui",
       "exports": [
         "AllowedExtensionsField"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "AllowedExtensionsField"
+      "baseName": "allowed-extensions-field.component"
     },
     {
-      "id": "setting/ui/tabs/platform-tab.shared",
+      "id": "setting/ui/tabs/platform-ai-tab.component",
       "module": "setting",
-      "filePath": "modules/setting/ui/tabs/platform-tab.shared.tsx",
+      "filePath": "modules/setting/ui/tabs/platform-ai-tab.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlatformAiTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "platform-ai-tab.component"
+    },
+    {
+      "id": "setting/ui/tabs/platform-auth-tab.component",
+      "module": "setting",
+      "filePath": "modules/setting/ui/tabs/platform-auth-tab.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlatformAuthTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "platform-auth-tab.component"
+    },
+    {
+      "id": "setting/ui/tabs/platform-email-tab.component",
+      "module": "setting",
+      "filePath": "modules/setting/ui/tabs/platform-email-tab.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlatformEmailTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "platform-email-tab.component"
+    },
+    {
+      "id": "setting/ui/tabs/platform-notifications-tab.component",
+      "module": "setting",
+      "filePath": "modules/setting/ui/tabs/platform-notifications-tab.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlatformNotificationsTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "platform-notifications-tab.component"
+    },
+    {
+      "id": "setting/ui/tabs/platform-payment-tab.component",
+      "module": "setting",
+      "filePath": "modules/setting/ui/tabs/platform-payment-tab.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlatformPaymentTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "platform-payment-tab.component"
+    },
+    {
+      "id": "setting/ui/tabs/platform-scim-tab.component",
+      "module": "setting",
+      "filePath": "modules/setting/ui/tabs/platform-scim-tab.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlatformScimTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "platform-scim-tab.component"
+    },
+    {
+      "id": "setting/ui/tabs/platform-security-tab.component",
+      "module": "setting",
+      "filePath": "modules/setting/ui/tabs/platform-security-tab.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlatformSecurityTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "platform-security-tab.component"
+    },
+    {
+      "id": "setting/ui/tabs/platform-sms-tab.component",
+      "module": "setting",
+      "filePath": "modules/setting/ui/tabs/platform-sms-tab.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlatformSmsTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "platform-sms-tab.component"
+    },
+    {
+      "id": "setting/ui/tabs/platform-storage-tab.component",
+      "module": "setting",
+      "filePath": "modules/setting/ui/tabs/platform-storage-tab.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlatformStorageTab"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "platform-storage-tab.component"
+    },
+    {
+      "id": "setting/ui/tabs/platform-tab.shared.component",
+      "module": "setting",
+      "filePath": "modules/setting/ui/tabs/platform-tab.shared.component.tsx",
       "kind": "ui",
       "exports": [
         "SR",
@@ -13600,120 +13728,12 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "platform-tab.shared"
+      "baseName": "platform-tab.shared.component"
     },
     {
-      "id": "setting/ui/tabs/PlatformAiTab",
+      "id": "setting/ui/tenant-settings-panels.component",
       "module": "setting",
-      "filePath": "modules/setting/ui/tabs/PlatformAiTab.tsx",
-      "kind": "ui",
-      "exports": [
-        "PlatformAiTab"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "PlatformAiTab"
-    },
-    {
-      "id": "setting/ui/tabs/PlatformAuthTab",
-      "module": "setting",
-      "filePath": "modules/setting/ui/tabs/PlatformAuthTab.tsx",
-      "kind": "ui",
-      "exports": [
-        "PlatformAuthTab"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "PlatformAuthTab"
-    },
-    {
-      "id": "setting/ui/tabs/PlatformEmailTab",
-      "module": "setting",
-      "filePath": "modules/setting/ui/tabs/PlatformEmailTab.tsx",
-      "kind": "ui",
-      "exports": [
-        "PlatformEmailTab"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "PlatformEmailTab"
-    },
-    {
-      "id": "setting/ui/tabs/PlatformNotificationsTab",
-      "module": "setting",
-      "filePath": "modules/setting/ui/tabs/PlatformNotificationsTab.tsx",
-      "kind": "ui",
-      "exports": [
-        "PlatformNotificationsTab"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "PlatformNotificationsTab"
-    },
-    {
-      "id": "setting/ui/tabs/PlatformPaymentTab",
-      "module": "setting",
-      "filePath": "modules/setting/ui/tabs/PlatformPaymentTab.tsx",
-      "kind": "ui",
-      "exports": [
-        "PlatformPaymentTab"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "PlatformPaymentTab"
-    },
-    {
-      "id": "setting/ui/tabs/PlatformScimTab",
-      "module": "setting",
-      "filePath": "modules/setting/ui/tabs/PlatformScimTab.tsx",
-      "kind": "ui",
-      "exports": [
-        "PlatformScimTab"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "PlatformScimTab"
-    },
-    {
-      "id": "setting/ui/tabs/PlatformSecurityTab",
-      "module": "setting",
-      "filePath": "modules/setting/ui/tabs/PlatformSecurityTab.tsx",
-      "kind": "ui",
-      "exports": [
-        "PlatformSecurityTab"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "PlatformSecurityTab"
-    },
-    {
-      "id": "setting/ui/tabs/PlatformSmsTab",
-      "module": "setting",
-      "filePath": "modules/setting/ui/tabs/PlatformSmsTab.tsx",
-      "kind": "ui",
-      "exports": [
-        "PlatformSmsTab"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "PlatformSmsTab"
-    },
-    {
-      "id": "setting/ui/tabs/PlatformStorageTab",
-      "module": "setting",
-      "filePath": "modules/setting/ui/tabs/PlatformStorageTab.tsx",
-      "kind": "ui",
-      "exports": [
-        "PlatformStorageTab"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "PlatformStorageTab"
-    },
-    {
-      "id": "setting/ui/TenantSettingsPanels",
-      "module": "setting",
-      "filePath": "modules/setting/ui/TenantSettingsPanels.tsx",
+      "filePath": "modules/setting/ui/tenant-settings-panels.component.tsx",
       "kind": "ui",
       "exports": [
         "GeneralTab",
@@ -13721,36 +13741,60 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "TenantSettingsPanels"
+      "baseName": "tenant-settings-panels.component"
     },
     {
-      "id": "store/ui/BundleItemsPanel",
+      "id": "store/ui/bundle-items-panel.component",
       "module": "store",
-      "filePath": "modules/store/ui/BundleItemsPanel.tsx",
+      "filePath": "modules/store/ui/bundle-items-panel.component.tsx",
       "kind": "ui",
       "exports": [
         "BundleItemsPanel"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "BundleItemsPanel"
+      "baseName": "bundle-items-panel.component"
     },
     {
-      "id": "store/ui/CategorySpecAddModal",
+      "id": "store/ui/category-spec-add-modal.component",
       "module": "store",
-      "filePath": "modules/store/ui/CategorySpecAddModal.tsx",
+      "filePath": "modules/store/ui/category-spec-add-modal.component.tsx",
       "kind": "ui",
       "exports": [
         "CategorySpecAddModal"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "CategorySpecAddModal"
+      "baseName": "category-spec-add-modal.component"
     },
     {
-      "id": "store/ui/product-list-columns",
+      "id": "store/ui/product-create-modal.component",
       "module": "store",
-      "filePath": "modules/store/ui/product-list-columns.tsx",
+      "filePath": "modules/store/ui/product-create-modal.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "ProductCreateModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "product-create-modal.component"
+    },
+    {
+      "id": "store/ui/product-images-panel.component",
+      "module": "store",
+      "filePath": "modules/store/ui/product-images-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "ProductImagesPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "product-images-panel.component"
+    },
+    {
+      "id": "store/ui/product-list-columns.component",
+      "module": "store",
+      "filePath": "modules/store/ui/product-list-columns.component.tsx",
       "kind": "ui",
       "exports": [
         "ProductRow",
@@ -13760,48 +13804,24 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "product-list-columns"
+      "baseName": "product-list-columns.component"
     },
     {
-      "id": "store/ui/ProductCreateModal",
+      "id": "store/ui/product-spec-values-panel.component",
       "module": "store",
-      "filePath": "modules/store/ui/ProductCreateModal.tsx",
-      "kind": "ui",
-      "exports": [
-        "ProductCreateModal"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "ProductCreateModal"
-    },
-    {
-      "id": "store/ui/ProductImagesPanel",
-      "module": "store",
-      "filePath": "modules/store/ui/ProductImagesPanel.tsx",
-      "kind": "ui",
-      "exports": [
-        "ProductImagesPanel"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "ProductImagesPanel"
-    },
-    {
-      "id": "store/ui/ProductSpecValuesPanel",
-      "module": "store",
-      "filePath": "modules/store/ui/ProductSpecValuesPanel.tsx",
+      "filePath": "modules/store/ui/product-spec-values-panel.component.tsx",
       "kind": "ui",
       "exports": [
         "ProductSpecValuesPanel"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "ProductSpecValuesPanel"
+      "baseName": "product-spec-values-panel.component"
     },
     {
-      "id": "store/ui/ProductStatusBadge",
+      "id": "store/ui/product-status-badge.component",
       "module": "store",
-      "filePath": "modules/store/ui/ProductStatusBadge.tsx",
+      "filePath": "modules/store/ui/product-status-badge.component.tsx",
       "kind": "ui",
       "exports": [
         "ProductStatus",
@@ -13812,24 +13832,24 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "ProductStatusBadge"
+      "baseName": "product-status-badge.component"
     },
     {
-      "id": "store/ui/ProductVariantsPanel",
+      "id": "store/ui/product-variants-panel.component",
       "module": "store",
-      "filePath": "modules/store/ui/ProductVariantsPanel.tsx",
+      "filePath": "modules/store/ui/product-variants-panel.component.tsx",
       "kind": "ui",
       "exports": [
         "ProductVariantsPanel"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "ProductVariantsPanel"
+      "baseName": "product-variants-panel.component"
     },
     {
-      "id": "support/ui/support-ticket-columns",
+      "id": "support/ui/support-ticket-columns.component",
       "module": "support",
-      "filePath": "modules/support/ui/support-ticket-columns.tsx",
+      "filePath": "modules/support/ui/support-ticket-columns.component.tsx",
       "kind": "ui",
       "exports": [
         "TicketRow",
@@ -13839,12 +13859,12 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "support-ticket-columns"
+      "baseName": "support-ticket-columns.component"
     },
     {
-      "id": "tenant_domain/ui/domain-list-columns",
+      "id": "tenant_domain/ui/domain-list-columns.component",
       "module": "tenant_domain",
-      "filePath": "modules/tenant_domain/ui/domain-list-columns.tsx",
+      "filePath": "modules/tenant_domain/ui/domain-list-columns.component.tsx",
       "kind": "ui",
       "exports": [
         "DomainRow",
@@ -13857,12 +13877,12 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "domain-list-columns"
+      "baseName": "domain-list-columns.component"
     },
     {
-      "id": "tenant_invitation/ui/invitation-columns",
+      "id": "tenant_invitation/ui/invitation-columns.component",
       "module": "tenant_invitation",
-      "filePath": "modules/tenant_invitation/ui/invitation-columns.tsx",
+      "filePath": "modules/tenant_invitation/ui/invitation-columns.component.tsx",
       "kind": "ui",
       "exports": [
         "InvitationRow",
@@ -13873,24 +13893,24 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "invitation-columns"
+      "baseName": "invitation-columns.component"
     },
     {
-      "id": "tenant_invitation/ui/InvitationCreateModal",
+      "id": "tenant_invitation/ui/invitation-create-modal.component",
       "module": "tenant_invitation",
-      "filePath": "modules/tenant_invitation/ui/InvitationCreateModal.tsx",
+      "filePath": "modules/tenant_invitation/ui/invitation-create-modal.component.tsx",
       "kind": "ui",
       "exports": [
         "InvitationCreateModal"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "InvitationCreateModal"
+      "baseName": "invitation-create-modal.component"
     },
     {
-      "id": "tenant_member/ui/member-list-columns",
+      "id": "tenant_member/ui/member-list-columns.component",
       "module": "tenant_member",
-      "filePath": "modules/tenant_member/ui/member-list-columns.tsx",
+      "filePath": "modules/tenant_member/ui/member-list-columns.component.tsx",
       "kind": "ui",
       "exports": [
         "MemberRow",
@@ -13900,7 +13920,7 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "member-list-columns"
+      "baseName": "member-list-columns.component"
     },
     {
       "id": "tenant_subscription/hooks/use-feature-access",
@@ -13927,45 +13947,69 @@
       "baseName": "use-grace-period"
     },
     {
-      "id": "tenant_subscription/ui/CurrentSubscriptionCard",
+      "id": "tenant_subscription/ui/current-subscription-card.component",
       "module": "tenant_subscription",
-      "filePath": "modules/tenant_subscription/ui/CurrentSubscriptionCard.tsx",
+      "filePath": "modules/tenant_subscription/ui/current-subscription-card.component.tsx",
       "kind": "ui",
       "exports": [
         "CurrentSubscriptionCard"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "CurrentSubscriptionCard"
+      "baseName": "current-subscription-card.component"
     },
     {
-      "id": "tenant_subscription/ui/FeatureGate",
+      "id": "tenant_subscription/ui/feature-gate.component",
       "module": "tenant_subscription",
-      "filePath": "modules/tenant_subscription/ui/FeatureGate.tsx",
+      "filePath": "modules/tenant_subscription/ui/feature-gate.component.tsx",
       "kind": "ui",
       "exports": [
         "FeatureGate"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "FeatureGate"
+      "baseName": "feature-gate.component"
     },
     {
-      "id": "tenant_subscription/ui/GracePeriodBanner",
+      "id": "tenant_subscription/ui/grace-period-banner.component",
       "module": "tenant_subscription",
-      "filePath": "modules/tenant_subscription/ui/GracePeriodBanner.tsx",
+      "filePath": "modules/tenant_subscription/ui/grace-period-banner.component.tsx",
       "kind": "ui",
       "exports": [
         "GracePeriodBanner"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "GracePeriodBanner"
+      "baseName": "grace-period-banner.component"
     },
     {
-      "id": "tenant_subscription/ui/plan-list-columns",
+      "id": "tenant_subscription/ui/plan-create-modal.component",
       "module": "tenant_subscription",
-      "filePath": "modules/tenant_subscription/ui/plan-list-columns.tsx",
+      "filePath": "modules/tenant_subscription/ui/plan-create-modal.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlanCreateModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "plan-create-modal.component"
+    },
+    {
+      "id": "tenant_subscription/ui/plan-features-panel.component",
+      "module": "tenant_subscription",
+      "filePath": "modules/tenant_subscription/ui/plan-features-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "PlanFeaturesPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "plan-features-panel.component"
+    },
+    {
+      "id": "tenant_subscription/ui/plan-list-columns.component",
+      "module": "tenant_subscription",
+      "filePath": "modules/tenant_subscription/ui/plan-list-columns.component.tsx",
       "kind": "ui",
       "exports": [
         "PlanRow",
@@ -13973,43 +14017,31 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "plan-list-columns"
+      "baseName": "plan-list-columns.component"
     },
     {
-      "id": "tenant_subscription/ui/PlanCreateModal",
+      "id": "tenant_subscription/ui/plan-usage-meter.component",
       "module": "tenant_subscription",
-      "filePath": "modules/tenant_subscription/ui/PlanCreateModal.tsx",
-      "kind": "ui",
-      "exports": [
-        "PlanCreateModal"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "PlanCreateModal"
-    },
-    {
-      "id": "tenant_subscription/ui/PlanFeaturesPanel",
-      "module": "tenant_subscription",
-      "filePath": "modules/tenant_subscription/ui/PlanFeaturesPanel.tsx",
-      "kind": "ui",
-      "exports": [
-        "PlanFeaturesPanel"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "PlanFeaturesPanel"
-    },
-    {
-      "id": "tenant_subscription/ui/PlanUsageMeter",
-      "module": "tenant_subscription",
-      "filePath": "modules/tenant_subscription/ui/PlanUsageMeter.tsx",
+      "filePath": "modules/tenant_subscription/ui/plan-usage-meter.component.tsx",
       "kind": "ui",
       "exports": [
         "PlanUsageMeter"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "PlanUsageMeter"
+      "baseName": "plan-usage-meter.component"
+    },
+    {
+      "id": "tenant_subscription/ui/subscription-plan-card.component",
+      "module": "tenant_subscription",
+      "filePath": "modules/tenant_subscription/ui/subscription-plan-card.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "SubscriptionPlanCard"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "subscription-plan-card.component"
     },
     {
       "id": "tenant_subscription/ui/subscription.helpers",
@@ -14030,33 +14062,21 @@
       "baseName": "subscription.helpers"
     },
     {
-      "id": "tenant_subscription/ui/SubscriptionPlanCard",
+      "id": "tenant_subscription/ui/upgrade-prompt.component",
       "module": "tenant_subscription",
-      "filePath": "modules/tenant_subscription/ui/SubscriptionPlanCard.tsx",
-      "kind": "ui",
-      "exports": [
-        "SubscriptionPlanCard"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "SubscriptionPlanCard"
-    },
-    {
-      "id": "tenant_subscription/ui/UpgradePrompt",
-      "module": "tenant_subscription",
-      "filePath": "modules/tenant_subscription/ui/UpgradePrompt.tsx",
+      "filePath": "modules/tenant_subscription/ui/upgrade-prompt.component.tsx",
       "kind": "ui",
       "exports": [
         "UpgradePrompt"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "UpgradePrompt"
+      "baseName": "upgrade-prompt.component"
     },
     {
-      "id": "tenant/ui/CreateTenantForm",
+      "id": "tenant/ui/create-tenant-form.component",
       "module": "tenant",
-      "filePath": "modules/tenant/ui/CreateTenantForm.tsx",
+      "filePath": "modules/tenant/ui/create-tenant-form.component.tsx",
       "kind": "ui",
       "exports": [
         "CreateTenantValues",
@@ -14064,7 +14084,44 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "CreateTenantForm"
+      "baseName": "create-tenant-form.component"
+    },
+    {
+      "id": "tenant/ui/tenant-members-table.component",
+      "module": "tenant",
+      "filePath": "modules/tenant/ui/tenant-members-table.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "TenantMembersTable"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "tenant-members-table.component"
+    },
+    {
+      "id": "tenant/ui/tenant-selector-card.component",
+      "module": "tenant",
+      "filePath": "modules/tenant/ui/tenant-selector-card.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "TenantSummary",
+        "TenantSelectorCard"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "tenant-selector-card.component"
+    },
+    {
+      "id": "tenant/ui/tenant-subscription-card.component",
+      "module": "tenant",
+      "filePath": "modules/tenant/ui/tenant-subscription-card.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "TenantSubscriptionCard"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "tenant-subscription-card.component"
     },
     {
       "id": "tenant/ui/tenant.constants",
@@ -14081,46 +14138,9 @@
       "baseName": "tenant.constants"
     },
     {
-      "id": "tenant/ui/TenantMembersTable",
-      "module": "tenant",
-      "filePath": "modules/tenant/ui/TenantMembersTable.tsx",
-      "kind": "ui",
-      "exports": [
-        "TenantMembersTable"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "TenantMembersTable"
-    },
-    {
-      "id": "tenant/ui/TenantSelectorCard",
-      "module": "tenant",
-      "filePath": "modules/tenant/ui/TenantSelectorCard.tsx",
-      "kind": "ui",
-      "exports": [
-        "TenantSummary",
-        "TenantSelectorCard"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "TenantSelectorCard"
-    },
-    {
-      "id": "tenant/ui/TenantSubscriptionCard",
-      "module": "tenant",
-      "filePath": "modules/tenant/ui/TenantSubscriptionCard.tsx",
-      "kind": "ui",
-      "exports": [
-        "TenantSubscriptionCard"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "TenantSubscriptionCard"
-    },
-    {
-      "id": "terms_consent/ui/AcceptanceGate",
+      "id": "terms_consent/ui/acceptance-gate.component",
       "module": "terms_consent",
-      "filePath": "modules/terms_consent/ui/AcceptanceGate.tsx",
+      "filePath": "modules/terms_consent/ui/acceptance-gate.component.tsx",
       "kind": "ui",
       "exports": [
         "AcceptanceGateOrder",
@@ -14128,48 +14148,48 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "AcceptanceGate"
+      "baseName": "acceptance-gate.component"
     },
     {
-      "id": "terms_consent/ui/ConsentBanner",
+      "id": "terms_consent/ui/consent-banner.component",
       "module": "terms_consent",
-      "filePath": "modules/terms_consent/ui/ConsentBanner.tsx",
+      "filePath": "modules/terms_consent/ui/consent-banner.component.tsx",
       "kind": "ui",
       "exports": [
         "ConsentBanner"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "ConsentBanner"
+      "baseName": "consent-banner.component"
     },
     {
-      "id": "user_security/ui/PasskeysPanel",
+      "id": "user_security/ui/passkeys-panel.component",
       "module": "user_security",
-      "filePath": "modules/user_security/ui/PasskeysPanel.tsx",
+      "filePath": "modules/user_security/ui/passkeys-panel.component.tsx",
       "kind": "ui",
       "exports": [
         "PasskeysPanel"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "PasskeysPanel"
+      "baseName": "passkeys-panel.component"
     },
     {
-      "id": "user_session/ui/ActiveSessionsPanel",
+      "id": "user_session/ui/active-sessions-panel.component",
       "module": "user_session",
-      "filePath": "modules/user_session/ui/ActiveSessionsPanel.tsx",
+      "filePath": "modules/user_session/ui/active-sessions-panel.component.tsx",
       "kind": "ui",
       "exports": [
         "ActiveSessionsPanel"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "ActiveSessionsPanel"
+      "baseName": "active-sessions-panel.component"
     },
     {
-      "id": "user/ui/SocialAccountsPanel",
+      "id": "user/ui/social-accounts-panel.component",
       "module": "user",
-      "filePath": "modules/user/ui/SocialAccountsPanel.tsx",
+      "filePath": "modules/user/ui/social-accounts-panel.component.tsx",
       "kind": "ui",
       "exports": [
         "SocialAccountsPanelProps",
@@ -14177,12 +14197,24 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "SocialAccountsPanel"
+      "baseName": "social-accounts-panel.component"
     },
     {
-      "id": "user/ui/user-list-columns",
+      "id": "user/ui/user-edit-modal.component",
       "module": "user",
-      "filePath": "modules/user/ui/user-list-columns.tsx",
+      "filePath": "modules/user/ui/user-edit-modal.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "UserEditModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "user-edit-modal.component"
+    },
+    {
+      "id": "user/ui/user-list-columns.component",
+      "module": "user",
+      "filePath": "modules/user/ui/user-list-columns.component.tsx",
       "kind": "ui",
       "exports": [
         "UserRow",
@@ -14190,24 +14222,12 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "user-list-columns"
+      "baseName": "user-list-columns.component"
     },
     {
-      "id": "user/ui/UserEditModal",
+      "id": "user/ui/user-menu.component",
       "module": "user",
-      "filePath": "modules/user/ui/UserEditModal.tsx",
-      "kind": "ui",
-      "exports": [
-        "UserEditModal"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "UserEditModal"
-    },
-    {
-      "id": "user/ui/UserMenu",
-      "module": "user",
-      "filePath": "modules/user/ui/UserMenu.tsx",
+      "filePath": "modules/user/ui/user-menu.component.tsx",
       "kind": "ui",
       "exports": [
         "UserMenuUser",
@@ -14215,12 +14235,12 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "UserMenu"
+      "baseName": "user-menu.component"
     },
     {
-      "id": "user/ui/UserPreferencesForm",
+      "id": "user/ui/user-preferences-form.component",
       "module": "user",
-      "filePath": "modules/user/ui/UserPreferencesForm.tsx",
+      "filePath": "modules/user/ui/user-preferences-form.component.tsx",
       "kind": "ui",
       "exports": [
         "UserPreferencesValues",
@@ -14228,24 +14248,24 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "UserPreferencesForm"
+      "baseName": "user-preferences-form.component"
     },
     {
-      "id": "user/ui/UserProfileCard",
+      "id": "user/ui/user-profile-card.component",
       "module": "user",
-      "filePath": "modules/user/ui/UserProfileCard.tsx",
+      "filePath": "modules/user/ui/user-profile-card.component.tsx",
       "kind": "ui",
       "exports": [
         "UserProfileCard"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "UserProfileCard"
+      "baseName": "user-profile-card.component"
     },
     {
-      "id": "user/ui/UserProfileForm",
+      "id": "user/ui/user-profile-form.component",
       "module": "user",
-      "filePath": "modules/user/ui/UserProfileForm.tsx",
+      "filePath": "modules/user/ui/user-profile-form.component.tsx",
       "kind": "ui",
       "exports": [
         "UserProfileValues",
@@ -14253,36 +14273,36 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "UserProfileForm"
+      "baseName": "user-profile-form.component"
     },
     {
-      "id": "user/ui/UserRoleBadge",
+      "id": "user/ui/user-role-badge.component",
       "module": "user",
-      "filePath": "modules/user/ui/UserRoleBadge.tsx",
+      "filePath": "modules/user/ui/user-role-badge.component.tsx",
       "kind": "ui",
       "exports": [
         "UserRoleBadge"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "UserRoleBadge"
+      "baseName": "user-role-badge.component"
     },
     {
-      "id": "user/ui/UserStatusBadge",
+      "id": "user/ui/user-status-badge.component",
       "module": "user",
-      "filePath": "modules/user/ui/UserStatusBadge.tsx",
+      "filePath": "modules/user/ui/user-status-badge.component.tsx",
       "kind": "ui",
       "exports": [
         "UserStatusBadge"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "UserStatusBadge"
+      "baseName": "user-status-badge.component"
     },
     {
-      "id": "wallet/ui/wallet-account-columns",
+      "id": "wallet/ui/wallet-account-columns.component",
       "module": "wallet",
-      "filePath": "modules/wallet/ui/wallet-account-columns.tsx",
+      "filePath": "modules/wallet/ui/wallet-account-columns.component.tsx",
       "kind": "ui",
       "exports": [
         "WalletAccountRow",
@@ -14292,19 +14312,55 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "wallet-account-columns"
+      "baseName": "wallet-account-columns.component"
     },
     {
-      "id": "webhook/ui/webhook-columns",
+      "id": "webhook/ui/webhook-columns.component",
       "module": "webhook",
-      "filePath": "modules/webhook/ui/webhook-columns.tsx",
+      "filePath": "modules/webhook/ui/webhook-columns.component.tsx",
       "kind": "ui",
       "exports": [
         "buildWebhookColumns"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "webhook-columns"
+      "baseName": "webhook-columns.component"
+    },
+    {
+      "id": "webhook/ui/webhook-delivery-modal.component",
+      "module": "webhook",
+      "filePath": "modules/webhook/ui/webhook-delivery-modal.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "WebhookDeliveryModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "webhook-delivery-modal.component"
+    },
+    {
+      "id": "webhook/ui/webhook-form-modal.component",
+      "module": "webhook",
+      "filePath": "modules/webhook/ui/webhook-form-modal.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "WebhookFormModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "webhook-form-modal.component"
+    },
+    {
+      "id": "webhook/ui/webhook-trigger-modal.component",
+      "module": "webhook",
+      "filePath": "modules/webhook/ui/webhook-trigger-modal.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "WebhookTriggerModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "webhook-trigger-modal.component"
     },
     {
       "id": "webhook/ui/webhook.types",
@@ -14321,42 +14377,6 @@
       "isClient": false,
       "isServer": false,
       "baseName": "webhook.types"
-    },
-    {
-      "id": "webhook/ui/WebhookDeliveryModal",
-      "module": "webhook",
-      "filePath": "modules/webhook/ui/WebhookDeliveryModal.tsx",
-      "kind": "ui",
-      "exports": [
-        "WebhookDeliveryModal"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "WebhookDeliveryModal"
-    },
-    {
-      "id": "webhook/ui/WebhookFormModal",
-      "module": "webhook",
-      "filePath": "modules/webhook/ui/WebhookFormModal.tsx",
-      "kind": "ui",
-      "exports": [
-        "WebhookFormModal"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "WebhookFormModal"
-    },
-    {
-      "id": "webhook/ui/WebhookTriggerModal",
-      "module": "webhook",
-      "filePath": "modules/webhook/ui/WebhookTriggerModal.tsx",
-      "kind": "ui",
-      "exports": [
-        "WebhookTriggerModal"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "WebhookTriggerModal"
     }
   ]
 }

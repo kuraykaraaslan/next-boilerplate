@@ -56,8 +56,8 @@ Tenant-scoped API keys for programmatic access (hashed at rest, scope-bound).
 
 ## Next layer (modules_next/) surface
 
-- `api_key/ui/api-key-columns` _(ui, client)_
-- `api_key/ui/ApiKeyCreateModal` _(ui, client)_
+- `api_key/ui/api-key-columns.component` _(ui, client)_
+- `api_key/ui/api-key-create-modal.component` _(ui, client)_
 
 ## README
 

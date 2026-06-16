@@ -1,13 +1,13 @@
 'use client';
 import { use, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { AlertBanner } from '@nb/common/ui/AlertBanner';
-import { PageHeader } from '@nb/common/ui/PageHeader';
-import { ServerDataTable } from '@nb/common/ui/ServerDataTable';
+import { AlertBanner } from '@nb/common/ui/alert-banner.component';
+import { PageHeader } from '@nb/common/ui/page-header.component';
+import { ServerDataTable } from '@nb/common/ui/server-data-table.component';
 import { toast } from '@nb/common/ui/toast.store';
 import api from '@nb/common/server/axios';
-import { buildPlanColumns, type PlanRow } from '@nb/tenant_subscription/ui/plan-list-columns';
-import { PlanCreateModal } from '@nb/tenant_subscription/ui/PlanCreateModal';
+import { buildPlanColumns, type PlanRow } from '@nb/tenant_subscription/ui/plan-list-columns.component';
+import { PlanCreateModal } from '@nb/tenant_subscription/ui/plan-create-modal.component';
 
 const PAGE_SIZE = 25;
 

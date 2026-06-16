@@ -76,16 +76,16 @@ Pluggable payment processing (Stripe, PayPal, Iyzico) + subscription plans, plan
 
 ## Next layer (modules_next/) surface
 
-- `payment/ui/BillingProfileTab` _(ui, client)_
-- `payment/ui/CardCheckoutModal` _(ui, client)_
-- `payment/ui/CreditCardForm` _(ui, client)_
-- `payment/ui/CreditCardVisual` _(ui, client)_
-- `payment/ui/PaymentProviderSelector` _(ui, client)_
-- `payment/ui/PaymentRefundModal` _(ui, client)_
-- `payment/ui/PaymentStatusBadge` _(ui, client)_
-- `payment/ui/PaymentSummaryCard` _(ui, client)_
-- `payment/ui/StripeExpressCheckoutModal` _(ui, client)_
-- `payment/ui/WalletBadges` _(ui, client)_
+- `payment/ui/billing-profile-tab.component` _(ui, client)_
+- `payment/ui/card-checkout-modal.component` _(ui, client)_
+- `payment/ui/credit-card-form.component` _(ui, client)_
+- `payment/ui/credit-card-visual.component` _(ui, client)_
+- `payment/ui/payment-provider-selector.component` _(ui, client)_
+- `payment/ui/payment-refund-modal.component` _(ui, client)_
+- `payment/ui/payment-status-badge.component` _(ui, client)_
+- `payment/ui/payment-summary-card.component` _(ui, client)_
+- `payment/ui/stripe-express-checkout-modal.component` _(ui, client)_
+- `payment/ui/wallet-badges.component` _(ui, client)_
 
 ## README
 

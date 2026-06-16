@@ -1,5 +1,5 @@
-import { AdminShell } from '@nb/common/ui/layout/AdminShell';
-import { ModuleEnabledProvider } from '@nb/common/ui/module-enabled.context';
+import { AdminShell } from '@nb/common/ui/layout/admin-shell.component';
+import { ModuleEnabledProvider } from '@nb/common/ui/module-enabled.context.component';
 import { pageTitle } from '@nb/common/server/page-metadata';
 import { getEnabledModuleIds } from '@nb/setting/server/module-activation.service.next';
 

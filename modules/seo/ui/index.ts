@@ -1,1 +1,1 @@
-export { SeoPanel } from './SeoPanel';
+export { SeoPanel } from './seo-panel.component';

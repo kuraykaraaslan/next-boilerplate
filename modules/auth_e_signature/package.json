@@ -15,9 +15,9 @@
     "./server/entities/signing_certificate.entity": "./server/entities/signing_certificate.entity.ts",
     "./server/index": "./server/index.ts",
     "./server": "./server/index.ts",
-    "./ui/ESignatureLoginPanel": "./ui/ESignatureLoginPanel.tsx",
-    "./ui/SigningCertificatesBindModal": "./ui/SigningCertificatesBindModal.tsx",
-    "./ui/SigningCertificatesPanel": "./ui/SigningCertificatesPanel.tsx",
+    "./ui/e-signature-login-panel.component": "./ui/e-signature-login-panel.component.tsx",
+    "./ui/signing-certificates-bind-modal.component": "./ui/signing-certificates-bind-modal.component.tsx",
+    "./ui/signing-certificates-panel.component": "./ui/signing-certificates-panel.component.tsx",
     ".": "./server/index.ts",
     "./module.json": "./module.json"
   },

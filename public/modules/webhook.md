@@ -60,11 +60,11 @@ Subscriber-configured outbound webhooks (tenant-scoped; root tenant carries plat
 
 ## Next layer (modules_next/) surface
 
-- `webhook/ui/webhook-columns` _(ui, client)_
+- `webhook/ui/webhook-columns.component` _(ui, client)_
+- `webhook/ui/webhook-delivery-modal.component` _(ui, client)_
+- `webhook/ui/webhook-form-modal.component` _(ui, client)_
+- `webhook/ui/webhook-trigger-modal.component` _(ui, client)_
 - `webhook/ui/webhook.types` _(ui)_
-- `webhook/ui/WebhookDeliveryModal` _(ui, client)_
-- `webhook/ui/WebhookFormModal` _(ui, client)_
-- `webhook/ui/WebhookTriggerModal` _(ui, client)_
 
 ## README
 

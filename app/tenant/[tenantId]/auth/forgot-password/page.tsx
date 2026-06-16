@@ -1,8 +1,8 @@
 'use client';
 import { use } from 'react';
 import api from '@nb/common/server/axios';
-import { BrandLogo } from '@nb/common/ui/BrandLogo';
-import { ForgotPasswordForm } from '@nb/auth/ui/ForgotPasswordForm';
+import { BrandLogo } from '@nb/common/ui/brand-logo.component';
+import { ForgotPasswordForm } from '@nb/auth/ui/forgot-password-form.component';
 
 export default function TenantForgotPasswordPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = use(params);

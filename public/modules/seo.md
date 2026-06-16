@@ -48,7 +48,7 @@ Polymorphic SEO metadata (title, description, Open Graph, canonical, noIndex) at
 ## Next layer (modules_next/) surface
 
 - `seo/ui/index` _(ui)_
-- `seo/ui/SeoPanel` _(ui, client)_
+- `seo/ui/seo-panel.component` _(ui, client)_
 - `seo/ui/web-vitals.client` _(ui, client)_
 
 ## README

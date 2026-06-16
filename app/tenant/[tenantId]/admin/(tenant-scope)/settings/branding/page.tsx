@@ -1,14 +1,14 @@
 'use client';
 import { use, useEffect, useState } from 'react';
 import api from '@nb/common/server/axios';
-import { PageHeader } from '@nb/common/ui/PageHeader';
-import { Card } from '@nb/common/ui/Card';
-import { Input } from '@nb/common/ui/Input';
-import { Button } from '@nb/common/ui/Button';
-import { Spinner } from '@nb/common/ui/Spinner';
-import { AlertBanner } from '@nb/common/ui/AlertBanner';
-import { AvatarUpload } from '@nb/common/ui/AvatarUpload';
-import { Breadcrumb } from '@nb/common/ui/Breadcrumb';
+import { PageHeader } from '@nb/common/ui/page-header.component';
+import { Card } from '@nb/common/ui/card.component';
+import { Input } from '@nb/common/ui/input.component';
+import { Button } from '@nb/common/ui/button.component';
+import { Spinner } from '@nb/common/ui/spinner.component';
+import { AlertBanner } from '@nb/common/ui/alert-banner.component';
+import { AvatarUpload } from '@nb/common/ui/avatar-upload.component';
+import { Breadcrumb } from '@nb/common/ui/breadcrumb.component';
 import type { TenantBranding } from '@nb/tenant_branding/server/tenant_branding.types';
 
 // ── CSS theme helpers (same delimiter approach used by page builder) ──────────

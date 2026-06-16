@@ -1,8 +1,8 @@
 'use client'
 import { usePathname } from 'next/navigation'
 import type { BlockDefinition } from '../../types'
-import { EditorPreview } from './EditorPreview'
-import { PopupOverlay } from './PopupOverlay'
+import { EditorPreview } from './editor-preview.component'
+import { PopupOverlay } from './popup-overlay.component'
 
 function PopupModalBlock(rawProps: Record<string, unknown>) {
   const pathname = usePathname()

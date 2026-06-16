@@ -56,8 +56,8 @@ Prepaid gift cards: issue (single + bulk) hash-protected codes, track redeemable
 
 ## Next layer (modules_next/) surface
 
-- `gift_card/ui/gift-card-list-columns` _(ui, client)_
-- `gift_card/ui/GiftCardIssueModal` _(ui, client)_
+- `gift_card/ui/gift-card-issue-modal.component` _(ui, client)_
+- `gift_card/ui/gift-card-list-columns.component` _(ui, client)_
 
 ## README
 

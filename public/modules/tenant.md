@@ -60,11 +60,11 @@ Tenant CRUD, lifecycle (active/suspended/deleted), soft-deletion service. Founda
 
 ## Next layer (modules_next/) surface
 
-- `tenant/ui/CreateTenantForm` _(ui, client)_
+- `tenant/ui/create-tenant-form.component` _(ui, client)_
+- `tenant/ui/tenant-members-table.component` _(ui, client)_
+- `tenant/ui/tenant-selector-card.component` _(ui, client)_
+- `tenant/ui/tenant-subscription-card.component` _(ui, client)_
 - `tenant/ui/tenant.constants` _(ui)_
-- `tenant/ui/TenantMembersTable` _(ui, client)_
-- `tenant/ui/TenantSelectorCard` _(ui, client)_
-- `tenant/ui/TenantSubscriptionCard` _(ui, client)_
 
 ## README
 

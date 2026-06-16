@@ -1,22 +1,22 @@
 'use client';
 import { use, useState, useEffect, useCallback, useMemo } from 'react';
-import { Button } from '@nb/common/ui/Button';
-import { Input } from '@nb/common/ui/Input';
-import { Select } from '@nb/common/ui/Select';
-import { AlertBanner } from '@nb/common/ui/AlertBanner';
-import { Modal } from '@nb/common/ui/Modal';
-import { PageHeader } from '@nb/common/ui/PageHeader';
-import { ServerDataTable } from '@nb/common/ui/ServerDataTable';
+import { Button } from '@nb/common/ui/button.component';
+import { Input } from '@nb/common/ui/input.component';
+import { Select } from '@nb/common/ui/select.component';
+import { AlertBanner } from '@nb/common/ui/alert-banner.component';
+import { Modal } from '@nb/common/ui/modal.component';
+import { PageHeader } from '@nb/common/ui/page-header.component';
+import { ServerDataTable } from '@nb/common/ui/server-data-table.component';
 import { toast } from '@nb/common/ui/toast.store';
 import api from '@nb/common/server/axios';
-import { CurrencySelector } from '@nb/common/ui/CurrencySelector';
+import { CurrencySelector } from '@nb/common/ui/currency-selector.component';
 import { DEFAULT_CURRENCY } from '@nb/common';
 import {
   buildWalletAccountColumns,
   buildWalletPostingColumns,
   type WalletAccountRow,
   type WalletPostingRow,
-} from '@nb/wallet/ui/wallet-account-columns';
+} from '@nb/wallet/ui/wallet-account-columns.component';
 
 const PAGE_SIZE = 25;
 

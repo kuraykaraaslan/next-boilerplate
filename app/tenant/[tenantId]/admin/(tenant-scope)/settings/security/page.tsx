@@ -1,7 +1,7 @@
 'use client';
 import { use } from 'react';
-import { SettingsPanelHost } from '@nb/setting/ui/SettingsPanelHost';
-import { PlatformSecurityTab } from '@nb/setting/ui/PlatformSettingsTabs';
+import { SettingsPanelHost } from '@nb/setting/ui/settings-panel-host.component';
+import { PlatformSecurityTab } from '@nb/setting/ui/platform-settings-tabs.component';
 
 export default function SecuritySettingsPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = use(params);

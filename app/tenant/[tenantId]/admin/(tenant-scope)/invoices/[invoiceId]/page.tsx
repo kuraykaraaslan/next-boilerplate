@@ -1,17 +1,17 @@
 'use client';
 import { use, useCallback, useEffect, useState } from 'react';
 import api from '@nb/common/server/axios';
-import { PageHeader, type PageHeaderAction } from '@nb/common/ui/PageHeader';
-import { Card } from '@nb/common/ui/Card';
-import { Badge } from '@nb/common/ui/Badge';
-import { Spinner } from '@nb/common/ui/Spinner';
-import { AlertBanner } from '@nb/common/ui/AlertBanner';
-import { Breadcrumb } from '@nb/common/ui/Breadcrumb';
-import { Button } from '@nb/common/ui/Button';
-import { Modal } from '@nb/common/ui/Modal';
-import { Input } from '@nb/common/ui/Input';
+import { PageHeader, type PageHeaderAction } from '@nb/common/ui/page-header.component';
+import { Card } from '@nb/common/ui/card.component';
+import { Badge } from '@nb/common/ui/badge.component';
+import { Spinner } from '@nb/common/ui/spinner.component';
+import { AlertBanner } from '@nb/common/ui/alert-banner.component';
+import { Breadcrumb } from '@nb/common/ui/breadcrumb.component';
+import { Button } from '@nb/common/ui/button.component';
+import { Modal } from '@nb/common/ui/modal.component';
+import { Input } from '@nb/common/ui/input.component';
 import { toast } from '@nb/common/ui/toast.store';
-import { InvoiceLineItemsTable, Row } from '@nb/invoice/ui/InvoiceLineItemsTable';
+import { InvoiceLineItemsTable, Row } from '@nb/invoice/ui/invoice-line-items-table.component';
 import type { SafeInvoice, SafeInvoiceLine } from '@nb/invoice/server/invoice.types';
 
 const STATUS_VARIANT: Record<string, 'success' | 'error' | 'warning' | 'info' | 'neutral'> = {

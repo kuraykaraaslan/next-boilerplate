@@ -1,7 +1,7 @@
 'use client';
 import { useCallback, useEffect, type MutableRefObject } from 'react';
 import { useRteStore, useRteStoreApi } from './store';
-import type { SuggestionItem } from './SuggestionPopup';
+import type { SuggestionItem } from './suggestion-popup.component';
 import type { MentionUser, QuillInstance, SlashCommand } from './types';
 
 export type UseTriggerKeyboardArgs = {

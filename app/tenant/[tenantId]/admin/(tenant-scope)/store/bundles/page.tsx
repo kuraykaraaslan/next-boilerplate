@@ -2,16 +2,16 @@
 import { use, useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '@nb/common/server/axios';
-import { ServerDataTable, type TableColumn } from '@nb/common/ui/ServerDataTable';
-import { PageHeader } from '@nb/common/ui/PageHeader';
-import { Button } from '@nb/common/ui/Button';
-import { Input } from '@nb/common/ui/Input';
-import { Select } from '@nb/common/ui/Select';
-import { Modal } from '@nb/common/ui/Modal';
-import { AlertBanner } from '@nb/common/ui/AlertBanner';
-import { RowActionsMenu } from '@nb/common/ui/RowActionsMenu';
+import { ServerDataTable, type TableColumn } from '@nb/common/ui/server-data-table.component';
+import { PageHeader } from '@nb/common/ui/page-header.component';
+import { Button } from '@nb/common/ui/button.component';
+import { Input } from '@nb/common/ui/input.component';
+import { Select } from '@nb/common/ui/select.component';
+import { Modal } from '@nb/common/ui/modal.component';
+import { AlertBanner } from '@nb/common/ui/alert-banner.component';
+import { RowActionsMenu } from '@nb/common/ui/row-actions-menu.component';
 import { toast } from '@nb/common/ui/toast.store';
-import { BundleStatusBadge, type BundleStatus } from '@nb/store/ui/ProductStatusBadge';
+import { BundleStatusBadge, type BundleStatus } from '@nb/store/ui/product-status-badge.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faSearch, faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
 

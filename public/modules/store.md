@@ -89,14 +89,14 @@ Tenant-aware e-commerce store. Hierarchical categories with typed spec templates
 
 ## Next layer (modules_next/) surface
 
-- `store/ui/BundleItemsPanel` _(ui, client)_
-- `store/ui/CategorySpecAddModal` _(ui, client)_
-- `store/ui/product-list-columns` _(ui, client)_
-- `store/ui/ProductCreateModal` _(ui, client)_
-- `store/ui/ProductImagesPanel` _(ui, client)_
-- `store/ui/ProductSpecValuesPanel` _(ui, client)_
-- `store/ui/ProductStatusBadge` _(ui, client)_
-- `store/ui/ProductVariantsPanel` _(ui, client)_
+- `store/ui/bundle-items-panel.component` _(ui, client)_
+- `store/ui/category-spec-add-modal.component` _(ui, client)_
+- `store/ui/product-create-modal.component` _(ui, client)_
+- `store/ui/product-images-panel.component` _(ui, client)_
+- `store/ui/product-list-columns.component` _(ui, client)_
+- `store/ui/product-spec-values-panel.component` _(ui, client)_
+- `store/ui/product-status-badge.component` _(ui, client)_
+- `store/ui/product-variants-panel.component` _(ui, client)_
 
 ## README
 

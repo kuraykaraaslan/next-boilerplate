@@ -20,20 +20,20 @@ OpenAPI/Swagger spec builder + helpers for serving per-tenant API docs.
 
 ## Next layer (modules_next/) surface
 
-- `api_doc/ui/ApiDocsPage` _(ui, client)_
-- `api_doc/ui/ApiTagSection` _(ui, client)_
-- `api_doc/ui/CodeSamplePanel` _(ui, client)_
-- `api_doc/ui/EndpointRow` _(ui, client)_
-- `api_doc/ui/HttpMethodBadge` _(ui)_
+- `api_doc/ui/api-docs-page.component` _(ui, client)_
+- `api_doc/ui/api-tag-section.component` _(ui, client)_
+- `api_doc/ui/code-sample-panel.component` _(ui, client)_
+- `api_doc/ui/endpoint-row.component` _(ui, client)_
+- `api_doc/ui/http-method-badge.component` _(ui)_
 - `api_doc/ui/mockSpec` _(ui)_
-- `api_doc/ui/OperationPanel` _(ui, client)_
-- `api_doc/ui/ParameterTable` _(ui)_
-- `api_doc/ui/ResponseCard` _(ui, client)_
-- `api_doc/ui/SchemaViewer` _(ui, client)_
-- `api_doc/ui/SecuritySchemeBadge` _(ui)_
-- `api_doc/ui/ServerSelector` _(ui, client)_
-- `api_doc/ui/StatusCodeBadge` _(ui)_
-- `api_doc/ui/TryItOutPanel` _(ui, client)_
+- `api_doc/ui/operation-panel.component` _(ui, client)_
+- `api_doc/ui/parameter-table.component` _(ui)_
+- `api_doc/ui/response-card.component` _(ui, client)_
+- `api_doc/ui/schema-viewer.component` _(ui, client)_
+- `api_doc/ui/security-scheme-badge.component` _(ui)_
+- `api_doc/ui/server-selector.component` _(ui, client)_
+- `api_doc/ui/status-code-badge.component` _(ui)_
+- `api_doc/ui/try-it-out-panel.component` _(ui, client)_
 - `api_doc/ui/types` _(ui)_
 
 ## README

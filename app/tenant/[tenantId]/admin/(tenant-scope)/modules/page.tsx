@@ -1,5 +1,5 @@
 import { use } from 'react';
-import { ModuleManagerPage } from '@nb/setting/ui/ModuleManagerPage';
+import { ModuleManagerPage } from '@nb/setting/ui/module-manager-page.component';
 
 export default function AdminModulesPage({
   params,

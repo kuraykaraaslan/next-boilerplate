@@ -1,6 +1,6 @@
 'use client';
 import { useEffect } from 'react';
-import { Button } from '@nb/common/ui/Button';
+import { Button } from '@nb/common/ui/button.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 

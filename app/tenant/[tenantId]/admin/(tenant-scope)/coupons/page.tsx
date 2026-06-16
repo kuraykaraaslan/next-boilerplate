@@ -1,15 +1,15 @@
 'use client';
 import { use, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@nb/common/ui/Button';
-import { AlertBanner } from '@nb/common/ui/AlertBanner';
-import { Modal } from '@nb/common/ui/Modal';
-import { PageHeader } from '@nb/common/ui/PageHeader';
-import { ServerDataTable } from '@nb/common/ui/ServerDataTable';
+import { Button } from '@nb/common/ui/button.component';
+import { AlertBanner } from '@nb/common/ui/alert-banner.component';
+import { Modal } from '@nb/common/ui/modal.component';
+import { PageHeader } from '@nb/common/ui/page-header.component';
+import { ServerDataTable } from '@nb/common/ui/server-data-table.component';
 import { toast } from '@nb/common/ui/toast.store';
 import api from '@nb/common/server/axios';
-import { CouponCreateModal } from '@nb/coupon/ui/CouponCreateModal';
-import { buildCouponColumns, type CouponRow } from '@nb/coupon/ui/coupon-list-columns';
+import { CouponCreateModal } from '@nb/coupon/ui/coupon-create-modal.component';
+import { buildCouponColumns, type CouponRow } from '@nb/coupon/ui/coupon-list-columns.component';
 
 const PAGE_SIZE = 25;
 

@@ -51,4 +51,4 @@ Customer support-ticket desk. Customers open support tickets with per-tenant mon
 
 ## Next layer (modules_next/) surface
 
-- `support/ui/support-ticket-columns` _(ui, client)_
+- `support/ui/support-ticket-columns.component` _(ui, client)_

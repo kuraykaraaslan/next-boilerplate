@@ -2,21 +2,21 @@
 import { use, useState, useEffect, useCallback } from 'react';
 import { notFound, useRouter } from 'next/navigation';
 import { isRootTenant } from '@nb/tenant/server/tenant.constants';
-import { Card } from '@nb/common/ui/Card';
-import { Badge } from '@nb/common/ui/Badge';
-import { Button } from '@nb/common/ui/Button';
-import { Spinner } from '@nb/common/ui/Spinner';
-import { AlertBanner } from '@nb/common/ui/AlertBanner';
-import { Modal } from '@nb/common/ui/Modal';
-import { Input } from '@nb/common/ui/Input';
-import { Select } from '@nb/common/ui/Select';
-import { Breadcrumb } from '@nb/common/ui/Breadcrumb';
-import { PageHeader } from '@nb/common/ui/PageHeader';
+import { Card } from '@nb/common/ui/card.component';
+import { Badge } from '@nb/common/ui/badge.component';
+import { Button } from '@nb/common/ui/button.component';
+import { Spinner } from '@nb/common/ui/spinner.component';
+import { AlertBanner } from '@nb/common/ui/alert-banner.component';
+import { Modal } from '@nb/common/ui/modal.component';
+import { Input } from '@nb/common/ui/input.component';
+import { Select } from '@nb/common/ui/select.component';
+import { Breadcrumb } from '@nb/common/ui/breadcrumb.component';
+import { PageHeader } from '@nb/common/ui/page-header.component';
 import { toast } from '@nb/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faSave, faTag } from '@fortawesome/free-solid-svg-icons';
 import api from '@nb/common/server/axios';
-import { PlanFeaturesPanel } from '@nb/tenant_subscription/ui/PlanFeaturesPanel';
+import { PlanFeaturesPanel } from '@nb/tenant_subscription/ui/plan-features-panel.component';
 import {
   type Plan, type SearchProduct, type EditForm,
   statusVariant, INTERVAL_LABEL, INTERVAL_OPTIONS, STATUS_OPTIONS,

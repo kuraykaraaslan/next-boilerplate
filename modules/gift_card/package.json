@@ -18,8 +18,8 @@
     "./server/gift_card.types": "./server/gift_card.types.ts",
     "./server/index": "./server/index.ts",
     "./server": "./server/index.ts",
-    "./ui/GiftCardIssueModal": "./ui/GiftCardIssueModal.tsx",
-    "./ui/gift-card-list-columns": "./ui/gift-card-list-columns.tsx",
+    "./ui/gift-card-issue-modal.component": "./ui/gift-card-issue-modal.component.tsx",
+    "./ui/gift-card-list-columns.component": "./ui/gift-card-list-columns.component.tsx",
     ".": "./server/index.ts",
     "./module.json": "./module.json"
   },

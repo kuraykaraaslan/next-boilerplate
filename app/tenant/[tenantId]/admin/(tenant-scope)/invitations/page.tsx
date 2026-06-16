@@ -2,11 +2,11 @@
 
 import { use, useEffect, useState, useMemo } from 'react';
 import api from '@nb/common/server/axios';
-import { PageHeader } from '@nb/common/ui/PageHeader';
-import { Button } from '@nb/common/ui/Button';
-import { AlertBanner } from '@nb/common/ui/AlertBanner';
-import { Modal } from '@nb/common/ui/Modal';
-import { ServerDataTable } from '@nb/common/ui/ServerDataTable';
+import { PageHeader } from '@nb/common/ui/page-header.component';
+import { Button } from '@nb/common/ui/button.component';
+import { AlertBanner } from '@nb/common/ui/alert-banner.component';
+import { Modal } from '@nb/common/ui/modal.component';
+import { ServerDataTable } from '@nb/common/ui/server-data-table.component';
 import { toast } from '@nb/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGear } from '@fortawesome/free-solid-svg-icons';
@@ -14,8 +14,8 @@ import type { TenantMemberRole as MemberRole } from '@nb/tenant_member/server/te
 import {
   buildInvitationColumns,
   type InvitationRow,
-} from '@nb/tenant_invitation/ui/invitation-columns';
-import { InvitationCreateModal } from '@nb/tenant_invitation/ui/InvitationCreateModal';
+} from '@nb/tenant_invitation/ui/invitation-columns.component';
+import { InvitationCreateModal } from '@nb/tenant_invitation/ui/invitation-create-modal.component';
 
 type SessionData = {
   tenantMember: { tenantMemberId: string; memberRole: MemberRole };

@@ -24,9 +24,9 @@
     "./server/auth_saml.types": "./server/auth_saml.types.ts",
     "./server/entities/saml_config.entity": "./server/entities/saml_config.entity.ts",
     "./server/saml.engine": "./server/saml.engine.ts",
-    "./ui/SamlAttributeForm": "./ui/SamlAttributeForm.tsx",
-    "./ui/SamlConfigForm": "./ui/SamlConfigForm.tsx",
-    "./ui/SamlMetadataCard": "./ui/SamlMetadataCard.tsx",
+    "./ui/saml-attribute-form.component": "./ui/saml-attribute-form.component.tsx",
+    "./ui/saml-config-form.component": "./ui/saml-config-form.component.tsx",
+    "./ui/saml-metadata-card.component": "./ui/saml-metadata-card.component.tsx",
     "./module.json": "./module.json"
   },
   "peerDependencies": {
