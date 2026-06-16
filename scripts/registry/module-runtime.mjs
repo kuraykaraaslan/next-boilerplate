@@ -8,7 +8,7 @@ export function buildModuleRuntime(modules, components) {
   const componentIndex = new Map();
   for (const c of components) componentIndex.set(c.id, c);
 
-  const runtime = { menu: [], widgets: [], slots: [], settingsTabs: [], permissions: [], modules: [] };
+  const runtime = { menu: [], pageRoutes: [], widgets: [], slots: [], settingsTabs: [], permissions: [], modules: [] };
   const importsMap = new Map(); // componentId -> { id, importPath, exportName }
   const errors = [];
 
@@ -55,6 +55,15 @@ export function buildModuleRuntime(modules, components) {
         moduleId: m.id,
       });
     }
+    for (const r of m.adminRoutes ?? []) {
+      resolveComponent(r.component, `module '${m.id}' route '${r.path}'`);
+      runtime.pageRoutes.push({
+        path: r.path,
+        componentId: r.component,
+        permissions: r.permissions ?? [],
+        moduleId: m.id,
+      });
+    }
     for (const w of m.widgets ?? []) {
       resolveComponent(w.component, `module '${m.id}' widget '${w.id}'`);
       runtime.widgets.push({
@@ -97,6 +106,7 @@ export function buildModuleRuntime(modules, components) {
   runtime.menu.sort(byOrderId);
   runtime.widgets.sort(byOrderId);
   runtime.slots.sort(byOrderId);
+  runtime.pageRoutes.sort((a, b) => a.path.localeCompare(b.path));
   runtime.modules.sort((a, b) => a.id.localeCompare(b.id));
 
   const componentImports = [...importsMap.values()].sort((a, b) => a.id.localeCompare(b.id));

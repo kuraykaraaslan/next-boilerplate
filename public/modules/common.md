@@ -26,6 +26,7 @@ Dependency-free leaf module loaded by every other module: AppError + ErrorCode e
 - `common/ui/DateRangePicker` _(ui, client)_
 - `common/ui/DemoModeNotice` _(ui, client)_
 - `common/ui/Drawer` _(ui, client)_
+- `common/ui/DynamicAdminPage` _(ui, client)_
 - `common/ui/EmptyState` _(ui, client)_
 - `common/ui/FileInput` _(ui, client)_
 - `common/ui/Form` _(ui, client)_
@@ -71,8 +72,7 @@ Dependency-free leaf module loaded by every other module: AppError + ErrorCode e
 - `common/ui/SlotErrorBoundary` _(ui, client)_
 - `common/ui/Spinner` _(ui, client)_
 - `common/ui/TabGroup` _(ui, client)_
-- `common/ui/ThemeToggle` _(ui, client)_
-- … and 4 more
+- … and 5 more
 
 ## README
 

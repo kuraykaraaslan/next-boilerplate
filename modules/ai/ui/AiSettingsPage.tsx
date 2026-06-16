@@ -1,10 +1,12 @@
 'use client';
-import { use } from 'react';
 import { SettingsPanelHost } from '@nb/setting/ui/SettingsPanelHost';
 import { PlatformAiTab } from '@nb/setting/ui/PlatformSettingsTabs';
 
-export default function AiSettingsPage({ params }: { params: Promise<{ tenantId: string }> }) {
-  const { tenantId } = use(params);
+/**
+ * AI settings page. Served by the catch-all dynamic admin route via the ai
+ * module's manifest `routes` entry (component id `ai/ui/AiSettingsPage`).
+ */
+export function AiSettingsPage({ tenantId }: { tenantId: string }) {
   return (
     <SettingsPanelHost
       tenantId={tenantId}

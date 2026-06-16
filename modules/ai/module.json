@@ -35,5 +35,9 @@
       "order": 10,
       "scope": "tenant"
     }
+  ],
+  "routes": [
+    { "path": "/admin/ai", "component": "ai/ui/AiAdminPage" },
+    { "path": "/admin/ai/settings", "component": "ai/ui/AiSettingsPage" }
   ]
 }

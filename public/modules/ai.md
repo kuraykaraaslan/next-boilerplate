@@ -47,7 +47,9 @@ Pluggable AI providers (Anthropic, OpenAI, Google). Chat, embeddings, streaming,
 
 ## Next layer (modules_next/) surface
 
+- `ai/ui/AiAdminPage` _(ui, client)_
 - `ai/ui/AIChatBox` _(ui, client)_
+- `ai/ui/AiSettingsPage` _(ui, client)_
 - `ai/ui/AIUsageTab` _(ui, client)_
 - `ai/ui/UsageChart` _(ui, client)_
 

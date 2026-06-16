@@ -1,5 +1,5 @@
 'use client';
-import { use, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import api from '@nb/common/server/axios';
 import { PageHeader } from '@nb/common/ui/PageHeader';
 import { Card } from '@nb/common/ui/Card';
@@ -12,17 +12,21 @@ import { Badge } from '@nb/common/ui/Badge';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faServer, faGear } from '@fortawesome/free-solid-svg-icons';
 
-type ModelInfo    = { model: string; provider: string };
+type ModelInfo = { model: string; provider: string };
 type ProviderInfo = { provider: string; configured: boolean };
-type UsageEntry   = { daily: Record<string, number>; total: number };
+type UsageEntry = { daily: Record<string, number>; total: number };
 
-export default function AIPage({ params }: { params: Promise<{ tenantId: string }> }) {
-  const { tenantId } = use(params);
-  const [models,    setModels]    = useState<ModelInfo[]>([]);
+/**
+ * AI admin page. Served by the catch-all dynamic admin route via the ai module's
+ * manifest `routes` entry (component id `ai/ui/AiAdminPage`). Renders only when
+ * the ai module is enabled for the tenant.
+ */
+export function AiAdminPage({ tenantId }: { tenantId: string }) {
+  const [models, setModels] = useState<ModelInfo[]>([]);
   const [providers, setProviders] = useState<ProviderInfo[]>([]);
-  const [usage,     setUsage]     = useState<Record<string, UsageEntry>>({});
-  const [loading,   setLoading]   = useState(true);
-  const [error,     setError]     = useState('');
+  const [usage, setUsage] = useState<Record<string, UsageEntry>>({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     Promise.all([

@@ -41,20 +41,18 @@ describe('matchesFilter', () => {
   });
 });
 
-describe('findMenuOwner (route gating)', () => {
-  it('maps an admin path to its owning module via the seeded manifest menu', () => {
-    expect(moduleRegistry.findMenuOwner('/admin/ai')).toBe('ai');
-    // sub-paths resolve to the same owner
-    expect(moduleRegistry.findMenuOwner('/admin/ai/usage')).toBe('ai');
+describe('findPageRoute (dynamic admin routing)', () => {
+  it('resolves an admin path to the module page declared in its manifest routes', () => {
+    expect(moduleRegistry.findPageRoute('/admin/ai')?.componentId).toBe('ai/ui/AiAdminPage');
+    expect(moduleRegistry.findPageRoute('/admin/ai')?.moduleId).toBe('ai');
   });
 
-  it('prefers the longest-prefix owner (settings/branding over settings)', () => {
-    expect(moduleRegistry.findMenuOwner('/admin/settings')).toBe('setting');
-    expect(moduleRegistry.findMenuOwner('/admin/settings/branding')).toBe('tenant_branding');
+  it('prefers the longest-prefix route (ai/settings over ai)', () => {
+    expect(moduleRegistry.findPageRoute('/admin/ai/settings')?.componentId).toBe('ai/ui/AiSettingsPage');
   });
 
-  it('returns undefined for unclaimed paths (never gated)', () => {
-    expect(moduleRegistry.findMenuOwner('/admin')).toBeUndefined();
-    expect(moduleRegistry.findMenuOwner('/admin/totally-unknown')).toBeUndefined();
+  it('returns undefined for paths no module page claims (catch-all 404s)', () => {
+    expect(moduleRegistry.findPageRoute('/admin')).toBeUndefined();
+    expect(moduleRegistry.findPageRoute('/admin/totally-unknown')).toBeUndefined();
   });
 });

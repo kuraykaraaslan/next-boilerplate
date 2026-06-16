@@ -11,7 +11,7 @@
     "hasNextLayer": true,
     "routeCount": 0,
     "entityCount": 0,
-    "componentCount": 64,
+    "componentCount": 65,
     "file": "common.md"
   },
   "env": {
@@ -1013,7 +1013,7 @@
     "hasNextLayer": true,
     "routeCount": 6,
     "entityCount": 1,
-    "componentCount": 3,
+    "componentCount": 5,
     "file": "ai.md"
   },
   "dynamic_page": {

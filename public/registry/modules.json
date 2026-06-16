@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T08:19:15.536Z",
+  "generatedAt": "2026-06-16T08:35:38.155Z",
   "modules": [
     {
       "id": "common",
@@ -36,6 +36,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -79,6 +80,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -123,6 +125,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -167,6 +170,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -213,6 +217,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -260,6 +265,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -310,6 +316,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -356,6 +363,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -401,6 +409,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -475,6 +484,7 @@
           "scope": "tenant"
         }
       ],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -520,6 +530,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -563,6 +574,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -629,6 +641,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -697,6 +710,7 @@
           "scope": "system"
         }
       ],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -750,6 +764,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -807,6 +822,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -870,6 +886,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -929,6 +946,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -984,6 +1002,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1065,6 +1084,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1113,6 +1133,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1197,6 +1218,7 @@
           "scope": "tenant"
         }
       ],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1263,6 +1285,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1333,6 +1356,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1395,6 +1419,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1458,6 +1483,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1531,6 +1557,7 @@
           "scope": "system"
         }
       ],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1596,6 +1623,7 @@
           "scope": "tenant"
         }
       ],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1665,6 +1693,7 @@
           "scope": "tenant"
         }
       ],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1718,6 +1747,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1777,6 +1807,7 @@
           "scope": "tenant"
         }
       ],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1849,6 +1880,7 @@
           "scope": "tenant"
         }
       ],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1928,6 +1960,7 @@
           "scope": "tenant"
         }
       ],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1984,6 +2017,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2086,6 +2120,7 @@
           "scope": "tenant"
         }
       ],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [
         {
@@ -2146,6 +2181,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2218,6 +2254,7 @@
           "scope": "tenant"
         }
       ],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2282,6 +2319,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2329,6 +2367,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2398,6 +2437,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2461,6 +2501,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2522,6 +2563,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2594,6 +2636,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2641,6 +2684,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2697,6 +2741,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2749,6 +2794,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2800,6 +2846,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2850,6 +2897,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2911,6 +2959,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2974,6 +3023,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3037,6 +3087,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3099,6 +3150,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3182,6 +3234,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3237,6 +3290,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3300,6 +3354,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3360,6 +3415,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3430,6 +3486,7 @@
           "scope": "tenant"
         }
       ],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3505,6 +3562,7 @@
           "scope": "system"
         }
       ],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3608,6 +3666,7 @@
           "scope": "tenant"
         }
       ],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3678,6 +3737,7 @@
           "scope": "tenant"
         }
       ],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3745,6 +3805,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3806,6 +3867,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3891,6 +3953,7 @@
           "scope": "tenant"
         }
       ],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3965,6 +4028,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4054,6 +4118,7 @@
           "scope": "tenant"
         }
       ],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4130,6 +4195,7 @@
           "scope": "tenant"
         }
       ],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4199,6 +4265,7 @@
           "scope": "tenant"
         }
       ],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4280,6 +4347,7 @@
           "scope": "tenant"
         }
       ],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4355,6 +4423,7 @@
           "scope": "tenant"
         }
       ],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4429,6 +4498,7 @@
           "scope": "tenant"
         }
       ],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4506,6 +4576,7 @@
           "scope": "tenant"
         }
       ],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4567,6 +4638,16 @@
           "group": "Developer",
           "order": 10,
           "scope": "tenant"
+        }
+      ],
+      "adminRoutes": [
+        {
+          "path": "/admin/ai",
+          "component": "ai/ui/AiAdminPage"
+        },
+        {
+          "path": "/admin/ai/settings",
+          "component": "ai/ui/AiSettingsPage"
         }
       ],
       "widgets": [],
@@ -4658,6 +4739,7 @@
           "scope": "tenant"
         }
       ],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4739,6 +4821,7 @@
           "scope": "tenant"
         }
       ],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4805,6 +4888,7 @@
           "scope": "tenant"
         }
       ],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4872,6 +4956,7 @@
           "scope": "tenant"
         }
       ],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4927,6 +5012,7 @@
           "scope": "tenant"
         }
       ],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4971,6 +5057,7 @@
       },
       "enabled": true,
       "menu": [],
+      "adminRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],

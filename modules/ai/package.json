@@ -22,6 +22,8 @@
     "./server/providers/openai.transport": "./server/providers/openai.transport.ts",
     "./ui/AIChatBox": "./ui/AIChatBox.tsx",
     "./ui/AIUsageTab": "./ui/AIUsageTab.tsx",
+    "./ui/AiAdminPage": "./ui/AiAdminPage.tsx",
+    "./ui/AiSettingsPage": "./ui/AiSettingsPage.tsx",
     "./ui/UsageChart": "./ui/UsageChart.tsx",
     "./module.json": "./module.json"
   },

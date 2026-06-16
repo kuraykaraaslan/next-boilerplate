@@ -46,6 +46,13 @@ export interface RuntimeWidget {
   moduleId: string;
 }
 
+export interface RuntimePageRoute {
+  path: string;
+  componentId: string;
+  permissions: string[];
+  moduleId: string;
+}
+
 export interface RuntimeModule {
   id: string;
   name: string;
@@ -75,6 +82,7 @@ const MENU = runtime.menu as unknown as RuntimeMenuItem[];
 const SLOTS = runtime.slots as unknown as RuntimeSlotContribution[];
 const WIDGETS = runtime.widgets as unknown as RuntimeWidget[];
 const MODULES = runtime.modules as unknown as RuntimeModule[];
+const PAGE_ROUTES = (runtime.pageRoutes ?? []) as unknown as RuntimePageRoute[];
 
 function scopeMatches(itemScope: ModuleScope, want?: ModuleScope): boolean {
   if (!want) return true;
@@ -125,19 +133,24 @@ export const moduleRegistry = {
     return WIDGETS.filter((w) => matchesFilter(w, filter)).sort(byOrder);
   },
 
+  /** All manifest-declared admin page routes. */
+  getPageRoutes(): RuntimePageRoute[] {
+    return PAGE_ROUTES;
+  },
+
   /**
-   * The module that owns a given admin path, by longest-prefix match over all
-   * manifest-declared menu hrefs (e.g. '/admin/ai' -> 'ai'). Returns undefined
-   * when no module claims the path (such paths are never gated).
+   * The module page that serves an admin path, by longest-prefix match over
+   * manifest-declared `routes` (so a module can own '/admin/ai' and
+   * '/admin/ai/settings'). Used by the catch-all dynamic admin route.
    */
-  findMenuOwner(adminPath: string): string | undefined {
-    let best: { len: number; moduleId: string } | undefined;
-    for (const m of MENU) {
-      if (adminPath === m.href || adminPath.startsWith(m.href + '/')) {
-        if (!best || m.href.length > best.len) best = { len: m.href.length, moduleId: m.moduleId };
+  findPageRoute(adminPath: string): RuntimePageRoute | undefined {
+    let best: RuntimePageRoute | undefined;
+    for (const r of PAGE_ROUTES) {
+      if (adminPath === r.path || adminPath.startsWith(r.path + '/')) {
+        if (!best || r.path.length > best.path.length) best = r;
       }
     }
-    return best?.moduleId;
+    return best;
   },
 };
 

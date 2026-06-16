@@ -1,8 +1,20 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T08:19:15.536Z",
+  "generatedAt": "2026-06-16T08:35:38.155Z",
   "components": [
+    {
+      "id": "ai/ui/AiAdminPage",
+      "module": "ai",
+      "filePath": "modules/ai/ui/AiAdminPage.tsx",
+      "kind": "ui",
+      "exports": [
+        "AiAdminPage"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "AiAdminPage"
+    },
     {
       "id": "ai/ui/AIChatBox",
       "module": "ai",
@@ -15,6 +27,18 @@
       "isClient": true,
       "isServer": false,
       "baseName": "AIChatBox"
+    },
+    {
+      "id": "ai/ui/AiSettingsPage",
+      "module": "ai",
+      "filePath": "modules/ai/ui/AiSettingsPage.tsx",
+      "kind": "ui",
+      "exports": [
+        "AiSettingsPage"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "AiSettingsPage"
     },
     {
       "id": "ai/ui/AIUsageTab",
@@ -622,6 +646,18 @@
       "isClient": true,
       "isServer": false,
       "baseName": "Drawer"
+    },
+    {
+      "id": "common/ui/DynamicAdminPage",
+      "module": "common",
+      "filePath": "modules/common/ui/DynamicAdminPage.tsx",
+      "kind": "ui",
+      "exports": [
+        "DynamicAdminPage"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "DynamicAdminPage"
     },
     {
       "id": "common/ui/EmptyState",

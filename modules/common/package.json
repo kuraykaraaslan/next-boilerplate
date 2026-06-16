@@ -40,6 +40,7 @@
     "./ui/DateRangePicker": "./ui/DateRangePicker.tsx",
     "./ui/DemoModeNotice": "./ui/DemoModeNotice.tsx",
     "./ui/Drawer": "./ui/Drawer.tsx",
+    "./ui/DynamicAdminPage": "./ui/DynamicAdminPage.tsx",
     "./ui/EmptyState": "./ui/EmptyState.tsx",
     "./ui/FileInput": "./ui/FileInput.tsx",
     "./ui/Form": "./ui/Form.tsx",

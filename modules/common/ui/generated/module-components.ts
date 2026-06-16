@@ -3,5 +3,7 @@
 import { lazy, type ComponentType } from 'react';
 
 export const moduleComponents: Record<string, ComponentType<any>> = {
+  "ai/ui/AiAdminPage": lazy(() => import("@nb/ai/ui/AiAdminPage").then((m) => { const M = m as Record<string, ComponentType<any>>; return { default: M.default ?? M["AiAdminPage"] }; })),
+  "ai/ui/AiSettingsPage": lazy(() => import("@nb/ai/ui/AiSettingsPage").then((m) => { const M = m as Record<string, ComponentType<any>>; return { default: M.default ?? M["AiSettingsPage"] }; })),
   "payment/ui/BillingProfileTab": lazy(() => import("@nb/payment/ui/BillingProfileTab").then((m) => { const M = m as Record<string, ComponentType<any>>; return { default: M.default ?? M["BillingProfileTab"] }; })),
 };
