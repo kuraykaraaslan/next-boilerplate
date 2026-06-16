@@ -39,8 +39,10 @@ export function ModuleManagerPage({ tenantId }: { tenantId: string }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
 
   const base = `/tenant/${tenantId}/api/modules`;
+  const PAGE_SIZE = 12;
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -126,6 +128,21 @@ export function ModuleManagerPage({ tenantId }: { tenantId: string }) {
       render: (m) => (m.tier ? <Badge variant="neutral" size="sm">{m.tier}</Badge> : <span className="text-text-tertiary">—</span>),
     },
     {
+      key: 'license',
+      header: 'License',
+      render: (m) =>
+        m.license ? (
+          <span
+            className="text-xs text-text-secondary"
+            title="Free for community use. No commercial use, no modifications (CC BY-NC-ND 4.0)."
+          >
+            {m.license}
+          </span>
+        ) : (
+          <span className="text-text-tertiary">—</span>
+        ),
+    },
+    {
       key: '_status',
       header: 'Status',
       align: 'right',
@@ -162,13 +179,13 @@ export function ModuleManagerPage({ tenantId }: { tenantId: string }) {
       {error && <AlertBanner variant="error" message={error} dismissible />}
       <ServerDataTable
         columns={columns}
-        rows={modules}
+        rows={modules.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)}
         getRowKey={(m) => m.id}
-        page={1}
-        totalPages={1}
+        page={page}
+        totalPages={Math.max(1, Math.ceil(modules.length / PAGE_SIZE))}
         total={modules.length}
-        onPageChange={() => {}}
-        hidePagination
+        pageSize={PAGE_SIZE}
+        onPageChange={setPage}
         emptyMessage="No modules found."
       />
     </div>

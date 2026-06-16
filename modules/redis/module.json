@@ -24,5 +24,6 @@
     "createQueue": "redis.bullmq.ts"
   },
   "author": "Kuray Karaaslan",
-  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/redis"
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/redis",
+  "license": "CC-BY-NC-ND-4.0"
 }

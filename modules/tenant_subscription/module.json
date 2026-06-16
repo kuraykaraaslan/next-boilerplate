@@ -27,5 +27,6 @@
     "FEATURE_KEYS"
   ],
   "author": "Kuray Karaaslan",
-  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/tenant_subscription"
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/tenant_subscription",
+  "license": "CC-BY-NC-ND-4.0"
 }

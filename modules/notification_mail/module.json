@@ -24,5 +24,6 @@
     "MAIL_KEYS"
   ],
   "author": "Kuray Karaaslan",
-  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/notification_mail"
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/notification_mail",
+  "license": "CC-BY-NC-ND-4.0"
 }

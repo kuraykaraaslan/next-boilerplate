@@ -27,5 +27,6 @@
     "INVOICE_KEYS"
   ],
   "author": "Kuray Karaaslan",
-  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/invoice"
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/invoice",
+  "license": "CC-BY-NC-ND-4.0"
 }

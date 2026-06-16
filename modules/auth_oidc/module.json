@@ -20,5 +20,6 @@
     ]
   },
   "author": "Kuray Karaaslan",
-  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_oidc"
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_oidc",
+  "license": "CC-BY-NC-ND-4.0"
 }

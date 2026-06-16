@@ -45,5 +45,6 @@
     "keys": "TERMS_CONSENT_KEYS"
   },
   "author": "Kuray Karaaslan",
-  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/terms_consent"
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/terms_consent",
+  "license": "CC-BY-NC-ND-4.0"
 }

@@ -18,5 +18,6 @@
     "env": "env.service.ts"
   },
   "author": "Kuray Karaaslan",
-  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/env"
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/env",
+  "license": "CC-BY-NC-ND-4.0"
 }

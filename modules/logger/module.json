@@ -19,5 +19,6 @@
     "logger": "logger.service.ts"
   },
   "author": "Kuray Karaaslan",
-  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/logger"
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/logger",
+  "license": "CC-BY-NC-ND-4.0"
 }

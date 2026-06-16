@@ -21,5 +21,6 @@
     ]
   },
   "author": "Kuray Karaaslan",
-  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_loyalty_points"
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_loyalty_points",
+  "license": "CC-BY-NC-ND-4.0"
 }

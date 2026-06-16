@@ -20,5 +20,6 @@
     "RedisIdempotencyService": "redis_idempotency.service.ts"
   },
   "author": "Kuray Karaaslan",
-  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/redis_idempotency"
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/redis_idempotency",
+  "license": "CC-BY-NC-ND-4.0"
 }

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-16T08:01:13.592Z",
+  "generatedAt": "2026-06-16T08:04:10.549Z",
   "menu": [
     {
       "id": "modules",
@@ -72,7 +72,7 @@
       "description": "Pluggable AI providers (Anthropic, OpenAI, Google). Chat, embeddings, streaming, usage tracking.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/ai",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "platform",
         "ai"
@@ -89,7 +89,7 @@
       "description": "Tenant-scoped product analytics: append-only event tracking (page views, signups, custom events) plus aggregate reads — top-line summary (total events, unique users/sessions, top events), GROUP BY date_trunc timeseries with dense gap-filling, and top-events. Tracking works for anonymous visitors; summaries are short-cached in Redis. Distinct from metering (billing) and observability (ops metrics).",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/analytics",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "platform",
         "analytics",
@@ -108,7 +108,7 @@
       "description": "OpenAPI/Swagger spec builder + helpers for serving per-tenant API docs.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/api_doc",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "platform",
         "documentation"
@@ -125,7 +125,7 @@
       "description": "Tenant-scoped API keys for programmatic access (hashed at rest, scope-bound).",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/api_key",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "platform",
         "security"
@@ -142,7 +142,7 @@
       "description": "Generic, entity-agnostic moderation / approval queue. Any owning module can route an entity through human review via the queue (keyed by entityType + entityId) with a tamper-evident per-tenant decision hash chain and an in-memory decision-handler hook. Open items are PENDING / IN_REVIEW / ESCALATED; terminal items are APPROVED / REJECTED, with a partial unique index enforcing at most one open item per entity and SLA-by-priority due dates. Every decision is recorded in the append-only audit log; submitters are notified in-app and webhooks fire on each lifecycle event.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/approval",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "approval",
         "moderation",
@@ -162,7 +162,7 @@
       "description": "Append-only audit trail for sensitive actions, stored per-tenant (platform events land on ROOT_TENANT_ID).",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/audit_log",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "platform",
         "security",
@@ -180,7 +180,7 @@
       "description": "Credential auth: login, register, password reset, email verify, OTP, TOTP. Coordinates user, user_session, user_security, notification_mail.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "identity",
         "auth",
@@ -198,7 +198,7 @@
       "description": "National/government digital-identity login (e-Devlet TR/KKTC, eIDAS, SPID, Cl@ve, DE eID, Login.gov, ID.me, OneID, MyGov ID). Registry of SAML + OIDC providers keyed on a hashed national identifier (no email), with synthetic-email JIT + account-merge and platform-level config via ACS_PROVIDER_MAP.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "identity",
         "auth",
@@ -219,7 +219,7 @@
       "description": "E-signature / e-identity login consumer: matches and binds qualified electronic-signature certificates (TR Mobil İmza, Smart-ID, BankID, eIDAS QSCD) to user accounts and runs the login/bind workflow. Consumes the e_signature engine for provider/crypto/identity primitives; owns the certificate↔user binding (signing_certificates).",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_e_signature",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "auth",
         "identity",
@@ -238,7 +238,7 @@
       "description": "Allow a system admin to assume a target user's session (always audited).",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_impersonation",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "identity",
         "auth",
@@ -256,7 +256,7 @@
       "description": "Generic, config-driven OAuth2/OIDC protocol engine (authorize → token → userinfo, PKCE, refresh, private_key_jwt, Basic confidential-client auth) plus a custom/bring-your-own OIDC provider. Consumed by auth_sso (social catalog) and auth_acs (government catalog); the OIDC analogue of auth_saml.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_oidc",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "identity",
         "auth",
@@ -276,7 +276,7 @@
       "description": "SAML 2.0 SSO with per-tenant IdP config (SamlConfig): signature alg, dual-cert rotation, encrypted assertions, SLO, JIT-atomic provisioning, ABAC role mapping, metadata import, replay detection.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_saml",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "identity",
         "auth",
@@ -295,7 +295,7 @@
       "description": "OAuth 2.0 SSO with 12 providers: Google, GitHub, Apple, Microsoft, Facebook, LinkedIn, Twitter, Slack, TikTok, WeChat, Autodesk.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_sso",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "identity",
         "auth",
@@ -313,7 +313,7 @@
       "description": "Tenant-scoped blog with posts, categories and threaded comments. Posts have a draft/published/archived lifecycle; comment moderation and anonymous-comment policy are per-tenant settings.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/blog",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "blog",
         "content",
@@ -333,7 +333,7 @@
       "description": "Dependency-free leaf module loaded by every other module: AppError + ErrorCode enum (with retryable flag, statusCodeFor/isRetryable helpers) plus shared locale, country, currency, timezone, Money, pagination and log-context primitives.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/common",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "infrastructure",
         "core",
@@ -352,7 +352,7 @@
       "description": "Discount coupons + redemption tracking. Provider-aware (Stripe / PayPal / Iyzico) so codes sync with the payment processor.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/coupon",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "billing",
         "marketing"
@@ -369,7 +369,7 @@
       "description": "TypeORM DataSource factory — single shared DB for all entities, optional per-tenant DB override via TenantDatabase.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/db",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "infrastructure",
         "core",
@@ -387,7 +387,7 @@
       "description": "Tenant-aware block-based page builder with i18n support. Supports code blocks (Prose, Hero, Popup Modal, Custom) and custom HTML template blocks. Public pages served at /tenant/[tenantId]/p/[slug].",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/dynamic_page",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "cms",
         "pages",
@@ -407,7 +407,7 @@
       "description": "Multi-country e-identity login + e-signature (eIDAS/OIDC4IDA). Pluggable providers (TR Mobil İmza, Smart-ID, BankID, itsme, FranceConnect, eIDAS-nPA, Signicat).",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/e_signature",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "auth",
         "identity",
@@ -426,7 +426,7 @@
       "description": "Zod-validated env var access. Single source of truth — never read process.env directly outside this module.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/env",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "infrastructure",
         "core",
@@ -444,7 +444,7 @@
       "description": "TCMB (Turkish Central Bank) FX rates with Redis caching. Converts plan prices to TRY when charging Turkish cards via iyzico.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/exchange_rate",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "billing",
         "fx"
@@ -461,7 +461,7 @@
       "description": "Tenant-scoped feature flags with master switch, deterministic percentage rollout, attribute-based targeting rules, and per-subject (user/segment) overrides. Read-through cached for hot-path evaluation; every write is audit-logged.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/feature_flags",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "platform",
         "feature-flags",
@@ -480,7 +480,7 @@
       "description": "Prepaid gift cards: issue (single + bulk) hash-protected codes, track redeemable balance, and redeem into a user's wallet. Redemption posts a wallet credit in the card's currency; supports partial redemption, void, admin balance adjustment, and an expiry sweep. Builds on wallet (credit) and payment (purchase-backed issuing).",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/gift_card",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "billing",
         "commerce",
@@ -499,7 +499,7 @@
       "description": "Third-party connector hub (Zapier-like). Owns a per-tenant connector catalog, connection state, and encrypted OAuth tokens. Outbound triggers bridge onto the webhook module (signing/retry/circuit-breaker reused); inbound actions authenticate via the api_key module. OAuth2 authorization-code + refresh flows with AES-256-GCM token storage.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/integrations_hub",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "platform",
         "integrations",
@@ -519,7 +519,7 @@
       "description": "Tenant-scoped invoicing with regional e-invoicing adapters (TR e-Arşiv, EU Peppol, US Stripe Tax). Each tenant issues its own invoices keyed to its own subscription / payment flow.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/invoice",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "invoice",
         "billing",
@@ -538,7 +538,7 @@
       "description": "Sliding-window rate limiter + tenant-plan-based quota enforcement (seat/feature/usage limits).",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/limiter",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "infrastructure",
         "security",
@@ -556,7 +556,7 @@
       "description": "Winston-based structured logger. Use instead of console.* across the codebase.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/logger",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "infrastructure",
         "core"
@@ -573,7 +573,7 @@
       "description": "Polymorphic ordered image gallery attachable to any entity type. Items wrap UploadedFile rows (storage module) and add gallery-side overlay: sortOrder, isPrimary, altText, title.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/media_gallery",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "media",
         "gallery",
@@ -591,7 +591,7 @@
       "description": "Tenant-scoped real-time messaging: 1-1 and group conversations, persisted messages with soft-delete, read/delivery cursors, typing + presence, participant roles. HTTP for writes, a standalone Socket.IO service for realtime fan-out via Redis pub/sub.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/messaging",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "messaging",
         "chat",
@@ -610,7 +610,7 @@
       "description": "Event-based usage metering with metered / overage billing. Records immutable usage events per meter (SUM/MAX/LAST aggregation), keeps a Redis hot counter for fast current-period reads, and settles overages on a two-rail model: prepaid wallet credits are debited first, the remainder is invoiced as a draft. Quantities and money are integer minor units; runs are idempotent and persisted.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/metering",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "metering",
         "usage",
@@ -630,7 +630,7 @@
       "description": "Network primitives: subnet (CIDR) allowlist matching, address classification, and the shared types/enums for IP-based access control. Dependency-free leaf module.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/network",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "infrastructure",
         "core",
@@ -649,7 +649,7 @@
       "description": "In-app notification feed with unread counts. Consumed by the notification menu in the app shell.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/notification_inapp",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "notifications",
         "in-app"
@@ -666,7 +666,7 @@
       "description": "Unified outbound notification audit log across mail, sms, push, inapp channels.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/notification_log",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "notifications",
         "audit"
@@ -683,7 +683,7 @@
       "description": "Pluggable email sender (SMTP, SES, Mailgun, Postmark, Resend, SendGrid). EJS templates. BullMQ-backed queue.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/notification_mail",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "notifications",
         "email"
@@ -700,7 +700,7 @@
       "description": "Web Push (VAPID) — subscription storage + send.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/notification_push",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "notifications",
         "push"
@@ -717,7 +717,7 @@
       "description": "Pluggable SMS sender (Twilio, Nexmo, Clickatell, NetGSM).",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/notification_sms",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "notifications",
         "sms"
@@ -734,7 +734,7 @@
       "description": "Sentry + Prometheus + OTel facade. Auto-tags every log/trace/metric with the active tenantId/userId/requestId via Logger AsyncLocalStorage context. Lazy-loaded — no-op when SENTRY_DSN / METRICS_ENABLED / OTEL_ENABLED are unset.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/observability",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "observability",
         "infra",
@@ -752,7 +752,7 @@
       "description": "Tenant-aware fulfillment and shipment tracking for orders. Manages packing, carrier tracking, status lifecycle, and an append-only event log.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/order_fulfillment",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "order",
         "fulfillment",
@@ -771,7 +771,7 @@
       "description": "Pluggable payment processing (Stripe, PayPal, Iyzico) + subscription plans, plan features, payment transactions, webhook handling.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "billing",
         "payment"
@@ -788,7 +788,7 @@
       "description": "Tenant-aware shopping cart for users and anonymous guests. Manages cart items, quantities, coupon codes, totals, guest-to-user merge, and conversion to checkout.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_cart",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "payment",
         "cart",
@@ -819,7 +819,7 @@
       "description": "Tenant-aware loyalty points program. Earn / redeem points, lifetime-driven tiers with earn multipliers, manual adjustments, transaction ledger, and point expiry.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_loyalty_points",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "loyalty",
         "points",
@@ -838,7 +838,7 @@
       "description": "Customer return, exchange and refund (RMA) requests with line items and an append-only status-event log. Tenant-aware, references orders from a future order module.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_return_rma",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "return",
         "rma",
@@ -857,7 +857,7 @@
       "description": "One-time product / service payment processing. Uses payment_core providers (Stripe, PayPal, Iyzico, Alipay, WeChat Pay, YooKassa, CloudPayments). Tenant-aware checkout sessions, transactions, and refunds.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_sell",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "payment",
         "sell",
@@ -875,7 +875,7 @@
       "description": "Tenant-aware shipping methods and a rate-calculation engine. Define carriers and rate rules (by country, region, weight, subtotal) and compute shipping quotes at checkout.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_shipping",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "payment",
         "shipping",
@@ -893,7 +893,7 @@
       "description": "Recurring subscription lifecycle: plans, plan features, subscriber management, proration, billing cycle tracking. Provider-agnostic (Stripe, PayPal, Iyzico, …). Tenant-aware — every plan and subscription is scoped to a tenant.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_subscription",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "payment",
         "subscription",
@@ -912,7 +912,7 @@
       "description": "Tenant-aware tax/VAT calculation engine: tax classes, destination-matched rates, compound and price-inclusive computation.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_tax",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "payment",
         "tax",
@@ -931,7 +931,7 @@
       "description": "Tenant-aware wishlists / favorites. Users keep multiple named lists of products and variants, with optional public sharing via a share token.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_wishlist",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "wishlist",
         "ecommerce",
@@ -949,7 +949,7 @@
       "description": "Tenant-aware product ratings and reviews with verified-purchase flags, helpful voting, moderation lifecycle, and cached per-product rating summaries.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/product_review",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "review",
         "rating",
@@ -968,7 +968,7 @@
       "description": "Shared ioredis client + BullMQ connection helpers + Pub/Sub-safe createRedisConnection().",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/redis",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "infrastructure",
         "core",
@@ -987,7 +987,7 @@
       "description": "Redis-backed idempotency-key store for safely retryable POST/PATCH operations.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/redis_idempotency",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "infrastructure",
         "reliability"
@@ -1004,7 +1004,7 @@
       "description": "System for Cross-domain Identity Management (RFC 7643/7644). Lets enterprise IdPs (Okta, Azure AD, OneLogin, Google Workspace) auto-provision and deprovision tenant members.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/scim",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "identity",
         "enterprise",
@@ -1023,7 +1023,7 @@
       "description": "Tenant-scoped full-text search over arbitrary content. Owning modules push documents (title/body/url/metadata keyed by entityType+entityId); the default PostgreSQL FTS provider ranks results with ts_rank and returns ts_headline snippets. Provider abstraction leaves room for Meilisearch/Elastic. All queries are parameterized and tenant-scoped.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/search",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "platform",
         "search",
@@ -1041,7 +1041,7 @@
       "description": "Demo-data seeding framework. Each domain module ships a <module>.seed.ts exporting seed<Module>(ctx); the runner invokes them in dependency order against a target tenant.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/seed",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "infrastructure",
         "tooling"
@@ -1058,7 +1058,7 @@
       "description": "Polymorphic SEO metadata (title, description, Open Graph, canonical, noIndex) attachable to any entity type via entityType + entityId pair.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/seo",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "seo",
         "metadata"
@@ -1075,7 +1075,7 @@
       "description": "System-wide key-value settings store. Modules declare their keys in *.setting.keys.ts; the setting service stores/reads them.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/setting",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "platform",
         "configuration"
@@ -1092,7 +1092,7 @@
       "description": "Pluggable S3-compatible file storage (AWS S3, Cloudflare R2, DigitalOcean Spaces, MinIO) with content-derived MIME validation and optional online virus scanning (VirusTotal).",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/storage",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "platform",
         "storage",
@@ -1110,7 +1110,7 @@
       "description": "Tenant-aware e-commerce store. Hierarchical categories with typed spec templates; products with Tiptap richtext descriptions, spec values, multiple images, tags, SEO; variation types (Color, Size, …) with options and swatches; product variants with independent SKU / price / stock per combination; product bundles with per-item quantity and price overrides. Admin-only — no storefront UI layer.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/store",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "store",
         "ecommerce",
@@ -1129,7 +1129,7 @@
       "description": "Customer support-ticket desk. Customers open support tickets with per-tenant monotonic ticket numbers (e.g. TICK-2026-00001), agent assignment, internal agent-only notes, threaded messages, and first-response + resolution SLA tracking. Ticket status flows OPEN → PENDING (agent replied) → RESOLVED → CLOSED; the first agent reply records the first-response time. Lifecycle changes are written to the append-only audit log; requesters/agents are notified in-app and webhooks fire on each event.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/support",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "support",
         "tickets",
@@ -1149,7 +1149,7 @@
       "description": "Tenant CRUD, lifecycle (active/suspended/deleted), soft-deletion service. Foundation of multi-tenancy.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/tenant",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "tenant",
         "core"
@@ -1166,7 +1166,7 @@
       "description": "White-label branding: logo, favicon, colors, font, custom CSS — read by the proxy/shell to render per-tenant chrome.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/tenant_branding",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "tenant",
         "branding",
@@ -1184,7 +1184,7 @@
       "description": "Custom domain mapping per tenant + DNS verification (TXT/CNAME challenge).",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/tenant_domain",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "tenant",
         "domain",
@@ -1202,7 +1202,7 @@
       "description": "Export all per-tenant data into a downloadable archive (GDPR-friendly).",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/tenant_export",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "tenant",
         "compliance",
@@ -1220,7 +1220,7 @@
       "description": "Email invitation flow: create / accept / decline / revoke. Bound to tenant_member on acceptance.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/tenant_invitation",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "tenant",
         "onboarding"
@@ -1237,7 +1237,7 @@
       "description": "Tenant-scoped membership join table with roles (owner/admin/member) and per-member permissions.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/tenant_member",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "tenant"
       ],
@@ -1253,7 +1253,7 @@
       "description": "Tenant-scoped session handling: bind a user session to a specific tenant, resolve tenant from request.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/tenant_session",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "tenant",
         "auth"
@@ -1270,7 +1270,7 @@
       "description": "Tenant subscription state, plan + feature key resolution, grace period, expiry job.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/tenant_subscription",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "tenant",
         "billing"
@@ -1287,7 +1287,7 @@
       "description": "Usage metric tracking per tenant (API calls, storage GB, seats). Source for plan-limit enforcement.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/tenant_usage",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "tenant",
         "metrics",
@@ -1305,7 +1305,7 @@
       "description": "Legal agreements + consent. Versioned, immutable, hash-stamped agreement documents (terms of use, privacy/KVKK, distance-selling, pre-information, refund policy, cookie, custom) with an append-only acceptance ledger. Reusable agreements record version+hash on acceptance; order-specific documents (distance-selling/pre-information) are rendered per order and stored verbatim. Also keeps the cookie-consent banner + per-purpose consent ledger. Checkout integration enforces required agreement acceptance before payment. Data export/erasure stays with tenant_export.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/terms_consent",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "platform",
         "legal",
@@ -1328,7 +1328,7 @@
       "description": "Core user CRUD: create, find, update, deactivate. Foundation for every auth and tenancy flow.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/user",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "identity",
         "core"
@@ -1345,7 +1345,7 @@
       "description": "Parse User-Agent header into device/OS/browser metadata. Used to annotate sessions and audit logs.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/user_agent",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "identity",
         "utility"
@@ -1362,7 +1362,7 @@
       "description": "Per-user preferences: theme, language, timezone, notification opt-ins.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/user_preferences",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "identity",
         "ux"
@@ -1379,7 +1379,7 @@
       "description": "Profile fields (avatar, bio, locale, timezone) — separated from the user entity for read scalability.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/user_profile",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "identity"
       ],
@@ -1395,7 +1395,7 @@
       "description": "Password hashing, account lock, TOTP secret, WebAuthn/Passkey credentials.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/user_security",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "identity",
         "security"
@@ -1412,7 +1412,7 @@
       "description": "JWT access/refresh issuance + revocation, Redis-backed session cache, CRUD on UserSession rows.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/user_session",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "identity",
         "auth",
@@ -1430,7 +1430,7 @@
       "description": "Per-user linked OAuth provider accounts (provider id, external user id, tokens).",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/user_social_account",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "identity",
         "auth"
@@ -1447,7 +1447,7 @@
       "description": "Internal credit / wallet ledger. Double-entry accounting where every movement is a balanced transaction whose signed postings sum to zero, with per-account tamper-evident hash chains, peer-to-peer credit transfers, issue/spend flows, and booking capture/refund. Balances are integer minor units; chain verification + reconciliation included.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/wallet",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "wallet",
         "credits",
@@ -1467,7 +1467,7 @@
       "description": "Subscriber-configured outbound webhooks (tenant-scoped; root tenant carries platform-wide events), signed deliveries, retry+redelivery.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/webhook",
-      "license": "",
+      "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "platform",
         "integration"

@@ -17,5 +17,6 @@
     ]
   },
   "author": "Kuray Karaaslan",
-  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/exchange_rate"
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/exchange_rate",
+  "license": "CC-BY-NC-ND-4.0"
 }

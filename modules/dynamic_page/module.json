@@ -23,5 +23,6 @@
     ]
   },
   "author": "Kuray Karaaslan",
-  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/dynamic_page"
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/dynamic_page",
+  "license": "CC-BY-NC-ND-4.0"
 }

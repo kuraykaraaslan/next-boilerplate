@@ -27,5 +27,6 @@
     ]
   },
   "author": "Kuray Karaaslan",
-  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_sso"
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_sso",
+  "license": "CC-BY-NC-ND-4.0"
 }

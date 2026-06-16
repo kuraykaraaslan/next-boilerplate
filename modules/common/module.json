@@ -62,5 +62,6 @@
     "LogContext": "common.log-context.ts"
   },
   "author": "Kuray Karaaslan",
-  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/common"
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/common",
+  "license": "CC-BY-NC-ND-4.0"
 }

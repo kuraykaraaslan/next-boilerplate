@@ -26,5 +26,6 @@
     ]
   },
   "author": "Kuray Karaaslan",
-  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/gift_card"
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/gift_card",
+  "license": "CC-BY-NC-ND-4.0"
 }

@@ -24,5 +24,6 @@
     ]
   },
   "author": "Kuray Karaaslan",
-  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_impersonation"
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_impersonation",
+  "license": "CC-BY-NC-ND-4.0"
 }

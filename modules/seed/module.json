@@ -21,5 +21,6 @@
     "runSeed": "seed.runner.ts"
   },
   "author": "Kuray Karaaslan",
-  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/seed"
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/seed",
+  "license": "CC-BY-NC-ND-4.0"
 }

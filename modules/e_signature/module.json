@@ -37,5 +37,6 @@
     "E_SIGNATURE_KEYS"
   ],
   "author": "Kuray Karaaslan",
-  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/e_signature"
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/e_signature",
+  "license": "CC-BY-NC-ND-4.0"
 }

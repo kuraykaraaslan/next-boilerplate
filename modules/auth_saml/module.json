@@ -28,5 +28,6 @@
     ]
   },
   "author": "Kuray Karaaslan",
-  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_saml"
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_saml",
+  "license": "CC-BY-NC-ND-4.0"
 }

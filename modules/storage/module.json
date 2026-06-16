@@ -30,5 +30,6 @@
     "STORAGE_SCAN_KEYS"
   ],
   "author": "Kuray Karaaslan",
-  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/storage"
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/storage",
+  "license": "CC-BY-NC-ND-4.0"
 }
