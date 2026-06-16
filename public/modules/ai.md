@@ -32,10 +32,6 @@ Pluggable AI providers (Anthropic, OpenAI, Google). Chat, embeddings, streaming,
 
 - `ai.setting.keys.ts`
 
-## Owned API routes
-
-- `tenant` POST `/tenant/[tenantId]/api/ai/stream`
-
 ## TypeORM entities
 
 - `AiUsageLog` (system) — `modules/ai/server/entities/ai_usage_log.entity.ts`

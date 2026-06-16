@@ -32,7 +32,7 @@ const nextConfig: NextConfig = {
   // runtime; fs reads aren't traced automatically, so include them explicitly
   // in that route's serverless function bundle.
   outputFileTracingIncludes: {
-    "/tenant/[tenantId]/api/cron/demo-reset": ["./modules/db/server/migrations/**/*.sql"],
+    "/tenant/[tenantId]/api/[...slug]": ["./modules/db/server/migrations/**/*.sql"],
   },
   // Tree-shake large icon/chart packages so only the symbols actually used
   // land in each route's client bundle (Next rewrites barrel imports to deep

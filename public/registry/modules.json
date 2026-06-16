@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T11:12:55.591Z",
+  "generatedAt": "2026-06-16T11:25:23.978Z",
   "modules": [
     {
       "id": "common",
@@ -276,7 +276,12 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
-      "apiRoutes": [],
+      "apiRoutes": [
+        {
+          "path": "/api/cron/demo-reset",
+          "handler": "db/server/cron-demo-reset.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3519,6 +3524,10 @@
         {
           "path": "/api/notifications/sms/send",
           "handler": "notification_inapp/server/notifications-sms-send.route"
+        },
+        {
+          "path": "/api/auth/me/notifications/stream",
+          "handler": "notification_inapp/server/auth-me-notifications-stream.route"
         }
       ],
       "widgets": [],
@@ -6057,6 +6066,10 @@
         {
           "path": "/api/ai/usage",
           "handler": "ai/server/ai-usage.route"
+        },
+        {
+          "path": "/api/ai/stream",
+          "handler": "ai/server/ai-stream.route"
         }
       ],
       "widgets": [],
@@ -6206,6 +6219,10 @@
         {
           "path": "/api/dynamic-pages",
           "handler": "dynamic_page/server/dynamic-pages.route"
+        },
+        {
+          "path": "/api/dynamic-pages/block-action/[blockType]",
+          "handler": "dynamic_page/server/dynamic-pages-block-action-blocktype.route"
         }
       ],
       "widgets": [],

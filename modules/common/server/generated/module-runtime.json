@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-16T11:12:55.591Z",
+  "generatedAt": "2026-06-16T11:25:23.978Z",
   "menu": [
     {
       "id": "settings",
@@ -1006,6 +1006,11 @@
       "moduleId": "ai"
     },
     {
+      "path": "/api/ai/stream",
+      "handlerId": "ai/server/ai-stream.route",
+      "moduleId": "ai"
+    },
+    {
       "path": "/api/ai/usage",
       "handlerId": "ai/server/ai-usage.route",
       "moduleId": "ai"
@@ -1199,6 +1204,11 @@
       "path": "/api/auth/me/notifications/read-all",
       "handlerId": "auth/server/auth-me-notifications-read-all.route",
       "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/me/notifications/stream",
+      "handlerId": "notification_inapp/server/auth-me-notifications-stream.route",
+      "moduleId": "notification_inapp"
     },
     {
       "path": "/api/auth/me/preferences",
@@ -1471,6 +1481,11 @@
       "moduleId": "coupon"
     },
     {
+      "path": "/api/cron/demo-reset",
+      "handlerId": "db/server/cron-demo-reset.route",
+      "moduleId": "db"
+    },
+    {
       "path": "/api/cron/dns-recheck",
       "handlerId": "tenant_domain/server/cron-dns-recheck.route",
       "moduleId": "tenant_domain"
@@ -1538,6 +1553,11 @@
     {
       "path": "/api/dynamic-pages/[dynamicPageId]/translations/[lang]",
       "handlerId": "dynamic_page/server/dynamic-pages-dynamic-page-id-translations-lang.route",
+      "moduleId": "dynamic_page"
+    },
+    {
+      "path": "/api/dynamic-pages/block-action/[blockType]",
+      "handlerId": "dynamic_page/server/dynamic-pages-block-action-blocktype.route",
       "moduleId": "dynamic_page"
     },
     {

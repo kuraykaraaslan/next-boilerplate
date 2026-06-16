@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T11:12:55.591Z",
+  "generatedAt": "2026-06-16T11:25:23.978Z",
   "routes": [
     {
       "filePath": "app/internal/api/caddy-ask/route.ts",
@@ -56,50 +56,6 @@
         "HEAD",
         "OPTIONS"
       ],
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/ai/stream/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/ai/stream",
-      "methods": [
-        "POST"
-      ],
-      "module": "ai",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/me/notifications/stream/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/me/notifications/stream",
-      "methods": [
-        "GET"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/cron/demo-reset/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/cron/demo-reset",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "cron",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/dynamic-pages/block-action/[blockType]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/dynamic-pages/block-action/[blockType]",
-      "methods": [
-        "GET",
-        "POST",
-        "PATCH",
-        "DELETE"
-      ],
-      "module": "dynamic_page",
       "dynamic": true
     }
   ]

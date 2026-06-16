@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./server/dynamic-pages-block-action-blocktype.route": "./server/dynamic-pages-block-action-blocktype.route.ts",
     "./server/dynamic-pages-block-definitions-block-id.route": "./server/dynamic-pages-block-definitions-block-id.route.ts",
     "./server/dynamic-pages-block-definitions.route": "./server/dynamic-pages-block-definitions.route.ts",
     "./server/dynamic-pages-collections-collection-id-items-item-id.route": "./server/dynamic-pages-collections-collection-id-items-item-id.route.ts",

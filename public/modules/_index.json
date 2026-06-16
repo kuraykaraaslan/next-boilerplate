@@ -266,7 +266,7 @@
       "core"
     ],
     "hasNextLayer": true,
-    "routeCount": 1,
+    "routeCount": 0,
     "entityCount": 1,
     "componentCount": 14,
     "file": "auth.md"
@@ -1011,7 +1011,7 @@
       "ai"
     ],
     "hasNextLayer": true,
-    "routeCount": 1,
+    "routeCount": 0,
     "entityCount": 1,
     "componentCount": 5,
     "file": "ai.md"
@@ -1027,7 +1027,7 @@
       "i18n"
     ],
     "hasNextLayer": true,
-    "routeCount": 1,
+    "routeCount": 0,
     "entityCount": 6,
     "componentCount": 88,
     "file": "dynamic_page.md"

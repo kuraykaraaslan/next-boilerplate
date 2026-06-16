@@ -50,10 +50,6 @@ Credential auth: login, register, password reset, email verify, OTP, TOTP. Coord
 
 - `auth.dormant.job.ts`
 
-## Owned API routes
-
-- `tenant` GET `/tenant/[tenantId]/api/auth/me/notifications/stream`
-
 ## TypeORM entities
 
 - `UserConsent` (system) — `modules/auth/server/entities/user_consent.entity.ts`

@@ -103,6 +103,10 @@
     {
       "path": "/api/dynamic-pages",
       "handler": "dynamic_page/server/dynamic-pages.route"
+    },
+    {
+      "path": "/api/dynamic-pages/block-action/[blockType]",
+      "handler": "dynamic_page/server/dynamic-pages-block-action-blocktype.route"
     }
   ]
 }

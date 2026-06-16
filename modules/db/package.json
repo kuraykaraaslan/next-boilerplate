@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./server/cron-demo-reset.route": "./server/cron-demo-reset.route.ts",
     "./server/db.datasource": "./server/db.datasource.ts",
     "./server/db.deploy": "./server/db.deploy.ts",
     "./server/db.entities": "./server/db.entities.ts",

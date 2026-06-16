@@ -8,6 +8,13 @@ import { moduleRegistry } from '@nb/common/server/module-registry';
 import { getEnabledModuleIds } from '@nb/setting/server/module-activation.service.next';
 import { apiHandlers } from '@nb/common/server/generated/api-handlers';
 
+// nodejs (handlers use TypeORM/Node APIs); force-dynamic so streaming (SSE)
+// handlers aren't cached; 300s ceiling so long jobs (e.g. the demo-reset cron)
+// can run. These apply to every dispatched handler.
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const maxDuration = 300;
+
 type Ctx = { params: Promise<{ tenantId: string; slug?: string[] }> };
 
 async function dispatch(method: string, request: NextRequest, ctx: Ctx): Promise<Response> {

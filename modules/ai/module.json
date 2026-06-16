@@ -66,6 +66,10 @@
     {
       "path": "/api/ai/usage",
       "handler": "ai/server/ai-usage.route"
+    },
+    {
+      "path": "/api/ai/stream",
+      "handler": "ai/server/ai-stream.route"
     }
   ]
 }

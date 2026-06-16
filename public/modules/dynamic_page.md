@@ -45,10 +45,6 @@ Tenant-aware block-based page builder with i18n support. Supports code blocks (P
 
 - `dynamic_page.messages.ts`
 
-## Owned API routes
-
-- `tenant` GET/POST/PATCH/DELETE `/tenant/[tenantId]/api/dynamic-pages/block-action/[blockType]`
-
 ## TypeORM entities
 
 - `DynamicCollection` (system) — `modules/dynamic_page/server/entities/dynamic_collection.entity.ts`

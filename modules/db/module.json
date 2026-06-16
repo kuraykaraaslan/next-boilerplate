@@ -25,5 +25,11 @@
   },
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/db",
-  "license": "CC-BY-NC-ND-4.0"
+  "license": "CC-BY-NC-ND-4.0",
+  "apiRoutes": [
+    {
+      "path": "/api/cron/demo-reset",
+      "handler": "db/server/cron-demo-reset.route"
+    }
+  ]
 }

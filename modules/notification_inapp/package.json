@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./server/auth-me-notifications-stream.route": "./server/auth-me-notifications-stream.route.ts",
     "./server/notification_inapp.messages": "./server/notification_inapp.messages.ts",
     "./server/notification_inapp.service": "./server/notification_inapp.service.ts",
     "./server/notification_inapp.types": "./server/notification_inapp.types.ts",
