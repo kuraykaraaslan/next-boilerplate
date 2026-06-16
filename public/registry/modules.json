@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T05:39:55.356Z",
+  "generatedAt": "2026-06-16T06:44:17.266Z",
   "modules": [
     {
       "id": "common",
@@ -2587,30 +2587,18 @@
         ]
       },
       "exports": {
-        "services": [
-          "seo.render.service.ts",
-          "seo.service.ts",
-          "seo.web_vitals.service.ts"
-        ],
-        "dtos": [
-          "seo.dto.ts"
-        ],
-        "enums": [
-          "seo.enums.ts"
-        ],
-        "messageKeys": [
-          "seo.messages.ts"
-        ],
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
-        "entities": [
-          "seo_meta.entity.ts"
-        ]
+        "entities": []
       },
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": true,
+      "hasNextLayer": false,
       "readme": "# Seo Module\n\nPolymorphic SEO-metadata store. A single `SeoMeta` row holds title, description, keywords, Open Graph, Twitter card, canonical URL and `noIndex` flags, attachable to any entity via an `entityType` + `entityId` pair. Every row is tenant-scoped and reads are Redis-cached.\n\n---\n\n## Entities\n\n| Entity | Table | Description |\n|---|---|---|\n| `SeoMeta` | `seo_meta` | Polymorphic SEO metadata for one entity, unique per `(tenantId, entityType, entityId)` |\n\nLives in the **tenant DB**. Columns: `seoId` (uuid PK), `tenantId`, `entityType` (varchar 50), `entityId` (uuid), `title`, `description`, `keywords` (jsonb string array), `ogTitle`, `ogDescription`, `ogImageUrl`, `canonicalUrl`, `twitterTitle`, `twitterDescription`, `twitterCard`, `noIndex` (bool, default `false`), `updatedAt`. `tenantId`, `entityType` and `entityId` are indexed, with a `@Unique` constraint across the three.\n\n### Entity types\n\n`SeoEntityTypeEnum` (`seo.enums.ts`) constrains the polymorphic `entityType` at the route boundary:\n\n| Value | Attaches to |\n|---|---|\n| `store_category` | Store category |\n| `store_product` | Store product |\n| `store_bundle` | Store bundle |\n| `dynamic_page` | Dynamic page |\n\n`entityId` is a bare cross-module uuid — there are no cross-DB foreign keys.\n\n---\n\n## Service / Responsibilities\n\n`SeoService` (`seo.service.ts`) — static methods, all keyed by `(tenantId, entityType, entityId)` and resolving the per-tenant DataSource via `tenantDataSourceFor(tenantId)`:\n\n| Method | Responsibility |\n|---|---|\n| `upsert(tenantId, entityType, entityId, dto)` | Find-or-create the row, `Object.assign` the DTO, save, then invalidate the cache key. Returns the parsed `SeoMeta`. |\n| `get(tenantId, entityType, entityId)` | Read the row, wrapped in `singleFlight` on the cache key to collapse concurrent reads. Returns `SeoMeta` or `null`. |\n| `delete(tenantId, entityType, entityId)` | Delete the row and invalidate the cache key. |\n\nResults are validated/shaped through `SeoMetaSchema` (`seo.types.ts`) before return. Write payloads are validated by `UpsertSeoDTO` (`seo.dto.ts`): string length caps (title/og/twitter titles ≤ 200, descriptions ≤ 500, ≤ 30 keywords of ≤ 100 chars each), URL validation for `ogImageUrl`/`canonicalUrl`, and `noIndex` defaulting to `false`. `SEO_MESSAGES` (`seo.messages.ts`) holds the `NOT_FOUND` / `UPSERT_FAILED` message strings.\n\n### Caching\n\n`get` is cached under the tenant-namespaced Redis key `seo:{tenantId}:{entityType}:{entityId}`; `upsert` and `delete` `redis.del` that same key so the next read repopulates.\n\n---\n\n## API Routes\n\nTenant-scoped, **ADMIN+** (`TenantSessionNextService.authenticateTenantByRequest` with `requiredTenantRole: 'ADMIN'`), rate-limited via `Limiter.checkRateLimit`. `entityType` + `entityId` are validated with `SeoRouteParamsDTO` (enum + uuid).\n\n| Method | Path | Description |\n|---|---|---|\n| GET | `/tenant/[tenantId]/api/seo/[entityType]/[entityId]` | Read SEO metadata (`{ seo }`, `null` if none) |\n| PUT | `/tenant/[tenantId]/api/seo/[entityType]/[entityId]` | Upsert SEO metadata from an `UpsertSeoDTO` body |\n\n---\n\n## Settings\n\nThis module has no settings — no per-tenant or system-only setting keys. Behavior is identical across tenants; only the data varies.\n\n---\n\n## Tenant Variability\n\n> What varies per tenant in this module — and what could. Audited 2026-06-03.\n\nA polymorphic SEO-metadata store (title/description/OpenGraph/Twitter/canonical/noIndex) attachable to any entity via entityType+entityId; fully per-tenant by data — every row is tenantId-keyed and read/written through tenantDataSourceFor(tenantId) — with no per-tenant settings or behavioral branching.\n\n### Tenant-scoped data\n\n| Entity | Table | Tenant-variable columns |\n|---|---|---|\n| `SeoMeta` | `seo_meta` | entityType, entityId, title, description, keywords, ogTitle, ogDescription, ogImageUrl, canonicalUrl, twitterTitle, twitterDescription, twitterCard, noIndex |\n\nAll rows isolated by `tenantId` via the per-tenant DataSource.\n\n### Per-tenant behavior\n\n- `seo.service.ts` — All CRUD (upsert/get/delete) resolves the per-tenant DataSource via tenantDataSourceFor(tenantId) and filters every query by { tenantId, entityType, entityId }, so each tenant sees only its own SEO metadata rows; results are isolated by tenant-namespaced Redis cache key seo:{tenantId}:{entityType}:{entityId}.\n\n---\n\n## Seed\n\n`seedSeo` (`seo.seed.ts`) seeds four demo `seo_meta` rows (product, category, bundle, dynamic page) per tenant, idempotently via `ctx.foc` keyed on the `@Unique` constraint. `entityId`s are read from `ctx.refs` (published by the store seed) with deterministic literal fallbacks; the dynamic-page row sets `noIndex: true`.\n\n---\n\n## Usage example\n\n```typescript\nimport SeoService from '@/modules/seo/seo.service';\n\n// Upsert SEO metadata for a store product\nawait SeoService.upsert(tenantId, 'store_product', productId, {\n  title: 'Test Laptop — 15.6\" Performance Notebook',\n  description: 'A configurable 15.6\" demo laptop.',\n  keywords: ['laptop', 'notebook', 'SSD'],\n  ogImageUrl: 'https://example.com/og.png',\n  canonicalUrl: 'https://example.com/products/test-laptop',\n  twitterCard: 'summary_large_image',\n  noIndex: false,\n});\n\n// Read it back (Redis-cached, single-flighted)\nconst seo = await SeoService.get(tenantId, 'store_product', productId);\n```\n\n---\n\n## Dependencies\n\nRequires `db` (per-tenant DataSource) and `redis` (cache + `singleFlight`), per `module.json`.\n"
     },
     {

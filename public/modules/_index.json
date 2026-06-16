@@ -739,10 +739,10 @@
       "seo",
       "metadata"
     ],
-    "hasNextLayer": true,
+    "hasNextLayer": false,
     "routeCount": 2,
     "entityCount": 1,
-    "componentCount": 2,
+    "componentCount": 0,
     "file": "seo.md"
   },
   "auth_e_signature": {

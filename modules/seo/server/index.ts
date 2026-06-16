@@ -7,3 +7,4 @@ export * from './seo.enums';
 export * from './seo.types';
 export * from './seo.dto';
 export * from './seo.messages';
+export { seedSeo } from './seo.seed';

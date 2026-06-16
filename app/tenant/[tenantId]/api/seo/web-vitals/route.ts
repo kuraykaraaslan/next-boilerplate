@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Limiter from '@/modules_next/limiter/limiter.service.next'
 import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next'
-import SeoWebVitalsService, { RecordWebVitalDTO } from '@/modules/seo/seo.web_vitals.service'
+import { SeoWebVitalsService, RecordWebVitalDTO } from '@nb/seo/server'
 
 /**
  * POST /tenant/[tenantId]/api/seo/web-vitals

@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T05:39:55.356Z",
+  "generatedAt": "2026-06-16T06:44:17.266Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -2550,30 +2550,18 @@
         ]
       },
       "exports": {
-        "services": [
-          "seo.render.service.ts",
-          "seo.service.ts",
-          "seo.web_vitals.service.ts"
-        ],
-        "dtos": [
-          "seo.dto.ts"
-        ],
-        "enums": [
-          "seo.enums.ts"
-        ],
-        "messageKeys": [
-          "seo.messages.ts"
-        ],
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
         "settingKeys": [],
         "providers": [],
         "jobs": [],
-        "entities": [
-          "seo_meta.entity.ts"
-        ]
+        "entities": []
       },
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": true
+      "hasNextLayer": false
     },
     {
       "id": "auth_e_signature",
@@ -8266,7 +8254,7 @@
     },
     {
       "name": "SeoMeta",
-      "filePath": "modules/seo/entities/seo_meta.entity.ts",
+      "filePath": "modules/seo/server/entities/seo_meta.entity.ts",
       "module": "seo",
       "schema": "system",
       "tableName": "seo_meta",
@@ -12290,30 +12278,6 @@
       "isClient": false,
       "isServer": false,
       "baseName": "withIdempotency"
-    },
-    {
-      "id": "seo/ui/SeoPanel",
-      "module": "seo",
-      "filePath": "modules_next/seo/ui/SeoPanel.tsx",
-      "kind": "ui",
-      "exports": [
-        "SeoPanel"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "SeoPanel"
-    },
-    {
-      "id": "seo/web-vitals.client",
-      "module": "seo",
-      "filePath": "modules_next/seo/web-vitals.client.ts",
-      "kind": "ui",
-      "exports": [
-        "reportWebVitals"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "web-vitals.client"
     },
     {
       "id": "setting/setting-fields.types",

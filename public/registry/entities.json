@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T05:39:55.356Z",
+  "generatedAt": "2026-06-16T06:44:17.266Z",
   "entities": [
     {
       "name": "Agreement",
@@ -1544,7 +1544,7 @@
     },
     {
       "name": "SeoMeta",
-      "filePath": "modules/seo/entities/seo_meta.entity.ts",
+      "filePath": "modules/seo/server/entities/seo_meta.entity.ts",
       "module": "seo",
       "schema": "system",
       "tableName": "seo_meta",

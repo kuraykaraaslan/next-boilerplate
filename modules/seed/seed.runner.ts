@@ -63,7 +63,7 @@ import { seedInvoice } from '@/modules/invoice/invoice.seed';
 
 // Content ---------------------------------------------------------------------
 import { seedMediaGallery } from '@/modules/media_gallery/media_gallery.seed';
-import { seedSeo } from '@/modules/seo/seo.seed';
+import { seedSeo } from '@nb/seo/server';
 import { seedDynamicPage } from '@/modules/dynamic_page/dynamic_page.seed';
 import { seedBlog } from '@/modules/blog/blog.seed';
 

@@ -46,7 +46,7 @@ import { StoreBundleItem } from '@/modules/store/entities/store_bundle_item.enti
 import { StoreVariationType } from '@/modules/store/entities/store_variation_type.entity';
 import { StoreVariationOption } from '@/modules/store/entities/store_variation_option.entity';
 import { StoreProductVariant } from '@/modules/store/entities/store_product_variant.entity';
-import { SeoMeta } from '@/modules/seo/entities/seo_meta.entity';
+import { SeoMeta } from '@nb/seo/entities';
 import { MediaGallery } from '@/modules/media_gallery/entities/media_gallery.entity';
 import { MediaGalleryItem } from '@/modules/media_gallery/entities/media_gallery_item.entity';
 import { DynamicPage } from '@/modules/dynamic_page/entities/dynamic_page.entity';

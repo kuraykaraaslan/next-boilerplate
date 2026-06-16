@@ -6,35 +6,13 @@
 - **dir:** `modules/seo/`
 - **tags:** seo, metadata
 - **icon:** `fas fa-search`
-- **hasNextLayer:** true
+- **hasNextLayer:** false
 
 Polymorphic SEO metadata (title, description, Open Graph, canonical, noIndex) attachable to any entity type via entityType + entityId pair.
 
 ## Dependencies
 
 - **requires:** `db`, `redis`
-
-## Services
-
-- `seo.render.service.ts`
-- `seo.service.ts`
-- `seo.web_vitals.service.ts`
-
-## DTOs
-
-- `seo.dto.ts`
-
-## Entities
-
-- `seo_meta.entity.ts`
-
-## Enums
-
-- `seo.enums.ts`
-
-## Message keys
-
-- `seo.messages.ts`
 
 ## Owned API routes
 
@@ -43,12 +21,7 @@ Polymorphic SEO metadata (title, description, Open Graph, canonical, noIndex) at
 
 ## TypeORM entities
 
-- `SeoMeta` (system) — `modules/seo/entities/seo_meta.entity.ts`
-
-## Next layer (modules_next/) surface
-
-- `seo/ui/SeoPanel` _(ui, client)_
-- `seo/web-vitals.client` _(ui, client)_
+- `SeoMeta` (system) — `modules/seo/server/entities/seo_meta.entity.ts`
 
 ## README
 

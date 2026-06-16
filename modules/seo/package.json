@@ -1,0 +1,23 @@
+{
+  "name": "@nb/seo",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./server/index.ts",
+    "./server": "./server/index.ts",
+    "./entities": "./server/entities/index.ts",
+    "./ui": "./ui/index.ts",
+    "./ui/web-vitals.client": "./ui/web-vitals.client.ts",
+    "./module.json": "./module.json",
+    "./server/*": "./server/*.ts",
+    "./ui/*": [
+      "./ui/*.tsx",
+      "./ui/*.ts"
+    ]
+  },
+  "peerDependencies": {
+    "react": "*",
+    "next": "*"
+  }
+}

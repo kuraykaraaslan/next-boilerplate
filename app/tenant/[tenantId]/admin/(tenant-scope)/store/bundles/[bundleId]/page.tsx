@@ -12,7 +12,7 @@ import { Spinner } from '@/modules_next/common/ui/Spinner';
 import { toast } from '@/modules_next/common/ui/toast.store';
 import { BundleStatusBadge, type BundleStatus } from '@/modules_next/store/ui/ProductStatusBadge';
 import { TabGroup } from '@/modules_next/common/ui/TabGroup';
-import { SeoPanel } from '@/modules_next/seo/ui/SeoPanel';
+import { SeoPanel } from '@nb/seo/ui';
 import { GalleryPanel } from '@/modules_next/media_gallery/ui/GalleryPanel';
 import { CurrencySelector } from '@/modules_next/common/ui/CurrencySelector';
 import { BundleItemsPanel } from '@/modules_next/store/ui/BundleItemsPanel';

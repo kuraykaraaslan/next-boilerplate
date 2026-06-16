@@ -15,7 +15,7 @@ import { toast } from '@/modules_next/common/ui/toast.store';
 import { ProductStatusBadge } from '@/modules_next/store/ui/ProductStatusBadge';
 import { ProductVariantsPanel } from '@/modules_next/store/ui/ProductVariantsPanel';
 import { ProductImagesPanel } from '@/modules_next/store/ui/ProductImagesPanel';
-import { SeoPanel } from '@/modules_next/seo/ui/SeoPanel';
+import { SeoPanel } from '@nb/seo/ui';
 import { GalleryPanel } from '@/modules_next/media_gallery/ui/GalleryPanel';
 import { CurrencySelector } from '@/modules_next/common/ui/CurrencySelector';
 import dynamic from 'next/dynamic';

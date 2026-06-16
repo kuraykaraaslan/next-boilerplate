@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Limiter from '@/modules_next/limiter/limiter.service.next';
 import TenantSessionNextService from '@/modules_next/tenant_session/tenant_session.service.next';
-import SeoService from '@/modules/seo/seo.service';
-import { UpsertSeoDTO, SeoRouteParamsDTO } from '@/modules/seo/seo.dto';
+import { SeoService, UpsertSeoDTO, SeoRouteParamsDTO } from '@nb/seo/server';
 
 type Ctx = { params: Promise<{ tenantId: string; entityType: string; entityId: string }> };
 

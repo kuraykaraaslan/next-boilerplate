@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T05:39:55.356Z",
+  "generatedAt": "2026-06-16T06:44:17.266Z",
   "components": [
     {
       "id": "ai/ui/AIChatBox",
@@ -2841,30 +2841,6 @@
       "isClient": false,
       "isServer": false,
       "baseName": "withIdempotency"
-    },
-    {
-      "id": "seo/ui/SeoPanel",
-      "module": "seo",
-      "filePath": "modules_next/seo/ui/SeoPanel.tsx",
-      "kind": "ui",
-      "exports": [
-        "SeoPanel"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "SeoPanel"
-    },
-    {
-      "id": "seo/web-vitals.client",
-      "module": "seo",
-      "filePath": "modules_next/seo/web-vitals.client.ts",
-      "kind": "ui",
-      "exports": [
-        "reportWebVitals"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "web-vitals.client"
     },
     {
       "id": "setting/setting-fields.types",
