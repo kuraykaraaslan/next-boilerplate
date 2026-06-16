@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T20:41:54.845Z",
+  "generatedAt": "2026-06-16T21:34:32.266Z",
   "components": [
     {
       "id": "ai/ui/ai-chat-box.component",
@@ -3207,6 +3207,22 @@
       "isClient": true,
       "isServer": false,
       "baseName": "credit-card-visual.component"
+    },
+    {
+      "id": "payment/ui/payment-provider-config-modal.component",
+      "module": "payment",
+      "filePath": "modules/payment/ui/payment-provider-config-modal.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "ProviderField",
+        "ProviderDef",
+        "PAYMENT_PROVIDERS",
+        "isProviderConfigured",
+        "PaymentProviderConfigModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "payment-provider-config-modal.component"
     },
     {
       "id": "payment/ui/payment-provider-selector.component",

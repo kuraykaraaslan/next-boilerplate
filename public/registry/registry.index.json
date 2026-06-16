@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T20:41:54.845Z",
+  "generatedAt": "2026-06-16T21:34:32.266Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -5709,6 +5709,7 @@
         "./ui/card-checkout-modal.component",
         "./ui/credit-card-form.component",
         "./ui/credit-card-visual.component",
+        "./ui/payment-provider-config-modal.component",
         "./ui/payment-provider-selector.component",
         "./ui/payment-refund-modal.component",
         "./ui/payment-status-badge.component",
@@ -19121,6 +19122,22 @@
       "isClient": true,
       "isServer": false,
       "baseName": "credit-card-visual.component"
+    },
+    {
+      "id": "payment/ui/payment-provider-config-modal.component",
+      "module": "payment",
+      "filePath": "modules/payment/ui/payment-provider-config-modal.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "ProviderField",
+        "ProviderDef",
+        "PAYMENT_PROVIDERS",
+        "isProviderConfigured",
+        "PaymentProviderConfigModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "payment-provider-config-modal.component"
     },
     {
       "id": "payment/ui/payment-provider-selector.component",

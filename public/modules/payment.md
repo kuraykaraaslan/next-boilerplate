@@ -68,6 +68,7 @@ Pluggable payment processing (Stripe, PayPal, Iyzico) + subscription plans, plan
 - `payment/ui/card-checkout-modal.component` _(ui, client)_
 - `payment/ui/credit-card-form.component` _(ui, client)_
 - `payment/ui/credit-card-visual.component` _(ui, client)_
+- `payment/ui/payment-provider-config-modal.component` _(ui, client)_
 - `payment/ui/payment-provider-selector.component` _(ui, client)_
 - `payment/ui/payment-refund-modal.component` _(ui, client)_
 - `payment/ui/payment-status-badge.component` _(ui, client)_

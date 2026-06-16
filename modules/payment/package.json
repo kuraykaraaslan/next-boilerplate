@@ -63,6 +63,7 @@
     "./ui/card-checkout-modal.component": "./ui/card-checkout-modal.component.tsx",
     "./ui/credit-card-form.component": "./ui/credit-card-form.component.tsx",
     "./ui/credit-card-visual.component": "./ui/credit-card-visual.component.tsx",
+    "./ui/payment-provider-config-modal.component": "./ui/payment-provider-config-modal.component.tsx",
     "./ui/payment-provider-selector.component": "./ui/payment-provider-selector.component.tsx",
     "./ui/payment-refund-modal.component": "./ui/payment-refund-modal.component.tsx",
     "./ui/payment-status-badge.component": "./ui/payment-status-badge.component.tsx",
