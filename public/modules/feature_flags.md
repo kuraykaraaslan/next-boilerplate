@@ -43,6 +43,7 @@ Tenant-scoped feature flags with master switch, deterministic percentage rollout
 ## Next layer (modules_next/) surface
 
 - `feature_flags/ui/feature-flag-columns.component` _(ui, client)_
+- `feature_flags/ui/feature-flags.page` _(ui, client)_
 
 ## README
 

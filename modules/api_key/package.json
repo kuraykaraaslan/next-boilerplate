@@ -23,6 +23,8 @@
     "./server/tests/api_key.test-utils": "./server/tests/api_key.test-utils.ts",
     "./ui/api-key-columns.component": "./ui/api-key-columns.component.tsx",
     "./ui/api-key-create-modal.component": "./ui/api-key-create-modal.component.tsx",
+    "./ui/api-keys-settings.page": "./ui/api-keys-settings.page.tsx",
+    "./ui/api-keys.page": "./ui/api-keys.page.tsx",
     "./module.json": "./module.json"
   },
   "peerDependencies": {

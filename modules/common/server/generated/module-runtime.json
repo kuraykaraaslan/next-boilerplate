@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-16T08:52:19.160Z",
+  "generatedAt": "2026-06-16T09:07:33.600Z",
   "menu": [
     {
       "id": "settings",
@@ -421,6 +421,402 @@
       "componentId": "ai/ui/settings.page",
       "permissions": [],
       "moduleId": "ai"
+    },
+    {
+      "path": "/admin/analytics",
+      "componentId": "analytics/ui/analytics.page",
+      "permissions": [],
+      "moduleId": "analytics"
+    },
+    {
+      "path": "/admin/api-docs/settings",
+      "componentId": "api_doc/ui/api-docs-settings.page",
+      "permissions": [],
+      "moduleId": "api_doc"
+    },
+    {
+      "path": "/admin/api-keys",
+      "componentId": "api_key/ui/api-keys.page",
+      "permissions": [],
+      "moduleId": "api_key"
+    },
+    {
+      "path": "/admin/api-keys/settings",
+      "componentId": "api_key/ui/api-keys-settings.page",
+      "permissions": [],
+      "moduleId": "api_key"
+    },
+    {
+      "path": "/admin/approvals",
+      "componentId": "approval/ui/approvals.page",
+      "permissions": [],
+      "moduleId": "approval"
+    },
+    {
+      "path": "/admin/audit-logs",
+      "componentId": "audit_log/ui/audit-logs.page",
+      "permissions": [],
+      "moduleId": "audit_log"
+    },
+    {
+      "path": "/admin/audit-logs/settings",
+      "componentId": "audit_log/ui/audit-logs-settings.page",
+      "permissions": [],
+      "moduleId": "audit_log"
+    },
+    {
+      "path": "/admin/auth/settings",
+      "componentId": "auth/ui/auth-settings.page",
+      "permissions": [],
+      "moduleId": "auth"
+    },
+    {
+      "path": "/admin/blocks",
+      "componentId": "dynamic_page/ui/blocks.page",
+      "permissions": [],
+      "moduleId": "dynamic_page"
+    },
+    {
+      "path": "/admin/blocks/[blockId]",
+      "componentId": "dynamic_page/ui/blocks-block-id.page",
+      "permissions": [],
+      "moduleId": "dynamic_page"
+    },
+    {
+      "path": "/admin/blog/categories",
+      "componentId": "blog/ui/blog-categories.page",
+      "permissions": [],
+      "moduleId": "blog"
+    },
+    {
+      "path": "/admin/blog/posts",
+      "componentId": "blog/ui/blog-posts.page",
+      "permissions": [],
+      "moduleId": "blog"
+    },
+    {
+      "path": "/admin/blog/posts/[postId]",
+      "componentId": "blog/ui/blog-posts-post-id.page",
+      "permissions": [],
+      "moduleId": "blog"
+    },
+    {
+      "path": "/admin/consent",
+      "componentId": "terms_consent/ui/consent.page",
+      "permissions": [],
+      "moduleId": "terms_consent"
+    },
+    {
+      "path": "/admin/coupons",
+      "componentId": "coupon/ui/coupons.page",
+      "permissions": [],
+      "moduleId": "coupon"
+    },
+    {
+      "path": "/admin/coupons/[couponId]",
+      "componentId": "coupon/ui/coupons-coupon-id.page",
+      "permissions": [],
+      "moduleId": "coupon"
+    },
+    {
+      "path": "/admin/domains",
+      "componentId": "tenant_domain/ui/domains.page",
+      "permissions": [],
+      "moduleId": "tenant_domain"
+    },
+    {
+      "path": "/admin/domains/settings",
+      "componentId": "tenant_domain/ui/domains-settings.page",
+      "permissions": [],
+      "moduleId": "tenant_domain"
+    },
+    {
+      "path": "/admin/feature-flags",
+      "componentId": "feature_flags/ui/feature-flags.page",
+      "permissions": [],
+      "moduleId": "feature_flags"
+    },
+    {
+      "path": "/admin/gift-cards",
+      "componentId": "gift_card/ui/gift-cards.page",
+      "permissions": [],
+      "moduleId": "gift_card"
+    },
+    {
+      "path": "/admin/gift-cards/[giftCardId]",
+      "componentId": "gift_card/ui/gift-cards-gift-card-id.page",
+      "permissions": [],
+      "moduleId": "gift_card"
+    },
+    {
+      "path": "/admin/impersonation/settings",
+      "componentId": "auth_impersonation/ui/impersonation-settings.page",
+      "permissions": [],
+      "moduleId": "auth_impersonation"
+    },
+    {
+      "path": "/admin/integrations",
+      "componentId": "integrations_hub/ui/integrations.page",
+      "permissions": [],
+      "moduleId": "integrations_hub"
+    },
+    {
+      "path": "/admin/integrations/connected",
+      "componentId": "integrations_hub/ui/integrations-connected.page",
+      "permissions": [],
+      "moduleId": "integrations_hub"
+    },
+    {
+      "path": "/admin/invitations",
+      "componentId": "tenant_invitation/ui/invitations.page",
+      "permissions": [],
+      "moduleId": "tenant_invitation"
+    },
+    {
+      "path": "/admin/invitations/settings",
+      "componentId": "tenant_invitation/ui/invitations-settings.page",
+      "permissions": [],
+      "moduleId": "tenant_invitation"
+    },
+    {
+      "path": "/admin/invoices",
+      "componentId": "invoice/ui/invoices.page",
+      "permissions": [],
+      "moduleId": "invoice"
+    },
+    {
+      "path": "/admin/invoices/[invoiceId]",
+      "componentId": "invoice/ui/invoices-invoice-id.page",
+      "permissions": [],
+      "moduleId": "invoice"
+    },
+    {
+      "path": "/admin/members",
+      "componentId": "tenant_member/ui/members.page",
+      "permissions": [],
+      "moduleId": "tenant_member"
+    },
+    {
+      "path": "/admin/members/settings",
+      "componentId": "tenant_member/ui/members-settings.page",
+      "permissions": [],
+      "moduleId": "tenant_member"
+    },
+    {
+      "path": "/admin/metering",
+      "componentId": "metering/ui/metering.page",
+      "permissions": [],
+      "moduleId": "metering"
+    },
+    {
+      "path": "/admin/pages",
+      "componentId": "dynamic_page/ui/pages.page",
+      "permissions": [],
+      "moduleId": "dynamic_page"
+    },
+    {
+      "path": "/admin/payments",
+      "componentId": "payment/ui/payments.page",
+      "permissions": [],
+      "moduleId": "payment"
+    },
+    {
+      "path": "/admin/payments/[paymentId]",
+      "componentId": "payment/ui/payments-payment-id.page",
+      "permissions": [],
+      "moduleId": "payment"
+    },
+    {
+      "path": "/admin/payments/settings",
+      "componentId": "payment/ui/payments-settings.page",
+      "permissions": [],
+      "moduleId": "payment"
+    },
+    {
+      "path": "/admin/plans",
+      "componentId": "payment/ui/plans.page",
+      "permissions": [],
+      "moduleId": "payment"
+    },
+    {
+      "path": "/admin/plans/[planId]",
+      "componentId": "payment/ui/plans-plan-id.page",
+      "permissions": [],
+      "moduleId": "payment"
+    },
+    {
+      "path": "/admin/saml",
+      "componentId": "auth_saml/ui/saml.page",
+      "permissions": [],
+      "moduleId": "auth_saml"
+    },
+    {
+      "path": "/admin/saml/advanced",
+      "componentId": "auth_saml/ui/saml-advanced.page",
+      "permissions": [],
+      "moduleId": "auth_saml"
+    },
+    {
+      "path": "/admin/saml/settings",
+      "componentId": "auth_saml/ui/saml-settings.page",
+      "permissions": [],
+      "moduleId": "auth_saml"
+    },
+    {
+      "path": "/admin/search",
+      "componentId": "search/ui/search.page",
+      "permissions": [],
+      "moduleId": "search"
+    },
+    {
+      "path": "/admin/settings",
+      "componentId": "setting/ui/settings.page",
+      "permissions": [],
+      "moduleId": "setting"
+    },
+    {
+      "path": "/admin/settings/auth",
+      "componentId": "setting/ui/settings-auth.page",
+      "permissions": [],
+      "moduleId": "setting"
+    },
+    {
+      "path": "/admin/settings/billing",
+      "componentId": "setting/ui/settings-billing.page",
+      "permissions": [],
+      "moduleId": "setting"
+    },
+    {
+      "path": "/admin/settings/branding",
+      "componentId": "tenant_branding/ui/settings-branding.page",
+      "permissions": [],
+      "moduleId": "tenant_branding"
+    },
+    {
+      "path": "/admin/settings/e-signature",
+      "componentId": "setting/ui/settings-e-signature.page",
+      "permissions": [],
+      "moduleId": "setting"
+    },
+    {
+      "path": "/admin/settings/email",
+      "componentId": "setting/ui/settings-email.page",
+      "permissions": [],
+      "moduleId": "setting"
+    },
+    {
+      "path": "/admin/settings/general",
+      "componentId": "setting/ui/settings-general.page",
+      "permissions": [],
+      "moduleId": "setting"
+    },
+    {
+      "path": "/admin/settings/notifications",
+      "componentId": "setting/ui/settings-notifications.page",
+      "permissions": [],
+      "moduleId": "setting"
+    },
+    {
+      "path": "/admin/settings/scim",
+      "componentId": "setting/ui/settings-scim.page",
+      "permissions": [],
+      "moduleId": "setting"
+    },
+    {
+      "path": "/admin/settings/security",
+      "componentId": "setting/ui/settings-security.page",
+      "permissions": [],
+      "moduleId": "setting"
+    },
+    {
+      "path": "/admin/settings/sms",
+      "componentId": "setting/ui/settings-sms.page",
+      "permissions": [],
+      "moduleId": "setting"
+    },
+    {
+      "path": "/admin/settings/storage",
+      "componentId": "setting/ui/settings-storage.page",
+      "permissions": [],
+      "moduleId": "setting"
+    },
+    {
+      "path": "/admin/sso/settings",
+      "componentId": "auth_sso/ui/sso-settings.page",
+      "permissions": [],
+      "moduleId": "auth_sso"
+    },
+    {
+      "path": "/admin/store/bundles",
+      "componentId": "store/ui/store-bundles.page",
+      "permissions": [],
+      "moduleId": "store"
+    },
+    {
+      "path": "/admin/store/bundles/[bundleId]",
+      "componentId": "store/ui/store-bundles-bundle-id.page",
+      "permissions": [],
+      "moduleId": "store"
+    },
+    {
+      "path": "/admin/store/categories",
+      "componentId": "store/ui/store-categories.page",
+      "permissions": [],
+      "moduleId": "store"
+    },
+    {
+      "path": "/admin/store/categories/[categoryId]",
+      "componentId": "store/ui/store-categories-category-id.page",
+      "permissions": [],
+      "moduleId": "store"
+    },
+    {
+      "path": "/admin/store/products",
+      "componentId": "store/ui/store-products.page",
+      "permissions": [],
+      "moduleId": "store"
+    },
+    {
+      "path": "/admin/store/products/[productId]",
+      "componentId": "store/ui/store-products-product-id.page",
+      "permissions": [],
+      "moduleId": "store"
+    },
+    {
+      "path": "/admin/subscription",
+      "componentId": "tenant_subscription/ui/subscription.page",
+      "permissions": [],
+      "moduleId": "tenant_subscription"
+    },
+    {
+      "path": "/admin/support",
+      "componentId": "support/ui/support.page",
+      "permissions": [],
+      "moduleId": "support"
+    },
+    {
+      "path": "/admin/terms",
+      "componentId": "terms_consent/ui/terms.page",
+      "permissions": [],
+      "moduleId": "terms_consent"
+    },
+    {
+      "path": "/admin/wallet",
+      "componentId": "wallet/ui/wallet.page",
+      "permissions": [],
+      "moduleId": "wallet"
+    },
+    {
+      "path": "/admin/webhooks",
+      "componentId": "webhook/ui/webhooks.page",
+      "permissions": [],
+      "moduleId": "webhook"
+    },
+    {
+      "path": "/admin/webhooks/settings",
+      "componentId": "webhook/ui/webhooks-settings.page",
+      "permissions": [],
+      "moduleId": "webhook"
     }
   ],
   "widgets": [],

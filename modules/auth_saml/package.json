@@ -24,9 +24,12 @@
     "./server/auth_saml.types": "./server/auth_saml.types.ts",
     "./server/entities/saml_config.entity": "./server/entities/saml_config.entity.ts",
     "./server/saml.engine": "./server/saml.engine.ts",
+    "./ui/saml-advanced.page": "./ui/saml-advanced.page.tsx",
     "./ui/saml-attribute-form.component": "./ui/saml-attribute-form.component.tsx",
     "./ui/saml-config-form.component": "./ui/saml-config-form.component.tsx",
     "./ui/saml-metadata-card.component": "./ui/saml-metadata-card.component.tsx",
+    "./ui/saml-settings.page": "./ui/saml-settings.page.tsx",
+    "./ui/saml.page": "./ui/saml.page.tsx",
     "./module.json": "./module.json"
   },
   "peerDependencies": {

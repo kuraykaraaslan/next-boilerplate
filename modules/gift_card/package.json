@@ -20,6 +20,8 @@
     "./server": "./server/index.ts",
     "./ui/gift-card-issue-modal.component": "./ui/gift-card-issue-modal.component.tsx",
     "./ui/gift-card-list-columns.component": "./ui/gift-card-list-columns.component.tsx",
+    "./ui/gift-cards-gift-card-id.page": "./ui/gift-cards-gift-card-id.page.tsx",
+    "./ui/gift-cards.page": "./ui/gift-cards.page.tsx",
     ".": "./server/index.ts",
     "./module.json": "./module.json"
   },

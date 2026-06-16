@@ -31,5 +31,15 @@
       "order": 10,
       "scope": "tenant"
     }
+  ],
+  "routes": [
+    {
+      "path": "/admin/coupons/[couponId]",
+      "component": "coupon/ui/coupons-coupon-id.page"
+    },
+    {
+      "path": "/admin/coupons",
+      "component": "coupon/ui/coupons.page"
+    }
   ]
 }

@@ -6,7 +6,7 @@
 - **dir:** `modules/analytics/`
 - **tags:** platform, analytics, events, metrics
 - **icon:** `fas fa-chart-line`
-- **hasNextLayer:** false
+- **hasNextLayer:** true
 
 Tenant-scoped product analytics: append-only event tracking (page views, signups, custom events) plus aggregate reads — top-line summary (total events, unique users/sessions, top events), GROUP BY date_trunc timeseries with dense gap-filling, and top-events. Tracking works for anonymous visitors; summaries are short-cached in Redis. Distinct from metering (billing) and observability (ops metrics).
 
@@ -37,6 +37,10 @@ Tenant-scoped product analytics: append-only event tracking (page views, signups
 ## TypeORM entities
 
 - `AnalyticsEvent` (system) — `modules/analytics/server/entities/analytics_event.entity.ts`
+
+## Next layer (modules_next/) surface
+
+- `analytics/ui/analytics.page` _(ui, client)_
 
 ## README
 

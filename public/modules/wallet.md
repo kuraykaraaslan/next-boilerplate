@@ -57,3 +57,4 @@ Internal credit / wallet ledger. Double-entry accounting where every movement is
 ## Next layer (modules_next/) surface
 
 - `wallet/ui/wallet-account-columns.component` _(ui, client)_
+- `wallet/ui/wallet.page` _(ui, client)_

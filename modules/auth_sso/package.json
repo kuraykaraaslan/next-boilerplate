@@ -37,6 +37,7 @@
     "./server/providers/wechat.provider": "./server/providers/wechat.provider.ts",
     "./server/providers/weibo.provider": "./server/providers/weibo.provider.ts",
     "./server/providers/yandex.provider": "./server/providers/yandex.provider.ts",
+    "./ui/sso-settings.page": "./ui/sso-settings.page.tsx",
     "./module.json": "./module.json"
   }
 }

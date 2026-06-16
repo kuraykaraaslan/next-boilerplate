@@ -28,5 +28,11 @@
       "order": 10,
       "scope": "tenant"
     }
+  ],
+  "routes": [
+    {
+      "path": "/admin/api-docs/settings",
+      "component": "api_doc/ui/api-docs-settings.page"
+    }
   ]
 }

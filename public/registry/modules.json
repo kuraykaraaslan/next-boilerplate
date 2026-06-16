@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T08:52:19.160Z",
+  "generatedAt": "2026-06-16T09:07:33.600Z",
   "modules": [
     {
       "id": "common",
@@ -484,7 +484,52 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/settings/auth",
+          "component": "setting/ui/settings-auth.page"
+        },
+        {
+          "path": "/admin/settings/billing",
+          "component": "setting/ui/settings-billing.page"
+        },
+        {
+          "path": "/admin/settings/e-signature",
+          "component": "setting/ui/settings-e-signature.page"
+        },
+        {
+          "path": "/admin/settings/email",
+          "component": "setting/ui/settings-email.page"
+        },
+        {
+          "path": "/admin/settings/general",
+          "component": "setting/ui/settings-general.page"
+        },
+        {
+          "path": "/admin/settings/notifications",
+          "component": "setting/ui/settings-notifications.page"
+        },
+        {
+          "path": "/admin/settings",
+          "component": "setting/ui/settings.page"
+        },
+        {
+          "path": "/admin/settings/scim",
+          "component": "setting/ui/settings-scim.page"
+        },
+        {
+          "path": "/admin/settings/security",
+          "component": "setting/ui/settings-security.page"
+        },
+        {
+          "path": "/admin/settings/sms",
+          "component": "setting/ui/settings-sms.page"
+        },
+        {
+          "path": "/admin/settings/storage",
+          "component": "setting/ui/settings-storage.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1084,7 +1129,12 @@
       },
       "enabled": true,
       "menu": [],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/auth/settings",
+          "component": "auth/ui/auth-settings.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1218,7 +1268,20 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/saml/advanced",
+          "component": "auth_saml/ui/saml-advanced.page"
+        },
+        {
+          "path": "/admin/saml",
+          "component": "auth_saml/ui/saml.page"
+        },
+        {
+          "path": "/admin/saml/settings",
+          "component": "auth_saml/ui/saml-settings.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1285,14 +1348,19 @@
       },
       "enabled": true,
       "menu": [],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/sso/settings",
+          "component": "auth_sso/ui/sso-settings.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
       "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false,
+      "hasNextLayer": true,
       "readme": "# Auth Sso Module\n\nOAuth2 / OIDC social login and account-linking for 11 providers. Handles auth-URL generation, callback token exchange, user-info mapping, automatic user creation/linking, signed link-intent state for the Connected Accounts flow, and placeholder-email synthesis for providers that withhold an email. Entirely platform-global — provider gating and OAuth client credentials come from process-level env vars.\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `auth_sso.service.ts` | `SSOService` — auth URL generation, callback handling, authenticate-or-register, account link/unlink, signed link-state |\n| `auth_sso.config.ts` | `SSO_CONFIGS` per-provider OAuth config (from env), `getCallbackUrl`, `isProviderConfigured`, `getAllowedProviders` |\n| `auth_sso.types.ts` | `SSOProfile`, `SSOTokens`, `SSOCallbackResult`, `SSOProviderConfig`, `SSOProviderService` (Zod schemas + interfaces) |\n| `auth_sso.dto.ts` | Request DTOs: `GenerateAuthUrlDTO`, `HandleCallbackDTO`, `AuthenticateOrRegisterDTO`, `LinkAccountDTO`, `UnlinkAccountDTO`, `GetLinkedAccountsDTO` |\n| `auth_sso.enums.ts` | `SSOProviderEnum` / `SSOProvider` (Zod enum of the 11 providers) |\n| `auth_sso.messages.ts` | `SSOMessages` error/success strings |\n| `providers/base.provider.ts` | `BaseSSOProvider` abstract class — generic OAuth2 flow, PKCE + Basic-auth helpers, token normalisation |\n| `providers/index.ts` | `getProvider(provider)` — lazy, cached provider instance factory |\n| `providers/google.provider.ts` | Google OAuth2 |\n| `providers/github.provider.ts` | GitHub OAuth2 |\n| `providers/microsoft.provider.ts` | Microsoft OAuth2 |\n| `providers/apple.provider.ts` | Sign in with Apple (dynamic ES256-signed client secret) |\n| `providers/facebook.provider.ts` | Facebook Login |\n| `providers/linkedin.provider.ts` | LinkedIn OAuth2 |\n| `providers/slack.provider.ts` | Slack OpenID Connect |\n| `providers/tiktok.provider.ts` | TikTok Login |\n| `providers/twitter.provider.ts` | Twitter/X OAuth2 (PKCE + Basic auth) |\n| `providers/wechat.provider.ts` | WeChat OAuth (`openid` round-tripped to userinfo) |\n| `providers/autodesk.provider.ts` | Autodesk OAuth2 (Basic auth) |\n| `dictionaries/` | Localization (EN, ES, TR) |\n\n---\n\n## Supported Providers\n\n`google` · `apple` · `facebook` · `github` · `linkedin` · `microsoft` · `twitter` · `slack` · `tiktok` · `wechat` · `autodesk`\n\nEach provider is gated two ways: it must be **configured** (`isProviderConfigured` — a non-empty `clientId` derived from env) and **allowed** (`getAllowedProviders` — present in `env.SSO_ALLOWED_PROVIDERS` AND configured).\n\n---\n\n## Service responsibilities (`SSOService`)\n\n| Method | Responsibility |\n|---|---|\n| `getAllowedProviders()` | Configured providers that are also in `env.SSO_ALLOWED_PROVIDERS`. |\n| `isProviderEnabled(provider)` | Whether the provider is in the allowed list. |\n| `generateAuthUrl(provider, state?)` | Build the provider redirect URL; throws `PROVIDER_NOT_CONFIGURED` if unconfigured. |\n| `handleCallback(provider, code, state?)` | Exchange `code` for tokens and fetch the mapped `{ profile, tokens }`. |\n| `authenticateOrRegister(provider, code, state?)` | Sign-in flow: find existing social account → else link to a user matched by **real** email → else create a new user. Returns `{ user, isNewUser }`. |\n| `linkAccount(userId, provider, code)` | Link a provider to a known user (no email check). |\n| `signLinkState(userId, email, returnPath?)` | JWT (`CSRF_SECRET`, 600s TTL) encoding a `link` intent: initiating user + expected email + optional return path. |\n| `parseLinkState(state)` | Decode/verify a link-state token; returns `null` if it isn't a valid link token. |\n| `safeReturnPath(input)` | Open-redirect guard: app-relative paths only (`/`, not `//`); falls back to the root-tenant profile (see Tenant Variability). |\n| `linkToUser(userId, expectedEmail, provider, code, state?)` | Complete a Connected-Accounts link; **rejects** missing/synthetic emails and any email mismatch (`EMAIL_NOT_FOUND` / `EMAIL_MISMATCH`). |\n| `unlinkAccount(userId, provider)` | Remove a linked social account. |\n| `getLinkedAccounts(userId)` | List a user's linked social accounts. |\n| `synthesizeSSOEmail(provider, sub)` | Build a stable `${provider}-${sub}@noreply.invalid` placeholder for providers that withhold an email. |\n| `isPlaceholderEmail(email)` | Detect a synthesized placeholder so login flows can prompt for a real address. |\n\nLinked-account persistence is delegated to `UserSocialAccountService`; user lookup/creation to `UserService`.\n\n---\n\n## Entities\n\nThis module owns **no entity / DB table**. Linked social accounts are persisted by the `user_social_account` module; users by the `user` module.\n\n---\n\n## API Routes\n\nAll routes are tenant-scoped under `/tenant/[tenantId]/api/...`.\n\n| Method | Path | Auth | Description |\n|---|---|---|---|\n| GET | `/tenant/[tenantId]/api/auth/sso` | public | List allowed providers (`{ providers }`). |\n| GET | `/tenant/[tenantId]/api/auth/sso/[provider]` | public, rate-limited | Generate the OAuth redirect URL. `state = \"<tenantId>.<uuid>\"`. Returns `{ url, state }`; 400 if the provider isn't enabled. |\n| GET | `/tenant/[tenantId]/api/auth/me/social-accounts/connect/[provider]` | authenticated, rate-limited | Start a **link** flow from the me page. Rejects placeholder-email accounts, mints a signed link-state via `signLinkState`, returns `{ url, state }`. |\n\nEach provider's OAuth callback returns to the per-provider `callbackPath` (`/api/auth/callback/<provider>`, see `SSO_CONFIGS`); the handler calls `authenticateOrRegister` (sign-in) or `linkToUser` (link, when `parseLinkState` matches).\n\n---\n\n## Settings\n\nThis module reads **no setting keys**. Provider gating and OAuth client config come exclusively from process-level env vars:\n\n| Env var | Purpose |\n|---|---|\n| `SSO_ALLOWED_PROVIDERS` | Comma-separated allow-list of provider ids. |\n| `APPLICATION_HOST` | Base host used to build callback URLs (defaults to `http://localhost:3000`). |\n| `CSRF_SECRET` | Signs link-state JWTs and derives deterministic PKCE verifiers. |\n| `<PROVIDER>_CLIENT_ID` / `<PROVIDER>_CLIENT_SECRET` | Per-provider OAuth credentials (e.g. `GOOGLE_CLIENT_ID`, `META_CLIENT_*`, `TIKTOK_CLIENT_KEY`, `WECHAT_APP_*`). See `SSO_CONFIGS`. |\n\nPer-tenant SSO setting keys exist elsewhere (`ssoAllowedProviders` in `auth`; `ssoEnabled` / `ssoProvider` / `ssoConfig` in `tenant_session`; `disableSocialLogin` in `auth`) but are **not** consulted by this module — see *Tenant Variability*.\n\n---\n\n## Security\n\n- **State / CSRF.** `generateAuthUrl` is called with a high-entropy `state` (`<tenantId>.<uuid>`) that providers round-trip on the callback. Twitter/X derives a PKCE verifier deterministically from `state` via `HMAC(CSRF_SECRET, state)` — 256-bit, base64url, unrecoverable without the secret.\n- **Link-intent integrity.** `signLinkState` / `parseLinkState` use a `CSRF_SECRET`-signed JWT (600s TTL) so the callback can prove the link is applied to the same user that initiated it. `linkToUser` additionally enforces an exact (case-insensitive) email match and rejects missing/synthetic emails (the \"ancak aynı mail adresi ise\" requirement).\n- **Open-redirect guard.** `safeReturnPath` accepts app-relative paths only (must start with `/`, not `//`) and falls back to a safe profile path.\n- **Placeholder emails.** Providers that never return an email (Apple in some flows, Twitter/X, TikTok, WeChat) get a synthesized `…@noreply.invalid` address (RFC 6761 reserved TLD — cannot collide with real addresses). `authenticateOrRegister` never matches an existing user by a synthetic email.\n- **Confidential clients.** Providers requiring HTTP Basic auth (X, Autodesk) use `basicAuthHeader()` instead of posting the client secret in the body; Apple's client secret is a dynamically generated ES256 JWT.\n\n---\n\n## Flow\n\n```typescript\nimport SSOService from '@/modules/auth_sso/auth_sso.service';\n\n// 1. Generate the redirect URL (state binds the flow to the tenant + a nonce)\nconst state = `${tenantId}.${crypto.randomUUID()}`;\nconst url = SSOService.generateAuthUrl('google', state);\n// Redirect the user to `url`\n\n// 2. In the OAuth callback route, sign in or register:\nconst { user, isNewUser } = await SSOService.authenticateOrRegister('google', code, state);\n// user is created, linked, or returned — depending on the social account / email match\n```\n\n```typescript\n// Connected Accounts: link a provider to the signed-in user\nconst state = SSOService.signLinkState(user.userId, user.email, `/tenant/${tenantId}/admin/me`);\nconst url = SSOService.generateAuthUrl('github', state);\n// …on callback, after parseLinkState confirms the intent:\nawait SSOService.linkToUser(user.userId, user.email, 'github', code, state);\n```\n\n---\n\n## Adding a New Provider\n\n1. Create `providers/<name>.provider.ts` extending `BaseSSOProvider` (override `mapUserInfo` at minimum; override `generateAuthUrl` / `getTokens` / `getUserInfo` for vendor quirks).\n2. Add the provider id to `SSOProviderEnum` in `auth_sso.enums.ts`.\n3. Add its config (URLs, scopes, env-backed `clientId`/`clientSecret`) to `SSO_CONFIGS` in `auth_sso.config.ts`.\n4. Register the class in the `getProvider` switch in `providers/index.ts`.\n\n---\n\n## Tenant Variability\n\n> What varies per tenant in this module — and what could. Audited 2026-06-03.\n\nauth_sso implements OAuth2 social login/account-linking for 11 providers, but is entirely platform-global: provider gating and OAuth client credentials come from process-level env vars, with no per-tenant setting reads, no tenant-scoped entity, and no tenantId-aware branching.\n\n### Candidates (global / hardcoded today → could be per-tenant)\n\n| What | Where | Why per-tenant | Suggested key |\n|---|---|---|---|\n| Allowed/enabled provider list is global, read from process env SSO_ALLOWED_PROVIDERS, so every tenant gets the same SSO buttons; a tenant cannot enable/disable providers for itself | `auth_sso.config.ts:getAllowedProviders / auth_sso.service.ts:getAllowedProviders,isProviderEnabled` | Routes already run under /tenant/[tenantId]/api/auth/sso and the per-tenant keys 'ssoAllowedProviders' (auth.setting.keys.ts) and 'ssoEnabled' (tenant_session.setting.keys.ts) already exist, but the service never consults them — it filters env.SSO_ALLOWED_PROVIDERS instead. A tenant admin should be able to choose which providers appear. | `ssoAllowedProviders` |\n| OAuth client credentials (clientId/clientSecret) for every provider are hardcoded to global env vars (GOOGLE_CLIENT_ID, etc.) in SSO_CONFIGS, so all tenants share one OAuth app per provider; a tenant cannot bring its own OAuth client | `auth_sso.config.ts:SSO_CONFIGS / isProviderConfigured` | isProviderConfigured and getProvider read only the env-derived SSO_CONFIGS map with no tenantId, while the sibling auth_saml.service.ts resolves config per tenant via generateAuthUrl(tenantId, ...). The per-tenant 'ssoConfig'/'ssoProvider' keys (tenant_session.setting.keys.ts) exist for exactly this but are unused here. | `ssoConfig` |\n| Whether SSO/social login is available at all is global; the per-tenant 'ssoEnabled' (tenant_session) and 'disableSocialLogin' (auth) flags exist but are never checked by SSOService before generating auth URLs or authenticating | `auth_sso.service.ts:generateAuthUrl,authenticateOrRegister,isProviderEnabled` | These methods gate only on env-based provider configuration, ignoring the tenant-scoped enable/disable setting keys, so a tenant cannot turn social login off for its users. | `ssoEnabled` |\n| safeReturnPath / signLinkState fallback redirect is hardcoded to the ROOT_TENANT_ID profile path (/tenant/<ROOT>/admin/me) instead of the requesting tenant's profile path | `auth_sso.service.ts:safeReturnPath` | On a tampered/expired link state the user is bounced to the root tenant's /admin/me regardless of which tenant initiated the flow; the fallback should be derived from the request's tenantId so users stay within their own tenant. | — |\n\n---\n\n## Dependencies\n\nRequires: `user`, `user_session`, `user_social_account`, `env`.\n"
     },
     {
@@ -1419,14 +1487,19 @@
       },
       "enabled": true,
       "menu": [],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/impersonation/settings",
+          "component": "auth_impersonation/ui/impersonation-settings.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
       "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false,
+      "hasNextLayer": true,
       "readme": "# Auth Impersonation Module\n\nLets a system admin (platform super-admin) or a tenant `OWNER`/`ADMIN` assume a target user's session for testing and support. Every impersonation is gated by role checks, requires a **mandatory reason**, optionally requires **step-up re-authentication**, runs in a dedicated tracked session with a **per-tenant TTL**, is **rate-limited per impersonator**, and is written to the audit log + emitted as a webhook. The module composes `user`, `user_session`, `tenant_member`, `audit_log`, `setting`, `webhook`, `redis`, and `auth` (TOTP step-up only).\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `impersonation.service.ts` | Core logic: start (system / tenant flows), end, look up the active session, banner/expiry context, per-tenant settings resolvers, step-up verification, concurrency cap, anomaly alerting. |\n| `impersonation.dto.ts` | `StartSystemImpersonationDTO`, `StartTenantImpersonationDTO`, `StepUpCredentialDTO` (Zod). Both start DTOs require `reason` and accept an optional `stepUp`. |\n| `impersonation.messages.ts` | `ImpersonationMessages` error/status string enum. |\n| `impersonation.setting.keys.ts` | `ImpersonationSettingKeySchema` (Zod enum) + named accessors + defaults. |\n| `impersonation.settings.fields.ts` | `IMPERSONATION_SETTINGS_FIELDS` — admin-UI metadata for the settings page. |\n| `module.json` | Module manifest. |\n\nImpersonation sessions are stored as ordinary `UserSession` rows (in the **system DB**) tagged with `metadata.impersonation` (now also carrying `impersonationSessionId` and `reason`).\n\n---\n\n## Settings (per-tenant)\n\nAll keys are read against the **target tenant** (the tenant whose user is being impersonated), so a high-security tenant constrains how its users may be impersonated regardless of which flow initiates the request. Edit them at\n`/tenant/[tenantId]/admin/impersonation/settings` (ModuleSettingsPage).\n\n| Key | Type | Default | Effect |\n|---|---|---|---|\n| `impersonationSessionTtlMinutes` | number | `60` | Per-tenant impersonation session lifetime (clamped to `[1, 1440]`). Consumed by the user_session orchestrator via `getImpersonationTtlMs`. |\n| `impersonationRequireStepUp` | boolean | `false` | When `true`, the start flow requires a step-up credential (password re-entry or TOTP). |\n| `impersonationMaxConcurrentPerImpersonator` | number | `0` (unlimited) | Max simultaneous active impersonation sessions a single admin may hold against this tenant. |\n| `impersonationDisabled` | boolean | `false` | When `true`, **all** impersonation of this tenant's users is blocked — including the platform/system flow. |\n| `impersonationAlertStartsPerHour` | number | `0` (off) | Emit an anomaly signal (audit + log) when one admin exceeds this many starts within an hour. |\n\n### TTL resolver (for the user_session orchestrator)\n\n```ts\nImpersonationService.getImpersonationTtlMs(tenantId: string): Promise<number>\n```\n\nReads `impersonationSessionTtlMinutes` from the target tenant, clamps to `[1, 1440]` minutes, falls back to 60 minutes on unset/invalid, and returns **milliseconds**. The orchestrator in `user_session` calls this when minting the impersonation session.\n\n---\n\n## Service responsibilities (`ImpersonationService`)\n\n| Method | Responsibility |\n|---|---|\n| `startSystemImpersonation` | Platform-admin flow. Requires `reason`. Blocks if the tenant opted out. Loads the target `User`, asserts not-self + **global role dominance** (`{ USER: 0, ADMIN: 1 }`). Enforces **step-up** (if the tenant requires it) and the **per-impersonator concurrency cap**. Resolves the target's tenant role from `TenantMember` (defaulting to `'USER'`) unless `targetTenantRole` is supplied, mints the session, logs `IMPERSONATION_STARTED` (`flow: 'system'`), and emits `impersonation.started`. |\n| `startTenantImpersonation` | Tenant `OWNER`/`ADMIN` flow. Requires `reason`. Blocks if the tenant opted out. Returns a **generic `TARGET_NOT_FOUND`** whether the user does not exist *or* is not a member of this tenant (closes cross-tenant enumeration). Throws `TARGET_MUST_BE_TENANT_USER` unless `memberRole === 'USER'`. Enforces step-up + concurrency cap, mints the session (`targetTenantRole: 'USER'`), logs/emits as above (`flow: 'tenant'`). |\n| `endImpersonationSession` | Deletes the impersonation `UserSession`. When an `actorId` is provided, logs `IMPERSONATION_ENDED` with the **computed duration** (from `startedAtMs`) and the shared `impersonationSessionId` linking START→END, and emits `impersonation.ended`. |\n| `getActiveImpersonationSession` | Hashes the raw access token and returns the session only if it carries `metadata.impersonation` and has not expired — otherwise `null`. |\n| `getImpersonationContext` | Disclosure-banner + auto-expiry context: `{ isImpersonating, impersonatorUserId, targetUserId, tenantId, targetTenantRole, impersonationSessionId, expiresAt, remainingMs }`, or `null`. |\n| `getImpersonationTtlMs` | Per-tenant TTL resolver (see above). |\n| `isImpersonationDisabled` | Whether the tenant has opted out. |\n\nBoth start flows return `{ userSession, rawAccessToken, rawRefreshToken }`.\n\n---\n\n## Step-up re-authentication\n\nWhen the target tenant sets `impersonationRequireStepUp=true`, the start flow requires a `stepUp` credential:\n\n- **password** — verified locally against the impersonator's stored bcrypt hash (`STEP_UP_INVALID_PASSWORD` on mismatch).\n- **totp** — delegated to `auth.totp.service` (`STEP_UP_INVALID_TOTP` on mismatch).\n\nMissing credential → `STEP_UP_REQUIRED` (401). No usable method (e.g. no password on file) → `STEP_UP_METHOD_UNAVAILABLE`.\n\n## Tenant opt-out\n\n`impersonationDisabled=true` makes both flows throw `IMPERSONATION_DISABLED_FOR_TENANT` (403) — the system/platform flow is **not** exempt. Use for high-sensitivity tenants whose contracts prohibit vendor-side access.\n\n---\n\n## Role hierarchy\n\n- **Global (system flow):** `{ USER: 0, ADMIN: 1 }` — impersonator must strictly outrank the target (`CANNOT_IMPERSONATE_EQUAL_OR_HIGHER_GLOBAL_ROLE`). Unknown roles fall back to `0`.\n- **Tenant flow:** the target must be a member of the tenant with `memberRole === 'USER'`.\n- No self-impersonation (`CANNOT_IMPERSONATE_SELF`).\n\n---\n\n## API Routes\n\n| Method | Path | Scope | Description |\n|---|---|---|---|\n| POST | `/tenant/[tenantId]/api/admin/impersonate` | **platform super-admin** (root-tenant `ADMIN`) | **System flow.** `StartSystemImpersonationDTO` (`targetUserId`, `tenantId`, `reason`, optional `targetTenantRole`, optional `stepUp`). Gated by `authenticateAdminRequest`. Sets impersonation tokens and backs up the caller's tokens. |\n| POST | `/tenant/[tenantId]/api/auth/impersonate` | tenant `ADMIN`+ | **Tenant flow.** `StartTenantImpersonationDTO` (`targetUserId`, `reason`, optional `stepUp`). |\n| DELETE | `/tenant/[tenantId]/api/auth/impersonate` | impersonating session | Exit impersonation; ends the session (records duration) and restores the original tokens. |\n| GET | `/tenant/[tenantId]/api/auth/impersonate` | impersonating session | Banner/expiry status: `isImpersonating`, `impersonatorUserId`, `targetUserId`, `tenantId`, `targetTenantRole`, `impersonationSessionId`, **`expiresAt`**, **`remainingMs`**. |\n| GET | `/tenant/[tenantId]/api/users/[userId]/impersonation-sessions` | admin | Paginated list, **scoped to the requesting tenant** (`metadata.impersonation.tenantId = [tenantId]`). `?page=&pageSize=&activeOnly=`. |\n\nMutating routes are rate-limited via `Limiter` (per-route), independent of the per-impersonator concurrency cap.\n\n---\n\n## Disclosure banner & auto-expiry (UI)\n\n`GET …/api/auth/impersonate` returns `expiresAt` and `remainingMs` so the client can render a persistent disclosure banner (\"You are impersonating … as <impersonatorUserId>\") and a live countdown, and warn before the session lapses. `getImpersonationContext` is the underlying service helper.\n\n---\n\n## Monitoring & alerting\n\n- **Duration tracking (#11):** START and END audit entries share an `impersonationSessionId`; END records `durationMs`. Both entries carry dual-actor info — `actorId`/`metadata.impersonatorId` = the impersonator, `onBehalfOfActorId` = the target.\n- **Webhooks (#12):** every start emits `impersonation.started` and every end emits `impersonation.ended` (best-effort, fire-and-forget).\n- **Anomaly hook (#12):** a per-impersonator hourly counter in Redis. When a single admin exceeds `impersonationAlertStartsPerHour` starts in an hour, an anomaly is logged (warning) and an extra `IMPERSONATION_STARTED` audit entry is written with `metadata.anomaly=true`, which feeds the existing `audit.high_risk` webhook pipeline.\n\n---\n\n## Usage\n\n```typescript\nimport ImpersonationService from '@/modules/auth_impersonation/impersonation.service';\n\n// Tenant OWNER/ADMIN impersonates a tenant USER:\nconst { userSession, rawAccessToken, rawRefreshToken } =\n  await ImpersonationService.startTenantImpersonation({\n    impersonatorUser, impersonatorMember, impersonatorSession,\n    targetUserId, tenantId,\n    reason: 'Support ticket #1234',          // required\n    stepUp: { password: '…' },                // required only if the tenant opts in\n    ipAddress, userAgent,\n  });\n\n// End impersonation (records duration + emits impersonation.ended):\nawait ImpersonationService.endImpersonationSession(userSession.userSessionId, {\n  actorId: impersonatorUser.userId,\n  targetUserId,\n  tenantId,\n  impersonationSessionId: '…',  // from session metadata\n  startedAtMs: Date.now(),      // or session.createdAt\n});\n```\n\n---\n\n## Security summary\n\n- No self-impersonation; global role dominance (system) / tenant-USER-only (tenant).\n- Mandatory `reason` stored in the audit metadata (SOC 2 / ISO 27001 / GDPR purpose limitation).\n- Optional step-up re-auth (password or TOTP) per tenant.\n- Per-impersonator concurrency cap (Redis-counted via active session rows).\n- Per-tenant TTL; per-tenant full opt-out (binds the platform flow too).\n- Cross-tenant enumeration closed via generic `TARGET_NOT_FOUND`; session-list API tenant-scoped.\n- Fully audited + webhook-emitted; reversible via backup cookies.\n\n---\n\n## Dependencies\n\n`requires`: `user`, `user_session`, `audit_log`, `setting`, `webhook`, `redis`, `env`. Reads `tenant_member` and `auth` (TOTP step-up) at runtime.\n"
     },
     {
@@ -1623,7 +1696,16 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/members",
+          "component": "tenant_member/ui/members.page"
+        },
+        {
+          "path": "/admin/members/settings",
+          "component": "tenant_member/ui/members-settings.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1693,7 +1775,16 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/invitations",
+          "component": "tenant_invitation/ui/invitations.page"
+        },
+        {
+          "path": "/admin/invitations/settings",
+          "component": "tenant_invitation/ui/invitations-settings.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1807,14 +1898,19 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/settings/branding",
+          "component": "tenant_branding/ui/settings-branding.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
       "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false,
+      "hasNextLayer": true,
       "readme": "# Tenant Branding Module\n\nPer-tenant white-label branding: brand name, tagline, logos, favicon, colors, custom CSS/JS, and auth wallpaper. Values are stored as setting key-value pairs (via `setting`) and read by the proxy/shell to render per-tenant chrome. No global defaults — each tenant is fully isolated.\n\n---\n\n## Entities\n\nThis module has no entities of its own. All branding values are persisted as tenant-scoped setting key-value pairs through `SettingService` (`setting` module), which stores them in the **tenant DB**.\n\n---\n\n## Services / Responsibilities\n\n| Service | Method | Responsibility |\n|---|---|---|\n| `TenantBrandingService` | `get(tenantId)` | Reads all branding keys for the tenant via `SettingService.getByKeys`, then validates/parses them with `TenantBrandingSchema`. Missing keys are returned as `undefined`. |\n| `TenantBrandingService` | `update(tenantId, data)` | Writes only the provided keys via `SettingService.updateMany`; skips the write entirely when no recognized keys are present. Returns the freshly re-read branding. |\n| `TenantBrandingService` | `reset(tenantId)` | Deletes every branding key for the tenant via `SettingService.delete`, ignoring per-key errors, reverting the tenant to platform defaults. |\n\n---\n\n## Branding Fields\n\n`TenantBranding` (from `tenant_branding.types.ts`, all fields optional strings):\n\n```typescript\ntype TenantBranding = {\n  brandName?: string;          // display name shown in UI chrome, emails, docs\n  brandTagline?: string;       // short descriptor displayed alongside logo\n  brandLogoLight?: string;     // URL — logo for light theme\n  brandLogoDark?: string;      // URL — logo for dark theme\n  brandFavicon?: string;       // URL — favicon asset\n  brandPrimaryColor?: string;  // hex color — buttons, links, accents\n  brandSecondaryColor?: string;// hex color — alternate UI elements\n  authWallpaper?: string;      // URL — background on login/signup pages\n  customCss?: string;          // injected into <head>\n  customJs?: string;           // injected before </body>\n};\n```\n\n`tenant_branding.types.ts` also exports `TenantBrandingStateSchema` / `TenantBrandingState` (`{ tenantId, branding, isLoading, error }`) for client-side state.\n\n---\n\n## Usage\n\n```typescript\nimport TenantBrandingService from '@/modules/tenant_branding/tenant_branding.service';\n\n// Read branding\nconst branding = await TenantBrandingService.get(tenantId);\n\n// Update branding (only the provided keys are written)\nawait TenantBrandingService.update(tenantId, {\n  brandPrimaryColor: '#6366f1',\n  brandLogoLight: 'https://cdn.example.com/logo-light.svg',\n});\n\n// Reset all branding back to platform defaults\nawait TenantBrandingService.reset(tenantId);\n```\n\n---\n\n## API Routes\n\n`app/tenant/[tenantId]/api/settings/branding/route.ts`:\n\n| Method | Path | Scope | Description |\n|---|---|---|---|\n| `GET` | `/tenant/[tenantId]/api/settings/branding` | `tenant:admin` | Returns the tenant's branding |\n| `PUT` | `/tenant/[tenantId]/api/settings/branding` | `tenant:admin` | Validates the body with `TenantBrandingSchema` and updates branding |\n| `DELETE` | `/tenant/[tenantId]/api/settings/branding` | `tenant:owner` | Resets all branding to defaults |\n\nAll routes are rate-limited and authenticated via `TenantSessionNextService.authenticateTenantByRequest`.\n\n---\n\n## Settings\n\nBranding values are themselves setting keys, enumerated by `TenantBrandingSettingKeySchema` in `tenant_branding.setting.keys.ts` (exposed as `TENANT_BRANDING_KEYS`):\n\n`brandName`, `brandTagline`, `brandLogoLight`, `brandLogoDark`, `brandFavicon`, `brandPrimaryColor`, `brandSecondaryColor`, `authWallpaper`, `customCss`, `customJs`.\n\n---\n\n## Tenant Variability\n\n> What varies per tenant in this module — and what could. Audited 2026-06-03.\n\nWhite-label branding module that stores per-tenant logos, colors, favicon, custom CSS/JS, and auth wallpaper as setting key-value pairs, with full tenant isolation and no global defaults.\n\n### Per-tenant settings\n\n| Key | Type | Default | Scope | Controls | Read in |\n|---|---|---|---|---|---|\n| `brandName` | string | — | tenant | Tenant admin — display name shown in UI chrome, emails, docs | `tenant_branding.service.ts` |\n| `brandTagline` | string | — | tenant | Tenant admin — short descriptor displayed alongside logo | `tenant_branding.service.ts` |\n| `brandLogoLight` | string | — | tenant | Tenant admin — URL to logo asset for light theme | `tenant_branding.service.ts` |\n| `brandLogoDark` | string | — | tenant | Tenant admin — URL to logo asset for dark theme | `tenant_branding.service.ts` |\n| `brandFavicon` | string | — | tenant | Tenant admin — URL to favicon asset | `tenant_branding.service.ts` |\n| `brandPrimaryColor` | string | — | tenant | Tenant admin — primary brand color (hex) applied to buttons, links, accents | `tenant_branding.service.ts` |\n| `brandSecondaryColor` | string | — | tenant | Tenant admin — secondary brand color (hex) for alternate UI elements | `tenant_branding.service.ts` |\n| `authWallpaper` | string | — | tenant | Tenant admin — URL to background image displayed on login/signup pages | `tenant_branding.service.ts` |\n| `customCss` | text | — | tenant | Tenant admin — custom CSS injected into <head> for white-label theming | `tenant_branding.service.ts` |\n| `customJs` | text | — | tenant | Tenant admin — custom JavaScript injected before </body> | `tenant_branding.service.ts` |\n\n*Scope: `tenant` = real tenants override · `root` = platform-only default (not per-tenant).*\n\n### Per-tenant behavior\n\n- `tenant_branding.service.ts:get` — Reads branding keys from SettingService for the request tenantId; each tenant has its own logo, colors, CSS/JS\n- `tenant_branding.service.ts:update` — Updates branding keys for the request tenantId; changes only affect that tenant's chrome/UI rendering\n- `tenant_branding.service.ts:reset` — Deletes all branding keys for the request tenantId, reverting that tenant to platform defaults\n- `app/tenant/[tenantId]/api/settings/branding/route.ts:GET` — Returns branding for the tenant in the URL parameter; response is tenant-specific\n- `app/tenant/[tenantId]/api/settings/branding/route.ts:PUT` — Updates branding for the tenant in the URL parameter; requires tenant:admin role\n- `app/tenant/[tenantId]/api/settings/branding/route.ts:DELETE` — Resets branding for the tenant in the URL parameter; requires tenant:owner role\n\n---\n\n## Dependencies\n\nRequires: `db`, `tenant_setting`, `storage`. Reads/writes branding values through `setting` (`SettingService`); API routes depend on `tenant_session` (auth) and `limiter` (rate limiting).\n"
     },
     {
@@ -1880,7 +1976,16 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/domains",
+          "component": "tenant_domain/ui/domains.page"
+        },
+        {
+          "path": "/admin/domains/settings",
+          "component": "tenant_domain/ui/domains-settings.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1960,7 +2065,12 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/subscription",
+          "component": "tenant_subscription/ui/subscription.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2120,7 +2230,28 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/payments/[paymentId]",
+          "component": "payment/ui/payments-payment-id.page"
+        },
+        {
+          "path": "/admin/payments",
+          "component": "payment/ui/payments.page"
+        },
+        {
+          "path": "/admin/payments/settings",
+          "component": "payment/ui/payments-settings.page"
+        },
+        {
+          "path": "/admin/plans/[planId]",
+          "component": "payment/ui/plans-plan-id.page"
+        },
+        {
+          "path": "/admin/plans",
+          "component": "payment/ui/plans.page"
+        }
+      ],
       "widgets": [],
       "slots": [
         {
@@ -2254,7 +2385,16 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/coupons/[couponId]",
+          "component": "coupon/ui/coupons-coupon-id.page"
+        },
+        {
+          "path": "/admin/coupons",
+          "component": "coupon/ui/coupons.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2636,7 +2776,16 @@
       },
       "enabled": true,
       "menu": [],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/invoices/[invoiceId]",
+          "component": "invoice/ui/invoices-invoice-id.page"
+        },
+        {
+          "path": "/admin/invoices",
+          "component": "invoice/ui/invoices.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3486,7 +3635,16 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/api-keys",
+          "component": "api_key/ui/api-keys.page"
+        },
+        {
+          "path": "/admin/api-keys/settings",
+          "component": "api_key/ui/api-keys-settings.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3562,7 +3720,16 @@
           "scope": "system"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/audit-logs",
+          "component": "audit_log/ui/audit-logs.page"
+        },
+        {
+          "path": "/admin/audit-logs/settings",
+          "component": "audit_log/ui/audit-logs-settings.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3666,7 +3833,32 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/store/bundles/[bundleId]",
+          "component": "store/ui/store-bundles-bundle-id.page"
+        },
+        {
+          "path": "/admin/store/bundles",
+          "component": "store/ui/store-bundles.page"
+        },
+        {
+          "path": "/admin/store/categories/[categoryId]",
+          "component": "store/ui/store-categories-category-id.page"
+        },
+        {
+          "path": "/admin/store/categories",
+          "component": "store/ui/store-categories.page"
+        },
+        {
+          "path": "/admin/store/products/[productId]",
+          "component": "store/ui/store-products-product-id.page"
+        },
+        {
+          "path": "/admin/store/products",
+          "component": "store/ui/store-products.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3737,7 +3929,16 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/webhooks",
+          "component": "webhook/ui/webhooks.page"
+        },
+        {
+          "path": "/admin/webhooks/settings",
+          "component": "webhook/ui/webhooks-settings.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3953,7 +4154,20 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/blog/categories",
+          "component": "blog/ui/blog-categories.page"
+        },
+        {
+          "path": "/admin/blog/posts/[postId]",
+          "component": "blog/ui/blog-posts-post-id.page"
+        },
+        {
+          "path": "/admin/blog/posts",
+          "component": "blog/ui/blog-posts.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4118,7 +4332,16 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/consent",
+          "component": "terms_consent/ui/consent.page"
+        },
+        {
+          "path": "/admin/terms",
+          "component": "terms_consent/ui/terms.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4195,7 +4418,12 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/wallet",
+          "component": "wallet/ui/wallet.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4265,7 +4493,12 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/feature-flags",
+          "component": "feature_flags/ui/feature-flags.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4347,7 +4580,12 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/metering",
+          "component": "metering/ui/metering.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4423,7 +4661,12 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/support",
+          "component": "support/ui/support.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4498,7 +4741,12 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/approvals",
+          "component": "approval/ui/approvals.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4576,7 +4824,16 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/gift-cards/[giftCardId]",
+          "component": "gift_card/ui/gift-cards-gift-card-id.page"
+        },
+        {
+          "path": "/admin/gift-cards",
+          "component": "gift_card/ui/gift-cards.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4739,7 +4996,20 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/blocks/[blockId]",
+          "component": "dynamic_page/ui/blocks-block-id.page"
+        },
+        {
+          "path": "/admin/blocks",
+          "component": "dynamic_page/ui/blocks.page"
+        },
+        {
+          "path": "/admin/pages",
+          "component": "dynamic_page/ui/pages.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4821,7 +5091,16 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/integrations/connected",
+          "component": "integrations_hub/ui/integrations-connected.page"
+        },
+        {
+          "path": "/admin/integrations",
+          "component": "integrations_hub/ui/integrations.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4888,14 +5167,19 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/search",
+          "component": "search/ui/search.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
       "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false,
+      "hasNextLayer": true,
       "readme": "# search\n\nTenant-scoped **full-text search** over arbitrary content. Owning modules push\ndocuments into the index; consumers query them ranked by relevance.\nFramework-agnostic (`modules/` layer); the Next bindings (admin console + API\nroutes) live under `app/`.\n\n## What it does\n\nA `SearchDocument` represents one searchable source record, identified by\n`(entityType, entityId)` — e.g. `('blog_post', '42')`. Owning modules call\n`SearchService.index()` whenever their data changes and `remove()` on deletion.\nRe-indexing the same source **upserts** on the `(tenantId, entityType, entityId)`\nunique key.\n\nThe default **PostgreSQL FTS provider**:\n\n- Builds the document `tsvector` from `title || ' ' || body` at query time.\n- Parses the user query with **`websearch_to_tsquery`** (Google-style syntax:\n  quoted phrases, `or`, `-exclude`).\n- Ranks with **`ts_rank`** (most relevant first) and returns a\n  **`ts_headline`** snippet with `<b>…</b>` match markers.\n- Binds all user input as SQL **parameters** — never interpolated — so it is\n  injection-safe, and constrains every query to `tenantId`.\n\nThe query string is normalized (control chars stripped, whitespace collapsed,\ncapped at 200 chars) and a blank query throws `EMPTY_QUERY` (400).\n\n## Public API\n\n```ts\nimport { SearchService } from \"@/modules/search\";\n\n// Keep the index in sync (call from the owning module's create/update/delete)\nawait SearchService.index(tenantId, {\n  entityType: \"blog_post\",\n  entityId: post.id,\n  title: post.title,\n  body: post.contentText,\n  url: `/blog/${post.slug}`,\n  metadata: { author: post.authorName },\n});\nawait SearchService.remove(tenantId, \"blog_post\", post.id);\n\n// Query\nconst { hits, total } = await SearchService.search(tenantId, \"checkout -legacy\", {\n  entityType: \"blog_post\", // optional filter\n  limit: 20,\n  offset: 0,\n});\n```\n\nPure helpers are exported for reuse: `normalizeQuery(raw)`, `isBlankQuery(raw)`.\n\n## Provider abstraction\n\n`SearchProviderBase` (`providers/base.provider.ts`) defines `index` / `remove` /\n`search`. `getSearchProvider()` (`search.provider-factory.ts`) returns the active\nbackend. Adding Meilisearch/Elastic = implement the base class + a factory case;\n`SearchProviderEnum` is the extension point.\n\n## Entities\n\n| Entity | Table | Notes |\n|---|---|---|\n| `SearchDocument` | `search_documents` | Unique `(tenantId, entityType, entityId)`. Holds title/body/url/metadata + `language`. |\n\n## Dependencies\n\n`db`, `env`, `redis`, `common`.\n\n## HTTP surface\n\n- `GET /tenant/{tenantId}/api/search?q=…&entityType=…&limit=&offset=` — search (authenticated)\n- `POST /tenant/{tenantId}/api/search/index` — upsert a document (admin)\n- `DELETE /tenant/{tenantId}/api/search/index` — remove a document (admin)\n\nAdmin console: `/tenant/{tenantId}/admin/search`.\n"
     },
     {
@@ -4956,14 +5240,19 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/analytics",
+          "component": "analytics/ui/analytics.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
       "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false,
+      "hasNextLayer": true,
       "readme": "# analytics\n\nTenant-scoped **product analytics** — track behavioural events and read\naggregates over them (active users, top events, daily timeseries).\nFramework-agnostic (`modules/` layer); the Next bindings (admin dashboard + API\nroutes) live under `app/` and `modules_next/`.\n\n> Not to be confused with `metering` (usage-based **billing**) or\n> `observability` (ops/infra metrics). This module is about *product behaviour*:\n> what users do.\n\n## What it does\n\nA single append-only `AnalyticsEvent` row is written per tracked event. Reads are\npure aggregates over a date range:\n\n- **summary** — `totalEvents`, `uniqueUsers` (COUNT DISTINCT userId),\n  `uniqueSessions` (COUNT DISTINCT sessionId), and the top 10 events by count.\n- **timeseries** — counts grouped by `date_trunc(interval, createdAt)`, returned\n  as a **dense** series (missing buckets filled with `0`) for charts/tables.\n- **topEvents** — the top N events by count.\n\nTracking works for **anonymous visitors** — every identity field is optional, so\na public page can post a `page_view` with only an `anonymousId`.\n\n## Public API\n\n```ts\nimport { AnalyticsService } from \"@/modules/analytics\";\n\n// Track (await the save; safe to fire-and-forget at the route layer)\nawait AnalyticsService.track(tenantId, {\n  name: \"page_view\",\n  anonymousId,\n  sessionId,\n  path: \"/pricing\",\n  referrer: document.referrer,\n});\n\n// Aggregates (from/to default to last 30 days → now)\nconst s  = await AnalyticsService.summary(tenantId, { from, to });\nconst ts = await AnalyticsService.timeseries(tenantId, { interval: \"day\", from, to });\nconst te = await AnalyticsService.topEvents(tenantId, { limit: 10 });\n```\n\nThe pure timeseries gap-filler is exported for unit use:\n`fillTimeseriesGaps(points, from, to, interval)` and `truncateToBucket(date, interval)`.\n\n## Entities\n\n| Entity | Table | Notes |\n|---|---|---|\n| `AnalyticsEvent` | `analytics_events` | Append-only (no `updatedAt`). Composite `(tenantId, name, createdAt)` index backs the aggregate queries; `properties` is `jsonb`. |\n\n## Caching\n\n`summary()` is cached in Redis under\n`analytics:summary:{tenantId}:{fromMs}:{toMs}` (`TENANT_CACHE_TTL`, default 60s,\njittered), behind a single-flight to collapse concurrent misses.\n\n## Dependencies\n\n`db`, `env`, `redis`, `common`.\n\n## HTTP surface\n\n- `POST /tenant/{tenantId}/api/analytics/track` — track an event (soft auth: attaches `userId` if signed in, otherwise anonymous). Rate-limited.\n- `GET /tenant/{tenantId}/api/analytics/summary` — top-line summary (admin).\n- `GET /tenant/{tenantId}/api/analytics/timeseries` — dense daily/weekly/… series (admin).\n\nAdmin UI: `/tenant/{tenantId}/admin/analytics`.\n"
     },
     {
@@ -5012,7 +5301,12 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/api-docs/settings",
+          "component": "api_doc/ui/api-docs-settings.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],

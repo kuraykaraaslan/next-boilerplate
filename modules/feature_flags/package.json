@@ -15,6 +15,7 @@
     "./server/index": "./server/index.ts",
     "./server": "./server/index.ts",
     "./ui/feature-flag-columns.component": "./ui/feature-flag-columns.component.tsx",
+    "./ui/feature-flags.page": "./ui/feature-flags.page.tsx",
     ".": "./server/index.ts",
     "./module.json": "./module.json"
   },

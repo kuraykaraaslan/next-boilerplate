@@ -66,5 +66,15 @@
       "order": 20,
       "scope": "tenant"
     }
+  ],
+  "routes": [
+    {
+      "path": "/admin/consent",
+      "component": "terms_consent/ui/consent.page"
+    },
+    {
+      "path": "/admin/terms",
+      "component": "terms_consent/ui/terms.page"
+    }
   ]
 }

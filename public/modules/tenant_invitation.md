@@ -51,6 +51,8 @@ Email invitation flow: create / accept / decline / revoke. Bound to tenant_membe
 
 - `tenant_invitation/ui/invitation-columns.component` _(ui, client)_
 - `tenant_invitation/ui/invitation-create-modal.component` _(ui, client)_
+- `tenant_invitation/ui/invitations-settings.page` _(ui, client)_
+- `tenant_invitation/ui/invitations.page` _(ui, client)_
 
 ## README
 

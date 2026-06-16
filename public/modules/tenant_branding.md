@@ -6,7 +6,7 @@
 - **dir:** `modules/tenant_branding/`
 - **tags:** tenant, branding, white-label
 - **icon:** `fas fa-palette`
-- **hasNextLayer:** false
+- **hasNextLayer:** true
 
 White-label branding: logo, favicon, colors, font, custom CSS — read by the proxy/shell to render per-tenant chrome.
 
@@ -21,6 +21,10 @@ White-label branding: logo, favicon, colors, font, custom CSS — read by the pr
 ## Setting keys
 
 - `tenant_branding.setting.keys.ts`
+
+## Next layer (modules_next/) surface
+
+- `tenant_branding/ui/settings-branding.page` _(ui, client)_
 
 ## README
 

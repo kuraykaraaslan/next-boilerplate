@@ -34,5 +34,11 @@
       "order": 10,
       "scope": "tenant"
     }
+  ],
+  "routes": [
+    {
+      "path": "/admin/settings/branding",
+      "component": "tenant_branding/ui/settings-branding.page"
+    }
   ]
 }

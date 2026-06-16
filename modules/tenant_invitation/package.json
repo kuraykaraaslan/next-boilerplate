@@ -18,6 +18,8 @@
     "./server/tests/tenant_invitation.test-setup": "./server/tests/tenant_invitation.test-setup.ts",
     "./ui/invitation-columns.component": "./ui/invitation-columns.component.tsx",
     "./ui/invitation-create-modal.component": "./ui/invitation-create-modal.component.tsx",
+    "./ui/invitations-settings.page": "./ui/invitations-settings.page.tsx",
+    "./ui/invitations.page": "./ui/invitations.page.tsx",
     "./module.json": "./module.json"
   },
   "peerDependencies": {

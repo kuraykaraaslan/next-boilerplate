@@ -33,6 +33,8 @@
     "./ui/coupon-list-columns.component": "./ui/coupon-list-columns.component.tsx",
     "./ui/coupon-redemptions-list.component": "./ui/coupon-redemptions-list.component.tsx",
     "./ui/coupon-scope-panel.component": "./ui/coupon-scope-panel.component.tsx",
+    "./ui/coupons-coupon-id.page": "./ui/coupons-coupon-id.page.tsx",
+    "./ui/coupons.page": "./ui/coupons.page.tsx",
     ".": "./server/index.ts",
     "./module.json": "./module.json"
   },

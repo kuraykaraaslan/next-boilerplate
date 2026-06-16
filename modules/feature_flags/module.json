@@ -34,5 +34,11 @@
       "order": 10,
       "scope": "tenant"
     }
+  ],
+  "routes": [
+    {
+      "path": "/admin/feature-flags",
+      "component": "feature_flags/ui/feature-flags.page"
+    }
   ]
 }

@@ -113,6 +113,7 @@ Credential auth: login, register, password reset, email verify, OTP, TOTP. Coord
 
 ## Next layer (modules_next/) surface
 
+- `auth/ui/auth-settings.page` _(ui, client)_
 - `auth/ui/forgot-password-form.component` _(ui, client)_
 - `auth/ui/login-form.component` _(ui, client)_
 - `auth/ui/o-auth-buttons.component` _(ui, client)_

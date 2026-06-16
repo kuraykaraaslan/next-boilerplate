@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T08:52:19.160Z",
+  "generatedAt": "2026-06-16T09:07:33.600Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -491,7 +491,52 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/settings/auth",
+          "component": "setting/ui/settings-auth.page"
+        },
+        {
+          "path": "/admin/settings/billing",
+          "component": "setting/ui/settings-billing.page"
+        },
+        {
+          "path": "/admin/settings/e-signature",
+          "component": "setting/ui/settings-e-signature.page"
+        },
+        {
+          "path": "/admin/settings/email",
+          "component": "setting/ui/settings-email.page"
+        },
+        {
+          "path": "/admin/settings/general",
+          "component": "setting/ui/settings-general.page"
+        },
+        {
+          "path": "/admin/settings/notifications",
+          "component": "setting/ui/settings-notifications.page"
+        },
+        {
+          "path": "/admin/settings",
+          "component": "setting/ui/settings.page"
+        },
+        {
+          "path": "/admin/settings/scim",
+          "component": "setting/ui/settings-scim.page"
+        },
+        {
+          "path": "/admin/settings/security",
+          "component": "setting/ui/settings-security.page"
+        },
+        {
+          "path": "/admin/settings/sms",
+          "component": "setting/ui/settings-sms.page"
+        },
+        {
+          "path": "/admin/settings/storage",
+          "component": "setting/ui/settings-storage.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1081,7 +1126,12 @@
       },
       "enabled": true,
       "menu": [],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/auth/settings",
+          "component": "auth/ui/auth-settings.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1213,7 +1263,20 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/saml/advanced",
+          "component": "auth_saml/ui/saml-advanced.page"
+        },
+        {
+          "path": "/admin/saml",
+          "component": "auth_saml/ui/saml.page"
+        },
+        {
+          "path": "/admin/saml/settings",
+          "component": "auth_saml/ui/saml-settings.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1279,14 +1342,19 @@
       },
       "enabled": true,
       "menu": [],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/sso/settings",
+          "component": "auth_sso/ui/sso-settings.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
       "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "auth_acs",
@@ -1411,14 +1479,19 @@
       },
       "enabled": true,
       "menu": [],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/impersonation/settings",
+          "component": "auth_impersonation/ui/impersonation-settings.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
       "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "scim",
@@ -1612,7 +1685,16 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/members",
+          "component": "tenant_member/ui/members.page"
+        },
+        {
+          "path": "/admin/members/settings",
+          "component": "tenant_member/ui/members-settings.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1681,7 +1763,16 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/invitations",
+          "component": "tenant_invitation/ui/invitations.page"
+        },
+        {
+          "path": "/admin/invitations/settings",
+          "component": "tenant_invitation/ui/invitations-settings.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1793,14 +1884,19 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/settings/branding",
+          "component": "tenant_branding/ui/settings-branding.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
       "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "tenant_domain",
@@ -1865,7 +1961,16 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/domains",
+          "component": "tenant_domain/ui/domains.page"
+        },
+        {
+          "path": "/admin/domains/settings",
+          "component": "tenant_domain/ui/domains-settings.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1944,7 +2049,12 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/subscription",
+          "component": "tenant_subscription/ui/subscription.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2102,7 +2212,28 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/payments/[paymentId]",
+          "component": "payment/ui/payments-payment-id.page"
+        },
+        {
+          "path": "/admin/payments",
+          "component": "payment/ui/payments.page"
+        },
+        {
+          "path": "/admin/payments/settings",
+          "component": "payment/ui/payments-settings.page"
+        },
+        {
+          "path": "/admin/plans/[planId]",
+          "component": "payment/ui/plans-plan-id.page"
+        },
+        {
+          "path": "/admin/plans",
+          "component": "payment/ui/plans.page"
+        }
+      ],
       "widgets": [],
       "slots": [
         {
@@ -2234,7 +2365,16 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/coupons/[couponId]",
+          "component": "coupon/ui/coupons-coupon-id.page"
+        },
+        {
+          "path": "/admin/coupons",
+          "component": "coupon/ui/coupons.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2610,7 +2750,16 @@
       },
       "enabled": true,
       "menu": [],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/invoices/[invoiceId]",
+          "component": "invoice/ui/invoices-invoice-id.page"
+        },
+        {
+          "path": "/admin/invoices",
+          "component": "invoice/ui/invoices.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3446,7 +3595,16 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/api-keys",
+          "component": "api_key/ui/api-keys.page"
+        },
+        {
+          "path": "/admin/api-keys/settings",
+          "component": "api_key/ui/api-keys-settings.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3521,7 +3679,16 @@
           "scope": "system"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/audit-logs",
+          "component": "audit_log/ui/audit-logs.page"
+        },
+        {
+          "path": "/admin/audit-logs/settings",
+          "component": "audit_log/ui/audit-logs-settings.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3624,7 +3791,32 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/store/bundles/[bundleId]",
+          "component": "store/ui/store-bundles-bundle-id.page"
+        },
+        {
+          "path": "/admin/store/bundles",
+          "component": "store/ui/store-bundles.page"
+        },
+        {
+          "path": "/admin/store/categories/[categoryId]",
+          "component": "store/ui/store-categories-category-id.page"
+        },
+        {
+          "path": "/admin/store/categories",
+          "component": "store/ui/store-categories.page"
+        },
+        {
+          "path": "/admin/store/products/[productId]",
+          "component": "store/ui/store-products-product-id.page"
+        },
+        {
+          "path": "/admin/store/products",
+          "component": "store/ui/store-products.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3694,7 +3886,16 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/webhooks",
+          "component": "webhook/ui/webhooks.page"
+        },
+        {
+          "path": "/admin/webhooks/settings",
+          "component": "webhook/ui/webhooks-settings.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3907,7 +4108,20 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/blog/categories",
+          "component": "blog/ui/blog-categories.page"
+        },
+        {
+          "path": "/admin/blog/posts/[postId]",
+          "component": "blog/ui/blog-posts-post-id.page"
+        },
+        {
+          "path": "/admin/blog/posts",
+          "component": "blog/ui/blog-posts.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4070,7 +4284,16 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/consent",
+          "component": "terms_consent/ui/consent.page"
+        },
+        {
+          "path": "/admin/terms",
+          "component": "terms_consent/ui/terms.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4146,7 +4369,12 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/wallet",
+          "component": "wallet/ui/wallet.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4215,7 +4443,12 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/feature-flags",
+          "component": "feature_flags/ui/feature-flags.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4296,7 +4529,12 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/metering",
+          "component": "metering/ui/metering.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4371,7 +4609,12 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/support",
+          "component": "support/ui/support.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4445,7 +4688,12 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/approvals",
+          "component": "approval/ui/approvals.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4522,7 +4770,16 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/gift-cards/[giftCardId]",
+          "component": "gift_card/ui/gift-cards-gift-card-id.page"
+        },
+        {
+          "path": "/admin/gift-cards",
+          "component": "gift_card/ui/gift-cards.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4683,7 +4940,20 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/blocks/[blockId]",
+          "component": "dynamic_page/ui/blocks-block-id.page"
+        },
+        {
+          "path": "/admin/blocks",
+          "component": "dynamic_page/ui/blocks.page"
+        },
+        {
+          "path": "/admin/pages",
+          "component": "dynamic_page/ui/pages.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4764,7 +5034,16 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/integrations/connected",
+          "component": "integrations_hub/ui/integrations-connected.page"
+        },
+        {
+          "path": "/admin/integrations",
+          "component": "integrations_hub/ui/integrations.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4830,14 +5109,19 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/search",
+          "component": "search/ui/search.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
       "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "analytics",
@@ -4897,14 +5181,19 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/analytics",
+          "component": "analytics/ui/analytics.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
       "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "api_doc",
@@ -4952,7 +5241,12 @@
           "scope": "tenant"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/api-docs/settings",
+          "component": "api_doc/ui/api-docs-settings.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -10680,6 +10974,16 @@
       "baseName": "usage-tab.component"
     },
     {
+      "id": "analytics/ui/analytics.page",
+      "module": "analytics",
+      "filePath": "modules/analytics/ui/analytics.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "analytics.page"
+    },
+    {
       "id": "api_doc/ui/api-docs-page.component",
       "module": "api_doc",
       "filePath": "modules/api_doc/ui/api-docs-page.component.tsx",
@@ -10690,6 +10994,16 @@
       "isClient": true,
       "isServer": false,
       "baseName": "api-docs-page.component"
+    },
+    {
+      "id": "api_doc/ui/api-docs-settings.page",
+      "module": "api_doc",
+      "filePath": "modules/api_doc/ui/api-docs-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "api-docs-settings.page"
     },
     {
       "id": "api_doc/ui/api-tag-section.component",
@@ -10900,6 +11214,26 @@
       "baseName": "api-key-create-modal.component"
     },
     {
+      "id": "api_key/ui/api-keys-settings.page",
+      "module": "api_key",
+      "filePath": "modules/api_key/ui/api-keys-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "api-keys-settings.page"
+    },
+    {
+      "id": "api_key/ui/api-keys.page",
+      "module": "api_key",
+      "filePath": "modules/api_key/ui/api-keys.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "api-keys.page"
+    },
+    {
       "id": "approval/ui/approval-columns.component",
       "module": "approval",
       "filePath": "modules/approval/ui/approval-columns.component.tsx",
@@ -10913,6 +11247,16 @@
       "baseName": "approval-columns.component"
     },
     {
+      "id": "approval/ui/approvals.page",
+      "module": "approval",
+      "filePath": "modules/approval/ui/approvals.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "approvals.page"
+    },
+    {
       "id": "audit_log/ui/audit-log-filters.component",
       "module": "audit_log",
       "filePath": "modules/audit_log/ui/audit-log-filters.component.tsx",
@@ -10924,6 +11268,26 @@
       "isClient": true,
       "isServer": false,
       "baseName": "audit-log-filters.component"
+    },
+    {
+      "id": "audit_log/ui/audit-logs-settings.page",
+      "module": "audit_log",
+      "filePath": "modules/audit_log/ui/audit-logs-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "audit-logs-settings.page"
+    },
+    {
+      "id": "audit_log/ui/audit-logs.page",
+      "module": "audit_log",
+      "filePath": "modules/audit_log/ui/audit-logs.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "audit-logs.page"
     },
     {
       "id": "auth_e_signature/ui/e-signature-login-panel.component",
@@ -10962,6 +11326,26 @@
       "baseName": "signing-certificates-panel.component"
     },
     {
+      "id": "auth_impersonation/ui/impersonation-settings.page",
+      "module": "auth_impersonation",
+      "filePath": "modules/auth_impersonation/ui/impersonation-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "impersonation-settings.page"
+    },
+    {
+      "id": "auth_saml/ui/saml-advanced.page",
+      "module": "auth_saml",
+      "filePath": "modules/auth_saml/ui/saml-advanced.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "saml-advanced.page"
+    },
+    {
       "id": "auth_saml/ui/saml-attribute-form.component",
       "module": "auth_saml",
       "filePath": "modules/auth_saml/ui/saml-attribute-form.component.tsx",
@@ -10997,6 +11381,46 @@
       "isClient": true,
       "isServer": false,
       "baseName": "saml-metadata-card.component"
+    },
+    {
+      "id": "auth_saml/ui/saml-settings.page",
+      "module": "auth_saml",
+      "filePath": "modules/auth_saml/ui/saml-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "saml-settings.page"
+    },
+    {
+      "id": "auth_saml/ui/saml.page",
+      "module": "auth_saml",
+      "filePath": "modules/auth_saml/ui/saml.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "saml.page"
+    },
+    {
+      "id": "auth_sso/ui/sso-settings.page",
+      "module": "auth_sso",
+      "filePath": "modules/auth_sso/ui/sso-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "sso-settings.page"
+    },
+    {
+      "id": "auth/ui/auth-settings.page",
+      "module": "auth",
+      "filePath": "modules/auth/ui/auth-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "auth-settings.page"
     },
     {
       "id": "auth/ui/forgot-password-form.component",
@@ -11062,6 +11486,16 @@
       "baseName": "session-expired-banner.component"
     },
     {
+      "id": "blog/ui/blog-categories.page",
+      "module": "blog",
+      "filePath": "modules/blog/ui/blog-categories.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "blog-categories.page"
+    },
+    {
       "id": "blog/ui/blog-post-create-modal.component",
       "module": "blog",
       "filePath": "modules/blog/ui/blog-post-create-modal.component.tsx",
@@ -11072,6 +11506,26 @@
       "isClient": true,
       "isServer": false,
       "baseName": "blog-post-create-modal.component"
+    },
+    {
+      "id": "blog/ui/blog-posts-post-id.page",
+      "module": "blog",
+      "filePath": "modules/blog/ui/blog-posts-post-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "blog-posts-post-id.page"
+    },
+    {
+      "id": "blog/ui/blog-posts.page",
+      "module": "blog",
+      "filePath": "modules/blog/ui/blog-posts.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "blog-posts.page"
     },
     {
       "id": "blog/ui/blog-status-badge.component",
@@ -11174,16 +11628,6 @@
       "isClient": true,
       "isServer": false,
       "baseName": "button.component"
-    },
-    {
-      "id": "common/ui/button.test.component",
-      "module": "common",
-      "filePath": "modules/common/ui/button.test.component.tsx",
-      "kind": "ui",
-      "exports": [],
-      "isClient": false,
-      "isServer": false,
-      "baseName": "button.test.component"
     },
     {
       "id": "common/ui/card.component",
@@ -11805,16 +12249,6 @@
       "baseName": "skeleton.component"
     },
     {
-      "id": "common/ui/skeleton.test.component",
-      "module": "common",
-      "filePath": "modules/common/ui/skeleton.test.component.tsx",
-      "kind": "ui",
-      "exports": [],
-      "isClient": false,
-      "isServer": false,
-      "baseName": "skeleton.test.component"
-    },
-    {
       "id": "common/ui/skip-to-content.component",
       "module": "common",
       "filePath": "modules/common/ui/skip-to-content.component.tsx",
@@ -12041,6 +12475,46 @@
       "isClient": true,
       "isServer": false,
       "baseName": "coupon-scope-panel.component"
+    },
+    {
+      "id": "coupon/ui/coupons-coupon-id.page",
+      "module": "coupon",
+      "filePath": "modules/coupon/ui/coupons-coupon-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "coupons-coupon-id.page"
+    },
+    {
+      "id": "coupon/ui/coupons.page",
+      "module": "coupon",
+      "filePath": "modules/coupon/ui/coupons.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "coupons.page"
+    },
+    {
+      "id": "dynamic_page/ui/blocks-block-id.page",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/blocks-block-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "blocks-block-id.page"
+    },
+    {
+      "id": "dynamic_page/ui/blocks.page",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/blocks.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "blocks.page"
     },
     {
       "id": "dynamic_page/ui/dynamic-page-columns.component",
@@ -13086,6 +13560,16 @@
       "baseName": "page-templates"
     },
     {
+      "id": "dynamic_page/ui/pages.page",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/pages.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "pages.page"
+    },
+    {
       "id": "dynamic_page/ui/public-dynamic-page.component",
       "module": "dynamic_page",
       "filePath": "modules/dynamic_page/ui/public-dynamic-page.component.tsx",
@@ -13134,6 +13618,16 @@
       "baseName": "feature-flag-columns.component"
     },
     {
+      "id": "feature_flags/ui/feature-flags.page",
+      "module": "feature_flags",
+      "filePath": "modules/feature_flags/ui/feature-flags.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "feature-flags.page"
+    },
+    {
       "id": "gift_card/ui/gift-card-issue-modal.component",
       "module": "gift_card",
       "filePath": "modules/gift_card/ui/gift-card-issue-modal.component.tsx",
@@ -13159,6 +13653,26 @@
       "baseName": "gift-card-list-columns.component"
     },
     {
+      "id": "gift_card/ui/gift-cards-gift-card-id.page",
+      "module": "gift_card",
+      "filePath": "modules/gift_card/ui/gift-cards-gift-card-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "gift-cards-gift-card-id.page"
+    },
+    {
+      "id": "gift_card/ui/gift-cards.page",
+      "module": "gift_card",
+      "filePath": "modules/gift_card/ui/gift-cards.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "gift-cards.page"
+    },
+    {
       "id": "integrations_hub/ui/connected-apps-columns.component",
       "module": "integrations_hub",
       "filePath": "modules/integrations_hub/ui/connected-apps-columns.component.tsx",
@@ -13182,6 +13696,26 @@
       "isClient": true,
       "isServer": false,
       "baseName": "connector-form-modal.component"
+    },
+    {
+      "id": "integrations_hub/ui/integrations-connected.page",
+      "module": "integrations_hub",
+      "filePath": "modules/integrations_hub/ui/integrations-connected.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "integrations-connected.page"
+    },
+    {
+      "id": "integrations_hub/ui/integrations.page",
+      "module": "integrations_hub",
+      "filePath": "modules/integrations_hub/ui/integrations.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "integrations.page"
     },
     {
       "id": "invoice/ui/earsiv-sms-sign-modal.component",
@@ -13234,6 +13768,26 @@
       "baseName": "invoice-template-settings.component"
     },
     {
+      "id": "invoice/ui/invoices-invoice-id.page",
+      "module": "invoice",
+      "filePath": "modules/invoice/ui/invoices-invoice-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "invoices-invoice-id.page"
+    },
+    {
+      "id": "invoice/ui/invoices.page",
+      "module": "invoice",
+      "filePath": "modules/invoice/ui/invoices.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "invoices.page"
+    },
+    {
       "id": "media_gallery/ui/gallery-panel.component",
       "module": "media_gallery",
       "filePath": "modules/media_gallery/ui/gallery-panel.component.tsx",
@@ -13261,6 +13815,16 @@
       "isClient": true,
       "isServer": false,
       "baseName": "metering-columns.component"
+    },
+    {
+      "id": "metering/ui/metering.page",
+      "module": "metering",
+      "filePath": "modules/metering/ui/metering.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "metering.page"
     },
     {
       "id": "notification_inapp/hooks/use-notifications.hook",
@@ -13373,6 +13937,80 @@
       "baseName": "payment-summary-card.component"
     },
     {
+      "id": "payment/ui/payments-payment-id.page",
+      "module": "payment",
+      "filePath": "modules/payment/ui/payments-payment-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "payments-payment-id.page"
+    },
+    {
+      "id": "payment/ui/payments-settings.page",
+      "module": "payment",
+      "filePath": "modules/payment/ui/payments-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "payments-settings.page"
+    },
+    {
+      "id": "payment/ui/payments.page",
+      "module": "payment",
+      "filePath": "modules/payment/ui/payments.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "payments.page"
+    },
+    {
+      "id": "payment/ui/plan-edit.utils",
+      "module": "payment",
+      "filePath": "modules/payment/ui/plan-edit.utils.ts",
+      "kind": "ui",
+      "exports": [
+        "PlanStatus",
+        "BillingInterval",
+        "PlanProduct",
+        "Plan",
+        "SearchProduct",
+        "EditForm",
+        "statusVariant",
+        "INTERVAL_LABEL",
+        "INTERVAL_OPTIONS",
+        "STATUS_OPTIONS",
+        "formatPrice",
+        "extractMessage",
+        "planToForm"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "plan-edit.utils"
+    },
+    {
+      "id": "payment/ui/plans-plan-id.page",
+      "module": "payment",
+      "filePath": "modules/payment/ui/plans-plan-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "plans-plan-id.page"
+    },
+    {
+      "id": "payment/ui/plans.page",
+      "module": "payment",
+      "filePath": "modules/payment/ui/plans.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "plans.page"
+    },
+    {
       "id": "payment/ui/stripe-express-checkout-modal.component",
       "module": "payment",
       "filePath": "modules/payment/ui/stripe-express-checkout-modal.component.tsx",
@@ -13395,6 +14033,16 @@
       "isClient": true,
       "isServer": false,
       "baseName": "wallet-badges.component"
+    },
+    {
+      "id": "search/ui/search.page",
+      "module": "search",
+      "filePath": "modules/search/ui/search.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "search.page"
     },
     {
       "id": "seo/ui/index",
@@ -13490,6 +14138,56 @@
       "baseName": "setting.types"
     },
     {
+      "id": "setting/ui/settings-auth.page",
+      "module": "setting",
+      "filePath": "modules/setting/ui/settings-auth.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "settings-auth.page"
+    },
+    {
+      "id": "setting/ui/settings-billing.page",
+      "module": "setting",
+      "filePath": "modules/setting/ui/settings-billing.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "settings-billing.page"
+    },
+    {
+      "id": "setting/ui/settings-e-signature.page",
+      "module": "setting",
+      "filePath": "modules/setting/ui/settings-e-signature.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "settings-e-signature.page"
+    },
+    {
+      "id": "setting/ui/settings-email.page",
+      "module": "setting",
+      "filePath": "modules/setting/ui/settings-email.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "settings-email.page"
+    },
+    {
+      "id": "setting/ui/settings-general.page",
+      "module": "setting",
+      "filePath": "modules/setting/ui/settings-general.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "settings-general.page"
+    },
+    {
       "id": "setting/ui/settings-kit.component",
       "module": "setting",
       "filePath": "modules/setting/ui/settings-kit.component.tsx",
@@ -13505,6 +14203,16 @@
       "baseName": "settings-kit.component"
     },
     {
+      "id": "setting/ui/settings-notifications.page",
+      "module": "setting",
+      "filePath": "modules/setting/ui/settings-notifications.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "settings-notifications.page"
+    },
+    {
       "id": "setting/ui/settings-panel-host.component",
       "module": "setting",
       "filePath": "modules/setting/ui/settings-panel-host.component.tsx",
@@ -13515,6 +14223,56 @@
       "isClient": true,
       "isServer": false,
       "baseName": "settings-panel-host.component"
+    },
+    {
+      "id": "setting/ui/settings-scim.page",
+      "module": "setting",
+      "filePath": "modules/setting/ui/settings-scim.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "settings-scim.page"
+    },
+    {
+      "id": "setting/ui/settings-security.page",
+      "module": "setting",
+      "filePath": "modules/setting/ui/settings-security.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "settings-security.page"
+    },
+    {
+      "id": "setting/ui/settings-sms.page",
+      "module": "setting",
+      "filePath": "modules/setting/ui/settings-sms.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "settings-sms.page"
+    },
+    {
+      "id": "setting/ui/settings-storage.page",
+      "module": "setting",
+      "filePath": "modules/setting/ui/settings-storage.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "settings-storage.page"
+    },
+    {
+      "id": "setting/ui/settings.page",
+      "module": "setting",
+      "filePath": "modules/setting/ui/settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "settings.page"
     },
     {
       "id": "setting/ui/tabs/allowed-extensions-field.component",
@@ -13702,6 +14460,23 @@
       "baseName": "product-create-modal.component"
     },
     {
+      "id": "store/ui/product-edit.utils",
+      "module": "store",
+      "filePath": "modules/store/ui/product-edit.utils.ts",
+      "kind": "ui",
+      "exports": [
+        "Product",
+        "VariantGroupItemRow",
+        "VariantProductInfo",
+        "EditForm",
+        "statusOptions",
+        "extractMessage"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "product-edit.utils"
+    },
+    {
       "id": "store/ui/product-images-panel.component",
       "module": "store",
       "filePath": "modules/store/ui/product-images-panel.component.tsx",
@@ -13769,6 +14544,66 @@
       "baseName": "product-variants-panel.component"
     },
     {
+      "id": "store/ui/store-bundles-bundle-id.page",
+      "module": "store",
+      "filePath": "modules/store/ui/store-bundles-bundle-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "store-bundles-bundle-id.page"
+    },
+    {
+      "id": "store/ui/store-bundles.page",
+      "module": "store",
+      "filePath": "modules/store/ui/store-bundles.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "store-bundles.page"
+    },
+    {
+      "id": "store/ui/store-categories-category-id.page",
+      "module": "store",
+      "filePath": "modules/store/ui/store-categories-category-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "store-categories-category-id.page"
+    },
+    {
+      "id": "store/ui/store-categories.page",
+      "module": "store",
+      "filePath": "modules/store/ui/store-categories.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "store-categories.page"
+    },
+    {
+      "id": "store/ui/store-products-product-id.page",
+      "module": "store",
+      "filePath": "modules/store/ui/store-products-product-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "store-products-product-id.page"
+    },
+    {
+      "id": "store/ui/store-products.page",
+      "module": "store",
+      "filePath": "modules/store/ui/store-products.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "store-products.page"
+    },
+    {
       "id": "support/ui/support-ticket-columns.component",
       "module": "support",
       "filePath": "modules/support/ui/support-ticket-columns.component.tsx",
@@ -13782,6 +14617,26 @@
       "isClient": true,
       "isServer": false,
       "baseName": "support-ticket-columns.component"
+    },
+    {
+      "id": "support/ui/support.page",
+      "module": "support",
+      "filePath": "modules/support/ui/support.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "support.page"
+    },
+    {
+      "id": "tenant_branding/ui/settings-branding.page",
+      "module": "tenant_branding",
+      "filePath": "modules/tenant_branding/ui/settings-branding.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "settings-branding.page"
     },
     {
       "id": "tenant_domain/ui/domain-list-columns.component",
@@ -13800,6 +14655,26 @@
       "isClient": true,
       "isServer": false,
       "baseName": "domain-list-columns.component"
+    },
+    {
+      "id": "tenant_domain/ui/domains-settings.page",
+      "module": "tenant_domain",
+      "filePath": "modules/tenant_domain/ui/domains-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "domains-settings.page"
+    },
+    {
+      "id": "tenant_domain/ui/domains.page",
+      "module": "tenant_domain",
+      "filePath": "modules/tenant_domain/ui/domains.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "domains.page"
     },
     {
       "id": "tenant_invitation/ui/invitation-columns.component",
@@ -13830,6 +14705,26 @@
       "baseName": "invitation-create-modal.component"
     },
     {
+      "id": "tenant_invitation/ui/invitations-settings.page",
+      "module": "tenant_invitation",
+      "filePath": "modules/tenant_invitation/ui/invitations-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "invitations-settings.page"
+    },
+    {
+      "id": "tenant_invitation/ui/invitations.page",
+      "module": "tenant_invitation",
+      "filePath": "modules/tenant_invitation/ui/invitations.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "invitations.page"
+    },
+    {
       "id": "tenant_member/ui/member-list-columns.component",
       "module": "tenant_member",
       "filePath": "modules/tenant_member/ui/member-list-columns.component.tsx",
@@ -13843,6 +14738,26 @@
       "isClient": true,
       "isServer": false,
       "baseName": "member-list-columns.component"
+    },
+    {
+      "id": "tenant_member/ui/members-settings.page",
+      "module": "tenant_member",
+      "filePath": "modules/tenant_member/ui/members-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "members-settings.page"
+    },
+    {
+      "id": "tenant_member/ui/members.page",
+      "module": "tenant_member",
+      "filePath": "modules/tenant_member/ui/members.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "members.page"
     },
     {
       "id": "tenant_subscription/hooks/use-feature-access",
@@ -13984,6 +14899,16 @@
       "baseName": "subscription.helpers"
     },
     {
+      "id": "tenant_subscription/ui/subscription.page",
+      "module": "tenant_subscription",
+      "filePath": "modules/tenant_subscription/ui/subscription.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "subscription.page"
+    },
+    {
       "id": "tenant_subscription/ui/upgrade-prompt.component",
       "module": "tenant_subscription",
       "filePath": "modules/tenant_subscription/ui/upgrade-prompt.component.tsx",
@@ -14083,6 +15008,26 @@
       "isClient": true,
       "isServer": false,
       "baseName": "consent-banner.component"
+    },
+    {
+      "id": "terms_consent/ui/consent.page",
+      "module": "terms_consent",
+      "filePath": "modules/terms_consent/ui/consent.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "consent.page"
+    },
+    {
+      "id": "terms_consent/ui/terms.page",
+      "module": "terms_consent",
+      "filePath": "modules/terms_consent/ui/terms.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "terms.page"
     },
     {
       "id": "user_security/ui/passkeys-panel.component",
@@ -14237,6 +15182,16 @@
       "baseName": "wallet-account-columns.component"
     },
     {
+      "id": "wallet/ui/wallet.page",
+      "module": "wallet",
+      "filePath": "modules/wallet/ui/wallet.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "wallet.page"
+    },
+    {
       "id": "webhook/ui/webhook-columns.component",
       "module": "webhook",
       "filePath": "modules/webhook/ui/webhook-columns.component.tsx",
@@ -14299,6 +15254,26 @@
       "isClient": false,
       "isServer": false,
       "baseName": "webhook.types"
+    },
+    {
+      "id": "webhook/ui/webhooks-settings.page",
+      "module": "webhook",
+      "filePath": "modules/webhook/ui/webhooks-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "webhooks-settings.page"
+    },
+    {
+      "id": "webhook/ui/webhooks.page",
+      "module": "webhook",
+      "filePath": "modules/webhook/ui/webhooks.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "webhooks.page"
     }
   ]
 }

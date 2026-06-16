@@ -58,6 +58,8 @@ Tenant-scoped API keys for programmatic access (hashed at rest, scope-bound).
 
 - `api_key/ui/api-key-columns.component` _(ui, client)_
 - `api_key/ui/api-key-create-modal.component` _(ui, client)_
+- `api_key/ui/api-keys-settings.page` _(ui, client)_
+- `api_key/ui/api-keys.page` _(ui, client)_
 
 ## README
 

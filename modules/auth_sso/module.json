@@ -28,5 +28,11 @@
   },
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_sso",
-  "license": "CC-BY-NC-ND-4.0"
+  "license": "CC-BY-NC-ND-4.0",
+  "routes": [
+    {
+      "path": "/admin/sso/settings",
+      "component": "auth_sso/ui/sso-settings.page"
+    }
+  ]
 }

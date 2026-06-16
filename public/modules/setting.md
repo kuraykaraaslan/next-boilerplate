@@ -51,8 +51,19 @@ System-wide key-value settings store. Modules declare their keys in *.setting.ke
 - `setting/ui/module-settings-page.component` _(ui, client)_
 - `setting/ui/platform-settings-tabs.component` _(ui, client)_
 - `setting/ui/setting.types` _(ui)_
+- `setting/ui/settings-auth.page` _(ui, client)_
+- `setting/ui/settings-billing.page` _(ui, client)_
+- `setting/ui/settings-e-signature.page` _(ui, client)_
+- `setting/ui/settings-email.page` _(ui, client)_
+- `setting/ui/settings-general.page` _(ui, client)_
 - `setting/ui/settings-kit.component` _(ui, client)_
+- `setting/ui/settings-notifications.page` _(ui, client)_
 - `setting/ui/settings-panel-host.component` _(ui, client)_
+- `setting/ui/settings-scim.page` _(ui, client)_
+- `setting/ui/settings-security.page` _(ui, client)_
+- `setting/ui/settings-sms.page` _(ui, client)_
+- `setting/ui/settings-storage.page` _(ui, client)_
+- `setting/ui/settings.page` _(ui, client)_
 - `setting/ui/tabs/allowed-extensions-field.component` _(ui, client)_
 - `setting/ui/tabs/platform-ai-tab.component` _(ui, client)_
 - `setting/ui/tabs/platform-auth-tab.component` _(ui, client)_

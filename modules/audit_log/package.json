@@ -21,6 +21,8 @@
     "./server/entities/audit_log.entity": "./server/entities/audit_log.entity.ts",
     "./server/tests/audit_log.test-setup": "./server/tests/audit_log.test-setup.ts",
     "./ui/audit-log-filters.component": "./ui/audit-log-filters.component.tsx",
+    "./ui/audit-logs-settings.page": "./ui/audit-logs-settings.page.tsx",
+    "./ui/audit-logs.page": "./ui/audit-logs.page.tsx",
     "./module.json": "./module.json"
   },
   "peerDependencies": {

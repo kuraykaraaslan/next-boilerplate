@@ -6,7 +6,7 @@
 - **dir:** `modules/auth_impersonation/`
 - **tags:** identity, auth, admin
 - **icon:** `fas fa-user-secret`
-- **hasNextLayer:** false
+- **hasNextLayer:** true
 
 Allow a system admin to assume a target user's session (always audited).
 
@@ -33,6 +33,10 @@ Allow a system admin to assume a target user's session (always audited).
 ## Setting keys
 
 - `impersonation.setting.keys.ts`
+
+## Next layer (modules_next/) surface
+
+- `auth_impersonation/ui/impersonation-settings.page` _(ui, client)_
 
 ## README
 

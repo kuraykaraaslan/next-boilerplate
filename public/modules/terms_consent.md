@@ -54,6 +54,8 @@ Legal agreements + consent. Versioned, immutable, hash-stamped agreement documen
 
 - `terms_consent/ui/acceptance-gate.component` _(ui, client)_
 - `terms_consent/ui/consent-banner.component` _(ui, client)_
+- `terms_consent/ui/consent.page` _(ui, client)_
+- `terms_consent/ui/terms.page` _(ui, client)_
 
 ## README
 

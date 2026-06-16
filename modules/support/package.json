@@ -20,6 +20,7 @@
     "./server/support.write.service": "./server/support.write.service.ts",
     "./server/tests/fake_ds": "./server/tests/fake_ds.ts",
     "./ui/support-ticket-columns.component": "./ui/support-ticket-columns.component.tsx",
+    "./ui/support.page": "./ui/support.page.tsx",
     ".": "./server/index.ts",
     "./module.json": "./module.json"
   },

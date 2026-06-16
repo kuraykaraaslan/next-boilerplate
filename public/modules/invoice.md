@@ -69,6 +69,8 @@ Tenant-scoped invoicing with regional e-invoicing adapters (TR e-Arşiv, EU Pepp
 - `invoice/ui/invoice-line-items-table.component` _(ui, client)_
 - `invoice/ui/invoice-list-columns.component` _(ui, client)_
 - `invoice/ui/invoice-template-settings.component` _(ui, client)_
+- `invoice/ui/invoices-invoice-id.page` _(ui, client)_
+- `invoice/ui/invoices.page` _(ui, client)_
 
 ## README
 

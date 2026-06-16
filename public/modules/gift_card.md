@@ -58,6 +58,8 @@ Prepaid gift cards: issue (single + bulk) hash-protected codes, track redeemable
 
 - `gift_card/ui/gift-card-issue-modal.component` _(ui, client)_
 - `gift_card/ui/gift-card-list-columns.component` _(ui, client)_
+- `gift_card/ui/gift-cards-gift-card-id.page` _(ui, client)_
+- `gift_card/ui/gift-cards.page` _(ui, client)_
 
 ## README
 

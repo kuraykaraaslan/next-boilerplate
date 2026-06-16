@@ -70,6 +70,8 @@ Tenant-aware block-based page builder with i18n support. Supports code blocks (P
 
 ## Next layer (modules_next/) surface
 
+- `dynamic_page/ui/blocks-block-id.page` _(ui, client)_
+- `dynamic_page/ui/blocks.page` _(ui, client)_
 - `dynamic_page/ui/dynamic-page-columns.component` _(ui, client)_
 - `dynamic_page/ui/dynamic-page-create-modal.component` _(ui, client)_
 - `dynamic_page/ui/dynamic-page-renderer.component` _(ui)_
@@ -128,9 +130,7 @@ Tenant-aware block-based page builder with i18n support. Supports code blocks (P
 - `dynamic_page/ui/dynamic/Editor/repeater-field.component` _(ui, client)_
 - `dynamic_page/ui/dynamic/Editor/right-sidebar.component` _(ui, client)_
 - `dynamic_page/ui/dynamic/Editor/seo-modal.component` _(ui, client)_
-- `dynamic_page/ui/dynamic/Editor/shortcuts-modal.component` _(ui, client)_
-- `dynamic_page/ui/dynamic/Editor/stores/editor.types` _(ui)_
-- … and 24 more
+- … and 27 more
 
 ## README
 

@@ -68,6 +68,7 @@ Tenant subscription state, plan + feature key resolution, grace period, expiry j
 - `tenant_subscription/ui/plan-usage-meter.component` _(ui, client)_
 - `tenant_subscription/ui/subscription-plan-card.component` _(ui, client)_
 - `tenant_subscription/ui/subscription.helpers` _(ui)_
+- `tenant_subscription/ui/subscription.page` _(ui, client)_
 - `tenant_subscription/ui/upgrade-prompt.component` _(ui, client)_
 
 ## README

@@ -66,5 +66,27 @@
   ],
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment",
-  "license": "CC-BY-NC-ND-4.0"
+  "license": "CC-BY-NC-ND-4.0",
+  "routes": [
+    {
+      "path": "/admin/payments/[paymentId]",
+      "component": "payment/ui/payments-payment-id.page"
+    },
+    {
+      "path": "/admin/payments",
+      "component": "payment/ui/payments.page"
+    },
+    {
+      "path": "/admin/payments/settings",
+      "component": "payment/ui/payments-settings.page"
+    },
+    {
+      "path": "/admin/plans/[planId]",
+      "component": "payment/ui/plans-plan-id.page"
+    },
+    {
+      "path": "/admin/plans",
+      "component": "payment/ui/plans.page"
+    }
+  ]
 }

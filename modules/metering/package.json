@@ -24,6 +24,7 @@
     "./server/metering.types": "./server/metering.types.ts",
     "./server/tests/metering.test-setup": "./server/tests/metering.test-setup.ts",
     "./ui/metering-columns.component": "./ui/metering-columns.component.tsx",
+    "./ui/metering.page": "./ui/metering.page.tsx",
     ".": "./server/index.ts",
     "./module.json": "./module.json"
   },

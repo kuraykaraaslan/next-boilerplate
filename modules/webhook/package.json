@@ -29,6 +29,8 @@
     "./ui/webhook-form-modal.component": "./ui/webhook-form-modal.component.tsx",
     "./ui/webhook-trigger-modal.component": "./ui/webhook-trigger-modal.component.tsx",
     "./ui/webhook.types": "./ui/webhook.types.ts",
+    "./ui/webhooks-settings.page": "./ui/webhooks-settings.page.tsx",
+    "./ui/webhooks.page": "./ui/webhooks.page.tsx",
     "./module.json": "./module.json"
   },
   "peerDependencies": {

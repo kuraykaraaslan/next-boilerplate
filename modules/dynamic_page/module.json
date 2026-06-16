@@ -44,5 +44,19 @@
       "order": 20,
       "scope": "tenant"
     }
+  ],
+  "routes": [
+    {
+      "path": "/admin/blocks/[blockId]",
+      "component": "dynamic_page/ui/blocks-block-id.page"
+    },
+    {
+      "path": "/admin/blocks",
+      "component": "dynamic_page/ui/blocks.page"
+    },
+    {
+      "path": "/admin/pages",
+      "component": "dynamic_page/ui/pages.page"
+    }
   ]
 }

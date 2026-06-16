@@ -28,5 +28,15 @@
   ],
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/invoice",
-  "license": "CC-BY-NC-ND-4.0"
+  "license": "CC-BY-NC-ND-4.0",
+  "routes": [
+    {
+      "path": "/admin/invoices/[invoiceId]",
+      "component": "invoice/ui/invoices-invoice-id.page"
+    },
+    {
+      "path": "/admin/invoices",
+      "component": "invoice/ui/invoices.page"
+    }
+  ]
 }

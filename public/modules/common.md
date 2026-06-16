@@ -19,7 +19,6 @@ Dependency-free leaf module loaded by every other module: AppError + ErrorCode e
 - `common/ui/brand-logo.component` _(ui)_
 - `common/ui/breadcrumb.component` _(ui, client)_
 - `common/ui/button.component` _(ui, client)_
-- `common/ui/button.test.component` _(ui)_
 - `common/ui/card.component` _(ui, client)_
 - `common/ui/color-picker.component` _(ui, client)_
 - `common/ui/context-menu.component` _(ui, client)_
@@ -68,11 +67,12 @@ Dependency-free leaf module loaded by every other module: AppError + ErrorCode e
 - `common/ui/select.component` _(ui, client)_
 - `common/ui/server-data-table.component` _(ui, client)_
 - `common/ui/skeleton.component` _(ui, client)_
-- `common/ui/skeleton.test.component` _(ui)_
 - `common/ui/skip-to-content.component` _(ui, client)_
 - `common/ui/slot-error-boundary.component` _(ui, client)_
 - `common/ui/slot.component` _(ui, client)_
-- … and 7 more
+- `common/ui/spinner.component` _(ui, client)_
+- `common/ui/tab-group.component` _(ui, client)_
+- … and 5 more
 
 ## README
 

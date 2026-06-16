@@ -38,5 +38,51 @@
   ],
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/setting",
-  "license": "CC-BY-NC-ND-4.0"
+  "license": "CC-BY-NC-ND-4.0",
+  "routes": [
+    {
+      "path": "/admin/settings/auth",
+      "component": "setting/ui/settings-auth.page"
+    },
+    {
+      "path": "/admin/settings/billing",
+      "component": "setting/ui/settings-billing.page"
+    },
+    {
+      "path": "/admin/settings/e-signature",
+      "component": "setting/ui/settings-e-signature.page"
+    },
+    {
+      "path": "/admin/settings/email",
+      "component": "setting/ui/settings-email.page"
+    },
+    {
+      "path": "/admin/settings/general",
+      "component": "setting/ui/settings-general.page"
+    },
+    {
+      "path": "/admin/settings/notifications",
+      "component": "setting/ui/settings-notifications.page"
+    },
+    {
+      "path": "/admin/settings",
+      "component": "setting/ui/settings.page"
+    },
+    {
+      "path": "/admin/settings/scim",
+      "component": "setting/ui/settings-scim.page"
+    },
+    {
+      "path": "/admin/settings/security",
+      "component": "setting/ui/settings-security.page"
+    },
+    {
+      "path": "/admin/settings/sms",
+      "component": "setting/ui/settings-sms.page"
+    },
+    {
+      "path": "/admin/settings/storage",
+      "component": "setting/ui/settings-storage.page"
+    }
+  ]
 }

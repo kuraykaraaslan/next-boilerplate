@@ -37,5 +37,11 @@
       "order": 10,
       "scope": "tenant"
     }
+  ],
+  "routes": [
+    {
+      "path": "/admin/support",
+      "component": "support/ui/support.page"
+    }
   ]
 }

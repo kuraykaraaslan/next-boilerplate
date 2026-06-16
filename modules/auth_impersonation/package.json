@@ -15,6 +15,7 @@
     "./server/impersonation.settings.fields": "./server/impersonation.settings.fields.ts",
     "./server/impersonation.settings.service": "./server/impersonation.settings.service.ts",
     "./server/tests/impersonation.test-setup": "./server/tests/impersonation.test-setup.ts",
+    "./ui/impersonation-settings.page": "./ui/impersonation-settings.page.tsx",
     "./module.json": "./module.json"
   }
 }

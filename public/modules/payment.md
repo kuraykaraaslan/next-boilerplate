@@ -84,6 +84,12 @@ Pluggable payment processing (Stripe, PayPal, Iyzico) + subscription plans, plan
 - `payment/ui/payment-refund-modal.component` _(ui, client)_
 - `payment/ui/payment-status-badge.component` _(ui, client)_
 - `payment/ui/payment-summary-card.component` _(ui, client)_
+- `payment/ui/payments-payment-id.page` _(ui, client)_
+- `payment/ui/payments-settings.page` _(ui, client)_
+- `payment/ui/payments.page` _(ui, client)_
+- `payment/ui/plan-edit.utils` _(ui)_
+- `payment/ui/plans-plan-id.page` _(ui, client)_
+- `payment/ui/plans.page` _(ui, client)_
 - `payment/ui/stripe-express-checkout-modal.component` _(ui, client)_
 - `payment/ui/wallet-badges.component` _(ui, client)_
 

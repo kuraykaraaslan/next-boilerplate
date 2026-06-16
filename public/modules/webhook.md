@@ -65,6 +65,8 @@ Subscriber-configured outbound webhooks (tenant-scoped; root tenant carries plat
 - `webhook/ui/webhook-form-modal.component` _(ui, client)_
 - `webhook/ui/webhook-trigger-modal.component` _(ui, client)_
 - `webhook/ui/webhook.types` _(ui)_
+- `webhook/ui/webhooks-settings.page` _(ui, client)_
+- `webhook/ui/webhooks.page` _(ui, client)_
 
 ## README
 

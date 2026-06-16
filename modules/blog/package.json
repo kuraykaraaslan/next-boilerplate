@@ -19,7 +19,10 @@
     "./server/entities/blog_post.entity": "./server/entities/blog_post.entity.ts",
     "./server/index": "./server/index.ts",
     "./server": "./server/index.ts",
+    "./ui/blog-categories.page": "./ui/blog-categories.page.tsx",
     "./ui/blog-post-create-modal.component": "./ui/blog-post-create-modal.component.tsx",
+    "./ui/blog-posts-post-id.page": "./ui/blog-posts-post-id.page.tsx",
+    "./ui/blog-posts.page": "./ui/blog-posts.page.tsx",
     "./ui/blog-status-badge.component": "./ui/blog-status-badge.component.tsx",
     ".": "./server/index.ts",
     "./module.json": "./module.json"

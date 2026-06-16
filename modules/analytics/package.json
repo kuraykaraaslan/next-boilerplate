@@ -13,6 +13,7 @@
     "./server/entities/analytics_event.entity": "./server/entities/analytics_event.entity.ts",
     "./server/index": "./server/index.ts",
     "./server": "./server/index.ts",
+    "./ui/analytics.page": "./ui/analytics.page.tsx",
     ".": "./server/index.ts",
     "./module.json": "./module.json"
   }

@@ -36,5 +36,15 @@
       "order": 10,
       "scope": "system"
     }
+  ],
+  "routes": [
+    {
+      "path": "/admin/audit-logs",
+      "component": "audit_log/ui/audit-logs.page"
+    },
+    {
+      "path": "/admin/audit-logs/settings",
+      "component": "audit_log/ui/audit-logs-settings.page"
+    }
   ]
 }

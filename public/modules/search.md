@@ -6,7 +6,7 @@
 - **dir:** `modules/search/`
 - **tags:** platform, search, full-text
 - **icon:** `fas fa-magnifying-glass`
-- **hasNextLayer:** false
+- **hasNextLayer:** true
 
 Tenant-scoped full-text search over arbitrary content. Owning modules push documents (title/body/url/metadata keyed by entityType+entityId); the default PostgreSQL FTS provider ranks results with ts_rank and returns ts_headline snippets. Provider abstraction leaves room for Meilisearch/Elastic. All queries are parameterized and tenant-scoped.
 
@@ -42,6 +42,10 @@ Tenant-scoped full-text search over arbitrary content. Owning modules push docum
 ## TypeORM entities
 
 - `SearchDocument` (system) — `modules/search/server/entities/search_document.entity.ts`
+
+## Next layer (modules_next/) surface
+
+- `search/ui/search.page` _(ui, client)_
 
 ## README
 

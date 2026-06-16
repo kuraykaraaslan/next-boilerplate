@@ -42,6 +42,7 @@
     "./ui/plan-usage-meter.component": "./ui/plan-usage-meter.component.tsx",
     "./ui/subscription-plan-card.component": "./ui/subscription-plan-card.component.tsx",
     "./ui/subscription.helpers": "./ui/subscription.helpers.ts",
+    "./ui/subscription.page": "./ui/subscription.page.tsx",
     "./ui/upgrade-prompt.component": "./ui/upgrade-prompt.component.tsx",
     "./hooks/use-feature-access": "./hooks/use-feature-access.ts",
     "./hooks/use-grace-period": "./hooks/use-grace-period.ts",

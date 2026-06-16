@@ -29,6 +29,7 @@
     "./server/dictionaries/index": "./server/dictionaries/index.ts",
     "./server/dictionaries": "./server/dictionaries/index.ts",
     "./server/entities/user_consent.entity": "./server/entities/user_consent.entity.ts",
+    "./ui/auth-settings.page": "./ui/auth-settings.page.tsx",
     "./ui/forgot-password-form.component": "./ui/forgot-password-form.component.tsx",
     "./ui/login-form.component": "./ui/login-form.component.tsx",
     "./ui/o-auth-buttons.component": "./ui/o-auth-buttons.component.tsx",

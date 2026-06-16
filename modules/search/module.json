@@ -32,5 +32,11 @@
       "order": 10,
       "scope": "tenant"
     }
+  ],
+  "routes": [
+    {
+      "path": "/admin/search",
+      "component": "search/ui/search.page"
+    }
   ]
 }

@@ -49,3 +49,4 @@ Generic, entity-agnostic moderation / approval queue. Any owning module can rout
 ## Next layer (modules_next/) surface
 
 - `approval/ui/approval-columns.component` _(ui, client)_
+- `approval/ui/approvals.page` _(ui, client)_

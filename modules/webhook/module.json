@@ -30,5 +30,15 @@
       "order": 10,
       "scope": "tenant"
     }
+  ],
+  "routes": [
+    {
+      "path": "/admin/webhooks",
+      "component": "webhook/ui/webhooks.page"
+    },
+    {
+      "path": "/admin/webhooks/settings",
+      "component": "webhook/ui/webhooks-settings.page"
+    }
   ]
 }

@@ -40,5 +40,15 @@
       "order": 10,
       "scope": "tenant"
     }
+  ],
+  "routes": [
+    {
+      "path": "/admin/integrations/connected",
+      "component": "integrations_hub/ui/integrations-connected.page"
+    },
+    {
+      "path": "/admin/integrations",
+      "component": "integrations_hub/ui/integrations.page"
+    }
   ]
 }

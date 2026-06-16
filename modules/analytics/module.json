@@ -33,5 +33,11 @@
       "order": 10,
       "scope": "tenant"
     }
+  ],
+  "routes": [
+    {
+      "path": "/admin/analytics",
+      "component": "analytics/ui/analytics.page"
+    }
   ]
 }

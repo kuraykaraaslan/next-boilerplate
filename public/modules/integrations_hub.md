@@ -52,6 +52,8 @@ Third-party connector hub (Zapier-like). Owns a per-tenant connector catalog, co
 
 - `integrations_hub/ui/connected-apps-columns.component` _(ui, client)_
 - `integrations_hub/ui/connector-form-modal.component` _(ui, client)_
+- `integrations_hub/ui/integrations-connected.page` _(ui, client)_
+- `integrations_hub/ui/integrations.page` _(ui, client)_
 
 ## README
 

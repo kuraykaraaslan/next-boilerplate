@@ -16,6 +16,7 @@
     "./server/search.query": "./server/search.query.ts",
     "./server/search.service": "./server/search.service.ts",
     "./server/search.types": "./server/search.types.ts",
+    "./ui/search.page": "./ui/search.page.tsx",
     ".": "./server/index.ts",
     "./module.json": "./module.json"
   }

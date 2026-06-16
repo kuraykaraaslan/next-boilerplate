@@ -31,5 +31,15 @@
       "order": 10,
       "scope": "tenant"
     }
+  ],
+  "routes": [
+    {
+      "path": "/admin/api-keys",
+      "component": "api_key/ui/api-keys.page"
+    },
+    {
+      "path": "/admin/api-keys/settings",
+      "component": "api_key/ui/api-keys-settings.page"
+    }
   ]
 }

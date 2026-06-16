@@ -33,5 +33,15 @@
       "order": 10,
       "scope": "tenant"
     }
+  ],
+  "routes": [
+    {
+      "path": "/admin/invitations",
+      "component": "tenant_invitation/ui/invitations.page"
+    },
+    {
+      "path": "/admin/invitations/settings",
+      "component": "tenant_invitation/ui/invitations-settings.page"
+    }
   ]
 }

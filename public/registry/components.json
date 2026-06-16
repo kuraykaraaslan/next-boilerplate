@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T08:52:19.160Z",
+  "generatedAt": "2026-06-16T09:07:33.600Z",
   "components": [
     {
       "id": "ai/ui/ai-chat-box.component",
@@ -59,6 +59,16 @@
       "baseName": "usage-tab.component"
     },
     {
+      "id": "analytics/ui/analytics.page",
+      "module": "analytics",
+      "filePath": "modules/analytics/ui/analytics.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "analytics.page"
+    },
+    {
       "id": "api_doc/ui/api-docs-page.component",
       "module": "api_doc",
       "filePath": "modules/api_doc/ui/api-docs-page.component.tsx",
@@ -69,6 +79,16 @@
       "isClient": true,
       "isServer": false,
       "baseName": "api-docs-page.component"
+    },
+    {
+      "id": "api_doc/ui/api-docs-settings.page",
+      "module": "api_doc",
+      "filePath": "modules/api_doc/ui/api-docs-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "api-docs-settings.page"
     },
     {
       "id": "api_doc/ui/api-tag-section.component",
@@ -279,6 +299,26 @@
       "baseName": "api-key-create-modal.component"
     },
     {
+      "id": "api_key/ui/api-keys-settings.page",
+      "module": "api_key",
+      "filePath": "modules/api_key/ui/api-keys-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "api-keys-settings.page"
+    },
+    {
+      "id": "api_key/ui/api-keys.page",
+      "module": "api_key",
+      "filePath": "modules/api_key/ui/api-keys.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "api-keys.page"
+    },
+    {
       "id": "approval/ui/approval-columns.component",
       "module": "approval",
       "filePath": "modules/approval/ui/approval-columns.component.tsx",
@@ -292,6 +332,16 @@
       "baseName": "approval-columns.component"
     },
     {
+      "id": "approval/ui/approvals.page",
+      "module": "approval",
+      "filePath": "modules/approval/ui/approvals.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "approvals.page"
+    },
+    {
       "id": "audit_log/ui/audit-log-filters.component",
       "module": "audit_log",
       "filePath": "modules/audit_log/ui/audit-log-filters.component.tsx",
@@ -303,6 +353,26 @@
       "isClient": true,
       "isServer": false,
       "baseName": "audit-log-filters.component"
+    },
+    {
+      "id": "audit_log/ui/audit-logs-settings.page",
+      "module": "audit_log",
+      "filePath": "modules/audit_log/ui/audit-logs-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "audit-logs-settings.page"
+    },
+    {
+      "id": "audit_log/ui/audit-logs.page",
+      "module": "audit_log",
+      "filePath": "modules/audit_log/ui/audit-logs.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "audit-logs.page"
     },
     {
       "id": "auth_e_signature/ui/e-signature-login-panel.component",
@@ -341,6 +411,26 @@
       "baseName": "signing-certificates-panel.component"
     },
     {
+      "id": "auth_impersonation/ui/impersonation-settings.page",
+      "module": "auth_impersonation",
+      "filePath": "modules/auth_impersonation/ui/impersonation-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "impersonation-settings.page"
+    },
+    {
+      "id": "auth_saml/ui/saml-advanced.page",
+      "module": "auth_saml",
+      "filePath": "modules/auth_saml/ui/saml-advanced.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "saml-advanced.page"
+    },
+    {
       "id": "auth_saml/ui/saml-attribute-form.component",
       "module": "auth_saml",
       "filePath": "modules/auth_saml/ui/saml-attribute-form.component.tsx",
@@ -376,6 +466,46 @@
       "isClient": true,
       "isServer": false,
       "baseName": "saml-metadata-card.component"
+    },
+    {
+      "id": "auth_saml/ui/saml-settings.page",
+      "module": "auth_saml",
+      "filePath": "modules/auth_saml/ui/saml-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "saml-settings.page"
+    },
+    {
+      "id": "auth_saml/ui/saml.page",
+      "module": "auth_saml",
+      "filePath": "modules/auth_saml/ui/saml.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "saml.page"
+    },
+    {
+      "id": "auth_sso/ui/sso-settings.page",
+      "module": "auth_sso",
+      "filePath": "modules/auth_sso/ui/sso-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "sso-settings.page"
+    },
+    {
+      "id": "auth/ui/auth-settings.page",
+      "module": "auth",
+      "filePath": "modules/auth/ui/auth-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "auth-settings.page"
     },
     {
       "id": "auth/ui/forgot-password-form.component",
@@ -441,6 +571,16 @@
       "baseName": "session-expired-banner.component"
     },
     {
+      "id": "blog/ui/blog-categories.page",
+      "module": "blog",
+      "filePath": "modules/blog/ui/blog-categories.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "blog-categories.page"
+    },
+    {
       "id": "blog/ui/blog-post-create-modal.component",
       "module": "blog",
       "filePath": "modules/blog/ui/blog-post-create-modal.component.tsx",
@@ -451,6 +591,26 @@
       "isClient": true,
       "isServer": false,
       "baseName": "blog-post-create-modal.component"
+    },
+    {
+      "id": "blog/ui/blog-posts-post-id.page",
+      "module": "blog",
+      "filePath": "modules/blog/ui/blog-posts-post-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "blog-posts-post-id.page"
+    },
+    {
+      "id": "blog/ui/blog-posts.page",
+      "module": "blog",
+      "filePath": "modules/blog/ui/blog-posts.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "blog-posts.page"
     },
     {
       "id": "blog/ui/blog-status-badge.component",
@@ -553,16 +713,6 @@
       "isClient": true,
       "isServer": false,
       "baseName": "button.component"
-    },
-    {
-      "id": "common/ui/button.test.component",
-      "module": "common",
-      "filePath": "modules/common/ui/button.test.component.tsx",
-      "kind": "ui",
-      "exports": [],
-      "isClient": false,
-      "isServer": false,
-      "baseName": "button.test.component"
     },
     {
       "id": "common/ui/card.component",
@@ -1184,16 +1334,6 @@
       "baseName": "skeleton.component"
     },
     {
-      "id": "common/ui/skeleton.test.component",
-      "module": "common",
-      "filePath": "modules/common/ui/skeleton.test.component.tsx",
-      "kind": "ui",
-      "exports": [],
-      "isClient": false,
-      "isServer": false,
-      "baseName": "skeleton.test.component"
-    },
-    {
       "id": "common/ui/skip-to-content.component",
       "module": "common",
       "filePath": "modules/common/ui/skip-to-content.component.tsx",
@@ -1420,6 +1560,46 @@
       "isClient": true,
       "isServer": false,
       "baseName": "coupon-scope-panel.component"
+    },
+    {
+      "id": "coupon/ui/coupons-coupon-id.page",
+      "module": "coupon",
+      "filePath": "modules/coupon/ui/coupons-coupon-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "coupons-coupon-id.page"
+    },
+    {
+      "id": "coupon/ui/coupons.page",
+      "module": "coupon",
+      "filePath": "modules/coupon/ui/coupons.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "coupons.page"
+    },
+    {
+      "id": "dynamic_page/ui/blocks-block-id.page",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/blocks-block-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "blocks-block-id.page"
+    },
+    {
+      "id": "dynamic_page/ui/blocks.page",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/blocks.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "blocks.page"
     },
     {
       "id": "dynamic_page/ui/dynamic-page-columns.component",
@@ -2465,6 +2645,16 @@
       "baseName": "page-templates"
     },
     {
+      "id": "dynamic_page/ui/pages.page",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/pages.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "pages.page"
+    },
+    {
       "id": "dynamic_page/ui/public-dynamic-page.component",
       "module": "dynamic_page",
       "filePath": "modules/dynamic_page/ui/public-dynamic-page.component.tsx",
@@ -2513,6 +2703,16 @@
       "baseName": "feature-flag-columns.component"
     },
     {
+      "id": "feature_flags/ui/feature-flags.page",
+      "module": "feature_flags",
+      "filePath": "modules/feature_flags/ui/feature-flags.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "feature-flags.page"
+    },
+    {
       "id": "gift_card/ui/gift-card-issue-modal.component",
       "module": "gift_card",
       "filePath": "modules/gift_card/ui/gift-card-issue-modal.component.tsx",
@@ -2538,6 +2738,26 @@
       "baseName": "gift-card-list-columns.component"
     },
     {
+      "id": "gift_card/ui/gift-cards-gift-card-id.page",
+      "module": "gift_card",
+      "filePath": "modules/gift_card/ui/gift-cards-gift-card-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "gift-cards-gift-card-id.page"
+    },
+    {
+      "id": "gift_card/ui/gift-cards.page",
+      "module": "gift_card",
+      "filePath": "modules/gift_card/ui/gift-cards.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "gift-cards.page"
+    },
+    {
       "id": "integrations_hub/ui/connected-apps-columns.component",
       "module": "integrations_hub",
       "filePath": "modules/integrations_hub/ui/connected-apps-columns.component.tsx",
@@ -2561,6 +2781,26 @@
       "isClient": true,
       "isServer": false,
       "baseName": "connector-form-modal.component"
+    },
+    {
+      "id": "integrations_hub/ui/integrations-connected.page",
+      "module": "integrations_hub",
+      "filePath": "modules/integrations_hub/ui/integrations-connected.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "integrations-connected.page"
+    },
+    {
+      "id": "integrations_hub/ui/integrations.page",
+      "module": "integrations_hub",
+      "filePath": "modules/integrations_hub/ui/integrations.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "integrations.page"
     },
     {
       "id": "invoice/ui/earsiv-sms-sign-modal.component",
@@ -2613,6 +2853,26 @@
       "baseName": "invoice-template-settings.component"
     },
     {
+      "id": "invoice/ui/invoices-invoice-id.page",
+      "module": "invoice",
+      "filePath": "modules/invoice/ui/invoices-invoice-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "invoices-invoice-id.page"
+    },
+    {
+      "id": "invoice/ui/invoices.page",
+      "module": "invoice",
+      "filePath": "modules/invoice/ui/invoices.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "invoices.page"
+    },
+    {
       "id": "media_gallery/ui/gallery-panel.component",
       "module": "media_gallery",
       "filePath": "modules/media_gallery/ui/gallery-panel.component.tsx",
@@ -2640,6 +2900,16 @@
       "isClient": true,
       "isServer": false,
       "baseName": "metering-columns.component"
+    },
+    {
+      "id": "metering/ui/metering.page",
+      "module": "metering",
+      "filePath": "modules/metering/ui/metering.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "metering.page"
     },
     {
       "id": "notification_inapp/hooks/use-notifications.hook",
@@ -2752,6 +3022,80 @@
       "baseName": "payment-summary-card.component"
     },
     {
+      "id": "payment/ui/payments-payment-id.page",
+      "module": "payment",
+      "filePath": "modules/payment/ui/payments-payment-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "payments-payment-id.page"
+    },
+    {
+      "id": "payment/ui/payments-settings.page",
+      "module": "payment",
+      "filePath": "modules/payment/ui/payments-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "payments-settings.page"
+    },
+    {
+      "id": "payment/ui/payments.page",
+      "module": "payment",
+      "filePath": "modules/payment/ui/payments.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "payments.page"
+    },
+    {
+      "id": "payment/ui/plan-edit.utils",
+      "module": "payment",
+      "filePath": "modules/payment/ui/plan-edit.utils.ts",
+      "kind": "ui",
+      "exports": [
+        "PlanStatus",
+        "BillingInterval",
+        "PlanProduct",
+        "Plan",
+        "SearchProduct",
+        "EditForm",
+        "statusVariant",
+        "INTERVAL_LABEL",
+        "INTERVAL_OPTIONS",
+        "STATUS_OPTIONS",
+        "formatPrice",
+        "extractMessage",
+        "planToForm"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "plan-edit.utils"
+    },
+    {
+      "id": "payment/ui/plans-plan-id.page",
+      "module": "payment",
+      "filePath": "modules/payment/ui/plans-plan-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "plans-plan-id.page"
+    },
+    {
+      "id": "payment/ui/plans.page",
+      "module": "payment",
+      "filePath": "modules/payment/ui/plans.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "plans.page"
+    },
+    {
       "id": "payment/ui/stripe-express-checkout-modal.component",
       "module": "payment",
       "filePath": "modules/payment/ui/stripe-express-checkout-modal.component.tsx",
@@ -2774,6 +3118,16 @@
       "isClient": true,
       "isServer": false,
       "baseName": "wallet-badges.component"
+    },
+    {
+      "id": "search/ui/search.page",
+      "module": "search",
+      "filePath": "modules/search/ui/search.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "search.page"
     },
     {
       "id": "seo/ui/index",
@@ -2869,6 +3223,56 @@
       "baseName": "setting.types"
     },
     {
+      "id": "setting/ui/settings-auth.page",
+      "module": "setting",
+      "filePath": "modules/setting/ui/settings-auth.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "settings-auth.page"
+    },
+    {
+      "id": "setting/ui/settings-billing.page",
+      "module": "setting",
+      "filePath": "modules/setting/ui/settings-billing.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "settings-billing.page"
+    },
+    {
+      "id": "setting/ui/settings-e-signature.page",
+      "module": "setting",
+      "filePath": "modules/setting/ui/settings-e-signature.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "settings-e-signature.page"
+    },
+    {
+      "id": "setting/ui/settings-email.page",
+      "module": "setting",
+      "filePath": "modules/setting/ui/settings-email.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "settings-email.page"
+    },
+    {
+      "id": "setting/ui/settings-general.page",
+      "module": "setting",
+      "filePath": "modules/setting/ui/settings-general.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "settings-general.page"
+    },
+    {
       "id": "setting/ui/settings-kit.component",
       "module": "setting",
       "filePath": "modules/setting/ui/settings-kit.component.tsx",
@@ -2884,6 +3288,16 @@
       "baseName": "settings-kit.component"
     },
     {
+      "id": "setting/ui/settings-notifications.page",
+      "module": "setting",
+      "filePath": "modules/setting/ui/settings-notifications.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "settings-notifications.page"
+    },
+    {
       "id": "setting/ui/settings-panel-host.component",
       "module": "setting",
       "filePath": "modules/setting/ui/settings-panel-host.component.tsx",
@@ -2894,6 +3308,56 @@
       "isClient": true,
       "isServer": false,
       "baseName": "settings-panel-host.component"
+    },
+    {
+      "id": "setting/ui/settings-scim.page",
+      "module": "setting",
+      "filePath": "modules/setting/ui/settings-scim.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "settings-scim.page"
+    },
+    {
+      "id": "setting/ui/settings-security.page",
+      "module": "setting",
+      "filePath": "modules/setting/ui/settings-security.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "settings-security.page"
+    },
+    {
+      "id": "setting/ui/settings-sms.page",
+      "module": "setting",
+      "filePath": "modules/setting/ui/settings-sms.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "settings-sms.page"
+    },
+    {
+      "id": "setting/ui/settings-storage.page",
+      "module": "setting",
+      "filePath": "modules/setting/ui/settings-storage.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "settings-storage.page"
+    },
+    {
+      "id": "setting/ui/settings.page",
+      "module": "setting",
+      "filePath": "modules/setting/ui/settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "settings.page"
     },
     {
       "id": "setting/ui/tabs/allowed-extensions-field.component",
@@ -3081,6 +3545,23 @@
       "baseName": "product-create-modal.component"
     },
     {
+      "id": "store/ui/product-edit.utils",
+      "module": "store",
+      "filePath": "modules/store/ui/product-edit.utils.ts",
+      "kind": "ui",
+      "exports": [
+        "Product",
+        "VariantGroupItemRow",
+        "VariantProductInfo",
+        "EditForm",
+        "statusOptions",
+        "extractMessage"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "product-edit.utils"
+    },
+    {
       "id": "store/ui/product-images-panel.component",
       "module": "store",
       "filePath": "modules/store/ui/product-images-panel.component.tsx",
@@ -3148,6 +3629,66 @@
       "baseName": "product-variants-panel.component"
     },
     {
+      "id": "store/ui/store-bundles-bundle-id.page",
+      "module": "store",
+      "filePath": "modules/store/ui/store-bundles-bundle-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "store-bundles-bundle-id.page"
+    },
+    {
+      "id": "store/ui/store-bundles.page",
+      "module": "store",
+      "filePath": "modules/store/ui/store-bundles.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "store-bundles.page"
+    },
+    {
+      "id": "store/ui/store-categories-category-id.page",
+      "module": "store",
+      "filePath": "modules/store/ui/store-categories-category-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "store-categories-category-id.page"
+    },
+    {
+      "id": "store/ui/store-categories.page",
+      "module": "store",
+      "filePath": "modules/store/ui/store-categories.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "store-categories.page"
+    },
+    {
+      "id": "store/ui/store-products-product-id.page",
+      "module": "store",
+      "filePath": "modules/store/ui/store-products-product-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "store-products-product-id.page"
+    },
+    {
+      "id": "store/ui/store-products.page",
+      "module": "store",
+      "filePath": "modules/store/ui/store-products.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "store-products.page"
+    },
+    {
       "id": "support/ui/support-ticket-columns.component",
       "module": "support",
       "filePath": "modules/support/ui/support-ticket-columns.component.tsx",
@@ -3161,6 +3702,26 @@
       "isClient": true,
       "isServer": false,
       "baseName": "support-ticket-columns.component"
+    },
+    {
+      "id": "support/ui/support.page",
+      "module": "support",
+      "filePath": "modules/support/ui/support.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "support.page"
+    },
+    {
+      "id": "tenant_branding/ui/settings-branding.page",
+      "module": "tenant_branding",
+      "filePath": "modules/tenant_branding/ui/settings-branding.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "settings-branding.page"
     },
     {
       "id": "tenant_domain/ui/domain-list-columns.component",
@@ -3179,6 +3740,26 @@
       "isClient": true,
       "isServer": false,
       "baseName": "domain-list-columns.component"
+    },
+    {
+      "id": "tenant_domain/ui/domains-settings.page",
+      "module": "tenant_domain",
+      "filePath": "modules/tenant_domain/ui/domains-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "domains-settings.page"
+    },
+    {
+      "id": "tenant_domain/ui/domains.page",
+      "module": "tenant_domain",
+      "filePath": "modules/tenant_domain/ui/domains.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "domains.page"
     },
     {
       "id": "tenant_invitation/ui/invitation-columns.component",
@@ -3209,6 +3790,26 @@
       "baseName": "invitation-create-modal.component"
     },
     {
+      "id": "tenant_invitation/ui/invitations-settings.page",
+      "module": "tenant_invitation",
+      "filePath": "modules/tenant_invitation/ui/invitations-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "invitations-settings.page"
+    },
+    {
+      "id": "tenant_invitation/ui/invitations.page",
+      "module": "tenant_invitation",
+      "filePath": "modules/tenant_invitation/ui/invitations.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "invitations.page"
+    },
+    {
       "id": "tenant_member/ui/member-list-columns.component",
       "module": "tenant_member",
       "filePath": "modules/tenant_member/ui/member-list-columns.component.tsx",
@@ -3222,6 +3823,26 @@
       "isClient": true,
       "isServer": false,
       "baseName": "member-list-columns.component"
+    },
+    {
+      "id": "tenant_member/ui/members-settings.page",
+      "module": "tenant_member",
+      "filePath": "modules/tenant_member/ui/members-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "members-settings.page"
+    },
+    {
+      "id": "tenant_member/ui/members.page",
+      "module": "tenant_member",
+      "filePath": "modules/tenant_member/ui/members.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "members.page"
     },
     {
       "id": "tenant_subscription/hooks/use-feature-access",
@@ -3363,6 +3984,16 @@
       "baseName": "subscription.helpers"
     },
     {
+      "id": "tenant_subscription/ui/subscription.page",
+      "module": "tenant_subscription",
+      "filePath": "modules/tenant_subscription/ui/subscription.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "subscription.page"
+    },
+    {
       "id": "tenant_subscription/ui/upgrade-prompt.component",
       "module": "tenant_subscription",
       "filePath": "modules/tenant_subscription/ui/upgrade-prompt.component.tsx",
@@ -3462,6 +4093,26 @@
       "isClient": true,
       "isServer": false,
       "baseName": "consent-banner.component"
+    },
+    {
+      "id": "terms_consent/ui/consent.page",
+      "module": "terms_consent",
+      "filePath": "modules/terms_consent/ui/consent.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "consent.page"
+    },
+    {
+      "id": "terms_consent/ui/terms.page",
+      "module": "terms_consent",
+      "filePath": "modules/terms_consent/ui/terms.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "terms.page"
     },
     {
       "id": "user_security/ui/passkeys-panel.component",
@@ -3616,6 +4267,16 @@
       "baseName": "wallet-account-columns.component"
     },
     {
+      "id": "wallet/ui/wallet.page",
+      "module": "wallet",
+      "filePath": "modules/wallet/ui/wallet.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "wallet.page"
+    },
+    {
       "id": "webhook/ui/webhook-columns.component",
       "module": "webhook",
       "filePath": "modules/webhook/ui/webhook-columns.component.tsx",
@@ -3678,6 +4339,26 @@
       "isClient": false,
       "isServer": false,
       "baseName": "webhook.types"
+    },
+    {
+      "id": "webhook/ui/webhooks-settings.page",
+      "module": "webhook",
+      "filePath": "modules/webhook/ui/webhooks-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "webhooks-settings.page"
+    },
+    {
+      "id": "webhook/ui/webhooks.page",
+      "module": "webhook",
+      "filePath": "modules/webhook/ui/webhooks.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "webhooks.page"
     }
   ]
 }

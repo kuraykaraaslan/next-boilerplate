@@ -40,5 +40,19 @@
       "order": 10,
       "scope": "tenant"
     }
+  ],
+  "routes": [
+    {
+      "path": "/admin/saml/advanced",
+      "component": "auth_saml/ui/saml-advanced.page"
+    },
+    {
+      "path": "/admin/saml",
+      "component": "auth_saml/ui/saml.page"
+    },
+    {
+      "path": "/admin/saml/settings",
+      "component": "auth_saml/ui/saml-settings.page"
+    }
   ]
 }

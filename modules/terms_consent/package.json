@@ -23,6 +23,8 @@
     "./server/terms_consent.types": "./server/terms_consent.types.ts",
     "./ui/acceptance-gate.component": "./ui/acceptance-gate.component.tsx",
     "./ui/consent-banner.component": "./ui/consent-banner.component.tsx",
+    "./ui/consent.page": "./ui/consent.page.tsx",
+    "./ui/terms.page": "./ui/terms.page.tsx",
     ".": "./server/index.ts",
     "./module.json": "./module.json"
   },

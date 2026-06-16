@@ -31,5 +31,15 @@
       "order": 10,
       "scope": "tenant"
     }
+  ],
+  "routes": [
+    {
+      "path": "/admin/domains",
+      "component": "tenant_domain/ui/domains.page"
+    },
+    {
+      "path": "/admin/domains/settings",
+      "component": "tenant_domain/ui/domains-settings.page"
+    }
   ]
 }

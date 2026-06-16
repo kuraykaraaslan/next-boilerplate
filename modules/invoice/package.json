@@ -56,6 +56,8 @@
     "./ui/invoice-line-items-table.component": "./ui/invoice-line-items-table.component.tsx",
     "./ui/invoice-list-columns.component": "./ui/invoice-list-columns.component.tsx",
     "./ui/invoice-template-settings.component": "./ui/invoice-template-settings.component.tsx",
+    "./ui/invoices-invoice-id.page": "./ui/invoices-invoice-id.page.tsx",
+    "./ui/invoices.page": "./ui/invoices.page.tsx",
     ".": "./server/index.ts",
     "./module.json": "./module.json"
   },

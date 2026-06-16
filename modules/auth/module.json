@@ -39,5 +39,11 @@
   ],
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth",
-  "license": "CC-BY-NC-ND-4.0"
+  "license": "CC-BY-NC-ND-4.0",
+  "routes": [
+    {
+      "path": "/admin/auth/settings",
+      "component": "auth/ui/auth-settings.page"
+    }
+  ]
 }

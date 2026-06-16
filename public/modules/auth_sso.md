@@ -6,7 +6,7 @@
 - **dir:** `modules/auth_sso/`
 - **tags:** identity, auth, sso
 - **icon:** `fas fa-right-to-bracket`
-- **hasNextLayer:** false
+- **hasNextLayer:** true
 
 OAuth 2.0 SSO with 12 providers: Google, GitHub, Apple, Microsoft, Facebook, LinkedIn, Twitter, Slack, TikTok, WeChat, Autodesk.
 
@@ -36,6 +36,10 @@ OAuth 2.0 SSO with 12 providers: Google, GitHub, Apple, Microsoft, Facebook, Lin
 ## Setting keys
 
 - `auth_sso.setting.keys.ts`
+
+## Next layer (modules_next/) surface
+
+- `auth_sso/ui/sso-settings.page` _(ui, client)_
 
 ## README
 

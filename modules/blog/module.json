@@ -44,5 +44,19 @@
       "order": 20,
       "scope": "tenant"
     }
+  ],
+  "routes": [
+    {
+      "path": "/admin/blog/categories",
+      "component": "blog/ui/blog-categories.page"
+    },
+    {
+      "path": "/admin/blog/posts/[postId]",
+      "component": "blog/ui/blog-posts-post-id.page"
+    },
+    {
+      "path": "/admin/blog/posts",
+      "component": "blog/ui/blog-posts.page"
+    }
   ]
 }

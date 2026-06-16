@@ -21,6 +21,7 @@
     "./server/wallet.service": "./server/wallet.service.ts",
     "./server/wallet.types": "./server/wallet.types.ts",
     "./ui/wallet-account-columns.component": "./ui/wallet-account-columns.component.tsx",
+    "./ui/wallet.page": "./ui/wallet.page.tsx",
     ".": "./server/index.ts",
     "./module.json": "./module.json"
   },

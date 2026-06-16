@@ -51,5 +51,31 @@
       "order": 30,
       "scope": "tenant"
     }
+  ],
+  "routes": [
+    {
+      "path": "/admin/store/bundles/[bundleId]",
+      "component": "store/ui/store-bundles-bundle-id.page"
+    },
+    {
+      "path": "/admin/store/bundles",
+      "component": "store/ui/store-bundles.page"
+    },
+    {
+      "path": "/admin/store/categories/[categoryId]",
+      "component": "store/ui/store-categories-category-id.page"
+    },
+    {
+      "path": "/admin/store/categories",
+      "component": "store/ui/store-categories.page"
+    },
+    {
+      "path": "/admin/store/products/[productId]",
+      "component": "store/ui/store-products-product-id.page"
+    },
+    {
+      "path": "/admin/store/products",
+      "component": "store/ui/store-products.page"
+    }
   ]
 }

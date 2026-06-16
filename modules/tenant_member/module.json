@@ -29,5 +29,15 @@
       "order": 10,
       "scope": "tenant"
     }
+  ],
+  "routes": [
+    {
+      "path": "/admin/members",
+      "component": "tenant_member/ui/members.page"
+    },
+    {
+      "path": "/admin/members/settings",
+      "component": "tenant_member/ui/members-settings.page"
+    }
   ]
 }

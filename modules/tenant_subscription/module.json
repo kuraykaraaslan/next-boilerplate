@@ -39,5 +39,11 @@
       "order": 10,
       "scope": "tenant"
     }
+  ],
+  "routes": [
+    {
+      "path": "/admin/subscription",
+      "component": "tenant_subscription/ui/subscription.page"
+    }
   ]
 }

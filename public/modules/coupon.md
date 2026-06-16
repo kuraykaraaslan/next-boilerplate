@@ -64,6 +64,8 @@ Discount coupons + redemption tracking. Provider-aware (Stripe / PayPal / Iyzico
 - `coupon/ui/coupon-list-columns.component` _(ui, client)_
 - `coupon/ui/coupon-redemptions-list.component` _(ui, client)_
 - `coupon/ui/coupon-scope-panel.component` _(ui, client)_
+- `coupon/ui/coupons-coupon-id.page` _(ui, client)_
+- `coupon/ui/coupons.page` _(ui, client)_
 
 ## README
 

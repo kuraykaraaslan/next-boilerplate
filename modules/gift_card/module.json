@@ -38,5 +38,15 @@
       "order": 10,
       "scope": "tenant"
     }
+  ],
+  "routes": [
+    {
+      "path": "/admin/gift-cards/[giftCardId]",
+      "component": "gift_card/ui/gift-cards-gift-card-id.page"
+    },
+    {
+      "path": "/admin/gift-cards",
+      "component": "gift_card/ui/gift-cards.page"
+    }
   ]
 }

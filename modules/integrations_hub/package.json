@@ -21,6 +21,8 @@
     "./server/integrations_hub.types": "./server/integrations_hub.types.ts",
     "./ui/connected-apps-columns.component": "./ui/connected-apps-columns.component.tsx",
     "./ui/connector-form-modal.component": "./ui/connector-form-modal.component.tsx",
+    "./ui/integrations-connected.page": "./ui/integrations-connected.page.tsx",
+    "./ui/integrations.page": "./ui/integrations.page.tsx",
     ".": "./server/index.ts",
     "./module.json": "./module.json"
   },
