@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T07:25:32.755Z",
+  "generatedAt": "2026-06-16T07:29:58.324Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -47,6 +47,12 @@
         "jobs": [],
         "entities": []
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": true
@@ -80,6 +86,12 @@
         "jobs": [],
         "entities": []
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false
@@ -114,6 +126,12 @@
         "jobs": [],
         "entities": []
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false
@@ -148,6 +166,12 @@
         "jobs": [],
         "entities": []
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false
@@ -184,6 +208,12 @@
         "jobs": [],
         "entities": []
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false
@@ -221,6 +251,12 @@
           "tenant_database.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false
@@ -261,6 +297,12 @@
         "jobs": [],
         "entities": []
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false
@@ -297,6 +339,12 @@
         "jobs": [],
         "entities": []
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false
@@ -332,6 +380,12 @@
         "jobs": [],
         "entities": []
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false
@@ -377,6 +431,12 @@
           "setting_history.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": true
@@ -412,6 +472,12 @@
         "jobs": [],
         "entities": []
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false
@@ -445,6 +511,12 @@
         "jobs": [],
         "entities": []
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false
@@ -501,6 +573,12 @@
           "uploaded_file.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false
@@ -549,6 +627,12 @@
           "user.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": true
@@ -592,6 +676,12 @@
           "user_preferences.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false
@@ -639,6 +729,12 @@
           "user_profile.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false
@@ -692,6 +788,12 @@
           "user_security.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": true
@@ -741,6 +843,12 @@
           "user_session.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": true
@@ -786,6 +894,12 @@
           "user_social_account.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false
@@ -857,6 +971,12 @@
           "user_consent.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": true
@@ -895,6 +1015,12 @@
         "jobs": [],
         "entities": []
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": false,
       "hasModuleJson": true,
       "hasNextLayer": false
@@ -959,6 +1085,12 @@
           "saml_config.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": true
@@ -1015,6 +1147,12 @@
         "jobs": [],
         "entities": []
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false
@@ -1075,6 +1213,12 @@
         "jobs": [],
         "entities": []
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": false,
       "hasModuleJson": true,
       "hasNextLayer": false
@@ -1127,6 +1271,12 @@
         "jobs": [],
         "entities": []
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false
@@ -1180,6 +1330,12 @@
           "scim_group_member.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false
@@ -1233,6 +1389,12 @@
           "tenant.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": true
@@ -1278,6 +1440,12 @@
           "tenant_member.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": true
@@ -1327,6 +1495,12 @@
           "tenant_invitation.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": true
@@ -1370,6 +1544,12 @@
         "jobs": [],
         "entities": []
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false
@@ -1409,6 +1589,12 @@
         "jobs": [],
         "entities": []
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false
@@ -1461,6 +1647,12 @@
           "tenant_domain.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": true
@@ -1520,6 +1712,12 @@
           "tenant_subscription.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": true
@@ -1566,6 +1764,12 @@
           "tenant_usage.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false
@@ -1630,6 +1834,12 @@
           "subscription_plan.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": true
@@ -1670,6 +1880,12 @@
           "tenant_export_job.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false
@@ -1722,6 +1938,12 @@
           "coupon_redemption.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": true
@@ -1776,6 +1998,12 @@
           "payment_transaction.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false
@@ -1813,6 +2041,12 @@
         "jobs": [],
         "entities": []
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false
@@ -1872,6 +2106,12 @@
           "subscription_plan.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false
@@ -1925,6 +2165,12 @@
           "cart_item.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false
@@ -1976,6 +2222,12 @@
           "shipping_rate.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false
@@ -2038,6 +2290,12 @@
           "invoice_line.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": true
@@ -2075,6 +2333,12 @@
         "jobs": [],
         "entities": []
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": true
@@ -2121,6 +2385,12 @@
         "jobs": [],
         "entities": []
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false
@@ -2163,6 +2433,12 @@
           "push_subscription.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false
@@ -2204,6 +2480,12 @@
         "jobs": [],
         "entities": []
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false
@@ -2244,6 +2526,12 @@
           "notification_log.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false
@@ -2295,6 +2583,12 @@
           "tax_rate.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false
@@ -2348,6 +2642,12 @@
           "wishlist_price_point.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false
@@ -2401,6 +2701,12 @@
           "return_request.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false
@@ -2453,6 +2759,12 @@
           "loyalty_transaction.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false
@@ -2526,6 +2838,12 @@
           "trust_list_entry.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": true
@@ -2571,6 +2889,12 @@
           "seo_meta.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": true
@@ -2624,6 +2948,12 @@
           "signing_certificate.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": false,
       "hasModuleJson": true,
       "hasNextLayer": true
@@ -2674,6 +3004,12 @@
           "media_gallery_item.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": true
@@ -2724,6 +3060,12 @@
           "api_key.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": true
@@ -2779,6 +3121,12 @@
           "audit_log.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": true
@@ -2844,6 +3192,12 @@
           "store_variation_type.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": true
@@ -2894,6 +3248,12 @@
           "webhook_delivery.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": true
@@ -2951,6 +3311,12 @@
           "warehouse.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false
@@ -3002,6 +3368,12 @@
           "product_review_vote.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false
@@ -3058,6 +3430,12 @@
           "blog_post.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": true
@@ -3122,6 +3500,12 @@
           "message_report.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false
@@ -3182,6 +3566,12 @@
           "consent_record.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": true
@@ -3238,6 +3628,12 @@
           "wallet_transaction.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": false,
       "hasModuleJson": true,
       "hasNextLayer": true
@@ -3287,6 +3683,12 @@
           "feature_flag_override.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": true
@@ -3348,6 +3750,12 @@
           "metered_usage_event.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": false,
       "hasModuleJson": true,
       "hasNextLayer": true
@@ -3403,6 +3811,12 @@
           "support_ticket_message.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": false,
       "hasModuleJson": true,
       "hasNextLayer": true
@@ -3457,6 +3871,12 @@
           "approval_queue_item.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": false,
       "hasModuleJson": true,
       "hasNextLayer": true
@@ -3514,6 +3934,12 @@
           "gift_card_transaction.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": true
@@ -3557,6 +3983,12 @@
           "ai_usage_log.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": true
@@ -3617,6 +4049,12 @@
           "dynamic_page_version.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": true
@@ -3678,6 +4116,12 @@
           "oauth_token.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": true
@@ -3724,6 +4168,12 @@
           "search_document.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false
@@ -3771,6 +4221,12 @@
           "analytics_event.entity.ts"
         ]
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false
@@ -3806,6 +4262,12 @@
         "jobs": [],
         "entities": []
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": true
@@ -3840,6 +4302,12 @@
         "jobs": [],
         "entities": []
       },
+      "enabled": true,
+      "menu": [],
+      "widgets": [],
+      "slots": [],
+      "settingsTabs": [],
+      "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": false,
       "hasNextLayer": false
@@ -10107,6 +10575,18 @@
       "isClient": true,
       "isServer": false,
       "baseName": "Form"
+    },
+    {
+      "id": "common/ui/generated/module-components",
+      "module": "common",
+      "filePath": "modules/common/ui/generated/module-components.ts",
+      "kind": "ui",
+      "exports": [
+        "moduleComponents"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "module-components"
     },
     {
       "id": "common/ui/ImageGallery",

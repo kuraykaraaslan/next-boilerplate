@@ -29,6 +29,7 @@ Dependency-free leaf module loaded by every other module: AppError + ErrorCode e
 - `common/ui/EmptyState` _(ui, client)_
 - `common/ui/FileInput` _(ui, client)_
 - `common/ui/Form` _(ui, client)_
+- `common/ui/generated/module-components` _(ui)_
 - `common/ui/ImageGallery` _(ui, client)_
 - `common/ui/Input` _(ui, client)_
 - `common/ui/layout/AdminShell` _(ui, client)_

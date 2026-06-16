@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T07:25:32.755Z",
+  "generatedAt": "2026-06-16T07:29:58.324Z",
   "components": [
     {
       "id": "ai/ui/AIChatBox",
@@ -658,6 +658,18 @@
       "isClient": true,
       "isServer": false,
       "baseName": "Form"
+    },
+    {
+      "id": "common/ui/generated/module-components",
+      "module": "common",
+      "filePath": "modules/common/ui/generated/module-components.ts",
+      "kind": "ui",
+      "exports": [
+        "moduleComponents"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "module-components"
     },
     {
       "id": "common/ui/ImageGallery",

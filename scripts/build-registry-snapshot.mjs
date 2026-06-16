@@ -19,13 +19,15 @@
 import { writeFile, mkdir, rm } from 'node:fs/promises';
 import path from 'node:path';
 import {
-  PKG_JSON_PATH, OUT_REGISTRY_DIR, OUT_MODULES_DIR, readJson,
+  PKG_JSON_PATH, OUT_REGISTRY_DIR, OUT_MODULES_DIR, REPO_ROOT, readJson,
 } from './registry/fs-utils.mjs';
 import { collectModules } from './registry/modules.mjs';
 import { collectRoutes } from './registry/routes.mjs';
 import { collectEntities } from './registry/entities.mjs';
 import { collectComponents } from './registry/components.mjs';
 import { markdownForModule } from './registry/markdown.mjs';
+import { buildModuleRuntime } from './registry/module-runtime.mjs';
+import { renderComponentMap } from './registry/codegen.mjs';
 
 async function main() {
   const t0 = Date.now();
@@ -88,6 +90,21 @@ async function main() {
   await writeFile(path.join(OUT_REGISTRY_DIR, 'routes.json'),         JSON.stringify({ name: registry.name, registryVersion: registry.registryVersion, generatedAt: registry.generatedAt, routes },     null, 2) + '\n', 'utf8');
   await writeFile(path.join(OUT_REGISTRY_DIR, 'entities.json'),       JSON.stringify({ name: registry.name, registryVersion: registry.registryVersion, generatedAt: registry.generatedAt, entities },   null, 2) + '\n', 'utf8');
   await writeFile(path.join(OUT_REGISTRY_DIR, 'components.json'),     JSON.stringify({ name: registry.name, registryVersion: registry.registryVersion, generatedAt: registry.generatedAt, components }, null, 2) + '\n', 'utf8');
+
+  // Plugin runtime artifacts (committed source, not public/): the runtime JSON
+  // (menu/slots/widgets data, server-readable) and the lazy component map
+  // (React, client-only). Split across server/ and ui/ to respect the boundary.
+  const { runtimeJson, componentImports } = buildModuleRuntime(modules, components);
+  const SERVER_GEN = path.join(REPO_ROOT, 'modules/common/server/generated');
+  const UI_GEN     = path.join(REPO_ROOT, 'modules/common/ui/generated');
+  await mkdir(SERVER_GEN, { recursive: true });
+  await mkdir(UI_GEN, { recursive: true });
+  await writeFile(
+    path.join(SERVER_GEN, 'module-runtime.json'),
+    JSON.stringify({ generatedAt: registry.generatedAt, ...runtimeJson }, null, 2) + '\n',
+    'utf8',
+  );
+  await writeFile(path.join(UI_GEN, 'module-components.ts'), renderComponentMap(componentImports), 'utf8');
 
   // Per-module markdown chunks.
   const indexMap = {};

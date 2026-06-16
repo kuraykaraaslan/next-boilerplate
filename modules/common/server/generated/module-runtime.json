@@ -1,0 +1,633 @@
+{
+  "generatedAt": "2026-06-16T07:29:58.324Z",
+  "menu": [],
+  "widgets": [],
+  "slots": [],
+  "settingsTabs": [],
+  "permissions": [],
+  "modules": [
+    {
+      "id": "ai",
+      "name": "AI",
+      "icon": "fas fa-robot",
+      "priority": 50,
+      "enabled": true,
+      "tier": "ai"
+    },
+    {
+      "id": "analytics",
+      "name": "Analytics",
+      "icon": "fas fa-chart-line",
+      "priority": 56,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "api_doc",
+      "name": "API Documentation",
+      "icon": "fas fa-book",
+      "priority": 100,
+      "enabled": true,
+      "tier": "infrastructure"
+    },
+    {
+      "id": "api_key",
+      "name": "API Key",
+      "icon": "fas fa-key",
+      "priority": 40,
+      "enabled": true,
+      "tier": "platform"
+    },
+    {
+      "id": "approval",
+      "name": "Approval Queue",
+      "icon": "fas fa-clipboard-check",
+      "priority": 49,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "audit_log",
+      "name": "Audit Log",
+      "icon": "fas fa-clipboard-list",
+      "priority": 40,
+      "enabled": true,
+      "tier": "platform"
+    },
+    {
+      "id": "auth",
+      "name": "Authentication",
+      "icon": "fas fa-shield-halved",
+      "priority": 15,
+      "enabled": true,
+      "tier": "identity"
+    },
+    {
+      "id": "auth_acs",
+      "name": "National Identity Login",
+      "icon": "fas fa-id-card",
+      "priority": 17,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "auth_e_signature",
+      "name": "E-Signature Identity Login",
+      "icon": "fas fa-id-card",
+      "priority": 36,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "auth_impersonation",
+      "name": "Admin Impersonation",
+      "icon": "fas fa-user-secret",
+      "priority": 17,
+      "enabled": true,
+      "tier": "identity"
+    },
+    {
+      "id": "auth_oidc",
+      "name": "OAuth2/OIDC Engine",
+      "icon": "fas fa-key",
+      "priority": 15,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "auth_saml",
+      "name": "SAML SSO",
+      "icon": "fas fa-building-shield",
+      "priority": 16,
+      "enabled": true,
+      "tier": "identity"
+    },
+    {
+      "id": "auth_sso",
+      "name": "OAuth SSO",
+      "icon": "fas fa-right-to-bracket",
+      "priority": 16,
+      "enabled": true,
+      "tier": "identity"
+    },
+    {
+      "id": "blog",
+      "name": "Blog",
+      "icon": "fas fa-newspaper",
+      "priority": 44,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "common",
+      "name": "Common Primitives",
+      "icon": "fas fa-cube",
+      "priority": 1,
+      "enabled": true,
+      "tier": "infrastructure"
+    },
+    {
+      "id": "coupon",
+      "name": "Coupon",
+      "icon": "fas fa-ticket",
+      "priority": 26,
+      "enabled": true,
+      "tier": "billing"
+    },
+    {
+      "id": "db",
+      "name": "Database",
+      "icon": "fas fa-database",
+      "priority": 3,
+      "enabled": true,
+      "tier": "infrastructure"
+    },
+    {
+      "id": "dynamic_page",
+      "name": "Dynamic Pages",
+      "icon": "fas fa-file-alt",
+      "priority": 50,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "e_signature",
+      "name": "E-Signature & E-Identity",
+      "icon": "fas fa-id-card",
+      "priority": 35,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "env",
+      "name": "Environment",
+      "icon": "fas fa-gear",
+      "priority": 1,
+      "enabled": true,
+      "tier": "infrastructure"
+    },
+    {
+      "id": "exchange_rate",
+      "name": "Exchange Rate",
+      "icon": "fas fa-money-bill-transfer",
+      "priority": 27,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "feature_flags",
+      "name": "Feature Flags",
+      "icon": "fas fa-toggle-on",
+      "priority": 48,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "gift_card",
+      "name": "Gift Card",
+      "icon": "fas fa-gift",
+      "priority": 49,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "integrations_hub",
+      "name": "Integrations Hub",
+      "icon": "fas fa-plug",
+      "priority": 54,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "invoice",
+      "name": "Invoice",
+      "icon": "fas fa-file-invoice",
+      "priority": 30,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "limiter",
+      "name": "Rate Limiter",
+      "icon": "fas fa-gauge-high",
+      "priority": 5,
+      "enabled": true,
+      "tier": "infrastructure"
+    },
+    {
+      "id": "logger",
+      "name": "Logger",
+      "icon": "fas fa-file-lines",
+      "priority": 2,
+      "enabled": true,
+      "tier": "infrastructure"
+    },
+    {
+      "id": "media_gallery",
+      "name": "Media Gallery",
+      "icon": "fas fa-images",
+      "priority": 36,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "messaging",
+      "name": "Messaging",
+      "icon": "fas fa-comments",
+      "priority": 46,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "metering",
+      "name": "Metering",
+      "icon": "fas fa-gauge-high",
+      "priority": 48,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "network",
+      "name": "Network",
+      "icon": "fas fa-network-wired",
+      "priority": 2,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "notification_inapp",
+      "name": "In-App Notifications",
+      "icon": "fas fa-bell",
+      "priority": 30,
+      "enabled": true,
+      "tier": "notifications"
+    },
+    {
+      "id": "notification_log",
+      "name": "Notification Log",
+      "icon": "fas fa-clipboard-list",
+      "priority": 31,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "notification_mail",
+      "name": "Email Notifications",
+      "icon": "fas fa-envelope",
+      "priority": 30,
+      "enabled": true,
+      "tier": "notifications"
+    },
+    {
+      "id": "notification_push",
+      "name": "Web Push Notifications",
+      "icon": "fas fa-bell",
+      "priority": 30,
+      "enabled": true,
+      "tier": "notifications"
+    },
+    {
+      "id": "notification_sms",
+      "name": "SMS Notifications",
+      "icon": "fas fa-message",
+      "priority": 30,
+      "enabled": true,
+      "tier": "notifications"
+    },
+    {
+      "id": "observability",
+      "name": "Observability",
+      "icon": "fas fa-chart-line",
+      "priority": 5,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "order_fulfillment",
+      "name": "Order Fulfillment",
+      "icon": "fas fa-box",
+      "priority": 41,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "payment",
+      "name": "Payment",
+      "icon": "fas fa-credit-card",
+      "priority": 25,
+      "enabled": true,
+      "tier": "billing"
+    },
+    {
+      "id": "payment_cart",
+      "name": "Payment Cart",
+      "icon": "fas fa-cart-shopping",
+      "priority": 28,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "payment_core",
+      "name": "payment_core",
+      "priority": 100,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "payment_loyalty_points",
+      "name": "Payment Loyalty Points",
+      "icon": "fas fa-medal",
+      "priority": 34,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "payment_return_rma",
+      "name": "Payment Return / RMA",
+      "icon": "fas fa-rotate-left",
+      "priority": 33,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "payment_sell",
+      "name": "Payment Sell",
+      "icon": "fas fa-shopping-cart",
+      "priority": 26,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "payment_shipping",
+      "name": "Payment Shipping",
+      "icon": "fas fa-truck",
+      "priority": 29,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "payment_subscription",
+      "name": "Payment Subscription",
+      "icon": "fas fa-sync-alt",
+      "priority": 27,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "payment_tax",
+      "name": "Payment Tax",
+      "icon": "fas fa-percent",
+      "priority": 31,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "payment_wishlist",
+      "name": "Payment Wishlist",
+      "icon": "fas fa-heart",
+      "priority": 32,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "product_review",
+      "name": "Product Review",
+      "icon": "fas fa-star",
+      "priority": 42,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "redis",
+      "name": "Redis",
+      "icon": "fas fa-database",
+      "priority": 2,
+      "enabled": true,
+      "tier": "infrastructure"
+    },
+    {
+      "id": "redis_idempotency",
+      "name": "Idempotency Keys",
+      "icon": "fas fa-key",
+      "priority": 5,
+      "enabled": true,
+      "tier": "infrastructure"
+    },
+    {
+      "id": "scim",
+      "name": "SCIM 2.0",
+      "icon": "fas fa-id-card",
+      "priority": 17,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "search",
+      "name": "Search",
+      "icon": "fas fa-magnifying-glass",
+      "priority": 55,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "seed",
+      "name": "Seed",
+      "icon": "fas fa-seedling",
+      "priority": 9,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "seo",
+      "name": "SEO Metadata",
+      "icon": "fas fa-search",
+      "priority": 35,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "setting",
+      "name": "Setting",
+      "icon": "fas fa-gear",
+      "priority": 5,
+      "enabled": true,
+      "tier": "platform"
+    },
+    {
+      "id": "storage",
+      "name": "File Storage",
+      "icon": "fas fa-cloud-arrow-up",
+      "priority": 10,
+      "enabled": true,
+      "tier": "platform"
+    },
+    {
+      "id": "store",
+      "name": "Store",
+      "icon": "fas fa-store",
+      "priority": 40,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "support",
+      "name": "Support Desk",
+      "icon": "fas fa-life-ring",
+      "priority": 48,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "tenant",
+      "name": "Tenant",
+      "icon": "fas fa-building",
+      "priority": 20,
+      "enabled": true,
+      "tier": "tenancy"
+    },
+    {
+      "id": "tenant_branding",
+      "name": "Tenant Branding",
+      "icon": "fas fa-palette",
+      "priority": 23,
+      "enabled": true,
+      "tier": "tenancy"
+    },
+    {
+      "id": "tenant_domain",
+      "name": "Tenant Domain",
+      "icon": "fas fa-globe",
+      "priority": 23,
+      "enabled": true,
+      "tier": "tenancy"
+    },
+    {
+      "id": "tenant_export",
+      "name": "Tenant Export",
+      "icon": "fas fa-file-export",
+      "priority": 25,
+      "enabled": true,
+      "tier": "tenancy"
+    },
+    {
+      "id": "tenant_invitation",
+      "name": "Tenant Invitation",
+      "icon": "fas fa-envelope-open",
+      "priority": 22,
+      "enabled": true,
+      "tier": "tenancy"
+    },
+    {
+      "id": "tenant_member",
+      "name": "Tenant Member",
+      "icon": "fas fa-users",
+      "priority": 21,
+      "enabled": true,
+      "tier": "tenancy"
+    },
+    {
+      "id": "tenant_session",
+      "name": "Tenant Session",
+      "icon": "fas fa-id-badge",
+      "priority": 22,
+      "enabled": true,
+      "tier": "tenancy"
+    },
+    {
+      "id": "tenant_subscription",
+      "name": "Tenant Subscription",
+      "icon": "fas fa-credit-card",
+      "priority": 24,
+      "enabled": true,
+      "tier": "tenancy"
+    },
+    {
+      "id": "tenant_usage",
+      "name": "Tenant Usage",
+      "icon": "fas fa-chart-line",
+      "priority": 24,
+      "enabled": true,
+      "tier": "tenancy"
+    },
+    {
+      "id": "terms_consent",
+      "name": "Terms & Consent",
+      "icon": "fas fa-file-contract",
+      "priority": 47,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "user",
+      "name": "User",
+      "icon": "fas fa-user",
+      "priority": 10,
+      "enabled": true,
+      "tier": "identity"
+    },
+    {
+      "id": "user_agent",
+      "name": "User Agent Parser",
+      "icon": "fas fa-mobile-screen",
+      "priority": 5,
+      "enabled": true,
+      "tier": "identity"
+    },
+    {
+      "id": "user_preferences",
+      "name": "User Preferences",
+      "icon": "fas fa-sliders",
+      "priority": 11,
+      "enabled": true,
+      "tier": "identity"
+    },
+    {
+      "id": "user_profile",
+      "name": "User Profile",
+      "icon": "fas fa-id-card",
+      "priority": 11,
+      "enabled": true,
+      "tier": "identity"
+    },
+    {
+      "id": "user_security",
+      "name": "User Security",
+      "icon": "fas fa-lock",
+      "priority": 11,
+      "enabled": true,
+      "tier": "identity"
+    },
+    {
+      "id": "user_session",
+      "name": "User Session",
+      "icon": "fas fa-id-badge",
+      "priority": 12,
+      "enabled": true,
+      "tier": "identity"
+    },
+    {
+      "id": "user_social_account",
+      "name": "Linked Social Accounts",
+      "icon": "fas fa-link",
+      "priority": 12,
+      "enabled": true,
+      "tier": "identity"
+    },
+    {
+      "id": "wallet",
+      "name": "Wallet",
+      "icon": "fas fa-wallet",
+      "priority": 47,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "webhook",
+      "name": "Outgoing Webhooks",
+      "icon": "fas fa-rss",
+      "priority": 40,
+      "enabled": true,
+      "tier": "platform"
+    }
+  ]
+}
