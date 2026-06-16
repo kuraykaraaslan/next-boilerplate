@@ -37,5 +37,15 @@
       "order": 10,
       "scope": "system"
     }
+  ],
+  "routes": [
+    {
+      "path": "/admin/tenants/[targetTenantId]",
+      "component": "tenant/ui/tenants-target-tenant-id.page"
+    },
+    {
+      "path": "/admin/tenants",
+      "component": "tenant/ui/tenants.page"
+    }
   ]
 }

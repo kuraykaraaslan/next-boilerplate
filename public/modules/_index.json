@@ -107,10 +107,10 @@
       "infra",
       "core"
     ],
-    "hasNextLayer": false,
+    "hasNextLayer": true,
     "routeCount": 0,
     "entityCount": 0,
-    "componentCount": 0,
+    "componentCount": 6,
     "file": "observability.md"
   },
   "redis_idempotency": {
@@ -189,7 +189,7 @@
     "hasNextLayer": true,
     "routeCount": 4,
     "entityCount": 1,
-    "componentCount": 9,
+    "componentCount": 13,
     "file": "user.md"
   },
   "user_preferences": {
@@ -372,7 +372,7 @@
     "hasNextLayer": true,
     "routeCount": 5,
     "entityCount": 1,
-    "componentCount": 5,
+    "componentCount": 7,
     "file": "tenant.md"
   },
   "tenant_member": {
@@ -1087,7 +1087,7 @@
     "hasNextLayer": true,
     "routeCount": 0,
     "entityCount": 0,
-    "componentCount": 16,
+    "componentCount": 17,
     "file": "api_doc.md"
   },
   "payment_core": {

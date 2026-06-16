@@ -8,6 +8,7 @@
     "./server/api_doc.settings.fields": "./server/api_doc.settings.fields.ts",
     "./ui/api-docs-page.component": "./ui/api-docs-page.component.tsx",
     "./ui/api-docs-settings.page": "./ui/api-docs-settings.page.tsx",
+    "./ui/api-docs.page": "./ui/api-docs.page.tsx",
     "./ui/api-tag-section.component": "./ui/api-tag-section.component.tsx",
     "./ui/code-sample-panel.component": "./ui/code-sample-panel.component.tsx",
     "./ui/endpoint-row.component": "./ui/endpoint-row.component.tsx",

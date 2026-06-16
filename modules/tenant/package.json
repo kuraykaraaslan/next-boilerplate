@@ -27,6 +27,8 @@
     "./ui/tenant-selector-card.component": "./ui/tenant-selector-card.component.tsx",
     "./ui/tenant-subscription-card.component": "./ui/tenant-subscription-card.component.tsx",
     "./ui/tenant.constants": "./ui/tenant.constants.ts",
+    "./ui/tenants-target-tenant-id.page": "./ui/tenants-target-tenant-id.page.tsx",
+    "./ui/tenants.page": "./ui/tenants.page.tsx",
     "./module.json": "./module.json"
   },
   "peerDependencies": {

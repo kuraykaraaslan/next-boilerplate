@@ -51,6 +51,8 @@ Core user CRUD: create, find, update, deactivate. Foundation for every auth and 
 ## Next layer (modules_next/) surface
 
 - `user/ui/social-accounts-panel.component` _(ui, client)_
+- `user/ui/user-detail-columns` _(ui)_
+- `user/ui/user-detail.types` _(ui)_
 - `user/ui/user-edit-modal.component` _(ui, client)_
 - `user/ui/user-list-columns.component` _(ui, client)_
 - `user/ui/user-menu.component` _(ui, client)_
@@ -59,6 +61,8 @@ Core user CRUD: create, find, update, deactivate. Foundation for every auth and 
 - `user/ui/user-profile-form.component` _(ui, client)_
 - `user/ui/user-role-badge.component` _(ui, client)_
 - `user/ui/user-status-badge.component` _(ui, client)_
+- `user/ui/users-user-id.page` _(ui, client)_
+- `user/ui/users.page` _(ui, client)_
 
 ## README
 

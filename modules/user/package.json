@@ -16,6 +16,8 @@
     "./server/user.service": "./server/user.service.ts",
     "./server/user.types": "./server/user.types.ts",
     "./ui/social-accounts-panel.component": "./ui/social-accounts-panel.component.tsx",
+    "./ui/user-detail-columns": "./ui/user-detail-columns.tsx",
+    "./ui/user-detail.types": "./ui/user-detail.types.ts",
     "./ui/user-edit-modal.component": "./ui/user-edit-modal.component.tsx",
     "./ui/user-list-columns.component": "./ui/user-list-columns.component.tsx",
     "./ui/user-menu.component": "./ui/user-menu.component.tsx",
@@ -24,6 +26,8 @@
     "./ui/user-profile-form.component": "./ui/user-profile-form.component.tsx",
     "./ui/user-role-badge.component": "./ui/user-role-badge.component.tsx",
     "./ui/user-status-badge.component": "./ui/user-status-badge.component.tsx",
+    "./ui/users-user-id.page": "./ui/users-user-id.page.tsx",
+    "./ui/users.page": "./ui/users.page.tsx",
     "./module.json": "./module.json"
   },
   "peerDependencies": {

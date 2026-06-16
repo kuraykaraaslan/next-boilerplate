@@ -22,6 +22,7 @@ OpenAPI/Swagger spec builder + helpers for serving per-tenant API docs.
 
 - `api_doc/ui/api-docs-page.component` _(ui, client)_
 - `api_doc/ui/api-docs-settings.page` _(ui, client)_
+- `api_doc/ui/api-docs.page` _(ui, client)_
 - `api_doc/ui/api-tag-section.component` _(ui, client)_
 - `api_doc/ui/code-sample-panel.component` _(ui, client)_
 - `api_doc/ui/endpoint-row.component` _(ui, client)_

@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T09:07:33.600Z",
+  "generatedAt": "2026-06-16T09:12:44.760Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -372,14 +372,23 @@
       },
       "enabled": true,
       "menu": [],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/fleet",
+          "component": "observability/ui/fleet.page"
+        },
+        {
+          "path": "/admin/health",
+          "component": "observability/ui/health.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
       "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false
+      "hasNextLayer": true
     },
     {
       "id": "redis_idempotency",
@@ -758,7 +767,16 @@
           "scope": "system"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/users/[userId]",
+          "component": "user/ui/users-user-id.page"
+        },
+        {
+          "path": "/admin/users",
+          "component": "user/ui/users.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1620,7 +1638,16 @@
           "scope": "system"
         }
       ],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/tenants/[targetTenantId]",
+          "component": "tenant/ui/tenants-target-tenant-id.page"
+        },
+        {
+          "path": "/admin/tenants",
+          "component": "tenant/ui/tenants.page"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -5245,6 +5272,10 @@
         {
           "path": "/admin/api-docs/settings",
           "component": "api_doc/ui/api-docs-settings.page"
+        },
+        {
+          "path": "/admin/api-docs",
+          "component": "api_doc/ui/api-docs.page"
         }
       ],
       "widgets": [],
@@ -11006,6 +11037,16 @@
       "baseName": "api-docs-settings.page"
     },
     {
+      "id": "api_doc/ui/api-docs.page",
+      "module": "api_doc",
+      "filePath": "modules/api_doc/ui/api-docs.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "api-docs.page"
+    },
+    {
       "id": "api_doc/ui/api-tag-section.component",
       "module": "api_doc",
       "filePath": "modules/api_doc/ui/api-tag-section.component.tsx",
@@ -13839,6 +13880,88 @@
       "baseName": "use-notifications.hook"
     },
     {
+      "id": "observability/ui/fleet-columns",
+      "module": "observability",
+      "filePath": "modules/observability/ui/fleet-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "fleetColumns"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "fleet-columns"
+    },
+    {
+      "id": "observability/ui/fleet.page",
+      "module": "observability",
+      "filePath": "modules/observability/ui/fleet.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "fleet.page"
+    },
+    {
+      "id": "observability/ui/fleet.types",
+      "module": "observability",
+      "filePath": "modules/observability/ui/fleet.types.ts",
+      "kind": "ui",
+      "exports": [
+        "ServiceStatus",
+        "ServiceRow",
+        "HealthData",
+        "statusVariant",
+        "statColor",
+        "extractMessage",
+        "buildServices"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "fleet.types"
+    },
+    {
+      "id": "observability/ui/health-queue-columns",
+      "module": "observability",
+      "filePath": "modules/observability/ui/health-queue-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "queueColumns"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "health-queue-columns"
+    },
+    {
+      "id": "observability/ui/health.page",
+      "module": "observability",
+      "filePath": "modules/observability/ui/health.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "health.page"
+    },
+    {
+      "id": "observability/ui/health.types",
+      "module": "observability",
+      "filePath": "modules/observability/ui/health.types.ts",
+      "kind": "ui",
+      "exports": [
+        "CheckStatus",
+        "OverallStatus",
+        "ServiceCheck",
+        "QueueCheck",
+        "HealthData",
+        "QueueRow",
+        "formatUptime",
+        "formatTimestamp",
+        "overallConfig"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "health.types"
+    },
+    {
       "id": "payment/ui/billing-profile-tab.component",
       "module": "payment",
       "filePath": "modules/payment/ui/billing-profile-tab.component.tsx",
@@ -14985,6 +15108,26 @@
       "baseName": "tenant.constants"
     },
     {
+      "id": "tenant/ui/tenants-target-tenant-id.page",
+      "module": "tenant",
+      "filePath": "modules/tenant/ui/tenants-target-tenant-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "tenants-target-tenant-id.page"
+    },
+    {
+      "id": "tenant/ui/tenants.page",
+      "module": "tenant",
+      "filePath": "modules/tenant/ui/tenants.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "tenants.page"
+    },
+    {
       "id": "terms_consent/ui/acceptance-gate.component",
       "module": "terms_consent",
       "filePath": "modules/terms_consent/ui/acceptance-gate.component.tsx",
@@ -15065,6 +15208,33 @@
       "isClient": true,
       "isServer": false,
       "baseName": "social-accounts-panel.component"
+    },
+    {
+      "id": "user/ui/user-detail-columns",
+      "module": "user",
+      "filePath": "modules/user/ui/user-detail-columns.tsx",
+      "kind": "ui",
+      "exports": [
+        "buildMembershipColumns"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "user-detail-columns"
+    },
+    {
+      "id": "user/ui/user-detail.types",
+      "module": "user",
+      "filePath": "modules/user/ui/user-detail.types.ts",
+      "kind": "ui",
+      "exports": [
+        "User",
+        "Membership",
+        "memberRoleVariant",
+        "memberStatusVariant"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "user-detail.types"
     },
     {
       "id": "user/ui/user-edit-modal.component",
@@ -15165,6 +15335,26 @@
       "isClient": true,
       "isServer": false,
       "baseName": "user-status-badge.component"
+    },
+    {
+      "id": "user/ui/users-user-id.page",
+      "module": "user",
+      "filePath": "modules/user/ui/users-user-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "users-user-id.page"
+    },
+    {
+      "id": "user/ui/users.page",
+      "module": "user",
+      "filePath": "modules/user/ui/users.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "users.page"
     },
     {
       "id": "wallet/ui/wallet-account-columns.component",

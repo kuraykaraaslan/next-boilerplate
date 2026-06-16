@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-16T09:07:33.600Z",
+  "generatedAt": "2026-06-16T09:12:44.760Z",
   "menu": [
     {
       "id": "settings",
@@ -429,6 +429,12 @@
       "moduleId": "analytics"
     },
     {
+      "path": "/admin/api-docs",
+      "componentId": "api_doc/ui/api-docs.page",
+      "permissions": [],
+      "moduleId": "api_doc"
+    },
+    {
       "path": "/admin/api-docs/settings",
       "componentId": "api_doc/ui/api-docs-settings.page",
       "permissions": [],
@@ -537,6 +543,12 @@
       "moduleId": "feature_flags"
     },
     {
+      "path": "/admin/fleet",
+      "componentId": "observability/ui/fleet.page",
+      "permissions": [],
+      "moduleId": "observability"
+    },
+    {
       "path": "/admin/gift-cards",
       "componentId": "gift_card/ui/gift-cards.page",
       "permissions": [],
@@ -547,6 +559,12 @@
       "componentId": "gift_card/ui/gift-cards-gift-card-id.page",
       "permissions": [],
       "moduleId": "gift_card"
+    },
+    {
+      "path": "/admin/health",
+      "componentId": "observability/ui/health.page",
+      "permissions": [],
+      "moduleId": "observability"
     },
     {
       "path": "/admin/impersonation/settings",
@@ -795,10 +813,34 @@
       "moduleId": "support"
     },
     {
+      "path": "/admin/tenants",
+      "componentId": "tenant/ui/tenants.page",
+      "permissions": [],
+      "moduleId": "tenant"
+    },
+    {
+      "path": "/admin/tenants/[targetTenantId]",
+      "componentId": "tenant/ui/tenants-target-tenant-id.page",
+      "permissions": [],
+      "moduleId": "tenant"
+    },
+    {
       "path": "/admin/terms",
       "componentId": "terms_consent/ui/terms.page",
       "permissions": [],
       "moduleId": "terms_consent"
+    },
+    {
+      "path": "/admin/users",
+      "componentId": "user/ui/users.page",
+      "permissions": [],
+      "moduleId": "user"
+    },
+    {
+      "path": "/admin/users/[userId]",
+      "componentId": "user/ui/users-user-id.page",
+      "permissions": [],
+      "moduleId": "user"
     },
     {
       "path": "/admin/wallet",

@@ -19,5 +19,15 @@
   },
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/observability",
-  "license": "CC-BY-NC-ND-4.0"
+  "license": "CC-BY-NC-ND-4.0",
+  "routes": [
+    {
+      "path": "/admin/fleet",
+      "component": "observability/ui/fleet.page"
+    },
+    {
+      "path": "/admin/health",
+      "component": "observability/ui/health.page"
+    }
+  ]
 }

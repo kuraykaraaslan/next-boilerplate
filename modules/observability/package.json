@@ -13,6 +13,12 @@
     "./server/otel.init": "./server/otel.init.ts",
     "./server/sentry.init": "./server/sentry.init.ts",
     "./server/withObservability.next": "./server/withObservability.next.ts",
+    "./ui/fleet-columns": "./ui/fleet-columns.tsx",
+    "./ui/fleet.page": "./ui/fleet.page.tsx",
+    "./ui/fleet.types": "./ui/fleet.types.ts",
+    "./ui/health-queue-columns": "./ui/health-queue-columns.tsx",
+    "./ui/health.page": "./ui/health.page.tsx",
+    "./ui/health.types": "./ui/health.types.ts",
     ".": "./server/index.ts",
     "./module.json": "./module.json"
   }

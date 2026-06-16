@@ -9,9 +9,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const APPLY = process.argv.includes('--apply');
-const SCOPE_DIR = 'app/tenant/[tenantId]/admin/(tenant-scope)';
+const SCOPE_DIRS = [
+  'app/tenant/[tenantId]/admin/(tenant-scope)',
+  'app/tenant/[tenantId]/admin/(sysadmin-scope)',
+];
 
 const OWNER = {
+  tenants: 'tenant', users: 'user', health: 'observability', fleet: 'observability',
   analytics: 'analytics', 'api-docs': 'api_doc', 'api-keys': 'api_key', approvals: 'approval',
   'audit-logs': 'audit_log', auth: 'auth', blocks: 'dynamic_page', blog: 'blog',
   consent: 'terms_consent', coupons: 'coupon', domains: 'tenant_domain',
@@ -47,10 +51,11 @@ const deletes = [];    // layout/loading/error files
 const routesByModule = {};
 const skipped = [];
 
-for (const pageFile of findPages(SCOPE_DIR)) {
+const allPages = SCOPE_DIRS.filter((d) => fs.existsSync(d)).flatMap((d) => findPages(d));
+for (const pageFile of allPages) {
   const folder = path.dirname(pageFile);
   // admin path from folder, dropping the (tenant-scope) group segment
-  const rel = path.relative('app/tenant/[tenantId]', folder).replace(/\(tenant-scope\)\/?/, '');
+  const rel = path.relative('app/tenant/[tenantId]', folder).replace(/\((tenant|sysadmin)-scope\)\/?/, '');
   const adminPath = '/' + rel.replace(/\/$/, ''); // /admin/store/products/[productId]
   if (SKIP.has(adminPath)) { skipped.push([adminPath, 'keep-static']); continue; }
   if (!isClient(pageFile)) { skipped.push([adminPath, 'server']); continue; }
@@ -117,6 +122,6 @@ function pruneEmpty(dir) {
   }
   if (fs.readdirSync(dir).length === 0) fs.rmdirSync(dir);
 }
-pruneEmpty(SCOPE_DIR);
+SCOPE_DIRS.forEach(pruneEmpty);
 
 console.log('Applied.');

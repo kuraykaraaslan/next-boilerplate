@@ -65,6 +65,8 @@ Tenant CRUD, lifecycle (active/suspended/deleted), soft-deletion service. Founda
 - `tenant/ui/tenant-selector-card.component` _(ui, client)_
 - `tenant/ui/tenant-subscription-card.component` _(ui, client)_
 - `tenant/ui/tenant.constants` _(ui)_
+- `tenant/ui/tenants-target-tenant-id.page` _(ui, client)_
+- `tenant/ui/tenants.page` _(ui, client)_
 
 ## README
 
