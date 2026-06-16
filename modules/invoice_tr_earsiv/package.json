@@ -1,0 +1,20 @@
+{
+  "name": "@nb/invoice_tr_earsiv",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/adapters/tr_earsiv.adapter": "./server/adapters/tr_earsiv.adapter.ts",
+    "./server/adapters/tr_earsiv.format": "./server/adapters/tr_earsiv.format.ts",
+    "./server/adapters/tr_earsiv.portal": "./server/adapters/tr_earsiv.portal.ts",
+    "./server/adapters/tr_earsiv.seller": "./server/adapters/tr_earsiv.seller.ts",
+    "./server/adapters/tr_earsiv.submit": "./server/adapters/tr_earsiv.submit.ts",
+    "./server/adapters/tr_earsiv.ubl": "./server/adapters/tr_earsiv.ubl.ts",
+    "./server/adapters/tr_foriba.client": "./server/adapters/tr_foriba.client.ts",
+    "./server/adapters/tr_logo.client": "./server/adapters/tr_logo.client.ts",
+    "./server/adapters/tr_validators": "./server/adapters/tr_validators.ts",
+    "./server/adapters/tr_vat_rates": "./server/adapters/tr_vat_rates.ts",
+    "./server/tr_earsiv.extension": "./server/tr_earsiv.extension.ts",
+    "./module.json": "./module.json"
+  }
+}

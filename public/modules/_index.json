@@ -1191,6 +1191,134 @@
     "componentCount": 0,
     "file": "notification_sms.md"
   },
+  "invoice_de_zugferd": {
+    "name": "ZUGFeRD (DE) e-Invoicing",
+    "tier": "other",
+    "tags": [
+      "invoice",
+      "billing",
+      "compliance",
+      "tax",
+      "adapter"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 0,
+    "componentCount": 0,
+    "file": "invoice_de_zugferd.md"
+  },
+  "invoice_eu_peppol": {
+    "name": "Peppol BIS (EU) e-Invoicing",
+    "tier": "other",
+    "tags": [
+      "invoice",
+      "billing",
+      "compliance",
+      "tax",
+      "adapter"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 0,
+    "componentCount": 0,
+    "file": "invoice_eu_peppol.md"
+  },
+  "invoice_fr_choruspro": {
+    "name": "Chorus Pro (FR) e-Invoicing",
+    "tier": "other",
+    "tags": [
+      "invoice",
+      "billing",
+      "compliance",
+      "tax",
+      "adapter"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 0,
+    "componentCount": 0,
+    "file": "invoice_fr_choruspro.md"
+  },
+  "invoice_in_gst": {
+    "name": "GST IRP (IN) e-Invoicing",
+    "tier": "other",
+    "tags": [
+      "invoice",
+      "billing",
+      "compliance",
+      "tax",
+      "adapter"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 0,
+    "componentCount": 0,
+    "file": "invoice_in_gst.md"
+  },
+  "invoice_it_fatturapa": {
+    "name": "FatturaPA (IT) e-Invoicing",
+    "tier": "other",
+    "tags": [
+      "invoice",
+      "billing",
+      "compliance",
+      "tax",
+      "adapter"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 0,
+    "componentCount": 0,
+    "file": "invoice_it_fatturapa.md"
+  },
+  "invoice_mx_cfdi": {
+    "name": "CFDI (MX) e-Invoicing",
+    "tier": "other",
+    "tags": [
+      "invoice",
+      "billing",
+      "compliance",
+      "tax",
+      "adapter"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 0,
+    "componentCount": 0,
+    "file": "invoice_mx_cfdi.md"
+  },
+  "invoice_tr_earsiv": {
+    "name": "e-Arşiv (TR) e-Invoicing",
+    "tier": "other",
+    "tags": [
+      "invoice",
+      "billing",
+      "compliance",
+      "tax",
+      "adapter"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 0,
+    "componentCount": 0,
+    "file": "invoice_tr_earsiv.md"
+  },
+  "invoice_us_standard": {
+    "name": "US Standard (Stripe Tax) e-Invoicing",
+    "tier": "other",
+    "tags": [
+      "invoice",
+      "billing",
+      "compliance",
+      "tax",
+      "adapter"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 0,
+    "componentCount": 0,
+    "file": "invoice_us_standard.md"
+  },
   "mail_smtp": {
     "name": "Mail — SMTP",
     "tier": "other",

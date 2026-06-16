@@ -1,0 +1,39 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "invoice_fr_choruspro",
+  "name": "Chorus Pro (FR) e-Invoicing",
+  "description": "Chorus Pro (FR) e-invoicing adapter, contributed into the invoice:adapter extension point.",
+  "version": "1.0.0",
+  "icon": "fas fa-file-invoice",
+  "tags": [
+    "invoice",
+    "billing",
+    "compliance",
+    "tax",
+    "adapter"
+  ],
+  "priority": 31,
+  "dependencies": {
+    "requires": [
+      "invoice",
+      "setting",
+      "logger",
+      "common"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/invoice_fr_choruspro",
+  "license": "CC-BY-NC-ND-4.0",
+  "extensions": [
+    {
+      "point": "invoice:adapter",
+      "key": "fr_choruspro",
+      "export": "invoice_fr_choruspro/server/fr_choruspro.extension",
+      "metadata": {
+        "kind": "country",
+        "code": "FR",
+        "label": "Chorus Pro (FR)"
+      }
+    }
+  ]
+}

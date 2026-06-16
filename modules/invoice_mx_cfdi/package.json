@@ -1,0 +1,12 @@
+{
+  "name": "@nb/invoice_mx_cfdi",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/adapters/mx_cfdi.adapter": "./server/adapters/mx_cfdi.adapter.ts",
+    "./server/adapters/mx_cfdi.builder": "./server/adapters/mx_cfdi.builder.ts",
+    "./server/mx_cfdi.extension": "./server/mx_cfdi.extension.ts",
+    "./module.json": "./module.json"
+  }
+}

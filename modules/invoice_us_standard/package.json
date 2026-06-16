@@ -1,0 +1,11 @@
+{
+  "name": "@nb/invoice_us_standard",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/adapters/us_standard.adapter": "./server/adapters/us_standard.adapter.ts",
+    "./server/us_standard.extension": "./server/us_standard.extension.ts",
+    "./module.json": "./module.json"
+  }
+}

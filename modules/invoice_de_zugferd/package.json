@@ -1,0 +1,11 @@
+{
+  "name": "@nb/invoice_de_zugferd",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/adapters/de_zugferd.adapter": "./server/adapters/de_zugferd.adapter.ts",
+    "./server/de_zugferd.extension": "./server/de_zugferd.extension.ts",
+    "./module.json": "./module.json"
+  }
+}

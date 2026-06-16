@@ -7,22 +7,8 @@ export { Invoice } from './entities/invoice.entity';
 export { InvoiceLine } from './entities/invoice_line.entity';
 export type { InvoiceAdapter } from './adapters/base.adapter';
 export { getInvoiceAdapter, getCountryInvoiceAdapter, resolveInvoiceAdapter, listInvoiceAdapters } from './adapters/registry';
-export { ItFatturaPaAdapter } from './adapters/it_fatturapa.adapter';
-export { FrChorusProAdapter } from './adapters/fr_choruspro.adapter';
-export { DeZugferdAdapter } from './adapters/de_zugferd.adapter';
-export { MxCfdiAdapter } from './adapters/mx_cfdi.adapter';
-export { InGstAdapter } from './adapters/in_gst.adapter';
-export { buildCiiInvoiceXml } from './adapters/cii_xml';
-export { buildFatturaPaXml } from './adapters/it_fatturapa.builder';
-export { buildCfdiXml } from './adapters/mx_cfdi.builder';
-export { buildGstEInvoice } from './adapters/in_gst.builder';
-export { TrEarsivAdapter } from './adapters/tr_earsiv.adapter';
+// e-invoicing adapter implementations (FatturaPA, Peppol, e-Arşiv, …) now live in
+// their own @nb/invoice_<key> satellite modules, contributed via the
+// invoice:adapter extension point and resolved through adapters/registry above.
+// The GİB direct client stays in the host for the TR e-Arşiv SMS finalisation flow.
 export { GibDirectClient } from './adapters/tr_gib_direct.client';
-export { LogoClient } from './adapters/tr_logo.client';
-export { ForibaClient } from './adapters/tr_foriba.client';
-export { EuPeppolAdapter, getOssVatRate, validateEuVatNumber, validateEuVatNumberOnline } from './adapters/eu_peppol.adapter';
-export type { ViesValidationResult } from './adapters/eu_peppol.adapter';
-export { buildUblInvoiceXml } from './adapters/eu_ubl';
-export { UsStandardAdapter, isValidEin, isValidUsZip } from './adapters/us_standard.adapter';
-export { isValidTCKN, isValidVKN, isValidTrTaxId } from './adapters/tr_validators';
-export { TR_VAT_RATES, trVatRate } from './adapters/tr_vat_rates';

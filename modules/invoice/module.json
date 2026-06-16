@@ -29,6 +29,13 @@
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/invoice",
   "license": "CC-BY-NC-ND-4.0",
+  "extensionPoints": [
+    {
+      "id": "invoice:adapter",
+      "kind": "provider",
+      "description": "A regional/country e-invoicing adapter (UBL-TR/GİB, Peppol BIS, FatturaPA, Chorus Pro, ZUGFeRD, CFDI, GST IRP, US Stripe Tax). Satellite modules like invoice_tr_earsiv contribute their adapter here; the host's adapters/registry discovers them via the extension registry. Routing (region vs issuer-country) is carried in each contribution's metadata { kind, code }. Shared XML helpers (xml.util, cii_xml) and the InvoiceAdapter contract stay in the host."
+    }
+  ],
   "routes": [
     {
       "path": "/admin/invoices/[invoiceId]",

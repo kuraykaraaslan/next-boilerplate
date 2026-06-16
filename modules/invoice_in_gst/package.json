@@ -1,0 +1,12 @@
+{
+  "name": "@nb/invoice_in_gst",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/adapters/in_gst.adapter": "./server/adapters/in_gst.adapter.ts",
+    "./server/adapters/in_gst.builder": "./server/adapters/in_gst.builder.ts",
+    "./server/in_gst.extension": "./server/in_gst.extension.ts",
+    "./module.json": "./module.json"
+  }
+}

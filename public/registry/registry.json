@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T20:11:00.408Z",
+  "generatedAt": "2026-06-16T20:25:26.262Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -6989,35 +6989,21 @@
       ],
       "widgets": [],
       "slots": [],
-      "extensionPoints": [],
+      "extensionPoints": [
+        {
+          "id": "invoice:adapter",
+          "kind": "provider",
+          "description": "A regional/country e-invoicing adapter (UBL-TR/GİB, Peppol BIS, FatturaPA, Chorus Pro, ZUGFeRD, CFDI, GST IRP, US Stripe Tax). Satellite modules like invoice_tr_earsiv contribute their adapter here; the host's adapters/registry discovers them via the extension registry. Routing (region vs issuer-country) is carried in each contribution's metadata { kind, code }. Shared XML helpers (xml.util, cii_xml) and the InvoiceAdapter contract stay in the host."
+        }
+      ],
       "extensions": [],
       "pkgExports": [
         "./server/adapters/base.adapter",
         "./server/adapters/cii_xml",
-        "./server/adapters/de_zugferd.adapter",
-        "./server/adapters/eu_peppol.adapter",
-        "./server/adapters/eu_ubl",
-        "./server/adapters/fr_choruspro.adapter",
-        "./server/adapters/in_gst.adapter",
-        "./server/adapters/in_gst.builder",
-        "./server/adapters/it_fatturapa.adapter",
-        "./server/adapters/it_fatturapa.builder",
-        "./server/adapters/mx_cfdi.adapter",
-        "./server/adapters/mx_cfdi.builder",
+        "./server/adapters/invoice.adapter.types",
         "./server/adapters/registry",
-        "./server/adapters/tr_earsiv.adapter",
-        "./server/adapters/tr_earsiv.format",
-        "./server/adapters/tr_earsiv.portal",
-        "./server/adapters/tr_earsiv.seller",
-        "./server/adapters/tr_earsiv.submit",
-        "./server/adapters/tr_earsiv.ubl",
-        "./server/adapters/tr_foriba.client",
         "./server/adapters/tr_gib_direct.client",
         "./server/adapters/tr_gib_direct.types",
-        "./server/adapters/tr_logo.client",
-        "./server/adapters/tr_validators",
-        "./server/adapters/tr_vat_rates",
-        "./server/adapters/us_standard.adapter",
         "./server/adapters/xml.util",
         "./server/entities/invoice.entity",
         "./server/entities/invoice_line.entity",
@@ -7356,6 +7342,563 @@
       "hasModuleJson": true,
       "hasNextLayer": false,
       "readme": "# Notification Sms Module\n\nA pluggable, queue-backed outbound SMS sender (Twilio / Nexmo / Clickatell / NetGSM) with per-tenant provider credentials, region-based provider routing, phone-number validation (libphonenumber), Redis rate limiting, country allowlists, and per-tenant subscription gating + usage tracking.\n\n---\n\n## Files\n\n| File | Purpose |\n|---|---|\n| `notification_sms.service.ts` | Core: queue/send, tenant-aware provider selection, rate limiting, region routing, feature gating, usage/audit logging |\n| `notification_sms.setting.keys.ts` | Tenant-scoped setting key constants (`SMS_KEYS`) |\n| `providers/base.provider.ts` | `BaseSMSProvider` abstract contract (`sendShortMessage`, `isConfigured`) + `SMSOptions` / `SMSResult` types |\n| `providers/twilio.provider.ts` | Twilio (REST `Messages.json`) |\n| `providers/nexmo.provider.ts` | Vonage (Nexmo) (`rest.nexmo.com/sms/json`) |\n| `providers/clickatell.provider.ts` | Clickatell (`platform.clickatell.com/messages`) |\n| `providers/netgsm.provider.ts` | NetGSM (Turkey) (`api.netgsm.com.tr`) |\n\nThis module has **no entities** of its own — all persisted state lives in other modules: per-tenant credentials in the `setting` table, delivery records via `notification_log`, and usage counters via `tenant_usage`.\n\n---\n\n## Services / Responsibilities\n\n`SMSService` (default export, static class) is the single entry point.\n\n| Method | Responsibility |\n|---|---|\n| `sendShortMessage(tenantId, { to, body, provider? })` | Public send path. Validates input, asserts feature access, applies the per-recipient Redis rate limit, then enqueues a `sendShortMessage` job on the `smsQueue` BullMQ queue. Failures are caught and logged, never thrown to the caller. |\n| `sendShortMessageDirect(tenantId, { to, body, provider? })` | Synchronous send (urgent messages) — asserts feature access then calls `_sendShortMessage` inline, bypassing the queue. |\n| `assertSmsFeatureAccess(tenantId)` | Defense-in-depth billing gate: asserts the tenant's plan grants `feature_sms_send` (boolean) and is below `feature_sms_monthly_quota` (LIMIT vs `TenantUsage.smsSends`). Root tenant is short-circuited. |\n| `getProvider(tenantId, providerName?)` | Resolves a provider instance by name; if it is not `isConfigured` for the tenant, walks the `PROVIDER_MAP` fallback chain and returns the first provider that tenant has credentials for. |\n| `getProviderForRegion(tenantId, regionCode)` | Looks up the region→provider map, then delegates to `getProvider` so the actual provider is tenant-config-aware. |\n| `listProviders(tenantId)` | Returns each provider name + its `configured` state for the tenant (used by the GET route). |\n| `getRegionProviderMap()` | Returns the current region→provider map as a plain record. |\n| `parsePhoneNumber(phoneNumber)` | Parses to E.164 and extracts the region code via libphonenumber; returns `null` on failure. |\n| `isValidPhoneNumber(phoneNumber)` | Boolean validity check via libphonenumber. |\n| `isAllowedCountry(regionCode)` | Checks the region against `ALLOWED_COUNTRIES` (`env.SMS_ALLOWED_COUNTRIES`); allows all when unset. |\n| `_sendShortMessage(...)` (private) | BullMQ worker target. Re-asserts feature access, validates/parses the number, enforces the country allowlist, resolves the provider (explicit > region default > tenant fallback), sends, then records usage + audit (see below). |\n\n### Queue / Worker\n\n- Queue name: `smsQueue` (`SMSService.QUEUE`), backed by the shared BullMQ Redis connection.\n- A module-level `WORKER` consumes jobs and invokes `_sendShortMessage`; `completed` / `failed` events are logged.\n- Job payload: `{ tenantId, to, body, provider? }`.\n\n---\n\n## Providers\n\nPluggable `BaseSMSProvider` implementations. Each provider:\n\n- Resolves its credentials **per tenant** via `SettingService.getValue(tenantId, ...)`, falling back to the matching `env.*` value when a tenant has not configured the key.\n- Exposes `isConfigured(tenantId)` (used for selection/fallback) and `sendShortMessage(tenantId, options)` returning `{ success, messageId?, error? }`.\n- Caches one axios client per tenant.\n\n| Provider | `name` | Required keys (env fallback) |\n|---|---|---|\n| Twilio | `Twilio` | `twilioAccountSid`, `twilioAuthToken`, `twilioPhoneNumber` |\n| Nexmo / Vonage | `Nexmo` | `nexmoApiKey`, `nexmoApiSecret`, `nexmoPhoneNumber` |\n| Clickatell | `Clickatell` | `clickatellApiKey` |\n| NetGSM | `NetGSM` | `netgsmUserCode`, `netgsmPassword`, `netgsmPhoneNumber` (message header) |\n\n**Provider selection** is driven by `env`, not yet by tenant settings (see *Tenant Variability*):\nthe default provider comes from `env.SMS_DEFAULT_PROVIDER` (fallback `twilio`), and region routing\nfrom `env.SMS_PROVIDER_MAP` (e.g. `\"TR:netgsm,US:twilio,GB:twilio\"`; built-in defaults map TR→NetGSM,\nUS/GB/DE/FR→Twilio when unset). An explicit `provider` on the call overrides both.\n\n---\n\n## API Routes (tenant-scoped, ADMIN+)\n\n| Method | Path | Description |\n|---|---|---|\n| POST | `/tenant/[tenantId]/api/notifications/sms/send` | Send an SMS. Body: `{ to, body, provider?, direct? }`. `direct:true` sends synchronously, otherwise queued. |\n| GET | `/tenant/[tenantId]/api/notifications/sms/send` | Returns `{ providers, regionProviderMap }` for the tenant (configured state per provider). |\n\nBoth routes apply the rate limiter and require tenant-admin auth (`authenticateAdminRequest`).\n\n---\n\n## Sending an SMS\n\n```typescript\nimport SMSService from '@/modules/notification_sms/notification_sms.service';\n\n// Queue for async delivery (validates, rate-limits, and feature-gates per tenant)\nawait SMSService.sendShortMessage(tenantId, {\n  to: '+905551234567',\n  body: 'Your verification code is 123456',\n});\n\n// Send immediately, bypassing the queue (urgent messages)\nawait SMSService.sendShortMessageDirect(tenantId, {\n  to: '+905551234567',\n  body: 'Your one-time password is 987654',\n  provider: 'netgsm', // optional: force a specific provider\n});\n```\n\n---\n\n## Phone Number Validation\n\nUses Google's `libphonenumber` — numbers are parsed to E.164 (`+{countryCode}{number}`) and the region code is derived from the number. Unparseable numbers are logged and dropped before sending.\n\n---\n\n## Rate Limiting\n\nPer-recipient throttling via Redis: a key `sms:rate-limit:${to}` is set with TTL `RATE_LIMIT_SECONDS` (`env.SMS_RATE_LIMIT_SECONDS`, default `60`). While the key exists, further messages to that number are dropped (not queued). The key is currently scoped by phone number only, not by tenant.\n\n---\n\n## Country Allowlist\n\n`isAllowedCountry(regionCode)` enforces `env.SMS_ALLOWED_COUNTRIES` (comma-separated region codes). When the env var is unset/empty, all destinations are allowed.\n\n---\n\n## Usage tracking & audit\n\n`_sendShortMessage` (the BullMQ worker target) records every delivery attempt:\n\n- On `result.success === true`:\n  - `TenantUsageService.incrementSmsSends(tenantId, 1)` → updates the monthly `smsSends` quota counter.\n  - `NotificationLogService.log(tenantId, 'sms', toE164, 'sent', { provider, providerMessageId })`.\n- On provider error / `result.success === false`:\n  - `NotificationLogService.log(tenantId, 'sms', toE164, 'failed', { provider, error })`.\n\nFeature access is re-asserted at the worker boundary so a long-queued job cannot bypass gating after the tenant's plan was downgraded / cancelled.\n\n---\n\n## Settings\n\nAll keys in `SMS_KEYS` (`notification_sms.setting.keys.ts`) are **tenant-scoped** and read per tenant via `SettingService.getValue(tenantId, ...)`, with `env.*` as the out-of-the-box fallback. They are surfaced in the per-tenant SMS settings page at `/tenant/[tenantId]/admin/settings/sms` (`PlatformSmsTab`).\n\n| Key | Used by | Notes |\n|---|---|---|\n| `twilioAccountSid` / `twilioAuthToken` / `twilioPhoneNumber` | `twilio.provider.ts` | Twilio creds; fall back to `env.TWILIO_*`. |\n| `nexmoApiKey` / `nexmoApiSecret` / `nexmoPhoneNumber` | `nexmo.provider.ts` | Vonage/Nexmo creds; fall back to `env.NEXMO_*`. |\n| `clickatellApiKey` | `clickatell.provider.ts` | Clickatell bearer token; falls back to `env.CLICKATELL_API_KEY`. |\n| `netgsmUserCode` / `netgsmPassword` / `netgsmPhoneNumber` | `netgsm.provider.ts` | NetGSM creds (`netgsmPhoneNumber` is the message header/sender name); fall back to `env.NETGSM_*`. |\n| `smsProvider` / `smsEnabled` | — | Declared in `SMS_KEYS` and shown in the UI, but **not read by the backend today** (see *Tenant Variability* candidates). |\n\n---\n\n## Security\n\n- Both API routes require tenant-admin authentication and pass through the rate limiter.\n- Outbound sends are gated by the tenant subscription (`feature_sms_send` + `feature_sms_monthly_quota`); the gate is asserted on enqueue **and** re-asserted at the worker boundary.\n- Provider credentials are stored per tenant in the `setting` table (secret values: `twilioAuthToken`, `nexmoApiSecret`, `netgsmPassword`) and never returned by the send routes.\n\n---\n\n## Tenant Variability\n\n> What varies per tenant in this module — and what could. Audited 2026-06-03.\n\nA pluggable, queue-backed outbound SMS sender (Twilio/Nexmo/Clickatell/NetGSM) that is strongly per-tenant: each provider resolves its credentials from the requesting tenant's settings (env only as fallback), and sends are gated by per-tenant subscription features and monthly usage quota.\n\n### Per-tenant settings\n\n| Key | Type | Default | Scope | Controls | Read in |\n|---|---|---|---|---|---|\n| `twilioAccountSid` | string | — | tenant | Twilio Account SID used to authenticate the Twilio REST client for this tenant; falls back to env.TWILIO_ACCOUNT_SID when unset. | `twilio.provider.ts` |\n| `twilioAuthToken` | string | — | tenant | Twilio Auth Token (secret) for this tenant's Twilio account; falls back to env.TWILIO_AUTH_TOKEN. | `twilio.provider.ts` |\n| `twilioPhoneNumber` | string | — | tenant | Twilio sender/From phone number for this tenant; falls back to env.TWILIO_PHONE_NUMBER. | `twilio.provider.ts` |\n| `nexmoApiKey` | string | — | tenant | Nexmo/Vonage API key for this tenant; falls back to env.NEXMO_API_KEY. | `nexmo.provider.ts` |\n| `nexmoApiSecret` | string | — | tenant | Nexmo/Vonage API secret (secret) for this tenant; falls back to env.NEXMO_API_SECRET. | `nexmo.provider.ts` |\n| `nexmoPhoneNumber` | string | — | tenant | Nexmo/Vonage sender/From phone number for this tenant; falls back to env.NEXMO_PHONE_NUMBER. | `nexmo.provider.ts` |\n| `clickatellApiKey` | string | — | tenant | Clickatell API key (bearer token) for this tenant; falls back to env.CLICKATELL_API_KEY. | `clickatell.provider.ts` |\n| `netgsmUserCode` | string | — | tenant | NetGSM user code for this tenant; falls back to env.NETGSM_USER_CODE. | `netgsm.provider.ts` |\n| `netgsmPassword` | string | — | tenant | NetGSM password (secret) for this tenant; falls back to env.NETGSM_PASSWORD. | `netgsm.provider.ts` |\n| `netgsmPhoneNumber` | string | — | tenant | NetGSM message header / sender name (msgheader) for this tenant; falls back to env.NETGSM_PHONE_NUMBER. | `netgsm.provider.ts` |\n\n*Scope: `tenant` = real tenants override · `root` = platform-only default (not per-tenant).*\n\n### Per-tenant behavior\n\n- `twilio.provider.ts:resolveCreds/isConfigured/sendShortMessage` — Twilio credentials are resolved per tenant via SettingService.getValue(tenantId, ...); each tenant authenticates to its own Twilio account, and isConfigured(tenantId) determines whether Twilio is usable for that tenant (else env fallback). Same pattern in nexmo/clickatell/netgsm providers.\n- `notification_sms.service.ts:getProvider` — Provider selection is tenant-aware: if the requested/default provider is not configured for the tenant (isConfigured(tenantId) false), it walks the PROVIDER_MAP fallback chain and picks the first provider that tenant has credentials for.\n- `notification_sms.service.ts:getProviderForRegion` — Per-region default provider is resolved against the per-tenant configured state (delegates to getProvider(tenantId,...)), so the actual provider used for a given country can differ per tenant based on which providers that tenant has configured.\n- `notification_sms.service.ts:assertSmsFeatureAccess` — Outbound SMS is gated per tenant by the subscription feature feature_sms_send (boolean) and feature_sms_monthly_quota (limit) compared against that tenant's TenantUsage.smsSends; root tenant is short-circuited (ungated).\n- `notification_sms.service.ts:_sendShortMessage` — On success increments per-tenant usage (TenantUsageService.incrementSmsSends(tenantId,1)) and writes a per-tenant NotificationLog entry (sent/failed) tagged with provider and provider message id; gating is re-asserted at the worker boundary with the job's tenantId.\n\n### Candidates (global / hardcoded today → could be per-tenant)\n\n| What | Where | Why per-tenant | Suggested key |\n|---|---|---|---|\n| Tenant-selected SMS provider and the SMS-enabled toggle are never read by the backend. 'smsProvider' and 'smsEnabled' are declared in the keys file and exposed in the per-tenant SMS settings UI (app/.../settings/sms/page.tsx -> PlatformSmsTab), but no service/provider ever calls SettingService.getValue(tenantId,'smsProvider') or 'smsEnabled'. | `notification_sms.service.ts (getProvider / getProviderForRegion / DEFAULT_PROVIDER_NAME)` | A tenant admin who picks a provider or disables SMS in the UI has no effect: the worker still chooses providers via the global env-driven DEFAULT_PROVIDER_NAME and REGION_PROVIDER_MAP and never checks a tenant enable flag. The tenant's stored choice should drive getProvider() and an early opt-out gate. | `smsProvider` |\n| Default provider is global, sourced only from env.SMS_DEFAULT_PROVIDER (fallback 'twilio') as a static readonly field. | `notification_sms.service.ts:DEFAULT_PROVIDER_NAME` | Each tenant configures different providers (per-tenant creds already exist), yet the default provider when none is specified is a single platform-wide value rather than the tenant's chosen 'smsProvider'. Should fall back to the per-tenant smsProvider setting before the env default. | `smsProvider` |\n| Region-to-provider routing map is global and built once at class load from env.SMS_PROVIDER_MAP (REGION_PROVIDER_MAP), not resolved per tenant. | `notification_sms.service.ts:buildRegionProviderMap / REGION_PROVIDER_MAP` | Routing which provider serves which country is a plausible per-tenant policy (a tenant may want NetGSM for TR but its own Twilio elsewhere), but it is a single static map shared by all tenants. Could be a per-tenant JSON setting overriding the env default. | `smsRegionProviderMap` |\n| Per-recipient send rate limit is a single global env value (RATE_LIMIT_SECONDS from env.SMS_RATE_LIMIT_SECONDS, default 60) and the rate-limit Redis key is keyed only by phone number, not by tenant. | `notification_sms.service.ts:RATE_LIMIT_SECONDS / sendShortMessage (rateLimitKey = `sms:rate-limit:${to}`)` | The throttle window is identical for every tenant and, because the key omits tenantId, two tenants messaging the same number share one limit (cross-tenant interference). A per-tenant rate window and tenant-scoped key would make throttling configurable and isolated. | `smsRateLimitSeconds` |\n| Allowed-country allowlist is global, derived from env.SMS_ALLOWED_COUNTRIES and applied uniformly in isAllowedCountry(). | `notification_sms.service.ts:ALLOWED_COUNTRIES / isAllowedCountry` | Which destination countries a tenant may send to is a plausible per-tenant compliance/cost policy, but it is a single platform-wide allowlist applied to all tenants. Could be a per-tenant override setting. | `smsAllowedCountries` |\n\n---\n\n## Dependencies\n\n- `redis`, `env`, `setting` (declared in `module.json`)\n- `tenant_subscription` (feature gating), `tenant_usage` (quota counter), `notification_log` (audit), `tenant` (root-tenant check)\n- `bullmq` + the shared BullMQ Redis connection (`@/modules/redis/redis.bullmq`)\n- `google-libphonenumber` (phone parsing/validation), `axios` / `qs` / `form-data` (provider HTTP)\n"
+    },
+    {
+      "id": "invoice_de_zugferd",
+      "name": "ZUGFeRD (DE) e-Invoicing",
+      "version": "1.0.0",
+      "description": "ZUGFeRD (DE) e-invoicing adapter, contributed into the invoice:adapter extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/invoice_de_zugferd",
+      "dir": "modules/invoice_de_zugferd",
+      "icon": "fas fa-file-invoice",
+      "tags": [
+        "invoice",
+        "billing",
+        "compliance",
+        "tax",
+        "adapter"
+      ],
+      "priority": 31,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "invoice",
+          "setting",
+          "logger",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "invoice:adapter",
+          "key": "de_zugferd",
+          "export": "invoice_de_zugferd/server/de_zugferd.extension",
+          "metadata": {
+            "kind": "country",
+            "code": "DE",
+            "label": "ZUGFeRD (DE)"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/adapters/de_zugferd.adapter",
+        "./server/de_zugferd.extension",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": ""
+    },
+    {
+      "id": "invoice_eu_peppol",
+      "name": "Peppol BIS (EU) e-Invoicing",
+      "version": "1.0.0",
+      "description": "Peppol BIS (EU) e-invoicing adapter, contributed into the invoice:adapter extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/invoice_eu_peppol",
+      "dir": "modules/invoice_eu_peppol",
+      "icon": "fas fa-file-invoice",
+      "tags": [
+        "invoice",
+        "billing",
+        "compliance",
+        "tax",
+        "adapter"
+      ],
+      "priority": 31,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "invoice",
+          "setting",
+          "logger",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "invoice:adapter",
+          "key": "eu_peppol",
+          "export": "invoice_eu_peppol/server/eu_peppol.extension",
+          "metadata": {
+            "kind": "region",
+            "code": "EU",
+            "label": "Peppol BIS (EU)"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/adapters/eu_peppol.adapter",
+        "./server/adapters/eu_ubl",
+        "./server/eu_peppol.extension",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": ""
+    },
+    {
+      "id": "invoice_fr_choruspro",
+      "name": "Chorus Pro (FR) e-Invoicing",
+      "version": "1.0.0",
+      "description": "Chorus Pro (FR) e-invoicing adapter, contributed into the invoice:adapter extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/invoice_fr_choruspro",
+      "dir": "modules/invoice_fr_choruspro",
+      "icon": "fas fa-file-invoice",
+      "tags": [
+        "invoice",
+        "billing",
+        "compliance",
+        "tax",
+        "adapter"
+      ],
+      "priority": 31,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "invoice",
+          "setting",
+          "logger",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "invoice:adapter",
+          "key": "fr_choruspro",
+          "export": "invoice_fr_choruspro/server/fr_choruspro.extension",
+          "metadata": {
+            "kind": "country",
+            "code": "FR",
+            "label": "Chorus Pro (FR)"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/adapters/fr_choruspro.adapter",
+        "./server/fr_choruspro.extension",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": ""
+    },
+    {
+      "id": "invoice_in_gst",
+      "name": "GST IRP (IN) e-Invoicing",
+      "version": "1.0.0",
+      "description": "GST IRP (IN) e-invoicing adapter, contributed into the invoice:adapter extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/invoice_in_gst",
+      "dir": "modules/invoice_in_gst",
+      "icon": "fas fa-file-invoice",
+      "tags": [
+        "invoice",
+        "billing",
+        "compliance",
+        "tax",
+        "adapter"
+      ],
+      "priority": 31,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "invoice",
+          "setting",
+          "logger",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "invoice:adapter",
+          "key": "in_gst",
+          "export": "invoice_in_gst/server/in_gst.extension",
+          "metadata": {
+            "kind": "country",
+            "code": "IN",
+            "label": "GST IRP (IN)"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/adapters/in_gst.adapter",
+        "./server/adapters/in_gst.builder",
+        "./server/in_gst.extension",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": ""
+    },
+    {
+      "id": "invoice_it_fatturapa",
+      "name": "FatturaPA (IT) e-Invoicing",
+      "version": "1.0.0",
+      "description": "FatturaPA (IT) e-invoicing adapter, contributed into the invoice:adapter extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/invoice_it_fatturapa",
+      "dir": "modules/invoice_it_fatturapa",
+      "icon": "fas fa-file-invoice",
+      "tags": [
+        "invoice",
+        "billing",
+        "compliance",
+        "tax",
+        "adapter"
+      ],
+      "priority": 31,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "invoice",
+          "setting",
+          "logger",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "invoice:adapter",
+          "key": "it_fatturapa",
+          "export": "invoice_it_fatturapa/server/it_fatturapa.extension",
+          "metadata": {
+            "kind": "country",
+            "code": "IT",
+            "label": "FatturaPA (IT)"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/adapters/it_fatturapa.adapter",
+        "./server/adapters/it_fatturapa.builder",
+        "./server/it_fatturapa.extension",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": ""
+    },
+    {
+      "id": "invoice_mx_cfdi",
+      "name": "CFDI (MX) e-Invoicing",
+      "version": "1.0.0",
+      "description": "CFDI (MX) e-invoicing adapter, contributed into the invoice:adapter extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/invoice_mx_cfdi",
+      "dir": "modules/invoice_mx_cfdi",
+      "icon": "fas fa-file-invoice",
+      "tags": [
+        "invoice",
+        "billing",
+        "compliance",
+        "tax",
+        "adapter"
+      ],
+      "priority": 31,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "invoice",
+          "setting",
+          "logger",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "invoice:adapter",
+          "key": "mx_cfdi",
+          "export": "invoice_mx_cfdi/server/mx_cfdi.extension",
+          "metadata": {
+            "kind": "country",
+            "code": "MX",
+            "label": "CFDI (MX)"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/adapters/mx_cfdi.adapter",
+        "./server/adapters/mx_cfdi.builder",
+        "./server/mx_cfdi.extension",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": ""
+    },
+    {
+      "id": "invoice_tr_earsiv",
+      "name": "e-Arşiv (TR) e-Invoicing",
+      "version": "1.0.0",
+      "description": "e-Arşiv (TR) e-invoicing adapter, contributed into the invoice:adapter extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/invoice_tr_earsiv",
+      "dir": "modules/invoice_tr_earsiv",
+      "icon": "fas fa-file-invoice",
+      "tags": [
+        "invoice",
+        "billing",
+        "compliance",
+        "tax",
+        "adapter"
+      ],
+      "priority": 31,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "invoice",
+          "setting",
+          "logger",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "invoice:adapter",
+          "key": "tr_earsiv",
+          "export": "invoice_tr_earsiv/server/tr_earsiv.extension",
+          "metadata": {
+            "kind": "region",
+            "code": "TR",
+            "label": "e-Arşiv (TR)"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/adapters/tr_earsiv.adapter",
+        "./server/adapters/tr_earsiv.format",
+        "./server/adapters/tr_earsiv.portal",
+        "./server/adapters/tr_earsiv.seller",
+        "./server/adapters/tr_earsiv.submit",
+        "./server/adapters/tr_earsiv.ubl",
+        "./server/adapters/tr_foriba.client",
+        "./server/adapters/tr_logo.client",
+        "./server/adapters/tr_validators",
+        "./server/adapters/tr_vat_rates",
+        "./server/tr_earsiv.extension",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": ""
+    },
+    {
+      "id": "invoice_us_standard",
+      "name": "US Standard (Stripe Tax) e-Invoicing",
+      "version": "1.0.0",
+      "description": "US Standard (Stripe Tax) e-invoicing adapter, contributed into the invoice:adapter extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/invoice_us_standard",
+      "dir": "modules/invoice_us_standard",
+      "icon": "fas fa-file-invoice",
+      "tags": [
+        "invoice",
+        "billing",
+        "compliance",
+        "tax",
+        "adapter"
+      ],
+      "priority": 31,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "invoice",
+          "setting",
+          "logger",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "invoice:adapter",
+          "key": "us_standard",
+          "export": "invoice_us_standard/server/us_standard.extension",
+          "metadata": {
+            "kind": "region",
+            "code": "US",
+            "label": "US Standard (Stripe Tax)"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/adapters/us_standard.adapter",
+        "./server/us_standard.extension",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": ""
     },
     {
       "id": "mail_smtp",

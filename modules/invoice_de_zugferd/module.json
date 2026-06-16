@@ -1,0 +1,39 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "invoice_de_zugferd",
+  "name": "ZUGFeRD (DE) e-Invoicing",
+  "description": "ZUGFeRD (DE) e-invoicing adapter, contributed into the invoice:adapter extension point.",
+  "version": "1.0.0",
+  "icon": "fas fa-file-invoice",
+  "tags": [
+    "invoice",
+    "billing",
+    "compliance",
+    "tax",
+    "adapter"
+  ],
+  "priority": 31,
+  "dependencies": {
+    "requires": [
+      "invoice",
+      "setting",
+      "logger",
+      "common"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/invoice_de_zugferd",
+  "license": "CC-BY-NC-ND-4.0",
+  "extensions": [
+    {
+      "point": "invoice:adapter",
+      "key": "de_zugferd",
+      "export": "invoice_de_zugferd/server/de_zugferd.extension",
+      "metadata": {
+        "kind": "country",
+        "code": "DE",
+        "label": "ZUGFeRD (DE)"
+      }
+    }
+  ]
+}

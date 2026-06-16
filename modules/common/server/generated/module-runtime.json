@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-16T20:11:00.408Z",
+  "generatedAt": "2026-06-16T20:25:26.262Z",
   "menu": [
     {
       "id": "settings",
@@ -2337,6 +2337,12 @@
       "moduleId": "e_signature"
     },
     {
+      "id": "invoice:adapter",
+      "kind": "provider",
+      "description": "A regional/country e-invoicing adapter (UBL-TR/GİB, Peppol BIS, FatturaPA, Chorus Pro, ZUGFeRD, CFDI, GST IRP, US Stripe Tax). Satellite modules like invoice_tr_earsiv contribute their adapter here; the host's adapters/registry discovers them via the extension registry. Routing (region vs issuer-country) is carried in each contribution's metadata { kind, code }. Shared XML helpers (xml.util, cii_xml) and the InvoiceAdapter contract stay in the host.",
+      "moduleId": "invoice"
+    },
+    {
       "id": "mail:provider",
       "kind": "provider",
       "description": "An email sending backend. Satellite modules like mail_smtp contribute their implementation here.",
@@ -2885,6 +2891,126 @@
           "LV",
           "LT"
         ]
+      }
+    },
+    {
+      "id": "invoice_de_zugferd:invoice:adapter:de_zugferd",
+      "point": "invoice:adapter",
+      "moduleId": "invoice_de_zugferd",
+      "key": "de_zugferd",
+      "exportId": "invoice_de_zugferd/server/de_zugferd.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "kind": "country",
+        "code": "DE",
+        "label": "ZUGFeRD (DE)"
+      }
+    },
+    {
+      "id": "invoice_eu_peppol:invoice:adapter:eu_peppol",
+      "point": "invoice:adapter",
+      "moduleId": "invoice_eu_peppol",
+      "key": "eu_peppol",
+      "exportId": "invoice_eu_peppol/server/eu_peppol.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "kind": "region",
+        "code": "EU",
+        "label": "Peppol BIS (EU)"
+      }
+    },
+    {
+      "id": "invoice_fr_choruspro:invoice:adapter:fr_choruspro",
+      "point": "invoice:adapter",
+      "moduleId": "invoice_fr_choruspro",
+      "key": "fr_choruspro",
+      "exportId": "invoice_fr_choruspro/server/fr_choruspro.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "kind": "country",
+        "code": "FR",
+        "label": "Chorus Pro (FR)"
+      }
+    },
+    {
+      "id": "invoice_in_gst:invoice:adapter:in_gst",
+      "point": "invoice:adapter",
+      "moduleId": "invoice_in_gst",
+      "key": "in_gst",
+      "exportId": "invoice_in_gst/server/in_gst.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "kind": "country",
+        "code": "IN",
+        "label": "GST IRP (IN)"
+      }
+    },
+    {
+      "id": "invoice_it_fatturapa:invoice:adapter:it_fatturapa",
+      "point": "invoice:adapter",
+      "moduleId": "invoice_it_fatturapa",
+      "key": "it_fatturapa",
+      "exportId": "invoice_it_fatturapa/server/it_fatturapa.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "kind": "country",
+        "code": "IT",
+        "label": "FatturaPA (IT)"
+      }
+    },
+    {
+      "id": "invoice_mx_cfdi:invoice:adapter:mx_cfdi",
+      "point": "invoice:adapter",
+      "moduleId": "invoice_mx_cfdi",
+      "key": "mx_cfdi",
+      "exportId": "invoice_mx_cfdi/server/mx_cfdi.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "kind": "country",
+        "code": "MX",
+        "label": "CFDI (MX)"
+      }
+    },
+    {
+      "id": "invoice_tr_earsiv:invoice:adapter:tr_earsiv",
+      "point": "invoice:adapter",
+      "moduleId": "invoice_tr_earsiv",
+      "key": "tr_earsiv",
+      "exportId": "invoice_tr_earsiv/server/tr_earsiv.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "kind": "region",
+        "code": "TR",
+        "label": "e-Arşiv (TR)"
+      }
+    },
+    {
+      "id": "invoice_us_standard:invoice:adapter:us_standard",
+      "point": "invoice:adapter",
+      "moduleId": "invoice_us_standard",
+      "key": "us_standard",
+      "exportId": "invoice_us_standard/server/us_standard.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "kind": "region",
+        "code": "US",
+        "label": "US Standard (Stripe Tax)"
       }
     },
     {
@@ -4325,6 +4451,166 @@
         "tax"
       ],
       "priority": 30,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "invoice_de_zugferd",
+      "name": "ZUGFeRD (DE) e-Invoicing",
+      "icon": "fas fa-file-invoice",
+      "version": "1.0.0",
+      "description": "ZUGFeRD (DE) e-invoicing adapter, contributed into the invoice:adapter extension point.",
+      "author": "Kuray Karaaslan",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/invoice_de_zugferd",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "invoice",
+        "billing",
+        "compliance",
+        "tax",
+        "adapter"
+      ],
+      "priority": 31,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "invoice_eu_peppol",
+      "name": "Peppol BIS (EU) e-Invoicing",
+      "icon": "fas fa-file-invoice",
+      "version": "1.0.0",
+      "description": "Peppol BIS (EU) e-invoicing adapter, contributed into the invoice:adapter extension point.",
+      "author": "Kuray Karaaslan",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/invoice_eu_peppol",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "invoice",
+        "billing",
+        "compliance",
+        "tax",
+        "adapter"
+      ],
+      "priority": 31,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "invoice_fr_choruspro",
+      "name": "Chorus Pro (FR) e-Invoicing",
+      "icon": "fas fa-file-invoice",
+      "version": "1.0.0",
+      "description": "Chorus Pro (FR) e-invoicing adapter, contributed into the invoice:adapter extension point.",
+      "author": "Kuray Karaaslan",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/invoice_fr_choruspro",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "invoice",
+        "billing",
+        "compliance",
+        "tax",
+        "adapter"
+      ],
+      "priority": 31,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "invoice_in_gst",
+      "name": "GST IRP (IN) e-Invoicing",
+      "icon": "fas fa-file-invoice",
+      "version": "1.0.0",
+      "description": "GST IRP (IN) e-invoicing adapter, contributed into the invoice:adapter extension point.",
+      "author": "Kuray Karaaslan",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/invoice_in_gst",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "invoice",
+        "billing",
+        "compliance",
+        "tax",
+        "adapter"
+      ],
+      "priority": 31,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "invoice_it_fatturapa",
+      "name": "FatturaPA (IT) e-Invoicing",
+      "icon": "fas fa-file-invoice",
+      "version": "1.0.0",
+      "description": "FatturaPA (IT) e-invoicing adapter, contributed into the invoice:adapter extension point.",
+      "author": "Kuray Karaaslan",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/invoice_it_fatturapa",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "invoice",
+        "billing",
+        "compliance",
+        "tax",
+        "adapter"
+      ],
+      "priority": 31,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "invoice_mx_cfdi",
+      "name": "CFDI (MX) e-Invoicing",
+      "icon": "fas fa-file-invoice",
+      "version": "1.0.0",
+      "description": "CFDI (MX) e-invoicing adapter, contributed into the invoice:adapter extension point.",
+      "author": "Kuray Karaaslan",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/invoice_mx_cfdi",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "invoice",
+        "billing",
+        "compliance",
+        "tax",
+        "adapter"
+      ],
+      "priority": 31,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "invoice_tr_earsiv",
+      "name": "e-Arşiv (TR) e-Invoicing",
+      "icon": "fas fa-file-invoice",
+      "version": "1.0.0",
+      "description": "e-Arşiv (TR) e-invoicing adapter, contributed into the invoice:adapter extension point.",
+      "author": "Kuray Karaaslan",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/invoice_tr_earsiv",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "invoice",
+        "billing",
+        "compliance",
+        "tax",
+        "adapter"
+      ],
+      "priority": 31,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "invoice_us_standard",
+      "name": "US Standard (Stripe Tax) e-Invoicing",
+      "icon": "fas fa-file-invoice",
+      "version": "1.0.0",
+      "description": "US Standard (Stripe Tax) e-invoicing adapter, contributed into the invoice:adapter extension point.",
+      "author": "Kuray Karaaslan",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/invoice_us_standard",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "invoice",
+        "billing",
+        "compliance",
+        "tax",
+        "adapter"
+      ],
+      "priority": 31,
       "enabled": true,
       "tier": "other"
     },
