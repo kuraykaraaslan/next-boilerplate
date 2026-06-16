@@ -37,5 +37,23 @@
   },
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs",
-  "license": "CC-BY-NC-ND-4.0"
+  "license": "CC-BY-NC-ND-4.0",
+  "apiRoutes": [
+    {
+      "path": "/api/auth/acs",
+      "handler": "auth_acs/server/acs.route"
+    },
+    {
+      "path": "/api/auth/acs/[provider]/initiate",
+      "handler": "auth_acs/server/acs-provider-initiate.route"
+    },
+    {
+      "path": "/api/auth/acs/[provider]/metadata",
+      "handler": "auth_acs/server/acs-provider-metadata.route"
+    },
+    {
+      "path": "/api/auth/acs/[provider]/callback",
+      "handler": "auth_acs/server/acs-provider-callback.route"
+    }
+  ]
 }

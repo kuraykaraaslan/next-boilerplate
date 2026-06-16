@@ -52,10 +52,6 @@ Credential auth: login, register, password reset, email verify, OTP, TOTP. Coord
 
 ## Owned API routes
 
-- `system` GET `/api/auth/acs`
-- `system` GET/POST `/api/auth/acs/[provider]/callback`
-- `system` GET `/api/auth/acs/[provider]/initiate`
-- `system` GET `/api/auth/acs/[provider]/metadata`
 - `tenant` GET `/tenant/[tenantId]/api/auth/me/notifications/stream`
 
 ## TypeORM entities

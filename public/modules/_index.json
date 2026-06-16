@@ -266,7 +266,7 @@
       "core"
     ],
     "hasNextLayer": true,
-    "routeCount": 5,
+    "routeCount": 1,
     "entityCount": 1,
     "componentCount": 14,
     "file": "auth.md"

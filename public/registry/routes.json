@@ -1,49 +1,8 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T11:07:33.357Z",
+  "generatedAt": "2026-06-16T11:12:55.591Z",
   "routes": [
-    {
-      "filePath": "app/api/auth/acs/route.ts",
-      "scope": "system",
-      "urlPath": "/api/auth/acs",
-      "methods": [
-        "GET"
-      ],
-      "module": "auth",
-      "dynamic": false
-    },
-    {
-      "filePath": "app/api/auth/acs/[provider]/callback/route.ts",
-      "scope": "system",
-      "urlPath": "/api/auth/acs/[provider]/callback",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/api/auth/acs/[provider]/initiate/route.ts",
-      "scope": "system",
-      "urlPath": "/api/auth/acs/[provider]/initiate",
-      "methods": [
-        "GET"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/api/auth/acs/[provider]/metadata/route.ts",
-      "scope": "system",
-      "urlPath": "/api/auth/acs/[provider]/metadata",
-      "methods": [
-        "GET"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
     {
       "filePath": "app/internal/api/caddy-ask/route.ts",
       "scope": "system",

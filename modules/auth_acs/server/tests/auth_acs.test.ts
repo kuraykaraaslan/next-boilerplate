@@ -42,14 +42,14 @@ describe('auth_acs config resolution', () => {
     const c = AuthAcsConfigService.resolveConfig('tr_edevlet');
     expect(c.protocol).toBe('saml');
     expect(c.attrNationalId).toBe('tckn');
-    expect(c.spEntityId).toBe('https://app.test/api/auth/acs/tr_edevlet/metadata');
+    expect(c.spEntityId).toBe('https://app.test/tenant/00000000-0000-4000-8000-000000000000/api/auth/acs/tr_edevlet/metadata');
   });
 
   it('enables an OIDC provider only when auth/token URL + clientId are present', () => {
     expect(AuthAcsConfigService.isEnabled('uz_oneid')).toBe(true);
     const c = AuthAcsConfigService.resolveConfig('uz_oneid');
     expect(c.protocol).toBe('oidc');
-    expect(c.redirectUri).toBe('https://app.test/api/auth/acs/uz_oneid/callback');
+    expect(c.redirectUri).toBe('https://app.test/tenant/00000000-0000-4000-8000-000000000000/api/auth/acs/uz_oneid/callback');
   });
 
   it('treats enabled:false as disabled even with defaults present', () => {

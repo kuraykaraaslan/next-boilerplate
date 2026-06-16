@@ -4,6 +4,10 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./server/acs-provider-callback.route": "./server/acs-provider-callback.route.ts",
+    "./server/acs-provider-initiate.route": "./server/acs-provider-initiate.route.ts",
+    "./server/acs-provider-metadata.route": "./server/acs-provider-metadata.route.ts",
+    "./server/acs.route": "./server/acs.route.ts",
     "./server/auth_acs.config.service": "./server/auth_acs.config.service.ts",
     "./server/auth_acs.config": "./server/auth_acs.config.ts",
     "./server/auth_acs.enums": "./server/auth_acs.enums.ts",

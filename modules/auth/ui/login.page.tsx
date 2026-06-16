@@ -37,7 +37,7 @@ export default function TenantLoginPage({ params }: { params: Promise<{ tenantId
       .then((res) => setSsoProviders((res.data?.providers ?? []) as OAuthProvider[]))
       .catch(() => setSsoProviders([]));
 
-    api.get(`/api/auth/acs`)
+    api.get(`/tenant/${tenantId}/api/auth/acs`)
       .then((res) => setAcsProviders((res.data?.providers ?? []) as { provider: string; label: string }[]))
       .catch(() => setAcsProviders([]));
 
@@ -115,7 +115,7 @@ export default function TenantLoginPage({ params }: { params: Promise<{ tenantId
                   <button
                     key={p.provider}
                     type="button"
-                    onClick={() => { window.location.href = `/api/auth/acs/${p.provider}/initiate?tenantId=${encodeURIComponent(tenantId)}`; }}
+                    onClick={() => { window.location.href = `/tenant/${tenantId}/api/auth/acs/${p.provider}/initiate?tenantId=${encodeURIComponent(tenantId)}`; }}
                     className="w-full rounded-lg border border-border bg-surface px-4 py-2.5 text-sm font-medium text-text-primary hover:bg-surface-raised transition-colors"
                   >
                     {p.label}

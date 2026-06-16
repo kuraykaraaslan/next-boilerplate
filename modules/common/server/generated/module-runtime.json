@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-16T11:07:33.357Z",
+  "generatedAt": "2026-06-16T11:12:55.591Z",
   "menu": [
     {
       "id": "settings",
@@ -1099,6 +1099,26 @@
       "path": "/api/auth",
       "handlerId": "auth/server/auth.route",
       "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/acs",
+      "handlerId": "auth_acs/server/acs.route",
+      "moduleId": "auth_acs"
+    },
+    {
+      "path": "/api/auth/acs/[provider]/callback",
+      "handlerId": "auth_acs/server/acs-provider-callback.route",
+      "moduleId": "auth_acs"
+    },
+    {
+      "path": "/api/auth/acs/[provider]/initiate",
+      "handlerId": "auth_acs/server/acs-provider-initiate.route",
+      "moduleId": "auth_acs"
+    },
+    {
+      "path": "/api/auth/acs/[provider]/metadata",
+      "handlerId": "auth_acs/server/acs-provider-metadata.route",
+      "moduleId": "auth_acs"
     },
     {
       "path": "/api/auth/callback",

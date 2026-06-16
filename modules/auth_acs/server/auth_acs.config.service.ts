@@ -5,8 +5,13 @@ import { AcsProviderEnum, type AcsProvider } from './auth_acs.enums';
 import { ACS_CATALOG } from './auth_acs.config';
 import { AcsProviderMapSchema, type AcsResolvedConfig, type AcsProviderEnvEntry } from './auth_acs.types';
 import AcsMessages from './auth_acs.messages';
+import { ROOT_TENANT_ID } from '@nb/tenant/server/tenant.constants';
 
 const APP_HOST = env.APPLICATION_HOST || 'http://localhost:3000';
+// ACS endpoints are served by the tenant API dispatcher under the root tenant
+// (one fixed callback URL per provider; the real tenant is resolved from the
+// auth state, not the path).
+const ACS_BASE = `${APP_HOST}/tenant/${ROOT_TENANT_ID}/api/auth/acs`;
 
 /**
  * Resolves per-provider runtime config by merging the static catalog defaults
@@ -119,12 +124,12 @@ export default class AuthAcsConfigService {
 
   // ── URLs (platform-level; provider segment gives each a unique fixed ACS) ────
   static callbackUrl(provider: AcsProvider): string {
-    return `${APP_HOST}/api/auth/acs/${provider}/callback`;
+    return `${ACS_BASE}/${provider}/callback`;
   }
   static spEntityId(provider: AcsProvider): string {
-    return `${APP_HOST}/api/auth/acs/${provider}/metadata`;
+    return `${ACS_BASE}/${provider}/metadata`;
   }
   static metadataUrl(provider: AcsProvider): string {
-    return `${APP_HOST}/api/auth/acs/${provider}/metadata`;
+    return `${ACS_BASE}/${provider}/metadata`;
   }
 }
