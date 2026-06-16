@@ -20,11 +20,11 @@
     "./server/providers/openai.helpers": "./server/providers/openai.helpers.ts",
     "./server/providers/openai.provider": "./server/providers/openai.provider.ts",
     "./server/providers/openai.transport": "./server/providers/openai.transport.ts",
-    "./ui/AIChatBox": "./ui/AIChatBox.tsx",
-    "./ui/AIUsageTab": "./ui/AIUsageTab.tsx",
-    "./ui/AiAdminPage": "./ui/AiAdminPage.tsx",
-    "./ui/AiSettingsPage": "./ui/AiSettingsPage.tsx",
-    "./ui/UsageChart": "./ui/UsageChart.tsx",
+    "./ui/ai-chat-box.component": "./ui/ai-chat-box.component.tsx",
+    "./ui/ai.page": "./ui/ai.page.tsx",
+    "./ui/settings.page": "./ui/settings.page.tsx",
+    "./ui/usage-chart.component": "./ui/usage-chart.component.tsx",
+    "./ui/usage-tab.component": "./ui/usage-tab.component.tsx",
     "./module.json": "./module.json"
   },
   "peerDependencies": {

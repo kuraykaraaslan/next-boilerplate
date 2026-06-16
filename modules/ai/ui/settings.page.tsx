@@ -4,9 +4,9 @@ import { PlatformAiTab } from '@nb/setting/ui/PlatformSettingsTabs';
 
 /**
  * AI settings page. Served by the catch-all dynamic admin route via the ai
- * module's manifest `routes` entry (component id `ai/ui/AiSettingsPage`).
+ * module's manifest `routes` entry (component id `ai/ui/settings.page`).
  */
-export function AiSettingsPage({ tenantId }: { tenantId: string }) {
+export default function AiSettingsPage({ tenantId }: { tenantId: string }) {
   return (
     <SettingsPanelHost
       tenantId={tenantId}

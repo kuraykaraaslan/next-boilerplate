@@ -1,24 +1,12 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T08:35:38.155Z",
+  "generatedAt": "2026-06-16T08:46:44.563Z",
   "components": [
     {
-      "id": "ai/ui/AiAdminPage",
+      "id": "ai/ui/ai-chat-box.component",
       "module": "ai",
-      "filePath": "modules/ai/ui/AiAdminPage.tsx",
-      "kind": "ui",
-      "exports": [
-        "AiAdminPage"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "AiAdminPage"
-    },
-    {
-      "id": "ai/ui/AIChatBox",
-      "module": "ai",
-      "filePath": "modules/ai/ui/AIChatBox.tsx",
+      "filePath": "modules/ai/ui/ai-chat-box.component.tsx",
       "kind": "ui",
       "exports": [
         "ChatMessage",
@@ -26,41 +14,49 @@
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "AIChatBox"
+      "baseName": "ai-chat-box.component"
     },
     {
-      "id": "ai/ui/AiSettingsPage",
+      "id": "ai/ui/ai.page",
       "module": "ai",
-      "filePath": "modules/ai/ui/AiSettingsPage.tsx",
+      "filePath": "modules/ai/ui/ai.page.tsx",
       "kind": "ui",
-      "exports": [
-        "AiSettingsPage"
-      ],
+      "exports": [],
       "isClient": true,
       "isServer": false,
-      "baseName": "AiSettingsPage"
+      "baseName": "ai.page"
     },
     {
-      "id": "ai/ui/AIUsageTab",
+      "id": "ai/ui/settings.page",
       "module": "ai",
-      "filePath": "modules/ai/ui/AIUsageTab.tsx",
+      "filePath": "modules/ai/ui/settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "settings.page"
+    },
+    {
+      "id": "ai/ui/usage-chart.component",
+      "module": "ai",
+      "filePath": "modules/ai/ui/usage-chart.component.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "usage-chart.component"
+    },
+    {
+      "id": "ai/ui/usage-tab.component",
+      "module": "ai",
+      "filePath": "modules/ai/ui/usage-tab.component.tsx",
       "kind": "ui",
       "exports": [
         "AIUsageTab"
       ],
       "isClient": true,
       "isServer": false,
-      "baseName": "AIUsageTab"
-    },
-    {
-      "id": "ai/ui/UsageChart",
-      "module": "ai",
-      "filePath": "modules/ai/ui/UsageChart.tsx",
-      "kind": "ui",
-      "exports": [],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "UsageChart"
+      "baseName": "usage-tab.component"
     },
     {
       "id": "api_doc/ui/ApiDocsPage",

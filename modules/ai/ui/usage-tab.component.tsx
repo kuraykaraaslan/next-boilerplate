@@ -9,7 +9,7 @@ import { cn } from '@nb/common/server/utils/cn';
 
 // chart.js + react-chartjs-2 are heavy and only needed once this tab paints a
 // chart — code-split them out of the admin bundle.
-const UsageChart = dynamic(() => import('./UsageChart'), {
+const UsageChart = dynamic(() => import('./usage-chart.component'), {
   ssr: false,
   loading: () => <div className="h-64 rounded bg-surface-sunken animate-pulse" />,
 });

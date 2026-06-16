@@ -47,11 +47,11 @@ Pluggable AI providers (Anthropic, OpenAI, Google). Chat, embeddings, streaming,
 
 ## Next layer (modules_next/) surface
 
-- `ai/ui/AiAdminPage` _(ui, client)_
-- `ai/ui/AIChatBox` _(ui, client)_
-- `ai/ui/AiSettingsPage` _(ui, client)_
-- `ai/ui/AIUsageTab` _(ui, client)_
-- `ai/ui/UsageChart` _(ui, client)_
+- `ai/ui/ai-chat-box.component` _(ui, client)_
+- `ai/ui/ai.page` _(ui, client)_
+- `ai/ui/settings.page` _(ui, client)_
+- `ai/ui/usage-chart.component` _(ui, client)_
+- `ai/ui/usage-tab.component` _(ui, client)_
 
 ## README
 

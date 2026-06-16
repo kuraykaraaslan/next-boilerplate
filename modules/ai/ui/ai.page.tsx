@@ -6,8 +6,8 @@ import { Card } from '@nb/common/ui/Card';
 import { Spinner } from '@nb/common/ui/Spinner';
 import { AlertBanner } from '@nb/common/ui/AlertBanner';
 import { TabGroup } from '@nb/common/ui/TabGroup';
-import { AIChatBox } from '@nb/ai/ui/AIChatBox';
-import { AIUsageTab } from '@nb/ai/ui/AIUsageTab';
+import { AIChatBox } from '@nb/ai/ui/ai-chat-box.component';
+import { AIUsageTab } from '@nb/ai/ui/usage-tab.component';
 import { Badge } from '@nb/common/ui/Badge';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faServer, faGear } from '@fortawesome/free-solid-svg-icons';
@@ -18,10 +18,11 @@ type UsageEntry = { daily: Record<string, number>; total: number };
 
 /**
  * AI admin page. Served by the catch-all dynamic admin route via the ai module's
- * manifest `routes` entry (component id `ai/ui/AiAdminPage`). Renders only when
- * the ai module is enabled for the tenant.
+ * manifest `routes` entry (component id `ai/ui/ai.page`). Renders only when the
+ * ai module is enabled for the tenant. Convention: `*.page.tsx` = a routable
+ * page (default export), `*.component.tsx` = a reusable element.
  */
-export function AiAdminPage({ tenantId }: { tenantId: string }) {
+export default function AiAdminPage({ tenantId }: { tenantId: string }) {
   const [models, setModels] = useState<ModelInfo[]>([]);
   const [providers, setProviders] = useState<ProviderInfo[]>([]);
   const [usage, setUsage] = useState<Record<string, UsageEntry>>({});

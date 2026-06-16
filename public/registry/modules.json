@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T08:35:38.155Z",
+  "generatedAt": "2026-06-16T08:46:44.563Z",
   "modules": [
     {
       "id": "common",
@@ -4643,11 +4643,11 @@
       "adminRoutes": [
         {
           "path": "/admin/ai",
-          "component": "ai/ui/AiAdminPage"
+          "component": "ai/ui/ai.page"
         },
         {
           "path": "/admin/ai/settings",
-          "component": "ai/ui/AiSettingsPage"
+          "component": "ai/ui/settings.page"
         }
       ],
       "widgets": [],

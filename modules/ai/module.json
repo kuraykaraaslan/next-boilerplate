@@ -37,7 +37,7 @@
     }
   ],
   "routes": [
-    { "path": "/admin/ai", "component": "ai/ui/AiAdminPage" },
-    { "path": "/admin/ai/settings", "component": "ai/ui/AiSettingsPage" }
+    { "path": "/admin/ai", "component": "ai/ui/ai.page" },
+    { "path": "/admin/ai/settings", "component": "ai/ui/settings.page" }
   ]
 }
