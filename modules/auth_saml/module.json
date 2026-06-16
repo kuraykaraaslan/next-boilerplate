@@ -29,5 +29,16 @@
   },
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_saml",
-  "license": "CC-BY-NC-ND-4.0"
+  "license": "CC-BY-NC-ND-4.0",
+  "menu": [
+    {
+      "id": "saml",
+      "label": "SAML SSO",
+      "href": "/admin/saml",
+      "icon": "fas fa-id-card",
+      "group": "Security",
+      "order": 10,
+      "scope": "tenant"
+    }
+  ]
 }

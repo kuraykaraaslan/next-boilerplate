@@ -22,5 +22,16 @@
   },
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/analytics",
-  "license": "CC-BY-NC-ND-4.0"
+  "license": "CC-BY-NC-ND-4.0",
+  "menu": [
+    {
+      "id": "analytics",
+      "label": "Analytics",
+      "href": "/admin/analytics",
+      "icon": "fas fa-chart-line",
+      "group": "Insights",
+      "order": 10,
+      "scope": "tenant"
+    }
+  ]
 }

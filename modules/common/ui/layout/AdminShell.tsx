@@ -14,42 +14,11 @@ import { useModuleEnabled } from '@nb/common/ui/module-enabled.context';
 import { resolveIcon, DEFAULT_ICON } from '@nb/common/ui/icon-map';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  faUsers,
-  faBuilding,
-  faGear,
   faServer,
-  faBook,
-  faPeopleGroup,
   faShieldHalved,
-  faClockRotateLeft,
-  faCreditCard,
   faCircleUser,
-  faEnvelope,
-  faGlobe,
-  faRobot,
-  faKey,
   faHeartPulse,
-  faIdCard,
-  faPlug,
-  faFileInvoice,
-  faTag,
-  faBoxOpen,
-  faLayerGroup,
-  faFileAlt,
-  faPuzzlePiece,
-  faNewspaper,
-  faFolderOpen,
-  faWallet,
-  faGaugeHigh,
-  faClipboardCheck,
-  faLifeRing,
   faHouse,
-  faToggleOn,
-  faMagnifyingGlass,
-  faChartLine,
-  faCookieBite,
-  faFileContract,
-  faGift,
 } from '@fortawesome/free-solid-svg-icons';
 
 type AdminShellProps = {
@@ -86,93 +55,15 @@ export function AdminShell({ children, tenantId }: AdminShellProps) {
       .catch(() => {});
   }, [tenantId]);
 
+  // Base items that are always present and never gated by module activation:
+  // the dashboard home, the user's own profile, and (for root) platform-system
+  // health/fleet. Every other sidebar entry now comes from module manifests
+  // (registry-driven, enable/disable-aware) and is merged in below.
   const tenantNavGroups = [
     {
       label: 'Overview',
       items: [
         { id: 'dashboard', label: 'Dashboard', href: `/tenant/${tenantId}/admin`, icon: <FontAwesomeIcon icon={faHouse} aria-hidden /> },
-      ],
-    },
-    {
-      label: 'Content',
-      items: [
-        { id: 'pages',  label: 'Pages',  href: `/tenant/${tenantId}/admin/pages`,  icon: <FontAwesomeIcon icon={faFileAlt} aria-hidden /> },
-        { id: 'blocks', label: 'Blocks', href: `/tenant/${tenantId}/admin/blocks`, icon: <FontAwesomeIcon icon={faPuzzlePiece} aria-hidden /> },
-      ],
-    },
-    {
-      label: 'Blog',
-      items: [
-        { id: 'blog-posts',      label: 'Posts',      href: `/tenant/${tenantId}/admin/blog/posts`,      icon: <FontAwesomeIcon icon={faNewspaper} aria-hidden /> },
-        { id: 'blog-categories', label: 'Categories', href: `/tenant/${tenantId}/admin/blog/categories`, icon: <FontAwesomeIcon icon={faFolderOpen} aria-hidden /> },
-      ],
-    },
-    {
-      label: 'Management',
-      items: [
-        { id: 'members',      label: 'Members',      href: `/tenant/${tenantId}/admin/members`,      icon: <FontAwesomeIcon icon={faPeopleGroup} aria-hidden /> },
-        { id: 'invitations',  label: 'Invitations',  href: `/tenant/${tenantId}/admin/invitations`,  icon: <FontAwesomeIcon icon={faEnvelope} aria-hidden /> },
-        { id: 'domains',      label: 'Domains',      href: `/tenant/${tenantId}/admin/domains`,      icon: <FontAwesomeIcon icon={faGlobe} aria-hidden /> },
-        { id: 'subscription', label: 'Subscription', href: `/tenant/${tenantId}/admin/subscription`, icon: <FontAwesomeIcon icon={faCreditCard} aria-hidden /> },
-      ],
-    },
-    {
-      label: 'Commerce',
-      items: [
-        // Plans / Payments / Invoices are now registered by the payment module's
-        // manifest (modules/payment/module.json) and merged in dynamically below.
-        { id: 'coupons',  label: 'Coupons',  href: `/tenant/${tenantId}/admin/coupons`,  icon: <FontAwesomeIcon icon={faKey} aria-hidden /> },
-        { id: 'gift-cards', label: 'Gift Cards', href: `/tenant/${tenantId}/admin/gift-cards`, icon: <FontAwesomeIcon icon={faGift} aria-hidden /> },
-        { id: 'wallet',   label: 'Wallet',   href: `/tenant/${tenantId}/admin/wallet`,   icon: <FontAwesomeIcon icon={faWallet} aria-hidden /> },
-        { id: 'metering', label: 'Metering', href: `/tenant/${tenantId}/admin/metering`, icon: <FontAwesomeIcon icon={faGaugeHigh} aria-hidden /> },
-      ],
-    },
-    {
-      label: 'Operations',
-      items: [
-        { id: 'approvals', label: 'Approvals',      href: `/tenant/${tenantId}/admin/approvals`, icon: <FontAwesomeIcon icon={faClipboardCheck} aria-hidden /> },
-        { id: 'support',   label: 'Support Tickets', href: `/tenant/${tenantId}/admin/support`,    icon: <FontAwesomeIcon icon={faLifeRing} aria-hidden /> },
-      ],
-    },
-    {
-      label: 'Insights',
-      items: [
-        { id: 'analytics',     label: 'Analytics',     href: `/tenant/${tenantId}/admin/analytics`,     icon: <FontAwesomeIcon icon={faChartLine} aria-hidden /> },
-        { id: 'feature-flags', label: 'Feature Flags', href: `/tenant/${tenantId}/admin/feature-flags`, icon: <FontAwesomeIcon icon={faToggleOn} aria-hidden /> },
-        { id: 'search',        label: 'Search',        href: `/tenant/${tenantId}/admin/search`,        icon: <FontAwesomeIcon icon={faMagnifyingGlass} aria-hidden /> },
-      ],
-    },
-    {
-      label: 'Store',
-      items: [
-        { id: 'store-categories', label: 'Categories', href: `/tenant/${tenantId}/admin/store/categories`, icon: <FontAwesomeIcon icon={faTag} aria-hidden /> },
-        { id: 'store-products',   label: 'Products',   href: `/tenant/${tenantId}/admin/store/products`,   icon: <FontAwesomeIcon icon={faBoxOpen} aria-hidden /> },
-        { id: 'store-bundles',    label: 'Bundles',    href: `/tenant/${tenantId}/admin/store/bundles`,    icon: <FontAwesomeIcon icon={faLayerGroup} aria-hidden /> },
-      ],
-    },
-    {
-      label: 'Security',
-      items: [
-        { id: 'saml',     label: 'SAML SSO', href: `/tenant/${tenantId}/admin/saml`,  icon: <FontAwesomeIcon icon={faIdCard} aria-hidden /> },
-        { id: 'webhooks', label: 'Webhooks', href: `/tenant/${tenantId}/admin/webhooks`,        icon: <FontAwesomeIcon icon={faPlug} aria-hidden /> },
-      ],
-    },
-    {
-      label: 'Developer',
-      items: [
-        { id: 'api-keys', label: 'API Keys', href: `/tenant/${tenantId}/admin/api-keys`, icon: <FontAwesomeIcon icon={faKey} aria-hidden /> },
-        { id: 'integrations', label: 'Integrations', href: `/tenant/${tenantId}/admin/integrations`, icon: <FontAwesomeIcon icon={faPlug} aria-hidden /> },
-        { id: 'api-docs', label: 'API Docs', href: `/tenant/${tenantId}/admin/api-docs`, icon: <FontAwesomeIcon icon={faBook} aria-hidden /> },
-        { id: 'ai',       label: 'AI',       href: `/tenant/${tenantId}/admin/ai`,       icon: <FontAwesomeIcon icon={faRobot} aria-hidden /> },
-      ],
-    },
-    {
-      label: 'Configuration',
-      items: [
-        { id: 'settings', label: 'Settings', href: `/tenant/${tenantId}/admin/settings`, icon: <FontAwesomeIcon icon={faGear} aria-hidden /> },
-        { id: 'branding', label: 'Branding', href: `/tenant/${tenantId}/admin/settings/branding`, icon: <FontAwesomeIcon icon={faShieldHalved} aria-hidden /> },
-        { id: 'agreements', label: 'Agreements', href: `/tenant/${tenantId}/admin/terms`,    icon: <FontAwesomeIcon icon={faFileContract} aria-hidden /> },
-        { id: 'consent',  label: 'Consent',  href: `/tenant/${tenantId}/admin/consent`,          icon: <FontAwesomeIcon icon={faCookieBite} aria-hidden /> },
       ],
     },
     {
@@ -184,14 +75,6 @@ export function AdminShell({ children, tenantId }: AdminShellProps) {
   ];
 
   const platformNavGroups = isRoot ? [
-    {
-      label: 'Platform',
-      items: [
-        { id: 'platform-tenants',    label: 'Tenants',    href: `/tenant/${tenantId}/admin/tenants`,    icon: <FontAwesomeIcon icon={faBuilding} aria-hidden /> },
-        { id: 'platform-users',      label: 'Users',      href: `/tenant/${tenantId}/admin/users`,      icon: <FontAwesomeIcon icon={faUsers} aria-hidden /> },
-        { id: 'platform-audit-logs', label: 'Audit Logs', href: `/tenant/${tenantId}/admin/audit-logs`, icon: <FontAwesomeIcon icon={faClockRotateLeft} aria-hidden /> },
-      ],
-    },
     {
       label: 'Platform System',
       items: [
@@ -233,6 +116,17 @@ export function AdminShell({ children, tenantId }: AdminShellProps) {
     }
     group.items.push(node);
   }
+
+  // Keep the canonical sidebar section order regardless of manifest scan order.
+  const GROUP_ORDER = [
+    'Overview', 'Content', 'Blog', 'Management', 'Commerce', 'Operations',
+    'Insights', 'Store', 'Security', 'Developer', 'Configuration', 'Account',
+    'Plugins', 'Platform', 'Platform System',
+  ];
+  navGroups.sort(
+    (a, b) =>
+      (GROUP_ORDER.indexOf(a.label) + 1 || 999) - (GROUP_ORDER.indexOf(b.label) + 1 || 999),
+  );
 
   // Pick the most specific (longest) matching href so the Dashboard item
   // (href = the admin root, a prefix of every admin page) only wins on the

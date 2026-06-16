@@ -18,6 +18,15 @@
   },
   "menu": [
     {
+      "id": "settings",
+      "label": "Settings",
+      "href": "/admin/settings",
+      "icon": "fas fa-gear",
+      "group": "Configuration",
+      "order": 1,
+      "scope": "tenant"
+    },
+    {
       "id": "modules",
       "label": "Modules",
       "href": "/admin/modules",

@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T08:04:10.549Z",
+  "generatedAt": "2026-06-16T08:19:15.536Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -464,6 +464,15 @@
       "enabled": true,
       "menu": [
         {
+          "id": "settings",
+          "label": "Settings",
+          "href": "/admin/settings",
+          "icon": "fas fa-gear",
+          "group": "Configuration",
+          "order": 1,
+          "scope": "tenant"
+        },
+        {
           "id": "modules",
           "label": "Modules",
           "href": "/admin/modules",
@@ -680,7 +689,17 @@
         ]
       },
       "enabled": true,
-      "menu": [],
+      "menu": [
+        {
+          "id": "platform-users",
+          "label": "Users",
+          "href": "/admin/users",
+          "icon": "fas fa-users",
+          "group": "Platform",
+          "order": 10,
+          "scope": "system"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1162,7 +1181,17 @@
         ]
       },
       "enabled": true,
-      "menu": [],
+      "menu": [
+        {
+          "id": "saml",
+          "label": "SAML SSO",
+          "href": "/admin/saml",
+          "icon": "fas fa-id-card",
+          "group": "Security",
+          "order": 10,
+          "scope": "tenant"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1481,7 +1510,17 @@
         ]
       },
       "enabled": true,
-      "menu": [],
+      "menu": [
+        {
+          "id": "platform-tenants",
+          "label": "Tenants",
+          "href": "/admin/tenants",
+          "icon": "fas fa-building",
+          "group": "Platform",
+          "order": 10,
+          "scope": "system"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1535,7 +1574,17 @@
         ]
       },
       "enabled": true,
-      "menu": [],
+      "menu": [
+        {
+          "id": "members",
+          "label": "Members",
+          "href": "/admin/members",
+          "icon": "fas fa-people-group",
+          "group": "Management",
+          "order": 10,
+          "scope": "tenant"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1593,7 +1642,17 @@
         ]
       },
       "enabled": true,
-      "menu": [],
+      "menu": [
+        {
+          "id": "invitations",
+          "label": "Invitations",
+          "href": "/admin/invitations",
+          "icon": "fas fa-envelope",
+          "group": "Management",
+          "order": 10,
+          "scope": "tenant"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1693,7 +1752,17 @@
         "entities": []
       },
       "enabled": true,
-      "menu": [],
+      "menu": [
+        {
+          "id": "branding",
+          "label": "Branding",
+          "href": "/admin/settings/branding",
+          "icon": "fas fa-shield-halved",
+          "group": "Configuration",
+          "order": 10,
+          "scope": "tenant"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1754,7 +1823,17 @@
         ]
       },
       "enabled": true,
-      "menu": [],
+      "menu": [
+        {
+          "id": "domains",
+          "label": "Domains",
+          "href": "/admin/domains",
+          "icon": "fas fa-globe",
+          "group": "Management",
+          "order": 10,
+          "scope": "tenant"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1822,7 +1901,17 @@
         ]
       },
       "enabled": true,
-      "menu": [],
+      "menu": [
+        {
+          "id": "subscription",
+          "label": "Subscription",
+          "href": "/admin/subscription",
+          "icon": "fas fa-credit-card",
+          "group": "Management",
+          "order": 10,
+          "scope": "tenant"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2098,7 +2187,17 @@
         ]
       },
       "enabled": true,
-      "menu": [],
+      "menu": [
+        {
+          "id": "coupons",
+          "label": "Coupons",
+          "href": "/admin/coupons",
+          "icon": "fas fa-key",
+          "group": "Commerce",
+          "order": 10,
+          "scope": "tenant"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3280,7 +3379,17 @@
         ]
       },
       "enabled": true,
-      "menu": [],
+      "menu": [
+        {
+          "id": "api-keys",
+          "label": "API Keys",
+          "href": "/admin/api-keys",
+          "icon": "fas fa-key",
+          "group": "Developer",
+          "order": 10,
+          "scope": "tenant"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3344,7 +3453,17 @@
         ]
       },
       "enabled": true,
-      "menu": [],
+      "menu": [
+        {
+          "id": "platform-audit-logs",
+          "label": "Audit Logs",
+          "href": "/admin/audit-logs",
+          "icon": "fas fa-clock-rotate-left",
+          "group": "Platform",
+          "order": 10,
+          "scope": "system"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3418,7 +3537,35 @@
         ]
       },
       "enabled": true,
-      "menu": [],
+      "menu": [
+        {
+          "id": "store-categories",
+          "label": "Categories",
+          "href": "/admin/store/categories",
+          "icon": "fas fa-tag",
+          "group": "Store",
+          "order": 10,
+          "scope": "tenant"
+        },
+        {
+          "id": "store-products",
+          "label": "Products",
+          "href": "/admin/store/products",
+          "icon": "fas fa-box-open",
+          "group": "Store",
+          "order": 20,
+          "scope": "tenant"
+        },
+        {
+          "id": "store-bundles",
+          "label": "Bundles",
+          "href": "/admin/store/bundles",
+          "icon": "fas fa-layer-group",
+          "group": "Store",
+          "order": 30,
+          "scope": "tenant"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3477,7 +3624,17 @@
         ]
       },
       "enabled": true,
-      "menu": [],
+      "menu": [
+        {
+          "id": "webhooks",
+          "label": "Webhooks",
+          "href": "/admin/webhooks",
+          "icon": "fas fa-plug",
+          "group": "Security",
+          "order": 10,
+          "scope": "tenant"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3668,7 +3825,26 @@
         ]
       },
       "enabled": true,
-      "menu": [],
+      "menu": [
+        {
+          "id": "blog-posts",
+          "label": "Posts",
+          "href": "/admin/blog/posts",
+          "icon": "fas fa-newspaper",
+          "group": "Blog",
+          "order": 10,
+          "scope": "tenant"
+        },
+        {
+          "id": "blog-categories",
+          "label": "Categories",
+          "href": "/admin/blog/categories",
+          "icon": "fas fa-folder-open",
+          "group": "Blog",
+          "order": 20,
+          "scope": "tenant"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3810,7 +3986,26 @@
         ]
       },
       "enabled": true,
-      "menu": [],
+      "menu": [
+        {
+          "id": "agreements",
+          "label": "Agreements",
+          "href": "/admin/terms",
+          "icon": "fas fa-file-contract",
+          "group": "Configuration",
+          "order": 10,
+          "scope": "tenant"
+        },
+        {
+          "id": "consent",
+          "label": "Consent",
+          "href": "/admin/consent",
+          "icon": "fas fa-cookie-bite",
+          "group": "Configuration",
+          "order": 20,
+          "scope": "tenant"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3875,7 +4070,17 @@
         ]
       },
       "enabled": true,
-      "menu": [],
+      "menu": [
+        {
+          "id": "wallet",
+          "label": "Wallet",
+          "href": "/admin/wallet",
+          "icon": "fas fa-wallet",
+          "group": "Commerce",
+          "order": 10,
+          "scope": "tenant"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3933,7 +4138,17 @@
         ]
       },
       "enabled": true,
-      "menu": [],
+      "menu": [
+        {
+          "id": "feature-flags",
+          "label": "Feature Flags",
+          "href": "/admin/feature-flags",
+          "icon": "fas fa-toggle-on",
+          "group": "Insights",
+          "order": 10,
+          "scope": "tenant"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4003,7 +4218,17 @@
         ]
       },
       "enabled": true,
-      "menu": [],
+      "menu": [
+        {
+          "id": "metering",
+          "label": "Metering",
+          "href": "/admin/metering",
+          "icon": "fas fa-gauge-high",
+          "group": "Commerce",
+          "order": 10,
+          "scope": "tenant"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4067,7 +4292,17 @@
         ]
       },
       "enabled": true,
-      "menu": [],
+      "menu": [
+        {
+          "id": "support",
+          "label": "Support Tickets",
+          "href": "/admin/support",
+          "icon": "fas fa-life-ring",
+          "group": "Operations",
+          "order": 10,
+          "scope": "tenant"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4130,7 +4365,17 @@
         ]
       },
       "enabled": true,
-      "menu": [],
+      "menu": [
+        {
+          "id": "approvals",
+          "label": "Approvals",
+          "href": "/admin/approvals",
+          "icon": "fas fa-clipboard-check",
+          "group": "Operations",
+          "order": 10,
+          "scope": "tenant"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4196,7 +4441,17 @@
         ]
       },
       "enabled": true,
-      "menu": [],
+      "menu": [
+        {
+          "id": "gift-cards",
+          "label": "Gift Cards",
+          "href": "/admin/gift-cards",
+          "icon": "fas fa-gift",
+          "group": "Commerce",
+          "order": 10,
+          "scope": "tenant"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4248,7 +4503,17 @@
         ]
       },
       "enabled": true,
-      "menu": [],
+      "menu": [
+        {
+          "id": "ai",
+          "label": "AI",
+          "href": "/admin/ai",
+          "icon": "fas fa-robot",
+          "group": "Developer",
+          "order": 10,
+          "scope": "tenant"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4317,7 +4582,26 @@
         ]
       },
       "enabled": true,
-      "menu": [],
+      "menu": [
+        {
+          "id": "pages",
+          "label": "Pages",
+          "href": "/admin/pages",
+          "icon": "fas fa-file-lines",
+          "group": "Content",
+          "order": 10,
+          "scope": "tenant"
+        },
+        {
+          "id": "blocks",
+          "label": "Blocks",
+          "href": "/admin/blocks",
+          "icon": "fas fa-puzzle-piece",
+          "group": "Content",
+          "order": 20,
+          "scope": "tenant"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4387,7 +4671,17 @@
         ]
       },
       "enabled": true,
-      "menu": [],
+      "menu": [
+        {
+          "id": "integrations",
+          "label": "Integrations",
+          "href": "/admin/integrations",
+          "icon": "fas fa-plug",
+          "group": "Developer",
+          "order": 10,
+          "scope": "tenant"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4442,7 +4736,17 @@
         ]
       },
       "enabled": true,
-      "menu": [],
+      "menu": [
+        {
+          "id": "search",
+          "label": "Search",
+          "href": "/admin/search",
+          "icon": "fas fa-magnifying-glass",
+          "group": "Insights",
+          "order": 10,
+          "scope": "tenant"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4498,7 +4802,17 @@
         ]
       },
       "enabled": true,
-      "menu": [],
+      "menu": [
+        {
+          "id": "analytics",
+          "label": "Analytics",
+          "href": "/admin/analytics",
+          "icon": "fas fa-chart-line",
+          "group": "Insights",
+          "order": 10,
+          "scope": "tenant"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4542,7 +4856,17 @@
         "entities": []
       },
       "enabled": true,
-      "menu": [],
+      "menu": [
+        {
+          "id": "api-docs",
+          "label": "API Docs",
+          "href": "/admin/api-docs",
+          "icon": "fas fa-book",
+          "group": "Developer",
+          "order": 10,
+          "scope": "tenant"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],

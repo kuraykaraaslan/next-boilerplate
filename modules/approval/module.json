@@ -26,5 +26,16 @@
   },
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/approval",
-  "license": "CC-BY-NC-ND-4.0"
+  "license": "CC-BY-NC-ND-4.0",
+  "menu": [
+    {
+      "id": "approvals",
+      "label": "Approvals",
+      "href": "/admin/approvals",
+      "icon": "fas fa-clipboard-check",
+      "group": "Operations",
+      "order": 10,
+      "scope": "tenant"
+    }
+  ]
 }

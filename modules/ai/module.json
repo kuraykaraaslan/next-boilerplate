@@ -24,5 +24,16 @@
   ],
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/ai",
-  "license": "CC-BY-NC-ND-4.0"
+  "license": "CC-BY-NC-ND-4.0",
+  "menu": [
+    {
+      "id": "ai",
+      "label": "AI",
+      "href": "/admin/ai",
+      "icon": "fas fa-robot",
+      "group": "Developer",
+      "order": 10,
+      "scope": "tenant"
+    }
+  ]
 }

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { matchesFilter } from '../module-registry';
+import { matchesFilter, moduleRegistry } from '../module-registry';
 
 const item = (over: Partial<{ moduleId: string; scope: 'system' | 'tenant' | 'both'; permissions: string[] }> = {}) => ({
   moduleId: 'blog',
@@ -38,5 +38,23 @@ describe('matchesFilter', () => {
     const it1 = item({ moduleId: 'blog', scope: 'tenant', permissions: ['blog.read'] });
     expect(matchesFilter(it1, { enabledIds: new Set(['blog']), scope: 'tenant', permissions: ['blog.read'] })).toBe(true);
     expect(matchesFilter(it1, { enabledIds: new Set(['blog']), scope: 'system', permissions: ['blog.read'] })).toBe(false);
+  });
+});
+
+describe('findMenuOwner (route gating)', () => {
+  it('maps an admin path to its owning module via the seeded manifest menu', () => {
+    expect(moduleRegistry.findMenuOwner('/admin/ai')).toBe('ai');
+    // sub-paths resolve to the same owner
+    expect(moduleRegistry.findMenuOwner('/admin/ai/usage')).toBe('ai');
+  });
+
+  it('prefers the longest-prefix owner (settings/branding over settings)', () => {
+    expect(moduleRegistry.findMenuOwner('/admin/settings')).toBe('setting');
+    expect(moduleRegistry.findMenuOwner('/admin/settings/branding')).toBe('tenant_branding');
+  });
+
+  it('returns undefined for unclaimed paths (never gated)', () => {
+    expect(moduleRegistry.findMenuOwner('/admin')).toBeUndefined();
+    expect(moduleRegistry.findMenuOwner('/admin/totally-unknown')).toBeUndefined();
   });
 });

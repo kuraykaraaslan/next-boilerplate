@@ -25,5 +25,16 @@
   },
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/audit_log",
-  "license": "CC-BY-NC-ND-4.0"
+  "license": "CC-BY-NC-ND-4.0",
+  "menu": [
+    {
+      "id": "platform-audit-logs",
+      "label": "Audit Logs",
+      "href": "/admin/audit-logs",
+      "icon": "fas fa-clock-rotate-left",
+      "group": "Platform",
+      "order": 10,
+      "scope": "system"
+    }
+  ]
 }

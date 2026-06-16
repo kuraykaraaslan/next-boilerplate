@@ -29,5 +29,16 @@
   },
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/metering",
-  "license": "CC-BY-NC-ND-4.0"
+  "license": "CC-BY-NC-ND-4.0",
+  "menu": [
+    {
+      "id": "metering",
+      "label": "Metering",
+      "href": "/admin/metering",
+      "icon": "fas fa-gauge-high",
+      "group": "Commerce",
+      "order": 10,
+      "scope": "tenant"
+    }
+  ]
 }

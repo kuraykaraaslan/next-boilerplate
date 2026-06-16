@@ -24,5 +24,25 @@
   },
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/dynamic_page",
-  "license": "CC-BY-NC-ND-4.0"
+  "license": "CC-BY-NC-ND-4.0",
+  "menu": [
+    {
+      "id": "pages",
+      "label": "Pages",
+      "href": "/admin/pages",
+      "icon": "fas fa-file-lines",
+      "group": "Content",
+      "order": 10,
+      "scope": "tenant"
+    },
+    {
+      "id": "blocks",
+      "label": "Blocks",
+      "href": "/admin/blocks",
+      "icon": "fas fa-puzzle-piece",
+      "group": "Content",
+      "order": 20,
+      "scope": "tenant"
+    }
+  ]
 }

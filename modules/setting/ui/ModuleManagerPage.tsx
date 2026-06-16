@@ -22,6 +22,7 @@ interface ModuleRow extends Record<string, unknown> {
   license: string;
   tags: string[];
   enabled: boolean;
+  protected: boolean;
 }
 
 function extractMessage(err: unknown, fallback: string) {
@@ -146,7 +147,12 @@ export function ModuleManagerPage({ tenantId }: { tenantId: string }) {
       key: '_status',
       header: 'Status',
       align: 'right',
-      render: (m) => (
+      render: (m) =>
+        m.protected ? (
+          <span title="Core module — always enabled">
+            <Badge variant="info" size="sm">Core</Badge>
+          </span>
+        ) : (
         <button
           type="button"
           role="switch"

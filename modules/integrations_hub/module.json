@@ -29,5 +29,16 @@
   },
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/integrations_hub",
-  "license": "CC-BY-NC-ND-4.0"
+  "license": "CC-BY-NC-ND-4.0",
+  "menu": [
+    {
+      "id": "integrations",
+      "label": "Integrations",
+      "href": "/admin/integrations",
+      "icon": "fas fa-plug",
+      "group": "Developer",
+      "order": 10,
+      "scope": "tenant"
+    }
+  ]
 }

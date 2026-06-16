@@ -22,5 +22,34 @@
   },
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/store",
-  "license": "CC-BY-NC-ND-4.0"
+  "license": "CC-BY-NC-ND-4.0",
+  "menu": [
+    {
+      "id": "store-categories",
+      "label": "Categories",
+      "href": "/admin/store/categories",
+      "icon": "fas fa-tag",
+      "group": "Store",
+      "order": 10,
+      "scope": "tenant"
+    },
+    {
+      "id": "store-products",
+      "label": "Products",
+      "href": "/admin/store/products",
+      "icon": "fas fa-box-open",
+      "group": "Store",
+      "order": 20,
+      "scope": "tenant"
+    },
+    {
+      "id": "store-bundles",
+      "label": "Bundles",
+      "href": "/admin/store/bundles",
+      "icon": "fas fa-layer-group",
+      "group": "Store",
+      "order": 30,
+      "scope": "tenant"
+    }
+  ]
 }

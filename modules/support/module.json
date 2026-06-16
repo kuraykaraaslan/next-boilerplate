@@ -26,5 +26,16 @@
   },
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/support",
-  "license": "CC-BY-NC-ND-4.0"
+  "license": "CC-BY-NC-ND-4.0",
+  "menu": [
+    {
+      "id": "support",
+      "label": "Support Tickets",
+      "href": "/admin/support",
+      "icon": "fas fa-life-ring",
+      "group": "Operations",
+      "order": 10,
+      "scope": "tenant"
+    }
+  ]
 }

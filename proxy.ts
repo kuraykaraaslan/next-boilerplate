@@ -4,6 +4,15 @@ import SettingService from "@nb/setting/server/setting.service";
 import TenantDomainService from "@nb/tenant_domain/server/tenant_domain.service";
 import { ROOT_TENANT_ID } from "@nb/tenant/server/tenant.constants";
 
+// Rewrite while exposing the resolved destination path to server components via
+// an `x-pathname` request header (the admin layout uses it to gate pages owned
+// by disabled modules).
+function rewriteWithPath(req: NextRequest, url: URL): NextResponse {
+    const headers = new Headers(req.headers);
+    headers.set("x-pathname", url.pathname);
+    return NextResponse.rewrite(url, { request: { headers } });
+}
+
 const EXCLUDED_PATHS = [
     /^\/_next\/?/,
     /^\/assets\/?/,
@@ -82,7 +91,7 @@ async function handleDomainMode(req: NextRequest, host: string, pathname: string
     const url = req.nextUrl.clone();
     url.pathname = `/tenant/${tenantId}${pathname}`;
     log(`[domain] Rewriting to tenant: ${tenantId}`);
-    return NextResponse.rewrite(url);
+    return rewriteWithPath(req, url);
 }
 
 function handlePathMode(req: NextRequest, pathname: string): NextResponse {
@@ -100,20 +109,20 @@ function handlePathMode(req: NextRequest, pathname: string): NextResponse {
             const url = req.nextUrl.clone();
             url.pathname = `/tenant/${ROOT_TENANT_ID}${pathname}`;
             log("[path] No tenantId in path → rewriting to root tenant");
-            return NextResponse.rewrite(url);
+            return rewriteWithPath(req, url);
         }
 
         const url = req.nextUrl.clone();
         url.pathname = `/tenant/${tenantId}${rest || "/"}`;
         log(`[path] Rewriting to tenant: ${tenantId}`);
-        return NextResponse.rewrite(url);
+        return rewriteWithPath(req, url);
     }
 
     // Tenant prefix yoksa → root tenant
     const url = req.nextUrl.clone();
     url.pathname = `/tenant/${ROOT_TENANT_ID}${pathname}`;
     log("[path] Rewriting to root tenant");
-    return NextResponse.rewrite(url);
+    return rewriteWithPath(req, url);
 }
 
 export async function proxy(req: NextRequest) {
@@ -149,12 +158,15 @@ export async function proxy(req: NextRequest) {
         const url = req.nextUrl.clone();
         url.pathname = `/tenant/${tenantId}/api${rest}`;
         log(`[api] tenant(${tenantId}): ${pathname} → ${url.pathname}`);
-        return NextResponse.rewrite(url);
+        return rewriteWithPath(req, url);
     }
 
-    // ❌ Zaten /tenant/ altındaysa (sonsuz döngüyü önle)
+    // ❌ Zaten /tenant/ altındaysa (sonsuz döngüyü önle) — yine de x-pathname'i
+    // ilet ki admin layout disabled-module sayfalarını gate edebilsin.
     if (pathname.startsWith("/tenant/")) {
-        return NextResponse.next();
+        const headers = new Headers(req.headers);
+        headers.set("x-pathname", pathname);
+        return NextResponse.next({ request: { headers } });
     }
 
     // Bakım Modu Kontrolü

@@ -20,5 +20,16 @@
   },
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/coupon",
-  "license": "CC-BY-NC-ND-4.0"
+  "license": "CC-BY-NC-ND-4.0",
+  "menu": [
+    {
+      "id": "coupons",
+      "label": "Coupons",
+      "href": "/admin/coupons",
+      "icon": "fas fa-key",
+      "group": "Commerce",
+      "order": 10,
+      "scope": "tenant"
+    }
+  ]
 }

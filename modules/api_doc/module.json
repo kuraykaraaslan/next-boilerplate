@@ -17,5 +17,16 @@
   },
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/api_doc",
-  "license": "CC-BY-NC-ND-4.0"
+  "license": "CC-BY-NC-ND-4.0",
+  "menu": [
+    {
+      "id": "api-docs",
+      "label": "API Docs",
+      "href": "/admin/api-docs",
+      "icon": "fas fa-book",
+      "group": "Developer",
+      "order": 10,
+      "scope": "tenant"
+    }
+  ]
 }

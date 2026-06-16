@@ -46,5 +46,25 @@
   },
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/terms_consent",
-  "license": "CC-BY-NC-ND-4.0"
+  "license": "CC-BY-NC-ND-4.0",
+  "menu": [
+    {
+      "id": "agreements",
+      "label": "Agreements",
+      "href": "/admin/terms",
+      "icon": "fas fa-file-contract",
+      "group": "Configuration",
+      "order": 10,
+      "scope": "tenant"
+    },
+    {
+      "id": "consent",
+      "label": "Consent",
+      "href": "/admin/consent",
+      "icon": "fas fa-cookie-bite",
+      "group": "Configuration",
+      "order": 20,
+      "scope": "tenant"
+    }
+  ]
 }

@@ -19,5 +19,16 @@
   },
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/webhook",
-  "license": "CC-BY-NC-ND-4.0"
+  "license": "CC-BY-NC-ND-4.0",
+  "menu": [
+    {
+      "id": "webhooks",
+      "label": "Webhooks",
+      "href": "/admin/webhooks",
+      "icon": "fas fa-plug",
+      "group": "Security",
+      "order": 10,
+      "scope": "tenant"
+    }
+  ]
 }

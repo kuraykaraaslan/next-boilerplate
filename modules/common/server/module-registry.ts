@@ -124,6 +124,21 @@ export const moduleRegistry = {
   getWidgets(filter: RegistryFilter = {}): RuntimeWidget[] {
     return WIDGETS.filter((w) => matchesFilter(w, filter)).sort(byOrder);
   },
+
+  /**
+   * The module that owns a given admin path, by longest-prefix match over all
+   * manifest-declared menu hrefs (e.g. '/admin/ai' -> 'ai'). Returns undefined
+   * when no module claims the path (such paths are never gated).
+   */
+  findMenuOwner(adminPath: string): string | undefined {
+    let best: { len: number; moduleId: string } | undefined;
+    for (const m of MENU) {
+      if (adminPath === m.href || adminPath.startsWith(m.href + '/')) {
+        if (!best || m.href.length > best.len) best = { len: m.href.length, moduleId: m.moduleId };
+      }
+    }
+    return best?.moduleId;
+  },
 };
 
 export type ModuleRegistryRuntime = typeof moduleRegistry;

@@ -21,5 +21,16 @@
   },
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/search",
-  "license": "CC-BY-NC-ND-4.0"
+  "license": "CC-BY-NC-ND-4.0",
+  "menu": [
+    {
+      "id": "search",
+      "label": "Search",
+      "href": "/admin/search",
+      "icon": "fas fa-magnifying-glass",
+      "group": "Insights",
+      "order": 10,
+      "scope": "tenant"
+    }
+  ]
 }

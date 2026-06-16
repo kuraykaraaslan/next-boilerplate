@@ -1,61 +1,78 @@
-// Migration aid (run once, review output): parse the hardcoded nav groups in
-// AdminShell.tsx and emit, per owning module, the `menu` block to paste into
-// modules/<id>/module.json — converting the remaining ~36 hardcoded items into
-// manifest-declared, enable/disable-aware menu entries.
+// One-time: write each admin sidebar item into its owning module's manifest
+// `menu` block, so pages are owned by modules (and become enable/disable- and
+// route-gate-aware). Icons are emitted from the real FontAwesome iconName so the
+// runtime icon-map resolves them. Run with --apply to write; otherwise dry-run.
 //
-// Module ownership is a heuristic from the href segment; REVIEW before applying.
-//
-// Usage: node scripts/seed-menu-manifests.mjs
+//   node scripts/seed-menu-manifests.mjs [--apply]
 
 import fs from 'node:fs';
+import path from 'node:path';
+import {
+  faFileAlt, faPuzzlePiece, faNewspaper, faFolderOpen, faPeopleGroup, faEnvelope,
+  faGlobe, faCreditCard, faKey, faGift, faWallet, faGaugeHigh, faClipboardCheck,
+  faLifeRing, faChartLine, faToggleOn, faMagnifyingGlass, faTag, faBoxOpen,
+  faLayerGroup, faIdCard, faPlug, faBook, faRobot, faGear, faShieldHalved,
+  faFileContract, faCookieBite, faBuilding, faUsers, faClockRotateLeft,
+} from '@fortawesome/free-solid-svg-icons';
 
-const SRC = fs.readFileSync('modules/common/ui/layout/AdminShell.tsx', 'utf8');
+const ic = (i) => `fas fa-${i.iconName}`;
 
-// href segment (after /admin/) -> owning module id. Extend/correct as needed.
-const OWNER = {
-  '': 'tenant', pages: 'dynamic_page', blocks: 'dynamic_page',
-  'blog/posts': 'blog', 'blog/categories': 'blog',
-  members: 'tenant_member', invitations: 'tenant_invitation', domains: 'tenant_domain',
-  subscription: 'tenant_subscription', coupons: 'coupon', 'gift-cards': 'coupon',
-  wallet: 'payment', metering: 'tenant_usage', approvals: 'tenant', support: 'messaging',
-  analytics: 'tenant_usage', 'feature-flags': 'setting', search: 'common',
-  'store/categories': 'store', 'store/products': 'store', 'store/bundles': 'store',
-  saml: 'auth_saml', webhooks: 'webhook', 'api-keys': 'api_key',
-  integrations: 'webhook', 'api-docs': 'api_doc', ai: 'ai',
-  settings: 'setting', 'settings/branding': 'tenant_branding', terms: 'tenant',
-  consent: 'tenant', me: 'user', tenants: 'tenant', users: 'user',
-  'audit-logs': 'audit_log', health: 'common', fleet: 'common',
-};
+// [ id, label, path-after-/admin/, moduleId, group, faIcon, scope ]
+const ITEMS = [
+  ['pages', 'Pages', 'pages', 'dynamic_page', 'Content', faFileAlt, 'tenant'],
+  ['blocks', 'Blocks', 'blocks', 'dynamic_page', 'Content', faPuzzlePiece, 'tenant'],
+  ['blog-posts', 'Posts', 'blog/posts', 'blog', 'Blog', faNewspaper, 'tenant'],
+  ['blog-categories', 'Categories', 'blog/categories', 'blog', 'Blog', faFolderOpen, 'tenant'],
+  ['members', 'Members', 'members', 'tenant_member', 'Management', faPeopleGroup, 'tenant'],
+  ['invitations', 'Invitations', 'invitations', 'tenant_invitation', 'Management', faEnvelope, 'tenant'],
+  ['domains', 'Domains', 'domains', 'tenant_domain', 'Management', faGlobe, 'tenant'],
+  ['subscription', 'Subscription', 'subscription', 'tenant_subscription', 'Management', faCreditCard, 'tenant'],
+  ['coupons', 'Coupons', 'coupons', 'coupon', 'Commerce', faKey, 'tenant'],
+  ['gift-cards', 'Gift Cards', 'gift-cards', 'gift_card', 'Commerce', faGift, 'tenant'],
+  ['wallet', 'Wallet', 'wallet', 'wallet', 'Commerce', faWallet, 'tenant'],
+  ['metering', 'Metering', 'metering', 'metering', 'Commerce', faGaugeHigh, 'tenant'],
+  ['approvals', 'Approvals', 'approvals', 'approval', 'Operations', faClipboardCheck, 'tenant'],
+  ['support', 'Support Tickets', 'support', 'support', 'Operations', faLifeRing, 'tenant'],
+  ['analytics', 'Analytics', 'analytics', 'analytics', 'Insights', faChartLine, 'tenant'],
+  ['feature-flags', 'Feature Flags', 'feature-flags', 'feature_flags', 'Insights', faToggleOn, 'tenant'],
+  ['search', 'Search', 'search', 'search', 'Insights', faMagnifyingGlass, 'tenant'],
+  ['store-categories', 'Categories', 'store/categories', 'store', 'Store', faTag, 'tenant'],
+  ['store-products', 'Products', 'store/products', 'store', 'Store', faBoxOpen, 'tenant'],
+  ['store-bundles', 'Bundles', 'store/bundles', 'store', 'Store', faLayerGroup, 'tenant'],
+  ['saml', 'SAML SSO', 'saml', 'auth_saml', 'Security', faIdCard, 'tenant'],
+  ['webhooks', 'Webhooks', 'webhooks', 'webhook', 'Security', faPlug, 'tenant'],
+  ['api-keys', 'API Keys', 'api-keys', 'api_key', 'Developer', faKey, 'tenant'],
+  ['integrations', 'Integrations', 'integrations', 'integrations_hub', 'Developer', faPlug, 'tenant'],
+  ['api-docs', 'API Docs', 'api-docs', 'api_doc', 'Developer', faBook, 'tenant'],
+  ['ai', 'AI', 'ai', 'ai', 'Developer', faRobot, 'tenant'],
+  ['branding', 'Branding', 'settings/branding', 'tenant_branding', 'Configuration', faShieldHalved, 'tenant'],
+  ['agreements', 'Agreements', 'terms', 'terms_consent', 'Configuration', faFileContract, 'tenant'],
+  ['consent', 'Consent', 'consent', 'terms_consent', 'Configuration', faCookieBite, 'tenant'],
+  ['platform-tenants', 'Tenants', 'tenants', 'tenant', 'Platform', faBuilding, 'system'],
+  ['platform-users', 'Users', 'users', 'user', 'Platform', faUsers, 'system'],
+  ['platform-audit-logs', 'Audit Logs', 'audit-logs', 'audit_log', 'Platform', faClockRotateLeft, 'system'],
+];
 
-// FontAwesome import-name -> manifest icon string.
-const ICON = (fa) => 'fas fa-' + fa.replace(/^fa/, '').replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
-
-const groupRe = /label:\s*'([^']+)',\s*\n\s*items:\s*\[([\s\S]*?)\]\s*,?\s*\n\s*\}/g;
-const itemRe = /\{\s*id:\s*'([^']+)',\s*label:\s*'([^']+)',\s*href:\s*`[^`]*\/admin\/?([^`]*)`,\s*icon:\s*<FontAwesomeIcon icon=\{(\w+)\}/g;
-
+const APPLY = process.argv.includes('--apply');
 const byModule = {};
-let g;
-let platformSeen = false;
-while ((g = groupRe.exec(SRC))) {
-  const groupLabel = g[1];
-  // crude scope heuristic: groups after the platform arrays are system-scope
-  if (groupLabel === 'Platform' || groupLabel === 'Platform System') platformSeen = true;
-  const scope = platformSeen ? 'system' : 'tenant';
-  let it;
-  let order = 10;
-  while ((it = itemRe.exec(g[2]))) {
-    const [, id, label, seg, faIcon] = it;
-    const owner = OWNER[seg] ?? 'tenant';
-    (byModule[owner] ??= []).push({
-      id, label, href: '/admin/' + seg, icon: ICON(faIcon),
-      group: groupLabel, order: order += 1, scope,
-    });
-  }
+for (const [id, label, seg, mod, group, faIcon, scope] of ITEMS) {
+  (byModule[mod] ??= []).push({
+    id, label, href: `/admin/${seg}`, icon: ic(faIcon), group,
+    order: (byModule[mod]?.length ?? 0) * 10 + 10, scope,
+  });
 }
 
-console.log('// Suggested manifest `menu` blocks (review module ownership!):\n');
-for (const [mod, items] of Object.entries(byModule).sort()) {
-  console.log(`// modules/${mod}/module.json`);
-  console.log(JSON.stringify({ menu: items }, null, 2));
-  console.log('');
+let n = 0;
+for (const [mod, items] of Object.entries(byModule)) {
+  const p = path.join('modules', mod, 'module.json');
+  if (!fs.existsSync(p)) { console.warn(`! no manifest for ${mod}, skipping`); continue; }
+  const j = JSON.parse(fs.readFileSync(p, 'utf8'));
+  const existing = Array.isArray(j.menu) ? j.menu : [];
+  const seen = new Set(existing.map((m) => m.id));
+  const merged = [...existing, ...items.filter((it) => !seen.has(it.id))];
+  if (!APPLY) { console.log(`${mod}: +${merged.length - existing.length} menu items`); continue; }
+  j.menu = merged;
+  fs.writeFileSync(p, JSON.stringify(j, null, 2) + '\n');
+  n++;
 }
+console.log(APPLY ? `Applied menu blocks to ${n} manifests.` : '(dry-run; pass --apply)');

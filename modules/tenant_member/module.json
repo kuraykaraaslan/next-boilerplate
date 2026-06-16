@@ -18,5 +18,16 @@
   },
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/tenant_member",
-  "license": "CC-BY-NC-ND-4.0"
+  "license": "CC-BY-NC-ND-4.0",
+  "menu": [
+    {
+      "id": "members",
+      "label": "Members",
+      "href": "/admin/members",
+      "icon": "fas fa-people-group",
+      "group": "Management",
+      "order": 10,
+      "scope": "tenant"
+    }
+  ]
 }

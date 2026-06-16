@@ -22,5 +22,16 @@
   },
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/tenant_invitation",
-  "license": "CC-BY-NC-ND-4.0"
+  "license": "CC-BY-NC-ND-4.0",
+  "menu": [
+    {
+      "id": "invitations",
+      "label": "Invitations",
+      "href": "/admin/invitations",
+      "icon": "fas fa-envelope",
+      "group": "Management",
+      "order": 10,
+      "scope": "tenant"
+    }
+  ]
 }
