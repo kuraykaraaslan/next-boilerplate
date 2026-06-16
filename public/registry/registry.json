@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-15T19:34:42.077Z",
+  "generatedAt": "2026-06-16T05:39:55.356Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -5074,6 +5074,17 @@
         "POST"
       ],
       "module": "coupon",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/cron/demo-reset/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/cron/demo-reset",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "module": "cron",
       "dynamic": true
     },
     {
@@ -10189,6 +10200,18 @@
       "isClient": true,
       "isServer": false,
       "baseName": "DateRangePicker"
+    },
+    {
+      "id": "common/ui/DemoModeNotice",
+      "module": "common",
+      "filePath": "modules_next/common/ui/DemoModeNotice.tsx",
+      "kind": "ui",
+      "exports": [
+        "DemoModeNotice"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "DemoModeNotice"
     },
     {
       "id": "common/ui/Drawer",

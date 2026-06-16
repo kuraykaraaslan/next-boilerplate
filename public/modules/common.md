@@ -28,6 +28,7 @@ Dependency-free leaf module loaded by every other module: AppError + ErrorCode e
 - `common/ui/ContextMenu` _(ui, client)_
 - `common/ui/CurrencySelector` _(ui, client)_
 - `common/ui/DateRangePicker` _(ui, client)_
+- `common/ui/DemoModeNotice` _(ui, client)_
 - `common/ui/Drawer` _(ui, client)_
 - `common/ui/EmptyState` _(ui, client)_
 - `common/ui/FileInput` _(ui, client)_
@@ -71,8 +72,7 @@ Dependency-free leaf module loaded by every other module: AppError + ErrorCode e
 - `common/ui/TabGroup` _(ui, client)_
 - `common/ui/ThemeToggle` _(ui, client)_
 - `common/ui/toast.store` _(ui)_
-- `common/ui/ToastContainer` _(ui, client)_
-- … and 5 more
+- … and 6 more
 
 ## README
 

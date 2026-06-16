@@ -8,6 +8,11 @@ export const platformFields = {
   CRON_SECRET: z.string().optional(),
   CORS_ORIGIN: z.string().optional(),
 
+  // ── Demo mode ─────────────────────────────────────────────────────────────────
+  // When true, the demo-reset cron is allowed to destructively wipe and reseed
+  // the database every 15 minutes. MUST stay false on any real database.
+  DEMO_MODE: boolEnv().default(false),
+
   // ── Misc ─────────────────────────────────────────────────────────────────────
   BOOK_LANG: z.string().optional(),
   DOTENV_KEY: z.string().optional(),

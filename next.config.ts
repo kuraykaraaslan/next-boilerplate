@@ -7,6 +7,12 @@ const withBundleAnalyzer = bundleAnalyzer({
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  // The demo-reset cron reads `modules/db/migrations/*.sql` from disk at
+  // runtime; fs reads aren't traced automatically, so include them explicitly
+  // in that route's serverless function bundle.
+  outputFileTracingIncludes: {
+    "/tenant/[tenantId]/api/cron/demo-reset": ["./modules/db/migrations/**/*.sql"],
+  },
   // Tree-shake large icon/chart packages so only the symbols actually used
   // land in each route's client bundle (Next rewrites barrel imports to deep
   // paths at build time).
