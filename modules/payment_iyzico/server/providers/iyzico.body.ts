@@ -1,4 +1,4 @@
-import type { CheckoutSessionParams, DirectChargeParams } from './base.provider'
+import type { CheckoutSessionParams, DirectChargeParams } from '@nb/payment/server/providers/base.provider'
 
 /**
  * Build the hosted CheckoutForm initialize body. MasterPass / BKM Express still

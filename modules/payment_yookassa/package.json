@@ -1,0 +1,11 @@
+{
+  "name": "@nb/payment_yookassa",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/providers/yookassa.provider": "./server/providers/yookassa.provider.ts",
+    "./server/yookassa.extension": "./server/yookassa.extension.ts",
+    "./module.json": "./module.json"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "@nb/payment_wechatpay",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/providers/wechatpay.provider": "./server/providers/wechatpay.provider.ts",
+    "./server/wechatpay.extension": "./server/wechatpay.extension.ts",
+    "./module.json": "./module.json"
+  }
+}

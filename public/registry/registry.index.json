@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T18:15:58.625Z",
+  "generatedAt": "2026-06-16T18:21:39.255Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -4832,15 +4832,7 @@
         "./server/plans-plan-id.route",
         "./server/plans-public.route",
         "./server/plans.route",
-        "./server/providers/alipay.provider",
         "./server/providers/base.provider",
-        "./server/providers/cloudpayments.provider",
-        "./server/providers/iyzico.body",
-        "./server/providers/iyzico.client",
-        "./server/providers/iyzico.provider",
-        "./server/providers/paypal.provider",
-        "./server/providers/wechatpay.provider",
-        "./server/providers/yookassa.provider",
         "./server/tests/payment.crud.test-setup",
         "./ui/billing-profile-tab.component",
         "./ui/card-checkout-modal.component",
@@ -5082,6 +5074,260 @@
       "hasNextLayer": true
     },
     {
+      "id": "payment_alipay",
+      "name": "Alipay Gateway",
+      "version": "1.0.0",
+      "description": "Alipay payment gateway, contributed into the payment:gateway extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_alipay",
+      "dir": "modules/payment_alipay",
+      "icon": "fab fa-alipay",
+      "tags": [
+        "billing",
+        "payment",
+        "gateway"
+      ],
+      "priority": 26,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "payment",
+          "env",
+          "setting",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "payment:gateway",
+          "key": "alipay",
+          "export": "payment_alipay/server/alipay.extension",
+          "metadata": {
+            "label": "Alipay"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/alipay.extension",
+        "./server/providers/alipay.provider",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "payment_cloudpayments",
+      "name": "CloudPayments Gateway",
+      "version": "1.0.0",
+      "description": "CloudPayments payment gateway, contributed into the payment:gateway extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_cloudpayments",
+      "dir": "modules/payment_cloudpayments",
+      "icon": "fas fa-credit-card",
+      "tags": [
+        "billing",
+        "payment",
+        "gateway"
+      ],
+      "priority": 26,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "payment",
+          "env",
+          "setting",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "payment:gateway",
+          "key": "cloudpayments",
+          "export": "payment_cloudpayments/server/cloudpayments.extension",
+          "metadata": {
+            "label": "CloudPayments"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/cloudpayments.extension",
+        "./server/providers/cloudpayments.provider",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "payment_iyzico",
+      "name": "Iyzico Gateway",
+      "version": "1.0.0",
+      "description": "Iyzico payment gateway, contributed into the payment:gateway extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_iyzico",
+      "dir": "modules/payment_iyzico",
+      "icon": "fas fa-credit-card",
+      "tags": [
+        "billing",
+        "payment",
+        "gateway"
+      ],
+      "priority": 26,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "payment",
+          "env",
+          "setting",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "payment:gateway",
+          "key": "iyzico",
+          "export": "payment_iyzico/server/iyzico.extension",
+          "metadata": {
+            "label": "Iyzico"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/iyzico.extension",
+        "./server/providers/iyzico.body",
+        "./server/providers/iyzico.client",
+        "./server/providers/iyzico.provider",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "payment_paypal",
+      "name": "PayPal Gateway",
+      "version": "1.0.0",
+      "description": "PayPal payment gateway, contributed into the payment:gateway extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_paypal",
+      "dir": "modules/payment_paypal",
+      "icon": "fab fa-paypal",
+      "tags": [
+        "billing",
+        "payment",
+        "gateway"
+      ],
+      "priority": 26,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "payment",
+          "env",
+          "setting",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "payment:gateway",
+          "key": "paypal",
+          "export": "payment_paypal/server/paypal.extension",
+          "metadata": {
+            "label": "PayPal"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/paypal.extension",
+        "./server/providers/paypal.provider",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
       "id": "payment_sell",
       "name": "Payment Sell",
       "version": "1.0.0",
@@ -5222,6 +5468,132 @@
       "pkgExports": [
         "./server/providers/stripe.provider",
         "./server/stripe.extension",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "payment_wechatpay",
+      "name": "WeChat Pay Gateway",
+      "version": "1.0.0",
+      "description": "WeChat Pay payment gateway, contributed into the payment:gateway extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_wechatpay",
+      "dir": "modules/payment_wechatpay",
+      "icon": "fab fa-weixin",
+      "tags": [
+        "billing",
+        "payment",
+        "gateway"
+      ],
+      "priority": 26,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "payment",
+          "env",
+          "setting",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "payment:gateway",
+          "key": "wechatpay",
+          "export": "payment_wechatpay/server/wechatpay.extension",
+          "metadata": {
+            "label": "WeChat Pay"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/providers/wechatpay.provider",
+        "./server/wechatpay.extension",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "payment_yookassa",
+      "name": "YooKassa Gateway",
+      "version": "1.0.0",
+      "description": "YooKassa payment gateway, contributed into the payment:gateway extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_yookassa",
+      "dir": "modules/payment_yookassa",
+      "icon": "fas fa-credit-card",
+      "tags": [
+        "billing",
+        "payment",
+        "gateway"
+      ],
+      "priority": 26,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "payment",
+          "env",
+          "setting",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "payment:gateway",
+          "key": "yookassa",
+          "export": "payment_yookassa/server/yookassa.extension",
+          "metadata": {
+            "label": "YooKassa"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/providers/yookassa.provider",
+        "./server/yookassa.extension",
         "./module.json"
       ],
       "settingsTabs": [],

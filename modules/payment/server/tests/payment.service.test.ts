@@ -59,7 +59,7 @@ vi.mock('@nb/payment_stripe/server/providers/stripe.provider', () => ({
   },
 }));
 
-vi.mock('../providers/paypal.provider', () => ({
+vi.mock('@nb/payment_paypal/server/providers/paypal.provider', () => ({
   default: class MockPaypalProvider {
     async getPaymentStatus() { return { status: 'COMPLETED' }; }
     async createCheckoutSession() {
@@ -68,7 +68,7 @@ vi.mock('../providers/paypal.provider', () => ({
   },
 }));
 
-vi.mock('../providers/iyzico.provider', () => ({
+vi.mock('@nb/payment_iyzico/server/providers/iyzico.provider', () => ({
   default: class MockIyzicoProvider {
     async getPaymentStatus() { return { status: 'SUCCESS' }; }
     async createCheckoutSession() {

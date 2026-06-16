@@ -10,9 +10,9 @@ vi.mock('@nb/redis', () => ({
 vi.mock('@nb/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
 vi.mock('@nb/setting/server/setting.service', () => ({ default: { getValue: vi.fn(async () => null) } }));
 
-import IyzicoProvider from '../providers/iyzico.provider';
+import IyzicoProvider from '@nb/payment_iyzico/server/providers/iyzico.provider';
 import StripeProvider from '@nb/payment_stripe/server/providers/stripe.provider';
-import PaypalProvider from '../providers/paypal.provider';
+import PaypalProvider from '@nb/payment_paypal/server/providers/paypal.provider';
 import PaymentService from '../payment.service';
 import { WalletDescriptorSchema } from '../payment.enums';
 

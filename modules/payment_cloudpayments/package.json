@@ -1,0 +1,11 @@
+{
+  "name": "@nb/payment_cloudpayments",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/cloudpayments.extension": "./server/cloudpayments.extension.ts",
+    "./server/providers/cloudpayments.provider": "./server/providers/cloudpayments.provider.ts",
+    "./module.json": "./module.json"
+  }
+}

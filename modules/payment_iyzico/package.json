@@ -1,0 +1,13 @@
+{
+  "name": "@nb/payment_iyzico",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/iyzico.extension": "./server/iyzico.extension.ts",
+    "./server/providers/iyzico.body": "./server/providers/iyzico.body.ts",
+    "./server/providers/iyzico.client": "./server/providers/iyzico.client.ts",
+    "./server/providers/iyzico.provider": "./server/providers/iyzico.provider.ts",
+    "./module.json": "./module.json"
+  }
+}

@@ -1,6 +1,6 @@
 import CryptoJS from 'crypto-js'
 import axios, { AxiosInstance } from 'axios'
-import { PAYMENT_MESSAGES } from '../payment.messages'
+import { PAYMENT_MESSAGES } from '@nb/payment/server/payment.messages'
 import SettingService from '@nb/setting/server/setting.service'
 
 export async function getConfig(tenantId: string) {

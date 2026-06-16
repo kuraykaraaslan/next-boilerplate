@@ -1,0 +1,35 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "payment_alipay",
+  "name": "Alipay Gateway",
+  "description": "Alipay payment gateway, contributed into the payment:gateway extension point.",
+  "version": "1.0.0",
+  "icon": "fab fa-alipay",
+  "tags": [
+    "billing",
+    "payment",
+    "gateway"
+  ],
+  "priority": 26,
+  "dependencies": {
+    "requires": [
+      "payment",
+      "env",
+      "setting",
+      "common"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_alipay",
+  "license": "CC-BY-NC-ND-4.0",
+  "extensions": [
+    {
+      "point": "payment:gateway",
+      "key": "alipay",
+      "export": "payment_alipay/server/alipay.extension",
+      "metadata": {
+        "label": "Alipay"
+      }
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 import axios, { AxiosInstance } from 'axios'
-import BasePaymentProvider, { CheckoutSessionParams, CheckoutSessionResult, WalletDescriptor } from './base.provider'
-import { PAYMENT_MESSAGES } from '../payment.messages'
+import BasePaymentProvider, { CheckoutSessionParams, CheckoutSessionResult, WalletDescriptor } from '@nb/payment/server/providers/base.provider'
+import { PAYMENT_MESSAGES } from '@nb/payment/server/payment.messages'
 import SettingService from '@nb/setting/server/setting.service'
 
 export default class CloudPaymentsProvider extends BasePaymentProvider {

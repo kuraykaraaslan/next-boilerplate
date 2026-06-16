@@ -1,0 +1,35 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "payment_iyzico",
+  "name": "Iyzico Gateway",
+  "description": "Iyzico payment gateway, contributed into the payment:gateway extension point.",
+  "version": "1.0.0",
+  "icon": "fas fa-credit-card",
+  "tags": [
+    "billing",
+    "payment",
+    "gateway"
+  ],
+  "priority": 26,
+  "dependencies": {
+    "requires": [
+      "payment",
+      "env",
+      "setting",
+      "common"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_iyzico",
+  "license": "CC-BY-NC-ND-4.0",
+  "extensions": [
+    {
+      "point": "payment:gateway",
+      "key": "iyzico",
+      "export": "payment_iyzico/server/iyzico.extension",
+      "metadata": {
+        "label": "Iyzico"
+      }
+    }
+  ]
+}

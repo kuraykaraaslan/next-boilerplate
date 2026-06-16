@@ -4,12 +4,6 @@ import { extensionRegistry } from '@nb/common/server/extension-registry';
 import type BasePaymentProvider from './providers/base.provider';
 import { type WalletDescriptor } from './providers/base.provider';
 import type { PaymentGatewayContribution } from './payment.gateway.types';
-import PaypalProvider from './providers/paypal.provider';
-import IyzicoProvider from './providers/iyzico.provider';
-import AlipayProvider from './providers/alipay.provider';
-import WeChatPayProvider from './providers/wechatpay.provider';
-import YooKassaProvider from './providers/yookassa.provider';
-import CloudPaymentsProvider from './providers/cloudpayments.provider';
 import { PaymentProvider } from './payment.enums';
 import { PAYMENT_MESSAGES } from './payment.messages';
 import SettingService from '@nb/setting/server/setting.service';
@@ -22,14 +16,7 @@ const PAYMENT_GATEWAY_POINT = 'payment:gateway';
  * into their own satellite module, payment_<key>, discovered via the extension
  * registry).
  */
-const FALLBACK = new Map<PaymentProvider, () => BasePaymentProvider>([
-  ['PAYPAL', () => new PaypalProvider()],
-  ['IYZICO', () => new IyzicoProvider()],
-  ['ALIPAY', () => new AlipayProvider()],
-  ['WECHATPAY', () => new WeChatPayProvider()],
-  ['YOOKASSA', () => new YooKassaProvider()],
-  ['CLOUDPAYMENTS', () => new CloudPaymentsProvider()],
-]);
+const FALLBACK = new Map<PaymentProvider, () => BasePaymentProvider>();
 
 const instances = new Map<PaymentProvider, BasePaymentProvider>();
 
