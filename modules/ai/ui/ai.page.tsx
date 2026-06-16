@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import api from '@nb/common/server/axios';
 import { PageHeader } from '@nb/common/ui/page-header.component';
 import { Card } from '@nb/common/ui/card.component';
@@ -22,7 +22,8 @@ type UsageEntry = { daily: Record<string, number>; total: number };
  * ai module is enabled for the tenant. Convention: `*.page.tsx` = a routable
  * page (default export), `*.component.tsx` = a reusable element.
  */
-export default function AiAdminPage({ tenantId }: { tenantId: string }) {
+export default function AiAdminPage({ params }: { params: Promise<{ tenantId: string }> }) {
+  const { tenantId } = use(params);
   const [models, setModels] = useState<ModelInfo[]>([]);
   const [providers, setProviders] = useState<ProviderInfo[]>([]);
   const [usage, setUsage] = useState<Record<string, UsageEntry>>({});

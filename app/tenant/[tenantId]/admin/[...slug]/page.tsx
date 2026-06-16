@@ -21,8 +21,8 @@ export async function generateMetadata({
   params: Promise<{ slug?: string[] }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const route = moduleRegistry.findPageRoute(adminPathFor(slug));
-  const name = route ? moduleRegistry.getModule(route.moduleId)?.name : undefined;
+  const match = moduleRegistry.findPageRoute(adminPathFor(slug));
+  const name = match ? moduleRegistry.getModule(match.route.moduleId)?.name : undefined;
   return { title: name ? `${name} · Admin` : 'Admin' };
 }
 
@@ -32,11 +32,18 @@ export default async function AdminDynamicPage({
   params: Promise<{ tenantId: string; slug?: string[] }>;
 }) {
   const { tenantId, slug } = await params;
-  const route = moduleRegistry.findPageRoute(adminPathFor(slug));
-  if (!route) notFound();
+  const match = moduleRegistry.findPageRoute(adminPathFor(slug));
+  if (!match) notFound();
 
   const enabled = await getEnabledModuleIds(tenantId);
-  if (!enabled.has(route.moduleId)) notFound();
+  if (!enabled.has(match.route.moduleId)) notFound();
 
-  return <DynamicAdminPage componentId={route.componentId} tenantId={tenantId} slug={slug ?? []} />;
+  return (
+    <DynamicAdminPage
+      componentId={match.route.componentId}
+      tenantId={tenantId}
+      params={match.params}
+      slug={slug ?? []}
+    />
+  );
 }

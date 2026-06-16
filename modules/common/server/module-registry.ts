@@ -139,18 +139,41 @@ export const moduleRegistry = {
   },
 
   /**
-   * The module page that serves an admin path, by longest-prefix match over
-   * manifest-declared `routes` (so a module can own '/admin/ai' and
-   * '/admin/ai/settings'). Used by the catch-all dynamic admin route.
+   * The module page that serves an admin path. Matches manifest-declared `routes`
+   * by exact segment count, where a `[param]` pattern segment matches any single
+   * segment and is captured (e.g. route '/admin/store/products/[productId]'
+   * matches '/admin/store/products/42' with params {productId: '42'}). When
+   * several routes match, the one with the fewest params (most literal) wins.
+   * Used by the catch-all dynamic admin route.
    */
-  findPageRoute(adminPath: string): RuntimePageRoute | undefined {
+  findPageRoute(adminPath: string): { route: RuntimePageRoute; params: Record<string, string> } | undefined {
+    const segs = adminPath.split('/').filter(Boolean);
     let best: RuntimePageRoute | undefined;
+    let bestParams: Record<string, string> = {};
+    let bestParamCount = Infinity;
     for (const r of PAGE_ROUTES) {
-      if (adminPath === r.path || adminPath.startsWith(r.path + '/')) {
-        if (!best || r.path.length > best.path.length) best = r;
+      const rsegs = r.path.split('/').filter(Boolean);
+      if (rsegs.length !== segs.length) continue;
+      const params: Record<string, string> = {};
+      let ok = true;
+      let paramCount = 0;
+      for (let i = 0; i < rsegs.length; i++) {
+        const rs = rsegs[i];
+        if (rs.startsWith('[') && rs.endsWith(']')) {
+          params[rs.slice(1, -1)] = segs[i];
+          paramCount++;
+        } else if (rs !== segs[i]) {
+          ok = false;
+          break;
+        }
+      }
+      if (ok && paramCount < bestParamCount) {
+        best = r;
+        bestParams = params;
+        bestParamCount = paramCount;
       }
     }
-    return best;
+    return best ? { route: best, params: bestParams } : undefined;
   },
 };
 

@@ -43,12 +43,14 @@ describe('matchesFilter', () => {
 
 describe('findPageRoute (dynamic admin routing)', () => {
   it('resolves an admin path to the module page declared in its manifest routes', () => {
-    expect(moduleRegistry.findPageRoute('/admin/ai')?.componentId).toBe('ai/ui/ai.page');
-    expect(moduleRegistry.findPageRoute('/admin/ai')?.moduleId).toBe('ai');
+    const m = moduleRegistry.findPageRoute('/admin/ai');
+    expect(m?.route.componentId).toBe('ai/ui/ai.page');
+    expect(m?.route.moduleId).toBe('ai');
+    expect(m?.params).toEqual({});
   });
 
-  it('prefers the longest-prefix route (ai/settings over ai)', () => {
-    expect(moduleRegistry.findPageRoute('/admin/ai/settings')?.componentId).toBe('ai/ui/settings.page');
+  it('matches by exact segment count (ai/settings is its own route)', () => {
+    expect(moduleRegistry.findPageRoute('/admin/ai/settings')?.route.componentId).toBe('ai/ui/settings.page');
   });
 
   it('returns undefined for paths no module page claims (catch-all 404s)', () => {
