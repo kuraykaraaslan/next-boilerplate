@@ -47,6 +47,7 @@ System-wide key-value settings store. Modules declare their keys in *.setting.ke
 
 ## Next layer (modules_next/) surface
 
+- `setting/ui/ModuleManagerPage` _(ui, client)_
 - `setting/ui/ModuleSettingsPage` _(ui, client)_
 - `setting/ui/PlatformSettingsTabs` _(ui, client)_
 - `setting/ui/setting.types` _(ui)_

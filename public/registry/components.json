@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T07:38:04.586Z",
+  "generatedAt": "2026-06-16T07:43:12.538Z",
   "components": [
     {
       "id": "ai/ui/AIChatBox",
@@ -2758,6 +2758,18 @@
       "isClient": true,
       "isServer": false,
       "baseName": "web-vitals.client"
+    },
+    {
+      "id": "setting/ui/ModuleManagerPage",
+      "module": "setting",
+      "filePath": "modules/setting/ui/ModuleManagerPage.tsx",
+      "kind": "ui",
+      "exports": [
+        "ModuleManagerPage"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "ModuleManagerPage"
     },
     {
       "id": "setting/ui/ModuleSettingsPage",

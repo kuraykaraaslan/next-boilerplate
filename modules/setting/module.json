@@ -7,5 +7,16 @@
   "icon": "fas fa-gear",
   "tags": ["platform", "configuration"],
   "priority": 5,
-  "dependencies": { "requires": ["db", "env"] }
+  "dependencies": { "requires": ["db", "env"] },
+  "menu": [
+    {
+      "id": "modules",
+      "label": "Modules",
+      "href": "/admin/modules",
+      "icon": "fas fa-puzzle-piece",
+      "group": "Configuration",
+      "order": 5,
+      "scope": "tenant"
+    }
+  ]
 }

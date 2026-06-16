@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T07:38:04.586Z",
+  "generatedAt": "2026-06-16T07:43:12.538Z",
   "routes": [
     {
       "filePath": "app/api/auth/acs/route.ts",
@@ -1908,6 +1908,17 @@
         "GET"
       ],
       "module": "metering",
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/modules/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/modules",
+      "methods": [
+        "GET",
+        "PUT"
+      ],
+      "module": "module",
       "dynamic": true
     },
     {

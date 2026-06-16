@@ -6,6 +6,7 @@
   "exports": {
     "./server/entities/setting.entity": "./server/entities/setting.entity.ts",
     "./server/entities/setting_history.entity": "./server/entities/setting_history.entity.ts",
+    "./server/module-activation.service.next": "./server/module-activation.service.next.ts",
     "./server/setting-fields.types": "./server/setting-fields.types.ts",
     "./server/setting.admin.service": "./server/setting.admin.service.ts",
     "./server/setting.cache": "./server/setting.cache.ts",
@@ -20,6 +21,7 @@
     "./server/setting.validation": "./server/setting.validation.ts",
     "./server/setting.write.service": "./server/setting.write.service.ts",
     "./server/tests/setting.test-setup": "./server/tests/setting.test-setup.ts",
+    "./ui/ModuleManagerPage": "./ui/ModuleManagerPage.tsx",
     "./ui/ModuleSettingsPage": "./ui/ModuleSettingsPage.tsx",
     "./ui/PlatformSettingsTabs": "./ui/PlatformSettingsTabs.tsx",
     "./ui/SettingsPanelHost": "./ui/SettingsPanelHost.tsx",

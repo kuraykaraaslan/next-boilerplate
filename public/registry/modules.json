@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T07:38:04.586Z",
+  "generatedAt": "2026-06-16T07:43:12.538Z",
   "modules": [
     {
       "id": "common",
@@ -425,7 +425,17 @@
         ]
       },
       "enabled": true,
-      "menu": [],
+      "menu": [
+        {
+          "id": "modules",
+          "label": "Modules",
+          "href": "/admin/modules",
+          "icon": "fas fa-puzzle-piece",
+          "group": "Configuration",
+          "order": 5,
+          "scope": "tenant"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
