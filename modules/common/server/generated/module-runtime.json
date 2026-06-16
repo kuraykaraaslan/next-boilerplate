@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-16T09:12:44.760Z",
+  "generatedAt": "2026-06-16T09:45:18.302Z",
   "menu": [
     {
       "id": "settings",
@@ -609,6 +609,12 @@
       "moduleId": "invoice"
     },
     {
+      "path": "/admin/me",
+      "componentId": "user/ui/me.page",
+      "permissions": [],
+      "moduleId": "user"
+    },
+    {
       "path": "/admin/members",
       "componentId": "tenant_member/ui/members.page",
       "permissions": [],
@@ -627,8 +633,20 @@
       "moduleId": "metering"
     },
     {
+      "path": "/admin/modules",
+      "componentId": "setting/ui/modules.page",
+      "permissions": [],
+      "moduleId": "setting"
+    },
+    {
       "path": "/admin/pages",
       "componentId": "dynamic_page/ui/pages.page",
+      "permissions": [],
+      "moduleId": "dynamic_page"
+    },
+    {
+      "path": "/admin/pages/[pageId]",
+      "componentId": "dynamic_page/ui/page-editor.page",
       "permissions": [],
       "moduleId": "dynamic_page"
     },

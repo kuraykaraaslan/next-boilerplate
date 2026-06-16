@@ -50,6 +50,7 @@ Core user CRUD: create, find, update, deactivate. Foundation for every auth and 
 
 ## Next layer (modules_next/) surface
 
+- `user/ui/me.page` _(ui, client)_
 - `user/ui/social-accounts-panel.component` _(ui, client)_
 - `user/ui/user-detail-columns` _(ui)_
 - `user/ui/user-detail.types` _(ui)_

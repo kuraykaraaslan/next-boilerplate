@@ -15,6 +15,7 @@
     "./server/user.seed": "./server/user.seed.ts",
     "./server/user.service": "./server/user.service.ts",
     "./server/user.types": "./server/user.types.ts",
+    "./ui/me.page": "./ui/me.page.tsx",
     "./ui/social-accounts-panel.component": "./ui/social-accounts-panel.component.tsx",
     "./ui/user-detail-columns": "./ui/user-detail-columns.tsx",
     "./ui/user-detail.types": "./ui/user-detail.types.ts",

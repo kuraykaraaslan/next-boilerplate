@@ -40,6 +40,10 @@
     {
       "path": "/admin/users",
       "component": "user/ui/users.page"
+    },
+    {
+      "path": "/admin/me",
+      "component": "user/ui/me.page"
     }
   ]
 }

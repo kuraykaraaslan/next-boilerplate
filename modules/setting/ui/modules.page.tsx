@@ -1,3 +1,4 @@
+'use client';
 import { use } from 'react';
 import { ModuleManagerPage } from '@nb/setting/ui/module-manager-page.component';
 

@@ -116,6 +116,7 @@
     "./ui/dynamic-page-columns.component": "./ui/dynamic-page-columns.component.tsx",
     "./ui/dynamic-page-create-modal.component": "./ui/dynamic-page-create-modal.component.tsx",
     "./ui/dynamic-page-renderer.component": "./ui/dynamic-page-renderer.component.tsx",
+    "./ui/page-editor.page": "./ui/page-editor.page.tsx",
     "./ui/page-templates": "./ui/page-templates.ts",
     "./ui/pages.page": "./ui/pages.page.tsx",
     "./ui/public-dynamic-page.component": "./ui/public-dynamic-page.component.tsx",

@@ -130,7 +130,7 @@ Tenant-aware block-based page builder with i18n support. Supports code blocks (P
 - `dynamic_page/ui/dynamic/Editor/repeater-field.component` _(ui, client)_
 - `dynamic_page/ui/dynamic/Editor/right-sidebar.component` _(ui, client)_
 - `dynamic_page/ui/dynamic/Editor/seo-modal.component` _(ui, client)_
-- … and 27 more
+- … and 28 more
 
 ## README
 

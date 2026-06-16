@@ -136,7 +136,7 @@
     "hasNextLayer": true,
     "routeCount": 3,
     "entityCount": 2,
-    "componentCount": 29,
+    "componentCount": 30,
     "file": "setting.md"
   },
   "user_agent": {
@@ -189,7 +189,7 @@
     "hasNextLayer": true,
     "routeCount": 4,
     "entityCount": 1,
-    "componentCount": 13,
+    "componentCount": 14,
     "file": "user.md"
   },
   "user_preferences": {
@@ -1029,7 +1029,7 @@
     "hasNextLayer": true,
     "routeCount": 11,
     "entityCount": 6,
-    "componentCount": 87,
+    "componentCount": 88,
     "file": "dynamic_page.md"
   },
   "integrations_hub": {

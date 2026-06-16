@@ -23,6 +23,7 @@
     "./server/tests/setting.test-setup": "./server/tests/setting.test-setup.ts",
     "./ui/module-manager-page.component": "./ui/module-manager-page.component.tsx",
     "./ui/module-settings-page.component": "./ui/module-settings-page.component.tsx",
+    "./ui/modules.page": "./ui/modules.page.tsx",
     "./ui/platform-settings-tabs.component": "./ui/platform-settings-tabs.component.tsx",
     "./ui/setting.types": "./ui/setting.types.ts",
     "./ui/settings-auth.page": "./ui/settings-auth.page.tsx",

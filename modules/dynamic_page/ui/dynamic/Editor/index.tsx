@@ -23,11 +23,13 @@ import { useEditorDraft } from './hooks/useEditorDraft'
 import { useEditorKeyboard } from './hooks/useEditorKeyboard'
 import { useEffect } from 'react'
 
-export default function DynamicPageEditor() {
+export default function DynamicPageEditor(props: { tenantId?: string; pageId?: string } = {}) {
+  // Works both as a file-route page (reads useParams) and when served by the
+  // catch-all dynamic admin route (receives tenantId/pageId as props).
   const params = useParams<{ tenantId: string; pageId: string }>()
   const router = useRouter()
-  const tenantId = params?.tenantId ?? ''
-  const pageId = params?.pageId ?? 'new'
+  const tenantId = props.tenantId ?? params?.tenantId ?? ''
+  const pageId = props.pageId ?? params?.pageId ?? 'new'
   const mode = useMemo<'create' | 'edit'>(
     () => (pageId === 'new' ? 'create' : 'edit'),
     [pageId]

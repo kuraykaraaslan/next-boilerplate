@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T09:12:44.760Z",
+  "generatedAt": "2026-06-16T09:45:18.302Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -553,6 +553,10 @@
         {
           "path": "/admin/settings/storage",
           "component": "setting/ui/settings-storage.page"
+        },
+        {
+          "path": "/admin/modules",
+          "component": "setting/ui/modules.page"
         }
       ],
       "widgets": [],
@@ -788,6 +792,10 @@
         {
           "path": "/admin/users",
           "component": "user/ui/users.page"
+        },
+        {
+          "path": "/admin/me",
+          "component": "user/ui/me.page"
         }
       ],
       "widgets": [],
@@ -5051,6 +5059,10 @@
         {
           "path": "/admin/pages",
           "component": "dynamic_page/ui/pages.page"
+        },
+        {
+          "path": "/admin/pages/[pageId]",
+          "component": "dynamic_page/ui/page-editor.page"
         }
       ],
       "widgets": [],
@@ -13666,6 +13678,16 @@
       "baseName": "savedSections"
     },
     {
+      "id": "dynamic_page/ui/page-editor.page",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/page-editor.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "page-editor.page"
+    },
+    {
       "id": "dynamic_page/ui/page-templates",
       "module": "dynamic_page",
       "filePath": "modules/dynamic_page/ui/page-templates.ts",
@@ -14304,6 +14326,16 @@
       "isClient": true,
       "isServer": false,
       "baseName": "module-settings-page.component"
+    },
+    {
+      "id": "setting/ui/modules.page",
+      "module": "setting",
+      "filePath": "modules/setting/ui/modules.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "modules.page"
     },
     {
       "id": "setting/ui/platform-settings-tabs.component",
@@ -15273,6 +15305,16 @@
       "isClient": true,
       "isServer": false,
       "baseName": "active-sessions-panel.component"
+    },
+    {
+      "id": "user/ui/me.page",
+      "module": "user",
+      "filePath": "modules/user/ui/me.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "me.page"
     },
     {
       "id": "user/ui/social-accounts-panel.component",

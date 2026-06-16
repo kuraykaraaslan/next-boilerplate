@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T09:12:44.760Z",
+  "generatedAt": "2026-06-16T09:45:18.302Z",
   "components": [
     {
       "id": "ai/ui/ai-chat-box.component",
@@ -2642,6 +2642,16 @@
       "baseName": "savedSections"
     },
     {
+      "id": "dynamic_page/ui/page-editor.page",
+      "module": "dynamic_page",
+      "filePath": "modules/dynamic_page/ui/page-editor.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "page-editor.page"
+    },
+    {
       "id": "dynamic_page/ui/page-templates",
       "module": "dynamic_page",
       "filePath": "modules/dynamic_page/ui/page-templates.ts",
@@ -3280,6 +3290,16 @@
       "isClient": true,
       "isServer": false,
       "baseName": "module-settings-page.component"
+    },
+    {
+      "id": "setting/ui/modules.page",
+      "module": "setting",
+      "filePath": "modules/setting/ui/modules.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "modules.page"
     },
     {
       "id": "setting/ui/platform-settings-tabs.component",
@@ -4249,6 +4269,16 @@
       "isClient": true,
       "isServer": false,
       "baseName": "active-sessions-panel.component"
+    },
+    {
+      "id": "user/ui/me.page",
+      "module": "user",
+      "filePath": "modules/user/ui/me.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "me.page"
     },
     {
       "id": "user/ui/social-accounts-panel.component",
