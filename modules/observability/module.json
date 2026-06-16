@@ -29,5 +29,11 @@
       "path": "/admin/health",
       "component": "observability/ui/health.page"
     }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/health",
+      "handler": "observability/server/health.route"
+    }
   ]
 }

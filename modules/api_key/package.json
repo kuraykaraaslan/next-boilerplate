@@ -4,6 +4,12 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./server/api-keys-api-key-id-rotate.route": "./server/api-keys-api-key-id-rotate.route.ts",
+    "./server/api-keys-api-key-id.route": "./server/api-keys-api-key-id.route.ts",
+    "./server/api-keys-revoke-all.route": "./server/api-keys-revoke-all.route.ts",
+    "./server/api-keys-sweep-expired.route": "./server/api-keys-sweep-expired.route.ts",
+    "./server/api-keys-verify.route": "./server/api-keys-verify.route.ts",
+    "./server/api-keys.route": "./server/api-keys.route.ts",
     "./server/api_key.cache": "./server/api_key.cache.ts",
     "./server/api_key.crud.service": "./server/api_key.crud.service.ts",
     "./server/api_key.crypto": "./server/api_key.crypto.ts",

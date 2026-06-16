@@ -137,6 +137,18 @@
       "items": { "$ref": "#/definitions/slotContribution" },
       "description": "Components this module contributes into named slots exposed by other modules"
     },
+    "apiRoutes": {
+      "type": "array",
+      "description": "Tenant API endpoints owned by this module, served by the catch-all dispatcher",
+      "items": {
+        "type": "object",
+        "required": ["path", "handler"],
+        "properties": {
+          "path": { "type": "string", "description": "URL path, e.g. '/api/store/products/[productId]'" },
+          "handler": { "type": "string", "description": "Handler module id, e.g. 'store/server/store-products.route'" }
+        }
+      }
+    },
     "exports": {
       "type": "object",
       "additionalProperties": { "type": "string" },

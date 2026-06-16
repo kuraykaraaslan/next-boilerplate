@@ -36,13 +36,6 @@ Email invitation flow: create / accept / decline / revoke. Bound to tenant_membe
 
 - `tenant_invitation.messages.ts`
 
-## Owned API routes
-
-- `tenant` GET/POST `/tenant/[tenantId]/api/invitations`
-- `tenant` GET/DELETE `/tenant/[tenantId]/api/invitations/[invitationId]`
-- `tenant` GET/POST `/tenant/[tenantId]/api/invitations/accept`
-- `tenant` POST `/tenant/[tenantId]/api/invitations/decline`
-
 ## TypeORM entities
 
 - `TenantInvitation` (tenant) — `modules/tenant_invitation/server/entities/tenant_invitation.entity.ts`

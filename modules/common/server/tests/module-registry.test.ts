@@ -58,3 +58,27 @@ describe('findPageRoute (dynamic admin routing)', () => {
     expect(moduleRegistry.findPageRoute('/admin/totally-unknown')).toBeUndefined();
   });
 });
+
+describe('findApiRoute (dynamic API dispatch)', () => {
+  it('resolves an api path to the owning module handler', () => {
+    const m = moduleRegistry.findApiRoute('/api/ai/models');
+    expect(m?.route.handlerId).toBe('ai/server/ai-models.route');
+    expect(m?.route.moduleId).toBe('ai');
+    expect(m?.params).toEqual({});
+  });
+
+  it('extracts route params from the request path', () => {
+    const m = moduleRegistry.findApiRoute('/api/store/products/42');
+    expect(m?.route.handlerId).toBe('store/server/store-products-product-id.route');
+    expect(m?.params).toEqual({ productId: '42' });
+  });
+
+  it('prefers the literal route over the param route (list vs detail)', () => {
+    expect(moduleRegistry.findApiRoute('/api/store/products')?.route.path).toBe('/api/store/products');
+    expect(moduleRegistry.findApiRoute('/api/store/products/42')?.route.path).toBe('/api/store/products/[productId]');
+  });
+
+  it('returns undefined for unclaimed api paths (dispatcher 404s)', () => {
+    expect(moduleRegistry.findApiRoute('/api/totally/unknown')).toBeUndefined();
+  });
+});

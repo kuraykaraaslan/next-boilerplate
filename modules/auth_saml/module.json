@@ -54,5 +54,11 @@
       "path": "/admin/saml/settings",
       "component": "auth_saml/ui/saml-settings.page"
     }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/saml/config",
+      "handler": "auth_saml/server/saml-config.route"
+    }
   ]
 }

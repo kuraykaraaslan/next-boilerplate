@@ -18,5 +18,15 @@
   },
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/seo",
-  "license": "CC-BY-NC-ND-4.0"
+  "license": "CC-BY-NC-ND-4.0",
+  "apiRoutes": [
+    {
+      "path": "/api/seo/[entityType]/[entityId]",
+      "handler": "seo/server/seo-entity-type-entity-id.route"
+    },
+    {
+      "path": "/api/seo/web-vitals",
+      "handler": "seo/server/seo-web-vitals.route"
+    }
+  ]
 }

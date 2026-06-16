@@ -45,5 +45,203 @@
       "path": "/admin/auth/settings",
       "component": "auth/ui/auth-settings.page"
     }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/auth/callback",
+      "handler": "auth/server/auth-callback.route"
+    },
+    {
+      "path": "/api/auth/change-password",
+      "handler": "auth/server/auth-change-password.route"
+    },
+    {
+      "path": "/api/auth/csrf",
+      "handler": "auth/server/auth-csrf.route"
+    },
+    {
+      "path": "/api/auth/e-signature/countries",
+      "handler": "auth/server/auth-e-signature-countries.route"
+    },
+    {
+      "path": "/api/auth/e-signature/initiate",
+      "handler": "auth/server/auth-e-signature-initiate.route"
+    },
+    {
+      "path": "/api/auth/e-signature/status/[transactionId]",
+      "handler": "auth/server/auth-e-signature-status-transaction-id.route"
+    },
+    {
+      "path": "/api/auth/forgot-password",
+      "handler": "auth/server/auth-forgot-password.route"
+    },
+    {
+      "path": "/api/auth/impersonate",
+      "handler": "auth/server/auth-impersonate.route"
+    },
+    {
+      "path": "/api/auth/login",
+      "handler": "auth/server/auth-login.route"
+    },
+    {
+      "path": "/api/auth/logout",
+      "handler": "auth/server/auth-logout.route"
+    },
+    {
+      "path": "/api/auth/me/complete-email",
+      "handler": "auth/server/auth-me-complete-email.route"
+    },
+    {
+      "path": "/api/auth/me/device-info",
+      "handler": "auth/server/auth-me-device-info.route"
+    },
+    {
+      "path": "/api/auth/me/merge-identity",
+      "handler": "auth/server/auth-me-merge-identity.route"
+    },
+    {
+      "path": "/api/auth/me/notifications/[notificationId]",
+      "handler": "auth/server/auth-me-notifications-notification-id.route"
+    },
+    {
+      "path": "/api/auth/me/notifications/read-all",
+      "handler": "auth/server/auth-me-notifications-read-all.route"
+    },
+    {
+      "path": "/api/auth/me/notifications",
+      "handler": "auth/server/auth-me-notifications.route"
+    },
+    {
+      "path": "/api/auth/me/preferences",
+      "handler": "auth/server/auth-me-preferences.route"
+    },
+    {
+      "path": "/api/auth/me/profile",
+      "handler": "auth/server/auth-me-profile.route"
+    },
+    {
+      "path": "/api/auth/me/security/e-signature/[id]",
+      "handler": "auth/server/auth-me-security-e-signature-id.route"
+    },
+    {
+      "path": "/api/auth/me/security/e-signature",
+      "handler": "auth/server/auth-me-security-e-signature.route"
+    },
+    {
+      "path": "/api/auth/me/security",
+      "handler": "auth/server/auth-me-security.route"
+    },
+    {
+      "path": "/api/auth/me/sessions/[sessionId]",
+      "handler": "auth/server/auth-me-sessions-session-id.route"
+    },
+    {
+      "path": "/api/auth/me/sessions",
+      "handler": "auth/server/auth-me-sessions.route"
+    },
+    {
+      "path": "/api/auth/me/social-accounts/[provider]",
+      "handler": "auth/server/auth-me-social-accounts-provider.route"
+    },
+    {
+      "path": "/api/auth/me/social-accounts/connect/[provider]",
+      "handler": "auth/server/auth-me-social-accounts-connect-provider.route"
+    },
+    {
+      "path": "/api/auth/me/social-accounts/connect/acs/[provider]",
+      "handler": "auth/server/auth-me-social-accounts-connect-acs-provider.route"
+    },
+    {
+      "path": "/api/auth/me/social-accounts/connect/saml",
+      "handler": "auth/server/auth-me-social-accounts-connect-saml.route"
+    },
+    {
+      "path": "/api/auth/me/social-accounts",
+      "handler": "auth/server/auth-me-social-accounts.route"
+    },
+    {
+      "path": "/api/auth/me/tenants",
+      "handler": "auth/server/auth-me-tenants.route"
+    },
+    {
+      "path": "/api/auth/openapi",
+      "handler": "auth/server/auth-openapi.route"
+    },
+    {
+      "path": "/api/auth/otp/send",
+      "handler": "auth/server/auth-otp-send.route"
+    },
+    {
+      "path": "/api/auth/otp/verify",
+      "handler": "auth/server/auth-otp-verify.route"
+    },
+    {
+      "path": "/api/auth/refresh",
+      "handler": "auth/server/auth-refresh.route"
+    },
+    {
+      "path": "/api/auth/register",
+      "handler": "auth/server/auth-register.route"
+    },
+    {
+      "path": "/api/auth/reset-password",
+      "handler": "auth/server/auth-reset-password.route"
+    },
+    {
+      "path": "/api/auth",
+      "handler": "auth/server/auth.route"
+    },
+    {
+      "path": "/api/auth/saml/callback",
+      "handler": "auth/server/auth-saml-callback.route"
+    },
+    {
+      "path": "/api/auth/saml/initiate",
+      "handler": "auth/server/auth-saml-initiate.route"
+    },
+    {
+      "path": "/api/auth/saml/metadata",
+      "handler": "auth/server/auth-saml-metadata.route"
+    },
+    {
+      "path": "/api/auth/saml/status",
+      "handler": "auth/server/auth-saml-status.route"
+    },
+    {
+      "path": "/api/auth/session",
+      "handler": "auth/server/auth-session.route"
+    },
+    {
+      "path": "/api/auth/session/token-set",
+      "handler": "auth/server/auth-session-token-set.route"
+    },
+    {
+      "path": "/api/auth/sso/[provider]",
+      "handler": "auth/server/auth-sso-provider.route"
+    },
+    {
+      "path": "/api/auth/sso",
+      "handler": "auth/server/auth-sso.route"
+    },
+    {
+      "path": "/api/auth/totp/disable",
+      "handler": "auth/server/auth-totp-disable.route"
+    },
+    {
+      "path": "/api/auth/totp/enable",
+      "handler": "auth/server/auth-totp-enable.route"
+    },
+    {
+      "path": "/api/auth/totp/setup",
+      "handler": "auth/server/auth-totp-setup.route"
+    },
+    {
+      "path": "/api/auth/verify-email/send",
+      "handler": "auth/server/auth-verify-email-send.route"
+    },
+    {
+      "path": "/api/auth/verify-email/verify",
+      "handler": "auth/server/auth-verify-email-verify.route"
+    }
   ]
 }

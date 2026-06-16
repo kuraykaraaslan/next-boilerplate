@@ -41,5 +41,19 @@
       "path": "/admin/domains/settings",
       "component": "tenant_domain/ui/domains-settings.page"
     }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/domains/[domainId]",
+      "handler": "tenant_domain/server/domains-domain-id.route"
+    },
+    {
+      "path": "/api/domains/[domainId]/verify",
+      "handler": "tenant_domain/server/domains-domain-id-verify.route"
+    },
+    {
+      "path": "/api/domains",
+      "handler": "tenant_domain/server/domains.route"
+    }
   ]
 }

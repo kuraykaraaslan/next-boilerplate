@@ -47,5 +47,27 @@
       "path": "/admin/tenants",
       "component": "tenant/ui/tenants.page"
     }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/tenants/[targetTenantId]/deletion-request",
+      "handler": "tenant/server/tenants-target-tenant-id-deletion-request.route"
+    },
+    {
+      "path": "/api/tenants/[targetTenantId]",
+      "handler": "tenant/server/tenants-target-tenant-id.route"
+    },
+    {
+      "path": "/api/tenants/[targetTenantId]/subscription",
+      "handler": "tenant/server/tenants-target-tenant-id-subscription.route"
+    },
+    {
+      "path": "/api/tenants/create",
+      "handler": "tenant/server/tenants-create.route"
+    },
+    {
+      "path": "/api/tenants",
+      "handler": "tenant/server/tenants.route"
+    }
   ]
 }

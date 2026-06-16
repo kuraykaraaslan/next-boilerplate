@@ -23,10 +23,6 @@ Export all per-tenant data into a downloadable archive (GDPR-friendly).
 
 - `tenant_export_job.entity.ts`
 
-## Owned API routes
-
-- `tenant` POST `/tenant/[tenantId]/api/export`
-
 ## TypeORM entities
 
 - `TenantExportJob` (tenant) — `modules/tenant_export/server/entities/tenant_export_job.entity.ts`

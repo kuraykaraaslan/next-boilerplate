@@ -88,5 +88,35 @@
       "path": "/admin/modules",
       "component": "setting/ui/modules.page"
     }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/admin/impersonate",
+      "handler": "setting/server/admin-impersonate.route"
+    },
+    {
+      "path": "/api/admin/subscription/customer-portal",
+      "handler": "setting/server/admin-subscription-customer-portal.route"
+    },
+    {
+      "path": "/api/admin-settings",
+      "handler": "setting/server/admin-settings.route"
+    },
+    {
+      "path": "/api/modules",
+      "handler": "setting/server/modules.route"
+    },
+    {
+      "path": "/api/settings/branding",
+      "handler": "setting/server/settings-branding.route"
+    },
+    {
+      "path": "/api/settings/public",
+      "handler": "setting/server/settings-public.route"
+    },
+    {
+      "path": "/api/settings",
+      "handler": "setting/server/settings.route"
+    }
   ]
 }

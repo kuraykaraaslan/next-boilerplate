@@ -39,15 +39,6 @@ Internal credit / wallet ledger. Double-entry accounting where every movement is
 
 - `wallet.messages.ts`
 
-## Owned API routes
-
-- `tenant` GET/POST `/tenant/[tenantId]/api/wallet/accounts`
-- `tenant` GET `/tenant/[tenantId]/api/wallet/accounts/[accountId]`
-- `tenant` GET `/tenant/[tenantId]/api/wallet/accounts/[accountId]/statement`
-- `tenant` GET/POST `/tenant/[tenantId]/api/wallet/transactions`
-- `tenant` POST `/tenant/[tenantId]/api/wallet/transfer`
-- `tenant` POST `/tenant/[tenantId]/api/wallet/verify`
-
 ## TypeORM entities
 
 - `WalletAccount` (system) — `modules/wallet/server/entities/wallet_account.entity.ts`

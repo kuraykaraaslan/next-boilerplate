@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T09:45:18.302Z",
+  "generatedAt": "2026-06-16T10:07:57.302Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -53,6 +53,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -97,6 +98,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -142,6 +144,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -187,6 +190,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -234,6 +238,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -282,6 +287,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -333,6 +339,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -389,6 +396,12 @@
           "component": "observability/ui/health.page"
         }
       ],
+      "apiRoutes": [
+        {
+          "path": "/api/health",
+          "handler": "observability/server/health.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -435,6 +448,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -559,6 +573,36 @@
           "component": "setting/ui/modules.page"
         }
       ],
+      "apiRoutes": [
+        {
+          "path": "/api/admin/impersonate",
+          "handler": "setting/server/admin-impersonate.route"
+        },
+        {
+          "path": "/api/admin/subscription/customer-portal",
+          "handler": "setting/server/admin-subscription-customer-portal.route"
+        },
+        {
+          "path": "/api/admin-settings",
+          "handler": "setting/server/admin-settings.route"
+        },
+        {
+          "path": "/api/modules",
+          "handler": "setting/server/modules.route"
+        },
+        {
+          "path": "/api/settings/branding",
+          "handler": "setting/server/settings-branding.route"
+        },
+        {
+          "path": "/api/settings/public",
+          "handler": "setting/server/settings-public.route"
+        },
+        {
+          "path": "/api/settings",
+          "handler": "setting/server/settings.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -605,6 +649,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -649,6 +694,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -716,6 +762,12 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [
+        {
+          "path": "/api/storage",
+          "handler": "storage/server/storage.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -798,6 +850,24 @@
           "component": "user/ui/me.page"
         }
       ],
+      "apiRoutes": [
+        {
+          "path": "/api/users/[userId]/impersonation-sessions",
+          "handler": "user/server/users-user-id-impersonation-sessions.route"
+        },
+        {
+          "path": "/api/users/[userId]",
+          "handler": "user/server/users-user-id.route"
+        },
+        {
+          "path": "/api/users/[userId]/tenants",
+          "handler": "user/server/users-user-id-tenants.route"
+        },
+        {
+          "path": "/api/users",
+          "handler": "user/server/users.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -852,6 +922,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -910,6 +981,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -974,6 +1046,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1034,6 +1107,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1090,6 +1164,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1177,6 +1252,204 @@
           "component": "auth/ui/auth-settings.page"
         }
       ],
+      "apiRoutes": [
+        {
+          "path": "/api/auth/callback",
+          "handler": "auth/server/auth-callback.route"
+        },
+        {
+          "path": "/api/auth/change-password",
+          "handler": "auth/server/auth-change-password.route"
+        },
+        {
+          "path": "/api/auth/csrf",
+          "handler": "auth/server/auth-csrf.route"
+        },
+        {
+          "path": "/api/auth/e-signature/countries",
+          "handler": "auth/server/auth-e-signature-countries.route"
+        },
+        {
+          "path": "/api/auth/e-signature/initiate",
+          "handler": "auth/server/auth-e-signature-initiate.route"
+        },
+        {
+          "path": "/api/auth/e-signature/status/[transactionId]",
+          "handler": "auth/server/auth-e-signature-status-transaction-id.route"
+        },
+        {
+          "path": "/api/auth/forgot-password",
+          "handler": "auth/server/auth-forgot-password.route"
+        },
+        {
+          "path": "/api/auth/impersonate",
+          "handler": "auth/server/auth-impersonate.route"
+        },
+        {
+          "path": "/api/auth/login",
+          "handler": "auth/server/auth-login.route"
+        },
+        {
+          "path": "/api/auth/logout",
+          "handler": "auth/server/auth-logout.route"
+        },
+        {
+          "path": "/api/auth/me/complete-email",
+          "handler": "auth/server/auth-me-complete-email.route"
+        },
+        {
+          "path": "/api/auth/me/device-info",
+          "handler": "auth/server/auth-me-device-info.route"
+        },
+        {
+          "path": "/api/auth/me/merge-identity",
+          "handler": "auth/server/auth-me-merge-identity.route"
+        },
+        {
+          "path": "/api/auth/me/notifications/[notificationId]",
+          "handler": "auth/server/auth-me-notifications-notification-id.route"
+        },
+        {
+          "path": "/api/auth/me/notifications/read-all",
+          "handler": "auth/server/auth-me-notifications-read-all.route"
+        },
+        {
+          "path": "/api/auth/me/notifications",
+          "handler": "auth/server/auth-me-notifications.route"
+        },
+        {
+          "path": "/api/auth/me/preferences",
+          "handler": "auth/server/auth-me-preferences.route"
+        },
+        {
+          "path": "/api/auth/me/profile",
+          "handler": "auth/server/auth-me-profile.route"
+        },
+        {
+          "path": "/api/auth/me/security/e-signature/[id]",
+          "handler": "auth/server/auth-me-security-e-signature-id.route"
+        },
+        {
+          "path": "/api/auth/me/security/e-signature",
+          "handler": "auth/server/auth-me-security-e-signature.route"
+        },
+        {
+          "path": "/api/auth/me/security",
+          "handler": "auth/server/auth-me-security.route"
+        },
+        {
+          "path": "/api/auth/me/sessions/[sessionId]",
+          "handler": "auth/server/auth-me-sessions-session-id.route"
+        },
+        {
+          "path": "/api/auth/me/sessions",
+          "handler": "auth/server/auth-me-sessions.route"
+        },
+        {
+          "path": "/api/auth/me/social-accounts/[provider]",
+          "handler": "auth/server/auth-me-social-accounts-provider.route"
+        },
+        {
+          "path": "/api/auth/me/social-accounts/connect/[provider]",
+          "handler": "auth/server/auth-me-social-accounts-connect-provider.route"
+        },
+        {
+          "path": "/api/auth/me/social-accounts/connect/acs/[provider]",
+          "handler": "auth/server/auth-me-social-accounts-connect-acs-provider.route"
+        },
+        {
+          "path": "/api/auth/me/social-accounts/connect/saml",
+          "handler": "auth/server/auth-me-social-accounts-connect-saml.route"
+        },
+        {
+          "path": "/api/auth/me/social-accounts",
+          "handler": "auth/server/auth-me-social-accounts.route"
+        },
+        {
+          "path": "/api/auth/me/tenants",
+          "handler": "auth/server/auth-me-tenants.route"
+        },
+        {
+          "path": "/api/auth/openapi",
+          "handler": "auth/server/auth-openapi.route"
+        },
+        {
+          "path": "/api/auth/otp/send",
+          "handler": "auth/server/auth-otp-send.route"
+        },
+        {
+          "path": "/api/auth/otp/verify",
+          "handler": "auth/server/auth-otp-verify.route"
+        },
+        {
+          "path": "/api/auth/refresh",
+          "handler": "auth/server/auth-refresh.route"
+        },
+        {
+          "path": "/api/auth/register",
+          "handler": "auth/server/auth-register.route"
+        },
+        {
+          "path": "/api/auth/reset-password",
+          "handler": "auth/server/auth-reset-password.route"
+        },
+        {
+          "path": "/api/auth",
+          "handler": "auth/server/auth.route"
+        },
+        {
+          "path": "/api/auth/saml/callback",
+          "handler": "auth/server/auth-saml-callback.route"
+        },
+        {
+          "path": "/api/auth/saml/initiate",
+          "handler": "auth/server/auth-saml-initiate.route"
+        },
+        {
+          "path": "/api/auth/saml/metadata",
+          "handler": "auth/server/auth-saml-metadata.route"
+        },
+        {
+          "path": "/api/auth/saml/status",
+          "handler": "auth/server/auth-saml-status.route"
+        },
+        {
+          "path": "/api/auth/session",
+          "handler": "auth/server/auth-session.route"
+        },
+        {
+          "path": "/api/auth/session/token-set",
+          "handler": "auth/server/auth-session-token-set.route"
+        },
+        {
+          "path": "/api/auth/sso/[provider]",
+          "handler": "auth/server/auth-sso-provider.route"
+        },
+        {
+          "path": "/api/auth/sso",
+          "handler": "auth/server/auth-sso.route"
+        },
+        {
+          "path": "/api/auth/totp/disable",
+          "handler": "auth/server/auth-totp-disable.route"
+        },
+        {
+          "path": "/api/auth/totp/enable",
+          "handler": "auth/server/auth-totp-enable.route"
+        },
+        {
+          "path": "/api/auth/totp/setup",
+          "handler": "auth/server/auth-totp-setup.route"
+        },
+        {
+          "path": "/api/auth/verify-email/send",
+          "handler": "auth/server/auth-verify-email-send.route"
+        },
+        {
+          "path": "/api/auth/verify-email/verify",
+          "handler": "auth/server/auth-verify-email-verify.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1226,6 +1499,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1324,6 +1598,12 @@
           "component": "auth_saml/ui/saml-settings.page"
         }
       ],
+      "apiRoutes": [
+        {
+          "path": "/api/saml/config",
+          "handler": "auth_saml/server/saml-config.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1396,6 +1676,7 @@
           "component": "auth_sso/ui/sso-settings.page"
         }
       ],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1467,6 +1748,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1535,6 +1817,7 @@
           "component": "auth_impersonation/ui/impersonation-settings.page"
         }
       ],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1599,6 +1882,40 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [
+        {
+          "path": "/api/scim/v2/Groups/[scimGroupId]",
+          "handler": "scim/server/scim-v2-groups-scim-group-id.route"
+        },
+        {
+          "path": "/api/scim/v2/Groups",
+          "handler": "scim/server/scim-v2-groups.route"
+        },
+        {
+          "path": "/api/scim/v2/Health",
+          "handler": "scim/server/scim-v2-health.route"
+        },
+        {
+          "path": "/api/scim/v2/ResourceTypes",
+          "handler": "scim/server/scim-v2-resource-types.route"
+        },
+        {
+          "path": "/api/scim/v2/Schemas",
+          "handler": "scim/server/scim-v2-schemas.route"
+        },
+        {
+          "path": "/api/scim/v2/ServiceProviderConfig",
+          "handler": "scim/server/scim-v2-service-provider-config.route"
+        },
+        {
+          "path": "/api/scim/v2/Users/[scimUserId]",
+          "handler": "scim/server/scim-v2-users-scim-user-id.route"
+        },
+        {
+          "path": "/api/scim/v2/Users",
+          "handler": "scim/server/scim-v2-users.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1682,6 +1999,28 @@
           "component": "tenant/ui/tenants.page"
         }
       ],
+      "apiRoutes": [
+        {
+          "path": "/api/tenants/[targetTenantId]/deletion-request",
+          "handler": "tenant/server/tenants-target-tenant-id-deletion-request.route"
+        },
+        {
+          "path": "/api/tenants/[targetTenantId]",
+          "handler": "tenant/server/tenants-target-tenant-id.route"
+        },
+        {
+          "path": "/api/tenants/[targetTenantId]/subscription",
+          "handler": "tenant/server/tenants-target-tenant-id-subscription.route"
+        },
+        {
+          "path": "/api/tenants/create",
+          "handler": "tenant/server/tenants-create.route"
+        },
+        {
+          "path": "/api/tenants",
+          "handler": "tenant/server/tenants.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1755,6 +2094,16 @@
         {
           "path": "/admin/members/settings",
           "component": "tenant_member/ui/members-settings.page"
+        }
+      ],
+      "apiRoutes": [
+        {
+          "path": "/api/members/[memberId]",
+          "handler": "tenant_member/server/members-member-id.route"
+        },
+        {
+          "path": "/api/members",
+          "handler": "tenant_member/server/members.route"
         }
       ],
       "widgets": [],
@@ -1836,6 +2185,24 @@
           "component": "tenant_invitation/ui/invitations-settings.page"
         }
       ],
+      "apiRoutes": [
+        {
+          "path": "/api/invitations/[invitationId]",
+          "handler": "tenant_invitation/server/invitations-invitation-id.route"
+        },
+        {
+          "path": "/api/invitations/accept",
+          "handler": "tenant_invitation/server/invitations-accept.route"
+        },
+        {
+          "path": "/api/invitations/decline",
+          "handler": "tenant_invitation/server/invitations-decline.route"
+        },
+        {
+          "path": "/api/invitations",
+          "handler": "tenant_invitation/server/invitations.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1890,6 +2257,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1955,6 +2323,7 @@
           "component": "tenant_branding/ui/settings-branding.page"
         }
       ],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2035,6 +2404,20 @@
         {
           "path": "/admin/domains/settings",
           "component": "tenant_domain/ui/domains-settings.page"
+        }
+      ],
+      "apiRoutes": [
+        {
+          "path": "/api/domains/[domainId]",
+          "handler": "tenant_domain/server/domains-domain-id.route"
+        },
+        {
+          "path": "/api/domains/[domainId]/verify",
+          "handler": "tenant_domain/server/domains-domain-id-verify.route"
+        },
+        {
+          "path": "/api/domains",
+          "handler": "tenant_domain/server/domains.route"
         }
       ],
       "widgets": [],
@@ -2122,6 +2505,44 @@
           "component": "tenant_subscription/ui/subscription.page"
         }
       ],
+      "apiRoutes": [
+        {
+          "path": "/api/subscription/confirm",
+          "handler": "tenant_subscription/server/subscription-confirm.route"
+        },
+        {
+          "path": "/api/subscription/features",
+          "handler": "tenant_subscription/server/subscription-features.route"
+        },
+        {
+          "path": "/api/subscription/grace-period",
+          "handler": "tenant_subscription/server/subscription-grace-period.route"
+        },
+        {
+          "path": "/api/subscription/pay/3ds-callback",
+          "handler": "tenant_subscription/server/subscription-pay-3ds-callback.route"
+        },
+        {
+          "path": "/api/subscription/pay",
+          "handler": "tenant_subscription/server/subscription-pay.route"
+        },
+        {
+          "path": "/api/subscription/payment-intent/confirm",
+          "handler": "tenant_subscription/server/subscription-payment-intent-confirm.route"
+        },
+        {
+          "path": "/api/subscription/payment-intent",
+          "handler": "tenant_subscription/server/subscription-payment-intent.route"
+        },
+        {
+          "path": "/api/subscription/quote",
+          "handler": "tenant_subscription/server/subscription-quote.route"
+        },
+        {
+          "path": "/api/subscription",
+          "handler": "tenant_subscription/server/subscription.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2179,6 +2600,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2303,6 +2725,76 @@
           "component": "payment/ui/plans.page"
         }
       ],
+      "apiRoutes": [
+        {
+          "path": "/api/checkout/agreements/accept",
+          "handler": "payment/server/checkout-agreements-accept.route"
+        },
+        {
+          "path": "/api/checkout/agreements",
+          "handler": "payment/server/checkout-agreements.route"
+        },
+        {
+          "path": "/api/payments/[paymentId]/refund",
+          "handler": "payment/server/payments-payment-id-refund.route"
+        },
+        {
+          "path": "/api/payments/[paymentId]",
+          "handler": "payment/server/payments-payment-id.route"
+        },
+        {
+          "path": "/api/payments/[paymentId]/transactions",
+          "handler": "payment/server/payments-payment-id-transactions.route"
+        },
+        {
+          "path": "/api/payments/bin-check",
+          "handler": "payment/server/payments-bin-check.route"
+        },
+        {
+          "path": "/api/payments/provider-status",
+          "handler": "payment/server/payments-provider-status.route"
+        },
+        {
+          "path": "/api/payments/providers",
+          "handler": "payment/server/payments-providers.route"
+        },
+        {
+          "path": "/api/payments",
+          "handler": "payment/server/payments.route"
+        },
+        {
+          "path": "/api/payments/transactions/[transactionId]",
+          "handler": "payment/server/payments-transactions-transaction-id.route"
+        },
+        {
+          "path": "/api/payments/wallets",
+          "handler": "payment/server/payments-wallets.route"
+        },
+        {
+          "path": "/api/plans/[planId]/features/[featureId]",
+          "handler": "payment/server/plans-plan-id-features-feature-id.route"
+        },
+        {
+          "path": "/api/plans/[planId]/features",
+          "handler": "payment/server/plans-plan-id-features.route"
+        },
+        {
+          "path": "/api/plans/[planId]",
+          "handler": "payment/server/plans-plan-id.route"
+        },
+        {
+          "path": "/api/plans/default",
+          "handler": "payment/server/plans-default.route"
+        },
+        {
+          "path": "/api/plans/public",
+          "handler": "payment/server/plans-public.route"
+        },
+        {
+          "path": "/api/plans",
+          "handler": "payment/server/plans.route"
+        }
+      ],
       "widgets": [],
       "slots": [
         {
@@ -2364,6 +2856,12 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [
+        {
+          "path": "/api/export",
+          "handler": "tenant_export/server/export.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2446,6 +2944,28 @@
           "component": "coupon/ui/coupons.page"
         }
       ],
+      "apiRoutes": [
+        {
+          "path": "/api/coupons/[couponId]",
+          "handler": "coupon/server/coupons-coupon-id.route"
+        },
+        {
+          "path": "/api/coupons/apply",
+          "handler": "coupon/server/coupons-apply.route"
+        },
+        {
+          "path": "/api/coupons/redemptions",
+          "handler": "coupon/server/coupons-redemptions.route"
+        },
+        {
+          "path": "/api/coupons",
+          "handler": "coupon/server/coupons.route"
+        },
+        {
+          "path": "/api/coupons/validate",
+          "handler": "coupon/server/coupons-validate.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2511,6 +3031,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2559,6 +3080,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2629,6 +3151,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2693,6 +3216,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2755,6 +3279,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2837,6 +3362,44 @@
           "component": "invoice/ui/invoices.page"
         }
       ],
+      "apiRoutes": [
+        {
+          "path": "/api/invoices/[invoiceId]/issue",
+          "handler": "invoice/server/invoices-invoice-id-issue.route"
+        },
+        {
+          "path": "/api/invoices/[invoiceId]/mark-paid",
+          "handler": "invoice/server/invoices-invoice-id-mark-paid.route"
+        },
+        {
+          "path": "/api/invoices/[invoiceId]/pdf",
+          "handler": "invoice/server/invoices-invoice-id-pdf.route"
+        },
+        {
+          "path": "/api/invoices/[invoiceId]",
+          "handler": "invoice/server/invoices-invoice-id.route"
+        },
+        {
+          "path": "/api/invoices/[invoiceId]/void",
+          "handler": "invoice/server/invoices-invoice-id-void.route"
+        },
+        {
+          "path": "/api/invoices/earsiv/sms/send",
+          "handler": "invoice/server/invoices-earsiv-sms-send.route"
+        },
+        {
+          "path": "/api/invoices/earsiv/sms/verify",
+          "handler": "invoice/server/invoices-earsiv-sms-verify.route"
+        },
+        {
+          "path": "/api/invoices/preview",
+          "handler": "invoice/server/invoices-preview.route"
+        },
+        {
+          "path": "/api/invoices",
+          "handler": "invoice/server/invoices.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2885,6 +3448,16 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [
+        {
+          "path": "/api/notifications/push/subscribe",
+          "handler": "notification_inapp/server/notifications-push-subscribe.route"
+        },
+        {
+          "path": "/api/notifications/sms/send",
+          "handler": "notification_inapp/server/notifications-sms-send.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2942,6 +3515,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2995,6 +3569,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3047,6 +3622,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3098,6 +3674,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3160,6 +3737,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3224,6 +3802,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3288,6 +3867,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3351,6 +3931,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3435,6 +4016,12 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [
+        {
+          "path": "/api/e-signature/settings",
+          "handler": "e_signature/server/e-signature-settings.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3491,6 +4078,16 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [
+        {
+          "path": "/api/seo/[entityType]/[entityId]",
+          "handler": "seo/server/seo-entity-type-entity-id.route"
+        },
+        {
+          "path": "/api/seo/web-vitals",
+          "handler": "seo/server/seo-web-vitals.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3555,6 +4152,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3616,6 +4214,20 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [
+        {
+          "path": "/api/media-gallery/[entityType]/[entityId]/items/reorder",
+          "handler": "media_gallery/server/media-gallery-entity-type-entity-id-items-reorder.route"
+        },
+        {
+          "path": "/api/media-gallery/[entityType]/[entityId]/items",
+          "handler": "media_gallery/server/media-gallery-entity-type-entity-id-items.route"
+        },
+        {
+          "path": "/api/media-gallery/items/[itemId]",
+          "handler": "media_gallery/server/media-gallery-items-item-id.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3694,6 +4306,32 @@
         {
           "path": "/admin/api-keys/settings",
           "component": "api_key/ui/api-keys-settings.page"
+        }
+      ],
+      "apiRoutes": [
+        {
+          "path": "/api/api-keys/[apiKeyId]/rotate",
+          "handler": "api_key/server/api-keys-api-key-id-rotate.route"
+        },
+        {
+          "path": "/api/api-keys/[apiKeyId]",
+          "handler": "api_key/server/api-keys-api-key-id.route"
+        },
+        {
+          "path": "/api/api-keys/revoke-all",
+          "handler": "api_key/server/api-keys-revoke-all.route"
+        },
+        {
+          "path": "/api/api-keys",
+          "handler": "api_key/server/api-keys.route"
+        },
+        {
+          "path": "/api/api-keys/sweep-expired",
+          "handler": "api_key/server/api-keys-sweep-expired.route"
+        },
+        {
+          "path": "/api/api-keys/verify",
+          "handler": "api_key/server/api-keys-verify.route"
         }
       ],
       "widgets": [],
@@ -3779,6 +4417,32 @@
         {
           "path": "/admin/audit-logs/settings",
           "component": "audit_log/ui/audit-logs-settings.page"
+        }
+      ],
+      "apiRoutes": [
+        {
+          "path": "/api/audit-logs/anonymize",
+          "handler": "audit_log/server/audit-logs-anonymize.route"
+        },
+        {
+          "path": "/api/audit-logs/cross-tenant",
+          "handler": "audit_log/server/audit-logs-cross-tenant.route"
+        },
+        {
+          "path": "/api/audit-logs/export",
+          "handler": "audit_log/server/audit-logs-export.route"
+        },
+        {
+          "path": "/api/audit-logs/purge",
+          "handler": "audit_log/server/audit-logs-purge.route"
+        },
+        {
+          "path": "/api/audit-logs",
+          "handler": "audit_log/server/audit-logs.route"
+        },
+        {
+          "path": "/api/audit-logs/verify",
+          "handler": "audit_log/server/audit-logs-verify.route"
         }
       ],
       "widgets": [],
@@ -3910,6 +4574,88 @@
           "component": "store/ui/store-products.page"
         }
       ],
+      "apiRoutes": [
+        {
+          "path": "/api/store/bundles/[bundleId]/items/[itemId]",
+          "handler": "store/server/store-bundles-bundle-id-items-item-id.route"
+        },
+        {
+          "path": "/api/store/bundles/[bundleId]/items",
+          "handler": "store/server/store-bundles-bundle-id-items.route"
+        },
+        {
+          "path": "/api/store/bundles/[bundleId]",
+          "handler": "store/server/store-bundles-bundle-id.route"
+        },
+        {
+          "path": "/api/store/bundles",
+          "handler": "store/server/store-bundles.route"
+        },
+        {
+          "path": "/api/store/categories/[categoryId]",
+          "handler": "store/server/store-categories-category-id.route"
+        },
+        {
+          "path": "/api/store/categories/[categoryId]/specs/[specId]",
+          "handler": "store/server/store-categories-category-id-specs-spec-id.route"
+        },
+        {
+          "path": "/api/store/categories/[categoryId]/specs",
+          "handler": "store/server/store-categories-category-id-specs.route"
+        },
+        {
+          "path": "/api/store/categories",
+          "handler": "store/server/store-categories.route"
+        },
+        {
+          "path": "/api/store/products/[productId]/duplicate",
+          "handler": "store/server/store-products-product-id-duplicate.route"
+        },
+        {
+          "path": "/api/store/products/[productId]/images/[imageId]",
+          "handler": "store/server/store-products-product-id-images-image-id.route"
+        },
+        {
+          "path": "/api/store/products/[productId]/images",
+          "handler": "store/server/store-products-product-id-images.route"
+        },
+        {
+          "path": "/api/store/products/[productId]",
+          "handler": "store/server/store-products-product-id.route"
+        },
+        {
+          "path": "/api/store/products/[productId]/spec-values",
+          "handler": "store/server/store-products-product-id-spec-values.route"
+        },
+        {
+          "path": "/api/store/products/[productId]/variant-group/items/[itemId]",
+          "handler": "store/server/store-products-product-id-variant-group-items-item-id.route"
+        },
+        {
+          "path": "/api/store/products/[productId]/variant-group/items",
+          "handler": "store/server/store-products-product-id-variant-group-items.route"
+        },
+        {
+          "path": "/api/store/products/[productId]/variant-group",
+          "handler": "store/server/store-products-product-id-variant-group.route"
+        },
+        {
+          "path": "/api/store/products",
+          "handler": "store/server/store-products.route"
+        },
+        {
+          "path": "/api/storefront/categories",
+          "handler": "store/server/storefront-categories.route"
+        },
+        {
+          "path": "/api/storefront/products/[slug]",
+          "handler": "store/server/storefront-products-slug.route"
+        },
+        {
+          "path": "/api/storefront/products",
+          "handler": "store/server/storefront-products.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3990,6 +4736,48 @@
           "component": "webhook/ui/webhooks-settings.page"
         }
       ],
+      "apiRoutes": [
+        {
+          "path": "/api/webhooks/[webhookId]/deliveries/[deliveryId]/redeliver",
+          "handler": "webhook/server/webhooks-webhook-id-deliveries-delivery-id-redeliver.route"
+        },
+        {
+          "path": "/api/webhooks/[webhookId]/deliveries/replay-dead-letter",
+          "handler": "webhook/server/webhooks-webhook-id-deliveries-replay-dead-letter.route"
+        },
+        {
+          "path": "/api/webhooks/[webhookId]/deliveries",
+          "handler": "webhook/server/webhooks-webhook-id-deliveries.route"
+        },
+        {
+          "path": "/api/webhooks/[webhookId]/rotate-secret",
+          "handler": "webhook/server/webhooks-webhook-id-rotate-secret.route"
+        },
+        {
+          "path": "/api/webhooks/[webhookId]",
+          "handler": "webhook/server/webhooks-webhook-id.route"
+        },
+        {
+          "path": "/api/webhooks/[webhookId]/test",
+          "handler": "webhook/server/webhooks-webhook-id-test.route"
+        },
+        {
+          "path": "/api/webhooks/[webhookId]/trigger",
+          "handler": "webhook/server/webhooks-webhook-id-trigger.route"
+        },
+        {
+          "path": "/api/webhooks/events",
+          "handler": "webhook/server/webhooks-events.route"
+        },
+        {
+          "path": "/api/webhooks/metrics",
+          "handler": "webhook/server/webhooks-metrics.route"
+        },
+        {
+          "path": "/api/webhooks",
+          "handler": "webhook/server/webhooks.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4058,6 +4846,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4120,6 +4909,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4219,6 +5009,32 @@
           "component": "blog/ui/blog-posts.page"
         }
       ],
+      "apiRoutes": [
+        {
+          "path": "/api/blog/categories/[categoryId]",
+          "handler": "blog/server/blog-categories-category-id.route"
+        },
+        {
+          "path": "/api/blog/categories",
+          "handler": "blog/server/blog-categories.route"
+        },
+        {
+          "path": "/api/blog/comments/[commentId]",
+          "handler": "blog/server/blog-comments-comment-id.route"
+        },
+        {
+          "path": "/api/blog/posts/[postId]/comments",
+          "handler": "blog/server/blog-posts-post-id-comments.route"
+        },
+        {
+          "path": "/api/blog/posts/[postId]",
+          "handler": "blog/server/blog-posts-post-id.route"
+        },
+        {
+          "path": "/api/blog/posts",
+          "handler": "blog/server/blog-posts.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4294,6 +5110,48 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [
+        {
+          "path": "/api/conversations/[conversationId]/messages/[messageId]/report",
+          "handler": "messaging/server/conversations-conversation-id-messages-message-id-report.route"
+        },
+        {
+          "path": "/api/conversations/[conversationId]/messages",
+          "handler": "messaging/server/conversations-conversation-id-messages.route"
+        },
+        {
+          "path": "/api/conversations/[conversationId]/participants",
+          "handler": "messaging/server/conversations-conversation-id-participants.route"
+        },
+        {
+          "path": "/api/conversations/[conversationId]/read",
+          "handler": "messaging/server/conversations-conversation-id-read.route"
+        },
+        {
+          "path": "/api/conversations/[conversationId]",
+          "handler": "messaging/server/conversations-conversation-id.route"
+        },
+        {
+          "path": "/api/conversations",
+          "handler": "messaging/server/conversations.route"
+        },
+        {
+          "path": "/api/messaging/moderation/messages/[messageId]",
+          "handler": "messaging/server/messaging-moderation-messages-message-id.route"
+        },
+        {
+          "path": "/api/messaging/moderation/queue",
+          "handler": "messaging/server/messaging-moderation-queue.route"
+        },
+        {
+          "path": "/api/messaging/moderation/settings",
+          "handler": "messaging/server/messaging-moderation-settings.route"
+        },
+        {
+          "path": "/api/messaging/ws-ticket",
+          "handler": "messaging/server/messaging-ws-ticket.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4393,6 +5251,44 @@
           "component": "terms_consent/ui/terms.page"
         }
       ],
+      "apiRoutes": [
+        {
+          "path": "/api/agreements/[agreementId]",
+          "handler": "terms_consent/server/agreements-agreement-id.route"
+        },
+        {
+          "path": "/api/agreements/[agreementId]/versions/[versionId]/publish",
+          "handler": "terms_consent/server/agreements-agreement-id-versions-version-id-publish.route"
+        },
+        {
+          "path": "/api/agreements/[agreementId]/versions",
+          "handler": "terms_consent/server/agreements-agreement-id-versions.route"
+        },
+        {
+          "path": "/api/agreements/accept",
+          "handler": "terms_consent/server/agreements-accept.route"
+        },
+        {
+          "path": "/api/agreements/acceptances",
+          "handler": "terms_consent/server/agreements-acceptances.route"
+        },
+        {
+          "path": "/api/agreements",
+          "handler": "terms_consent/server/agreements.route"
+        },
+        {
+          "path": "/api/consent/config",
+          "handler": "terms_consent/server/consent-config.route"
+        },
+        {
+          "path": "/api/consent/records",
+          "handler": "terms_consent/server/consent-records.route"
+        },
+        {
+          "path": "/api/consent",
+          "handler": "terms_consent/server/consent.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4475,6 +5371,32 @@
           "component": "wallet/ui/wallet.page"
         }
       ],
+      "apiRoutes": [
+        {
+          "path": "/api/wallet/accounts/[accountId]",
+          "handler": "wallet/server/wallet-accounts-account-id.route"
+        },
+        {
+          "path": "/api/wallet/accounts/[accountId]/statement",
+          "handler": "wallet/server/wallet-accounts-account-id-statement.route"
+        },
+        {
+          "path": "/api/wallet/accounts",
+          "handler": "wallet/server/wallet-accounts.route"
+        },
+        {
+          "path": "/api/wallet/transactions",
+          "handler": "wallet/server/wallet-transactions.route"
+        },
+        {
+          "path": "/api/wallet/transfer",
+          "handler": "wallet/server/wallet-transfer.route"
+        },
+        {
+          "path": "/api/wallet/verify",
+          "handler": "wallet/server/wallet-verify.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4548,6 +5470,28 @@
         {
           "path": "/admin/feature-flags",
           "component": "feature_flags/ui/feature-flags.page"
+        }
+      ],
+      "apiRoutes": [
+        {
+          "path": "/api/feature-flags/[key]/overrides/[overrideId]",
+          "handler": "feature_flags/server/feature-flags-key-overrides-override-id.route"
+        },
+        {
+          "path": "/api/feature-flags/[key]/overrides",
+          "handler": "feature_flags/server/feature-flags-key-overrides.route"
+        },
+        {
+          "path": "/api/feature-flags/[key]",
+          "handler": "feature_flags/server/feature-flags-key.route"
+        },
+        {
+          "path": "/api/feature-flags/evaluate",
+          "handler": "feature_flags/server/feature-flags-evaluate.route"
+        },
+        {
+          "path": "/api/feature-flags",
+          "handler": "feature_flags/server/feature-flags.route"
         }
       ],
       "widgets": [],
@@ -4637,6 +5581,28 @@
           "component": "metering/ui/metering.page"
         }
       ],
+      "apiRoutes": [
+        {
+          "path": "/api/metering/billing",
+          "handler": "metering/server/metering-billing.route"
+        },
+        {
+          "path": "/api/metering/events",
+          "handler": "metering/server/metering-events.route"
+        },
+        {
+          "path": "/api/metering/meters/[meterId]",
+          "handler": "metering/server/metering-meters-meter-id.route"
+        },
+        {
+          "path": "/api/metering/meters",
+          "handler": "metering/server/metering-meters.route"
+        },
+        {
+          "path": "/api/metering/usage",
+          "handler": "metering/server/metering-usage.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4718,6 +5684,20 @@
           "component": "support/ui/support.page"
         }
       ],
+      "apiRoutes": [
+        {
+          "path": "/api/support/tickets/[ticketId]/messages",
+          "handler": "support/server/support-tickets-ticket-id-messages.route"
+        },
+        {
+          "path": "/api/support/tickets/[ticketId]",
+          "handler": "support/server/support-tickets-ticket-id.route"
+        },
+        {
+          "path": "/api/support/tickets",
+          "handler": "support/server/support-tickets.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4796,6 +5776,16 @@
         {
           "path": "/admin/approvals",
           "component": "approval/ui/approvals.page"
+        }
+      ],
+      "apiRoutes": [
+        {
+          "path": "/api/approvals/[approvalItemId]",
+          "handler": "approval/server/approvals-approval-item-id.route"
+        },
+        {
+          "path": "/api/approvals",
+          "handler": "approval/server/approvals.route"
         }
       ],
       "widgets": [],
@@ -4885,6 +5875,28 @@
           "component": "gift_card/ui/gift-cards.page"
         }
       ],
+      "apiRoutes": [
+        {
+          "path": "/api/gift-cards/[giftCardId]",
+          "handler": "gift_card/server/gift-cards-gift-card-id.route"
+        },
+        {
+          "path": "/api/gift-cards/[giftCardId]/transactions",
+          "handler": "gift_card/server/gift-cards-gift-card-id-transactions.route"
+        },
+        {
+          "path": "/api/gift-cards/balance",
+          "handler": "gift_card/server/gift-cards-balance.route"
+        },
+        {
+          "path": "/api/gift-cards/redeem",
+          "handler": "gift_card/server/gift-cards-redeem.route"
+        },
+        {
+          "path": "/api/gift-cards",
+          "handler": "gift_card/server/gift-cards.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4956,6 +5968,28 @@
         {
           "path": "/admin/ai/settings",
           "component": "ai/ui/settings.page"
+        }
+      ],
+      "apiRoutes": [
+        {
+          "path": "/api/ai/chat",
+          "handler": "ai/server/ai-chat.route"
+        },
+        {
+          "path": "/api/ai/embed",
+          "handler": "ai/server/ai-embed.route"
+        },
+        {
+          "path": "/api/ai/models",
+          "handler": "ai/server/ai-models.route"
+        },
+        {
+          "path": "/api/ai/providers",
+          "handler": "ai/server/ai-providers.route"
+        },
+        {
+          "path": "/api/ai/usage",
+          "handler": "ai/server/ai-usage.route"
         }
       ],
       "widgets": [],
@@ -5065,6 +6099,48 @@
           "component": "dynamic_page/ui/page-editor.page"
         }
       ],
+      "apiRoutes": [
+        {
+          "path": "/api/dynamic-pages/[dynamicPageId]",
+          "handler": "dynamic_page/server/dynamic-pages-dynamic-page-id.route"
+        },
+        {
+          "path": "/api/dynamic-pages/[dynamicPageId]/translations/[lang]",
+          "handler": "dynamic_page/server/dynamic-pages-dynamic-page-id-translations-lang.route"
+        },
+        {
+          "path": "/api/dynamic-pages/[dynamicPageId]/translations",
+          "handler": "dynamic_page/server/dynamic-pages-dynamic-page-id-translations.route"
+        },
+        {
+          "path": "/api/dynamic-pages/block-definitions/[blockId]",
+          "handler": "dynamic_page/server/dynamic-pages-block-definitions-block-id.route"
+        },
+        {
+          "path": "/api/dynamic-pages/block-definitions",
+          "handler": "dynamic_page/server/dynamic-pages-block-definitions.route"
+        },
+        {
+          "path": "/api/dynamic-pages/collections/[collectionId]/items/[itemId]",
+          "handler": "dynamic_page/server/dynamic-pages-collections-collection-id-items-item-id.route"
+        },
+        {
+          "path": "/api/dynamic-pages/collections/[collectionId]/items",
+          "handler": "dynamic_page/server/dynamic-pages-collections-collection-id-items.route"
+        },
+        {
+          "path": "/api/dynamic-pages/collections/[collectionId]",
+          "handler": "dynamic_page/server/dynamic-pages-collections-collection-id.route"
+        },
+        {
+          "path": "/api/dynamic-pages/collections",
+          "handler": "dynamic_page/server/dynamic-pages-collections.route"
+        },
+        {
+          "path": "/api/dynamic-pages",
+          "handler": "dynamic_page/server/dynamic-pages.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -5156,6 +6232,44 @@
           "component": "integrations_hub/ui/integrations.page"
         }
       ],
+      "apiRoutes": [
+        {
+          "path": "/api/integrations/actions/[actionKey]",
+          "handler": "integrations_hub/server/integrations-actions-action-key.route"
+        },
+        {
+          "path": "/api/integrations/connect/api-key",
+          "handler": "integrations_hub/server/integrations-connect-api-key.route"
+        },
+        {
+          "path": "/api/integrations/connected/[connectedAppId]",
+          "handler": "integrations_hub/server/integrations-connected-connected-app-id.route"
+        },
+        {
+          "path": "/api/integrations/connected",
+          "handler": "integrations_hub/server/integrations-connected.route"
+        },
+        {
+          "path": "/api/integrations/connectors/[connectorKey]",
+          "handler": "integrations_hub/server/integrations-connectors-connector-key.route"
+        },
+        {
+          "path": "/api/integrations/connectors",
+          "handler": "integrations_hub/server/integrations-connectors.route"
+        },
+        {
+          "path": "/api/integrations/oauth/callback",
+          "handler": "integrations_hub/server/integrations-oauth-callback.route"
+        },
+        {
+          "path": "/api/integrations/oauth/start",
+          "handler": "integrations_hub/server/integrations-oauth-start.route"
+        },
+        {
+          "path": "/api/integrations/triggers",
+          "handler": "integrations_hub/server/integrations-triggers.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -5226,6 +6340,16 @@
         {
           "path": "/admin/search",
           "component": "search/ui/search.page"
+        }
+      ],
+      "apiRoutes": [
+        {
+          "path": "/api/search/index",
+          "handler": "search/server/search-index.route"
+        },
+        {
+          "path": "/api/search",
+          "handler": "search/server/search.route"
         }
       ],
       "widgets": [],
@@ -5301,6 +6425,20 @@
           "component": "analytics/ui/analytics.page"
         }
       ],
+      "apiRoutes": [
+        {
+          "path": "/api/analytics/summary",
+          "handler": "analytics/server/analytics-summary.route"
+        },
+        {
+          "path": "/api/analytics/timeseries",
+          "handler": "analytics/server/analytics-timeseries.route"
+        },
+        {
+          "path": "/api/analytics/track",
+          "handler": "analytics/server/analytics-track.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -5366,6 +6504,7 @@
           "component": "api_doc/ui/api-docs.page"
         }
       ],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -5411,6 +6550,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -5504,138 +6644,18 @@
       "dynamic": false
     },
     {
-      "filePath": "app/tenant/[tenantId]/api/admin-settings/route.ts",
+      "filePath": "app/tenant/[tenantId]/api/[...slug]/route.ts",
       "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/admin-settings",
+      "urlPath": "/tenant/[tenantId]/api/[...slug]",
       "methods": [
         "GET",
         "POST",
-        "PUT"
+        "PUT",
+        "PATCH",
+        "DELETE",
+        "HEAD",
+        "OPTIONS"
       ],
-      "module": "admin_setting",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/admin/impersonate/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/admin/impersonate",
-      "methods": [
-        "POST"
-      ],
-      "module": "impersonate",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/admin/subscription/customer-portal/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/admin/subscription/customer-portal",
-      "methods": [
-        "POST"
-      ],
-      "module": "subscription",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/agreements/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/agreements",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "agreement",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/agreements/[agreementId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/agreements/[agreementId]",
-      "methods": [
-        "GET",
-        "PATCH"
-      ],
-      "module": "agreement",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/agreements/[agreementId]/versions/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/agreements/[agreementId]/versions",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "agreement",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/agreements/[agreementId]/versions/[versionId]/publish/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/agreements/[agreementId]/versions/[versionId]/publish",
-      "methods": [
-        "POST"
-      ],
-      "module": "agreement",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/agreements/accept/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/agreements/accept",
-      "methods": [
-        "POST"
-      ],
-      "module": "agreement",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/agreements/acceptances/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/agreements/acceptances",
-      "methods": [
-        "GET"
-      ],
-      "module": "agreement",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/ai/chat/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/ai/chat",
-      "methods": [
-        "POST"
-      ],
-      "module": "ai",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/ai/embed/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/ai/embed",
-      "methods": [
-        "POST"
-      ],
-      "module": "ai",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/ai/models/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/ai/models",
-      "methods": [
-        "GET"
-      ],
-      "module": "ai",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/ai/providers/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/ai/providers",
-      "methods": [
-        "GET"
-      ],
-      "module": "ai",
       "dynamic": true
     },
     {
@@ -5649,364 +6669,6 @@
       "dynamic": true
     },
     {
-      "filePath": "app/tenant/[tenantId]/api/ai/usage/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/ai/usage",
-      "methods": [
-        "GET"
-      ],
-      "module": "ai",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/analytics/summary/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/analytics/summary",
-      "methods": [
-        "GET"
-      ],
-      "module": "analytic",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/analytics/timeseries/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/analytics/timeseries",
-      "methods": [
-        "GET"
-      ],
-      "module": "analytic",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/analytics/track/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/analytics/track",
-      "methods": [
-        "POST"
-      ],
-      "module": "analytic",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/api-keys/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/api-keys",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "api_key",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/api-keys/[apiKeyId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/api-keys/[apiKeyId]",
-      "methods": [
-        "PUT",
-        "DELETE"
-      ],
-      "module": "api_key",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/api-keys/[apiKeyId]/rotate/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/api-keys/[apiKeyId]/rotate",
-      "methods": [
-        "POST"
-      ],
-      "module": "api_key",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/api-keys/revoke-all/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/api-keys/revoke-all",
-      "methods": [
-        "POST"
-      ],
-      "module": "api_key",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/api-keys/sweep-expired/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/api-keys/sweep-expired",
-      "methods": [
-        "POST"
-      ],
-      "module": "api_key",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/api-keys/verify/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/api-keys/verify",
-      "methods": [
-        "POST"
-      ],
-      "module": "api_key",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/approvals/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/approvals",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "approval",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/approvals/[approvalItemId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/approvals/[approvalItemId]",
-      "methods": [
-        "GET",
-        "PATCH"
-      ],
-      "module": "approval",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/audit-logs/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/audit-logs",
-      "methods": [
-        "GET"
-      ],
-      "module": "audit_log",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/audit-logs/anonymize/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/audit-logs/anonymize",
-      "methods": [
-        "POST"
-      ],
-      "module": "audit_log",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/audit-logs/cross-tenant/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/audit-logs/cross-tenant",
-      "methods": [
-        "GET"
-      ],
-      "module": "audit_log",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/audit-logs/export/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/audit-logs/export",
-      "methods": [
-        "GET"
-      ],
-      "module": "audit_log",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/audit-logs/purge/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/audit-logs/purge",
-      "methods": [
-        "POST"
-      ],
-      "module": "audit_log",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/audit-logs/verify/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/audit-logs/verify",
-      "methods": [
-        "GET"
-      ],
-      "module": "audit_log",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth",
-      "methods": [
-        "GET"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/callback/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/callback",
-      "methods": [
-        "POST"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/change-password/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/change-password",
-      "methods": [
-        "POST"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/csrf/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/csrf",
-      "methods": [
-        "GET"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/e-signature/countries/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/e-signature/countries",
-      "methods": [
-        "GET"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/e-signature/initiate/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/e-signature/initiate",
-      "methods": [
-        "POST"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/e-signature/status/[transactionId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/e-signature/status/[transactionId]",
-      "methods": [
-        "GET"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/forgot-password/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/forgot-password",
-      "methods": [
-        "POST"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/impersonate/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/impersonate",
-      "methods": [
-        "GET",
-        "POST",
-        "DELETE"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/login/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/login",
-      "methods": [
-        "POST"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/logout/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/logout",
-      "methods": [
-        "POST"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/me/complete-email/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/me/complete-email",
-      "methods": [
-        "POST"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/me/device-info/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/me/device-info",
-      "methods": [
-        "GET"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/me/merge-identity/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/me/merge-identity",
-      "methods": [
-        "POST"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/me/notifications/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/me/notifications",
-      "methods": [
-        "GET",
-        "DELETE"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/me/notifications/[notificationId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/me/notifications/[notificationId]",
-      "methods": [
-        "PUT",
-        "DELETE"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/me/notifications/read-all/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/me/notifications/read-all",
-      "methods": [
-        "PUT"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
       "filePath": "app/tenant/[tenantId]/api/auth/me/notifications/stream/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/auth/me/notifications/stream",
@@ -6014,564 +6676,6 @@
         "GET"
       ],
       "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/me/preferences/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/me/preferences",
-      "methods": [
-        "GET",
-        "PUT"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/me/profile/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/me/profile",
-      "methods": [
-        "GET",
-        "PUT"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/me/security/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/me/security",
-      "methods": [
-        "GET"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/me/security/e-signature/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/me/security/e-signature",
-      "methods": [
-        "GET"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/me/security/e-signature/[id]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/me/security/e-signature/[id]",
-      "methods": [
-        "DELETE"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/me/sessions/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/me/sessions",
-      "methods": [
-        "GET"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/me/sessions/[sessionId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/me/sessions/[sessionId]",
-      "methods": [
-        "DELETE"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/me/social-accounts/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/me/social-accounts",
-      "methods": [
-        "GET"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/me/social-accounts/[provider]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/me/social-accounts/[provider]",
-      "methods": [
-        "DELETE"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/me/social-accounts/connect/[provider]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/me/social-accounts/connect/[provider]",
-      "methods": [
-        "GET"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/me/social-accounts/connect/acs/[provider]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/me/social-accounts/connect/acs/[provider]",
-      "methods": [
-        "GET"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/me/social-accounts/connect/saml/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/me/social-accounts/connect/saml",
-      "methods": [
-        "GET"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/me/tenants/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/me/tenants",
-      "methods": [
-        "GET"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/openapi/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/openapi",
-      "methods": [
-        "GET"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/otp/send/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/otp/send",
-      "methods": [
-        "POST"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/otp/verify/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/otp/verify",
-      "methods": [
-        "POST"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/refresh/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/refresh",
-      "methods": [
-        "POST"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/register/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/register",
-      "methods": [
-        "POST"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/reset-password/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/reset-password",
-      "methods": [
-        "POST"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/saml/callback/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/saml/callback",
-      "methods": [
-        "POST"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/saml/initiate/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/saml/initiate",
-      "methods": [
-        "GET"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/saml/metadata/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/saml/metadata",
-      "methods": [
-        "GET"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/saml/status/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/saml/status",
-      "methods": [
-        "GET"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/session/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/session",
-      "methods": [
-        "GET"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/session/token-set/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/session/token-set",
-      "methods": [
-        "POST"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/sso/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/sso",
-      "methods": [
-        "GET"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/sso/[provider]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/sso/[provider]",
-      "methods": [
-        "GET"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/totp/disable/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/totp/disable",
-      "methods": [
-        "POST"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/totp/enable/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/totp/enable",
-      "methods": [
-        "POST"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/totp/setup/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/totp/setup",
-      "methods": [
-        "POST"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/verify-email/send/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/verify-email/send",
-      "methods": [
-        "POST"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/auth/verify-email/verify/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/auth/verify-email/verify",
-      "methods": [
-        "POST"
-      ],
-      "module": "auth",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/blog/categories/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/blog/categories",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "blog",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/blog/categories/[categoryId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/blog/categories/[categoryId]",
-      "methods": [
-        "GET",
-        "PATCH",
-        "DELETE"
-      ],
-      "module": "blog",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/blog/comments/[commentId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/blog/comments/[commentId]",
-      "methods": [
-        "PATCH",
-        "DELETE"
-      ],
-      "module": "blog",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/blog/posts/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/blog/posts",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "blog",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/blog/posts/[postId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/blog/posts/[postId]",
-      "methods": [
-        "GET",
-        "PATCH",
-        "DELETE"
-      ],
-      "module": "blog",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/blog/posts/[postId]/comments/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/blog/posts/[postId]/comments",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "blog",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/checkout/agreements/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/checkout/agreements",
-      "methods": [
-        "POST"
-      ],
-      "module": "checkout",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/checkout/agreements/accept/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/checkout/agreements/accept",
-      "methods": [
-        "POST"
-      ],
-      "module": "checkout",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/consent/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/consent",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "consent",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/consent/config/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/consent/config",
-      "methods": [
-        "GET",
-        "PATCH"
-      ],
-      "module": "consent",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/consent/records/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/consent/records",
-      "methods": [
-        "GET"
-      ],
-      "module": "consent",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/conversations/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/conversations",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "conversation",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/conversations/[conversationId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/conversations/[conversationId]",
-      "methods": [
-        "GET"
-      ],
-      "module": "conversation",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/conversations/[conversationId]/messages/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/conversations/[conversationId]/messages",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "conversation",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/conversations/[conversationId]/messages/[messageId]/report/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/conversations/[conversationId]/messages/[messageId]/report",
-      "methods": [
-        "POST"
-      ],
-      "module": "conversation",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/conversations/[conversationId]/participants/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/conversations/[conversationId]/participants",
-      "methods": [
-        "POST",
-        "DELETE"
-      ],
-      "module": "conversation",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/conversations/[conversationId]/read/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/conversations/[conversationId]/read",
-      "methods": [
-        "POST"
-      ],
-      "module": "conversation",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/coupons/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/coupons",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "coupon",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/coupons/[couponId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/coupons/[couponId]",
-      "methods": [
-        "GET",
-        "PUT",
-        "DELETE"
-      ],
-      "module": "coupon",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/coupons/apply/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/coupons/apply",
-      "methods": [
-        "POST"
-      ],
-      "module": "coupon",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/coupons/redemptions/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/coupons/redemptions",
-      "methods": [
-        "GET"
-      ],
-      "module": "coupon",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/coupons/validate/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/coupons/validate",
-      "methods": [
-        "POST"
-      ],
-      "module": "coupon",
       "dynamic": true
     },
     {
@@ -6656,82 +6760,6 @@
       "dynamic": true
     },
     {
-      "filePath": "app/tenant/[tenantId]/api/domains/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/domains",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "tenant_domain",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/domains/[domainId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/domains/[domainId]",
-      "methods": [
-        "GET",
-        "DELETE"
-      ],
-      "module": "tenant_domain",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/domains/[domainId]/verify/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/domains/[domainId]/verify",
-      "methods": [
-        "POST"
-      ],
-      "module": "tenant_domain",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/dynamic-pages/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/dynamic-pages",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "dynamic_page",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/dynamic-pages/[dynamicPageId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/dynamic-pages/[dynamicPageId]",
-      "methods": [
-        "GET",
-        "PATCH",
-        "DELETE"
-      ],
-      "module": "dynamic_page",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/dynamic-pages/[dynamicPageId]/translations/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/dynamic-pages/[dynamicPageId]/translations",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "dynamic_page",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/dynamic-pages/[dynamicPageId]/translations/[lang]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/dynamic-pages/[dynamicPageId]/translations/[lang]",
-      "methods": [
-        "DELETE"
-      ],
-      "module": "dynamic_page",
-      "dynamic": true
-    },
-    {
       "filePath": "app/tenant/[tenantId]/api/dynamic-pages/block-action/[blockType]/route.ts",
       "scope": "tenant",
       "urlPath": "/tenant/[tenantId]/api/dynamic-pages/block-action/[blockType]",
@@ -6742,1572 +6770,6 @@
         "DELETE"
       ],
       "module": "dynamic_page",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/dynamic-pages/block-definitions/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/dynamic-pages/block-definitions",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "dynamic_page",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/dynamic-pages/block-definitions/[blockId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/dynamic-pages/block-definitions/[blockId]",
-      "methods": [
-        "GET",
-        "PATCH",
-        "DELETE"
-      ],
-      "module": "dynamic_page",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/dynamic-pages/collections/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/dynamic-pages/collections",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "dynamic_page",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/dynamic-pages/collections/[collectionId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/dynamic-pages/collections/[collectionId]",
-      "methods": [
-        "GET",
-        "PATCH",
-        "DELETE"
-      ],
-      "module": "dynamic_page",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/dynamic-pages/collections/[collectionId]/items/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/dynamic-pages/collections/[collectionId]/items",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "dynamic_page",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/dynamic-pages/collections/[collectionId]/items/[itemId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/dynamic-pages/collections/[collectionId]/items/[itemId]",
-      "methods": [
-        "GET",
-        "PATCH",
-        "DELETE"
-      ],
-      "module": "dynamic_page",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/e-signature/settings/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/e-signature/settings",
-      "methods": [
-        "GET",
-        "PUT"
-      ],
-      "module": "e_signature",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/export/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/export",
-      "methods": [
-        "POST"
-      ],
-      "module": "tenant_export",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/feature-flags/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/feature-flags",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "feature_flag",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/feature-flags/[key]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/feature-flags/[key]",
-      "methods": [
-        "GET",
-        "PATCH",
-        "DELETE"
-      ],
-      "module": "feature_flag",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/feature-flags/[key]/overrides/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/feature-flags/[key]/overrides",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "feature_flag",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/feature-flags/[key]/overrides/[overrideId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/feature-flags/[key]/overrides/[overrideId]",
-      "methods": [
-        "DELETE"
-      ],
-      "module": "feature_flag",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/feature-flags/evaluate/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/feature-flags/evaluate",
-      "methods": [
-        "POST"
-      ],
-      "module": "feature_flag",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/gift-cards/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/gift-cards",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "gift_card",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/gift-cards/[giftCardId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/gift-cards/[giftCardId]",
-      "methods": [
-        "GET",
-        "PATCH",
-        "DELETE"
-      ],
-      "module": "gift_card",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/gift-cards/[giftCardId]/transactions/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/gift-cards/[giftCardId]/transactions",
-      "methods": [
-        "GET"
-      ],
-      "module": "gift_card",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/gift-cards/balance/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/gift-cards/balance",
-      "methods": [
-        "POST"
-      ],
-      "module": "gift_card",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/gift-cards/redeem/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/gift-cards/redeem",
-      "methods": [
-        "POST"
-      ],
-      "module": "gift_card",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/health/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/health",
-      "methods": [
-        "GET"
-      ],
-      "module": "health",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/integrations/actions/[actionKey]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/integrations/actions/[actionKey]",
-      "methods": [
-        "POST"
-      ],
-      "module": "integration",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/integrations/connect/api-key/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/integrations/connect/api-key",
-      "methods": [
-        "POST"
-      ],
-      "module": "integration",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/integrations/connected/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/integrations/connected",
-      "methods": [
-        "GET"
-      ],
-      "module": "integration",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/integrations/connected/[connectedAppId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/integrations/connected/[connectedAppId]",
-      "methods": [
-        "GET",
-        "DELETE"
-      ],
-      "module": "integration",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/integrations/connectors/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/integrations/connectors",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "integration",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/integrations/connectors/[connectorKey]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/integrations/connectors/[connectorKey]",
-      "methods": [
-        "GET",
-        "PUT",
-        "DELETE"
-      ],
-      "module": "integration",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/integrations/oauth/callback/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/integrations/oauth/callback",
-      "methods": [
-        "GET"
-      ],
-      "module": "integration",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/integrations/oauth/start/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/integrations/oauth/start",
-      "methods": [
-        "POST"
-      ],
-      "module": "integration",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/integrations/triggers/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/integrations/triggers",
-      "methods": [
-        "POST"
-      ],
-      "module": "integration",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/invitations/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/invitations",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "tenant_invitation",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/invitations/[invitationId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/invitations/[invitationId]",
-      "methods": [
-        "GET",
-        "DELETE"
-      ],
-      "module": "tenant_invitation",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/invitations/accept/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/invitations/accept",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "tenant_invitation",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/invitations/decline/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/invitations/decline",
-      "methods": [
-        "POST"
-      ],
-      "module": "tenant_invitation",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/invoices/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/invoices",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "invoice",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/invoices/[invoiceId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/invoices/[invoiceId]",
-      "methods": [
-        "GET"
-      ],
-      "module": "invoice",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/invoices/[invoiceId]/issue/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/invoices/[invoiceId]/issue",
-      "methods": [
-        "POST"
-      ],
-      "module": "invoice",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/invoices/[invoiceId]/mark-paid/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/invoices/[invoiceId]/mark-paid",
-      "methods": [
-        "POST"
-      ],
-      "module": "invoice",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/invoices/[invoiceId]/pdf/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/invoices/[invoiceId]/pdf",
-      "methods": [
-        "GET"
-      ],
-      "module": "invoice",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/invoices/[invoiceId]/void/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/invoices/[invoiceId]/void",
-      "methods": [
-        "POST"
-      ],
-      "module": "invoice",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/invoices/earsiv/sms/send/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/invoices/earsiv/sms/send",
-      "methods": [
-        "POST"
-      ],
-      "module": "invoice",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/invoices/earsiv/sms/verify/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/invoices/earsiv/sms/verify",
-      "methods": [
-        "POST"
-      ],
-      "module": "invoice",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/invoices/preview/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/invoices/preview",
-      "methods": [
-        "GET"
-      ],
-      "module": "invoice",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/media-gallery/[entityType]/[entityId]/items/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/media-gallery/[entityType]/[entityId]/items",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "media_gallery",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/media-gallery/[entityType]/[entityId]/items/reorder/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/media-gallery/[entityType]/[entityId]/items/reorder",
-      "methods": [
-        "PUT"
-      ],
-      "module": "media_gallery",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/media-gallery/items/[itemId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/media-gallery/items/[itemId]",
-      "methods": [
-        "PUT",
-        "DELETE"
-      ],
-      "module": "media_gallery",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/members/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/members",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "tenant_member",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/members/[memberId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/members/[memberId]",
-      "methods": [
-        "GET",
-        "PUT",
-        "DELETE"
-      ],
-      "module": "tenant_member",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/messaging/moderation/messages/[messageId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/messaging/moderation/messages/[messageId]",
-      "methods": [
-        "POST"
-      ],
-      "module": "messaging",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/messaging/moderation/queue/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/messaging/moderation/queue",
-      "methods": [
-        "GET"
-      ],
-      "module": "messaging",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/messaging/moderation/settings/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/messaging/moderation/settings",
-      "methods": [
-        "GET",
-        "PUT"
-      ],
-      "module": "messaging",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/messaging/ws-ticket/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/messaging/ws-ticket",
-      "methods": [
-        "POST"
-      ],
-      "module": "messaging",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/metering/billing/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/metering/billing",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "metering",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/metering/events/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/metering/events",
-      "methods": [
-        "POST"
-      ],
-      "module": "metering",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/metering/meters/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/metering/meters",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "metering",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/metering/meters/[meterId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/metering/meters/[meterId]",
-      "methods": [
-        "GET",
-        "PATCH",
-        "DELETE"
-      ],
-      "module": "metering",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/metering/usage/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/metering/usage",
-      "methods": [
-        "GET"
-      ],
-      "module": "metering",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/modules/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/modules",
-      "methods": [
-        "GET",
-        "PUT"
-      ],
-      "module": "module",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/notifications/push/subscribe/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/notifications/push/subscribe",
-      "methods": [
-        "POST",
-        "DELETE"
-      ],
-      "module": "notification_inapp",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/notifications/sms/send/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/notifications/sms/send",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "notification_inapp",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/payments/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/payments",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "payment",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/payments/[paymentId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/payments/[paymentId]",
-      "methods": [
-        "GET",
-        "PUT",
-        "DELETE"
-      ],
-      "module": "payment",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/payments/[paymentId]/refund/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/payments/[paymentId]/refund",
-      "methods": [
-        "POST"
-      ],
-      "module": "payment",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/payments/[paymentId]/transactions/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/payments/[paymentId]/transactions",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "payment",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/payments/bin-check/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/payments/bin-check",
-      "methods": [
-        "POST"
-      ],
-      "module": "payment",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/payments/provider-status/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/payments/provider-status",
-      "methods": [
-        "POST"
-      ],
-      "module": "payment",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/payments/providers/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/payments/providers",
-      "methods": [
-        "GET"
-      ],
-      "module": "payment",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/payments/transactions/[transactionId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/payments/transactions/[transactionId]",
-      "methods": [
-        "GET",
-        "PUT"
-      ],
-      "module": "payment",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/payments/wallets/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/payments/wallets",
-      "methods": [
-        "GET"
-      ],
-      "module": "payment",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/plans/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/plans",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "plan",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/plans/[planId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/plans/[planId]",
-      "methods": [
-        "GET",
-        "PUT",
-        "DELETE"
-      ],
-      "module": "plan",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/plans/[planId]/features/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/plans/[planId]/features",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "plan",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/plans/[planId]/features/[featureId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/plans/[planId]/features/[featureId]",
-      "methods": [
-        "PUT",
-        "DELETE"
-      ],
-      "module": "plan",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/plans/default/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/plans/default",
-      "methods": [
-        "GET",
-        "PUT"
-      ],
-      "module": "plan",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/plans/public/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/plans/public",
-      "methods": [
-        "GET"
-      ],
-      "module": "plan",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/saml/config/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/saml/config",
-      "methods": [
-        "GET",
-        "PUT",
-        "DELETE"
-      ],
-      "module": "saml",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/scim/v2/Groups/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/scim/v2/Groups",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "scim",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/scim/v2/Groups/[scimGroupId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/scim/v2/Groups/[scimGroupId]",
-      "methods": [
-        "GET",
-        "PUT",
-        "PATCH",
-        "DELETE"
-      ],
-      "module": "scim",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/scim/v2/Health/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/scim/v2/Health",
-      "methods": [
-        "GET"
-      ],
-      "module": "scim",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/scim/v2/ResourceTypes/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/scim/v2/ResourceTypes",
-      "methods": [
-        "GET"
-      ],
-      "module": "scim",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/scim/v2/Schemas/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/scim/v2/Schemas",
-      "methods": [
-        "GET"
-      ],
-      "module": "scim",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/scim/v2/ServiceProviderConfig/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/scim/v2/ServiceProviderConfig",
-      "methods": [
-        "GET"
-      ],
-      "module": "scim",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/scim/v2/Users/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/scim/v2/Users",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "scim",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/scim/v2/Users/[scimUserId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/scim/v2/Users/[scimUserId]",
-      "methods": [
-        "GET",
-        "PUT",
-        "PATCH",
-        "DELETE"
-      ],
-      "module": "scim",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/search/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/search",
-      "methods": [
-        "GET"
-      ],
-      "module": "search",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/search/index/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/search/index",
-      "methods": [
-        "POST",
-        "DELETE"
-      ],
-      "module": "search",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/seo/[entityType]/[entityId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/seo/[entityType]/[entityId]",
-      "methods": [
-        "GET",
-        "PUT"
-      ],
-      "module": "seo",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/seo/web-vitals/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/seo/web-vitals",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "seo",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/settings/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/settings",
-      "methods": [
-        "GET",
-        "POST",
-        "PUT",
-        "DELETE"
-      ],
-      "module": "setting",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/settings/branding/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/settings/branding",
-      "methods": [
-        "GET",
-        "PUT",
-        "DELETE"
-      ],
-      "module": "setting",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/settings/public/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/settings/public",
-      "methods": [
-        "GET"
-      ],
-      "module": "setting",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/storage/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/storage",
-      "methods": [
-        "POST"
-      ],
-      "module": "storage",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/store/bundles/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/store/bundles",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "store",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/store/bundles/[bundleId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/store/bundles/[bundleId]",
-      "methods": [
-        "GET",
-        "PUT",
-        "DELETE"
-      ],
-      "module": "store",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/store/bundles/[bundleId]/items/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/store/bundles/[bundleId]/items",
-      "methods": [
-        "POST"
-      ],
-      "module": "store",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/store/bundles/[bundleId]/items/[itemId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/store/bundles/[bundleId]/items/[itemId]",
-      "methods": [
-        "PATCH",
-        "DELETE"
-      ],
-      "module": "store",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/store/categories/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/store/categories",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "store",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/store/categories/[categoryId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/store/categories/[categoryId]",
-      "methods": [
-        "GET",
-        "PUT",
-        "DELETE"
-      ],
-      "module": "store",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/store/categories/[categoryId]/specs/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/store/categories/[categoryId]/specs",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "store",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/store/categories/[categoryId]/specs/[specId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/store/categories/[categoryId]/specs/[specId]",
-      "methods": [
-        "PUT",
-        "DELETE"
-      ],
-      "module": "store",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/store/products/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/store/products",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "store",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/store/products/[productId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/store/products/[productId]",
-      "methods": [
-        "GET",
-        "PUT",
-        "DELETE"
-      ],
-      "module": "store",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/store/products/[productId]/duplicate/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/store/products/[productId]/duplicate",
-      "methods": [
-        "POST"
-      ],
-      "module": "store",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/store/products/[productId]/images/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/store/products/[productId]/images",
-      "methods": [
-        "POST"
-      ],
-      "module": "store",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/store/products/[productId]/images/[imageId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/store/products/[productId]/images/[imageId]",
-      "methods": [
-        "DELETE"
-      ],
-      "module": "store",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/store/products/[productId]/spec-values/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/store/products/[productId]/spec-values",
-      "methods": [
-        "PUT"
-      ],
-      "module": "store",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/store/products/[productId]/variant-group/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/store/products/[productId]/variant-group",
-      "methods": [
-        "GET"
-      ],
-      "module": "store",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/store/products/[productId]/variant-group/items/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/store/products/[productId]/variant-group/items",
-      "methods": [
-        "POST"
-      ],
-      "module": "store",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/store/products/[productId]/variant-group/items/[itemId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/store/products/[productId]/variant-group/items/[itemId]",
-      "methods": [
-        "PATCH",
-        "DELETE"
-      ],
-      "module": "store",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/storefront/categories/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/storefront/categories",
-      "methods": [
-        "GET"
-      ],
-      "module": "storefront",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/storefront/products/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/storefront/products",
-      "methods": [
-        "GET"
-      ],
-      "module": "storefront",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/storefront/products/[slug]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/storefront/products/[slug]",
-      "methods": [
-        "GET"
-      ],
-      "module": "storefront",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/subscription/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/subscription",
-      "methods": [
-        "GET",
-        "POST",
-        "DELETE"
-      ],
-      "module": "subscription",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/subscription/confirm/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/subscription/confirm",
-      "methods": [
-        "POST"
-      ],
-      "module": "subscription",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/subscription/features/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/subscription/features",
-      "methods": [
-        "GET"
-      ],
-      "module": "subscription",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/subscription/grace-period/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/subscription/grace-period",
-      "methods": [
-        "GET"
-      ],
-      "module": "subscription",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/subscription/pay/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/subscription/pay",
-      "methods": [
-        "POST"
-      ],
-      "module": "subscription",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/subscription/pay/3ds-callback/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/subscription/pay/3ds-callback",
-      "methods": [
-        "POST"
-      ],
-      "module": "subscription",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/subscription/payment-intent/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/subscription/payment-intent",
-      "methods": [
-        "POST"
-      ],
-      "module": "subscription",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/subscription/payment-intent/confirm/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/subscription/payment-intent/confirm",
-      "methods": [
-        "POST"
-      ],
-      "module": "subscription",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/subscription/quote/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/subscription/quote",
-      "methods": [
-        "POST"
-      ],
-      "module": "subscription",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/support/tickets/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/support/tickets",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "support",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/support/tickets/[ticketId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/support/tickets/[ticketId]",
-      "methods": [
-        "GET",
-        "PATCH"
-      ],
-      "module": "support",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/support/tickets/[ticketId]/messages/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/support/tickets/[ticketId]/messages",
-      "methods": [
-        "POST"
-      ],
-      "module": "support",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/tenants/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/tenants",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "tenant",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/tenants/[targetTenantId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/tenants/[targetTenantId]",
-      "methods": [
-        "GET",
-        "PUT",
-        "DELETE"
-      ],
-      "module": "tenant",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/tenants/[targetTenantId]/deletion-request/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/tenants/[targetTenantId]/deletion-request",
-      "methods": [
-        "POST"
-      ],
-      "module": "tenant",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/tenants/[targetTenantId]/subscription/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/tenants/[targetTenantId]/subscription",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "tenant",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/tenants/create/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/tenants/create",
-      "methods": [
-        "POST"
-      ],
-      "module": "tenant",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/users/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/users",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "user",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/users/[userId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/users/[userId]",
-      "methods": [
-        "GET",
-        "PUT",
-        "DELETE"
-      ],
-      "module": "user",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/users/[userId]/impersonation-sessions/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/users/[userId]/impersonation-sessions",
-      "methods": [
-        "GET"
-      ],
-      "module": "user",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/users/[userId]/tenants/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/users/[userId]/tenants",
-      "methods": [
-        "GET"
-      ],
-      "module": "user",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/wallet/accounts/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/wallet/accounts",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "wallet",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/wallet/accounts/[accountId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/wallet/accounts/[accountId]",
-      "methods": [
-        "GET"
-      ],
-      "module": "wallet",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/wallet/accounts/[accountId]/statement/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/wallet/accounts/[accountId]/statement",
-      "methods": [
-        "GET"
-      ],
-      "module": "wallet",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/wallet/transactions/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/wallet/transactions",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "wallet",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/wallet/transfer/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/wallet/transfer",
-      "methods": [
-        "POST"
-      ],
-      "module": "wallet",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/wallet/verify/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/wallet/verify",
-      "methods": [
-        "POST"
-      ],
-      "module": "wallet",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/webhooks/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/webhooks",
-      "methods": [
-        "GET",
-        "POST"
-      ],
-      "module": "webhook",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/webhooks/[webhookId]/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/webhooks/[webhookId]",
-      "methods": [
-        "GET",
-        "PATCH",
-        "DELETE"
-      ],
-      "module": "webhook",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/webhooks/[webhookId]/deliveries/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/webhooks/[webhookId]/deliveries",
-      "methods": [
-        "GET"
-      ],
-      "module": "webhook",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/webhooks/[webhookId]/deliveries/[deliveryId]/redeliver/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/webhooks/[webhookId]/deliveries/[deliveryId]/redeliver",
-      "methods": [
-        "POST"
-      ],
-      "module": "webhook",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/webhooks/[webhookId]/deliveries/replay-dead-letter/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/webhooks/[webhookId]/deliveries/replay-dead-letter",
-      "methods": [
-        "POST"
-      ],
-      "module": "webhook",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/webhooks/[webhookId]/rotate-secret/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/webhooks/[webhookId]/rotate-secret",
-      "methods": [
-        "POST"
-      ],
-      "module": "webhook",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/webhooks/[webhookId]/test/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/webhooks/[webhookId]/test",
-      "methods": [
-        "POST"
-      ],
-      "module": "webhook",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/webhooks/[webhookId]/trigger/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/webhooks/[webhookId]/trigger",
-      "methods": [
-        "POST"
-      ],
-      "module": "webhook",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/webhooks/events/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/webhooks/events",
-      "methods": [
-        "GET"
-      ],
-      "module": "webhook",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/webhooks/metrics/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/webhooks/metrics",
-      "methods": [
-        "GET"
-      ],
-      "module": "webhook",
       "dynamic": true
     }
   ],

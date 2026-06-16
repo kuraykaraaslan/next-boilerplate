@@ -76,5 +76,43 @@
       "path": "/admin/terms",
       "component": "terms_consent/ui/terms.page"
     }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/agreements/[agreementId]",
+      "handler": "terms_consent/server/agreements-agreement-id.route"
+    },
+    {
+      "path": "/api/agreements/[agreementId]/versions/[versionId]/publish",
+      "handler": "terms_consent/server/agreements-agreement-id-versions-version-id-publish.route"
+    },
+    {
+      "path": "/api/agreements/[agreementId]/versions",
+      "handler": "terms_consent/server/agreements-agreement-id-versions.route"
+    },
+    {
+      "path": "/api/agreements/accept",
+      "handler": "terms_consent/server/agreements-accept.route"
+    },
+    {
+      "path": "/api/agreements/acceptances",
+      "handler": "terms_consent/server/agreements-acceptances.route"
+    },
+    {
+      "path": "/api/agreements",
+      "handler": "terms_consent/server/agreements.route"
+    },
+    {
+      "path": "/api/consent/config",
+      "handler": "terms_consent/server/consent-config.route"
+    },
+    {
+      "path": "/api/consent/records",
+      "handler": "terms_consent/server/consent-records.route"
+    },
+    {
+      "path": "/api/consent",
+      "handler": "terms_consent/server/consent.route"
+    }
   ]
 }

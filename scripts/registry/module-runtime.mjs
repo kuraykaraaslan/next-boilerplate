@@ -8,8 +8,9 @@ export function buildModuleRuntime(modules, components) {
   const componentIndex = new Map();
   for (const c of components) componentIndex.set(c.id, c);
 
-  const runtime = { menu: [], pageRoutes: [], widgets: [], slots: [], settingsTabs: [], permissions: [], modules: [] };
+  const runtime = { menu: [], pageRoutes: [], apiRoutes: [], widgets: [], slots: [], settingsTabs: [], permissions: [], modules: [] };
   const importsMap = new Map(); // componentId -> { id, importPath, exportName }
+  const apiHandlers = new Map(); // handlerId -> { id, importPath }
   const errors = [];
 
   function resolveComponent(componentId, ctx) {
@@ -64,6 +65,12 @@ export function buildModuleRuntime(modules, components) {
         moduleId: m.id,
       });
     }
+    for (const r of m.apiRoutes ?? []) {
+      if (!apiHandlers.has(r.handler)) {
+        apiHandlers.set(r.handler, { id: r.handler, importPath: `@nb/${r.handler}` });
+      }
+      runtime.apiRoutes.push({ path: r.path, handlerId: r.handler, moduleId: m.id });
+    }
     for (const w of m.widgets ?? []) {
       resolveComponent(w.component, `module '${m.id}' widget '${w.id}'`);
       runtime.widgets.push({
@@ -107,8 +114,10 @@ export function buildModuleRuntime(modules, components) {
   runtime.widgets.sort(byOrderId);
   runtime.slots.sort(byOrderId);
   runtime.pageRoutes.sort((a, b) => a.path.localeCompare(b.path));
+  runtime.apiRoutes.sort((a, b) => a.path.localeCompare(b.path));
   runtime.modules.sort((a, b) => a.id.localeCompare(b.id));
 
   const componentImports = [...importsMap.values()].sort((a, b) => a.id.localeCompare(b.id));
-  return { runtimeJson: runtime, componentImports };
+  const apiHandlerImports = [...apiHandlers.values()].sort((a, b) => a.id.localeCompare(b.id));
+  return { runtimeJson: runtime, componentImports, apiHandlerImports };
 }

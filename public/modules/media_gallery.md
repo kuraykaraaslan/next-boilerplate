@@ -39,12 +39,6 @@ Polymorphic ordered image gallery attachable to any entity type. Items wrap Uplo
 
 - `media_gallery.messages.ts`
 
-## Owned API routes
-
-- `tenant` GET/POST `/tenant/[tenantId]/api/media-gallery/[entityType]/[entityId]/items`
-- `tenant` PUT `/tenant/[tenantId]/api/media-gallery/[entityType]/[entityId]/items/reorder`
-- `tenant` PUT/DELETE `/tenant/[tenantId]/api/media-gallery/items/[itemId]`
-
 ## TypeORM entities
 
 - `MediaGallery` (system) — `modules/media_gallery/server/entities/media_gallery.entity.ts`

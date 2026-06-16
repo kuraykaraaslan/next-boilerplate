@@ -62,5 +62,47 @@
       "path": "/admin/pages/[pageId]",
       "component": "dynamic_page/ui/page-editor.page"
     }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/dynamic-pages/[dynamicPageId]",
+      "handler": "dynamic_page/server/dynamic-pages-dynamic-page-id.route"
+    },
+    {
+      "path": "/api/dynamic-pages/[dynamicPageId]/translations/[lang]",
+      "handler": "dynamic_page/server/dynamic-pages-dynamic-page-id-translations-lang.route"
+    },
+    {
+      "path": "/api/dynamic-pages/[dynamicPageId]/translations",
+      "handler": "dynamic_page/server/dynamic-pages-dynamic-page-id-translations.route"
+    },
+    {
+      "path": "/api/dynamic-pages/block-definitions/[blockId]",
+      "handler": "dynamic_page/server/dynamic-pages-block-definitions-block-id.route"
+    },
+    {
+      "path": "/api/dynamic-pages/block-definitions",
+      "handler": "dynamic_page/server/dynamic-pages-block-definitions.route"
+    },
+    {
+      "path": "/api/dynamic-pages/collections/[collectionId]/items/[itemId]",
+      "handler": "dynamic_page/server/dynamic-pages-collections-collection-id-items-item-id.route"
+    },
+    {
+      "path": "/api/dynamic-pages/collections/[collectionId]/items",
+      "handler": "dynamic_page/server/dynamic-pages-collections-collection-id-items.route"
+    },
+    {
+      "path": "/api/dynamic-pages/collections/[collectionId]",
+      "handler": "dynamic_page/server/dynamic-pages-collections-collection-id.route"
+    },
+    {
+      "path": "/api/dynamic-pages/collections",
+      "handler": "dynamic_page/server/dynamic-pages-collections.route"
+    },
+    {
+      "path": "/api/dynamic-pages",
+      "handler": "dynamic_page/server/dynamic-pages.route"
+    }
   ]
 }

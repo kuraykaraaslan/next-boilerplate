@@ -43,15 +43,6 @@ Append-only audit trail for sensitive actions, stored per-tenant (platform event
 
 - `audit_log.purge.job.ts`
 
-## Owned API routes
-
-- `tenant` GET `/tenant/[tenantId]/api/audit-logs`
-- `tenant` POST `/tenant/[tenantId]/api/audit-logs/anonymize`
-- `tenant` GET `/tenant/[tenantId]/api/audit-logs/cross-tenant`
-- `tenant` GET `/tenant/[tenantId]/api/audit-logs/export`
-- `tenant` POST `/tenant/[tenantId]/api/audit-logs/purge`
-- `tenant` GET `/tenant/[tenantId]/api/audit-logs/verify`
-
 ## TypeORM entities
 
 - `AuditLog` (tenant) — `modules/audit_log/server/entities/audit_log.entity.ts`

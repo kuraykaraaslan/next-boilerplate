@@ -6,6 +6,11 @@
   "exports": {
     "./server/entities/gift_card.entity": "./server/entities/gift_card.entity.ts",
     "./server/entities/gift_card_transaction.entity": "./server/entities/gift_card_transaction.entity.ts",
+    "./server/gift-cards-balance.route": "./server/gift-cards-balance.route.ts",
+    "./server/gift-cards-gift-card-id-transactions.route": "./server/gift-cards-gift-card-id-transactions.route.ts",
+    "./server/gift-cards-gift-card-id.route": "./server/gift-cards-gift-card-id.route.ts",
+    "./server/gift-cards-redeem.route": "./server/gift-cards-redeem.route.ts",
+    "./server/gift-cards.route": "./server/gift-cards.route.ts",
     "./server/gift_card.cache": "./server/gift_card.cache.ts",
     "./server/gift_card.crud.service": "./server/gift_card.crud.service.ts",
     "./server/gift_card.crypto": "./server/gift_card.crypto.ts",

@@ -5,6 +5,8 @@
   "type": "module",
   "exports": {
     "./server/entities/tenant_member.entity": "./server/entities/tenant_member.entity.ts",
+    "./server/members-member-id.route": "./server/members-member-id.route.ts",
+    "./server/members.route": "./server/members.route.ts",
     "./server/tenant_member.dto": "./server/tenant_member.dto.ts",
     "./server/tenant_member.enums": "./server/tenant_member.enums.ts",
     "./server/tenant_member.helpers": "./server/tenant_member.helpers.ts",

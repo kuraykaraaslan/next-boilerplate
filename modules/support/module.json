@@ -43,5 +43,19 @@
       "path": "/admin/support",
       "component": "support/ui/support.page"
     }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/support/tickets/[ticketId]/messages",
+      "handler": "support/server/support-tickets-ticket-id-messages.route"
+    },
+    {
+      "path": "/api/support/tickets/[ticketId]",
+      "handler": "support/server/support-tickets-ticket-id.route"
+    },
+    {
+      "path": "/api/support/tickets",
+      "handler": "support/server/support-tickets.route"
+    }
   ]
 }

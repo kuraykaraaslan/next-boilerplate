@@ -36,11 +36,6 @@ Tenant-scoped membership join table with roles (owner/admin/member) and per-memb
 
 - `tenant_member.messages.ts`
 
-## Owned API routes
-
-- `tenant` GET/POST `/tenant/[tenantId]/api/members`
-- `tenant` GET/PUT/DELETE `/tenant/[tenantId]/api/members/[memberId]`
-
 ## TypeORM entities
 
 - `TenantMember` (tenant) — `modules/tenant_member/server/entities/tenant_member.entity.ts`

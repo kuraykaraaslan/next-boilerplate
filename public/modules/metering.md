@@ -41,14 +41,6 @@ Event-based usage metering with metered / overage billing. Records immutable usa
 
 - `metering.messages.ts`
 
-## Owned API routes
-
-- `tenant` GET/POST `/tenant/[tenantId]/api/metering/billing`
-- `tenant` POST `/tenant/[tenantId]/api/metering/events`
-- `tenant` GET/POST `/tenant/[tenantId]/api/metering/meters`
-- `tenant` GET/PATCH/DELETE `/tenant/[tenantId]/api/metering/meters/[meterId]`
-- `tenant` GET `/tenant/[tenantId]/api/metering/usage`
-
 ## TypeORM entities
 
 - `MeterDefinition` (system) — `modules/metering/server/entities/meter_definition.entity.ts`

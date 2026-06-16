@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./server/health.route": "./server/health.route.ts",
     "./server/index": "./server/index.ts",
     "./server": "./server/index.ts",
     "./server/metrics": "./server/metrics.ts",

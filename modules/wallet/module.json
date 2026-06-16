@@ -43,5 +43,31 @@
       "path": "/admin/wallet",
       "component": "wallet/ui/wallet.page"
     }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/wallet/accounts/[accountId]",
+      "handler": "wallet/server/wallet-accounts-account-id.route"
+    },
+    {
+      "path": "/api/wallet/accounts/[accountId]/statement",
+      "handler": "wallet/server/wallet-accounts-account-id-statement.route"
+    },
+    {
+      "path": "/api/wallet/accounts",
+      "handler": "wallet/server/wallet-accounts.route"
+    },
+    {
+      "path": "/api/wallet/transactions",
+      "handler": "wallet/server/wallet-transactions.route"
+    },
+    {
+      "path": "/api/wallet/transfer",
+      "handler": "wallet/server/wallet-transfer.route"
+    },
+    {
+      "path": "/api/wallet/verify",
+      "handler": "wallet/server/wallet-verify.route"
+    }
   ]
 }

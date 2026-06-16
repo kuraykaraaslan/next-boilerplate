@@ -40,5 +40,27 @@
       "path": "/admin/feature-flags",
       "component": "feature_flags/ui/feature-flags.page"
     }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/feature-flags/[key]/overrides/[overrideId]",
+      "handler": "feature_flags/server/feature-flags-key-overrides-override-id.route"
+    },
+    {
+      "path": "/api/feature-flags/[key]/overrides",
+      "handler": "feature_flags/server/feature-flags-key-overrides.route"
+    },
+    {
+      "path": "/api/feature-flags/[key]",
+      "handler": "feature_flags/server/feature-flags-key.route"
+    },
+    {
+      "path": "/api/feature-flags/evaluate",
+      "handler": "feature_flags/server/feature-flags-evaluate.route"
+    },
+    {
+      "path": "/api/feature-flags",
+      "handler": "feature_flags/server/feature-flags.route"
+    }
   ]
 }

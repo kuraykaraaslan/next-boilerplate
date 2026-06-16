@@ -46,10 +46,6 @@ Pluggable S3-compatible file storage (AWS S3, Cloudflare R2, DigitalOcean Spaces
 
 - `storage.scan.job.ts`
 
-## Owned API routes
-
-- `tenant` POST `/tenant/[tenantId]/api/storage`
-
 ## TypeORM entities
 
 - `UploadedFile` (system) — `modules/storage/server/entities/uploaded_file.entity.ts`

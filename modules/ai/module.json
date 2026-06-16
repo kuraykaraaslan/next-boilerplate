@@ -37,7 +37,35 @@
     }
   ],
   "routes": [
-    { "path": "/admin/ai", "component": "ai/ui/ai.page" },
-    { "path": "/admin/ai/settings", "component": "ai/ui/settings.page" }
+    {
+      "path": "/admin/ai",
+      "component": "ai/ui/ai.page"
+    },
+    {
+      "path": "/admin/ai/settings",
+      "component": "ai/ui/settings.page"
+    }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/ai/chat",
+      "handler": "ai/server/ai-chat.route"
+    },
+    {
+      "path": "/api/ai/embed",
+      "handler": "ai/server/ai-embed.route"
+    },
+    {
+      "path": "/api/ai/models",
+      "handler": "ai/server/ai-models.route"
+    },
+    {
+      "path": "/api/ai/providers",
+      "handler": "ai/server/ai-providers.route"
+    },
+    {
+      "path": "/api/ai/usage",
+      "handler": "ai/server/ai-usage.route"
+    }
   ]
 }

@@ -41,5 +41,31 @@
       "path": "/admin/api-keys/settings",
       "component": "api_key/ui/api-keys-settings.page"
     }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/api-keys/[apiKeyId]/rotate",
+      "handler": "api_key/server/api-keys-api-key-id-rotate.route"
+    },
+    {
+      "path": "/api/api-keys/[apiKeyId]",
+      "handler": "api_key/server/api-keys-api-key-id.route"
+    },
+    {
+      "path": "/api/api-keys/revoke-all",
+      "handler": "api_key/server/api-keys-revoke-all.route"
+    },
+    {
+      "path": "/api/api-keys",
+      "handler": "api_key/server/api-keys.route"
+    },
+    {
+      "path": "/api/api-keys/sweep-expired",
+      "handler": "api_key/server/api-keys-sweep-expired.route"
+    },
+    {
+      "path": "/api/api-keys/verify",
+      "handler": "api_key/server/api-keys-verify.route"
+    }
   ]
 }

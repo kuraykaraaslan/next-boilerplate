@@ -38,5 +38,43 @@
       "path": "/admin/invoices",
       "component": "invoice/ui/invoices.page"
     }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/invoices/[invoiceId]/issue",
+      "handler": "invoice/server/invoices-invoice-id-issue.route"
+    },
+    {
+      "path": "/api/invoices/[invoiceId]/mark-paid",
+      "handler": "invoice/server/invoices-invoice-id-mark-paid.route"
+    },
+    {
+      "path": "/api/invoices/[invoiceId]/pdf",
+      "handler": "invoice/server/invoices-invoice-id-pdf.route"
+    },
+    {
+      "path": "/api/invoices/[invoiceId]",
+      "handler": "invoice/server/invoices-invoice-id.route"
+    },
+    {
+      "path": "/api/invoices/[invoiceId]/void",
+      "handler": "invoice/server/invoices-invoice-id-void.route"
+    },
+    {
+      "path": "/api/invoices/earsiv/sms/send",
+      "handler": "invoice/server/invoices-earsiv-sms-send.route"
+    },
+    {
+      "path": "/api/invoices/earsiv/sms/verify",
+      "handler": "invoice/server/invoices-earsiv-sms-verify.route"
+    },
+    {
+      "path": "/api/invoices/preview",
+      "handler": "invoice/server/invoices-preview.route"
+    },
+    {
+      "path": "/api/invoices",
+      "handler": "invoice/server/invoices.route"
+    }
   ]
 }

@@ -22,11 +22,6 @@ In-app notification feed with unread counts. Consumed by the notification menu i
 
 - `notification_inapp.messages.ts`
 
-## Owned API routes
-
-- `tenant` POST/DELETE `/tenant/[tenantId]/api/notifications/push/subscribe`
-- `tenant` GET/POST `/tenant/[tenantId]/api/notifications/sms/send`
-
 ## Next layer (modules_next/) surface
 
 - `notification_inapp/hooks/use-notifications.hook` _(hook, client)_

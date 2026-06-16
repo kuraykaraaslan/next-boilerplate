@@ -34,12 +34,6 @@ System-wide key-value settings store. Modules declare their keys in *.setting.ke
 
 - `setting.messages.ts`
 
-## Owned API routes
-
-- `tenant` GET/POST/PUT/DELETE `/tenant/[tenantId]/api/settings`
-- `tenant` GET/PUT/DELETE `/tenant/[tenantId]/api/settings/branding`
-- `tenant` GET `/tenant/[tenantId]/api/settings/public`
-
 ## TypeORM entities
 
 - `Setting` (system) — `modules/setting/server/entities/setting.entity.ts`

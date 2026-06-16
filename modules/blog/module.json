@@ -58,5 +58,31 @@
       "path": "/admin/blog/posts",
       "component": "blog/ui/blog-posts.page"
     }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/blog/categories/[categoryId]",
+      "handler": "blog/server/blog-categories-category-id.route"
+    },
+    {
+      "path": "/api/blog/categories",
+      "handler": "blog/server/blog-categories.route"
+    },
+    {
+      "path": "/api/blog/comments/[commentId]",
+      "handler": "blog/server/blog-comments-comment-id.route"
+    },
+    {
+      "path": "/api/blog/posts/[postId]/comments",
+      "handler": "blog/server/blog-posts-post-id-comments.route"
+    },
+    {
+      "path": "/api/blog/posts/[postId]",
+      "handler": "blog/server/blog-posts-post-id.route"
+    },
+    {
+      "path": "/api/blog/posts",
+      "handler": "blog/server/blog-posts.route"
+    }
   ]
 }

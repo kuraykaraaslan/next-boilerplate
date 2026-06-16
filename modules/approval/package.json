@@ -15,6 +15,8 @@
     "./server/approval.service": "./server/approval.service.ts",
     "./server/approval.submit.service": "./server/approval.submit.service.ts",
     "./server/approval.types": "./server/approval.types.ts",
+    "./server/approvals-approval-item-id.route": "./server/approvals-approval-item-id.route.ts",
+    "./server/approvals.route": "./server/approvals.route.ts",
     "./server/entities/approval_queue_item.entity": "./server/entities/approval_queue_item.entity.ts",
     "./server/index": "./server/index.ts",
     "./server": "./server/index.ts",

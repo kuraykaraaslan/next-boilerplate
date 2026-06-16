@@ -37,17 +37,6 @@ System for Cross-domain Identity Management (RFC 7643/7644). Lets enterprise IdP
 
 - `scim.messages.ts`
 
-## Owned API routes
-
-- `tenant` GET/POST `/tenant/[tenantId]/api/scim/v2/Groups`
-- `tenant` GET/PUT/PATCH/DELETE `/tenant/[tenantId]/api/scim/v2/Groups/[scimGroupId]`
-- `tenant` GET `/tenant/[tenantId]/api/scim/v2/Health`
-- `tenant` GET `/tenant/[tenantId]/api/scim/v2/ResourceTypes`
-- `tenant` GET `/tenant/[tenantId]/api/scim/v2/Schemas`
-- `tenant` GET `/tenant/[tenantId]/api/scim/v2/ServiceProviderConfig`
-- `tenant` GET/POST `/tenant/[tenantId]/api/scim/v2/Users`
-- `tenant` GET/PUT/PATCH/DELETE `/tenant/[tenantId]/api/scim/v2/Users/[scimUserId]`
-
 ## TypeORM entities
 
 - `ScimGroup` (system) — `modules/scim/server/entities/scim_group.entity.ts`

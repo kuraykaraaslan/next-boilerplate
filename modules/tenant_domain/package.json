@@ -5,6 +5,9 @@
   "type": "module",
   "exports": {
     "./server/dns_verification.service": "./server/dns_verification.service.ts",
+    "./server/domains-domain-id-verify.route": "./server/domains-domain-id-verify.route.ts",
+    "./server/domains-domain-id.route": "./server/domains-domain-id.route.ts",
+    "./server/domains.route": "./server/domains.route.ts",
     "./server/entities/tenant_domain.entity": "./server/entities/tenant_domain.entity.ts",
     "./server/ssl_health.job": "./server/ssl_health.job.ts",
     "./server/ssl_provisioning.service": "./server/ssl_provisioning.service.ts",

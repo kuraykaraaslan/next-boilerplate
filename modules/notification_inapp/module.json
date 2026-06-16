@@ -18,5 +18,15 @@
   },
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/notification_inapp",
-  "license": "CC-BY-NC-ND-4.0"
+  "license": "CC-BY-NC-ND-4.0",
+  "apiRoutes": [
+    {
+      "path": "/api/notifications/push/subscribe",
+      "handler": "notification_inapp/server/notifications-push-subscribe.route"
+    },
+    {
+      "path": "/api/notifications/sms/send",
+      "handler": "notification_inapp/server/notifications-sms-send.route"
+    }
+  ]
 }

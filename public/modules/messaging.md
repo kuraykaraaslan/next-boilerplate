@@ -49,13 +49,6 @@ Tenant-scoped real-time messaging: 1-1 and group conversations, persisted messag
 
 - `messaging.moderation.setting.keys.ts`
 
-## Owned API routes
-
-- `tenant` POST `/tenant/[tenantId]/api/messaging/moderation/messages/[messageId]`
-- `tenant` GET `/tenant/[tenantId]/api/messaging/moderation/queue`
-- `tenant` GET/PUT `/tenant/[tenantId]/api/messaging/moderation/settings`
-- `tenant` POST `/tenant/[tenantId]/api/messaging/ws-ticket`
-
 ## TypeORM entities
 
 - `Conversation` (system) — `modules/messaging/server/entities/conversation.entity.ts`

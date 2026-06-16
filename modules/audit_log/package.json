@@ -4,6 +4,12 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./server/audit-logs-anonymize.route": "./server/audit-logs-anonymize.route.ts",
+    "./server/audit-logs-cross-tenant.route": "./server/audit-logs-cross-tenant.route.ts",
+    "./server/audit-logs-export.route": "./server/audit-logs-export.route.ts",
+    "./server/audit-logs-purge.route": "./server/audit-logs-purge.route.ts",
+    "./server/audit-logs-verify.route": "./server/audit-logs-verify.route.ts",
+    "./server/audit-logs.route": "./server/audit-logs.route.ts",
     "./server/audit_log.dto": "./server/audit_log.dto.ts",
     "./server/audit_log.enums": "./server/audit_log.enums.ts",
     "./server/audit_log.hash": "./server/audit_log.hash.ts",

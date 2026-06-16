@@ -23,5 +23,39 @@
   },
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/scim",
-  "license": "CC-BY-NC-ND-4.0"
+  "license": "CC-BY-NC-ND-4.0",
+  "apiRoutes": [
+    {
+      "path": "/api/scim/v2/Groups/[scimGroupId]",
+      "handler": "scim/server/scim-v2-groups-scim-group-id.route"
+    },
+    {
+      "path": "/api/scim/v2/Groups",
+      "handler": "scim/server/scim-v2-groups.route"
+    },
+    {
+      "path": "/api/scim/v2/Health",
+      "handler": "scim/server/scim-v2-health.route"
+    },
+    {
+      "path": "/api/scim/v2/ResourceTypes",
+      "handler": "scim/server/scim-v2-resource-types.route"
+    },
+    {
+      "path": "/api/scim/v2/Schemas",
+      "handler": "scim/server/scim-v2-schemas.route"
+    },
+    {
+      "path": "/api/scim/v2/ServiceProviderConfig",
+      "handler": "scim/server/scim-v2-service-provider-config.route"
+    },
+    {
+      "path": "/api/scim/v2/Users/[scimUserId]",
+      "handler": "scim/server/scim-v2-users-scim-user-id.route"
+    },
+    {
+      "path": "/api/scim/v2/Users",
+      "handler": "scim/server/scim-v2-users.route"
+    }
+  ]
 }

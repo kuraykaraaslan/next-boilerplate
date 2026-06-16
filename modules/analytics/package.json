@@ -4,6 +4,9 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./server/analytics-summary.route": "./server/analytics-summary.route.ts",
+    "./server/analytics-timeseries.route": "./server/analytics-timeseries.route.ts",
+    "./server/analytics-track.route": "./server/analytics-track.route.ts",
     "./server/analytics.dto": "./server/analytics.dto.ts",
     "./server/analytics.enums": "./server/analytics.enums.ts",
     "./server/analytics.messages": "./server/analytics.messages.ts",

@@ -77,5 +77,87 @@
       "path": "/admin/store/products",
       "component": "store/ui/store-products.page"
     }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/store/bundles/[bundleId]/items/[itemId]",
+      "handler": "store/server/store-bundles-bundle-id-items-item-id.route"
+    },
+    {
+      "path": "/api/store/bundles/[bundleId]/items",
+      "handler": "store/server/store-bundles-bundle-id-items.route"
+    },
+    {
+      "path": "/api/store/bundles/[bundleId]",
+      "handler": "store/server/store-bundles-bundle-id.route"
+    },
+    {
+      "path": "/api/store/bundles",
+      "handler": "store/server/store-bundles.route"
+    },
+    {
+      "path": "/api/store/categories/[categoryId]",
+      "handler": "store/server/store-categories-category-id.route"
+    },
+    {
+      "path": "/api/store/categories/[categoryId]/specs/[specId]",
+      "handler": "store/server/store-categories-category-id-specs-spec-id.route"
+    },
+    {
+      "path": "/api/store/categories/[categoryId]/specs",
+      "handler": "store/server/store-categories-category-id-specs.route"
+    },
+    {
+      "path": "/api/store/categories",
+      "handler": "store/server/store-categories.route"
+    },
+    {
+      "path": "/api/store/products/[productId]/duplicate",
+      "handler": "store/server/store-products-product-id-duplicate.route"
+    },
+    {
+      "path": "/api/store/products/[productId]/images/[imageId]",
+      "handler": "store/server/store-products-product-id-images-image-id.route"
+    },
+    {
+      "path": "/api/store/products/[productId]/images",
+      "handler": "store/server/store-products-product-id-images.route"
+    },
+    {
+      "path": "/api/store/products/[productId]",
+      "handler": "store/server/store-products-product-id.route"
+    },
+    {
+      "path": "/api/store/products/[productId]/spec-values",
+      "handler": "store/server/store-products-product-id-spec-values.route"
+    },
+    {
+      "path": "/api/store/products/[productId]/variant-group/items/[itemId]",
+      "handler": "store/server/store-products-product-id-variant-group-items-item-id.route"
+    },
+    {
+      "path": "/api/store/products/[productId]/variant-group/items",
+      "handler": "store/server/store-products-product-id-variant-group-items.route"
+    },
+    {
+      "path": "/api/store/products/[productId]/variant-group",
+      "handler": "store/server/store-products-product-id-variant-group.route"
+    },
+    {
+      "path": "/api/store/products",
+      "handler": "store/server/store-products.route"
+    },
+    {
+      "path": "/api/storefront/categories",
+      "handler": "store/server/storefront-categories.route"
+    },
+    {
+      "path": "/api/storefront/products/[slug]",
+      "handler": "store/server/storefront-products-slug.route"
+    },
+    {
+      "path": "/api/storefront/products",
+      "handler": "store/server/storefront-products.route"
+    }
   ]
 }

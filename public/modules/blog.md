@@ -43,15 +43,6 @@ Tenant-scoped blog with posts, categories and threaded comments. Posts have a dr
 
 - `blog.setting.keys.ts`
 
-## Owned API routes
-
-- `tenant` GET/POST `/tenant/[tenantId]/api/blog/categories`
-- `tenant` GET/PATCH/DELETE `/tenant/[tenantId]/api/blog/categories/[categoryId]`
-- `tenant` PATCH/DELETE `/tenant/[tenantId]/api/blog/comments/[commentId]`
-- `tenant` GET/POST `/tenant/[tenantId]/api/blog/posts`
-- `tenant` GET/PATCH/DELETE `/tenant/[tenantId]/api/blog/posts/[postId]`
-- `tenant` GET/POST `/tenant/[tenantId]/api/blog/posts/[postId]/comments`
-
 ## TypeORM entities
 
 - `BlogCategory` (system) — `modules/blog/server/entities/blog_category.entity.ts`

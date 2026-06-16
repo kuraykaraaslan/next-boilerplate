@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T09:45:18.302Z",
+  "generatedAt": "2026-06-16T10:07:57.302Z",
   "modules": [
     {
       "id": "common",
@@ -37,6 +37,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -81,6 +82,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -126,6 +128,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -171,6 +174,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -218,6 +222,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -266,6 +271,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -317,6 +323,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -373,6 +380,12 @@
           "component": "observability/ui/health.page"
         }
       ],
+      "apiRoutes": [
+        {
+          "path": "/api/health",
+          "handler": "observability/server/health.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -419,6 +432,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -543,6 +557,36 @@
           "component": "setting/ui/modules.page"
         }
       ],
+      "apiRoutes": [
+        {
+          "path": "/api/admin/impersonate",
+          "handler": "setting/server/admin-impersonate.route"
+        },
+        {
+          "path": "/api/admin/subscription/customer-portal",
+          "handler": "setting/server/admin-subscription-customer-portal.route"
+        },
+        {
+          "path": "/api/admin-settings",
+          "handler": "setting/server/admin-settings.route"
+        },
+        {
+          "path": "/api/modules",
+          "handler": "setting/server/modules.route"
+        },
+        {
+          "path": "/api/settings/branding",
+          "handler": "setting/server/settings-branding.route"
+        },
+        {
+          "path": "/api/settings/public",
+          "handler": "setting/server/settings-public.route"
+        },
+        {
+          "path": "/api/settings",
+          "handler": "setting/server/settings.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -589,6 +633,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -633,6 +678,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -700,6 +746,12 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [
+        {
+          "path": "/api/storage",
+          "handler": "storage/server/storage.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -782,6 +834,24 @@
           "component": "user/ui/me.page"
         }
       ],
+      "apiRoutes": [
+        {
+          "path": "/api/users/[userId]/impersonation-sessions",
+          "handler": "user/server/users-user-id-impersonation-sessions.route"
+        },
+        {
+          "path": "/api/users/[userId]",
+          "handler": "user/server/users-user-id.route"
+        },
+        {
+          "path": "/api/users/[userId]/tenants",
+          "handler": "user/server/users-user-id-tenants.route"
+        },
+        {
+          "path": "/api/users",
+          "handler": "user/server/users.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -836,6 +906,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -894,6 +965,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -958,6 +1030,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1018,6 +1091,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1074,6 +1148,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1161,6 +1236,204 @@
           "component": "auth/ui/auth-settings.page"
         }
       ],
+      "apiRoutes": [
+        {
+          "path": "/api/auth/callback",
+          "handler": "auth/server/auth-callback.route"
+        },
+        {
+          "path": "/api/auth/change-password",
+          "handler": "auth/server/auth-change-password.route"
+        },
+        {
+          "path": "/api/auth/csrf",
+          "handler": "auth/server/auth-csrf.route"
+        },
+        {
+          "path": "/api/auth/e-signature/countries",
+          "handler": "auth/server/auth-e-signature-countries.route"
+        },
+        {
+          "path": "/api/auth/e-signature/initiate",
+          "handler": "auth/server/auth-e-signature-initiate.route"
+        },
+        {
+          "path": "/api/auth/e-signature/status/[transactionId]",
+          "handler": "auth/server/auth-e-signature-status-transaction-id.route"
+        },
+        {
+          "path": "/api/auth/forgot-password",
+          "handler": "auth/server/auth-forgot-password.route"
+        },
+        {
+          "path": "/api/auth/impersonate",
+          "handler": "auth/server/auth-impersonate.route"
+        },
+        {
+          "path": "/api/auth/login",
+          "handler": "auth/server/auth-login.route"
+        },
+        {
+          "path": "/api/auth/logout",
+          "handler": "auth/server/auth-logout.route"
+        },
+        {
+          "path": "/api/auth/me/complete-email",
+          "handler": "auth/server/auth-me-complete-email.route"
+        },
+        {
+          "path": "/api/auth/me/device-info",
+          "handler": "auth/server/auth-me-device-info.route"
+        },
+        {
+          "path": "/api/auth/me/merge-identity",
+          "handler": "auth/server/auth-me-merge-identity.route"
+        },
+        {
+          "path": "/api/auth/me/notifications/[notificationId]",
+          "handler": "auth/server/auth-me-notifications-notification-id.route"
+        },
+        {
+          "path": "/api/auth/me/notifications/read-all",
+          "handler": "auth/server/auth-me-notifications-read-all.route"
+        },
+        {
+          "path": "/api/auth/me/notifications",
+          "handler": "auth/server/auth-me-notifications.route"
+        },
+        {
+          "path": "/api/auth/me/preferences",
+          "handler": "auth/server/auth-me-preferences.route"
+        },
+        {
+          "path": "/api/auth/me/profile",
+          "handler": "auth/server/auth-me-profile.route"
+        },
+        {
+          "path": "/api/auth/me/security/e-signature/[id]",
+          "handler": "auth/server/auth-me-security-e-signature-id.route"
+        },
+        {
+          "path": "/api/auth/me/security/e-signature",
+          "handler": "auth/server/auth-me-security-e-signature.route"
+        },
+        {
+          "path": "/api/auth/me/security",
+          "handler": "auth/server/auth-me-security.route"
+        },
+        {
+          "path": "/api/auth/me/sessions/[sessionId]",
+          "handler": "auth/server/auth-me-sessions-session-id.route"
+        },
+        {
+          "path": "/api/auth/me/sessions",
+          "handler": "auth/server/auth-me-sessions.route"
+        },
+        {
+          "path": "/api/auth/me/social-accounts/[provider]",
+          "handler": "auth/server/auth-me-social-accounts-provider.route"
+        },
+        {
+          "path": "/api/auth/me/social-accounts/connect/[provider]",
+          "handler": "auth/server/auth-me-social-accounts-connect-provider.route"
+        },
+        {
+          "path": "/api/auth/me/social-accounts/connect/acs/[provider]",
+          "handler": "auth/server/auth-me-social-accounts-connect-acs-provider.route"
+        },
+        {
+          "path": "/api/auth/me/social-accounts/connect/saml",
+          "handler": "auth/server/auth-me-social-accounts-connect-saml.route"
+        },
+        {
+          "path": "/api/auth/me/social-accounts",
+          "handler": "auth/server/auth-me-social-accounts.route"
+        },
+        {
+          "path": "/api/auth/me/tenants",
+          "handler": "auth/server/auth-me-tenants.route"
+        },
+        {
+          "path": "/api/auth/openapi",
+          "handler": "auth/server/auth-openapi.route"
+        },
+        {
+          "path": "/api/auth/otp/send",
+          "handler": "auth/server/auth-otp-send.route"
+        },
+        {
+          "path": "/api/auth/otp/verify",
+          "handler": "auth/server/auth-otp-verify.route"
+        },
+        {
+          "path": "/api/auth/refresh",
+          "handler": "auth/server/auth-refresh.route"
+        },
+        {
+          "path": "/api/auth/register",
+          "handler": "auth/server/auth-register.route"
+        },
+        {
+          "path": "/api/auth/reset-password",
+          "handler": "auth/server/auth-reset-password.route"
+        },
+        {
+          "path": "/api/auth",
+          "handler": "auth/server/auth.route"
+        },
+        {
+          "path": "/api/auth/saml/callback",
+          "handler": "auth/server/auth-saml-callback.route"
+        },
+        {
+          "path": "/api/auth/saml/initiate",
+          "handler": "auth/server/auth-saml-initiate.route"
+        },
+        {
+          "path": "/api/auth/saml/metadata",
+          "handler": "auth/server/auth-saml-metadata.route"
+        },
+        {
+          "path": "/api/auth/saml/status",
+          "handler": "auth/server/auth-saml-status.route"
+        },
+        {
+          "path": "/api/auth/session",
+          "handler": "auth/server/auth-session.route"
+        },
+        {
+          "path": "/api/auth/session/token-set",
+          "handler": "auth/server/auth-session-token-set.route"
+        },
+        {
+          "path": "/api/auth/sso/[provider]",
+          "handler": "auth/server/auth-sso-provider.route"
+        },
+        {
+          "path": "/api/auth/sso",
+          "handler": "auth/server/auth-sso.route"
+        },
+        {
+          "path": "/api/auth/totp/disable",
+          "handler": "auth/server/auth-totp-disable.route"
+        },
+        {
+          "path": "/api/auth/totp/enable",
+          "handler": "auth/server/auth-totp-enable.route"
+        },
+        {
+          "path": "/api/auth/totp/setup",
+          "handler": "auth/server/auth-totp-setup.route"
+        },
+        {
+          "path": "/api/auth/verify-email/send",
+          "handler": "auth/server/auth-verify-email-send.route"
+        },
+        {
+          "path": "/api/auth/verify-email/verify",
+          "handler": "auth/server/auth-verify-email-verify.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1210,6 +1483,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1308,6 +1582,12 @@
           "component": "auth_saml/ui/saml-settings.page"
         }
       ],
+      "apiRoutes": [
+        {
+          "path": "/api/saml/config",
+          "handler": "auth_saml/server/saml-config.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1380,6 +1660,7 @@
           "component": "auth_sso/ui/sso-settings.page"
         }
       ],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1451,6 +1732,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1519,6 +1801,7 @@
           "component": "auth_impersonation/ui/impersonation-settings.page"
         }
       ],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1583,6 +1866,40 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [
+        {
+          "path": "/api/scim/v2/Groups/[scimGroupId]",
+          "handler": "scim/server/scim-v2-groups-scim-group-id.route"
+        },
+        {
+          "path": "/api/scim/v2/Groups",
+          "handler": "scim/server/scim-v2-groups.route"
+        },
+        {
+          "path": "/api/scim/v2/Health",
+          "handler": "scim/server/scim-v2-health.route"
+        },
+        {
+          "path": "/api/scim/v2/ResourceTypes",
+          "handler": "scim/server/scim-v2-resource-types.route"
+        },
+        {
+          "path": "/api/scim/v2/Schemas",
+          "handler": "scim/server/scim-v2-schemas.route"
+        },
+        {
+          "path": "/api/scim/v2/ServiceProviderConfig",
+          "handler": "scim/server/scim-v2-service-provider-config.route"
+        },
+        {
+          "path": "/api/scim/v2/Users/[scimUserId]",
+          "handler": "scim/server/scim-v2-users-scim-user-id.route"
+        },
+        {
+          "path": "/api/scim/v2/Users",
+          "handler": "scim/server/scim-v2-users.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1666,6 +1983,28 @@
           "component": "tenant/ui/tenants.page"
         }
       ],
+      "apiRoutes": [
+        {
+          "path": "/api/tenants/[targetTenantId]/deletion-request",
+          "handler": "tenant/server/tenants-target-tenant-id-deletion-request.route"
+        },
+        {
+          "path": "/api/tenants/[targetTenantId]",
+          "handler": "tenant/server/tenants-target-tenant-id.route"
+        },
+        {
+          "path": "/api/tenants/[targetTenantId]/subscription",
+          "handler": "tenant/server/tenants-target-tenant-id-subscription.route"
+        },
+        {
+          "path": "/api/tenants/create",
+          "handler": "tenant/server/tenants-create.route"
+        },
+        {
+          "path": "/api/tenants",
+          "handler": "tenant/server/tenants.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1739,6 +2078,16 @@
         {
           "path": "/admin/members/settings",
           "component": "tenant_member/ui/members-settings.page"
+        }
+      ],
+      "apiRoutes": [
+        {
+          "path": "/api/members/[memberId]",
+          "handler": "tenant_member/server/members-member-id.route"
+        },
+        {
+          "path": "/api/members",
+          "handler": "tenant_member/server/members.route"
         }
       ],
       "widgets": [],
@@ -1820,6 +2169,24 @@
           "component": "tenant_invitation/ui/invitations-settings.page"
         }
       ],
+      "apiRoutes": [
+        {
+          "path": "/api/invitations/[invitationId]",
+          "handler": "tenant_invitation/server/invitations-invitation-id.route"
+        },
+        {
+          "path": "/api/invitations/accept",
+          "handler": "tenant_invitation/server/invitations-accept.route"
+        },
+        {
+          "path": "/api/invitations/decline",
+          "handler": "tenant_invitation/server/invitations-decline.route"
+        },
+        {
+          "path": "/api/invitations",
+          "handler": "tenant_invitation/server/invitations.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1874,6 +2241,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -1939,6 +2307,7 @@
           "component": "tenant_branding/ui/settings-branding.page"
         }
       ],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2019,6 +2388,20 @@
         {
           "path": "/admin/domains/settings",
           "component": "tenant_domain/ui/domains-settings.page"
+        }
+      ],
+      "apiRoutes": [
+        {
+          "path": "/api/domains/[domainId]",
+          "handler": "tenant_domain/server/domains-domain-id.route"
+        },
+        {
+          "path": "/api/domains/[domainId]/verify",
+          "handler": "tenant_domain/server/domains-domain-id-verify.route"
+        },
+        {
+          "path": "/api/domains",
+          "handler": "tenant_domain/server/domains.route"
         }
       ],
       "widgets": [],
@@ -2106,6 +2489,44 @@
           "component": "tenant_subscription/ui/subscription.page"
         }
       ],
+      "apiRoutes": [
+        {
+          "path": "/api/subscription/confirm",
+          "handler": "tenant_subscription/server/subscription-confirm.route"
+        },
+        {
+          "path": "/api/subscription/features",
+          "handler": "tenant_subscription/server/subscription-features.route"
+        },
+        {
+          "path": "/api/subscription/grace-period",
+          "handler": "tenant_subscription/server/subscription-grace-period.route"
+        },
+        {
+          "path": "/api/subscription/pay/3ds-callback",
+          "handler": "tenant_subscription/server/subscription-pay-3ds-callback.route"
+        },
+        {
+          "path": "/api/subscription/pay",
+          "handler": "tenant_subscription/server/subscription-pay.route"
+        },
+        {
+          "path": "/api/subscription/payment-intent/confirm",
+          "handler": "tenant_subscription/server/subscription-payment-intent-confirm.route"
+        },
+        {
+          "path": "/api/subscription/payment-intent",
+          "handler": "tenant_subscription/server/subscription-payment-intent.route"
+        },
+        {
+          "path": "/api/subscription/quote",
+          "handler": "tenant_subscription/server/subscription-quote.route"
+        },
+        {
+          "path": "/api/subscription",
+          "handler": "tenant_subscription/server/subscription.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2163,6 +2584,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2287,6 +2709,76 @@
           "component": "payment/ui/plans.page"
         }
       ],
+      "apiRoutes": [
+        {
+          "path": "/api/checkout/agreements/accept",
+          "handler": "payment/server/checkout-agreements-accept.route"
+        },
+        {
+          "path": "/api/checkout/agreements",
+          "handler": "payment/server/checkout-agreements.route"
+        },
+        {
+          "path": "/api/payments/[paymentId]/refund",
+          "handler": "payment/server/payments-payment-id-refund.route"
+        },
+        {
+          "path": "/api/payments/[paymentId]",
+          "handler": "payment/server/payments-payment-id.route"
+        },
+        {
+          "path": "/api/payments/[paymentId]/transactions",
+          "handler": "payment/server/payments-payment-id-transactions.route"
+        },
+        {
+          "path": "/api/payments/bin-check",
+          "handler": "payment/server/payments-bin-check.route"
+        },
+        {
+          "path": "/api/payments/provider-status",
+          "handler": "payment/server/payments-provider-status.route"
+        },
+        {
+          "path": "/api/payments/providers",
+          "handler": "payment/server/payments-providers.route"
+        },
+        {
+          "path": "/api/payments",
+          "handler": "payment/server/payments.route"
+        },
+        {
+          "path": "/api/payments/transactions/[transactionId]",
+          "handler": "payment/server/payments-transactions-transaction-id.route"
+        },
+        {
+          "path": "/api/payments/wallets",
+          "handler": "payment/server/payments-wallets.route"
+        },
+        {
+          "path": "/api/plans/[planId]/features/[featureId]",
+          "handler": "payment/server/plans-plan-id-features-feature-id.route"
+        },
+        {
+          "path": "/api/plans/[planId]/features",
+          "handler": "payment/server/plans-plan-id-features.route"
+        },
+        {
+          "path": "/api/plans/[planId]",
+          "handler": "payment/server/plans-plan-id.route"
+        },
+        {
+          "path": "/api/plans/default",
+          "handler": "payment/server/plans-default.route"
+        },
+        {
+          "path": "/api/plans/public",
+          "handler": "payment/server/plans-public.route"
+        },
+        {
+          "path": "/api/plans",
+          "handler": "payment/server/plans.route"
+        }
+      ],
       "widgets": [],
       "slots": [
         {
@@ -2348,6 +2840,12 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [
+        {
+          "path": "/api/export",
+          "handler": "tenant_export/server/export.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2430,6 +2928,28 @@
           "component": "coupon/ui/coupons.page"
         }
       ],
+      "apiRoutes": [
+        {
+          "path": "/api/coupons/[couponId]",
+          "handler": "coupon/server/coupons-coupon-id.route"
+        },
+        {
+          "path": "/api/coupons/apply",
+          "handler": "coupon/server/coupons-apply.route"
+        },
+        {
+          "path": "/api/coupons/redemptions",
+          "handler": "coupon/server/coupons-redemptions.route"
+        },
+        {
+          "path": "/api/coupons",
+          "handler": "coupon/server/coupons.route"
+        },
+        {
+          "path": "/api/coupons/validate",
+          "handler": "coupon/server/coupons-validate.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2495,6 +3015,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2543,6 +3064,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2613,6 +3135,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2677,6 +3200,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2739,6 +3263,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2821,6 +3346,44 @@
           "component": "invoice/ui/invoices.page"
         }
       ],
+      "apiRoutes": [
+        {
+          "path": "/api/invoices/[invoiceId]/issue",
+          "handler": "invoice/server/invoices-invoice-id-issue.route"
+        },
+        {
+          "path": "/api/invoices/[invoiceId]/mark-paid",
+          "handler": "invoice/server/invoices-invoice-id-mark-paid.route"
+        },
+        {
+          "path": "/api/invoices/[invoiceId]/pdf",
+          "handler": "invoice/server/invoices-invoice-id-pdf.route"
+        },
+        {
+          "path": "/api/invoices/[invoiceId]",
+          "handler": "invoice/server/invoices-invoice-id.route"
+        },
+        {
+          "path": "/api/invoices/[invoiceId]/void",
+          "handler": "invoice/server/invoices-invoice-id-void.route"
+        },
+        {
+          "path": "/api/invoices/earsiv/sms/send",
+          "handler": "invoice/server/invoices-earsiv-sms-send.route"
+        },
+        {
+          "path": "/api/invoices/earsiv/sms/verify",
+          "handler": "invoice/server/invoices-earsiv-sms-verify.route"
+        },
+        {
+          "path": "/api/invoices/preview",
+          "handler": "invoice/server/invoices-preview.route"
+        },
+        {
+          "path": "/api/invoices",
+          "handler": "invoice/server/invoices.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2869,6 +3432,16 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [
+        {
+          "path": "/api/notifications/push/subscribe",
+          "handler": "notification_inapp/server/notifications-push-subscribe.route"
+        },
+        {
+          "path": "/api/notifications/sms/send",
+          "handler": "notification_inapp/server/notifications-sms-send.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2926,6 +3499,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -2979,6 +3553,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3031,6 +3606,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3082,6 +3658,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3144,6 +3721,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3208,6 +3786,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3272,6 +3851,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3335,6 +3915,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3419,6 +4000,12 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [
+        {
+          "path": "/api/e-signature/settings",
+          "handler": "e_signature/server/e-signature-settings.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3475,6 +4062,16 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [
+        {
+          "path": "/api/seo/[entityType]/[entityId]",
+          "handler": "seo/server/seo-entity-type-entity-id.route"
+        },
+        {
+          "path": "/api/seo/web-vitals",
+          "handler": "seo/server/seo-web-vitals.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3539,6 +4136,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3600,6 +4198,20 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [
+        {
+          "path": "/api/media-gallery/[entityType]/[entityId]/items/reorder",
+          "handler": "media_gallery/server/media-gallery-entity-type-entity-id-items-reorder.route"
+        },
+        {
+          "path": "/api/media-gallery/[entityType]/[entityId]/items",
+          "handler": "media_gallery/server/media-gallery-entity-type-entity-id-items.route"
+        },
+        {
+          "path": "/api/media-gallery/items/[itemId]",
+          "handler": "media_gallery/server/media-gallery-items-item-id.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3678,6 +4290,32 @@
         {
           "path": "/admin/api-keys/settings",
           "component": "api_key/ui/api-keys-settings.page"
+        }
+      ],
+      "apiRoutes": [
+        {
+          "path": "/api/api-keys/[apiKeyId]/rotate",
+          "handler": "api_key/server/api-keys-api-key-id-rotate.route"
+        },
+        {
+          "path": "/api/api-keys/[apiKeyId]",
+          "handler": "api_key/server/api-keys-api-key-id.route"
+        },
+        {
+          "path": "/api/api-keys/revoke-all",
+          "handler": "api_key/server/api-keys-revoke-all.route"
+        },
+        {
+          "path": "/api/api-keys",
+          "handler": "api_key/server/api-keys.route"
+        },
+        {
+          "path": "/api/api-keys/sweep-expired",
+          "handler": "api_key/server/api-keys-sweep-expired.route"
+        },
+        {
+          "path": "/api/api-keys/verify",
+          "handler": "api_key/server/api-keys-verify.route"
         }
       ],
       "widgets": [],
@@ -3763,6 +4401,32 @@
         {
           "path": "/admin/audit-logs/settings",
           "component": "audit_log/ui/audit-logs-settings.page"
+        }
+      ],
+      "apiRoutes": [
+        {
+          "path": "/api/audit-logs/anonymize",
+          "handler": "audit_log/server/audit-logs-anonymize.route"
+        },
+        {
+          "path": "/api/audit-logs/cross-tenant",
+          "handler": "audit_log/server/audit-logs-cross-tenant.route"
+        },
+        {
+          "path": "/api/audit-logs/export",
+          "handler": "audit_log/server/audit-logs-export.route"
+        },
+        {
+          "path": "/api/audit-logs/purge",
+          "handler": "audit_log/server/audit-logs-purge.route"
+        },
+        {
+          "path": "/api/audit-logs",
+          "handler": "audit_log/server/audit-logs.route"
+        },
+        {
+          "path": "/api/audit-logs/verify",
+          "handler": "audit_log/server/audit-logs-verify.route"
         }
       ],
       "widgets": [],
@@ -3894,6 +4558,88 @@
           "component": "store/ui/store-products.page"
         }
       ],
+      "apiRoutes": [
+        {
+          "path": "/api/store/bundles/[bundleId]/items/[itemId]",
+          "handler": "store/server/store-bundles-bundle-id-items-item-id.route"
+        },
+        {
+          "path": "/api/store/bundles/[bundleId]/items",
+          "handler": "store/server/store-bundles-bundle-id-items.route"
+        },
+        {
+          "path": "/api/store/bundles/[bundleId]",
+          "handler": "store/server/store-bundles-bundle-id.route"
+        },
+        {
+          "path": "/api/store/bundles",
+          "handler": "store/server/store-bundles.route"
+        },
+        {
+          "path": "/api/store/categories/[categoryId]",
+          "handler": "store/server/store-categories-category-id.route"
+        },
+        {
+          "path": "/api/store/categories/[categoryId]/specs/[specId]",
+          "handler": "store/server/store-categories-category-id-specs-spec-id.route"
+        },
+        {
+          "path": "/api/store/categories/[categoryId]/specs",
+          "handler": "store/server/store-categories-category-id-specs.route"
+        },
+        {
+          "path": "/api/store/categories",
+          "handler": "store/server/store-categories.route"
+        },
+        {
+          "path": "/api/store/products/[productId]/duplicate",
+          "handler": "store/server/store-products-product-id-duplicate.route"
+        },
+        {
+          "path": "/api/store/products/[productId]/images/[imageId]",
+          "handler": "store/server/store-products-product-id-images-image-id.route"
+        },
+        {
+          "path": "/api/store/products/[productId]/images",
+          "handler": "store/server/store-products-product-id-images.route"
+        },
+        {
+          "path": "/api/store/products/[productId]",
+          "handler": "store/server/store-products-product-id.route"
+        },
+        {
+          "path": "/api/store/products/[productId]/spec-values",
+          "handler": "store/server/store-products-product-id-spec-values.route"
+        },
+        {
+          "path": "/api/store/products/[productId]/variant-group/items/[itemId]",
+          "handler": "store/server/store-products-product-id-variant-group-items-item-id.route"
+        },
+        {
+          "path": "/api/store/products/[productId]/variant-group/items",
+          "handler": "store/server/store-products-product-id-variant-group-items.route"
+        },
+        {
+          "path": "/api/store/products/[productId]/variant-group",
+          "handler": "store/server/store-products-product-id-variant-group.route"
+        },
+        {
+          "path": "/api/store/products",
+          "handler": "store/server/store-products.route"
+        },
+        {
+          "path": "/api/storefront/categories",
+          "handler": "store/server/storefront-categories.route"
+        },
+        {
+          "path": "/api/storefront/products/[slug]",
+          "handler": "store/server/storefront-products-slug.route"
+        },
+        {
+          "path": "/api/storefront/products",
+          "handler": "store/server/storefront-products.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -3974,6 +4720,48 @@
           "component": "webhook/ui/webhooks-settings.page"
         }
       ],
+      "apiRoutes": [
+        {
+          "path": "/api/webhooks/[webhookId]/deliveries/[deliveryId]/redeliver",
+          "handler": "webhook/server/webhooks-webhook-id-deliveries-delivery-id-redeliver.route"
+        },
+        {
+          "path": "/api/webhooks/[webhookId]/deliveries/replay-dead-letter",
+          "handler": "webhook/server/webhooks-webhook-id-deliveries-replay-dead-letter.route"
+        },
+        {
+          "path": "/api/webhooks/[webhookId]/deliveries",
+          "handler": "webhook/server/webhooks-webhook-id-deliveries.route"
+        },
+        {
+          "path": "/api/webhooks/[webhookId]/rotate-secret",
+          "handler": "webhook/server/webhooks-webhook-id-rotate-secret.route"
+        },
+        {
+          "path": "/api/webhooks/[webhookId]",
+          "handler": "webhook/server/webhooks-webhook-id.route"
+        },
+        {
+          "path": "/api/webhooks/[webhookId]/test",
+          "handler": "webhook/server/webhooks-webhook-id-test.route"
+        },
+        {
+          "path": "/api/webhooks/[webhookId]/trigger",
+          "handler": "webhook/server/webhooks-webhook-id-trigger.route"
+        },
+        {
+          "path": "/api/webhooks/events",
+          "handler": "webhook/server/webhooks-events.route"
+        },
+        {
+          "path": "/api/webhooks/metrics",
+          "handler": "webhook/server/webhooks-metrics.route"
+        },
+        {
+          "path": "/api/webhooks",
+          "handler": "webhook/server/webhooks.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4042,6 +4830,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4104,6 +4893,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4203,6 +4993,32 @@
           "component": "blog/ui/blog-posts.page"
         }
       ],
+      "apiRoutes": [
+        {
+          "path": "/api/blog/categories/[categoryId]",
+          "handler": "blog/server/blog-categories-category-id.route"
+        },
+        {
+          "path": "/api/blog/categories",
+          "handler": "blog/server/blog-categories.route"
+        },
+        {
+          "path": "/api/blog/comments/[commentId]",
+          "handler": "blog/server/blog-comments-comment-id.route"
+        },
+        {
+          "path": "/api/blog/posts/[postId]/comments",
+          "handler": "blog/server/blog-posts-post-id-comments.route"
+        },
+        {
+          "path": "/api/blog/posts/[postId]",
+          "handler": "blog/server/blog-posts-post-id.route"
+        },
+        {
+          "path": "/api/blog/posts",
+          "handler": "blog/server/blog-posts.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4278,6 +5094,48 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [
+        {
+          "path": "/api/conversations/[conversationId]/messages/[messageId]/report",
+          "handler": "messaging/server/conversations-conversation-id-messages-message-id-report.route"
+        },
+        {
+          "path": "/api/conversations/[conversationId]/messages",
+          "handler": "messaging/server/conversations-conversation-id-messages.route"
+        },
+        {
+          "path": "/api/conversations/[conversationId]/participants",
+          "handler": "messaging/server/conversations-conversation-id-participants.route"
+        },
+        {
+          "path": "/api/conversations/[conversationId]/read",
+          "handler": "messaging/server/conversations-conversation-id-read.route"
+        },
+        {
+          "path": "/api/conversations/[conversationId]",
+          "handler": "messaging/server/conversations-conversation-id.route"
+        },
+        {
+          "path": "/api/conversations",
+          "handler": "messaging/server/conversations.route"
+        },
+        {
+          "path": "/api/messaging/moderation/messages/[messageId]",
+          "handler": "messaging/server/messaging-moderation-messages-message-id.route"
+        },
+        {
+          "path": "/api/messaging/moderation/queue",
+          "handler": "messaging/server/messaging-moderation-queue.route"
+        },
+        {
+          "path": "/api/messaging/moderation/settings",
+          "handler": "messaging/server/messaging-moderation-settings.route"
+        },
+        {
+          "path": "/api/messaging/ws-ticket",
+          "handler": "messaging/server/messaging-ws-ticket.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4377,6 +5235,44 @@
           "component": "terms_consent/ui/terms.page"
         }
       ],
+      "apiRoutes": [
+        {
+          "path": "/api/agreements/[agreementId]",
+          "handler": "terms_consent/server/agreements-agreement-id.route"
+        },
+        {
+          "path": "/api/agreements/[agreementId]/versions/[versionId]/publish",
+          "handler": "terms_consent/server/agreements-agreement-id-versions-version-id-publish.route"
+        },
+        {
+          "path": "/api/agreements/[agreementId]/versions",
+          "handler": "terms_consent/server/agreements-agreement-id-versions.route"
+        },
+        {
+          "path": "/api/agreements/accept",
+          "handler": "terms_consent/server/agreements-accept.route"
+        },
+        {
+          "path": "/api/agreements/acceptances",
+          "handler": "terms_consent/server/agreements-acceptances.route"
+        },
+        {
+          "path": "/api/agreements",
+          "handler": "terms_consent/server/agreements.route"
+        },
+        {
+          "path": "/api/consent/config",
+          "handler": "terms_consent/server/consent-config.route"
+        },
+        {
+          "path": "/api/consent/records",
+          "handler": "terms_consent/server/consent-records.route"
+        },
+        {
+          "path": "/api/consent",
+          "handler": "terms_consent/server/consent.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4459,6 +5355,32 @@
           "component": "wallet/ui/wallet.page"
         }
       ],
+      "apiRoutes": [
+        {
+          "path": "/api/wallet/accounts/[accountId]",
+          "handler": "wallet/server/wallet-accounts-account-id.route"
+        },
+        {
+          "path": "/api/wallet/accounts/[accountId]/statement",
+          "handler": "wallet/server/wallet-accounts-account-id-statement.route"
+        },
+        {
+          "path": "/api/wallet/accounts",
+          "handler": "wallet/server/wallet-accounts.route"
+        },
+        {
+          "path": "/api/wallet/transactions",
+          "handler": "wallet/server/wallet-transactions.route"
+        },
+        {
+          "path": "/api/wallet/transfer",
+          "handler": "wallet/server/wallet-transfer.route"
+        },
+        {
+          "path": "/api/wallet/verify",
+          "handler": "wallet/server/wallet-verify.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4532,6 +5454,28 @@
         {
           "path": "/admin/feature-flags",
           "component": "feature_flags/ui/feature-flags.page"
+        }
+      ],
+      "apiRoutes": [
+        {
+          "path": "/api/feature-flags/[key]/overrides/[overrideId]",
+          "handler": "feature_flags/server/feature-flags-key-overrides-override-id.route"
+        },
+        {
+          "path": "/api/feature-flags/[key]/overrides",
+          "handler": "feature_flags/server/feature-flags-key-overrides.route"
+        },
+        {
+          "path": "/api/feature-flags/[key]",
+          "handler": "feature_flags/server/feature-flags-key.route"
+        },
+        {
+          "path": "/api/feature-flags/evaluate",
+          "handler": "feature_flags/server/feature-flags-evaluate.route"
+        },
+        {
+          "path": "/api/feature-flags",
+          "handler": "feature_flags/server/feature-flags.route"
         }
       ],
       "widgets": [],
@@ -4621,6 +5565,28 @@
           "component": "metering/ui/metering.page"
         }
       ],
+      "apiRoutes": [
+        {
+          "path": "/api/metering/billing",
+          "handler": "metering/server/metering-billing.route"
+        },
+        {
+          "path": "/api/metering/events",
+          "handler": "metering/server/metering-events.route"
+        },
+        {
+          "path": "/api/metering/meters/[meterId]",
+          "handler": "metering/server/metering-meters-meter-id.route"
+        },
+        {
+          "path": "/api/metering/meters",
+          "handler": "metering/server/metering-meters.route"
+        },
+        {
+          "path": "/api/metering/usage",
+          "handler": "metering/server/metering-usage.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4702,6 +5668,20 @@
           "component": "support/ui/support.page"
         }
       ],
+      "apiRoutes": [
+        {
+          "path": "/api/support/tickets/[ticketId]/messages",
+          "handler": "support/server/support-tickets-ticket-id-messages.route"
+        },
+        {
+          "path": "/api/support/tickets/[ticketId]",
+          "handler": "support/server/support-tickets-ticket-id.route"
+        },
+        {
+          "path": "/api/support/tickets",
+          "handler": "support/server/support-tickets.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4780,6 +5760,16 @@
         {
           "path": "/admin/approvals",
           "component": "approval/ui/approvals.page"
+        }
+      ],
+      "apiRoutes": [
+        {
+          "path": "/api/approvals/[approvalItemId]",
+          "handler": "approval/server/approvals-approval-item-id.route"
+        },
+        {
+          "path": "/api/approvals",
+          "handler": "approval/server/approvals.route"
         }
       ],
       "widgets": [],
@@ -4869,6 +5859,28 @@
           "component": "gift_card/ui/gift-cards.page"
         }
       ],
+      "apiRoutes": [
+        {
+          "path": "/api/gift-cards/[giftCardId]",
+          "handler": "gift_card/server/gift-cards-gift-card-id.route"
+        },
+        {
+          "path": "/api/gift-cards/[giftCardId]/transactions",
+          "handler": "gift_card/server/gift-cards-gift-card-id-transactions.route"
+        },
+        {
+          "path": "/api/gift-cards/balance",
+          "handler": "gift_card/server/gift-cards-balance.route"
+        },
+        {
+          "path": "/api/gift-cards/redeem",
+          "handler": "gift_card/server/gift-cards-redeem.route"
+        },
+        {
+          "path": "/api/gift-cards",
+          "handler": "gift_card/server/gift-cards.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -4940,6 +5952,28 @@
         {
           "path": "/admin/ai/settings",
           "component": "ai/ui/settings.page"
+        }
+      ],
+      "apiRoutes": [
+        {
+          "path": "/api/ai/chat",
+          "handler": "ai/server/ai-chat.route"
+        },
+        {
+          "path": "/api/ai/embed",
+          "handler": "ai/server/ai-embed.route"
+        },
+        {
+          "path": "/api/ai/models",
+          "handler": "ai/server/ai-models.route"
+        },
+        {
+          "path": "/api/ai/providers",
+          "handler": "ai/server/ai-providers.route"
+        },
+        {
+          "path": "/api/ai/usage",
+          "handler": "ai/server/ai-usage.route"
         }
       ],
       "widgets": [],
@@ -5049,6 +6083,48 @@
           "component": "dynamic_page/ui/page-editor.page"
         }
       ],
+      "apiRoutes": [
+        {
+          "path": "/api/dynamic-pages/[dynamicPageId]",
+          "handler": "dynamic_page/server/dynamic-pages-dynamic-page-id.route"
+        },
+        {
+          "path": "/api/dynamic-pages/[dynamicPageId]/translations/[lang]",
+          "handler": "dynamic_page/server/dynamic-pages-dynamic-page-id-translations-lang.route"
+        },
+        {
+          "path": "/api/dynamic-pages/[dynamicPageId]/translations",
+          "handler": "dynamic_page/server/dynamic-pages-dynamic-page-id-translations.route"
+        },
+        {
+          "path": "/api/dynamic-pages/block-definitions/[blockId]",
+          "handler": "dynamic_page/server/dynamic-pages-block-definitions-block-id.route"
+        },
+        {
+          "path": "/api/dynamic-pages/block-definitions",
+          "handler": "dynamic_page/server/dynamic-pages-block-definitions.route"
+        },
+        {
+          "path": "/api/dynamic-pages/collections/[collectionId]/items/[itemId]",
+          "handler": "dynamic_page/server/dynamic-pages-collections-collection-id-items-item-id.route"
+        },
+        {
+          "path": "/api/dynamic-pages/collections/[collectionId]/items",
+          "handler": "dynamic_page/server/dynamic-pages-collections-collection-id-items.route"
+        },
+        {
+          "path": "/api/dynamic-pages/collections/[collectionId]",
+          "handler": "dynamic_page/server/dynamic-pages-collections-collection-id.route"
+        },
+        {
+          "path": "/api/dynamic-pages/collections",
+          "handler": "dynamic_page/server/dynamic-pages-collections.route"
+        },
+        {
+          "path": "/api/dynamic-pages",
+          "handler": "dynamic_page/server/dynamic-pages.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -5140,6 +6216,44 @@
           "component": "integrations_hub/ui/integrations.page"
         }
       ],
+      "apiRoutes": [
+        {
+          "path": "/api/integrations/actions/[actionKey]",
+          "handler": "integrations_hub/server/integrations-actions-action-key.route"
+        },
+        {
+          "path": "/api/integrations/connect/api-key",
+          "handler": "integrations_hub/server/integrations-connect-api-key.route"
+        },
+        {
+          "path": "/api/integrations/connected/[connectedAppId]",
+          "handler": "integrations_hub/server/integrations-connected-connected-app-id.route"
+        },
+        {
+          "path": "/api/integrations/connected",
+          "handler": "integrations_hub/server/integrations-connected.route"
+        },
+        {
+          "path": "/api/integrations/connectors/[connectorKey]",
+          "handler": "integrations_hub/server/integrations-connectors-connector-key.route"
+        },
+        {
+          "path": "/api/integrations/connectors",
+          "handler": "integrations_hub/server/integrations-connectors.route"
+        },
+        {
+          "path": "/api/integrations/oauth/callback",
+          "handler": "integrations_hub/server/integrations-oauth-callback.route"
+        },
+        {
+          "path": "/api/integrations/oauth/start",
+          "handler": "integrations_hub/server/integrations-oauth-start.route"
+        },
+        {
+          "path": "/api/integrations/triggers",
+          "handler": "integrations_hub/server/integrations-triggers.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -5210,6 +6324,16 @@
         {
           "path": "/admin/search",
           "component": "search/ui/search.page"
+        }
+      ],
+      "apiRoutes": [
+        {
+          "path": "/api/search/index",
+          "handler": "search/server/search-index.route"
+        },
+        {
+          "path": "/api/search",
+          "handler": "search/server/search.route"
         }
       ],
       "widgets": [],
@@ -5285,6 +6409,20 @@
           "component": "analytics/ui/analytics.page"
         }
       ],
+      "apiRoutes": [
+        {
+          "path": "/api/analytics/summary",
+          "handler": "analytics/server/analytics-summary.route"
+        },
+        {
+          "path": "/api/analytics/timeseries",
+          "handler": "analytics/server/analytics-timeseries.route"
+        },
+        {
+          "path": "/api/analytics/track",
+          "handler": "analytics/server/analytics-track.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -5350,6 +6488,7 @@
           "component": "api_doc/ui/api-docs.page"
         }
       ],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -5395,6 +6534,7 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
+      "apiRoutes": [],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],

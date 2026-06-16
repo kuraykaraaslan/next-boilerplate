@@ -43,12 +43,6 @@ Custom domain mapping per tenant + DNS verification (TXT/CNAME challenge).
 - `ssl_health.job.ts`
 - `tenant_domain.job.ts`
 
-## Owned API routes
-
-- `tenant` GET/POST `/tenant/[tenantId]/api/domains`
-- `tenant` GET/DELETE `/tenant/[tenantId]/api/domains/[domainId]`
-- `tenant` POST `/tenant/[tenantId]/api/domains/[domainId]/verify`
-
 ## TypeORM entities
 
 - `TenantDomain` (tenant) — `modules/tenant_domain/server/entities/tenant_domain.entity.ts`

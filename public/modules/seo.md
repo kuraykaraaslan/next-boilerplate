@@ -36,11 +36,6 @@ Polymorphic SEO metadata (title, description, Open Graph, canonical, noIndex) at
 
 - `seo.messages.ts`
 
-## Owned API routes
-
-- `tenant` GET/PUT `/tenant/[tenantId]/api/seo/[entityType]/[entityId]`
-- `tenant` GET/POST `/tenant/[tenantId]/api/seo/web-vitals`
-
 ## TypeORM entities
 
 - `SeoMeta` (system) — `modules/seo/server/entities/seo_meta.entity.ts`

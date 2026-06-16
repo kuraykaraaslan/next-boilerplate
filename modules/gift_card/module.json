@@ -48,5 +48,27 @@
       "path": "/admin/gift-cards",
       "component": "gift_card/ui/gift-cards.page"
     }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/gift-cards/[giftCardId]",
+      "handler": "gift_card/server/gift-cards-gift-card-id.route"
+    },
+    {
+      "path": "/api/gift-cards/[giftCardId]/transactions",
+      "handler": "gift_card/server/gift-cards-gift-card-id-transactions.route"
+    },
+    {
+      "path": "/api/gift-cards/balance",
+      "handler": "gift_card/server/gift-cards-balance.route"
+    },
+    {
+      "path": "/api/gift-cards/redeem",
+      "handler": "gift_card/server/gift-cards-redeem.route"
+    },
+    {
+      "path": "/api/gift-cards",
+      "handler": "gift_card/server/gift-cards.route"
+    }
   ]
 }

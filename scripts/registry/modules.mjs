@@ -103,6 +103,7 @@ export async function collectModules() {
       scope: moduleJson?.scope,
       menu: moduleJson?.menu ?? [],
       adminRoutes: moduleJson?.routes ?? [],
+      apiRoutes: moduleJson?.apiRoutes ?? [],
       widgets: moduleJson?.widgets ?? [],
       slots: moduleJson?.slots ?? [],
       settingsTabs: moduleJson?.settings?.tabs ?? [],

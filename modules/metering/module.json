@@ -46,5 +46,27 @@
       "path": "/admin/metering",
       "component": "metering/ui/metering.page"
     }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/metering/billing",
+      "handler": "metering/server/metering-billing.route"
+    },
+    {
+      "path": "/api/metering/events",
+      "handler": "metering/server/metering-events.route"
+    },
+    {
+      "path": "/api/metering/meters/[meterId]",
+      "handler": "metering/server/metering-meters-meter-id.route"
+    },
+    {
+      "path": "/api/metering/meters",
+      "handler": "metering/server/metering-meters.route"
+    },
+    {
+      "path": "/api/metering/usage",
+      "handler": "metering/server/metering-usage.route"
+    }
   ]
 }

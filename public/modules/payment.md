@@ -55,18 +55,6 @@ Pluggable payment processing (Stripe, PayPal, Iyzico) + subscription plans, plan
 
 - `payment.setting.keys.ts`
 
-## Owned API routes
-
-- `tenant` GET/POST `/tenant/[tenantId]/api/payments`
-- `tenant` GET/PUT/DELETE `/tenant/[tenantId]/api/payments/[paymentId]`
-- `tenant` POST `/tenant/[tenantId]/api/payments/[paymentId]/refund`
-- `tenant` GET/POST `/tenant/[tenantId]/api/payments/[paymentId]/transactions`
-- `tenant` POST `/tenant/[tenantId]/api/payments/bin-check`
-- `tenant` POST `/tenant/[tenantId]/api/payments/provider-status`
-- `tenant` GET `/tenant/[tenantId]/api/payments/providers`
-- `tenant` GET/PUT `/tenant/[tenantId]/api/payments/transactions/[transactionId]`
-- `tenant` GET `/tenant/[tenantId]/api/payments/wallets`
-
 ## TypeORM entities
 
 - `Payment` (system) — `modules/payment/server/entities/payment.entity.ts`

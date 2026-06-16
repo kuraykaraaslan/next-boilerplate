@@ -9,6 +9,8 @@
     "./server/entities/seo_meta.entity": "./server/entities/seo_meta.entity.ts",
     "./server/index": "./server/index.ts",
     "./server": "./server/index.ts",
+    "./server/seo-entity-type-entity-id.route": "./server/seo-entity-type-entity-id.route.ts",
+    "./server/seo-web-vitals.route": "./server/seo-web-vitals.route.ts",
     "./server/seo.dto": "./server/seo.dto.ts",
     "./server/seo.enums": "./server/seo.enums.ts",
     "./server/seo.messages": "./server/seo.messages.ts",

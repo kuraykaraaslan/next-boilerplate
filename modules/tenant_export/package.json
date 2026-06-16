@@ -5,6 +5,7 @@
   "type": "module",
   "exports": {
     "./server/entities/tenant_export_job.entity": "./server/entities/tenant_export_job.entity.ts",
+    "./server/export.route": "./server/export.route.ts",
     "./server/tenant_export.collect": "./server/tenant_export.collect.ts",
     "./server/tenant_export.format": "./server/tenant_export.format.ts",
     "./server/tenant_export.helpers": "./server/tenant_export.helpers.ts",

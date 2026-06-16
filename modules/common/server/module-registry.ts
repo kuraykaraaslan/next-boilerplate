@@ -53,6 +53,12 @@ export interface RuntimePageRoute {
   moduleId: string;
 }
 
+export interface RuntimeApiRoute {
+  path: string;
+  handlerId: string;
+  moduleId: string;
+}
+
 export interface RuntimeModule {
   id: string;
   name: string;
@@ -83,6 +89,45 @@ const SLOTS = runtime.slots as unknown as RuntimeSlotContribution[];
 const WIDGETS = runtime.widgets as unknown as RuntimeWidget[];
 const MODULES = runtime.modules as unknown as RuntimeModule[];
 const PAGE_ROUTES = (runtime.pageRoutes ?? []) as unknown as RuntimePageRoute[];
+const API_ROUTES = (runtime.apiRoutes ?? []) as unknown as RuntimeApiRoute[];
+
+/**
+ * Match a request path against a list of routes by exact segment count, where a
+ * `[param]` pattern segment matches any single segment and is captured. When
+ * several routes match, the one with the fewest params (most literal) wins.
+ */
+function matchRoute<T extends { path: string }>(
+  routes: T[],
+  reqPath: string,
+): { route: T; params: Record<string, string> } | undefined {
+  const segs = reqPath.split('/').filter(Boolean);
+  let best: T | undefined;
+  let bestParams: Record<string, string> = {};
+  let bestParamCount = Infinity;
+  for (const r of routes) {
+    const rsegs = r.path.split('/').filter(Boolean);
+    if (rsegs.length !== segs.length) continue;
+    const params: Record<string, string> = {};
+    let ok = true;
+    let paramCount = 0;
+    for (let i = 0; i < rsegs.length; i++) {
+      const rs = rsegs[i];
+      if (rs.startsWith('[') && rs.endsWith(']')) {
+        params[rs.slice(1, -1)] = segs[i];
+        paramCount++;
+      } else if (rs !== segs[i]) {
+        ok = false;
+        break;
+      }
+    }
+    if (ok && paramCount < bestParamCount) {
+      best = r;
+      bestParams = params;
+      bestParamCount = paramCount;
+    }
+  }
+  return best ? { route: best, params: bestParams } : undefined;
+}
 
 function scopeMatches(itemScope: ModuleScope, want?: ModuleScope): boolean {
   if (!want) return true;
@@ -147,33 +192,21 @@ export const moduleRegistry = {
    * Used by the catch-all dynamic admin route.
    */
   findPageRoute(adminPath: string): { route: RuntimePageRoute; params: Record<string, string> } | undefined {
-    const segs = adminPath.split('/').filter(Boolean);
-    let best: RuntimePageRoute | undefined;
-    let bestParams: Record<string, string> = {};
-    let bestParamCount = Infinity;
-    for (const r of PAGE_ROUTES) {
-      const rsegs = r.path.split('/').filter(Boolean);
-      if (rsegs.length !== segs.length) continue;
-      const params: Record<string, string> = {};
-      let ok = true;
-      let paramCount = 0;
-      for (let i = 0; i < rsegs.length; i++) {
-        const rs = rsegs[i];
-        if (rs.startsWith('[') && rs.endsWith(']')) {
-          params[rs.slice(1, -1)] = segs[i];
-          paramCount++;
-        } else if (rs !== segs[i]) {
-          ok = false;
-          break;
-        }
-      }
-      if (ok && paramCount < bestParamCount) {
-        best = r;
-        bestParams = params;
-        bestParamCount = paramCount;
-      }
-    }
-    return best ? { route: best, params: bestParams } : undefined;
+    return matchRoute(PAGE_ROUTES, adminPath);
+  },
+
+  /** All manifest-declared tenant API routes. */
+  getApiRoutes(): RuntimeApiRoute[] {
+    return API_ROUTES;
+  },
+
+  /**
+   * The module API handler that serves a tenant API path (e.g.
+   * '/api/store/products/[productId]'), matched like findPageRoute. Used by the
+   * catch-all API dispatcher.
+   */
+  findApiRoute(apiPath: string): { route: RuntimeApiRoute; params: Record<string, string> } | undefined {
+    return matchRoute(API_ROUTES, apiPath);
   },
 };
 

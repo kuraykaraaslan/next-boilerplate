@@ -88,5 +88,75 @@
       "path": "/admin/plans",
       "component": "payment/ui/plans.page"
     }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/checkout/agreements/accept",
+      "handler": "payment/server/checkout-agreements-accept.route"
+    },
+    {
+      "path": "/api/checkout/agreements",
+      "handler": "payment/server/checkout-agreements.route"
+    },
+    {
+      "path": "/api/payments/[paymentId]/refund",
+      "handler": "payment/server/payments-payment-id-refund.route"
+    },
+    {
+      "path": "/api/payments/[paymentId]",
+      "handler": "payment/server/payments-payment-id.route"
+    },
+    {
+      "path": "/api/payments/[paymentId]/transactions",
+      "handler": "payment/server/payments-payment-id-transactions.route"
+    },
+    {
+      "path": "/api/payments/bin-check",
+      "handler": "payment/server/payments-bin-check.route"
+    },
+    {
+      "path": "/api/payments/provider-status",
+      "handler": "payment/server/payments-provider-status.route"
+    },
+    {
+      "path": "/api/payments/providers",
+      "handler": "payment/server/payments-providers.route"
+    },
+    {
+      "path": "/api/payments",
+      "handler": "payment/server/payments.route"
+    },
+    {
+      "path": "/api/payments/transactions/[transactionId]",
+      "handler": "payment/server/payments-transactions-transaction-id.route"
+    },
+    {
+      "path": "/api/payments/wallets",
+      "handler": "payment/server/payments-wallets.route"
+    },
+    {
+      "path": "/api/plans/[planId]/features/[featureId]",
+      "handler": "payment/server/plans-plan-id-features-feature-id.route"
+    },
+    {
+      "path": "/api/plans/[planId]/features",
+      "handler": "payment/server/plans-plan-id-features.route"
+    },
+    {
+      "path": "/api/plans/[planId]",
+      "handler": "payment/server/plans-plan-id.route"
+    },
+    {
+      "path": "/api/plans/default",
+      "handler": "payment/server/plans-default.route"
+    },
+    {
+      "path": "/api/plans/public",
+      "handler": "payment/server/plans-public.route"
+    },
+    {
+      "path": "/api/plans",
+      "handler": "payment/server/plans.route"
+    }
   ]
 }

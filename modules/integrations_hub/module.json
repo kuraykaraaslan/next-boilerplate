@@ -50,5 +50,43 @@
       "path": "/admin/integrations",
       "component": "integrations_hub/ui/integrations.page"
     }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/integrations/actions/[actionKey]",
+      "handler": "integrations_hub/server/integrations-actions-action-key.route"
+    },
+    {
+      "path": "/api/integrations/connect/api-key",
+      "handler": "integrations_hub/server/integrations-connect-api-key.route"
+    },
+    {
+      "path": "/api/integrations/connected/[connectedAppId]",
+      "handler": "integrations_hub/server/integrations-connected-connected-app-id.route"
+    },
+    {
+      "path": "/api/integrations/connected",
+      "handler": "integrations_hub/server/integrations-connected.route"
+    },
+    {
+      "path": "/api/integrations/connectors/[connectorKey]",
+      "handler": "integrations_hub/server/integrations-connectors-connector-key.route"
+    },
+    {
+      "path": "/api/integrations/connectors",
+      "handler": "integrations_hub/server/integrations-connectors.route"
+    },
+    {
+      "path": "/api/integrations/oauth/callback",
+      "handler": "integrations_hub/server/integrations-oauth-callback.route"
+    },
+    {
+      "path": "/api/integrations/oauth/start",
+      "handler": "integrations_hub/server/integrations-oauth-start.route"
+    },
+    {
+      "path": "/api/integrations/triggers",
+      "handler": "integrations_hub/server/integrations-triggers.route"
+    }
   ]
 }

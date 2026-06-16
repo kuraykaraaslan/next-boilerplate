@@ -41,14 +41,6 @@ Discount coupons + redemption tracking. Provider-aware (Stripe / PayPal / Iyzico
 
 - `coupon.messages.ts`
 
-## Owned API routes
-
-- `tenant` GET/POST `/tenant/[tenantId]/api/coupons`
-- `tenant` GET/PUT/DELETE `/tenant/[tenantId]/api/coupons/[couponId]`
-- `tenant` POST `/tenant/[tenantId]/api/coupons/apply`
-- `tenant` GET `/tenant/[tenantId]/api/coupons/redemptions`
-- `tenant` POST `/tenant/[tenantId]/api/coupons/validate`
-
 ## TypeORM entities
 
 - `Coupon` (system) — `modules/coupon/server/entities/coupon.entity.ts`

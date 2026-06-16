@@ -38,5 +38,15 @@
       "path": "/admin/search",
       "component": "search/ui/search.page"
     }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/search/index",
+      "handler": "search/server/search-index.route"
+    },
+    {
+      "path": "/api/search",
+      "handler": "search/server/search.route"
+    }
   ]
 }

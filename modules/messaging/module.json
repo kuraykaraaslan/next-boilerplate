@@ -26,5 +26,47 @@
   },
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/messaging",
-  "license": "CC-BY-NC-ND-4.0"
+  "license": "CC-BY-NC-ND-4.0",
+  "apiRoutes": [
+    {
+      "path": "/api/conversations/[conversationId]/messages/[messageId]/report",
+      "handler": "messaging/server/conversations-conversation-id-messages-message-id-report.route"
+    },
+    {
+      "path": "/api/conversations/[conversationId]/messages",
+      "handler": "messaging/server/conversations-conversation-id-messages.route"
+    },
+    {
+      "path": "/api/conversations/[conversationId]/participants",
+      "handler": "messaging/server/conversations-conversation-id-participants.route"
+    },
+    {
+      "path": "/api/conversations/[conversationId]/read",
+      "handler": "messaging/server/conversations-conversation-id-read.route"
+    },
+    {
+      "path": "/api/conversations/[conversationId]",
+      "handler": "messaging/server/conversations-conversation-id.route"
+    },
+    {
+      "path": "/api/conversations",
+      "handler": "messaging/server/conversations.route"
+    },
+    {
+      "path": "/api/messaging/moderation/messages/[messageId]",
+      "handler": "messaging/server/messaging-moderation-messages-message-id.route"
+    },
+    {
+      "path": "/api/messaging/moderation/queue",
+      "handler": "messaging/server/messaging-moderation-queue.route"
+    },
+    {
+      "path": "/api/messaging/moderation/settings",
+      "handler": "messaging/server/messaging-moderation-settings.route"
+    },
+    {
+      "path": "/api/messaging/ws-ticket",
+      "handler": "messaging/server/messaging-ws-ticket.route"
+    }
+  ]
 }

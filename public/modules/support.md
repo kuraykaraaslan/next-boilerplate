@@ -38,12 +38,6 @@ Customer support-ticket desk. Customers open support tickets with per-tenant mon
 
 - `support.messages.ts`
 
-## Owned API routes
-
-- `tenant` GET/POST `/tenant/[tenantId]/api/support/tickets`
-- `tenant` GET/PATCH `/tenant/[tenantId]/api/support/tickets/[ticketId]`
-- `tenant` POST `/tenant/[tenantId]/api/support/tickets/[ticketId]/messages`
-
 ## TypeORM entities
 
 - `SupportTicket` (system) — `modules/support/server/entities/support_ticket.entity.ts`

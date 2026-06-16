@@ -40,5 +40,47 @@
       "path": "/admin/webhooks/settings",
       "component": "webhook/ui/webhooks-settings.page"
     }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/webhooks/[webhookId]/deliveries/[deliveryId]/redeliver",
+      "handler": "webhook/server/webhooks-webhook-id-deliveries-delivery-id-redeliver.route"
+    },
+    {
+      "path": "/api/webhooks/[webhookId]/deliveries/replay-dead-letter",
+      "handler": "webhook/server/webhooks-webhook-id-deliveries-replay-dead-letter.route"
+    },
+    {
+      "path": "/api/webhooks/[webhookId]/deliveries",
+      "handler": "webhook/server/webhooks-webhook-id-deliveries.route"
+    },
+    {
+      "path": "/api/webhooks/[webhookId]/rotate-secret",
+      "handler": "webhook/server/webhooks-webhook-id-rotate-secret.route"
+    },
+    {
+      "path": "/api/webhooks/[webhookId]",
+      "handler": "webhook/server/webhooks-webhook-id.route"
+    },
+    {
+      "path": "/api/webhooks/[webhookId]/test",
+      "handler": "webhook/server/webhooks-webhook-id-test.route"
+    },
+    {
+      "path": "/api/webhooks/[webhookId]/trigger",
+      "handler": "webhook/server/webhooks-webhook-id-trigger.route"
+    },
+    {
+      "path": "/api/webhooks/events",
+      "handler": "webhook/server/webhooks-events.route"
+    },
+    {
+      "path": "/api/webhooks/metrics",
+      "handler": "webhook/server/webhooks-metrics.route"
+    },
+    {
+      "path": "/api/webhooks",
+      "handler": "webhook/server/webhooks.route"
+    }
   ]
 }

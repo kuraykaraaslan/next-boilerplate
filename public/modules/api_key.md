@@ -41,15 +41,6 @@ Tenant-scoped API keys for programmatic access (hashed at rest, scope-bound).
 
 - `api_key.setting.keys.ts`
 
-## Owned API routes
-
-- `tenant` GET/POST `/tenant/[tenantId]/api/api-keys`
-- `tenant` PUT/DELETE `/tenant/[tenantId]/api/api-keys/[apiKeyId]`
-- `tenant` POST `/tenant/[tenantId]/api/api-keys/[apiKeyId]/rotate`
-- `tenant` POST `/tenant/[tenantId]/api/api-keys/revoke-all`
-- `tenant` POST `/tenant/[tenantId]/api/api-keys/sweep-expired`
-- `tenant` POST `/tenant/[tenantId]/api/api-keys/verify`
-
 ## TypeORM entities
 
 - `ApiKey` (tenant) — `modules/api_key/server/entities/api_key.entity.ts`

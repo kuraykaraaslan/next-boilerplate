@@ -52,26 +52,6 @@ Tenant-aware e-commerce store. Hierarchical categories with typed spec templates
 
 - `store.messages.ts`
 
-## Owned API routes
-
-- `tenant` GET/POST `/tenant/[tenantId]/api/store/bundles`
-- `tenant` GET/PUT/DELETE `/tenant/[tenantId]/api/store/bundles/[bundleId]`
-- `tenant` POST `/tenant/[tenantId]/api/store/bundles/[bundleId]/items`
-- `tenant` PATCH/DELETE `/tenant/[tenantId]/api/store/bundles/[bundleId]/items/[itemId]`
-- `tenant` GET/POST `/tenant/[tenantId]/api/store/categories`
-- `tenant` GET/PUT/DELETE `/tenant/[tenantId]/api/store/categories/[categoryId]`
-- `tenant` GET/POST `/tenant/[tenantId]/api/store/categories/[categoryId]/specs`
-- `tenant` PUT/DELETE `/tenant/[tenantId]/api/store/categories/[categoryId]/specs/[specId]`
-- `tenant` GET/POST `/tenant/[tenantId]/api/store/products`
-- `tenant` GET/PUT/DELETE `/tenant/[tenantId]/api/store/products/[productId]`
-- `tenant` POST `/tenant/[tenantId]/api/store/products/[productId]/duplicate`
-- `tenant` POST `/tenant/[tenantId]/api/store/products/[productId]/images`
-- `tenant` DELETE `/tenant/[tenantId]/api/store/products/[productId]/images/[imageId]`
-- `tenant` PUT `/tenant/[tenantId]/api/store/products/[productId]/spec-values`
-- `tenant` GET `/tenant/[tenantId]/api/store/products/[productId]/variant-group`
-- `tenant` POST `/tenant/[tenantId]/api/store/products/[productId]/variant-group/items`
-- `tenant` PATCH/DELETE `/tenant/[tenantId]/api/store/products/[productId]/variant-group/items/[itemId]`
-
 ## TypeORM entities
 
 - `StoreBundle` (system) — `modules/store/server/entities/store_bundle.entity.ts`

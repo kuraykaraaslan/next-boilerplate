@@ -5,6 +5,10 @@
   "type": "module",
   "exports": {
     "./server/entities/tenant_invitation.entity": "./server/entities/tenant_invitation.entity.ts",
+    "./server/invitations-accept.route": "./server/invitations-accept.route.ts",
+    "./server/invitations-decline.route": "./server/invitations-decline.route.ts",
+    "./server/invitations-invitation-id.route": "./server/invitations-invitation-id.route.ts",
+    "./server/invitations.route": "./server/invitations.route.ts",
     "./server/tenant_invitation.dto": "./server/tenant_invitation.dto.ts",
     "./server/tenant_invitation.enums": "./server/tenant_invitation.enums.ts",
     "./server/tenant_invitation.helpers": "./server/tenant_invitation.helpers.ts",

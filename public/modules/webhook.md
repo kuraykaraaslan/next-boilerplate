@@ -40,19 +40,6 @@ Subscriber-configured outbound webhooks (tenant-scoped; root tenant carries plat
 
 - `webhook.messages.ts`
 
-## Owned API routes
-
-- `tenant` GET/POST `/tenant/[tenantId]/api/webhooks`
-- `tenant` GET/PATCH/DELETE `/tenant/[tenantId]/api/webhooks/[webhookId]`
-- `tenant` GET `/tenant/[tenantId]/api/webhooks/[webhookId]/deliveries`
-- `tenant` POST `/tenant/[tenantId]/api/webhooks/[webhookId]/deliveries/[deliveryId]/redeliver`
-- `tenant` POST `/tenant/[tenantId]/api/webhooks/[webhookId]/deliveries/replay-dead-letter`
-- `tenant` POST `/tenant/[tenantId]/api/webhooks/[webhookId]/rotate-secret`
-- `tenant` POST `/tenant/[tenantId]/api/webhooks/[webhookId]/test`
-- `tenant` POST `/tenant/[tenantId]/api/webhooks/[webhookId]/trigger`
-- `tenant` GET `/tenant/[tenantId]/api/webhooks/events`
-- `tenant` GET `/tenant/[tenantId]/api/webhooks/metrics`
-
 ## TypeORM entities
 
 - `Webhook` (tenant) — `modules/webhook/server/entities/webhook.entity.ts`

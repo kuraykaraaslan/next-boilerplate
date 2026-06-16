@@ -43,5 +43,15 @@
       "path": "/admin/approvals",
       "component": "approval/ui/approvals.page"
     }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/approvals/[approvalItemId]",
+      "handler": "approval/server/approvals-approval-item-id.route"
+    },
+    {
+      "path": "/api/approvals",
+      "handler": "approval/server/approvals.route"
+    }
   ]
 }

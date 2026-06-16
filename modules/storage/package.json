@@ -21,6 +21,7 @@
     "./server/storage.mime-groups": "./server/storage.mime-groups.ts",
     "./server/storage.operations": "./server/storage.operations.ts",
     "./server/storage.provider-factory": "./server/storage.provider-factory.ts",
+    "./server/storage.route": "./server/storage.route.ts",
     "./server/storage.scan.enums": "./server/storage.scan.enums.ts",
     "./server/storage.scan.job": "./server/storage.scan.job.ts",
     "./server/storage.scan.service": "./server/storage.scan.service.ts",

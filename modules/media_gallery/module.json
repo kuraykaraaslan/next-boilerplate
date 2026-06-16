@@ -20,5 +20,19 @@
   },
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/media_gallery",
-  "license": "CC-BY-NC-ND-4.0"
+  "license": "CC-BY-NC-ND-4.0",
+  "apiRoutes": [
+    {
+      "path": "/api/media-gallery/[entityType]/[entityId]/items/reorder",
+      "handler": "media_gallery/server/media-gallery-entity-type-entity-id-items-reorder.route"
+    },
+    {
+      "path": "/api/media-gallery/[entityType]/[entityId]/items",
+      "handler": "media_gallery/server/media-gallery-entity-type-entity-id-items.route"
+    },
+    {
+      "path": "/api/media-gallery/items/[itemId]",
+      "handler": "media_gallery/server/media-gallery-items-item-id.route"
+    }
+  ]
 }

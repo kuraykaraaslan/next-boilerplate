@@ -4,6 +4,11 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./server/ai-chat.route": "./server/ai-chat.route.ts",
+    "./server/ai-embed.route": "./server/ai-embed.route.ts",
+    "./server/ai-models.route": "./server/ai-models.route.ts",
+    "./server/ai-providers.route": "./server/ai-providers.route.ts",
+    "./server/ai-usage.route": "./server/ai-usage.route.ts",
     "./server/ai.messages": "./server/ai.messages.ts",
     "./server/ai.provider.service": "./server/ai.provider.service.ts",
     "./server/ai.seed": "./server/ai.seed.ts",

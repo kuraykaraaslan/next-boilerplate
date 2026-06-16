@@ -43,5 +43,23 @@
       "path": "/admin/invitations/settings",
       "component": "tenant_invitation/ui/invitations-settings.page"
     }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/invitations/[invitationId]",
+      "handler": "tenant_invitation/server/invitations-invitation-id.route"
+    },
+    {
+      "path": "/api/invitations/accept",
+      "handler": "tenant_invitation/server/invitations-accept.route"
+    },
+    {
+      "path": "/api/invitations/decline",
+      "handler": "tenant_invitation/server/invitations-decline.route"
+    },
+    {
+      "path": "/api/invitations",
+      "handler": "tenant_invitation/server/invitations.route"
+    }
   ]
 }

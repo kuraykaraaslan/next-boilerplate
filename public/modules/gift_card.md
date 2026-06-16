@@ -41,14 +41,6 @@ Prepaid gift cards: issue (single + bulk) hash-protected codes, track redeemable
 
 - `gift_card.expiry.job.ts`
 
-## Owned API routes
-
-- `tenant` GET/POST `/tenant/[tenantId]/api/gift-cards`
-- `tenant` GET/PATCH/DELETE `/tenant/[tenantId]/api/gift-cards/[giftCardId]`
-- `tenant` GET `/tenant/[tenantId]/api/gift-cards/[giftCardId]/transactions`
-- `tenant` POST `/tenant/[tenantId]/api/gift-cards/balance`
-- `tenant` POST `/tenant/[tenantId]/api/gift-cards/redeem`
-
 ## TypeORM entities
 
 - `GiftCard` (system) — `modules/gift_card/server/entities/gift_card.entity.ts`

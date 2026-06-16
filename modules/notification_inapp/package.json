@@ -7,6 +7,8 @@
     "./server/notification_inapp.messages": "./server/notification_inapp.messages.ts",
     "./server/notification_inapp.service": "./server/notification_inapp.service.ts",
     "./server/notification_inapp.types": "./server/notification_inapp.types.ts",
+    "./server/notifications-push-subscribe.route": "./server/notifications-push-subscribe.route.ts",
+    "./server/notifications-sms-send.route": "./server/notifications-sms-send.route.ts",
     "./hooks/use-notifications.hook": "./hooks/use-notifications.hook.ts",
     "./module.json": "./module.json"
   },

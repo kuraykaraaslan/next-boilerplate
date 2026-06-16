@@ -6,6 +6,11 @@
   "exports": {
     "./server/entities/feature_flag.entity": "./server/entities/feature_flag.entity.ts",
     "./server/entities/feature_flag_override.entity": "./server/entities/feature_flag_override.entity.ts",
+    "./server/feature-flags-evaluate.route": "./server/feature-flags-evaluate.route.ts",
+    "./server/feature-flags-key-overrides-override-id.route": "./server/feature-flags-key-overrides-override-id.route.ts",
+    "./server/feature-flags-key-overrides.route": "./server/feature-flags-key-overrides.route.ts",
+    "./server/feature-flags-key.route": "./server/feature-flags-key.route.ts",
+    "./server/feature-flags.route": "./server/feature-flags.route.ts",
     "./server/feature_flags.dto": "./server/feature_flags.dto.ts",
     "./server/feature_flags.enums": "./server/feature_flags.enums.ts",
     "./server/feature_flags.eval": "./server/feature_flags.eval.ts",

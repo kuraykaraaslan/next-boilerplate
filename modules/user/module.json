@@ -45,5 +45,23 @@
       "path": "/admin/me",
       "component": "user/ui/me.page"
     }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/users/[userId]/impersonation-sessions",
+      "handler": "user/server/users-user-id-impersonation-sessions.route"
+    },
+    {
+      "path": "/api/users/[userId]",
+      "handler": "user/server/users-user-id.route"
+    },
+    {
+      "path": "/api/users/[userId]/tenants",
+      "handler": "user/server/users-user-id-tenants.route"
+    },
+    {
+      "path": "/api/users",
+      "handler": "user/server/users.route"
+    }
   ]
 }

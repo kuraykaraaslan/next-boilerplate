@@ -38,5 +38,11 @@
   ],
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/e_signature",
-  "license": "CC-BY-NC-ND-4.0"
+  "license": "CC-BY-NC-ND-4.0",
+  "apiRoutes": [
+    {
+      "path": "/api/e-signature/settings",
+      "handler": "e_signature/server/e-signature-settings.route"
+    }
+  ]
 }

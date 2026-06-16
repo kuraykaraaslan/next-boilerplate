@@ -46,18 +46,6 @@ Tenant-scoped invoicing with regional e-invoicing adapters (TR e-Arşiv, EU Pepp
 
 - `invoice.setting.keys.ts`
 
-## Owned API routes
-
-- `tenant` GET/POST `/tenant/[tenantId]/api/invoices`
-- `tenant` GET `/tenant/[tenantId]/api/invoices/[invoiceId]`
-- `tenant` POST `/tenant/[tenantId]/api/invoices/[invoiceId]/issue`
-- `tenant` POST `/tenant/[tenantId]/api/invoices/[invoiceId]/mark-paid`
-- `tenant` GET `/tenant/[tenantId]/api/invoices/[invoiceId]/pdf`
-- `tenant` POST `/tenant/[tenantId]/api/invoices/[invoiceId]/void`
-- `tenant` POST `/tenant/[tenantId]/api/invoices/earsiv/sms/send`
-- `tenant` POST `/tenant/[tenantId]/api/invoices/earsiv/sms/verify`
-- `tenant` GET `/tenant/[tenantId]/api/invoices/preview`
-
 ## TypeORM entities
 
 - `Invoice` (system) — `modules/invoice/server/entities/invoice.entity.ts`

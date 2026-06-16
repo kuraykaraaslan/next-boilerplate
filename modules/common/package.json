@@ -16,6 +16,7 @@
     "./server/common.pagination": "./server/common.pagination.ts",
     "./server/common.timezone": "./server/common.timezone.ts",
     "./server/field-encryption": "./server/field-encryption.ts",
+    "./server/generated/api-handlers": "./server/generated/api-handlers.ts",
     "./server/index": "./server/index.ts",
     "./server": "./server/index.ts",
     "./server/language-tags.d": "./server/language-tags.d.ts",

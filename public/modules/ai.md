@@ -34,12 +34,7 @@ Pluggable AI providers (Anthropic, OpenAI, Google). Chat, embeddings, streaming,
 
 ## Owned API routes
 
-- `tenant` POST `/tenant/[tenantId]/api/ai/chat`
-- `tenant` POST `/tenant/[tenantId]/api/ai/embed`
-- `tenant` GET `/tenant/[tenantId]/api/ai/models`
-- `tenant` GET `/tenant/[tenantId]/api/ai/providers`
 - `tenant` POST `/tenant/[tenantId]/api/ai/stream`
-- `tenant` GET `/tenant/[tenantId]/api/ai/usage`
 
 ## TypeORM entities
 

@@ -4,6 +4,12 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./server/blog-categories-category-id.route": "./server/blog-categories-category-id.route.ts",
+    "./server/blog-categories.route": "./server/blog-categories.route.ts",
+    "./server/blog-comments-comment-id.route": "./server/blog-comments-comment-id.route.ts",
+    "./server/blog-posts-post-id-comments.route": "./server/blog-posts-post-id-comments.route.ts",
+    "./server/blog-posts-post-id.route": "./server/blog-posts-post-id.route.ts",
+    "./server/blog-posts.route": "./server/blog-posts.route.ts",
     "./server/blog.category.service": "./server/blog.category.service.ts",
     "./server/blog.comment.service": "./server/blog.comment.service.ts",
     "./server/blog.dto": "./server/blog.dto.ts",

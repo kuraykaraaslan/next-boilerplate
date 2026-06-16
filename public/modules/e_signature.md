@@ -53,10 +53,6 @@ Multi-country e-identity login + e-signature (eIDAS/OIDC4IDA). Pluggable provide
 
 - `e_signature.setting.keys.ts`
 
-## Owned API routes
-
-- `tenant` GET/PUT `/tenant/[tenantId]/api/e-signature/settings`
-
 ## TypeORM entities
 
 - `TrustListEntry` (system) — `modules/e_signature/server/entities/trust_list_entry.entity.ts`

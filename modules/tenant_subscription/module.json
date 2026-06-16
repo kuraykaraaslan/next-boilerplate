@@ -45,5 +45,43 @@
       "path": "/admin/subscription",
       "component": "tenant_subscription/ui/subscription.page"
     }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/subscription/confirm",
+      "handler": "tenant_subscription/server/subscription-confirm.route"
+    },
+    {
+      "path": "/api/subscription/features",
+      "handler": "tenant_subscription/server/subscription-features.route"
+    },
+    {
+      "path": "/api/subscription/grace-period",
+      "handler": "tenant_subscription/server/subscription-grace-period.route"
+    },
+    {
+      "path": "/api/subscription/pay/3ds-callback",
+      "handler": "tenant_subscription/server/subscription-pay-3ds-callback.route"
+    },
+    {
+      "path": "/api/subscription/pay",
+      "handler": "tenant_subscription/server/subscription-pay.route"
+    },
+    {
+      "path": "/api/subscription/payment-intent/confirm",
+      "handler": "tenant_subscription/server/subscription-payment-intent-confirm.route"
+    },
+    {
+      "path": "/api/subscription/payment-intent",
+      "handler": "tenant_subscription/server/subscription-payment-intent.route"
+    },
+    {
+      "path": "/api/subscription/quote",
+      "handler": "tenant_subscription/server/subscription-quote.route"
+    },
+    {
+      "path": "/api/subscription",
+      "handler": "tenant_subscription/server/subscription.route"
+    }
   ]
 }

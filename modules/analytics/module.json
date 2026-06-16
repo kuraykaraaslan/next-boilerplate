@@ -39,5 +39,19 @@
       "path": "/admin/analytics",
       "component": "analytics/ui/analytics.page"
     }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/analytics/summary",
+      "handler": "analytics/server/analytics-summary.route"
+    },
+    {
+      "path": "/api/analytics/timeseries",
+      "handler": "analytics/server/analytics-timeseries.route"
+    },
+    {
+      "path": "/api/analytics/track",
+      "handler": "analytics/server/analytics-track.route"
+    }
   ]
 }

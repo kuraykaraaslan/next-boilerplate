@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./server/e-signature-settings.route": "./server/e-signature-settings.route.ts",
     "./server/e_signature.compliance.service": "./server/e_signature.compliance.service.ts",
     "./server/e_signature.constants": "./server/e_signature.constants.ts",
     "./server/e_signature.crypto.chain.service": "./server/e_signature.crypto.chain.service.ts",

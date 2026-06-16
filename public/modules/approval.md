@@ -37,11 +37,6 @@ Generic, entity-agnostic moderation / approval queue. Any owning module can rout
 
 - `approval.messages.ts`
 
-## Owned API routes
-
-- `tenant` GET/POST `/tenant/[tenantId]/api/approvals`
-- `tenant` GET/PATCH `/tenant/[tenantId]/api/approvals/[approvalItemId]`
-
 ## TypeORM entities
 
 - `ApprovalQueueItem` (system) — `modules/approval/server/entities/approval_queue_item.entity.ts`

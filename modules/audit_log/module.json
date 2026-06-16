@@ -46,5 +46,31 @@
       "path": "/admin/audit-logs/settings",
       "component": "audit_log/ui/audit-logs-settings.page"
     }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/audit-logs/anonymize",
+      "handler": "audit_log/server/audit-logs-anonymize.route"
+    },
+    {
+      "path": "/api/audit-logs/cross-tenant",
+      "handler": "audit_log/server/audit-logs-cross-tenant.route"
+    },
+    {
+      "path": "/api/audit-logs/export",
+      "handler": "audit_log/server/audit-logs-export.route"
+    },
+    {
+      "path": "/api/audit-logs/purge",
+      "handler": "audit_log/server/audit-logs-purge.route"
+    },
+    {
+      "path": "/api/audit-logs",
+      "handler": "audit_log/server/audit-logs.route"
+    },
+    {
+      "path": "/api/audit-logs/verify",
+      "handler": "audit_log/server/audit-logs-verify.route"
+    }
   ]
 }

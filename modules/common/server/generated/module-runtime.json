@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-16T09:45:18.302Z",
+  "generatedAt": "2026-06-16T10:07:57.302Z",
   "menu": [
     {
       "id": "settings",
@@ -876,6 +876,1288 @@
       "path": "/admin/webhooks/settings",
       "componentId": "webhook/ui/webhooks-settings.page",
       "permissions": [],
+      "moduleId": "webhook"
+    }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/admin-settings",
+      "handlerId": "setting/server/admin-settings.route",
+      "moduleId": "setting"
+    },
+    {
+      "path": "/api/admin/impersonate",
+      "handlerId": "setting/server/admin-impersonate.route",
+      "moduleId": "setting"
+    },
+    {
+      "path": "/api/admin/subscription/customer-portal",
+      "handlerId": "setting/server/admin-subscription-customer-portal.route",
+      "moduleId": "setting"
+    },
+    {
+      "path": "/api/agreements",
+      "handlerId": "terms_consent/server/agreements.route",
+      "moduleId": "terms_consent"
+    },
+    {
+      "path": "/api/agreements/[agreementId]",
+      "handlerId": "terms_consent/server/agreements-agreement-id.route",
+      "moduleId": "terms_consent"
+    },
+    {
+      "path": "/api/agreements/[agreementId]/versions",
+      "handlerId": "terms_consent/server/agreements-agreement-id-versions.route",
+      "moduleId": "terms_consent"
+    },
+    {
+      "path": "/api/agreements/[agreementId]/versions/[versionId]/publish",
+      "handlerId": "terms_consent/server/agreements-agreement-id-versions-version-id-publish.route",
+      "moduleId": "terms_consent"
+    },
+    {
+      "path": "/api/agreements/accept",
+      "handlerId": "terms_consent/server/agreements-accept.route",
+      "moduleId": "terms_consent"
+    },
+    {
+      "path": "/api/agreements/acceptances",
+      "handlerId": "terms_consent/server/agreements-acceptances.route",
+      "moduleId": "terms_consent"
+    },
+    {
+      "path": "/api/ai/chat",
+      "handlerId": "ai/server/ai-chat.route",
+      "moduleId": "ai"
+    },
+    {
+      "path": "/api/ai/embed",
+      "handlerId": "ai/server/ai-embed.route",
+      "moduleId": "ai"
+    },
+    {
+      "path": "/api/ai/models",
+      "handlerId": "ai/server/ai-models.route",
+      "moduleId": "ai"
+    },
+    {
+      "path": "/api/ai/providers",
+      "handlerId": "ai/server/ai-providers.route",
+      "moduleId": "ai"
+    },
+    {
+      "path": "/api/ai/usage",
+      "handlerId": "ai/server/ai-usage.route",
+      "moduleId": "ai"
+    },
+    {
+      "path": "/api/analytics/summary",
+      "handlerId": "analytics/server/analytics-summary.route",
+      "moduleId": "analytics"
+    },
+    {
+      "path": "/api/analytics/timeseries",
+      "handlerId": "analytics/server/analytics-timeseries.route",
+      "moduleId": "analytics"
+    },
+    {
+      "path": "/api/analytics/track",
+      "handlerId": "analytics/server/analytics-track.route",
+      "moduleId": "analytics"
+    },
+    {
+      "path": "/api/api-keys",
+      "handlerId": "api_key/server/api-keys.route",
+      "moduleId": "api_key"
+    },
+    {
+      "path": "/api/api-keys/[apiKeyId]",
+      "handlerId": "api_key/server/api-keys-api-key-id.route",
+      "moduleId": "api_key"
+    },
+    {
+      "path": "/api/api-keys/[apiKeyId]/rotate",
+      "handlerId": "api_key/server/api-keys-api-key-id-rotate.route",
+      "moduleId": "api_key"
+    },
+    {
+      "path": "/api/api-keys/revoke-all",
+      "handlerId": "api_key/server/api-keys-revoke-all.route",
+      "moduleId": "api_key"
+    },
+    {
+      "path": "/api/api-keys/sweep-expired",
+      "handlerId": "api_key/server/api-keys-sweep-expired.route",
+      "moduleId": "api_key"
+    },
+    {
+      "path": "/api/api-keys/verify",
+      "handlerId": "api_key/server/api-keys-verify.route",
+      "moduleId": "api_key"
+    },
+    {
+      "path": "/api/approvals",
+      "handlerId": "approval/server/approvals.route",
+      "moduleId": "approval"
+    },
+    {
+      "path": "/api/approvals/[approvalItemId]",
+      "handlerId": "approval/server/approvals-approval-item-id.route",
+      "moduleId": "approval"
+    },
+    {
+      "path": "/api/audit-logs",
+      "handlerId": "audit_log/server/audit-logs.route",
+      "moduleId": "audit_log"
+    },
+    {
+      "path": "/api/audit-logs/anonymize",
+      "handlerId": "audit_log/server/audit-logs-anonymize.route",
+      "moduleId": "audit_log"
+    },
+    {
+      "path": "/api/audit-logs/cross-tenant",
+      "handlerId": "audit_log/server/audit-logs-cross-tenant.route",
+      "moduleId": "audit_log"
+    },
+    {
+      "path": "/api/audit-logs/export",
+      "handlerId": "audit_log/server/audit-logs-export.route",
+      "moduleId": "audit_log"
+    },
+    {
+      "path": "/api/audit-logs/purge",
+      "handlerId": "audit_log/server/audit-logs-purge.route",
+      "moduleId": "audit_log"
+    },
+    {
+      "path": "/api/audit-logs/verify",
+      "handlerId": "audit_log/server/audit-logs-verify.route",
+      "moduleId": "audit_log"
+    },
+    {
+      "path": "/api/auth",
+      "handlerId": "auth/server/auth.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/callback",
+      "handlerId": "auth/server/auth-callback.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/change-password",
+      "handlerId": "auth/server/auth-change-password.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/csrf",
+      "handlerId": "auth/server/auth-csrf.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/e-signature/countries",
+      "handlerId": "auth/server/auth-e-signature-countries.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/e-signature/initiate",
+      "handlerId": "auth/server/auth-e-signature-initiate.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/e-signature/status/[transactionId]",
+      "handlerId": "auth/server/auth-e-signature-status-transaction-id.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/forgot-password",
+      "handlerId": "auth/server/auth-forgot-password.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/impersonate",
+      "handlerId": "auth/server/auth-impersonate.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/login",
+      "handlerId": "auth/server/auth-login.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/logout",
+      "handlerId": "auth/server/auth-logout.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/me/complete-email",
+      "handlerId": "auth/server/auth-me-complete-email.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/me/device-info",
+      "handlerId": "auth/server/auth-me-device-info.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/me/merge-identity",
+      "handlerId": "auth/server/auth-me-merge-identity.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/me/notifications",
+      "handlerId": "auth/server/auth-me-notifications.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/me/notifications/[notificationId]",
+      "handlerId": "auth/server/auth-me-notifications-notification-id.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/me/notifications/read-all",
+      "handlerId": "auth/server/auth-me-notifications-read-all.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/me/preferences",
+      "handlerId": "auth/server/auth-me-preferences.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/me/profile",
+      "handlerId": "auth/server/auth-me-profile.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/me/security",
+      "handlerId": "auth/server/auth-me-security.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/me/security/e-signature",
+      "handlerId": "auth/server/auth-me-security-e-signature.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/me/security/e-signature/[id]",
+      "handlerId": "auth/server/auth-me-security-e-signature-id.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/me/sessions",
+      "handlerId": "auth/server/auth-me-sessions.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/me/sessions/[sessionId]",
+      "handlerId": "auth/server/auth-me-sessions-session-id.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/me/social-accounts",
+      "handlerId": "auth/server/auth-me-social-accounts.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/me/social-accounts/[provider]",
+      "handlerId": "auth/server/auth-me-social-accounts-provider.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/me/social-accounts/connect/[provider]",
+      "handlerId": "auth/server/auth-me-social-accounts-connect-provider.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/me/social-accounts/connect/acs/[provider]",
+      "handlerId": "auth/server/auth-me-social-accounts-connect-acs-provider.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/me/social-accounts/connect/saml",
+      "handlerId": "auth/server/auth-me-social-accounts-connect-saml.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/me/tenants",
+      "handlerId": "auth/server/auth-me-tenants.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/openapi",
+      "handlerId": "auth/server/auth-openapi.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/otp/send",
+      "handlerId": "auth/server/auth-otp-send.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/otp/verify",
+      "handlerId": "auth/server/auth-otp-verify.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/refresh",
+      "handlerId": "auth/server/auth-refresh.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/register",
+      "handlerId": "auth/server/auth-register.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/reset-password",
+      "handlerId": "auth/server/auth-reset-password.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/saml/callback",
+      "handlerId": "auth/server/auth-saml-callback.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/saml/initiate",
+      "handlerId": "auth/server/auth-saml-initiate.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/saml/metadata",
+      "handlerId": "auth/server/auth-saml-metadata.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/saml/status",
+      "handlerId": "auth/server/auth-saml-status.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/session",
+      "handlerId": "auth/server/auth-session.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/session/token-set",
+      "handlerId": "auth/server/auth-session-token-set.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/sso",
+      "handlerId": "auth/server/auth-sso.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/sso/[provider]",
+      "handlerId": "auth/server/auth-sso-provider.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/totp/disable",
+      "handlerId": "auth/server/auth-totp-disable.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/totp/enable",
+      "handlerId": "auth/server/auth-totp-enable.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/totp/setup",
+      "handlerId": "auth/server/auth-totp-setup.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/verify-email/send",
+      "handlerId": "auth/server/auth-verify-email-send.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/auth/verify-email/verify",
+      "handlerId": "auth/server/auth-verify-email-verify.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/blog/categories",
+      "handlerId": "blog/server/blog-categories.route",
+      "moduleId": "blog"
+    },
+    {
+      "path": "/api/blog/categories/[categoryId]",
+      "handlerId": "blog/server/blog-categories-category-id.route",
+      "moduleId": "blog"
+    },
+    {
+      "path": "/api/blog/comments/[commentId]",
+      "handlerId": "blog/server/blog-comments-comment-id.route",
+      "moduleId": "blog"
+    },
+    {
+      "path": "/api/blog/posts",
+      "handlerId": "blog/server/blog-posts.route",
+      "moduleId": "blog"
+    },
+    {
+      "path": "/api/blog/posts/[postId]",
+      "handlerId": "blog/server/blog-posts-post-id.route",
+      "moduleId": "blog"
+    },
+    {
+      "path": "/api/blog/posts/[postId]/comments",
+      "handlerId": "blog/server/blog-posts-post-id-comments.route",
+      "moduleId": "blog"
+    },
+    {
+      "path": "/api/checkout/agreements",
+      "handlerId": "payment/server/checkout-agreements.route",
+      "moduleId": "payment"
+    },
+    {
+      "path": "/api/checkout/agreements/accept",
+      "handlerId": "payment/server/checkout-agreements-accept.route",
+      "moduleId": "payment"
+    },
+    {
+      "path": "/api/consent",
+      "handlerId": "terms_consent/server/consent.route",
+      "moduleId": "terms_consent"
+    },
+    {
+      "path": "/api/consent/config",
+      "handlerId": "terms_consent/server/consent-config.route",
+      "moduleId": "terms_consent"
+    },
+    {
+      "path": "/api/consent/records",
+      "handlerId": "terms_consent/server/consent-records.route",
+      "moduleId": "terms_consent"
+    },
+    {
+      "path": "/api/conversations",
+      "handlerId": "messaging/server/conversations.route",
+      "moduleId": "messaging"
+    },
+    {
+      "path": "/api/conversations/[conversationId]",
+      "handlerId": "messaging/server/conversations-conversation-id.route",
+      "moduleId": "messaging"
+    },
+    {
+      "path": "/api/conversations/[conversationId]/messages",
+      "handlerId": "messaging/server/conversations-conversation-id-messages.route",
+      "moduleId": "messaging"
+    },
+    {
+      "path": "/api/conversations/[conversationId]/messages/[messageId]/report",
+      "handlerId": "messaging/server/conversations-conversation-id-messages-message-id-report.route",
+      "moduleId": "messaging"
+    },
+    {
+      "path": "/api/conversations/[conversationId]/participants",
+      "handlerId": "messaging/server/conversations-conversation-id-participants.route",
+      "moduleId": "messaging"
+    },
+    {
+      "path": "/api/conversations/[conversationId]/read",
+      "handlerId": "messaging/server/conversations-conversation-id-read.route",
+      "moduleId": "messaging"
+    },
+    {
+      "path": "/api/coupons",
+      "handlerId": "coupon/server/coupons.route",
+      "moduleId": "coupon"
+    },
+    {
+      "path": "/api/coupons/[couponId]",
+      "handlerId": "coupon/server/coupons-coupon-id.route",
+      "moduleId": "coupon"
+    },
+    {
+      "path": "/api/coupons/apply",
+      "handlerId": "coupon/server/coupons-apply.route",
+      "moduleId": "coupon"
+    },
+    {
+      "path": "/api/coupons/redemptions",
+      "handlerId": "coupon/server/coupons-redemptions.route",
+      "moduleId": "coupon"
+    },
+    {
+      "path": "/api/coupons/validate",
+      "handlerId": "coupon/server/coupons-validate.route",
+      "moduleId": "coupon"
+    },
+    {
+      "path": "/api/domains",
+      "handlerId": "tenant_domain/server/domains.route",
+      "moduleId": "tenant_domain"
+    },
+    {
+      "path": "/api/domains/[domainId]",
+      "handlerId": "tenant_domain/server/domains-domain-id.route",
+      "moduleId": "tenant_domain"
+    },
+    {
+      "path": "/api/domains/[domainId]/verify",
+      "handlerId": "tenant_domain/server/domains-domain-id-verify.route",
+      "moduleId": "tenant_domain"
+    },
+    {
+      "path": "/api/dynamic-pages",
+      "handlerId": "dynamic_page/server/dynamic-pages.route",
+      "moduleId": "dynamic_page"
+    },
+    {
+      "path": "/api/dynamic-pages/[dynamicPageId]",
+      "handlerId": "dynamic_page/server/dynamic-pages-dynamic-page-id.route",
+      "moduleId": "dynamic_page"
+    },
+    {
+      "path": "/api/dynamic-pages/[dynamicPageId]/translations",
+      "handlerId": "dynamic_page/server/dynamic-pages-dynamic-page-id-translations.route",
+      "moduleId": "dynamic_page"
+    },
+    {
+      "path": "/api/dynamic-pages/[dynamicPageId]/translations/[lang]",
+      "handlerId": "dynamic_page/server/dynamic-pages-dynamic-page-id-translations-lang.route",
+      "moduleId": "dynamic_page"
+    },
+    {
+      "path": "/api/dynamic-pages/block-definitions",
+      "handlerId": "dynamic_page/server/dynamic-pages-block-definitions.route",
+      "moduleId": "dynamic_page"
+    },
+    {
+      "path": "/api/dynamic-pages/block-definitions/[blockId]",
+      "handlerId": "dynamic_page/server/dynamic-pages-block-definitions-block-id.route",
+      "moduleId": "dynamic_page"
+    },
+    {
+      "path": "/api/dynamic-pages/collections",
+      "handlerId": "dynamic_page/server/dynamic-pages-collections.route",
+      "moduleId": "dynamic_page"
+    },
+    {
+      "path": "/api/dynamic-pages/collections/[collectionId]",
+      "handlerId": "dynamic_page/server/dynamic-pages-collections-collection-id.route",
+      "moduleId": "dynamic_page"
+    },
+    {
+      "path": "/api/dynamic-pages/collections/[collectionId]/items",
+      "handlerId": "dynamic_page/server/dynamic-pages-collections-collection-id-items.route",
+      "moduleId": "dynamic_page"
+    },
+    {
+      "path": "/api/dynamic-pages/collections/[collectionId]/items/[itemId]",
+      "handlerId": "dynamic_page/server/dynamic-pages-collections-collection-id-items-item-id.route",
+      "moduleId": "dynamic_page"
+    },
+    {
+      "path": "/api/e-signature/settings",
+      "handlerId": "e_signature/server/e-signature-settings.route",
+      "moduleId": "e_signature"
+    },
+    {
+      "path": "/api/export",
+      "handlerId": "tenant_export/server/export.route",
+      "moduleId": "tenant_export"
+    },
+    {
+      "path": "/api/feature-flags",
+      "handlerId": "feature_flags/server/feature-flags.route",
+      "moduleId": "feature_flags"
+    },
+    {
+      "path": "/api/feature-flags/[key]",
+      "handlerId": "feature_flags/server/feature-flags-key.route",
+      "moduleId": "feature_flags"
+    },
+    {
+      "path": "/api/feature-flags/[key]/overrides",
+      "handlerId": "feature_flags/server/feature-flags-key-overrides.route",
+      "moduleId": "feature_flags"
+    },
+    {
+      "path": "/api/feature-flags/[key]/overrides/[overrideId]",
+      "handlerId": "feature_flags/server/feature-flags-key-overrides-override-id.route",
+      "moduleId": "feature_flags"
+    },
+    {
+      "path": "/api/feature-flags/evaluate",
+      "handlerId": "feature_flags/server/feature-flags-evaluate.route",
+      "moduleId": "feature_flags"
+    },
+    {
+      "path": "/api/gift-cards",
+      "handlerId": "gift_card/server/gift-cards.route",
+      "moduleId": "gift_card"
+    },
+    {
+      "path": "/api/gift-cards/[giftCardId]",
+      "handlerId": "gift_card/server/gift-cards-gift-card-id.route",
+      "moduleId": "gift_card"
+    },
+    {
+      "path": "/api/gift-cards/[giftCardId]/transactions",
+      "handlerId": "gift_card/server/gift-cards-gift-card-id-transactions.route",
+      "moduleId": "gift_card"
+    },
+    {
+      "path": "/api/gift-cards/balance",
+      "handlerId": "gift_card/server/gift-cards-balance.route",
+      "moduleId": "gift_card"
+    },
+    {
+      "path": "/api/gift-cards/redeem",
+      "handlerId": "gift_card/server/gift-cards-redeem.route",
+      "moduleId": "gift_card"
+    },
+    {
+      "path": "/api/health",
+      "handlerId": "observability/server/health.route",
+      "moduleId": "observability"
+    },
+    {
+      "path": "/api/integrations/actions/[actionKey]",
+      "handlerId": "integrations_hub/server/integrations-actions-action-key.route",
+      "moduleId": "integrations_hub"
+    },
+    {
+      "path": "/api/integrations/connect/api-key",
+      "handlerId": "integrations_hub/server/integrations-connect-api-key.route",
+      "moduleId": "integrations_hub"
+    },
+    {
+      "path": "/api/integrations/connected",
+      "handlerId": "integrations_hub/server/integrations-connected.route",
+      "moduleId": "integrations_hub"
+    },
+    {
+      "path": "/api/integrations/connected/[connectedAppId]",
+      "handlerId": "integrations_hub/server/integrations-connected-connected-app-id.route",
+      "moduleId": "integrations_hub"
+    },
+    {
+      "path": "/api/integrations/connectors",
+      "handlerId": "integrations_hub/server/integrations-connectors.route",
+      "moduleId": "integrations_hub"
+    },
+    {
+      "path": "/api/integrations/connectors/[connectorKey]",
+      "handlerId": "integrations_hub/server/integrations-connectors-connector-key.route",
+      "moduleId": "integrations_hub"
+    },
+    {
+      "path": "/api/integrations/oauth/callback",
+      "handlerId": "integrations_hub/server/integrations-oauth-callback.route",
+      "moduleId": "integrations_hub"
+    },
+    {
+      "path": "/api/integrations/oauth/start",
+      "handlerId": "integrations_hub/server/integrations-oauth-start.route",
+      "moduleId": "integrations_hub"
+    },
+    {
+      "path": "/api/integrations/triggers",
+      "handlerId": "integrations_hub/server/integrations-triggers.route",
+      "moduleId": "integrations_hub"
+    },
+    {
+      "path": "/api/invitations",
+      "handlerId": "tenant_invitation/server/invitations.route",
+      "moduleId": "tenant_invitation"
+    },
+    {
+      "path": "/api/invitations/[invitationId]",
+      "handlerId": "tenant_invitation/server/invitations-invitation-id.route",
+      "moduleId": "tenant_invitation"
+    },
+    {
+      "path": "/api/invitations/accept",
+      "handlerId": "tenant_invitation/server/invitations-accept.route",
+      "moduleId": "tenant_invitation"
+    },
+    {
+      "path": "/api/invitations/decline",
+      "handlerId": "tenant_invitation/server/invitations-decline.route",
+      "moduleId": "tenant_invitation"
+    },
+    {
+      "path": "/api/invoices",
+      "handlerId": "invoice/server/invoices.route",
+      "moduleId": "invoice"
+    },
+    {
+      "path": "/api/invoices/[invoiceId]",
+      "handlerId": "invoice/server/invoices-invoice-id.route",
+      "moduleId": "invoice"
+    },
+    {
+      "path": "/api/invoices/[invoiceId]/issue",
+      "handlerId": "invoice/server/invoices-invoice-id-issue.route",
+      "moduleId": "invoice"
+    },
+    {
+      "path": "/api/invoices/[invoiceId]/mark-paid",
+      "handlerId": "invoice/server/invoices-invoice-id-mark-paid.route",
+      "moduleId": "invoice"
+    },
+    {
+      "path": "/api/invoices/[invoiceId]/pdf",
+      "handlerId": "invoice/server/invoices-invoice-id-pdf.route",
+      "moduleId": "invoice"
+    },
+    {
+      "path": "/api/invoices/[invoiceId]/void",
+      "handlerId": "invoice/server/invoices-invoice-id-void.route",
+      "moduleId": "invoice"
+    },
+    {
+      "path": "/api/invoices/earsiv/sms/send",
+      "handlerId": "invoice/server/invoices-earsiv-sms-send.route",
+      "moduleId": "invoice"
+    },
+    {
+      "path": "/api/invoices/earsiv/sms/verify",
+      "handlerId": "invoice/server/invoices-earsiv-sms-verify.route",
+      "moduleId": "invoice"
+    },
+    {
+      "path": "/api/invoices/preview",
+      "handlerId": "invoice/server/invoices-preview.route",
+      "moduleId": "invoice"
+    },
+    {
+      "path": "/api/media-gallery/[entityType]/[entityId]/items",
+      "handlerId": "media_gallery/server/media-gallery-entity-type-entity-id-items.route",
+      "moduleId": "media_gallery"
+    },
+    {
+      "path": "/api/media-gallery/[entityType]/[entityId]/items/reorder",
+      "handlerId": "media_gallery/server/media-gallery-entity-type-entity-id-items-reorder.route",
+      "moduleId": "media_gallery"
+    },
+    {
+      "path": "/api/media-gallery/items/[itemId]",
+      "handlerId": "media_gallery/server/media-gallery-items-item-id.route",
+      "moduleId": "media_gallery"
+    },
+    {
+      "path": "/api/members",
+      "handlerId": "tenant_member/server/members.route",
+      "moduleId": "tenant_member"
+    },
+    {
+      "path": "/api/members/[memberId]",
+      "handlerId": "tenant_member/server/members-member-id.route",
+      "moduleId": "tenant_member"
+    },
+    {
+      "path": "/api/messaging/moderation/messages/[messageId]",
+      "handlerId": "messaging/server/messaging-moderation-messages-message-id.route",
+      "moduleId": "messaging"
+    },
+    {
+      "path": "/api/messaging/moderation/queue",
+      "handlerId": "messaging/server/messaging-moderation-queue.route",
+      "moduleId": "messaging"
+    },
+    {
+      "path": "/api/messaging/moderation/settings",
+      "handlerId": "messaging/server/messaging-moderation-settings.route",
+      "moduleId": "messaging"
+    },
+    {
+      "path": "/api/messaging/ws-ticket",
+      "handlerId": "messaging/server/messaging-ws-ticket.route",
+      "moduleId": "messaging"
+    },
+    {
+      "path": "/api/metering/billing",
+      "handlerId": "metering/server/metering-billing.route",
+      "moduleId": "metering"
+    },
+    {
+      "path": "/api/metering/events",
+      "handlerId": "metering/server/metering-events.route",
+      "moduleId": "metering"
+    },
+    {
+      "path": "/api/metering/meters",
+      "handlerId": "metering/server/metering-meters.route",
+      "moduleId": "metering"
+    },
+    {
+      "path": "/api/metering/meters/[meterId]",
+      "handlerId": "metering/server/metering-meters-meter-id.route",
+      "moduleId": "metering"
+    },
+    {
+      "path": "/api/metering/usage",
+      "handlerId": "metering/server/metering-usage.route",
+      "moduleId": "metering"
+    },
+    {
+      "path": "/api/modules",
+      "handlerId": "setting/server/modules.route",
+      "moduleId": "setting"
+    },
+    {
+      "path": "/api/notifications/push/subscribe",
+      "handlerId": "notification_inapp/server/notifications-push-subscribe.route",
+      "moduleId": "notification_inapp"
+    },
+    {
+      "path": "/api/notifications/sms/send",
+      "handlerId": "notification_inapp/server/notifications-sms-send.route",
+      "moduleId": "notification_inapp"
+    },
+    {
+      "path": "/api/payments",
+      "handlerId": "payment/server/payments.route",
+      "moduleId": "payment"
+    },
+    {
+      "path": "/api/payments/[paymentId]",
+      "handlerId": "payment/server/payments-payment-id.route",
+      "moduleId": "payment"
+    },
+    {
+      "path": "/api/payments/[paymentId]/refund",
+      "handlerId": "payment/server/payments-payment-id-refund.route",
+      "moduleId": "payment"
+    },
+    {
+      "path": "/api/payments/[paymentId]/transactions",
+      "handlerId": "payment/server/payments-payment-id-transactions.route",
+      "moduleId": "payment"
+    },
+    {
+      "path": "/api/payments/bin-check",
+      "handlerId": "payment/server/payments-bin-check.route",
+      "moduleId": "payment"
+    },
+    {
+      "path": "/api/payments/provider-status",
+      "handlerId": "payment/server/payments-provider-status.route",
+      "moduleId": "payment"
+    },
+    {
+      "path": "/api/payments/providers",
+      "handlerId": "payment/server/payments-providers.route",
+      "moduleId": "payment"
+    },
+    {
+      "path": "/api/payments/transactions/[transactionId]",
+      "handlerId": "payment/server/payments-transactions-transaction-id.route",
+      "moduleId": "payment"
+    },
+    {
+      "path": "/api/payments/wallets",
+      "handlerId": "payment/server/payments-wallets.route",
+      "moduleId": "payment"
+    },
+    {
+      "path": "/api/plans",
+      "handlerId": "payment/server/plans.route",
+      "moduleId": "payment"
+    },
+    {
+      "path": "/api/plans/[planId]",
+      "handlerId": "payment/server/plans-plan-id.route",
+      "moduleId": "payment"
+    },
+    {
+      "path": "/api/plans/[planId]/features",
+      "handlerId": "payment/server/plans-plan-id-features.route",
+      "moduleId": "payment"
+    },
+    {
+      "path": "/api/plans/[planId]/features/[featureId]",
+      "handlerId": "payment/server/plans-plan-id-features-feature-id.route",
+      "moduleId": "payment"
+    },
+    {
+      "path": "/api/plans/default",
+      "handlerId": "payment/server/plans-default.route",
+      "moduleId": "payment"
+    },
+    {
+      "path": "/api/plans/public",
+      "handlerId": "payment/server/plans-public.route",
+      "moduleId": "payment"
+    },
+    {
+      "path": "/api/saml/config",
+      "handlerId": "auth_saml/server/saml-config.route",
+      "moduleId": "auth_saml"
+    },
+    {
+      "path": "/api/scim/v2/Groups",
+      "handlerId": "scim/server/scim-v2-groups.route",
+      "moduleId": "scim"
+    },
+    {
+      "path": "/api/scim/v2/Groups/[scimGroupId]",
+      "handlerId": "scim/server/scim-v2-groups-scim-group-id.route",
+      "moduleId": "scim"
+    },
+    {
+      "path": "/api/scim/v2/Health",
+      "handlerId": "scim/server/scim-v2-health.route",
+      "moduleId": "scim"
+    },
+    {
+      "path": "/api/scim/v2/ResourceTypes",
+      "handlerId": "scim/server/scim-v2-resource-types.route",
+      "moduleId": "scim"
+    },
+    {
+      "path": "/api/scim/v2/Schemas",
+      "handlerId": "scim/server/scim-v2-schemas.route",
+      "moduleId": "scim"
+    },
+    {
+      "path": "/api/scim/v2/ServiceProviderConfig",
+      "handlerId": "scim/server/scim-v2-service-provider-config.route",
+      "moduleId": "scim"
+    },
+    {
+      "path": "/api/scim/v2/Users",
+      "handlerId": "scim/server/scim-v2-users.route",
+      "moduleId": "scim"
+    },
+    {
+      "path": "/api/scim/v2/Users/[scimUserId]",
+      "handlerId": "scim/server/scim-v2-users-scim-user-id.route",
+      "moduleId": "scim"
+    },
+    {
+      "path": "/api/search",
+      "handlerId": "search/server/search.route",
+      "moduleId": "search"
+    },
+    {
+      "path": "/api/search/index",
+      "handlerId": "search/server/search-index.route",
+      "moduleId": "search"
+    },
+    {
+      "path": "/api/seo/[entityType]/[entityId]",
+      "handlerId": "seo/server/seo-entity-type-entity-id.route",
+      "moduleId": "seo"
+    },
+    {
+      "path": "/api/seo/web-vitals",
+      "handlerId": "seo/server/seo-web-vitals.route",
+      "moduleId": "seo"
+    },
+    {
+      "path": "/api/settings",
+      "handlerId": "setting/server/settings.route",
+      "moduleId": "setting"
+    },
+    {
+      "path": "/api/settings/branding",
+      "handlerId": "setting/server/settings-branding.route",
+      "moduleId": "setting"
+    },
+    {
+      "path": "/api/settings/public",
+      "handlerId": "setting/server/settings-public.route",
+      "moduleId": "setting"
+    },
+    {
+      "path": "/api/storage",
+      "handlerId": "storage/server/storage.route",
+      "moduleId": "storage"
+    },
+    {
+      "path": "/api/store/bundles",
+      "handlerId": "store/server/store-bundles.route",
+      "moduleId": "store"
+    },
+    {
+      "path": "/api/store/bundles/[bundleId]",
+      "handlerId": "store/server/store-bundles-bundle-id.route",
+      "moduleId": "store"
+    },
+    {
+      "path": "/api/store/bundles/[bundleId]/items",
+      "handlerId": "store/server/store-bundles-bundle-id-items.route",
+      "moduleId": "store"
+    },
+    {
+      "path": "/api/store/bundles/[bundleId]/items/[itemId]",
+      "handlerId": "store/server/store-bundles-bundle-id-items-item-id.route",
+      "moduleId": "store"
+    },
+    {
+      "path": "/api/store/categories",
+      "handlerId": "store/server/store-categories.route",
+      "moduleId": "store"
+    },
+    {
+      "path": "/api/store/categories/[categoryId]",
+      "handlerId": "store/server/store-categories-category-id.route",
+      "moduleId": "store"
+    },
+    {
+      "path": "/api/store/categories/[categoryId]/specs",
+      "handlerId": "store/server/store-categories-category-id-specs.route",
+      "moduleId": "store"
+    },
+    {
+      "path": "/api/store/categories/[categoryId]/specs/[specId]",
+      "handlerId": "store/server/store-categories-category-id-specs-spec-id.route",
+      "moduleId": "store"
+    },
+    {
+      "path": "/api/store/products",
+      "handlerId": "store/server/store-products.route",
+      "moduleId": "store"
+    },
+    {
+      "path": "/api/store/products/[productId]",
+      "handlerId": "store/server/store-products-product-id.route",
+      "moduleId": "store"
+    },
+    {
+      "path": "/api/store/products/[productId]/duplicate",
+      "handlerId": "store/server/store-products-product-id-duplicate.route",
+      "moduleId": "store"
+    },
+    {
+      "path": "/api/store/products/[productId]/images",
+      "handlerId": "store/server/store-products-product-id-images.route",
+      "moduleId": "store"
+    },
+    {
+      "path": "/api/store/products/[productId]/images/[imageId]",
+      "handlerId": "store/server/store-products-product-id-images-image-id.route",
+      "moduleId": "store"
+    },
+    {
+      "path": "/api/store/products/[productId]/spec-values",
+      "handlerId": "store/server/store-products-product-id-spec-values.route",
+      "moduleId": "store"
+    },
+    {
+      "path": "/api/store/products/[productId]/variant-group",
+      "handlerId": "store/server/store-products-product-id-variant-group.route",
+      "moduleId": "store"
+    },
+    {
+      "path": "/api/store/products/[productId]/variant-group/items",
+      "handlerId": "store/server/store-products-product-id-variant-group-items.route",
+      "moduleId": "store"
+    },
+    {
+      "path": "/api/store/products/[productId]/variant-group/items/[itemId]",
+      "handlerId": "store/server/store-products-product-id-variant-group-items-item-id.route",
+      "moduleId": "store"
+    },
+    {
+      "path": "/api/storefront/categories",
+      "handlerId": "store/server/storefront-categories.route",
+      "moduleId": "store"
+    },
+    {
+      "path": "/api/storefront/products",
+      "handlerId": "store/server/storefront-products.route",
+      "moduleId": "store"
+    },
+    {
+      "path": "/api/storefront/products/[slug]",
+      "handlerId": "store/server/storefront-products-slug.route",
+      "moduleId": "store"
+    },
+    {
+      "path": "/api/subscription",
+      "handlerId": "tenant_subscription/server/subscription.route",
+      "moduleId": "tenant_subscription"
+    },
+    {
+      "path": "/api/subscription/confirm",
+      "handlerId": "tenant_subscription/server/subscription-confirm.route",
+      "moduleId": "tenant_subscription"
+    },
+    {
+      "path": "/api/subscription/features",
+      "handlerId": "tenant_subscription/server/subscription-features.route",
+      "moduleId": "tenant_subscription"
+    },
+    {
+      "path": "/api/subscription/grace-period",
+      "handlerId": "tenant_subscription/server/subscription-grace-period.route",
+      "moduleId": "tenant_subscription"
+    },
+    {
+      "path": "/api/subscription/pay",
+      "handlerId": "tenant_subscription/server/subscription-pay.route",
+      "moduleId": "tenant_subscription"
+    },
+    {
+      "path": "/api/subscription/pay/3ds-callback",
+      "handlerId": "tenant_subscription/server/subscription-pay-3ds-callback.route",
+      "moduleId": "tenant_subscription"
+    },
+    {
+      "path": "/api/subscription/payment-intent",
+      "handlerId": "tenant_subscription/server/subscription-payment-intent.route",
+      "moduleId": "tenant_subscription"
+    },
+    {
+      "path": "/api/subscription/payment-intent/confirm",
+      "handlerId": "tenant_subscription/server/subscription-payment-intent-confirm.route",
+      "moduleId": "tenant_subscription"
+    },
+    {
+      "path": "/api/subscription/quote",
+      "handlerId": "tenant_subscription/server/subscription-quote.route",
+      "moduleId": "tenant_subscription"
+    },
+    {
+      "path": "/api/support/tickets",
+      "handlerId": "support/server/support-tickets.route",
+      "moduleId": "support"
+    },
+    {
+      "path": "/api/support/tickets/[ticketId]",
+      "handlerId": "support/server/support-tickets-ticket-id.route",
+      "moduleId": "support"
+    },
+    {
+      "path": "/api/support/tickets/[ticketId]/messages",
+      "handlerId": "support/server/support-tickets-ticket-id-messages.route",
+      "moduleId": "support"
+    },
+    {
+      "path": "/api/tenants",
+      "handlerId": "tenant/server/tenants.route",
+      "moduleId": "tenant"
+    },
+    {
+      "path": "/api/tenants/[targetTenantId]",
+      "handlerId": "tenant/server/tenants-target-tenant-id.route",
+      "moduleId": "tenant"
+    },
+    {
+      "path": "/api/tenants/[targetTenantId]/deletion-request",
+      "handlerId": "tenant/server/tenants-target-tenant-id-deletion-request.route",
+      "moduleId": "tenant"
+    },
+    {
+      "path": "/api/tenants/[targetTenantId]/subscription",
+      "handlerId": "tenant/server/tenants-target-tenant-id-subscription.route",
+      "moduleId": "tenant"
+    },
+    {
+      "path": "/api/tenants/create",
+      "handlerId": "tenant/server/tenants-create.route",
+      "moduleId": "tenant"
+    },
+    {
+      "path": "/api/users",
+      "handlerId": "user/server/users.route",
+      "moduleId": "user"
+    },
+    {
+      "path": "/api/users/[userId]",
+      "handlerId": "user/server/users-user-id.route",
+      "moduleId": "user"
+    },
+    {
+      "path": "/api/users/[userId]/impersonation-sessions",
+      "handlerId": "user/server/users-user-id-impersonation-sessions.route",
+      "moduleId": "user"
+    },
+    {
+      "path": "/api/users/[userId]/tenants",
+      "handlerId": "user/server/users-user-id-tenants.route",
+      "moduleId": "user"
+    },
+    {
+      "path": "/api/wallet/accounts",
+      "handlerId": "wallet/server/wallet-accounts.route",
+      "moduleId": "wallet"
+    },
+    {
+      "path": "/api/wallet/accounts/[accountId]",
+      "handlerId": "wallet/server/wallet-accounts-account-id.route",
+      "moduleId": "wallet"
+    },
+    {
+      "path": "/api/wallet/accounts/[accountId]/statement",
+      "handlerId": "wallet/server/wallet-accounts-account-id-statement.route",
+      "moduleId": "wallet"
+    },
+    {
+      "path": "/api/wallet/transactions",
+      "handlerId": "wallet/server/wallet-transactions.route",
+      "moduleId": "wallet"
+    },
+    {
+      "path": "/api/wallet/transfer",
+      "handlerId": "wallet/server/wallet-transfer.route",
+      "moduleId": "wallet"
+    },
+    {
+      "path": "/api/wallet/verify",
+      "handlerId": "wallet/server/wallet-verify.route",
+      "moduleId": "wallet"
+    },
+    {
+      "path": "/api/webhooks",
+      "handlerId": "webhook/server/webhooks.route",
+      "moduleId": "webhook"
+    },
+    {
+      "path": "/api/webhooks/[webhookId]",
+      "handlerId": "webhook/server/webhooks-webhook-id.route",
+      "moduleId": "webhook"
+    },
+    {
+      "path": "/api/webhooks/[webhookId]/deliveries",
+      "handlerId": "webhook/server/webhooks-webhook-id-deliveries.route",
+      "moduleId": "webhook"
+    },
+    {
+      "path": "/api/webhooks/[webhookId]/deliveries/[deliveryId]/redeliver",
+      "handlerId": "webhook/server/webhooks-webhook-id-deliveries-delivery-id-redeliver.route",
+      "moduleId": "webhook"
+    },
+    {
+      "path": "/api/webhooks/[webhookId]/deliveries/replay-dead-letter",
+      "handlerId": "webhook/server/webhooks-webhook-id-deliveries-replay-dead-letter.route",
+      "moduleId": "webhook"
+    },
+    {
+      "path": "/api/webhooks/[webhookId]/rotate-secret",
+      "handlerId": "webhook/server/webhooks-webhook-id-rotate-secret.route",
+      "moduleId": "webhook"
+    },
+    {
+      "path": "/api/webhooks/[webhookId]/test",
+      "handlerId": "webhook/server/webhooks-webhook-id-test.route",
+      "moduleId": "webhook"
+    },
+    {
+      "path": "/api/webhooks/[webhookId]/trigger",
+      "handlerId": "webhook/server/webhooks-webhook-id-trigger.route",
+      "moduleId": "webhook"
+    },
+    {
+      "path": "/api/webhooks/events",
+      "handlerId": "webhook/server/webhooks-events.route",
+      "moduleId": "webhook"
+    },
+    {
+      "path": "/api/webhooks/metrics",
+      "handlerId": "webhook/server/webhooks-metrics.route",
       "moduleId": "webhook"
     }
   ],

@@ -47,17 +47,7 @@ Tenant-aware block-based page builder with i18n support. Supports code blocks (P
 
 ## Owned API routes
 
-- `tenant` GET/POST `/tenant/[tenantId]/api/dynamic-pages`
-- `tenant` GET/PATCH/DELETE `/tenant/[tenantId]/api/dynamic-pages/[dynamicPageId]`
-- `tenant` GET/POST `/tenant/[tenantId]/api/dynamic-pages/[dynamicPageId]/translations`
-- `tenant` DELETE `/tenant/[tenantId]/api/dynamic-pages/[dynamicPageId]/translations/[lang]`
 - `tenant` GET/POST/PATCH/DELETE `/tenant/[tenantId]/api/dynamic-pages/block-action/[blockType]`
-- `tenant` GET/POST `/tenant/[tenantId]/api/dynamic-pages/block-definitions`
-- `tenant` GET/PATCH/DELETE `/tenant/[tenantId]/api/dynamic-pages/block-definitions/[blockId]`
-- `tenant` GET/POST `/tenant/[tenantId]/api/dynamic-pages/collections`
-- `tenant` GET/PATCH/DELETE `/tenant/[tenantId]/api/dynamic-pages/collections/[collectionId]`
-- `tenant` GET/POST `/tenant/[tenantId]/api/dynamic-pages/collections/[collectionId]/items`
-- `tenant` GET/PATCH/DELETE `/tenant/[tenantId]/api/dynamic-pages/collections/[collectionId]/items/[itemId]`
 
 ## TypeORM entities
 

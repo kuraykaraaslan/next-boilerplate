@@ -39,5 +39,15 @@
       "path": "/admin/members/settings",
       "component": "tenant_member/ui/members-settings.page"
     }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/members/[memberId]",
+      "handler": "tenant_member/server/members-member-id.route"
+    },
+    {
+      "path": "/api/members",
+      "handler": "tenant_member/server/members.route"
+    }
   ]
 }

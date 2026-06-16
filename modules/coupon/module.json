@@ -41,5 +41,27 @@
       "path": "/admin/coupons",
       "component": "coupon/ui/coupons.page"
     }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/coupons/[couponId]",
+      "handler": "coupon/server/coupons-coupon-id.route"
+    },
+    {
+      "path": "/api/coupons/apply",
+      "handler": "coupon/server/coupons-apply.route"
+    },
+    {
+      "path": "/api/coupons/redemptions",
+      "handler": "coupon/server/coupons-redemptions.route"
+    },
+    {
+      "path": "/api/coupons",
+      "handler": "coupon/server/coupons.route"
+    },
+    {
+      "path": "/api/coupons/validate",
+      "handler": "coupon/server/coupons-validate.route"
+    }
   ]
 }

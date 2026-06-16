@@ -34,11 +34,6 @@ Tenant-scoped full-text search over arbitrary content. Owning modules push docum
 
 - `search.messages.ts`
 
-## Owned API routes
-
-- `tenant` GET `/tenant/[tenantId]/api/search`
-- `tenant` POST/DELETE `/tenant/[tenantId]/api/search/index`
-
 ## TypeORM entities
 
 - `SearchDocument` (system) — `modules/search/server/entities/search_document.entity.ts`

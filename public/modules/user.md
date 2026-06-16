@@ -37,13 +37,6 @@ Core user CRUD: create, find, update, deactivate. Foundation for every auth and 
 
 - `user.messages.ts`
 
-## Owned API routes
-
-- `tenant` GET/POST `/tenant/[tenantId]/api/users`
-- `tenant` GET/PUT/DELETE `/tenant/[tenantId]/api/users/[userId]`
-- `tenant` GET `/tenant/[tenantId]/api/users/[userId]/impersonation-sessions`
-- `tenant` GET `/tenant/[tenantId]/api/users/[userId]/tenants`
-
 ## TypeORM entities
 
 - `User` (system) — `modules/user/server/entities/user.entity.ts`
