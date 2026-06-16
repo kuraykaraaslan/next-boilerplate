@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-16T10:07:57.302Z",
+  "generatedAt": "2026-06-16T10:36:59.808Z",
   "menu": [
     {
       "id": "settings",
@@ -877,6 +877,60 @@
       "componentId": "webhook/ui/webhooks-settings.page",
       "permissions": [],
       "moduleId": "webhook"
+    },
+    {
+      "path": "/api-docs",
+      "componentId": "api_doc/ui/public-api-docs.page",
+      "permissions": [],
+      "moduleId": "api_doc"
+    },
+    {
+      "path": "/auth/callback",
+      "componentId": "auth/ui/callback.page",
+      "permissions": [],
+      "moduleId": "auth"
+    },
+    {
+      "path": "/auth/complete-profile",
+      "componentId": "auth/ui/complete-profile.page",
+      "permissions": [],
+      "moduleId": "auth"
+    },
+    {
+      "path": "/auth/create-tenant",
+      "componentId": "auth/ui/create-tenant.page",
+      "permissions": [],
+      "moduleId": "auth"
+    },
+    {
+      "path": "/auth/forgot-password",
+      "componentId": "auth/ui/forgot-password.page",
+      "permissions": [],
+      "moduleId": "auth"
+    },
+    {
+      "path": "/auth/login",
+      "componentId": "auth/ui/login.page",
+      "permissions": [],
+      "moduleId": "auth"
+    },
+    {
+      "path": "/auth/logout",
+      "componentId": "auth/ui/logout.page",
+      "permissions": [],
+      "moduleId": "auth"
+    },
+    {
+      "path": "/auth/register",
+      "componentId": "auth/ui/register.page",
+      "permissions": [],
+      "moduleId": "auth"
+    },
+    {
+      "path": "/auth/select-tenant",
+      "componentId": "auth/ui/select-tenant.page",
+      "permissions": [],
+      "moduleId": "auth"
     }
   ],
   "apiRoutes": [

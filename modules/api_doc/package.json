@@ -16,6 +16,7 @@
     "./ui/mockSpec": "./ui/mockSpec.ts",
     "./ui/operation-panel.component": "./ui/operation-panel.component.tsx",
     "./ui/parameter-table.component": "./ui/parameter-table.component.tsx",
+    "./ui/public-api-docs.page": "./ui/public-api-docs.page.tsx",
     "./ui/response-card.component": "./ui/response-card.component.tsx",
     "./ui/schema-viewer.component": "./ui/schema-viewer.component.tsx",
     "./ui/security-scheme-badge.component": "./ui/security-scheme-badge.component.tsx",

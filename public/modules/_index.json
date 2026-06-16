@@ -268,7 +268,7 @@
     "hasNextLayer": true,
     "routeCount": 5,
     "entityCount": 1,
-    "componentCount": 6,
+    "componentCount": 14,
     "file": "auth.md"
   },
   "auth_oidc": {
@@ -1087,7 +1087,7 @@
     "hasNextLayer": true,
     "routeCount": 0,
     "entityCount": 0,
-    "componentCount": 17,
+    "componentCount": 18,
     "file": "api_doc.md"
   },
   "payment_core": {

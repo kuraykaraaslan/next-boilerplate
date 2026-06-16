@@ -30,7 +30,7 @@ export function renderComponentMap(componentImports) {
       : 'M.default';
     return (
       `  ${JSON.stringify(id)}: lazy(() => import(${JSON.stringify(importPath)})` +
-      `.then((m) => { const M = m as Record<string, ComponentType<any>>; return { default: ${pick} }; })),`
+      `.then((m) => { const M = m as Record<string, any>; return { default: ${pick} }; })),`
     );
   });
   return (

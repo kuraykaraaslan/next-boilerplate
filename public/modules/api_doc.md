@@ -30,6 +30,7 @@ OpenAPI/Swagger spec builder + helpers for serving per-tenant API docs.
 - `api_doc/ui/mockSpec` _(ui)_
 - `api_doc/ui/operation-panel.component` _(ui, client)_
 - `api_doc/ui/parameter-table.component` _(ui)_
+- `api_doc/ui/public-api-docs.page` _(ui, client)_
 - `api_doc/ui/response-card.component` _(ui, client)_
 - `api_doc/ui/schema-viewer.component` _(ui, client)_
 - `api_doc/ui/security-scheme-badge.component` _(ui)_

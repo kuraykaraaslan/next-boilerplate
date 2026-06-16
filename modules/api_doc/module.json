@@ -37,6 +37,10 @@
     {
       "path": "/admin/api-docs",
       "component": "api_doc/ui/api-docs.page"
+    },
+    {
+      "path": "/api-docs",
+      "component": "api_doc/ui/public-api-docs.page"
     }
   ]
 }

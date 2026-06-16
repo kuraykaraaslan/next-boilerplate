@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T10:07:57.302Z",
+  "generatedAt": "2026-06-16T10:36:59.808Z",
   "routes": [
     {
       "filePath": "app/api/auth/acs/route.ts",

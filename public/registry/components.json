@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T10:07:57.302Z",
+  "generatedAt": "2026-06-16T10:36:59.808Z",
   "components": [
     {
       "id": "ai/ui/ai-chat-box.component",
@@ -184,6 +184,16 @@
       "isClient": false,
       "isServer": false,
       "baseName": "parameter-table.component"
+    },
+    {
+      "id": "api_doc/ui/public-api-docs.page",
+      "module": "api_doc",
+      "filePath": "modules/api_doc/ui/public-api-docs.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "public-api-docs.page"
     },
     {
       "id": "api_doc/ui/response-card.component",
@@ -518,6 +528,36 @@
       "baseName": "auth-settings.page"
     },
     {
+      "id": "auth/ui/callback.page",
+      "module": "auth",
+      "filePath": "modules/auth/ui/callback.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "callback.page"
+    },
+    {
+      "id": "auth/ui/complete-profile.page",
+      "module": "auth",
+      "filePath": "modules/auth/ui/complete-profile.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "complete-profile.page"
+    },
+    {
+      "id": "auth/ui/create-tenant.page",
+      "module": "auth",
+      "filePath": "modules/auth/ui/create-tenant.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "create-tenant.page"
+    },
+    {
       "id": "auth/ui/forgot-password-form.component",
       "module": "auth",
       "filePath": "modules/auth/ui/forgot-password-form.component.tsx",
@@ -530,6 +570,16 @@
       "baseName": "forgot-password-form.component"
     },
     {
+      "id": "auth/ui/forgot-password.page",
+      "module": "auth",
+      "filePath": "modules/auth/ui/forgot-password.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "forgot-password.page"
+    },
+    {
       "id": "auth/ui/login-form.component",
       "module": "auth",
       "filePath": "modules/auth/ui/login-form.component.tsx",
@@ -540,6 +590,26 @@
       "isClient": true,
       "isServer": false,
       "baseName": "login-form.component"
+    },
+    {
+      "id": "auth/ui/login.page",
+      "module": "auth",
+      "filePath": "modules/auth/ui/login.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "login.page"
+    },
+    {
+      "id": "auth/ui/logout.page",
+      "module": "auth",
+      "filePath": "modules/auth/ui/logout.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "logout.page"
     },
     {
       "id": "auth/ui/o-auth-buttons.component",
@@ -567,6 +637,26 @@
       "isClient": true,
       "isServer": false,
       "baseName": "register-form.component"
+    },
+    {
+      "id": "auth/ui/register.page",
+      "module": "auth",
+      "filePath": "modules/auth/ui/register.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "register.page"
+    },
+    {
+      "id": "auth/ui/select-tenant.page",
+      "module": "auth",
+      "filePath": "modules/auth/ui/select-tenant.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "select-tenant.page"
     },
     {
       "id": "auth/ui/session-expired-banner.component",

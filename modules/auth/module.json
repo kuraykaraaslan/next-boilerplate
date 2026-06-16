@@ -44,6 +44,38 @@
     {
       "path": "/admin/auth/settings",
       "component": "auth/ui/auth-settings.page"
+    },
+    {
+      "path": "/auth/callback",
+      "component": "auth/ui/callback.page"
+    },
+    {
+      "path": "/auth/complete-profile",
+      "component": "auth/ui/complete-profile.page"
+    },
+    {
+      "path": "/auth/create-tenant",
+      "component": "auth/ui/create-tenant.page"
+    },
+    {
+      "path": "/auth/forgot-password",
+      "component": "auth/ui/forgot-password.page"
+    },
+    {
+      "path": "/auth/login",
+      "component": "auth/ui/login.page"
+    },
+    {
+      "path": "/auth/logout",
+      "component": "auth/ui/logout.page"
+    },
+    {
+      "path": "/auth/register",
+      "component": "auth/ui/register.page"
+    },
+    {
+      "path": "/auth/select-tenant",
+      "component": "auth/ui/select-tenant.page"
     }
   ],
   "apiRoutes": [
