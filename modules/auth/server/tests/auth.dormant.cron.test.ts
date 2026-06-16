@@ -9,7 +9,7 @@ vi.mock('@nb/env', () => ({ env: envMock }));
 vi.mock('@nb/logger', () => ({ default: { info: vi.fn(), warn: vi.fn(), error: vi.fn() } }));
 vi.mock('@nb/auth/server/auth.service', () => ({ default: { disableDormantAccounts: (...a: any[]) => disableDormant(...(a as [])) } }));
 
-import { POST } from '@/app/tenant/[tenantId]/api/cron/dormant-sweep/route';
+import { POST } from '../cron-dormant-sweep.route';
 
 function req(headers: Record<string, string> = {}) {
   return { headers: { get: (k: string) => headers[k.toLowerCase()] ?? null } } as any;

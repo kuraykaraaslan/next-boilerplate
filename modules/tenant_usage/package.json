@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./server/cron-usage-flush.route": "./server/cron-usage-flush.route.ts",
     "./server/entities/tenant_usage.entity": "./server/entities/tenant_usage.entity.ts",
     "./server/tenant_usage.alerts.service": "./server/tenant_usage.alerts.service.ts",
     "./server/tenant_usage.flush.service": "./server/tenant_usage.flush.service.ts",

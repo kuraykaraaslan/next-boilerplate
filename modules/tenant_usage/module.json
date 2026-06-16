@@ -19,5 +19,11 @@
   },
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/tenant_usage",
-  "license": "CC-BY-NC-ND-4.0"
+  "license": "CC-BY-NC-ND-4.0",
+  "apiRoutes": [
+    {
+      "path": "/api/cron/usage-flush",
+      "handler": "tenant_usage/server/cron-usage-flush.route"
+    }
+  ]
 }

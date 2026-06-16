@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./server/cron-purge-expired-tenants.route": "./server/cron-purge-expired-tenants.route.ts",
     "./server/dictionaries/index": "./server/dictionaries/index.ts",
     "./server/dictionaries": "./server/dictionaries/index.ts",
     "./server/entities/tenant.entity": "./server/entities/tenant.entity.ts",

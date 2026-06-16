@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T10:52:22.295Z",
+  "generatedAt": "2026-06-16T11:07:33.357Z",
   "routes": [
     {
       "filePath": "app/api/auth/acs/route.ts",
@@ -125,76 +125,6 @@
       "urlPath": "/tenant/[tenantId]/api/cron/demo-reset",
       "methods": [
         "GET",
-        "POST"
-      ],
-      "module": "cron",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/cron/dns-recheck/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/cron/dns-recheck",
-      "methods": [
-        "POST"
-      ],
-      "module": "cron",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/cron/dormant-sweep/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/cron/dormant-sweep",
-      "methods": [
-        "POST"
-      ],
-      "module": "cron",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/cron/expire-subscriptions/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/cron/expire-subscriptions",
-      "methods": [
-        "POST"
-      ],
-      "module": "cron",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/cron/gift-card-expiry/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/cron/gift-card-expiry",
-      "methods": [
-        "POST"
-      ],
-      "module": "cron",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/cron/purge-expired-tenants/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/cron/purge-expired-tenants",
-      "methods": [
-        "POST"
-      ],
-      "module": "cron",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/cron/ssl-health/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/cron/ssl-health",
-      "methods": [
-        "POST"
-      ],
-      "module": "cron",
-      "dynamic": true
-    },
-    {
-      "filePath": "app/tenant/[tenantId]/api/cron/usage-flush/route.ts",
-      "scope": "tenant",
-      "urlPath": "/tenant/[tenantId]/api/cron/usage-flush",
-      "methods": [
         "POST"
       ],
       "module": "cron",

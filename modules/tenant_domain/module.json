@@ -54,6 +54,14 @@
     {
       "path": "/api/domains",
       "handler": "tenant_domain/server/domains.route"
+    },
+    {
+      "path": "/api/cron/dns-recheck",
+      "handler": "tenant_domain/server/cron-dns-recheck.route"
+    },
+    {
+      "path": "/api/cron/ssl-health",
+      "handler": "tenant_domain/server/cron-ssl-health.route"
     }
   ]
 }

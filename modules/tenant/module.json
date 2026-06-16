@@ -68,6 +68,10 @@
     {
       "path": "/api/tenants",
       "handler": "tenant/server/tenants.route"
+    },
+    {
+      "path": "/api/cron/purge-expired-tenants",
+      "handler": "tenant/server/cron-purge-expired-tenants.route"
     }
   ]
 }

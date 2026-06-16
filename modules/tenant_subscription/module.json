@@ -82,6 +82,10 @@
     {
       "path": "/api/subscription",
       "handler": "tenant_subscription/server/subscription.route"
+    },
+    {
+      "path": "/api/cron/expire-subscriptions",
+      "handler": "tenant_subscription/server/cron-expire-subscriptions.route"
     }
   ]
 }

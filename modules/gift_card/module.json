@@ -69,6 +69,10 @@
     {
       "path": "/api/gift-cards",
       "handler": "gift_card/server/gift-cards.route"
+    },
+    {
+      "path": "/api/cron/gift-card-expiry",
+      "handler": "gift_card/server/cron-gift-card-expiry.route"
     }
   ]
 }

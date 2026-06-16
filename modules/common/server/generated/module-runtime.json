@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-16T10:52:22.295Z",
+  "generatedAt": "2026-06-16T11:07:33.357Z",
   "menu": [
     {
       "id": "settings",
@@ -1449,6 +1449,41 @@
       "path": "/api/coupons/validate",
       "handlerId": "coupon/server/coupons-validate.route",
       "moduleId": "coupon"
+    },
+    {
+      "path": "/api/cron/dns-recheck",
+      "handlerId": "tenant_domain/server/cron-dns-recheck.route",
+      "moduleId": "tenant_domain"
+    },
+    {
+      "path": "/api/cron/dormant-sweep",
+      "handlerId": "auth/server/cron-dormant-sweep.route",
+      "moduleId": "auth"
+    },
+    {
+      "path": "/api/cron/expire-subscriptions",
+      "handlerId": "tenant_subscription/server/cron-expire-subscriptions.route",
+      "moduleId": "tenant_subscription"
+    },
+    {
+      "path": "/api/cron/gift-card-expiry",
+      "handlerId": "gift_card/server/cron-gift-card-expiry.route",
+      "moduleId": "gift_card"
+    },
+    {
+      "path": "/api/cron/purge-expired-tenants",
+      "handlerId": "tenant/server/cron-purge-expired-tenants.route",
+      "moduleId": "tenant"
+    },
+    {
+      "path": "/api/cron/ssl-health",
+      "handlerId": "tenant_domain/server/cron-ssl-health.route",
+      "moduleId": "tenant_domain"
+    },
+    {
+      "path": "/api/cron/usage-flush",
+      "handlerId": "tenant_usage/server/cron-usage-flush.route",
+      "moduleId": "tenant_usage"
     },
     {
       "path": "/api/domains",

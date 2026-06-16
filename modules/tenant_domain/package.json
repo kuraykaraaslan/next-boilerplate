@@ -4,6 +4,8 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./server/cron-dns-recheck.route": "./server/cron-dns-recheck.route.ts",
+    "./server/cron-ssl-health.route": "./server/cron-ssl-health.route.ts",
     "./server/dns_verification.service": "./server/dns_verification.service.ts",
     "./server/domains-domain-id-verify.route": "./server/domains-domain-id-verify.route.ts",
     "./server/domains-domain-id.route": "./server/domains-domain-id.route.ts",

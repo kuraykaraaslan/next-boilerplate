@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./server/cron-expire-subscriptions.route": "./server/cron-expire-subscriptions.route.ts",
     "./server/entities/tenant_subscription.entity": "./server/entities/tenant_subscription.entity.ts",
     "./server/index": "./server/index.ts",
     "./server": "./server/index.ts",

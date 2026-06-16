@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T10:52:22.295Z",
+  "generatedAt": "2026-06-16T11:07:33.357Z",
   "modules": [
     {
       "id": "common",
@@ -1469,6 +1469,10 @@
         {
           "path": "/api/auth/verify-email/verify",
           "handler": "auth/server/auth-verify-email-verify.route"
+        },
+        {
+          "path": "/api/cron/dormant-sweep",
+          "handler": "auth/server/cron-dormant-sweep.route"
         }
       ],
       "widgets": [],
@@ -2040,6 +2044,10 @@
         {
           "path": "/api/tenants",
           "handler": "tenant/server/tenants.route"
+        },
+        {
+          "path": "/api/cron/purge-expired-tenants",
+          "handler": "tenant/server/cron-purge-expired-tenants.route"
         }
       ],
       "widgets": [],
@@ -2439,6 +2447,14 @@
         {
           "path": "/api/domains",
           "handler": "tenant_domain/server/domains.route"
+        },
+        {
+          "path": "/api/cron/dns-recheck",
+          "handler": "tenant_domain/server/cron-dns-recheck.route"
+        },
+        {
+          "path": "/api/cron/ssl-health",
+          "handler": "tenant_domain/server/cron-ssl-health.route"
         }
       ],
       "widgets": [],
@@ -2562,6 +2578,10 @@
         {
           "path": "/api/subscription",
           "handler": "tenant_subscription/server/subscription.route"
+        },
+        {
+          "path": "/api/cron/expire-subscriptions",
+          "handler": "tenant_subscription/server/cron-expire-subscriptions.route"
         }
       ],
       "widgets": [],
@@ -2621,7 +2641,12 @@
       "enabled": true,
       "menu": [],
       "adminRoutes": [],
-      "apiRoutes": [],
+      "apiRoutes": [
+        {
+          "path": "/api/cron/usage-flush",
+          "handler": "tenant_usage/server/cron-usage-flush.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "settingsTabs": [],
@@ -5916,6 +5941,10 @@
         {
           "path": "/api/gift-cards",
           "handler": "gift_card/server/gift-cards.route"
+        },
+        {
+          "path": "/api/cron/gift-card-expiry",
+          "handler": "gift_card/server/cron-gift-card-expiry.route"
         }
       ],
       "widgets": [],

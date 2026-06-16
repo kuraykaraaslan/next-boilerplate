@@ -274,6 +274,10 @@
     {
       "path": "/api/auth/verify-email/verify",
       "handler": "auth/server/auth-verify-email-verify.route"
+    },
+    {
+      "path": "/api/cron/dormant-sweep",
+      "handler": "auth/server/cron-dormant-sweep.route"
     }
   ]
 }

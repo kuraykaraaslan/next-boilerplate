@@ -75,6 +75,7 @@
     "./server/auth.settings.fields": "./server/auth.settings.fields.ts",
     "./server/auth.totp.service": "./server/auth.totp.service.ts",
     "./server/auth.verification.service": "./server/auth.verification.service.ts",
+    "./server/cron-dormant-sweep.route": "./server/cron-dormant-sweep.route.ts",
     "./server/dictionaries/index": "./server/dictionaries/index.ts",
     "./server/dictionaries": "./server/dictionaries/index.ts",
     "./server/entities/user_consent.entity": "./server/entities/user_consent.entity.ts",
