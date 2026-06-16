@@ -5,7 +5,16 @@
   "description": "Profile fields (avatar, bio, locale, timezone) — separated from the user entity for read scalability.",
   "version": "1.0.0",
   "icon": "fas fa-id-card",
-  "tags": ["identity"],
+  "tags": [
+    "identity"
+  ],
   "priority": 11,
-  "dependencies": { "requires": ["db", "user"] }
+  "dependencies": {
+    "requires": [
+      "db",
+      "user"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/user_profile"
 }

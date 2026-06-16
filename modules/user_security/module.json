@@ -5,7 +5,18 @@
   "description": "Password hashing, account lock, TOTP secret, WebAuthn/Passkey credentials.",
   "version": "1.0.0",
   "icon": "fas fa-lock",
-  "tags": ["identity", "security"],
+  "tags": [
+    "identity",
+    "security"
+  ],
   "priority": 11,
-  "dependencies": { "requires": ["db", "user", "env"] }
+  "dependencies": {
+    "requires": [
+      "db",
+      "user",
+      "env"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/user_security"
 }

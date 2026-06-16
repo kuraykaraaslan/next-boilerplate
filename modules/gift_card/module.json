@@ -5,9 +5,26 @@
   "description": "Prepaid gift cards: issue (single + bulk) hash-protected codes, track redeemable balance, and redeem into a user's wallet. Redemption posts a wallet credit in the card's currency; supports partial redemption, void, admin balance adjustment, and an expiry sweep. Builds on wallet (credit) and payment (purchase-backed issuing).",
   "version": "1.0.0",
   "icon": "fas fa-gift",
-  "tags": ["billing", "commerce", "gift-card", "wallet"],
+  "tags": [
+    "billing",
+    "commerce",
+    "gift-card",
+    "wallet"
+  ],
   "priority": 49,
   "dependencies": {
-    "requires": ["db", "env", "logger", "common", "redis", "wallet", "payment", "webhook", "tenant_subscription"]
-  }
+    "requires": [
+      "db",
+      "env",
+      "logger",
+      "common",
+      "redis",
+      "wallet",
+      "payment",
+      "webhook",
+      "tenant_subscription"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/gift_card"
 }

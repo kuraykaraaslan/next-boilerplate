@@ -5,7 +5,18 @@
   "description": "Sentry + Prometheus + OTel facade. Auto-tags every log/trace/metric with the active tenantId/userId/requestId via Logger AsyncLocalStorage context. Lazy-loaded — no-op when SENTRY_DSN / METRICS_ENABLED / OTEL_ENABLED are unset.",
   "version": "1.0.0",
   "icon": "fas fa-chart-line",
-  "tags": ["observability", "infra", "core"],
+  "tags": [
+    "observability",
+    "infra",
+    "core"
+  ],
   "priority": 5,
-  "dependencies": { "requires": ["env", "logger"] }
+  "dependencies": {
+    "requires": [
+      "env",
+      "logger"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/observability"
 }

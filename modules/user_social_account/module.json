@@ -5,7 +5,17 @@
   "description": "Per-user linked OAuth provider accounts (provider id, external user id, tokens).",
   "version": "1.0.0",
   "icon": "fas fa-link",
-  "tags": ["identity", "auth"],
+  "tags": [
+    "identity",
+    "auth"
+  ],
   "priority": 12,
-  "dependencies": { "requires": ["db", "user"] }
+  "dependencies": {
+    "requires": [
+      "db",
+      "user"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/user_social_account"
 }

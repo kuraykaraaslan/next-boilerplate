@@ -5,9 +5,21 @@
   "description": "Tenant-scoped product analytics: append-only event tracking (page views, signups, custom events) plus aggregate reads — top-line summary (total events, unique users/sessions, top events), GROUP BY date_trunc timeseries with dense gap-filling, and top-events. Tracking works for anonymous visitors; summaries are short-cached in Redis. Distinct from metering (billing) and observability (ops metrics).",
   "version": "1.0.0",
   "icon": "fas fa-chart-line",
-  "tags": ["platform", "analytics", "events", "metrics"],
+  "tags": [
+    "platform",
+    "analytics",
+    "events",
+    "metrics"
+  ],
   "priority": 56,
   "dependencies": {
-    "requires": ["db", "env", "redis", "common"]
-  }
+    "requires": [
+      "db",
+      "env",
+      "redis",
+      "common"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/analytics"
 }

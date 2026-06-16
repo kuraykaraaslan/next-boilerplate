@@ -5,9 +5,24 @@
   "description": "Pluggable email sender (SMTP, SES, Mailgun, Postmark, Resend, SendGrid). EJS templates. BullMQ-backed queue.",
   "version": "1.0.0",
   "icon": "fas fa-envelope",
-  "tags": ["notifications", "email"],
+  "tags": [
+    "notifications",
+    "email"
+  ],
   "priority": 30,
-  "dependencies": { "requires": ["redis", "env", "setting"] },
-  "settings": { "keys": "MAIL_KEYS" },
-  "settingKeys": ["MAIL_KEYS"]
+  "dependencies": {
+    "requires": [
+      "redis",
+      "env",
+      "setting"
+    ]
+  },
+  "settings": {
+    "keys": "MAIL_KEYS"
+  },
+  "settingKeys": [
+    "MAIL_KEYS"
+  ],
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/notification_mail"
 }

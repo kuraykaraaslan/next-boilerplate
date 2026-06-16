@@ -25,6 +25,12 @@ export interface ModuleState {
   name: string;
   icon?: string;
   tier?: string;
+  version: string;
+  description: string;
+  author: string;
+  homepage: string;
+  license: string;
+  tags: string[];
   enabled: boolean;
 }
 
@@ -32,7 +38,19 @@ export async function listModulesWithState(tenantId: string): Promise<ModuleStat
   const enabled = await getEnabledModuleIds(tenantId);
   return moduleRegistry
     .getModules()
-    .map((m) => ({ id: m.id, name: m.name, icon: m.icon, tier: m.tier, enabled: enabled.has(m.id) }))
+    .map((m) => ({
+      id: m.id,
+      name: m.name,
+      icon: m.icon,
+      tier: m.tier,
+      version: m.version,
+      description: m.description,
+      author: m.author,
+      homepage: m.homepage,
+      license: m.license,
+      tags: m.tags,
+      enabled: enabled.has(m.id),
+    }))
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 

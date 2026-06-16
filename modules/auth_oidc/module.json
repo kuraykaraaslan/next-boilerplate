@@ -5,7 +5,20 @@
   "description": "Generic, config-driven OAuth2/OIDC protocol engine (authorize → token → userinfo, PKCE, refresh, private_key_jwt, Basic confidential-client auth) plus a custom/bring-your-own OIDC provider. Consumed by auth_sso (social catalog) and auth_acs (government catalog); the OIDC analogue of auth_saml.",
   "version": "1.0.0",
   "icon": "fas fa-key",
-  "tags": ["identity", "auth", "oauth", "oidc", "engine"],
+  "tags": [
+    "identity",
+    "auth",
+    "oauth",
+    "oidc",
+    "engine"
+  ],
   "priority": 15,
-  "dependencies": { "requires": ["env", "common"] }
+  "dependencies": {
+    "requires": [
+      "env",
+      "common"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_oidc"
 }

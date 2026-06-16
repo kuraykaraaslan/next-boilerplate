@@ -5,14 +5,24 @@
   "description": "TypeORM DataSource factory — single shared DB for all entities, optional per-tenant DB override via TenantDatabase.",
   "version": "1.0.0",
   "icon": "fas fa-database",
-  "tags": ["infrastructure", "core", "database"],
+  "tags": [
+    "infrastructure",
+    "core",
+    "database"
+  ],
   "priority": 3,
-  "dependencies": { "requires": ["env"] },
+  "dependencies": {
+    "requires": [
+      "env"
+    ]
+  },
   "exports": {
     "getDataSource": "db.ts",
     "tenantDataSourceFor": "db.ts",
     "clearTenantDsCache": "db.ts",
     "TenantDatabase": "entities/tenant_database.entity.ts",
     "parseDbUrl": "db.utils.ts"
-  }
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/db"
 }

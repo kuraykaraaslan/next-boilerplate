@@ -5,9 +5,21 @@
   "description": "Tenant-aware product ratings and reviews with verified-purchase flags, helpful voting, moderation lifecycle, and cached per-product rating summaries.",
   "version": "1.0.0",
   "icon": "fas fa-star",
-  "tags": ["review", "rating", "ecommerce", "moderation"],
+  "tags": [
+    "review",
+    "rating",
+    "ecommerce",
+    "moderation"
+  ],
   "priority": 42,
   "dependencies": {
-    "requires": ["db", "env", "redis", "logger"]
-  }
+    "requires": [
+      "db",
+      "env",
+      "redis",
+      "logger"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/product_review"
 }

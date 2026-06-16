@@ -5,7 +5,17 @@
   "description": "Web Push (VAPID) — subscription storage + send.",
   "version": "1.0.0",
   "icon": "fas fa-bell",
-  "tags": ["notifications", "push"],
+  "tags": [
+    "notifications",
+    "push"
+  ],
   "priority": 30,
-  "dependencies": { "requires": ["db", "env"] }
+  "dependencies": {
+    "requires": [
+      "db",
+      "env"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/notification_push"
 }

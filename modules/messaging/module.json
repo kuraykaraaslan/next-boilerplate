@@ -5,9 +5,25 @@
   "description": "Tenant-scoped real-time messaging: 1-1 and group conversations, persisted messages with soft-delete, read/delivery cursors, typing + presence, participant roles. HTTP for writes, a standalone Socket.IO service for realtime fan-out via Redis pub/sub.",
   "version": "1.0.0",
   "icon": "fas fa-comments",
-  "tags": ["messaging", "chat", "realtime", "websocket"],
+  "tags": [
+    "messaging",
+    "chat",
+    "realtime",
+    "websocket"
+  ],
   "priority": 46,
   "dependencies": {
-    "requires": ["db", "env", "redis", "logger", "user_session", "tenant_session", "tenant_member", "webhook"]
-  }
+    "requires": [
+      "db",
+      "env",
+      "redis",
+      "logger",
+      "user_session",
+      "tenant_session",
+      "tenant_member",
+      "webhook"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/messaging"
 }

@@ -5,8 +5,18 @@
   "description": "Zod-validated env var access. Single source of truth — never read process.env directly outside this module.",
   "version": "1.0.0",
   "icon": "fas fa-gear",
-  "tags": ["infrastructure", "core", "leaf"],
+  "tags": [
+    "infrastructure",
+    "core",
+    "leaf"
+  ],
   "priority": 1,
-  "dependencies": { "requires": [] },
-  "exports": { "env": "env.service.ts" }
+  "dependencies": {
+    "requires": []
+  },
+  "exports": {
+    "env": "env.service.ts"
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/env"
 }

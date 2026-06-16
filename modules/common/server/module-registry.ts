@@ -50,6 +50,12 @@ export interface RuntimeModule {
   id: string;
   name: string;
   icon?: string;
+  version: string;
+  description: string;
+  author: string;
+  homepage: string;
+  license: string;
+  tags: string[];
   priority: number;
   enabled: boolean;
   scope?: ModuleScope;

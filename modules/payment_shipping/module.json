@@ -5,9 +5,20 @@
   "description": "Tenant-aware shipping methods and a rate-calculation engine. Define carriers and rate rules (by country, region, weight, subtotal) and compute shipping quotes at checkout.",
   "version": "1.0.0",
   "icon": "fas fa-truck",
-  "tags": ["payment", "shipping", "ecommerce"],
+  "tags": [
+    "payment",
+    "shipping",
+    "ecommerce"
+  ],
   "priority": 29,
   "dependencies": {
-    "requires": ["db", "env", "redis", "logger"]
-  }
+    "requires": [
+      "db",
+      "env",
+      "redis",
+      "logger"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_shipping"
 }

@@ -5,7 +5,22 @@
   "description": "Customer return, exchange and refund (RMA) requests with line items and an append-only status-event log. Tenant-aware, references orders from a future order module.",
   "version": "1.0.0",
   "icon": "fas fa-rotate-left",
-  "tags": ["return", "rma", "refund", "ecommerce"],
+  "tags": [
+    "return",
+    "rma",
+    "refund",
+    "ecommerce"
+  ],
   "priority": 33,
-  "dependencies": { "requires": ["db", "env", "redis", "logger", "payment_sell"] }
+  "dependencies": {
+    "requires": [
+      "db",
+      "env",
+      "redis",
+      "logger",
+      "payment_sell"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_return_rma"
 }

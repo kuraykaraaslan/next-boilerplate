@@ -5,7 +5,21 @@
   "description": "Tenant-aware tax/VAT calculation engine: tax classes, destination-matched rates, compound and price-inclusive computation.",
   "version": "1.0.0",
   "icon": "fas fa-percent",
-  "tags": ["payment", "tax", "vat", "compliance"],
+  "tags": [
+    "payment",
+    "tax",
+    "vat",
+    "compliance"
+  ],
   "priority": 31,
-  "dependencies": { "requires": ["db", "env", "redis", "logger"] }
+  "dependencies": {
+    "requires": [
+      "db",
+      "env",
+      "redis",
+      "logger"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_tax"
 }

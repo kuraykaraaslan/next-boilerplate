@@ -5,7 +5,19 @@
   "description": "Discount coupons + redemption tracking. Provider-aware (Stripe / PayPal / Iyzico) so codes sync with the payment processor.",
   "version": "1.0.0",
   "icon": "fas fa-ticket",
-  "tags": ["billing", "marketing"],
+  "tags": [
+    "billing",
+    "marketing"
+  ],
   "priority": 26,
-  "dependencies": { "requires": ["db", "env", "payment", "common"] }
+  "dependencies": {
+    "requires": [
+      "db",
+      "env",
+      "payment",
+      "common"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/coupon"
 }

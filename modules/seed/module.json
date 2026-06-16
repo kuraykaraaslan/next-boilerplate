@@ -5,8 +5,21 @@
   "description": "Demo-data seeding framework. Each domain module ships a <module>.seed.ts exporting seed<Module>(ctx); the runner invokes them in dependency order against a target tenant.",
   "version": "1.0.0",
   "icon": "fas fa-seedling",
-  "tags": ["infrastructure", "tooling"],
+  "tags": [
+    "infrastructure",
+    "tooling"
+  ],
   "priority": 9,
-  "dependencies": { "requires": ["db", "tenant"] },
-  "exports": { "makeSeedContext": "seed.context.ts", "runSeed": "seed.runner.ts" }
+  "dependencies": {
+    "requires": [
+      "db",
+      "tenant"
+    ]
+  },
+  "exports": {
+    "makeSeedContext": "seed.context.ts",
+    "runSeed": "seed.runner.ts"
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/seed"
 }

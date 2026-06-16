@@ -5,8 +5,19 @@
   "description": "Winston-based structured logger. Use instead of console.* across the codebase.",
   "version": "1.0.0",
   "icon": "fas fa-file-lines",
-  "tags": ["infrastructure", "core"],
+  "tags": [
+    "infrastructure",
+    "core"
+  ],
   "priority": 2,
-  "dependencies": { "requires": ["env"] },
-  "exports": { "logger": "logger.service.ts" }
+  "dependencies": {
+    "requires": [
+      "env"
+    ]
+  },
+  "exports": {
+    "logger": "logger.service.ts"
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/logger"
 }

@@ -5,9 +5,22 @@
   "description": "Tenant-scoped feature flags with master switch, deterministic percentage rollout, attribute-based targeting rules, and per-subject (user/segment) overrides. Read-through cached for hot-path evaluation; every write is audit-logged.",
   "version": "1.0.0",
   "icon": "fas fa-toggle-on",
-  "tags": ["platform", "feature-flags", "rollout", "experimentation"],
+  "tags": [
+    "platform",
+    "feature-flags",
+    "rollout",
+    "experimentation"
+  ],
   "priority": 48,
   "dependencies": {
-    "requires": ["db", "env", "redis", "common", "audit_log"]
-  }
+    "requires": [
+      "db",
+      "env",
+      "redis",
+      "common",
+      "audit_log"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/feature_flags"
 }

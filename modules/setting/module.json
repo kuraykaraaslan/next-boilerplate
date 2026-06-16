@@ -5,9 +5,17 @@
   "description": "System-wide key-value settings store. Modules declare their keys in *.setting.keys.ts; the setting service stores/reads them.",
   "version": "1.0.0",
   "icon": "fas fa-gear",
-  "tags": ["platform", "configuration"],
+  "tags": [
+    "platform",
+    "configuration"
+  ],
   "priority": 5,
-  "dependencies": { "requires": ["db", "env"] },
+  "dependencies": {
+    "requires": [
+      "db",
+      "env"
+    ]
+  },
   "menu": [
     {
       "id": "modules",
@@ -18,5 +26,7 @@
       "order": 5,
       "scope": "tenant"
     }
-  ]
+  ],
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/setting"
 }

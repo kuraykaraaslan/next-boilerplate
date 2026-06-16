@@ -5,7 +5,19 @@
   "description": "Tenant-scoped API keys for programmatic access (hashed at rest, scope-bound).",
   "version": "1.0.0",
   "icon": "fas fa-key",
-  "tags": ["platform", "security"],
+  "tags": [
+    "platform",
+    "security"
+  ],
   "priority": 40,
-  "dependencies": { "requires": ["db", "env", "common", "network"] }
+  "dependencies": {
+    "requires": [
+      "db",
+      "env",
+      "common",
+      "network"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/api_key"
 }

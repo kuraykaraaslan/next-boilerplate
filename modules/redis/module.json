@@ -5,13 +5,24 @@
   "description": "Shared ioredis client + BullMQ connection helpers + Pub/Sub-safe createRedisConnection().",
   "version": "1.0.0",
   "icon": "fas fa-database",
-  "tags": ["infrastructure", "core", "cache", "queue"],
+  "tags": [
+    "infrastructure",
+    "core",
+    "cache",
+    "queue"
+  ],
   "priority": 2,
-  "dependencies": { "requires": ["env"] },
+  "dependencies": {
+    "requires": [
+      "env"
+    ]
+  },
   "exports": {
     "redis": "redis.service.ts",
     "createRedisConnection": "redis.service.ts",
     "getBullMQConnection": "redis.bullmq.ts",
     "createQueue": "redis.bullmq.ts"
-  }
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/redis"
 }

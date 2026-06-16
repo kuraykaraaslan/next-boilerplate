@@ -5,9 +5,21 @@
   "description": "Tenant-aware fulfillment and shipment tracking for orders. Manages packing, carrier tracking, status lifecycle, and an append-only event log.",
   "version": "1.0.0",
   "icon": "fas fa-box",
-  "tags": ["order", "fulfillment", "shipping", "ecommerce"],
+  "tags": [
+    "order",
+    "fulfillment",
+    "shipping",
+    "ecommerce"
+  ],
   "priority": 41,
   "dependencies": {
-    "requires": ["db", "env", "redis", "logger"]
-  }
+    "requires": [
+      "db",
+      "env",
+      "redis",
+      "logger"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/order_fulfillment"
 }

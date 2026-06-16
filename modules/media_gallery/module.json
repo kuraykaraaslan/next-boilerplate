@@ -5,7 +5,19 @@
   "description": "Polymorphic ordered image gallery attachable to any entity type. Items wrap UploadedFile rows (storage module) and add gallery-side overlay: sortOrder, isPrimary, altText, title.",
   "version": "1.0.0",
   "icon": "fas fa-images",
-  "tags": ["media", "gallery", "images"],
+  "tags": [
+    "media",
+    "gallery",
+    "images"
+  ],
   "priority": 36,
-  "dependencies": { "requires": ["db", "redis", "storage"] }
+  "dependencies": {
+    "requires": [
+      "db",
+      "redis",
+      "storage"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/media_gallery"
 }

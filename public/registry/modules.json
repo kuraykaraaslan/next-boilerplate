@@ -1,13 +1,16 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T07:48:24.938Z",
+  "generatedAt": "2026-06-16T08:01:13.592Z",
   "modules": [
     {
       "id": "common",
       "name": "Common Primitives",
       "version": "1.1.0",
       "description": "Dependency-free leaf module loaded by every other module: AppError + ErrorCode enum (with retryable flag, statusCodeFor/isRetryable helpers) plus shared locale, country, currency, timezone, Money, pagination and log-context primitives.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/common",
       "dir": "modules/common",
       "icon": "fas fa-cube",
       "tags": [
@@ -47,6 +50,9 @@
       "name": "Environment",
       "version": "1.0.0",
       "description": "Zod-validated env var access. Single source of truth — never read process.env directly outside this module.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/env",
       "dir": "modules/env",
       "icon": "fas fa-gear",
       "tags": [
@@ -87,6 +93,9 @@
       "name": "Logger",
       "version": "1.0.0",
       "description": "Winston-based structured logger. Use instead of console.* across the codebase.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/logger",
       "dir": "modules/logger",
       "icon": "fas fa-file-lines",
       "tags": [
@@ -128,6 +137,9 @@
       "name": "Network",
       "version": "1.0.0",
       "description": "Network primitives: subnet (CIDR) allowlist matching, address classification, and the shared types/enums for IP-based access control. Dependency-free leaf module.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/network",
       "dir": "modules/network",
       "icon": "fas fa-network-wired",
       "tags": [
@@ -169,6 +181,9 @@
       "name": "Redis",
       "version": "1.0.0",
       "description": "Shared ioredis client + BullMQ connection helpers + Pub/Sub-safe createRedisConnection().",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/redis",
       "dir": "modules/redis",
       "icon": "fas fa-database",
       "tags": [
@@ -212,6 +227,9 @@
       "name": "Database",
       "version": "1.0.0",
       "description": "TypeORM DataSource factory — single shared DB for all entities, optional per-tenant DB override via TenantDatabase.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/db",
       "dir": "modules/db",
       "icon": "fas fa-database",
       "tags": [
@@ -256,6 +274,9 @@
       "name": "Rate Limiter",
       "version": "1.0.0",
       "description": "Sliding-window rate limiter + tenant-plan-based quota enforcement (seat/feature/usage limits).",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/limiter",
       "dir": "modules/limiter",
       "icon": "fas fa-gauge-high",
       "tags": [
@@ -303,6 +324,9 @@
       "name": "Observability",
       "version": "1.0.0",
       "description": "Sentry + Prometheus + OTel facade. Auto-tags every log/trace/metric with the active tenantId/userId/requestId via Logger AsyncLocalStorage context. Lazy-loaded — no-op when SENTRY_DSN / METRICS_ENABLED / OTEL_ENABLED are unset.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/observability",
       "dir": "modules/observability",
       "icon": "fas fa-chart-line",
       "tags": [
@@ -346,6 +370,9 @@
       "name": "Idempotency Keys",
       "version": "1.0.0",
       "description": "Redis-backed idempotency-key store for safely retryable POST/PATCH operations.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/redis_idempotency",
       "dir": "modules/redis_idempotency",
       "icon": "fas fa-key",
       "tags": [
@@ -388,6 +415,9 @@
       "name": "Setting",
       "version": "1.0.0",
       "description": "System-wide key-value settings store. Modules declare their keys in *.setting.keys.ts; the setting service stores/reads them.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/setting",
       "dir": "modules/setting",
       "icon": "fas fa-gear",
       "tags": [
@@ -450,6 +480,9 @@
       "name": "User Agent Parser",
       "version": "1.0.0",
       "description": "Parse User-Agent header into device/OS/browser metadata. Used to annotate sessions and audit logs.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/user_agent",
       "dir": "modules/user_agent",
       "icon": "fas fa-mobile-screen",
       "tags": [
@@ -492,6 +525,9 @@
       "name": "Seed",
       "version": "1.0.0",
       "description": "Demo-data seeding framework. Each domain module ships a <module>.seed.ts exporting seed<Module>(ctx); the runner invokes them in dependency order against a target tenant.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/seed",
       "dir": "modules/seed",
       "icon": "fas fa-seedling",
       "tags": [
@@ -532,6 +568,9 @@
       "name": "File Storage",
       "version": "1.1.0",
       "description": "Pluggable S3-compatible file storage (AWS S3, Cloudflare R2, DigitalOcean Spaces, MinIO) with content-derived MIME validation and optional online virus scanning (VirusTotal).",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/storage",
       "dir": "modules/storage",
       "icon": "fas fa-cloud-arrow-up",
       "tags": [
@@ -595,6 +634,9 @@
       "name": "User",
       "version": "1.0.0",
       "description": "Core user CRUD: create, find, update, deactivate. Foundation for every auth and tenancy flow.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/user",
       "dir": "modules/user",
       "icon": "fas fa-user",
       "tags": [
@@ -650,6 +692,9 @@
       "name": "User Preferences",
       "version": "1.0.0",
       "description": "Per-user preferences: theme, language, timezone, notification opt-ins.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/user_preferences",
       "dir": "modules/user_preferences",
       "icon": "fas fa-sliders",
       "tags": [
@@ -700,6 +745,9 @@
       "name": "User Profile",
       "version": "1.0.0",
       "description": "Profile fields (avatar, bio, locale, timezone) — separated from the user entity for read scalability.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/user_profile",
       "dir": "modules/user_profile",
       "icon": "fas fa-id-card",
       "tags": [
@@ -754,6 +802,9 @@
       "name": "User Security",
       "version": "1.0.0",
       "description": "Password hashing, account lock, TOTP secret, WebAuthn/Passkey credentials.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/user_security",
       "dir": "modules/user_security",
       "icon": "fas fa-lock",
       "tags": [
@@ -814,6 +865,9 @@
       "name": "User Session",
       "version": "1.0.0",
       "description": "JWT access/refresh issuance + revocation, Redis-backed session cache, CRUD on UserSession rows.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/user_session",
       "dir": "modules/user_session",
       "icon": "fas fa-id-badge",
       "tags": [
@@ -870,6 +924,9 @@
       "name": "Linked Social Accounts",
       "version": "1.0.0",
       "description": "Per-user linked OAuth provider accounts (provider id, external user id, tokens).",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/user_social_account",
       "dir": "modules/user_social_account",
       "icon": "fas fa-link",
       "tags": [
@@ -922,6 +979,9 @@
       "name": "Authentication",
       "version": "1.0.0",
       "description": "Credential auth: login, register, password reset, email verify, OTP, TOTP. Coordinates user, user_session, user_security, notification_mail.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth",
       "dir": "modules/auth",
       "icon": "fas fa-shield-halved",
       "tags": [
@@ -1000,6 +1060,9 @@
       "name": "OAuth2/OIDC Engine",
       "version": "1.0.0",
       "description": "Generic, config-driven OAuth2/OIDC protocol engine (authorize → token → userinfo, PKCE, refresh, private_key_jwt, Basic confidential-client auth) plus a custom/bring-your-own OIDC provider. Consumed by auth_sso (social catalog) and auth_acs (government catalog); the OIDC analogue of auth_saml.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_oidc",
       "dir": "modules/auth_oidc",
       "icon": "fas fa-key",
       "tags": [
@@ -1045,6 +1108,9 @@
       "name": "SAML SSO",
       "version": "1.1.0",
       "description": "SAML 2.0 SSO with per-tenant IdP config (SamlConfig): signature alg, dual-cert rotation, encrypted assertions, SLO, JIT-atomic provisioning, ABAC role mapping, metadata import, replay detection.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_saml",
       "dir": "modules/auth_saml",
       "icon": "fas fa-building-shield",
       "tags": [
@@ -1116,6 +1182,9 @@
       "name": "OAuth SSO",
       "version": "1.1.0",
       "description": "OAuth 2.0 SSO with 12 providers: Google, GitHub, Apple, Microsoft, Facebook, LinkedIn, Twitter, Slack, TikTok, WeChat, Autodesk.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_sso",
       "dir": "modules/auth_sso",
       "icon": "fas fa-right-to-bracket",
       "tags": [
@@ -1179,6 +1248,9 @@
       "name": "National Identity Login",
       "version": "1.0.0",
       "description": "National/government digital-identity login (e-Devlet TR/KKTC, eIDAS, SPID, Cl@ve, DE eID, Login.gov, ID.me, OneID, MyGov ID). Registry of SAML + OIDC providers keyed on a hashed national identifier (no email), with synthetic-email JIT + account-merge and platform-level config via ACS_PROVIDER_MAP.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs",
       "dir": "modules/auth_acs",
       "icon": "fas fa-id-card",
       "tags": [
@@ -1246,6 +1318,9 @@
       "name": "Admin Impersonation",
       "version": "1.0.0",
       "description": "Allow a system admin to assume a target user's session (always audited).",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_impersonation",
       "dir": "modules/auth_impersonation",
       "icon": "fas fa-user-secret",
       "tags": [
@@ -1305,6 +1380,9 @@
       "name": "SCIM 2.0",
       "version": "1.0.0",
       "description": "System for Cross-domain Identity Management (RFC 7643/7644). Lets enterprise IdPs (Okta, Azure AD, OneLogin, Google Workspace) auto-provision and deprovision tenant members.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/scim",
       "dir": "modules/scim",
       "icon": "fas fa-id-card",
       "tags": [
@@ -1365,6 +1443,9 @@
       "name": "Tenant",
       "version": "1.0.0",
       "description": "Tenant CRUD, lifecycle (active/suspended/deleted), soft-deletion service. Foundation of multi-tenancy.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/tenant",
       "dir": "modules/tenant",
       "icon": "fas fa-building",
       "tags": [
@@ -1425,6 +1506,9 @@
       "name": "Tenant Member",
       "version": "1.0.0",
       "description": "Tenant-scoped membership join table with roles (owner/admin/member) and per-member permissions.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/tenant_member",
       "dir": "modules/tenant_member",
       "icon": "fas fa-users",
       "tags": [
@@ -1477,6 +1561,9 @@
       "name": "Tenant Invitation",
       "version": "1.0.0",
       "description": "Email invitation flow: create / accept / decline / revoke. Bound to tenant_member on acceptance.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/tenant_invitation",
       "dir": "modules/tenant_invitation",
       "icon": "fas fa-envelope-open",
       "tags": [
@@ -1533,6 +1620,9 @@
       "name": "Tenant Session",
       "version": "1.0.0",
       "description": "Tenant-scoped session handling: bind a user session to a specific tenant, resolve tenant from request.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/tenant_session",
       "dir": "modules/tenant_session",
       "icon": "fas fa-id-badge",
       "tags": [
@@ -1583,6 +1673,9 @@
       "name": "Tenant Branding",
       "version": "1.0.0",
       "description": "White-label branding: logo, favicon, colors, font, custom CSS — read by the proxy/shell to render per-tenant chrome.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/tenant_branding",
       "dir": "modules/tenant_branding",
       "icon": "fas fa-palette",
       "tags": [
@@ -1629,6 +1722,9 @@
       "name": "Tenant Domain",
       "version": "1.0.0",
       "description": "Custom domain mapping per tenant + DNS verification (TXT/CNAME challenge).",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/tenant_domain",
       "dir": "modules/tenant_domain",
       "icon": "fas fa-globe",
       "tags": [
@@ -1688,6 +1784,9 @@
       "name": "Tenant Subscription",
       "version": "1.0.0",
       "description": "Tenant subscription state, plan + feature key resolution, grace period, expiry job.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/tenant_subscription",
       "dir": "modules/tenant_subscription",
       "icon": "fas fa-credit-card",
       "tags": [
@@ -1754,6 +1853,9 @@
       "name": "Tenant Usage",
       "version": "1.0.0",
       "description": "Usage metric tracking per tenant (API calls, storage GB, seats). Source for plan-limit enforcement.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/tenant_usage",
       "dir": "modules/tenant_usage",
       "icon": "fas fa-chart-line",
       "tags": [
@@ -1807,6 +1909,9 @@
       "name": "Payment",
       "version": "1.0.0",
       "description": "Pluggable payment processing (Stripe, PayPal, Iyzico) + subscription plans, plan features, payment transactions, webhook handling.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment",
       "dir": "modules/payment",
       "icon": "fas fa-credit-card",
       "tags": [
@@ -1916,6 +2021,9 @@
       "name": "Tenant Export",
       "version": "1.0.0",
       "description": "Export all per-tenant data into a downloadable archive (GDPR-friendly).",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/tenant_export",
       "dir": "modules/tenant_export",
       "icon": "fas fa-file-export",
       "tags": [
@@ -1963,6 +2071,9 @@
       "name": "Coupon",
       "version": "1.0.0",
       "description": "Discount coupons + redemption tracking. Provider-aware (Stripe / PayPal / Iyzico) so codes sync with the payment processor.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/coupon",
       "dir": "modules/coupon",
       "icon": "fas fa-ticket",
       "tags": [
@@ -2022,6 +2133,9 @@
       "name": "Payment Sell",
       "version": "1.0.0",
       "description": "One-time product / service payment processing. Uses payment_core providers (Stripe, PayPal, Iyzico, Alipay, WeChat Pay, YooKassa, CloudPayments). Tenant-aware checkout sessions, transactions, and refunds.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_sell",
       "dir": "modules/payment_sell",
       "icon": "fas fa-shopping-cart",
       "tags": [
@@ -2083,6 +2197,9 @@
       "name": "Exchange Rate",
       "version": "1.0.0",
       "description": "TCMB (Turkish Central Bank) FX rates with Redis caching. Converts plan prices to TRY when charging Turkish cards via iyzico.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/exchange_rate",
       "dir": "modules/exchange_rate",
       "icon": "fas fa-money-bill-transfer",
       "tags": [
@@ -2127,6 +2244,9 @@
       "name": "Payment Subscription",
       "version": "1.0.0",
       "description": "Recurring subscription lifecycle: plans, plan features, subscriber management, proration, billing cycle tracking. Provider-agnostic (Stripe, PayPal, Iyzico, …). Tenant-aware — every plan and subscription is scoped to a tenant.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_subscription",
       "dir": "modules/payment_subscription",
       "icon": "fas fa-sync-alt",
       "tags": [
@@ -2193,6 +2313,9 @@
       "name": "Payment Cart",
       "version": "1.0.0",
       "description": "Tenant-aware shopping cart for users and anonymous guests. Manages cart items, quantities, coupon codes, totals, guest-to-user merge, and conversion to checkout.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_cart",
       "dir": "modules/payment_cart",
       "icon": "fas fa-cart-shopping",
       "tags": [
@@ -2253,6 +2376,9 @@
       "name": "Payment Shipping",
       "version": "1.0.0",
       "description": "Tenant-aware shipping methods and a rate-calculation engine. Define carriers and rate rules (by country, region, weight, subtotal) and compute shipping quotes at checkout.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_shipping",
       "dir": "modules/payment_shipping",
       "icon": "fas fa-truck",
       "tags": [
@@ -2311,6 +2437,9 @@
       "name": "Invoice",
       "version": "1.0.0",
       "description": "Tenant-scoped invoicing with regional e-invoicing adapters (TR e-Arşiv, EU Peppol, US Stripe Tax). Each tenant issues its own invoices keyed to its own subscription / payment flow.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/invoice",
       "dir": "modules/invoice",
       "icon": "fas fa-file-invoice",
       "tags": [
@@ -2380,6 +2509,9 @@
       "name": "In-App Notifications",
       "version": "1.0.0",
       "description": "In-app notification feed with unread counts. Consumed by the notification menu in the app shell.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/notification_inapp",
       "dir": "modules/notification_inapp",
       "icon": "fas fa-bell",
       "tags": [
@@ -2424,6 +2556,9 @@
       "name": "Email Notifications",
       "version": "1.0.0",
       "description": "Pluggable email sender (SMTP, SES, Mailgun, Postmark, Resend, SendGrid). EJS templates. BullMQ-backed queue.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/notification_mail",
       "dir": "modules/notification_mail",
       "icon": "fas fa-envelope",
       "tags": [
@@ -2477,6 +2612,9 @@
       "name": "Web Push Notifications",
       "version": "1.0.0",
       "description": "Web Push (VAPID) — subscription storage + send.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/notification_push",
       "dir": "modules/notification_push",
       "icon": "fas fa-bell",
       "tags": [
@@ -2526,6 +2664,9 @@
       "name": "SMS Notifications",
       "version": "1.0.0",
       "description": "Pluggable SMS sender (Twilio, Nexmo, Clickatell, NetGSM).",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/notification_sms",
       "dir": "modules/notification_sms",
       "icon": "fas fa-message",
       "tags": [
@@ -2574,6 +2715,9 @@
       "name": "Notification Log",
       "version": "1.0.0",
       "description": "Unified outbound notification audit log across mail, sms, push, inapp channels.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/notification_log",
       "dir": "modules/notification_log",
       "icon": "fas fa-clipboard-list",
       "tags": [
@@ -2621,6 +2765,9 @@
       "name": "Payment Tax",
       "version": "1.0.0",
       "description": "Tenant-aware tax/VAT calculation engine: tax classes, destination-matched rates, compound and price-inclusive computation.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_tax",
       "dir": "modules/payment_tax",
       "icon": "fas fa-percent",
       "tags": [
@@ -2679,6 +2826,9 @@
       "name": "Payment Wishlist",
       "version": "1.0.0",
       "description": "Tenant-aware wishlists / favorites. Users keep multiple named lists of products and variants, with optional public sharing via a share token.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_wishlist",
       "dir": "modules/payment_wishlist",
       "icon": "fas fa-heart",
       "tags": [
@@ -2739,6 +2889,9 @@
       "name": "Payment Return / RMA",
       "version": "1.0.0",
       "description": "Customer return, exchange and refund (RMA) requests with line items and an append-only status-event log. Tenant-aware, references orders from a future order module.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_return_rma",
       "dir": "modules/payment_return_rma",
       "icon": "fas fa-rotate-left",
       "tags": [
@@ -2799,6 +2952,9 @@
       "name": "Payment Loyalty Points",
       "version": "1.0.0",
       "description": "Tenant-aware loyalty points program. Earn / redeem points, lifetime-driven tiers with earn multipliers, manual adjustments, transaction ledger, and point expiry.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_loyalty_points",
       "dir": "modules/payment_loyalty_points",
       "icon": "fas fa-medal",
       "tags": [
@@ -2858,6 +3014,9 @@
       "name": "E-Signature & E-Identity",
       "version": "0.1.0",
       "description": "Multi-country e-identity login + e-signature (eIDAS/OIDC4IDA). Pluggable providers (TR Mobil İmza, Smart-ID, BankID, itsme, FranceConnect, eIDAS-nPA, Signicat).",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/e_signature",
       "dir": "modules/e_signature",
       "icon": "fas fa-id-card",
       "tags": [
@@ -2938,6 +3097,9 @@
       "name": "SEO Metadata",
       "version": "1.0.0",
       "description": "Polymorphic SEO metadata (title, description, Open Graph, canonical, noIndex) attachable to any entity type via entityType + entityId pair.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/seo",
       "dir": "modules/seo",
       "icon": "fas fa-search",
       "tags": [
@@ -2990,6 +3152,9 @@
       "name": "E-Signature Identity Login",
       "version": "1.0.0",
       "description": "E-signature / e-identity login consumer: matches and binds qualified electronic-signature certificates (TR Mobil İmza, Smart-ID, BankID, eIDAS QSCD) to user accounts and runs the login/bind workflow. Consumes the e_signature engine for provider/crypto/identity primitives; owns the certificate↔user binding (signing_certificates).",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_e_signature",
       "dir": "modules/auth_e_signature",
       "icon": "fas fa-id-card",
       "tags": [
@@ -3050,6 +3215,9 @@
       "name": "Media Gallery",
       "version": "1.0.0",
       "description": "Polymorphic ordered image gallery attachable to any entity type. Items wrap UploadedFile rows (storage module) and add gallery-side overlay: sortOrder, isPrimary, altText, title.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/media_gallery",
       "dir": "modules/media_gallery",
       "icon": "fas fa-images",
       "tags": [
@@ -3107,6 +3275,9 @@
       "name": "API Key",
       "version": "1.0.0",
       "description": "Tenant-scoped API keys for programmatic access (hashed at rest, scope-bound).",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/api_key",
       "dir": "modules/api_key",
       "icon": "fas fa-key",
       "tags": [
@@ -3164,6 +3335,9 @@
       "name": "Audit Log",
       "version": "1.0.0",
       "description": "Append-only audit trail for sensitive actions, stored per-tenant (platform events land on ROOT_TENANT_ID).",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/audit_log",
       "dir": "modules/audit_log",
       "icon": "fas fa-clipboard-list",
       "tags": [
@@ -3226,6 +3400,9 @@
       "name": "Store",
       "version": "1.0.0",
       "description": "Tenant-aware e-commerce store. Hierarchical categories with typed spec templates; products with Tiptap richtext descriptions, spec values, multiple images, tags, SEO; variation types (Color, Size, …) with options and swatches; product variants with independent SKU / price / stock per combination; product bundles with per-item quantity and price overrides. Admin-only — no storefront UI layer.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/store",
       "dir": "modules/store",
       "icon": "fas fa-store",
       "tags": [
@@ -3298,6 +3475,9 @@
       "name": "Outgoing Webhooks",
       "version": "1.0.0",
       "description": "Subscriber-configured outbound webhooks (tenant-scoped; root tenant carries platform-wide events), signed deliveries, retry+redelivery.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/webhook",
       "dir": "modules/webhook",
       "icon": "fas fa-rss",
       "tags": [
@@ -3355,6 +3535,9 @@
       "name": "Order Fulfillment",
       "version": "1.0.0",
       "description": "Tenant-aware fulfillment and shipment tracking for orders. Manages packing, carrier tracking, status lifecycle, and an append-only event log.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/order_fulfillment",
       "dir": "modules/order_fulfillment",
       "icon": "fas fa-box",
       "tags": [
@@ -3419,6 +3602,9 @@
       "name": "Product Review",
       "version": "1.0.0",
       "description": "Tenant-aware product ratings and reviews with verified-purchase flags, helpful voting, moderation lifecycle, and cached per-product rating summaries.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/product_review",
       "dir": "modules/product_review",
       "icon": "fas fa-star",
       "tags": [
@@ -3477,6 +3663,9 @@
       "name": "Blog",
       "version": "1.0.0",
       "description": "Tenant-scoped blog with posts, categories and threaded comments. Posts have a draft/published/archived lifecycle; comment moderation and anonymous-comment policy are per-tenant settings.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/blog",
       "dir": "modules/blog",
       "icon": "fas fa-newspaper",
       "tags": [
@@ -3540,6 +3729,9 @@
       "name": "Messaging",
       "version": "1.0.0",
       "description": "Tenant-scoped real-time messaging: 1-1 and group conversations, persisted messages with soft-delete, read/delivery cursors, typing + presence, participant roles. HTTP for writes, a standalone Socket.IO service for realtime fan-out via Redis pub/sub.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/messaging",
       "dir": "modules/messaging",
       "icon": "fas fa-comments",
       "tags": [
@@ -3611,6 +3803,9 @@
       "name": "Terms & Consent",
       "version": "1.0.0",
       "description": "Legal agreements + consent. Versioned, immutable, hash-stamped agreement documents (terms of use, privacy/KVKK, distance-selling, pre-information, refund policy, cookie, custom) with an append-only acceptance ledger. Reusable agreements record version+hash on acceptance; order-specific documents (distance-selling/pre-information) are rendered per order and stored verbatim. Also keeps the cookie-consent banner + per-purpose consent ledger. Checkout integration enforces required agreement acceptance before payment. Data export/erasure stays with tenant_export.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/terms_consent",
       "dir": "modules/terms_consent",
       "icon": "fas fa-file-contract",
       "tags": [
@@ -3678,6 +3873,9 @@
       "name": "Wallet",
       "version": "1.0.0",
       "description": "Internal credit / wallet ledger. Double-entry accounting where every movement is a balanced transaction whose signed postings sum to zero, with per-account tamper-evident hash chains, peer-to-peer credit transfers, issue/spend flows, and booking capture/refund. Balances are integer minor units; chain verification + reconciliation included.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/wallet",
       "dir": "modules/wallet",
       "icon": "fas fa-wallet",
       "tags": [
@@ -3741,6 +3939,9 @@
       "name": "Feature Flags",
       "version": "1.0.0",
       "description": "Tenant-scoped feature flags with master switch, deterministic percentage rollout, attribute-based targeting rules, and per-subject (user/segment) overrides. Read-through cached for hot-path evaluation; every write is audit-logged.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/feature_flags",
       "dir": "modules/feature_flags",
       "icon": "fas fa-toggle-on",
       "tags": [
@@ -3797,6 +3998,9 @@
       "name": "Metering",
       "version": "1.0.0",
       "description": "Event-based usage metering with metered / overage billing. Records immutable usage events per meter (SUM/MAX/LAST aggregation), keeps a Redis hot counter for fast current-period reads, and settles overages on a two-rail model: prepaid wallet credits are debited first, the remainder is invoiced as a draft. Quantities and money are integer minor units; runs are idempotent and persisted.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/metering",
       "dir": "modules/metering",
       "icon": "fas fa-gauge-high",
       "tags": [
@@ -3865,6 +4069,9 @@
       "name": "Support Desk",
       "version": "1.0.0",
       "description": "Customer support-ticket desk. Customers open support tickets with per-tenant monotonic ticket numbers (e.g. TICK-2026-00001), agent assignment, internal agent-only notes, threaded messages, and first-response + resolution SLA tracking. Ticket status flows OPEN → PENDING (agent replied) → RESOLVED → CLOSED; the first agent reply records the first-response time. Lifecycle changes are written to the append-only audit log; requesters/agents are notified in-app and webhooks fire on each event.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/support",
       "dir": "modules/support",
       "icon": "fas fa-life-ring",
       "tags": [
@@ -3927,6 +4134,9 @@
       "name": "Approval Queue",
       "version": "1.0.0",
       "description": "Generic, entity-agnostic moderation / approval queue. Any owning module can route an entity through human review via the queue (keyed by entityType + entityId) with a tamper-evident per-tenant decision hash chain and an in-memory decision-handler hook. Open items are PENDING / IN_REVIEW / ESCALATED; terminal items are APPROVED / REJECTED, with a partial unique index enforcing at most one open item per entity and SLA-by-priority due dates. Every decision is recorded in the append-only audit log; submitters are notified in-app and webhooks fire on each lifecycle event.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/approval",
       "dir": "modules/approval",
       "icon": "fas fa-clipboard-check",
       "tags": [
@@ -3988,6 +4198,9 @@
       "name": "Gift Card",
       "version": "1.0.0",
       "description": "Prepaid gift cards: issue (single + bulk) hash-protected codes, track redeemable balance, and redeem into a user's wallet. Redemption posts a wallet credit in the card's currency; supports partial redemption, void, admin balance adjustment, and an expiry sweep. Builds on wallet (credit) and payment (purchase-backed issuing).",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/gift_card",
       "dir": "modules/gift_card",
       "icon": "fas fa-gift",
       "tags": [
@@ -4052,6 +4265,9 @@
       "name": "AI",
       "version": "1.0.0",
       "description": "Pluggable AI providers (Anthropic, OpenAI, Google). Chat, embeddings, streaming, usage tracking.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/ai",
       "dir": "modules/ai",
       "icon": "fas fa-robot",
       "tags": [
@@ -4102,6 +4318,9 @@
       "name": "Dynamic Pages",
       "version": "1.0.0",
       "description": "Tenant-aware block-based page builder with i18n support. Supports code blocks (Prose, Hero, Popup Modal, Custom) and custom HTML template blocks. Public pages served at /tenant/[tenantId]/p/[slug].",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/dynamic_page",
       "dir": "modules/dynamic_page",
       "icon": "fas fa-file-alt",
       "tags": [
@@ -4169,6 +4388,9 @@
       "name": "Integrations Hub",
       "version": "1.0.0",
       "description": "Third-party connector hub (Zapier-like). Owns a per-tenant connector catalog, connection state, and encrypted OAuth tokens. Outbound triggers bridge onto the webhook module (signing/retry/circuit-breaker reused); inbound actions authenticate via the api_key module. OAuth2 authorization-code + refresh flows with AES-256-GCM token storage.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/integrations_hub",
       "dir": "modules/integrations_hub",
       "icon": "fas fa-plug",
       "tags": [
@@ -4237,6 +4459,9 @@
       "name": "Search",
       "version": "1.0.0",
       "description": "Tenant-scoped full-text search over arbitrary content. Owning modules push documents (title/body/url/metadata keyed by entityType+entityId); the default PostgreSQL FTS provider ranks results with ts_rank and returns ts_headline snippets. Provider abstraction leaves room for Meilisearch/Elastic. All queries are parameterized and tenant-scoped.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/search",
       "dir": "modules/search",
       "icon": "fas fa-magnifying-glass",
       "tags": [
@@ -4290,6 +4515,9 @@
       "name": "Analytics",
       "version": "1.0.0",
       "description": "Tenant-scoped product analytics: append-only event tracking (page views, signups, custom events) plus aggregate reads — top-line summary (total events, unique users/sessions, top events), GROUP BY date_trunc timeseries with dense gap-filling, and top-events. Tracking works for anonymous visitors; summaries are short-cached in Redis. Distinct from metering (billing) and observability (ops metrics).",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/analytics",
       "dir": "modules/analytics",
       "icon": "fas fa-chart-line",
       "tags": [
@@ -4344,6 +4572,9 @@
       "name": "API Documentation",
       "version": "1.0.0",
       "description": "OpenAPI/Swagger spec builder + helpers for serving per-tenant API docs.",
+      "author": "Kuray Karaaslan",
+      "license": "",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/api_doc",
       "dir": "modules/api_doc",
       "icon": "fas fa-book",
       "tags": [
@@ -4386,6 +4617,9 @@
       "name": "payment_core",
       "version": "0.0.0",
       "description": "",
+      "author": "",
+      "license": "",
+      "homepage": "",
       "dir": "modules/payment_core",
       "tags": [],
       "priority": 100,

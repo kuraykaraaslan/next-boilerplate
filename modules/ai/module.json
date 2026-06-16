@@ -5,9 +5,23 @@
   "description": "Pluggable AI providers (Anthropic, OpenAI, Google). Chat, embeddings, streaming, usage tracking.",
   "version": "1.0.0",
   "icon": "fas fa-robot",
-  "tags": ["platform", "ai"],
+  "tags": [
+    "platform",
+    "ai"
+  ],
   "priority": 50,
-  "dependencies": { "requires": ["env", "setting"] },
-  "settings": { "keys": "AI_KEYS" },
-  "settingKeys": ["AI_KEYS"]
+  "dependencies": {
+    "requires": [
+      "env",
+      "setting"
+    ]
+  },
+  "settings": {
+    "keys": "AI_KEYS"
+  },
+  "settingKeys": [
+    "AI_KEYS"
+  ],
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/ai"
 }

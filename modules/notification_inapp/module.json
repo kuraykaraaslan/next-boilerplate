@@ -5,7 +5,17 @@
   "description": "In-app notification feed with unread counts. Consumed by the notification menu in the app shell.",
   "version": "1.0.0",
   "icon": "fas fa-bell",
-  "tags": ["notifications", "in-app"],
+  "tags": [
+    "notifications",
+    "in-app"
+  ],
   "priority": 30,
-  "dependencies": { "requires": ["db", "user"] }
+  "dependencies": {
+    "requires": [
+      "db",
+      "user"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/notification_inapp"
 }

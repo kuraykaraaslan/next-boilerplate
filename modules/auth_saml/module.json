@@ -5,7 +5,28 @@
   "description": "SAML 2.0 SSO with per-tenant IdP config (SamlConfig): signature alg, dual-cert rotation, encrypted assertions, SLO, JIT-atomic provisioning, ABAC role mapping, metadata import, replay detection.",
   "version": "1.1.0",
   "icon": "fas fa-building-shield",
-  "tags": ["identity", "auth", "sso", "enterprise"],
+  "tags": [
+    "identity",
+    "auth",
+    "sso",
+    "enterprise"
+  ],
   "priority": 16,
-  "dependencies": { "requires": ["db", "user", "user_session", "tenant", "env", "setting", "audit_log", "observability", "redis", "common", "logger"] }
+  "dependencies": {
+    "requires": [
+      "db",
+      "user",
+      "user_session",
+      "tenant",
+      "env",
+      "setting",
+      "audit_log",
+      "observability",
+      "redis",
+      "common",
+      "logger"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_saml"
 }

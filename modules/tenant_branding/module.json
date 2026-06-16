@@ -5,8 +5,22 @@
   "description": "White-label branding: logo, favicon, colors, font, custom CSS — read by the proxy/shell to render per-tenant chrome.",
   "version": "1.0.0",
   "icon": "fas fa-palette",
-  "tags": ["tenant", "branding", "white-label"],
+  "tags": [
+    "tenant",
+    "branding",
+    "white-label"
+  ],
   "priority": 23,
-  "dependencies": { "requires": ["db", "tenant_setting", "storage"] },
-  "settingKeys": ["BRANDING_KEYS"]
+  "dependencies": {
+    "requires": [
+      "db",
+      "tenant_setting",
+      "storage"
+    ]
+  },
+  "settingKeys": [
+    "BRANDING_KEYS"
+  ],
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/tenant_branding"
 }

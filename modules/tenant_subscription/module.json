@@ -5,9 +5,27 @@
   "description": "Tenant subscription state, plan + feature key resolution, grace period, expiry job.",
   "version": "1.0.0",
   "icon": "fas fa-credit-card",
-  "tags": ["tenant", "billing"],
+  "tags": [
+    "tenant",
+    "billing"
+  ],
   "priority": 24,
-  "dependencies": { "requires": ["db", "tenant", "payment", "redis", "env"] },
-  "settings": { "keys": "SUBSCRIPTION_KEYS" },
-  "settingKeys": ["SUBSCRIPTION_KEYS", "FEATURE_KEYS"]
+  "dependencies": {
+    "requires": [
+      "db",
+      "tenant",
+      "payment",
+      "redis",
+      "env"
+    ]
+  },
+  "settings": {
+    "keys": "SUBSCRIPTION_KEYS"
+  },
+  "settingKeys": [
+    "SUBSCRIPTION_KEYS",
+    "FEATURE_KEYS"
+  ],
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/tenant_subscription"
 }

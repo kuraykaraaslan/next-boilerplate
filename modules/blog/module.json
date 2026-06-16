@@ -5,9 +5,23 @@
   "description": "Tenant-scoped blog with posts, categories and threaded comments. Posts have a draft/published/archived lifecycle; comment moderation and anonymous-comment policy are per-tenant settings.",
   "version": "1.0.0",
   "icon": "fas fa-newspaper",
-  "tags": ["blog", "content", "cms", "comments", "moderation"],
+  "tags": [
+    "blog",
+    "content",
+    "cms",
+    "comments",
+    "moderation"
+  ],
   "priority": 44,
   "dependencies": {
-    "requires": ["db", "env", "redis", "logger", "setting"]
-  }
+    "requires": [
+      "db",
+      "env",
+      "redis",
+      "logger",
+      "setting"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/blog"
 }

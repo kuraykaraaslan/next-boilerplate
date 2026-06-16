@@ -5,15 +5,53 @@
   "description": "Pluggable payment processing (Stripe, PayPal, Iyzico) + subscription plans, plan features, payment transactions, webhook handling.",
   "version": "1.0.0",
   "icon": "fas fa-credit-card",
-  "tags": ["billing", "payment"],
+  "tags": [
+    "billing",
+    "payment"
+  ],
   "priority": 25,
-  "dependencies": { "requires": ["db", "env", "setting", "common"] },
-  "settings": { "keys": "PAYMENT_KEYS" },
-  "settingKeys": ["PAYMENT_KEYS"],
+  "dependencies": {
+    "requires": [
+      "db",
+      "env",
+      "setting",
+      "common"
+    ]
+  },
+  "settings": {
+    "keys": "PAYMENT_KEYS"
+  },
+  "settingKeys": [
+    "PAYMENT_KEYS"
+  ],
   "menu": [
-    { "id": "plans", "label": "Plans", "href": "/admin/plans", "icon": "fas fa-credit-card", "group": "Commerce", "order": 10, "scope": "tenant" },
-    { "id": "payments", "label": "Payments", "href": "/admin/payments", "icon": "fas fa-credit-card", "group": "Commerce", "order": 11, "scope": "tenant" },
-    { "id": "invoices", "label": "Invoices", "href": "/admin/invoices", "icon": "fas fa-file-invoice", "group": "Commerce", "order": 12, "scope": "tenant" }
+    {
+      "id": "plans",
+      "label": "Plans",
+      "href": "/admin/plans",
+      "icon": "fas fa-credit-card",
+      "group": "Commerce",
+      "order": 10,
+      "scope": "tenant"
+    },
+    {
+      "id": "payments",
+      "label": "Payments",
+      "href": "/admin/payments",
+      "icon": "fas fa-credit-card",
+      "group": "Commerce",
+      "order": 11,
+      "scope": "tenant"
+    },
+    {
+      "id": "invoices",
+      "label": "Invoices",
+      "href": "/admin/invoices",
+      "icon": "fas fa-file-invoice",
+      "group": "Commerce",
+      "order": 12,
+      "scope": "tenant"
+    }
   ],
   "slots": [
     {
@@ -21,7 +59,11 @@
       "component": "payment/ui/BillingProfileTab",
       "order": 50,
       "scope": "both",
-      "props": { "label": "Billing" }
+      "props": {
+        "label": "Billing"
+      }
     }
-  ]
+  ],
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment"
 }

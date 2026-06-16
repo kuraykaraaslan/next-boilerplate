@@ -5,7 +5,20 @@
   "description": "Tenant-aware wishlists / favorites. Users keep multiple named lists of products and variants, with optional public sharing via a share token.",
   "version": "1.0.0",
   "icon": "fas fa-heart",
-  "tags": ["wishlist", "ecommerce", "favorites"],
+  "tags": [
+    "wishlist",
+    "ecommerce",
+    "favorites"
+  ],
   "priority": 32,
-  "dependencies": { "requires": ["db", "env", "redis", "logger"] }
+  "dependencies": {
+    "requires": [
+      "db",
+      "env",
+      "redis",
+      "logger"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_wishlist"
 }

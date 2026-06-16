@@ -146,6 +146,10 @@
       "type": "array",
       "items": { "type": "string" },
       "description": "Setting keys owned by this module"
+    },
+    "homepage": {
+      "type": "string",
+      "description": "Module/plugin website or documentation URL"
     }
   },
   "definitions": {

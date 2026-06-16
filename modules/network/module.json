@@ -5,9 +5,16 @@
   "description": "Network primitives: subnet (CIDR) allowlist matching, address classification, and the shared types/enums for IP-based access control. Dependency-free leaf module.",
   "version": "1.0.0",
   "icon": "fas fa-network-wired",
-  "tags": ["infrastructure", "core", "leaf", "security"],
+  "tags": [
+    "infrastructure",
+    "core",
+    "leaf",
+    "security"
+  ],
   "priority": 2,
-  "dependencies": { "requires": [] },
+  "dependencies": {
+    "requires": []
+  },
   "exports": {
     "ipMatchesAllowlist": "network.ip.ts",
     "ipInSubnet": "network.ip.ts",
@@ -18,5 +25,7 @@
     "SubnetSchema": "network.types.ts",
     "SubnetListSchema": "network.types.ts",
     "IpVersionEnum": "network.enums.ts"
-  }
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/network"
 }

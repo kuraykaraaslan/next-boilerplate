@@ -5,7 +5,18 @@
   "description": "Subscriber-configured outbound webhooks (tenant-scoped; root tenant carries platform-wide events), signed deliveries, retry+redelivery.",
   "version": "1.0.0",
   "icon": "fas fa-rss",
-  "tags": ["platform", "integration"],
+  "tags": [
+    "platform",
+    "integration"
+  ],
   "priority": 40,
-  "dependencies": { "requires": ["db", "redis", "env"] }
+  "dependencies": {
+    "requires": [
+      "db",
+      "redis",
+      "env"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/webhook"
 }

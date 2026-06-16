@@ -5,7 +5,19 @@
   "description": "Core user CRUD: create, find, update, deactivate. Foundation for every auth and tenancy flow.",
   "version": "1.0.0",
   "icon": "fas fa-user",
-  "tags": ["identity", "core"],
+  "tags": [
+    "identity",
+    "core"
+  ],
   "priority": 10,
-  "dependencies": { "requires": ["db", "env", "logger", "common"] }
+  "dependencies": {
+    "requires": [
+      "db",
+      "env",
+      "logger",
+      "common"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/user"
 }

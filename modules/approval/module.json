@@ -5,9 +5,25 @@
   "description": "Generic, entity-agnostic moderation / approval queue. Any owning module can route an entity through human review via the queue (keyed by entityType + entityId) with a tamper-evident per-tenant decision hash chain and an in-memory decision-handler hook. Open items are PENDING / IN_REVIEW / ESCALATED; terminal items are APPROVED / REJECTED, with a partial unique index enforcing at most one open item per entity and SLA-by-priority due dates. Every decision is recorded in the append-only audit log; submitters are notified in-app and webhooks fire on each lifecycle event.",
   "version": "1.0.0",
   "icon": "fas fa-clipboard-check",
-  "tags": ["approval", "moderation", "queue", "review", "back-office"],
+  "tags": [
+    "approval",
+    "moderation",
+    "queue",
+    "review",
+    "back-office"
+  ],
   "priority": 49,
   "dependencies": {
-    "requires": ["db", "env", "logger", "common", "webhook", "audit_log", "notification_inapp"]
-  }
+    "requires": [
+      "db",
+      "env",
+      "logger",
+      "common",
+      "webhook",
+      "audit_log",
+      "notification_inapp"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/approval"
 }

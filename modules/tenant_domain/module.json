@@ -5,7 +5,19 @@
   "description": "Custom domain mapping per tenant + DNS verification (TXT/CNAME challenge).",
   "version": "1.0.0",
   "icon": "fas fa-globe",
-  "tags": ["tenant", "domain", "infrastructure"],
+  "tags": [
+    "tenant",
+    "domain",
+    "infrastructure"
+  ],
   "priority": 23,
-  "dependencies": { "requires": ["db", "tenant", "env"] }
+  "dependencies": {
+    "requires": [
+      "db",
+      "tenant",
+      "env"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/tenant_domain"
 }

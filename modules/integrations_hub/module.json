@@ -5,9 +5,28 @@
   "description": "Third-party connector hub (Zapier-like). Owns a per-tenant connector catalog, connection state, and encrypted OAuth tokens. Outbound triggers bridge onto the webhook module (signing/retry/circuit-breaker reused); inbound actions authenticate via the api_key module. OAuth2 authorization-code + refresh flows with AES-256-GCM token storage.",
   "version": "1.0.0",
   "icon": "fas fa-plug",
-  "tags": ["platform", "integrations", "oauth", "webhook", "developer"],
+  "tags": [
+    "platform",
+    "integrations",
+    "oauth",
+    "webhook",
+    "developer"
+  ],
   "priority": 54,
   "dependencies": {
-    "requires": ["db", "env", "logger", "common", "redis", "webhook", "api_key", "setting", "tenant_subscription", "audit_log"]
-  }
+    "requires": [
+      "db",
+      "env",
+      "logger",
+      "common",
+      "redis",
+      "webhook",
+      "api_key",
+      "setting",
+      "tenant_subscription",
+      "audit_log"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/integrations_hub"
 }

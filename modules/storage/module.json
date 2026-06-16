@@ -5,9 +5,30 @@
   "description": "Pluggable S3-compatible file storage (AWS S3, Cloudflare R2, DigitalOcean Spaces, MinIO) with content-derived MIME validation and optional online virus scanning (VirusTotal).",
   "version": "1.1.0",
   "icon": "fas fa-cloud-arrow-up",
-  "tags": ["platform", "storage", "security"],
+  "tags": [
+    "platform",
+    "storage",
+    "security"
+  ],
   "priority": 10,
-  "dependencies": { "requires": ["env", "setting"], "optional": ["redis", "tenant_usage", "user_agent"] },
-  "settings": { "keys": "STORAGE_KEYS" },
-  "settingKeys": ["STORAGE_KEYS", "STORAGE_SCAN_KEYS"]
+  "dependencies": {
+    "requires": [
+      "env",
+      "setting"
+    ],
+    "optional": [
+      "redis",
+      "tenant_usage",
+      "user_agent"
+    ]
+  },
+  "settings": {
+    "keys": "STORAGE_KEYS"
+  },
+  "settingKeys": [
+    "STORAGE_KEYS",
+    "STORAGE_SCAN_KEYS"
+  ],
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/storage"
 }

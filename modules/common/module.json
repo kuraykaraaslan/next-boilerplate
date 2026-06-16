@@ -5,9 +5,16 @@
   "description": "Dependency-free leaf module loaded by every other module: AppError + ErrorCode enum (with retryable flag, statusCodeFor/isRetryable helpers) plus shared locale, country, currency, timezone, Money, pagination and log-context primitives.",
   "version": "1.1.0",
   "icon": "fas fa-cube",
-  "tags": ["infrastructure", "core", "leaf", "i18n"],
+  "tags": [
+    "infrastructure",
+    "core",
+    "leaf",
+    "i18n"
+  ],
   "priority": 1,
-  "dependencies": { "requires": [] },
+  "dependencies": {
+    "requires": []
+  },
   "exports": {
     "AppError": "app-error.ts",
     "ErrorCode": "app-error.ts",
@@ -53,5 +60,7 @@
     "PaginationInput": "common.pagination.ts",
     "paginate": "common.pagination.ts",
     "LogContext": "common.log-context.ts"
-  }
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/common"
 }

@@ -5,7 +5,17 @@
   "description": "Per-user preferences: theme, language, timezone, notification opt-ins.",
   "version": "1.0.0",
   "icon": "fas fa-sliders",
-  "tags": ["identity", "ux"],
+  "tags": [
+    "identity",
+    "ux"
+  ],
   "priority": 11,
-  "dependencies": { "requires": ["db", "user"] }
+  "dependencies": {
+    "requires": [
+      "db",
+      "user"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/user_preferences"
 }

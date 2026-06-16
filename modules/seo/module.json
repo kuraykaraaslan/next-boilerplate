@@ -5,7 +5,17 @@
   "description": "Polymorphic SEO metadata (title, description, Open Graph, canonical, noIndex) attachable to any entity type via entityType + entityId pair.",
   "version": "1.0.0",
   "icon": "fas fa-search",
-  "tags": ["seo", "metadata"],
+  "tags": [
+    "seo",
+    "metadata"
+  ],
   "priority": 35,
-  "dependencies": { "requires": ["db", "redis"] }
+  "dependencies": {
+    "requires": [
+      "db",
+      "redis"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/seo"
 }

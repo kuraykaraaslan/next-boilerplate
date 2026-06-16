@@ -5,7 +5,17 @@
   "description": "TCMB (Turkish Central Bank) FX rates with Redis caching. Converts plan prices to TRY when charging Turkish cards via iyzico.",
   "version": "1.0.0",
   "icon": "fas fa-money-bill-transfer",
-  "tags": ["billing", "fx"],
+  "tags": [
+    "billing",
+    "fx"
+  ],
   "priority": 27,
-  "dependencies": { "requires": ["redis", "common"] }
+  "dependencies": {
+    "requires": [
+      "redis",
+      "common"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/exchange_rate"
 }

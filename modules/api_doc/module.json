@@ -5,6 +5,16 @@
   "description": "OpenAPI/Swagger spec builder + helpers for serving per-tenant API docs.",
   "version": "1.0.0",
   "icon": "fas fa-book",
-  "tags": ["platform", "documentation"],
-  "dependencies": { "requires": ["env", "setting"] }
+  "tags": [
+    "platform",
+    "documentation"
+  ],
+  "dependencies": {
+    "requires": [
+      "env",
+      "setting"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/api_doc"
 }

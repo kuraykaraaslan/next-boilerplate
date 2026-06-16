@@ -5,7 +5,20 @@
   "description": "Tenant-scoped session handling: bind a user session to a specific tenant, resolve tenant from request.",
   "version": "1.0.0",
   "icon": "fas fa-id-badge",
-  "tags": ["tenant", "auth"],
+  "tags": [
+    "tenant",
+    "auth"
+  ],
   "priority": 22,
-  "dependencies": { "requires": ["db", "redis", "user_session", "tenant", "env"] }
+  "dependencies": {
+    "requires": [
+      "db",
+      "redis",
+      "user_session",
+      "tenant",
+      "env"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/tenant_session"
 }

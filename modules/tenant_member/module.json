@@ -5,7 +5,17 @@
   "description": "Tenant-scoped membership join table with roles (owner/admin/member) and per-member permissions.",
   "version": "1.0.0",
   "icon": "fas fa-users",
-  "tags": ["tenant"],
+  "tags": [
+    "tenant"
+  ],
   "priority": 21,
-  "dependencies": { "requires": ["db", "tenant", "user"] }
+  "dependencies": {
+    "requires": [
+      "db",
+      "tenant",
+      "user"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/tenant_member"
 }
