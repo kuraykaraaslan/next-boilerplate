@@ -1,0 +1,11 @@
+{
+  "name": "@nb/payment_manual",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/manual.extension": "./server/manual.extension.ts",
+    "./server/providers/manual.provider": "./server/providers/manual.provider.ts",
+    "./module.json": "./module.json"
+  }
+}

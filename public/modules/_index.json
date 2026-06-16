@@ -998,6 +998,22 @@
     "componentCount": 0,
     "file": "payment_iyzico.md"
   },
+  "payment_manual": {
+    "name": "Cash / Wire (Manual)",
+    "tier": "other",
+    "tags": [
+      "billing",
+      "payment",
+      "gateway",
+      "offline",
+      "manual"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 0,
+    "componentCount": 0,
+    "file": "payment_manual.md"
+  },
   "payment_paypal": {
     "name": "PayPal Gateway",
     "tier": "other",

@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T21:34:32.266Z",
+  "generatedAt": "2026-06-16T21:49:54.623Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -6136,6 +6136,70 @@
         "./server/providers/iyzico.client",
         "./server/providers/iyzico.coupon.adapter",
         "./server/providers/iyzico.provider",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "payment_manual",
+      "name": "Cash / Wire (Manual)",
+      "version": "1.0.0",
+      "description": "Offline settlement gateway for cash or bank wire. Records the payment as PENDING and shows operator-authored instructions (the manualPaymentNote setting); an operator marks it paid once funds arrive. Contributed into the payment:gateway extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_manual",
+      "dir": "modules/payment_manual",
+      "icon": "fas fa-money-bill-wave",
+      "tags": [
+        "billing",
+        "payment",
+        "gateway",
+        "offline",
+        "manual"
+      ],
+      "priority": 26,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "payment",
+          "setting",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "payment:gateway",
+          "key": "manual",
+          "export": "payment_manual/server/manual.extension",
+          "metadata": {
+            "label": "Cash / Wire"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/manual.extension",
+        "./server/providers/manual.provider",
         "./module.json"
       ],
       "settingsTabs": [],

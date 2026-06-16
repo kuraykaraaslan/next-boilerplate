@@ -81,6 +81,7 @@ const ENABLED_KEY: Record<PaymentProvider, string> = {
   STRIPE: 'stripeEnabled', PAYPAL: 'paypalEnabled', IYZICO: 'iyzicoEnabled',
   ALIPAY: 'alipayEnabled', WECHATPAY: 'wechatPayEnabled',
   YOOKASSA: 'yookassaEnabled', CLOUDPAYMENTS: 'cloudpaymentsEnabled',
+  MANUAL: 'manualEnabled',
 };
 
 /**

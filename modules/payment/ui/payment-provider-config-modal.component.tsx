@@ -3,14 +3,14 @@ import { useState, useEffect } from 'react';
 import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStripe, faPaypal, faAlipay, faWeixin } from '@fortawesome/free-brands-svg-icons';
-import { faCreditCard, faStar } from '@fortawesome/free-solid-svg-icons';
+import { faCreditCard, faStar, faMoneyBillWave } from '@fortawesome/free-solid-svg-icons';
 import { Modal } from '@nb/common/ui/modal.component';
 import { Button } from '@nb/common/ui/button.component';
 import { Input } from '@nb/common/ui/input.component';
 import { Toggle } from '@nb/common/ui/toggle.component';
 import type { SR } from '@nb/setting/ui/settings-kit.component';
 
-type FieldType = 'text' | 'password' | 'toggle';
+type FieldType = 'text' | 'password' | 'toggle' | 'textarea';
 export interface ProviderField {
   key: string;
   label: string;
@@ -112,6 +112,17 @@ export const PAYMENT_PROVIDERS: ProviderDef[] = [
       { key: 'cloudpaymentsApiSecret', label: 'API Secret', type: 'password' },
     ],
   },
+  {
+    key: 'manual', name: 'Cash / Wire', enabledKey: 'manualEnabled', icon: faMoneyBillWave, tint: 'text-success-fg',
+    region: 'Offline', description: 'Cash or bank transfer, settled manually.',
+    fields: [
+      {
+        key: 'manualPaymentNote', label: 'Payment Instructions', type: 'textarea',
+        placeholder: 'e.g. Wire to IBAN TR00 0000 …  /  Pay cash on delivery',
+        help: 'Shown to the customer at checkout. The payment stays pending until an operator marks it paid.',
+      },
+    ],
+  },
 ];
 
 const toBool = (v: unknown) => v === true || v === 'true';
@@ -199,6 +210,16 @@ export function PaymentProviderConfigModal({
             f.type === 'toggle' ? (
               <Toggle key={f.key} id={f.key} label={f.label} size="sm"
                 checked={toBool(form[f.key])} onChange={(v) => set(f.key, v)} />
+            ) : f.type === 'textarea' ? (
+              <div key={f.key} className="space-y-1">
+                <label htmlFor={f.key} className="block text-sm font-medium text-text-primary">{f.label}</label>
+                <textarea id={f.key} rows={4} value={String(form[f.key] ?? '')} placeholder={f.placeholder}
+                  onChange={(e) => set(f.key, e.target.value)}
+                  className="block w-full rounded-md border border-border bg-surface-base px-3 py-2 text-sm text-text-primary
+                             placeholder:text-text-disabled transition-colors focus-visible:outline-none
+                             focus-visible:ring-2 focus-visible:ring-border-focus resize-y" />
+                {f.help && <p className="text-xs text-text-secondary">{f.help}</p>}
+              </div>
             ) : (
               <div key={f.key}>
                 <Input id={f.key} label={f.label} type={f.type === 'password' ? 'password' : 'text'}

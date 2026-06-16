@@ -60,6 +60,7 @@ export const moduleExtensions: Record<string, () => Promise<ExtensionModule>> = 
   "payment_cloudpayments:payment:gateway:cloudpayments": () => import("@nb/payment_cloudpayments/server/cloudpayments.extension") as Promise<ExtensionModule>,
   "payment_iyzico:payment:coupon:iyzico": () => import("@nb/payment_iyzico/server/iyzico.coupon.extension") as Promise<ExtensionModule>,
   "payment_iyzico:payment:gateway:iyzico": () => import("@nb/payment_iyzico/server/iyzico.extension") as Promise<ExtensionModule>,
+  "payment_manual:payment:gateway:manual": () => import("@nb/payment_manual/server/manual.extension") as Promise<ExtensionModule>,
   "payment_paypal:payment:coupon:paypal": () => import("@nb/payment_paypal/server/paypal.coupon.extension") as Promise<ExtensionModule>,
   "payment_paypal:payment:gateway:paypal": () => import("@nb/payment_paypal/server/paypal.extension") as Promise<ExtensionModule>,
   "payment_stripe:payment:coupon:stripe": () => import("@nb/payment_stripe/server/stripe.coupon.extension") as Promise<ExtensionModule>,

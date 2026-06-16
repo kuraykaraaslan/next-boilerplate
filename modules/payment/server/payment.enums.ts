@@ -10,6 +10,9 @@ export const PaymentProviderEnum = z.enum([
   'WECHATPAY',
   'YOOKASSA',
   'CLOUDPAYMENTS',
+  // Offline / manual settlement (cash, bank wire). No online processing — the
+  // payment is recorded PENDING and an operator marks it paid once funds arrive.
+  'MANUAL',
 ])
 
 // Payment Status - matches Prisma PaymentStatus enum
