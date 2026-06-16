@@ -1,0 +1,11 @@
+{
+  "name": "@nb/auth_acs_de_eid",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/de_eid.extension": "./server/de_eid.extension.ts",
+    "./server/providers/de_eid.provider": "./server/providers/de_eid.provider.ts",
+    "./module.json": "./module.json"
+  }
+}

@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T18:21:39.255Z",
+  "generatedAt": "2026-06-16T20:11:00.408Z",
   "entities": [
     {
       "name": "Agreement",

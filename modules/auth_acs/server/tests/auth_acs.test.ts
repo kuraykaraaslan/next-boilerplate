@@ -66,31 +66,31 @@ describe('auth_acs config resolution', () => {
 });
 
 describe('provider registry completeness', () => {
-  it('has a factory for every enum value', () => {
+  it('has a factory for every enum value', async () => {
     for (const provider of AcsProviderEnum.options) {
-      const svc = getAcsProvider(provider);
+      const svc = await getAcsProvider(provider);
       expect(svc.protocol === 'saml' || svc.protocol === 'oidc').toBe(true);
     }
   });
 });
 
 describe('SAML attribute mapping (built on the shared auth_saml engine)', () => {
-  it('reads configured attribute names', () => {
-    const svc = getAcsProvider('tr_edevlet') as unknown as { mapAssertion: (a: SamlValidatedAssertion) => any };
+  it('reads configured attribute names', async () => {
+    const svc = (await getAcsProvider('tr_edevlet')) as unknown as { mapAssertion: (a: SamlValidatedAssertion) => any };
     const mapped = svc.mapAssertion(assertion({ tckn: '11111111110', ad: 'Ayşe', soyad: 'Yılmaz' }));
     expect(mapped.nationalId).toBe('11111111110');
     expect(mapped.firstName).toBe('Ayşe');
     expect(mapped.lastName).toBe('Yılmaz');
   });
 
-  it('falls back to NameID when the national-id attribute is absent', () => {
-    const svc = getAcsProvider('tr_edevlet') as unknown as { mapAssertion: (a: SamlValidatedAssertion) => any };
+  it('falls back to NameID when the national-id attribute is absent', async () => {
+    const svc = (await getAcsProvider('tr_edevlet')) as unknown as { mapAssertion: (a: SamlValidatedAssertion) => any };
     const mapped = svc.mapAssertion(assertion({}, '22222222220'));
     expect(mapped.nationalId).toBe('22222222220');
   });
 
-  it('SPID strips the TINIT- prefix from fiscalNumber', () => {
-    const svc = getAcsProvider('it_spid') as unknown as { mapAssertion: (a: SamlValidatedAssertion) => any };
+  it('SPID strips the TINIT- prefix from fiscalNumber', async () => {
+    const svc = (await getAcsProvider('it_spid')) as unknown as { mapAssertion: (a: SamlValidatedAssertion) => any };
     const mapped = svc.mapAssertion(assertion({ fiscalNumber: 'TINIT-RSSMRA80A01H501U' }));
     expect(mapped.nationalId).toBe('RSSMRA80A01H501U');
   });

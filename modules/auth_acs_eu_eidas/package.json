@@ -1,0 +1,11 @@
+{
+  "name": "@nb/auth_acs_eu_eidas",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/eu_eidas.extension": "./server/eu_eidas.extension.ts",
+    "./server/providers/eu_eidas.provider": "./server/providers/eu_eidas.provider.ts",
+    "./module.json": "./module.json"
+  }
+}

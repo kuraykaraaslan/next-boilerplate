@@ -1,0 +1,11 @@
+{
+  "name": "@nb/auth_acs_esia_ru",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/esia_ru.extension": "./server/esia_ru.extension.ts",
+    "./server/providers/esia_ru.provider": "./server/providers/esia_ru.provider.ts",
+    "./module.json": "./module.json"
+  }
+}

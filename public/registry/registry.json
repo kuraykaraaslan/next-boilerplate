@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T18:21:39.255Z",
+  "generatedAt": "2026-06-16T20:11:00.408Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -2433,7 +2433,13 @@
       ],
       "widgets": [],
       "slots": [],
-      "extensionPoints": [],
+      "extensionPoints": [
+        {
+          "id": "auth_acs:provider",
+          "kind": "provider",
+          "description": "A national/government digital-identity (SAML or OIDC) provider implementation. Satellite modules like auth_acs_tr_edevlet contribute their provider here; the host discovers them via the extension registry. Provider descriptors and per-tenant config stay in the host's ACS_CATALOG / config service."
+        }
+      ],
       "extensions": [],
       "pkgExports": [
         "./server/acs-provider-callback.route",
@@ -2445,26 +2451,14 @@
         "./server/auth_acs.enums",
         "./server/auth_acs.flow.service",
         "./server/auth_acs.messages",
+        "./server/auth_acs.provider.types",
         "./server/auth_acs.relay",
         "./server/auth_acs.service",
         "./server/auth_acs.types",
-        "./server/providers/az_mygovid.provider",
         "./server/providers/base.oidc.provider",
         "./server/providers/base.saml.provider",
-        "./server/providers/ct_edevlet.provider",
-        "./server/providers/de_eid.provider",
-        "./server/providers/es_clave.provider",
-        "./server/providers/esia_ru.provider",
-        "./server/providers/eu_eidas.provider",
         "./server/providers/index",
         "./server/providers",
-        "./server/providers/it_spid.provider",
-        "./server/providers/kg_tunduk.provider",
-        "./server/providers/kz_egov.provider",
-        "./server/providers/tr_edevlet.provider",
-        "./server/providers/us_id_me.provider",
-        "./server/providers/us_login_gov.provider",
-        "./server/providers/uz_oneid.provider",
         "./module.json"
       ],
       "settingsTabs": [],
@@ -3710,6 +3704,890 @@
       "hasModuleJson": true,
       "hasNextLayer": false,
       "readme": "# Scim Module\n\nSCIM 2.0 — System for Cross-domain Identity Management, RFC [7643] (core\nschema) and RFC [7644] (protocol). A provisioning bridge that lets enterprise\nIdPs (Okta, Azure AD / Entra ID, OneLogin, Google Workspace) auto-provision and\ndeprovision members of a tenant onto the shared `User` + per-tenant\n`TenantMember` model. Every operation is keyed by the request `tenantId` and\nrouted through the per-tenant DataSource.\n\n[7643]: https://datatracker.ietf.org/doc/html/rfc7643\n[7644]: https://datatracker.ietf.org/doc/html/rfc7644\n\n---\n\n## Entities\n\nSCIM owns no tables of its own. It reads/writes two entities owned by other\nmodules:\n\n| Entity | Table | DB | Description |\n|---|---|---|---|\n| `User` | `users` | system | Cross-tenant identity. Created (with a throwaway bcrypt password) on first provision; **never** deleted by SCIM. Read from `getDataSource()`. |\n| `TenantMember` | `tenant_members` | tenant | Membership row that SCIM provisions/deprovisions. Carries `externalId`, `memberStatus`, `memberRole`. Resolved via `tenantDataSourceFor(tenantId)`. |\n\nA SCIM `User.id` maps to `TenantMember.tenantMemberId`, so the same person can\nbe provisioned independently across tenants.\n\n---\n\n## Attribute mapping\n\n| SCIM attribute | Internal field |\n| ------------------------------- | --------------------------------------- |\n| `User.id` | `TenantMember.tenantMemberId` |\n| `User.userName` | `User.email` |\n| `User.externalId` | `TenantMember.externalId` |\n| `User.emails[primary].value` | `User.email` |\n| `User.active` | `TenantMember.memberStatus` (`ACTIVE` / `INACTIVE`) |\n| `meta.location` | `/tenant/{tenantId}/api/scim/v2/Users/{id}` |\n| `meta.version` | Weak ETag (`W/\"…\"`) derived from `updatedAt` (SHA-1) |\n\n`name.givenName` / `name.familyName` / `displayName` are accepted but **dropped**\n(silent no-op) — the `User` entity has no name fields yet. Deletion is a **soft\ndelete** on `TenantMember` (sets `memberStatus = INACTIVE` and `deletedAt`); the\ncross-tenant `User` row is never removed because other tenants may still depend\non it.\n\n---\n\n## Service — `ScimService`\n\nAll methods are static and resolve member rows through\n`tenantDataSourceFor(tenantId)`, constraining every query with `tenantId` and\n`deletedAt: IsNull()`.\n\n| Method | Responsibility |\n|---|---|\n| `listUsers(tenantId, query)` | Paginated list (RFC 7644 §3.4.2). Supports `eq` filters on `userName` / `externalId`; maps `userName` to a global `User` lookup then constrains by `userId`. |\n| `getUser(tenantId, id)` | Fetch one member + its `User`; `404` if missing or tenant-mismatched. |\n| `createUser(tenantId, input)` | Find-or-create the shared `User` by email (random bcrypt password — SCIM users sign in via SSO), then create a `TenantMember`. `409 uniqueness` if membership already exists. Defaults `memberRole = 'USER'`, status `ACTIVE` unless `active: false`. Writes a `scim.user.created` audit log. |\n| `updateUser(tenantId, id, input)` | Full replace (PUT). Updates email (with cross-user collision check → `409`), `externalId`, `active`. Audit: `scim.user.updated`. |\n| `patchUser(tenantId, id, ops)` | Partial update (PATCH). Handles both Azure-style pathless `{ value: { active } }` ops and Okta-style explicit paths (`active`, `userName`, `emails[primary eq true].value`, `externalId`). Name/displayName paths are accepted as no-ops; unknown paths → `400 invalidPath`. Audit: `scim.user.patched`. |\n| `deleteUser(tenantId, id)` | Soft-delete the `TenantMember` (deprovision); preserves the `User`. Audit: `scim.user.deleted`. |\n| `listGroups(tenantId, query)` | Stub — always returns an empty `ListResponse` (ignores `tenantId`). |\n\n`parseFilter` and `buildMeta`/`toScimUser` are private helpers. Filtering\nsupports only equality on `userName` and `externalId`; anything else throws\n`400 invalidFilter` per RFC 7644 §3.4.2.2.\n\n### Supporting files\n\n- `scim.types.ts` — Zod schemas + types (`ScimUser`, `ScimGroup`,\n  `ScimListResponse`, `ScimPatchOperation`, …), the `SCIM_SCHEMAS` URN map,\n  `SCIM_CONTENT_TYPE` (`application/scim+json`), `SCIM_ERROR_TYPES`, and\n  `SCIM_PAGINATION` (`DEFAULT_START_INDEX 1`, `DEFAULT_COUNT 100`, `MAX_COUNT 200`).\n- `scim.dto.ts` — request DTOs: `CreateScimUserDTO`, `UpdateScimUserDTO`,\n  `ListScimUsersDTO`, and `PatchScimUserDTO` (re-exported `ScimPatchBodySchema`).\n  Unknown fields are silently dropped.\n- `scim.errors.ts` — `scimError` / `scimResponse` / `scimNoContent` response\n  builders that emit RFC-7644-compliant bodies with the SCIM content type.\n- `scim.messages.ts` — human-readable `detail` strings for error bodies.\n\n---\n\n## API Routes\n\nAll under `/tenant/{tenantId}/api/scim/v2`. **Tenant-scoped, API-key auth.**\n\n| Method | Path | Scope | Description |\n|---|---|---|---|\n| GET | `/Users` | `scim:read` | List users (`filter`, `startIndex`, `count`). |\n| POST | `/Users` | `scim:write` | Create user → `201` + `Location` + `ETag`. |\n| GET | `/Users/{scimUserId}` | `scim:read` | Get a user (+ `ETag`). |\n| PUT | `/Users/{scimUserId}` | `scim:write` | Full replace. |\n| PATCH | `/Users/{scimUserId}` | `scim:write` | Partial update. |\n| DELETE | `/Users/{scimUserId}` | `scim:write` | Deprovision → `204`. |\n| GET | `/Groups` | `scim:read` | Empty list (stub). |\n| POST | `/Groups` | `scim:write` | `501 Not Implemented`. |\n| GET | `/Groups/{scimGroupId}` | `scim:read` | `404` (stub — stops Okta from looping). |\n| PUT/PATCH/DELETE | `/Groups/{scimGroupId}` | `scim:write` | `501 Not Implemented`. |\n| GET | `/ServiceProviderConfig` | public | Capability discovery (RFC 7643 §5). |\n| GET | `/ResourceTypes` | public | `User` + `Group` resource types (RFC 7643 §6). |\n| GET | `/Schemas` | public | `User` + `Group` attribute definitions (RFC 7643 §7). |\n\nDiscovery endpoints (`ServiceProviderConfig`, `ResourceTypes`, `Schemas`) are\nunauthenticated because IdPs typically probe them before exchanging credentials.\n\n---\n\n## Authentication\n\nAll `Users` / `Groups` endpoints require `Authorization: Bearer <api-key>`\n(RFC 7644 §2), verified by\n`ApiKeyService.verifyFromAuthHeader(request, tenantId, scope)`. The key must:\n\n1. Belong to the tenant in the URL (`key.tenantId === tenantId`).\n2. Carry the `scim:read` scope (GETs) or `scim:write` scope (POST/PUT/PATCH/DELETE).\n\nAny failure returns `401` with an `INVALID_BEARER_TOKEN` SCIM error body.\n\nCreate a key from the tenant admin UI (Settings → SCIM Provisioning) or:\n\n```bash\ncurl -X POST /tenant/$TENANT_ID/api/api-keys \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"name\":\"Okta SCIM\",\"scopes\":[\"scim:read\",\"scim:write\"]}'\n```\n\nThe raw key (`sk_live_…`) is returned **once**.\n\n---\n\n## Quick start — Okta\n\n1. *Applications → your app → Provisioning → Integration → To App*.\n2. **SCIM connector base URL**: `https://app.example.com/tenant/<TENANT_ID>/api/scim/v2`\n3. **Unique identifier field**: `userName`\n4. **Authentication mode**: HTTP Header `Authorization: Bearer <key>`\n5. Enable *Create Users*, *Update User Attributes*, *Deactivate Users*.\n\n## Quick start — Azure AD (Entra ID)\n\n1. *Enterprise applications → your app → Provisioning → Edit attribute mappings*.\n2. **Tenant URL**: `https://app.example.com/tenant/<TENANT_ID>/api/scim/v2`\n3. **Secret token**: paste the raw key.\n4. *Test connection* → save.\n\n---\n\n## Supported filters\n\nOnly equality on `userName` and `externalId`:\n\n```\n?filter=userName eq \"alice@example.com\"\n?filter=externalId eq \"okta-123\"\n```\n\nAnything else returns `400 invalidFilter` per RFC 7644 §3.4.2.2.\n\n## Pagination\n\nSCIM uses **1-based** `startIndex`. Defaults: `startIndex=1`, `count=100`,\nmax `count=200` (`SCIM_PAGINATION` in `scim.types.ts`). We translate to TypeORM\n`skip = startIndex - 1`.\n\n---\n\n## Settings\n\nThis module exposes **no per-tenant settings keys**. The Settings → *SCIM\nProvisioning* admin page (`/tenant/[tenantId]/admin/settings/scim`, `PlatformScimTab`)\nis purely an onboarding surface: it shows the tenant's SCIM base URL and lets an\nadmin mint/revoke SCIM-scoped API keys (it lists `api-keys` whose scopes start\nwith `scim:`). The pagination caps in `SCIM_PAGINATION` are hardcoded constants,\nnot configurable settings.\n\n---\n\n## Tenant Variability\n\n> What varies per tenant in this module — and what could. Audited 2026-06-03.\n\nA SCIM 2.0 provisioning bridge that lets enterprise IdPs auto-provision/deprovision tenant members onto the User + TenantMember model; it is structurally tenant-scoped (every operation keyed by the request tenantId and routed through tenantDataSourceFor) but exposes no per-tenant settings of its own.\n\n### Tenant-scoped data\n\n| Entity | Table | Tenant-variable columns |\n|---|---|---|\n| `TenantMember` | `tenant_members` | externalId, memberStatus, memberRole |\n\nAll rows isolated by `tenantId` via the per-tenant DataSource.\n\n### Per-tenant behavior\n\n- `scim.service.ts` — All CRUD (listUsers/getUser/createUser/updateUser/patchUser/deleteUser) resolves TenantMember rows via tenantDataSourceFor(tenantId) and constrains every query with where.tenantId, so each tenant provisions and deprovisions its own member set in its own DB; the shared User row is read from getDataSource() and never deleted because other tenants may depend on it.\n- `scim.service.ts:createUser` — Membership uniqueness is enforced per tenant (existing lookup on tenantId+userId), and externalId uniqueness is per-tenant via the (tenantId, externalId) index on TenantMember, so the same IdP-provisioned person can co-exist independently across tenants.\n- `Users/route.ts` — SCIM access is gated per tenant by ApiKeyService.verifyFromAuthHeader(request, tenantId, 'scim:read'|'scim:write'); the bearer API key must belong to the URL's tenantId (key.tenantId === tenantId) and carry the scim scope, so whether SCIM is usable at all depends on each tenant minting a scoped API key.\n\n### Candidates (global / hardcoded today → could be per-tenant)\n\n| What | Where | Why per-tenant | Suggested key |\n|---|---|---|---|\n| SCIM pagination caps (DEFAULT_COUNT 100, MAX_COUNT 200) and the filter maxResults advertised in ServiceProviderConfig are hardcoded constants applied to every tenant | `scim.types.ts:SCIM_PAGINATION (consumed in scim.service.ts:listUsers and ServiceProviderConfig/route.ts)` | Large enterprise tenants may need higher page sizes while smaller tenants benefit from tighter caps; today the limit is global and not tenant-tunable | `scimMaxPageCount` |\n| Groups endpoints are permanently stubbed to return an empty list for all tenants (listGroups ignores tenantId) | `scim.service.ts:listGroups` | Some tenants' IdP profiles require SCIM Groups; a per-tenant feature gate would let group provisioning be enabled selectively rather than globally disabled | `scimGroupsEnabled` |\n| Inbound SCIM name fields (name.givenName / name.familyName / displayName) are silently accepted and dropped for every tenant | `scim.service.ts:patchUser (and createUser/updateUser ignoring input.name)` | Tenants that map IdP display-name attributes expect them persisted; whether to store/sync names could be a per-tenant provisioning policy rather than a hardcoded no-op | `scimSyncUserNames` |\n| Default role/status for SCIM-provisioned members is hardcoded (memberRole 'USER', User.userRole 'USER', status ACTIVE unless active:false) | `scim.service.ts:createUser` | A tenant may want IdP-provisioned members to land in a specific default role or in a pending/invited state; this default is global today | `scimDefaultMemberRole` |\n\n---\n\n## Dependencies\n\n`requires`: `db`, `user`, `tenant_member`, `api_key`, `audit_log`. SCIM also\nwrites a `scim.user.*` entry through `AuditLogService` on every create/update/\npatch/delete.\n"
+    },
+    {
+      "id": "auth_acs_az_mygovid",
+      "name": "MyGov ID (AZ)",
+      "version": "1.0.0",
+      "description": "MyGov ID national-identity provider, contributed into the auth_acs:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_az_mygovid",
+      "dir": "modules/auth_acs_az_mygovid",
+      "icon": "fas fa-id-card",
+      "tags": [
+        "identity",
+        "auth",
+        "acs",
+        "government",
+        "provider"
+      ],
+      "priority": 18,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "auth_acs",
+          "auth_saml",
+          "auth_oidc",
+          "env",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "auth_acs:provider",
+          "key": "az_mygovid",
+          "export": "auth_acs_az_mygovid/server/az_mygovid.extension",
+          "metadata": {
+            "label": "MyGov ID",
+            "country": "AZ"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/az_mygovid.extension",
+        "./server/providers/az_mygovid.provider",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": ""
+    },
+    {
+      "id": "auth_acs_ct_edevlet",
+      "name": "e-Devlet (KKTC) ile Giriş (CT)",
+      "version": "1.0.0",
+      "description": "e-Devlet (KKTC) ile Giriş national-identity provider, contributed into the auth_acs:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_ct_edevlet",
+      "dir": "modules/auth_acs_ct_edevlet",
+      "icon": "fas fa-id-card",
+      "tags": [
+        "identity",
+        "auth",
+        "acs",
+        "government",
+        "provider"
+      ],
+      "priority": 18,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "auth_acs",
+          "auth_saml",
+          "auth_oidc",
+          "env",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "auth_acs:provider",
+          "key": "ct_edevlet",
+          "export": "auth_acs_ct_edevlet/server/ct_edevlet.extension",
+          "metadata": {
+            "label": "e-Devlet (KKTC) ile Giriş",
+            "country": "CT"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/ct_edevlet.extension",
+        "./server/providers/ct_edevlet.provider",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": ""
+    },
+    {
+      "id": "auth_acs_de_eid",
+      "name": "Online-Ausweis (eID) (DE)",
+      "version": "1.0.0",
+      "description": "Online-Ausweis (eID) national-identity provider, contributed into the auth_acs:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_de_eid",
+      "dir": "modules/auth_acs_de_eid",
+      "icon": "fas fa-id-card",
+      "tags": [
+        "identity",
+        "auth",
+        "acs",
+        "government",
+        "provider"
+      ],
+      "priority": 18,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "auth_acs",
+          "auth_saml",
+          "auth_oidc",
+          "env",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "auth_acs:provider",
+          "key": "de_eid",
+          "export": "auth_acs_de_eid/server/de_eid.extension",
+          "metadata": {
+            "label": "Online-Ausweis (eID)",
+            "country": "DE"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/de_eid.extension",
+        "./server/providers/de_eid.provider",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": ""
+    },
+    {
+      "id": "auth_acs_es_clave",
+      "name": "Cl@ve (ES)",
+      "version": "1.0.0",
+      "description": "Cl@ve national-identity provider, contributed into the auth_acs:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_es_clave",
+      "dir": "modules/auth_acs_es_clave",
+      "icon": "fas fa-id-card",
+      "tags": [
+        "identity",
+        "auth",
+        "acs",
+        "government",
+        "provider"
+      ],
+      "priority": 18,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "auth_acs",
+          "auth_saml",
+          "auth_oidc",
+          "env",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "auth_acs:provider",
+          "key": "es_clave",
+          "export": "auth_acs_es_clave/server/es_clave.extension",
+          "metadata": {
+            "label": "Cl@ve",
+            "country": "ES"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/es_clave.extension",
+        "./server/providers/es_clave.provider",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": ""
+    },
+    {
+      "id": "auth_acs_esia_ru",
+      "name": "Госуслуги (RU)",
+      "version": "1.0.0",
+      "description": "Госуслуги national-identity provider, contributed into the auth_acs:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_esia_ru",
+      "dir": "modules/auth_acs_esia_ru",
+      "icon": "fas fa-id-card",
+      "tags": [
+        "identity",
+        "auth",
+        "acs",
+        "government",
+        "provider"
+      ],
+      "priority": 18,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "auth_acs",
+          "auth_saml",
+          "auth_oidc",
+          "env",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "auth_acs:provider",
+          "key": "esia_ru",
+          "export": "auth_acs_esia_ru/server/esia_ru.extension",
+          "metadata": {
+            "label": "Госуслуги",
+            "country": "RU"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/esia_ru.extension",
+        "./server/providers/esia_ru.provider",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": ""
+    },
+    {
+      "id": "auth_acs_eu_eidas",
+      "name": "eIDAS (EU)",
+      "version": "1.0.0",
+      "description": "eIDAS national-identity provider, contributed into the auth_acs:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_eu_eidas",
+      "dir": "modules/auth_acs_eu_eidas",
+      "icon": "fas fa-id-card",
+      "tags": [
+        "identity",
+        "auth",
+        "acs",
+        "government",
+        "provider"
+      ],
+      "priority": 18,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "auth_acs",
+          "auth_saml",
+          "auth_oidc",
+          "env",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "auth_acs:provider",
+          "key": "eu_eidas",
+          "export": "auth_acs_eu_eidas/server/eu_eidas.extension",
+          "metadata": {
+            "label": "eIDAS",
+            "country": "EU"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/eu_eidas.extension",
+        "./server/providers/eu_eidas.provider",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": ""
+    },
+    {
+      "id": "auth_acs_it_spid",
+      "name": "Entra con SPID (IT)",
+      "version": "1.0.0",
+      "description": "Entra con SPID national-identity provider, contributed into the auth_acs:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_it_spid",
+      "dir": "modules/auth_acs_it_spid",
+      "icon": "fas fa-id-card",
+      "tags": [
+        "identity",
+        "auth",
+        "acs",
+        "government",
+        "provider"
+      ],
+      "priority": 18,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "auth_acs",
+          "auth_saml",
+          "auth_oidc",
+          "env",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "auth_acs:provider",
+          "key": "it_spid",
+          "export": "auth_acs_it_spid/server/it_spid.extension",
+          "metadata": {
+            "label": "Entra con SPID",
+            "country": "IT"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/it_spid.extension",
+        "./server/providers/it_spid.provider",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": ""
+    },
+    {
+      "id": "auth_acs_kg_tunduk",
+      "name": "Tunduk (KG)",
+      "version": "1.0.0",
+      "description": "Tunduk national-identity provider, contributed into the auth_acs:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_kg_tunduk",
+      "dir": "modules/auth_acs_kg_tunduk",
+      "icon": "fas fa-id-card",
+      "tags": [
+        "identity",
+        "auth",
+        "acs",
+        "government",
+        "provider"
+      ],
+      "priority": 18,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "auth_acs",
+          "auth_saml",
+          "auth_oidc",
+          "env",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "auth_acs:provider",
+          "key": "kg_tunduk",
+          "export": "auth_acs_kg_tunduk/server/kg_tunduk.extension",
+          "metadata": {
+            "label": "Tunduk",
+            "country": "KG"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/kg_tunduk.extension",
+        "./server/providers/kg_tunduk.provider",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": ""
+    },
+    {
+      "id": "auth_acs_kz_egov",
+      "name": "eGov.kz (KZ)",
+      "version": "1.0.0",
+      "description": "eGov.kz national-identity provider, contributed into the auth_acs:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_kz_egov",
+      "dir": "modules/auth_acs_kz_egov",
+      "icon": "fas fa-id-card",
+      "tags": [
+        "identity",
+        "auth",
+        "acs",
+        "government",
+        "provider"
+      ],
+      "priority": 18,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "auth_acs",
+          "auth_saml",
+          "auth_oidc",
+          "env",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "auth_acs:provider",
+          "key": "kz_egov",
+          "export": "auth_acs_kz_egov/server/kz_egov.extension",
+          "metadata": {
+            "label": "eGov.kz",
+            "country": "KZ"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/kz_egov.extension",
+        "./server/providers/kz_egov.provider",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": ""
+    },
+    {
+      "id": "auth_acs_tr_edevlet",
+      "name": "e-Devlet ile Giriş (TR)",
+      "version": "1.0.0",
+      "description": "e-Devlet ile Giriş national-identity provider, contributed into the auth_acs:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_tr_edevlet",
+      "dir": "modules/auth_acs_tr_edevlet",
+      "icon": "fas fa-id-card",
+      "tags": [
+        "identity",
+        "auth",
+        "acs",
+        "government",
+        "provider"
+      ],
+      "priority": 18,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "auth_acs",
+          "auth_saml",
+          "auth_oidc",
+          "env",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "auth_acs:provider",
+          "key": "tr_edevlet",
+          "export": "auth_acs_tr_edevlet/server/tr_edevlet.extension",
+          "metadata": {
+            "label": "e-Devlet ile Giriş",
+            "country": "TR"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/providers/tr_edevlet.provider",
+        "./server/tr_edevlet.extension",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": ""
+    },
+    {
+      "id": "auth_acs_us_id_me",
+      "name": "ID.me (US)",
+      "version": "1.0.0",
+      "description": "ID.me national-identity provider, contributed into the auth_acs:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_us_id_me",
+      "dir": "modules/auth_acs_us_id_me",
+      "icon": "fas fa-id-card",
+      "tags": [
+        "identity",
+        "auth",
+        "acs",
+        "government",
+        "provider"
+      ],
+      "priority": 18,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "auth_acs",
+          "auth_saml",
+          "auth_oidc",
+          "env",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "auth_acs:provider",
+          "key": "us_id_me",
+          "export": "auth_acs_us_id_me/server/us_id_me.extension",
+          "metadata": {
+            "label": "ID.me",
+            "country": "US"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/providers/us_id_me.provider",
+        "./server/us_id_me.extension",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": ""
+    },
+    {
+      "id": "auth_acs_us_login_gov",
+      "name": "Login.gov (US)",
+      "version": "1.0.0",
+      "description": "Login.gov national-identity provider, contributed into the auth_acs:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_us_login_gov",
+      "dir": "modules/auth_acs_us_login_gov",
+      "icon": "fas fa-id-card",
+      "tags": [
+        "identity",
+        "auth",
+        "acs",
+        "government",
+        "provider"
+      ],
+      "priority": 18,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "auth_acs",
+          "auth_saml",
+          "auth_oidc",
+          "env",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "auth_acs:provider",
+          "key": "us_login_gov",
+          "export": "auth_acs_us_login_gov/server/us_login_gov.extension",
+          "metadata": {
+            "label": "Login.gov",
+            "country": "US"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/providers/us_login_gov.provider",
+        "./server/us_login_gov.extension",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": ""
+    },
+    {
+      "id": "auth_acs_uz_oneid",
+      "name": "OneID (UZ)",
+      "version": "1.0.0",
+      "description": "OneID national-identity provider, contributed into the auth_acs:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_uz_oneid",
+      "dir": "modules/auth_acs_uz_oneid",
+      "icon": "fas fa-id-card",
+      "tags": [
+        "identity",
+        "auth",
+        "acs",
+        "government",
+        "provider"
+      ],
+      "priority": 18,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "auth_acs",
+          "auth_saml",
+          "auth_oidc",
+          "env",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "auth_acs:provider",
+          "key": "uz_oneid",
+          "export": "auth_acs_uz_oneid/server/uz_oneid.extension",
+          "metadata": {
+            "label": "OneID",
+            "country": "UZ"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/providers/uz_oneid.provider",
+        "./server/uz_oneid.extension",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": ""
     },
     {
       "id": "tenant",

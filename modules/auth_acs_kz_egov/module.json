@@ -1,0 +1,39 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "auth_acs_kz_egov",
+  "name": "eGov.kz (KZ)",
+  "description": "eGov.kz national-identity provider, contributed into the auth_acs:provider extension point.",
+  "version": "1.0.0",
+  "icon": "fas fa-id-card",
+  "tags": [
+    "identity",
+    "auth",
+    "acs",
+    "government",
+    "provider"
+  ],
+  "priority": 18,
+  "dependencies": {
+    "requires": [
+      "auth_acs",
+      "auth_saml",
+      "auth_oidc",
+      "env",
+      "common"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_kz_egov",
+  "license": "CC-BY-NC-ND-4.0",
+  "extensions": [
+    {
+      "point": "auth_acs:provider",
+      "key": "kz_egov",
+      "export": "auth_acs_kz_egov/server/kz_egov.extension",
+      "metadata": {
+        "label": "eGov.kz",
+        "country": "KZ"
+      }
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-16T18:21:39.255Z",
+  "generatedAt": "2026-06-16T20:11:00.408Z",
   "menu": [
     {
       "id": "settings",
@@ -2319,6 +2319,12 @@
       "moduleId": "ai"
     },
     {
+      "id": "auth_acs:provider",
+      "kind": "provider",
+      "description": "A national/government digital-identity (SAML or OIDC) provider implementation. Satellite modules like auth_acs_tr_edevlet contribute their provider here; the host discovers them via the extension registry. Provider descriptors and per-tenant config stay in the host's ACS_CATALOG / config service.",
+      "moduleId": "auth_acs"
+    },
+    {
       "id": "auth_sso:provider",
       "kind": "provider",
       "description": "An OAuth/OIDC SSO provider implementation. Satellite modules like auth_sso_google contribute their provider here; the host discovers them via the extension registry.",
@@ -2423,6 +2429,188 @@
           "o1-mini",
           "o1-preview"
         ]
+      }
+    },
+    {
+      "id": "auth_acs_az_mygovid:auth_acs:provider:az_mygovid",
+      "point": "auth_acs:provider",
+      "moduleId": "auth_acs_az_mygovid",
+      "key": "az_mygovid",
+      "exportId": "auth_acs_az_mygovid/server/az_mygovid.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "label": "MyGov ID",
+        "country": "AZ"
+      }
+    },
+    {
+      "id": "auth_acs_ct_edevlet:auth_acs:provider:ct_edevlet",
+      "point": "auth_acs:provider",
+      "moduleId": "auth_acs_ct_edevlet",
+      "key": "ct_edevlet",
+      "exportId": "auth_acs_ct_edevlet/server/ct_edevlet.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "label": "e-Devlet (KKTC) ile Giriş",
+        "country": "CT"
+      }
+    },
+    {
+      "id": "auth_acs_de_eid:auth_acs:provider:de_eid",
+      "point": "auth_acs:provider",
+      "moduleId": "auth_acs_de_eid",
+      "key": "de_eid",
+      "exportId": "auth_acs_de_eid/server/de_eid.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "label": "Online-Ausweis (eID)",
+        "country": "DE"
+      }
+    },
+    {
+      "id": "auth_acs_es_clave:auth_acs:provider:es_clave",
+      "point": "auth_acs:provider",
+      "moduleId": "auth_acs_es_clave",
+      "key": "es_clave",
+      "exportId": "auth_acs_es_clave/server/es_clave.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "label": "Cl@ve",
+        "country": "ES"
+      }
+    },
+    {
+      "id": "auth_acs_esia_ru:auth_acs:provider:esia_ru",
+      "point": "auth_acs:provider",
+      "moduleId": "auth_acs_esia_ru",
+      "key": "esia_ru",
+      "exportId": "auth_acs_esia_ru/server/esia_ru.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "label": "Госуслуги",
+        "country": "RU"
+      }
+    },
+    {
+      "id": "auth_acs_eu_eidas:auth_acs:provider:eu_eidas",
+      "point": "auth_acs:provider",
+      "moduleId": "auth_acs_eu_eidas",
+      "key": "eu_eidas",
+      "exportId": "auth_acs_eu_eidas/server/eu_eidas.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "label": "eIDAS",
+        "country": "EU"
+      }
+    },
+    {
+      "id": "auth_acs_it_spid:auth_acs:provider:it_spid",
+      "point": "auth_acs:provider",
+      "moduleId": "auth_acs_it_spid",
+      "key": "it_spid",
+      "exportId": "auth_acs_it_spid/server/it_spid.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "label": "Entra con SPID",
+        "country": "IT"
+      }
+    },
+    {
+      "id": "auth_acs_kg_tunduk:auth_acs:provider:kg_tunduk",
+      "point": "auth_acs:provider",
+      "moduleId": "auth_acs_kg_tunduk",
+      "key": "kg_tunduk",
+      "exportId": "auth_acs_kg_tunduk/server/kg_tunduk.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "label": "Tunduk",
+        "country": "KG"
+      }
+    },
+    {
+      "id": "auth_acs_kz_egov:auth_acs:provider:kz_egov",
+      "point": "auth_acs:provider",
+      "moduleId": "auth_acs_kz_egov",
+      "key": "kz_egov",
+      "exportId": "auth_acs_kz_egov/server/kz_egov.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "label": "eGov.kz",
+        "country": "KZ"
+      }
+    },
+    {
+      "id": "auth_acs_tr_edevlet:auth_acs:provider:tr_edevlet",
+      "point": "auth_acs:provider",
+      "moduleId": "auth_acs_tr_edevlet",
+      "key": "tr_edevlet",
+      "exportId": "auth_acs_tr_edevlet/server/tr_edevlet.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "label": "e-Devlet ile Giriş",
+        "country": "TR"
+      }
+    },
+    {
+      "id": "auth_acs_us_id_me:auth_acs:provider:us_id_me",
+      "point": "auth_acs:provider",
+      "moduleId": "auth_acs_us_id_me",
+      "key": "us_id_me",
+      "exportId": "auth_acs_us_id_me/server/us_id_me.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "label": "ID.me",
+        "country": "US"
+      }
+    },
+    {
+      "id": "auth_acs_us_login_gov:auth_acs:provider:us_login_gov",
+      "point": "auth_acs:provider",
+      "moduleId": "auth_acs_us_login_gov",
+      "key": "us_login_gov",
+      "exportId": "auth_acs_us_login_gov/server/us_login_gov.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "label": "Login.gov",
+        "country": "US"
+      }
+    },
+    {
+      "id": "auth_acs_uz_oneid:auth_acs:provider:uz_oneid",
+      "point": "auth_acs:provider",
+      "moduleId": "auth_acs_uz_oneid",
+      "key": "uz_oneid",
+      "exportId": "auth_acs_uz_oneid/server/uz_oneid.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "label": "OneID",
+        "country": "UZ"
       }
     },
     {
@@ -3182,6 +3370,266 @@
         "government"
       ],
       "priority": 17,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "auth_acs_az_mygovid",
+      "name": "MyGov ID (AZ)",
+      "icon": "fas fa-id-card",
+      "version": "1.0.0",
+      "description": "MyGov ID national-identity provider, contributed into the auth_acs:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_az_mygovid",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "identity",
+        "auth",
+        "acs",
+        "government",
+        "provider"
+      ],
+      "priority": 18,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "auth_acs_ct_edevlet",
+      "name": "e-Devlet (KKTC) ile Giriş (CT)",
+      "icon": "fas fa-id-card",
+      "version": "1.0.0",
+      "description": "e-Devlet (KKTC) ile Giriş national-identity provider, contributed into the auth_acs:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_ct_edevlet",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "identity",
+        "auth",
+        "acs",
+        "government",
+        "provider"
+      ],
+      "priority": 18,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "auth_acs_de_eid",
+      "name": "Online-Ausweis (eID) (DE)",
+      "icon": "fas fa-id-card",
+      "version": "1.0.0",
+      "description": "Online-Ausweis (eID) national-identity provider, contributed into the auth_acs:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_de_eid",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "identity",
+        "auth",
+        "acs",
+        "government",
+        "provider"
+      ],
+      "priority": 18,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "auth_acs_es_clave",
+      "name": "Cl@ve (ES)",
+      "icon": "fas fa-id-card",
+      "version": "1.0.0",
+      "description": "Cl@ve national-identity provider, contributed into the auth_acs:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_es_clave",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "identity",
+        "auth",
+        "acs",
+        "government",
+        "provider"
+      ],
+      "priority": 18,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "auth_acs_esia_ru",
+      "name": "Госуслуги (RU)",
+      "icon": "fas fa-id-card",
+      "version": "1.0.0",
+      "description": "Госуслуги national-identity provider, contributed into the auth_acs:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_esia_ru",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "identity",
+        "auth",
+        "acs",
+        "government",
+        "provider"
+      ],
+      "priority": 18,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "auth_acs_eu_eidas",
+      "name": "eIDAS (EU)",
+      "icon": "fas fa-id-card",
+      "version": "1.0.0",
+      "description": "eIDAS national-identity provider, contributed into the auth_acs:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_eu_eidas",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "identity",
+        "auth",
+        "acs",
+        "government",
+        "provider"
+      ],
+      "priority": 18,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "auth_acs_it_spid",
+      "name": "Entra con SPID (IT)",
+      "icon": "fas fa-id-card",
+      "version": "1.0.0",
+      "description": "Entra con SPID national-identity provider, contributed into the auth_acs:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_it_spid",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "identity",
+        "auth",
+        "acs",
+        "government",
+        "provider"
+      ],
+      "priority": 18,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "auth_acs_kg_tunduk",
+      "name": "Tunduk (KG)",
+      "icon": "fas fa-id-card",
+      "version": "1.0.0",
+      "description": "Tunduk national-identity provider, contributed into the auth_acs:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_kg_tunduk",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "identity",
+        "auth",
+        "acs",
+        "government",
+        "provider"
+      ],
+      "priority": 18,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "auth_acs_kz_egov",
+      "name": "eGov.kz (KZ)",
+      "icon": "fas fa-id-card",
+      "version": "1.0.0",
+      "description": "eGov.kz national-identity provider, contributed into the auth_acs:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_kz_egov",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "identity",
+        "auth",
+        "acs",
+        "government",
+        "provider"
+      ],
+      "priority": 18,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "auth_acs_tr_edevlet",
+      "name": "e-Devlet ile Giriş (TR)",
+      "icon": "fas fa-id-card",
+      "version": "1.0.0",
+      "description": "e-Devlet ile Giriş national-identity provider, contributed into the auth_acs:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_tr_edevlet",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "identity",
+        "auth",
+        "acs",
+        "government",
+        "provider"
+      ],
+      "priority": 18,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "auth_acs_us_id_me",
+      "name": "ID.me (US)",
+      "icon": "fas fa-id-card",
+      "version": "1.0.0",
+      "description": "ID.me national-identity provider, contributed into the auth_acs:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_us_id_me",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "identity",
+        "auth",
+        "acs",
+        "government",
+        "provider"
+      ],
+      "priority": 18,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "auth_acs_us_login_gov",
+      "name": "Login.gov (US)",
+      "icon": "fas fa-id-card",
+      "version": "1.0.0",
+      "description": "Login.gov national-identity provider, contributed into the auth_acs:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_us_login_gov",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "identity",
+        "auth",
+        "acs",
+        "government",
+        "provider"
+      ],
+      "priority": 18,
+      "enabled": true,
+      "tier": "other"
+    },
+    {
+      "id": "auth_acs_uz_oneid",
+      "name": "OneID (UZ)",
+      "icon": "fas fa-id-card",
+      "version": "1.0.0",
+      "description": "OneID national-identity provider, contributed into the auth_acs:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_uz_oneid",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "identity",
+        "auth",
+        "acs",
+        "government",
+        "provider"
+      ],
+      "priority": 18,
       "enabled": true,
       "tier": "other"
     },

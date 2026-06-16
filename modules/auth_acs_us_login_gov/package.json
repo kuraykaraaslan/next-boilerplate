@@ -1,0 +1,11 @@
+{
+  "name": "@nb/auth_acs_us_login_gov",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/providers/us_login_gov.provider": "./server/providers/us_login_gov.provider.ts",
+    "./server/us_login_gov.extension": "./server/us_login_gov.extension.ts",
+    "./module.json": "./module.json"
+  }
+}

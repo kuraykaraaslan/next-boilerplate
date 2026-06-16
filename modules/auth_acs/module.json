@@ -38,6 +38,13 @@
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs",
   "license": "CC-BY-NC-ND-4.0",
+  "extensionPoints": [
+    {
+      "id": "auth_acs:provider",
+      "kind": "provider",
+      "description": "A national/government digital-identity (SAML or OIDC) provider implementation. Satellite modules like auth_acs_tr_edevlet contribute their provider here; the host discovers them via the extension registry. Provider descriptors and per-tenant config stay in the host's ACS_CATALOG / config service."
+    }
+  ],
   "apiRoutes": [
     {
       "path": "/api/auth/acs",

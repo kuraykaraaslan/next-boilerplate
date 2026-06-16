@@ -1,0 +1,39 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "auth_acs_es_clave",
+  "name": "Cl@ve (ES)",
+  "description": "Cl@ve national-identity provider, contributed into the auth_acs:provider extension point.",
+  "version": "1.0.0",
+  "icon": "fas fa-id-card",
+  "tags": [
+    "identity",
+    "auth",
+    "acs",
+    "government",
+    "provider"
+  ],
+  "priority": 18,
+  "dependencies": {
+    "requires": [
+      "auth_acs",
+      "auth_saml",
+      "auth_oidc",
+      "env",
+      "common"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_es_clave",
+  "license": "CC-BY-NC-ND-4.0",
+  "extensions": [
+    {
+      "point": "auth_acs:provider",
+      "key": "es_clave",
+      "export": "auth_acs_es_clave/server/es_clave.extension",
+      "metadata": {
+        "label": "Cl@ve",
+        "country": "ES"
+      }
+    }
+  ]
+}

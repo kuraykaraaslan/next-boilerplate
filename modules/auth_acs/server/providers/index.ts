@@ -1,41 +1,30 @@
+import { extensionRegistry } from '@nb/common/server/extension-registry';
 import type { AcsProvider } from '../auth_acs.enums';
 import type { AcsProviderService } from '../auth_acs.types';
-import { TrEdevletProvider } from './tr_edevlet.provider';
-import { CtEdevletProvider } from './ct_edevlet.provider';
-import { EuEidasProvider } from './eu_eidas.provider';
-import { ItSpidProvider } from './it_spid.provider';
-import { EsClaveProvider } from './es_clave.provider';
-import { DeEidProvider } from './de_eid.provider';
-import { AzMygovidProvider } from './az_mygovid.provider';
-import { UzOneidProvider } from './uz_oneid.provider';
-import { KzEgovProvider } from './kz_egov.provider';
-import { KgTundukProvider } from './kg_tunduk.provider';
-import { UsLoginGovProvider } from './us_login_gov.provider';
-import { UsIdMeProvider } from './us_id_me.provider';
-import { EsiaProvider } from './esia_ru.provider';
+import type { AcsProviderContribution } from '../auth_acs.provider.types';
+
+const ACS_PROVIDER_POINT = 'auth_acs:provider';
+const providerInstances: Partial<Record<AcsProvider, AcsProviderService>> = {};
 
 /**
- * Type-safe national-identity provider registry. Adding a provider to
- * AcsProviderEnum without registering its factory here is a compile error.
- * Instances are NOT memoised (config is read per-construction so a config change
- * — e.g. in tests after mutating ACS_PROVIDER_MAP — takes effect immediately).
+ * Resolve the national-identity provider implementation for a key. Every
+ * provider lives in its own satellite module (auth_acs_<key>) and is discovered
+ * via the auth_acs:provider extension registry; instances are cached per key.
+ * Config is read per-construction inside the provider (so a config change — e.g.
+ * in tests after mutating ACS_PROVIDER_MAP — takes effect on the next resolve
+ * once the cache is reset).
  */
-const PROVIDER_FACTORIES: Record<AcsProvider, () => AcsProviderService> = {
-  tr_edevlet: () => new TrEdevletProvider(),
-  ct_edevlet: () => new CtEdevletProvider(),
-  eu_eidas: () => new EuEidasProvider(),
-  it_spid: () => new ItSpidProvider(),
-  es_clave: () => new EsClaveProvider(),
-  de_eid: () => new DeEidProvider(),
-  az_mygovid: () => new AzMygovidProvider(),
-  uz_oneid: () => new UzOneidProvider(),
-  kz_egov: () => new KzEgovProvider(),
-  kg_tunduk: () => new KgTundukProvider(),
-  us_login_gov: () => new UsLoginGovProvider(),
-  us_id_me: () => new UsIdMeProvider(),
-  esia_ru: () => new EsiaProvider(),
-};
+export async function getAcsProvider(provider: AcsProvider): Promise<AcsProviderService> {
+  const cached = providerInstances[provider];
+  if (cached) return cached;
 
-export function getAcsProvider(provider: AcsProvider): AcsProviderService {
-  return PROVIDER_FACTORIES[provider]();
+  const contrib = extensionRegistry
+    .getContributions(ACS_PROVIDER_POINT)
+    .find((c) => c.key === provider);
+  if (!contrib) throw new Error(`Unknown ACS provider: ${provider}`);
+
+  const impl = await extensionRegistry.load<AcsProviderContribution>(contrib);
+  const instance = impl.create();
+  providerInstances[provider] = instance;
+  return instance;
 }

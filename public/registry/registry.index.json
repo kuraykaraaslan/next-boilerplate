@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T18:21:39.255Z",
+  "generatedAt": "2026-06-16T20:11:00.408Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -2410,7 +2410,13 @@
       ],
       "widgets": [],
       "slots": [],
-      "extensionPoints": [],
+      "extensionPoints": [
+        {
+          "id": "auth_acs:provider",
+          "kind": "provider",
+          "description": "A national/government digital-identity (SAML or OIDC) provider implementation. Satellite modules like auth_acs_tr_edevlet contribute their provider here; the host discovers them via the extension registry. Provider descriptors and per-tenant config stay in the host's ACS_CATALOG / config service."
+        }
+      ],
       "extensions": [],
       "pkgExports": [
         "./server/acs-provider-callback.route",
@@ -2422,26 +2428,14 @@
         "./server/auth_acs.enums",
         "./server/auth_acs.flow.service",
         "./server/auth_acs.messages",
+        "./server/auth_acs.provider.types",
         "./server/auth_acs.relay",
         "./server/auth_acs.service",
         "./server/auth_acs.types",
-        "./server/providers/az_mygovid.provider",
         "./server/providers/base.oidc.provider",
         "./server/providers/base.saml.provider",
-        "./server/providers/ct_edevlet.provider",
-        "./server/providers/de_eid.provider",
-        "./server/providers/es_clave.provider",
-        "./server/providers/esia_ru.provider",
-        "./server/providers/eu_eidas.provider",
         "./server/providers/index",
         "./server/providers",
-        "./server/providers/it_spid.provider",
-        "./server/providers/kg_tunduk.provider",
-        "./server/providers/kz_egov.provider",
-        "./server/providers/tr_edevlet.provider",
-        "./server/providers/us_id_me.provider",
-        "./server/providers/us_login_gov.provider",
-        "./server/providers/uz_oneid.provider",
         "./module.json"
       ],
       "settingsTabs": [],
@@ -3666,6 +3660,877 @@
       "settingsTabs": [],
       "modulePermissions": [],
       "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "auth_acs_az_mygovid",
+      "name": "MyGov ID (AZ)",
+      "version": "1.0.0",
+      "description": "MyGov ID national-identity provider, contributed into the auth_acs:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_az_mygovid",
+      "dir": "modules/auth_acs_az_mygovid",
+      "icon": "fas fa-id-card",
+      "tags": [
+        "identity",
+        "auth",
+        "acs",
+        "government",
+        "provider"
+      ],
+      "priority": 18,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "auth_acs",
+          "auth_saml",
+          "auth_oidc",
+          "env",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "auth_acs:provider",
+          "key": "az_mygovid",
+          "export": "auth_acs_az_mygovid/server/az_mygovid.extension",
+          "metadata": {
+            "label": "MyGov ID",
+            "country": "AZ"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/az_mygovid.extension",
+        "./server/providers/az_mygovid.provider",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "auth_acs_ct_edevlet",
+      "name": "e-Devlet (KKTC) ile Giriş (CT)",
+      "version": "1.0.0",
+      "description": "e-Devlet (KKTC) ile Giriş national-identity provider, contributed into the auth_acs:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_ct_edevlet",
+      "dir": "modules/auth_acs_ct_edevlet",
+      "icon": "fas fa-id-card",
+      "tags": [
+        "identity",
+        "auth",
+        "acs",
+        "government",
+        "provider"
+      ],
+      "priority": 18,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "auth_acs",
+          "auth_saml",
+          "auth_oidc",
+          "env",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "auth_acs:provider",
+          "key": "ct_edevlet",
+          "export": "auth_acs_ct_edevlet/server/ct_edevlet.extension",
+          "metadata": {
+            "label": "e-Devlet (KKTC) ile Giriş",
+            "country": "CT"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/ct_edevlet.extension",
+        "./server/providers/ct_edevlet.provider",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "auth_acs_de_eid",
+      "name": "Online-Ausweis (eID) (DE)",
+      "version": "1.0.0",
+      "description": "Online-Ausweis (eID) national-identity provider, contributed into the auth_acs:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_de_eid",
+      "dir": "modules/auth_acs_de_eid",
+      "icon": "fas fa-id-card",
+      "tags": [
+        "identity",
+        "auth",
+        "acs",
+        "government",
+        "provider"
+      ],
+      "priority": 18,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "auth_acs",
+          "auth_saml",
+          "auth_oidc",
+          "env",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "auth_acs:provider",
+          "key": "de_eid",
+          "export": "auth_acs_de_eid/server/de_eid.extension",
+          "metadata": {
+            "label": "Online-Ausweis (eID)",
+            "country": "DE"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/de_eid.extension",
+        "./server/providers/de_eid.provider",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "auth_acs_es_clave",
+      "name": "Cl@ve (ES)",
+      "version": "1.0.0",
+      "description": "Cl@ve national-identity provider, contributed into the auth_acs:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_es_clave",
+      "dir": "modules/auth_acs_es_clave",
+      "icon": "fas fa-id-card",
+      "tags": [
+        "identity",
+        "auth",
+        "acs",
+        "government",
+        "provider"
+      ],
+      "priority": 18,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "auth_acs",
+          "auth_saml",
+          "auth_oidc",
+          "env",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "auth_acs:provider",
+          "key": "es_clave",
+          "export": "auth_acs_es_clave/server/es_clave.extension",
+          "metadata": {
+            "label": "Cl@ve",
+            "country": "ES"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/es_clave.extension",
+        "./server/providers/es_clave.provider",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "auth_acs_esia_ru",
+      "name": "Госуслуги (RU)",
+      "version": "1.0.0",
+      "description": "Госуслуги national-identity provider, contributed into the auth_acs:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_esia_ru",
+      "dir": "modules/auth_acs_esia_ru",
+      "icon": "fas fa-id-card",
+      "tags": [
+        "identity",
+        "auth",
+        "acs",
+        "government",
+        "provider"
+      ],
+      "priority": 18,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "auth_acs",
+          "auth_saml",
+          "auth_oidc",
+          "env",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "auth_acs:provider",
+          "key": "esia_ru",
+          "export": "auth_acs_esia_ru/server/esia_ru.extension",
+          "metadata": {
+            "label": "Госуслуги",
+            "country": "RU"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/esia_ru.extension",
+        "./server/providers/esia_ru.provider",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "auth_acs_eu_eidas",
+      "name": "eIDAS (EU)",
+      "version": "1.0.0",
+      "description": "eIDAS national-identity provider, contributed into the auth_acs:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_eu_eidas",
+      "dir": "modules/auth_acs_eu_eidas",
+      "icon": "fas fa-id-card",
+      "tags": [
+        "identity",
+        "auth",
+        "acs",
+        "government",
+        "provider"
+      ],
+      "priority": 18,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "auth_acs",
+          "auth_saml",
+          "auth_oidc",
+          "env",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "auth_acs:provider",
+          "key": "eu_eidas",
+          "export": "auth_acs_eu_eidas/server/eu_eidas.extension",
+          "metadata": {
+            "label": "eIDAS",
+            "country": "EU"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/eu_eidas.extension",
+        "./server/providers/eu_eidas.provider",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "auth_acs_it_spid",
+      "name": "Entra con SPID (IT)",
+      "version": "1.0.0",
+      "description": "Entra con SPID national-identity provider, contributed into the auth_acs:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_it_spid",
+      "dir": "modules/auth_acs_it_spid",
+      "icon": "fas fa-id-card",
+      "tags": [
+        "identity",
+        "auth",
+        "acs",
+        "government",
+        "provider"
+      ],
+      "priority": 18,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "auth_acs",
+          "auth_saml",
+          "auth_oidc",
+          "env",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "auth_acs:provider",
+          "key": "it_spid",
+          "export": "auth_acs_it_spid/server/it_spid.extension",
+          "metadata": {
+            "label": "Entra con SPID",
+            "country": "IT"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/it_spid.extension",
+        "./server/providers/it_spid.provider",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "auth_acs_kg_tunduk",
+      "name": "Tunduk (KG)",
+      "version": "1.0.0",
+      "description": "Tunduk national-identity provider, contributed into the auth_acs:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_kg_tunduk",
+      "dir": "modules/auth_acs_kg_tunduk",
+      "icon": "fas fa-id-card",
+      "tags": [
+        "identity",
+        "auth",
+        "acs",
+        "government",
+        "provider"
+      ],
+      "priority": 18,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "auth_acs",
+          "auth_saml",
+          "auth_oidc",
+          "env",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "auth_acs:provider",
+          "key": "kg_tunduk",
+          "export": "auth_acs_kg_tunduk/server/kg_tunduk.extension",
+          "metadata": {
+            "label": "Tunduk",
+            "country": "KG"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/kg_tunduk.extension",
+        "./server/providers/kg_tunduk.provider",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "auth_acs_kz_egov",
+      "name": "eGov.kz (KZ)",
+      "version": "1.0.0",
+      "description": "eGov.kz national-identity provider, contributed into the auth_acs:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_kz_egov",
+      "dir": "modules/auth_acs_kz_egov",
+      "icon": "fas fa-id-card",
+      "tags": [
+        "identity",
+        "auth",
+        "acs",
+        "government",
+        "provider"
+      ],
+      "priority": 18,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "auth_acs",
+          "auth_saml",
+          "auth_oidc",
+          "env",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "auth_acs:provider",
+          "key": "kz_egov",
+          "export": "auth_acs_kz_egov/server/kz_egov.extension",
+          "metadata": {
+            "label": "eGov.kz",
+            "country": "KZ"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/kz_egov.extension",
+        "./server/providers/kz_egov.provider",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "auth_acs_tr_edevlet",
+      "name": "e-Devlet ile Giriş (TR)",
+      "version": "1.0.0",
+      "description": "e-Devlet ile Giriş national-identity provider, contributed into the auth_acs:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_tr_edevlet",
+      "dir": "modules/auth_acs_tr_edevlet",
+      "icon": "fas fa-id-card",
+      "tags": [
+        "identity",
+        "auth",
+        "acs",
+        "government",
+        "provider"
+      ],
+      "priority": 18,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "auth_acs",
+          "auth_saml",
+          "auth_oidc",
+          "env",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "auth_acs:provider",
+          "key": "tr_edevlet",
+          "export": "auth_acs_tr_edevlet/server/tr_edevlet.extension",
+          "metadata": {
+            "label": "e-Devlet ile Giriş",
+            "country": "TR"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/providers/tr_edevlet.provider",
+        "./server/tr_edevlet.extension",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "auth_acs_us_id_me",
+      "name": "ID.me (US)",
+      "version": "1.0.0",
+      "description": "ID.me national-identity provider, contributed into the auth_acs:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_us_id_me",
+      "dir": "modules/auth_acs_us_id_me",
+      "icon": "fas fa-id-card",
+      "tags": [
+        "identity",
+        "auth",
+        "acs",
+        "government",
+        "provider"
+      ],
+      "priority": 18,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "auth_acs",
+          "auth_saml",
+          "auth_oidc",
+          "env",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "auth_acs:provider",
+          "key": "us_id_me",
+          "export": "auth_acs_us_id_me/server/us_id_me.extension",
+          "metadata": {
+            "label": "ID.me",
+            "country": "US"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/providers/us_id_me.provider",
+        "./server/us_id_me.extension",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "auth_acs_us_login_gov",
+      "name": "Login.gov (US)",
+      "version": "1.0.0",
+      "description": "Login.gov national-identity provider, contributed into the auth_acs:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_us_login_gov",
+      "dir": "modules/auth_acs_us_login_gov",
+      "icon": "fas fa-id-card",
+      "tags": [
+        "identity",
+        "auth",
+        "acs",
+        "government",
+        "provider"
+      ],
+      "priority": 18,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "auth_acs",
+          "auth_saml",
+          "auth_oidc",
+          "env",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "auth_acs:provider",
+          "key": "us_login_gov",
+          "export": "auth_acs_us_login_gov/server/us_login_gov.extension",
+          "metadata": {
+            "label": "Login.gov",
+            "country": "US"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/providers/us_login_gov.provider",
+        "./server/us_login_gov.extension",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false
+    },
+    {
+      "id": "auth_acs_uz_oneid",
+      "name": "OneID (UZ)",
+      "version": "1.0.0",
+      "description": "OneID national-identity provider, contributed into the auth_acs:provider extension point.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_uz_oneid",
+      "dir": "modules/auth_acs_uz_oneid",
+      "icon": "fas fa-id-card",
+      "tags": [
+        "identity",
+        "auth",
+        "acs",
+        "government",
+        "provider"
+      ],
+      "priority": 18,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "auth_acs",
+          "auth_saml",
+          "auth_oidc",
+          "env",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "auth_acs:provider",
+          "key": "uz_oneid",
+          "export": "auth_acs_uz_oneid/server/uz_oneid.extension",
+          "metadata": {
+            "label": "OneID",
+            "country": "UZ"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/providers/uz_oneid.provider",
+        "./server/uz_oneid.extension",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
       "hasModuleJson": true,
       "hasNextLayer": false
     },

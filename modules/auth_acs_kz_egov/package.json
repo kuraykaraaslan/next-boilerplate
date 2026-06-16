@@ -1,0 +1,11 @@
+{
+  "name": "@nb/auth_acs_kz_egov",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/kz_egov.extension": "./server/kz_egov.extension.ts",
+    "./server/providers/kz_egov.provider": "./server/providers/kz_egov.provider.ts",
+    "./module.json": "./module.json"
+  }
+}

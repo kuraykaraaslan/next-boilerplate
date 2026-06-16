@@ -22,18 +22,18 @@ export default class AuthAcsService {
   /** Build the IdP redirect URL. `relayState` round-trips tenant/link context. */
   static async generateAuthUrl(provider: AcsProvider, relayState: string): Promise<string> {
     AuthAcsConfigService.assertEnabled(provider);
-    return getAcsProvider(provider).generateAuthUrl(relayState);
+    return (await getAcsProvider(provider)).generateAuthUrl(relayState);
   }
 
   /** Validate the IdP callback into a normalised national-identity profile. */
   static async validateCallback(provider: AcsProvider, body: Record<string, string>): Promise<AcsProfile> {
     AuthAcsConfigService.assertEnabled(provider);
-    return getAcsProvider(provider).validateCallback(body);
+    return (await getAcsProvider(provider)).validateCallback(body);
   }
 
   /** SP metadata XML (SAML providers only). */
-  static generateMetadata(provider: AcsProvider): string {
-    const svc = getAcsProvider(provider);
+  static async generateMetadata(provider: AcsProvider): Promise<string> {
+    const svc = await getAcsProvider(provider);
     if (svc.protocol !== 'saml' || !svc.generateMetadata) {
       throw new AppError(AcsMessages.METADATA_UNAVAILABLE, 400, ErrorCode.VALIDATION_ERROR);
     }
