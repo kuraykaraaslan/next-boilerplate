@@ -1,0 +1,28 @@
+{
+  "id": "meta",
+  "name": "Meta (Llama)",
+  "version": "1.0.0",
+  "description": "Meta Llama chat provider via the Llama API (OpenAI-compatible), contributed into ai:provider — runs sandboxed.",
+  "icon": "fas fa-robot",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": ["http", "secrets"],
+    "httpAllowlist": ["api.llama.com"],
+    "limits": { "memoryMb": 64, "timeoutMs": 30000, "httpTimeoutMs": 28000, "httpMaxBytes": 4000000 }
+  },
+  "config": {
+    "secrets": [
+      { "key": "apiKey", "label": "API Key", "help": "Meta Llama API key (kept encrypted, used only host-side for signed egress)." }
+    ]
+  },
+  "extensions": [
+    {
+      "point": "ai:provider",
+      "key": "meta",
+      "metadata": {
+        "label": "Meta (Llama)",
+        "models": ["Llama-4-Maverick-17B-128E-Instruct-FP8", "Llama-4-Scout-17B-16E-Instruct-FP8", "Llama-3.3-70B-Instruct", "Llama-3.3-8B-Instruct"]
+      }
+    }
+  ]
+}

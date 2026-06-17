@@ -27,6 +27,7 @@ const transpilePackages = fs
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  reactStrictMode: false,
   transpilePackages,
   // The demo-reset cron reads `modules/db/migrations/*.sql` from disk at
   // runtime; fs reads aren't traced automatically, so include them explicitly

@@ -1,0 +1,28 @@
+{
+  "id": "kimi",
+  "name": "Kimi (Moonshot AI)",
+  "version": "1.0.0",
+  "description": "Kimi / Moonshot AI chat provider, contributed into ai:provider — runs sandboxed.",
+  "icon": "fas fa-robot",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": ["http", "secrets"],
+    "httpAllowlist": ["api.moonshot.ai"],
+    "limits": { "memoryMb": 64, "timeoutMs": 30000, "httpTimeoutMs": 28000, "httpMaxBytes": 2000000 }
+  },
+  "config": {
+    "secrets": [
+      { "key": "apiKey", "label": "API Key", "help": "Moonshot/Kimi API key (kept encrypted, used only host-side for signed egress)." }
+    ]
+  },
+  "extensions": [
+    {
+      "point": "ai:provider",
+      "key": "kimi",
+      "metadata": {
+        "label": "Kimi (Moonshot)",
+        "models": ["moonshot-v1-8k", "moonshot-v1-32k", "moonshot-v1-128k", "kimi-k2-0711-preview"]
+      }
+    }
+  ]
+}

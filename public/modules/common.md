@@ -30,6 +30,7 @@ Dependency-free leaf module loaded by every other module: AppError + ErrorCode e
 - `common/ui/drawer.component` _(ui, client)_
 - `common/ui/dynamic-admin-page.component` _(ui, client)_
 - `common/ui/empty-state.component` _(ui, client)_
+- `common/ui/error-screen.component` _(ui, client)_
 - `common/ui/file-input.component` _(ui, client)_
 - `common/ui/form.component` _(ui, client)_
 - `common/ui/generated/module-components` _(ui)_
@@ -41,6 +42,7 @@ Dependency-free leaf module loaded by every other module: AppError + ErrorCode e
 - `common/ui/layout/app-sidebar.component` _(ui, client)_
 - `common/ui/layout/app-top-bar.component` _(ui, client)_
 - `common/ui/layout/font-awesome-config.component` _(ui, client)_
+- `common/ui/loading-screen.component` _(ui)_
 - `common/ui/modal.component` _(ui, client)_
 - `common/ui/module-enabled.context.component` _(ui, client)_
 - `common/ui/notification-menu.component` _(ui, client)_
@@ -70,9 +72,7 @@ Dependency-free leaf module loaded by every other module: AppError + ErrorCode e
 - `common/ui/select.component` _(ui, client)_
 - `common/ui/server-data-table.component` _(ui, client)_
 - `common/ui/skeleton.component` _(ui, client)_
-- `common/ui/skip-to-content.component` _(ui, client)_
-- `common/ui/slot-error-boundary.component` _(ui, client)_
-- … and 8 more
+- … and 10 more
 
 ## README
 

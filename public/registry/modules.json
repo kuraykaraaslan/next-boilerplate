@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-17T10:20:03.264Z",
+  "generatedAt": "2026-06-17T21:28:52.349Z",
   "modules": [
     {
       "id": "common",
@@ -45,7 +45,13 @@
       "apiRoutes": [],
       "widgets": [],
       "slots": [],
-      "extensionPoints": [],
+      "extensionPoints": [
+        {
+          "id": "external:contributions",
+          "kind": "hook",
+          "description": "Runtime-discovered contribution sources (e.g. sandboxed community plugins). A contributor default-exports a source fn (tenantId, point) => ExternalContribution[]; hosts read it via listExternalContributions()."
+        }
+      ],
       "extensions": [],
       "pkgExports": [
         "./server/app-error",
@@ -60,6 +66,7 @@
         "./server/common.pagination",
         "./server/common.timezone",
         "./server/extension-registry",
+        "./server/external-extensions",
         "./server/field-encryption",
         "./server/module-entities",
         "./server/generated/api-handlers",
@@ -110,6 +117,8 @@
         "./ui/drawer.component",
         "./ui/dynamic-admin-page.component",
         "./ui/empty-state.component",
+        "./ui/error-screen.component",
+        "./ui/loading-screen.component",
         "./ui/file-input.component",
         "./ui/form.component",
         "./ui/generated/module-components",
@@ -715,15 +724,6 @@
           "group": "Configuration",
           "order": 1,
           "scope": "tenant"
-        },
-        {
-          "id": "modules",
-          "label": "Modules",
-          "href": "/admin/modules",
-          "icon": "fas fa-puzzle-piece",
-          "group": "Configuration",
-          "order": 5,
-          "scope": "tenant"
         }
       ],
       "adminRoutes": [
@@ -770,10 +770,6 @@
         {
           "path": "/admin/settings/storage",
           "component": "setting/ui/settings-storage.page"
-        },
-        {
-          "path": "/admin/modules",
-          "component": "setting/ui/modules.page"
         }
       ],
       "apiRoutes": [
@@ -835,9 +831,7 @@
         "./server/settings-public.route",
         "./server/settings.route",
         "./server/tests/setting.test-setup",
-        "./ui/module-manager-page.component",
         "./ui/module-settings-page.component",
-        "./ui/modules.page",
         "./ui/platform-settings-tabs.component",
         "./ui/setting.types",
         "./ui/settings-auth.page",
@@ -958,7 +952,6 @@
           "tenant",
           "storage",
           "plugin_runtime",
-          "ai",
           "common"
         ]
       },
@@ -981,7 +974,7 @@
       "menu": [
         {
           "id": "marketplace",
-          "label": "Marketplace",
+          "label": "Plugins",
           "href": "/admin/marketplace",
           "icon": "fas fa-store",
           "group": "Configuration",
@@ -1035,6 +1028,10 @@
           "handler": "marketplace/server/community-item.route"
         },
         {
+          "path": "/api/marketplace/plugins/[listingId]/config",
+          "handler": "marketplace/server/community-config.route"
+        },
+        {
           "path": "/api/marketplace/publisher",
           "handler": "marketplace/server/publisher.route"
         },
@@ -1070,7 +1067,15 @@
       "widgets": [],
       "slots": [],
       "extensionPoints": [],
-      "extensions": [],
+      "extensions": [
+        {
+          "point": "external:contributions",
+          "export": "marketplace/server/community-extensions.source",
+          "metadata": {
+            "label": "Community plugins"
+          }
+        }
+      ],
       "pkgExports": [
         "./module.json",
         "./server/entities/module_install.entity",
@@ -1087,11 +1092,12 @@
         "./server/listings-versions.route",
         "./server/community.route",
         "./server/community-item.route",
+        "./server/community-config.route",
         "./server/community-install.service.next",
+        "./server/plugin-config.service.next",
         "./server/plugin-resolve",
         "./server/community-providers",
-        "./server/community-ai.register",
-        "./server/isolated-ai-provider",
+        "./server/community-extensions.source",
         "./server/review.route",
         "./server/review-item.route",
         "./server/publishers-item.route",
@@ -3938,890 +3944,6 @@
       "hasModuleJson": true,
       "hasNextLayer": false,
       "readme": "# Scim Module\n\nSCIM 2.0 — System for Cross-domain Identity Management, RFC [7643] (core\nschema) and RFC [7644] (protocol). A provisioning bridge that lets enterprise\nIdPs (Okta, Azure AD / Entra ID, OneLogin, Google Workspace) auto-provision and\ndeprovision members of a tenant onto the shared `User` + per-tenant\n`TenantMember` model. Every operation is keyed by the request `tenantId` and\nrouted through the per-tenant DataSource.\n\n[7643]: https://datatracker.ietf.org/doc/html/rfc7643\n[7644]: https://datatracker.ietf.org/doc/html/rfc7644\n\n---\n\n## Entities\n\nSCIM owns no tables of its own. It reads/writes two entities owned by other\nmodules:\n\n| Entity | Table | DB | Description |\n|---|---|---|---|\n| `User` | `users` | system | Cross-tenant identity. Created (with a throwaway bcrypt password) on first provision; **never** deleted by SCIM. Read from `getDataSource()`. |\n| `TenantMember` | `tenant_members` | tenant | Membership row that SCIM provisions/deprovisions. Carries `externalId`, `memberStatus`, `memberRole`. Resolved via `tenantDataSourceFor(tenantId)`. |\n\nA SCIM `User.id` maps to `TenantMember.tenantMemberId`, so the same person can\nbe provisioned independently across tenants.\n\n---\n\n## Attribute mapping\n\n| SCIM attribute | Internal field |\n| ------------------------------- | --------------------------------------- |\n| `User.id` | `TenantMember.tenantMemberId` |\n| `User.userName` | `User.email` |\n| `User.externalId` | `TenantMember.externalId` |\n| `User.emails[primary].value` | `User.email` |\n| `User.active` | `TenantMember.memberStatus` (`ACTIVE` / `INACTIVE`) |\n| `meta.location` | `/tenant/{tenantId}/api/scim/v2/Users/{id}` |\n| `meta.version` | Weak ETag (`W/\"…\"`) derived from `updatedAt` (SHA-1) |\n\n`name.givenName` / `name.familyName` / `displayName` are accepted but **dropped**\n(silent no-op) — the `User` entity has no name fields yet. Deletion is a **soft\ndelete** on `TenantMember` (sets `memberStatus = INACTIVE` and `deletedAt`); the\ncross-tenant `User` row is never removed because other tenants may still depend\non it.\n\n---\n\n## Service — `ScimService`\n\nAll methods are static and resolve member rows through\n`tenantDataSourceFor(tenantId)`, constraining every query with `tenantId` and\n`deletedAt: IsNull()`.\n\n| Method | Responsibility |\n|---|---|\n| `listUsers(tenantId, query)` | Paginated list (RFC 7644 §3.4.2). Supports `eq` filters on `userName` / `externalId`; maps `userName` to a global `User` lookup then constrains by `userId`. |\n| `getUser(tenantId, id)` | Fetch one member + its `User`; `404` if missing or tenant-mismatched. |\n| `createUser(tenantId, input)` | Find-or-create the shared `User` by email (random bcrypt password — SCIM users sign in via SSO), then create a `TenantMember`. `409 uniqueness` if membership already exists. Defaults `memberRole = 'USER'`, status `ACTIVE` unless `active: false`. Writes a `scim.user.created` audit log. |\n| `updateUser(tenantId, id, input)` | Full replace (PUT). Updates email (with cross-user collision check → `409`), `externalId`, `active`. Audit: `scim.user.updated`. |\n| `patchUser(tenantId, id, ops)` | Partial update (PATCH). Handles both Azure-style pathless `{ value: { active } }` ops and Okta-style explicit paths (`active`, `userName`, `emails[primary eq true].value`, `externalId`). Name/displayName paths are accepted as no-ops; unknown paths → `400 invalidPath`. Audit: `scim.user.patched`. |\n| `deleteUser(tenantId, id)` | Soft-delete the `TenantMember` (deprovision); preserves the `User`. Audit: `scim.user.deleted`. |\n| `listGroups(tenantId, query)` | Stub — always returns an empty `ListResponse` (ignores `tenantId`). |\n\n`parseFilter` and `buildMeta`/`toScimUser` are private helpers. Filtering\nsupports only equality on `userName` and `externalId`; anything else throws\n`400 invalidFilter` per RFC 7644 §3.4.2.2.\n\n### Supporting files\n\n- `scim.types.ts` — Zod schemas + types (`ScimUser`, `ScimGroup`,\n  `ScimListResponse`, `ScimPatchOperation`, …), the `SCIM_SCHEMAS` URN map,\n  `SCIM_CONTENT_TYPE` (`application/scim+json`), `SCIM_ERROR_TYPES`, and\n  `SCIM_PAGINATION` (`DEFAULT_START_INDEX 1`, `DEFAULT_COUNT 100`, `MAX_COUNT 200`).\n- `scim.dto.ts` — request DTOs: `CreateScimUserDTO`, `UpdateScimUserDTO`,\n  `ListScimUsersDTO`, and `PatchScimUserDTO` (re-exported `ScimPatchBodySchema`).\n  Unknown fields are silently dropped.\n- `scim.errors.ts` — `scimError` / `scimResponse` / `scimNoContent` response\n  builders that emit RFC-7644-compliant bodies with the SCIM content type.\n- `scim.messages.ts` — human-readable `detail` strings for error bodies.\n\n---\n\n## API Routes\n\nAll under `/tenant/{tenantId}/api/scim/v2`. **Tenant-scoped, API-key auth.**\n\n| Method | Path | Scope | Description |\n|---|---|---|---|\n| GET | `/Users` | `scim:read` | List users (`filter`, `startIndex`, `count`). |\n| POST | `/Users` | `scim:write` | Create user → `201` + `Location` + `ETag`. |\n| GET | `/Users/{scimUserId}` | `scim:read` | Get a user (+ `ETag`). |\n| PUT | `/Users/{scimUserId}` | `scim:write` | Full replace. |\n| PATCH | `/Users/{scimUserId}` | `scim:write` | Partial update. |\n| DELETE | `/Users/{scimUserId}` | `scim:write` | Deprovision → `204`. |\n| GET | `/Groups` | `scim:read` | Empty list (stub). |\n| POST | `/Groups` | `scim:write` | `501 Not Implemented`. |\n| GET | `/Groups/{scimGroupId}` | `scim:read` | `404` (stub — stops Okta from looping). |\n| PUT/PATCH/DELETE | `/Groups/{scimGroupId}` | `scim:write` | `501 Not Implemented`. |\n| GET | `/ServiceProviderConfig` | public | Capability discovery (RFC 7643 §5). |\n| GET | `/ResourceTypes` | public | `User` + `Group` resource types (RFC 7643 §6). |\n| GET | `/Schemas` | public | `User` + `Group` attribute definitions (RFC 7643 §7). |\n\nDiscovery endpoints (`ServiceProviderConfig`, `ResourceTypes`, `Schemas`) are\nunauthenticated because IdPs typically probe them before exchanging credentials.\n\n---\n\n## Authentication\n\nAll `Users` / `Groups` endpoints require `Authorization: Bearer <api-key>`\n(RFC 7644 §2), verified by\n`ApiKeyService.verifyFromAuthHeader(request, tenantId, scope)`. The key must:\n\n1. Belong to the tenant in the URL (`key.tenantId === tenantId`).\n2. Carry the `scim:read` scope (GETs) or `scim:write` scope (POST/PUT/PATCH/DELETE).\n\nAny failure returns `401` with an `INVALID_BEARER_TOKEN` SCIM error body.\n\nCreate a key from the tenant admin UI (Settings → SCIM Provisioning) or:\n\n```bash\ncurl -X POST /tenant/$TENANT_ID/api/api-keys \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"name\":\"Okta SCIM\",\"scopes\":[\"scim:read\",\"scim:write\"]}'\n```\n\nThe raw key (`sk_live_…`) is returned **once**.\n\n---\n\n## Quick start — Okta\n\n1. *Applications → your app → Provisioning → Integration → To App*.\n2. **SCIM connector base URL**: `https://app.example.com/tenant/<TENANT_ID>/api/scim/v2`\n3. **Unique identifier field**: `userName`\n4. **Authentication mode**: HTTP Header `Authorization: Bearer <key>`\n5. Enable *Create Users*, *Update User Attributes*, *Deactivate Users*.\n\n## Quick start — Azure AD (Entra ID)\n\n1. *Enterprise applications → your app → Provisioning → Edit attribute mappings*.\n2. **Tenant URL**: `https://app.example.com/tenant/<TENANT_ID>/api/scim/v2`\n3. **Secret token**: paste the raw key.\n4. *Test connection* → save.\n\n---\n\n## Supported filters\n\nOnly equality on `userName` and `externalId`:\n\n```\n?filter=userName eq \"alice@example.com\"\n?filter=externalId eq \"okta-123\"\n```\n\nAnything else returns `400 invalidFilter` per RFC 7644 §3.4.2.2.\n\n## Pagination\n\nSCIM uses **1-based** `startIndex`. Defaults: `startIndex=1`, `count=100`,\nmax `count=200` (`SCIM_PAGINATION` in `scim.types.ts`). We translate to TypeORM\n`skip = startIndex - 1`.\n\n---\n\n## Settings\n\nThis module exposes **no per-tenant settings keys**. The Settings → *SCIM\nProvisioning* admin page (`/tenant/[tenantId]/admin/settings/scim`, `PlatformScimTab`)\nis purely an onboarding surface: it shows the tenant's SCIM base URL and lets an\nadmin mint/revoke SCIM-scoped API keys (it lists `api-keys` whose scopes start\nwith `scim:`). The pagination caps in `SCIM_PAGINATION` are hardcoded constants,\nnot configurable settings.\n\n---\n\n## Tenant Variability\n\n> What varies per tenant in this module — and what could. Audited 2026-06-03.\n\nA SCIM 2.0 provisioning bridge that lets enterprise IdPs auto-provision/deprovision tenant members onto the User + TenantMember model; it is structurally tenant-scoped (every operation keyed by the request tenantId and routed through tenantDataSourceFor) but exposes no per-tenant settings of its own.\n\n### Tenant-scoped data\n\n| Entity | Table | Tenant-variable columns |\n|---|---|---|\n| `TenantMember` | `tenant_members` | externalId, memberStatus, memberRole |\n\nAll rows isolated by `tenantId` via the per-tenant DataSource.\n\n### Per-tenant behavior\n\n- `scim.service.ts` — All CRUD (listUsers/getUser/createUser/updateUser/patchUser/deleteUser) resolves TenantMember rows via tenantDataSourceFor(tenantId) and constrains every query with where.tenantId, so each tenant provisions and deprovisions its own member set in its own DB; the shared User row is read from getDataSource() and never deleted because other tenants may depend on it.\n- `scim.service.ts:createUser` — Membership uniqueness is enforced per tenant (existing lookup on tenantId+userId), and externalId uniqueness is per-tenant via the (tenantId, externalId) index on TenantMember, so the same IdP-provisioned person can co-exist independently across tenants.\n- `Users/route.ts` — SCIM access is gated per tenant by ApiKeyService.verifyFromAuthHeader(request, tenantId, 'scim:read'|'scim:write'); the bearer API key must belong to the URL's tenantId (key.tenantId === tenantId) and carry the scim scope, so whether SCIM is usable at all depends on each tenant minting a scoped API key.\n\n### Candidates (global / hardcoded today → could be per-tenant)\n\n| What | Where | Why per-tenant | Suggested key |\n|---|---|---|---|\n| SCIM pagination caps (DEFAULT_COUNT 100, MAX_COUNT 200) and the filter maxResults advertised in ServiceProviderConfig are hardcoded constants applied to every tenant | `scim.types.ts:SCIM_PAGINATION (consumed in scim.service.ts:listUsers and ServiceProviderConfig/route.ts)` | Large enterprise tenants may need higher page sizes while smaller tenants benefit from tighter caps; today the limit is global and not tenant-tunable | `scimMaxPageCount` |\n| Groups endpoints are permanently stubbed to return an empty list for all tenants (listGroups ignores tenantId) | `scim.service.ts:listGroups` | Some tenants' IdP profiles require SCIM Groups; a per-tenant feature gate would let group provisioning be enabled selectively rather than globally disabled | `scimGroupsEnabled` |\n| Inbound SCIM name fields (name.givenName / name.familyName / displayName) are silently accepted and dropped for every tenant | `scim.service.ts:patchUser (and createUser/updateUser ignoring input.name)` | Tenants that map IdP display-name attributes expect them persisted; whether to store/sync names could be a per-tenant provisioning policy rather than a hardcoded no-op | `scimSyncUserNames` |\n| Default role/status for SCIM-provisioned members is hardcoded (memberRole 'USER', User.userRole 'USER', status ACTIVE unless active:false) | `scim.service.ts:createUser` | A tenant may want IdP-provisioned members to land in a specific default role or in a pending/invited state; this default is global today | `scimDefaultMemberRole` |\n\n---\n\n## Dependencies\n\n`requires`: `db`, `user`, `tenant_member`, `api_key`, `audit_log`. SCIM also\nwrites a `scim.user.*` entry through `AuditLogService` on every create/update/\npatch/delete.\n"
-    },
-    {
-      "id": "auth_acs_az_mygovid",
-      "name": "MyGov ID (AZ)",
-      "version": "1.0.0",
-      "description": "MyGov ID national-identity provider, contributed into the auth_acs:provider extension point.",
-      "author": "Kuray Karaaslan",
-      "license": "CC-BY-NC-ND-4.0",
-      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_az_mygovid",
-      "dir": "modules/auth_acs_az_mygovid",
-      "icon": "fas fa-id-card",
-      "tags": [
-        "identity",
-        "auth",
-        "acs",
-        "government",
-        "provider"
-      ],
-      "priority": 18,
-      "tier": "other",
-      "dependencies": {
-        "requires": [
-          "auth_acs",
-          "auth_saml",
-          "auth_oidc",
-          "env",
-          "common"
-        ]
-      },
-      "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
-        "settingKeys": [],
-        "providers": [],
-        "jobs": [],
-        "entities": []
-      },
-      "enabled": true,
-      "menu": [],
-      "adminRoutes": [],
-      "apiRoutes": [],
-      "widgets": [],
-      "slots": [],
-      "extensionPoints": [],
-      "extensions": [
-        {
-          "point": "auth_acs:provider",
-          "key": "az_mygovid",
-          "export": "auth_acs_az_mygovid/server/az_mygovid.extension",
-          "metadata": {
-            "label": "MyGov ID",
-            "country": "AZ"
-          }
-        }
-      ],
-      "pkgExports": [
-        "./server/az_mygovid.extension",
-        "./server/providers/az_mygovid.provider",
-        "./module.json"
-      ],
-      "settingsTabs": [],
-      "modulePermissions": [],
-      "hasReadme": false,
-      "hasModuleJson": true,
-      "hasNextLayer": false,
-      "readme": ""
-    },
-    {
-      "id": "auth_acs_ct_edevlet",
-      "name": "e-Devlet (KKTC) ile Giriş (CT)",
-      "version": "1.0.0",
-      "description": "e-Devlet (KKTC) ile Giriş national-identity provider, contributed into the auth_acs:provider extension point.",
-      "author": "Kuray Karaaslan",
-      "license": "CC-BY-NC-ND-4.0",
-      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_ct_edevlet",
-      "dir": "modules/auth_acs_ct_edevlet",
-      "icon": "fas fa-id-card",
-      "tags": [
-        "identity",
-        "auth",
-        "acs",
-        "government",
-        "provider"
-      ],
-      "priority": 18,
-      "tier": "other",
-      "dependencies": {
-        "requires": [
-          "auth_acs",
-          "auth_saml",
-          "auth_oidc",
-          "env",
-          "common"
-        ]
-      },
-      "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
-        "settingKeys": [],
-        "providers": [],
-        "jobs": [],
-        "entities": []
-      },
-      "enabled": true,
-      "menu": [],
-      "adminRoutes": [],
-      "apiRoutes": [],
-      "widgets": [],
-      "slots": [],
-      "extensionPoints": [],
-      "extensions": [
-        {
-          "point": "auth_acs:provider",
-          "key": "ct_edevlet",
-          "export": "auth_acs_ct_edevlet/server/ct_edevlet.extension",
-          "metadata": {
-            "label": "e-Devlet (KKTC) ile Giriş",
-            "country": "CT"
-          }
-        }
-      ],
-      "pkgExports": [
-        "./server/ct_edevlet.extension",
-        "./server/providers/ct_edevlet.provider",
-        "./module.json"
-      ],
-      "settingsTabs": [],
-      "modulePermissions": [],
-      "hasReadme": false,
-      "hasModuleJson": true,
-      "hasNextLayer": false,
-      "readme": ""
-    },
-    {
-      "id": "auth_acs_de_eid",
-      "name": "Online-Ausweis (eID) (DE)",
-      "version": "1.0.0",
-      "description": "Online-Ausweis (eID) national-identity provider, contributed into the auth_acs:provider extension point.",
-      "author": "Kuray Karaaslan",
-      "license": "CC-BY-NC-ND-4.0",
-      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_de_eid",
-      "dir": "modules/auth_acs_de_eid",
-      "icon": "fas fa-id-card",
-      "tags": [
-        "identity",
-        "auth",
-        "acs",
-        "government",
-        "provider"
-      ],
-      "priority": 18,
-      "tier": "other",
-      "dependencies": {
-        "requires": [
-          "auth_acs",
-          "auth_saml",
-          "auth_oidc",
-          "env",
-          "common"
-        ]
-      },
-      "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
-        "settingKeys": [],
-        "providers": [],
-        "jobs": [],
-        "entities": []
-      },
-      "enabled": true,
-      "menu": [],
-      "adminRoutes": [],
-      "apiRoutes": [],
-      "widgets": [],
-      "slots": [],
-      "extensionPoints": [],
-      "extensions": [
-        {
-          "point": "auth_acs:provider",
-          "key": "de_eid",
-          "export": "auth_acs_de_eid/server/de_eid.extension",
-          "metadata": {
-            "label": "Online-Ausweis (eID)",
-            "country": "DE"
-          }
-        }
-      ],
-      "pkgExports": [
-        "./server/de_eid.extension",
-        "./server/providers/de_eid.provider",
-        "./module.json"
-      ],
-      "settingsTabs": [],
-      "modulePermissions": [],
-      "hasReadme": false,
-      "hasModuleJson": true,
-      "hasNextLayer": false,
-      "readme": ""
-    },
-    {
-      "id": "auth_acs_es_clave",
-      "name": "Cl@ve (ES)",
-      "version": "1.0.0",
-      "description": "Cl@ve national-identity provider, contributed into the auth_acs:provider extension point.",
-      "author": "Kuray Karaaslan",
-      "license": "CC-BY-NC-ND-4.0",
-      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_es_clave",
-      "dir": "modules/auth_acs_es_clave",
-      "icon": "fas fa-id-card",
-      "tags": [
-        "identity",
-        "auth",
-        "acs",
-        "government",
-        "provider"
-      ],
-      "priority": 18,
-      "tier": "other",
-      "dependencies": {
-        "requires": [
-          "auth_acs",
-          "auth_saml",
-          "auth_oidc",
-          "env",
-          "common"
-        ]
-      },
-      "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
-        "settingKeys": [],
-        "providers": [],
-        "jobs": [],
-        "entities": []
-      },
-      "enabled": true,
-      "menu": [],
-      "adminRoutes": [],
-      "apiRoutes": [],
-      "widgets": [],
-      "slots": [],
-      "extensionPoints": [],
-      "extensions": [
-        {
-          "point": "auth_acs:provider",
-          "key": "es_clave",
-          "export": "auth_acs_es_clave/server/es_clave.extension",
-          "metadata": {
-            "label": "Cl@ve",
-            "country": "ES"
-          }
-        }
-      ],
-      "pkgExports": [
-        "./server/es_clave.extension",
-        "./server/providers/es_clave.provider",
-        "./module.json"
-      ],
-      "settingsTabs": [],
-      "modulePermissions": [],
-      "hasReadme": false,
-      "hasModuleJson": true,
-      "hasNextLayer": false,
-      "readme": ""
-    },
-    {
-      "id": "auth_acs_esia_ru",
-      "name": "Госуслуги (RU)",
-      "version": "1.0.0",
-      "description": "Госуслуги national-identity provider, contributed into the auth_acs:provider extension point.",
-      "author": "Kuray Karaaslan",
-      "license": "CC-BY-NC-ND-4.0",
-      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_esia_ru",
-      "dir": "modules/auth_acs_esia_ru",
-      "icon": "fas fa-id-card",
-      "tags": [
-        "identity",
-        "auth",
-        "acs",
-        "government",
-        "provider"
-      ],
-      "priority": 18,
-      "tier": "other",
-      "dependencies": {
-        "requires": [
-          "auth_acs",
-          "auth_saml",
-          "auth_oidc",
-          "env",
-          "common"
-        ]
-      },
-      "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
-        "settingKeys": [],
-        "providers": [],
-        "jobs": [],
-        "entities": []
-      },
-      "enabled": true,
-      "menu": [],
-      "adminRoutes": [],
-      "apiRoutes": [],
-      "widgets": [],
-      "slots": [],
-      "extensionPoints": [],
-      "extensions": [
-        {
-          "point": "auth_acs:provider",
-          "key": "esia_ru",
-          "export": "auth_acs_esia_ru/server/esia_ru.extension",
-          "metadata": {
-            "label": "Госуслуги",
-            "country": "RU"
-          }
-        }
-      ],
-      "pkgExports": [
-        "./server/esia_ru.extension",
-        "./server/providers/esia_ru.provider",
-        "./module.json"
-      ],
-      "settingsTabs": [],
-      "modulePermissions": [],
-      "hasReadme": false,
-      "hasModuleJson": true,
-      "hasNextLayer": false,
-      "readme": ""
-    },
-    {
-      "id": "auth_acs_eu_eidas",
-      "name": "eIDAS (EU)",
-      "version": "1.0.0",
-      "description": "eIDAS national-identity provider, contributed into the auth_acs:provider extension point.",
-      "author": "Kuray Karaaslan",
-      "license": "CC-BY-NC-ND-4.0",
-      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_eu_eidas",
-      "dir": "modules/auth_acs_eu_eidas",
-      "icon": "fas fa-id-card",
-      "tags": [
-        "identity",
-        "auth",
-        "acs",
-        "government",
-        "provider"
-      ],
-      "priority": 18,
-      "tier": "other",
-      "dependencies": {
-        "requires": [
-          "auth_acs",
-          "auth_saml",
-          "auth_oidc",
-          "env",
-          "common"
-        ]
-      },
-      "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
-        "settingKeys": [],
-        "providers": [],
-        "jobs": [],
-        "entities": []
-      },
-      "enabled": true,
-      "menu": [],
-      "adminRoutes": [],
-      "apiRoutes": [],
-      "widgets": [],
-      "slots": [],
-      "extensionPoints": [],
-      "extensions": [
-        {
-          "point": "auth_acs:provider",
-          "key": "eu_eidas",
-          "export": "auth_acs_eu_eidas/server/eu_eidas.extension",
-          "metadata": {
-            "label": "eIDAS",
-            "country": "EU"
-          }
-        }
-      ],
-      "pkgExports": [
-        "./server/eu_eidas.extension",
-        "./server/providers/eu_eidas.provider",
-        "./module.json"
-      ],
-      "settingsTabs": [],
-      "modulePermissions": [],
-      "hasReadme": false,
-      "hasModuleJson": true,
-      "hasNextLayer": false,
-      "readme": ""
-    },
-    {
-      "id": "auth_acs_it_spid",
-      "name": "Entra con SPID (IT)",
-      "version": "1.0.0",
-      "description": "Entra con SPID national-identity provider, contributed into the auth_acs:provider extension point.",
-      "author": "Kuray Karaaslan",
-      "license": "CC-BY-NC-ND-4.0",
-      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_it_spid",
-      "dir": "modules/auth_acs_it_spid",
-      "icon": "fas fa-id-card",
-      "tags": [
-        "identity",
-        "auth",
-        "acs",
-        "government",
-        "provider"
-      ],
-      "priority": 18,
-      "tier": "other",
-      "dependencies": {
-        "requires": [
-          "auth_acs",
-          "auth_saml",
-          "auth_oidc",
-          "env",
-          "common"
-        ]
-      },
-      "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
-        "settingKeys": [],
-        "providers": [],
-        "jobs": [],
-        "entities": []
-      },
-      "enabled": true,
-      "menu": [],
-      "adminRoutes": [],
-      "apiRoutes": [],
-      "widgets": [],
-      "slots": [],
-      "extensionPoints": [],
-      "extensions": [
-        {
-          "point": "auth_acs:provider",
-          "key": "it_spid",
-          "export": "auth_acs_it_spid/server/it_spid.extension",
-          "metadata": {
-            "label": "Entra con SPID",
-            "country": "IT"
-          }
-        }
-      ],
-      "pkgExports": [
-        "./server/it_spid.extension",
-        "./server/providers/it_spid.provider",
-        "./module.json"
-      ],
-      "settingsTabs": [],
-      "modulePermissions": [],
-      "hasReadme": false,
-      "hasModuleJson": true,
-      "hasNextLayer": false,
-      "readme": ""
-    },
-    {
-      "id": "auth_acs_kg_tunduk",
-      "name": "Tunduk (KG)",
-      "version": "1.0.0",
-      "description": "Tunduk national-identity provider, contributed into the auth_acs:provider extension point.",
-      "author": "Kuray Karaaslan",
-      "license": "CC-BY-NC-ND-4.0",
-      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_kg_tunduk",
-      "dir": "modules/auth_acs_kg_tunduk",
-      "icon": "fas fa-id-card",
-      "tags": [
-        "identity",
-        "auth",
-        "acs",
-        "government",
-        "provider"
-      ],
-      "priority": 18,
-      "tier": "other",
-      "dependencies": {
-        "requires": [
-          "auth_acs",
-          "auth_saml",
-          "auth_oidc",
-          "env",
-          "common"
-        ]
-      },
-      "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
-        "settingKeys": [],
-        "providers": [],
-        "jobs": [],
-        "entities": []
-      },
-      "enabled": true,
-      "menu": [],
-      "adminRoutes": [],
-      "apiRoutes": [],
-      "widgets": [],
-      "slots": [],
-      "extensionPoints": [],
-      "extensions": [
-        {
-          "point": "auth_acs:provider",
-          "key": "kg_tunduk",
-          "export": "auth_acs_kg_tunduk/server/kg_tunduk.extension",
-          "metadata": {
-            "label": "Tunduk",
-            "country": "KG"
-          }
-        }
-      ],
-      "pkgExports": [
-        "./server/kg_tunduk.extension",
-        "./server/providers/kg_tunduk.provider",
-        "./module.json"
-      ],
-      "settingsTabs": [],
-      "modulePermissions": [],
-      "hasReadme": false,
-      "hasModuleJson": true,
-      "hasNextLayer": false,
-      "readme": ""
-    },
-    {
-      "id": "auth_acs_kz_egov",
-      "name": "eGov.kz (KZ)",
-      "version": "1.0.0",
-      "description": "eGov.kz national-identity provider, contributed into the auth_acs:provider extension point.",
-      "author": "Kuray Karaaslan",
-      "license": "CC-BY-NC-ND-4.0",
-      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_kz_egov",
-      "dir": "modules/auth_acs_kz_egov",
-      "icon": "fas fa-id-card",
-      "tags": [
-        "identity",
-        "auth",
-        "acs",
-        "government",
-        "provider"
-      ],
-      "priority": 18,
-      "tier": "other",
-      "dependencies": {
-        "requires": [
-          "auth_acs",
-          "auth_saml",
-          "auth_oidc",
-          "env",
-          "common"
-        ]
-      },
-      "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
-        "settingKeys": [],
-        "providers": [],
-        "jobs": [],
-        "entities": []
-      },
-      "enabled": true,
-      "menu": [],
-      "adminRoutes": [],
-      "apiRoutes": [],
-      "widgets": [],
-      "slots": [],
-      "extensionPoints": [],
-      "extensions": [
-        {
-          "point": "auth_acs:provider",
-          "key": "kz_egov",
-          "export": "auth_acs_kz_egov/server/kz_egov.extension",
-          "metadata": {
-            "label": "eGov.kz",
-            "country": "KZ"
-          }
-        }
-      ],
-      "pkgExports": [
-        "./server/kz_egov.extension",
-        "./server/providers/kz_egov.provider",
-        "./module.json"
-      ],
-      "settingsTabs": [],
-      "modulePermissions": [],
-      "hasReadme": false,
-      "hasModuleJson": true,
-      "hasNextLayer": false,
-      "readme": ""
-    },
-    {
-      "id": "auth_acs_tr_edevlet",
-      "name": "e-Devlet ile Giriş (TR)",
-      "version": "1.0.0",
-      "description": "e-Devlet ile Giriş national-identity provider, contributed into the auth_acs:provider extension point.",
-      "author": "Kuray Karaaslan",
-      "license": "CC-BY-NC-ND-4.0",
-      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_tr_edevlet",
-      "dir": "modules/auth_acs_tr_edevlet",
-      "icon": "fas fa-id-card",
-      "tags": [
-        "identity",
-        "auth",
-        "acs",
-        "government",
-        "provider"
-      ],
-      "priority": 18,
-      "tier": "other",
-      "dependencies": {
-        "requires": [
-          "auth_acs",
-          "auth_saml",
-          "auth_oidc",
-          "env",
-          "common"
-        ]
-      },
-      "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
-        "settingKeys": [],
-        "providers": [],
-        "jobs": [],
-        "entities": []
-      },
-      "enabled": true,
-      "menu": [],
-      "adminRoutes": [],
-      "apiRoutes": [],
-      "widgets": [],
-      "slots": [],
-      "extensionPoints": [],
-      "extensions": [
-        {
-          "point": "auth_acs:provider",
-          "key": "tr_edevlet",
-          "export": "auth_acs_tr_edevlet/server/tr_edevlet.extension",
-          "metadata": {
-            "label": "e-Devlet ile Giriş",
-            "country": "TR"
-          }
-        }
-      ],
-      "pkgExports": [
-        "./server/providers/tr_edevlet.provider",
-        "./server/tr_edevlet.extension",
-        "./module.json"
-      ],
-      "settingsTabs": [],
-      "modulePermissions": [],
-      "hasReadme": false,
-      "hasModuleJson": true,
-      "hasNextLayer": false,
-      "readme": ""
-    },
-    {
-      "id": "auth_acs_us_id_me",
-      "name": "ID.me (US)",
-      "version": "1.0.0",
-      "description": "ID.me national-identity provider, contributed into the auth_acs:provider extension point.",
-      "author": "Kuray Karaaslan",
-      "license": "CC-BY-NC-ND-4.0",
-      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_us_id_me",
-      "dir": "modules/auth_acs_us_id_me",
-      "icon": "fas fa-id-card",
-      "tags": [
-        "identity",
-        "auth",
-        "acs",
-        "government",
-        "provider"
-      ],
-      "priority": 18,
-      "tier": "other",
-      "dependencies": {
-        "requires": [
-          "auth_acs",
-          "auth_saml",
-          "auth_oidc",
-          "env",
-          "common"
-        ]
-      },
-      "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
-        "settingKeys": [],
-        "providers": [],
-        "jobs": [],
-        "entities": []
-      },
-      "enabled": true,
-      "menu": [],
-      "adminRoutes": [],
-      "apiRoutes": [],
-      "widgets": [],
-      "slots": [],
-      "extensionPoints": [],
-      "extensions": [
-        {
-          "point": "auth_acs:provider",
-          "key": "us_id_me",
-          "export": "auth_acs_us_id_me/server/us_id_me.extension",
-          "metadata": {
-            "label": "ID.me",
-            "country": "US"
-          }
-        }
-      ],
-      "pkgExports": [
-        "./server/providers/us_id_me.provider",
-        "./server/us_id_me.extension",
-        "./module.json"
-      ],
-      "settingsTabs": [],
-      "modulePermissions": [],
-      "hasReadme": false,
-      "hasModuleJson": true,
-      "hasNextLayer": false,
-      "readme": ""
-    },
-    {
-      "id": "auth_acs_us_login_gov",
-      "name": "Login.gov (US)",
-      "version": "1.0.0",
-      "description": "Login.gov national-identity provider, contributed into the auth_acs:provider extension point.",
-      "author": "Kuray Karaaslan",
-      "license": "CC-BY-NC-ND-4.0",
-      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_us_login_gov",
-      "dir": "modules/auth_acs_us_login_gov",
-      "icon": "fas fa-id-card",
-      "tags": [
-        "identity",
-        "auth",
-        "acs",
-        "government",
-        "provider"
-      ],
-      "priority": 18,
-      "tier": "other",
-      "dependencies": {
-        "requires": [
-          "auth_acs",
-          "auth_saml",
-          "auth_oidc",
-          "env",
-          "common"
-        ]
-      },
-      "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
-        "settingKeys": [],
-        "providers": [],
-        "jobs": [],
-        "entities": []
-      },
-      "enabled": true,
-      "menu": [],
-      "adminRoutes": [],
-      "apiRoutes": [],
-      "widgets": [],
-      "slots": [],
-      "extensionPoints": [],
-      "extensions": [
-        {
-          "point": "auth_acs:provider",
-          "key": "us_login_gov",
-          "export": "auth_acs_us_login_gov/server/us_login_gov.extension",
-          "metadata": {
-            "label": "Login.gov",
-            "country": "US"
-          }
-        }
-      ],
-      "pkgExports": [
-        "./server/providers/us_login_gov.provider",
-        "./server/us_login_gov.extension",
-        "./module.json"
-      ],
-      "settingsTabs": [],
-      "modulePermissions": [],
-      "hasReadme": false,
-      "hasModuleJson": true,
-      "hasNextLayer": false,
-      "readme": ""
-    },
-    {
-      "id": "auth_acs_uz_oneid",
-      "name": "OneID (UZ)",
-      "version": "1.0.0",
-      "description": "OneID national-identity provider, contributed into the auth_acs:provider extension point.",
-      "author": "Kuray Karaaslan",
-      "license": "CC-BY-NC-ND-4.0",
-      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_uz_oneid",
-      "dir": "modules/auth_acs_uz_oneid",
-      "icon": "fas fa-id-card",
-      "tags": [
-        "identity",
-        "auth",
-        "acs",
-        "government",
-        "provider"
-      ],
-      "priority": 18,
-      "tier": "other",
-      "dependencies": {
-        "requires": [
-          "auth_acs",
-          "auth_saml",
-          "auth_oidc",
-          "env",
-          "common"
-        ]
-      },
-      "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
-        "settingKeys": [],
-        "providers": [],
-        "jobs": [],
-        "entities": []
-      },
-      "enabled": true,
-      "menu": [],
-      "adminRoutes": [],
-      "apiRoutes": [],
-      "widgets": [],
-      "slots": [],
-      "extensionPoints": [],
-      "extensions": [
-        {
-          "point": "auth_acs:provider",
-          "key": "uz_oneid",
-          "export": "auth_acs_uz_oneid/server/uz_oneid.extension",
-          "metadata": {
-            "label": "OneID",
-            "country": "UZ"
-          }
-        }
-      ],
-      "pkgExports": [
-        "./server/providers/uz_oneid.provider",
-        "./server/uz_oneid.extension",
-        "./module.json"
-      ],
-      "settingsTabs": [],
-      "modulePermissions": [],
-      "hasReadme": false,
-      "hasModuleJson": true,
-      "hasNextLayer": false,
-      "readme": ""
     },
     {
       "id": "tenant",
@@ -10755,6 +9877,68 @@
       "readme": "# storage_minio\n\nMinIO storage provider satellite for the [`storage`](../storage) host module.\nContributes the `minio` backend into the `storage:provider` extension point.\nEnable/disable per tenant via `module.storage_minio.enabled`.\n"
     },
     {
+      "id": "storage_local",
+      "name": "Storage — Local Filesystem",
+      "version": "1.0.0",
+      "description": "Local filesystem storage backend for the storage module. Writes objects to a directory on disk — intended for development and offline use (e.g. publishing community plugin bundles without S3).",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "",
+      "dir": "modules/storage_local",
+      "icon": "fas fa-hard-drive",
+      "tags": [
+        "storage",
+        "provider"
+      ],
+      "priority": 45,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "storage",
+          "env",
+          "setting"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": []
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [
+        {
+          "point": "storage:provider",
+          "key": "local",
+          "export": "storage_local/server/storage.extension",
+          "metadata": {
+            "label": "Local Filesystem"
+          }
+        }
+      ],
+      "pkgExports": [
+        "./server/providers/local.provider",
+        "./server/storage.extension",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
+      "readme": ""
+    },
+    {
       "id": "messaging",
       "name": "Messaging",
       "version": "1.0.0",
@@ -11876,7 +11060,7 @@
       "id": "ai",
       "name": "AI",
       "version": "1.0.0",
-      "description": "Pluggable AI providers (Anthropic, OpenAI, Google). Chat, embeddings, streaming, usage tracking.",
+      "description": "Pluggable AI providers (Anthropic, OpenAI, Google, community plugins). Provider selection, embeddings, models, usage tracking. Chat lives in the ai_chat module.",
       "author": "Kuray Karaaslan",
       "license": "CC-BY-NC-ND-4.0",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/ai",
@@ -11938,10 +11122,6 @@
       ],
       "apiRoutes": [
         {
-          "path": "/api/ai/chat",
-          "handler": "ai/server/ai-chat.route"
-        },
-        {
           "path": "/api/ai/embed",
           "handler": "ai/server/ai-embed.route"
         },
@@ -11956,10 +11136,6 @@
         {
           "path": "/api/ai/usage",
           "handler": "ai/server/ai-usage.route"
-        },
-        {
-          "path": "/api/ai/stream",
-          "handler": "ai/server/ai-stream.route"
         }
       ],
       "widgets": [],
@@ -11973,15 +11149,12 @@
       ],
       "extensions": [],
       "pkgExports": [
-        "./server/ai-chat.route",
         "./server/ai-embed.route",
         "./server/ai-models.route",
         "./server/ai-providers.route",
-        "./server/ai-stream.route",
         "./server/ai-usage.route",
         "./server/ai.messages",
         "./server/ai.provider.service",
-        "./server/ai.external-providers",
         "./server/ai.provider.types",
         "./server/ai.seed",
         "./server/ai.service",
@@ -11990,7 +11163,6 @@
         "./server/ai.usage.service",
         "./server/entities/ai_usage_log.entity",
         "./server/providers/base.provider",
-        "./ui/ai-chat-box.component",
         "./ui/ai.page",
         "./ui/settings.page",
         "./ui/usage-chart.component",
@@ -12293,26 +11465,27 @@
       "readme": "# Dynamic Page Module\n\nA tenant-scoped, block-based CMS / page builder. Each tenant owns an independent set of pages (with per-language translations) and a reusable library of block definitions. Published pages are rendered on the public site under `/tenant/[tenantId]/[...slug]`.\n\n---\n\n## Entities\n\nAll three entities live in the **tenant DB** (each row is isolated by `tenantId`).\n\n| Entity | Table | Description |\n|---|---|---|\n| `DynamicPage` | `dynamic_pages` | A page: `slug`, `title`, `description`, `keywords[]`, `sections` (block instances), SEO `metadata`, `status`, `schemaVersion`. Unique `(tenantId, slug)`. |\n| `DynamicPageTranslation` | `dynamic_page_translations` | Per-language override of a page's `title`, `description` and `sections`, keyed by `lang`. Unique `(dynamicPageId, lang)`, `ON DELETE CASCADE` with its page. |\n| `DynamicPageBlock` | `dynamic_page_blocks` | A reusable block definition shown in the editor: `type`, `label`, `category`, `schema`, `defaultProps`, `template`, optional `script`, `isSystem` flag. Unique `(tenantId, type)`. |\n\n`status` is one of `DynamicPageStatus`: `DRAFT`, `PUBLISHED`, `ARCHIVED`. Page `sections` and translation `sections` are arrays of `BlockData` (`{ id, type, order, props, hidden?, label?, className? }`). `metadata` follows `PageMetadataSchema` (OpenGraph / Twitter / `canonical` / `robots`). `CURRENT_SCHEMA_VERSION` is `2`.\n\n---\n\n## Service / Responsibilities\n\n`DynamicPageService` (all methods take `tenantId` and resolve the per-tenant DataSource via `tenantDataSourceFor`):\n\n**Pages**\n- `listPages` — paginated, filterable (`search` over title/slug, `status`) and sortable list scoped to the tenant.\n- `getPage` — fetch one page by id.\n- `getPageBySlug` — fetch by slug, **Redis-cached** (`dp:slug:${tenantId}:${slug}`, `SLUG_TTL = 3600s`) behind `singleFlight`; backs the public renderer.\n- `createPage` — enforces slug uniqueness per tenant (`SLUG_TAKEN`); stamps `schemaVersion = CURRENT_SCHEMA_VERSION`.\n- `updatePage` — re-checks slug uniqueness on change; invalidates the slug cache for the old and new slug.\n- `deletePage` — removes the page, drops its slug cache, and deletes the linked SEO row via `SeoService.delete(tenantId, 'dynamic_page', pageId)`.\n\n**Translations**\n- `getTranslations` — list a page's translations ordered by `lang`.\n- `upsertTranslation` — insert or update the `(page, lang)` translation.\n- `deleteTranslation` — remove a single language for a page (`TRANSLATION_NOT_FOUND` if absent).\n\n**Blocks (block library)**\n- `listBlocks` — list the tenant's block definitions, **Redis-cached** (`dp:blocks:${tenantId}`, `BLOCKS_TTL = 300s`) behind `singleFlight`.\n- `getBlock` — fetch one block by id.\n- `createBlock` / `updateBlock` — enforce `type` uniqueness per tenant (`BLOCK_TYPE_TAKEN`); each invalidates the block-library cache.\n- `deleteBlock` — blocked with `SYSTEM_BLOCK_PROTECTED` when `isSystem` is set; otherwise removes the block and invalidates the cache.\n\nCache TTLs are jittered (`jitter()`) to avoid stampedes. Validation is via Zod (`*RecordSchema`); inputs come from the DTOs below.\n\n---\n\n## DTOs\n\nDefined in `dynamic_page.dto.ts` (Zod):\n\n- `CreatePageDTO` / `UpdatePageDTO` (partial) — `slug` (lowercase slash-separated segments, no leading/trailing slash, defaults `''`), `title`, `description?`, `keywords[]`, `sections[]`, `metadata`, `status` (default `DRAFT`), `schemaVersion`.\n- `UpsertTranslationDTO` — `lang`, `title`, `description?`, `sections[]`.\n- `CreateBlockDTO` / `UpdateBlockDTO` (partial) — `type` (`[a-zA-Z0-9_-]+`), `label`, `category` (default `General`), `description?`, `schema`, `defaultProps`, `template`, `script?`, `isSystem` (default `false`).\n\n`ListPagesQuerySchema` drives `listPages`: `page`, `pageSize` (≤100), `search?`, `status?`, `sortBy` (`title|slug|status|createdAt|updatedAt`), `sortDir` (`asc|desc`).\n\n---\n\n## API Routes (tenant-scoped, ADMIN+)\n\nEvery handler calls `TenantSessionNextService.authenticateTenantByRequest({ … requiredTenantRole: 'ADMIN' })`.\n\n| Method | Path | Description |\n|---|---|---|\n| GET | `/tenant/[id]/api/dynamic-pages` | List pages (query params per `ListPagesQuerySchema`) |\n| POST | `/tenant/[id]/api/dynamic-pages` | Create page |\n| GET | `/tenant/[id]/api/dynamic-pages/[dynamicPageId]` | Get page |\n| PATCH | `/tenant/[id]/api/dynamic-pages/[dynamicPageId]` | Update page |\n| DELETE | `/tenant/[id]/api/dynamic-pages/[dynamicPageId]` | Delete page |\n| GET | `/tenant/[id]/api/dynamic-pages/[dynamicPageId]/translations` | List translations |\n| POST | `/tenant/[id]/api/dynamic-pages/[dynamicPageId]/translations` | Upsert a translation |\n| DELETE | `/tenant/[id]/api/dynamic-pages/[dynamicPageId]/translations/[lang]` | Delete a translation |\n| GET | `/tenant/[id]/api/dynamic-pages/block-definitions` | List block definitions |\n| POST | `/tenant/[id]/api/dynamic-pages/block-definitions` | Create block definition |\n| GET | `/tenant/[id]/api/dynamic-pages/block-definitions/[blockId]` | Get block definition |\n| PATCH | `/tenant/[id]/api/dynamic-pages/block-definitions/[blockId]` | Update block definition |\n| DELETE | `/tenant/[id]/api/dynamic-pages/block-definitions/[blockId]` | Delete block definition |\n\n### Public rendering\n\nPublished pages are served by the App Router page at `app/tenant/[tenantId]/[...slug]/page.tsx`, which delegates to `modules_next/dynamic_page/PublicDynamicPage`. It loads via `getPageBySlug`, renders **only** `PUBLISHED` pages (`notFound()` otherwise), supports up to `MAX_SLUG_DEPTH = 4` slug segments, skips reserved `__`-prefixed paths, and resolves a `?lang=` translation when present.\n\n---\n\n## Settings\n\nThis module declares **no** settings keys and reads no `SettingService` config — every tenant's content is fully independent with no platform/root-only configuration.\n\n---\n\n## Tenant Variability\n\n> What varies per tenant in this module — and what could. Audited 2026-06-03.\n\nA tenant-scoped, block-based CMS / page builder (pages, per-language translations, and a reusable block library) whose entire surface is per-tenant data stored in each tenant's own DB; it declares no settings keys and reads no SettingService config, so every tenant has fully independent content with no platform/root-only configuration.\n\n### Tenant-scoped data\n\n| Entity | Table | Tenant-variable columns |\n|---|---|---|\n| `DynamicPage` | `dynamic_pages` | slug, title, description, keywords, sections, metadata, status, schemaVersion |\n| `DynamicPageTranslation` | `dynamic_page_translations` | dynamicPageId, lang, title, description, sections |\n| `DynamicPageBlock` | `dynamic_page_blocks` | type, label, category, description, schema, defaultProps, template, script, isSystem |\n\nAll rows isolated by `tenantId` via the per-tenant DataSource.\n\n### Per-tenant behavior\n\n- `dynamic_page.service.ts` — Every method takes tenantId and resolves the per-tenant DataSource via tenantDataSourceFor(tenantId), then scopes every query with WHERE tenantId = :tenantId; uniqueness is per tenant (slug unique per tenant in createPage/updatePage, block type unique per tenant in createBlock/updateBlock), so each tenant has an isolated set of pages, translations and blocks.\n- `dynamic_page.service.ts:getPageBySlug/listBlocks` — Redis caches are namespaced per tenant via dp:slug:${tenantId}:${slug} and dp:blocks:${tenantId}, and invalidated on that tenant's writes, so cached page/block reads are isolated per tenant.\n- `dynamic_page.service.ts:deleteBlock` — Blocks flagged isSystem (a per-tenant column) are protected from deletion (SYSTEM_BLOCK_PROTECTED), so which blocks are deletable depends on each tenant's own block rows.\n\n### Candidates (global / hardcoded today → could be per-tenant)\n\n| What | Where | Why per-tenant | Suggested key |\n|---|---|---|---|\n| Slug-cache TTL (SLUG_TTL = 3600s) and block-library cache TTL (BLOCKS_TTL = 300s) are hardcoded module constants | `dynamic_page.service.ts (SLUG_TTL, BLOCKS_TTL)` | Cache freshness for published-page lookups and the editor's block list is identical for every tenant; a tenant with rapidly-changing marketing pages might want shorter TTLs while a static-site tenant prefers longer. Low priority — these are shared Redis-cache tuning knobs, not content, and a global default is reasonable. | `dynamicPageCacheTtlSeconds` |\n| Default page status on create is hardcoded to DRAFT | `dynamic_page.dto.ts (CreatePageDTO.status default 'DRAFT')` | Whether newly created pages start as DRAFT vs PUBLISHED is an editorial-workflow choice that plausibly differs per tenant (e.g. a tenant with no review process may want PUBLISHED by default). Currently a fixed global default with no per-tenant override. | `dynamicPageDefaultStatus` |\n\n---\n\n## Dependencies\n\n`requires`: `db`, `env`, `redis`, `logger`, `seo` (per `module.json`). The service also imports `SeoService` to delete the page's SEO meta row on page deletion.\n"
     },
     {
-      "id": "ai_openai",
-      "name": "AI — OpenAI",
+      "id": "ai_chat",
+      "name": "AI Chat",
       "version": "1.0.0",
-      "description": "OpenAI (and OpenAI-compatible) provider for the AI module. Contributes chat, streaming and embeddings.",
+      "description": "Chat playground + chat/stream endpoints. Talks to whichever provider the AI module has selected as default for the tenant.",
       "author": "Kuray Karaaslan",
       "license": "CC-BY-NC-ND-4.0",
-      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/ai_openai",
-      "dir": "modules/ai_openai",
-      "icon": "fas fa-robot",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/ai_chat",
+      "dir": "modules/ai_chat",
+      "icon": "fas fa-comments",
       "tags": [
         "ai",
-        "provider"
+        "chat"
       ],
       "priority": 51,
-      "tier": "ai",
+      "tier": "other",
       "dependencies": {
         "requires": [
           "ai",
-          "env",
-          "setting"
+          "user_session",
+          "limiter",
+          "common"
         ]
       },
       "exports": {
@@ -12326,191 +11499,55 @@
         "entities": []
       },
       "enabled": true,
-      "menu": [],
-      "adminRoutes": [],
-      "apiRoutes": [],
+      "menu": [
+        {
+          "id": "ai_chat",
+          "label": "AI Chat",
+          "href": "/admin/ai/chat",
+          "icon": "fas fa-comments",
+          "group": "Developer",
+          "order": 11,
+          "scope": "tenant"
+        }
+      ],
+      "adminRoutes": [
+        {
+          "path": "/admin/ai/chat",
+          "component": "ai_chat/ui/chat.page"
+        }
+      ],
+      "apiRoutes": [
+        {
+          "path": "/api/ai/chat/profiles",
+          "handler": "ai_chat/server/chat-profiles.route"
+        },
+        {
+          "path": "/api/ai/chat",
+          "handler": "ai_chat/server/ai-chat.route"
+        },
+        {
+          "path": "/api/ai/stream",
+          "handler": "ai_chat/server/ai-stream.route"
+        }
+      ],
       "widgets": [],
       "slots": [],
       "extensionPoints": [],
-      "extensions": [
-        {
-          "point": "ai:provider",
-          "key": "openai",
-          "export": "ai_openai/server/openai.extension",
-          "metadata": {
-            "label": "OpenAI",
-            "defaultModel": "gpt-4o-mini",
-            "models": [
-              "gpt-4o",
-              "gpt-4o-mini",
-              "gpt-4-turbo",
-              "gpt-4",
-              "gpt-3.5-turbo",
-              "o1",
-              "o1-mini",
-              "o1-preview"
-            ]
-          }
-        }
-      ],
+      "extensions": [],
       "pkgExports": [
-        "./server/openai.extension",
-        "./server/providers/openai.helpers",
-        "./server/providers/openai.provider",
-        "./server/providers/openai.transport",
+        "./server/ai-chat.route",
+        "./server/chat-profiles.route",
+        "./server/ai-stream.route",
+        "./ui/ai-chat-box.component",
+        "./ui/chat.page",
         "./module.json"
       ],
       "settingsTabs": [],
       "modulePermissions": [],
-      "hasReadme": true,
+      "hasReadme": false,
       "hasModuleJson": true,
-      "hasNextLayer": false,
-      "readme": "# ai_openai\n\nOpenAI provider satellite for the [`ai`](../ai) host module.\n\nContributes an `openai` implementation into the host's `ai:provider` extension\npoint (declared in `ai/module.json`). The host `AIProviderService` discovers it\nthrough the extension registry — there is no static import of this module from\nthe host.\n\n- **Backend:** `server/providers/openai.provider.ts` (+ `openai.transport.ts`,\n  `openai.helpers.ts`) — the provider implementation, extending\n  `@kuraykaraaslan/ai/server/providers/base.provider`.\n- **Contribution:** `server/openai.extension.ts` — the default-exported\n  `AIProviderContribution` (`key`, `settingKeys`, `resolveConfig`, `create`).\n- **Enable/disable:** per-tenant via module activation\n  (`module.ai_openai.enabled`). Disabling removes the `openai` provider for that\n  tenant with no host change.\n\nProvider credentials/settings (`openaiApiKey`, `openaiDefaultModel`,\n`openaiMaxTokens`, `openaiBaseUrl`) remain centrally defined in\n`ai/server/ai.setting.keys.ts` and edited from the AI settings page; this module\nreferences them by name in `resolveConfig`.\n"
-    },
-    {
-      "id": "ai_anthropic",
-      "name": "AI — Anthropic",
-      "version": "1.0.0",
-      "description": "Anthropic (Claude) provider for the AI module. Contributes chat and streaming.",
-      "author": "Kuray Karaaslan",
-      "license": "CC-BY-NC-ND-4.0",
-      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/ai_anthropic",
-      "dir": "modules/ai_anthropic",
-      "icon": "fas fa-robot",
-      "tags": [
-        "ai",
-        "provider"
-      ],
-      "priority": 52,
-      "tier": "ai",
-      "dependencies": {
-        "requires": [
-          "ai",
-          "env",
-          "setting"
-        ]
-      },
-      "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
-        "settingKeys": [],
-        "providers": [],
-        "jobs": [],
-        "entities": []
-      },
-      "enabled": true,
-      "menu": [],
-      "adminRoutes": [],
-      "apiRoutes": [],
-      "widgets": [],
-      "slots": [],
-      "extensionPoints": [],
-      "extensions": [
-        {
-          "point": "ai:provider",
-          "key": "anthropic",
-          "export": "ai_anthropic/server/anthropic.extension",
-          "metadata": {
-            "label": "Anthropic",
-            "defaultModel": "claude-3-5-sonnet-20241022",
-            "models": [
-              "claude-opus-4-20250514",
-              "claude-sonnet-4-20250514",
-              "claude-3-7-sonnet-20250219",
-              "claude-3-5-sonnet-20241022",
-              "claude-3-5-haiku-20241022",
-              "claude-3-opus-20240229",
-              "claude-3-sonnet-20240229",
-              "claude-3-haiku-20240307"
-            ]
-          }
-        }
-      ],
-      "pkgExports": [
-        "./server/anthropic.extension",
-        "./server/providers/anthropic.provider",
-        "./module.json"
-      ],
-      "settingsTabs": [],
-      "modulePermissions": [],
-      "hasReadme": true,
-      "hasModuleJson": true,
-      "hasNextLayer": false,
-      "readme": "# ai_anthropic\n\nAnthropic (Claude) provider satellite for the [`ai`](../ai) host module.\n\nContributes an `anthropic` implementation into the host's `ai:provider`\nextension point. See [`ai_openai`](../ai_openai) for the shared pattern.\n\n- **Backend:** `server/providers/anthropic.provider.ts`.\n- **Contribution:** `server/anthropic.extension.ts`.\n- **Enable/disable:** per-tenant via `module.ai_anthropic.enabled`.\n\nCredentials (`anthropicApiKey`, `anthropicDefaultModel`, `anthropicMaxTokens`)\nremain centrally defined in `ai/server/ai.setting.keys.ts`.\n"
-    },
-    {
-      "id": "ai_google",
-      "name": "AI — Google",
-      "version": "1.0.0",
-      "description": "Google (Gemini) provider for the AI module. Contributes chat, streaming and embeddings.",
-      "author": "Kuray Karaaslan",
-      "license": "CC-BY-NC-ND-4.0",
-      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/ai_google",
-      "dir": "modules/ai_google",
-      "icon": "fas fa-robot",
-      "tags": [
-        "ai",
-        "provider"
-      ],
-      "priority": 53,
-      "tier": "ai",
-      "dependencies": {
-        "requires": [
-          "ai",
-          "env",
-          "setting"
-        ]
-      },
-      "exports": {
-        "services": [],
-        "dtos": [],
-        "enums": [],
-        "messageKeys": [],
-        "settingKeys": [],
-        "providers": [],
-        "jobs": [],
-        "entities": []
-      },
-      "enabled": true,
-      "menu": [],
-      "adminRoutes": [],
-      "apiRoutes": [],
-      "widgets": [],
-      "slots": [],
-      "extensionPoints": [],
-      "extensions": [
-        {
-          "point": "ai:provider",
-          "key": "google",
-          "export": "ai_google/server/google.extension",
-          "metadata": {
-            "label": "Google",
-            "defaultModel": "gemini-2.0-flash",
-            "models": [
-              "gemini-2.0-flash",
-              "gemini-2.0-flash-lite",
-              "gemini-1.5-pro",
-              "gemini-1.5-flash",
-              "gemini-1.5-flash-8b"
-            ]
-          }
-        }
-      ],
-      "pkgExports": [
-        "./server/google.extension",
-        "./server/providers/google.helpers",
-        "./server/providers/google.provider",
-        "./server/providers/google.transport",
-        "./module.json"
-      ],
-      "settingsTabs": [],
-      "modulePermissions": [],
-      "hasReadme": true,
-      "hasModuleJson": true,
-      "hasNextLayer": false,
-      "readme": "# ai_google\n\nGoogle (Gemini) provider satellite for the [`ai`](../ai) host module.\n\nContributes a `google` implementation into the host's `ai:provider` extension\npoint. See [`ai_openai`](../ai_openai) for the shared pattern.\n\n- **Backend:** `server/providers/google.provider.ts` (+ `google.transport.ts`,\n  `google.helpers.ts`).\n- **Contribution:** `server/google.extension.ts`.\n- **Enable/disable:** per-tenant via `module.ai_google.enabled`.\n\nCredentials (`googleAiApiKey`, `googleDefaultModel`, `googleMaxTokens`) remain\ncentrally defined in `ai/server/ai.setting.keys.ts`.\n"
+      "hasNextLayer": true,
+      "readme": ""
     },
     {
       "id": "integrations_hub",

@@ -8,7 +8,7 @@
 - **icon:** `fas fa-robot`
 - **hasNextLayer:** true
 
-Pluggable AI providers (Anthropic, OpenAI, Google). Chat, embeddings, streaming, usage tracking.
+Pluggable AI providers (Anthropic, OpenAI, Google, community plugins). Provider selection, embeddings, models, usage tracking. Chat lives in the ai_chat module.
 
 ## Dependencies
 
@@ -38,7 +38,6 @@ Pluggable AI providers (Anthropic, OpenAI, Google). Chat, embeddings, streaming,
 
 ## Next layer (modules_next/) surface
 
-- `ai/ui/ai-chat-box.component` _(ui, client)_
 - `ai/ui/ai.page` _(ui, client)_
 - `ai/ui/settings.page` _(ui, client)_
 - `ai/ui/usage-chart.component` _(ui, client)_

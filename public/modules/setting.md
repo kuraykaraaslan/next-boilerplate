@@ -41,9 +41,7 @@ System-wide key-value settings store. Modules declare their keys in *.setting.ke
 
 ## Next layer (modules_next/) surface
 
-- `setting/ui/module-manager-page.component` _(ui, client)_
 - `setting/ui/module-settings-page.component` _(ui, client)_
-- `setting/ui/modules.page` _(ui, client)_
 - `setting/ui/platform-settings-tabs.component` _(ui, client)_
 - `setting/ui/setting.types` _(ui)_
 - `setting/ui/settings-auth.page` _(ui, client)_

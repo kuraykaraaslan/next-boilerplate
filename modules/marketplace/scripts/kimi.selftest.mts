@@ -10,7 +10,7 @@ import { SandboxManager } from '../../plugin_runtime/server/host/isolate-pool';
 import type { CallCtx } from '../../plugin_runtime/server/host/isolate-pool';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const bundle = readFileSync(path.join(here, '../examples/kimi/plugin.js'), 'utf8');
+const bundle = readFileSync(path.join(here, '../examples/@kimi/kimi/plugin.js'), 'utf8');
 
 let pass = 0, fail = 0;
 const ok = (n: string) => { console.log('PASS', n); pass++; };

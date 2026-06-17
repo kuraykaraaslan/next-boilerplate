@@ -1,0 +1,44 @@
+{
+  "id": "us_login_gov",
+  "name": "Login.gov",
+  "version": "1.0.0",
+  "description": "Login.gov — national identity (OIDC), contributed into auth_acs:provider, sandboxed.",
+  "icon": "fas fa-id-card",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": [
+      "http",
+      "secrets",
+      "crypto"
+    ],
+    "httpAllowlist": [
+      "secure.login.gov"
+    ],
+    "limits": {
+      "memoryMb": 64,
+      "timeoutMs": 30000,
+      "httpTimeoutMs": 28000,
+      "httpMaxBytes": 2000000
+    }
+  },
+  "config": {
+    "secrets": [
+      {
+        "key": "clientSecret",
+        "label": "OIDC Client Secret",
+        "help": "Stored encrypted; injected host-side for the token exchange."
+      }
+    ]
+  },
+  "extensions": [
+    {
+      "point": "auth_acs:provider",
+      "key": "us_login_gov",
+      "metadata": {
+        "label": "Login.gov",
+        "protocol": "oidc",
+        "country": "US"
+      }
+    }
+  ]
+}

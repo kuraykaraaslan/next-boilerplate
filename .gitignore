@@ -36,6 +36,9 @@ yarn-error.log*
 # ...but keep example templates tracked
 !.env*.example
 
+# local filesystem storage provider (storage_local) — runtime object store
+/.local-storage
+
 # vercel
 .vercel
 

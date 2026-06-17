@@ -19,21 +19,22 @@ export default class AuthAcsService {
   static resolveOrProvisionUser = AuthAcsFlowService.resolveOrProvisionUser.bind(AuthAcsFlowService);
   static linkToUser = AuthAcsFlowService.linkToUser.bind(AuthAcsFlowService);
 
-  /** Build the IdP redirect URL. `relayState` round-trips tenant/link context. */
-  static async generateAuthUrl(provider: AcsProvider, relayState: string): Promise<string> {
+  /** Build the IdP redirect URL. `relayState` round-trips tenant/link context.
+   *  `tenantId` lets a sandboxed community provider (if installed) take over. */
+  static async generateAuthUrl(provider: AcsProvider, relayState: string, tenantId?: string): Promise<string> {
     AuthAcsConfigService.assertEnabled(provider);
-    return (await getAcsProvider(provider)).generateAuthUrl(relayState);
+    return (await getAcsProvider(provider, tenantId)).generateAuthUrl(relayState);
   }
 
   /** Validate the IdP callback into a normalised national-identity profile. */
-  static async validateCallback(provider: AcsProvider, body: Record<string, string>): Promise<AcsProfile> {
+  static async validateCallback(provider: AcsProvider, body: Record<string, string>, tenantId?: string): Promise<AcsProfile> {
     AuthAcsConfigService.assertEnabled(provider);
-    return (await getAcsProvider(provider)).validateCallback(body);
+    return (await getAcsProvider(provider, tenantId)).validateCallback(body);
   }
 
   /** SP metadata XML (SAML providers only). */
-  static async generateMetadata(provider: AcsProvider): Promise<string> {
-    const svc = await getAcsProvider(provider);
+  static async generateMetadata(provider: AcsProvider, tenantId?: string): Promise<string> {
+    const svc = await getAcsProvider(provider, tenantId);
     if (svc.protocol !== 'saml' || !svc.generateMetadata) {
       throw new AppError(AcsMessages.METADATA_UNAVAILABLE, 400, ErrorCode.VALIDATION_ERROR);
     }
@@ -43,7 +44,7 @@ export default class AuthAcsService {
   static async authenticate(
     provider: AcsProvider, body: Record<string, string>, ctx: AcsFlowContext = {},
   ): Promise<{ user: import('@kuraykaraaslan/user/server/user.types').SafeUser; isNewUser: boolean; profile: AcsProfile }> {
-    const profile = await AuthAcsService.validateCallback(provider, body);
+    const profile = await AuthAcsService.validateCallback(provider, body, ctx.tenantId ?? undefined);
     const { user, isNewUser } = await AuthAcsFlowService.resolveOrProvisionUser(profile, ctx);
     return { user, isNewUser, profile };
   }

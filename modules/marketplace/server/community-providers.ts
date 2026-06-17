@@ -10,17 +10,47 @@ import type { SandboxConfig } from '@kuraykaraaslan/plugin_runtime/server/rpc/pr
 import { PublishedModuleVersion } from './entities/published_module_version.entity';
 import { resolveRunnablePlugin } from './plugin-resolve';
 
+export interface ProviderSecretDecl {
+  key: string;
+  label?: string;
+}
+
 export interface CommunityProviderContribution {
   listingId: string;
   point: string;
   key: string;
   label?: string;
   models: string[];
+  /** Raw manifest extension metadata (label, models, protocol, country, …). */
+  metadata: Record<string, unknown>;
+  /** Stable plugin id (scoped name) that namespaces this plugin's secrets/settings. */
+  scopedName: string;
+  /** Secrets the plugin declares as required (manifest extension metadata.secrets). */
+  secrets: ProviderSecretDecl[];
   sandbox: SandboxConfig;
   getBundle: () => Promise<string>;
 }
 
 const VERSION_KEY_RE = /^plugin\.community\.(.+)\.version$/;
+
+/** Full settings key under which a plugin secret is stored (mirrors the broker). */
+export function pluginSecretKey(scopedName: string, secretKey: string): string {
+  return `plugin_secret:${scopedName}:${secretKey}`;
+}
+
+/** Whether a plugin secret is set (non-empty) for a tenant — never returns the value. */
+export async function isPluginSecretSet(tenantId: string, scopedName: string, secretKey: string): Promise<boolean> {
+  const v = await SettingService.getValue(tenantId, pluginSecretKey(scopedName, secretKey));
+  return typeof v === 'string' && v.length > 0;
+}
+
+/** True when every secret the provider declares is set for the tenant. */
+export async function providerIsConfigured(tenantId: string, c: CommunityProviderContribution): Promise<boolean> {
+  for (const s of c.secrets) {
+    if (!(await isPluginSecretSet(tenantId, c.scopedName, s.key))) return false;
+  }
+  return true;
+}
 
 export async function listInstalledCommunityProviders(tenantId: string, point: string): Promise<CommunityProviderContribution[]> {
   const all = await SettingService.getAllAsRecord(tenantId);
@@ -38,17 +68,22 @@ export async function listInstalledCommunityProviders(tenantId: string, point: s
 
     const version = await ds.getRepository(PublishedModuleVersion).findOne({ where: { versionId } });
     if (!version) continue;
-    let extensions: Array<{ point?: string; key?: string; metadata?: { label?: string; models?: string[] } }> = [];
-    try { extensions = (JSON.parse(version.manifestJson).extensions ?? []); } catch { /* malformed */ }
+    let manifest: { extensions?: Array<{ point?: string; key?: string; metadata?: Record<string, unknown> }>; config?: { secrets?: ProviderSecretDecl[] } } = {};
+    try { manifest = JSON.parse(version.manifestJson); } catch { /* malformed */ }
+    const declaredSecrets = Array.isArray(manifest.config?.secrets) ? manifest.config!.secrets! : [];
 
-    for (const ext of extensions) {
+    for (const ext of manifest.extensions ?? []) {
       if (ext.point !== point || !ext.key) continue;
+      const metadata = ext.metadata ?? {};
       out.push({
         listingId,
         point,
         key: ext.key,
-        label: ext.metadata?.label,
-        models: ext.metadata?.models ?? [],
+        label: typeof metadata.label === 'string' ? metadata.label : undefined,
+        models: Array.isArray(metadata.models) ? (metadata.models as string[]) : [],
+        metadata,
+        scopedName: runnable.sandbox.pluginId,
+        secrets: declaredSecrets,
         sandbox: runnable.sandbox,
         getBundle: runnable.getBundle,
       });

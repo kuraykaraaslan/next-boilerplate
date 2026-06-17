@@ -1,0 +1,55 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "ai_chat",
+  "name": "AI Chat",
+  "description": "Chat playground + chat/stream endpoints. Talks to whichever provider the AI module has selected as default for the tenant.",
+  "version": "1.0.0",
+  "icon": "fas fa-comments",
+  "tags": [
+    "ai",
+    "chat"
+  ],
+  "priority": 51,
+  "dependencies": {
+    "requires": [
+      "ai",
+      "user_session",
+      "limiter",
+      "common"
+    ]
+  },
+  "menu": [
+    {
+      "id": "ai_chat",
+      "label": "AI Chat",
+      "href": "/admin/ai/chat",
+      "icon": "fas fa-comments",
+      "group": "Developer",
+      "order": 11,
+      "scope": "tenant"
+    }
+  ],
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/ai_chat",
+  "license": "CC-BY-NC-ND-4.0",
+  "routes": [
+    {
+      "path": "/admin/ai/chat",
+      "component": "ai_chat/ui/chat.page"
+    }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/ai/chat/profiles",
+      "handler": "ai_chat/server/chat-profiles.route"
+    },
+    {
+      "path": "/api/ai/chat",
+      "handler": "ai_chat/server/ai-chat.route"
+    },
+    {
+      "path": "/api/ai/stream",
+      "handler": "ai_chat/server/ai-stream.route"
+    }
+  ]
+}

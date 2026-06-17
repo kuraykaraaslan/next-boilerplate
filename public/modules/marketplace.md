@@ -12,7 +12,7 @@ Browse, install, activate, and remove tenant modules; publish your own modules t
 
 ## Dependencies
 
-- **requires:** `db`, `env`, `setting`, `audit_log`, `auth`, `tenant`, `storage`, `plugin_runtime`, `ai`, `common`
+- **requires:** `db`, `env`, `setting`, `audit_log`, `auth`, `tenant`, `storage`, `plugin_runtime`, `common`
 
 ## Entities
 
@@ -34,5 +34,6 @@ Browse, install, activate, and remove tenant modules; publish your own modules t
 - `marketplace/ui/developer.page` _(ui, client)_
 - `marketplace/ui/marketplace-page.component` _(ui, client)_
 - `marketplace/ui/marketplace.page` _(ui, client)_
+- `marketplace/ui/plugin-config-modal.component` _(ui, client)_
 - `marketplace/ui/review-page.component` _(ui, client)_
 - `marketplace/ui/review.page` _(ui, client)_

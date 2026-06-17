@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export const StorageProviderTypeSchema = z.enum(['aws-s3', 's3', 'cloudflare-r2', 'digitalocean-spaces', 'minio'])
+export const StorageProviderTypeSchema = z.enum(['aws-s3', 's3', 'cloudflare-r2', 'digitalocean-spaces', 'minio', 'local'])
 export type StorageProviderType = z.infer<typeof StorageProviderTypeSchema>
 
 export const StorageFolderSchema = z.enum([

@@ -11,7 +11,7 @@
     "hasNextLayer": true,
     "routeCount": 0,
     "entityCount": 0,
-    "componentCount": 68,
+    "componentCount": 70,
     "file": "common.md"
   },
   "env": {
@@ -136,7 +136,7 @@
     "hasNextLayer": true,
     "routeCount": 0,
     "entityCount": 2,
-    "componentCount": 30,
+    "componentCount": 28,
     "file": "setting.md"
   },
   "user_agent": {
@@ -162,7 +162,7 @@
     "hasNextLayer": true,
     "routeCount": 0,
     "entityCount": 4,
-    "componentCount": 6,
+    "componentCount": 7,
     "file": "marketplace.md"
   },
   "plugin_runtime": {
@@ -628,214 +628,6 @@
     "entityCount": 2,
     "componentCount": 0,
     "file": "scim.md"
-  },
-  "auth_acs_az_mygovid": {
-    "name": "MyGov ID (AZ)",
-    "tier": "other",
-    "tags": [
-      "identity",
-      "auth",
-      "acs",
-      "government",
-      "provider"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "auth_acs_az_mygovid.md"
-  },
-  "auth_acs_ct_edevlet": {
-    "name": "e-Devlet (KKTC) ile Giriş (CT)",
-    "tier": "other",
-    "tags": [
-      "identity",
-      "auth",
-      "acs",
-      "government",
-      "provider"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "auth_acs_ct_edevlet.md"
-  },
-  "auth_acs_de_eid": {
-    "name": "Online-Ausweis (eID) (DE)",
-    "tier": "other",
-    "tags": [
-      "identity",
-      "auth",
-      "acs",
-      "government",
-      "provider"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "auth_acs_de_eid.md"
-  },
-  "auth_acs_es_clave": {
-    "name": "Cl@ve (ES)",
-    "tier": "other",
-    "tags": [
-      "identity",
-      "auth",
-      "acs",
-      "government",
-      "provider"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "auth_acs_es_clave.md"
-  },
-  "auth_acs_esia_ru": {
-    "name": "Госуслуги (RU)",
-    "tier": "other",
-    "tags": [
-      "identity",
-      "auth",
-      "acs",
-      "government",
-      "provider"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "auth_acs_esia_ru.md"
-  },
-  "auth_acs_eu_eidas": {
-    "name": "eIDAS (EU)",
-    "tier": "other",
-    "tags": [
-      "identity",
-      "auth",
-      "acs",
-      "government",
-      "provider"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "auth_acs_eu_eidas.md"
-  },
-  "auth_acs_it_spid": {
-    "name": "Entra con SPID (IT)",
-    "tier": "other",
-    "tags": [
-      "identity",
-      "auth",
-      "acs",
-      "government",
-      "provider"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "auth_acs_it_spid.md"
-  },
-  "auth_acs_kg_tunduk": {
-    "name": "Tunduk (KG)",
-    "tier": "other",
-    "tags": [
-      "identity",
-      "auth",
-      "acs",
-      "government",
-      "provider"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "auth_acs_kg_tunduk.md"
-  },
-  "auth_acs_kz_egov": {
-    "name": "eGov.kz (KZ)",
-    "tier": "other",
-    "tags": [
-      "identity",
-      "auth",
-      "acs",
-      "government",
-      "provider"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "auth_acs_kz_egov.md"
-  },
-  "auth_acs_tr_edevlet": {
-    "name": "e-Devlet ile Giriş (TR)",
-    "tier": "other",
-    "tags": [
-      "identity",
-      "auth",
-      "acs",
-      "government",
-      "provider"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "auth_acs_tr_edevlet.md"
-  },
-  "auth_acs_us_id_me": {
-    "name": "ID.me (US)",
-    "tier": "other",
-    "tags": [
-      "identity",
-      "auth",
-      "acs",
-      "government",
-      "provider"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "auth_acs_us_id_me.md"
-  },
-  "auth_acs_us_login_gov": {
-    "name": "Login.gov (US)",
-    "tier": "other",
-    "tags": [
-      "identity",
-      "auth",
-      "acs",
-      "government",
-      "provider"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "auth_acs_us_login_gov.md"
-  },
-  "auth_acs_uz_oneid": {
-    "name": "OneID (UZ)",
-    "tier": "other",
-    "tags": [
-      "identity",
-      "auth",
-      "acs",
-      "government",
-      "provider"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "auth_acs_uz_oneid.md"
   },
   "tenant": {
     "name": "Tenant",
@@ -1728,6 +1520,19 @@
     "componentCount": 0,
     "file": "storage_minio.md"
   },
+  "storage_local": {
+    "name": "Storage — Local Filesystem",
+    "tier": "other",
+    "tags": [
+      "storage",
+      "provider"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 0,
+    "componentCount": 0,
+    "file": "storage_local.md"
+  },
   "messaging": {
     "name": "Messaging",
     "tier": "other",
@@ -1866,7 +1671,7 @@
     "hasNextLayer": true,
     "routeCount": 0,
     "entityCount": 1,
-    "componentCount": 5,
+    "componentCount": 4,
     "file": "ai.md"
   },
   "dynamic_page": {
@@ -1885,44 +1690,18 @@
     "componentCount": 89,
     "file": "dynamic_page.md"
   },
-  "ai_openai": {
-    "name": "AI — OpenAI",
-    "tier": "ai",
+  "ai_chat": {
+    "name": "AI Chat",
+    "tier": "other",
     "tags": [
       "ai",
-      "provider"
+      "chat"
     ],
-    "hasNextLayer": false,
+    "hasNextLayer": true,
     "routeCount": 0,
     "entityCount": 0,
-    "componentCount": 0,
-    "file": "ai_openai.md"
-  },
-  "ai_anthropic": {
-    "name": "AI — Anthropic",
-    "tier": "ai",
-    "tags": [
-      "ai",
-      "provider"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "ai_anthropic.md"
-  },
-  "ai_google": {
-    "name": "AI — Google",
-    "tier": "ai",
-    "tags": [
-      "ai",
-      "provider"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "ai_google.md"
+    "componentCount": 2,
+    "file": "ai_chat.md"
   },
   "integrations_hub": {
     "name": "Integrations Hub",

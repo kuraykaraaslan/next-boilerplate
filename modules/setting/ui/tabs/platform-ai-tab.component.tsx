@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { Card } from '@kuraykaraaslan/common/ui/card.component';
-import { Input } from '@kuraykaraaslan/common/ui/input.component';
 import { Toggle } from '@kuraykaraaslan/common/ui/toggle.component';
 import { Select } from '@kuraykaraaslan/common/ui/select.component';
 import { b, bStr, SaveRow, type SR, type TabProps } from './platform-tab.shared.component';
@@ -17,12 +16,6 @@ export function PlatformAiTab({ settings, onSave, saving }: TabProps) {
   const [f, setF] = useState({
     aiEnabled: b(settings.aiEnabled),
     aiDefaultProvider: settings.aiDefaultProvider ?? 'openai',
-    openaiApiKey: settings.openaiApiKey ?? '',
-    openaiDefaultModel: settings.openaiDefaultModel ?? 'gpt-4o',
-    anthropicApiKey: settings.anthropicApiKey ?? '',
-    anthropicDefaultModel: settings.anthropicDefaultModel ?? 'claude-sonnet-4-6',
-    googleAiApiKey: settings.googleAiApiKey ?? '',
-    googleDefaultModel: settings.googleDefaultModel ?? 'gemini-2.0-flash',
   });
 
   function patch<K extends keyof typeof f>(key: K, val: (typeof f)[K]) { setF((p) => ({ ...p, [key]: val })); }
@@ -42,35 +35,13 @@ export function PlatformAiTab({ settings, onSave, saving }: TabProps) {
         </form>
       </Card>
       {f.aiEnabled && (
-        <>
-          <Card title="OpenAI">
-            <form onSubmit={(e) => { e.preventDefault(); onSave(buildPatch()); }} className="space-y-4">
-              <Input id="openaiApiKey" label="API Key" type="password" value={f.openaiApiKey}
-                onChange={(e) => patch('openaiApiKey', e.target.value)} />
-              <Input id="openaiModel" label="Default Model" value={f.openaiDefaultModel}
-                onChange={(e) => patch('openaiDefaultModel', e.target.value)} />
-              <SaveRow loading={saving} />
-            </form>
-          </Card>
-          <Card title="Anthropic">
-            <form onSubmit={(e) => { e.preventDefault(); onSave(buildPatch()); }} className="space-y-4">
-              <Input id="anthropicApiKey" label="API Key" type="password" value={f.anthropicApiKey}
-                onChange={(e) => patch('anthropicApiKey', e.target.value)} />
-              <Input id="anthropicModel" label="Default Model" value={f.anthropicDefaultModel}
-                onChange={(e) => patch('anthropicDefaultModel', e.target.value)} />
-              <SaveRow loading={saving} />
-            </form>
-          </Card>
-          <Card title="Google Gemini">
-            <form onSubmit={(e) => { e.preventDefault(); onSave(buildPatch()); }} className="space-y-4">
-              <Input id="googleAiApiKey" label="API Key" type="password" value={f.googleAiApiKey}
-                onChange={(e) => patch('googleAiApiKey', e.target.value)} />
-              <Input id="googleModel" label="Default Model" value={f.googleDefaultModel}
-                onChange={(e) => patch('googleDefaultModel', e.target.value)} />
-              <SaveRow loading={saving} />
-            </form>
-          </Card>
-        </>
+        <Card title="Providers">
+          <p className="text-sm text-text-secondary">
+            AI providers (OpenAI, Anthropic, Google, Kimi, …) are now sandboxed plugins. Install them and set
+            their API keys from <span className="font-medium">Plugins → Configure</span>. Each provider&apos;s
+            credentials are stored as encrypted plugin secrets.
+          </p>
+        </Card>
       )}
     </div>
   );

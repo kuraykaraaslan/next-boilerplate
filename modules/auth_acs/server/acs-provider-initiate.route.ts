@@ -27,7 +27,7 @@ export async function GET(req: NextRequest, { params }: Params) {
   try {
     const provider = AuthAcsService.assertKnown(raw);
     const relay = signAcsRelay(tenantId, returnPath);
-    const redirectUrl = await AuthAcsService.generateAuthUrl(provider, relay);
+    const redirectUrl = await AuthAcsService.generateAuthUrl(provider, relay, tenantId ?? undefined);
     return NextResponse.redirect(redirectUrl);
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'acs_initiate_failed';

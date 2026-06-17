@@ -1,0 +1,44 @@
+{
+  "id": "uz_oneid",
+  "name": "OneID",
+  "version": "1.0.0",
+  "description": "OneID — national identity (OIDC), contributed into auth_acs:provider, sandboxed.",
+  "icon": "fas fa-id-card",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": [
+      "http",
+      "secrets",
+      "crypto"
+    ],
+    "httpAllowlist": [
+      "sso.egov.uz"
+    ],
+    "limits": {
+      "memoryMb": 64,
+      "timeoutMs": 30000,
+      "httpTimeoutMs": 28000,
+      "httpMaxBytes": 2000000
+    }
+  },
+  "config": {
+    "secrets": [
+      {
+        "key": "clientSecret",
+        "label": "OIDC Client Secret",
+        "help": "Stored encrypted; injected host-side for the token exchange."
+      }
+    ]
+  },
+  "extensions": [
+    {
+      "point": "auth_acs:provider",
+      "key": "uz_oneid",
+      "metadata": {
+        "label": "OneID",
+        "protocol": "oidc",
+        "country": "UZ"
+      }
+    }
+  ]
+}

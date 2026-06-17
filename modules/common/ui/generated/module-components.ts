@@ -3,6 +3,7 @@
 import { lazy, type ComponentType } from 'react';
 
 export const moduleComponents: Record<string, ComponentType<any>> = {
+  "ai_chat/ui/chat.page": lazy(() => import("@kuraykaraaslan/ai_chat/ui/chat.page").then((m) => { const M = m as Record<string, any>; return { default: M.default ?? M["chat.page"] }; })),
   "ai/ui/ai.page": lazy(() => import("@kuraykaraaslan/ai/ui/ai.page").then((m) => { const M = m as Record<string, any>; return { default: M.default ?? M["ai.page"] }; })),
   "ai/ui/settings.page": lazy(() => import("@kuraykaraaslan/ai/ui/settings.page").then((m) => { const M = m as Record<string, any>; return { default: M.default ?? M["settings.page"] }; })),
   "analytics/ui/analytics.page": lazy(() => import("@kuraykaraaslan/analytics/ui/analytics.page").then((m) => { const M = m as Record<string, any>; return { default: M.default ?? M["analytics.page"] }; })),
@@ -59,7 +60,6 @@ export const moduleComponents: Record<string, ComponentType<any>> = {
   "payment/ui/plans.page": lazy(() => import("@kuraykaraaslan/payment/ui/plans.page").then((m) => { const M = m as Record<string, any>; return { default: M.default ?? M["plans.page"] }; })),
   "plugin_runtime/ui/plugin-host.page": lazy(() => import("@kuraykaraaslan/plugin_runtime/ui/plugin-host.page").then((m) => { const M = m as Record<string, any>; return { default: M.default ?? M["plugin-host.page"] }; })),
   "search/ui/search.page": lazy(() => import("@kuraykaraaslan/search/ui/search.page").then((m) => { const M = m as Record<string, any>; return { default: M.default ?? M["search.page"] }; })),
-  "setting/ui/modules.page": lazy(() => import("@kuraykaraaslan/setting/ui/modules.page").then((m) => { const M = m as Record<string, any>; return { default: M.default ?? M["modules.page"] }; })),
   "setting/ui/settings-auth.page": lazy(() => import("@kuraykaraaslan/setting/ui/settings-auth.page").then((m) => { const M = m as Record<string, any>; return { default: M.default ?? M["settings-auth.page"] }; })),
   "setting/ui/settings-billing.page": lazy(() => import("@kuraykaraaslan/setting/ui/settings-billing.page").then((m) => { const M = m as Record<string, any>; return { default: M.default ?? M["settings-billing.page"] }; })),
   "setting/ui/settings-e-signature.page": lazy(() => import("@kuraykaraaslan/setting/ui/settings-e-signature.page").then((m) => { const M = m as Record<string, any>; return { default: M.default ?? M["settings-e-signature.page"] }; })),

@@ -15,6 +15,13 @@
   "dependencies": {
     "requires": []
   },
+  "extensionPoints": [
+    {
+      "id": "external:contributions",
+      "kind": "hook",
+      "description": "Runtime-discovered contribution sources (e.g. sandboxed community plugins). A contributor default-exports a source fn (tenantId, point) => ExternalContribution[]; hosts read it via listExternalContributions()."
+    }
+  ],
   "exports": {
     "AppError": "app-error.ts",
     "ErrorCode": "app-error.ts",

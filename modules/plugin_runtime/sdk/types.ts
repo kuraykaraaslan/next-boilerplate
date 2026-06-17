@@ -9,12 +9,28 @@
 // handlers. It can ONLY reach data/network/storage through `host.*`; it has no
 // module system, no `process`, `fs`, or `fetch`.
 
-/** Capabilities a plugin may request in its manifest `sandbox.capabilities`. */
-export type Capability = 'data' | 'http' | 'settings' | 'secrets' | 'storage' | 'events';
+/**
+ * The capability surface: capability name → the `host.<cap>.<method>` methods it
+ * exposes. SINGLE SOURCE OF TRUTH — both the isolate host-shim (generated from this)
+ * and the broker dispatcher/validation derive from it, and `Capability` /
+ * `ALL_CAPABILITIES` are derived too. Adding a capability is ONE line here plus its
+ * implementation in the broker registry (see broker.service `CAPABILITIES`).
+ */
+export const CAPABILITY_SURFACE = {
+  data: ['get', 'put', 'delete', 'list'],
+  http: ['fetch'],
+  settings: ['get', 'getMany', 'set'],
+  secrets: ['get'],
+  storage: ['put', 'getUrl', 'delete'],
+  events: ['log', 'emit'],
+  crypto: ['verifyJwks'],
+  saml: ['generateAuthUrl', 'validateResponse'],
+} as const satisfies Record<string, readonly string[]>;
 
-export const ALL_CAPABILITIES: Capability[] = [
-  'data', 'http', 'settings', 'secrets', 'storage', 'events',
-];
+/** Capabilities a plugin may request in its manifest `sandbox.capabilities`. */
+export type Capability = keyof typeof CAPABILITY_SURFACE;
+
+export const ALL_CAPABILITIES: Capability[] = Object.keys(CAPABILITY_SURFACE) as Capability[];
 
 /** A JSON-serializable value — everything crossing the isolate boundary must be this. */
 export type Json = null | boolean | number | string | Json[] | { [k: string]: Json };

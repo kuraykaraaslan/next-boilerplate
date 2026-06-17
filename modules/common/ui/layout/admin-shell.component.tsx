@@ -7,6 +7,7 @@ import { AppSidebar } from '@kuraykaraaslan/common/ui/layout/app-sidebar.compone
 import { AppTopBar } from '@kuraykaraaslan/common/ui/layout/app-top-bar.component';
 import { UserMenu } from '@kuraykaraaslan/user/ui/user-menu.component';
 import { NotificationMenu } from '@kuraykaraaslan/common/ui/notification-menu.component';
+import { ThemeToggle } from '@kuraykaraaslan/common/ui/theme-toggle.component';
 import { useNotifications } from '@kuraykaraaslan/notification_inapp/hooks/use-notifications.hook';
 import { isRootTenant } from '@kuraykaraaslan/tenant/server/tenant.constants';
 import { moduleRegistry } from '@kuraykaraaslan/common/server/module-registry';
@@ -160,6 +161,7 @@ export function AdminShell({ children, tenantId }: AdminShellProps) {
   const topbar = (
     <AppTopBar>
       <div className="flex-1" />
+      <ThemeToggle />
       <NotificationMenu
         items={notifications}
         onMarkAllRead={markAllRead}

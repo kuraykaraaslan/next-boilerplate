@@ -1,0 +1,18 @@
+{
+  "name": "@kuraykaraaslan/ai_chat",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/ai-chat.route": "./server/ai-chat.route.ts",
+    "./server/chat-profiles.route": "./server/chat-profiles.route.ts",
+    "./server/ai-stream.route": "./server/ai-stream.route.ts",
+    "./ui/ai-chat-box.component": "./ui/ai-chat-box.component.tsx",
+    "./ui/chat.page": "./ui/chat.page.tsx",
+    "./module.json": "./module.json"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "next": "*"
+  }
+}

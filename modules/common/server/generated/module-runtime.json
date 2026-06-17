@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-17T10:20:03.264Z",
+  "generatedAt": "2026-06-17T21:28:52.349Z",
   "menu": [
     {
       "id": "settings",
@@ -14,7 +14,7 @@
     },
     {
       "id": "marketplace",
-      "label": "Marketplace",
+      "label": "Plugins",
       "href": "/admin/marketplace",
       "icon": "fas fa-store",
       "group": "Configuration",
@@ -22,17 +22,6 @@
       "scope": "tenant",
       "permissions": [],
       "moduleId": "marketplace"
-    },
-    {
-      "id": "modules",
-      "label": "Modules",
-      "href": "/admin/modules",
-      "icon": "fas fa-puzzle-piece",
-      "group": "Configuration",
-      "order": 5,
-      "scope": "tenant",
-      "permissions": [],
-      "moduleId": "setting"
     },
     {
       "id": "marketplace-developer",
@@ -354,6 +343,17 @@
       "moduleId": "webhook"
     },
     {
+      "id": "ai_chat",
+      "label": "AI Chat",
+      "href": "/admin/ai/chat",
+      "icon": "fas fa-comments",
+      "group": "Developer",
+      "order": 11,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "ai_chat"
+    },
+    {
       "id": "payments",
       "label": "Payments",
       "href": "/admin/payments",
@@ -454,6 +454,12 @@
       "componentId": "ai/ui/ai.page",
       "permissions": [],
       "moduleId": "ai"
+    },
+    {
+      "path": "/admin/ai/chat",
+      "componentId": "ai_chat/ui/chat.page",
+      "permissions": [],
+      "moduleId": "ai_chat"
     },
     {
       "path": "/admin/ai/settings",
@@ -688,12 +694,6 @@
       "componentId": "metering/ui/metering.page",
       "permissions": [],
       "moduleId": "metering"
-    },
-    {
-      "path": "/admin/modules",
-      "componentId": "setting/ui/modules.page",
-      "permissions": [],
-      "moduleId": "setting"
     },
     {
       "path": "/admin/pages",
@@ -1044,8 +1044,13 @@
     },
     {
       "path": "/api/ai/chat",
-      "handlerId": "ai/server/ai-chat.route",
-      "moduleId": "ai"
+      "handlerId": "ai_chat/server/ai-chat.route",
+      "moduleId": "ai_chat"
+    },
+    {
+      "path": "/api/ai/chat/profiles",
+      "handlerId": "ai_chat/server/chat-profiles.route",
+      "moduleId": "ai_chat"
     },
     {
       "path": "/api/ai/embed",
@@ -1064,8 +1069,8 @@
     },
     {
       "path": "/api/ai/stream",
-      "handlerId": "ai/server/ai-stream.route",
-      "moduleId": "ai"
+      "handlerId": "ai_chat/server/ai-stream.route",
+      "moduleId": "ai_chat"
     },
     {
       "path": "/api/ai/usage",
@@ -1858,6 +1863,11 @@
       "moduleId": "marketplace"
     },
     {
+      "path": "/api/marketplace/plugins/[listingId]/config",
+      "handlerId": "marketplace/server/community-config.route",
+      "moduleId": "marketplace"
+    },
+    {
       "path": "/api/marketplace/publisher",
       "handlerId": "marketplace/server/publisher.route",
       "moduleId": "marketplace"
@@ -2449,6 +2459,12 @@
       "moduleId": "e_signature"
     },
     {
+      "id": "external:contributions",
+      "kind": "hook",
+      "description": "Runtime-discovered contribution sources (e.g. sandboxed community plugins). A contributor default-exports a source fn (tenantId, point) => ExternalContribution[]; hosts read it via listExternalContributions().",
+      "moduleId": "common"
+    },
+    {
       "id": "invoice:adapter",
       "kind": "provider",
       "description": "A regional/country e-invoicing adapter (UBL-TR/GİB, Peppol BIS, FatturaPA, Chorus Pro, ZUGFeRD, CFDI, GST IRP, US Stripe Tax). Satellite modules like invoice_tr_earsiv contribute their adapter here; the host's adapters/registry discovers them via the extension registry. Routing (region vs issuer-country) is carried in each contribution's metadata { kind, code }. Shared XML helpers (xml.util, cii_xml) and the InvoiceAdapter contract stay in the host.",
@@ -2486,257 +2502,6 @@
     }
   ],
   "extensions": [
-    {
-      "id": "ai_anthropic:ai:provider:anthropic",
-      "point": "ai:provider",
-      "moduleId": "ai_anthropic",
-      "key": "anthropic",
-      "exportId": "ai_anthropic/server/anthropic.extension",
-      "order": 100,
-      "scope": "both",
-      "permissions": [],
-      "metadata": {
-        "label": "Anthropic",
-        "defaultModel": "claude-3-5-sonnet-20241022",
-        "models": [
-          "claude-opus-4-20250514",
-          "claude-sonnet-4-20250514",
-          "claude-3-7-sonnet-20250219",
-          "claude-3-5-sonnet-20241022",
-          "claude-3-5-haiku-20241022",
-          "claude-3-opus-20240229",
-          "claude-3-sonnet-20240229",
-          "claude-3-haiku-20240307"
-        ]
-      }
-    },
-    {
-      "id": "ai_google:ai:provider:google",
-      "point": "ai:provider",
-      "moduleId": "ai_google",
-      "key": "google",
-      "exportId": "ai_google/server/google.extension",
-      "order": 100,
-      "scope": "both",
-      "permissions": [],
-      "metadata": {
-        "label": "Google",
-        "defaultModel": "gemini-2.0-flash",
-        "models": [
-          "gemini-2.0-flash",
-          "gemini-2.0-flash-lite",
-          "gemini-1.5-pro",
-          "gemini-1.5-flash",
-          "gemini-1.5-flash-8b"
-        ]
-      }
-    },
-    {
-      "id": "ai_openai:ai:provider:openai",
-      "point": "ai:provider",
-      "moduleId": "ai_openai",
-      "key": "openai",
-      "exportId": "ai_openai/server/openai.extension",
-      "order": 100,
-      "scope": "both",
-      "permissions": [],
-      "metadata": {
-        "label": "OpenAI",
-        "defaultModel": "gpt-4o-mini",
-        "models": [
-          "gpt-4o",
-          "gpt-4o-mini",
-          "gpt-4-turbo",
-          "gpt-4",
-          "gpt-3.5-turbo",
-          "o1",
-          "o1-mini",
-          "o1-preview"
-        ]
-      }
-    },
-    {
-      "id": "auth_acs_az_mygovid:auth_acs:provider:az_mygovid",
-      "point": "auth_acs:provider",
-      "moduleId": "auth_acs_az_mygovid",
-      "key": "az_mygovid",
-      "exportId": "auth_acs_az_mygovid/server/az_mygovid.extension",
-      "order": 100,
-      "scope": "both",
-      "permissions": [],
-      "metadata": {
-        "label": "MyGov ID",
-        "country": "AZ"
-      }
-    },
-    {
-      "id": "auth_acs_ct_edevlet:auth_acs:provider:ct_edevlet",
-      "point": "auth_acs:provider",
-      "moduleId": "auth_acs_ct_edevlet",
-      "key": "ct_edevlet",
-      "exportId": "auth_acs_ct_edevlet/server/ct_edevlet.extension",
-      "order": 100,
-      "scope": "both",
-      "permissions": [],
-      "metadata": {
-        "label": "e-Devlet (KKTC) ile Giriş",
-        "country": "CT"
-      }
-    },
-    {
-      "id": "auth_acs_de_eid:auth_acs:provider:de_eid",
-      "point": "auth_acs:provider",
-      "moduleId": "auth_acs_de_eid",
-      "key": "de_eid",
-      "exportId": "auth_acs_de_eid/server/de_eid.extension",
-      "order": 100,
-      "scope": "both",
-      "permissions": [],
-      "metadata": {
-        "label": "Online-Ausweis (eID)",
-        "country": "DE"
-      }
-    },
-    {
-      "id": "auth_acs_es_clave:auth_acs:provider:es_clave",
-      "point": "auth_acs:provider",
-      "moduleId": "auth_acs_es_clave",
-      "key": "es_clave",
-      "exportId": "auth_acs_es_clave/server/es_clave.extension",
-      "order": 100,
-      "scope": "both",
-      "permissions": [],
-      "metadata": {
-        "label": "Cl@ve",
-        "country": "ES"
-      }
-    },
-    {
-      "id": "auth_acs_esia_ru:auth_acs:provider:esia_ru",
-      "point": "auth_acs:provider",
-      "moduleId": "auth_acs_esia_ru",
-      "key": "esia_ru",
-      "exportId": "auth_acs_esia_ru/server/esia_ru.extension",
-      "order": 100,
-      "scope": "both",
-      "permissions": [],
-      "metadata": {
-        "label": "Госуслуги",
-        "country": "RU"
-      }
-    },
-    {
-      "id": "auth_acs_eu_eidas:auth_acs:provider:eu_eidas",
-      "point": "auth_acs:provider",
-      "moduleId": "auth_acs_eu_eidas",
-      "key": "eu_eidas",
-      "exportId": "auth_acs_eu_eidas/server/eu_eidas.extension",
-      "order": 100,
-      "scope": "both",
-      "permissions": [],
-      "metadata": {
-        "label": "eIDAS",
-        "country": "EU"
-      }
-    },
-    {
-      "id": "auth_acs_it_spid:auth_acs:provider:it_spid",
-      "point": "auth_acs:provider",
-      "moduleId": "auth_acs_it_spid",
-      "key": "it_spid",
-      "exportId": "auth_acs_it_spid/server/it_spid.extension",
-      "order": 100,
-      "scope": "both",
-      "permissions": [],
-      "metadata": {
-        "label": "Entra con SPID",
-        "country": "IT"
-      }
-    },
-    {
-      "id": "auth_acs_kg_tunduk:auth_acs:provider:kg_tunduk",
-      "point": "auth_acs:provider",
-      "moduleId": "auth_acs_kg_tunduk",
-      "key": "kg_tunduk",
-      "exportId": "auth_acs_kg_tunduk/server/kg_tunduk.extension",
-      "order": 100,
-      "scope": "both",
-      "permissions": [],
-      "metadata": {
-        "label": "Tunduk",
-        "country": "KG"
-      }
-    },
-    {
-      "id": "auth_acs_kz_egov:auth_acs:provider:kz_egov",
-      "point": "auth_acs:provider",
-      "moduleId": "auth_acs_kz_egov",
-      "key": "kz_egov",
-      "exportId": "auth_acs_kz_egov/server/kz_egov.extension",
-      "order": 100,
-      "scope": "both",
-      "permissions": [],
-      "metadata": {
-        "label": "eGov.kz",
-        "country": "KZ"
-      }
-    },
-    {
-      "id": "auth_acs_tr_edevlet:auth_acs:provider:tr_edevlet",
-      "point": "auth_acs:provider",
-      "moduleId": "auth_acs_tr_edevlet",
-      "key": "tr_edevlet",
-      "exportId": "auth_acs_tr_edevlet/server/tr_edevlet.extension",
-      "order": 100,
-      "scope": "both",
-      "permissions": [],
-      "metadata": {
-        "label": "e-Devlet ile Giriş",
-        "country": "TR"
-      }
-    },
-    {
-      "id": "auth_acs_us_id_me:auth_acs:provider:us_id_me",
-      "point": "auth_acs:provider",
-      "moduleId": "auth_acs_us_id_me",
-      "key": "us_id_me",
-      "exportId": "auth_acs_us_id_me/server/us_id_me.extension",
-      "order": 100,
-      "scope": "both",
-      "permissions": [],
-      "metadata": {
-        "label": "ID.me",
-        "country": "US"
-      }
-    },
-    {
-      "id": "auth_acs_us_login_gov:auth_acs:provider:us_login_gov",
-      "point": "auth_acs:provider",
-      "moduleId": "auth_acs_us_login_gov",
-      "key": "us_login_gov",
-      "exportId": "auth_acs_us_login_gov/server/us_login_gov.extension",
-      "order": 100,
-      "scope": "both",
-      "permissions": [],
-      "metadata": {
-        "label": "Login.gov",
-        "country": "US"
-      }
-    },
-    {
-      "id": "auth_acs_uz_oneid:auth_acs:provider:uz_oneid",
-      "point": "auth_acs:provider",
-      "moduleId": "auth_acs_uz_oneid",
-      "key": "uz_oneid",
-      "exportId": "auth_acs_uz_oneid/server/uz_oneid.extension",
-      "order": 100,
-      "scope": "both",
-      "permissions": [],
-      "metadata": {
-        "label": "OneID",
-        "country": "UZ"
-      }
-    },
     {
       "id": "auth_sso_alipay:auth_sso:provider:alipay",
       "point": "auth_sso:provider",
@@ -3210,6 +2975,19 @@
       }
     },
     {
+      "id": "marketplace:external:contributions:marketplace/server/community-extensions.source",
+      "point": "external:contributions",
+      "moduleId": "marketplace",
+      "key": null,
+      "exportId": "marketplace/server/community-extensions.source",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "label": "Community plugins"
+      }
+    },
+    {
       "id": "payment_alipay:payment:gateway:alipay",
       "point": "payment:gateway",
       "moduleId": "payment_alipay",
@@ -3416,6 +3194,19 @@
       }
     },
     {
+      "id": "storage_local:storage:provider:local",
+      "point": "storage:provider",
+      "moduleId": "storage_local",
+      "key": "local",
+      "exportId": "storage_local/server/storage.extension",
+      "order": 100,
+      "scope": "both",
+      "permissions": [],
+      "metadata": {
+        "label": "Local Filesystem"
+      }
+    },
+    {
       "id": "storage_minio:storage:provider:minio",
       "point": "storage:provider",
       "moduleId": "storage_minio",
@@ -3476,7 +3267,7 @@
       "name": "AI",
       "icon": "fas fa-robot",
       "version": "1.0.0",
-      "description": "Pluggable AI providers (Anthropic, OpenAI, Google). Chat, embeddings, streaming, usage tracking.",
+      "description": "Pluggable AI providers (Anthropic, OpenAI, Google, community plugins). Provider selection, embeddings, models, usage tracking. Chat lives in the ai_chat module.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/ai",
       "license": "CC-BY-NC-ND-4.0",
@@ -3493,69 +3284,26 @@
       ]
     },
     {
-      "id": "ai_anthropic",
-      "name": "AI — Anthropic",
-      "icon": "fas fa-robot",
+      "id": "ai_chat",
+      "name": "AI Chat",
+      "icon": "fas fa-comments",
       "version": "1.0.0",
-      "description": "Anthropic (Claude) provider for the AI module. Contributes chat and streaming.",
+      "description": "Chat playground + chat/stream endpoints. Talks to whichever provider the AI module has selected as default for the tenant.",
       "author": "Kuray Karaaslan",
-      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/ai_anthropic",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/ai_chat",
       "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "ai",
-        "provider"
-      ],
-      "priority": 52,
-      "enabled": true,
-      "tier": "ai",
-      "requires": [
-        "ai",
-        "env",
-        "setting"
-      ]
-    },
-    {
-      "id": "ai_google",
-      "name": "AI — Google",
-      "icon": "fas fa-robot",
-      "version": "1.0.0",
-      "description": "Google (Gemini) provider for the AI module. Contributes chat, streaming and embeddings.",
-      "author": "Kuray Karaaslan",
-      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/ai_google",
-      "license": "CC-BY-NC-ND-4.0",
-      "tags": [
-        "ai",
-        "provider"
-      ],
-      "priority": 53,
-      "enabled": true,
-      "tier": "ai",
-      "requires": [
-        "ai",
-        "env",
-        "setting"
-      ]
-    },
-    {
-      "id": "ai_openai",
-      "name": "AI — OpenAI",
-      "icon": "fas fa-robot",
-      "version": "1.0.0",
-      "description": "OpenAI (and OpenAI-compatible) provider for the AI module. Contributes chat, streaming and embeddings.",
-      "author": "Kuray Karaaslan",
-      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/ai_openai",
-      "license": "CC-BY-NC-ND-4.0",
-      "tags": [
-        "ai",
-        "provider"
+        "chat"
       ],
       "priority": 51,
       "enabled": true,
-      "tier": "ai",
+      "tier": "other",
       "requires": [
         "ai",
-        "env",
-        "setting"
+        "user_session",
+        "limiter",
+        "common"
       ]
     },
     {
@@ -3757,357 +3505,6 @@
         "redis",
         "common",
         "logger"
-      ]
-    },
-    {
-      "id": "auth_acs_az_mygovid",
-      "name": "MyGov ID (AZ)",
-      "icon": "fas fa-id-card",
-      "version": "1.0.0",
-      "description": "MyGov ID national-identity provider, contributed into the auth_acs:provider extension point.",
-      "author": "Kuray Karaaslan",
-      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_az_mygovid",
-      "license": "CC-BY-NC-ND-4.0",
-      "tags": [
-        "identity",
-        "auth",
-        "acs",
-        "government",
-        "provider"
-      ],
-      "priority": 18,
-      "enabled": true,
-      "tier": "other",
-      "requires": [
-        "auth_acs",
-        "auth_saml",
-        "auth_oidc",
-        "env",
-        "common"
-      ]
-    },
-    {
-      "id": "auth_acs_ct_edevlet",
-      "name": "e-Devlet (KKTC) ile Giriş (CT)",
-      "icon": "fas fa-id-card",
-      "version": "1.0.0",
-      "description": "e-Devlet (KKTC) ile Giriş national-identity provider, contributed into the auth_acs:provider extension point.",
-      "author": "Kuray Karaaslan",
-      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_ct_edevlet",
-      "license": "CC-BY-NC-ND-4.0",
-      "tags": [
-        "identity",
-        "auth",
-        "acs",
-        "government",
-        "provider"
-      ],
-      "priority": 18,
-      "enabled": true,
-      "tier": "other",
-      "requires": [
-        "auth_acs",
-        "auth_saml",
-        "auth_oidc",
-        "env",
-        "common"
-      ]
-    },
-    {
-      "id": "auth_acs_de_eid",
-      "name": "Online-Ausweis (eID) (DE)",
-      "icon": "fas fa-id-card",
-      "version": "1.0.0",
-      "description": "Online-Ausweis (eID) national-identity provider, contributed into the auth_acs:provider extension point.",
-      "author": "Kuray Karaaslan",
-      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_de_eid",
-      "license": "CC-BY-NC-ND-4.0",
-      "tags": [
-        "identity",
-        "auth",
-        "acs",
-        "government",
-        "provider"
-      ],
-      "priority": 18,
-      "enabled": true,
-      "tier": "other",
-      "requires": [
-        "auth_acs",
-        "auth_saml",
-        "auth_oidc",
-        "env",
-        "common"
-      ]
-    },
-    {
-      "id": "auth_acs_es_clave",
-      "name": "Cl@ve (ES)",
-      "icon": "fas fa-id-card",
-      "version": "1.0.0",
-      "description": "Cl@ve national-identity provider, contributed into the auth_acs:provider extension point.",
-      "author": "Kuray Karaaslan",
-      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_es_clave",
-      "license": "CC-BY-NC-ND-4.0",
-      "tags": [
-        "identity",
-        "auth",
-        "acs",
-        "government",
-        "provider"
-      ],
-      "priority": 18,
-      "enabled": true,
-      "tier": "other",
-      "requires": [
-        "auth_acs",
-        "auth_saml",
-        "auth_oidc",
-        "env",
-        "common"
-      ]
-    },
-    {
-      "id": "auth_acs_esia_ru",
-      "name": "Госуслуги (RU)",
-      "icon": "fas fa-id-card",
-      "version": "1.0.0",
-      "description": "Госуслуги national-identity provider, contributed into the auth_acs:provider extension point.",
-      "author": "Kuray Karaaslan",
-      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_esia_ru",
-      "license": "CC-BY-NC-ND-4.0",
-      "tags": [
-        "identity",
-        "auth",
-        "acs",
-        "government",
-        "provider"
-      ],
-      "priority": 18,
-      "enabled": true,
-      "tier": "other",
-      "requires": [
-        "auth_acs",
-        "auth_saml",
-        "auth_oidc",
-        "env",
-        "common"
-      ]
-    },
-    {
-      "id": "auth_acs_eu_eidas",
-      "name": "eIDAS (EU)",
-      "icon": "fas fa-id-card",
-      "version": "1.0.0",
-      "description": "eIDAS national-identity provider, contributed into the auth_acs:provider extension point.",
-      "author": "Kuray Karaaslan",
-      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_eu_eidas",
-      "license": "CC-BY-NC-ND-4.0",
-      "tags": [
-        "identity",
-        "auth",
-        "acs",
-        "government",
-        "provider"
-      ],
-      "priority": 18,
-      "enabled": true,
-      "tier": "other",
-      "requires": [
-        "auth_acs",
-        "auth_saml",
-        "auth_oidc",
-        "env",
-        "common"
-      ]
-    },
-    {
-      "id": "auth_acs_it_spid",
-      "name": "Entra con SPID (IT)",
-      "icon": "fas fa-id-card",
-      "version": "1.0.0",
-      "description": "Entra con SPID national-identity provider, contributed into the auth_acs:provider extension point.",
-      "author": "Kuray Karaaslan",
-      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_it_spid",
-      "license": "CC-BY-NC-ND-4.0",
-      "tags": [
-        "identity",
-        "auth",
-        "acs",
-        "government",
-        "provider"
-      ],
-      "priority": 18,
-      "enabled": true,
-      "tier": "other",
-      "requires": [
-        "auth_acs",
-        "auth_saml",
-        "auth_oidc",
-        "env",
-        "common"
-      ]
-    },
-    {
-      "id": "auth_acs_kg_tunduk",
-      "name": "Tunduk (KG)",
-      "icon": "fas fa-id-card",
-      "version": "1.0.0",
-      "description": "Tunduk national-identity provider, contributed into the auth_acs:provider extension point.",
-      "author": "Kuray Karaaslan",
-      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_kg_tunduk",
-      "license": "CC-BY-NC-ND-4.0",
-      "tags": [
-        "identity",
-        "auth",
-        "acs",
-        "government",
-        "provider"
-      ],
-      "priority": 18,
-      "enabled": true,
-      "tier": "other",
-      "requires": [
-        "auth_acs",
-        "auth_saml",
-        "auth_oidc",
-        "env",
-        "common"
-      ]
-    },
-    {
-      "id": "auth_acs_kz_egov",
-      "name": "eGov.kz (KZ)",
-      "icon": "fas fa-id-card",
-      "version": "1.0.0",
-      "description": "eGov.kz national-identity provider, contributed into the auth_acs:provider extension point.",
-      "author": "Kuray Karaaslan",
-      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_kz_egov",
-      "license": "CC-BY-NC-ND-4.0",
-      "tags": [
-        "identity",
-        "auth",
-        "acs",
-        "government",
-        "provider"
-      ],
-      "priority": 18,
-      "enabled": true,
-      "tier": "other",
-      "requires": [
-        "auth_acs",
-        "auth_saml",
-        "auth_oidc",
-        "env",
-        "common"
-      ]
-    },
-    {
-      "id": "auth_acs_tr_edevlet",
-      "name": "e-Devlet ile Giriş (TR)",
-      "icon": "fas fa-id-card",
-      "version": "1.0.0",
-      "description": "e-Devlet ile Giriş national-identity provider, contributed into the auth_acs:provider extension point.",
-      "author": "Kuray Karaaslan",
-      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_tr_edevlet",
-      "license": "CC-BY-NC-ND-4.0",
-      "tags": [
-        "identity",
-        "auth",
-        "acs",
-        "government",
-        "provider"
-      ],
-      "priority": 18,
-      "enabled": true,
-      "tier": "other",
-      "requires": [
-        "auth_acs",
-        "auth_saml",
-        "auth_oidc",
-        "env",
-        "common"
-      ]
-    },
-    {
-      "id": "auth_acs_us_id_me",
-      "name": "ID.me (US)",
-      "icon": "fas fa-id-card",
-      "version": "1.0.0",
-      "description": "ID.me national-identity provider, contributed into the auth_acs:provider extension point.",
-      "author": "Kuray Karaaslan",
-      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_us_id_me",
-      "license": "CC-BY-NC-ND-4.0",
-      "tags": [
-        "identity",
-        "auth",
-        "acs",
-        "government",
-        "provider"
-      ],
-      "priority": 18,
-      "enabled": true,
-      "tier": "other",
-      "requires": [
-        "auth_acs",
-        "auth_saml",
-        "auth_oidc",
-        "env",
-        "common"
-      ]
-    },
-    {
-      "id": "auth_acs_us_login_gov",
-      "name": "Login.gov (US)",
-      "icon": "fas fa-id-card",
-      "version": "1.0.0",
-      "description": "Login.gov national-identity provider, contributed into the auth_acs:provider extension point.",
-      "author": "Kuray Karaaslan",
-      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_us_login_gov",
-      "license": "CC-BY-NC-ND-4.0",
-      "tags": [
-        "identity",
-        "auth",
-        "acs",
-        "government",
-        "provider"
-      ],
-      "priority": 18,
-      "enabled": true,
-      "tier": "other",
-      "requires": [
-        "auth_acs",
-        "auth_saml",
-        "auth_oidc",
-        "env",
-        "common"
-      ]
-    },
-    {
-      "id": "auth_acs_uz_oneid",
-      "name": "OneID (UZ)",
-      "icon": "fas fa-id-card",
-      "version": "1.0.0",
-      "description": "OneID national-identity provider, contributed into the auth_acs:provider extension point.",
-      "author": "Kuray Karaaslan",
-      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth_acs_uz_oneid",
-      "license": "CC-BY-NC-ND-4.0",
-      "tags": [
-        "identity",
-        "auth",
-        "acs",
-        "government",
-        "provider"
-      ],
-      "priority": 18,
-      "enabled": true,
-      "tier": "other",
-      "requires": [
-        "auth_acs",
-        "auth_saml",
-        "auth_oidc",
-        "env",
-        "common"
       ]
     },
     {
@@ -5454,7 +4851,6 @@
         "tenant",
         "storage",
         "plugin_runtime",
-        "ai",
         "common"
       ]
     },
@@ -6467,6 +5863,28 @@
       "enabled": true,
       "tier": "platform",
       "requires": [
+        "env",
+        "setting"
+      ]
+    },
+    {
+      "id": "storage_local",
+      "name": "Storage — Local Filesystem",
+      "icon": "fas fa-hard-drive",
+      "version": "1.0.0",
+      "description": "Local filesystem storage backend for the storage module. Writes objects to a directory on disk — intended for development and offline use (e.g. publishing community plugin bundles without S3).",
+      "author": "Kuray Karaaslan",
+      "homepage": "",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "storage",
+        "provider"
+      ],
+      "priority": 45,
+      "enabled": true,
+      "tier": "other",
+      "requires": [
+        "storage",
         "env",
         "setting"
       ]

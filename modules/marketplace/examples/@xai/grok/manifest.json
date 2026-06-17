@@ -1,0 +1,28 @@
+{
+  "id": "xai",
+  "name": "xAI (Grok)",
+  "version": "1.0.0",
+  "description": "xAI Grok chat provider (OpenAI-compatible), contributed into ai:provider — runs sandboxed.",
+  "icon": "fas fa-robot",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": ["http", "secrets"],
+    "httpAllowlist": ["api.x.ai"],
+    "limits": { "memoryMb": 64, "timeoutMs": 30000, "httpTimeoutMs": 28000, "httpMaxBytes": 4000000 }
+  },
+  "config": {
+    "secrets": [
+      { "key": "apiKey", "label": "API Key", "help": "xAI API key (kept encrypted, used only host-side for signed egress)." }
+    ]
+  },
+  "extensions": [
+    {
+      "point": "ai:provider",
+      "key": "xai",
+      "metadata": {
+        "label": "xAI (Grok)",
+        "models": ["grok-3", "grok-3-mini", "grok-2-1212", "grok-2-vision-1212", "grok-2-latest", "grok-beta"]
+      }
+    }
+  ]
+}

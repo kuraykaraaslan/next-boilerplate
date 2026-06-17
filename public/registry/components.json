@@ -1,12 +1,12 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-17T10:20:03.264Z",
+  "generatedAt": "2026-06-17T21:28:52.349Z",
   "components": [
     {
-      "id": "ai/ui/ai-chat-box.component",
-      "module": "ai",
-      "filePath": "modules/ai/ui/ai-chat-box.component.tsx",
+      "id": "ai_chat/ui/ai-chat-box.component",
+      "module": "ai_chat",
+      "filePath": "modules/ai_chat/ui/ai-chat-box.component.tsx",
       "kind": "ui",
       "exports": [
         "ChatMessage",
@@ -15,6 +15,16 @@
       "isClient": true,
       "isServer": false,
       "baseName": "ai-chat-box.component"
+    },
+    {
+      "id": "ai_chat/ui/chat.page",
+      "module": "ai_chat",
+      "filePath": "modules/ai_chat/ui/chat.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "chat.page"
     },
     {
       "id": "ai/ui/ai.page",
@@ -950,6 +960,18 @@
       "baseName": "empty-state.component"
     },
     {
+      "id": "common/ui/error-screen.component",
+      "module": "common",
+      "filePath": "modules/common/ui/error-screen.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "ErrorScreen"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "error-screen.component"
+    },
+    {
       "id": "common/ui/file-input.component",
       "module": "common",
       "filePath": "modules/common/ui/file-input.component.tsx",
@@ -1084,6 +1106,18 @@
       "isClient": true,
       "isServer": false,
       "baseName": "font-awesome-config.component"
+    },
+    {
+      "id": "common/ui/loading-screen.component",
+      "module": "common",
+      "filePath": "modules/common/ui/loading-screen.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "LoadingScreen"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "loading-screen.component"
     },
     {
       "id": "common/ui/modal.component",
@@ -3071,6 +3105,18 @@
       "baseName": "marketplace.page"
     },
     {
+      "id": "marketplace/ui/plugin-config-modal.component",
+      "module": "marketplace",
+      "filePath": "modules/marketplace/ui/plugin-config-modal.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "PluginConfigModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "plugin-config-modal.component"
+    },
+    {
       "id": "marketplace/ui/review-page.component",
       "module": "marketplace",
       "filePath": "modules/marketplace/ui/review-page.component.tsx",
@@ -3506,18 +3552,6 @@
       "baseName": "web-vitals.client"
     },
     {
-      "id": "setting/ui/module-manager-page.component",
-      "module": "setting",
-      "filePath": "modules/setting/ui/module-manager-page.component.tsx",
-      "kind": "ui",
-      "exports": [
-        "ModuleManagerPage"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "module-manager-page.component"
-    },
-    {
       "id": "setting/ui/module-settings-page.component",
       "module": "setting",
       "filePath": "modules/setting/ui/module-settings-page.component.tsx",
@@ -3528,16 +3562,6 @@
       "isClient": true,
       "isServer": false,
       "baseName": "module-settings-page.component"
-    },
-    {
-      "id": "setting/ui/modules.page",
-      "module": "setting",
-      "filePath": "modules/setting/ui/modules.page.tsx",
-      "kind": "ui",
-      "exports": [],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "modules.page"
     },
     {
       "id": "setting/ui/platform-settings-tabs.component",

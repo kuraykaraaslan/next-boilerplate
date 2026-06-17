@@ -19,16 +19,11 @@ vi.mock('@kuraykaraaslan/observability', () => ({ default: { recordTenantUsage: 
 vi.mock('@kuraykaraaslan/redis', () => ({ default: { set: vi.fn(async () => 'OK'), del: vi.fn(async () => 1) } }));
 vi.mock('@kuraykaraaslan/db', () => ({ getDataSource: vi.fn(), tenantDataSourceFor: vi.fn() }));
 
-import { AcsProviderEnum, acsSocialProviderKey } from '../auth_acs.enums';
+import { acsSocialProviderKey } from '../auth_acs.enums';
 import AuthAcsConfigService from '../auth_acs.config.service';
-import { getAcsProvider } from '../providers';
-import { BaseSamlProvider, type SamlValidatedAssertion } from '@kuraykaraaslan/auth_saml/server/saml.engine';
+import { BaseSamlProvider } from '@kuraykaraaslan/auth_saml/server/saml.engine';
 import { signAcsRelay, parseAcsRelay } from '../auth_acs.relay';
 import AuthAcsFlowService from '../auth_acs.flow.service';
-
-const assertion = (attributes: Record<string, unknown>, nameId: string | null = null): SamlValidatedAssertion => ({
-  attributes, nameId, nameIdFormat: null, assertionId: null, sessionIndex: null, sessionNotOnOrAfter: null,
-});
 
 beforeEach(() => AuthAcsConfigService.resetCache());
 
@@ -65,36 +60,11 @@ describe('auth_acs config resolution', () => {
   });
 });
 
-describe('provider registry completeness', () => {
-  it('has a factory for every enum value', async () => {
-    for (const provider of AcsProviderEnum.options) {
-      const svc = await getAcsProvider(provider);
-      expect(svc.protocol === 'saml' || svc.protocol === 'oidc').toBe(true);
-    }
-  });
-});
-
-describe('SAML attribute mapping (built on the shared auth_saml engine)', () => {
-  it('reads configured attribute names', async () => {
-    const svc = (await getAcsProvider('tr_edevlet')) as unknown as { mapAssertion: (a: SamlValidatedAssertion) => any };
-    const mapped = svc.mapAssertion(assertion({ tckn: '11111111110', ad: 'Ayşe', soyad: 'Yılmaz' }));
-    expect(mapped.nationalId).toBe('11111111110');
-    expect(mapped.firstName).toBe('Ayşe');
-    expect(mapped.lastName).toBe('Yılmaz');
-  });
-
-  it('falls back to NameID when the national-id attribute is absent', async () => {
-    const svc = (await getAcsProvider('tr_edevlet')) as unknown as { mapAssertion: (a: SamlValidatedAssertion) => any };
-    const mapped = svc.mapAssertion(assertion({}, '22222222220'));
-    expect(mapped.nationalId).toBe('22222222220');
-  });
-
-  it('SPID strips the TINIT- prefix from fiscalNumber', async () => {
-    const svc = (await getAcsProvider('it_spid')) as unknown as { mapAssertion: (a: SamlValidatedAssertion) => any };
-    const mapped = svc.mapAssertion(assertion({ fiscalNumber: 'TINIT-RSSMRA80A01H501U' }));
-    expect(mapped.nationalId).toBe('RSSMRA80A01H501U');
-  });
-
+// Providers are now sandboxed community plugins (no built-in factories): attribute
+// mapping lives in the plugin bundle + the host-side broker (crypto/saml) caps, so
+// the per-provider mapping unit tests moved out. The shared auth_saml engine statics
+// these built on are still exercised here.
+describe('auth_saml engine statics', () => {
   it('engine sha256 is deterministic 64-hex (trim-stable)', () => {
     const h = BaseSamlProvider.sha256('11111111110');
     expect(h).toMatch(/^[0-9a-f]{64}$/);

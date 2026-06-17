@@ -1,0 +1,45 @@
+{
+  "id": "eu_eidas",
+  "name": "eIDAS",
+  "version": "1.0.0",
+  "description": "eIDAS — national identity (SAML), contributed into auth_acs:provider, sandboxed.",
+  "icon": "fas fa-id-card",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": [
+      "saml"
+    ],
+    "httpAllowlist": [],
+    "limits": {
+      "memoryMb": 64,
+      "timeoutMs": 30000,
+      "httpTimeoutMs": 28000,
+      "httpMaxBytes": 2000000
+    }
+  },
+  "config": {
+    "secrets": [
+      {
+        "key": "spPrivateKey",
+        "label": "SP Private Key (PEM)",
+        "help": "Signs the AuthnRequest; read broker-side, never enters the sandbox."
+      },
+      {
+        "key": "spDecryptionKey",
+        "label": "SP Decryption Key (PEM)",
+        "help": "Decrypts EncryptedAssertion (optional; defaults to the signing key)."
+      }
+    ]
+  },
+  "extensions": [
+    {
+      "point": "auth_acs:provider",
+      "key": "eu_eidas",
+      "metadata": {
+        "label": "eIDAS",
+        "protocol": "saml",
+        "country": "EU"
+      }
+    }
+  ]
+}

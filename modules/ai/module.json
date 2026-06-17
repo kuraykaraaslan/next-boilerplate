@@ -2,7 +2,7 @@
   "$schema": "../module.schema.json",
   "id": "ai",
   "name": "AI",
-  "description": "Pluggable AI providers (Anthropic, OpenAI, Google). Chat, embeddings, streaming, usage tracking.",
+  "description": "Pluggable AI providers (Anthropic, OpenAI, Google, community plugins). Provider selection, embeddings, models, usage tracking. Chat lives in the ai_chat module.",
   "version": "1.0.0",
   "icon": "fas fa-robot",
   "tags": [
@@ -55,10 +55,6 @@
   ],
   "apiRoutes": [
     {
-      "path": "/api/ai/chat",
-      "handler": "ai/server/ai-chat.route"
-    },
-    {
       "path": "/api/ai/embed",
       "handler": "ai/server/ai-embed.route"
     },
@@ -73,10 +69,6 @@
     {
       "path": "/api/ai/usage",
       "handler": "ai/server/ai-usage.route"
-    },
-    {
-      "path": "/api/ai/stream",
-      "handler": "ai/server/ai-stream.route"
     }
   ]
 }

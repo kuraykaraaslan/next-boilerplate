@@ -25,15 +25,6 @@
       "group": "Configuration",
       "order": 1,
       "scope": "tenant"
-    },
-    {
-      "id": "modules",
-      "label": "Modules",
-      "href": "/admin/modules",
-      "icon": "fas fa-puzzle-piece",
-      "group": "Configuration",
-      "order": 5,
-      "scope": "tenant"
     }
   ],
   "author": "Kuray Karaaslan",
@@ -83,10 +74,6 @@
     {
       "path": "/admin/settings/storage",
       "component": "setting/ui/settings-storage.page"
-    },
-    {
-      "path": "/admin/modules",
-      "component": "setting/ui/modules.page"
     }
   ],
   "apiRoutes": [

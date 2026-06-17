@@ -5,11 +5,20 @@
 import { loadRuntimeConfig, type RunRequest, type RunResult, type SandboxConfig } from './protocol';
 
 async function post(url: string, token: string, body: RunRequest): Promise<RunResult> {
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` },
-    body: JSON.stringify(body),
-  });
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` },
+      body: JSON.stringify(body),
+    });
+  } catch (e: any) {
+    // Connection-level failure (host process not running / wrong PLUGIN_HOST_URL).
+    const cause = e?.cause?.code ?? e?.cause?.message ?? e?.message ?? 'fetch failed';
+    throw new Error(
+      `plugin-host unreachable at ${url} (${cause}). Start it with \`npm run plugin-host:dev\` (or set PLUGIN_HOST_URL).`,
+    );
+  }
   if (res.status === 401) throw new Error('plugin-host auth failed');
   return (await res.json()) as RunResult;
 }

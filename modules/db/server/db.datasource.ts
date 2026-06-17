@@ -23,8 +23,10 @@ export function buildDataSourceOptions(url: string, schema?: string): Constructo
     logger: new TenantContextLogger(env.DB_SLOW_QUERY_THRESHOLD_MS),
     entities: ENTITIES,
     migrations: ['modules/db/migrations/*.ts'],
-    // PgBouncer-compatible pool sizing via DB_POOL_MAX env var.
-    extra: { max: env.DB_POOL_MAX },
+    // PgBouncer-compatible pool sizing via DB_POOL_MAX env var. keepAlive stops
+    // idle pooled sockets from silently dropping (a common source of intermittent
+    // ETIMEDOUT/ECONNRESET against serverless Postgres like Neon).
+    extra: { max: env.DB_POOL_MAX, keepAlive: true },
   };
 }
 

@@ -1,0 +1,28 @@
+{
+  "id": "anthropic",
+  "name": "Anthropic (Claude)",
+  "version": "1.0.0",
+  "description": "Anthropic Claude chat provider, contributed into ai:provider — runs sandboxed.",
+  "icon": "fas fa-robot",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": ["http", "secrets"],
+    "httpAllowlist": ["api.anthropic.com"],
+    "limits": { "memoryMb": 64, "timeoutMs": 30000, "httpTimeoutMs": 28000, "httpMaxBytes": 4000000 }
+  },
+  "config": {
+    "secrets": [
+      { "key": "apiKey", "label": "API Key", "help": "Anthropic API key (kept encrypted, used only host-side for signed egress)." }
+    ]
+  },
+  "extensions": [
+    {
+      "point": "ai:provider",
+      "key": "anthropic",
+      "metadata": {
+        "label": "Anthropic",
+        "models": ["claude-opus-4-20250514", "claude-sonnet-4-20250514", "claude-3-7-sonnet-20250219", "claude-3-5-sonnet-20241022", "claude-3-5-haiku-20241022", "claude-3-opus-20240229", "claude-3-sonnet-20240229", "claude-3-haiku-20240307"]
+      }
+    }
+  ]
+}

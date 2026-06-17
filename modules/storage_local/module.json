@@ -1,0 +1,22 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "storage_local",
+  "name": "Storage — Local Filesystem",
+  "description": "Local filesystem storage backend for the storage module. Writes objects to a directory on disk — intended for development and offline use (e.g. publishing community plugin bundles without S3).",
+  "version": "1.0.0",
+  "icon": "fas fa-hard-drive",
+  "tags": ["storage", "provider"],
+  "priority": 45,
+  "enabled": true,
+  "author": "Kuray Karaaslan",
+  "license": "CC-BY-NC-ND-4.0",
+  "dependencies": { "requires": ["storage", "env", "setting"] },
+  "extensions": [
+    {
+      "point": "storage:provider",
+      "key": "local",
+      "export": "storage_local/server/storage.extension",
+      "metadata": { "label": "Local Filesystem" }
+    }
+  ]
+}

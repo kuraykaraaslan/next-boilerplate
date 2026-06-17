@@ -58,7 +58,7 @@ async function handleCallback(
     if (linkState) {
       const returnTo = SSOService.safeReturnPath(linkState.r, linkState.t);
       try {
-        const profile = await AuthAcsService.validateCallback(provider, body);
+        const profile = await AuthAcsService.validateCallback(provider, body, tenantId ?? undefined);
         await AuthAcsService.linkToUser(linkState.uid, profile);
         return NextResponse.redirect(`${APP_HOST}${returnTo}?linked=acs:${provider}`);
       } catch (err) {

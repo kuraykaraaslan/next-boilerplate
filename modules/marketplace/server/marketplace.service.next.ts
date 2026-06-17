@@ -67,23 +67,27 @@ async function installedIds(tenantId: string): Promise<Set<string>> {
   return new Set(rows.map((r) => r.moduleId));
 }
 
-/** Catalog of installable modules with per-tenant install + active state. */
+/**
+ * Catalog of ALL built-in modules with per-tenant install + active state. Unified
+ * "plugin" view: a module counts as `installed` when it is core/protected, has a
+ * ModuleInstall row, or is currently enabled (covers default-on modules). The UI
+ * splits Installed vs Available on this flag; install/uninstall/toggle remain
+ * gated server-side (protected modules reject those operations).
+ */
 export async function listCatalog(tenantId: string): Promise<CatalogEntry[]> {
   const states = await listModulesWithState(tenantId);
   const ds = await tenantDataSourceFor(tenantId);
   const installs = await ds.getRepository(ModuleInstall).find({ where: { tenantId } });
   const byId = new Map(installs.map((i) => [i.moduleId, i]));
-  return states
-    .filter((m) => isMarketplaceModule(m.id))
-    .map((m) => {
-      const row = byId.get(m.id);
-      return {
-        ...m,
-        installed: !!row,
-        installedAt: row ? row.installedAt.toISOString() : null,
-        installedVersion: row ? row.version : null,
-      };
-    });
+  return states.map((m) => {
+    const row = byId.get(m.id);
+    return {
+      ...m,
+      installed: m.protected || m.enabled || !!row,
+      installedAt: row ? row.installedAt.toISOString() : null,
+      installedVersion: row ? row.version : null,
+    };
+  });
 }
 
 /** Tenant-owned tables (carry a tenantId column) for a module, for purge/preview. */

@@ -149,7 +149,13 @@ export async function getFileUrl(tenantId: string, data: GetFileUrlDTO): Promise
  * object. `expiresSeconds` defaults to 15 minutes.
  */
 export async function getPresignedUrl(tenantId: string, key: string, expiresSeconds = 900): Promise<string> {
-  const { config } = await getStorageSettings(tenantId)
+  const { providerName, config } = await getStorageSettings(tenantId)
+  // The local filesystem provider has no signing surface — hand back a file:// URL
+  // that server-side readers (e.g. the plugin host loading a bundle) resolve from disk.
+  if (providerName === 'local') {
+    const { provider } = await getProvider(tenantId, 'local')
+    return provider.getFileUrl(key)
+  }
   if (!config.bucket || !config.accessKeyId || !config.secretAccessKey) {
     throw new AppError(STORAGE_MESSAGES.PROVIDER_NOT_CONFIGURED, 422, ErrorCode.VALIDATION_ERROR)
   }

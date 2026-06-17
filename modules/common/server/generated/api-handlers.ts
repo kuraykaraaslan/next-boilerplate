@@ -5,11 +5,12 @@ export type RouteModule = Record<string, (...args: any[]) => Response | Promise<
 // Server-side: each module API route handler, dynamically imported by the
 // catch-all dispatcher (app/tenant/[tenantId]/api/[...slug]/route.ts).
 export const apiHandlers: Record<string, () => Promise<RouteModule>> = {
-  "ai/server/ai-chat.route": () => import("@kuraykaraaslan/ai/server/ai-chat.route") as unknown as Promise<RouteModule>,
+  "ai_chat/server/ai-chat.route": () => import("@kuraykaraaslan/ai_chat/server/ai-chat.route") as unknown as Promise<RouteModule>,
+  "ai_chat/server/ai-stream.route": () => import("@kuraykaraaslan/ai_chat/server/ai-stream.route") as unknown as Promise<RouteModule>,
+  "ai_chat/server/chat-profiles.route": () => import("@kuraykaraaslan/ai_chat/server/chat-profiles.route") as unknown as Promise<RouteModule>,
   "ai/server/ai-embed.route": () => import("@kuraykaraaslan/ai/server/ai-embed.route") as unknown as Promise<RouteModule>,
   "ai/server/ai-models.route": () => import("@kuraykaraaslan/ai/server/ai-models.route") as unknown as Promise<RouteModule>,
   "ai/server/ai-providers.route": () => import("@kuraykaraaslan/ai/server/ai-providers.route") as unknown as Promise<RouteModule>,
-  "ai/server/ai-stream.route": () => import("@kuraykaraaslan/ai/server/ai-stream.route") as unknown as Promise<RouteModule>,
   "ai/server/ai-usage.route": () => import("@kuraykaraaslan/ai/server/ai-usage.route") as unknown as Promise<RouteModule>,
   "analytics/server/analytics-summary.route": () => import("@kuraykaraaslan/analytics/server/analytics-summary.route") as unknown as Promise<RouteModule>,
   "analytics/server/analytics-timeseries.route": () => import("@kuraykaraaslan/analytics/server/analytics-timeseries.route") as unknown as Promise<RouteModule>,
@@ -136,6 +137,7 @@ export const apiHandlers: Record<string, () => Promise<RouteModule>> = {
   "invoice/server/invoices-invoice-id.route": () => import("@kuraykaraaslan/invoice/server/invoices-invoice-id.route") as unknown as Promise<RouteModule>,
   "invoice/server/invoices-preview.route": () => import("@kuraykaraaslan/invoice/server/invoices-preview.route") as unknown as Promise<RouteModule>,
   "invoice/server/invoices.route": () => import("@kuraykaraaslan/invoice/server/invoices.route") as unknown as Promise<RouteModule>,
+  "marketplace/server/community-config.route": () => import("@kuraykaraaslan/marketplace/server/community-config.route") as unknown as Promise<RouteModule>,
   "marketplace/server/community-item.route": () => import("@kuraykaraaslan/marketplace/server/community-item.route") as unknown as Promise<RouteModule>,
   "marketplace/server/community.route": () => import("@kuraykaraaslan/marketplace/server/community.route") as unknown as Promise<RouteModule>,
   "marketplace/server/listings-versions.route": () => import("@kuraykaraaslan/marketplace/server/listings-versions.route") as unknown as Promise<RouteModule>,

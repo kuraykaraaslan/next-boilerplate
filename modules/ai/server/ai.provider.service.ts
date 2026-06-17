@@ -4,11 +4,15 @@ import SettingService from '@kuraykaraaslan/setting/server/setting.service';
 import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { extensionRegistry, type RuntimeExtension } from '@kuraykaraaslan/common/server/extension-registry';
 import { getEnabledModuleIds } from '@kuraykaraaslan/setting/server/module-activation.service.next';
+import { listExternalContributions } from '@kuraykaraaslan/common/server/external-extensions';
 import type BaseAIProvider from './providers/base.provider';
 import type { AIProviderContribution } from './ai.provider.types';
 import type { AIProviderType, AIModel } from './ai.types';
-import { listExternalAIProviders } from './ai.external-providers';
+import { IsolatedAIProvider } from './providers/isolated.provider';
 import AiMessages from './ai.messages';
+
+/** Host extension point sandboxed community AI providers contribute into. */
+const AI_PROVIDER_EXTENSION_POINT = 'ai:provider';
 
 /** The extension point satellite provider modules contribute into. */
 const AI_PROVIDER_POINT = 'ai:provider';
@@ -62,8 +66,12 @@ export default class AIProviderService {
   private static async enabledMetas(tenantId: string): Promise<ProviderMeta[]> {
     const builtIn = (await AIProviderService.enabledContributions(tenantId)).map(metaOf).filter((m) => m.key);
     // Merge runtime-discovered providers (e.g. sandboxed community plugins).
-    const external = (await listExternalAIProviders(tenantId)).map((e) => ({
-      key: e.key, label: e.label, models: e.models, order: 1000, moduleId: 'community',
+    const external = (await listExternalContributions(tenantId, AI_PROVIDER_EXTENSION_POINT)).map((c) => ({
+      key: c.key,
+      label: typeof c.metadata.label === 'string' ? c.metadata.label : undefined,
+      models: Array.isArray(c.metadata.models) ? (c.metadata.models as string[]) : [],
+      order: 1000,
+      moduleId: 'community',
     }));
     const seen = new Set(builtIn.map((m) => m.key));
     return [...builtIn, ...external.filter((m) => m.key && !seen.has(m.key))];
@@ -116,9 +124,17 @@ export default class AIProviderService {
 
   /** Load the contribution implementation and instantiate it from tenant settings. */
   private static async build(tenantId: string, key: string): Promise<BaseAIProvider> {
-    // Runtime-discovered (e.g. sandboxed community) providers build via their source.
-    const external = (await listExternalAIProviders(tenantId)).find((e) => e.key === key);
-    if (external) return external.build();
+    // Runtime-discovered (e.g. sandboxed community) providers: wrap the generic
+    // contribution's invoke() in the host-facing facade.
+    const external = (await listExternalContributions(tenantId, AI_PROVIDER_EXTENSION_POINT)).find((c) => c.key === key);
+    if (external) {
+      return new IsolatedAIProvider({
+        key: external.key,
+        models: Array.isArray(external.metadata.models) ? (external.metadata.models as string[]) : [],
+        configured: external.configured,
+        invoke: external.invoke,
+      });
+    }
 
     const contrib = (await AIProviderService.enabledContributions(tenantId)).find(
       (c) => (c.key ?? c.metadata?.key) === key,

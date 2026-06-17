@@ -6,7 +6,6 @@ import { Card } from '@kuraykaraaslan/common/ui/card.component';
 import { Spinner } from '@kuraykaraaslan/common/ui/spinner.component';
 import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
 import { TabGroup } from '@kuraykaraaslan/common/ui/tab-group.component';
-import { AIChatBox } from '@kuraykaraaslan/ai/ui/ai-chat-box.component';
 import { AIUsageTab } from '@kuraykaraaslan/ai/ui/usage-tab.component';
 import { Badge } from '@kuraykaraaslan/common/ui/badge.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -108,8 +107,6 @@ export default function AiAdminPage({ params }: { params: Promise<{ tenantId: st
           },
         ]}
       />
-
-      <AIChatBox title="AI Playground" subtitle="Test your AI configuration" />
     </div>
   );
 }

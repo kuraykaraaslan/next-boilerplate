@@ -85,6 +85,28 @@ export async function listModulesWithState(tenantId: string): Promise<ModuleStat
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
+/** Transitive `requires` closure of a module (the modules it depends on). */
+function requiresClosure(id: string): Set<string> {
+  const out = new Set<string>();
+  const stack = [...moduleRegistry.getRequires(id)];
+  while (stack.length) {
+    const dep = stack.pop()!;
+    if (dep === id || out.has(dep)) continue;
+    out.add(dep);
+    stack.push(...moduleRegistry.getRequires(dep));
+  }
+  return out;
+}
+
+/**
+ * Enabled modules that depend (transitively) on `id` — disabling `id` would break
+ * them. Used to block breaking a dependency chain.
+ */
+export async function enabledDependentsOf(tenantId: string, id: string): Promise<string[]> {
+  const enabled = await getEnabledModuleIds(tenantId);
+  return [...enabled].filter((d) => d !== id && requiresClosure(d).has(id));
+}
+
 export async function setModuleEnabled(
   tenantId: string,
   id: string,
@@ -96,6 +118,16 @@ export async function setModuleEnabled(
   }
   if (!enabled && PROTECTED.has(id)) {
     throw new Error(`Module "${id}" is a core module and cannot be disabled.`);
+  }
+  // Don't break the dependency chain: refuse to disable a module that other
+  // currently-enabled modules still require.
+  if (!enabled) {
+    const dependents = await enabledDependentsOf(tenantId, id);
+    if (dependents.length) {
+      throw new Error(
+        `Cannot disable "${id}" — still required by enabled module(s): ${dependents.join(', ')}. Disable those first.`,
+      );
+    }
   }
   await SettingService.updateMany(
     tenantId,

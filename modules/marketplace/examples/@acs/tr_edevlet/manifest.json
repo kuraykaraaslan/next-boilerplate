@@ -1,0 +1,45 @@
+{
+  "id": "tr_edevlet",
+  "name": "e-Devlet ile Giriş",
+  "version": "1.0.0",
+  "description": "e-Devlet ile Giriş — national identity (SAML), contributed into auth_acs:provider, sandboxed.",
+  "icon": "fas fa-id-card",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": [
+      "saml"
+    ],
+    "httpAllowlist": [],
+    "limits": {
+      "memoryMb": 64,
+      "timeoutMs": 30000,
+      "httpTimeoutMs": 28000,
+      "httpMaxBytes": 2000000
+    }
+  },
+  "config": {
+    "secrets": [
+      {
+        "key": "spPrivateKey",
+        "label": "SP Private Key (PEM)",
+        "help": "Signs the AuthnRequest; read broker-side, never enters the sandbox."
+      },
+      {
+        "key": "spDecryptionKey",
+        "label": "SP Decryption Key (PEM)",
+        "help": "Decrypts EncryptedAssertion (optional; defaults to the signing key)."
+      }
+    ]
+  },
+  "extensions": [
+    {
+      "point": "auth_acs:provider",
+      "key": "tr_edevlet",
+      "metadata": {
+        "label": "e-Devlet ile Giriş",
+        "protocol": "saml",
+        "country": "TR"
+      }
+    }
+  ]
+}

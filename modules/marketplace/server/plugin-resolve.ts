@@ -59,6 +59,11 @@ export async function resolveRunnablePlugin(tenantId: string, listingId: string)
   const bundleKey = version.bundleKey;
   const getBundle = async (): Promise<string> => {
     const url = await StorageService.getPresignedUrl(ROOT_TENANT_ID, bundleKey, 120);
+    // Local filesystem storage returns a file:// URL (Node fetch can't read those).
+    if (url.startsWith('file://')) {
+      const [{ readFile }, { fileURLToPath }] = await Promise.all([import('node:fs/promises'), import('node:url')]);
+      return readFile(fileURLToPath(url), 'utf8');
+    }
     const res = await fetch(url);
     if (!res.ok) throw new Error(`failed to load plugin bundle (${res.status})`);
     return res.text();

@@ -1,0 +1,28 @@
+{
+  "id": "deepseek",
+  "name": "DeepSeek",
+  "version": "1.0.0",
+  "description": "DeepSeek chat provider (OpenAI-compatible), contributed into ai:provider — runs sandboxed.",
+  "icon": "fas fa-robot",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": ["http", "secrets"],
+    "httpAllowlist": ["api.deepseek.com"],
+    "limits": { "memoryMb": 64, "timeoutMs": 30000, "httpTimeoutMs": 28000, "httpMaxBytes": 4000000 }
+  },
+  "config": {
+    "secrets": [
+      { "key": "apiKey", "label": "API Key", "help": "DeepSeek API key (kept encrypted, used only host-side for signed egress)." }
+    ]
+  },
+  "extensions": [
+    {
+      "point": "ai:provider",
+      "key": "deepseek",
+      "metadata": {
+        "label": "DeepSeek",
+        "models": ["deepseek-chat", "deepseek-reasoner"]
+      }
+    }
+  ]
+}
