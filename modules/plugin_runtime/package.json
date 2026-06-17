@@ -1,0 +1,13 @@
+{
+  "name": "@kuraykaraaslan/plugin_runtime",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./module.json": "./module.json",
+    "./sdk/types": "./sdk/types.ts",
+    "./server/entities/plugin_kv.entity": "./server/entities/plugin_kv.entity.ts",
+    "./server/broker/broker.service": "./server/broker/broker.service.ts",
+    "./server/rpc/host-client": "./server/rpc/host-client.ts"
+  }
+}

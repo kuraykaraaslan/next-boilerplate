@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-17T07:35:46.548Z",
+  "generatedAt": "2026-06-17T08:42:43.028Z",
   "modules": [
     {
       "id": "common",
@@ -1095,6 +1095,68 @@
       "hasReadme": false,
       "hasModuleJson": true,
       "hasNextLayer": true,
+      "readme": ""
+    },
+    {
+      "id": "plugin_runtime",
+      "name": "Plugin Runtime",
+      "version": "1.0.0",
+      "description": "Sandboxed execution runtime for untrusted community plugins (V8 isolates, brokered capabilities, no direct DB access).",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/plugin_runtime",
+      "dir": "modules/plugin_runtime",
+      "icon": "fas fa-shield-halved",
+      "tags": [
+        "platform",
+        "marketplace",
+        "security"
+      ],
+      "priority": 7,
+      "tier": "platform",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "setting",
+          "storage",
+          "audit_log",
+          "webhook",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "plugin_kv.entity.ts"
+        ]
+      },
+      "enabled": true,
+      "menu": [],
+      "adminRoutes": [],
+      "apiRoutes": [],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [],
+      "pkgExports": [
+        "./module.json",
+        "./sdk/types",
+        "./server/entities/plugin_kv.entity",
+        "./server/broker/broker.service",
+        "./server/rpc/host-client"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": false,
       "readme": ""
     },
     {

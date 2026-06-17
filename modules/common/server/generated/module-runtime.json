@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-17T07:35:46.548Z",
+  "generatedAt": "2026-06-17T08:42:43.028Z",
   "menu": [
     {
       "id": "settings",
@@ -6133,6 +6133,33 @@
         "payment",
         "env",
         "setting",
+        "common"
+      ]
+    },
+    {
+      "id": "plugin_runtime",
+      "name": "Plugin Runtime",
+      "icon": "fas fa-shield-halved",
+      "version": "1.0.0",
+      "description": "Sandboxed execution runtime for untrusted community plugins (V8 isolates, brokered capabilities, no direct DB access).",
+      "author": "Kuray Karaaslan",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/plugin_runtime",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "platform",
+        "marketplace",
+        "security"
+      ],
+      "priority": 7,
+      "enabled": true,
+      "tier": "platform",
+      "requires": [
+        "db",
+        "env",
+        "setting",
+        "storage",
+        "audit_log",
+        "webhook",
         "common"
       ]
     },

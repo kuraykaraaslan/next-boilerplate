@@ -1,0 +1,28 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "plugin_runtime",
+  "name": "Plugin Runtime",
+  "description": "Sandboxed execution runtime for untrusted community plugins (V8 isolates, brokered capabilities, no direct DB access).",
+  "version": "1.0.0",
+  "icon": "fas fa-shield-halved",
+  "tags": [
+    "platform",
+    "marketplace",
+    "security"
+  ],
+  "priority": 7,
+  "dependencies": {
+    "requires": [
+      "db",
+      "env",
+      "setting",
+      "storage",
+      "audit_log",
+      "webhook",
+      "common"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/plugin_runtime",
+  "license": "CC-BY-NC-ND-4.0"
+}

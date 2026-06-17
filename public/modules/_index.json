@@ -165,6 +165,20 @@
     "componentCount": 6,
     "file": "marketplace.md"
   },
+  "plugin_runtime": {
+    "name": "Plugin Runtime",
+    "tier": "platform",
+    "tags": [
+      "platform",
+      "marketplace",
+      "security"
+    ],
+    "hasNextLayer": false,
+    "routeCount": 0,
+    "entityCount": 1,
+    "componentCount": 0,
+    "file": "plugin_runtime.md"
+  },
   "seed": {
     "name": "Seed",
     "tier": "other",

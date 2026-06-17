@@ -30,6 +30,7 @@ const TIER_BY_ID = {
 
   setting: 'platform', storage: 'platform', webhook: 'platform',
   audit_log: 'platform', api_key: 'platform', marketplace: 'platform',
+  plugin_runtime: 'platform',
 
   ai: 'ai', ai_openai: 'ai', ai_anthropic: 'ai', ai_google: 'ai',
 };

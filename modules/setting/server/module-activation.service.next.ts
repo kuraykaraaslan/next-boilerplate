@@ -15,7 +15,7 @@ const KEY = (id: string) => `module.${id}.enabled`;
 const PROTECTED = new Set([
   'common', 'db', 'env', 'logger', 'redis', 'limiter',
   'setting', 'auth', 'user', 'user_session', 'tenant', 'tenant_session', 'tenant_member',
-  'marketplace',
+  'marketplace', 'plugin_runtime',
 ]);
 
 // Content modules a fresh tenant gets out of the box. Every other (non-protected,
