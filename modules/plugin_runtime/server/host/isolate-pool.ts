@@ -20,6 +20,9 @@ export interface CallCtx {
   tenantId: string;
   pluginId: string;
   capabilities: Capability[];
+  /** Carried through to the broker (it needs these; the isolate never sees them). */
+  httpAllowlist?: string[];
+  limits?: { httpTimeoutMs: number; httpMaxBytes: number };
 }
 
 /** Resolves a capability call host-side (validates + runs the scoped operation). */
@@ -62,10 +65,12 @@ ${granted}
     });
     globalThis.__invokeHttp = async function (routeKey, reqJson) {
       const mod = globalThis.__plugin;
-      if (!mod || !mod.http || typeof mod.http[routeKey] !== 'function') {
+      // Exact "METHOD path" key first, then a '*' catch-all the plugin can route itself.
+      const fn = mod && mod.http && (mod.http[routeKey] || mod.http['*']);
+      if (typeof fn !== 'function') {
         return JSON.stringify({ status: 404, body: { error: 'no handler: ' + routeKey } });
       }
-      const res = await mod.http[routeKey](JSON.parse(reqJson), globalThis.host);
+      const res = await fn(JSON.parse(reqJson), globalThis.host);
       return JSON.stringify(res || {});
     };
     globalThis.__invokeEvent = async function (name, payloadJson) {

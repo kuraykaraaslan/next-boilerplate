@@ -172,6 +172,37 @@
     "homepage": {
       "type": "string",
       "description": "Module/plugin website or documentation URL"
+    },
+    "sandbox": {
+      "type": "object",
+      "description": "For untrusted community plugins: declares the isolated runtime + the capabilities/limits the plugin requests. Reviewed and approved before publish. First-party modules omit this (they run trusted, in-process).",
+      "required": ["runtime", "capabilities"],
+      "properties": {
+        "runtime": {
+          "type": "string",
+          "enum": ["isolated"],
+          "description": "Execution model. 'isolated' = V8 isolate with brokered capabilities, no direct DB/fs/net."
+        },
+        "capabilities": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["data", "http", "settings", "secrets", "storage", "events"] },
+          "description": "Host capabilities the plugin may use. Only granted ones are injected."
+        },
+        "httpAllowlist": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Hostnames the plugin's http.fetch may reach (SSRF-guarded). Empty = none."
+        },
+        "limits": {
+          "type": "object",
+          "properties": {
+            "memoryMb": { "type": "integer" },
+            "timeoutMs": { "type": "integer" },
+            "httpTimeoutMs": { "type": "integer" },
+            "httpMaxBytes": { "type": "integer" }
+          }
+        }
+      }
     }
   },
   "definitions": {

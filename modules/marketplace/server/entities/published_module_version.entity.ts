@@ -38,9 +38,17 @@ export class PublishedModuleVersion {
   @Column({ type: 'simple-json', nullable: true })
   screenshots!: string[] | null;
 
-  /** npm package name or git url#ref (where the code lives — not executed here). */
+  /** npm package name or git url#ref (provenance — not executed directly). */
   @Column({ type: 'varchar', nullable: true })
   packageRef!: string | null;
+
+  /** Storage key of the built, isolate-loadable bundle (single IIFE/UMD JS). */
+  @Column({ type: 'varchar', nullable: true })
+  bundleKey!: string | null;
+
+  /** Manifest `sandbox` block (capabilities, httpAllowlist, limits) approved at review. */
+  @Column({ type: 'text', nullable: true })
+  sandboxJson!: string | null;
 
   @Index()
   @Column({ type: 'varchar', default: 'pending' })

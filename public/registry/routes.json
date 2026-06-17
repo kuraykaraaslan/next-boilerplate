@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-17T08:42:43.028Z",
+  "generatedAt": "2026-06-17T09:00:30.634Z",
   "routes": [
     {
       "filePath": "app/internal/api/caddy-ask/route.ts",
@@ -34,6 +34,16 @@
       "dynamic": false
     },
     {
+      "filePath": "app/internal/api/plugin-broker/route.ts",
+      "scope": "system",
+      "urlPath": "/internal/api/plugin-broker",
+      "methods": [
+        "POST"
+      ],
+      "module": "plugin_broker",
+      "dynamic": false
+    },
+    {
       "filePath": "app/internal/api/ready/route.ts",
       "scope": "system",
       "urlPath": "/internal/api/ready",
@@ -56,6 +66,20 @@
         "HEAD",
         "OPTIONS"
       ],
+      "dynamic": true
+    },
+    {
+      "filePath": "app/tenant/[tenantId]/api/plugins/[listingId]/[...path]/route.ts",
+      "scope": "tenant",
+      "urlPath": "/tenant/[tenantId]/api/plugins/[listingId]/[...path]",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "module": "plugin",
       "dynamic": true
     }
   ]
