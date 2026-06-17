@@ -6,6 +6,9 @@
   "exports": {
     "./module.json": "./module.json",
     "./sdk/types": "./sdk/types.ts",
+    "./sdk/client": "./sdk/client.ts",
+    "./ui/plugin-frame.component": "./ui/plugin-frame.component.tsx",
+    "./ui/plugin-host.page": "./ui/plugin-host.page.tsx",
     "./server/entities/plugin_kv.entity": "./server/entities/plugin_kv.entity.ts",
     "./server/broker/broker.service": "./server/broker/broker.service.ts",
     "./server/broker/install-keys": "./server/broker/install-keys.ts",

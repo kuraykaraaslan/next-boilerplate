@@ -6,7 +6,7 @@
 - **dir:** `modules/plugin_runtime/`
 - **tags:** platform, marketplace, security
 - **icon:** `fas fa-shield-halved`
-- **hasNextLayer:** false
+- **hasNextLayer:** true
 
 Sandboxed execution runtime for untrusted community plugins (V8 isolates, brokered capabilities, no direct DB access).
 
@@ -21,3 +21,8 @@ Sandboxed execution runtime for untrusted community plugins (V8 isolates, broker
 ## TypeORM entities
 
 - `PluginKv` (system) — `modules/plugin_runtime/server/entities/plugin_kv.entity.ts`
+
+## Next layer (modules_next/) surface
+
+- `plugin_runtime/ui/plugin-frame.component` _(ui, client)_
+- `plugin_runtime/ui/plugin-host.page` _(ui, client)_

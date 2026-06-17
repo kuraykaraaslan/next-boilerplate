@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-17T09:06:55.364Z",
+  "generatedAt": "2026-06-17T09:13:57.607Z",
   "components": [
     {
       "id": "ai/ui/ai-chat-box.component",
@@ -3436,6 +3436,28 @@
       "isClient": true,
       "isServer": false,
       "baseName": "wallet-badges.component"
+    },
+    {
+      "id": "plugin_runtime/ui/plugin-frame.component",
+      "module": "plugin_runtime",
+      "filePath": "modules/plugin_runtime/ui/plugin-frame.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "PluginFrame"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "plugin-frame.component"
+    },
+    {
+      "id": "plugin_runtime/ui/plugin-host.page",
+      "module": "plugin_runtime",
+      "filePath": "modules/plugin_runtime/ui/plugin-host.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "plugin-host.page"
     },
     {
       "id": "search/ui/search.page",

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-17T09:06:55.364Z",
+  "generatedAt": "2026-06-17T09:13:57.607Z",
   "menu": [
     {
       "id": "settings",
@@ -736,6 +736,12 @@
       "componentId": "payment/ui/plans-plan-id.page",
       "permissions": [],
       "moduleId": "payment"
+    },
+    {
+      "path": "/admin/plugins/[listingId]",
+      "componentId": "plugin_runtime/ui/plugin-host.page",
+      "permissions": [],
+      "moduleId": "plugin_runtime"
     },
     {
       "path": "/admin/saml",

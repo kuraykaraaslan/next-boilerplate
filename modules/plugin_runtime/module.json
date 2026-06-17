@@ -24,5 +24,11 @@
   },
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/plugin_runtime",
-  "license": "CC-BY-NC-ND-4.0"
+  "license": "CC-BY-NC-ND-4.0",
+  "routes": [
+    {
+      "path": "/admin/plugins/[listingId]",
+      "component": "plugin_runtime/ui/plugin-host.page"
+    }
+  ]
 }

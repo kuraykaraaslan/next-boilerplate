@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-17T09:06:55.364Z",
+  "generatedAt": "2026-06-17T09:13:57.607Z",
   "modules": [
     {
       "id": "common",
@@ -1147,7 +1147,12 @@
       },
       "enabled": true,
       "menu": [],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/plugins/[listingId]",
+          "component": "plugin_runtime/ui/plugin-host.page"
+        }
+      ],
       "apiRoutes": [],
       "widgets": [],
       "slots": [],
@@ -1156,6 +1161,9 @@
       "pkgExports": [
         "./module.json",
         "./sdk/types",
+        "./sdk/client",
+        "./ui/plugin-frame.component",
+        "./ui/plugin-host.page",
         "./server/entities/plugin_kv.entity",
         "./server/broker/broker.service",
         "./server/broker/install-keys",
@@ -1166,7 +1174,7 @@
       "modulePermissions": [],
       "hasReadme": false,
       "hasModuleJson": true,
-      "hasNextLayer": false,
+      "hasNextLayer": true,
       "readme": ""
     },
     {

@@ -173,10 +173,10 @@
       "marketplace",
       "security"
     ],
-    "hasNextLayer": false,
+    "hasNextLayer": true,
     "routeCount": 0,
     "entityCount": 1,
-    "componentCount": 0,
+    "componentCount": 2,
     "file": "plugin_runtime.md"
   },
   "seed": {

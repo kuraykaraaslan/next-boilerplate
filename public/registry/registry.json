@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-17T09:06:55.364Z",
+  "generatedAt": "2026-06-17T09:13:57.607Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -1163,7 +1163,12 @@
       },
       "enabled": true,
       "menu": [],
-      "adminRoutes": [],
+      "adminRoutes": [
+        {
+          "path": "/admin/plugins/[listingId]",
+          "component": "plugin_runtime/ui/plugin-host.page"
+        }
+      ],
       "apiRoutes": [],
       "widgets": [],
       "slots": [],
@@ -1172,6 +1177,9 @@
       "pkgExports": [
         "./module.json",
         "./sdk/types",
+        "./sdk/client",
+        "./ui/plugin-frame.component",
+        "./ui/plugin-host.page",
         "./server/entities/plugin_kv.entity",
         "./server/broker/broker.service",
         "./server/broker/install-keys",
@@ -1182,7 +1190,7 @@
       "modulePermissions": [],
       "hasReadme": false,
       "hasModuleJson": true,
-      "hasNextLayer": false,
+      "hasNextLayer": true,
       "readme": ""
     },
     {
@@ -19925,6 +19933,28 @@
       "isClient": true,
       "isServer": false,
       "baseName": "wallet-badges.component"
+    },
+    {
+      "id": "plugin_runtime/ui/plugin-frame.component",
+      "module": "plugin_runtime",
+      "filePath": "modules/plugin_runtime/ui/plugin-frame.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "PluginFrame"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "plugin-frame.component"
+    },
+    {
+      "id": "plugin_runtime/ui/plugin-host.page",
+      "module": "plugin_runtime",
+      "filePath": "modules/plugin_runtime/ui/plugin-host.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "plugin-host.page"
     },
     {
       "id": "search/ui/search.page",
