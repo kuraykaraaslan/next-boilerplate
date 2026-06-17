@@ -8,7 +8,7 @@
     "./sdk/types": "./sdk/types.ts",
     "./server/entities/plugin_kv.entity": "./server/entities/plugin_kv.entity.ts",
     "./server/broker/broker.service": "./server/broker/broker.service.ts",
-    "./server/broker/resolve": "./server/broker/resolve.ts",
+    "./server/broker/install-keys": "./server/broker/install-keys.ts",
     "./server/rpc/protocol": "./server/rpc/protocol.ts",
     "./server/rpc/host-client": "./server/rpc/host-client.ts"
   }

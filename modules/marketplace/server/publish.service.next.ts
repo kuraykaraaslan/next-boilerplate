@@ -6,6 +6,7 @@
 import { z } from 'zod';
 import { getDataSource } from '@kuraykaraaslan/db';
 import AuditLogService from '@kuraykaraaslan/audit_log/server/audit_log.service';
+import StorageService from '@kuraykaraaslan/storage/server/storage.service';
 import { ROOT_TENANT_ID } from '@kuraykaraaslan/tenant/server/tenant.constants';
 import { Publisher, type PublisherStatus } from './entities/publisher.entity';
 import { PublishedModule, type ListingVisibility } from './entities/published_module.entity';
@@ -206,6 +207,8 @@ export async function submitVersion(
     changelog?: string;
     screenshots?: string[];
     packageRef?: string;
+    /** Base64 of the built, isolate-loadable bundle (single IIFE/UMD JS). */
+    bundleBase64?: string;
   },
   actorId?: string,
 ): Promise<PublishedModuleVersion> {
@@ -218,9 +221,24 @@ export async function submitVersion(
   if (!listing) throw new Error('Listing not found.');
   if (listing.publisherId !== publisher.publisherId) throw new Error('Not your listing.');
 
-  // Validate the manifest (throws on invalid).
-  parseManifest(input.manifestJson);
+  // Validate the manifest (throws on invalid). The `sandbox` block (if present)
+  // is the capability/limit grant the reviewer will approve.
+  const manifest = parseManifest(input.manifestJson) as { sandbox?: unknown };
   if (!/^\d+\.\d+\.\d+$/.test(input.version)) throw new Error('version must be semver x.y.z');
+
+  // Store the runnable bundle system-side (ROOT) so the host can load it on install.
+  let bundleKey: string | null = null;
+  if (input.bundleBase64) {
+    const buffer = Buffer.from(input.bundleBase64, 'base64');
+    if (buffer.byteLength > 5_000_000) throw new Error('bundle too large (max 5MB)');
+    const res = await StorageService.uploadServerBuffer(ROOT_TENANT_ID, {
+      buffer,
+      filename: `${listing.scopedName.replace(/[^a-z0-9_.-]/gi, '_')}-${input.version}.js`,
+      contentType: 'application/javascript',
+      folder: 'plugin-bundles',
+    });
+    bundleKey = res.key;
+  }
 
   const version = await versionRepo.save(
     versionRepo.create({
@@ -231,6 +249,8 @@ export async function submitVersion(
       changelog: input.changelog ?? null,
       screenshots: input.screenshots ?? null,
       packageRef: input.packageRef ?? null,
+      bundleKey,
+      sandboxJson: manifest.sandbox ? JSON.stringify(manifest.sandbox) : null,
       reviewStatus: 'pending',
     }),
   );

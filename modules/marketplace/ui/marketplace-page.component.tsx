@@ -43,6 +43,8 @@ interface CommunityListing {
   homepage: string | null;
   publisherSlug: string | null;
   version: string | null;
+  installed?: boolean;
+  active?: boolean;
 }
 
 function extractMessage(err: unknown, fallback: string) {
@@ -150,6 +152,19 @@ export function MarketplacePage({ tenantId }: { tenantId: string }) {
     }
   }, [base, deleting, preview]);
 
+  const communityAction = useCallback(async (c: CommunityListing, action: 'install' | 'uninstall') => {
+    setBusy(c.listingId);
+    try {
+      await api.put(`${base}/community/${c.listingId}`, { action });
+      toast.success(`${c.name} ${action === 'install' ? 'installed' : 'removed'}`);
+      await load();
+    } catch (err) {
+      toast.error(extractMessage(err, 'Failed to update plugin.'));
+    } finally {
+      setBusy(null);
+    }
+  }, [base, load]);
+
   const grouped = useMemo(() => {
     const by: Record<string, CatalogModule[]> = {};
     for (const m of modules) (by[m.tier || 'other'] ??= []).push(m);
@@ -252,10 +267,17 @@ export function MarketplacePage({ tenantId }: { tenantId: string }) {
                 {c.description && <p className="mt-2 text-xs text-text-secondary line-clamp-2 flex-1">{c.description}</p>}
                 <div className="mt-3 flex items-center gap-2">
                   {c.version && <Badge variant="neutral" size="sm">v{c.version}</Badge>}
+                  {c.installed && <Badge variant="success" size="sm">Installed</Badge>}
                   {(c.repoUrl || c.homepage) && (
                     <a className="text-xs text-primary hover:underline" href={c.repoUrl || c.homepage || '#'} target="_blank" rel="noopener noreferrer">
-                      View
+                      Details
                     </a>
+                  )}
+                  <span className="flex-1" />
+                  {c.installed ? (
+                    <Button size="sm" variant="danger" disabled={busy === c.listingId} onClick={() => communityAction(c, 'uninstall')}>Remove</Button>
+                  ) : (
+                    <Button size="sm" variant="primary" loading={busy === c.listingId} onClick={() => communityAction(c, 'install')}>Install</Button>
                   )}
                 </div>
               </div>

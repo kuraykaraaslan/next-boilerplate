@@ -54,7 +54,8 @@ export function DeveloperPage({ tenantId }: { tenantId: string }) {
   const [newListing, setNewListing] = useState({ moduleId: '', name: '', description: '', visibility: 'private' });
   const [showListingModal, setShowListingModal] = useState(false);
   const [versionFor, setVersionFor] = useState<Listing | null>(null);
-  const [version, setVersion] = useState({ version: '1.0.0', manifestJson: '', readmeMd: '', packageRef: '' });
+  const [version, setVersion] = useState({ version: '1.0.0', manifestJson: '', readmeMd: '', packageRef: '', bundleBase64: '' });
+  const [bundleName, setBundleName] = useState('');
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -105,7 +106,8 @@ export function DeveloperPage({ tenantId }: { tenantId: string }) {
     try {
       await api.post(`${base}/listings/${versionFor.listingId}/versions`, version);
       setVersionFor(null);
-      setVersion({ version: '1.0.0', manifestJson: '', readmeMd: '', packageRef: '' });
+      setVersion({ version: '1.0.0', manifestJson: '', readmeMd: '', packageRef: '', bundleBase64: '' });
+      setBundleName('');
       toast.success('Version submitted for review.');
       await load();
     } catch (err) {
@@ -248,6 +250,25 @@ export function DeveloperPage({ tenantId }: { tenantId: string }) {
             onChange={(e) => setVersion((s) => ({ ...s, readmeMd: e.target.value }))} /></Field>
           <Field label="Package reference (npm name or git url#ref)"><input className={inputCls} value={version.packageRef}
             onChange={(e) => setVersion((s) => ({ ...s, packageRef: e.target.value }))} /></Field>
+          <Field label="Runnable bundle (single .js, IIFE assigning globalThis.__plugin)">
+            <input
+              type="file"
+              accept=".js,.mjs,text/javascript,application/javascript"
+              className={inputCls}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (!file) { setVersion((s) => ({ ...s, bundleBase64: '' })); setBundleName(''); return; }
+                const reader = new FileReader();
+                reader.onload = () => {
+                  const result = String(reader.result);
+                  setVersion((s) => ({ ...s, bundleBase64: result.split(',')[1] ?? '' }));
+                  setBundleName(file.name);
+                };
+                reader.readAsDataURL(file);
+              }}
+            />
+            {bundleName && <span className="text-xs text-text-tertiary">{bundleName}</span>}
+          </Field>
         </div>
       </Modal>
     </div>

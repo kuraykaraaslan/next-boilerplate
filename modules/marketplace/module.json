@@ -19,6 +19,7 @@
       "auth",
       "tenant",
       "storage",
+      "plugin_runtime",
       "common"
     ]
   },
@@ -76,6 +77,10 @@
     {
       "path": "/api/marketplace/community",
       "handler": "marketplace/server/community.route"
+    },
+    {
+      "path": "/api/marketplace/community/[listingId]",
+      "handler": "marketplace/server/community-item.route"
     },
     {
       "path": "/api/marketplace/publisher",

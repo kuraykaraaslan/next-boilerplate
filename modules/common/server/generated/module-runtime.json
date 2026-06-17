@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-17T09:00:30.634Z",
+  "generatedAt": "2026-06-17T09:06:55.364Z",
   "menu": [
     {
       "id": "settings",
@@ -1834,6 +1834,11 @@
     {
       "path": "/api/marketplace/community",
       "handlerId": "marketplace/server/community.route",
+      "moduleId": "marketplace"
+    },
+    {
+      "path": "/api/marketplace/community/[listingId]",
+      "handlerId": "marketplace/server/community-item.route",
       "moduleId": "marketplace"
     },
     {
@@ -5442,6 +5447,7 @@
         "auth",
         "tenant",
         "storage",
+        "plugin_runtime",
         "common"
       ]
     },

@@ -20,6 +20,14 @@ function extractMessage(err: unknown, fallback: string) {
   return e?.response?.data?.message ?? e?.message ?? fallback;
 }
 
+/** Parse the requested sandbox grant (capabilities + http allowlist) from a manifest. */
+function sandboxOf(manifestJson: string): { runtime?: string; capabilities: string[]; httpAllowlist: string[] } {
+  try {
+    const m = JSON.parse(manifestJson) as { sandbox?: { runtime?: string; capabilities?: string[]; httpAllowlist?: string[] } };
+    return { runtime: m.sandbox?.runtime, capabilities: m.sandbox?.capabilities ?? [], httpAllowlist: m.sandbox?.httpAllowlist ?? [] };
+  } catch { return { capabilities: [], httpAllowlist: [] }; }
+}
+
 export function ReviewPage({ tenantId }: { tenantId: string }) {
   const base = `/tenant/${tenantId}/api/marketplace`;
   const [loading, setLoading] = useState(true);
@@ -112,6 +120,23 @@ export function ReviewPage({ tenantId }: { tenantId: string }) {
                 by @{item.publisher?.slug ?? '?'} · {new Date(item.version.submittedAt).toLocaleDateString()}
               </span>
             </div>
+            {(() => {
+              const sb = sandboxOf(item.version.manifestJson);
+              return (
+                <div className="rounded-md border border-warning/40 bg-warning/5 p-2 text-xs">
+                  <span className="font-medium text-text-primary">Requested capabilities</span>{' '}
+                  {sb.runtime === 'isolated'
+                    ? (sb.capabilities.length
+                        ? sb.capabilities.map((c) => <Badge key={c} variant="warning" size="sm">{c}</Badge>)
+                        : <span className="text-text-tertiary">none</span>)
+                    : <span className="text-text-tertiary">not a sandboxed plugin</span>}
+                  {sb.httpAllowlist.length > 0 && (
+                    <div className="mt-1 text-text-secondary">http allowlist: {sb.httpAllowlist.join(', ')}</div>
+                  )}
+                  <div className="mt-1 text-text-tertiary">Approving grants these to the plugin for every installing tenant.</div>
+                </div>
+              );
+            })()}
             <details className="text-xs">
               <summary className="cursor-pointer text-text-secondary">View manifest</summary>
               <pre className="mt-2 max-h-64 overflow-auto rounded-md bg-surface-sunken p-3 text-text-primary">{item.version.manifestJson}</pre>

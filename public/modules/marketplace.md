@@ -12,7 +12,7 @@ Browse, install, activate, and remove tenant modules; publish your own modules t
 
 ## Dependencies
 
-- **requires:** `db`, `env`, `setting`, `audit_log`, `auth`, `tenant`, `storage`, `common`
+- **requires:** `db`, `env`, `setting`, `audit_log`, `auth`, `tenant`, `storage`, `plugin_runtime`, `common`
 
 ## Entities
 

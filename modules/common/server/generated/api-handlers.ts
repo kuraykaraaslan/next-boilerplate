@@ -136,6 +136,7 @@ export const apiHandlers: Record<string, () => Promise<RouteModule>> = {
   "invoice/server/invoices-invoice-id.route": () => import("@kuraykaraaslan/invoice/server/invoices-invoice-id.route") as unknown as Promise<RouteModule>,
   "invoice/server/invoices-preview.route": () => import("@kuraykaraaslan/invoice/server/invoices-preview.route") as unknown as Promise<RouteModule>,
   "invoice/server/invoices.route": () => import("@kuraykaraaslan/invoice/server/invoices.route") as unknown as Promise<RouteModule>,
+  "marketplace/server/community-item.route": () => import("@kuraykaraaslan/marketplace/server/community-item.route") as unknown as Promise<RouteModule>,
   "marketplace/server/community.route": () => import("@kuraykaraaslan/marketplace/server/community.route") as unknown as Promise<RouteModule>,
   "marketplace/server/listings-versions.route": () => import("@kuraykaraaslan/marketplace/server/listings-versions.route") as unknown as Promise<RouteModule>,
   "marketplace/server/listings.route": () => import("@kuraykaraaslan/marketplace/server/listings.route") as unknown as Promise<RouteModule>,

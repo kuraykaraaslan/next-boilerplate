@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-17T09:00:30.634Z",
+  "generatedAt": "2026-06-17T09:06:55.364Z",
   "modules": [
     {
       "id": "common",
@@ -957,6 +957,7 @@
           "auth",
           "tenant",
           "storage",
+          "plugin_runtime",
           "common"
         ]
       },
@@ -1029,6 +1030,10 @@
           "handler": "marketplace/server/community.route"
         },
         {
+          "path": "/api/marketplace/community/[listingId]",
+          "handler": "marketplace/server/community-item.route"
+        },
+        {
           "path": "/api/marketplace/publisher",
           "handler": "marketplace/server/publisher.route"
         },
@@ -1080,6 +1085,9 @@
         "./server/listings.route",
         "./server/listings-versions.route",
         "./server/community.route",
+        "./server/community-item.route",
+        "./server/community-install.service.next",
+        "./server/plugin-resolve",
         "./server/review.route",
         "./server/review-item.route",
         "./server/publishers-item.route",
@@ -1150,7 +1158,7 @@
         "./sdk/types",
         "./server/entities/plugin_kv.entity",
         "./server/broker/broker.service",
-        "./server/broker/resolve",
+        "./server/broker/install-keys",
         "./server/rpc/protocol",
         "./server/rpc/host-client"
       ],

@@ -7,7 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
 import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next';
-import { resolveRunnablePlugin } from '@kuraykaraaslan/plugin_runtime/server/broker/resolve';
+import { resolveRunnablePlugin } from '@kuraykaraaslan/marketplace/server/plugin-resolve';
 import { runOnHost } from '@kuraykaraaslan/plugin_runtime/server/rpc/host-client';
 
 const FORWARD_HEADERS = ['content-type', 'accept', 'accept-language', 'user-agent'];

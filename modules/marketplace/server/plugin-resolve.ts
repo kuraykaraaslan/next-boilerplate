@@ -1,37 +1,33 @@
-// Web-tier resolver: given a tenant + a community plugin (listingId), produce the
-// SandboxConfig + a bundle loader for the plugin-host. Enforces installed + active +
-// approved. Runs in the trusted tier (DB/storage). Imports no isolated-vm.
+// Marketplace-aware resolver: given a tenant + a community plugin (listingId),
+// produce the SandboxConfig + a bundle loader for the plugin runtime. Enforces
+// installed + active + approved. Lives in marketplace (which depends on the runtime),
+// keeping the generic plugin_runtime free of any marketplace import.
 
 import { getDataSource } from '@kuraykaraaslan/db';
 import SettingService from '@kuraykaraaslan/setting/server/setting.service';
 import StorageService from '@kuraykaraaslan/storage/server/storage.service';
 import { ROOT_TENANT_ID } from '@kuraykaraaslan/tenant/server/tenant.constants';
-import { PublishedModule } from '@kuraykaraaslan/marketplace/server/entities/published_module.entity';
-import { PublishedModuleVersion } from '@kuraykaraaslan/marketplace/server/entities/published_module_version.entity';
-import { loadRuntimeConfig, type SandboxConfig } from '../rpc/protocol';
-import type { Capability } from '../../sdk/types';
-
-const INSTALL_VERSION = (listingId: string) => `plugin.community.${listingId}.version`;
-const INSTALL_ACTIVE = (listingId: string) => `plugin.community.${listingId}.active`;
+import { loadRuntimeConfig, type SandboxConfig } from '@kuraykaraaslan/plugin_runtime/server/rpc/protocol';
+import { communityInstallKeys } from '@kuraykaraaslan/plugin_runtime/server/broker/install-keys';
+import type { Capability } from '@kuraykaraaslan/plugin_runtime/sdk/types';
+import { PublishedModule } from './entities/published_module.entity';
+import { PublishedModuleVersion } from './entities/published_module_version.entity';
 
 export interface RunnablePlugin {
   sandbox: SandboxConfig;
   getBundle: () => Promise<string>;
 }
 
-/** Per-tenant install marker keys (written by the marketplace install flow). */
-export const communityInstallKeys = { version: INSTALL_VERSION, active: INSTALL_ACTIVE };
-
 /**
  * Resolve the runnable plugin for (tenantId, listingId), or null if it is not
- * installed / not active / not approved. The returned `getBundle` is only invoked
- * by the host-client on a cold cache.
+ * installed / not active / not approved. `getBundle` is only invoked by the
+ * host-client on a cold cache.
  */
 export async function resolveRunnablePlugin(tenantId: string, listingId: string): Promise<RunnablePlugin | null> {
-  const rec = await SettingService.getByKeys(tenantId, [INSTALL_VERSION(listingId), INSTALL_ACTIVE(listingId)]);
-  const versionId = rec[INSTALL_VERSION(listingId)];
-  if (!versionId) return null;                       // not installed
-  if (rec[INSTALL_ACTIVE(listingId)] === 'false') return null; // deactivated
+  const rec = await SettingService.getByKeys(tenantId, [communityInstallKeys.version(listingId), communityInstallKeys.active(listingId)]);
+  const versionId = rec[communityInstallKeys.version(listingId)];
+  if (!versionId) return null;                                  // not installed
+  if (rec[communityInstallKeys.active(listingId)] === 'false') return null; // deactivated
 
   const ds = await getDataSource();
   const version = await ds.getRepository(PublishedModuleVersion).findOne({ where: { versionId } });
@@ -62,7 +58,6 @@ export async function resolveRunnablePlugin(tenantId: string, listingId: string)
 
   const bundleKey = version.bundleKey;
   const getBundle = async (): Promise<string> => {
-    // Bundles are stored system-side (ROOT) at submit time.
     const url = await StorageService.getPresignedUrl(ROOT_TENANT_ID, bundleKey, 120);
     const res = await fetch(url);
     if (!res.ok) throw new Error(`failed to load plugin bundle (${res.status})`);
