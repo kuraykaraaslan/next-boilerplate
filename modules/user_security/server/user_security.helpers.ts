@@ -1,7 +1,7 @@
 import { createHash, timingSafeEqual } from 'node:crypto';
-import redis from '@nb/redis';
-import { env } from '@nb/env';
-import { encryptFieldOpt, decryptFieldOpt, isEncryptedField } from '@nb/common/server/field-encryption';
+import redis from '@kuraykaraaslan/redis';
+import { env } from '@kuraykaraaslan/env';
+import { encryptFieldOpt, decryptFieldOpt, isEncryptedField } from '@kuraykaraaslan/common/server/field-encryption';
 import { UserSecurity } from './user_security.types';
 
 export const USER_SECURITY_CACHE_TTL = env.SESSION_CACHE_TTL ?? (60 * 5);

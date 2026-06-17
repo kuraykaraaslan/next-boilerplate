@@ -1,8 +1,8 @@
 import crypto from 'crypto';
 import axios from 'axios';
-import { BaseSSOProvider } from '@nb/auth_sso/server/providers/base.provider';
-import type { SSOProfile } from '@nb/auth_sso/server/auth_sso.types';
-import SSOMessages from '@nb/auth_sso/server/auth_sso.messages';
+import { BaseSSOProvider } from '@kuraykaraaslan/auth_sso/server/providers/base.provider';
+import type { SSOProfile } from '@kuraykaraaslan/auth_sso/server/auth_sso.types';
+import SSOMessages from '@kuraykaraaslan/auth_sso/server/auth_sso.messages';
 
 /**
  * Facebook (Meta) Login provider.

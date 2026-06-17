@@ -1,6 +1,6 @@
-import type { Invoice } from '@nb/invoice/server/entities/invoice.entity';
-import type { InvoiceLine } from '@nb/invoice/server/entities/invoice_line.entity';
-import { readAddress } from '@nb/invoice/server/adapters/xml.util';
+import type { Invoice } from '@kuraykaraaslan/invoice/server/entities/invoice.entity';
+import type { InvoiceLine } from '@kuraykaraaslan/invoice/server/entities/invoice_line.entity';
+import { readAddress } from '@kuraykaraaslan/invoice/server/adapters/xml.util';
 
 /**
  * India **GST e-invoice (IRP) JSON** builder — schema v1.1, the payload the

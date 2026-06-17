@@ -1,10 +1,10 @@
-import SettingService from '@nb/setting/server/setting.service';
-import Logger from '@nb/logger';
-import type { InvoiceAdapter, InvoiceAdapterSubmitResult } from '@nb/invoice/server/adapters/base.adapter';
-import type { Invoice } from '@nb/invoice/server/entities/invoice.entity';
-import type { InvoiceLine } from '@nb/invoice/server/entities/invoice_line.entity';
-import { buildCiiInvoiceXml, type CiiProfile } from '@nb/invoice/server/adapters/cii_xml';
-import InvoiceSignatureService from '@nb/invoice/server/invoice.signature.service';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
+import Logger from '@kuraykaraaslan/logger';
+import type { InvoiceAdapter, InvoiceAdapterSubmitResult } from '@kuraykaraaslan/invoice/server/adapters/base.adapter';
+import type { Invoice } from '@kuraykaraaslan/invoice/server/entities/invoice.entity';
+import type { InvoiceLine } from '@kuraykaraaslan/invoice/server/entities/invoice_line.entity';
+import { buildCiiInvoiceXml, type CiiProfile } from '@kuraykaraaslan/invoice/server/adapters/cii_xml';
+import InvoiceSignatureService from '@kuraykaraaslan/invoice/server/invoice.signature.service';
 
 /**
  * Germany — **ZUGFeRD 2.x / XRechnung** (UN/CEFACT CII). We generate the real

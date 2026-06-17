@@ -1,6 +1,6 @@
-import type { CouponStatus, DiscountType } from '@nb/coupon/server/coupon.enums';
-import type { CouponScope } from '@nb/coupon/server/coupon.dto';
-import type { Coupon as CanonicalCoupon } from '@nb/coupon/server/coupon.types';
+import type { CouponStatus, DiscountType } from '@kuraykaraaslan/coupon/server/coupon.enums';
+import type { CouponScope } from '@kuraykaraaslan/coupon/server/coupon.dto';
+import type { Coupon as CanonicalCoupon } from '@kuraykaraaslan/coupon/server/coupon.types';
 import type { ScopeFormState } from './coupon-scope-panel.component';
 
 export type Coupon = Pick<

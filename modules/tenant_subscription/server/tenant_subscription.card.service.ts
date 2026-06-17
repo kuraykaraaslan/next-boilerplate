@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import type { PaymentProvider, CreditCardInput } from '@nb/payment/server/payment.enums';
+import type { PaymentProvider, CreditCardInput } from '@kuraykaraaslan/payment/server/payment.enums';
 import type { TenantSubscription } from './tenant_subscription.types';
 import { quote, payWithCard, complete3dsCardPayment } from './tenant_subscription.card.operations';
 

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { BaseOidcProvider } from '@nb/auth_oidc/server/auth_oidc.engine';
+import { BaseOidcProvider } from '@kuraykaraaslan/auth_oidc/server/auth_oidc.engine';
 import type { SSOProvider } from '../auth_sso.enums';
 import type { SSOProfile, SSOTokens, SSOProviderConfig, SSOProviderService, SSOAuthUrlOptions } from '../auth_sso.types';
 import { SSO_CONFIGS, getCallbackUrl } from '../auth_sso.config';

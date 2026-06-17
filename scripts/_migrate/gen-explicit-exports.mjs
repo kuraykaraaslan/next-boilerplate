@@ -1,6 +1,6 @@
 // Turbopack does not resolve array-fallback wildcard subpath exports (e.g.
 // "./ui/*": ["./ui/*.tsx", "./ui/*.ts"]) the way tsc/Node do. Regenerate every
-// @nb/* package's exports as an EXPLICIT enumeration of each source file, which
+// @kuraykaraaslan/* package's exports as an EXPLICIT enumeration of each source file, which
 // every bundler resolves. Directory imports get an extra "<dir>" -> index entry.
 //
 // Usage: node scripts/_migrate/gen-explicit-exports.mjs
@@ -26,7 +26,7 @@ for (const id of fs.readdirSync('modules')) {
   const pkgPath = path.join(root, 'package.json');
   if (!fs.existsSync(pkgPath)) continue;
   const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
-  if (!pkg.name?.startsWith('@nb/')) continue;
+  if (!pkg.name?.startsWith('@kuraykaraaslan/')) continue;
 
   const exp = {};
   // preserve an explicit non-standard main (messaging: server/barrel.ts)

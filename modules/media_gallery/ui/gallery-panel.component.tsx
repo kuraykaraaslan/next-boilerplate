@@ -1,13 +1,13 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
-import api from '@nb/common/server/axios';
-import { Button } from '@nb/common/ui/button.component';
-import { Modal } from '@nb/common/ui/modal.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
-import { Spinner } from '@nb/common/ui/spinner.component';
-import { FileInput } from '@nb/common/ui/file-input.component';
-import { ImageGallery, type ImageGalleryImage } from '@nb/common/ui/image-gallery.component';
-import { toast } from '@nb/common/ui/toast.store';
+import api from '@kuraykaraaslan/common/server/axios';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import { Modal } from '@kuraykaraaslan/common/ui/modal.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
+import { Spinner } from '@kuraykaraaslan/common/ui/spinner.component';
+import { FileInput } from '@kuraykaraaslan/common/ui/file-input.component';
+import { ImageGallery, type ImageGalleryImage } from '@kuraykaraaslan/common/ui/image-gallery.component';
+import { toast } from '@kuraykaraaslan/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 

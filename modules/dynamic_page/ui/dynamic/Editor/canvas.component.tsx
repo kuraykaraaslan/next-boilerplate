@@ -6,7 +6,7 @@ import { PreviewContext } from '../partials/preview-context.component'
 import { SortableBlock } from './partials/canvas-block.component'
 import { QuickAddPopover, BlockContextMenu, InsertGap, SidebarDropTarget } from './partials/canvas-overlays.component'
 import { saveSection } from '../utils/savedSections'
-import { toast } from '@nb/common/ui/toast.store'
+import { toast } from '@kuraykaraaslan/common/ui/toast.store'
 
 const PREVIEW_WIDTHS: Record<string, string> = {
   mobile: '375px',

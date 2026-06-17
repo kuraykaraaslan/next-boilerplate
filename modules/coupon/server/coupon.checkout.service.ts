@@ -1,6 +1,6 @@
-import { extensionRegistry } from '@nb/common/server/extension-registry';
+import { extensionRegistry } from '@kuraykaraaslan/common/server/extension-registry';
 import type { CouponValidationResult } from './coupon.types';
-import type { LocalCouponDiscount, PaymentCouponContribution } from '@nb/payment/server/payment.coupon.types';
+import type { LocalCouponDiscount, PaymentCouponContribution } from '@kuraykaraaslan/payment/server/payment.coupon.types';
 
 const PAYMENT_COUPON_POINT = 'payment:coupon';
 

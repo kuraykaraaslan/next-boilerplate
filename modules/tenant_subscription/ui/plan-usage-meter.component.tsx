@@ -1,6 +1,6 @@
 'use client';
-import { cn } from '@nb/common/server/utils/cn';
-import type { FeatureAccessResult } from '@nb/tenant_subscription/server/tenant_subscription.types';
+import { cn } from '@kuraykaraaslan/common/server/utils/cn';
+import type { FeatureAccessResult } from '@kuraykaraaslan/tenant_subscription/server/tenant_subscription.types';
 
 type Props = {
   result: FeatureAccessResult & { type: 'LIMIT' };

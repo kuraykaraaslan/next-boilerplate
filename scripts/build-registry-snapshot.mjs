@@ -108,6 +108,25 @@ async function main() {
   await writeFile(path.join(SERVER_GEN, 'api-handlers.ts'), renderApiHandlerMap(apiHandlerImports), 'utf8');
   await writeFile(path.join(SERVER_GEN, 'module-extensions.ts'), renderExtensionMap(extensionImports), 'utf8');
 
+  // Per-module entity table map, server-readable. Powers the marketplace data
+  // purge: which tables a module owns, and which carry a `tenantId` column (the
+  // ones a per-tenant uninstall must clear). `schema` here is the collector's
+  // heuristic label; `hasTenantId` is the authoritative purge signal.
+  const moduleEntities = {};
+  for (const e of entities) {
+    if (!e.tableName) continue;
+    (moduleEntities[e.module] ??= []).push({
+      tableName: e.tableName,
+      schema: e.schema,
+      hasTenantId: Array.isArray(e.columns) && e.columns.includes('tenantId'),
+    });
+  }
+  await writeFile(
+    path.join(SERVER_GEN, 'module-entities.json'),
+    JSON.stringify({ generatedAt: registry.generatedAt, modules: moduleEntities }, null, 2) + '\n',
+    'utf8',
+  );
+
   // Per-module markdown chunks.
   const indexMap = {};
   for (const mod of modules) {

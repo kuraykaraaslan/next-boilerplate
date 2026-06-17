@@ -1,10 +1,10 @@
 import 'reflect-metadata';
-import { tenantDataSourceFor } from '@nb/db';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
 import { Invoice } from './entities/invoice.entity';
 import { InvoiceLine } from './entities/invoice_line.entity';
-import SettingService from '@nb/setting/server/setting.service';
-import StorageService from '@nb/storage/server/storage.service';
-import { type UploadFileDTO } from '@nb/storage/server/storage.dto';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
+import StorageService from '@kuraykaraaslan/storage/server/storage.service';
+import { type UploadFileDTO } from '@kuraykaraaslan/storage/server/storage.dto';
 import InvoiceMessages from './invoice.messages';
 import InvoicePdfRendererService, { type SellerInfo, type PdfTemplateOptions } from './invoice.pdf.renderer.service';
 

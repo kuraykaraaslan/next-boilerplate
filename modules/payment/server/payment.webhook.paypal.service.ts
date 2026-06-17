@@ -1,10 +1,10 @@
 import 'reflect-metadata';
 import axios from 'axios';
 import { PAYMENT_MESSAGES } from './payment.messages';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
-import SettingService from '@nb/setting/server/setting.service';
-import { ROOT_TENANT_ID } from '@nb/tenant/server/tenant.constants';
-import Logger from '@nb/logger';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
+import { ROOT_TENANT_ID } from '@kuraykaraaslan/tenant/server/tenant.constants';
+import Logger from '@kuraykaraaslan/logger';
 import type { PaypalWebhookEvent, PaypalVerifyPayload, PaypalWebhookHeaders, NormalizedEvent } from './payment.webhook.types';
 import PaymentWebhookHandlersService from './payment.webhook.handlers.service';
 

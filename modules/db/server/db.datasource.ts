@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
-import { env } from '@nb/env';
+import { env } from '@kuraykaraaslan/env';
 import { parseDbUrl, typeormLogging, TenantContextLogger } from './db.utils';
 import { ENTITIES } from './db.entities';
 

@@ -1,10 +1,10 @@
 import 'reflect-metadata';
-import redis, { jitter, singleFlight } from '@nb/redis';
-import { env } from '@nb/env';
-import SettingService from '@nb/setting/server/setting.service';
-import AuditLogService from '@nb/audit_log/server/audit_log.service';
-import { AuditActions } from '@nb/audit_log/server/audit_log.enums';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import redis, { jitter, singleFlight } from '@kuraykaraaslan/redis';
+import { env } from '@kuraykaraaslan/env';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
+import AuditLogService from '@kuraykaraaslan/audit_log/server/audit_log.service';
+import { AuditActions } from '@kuraykaraaslan/audit_log/server/audit_log.enums';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { TENANT_BRANDING_KEYS } from './tenant_branding.setting.keys';
 import { TenantBrandingSchema } from './tenant_branding.types';
 import type { TenantBranding } from './tenant_branding.types';

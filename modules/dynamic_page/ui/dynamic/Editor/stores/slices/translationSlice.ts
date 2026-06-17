@@ -1,5 +1,5 @@
 import type { StateCreator } from 'zustand'
-import { toast } from '@nb/common/ui/toast.store'
+import { toast } from '@kuraykaraaslan/common/ui/toast.store'
 import type { EditorStore, TranslationEntry } from '../editor.types'
 import { apiBase, apiFetch } from '../editor.types'
 

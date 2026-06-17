@@ -1,4 +1,4 @@
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import MessagingMessages from './messaging.messages';
 
 // ─── Cursor helpers (keyset pagination over createdAt + id) ──────────────────

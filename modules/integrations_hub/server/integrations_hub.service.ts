@@ -1,5 +1,5 @@
-import TenantFeatureGateService from '@nb/tenant_subscription/server/tenant_subscription.feature.service';
-import { FEATURE_KEYS } from '@nb/tenant_subscription/server/tenant_subscription.feature-keys';
+import TenantFeatureGateService from '@kuraykaraaslan/tenant_subscription/server/tenant_subscription.feature.service';
+import { FEATURE_KEYS } from '@kuraykaraaslan/tenant_subscription/server/tenant_subscription.feature-keys';
 import IntegrationsHubConnectorService from './integrations_hub.connector.service';
 import IntegrationsHubOAuthService from './integrations_hub.oauth.service';
 import IntegrationsHubTriggerService from './integrations_hub.trigger.service';

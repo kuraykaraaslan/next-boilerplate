@@ -1,0 +1,31 @@
+{
+  "name": "@kuraykaraaslan/marketplace",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./module.json": "./module.json",
+    "./server/entities/module_install.entity": "./server/entities/module_install.entity.ts",
+    "./server/entities/publisher.entity": "./server/entities/publisher.entity.ts",
+    "./server/entities/published_module.entity": "./server/entities/published_module.entity.ts",
+    "./server/entities/published_module_version.entity": "./server/entities/published_module_version.entity.ts",
+    "./server/marketplace.service.next": "./server/marketplace.service.next.ts",
+    "./server/publish.service.next": "./server/publish.service.next.ts",
+    "./server/marketplace.route": "./server/marketplace.route.ts",
+    "./server/marketplace-item.route": "./server/marketplace-item.route.ts",
+    "./server/marketplace-install.route": "./server/marketplace-install.route.ts",
+    "./server/publisher.route": "./server/publisher.route.ts",
+    "./server/listings.route": "./server/listings.route.ts",
+    "./server/listings-versions.route": "./server/listings-versions.route.ts",
+    "./server/community.route": "./server/community.route.ts",
+    "./server/review.route": "./server/review.route.ts",
+    "./server/review-item.route": "./server/review-item.route.ts",
+    "./server/publishers-item.route": "./server/publishers-item.route.ts",
+    "./ui/marketplace.page": "./ui/marketplace.page.tsx",
+    "./ui/marketplace-page.component": "./ui/marketplace-page.component.tsx",
+    "./ui/developer.page": "./ui/developer.page.tsx",
+    "./ui/developer-page.component": "./ui/developer-page.component.tsx",
+    "./ui/review.page": "./ui/review.page.tsx",
+    "./ui/review-page.component": "./ui/review-page.component.tsx"
+  }
+}

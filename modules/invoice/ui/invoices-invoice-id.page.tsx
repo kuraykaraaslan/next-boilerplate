@@ -1,18 +1,18 @@
 'use client';
 import { use, useCallback, useEffect, useState } from 'react';
-import api from '@nb/common/server/axios';
-import { PageHeader, type PageHeaderAction } from '@nb/common/ui/page-header.component';
-import { Card } from '@nb/common/ui/card.component';
-import { Badge } from '@nb/common/ui/badge.component';
-import { Spinner } from '@nb/common/ui/spinner.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
-import { Breadcrumb } from '@nb/common/ui/breadcrumb.component';
-import { Button } from '@nb/common/ui/button.component';
-import { Modal } from '@nb/common/ui/modal.component';
-import { Input } from '@nb/common/ui/input.component';
-import { toast } from '@nb/common/ui/toast.store';
-import { InvoiceLineItemsTable, Row } from '@nb/invoice/ui/invoice-line-items-table.component';
-import type { SafeInvoice, SafeInvoiceLine } from '@nb/invoice/server/invoice.types';
+import api from '@kuraykaraaslan/common/server/axios';
+import { PageHeader, type PageHeaderAction } from '@kuraykaraaslan/common/ui/page-header.component';
+import { Card } from '@kuraykaraaslan/common/ui/card.component';
+import { Badge } from '@kuraykaraaslan/common/ui/badge.component';
+import { Spinner } from '@kuraykaraaslan/common/ui/spinner.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
+import { Breadcrumb } from '@kuraykaraaslan/common/ui/breadcrumb.component';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import { Modal } from '@kuraykaraaslan/common/ui/modal.component';
+import { Input } from '@kuraykaraaslan/common/ui/input.component';
+import { toast } from '@kuraykaraaslan/common/ui/toast.store';
+import { InvoiceLineItemsTable, Row } from '@kuraykaraaslan/invoice/ui/invoice-line-items-table.component';
+import type { SafeInvoice, SafeInvoiceLine } from '@kuraykaraaslan/invoice/server/invoice.types';
 
 const STATUS_VARIANT: Record<string, 'success' | 'error' | 'warning' | 'info' | 'neutral'> = {
   draft: 'neutral', issued: 'info', paid: 'success', void: 'error', refunded: 'warning',

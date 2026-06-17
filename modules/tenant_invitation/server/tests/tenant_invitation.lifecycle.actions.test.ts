@@ -5,7 +5,7 @@ import {
 } from './tenant_invitation.test-setup';
 import TenantInvitationService from '../tenant_invitation.service';
 import TenantInvitationMessages from '../tenant_invitation.messages';
-import TenantMemberService from '@nb/tenant_member/server/tenant_member.service';
+import TenantMemberService from '@kuraykaraaslan/tenant_member/server/tenant_member.service';
 
 beforeEach(() => vi.clearAllMocks());
 

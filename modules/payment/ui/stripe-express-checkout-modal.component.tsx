@@ -2,9 +2,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { loadStripe, type Stripe } from '@stripe/stripe-js';
 import { Elements, ExpressCheckoutElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import { Modal } from '@nb/common/ui/modal.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
-import api from '@nb/common/server/axios';
+import { Modal } from '@kuraykaraaslan/common/ui/modal.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
+import api from '@kuraykaraaslan/common/server/axios';
 
 type Plan = { planId: string; name: string };
 

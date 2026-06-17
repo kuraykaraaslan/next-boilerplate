@@ -1,6 +1,6 @@
 import type { BlockData, DynamicPageBlockRecord } from './dynamic/types'
 import ClientBlockList from './dynamic/partials/client-block-list.component'
-import DynamicPageService from '@nb/dynamic_page/server/dynamic_page.service'
+import DynamicPageService from '@kuraykaraaslan/dynamic_page/server/dynamic_page.service'
 import { migrateSections } from './dynamic/migrations'
 
 interface Props {

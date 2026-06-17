@@ -1,7 +1,7 @@
 'use client';
 import { use } from 'react';
-import { ModuleSettingsPage } from '@nb/setting/ui/module-settings-page.component';
-import { API_KEY_SETTINGS_FIELDS } from '@nb/api_key/server/api_key.settings.fields';
+import { ModuleSettingsPage } from '@kuraykaraaslan/setting/ui/module-settings-page.component';
+import { API_KEY_SETTINGS_FIELDS } from '@kuraykaraaslan/api_key/server/api_key.settings.fields';
 
 export default function ApiKeysSettingsPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = use(params);

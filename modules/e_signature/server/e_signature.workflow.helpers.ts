@@ -1,6 +1,6 @@
 import { randomBytes } from 'node:crypto';
-import { env } from '@nb/env';
-import redis from '@nb/redis';
+import { env } from '@kuraykaraaslan/env';
+import redis from '@kuraykaraaslan/redis';
 import ESignatureSettingsService from './e_signature.settings.service';
 import { ProviderCredentials } from './providers/base.provider';
 import {

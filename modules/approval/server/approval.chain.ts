@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { type EntityManager } from 'typeorm';
-import { tenantDataSourceFor } from '@nb/db';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
 import { ApprovalQueueItem as ApprovalQueueItemEntity } from './entities/approval_queue_item.entity';
 import type { ApprovalChainVerificationResult } from './approval.types';
 import { computeRowHash } from './approval.constants';

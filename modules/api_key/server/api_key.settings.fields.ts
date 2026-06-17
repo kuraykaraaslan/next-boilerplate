@@ -1,4 +1,4 @@
-import type { SettingFieldDef } from '@nb/setting/server/setting-fields.types';
+import type { SettingFieldDef } from '@kuraykaraaslan/setting/server/setting-fields.types';
 import { API_KEY_SETTING_KEYS } from './api_key.setting.keys';
 
 // UI metadata for the API Keys settings page. Keys cover the non-env settings

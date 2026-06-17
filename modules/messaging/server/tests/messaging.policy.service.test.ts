@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('@nb/env', () => ({ env: { NODE_ENV: 'test' } }));
-vi.mock('@nb/db', () => ({ tenantDataSourceFor: vi.fn() }));
+vi.mock('@kuraykaraaslan/env', () => ({ env: { NODE_ENV: 'test' } }));
+vi.mock('@kuraykaraaslan/db', () => ({ tenantDataSourceFor: vi.fn() }));
 
 import MessagingPolicyService from '../messaging.policy.service';
-import { tenantDataSourceFor } from '@nb/db';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
 
 const TENANT_ID = '550e8400-e29b-41d4-a716-446655440000';
 const USER_ID = '660e8400-e29b-41d4-a716-446655440001';

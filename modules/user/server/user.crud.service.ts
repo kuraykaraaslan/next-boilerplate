@@ -1,13 +1,13 @@
 import 'reflect-metadata';
-import { getDataSource } from '@nb/db';
-import redis from '@nb/redis';
+import { getDataSource } from '@kuraykaraaslan/db';
+import redis from '@kuraykaraaslan/redis';
 import { User as UserEntity } from './entities/user.entity';
 import { SafeUser, UpdateUser, SafeUserSchema } from './user.types';
 import type { UserRole, UserStatus } from './user.enums';
 import bcrypt from 'bcrypt';
 import UserMessages from './user.messages';
-import WebhookService from '@nb/webhook/server/webhook.service';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import WebhookService from '@kuraykaraaslan/webhook/server/webhook.service';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { randomUUID } from 'node:crypto';
 import { invalidate, isPasswordBreached, emitAuditLog } from './user.helpers';
 

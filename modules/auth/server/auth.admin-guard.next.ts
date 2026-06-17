@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import AuthPolicyService from '@nb/auth/server/auth.policy.service';
-import AuthMessages from '@nb/auth/server/auth.messages';
-import UserSecurityService from '@nb/user_security/server/user_security.service';
-import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
-import type { SafeUser } from '@nb/user/server/user.types';
-import type { SafeUserSession } from '@nb/user_session/server/user_session.types';
-import type { SafeUserSecurity } from '@nb/user_security/server/user_security.types';
-import type { SafeTenant } from '@nb/tenant/server/tenant.types';
-import type { SafeTenantMember } from '@nb/tenant_member/server/tenant_member.types';
-import type { TenantMemberRole } from '@nb/tenant_member/server/tenant_member.enums';
+import AuthPolicyService from '@kuraykaraaslan/auth/server/auth.policy.service';
+import AuthMessages from '@kuraykaraaslan/auth/server/auth.messages';
+import UserSecurityService from '@kuraykaraaslan/user_security/server/user_security.service';
+import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next';
+import type { SafeUser } from '@kuraykaraaslan/user/server/user.types';
+import type { SafeUserSession } from '@kuraykaraaslan/user_session/server/user_session.types';
+import type { SafeUserSecurity } from '@kuraykaraaslan/user_security/server/user_security.types';
+import type { SafeTenant } from '@kuraykaraaslan/tenant/server/tenant.types';
+import type { SafeTenantMember } from '@kuraykaraaslan/tenant_member/server/tenant_member.types';
+import type { TenantMemberRole } from '@kuraykaraaslan/tenant_member/server/tenant_member.enums';
 
 function clientIp(request: NextRequest): string | undefined {
   return (

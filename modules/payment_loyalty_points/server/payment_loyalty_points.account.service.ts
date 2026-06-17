@@ -1,7 +1,7 @@
 import 'reflect-metadata'
-import { tenantDataSourceFor } from '@nb/db'
-import redis, { singleFlight } from '@nb/redis'
-import { AppError, ErrorCode } from '@nb/common/server/app-error'
+import { tenantDataSourceFor } from '@kuraykaraaslan/db'
+import redis, { singleFlight } from '@kuraykaraaslan/redis'
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error'
 import { LoyaltyAccount as LoyaltyAccountEntity } from './entities/loyalty_account.entity'
 import { LoyaltyTier as LoyaltyTierEntity } from './entities/loyalty_tier.entity'
 import {

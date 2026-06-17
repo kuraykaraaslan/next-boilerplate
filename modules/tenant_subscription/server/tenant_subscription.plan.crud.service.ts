@@ -1,10 +1,10 @@
 import 'reflect-metadata';
-import { tenantDataSourceFor } from '@nb/db';
-import { SubscriptionPlan as SubscriptionPlanEntity } from '@nb/payment/server/entities/subscription_plan.entity';
-import { PlanFeature as PlanFeatureEntity } from '@nb/payment/server/entities/plan_feature.entity';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import { SubscriptionPlan as SubscriptionPlanEntity } from '@kuraykaraaslan/payment/server/entities/subscription_plan.entity';
+import { PlanFeature as PlanFeatureEntity } from '@kuraykaraaslan/payment/server/entities/plan_feature.entity';
 import { TenantSubscription as TenantSubscriptionEntity } from './entities/tenant_subscription.entity';
-import Logger from '@nb/logger';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import Logger from '@kuraykaraaslan/logger';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import {
   SubscriptionPlanSchema,
   PlanWithFeaturesSchema,

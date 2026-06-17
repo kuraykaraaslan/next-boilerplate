@@ -1,13 +1,13 @@
 import 'reflect-metadata';
 import { IsNull } from 'typeorm';
-import { tenantDataSourceFor, getDataSource } from '@nb/db';
+import { tenantDataSourceFor, getDataSource } from '@kuraykaraaslan/db';
 import { Tenant as TenantEntity } from './entities/tenant.entity';
 import { SafeTenant, SafeTenantSchema } from './tenant.types';
 import { CreateTenantInput, UpdateTenantInput } from './tenant.dto';
 import TenantMessages from './tenant.messages';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
-import TenantMemberService from '@nb/tenant_member/server/tenant_member.service';
-import WebhookService from '@nb/webhook/server/webhook.service';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
+import TenantMemberService from '@kuraykaraaslan/tenant_member/server/tenant_member.service';
+import WebhookService from '@kuraykaraaslan/webhook/server/webhook.service';
 import { clearCache, seedDefaults } from './tenant.helpers';
 
 export async function create(data: CreateTenantInput): Promise<SafeTenant> {

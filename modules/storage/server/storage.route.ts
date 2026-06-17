@@ -1,8 +1,8 @@
-import Limiter from '@nb/limiter/server/limiter.service.next';
-import Logger from '@nb/logger';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
+import Logger from '@kuraykaraaslan/logger';
 import { NextRequest, NextResponse } from 'next/server';
-import StorageService from '@nb/storage/server/storage.service';
-import UserSessionNextService from '@nb/user_session/server/user_session.service.next';
+import StorageService from '@kuraykaraaslan/storage/server/storage.service';
+import UserSessionNextService from '@kuraykaraaslan/user_session/server/user_session.service.next';
 
 /**
  * POST /tenant/[tenantId]/api/storage

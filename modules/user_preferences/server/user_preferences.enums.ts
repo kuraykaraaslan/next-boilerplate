@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { LanguageCodeEnum, type LanguageCode } from '@nb/common';
+import { LanguageCodeEnum, type LanguageCode } from '@kuraykaraaslan/common';
 
 export const ThemeEnum = z.enum(['LIGHT', 'DARK', 'SYSTEM']);
 // Single-sourced from @/modules/common (ISO 639-1) so the platform has ONE

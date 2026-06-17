@@ -27,7 +27,7 @@ the host.
 
 - **Backend:** `server/providers/openai.provider.ts` (+ `openai.transport.ts`,
   `openai.helpers.ts`) — the provider implementation, extending
-  `@nb/ai/server/providers/base.provider`.
+  `@kuraykaraaslan/ai/server/providers/base.provider`.
 - **Contribution:** `server/openai.extension.ts` — the default-exported
   `AIProviderContribution` (`key`, `settingKeys`, `resolveConfig`, `create`).
 - **Enable/disable:** per-tenant via module activation

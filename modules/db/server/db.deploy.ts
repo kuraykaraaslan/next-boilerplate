@@ -4,14 +4,14 @@ import { join } from 'node:path';
 import bcrypt from 'bcrypt';
 import { Client } from 'pg';
 import { DataSource } from 'typeorm';
-import { parseDbUrl } from '@nb/db/server/db.utils';
-import { ENTITIES } from '@nb/db';
-import { ROOT_TENANT_ID, ROOT_TENANT_NAME } from '@nb/tenant/server/tenant.constants';
-import { User } from '@nb/user/server/entities/user.entity';
-import { Tenant } from '@nb/tenant/server/entities/tenant.entity';
-import { TenantMember } from '@nb/tenant_member/server/entities/tenant_member.entity';
-import { TenantDomain } from '@nb/tenant_domain/server/entities/tenant_domain.entity';
-import { Setting } from '@nb/setting/server/entities/setting.entity';
+import { parseDbUrl } from '@kuraykaraaslan/db/server/db.utils';
+import { ENTITIES } from '@kuraykaraaslan/db';
+import { ROOT_TENANT_ID, ROOT_TENANT_NAME } from '@kuraykaraaslan/tenant/server/tenant.constants';
+import { User } from '@kuraykaraaslan/user/server/entities/user.entity';
+import { Tenant } from '@kuraykaraaslan/tenant/server/entities/tenant.entity';
+import { TenantMember } from '@kuraykaraaslan/tenant_member/server/entities/tenant_member.entity';
+import { TenantDomain } from '@kuraykaraaslan/tenant_domain/server/entities/tenant_domain.entity';
+import { Setting } from '@kuraykaraaslan/setting/server/entities/setting.entity';
 
 /**
  * Shared deploy pipeline — the three idempotent phases used by both the

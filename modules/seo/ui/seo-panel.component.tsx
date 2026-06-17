@@ -1,12 +1,12 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
-import api from '@nb/common/server/axios';
-import { Card } from '@nb/common/ui/card.component';
-import { Input } from '@nb/common/ui/input.component';
-import { Button } from '@nb/common/ui/button.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
-import { Spinner } from '@nb/common/ui/spinner.component';
-import { toast } from '@nb/common/ui/toast.store';
+import api from '@kuraykaraaslan/common/server/axios';
+import { Card } from '@kuraykaraaslan/common/ui/card.component';
+import { Input } from '@kuraykaraaslan/common/ui/input.component';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
+import { Spinner } from '@kuraykaraaslan/common/ui/spinner.component';
+import { toast } from '@kuraykaraaslan/common/ui/toast.store';
 
 type SeoEntityType = 'store_category' | 'store_product' | 'store_bundle';
 

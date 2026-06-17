@@ -1,7 +1,7 @@
 import { Redis } from 'ioredis';
 import { Queue, Worker } from 'bullmq';
-import { env } from '@nb/env';
-import Logger from '@nb/logger';
+import { env } from '@kuraykaraaslan/env';
+import Logger from '@kuraykaraaslan/logger';
 
 // Single shared BullMQ connection — reused across all queues so we don't leak
 // one connection handle per createQueue() call.

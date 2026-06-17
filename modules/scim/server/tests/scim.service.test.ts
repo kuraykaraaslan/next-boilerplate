@@ -1,22 +1,22 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('@nb/env', () => ({
+vi.mock('@kuraykaraaslan/env', () => ({
   env: {
     DATABASE_URL: 'postgresql://test',
     NODE_ENV: 'test',
   },
 }));
 
-vi.mock('@nb/db', () => ({
+vi.mock('@kuraykaraaslan/db', () => ({
   getDataSource: vi.fn(),
   tenantDataSourceFor: vi.fn(),
 }));
 
-vi.mock('@nb/logger', () => ({
+vi.mock('@kuraykaraaslan/logger', () => ({
   default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() },
 }));
 
-vi.mock('@nb/audit_log/server/audit_log.service', () => ({
+vi.mock('@kuraykaraaslan/audit_log/server/audit_log.service', () => ({
   default: { log: vi.fn(async () => undefined) },
 }));
 
@@ -26,7 +26,7 @@ vi.mock('bcrypt', () => ({
 }));
 
 import ScimService from '../scim.service';
-import { getDataSource, tenantDataSourceFor } from '@nb/db';
+import { getDataSource, tenantDataSourceFor } from '@kuraykaraaslan/db';
 
 const TENANT_ID = '550e8400-e29b-41d4-a716-446655440000';
 const OTHER_TENANT_ID = '660e8400-e29b-41d4-a716-446655440010';

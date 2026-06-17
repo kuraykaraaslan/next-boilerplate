@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T21:49:54.623Z",
+  "generatedAt": "2026-06-17T07:35:46.548Z",
   "components": [
     {
       "id": "ai/ui/ai-chat-box.component",
@@ -3025,6 +3025,72 @@
       "isClient": true,
       "isServer": false,
       "baseName": "invoices.page"
+    },
+    {
+      "id": "marketplace/ui/developer-page.component",
+      "module": "marketplace",
+      "filePath": "modules/marketplace/ui/developer-page.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "DeveloperPage"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "developer-page.component"
+    },
+    {
+      "id": "marketplace/ui/developer.page",
+      "module": "marketplace",
+      "filePath": "modules/marketplace/ui/developer.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "developer.page"
+    },
+    {
+      "id": "marketplace/ui/marketplace-page.component",
+      "module": "marketplace",
+      "filePath": "modules/marketplace/ui/marketplace-page.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "MarketplacePage"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "marketplace-page.component"
+    },
+    {
+      "id": "marketplace/ui/marketplace.page",
+      "module": "marketplace",
+      "filePath": "modules/marketplace/ui/marketplace.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "marketplace.page"
+    },
+    {
+      "id": "marketplace/ui/review-page.component",
+      "module": "marketplace",
+      "filePath": "modules/marketplace/ui/review-page.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "ReviewPage"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "review-page.component"
+    },
+    {
+      "id": "marketplace/ui/review.page",
+      "module": "marketplace",
+      "filePath": "modules/marketplace/ui/review.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "review.page"
     },
     {
       "id": "media_gallery/ui/gallery-panel.component",

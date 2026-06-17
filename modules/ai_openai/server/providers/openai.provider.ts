@@ -1,12 +1,12 @@
-import BaseAIProvider from '@nb/ai/server/providers/base.provider';
+import BaseAIProvider from '@kuraykaraaslan/ai/server/providers/base.provider';
 import type {
   ChatCompletionOptions,
   ChatCompletionResponse,
   EmbeddingOptions,
   EmbeddingResponse,
   ProviderConfig,
-} from '@nb/ai/server/ai.types';
-import { AIError } from '@nb/ai/server/ai.types';
+} from '@kuraykaraaslan/ai/server/ai.types';
+import { AIError } from '@kuraykaraaslan/ai/server/ai.types';
 import type { OpenAICtx } from './openai.helpers';
 import { runChat, runChatStream, runEmbed } from './openai.transport';
 

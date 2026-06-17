@@ -1,6 +1,6 @@
-import Logger from '@nb/logger';
-import redis from '@nb/redis';
-import AuditLogService from '@nb/audit_log/server/audit_log.service';
+import Logger from '@kuraykaraaslan/logger';
+import redis from '@kuraykaraaslan/redis';
+import AuditLogService from '@kuraykaraaslan/audit_log/server/audit_log.service';
 import type { FeatureAccessResult } from './tenant_subscription.types';
 
 const FEATURE_CACHE_PREFIX = 'feature:sub:';

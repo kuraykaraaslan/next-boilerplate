@@ -1,9 +1,9 @@
 import 'reflect-metadata';
-import redis, { jitter, singleFlight } from '@nb/redis';
-import { env } from '@nb/env';
-import { tenantDataSourceFor } from '@nb/db';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
-import AuditLogService from '@nb/audit_log/server/audit_log.service';
+import redis, { jitter, singleFlight } from '@kuraykaraaslan/redis';
+import { env } from '@kuraykaraaslan/env';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
+import AuditLogService from '@kuraykaraaslan/audit_log/server/audit_log.service';
 import { FeatureFlag as FeatureFlagEntity } from './entities/feature_flag.entity';
 import { FeatureFlagOverride as FeatureFlagOverrideEntity } from './entities/feature_flag_override.entity';
 import {

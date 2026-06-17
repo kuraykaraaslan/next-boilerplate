@@ -1,8 +1,8 @@
-import Logger from '@nb/logger'
-import { AppError, ErrorCode } from '@nb/common/server/app-error'
-import { PaymentSellService } from '@nb/payment_sell'
-import AuditLogService from '@nb/audit_log/server/audit_log.service'
-import { AuditActions } from '@nb/audit_log/server/audit_log.enums'
+import Logger from '@kuraykaraaslan/logger'
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error'
+import { PaymentSellService } from '@kuraykaraaslan/payment_sell'
+import AuditLogService from '@kuraykaraaslan/audit_log/server/audit_log.service'
+import { AuditActions } from '@kuraykaraaslan/audit_log/server/audit_log.enums'
 import { ReturnRequest as ReturnRequestEntity } from './entities/return_request.entity'
 import { ReturnEvent as ReturnEventEntity } from './entities/return_event.entity'
 import { ReturnEventSchema, type ReturnEvent, type ReturnRequestWithItems } from './payment_return_rma.types'
@@ -10,9 +10,9 @@ import type { ModerateReturnDTO, RefundReturnDTO } from './payment_return_rma.dt
 import { PAYMENT_RETURN_RMA_MESSAGES } from './payment_return_rma.messages'
 import PaymentReturnRmaCrudService from './payment_return_rma.crud.service'
 import PaymentReturnRmaPolicyService from './payment_return_rma.policy.service'
-import { PaymentLoyaltyPointsService } from '@nb/payment_loyalty_points'
-import { RedisIdempotencyService } from '@nb/redis_idempotency'
-import { tenantDataSourceFor } from '@nb/db'
+import { PaymentLoyaltyPointsService } from '@kuraykaraaslan/payment_loyalty_points'
+import { RedisIdempotencyService } from '@kuraykaraaslan/redis_idempotency'
+import { tenantDataSourceFor } from '@kuraykaraaslan/db'
 
 export default class PaymentReturnRmaLifecycleService {
 
@@ -124,11 +124,11 @@ export default class PaymentReturnRmaLifecycleService {
   private static async notify(tenantId: string, userId: string | undefined, rmaNumber: string, status: string): Promise<void> {
     if (!userId) return
     try {
-      const { default: UserService } = await import('@nb/user/server/user.service')
+      const { default: UserService } = await import('@kuraykaraaslan/user/server/user.service')
       const user = await UserService.getById(userId).catch(() => null)
       const email = (user as { email?: string } | null)?.email
       if (!email) return
-      const { default: NotificationMailQueueService } = await import('@nb/notification_mail/server/notification_mail.queue.service')
+      const { default: NotificationMailQueueService } = await import('@kuraykaraaslan/notification_mail/server/notification_mail.queue.service')
       await NotificationMailQueueService.sendMail(
         tenantId, email,
         `Return ${rmaNumber}: ${status}`,

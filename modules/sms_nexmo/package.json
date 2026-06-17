@@ -1,5 +1,5 @@
 {
-  "name": "@nb/sms_nexmo",
+  "name": "@kuraykaraaslan/sms_nexmo",
   "version": "0.0.0",
   "private": true,
   "type": "module",

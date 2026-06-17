@@ -4,7 +4,7 @@ import BasePaymentProvider, {
   CustomerPortalParams, CustomerPortalResult,
 } from './base.provider'
 import { PAYMENT_MESSAGES } from '../payment_core.messages'
-import SettingService from '@nb/setting/server/setting.service'
+import SettingService from '@kuraykaraaslan/setting/server/setting.service'
 import qs from 'querystring'
 
 export default class StripeProvider extends BasePaymentProvider {

@@ -1,4 +1,4 @@
-import type { PaymentGatewayContribution } from '@nb/payment/server/payment.gateway.types';
+import type { PaymentGatewayContribution } from '@kuraykaraaslan/payment/server/payment.gateway.types';
 import IyzicoProvider from './providers/iyzico.provider';
 
 const contribution: PaymentGatewayContribution = {

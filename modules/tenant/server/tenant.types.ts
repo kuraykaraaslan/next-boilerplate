@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { TenantStatusEnum } from './tenant.enums';
-import { TenantDomainSchema } from '@nb/tenant_domain/server/tenant_domain.types';
+import { TenantDomainSchema } from '@kuraykaraaslan/tenant_domain/server/tenant_domain.types';
 
 export const TenantSchema = z.object({
   tenantId: z.string().uuid(),

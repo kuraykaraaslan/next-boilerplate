@@ -1,6 +1,6 @@
 // Aggregates the plugin-runtime manifest surface (menu / slots / widgets /
 // settings tabs / permissions) from all modules into a single runtime JSON, and
-// resolves every referenced component id to an `@nb/<id>/...` lazy import so a
+// resolves every referenced component id to an `@kuraykaraaslan/<id>/...` lazy import so a
 // generated component map can be emitted. A manifest referencing a component id
 // that the registry never scanned is a hard build error (catches typos early).
 
@@ -13,9 +13,14 @@ export function buildModuleRuntime(modules, components) {
   const apiHandlers = new Map(); // handlerId -> { id, importPath }
   const extensionImports = new Map(); // contributionId -> { id, importPath }
   const declaredPointIds = new Set(); // every host-declared extension point id
+  const pointOwner = new Map(); // extension point id -> owning (declaring) module id
   const pkgExportsById = new Map(); // moduleId -> Set(package.json export keys)
   const pendingExtensions = []; // { m, ext } resolved after all points are known
+  const allModuleIds = new Set(modules.map((x) => x.id)); // every registered module id
+  const requiresAdj = new Map(); // moduleId -> [required moduleId] (dependency graph)
+  const chainAdj = new Map(); // contributor moduleId -> [host moduleId] (contribution graph)
   const errors = [];
+  const warnings = [];
 
   function resolveComponent(componentId, ctx) {
     if (!componentId) return;
@@ -25,10 +30,10 @@ export function buildModuleRuntime(modules, components) {
       return;
     }
     if (!importsMap.has(componentId)) {
-      // component id is `<module>/<layer>/<...>/<Name>` → import `@nb/<that>`.
+      // component id is `<module>/<layer>/<...>/<Name>` → import `@kuraykaraaslan/<that>`.
       importsMap.set(componentId, {
         id: componentId,
-        importPath: `@nb/${componentId}`,
+        importPath: `@kuraykaraaslan/${componentId}`,
         exportName: c.baseName,
       });
     }
@@ -49,6 +54,7 @@ export function buildModuleRuntime(modules, components) {
       enabled: m.enabled ?? true,
       scope: m.scope,
       tier: m.tier,
+      requires: m.dependencies?.requires ?? [],
     });
 
     for (const item of m.menu ?? []) {
@@ -71,7 +77,7 @@ export function buildModuleRuntime(modules, components) {
     }
     for (const r of m.apiRoutes ?? []) {
       if (!apiHandlers.has(r.handler)) {
-        apiHandlers.set(r.handler, { id: r.handler, importPath: `@nb/${r.handler}` });
+        apiHandlers.set(r.handler, { id: r.handler, importPath: `@kuraykaraaslan/${r.handler}` });
       }
       runtime.apiRoutes.push({ path: r.path, handlerId: r.handler, moduleId: m.id });
     }
@@ -100,11 +106,18 @@ export function buildModuleRuntime(modules, components) {
       });
     }
     pkgExportsById.set(m.id, new Set(m.pkgExports ?? []));
+    // Dependency graph edges: m -> each required module (for cycle/dangling checks).
+    const reqs = m.dependencies?.requires ?? [];
+    requiresAdj.set(m.id, reqs);
+    for (const dep of reqs) {
+      if (!allModuleIds.has(dep)) warnings.push(`module '${m.id}': requires '${dep}', which is not a registered module (missing module.json?)`);
+    }
     for (const ep of m.extensionPoints ?? []) {
       if (declaredPointIds.has(ep.id)) {
         errors.push(`module '${m.id}': extension point '${ep.id}' is already declared by another module`);
       }
       declaredPointIds.add(ep.id);
+      pointOwner.set(ep.id, m.id);
       runtime.extensionPoints.push({ id: ep.id, kind: ep.kind, description: ep.description ?? '', moduleId: m.id });
     }
     for (const ext of m.extensions ?? []) {
@@ -125,6 +138,13 @@ export function buildModuleRuntime(modules, components) {
     if (!declaredPointIds.has(ext.point)) {
       errors.push(`${ctx}: targets unknown extension point (no module declares it)`);
     }
+    // Contribution graph edge: contributor -> the module that owns the target point.
+    const host = pointOwner.get(ext.point);
+    if (host && host !== m.id) {
+      const list = chainAdj.get(m.id) ?? [];
+      if (!list.includes(host)) list.push(host);
+      chainAdj.set(m.id, list);
+    }
     // The `export` must be published by the contributing module's package.json
     // (so the generated dynamic import actually resolves) — catches typos early.
     if (ext.export) {
@@ -137,7 +157,7 @@ export function buildModuleRuntime(modules, components) {
     }
     const contributionId = `${m.id}:${ext.point}:${ext.key ?? ext.export}`;
     if (!extensionImports.has(contributionId)) {
-      extensionImports.set(contributionId, { id: contributionId, importPath: `@nb/${ext.export}` });
+      extensionImports.set(contributionId, { id: contributionId, importPath: `@kuraykaraaslan/${ext.export}` });
     }
     runtime.extensions.push({
       id: contributionId,
@@ -152,6 +172,17 @@ export function buildModuleRuntime(modules, components) {
     });
   }
 
+  // Graph safety: a dependency cycle (requires) or a contribution chain cycle
+  // (A contributes into B's point, B into A's) is unresolvable at scale — surface
+  // the offending loop instead of letting it boot into a silent deadlock.
+  const reqCycle = findCycle(requiresAdj);
+  if (reqCycle) errors.push(`dependency cycle in 'requires': ${reqCycle.join(' -> ')}`);
+  const chainCycle = findCycle(chainAdj);
+  if (chainCycle) errors.push(`contribution chain cycle (extension points): ${chainCycle.join(' -> ')}`);
+
+  if (warnings.length) {
+    console.warn('[module-runtime] warnings:\n  ' + warnings.join('\n  '));
+  }
   if (errors.length) {
     throw new Error('[module-runtime] unresolved references:\n  ' + errors.join('\n  '));
   }
@@ -171,4 +202,47 @@ export function buildModuleRuntime(modules, components) {
   const apiHandlerImports = [...apiHandlers.values()].sort((a, b) => a.id.localeCompare(b.id));
   const extensionImportList = [...extensionImports.values()].sort((a, b) => a.id.localeCompare(b.id));
   return { runtimeJson: runtime, componentImports, apiHandlerImports, extensionImports: extensionImportList };
+}
+
+/**
+ * Returns the first directed cycle found in `adj` (Map<node, node[]>) as a path
+ * `[a, b, …, a]`, or null if the graph is acyclic. Iterative DFS with WHITE/GREY/
+ * BLACK colouring; targets absent from the key set are treated as leaf nodes.
+ */
+function findCycle(adj) {
+  const WHITE = 0, GREY = 1, BLACK = 2;
+  const color = new Map();
+  const parent = new Map();
+  const nodes = [...adj.keys()];
+
+  for (const start of nodes) {
+    if (color.get(start)) continue;
+    const stack = [{ node: start, i: 0 }];
+    color.set(start, GREY);
+    while (stack.length) {
+      const top = stack[stack.length - 1];
+      const neighbours = adj.get(top.node) ?? [];
+      if (top.i < neighbours.length) {
+        const next = neighbours[top.i++];
+        const c = color.get(next) ?? WHITE;
+        if (c === GREY) {
+          // Found a back-edge → reconstruct the loop from `top.node` back to `next`.
+          const cycle = [next];
+          let cur = top.node;
+          while (cur !== next && cur !== undefined) { cycle.push(cur); cur = parent.get(cur); }
+          cycle.push(next);
+          return cycle.reverse();
+        }
+        if (c === WHITE) {
+          color.set(next, GREY);
+          parent.set(next, top.node);
+          stack.push({ node: next, i: 0 });
+        }
+      } else {
+        color.set(top.node, BLACK);
+        stack.pop();
+      }
+    }
+  }
+  return null;
 }

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import TenantService from "@nb/tenant/server/tenant.service";
-import TenantMemberService from "@nb/tenant_member/server/tenant_member.service";
-import Limiter from "@nb/limiter/server/limiter.service.next";
-import { authenticateAdminRequest } from "@nb/auth/server/auth.admin-guard.next";
+import TenantService from "@kuraykaraaslan/tenant/server/tenant.service";
+import TenantMemberService from "@kuraykaraaslan/tenant_member/server/tenant_member.service";
+import Limiter from "@kuraykaraaslan/limiter/server/limiter.service.next";
+import { authenticateAdminRequest } from "@kuraykaraaslan/auth/server/auth.admin-guard.next";
 
 /**
  * POST /tenant/[tenantId]/api/tenants/create

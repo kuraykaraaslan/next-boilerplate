@@ -1,4 +1,4 @@
-import { AppError, ErrorCode } from '@nb/common/server/app-error'
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error'
 import { STORAGE_MESSAGES } from './storage.messages'
 
 /**

@@ -1,4 +1,4 @@
-import ESignatureWorkflowService from '@nb/e_signature/server/e_signature.workflow.service';
+import ESignatureWorkflowService from '@kuraykaraaslan/e_signature/server/e_signature.workflow.service';
 import AuthESignatureFlowService from './auth_e_signature.flow.service';
 import AuthESignatureCertService from './auth_e_signature.cert.service';
 

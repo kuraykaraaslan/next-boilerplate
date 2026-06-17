@@ -1,10 +1,10 @@
-import { tenantDataSourceFor } from '@nb/db';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
 import { TenantDomain as TenantDomainEntity } from './entities/tenant_domain.entity';
 import { SafeTenantDomainSchema, type DomainVerificationInfo } from './tenant_domain.types';
 import type { InitiateVerificationInput } from './tenant_domain.dto';
 import TenantDomainMessages from './tenant_domain.messages';
 import DNSVerificationService from './dns_verification.service';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import TenantDomainCrudService from './tenant_domain.crud.service';
 
 export default class TenantDomainDnsService {

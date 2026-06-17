@@ -6,9 +6,9 @@ const h = vi.hoisted(() => ({
   decision: { current: { status: 'CLEAN', reason: null as string | null, held: false, runAi: false } },
 }));
 
-vi.mock('@nb/env', () => ({ env: { NODE_ENV: 'test' } }));
-vi.mock('@nb/redis', () => ({ default: { publish: vi.fn(async () => 0) } }));
-vi.mock('@nb/db', () => ({ tenantDataSourceFor: vi.fn() }));
+vi.mock('@kuraykaraaslan/env', () => ({ env: { NODE_ENV: 'test' } }));
+vi.mock('@kuraykaraaslan/redis', () => ({ default: { publish: vi.fn(async () => 0) } }));
+vi.mock('@kuraykaraaslan/db', () => ({ tenantDataSourceFor: vi.fn() }));
 vi.mock('../messaging.policy.service', () => ({ default: { assertParticipant: vi.fn(async () => ({})) } }));
 vi.mock('../messaging.realtime', () => ({ publishRealtime: h.publishRealtime }));
 vi.mock('../messaging.moderation.queue', () => ({ enqueue: h.enqueue }));
@@ -24,7 +24,7 @@ vi.mock('../messaging.moderation.service', () => ({
 const publishRealtime = h.publishRealtime;
 const decisionRef = h.decision;
 
-import { tenantDataSourceFor } from '@nb/db';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
 
 const TENANT = '550e8400-e29b-41d4-a716-446655440000';
 const CONV = '550e8400-e29b-41d4-a716-446655440010';

@@ -1,14 +1,14 @@
 import 'reflect-metadata';
 import { Redis } from 'ioredis';
-import redis, { createRedisConnection } from '@nb/redis';
-import { tenantDataSourceFor } from '@nb/db';
-import { TenantMember } from '@nb/tenant_member/server/entities/tenant_member.entity';
+import redis, { createRedisConnection } from '@kuraykaraaslan/redis';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import { TenantMember } from '@kuraykaraaslan/tenant_member/server/entities/tenant_member.entity';
 import { v4 as uuid } from 'uuid';
 import { NotificationSchema } from './notification_inapp.types';
 import type { Notification, NotificationPayload } from './notification_inapp.types';
-import NotificationPushService from '@nb/notification_push/server/notification_push.service';
-import SettingService from '@nb/setting/server/setting.service';
-import Logger from '@nb/logger';
+import NotificationPushService from '@kuraykaraaslan/notification_push/server/notification_push.service';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
+import Logger from '@kuraykaraaslan/logger';
 
 /**
  * NotificationInAppService is fully tenant-scoped. Redis keys and pub/sub

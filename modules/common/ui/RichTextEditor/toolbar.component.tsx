@@ -1,6 +1,6 @@
 'use client';
 import { forwardRef } from 'react';
-import { cn } from '@nb/common/server/utils/cn';
+import { cn } from '@kuraykaraaslan/common/server/utils/cn';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faBold, faItalic, faUnderline, faStrikethrough, faCode,
@@ -13,7 +13,7 @@ import {
   faFaceSmile, faExpand, faCompress, faFileCode,
   faPalette, faHighlighter,
 } from '@fortawesome/free-solid-svg-icons';
-import { ColorPicker } from '@nb/common/ui/color-picker.component';
+import { ColorPicker } from '@kuraykaraaslan/common/ui/color-picker.component';
 import { useRteStore } from './store';
 import type { QuillInstance } from './types';
 

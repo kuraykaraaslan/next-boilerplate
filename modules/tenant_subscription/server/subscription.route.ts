@@ -1,10 +1,10 @@
-import Limiter from '@nb/limiter/server/limiter.service.next';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
 import { NextRequest, NextResponse } from 'next/server'
-import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next'
-import TenantSubscriptionService from '@nb/tenant_subscription/server/tenant_subscription.service'
-import TenantCheckoutService from '@nb/tenant_subscription/server/tenant_subscription.checkout.service'
-import { SUBSCRIPTION_MESSAGES } from '@nb/tenant_subscription/server/tenant_subscription.messages'
-import { withIdempotency } from '@nb/redis_idempotency/server/withIdempotency'
+import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next'
+import TenantSubscriptionService from '@kuraykaraaslan/tenant_subscription/server/tenant_subscription.service'
+import TenantCheckoutService from '@kuraykaraaslan/tenant_subscription/server/tenant_subscription.checkout.service'
+import { SUBSCRIPTION_MESSAGES } from '@kuraykaraaslan/tenant_subscription/server/tenant_subscription.messages'
+import { withIdempotency } from '@kuraykaraaslan/redis_idempotency/server/withIdempotency'
 import { z } from 'zod'
 
 // Schema for purchase request

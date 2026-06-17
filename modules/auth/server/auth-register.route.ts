@@ -1,11 +1,11 @@
 // path: app/tenant/[tenantId]/api/auth/register/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import AuthService from "@nb/auth/server/auth.service";
-import TenantMemberService from "@nb/tenant_member/server/tenant_member.service";
-import TenantService from "@nb/tenant/server/tenant.service";
-import SettingService from '@nb/setting/server/setting.service';
-import Limiter from "@nb/limiter/server/limiter.service.next";
-import { RegisterDTO } from "@nb/auth/server/auth.dto";
+import AuthService from "@kuraykaraaslan/auth/server/auth.service";
+import TenantMemberService from "@kuraykaraaslan/tenant_member/server/tenant_member.service";
+import TenantService from "@kuraykaraaslan/tenant/server/tenant.service";
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
+import Limiter from "@kuraykaraaslan/limiter/server/limiter.service.next";
+import { RegisterDTO } from "@kuraykaraaslan/auth/server/auth.dto";
 
 export async function POST(
   request: NextRequest,

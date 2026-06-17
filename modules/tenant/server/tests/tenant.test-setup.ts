@@ -1,6 +1,6 @@
 import { vi } from 'vitest';
 
-vi.mock('@nb/env', () => ({
+vi.mock('@kuraykaraaslan/env', () => ({
   env: {
     DATABASE_URL: 'postgresql://test',
     ACCESS_TOKEN_SECRET: 'test_secret',
@@ -10,12 +10,12 @@ vi.mock('@nb/env', () => ({
   },
 }));
 
-vi.mock('@nb/db', () => ({
+vi.mock('@kuraykaraaslan/db', () => ({
   getDataSource: vi.fn(),
   tenantDataSourceFor: vi.fn(),
 }));
 
-vi.mock('@nb/redis', () => ({
+vi.mock('@kuraykaraaslan/redis', () => ({
   default: {
     get: vi.fn(async () => null),
     set: vi.fn(async () => 'OK'),
@@ -31,24 +31,24 @@ vi.mock('@nb/redis', () => ({
   singleFlight: async (_key: string, fn: () => Promise<unknown>) => fn(),
   jitter: (n: number) => n,
 }));
-vi.mock('@nb/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
-vi.mock('@nb/tenant_member/server/tenant_member.service', () => ({
+vi.mock('@kuraykaraaslan/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
+vi.mock('@kuraykaraaslan/tenant_member/server/tenant_member.service', () => ({
   default: { create: vi.fn() },
 }));
 
-vi.mock('@nb/tenant_subscription/server/tenant_subscription.service', () => ({
+vi.mock('@kuraykaraaslan/tenant_subscription/server/tenant_subscription.service', () => ({
   default: {
     assignPlan: vi.fn(async () => ({})),
   },
 }));
 
-vi.mock('@nb/tenant_subscription/server/tenant_subscription.platform.service', () => ({
+vi.mock('@kuraykaraaslan/tenant_subscription/server/tenant_subscription.platform.service', () => ({
   default: {
     assignPlatformPlan: vi.fn(async () => ({})),
   },
 }));
 
-vi.mock('@nb/tenant_subscription/server/tenant_subscription.plan.service', () => ({
+vi.mock('@kuraykaraaslan/tenant_subscription/server/tenant_subscription.plan.service', () => ({
   default: {
     createPlan: vi.fn(async () => ({
       planId: '11111111-1111-4111-8111-111111111111',
@@ -61,19 +61,19 @@ vi.mock('@nb/tenant_subscription/server/tenant_subscription.plan.service', () =>
   },
 }));
 
-vi.mock('@nb/tenant_subscription/server/tenant_subscription.feature.service', () => ({
+vi.mock('@kuraykaraaslan/tenant_subscription/server/tenant_subscription.feature.service', () => ({
   default: {
     getDefaultPlanId: vi.fn(async () => null),
   },
 }));
 
-vi.mock('@nb/setting/server/setting.service', () => ({
+vi.mock('@kuraykaraaslan/setting/server/setting.service', () => ({
   default: {
     updateMany: vi.fn(async () => []),
   },
 }));
 
-import { tenantDataSourceFor, getDataSource } from '@nb/db';
+import { tenantDataSourceFor, getDataSource } from '@kuraykaraaslan/db';
 
 export const TENANT_ID = '550e8400-e29b-41d4-a716-446655440001';
 

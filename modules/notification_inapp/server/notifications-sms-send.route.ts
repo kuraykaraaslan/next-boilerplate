@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import SMSService from "@nb/notification_sms/server/notification_sms.service";
-import Limiter from "@nb/limiter/server/limiter.service.next";
+import SMSService from "@kuraykaraaslan/notification_sms/server/notification_sms.service";
+import Limiter from "@kuraykaraaslan/limiter/server/limiter.service.next";
 import { z } from "zod";
-import { authenticateAdminRequest } from "@nb/auth/server/auth.admin-guard.next";
+import { authenticateAdminRequest } from "@kuraykaraaslan/auth/server/auth.admin-guard.next";
 
 const SendSMSDTO = z.object({
   to: z.string().min(5),

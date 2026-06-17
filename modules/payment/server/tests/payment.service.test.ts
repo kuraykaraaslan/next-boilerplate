@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('@nb/env', () => ({
+vi.mock('@kuraykaraaslan/env', () => ({
   env: {
     DATABASE_URL: 'postgresql://test',
     ACCESS_TOKEN_SECRET: 'test_secret',
@@ -18,12 +18,12 @@ vi.mock('@nb/env', () => ({
   },
 }));
 
-vi.mock('@nb/db', () => ({
+vi.mock('@kuraykaraaslan/db', () => ({
   getDataSource: vi.fn(),
   tenantDataSourceFor: vi.fn(),
 }));
 
-vi.mock('@nb/redis', () => ({
+vi.mock('@kuraykaraaslan/redis', () => ({
   default: {
     get: vi.fn(async () => null),
     set: vi.fn(async () => 'OK'),
@@ -40,7 +40,7 @@ vi.mock('@nb/redis', () => ({
   jitter: (n: number) => n,
 }));
 
-vi.mock('@nb/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
+vi.mock('@kuraykaraaslan/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
 
 vi.mock('stripe', () => ({
   default: vi.fn(() => ({
@@ -50,7 +50,7 @@ vi.mock('stripe', () => ({
   })),
 }));
 
-vi.mock('@nb/payment_stripe/server/providers/stripe.provider', () => ({
+vi.mock('@kuraykaraaslan/payment_stripe/server/providers/stripe.provider', () => ({
   default: class MockStripeProvider {
     async getPaymentStatus() { return { status: 'succeeded' }; }
     async createCheckoutSession() {
@@ -59,7 +59,7 @@ vi.mock('@nb/payment_stripe/server/providers/stripe.provider', () => ({
   },
 }));
 
-vi.mock('@nb/payment_paypal/server/providers/paypal.provider', () => ({
+vi.mock('@kuraykaraaslan/payment_paypal/server/providers/paypal.provider', () => ({
   default: class MockPaypalProvider {
     async getPaymentStatus() { return { status: 'COMPLETED' }; }
     async createCheckoutSession() {
@@ -68,7 +68,7 @@ vi.mock('@nb/payment_paypal/server/providers/paypal.provider', () => ({
   },
 }));
 
-vi.mock('@nb/payment_iyzico/server/providers/iyzico.provider', () => ({
+vi.mock('@kuraykaraaslan/payment_iyzico/server/providers/iyzico.provider', () => ({
   default: class MockIyzicoProvider {
     async getPaymentStatus() { return { status: 'SUCCESS' }; }
     async createCheckoutSession() {
@@ -78,7 +78,7 @@ vi.mock('@nb/payment_iyzico/server/providers/iyzico.provider', () => ({
 }));
 
 import PaymentService from '../payment.service';
-import { getDataSource, tenantDataSourceFor } from '@nb/db';
+import { getDataSource, tenantDataSourceFor } from '@kuraykaraaslan/db';
 import { PAYMENT_MESSAGES } from '../payment.messages';
 
 const TENANT_ID = '550e8400-e29b-41d4-a716-446655440000';

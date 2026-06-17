@@ -2,7 +2,7 @@ import axios from 'axios';
 import { XMLParser } from 'fast-xml-parser';
 import { DOMParser } from '@xmldom/xmldom';
 import { SignedXml } from 'xml-crypto';
-import Logger from '@nb/logger';
+import Logger from '@kuraykaraaslan/logger';
 import type { CountryCode } from './e_signature.types';
 
 const HTTP_TIMEOUT_MS = 30_000;

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import AuthAcsService from '@nb/auth_acs/server/auth_acs.service';
+import AuthAcsService from '@kuraykaraaslan/auth_acs/server/auth_acs.service';
 
 type Params = { params: Promise<{ provider: string }> };
 

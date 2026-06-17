@@ -1,10 +1,10 @@
-import Logger from '@nb/logger';
+import Logger from '@kuraykaraaslan/logger';
 import { NextRequest, NextResponse } from "next/server";
-import TenantService from "@nb/tenant/server/tenant.service";
-import Limiter from "@nb/limiter/server/limiter.service.next";
-import { authenticateAdminRequest } from "@nb/auth/server/auth.admin-guard.next";
-import { getDataSource } from '@nb/db';
-import { TenantSubscription } from '@nb/tenant_subscription/server/entities/tenant_subscription.entity';
+import TenantService from "@kuraykaraaslan/tenant/server/tenant.service";
+import Limiter from "@kuraykaraaslan/limiter/server/limiter.service.next";
+import { authenticateAdminRequest } from "@kuraykaraaslan/auth/server/auth.admin-guard.next";
+import { getDataSource } from '@kuraykaraaslan/db';
+import { TenantSubscription } from '@kuraykaraaslan/tenant_subscription/server/entities/tenant_subscription.entity';
 import { In } from 'typeorm';
 
 /**

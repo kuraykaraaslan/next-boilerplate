@@ -1,4 +1,4 @@
-import type { PaymentCouponContribution } from '@nb/payment/server/payment.coupon.types';
+import type { PaymentCouponContribution } from '@kuraykaraaslan/payment/server/payment.coupon.types';
 import PaypalCouponAdapter from './providers/paypal.coupon.adapter';
 
 /**

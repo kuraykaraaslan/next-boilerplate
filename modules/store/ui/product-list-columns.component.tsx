@@ -1,8 +1,8 @@
 'use client';
 
-import { RowActionsMenu } from '@nb/common/ui/row-actions-menu.component';
-import type { TableColumn } from '@nb/common/ui/server-data-table.component';
-import { ProductStatusBadge, StockBadge, type ProductStatus } from '@nb/store/ui/product-status-badge.component';
+import { RowActionsMenu } from '@kuraykaraaslan/common/ui/row-actions-menu.component';
+import type { TableColumn } from '@kuraykaraaslan/common/ui/server-data-table.component';
+import { ProductStatusBadge, StockBadge, type ProductStatus } from '@kuraykaraaslan/store/ui/product-status-badge.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare, faTrash, faCopy } from '@fortawesome/free-solid-svg-icons';
 

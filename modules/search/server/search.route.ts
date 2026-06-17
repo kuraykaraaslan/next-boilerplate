@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Limiter from '@nb/limiter/server/limiter.service.next';
-import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
-import { SearchService, SearchQueryDTO } from '@nb/search';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
+import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next';
+import { SearchService, SearchQueryDTO } from '@kuraykaraaslan/search';
 
 /**
  * GET /tenant/[tenantId]/api/search?q=&entityType=&limit=&offset=

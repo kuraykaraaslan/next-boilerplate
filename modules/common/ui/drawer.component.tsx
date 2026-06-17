@@ -1,5 +1,5 @@
 'use client';
-import { cn } from '@nb/common/server/utils/cn';
+import { cn } from '@kuraykaraaslan/common/server/utils/cn';
 import { useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';

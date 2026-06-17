@@ -1,14 +1,14 @@
 import 'reflect-metadata';
-import { env } from '@nb/env';
-import { getDataSource } from '@nb/db';
+import { env } from '@kuraykaraaslan/env';
+import { getDataSource } from '@kuraykaraaslan/db';
 import { UserSession as UserSessionEntity } from './entities/user_session.entity';
-import redis from '@nb/redis';
+import redis from '@kuraykaraaslan/redis';
 import { SafeUserSession, SafeUserSessionSchema, type SessionMeta } from './user_session.types';
 import UserSessionMessages from './user_session.messages';
 import UserSessionTokenService from './user_session.token.service';
 import UserSessionCacheService from './user_session.cache.service';
-import AuthPolicyService from '@nb/auth/server/auth.policy.service';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import AuthPolicyService from '@kuraykaraaslan/auth/server/auth.policy.service';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 
 const SESSION_EXPIRY_MS = env.SESSION_EXPIRY_MS ?? (1000 * 60 * 60 * 24 * 7);
 const SESSION_CACHE_TTL = env.SESSION_CACHE_TTL;

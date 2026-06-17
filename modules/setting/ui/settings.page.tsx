@@ -2,11 +2,11 @@
 
 import { use, useState } from 'react';
 import Link from 'next/link';
-import api from '@nb/common/server/axios';
-import { PageHeader } from '@nb/common/ui/page-header.component';
-import { Card } from '@nb/common/ui/card.component';
-import { Button } from '@nb/common/ui/button.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
+import api from '@kuraykaraaslan/common/server/axios';
+import { PageHeader } from '@kuraykaraaslan/common/ui/page-header.component';
+import { Card } from '@kuraykaraaslan/common/ui/card.component';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import {

@@ -11,8 +11,8 @@
  *
  * Scraped by `/internal/api/metrics`.
  */
-import { env } from '@nb/env';
-import Logger from '@nb/logger';
+import { env } from '@kuraykaraaslan/env';
+import Logger from '@kuraykaraaslan/logger';
 
 // Loose runtime-only types so we don't take a compile-time dep on `prom-client`.
 // The actual package is `await import('prom-client')` below.

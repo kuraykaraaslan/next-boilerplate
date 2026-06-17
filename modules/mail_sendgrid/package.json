@@ -1,5 +1,5 @@
 {
-  "name": "@nb/mail_sendgrid",
+  "name": "@kuraykaraaslan/mail_sendgrid",
   "version": "0.0.0",
   "private": true,
   "type": "module",

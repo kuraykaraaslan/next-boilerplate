@@ -1,4 +1,4 @@
-import { BaseOidcAcsProvider } from '@nb/auth_acs/server/providers/base.oidc.provider';
+import { BaseOidcAcsProvider } from '@kuraykaraaslan/auth_acs/server/providers/base.oidc.provider';
 
 /**
  * Kyrgyzstan — Tunduk (X-Road based). Protocol/endpoints not yet confirmed; ships

@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T21:49:54.623Z",
+  "generatedAt": "2026-06-17T07:35:46.548Z",
   "entities": [
     {
       "name": "Agreement",
@@ -1093,6 +1093,21 @@
       "relations": []
     },
     {
+      "name": "ModuleInstall",
+      "filePath": "modules/marketplace/server/entities/module_install.entity.ts",
+      "module": "marketplace",
+      "schema": "system",
+      "tableName": "module_installs",
+      "columns": [
+        "tenantId",
+        "moduleId",
+        "version",
+        "installedAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "NotificationLog",
       "filePath": "modules/notification_log/server/entities/notification_log.entity.ts",
       "module": "notification_log",
@@ -1350,6 +1365,76 @@
         "userId",
         "isHelpful",
         "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "PublishedModule",
+      "filePath": "modules/marketplace/server/entities/published_module.entity.ts",
+      "module": "marketplace",
+      "schema": "system",
+      "tableName": "marketplace_listings",
+      "columns": [
+        "listingId",
+        "publisherId",
+        "scopedName",
+        "moduleId",
+        "name",
+        "description",
+        "icon",
+        "tier",
+        "tags",
+        "repoUrl",
+        "homepage",
+        "visibility",
+        "status",
+        "currentVersionId",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "PublishedModuleVersion",
+      "filePath": "modules/marketplace/server/entities/published_module_version.entity.ts",
+      "module": "marketplace",
+      "schema": "system",
+      "tableName": "marketplace_listing_versions",
+      "columns": [
+        "versionId",
+        "listingId",
+        "version",
+        "manifestJson",
+        "readmeMd",
+        "changelog",
+        "screenshots",
+        "packageRef",
+        "reviewStatus",
+        "reviewNotes",
+        "reviewedBy",
+        "submittedAt",
+        "reviewedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "Publisher",
+      "filePath": "modules/marketplace/server/entities/publisher.entity.ts",
+      "module": "marketplace",
+      "schema": "system",
+      "tableName": "marketplace_publishers",
+      "columns": [
+        "publisherId",
+        "ownerTenantId",
+        "slug",
+        "displayName",
+        "contact",
+        "website",
+        "status",
+        "verifiedAt",
+        "verifiedBy",
+        "createdAt",
+        "updatedAt"
       ],
       "relations": []
     },

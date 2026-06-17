@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Limiter from '@nb/limiter/server/limiter.service.next';
-import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
-import MessagingModerationService from '@nb/messaging/server/messaging.moderation.service';
-import { ModerateMessageDTO } from '@nb/messaging/server/messaging.dto';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
+import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next';
+import MessagingModerationService from '@kuraykaraaslan/messaging/server/messaging.moderation.service';
+import { ModerateMessageDTO } from '@kuraykaraaslan/messaging/server/messaging.dto';
 
 /**
  * POST /tenant/[tenantId]/api/messaging/moderation/messages/[messageId]

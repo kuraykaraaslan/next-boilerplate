@@ -1,5 +1,5 @@
 import axios from 'axios';
-import redis, { jitter } from '@nb/redis';
+import redis, { jitter } from '@kuraykaraaslan/redis';
 import { ProviderBinInfo } from './providers/base.provider';
 import { PaymentProvider } from './payment.enums';
 import { CardBinInfo } from './payment.types';

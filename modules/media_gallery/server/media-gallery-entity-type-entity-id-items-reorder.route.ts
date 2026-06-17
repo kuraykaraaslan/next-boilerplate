@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import Limiter from '@nb/limiter/server/limiter.service.next';
-import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
-import MediaGalleryService from '@nb/media_gallery/server/media_gallery.service';
-import { ReorderGalleryItemsDTO } from '@nb/media_gallery/server/media_gallery.dto';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
+import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next';
+import MediaGalleryService from '@kuraykaraaslan/media_gallery/server/media_gallery.service';
+import { ReorderGalleryItemsDTO } from '@kuraykaraaslan/media_gallery/server/media_gallery.dto';
 
 type Ctx = { params: Promise<{ tenantId: string }> };
 

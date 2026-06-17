@@ -1,4 +1,4 @@
-import redis from '@nb/redis';
+import redis from '@kuraykaraaslan/redis';
 
 export const GIFT_CARD_CACHE_TTL = 300; // 5 min
 export const NEGATIVE_CACHE_TTL = 60; // 1 min

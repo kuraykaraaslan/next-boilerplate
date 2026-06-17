@@ -1,10 +1,10 @@
 import 'reflect-metadata'
-import { tenantDataSourceFor } from '@nb/db'
-import redis from '@nb/redis'
-import Logger from '@nb/logger'
-import { AppError, ErrorCode } from '@nb/common/server/app-error'
-import AuditLogService from '@nb/audit_log/server/audit_log.service'
-import SettingService from '@nb/setting/server/setting.service'
+import { tenantDataSourceFor } from '@kuraykaraaslan/db'
+import redis from '@kuraykaraaslan/redis'
+import Logger from '@kuraykaraaslan/logger'
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error'
+import AuditLogService from '@kuraykaraaslan/audit_log/server/audit_log.service'
+import SettingService from '@kuraykaraaslan/setting/server/setting.service'
 import { Payment as PaymentEntity } from './entities/payment.entity'
 import {
   SafePaymentSchema, CheckoutResultSchema,
@@ -13,10 +13,10 @@ import {
 import type { CreatePaymentDTO, RefundPaymentDTO } from './payment_sell.dto'
 import { PAYMENT_SELL_MESSAGES } from './payment_sell.messages'
 import PaymentSellCrudService from './payment_sell.crud.service'
-import type { PaymentProvider } from '@nb/payment_core/server/payment_core.enums'
-import { PaymentCircuitBreaker } from '@nb/payment_core'
-import type BasePaymentProvider from '@nb/payment_core/server/providers/base.provider'
-import { RedisIdempotencyService } from '@nb/redis_idempotency'
+import type { PaymentProvider } from '@kuraykaraaslan/payment_core/server/payment_core.enums'
+import { PaymentCircuitBreaker } from '@kuraykaraaslan/payment_core'
+import type BasePaymentProvider from '@kuraykaraaslan/payment_core/server/providers/base.provider'
+import { RedisIdempotencyService } from '@kuraykaraaslan/redis_idempotency'
 
 // Velocity guard: too many checkout attempts from one customer in a short
 // window is a strong fraud / card-testing signal.

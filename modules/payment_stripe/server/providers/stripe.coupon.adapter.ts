@@ -1,9 +1,9 @@
 import axios from 'axios';
 import qs from 'querystring';
-import SettingService from '@nb/setting/server/setting.service';
-import { ROOT_TENANT_ID } from '@nb/tenant/server/tenant.constants';
-import Logger from '@nb/logger';
-import type { LocalCouponDiscount, PaymentCouponAdapter } from '@nb/payment/server/payment.coupon.types';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
+import { ROOT_TENANT_ID } from '@kuraykaraaslan/tenant/server/tenant.constants';
+import Logger from '@kuraykaraaslan/logger';
+import type { LocalCouponDiscount, PaymentCouponAdapter } from '@kuraykaraaslan/payment/server/payment.coupon.types';
 
 const STRIPE_API_URL = 'https://api.stripe.com/v1';
 

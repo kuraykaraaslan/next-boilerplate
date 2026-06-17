@@ -1,9 +1,9 @@
 import 'reflect-metadata'
-import { tenantDataSourceFor } from '@nb/db'
-import redis, { singleFlight, jitter } from '@nb/redis'
-import Logger from '@nb/logger'
-import { SeoService } from '@nb/seo/server'
-import { AppError, ErrorCode } from '@nb/common/server/app-error'
+import { tenantDataSourceFor } from '@kuraykaraaslan/db'
+import redis, { singleFlight, jitter } from '@kuraykaraaslan/redis'
+import Logger from '@kuraykaraaslan/logger'
+import { SeoService } from '@kuraykaraaslan/seo/server'
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error'
 import { DynamicPage as DynamicPageEntity } from './entities/dynamic_page.entity'
 import { DynamicPageTranslation as DynamicPageTranslationEntity } from './entities/dynamic_page_translation.entity'
 import {
@@ -148,7 +148,7 @@ export default class DynamicPageCrudService {
       if (oldSlug !== saved.slug) await redis.del(slugKey(tenantId, oldSlug)).catch(() => {})
       // CDN-friendly cache invalidation webhook so edges can purge this page.
       try {
-        const { default: WebhookService } = await import('@nb/webhook/server/webhook.service')
+        const { default: WebhookService } = await import('@kuraykaraaslan/webhook/server/webhook.service')
         await WebhookService.dispatchEvent(tenantId, 'page.invalidated', { dynamicPageId: pageId, slug: saved.slug })
         if (dto.status === 'PUBLISHED') await WebhookService.dispatchEvent(tenantId, 'page.published', { dynamicPageId: pageId, slug: saved.slug })
       } catch { /* webhook best-effort */ }

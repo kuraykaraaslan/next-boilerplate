@@ -1,8 +1,8 @@
 import 'reflect-metadata'
 import { LessThanOrEqual, In, type EntityManager } from 'typeorm'
-import { tenantDataSourceFor } from '@nb/db'
-import Logger from '@nb/logger'
-import { AppError, ErrorCode } from '@nb/common/server/app-error'
+import { tenantDataSourceFor } from '@kuraykaraaslan/db'
+import Logger from '@kuraykaraaslan/logger'
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error'
 import { LoyaltyAccount as LoyaltyAccountEntity } from './entities/loyalty_account.entity'
 import { LoyaltyTransaction as LoyaltyTransactionEntity } from './entities/loyalty_transaction.entity'
 import { LoyaltyTier as LoyaltyTierEntity } from './entities/loyalty_tier.entity'
@@ -10,7 +10,7 @@ import { LoyaltyAccountSchema, LoyaltyTransactionSchema, type LoyaltyAccount, ty
 import type { EarnPointsDTO, RedeemPointsDTO, AdjustPointsDTO, GetTransactionsQuery } from './payment_loyalty_points.dto'
 import { PAYMENT_LOYALTY_POINTS_MESSAGES } from './payment_loyalty_points.messages'
 import PaymentLoyaltyPointsAccountService from './payment_loyalty_points.account.service'
-import { RedisIdempotencyService } from '@nb/redis_idempotency'
+import { RedisIdempotencyService } from '@kuraykaraaslan/redis_idempotency'
 
 const DEFAULT_TIER = 'BRONZE'
 

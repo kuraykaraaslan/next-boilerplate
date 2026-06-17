@@ -1,8 +1,8 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { cn } from '@nb/common/server/utils/cn';
-import { Badge } from '@nb/common/ui/badge.component';
+import { cn } from '@kuraykaraaslan/common/server/utils/cn';
+import { Badge } from '@kuraykaraaslan/common/ui/badge.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faImage,

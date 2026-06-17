@@ -1,7 +1,7 @@
 'use client';
 import { Suspense, type ComponentType, type ReactNode } from 'react';
-import { moduleRegistry, type RuntimeSlotContribution } from '@nb/common/server/module-registry';
-import type { ModuleScope } from '@nb/common/server/module-manifest.types';
+import { moduleRegistry, type RuntimeSlotContribution } from '@kuraykaraaslan/common/server/module-registry';
+import type { ModuleScope } from '@kuraykaraaslan/common/server/module-manifest.types';
 import { moduleComponents } from './generated/module-components';
 import { useModuleEnabled } from './module-enabled.context.component';
 import { SlotErrorBoundary } from './slot-error-boundary.component';

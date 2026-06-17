@@ -1,10 +1,10 @@
 import 'reflect-metadata';
-import { env } from '@nb/env';
-import redis from '@nb/redis';
-import { ipMatchesAllowlist, parseSubnetString } from '@nb/network';
-import SettingService from '@nb/setting/server/setting.service';
-import AuditLogService from '@nb/audit_log/server/audit_log.service';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { env } from '@kuraykaraaslan/env';
+import redis from '@kuraykaraaslan/redis';
+import { ipMatchesAllowlist, parseSubnetString } from '@kuraykaraaslan/network';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
+import AuditLogService from '@kuraykaraaslan/audit_log/server/audit_log.service';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import TenantAuthMessages from './tenant_session.messages';
 import type { TenantSessionRequestContext } from './tenant_session.types';
 

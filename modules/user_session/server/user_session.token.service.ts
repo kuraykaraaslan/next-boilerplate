@@ -1,8 +1,8 @@
-import { env } from '@nb/env';
+import { env } from '@kuraykaraaslan/env';
 import jwt, { Secret } from "jsonwebtoken";
 import crypto from "crypto";
 import UserSessionMessages from "./user_session.messages";
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 
 const APPLICATION_DOMAIN = env.APPLICATION_DOMAIN || "localhost";
 const ACCESS_TOKEN_SECRET = env.ACCESS_TOKEN_SECRET;

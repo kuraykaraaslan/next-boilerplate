@@ -1,7 +1,7 @@
 import 'reflect-metadata';
-import { tenantDataSourceFor } from '@nb/db';
-import SettingService from '@nb/setting/server/setting.service';
-import redis from '@nb/redis';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
+import redis from '@kuraykaraaslan/redis';
 import { PushSubscription as PushSubscriptionEntity } from './entities/push_subscription.entity';
 import { tenantMonth } from './notification_push.config';
 
@@ -24,7 +24,7 @@ export async function isWithinQuietHours(tenantId: string, userId: string): Prom
     const end = Number(s.pushQuietHoursEnd);
     if (!Number.isFinite(start) || !Number.isFinite(end) || start === end) return false;
 
-    const { default: UserPreferencesService } = await import('@nb/user_preferences/server/user_preferences.service');
+    const { default: UserPreferencesService } = await import('@kuraykaraaslan/user_preferences/server/user_preferences.service');
     const prefs = await UserPreferencesService.getByUserId(userId).catch(() => null);
     const tz = prefs?.timezone || 'UTC';
     const hour = Number(new Intl.DateTimeFormat('en-US', { hour: 'numeric', hour12: false, timeZone: tz }).format(new Date()));

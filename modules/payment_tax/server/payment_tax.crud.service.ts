@@ -1,6 +1,6 @@
 import 'reflect-metadata'
-import { tenantDataSourceFor } from '@nb/db'
-import { AppError, ErrorCode } from '@nb/common/server/app-error'
+import { tenantDataSourceFor } from '@kuraykaraaslan/db'
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error'
 import { TaxClass as TaxClassEntity } from './entities/tax_class.entity'
 import { TaxRate as TaxRateEntity } from './entities/tax_rate.entity'
 import {

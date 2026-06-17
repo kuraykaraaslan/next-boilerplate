@@ -1,9 +1,9 @@
 import 'reflect-metadata';
 import { In } from 'typeorm';
-import { tenantDataSourceFor } from '@nb/db';
-import Logger from '@nb/logger';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
-import WebhookService from '@nb/webhook/server/webhook.service';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import Logger from '@kuraykaraaslan/logger';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
+import WebhookService from '@kuraykaraaslan/webhook/server/webhook.service';
 import { ApprovalQueueItem as ApprovalQueueItemEntity } from './entities/approval_queue_item.entity';
 import { ApprovalQueueItemSchema, type ApprovalQueueItem } from './approval.types';
 import type { SubmitApprovalDTO } from './approval.dto';

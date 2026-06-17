@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
-import { DEFAULT_LANGUAGE } from '@nb/common';
+import { DEFAULT_LANGUAGE } from '@kuraykaraaslan/common';
 
 @Entity('user_preferences')
 export class UserPreferences {

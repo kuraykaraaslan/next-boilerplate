@@ -1,16 +1,16 @@
 import 'reflect-metadata';
 import { IsNull } from 'typeorm';
-import { tenantDataSourceFor } from '@nb/db';
-import { TenantMember as TenantMemberEntity } from '@nb/tenant_member/server/entities/tenant_member.entity';
-import redis, { jitter, singleFlight } from '@nb/redis';
-import AuditLogService from '@nb/audit_log/server/audit_log.service';
-import Logger from '@nb/logger';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
-import { SafeTenant } from '@nb/tenant/server/tenant.types';
-import { SafeTenantMember } from '@nb/tenant_member/server/tenant_member.types';
-import { SafeUser } from '@nb/user/server/user.types';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import { TenantMember as TenantMemberEntity } from '@kuraykaraaslan/tenant_member/server/entities/tenant_member.entity';
+import redis, { jitter, singleFlight } from '@kuraykaraaslan/redis';
+import AuditLogService from '@kuraykaraaslan/audit_log/server/audit_log.service';
+import Logger from '@kuraykaraaslan/logger';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
+import { SafeTenant } from '@kuraykaraaslan/tenant/server/tenant.types';
+import { SafeTenantMember } from '@kuraykaraaslan/tenant_member/server/tenant_member.types';
+import { SafeUser } from '@kuraykaraaslan/user/server/user.types';
 import TenantAuthMessages from './tenant_session.messages';
-import type { TenantMemberRole } from '@nb/tenant_member/server/tenant_member.enums';
+import type { TenantMemberRole } from '@kuraykaraaslan/tenant_member/server/tenant_member.enums';
 import type { TenantSessionRequestContext } from './tenant_session.types';
 import {
   hasRequiredRole, getTenantById, getTenantMembership,

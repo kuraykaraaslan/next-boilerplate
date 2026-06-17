@@ -1,8 +1,8 @@
 import 'reflect-metadata';
 import { SignedXml } from 'xml-crypto';
-import SettingService from '@nb/setting/server/setting.service';
-import Logger from '@nb/logger';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
+import Logger from '@kuraykaraaslan/logger';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { E_SIGNATURE_MESSAGES } from './e_signature.messages';
 
 /**

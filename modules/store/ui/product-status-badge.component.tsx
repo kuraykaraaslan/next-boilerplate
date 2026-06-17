@@ -1,5 +1,5 @@
 'use client';
-import { Badge } from '@nb/common/ui/badge.component';
+import { Badge } from '@kuraykaraaslan/common/ui/badge.component';
 
 export type ProductStatus = 'DRAFT' | 'ACTIVE' | 'ARCHIVED' | 'OUT_OF_STOCK';
 export type BundleStatus = 'DRAFT' | 'ACTIVE' | 'ARCHIVED' | 'SCHEDULED';

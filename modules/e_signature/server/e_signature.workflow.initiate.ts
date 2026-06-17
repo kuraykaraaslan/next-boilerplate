@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import ESignatureProviderService from './e_signature.provider.service';
 import { CHALLENGE_TTL_SECONDS } from './e_signature.constants';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { E_SIGNATURE_MESSAGES } from './e_signature.messages';
 import type { TransactionRecord } from './e_signature.types';
 import type { InitiateLoginParams, InitiateLoginResult } from './e_signature.workflow.types';

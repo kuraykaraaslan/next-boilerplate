@@ -1,6 +1,6 @@
 import axios from 'axios'
-import Logger from '@nb/logger'
-import SettingService from '@nb/setting/server/setting.service'
+import Logger from '@kuraykaraaslan/logger'
+import SettingService from '@kuraykaraaslan/setting/server/setting.service'
 
 export interface ModerationResult {
   flagged: boolean

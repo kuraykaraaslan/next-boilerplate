@@ -1,4 +1,4 @@
-import redis from '@nb/redis'
+import redis from '@kuraykaraaslan/redis'
 
 export async function bustReview(tenantId: string, reviewId: string): Promise<void> {
   await redis.del(`review:${tenantId}:${reviewId}`).catch(() => {})

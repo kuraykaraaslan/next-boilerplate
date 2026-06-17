@@ -1,7 +1,7 @@
 // path: app/tenant/[tenantId]/api/auth/logout/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import UserSessionNextService from "@nb/user_session/server/user_session.service.next";
-import Limiter from "@nb/limiter/server/limiter.service.next";
+import UserSessionNextService from "@kuraykaraaslan/user_session/server/user_session.service.next";
+import Limiter from "@kuraykaraaslan/limiter/server/limiter.service.next";
 
 export async function POST(
   request: NextRequest,

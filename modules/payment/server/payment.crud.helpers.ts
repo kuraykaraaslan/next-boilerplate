@@ -1,5 +1,5 @@
-import { env } from '@nb/env';
-import redis from '@nb/redis';
+import { env } from '@kuraykaraaslan/env';
+import redis from '@kuraykaraaslan/redis';
 
 export const PAYMENT_CACHE_TTL = env.TENANT_CACHE_TTL ?? (60 * 5);
 

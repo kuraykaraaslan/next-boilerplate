@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import type { TenantUsageMetric } from '@nb/tenant_usage/server/tenant_usage.service';
+import type { TenantUsageMetric } from '@kuraykaraaslan/tenant_usage/server/tenant_usage.service';
 import type { FeatureAccessResult } from './tenant_subscription.types';
 import { invalidateFeatureCache } from './tenant_subscription.feature.cache';
 import { getDefaultPlanId, setDefaultPlanId } from './tenant_subscription.feature.plan';

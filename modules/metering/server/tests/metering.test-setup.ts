@@ -1,10 +1,10 @@
 import { vi } from 'vitest';
 import { randomUUID } from 'node:crypto';
 
-vi.mock('@nb/env', () => ({
+vi.mock('@kuraykaraaslan/env', () => ({
   env: { DATABASE_URL: 'postgresql://test', NODE_ENV: 'test' },
 }));
-vi.mock('@nb/redis', () => ({
+vi.mock('@kuraykaraaslan/redis', () => ({
   default: {
     incrby: vi.fn(async () => 1),
     expire: vi.fn(async () => 1),
@@ -13,13 +13,13 @@ vi.mock('@nb/redis', () => ({
     del: vi.fn(async () => 1),
   },
 }));
-vi.mock('@nb/logger', () => ({
+vi.mock('@kuraykaraaslan/logger', () => ({
   default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() },
 }));
-vi.mock('@nb/webhook/server/webhook.service', () => ({
+vi.mock('@kuraykaraaslan/webhook/server/webhook.service', () => ({
   default: { dispatchEvent: vi.fn(async () => {}) },
 }));
-vi.mock('@nb/db', () => ({ tenantDataSourceFor: vi.fn() }));
+vi.mock('@kuraykaraaslan/db', () => ({ tenantDataSourceFor: vi.fn() }));
 
 // ── Mock the two external rails so we can assert the split deterministically ──
 export const walletState = { balance: BigInt(0) };
@@ -28,7 +28,7 @@ export const spendMock = vi.fn(async (_t: string, dto: { amount: string }) => {
   return { walletTransactionId: randomUUID() };
 });
 export const getWalletMock = vi.fn(async () => ({ cachedBalance: walletState.balance.toString() }));
-vi.mock('@nb/wallet', () => ({
+vi.mock('@kuraykaraaslan/wallet', () => ({
   WalletService: {
     spend: (...a: unknown[]) => spendMock(...(a as [string, { amount: string }])),
     getOrCreateUserWallet: (...a: unknown[]) => getWalletMock(...(a as [])),
@@ -39,11 +39,11 @@ export const createInvoiceMock = vi.fn(async (_t: string, input: { lines: { unit
   invoiceId: randomUUID(),
   __lines: input.lines,
 }));
-vi.mock('@nb/invoice/server/invoice.service', () => ({
+vi.mock('@kuraykaraaslan/invoice/server/invoice.service', () => ({
   default: { create: (...a: unknown[]) => createInvoiceMock(...(a as [string, { lines: { unitPrice: number }[] }])) },
 }));
 
-import { tenantDataSourceFor } from '@nb/db';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
 import MeteringService from '../metering.service';
 
 // ── Minimal in-memory DataSource (mirrors wallet's fake) ──

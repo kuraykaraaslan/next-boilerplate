@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { createHash } from 'node:crypto';
-import redis from '@nb/redis';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import redis from '@kuraykaraaslan/redis';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import type { ExportOptions, ExportManifest } from './tenant_export.types';
 import { exportTenantData } from './tenant_export.collect';
 

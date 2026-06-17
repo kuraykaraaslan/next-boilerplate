@@ -1,14 +1,14 @@
 'use client';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import api from '@nb/common/server/axios';
-import { Card } from '@nb/common/ui/card.component';
-import { Input } from '@nb/common/ui/input.component';
-import { Select } from '@nb/common/ui/select.component';
-import { Button } from '@nb/common/ui/button.component';
-import { Spinner } from '@nb/common/ui/spinner.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
-import { Badge } from '@nb/common/ui/badge.component';
-import { toast } from '@nb/common/ui/toast.store';
+import api from '@kuraykaraaslan/common/server/axios';
+import { Card } from '@kuraykaraaslan/common/ui/card.component';
+import { Input } from '@kuraykaraaslan/common/ui/input.component';
+import { Select } from '@kuraykaraaslan/common/ui/select.component';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import { Spinner } from '@kuraykaraaslan/common/ui/spinner.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
+import { Badge } from '@kuraykaraaslan/common/ui/badge.component';
+import { toast } from '@kuraykaraaslan/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave } from '@fortawesome/free-solid-svg-icons';
 

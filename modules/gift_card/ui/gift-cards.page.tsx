@@ -1,16 +1,16 @@
 'use client';
 import { use, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@nb/common/ui/button.component';
-import { Input } from '@nb/common/ui/input.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
-import { Modal } from '@nb/common/ui/modal.component';
-import { PageHeader } from '@nb/common/ui/page-header.component';
-import { ServerDataTable } from '@nb/common/ui/server-data-table.component';
-import { toast } from '@nb/common/ui/toast.store';
-import api from '@nb/common/server/axios';
-import { GiftCardIssueModal } from '@nb/gift_card/ui/gift-card-issue-modal.component';
-import { buildGiftCardColumns, type GiftCardRow } from '@nb/gift_card/ui/gift-card-list-columns.component';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import { Input } from '@kuraykaraaslan/common/ui/input.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
+import { Modal } from '@kuraykaraaslan/common/ui/modal.component';
+import { PageHeader } from '@kuraykaraaslan/common/ui/page-header.component';
+import { ServerDataTable } from '@kuraykaraaslan/common/ui/server-data-table.component';
+import { toast } from '@kuraykaraaslan/common/ui/toast.store';
+import api from '@kuraykaraaslan/common/server/axios';
+import { GiftCardIssueModal } from '@kuraykaraaslan/gift_card/ui/gift-card-issue-modal.component';
+import { buildGiftCardColumns, type GiftCardRow } from '@kuraykaraaslan/gift_card/ui/gift-card-list-columns.component';
 
 const PAGE_SIZE = 25;
 

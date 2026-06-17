@@ -1,5 +1,5 @@
 import type { Dispatch, SetStateAction } from 'react';
-import type { SettingsState } from '@nb/setting/server/setting.types';
+import type { SettingsState } from '@kuraykaraaslan/setting/server/setting.types';
 
 export type { SettingsState };
 

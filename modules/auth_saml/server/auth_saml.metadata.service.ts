@@ -1,5 +1,5 @@
-import Logger from '@nb/logger';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import Logger from '@kuraykaraaslan/logger';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import SamlMessages from './auth_saml.messages';
 
 export type ImportedIdpMetadata = {

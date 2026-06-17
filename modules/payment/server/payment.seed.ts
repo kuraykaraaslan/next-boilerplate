@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import type { FindOptionsWhere } from 'typeorm';
-import type { SeedContext } from '@nb/seed/server/seed.context';
-import { SEED_USER_ID, SEED_ORDER_ID } from '@nb/seed/server/seed.context';
+import type { SeedContext } from '@kuraykaraaslan/seed/server/seed.context';
+import { SEED_USER_ID, SEED_ORDER_ID } from '@kuraykaraaslan/seed/server/seed.context';
 import { Payment } from './entities/payment.entity';
 import { PaymentTransaction } from './entities/payment_transaction.entity';
 import { SubscriptionPlan } from './entities/subscription_plan.entity';

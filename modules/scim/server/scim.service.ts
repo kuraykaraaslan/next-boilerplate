@@ -1,7 +1,7 @@
 import ScimUserService from './scim.user.service';
 import ScimGroupService from './scim.group.service';
 import ScimPolicyService from './scim.policy.service';
-import { tenantDataSourceFor } from '@nb/db';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
 
 export { ScimUserService, ScimGroupService, ScimPolicyService };
 

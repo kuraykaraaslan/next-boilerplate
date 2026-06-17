@@ -1,26 +1,26 @@
 'use client';
 import { use, useState, useEffect, useCallback } from 'react';
-import { Card } from '@nb/common/ui/card.component';
-import { Badge } from '@nb/common/ui/badge.component';
-import { Button } from '@nb/common/ui/button.component';
-import { Spinner } from '@nb/common/ui/spinner.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
-import { Input } from '@nb/common/ui/input.component';
-import { Select } from '@nb/common/ui/select.component';
-import { Breadcrumb } from '@nb/common/ui/breadcrumb.component';
-import { PageHeader } from '@nb/common/ui/page-header.component';
-import { toast } from '@nb/common/ui/toast.store';
+import { Card } from '@kuraykaraaslan/common/ui/card.component';
+import { Badge } from '@kuraykaraaslan/common/ui/badge.component';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import { Spinner } from '@kuraykaraaslan/common/ui/spinner.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
+import { Input } from '@kuraykaraaslan/common/ui/input.component';
+import { Select } from '@kuraykaraaslan/common/ui/select.component';
+import { Breadcrumb } from '@kuraykaraaslan/common/ui/breadcrumb.component';
+import { PageHeader } from '@kuraykaraaslan/common/ui/page-header.component';
+import { toast } from '@kuraykaraaslan/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPercent, faDollarSign, faTrash, faSave } from '@fortawesome/free-solid-svg-icons';
-import api from '@nb/common/server/axios';
-import type { DiscountType } from '@nb/coupon/server/coupon.enums';
-import { CouponScopePanel } from '@nb/coupon/ui/coupon-scope-panel.component';
-import { CouponArchiveModal } from '@nb/coupon/ui/coupon-archive-modal.component';
+import api from '@kuraykaraaslan/common/server/axios';
+import type { DiscountType } from '@kuraykaraaslan/coupon/server/coupon.enums';
+import { CouponScopePanel } from '@kuraykaraaslan/coupon/ui/coupon-scope-panel.component';
+import { CouponArchiveModal } from '@kuraykaraaslan/coupon/ui/coupon-archive-modal.component';
 import {
   type Coupon, type EditForm,
   statusVariant, statusOptions,
   toDatetimeLocal, buildScope, extractMessage,
-} from '@nb/coupon/ui/coupon-edit.utils';
+} from '@kuraykaraaslan/coupon/ui/coupon-edit.utils';
 
 export default function CouponEditPage({ params }: { params: Promise<{ tenantId: string; couponId: string }> }) {
   const { tenantId, couponId } = use(params);

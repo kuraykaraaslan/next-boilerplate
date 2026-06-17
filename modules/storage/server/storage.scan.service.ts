@@ -1,5 +1,5 @@
-import Logger from '@nb/logger'
-import { TenantUsageService } from '@nb/tenant_usage/server/tenant_usage.service'
+import Logger from '@kuraykaraaslan/logger'
+import { TenantUsageService } from '@kuraykaraaslan/tenant_usage/server/tenant_usage.service'
 import { getProvider } from './storage.provider-factory'
 import { createScanner } from './storage.scanner-factory'
 import type { ScanConfig, ScanResult } from './storage.scan.types'

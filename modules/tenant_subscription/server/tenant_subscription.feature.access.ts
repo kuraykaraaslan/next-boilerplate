@@ -1,12 +1,12 @@
 import 'reflect-metadata';
-import { tenantDataSourceFor } from '@nb/db';
-import { PlanFeature as PlanFeatureEntity } from '@nb/payment/server/entities/plan_feature.entity';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import { PlanFeature as PlanFeatureEntity } from '@kuraykaraaslan/payment/server/entities/plan_feature.entity';
 import { TenantSubscription as TenantSubscriptionEntity } from './entities/tenant_subscription.entity';
-import Logger from '@nb/logger';
-import { TenantUsageService, type TenantUsageMetric } from '@nb/tenant_usage/server/tenant_usage.service';
+import Logger from '@kuraykaraaslan/logger';
+import { TenantUsageService, type TenantUsageMetric } from '@kuraykaraaslan/tenant_usage/server/tenant_usage.service';
 import type { FeatureAccessResult } from './tenant_subscription.types';
 import { SUBSCRIPTION_MESSAGES } from './tenant_subscription.messages';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { getFeatureCache, setFeatureCache, logFeatureAccess } from './tenant_subscription.feature.cache';
 
 export async function checkFeatureAccess(

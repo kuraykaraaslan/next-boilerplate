@@ -1,4 +1,4 @@
-import type { SettingFieldDef } from '@nb/setting/server/setting-fields.types';
+import type { SettingFieldDef } from '@kuraykaraaslan/setting/server/setting-fields.types';
 
 // UI metadata for the Members settings page. Pure data — safe to import into a
 // 'use client' page. Phase 2 wires defaultMemberRole into the invitation flow so

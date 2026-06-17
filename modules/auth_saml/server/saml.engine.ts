@@ -1,8 +1,8 @@
 import crypto from 'crypto';
 import { SAML } from '@node-saml/node-saml';
-import redis from '@nb/redis';
-import ObservabilityService from '@nb/observability';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import redis from '@kuraykaraaslan/redis';
+import ObservabilityService from '@kuraykaraaslan/observability';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import SamlMessages from './auth_saml.messages';
 
 /**

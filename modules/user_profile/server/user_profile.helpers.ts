@@ -1,12 +1,12 @@
-import redis from '@nb/redis';
-import { env } from '@nb/env';
-import SettingService from '@nb/setting/server/setting.service';
+import redis from '@kuraykaraaslan/redis';
+import { env } from '@kuraykaraaslan/env';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
 import {
   UserProfile,
   SocialLinkItem,
   SocialLinkItemSchema,
 } from './user_profile.types';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import UserProfileMessages from './user_profile.messages';
 
 export const USER_PROFILE_CACHE_TTL = env.SESSION_CACHE_TTL ?? (60 * 5);

@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
-import type { Invoice } from '@nb/invoice/server/entities/invoice.entity';
-import type { InvoiceLine } from '@nb/invoice/server/entities/invoice_line.entity';
-import type { GibPortalInvoice } from '@nb/invoice/server/adapters/tr_gib_direct.client';
+import type { Invoice } from '@kuraykaraaslan/invoice/server/entities/invoice.entity';
+import type { InvoiceLine } from '@kuraykaraaslan/invoice/server/entities/invoice_line.entity';
+import type { GibPortalInvoice } from '@kuraykaraaslan/invoice/server/adapters/tr_gib_direct.client';
 import type { SellerInfo } from './tr_earsiv.seller';
 import { trNum } from './tr_earsiv.format';
 

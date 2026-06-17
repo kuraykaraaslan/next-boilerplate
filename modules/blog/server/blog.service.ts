@@ -6,7 +6,7 @@ import BlogCommentService from './blog.comment.service'
  * Public facade for the blog module. Groups the three tenant-scoped
  * sub-services (posts, categories, comments) behind one import surface.
  *
- *   import { BlogService } from '@nb/blog'
+ *   import { BlogService } from '@kuraykaraaslan/blog'
  *   await BlogService.posts.list(tenantId, query)
  */
 export default class BlogService {

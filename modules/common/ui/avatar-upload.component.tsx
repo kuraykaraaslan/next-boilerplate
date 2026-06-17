@@ -1,8 +1,8 @@
 'use client';
 import { useRef, useState } from 'react';
-import { cn } from '@nb/common/server/utils/cn';
-import { Avatar } from '@nb/common/ui/avatar.component';
-import { Spinner } from '@nb/common/ui/spinner.component';
+import { cn } from '@kuraykaraaslan/common/server/utils/cn';
+import { Avatar } from '@kuraykaraaslan/common/ui/avatar.component';
+import { Spinner } from '@kuraykaraaslan/common/ui/spinner.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCamera, faXmark } from '@fortawesome/free-solid-svg-icons';
 

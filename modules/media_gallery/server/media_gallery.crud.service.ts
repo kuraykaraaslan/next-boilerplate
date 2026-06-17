@@ -1,10 +1,10 @@
 import 'reflect-metadata';
 import { In } from 'typeorm';
-import { tenantDataSourceFor } from '@nb/db';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { MediaGallery as GalleryEntity } from './entities/media_gallery.entity';
 import { MediaGalleryItem as ItemEntity } from './entities/media_gallery_item.entity';
-import { UploadedFile } from '@nb/storage/server/entities/uploaded_file.entity';
+import { UploadedFile } from '@kuraykaraaslan/storage/server/entities/uploaded_file.entity';
 import {
   MediaGallerySchema,
   MediaGalleryWithItemsSchema,
@@ -33,7 +33,7 @@ export async function getOrCreate(tenantId: string, entityType: string, entityId
 export async function assertWithinItemCap(tenantId: string, galleryId: string, adding: number): Promise<void> {
   let cap = 0;
   try {
-    const { default: SettingService } = await import('@nb/setting/server/setting.service');
+    const { default: SettingService } = await import('@kuraykaraaslan/setting/server/setting.service');
     cap = Number(await SettingService.getValue(tenantId, 'mediaGalleryMaxItems').catch(() => null)) || 0;
   } catch { cap = 0; }
   if (cap <= 0) return;

@@ -1,12 +1,12 @@
 'use client';
 
-import { Badge } from '@nb/common/ui/badge.component';
-import { RowActionsMenu } from '@nb/common/ui/row-actions-menu.component';
-import type { TableColumn } from '@nb/common/ui/server-data-table.component';
+import { Badge } from '@kuraykaraaslan/common/ui/badge.component';
+import { RowActionsMenu } from '@kuraykaraaslan/common/ui/row-actions-menu.component';
+import type { TableColumn } from '@kuraykaraaslan/common/ui/server-data-table.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGift, faBan, faSlidersH } from '@fortawesome/free-solid-svg-icons';
-import type { GiftCardStatus } from '@nb/gift_card/server/gift_card.enums';
-import type { GiftCard as CanonicalGiftCard } from '@nb/gift_card/server/gift_card.types';
+import type { GiftCardStatus } from '@kuraykaraaslan/gift_card/server/gift_card.enums';
+import type { GiftCard as CanonicalGiftCard } from '@kuraykaraaslan/gift_card/server/gift_card.types';
 
 export type GiftCardRow = Pick<
   CanonicalGiftCard,

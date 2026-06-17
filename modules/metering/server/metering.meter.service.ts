@@ -1,8 +1,8 @@
 import 'reflect-metadata';
 import type { FindOptionsWhere } from 'typeorm';
 import { ILike } from 'typeorm';
-import { tenantDataSourceFor } from '@nb/db';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { MeterDefinition as MeterDefinitionEntity } from './entities/meter_definition.entity';
 import { MeterDefinitionSchema, type MeterDefinition } from './metering.types';
 import type { CreateMeterDTO, ListMetersQuery, UpdateMeterDTO } from './metering.dto';

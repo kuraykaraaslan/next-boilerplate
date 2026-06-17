@@ -1,6 +1,6 @@
 import { getDataSource } from './db';
 import { TenantDatabase } from './entities/tenant_database.entity';
-import Logger from '@nb/logger';
+import Logger from '@kuraykaraaslan/logger';
 
 export interface TenantDbProvisionOptions {
   tenantId: string;

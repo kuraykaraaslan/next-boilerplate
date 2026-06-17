@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { Badge } from '@nb/common/ui/badge.component'
+import { Badge } from '@kuraykaraaslan/common/ui/badge.component'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faShoppingCart, faBars, faMagnifyingGlass, faXmark, faHeart, faUser,

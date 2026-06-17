@@ -1,7 +1,7 @@
-import Limiter from '@nb/limiter/server/limiter.service.next';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
 import { NextRequest, NextResponse } from "next/server";
-import TenantMemberService from "@nb/tenant_member/server/tenant_member.service";
-import { authenticateAdminRequest } from "@nb/auth/server/auth.admin-guard.next";
+import TenantMemberService from "@kuraykaraaslan/tenant_member/server/tenant_member.service";
+import { authenticateAdminRequest } from "@kuraykaraaslan/auth/server/auth.admin-guard.next";
 
 export async function GET(
   request: NextRequest,

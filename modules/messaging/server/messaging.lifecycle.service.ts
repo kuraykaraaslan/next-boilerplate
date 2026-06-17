@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { IsNull, In } from 'typeorm';
-import { tenantDataSourceFor } from '@nb/db';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { Conversation as ConversationEntity } from './entities/conversation.entity';
 import { ConversationParticipant as ParticipantEntity } from './entities/conversation_participant.entity';
 import { Message as MessageEntity } from './entities/message.entity';
@@ -22,7 +22,7 @@ function previewOf(input: SendMessageInput): string {
 
 /** Best-effort webhook dispatch — never let billing/webhook failure break a send. */
 function emitMessagingEvent(tenantId: string, event: string, payload: Record<string, unknown>): void {
-  import('@nb/webhook/server/webhook.service')
+  import('@kuraykaraaslan/webhook/server/webhook.service')
     .then((m) => m.default.dispatchEvent(tenantId, event as never, payload))
     .catch(() => {});
 }

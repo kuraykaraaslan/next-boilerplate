@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { SSOProviderEnum } from '@nb/auth_sso/server/auth_sso.enums';
+import { SSOProviderEnum } from '@kuraykaraaslan/auth_sso/server/auth_sso.enums';
 
 /**
  * Identifiers we can store in user_social_account.provider. This is the OAuth

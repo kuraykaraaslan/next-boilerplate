@@ -1,7 +1,7 @@
 import 'reflect-metadata'
-import { tenantDataSourceFor } from '@nb/db'
-import redis, { singleFlight } from '@nb/redis'
-import Logger from '@nb/logger'
+import { tenantDataSourceFor } from '@kuraykaraaslan/db'
+import redis, { singleFlight } from '@kuraykaraaslan/redis'
+import Logger from '@kuraykaraaslan/logger'
 import { StoreCategory as CategoryEntity } from './entities/store_category.entity'
 import { StoreCategorySpec as SpecEntity } from './entities/store_category_spec.entity'
 import { StoreProduct as ProductEntity } from './entities/store_product.entity'
@@ -13,7 +13,7 @@ import type {
   CreateCategoryDTO, UpdateCategoryDTO, GetCategoriesQuery, CreateSpecDTO,
 } from './store.dto'
 import { STORE_MESSAGES } from './store.messages'
-import { AppError, ErrorCode } from '@nb/common/server/app-error'
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error'
 
 /** Store category + category-spec CRUD (split out of `StoreService`). */
 export default class StoreCategoryService {

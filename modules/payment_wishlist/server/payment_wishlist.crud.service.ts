@@ -1,9 +1,9 @@
 import 'reflect-metadata'
 import { randomUUID } from 'node:crypto'
-import { tenantDataSourceFor } from '@nb/db'
-import { singleFlight } from '@nb/redis'
-import Logger from '@nb/logger'
-import { AppError, ErrorCode } from '@nb/common/server/app-error'
+import { tenantDataSourceFor } from '@kuraykaraaslan/db'
+import { singleFlight } from '@kuraykaraaslan/redis'
+import Logger from '@kuraykaraaslan/logger'
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error'
 import { Wishlist as WishlistEntity } from './entities/wishlist.entity'
 import { WishlistItem as WishlistItemEntity } from './entities/wishlist_item.entity'
 import {

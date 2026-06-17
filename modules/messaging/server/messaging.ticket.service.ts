@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import redis from '@nb/redis';
+import redis from '@kuraykaraaslan/redis';
 
 /**
  * Short-lived, single-use WebSocket handshake tickets.

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { env } from '@nb/env';
-import DNSVerificationService from '@nb/tenant_domain/server/dns_verification.service';
-import Logger from '@nb/logger';
+import { env } from '@kuraykaraaslan/env';
+import DNSVerificationService from '@kuraykaraaslan/tenant_domain/server/dns_verification.service';
+import Logger from '@kuraykaraaslan/logger';
 
 /**
  * POST /tenant/[tenantId]/api/cron/dns-recheck

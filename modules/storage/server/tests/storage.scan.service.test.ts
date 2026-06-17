@@ -7,7 +7,7 @@ const { mockProvider, mockScanner, decrementStorageBytes } = vi.hoisted(() => ({
   decrementStorageBytes: vi.fn(async () => undefined),
 }))
 
-vi.mock('@nb/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }))
+vi.mock('@kuraykaraaslan/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }))
 
 vi.mock('../storage.provider-factory', () => ({
   getProvider: vi.fn(async () => ({ provider: mockProvider, resolvedName: 'aws-s3' })),
@@ -17,7 +17,7 @@ vi.mock('../storage.scanner-factory', () => ({
   createScanner: vi.fn(() => mockScanner),
 }))
 
-vi.mock('@nb/tenant_usage/server/tenant_usage.service', () => ({
+vi.mock('@kuraykaraaslan/tenant_usage/server/tenant_usage.service', () => ({
   TenantUsageService: { decrementStorageBytes },
 }))
 

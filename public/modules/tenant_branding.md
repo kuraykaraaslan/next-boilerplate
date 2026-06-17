@@ -12,7 +12,7 @@ White-label branding: logo, favicon, colors, font, custom CSS — read by the pr
 
 ## Dependencies
 
-- **requires:** `db`, `tenant_setting`, `storage`
+- **requires:** `db`, `setting`, `storage`
 
 ## Services
 

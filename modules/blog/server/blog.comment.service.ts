@@ -1,13 +1,13 @@
 import 'reflect-metadata'
-import { tenantDataSourceFor } from '@nb/db'
-import SettingService from '@nb/setting/server/setting.service'
+import { tenantDataSourceFor } from '@kuraykaraaslan/db'
+import SettingService from '@kuraykaraaslan/setting/server/setting.service'
 import { BlogComment as CommentEntity } from './entities/blog_comment.entity'
 import { BlogPost as PostEntity } from './entities/blog_post.entity'
 import { SafeBlogCommentSchema, type SafeBlogComment } from './blog.types'
 import type { CreateCommentDTO, ModerateCommentDTO, GetCommentsQuery } from './blog.dto'
 import { BLOG_MESSAGES } from './blog.messages'
 import { BLOG_SETTING_DEFAULTS, type BlogTenantSettingKey } from './blog.setting.keys'
-import { AppError, ErrorCode } from '@nb/common/server/app-error'
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error'
 
 /** Tenant-scoped blog comments. Creation behaviour is driven by tenant settings. */
 export default class BlogCommentService {

@@ -1,7 +1,7 @@
 // After moving each module's files down into server/ (and ui/), cross-module
 // RELATIVE imports like `../user/user.types` resolve to the wrong place. Rewrite
 // any broken relative specifier that points at another module into the
-// `@nb/<id>/...` package form. Intra-module relatives that still resolve are
+// `@kuraykaraaslan/<id>/...` package form. Intra-module relatives that still resolve are
 // left untouched.
 //
 // Usage: node scripts/_migrate/fix-relative.mjs [--apply]
@@ -48,9 +48,9 @@ for (const file of walk('modules')) {
     if (!moduleIds.has(tid)) return m; // not a cross-module ref we understand
     const sub = seg.slice(1).join('/');
     let target;
-    if (sub === '') target = `@nb/${tid}`;
-    else if (sub.startsWith('ui/') || sub.startsWith('hooks/')) target = `@nb/${tid}/${sub}`;
-    else target = `@nb/${tid}/server/${sub}`;
+    if (sub === '') target = `@kuraykaraaslan/${tid}`;
+    else if (sub.startsWith('ui/') || sub.startsWith('hooks/')) target = `@kuraykaraaslan/${tid}/${sub}`;
+    else target = `@kuraykaraaslan/${tid}/server/${sub}`;
     touched = true;
     return `${q}${target}${q}`;
   });

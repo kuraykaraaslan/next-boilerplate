@@ -1,4 +1,4 @@
-import SettingService from '@nb/setting/server/setting.service'
+import SettingService from '@kuraykaraaslan/setting/server/setting.service'
 import { STORAGE_SCAN_KEYS } from './storage.scan.setting.keys'
 import { VirusScanProviderSchema, VirusScanModeSchema, VirusScanInfectedActionSchema } from './storage.scan.enums'
 import type { ScanConfig } from './storage.scan.types'

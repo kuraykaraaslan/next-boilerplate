@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T21:49:54.623Z",
+  "generatedAt": "2026-06-17T07:35:46.548Z",
   "modules": [
     {
       "id": "common",
@@ -61,6 +61,7 @@
         "./server/common.timezone",
         "./server/extension-registry",
         "./server/field-encryption",
+        "./server/module-entities",
         "./server/generated/api-handlers",
         "./server/generated/module-extensions",
         "./server/index",
@@ -930,6 +931,171 @@
       "hasModuleJson": true,
       "hasNextLayer": false,
       "readme": "# User Agent Module\n\nStateless utility for parsing User-Agent strings (OS, browser, device type via regex patterns) and resolving an IP address to an approximate geo-location (via ip-api.com, with local/private-IP filtering). Used by `auth` and `user_session` to label login sessions with device + location.\n\n---\n\n## Services\n\n`UserAgentService` (default export, all static):\n\n| Method | Description |\n|---|---|\n| `getDeviceAndLocation(userAgent, ip)` | Convenience wrapper — returns `{ deviceInfo, geoLocation, location }` in one call. Null-safe on both inputs. |\n| `parseUserAgent(userAgent)` | Parse a UA string into `DeviceInfo` (OS, browser, versions, device type, human-readable device name). |\n| `getGeoLocation(ip)` | Look up `GeoLocation` for an IP via ip-api.com. Returns all-null fields for empty/local/private IPs (`127.0.0.1`, `localhost`, `192.168.*`, `10.*`) or on any failure. |\n| `formatLocation(geo)` | Format a `GeoLocation` into a `\"City, State, Country\"` string, or `\"Unknown\"`. |\n\nPrivate helpers: `detectOS`, `detectBrowser`, `detectDeviceType`, `extractVersion`, `generateDeviceName`.\n\n---\n\n## Types & Enums\n\n```typescript\ntype DeviceInfo = {\n  osName: OSName;                 // Windows | macOS | Android | iOS | Chrome OS | Linux | Unix | Unknown\n  osVersion: string | null;\n  browserName: BrowserName;       // Chrome | Firefox | Safari | Edge | IE | Opera | Postman | Unknown\n  browserVersion: string | null;\n  deviceType: DeviceType;         // Mobile | Tablet | Desktop\n  deviceName: string | null;      // e.g. \"Mobile - iOS - Safari\"\n};\n\ntype GeoLocation = {\n  city: string | null;\n  state: string | null;\n  country: string | null;\n  countryCode: string | null;\n  latitude: number | null;\n  longitude: number | null;\n};\n```\n\nEnums are defined as Zod schemas in `user_agent.enums.ts`: `OSNameEnum`, `DeviceTypeEnum`, `BrowserNameEnum`.\n\n---\n\n## Usage\n\n```typescript\nimport UserAgentService from '@/modules/user_agent/user_agent.service';\n\n// Parse a UA string\nconst device = UserAgentService.parseUserAgent(req.headers['user-agent'] ?? '');\n// { osName: 'macOS', browserName: 'Chrome', deviceType: 'Desktop', deviceName: 'macOS - Chrome', ... }\n\n// Geo-locate an IP (all-null fields for local/private IPs)\nconst geo = await UserAgentService.getGeoLocation(req.ip);\n// { city: 'Istanbul', country: 'Turkey', countryCode: 'TR', ... }\n\n// Or both at once\nconst { deviceInfo, geoLocation, location } =\n  await UserAgentService.getDeviceAndLocation(req.headers['user-agent'] ?? null, req.ip ?? null);\n```\n\n---\n\n## Usage in Auth\n\n`auth.service.ts` and `user_session` call `getDeviceAndLocation` on every login to populate the `DeviceInfo` + `GeoLocation` shown in the active-sessions panel.\n\n> Geo-location uses the free ip-api.com tier (45 req/min, plain HTTP). It is a shared, platform-wide dependency — no API key and no per-tenant configuration.\n\n---\n\n## Tenant Variability\n\n> What varies per tenant in this module — and what could. Audited 2026-06-03.\n\nNo per-tenant variability — stateless User-Agent parsing and IP geo-location utility with no tenant-scoped state, settings, or data.\n\n---\n\n## Dependencies\n\n- `@/modules/logger` — warns/errors on geo-lookup failures.\n"
+    },
+    {
+      "id": "marketplace",
+      "name": "Marketplace",
+      "version": "1.0.0",
+      "description": "Browse, install, activate, and remove tenant modules; publish your own modules to a curated, approval-gated registry.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/marketplace",
+      "dir": "modules/marketplace",
+      "icon": "fas fa-store",
+      "tags": [
+        "platform",
+        "marketplace"
+      ],
+      "priority": 6,
+      "tier": "platform",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "setting",
+          "audit_log",
+          "auth",
+          "tenant",
+          "storage",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "module_install.entity.ts",
+          "published_module.entity.ts",
+          "published_module_version.entity.ts",
+          "publisher.entity.ts"
+        ]
+      },
+      "enabled": true,
+      "menu": [
+        {
+          "id": "marketplace",
+          "label": "Marketplace",
+          "href": "/admin/marketplace",
+          "icon": "fas fa-store",
+          "group": "Configuration",
+          "order": 4,
+          "scope": "tenant"
+        },
+        {
+          "id": "marketplace-developer",
+          "label": "Developer",
+          "href": "/admin/developer",
+          "icon": "fas fa-code",
+          "group": "Configuration",
+          "order": 6,
+          "scope": "tenant"
+        },
+        {
+          "id": "marketplace-review",
+          "label": "Module Review",
+          "href": "/admin/marketplace/review",
+          "icon": "fas fa-clipboard-check",
+          "group": "Platform",
+          "order": 30,
+          "scope": "system"
+        }
+      ],
+      "adminRoutes": [
+        {
+          "path": "/admin/marketplace",
+          "component": "marketplace/ui/marketplace.page"
+        },
+        {
+          "path": "/admin/developer",
+          "component": "marketplace/ui/developer.page"
+        },
+        {
+          "path": "/admin/marketplace/review",
+          "component": "marketplace/ui/review.page"
+        }
+      ],
+      "apiRoutes": [
+        {
+          "path": "/api/marketplace",
+          "handler": "marketplace/server/marketplace.route"
+        },
+        {
+          "path": "/api/marketplace/community",
+          "handler": "marketplace/server/community.route"
+        },
+        {
+          "path": "/api/marketplace/publisher",
+          "handler": "marketplace/server/publisher.route"
+        },
+        {
+          "path": "/api/marketplace/listings",
+          "handler": "marketplace/server/listings.route"
+        },
+        {
+          "path": "/api/marketplace/listings/[listingId]/versions",
+          "handler": "marketplace/server/listings-versions.route"
+        },
+        {
+          "path": "/api/marketplace/review",
+          "handler": "marketplace/server/review.route"
+        },
+        {
+          "path": "/api/marketplace/review/[versionId]",
+          "handler": "marketplace/server/review-item.route"
+        },
+        {
+          "path": "/api/marketplace/publishers/[publisherId]",
+          "handler": "marketplace/server/publishers-item.route"
+        },
+        {
+          "path": "/api/marketplace/[moduleId]",
+          "handler": "marketplace/server/marketplace-item.route"
+        },
+        {
+          "path": "/api/marketplace/[moduleId]/install",
+          "handler": "marketplace/server/marketplace-install.route"
+        }
+      ],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [],
+      "pkgExports": [
+        "./module.json",
+        "./server/entities/module_install.entity",
+        "./server/entities/publisher.entity",
+        "./server/entities/published_module.entity",
+        "./server/entities/published_module_version.entity",
+        "./server/marketplace.service.next",
+        "./server/publish.service.next",
+        "./server/marketplace.route",
+        "./server/marketplace-item.route",
+        "./server/marketplace-install.route",
+        "./server/publisher.route",
+        "./server/listings.route",
+        "./server/listings-versions.route",
+        "./server/community.route",
+        "./server/review.route",
+        "./server/review-item.route",
+        "./server/publishers-item.route",
+        "./ui/marketplace.page",
+        "./ui/marketplace-page.component",
+        "./ui/developer.page",
+        "./ui/developer-page.component",
+        "./ui/review.page",
+        "./ui/review-page.component"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": true,
+      "readme": ""
     },
     {
       "id": "seed",
@@ -5035,7 +5201,7 @@
       "dependencies": {
         "requires": [
           "db",
-          "tenant_setting",
+          "setting",
           "storage"
         ]
       },
@@ -8675,7 +8841,7 @@
         ],
         "optional": [
           "storage",
-          "tenant_setting"
+          "setting"
         ]
       },
       "exports": {
@@ -12114,7 +12280,7 @@
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false,
-      "readme": "# ai_openai\n\nOpenAI provider satellite for the [`ai`](../ai) host module.\n\nContributes an `openai` implementation into the host's `ai:provider` extension\npoint (declared in `ai/module.json`). The host `AIProviderService` discovers it\nthrough the extension registry — there is no static import of this module from\nthe host.\n\n- **Backend:** `server/providers/openai.provider.ts` (+ `openai.transport.ts`,\n  `openai.helpers.ts`) — the provider implementation, extending\n  `@nb/ai/server/providers/base.provider`.\n- **Contribution:** `server/openai.extension.ts` — the default-exported\n  `AIProviderContribution` (`key`, `settingKeys`, `resolveConfig`, `create`).\n- **Enable/disable:** per-tenant via module activation\n  (`module.ai_openai.enabled`). Disabling removes the `openai` provider for that\n  tenant with no host change.\n\nProvider credentials/settings (`openaiApiKey`, `openaiDefaultModel`,\n`openaiMaxTokens`, `openaiBaseUrl`) remain centrally defined in\n`ai/server/ai.setting.keys.ts` and edited from the AI settings page; this module\nreferences them by name in `resolveConfig`.\n"
+      "readme": "# ai_openai\n\nOpenAI provider satellite for the [`ai`](../ai) host module.\n\nContributes an `openai` implementation into the host's `ai:provider` extension\npoint (declared in `ai/module.json`). The host `AIProviderService` discovers it\nthrough the extension registry — there is no static import of this module from\nthe host.\n\n- **Backend:** `server/providers/openai.provider.ts` (+ `openai.transport.ts`,\n  `openai.helpers.ts`) — the provider implementation, extending\n  `@kuraykaraaslan/ai/server/providers/base.provider`.\n- **Contribution:** `server/openai.extension.ts` — the default-exported\n  `AIProviderContribution` (`key`, `settingKeys`, `resolveConfig`, `create`).\n- **Enable/disable:** per-tenant via module activation\n  (`module.ai_openai.enabled`). Disabling removes the `openai` provider for that\n  tenant with no host change.\n\nProvider credentials/settings (`openaiApiKey`, `openaiDefaultModel`,\n`openaiMaxTokens`, `openaiBaseUrl`) remain centrally defined in\n`ai/server/ai.setting.keys.ts` and edited from the AI settings page; this module\nreferences them by name in `resolveConfig`.\n"
     },
     {
       "id": "ai_anthropic",

@@ -1,7 +1,7 @@
 import crypto from 'crypto'
 import axios, { AxiosInstance } from 'axios'
-import BasePaymentProvider, { CheckoutSessionParams, CheckoutSessionResult } from '@nb/payment/server/providers/base.provider'
-import SettingService from '@nb/setting/server/setting.service'
+import BasePaymentProvider, { CheckoutSessionParams, CheckoutSessionResult } from '@kuraykaraaslan/payment/server/providers/base.provider'
+import SettingService from '@kuraykaraaslan/setting/server/setting.service'
 
 /**
  * Manual / offline settlement gateway — cash or bank wire.

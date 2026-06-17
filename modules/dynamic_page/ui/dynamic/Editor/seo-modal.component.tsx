@@ -1,6 +1,6 @@
 'use client'
 
-import { Modal } from '@nb/common/ui/modal.component'
+import { Modal } from '@kuraykaraaslan/common/ui/modal.component'
 import { useEditorStore } from './stores/editorStore'
 
 function CharCounter({ value, ideal }: { value: string; ideal: [number, number] }) {

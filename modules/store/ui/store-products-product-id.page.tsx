@@ -1,30 +1,30 @@
 'use client';
 import { use, useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import api from '@nb/common/server/axios';
-import { PageHeader } from '@nb/common/ui/page-header.component';
-import { Breadcrumb } from '@nb/common/ui/breadcrumb.component';
-import { Button } from '@nb/common/ui/button.component';
-import { Input } from '@nb/common/ui/input.component';
-import { Select } from '@nb/common/ui/select.component';
-import { Card } from '@nb/common/ui/card.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
-import { TabGroup } from '@nb/common/ui/tab-group.component';
-import { Spinner } from '@nb/common/ui/spinner.component';
-import { toast } from '@nb/common/ui/toast.store';
-import { ProductStatusBadge } from '@nb/store/ui/product-status-badge.component';
-import { ProductVariantsPanel } from '@nb/store/ui/product-variants-panel.component';
-import { ProductImagesPanel } from '@nb/store/ui/product-images-panel.component';
-import { SeoPanel } from '@nb/seo/ui';
-import { GalleryPanel } from '@nb/media_gallery/ui/gallery-panel.component';
-import { CurrencySelector } from '@nb/common/ui/currency-selector.component';
+import api from '@kuraykaraaslan/common/server/axios';
+import { PageHeader } from '@kuraykaraaslan/common/ui/page-header.component';
+import { Breadcrumb } from '@kuraykaraaslan/common/ui/breadcrumb.component';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import { Input } from '@kuraykaraaslan/common/ui/input.component';
+import { Select } from '@kuraykaraaslan/common/ui/select.component';
+import { Card } from '@kuraykaraaslan/common/ui/card.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
+import { TabGroup } from '@kuraykaraaslan/common/ui/tab-group.component';
+import { Spinner } from '@kuraykaraaslan/common/ui/spinner.component';
+import { toast } from '@kuraykaraaslan/common/ui/toast.store';
+import { ProductStatusBadge } from '@kuraykaraaslan/store/ui/product-status-badge.component';
+import { ProductVariantsPanel } from '@kuraykaraaslan/store/ui/product-variants-panel.component';
+import { ProductImagesPanel } from '@kuraykaraaslan/store/ui/product-images-panel.component';
+import { SeoPanel } from '@kuraykaraaslan/seo/ui';
+import { GalleryPanel } from '@kuraykaraaslan/media_gallery/ui/gallery-panel.component';
+import { CurrencySelector } from '@kuraykaraaslan/common/ui/currency-selector.component';
 import dynamic from 'next/dynamic';
-import { ProductSpecValuesPanel } from '@nb/store/ui/product-spec-values-panel.component';
+import { ProductSpecValuesPanel } from '@kuraykaraaslan/store/ui/product-spec-values-panel.component';
 
 // Quill + its CSS (~150KB) only load when the product editor actually mounts,
 // keeping the rest of the admin product page light.
 const RichTextEditor = dynamic(
-  () => import('@nb/common/ui/RichTextEditor').then((m) => m.RichTextEditor),
+  () => import('@kuraykaraaslan/common/ui/RichTextEditor').then((m) => m.RichTextEditor),
   { ssr: false, loading: () => <div className="h-44 rounded-md border border-border bg-surface-sunken animate-pulse" /> },
 );
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -33,7 +33,7 @@ import {
   type Product, type VariantGroupItemRow, type VariantProductInfo, type EditForm,
   statusOptions, extractMessage,
 } from './product-edit.utils';
-import type { ProductStatus } from '@nb/store/ui/product-status-badge.component';
+import type { ProductStatus } from '@kuraykaraaslan/store/ui/product-status-badge.component';
 
 export default function ProductDetailPage({ params }: { params: Promise<{ tenantId: string; productId: string }> }) {
   const { tenantId, productId } = use(params);

@@ -1,8 +1,8 @@
 import 'reflect-metadata'
 import { z } from 'zod'
-import Logger from '@nb/logger'
-import AuditLogService from '@nb/audit_log/server/audit_log.service'
-import { AppError, ErrorCode } from '@nb/common/server/app-error'
+import Logger from '@kuraykaraaslan/logger'
+import AuditLogService from '@kuraykaraaslan/audit_log/server/audit_log.service'
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error'
 import { TaxClass as TaxClassEntity } from './entities/tax_class.entity'
 import { getTaxRuleData } from './payment_tax.cache'
 import {

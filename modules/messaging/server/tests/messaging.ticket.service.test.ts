@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('@nb/env', () => ({
+vi.mock('@kuraykaraaslan/env', () => ({
   env: { REDIS_URL: 'redis://test', NODE_ENV: 'test' },
 }));
 
 // In-memory Redis stand-in that honours GETDEL single-use semantics.
 const store = new Map<string, string>();
-vi.mock('@nb/redis', () => ({
+vi.mock('@kuraykaraaslan/redis', () => ({
   default: {
     set: vi.fn(async (key: string, val: string) => {
       store.set(key, val);

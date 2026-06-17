@@ -1,16 +1,16 @@
 import crypto from 'crypto';
 import bcrypt from 'bcrypt';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
-import { tenantDataSourceFor } from '@nb/db';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
 import SamlMessages from './auth_saml.messages';
 import { type SamlProfile } from './auth_saml.types';
-import UserService from '@nb/user/server/user.service';
-import { SafeUserSchema, type SafeUser } from '@nb/user/server/user.types';
-import { User as UserEntity } from '@nb/user/server/entities/user.entity';
-import { TenantMember as TenantMemberEntity } from '@nb/tenant_member/server/entities/tenant_member.entity';
-import TenantMemberService from '@nb/tenant_member/server/tenant_member.service';
-import TenantInvitationService from '@nb/tenant_invitation/server/tenant_invitation.service';
-import AuditLogService from '@nb/audit_log/server/audit_log.service';
+import UserService from '@kuraykaraaslan/user/server/user.service';
+import { SafeUserSchema, type SafeUser } from '@kuraykaraaslan/user/server/user.types';
+import { User as UserEntity } from '@kuraykaraaslan/user/server/entities/user.entity';
+import { TenantMember as TenantMemberEntity } from '@kuraykaraaslan/tenant_member/server/entities/tenant_member.entity';
+import TenantMemberService from '@kuraykaraaslan/tenant_member/server/tenant_member.service';
+import TenantInvitationService from '@kuraykaraaslan/tenant_invitation/server/tenant_invitation.service';
+import AuditLogService from '@kuraykaraaslan/audit_log/server/audit_log.service';
 import AuthSamlConfigService from './auth_saml.config.service';
 import { mapSamlRoleToMemberRole } from './auth_saml.flow.roles';
 

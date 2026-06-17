@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { SCIM_SCHEMAS, SCIM_CONTENT_TYPE, type ScimErrorBody, type ScimErrorType } from './scim.types';
 
 /** AppError subclass that also carries a SCIM `scimType` vocab string.

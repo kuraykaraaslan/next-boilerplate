@@ -1,4 +1,4 @@
-import type { CountryCode } from '@nb/common'
+import type { CountryCode } from '@kuraykaraaslan/common'
 
 /**
  * Live carrier adapter contract. Each adapter talks to a real carrier REST API

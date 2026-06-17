@@ -1,10 +1,10 @@
 import 'reflect-metadata'
-import { tenantDataSourceFor } from '@nb/db'
-import redis from '@nb/redis'
-import Logger from '@nb/logger'
-import { AppError, ErrorCode } from '@nb/common/server/app-error'
-import { StoreProduct } from '@nb/store/server/entities/store_product.entity'
-import { StoreProductVariant } from '@nb/store/server/entities/store_product_variant.entity'
+import { tenantDataSourceFor } from '@kuraykaraaslan/db'
+import redis from '@kuraykaraaslan/redis'
+import Logger from '@kuraykaraaslan/logger'
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error'
+import { StoreProduct } from '@kuraykaraaslan/store/server/entities/store_product.entity'
+import { StoreProductVariant } from '@kuraykaraaslan/store/server/entities/store_product_variant.entity'
 import { PAYMENT_CART_MESSAGES } from './payment_cart.messages'
 
 /**

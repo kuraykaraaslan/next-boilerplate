@@ -1,7 +1,7 @@
-import type { SafeTenant } from '@nb/tenant/server/tenant.types';
-import type { SafeTenantMember } from '@nb/tenant_member/server/tenant_member.types';
-import type { SafeUser } from '@nb/user/server/user.types';
-import type { TenantMemberRole } from '@nb/tenant_member/server/tenant_member.enums';
+import type { SafeTenant } from '@kuraykaraaslan/tenant/server/tenant.types';
+import type { SafeTenantMember } from '@kuraykaraaslan/tenant_member/server/tenant_member.types';
+import type { SafeUser } from '@kuraykaraaslan/user/server/user.types';
+import type { TenantMemberRole } from '@kuraykaraaslan/tenant_member/server/tenant_member.enums';
 
 /** Typed tenant-session context propagated to route handlers. */
 export interface TenantSessionContext {

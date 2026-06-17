@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { env } from '@nb/env';
-import ObservabilityService from '@nb/observability';
+import { env } from '@kuraykaraaslan/env';
+import ObservabilityService from '@kuraykaraaslan/observability';
 
 /**
  * GET /internal/api/metrics

@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { In } from 'typeorm';
-import { tenantDataSourceFor } from '@nb/db';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { Message as MessageEntity } from './entities/message.entity';
 import { MessageReport as MessageReportEntity } from './entities/message_report.entity';
 import {

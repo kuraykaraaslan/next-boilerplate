@@ -1,9 +1,9 @@
 import 'reflect-metadata'
 import type { EntityManager } from 'typeorm'
-import redis, { jitter, singleFlight } from '@nb/redis'
-import { env } from '@nb/env'
-import SettingService from '@nb/setting/server/setting.service'
-import { AppError, ErrorCode } from '@nb/common/server/app-error'
+import redis, { jitter, singleFlight } from '@kuraykaraaslan/redis'
+import { env } from '@kuraykaraaslan/env'
+import SettingService from '@kuraykaraaslan/setting/server/setting.service'
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error'
 import { ReturnRequest as ReturnRequestEntity } from './entities/return_request.entity'
 import { PAYMENT_RETURN_RMA_MESSAGES } from './payment_return_rma.messages'
 

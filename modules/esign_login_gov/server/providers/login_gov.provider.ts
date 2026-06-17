@@ -1,12 +1,12 @@
-import { env } from '@nb/env';
+import { env } from '@kuraykaraaslan/env';
 import BaseESignatureProvider, {
   InitiateLoginInput,
   InitiateLoginOutput,
   ProviderCredentials,
-} from '@nb/e_signature/server/providers/base.provider';
-import type { CountryCode, PollResult, RawIdentityClaims } from '@nb/e_signature/server/e_signature.types';
-import type { LoA, ProviderCapability } from '@nb/e_signature/server/e_signature.enums';
-import { E_SIGNATURE_MESSAGES } from '@nb/e_signature/server/e_signature.messages';
+} from '@kuraykaraaslan/e_signature/server/providers/base.provider';
+import type { CountryCode, PollResult, RawIdentityClaims } from '@kuraykaraaslan/e_signature/server/e_signature.types';
+import type { LoA, ProviderCapability } from '@kuraykaraaslan/e_signature/server/e_signature.enums';
+import { E_SIGNATURE_MESSAGES } from '@kuraykaraaslan/e_signature/server/e_signature.messages';
 
 /**
  * United States — Login.gov adapter.

@@ -1,9 +1,9 @@
-import redis from '@nb/redis';
-import Logger from '@nb/logger';
-import { tenantDataSourceFor } from '@nb/db';
+import redis from '@kuraykaraaslan/redis';
+import Logger from '@kuraykaraaslan/logger';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
 import { TenantUsage } from './entities/tenant_usage.entity';
 import TenantUsageMessages from './tenant_usage.messages';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import {
   METRICS, type TenantUsageMetric, type TenantUsageSnapshot,
   currentMonth, redisKey, dailyKey, endpointKey,

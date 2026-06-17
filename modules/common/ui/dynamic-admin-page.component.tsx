@@ -1,6 +1,6 @@
 'use client';
 import { Suspense, useMemo, type ComponentType } from 'react';
-import { Spinner } from '@nb/common/ui/spinner.component';
+import { Spinner } from '@kuraykaraaslan/common/ui/spinner.component';
 import { moduleComponents } from './generated/module-components';
 
 /**

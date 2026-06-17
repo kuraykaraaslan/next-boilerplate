@@ -1,11 +1,11 @@
 // path: app/tenant/[tenantId]/api/auth/reset-password/route.ts
-import Logger from '@nb/logger';
+import Logger from '@kuraykaraaslan/logger';
 import { NextRequest, NextResponse } from "next/server";
-import Limiter from "@nb/limiter/server/limiter.service.next";
-import PasswordService from "@nb/auth/server/auth.password.service";
-import TenantService from "@nb/tenant/server/tenant.service";
-import { ResetPasswordDTO } from "@nb/auth/server/auth.dto";
-import AuthMessages from "@nb/auth/server/auth.messages";
+import Limiter from "@kuraykaraaslan/limiter/server/limiter.service.next";
+import PasswordService from "@kuraykaraaslan/auth/server/auth.password.service";
+import TenantService from "@kuraykaraaslan/tenant/server/tenant.service";
+import { ResetPasswordDTO } from "@kuraykaraaslan/auth/server/auth.dto";
+import AuthMessages from "@kuraykaraaslan/auth/server/auth.messages";
 
 /**
  * Password reset is an onboarding/recovery endpoint — the caller is not

@@ -1,10 +1,10 @@
 // path: app/tenant/[tenantId]/api/auth/me/security/e-signature/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import Limiter from '@nb/limiter/server/limiter.service.next';
-import Logger from '@nb/logger';
-import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
-import AuthESignatureCertService from '@nb/auth_e_signature/server/auth_e_signature.cert.service';
-import type { SigningCertificate } from '@nb/auth_e_signature/server/entities/signing_certificate.entity';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
+import Logger from '@kuraykaraaslan/logger';
+import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next';
+import AuthESignatureCertService from '@kuraykaraaslan/auth_e_signature/server/auth_e_signature.cert.service';
+import type { SigningCertificate } from '@kuraykaraaslan/auth_e_signature/server/entities/signing_certificate.entity';
 
 interface RouteContext {
   params: Promise<{ tenantId: string }>;

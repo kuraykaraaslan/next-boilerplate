@@ -11,8 +11,8 @@
  *               @opentelemetry/exporter-trace-otlp-http \
  *               @opentelemetry/auto-instrumentations-node
  */
-import { env } from '@nb/env';
-import Logger from '@nb/logger';
+import { env } from '@kuraykaraaslan/env';
+import Logger from '@kuraykaraaslan/logger';
 
 let _otelInitialized = false;
 

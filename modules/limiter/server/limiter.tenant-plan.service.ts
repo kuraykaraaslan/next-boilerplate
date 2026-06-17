@@ -1,8 +1,8 @@
 import { randomUUID } from 'crypto';
-import redis from '@nb/redis';
-import Logger from '@nb/logger';
-import ObservabilityService from '@nb/observability';
-import { TenantUsageService } from '@nb/tenant_usage/server/tenant_usage.service';
+import redis from '@kuraykaraaslan/redis';
+import Logger from '@kuraykaraaslan/logger';
+import ObservabilityService from '@kuraykaraaslan/observability';
+import { TenantUsageService } from '@kuraykaraaslan/tenant_usage/server/tenant_usage.service';
 
 const WINDOW_MS = 60_000; // 1 minute
 

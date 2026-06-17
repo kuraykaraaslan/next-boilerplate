@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
-import { env } from '@nb/env';
+import { env } from '@kuraykaraaslan/env';
 import { discover } from './auth_oidc.discovery';
 import type { OidcEngineConfig, OidcTokens } from './auth_oidc.engine.types';
 

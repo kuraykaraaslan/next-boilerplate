@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import PaymentService from "@nb/payment/server/payment.service";
-import { RefundPaymentRequestSchema } from "@nb/payment/server/payment.dto";
-import Limiter from "@nb/limiter/server/limiter.service.next";
-import { withIdempotency } from '@nb/redis_idempotency/server/withIdempotency';
+import PaymentService from "@kuraykaraaslan/payment/server/payment.service";
+import { RefundPaymentRequestSchema } from "@kuraykaraaslan/payment/server/payment.dto";
+import Limiter from "@kuraykaraaslan/limiter/server/limiter.service.next";
+import { withIdempotency } from '@kuraykaraaslan/redis_idempotency/server/withIdempotency';
 
-import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
+import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next';
 /**
  * POST /tenant/[tenantId]/api/payments/[paymentId]/refund
  * Idempotent via the `Idempotency-Key` header (guards a double refund).

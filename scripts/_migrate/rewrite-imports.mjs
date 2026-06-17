@@ -1,12 +1,12 @@
 // One-time codemod: rewrite `@/modules[_next]/<id>/...` import specifiers to the
-// `@nb/<id>/...` workspace-package form, for every module already packaged
+// `@kuraykaraaslan/<id>/...` workspace-package form, for every module already packaged
 // (has modules/<id>/package.json). Unpackaged/manual modules are left on `@/`.
 //
-//   @/modules/<id>            -> @nb/<id>            (root barrel)
-//   @/modules/<id>/x          -> @nb/<id>/server/x
-//   @/modules_next/<id>/ui/x  -> @nb/<id>/ui/x
-//   @/modules_next/<id>/hooks -> @nb/<id>/hooks
-//   @/modules_next/<id>/x     -> @nb/<id>/server/x   (loose next files)
+//   @/modules/<id>            -> @kuraykaraaslan/<id>            (root barrel)
+//   @/modules/<id>/x          -> @kuraykaraaslan/<id>/server/x
+//   @/modules_next/<id>/ui/x  -> @kuraykaraaslan/<id>/ui/x
+//   @/modules_next/<id>/hooks -> @kuraykaraaslan/<id>/hooks
+//   @/modules_next/<id>/x     -> @kuraykaraaslan/<id>/server/x   (loose next files)
 //
 // Usage: node scripts/_migrate/rewrite-imports.mjs [--apply]
 import fs from 'node:fs';
@@ -40,10 +40,10 @@ const reAbs = /(['"])@\/(modules_next|modules)\/([a-z][a-z0-9_]*)((?:\/[^'"]*)?)
 const reRel = /(['"])(?:\.\.\/)+(modules_next|modules)\/([a-z][a-z0-9_]*)((?:\/[^'"]*)?)\1/g;
 
 function toTarget(layer, id, rest) {
-  if (layer === 'modules') return rest === '' ? `@nb/${id}` : `@nb/${id}/server${rest}`;
-  if (rest.startsWith('/ui') || rest.startsWith('/hooks')) return `@nb/${id}${rest}`;
-  if (rest === '') return `@nb/${id}`;
-  return `@nb/${id}/server${rest}`;
+  if (layer === 'modules') return rest === '' ? `@kuraykaraaslan/${id}` : `@kuraykaraaslan/${id}/server${rest}`;
+  if (rest.startsWith('/ui') || rest.startsWith('/hooks')) return `@kuraykaraaslan/${id}${rest}`;
+  if (rest === '') return `@kuraykaraaslan/${id}`;
+  return `@kuraykaraaslan/${id}/server${rest}`;
 }
 
 // repo-root single-file entrypoints (instrumentation.ts, proxy.ts, middleware.ts…)

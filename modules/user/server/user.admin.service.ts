@@ -1,8 +1,8 @@
 import 'reflect-metadata';
-import { getDataSource } from '@nb/db';
+import { getDataSource } from '@kuraykaraaslan/db';
 import { User as UserEntity } from './entities/user.entity';
 import { SafeUser } from './user.types';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { invalidate, emitAuditLog } from './user.helpers';
 import { getById } from './user.read.service';
 
@@ -12,7 +12,7 @@ import { getById } from './user.read.service';
  */
 export async function enforcePasswordPolicy(tenantId: string, password: string): Promise<void> {
   try {
-    const SettingService = (await import('@nb/setting/server/setting.service')).default;
+    const SettingService = (await import('@kuraykaraaslan/setting/server/setting.service')).default;
     const settings = await SettingService.getByKeys(tenantId, ['passwordMinLength', 'passwordRequireSpecialChar', 'passwordRequireUppercase']);
 
     const minLen = parseInt(settings.passwordMinLength ?? '8', 10);

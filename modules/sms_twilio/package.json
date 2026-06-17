@@ -1,5 +1,5 @@
 {
-  "name": "@nb/sms_twilio",
+  "name": "@kuraykaraaslan/sms_twilio",
   "version": "0.0.0",
   "private": true,
   "type": "module",

@@ -1,11 +1,11 @@
 import 'reflect-metadata'
 import { Between } from 'typeorm'
-import { tenantDataSourceFor } from '@nb/db'
+import { tenantDataSourceFor } from '@kuraykaraaslan/db'
 import { Fulfillment as FulfillmentEntity } from './entities/fulfillment.entity'
 import type { FulfillmentAnalytics } from './order_fulfillment.types'
 import type { AnalyticsQuery } from './order_fulfillment.dto'
 import { ORDER_FULFILLMENT_MESSAGES } from './order_fulfillment.messages'
-import { AppError, ErrorCode } from '@nb/common/server/app-error'
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error'
 
 const HOUR_MS = 1000 * 60 * 60
 

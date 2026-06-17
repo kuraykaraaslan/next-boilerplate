@@ -1,7 +1,7 @@
 import { Queue, Worker, Job } from 'bullmq';
-import { getBullMQConnection } from '@nb/redis/server/redis.bullmq';
+import { getBullMQConnection } from '@kuraykaraaslan/redis/server/redis.bullmq';
 import AuthService from './auth.service';
-import Logger from '@nb/logger';
+import Logger from '@kuraykaraaslan/logger';
 
 /**
  * KD-15: scheduled sweep that marks accounts dormant (INACTIVE) when the

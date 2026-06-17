@@ -13,16 +13,16 @@ const envMock = vi.hoisted(() => ({
     }),
   } as Record<string, unknown>,
 }));
-vi.mock('@nb/env', () => envMock);
-vi.mock('@nb/logger', () => ({ default: { info: vi.fn(), warn: vi.fn(), error: vi.fn() } }));
-vi.mock('@nb/observability', () => ({ default: { recordTenantUsage: vi.fn() } }));
-vi.mock('@nb/redis', () => ({ default: { set: vi.fn(async () => 'OK'), del: vi.fn(async () => 1) } }));
-vi.mock('@nb/db', () => ({ getDataSource: vi.fn(), tenantDataSourceFor: vi.fn() }));
+vi.mock('@kuraykaraaslan/env', () => envMock);
+vi.mock('@kuraykaraaslan/logger', () => ({ default: { info: vi.fn(), warn: vi.fn(), error: vi.fn() } }));
+vi.mock('@kuraykaraaslan/observability', () => ({ default: { recordTenantUsage: vi.fn() } }));
+vi.mock('@kuraykaraaslan/redis', () => ({ default: { set: vi.fn(async () => 'OK'), del: vi.fn(async () => 1) } }));
+vi.mock('@kuraykaraaslan/db', () => ({ getDataSource: vi.fn(), tenantDataSourceFor: vi.fn() }));
 
 import { AcsProviderEnum, acsSocialProviderKey } from '../auth_acs.enums';
 import AuthAcsConfigService from '../auth_acs.config.service';
 import { getAcsProvider } from '../providers';
-import { BaseSamlProvider, type SamlValidatedAssertion } from '@nb/auth_saml/server/saml.engine';
+import { BaseSamlProvider, type SamlValidatedAssertion } from '@kuraykaraaslan/auth_saml/server/saml.engine';
 import { signAcsRelay, parseAcsRelay } from '../auth_acs.relay';
 import AuthAcsFlowService from '../auth_acs.flow.service';
 

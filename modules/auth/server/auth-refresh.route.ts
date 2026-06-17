@@ -1,9 +1,9 @@
-import Limiter from '@nb/limiter/server/limiter.service.next';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
 // path: app/tenant/[tenantId]/api/auth/refresh/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import UserSessionService from "@nb/user_session/server/user_session.service";
-import AuthMessages from "@nb/auth/server/auth.messages";
-import { RefreshTokenDTO } from "@nb/auth/server/auth.dto";
+import UserSessionService from "@kuraykaraaslan/user_session/server/user_session.service";
+import AuthMessages from "@kuraykaraaslan/auth/server/auth.messages";
+import { RefreshTokenDTO } from "@kuraykaraaslan/auth/server/auth.dto";
 
 export async function POST(request: NextRequest) {
   const refreshToken = request.cookies.get("refreshToken")?.value;

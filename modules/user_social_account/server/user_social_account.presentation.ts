@@ -1,5 +1,5 @@
-import { ACS_CATALOG } from '@nb/auth_acs/server/auth_acs.config';
-import type { AcsProvider } from '@nb/auth_acs/server/auth_acs.enums';
+import { ACS_CATALOG } from '@kuraykaraaslan/auth_acs/server/auth_acs.config';
+import type { AcsProvider } from '@kuraykaraaslan/auth_acs/server/auth_acs.enums';
 import { isOAuthSSOProvider } from './user_social_account.enums';
 
 /**

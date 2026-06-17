@@ -1,7 +1,7 @@
 import { isIP } from 'net';
-import redis from '@nb/redis';
-import Logger from '@nb/logger';
-import SettingService from '@nb/setting/server/setting.service';
+import redis from '@kuraykaraaslan/redis';
+import Logger from '@kuraykaraaslan/logger';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
 import { GeoLocation, GeoLocationSchema } from './user_agent.types';
 
 const NULL_GEO: GeoLocation = { city: null, state: null, country: null, countryCode: null, latitude: null, longitude: null };

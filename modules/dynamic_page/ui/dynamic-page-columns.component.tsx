@@ -1,12 +1,12 @@
 'use client';
 
-import { Badge } from '@nb/common/ui/badge.component';
-import { RowActionsMenu } from '@nb/common/ui/row-actions-menu.component';
-import type { TableColumn } from '@nb/common/ui/server-data-table.component';
+import { Badge } from '@kuraykaraaslan/common/ui/badge.component';
+import { RowActionsMenu } from '@kuraykaraaslan/common/ui/row-actions-menu.component';
+import type { TableColumn } from '@kuraykaraaslan/common/ui/server-data-table.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare, faTrash, faEye } from '@fortawesome/free-solid-svg-icons';
-import type { DynamicPageRecord } from '@nb/dynamic_page/server/dynamic_page.types';
-import { DynamicPageStatus } from '@nb/dynamic_page/server/dynamic_page.enums';
+import type { DynamicPageRecord } from '@kuraykaraaslan/dynamic_page/server/dynamic_page.types';
+import { DynamicPageStatus } from '@kuraykaraaslan/dynamic_page/server/dynamic_page.enums';
 
 export type DynamicPage = Pick<DynamicPageRecord, 'dynamicPageId' | 'title' | 'slug'> & {
   status: `${DynamicPageStatus}`;

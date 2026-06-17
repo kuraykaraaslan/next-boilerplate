@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { CountryCodeInput, CurrencyCodeInput, DEFAULT_CURRENCY } from '@nb/common'
+import { CountryCodeInput, CurrencyCodeInput, DEFAULT_CURRENCY } from '@kuraykaraaslan/common'
 
 // ============================================================================
 // Tax Class DTOs

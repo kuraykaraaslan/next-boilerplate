@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('@nb/env', () => ({
+vi.mock('@kuraykaraaslan/env', () => ({
   env: {
     DATABASE_URL: 'postgresql://test',
     NODE_ENV: 'test',
@@ -8,12 +8,12 @@ vi.mock('@nb/env', () => ({
   },
 }));
 
-vi.mock('@nb/db', () => ({
+vi.mock('@kuraykaraaslan/db', () => ({
   getDataSource: vi.fn(),
   tenantDataSourceFor: vi.fn(),
 }));
 
-vi.mock('@nb/redis', () => ({
+vi.mock('@kuraykaraaslan/redis', () => ({
   default: {
     get: vi.fn(async () => null),
     set: vi.fn(async () => 'OK'),
@@ -30,17 +30,17 @@ vi.mock('@nb/redis', () => ({
   jitter: (n: number) => n,
 }));
 
-vi.mock('@nb/logger', () => ({
+vi.mock('@kuraykaraaslan/logger', () => ({
   default: { info: vi.fn(), error: vi.fn(), warn: vi.fn(), debug: vi.fn() },
 }));
 
-vi.mock('@nb/audit_log/server/audit_log.service', () => ({
+vi.mock('@kuraykaraaslan/audit_log/server/audit_log.service', () => ({
   default: { log: vi.fn(async () => undefined) },
 }));
 
-import { getDataSource, tenantDataSourceFor } from '@nb/db';
+import { getDataSource, tenantDataSourceFor } from '@kuraykaraaslan/db';
 import DNSVerificationService from '../dns_verification.service';
-import AuditLogService from '@nb/audit_log/server/audit_log.service';
+import AuditLogService from '@kuraykaraaslan/audit_log/server/audit_log.service';
 const auditLogMock = AuditLogService.log as ReturnType<typeof vi.fn>;
 
 const TENANT_ID = '550e8400-e29b-41d4-a716-446655440001';

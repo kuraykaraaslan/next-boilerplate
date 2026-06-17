@@ -1,14 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import api from '@nb/common/server/axios';
-import { Button } from '@nb/common/ui/button.component';
-import { Input } from '@nb/common/ui/input.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
-import { Modal } from '@nb/common/ui/modal.component';
+import api from '@kuraykaraaslan/common/server/axios';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import { Input } from '@kuraykaraaslan/common/ui/input.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
+import { Modal } from '@kuraykaraaslan/common/ui/modal.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faKey } from '@fortawesome/free-solid-svg-icons';
-import { API_KEY_SCOPES, type ApiKeyScope } from '@nb/api_key/server/api_key.enums';
+import { API_KEY_SCOPES, type ApiKeyScope } from '@kuraykaraaslan/api_key/server/api_key.enums';
 import type { SafeApiKey } from './api-key-columns.component';
 
 const SCOPE_LABEL: Record<ApiKeyScope, string> = {

@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { CurrencyCodeEnum } from '@nb/common'
+import { CurrencyCodeEnum } from '@kuraykaraaslan/common'
 import { ProductStatusEnum, FulfillmentTypeEnum } from './store.enums'
 import {
   PriceListSchema, CountryPricesSchema, ProductTranslationsSchema, WarehouseStockSchema,

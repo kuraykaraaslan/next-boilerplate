@@ -1,9 +1,9 @@
 import 'reflect-metadata';
-import { tenantDataSourceFor } from '@nb/db';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
 import { CouponRedemption as CouponRedemptionEntity } from './entities/coupon_redemption.entity';
-import Logger from '@nb/logger';
+import Logger from '@kuraykaraaslan/logger';
 import { COUPON_MESSAGES } from './coupon.messages';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { CouponRedemptionSchema } from './coupon.types';
 import type { CouponRedemption } from './coupon.types';
 

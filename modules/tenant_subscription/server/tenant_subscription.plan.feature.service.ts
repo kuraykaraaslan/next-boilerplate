@@ -1,9 +1,9 @@
 import 'reflect-metadata';
-import { tenantDataSourceFor } from '@nb/db';
-import { SubscriptionPlan as SubscriptionPlanEntity } from '@nb/payment/server/entities/subscription_plan.entity';
-import { PlanFeature as PlanFeatureEntity } from '@nb/payment/server/entities/plan_feature.entity';
-import Logger from '@nb/logger';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import { SubscriptionPlan as SubscriptionPlanEntity } from '@kuraykaraaslan/payment/server/entities/subscription_plan.entity';
+import { PlanFeature as PlanFeatureEntity } from '@kuraykaraaslan/payment/server/entities/plan_feature.entity';
+import Logger from '@kuraykaraaslan/logger';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { PlanFeatureSchema, type PlanFeature } from './tenant_subscription.types';
 import type { CreateFeatureDTO, UpdateFeatureDTO } from './tenant_subscription.dto';
 import { SUBSCRIPTION_MESSAGES } from './tenant_subscription.messages';

@@ -1,14 +1,14 @@
-import Logger from '@nb/logger';
+import Logger from '@kuraykaraaslan/logger';
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcrypt';
-import { getDataSource } from '@nb/db';
-import { User as UserEntity } from '@nb/user/server/entities/user.entity';
-import Limiter from '@nb/limiter/server/limiter.service.next';
-import UserSessionNextService from '@nb/user_session/server/user_session.service.next';
-import UserSessionService from '@nb/user_session/server/user_session.service';
-import AuthService from '@nb/auth/server/auth.service';
-import { ChangePasswordDTO } from '@nb/auth/server/auth.dto';
-import AuthMessages from '@nb/auth/server/auth.messages';
+import { getDataSource } from '@kuraykaraaslan/db';
+import { User as UserEntity } from '@kuraykaraaslan/user/server/entities/user.entity';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
+import UserSessionNextService from '@kuraykaraaslan/user_session/server/user_session.service.next';
+import UserSessionService from '@kuraykaraaslan/user_session/server/user_session.service';
+import AuthService from '@kuraykaraaslan/auth/server/auth.service';
+import { ChangePasswordDTO } from '@kuraykaraaslan/auth/server/auth.dto';
+import AuthMessages from '@kuraykaraaslan/auth/server/auth.messages';
 
 /**
  * POST /api/tenant/{tenantId}/auth/change-password

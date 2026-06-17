@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { In } from 'typeorm';
-import { getDataSource } from '@nb/db';
-import { encryptFieldOpt, decryptFieldOpt } from '@nb/common/server/field-encryption';
+import { getDataSource } from '@kuraykaraaslan/db';
+import { encryptFieldOpt, decryptFieldOpt } from '@kuraykaraaslan/common/server/field-encryption';
 import { UserSocialAccount as UserSocialAccountEntity } from './entities/user_social_account.entity';
 
 export async function updateTokens(

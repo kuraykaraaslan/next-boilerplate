@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import type { FindOptionsWhere } from 'typeorm';
-import type { SeedContext } from '@nb/seed/server/seed.context';
-import { SEED_USER_ID, SEED_ORDER_ID } from '@nb/seed/server/seed.context';
+import type { SeedContext } from '@kuraykaraaslan/seed/server/seed.context';
+import { SEED_USER_ID, SEED_ORDER_ID } from '@kuraykaraaslan/seed/server/seed.context';
 import { ReturnRequest } from './entities/return_request.entity';
 import { ReturnItem } from './entities/return_item.entity';
 import { ReturnEvent } from './entities/return_event.entity';

@@ -1,11 +1,11 @@
 import 'reflect-metadata';
-import { tenantDataSourceFor } from '@nb/db';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
 import { Webhook as WebhookEntity } from './entities/webhook.entity';
 import { WebhookDelivery as WebhookDeliveryEntity } from './entities/webhook_delivery.entity';
 import { WebhookDeliverySchema } from './webhook.types';
 import type { WebhookDelivery } from './webhook.types';
 import type { WebhookEvent } from './webhook.enums';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import WebhookMessages from './webhook.messages';
 import { MAX_ATTEMPTS, type DeliveryJobData } from './webhook.config';
 import { webhookQueue, enqueueDelivery } from './webhook.queue';

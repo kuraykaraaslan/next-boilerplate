@@ -1,5 +1,5 @@
 import 'reflect-metadata'
-import { tenantDataSourceFor } from '@nb/db'
+import { tenantDataSourceFor } from '@kuraykaraaslan/db'
 import { Subscription as SubscriptionEntity } from './entities/subscription.entity'
 
 /**

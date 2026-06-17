@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('@nb/env', () => ({
+vi.mock('@kuraykaraaslan/env', () => ({
   env: {
     DATABASE_URL: 'postgresql://test',
     ACCESS_TOKEN_SECRET: 'test_secret',
@@ -23,12 +23,12 @@ vi.mock('@nb/env', () => ({
   },
 }));
 
-vi.mock('@nb/db', () => ({
+vi.mock('@kuraykaraaslan/db', () => ({
   getDataSource: vi.fn(),
   tenantDataSourceFor: vi.fn(),
 }));
 
-vi.mock('@nb/redis', () => ({
+vi.mock('@kuraykaraaslan/redis', () => ({
   default: {
     get: vi.fn(async () => null),
     set: vi.fn(async () => 'OK'),
@@ -45,7 +45,7 @@ vi.mock('@nb/redis', () => ({
   jitter: (n: number) => n,
 }));
 
-vi.mock('@nb/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
+vi.mock('@kuraykaraaslan/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
 
 // Mock BullMQ queue and worker to avoid real Redis connections
 vi.mock('bullmq', () => ({
@@ -60,7 +60,7 @@ vi.mock('bullmq', () => ({
   Job: class MockJob {},
 }));
 
-vi.mock('@nb/redis/server/redis.bullmq', () => ({
+vi.mock('@kuraykaraaslan/redis/server/redis.bullmq', () => ({
   getBullMQConnection: vi.fn(() => ({})),
 }));
 
@@ -89,11 +89,11 @@ const MAIL_CONTRIBS = ['smtp', 'sendgrid', 'mailgun', 'ses', 'postmark', 'resend
   id: `mail_${key}:mail:provider:${key}`, point: 'mail:provider', moduleId: `mail_${key}`, key, metadata: {},
 }));
 
-vi.mock('@nb/setting/server/module-activation.service.next', () => ({
+vi.mock('@kuraykaraaslan/setting/server/module-activation.service.next', () => ({
   getEnabledModuleIds: vi.fn(async () => new Set(MAIL_CONTRIBS.map((c) => c.moduleId).concat('notification_mail'))),
 }));
 
-vi.mock('@nb/common/server/extension-registry', () => ({
+vi.mock('@kuraykaraaslan/common/server/extension-registry', () => ({
   extensionRegistry: {
     getContributions: (point: string, filter?: { enabledIds?: Set<string> }) =>
       point === 'mail:provider'
@@ -105,7 +105,7 @@ vi.mock('@nb/common/server/extension-registry', () => ({
 
 
 // Bypass feature gating in unit tests — tested separately in tenant_subscription/.
-vi.mock('@nb/tenant_subscription/server/tenant_subscription.feature.service', () => ({
+vi.mock('@kuraykaraaslan/tenant_subscription/server/tenant_subscription.feature.service', () => ({
   default: {
     assertFeatureAccess: vi.fn(async () => undefined),
     checkFeatureAccess: vi.fn(async () => ({ allowed: true, featureKey: '', type: 'BOOLEAN', limit: null, unlimited: null, current: null })),
@@ -113,7 +113,7 @@ vi.mock('@nb/tenant_subscription/server/tenant_subscription.feature.service', ()
 }));
 // Usage gate also runs inside assertMailFeatureAccess — stub it so the mail
 // path isn't blocked by a (DB-backed) usage lookup in unit tests.
-vi.mock('@nb/tenant_usage/server/tenant_usage.service', () => ({
+vi.mock('@kuraykaraaslan/tenant_usage/server/tenant_usage.service', () => ({
   TenantUsageService: {
     getUsage: vi.fn(async () => ({ emailSends: 0 })),
     incrementEmailSends: vi.fn(async () => undefined),

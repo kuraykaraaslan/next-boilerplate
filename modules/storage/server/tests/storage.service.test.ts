@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('@nb/env', () => ({
+vi.mock('@kuraykaraaslan/env', () => ({
   env: {
     DATABASE_URL: 'postgresql://test',
     ACCESS_TOKEN_SECRET: 'test_secret',
@@ -17,12 +17,12 @@ vi.mock('@nb/env', () => ({
   },
 }));
 
-vi.mock('@nb/db', () => ({
+vi.mock('@kuraykaraaslan/db', () => ({
   getDataSource: vi.fn(),
   tenantDataSourceFor: vi.fn(),
 }));
 
-vi.mock('@nb/redis', () => ({
+vi.mock('@kuraykaraaslan/redis', () => ({
   default: {
     get: vi.fn(async () => null),
     set: vi.fn(async () => 'OK'),
@@ -39,7 +39,7 @@ vi.mock('@nb/redis', () => ({
   jitter: (n: number) => n,
 }));
 
-vi.mock('@nb/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
+vi.mock('@kuraykaraaslan/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
 
 vi.mock('@aws-sdk/client-s3', () => ({
   S3Client: vi.fn(() => ({ send: vi.fn(async () => ({})) })),
@@ -49,7 +49,7 @@ vi.mock('@aws-sdk/client-s3', () => ({
 }));
 
 // Mock SettingService to control what storage settings are returned
-vi.mock('@nb/setting/server/setting.service', () => ({
+vi.mock('@kuraykaraaslan/setting/server/setting.service', () => ({
   default: {
     getByKeys: vi.fn(async () => ({
       storageProvider: 'aws-s3',
@@ -91,11 +91,11 @@ const STORAGE_CONTRIBS = (['aws-s3', 'cloudflare-r2', 'digitalocean-spaces', 'mi
   moduleId: `storage_${key}`, key, metadata: {},
 }));
 
-vi.mock('@nb/setting/server/module-activation.service.next', () => ({
+vi.mock('@kuraykaraaslan/setting/server/module-activation.service.next', () => ({
   getEnabledModuleIds: vi.fn(async () => new Set(STORAGE_CONTRIBS.map((c) => c.moduleId).concat('storage'))),
 }));
 
-vi.mock('@nb/common/server/extension-registry', () => ({
+vi.mock('@kuraykaraaslan/common/server/extension-registry', () => ({
   extensionRegistry: {
     getContributions: (point: string, filter?: { enabledIds?: Set<string> }) =>
       point === 'storage:provider'
@@ -108,7 +108,7 @@ vi.mock('@nb/common/server/extension-registry', () => ({
 
 // Bypass feature gating in unit tests — tested separately in tenant_subscription/.
 // The gate lives in tenant_subscription.feature.service after the service split.
-vi.mock('@nb/tenant_subscription/server/tenant_subscription.feature.service', () => ({
+vi.mock('@kuraykaraaslan/tenant_subscription/server/tenant_subscription.feature.service', () => ({
   default: {
     assertFeatureAccess: vi.fn(async () => undefined),
     checkFeatureAccess: vi.fn(async () => ({ allowed: true, featureKey: '', type: 'BOOLEAN', limit: null, unlimited: null, current: null })),
@@ -116,7 +116,7 @@ vi.mock('@nb/tenant_subscription/server/tenant_subscription.feature.service', ()
 }));
 // Usage tracking is a side-effect of uploads — stub it so unit tests stay
 // focused on storage behaviour (named export, not default).
-vi.mock('@nb/tenant_usage/server/tenant_usage.service', () => ({
+vi.mock('@kuraykaraaslan/tenant_usage/server/tenant_usage.service', () => ({
   TenantUsageService: {
     getUsage: vi.fn(async () => ({ storageBytes: 0 })),
     incrementStorageBytes: vi.fn(async () => undefined),
@@ -138,8 +138,8 @@ vi.mock('../storage.scan.service', () => ({
 }));
 
 import StorageService from '../storage.service';
-import SettingService from '@nb/setting/server/setting.service';
-import { tenantDataSourceFor } from '@nb/db';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
 import { getScanConfig } from '../storage.scanner-factory';
 import { scan } from '../storage.scan.service';
 import { enqueueVirusScan } from '../storage.scan.job';

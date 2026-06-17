@@ -1,6 +1,6 @@
 import { vi } from 'vitest';
 
-vi.mock('@nb/env', () => ({
+vi.mock('@kuraykaraaslan/env', () => ({
   env: {
     DATABASE_URL: 'postgresql://test',
     REDIS_URL: 'redis://localhost:6379',
@@ -18,12 +18,12 @@ vi.mock('@nb/env', () => ({
   },
 }));
 
-vi.mock('@nb/db', () => ({
+vi.mock('@kuraykaraaslan/db', () => ({
   getDataSource: vi.fn(),
   tenantDataSourceFor: vi.fn(),
 }));
 
-vi.mock('@nb/redis', () => ({
+vi.mock('@kuraykaraaslan/redis', () => ({
   default: {
     get: vi.fn(async () => null),
     set: vi.fn(async () => 'OK'),
@@ -41,9 +41,9 @@ vi.mock('@nb/redis', () => ({
   jitter: (n: number) => n,
 }));
 
-vi.mock('@nb/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
+vi.mock('@kuraykaraaslan/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
 
-vi.mock('@nb/user_session/server/user_session.service', () => ({
+vi.mock('@kuraykaraaslan/user_session/server/user_session.service', () => ({
   default: {
     createImpersonationSession: vi.fn(async () => ({
       userSession: {
@@ -64,23 +64,23 @@ vi.mock('@nb/user_session/server/user_session.service', () => ({
   },
 }));
 
-vi.mock('@nb/audit_log/server/audit_log.service', () => ({
+vi.mock('@kuraykaraaslan/audit_log/server/audit_log.service', () => ({
   default: { log: vi.fn() },
 }));
 
 // Per-tenant settings — controlled per test via settingValues.
 export const settingValues: Record<string, string | null> = {};
-vi.mock('@nb/setting/server/setting.service', () => ({
+vi.mock('@kuraykaraaslan/setting/server/setting.service', () => ({
   default: {
     getValue: vi.fn(async (_tenantId: string, key: string) => settingValues[key] ?? null),
   },
 }));
 
-vi.mock('@nb/auth/server/auth.totp.service', () => ({
+vi.mock('@kuraykaraaslan/auth/server/auth.totp.service', () => ({
   default: { verifyAuthenticate: vi.fn(async () => ({ verified: true })) },
 }));
 
-vi.mock('@nb/webhook/server/webhook.service', () => ({
+vi.mock('@kuraykaraaslan/webhook/server/webhook.service', () => ({
   default: { dispatchEvent: vi.fn(async () => {}) },
 }));
 
@@ -91,11 +91,11 @@ vi.mock('bcrypt', () => ({
 }));
 
 // Mocked-module references re-exported so test files share one source of truth.
-import redisMock from '@nb/redis';
-import { getDataSource, tenantDataSourceFor } from '@nb/db';
-import UserSessionService from '@nb/user_session/server/user_session.service';
-import WebhookService from '@nb/webhook/server/webhook.service';
-import TOTPService from '@nb/auth/server/auth.totp.service';
+import redisMock from '@kuraykaraaslan/redis';
+import { getDataSource, tenantDataSourceFor } from '@kuraykaraaslan/db';
+import UserSessionService from '@kuraykaraaslan/user_session/server/user_session.service';
+import WebhookService from '@kuraykaraaslan/webhook/server/webhook.service';
+import TOTPService from '@kuraykaraaslan/auth/server/auth.totp.service';
 export { redisMock, getDataSource, tenantDataSourceFor, UserSessionService, WebhookService, TOTPService };
 
 export const REASON = 'Support ticket #999';

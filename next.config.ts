@@ -7,7 +7,7 @@ const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === "true",
 });
 
-// Each module is an `@nb/<id>` workspace package shipping raw TS/TSX source
+// Each module is an `@kuraykaraaslan/<id>` workspace package shipping raw TS/TSX source
 // (no per-package build step). Next must transpile them all. Derive the list
 // from every `modules/<id>/package.json` so adding a module needs no config edit.
 const modulesDir = path.join(process.cwd(), "modules");

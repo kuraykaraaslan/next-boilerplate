@@ -1,12 +1,12 @@
 'use client';
 
-import { Card } from '@nb/common/ui/card.component';
-import { RadioGroup } from '@nb/common/ui/radio-group.component';
+import { Card } from '@kuraykaraaslan/common/ui/card.component';
+import { RadioGroup } from '@kuraykaraaslan/common/ui/radio-group.component';
 import { WalletBadges } from './wallet-badges.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStripe, faPaypal } from '@fortawesome/free-brands-svg-icons';
-import type { WalletMethod } from '@nb/payment/server/payment.enums';
-import type { Provider } from '@nb/tenant_subscription/ui/subscription.helpers';
+import type { WalletMethod } from '@kuraykaraaslan/payment/server/payment.enums';
+import type { Provider } from '@kuraykaraaslan/tenant_subscription/ui/subscription.helpers';
 
 const PROVIDER_OPTIONS = [
   {

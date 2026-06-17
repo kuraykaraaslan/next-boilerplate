@@ -1,10 +1,10 @@
-import SettingService from '@nb/setting/server/setting.service';
-import Logger from '@nb/logger';
-import type { InvoiceAdapter, InvoiceAdapterSubmitResult } from '@nb/invoice/server/adapters/base.adapter';
-import type { Invoice } from '@nb/invoice/server/entities/invoice.entity';
-import type { InvoiceLine } from '@nb/invoice/server/entities/invoice_line.entity';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
+import Logger from '@kuraykaraaslan/logger';
+import type { InvoiceAdapter, InvoiceAdapterSubmitResult } from '@kuraykaraaslan/invoice/server/adapters/base.adapter';
+import type { Invoice } from '@kuraykaraaslan/invoice/server/entities/invoice.entity';
+import type { InvoiceLine } from '@kuraykaraaslan/invoice/server/entities/invoice_line.entity';
 import { buildFatturaPaXml } from './it_fatturapa.builder';
-import InvoiceSignatureService from '@nb/invoice/server/invoice.signature.service';
+import InvoiceSignatureService from '@kuraykaraaslan/invoice/server/invoice.signature.service';
 
 /**
  * Italy — **FatturaPA via SdI**. We build the real FatturaElettronica 1.2 XML,

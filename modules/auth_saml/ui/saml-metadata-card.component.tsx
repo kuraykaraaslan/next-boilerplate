@@ -1,10 +1,10 @@
 'use client';
 import { useState } from 'react';
-import { Card } from '@nb/common/ui/card.component';
-import { Button } from '@nb/common/ui/button.component';
+import { Card } from '@kuraykaraaslan/common/ui/card.component';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCopy, faCheck, faDownload, faExternalLink } from '@fortawesome/free-solid-svg-icons';
-import type { SamlMetadata } from '@nb/auth_saml/server/auth_saml.types';
+import type { SamlMetadata } from '@kuraykaraaslan/auth_saml/server/auth_saml.types';
 
 type Props = {
   tenantId: string;

@@ -1,8 +1,8 @@
 'use client';
 
-import { Button } from '@nb/common/ui/button.component';
-import type { TableColumn } from '@nb/common/ui/server-data-table.component';
-import type { SafeInvoice } from '@nb/invoice/server/invoice.types';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import type { TableColumn } from '@kuraykaraaslan/common/ui/server-data-table.component';
+import type { SafeInvoice } from '@kuraykaraaslan/invoice/server/invoice.types';
 
 export type InvoiceRow = Pick<
   SafeInvoice,

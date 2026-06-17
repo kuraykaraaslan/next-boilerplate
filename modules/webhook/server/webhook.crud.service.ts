@@ -1,14 +1,14 @@
 import 'reflect-metadata';
-import { tenantDataSourceFor } from '@nb/db';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
 import { Webhook as WebhookEntity } from './entities/webhook.entity';
 import { SafeWebhookSchema } from './webhook.types';
 import type { SafeWebhook } from './webhook.types';
 import type { CreateWebhookInput, UpdateWebhookInput, ListWebhooksInput } from './webhook.dto';
 import { assertSafeWebhookUrlSync } from './webhook.ssrf';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import WebhookMessages from './webhook.messages';
-import Logger from '@nb/logger';
-import AuditLogService from '@nb/audit_log/server/audit_log.service';
+import Logger from '@kuraykaraaslan/logger';
+import AuditLogService from '@kuraykaraaslan/audit_log/server/audit_log.service';
 import { generateSecret } from './webhook.crypto';
 
 /** Lifecycle audit trail for webhook administration (best-effort). */

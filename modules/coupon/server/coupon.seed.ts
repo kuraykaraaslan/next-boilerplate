@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import type { FindOptionsWhere } from 'typeorm';
-import type { SeedContext } from '@nb/seed/server/seed.context';
-import { SEED_USER_ID } from '@nb/seed/server/seed.context';
+import type { SeedContext } from '@kuraykaraaslan/seed/server/seed.context';
+import { SEED_USER_ID } from '@kuraykaraaslan/seed/server/seed.context';
 import { Coupon } from './entities/coupon.entity';
 import { CouponRedemption } from './entities/coupon_redemption.entity';
 

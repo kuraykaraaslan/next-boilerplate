@@ -1,8 +1,8 @@
 'use client';
-import { cn } from '@nb/common/server/utils/cn';
+import { cn } from '@kuraykaraaslan/common/server/utils/cn';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLock, faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
-import type { FeatureAccessResult } from '@nb/tenant_subscription/server/tenant_subscription.types';
+import type { FeatureAccessResult } from '@kuraykaraaslan/tenant_subscription/server/tenant_subscription.types';
 
 type Props = {
   result: FeatureAccessResult;

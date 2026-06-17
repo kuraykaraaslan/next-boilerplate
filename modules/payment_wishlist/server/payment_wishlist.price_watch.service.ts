@@ -1,14 +1,14 @@
 import 'reflect-metadata'
 import { In } from 'typeorm'
-import { tenantDataSourceFor } from '@nb/db'
-import Logger from '@nb/logger'
-import WebhookService from '@nb/webhook/server/webhook.service'
+import { tenantDataSourceFor } from '@kuraykaraaslan/db'
+import Logger from '@kuraykaraaslan/logger'
+import WebhookService from '@kuraykaraaslan/webhook/server/webhook.service'
 import { Wishlist as WishlistEntity } from './entities/wishlist.entity'
 import { WishlistItem as WishlistItemEntity } from './entities/wishlist_item.entity'
 import { WishlistPricePoint as PricePointEntity } from './entities/wishlist_price_point.entity'
-import { StoreProduct as ProductEntity } from '@nb/store/server/entities/store_product.entity'
-import { StoreProductSchema } from '@nb/store/server/store.types'
-import StorePricingService from '@nb/store/server/store.pricing.service'
+import { StoreProduct as ProductEntity } from '@kuraykaraaslan/store/server/entities/store_product.entity'
+import { StoreProductSchema } from '@kuraykaraaslan/store/server/store.types'
+import StorePricingService from '@kuraykaraaslan/store/server/store.pricing.service'
 
 export interface PriceWatchResult {
   scanned: number
@@ -122,13 +122,13 @@ export default class PaymentWishlistPriceWatchService {
       if (!userId) return
       let email = emailCache.get(userId)
       if (email === undefined) {
-        const { default: UserService } = await import('@nb/user/server/user.service')
+        const { default: UserService } = await import('@kuraykaraaslan/user/server/user.service')
         const user = await UserService.getById(userId).catch(() => null)
         email = user?.email ?? null
         emailCache.set(userId, email)
       }
       if (!email) return
-      const { default: NotificationMailQueueService } = await import('@nb/notification_mail/server/notification_mail.queue.service')
+      const { default: NotificationMailQueueService } = await import('@kuraykaraaslan/notification_mail/server/notification_mail.queue.service')
       const subject = event === 'wishlist.price_drop'
         ? `Price drop on ${payload.name}` : `${payload.name} is back in stock`
       const html = event === 'wishlist.price_drop'

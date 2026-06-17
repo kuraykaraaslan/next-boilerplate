@@ -1,10 +1,10 @@
 import 'reflect-metadata';
 import { IsNull } from 'typeorm';
-import { tenantDataSourceFor } from '@nb/db';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
 import { TenantMember as TenantMemberEntity } from './entities/tenant_member.entity';
 import { SafeTenantMember, SafeTenantMemberSchema } from './tenant_member.types';
 import type { TenantMemberRole } from './tenant_member.enums';
-import SettingService from '@nb/setting/server/setting.service';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
 
 export const ROLE_HIERARCHY: TenantMemberRole[] = ['OWNER', 'ADMIN', 'USER'];
 

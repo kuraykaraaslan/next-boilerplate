@@ -4,11 +4,11 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import type { BlockData, FieldSchema } from '../types'
 import { getCodeBlock } from '../utils/BlockRegistry'
 import { useEditorStore } from './stores/editorStore'
-import { toast } from '@nb/common/ui/toast.store'
+import { toast } from '@kuraykaraaslan/common/ui/toast.store'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCopy } from '@fortawesome/free-solid-svg-icons'
 import { PropFieldRenderer } from './partials/prop-field-renderer.component'
-import { PAGE_LAYOUTS } from '@nb/dynamic_page/server/dynamic_page.types'
+import { PAGE_LAYOUTS } from '@kuraykaraaslan/dynamic_page/server/dynamic_page.types'
 
 interface Props {
   block: BlockData | null

@@ -1,6 +1,6 @@
 import type { Worker } from 'bullmq';
-import { createQueue, createWorker } from '@nb/redis/server/redis.bullmq';
-import Logger from '@nb/logger';
+import { createQueue, createWorker } from '@kuraykaraaslan/redis/server/redis.bullmq';
+import Logger from '@kuraykaraaslan/logger';
 
 /**
  * Async AI moderation backstop. The keyword gate runs synchronously on the send

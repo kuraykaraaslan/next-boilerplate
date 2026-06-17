@@ -1,7 +1,7 @@
-import { tenantDataSourceFor } from '@nb/db';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
-import { parseSubnetString } from '@nb/network';
-import SettingService from '@nb/setting/server/setting.service';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
+import { parseSubnetString } from '@kuraykaraaslan/network';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
 import { API_KEY_SETTING_KEYS } from './api_key.setting.keys';
 import ApiKeyMessages from './api_key.messages';
 

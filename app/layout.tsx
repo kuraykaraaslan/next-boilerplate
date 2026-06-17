@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import FontAwesomeConfig from '@nb/common/ui/layout/font-awesome-config.component';
-import { SkipToContent } from '@nb/common/ui/skip-to-content.component';
-import { DemoModeNotice } from '@nb/common/ui/demo-mode-notice.component';
-import { DEFAULT_APP_NAME } from '@nb/common/server/page-metadata';
-import { env } from '@nb/env';
+import FontAwesomeConfig from '@kuraykaraaslan/common/ui/layout/font-awesome-config.component';
+import { SkipToContent } from '@kuraykaraaslan/common/ui/skip-to-content.component';
+import { DemoModeNotice } from '@kuraykaraaslan/common/ui/demo-mode-notice.component';
+import { DEFAULT_APP_NAME } from '@kuraykaraaslan/common/server/page-metadata';
+import { env } from '@kuraykaraaslan/env';
 import { Providers } from './providers';
 import './globals.css';
 

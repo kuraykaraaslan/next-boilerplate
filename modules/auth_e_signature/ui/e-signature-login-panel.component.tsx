@@ -2,11 +2,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faIdCard, faMobileScreen, faShieldHalved } from '@fortawesome/free-solid-svg-icons';
-import api from '@nb/common/server/axios';
-import { Form } from '@nb/common/ui/form.component';
-import { Input } from '@nb/common/ui/input.component';
-import { Button } from '@nb/common/ui/button.component';
-import { Spinner } from '@nb/common/ui/spinner.component';
+import api from '@kuraykaraaslan/common/server/axios';
+import { Form } from '@kuraykaraaslan/common/ui/form.component';
+import { Input } from '@kuraykaraaslan/common/ui/input.component';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import { Spinner } from '@kuraykaraaslan/common/ui/spinner.component';
 
 type ProviderHint = {
   id: string;

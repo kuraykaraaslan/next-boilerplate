@@ -2,12 +2,12 @@
 // Tenant-level settings panels extracted from the old monolithic Settings hub so
 // each can live on its own per-module page (General → tenant, Billing → payment).
 import { useState } from 'react';
-import { Card } from '@nb/common/ui/card.component';
-import { Input } from '@nb/common/ui/input.component';
-import { Select } from '@nb/common/ui/select.component';
+import { Card } from '@kuraykaraaslan/common/ui/card.component';
+import { Input } from '@kuraykaraaslan/common/ui/input.component';
+import { Select } from '@kuraykaraaslan/common/ui/select.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBuilding, faEnvelope, faPhone, faLocationDot } from '@fortawesome/free-solid-svg-icons';
-import { SaveRow, type SR } from '@nb/setting/ui/settings-kit.component';
+import { SaveRow, type SR } from '@kuraykaraaslan/setting/ui/settings-kit.component';
 
 type TabProps = { settings: SR; onSave: (patch: SR) => Promise<void>; saving: boolean };
 

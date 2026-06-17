@@ -1,6 +1,6 @@
 'use client';
-import { Badge } from '@nb/common/ui/badge.component';
-import type { UserRole } from '@nb/user/server/user.enums';
+import { Badge } from '@kuraykaraaslan/common/ui/badge.component';
+import type { UserRole } from '@kuraykaraaslan/user/server/user.enums';
 
 const roleMeta: Record<UserRole, { label: string; variant: 'error' | 'primary' | 'neutral' }> = {
   ADMIN: { label: 'Admin', variant: 'error' },

@@ -1,10 +1,11 @@
 import 'reflect-metadata';
-import { tenantDataSourceFor } from '@nb/db';
+import { Like } from 'typeorm';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
 import { Setting as SettingEntity } from './entities/setting.entity';
 import { SettingHistory } from './entities/setting_history.entity';
 import { Setting } from './setting.types';
 import SettingMessages from './setting.messages';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { validateSettingValue } from './setting.validation';
 import { getCacheKey, setCache, deleteCache } from './setting.cache';
 import { encryptValue, parseRow } from './setting.crypto';
@@ -35,7 +36,7 @@ export async function emitAuditLog(
   actorId?: string,
 ): Promise<void> {
   try {
-    const AuditLogService = (await import('@nb/audit_log/server/audit_log.service')).default;
+    const AuditLogService = (await import('@kuraykaraaslan/audit_log/server/audit_log.service')).default;
     await AuditLogService.log({
       tenantId,
       actorId,
@@ -163,4 +164,25 @@ export async function remove(
   await deleteCache(getCacheKey(tenantId));
   await emitAuditLog(tenantId, 'setting.deleted', key, options?.actorId);
   return parsed;
+}
+
+/**
+ * Delete every (non-locked) setting whose key starts with `prefix` for a tenant.
+ * Used by the marketplace to purge a module's config keys (e.g. `module.blog.`)
+ * on uninstall. Returns the number of rows removed.
+ */
+export async function removeByPrefix(
+  tenantId: string,
+  prefix: string,
+  options?: { actorId?: string },
+): Promise<number> {
+  const ds = await tenantDataSourceFor(tenantId);
+  const repo = ds.getRepository(SettingEntity);
+  const rows = await repo.find({ where: { tenantId, key: Like(`${prefix}%`) } });
+  const deletable = rows.filter((r) => !r.isLocked);
+  if (deletable.length === 0) return 0;
+  await repo.delete(deletable.map((r) => ({ tenantId, key: r.key })));
+  await deleteCache(getCacheKey(tenantId));
+  await emitAuditLog(tenantId, 'setting.deleted', `${prefix}* (${deletable.length})`, options?.actorId);
+  return deletable.length;
 }

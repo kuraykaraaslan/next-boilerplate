@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import Limiter from '@nb/limiter/server/limiter.service.next'
-import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next'
-import BlogPostService from '@nb/blog/server/blog.post.service'
-import { CreatePostDTO, GetPostsQuery } from '@nb/blog/server/blog.dto'
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next'
+import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next'
+import BlogPostService from '@kuraykaraaslan/blog/server/blog.post.service'
+import { CreatePostDTO, GetPostsQuery } from '@kuraykaraaslan/blog/server/blog.dto'
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ tenantId: string }> }) {
   const rl = await Limiter.checkRateLimit(request); if (rl) return rl

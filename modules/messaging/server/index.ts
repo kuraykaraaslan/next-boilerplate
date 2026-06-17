@@ -3,9 +3,9 @@ import 'dotenv/config';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { createAdapter } from '@socket.io/redis-adapter';
-import { createRedisConnection } from '@nb/redis';
-import { env } from '@nb/env';
-import Logger from '@nb/logger';
+import { createRedisConnection } from '@kuraykaraaslan/redis';
+import { env } from '@kuraykaraaslan/env';
+import Logger from '@kuraykaraaslan/logger';
 import { WS_EVENTS } from './messaging.enums';
 import {
   RT_CHANNEL,

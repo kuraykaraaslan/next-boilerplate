@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Modal } from '@nb/common/ui/modal.component'
+import { Modal } from '@kuraykaraaslan/common/ui/modal.component'
 import { useEditorStore } from './stores/editorStore'
 
 const LANG_NAMES: Record<string, string> = {

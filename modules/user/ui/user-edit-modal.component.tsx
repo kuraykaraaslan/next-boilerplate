@@ -1,19 +1,19 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import api from '@nb/common/server/axios';
-import { Button } from '@nb/common/ui/button.component';
-import { Input } from '@nb/common/ui/input.component';
-import { Select } from '@nb/common/ui/select.component';
-import { Badge } from '@nb/common/ui/badge.component';
-import { Modal } from '@nb/common/ui/modal.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
-import { Spinner } from '@nb/common/ui/spinner.component';
+import api from '@kuraykaraaslan/common/server/axios';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import { Input } from '@kuraykaraaslan/common/ui/input.component';
+import { Select } from '@kuraykaraaslan/common/ui/select.component';
+import { Badge } from '@kuraykaraaslan/common/ui/badge.component';
+import { Modal } from '@kuraykaraaslan/common/ui/modal.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
+import { Spinner } from '@kuraykaraaslan/common/ui/spinner.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBuilding, faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
-import type { UserRole, UserStatus } from '@nb/user/server/user.enums';
-import type { TenantMemberRole as MemberRole, TenantMemberStatus as MemberStatus } from '@nb/tenant_member/server/tenant_member.enums';
-import type { TenantStatus } from '@nb/tenant/server/tenant.enums';
+import type { UserRole, UserStatus } from '@kuraykaraaslan/user/server/user.enums';
+import type { TenantMemberRole as MemberRole, TenantMemberStatus as MemberStatus } from '@kuraykaraaslan/tenant_member/server/tenant_member.enums';
+import type { TenantStatus } from '@kuraykaraaslan/tenant/server/tenant.enums';
 import type { UserRow } from './user-list-columns.component';
 
 type Membership = {

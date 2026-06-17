@@ -1,8 +1,8 @@
 import 'reflect-metadata';
 import 'dotenv/config';
 import { Client } from 'pg';
-import { env } from '@nb/env';
-import { parseDbUrl } from '@nb/db/server/db.utils';
+import { env } from '@kuraykaraaslan/env';
+import { parseDbUrl } from '@kuraykaraaslan/db/server/db.utils';
 
 async function resetSchema(databaseUrl: string, label: string) {
   const { url, schema } = parseDbUrl(databaseUrl);

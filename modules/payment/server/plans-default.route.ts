@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import TenantFeatureGateService from '@nb/tenant_subscription/server/tenant_subscription.feature.service';
-import { SUBSCRIPTION_MESSAGES } from '@nb/tenant_subscription/server/tenant_subscription.messages';
-import Limiter from '@nb/limiter/server/limiter.service.next';
-import { authenticateAdminRequest } from '@nb/auth/server/auth.admin-guard.next';
+import TenantFeatureGateService from '@kuraykaraaslan/tenant_subscription/server/tenant_subscription.feature.service';
+import { SUBSCRIPTION_MESSAGES } from '@kuraykaraaslan/tenant_subscription/server/tenant_subscription.messages';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
+import { authenticateAdminRequest } from '@kuraykaraaslan/auth/server/auth.admin-guard.next';
 
 const SetDefaultPlanSchema = z.object({
   planId: z.string().uuid().nullable(),

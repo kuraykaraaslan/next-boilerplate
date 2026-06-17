@@ -1,10 +1,10 @@
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
-import BaseStorageProvider from '@nb/storage/server/providers/base.provider'
-import type { UploadOptions, UploadFromUrlOptions, ProviderUploadResult, S3Config } from '@nb/storage/server/storage.types'
-import Logger from '@nb/logger'
+import BaseStorageProvider from '@kuraykaraaslan/storage/server/providers/base.provider'
+import type { UploadOptions, UploadFromUrlOptions, ProviderUploadResult, S3Config } from '@kuraykaraaslan/storage/server/storage.types'
+import Logger from '@kuraykaraaslan/logger'
 import { v4 as uuidv4 } from 'uuid'
-import { StorageExtensionSchema, StorageMimeTypeSchema } from '@nb/storage/server/storage.enums'
-import { isValidStorageFolder } from '@nb/storage/server/storage.folders'
+import { StorageExtensionSchema, StorageMimeTypeSchema } from '@kuraykaraaslan/storage/server/storage.enums'
+import { isValidStorageFolder } from '@kuraykaraaslan/storage/server/storage.folders'
 
 export default class CloudflareR2Provider extends BaseStorageProvider {
   private s3Client: S3Client

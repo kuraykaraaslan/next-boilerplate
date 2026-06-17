@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { tenantDataSourceFor } from '@nb/db';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
 import { Message as MessageEntity } from './entities/message.entity';
 import { SafeMessageSchema, type SafeMessage } from './messaging.types';
 import type { ListMessagesInput } from './messaging.dto';

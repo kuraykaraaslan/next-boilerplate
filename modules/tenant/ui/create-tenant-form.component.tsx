@@ -1,8 +1,8 @@
 'use client';
 import { useState } from 'react';
-import { Input } from '@nb/common/ui/input.component';
-import { Button } from '@nb/common/ui/button.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
+import { Input } from '@kuraykaraaslan/common/ui/input.component';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBuilding, faLink } from '@fortawesome/free-solid-svg-icons';
 

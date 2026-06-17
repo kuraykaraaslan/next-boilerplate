@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TENANT_ID, mockSetting, makeSettingRepo, makeDs, setupSystemDs } from './setting.test-setup';
 import SettingService from '../setting.service';
-import { tenantDataSourceFor } from '@nb/db';
-import redis from '@nb/redis';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import redis from '@kuraykaraaslan/redis';
 import SettingMessages from '../setting.messages';
 
 describe('SettingService.create', () => {

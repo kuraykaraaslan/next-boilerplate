@@ -1,6 +1,6 @@
 'use client';
-import { Badge } from '@nb/common/ui/badge.component';
-import type { UserStatus } from '@nb/user/server/user.enums';
+import { Badge } from '@kuraykaraaslan/common/ui/badge.component';
+import type { UserStatus } from '@kuraykaraaslan/user/server/user.enums';
 
 const statusMeta: Record<UserStatus, { label: string; variant: 'success' | 'neutral' | 'warning' | 'error' }> = {
   ACTIVE:    { label: 'Active',    variant: 'success' },

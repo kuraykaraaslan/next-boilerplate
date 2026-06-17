@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Limiter from '@nb/limiter/server/limiter.service.next';
-import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
-import MediaGalleryService from '@nb/media_gallery/server/media_gallery.service';
-import { AddGalleryItemDTO } from '@nb/media_gallery/server/media_gallery.dto';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
+import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next';
+import MediaGalleryService from '@kuraykaraaslan/media_gallery/server/media_gallery.service';
+import { AddGalleryItemDTO } from '@kuraykaraaslan/media_gallery/server/media_gallery.dto';
 
 type Ctx = { params: Promise<{ tenantId: string; entityType: string; entityId: string }> };
 

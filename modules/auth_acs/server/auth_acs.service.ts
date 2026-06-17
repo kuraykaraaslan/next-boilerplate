@@ -1,4 +1,4 @@
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { type AcsProvider } from './auth_acs.enums';
 import type { AcsProfile } from './auth_acs.types';
 import AuthAcsConfigService from './auth_acs.config.service';
@@ -42,7 +42,7 @@ export default class AuthAcsService {
 
   static async authenticate(
     provider: AcsProvider, body: Record<string, string>, ctx: AcsFlowContext = {},
-  ): Promise<{ user: import('@nb/user/server/user.types').SafeUser; isNewUser: boolean; profile: AcsProfile }> {
+  ): Promise<{ user: import('@kuraykaraaslan/user/server/user.types').SafeUser; isNewUser: boolean; profile: AcsProfile }> {
     const profile = await AuthAcsService.validateCallback(provider, body);
     const { user, isNewUser } = await AuthAcsFlowService.resolveOrProvisionUser(profile, ctx);
     return { user, isNewUser, profile };

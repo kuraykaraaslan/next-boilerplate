@@ -1,0 +1,714 @@
+{
+  "generatedAt": "2026-06-17T07:35:46.548Z",
+  "modules": {
+    "terms_consent": [
+      {
+        "tableName": "agreements",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "agreement_acceptances",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "agreement_versions",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "consent_records",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "ai": [
+      {
+        "tableName": "ai_usage_logs",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "analytics": [
+      {
+        "tableName": "analytics_events",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "api_key": [
+      {
+        "tableName": "api_keys",
+        "schema": "tenant",
+        "hasTenantId": true
+      }
+    ],
+    "approval": [
+      {
+        "tableName": "approval_queue_items",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "audit_log": [
+      {
+        "tableName": "audit_logs",
+        "schema": "tenant",
+        "hasTenantId": true
+      }
+    ],
+    "blog": [
+      {
+        "tableName": "blog_categories",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "blog_comments",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "blog_posts",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "payment_cart": [
+      {
+        "tableName": "carts",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "cart_items",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "integrations_hub": [
+      {
+        "tableName": "connected_apps",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "connectors",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "integration_events",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "integration_oauth_tokens",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "messaging": [
+      {
+        "tableName": "conversations",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "conversation_participants",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "messages",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "message_reports",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "coupon": [
+      {
+        "tableName": "coupons",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "coupon_redemptions",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "dynamic_page": [
+      {
+        "tableName": "dynamic_collections",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "dynamic_collection_items",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "dynamic_pages",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "dynamic_page_blocks",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "dynamic_page_translations",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "dynamic_page_versions",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "feature_flags": [
+      {
+        "tableName": "feature_flags",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "feature_flag_overrides",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "order_fulfillment": [
+      {
+        "tableName": "fulfillments",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "fulfillment_events",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "fulfillment_items",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "fulfillment_warehouses",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "gift_card": [
+      {
+        "tableName": "gift_cards",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "gift_card_transactions",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "invoice": [
+      {
+        "tableName": "invoices",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "invoice_lines",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "payment_loyalty_points": [
+      {
+        "tableName": "loyalty_accounts",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "loyalty_tiers",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "loyalty_transactions",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "media_gallery": [
+      {
+        "tableName": "media_galleries",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "media_gallery_items",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "metering": [
+      {
+        "tableName": "meter_definitions",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "metered_billing_runs",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "metered_usage_events",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "marketplace": [
+      {
+        "tableName": "module_installs",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "marketplace_listings",
+        "schema": "system",
+        "hasTenantId": false
+      },
+      {
+        "tableName": "marketplace_listing_versions",
+        "schema": "system",
+        "hasTenantId": false
+      },
+      {
+        "tableName": "marketplace_publishers",
+        "schema": "system",
+        "hasTenantId": false
+      }
+    ],
+    "notification_log": [
+      {
+        "tableName": "notification_logs",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "payment": [
+      {
+        "tableName": "payments",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "payment_transactions",
+        "schema": "system",
+        "hasTenantId": false
+      },
+      {
+        "tableName": "plan_features",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "subscription_plans",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "payment_sell": [
+      {
+        "tableName": "payments",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "payment_transactions",
+        "schema": "system",
+        "hasTenantId": false
+      }
+    ],
+    "payment_subscription": [
+      {
+        "tableName": "plan_features",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "subscriptions",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "subscription_plans",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "product_review": [
+      {
+        "tableName": "product_reviews",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "product_review_votes",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "notification_push": [
+      {
+        "tableName": "push_subscriptions",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "payment_return_rma": [
+      {
+        "tableName": "return_events",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "return_items",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "return_requests",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "auth_saml": [
+      {
+        "tableName": "saml_configs",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "scim": [
+      {
+        "tableName": "scim_groups",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "scim_group_members",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "search": [
+      {
+        "tableName": "search_documents",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "seo": [
+      {
+        "tableName": "seo_meta",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "setting": [
+      {
+        "tableName": "settings",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "setting_history",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "payment_shipping": [
+      {
+        "tableName": "shipping_methods",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "shipping_rates",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "auth_e_signature": [
+      {
+        "tableName": "signing_certificates",
+        "schema": "system",
+        "hasTenantId": false
+      }
+    ],
+    "store": [
+      {
+        "tableName": "store_bundles",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "store_bundle_items",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "store_categories",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "store_category_specs",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "store_products",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "store_product_images",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "store_product_spec_values",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "store_product_variants",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "store_variant_groups",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "store_variant_group_items",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "store_variation_options",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "store_variation_types",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "support": [
+      {
+        "tableName": "support_tickets",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "support_ticket_messages",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "payment_tax": [
+      {
+        "tableName": "tax_classes",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "tax_rates",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "tenant": [
+      {
+        "tableName": "tenants",
+        "schema": "tenant",
+        "hasTenantId": true
+      }
+    ],
+    "db": [
+      {
+        "tableName": "tenant_databases",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "tenant_domain": [
+      {
+        "tableName": "tenant_domains",
+        "schema": "tenant",
+        "hasTenantId": true
+      }
+    ],
+    "tenant_export": [
+      {
+        "tableName": "tenant_export_jobs",
+        "schema": "tenant",
+        "hasTenantId": true
+      }
+    ],
+    "tenant_invitation": [
+      {
+        "tableName": "tenant_invitations",
+        "schema": "tenant",
+        "hasTenantId": true
+      }
+    ],
+    "tenant_member": [
+      {
+        "tableName": "tenant_members",
+        "schema": "tenant",
+        "hasTenantId": true
+      }
+    ],
+    "tenant_subscription": [
+      {
+        "tableName": "tenant_subscriptions",
+        "schema": "tenant",
+        "hasTenantId": true
+      }
+    ],
+    "tenant_usage": [
+      {
+        "tableName": "tenant_usage",
+        "schema": "tenant",
+        "hasTenantId": true
+      }
+    ],
+    "e_signature": [
+      {
+        "tableName": "trust_list_entries",
+        "schema": "system",
+        "hasTenantId": false
+      }
+    ],
+    "storage": [
+      {
+        "tableName": "uploaded_files",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "user": [
+      {
+        "tableName": "users",
+        "schema": "system",
+        "hasTenantId": false
+      }
+    ],
+    "auth": [
+      {
+        "tableName": "user_consents",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "user_preferences": [
+      {
+        "tableName": "user_preferences",
+        "schema": "system",
+        "hasTenantId": false
+      }
+    ],
+    "user_profile": [
+      {
+        "tableName": "user_profiles",
+        "schema": "system",
+        "hasTenantId": false
+      }
+    ],
+    "user_security": [
+      {
+        "tableName": "user_securities",
+        "schema": "system",
+        "hasTenantId": false
+      }
+    ],
+    "user_session": [
+      {
+        "tableName": "user_sessions",
+        "schema": "system",
+        "hasTenantId": false
+      }
+    ],
+    "user_social_account": [
+      {
+        "tableName": "user_social_accounts",
+        "schema": "system",
+        "hasTenantId": false
+      }
+    ],
+    "wallet": [
+      {
+        "tableName": "wallet_accounts",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "wallet_postings",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "wallet_transactions",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "webhook": [
+      {
+        "tableName": "webhooks",
+        "schema": "tenant",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "webhook_deliveries",
+        "schema": "tenant",
+        "hasTenantId": true
+      }
+    ],
+    "payment_wishlist": [
+      {
+        "tableName": "wishlists",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "wishlist_items",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "wishlist_price_points",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ]
+  }
+}

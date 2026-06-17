@@ -1,6 +1,6 @@
-import redis from '@nb/redis';
-import Logger from '@nb/logger';
-import { tenantDataSourceFor } from '@nb/db';
+import redis from '@kuraykaraaslan/redis';
+import Logger from '@kuraykaraaslan/logger';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
 import { TenantUsage } from './entities/tenant_usage.entity';
 import { METRICS, redisKey } from './tenant_usage.keys';
 

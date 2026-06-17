@@ -1,5 +1,5 @@
 import 'reflect-metadata'
-import { tenantDataSourceFor } from '@nb/db'
+import { tenantDataSourceFor } from '@kuraykaraaslan/db'
 import { WishlistItem as WishlistItemEntity } from './entities/wishlist_item.entity'
 
 /**
@@ -14,10 +14,10 @@ export async function addAllToCart(
   const items = await ds.getRepository(WishlistItemEntity).find({ where: { tenantId, wishlistId } })
   if (items.length === 0) return { added: 0, skipped: 0 }
 
-  const { StoreProduct: ProductEntity } = await import('@nb/store/server/entities/store_product.entity')
-  const { StoreProductSchema } = await import('@nb/store/server/store.types')
-  const { default: StorePricingService } = await import('@nb/store/server/store.pricing.service')
-  const { default: PaymentCartService } = await import('@nb/payment_cart/server/payment_cart.service')
+  const { StoreProduct: ProductEntity } = await import('@kuraykaraaslan/store/server/entities/store_product.entity')
+  const { StoreProductSchema } = await import('@kuraykaraaslan/store/server/store.types')
+  const { default: StorePricingService } = await import('@kuraykaraaslan/store/server/store.pricing.service')
+  const { default: PaymentCartService } = await import('@kuraykaraaslan/payment_cart/server/payment_cart.service')
 
   const cart = await PaymentCartService.getOrCreateCart(tenantId, { userId: opts.userId, guestToken: opts.guestToken, currency: opts.currency ?? 'USD' })
   const productRepo = ds.getRepository(ProductEntity)

@@ -1,42 +1,42 @@
 import 'reflect-metadata';
-import { getDataSource, tenantDataSourceFor } from '@nb/db';
-import { ROOT_TENANT_ID } from '@nb/tenant/server/tenant.constants';
-import { env } from '@nb/env';
+import { getDataSource, tenantDataSourceFor } from '@kuraykaraaslan/db';
+import { ROOT_TENANT_ID } from '@kuraykaraaslan/tenant/server/tenant.constants';
+import { env } from '@kuraykaraaslan/env';
 import { makeSeedContext, type ModuleSeeder, type SeedContext, type SeedProfile } from './seed.context';
 
 // Identity / system base ------------------------------------------------------
-import { seedUser } from '@nb/user/server/user.seed';
-import { seedUserProfile } from '@nb/user_profile/server/user_profile.seed';
-import { seedUserSecurity } from '@nb/user_security/server/user_security.seed';
-import { seedUserPreferences } from '@nb/user_preferences/server/user_preferences.seed';
-import { seedUserSession } from '@nb/user_session/server/user_session.seed';
-import { seedUserSocialAccount } from '@nb/user_social_account/server/user_social_account.seed';
-import { seedTenant } from '@nb/tenant/server/tenant.seed';
-import { seedTenantDomain } from '@nb/tenant_domain/server/tenant_domain.seed';
-import { seedTenantMember } from '@nb/tenant_member/server/tenant_member.seed';
-import { seedTenantInvitation } from '@nb/tenant_invitation/server/tenant_invitation.seed';
-import { seedTenantSubscription } from '@nb/tenant_subscription/server/tenant_subscription.seed';
-import { seedTenantUsage } from '@nb/tenant_usage/server/tenant_usage.seed';
-import { seedSetting } from '@nb/setting/server/setting.seed';
-import { seedApiKey } from '@nb/api_key/server/api_key.seed';
-import { seedAuthSaml } from '@nb/auth_saml/server/auth_saml.seed';
-import { seedESignature } from '@nb/e_signature/server/e_signature.seed';
-import { seedAuthESignature } from '@nb/auth_e_signature/server/auth_e_signature.seed';
-import { seedStorage } from '@nb/storage/server/storage.seed';
-import { seedWebhook } from '@nb/webhook/server/webhook.seed';
-import { seedAi } from '@nb/ai/server/ai.seed';
-import { seedNotificationLog } from '@nb/notification_log/server/notification_log.seed';
-import { seedNotificationPush } from '@nb/notification_push/server/notification_push.seed';
+import { seedUser } from '@kuraykaraaslan/user/server/user.seed';
+import { seedUserProfile } from '@kuraykaraaslan/user_profile/server/user_profile.seed';
+import { seedUserSecurity } from '@kuraykaraaslan/user_security/server/user_security.seed';
+import { seedUserPreferences } from '@kuraykaraaslan/user_preferences/server/user_preferences.seed';
+import { seedUserSession } from '@kuraykaraaslan/user_session/server/user_session.seed';
+import { seedUserSocialAccount } from '@kuraykaraaslan/user_social_account/server/user_social_account.seed';
+import { seedTenant } from '@kuraykaraaslan/tenant/server/tenant.seed';
+import { seedTenantDomain } from '@kuraykaraaslan/tenant_domain/server/tenant_domain.seed';
+import { seedTenantMember } from '@kuraykaraaslan/tenant_member/server/tenant_member.seed';
+import { seedTenantInvitation } from '@kuraykaraaslan/tenant_invitation/server/tenant_invitation.seed';
+import { seedTenantSubscription } from '@kuraykaraaslan/tenant_subscription/server/tenant_subscription.seed';
+import { seedTenantUsage } from '@kuraykaraaslan/tenant_usage/server/tenant_usage.seed';
+import { seedSetting } from '@kuraykaraaslan/setting/server/setting.seed';
+import { seedApiKey } from '@kuraykaraaslan/api_key/server/api_key.seed';
+import { seedAuthSaml } from '@kuraykaraaslan/auth_saml/server/auth_saml.seed';
+import { seedESignature } from '@kuraykaraaslan/e_signature/server/e_signature.seed';
+import { seedAuthESignature } from '@kuraykaraaslan/auth_e_signature/server/auth_e_signature.seed';
+import { seedStorage } from '@kuraykaraaslan/storage/server/storage.seed';
+import { seedWebhook } from '@kuraykaraaslan/webhook/server/webhook.seed';
+import { seedAi } from '@kuraykaraaslan/ai/server/ai.seed';
+import { seedNotificationLog } from '@kuraykaraaslan/notification_log/server/notification_log.seed';
+import { seedNotificationPush } from '@kuraykaraaslan/notification_push/server/notification_push.seed';
 
 // Catalog ---------------------------------------------------------------------
-import { seedStore } from '@nb/store/server/store.seed';
+import { seedStore } from '@kuraykaraaslan/store/server/store.seed';
 
 // Pricing infra ---------------------------------------------------------------
-import { seedPaymentShipping } from '@nb/payment_shipping/server/payment_shipping.seed';
-import { seedPaymentTax } from '@nb/payment_tax/server/payment_tax.seed';
+import { seedPaymentShipping } from '@kuraykaraaslan/payment_shipping/server/payment_shipping.seed';
+import { seedPaymentTax } from '@kuraykaraaslan/payment_tax/server/payment_tax.seed';
 
 // Payments & subscriptions ----------------------------------------------------
-import { seedPayment } from '@nb/payment/server/payment.seed';
+import { seedPayment } from '@kuraykaraaslan/payment/server/payment.seed';
 // NOTE: `payment_sell` and `payment_subscription` also ship <module>.seed.ts files,
 // but their entities duplicate the canonical `payment` module's tables (payments,
 // payment_transactions, subscription_plans, plan_features) and are NOT registered in
@@ -44,31 +44,31 @@ import { seedPayment } from '@nb/payment/server/payment.seed';
 // so they are intentionally excluded from the runner.
 
 // Promotions ------------------------------------------------------------------
-import { seedCoupon } from '@nb/coupon/server/coupon.seed';
+import { seedCoupon } from '@kuraykaraaslan/coupon/server/coupon.seed';
 
 // Orders ----------------------------------------------------------------------
-import { seedOrderFulfillment } from '@nb/order_fulfillment/server/order_fulfillment.seed';
+import { seedOrderFulfillment } from '@kuraykaraaslan/order_fulfillment/server/order_fulfillment.seed';
 
 // Order-dependent commerce ----------------------------------------------------
-import { seedPaymentCart } from '@nb/payment_cart/server/payment_cart.seed';
-import { seedPaymentReturnRma } from '@nb/payment_return_rma/server/payment_return_rma.seed';
-import { seedPaymentLoyaltyPoints } from '@nb/payment_loyalty_points/server/payment_loyalty_points.seed';
+import { seedPaymentCart } from '@kuraykaraaslan/payment_cart/server/payment_cart.seed';
+import { seedPaymentReturnRma } from '@kuraykaraaslan/payment_return_rma/server/payment_return_rma.seed';
+import { seedPaymentLoyaltyPoints } from '@kuraykaraaslan/payment_loyalty_points/server/payment_loyalty_points.seed';
 
 // Catalog-dependent commerce --------------------------------------------------
-import { seedPaymentWishlist } from '@nb/payment_wishlist/server/payment_wishlist.seed';
-import { seedProductReview } from '@nb/product_review/server/product_review.seed';
+import { seedPaymentWishlist } from '@kuraykaraaslan/payment_wishlist/server/payment_wishlist.seed';
+import { seedProductReview } from '@kuraykaraaslan/product_review/server/product_review.seed';
 
 // Billing docs ----------------------------------------------------------------
-import { seedInvoice } from '@nb/invoice/server/invoice.seed';
+import { seedInvoice } from '@kuraykaraaslan/invoice/server/invoice.seed';
 
 // Content ---------------------------------------------------------------------
-import { seedMediaGallery } from '@nb/media_gallery/server/media_gallery.seed';
-import { seedSeo } from '@nb/seo/server';
-import { seedDynamicPage } from '@nb/dynamic_page/server/dynamic_page.seed';
-import { seedBlog } from '@nb/blog/server/blog.seed';
+import { seedMediaGallery } from '@kuraykaraaslan/media_gallery/server/media_gallery.seed';
+import { seedSeo } from '@kuraykaraaslan/seo/server';
+import { seedDynamicPage } from '@kuraykaraaslan/dynamic_page/server/dynamic_page.seed';
+import { seedBlog } from '@kuraykaraaslan/blog/server/blog.seed';
 
 // Cross-cutting (references many other ids — runs last) -----------------------
-import { seedAuditLog } from '@nb/audit_log/server/audit_log.seed';
+import { seedAuditLog } from '@kuraykaraaslan/audit_log/server/audit_log.seed';
 
 /**
  * Module seeders in dependency order: a seeder may read any `ctx.refs.*` that a
@@ -233,6 +233,6 @@ export async function assertSeeded(tenantId?: string): Promise<{ ok: boolean; ch
  */
 export async function snapshotSeed(tenantId?: string): Promise<Buffer> {
   const target = tenantId || process.env.SEED_TENANT_ID || ROOT_TENANT_ID;
-  const { default: TenantExportService } = await import('@nb/tenant_export/server/tenant_export.service');
+  const { default: TenantExportService } = await import('@kuraykaraaslan/tenant_export/server/tenant_export.service');
   return TenantExportService.exportTenantData(target, {});
 }

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Limiter from '@nb/limiter/server/limiter.service.next';
-import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
-import { FeatureFlagsService, SetOverrideDTO } from '@nb/feature_flags';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
+import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next';
+import { FeatureFlagsService, SetOverrideDTO } from '@kuraykaraaslan/feature_flags';
 
 type Ctx = { params: Promise<{ tenantId: string; key: string }> };
 

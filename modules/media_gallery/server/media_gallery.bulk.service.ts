@@ -1,9 +1,9 @@
 import 'reflect-metadata';
 import { In } from 'typeorm';
-import { tenantDataSourceFor } from '@nb/db';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { MediaGalleryItem as ItemEntity } from './entities/media_gallery_item.entity';
-import { UploadedFile } from '@nb/storage/server/entities/uploaded_file.entity';
+import { UploadedFile } from '@kuraykaraaslan/storage/server/entities/uploaded_file.entity';
 import { type MediaGalleryItemView } from './media_gallery.types';
 import type { BulkAddGalleryItemsDTO } from './media_gallery.dto';
 import { MEDIA_GALLERY_MESSAGES } from './media_gallery.messages';

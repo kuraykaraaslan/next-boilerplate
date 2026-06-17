@@ -1,8 +1,8 @@
 import 'reflect-metadata';
-import { tenantDataSourceFor } from '@nb/db';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
-import AuditLogService from '@nb/audit_log/server/audit_log.service';
-import SettingService from '@nb/setting/server/setting.service';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
+import AuditLogService from '@kuraykaraaslan/audit_log/server/audit_log.service';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
 import { Agreement as AgreementEntity } from './entities/agreement.entity';
 import { AgreementVersion as AgreementVersionEntity } from './entities/agreement_version.entity';
 import { AgreementAcceptance as AgreementAcceptanceEntity } from './entities/agreement_acceptance.entity';

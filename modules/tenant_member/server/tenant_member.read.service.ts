@@ -1,15 +1,15 @@
 import 'reflect-metadata';
 import { IsNull, ILike, In } from 'typeorm';
 import type { FindOptionsWhere } from 'typeorm';
-import { getDataSource, tenantDataSourceFor } from '@nb/db';
-import { User as UserEntity } from '@nb/user/server/entities/user.entity';
-import { Tenant as TenantEntity } from '@nb/tenant/server/entities/tenant.entity';
+import { getDataSource, tenantDataSourceFor } from '@kuraykaraaslan/db';
+import { User as UserEntity } from '@kuraykaraaslan/user/server/entities/user.entity';
+import { Tenant as TenantEntity } from '@kuraykaraaslan/tenant/server/entities/tenant.entity';
 import { TenantMember as TenantMemberEntity } from './entities/tenant_member.entity';
 import { SafeTenantMember, SafeTenantMemberSchema } from './tenant_member.types';
-import { SafeUserSchema } from '@nb/user/server/user.types';
+import { SafeUserSchema } from '@kuraykaraaslan/user/server/user.types';
 import { GetTenantMembersInput, GetTenantMemberInput } from './tenant_member.dto';
 import TenantMemberMessages from './tenant_member.messages';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 
 export async function getByTenantId({ tenantId, page, pageSize, search, memberRole, memberStatus }: GetTenantMembersInput): Promise<{ members: SafeTenantMember[]; total: number }> {
   const whereBase: Record<string, unknown> = { tenantId, deletedAt: IsNull() };

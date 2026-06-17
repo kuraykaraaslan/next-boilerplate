@@ -1,5 +1,5 @@
-import SettingService from '@nb/setting/server/setting.service'
-import { currencyMinorUnits } from '@nb/payment_core'
+import SettingService from '@kuraykaraaslan/setting/server/setting.service'
+import { currencyMinorUnits } from '@kuraykaraaslan/payment_core'
 
 /**
  * Small, dependency-light payment helpers:

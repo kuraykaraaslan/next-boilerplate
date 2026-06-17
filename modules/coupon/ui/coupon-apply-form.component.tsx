@@ -2,9 +2,9 @@
 import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTag, faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
-import { Button } from '@nb/common/ui/button.component';
-import { Spinner } from '@nb/common/ui/spinner.component';
-import api from '@nb/common/server/axios';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import { Spinner } from '@kuraykaraaslan/common/ui/spinner.component';
+import api from '@kuraykaraaslan/common/server/axios';
 
 type ValidationResult = {
   valid: boolean;

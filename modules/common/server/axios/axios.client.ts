@@ -1,8 +1,8 @@
 'use client';
 
 import axios from 'axios';
-import { AuthMessages } from '@nb/auth/server/auth.messages';
-import UserSessionMessages from '@nb/user_session/server/user_session.messages';
+import { AuthMessages } from '@kuraykaraaslan/auth/server/auth.messages';
+import UserSessionMessages from '@kuraykaraaslan/user_session/server/user_session.messages';
 
 const CSRF_HEADER_NAME = 'x-csrf-token';
 const CSRF_COOKIE_NAME = 'csrf-token';

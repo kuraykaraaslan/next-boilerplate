@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { TenantInvitationStatusEnum } from './tenant_invitation.enums';
-import { TenantMemberRoleEnum } from '@nb/tenant_member/server/tenant_member.enums';
+import { TenantMemberRoleEnum } from '@kuraykaraaslan/tenant_member/server/tenant_member.enums';
 
 export const TenantInvitationSchema = z.object({
   invitationId: z.string().uuid(),

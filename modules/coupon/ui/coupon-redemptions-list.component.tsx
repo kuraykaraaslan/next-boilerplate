@@ -1,12 +1,12 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { Spinner } from '@nb/common/ui/spinner.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
-import { EmptyState } from '@nb/common/ui/empty-state.component';
+import { Spinner } from '@kuraykaraaslan/common/ui/spinner.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
+import { EmptyState } from '@kuraykaraaslan/common/ui/empty-state.component';
 import { CouponBadge } from './coupon-badge.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTag } from '@fortawesome/free-solid-svg-icons';
-import api from '@nb/common/server/axios';
+import api from '@kuraykaraaslan/common/server/axios';
 
 type Redemption = {
   redemptionId: string;

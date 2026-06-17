@@ -1,4 +1,4 @@
-import type { CurrencyCode } from '@nb/common'
+import type { CurrencyCode } from '@kuraykaraaslan/common'
 
 /**
  * Mid-period plan-change proration arithmetic. Stripe pre-computes prorated

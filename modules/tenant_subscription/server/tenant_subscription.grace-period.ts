@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { tenantDataSourceFor } from '@nb/db';
-import { TenantSubscription } from '@nb/tenant_subscription/server/entities/tenant_subscription.entity';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import { TenantSubscription } from '@kuraykaraaslan/tenant_subscription/server/entities/tenant_subscription.entity';
 
 const GRACE_OK_STATUSES = new Set(['ACTIVE', 'TRIALING', 'FREE']);
 

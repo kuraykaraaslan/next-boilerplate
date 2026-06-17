@@ -1,9 +1,9 @@
-import redis from '@nb/redis';
-import Logger from '@nb/logger';
-import { getDataSource } from '@nb/db';
-import WebhookService from '@nb/webhook/server/webhook.service';
-import TenantFeatureGateService from '@nb/tenant_subscription/server/tenant_subscription.feature.service';
-import { FEATURE_KEYS } from '@nb/tenant_subscription/server/tenant_subscription.feature-keys';
+import redis from '@kuraykaraaslan/redis';
+import Logger from '@kuraykaraaslan/logger';
+import { getDataSource } from '@kuraykaraaslan/db';
+import WebhookService from '@kuraykaraaslan/webhook/server/webhook.service';
+import TenantFeatureGateService from '@kuraykaraaslan/tenant_subscription/server/tenant_subscription.feature.service';
+import { FEATURE_KEYS } from '@kuraykaraaslan/tenant_subscription/server/tenant_subscription.feature-keys';
 import { TenantUsage } from './entities/tenant_usage.entity';
 import { TenantUsageService, type TenantUsageMetric, type TenantUsageSnapshot } from './tenant_usage.service';
 

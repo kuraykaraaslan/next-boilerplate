@@ -1,15 +1,15 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
-import api from '@nb/common/server/axios';
-import { Card } from '@nb/common/ui/card.component';
-import { Button } from '@nb/common/ui/button.component';
-import { Badge } from '@nb/common/ui/badge.component';
-import { Spinner } from '@nb/common/ui/spinner.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
-import { Modal } from '@nb/common/ui/modal.component';
+import api from '@kuraykaraaslan/common/server/axios';
+import { Card } from '@kuraykaraaslan/common/ui/card.component';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import { Badge } from '@kuraykaraaslan/common/ui/badge.component';
+import { Spinner } from '@kuraykaraaslan/common/ui/spinner.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
+import { Modal } from '@kuraykaraaslan/common/ui/modal.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLink, faUnlink, faPlus, faBuildingShield, faLandmark } from '@fortawesome/free-solid-svg-icons';
-import { SSO_PROVIDERS, providerMeta, type OAuthProvider } from '@nb/auth/ui/o-auth-buttons.component';
+import { SSO_PROVIDERS, providerMeta, type OAuthProvider } from '@kuraykaraaslan/auth/ui/o-auth-buttons.component';
 
 type Connectable = OAuthProvider | 'saml';
 

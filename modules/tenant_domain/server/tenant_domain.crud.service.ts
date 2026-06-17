@@ -1,16 +1,16 @@
 import 'reflect-metadata';
 import { Not, Like } from 'typeorm';
-import { env } from '@nb/env';
-import { tenantDataSourceFor, getDataSource } from '@nb/db';
+import { env } from '@kuraykaraaslan/env';
+import { tenantDataSourceFor, getDataSource } from '@kuraykaraaslan/db';
 import { TenantDomain as TenantDomainEntity } from './entities/tenant_domain.entity';
-import redis from '@nb/redis';
-import Logger from '@nb/logger';
+import redis from '@kuraykaraaslan/redis';
+import Logger from '@kuraykaraaslan/logger';
 import { SafeTenantDomain, SafeTenantDomainSchema } from './tenant_domain.types';
 import { CreateTenantDomainInput, UpdateTenantDomainInput, GetTenantDomainsInput } from './tenant_domain.dto';
 import TenantDomainMessages from './tenant_domain.messages';
 import { isReservedDomain } from './tenant_domain.blocklist';
-import SettingService from '@nb/setting/server/setting.service';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 
 const DOMAIN_CACHE_TTL = env.TENANT_CACHE_TTL ?? (60 * 5);
 

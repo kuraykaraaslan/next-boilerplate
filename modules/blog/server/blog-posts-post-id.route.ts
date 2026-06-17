@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import Limiter from '@nb/limiter/server/limiter.service.next'
-import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next'
-import BlogPostService from '@nb/blog/server/blog.post.service'
-import { UpdatePostDTO } from '@nb/blog/server/blog.dto'
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next'
+import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next'
+import BlogPostService from '@kuraykaraaslan/blog/server/blog.post.service'
+import { UpdatePostDTO } from '@kuraykaraaslan/blog/server/blog.dto'
 
 type Ctx = { params: Promise<{ tenantId: string; postId: string }> }
 

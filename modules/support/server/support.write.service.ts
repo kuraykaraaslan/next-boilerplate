@@ -1,10 +1,10 @@
 import 'reflect-metadata';
-import { tenantDataSourceFor } from '@nb/db';
-import Logger from '@nb/logger';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
-import WebhookService from '@nb/webhook/server/webhook.service';
-import AuditLogService from '@nb/audit_log/server/audit_log.service';
-import NotificationInAppService from '@nb/notification_inapp/server/notification_inapp.service';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import Logger from '@kuraykaraaslan/logger';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
+import WebhookService from '@kuraykaraaslan/webhook/server/webhook.service';
+import AuditLogService from '@kuraykaraaslan/audit_log/server/audit_log.service';
+import NotificationInAppService from '@kuraykaraaslan/notification_inapp/server/notification_inapp.service';
 import { SupportTicket as SupportTicketEntity } from './entities/support_ticket.entity';
 import { SupportTicketMessage as SupportTicketMessageEntity } from './entities/support_ticket_message.entity';
 import {

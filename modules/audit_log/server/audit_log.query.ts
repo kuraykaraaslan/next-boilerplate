@@ -1,10 +1,10 @@
 import 'reflect-metadata';
 import { ILike, Between, LessThanOrEqual, MoreThanOrEqual, type FindOptionsWhere } from 'typeorm';
-import { tenantDataSourceFor, getSystemDataSource } from '@nb/db';
-import { ROOT_TENANT_ID, isRootTenant } from '@nb/tenant/server/tenant.constants';
-import { Tenant } from '@nb/tenant/server/entities/tenant.entity';
+import { tenantDataSourceFor, getSystemDataSource } from '@kuraykaraaslan/db';
+import { ROOT_TENANT_ID, isRootTenant } from '@kuraykaraaslan/tenant/server/tenant.constants';
+import { Tenant } from '@kuraykaraaslan/tenant/server/entities/tenant.entity';
 import { AuditLog as AuditLogRow } from './entities/audit_log.entity';
-import Logger from '@nb/logger';
+import Logger from '@kuraykaraaslan/logger';
 import { AuditLogSchema, type AuditLog, type ChainVerificationResult } from './audit_log.types';
 import {
   GetAuditLogsDTO,
@@ -16,7 +16,7 @@ import {
 } from './audit_log.dto';
 import { type AuditSeverity } from './audit_log.enums';
 import AuditLogMessages from './audit_log.messages';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { computeRowHash } from './audit_log.hash';
 import { serializeForArchive, serializeForCsv } from './audit_log.serialize';
 

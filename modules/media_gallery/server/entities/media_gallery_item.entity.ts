@@ -9,7 +9,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { UploadedFile } from '@nb/storage/server/entities/uploaded_file.entity';
+import { UploadedFile } from '@kuraykaraaslan/storage/server/entities/uploaded_file.entity';
 
 /**
  * Gallery-side wrapper around an UploadedFile audit row.

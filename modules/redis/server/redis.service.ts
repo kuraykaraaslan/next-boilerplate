@@ -1,6 +1,6 @@
 import { Redis, type RedisOptions } from 'ioredis';
-import { env } from '@nb/env';
-import Logger from '@nb/logger';
+import { env } from '@kuraykaraaslan/env';
+import Logger from '@kuraykaraaslan/logger';
 
 const BASE_OPTIONS: RedisOptions = { maxRetriesPerRequest: null };
 

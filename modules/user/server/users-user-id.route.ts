@@ -1,10 +1,10 @@
-import Limiter from '@nb/limiter/server/limiter.service.next';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
 
 import { NextRequest, NextResponse } from "next/server";
-import UserService from "@nb/user/server/user.service";
-import { UpdateUserRequestSchema } from "@nb/user/server/user.dto";
-import UserMessages from "@nb/user/server/user.messages";
-import { authenticateAdminRequest } from "@nb/auth/server/auth.admin-guard.next";
+import UserService from "@kuraykaraaslan/user/server/user.service";
+import { UpdateUserRequestSchema } from "@kuraykaraaslan/user/server/user.dto";
+import UserMessages from "@kuraykaraaslan/user/server/user.messages";
+import { authenticateAdminRequest } from "@kuraykaraaslan/auth/server/auth.admin-guard.next";
 
 /**
  * GET /tenant/[tenantId]/api/users/[userId]

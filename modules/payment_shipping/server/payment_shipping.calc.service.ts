@@ -1,6 +1,6 @@
 import 'reflect-metadata'
-import Logger from '@nb/logger'
-import { AppError, ErrorCode } from '@nb/common/server/app-error'
+import Logger from '@kuraykaraaslan/logger'
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error'
 import { ShippingRate as ShippingRateEntity } from './entities/shipping_rate.entity'
 import { ShippingQuoteSchema, type ShippingQuote } from './payment_shipping.types'
 import type { CalculateShippingDTO } from './payment_shipping.dto'

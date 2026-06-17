@@ -1,12 +1,12 @@
 import 'reflect-metadata';
-import { env } from '@nb/env';
+import { env } from '@kuraykaraaslan/env';
 import { Resolver } from 'dns/promises';
 import crypto from 'crypto';
-import redis from '@nb/redis';
-import Logger from '@nb/logger';
-import { tenantDataSourceFor, getDataSource } from '@nb/db';
+import redis from '@kuraykaraaslan/redis';
+import Logger from '@kuraykaraaslan/logger';
+import { tenantDataSourceFor, getDataSource } from '@kuraykaraaslan/db';
 import { TenantDomain as TenantDomainEntity } from './entities/tenant_domain.entity';
-import AuditLogService from '@nb/audit_log/server/audit_log.service';
+import AuditLogService from '@kuraykaraaslan/audit_log/server/audit_log.service';
 import type { VerificationMethod } from './tenant_domain.enums';
 
 const DNS_RECHECK_CONCURRENCY = 5;

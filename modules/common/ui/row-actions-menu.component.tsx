@@ -2,7 +2,7 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEllipsisVertical } from '@fortawesome/free-solid-svg-icons';
-import { cn } from '@nb/common/server/utils/cn';
+import { cn } from '@kuraykaraaslan/common/server/utils/cn';
 
 type Action = {
   label: string;

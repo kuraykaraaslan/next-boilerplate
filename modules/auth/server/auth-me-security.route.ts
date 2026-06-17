@@ -1,10 +1,10 @@
 // path: app/tenant/[tenantId]/api/auth/me/security/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import Limiter from '@nb/limiter/server/limiter.service.next';
-import Logger from '@nb/logger';
-import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
-import UserSecurityService from '@nb/user_security/server/user_security.service';
-import AuthMessages from '@nb/auth/server/auth.messages';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
+import Logger from '@kuraykaraaslan/logger';
+import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next';
+import UserSecurityService from '@kuraykaraaslan/user_security/server/user_security.service';
+import AuthMessages from '@kuraykaraaslan/auth/server/auth.messages';
 
 /**
  * GET /tenant/[tenantId]/api/auth/me/security

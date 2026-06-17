@@ -2,10 +2,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TENANT_ID, mockTenant, makeRepo, mockDefaultDs, mockTenantDs } from './tenant.test-setup';
 import TenantService from '../tenant.service';
 import TenantMessages from '../tenant.messages';
-import TenantMemberService from '@nb/tenant_member/server/tenant_member.service';
-import TenantSubscriptionService from '@nb/tenant_subscription/server/tenant_subscription.service';
-import TenantPlanService from '@nb/tenant_subscription/server/tenant_subscription.plan.service';
-import SettingService from '@nb/setting/server/setting.service';
+import TenantMemberService from '@kuraykaraaslan/tenant_member/server/tenant_member.service';
+import TenantSubscriptionService from '@kuraykaraaslan/tenant_subscription/server/tenant_subscription.service';
+import TenantPlanService from '@kuraykaraaslan/tenant_subscription/server/tenant_subscription.plan.service';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
 
 beforeEach(() => vi.clearAllMocks());
 

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Limiter from '@nb/limiter/server/limiter.service.next';
-import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
-import { AgreementService, CreateAgreementDTO, ListAgreementsQuery } from '@nb/terms_consent';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
+import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next';
+import { AgreementService, CreateAgreementDTO, ListAgreementsQuery } from '@kuraykaraaslan/terms_consent';
 
 /** GET /tenant/[tenantId]/api/agreements — list agreements (admin). */
 export async function GET(request: NextRequest, { params }: { params: Promise<{ tenantId: string }> }) {

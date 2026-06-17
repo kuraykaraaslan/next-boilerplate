@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { toast } from '@nb/common/ui/toast.store'
+import { toast } from '@kuraykaraaslan/common/ui/toast.store'
 import { useEditorStore } from '../stores/editorStore'
 
 const DRAFT_KEY = (pageId: string) =>

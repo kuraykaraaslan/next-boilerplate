@@ -1,14 +1,14 @@
 'use client';
 import { use, useEffect, useState } from 'react';
-import api from '@nb/common/server/axios';
-import { PageHeader } from '@nb/common/ui/page-header.component';
-import { Card } from '@nb/common/ui/card.component';
-import { Spinner } from '@nb/common/ui/spinner.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
-import { TabGroup } from '@nb/common/ui/tab-group.component';
-import { AIChatBox } from '@nb/ai/ui/ai-chat-box.component';
-import { AIUsageTab } from '@nb/ai/ui/usage-tab.component';
-import { Badge } from '@nb/common/ui/badge.component';
+import api from '@kuraykaraaslan/common/server/axios';
+import { PageHeader } from '@kuraykaraaslan/common/ui/page-header.component';
+import { Card } from '@kuraykaraaslan/common/ui/card.component';
+import { Spinner } from '@kuraykaraaslan/common/ui/spinner.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
+import { TabGroup } from '@kuraykaraaslan/common/ui/tab-group.component';
+import { AIChatBox } from '@kuraykaraaslan/ai/ui/ai-chat-box.component';
+import { AIUsageTab } from '@kuraykaraaslan/ai/ui/usage-tab.component';
+import { Badge } from '@kuraykaraaslan/common/ui/badge.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faServer, faGear } from '@fortawesome/free-solid-svg-icons';
 

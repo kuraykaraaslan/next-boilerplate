@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
-import { Button } from '@nb/common/ui/button.component';
-import api from '@nb/common/server/axios';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import api from '@kuraykaraaslan/common/server/axios';
 
 type BannerPurpose = { key: string; label: string; description: string; required: boolean };
 type BannerConfig = {

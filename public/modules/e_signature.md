@@ -13,7 +13,7 @@ Multi-country e-identity login + e-signature (eIDAS/OIDC4IDA). Pluggable provide
 ## Dependencies
 
 - **requires:** `db`, `env`, `user`, `user_session`, `user_security`, `redis`, `redis_idempotency`, `limiter`, `audit_log`, `logger`
-- **optional:** `storage`, `tenant_setting`
+- **optional:** `storage`, `setting`
 
 ## Services
 

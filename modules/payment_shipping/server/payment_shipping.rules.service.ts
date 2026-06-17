@@ -1,4 +1,4 @@
-import SettingService from '@nb/setting/server/setting.service'
+import SettingService from '@kuraykaraaslan/setting/server/setting.service'
 
 /**
  * Pure shipping calculation rules — no carrier/API dependency. Carriers bill on

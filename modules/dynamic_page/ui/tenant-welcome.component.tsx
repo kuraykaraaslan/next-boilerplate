@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowRight, faGaugeHigh, faRightToBracket, faBook, faWandMagicSparkles } from '@fortawesome/free-solid-svg-icons'
-import TenantService from '@nb/tenant/server/tenant.service'
+import TenantService from '@kuraykaraaslan/tenant/server/tenant.service'
 
 // Root fallback ("muhteşem"): the tenant home (`/`) must NEVER 404. When no
 // published CMS page exists at the root slug, we render this welcome hero

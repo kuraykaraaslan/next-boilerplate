@@ -1,10 +1,10 @@
 'use client';
 import { useState } from 'react';
-import { cn } from '@nb/common/server/utils/cn';
+import { cn } from '@kuraykaraaslan/common/server/utils/cn';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLock, faTriangleExclamation, faLink, faCheck } from '@fortawesome/free-solid-svg-icons';
-import { TabGroup } from '@nb/common/ui/tab-group.component';
-import { Badge } from '@nb/common/ui/badge.component';
+import { TabGroup } from '@kuraykaraaslan/common/ui/tab-group.component';
+import { Badge } from '@kuraykaraaslan/common/ui/badge.component';
 import { ParameterTable } from './parameter-table.component';
 import { SchemaViewer } from './schema-viewer.component';
 import { ResponseCard } from './response-card.component';

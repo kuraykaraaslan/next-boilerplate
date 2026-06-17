@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Limiter from '@nb/limiter/server/limiter.service.next';
-import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
-import { SearchService, IndexDocDTO, RemoveDocDTO } from '@nb/search';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
+import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next';
+import { SearchService, IndexDocDTO, RemoveDocDTO } from '@kuraykaraaslan/search';
 
 /**
  * POST /tenant/[tenantId]/api/search/index

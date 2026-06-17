@@ -1,5 +1,5 @@
-import Logger from '@nb/logger';
-import SettingService from '@nb/setting/server/setting.service';
+import Logger from '@kuraykaraaslan/logger';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
 
 /**
  * Delivery job payload enqueued onto the BullMQ queue and consumed by the

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-16T21:49:54.623Z",
+  "generatedAt": "2026-06-17T07:35:46.548Z",
   "menu": [
     {
       "id": "settings",
@@ -13,6 +13,17 @@
       "moduleId": "setting"
     },
     {
+      "id": "marketplace",
+      "label": "Marketplace",
+      "href": "/admin/marketplace",
+      "icon": "fas fa-store",
+      "group": "Configuration",
+      "order": 4,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "marketplace"
+    },
+    {
       "id": "modules",
       "label": "Modules",
       "href": "/admin/modules",
@@ -22,6 +33,17 @@
       "scope": "tenant",
       "permissions": [],
       "moduleId": "setting"
+    },
+    {
+      "id": "marketplace-developer",
+      "label": "Developer",
+      "href": "/admin/developer",
+      "icon": "fas fa-code",
+      "group": "Configuration",
+      "order": 6,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "marketplace"
     },
     {
       "id": "agreements",
@@ -398,6 +420,17 @@
       "moduleId": "store"
     },
     {
+      "id": "marketplace-review",
+      "label": "Module Review",
+      "href": "/admin/marketplace/review",
+      "icon": "fas fa-clipboard-check",
+      "group": "Platform",
+      "order": 30,
+      "scope": "system",
+      "permissions": [],
+      "moduleId": "marketplace"
+    },
+    {
       "id": "store-bundles",
       "label": "Bundles",
       "href": "/admin/store/bundles",
@@ -531,6 +564,12 @@
       "moduleId": "coupon"
     },
     {
+      "path": "/admin/developer",
+      "componentId": "marketplace/ui/developer.page",
+      "permissions": [],
+      "moduleId": "marketplace"
+    },
+    {
       "path": "/admin/domains",
       "componentId": "tenant_domain/ui/domains.page",
       "permissions": [],
@@ -613,6 +652,18 @@
       "componentId": "invoice/ui/invoices-invoice-id.page",
       "permissions": [],
       "moduleId": "invoice"
+    },
+    {
+      "path": "/admin/marketplace",
+      "componentId": "marketplace/ui/marketplace.page",
+      "permissions": [],
+      "moduleId": "marketplace"
+    },
+    {
+      "path": "/admin/marketplace/review",
+      "componentId": "marketplace/ui/review.page",
+      "permissions": [],
+      "moduleId": "marketplace"
     },
     {
       "path": "/admin/me",
@@ -1764,6 +1815,56 @@
       "path": "/api/invoices/preview",
       "handlerId": "invoice/server/invoices-preview.route",
       "moduleId": "invoice"
+    },
+    {
+      "path": "/api/marketplace",
+      "handlerId": "marketplace/server/marketplace.route",
+      "moduleId": "marketplace"
+    },
+    {
+      "path": "/api/marketplace/[moduleId]",
+      "handlerId": "marketplace/server/marketplace-item.route",
+      "moduleId": "marketplace"
+    },
+    {
+      "path": "/api/marketplace/[moduleId]/install",
+      "handlerId": "marketplace/server/marketplace-install.route",
+      "moduleId": "marketplace"
+    },
+    {
+      "path": "/api/marketplace/community",
+      "handlerId": "marketplace/server/community.route",
+      "moduleId": "marketplace"
+    },
+    {
+      "path": "/api/marketplace/listings",
+      "handlerId": "marketplace/server/listings.route",
+      "moduleId": "marketplace"
+    },
+    {
+      "path": "/api/marketplace/listings/[listingId]/versions",
+      "handlerId": "marketplace/server/listings-versions.route",
+      "moduleId": "marketplace"
+    },
+    {
+      "path": "/api/marketplace/publisher",
+      "handlerId": "marketplace/server/publisher.route",
+      "moduleId": "marketplace"
+    },
+    {
+      "path": "/api/marketplace/publishers/[publisherId]",
+      "handlerId": "marketplace/server/publishers-item.route",
+      "moduleId": "marketplace"
+    },
+    {
+      "path": "/api/marketplace/review",
+      "handlerId": "marketplace/server/review.route",
+      "moduleId": "marketplace"
+    },
+    {
+      "path": "/api/marketplace/review/[versionId]",
+      "handlerId": "marketplace/server/review-item.route",
+      "moduleId": "marketplace"
     },
     {
       "path": "/api/media-gallery/[entityType]/[entityId]/items",
@@ -3374,7 +3475,11 @@
       ],
       "priority": 50,
       "enabled": true,
-      "tier": "ai"
+      "tier": "ai",
+      "requires": [
+        "env",
+        "setting"
+      ]
     },
     {
       "id": "ai_anthropic",
@@ -3391,7 +3496,12 @@
       ],
       "priority": 52,
       "enabled": true,
-      "tier": "ai"
+      "tier": "ai",
+      "requires": [
+        "ai",
+        "env",
+        "setting"
+      ]
     },
     {
       "id": "ai_google",
@@ -3408,7 +3518,12 @@
       ],
       "priority": 53,
       "enabled": true,
-      "tier": "ai"
+      "tier": "ai",
+      "requires": [
+        "ai",
+        "env",
+        "setting"
+      ]
     },
     {
       "id": "ai_openai",
@@ -3425,7 +3540,12 @@
       ],
       "priority": 51,
       "enabled": true,
-      "tier": "ai"
+      "tier": "ai",
+      "requires": [
+        "ai",
+        "env",
+        "setting"
+      ]
     },
     {
       "id": "analytics",
@@ -3444,7 +3564,13 @@
       ],
       "priority": 56,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "db",
+        "env",
+        "redis",
+        "common"
+      ]
     },
     {
       "id": "api_doc",
@@ -3461,7 +3587,11 @@
       ],
       "priority": 100,
       "enabled": true,
-      "tier": "infrastructure"
+      "tier": "infrastructure",
+      "requires": [
+        "env",
+        "setting"
+      ]
     },
     {
       "id": "api_key",
@@ -3478,7 +3608,13 @@
       ],
       "priority": 40,
       "enabled": true,
-      "tier": "platform"
+      "tier": "platform",
+      "requires": [
+        "db",
+        "env",
+        "common",
+        "network"
+      ]
     },
     {
       "id": "approval",
@@ -3498,7 +3634,16 @@
       ],
       "priority": 49,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "db",
+        "env",
+        "logger",
+        "common",
+        "webhook",
+        "audit_log",
+        "notification_inapp"
+      ]
     },
     {
       "id": "audit_log",
@@ -3516,7 +3661,17 @@
       ],
       "priority": 40,
       "enabled": true,
-      "tier": "platform"
+      "tier": "platform",
+      "requires": [
+        "db",
+        "env",
+        "logger",
+        "common",
+        "redis",
+        "setting",
+        "webhook",
+        "tenant"
+      ]
     },
     {
       "id": "auth",
@@ -3534,7 +3689,24 @@
       ],
       "priority": 15,
       "enabled": true,
-      "tier": "identity"
+      "tier": "identity",
+      "requires": [
+        "user",
+        "user_session",
+        "user_security",
+        "notification_mail",
+        "notification_sms",
+        "setting",
+        "tenant",
+        "tenant_invitation",
+        "audit_log",
+        "webhook",
+        "observability",
+        "db",
+        "env",
+        "redis",
+        "common"
+      ]
     },
     {
       "id": "auth_acs",
@@ -3555,7 +3727,26 @@
       ],
       "priority": 17,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "db",
+        "user",
+        "user_profile",
+        "user_social_account",
+        "user_session",
+        "user_security",
+        "tenant",
+        "tenant_member",
+        "auth_sso",
+        "auth_saml",
+        "auth_oidc",
+        "env",
+        "audit_log",
+        "observability",
+        "redis",
+        "common",
+        "logger"
+      ]
     },
     {
       "id": "auth_acs_az_mygovid",
@@ -3575,7 +3766,14 @@
       ],
       "priority": 18,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "auth_acs",
+        "auth_saml",
+        "auth_oidc",
+        "env",
+        "common"
+      ]
     },
     {
       "id": "auth_acs_ct_edevlet",
@@ -3595,7 +3793,14 @@
       ],
       "priority": 18,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "auth_acs",
+        "auth_saml",
+        "auth_oidc",
+        "env",
+        "common"
+      ]
     },
     {
       "id": "auth_acs_de_eid",
@@ -3615,7 +3820,14 @@
       ],
       "priority": 18,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "auth_acs",
+        "auth_saml",
+        "auth_oidc",
+        "env",
+        "common"
+      ]
     },
     {
       "id": "auth_acs_es_clave",
@@ -3635,7 +3847,14 @@
       ],
       "priority": 18,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "auth_acs",
+        "auth_saml",
+        "auth_oidc",
+        "env",
+        "common"
+      ]
     },
     {
       "id": "auth_acs_esia_ru",
@@ -3655,7 +3874,14 @@
       ],
       "priority": 18,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "auth_acs",
+        "auth_saml",
+        "auth_oidc",
+        "env",
+        "common"
+      ]
     },
     {
       "id": "auth_acs_eu_eidas",
@@ -3675,7 +3901,14 @@
       ],
       "priority": 18,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "auth_acs",
+        "auth_saml",
+        "auth_oidc",
+        "env",
+        "common"
+      ]
     },
     {
       "id": "auth_acs_it_spid",
@@ -3695,7 +3928,14 @@
       ],
       "priority": 18,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "auth_acs",
+        "auth_saml",
+        "auth_oidc",
+        "env",
+        "common"
+      ]
     },
     {
       "id": "auth_acs_kg_tunduk",
@@ -3715,7 +3955,14 @@
       ],
       "priority": 18,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "auth_acs",
+        "auth_saml",
+        "auth_oidc",
+        "env",
+        "common"
+      ]
     },
     {
       "id": "auth_acs_kz_egov",
@@ -3735,7 +3982,14 @@
       ],
       "priority": 18,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "auth_acs",
+        "auth_saml",
+        "auth_oidc",
+        "env",
+        "common"
+      ]
     },
     {
       "id": "auth_acs_tr_edevlet",
@@ -3755,7 +4009,14 @@
       ],
       "priority": 18,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "auth_acs",
+        "auth_saml",
+        "auth_oidc",
+        "env",
+        "common"
+      ]
     },
     {
       "id": "auth_acs_us_id_me",
@@ -3775,7 +4036,14 @@
       ],
       "priority": 18,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "auth_acs",
+        "auth_saml",
+        "auth_oidc",
+        "env",
+        "common"
+      ]
     },
     {
       "id": "auth_acs_us_login_gov",
@@ -3795,7 +4063,14 @@
       ],
       "priority": 18,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "auth_acs",
+        "auth_saml",
+        "auth_oidc",
+        "env",
+        "common"
+      ]
     },
     {
       "id": "auth_acs_uz_oneid",
@@ -3815,7 +4090,14 @@
       ],
       "priority": 18,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "auth_acs",
+        "auth_saml",
+        "auth_oidc",
+        "env",
+        "common"
+      ]
     },
     {
       "id": "auth_e_signature",
@@ -3834,7 +4116,23 @@
       ],
       "priority": 36,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "db",
+        "e_signature",
+        "user",
+        "user_session",
+        "user_security",
+        "tenant",
+        "tenant_member",
+        "env",
+        "audit_log",
+        "webhook",
+        "redis",
+        "limiter",
+        "common",
+        "logger"
+      ]
     },
     {
       "id": "auth_impersonation",
@@ -3852,7 +4150,17 @@
       ],
       "priority": 17,
       "enabled": true,
-      "tier": "identity"
+      "tier": "identity",
+      "requires": [
+        "user",
+        "user_session",
+        "audit_log",
+        "setting",
+        "webhook",
+        "redis",
+        "auth",
+        "env"
+      ]
     },
     {
       "id": "auth_oidc",
@@ -3872,7 +4180,11 @@
       ],
       "priority": 15,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "env",
+        "common"
+      ]
     },
     {
       "id": "auth_saml",
@@ -3891,7 +4203,20 @@
       ],
       "priority": 16,
       "enabled": true,
-      "tier": "identity"
+      "tier": "identity",
+      "requires": [
+        "db",
+        "user",
+        "user_session",
+        "tenant",
+        "env",
+        "setting",
+        "audit_log",
+        "observability",
+        "redis",
+        "common",
+        "logger"
+      ]
     },
     {
       "id": "auth_sso",
@@ -3909,7 +4234,20 @@
       ],
       "priority": 16,
       "enabled": true,
-      "tier": "identity"
+      "tier": "identity",
+      "requires": [
+        "user",
+        "user_session",
+        "user_social_account",
+        "env",
+        "auth",
+        "setting",
+        "audit_log",
+        "observability",
+        "redis",
+        "tenant",
+        "common"
+      ]
     },
     {
       "id": "auth_sso_alipay",
@@ -3928,7 +4266,12 @@
       ],
       "priority": 17,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "auth_sso",
+        "env",
+        "common"
+      ]
     },
     {
       "id": "auth_sso_apple",
@@ -3947,7 +4290,12 @@
       ],
       "priority": 17,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "auth_sso",
+        "env",
+        "common"
+      ]
     },
     {
       "id": "auth_sso_autodesk",
@@ -3966,7 +4314,12 @@
       ],
       "priority": 17,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "auth_sso",
+        "env",
+        "common"
+      ]
     },
     {
       "id": "auth_sso_facebook",
@@ -3985,7 +4338,12 @@
       ],
       "priority": 17,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "auth_sso",
+        "env",
+        "common"
+      ]
     },
     {
       "id": "auth_sso_github",
@@ -4004,7 +4362,12 @@
       ],
       "priority": 17,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "auth_sso",
+        "env",
+        "common"
+      ]
     },
     {
       "id": "auth_sso_google",
@@ -4023,7 +4386,12 @@
       ],
       "priority": 17,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "auth_sso",
+        "env",
+        "common"
+      ]
     },
     {
       "id": "auth_sso_linkedin",
@@ -4042,7 +4410,12 @@
       ],
       "priority": 17,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "auth_sso",
+        "env",
+        "common"
+      ]
     },
     {
       "id": "auth_sso_microsoft",
@@ -4061,7 +4434,12 @@
       ],
       "priority": 17,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "auth_sso",
+        "env",
+        "common"
+      ]
     },
     {
       "id": "auth_sso_qq",
@@ -4080,7 +4458,12 @@
       ],
       "priority": 17,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "auth_sso",
+        "env",
+        "common"
+      ]
     },
     {
       "id": "auth_sso_slack",
@@ -4099,7 +4482,12 @@
       ],
       "priority": 17,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "auth_sso",
+        "env",
+        "common"
+      ]
     },
     {
       "id": "auth_sso_tiktok",
@@ -4118,7 +4506,12 @@
       ],
       "priority": 17,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "auth_sso",
+        "env",
+        "common"
+      ]
     },
     {
       "id": "auth_sso_twitter",
@@ -4137,7 +4530,12 @@
       ],
       "priority": 17,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "auth_sso",
+        "env",
+        "common"
+      ]
     },
     {
       "id": "auth_sso_vk",
@@ -4156,7 +4554,12 @@
       ],
       "priority": 17,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "auth_sso",
+        "env",
+        "common"
+      ]
     },
     {
       "id": "auth_sso_wechat",
@@ -4175,7 +4578,12 @@
       ],
       "priority": 17,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "auth_sso",
+        "env",
+        "common"
+      ]
     },
     {
       "id": "auth_sso_weibo",
@@ -4194,7 +4602,12 @@
       ],
       "priority": 17,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "auth_sso",
+        "env",
+        "common"
+      ]
     },
     {
       "id": "auth_sso_yandex",
@@ -4213,7 +4626,12 @@
       ],
       "priority": 17,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "auth_sso",
+        "env",
+        "common"
+      ]
     },
     {
       "id": "blog",
@@ -4233,7 +4651,14 @@
       ],
       "priority": 44,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "db",
+        "env",
+        "redis",
+        "logger",
+        "setting"
+      ]
     },
     {
       "id": "common",
@@ -4252,7 +4677,8 @@
       ],
       "priority": 1,
       "enabled": true,
-      "tier": "infrastructure"
+      "tier": "infrastructure",
+      "requires": []
     },
     {
       "id": "coupon",
@@ -4269,7 +4695,13 @@
       ],
       "priority": 26,
       "enabled": true,
-      "tier": "billing"
+      "tier": "billing",
+      "requires": [
+        "db",
+        "env",
+        "payment",
+        "common"
+      ]
     },
     {
       "id": "db",
@@ -4287,7 +4719,10 @@
       ],
       "priority": 3,
       "enabled": true,
-      "tier": "infrastructure"
+      "tier": "infrastructure",
+      "requires": [
+        "env"
+      ]
     },
     {
       "id": "dynamic_page",
@@ -4307,7 +4742,14 @@
       ],
       "priority": 50,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "db",
+        "env",
+        "redis",
+        "logger",
+        "seo"
+      ]
     },
     {
       "id": "e_signature",
@@ -4326,7 +4768,19 @@
       ],
       "priority": 35,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "db",
+        "env",
+        "user",
+        "user_session",
+        "user_security",
+        "redis",
+        "redis_idempotency",
+        "limiter",
+        "audit_log",
+        "logger"
+      ]
     },
     {
       "id": "env",
@@ -4344,7 +4798,8 @@
       ],
       "priority": 1,
       "enabled": true,
-      "tier": "infrastructure"
+      "tier": "infrastructure",
+      "requires": []
     },
     {
       "id": "esign_bankid_se",
@@ -4362,7 +4817,12 @@
       ],
       "priority": 73,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "e_signature",
+        "env",
+        "setting"
+      ]
     },
     {
       "id": "esign_login_gov",
@@ -4380,7 +4840,12 @@
       ],
       "priority": 74,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "e_signature",
+        "env",
+        "setting"
+      ]
     },
     {
       "id": "esign_mobil_imza",
@@ -4398,7 +4863,12 @@
       ],
       "priority": 71,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "e_signature",
+        "env",
+        "setting"
+      ]
     },
     {
       "id": "esign_smart_id",
@@ -4416,7 +4886,12 @@
       ],
       "priority": 72,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "e_signature",
+        "env",
+        "setting"
+      ]
     },
     {
       "id": "exchange_rate",
@@ -4433,7 +4908,11 @@
       ],
       "priority": 27,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "redis",
+        "common"
+      ]
     },
     {
       "id": "feature_flags",
@@ -4452,7 +4931,14 @@
       ],
       "priority": 48,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "db",
+        "env",
+        "redis",
+        "common",
+        "audit_log"
+      ]
     },
     {
       "id": "gift_card",
@@ -4471,7 +4957,18 @@
       ],
       "priority": 49,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "db",
+        "env",
+        "logger",
+        "common",
+        "redis",
+        "wallet",
+        "payment",
+        "webhook",
+        "tenant_subscription"
+      ]
     },
     {
       "id": "integrations_hub",
@@ -4491,7 +4988,19 @@
       ],
       "priority": 54,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "db",
+        "env",
+        "logger",
+        "common",
+        "redis",
+        "webhook",
+        "api_key",
+        "setting",
+        "tenant_subscription",
+        "audit_log"
+      ]
     },
     {
       "id": "invoice",
@@ -4510,7 +5019,16 @@
       ],
       "priority": 30,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "db",
+        "tenant",
+        "setting",
+        "audit_log",
+        "tenant_subscription",
+        "payment",
+        "notification_mail"
+      ]
     },
     {
       "id": "invoice_de_zugferd",
@@ -4530,7 +5048,13 @@
       ],
       "priority": 31,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "invoice",
+        "setting",
+        "logger",
+        "common"
+      ]
     },
     {
       "id": "invoice_eu_peppol",
@@ -4550,7 +5074,13 @@
       ],
       "priority": 31,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "invoice",
+        "setting",
+        "logger",
+        "common"
+      ]
     },
     {
       "id": "invoice_fr_choruspro",
@@ -4570,7 +5100,13 @@
       ],
       "priority": 31,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "invoice",
+        "setting",
+        "logger",
+        "common"
+      ]
     },
     {
       "id": "invoice_in_gst",
@@ -4590,7 +5126,13 @@
       ],
       "priority": 31,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "invoice",
+        "setting",
+        "logger",
+        "common"
+      ]
     },
     {
       "id": "invoice_it_fatturapa",
@@ -4610,7 +5152,13 @@
       ],
       "priority": 31,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "invoice",
+        "setting",
+        "logger",
+        "common"
+      ]
     },
     {
       "id": "invoice_mx_cfdi",
@@ -4630,7 +5178,13 @@
       ],
       "priority": 31,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "invoice",
+        "setting",
+        "logger",
+        "common"
+      ]
     },
     {
       "id": "invoice_tr_earsiv",
@@ -4650,7 +5204,13 @@
       ],
       "priority": 31,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "invoice",
+        "setting",
+        "logger",
+        "common"
+      ]
     },
     {
       "id": "invoice_us_standard",
@@ -4670,7 +5230,13 @@
       ],
       "priority": 31,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "invoice",
+        "setting",
+        "logger",
+        "common"
+      ]
     },
     {
       "id": "limiter",
@@ -4688,7 +5254,11 @@
       ],
       "priority": 5,
       "enabled": true,
-      "tier": "infrastructure"
+      "tier": "infrastructure",
+      "requires": [
+        "redis",
+        "env"
+      ]
     },
     {
       "id": "logger",
@@ -4705,7 +5275,10 @@
       ],
       "priority": 2,
       "enabled": true,
-      "tier": "infrastructure"
+      "tier": "infrastructure",
+      "requires": [
+        "env"
+      ]
     },
     {
       "id": "mail_mailgun",
@@ -4723,7 +5296,12 @@
       ],
       "priority": 33,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "notification_mail",
+        "env",
+        "setting"
+      ]
     },
     {
       "id": "mail_postmark",
@@ -4741,7 +5319,12 @@
       ],
       "priority": 35,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "notification_mail",
+        "env",
+        "setting"
+      ]
     },
     {
       "id": "mail_resend",
@@ -4759,7 +5342,12 @@
       ],
       "priority": 36,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "notification_mail",
+        "env",
+        "setting"
+      ]
     },
     {
       "id": "mail_sendgrid",
@@ -4777,7 +5365,12 @@
       ],
       "priority": 32,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "notification_mail",
+        "env",
+        "setting"
+      ]
     },
     {
       "id": "mail_ses",
@@ -4795,7 +5388,12 @@
       ],
       "priority": 34,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "notification_mail",
+        "env",
+        "setting"
+      ]
     },
     {
       "id": "mail_smtp",
@@ -4813,7 +5411,39 @@
       ],
       "priority": 31,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "notification_mail",
+        "env",
+        "setting"
+      ]
+    },
+    {
+      "id": "marketplace",
+      "name": "Marketplace",
+      "icon": "fas fa-store",
+      "version": "1.0.0",
+      "description": "Browse, install, activate, and remove tenant modules; publish your own modules to a curated, approval-gated registry.",
+      "author": "Kuray Karaaslan",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/marketplace",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "platform",
+        "marketplace"
+      ],
+      "priority": 6,
+      "enabled": true,
+      "tier": "platform",
+      "requires": [
+        "db",
+        "env",
+        "setting",
+        "audit_log",
+        "auth",
+        "tenant",
+        "storage",
+        "common"
+      ]
     },
     {
       "id": "media_gallery",
@@ -4831,7 +5461,12 @@
       ],
       "priority": 36,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "db",
+        "redis",
+        "storage"
+      ]
     },
     {
       "id": "messaging",
@@ -4850,7 +5485,17 @@
       ],
       "priority": 46,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "db",
+        "env",
+        "redis",
+        "logger",
+        "user_session",
+        "tenant_session",
+        "tenant_member",
+        "webhook"
+      ]
     },
     {
       "id": "metering",
@@ -4870,7 +5515,19 @@
       ],
       "priority": 48,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "db",
+        "env",
+        "logger",
+        "common",
+        "redis",
+        "wallet",
+        "invoice",
+        "tenant_subscription",
+        "webhook",
+        "audit_log"
+      ]
     },
     {
       "id": "network",
@@ -4889,7 +5546,8 @@
       ],
       "priority": 2,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": []
     },
     {
       "id": "notification_inapp",
@@ -4906,7 +5564,11 @@
       ],
       "priority": 30,
       "enabled": true,
-      "tier": "notifications"
+      "tier": "notifications",
+      "requires": [
+        "db",
+        "user"
+      ]
     },
     {
       "id": "notification_log",
@@ -4923,7 +5585,11 @@
       ],
       "priority": 31,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "db",
+        "tenant"
+      ]
     },
     {
       "id": "notification_mail",
@@ -4940,7 +5606,12 @@
       ],
       "priority": 30,
       "enabled": true,
-      "tier": "notifications"
+      "tier": "notifications",
+      "requires": [
+        "redis",
+        "env",
+        "setting"
+      ]
     },
     {
       "id": "notification_push",
@@ -4957,7 +5628,11 @@
       ],
       "priority": 30,
       "enabled": true,
-      "tier": "notifications"
+      "tier": "notifications",
+      "requires": [
+        "db",
+        "env"
+      ]
     },
     {
       "id": "notification_sms",
@@ -4974,7 +5649,12 @@
       ],
       "priority": 30,
       "enabled": true,
-      "tier": "notifications"
+      "tier": "notifications",
+      "requires": [
+        "redis",
+        "env",
+        "setting"
+      ]
     },
     {
       "id": "observability",
@@ -4992,7 +5672,11 @@
       ],
       "priority": 5,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "env",
+        "logger"
+      ]
     },
     {
       "id": "order_fulfillment",
@@ -5011,7 +5695,13 @@
       ],
       "priority": 41,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "db",
+        "env",
+        "redis",
+        "logger"
+      ]
     },
     {
       "id": "payment",
@@ -5028,7 +5718,13 @@
       ],
       "priority": 25,
       "enabled": true,
-      "tier": "billing"
+      "tier": "billing",
+      "requires": [
+        "db",
+        "env",
+        "setting",
+        "common"
+      ]
     },
     {
       "id": "payment_alipay",
@@ -5046,7 +5742,13 @@
       ],
       "priority": 26,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "payment",
+        "env",
+        "setting",
+        "common"
+      ]
     },
     {
       "id": "payment_cart",
@@ -5064,7 +5766,14 @@
       ],
       "priority": 28,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "db",
+        "env",
+        "redis",
+        "logger",
+        "coupon"
+      ]
     },
     {
       "id": "payment_cloudpayments",
@@ -5082,7 +5791,13 @@
       ],
       "priority": 26,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "payment",
+        "env",
+        "setting",
+        "common"
+      ]
     },
     {
       "id": "payment_core",
@@ -5095,7 +5810,8 @@
       "tags": [],
       "priority": 100,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": []
     },
     {
       "id": "payment_iyzico",
@@ -5113,7 +5829,13 @@
       ],
       "priority": 26,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "payment",
+        "env",
+        "setting",
+        "common"
+      ]
     },
     {
       "id": "payment_loyalty_points",
@@ -5132,7 +5854,13 @@
       ],
       "priority": 34,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "db",
+        "env",
+        "redis",
+        "logger"
+      ]
     },
     {
       "id": "payment_manual",
@@ -5152,7 +5880,12 @@
       ],
       "priority": 26,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "payment",
+        "setting",
+        "common"
+      ]
     },
     {
       "id": "payment_paypal",
@@ -5170,7 +5903,13 @@
       ],
       "priority": 26,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "payment",
+        "env",
+        "setting",
+        "common"
+      ]
     },
     {
       "id": "payment_return_rma",
@@ -5189,7 +5928,14 @@
       ],
       "priority": 33,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "db",
+        "env",
+        "redis",
+        "logger",
+        "payment_sell"
+      ]
     },
     {
       "id": "payment_sell",
@@ -5207,7 +5953,15 @@
       ],
       "priority": 26,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "db",
+        "env",
+        "setting",
+        "redis",
+        "logger",
+        "payment_core"
+      ]
     },
     {
       "id": "payment_shipping",
@@ -5225,7 +5979,13 @@
       ],
       "priority": 29,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "db",
+        "env",
+        "redis",
+        "logger"
+      ]
     },
     {
       "id": "payment_stripe",
@@ -5243,7 +6003,14 @@
       ],
       "priority": 26,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "payment",
+        "env",
+        "setting",
+        "tenant",
+        "common"
+      ]
     },
     {
       "id": "payment_subscription",
@@ -5262,7 +6029,15 @@
       ],
       "priority": 27,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "db",
+        "env",
+        "setting",
+        "redis",
+        "logger",
+        "payment_core"
+      ]
     },
     {
       "id": "payment_tax",
@@ -5281,7 +6056,13 @@
       ],
       "priority": 31,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "db",
+        "env",
+        "redis",
+        "logger"
+      ]
     },
     {
       "id": "payment_wechatpay",
@@ -5299,7 +6080,13 @@
       ],
       "priority": 26,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "payment",
+        "env",
+        "setting",
+        "common"
+      ]
     },
     {
       "id": "payment_wishlist",
@@ -5317,7 +6104,13 @@
       ],
       "priority": 32,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "db",
+        "env",
+        "redis",
+        "logger"
+      ]
     },
     {
       "id": "payment_yookassa",
@@ -5335,7 +6128,13 @@
       ],
       "priority": 26,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "payment",
+        "env",
+        "setting",
+        "common"
+      ]
     },
     {
       "id": "product_review",
@@ -5354,7 +6153,13 @@
       ],
       "priority": 42,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "db",
+        "env",
+        "redis",
+        "logger"
+      ]
     },
     {
       "id": "redis",
@@ -5373,7 +6178,10 @@
       ],
       "priority": 2,
       "enabled": true,
-      "tier": "infrastructure"
+      "tier": "infrastructure",
+      "requires": [
+        "env"
+      ]
     },
     {
       "id": "redis_idempotency",
@@ -5390,7 +6198,11 @@
       ],
       "priority": 5,
       "enabled": true,
-      "tier": "infrastructure"
+      "tier": "infrastructure",
+      "requires": [
+        "redis",
+        "env"
+      ]
     },
     {
       "id": "scim",
@@ -5409,7 +6221,14 @@
       ],
       "priority": 17,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "db",
+        "user",
+        "tenant_member",
+        "api_key",
+        "audit_log"
+      ]
     },
     {
       "id": "search",
@@ -5427,7 +6246,13 @@
       ],
       "priority": 55,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "db",
+        "env",
+        "redis",
+        "common"
+      ]
     },
     {
       "id": "seed",
@@ -5444,7 +6269,11 @@
       ],
       "priority": 9,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "db",
+        "tenant"
+      ]
     },
     {
       "id": "seo",
@@ -5461,7 +6290,11 @@
       ],
       "priority": 35,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "db",
+        "redis"
+      ]
     },
     {
       "id": "setting",
@@ -5478,7 +6311,11 @@
       ],
       "priority": 5,
       "enabled": true,
-      "tier": "platform"
+      "tier": "platform",
+      "requires": [
+        "db",
+        "env"
+      ]
     },
     {
       "id": "sms_clickatell",
@@ -5496,7 +6333,12 @@
       ],
       "priority": 63,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "notification_sms",
+        "env",
+        "setting"
+      ]
     },
     {
       "id": "sms_netgsm",
@@ -5514,7 +6356,12 @@
       ],
       "priority": 62,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "notification_sms",
+        "env",
+        "setting"
+      ]
     },
     {
       "id": "sms_nexmo",
@@ -5532,7 +6379,12 @@
       ],
       "priority": 64,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "notification_sms",
+        "env",
+        "setting"
+      ]
     },
     {
       "id": "sms_twilio",
@@ -5550,7 +6402,12 @@
       ],
       "priority": 61,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "notification_sms",
+        "env",
+        "setting"
+      ]
     },
     {
       "id": "storage",
@@ -5568,7 +6425,11 @@
       ],
       "priority": 10,
       "enabled": true,
-      "tier": "platform"
+      "tier": "platform",
+      "requires": [
+        "env",
+        "setting"
+      ]
     },
     {
       "id": "storage_minio",
@@ -5585,7 +6446,12 @@
       ],
       "priority": 44,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "storage",
+        "env",
+        "setting"
+      ]
     },
     {
       "id": "storage_r2",
@@ -5602,7 +6468,12 @@
       ],
       "priority": 42,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "storage",
+        "env",
+        "setting"
+      ]
     },
     {
       "id": "storage_s3",
@@ -5619,7 +6490,12 @@
       ],
       "priority": 41,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "storage",
+        "env",
+        "setting"
+      ]
     },
     {
       "id": "storage_spaces",
@@ -5636,7 +6512,12 @@
       ],
       "priority": 43,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "storage",
+        "env",
+        "setting"
+      ]
     },
     {
       "id": "store",
@@ -5655,7 +6536,13 @@
       ],
       "priority": 40,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "db",
+        "env",
+        "redis",
+        "logger"
+      ]
     },
     {
       "id": "support",
@@ -5675,7 +6562,16 @@
       ],
       "priority": 48,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "db",
+        "env",
+        "logger",
+        "common",
+        "webhook",
+        "audit_log",
+        "notification_inapp"
+      ]
     },
     {
       "id": "tenant",
@@ -5692,7 +6588,13 @@
       ],
       "priority": 20,
       "enabled": true,
-      "tier": "tenancy"
+      "tier": "tenancy",
+      "requires": [
+        "db",
+        "env",
+        "logger",
+        "common"
+      ]
     },
     {
       "id": "tenant_branding",
@@ -5710,7 +6612,12 @@
       ],
       "priority": 23,
       "enabled": true,
-      "tier": "tenancy"
+      "tier": "tenancy",
+      "requires": [
+        "db",
+        "setting",
+        "storage"
+      ]
     },
     {
       "id": "tenant_domain",
@@ -5728,7 +6635,12 @@
       ],
       "priority": 23,
       "enabled": true,
-      "tier": "tenancy"
+      "tier": "tenancy",
+      "requires": [
+        "db",
+        "tenant",
+        "env"
+      ]
     },
     {
       "id": "tenant_export",
@@ -5746,7 +6658,12 @@
       ],
       "priority": 25,
       "enabled": true,
-      "tier": "tenancy"
+      "tier": "tenancy",
+      "requires": [
+        "db",
+        "tenant",
+        "storage"
+      ]
     },
     {
       "id": "tenant_invitation",
@@ -5763,7 +6680,15 @@
       ],
       "priority": 22,
       "enabled": true,
-      "tier": "tenancy"
+      "tier": "tenancy",
+      "requires": [
+        "db",
+        "tenant",
+        "tenant_member",
+        "notification_mail",
+        "user",
+        "env"
+      ]
     },
     {
       "id": "tenant_member",
@@ -5779,7 +6704,12 @@
       ],
       "priority": 21,
       "enabled": true,
-      "tier": "tenancy"
+      "tier": "tenancy",
+      "requires": [
+        "db",
+        "tenant",
+        "user"
+      ]
     },
     {
       "id": "tenant_session",
@@ -5796,7 +6726,14 @@
       ],
       "priority": 22,
       "enabled": true,
-      "tier": "tenancy"
+      "tier": "tenancy",
+      "requires": [
+        "db",
+        "redis",
+        "user_session",
+        "tenant",
+        "env"
+      ]
     },
     {
       "id": "tenant_subscription",
@@ -5813,7 +6750,14 @@
       ],
       "priority": 24,
       "enabled": true,
-      "tier": "tenancy"
+      "tier": "tenancy",
+      "requires": [
+        "db",
+        "tenant",
+        "payment",
+        "redis",
+        "env"
+      ]
     },
     {
       "id": "tenant_usage",
@@ -5831,7 +6775,11 @@
       ],
       "priority": 24,
       "enabled": true,
-      "tier": "tenancy"
+      "tier": "tenancy",
+      "requires": [
+        "db",
+        "tenant"
+      ]
     },
     {
       "id": "terms_consent",
@@ -5854,7 +6802,15 @@
       ],
       "priority": 47,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "db",
+        "env",
+        "redis",
+        "common",
+        "audit_log",
+        "setting"
+      ]
     },
     {
       "id": "user",
@@ -5871,7 +6827,13 @@
       ],
       "priority": 10,
       "enabled": true,
-      "tier": "identity"
+      "tier": "identity",
+      "requires": [
+        "db",
+        "env",
+        "logger",
+        "common"
+      ]
     },
     {
       "id": "user_agent",
@@ -5888,7 +6850,8 @@
       ],
       "priority": 5,
       "enabled": true,
-      "tier": "identity"
+      "tier": "identity",
+      "requires": []
     },
     {
       "id": "user_preferences",
@@ -5905,7 +6868,11 @@
       ],
       "priority": 11,
       "enabled": true,
-      "tier": "identity"
+      "tier": "identity",
+      "requires": [
+        "db",
+        "user"
+      ]
     },
     {
       "id": "user_profile",
@@ -5921,7 +6888,11 @@
       ],
       "priority": 11,
       "enabled": true,
-      "tier": "identity"
+      "tier": "identity",
+      "requires": [
+        "db",
+        "user"
+      ]
     },
     {
       "id": "user_security",
@@ -5938,7 +6909,12 @@
       ],
       "priority": 11,
       "enabled": true,
-      "tier": "identity"
+      "tier": "identity",
+      "requires": [
+        "db",
+        "user",
+        "env"
+      ]
     },
     {
       "id": "user_session",
@@ -5956,7 +6932,14 @@
       ],
       "priority": 12,
       "enabled": true,
-      "tier": "identity"
+      "tier": "identity",
+      "requires": [
+        "db",
+        "redis",
+        "env",
+        "user",
+        "user_agent"
+      ]
     },
     {
       "id": "user_social_account",
@@ -5973,7 +6956,11 @@
       ],
       "priority": 12,
       "enabled": true,
-      "tier": "identity"
+      "tier": "identity",
+      "requires": [
+        "db",
+        "user"
+      ]
     },
     {
       "id": "wallet",
@@ -5993,7 +6980,16 @@
       ],
       "priority": 47,
       "enabled": true,
-      "tier": "other"
+      "tier": "other",
+      "requires": [
+        "db",
+        "env",
+        "logger",
+        "common",
+        "redis",
+        "webhook",
+        "audit_log"
+      ]
     },
     {
       "id": "webhook",
@@ -6010,7 +7006,12 @@
       ],
       "priority": 40,
       "enabled": true,
-      "tier": "platform"
+      "tier": "platform",
+      "requires": [
+        "db",
+        "redis",
+        "env"
+      ]
     }
   ]
 }

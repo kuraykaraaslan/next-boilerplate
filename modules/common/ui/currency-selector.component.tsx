@@ -1,12 +1,12 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { isBrowser } from '@nb/common/server/utils/isBrowser';
-import { CurrencyCodeEnum } from '@nb/common';
+import { isBrowser } from '@kuraykaraaslan/common/server/utils/isBrowser';
+import { CurrencyCodeEnum } from '@kuraykaraaslan/common';
 import { getCountryDataList } from 'countries-list';
 import * as Flags from 'country-flag-icons/react/3x2';
-import { cn } from '@nb/common/server/utils/cn';
-import { Button } from '@nb/common/ui/button.component';
+import { cn } from '@kuraykaraaslan/common/server/utils/cn';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 

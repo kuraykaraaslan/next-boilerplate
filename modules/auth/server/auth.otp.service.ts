@@ -1,19 +1,19 @@
-import { env } from '@nb/env';
+import { env } from '@kuraykaraaslan/env';
 import crypto from "crypto";
-import redis from "@nb/redis";
-import { SafeUser } from "@nb/user/server/user.types";
-import { SafeUserSession } from "@nb/user_session/server/user_session.types";
-import { OTPMethod, OTPAction } from "@nb/user_security/server/user_security.enums";
-import UserSessionService from "@nb/user_session/server/user_session.service";
-import MailTemplatesService from "@nb/notification_mail/server/notification_mail.templates.service";
-import { ROOT_TENANT_ID } from '@nb/tenant/server/tenant.constants';
-import SMSService from "@nb/notification_sms/server/notification_sms.service";
+import redis from "@kuraykaraaslan/redis";
+import { SafeUser } from "@kuraykaraaslan/user/server/user.types";
+import { SafeUserSession } from "@kuraykaraaslan/user_session/server/user_session.types";
+import { OTPMethod, OTPAction } from "@kuraykaraaslan/user_security/server/user_security.enums";
+import UserSessionService from "@kuraykaraaslan/user_session/server/user_session.service";
+import MailTemplatesService from "@kuraykaraaslan/notification_mail/server/notification_mail.templates.service";
+import { ROOT_TENANT_ID } from '@kuraykaraaslan/tenant/server/tenant.constants';
+import SMSService from "@kuraykaraaslan/notification_sms/server/notification_sms.service";
 import AuthMessages from "./auth.messages";
 import AuthPolicyService from "./auth.policy.service";
 import { authEmailSubject } from "./auth.i18n";
 import type { AuthLocale } from "./dictionaries";
-import Logger from "@nb/logger";
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import Logger from "@kuraykaraaslan/logger";
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 
 export default class OTPService {
   // GTH-3: env values are the fallback default only; per-tenant OTP knobs are

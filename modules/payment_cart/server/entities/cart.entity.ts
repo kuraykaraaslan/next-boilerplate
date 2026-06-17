@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, Index } from 'typeorm';
-import { DEFAULT_CURRENCY } from '@nb/common';
+import { DEFAULT_CURRENCY } from '@kuraykaraaslan/common';
 
 @Entity('carts')
 export class Cart {

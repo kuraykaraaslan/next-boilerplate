@@ -1,8 +1,8 @@
 import 'reflect-metadata'
 import { ILike, In } from 'typeorm'
-import { tenantDataSourceFor } from '@nb/db'
-import redis, { jitter, singleFlight } from '@nb/redis'
-import { env } from '@nb/env'
+import { tenantDataSourceFor } from '@kuraykaraaslan/db'
+import redis, { jitter, singleFlight } from '@kuraykaraaslan/redis'
+import { env } from '@kuraykaraaslan/env'
 import { StoreProduct as ProductEntity } from './entities/store_product.entity'
 import { StoreProductImage as ImageEntity } from './entities/store_product_image.entity'
 import { StoreCategory as CategoryEntity } from './entities/store_category.entity'
@@ -12,7 +12,7 @@ import {
 } from './store.types'
 import StorePricingService, { type ResolvedPrice } from './store.pricing.service'
 import { STORE_MESSAGES } from './store.messages'
-import { AppError, ErrorCode } from '@nb/common/server/app-error'
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error'
 
 // Storefront detail/category reads are the highest-traffic paths in the catalog.
 // We cache the *raw* (un-localized, un-priced) ACTIVE rows — locale/currency/

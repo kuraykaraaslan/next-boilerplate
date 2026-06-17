@@ -1,4 +1,4 @@
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { BaseSamlProvider, assertSamlNotReplayed } from './saml.engine';
 import SamlMessages from './auth_saml.messages';
 import { type SamlProfile } from './auth_saml.types';

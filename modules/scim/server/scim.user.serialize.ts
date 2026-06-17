@@ -1,7 +1,7 @@
 import crypto from 'crypto';
-import { User as UserEntity } from '@nb/user/server/entities/user.entity';
-import { TenantMember as TenantMemberEntity } from '@nb/tenant_member/server/entities/tenant_member.entity';
-import { ErrorCode } from '@nb/common/server/app-error';
+import { User as UserEntity } from '@kuraykaraaslan/user/server/entities/user.entity';
+import { TenantMember as TenantMemberEntity } from '@kuraykaraaslan/tenant_member/server/entities/tenant_member.entity';
+import { ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { ScimError } from './scim.errors';
 import { SCIM_SCHEMAS, ScimUserSchema, type ScimUser } from './scim.types';
 import ScimMessages from './scim.messages';

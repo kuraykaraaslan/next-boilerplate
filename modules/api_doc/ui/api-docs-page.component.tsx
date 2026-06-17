@@ -1,6 +1,6 @@
 'use client';
 import { useMemo, useState } from 'react';
-import { cn } from '@nb/common/server/utils/cn';
+import { cn } from '@kuraykaraaslan/common/server/utils/cn';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faFileContract, faArrowUpRightFromSquare, faShield, faMagnifyingGlass, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { SecuritySchemeBadge } from './security-scheme-badge.component';

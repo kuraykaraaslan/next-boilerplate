@@ -1,11 +1,11 @@
 'use client';
 import { useState } from 'react';
-import { Toggle } from '@nb/common/ui/toggle.component';
-import { Button } from '@nb/common/ui/button.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
-import { Select } from '@nb/common/ui/select.component';
-import { Input } from '@nb/common/ui/input.component';
-import type { UserPreferences } from '@nb/user_preferences/server/user_preferences.types';
+import { Toggle } from '@kuraykaraaslan/common/ui/toggle.component';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
+import { Select } from '@kuraykaraaslan/common/ui/select.component';
+import { Input } from '@kuraykaraaslan/common/ui/input.component';
+import type { UserPreferences } from '@kuraykaraaslan/user_preferences/server/user_preferences.types';
 
 export type UserPreferencesValues = UserPreferences;
 

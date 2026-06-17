@@ -1,5 +1,5 @@
-import redis from '@nb/redis';
-import Logger from '@nb/logger';
+import redis from '@kuraykaraaslan/redis';
+import Logger from '@kuraykaraaslan/logger';
 import {
   TTL_SECONDS, type TenantUsageMetric,
   currentMonth, redisKey, currentDay, dailyKey, endpointKey,

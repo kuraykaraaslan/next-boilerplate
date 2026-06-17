@@ -1,6 +1,6 @@
-import type { InvoiceAdapter, InvoiceAdapterSubmitResult } from '@nb/invoice/server/adapters/base.adapter';
-import type { Invoice } from '@nb/invoice/server/entities/invoice.entity';
-import type { InvoiceLine } from '@nb/invoice/server/entities/invoice_line.entity';
+import type { InvoiceAdapter, InvoiceAdapterSubmitResult } from '@kuraykaraaslan/invoice/server/adapters/base.adapter';
+import type { Invoice } from '@kuraykaraaslan/invoice/server/entities/invoice.entity';
+import type { InvoiceLine } from '@kuraykaraaslan/invoice/server/entities/invoice_line.entity';
 import { isConfigured, submit, cancel } from './tr_earsiv.submit';
 
 /**

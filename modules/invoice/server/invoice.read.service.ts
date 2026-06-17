@@ -1,10 +1,10 @@
 import 'reflect-metadata';
-import { tenantDataSourceFor } from '@nb/db';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
 import { Invoice as InvoiceEntity } from './entities/invoice.entity';
 import { InvoiceLine as InvoiceLineEntity } from './entities/invoice_line.entity';
-import AuditLogService from '@nb/audit_log/server/audit_log.service';
+import AuditLogService from '@kuraykaraaslan/audit_log/server/audit_log.service';
 import InvoiceMessages from './invoice.messages';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import {
   SafeInvoiceSchema, SafeInvoiceLineSchema,
   type SafeInvoice, type SafeInvoiceLine,

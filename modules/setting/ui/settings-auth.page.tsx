@@ -1,7 +1,7 @@
 'use client';
 import { use } from 'react';
-import { SettingsPanelHost } from '@nb/setting/ui/settings-panel-host.component';
-import { PlatformAuthTab } from '@nb/setting/ui/platform-settings-tabs.component';
+import { SettingsPanelHost } from '@kuraykaraaslan/setting/ui/settings-panel-host.component';
+import { PlatformAuthTab } from '@kuraykaraaslan/setting/ui/platform-settings-tabs.component';
 
 export default function AuthSettingsPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = use(params);

@@ -1,4 +1,4 @@
-import SettingService from '@nb/setting/server/setting.service'
+import SettingService from '@kuraykaraaslan/setting/server/setting.service'
 
 const DEFAULT_SRCSET_WIDTHS = [320, 640, 960, 1280, 1920]
 

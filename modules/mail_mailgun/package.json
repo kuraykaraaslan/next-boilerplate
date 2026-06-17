@@ -1,5 +1,5 @@
 {
-  "name": "@nb/mail_mailgun",
+  "name": "@kuraykaraaslan/mail_mailgun",
   "version": "0.0.0",
   "private": true,
   "type": "module",

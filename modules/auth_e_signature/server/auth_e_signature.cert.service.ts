@@ -1,11 +1,11 @@
 import 'reflect-metadata';
-import { getDataSource } from '@nb/db';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
-import Logger from '@nb/logger';
-import ESignatureIdentityService from '@nb/e_signature/server/e_signature.identity.service';
-import { E_SIGNATURE_MESSAGES } from '@nb/e_signature/server/e_signature.messages';
-import type { BoundCertificate, CountryCode, RawIdentityClaims } from '@nb/e_signature/server/e_signature.types';
-import type { LoA } from '@nb/e_signature/server/e_signature.enums';
+import { getDataSource } from '@kuraykaraaslan/db';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
+import Logger from '@kuraykaraaslan/logger';
+import ESignatureIdentityService from '@kuraykaraaslan/e_signature/server/e_signature.identity.service';
+import { E_SIGNATURE_MESSAGES } from '@kuraykaraaslan/e_signature/server/e_signature.messages';
+import type { BoundCertificate, CountryCode, RawIdentityClaims } from '@kuraykaraaslan/e_signature/server/e_signature.types';
+import type { LoA } from '@kuraykaraaslan/e_signature/server/e_signature.enums';
 import { SigningCertificate } from './entities/signing_certificate.entity';
 
 /**

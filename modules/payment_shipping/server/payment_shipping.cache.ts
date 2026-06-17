@@ -1,6 +1,6 @@
-import { tenantDataSourceFor } from '@nb/db'
-import redis, { jitter, singleFlight } from '@nb/redis'
-import { env } from '@nb/env'
+import { tenantDataSourceFor } from '@kuraykaraaslan/db'
+import redis, { jitter, singleFlight } from '@kuraykaraaslan/redis'
+import { env } from '@kuraykaraaslan/env'
 import { ShippingMethod as ShippingMethodEntity } from './entities/shipping_method.entity'
 import { ShippingRate as ShippingRateEntity } from './entities/shipping_rate.entity'
 

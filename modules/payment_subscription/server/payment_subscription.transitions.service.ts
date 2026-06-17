@@ -1,7 +1,7 @@
 import 'reflect-metadata';
-import type { CurrencyCode } from '@nb/common';
-import { tenantDataSourceFor } from '@nb/db';
-import redis from '@nb/redis';
+import type { CurrencyCode } from '@kuraykaraaslan/common';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import redis from '@kuraykaraaslan/redis';
 import { SubscriptionPlan as PlanEntity } from './entities/subscription_plan.entity';
 import { Subscription as SubscriptionEntity } from './entities/subscription.entity';
 import {
@@ -12,10 +12,10 @@ import type {
   CancelSubscriptionDTO, PauseSubscriptionDTO, ChangePlanDTO,
 } from './payment_subscription.dto';
 import { SUBSCRIPTION_MESSAGES } from './payment_subscription.messages';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import ProrationService from './payment_subscription.proration.service';
 import type { BillingCycle } from './payment_subscription.enums';
-import WebhookService from '@nb/webhook/server/webhook.service';
+import WebhookService from '@kuraykaraaslan/webhook/server/webhook.service';
 import PaymentSubscriptionPlanService from './payment_subscription.plan.service';
 
 async function bustCache(subscriptionId: string): Promise<void> {

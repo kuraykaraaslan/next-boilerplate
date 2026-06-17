@@ -1,9 +1,9 @@
 'use client'
 
-import { Modal } from '@nb/common/ui/modal.component'
-import { toast } from '@nb/common/ui/toast.store'
+import { Modal } from '@kuraykaraaslan/common/ui/modal.component'
+import { toast } from '@kuraykaraaslan/common/ui/toast.store'
 import { useEditorStore } from './stores/editorStore'
-import { CURRENT_SCHEMA_VERSION } from '@nb/dynamic_page/server/dynamic_page.types'
+import { CURRENT_SCHEMA_VERSION } from '@kuraykaraaslan/dynamic_page/server/dynamic_page.types'
 
 export default function BackupModal() {
   const {

@@ -1,19 +1,19 @@
 import 'reflect-metadata';
-import { getDataSource } from '@nb/db';
-import { User as UserEntity } from '@nb/user/server/entities/user.entity';
+import { getDataSource } from '@kuraykaraaslan/db';
+import { User as UserEntity } from '@kuraykaraaslan/user/server/entities/user.entity';
 import { UserConsent as UserConsentEntity } from './entities/user_consent.entity';
 import bcrypt from 'bcrypt';
-import Logger from '@nb/logger';
-import UserService from '@nb/user/server/user.service';
-import TenantService from '@nb/tenant/server/tenant.service';
-import TenantInvitationService from '@nb/tenant_invitation/server/tenant_invitation.service';
-import UserSecurityService from '@nb/user_security/server/user_security.service';
-import AuditLogService from '@nb/audit_log/server/audit_log.service';
-import { AuditActions } from '@nb/audit_log/server/audit_log.enums';
-import { SafeUser, SafeUserSchema } from '@nb/user/server/user.types';
+import Logger from '@kuraykaraaslan/logger';
+import UserService from '@kuraykaraaslan/user/server/user.service';
+import TenantService from '@kuraykaraaslan/tenant/server/tenant.service';
+import TenantInvitationService from '@kuraykaraaslan/tenant_invitation/server/tenant_invitation.service';
+import UserSecurityService from '@kuraykaraaslan/user_security/server/user_security.service';
+import AuditLogService from '@kuraykaraaslan/audit_log/server/audit_log.service';
+import { AuditActions } from '@kuraykaraaslan/audit_log/server/audit_log.enums';
+import { SafeUser, SafeUserSchema } from '@kuraykaraaslan/user/server/user.types';
 import AuthMessages from './auth.messages';
 import AuthPolicyService from './auth.policy.service';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { hashPassword } from './auth.credential.helpers';
 
 export async function register({ email, password, phone, tenantId, consentVersion }: {

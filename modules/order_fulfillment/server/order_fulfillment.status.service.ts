@@ -1,9 +1,9 @@
 import 'reflect-metadata'
-import { tenantDataSourceFor } from '@nb/db'
-import redis from '@nb/redis'
-import Logger from '@nb/logger'
-import WebhookService from '@nb/webhook/server/webhook.service'
-import { AppError, ErrorCode } from '@nb/common/server/app-error'
+import { tenantDataSourceFor } from '@kuraykaraaslan/db'
+import redis from '@kuraykaraaslan/redis'
+import Logger from '@kuraykaraaslan/logger'
+import WebhookService from '@kuraykaraaslan/webhook/server/webhook.service'
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error'
 import { Fulfillment as FulfillmentEntity } from './entities/fulfillment.entity'
 import type { FulfillmentWithItems } from './order_fulfillment.types'
 import type { AddTrackingDTO, UpdateStatusDTO, BulkUpdateStatusDTO } from './order_fulfillment.dto'
@@ -65,7 +65,7 @@ export async function notifyCustomer(tenantId: string, row: FulfillmentEntity, s
   const html = `<p>Your shipment status is now <strong>${status}</strong>.</p>` +
     (row.trackingNumber ? `<p>Tracking: ${row.carrier ?? ''} ${row.trackingNumber}</p>` : '') +
     (trackUrl ? `<p>Track your order: ${trackUrl}</p>` : '')
-  const { default: NotificationMailQueueService } = await import('@nb/notification_mail/server/notification_mail.queue.service')
+  const { default: NotificationMailQueueService } = await import('@kuraykaraaslan/notification_mail/server/notification_mail.queue.service')
   await NotificationMailQueueService.sendMail(tenantId, email, subject, html)
 }
 

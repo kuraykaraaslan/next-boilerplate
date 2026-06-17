@@ -7,7 +7,7 @@ import type {
   AddTrackingDTO, UpdateStatusDTO, BulkUpdateStatusDTO, AnalyticsQuery,
   GenerateLabelDTO,
 } from './order_fulfillment.dto'
-import type { CarrierLabel } from '@nb/payment_shipping/server/adapters/base.carrier'
+import type { CarrierLabel } from '@kuraykaraaslan/payment_shipping/server/adapters/base.carrier'
 import type { OrderFulfillmentState } from './order_fulfillment.enums'
 import OrderFulfillmentCarrierService from './order_fulfillment.carrier.service'
 import OrderFulfillmentAnalyticsService, { type CustomsDeclaration } from './order_fulfillment.analytics.service'

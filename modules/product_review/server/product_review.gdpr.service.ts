@@ -1,9 +1,9 @@
 import 'reflect-metadata'
-import { tenantDataSourceFor } from '@nb/db'
+import { tenantDataSourceFor } from '@kuraykaraaslan/db'
 import { ProductReview as ProductReviewEntity } from './entities/product_review.entity'
 import { ProductReviewVote as ProductReviewVoteEntity } from './entities/product_review_vote.entity'
 import { SafeProductReviewSchema, type SafeProductReview } from './product_review.types'
-import { AppError, ErrorCode } from '@nb/common/server/app-error'
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error'
 import { PRODUCT_REVIEW_MESSAGES } from './product_review.messages'
 import { bustReview, bustSummary } from './product_review.helpers'
 

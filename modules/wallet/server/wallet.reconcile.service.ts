@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { tenantDataSourceFor } from '@nb/db';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
 import { WalletAccount as WalletAccountEntity } from './entities/wallet_account.entity';
 import { WalletPosting as WalletPostingEntity } from './entities/wallet_posting.entity';
 import WalletCrudService from './wallet.crud.service';

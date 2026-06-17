@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
-import axiosInstance from '@nb/common/server/axios';
-import type { FeatureAccessResult } from '@nb/tenant_subscription/server/tenant_subscription.types';
+import axiosInstance from '@kuraykaraaslan/common/server/axios';
+import type { FeatureAccessResult } from '@kuraykaraaslan/tenant_subscription/server/tenant_subscription.types';
 
 type UseFeatureAccessState = {
   result: FeatureAccessResult | null;

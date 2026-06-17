@@ -1,25 +1,25 @@
 import 'reflect-metadata';
-import { tenantDataSourceFor } from '@nb/db';
-import { TenantMember } from '@nb/tenant_member/server/entities/tenant_member.entity';
-import { TenantDomain } from '@nb/tenant_domain/server/entities/tenant_domain.entity';
-import { AuditLog } from '@nb/audit_log/server/entities/audit_log.entity';
-import { Webhook } from '@nb/webhook/server/entities/webhook.entity';
-import { WebhookDelivery } from '@nb/webhook/server/entities/webhook_delivery.entity';
-import { Setting } from '@nb/setting/server/entities/setting.entity';
-import { Payment } from '@nb/payment/server/entities/payment.entity';
-import { PaymentTransaction } from '@nb/payment/server/entities/payment_transaction.entity';
-import { SubscriptionPlan } from '@nb/payment/server/entities/subscription_plan.entity';
-import { PlanFeature } from '@nb/payment/server/entities/plan_feature.entity';
-import { TenantSubscription } from '@nb/tenant_subscription/server/entities/tenant_subscription.entity';
-import { Coupon } from '@nb/coupon/server/entities/coupon.entity';
-import { CouponRedemption } from '@nb/coupon/server/entities/coupon_redemption.entity';
-import { ApiKey } from '@nb/api_key/server/entities/api_key.entity';
-import { SamlConfig } from '@nb/auth_saml/server/entities/saml_config.entity';
-import { UploadedFile } from '@nb/storage/server/entities/uploaded_file.entity';
-import { AiUsageLog } from '@nb/ai/server/entities/ai_usage_log.entity';
-import { NotificationLog } from '@nb/notification_log/server/entities/notification_log.entity';
-import { TenantUsage } from '@nb/tenant_usage/server/entities/tenant_usage.entity';
-import Logger from '@nb/logger';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import { TenantMember } from '@kuraykaraaslan/tenant_member/server/entities/tenant_member.entity';
+import { TenantDomain } from '@kuraykaraaslan/tenant_domain/server/entities/tenant_domain.entity';
+import { AuditLog } from '@kuraykaraaslan/audit_log/server/entities/audit_log.entity';
+import { Webhook } from '@kuraykaraaslan/webhook/server/entities/webhook.entity';
+import { WebhookDelivery } from '@kuraykaraaslan/webhook/server/entities/webhook_delivery.entity';
+import { Setting } from '@kuraykaraaslan/setting/server/entities/setting.entity';
+import { Payment } from '@kuraykaraaslan/payment/server/entities/payment.entity';
+import { PaymentTransaction } from '@kuraykaraaslan/payment/server/entities/payment_transaction.entity';
+import { SubscriptionPlan } from '@kuraykaraaslan/payment/server/entities/subscription_plan.entity';
+import { PlanFeature } from '@kuraykaraaslan/payment/server/entities/plan_feature.entity';
+import { TenantSubscription } from '@kuraykaraaslan/tenant_subscription/server/entities/tenant_subscription.entity';
+import { Coupon } from '@kuraykaraaslan/coupon/server/entities/coupon.entity';
+import { CouponRedemption } from '@kuraykaraaslan/coupon/server/entities/coupon_redemption.entity';
+import { ApiKey } from '@kuraykaraaslan/api_key/server/entities/api_key.entity';
+import { SamlConfig } from '@kuraykaraaslan/auth_saml/server/entities/saml_config.entity';
+import { UploadedFile } from '@kuraykaraaslan/storage/server/entities/uploaded_file.entity';
+import { AiUsageLog } from '@kuraykaraaslan/ai/server/entities/ai_usage_log.entity';
+import { NotificationLog } from '@kuraykaraaslan/notification_log/server/entities/notification_log.entity';
+import { TenantUsage } from '@kuraykaraaslan/tenant_usage/server/entities/tenant_usage.entity';
+import Logger from '@kuraykaraaslan/logger';
 import type { TenantExportData, ExportOptions } from './tenant_export.types';
 import { stripFields, redactPiiDeep } from './tenant_export.helpers';
 
@@ -30,7 +30,7 @@ export async function exportTenantData(tenantId: string, opts: ExportOptions = {
   let auditCap = opts.auditLogCap;
   if (auditCap == null) {
     try {
-      const { default: SettingService } = await import('@nb/setting/server/setting.service');
+      const { default: SettingService } = await import('@kuraykaraaslan/setting/server/setting.service');
       const raw = await SettingService.getValue(tenantId, 'exportAuditLogCap').catch(() => null);
       auditCap = Number(raw) > 0 ? Number(raw) : 1000;
     } catch { auditCap = 1000; }

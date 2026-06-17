@@ -1,14 +1,14 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import api from '@nb/common/server/axios';
-import { Card } from '@nb/common/ui/card.component';
-import { Input } from '@nb/common/ui/input.component';
-import { Select } from '@nb/common/ui/select.component';
-import { Toggle } from '@nb/common/ui/toggle.component';
-import { Button } from '@nb/common/ui/button.component';
-import { Spinner } from '@nb/common/ui/spinner.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
+import api from '@kuraykaraaslan/common/server/axios';
+import { Card } from '@kuraykaraaslan/common/ui/card.component';
+import { Input } from '@kuraykaraaslan/common/ui/input.component';
+import { Select } from '@kuraykaraaslan/common/ui/select.component';
+import { Toggle } from '@kuraykaraaslan/common/ui/toggle.component';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import { Spinner } from '@kuraykaraaslan/common/ui/spinner.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
 
 /**
  * Per-tenant invoice PDF template designer. Reads/writes the

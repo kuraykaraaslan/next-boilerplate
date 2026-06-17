@@ -2,14 +2,14 @@
 
 import { use, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import api from '@nb/common/server/axios';
-import { PageHeader } from '@nb/common/ui/page-header.component';
-import { Button } from '@nb/common/ui/button.component';
-import { Input } from '@nb/common/ui/input.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
-import { toast } from '@nb/common/ui/toast.store';
-import TemplateBlockRenderer from '@nb/dynamic_page/ui/dynamic/partials/template-block-renderer.component';
-import type { DynamicPageBlockRecord } from '@nb/dynamic_page/server/dynamic_page.types';
+import api from '@kuraykaraaslan/common/server/axios';
+import { PageHeader } from '@kuraykaraaslan/common/ui/page-header.component';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import { Input } from '@kuraykaraaslan/common/ui/input.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
+import { toast } from '@kuraykaraaslan/common/ui/toast.store';
+import TemplateBlockRenderer from '@kuraykaraaslan/dynamic_page/ui/dynamic/partials/template-block-renderer.component';
+import type { DynamicPageBlockRecord } from '@kuraykaraaslan/dynamic_page/server/dynamic_page.types';
 
 type BlockDef = Pick<DynamicPageBlockRecord, 'blockId' | 'type' | 'label' | 'category' | 'defaultProps' | 'isSystem'> & {
   description: string;

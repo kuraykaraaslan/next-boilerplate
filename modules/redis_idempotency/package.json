@@ -1,5 +1,5 @@
 {
-  "name": "@nb/redis_idempotency",
+  "name": "@kuraykaraaslan/redis_idempotency",
   "version": "0.0.0",
   "private": true,
   "type": "module",

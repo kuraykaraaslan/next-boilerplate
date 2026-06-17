@@ -7,7 +7,7 @@ export {
   type PaymentMethod,
   type PaymentCurrency,
   type WebhookEventType,
-} from '@nb/payment_core/server/payment_core.enums'
+} from '@kuraykaraaslan/payment_core/server/payment_core.enums'
 
 import { z } from 'zod'
 

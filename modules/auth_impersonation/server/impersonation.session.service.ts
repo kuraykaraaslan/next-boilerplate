@@ -1,11 +1,11 @@
 import { z } from 'zod';
-import { getDataSource } from '@nb/db';
-import { UserSession as UserSessionEntity } from '@nb/user_session/server/entities/user_session.entity';
-import { SafeUserSession, SafeUserSessionSchema } from '@nb/user_session/server/user_session.types';
-import UserSessionService from '@nb/user_session/server/user_session.service';
-import WebhookService from '@nb/webhook/server/webhook.service';
-import AuditLogService from '@nb/audit_log/server/audit_log.service';
-import { AuditActions } from '@nb/audit_log/server/audit_log.enums';
+import { getDataSource } from '@kuraykaraaslan/db';
+import { UserSession as UserSessionEntity } from '@kuraykaraaslan/user_session/server/entities/user_session.entity';
+import { SafeUserSession, SafeUserSessionSchema } from '@kuraykaraaslan/user_session/server/user_session.types';
+import UserSessionService from '@kuraykaraaslan/user_session/server/user_session.service';
+import WebhookService from '@kuraykaraaslan/webhook/server/webhook.service';
+import AuditLogService from '@kuraykaraaslan/audit_log/server/audit_log.service';
+import { AuditActions } from '@kuraykaraaslan/audit_log/server/audit_log.enums';
 
 const ImpersonationSessionMetaSchema = z.object({
   impersonation: z.record(z.string(), z.unknown()).optional(),

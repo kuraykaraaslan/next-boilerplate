@@ -1,10 +1,10 @@
 import 'reflect-metadata'
 import { In } from 'typeorm'
-import { createQueue, createWorker } from '@nb/redis'
-import { tenantDataSourceFor } from '@nb/db'
-import Logger from '@nb/logger'
+import { createQueue, createWorker } from '@kuraykaraaslan/redis'
+import { tenantDataSourceFor } from '@kuraykaraaslan/db'
+import Logger from '@kuraykaraaslan/logger'
 import { PushSubscription as PushSubscriptionEntity } from './entities/push_subscription.entity'
-import { TenantMember } from '@nb/tenant_member/server/entities/tenant_member.entity'
+import { TenantMember } from '@kuraykaraaslan/tenant_member/server/entities/tenant_member.entity'
 import NotificationPushService, { type PushPayload } from './notification_push.service'
 
 /**

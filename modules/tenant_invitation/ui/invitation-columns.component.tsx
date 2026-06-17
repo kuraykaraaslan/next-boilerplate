@@ -1,12 +1,12 @@
 'use client';
 
-import { Badge } from '@nb/common/ui/badge.component';
-import { RowActionsMenu } from '@nb/common/ui/row-actions-menu.component';
-import type { TableColumn } from '@nb/common/ui/server-data-table.component';
+import { Badge } from '@kuraykaraaslan/common/ui/badge.component';
+import { RowActionsMenu } from '@kuraykaraaslan/common/ui/row-actions-menu.component';
+import type { TableColumn } from '@kuraykaraaslan/common/ui/server-data-table.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faBan } from '@fortawesome/free-solid-svg-icons';
-import type { TenantMemberRole as MemberRole } from '@nb/tenant_member/server/tenant_member.enums';
-import type { TenantInvitationStatus as InvitationStatus } from '@nb/tenant_invitation/server/tenant_invitation.enums';
+import type { TenantMemberRole as MemberRole } from '@kuraykaraaslan/tenant_member/server/tenant_member.enums';
+import type { TenantInvitationStatus as InvitationStatus } from '@kuraykaraaslan/tenant_invitation/server/tenant_invitation.enums';
 
 export type InvitationRow = {
   invitationId: string;

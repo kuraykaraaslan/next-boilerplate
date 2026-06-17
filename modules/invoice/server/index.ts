@@ -8,7 +8,7 @@ export { InvoiceLine } from './entities/invoice_line.entity';
 export type { InvoiceAdapter } from './adapters/base.adapter';
 export { getInvoiceAdapter, getCountryInvoiceAdapter, resolveInvoiceAdapter, listInvoiceAdapters } from './adapters/registry';
 // e-invoicing adapter implementations (FatturaPA, Peppol, e-Arşiv, …) now live in
-// their own @nb/invoice_<key> satellite modules, contributed via the
+// their own @kuraykaraaslan/invoice_<key> satellite modules, contributed via the
 // invoice:adapter extension point and resolved through adapters/registry above.
 // The GİB direct client stays in the host for the TR e-Arşiv SMS finalisation flow.
 export { GibDirectClient } from './adapters/tr_gib_direct.client';

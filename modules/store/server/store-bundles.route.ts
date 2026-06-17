@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import Limiter from '@nb/limiter/server/limiter.service.next'
-import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next'
-import StoreBundleService from '@nb/store/server/store.bundle.service'
-import { CreateBundleDTO, GetBundlesQuery } from '@nb/store/server/store.dto'
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next'
+import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next'
+import StoreBundleService from '@kuraykaraaslan/store/server/store.bundle.service'
+import { CreateBundleDTO, GetBundlesQuery } from '@kuraykaraaslan/store/server/store.dto'
 
 export async function GET(
   request: NextRequest,

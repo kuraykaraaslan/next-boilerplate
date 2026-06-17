@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { PaymentProviderEnum, PaymentCurrencyEnum } from '@nb/payment_core/server/payment_core.enums'
+import { PaymentProviderEnum, PaymentCurrencyEnum } from '@kuraykaraaslan/payment_core/server/payment_core.enums'
 import {
   SubscriptionStatusEnum, BillingCycleEnum,
   SubscriptionPlanStatusEnum, PlanFeatureTypeEnum,

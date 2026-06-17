@@ -3,7 +3,7 @@
 
 /** Best-effort webhook dispatch (dynamic import, never blocks the caller). */
 export function emitEvent(tenantId: string, event: string, payload: Record<string, unknown>): void {
-  import('@nb/webhook/server/webhook.service')
+  import('@kuraykaraaslan/webhook/server/webhook.service')
     .then((m) => m.default.dispatchEvent(tenantId, event as never, payload))
     .catch(() => {});
 }
@@ -17,7 +17,7 @@ export function auditModeration(
   severity: 'low' | 'medium' | 'high' | 'critical',
   metadata: Record<string, unknown>,
 ): void {
-  import('@nb/audit_log/server/audit_log.service')
+  import('@kuraykaraaslan/audit_log/server/audit_log.service')
     .then((m) =>
       m.default.log({
         tenantId,
@@ -35,7 +35,7 @@ export function auditModeration(
 
 /** Best-effort in-app alert to tenant admins/moderators. */
 export function notifyModerators(tenantId: string, title: string, message: string): void {
-  import('@nb/notification_inapp/server/notification_inapp.service')
+  import('@kuraykaraaslan/notification_inapp/server/notification_inapp.service')
     .then((m) =>
       m.default.pushToAdmins(tenantId, {
         title,

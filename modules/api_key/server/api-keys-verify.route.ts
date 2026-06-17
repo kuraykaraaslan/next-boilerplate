@@ -1,7 +1,7 @@
-import Limiter from '@nb/limiter/server/limiter.service.next';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
 import { NextRequest, NextResponse } from 'next/server';
-import ApiKeyService from '@nb/api_key/server/api_key.service';
-import type { ApiKeyScope } from '@nb/api_key/server/api_key.enums';
+import ApiKeyService from '@kuraykaraaslan/api_key/server/api_key.service';
+import type { ApiKeyScope } from '@kuraykaraaslan/api_key/server/api_key.enums';
 
 /**
  * POST /tenant/[tenantId]/api/api-keys/verify

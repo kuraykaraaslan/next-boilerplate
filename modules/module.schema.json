@@ -324,7 +324,7 @@
         },
         "export": {
           "type": "string",
-          "description": "Server export id resolved to '@nb/<export>', e.g. 'ai_openai/server/openai.extension'. Must be listed in the module's package.json exports."
+          "description": "Server export id resolved to '@kuraykaraaslan/<export>', e.g. 'ai_openai/server/openai.extension'. Must be listed in the module's package.json exports."
         },
         "order": { "type": "integer", "default": 100 },
         "scope": {

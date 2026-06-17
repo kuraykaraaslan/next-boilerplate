@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { IsNull, type DataSource } from 'typeorm';
-import { tenantDataSourceFor } from '@nb/db';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { Conversation as ConversationEntity } from './entities/conversation.entity';
 import { ConversationParticipant as ParticipantEntity } from './entities/conversation_participant.entity';
 import { Message as MessageEntity } from './entities/message.entity';

@@ -1,28 +1,28 @@
 'use client';
 import { use, useEffect, useState, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import api from '@nb/common/server/axios';
-import { PageHeader } from '@nb/common/ui/page-header.component';
-import { Spinner } from '@nb/common/ui/spinner.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
-import { Card } from '@nb/common/ui/card.component';
-import { Button } from '@nb/common/ui/button.component';
-import { Modal } from '@nb/common/ui/modal.component';
-import { SubscriptionPlanCard } from '@nb/tenant_subscription/ui/subscription-plan-card.component';
-import { GracePeriodBanner } from '@nb/tenant_subscription/ui/grace-period-banner.component';
-import { CurrentSubscriptionCard } from '@nb/tenant_subscription/ui/current-subscription-card.component';
-import { CardCheckoutModal } from '@nb/payment/ui/card-checkout-modal.component';
-import { StripeExpressCheckoutModal } from '@nb/payment/ui/stripe-express-checkout-modal.component';
-import { PaymentProviderSelector } from '@nb/payment/ui/payment-provider-selector.component';
-import type { WalletMethod } from '@nb/payment/server/payment.enums';
+import api from '@kuraykaraaslan/common/server/axios';
+import { PageHeader } from '@kuraykaraaslan/common/ui/page-header.component';
+import { Spinner } from '@kuraykaraaslan/common/ui/spinner.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
+import { Card } from '@kuraykaraaslan/common/ui/card.component';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import { Modal } from '@kuraykaraaslan/common/ui/modal.component';
+import { SubscriptionPlanCard } from '@kuraykaraaslan/tenant_subscription/ui/subscription-plan-card.component';
+import { GracePeriodBanner } from '@kuraykaraaslan/tenant_subscription/ui/grace-period-banner.component';
+import { CurrentSubscriptionCard } from '@kuraykaraaslan/tenant_subscription/ui/current-subscription-card.component';
+import { CardCheckoutModal } from '@kuraykaraaslan/payment/ui/card-checkout-modal.component';
+import { StripeExpressCheckoutModal } from '@kuraykaraaslan/payment/ui/stripe-express-checkout-modal.component';
+import { PaymentProviderSelector } from '@kuraykaraaslan/payment/ui/payment-provider-selector.component';
+import type { WalletMethod } from '@kuraykaraaslan/payment/server/payment.enums';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCreditCard, faWarning, faRotateRight } from '@fortawesome/free-solid-svg-icons';
 import type {
   PlanWithFeatures,
   TenantSubscriptionWithPlan,
   GracePeriodStatus,
-} from '@nb/tenant_subscription/server/tenant_subscription.types';
-import type { Provider } from '@nb/tenant_subscription/ui/subscription.helpers';
+} from '@kuraykaraaslan/tenant_subscription/server/tenant_subscription.types';
+import type { Provider } from '@kuraykaraaslan/tenant_subscription/ui/subscription.helpers';
 
 export default function TenantSubscriptionPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = use(params);

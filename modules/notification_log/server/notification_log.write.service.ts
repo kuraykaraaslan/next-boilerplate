@@ -1,6 +1,6 @@
 import { LessThan } from 'typeorm';
-import Logger from '@nb/logger';
-import { tenantDataSourceFor } from '@nb/db';
+import Logger from '@kuraykaraaslan/logger';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
 import {
   NotificationLog,
   NotificationChannel,

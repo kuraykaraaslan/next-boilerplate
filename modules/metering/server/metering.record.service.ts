@@ -1,9 +1,9 @@
 import 'reflect-metadata';
-import { tenantDataSourceFor } from '@nb/db';
-import redis from '@nb/redis';
-import Logger from '@nb/logger';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
-import WebhookService from '@nb/webhook/server/webhook.service';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import redis from '@kuraykaraaslan/redis';
+import Logger from '@kuraykaraaslan/logger';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
+import WebhookService from '@kuraykaraaslan/webhook/server/webhook.service';
 import { MeteredUsageEvent as MeteredUsageEventEntity } from './entities/metered_usage_event.entity';
 import MeterCrudService from './metering.meter.service';
 import { MeteredUsageEventSchema, type MeteredUsageEvent, type MeterUsageReading } from './metering.types';

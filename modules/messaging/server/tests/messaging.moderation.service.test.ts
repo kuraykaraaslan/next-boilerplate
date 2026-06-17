@@ -1,10 +1,10 @@
 import { describe, it, expect, vi } from 'vitest';
 
 // Prevent real infra connections when importing the service graph.
-vi.mock('@nb/env', () => ({ env: { REDIS_URL: 'redis://test', NODE_ENV: 'test' } }));
-vi.mock('@nb/redis', () => ({ default: { publish: vi.fn(async () => 0) } }));
-vi.mock('@nb/db', () => ({ tenantDataSourceFor: vi.fn() }));
-vi.mock('@nb/setting/server/setting.service', () => ({ default: { getByKeys: vi.fn(async () => ({})) } }));
+vi.mock('@kuraykaraaslan/env', () => ({ env: { REDIS_URL: 'redis://test', NODE_ENV: 'test' } }));
+vi.mock('@kuraykaraaslan/redis', () => ({ default: { publish: vi.fn(async () => 0) } }));
+vi.mock('@kuraykaraaslan/db', () => ({ tenantDataSourceFor: vi.fn() }));
+vi.mock('@kuraykaraaslan/setting/server/setting.service', () => ({ default: { getByKeys: vi.fn(async () => ({})) } }));
 
 import MessagingModerationService from '../messaging.moderation.service';
 

@@ -1,15 +1,15 @@
 'use client';
 import { use, useEffect, useState } from 'react';
-import api from '@nb/common/server/axios';
-import { BrandLogo } from '@nb/common/ui/brand-logo.component';
-import { Button } from '@nb/common/ui/button.component';
-import { Spinner } from '@nb/common/ui/spinner.component';
-import { Modal } from '@nb/common/ui/modal.component';
-import { Input } from '@nb/common/ui/input.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
+import api from '@kuraykaraaslan/common/server/axios';
+import { BrandLogo } from '@kuraykaraaslan/common/ui/brand-logo.component';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import { Spinner } from '@kuraykaraaslan/common/ui/spinner.component';
+import { Modal } from '@kuraykaraaslan/common/ui/modal.component';
+import { Input } from '@kuraykaraaslan/common/ui/input.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBuilding, faPlus, faCog, faChevronRight } from '@fortawesome/free-solid-svg-icons';
-import { isRootTenant } from '@nb/tenant/server/tenant.constants';
+import { isRootTenant } from '@kuraykaraaslan/tenant/server/tenant.constants';
 
 type TenantMembership = {
   tenantMemberId: string;

@@ -1,4 +1,4 @@
-import { cn } from '@nb/common/server/utils/cn';
+import { cn } from '@kuraykaraaslan/common/server/utils/cn';
 
 const STATUS_LABELS: Record<string, string> = {
   '200': 'OK', '201': 'Created', '202': 'Accepted', '204': 'No Content',

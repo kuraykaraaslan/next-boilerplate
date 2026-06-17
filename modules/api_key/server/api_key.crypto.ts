@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { env } from '@nb/env';
+import { env } from '@kuraykaraaslan/env';
 import type { ApiKeyEnv } from './api_key.enums';
 
 // Default raw-key environment, derived from the deployment mode. A prod/vercel

@@ -1,7 +1,7 @@
-import Logger from '@nb/logger';
-import type { InvoiceAdapter, InvoiceAdapterSubmitResult } from '@nb/invoice/server/adapters/base.adapter';
-import type { Invoice } from '@nb/invoice/server/entities/invoice.entity';
-import type { InvoiceLine } from '@nb/invoice/server/entities/invoice_line.entity';
+import Logger from '@kuraykaraaslan/logger';
+import type { InvoiceAdapter, InvoiceAdapterSubmitResult } from '@kuraykaraaslan/invoice/server/adapters/base.adapter';
+import type { Invoice } from '@kuraykaraaslan/invoice/server/entities/invoice.entity';
+import type { InvoiceLine } from '@kuraykaraaslan/invoice/server/entities/invoice_line.entity';
 
 /**
  * US — there's no federal e-invoicing mandate, so `submit()` is a no-op.

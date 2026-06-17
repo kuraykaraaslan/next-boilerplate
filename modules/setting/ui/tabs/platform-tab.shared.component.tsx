@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '@nb/common/ui/button.component';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave } from '@fortawesome/free-solid-svg-icons';
 

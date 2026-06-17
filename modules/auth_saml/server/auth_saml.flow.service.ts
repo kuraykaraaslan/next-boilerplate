@@ -1,7 +1,7 @@
 import { SamlConfig } from './entities/saml_config.entity';
 import type { SamlProfile, SamlMetadata } from './auth_saml.types';
-import type { TenantMemberRole } from '@nb/tenant_member/server/tenant_member.enums';
-import type { SafeUser } from '@nb/user/server/user.types';
+import type { TenantMemberRole } from '@kuraykaraaslan/tenant_member/server/tenant_member.enums';
+import type { SafeUser } from '@kuraykaraaslan/user/server/user.types';
 import {
   generateAuthUrl, isTenantEnabled, validateCallback, assertNotReplayed,
 } from './auth_saml.flow.callback.service';

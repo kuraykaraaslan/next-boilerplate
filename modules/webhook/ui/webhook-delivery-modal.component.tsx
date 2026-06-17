@@ -1,11 +1,11 @@
 'use client';
 
-import { Spinner } from '@nb/common/ui/spinner.component';
-import { Button } from '@nb/common/ui/button.component';
-import { Badge } from '@nb/common/ui/badge.component';
-import { Modal } from '@nb/common/ui/modal.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
-import { ServerDataTable, type TableColumn } from '@nb/common/ui/server-data-table.component';
+import { Spinner } from '@kuraykaraaslan/common/ui/spinner.component';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import { Badge } from '@kuraykaraaslan/common/ui/badge.component';
+import { Modal } from '@kuraykaraaslan/common/ui/modal.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
+import { ServerDataTable, type TableColumn } from '@kuraykaraaslan/common/ui/server-data-table.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRotateRight, faCircleCheck, faCircleXmark, faClock } from '@fortawesome/free-solid-svg-icons';
 import { statusVariant, type Delivery, type Webhook } from './webhook.types';

@@ -1,12 +1,12 @@
 import 'reflect-metadata';
 import type { DataSource } from 'typeorm';
-import { tenantDataSourceFor } from '@nb/db';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
 import { Webhook as WebhookEntity } from './entities/webhook.entity';
 import { WebhookDelivery as WebhookDeliveryEntity } from './entities/webhook_delivery.entity';
 import { isReservedHeaderName } from './webhook.dto';
 import { assertSafeWebhookUrl } from './webhook.ssrf';
-import Logger from '@nb/logger';
-import { TenantUsageService } from '@nb/tenant_usage/server/tenant_usage.service';
+import Logger from '@kuraykaraaslan/logger';
+import { TenantUsageService } from '@kuraykaraaslan/tenant_usage/server/tenant_usage.service';
 import { signPayload } from './webhook.crypto';
 import { resolveDeliveryConfig, RETRY_DELAYS_MS, type DeliveryJobData } from './webhook.config';
 

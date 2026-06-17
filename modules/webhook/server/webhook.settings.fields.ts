@@ -1,4 +1,4 @@
-import type { SettingFieldDef } from '@nb/setting/server/setting-fields.types';
+import type { SettingFieldDef } from '@kuraykaraaslan/setting/server/setting-fields.types';
 
 // UI metadata for the Webhooks settings page. Keys cover the per-delivery
 // knobs and the reliability controls. The global worker-pool knob

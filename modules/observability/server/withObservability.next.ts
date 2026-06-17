@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { NextRequest, NextResponse } from 'next/server';
-import Logger from '@nb/logger';
-import ObservabilityService from '@nb/observability';
+import Logger from '@kuraykaraaslan/logger';
+import ObservabilityService from '@kuraykaraaslan/observability';
 
 /**
  * Wrap a Next.js route handler so that:

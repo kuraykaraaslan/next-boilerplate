@@ -5,9 +5,9 @@ const { envMock, disableDormant } = vi.hoisted(() => ({
   envMock: { CRON_SECRET: 'topsecret' } as { CRON_SECRET?: string },
   disableDormant: vi.fn(async () => ({ scanned: 3, disabled: 2, erased: 1 })),
 }));
-vi.mock('@nb/env', () => ({ env: envMock }));
-vi.mock('@nb/logger', () => ({ default: { info: vi.fn(), warn: vi.fn(), error: vi.fn() } }));
-vi.mock('@nb/auth/server/auth.service', () => ({ default: { disableDormantAccounts: (...a: any[]) => disableDormant(...(a as [])) } }));
+vi.mock('@kuraykaraaslan/env', () => ({ env: envMock }));
+vi.mock('@kuraykaraaslan/logger', () => ({ default: { info: vi.fn(), warn: vi.fn(), error: vi.fn() } }));
+vi.mock('@kuraykaraaslan/auth/server/auth.service', () => ({ default: { disableDormantAccounts: (...a: any[]) => disableDormant(...(a as [])) } }));
 
 import { POST } from '../cron-dormant-sweep.route';
 

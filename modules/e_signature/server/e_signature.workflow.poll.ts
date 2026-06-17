@@ -1,10 +1,10 @@
-import { env } from '@nb/env';
-import Logger from '@nb/logger';
+import { env } from '@kuraykaraaslan/env';
+import Logger from '@kuraykaraaslan/logger';
 import ESignatureCryptoService from './e_signature.crypto.service';
 import ESignatureTrustListService from './e_signature.trust_list.service';
 import ESignatureIdentityService from './e_signature.identity.service';
 import ESignatureProviderService from './e_signature.provider.service';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { E_SIGNATURE_MESSAGES } from './e_signature.messages';
 import type { LoA } from './e_signature.enums';
 import type { LoginStatusResult } from './e_signature.workflow.types';

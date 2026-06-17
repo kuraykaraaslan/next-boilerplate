@@ -1,4 +1,4 @@
-import { env } from '@nb/env';
+import { env } from '@kuraykaraaslan/env';
 
 const isDev = env.NODE_ENV === 'development';
 

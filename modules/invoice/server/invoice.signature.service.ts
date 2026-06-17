@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { ESignatureDocumentService } from '@nb/e_signature';
+import { ESignatureDocumentService } from '@kuraykaraaslan/e_signature';
 
 /**
  * Invoice-specific facade over the platform's generic document-signing engine

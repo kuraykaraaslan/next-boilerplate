@@ -1,10 +1,10 @@
 import 'reflect-metadata';
 import { randomBytes } from 'node:crypto';
-import { getDataSource } from '@nb/db';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
-import SettingService from '@nb/setting/server/setting.service';
-import WebhookService from '@nb/webhook/server/webhook.service';
-import Logger from '@nb/logger';
+import { getDataSource } from '@kuraykaraaslan/db';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
+import WebhookService from '@kuraykaraaslan/webhook/server/webhook.service';
+import Logger from '@kuraykaraaslan/logger';
 import { UserSecurity as UserSecurityEntity } from './entities/user_security.entity';
 import { type TrustedDevice } from './user_security.types';
 import UserSecurityMessages from './user_security.messages';

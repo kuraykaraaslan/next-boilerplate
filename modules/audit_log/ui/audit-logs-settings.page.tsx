@@ -1,7 +1,7 @@
 'use client';
 import { use } from 'react';
-import { ModuleSettingsPage } from '@nb/setting/ui/module-settings-page.component';
-import { AUDIT_LOG_SETTINGS_FIELDS } from '@nb/audit_log/server/audit_log.settings.fields';
+import { ModuleSettingsPage } from '@kuraykaraaslan/setting/ui/module-settings-page.component';
+import { AUDIT_LOG_SETTINGS_FIELDS } from '@kuraykaraaslan/audit_log/server/audit_log.settings.fields';
 
 export default function AuditLogsSettingsPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = use(params);

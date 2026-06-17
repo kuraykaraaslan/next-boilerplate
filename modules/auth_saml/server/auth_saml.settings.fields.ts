@@ -1,4 +1,4 @@
-import type { SettingFieldDef } from '@nb/setting/server/setting-fields.types';
+import type { SettingFieldDef } from '@kuraykaraaslan/setting/server/setting-fields.types';
 import { AUTH_SAML_SETTING_KEYS } from './auth_saml.setting.keys';
 
 // UI metadata for the SAML operational-settings page. These are the knobs that

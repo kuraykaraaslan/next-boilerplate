@@ -6,7 +6,7 @@ import {
   getAll, getByKey, getByKeys, getValue, getAllAsRecord, getByGroup,
 } from './setting.read.service';
 import {
-  create, update, updateMany, remove,
+  create, update, updateMany, remove, removeByPrefix,
 } from './setting.write.service';
 import {
   rollback, getHistory, setLocked, applyTemplate,
@@ -65,6 +65,10 @@ export default class SettingService {
 
   static delete(tenantId: string, key: string, options?: { actorId?: string }): Promise<Setting | null> {
     return remove(tenantId, key, options);
+  }
+
+  static deleteByPrefix(tenantId: string, prefix: string, options?: { actorId?: string }): Promise<number> {
+    return removeByPrefix(tenantId, prefix, options);
   }
 
   static rollback(tenantId: string, key: string, historyId: string, options?: { actorId?: string }): Promise<Setting> {

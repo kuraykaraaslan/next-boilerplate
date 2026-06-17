@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { BaseSSOProvider, type AuthUrlOptions } from '@nb/auth_sso/server/providers/base.provider';
-import type { SSOProfile } from '@nb/auth_sso/server/auth_sso.types';
+import { BaseSSOProvider, type AuthUrlOptions } from '@kuraykaraaslan/auth_sso/server/providers/base.provider';
+import type { SSOProfile } from '@kuraykaraaslan/auth_sso/server/auth_sso.types';
 
 export class GoogleProvider extends BaseSSOProvider {
   protected override usesPkce = true;

@@ -1,10 +1,10 @@
 // path: app/tenant/[tenantId]/api/auth/me/preferences/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
-import UserPreferencesService from '@nb/user_preferences/server/user_preferences.service';
-import Limiter from '@nb/limiter/server/limiter.service.next';
-import { UpdatePreferencesRequestSchema } from '@nb/user_preferences/server/user_preferences.dto';
-import AuthMessages from '@nb/auth/server/auth.messages';
+import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next';
+import UserPreferencesService from '@kuraykaraaslan/user_preferences/server/user_preferences.service';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
+import { UpdatePreferencesRequestSchema } from '@kuraykaraaslan/user_preferences/server/user_preferences.dto';
+import AuthMessages from '@kuraykaraaslan/auth/server/auth.messages';
 
 /**
  * GET /tenant/[tenantId]/api/auth/me/preferences

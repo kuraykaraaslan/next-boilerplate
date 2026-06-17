@@ -1,9 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { Button } from '@nb/common/ui/button.component';
-import { Badge } from '@nb/common/ui/badge.component';
-import type { TableColumn } from '@nb/common/ui/server-data-table.component';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import { Badge } from '@kuraykaraaslan/common/ui/badge.component';
+import type { TableColumn } from '@kuraykaraaslan/common/ui/server-data-table.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
 

@@ -1,16 +1,16 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import api from '@nb/common/server/axios';
-import { ServerDataTable, type TableColumn } from '@nb/common/ui/server-data-table.component';
-import { Input } from '@nb/common/ui/input.component';
-import { Select } from '@nb/common/ui/select.component';
-import { Badge } from '@nb/common/ui/badge.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
-import { Drawer } from '@nb/common/ui/drawer.component';
+import api from '@kuraykaraaslan/common/server/axios';
+import { ServerDataTable, type TableColumn } from '@kuraykaraaslan/common/ui/server-data-table.component';
+import { Input } from '@kuraykaraaslan/common/ui/input.component';
+import { Select } from '@kuraykaraaslan/common/ui/select.component';
+import { Badge } from '@kuraykaraaslan/common/ui/badge.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
+import { Drawer } from '@kuraykaraaslan/common/ui/drawer.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
-import type { AuditSeverity } from '@nb/audit_log/server/audit_log.enums';
+import type { AuditSeverity } from '@kuraykaraaslan/audit_log/server/audit_log.enums';
 
 type AuditLogRow = {
   auditLogId: string;

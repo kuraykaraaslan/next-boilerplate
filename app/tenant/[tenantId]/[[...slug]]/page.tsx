@@ -9,13 +9,13 @@
 // allow page.tsx and route.ts on the same segment.
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { moduleRegistry } from '@nb/common/server/module-registry';
-import { getEnabledModuleIds } from '@nb/setting/server/module-activation.service.next';
-import { DynamicAdminPage } from '@nb/common/ui/dynamic-admin-page.component';
-import { AdminShell } from '@nb/common/ui/layout/admin-shell.component';
-import { AuthShell } from '@nb/common/ui/auth-shell.component';
-import { ModuleEnabledProvider } from '@nb/common/ui/module-enabled.context.component';
-import PublicDynamicPage, { buildPublicPageMetadata } from '@nb/dynamic_page/ui/public-dynamic-page.component';
+import { moduleRegistry } from '@kuraykaraaslan/common/server/module-registry';
+import { getEnabledModuleIds } from '@kuraykaraaslan/setting/server/module-activation.service.next';
+import { DynamicAdminPage } from '@kuraykaraaslan/common/ui/dynamic-admin-page.component';
+import { AdminShell } from '@kuraykaraaslan/common/ui/layout/admin-shell.component';
+import { AuthShell } from '@kuraykaraaslan/common/ui/auth-shell.component';
+import { ModuleEnabledProvider } from '@kuraykaraaslan/common/ui/module-enabled.context.component';
+import PublicDynamicPage, { buildPublicPageMetadata } from '@kuraykaraaslan/dynamic_page/ui/public-dynamic-page.component';
 
 type Props = {
   params: Promise<{ tenantId: string; slug?: string[] }>;

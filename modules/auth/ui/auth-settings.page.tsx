@@ -1,7 +1,7 @@
 'use client';
 import { use } from 'react';
-import { ModuleSettingsPage } from '@nb/setting/ui/module-settings-page.component';
-import { AUTH_SETTINGS_FIELDS } from '@nb/auth/server/auth.settings.fields';
+import { ModuleSettingsPage } from '@kuraykaraaslan/setting/ui/module-settings-page.component';
+import { AUTH_SETTINGS_FIELDS } from '@kuraykaraaslan/auth/server/auth.settings.fields';
 
 export default function AuthSettingsPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = use(params);

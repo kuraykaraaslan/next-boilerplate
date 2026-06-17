@@ -1,9 +1,9 @@
 'use client';
-import { cn } from '@nb/common/server/utils/cn';
-import { Avatar } from '@nb/common/ui/avatar.component';
+import { cn } from '@kuraykaraaslan/common/server/utils/cn';
+import { Avatar } from '@kuraykaraaslan/common/ui/avatar.component';
 import { UserRoleBadge } from './user-role-badge.component';
 import { UserStatusBadge } from './user-status-badge.component';
-import type { SafeUser } from '@nb/user/server/user.types';
+import type { SafeUser } from '@kuraykaraaslan/user/server/user.types';
 
 export function UserProfileCard({
   user,

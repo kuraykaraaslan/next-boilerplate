@@ -1,7 +1,7 @@
 'use client';
 import { use } from 'react';
-import { SettingsPanelHost } from '@nb/setting/ui/settings-panel-host.component';
-import { BillingTab } from '@nb/setting/ui/tenant-settings-panels.component';
+import { SettingsPanelHost } from '@kuraykaraaslan/setting/ui/settings-panel-host.component';
+import { BillingTab } from '@kuraykaraaslan/setting/ui/tenant-settings-panels.component';
 
 export default function BillingSettingsPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = use(params);

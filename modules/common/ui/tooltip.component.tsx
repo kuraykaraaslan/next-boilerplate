@@ -1,6 +1,6 @@
 'use client';
 import * as RadixTooltip from '@radix-ui/react-tooltip';
-import { cn } from '@nb/common/server/utils/cn';
+import { cn } from '@kuraykaraaslan/common/server/utils/cn';
 
 export function Tooltip({
   content,

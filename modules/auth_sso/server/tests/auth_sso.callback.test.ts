@@ -14,7 +14,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import axios from 'axios';
 
 // ── Env mock (must be first — providers read env at import time) ─────────────
-vi.mock('@nb/env', () => ({
+vi.mock('@kuraykaraaslan/env', () => ({
   env: {
     NODE_ENV: 'test',
     APPLICATION_HOST: 'http://localhost:3000',
@@ -42,19 +42,19 @@ vi.mock('@nb/env', () => ({
   },
 }));
 
-vi.mock('@nb/db', () => ({ getDataSource: vi.fn(), tenantDataSourceFor: vi.fn() }));
-vi.mock('@nb/redis', () => ({
+vi.mock('@kuraykaraaslan/db', () => ({ getDataSource: vi.fn(), tenantDataSourceFor: vi.fn() }));
+vi.mock('@kuraykaraaslan/redis', () => ({
   default: { get: vi.fn(async () => null), set: vi.fn(), setex: vi.fn(), del: vi.fn(), exists: vi.fn(async () => 0) },
   singleFlight: async (_k: string, fn: () => Promise<unknown>) => fn(),
   jitter: (n: number) => n,
 }));
-vi.mock('@nb/logger', () => ({ default: { info: vi.fn(), warn: vi.fn(), error: vi.fn() } }));
-vi.mock('@nb/observability', () => ({ default: { recordTenantUsage: vi.fn() } }));
-vi.mock('@nb/audit_log/server/audit_log.service', () => ({ default: { log: vi.fn(async () => {}) } }));
-vi.mock('@nb/setting/server/setting.service', () => ({
+vi.mock('@kuraykaraaslan/logger', () => ({ default: { info: vi.fn(), warn: vi.fn(), error: vi.fn() } }));
+vi.mock('@kuraykaraaslan/observability', () => ({ default: { recordTenantUsage: vi.fn() } }));
+vi.mock('@kuraykaraaslan/audit_log/server/audit_log.service', () => ({ default: { log: vi.fn(async () => {}) } }));
+vi.mock('@kuraykaraaslan/setting/server/setting.service', () => ({
   default: { getByKeys: vi.fn(async () => ({})), getValue: vi.fn(async () => null) },
 }));
-vi.mock('@nb/auth/server/auth.policy.service', () => ({
+vi.mock('@kuraykaraaslan/auth/server/auth.policy.service', () => ({
   default: {
     getAccessPolicy: vi.fn(async () => ({ disableSocialLogin: false, ssoAllowedProviders: [] })),
     isSsoProviderAllowed: vi.fn(() => true),
@@ -62,14 +62,14 @@ vi.mock('@nb/auth/server/auth.policy.service', () => ({
   },
 }));
 
-vi.mock('@nb/user/server/user.service', () => ({
+vi.mock('@kuraykaraaslan/user/server/user.service', () => ({
   default: {
     getByEmail: vi.fn(async () => null),
     getById: vi.fn(async (id: string) => ({ userId: id, email: 'test@example.com' })),
     create: vi.fn(async (data: { email: string }) => ({ userId: 'new-user-id', email: data.email })),
   },
 }));
-vi.mock('@nb/user_social_account/server/user_social_account.service', () => ({
+vi.mock('@kuraykaraaslan/user_social_account/server/user_social_account.service', () => ({
   default: {
     findUserIdByProvider: vi.fn(async () => null),
     getByUserId: vi.fn(async () => []),
@@ -83,9 +83,9 @@ vi.mock('@nb/user_social_account/server/user_social_account.service', () => ({
 // UserConsent repo for JIT consent recording
 const mockSave = vi.fn(async (e: unknown) => e);
 const mockCreate = vi.fn((e: unknown) => e);
-vi.mock('@nb/auth/server/entities/user_consent.entity', () => ({ UserConsent: class UserConsent {} }));
+vi.mock('@kuraykaraaslan/auth/server/entities/user_consent.entity', () => ({ UserConsent: class UserConsent {} }));
 const mockGetRepository = vi.fn(() => ({ save: mockSave, create: mockCreate }));
-vi.mock('@nb/db', () => ({
+vi.mock('@kuraykaraaslan/db', () => ({
   getDataSource: vi.fn(async () => ({ getRepository: mockGetRepository })),
   tenantDataSourceFor: vi.fn(),
 }));
@@ -379,7 +379,7 @@ describe('callback flow: autodesk', () => {
 // ── Cross-provider: authenticate-or-register flows ──────────────────────────
 describe('authenticate-or-register: existing social account', () => {
   it('updates stored tokens and returns isNewUser=false', async () => {
-    const { default: UserSocialAccountService } = await import('@nb/user_social_account/server/user_social_account.service');
+    const { default: UserSocialAccountService } = await import('@kuraykaraaslan/user_social_account/server/user_social_account.service');
     (UserSocialAccountService.findUserIdByProvider as ReturnType<typeof vi.fn>).mockResolvedValueOnce('uid-existing');
     (UserSocialAccountService.getByUserId as ReturnType<typeof vi.fn>).mockResolvedValueOnce([
       { userSocialAccountId: 'soc-1', provider: 'google' },
@@ -397,8 +397,8 @@ describe('authenticate-or-register: existing social account', () => {
 
 describe('authenticate-or-register: email-linked user', () => {
   it('links the provider to existing user matched by email', async () => {
-    const { default: UserSocialAccountService } = await import('@nb/user_social_account/server/user_social_account.service');
-    const { default: UserService } = await import('@nb/user/server/user.service');
+    const { default: UserSocialAccountService } = await import('@kuraykaraaslan/user_social_account/server/user_social_account.service');
+    const { default: UserService } = await import('@kuraykaraaslan/user/server/user.service');
     (UserSocialAccountService.findUserIdByProvider as ReturnType<typeof vi.fn>).mockResolvedValueOnce(null);
     (UserService.getByEmail as ReturnType<typeof vi.fn>).mockResolvedValueOnce({ userId: 'uid-email', email: 'matched@example.com' });
 
@@ -414,7 +414,7 @@ describe('authenticate-or-register: email-linked user', () => {
 
 describe('authenticate-or-register: per-tenant gating', () => {
   it('rejects when tenant has disableSocialLogin=true', async () => {
-    const { default: AuthPolicyService } = await import('@nb/auth/server/auth.policy.service');
+    const { default: AuthPolicyService } = await import('@kuraykaraaslan/auth/server/auth.policy.service');
     (AuthPolicyService.getAccessPolicy as ReturnType<typeof vi.fn>).mockResolvedValueOnce({ disableSocialLogin: true, ssoAllowedProviders: [] });
     (AuthPolicyService.isSsoProviderAllowed as ReturnType<typeof vi.fn>).mockReturnValueOnce(false);
 
@@ -424,7 +424,7 @@ describe('authenticate-or-register: per-tenant gating', () => {
   });
 
   it('rejects when provider not in tenant ssoAllowedProviders', async () => {
-    const { default: AuthPolicyService } = await import('@nb/auth/server/auth.policy.service');
+    const { default: AuthPolicyService } = await import('@kuraykaraaslan/auth/server/auth.policy.service');
     (AuthPolicyService.getAccessPolicy as ReturnType<typeof vi.fn>).mockResolvedValueOnce({ disableSocialLogin: false, ssoAllowedProviders: ['github'] });
     (AuthPolicyService.isSsoProviderAllowed as ReturnType<typeof vi.fn>).mockReturnValueOnce(false);
 

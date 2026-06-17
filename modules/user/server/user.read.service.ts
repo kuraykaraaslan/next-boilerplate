@@ -1,11 +1,11 @@
 import 'reflect-metadata';
 import { ILike } from 'typeorm';
-import { getDataSource } from '@nb/db';
-import redis, { jitter, singleFlight } from '@nb/redis';
+import { getDataSource } from '@kuraykaraaslan/db';
+import redis, { jitter, singleFlight } from '@kuraykaraaslan/redis';
 import { User as UserEntity } from './entities/user.entity';
 import { User, SafeUser, SafeUserSchema, UserSchema } from './user.types';
 import UserMessages from './user.messages';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { USER_CACHE_TTL, NEGATIVE_CACHE_TTL, NEG } from './user.helpers';
 
 export async function getAll({ page, pageSize, search, userId, tenantId, phone }: {

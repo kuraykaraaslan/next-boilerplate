@@ -19,8 +19,8 @@ import {
   faAlipay,
 } from '@fortawesome/free-brands-svg-icons';
 import { faCube } from '@fortawesome/free-solid-svg-icons';
-import { Button } from '@nb/common/ui/button.component';
-import { cn } from '@nb/common/server/utils/cn';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import { cn } from '@kuraykaraaslan/common/server/utils/cn';
 
 export const SSO_PROVIDERS = [
   'google',

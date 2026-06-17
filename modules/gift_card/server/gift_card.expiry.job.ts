@@ -1,12 +1,12 @@
 import { Queue, Worker, Job } from 'bullmq';
 import { LessThan, In } from 'typeorm';
-import { getBullMQConnection } from '@nb/redis/server/redis.bullmq';
-import { getDataSource, tenantDataSourceFor } from '@nb/db';
-import { Tenant } from '@nb/tenant/server/entities/tenant.entity';
+import { getBullMQConnection } from '@kuraykaraaslan/redis/server/redis.bullmq';
+import { getDataSource, tenantDataSourceFor } from '@kuraykaraaslan/db';
+import { Tenant } from '@kuraykaraaslan/tenant/server/entities/tenant.entity';
 import { GiftCard } from './entities/gift_card.entity';
 import { GiftCardTransaction } from './entities/gift_card_transaction.entity';
-import WebhookService from '@nb/webhook/server/webhook.service';
-import Logger from '@nb/logger';
+import WebhookService from '@kuraykaraaslan/webhook/server/webhook.service';
+import Logger from '@kuraykaraaslan/logger';
 
 /**
  * Daily sweep that flips gift cards past their `expiresAt` (and still holding a

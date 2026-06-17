@@ -1,8 +1,8 @@
 'use client';
 
-import { Button } from '@nb/common/ui/button.component';
-import { Badge } from '@nb/common/ui/badge.component';
-import type { TableColumn } from '@nb/common/ui/server-data-table.component';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import { Badge } from '@kuraykaraaslan/common/ui/badge.component';
+import type { TableColumn } from '@kuraykaraaslan/common/ui/server-data-table.component';
 
 export type ApprovalRow = {
   approvalItemId: string;

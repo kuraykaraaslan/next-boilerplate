@@ -1,13 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@nb/common/ui/button.component';
-import { Input } from '@nb/common/ui/input.component';
-import { Select } from '@nb/common/ui/select.component';
-import { Modal } from '@nb/common/ui/modal.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
-import type { DiscountType } from '@nb/coupon/server/coupon.enums';
-import type { CouponScope } from '@nb/coupon/server/coupon.dto';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import { Input } from '@kuraykaraaslan/common/ui/input.component';
+import { Select } from '@kuraykaraaslan/common/ui/select.component';
+import { Modal } from '@kuraykaraaslan/common/ui/modal.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
+import type { DiscountType } from '@kuraykaraaslan/coupon/server/coupon.enums';
+import type { CouponScope } from '@kuraykaraaslan/coupon/server/coupon.dto';
 import { CouponScopePanel, type ScopeFormState } from './coupon-scope-panel.component';
 
 type CreateForm = {

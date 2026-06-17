@@ -2,8 +2,8 @@
 import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTriangleExclamation, faXmark, faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
-import { cn } from '@nb/common/server/utils/cn';
-import type { GracePeriodStatus } from '@nb/tenant_subscription/server/tenant_subscription.types';
+import { cn } from '@kuraykaraaslan/common/server/utils/cn';
+import type { GracePeriodStatus } from '@kuraykaraaslan/tenant_subscription/server/tenant_subscription.types';
 
 type Props = {
   status: GracePeriodStatus;

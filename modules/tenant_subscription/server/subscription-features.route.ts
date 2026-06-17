@@ -1,8 +1,8 @@
-import Limiter from '@nb/limiter/server/limiter.service.next';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
 import { NextRequest, NextResponse } from 'next/server'
-import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next'
-import TenantFeatureGateService from '@nb/tenant_subscription/server/tenant_subscription.feature.service'
-import { SUBSCRIPTION_MESSAGES } from '@nb/tenant_subscription/server/tenant_subscription.messages'
+import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next'
+import TenantFeatureGateService from '@kuraykaraaslan/tenant_subscription/server/tenant_subscription.feature.service'
+import { SUBSCRIPTION_MESSAGES } from '@kuraykaraaslan/tenant_subscription/server/tenant_subscription.messages'
 
 /**
  * GET /tenant/[tenantId]/api/subscription/features?key=max_members&count=5

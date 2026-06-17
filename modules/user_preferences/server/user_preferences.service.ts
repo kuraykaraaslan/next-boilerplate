@@ -1,10 +1,10 @@
 import 'reflect-metadata';
-import { getDataSource } from '@nb/db';
-import redis, { jitter, singleFlight } from '@nb/redis';
-import { env } from '@nb/env';
-import SettingService from '@nb/setting/server/setting.service';
-import AuditLogService from '@nb/audit_log/server/audit_log.service';
-import Logger from '@nb/logger';
+import { getDataSource } from '@kuraykaraaslan/db';
+import redis, { jitter, singleFlight } from '@kuraykaraaslan/redis';
+import { env } from '@kuraykaraaslan/env';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
+import AuditLogService from '@kuraykaraaslan/audit_log/server/audit_log.service';
+import Logger from '@kuraykaraaslan/logger';
 import { UserPreferences as UserPreferencesEntity } from './entities/user_preferences.entity';
 import {
   UserPreferences,
@@ -13,7 +13,7 @@ import {
   PREFERENCES_SCHEMA_VERSION,
   TenantPreferenceDefaults,
 } from './user_preferences.types';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import UserPreferencesMessages from './user_preferences.messages';
 
 const USER_PREFERENCES_CACHE_TTL = env.SESSION_CACHE_TTL ?? (60 * 5);

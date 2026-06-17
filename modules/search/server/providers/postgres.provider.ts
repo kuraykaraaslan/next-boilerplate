@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { tenantDataSourceFor } from '@nb/db';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
 import { SearchDocument } from '../entities/search_document.entity';
 import SearchProviderBase, { type IndexableDocument } from './base.provider';
 import type { SearchHit, SearchResult, SearchOptions } from '../search.types';

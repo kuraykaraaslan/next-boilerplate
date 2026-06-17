@@ -1,6 +1,6 @@
 // One-time: rename every React component under modules/<id>/ui/ to the
 // `<kebab-name>.component.tsx` convention and rewrite all importers (absolute
-// @nb/... and relative). Pages (*.page.tsx), barrels (index.*), non-tsx files
+// @kuraykaraaslan/... and relative). Pages (*.page.tsx), barrels (index.*), non-tsx files
 // and generated/ are left untouched. Resolve-based so it only touches specifiers
 // that actually point at a renamed file.
 //
@@ -65,9 +65,9 @@ for (const d of SCAN) if (fs.existsSync(d)) walk(d, allFiles);
 // resolve a specifier (from a file) to an absolute-no-ext path of a renamed file, or null
 function resolveRenamed(fromFile, spec) {
   let absNoExt = null;
-  if (spec.startsWith('@nb/')) {
-    // @nb/<id>/<sub...>  ->  modules/<id>/<sub...>
-    const rest = spec.slice('@nb/'.length);
+  if (spec.startsWith('@kuraykaraaslan/')) {
+    // @kuraykaraaslan/<id>/<sub...>  ->  modules/<id>/<sub...>
+    const rest = spec.slice('@kuraykaraaslan/'.length);
     absNoExt = path.resolve(ROOT, 'modules', rest);
   } else if (spec.startsWith('./') || spec.startsWith('../')) {
     absNoExt = path.resolve(path.dirname(fromFile), spec);

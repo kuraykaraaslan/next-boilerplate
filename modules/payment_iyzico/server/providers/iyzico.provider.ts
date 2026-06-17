@@ -9,10 +9,10 @@ import BasePaymentProvider, {
   ThreeDSInitResult,
   ThreeDSCompleteParams,
   WalletDescriptor,
-} from '@nb/payment/server/providers/base.provider'
-import { PAYMENT_MESSAGES } from '@nb/payment/server/payment.messages'
-import SettingService from '@nb/setting/server/setting.service'
-import Logger from '@nb/logger'
+} from '@kuraykaraaslan/payment/server/providers/base.provider'
+import { PAYMENT_MESSAGES } from '@kuraykaraaslan/payment/server/payment.messages'
+import SettingService from '@kuraykaraaslan/setting/server/setting.service'
+import Logger from '@kuraykaraaslan/logger'
 import { getAuthenticatedAxios } from './iyzico.client'
 import { buildChargeBody, buildCheckoutBody } from './iyzico.body'
 

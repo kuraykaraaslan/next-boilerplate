@@ -1,9 +1,9 @@
 'use client';
 import { use, useEffect, useState } from 'react';
-import api from '@nb/common/server/axios';
-import { BrandLogo } from '@nb/common/ui/brand-logo.component';
-import { RegisterForm } from '@nb/auth/ui/register-form.component';
-import { OAuthButtons, type OAuthProvider } from '@nb/auth/ui/o-auth-buttons.component';
+import api from '@kuraykaraaslan/common/server/axios';
+import { BrandLogo } from '@kuraykaraaslan/common/ui/brand-logo.component';
+import { RegisterForm } from '@kuraykaraaslan/auth/ui/register-form.component';
+import { OAuthButtons, type OAuthProvider } from '@kuraykaraaslan/auth/ui/o-auth-buttons.component';
 
 export default function TenantRegisterPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = use(params);

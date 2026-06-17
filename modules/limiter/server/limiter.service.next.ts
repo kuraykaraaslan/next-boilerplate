@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { check, RATE_LIMIT_WINDOW, type LimiterScope } from '@nb/limiter';
+import { check, RATE_LIMIT_WINDOW, type LimiterScope } from '@kuraykaraaslan/limiter';
 
 export default class Limiter {
   static getIpFromRequest(request: NextRequest): string {

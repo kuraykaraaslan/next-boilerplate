@@ -1,6 +1,6 @@
 'use client';
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef } from 'react';
-import { cn } from '@nb/common/server/utils/cn';
+import { cn } from '@kuraykaraaslan/common/server/utils/cn';
 import { Toolbar } from './toolbar.component';
 import { PopupOverlays } from './popup-overlays.component';
 import { sanitizePastedHTML } from './sanitize';

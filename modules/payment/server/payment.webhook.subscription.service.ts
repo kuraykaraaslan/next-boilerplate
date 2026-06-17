@@ -1,10 +1,10 @@
 import 'reflect-metadata';
-import { tenantDataSourceFor } from '@nb/db';
-import { TenantSubscription as TenantSubscriptionEntity } from '@nb/tenant_subscription/server/entities/tenant_subscription.entity';
-import TenantSubscriptionService from '@nb/tenant_subscription/server/tenant_subscription.service';
-import TenantFeatureGateService from '@nb/tenant_subscription/server/tenant_subscription.feature.service';
-import AuditLogService from '@nb/audit_log/server/audit_log.service';
-import Logger from '@nb/logger';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import { TenantSubscription as TenantSubscriptionEntity } from '@kuraykaraaslan/tenant_subscription/server/entities/tenant_subscription.entity';
+import TenantSubscriptionService from '@kuraykaraaslan/tenant_subscription/server/tenant_subscription.service';
+import TenantFeatureGateService from '@kuraykaraaslan/tenant_subscription/server/tenant_subscription.feature.service';
+import AuditLogService from '@kuraykaraaslan/audit_log/server/audit_log.service';
+import Logger from '@kuraykaraaslan/logger';
 import type { NormalizedEvent } from './payment.webhook.types';
 import PaymentWebhookNotificationsService from './payment.webhook.notifications.service';
 

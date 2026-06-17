@@ -1,6 +1,6 @@
 'use client';
-import { Card } from '@nb/common/ui/card.component';
-import type { SafeInvoiceLine } from '@nb/invoice/server/invoice.types';
+import { Card } from '@kuraykaraaslan/common/ui/card.component';
+import type { SafeInvoiceLine } from '@kuraykaraaslan/invoice/server/invoice.types';
 
 interface Props {
   lines: SafeInvoiceLine[];

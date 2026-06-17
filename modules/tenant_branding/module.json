@@ -14,7 +14,7 @@
   "dependencies": {
     "requires": [
       "db",
-      "tenant_setting",
+      "setting",
       "storage"
     ]
   },

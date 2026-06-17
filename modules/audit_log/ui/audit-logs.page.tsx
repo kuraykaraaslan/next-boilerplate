@@ -1,19 +1,19 @@
 'use client';
 
 import { use, useEffect, useMemo, useState } from 'react';
-import api from '@nb/common/server/axios';
-import { PageHeader } from '@nb/common/ui/page-header.component';
-import { Input } from '@nb/common/ui/input.component';
-import { Select } from '@nb/common/ui/select.component';
-import { Badge } from '@nb/common/ui/badge.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
-import { Drawer } from '@nb/common/ui/drawer.component';
-import { ServerDataTable, type TableColumn } from '@nb/common/ui/server-data-table.component';
-import { DateRangePicker, type DateRange } from '@nb/common/ui/date-range-picker.component';
+import api from '@kuraykaraaslan/common/server/axios';
+import { PageHeader } from '@kuraykaraaslan/common/ui/page-header.component';
+import { Input } from '@kuraykaraaslan/common/ui/input.component';
+import { Select } from '@kuraykaraaslan/common/ui/select.component';
+import { Badge } from '@kuraykaraaslan/common/ui/badge.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
+import { Drawer } from '@kuraykaraaslan/common/ui/drawer.component';
+import { ServerDataTable, type TableColumn } from '@kuraykaraaslan/common/ui/server-data-table.component';
+import { DateRangePicker, type DateRange } from '@kuraykaraaslan/common/ui/date-range-picker.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faGear, faDownload } from '@fortawesome/free-solid-svg-icons';
-import type { AuditSeverity } from '@nb/audit_log/server/audit_log.enums';
-import { isRootTenant } from '@nb/tenant/server/tenant.constants';
+import type { AuditSeverity } from '@kuraykaraaslan/audit_log/server/audit_log.enums';
+import { isRootTenant } from '@kuraykaraaslan/tenant/server/tenant.constants';
 
 type AuditLogRow = {
   auditLogId: string;

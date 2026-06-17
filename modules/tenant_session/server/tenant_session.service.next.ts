@@ -1,16 +1,16 @@
 import { NextRequest } from 'next/server';
-import { SafeUser } from '@nb/user/server/user.types';
-import { SafeTenant } from '@nb/tenant/server/tenant.types';
-import { SafeTenantMember } from '@nb/tenant_member/server/tenant_member.types';
-import { SafeUserSession, type SessionMeta } from '@nb/user_session/server/user_session.types';
-import UserSessionNextService from '@nb/user_session/server/user_session.service.next';
-import TenantSessionService from '@nb/tenant_session/server/tenant_session.service';
-import TenantAuthMessages from '@nb/tenant_session/server/tenant_session.messages';
-import type { TenantMemberRole } from '@nb/tenant_member/server/tenant_member.enums';
-import AuditLogService from '@nb/audit_log/server/audit_log.service';
-import { AuditActions } from '@nb/audit_log/server/audit_log.enums';
-import { ROOT_TENANT_ID } from '@nb/tenant/server/tenant.constants';
-import ObservabilityService from '@nb/observability';
+import { SafeUser } from '@kuraykaraaslan/user/server/user.types';
+import { SafeTenant } from '@kuraykaraaslan/tenant/server/tenant.types';
+import { SafeTenantMember } from '@kuraykaraaslan/tenant_member/server/tenant_member.types';
+import { SafeUserSession, type SessionMeta } from '@kuraykaraaslan/user_session/server/user_session.types';
+import UserSessionNextService from '@kuraykaraaslan/user_session/server/user_session.service.next';
+import TenantSessionService from '@kuraykaraaslan/tenant_session/server/tenant_session.service';
+import TenantAuthMessages from '@kuraykaraaslan/tenant_session/server/tenant_session.messages';
+import type { TenantMemberRole } from '@kuraykaraaslan/tenant_member/server/tenant_member.enums';
+import AuditLogService from '@kuraykaraaslan/audit_log/server/audit_log.service';
+import { AuditActions } from '@kuraykaraaslan/audit_log/server/audit_log.enums';
+import { ROOT_TENANT_ID } from '@kuraykaraaslan/tenant/server/tenant.constants';
+import ObservabilityService from '@kuraykaraaslan/observability';
 
 type TenantIdSource = 'header' | 'subdomain' | 'query' | 'body' | 'param';
 

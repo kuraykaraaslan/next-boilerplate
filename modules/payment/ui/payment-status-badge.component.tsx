@@ -1,6 +1,6 @@
 'use client';
 // Adapted from next_components: modules/domains/common/payment/PaymentStatusBadge.tsx
-import { Badge } from '@nb/common/ui/badge.component';
+import { Badge } from '@kuraykaraaslan/common/ui/badge.component';
 
 export type PaymentStatus =
   | 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED'

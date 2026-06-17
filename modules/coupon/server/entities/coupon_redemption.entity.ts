@@ -8,7 +8,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { Tenant } from '@nb/tenant/server/entities/tenant.entity';
+import { Tenant } from '@kuraykaraaslan/tenant/server/entities/tenant.entity';
 
 @Entity('coupon_redemptions')
 export class CouponRedemption {

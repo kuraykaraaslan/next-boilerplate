@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import type { SafeUserSession } from '@nb/user_session/server/user_session.types';
+import type { SafeUserSession } from '@kuraykaraaslan/user_session/server/user_session.types';
 import {
   getImpersonationTtlMs,
   isImpersonationDisabled,

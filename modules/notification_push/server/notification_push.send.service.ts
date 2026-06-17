@@ -1,14 +1,14 @@
 import 'reflect-metadata';
 import { In } from 'typeorm';
 import webpush from 'web-push';
-import { tenantDataSourceFor } from '@nb/db';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
 import { PushSubscription as PushSubscriptionEntity } from './entities/push_subscription.entity';
-import { TenantMember } from '@nb/tenant_member/server/entities/tenant_member.entity';
-import Logger from '@nb/logger';
+import { TenantMember } from '@kuraykaraaslan/tenant_member/server/entities/tenant_member.entity';
+import Logger from '@kuraykaraaslan/logger';
 import { PushPayload, VapidDetails, prepareSend, clearCacheForUser } from './notification_push.config';
 import { getSubscriptionsForUser } from './notification_push.subscription.service';
 import { wantsCategory, isWithinQuietHours, recordOutcome } from './notification_push.metrics.service';
-import { RedisIdempotencyService } from '@nb/redis_idempotency';
+import { RedisIdempotencyService } from '@kuraykaraaslan/redis_idempotency';
 
 async function sendToSubscription(
   tenantId: string,
@@ -47,7 +47,7 @@ async function logDelivery(
   error?: string,
 ): Promise<void> {
   try {
-    const { default: NotificationLogService } = await import('@nb/notification_log/server/notification_log.service');
+    const { default: NotificationLogService } = await import('@kuraykaraaslan/notification_log/server/notification_log.service');
     await NotificationLogService.log(tenantId, 'push', sub.userId ?? sub.endpoint, status, {
       subject: payload.title, provider: 'web-push', error,
     });

@@ -13,7 +13,7 @@ const A = {
   // NOTE: tr_gib_direct.client/.types intentionally STAY in the host — the host
   // service invoice.adapter.service (TR e-Arşiv SMS finalisation) depends on the
   // GİB client. The satellite imports it back from
-  // @nb/invoice/server/adapters/tr_gib_direct.client (satellite -> host).
+  // @kuraykaraaslan/invoice/server/adapters/tr_gib_direct.client (satellite -> host).
   tr_earsiv: {
     cls: 'TrEarsivAdapter', kind: 'region', code: 'TR', label: 'e-Arşiv (TR)',
     files: ['tr_earsiv.adapter.ts', 'tr_earsiv.format.ts', 'tr_earsiv.portal.ts', 'tr_earsiv.seller.ts',
@@ -33,14 +33,14 @@ const A = {
 // satellite-local relative imports (moved-together helpers) untouched.
 const fixImports = (s) =>
   s
-    .replace(/from '\.\/base\.adapter'/g, "from '@nb/invoice/server/adapters/base.adapter'")
-    .replace(/from '\.\/cii_xml'/g, "from '@nb/invoice/server/adapters/cii_xml'")
-    .replace(/from '\.\/xml\.util'/g, "from '@nb/invoice/server/adapters/xml.util'")
+    .replace(/from '\.\/base\.adapter'/g, "from '@kuraykaraaslan/invoice/server/adapters/base.adapter'")
+    .replace(/from '\.\/cii_xml'/g, "from '@kuraykaraaslan/invoice/server/adapters/cii_xml'")
+    .replace(/from '\.\/xml\.util'/g, "from '@kuraykaraaslan/invoice/server/adapters/xml.util'")
     // GİB client/types stay in the host (used by invoice.adapter.service); the
     // satellite (tr_earsiv.portal/.submit) imports them back from the host.
-    .replace(/from '\.\/tr_gib_direct\.client'/g, "from '@nb/invoice/server/adapters/tr_gib_direct.client'")
-    .replace(/from '\.\/tr_gib_direct\.types'/g, "from '@nb/invoice/server/adapters/tr_gib_direct.types'")
-    .replace(/from '\.\.\//g, "from '@nb/invoice/server/"); // ../entities/X, ../invoice.signature.service -> @nb/invoice/server/...
+    .replace(/from '\.\/tr_gib_direct\.client'/g, "from '@kuraykaraaslan/invoice/server/adapters/tr_gib_direct.client'")
+    .replace(/from '\.\/tr_gib_direct\.types'/g, "from '@kuraykaraaslan/invoice/server/adapters/tr_gib_direct.types'")
+    .replace(/from '\.\.\//g, "from '@kuraykaraaslan/invoice/server/"); // ../entities/X, ../invoice.signature.service -> @kuraykaraaslan/invoice/server/...
 
 for (const [key, meta] of Object.entries(A)) {
   const mod = `modules/invoice_${key}`;
@@ -55,7 +55,7 @@ for (const [key, meta] of Object.entries(A)) {
 
   fs.writeFileSync(
     `${mod}/server/${key}.extension.ts`,
-    `import type { InvoiceAdapterContribution } from '@nb/invoice/server/adapters/invoice.adapter.types';\n` +
+    `import type { InvoiceAdapterContribution } from '@kuraykaraaslan/invoice/server/adapters/invoice.adapter.types';\n` +
       `import ${meta.cls} from './adapters/${key}.adapter';\n\n` +
       `/**\n * ${meta.label} contribution for the \`invoice:adapter\` extension point. The host\n` +
       ` * (invoice adapters/registry) discovers this via the extension registry and never\n` +
@@ -96,7 +96,7 @@ for (const [key, meta] of Object.entries(A)) {
 
   fs.writeFileSync(
     `${mod}/package.json`,
-    JSON.stringify({ name: `@nb/invoice_${key}`, version: '0.0.0', private: true, type: 'module', exports: {} }, null, 2) + '\n',
+    JSON.stringify({ name: `@kuraykaraaslan/invoice_${key}`, version: '0.0.0', private: true, type: 'module', exports: {} }, null, 2) + '\n',
   );
   console.log(`extracted ${key} -> ${mod} (${meta.files.length} file(s))`);
 }
@@ -105,8 +105,8 @@ for (const [key, meta] of Object.entries(A)) {
 // issuer-country routing is read off each contribution's metadata.
 fs.writeFileSync(
   `${HOST}/registry.ts`,
-  `import { extensionRegistry } from '@nb/common/server/extension-registry';\n` +
-    `import SettingService from '@nb/setting/server/setting.service';\n` +
+  `import { extensionRegistry } from '@kuraykaraaslan/common/server/extension-registry';\n` +
+    `import SettingService from '@kuraykaraaslan/setting/server/setting.service';\n` +
     `import type { InvoiceAdapter } from './base.adapter';\n` +
     `import type { InvoiceAdapterContribution, InvoiceAdapterMetadata } from './invoice.adapter.types';\n\n` +
     `const INVOICE_ADAPTER_POINT = 'invoice:adapter';\n` +

@@ -10,8 +10,8 @@ import {
 } from './impersonation.test-setup';
 import ImpersonationService from '../impersonation.service';
 import ImpersonationMessages from '../impersonation.messages';
-import UserSessionService from '@nb/user_session/server/user_session.service';
-import WebhookService from '@nb/webhook/server/webhook.service';
+import UserSessionService from '@kuraykaraaslan/user_session/server/user_session.service';
+import WebhookService from '@kuraykaraaslan/webhook/server/webhook.service';
 
 const REASON = 'Support ticket #999';
 

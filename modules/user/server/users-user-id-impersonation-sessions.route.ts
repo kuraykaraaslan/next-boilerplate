@@ -1,10 +1,10 @@
-import Limiter from '@nb/limiter/server/limiter.service.next';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { authenticateAdminRequest } from '@nb/auth/server/auth.admin-guard.next';
-import { getDataSource } from '@nb/db';
-import { UserSession as UserSessionEntity } from '@nb/user_session/server/entities/user_session.entity';
-import { SafeUserSessionSchema } from '@nb/user_session/server/user_session.types';
+import { authenticateAdminRequest } from '@kuraykaraaslan/auth/server/auth.admin-guard.next';
+import { getDataSource } from '@kuraykaraaslan/db';
+import { UserSession as UserSessionEntity } from '@kuraykaraaslan/user_session/server/entities/user_session.entity';
+import { SafeUserSessionSchema } from '@kuraykaraaslan/user_session/server/user_session.types';
 
 // GET /tenant/[tenantId]/api/users/[userId]/impersonation-sessions
 //

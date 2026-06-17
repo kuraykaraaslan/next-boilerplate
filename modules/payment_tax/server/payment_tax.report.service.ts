@@ -1,7 +1,7 @@
 import 'reflect-metadata'
 import { Between } from 'typeorm'
-import { tenantDataSourceFor } from '@nb/db'
-import { AuditLog } from '@nb/audit_log/server/entities/audit_log.entity'
+import { tenantDataSourceFor } from '@kuraykaraaslan/db'
+import { AuditLog } from '@kuraykaraaslan/audit_log/server/entities/audit_log.entity'
 
 /**
  * Period-based tax report. Every `calculateTax` writes a `tax.calculated` audit

@@ -1,4 +1,4 @@
-import type { AcsProviderContribution } from '@nb/auth_acs/server/auth_acs.provider.types';
+import type { AcsProviderContribution } from '@kuraykaraaslan/auth_acs/server/auth_acs.provider.types';
 import { DeEidProvider } from './providers/de_eid.provider';
 
 /**

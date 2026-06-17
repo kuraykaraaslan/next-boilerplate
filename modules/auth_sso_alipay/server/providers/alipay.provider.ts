@@ -1,9 +1,9 @@
 import crypto from 'crypto';
 import axios from 'axios';
-import { env } from '@nb/env';
-import { BaseSSOProvider } from '@nb/auth_sso/server/providers/base.provider';
-import type { SSOProfile, SSOTokens } from '@nb/auth_sso/server/auth_sso.types';
-import SSOMessages from '@nb/auth_sso/server/auth_sso.messages';
+import { env } from '@kuraykaraaslan/env';
+import { BaseSSOProvider } from '@kuraykaraaslan/auth_sso/server/providers/base.provider';
+import type { SSOProfile, SSOTokens } from '@kuraykaraaslan/auth_sso/server/auth_sso.types';
+import SSOMessages from '@kuraykaraaslan/auth_sso/server/auth_sso.messages';
 
 /**
  * Alipay (China) open-platform login. The confidential client authenticates by

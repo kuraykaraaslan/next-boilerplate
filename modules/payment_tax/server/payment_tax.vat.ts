@@ -1,4 +1,4 @@
-import Logger from '@nb/logger'
+import Logger from '@kuraykaraaslan/logger'
 
 /**
  * EU VAT number validation against the European Commission's VIES service —

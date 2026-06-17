@@ -1,6 +1,6 @@
 'use client';
-import { cn } from '@nb/common/server/utils/cn';
-import type { CardBrand } from '@nb/payment/server/payment.enums';
+import { cn } from '@kuraykaraaslan/common/server/utils/cn';
+import type { CardBrand } from '@kuraykaraaslan/payment/server/payment.enums';
 
 const BRAND_STYLE: Record<CardBrand, { label: string; gradient: string }> = {
   VISA: {

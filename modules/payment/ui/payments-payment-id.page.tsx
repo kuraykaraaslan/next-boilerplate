@@ -1,18 +1,18 @@
 'use client';
 import { use, useEffect, useState } from 'react';
 import { notFound } from 'next/navigation';
-import { isRootTenant } from '@nb/tenant/server/tenant.constants';
-import api from '@nb/common/server/axios';
-import { Card } from '@nb/common/ui/card.component';
-import { Badge } from '@nb/common/ui/badge.component';
-import { Spinner } from '@nb/common/ui/spinner.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
-import { Breadcrumb } from '@nb/common/ui/breadcrumb.component';
-import { PageHeader } from '@nb/common/ui/page-header.component';
-import { ServerDataTable, type TableColumn } from '@nb/common/ui/server-data-table.component';
-import { PaymentSummaryCard } from '@nb/payment/ui/payment-summary-card.component';
-import { PaymentStatusBadge, type PaymentStatus } from '@nb/payment/ui/payment-status-badge.component';
-import { PaymentRefundModal } from '@nb/payment/ui/payment-refund-modal.component';
+import { isRootTenant } from '@kuraykaraaslan/tenant/server/tenant.constants';
+import api from '@kuraykaraaslan/common/server/axios';
+import { Card } from '@kuraykaraaslan/common/ui/card.component';
+import { Badge } from '@kuraykaraaslan/common/ui/badge.component';
+import { Spinner } from '@kuraykaraaslan/common/ui/spinner.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
+import { Breadcrumb } from '@kuraykaraaslan/common/ui/breadcrumb.component';
+import { PageHeader } from '@kuraykaraaslan/common/ui/page-header.component';
+import { ServerDataTable, type TableColumn } from '@kuraykaraaslan/common/ui/server-data-table.component';
+import { PaymentSummaryCard } from '@kuraykaraaslan/payment/ui/payment-summary-card.component';
+import { PaymentStatusBadge, type PaymentStatus } from '@kuraykaraaslan/payment/ui/payment-status-badge.component';
+import { PaymentRefundModal } from '@kuraykaraaslan/payment/ui/payment-refund-modal.component';
 
 type Transaction = {
   transactionId: string; type: string; status: string;

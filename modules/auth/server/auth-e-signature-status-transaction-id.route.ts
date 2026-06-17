@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Logger from '@nb/logger';
-import Limiter from '@nb/limiter/server/limiter.service.next';
-import AuthESignatureService from '@nb/auth_e_signature/server/auth_e_signature.service';
-import UserService from '@nb/user/server/user.service';
-import UserSecurityService from '@nb/user_security/server/user_security.service';
-import UserSessionNextService from '@nb/user_session/server/user_session.service.next';
-import { SafeUserSecuritySchema } from '@nb/user_security/server/user_security.types';
-import AuditLogService from '@nb/audit_log/server/audit_log.service';
-import TenantService from '@nb/tenant/server/tenant.service';
-import TenantMemberService from '@nb/tenant_member/server/tenant_member.service';
-import { E_SIGNATURE_MESSAGES } from '@nb/e_signature/server/e_signature.messages';
+import Logger from '@kuraykaraaslan/logger';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
+import AuthESignatureService from '@kuraykaraaslan/auth_e_signature/server/auth_e_signature.service';
+import UserService from '@kuraykaraaslan/user/server/user.service';
+import UserSecurityService from '@kuraykaraaslan/user_security/server/user_security.service';
+import UserSessionNextService from '@kuraykaraaslan/user_session/server/user_session.service.next';
+import { SafeUserSecuritySchema } from '@kuraykaraaslan/user_security/server/user_security.types';
+import AuditLogService from '@kuraykaraaslan/audit_log/server/audit_log.service';
+import TenantService from '@kuraykaraaslan/tenant/server/tenant.service';
+import TenantMemberService from '@kuraykaraaslan/tenant_member/server/tenant_member.service';
+import { E_SIGNATURE_MESSAGES } from '@kuraykaraaslan/e_signature/server/e_signature.messages';
 
 interface RouteContext {
   params: Promise<{ tenantId: string; transactionId: string }>;

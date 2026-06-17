@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { create as createXml } from 'xmlbuilder2';
-import type { Invoice } from '@nb/invoice/server/entities/invoice.entity';
-import type { InvoiceLine } from '@nb/invoice/server/entities/invoice_line.entity';
+import type { Invoice } from '@kuraykaraaslan/invoice/server/entities/invoice.entity';
+import type { InvoiceLine } from '@kuraykaraaslan/invoice/server/entities/invoice_line.entity';
 import type { SellerInfo } from './tr_earsiv.seller';
 import { formatGibInvoiceNumber } from './tr_earsiv.format';
 

@@ -1,4 +1,4 @@
-import type { SettingFieldDef } from '@nb/setting/server/setting-fields.types';
+import type { SettingFieldDef } from '@kuraykaraaslan/setting/server/setting-fields.types';
 import {
   AUTH_SSO_SETTING_KEYS,
   SSO_BYO_CLIENT_ID,

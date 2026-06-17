@@ -1,9 +1,9 @@
 import 'reflect-metadata';
-import { getDataSource } from '@nb/db';
-import { encryptFieldOpt } from '@nb/common/server/field-encryption';
+import { getDataSource } from '@kuraykaraaslan/db';
+import { encryptFieldOpt } from '@kuraykaraaslan/common/server/field-encryption';
 import { UserSocialAccount as UserSocialAccountEntity } from './entities/user_social_account.entity';
 import { SafeUserSocialAccount, SafeUserSocialAccountSchema } from './user_social_account.types';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import UserSocialAccountMessages from './user_social_account.messages';
 import type { SocialAccountProvider } from './user_social_account.enums';
 import { type SocialLinkContext, clearCache, emitLinkEvent, notifyUser } from './user_social_account.helpers';
@@ -86,7 +86,7 @@ export async function isLastLoginMethod(userId: string, exceptAccountId: string)
   if (otherSocial > 1) return false; // another social account remains
   // No other social account — check for a usable password on the User row.
   try {
-    const { User } = await import('@nb/user/server/entities/user.entity');
+    const { User } = await import('@kuraykaraaslan/user/server/entities/user.entity');
     const user = await ds.getRepository(User).findOne({ where: { userId }, select: ['userId', 'password'] });
     const hasPassword = Boolean(user?.password) && user!.password !== 'ERASED';
     return !hasPassword;

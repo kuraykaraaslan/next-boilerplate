@@ -5,14 +5,14 @@ import {
   regularUser,
 } from './impersonation.test-setup';
 import ImpersonationService from '../impersonation.service';
-import UserSessionService from '@nb/user_session/server/user_session.service';
-import WebhookService from '@nb/webhook/server/webhook.service';
+import UserSessionService from '@kuraykaraaslan/user_session/server/user_session.service';
+import WebhookService from '@kuraykaraaslan/webhook/server/webhook.service';
 
 beforeEach(resetImpersonationMocks);
 
 describe('ImpersonationService.endImpersonationSession', () => {
   it('deletes the session and records duration on END (#11)', async () => {
-    const AuditLogService = (await import('@nb/audit_log/server/audit_log.service')).default;
+    const AuditLogService = (await import('@kuraykaraaslan/audit_log/server/audit_log.service')).default;
     const startedAtMs = Date.now() - 5000;
     await expect(
       ImpersonationService.endImpersonationSession('session-impersonated-1', {
@@ -42,7 +42,7 @@ describe('ImpersonationService.endImpersonationSession', () => {
   });
 
   it('does not call audit log when actorId is not provided', async () => {
-    const AuditLogService = (await import('@nb/audit_log/server/audit_log.service')).default;
+    const AuditLogService = (await import('@kuraykaraaslan/audit_log/server/audit_log.service')).default;
     await ImpersonationService.endImpersonationSession('session-impersonated-1');
     expect(AuditLogService.log).not.toHaveBeenCalled();
   });

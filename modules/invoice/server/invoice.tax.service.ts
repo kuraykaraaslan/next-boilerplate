@@ -1,6 +1,6 @@
 import 'reflect-metadata';
-import { PaymentTaxService, type TaxLine, type CalculateTaxDTO } from '@nb/payment_tax';
-import Logger from '@nb/logger';
+import { PaymentTaxService, type TaxLine, type CalculateTaxDTO } from '@kuraykaraaslan/payment_tax';
+import Logger from '@kuraykaraaslan/logger';
 
 /**
  * Bridges the invoice module to the tenant's own tax engine (`payment_tax`).

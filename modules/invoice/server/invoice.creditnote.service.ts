@@ -1,15 +1,15 @@
 import 'reflect-metadata';
-import { tenantDataSourceFor } from '@nb/db';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
 import { Invoice as InvoiceEntity } from './entities/invoice.entity';
 import { InvoiceLine as InvoiceLineEntity } from './entities/invoice_line.entity';
-import SettingService from '@nb/setting/server/setting.service';
-import AuditLogService from '@nb/audit_log/server/audit_log.service';
-import Logger from '@nb/logger';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
+import AuditLogService from '@kuraykaraaslan/audit_log/server/audit_log.service';
+import Logger from '@kuraykaraaslan/logger';
 import InvoiceMessages from './invoice.messages';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { SafeInvoiceSchema, type SafeInvoice } from './invoice.types';
 import InvoiceCrudService from './invoice.crud.service';
-import WebhookService from '@nb/webhook/server/webhook.service';
+import WebhookService from '@kuraykaraaslan/webhook/server/webhook.service';
 
 const round4 = (n: number) => Math.round(n * 10000) / 10000;
 

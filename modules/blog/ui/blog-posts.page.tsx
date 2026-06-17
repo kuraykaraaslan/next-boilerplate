@@ -1,15 +1,15 @@
 'use client';
 import { use, useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import api from '@nb/common/server/axios';
-import { ServerDataTable, type TableColumn } from '@nb/common/ui/server-data-table.component';
-import { PageHeader } from '@nb/common/ui/page-header.component';
-import { Input } from '@nb/common/ui/input.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
-import { RowActionsMenu } from '@nb/common/ui/row-actions-menu.component';
-import { toast } from '@nb/common/ui/toast.store';
-import { PostStatusBadge, type PostStatus } from '@nb/blog/ui/blog-status-badge.component';
-import { BlogPostCreateModal } from '@nb/blog/ui/blog-post-create-modal.component';
+import api from '@kuraykaraaslan/common/server/axios';
+import { ServerDataTable, type TableColumn } from '@kuraykaraaslan/common/ui/server-data-table.component';
+import { PageHeader } from '@kuraykaraaslan/common/ui/page-header.component';
+import { Input } from '@kuraykaraaslan/common/ui/input.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
+import { RowActionsMenu } from '@kuraykaraaslan/common/ui/row-actions-menu.component';
+import { toast } from '@kuraykaraaslan/common/ui/toast.store';
+import { PostStatusBadge, type PostStatus } from '@kuraykaraaslan/blog/ui/blog-status-badge.component';
+import { BlogPostCreateModal } from '@kuraykaraaslan/blog/ui/blog-post-create-modal.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faSearch, faPenToSquare, faTrash, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 

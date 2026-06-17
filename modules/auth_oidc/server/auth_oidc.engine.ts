@@ -1,6 +1,6 @@
 import axios from 'axios';
 import jwt from 'jsonwebtoken';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import OidcMessages from './auth_oidc.messages';
 import { getSigningPem } from './auth_oidc.jwks';
 import {

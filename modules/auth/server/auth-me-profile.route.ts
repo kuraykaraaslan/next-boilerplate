@@ -1,10 +1,10 @@
 // path: app/tenant/[tenantId]/api/auth/me/profile/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import TenantSessionNextService from "@nb/tenant_session/server/tenant_session.service.next";
-import UserProfileService from "@nb/user_profile/server/user_profile.service";
-import Limiter from "@nb/limiter/server/limiter.service.next";
-import { UpdateProfileRequestSchema } from "@nb/user_profile/server/user_profile.dto";
-import AuthMessages from "@nb/auth/server/auth.messages";
+import TenantSessionNextService from "@kuraykaraaslan/tenant_session/server/tenant_session.service.next";
+import UserProfileService from "@kuraykaraaslan/user_profile/server/user_profile.service";
+import Limiter from "@kuraykaraaslan/limiter/server/limiter.service.next";
+import { UpdateProfileRequestSchema } from "@kuraykaraaslan/user_profile/server/user_profile.dto";
+import AuthMessages from "@kuraykaraaslan/auth/server/auth.messages";
 
 export async function GET(
   request: NextRequest,

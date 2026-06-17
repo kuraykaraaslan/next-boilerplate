@@ -1,13 +1,13 @@
 import 'reflect-metadata'
 import { MoreThanOrEqual } from 'typeorm'
-import { tenantDataSourceFor } from '@nb/db'
-import { singleFlight } from '@nb/redis'
-import SettingService from '@nb/setting/server/setting.service'
-import Logger from '@nb/logger'
+import { tenantDataSourceFor } from '@kuraykaraaslan/db'
+import { singleFlight } from '@kuraykaraaslan/redis'
+import SettingService from '@kuraykaraaslan/setting/server/setting.service'
+import Logger from '@kuraykaraaslan/logger'
 import { ProductReview as ProductReviewEntity } from './entities/product_review.entity'
 import { SafeProductReviewSchema, type SafeProductReview } from './product_review.types'
 import type { CreateReviewDTO, UpdateReviewDTO, GetReviewsQuery } from './product_review.dto'
-import { AppError, ErrorCode } from '@nb/common/server/app-error'
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error'
 import { PRODUCT_REVIEW_MESSAGES } from './product_review.messages'
 import { bustReview, bustSummary } from './product_review.helpers'
 
@@ -20,8 +20,8 @@ export async function verifyPurchase(tenantId: string, userId: string | undefine
   if (!userId) return false
   try {
     const ds = await tenantDataSourceFor(tenantId)
-    const { Cart } = await import('@nb/payment_cart/server/entities/cart.entity')
-    const { CartItem } = await import('@nb/payment_cart/server/entities/cart_item.entity')
+    const { Cart } = await import('@kuraykaraaslan/payment_cart/server/entities/cart.entity')
+    const { CartItem } = await import('@kuraykaraaslan/payment_cart/server/entities/cart_item.entity')
     const count = await ds.getRepository(CartItem).createQueryBuilder('ci')
       .innerJoin(Cart, 'c', 'c."cartId" = ci."cartId"')
       .where('ci."tenantId" = :tenantId', { tenantId })

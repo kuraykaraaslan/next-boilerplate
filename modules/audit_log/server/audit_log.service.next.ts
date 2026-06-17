@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import AuditLogService from '@nb/audit_log/server/audit_log.service';
+import AuditLogService from '@kuraykaraaslan/audit_log/server/audit_log.service';
 
 export default class AuditLogNextService extends AuditLogService {
 

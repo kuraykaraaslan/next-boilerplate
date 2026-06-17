@@ -1,9 +1,9 @@
-import Limiter from '@nb/limiter/server/limiter.service.next';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
 import { NextRequest, NextResponse } from 'next/server';
-import IntegrationsHubService from '@nb/integrations_hub/server/integrations_hub.service';
-import { UpsertConnectorRequestSchema } from '@nb/integrations_hub/server/integrations_hub.dto';
-import { INTEGRATIONS_HUB_MESSAGES as MSG } from '@nb/integrations_hub/server/integrations_hub.messages';
-import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
+import IntegrationsHubService from '@kuraykaraaslan/integrations_hub/server/integrations_hub.service';
+import { UpsertConnectorRequestSchema } from '@kuraykaraaslan/integrations_hub/server/integrations_hub.dto';
+import { INTEGRATIONS_HUB_MESSAGES as MSG } from '@kuraykaraaslan/integrations_hub/server/integrations_hub.messages';
+import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next';
 
 type Params = { params: Promise<{ tenantId: string; connectorKey: string }> };
 

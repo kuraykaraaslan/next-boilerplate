@@ -1,15 +1,15 @@
 'use client';
 import { useState } from 'react';
-import { Card } from '@nb/common/ui/card.component';
-import { Input } from '@nb/common/ui/input.component';
-import { Button } from '@nb/common/ui/button.component';
-import { Toggle } from '@nb/common/ui/toggle.component';
-import { Select } from '@nb/common/ui/select.component';
+import { Card } from '@kuraykaraaslan/common/ui/card.component';
+import { Input } from '@kuraykaraaslan/common/ui/input.component';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import { Toggle } from '@kuraykaraaslan/common/ui/toggle.component';
+import { Select } from '@kuraykaraaslan/common/ui/select.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave } from '@fortawesome/free-solid-svg-icons';
-import { SAML_NAME_ID_FORMATS } from '@nb/auth_saml/server/auth_saml.enums';
-import type { SafeSamlConfig } from '@nb/auth_saml/server/auth_saml.types';
-import type { UpsertSamlConfigInput } from '@nb/auth_saml/server/auth_saml.dto';
+import { SAML_NAME_ID_FORMATS } from '@kuraykaraaslan/auth_saml/server/auth_saml.enums';
+import type { SafeSamlConfig } from '@kuraykaraaslan/auth_saml/server/auth_saml.types';
+import type { UpsertSamlConfigInput } from '@kuraykaraaslan/auth_saml/server/auth_saml.dto';
 
 type Props = {
   config: SafeSamlConfig | null;

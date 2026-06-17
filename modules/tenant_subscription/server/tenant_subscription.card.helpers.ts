@@ -1,13 +1,13 @@
 import 'reflect-metadata';
-import { tenantDataSourceFor } from '@nb/db';
-import { SubscriptionPlan as SubscriptionPlanEntity } from '@nb/payment/server/entities/subscription_plan.entity';
-import { StoreProduct as ProductEntity } from '@nb/store/server/entities/store_product.entity';
-import PaymentService from '@nb/payment/server/payment.service';
-import { ExchangeRateService } from '@nb/exchange_rate';
-import type { PaymentProvider } from '@nb/payment/server/payment.enums';
-import type { CardBinInfo } from '@nb/payment/server/payment.types';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import { SubscriptionPlan as SubscriptionPlanEntity } from '@kuraykaraaslan/payment/server/entities/subscription_plan.entity';
+import { StoreProduct as ProductEntity } from '@kuraykaraaslan/store/server/entities/store_product.entity';
+import PaymentService from '@kuraykaraaslan/payment/server/payment.service';
+import { ExchangeRateService } from '@kuraykaraaslan/exchange_rate';
+import type { PaymentProvider } from '@kuraykaraaslan/payment/server/payment.enums';
+import type { CardBinInfo } from '@kuraykaraaslan/payment/server/payment.types';
 import { SUBSCRIPTION_MESSAGES } from './tenant_subscription.messages';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { fetchProductOrThrow } from './tenant_subscription.helpers';
 
 /** Providers that settle Turkish cards in TRY, so a TR card triggers conversion. */

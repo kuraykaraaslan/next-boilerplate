@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { tenantDataSourceFor } from '@nb/db';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
 import { CouponRedemption as CouponRedemptionEntity } from './entities/coupon_redemption.entity';
 import { getById } from './coupon.crud.core.service';
 

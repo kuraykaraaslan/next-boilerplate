@@ -1,7 +1,7 @@
 'use client';
-import { cn } from '@nb/common/server/utils/cn';
+import { cn } from '@kuraykaraaslan/common/server/utils/cn';
 import { useEffect, useState } from 'react';
-import { Badge } from '@nb/common/ui/badge.component';
+import { Badge } from '@kuraykaraaslan/common/ui/badge.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronLeft, faChevronDown } from '@fortawesome/free-solid-svg-icons';
 

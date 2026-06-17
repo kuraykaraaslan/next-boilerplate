@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import TenantCardCheckoutService from '@nb/tenant_subscription/server/tenant_subscription.card.service';
-import { SUBSCRIPTION_MESSAGES } from '@nb/tenant_subscription/server/tenant_subscription.messages';
-import { CreditCardInputSchema, PaymentProviderEnum } from '@nb/payment/server/payment.enums';
-import Limiter from '@nb/limiter/server/limiter.service.next';
-import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
+import TenantCardCheckoutService from '@kuraykaraaslan/tenant_subscription/server/tenant_subscription.card.service';
+import { SUBSCRIPTION_MESSAGES } from '@kuraykaraaslan/tenant_subscription/server/tenant_subscription.messages';
+import { CreditCardInputSchema, PaymentProviderEnum } from '@kuraykaraaslan/payment/server/payment.enums';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
+import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next';
 
 const PayWithCardRequestSchema = z.object({
   planId: z.string().uuid('Invalid plan ID'),

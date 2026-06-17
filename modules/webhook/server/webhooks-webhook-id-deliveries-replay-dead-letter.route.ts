@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Limiter from '@nb/limiter/server/limiter.service.next';
-import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
-import WebhookService from '@nb/webhook/server/webhook.service';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
+import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next';
+import WebhookService from '@kuraykaraaslan/webhook/server/webhook.service';
 
 /**
  * POST /tenant/[tenantId]/api/webhooks/[webhookId]/deliveries/replay-dead-letter

@@ -1,13 +1,13 @@
 import 'reflect-metadata';
-import { tenantDataSourceFor } from '@nb/db';
-import { SubscriptionPlan as SubscriptionPlanEntity } from '@nb/payment/server/entities/subscription_plan.entity';
-import { StoreProduct as ProductEntity } from '@nb/store/server/entities/store_product.entity';
-import Logger from '@nb/logger';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import { SubscriptionPlan as SubscriptionPlanEntity } from '@kuraykaraaslan/payment/server/entities/subscription_plan.entity';
+import { StoreProduct as ProductEntity } from '@kuraykaraaslan/store/server/entities/store_product.entity';
+import Logger from '@kuraykaraaslan/logger';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { SUBSCRIPTION_MESSAGES } from './tenant_subscription.messages';
 import { PlanProductSummarySchema } from './tenant_subscription.types';
 import type { PlanProductSummary } from './tenant_subscription.types';
-import type { WebhookEvent } from '@nb/webhook/server/webhook.enums';
+import type { WebhookEvent } from '@kuraykaraaslan/webhook/server/webhook.enums';
 
 /**
  * Shared low-level helpers for the tenant_subscription service family
@@ -63,7 +63,7 @@ export async function emitWebhook(
   payload: Record<string, unknown>,
 ): Promise<void> {
   try {
-    const { default: WebhookService } = await import('@nb/webhook/server/webhook.service');
+    const { default: WebhookService } = await import('@kuraykaraaslan/webhook/server/webhook.service');
     await WebhookService.dispatchEvent(tenantId, event, payload);
   } catch (err) {
     Logger.warn(`[TenantSubscription] webhook emit failed event=${event}: ${err instanceof Error ? err.message : String(err)}`);

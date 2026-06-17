@@ -2,9 +2,9 @@
 import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
-import { Form } from '@nb/common/ui/form.component';
-import { Input } from '@nb/common/ui/input.component';
-import { Button } from '@nb/common/ui/button.component';
+import { Form } from '@kuraykaraaslan/common/ui/form.component';
+import { Input } from '@kuraykaraaslan/common/ui/input.component';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
 
 type ForgotPasswordFormProps = {
   onSubmit: (email: string) => Promise<void> | void;

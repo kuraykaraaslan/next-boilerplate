@@ -1,10 +1,10 @@
 import 'reflect-metadata';
 import { generateRegistrationOptions as genRegistrationOptions, verifyRegistrationResponse } from '@simplewebauthn/server';
 import type { RegistrationResponseJSON, AuthenticatorTransportFuture } from '@simplewebauthn/server';
-import { getDataSource } from '@nb/db';
+import { getDataSource } from '@kuraykaraaslan/db';
 import { UserSecurity as UserSecurityEntity } from './entities/user_security.entity';
-import redis from '@nb/redis';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import redis from '@kuraykaraaslan/redis';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import UserSecurityService from './user_security.service';
 import { clearCache } from './user_security.helpers';
 import PasskeyMessages from './user_security.passkey.messages';
@@ -14,7 +14,7 @@ import {
   PASSKEY_MAX_PER_USER,
 } from './user_security.passkey.constants';
 import { StoredPasskey } from './user_security.types';
-import { SafeUser } from '@nb/user/server/user.types';
+import { SafeUser } from '@kuraykaraaslan/user/server/user.types';
 import { RP_NAME, RP_ID, ORIGIN } from './user_security.passkey.config';
 
 export async function generateRegistrationOptions(user: SafeUser): Promise<Record<string, unknown>> {

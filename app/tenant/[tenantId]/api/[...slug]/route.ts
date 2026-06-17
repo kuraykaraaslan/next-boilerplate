@@ -4,9 +4,9 @@
 // enabled for the tenant. A disabled module's endpoints simply 404. Specific
 // file routes (cron, streaming, etc.) take precedence over this catch-all.
 import { NextRequest, NextResponse } from 'next/server';
-import { moduleRegistry } from '@nb/common/server/module-registry';
-import { getEnabledModuleIds } from '@nb/setting/server/module-activation.service.next';
-import { apiHandlers } from '@nb/common/server/generated/api-handlers';
+import { moduleRegistry } from '@kuraykaraaslan/common/server/module-registry';
+import { getEnabledModuleIds } from '@kuraykaraaslan/setting/server/module-activation.service.next';
+import { apiHandlers } from '@kuraykaraaslan/common/server/generated/api-handlers';
 
 // nodejs (handlers use TypeORM/Node APIs); force-dynamic so streaming (SSE)
 // handlers aren't cached; 300s ceiling so long jobs (e.g. the demo-reset cron)

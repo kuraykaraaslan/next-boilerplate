@@ -1,17 +1,17 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import api from '@nb/common/server/axios';
-import { AppShell } from '@nb/common/ui/layout/app-shell.component';
-import { AppSidebar } from '@nb/common/ui/layout/app-sidebar.component';
-import { AppTopBar } from '@nb/common/ui/layout/app-top-bar.component';
-import { UserMenu } from '@nb/user/ui/user-menu.component';
-import { NotificationMenu } from '@nb/common/ui/notification-menu.component';
-import { useNotifications } from '@nb/notification_inapp/hooks/use-notifications.hook';
-import { isRootTenant } from '@nb/tenant/server/tenant.constants';
-import { moduleRegistry } from '@nb/common/server/module-registry';
-import { useModuleEnabled } from '@nb/common/ui/module-enabled.context.component';
-import { resolveIcon, DEFAULT_ICON } from '@nb/common/ui/icon-map';
+import api from '@kuraykaraaslan/common/server/axios';
+import { AppShell } from '@kuraykaraaslan/common/ui/layout/app-shell.component';
+import { AppSidebar } from '@kuraykaraaslan/common/ui/layout/app-sidebar.component';
+import { AppTopBar } from '@kuraykaraaslan/common/ui/layout/app-top-bar.component';
+import { UserMenu } from '@kuraykaraaslan/user/ui/user-menu.component';
+import { NotificationMenu } from '@kuraykaraaslan/common/ui/notification-menu.component';
+import { useNotifications } from '@kuraykaraaslan/notification_inapp/hooks/use-notifications.hook';
+import { isRootTenant } from '@kuraykaraaslan/tenant/server/tenant.constants';
+import { moduleRegistry } from '@kuraykaraaslan/common/server/module-registry';
+import { useModuleEnabled } from '@kuraykaraaslan/common/ui/module-enabled.context.component';
+import { resolveIcon, DEFAULT_ICON } from '@kuraykaraaslan/common/ui/icon-map';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faServer,

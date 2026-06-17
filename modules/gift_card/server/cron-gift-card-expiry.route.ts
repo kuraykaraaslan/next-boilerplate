@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { env } from '@nb/env';
-import { getDataSource } from '@nb/db';
-import { Tenant } from '@nb/tenant/server/entities/tenant.entity';
-import { expireGiftCardsForTenant } from '@nb/gift_card/server/gift_card.expiry.job';
-import Logger from '@nb/logger';
+import { env } from '@kuraykaraaslan/env';
+import { getDataSource } from '@kuraykaraaslan/db';
+import { Tenant } from '@kuraykaraaslan/tenant/server/entities/tenant.entity';
+import { expireGiftCardsForTenant } from '@kuraykaraaslan/gift_card/server/gift_card.expiry.job';
+import Logger from '@kuraykaraaslan/logger';
 
 /**
  * POST /tenant/[tenantId]/api/cron/gift-card-expiry

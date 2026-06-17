@@ -1,6 +1,6 @@
-import type { Invoice } from '@nb/invoice/server/entities/invoice.entity';
-import type { InvoiceLine } from '@nb/invoice/server/entities/invoice_line.entity';
-import { xmlEscape, money, qty } from '@nb/invoice/server/adapters/xml.util';
+import type { Invoice } from '@kuraykaraaslan/invoice/server/entities/invoice.entity';
+import type { InvoiceLine } from '@kuraykaraaslan/invoice/server/entities/invoice_line.entity';
+import { xmlEscape, money, qty } from '@kuraykaraaslan/invoice/server/adapters/xml.util';
 
 /**
  * Mexican **CFDI 4.0** (Comprobante Fiscal Digital por Internet) serialiser.

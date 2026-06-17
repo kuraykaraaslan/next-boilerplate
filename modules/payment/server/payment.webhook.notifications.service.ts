@@ -1,12 +1,12 @@
 import 'reflect-metadata';
-import { getDataSource, tenantDataSourceFor } from '@nb/db';
-import { TenantSubscription as TenantSubscriptionEntity } from '@nb/tenant_subscription/server/entities/tenant_subscription.entity';
-import { Tenant as TenantEntity } from '@nb/tenant/server/entities/tenant.entity';
-import { TenantMember as TenantMemberEntity } from '@nb/tenant_member/server/entities/tenant_member.entity';
-import { User as UserEntity } from '@nb/user/server/entities/user.entity';
-import MailTemplatesService from '@nb/notification_mail/server/notification_mail.templates.service';
-import Logger from '@nb/logger';
-import { env } from '@nb/env';
+import { getDataSource, tenantDataSourceFor } from '@kuraykaraaslan/db';
+import { TenantSubscription as TenantSubscriptionEntity } from '@kuraykaraaslan/tenant_subscription/server/entities/tenant_subscription.entity';
+import { Tenant as TenantEntity } from '@kuraykaraaslan/tenant/server/entities/tenant.entity';
+import { TenantMember as TenantMemberEntity } from '@kuraykaraaslan/tenant_member/server/entities/tenant_member.entity';
+import { User as UserEntity } from '@kuraykaraaslan/user/server/entities/user.entity';
+import MailTemplatesService from '@kuraykaraaslan/notification_mail/server/notification_mail.templates.service';
+import Logger from '@kuraykaraaslan/logger';
+import { env } from '@kuraykaraaslan/env';
 import type { NormalizedEvent } from './payment.webhook.types';
 
 /**
@@ -21,8 +21,8 @@ export default class PaymentWebhookNotificationsService {
     if (!tenantId || !event.amount) return;
 
     // Lazy-import to avoid a circular dep through TenantSubscriptionService.
-    const { default: InvoiceService } = await import('@nb/invoice/server/invoice.service');
-    const { default: SettingService } = await import('@nb/setting/server/setting.service');
+    const { default: InvoiceService } = await import('@kuraykaraaslan/invoice/server/invoice.service');
+    const { default: SettingService } = await import('@kuraykaraaslan/setting/server/setting.service');
 
     // Caller info — best-effort. If the tenant hasn't populated company info
     // yet, InvoiceService.create will throw COMPANY_INFO_MISSING; we swallow.

@@ -1,6 +1,6 @@
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { money, formatMoney, type CurrencyCode } from '@nb/common';
+import { money, formatMoney, type CurrencyCode } from '@kuraykaraaslan/common';
 import { Invoice } from './entities/invoice.entity';
 import { InvoiceLine } from './entities/invoice_line.entity';
 

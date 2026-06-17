@@ -1,12 +1,12 @@
 'use client';
 
-import { Badge } from '@nb/common/ui/badge.component';
-import { RowActionsMenu } from '@nb/common/ui/row-actions-menu.component';
-import type { TableColumn } from '@nb/common/ui/server-data-table.component';
+import { Badge } from '@kuraykaraaslan/common/ui/badge.component';
+import { RowActionsMenu } from '@kuraykaraaslan/common/ui/row-actions-menu.component';
+import type { TableColumn } from '@kuraykaraaslan/common/ui/server-data-table.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlug, faLinkSlash } from '@fortawesome/free-solid-svg-icons';
-import type { ConnectedAppStatus } from '@nb/integrations_hub/server/integrations_hub.enums';
-import type { ConnectedApp } from '@nb/integrations_hub/server/integrations_hub.types';
+import type { ConnectedAppStatus } from '@kuraykaraaslan/integrations_hub/server/integrations_hub.enums';
+import type { ConnectedApp } from '@kuraykaraaslan/integrations_hub/server/integrations_hub.types';
 
 export type ConnectedAppRow = Pick<
   ConnectedApp,

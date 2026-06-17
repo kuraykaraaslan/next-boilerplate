@@ -1,5 +1,5 @@
 {
-  "name": "@nb/storage_minio",
+  "name": "@kuraykaraaslan/storage_minio",
   "version": "0.0.0",
   "private": true,
   "type": "module",

@@ -26,6 +26,7 @@
     "seed": "tsx scripts/seed.ts",
     "tenant:create": "tsx scripts/create-tenant.ts",
     "registry:snapshot": "node scripts/build-registry-snapshot.mjs",
+    "new:module": "node scripts/new-module.mjs",
     "mcp:server": "node scripts/mcp-server.mjs",
     "ws:dev": "tsx watch modules/messaging/server/index.ts",
     "ws:start": "tsx modules/messaging/server/index.ts"

@@ -1,7 +1,7 @@
 import 'reflect-metadata';
-import { getDataSource } from '@nb/db';
-import redis, { jitter, singleFlight } from '@nb/redis';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { getDataSource } from '@kuraykaraaslan/db';
+import redis, { jitter, singleFlight } from '@kuraykaraaslan/redis';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { UserSecurity as UserSecurityEntity } from './entities/user_security.entity';
 import { UserSecurity, UserSecuritySchema, SafeUserSecurity, SafeUserSecuritySchema } from './user_security.types';
 import UserSecurityMessages from './user_security.messages';

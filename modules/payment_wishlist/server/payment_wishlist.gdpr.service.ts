@@ -1,5 +1,5 @@
 import 'reflect-metadata'
-import { tenantDataSourceFor } from '@nb/db'
+import { tenantDataSourceFor } from '@kuraykaraaslan/db'
 import { Wishlist as WishlistEntity } from './entities/wishlist.entity'
 import { WishlistItem as WishlistItemEntity } from './entities/wishlist_item.entity'
 import { SafeWishlistSchema } from './payment_wishlist.types'

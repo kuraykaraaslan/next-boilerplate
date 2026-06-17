@@ -1,7 +1,7 @@
 'use client';
 import { use } from 'react';
-import { ModuleSettingsPage } from '@nb/setting/ui/module-settings-page.component';
-import { AUTH_SAML_SETTINGS_FIELDS } from '@nb/auth_saml/server/auth_saml.settings.fields';
+import { ModuleSettingsPage } from '@kuraykaraaslan/setting/ui/module-settings-page.component';
+import { AUTH_SAML_SETTINGS_FIELDS } from '@kuraykaraaslan/auth_saml/server/auth_saml.settings.fields';
 
 /**
  * SAML operational/safety settings (monitoring, replay detection, metadata

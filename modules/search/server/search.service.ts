@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { getSearchProvider } from './search.provider-factory';
 import type { IndexableDocument } from './providers/base.provider';
 import { normalizeQuery, isBlankQuery } from './search.query';

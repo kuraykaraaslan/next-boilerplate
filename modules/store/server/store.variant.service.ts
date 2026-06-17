@@ -1,5 +1,5 @@
 import 'reflect-metadata'
-import { tenantDataSourceFor } from '@nb/db'
+import { tenantDataSourceFor } from '@kuraykaraaslan/db'
 import { StoreProduct as ProductEntity } from './entities/store_product.entity'
 import { StoreVariantGroup as VariantGroupEntity } from './entities/store_variant_group.entity'
 import { StoreVariantGroupItem as VariantGroupItemEntity } from './entities/store_variant_group_item.entity'
@@ -11,7 +11,7 @@ import type {
   AddVariantGroupItemDTO, UpdateVariantGroupItemDTO,
 } from './store.dto'
 import { STORE_MESSAGES } from './store.messages'
-import { AppError, ErrorCode } from '@nb/common/server/app-error'
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error'
 
 /** Store product variant-group management (split out of `StoreService`). */
 export default class StoreVariantService {

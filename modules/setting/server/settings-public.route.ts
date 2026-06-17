@@ -1,10 +1,10 @@
-import Limiter from '@nb/limiter/server/limiter.service.next';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
 // path: app/tenant/[tenantId]/api/settings/public/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import SettingService from '@nb/setting/server/setting.service';
-import TenantService from '@nb/tenant/server/tenant.service';
-import { TENANT_BRANDING_KEYS } from '@nb/tenant_branding/server/tenant_branding.setting.keys'
-import { PUBLIC_CACHE } from '@nb/common/server/utils/cacheHeaders'
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
+import TenantService from '@kuraykaraaslan/tenant/server/tenant.service';
+import { TENANT_BRANDING_KEYS } from '@kuraykaraaslan/tenant_branding/server/tenant_branding.setting.keys'
+import { PUBLIC_CACHE } from '@kuraykaraaslan/common/server/utils/cacheHeaders'
 
 
 /**

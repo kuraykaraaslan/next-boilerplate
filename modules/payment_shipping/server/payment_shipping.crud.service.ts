@@ -1,7 +1,7 @@
 import 'reflect-metadata'
-import { tenantDataSourceFor } from '@nb/db'
-import { AppError, ErrorCode } from '@nb/common/server/app-error'
-import AuditLogService from '@nb/audit_log/server/audit_log.service'
+import { tenantDataSourceFor } from '@kuraykaraaslan/db'
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error'
+import AuditLogService from '@kuraykaraaslan/audit_log/server/audit_log.service'
 import { ShippingMethod as ShippingMethodEntity } from './entities/shipping_method.entity'
 import { ShippingRate as ShippingRateEntity } from './entities/shipping_rate.entity'
 import {

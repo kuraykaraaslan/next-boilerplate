@@ -1,11 +1,11 @@
 // path: app/tenant/[tenantId]/api/modules/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import Limiter from '@nb/limiter/server/limiter.service.next';
-import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
+import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next';
 import {
   listModulesWithState,
   setModuleEnabled,
-} from '@nb/setting/server/module-activation.service.next';
+} from '@kuraykaraaslan/setting/server/module-activation.service.next';
 
 /**
  * GET /tenant/[tenantId]/api/modules

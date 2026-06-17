@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import TenantCardCheckoutService from '@nb/tenant_subscription/server/tenant_subscription.card.service';
-import PaymentService from '@nb/payment/server/payment.service';
-import Logger from '@nb/logger';
+import TenantCardCheckoutService from '@kuraykaraaslan/tenant_subscription/server/tenant_subscription.card.service';
+import PaymentService from '@kuraykaraaslan/payment/server/payment.service';
+import Logger from '@kuraykaraaslan/logger';
 
 /**
  * POST /tenant/[tenantId]/api/subscription/pay/3ds-callback

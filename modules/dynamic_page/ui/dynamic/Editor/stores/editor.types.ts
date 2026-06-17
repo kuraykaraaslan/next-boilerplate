@@ -1,7 +1,7 @@
 import type { DragEndEvent } from '@dnd-kit/core'
 import type { BlockData } from '../../types'
-import type { DynamicPageBlockRecord } from '@nb/dynamic_page/server/dynamic_page.types'
-import { DEFAULT_PAGE_LAYOUT } from '@nb/dynamic_page/server/dynamic_page.types'
+import type { DynamicPageBlockRecord } from '@kuraykaraaslan/dynamic_page/server/dynamic_page.types'
+import { DEFAULT_PAGE_LAYOUT } from '@kuraykaraaslan/dynamic_page/server/dynamic_page.types'
 
 export type { DynamicPageBlockRecord }
 export type PreviewMode = 'mobile' | 'tablet' | 'desktop'

@@ -1,8 +1,8 @@
 import 'reflect-metadata'
-import { tenantDataSourceFor } from '@nb/db'
-import redis, { singleFlight, jitter } from '@nb/redis'
-import Logger from '@nb/logger'
-import { AppError, ErrorCode } from '@nb/common/server/app-error'
+import { tenantDataSourceFor } from '@kuraykaraaslan/db'
+import redis, { singleFlight, jitter } from '@kuraykaraaslan/redis'
+import Logger from '@kuraykaraaslan/logger'
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error'
 import { DynamicPageBlock as DynamicPageBlockEntity } from './entities/dynamic_page_block.entity'
 import {
   DynamicPageBlockRecordSchema,

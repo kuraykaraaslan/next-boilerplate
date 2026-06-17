@@ -1,4 +1,4 @@
-import { cn } from '@nb/common/server/utils/cn';
+import { cn } from '@kuraykaraaslan/common/server/utils/cn';
 
 type BrandLogoProps = {
   children?: React.ReactNode;

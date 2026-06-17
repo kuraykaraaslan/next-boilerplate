@@ -13,7 +13,7 @@ import {
 } from '@dnd-kit/core'
 import type { DragStartEvent, DragEndEvent } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy, sortableKeyboardCoordinates } from '@dnd-kit/sortable'
-import { Spinner } from '@nb/common/ui/spinner.component'
+import { Spinner } from '@kuraykaraaslan/common/ui/spinner.component'
 import Canvas from './canvas.component'
 import LeftSidebar from './left-sidebar.component'
 import RightSidebar from './right-sidebar.component'

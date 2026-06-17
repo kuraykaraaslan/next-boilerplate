@@ -1,6 +1,6 @@
-import { tenantDataSourceFor } from '@nb/db'
-import redis, { jitter, singleFlight } from '@nb/redis'
-import { env } from '@nb/env'
+import { tenantDataSourceFor } from '@kuraykaraaslan/db'
+import redis, { jitter, singleFlight } from '@kuraykaraaslan/redis'
+import { env } from '@kuraykaraaslan/env'
 import { TaxClass as TaxClassEntity } from './entities/tax_class.entity'
 import { TaxRate as TaxRateEntity } from './entities/tax_rate.entity'
 

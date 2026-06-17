@@ -1,5 +1,5 @@
 import { createCipheriv, createDecipheriv, randomBytes, type CipherGCM, type DecipherGCM } from 'node:crypto';
-import { env } from '@nb/env';
+import { env } from '@kuraykaraaslan/env';
 
 /**
  * AES-256-GCM field-level encryption for sensitive DB columns (TOTP secrets,

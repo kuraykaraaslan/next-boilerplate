@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('@nb/env', () => ({
+vi.mock('@kuraykaraaslan/env', () => ({
   env: {
     DATABASE_URL: 'postgresql://test',
     ACCESS_TOKEN_SECRET: 'test_secret',
@@ -17,12 +17,12 @@ vi.mock('@nb/env', () => ({
   },
 }));
 
-vi.mock('@nb/db', () => ({
+vi.mock('@kuraykaraaslan/db', () => ({
   getDataSource: vi.fn(),
   tenantDataSourceFor: vi.fn(),
 }));
 
-vi.mock('@nb/redis', () => ({
+vi.mock('@kuraykaraaslan/redis', () => ({
   default: {
     hgetall: vi.fn(async () => undefined),
     get: vi.fn(async () => null),
@@ -51,17 +51,17 @@ vi.mock('@nb/redis', () => ({
   jitter: (n: number) => n,
 }));
 
-vi.mock('@nb/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
+vi.mock('@kuraykaraaslan/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
 
-vi.mock('@nb/notification_push/server/notification_push.service', () => ({
+vi.mock('@kuraykaraaslan/notification_push/server/notification_push.service', () => ({
   default: {
     sendToUser: vi.fn(async () => {}),
   },
 }));
 
 import NotificationInAppService from '../notification_inapp.service';
-import redis from '@nb/redis';
-import { tenantDataSourceFor } from '@nb/db';
+import redis from '@kuraykaraaslan/redis';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
 
 const mockRedis = redis as any;
 const TENANT_ID = '00000000-0000-4000-8000-000000000000';

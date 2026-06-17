@@ -1,8 +1,8 @@
-import redis from '@nb/redis'
-import Logger from '@nb/logger'
-import { tenantDataSourceFor } from '@nb/db'
-import SettingService from '@nb/setting/server/setting.service'
-import { NotificationLog } from '@nb/notification_log/server/entities/notification_log.entity'
+import redis from '@kuraykaraaslan/redis'
+import Logger from '@kuraykaraaslan/logger'
+import { tenantDataSourceFor } from '@kuraykaraaslan/db'
+import SettingService from '@kuraykaraaslan/setting/server/setting.service'
+import { NotificationLog } from '@kuraykaraaslan/notification_log/server/entities/notification_log.entity'
 
 /**
  * SMS deliverability + compliance helpers: provider circuit breaker, delivery-

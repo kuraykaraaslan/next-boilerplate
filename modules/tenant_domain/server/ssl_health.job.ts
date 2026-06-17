@@ -1,7 +1,7 @@
 import { Queue, Worker, Job } from 'bullmq';
-import { getBullMQConnection } from '@nb/redis/server/redis.bullmq';
+import { getBullMQConnection } from '@kuraykaraaslan/redis/server/redis.bullmq';
 import SSLProvisioningService from './ssl_provisioning.service';
-import Logger from '@nb/logger';
+import Logger from '@kuraykaraaslan/logger';
 
 /**
  * Daily TLS handshake probe across every tenant custom domain — keeps the

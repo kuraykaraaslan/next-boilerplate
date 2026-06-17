@@ -1,5 +1,5 @@
 import 'reflect-metadata'
-import PaymentTaxCalcService from '@nb/payment_tax/server/payment_tax.calc.service'
+import PaymentTaxCalcService from '@kuraykaraaslan/payment_tax/server/payment_tax.calc.service'
 import type { StoreProduct, StoreProductVariant, StoreCategory } from './store.types'
 
 export interface ResolvedPrice {

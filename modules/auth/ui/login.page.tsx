@@ -1,13 +1,13 @@
 'use client';
 import { use, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import api from '@nb/common/server/axios';
-import { BrandLogo } from '@nb/common/ui/brand-logo.component';
-import { LoginForm } from '@nb/auth/ui/login-form.component';
-import { OAuthButtons, type OAuthProvider } from '@nb/auth/ui/o-auth-buttons.component';
-import { ESignatureLoginPanel } from '@nb/auth_e_signature/ui/e-signature-login-panel.component';
-import { Spinner } from '@nb/common/ui/spinner.component';
-import { isRootTenant } from '@nb/tenant/server/tenant.constants';
+import api from '@kuraykaraaslan/common/server/axios';
+import { BrandLogo } from '@kuraykaraaslan/common/ui/brand-logo.component';
+import { LoginForm } from '@kuraykaraaslan/auth/ui/login-form.component';
+import { OAuthButtons, type OAuthProvider } from '@kuraykaraaslan/auth/ui/o-auth-buttons.component';
+import { ESignatureLoginPanel } from '@kuraykaraaslan/auth_e_signature/ui/e-signature-login-panel.component';
+import { Spinner } from '@kuraykaraaslan/common/ui/spinner.component';
+import { isRootTenant } from '@kuraykaraaslan/tenant/server/tenant.constants';
 
 // Refresh token is minted with `notBefore: 5s` (see user_session.token.service.ts).
 // Wait past that window before navigating so any early refresh attempt on the

@@ -1,5 +1,5 @@
 import { MediaGalleryItem as ItemEntity } from './entities/media_gallery_item.entity';
-import { UploadedFile } from '@nb/storage/server/entities/uploaded_file.entity';
+import { UploadedFile } from '@kuraykaraaslan/storage/server/entities/uploaded_file.entity';
 import { MediaGalleryItemViewSchema, type MediaGalleryItemView } from './media_gallery.types';
 import MediaGalleryUrlService from './media_gallery.url';
 

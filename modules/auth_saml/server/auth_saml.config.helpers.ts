@@ -1,9 +1,9 @@
 import { SAML } from '@node-saml/node-saml';
 import { buildSamlClient } from './saml.engine';
-import { tenantDataSourceFor } from '@nb/db';
-import redis, { jitter, singleFlight } from '@nb/redis';
-import { env } from '@nb/env';
-import SettingService from '@nb/setting/server/setting.service';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import redis, { jitter, singleFlight } from '@kuraykaraaslan/redis';
+import { env } from '@kuraykaraaslan/env';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
 import { SamlConfig } from './entities/saml_config.entity';
 import { SAML_NAME_ID_FORMATS, type SamlSignatureAlgorithm } from './auth_saml.enums';
 

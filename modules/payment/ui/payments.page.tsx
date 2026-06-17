@@ -1,16 +1,16 @@
 'use client';
 import { use, useCallback, useEffect, useState } from 'react';
-import api from '@nb/common/server/axios';
-import { ServerDataTable, type TableColumn } from '@nb/common/ui/server-data-table.component';
-import { Input } from '@nb/common/ui/input.component';
-import { Select } from '@nb/common/ui/select.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
-import { PageHeader } from '@nb/common/ui/page-header.component';
-import { RowActionsMenu } from '@nb/common/ui/row-actions-menu.component';
-import { PaymentStatusBadge, type PaymentStatus } from '@nb/payment/ui/payment-status-badge.component';
+import api from '@kuraykaraaslan/common/server/axios';
+import { ServerDataTable, type TableColumn } from '@kuraykaraaslan/common/ui/server-data-table.component';
+import { Input } from '@kuraykaraaslan/common/ui/input.component';
+import { Select } from '@kuraykaraaslan/common/ui/select.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
+import { PageHeader } from '@kuraykaraaslan/common/ui/page-header.component';
+import { RowActionsMenu } from '@kuraykaraaslan/common/ui/row-actions-menu.component';
+import { PaymentStatusBadge, type PaymentStatus } from '@kuraykaraaslan/payment/ui/payment-status-badge.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faEye, faGear } from '@fortawesome/free-solid-svg-icons';
-import type { SafePayment } from '@nb/payment/server/payment.types';
+import type { SafePayment } from '@kuraykaraaslan/payment/server/payment.types';
 
 type Payment = Pick<SafePayment, 'paymentId' | 'amount' | 'currency' | 'provider' | 'customerEmail' | 'customerName' | 'tenantId' | 'userId'> & {
   status: PaymentStatus;

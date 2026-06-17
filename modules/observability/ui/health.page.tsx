@@ -2,17 +2,17 @@
 
 import { use, useCallback, useEffect, useState } from 'react';
 import { notFound } from 'next/navigation';
-import { isRootTenant } from '@nb/tenant/server/tenant.constants';
-import api from '@nb/common/server/axios';
-import { PageHeader } from '@nb/common/ui/page-header.component';
-import { Card } from '@nb/common/ui/card.component';
-import { Badge } from '@nb/common/ui/badge.component';
-import { Spinner } from '@nb/common/ui/spinner.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
-import { ServerDataTable } from '@nb/common/ui/server-data-table.component';
+import { isRootTenant } from '@kuraykaraaslan/tenant/server/tenant.constants';
+import api from '@kuraykaraaslan/common/server/axios';
+import { PageHeader } from '@kuraykaraaslan/common/ui/page-header.component';
+import { Card } from '@kuraykaraaslan/common/ui/card.component';
+import { Badge } from '@kuraykaraaslan/common/ui/badge.component';
+import { Spinner } from '@kuraykaraaslan/common/ui/spinner.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
+import { ServerDataTable } from '@kuraykaraaslan/common/ui/server-data-table.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDatabase, faServer, faRotateRight } from '@fortawesome/free-solid-svg-icons';
-import { cn } from '@nb/common/server/utils/cn';
+import { cn } from '@kuraykaraaslan/common/server/utils/cn';
 import {
   type HealthData, type ServiceCheck, type QueueRow,
   formatUptime, formatTimestamp, overallConfig,

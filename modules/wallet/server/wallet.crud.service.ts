@@ -1,8 +1,8 @@
 import 'reflect-metadata';
 import { createHash } from 'node:crypto';
 import { IsNull, type EntityManager, type FindOptionsWhere } from 'typeorm';
-import { tenantDataSourceFor } from '@nb/db';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { WalletAccount as WalletAccountEntity } from './entities/wallet_account.entity';
 import { WalletTransaction as WalletTransactionEntity } from './entities/wallet_transaction.entity';
 import { WalletPosting as WalletPostingEntity } from './entities/wallet_posting.entity';

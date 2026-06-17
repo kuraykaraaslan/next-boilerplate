@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Limiter from '@nb/limiter/server/limiter.service.next';
-import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
-import ApiKeyService from '@nb/api_key/server/api_key.service';
-import ApiKeyMessages from '@nb/api_key/server/api_key.messages';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
+import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next';
+import ApiKeyService from '@kuraykaraaslan/api_key/server/api_key.service';
+import ApiKeyMessages from '@kuraykaraaslan/api_key/server/api_key.messages';
 
 /**
  * POST /tenant/[tenantId]/api/api-keys/revoke-all

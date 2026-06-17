@@ -1,5 +1,5 @@
-import { extensionRegistry } from '@nb/common/server/extension-registry';
-import SettingService from '@nb/setting/server/setting.service';
+import { extensionRegistry } from '@kuraykaraaslan/common/server/extension-registry';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
 import type { InvoiceAdapter } from './base.adapter';
 import type { InvoiceAdapterContribution, InvoiceAdapterMetadata } from './invoice.adapter.types';
 

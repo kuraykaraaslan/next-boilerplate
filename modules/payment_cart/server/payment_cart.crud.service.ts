@@ -1,6 +1,6 @@
 import 'reflect-metadata'
-import { tenantDataSourceFor } from '@nb/db'
-import redis, { singleFlight } from '@nb/redis'
+import { tenantDataSourceFor } from '@kuraykaraaslan/db'
+import redis, { singleFlight } from '@kuraykaraaslan/redis'
 import { Cart as CartEntity } from './entities/cart.entity'
 import { CartItem as CartItemEntity } from './entities/cart_item.entity'
 import {
@@ -9,7 +9,7 @@ import {
 } from './payment_cart.types'
 import type { GetOrCreateCartDTO, GetCartsQuery } from './payment_cart.dto'
 import { PAYMENT_CART_MESSAGES } from './payment_cart.messages'
-import { AppError, ErrorCode } from '@nb/common/server/app-error'
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error'
 import PaymentCartCalcService from './payment_cart.calc.service'
 import PaymentCartItemService from './payment_cart.item.service'
 

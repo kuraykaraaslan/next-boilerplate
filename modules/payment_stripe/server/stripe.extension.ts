@@ -1,4 +1,4 @@
-import type { PaymentGatewayContribution } from '@nb/payment/server/payment.gateway.types';
+import type { PaymentGatewayContribution } from '@kuraykaraaslan/payment/server/payment.gateway.types';
 import StripeProvider from './providers/stripe.provider';
 
 /**

@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useRef } from 'react';
-import { cn } from '@nb/common/server/utils/cn';
+import { cn } from '@kuraykaraaslan/common/server/utils/cn';
 
 export type SuggestionItem = {
   id: string;

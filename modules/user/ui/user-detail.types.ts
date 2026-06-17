@@ -1,6 +1,6 @@
-import type { UserRole, UserStatus } from '@nb/user/server/user.enums';
-import type { TenantMemberRole as MemberRole, TenantMemberStatus as MemberStatus } from '@nb/tenant_member/server/tenant_member.enums';
-import type { TenantStatus } from '@nb/tenant/server/tenant.enums';
+import type { UserRole, UserStatus } from '@kuraykaraaslan/user/server/user.enums';
+import type { TenantMemberRole as MemberRole, TenantMemberStatus as MemberStatus } from '@kuraykaraaslan/tenant_member/server/tenant_member.enums';
+import type { TenantStatus } from '@kuraykaraaslan/tenant/server/tenant.enums';
 
 export type User = {
   userId: string;

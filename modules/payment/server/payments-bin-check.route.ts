@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import PaymentService from '@nb/payment/server/payment.service';
-import { PaymentProviderEnum } from '@nb/payment/server/payment.enums';
-import Limiter from '@nb/limiter/server/limiter.service.next';
-import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
+import PaymentService from '@kuraykaraaslan/payment/server/payment.service';
+import { PaymentProviderEnum } from '@kuraykaraaslan/payment/server/payment.enums';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
+import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next';
 
 const BinCheckRequestSchema = z.object({
   bin: z.string().regex(/^\d{6,8}$/, 'BIN must be 6–8 digits'),

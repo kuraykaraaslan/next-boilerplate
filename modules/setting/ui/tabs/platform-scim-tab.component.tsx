@@ -1,11 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import api from '@nb/common/server/axios';
-import { Card } from '@nb/common/ui/card.component';
-import { Button } from '@nb/common/ui/button.component';
-import { Spinner } from '@nb/common/ui/spinner.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
+import api from '@kuraykaraaslan/common/server/axios';
+import { Card } from '@kuraykaraaslan/common/ui/card.component';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import { Spinner } from '@kuraykaraaslan/common/ui/spinner.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faKey, faCopy, faCheck, faTrash } from '@fortawesome/free-solid-svg-icons';
 

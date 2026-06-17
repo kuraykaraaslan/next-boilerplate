@@ -1,10 +1,10 @@
 import 'reflect-metadata'
 import { SignedXml } from 'xml-crypto'
-import redis from '@nb/redis'
-import Logger from '@nb/logger'
-import { AppError, ErrorCode } from '@nb/common/server/app-error'
-import SettingService from '@nb/setting/server/setting.service'
-import { ROOT_TENANT_ID } from '@nb/tenant/server/tenant.constants'
+import redis from '@kuraykaraaslan/redis'
+import Logger from '@kuraykaraaslan/logger'
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error'
+import SettingService from '@kuraykaraaslan/setting/server/setting.service'
+import { ROOT_TENANT_ID } from '@kuraykaraaslan/tenant/server/tenant.constants'
 import ESignatureCryptoService from './e_signature.crypto.service'
 
 export type LoA = 'low' | 'substantial' | 'high'
@@ -165,7 +165,7 @@ export default class ESignatureComplianceService {
     if (!policy.archivalEnabled) return null
     const { createHash } = await import('node:crypto')
     const sha256 = createHash('sha256').update(doc.bytes).digest('hex')
-    const { default: StorageService } = await import('@nb/storage/server/storage.service')
+    const { default: StorageService } = await import('@kuraykaraaslan/storage/server/storage.service')
     const uploaded = await StorageService.uploadServerBuffer(tenantId, {
       buffer: doc.bytes, filename: doc.filename,
       contentType: doc.contentType ?? 'application/octet-stream', folder: 'esignature-archive',

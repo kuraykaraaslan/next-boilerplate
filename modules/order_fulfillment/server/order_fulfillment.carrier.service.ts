@@ -1,11 +1,11 @@
 import 'reflect-metadata'
-import SettingService from '@nb/setting/server/setting.service'
-import PaymentShippingCarrierService from '@nb/payment_shipping/server/payment_shipping.carrier.service'
-import type { CarrierTracking, CarrierLabelRequest, CarrierLabel } from '@nb/payment_shipping/server/adapters/base.carrier'
-import type { CalculateShippingDTO } from '@nb/payment_shipping/server/payment_shipping.dto'
+import SettingService from '@kuraykaraaslan/setting/server/setting.service'
+import PaymentShippingCarrierService from '@kuraykaraaslan/payment_shipping/server/payment_shipping.carrier.service'
+import type { CarrierTracking, CarrierLabelRequest, CarrierLabel } from '@kuraykaraaslan/payment_shipping/server/adapters/base.carrier'
+import type { CalculateShippingDTO } from '@kuraykaraaslan/payment_shipping/server/payment_shipping.dto'
 import type { FulfillmentStatus } from './order_fulfillment.enums'
 import { ORDER_FULFILLMENT_MESSAGES } from './order_fulfillment.messages'
-import { AppError, ErrorCode } from '@nb/common/server/app-error'
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error'
 
 /**
  * Bridges fulfillment to the real payment_shipping carrier layer: per-tenant

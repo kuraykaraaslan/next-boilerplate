@@ -1,4 +1,4 @@
-import Logger from '@nb/logger';
+import Logger from '@kuraykaraaslan/logger';
 import { getStats } from './notification_log.read.service';
 
 /**
@@ -22,14 +22,14 @@ export async function checkFailureRate(
   if (failureRate < threshold) return false;
 
   try {
-    const { default: redis } = await import('@nb/redis');
+    const { default: redis } = await import('@kuraykaraaslan/redis');
     const dedupKey = `notiflog:failalert:${tenantId}:${new Date().toISOString().slice(0, 13)}`; // per hour
     const set = await redis.set(dedupKey, '1', 'EX', 3600, 'NX');
     if (set === null) return false;
   } catch { /* fail-open on dedup */ }
 
   try {
-    const { default: WebhookService } = await import('@nb/webhook/server/webhook.service');
+    const { default: WebhookService } = await import('@kuraykaraaslan/webhook/server/webhook.service');
     await WebhookService.dispatchEvent(tenantId, 'notification.failure_rate_high', {
       windowMinutes, failureRate, volume, failed, sent, byChannel: stats.byChannel,
     });

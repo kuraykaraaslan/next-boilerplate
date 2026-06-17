@@ -2,13 +2,13 @@
 import { use, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronRight, faStar } from '@fortawesome/free-solid-svg-icons';
-import { Card } from '@nb/common/ui/card.component';
-import { Input } from '@nb/common/ui/input.component';
-import { Toggle } from '@nb/common/ui/toggle.component';
-import { Badge } from '@nb/common/ui/badge.component';
-import { Button } from '@nb/common/ui/button.component';
-import { SettingsPanelHost } from '@nb/setting/ui/settings-panel-host.component';
-import type { SR } from '@nb/setting/ui/settings-kit.component';
+import { Card } from '@kuraykaraaslan/common/ui/card.component';
+import { Input } from '@kuraykaraaslan/common/ui/input.component';
+import { Toggle } from '@kuraykaraaslan/common/ui/toggle.component';
+import { Badge } from '@kuraykaraaslan/common/ui/badge.component';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import { SettingsPanelHost } from '@kuraykaraaslan/setting/ui/settings-panel-host.component';
+import type { SR } from '@kuraykaraaslan/setting/ui/settings-kit.component';
 import {
   PAYMENT_PROVIDERS,
   isProviderConfigured,

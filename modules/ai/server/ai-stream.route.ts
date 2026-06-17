@@ -1,8 +1,8 @@
 import { NextRequest } from "next/server";
-import UserSessionNextService from "@nb/user_session/server/user_session.service.next";
-import AIService from "@nb/ai/server/ai.service";
-import { ChatMessageSchema } from "@nb/ai/server/ai.types";
-import Limiter from "@nb/limiter/server/limiter.service.next";
+import UserSessionNextService from "@kuraykaraaslan/user_session/server/user_session.service.next";
+import AIService from "@kuraykaraaslan/ai/server/ai.service";
+import { ChatMessageSchema } from "@kuraykaraaslan/ai/server/ai.types";
+import Limiter from "@kuraykaraaslan/limiter/server/limiter.service.next";
 import { z } from "zod";
 
 export const dynamic = "force-dynamic";

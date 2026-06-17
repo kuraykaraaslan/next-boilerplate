@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import 'dotenv/config';
-import { runSeed } from '@nb/seed/server/seed.runner';
+import { runSeed } from '@kuraykaraaslan/seed/server/seed.runner';
 
 /**
  * Seed the full demo dataset for a tenant.

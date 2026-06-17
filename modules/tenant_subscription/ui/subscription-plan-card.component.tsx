@@ -1,7 +1,7 @@
 'use client';
-import { cn } from '@nb/common/server/utils/cn';
-import { Badge } from '@nb/common/ui/badge.component';
-import { Button } from '@nb/common/ui/button.component';
+import { cn } from '@kuraykaraaslan/common/server/utils/cn';
+import { Badge } from '@kuraykaraaslan/common/ui/badge.component';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck, faInfinity } from '@fortawesome/free-solid-svg-icons';
 

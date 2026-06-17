@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { TenantMemberRoleEnum } from "@nb/tenant_member/server/tenant_member.enums";
+import { TenantMemberRoleEnum } from "@kuraykaraaslan/tenant_member/server/tenant_member.enums";
 
 // Step-up re-authentication credential supplied on impersonation start
 // (GOODTOHAVE #3). Exactly one of password / totp is provided; the start flow

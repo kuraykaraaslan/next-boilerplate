@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('@nb/env', () => ({
+vi.mock('@kuraykaraaslan/env', () => ({
   env: {
     DATABASE_URL: 'postgresql://test',
     ACCESS_TOKEN_SECRET: 'test_secret',
@@ -10,7 +10,7 @@ vi.mock('@nb/env', () => ({
   },
 }));
 
-vi.mock('@nb/db', () => ({
+vi.mock('@kuraykaraaslan/db', () => ({
   getDataSource: vi.fn(),
 }));
 
@@ -21,7 +21,7 @@ vi.mock('bcrypt', () => ({
   },
 }));
 
-vi.mock('@nb/redis', () => ({
+vi.mock('@kuraykaraaslan/redis', () => ({
   default: {
     get: vi.fn(async () => null),
     set: vi.fn(async () => 'OK'),
@@ -37,9 +37,9 @@ vi.mock('@nb/redis', () => ({
   singleFlight: async (_key: string, fn: () => Promise<unknown>) => fn(),
   jitter: (n: number) => n,
 }));
-vi.mock('@nb/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
+vi.mock('@kuraykaraaslan/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
 
-import { getDataSource } from '@nb/db';
+import { getDataSource } from '@kuraykaraaslan/db';
 import UserService from '../user.service';
 import UserMessages from '../user.messages';
 

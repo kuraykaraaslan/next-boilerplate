@@ -1,7 +1,7 @@
 'use client';
 import { use } from 'react';
-import { SettingsPanelHost } from '@nb/setting/ui/settings-panel-host.component';
-import { PlatformSmsTab } from '@nb/setting/ui/platform-settings-tabs.component';
+import { SettingsPanelHost } from '@kuraykaraaslan/setting/ui/settings-panel-host.component';
+import { PlatformSmsTab } from '@kuraykaraaslan/setting/ui/platform-settings-tabs.component';
 
 export default function SmsSettingsPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = use(params);

@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // Env must contain real-looking aggregator config so the provider constructor
 // initialises axios without throwing.
-vi.mock('@nb/env', () => ({
+vi.mock('@kuraykaraaslan/env', () => ({
   env: {
     DATABASE_URL: 'postgresql://test',
     ACCESS_TOKEN_SECRET: 'test_secret',
@@ -21,7 +21,7 @@ vi.mock('@nb/env', () => ({
 }));
 
 const redisStore = new Map<string, string>();
-vi.mock('@nb/redis', () => ({
+vi.mock('@kuraykaraaslan/redis', () => ({
   default: {
     scanStream: vi.fn(async () => undefined),
     get: vi.fn(async (k: string) => redisStore.get(k) ?? null),
@@ -40,14 +40,14 @@ vi.mock('@nb/redis', () => ({
   singleFlight: async <T,>(_k: string, fn: () => Promise<T>) => fn(),
 }));
 
-vi.mock('@nb/logger', () => ({ default: { info: vi.fn(), warn: vi.fn(), error: vi.fn() } }));
-vi.mock('@nb/db', () => ({
+vi.mock('@kuraykaraaslan/logger', () => ({ default: { info: vi.fn(), warn: vi.fn(), error: vi.fn() } }));
+vi.mock('@kuraykaraaslan/db', () => ({
   getDataSource: vi.fn(),
   tenantDataSourceFor: vi.fn(),
 }));
 
 import ESignatureService from '../e_signature.service';
-import MobilImzaAggregatorProvider from '@nb/esign_mobil_imza/server/providers/mobil_imza_aggregator.provider';
+import MobilImzaAggregatorProvider from '@kuraykaraaslan/esign_mobil_imza/server/providers/mobil_imza_aggregator.provider';
 
 beforeEach(() => {
   redisStore.clear();

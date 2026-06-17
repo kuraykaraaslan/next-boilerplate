@@ -1,10 +1,10 @@
 import { Queue, Worker, Job } from 'bullmq';
-import { getBullMQConnection } from '@nb/redis/server/redis.bullmq';
-import { getDataSource } from '@nb/db';
-import { Tenant } from '@nb/tenant/server/entities/tenant.entity';
+import { getBullMQConnection } from '@kuraykaraaslan/redis/server/redis.bullmq';
+import { getDataSource } from '@kuraykaraaslan/db';
+import { Tenant } from '@kuraykaraaslan/tenant/server/entities/tenant.entity';
 import { TenantUsageService } from './tenant_usage.service';
 import { TenantUsageAlertsService } from './tenant_usage.alerts.service';
-import Logger from '@nb/logger';
+import Logger from '@kuraykaraaslan/logger';
 
 /**
  * Hourly flush of every active tenant's Redis usage counters into the

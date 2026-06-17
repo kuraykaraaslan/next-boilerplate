@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { CurrencyCodeInput, DEFAULT_CURRENCY } from '@nb/common'
+import { CurrencyCodeInput, DEFAULT_CURRENCY } from '@kuraykaraaslan/common'
 import { ProductStatusEnum, FulfillmentTypeEnum } from './store.enums'
 
 export const CreateProductDTO = z.object({

@@ -1,16 +1,16 @@
 'use client';
 import { use, useCallback, useEffect, useState } from 'react';
-import api from '@nb/common/server/axios';
-import { PageHeader } from '@nb/common/ui/page-header.component';
-import { Card } from '@nb/common/ui/card.component';
-import { Badge } from '@nb/common/ui/badge.component';
-import { Spinner } from '@nb/common/ui/spinner.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
-import { Breadcrumb } from '@nb/common/ui/breadcrumb.component';
-import { ServerDataTable, type TableColumn } from '@nb/common/ui/server-data-table.component';
+import api from '@kuraykaraaslan/common/server/axios';
+import { PageHeader } from '@kuraykaraaslan/common/ui/page-header.component';
+import { Card } from '@kuraykaraaslan/common/ui/card.component';
+import { Badge } from '@kuraykaraaslan/common/ui/badge.component';
+import { Spinner } from '@kuraykaraaslan/common/ui/spinner.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
+import { Breadcrumb } from '@kuraykaraaslan/common/ui/breadcrumb.component';
+import { ServerDataTable, type TableColumn } from '@kuraykaraaslan/common/ui/server-data-table.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGear, faUserPlus, faRightToBracket, faClock } from '@fortawesome/free-solid-svg-icons';
-import type { SafeSamlConfig } from '@nb/auth_saml/server/auth_saml.types';
+import type { SafeSamlConfig } from '@kuraykaraaslan/auth_saml/server/auth_saml.types';
 
 type AuditLog = {
   auditLogId: string;

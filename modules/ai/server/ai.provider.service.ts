@@ -1,9 +1,9 @@
-import { env } from '@nb/env';
-import Logger from '@nb/logger';
-import SettingService from '@nb/setting/server/setting.service';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
-import { extensionRegistry, type RuntimeExtension } from '@nb/common/server/extension-registry';
-import { getEnabledModuleIds } from '@nb/setting/server/module-activation.service.next';
+import { env } from '@kuraykaraaslan/env';
+import Logger from '@kuraykaraaslan/logger';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
+import { extensionRegistry, type RuntimeExtension } from '@kuraykaraaslan/common/server/extension-registry';
+import { getEnabledModuleIds } from '@kuraykaraaslan/setting/server/module-activation.service.next';
 import type BaseAIProvider from './providers/base.provider';
 import type { AIProviderContribution } from './ai.provider.types';
 import type { AIProviderType, AIModel } from './ai.types';

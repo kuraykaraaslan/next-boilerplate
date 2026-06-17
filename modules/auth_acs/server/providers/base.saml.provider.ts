@@ -1,5 +1,5 @@
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
-import { BaseSamlProvider, type SamlValidatedAssertion } from '@nb/auth_saml/server/saml.engine';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
+import { BaseSamlProvider, type SamlValidatedAssertion } from '@kuraykaraaslan/auth_saml/server/saml.engine';
 import type { AcsProvider } from '../auth_acs.enums';
 import type { AcsProfile, AcsProviderService, AcsResolvedConfig } from '../auth_acs.types';
 import AcsMessages from '../auth_acs.messages';

@@ -1,5 +1,5 @@
-import AIService from '@nb/ai/server/ai.service';
-import Logger from '@nb/logger';
+import AIService from '@kuraykaraaslan/ai/server/ai.service';
+import Logger from '@kuraykaraaslan/logger';
 
 /**
  * AI (LLM) classification backstop for message moderation. Only loaded by the

@@ -3,7 +3,7 @@ import { describe, it, expect, vi } from 'vitest';
 // AuditLogNextService extends AuditLogService, whose import graph reaches the
 // setting/webhook services and (transitively) the env loader. Stub env + its
 // heavy deps so this lightweight header-parsing test stays self-contained.
-vi.mock('@nb/env', () => ({
+vi.mock('@kuraykaraaslan/env', () => ({
   env: {
     DATABASE_URL: 'postgresql://test',
     ACCESS_TOKEN_SECRET: 'test_secret',
@@ -12,8 +12,8 @@ vi.mock('@nb/env', () => ({
     NODE_ENV: 'test',
   },
 }));
-vi.mock('@nb/db', () => ({ tenantDataSourceFor: vi.fn(), getSystemDataSource: vi.fn() }));
-vi.mock('@nb/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
+vi.mock('@kuraykaraaslan/db', () => ({ tenantDataSourceFor: vi.fn(), getSystemDataSource: vi.fn() }));
+vi.mock('@kuraykaraaslan/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
 
 import AuditLogNextService from './audit_log.service.next';
 

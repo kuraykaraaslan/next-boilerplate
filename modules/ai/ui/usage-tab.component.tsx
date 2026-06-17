@@ -1,11 +1,11 @@
 'use client';
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
-import { Card } from '@nb/common/ui/card.component';
-import { DateRangePicker, DateRange } from '@nb/common/ui/date-range-picker.component';
+import { Card } from '@kuraykaraaslan/common/ui/card.component';
+import { DateRangePicker, DateRange } from '@kuraykaraaslan/common/ui/date-range-picker.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRobot, faChartBar } from '@fortawesome/free-solid-svg-icons';
-import { cn } from '@nb/common/server/utils/cn';
+import { cn } from '@kuraykaraaslan/common/server/utils/cn';
 
 // chart.js + react-chartjs-2 are heavy and only needed once this tab paints a
 // chart — code-split them out of the admin bundle.

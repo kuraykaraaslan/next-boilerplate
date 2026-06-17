@@ -1,11 +1,11 @@
 import 'reflect-metadata';
 import { In } from 'typeorm';
-import { tenantDataSourceFor } from '@nb/db';
-import redis, { jitter, singleFlight } from '@nb/redis';
-import { env } from '@nb/env';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import redis, { jitter, singleFlight } from '@kuraykaraaslan/redis';
+import { env } from '@kuraykaraaslan/env';
 import { MediaGallery as GalleryEntity } from './entities/media_gallery.entity';
 import { MediaGalleryItem as ItemEntity } from './entities/media_gallery_item.entity';
-import { UploadedFile } from '@nb/storage/server/entities/uploaded_file.entity';
+import { UploadedFile } from '@kuraykaraaslan/storage/server/entities/uploaded_file.entity';
 import { type MediaGalleryItemView } from './media_gallery.types';
 import type { GallerySearchDTO } from './media_gallery.dto';
 import { toView } from './media_gallery.view';

@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
-import { scimResponse } from '@nb/scim/server/scim.errors';
-import { SCIM_SCHEMAS } from '@nb/scim/server/scim.types';
+import { scimResponse } from '@kuraykaraaslan/scim/server/scim.errors';
+import { SCIM_SCHEMAS } from '@kuraykaraaslan/scim/server/scim.types';
 
 /**
  * GET /tenant/{tenantId}/api/scim/v2/ResourceTypes

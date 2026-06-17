@@ -1,7 +1,7 @@
 import CryptoJS from 'crypto-js'
 import axios, { AxiosInstance } from 'axios'
-import { PAYMENT_MESSAGES } from '@nb/payment/server/payment.messages'
-import SettingService from '@nb/setting/server/setting.service'
+import { PAYMENT_MESSAGES } from '@kuraykaraaslan/payment/server/payment.messages'
+import SettingService from '@kuraykaraaslan/setting/server/setting.service'
 
 export async function getConfig(tenantId: string) {
   const [apiKey, secretKey, sandbox] = await Promise.all([

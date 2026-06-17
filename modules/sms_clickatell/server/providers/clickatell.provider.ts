@@ -1,8 +1,8 @@
-import { env } from '@nb/env';
+import { env } from '@kuraykaraaslan/env';
 import axios, { AxiosInstance } from "axios";
-import Logger from "@nb/logger";
-import SettingService from "@nb/setting/server/setting.service";
-import BaseSMSProvider, { SMSOptions, SMSResult } from '@nb/notification_sms/server/providers/base.provider';
+import Logger from "@kuraykaraaslan/logger";
+import SettingService from "@kuraykaraaslan/setting/server/setting.service";
+import BaseSMSProvider, { SMSOptions, SMSResult } from '@kuraykaraaslan/notification_sms/server/providers/base.provider';
 
 interface ClickatellCreds {
   apiKey: string;

@@ -1,8 +1,8 @@
 import 'reflect-metadata';
-import { tenantDataSourceFor } from '@nb/db';
-import Logger from '@nb/logger';
-import WebhookService from '@nb/webhook/server/webhook.service';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import Logger from '@kuraykaraaslan/logger';
+import WebhookService from '@kuraykaraaslan/webhook/server/webhook.service';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { ConnectedApp as ConnectedAppEntity } from './entities/connected_app.entity';
 import { INTEGRATIONS_HUB_MESSAGES as MSG } from './integrations_hub.messages';
 import type { FireTriggerDTO } from './integrations_hub.dto';

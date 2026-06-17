@@ -1,7 +1,7 @@
-import redis from '@nb/redis';
-import { env } from '@nb/env';
-import { ROOT_TENANT_ID } from '@nb/tenant/server/tenant.constants';
-import SettingService from '@nb/setting/server/setting.service';
+import redis from '@kuraykaraaslan/redis';
+import { env } from '@kuraykaraaslan/env';
+import { ROOT_TENANT_ID } from '@kuraykaraaslan/tenant/server/tenant.constants';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
 import { API_KEY_SETTING_KEYS } from './api_key.setting.keys';
 
 export const API_KEY_CACHE_TTL = env.TENANT_CACHE_TTL ?? (60 * 5);

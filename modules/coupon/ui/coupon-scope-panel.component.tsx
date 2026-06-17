@@ -1,12 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { Input } from '@nb/common/ui/input.component';
-import { Select } from '@nb/common/ui/select.component';
-import { Card } from '@nb/common/ui/card.component';
+import { Input } from '@kuraykaraaslan/common/ui/input.component';
+import { Select } from '@kuraykaraaslan/common/ui/select.component';
+import { Card } from '@kuraykaraaslan/common/ui/card.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
-import api from '@nb/common/server/axios';
+import api from '@kuraykaraaslan/common/server/axios';
 
 const PROVIDER_OPTIONS = ['STRIPE', 'PAYPAL', 'IYZICO', 'CLOUDPAYMENTS', 'YOOKASSA', 'ALIPAY', 'WECHATPAY'];
 

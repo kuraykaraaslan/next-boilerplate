@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Card } from '@nb/common/ui/card.component';
-import { Input } from '@nb/common/ui/input.component';
-import { Select } from '@nb/common/ui/select.component';
+import { Card } from '@kuraykaraaslan/common/ui/card.component';
+import { Input } from '@kuraykaraaslan/common/ui/input.component';
+import { Select } from '@kuraykaraaslan/common/ui/select.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faServer } from '@fortawesome/free-solid-svg-icons';
 import { SaveRow, type TabProps } from './platform-tab.shared.component';

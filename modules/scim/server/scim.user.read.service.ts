@@ -1,9 +1,9 @@
 import 'reflect-metadata';
 import { IsNull, In } from 'typeorm';
-import { getDataSource, tenantDataSourceFor } from '@nb/db';
-import { User as UserEntity } from '@nb/user/server/entities/user.entity';
-import { TenantMember as TenantMemberEntity } from '@nb/tenant_member/server/entities/tenant_member.entity';
-import { ErrorCode } from '@nb/common/server/app-error';
+import { getDataSource, tenantDataSourceFor } from '@kuraykaraaslan/db';
+import { User as UserEntity } from '@kuraykaraaslan/user/server/entities/user.entity';
+import { TenantMember as TenantMemberEntity } from '@kuraykaraaslan/tenant_member/server/entities/tenant_member.entity';
+import { ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { ScimError } from './scim.errors';
 import {
   SCIM_SCHEMAS, SCIM_PAGINATION,

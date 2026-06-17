@@ -1,6 +1,6 @@
 'use client';
-import { cn } from '@nb/common/server/utils/cn';
-import { Button } from '@nb/common/ui/button.component';
+import { cn } from '@kuraykaraaslan/common/server/utils/cn';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClock } from '@fortawesome/free-solid-svg-icons';
 

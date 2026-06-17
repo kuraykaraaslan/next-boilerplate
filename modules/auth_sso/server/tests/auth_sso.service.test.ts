@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('@nb/env', () => ({
+vi.mock('@kuraykaraaslan/env', () => ({
   env: {
     DATABASE_URL: 'postgresql://test',
     ACCESS_TOKEN_SECRET: 'test_secret',
@@ -23,12 +23,12 @@ vi.mock('@nb/env', () => ({
   },
 }));
 
-vi.mock('@nb/db', () => ({
+vi.mock('@kuraykaraaslan/db', () => ({
   getDataSource: vi.fn(),
   tenantDataSourceFor: vi.fn(),
 }));
 
-vi.mock('@nb/redis', () => ({
+vi.mock('@kuraykaraaslan/redis', () => ({
   default: {
     get: vi.fn(async () => null),
     set: vi.fn(async () => 'OK'),
@@ -45,14 +45,14 @@ vi.mock('@nb/redis', () => ({
   jitter: (n: number) => n,
 }));
 
-vi.mock('@nb/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
+vi.mock('@kuraykaraaslan/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
 
 // SSO config-resolution service: no-tenant paths defer to the (mocked) global
 // config helpers; the AccessPolicy is only consulted when a tenantId is passed.
-vi.mock('@nb/setting/server/setting.service', () => ({
+vi.mock('@kuraykaraaslan/setting/server/setting.service', () => ({
   default: { getByKeys: vi.fn(async () => ({})), getValue: vi.fn(async () => null) },
 }));
-vi.mock('@nb/auth/server/auth.policy.service', () => ({
+vi.mock('@kuraykaraaslan/auth/server/auth.policy.service', () => ({
   default: {
     getAccessPolicy: vi.fn(async () => ({ disableSocialLogin: false, ssoAllowedProviders: [] })),
     isSsoProviderAllowed: vi.fn((provider: string, policy: any) => {
@@ -69,8 +69,8 @@ vi.mock('@nb/auth/server/auth.policy.service', () => ({
     ),
   },
 }));
-vi.mock('@nb/observability', () => ({ default: { recordTenantUsage: vi.fn() } }));
-vi.mock('@nb/audit_log/server/audit_log.service', () => ({ default: { log: vi.fn(async () => {}) } }));
+vi.mock('@kuraykaraaslan/observability', () => ({ default: { recordTenantUsage: vi.fn() } }));
+vi.mock('@kuraykaraaslan/audit_log/server/audit_log.service', () => ({ default: { log: vi.fn(async () => {}) } }));
 
 // Per-tenant SSO config resolver: provider gating + configured-checks now route
 // through this service (async). Defaults mirror the env mock (google/github).
@@ -113,7 +113,7 @@ vi.mock('../providers', () => ({
   getProvider: vi.fn(() => mockProviderInstance),
 }));
 
-vi.mock('@nb/user_social_account/server/user_social_account.service', () => ({
+vi.mock('@kuraykaraaslan/user_social_account/server/user_social_account.service', () => ({
   default: {
     findUserIdByProvider: vi.fn(async () => null),
     getByUserId: vi.fn(async () => []),
@@ -123,7 +123,7 @@ vi.mock('@nb/user_social_account/server/user_social_account.service', () => ({
   },
 }));
 
-vi.mock('@nb/user/server/user.service', () => ({
+vi.mock('@kuraykaraaslan/user/server/user.service', () => ({
   default: {
     getById: vi.fn(async (id: string) => ({
       userId: id,
@@ -152,8 +152,8 @@ import SsoConfigService from '../auth_sso.config.service';
 import SSOMessages from '../auth_sso.messages';
 import { isProviderConfigured, getAllowedProviders } from '../auth_sso.config';
 import { getProvider } from '../providers';
-import UserSocialAccountService from '@nb/user_social_account/server/user_social_account.service';
-import UserService from '@nb/user/server/user.service';
+import UserSocialAccountService from '@kuraykaraaslan/user_social_account/server/user_social_account.service';
+import UserService from '@kuraykaraaslan/user/server/user.service';
 
 beforeEach(() => {
   vi.clearAllMocks();

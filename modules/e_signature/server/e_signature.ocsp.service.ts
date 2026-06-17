@@ -12,8 +12,8 @@ import {
   CryptoEngine,
 } from 'pkijs';
 import { webcrypto } from 'node:crypto';
-import Logger from '@nb/logger';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import Logger from '@kuraykaraaslan/logger';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { E_SIGNATURE_MESSAGES } from './e_signature.messages';
 
 const OCSP_HTTP_TIMEOUT_MS = 10_000;

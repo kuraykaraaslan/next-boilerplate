@@ -1,7 +1,7 @@
-import { env } from '@nb/env';
-import SettingService from '@nb/setting/server/setting.service';
-import { ROOT_TENANT_ID } from '@nb/tenant/server/tenant.constants';
-import Logger from '@nb/logger';
+import { env } from '@kuraykaraaslan/env';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
+import { ROOT_TENANT_ID } from '@kuraykaraaslan/tenant/server/tenant.constants';
+import Logger from '@kuraykaraaslan/logger';
 
 export const PASSWORD_POLICY_KEYS = [
   'passwordMinLength', 'passwordRequireUppercase', 'passwordRequireLowercase',

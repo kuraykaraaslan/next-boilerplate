@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Limiter from '@nb/limiter/server/limiter.service.next';
-import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
-import { AgreementService } from '@nb/terms_consent';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
+import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next';
+import { AgreementService } from '@kuraykaraaslan/terms_consent';
 
 type Ctx = { params: Promise<{ tenantId: string; agreementId: string; versionId: string }> };
 

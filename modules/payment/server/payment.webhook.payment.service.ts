@@ -1,12 +1,12 @@
 import 'reflect-metadata';
 import { IsNull } from 'typeorm';
-import { getDataSource } from '@nb/db';
+import { getDataSource } from '@kuraykaraaslan/db';
 import { Payment as PaymentEntity } from './entities/payment.entity';
 import PaymentService from './payment.service';
-import TenantSubscriptionService from '@nb/tenant_subscription/server/tenant_subscription.service';
-import AuditLogService from '@nb/audit_log/server/audit_log.service';
-import WebhookService from '@nb/webhook/server/webhook.service';
-import Logger from '@nb/logger';
+import TenantSubscriptionService from '@kuraykaraaslan/tenant_subscription/server/tenant_subscription.service';
+import AuditLogService from '@kuraykaraaslan/audit_log/server/audit_log.service';
+import WebhookService from '@kuraykaraaslan/webhook/server/webhook.service';
+import Logger from '@kuraykaraaslan/logger';
 import type { NormalizedEvent } from './payment.webhook.types';
 
 export default class PaymentWebhookPaymentService {

@@ -1,6 +1,6 @@
 import 'reflect-metadata'
-import { tenantDataSourceFor } from '@nb/db'
-import { singleFlight } from '@nb/redis'
+import { tenantDataSourceFor } from '@kuraykaraaslan/db'
+import { singleFlight } from '@kuraykaraaslan/redis'
 import { ProductReview as ProductReviewEntity } from './entities/product_review.entity'
 import { ProductReviewVote as ProductReviewVoteEntity } from './entities/product_review_vote.entity'
 import {
@@ -8,7 +8,7 @@ import {
   type SafeProductReview, type ProductReviewSummary,
 } from './product_review.types'
 import type { ModerateReviewDTO, VoteReviewDTO } from './product_review.dto'
-import { AppError, ErrorCode } from '@nb/common/server/app-error'
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error'
 import { PRODUCT_REVIEW_MESSAGES } from './product_review.messages'
 import { bustReview, bustSummary } from './product_review.helpers'
 

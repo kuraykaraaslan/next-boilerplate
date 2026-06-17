@@ -1,7 +1,7 @@
 'use client';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBold, faItalic, faUnderline, faLink, faStrikethrough } from '@fortawesome/free-solid-svg-icons';
-import { cn } from '@nb/common/server/utils/cn';
+import { cn } from '@kuraykaraaslan/common/server/utils/cn';
 
 const BTN = 'inline-flex items-center justify-center w-7 h-7 rounded text-text-primary hover:bg-surface-overlay focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus transition-colors';
 

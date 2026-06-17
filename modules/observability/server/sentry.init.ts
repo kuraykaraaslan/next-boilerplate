@@ -7,8 +7,8 @@
  * Loaded by `instrumentation.ts` (Next.js server boot) and exposes the live
  * Sentry namespace through `getSentry()` for the rest of the module to use.
  */
-import { env } from '@nb/env';
-import Logger from '@nb/logger';
+import { env } from '@kuraykaraaslan/env';
+import Logger from '@kuraykaraaslan/logger';
 
 // Loose runtime-only type; actual package is `await import('@sentry/nextjs')`.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -1,15 +1,15 @@
 import 'reflect-metadata';
-import { tenantDataSourceFor } from '@nb/db';
-import { SubscriptionPlan as SubscriptionPlanEntity } from '@nb/payment/server/entities/subscription_plan.entity';
-import { PlanFeature as PlanFeatureEntity } from '@nb/payment/server/entities/plan_feature.entity';
-import { StoreProduct as ProductEntity } from '@nb/store/server/entities/store_product.entity';
-import { StoreCategory as CategoryEntity } from '@nb/store/server/entities/store_category.entity';
-import { ROOT_TENANT_ID, isRootTenant } from '@nb/tenant/server/tenant.constants';
-import Logger from '@nb/logger';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import { SubscriptionPlan as SubscriptionPlanEntity } from '@kuraykaraaslan/payment/server/entities/subscription_plan.entity';
+import { PlanFeature as PlanFeatureEntity } from '@kuraykaraaslan/payment/server/entities/plan_feature.entity';
+import { StoreProduct as ProductEntity } from '@kuraykaraaslan/store/server/entities/store_product.entity';
+import { StoreCategory as CategoryEntity } from '@kuraykaraaslan/store/server/entities/store_category.entity';
+import { ROOT_TENANT_ID, isRootTenant } from '@kuraykaraaslan/tenant/server/tenant.constants';
+import Logger from '@kuraykaraaslan/logger';
 import type { TenantSubscription } from './tenant_subscription.types';
 import type { AssignPlatformPlanDTO } from './tenant_subscription.dto';
 import { SUBSCRIPTION_MESSAGES } from './tenant_subscription.messages';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import TenantPlanService from './tenant_subscription.plan.service';
 import TenantSubscriptionService from './tenant_subscription.service';
 

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { TimezoneSchema, DEFAULT_TIMEZONE, DEFAULT_LANGUAGE } from '@nb/common';
+import { TimezoneSchema, DEFAULT_TIMEZONE, DEFAULT_LANGUAGE } from '@kuraykaraaslan/common';
 import {
   ThemeEnum,
   LanguageEnum,

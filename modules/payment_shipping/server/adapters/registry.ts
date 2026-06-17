@@ -1,4 +1,4 @@
-import type { CountryCode } from '@nb/common'
+import type { CountryCode } from '@kuraykaraaslan/common'
 import type { ShippingCarrierAdapter } from './base.carrier'
 import UpsCarrier from './ups.carrier'
 import FedexCarrier from './fedex.carrier'

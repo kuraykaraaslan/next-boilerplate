@@ -1,11 +1,11 @@
 'use client';
 
-import { Badge } from '@nb/common/ui/badge.component';
-import { Button } from '@nb/common/ui/button.component';
-import { Card } from '@nb/common/ui/card.component';
+import { Badge } from '@kuraykaraaslan/common/ui/badge.component';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import { Card } from '@kuraykaraaslan/common/ui/card.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDesktop, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
-import type { SafeUserSession } from '@nb/user_session/server/user_session.types';
+import type { SafeUserSession } from '@kuraykaraaslan/user_session/server/user_session.types';
 
 interface Props {
   sessions: SafeUserSession[];

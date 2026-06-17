@@ -4,7 +4,7 @@ import {
   type SamlRoleMappingRule,
   SamlRoleMappingRulesSchema,
 } from './auth_saml.types';
-import type { TenantMemberRole } from '@nb/tenant_member/server/tenant_member.enums';
+import type { TenantMemberRole } from '@kuraykaraaslan/tenant_member/server/tenant_member.enums';
 
 function parseRules(raw: unknown): SamlRoleMappingRule[] {
   if (!raw) return [];

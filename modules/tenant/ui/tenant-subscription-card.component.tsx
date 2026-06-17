@@ -1,15 +1,15 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { Button } from '@nb/common/ui/button.component';
-import { Badge } from '@nb/common/ui/badge.component';
-import { Input } from '@nb/common/ui/input.component';
-import { Card } from '@nb/common/ui/card.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
-import { Modal } from '@nb/common/ui/modal.component';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import { Badge } from '@kuraykaraaslan/common/ui/badge.component';
+import { Input } from '@kuraykaraaslan/common/ui/input.component';
+import { Card } from '@kuraykaraaslan/common/ui/card.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
+import { Modal } from '@kuraykaraaslan/common/ui/modal.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCreditCard } from '@fortawesome/free-solid-svg-icons';
-import api from '@nb/common/server/axios';
+import api from '@kuraykaraaslan/common/server/axios';
 
 type PlatformPlan = {
   planId: string;

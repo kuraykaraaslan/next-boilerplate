@@ -1,8 +1,8 @@
 // path: app/tenant/[tenantId]/api/domains/[domainId]/verify/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import TenantDomainService from "@nb/tenant_domain/server/tenant_domain.service";
-import TenantSessionNextService from "@nb/tenant_session/server/tenant_session.service.next";
-import Limiter from "@nb/limiter/server/limiter.service.next";
+import TenantDomainService from "@kuraykaraaslan/tenant_domain/server/tenant_domain.service";
+import TenantSessionNextService from "@kuraykaraaslan/tenant_session/server/tenant_session.service.next";
+import Limiter from "@kuraykaraaslan/limiter/server/limiter.service.next";
 
 /**
  * POST /tenant/[tenantId]/api/domains/[domainId]/verify

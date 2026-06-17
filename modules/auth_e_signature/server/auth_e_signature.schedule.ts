@@ -1,6 +1,6 @@
 import 'reflect-metadata';
-import { createQueue, createWorker } from '@nb/redis';
-import Logger from '@nb/logger';
+import { createQueue, createWorker } from '@kuraykaraaslan/redis';
+import Logger from '@kuraykaraaslan/logger';
 import AuthESignatureCertAlertsService from './auth_e_signature.cert_alerts';
 
 /**

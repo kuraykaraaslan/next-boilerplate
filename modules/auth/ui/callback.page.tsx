@@ -1,7 +1,7 @@
 'use client';
 import { use, useEffect, useState } from 'react';
-import api from '@nb/common/server/axios';
-import { Spinner } from '@nb/common/ui/spinner.component';
+import api from '@kuraykaraaslan/common/server/axios';
+import { Spinner } from '@kuraykaraaslan/common/ui/spinner.component';
 
 export default function TenantCallbackPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = use(params);

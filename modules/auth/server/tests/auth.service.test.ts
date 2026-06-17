@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import AuthService from '../auth.service';
 
-vi.mock('@nb/env', () => ({
+vi.mock('@kuraykaraaslan/env', () => ({
   env: {
     DATABASE_URL: 'postgresql://test',
     ACCESS_TOKEN_SECRET: 'test_secret',
@@ -13,7 +13,7 @@ vi.mock('@nb/env', () => ({
   },
 }));
 
-vi.mock('@nb/db', () => ({
+vi.mock('@kuraykaraaslan/db', () => ({
   getDataSource: vi.fn(),
 }));
 
@@ -24,7 +24,7 @@ vi.mock('bcrypt', () => ({
   },
 }));
 
-vi.mock('@nb/redis', () => ({
+vi.mock('@kuraykaraaslan/redis', () => ({
   default: {
     get: vi.fn(async () => null),
     set: vi.fn(async () => 'OK'),
@@ -40,12 +40,12 @@ vi.mock('@nb/redis', () => ({
   singleFlight: async (_key: string, fn: () => Promise<unknown>) => fn(),
   jitter: (n: number) => n,
 }));
-vi.mock('@nb/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
-vi.mock('@nb/notification_mail/server/notification_mail.service', () => ({ default: { sendEmail: vi.fn() } }));
-vi.mock('@nb/tenant/server/tenant.service', () => ({ default: { provisionPersonal: vi.fn() } }));
-vi.mock('@nb/tenant_invitation/server/tenant_invitation.service', () => ({ default: { autoAcceptForEmail: vi.fn() } }));
-vi.mock('@nb/user/server/user.service', () => ({ default: { getByEmail: vi.fn(async () => null), invalidate: vi.fn() } }));
-vi.mock('@nb/audit_log/server/audit_log.service', () => ({ default: { log: vi.fn(async () => {}) } }));
+vi.mock('@kuraykaraaslan/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
+vi.mock('@kuraykaraaslan/notification_mail/server/notification_mail.service', () => ({ default: { sendEmail: vi.fn() } }));
+vi.mock('@kuraykaraaslan/tenant/server/tenant.service', () => ({ default: { provisionPersonal: vi.fn() } }));
+vi.mock('@kuraykaraaslan/tenant_invitation/server/tenant_invitation.service', () => ({ default: { autoAcceptForEmail: vi.fn() } }));
+vi.mock('@kuraykaraaslan/user/server/user.service', () => ({ default: { getByEmail: vi.fn(async () => null), invalidate: vi.fn() } }));
+vi.mock('@kuraykaraaslan/audit_log/server/audit_log.service', () => ({ default: { log: vi.fn(async () => {}) } }));
 vi.mock('./auth.captcha.service', () => ({
   default: {
     isRequired: vi.fn(async () => false),
@@ -54,7 +54,7 @@ vi.mock('./auth.captcha.service', () => ({
     verify: vi.fn(async () => true),
   },
 }));
-vi.mock('@nb/user_security/server/user_security.service', () => ({
+vi.mock('@kuraykaraaslan/user_security/server/user_security.service', () => ({
   default: {
     isLocked: vi.fn(async () => false),
     recordLoginAttempt: vi.fn(async () => {}),
@@ -64,9 +64,9 @@ vi.mock('@nb/user_security/server/user_security.service', () => ({
     getSafeByUserId: vi.fn(async () => null),
   },
 }));
-vi.mock('@nb/observability', () => ({ default: { recordTenantUsage: vi.fn() } }));
-vi.mock('@nb/webhook/server/webhook.service', () => ({ default: { dispatchEvent: vi.fn(async () => {}) } }));
-vi.mock('@nb/auth/server/auth.policy.service', () => ({
+vi.mock('@kuraykaraaslan/observability', () => ({ default: { recordTenantUsage: vi.fn() } }));
+vi.mock('@kuraykaraaslan/webhook/server/webhook.service', () => ({ default: { dispatchEvent: vi.fn(async () => {}) } }));
+vi.mock('@kuraykaraaslan/auth/server/auth.policy.service', () => ({
   default: {
     getPasswordPolicy: vi.fn(async () => ({
       minLength: 8, requireUppercase: true, requireLowercase: true,
@@ -91,12 +91,12 @@ vi.mock('@nb/auth/server/auth.policy.service', () => ({
   },
 }));
 
-import { getDataSource } from '@nb/db';
-import UserService from '@nb/user/server/user.service';
+import { getDataSource } from '@kuraykaraaslan/db';
+import UserService from '@kuraykaraaslan/user/server/user.service';
 import AuthMessages from '../auth.messages';
-import AuthPolicyService from '@nb/auth/server/auth.policy.service';
-import WebhookService from '@nb/webhook/server/webhook.service';
-import UserSecurityService from '@nb/user_security/server/user_security.service';
+import AuthPolicyService from '@kuraykaraaslan/auth/server/auth.policy.service';
+import WebhookService from '@kuraykaraaslan/webhook/server/webhook.service';
+import UserSecurityService from '@kuraykaraaslan/user_security/server/user_security.service';
 
 const mockUser = {
   userId: 'user-1',

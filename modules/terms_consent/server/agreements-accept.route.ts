@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Limiter from '@nb/limiter/server/limiter.service.next';
-import { AgreementService, AcceptAgreementDTO } from '@nb/terms_consent';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
+import { AgreementService, AcceptAgreementDTO } from '@kuraykaraaslan/terms_consent';
 
 /**
  * POST /tenant/[tenantId]/api/agreements/accept

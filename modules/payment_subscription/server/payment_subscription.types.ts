@@ -1,6 +1,6 @@
 import { z } from 'zod'
-import { CurrencyCodeEnum } from '@nb/common'
-import { PaymentProviderEnum } from '@nb/payment_core/server/payment_core.enums'
+import { CurrencyCodeEnum } from '@kuraykaraaslan/common'
+import { PaymentProviderEnum } from '@kuraykaraaslan/payment_core/server/payment_core.enums'
 import {
   SubscriptionStatusEnum, BillingCycleEnum,
   SubscriptionPlanStatusEnum, PlanFeatureTypeEnum,

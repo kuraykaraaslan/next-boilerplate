@@ -1,6 +1,6 @@
 'use client';
 import { ThemeProvider } from 'next-themes';
-import { ToastContainer } from '@nb/common/ui/toast-container.component';
+import { ToastContainer } from '@kuraykaraaslan/common/ui/toast-container.component';
 import { useEffect } from 'react';
 
 function AxeProvider({ children }: { children: React.ReactNode }) {

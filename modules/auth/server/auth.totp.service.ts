@@ -1,16 +1,16 @@
-import { env } from '@nb/env';
+import { env } from '@kuraykaraaslan/env';
 import { authenticator } from 'otplib';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
-import redis from '@nb/redis';
+import redis from '@kuraykaraaslan/redis';
 import AuthMessages from './auth.messages';
-import { encryptFieldOpt, decryptFieldOpt } from '@nb/common/server/field-encryption';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
-import { SafeUser } from '@nb/user/server/user.types';
-import { SafeUserSession } from '@nb/user_session/server/user_session.types';
-import { OTPAction } from '@nb/user_security/server/user_security.enums';
-import UserSecurityService from '@nb/user_security/server/user_security.service';
-import SettingService from '@nb/setting/server/setting.service';
+import { encryptFieldOpt, decryptFieldOpt } from '@kuraykaraaslan/common/server/field-encryption';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
+import { SafeUser } from '@kuraykaraaslan/user/server/user.types';
+import { SafeUserSession } from '@kuraykaraaslan/user_session/server/user_session.types';
+import { OTPAction } from '@kuraykaraaslan/user_security/server/user_security.enums';
+import UserSecurityService from '@kuraykaraaslan/user_security/server/user_security.service';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
 import AuthPolicyService from './auth.policy.service';
 
 export default class TOTPService {

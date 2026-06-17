@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { Between, IsNull, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
-import { getDataSource } from '@nb/db';
-import redis, { jitter, singleFlight } from '@nb/redis';
+import { getDataSource } from '@kuraykaraaslan/db';
+import redis, { jitter, singleFlight } from '@kuraykaraaslan/redis';
 import { Payment as PaymentEntity } from './entities/payment.entity';
 import {
   SafePayment,
@@ -11,7 +11,7 @@ import {
 } from './payment.types';
 import { GetPaymentsQuery } from './payment.dto';
 import { PAYMENT_MESSAGES } from './payment.messages';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import PaymentTransactionService from './payment.transaction.service';
 import { PAYMENT_CACHE_TTL } from './payment.crud.helpers';
 

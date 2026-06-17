@@ -1,17 +1,17 @@
 import 'reflect-metadata';
-import { getDataSource, tenantDataSourceFor } from '@nb/db';
+import { getDataSource, tenantDataSourceFor } from '@kuraykaraaslan/db';
 import { TenantSubscription as TenantSubscriptionEntity } from './entities/tenant_subscription.entity';
-import { ROOT_TENANT_ID } from '@nb/tenant/server/tenant.constants';
-import Logger from '@nb/logger';
+import { ROOT_TENANT_ID } from '@kuraykaraaslan/tenant/server/tenant.constants';
+import Logger from '@kuraykaraaslan/logger';
 import {
   TenantSubscriptionSchema,
   GracePeriodStatusSchema,
 } from './tenant_subscription.types';
 import type { TenantSubscription, GracePeriodStatus } from './tenant_subscription.types';
 import { SUBSCRIPTION_MESSAGES } from './tenant_subscription.messages';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import TenantFeatureGateService from './tenant_subscription.feature.service';
-import WebhookService from '@nb/webhook/server/webhook.service';
+import WebhookService from '@kuraykaraaslan/webhook/server/webhook.service';
 
 export default class TenantSubscriptionGraceService {
 
@@ -19,7 +19,7 @@ export default class TenantSubscriptionGraceService {
 
   private static async getGracePeriodDays(): Promise<number> {
     try {
-      const SettingService = (await import('@nb/setting/server/setting.service')).default;
+      const SettingService = (await import('@kuraykaraaslan/setting/server/setting.service')).default;
       const val = await SettingService.getValue(ROOT_TENANT_ID, 'subscriptionGracePeriodDays');
       const parsed = val ? parseInt(val, 10) : NaN;
       return isNaN(parsed) || parsed < 0 ? TenantSubscriptionGraceService.GRACE_PERIOD_DAYS_DEFAULT : parsed;

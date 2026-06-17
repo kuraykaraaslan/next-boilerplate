@@ -1,6 +1,6 @@
 'use client';
 import { use } from 'react';
-import DynamicPageEditor from '@nb/dynamic_page/ui/dynamic/Editor';
+import DynamicPageEditor from '@kuraykaraaslan/dynamic_page/ui/dynamic/Editor';
 
 export default function PageEditorPage({
   params,

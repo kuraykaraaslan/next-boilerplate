@@ -1,10 +1,10 @@
 import 'reflect-metadata';
-import { tenantDataSourceFor } from '@nb/db';
-import SettingService from '@nb/setting/server/setting.service';
-import redis, { jitter, singleFlight } from '@nb/redis';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
+import redis, { jitter, singleFlight } from '@kuraykaraaslan/redis';
 import { PushSubscription as PushSubscriptionEntity } from './entities/push_subscription.entity';
 import NotificationPushMessages from './notification_push.messages';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { PUSH_CACHE_TTL, cacheKeyForUser, clearCacheForUser } from './notification_push.config';
 
 export async function getSubscriptionsForUser(

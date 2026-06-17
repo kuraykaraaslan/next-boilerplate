@@ -25,8 +25,8 @@ const P = {
 
 function fixImports(src) {
   return src
-    .replace(/from '\.\/base\.provider'/g, "from '@nb/auth_sso/server/providers/base.provider'")
-    .replace(/from '\.\.\//g, "from '@nb/auth_sso/server/"); // ../auth_sso.X -> @nb/auth_sso/server/auth_sso.X
+    .replace(/from '\.\/base\.provider'/g, "from '@kuraykaraaslan/auth_sso/server/providers/base.provider'")
+    .replace(/from '\.\.\//g, "from '@kuraykaraaslan/auth_sso/server/"); // ../auth_sso.X -> @kuraykaraaslan/auth_sso/server/auth_sso.X
   // ./apple.jwks stays relative (moved alongside)
 }
 
@@ -46,7 +46,7 @@ for (const [key, meta] of Object.entries(P)) {
   // extension contribution
   fs.writeFileSync(
     `${mod}/server/${key}.extension.ts`,
-    `import type { SSOProviderContribution } from '@nb/auth_sso/server/auth_sso.provider.types';\n` +
+    `import type { SSOProviderContribution } from '@kuraykaraaslan/auth_sso/server/auth_sso.provider.types';\n` +
       `import { ${meta.cls} } from './providers/${key}.provider';\n\n` +
       `const contribution: SSOProviderContribution = {\n` +
       `  key: '${key}',\n` +
@@ -88,7 +88,7 @@ for (const [key, meta] of Object.entries(P)) {
   // package.json (exports filled by gen-explicit-exports)
   fs.writeFileSync(
     `${mod}/package.json`,
-    JSON.stringify({ name: `@nb/auth_sso_${key}`, version: '0.0.0', private: true, type: 'module', exports: {} }, null, 2) + '\n',
+    JSON.stringify({ name: `@kuraykaraaslan/auth_sso_${key}`, version: '0.0.0', private: true, type: 'module', exports: {} }, null, 2) + '\n',
   );
 
   console.log(`extracted ${key} -> ${mod}`);
@@ -97,7 +97,7 @@ for (const [key, meta] of Object.entries(P)) {
 // rewrite host index.ts: pure extension-registry resolution (no in-tree factories)
 fs.writeFileSync(
   `${HOST}/index.ts`,
-  `import { extensionRegistry } from '@nb/common/server/extension-registry';\n` +
+  `import { extensionRegistry } from '@kuraykaraaslan/common/server/extension-registry';\n` +
     `import type { SSOProvider } from '../auth_sso.enums';\n` +
     `import type { SSOProviderService } from '../auth_sso.types';\n` +
     `import type { SSOProviderContribution } from '../auth_sso.provider.types';\n\n` +

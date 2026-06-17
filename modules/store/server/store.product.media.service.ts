@@ -1,6 +1,6 @@
 import 'reflect-metadata'
-import { tenantDataSourceFor } from '@nb/db'
-import redis from '@nb/redis'
+import { tenantDataSourceFor } from '@kuraykaraaslan/db'
+import redis from '@kuraykaraaslan/redis'
 import { StoreProduct as ProductEntity } from './entities/store_product.entity'
 import { StoreProductImage as ImageEntity } from './entities/store_product_image.entity'
 import { StoreProductSpecValue as SpecValueEntity } from './entities/store_product_spec_value.entity'
@@ -10,7 +10,7 @@ import {
 } from './store.types'
 import type { AddProductImageDTO, SetSpecValuesDTO } from './store.dto'
 import { STORE_MESSAGES } from './store.messages'
-import { AppError, ErrorCode } from '@nb/common/server/app-error'
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error'
 
 export default class StoreProductMediaService {
 

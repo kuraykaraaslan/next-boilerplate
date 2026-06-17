@@ -1,7 +1,7 @@
 'use client';
 import { use } from 'react';
-import { ModuleSettingsPage } from '@nb/setting/ui/module-settings-page.component';
-import { TENANT_DOMAIN_SETTINGS_FIELDS } from '@nb/tenant_domain/server/tenant_domain.settings.fields';
+import { ModuleSettingsPage } from '@kuraykaraaslan/setting/ui/module-settings-page.component';
+import { TENANT_DOMAIN_SETTINGS_FIELDS } from '@kuraykaraaslan/tenant_domain/server/tenant_domain.settings.fields';
 
 export default function DomainsSettingsPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = use(params);

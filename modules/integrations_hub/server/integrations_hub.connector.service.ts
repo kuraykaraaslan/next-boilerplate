@@ -1,9 +1,9 @@
 import 'reflect-metadata';
-import { tenantDataSourceFor } from '@nb/db';
-import Logger from '@nb/logger';
-import WebhookService from '@nb/webhook/server/webhook.service';
-import ApiKeyService from '@nb/api_key/server/api_key.service';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import Logger from '@kuraykaraaslan/logger';
+import WebhookService from '@kuraykaraaslan/webhook/server/webhook.service';
+import ApiKeyService from '@kuraykaraaslan/api_key/server/api_key.service';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { Connector as ConnectorEntity } from './entities/connector.entity';
 import { ConnectedApp as ConnectedAppEntity } from './entities/connected_app.entity';
 import { IntegrationEvent as IntegrationEventEntity } from './entities/integration_event.entity';

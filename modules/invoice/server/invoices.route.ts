@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Limiter from '@nb/limiter/server/limiter.service.next';
-import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
-import InvoiceService from '@nb/invoice/server/invoice.service';
-import { CreateInvoiceInputSchema } from '@nb/invoice/server/invoice.types';
-import InvoiceMessages from '@nb/invoice/server/invoice.messages';
-import { withIdempotency } from '@nb/redis_idempotency/server/withIdempotency';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
+import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next';
+import InvoiceService from '@kuraykaraaslan/invoice/server/invoice.service';
+import { CreateInvoiceInputSchema } from '@kuraykaraaslan/invoice/server/invoice.types';
+import InvoiceMessages from '@kuraykaraaslan/invoice/server/invoice.messages';
+import { withIdempotency } from '@kuraykaraaslan/redis_idempotency/server/withIdempotency';
 
 /**
  * GET /tenant/[tenantId]/api/invoices?status=&page=&pageSize=

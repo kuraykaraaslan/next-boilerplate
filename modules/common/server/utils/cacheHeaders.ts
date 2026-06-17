@@ -7,7 +7,7 @@
  * public and have no per-user/auth-dependent body.
  *
  * Usage:
- *   import { PUBLIC_CACHE } from '@nb/common/server/utils/cacheHeaders'
+ *   import { PUBLIC_CACHE } from '@kuraykaraaslan/common/server/utils/cacheHeaders'
  *   return NextResponse.json(data, { headers: PUBLIC_CACHE.short })
  *
  * If the request carries a search/filter query you may prefer NO_STORE so the

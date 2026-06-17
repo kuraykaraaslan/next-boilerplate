@@ -1,11 +1,11 @@
 // path: app/tenant/[tenantId]/api/auth/verify-email/verify/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import Limiter from "@nb/limiter/server/limiter.service.next";
-import UserSessionNextService from "@nb/user_session/server/user_session.service.next";
-import AuthService from "@nb/auth/server/auth.service";
-import TenantService from "@nb/tenant/server/tenant.service";
-import { VerifyEmailDTO } from "@nb/auth/server/auth.dto";
-import AuthMessages from "@nb/auth/server/auth.messages";
+import Limiter from "@kuraykaraaslan/limiter/server/limiter.service.next";
+import UserSessionNextService from "@kuraykaraaslan/user_session/server/user_session.service.next";
+import AuthService from "@kuraykaraaslan/auth/server/auth.service";
+import TenantService from "@kuraykaraaslan/tenant/server/tenant.service";
+import { VerifyEmailDTO } from "@kuraykaraaslan/auth/server/auth.dto";
+import AuthMessages from "@kuraykaraaslan/auth/server/auth.messages";
 
 /**
  * Email verification is an onboarding endpoint — tenant membership is NOT

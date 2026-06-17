@@ -1,8 +1,8 @@
 import 'reflect-metadata';
-import { getDataSource } from '@nb/db';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
-import WebhookService from '@nb/webhook/server/webhook.service';
-import Logger from '@nb/logger';
+import { getDataSource } from '@kuraykaraaslan/db';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
+import WebhookService from '@kuraykaraaslan/webhook/server/webhook.service';
+import Logger from '@kuraykaraaslan/logger';
 import { UserSecurity as UserSecurityEntity } from './entities/user_security.entity';
 import UserSecurityMessages from './user_security.messages';
 import { clearCache } from './user_security.helpers';

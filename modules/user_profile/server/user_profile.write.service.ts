@@ -1,9 +1,9 @@
 import 'reflect-metadata';
-import { getDataSource } from '@nb/db';
+import { getDataSource } from '@kuraykaraaslan/db';
 import { UserProfile as UserProfileEntity } from './entities/user_profile.entity';
 import { UserProfile, UserProfileSchema } from './user_profile.types';
 import { VerificationStatus } from './user_profile.enums';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import UserProfileMessages from './user_profile.messages';
 import { clearCache, sanitize, toEntityPatch } from './user_profile.helpers';
 

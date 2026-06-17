@@ -1,5 +1,5 @@
 import type { DataSource } from 'typeorm'
-import Logger from '@nb/logger'
+import Logger from '@kuraykaraaslan/logger'
 import { FulfillmentEvent as FulfillmentEventEntity } from './entities/fulfillment_event.entity'
 import type { FulfillmentStatus } from './order_fulfillment.enums'
 import { ORDER_FULFILLMENT_MESSAGES } from './order_fulfillment.messages'

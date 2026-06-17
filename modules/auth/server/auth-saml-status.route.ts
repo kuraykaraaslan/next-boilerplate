@@ -1,6 +1,6 @@
 // path: app/tenant/[tenantId]/api/auth/saml/status/route.ts
 import { NextResponse } from 'next/server';
-import SamlService from '@nb/auth_saml/server/auth_saml.service';
+import SamlService from '@kuraykaraaslan/auth_saml/server/auth_saml.service';
 
 /**
  * GET /tenant/[tenantId]/api/auth/saml/status

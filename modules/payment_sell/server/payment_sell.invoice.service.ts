@@ -1,7 +1,7 @@
 import 'reflect-metadata'
-import Logger from '@nb/logger'
-import SettingService from '@nb/setting/server/setting.service'
-import { InvoiceService } from '@nb/invoice'
+import Logger from '@kuraykaraaslan/logger'
+import SettingService from '@kuraykaraaslan/setting/server/setting.service'
+import { InvoiceService } from '@kuraykaraaslan/invoice'
 import type { Payment as PaymentEntity } from './entities/payment.entity'
 
 /**

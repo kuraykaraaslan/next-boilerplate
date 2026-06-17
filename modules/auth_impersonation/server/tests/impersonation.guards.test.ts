@@ -10,7 +10,7 @@ import {
 } from './impersonation.test-setup';
 import ImpersonationService from '../impersonation.service';
 import ImpersonationMessages from '../impersonation.messages';
-import TOTPService from '@nb/auth/server/auth.totp.service';
+import TOTPService from '@kuraykaraaslan/auth/server/auth.totp.service';
 
 const REASON = 'Support ticket #999';
 

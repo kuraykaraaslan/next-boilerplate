@@ -1,10 +1,10 @@
 import type { StateCreator } from 'zustand'
-import { toast } from '@nb/common/ui/toast.store'
+import { toast } from '@kuraykaraaslan/common/ui/toast.store'
 import { migrateSections, needsMigration, CURRENT_SCHEMA_VERSION } from '../../../migrations'
 import type { BlockData } from '../../../types'
 import type { EditorStore, SeoData, TranslationEntry } from '../editor.types'
 import { DefaultSeoData, draftKey, apiBase, apiFetch, initialState } from '../editor.types'
-import { resolvePageLayout } from '@nb/dynamic_page/server/dynamic_page.types'
+import { resolvePageLayout } from '@kuraykaraaslan/dynamic_page/server/dynamic_page.types'
 
 export type PersistSlice = Pick<EditorStore, 'loadPage' | 'handleSave' | 'reset'>
 

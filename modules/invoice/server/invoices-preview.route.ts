@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Limiter from '@nb/limiter/server/limiter.service.next';
-import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
-import InvoicePdfService from '@nb/invoice/server/invoice.pdf.service';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
+import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next';
+import InvoicePdfService from '@kuraykaraaslan/invoice/server/invoice.pdf.service';
 
 /**
  * GET /tenant/[tenantId]/api/invoices/preview — render a sample invoice

@@ -1,10 +1,10 @@
 import 'reflect-metadata'
-import { tenantDataSourceFor } from '@nb/db'
+import { tenantDataSourceFor } from '@kuraykaraaslan/db'
 import { Warehouse as WarehouseEntity } from './entities/warehouse.entity'
 import { WarehouseSchema, type Warehouse } from './order_fulfillment.types'
 import type { CreateWarehouseDTO, UpdateWarehouseDTO } from './order_fulfillment.dto'
 import { ORDER_FULFILLMENT_MESSAGES } from './order_fulfillment.messages'
-import { AppError, ErrorCode } from '@nb/common/server/app-error'
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error'
 
 /** Tenant warehouse / fulfillment-location registry. */
 export default class OrderFulfillmentWarehouseService {

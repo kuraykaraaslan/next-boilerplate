@@ -1,6 +1,6 @@
 import 'reflect-metadata'
-import { tenantDataSourceFor } from '@nb/db'
-import { AppError, ErrorCode } from '@nb/common/server/app-error'
+import { tenantDataSourceFor } from '@kuraykaraaslan/db'
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error'
 import { Fulfillment as FulfillmentEntity } from './entities/fulfillment.entity'
 import { FulfillmentItem as FulfillmentItemEntity } from './entities/fulfillment_item.entity'
 import { FulfillmentEvent as FulfillmentEventEntity } from './entities/fulfillment_event.entity'

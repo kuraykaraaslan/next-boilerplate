@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { SessionStatusEnum } from "./user_session.enums";
-import { TenantMemberRoleEnum } from "@nb/tenant_member/server/tenant_member.enums";
+import { TenantMemberRoleEnum } from "@kuraykaraaslan/tenant_member/server/tenant_member.enums";
 
 export const SessionMetaSchema = z.object({
   // Stored at session creation so refreshTokens can apply the correct tenant's session policy.

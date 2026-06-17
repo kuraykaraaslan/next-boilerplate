@@ -1,9 +1,9 @@
-import { env } from '@nb/env';
+import { env } from '@kuraykaraaslan/env';
 import axios, { AxiosInstance } from "axios";
 import FormData from "form-data";
-import Logger from "@nb/logger";
-import SettingService from "@nb/setting/server/setting.service";
-import BaseMailProvider, { MailOptions, MailResult } from '@nb/notification_mail/server/providers/base.provider';
+import Logger from "@kuraykaraaslan/logger";
+import SettingService from "@kuraykaraaslan/setting/server/setting.service";
+import BaseMailProvider, { MailOptions, MailResult } from '@kuraykaraaslan/notification_mail/server/providers/base.provider';
 
 interface MailgunCreds {
   apiKey: string;

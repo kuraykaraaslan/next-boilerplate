@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import TenantSessionNextService from "@nb/tenant_session/server/tenant_session.service.next";
-import NotificationPushService from "@nb/notification_push/server/notification_push.service";
-import Limiter from "@nb/limiter/server/limiter.service.next";
+import TenantSessionNextService from "@kuraykaraaslan/tenant_session/server/tenant_session.service.next";
+import NotificationPushService from "@kuraykaraaslan/notification_push/server/notification_push.service";
+import Limiter from "@kuraykaraaslan/limiter/server/limiter.service.next";
 import { z } from "zod";
 
 const SubscribeDTO = z.object({

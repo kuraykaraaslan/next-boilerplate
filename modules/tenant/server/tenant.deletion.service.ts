@@ -1,11 +1,11 @@
 import 'reflect-metadata';
 import { IsNull, LessThan } from 'typeorm';
-import { tenantDataSourceFor, getDataSource, clearTenantDsCache } from '@nb/db';
+import { tenantDataSourceFor, getDataSource, clearTenantDsCache } from '@kuraykaraaslan/db';
 import { Tenant } from './entities/tenant.entity';
-import Logger from '@nb/logger';
+import Logger from '@kuraykaraaslan/logger';
 import TenantMessages from './tenant.messages';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
-import { clearTenantCache } from '@nb/redis';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
+import { clearTenantCache } from '@kuraykaraaslan/redis';
 
 const DELETION_GRACE_DAYS = 30;
 
@@ -85,7 +85,7 @@ export default class TenantDeletionService {
 
     // 1. Cancel active subscription with payment provider
     try {
-      const { default: TenantSubscriptionService } = await import('@nb/tenant_subscription/server/tenant_subscription.service');
+      const { default: TenantSubscriptionService } = await import('@kuraykaraaslan/tenant_subscription/server/tenant_subscription.service');
       // cancelSubscription is the correct method name from the delegated facade
       await (TenantSubscriptionService as any).cancelSubscription?.(tenantId, undefined, 'tenant_purged').catch(() => {});
     } catch (err) {
@@ -94,7 +94,7 @@ export default class TenantDeletionService {
 
     // 2. Revoke all API keys for this tenant
     try {
-      const { default: ApiKeyService } = await import('@nb/api_key/server/api_key.service');
+      const { default: ApiKeyService } = await import('@kuraykaraaslan/api_key/server/api_key.service');
       await ApiKeyService.revokeAll(tenantId).catch(() => {});
     } catch (err) {
       errors.push(`api_key: ${err instanceof Error ? err.message : String(err)}`);
@@ -108,7 +108,7 @@ export default class TenantDeletionService {
         [tenantId],
       );
       if (files.length > 0) {
-        const { default: StorageService } = await import('@nb/storage/server/storage.service');
+        const { default: StorageService } = await import('@kuraykaraaslan/storage/server/storage.service');
         for (const file of files) {
           await StorageService.deleteFile(tenantId, { key: file.key }).catch(() => {});
         }

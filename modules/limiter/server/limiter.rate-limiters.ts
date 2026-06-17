@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Limiter from './limiter.service.next';
-import { checkTenantPlanRateLimit } from '@nb/limiter';
+import { checkTenantPlanRateLimit } from '@kuraykaraaslan/limiter';
 
 export async function apiRateLimiter(request: NextRequest): Promise<NextResponse | null> {
   return Limiter.checkRateLimit(request, 'api');

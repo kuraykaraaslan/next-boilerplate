@@ -1,10 +1,10 @@
 'use client';
 import { useState } from 'react';
-import { Input } from '@nb/common/ui/input.component';
-import { Button } from '@nb/common/ui/button.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
-import { AvatarUpload } from '@nb/common/ui/avatar-upload.component';
-import type { UserProfile } from '@nb/user_profile/server/user_profile.types';
+import { Input } from '@kuraykaraaslan/common/ui/input.component';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
+import { AvatarUpload } from '@kuraykaraaslan/common/ui/avatar-upload.component';
+import type { UserProfile } from '@kuraykaraaslan/user_profile/server/user_profile.types';
 
 export type UserProfileValues = Pick<UserProfile, 'name' | 'biography' | 'profilePicture'>;
 

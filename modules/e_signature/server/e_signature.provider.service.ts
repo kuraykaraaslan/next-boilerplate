@@ -1,6 +1,6 @@
-import { env } from '@nb/env';
-import { extensionRegistry, type RuntimeExtension } from '@nb/common/server/extension-registry';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { env } from '@kuraykaraaslan/env';
+import { extensionRegistry, type RuntimeExtension } from '@kuraykaraaslan/common/server/extension-registry';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { E_SIGNATURE_MESSAGES } from './e_signature.messages';
 import type BaseESignatureProvider from './providers/base.provider';
 import type { CountryCode, CountryHint } from './e_signature.types';

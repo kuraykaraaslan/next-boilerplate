@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { type EntityManager } from 'typeorm';
-import { tenantDataSourceFor } from '@nb/db';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
 import { SupportTicket as SupportTicketEntity } from './entities/support_ticket.entity';
 import {
   TICKET_NUMBER_PADDING,

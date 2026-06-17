@@ -1,11 +1,11 @@
 import 'reflect-metadata';
 import { generateAuthenticationOptions as genAuthenticationOptions, verifyAuthenticationResponse } from '@simplewebauthn/server';
 import type { AuthenticationResponseJSON, AuthenticatorTransportFuture } from '@simplewebauthn/server';
-import { getDataSource } from '@nb/db';
-import { User as UserEntity } from '@nb/user/server/entities/user.entity';
+import { getDataSource } from '@kuraykaraaslan/db';
+import { User as UserEntity } from '@kuraykaraaslan/user/server/entities/user.entity';
 import { UserSecurity as UserSecurityEntity } from './entities/user_security.entity';
-import redis from '@nb/redis';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import redis from '@kuraykaraaslan/redis';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import UserSecurityService from './user_security.service';
 import PasskeyMessages from './user_security.passkey.messages';
 import {
@@ -13,7 +13,7 @@ import {
   PASSKEY_EMAIL_CHALLENGE_KEY,
   PASSKEY_CHALLENGE_TTL_SECONDS,
 } from './user_security.passkey.constants';
-import { SafeUser, SafeUserSchema } from '@nb/user/server/user.types';
+import { SafeUser, SafeUserSchema } from '@kuraykaraaslan/user/server/user.types';
 import { RP_ID, ORIGIN } from './user_security.passkey.config';
 
 export async function generateAuthenticationOptions(email?: string): Promise<Record<string, unknown>> {

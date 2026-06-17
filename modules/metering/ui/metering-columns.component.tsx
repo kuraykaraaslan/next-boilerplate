@@ -1,7 +1,7 @@
 'use client';
 
-import { Button } from '@nb/common/ui/button.component';
-import type { TableColumn } from '@nb/common/ui/server-data-table.component';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import type { TableColumn } from '@kuraykaraaslan/common/ui/server-data-table.component';
 
 export type MeterRow = {
   meterId: string;

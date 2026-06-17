@@ -1,10 +1,10 @@
 import 'reflect-metadata';
 import { In } from 'typeorm';
-import { tenantDataSourceFor } from '@nb/db';
-import { ROOT_TENANT_ID, isRootTenant } from '@nb/tenant/server/tenant.constants';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import { ROOT_TENANT_ID, isRootTenant } from '@kuraykaraaslan/tenant/server/tenant.constants';
 import { Setting as SettingEntity } from './entities/setting.entity';
 import { Setting } from './setting.types';
-import redis from '@nb/redis';
+import redis from '@kuraykaraaslan/redis';
 import { getCacheKey, getFromCache, setCache, deleteCache } from './setting.cache';
 import { decryptValue, parseRow } from './setting.crypto';
 

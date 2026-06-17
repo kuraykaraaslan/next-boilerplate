@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { UserRoleEnum, UserStatusEnum } from './user.enums';
-import { UserProfileSchema } from '@nb/user_profile/server/user_profile.types';
+import { UserProfileSchema } from '@kuraykaraaslan/user_profile/server/user_profile.types';
 
 // Helper to coerce dates from JSON (handles both Date and string)
 const dateOrString = z.union([z.date(), z.string().datetime()]).transform(val => 

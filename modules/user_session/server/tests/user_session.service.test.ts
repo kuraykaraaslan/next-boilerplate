@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('@nb/env', () => ({
+vi.mock('@kuraykaraaslan/env', () => ({
   env: {
     DATABASE_URL: 'postgresql://test',
     ACCESS_TOKEN_SECRET: 'test_secret',
@@ -17,12 +17,12 @@ vi.mock('@nb/env', () => ({
   },
 }));
 
-vi.mock('@nb/db', () => ({
+vi.mock('@kuraykaraaslan/db', () => ({
   getDataSource: vi.fn(),
   tenantDataSourceFor: vi.fn(),
 }));
 
-vi.mock('@nb/redis', () => ({
+vi.mock('@kuraykaraaslan/redis', () => ({
   default: {
     get: vi.fn(async () => null),
     set: vi.fn(async () => 'OK'),
@@ -39,7 +39,7 @@ vi.mock('@nb/redis', () => ({
   jitter: (n: number) => n,
 }));
 
-vi.mock('@nb/logger', () => ({
+vi.mock('@kuraykaraaslan/logger', () => ({
   default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() },
 }));
 
@@ -66,8 +66,8 @@ vi.mock('jsonwebtoken', () => ({
   },
 }));
 
-import { getDataSource } from '@nb/db';
-import redis from '@nb/redis';
+import { getDataSource } from '@kuraykaraaslan/db';
+import redis from '@kuraykaraaslan/redis';
 import UserSessionMessages from '../user_session.messages';
 
 // ─── Fixtures ────────────────────────────────────────────────────────────────

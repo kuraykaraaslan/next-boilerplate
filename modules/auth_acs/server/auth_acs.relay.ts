@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { env } from '@nb/env';
+import { env } from '@kuraykaraaslan/env';
 
 /**
  * RelayState (SAML) / state (OIDC) payload for a normal login: carries the

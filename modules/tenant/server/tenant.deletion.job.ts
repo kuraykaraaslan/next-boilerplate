@@ -1,7 +1,7 @@
 import { Queue, Worker, Job } from 'bullmq';
-import { getBullMQConnection } from '@nb/redis/server/redis.bullmq';
+import { getBullMQConnection } from '@kuraykaraaslan/redis/server/redis.bullmq';
 import TenantDeletionService from './tenant.deletion.service';
-import Logger from '@nb/logger';
+import Logger from '@kuraykaraaslan/logger';
 
 /**
  * Scheduled hard-purge of tenants whose `deleteAfter` timestamp has elapsed.

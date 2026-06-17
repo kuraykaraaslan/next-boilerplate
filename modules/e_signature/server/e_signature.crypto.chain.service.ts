@@ -1,6 +1,6 @@
 import { X509Certificate, AuthorityInfoAccessExtension } from '@peculiar/x509';
-import Logger from '@nb/logger';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import Logger from '@kuraykaraaslan/logger';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { E_SIGNATURE_MESSAGES } from './e_signature.messages';
 import { loadCertificate } from './e_signature.crypto.helpers';
 

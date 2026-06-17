@@ -1,9 +1,9 @@
 // path: app/tenant/[tenantId]/api/auth/me/sessions/[sessionId]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import Limiter from '@nb/limiter/server/limiter.service.next';
-import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
-import UserSessionCrudService from '@nb/user_session/server/user_session.crud.service';
-import UserSessionMessages from '@nb/user_session/server/user_session.messages';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
+import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next';
+import UserSessionCrudService from '@kuraykaraaslan/user_session/server/user_session.crud.service';
+import UserSessionMessages from '@kuraykaraaslan/user_session/server/user_session.messages';
 
 /**
  * DELETE /tenant/[tenantId]/api/auth/me/sessions/[sessionId]

@@ -1,7 +1,7 @@
 import 'reflect-metadata';
-import { tenantDataSourceFor } from '@nb/db';
-import { singleFlight } from '@nb/redis';
-import Logger from '@nb/logger';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import { singleFlight } from '@kuraykaraaslan/redis';
+import Logger from '@kuraykaraaslan/logger';
 import { SubscriptionPlan as PlanEntity } from './entities/subscription_plan.entity';
 import { PlanFeature as PlanFeatureEntity } from './entities/plan_feature.entity';
 import { Subscription as SubscriptionEntity } from './entities/subscription.entity';
@@ -11,12 +11,12 @@ import {
 } from './payment_subscription.types';
 import type { CreateSubscriptionDTO, GetSubscriptionsQuery } from './payment_subscription.dto';
 import { SUBSCRIPTION_MESSAGES } from './payment_subscription.messages';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import ProrationService from './payment_subscription.proration.service';
 import type { BillingCycle } from './payment_subscription.enums';
-import WebhookService from '@nb/webhook/server/webhook.service';
+import WebhookService from '@kuraykaraaslan/webhook/server/webhook.service';
 import PaymentSubscriptionPlanService from './payment_subscription.plan.service';
-import { RedisIdempotencyService } from '@nb/redis_idempotency';
+import { RedisIdempotencyService } from '@kuraykaraaslan/redis_idempotency';
 
 export async function createSubscription(tenantId: string, data: CreateSubscriptionDTO): Promise<Subscription> {
   // Avoid creating two subscriptions (and two billing schedules) on a retry.

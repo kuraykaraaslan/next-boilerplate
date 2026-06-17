@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { webcrypto, X509Certificate } from 'crypto';
 import * as x509 from '@peculiar/x509';
-import Logger from '@nb/logger';
+import Logger from '@kuraykaraaslan/logger';
 
 // WebCrypto engine for @peculiar/x509 (used only for SP key/cert generation).
 // Idempotent — first call wins.

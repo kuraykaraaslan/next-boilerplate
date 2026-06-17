@@ -1,13 +1,13 @@
 'use client';
 
-import { Badge } from '@nb/common/ui/badge.component';
-import { RowActionsMenu } from '@nb/common/ui/row-actions-menu.component';
-import type { TableColumn } from '@nb/common/ui/server-data-table.component';
+import { Badge } from '@kuraykaraaslan/common/ui/badge.component';
+import { RowActionsMenu } from '@kuraykaraaslan/common/ui/row-actions-menu.component';
+import type { TableColumn } from '@kuraykaraaslan/common/ui/server-data-table.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPercent, faDollarSign, faTrash, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
-import type { CouponStatus } from '@nb/coupon/server/coupon.enums';
-import type { CouponScope } from '@nb/coupon/server/coupon.dto';
-import type { Coupon as CanonicalCoupon } from '@nb/coupon/server/coupon.types';
+import type { CouponStatus } from '@kuraykaraaslan/coupon/server/coupon.enums';
+import type { CouponScope } from '@kuraykaraaslan/coupon/server/coupon.dto';
+import type { Coupon as CanonicalCoupon } from '@kuraykaraaslan/coupon/server/coupon.types';
 
 export type CouponRow = Pick<
   CanonicalCoupon,

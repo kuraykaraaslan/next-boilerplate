@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TENANT_ID, ACTOR_ID, LOG_ID, mockLog, makeRepo } from './audit_log.test-setup';
 import AuditLogService from '../audit_log.service';
-import { tenantDataSourceFor } from '@nb/db';
-import { ROOT_TENANT_ID } from '@nb/tenant/server/tenant.constants';
-import Logger from '@nb/logger';
-import WebhookService from '@nb/webhook/server/webhook.service';
-import SettingService from '@nb/setting/server/setting.service';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import { ROOT_TENANT_ID } from '@kuraykaraaslan/tenant/server/tenant.constants';
+import Logger from '@kuraykaraaslan/logger';
+import WebhookService from '@kuraykaraaslan/webhook/server/webhook.service';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
 
 describe('AuditLogService.log', () => {
   beforeEach(() => vi.clearAllMocks());

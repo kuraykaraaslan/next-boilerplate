@@ -1,7 +1,7 @@
 'use client';
 import { use } from 'react';
-import { SettingsPanelHost } from '@nb/setting/ui/settings-panel-host.component';
-import { PlatformAiTab } from '@nb/setting/ui/platform-settings-tabs.component';
+import { SettingsPanelHost } from '@kuraykaraaslan/setting/ui/settings-panel-host.component';
+import { PlatformAiTab } from '@kuraykaraaslan/setting/ui/platform-settings-tabs.component';
 
 /**
  * AI settings page. Served by the catch-all dynamic admin route via the ai

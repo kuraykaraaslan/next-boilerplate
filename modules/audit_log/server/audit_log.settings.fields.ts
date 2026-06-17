@@ -1,4 +1,4 @@
-import type { SettingFieldDef } from '@nb/setting/server/setting-fields.types';
+import type { SettingFieldDef } from '@kuraykaraaslan/setting/server/setting-fields.types';
 import { AUDIT_LOG_SETTING_KEYS } from './audit_log.setting.keys';
 
 // UI metadata for the Audit Logs settings page (ModuleSettingsPage).

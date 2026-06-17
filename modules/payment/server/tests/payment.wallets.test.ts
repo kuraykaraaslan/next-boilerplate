@@ -1,18 +1,18 @@
 import { describe, it, expect, vi } from 'vitest';
 
-vi.mock('@nb/env', () => ({ env: { NODE_ENV: 'test', PAYMENT_DEFAULT_PROVIDER: 'STRIPE' } }));
-vi.mock('@nb/db', () => ({ getDataSource: vi.fn(), tenantDataSourceFor: vi.fn() }));
-vi.mock('@nb/redis', () => ({
+vi.mock('@kuraykaraaslan/env', () => ({ env: { NODE_ENV: 'test', PAYMENT_DEFAULT_PROVIDER: 'STRIPE' } }));
+vi.mock('@kuraykaraaslan/db', () => ({ getDataSource: vi.fn(), tenantDataSourceFor: vi.fn() }));
+vi.mock('@kuraykaraaslan/redis', () => ({
   default: { get: vi.fn(async () => null), set: vi.fn(async () => 'OK'), setex: vi.fn(async () => 'OK'), del: vi.fn(async () => 1) },
   singleFlight: async (_k: string, f: () => Promise<unknown>) => f(),
   jitter: (n: number) => n,
 }));
-vi.mock('@nb/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
-vi.mock('@nb/setting/server/setting.service', () => ({ default: { getValue: vi.fn(async () => null) } }));
+vi.mock('@kuraykaraaslan/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
+vi.mock('@kuraykaraaslan/setting/server/setting.service', () => ({ default: { getValue: vi.fn(async () => null) } }));
 
-import IyzicoProvider from '@nb/payment_iyzico/server/providers/iyzico.provider';
-import StripeProvider from '@nb/payment_stripe/server/providers/stripe.provider';
-import PaypalProvider from '@nb/payment_paypal/server/providers/paypal.provider';
+import IyzicoProvider from '@kuraykaraaslan/payment_iyzico/server/providers/iyzico.provider';
+import StripeProvider from '@kuraykaraaslan/payment_stripe/server/providers/stripe.provider';
+import PaypalProvider from '@kuraykaraaslan/payment_paypal/server/providers/paypal.provider';
 import PaymentService from '../payment.service';
 import { WalletDescriptorSchema } from '../payment.enums';
 

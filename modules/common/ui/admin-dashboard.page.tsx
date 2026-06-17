@@ -1,10 +1,10 @@
 'use client';
 import { use, useEffect, useState } from 'react';
-import api from '@nb/common/server/axios';
-import { PageHeader } from '@nb/common/ui/page-header.component';
-import { Card } from '@nb/common/ui/card.component';
-import { Spinner } from '@nb/common/ui/spinner.component';
-import { isRootTenant } from '@nb/tenant/server/tenant.constants';
+import api from '@kuraykaraaslan/common/server/axios';
+import { PageHeader } from '@kuraykaraaslan/common/ui/page-header.component';
+import { Card } from '@kuraykaraaslan/common/ui/card.component';
+import { Spinner } from '@kuraykaraaslan/common/ui/spinner.component';
+import { isRootTenant } from '@kuraykaraaslan/tenant/server/tenant.constants';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faPeopleGroup,

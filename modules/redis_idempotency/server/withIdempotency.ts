@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { RedisIdempotencyService } from '@nb/redis_idempotency';
+import { RedisIdempotencyService } from '@kuraykaraaslan/redis_idempotency';
 
 function extractTenantId(pathname: string): string {
   return pathname.match(/\/tenant\/([^/]+)/)?.[1] ?? 'unknown';

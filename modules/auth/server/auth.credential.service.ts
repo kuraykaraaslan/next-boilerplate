@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import type { SafeUser } from '@nb/user/server/user.types';
+import type { SafeUser } from '@kuraykaraaslan/user/server/user.types';
 import {
   generateToken, hashPassword, checkIfUserHasRole,
 } from './auth.credential.helpers';

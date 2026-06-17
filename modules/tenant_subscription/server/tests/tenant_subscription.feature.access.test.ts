@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TENANT_ID, makeTenantSubRepo, mockSystemDs, mockTenantDs } from './tenant_subscription.feature.test-setup';
-import { tenantDataSourceFor } from '@nb/db';
-import redis from '@nb/redis';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import redis from '@kuraykaraaslan/redis';
 import TenantFeatureGateService from '../tenant_subscription.feature.service';
 import { SUBSCRIPTION_MESSAGES } from '../tenant_subscription.messages';
 

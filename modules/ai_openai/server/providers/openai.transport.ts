@@ -1,8 +1,8 @@
-import Logger from '@nb/logger';
+import Logger from '@kuraykaraaslan/logger';
 import type {
   ChatCompletionOptions, ChatCompletionResponse, EmbeddingOptions, EmbeddingResponse,
-} from '@nb/ai/server/ai.types';
-import { AIError } from '@nb/ai/server/ai.types';
+} from '@kuraykaraaslan/ai/server/ai.types';
+import { AIError } from '@kuraykaraaslan/ai/server/ai.types';
 import {
   buildOpenAIMessages, handleOpenAIError,
   type OpenAICtx, type OpenAIChatResponse, type OpenAIEmbeddingResponse,

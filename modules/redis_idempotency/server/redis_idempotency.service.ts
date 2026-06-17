@@ -1,6 +1,6 @@
-import redis from '@nb/redis';
-import Logger from '@nb/logger';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import redis from '@kuraykaraaslan/redis';
+import Logger from '@kuraykaraaslan/logger';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 
 const TTL_SECONDS = 86400; // 24 hours
 const KEY_MIN = 8;

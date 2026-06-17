@@ -1,4 +1,4 @@
-import Limiter from '@nb/limiter/server/limiter.service.next';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {

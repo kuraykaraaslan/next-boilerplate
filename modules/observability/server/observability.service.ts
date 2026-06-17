@@ -7,7 +7,7 @@
  * truth for the active tenantId/userId/requestId — both `setTags()` and
  * `recordError()` enrich their payload from there.
  */
-import Logger from '@nb/logger';
+import Logger from '@kuraykaraaslan/logger';
 import { initSentry, getSentry } from './sentry.init';
 import { initMetrics, getMetrics } from './metrics';
 import { initOtel } from './otel.init';

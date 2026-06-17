@@ -1,6 +1,6 @@
-import { BaseSamlAcsProvider } from '@nb/auth_acs/server/providers/base.saml.provider';
-import type { SamlValidatedAssertion } from '@nb/auth_saml/server/saml.engine';
-import type { AcsProfile } from '@nb/auth_acs/server/auth_acs.types';
+import { BaseSamlAcsProvider } from '@kuraykaraaslan/auth_acs/server/providers/base.saml.provider';
+import type { SamlValidatedAssertion } from '@kuraykaraaslan/auth_saml/server/saml.engine';
+import type { AcsProfile } from '@kuraykaraaslan/auth_acs/server/auth_acs.types';
 
 /**
  * Italy — SPID. SAML 2.0. The `fiscalNumber` attribute is commonly prefixed

@@ -1,5 +1,5 @@
-import SettingService from '@nb/setting/server/setting.service';
-import { ROOT_TENANT_ID } from '@nb/tenant/server/tenant.constants';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
+import { ROOT_TENANT_ID } from '@kuraykaraaslan/tenant/server/tenant.constants';
 import ESignatureEncryptionService from './e_signature.encryption.service';
 import {
   E_SIGNATURE_KEYS,

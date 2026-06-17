@@ -1,7 +1,7 @@
 import { Queue, Worker, Job } from 'bullmq';
-import { getBullMQConnection } from '@nb/redis/server/redis.bullmq';
+import { getBullMQConnection } from '@kuraykaraaslan/redis/server/redis.bullmq';
 import DNSVerificationService from './dns_verification.service';
-import Logger from '@nb/logger';
+import Logger from '@kuraykaraaslan/logger';
 
 /**
  * Periodic DNS health-check for ACTIVE tenant domains. The original one-shot

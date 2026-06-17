@@ -1,14 +1,14 @@
 import 'reflect-metadata';
 import { In } from 'typeorm';
-import { tenantDataSourceFor } from '@nb/db';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
 import { Invoice as InvoiceEntity } from './entities/invoice.entity';
 import { GibDirectClient } from './adapters/tr_gib_direct.client';
-import SettingService from '@nb/setting/server/setting.service';
-import AuditLogService from '@nb/audit_log/server/audit_log.service';
-import Logger from '@nb/logger';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
+import AuditLogService from '@kuraykaraaslan/audit_log/server/audit_log.service';
+import Logger from '@kuraykaraaslan/logger';
 import InvoiceMessages from './invoice.messages';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
-import redis from '@nb/redis';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
+import redis from '@kuraykaraaslan/redis';
 
 const EARSIV_SMS_SEND_LIMIT = 5;
 const EARSIV_SMS_SEND_WINDOW = 600;

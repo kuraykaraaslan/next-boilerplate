@@ -1,10 +1,10 @@
-import Logger from '@nb/logger';
-import SettingService from '@nb/setting/server/setting.service';
-import AuthPolicyService from '@nb/auth/server/auth.policy.service';
-import { decryptFieldOpt } from '@nb/common/server/field-encryption';
-import ObservabilityService from '@nb/observability';
-import AuditLogService from '@nb/audit_log/server/audit_log.service';
-import { ROOT_TENANT_ID } from '@nb/tenant/server/tenant.constants';
+import Logger from '@kuraykaraaslan/logger';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
+import AuthPolicyService from '@kuraykaraaslan/auth/server/auth.policy.service';
+import { decryptFieldOpt } from '@kuraykaraaslan/common/server/field-encryption';
+import ObservabilityService from '@kuraykaraaslan/observability';
+import AuditLogService from '@kuraykaraaslan/audit_log/server/audit_log.service';
+import { ROOT_TENANT_ID } from '@kuraykaraaslan/tenant/server/tenant.constants';
 import type { SSOProvider } from './auth_sso.enums';
 import type { SSOProviderConfig } from './auth_sso.types';
 import { SSO_CONFIGS, getCallbackUrl, isProviderConfigured, getAllowedProviders } from './auth_sso.config';

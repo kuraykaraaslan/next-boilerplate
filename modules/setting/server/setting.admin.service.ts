@@ -1,10 +1,10 @@
 import 'reflect-metadata';
-import { tenantDataSourceFor } from '@nb/db';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
 import { Setting as SettingEntity } from './entities/setting.entity';
 import { SettingHistory } from './entities/setting_history.entity';
 import { Setting } from './setting.types';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
-import { decryptFieldOpt } from '@nb/common/server/field-encryption';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
+import { decryptFieldOpt } from '@kuraykaraaslan/common/server/field-encryption';
 import { getCacheKey, deleteCache } from './setting.cache';
 import { update, updateMany } from './setting.write.service';
 

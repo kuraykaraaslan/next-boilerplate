@@ -9,7 +9,7 @@ import TemplateBlockRenderer from '../../partials/template-block-renderer.compon
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronRight, faTrash } from '@fortawesome/free-solid-svg-icons'
 import { getSavedSections, deleteSavedSection, hydrateSavedSection, type SavedSection } from '../../utils/savedSections'
-import { toast } from '@nb/common/ui/toast.store'
+import { toast } from '@kuraykaraaslan/common/ui/toast.store'
 
 export type AnyBlockDef = BlockDefinition | DynamicPageBlockRecord
 

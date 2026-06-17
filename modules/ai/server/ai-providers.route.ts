@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import AIService from "@nb/ai/server/ai.service";
-import Limiter from "@nb/limiter/server/limiter.service.next";
+import AIService from "@kuraykaraaslan/ai/server/ai.service";
+import Limiter from "@kuraykaraaslan/limiter/server/limiter.service.next";
 
-import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
+import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next';
 /**
  * GET /tenant/[tenantId]/api/ai/providers
  * Root-tenant admins only.

@@ -1,22 +1,22 @@
 import 'reflect-metadata';
-import { tenantDataSourceFor } from '@nb/db';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
 import { Invoice as InvoiceEntity } from './entities/invoice.entity';
 import { InvoiceLine as InvoiceLineEntity } from './entities/invoice_line.entity';
-import SettingService from '@nb/setting/server/setting.service';
-import AuditLogService from '@nb/audit_log/server/audit_log.service';
-import { isRootTenant } from '@nb/tenant/server/tenant.constants';
-import TenantFeatureGateService from '@nb/tenant_subscription/server/tenant_subscription.feature.service';
-import { FEATURE_KEYS } from '@nb/tenant_subscription/server/tenant_subscription.feature-keys';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
+import AuditLogService from '@kuraykaraaslan/audit_log/server/audit_log.service';
+import { isRootTenant } from '@kuraykaraaslan/tenant/server/tenant.constants';
+import TenantFeatureGateService from '@kuraykaraaslan/tenant_subscription/server/tenant_subscription.feature.service';
+import { FEATURE_KEYS } from '@kuraykaraaslan/tenant_subscription/server/tenant_subscription.feature-keys';
 import InvoiceMessages from './invoice.messages';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import {
   SafeInvoiceSchema, CreateInvoiceInputSchema,
   type SafeInvoice, type CreateInvoiceInput,
 } from './invoice.types';
-import WebhookService from '@nb/webhook/server/webhook.service';
+import WebhookService from '@kuraykaraaslan/webhook/server/webhook.service';
 import InvoiceTaxService from './invoice.tax.service';
 import { allocateNumber } from './invoice.number.service';
-import { RedisIdempotencyService } from '@nb/redis_idempotency';
+import { RedisIdempotencyService } from '@kuraykaraaslan/redis_idempotency';
 
 export async function create(tenantId: string, input: CreateInvoiceInput): Promise<SafeInvoice> {
   // Prevent a retried request from emitting two invoices (two sequence numbers)

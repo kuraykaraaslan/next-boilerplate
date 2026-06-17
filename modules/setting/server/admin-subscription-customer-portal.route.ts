@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Limiter from '@nb/limiter/server/limiter.service.next';
-import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
-import PaymentService from '@nb/payment/server/payment.service';
-import type { PaymentProvider } from '@nb/payment/server/payment.enums';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
+import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next';
+import PaymentService from '@kuraykaraaslan/payment/server/payment.service';
+import type { PaymentProvider } from '@kuraykaraaslan/payment/server/payment.enums';
 import { z } from 'zod';
 
 const RequestSchema = z.object({

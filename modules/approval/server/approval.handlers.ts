@@ -1,4 +1,4 @@
-import Logger from '@nb/logger';
+import Logger from '@kuraykaraaslan/logger';
 import type { ApprovalDecisionHandler, ApprovalQueueItem } from './approval.types';
 
 /**

@@ -1,8 +1,8 @@
-import redis from '@nb/redis';
-import Logger from '@nb/logger';
-import SettingService from '@nb/setting/server/setting.service';
+import redis from '@kuraykaraaslan/redis';
+import Logger from '@kuraykaraaslan/logger';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
 
-import { ROOT_TENANT_ID } from '@nb/tenant/server/tenant.constants';
+import { ROOT_TENANT_ID } from '@kuraykaraaslan/tenant/server/tenant.constants';
 /**
  * KD-19: brute-force CAPTCHA threshold.
  * Tracks per-identity failed-login counters in Redis with a 30 min rolling

@@ -1,10 +1,10 @@
 import 'reflect-metadata';
-import { tenantDataSourceFor } from '@nb/db';
-import Logger from '@nb/logger';
-import WebhookService from '@nb/webhook/server/webhook.service';
-import WalletService from '@nb/wallet/server/wallet.service';
-import PaymentService from '@nb/payment/server/payment.service';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import Logger from '@kuraykaraaslan/logger';
+import WebhookService from '@kuraykaraaslan/webhook/server/webhook.service';
+import WalletService from '@kuraykaraaslan/wallet/server/wallet.service';
+import PaymentService from '@kuraykaraaslan/payment/server/payment.service';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { GiftCard as GiftCardEntity } from './entities/gift_card.entity';
 import { GiftCardTransaction as GiftCardTxEntity } from './entities/gift_card_transaction.entity';
 import { GiftCardSchema, GiftCardBalanceSchema, RedeemResultSchema } from './gift_card.types';

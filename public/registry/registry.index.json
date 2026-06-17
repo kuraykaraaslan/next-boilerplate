@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-16T21:49:54.623Z",
+  "generatedAt": "2026-06-17T07:35:46.548Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -77,6 +77,7 @@
         "./server/common.timezone",
         "./server/extension-registry",
         "./server/field-encryption",
+        "./server/module-entities",
         "./server/generated/api-handlers",
         "./server/generated/module-extensions",
         "./server/index",
@@ -935,6 +936,170 @@
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": false
+    },
+    {
+      "id": "marketplace",
+      "name": "Marketplace",
+      "version": "1.0.0",
+      "description": "Browse, install, activate, and remove tenant modules; publish your own modules to a curated, approval-gated registry.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/marketplace",
+      "dir": "modules/marketplace",
+      "icon": "fas fa-store",
+      "tags": [
+        "platform",
+        "marketplace"
+      ],
+      "priority": 6,
+      "tier": "platform",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "setting",
+          "audit_log",
+          "auth",
+          "tenant",
+          "storage",
+          "common"
+        ]
+      },
+      "exports": {
+        "services": [],
+        "dtos": [],
+        "enums": [],
+        "messageKeys": [],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "module_install.entity.ts",
+          "published_module.entity.ts",
+          "published_module_version.entity.ts",
+          "publisher.entity.ts"
+        ]
+      },
+      "enabled": true,
+      "menu": [
+        {
+          "id": "marketplace",
+          "label": "Marketplace",
+          "href": "/admin/marketplace",
+          "icon": "fas fa-store",
+          "group": "Configuration",
+          "order": 4,
+          "scope": "tenant"
+        },
+        {
+          "id": "marketplace-developer",
+          "label": "Developer",
+          "href": "/admin/developer",
+          "icon": "fas fa-code",
+          "group": "Configuration",
+          "order": 6,
+          "scope": "tenant"
+        },
+        {
+          "id": "marketplace-review",
+          "label": "Module Review",
+          "href": "/admin/marketplace/review",
+          "icon": "fas fa-clipboard-check",
+          "group": "Platform",
+          "order": 30,
+          "scope": "system"
+        }
+      ],
+      "adminRoutes": [
+        {
+          "path": "/admin/marketplace",
+          "component": "marketplace/ui/marketplace.page"
+        },
+        {
+          "path": "/admin/developer",
+          "component": "marketplace/ui/developer.page"
+        },
+        {
+          "path": "/admin/marketplace/review",
+          "component": "marketplace/ui/review.page"
+        }
+      ],
+      "apiRoutes": [
+        {
+          "path": "/api/marketplace",
+          "handler": "marketplace/server/marketplace.route"
+        },
+        {
+          "path": "/api/marketplace/community",
+          "handler": "marketplace/server/community.route"
+        },
+        {
+          "path": "/api/marketplace/publisher",
+          "handler": "marketplace/server/publisher.route"
+        },
+        {
+          "path": "/api/marketplace/listings",
+          "handler": "marketplace/server/listings.route"
+        },
+        {
+          "path": "/api/marketplace/listings/[listingId]/versions",
+          "handler": "marketplace/server/listings-versions.route"
+        },
+        {
+          "path": "/api/marketplace/review",
+          "handler": "marketplace/server/review.route"
+        },
+        {
+          "path": "/api/marketplace/review/[versionId]",
+          "handler": "marketplace/server/review-item.route"
+        },
+        {
+          "path": "/api/marketplace/publishers/[publisherId]",
+          "handler": "marketplace/server/publishers-item.route"
+        },
+        {
+          "path": "/api/marketplace/[moduleId]",
+          "handler": "marketplace/server/marketplace-item.route"
+        },
+        {
+          "path": "/api/marketplace/[moduleId]/install",
+          "handler": "marketplace/server/marketplace-install.route"
+        }
+      ],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [],
+      "pkgExports": [
+        "./module.json",
+        "./server/entities/module_install.entity",
+        "./server/entities/publisher.entity",
+        "./server/entities/published_module.entity",
+        "./server/entities/published_module_version.entity",
+        "./server/marketplace.service.next",
+        "./server/publish.service.next",
+        "./server/marketplace.route",
+        "./server/marketplace-item.route",
+        "./server/marketplace-install.route",
+        "./server/publisher.route",
+        "./server/listings.route",
+        "./server/listings-versions.route",
+        "./server/community.route",
+        "./server/review.route",
+        "./server/review-item.route",
+        "./server/publishers-item.route",
+        "./ui/marketplace.page",
+        "./ui/marketplace-page.component",
+        "./ui/developer.page",
+        "./ui/developer-page.component",
+        "./ui/review.page",
+        "./ui/review-page.component"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": false,
+      "hasModuleJson": true,
+      "hasNextLayer": true
     },
     {
       "id": "seed",
@@ -4992,7 +5157,7 @@
       "dependencies": {
         "requires": [
           "db",
-          "tenant_setting",
+          "setting",
           "storage"
         ]
       },
@@ -8590,7 +8755,7 @@
         ],
         "optional": [
           "storage",
-          "tenant_setting"
+          "setting"
         ]
       },
       "exports": {
@@ -14345,6 +14510,21 @@
       "relations": []
     },
     {
+      "name": "ModuleInstall",
+      "filePath": "modules/marketplace/server/entities/module_install.entity.ts",
+      "module": "marketplace",
+      "schema": "system",
+      "tableName": "module_installs",
+      "columns": [
+        "tenantId",
+        "moduleId",
+        "version",
+        "installedAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "NotificationLog",
       "filePath": "modules/notification_log/server/entities/notification_log.entity.ts",
       "module": "notification_log",
@@ -14602,6 +14782,76 @@
         "userId",
         "isHelpful",
         "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "PublishedModule",
+      "filePath": "modules/marketplace/server/entities/published_module.entity.ts",
+      "module": "marketplace",
+      "schema": "system",
+      "tableName": "marketplace_listings",
+      "columns": [
+        "listingId",
+        "publisherId",
+        "scopedName",
+        "moduleId",
+        "name",
+        "description",
+        "icon",
+        "tier",
+        "tags",
+        "repoUrl",
+        "homepage",
+        "visibility",
+        "status",
+        "currentVersionId",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "PublishedModuleVersion",
+      "filePath": "modules/marketplace/server/entities/published_module_version.entity.ts",
+      "module": "marketplace",
+      "schema": "system",
+      "tableName": "marketplace_listing_versions",
+      "columns": [
+        "versionId",
+        "listingId",
+        "version",
+        "manifestJson",
+        "readmeMd",
+        "changelog",
+        "screenshots",
+        "packageRef",
+        "reviewStatus",
+        "reviewNotes",
+        "reviewedBy",
+        "submittedAt",
+        "reviewedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "Publisher",
+      "filePath": "modules/marketplace/server/entities/publisher.entity.ts",
+      "module": "marketplace",
+      "schema": "system",
+      "tableName": "marketplace_publishers",
+      "columns": [
+        "publisherId",
+        "ownerTenantId",
+        "slug",
+        "displayName",
+        "contact",
+        "website",
+        "status",
+        "verifiedAt",
+        "verifiedBy",
+        "createdAt",
+        "updatedAt"
       ],
       "relations": []
     },
@@ -19004,6 +19254,72 @@
       "isClient": true,
       "isServer": false,
       "baseName": "invoices.page"
+    },
+    {
+      "id": "marketplace/ui/developer-page.component",
+      "module": "marketplace",
+      "filePath": "modules/marketplace/ui/developer-page.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "DeveloperPage"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "developer-page.component"
+    },
+    {
+      "id": "marketplace/ui/developer.page",
+      "module": "marketplace",
+      "filePath": "modules/marketplace/ui/developer.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "developer.page"
+    },
+    {
+      "id": "marketplace/ui/marketplace-page.component",
+      "module": "marketplace",
+      "filePath": "modules/marketplace/ui/marketplace-page.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "MarketplacePage"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "marketplace-page.component"
+    },
+    {
+      "id": "marketplace/ui/marketplace.page",
+      "module": "marketplace",
+      "filePath": "modules/marketplace/ui/marketplace.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "marketplace.page"
+    },
+    {
+      "id": "marketplace/ui/review-page.component",
+      "module": "marketplace",
+      "filePath": "modules/marketplace/ui/review-page.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "ReviewPage"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "review-page.component"
+    },
+    {
+      "id": "marketplace/ui/review.page",
+      "module": "marketplace",
+      "filePath": "modules/marketplace/ui/review.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "review.page"
     },
     {
       "id": "media_gallery/ui/gallery-panel.component",

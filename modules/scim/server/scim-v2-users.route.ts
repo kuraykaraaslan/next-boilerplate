@@ -1,10 +1,10 @@
 import { NextRequest } from 'next/server';
-import ApiKeyService from '@nb/api_key/server/api_key.service';
-import ScimService from '@nb/scim/server/scim.service';
-import { CreateScimUserDTO } from '@nb/scim/server/scim.dto';
-import { scimError, scimResponse } from '@nb/scim/server/scim.errors';
-import ScimMessages from '@nb/scim/server/scim.messages';
-import type { ScimErrorType } from '@nb/scim/server/scim.types';
+import ApiKeyService from '@kuraykaraaslan/api_key/server/api_key.service';
+import ScimService from '@kuraykaraaslan/scim/server/scim.service';
+import { CreateScimUserDTO } from '@kuraykaraaslan/scim/server/scim.dto';
+import { scimError, scimResponse } from '@kuraykaraaslan/scim/server/scim.errors';
+import ScimMessages from '@kuraykaraaslan/scim/server/scim.messages';
+import type { ScimErrorType } from '@kuraykaraaslan/scim/server/scim.types';
 
 /**
  * GET /tenant/{tenantId}/api/scim/v2/Users

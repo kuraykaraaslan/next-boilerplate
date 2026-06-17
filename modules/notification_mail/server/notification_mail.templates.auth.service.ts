@@ -1,5 +1,5 @@
-import Logger from '@nb/logger';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import Logger from '@kuraykaraaslan/logger';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import MailService from './notification_mail.service';
 import { getBaseTemplateVars } from './notification_mail.template-vars';
 import NotificationMailMessages from './notification_mail.messages';

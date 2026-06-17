@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { env } from '@nb/env';
-import { getDataSource } from '@nb/db';
-import { Tenant } from '@nb/tenant/server/entities/tenant.entity';
-import { TenantUsageService } from '@nb/tenant_usage/server/tenant_usage.service';
-import Logger from '@nb/logger';
+import { env } from '@kuraykaraaslan/env';
+import { getDataSource } from '@kuraykaraaslan/db';
+import { Tenant } from '@kuraykaraaslan/tenant/server/entities/tenant.entity';
+import { TenantUsageService } from '@kuraykaraaslan/tenant_usage/server/tenant_usage.service';
+import Logger from '@kuraykaraaslan/logger';
 
 /**
  * POST /tenant/[tenantId]/api/cron/usage-flush

@@ -1,18 +1,18 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { ServerDataTable, type TableColumn } from '@nb/common/ui/server-data-table.component';
-import { RowActionsMenu } from '@nb/common/ui/row-actions-menu.component';
-import { Button } from '@nb/common/ui/button.component';
-import { Input } from '@nb/common/ui/input.component';
-import { Select } from '@nb/common/ui/select.component';
-import { Modal } from '@nb/common/ui/modal.component';
-import { Badge } from '@nb/common/ui/badge.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
-import { toast } from '@nb/common/ui/toast.store';
+import { ServerDataTable, type TableColumn } from '@kuraykaraaslan/common/ui/server-data-table.component';
+import { RowActionsMenu } from '@kuraykaraaslan/common/ui/row-actions-menu.component';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import { Input } from '@kuraykaraaslan/common/ui/input.component';
+import { Select } from '@kuraykaraaslan/common/ui/select.component';
+import { Modal } from '@kuraykaraaslan/common/ui/modal.component';
+import { Badge } from '@kuraykaraaslan/common/ui/badge.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
+import { toast } from '@kuraykaraaslan/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
-import api from '@nb/common/server/axios';
+import api from '@kuraykaraaslan/common/server/axios';
 
 type Feature = {
   featureId: string;

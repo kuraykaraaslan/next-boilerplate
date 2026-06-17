@@ -1,17 +1,17 @@
 'use client';
 import { use, useCallback, useEffect, useState } from 'react';
 import { notFound } from 'next/navigation';
-import { isRootTenant } from '@nb/tenant/server/tenant.constants';
-import api from '@nb/common/server/axios';
-import { ServerDataTable, type TableColumn } from '@nb/common/ui/server-data-table.component';
-import { Badge } from '@nb/common/ui/badge.component';
-import { Button } from '@nb/common/ui/button.component';
-import { Input } from '@nb/common/ui/input.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
-import { Modal } from '@nb/common/ui/modal.component';
+import { isRootTenant } from '@kuraykaraaslan/tenant/server/tenant.constants';
+import api from '@kuraykaraaslan/common/server/axios';
+import { ServerDataTable, type TableColumn } from '@kuraykaraaslan/common/ui/server-data-table.component';
+import { Badge } from '@kuraykaraaslan/common/ui/badge.component';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import { Input } from '@kuraykaraaslan/common/ui/input.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
+import { Modal } from '@kuraykaraaslan/common/ui/modal.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faSearch } from '@fortawesome/free-solid-svg-icons';
-import type { TenantStatus } from '@nb/tenant/server/tenant.enums';
+import type { TenantStatus } from '@kuraykaraaslan/tenant/server/tenant.enums';
 
 type HealthStatus = 'active' | 'trialing' | 'past_due' | 'grace_period' | 'suspended' | 'pending_deletion' | 'no_subscription' | 'expired';
 

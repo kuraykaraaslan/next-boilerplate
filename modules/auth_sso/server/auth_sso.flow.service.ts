@@ -1,21 +1,21 @@
 import crypto from 'crypto';
-import Logger from '@nb/logger';
+import Logger from '@kuraykaraaslan/logger';
 import type { SSOProvider } from './auth_sso.enums';
 import type { SSOProfile, SSOTokens, SSOAuthUrlOptions } from './auth_sso.types';
 import { SSOProfileSchema, SSOTokensSchema } from './auth_sso.types';
 import { getProvider } from './providers';
 import SsoConfigService from './auth_sso.config.service';
 import SSOMessages from './auth_sso.messages';
-import UserSocialAccountService from '@nb/user_social_account/server/user_social_account.service';
-import UserService from '@nb/user/server/user.service';
-import type { SafeUser } from '@nb/user/server/user.types';
-import AuditLogService from '@nb/audit_log/server/audit_log.service';
-import { AuditActions } from '@nb/audit_log/server/audit_log.enums';
-import ObservabilityService from '@nb/observability';
-import { getDataSource } from '@nb/db';
-import { UserConsent as UserConsentEntity } from '@nb/auth/server/entities/user_consent.entity';
-import { ROOT_TENANT_ID } from '@nb/tenant/server/tenant.constants';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import UserSocialAccountService from '@kuraykaraaslan/user_social_account/server/user_social_account.service';
+import UserService from '@kuraykaraaslan/user/server/user.service';
+import type { SafeUser } from '@kuraykaraaslan/user/server/user.types';
+import AuditLogService from '@kuraykaraaslan/audit_log/server/audit_log.service';
+import { AuditActions } from '@kuraykaraaslan/audit_log/server/audit_log.enums';
+import ObservabilityService from '@kuraykaraaslan/observability';
+import { getDataSource } from '@kuraykaraaslan/db';
+import { UserConsent as UserConsentEntity } from '@kuraykaraaslan/auth/server/entities/user_consent.entity';
+import { ROOT_TENANT_ID } from '@kuraykaraaslan/tenant/server/tenant.constants';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 
 const SSO_PLACEHOLDER_DOMAIN = 'noreply.invalid';
 /** Default ToS/Privacy version recorded for JIT social-login users when no tenant override exists. */

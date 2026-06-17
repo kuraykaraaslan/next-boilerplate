@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-vi.mock('@nb/logger', () => ({
+vi.mock('@kuraykaraaslan/logger', () => ({
   default: { warn: vi.fn(), error: vi.fn(), info: vi.fn() },
 }))
 
 const store = new Map<string, string>()
-vi.mock('@nb/redis', () => ({
+vi.mock('@kuraykaraaslan/redis', () => ({
   default: {
     get: vi.fn(async (k: string) => store.get(k) ?? null),
     setex: vi.fn(async (k: string, _ttl: number, v: string) => { store.set(k, v); return 'OK' }),

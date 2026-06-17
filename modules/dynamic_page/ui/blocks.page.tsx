@@ -2,19 +2,19 @@
 
 import { use, useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import api from '@nb/common/server/axios';
-import { ServerDataTable, type TableColumn } from '@nb/common/ui/server-data-table.component';
-import { PageHeader } from '@nb/common/ui/page-header.component';
-import { Button } from '@nb/common/ui/button.component';
-import { Input } from '@nb/common/ui/input.component';
-import { Modal } from '@nb/common/ui/modal.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
-import { Badge } from '@nb/common/ui/badge.component';
-import { RowActionsMenu } from '@nb/common/ui/row-actions-menu.component';
-import { toast } from '@nb/common/ui/toast.store';
+import api from '@kuraykaraaslan/common/server/axios';
+import { ServerDataTable, type TableColumn } from '@kuraykaraaslan/common/ui/server-data-table.component';
+import { PageHeader } from '@kuraykaraaslan/common/ui/page-header.component';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import { Input } from '@kuraykaraaslan/common/ui/input.component';
+import { Modal } from '@kuraykaraaslan/common/ui/modal.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
+import { Badge } from '@kuraykaraaslan/common/ui/badge.component';
+import { RowActionsMenu } from '@kuraykaraaslan/common/ui/row-actions-menu.component';
+import { toast } from '@kuraykaraaslan/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
-import type { DynamicPageBlockRecord } from '@nb/dynamic_page/server/dynamic_page.types';
+import type { DynamicPageBlockRecord } from '@kuraykaraaslan/dynamic_page/server/dynamic_page.types';
 
 type BlockDef = Pick<DynamicPageBlockRecord, 'blockId' | 'type' | 'label' | 'category' | 'isSystem'> & {
   createdAt: string;

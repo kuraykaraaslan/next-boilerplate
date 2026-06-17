@@ -1,7 +1,7 @@
 import 'reflect-metadata';
-import redis from '@nb/redis';
-import { env } from '@nb/env';
-import Logger from '@nb/logger';
+import redis from '@kuraykaraaslan/redis';
+import { env } from '@kuraykaraaslan/env';
+import Logger from '@kuraykaraaslan/logger';
 import { isRootTenant } from './tenant.constants';
 
 export const TENANT_CACHE_TTL = env.TENANT_CACHE_TTL ?? (60 * 5);
@@ -37,8 +37,8 @@ export async function seedDefaults(
 
   if (!defaults?.skipPlan && !defaults?.skipSubscription) {
     try {
-      const { default: TenantPlatformPlanService } = await import('@nb/tenant_subscription/server/tenant_subscription.platform.service');
-      const { default: TenantFeatureGateService } = await import('@nb/tenant_subscription/server/tenant_subscription.feature.service');
+      const { default: TenantPlatformPlanService } = await import('@kuraykaraaslan/tenant_subscription/server/tenant_subscription.platform.service');
+      const { default: TenantFeatureGateService } = await import('@kuraykaraaslan/tenant_subscription/server/tenant_subscription.feature.service');
       const defaultPlanId = await TenantFeatureGateService.getDefaultPlanId();
       if (defaultPlanId) {
         await TenantPlatformPlanService.assignPlatformPlan(tenantId, { planId: defaultPlanId, priceOverride: 0 });
@@ -52,7 +52,7 @@ export async function seedDefaults(
 
   if (!defaults?.skipSettings) {
     try {
-      const SettingService = (await import('@nb/setting/server/setting.service')).default;
+      const SettingService = (await import('@kuraykaraaslan/setting/server/setting.service')).default;
       // Use region-aware locale defaults
       const localeDefaults = (region ? REGION_LOCALE_DEFAULTS[region] : null) ?? REGION_LOCALE_DEFAULTS['TR'];
       await SettingService.updateMany(tenantId, {
@@ -84,9 +84,9 @@ async function provisionWildcardSubdomain(tenantId: string, errors: string[]): P
   const wildcard = env.TENANT_WILDCARD_DOMAIN;
   if (!wildcard) return;
   try {
-    const { tenantDataSourceFor } = await import('@nb/db');
+    const { tenantDataSourceFor } = await import('@kuraykaraaslan/db');
     const { Tenant } = await import('./entities/tenant.entity');
-    const { TenantDomain } = await import('@nb/tenant_domain/server/entities/tenant_domain.entity');
+    const { TenantDomain } = await import('@kuraykaraaslan/tenant_domain/server/entities/tenant_domain.entity');
     const ds = await tenantDataSourceFor(tenantId);
 
     const tenant = await ds.getRepository(Tenant).findOne({ where: { tenantId } });

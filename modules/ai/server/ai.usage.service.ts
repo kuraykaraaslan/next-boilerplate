@@ -1,7 +1,7 @@
-import Logger from '@nb/logger';
-import redis from '@nb/redis';
-import { tenantDataSourceFor } from '@nb/db';
-import { TenantUsageService } from '@nb/tenant_usage/server/tenant_usage.service';
+import Logger from '@kuraykaraaslan/logger';
+import redis from '@kuraykaraaslan/redis';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import { TenantUsageService } from '@kuraykaraaslan/tenant_usage/server/tenant_usage.service';
 import { AiUsageLog } from './entities/ai_usage_log.entity';
 import type { AIProviderType, ChatCompletionResponse, EmbeddingResponse } from './ai.types';
 

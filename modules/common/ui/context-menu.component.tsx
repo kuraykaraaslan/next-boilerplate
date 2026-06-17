@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useRef, useCallback, useId } from 'react';
-import { cn } from '@nb/common/server/utils/cn';
+import { cn } from '@kuraykaraaslan/common/server/utils/cn';
 
 /* ─── Public types ─────────────────────────────────────────────────────────── */
 

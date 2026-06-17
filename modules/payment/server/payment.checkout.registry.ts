@@ -1,13 +1,13 @@
-import { env } from '@nb/env';
-import Logger from '@nb/logger';
-import { extensionRegistry } from '@nb/common/server/extension-registry';
+import { env } from '@kuraykaraaslan/env';
+import Logger from '@kuraykaraaslan/logger';
+import { extensionRegistry } from '@kuraykaraaslan/common/server/extension-registry';
 import type BasePaymentProvider from './providers/base.provider';
 import { type WalletDescriptor } from './providers/base.provider';
 import type { PaymentGatewayContribution } from './payment.gateway.types';
 import { PaymentProvider } from './payment.enums';
 import { PAYMENT_MESSAGES } from './payment.messages';
-import SettingService from '@nb/setting/server/setting.service';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 
 const PAYMENT_GATEWAY_POINT = 'payment:gateway';
 

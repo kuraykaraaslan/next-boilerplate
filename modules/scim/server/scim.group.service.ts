@@ -1,10 +1,10 @@
 import 'reflect-metadata';
 import crypto from 'crypto';
 import { IsNull, In } from 'typeorm';
-import { tenantDataSourceFor } from '@nb/db';
-import { TenantMember as TenantMemberEntity } from '@nb/tenant_member/server/entities/tenant_member.entity';
-import AuditLogService from '@nb/audit_log/server/audit_log.service';
-import { ErrorCode } from '@nb/common/server/app-error';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import { TenantMember as TenantMemberEntity } from '@kuraykaraaslan/tenant_member/server/entities/tenant_member.entity';
+import AuditLogService from '@kuraykaraaslan/audit_log/server/audit_log.service';
+import { ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { ScimError } from './scim.errors';
 import { ScimGroup as ScimGroupEntity } from './entities/scim_group.entity';
 import { ScimGroupMember as ScimGroupMemberEntity } from './entities/scim_group_member.entity';

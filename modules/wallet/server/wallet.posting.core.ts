@@ -1,10 +1,10 @@
 import 'reflect-metadata';
 import { type EntityManager } from 'typeorm';
-import { tenantDataSourceFor } from '@nb/db';
-import redis from '@nb/redis';
-import Logger from '@nb/logger';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
-import WebhookService from '@nb/webhook/server/webhook.service';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import redis from '@kuraykaraaslan/redis';
+import Logger from '@kuraykaraaslan/logger';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
+import WebhookService from '@kuraykaraaslan/webhook/server/webhook.service';
 import { WalletAccount as WalletAccountEntity } from './entities/wallet_account.entity';
 import { WalletTransaction as WalletTransactionEntity } from './entities/wallet_transaction.entity';
 import { WalletPosting as WalletPostingEntity } from './entities/wallet_posting.entity';

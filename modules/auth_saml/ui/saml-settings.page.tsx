@@ -1,14 +1,14 @@
 'use client';
 import { use, useCallback, useEffect, useState } from 'react';
-import api from '@nb/common/server/axios';
-import { PageHeader } from '@nb/common/ui/page-header.component';
-import { Card } from '@nb/common/ui/card.component';
-import { Spinner } from '@nb/common/ui/spinner.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
-import { Breadcrumb } from '@nb/common/ui/breadcrumb.component';
-import { SamlConfigForm } from '@nb/auth_saml/ui/saml-config-form.component';
-import type { SafeSamlConfig } from '@nb/auth_saml/server/auth_saml.types';
-import type { UpsertSamlConfigInput } from '@nb/auth_saml/server/auth_saml.dto';
+import api from '@kuraykaraaslan/common/server/axios';
+import { PageHeader } from '@kuraykaraaslan/common/ui/page-header.component';
+import { Card } from '@kuraykaraaslan/common/ui/card.component';
+import { Spinner } from '@kuraykaraaslan/common/ui/spinner.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
+import { Breadcrumb } from '@kuraykaraaslan/common/ui/breadcrumb.component';
+import { SamlConfigForm } from '@kuraykaraaslan/auth_saml/ui/saml-config-form.component';
+import type { SafeSamlConfig } from '@kuraykaraaslan/auth_saml/server/auth_saml.types';
+import type { UpsertSamlConfigInput } from '@kuraykaraaslan/auth_saml/server/auth_saml.dto';
 
 /**
  * Tenant SAML IdP configuration. Each tenant owns one `SamlConfig` row keyed

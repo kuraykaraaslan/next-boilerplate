@@ -1,10 +1,10 @@
 // path: app/tenant/[tenantId]/api/audit-logs/anonymize/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import AuditLogService from '@nb/audit_log/server/audit_log.service';
-import { AppError } from '@nb/common/server/app-error';
-import AuditLogMessages from '@nb/audit_log/server/audit_log.messages';
-import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
-import Limiter from '@nb/limiter/server/limiter.service.next';
+import AuditLogService from '@kuraykaraaslan/audit_log/server/audit_log.service';
+import { AppError } from '@kuraykaraaslan/common/server/app-error';
+import AuditLogMessages from '@kuraykaraaslan/audit_log/server/audit_log.messages';
+import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
 
 /**
  * POST /tenant/[tenantId]/api/audit-logs/anonymize

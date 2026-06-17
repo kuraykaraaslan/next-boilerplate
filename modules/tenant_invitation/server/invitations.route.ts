@@ -1,13 +1,13 @@
 // path: app/tenant/[tenantId]/api/invitations/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import TenantInvitationService from "@nb/tenant_invitation/server/tenant_invitation.service";
-import { SendInvitationDTO, GetInvitationsDTO } from "@nb/tenant_invitation/server/tenant_invitation.dto";
-import TenantSessionNextService from "@nb/tenant_session/server/tenant_session.service.next";
-import MailAccountTemplatesService from "@nb/notification_mail/server/notification_mail.account-templates.service";
-import Limiter from "@nb/limiter/server/limiter.service.next";
-import TenantMemberService from "@nb/tenant_member/server/tenant_member.service";
-import TenantFeatureGateService from "@nb/tenant_subscription/server/tenant_subscription.feature.service";
-import { FEATURE_KEYS } from "@nb/tenant_subscription/server/tenant_subscription.feature-keys";
+import TenantInvitationService from "@kuraykaraaslan/tenant_invitation/server/tenant_invitation.service";
+import { SendInvitationDTO, GetInvitationsDTO } from "@kuraykaraaslan/tenant_invitation/server/tenant_invitation.dto";
+import TenantSessionNextService from "@kuraykaraaslan/tenant_session/server/tenant_session.service.next";
+import MailAccountTemplatesService from "@kuraykaraaslan/notification_mail/server/notification_mail.account-templates.service";
+import Limiter from "@kuraykaraaslan/limiter/server/limiter.service.next";
+import TenantMemberService from "@kuraykaraaslan/tenant_member/server/tenant_member.service";
+import TenantFeatureGateService from "@kuraykaraaslan/tenant_subscription/server/tenant_subscription.feature.service";
+import { FEATURE_KEYS } from "@kuraykaraaslan/tenant_subscription/server/tenant_subscription.feature-keys";
 
 /**
  * GET /tenant/[tenantId]/api/invitations
@@ -94,7 +94,7 @@ export async function POST(
     );
 
     // Fetch tenant name for the email
-    const tenant = await import("@nb/tenant/server/tenant.service").then((m) =>
+    const tenant = await import("@kuraykaraaslan/tenant/server/tenant.service").then((m) =>
       m.default.getById(tenantId)
     );
 

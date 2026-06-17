@@ -1,12 +1,12 @@
 'use client';
 
-import { Badge } from '@nb/common/ui/badge.component';
-import { Avatar } from '@nb/common/ui/avatar.component';
-import { RowActionsMenu } from '@nb/common/ui/row-actions-menu.component';
-import type { TableColumn } from '@nb/common/ui/server-data-table.component';
+import { Badge } from '@kuraykaraaslan/common/ui/badge.component';
+import { Avatar } from '@kuraykaraaslan/common/ui/avatar.component';
+import { RowActionsMenu } from '@kuraykaraaslan/common/ui/row-actions-menu.component';
+import type { TableColumn } from '@kuraykaraaslan/common/ui/server-data-table.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
-import type { UserRole, UserStatus } from '@nb/user/server/user.enums';
+import type { UserRole, UserStatus } from '@kuraykaraaslan/user/server/user.enums';
 
 export type UserRow = {
   userId: string;

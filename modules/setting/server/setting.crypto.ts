@@ -1,6 +1,6 @@
 import { Setting as SettingEntity } from './entities/setting.entity';
 import { Setting, SettingSchema } from './setting.types';
-import { encryptFieldOpt, decryptFieldOpt, isEncryptedField } from '@nb/common/server/field-encryption';
+import { encryptFieldOpt, decryptFieldOpt, isEncryptedField } from '@kuraykaraaslan/common/server/field-encryption';
 import { SENSITIVE_KEYS } from './setting.validation';
 
 export function encryptValue(key: string, value: string): string {

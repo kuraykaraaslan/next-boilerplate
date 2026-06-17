@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('@nb/env', () => ({
+vi.mock('@kuraykaraaslan/env', () => ({
   env: {
     DATABASE_URL: 'postgresql://test',
     ACCESS_TOKEN_SECRET: 'test_secret',
@@ -10,12 +10,12 @@ vi.mock('@nb/env', () => ({
   },
 }));
 
-vi.mock('@nb/db', () => ({
+vi.mock('@kuraykaraaslan/db', () => ({
   getDataSource: vi.fn(),
   tenantDataSourceFor: vi.fn(),
 }));
 
-vi.mock('@nb/redis', () => ({
+vi.mock('@kuraykaraaslan/redis', () => ({
   default: {
     get: vi.fn(async () => null),
     set: vi.fn(async () => 'OK'),
@@ -31,7 +31,7 @@ vi.mock('@nb/redis', () => ({
   singleFlight: async (_key: string, fn: () => Promise<unknown>) => fn(),
   jitter: (n: number) => n,
 }));
-vi.mock('@nb/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
+vi.mock('@kuraykaraaslan/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
 
 // Mock BullMQ to avoid real Redis connections
 vi.mock('bullmq', () => ({
@@ -45,15 +45,15 @@ vi.mock('bullmq', () => ({
   Job: vi.fn(),
 }));
 
-vi.mock('@nb/redis/server/redis.bullmq', () => ({
+vi.mock('@kuraykaraaslan/redis/server/redis.bullmq', () => ({
   getBullMQConnection: vi.fn(() => ({ host: 'localhost', port: 6379 })),
 }));
 
 import WebhookDeliveryService from '../webhook.delivery.service';
-import { tenantDataSourceFor } from '@nb/db';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
 import WebhookMessages from '../webhook.messages';
-import { ROOT_TENANT_ID } from '@nb/tenant/server/tenant.constants';
-import SettingService from '@nb/setting/server/setting.service';
+import { ROOT_TENANT_ID } from '@kuraykaraaslan/tenant/server/tenant.constants';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
 
 const TENANT_ID = '550e8400-e29b-41d4-a716-446655440000';
 const USER_ID = '660e8400-e29b-41d4-a716-446655440001';

@@ -1,14 +1,14 @@
 import 'reflect-metadata'
 import { ILike } from 'typeorm'
-import { tenantDataSourceFor } from '@nb/db'
-import redis, { jitter, singleFlight } from '@nb/redis'
-import { env } from '@nb/env'
-import Logger from '@nb/logger'
+import { tenantDataSourceFor } from '@kuraykaraaslan/db'
+import redis, { jitter, singleFlight } from '@kuraykaraaslan/redis'
+import { env } from '@kuraykaraaslan/env'
+import Logger from '@kuraykaraaslan/logger'
 import { BlogPost as PostEntity } from './entities/blog_post.entity'
 import { SafeBlogPostSchema, type SafeBlogPost } from './blog.types'
 import type { CreatePostDTO, UpdatePostDTO, GetPostsQuery } from './blog.dto'
 import { BLOG_MESSAGES } from './blog.messages'
-import { AppError, ErrorCode } from '@nb/common/server/app-error'
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error'
 
 // Published posts are read-heavy and change rarely → read-through cache the
 // single-post detail path. List/search results are paginated and filter-heavy

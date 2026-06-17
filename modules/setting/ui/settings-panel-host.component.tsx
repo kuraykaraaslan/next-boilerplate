@@ -6,12 +6,12 @@
 // `onSave` sends ONLY the patch keys to `PUT /api/admin-settings` (partial upsert)
 // so saving one module's panel never clobbers another module's keys.
 import { useCallback, useEffect, useState } from 'react';
-import api from '@nb/common/server/axios';
-import { Breadcrumb } from '@nb/common/ui/breadcrumb.component';
-import { PageHeader } from '@nb/common/ui/page-header.component';
-import { Spinner } from '@nb/common/ui/spinner.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
-import type { SR } from '@nb/setting/ui/settings-kit.component';
+import api from '@kuraykaraaslan/common/server/axios';
+import { Breadcrumb } from '@kuraykaraaslan/common/ui/breadcrumb.component';
+import { PageHeader } from '@kuraykaraaslan/common/ui/page-header.component';
+import { Spinner } from '@kuraykaraaslan/common/ui/spinner.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
+import type { SR } from '@kuraykaraaslan/setting/ui/settings-kit.component';
 
 type PanelProps = { settings: SR; onSave: (patch: SR) => Promise<void>; saving: boolean };
 

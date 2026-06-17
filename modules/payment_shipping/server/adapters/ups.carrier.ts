@@ -1,8 +1,8 @@
 import axios from 'axios'
-import redis from '@nb/redis'
-import Logger from '@nb/logger'
-import SettingService from '@nb/setting/server/setting.service'
-import type { CountryCode } from '@nb/common'
+import redis from '@kuraykaraaslan/redis'
+import Logger from '@kuraykaraaslan/logger'
+import SettingService from '@kuraykaraaslan/setting/server/setting.service'
+import type { CountryCode } from '@kuraykaraaslan/common'
 import type { ShippingCarrierAdapter, CarrierRateRequest, CarrierRate, CarrierTracking, CarrierLabelRequest, CarrierLabel } from './base.carrier'
 
 /**

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('@nb/env', () => ({
+vi.mock('@kuraykaraaslan/env', () => ({
   env: {
     DATABASE_URL: 'postgresql://test',
     ACCESS_TOKEN_SECRET: 'test_secret',
@@ -37,12 +37,12 @@ const _fakeRepo = {
 };
 const _fakeDS = { getRepository: vi.fn(() => _fakeRepo) };
 
-vi.mock('@nb/db', () => ({
+vi.mock('@kuraykaraaslan/db', () => ({
   getDataSource: vi.fn(async () => _fakeDS),
   tenantDataSourceFor: vi.fn(async () => _fakeDS),
 }));
 
-vi.mock('@nb/redis', () => ({
+vi.mock('@kuraykaraaslan/redis', () => ({
   default: {
     get: vi.fn(async () => null),
     set: vi.fn(async () => 'OK'),
@@ -59,9 +59,9 @@ vi.mock('@nb/redis', () => ({
   jitter: (n: number) => n,
 }));
 
-vi.mock('@nb/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
+vi.mock('@kuraykaraaslan/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
 
-vi.mock('@nb/setting/server/setting.service', () => ({
+vi.mock('@kuraykaraaslan/setting/server/setting.service', () => ({
   default: {
     getByKeys: vi.fn(async () => ({
       openaiApiKey: 'sk-test-openai',
@@ -72,7 +72,7 @@ vi.mock('@nb/setting/server/setting.service', () => ({
   },
 }));
 
-vi.mock('@nb/tenant_usage/server/tenant_usage.service', () => ({
+vi.mock('@kuraykaraaslan/tenant_usage/server/tenant_usage.service', () => ({
   TenantUsageService: {
     getUsage: vi.fn(async () => ({ aiTokens: 0 })),
     incrementAiTokens: vi.fn(async () => {}),
@@ -84,7 +84,7 @@ vi.mock('@nb/tenant_usage/server/tenant_usage.service', () => ({
 }));
 
 // Bypass feature gating in unit tests — tested separately in tenant_subscription/.
-vi.mock('@nb/tenant_subscription/server/tenant_subscription.feature.service', () => ({
+vi.mock('@kuraykaraaslan/tenant_subscription/server/tenant_subscription.feature.service', () => ({
   default: {
     assertFeatureAccess: vi.fn(async () => undefined),
     checkFeatureAccess: vi.fn(async () => ({ allowed: true, featureKey: '', type: 'BOOLEAN', limit: null, unlimited: null, current: null })),
@@ -146,11 +146,11 @@ const CONTRIBS = [
 // Mutable per-test: which provider modules are enabled for the tenant.
 let enabledModuleIds = new Set<string>(['ai', 'ai_openai', 'ai_anthropic', 'ai_google']);
 
-vi.mock('@nb/setting/server/module-activation.service.next', () => ({
+vi.mock('@kuraykaraaslan/setting/server/module-activation.service.next', () => ({
   getEnabledModuleIds: vi.fn(async () => enabledModuleIds),
 }));
 
-vi.mock('@nb/common/server/extension-registry', () => ({
+vi.mock('@kuraykaraaslan/common/server/extension-registry', () => ({
   extensionRegistry: {
     getContributions: (point: string, filter?: { enabledIds?: Set<string> }) =>
       CONTRIBS.filter((c) => c.point === point && (!filter?.enabledIds || filter.enabledIds.has(c.moduleId))),
@@ -160,8 +160,8 @@ vi.mock('@nb/common/server/extension-registry', () => ({
 
 import AIService from '../ai.service';
 import AIProviderService from '../ai.provider.service';
-import redis from '@nb/redis';
-import { AppError } from '@nb/common/server/app-error';
+import redis from '@kuraykaraaslan/redis';
+import { AppError } from '@kuraykaraaslan/common/server/app-error';
 
 const TENANT_ID = '550e8400-e29b-41d4-a716-446655440000';
 

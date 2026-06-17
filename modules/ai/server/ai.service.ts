@@ -1,11 +1,11 @@
 import AIProviderService from './ai.provider.service';
 import AIUsageService from './ai.usage.service';
-import TenantFeatureGateService from '@nb/tenant_subscription/server/tenant_subscription.feature.service';
-import { FEATURE_KEYS } from '@nb/tenant_subscription/server/tenant_subscription.feature-keys';
-import { TenantUsageService } from '@nb/tenant_usage/server/tenant_usage.service';
-import { isRootTenant } from '@nb/tenant/server/tenant.constants';
+import TenantFeatureGateService from '@kuraykaraaslan/tenant_subscription/server/tenant_subscription.feature.service';
+import { FEATURE_KEYS } from '@kuraykaraaslan/tenant_subscription/server/tenant_subscription.feature-keys';
+import { TenantUsageService } from '@kuraykaraaslan/tenant_usage/server/tenant_usage.service';
+import { isRootTenant } from '@kuraykaraaslan/tenant/server/tenant.constants';
 import type { AIProviderType, ChatCompletionOptions, ChatCompletionResponse, EmbeddingOptions, EmbeddingResponse, ProviderConfig } from './ai.types';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import AiMessages from './ai.messages';
 
 export { AIProviderService, AIUsageService };

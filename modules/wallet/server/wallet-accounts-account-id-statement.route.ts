@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Limiter from '@nb/limiter/server/limiter.service.next';
-import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
-import { WalletService, GetStatementQuery } from '@nb/wallet';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
+import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next';
+import { WalletService, GetStatementQuery } from '@kuraykaraaslan/wallet';
 
 /**
  * GET /tenant/[tenantId]/api/wallet/accounts/[accountId]/statement

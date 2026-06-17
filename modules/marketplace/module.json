@@ -1,0 +1,113 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "marketplace",
+  "name": "Marketplace",
+  "description": "Browse, install, activate, and remove tenant modules; publish your own modules to a curated, approval-gated registry.",
+  "version": "1.0.0",
+  "icon": "fas fa-store",
+  "tags": [
+    "platform",
+    "marketplace"
+  ],
+  "priority": 6,
+  "dependencies": {
+    "requires": [
+      "db",
+      "env",
+      "setting",
+      "audit_log",
+      "auth",
+      "tenant",
+      "storage",
+      "common"
+    ]
+  },
+  "menu": [
+    {
+      "id": "marketplace",
+      "label": "Marketplace",
+      "href": "/admin/marketplace",
+      "icon": "fas fa-store",
+      "group": "Configuration",
+      "order": 4,
+      "scope": "tenant"
+    },
+    {
+      "id": "marketplace-developer",
+      "label": "Developer",
+      "href": "/admin/developer",
+      "icon": "fas fa-code",
+      "group": "Configuration",
+      "order": 6,
+      "scope": "tenant"
+    },
+    {
+      "id": "marketplace-review",
+      "label": "Module Review",
+      "href": "/admin/marketplace/review",
+      "icon": "fas fa-clipboard-check",
+      "group": "Platform",
+      "order": 30,
+      "scope": "system"
+    }
+  ],
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/marketplace",
+  "license": "CC-BY-NC-ND-4.0",
+  "routes": [
+    {
+      "path": "/admin/marketplace",
+      "component": "marketplace/ui/marketplace.page"
+    },
+    {
+      "path": "/admin/developer",
+      "component": "marketplace/ui/developer.page"
+    },
+    {
+      "path": "/admin/marketplace/review",
+      "component": "marketplace/ui/review.page"
+    }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/marketplace",
+      "handler": "marketplace/server/marketplace.route"
+    },
+    {
+      "path": "/api/marketplace/community",
+      "handler": "marketplace/server/community.route"
+    },
+    {
+      "path": "/api/marketplace/publisher",
+      "handler": "marketplace/server/publisher.route"
+    },
+    {
+      "path": "/api/marketplace/listings",
+      "handler": "marketplace/server/listings.route"
+    },
+    {
+      "path": "/api/marketplace/listings/[listingId]/versions",
+      "handler": "marketplace/server/listings-versions.route"
+    },
+    {
+      "path": "/api/marketplace/review",
+      "handler": "marketplace/server/review.route"
+    },
+    {
+      "path": "/api/marketplace/review/[versionId]",
+      "handler": "marketplace/server/review-item.route"
+    },
+    {
+      "path": "/api/marketplace/publishers/[publisherId]",
+      "handler": "marketplace/server/publishers-item.route"
+    },
+    {
+      "path": "/api/marketplace/[moduleId]",
+      "handler": "marketplace/server/marketplace-item.route"
+    },
+    {
+      "path": "/api/marketplace/[moduleId]/install",
+      "handler": "marketplace/server/marketplace-install.route"
+    }
+  ]
+}

@@ -1,12 +1,12 @@
-import Logger from '@nb/logger'
-import { tenantDataSourceFor } from '@nb/db'
-import redis from '@nb/redis'
-import { AppError, ErrorCode } from '@nb/common/server/app-error'
+import Logger from '@kuraykaraaslan/logger'
+import { tenantDataSourceFor } from '@kuraykaraaslan/db'
+import redis from '@kuraykaraaslan/redis'
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error'
 import { Payment as PaymentEntity } from './entities/payment.entity'
 import PaymentSellService from './payment_sell.service'
 import { PAYMENT_SELL_MESSAGES } from './payment_sell.messages'
-import type { NormalizedWebhookEvent } from '@nb/payment_core/server/payment_core.types'
-import type { PaymentProvider } from '@nb/payment_core/server/payment_core.enums'
+import type { NormalizedWebhookEvent } from '@kuraykaraaslan/payment_core/server/payment_core.types'
+import type { PaymentProvider } from '@kuraykaraaslan/payment_core/server/payment_core.enums'
 
 export default class PaymentSellWebhookService {
 

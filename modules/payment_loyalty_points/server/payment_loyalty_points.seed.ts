@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import type { FindOptionsWhere } from 'typeorm';
-import type { SeedContext } from '@nb/seed/server/seed.context';
-import { SEED_USER_ID, SEED_ADMIN_USER_ID, SEED_ORDER_ID } from '@nb/seed/server/seed.context';
+import type { SeedContext } from '@kuraykaraaslan/seed/server/seed.context';
+import { SEED_USER_ID, SEED_ADMIN_USER_ID, SEED_ORDER_ID } from '@kuraykaraaslan/seed/server/seed.context';
 import { LoyaltyTier } from './entities/loyalty_tier.entity';
 import { LoyaltyAccount } from './entities/loyalty_account.entity';
 import { LoyaltyTransaction } from './entities/loyalty_transaction.entity';

@@ -1,7 +1,7 @@
-import Limiter from '@nb/limiter/server/limiter.service.next';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
 import { NextRequest, NextResponse } from 'next/server';
-import TenantSubscriptionService from '@nb/tenant_subscription/server/tenant_subscription.service';
-import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
+import TenantSubscriptionService from '@kuraykaraaslan/tenant_subscription/server/tenant_subscription.service';
+import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next';
 
 export async function GET(
   request: NextRequest,

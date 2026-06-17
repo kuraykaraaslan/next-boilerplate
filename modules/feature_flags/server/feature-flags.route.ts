@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Limiter from '@nb/limiter/server/limiter.service.next';
-import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
-import { FeatureFlagsService, CreateFlagDTO, ListFlagsQuery } from '@nb/feature_flags';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
+import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next';
+import { FeatureFlagsService, CreateFlagDTO, ListFlagsQuery } from '@kuraykaraaslan/feature_flags';
 
 /**
  * GET /tenant/[tenantId]/api/feature-flags

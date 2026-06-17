@@ -1,11 +1,11 @@
 'use client';
 
-import { Card } from '@nb/common/ui/card.component';
-import { Badge } from '@nb/common/ui/badge.component';
-import { Button } from '@nb/common/ui/button.component';
+import { Card } from '@kuraykaraaslan/common/ui/card.component';
+import { Badge } from '@kuraykaraaslan/common/ui/badge.component';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendar, faFlask, faClock, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
-import type { TenantSubscriptionWithPlan } from '@nb/tenant_subscription/server/tenant_subscription.types';
+import type { TenantSubscriptionWithPlan } from '@kuraykaraaslan/tenant_subscription/server/tenant_subscription.types';
 import {
   STATUS_VARIANT, intervalLabel, intervalShortLabel, formatDate, formatPrice,
 } from './subscription.helpers';

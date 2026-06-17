@@ -1,6 +1,6 @@
-import { getDataSource } from '@nb/db';
-import { User as UserEntity } from '@nb/user/server/entities/user.entity';
-import type { CountryCode } from '@nb/e_signature/server/e_signature.types';
+import { getDataSource } from '@kuraykaraaslan/db';
+import { User as UserEntity } from '@kuraykaraaslan/user/server/entities/user.entity';
+import type { CountryCode } from '@kuraykaraaslan/e_signature/server/e_signature.types';
 
 /**
  * Best-effort fallback user matching for e-signature LOGIN when the presented

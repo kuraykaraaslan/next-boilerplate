@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { X509Certificate } from '@peculiar/x509';
-import Logger from '@nb/logger';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import Logger from '@kuraykaraaslan/logger';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { E_SIGNATURE_MESSAGES } from './e_signature.messages';
 
 export function loadCertificate(derOrPem: Buffer): X509Certificate {

@@ -1,5 +1,5 @@
 import { type FindOptionsWhere, Between, LessThanOrEqual, MoreThanOrEqual, ILike } from 'typeorm';
-import { tenantDataSourceFor } from '@nb/db';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
 import {
   NotificationLog,
   NotificationChannel,

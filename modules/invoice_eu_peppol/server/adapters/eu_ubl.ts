@@ -1,6 +1,6 @@
-import type { Invoice } from '@nb/invoice/server/entities/invoice.entity';
-import type { InvoiceLine } from '@nb/invoice/server/entities/invoice_line.entity';
-import { readTaxBreakdown } from '@nb/invoice/server/adapters/xml.util';
+import type { Invoice } from '@kuraykaraaslan/invoice/server/entities/invoice.entity';
+import type { InvoiceLine } from '@kuraykaraaslan/invoice/server/entities/invoice_line.entity';
+import { readTaxBreakdown } from '@kuraykaraaslan/invoice/server/adapters/xml.util';
 
 /**
  * Real UBL 2.1 / EN 16931 (Peppol BIS Billing 3.0) invoice serialiser.

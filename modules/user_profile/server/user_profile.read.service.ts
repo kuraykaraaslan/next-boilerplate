@@ -1,6 +1,6 @@
 import 'reflect-metadata';
-import { getDataSource } from '@nb/db';
-import redis, { jitter, singleFlight } from '@nb/redis';
+import { getDataSource } from '@kuraykaraaslan/db';
+import redis, { jitter, singleFlight } from '@kuraykaraaslan/redis';
 import { UserProfile as UserProfileEntity } from './entities/user_profile.entity';
 import { UserProfile, UserProfileSchema } from './user_profile.types';
 import { ProfileVisibility } from './user_profile.enums';

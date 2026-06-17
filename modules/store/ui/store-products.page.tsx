@@ -2,17 +2,17 @@
 
 import { use, useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import api from '@nb/common/server/axios';
-import { ServerDataTable } from '@nb/common/ui/server-data-table.component';
-import { PageHeader } from '@nb/common/ui/page-header.component';
-import { Input } from '@nb/common/ui/input.component';
-import { Select } from '@nb/common/ui/select.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
-import { toast } from '@nb/common/ui/toast.store';
+import api from '@kuraykaraaslan/common/server/axios';
+import { ServerDataTable } from '@kuraykaraaslan/common/ui/server-data-table.component';
+import { PageHeader } from '@kuraykaraaslan/common/ui/page-header.component';
+import { Input } from '@kuraykaraaslan/common/ui/input.component';
+import { Select } from '@kuraykaraaslan/common/ui/select.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
+import { toast } from '@kuraykaraaslan/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faSearch } from '@fortawesome/free-solid-svg-icons';
-import { buildProductColumns, type ProductRow } from '@nb/store/ui/product-list-columns.component';
-import { ProductCreateModal } from '@nb/store/ui/product-create-modal.component';
+import { buildProductColumns, type ProductRow } from '@kuraykaraaslan/store/ui/product-list-columns.component';
+import { ProductCreateModal } from '@kuraykaraaslan/store/ui/product-create-modal.component';
 
 type Category = { categoryId: string; name: string };
 const PAGE_SIZE = 20;

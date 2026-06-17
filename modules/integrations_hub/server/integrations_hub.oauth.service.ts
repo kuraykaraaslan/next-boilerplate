@@ -1,11 +1,11 @@
 import 'reflect-metadata';
 import crypto from 'crypto';
-import { tenantDataSourceFor } from '@nb/db';
-import Logger from '@nb/logger';
-import WebhookService from '@nb/webhook/server/webhook.service';
-import SettingService from '@nb/setting/server/setting.service';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
-import { encryptFieldOpt, decryptFieldOpt } from '@nb/common/server/field-encryption';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import Logger from '@kuraykaraaslan/logger';
+import WebhookService from '@kuraykaraaslan/webhook/server/webhook.service';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
+import { encryptFieldOpt, decryptFieldOpt } from '@kuraykaraaslan/common/server/field-encryption';
 import { ConnectedApp as ConnectedAppEntity } from './entities/connected_app.entity';
 import { OAuthToken as OAuthTokenEntity } from './entities/oauth_token.entity';
 import { ConnectedAppSchema } from './integrations_hub.types';

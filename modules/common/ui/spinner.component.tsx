@@ -1,5 +1,5 @@
 'use client';
-import { cn } from '@nb/common/server/utils/cn';
+import { cn } from '@kuraykaraaslan/common/server/utils/cn';
 
 const sizeMap = {
   xs:  'h-3 w-3 border',

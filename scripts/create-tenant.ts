@@ -18,11 +18,11 @@
 import 'reflect-metadata';
 import 'dotenv/config';
 import { DataSource } from 'typeorm';
-import { env } from '@nb/env';
-import { User } from '@nb/user/server/entities/user.entity';
-import { Tenant } from '@nb/tenant/server/entities/tenant.entity';
-import { TenantMember } from '@nb/tenant_member/server/entities/tenant_member.entity';
-import { TenantDomain } from '@nb/tenant_domain/server/entities/tenant_domain.entity';
+import { env } from '@kuraykaraaslan/env';
+import { User } from '@kuraykaraaslan/user/server/entities/user.entity';
+import { Tenant } from '@kuraykaraaslan/tenant/server/entities/tenant.entity';
+import { TenantMember } from '@kuraykaraaslan/tenant_member/server/entities/tenant_member.entity';
+import { TenantDomain } from '@kuraykaraaslan/tenant_domain/server/entities/tenant_domain.entity';
 
 function parseFlags(argv: string[]): Record<string, string | boolean> {
   const out: Record<string, string | boolean> = {};

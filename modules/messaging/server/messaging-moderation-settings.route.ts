@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Limiter from '@nb/limiter/server/limiter.service.next';
-import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
-import SettingService from '@nb/setting/server/setting.service';
-import { UpdateModerationSettingsDTO } from '@nb/messaging/server/messaging.dto';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
+import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
+import { UpdateModerationSettingsDTO } from '@kuraykaraaslan/messaging/server/messaging.dto';
 import {
   MESSAGING_MODERATION_KEYS,
   MESSAGING_MODERATION_DEFAULTS,
-} from '@nb/messaging/server/messaging.moderation.setting.keys';
+} from '@kuraykaraaslan/messaging/server/messaging.moderation.setting.keys';
 
 /**
  * GET /tenant/[tenantId]/api/messaging/moderation/settings

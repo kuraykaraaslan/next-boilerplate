@@ -1,10 +1,10 @@
 import 'reflect-metadata';
-import { tenantDataSourceFor } from '@nb/db';
-import Logger from '@nb/logger';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
-import { WalletService } from '@nb/wallet';
-import InvoiceService from '@nb/invoice/server/invoice.service';
-import type { CreateInvoiceInput } from '@nb/invoice/server/invoice.types';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import Logger from '@kuraykaraaslan/logger';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
+import { WalletService } from '@kuraykaraaslan/wallet';
+import InvoiceService from '@kuraykaraaslan/invoice/server/invoice.service';
+import type { CreateInvoiceInput } from '@kuraykaraaslan/invoice/server/invoice.types';
 import { MeteredBillingRun as MeteredBillingRunEntity } from './entities/metered_billing_run.entity';
 import { MeteredBillingRunSchema, type MeteredBillingRun } from './metering.types';
 import type { RunBillingDTO } from './metering.dto';

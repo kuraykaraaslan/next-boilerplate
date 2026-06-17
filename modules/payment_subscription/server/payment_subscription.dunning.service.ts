@@ -1,8 +1,8 @@
 import 'reflect-metadata'
-import { tenantDataSourceFor } from '@nb/db'
-import Logger from '@nb/logger'
-import SettingService from '@nb/setting/server/setting.service'
-import WebhookService from '@nb/webhook/server/webhook.service'
+import { tenantDataSourceFor } from '@kuraykaraaslan/db'
+import Logger from '@kuraykaraaslan/logger'
+import SettingService from '@kuraykaraaslan/setting/server/setting.service'
+import WebhookService from '@kuraykaraaslan/webhook/server/webhook.service'
 import { Subscription as SubscriptionEntity } from './entities/subscription.entity'
 import PaymentSubscriptionLifecycleService from './payment_subscription.lifecycle.service'
 

@@ -1,9 +1,9 @@
 import axios from 'axios'
 import { XMLParser } from 'fast-xml-parser'
-import redis, { jitter, singleFlight } from '@nb/redis'
-import Logger from '@nb/logger'
+import redis, { jitter, singleFlight } from '@kuraykaraaslan/redis'
+import Logger from '@kuraykaraaslan/logger'
 import { EXCHANGE_RATE_MESSAGES } from './exchange_rate.messages'
-import { AppError, ErrorCode } from '@nb/common/server/app-error'
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error'
 import { ExchangeRateQuoteSchema } from './exchange_rate.types'
 
 /**

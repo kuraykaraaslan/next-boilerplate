@@ -1,6 +1,6 @@
 import type { ComponentType } from 'react'
 
-export type { BlockData, DynamicPageBlockRecord } from '@nb/dynamic_page/server/dynamic_page.types'
+export type { BlockData, DynamicPageBlockRecord } from '@kuraykaraaslan/dynamic_page/server/dynamic_page.types'
 
 export type FieldType =
   | 'text' | 'url' | 'textarea' | 'color' | 'boolean' | 'number'

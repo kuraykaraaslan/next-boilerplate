@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TENANT_ID, ACTOR_ID, mockLog, makeRepo } from './audit_log.test-setup';
 import AuditLogService from '../audit_log.service';
-import { tenantDataSourceFor, getSystemDataSource } from '@nb/db';
-import { ROOT_TENANT_ID } from '@nb/tenant/server/tenant.constants';
+import { tenantDataSourceFor, getSystemDataSource } from '@kuraykaraaslan/db';
+import { ROOT_TENANT_ID } from '@kuraykaraaslan/tenant/server/tenant.constants';
 
 describe('AuditLogService.getAll', () => {
   beforeEach(() => vi.clearAllMocks());

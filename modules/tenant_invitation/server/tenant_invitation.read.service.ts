@@ -1,13 +1,13 @@
 import 'reflect-metadata';
 import type { FindOptionsWhere } from 'typeorm';
-import { getDataSource, tenantDataSourceFor } from '@nb/db';
-import redis, { jitter, singleFlight } from '@nb/redis';
+import { getDataSource, tenantDataSourceFor } from '@kuraykaraaslan/db';
+import redis, { jitter, singleFlight } from '@kuraykaraaslan/redis';
 import { TenantInvitation as TenantInvitationEntity } from './entities/tenant_invitation.entity';
-import { Tenant as TenantEntity } from '@nb/tenant/server/entities/tenant.entity';
+import { Tenant as TenantEntity } from '@kuraykaraaslan/tenant/server/entities/tenant.entity';
 import { SafeTenantInvitation, SafeTenantInvitationSchema } from './tenant_invitation.types';
 import { GetInvitationsInput } from './tenant_invitation.dto';
 import TenantInvitationMessages from './tenant_invitation.messages';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { INVITATION_CACHE_TTL, NEGATIVE_CACHE_TTL, NEG, hashToken, assertUsable } from './tenant_invitation.helpers';
 
 export async function getByTenantId({ tenantId, page, pageSize, status }: GetInvitationsInput): Promise<{ invitations: SafeTenantInvitation[]; total: number }> {

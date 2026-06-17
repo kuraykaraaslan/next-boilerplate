@@ -1,8 +1,8 @@
 import 'reflect-metadata';
-import { getDataSource } from '@nb/db';
+import { getDataSource } from '@kuraykaraaslan/db';
 import { UserProfile as UserProfileEntity } from './entities/user_profile.entity';
 import { UserProfile, UserProfileSchema, SocialLinkItem, SocialLinkItemSchema } from './user_profile.types';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import UserProfileMessages from './user_profile.messages';
 import { clearCache } from './user_profile.helpers';
 

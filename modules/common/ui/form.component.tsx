@@ -1,6 +1,6 @@
 'use client';
-import { cn } from '@nb/common/server/utils/cn';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
+import { cn } from '@kuraykaraaslan/common/server/utils/cn';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
 
 type FormProps = {
   title?: string;

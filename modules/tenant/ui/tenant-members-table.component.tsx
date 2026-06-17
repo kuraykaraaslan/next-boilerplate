@@ -1,16 +1,16 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { Button } from '@nb/common/ui/button.component';
-import { Badge } from '@nb/common/ui/badge.component';
-import { Input } from '@nb/common/ui/input.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
-import { Modal } from '@nb/common/ui/modal.component';
-import { ServerDataTable, type TableColumn } from '@nb/common/ui/server-data-table.component';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import { Badge } from '@kuraykaraaslan/common/ui/badge.component';
+import { Input } from '@kuraykaraaslan/common/ui/input.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
+import { Modal } from '@kuraykaraaslan/common/ui/modal.component';
+import { ServerDataTable, type TableColumn } from '@kuraykaraaslan/common/ui/server-data-table.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faUser } from '@fortawesome/free-solid-svg-icons';
-import type { TenantMemberRole as MemberRole, TenantMemberStatus as MemberStatus } from '@nb/tenant_member/server/tenant_member.enums';
-import api from '@nb/common/server/axios';
+import type { TenantMemberRole as MemberRole, TenantMemberStatus as MemberStatus } from '@kuraykaraaslan/tenant_member/server/tenant_member.enums';
+import api from '@kuraykaraaslan/common/server/axios';
 
 type Member = {
   tenantMemberId: string;

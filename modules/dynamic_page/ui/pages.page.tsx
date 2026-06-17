@@ -2,21 +2,21 @@
 
 import { use, useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import api from '@nb/common/server/axios';
-import { ServerDataTable } from '@nb/common/ui/server-data-table.component';
-import { PageHeader } from '@nb/common/ui/page-header.component';
-import { Button } from '@nb/common/ui/button.component';
-import { Input } from '@nb/common/ui/input.component';
-import { Select } from '@nb/common/ui/select.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
-import { toast } from '@nb/common/ui/toast.store';
+import api from '@kuraykaraaslan/common/server/axios';
+import { ServerDataTable } from '@kuraykaraaslan/common/ui/server-data-table.component';
+import { PageHeader } from '@kuraykaraaslan/common/ui/page-header.component';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import { Input } from '@kuraykaraaslan/common/ui/input.component';
+import { Select } from '@kuraykaraaslan/common/ui/select.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
+import { toast } from '@kuraykaraaslan/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faSearch, faPenToSquare, faBars, faWindowMinimize } from '@fortawesome/free-solid-svg-icons';
 import {
   buildDynamicPageColumns,
   type DynamicPage,
-} from '@nb/dynamic_page/ui/dynamic-page-columns.component';
-import { DynamicPageCreateModal } from '@nb/dynamic_page/ui/dynamic-page-create-modal.component';
+} from '@kuraykaraaslan/dynamic_page/ui/dynamic-page-columns.component';
+import { DynamicPageCreateModal } from '@kuraykaraaslan/dynamic_page/ui/dynamic-page-create-modal.component';
 
 const PAGE_SIZE = 20;
 

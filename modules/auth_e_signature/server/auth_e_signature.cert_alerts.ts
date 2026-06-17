@@ -1,9 +1,9 @@
 import 'reflect-metadata';
 import { LessThan, MoreThan } from 'typeorm';
-import { getDataSource } from '@nb/db';
-import redis from '@nb/redis';
-import Logger from '@nb/logger';
-import WebhookService from '@nb/webhook/server/webhook.service';
+import { getDataSource } from '@kuraykaraaslan/db';
+import redis from '@kuraykaraaslan/redis';
+import Logger from '@kuraykaraaslan/logger';
+import WebhookService from '@kuraykaraaslan/webhook/server/webhook.service';
 import { SigningCertificate } from './entities/signing_certificate.entity';
 
 /**

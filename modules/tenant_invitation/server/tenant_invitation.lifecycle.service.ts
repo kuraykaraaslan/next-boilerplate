@@ -1,16 +1,16 @@
 import 'reflect-metadata';
 import { MoreThan } from 'typeorm';
-import { getDataSource, tenantDataSourceFor } from '@nb/db';
-import redis from '@nb/redis';
-import { User as UserEntity } from '@nb/user/server/entities/user.entity';
+import { getDataSource, tenantDataSourceFor } from '@kuraykaraaslan/db';
+import redis from '@kuraykaraaslan/redis';
+import { User as UserEntity } from '@kuraykaraaslan/user/server/entities/user.entity';
 import { TenantInvitation as TenantInvitationEntity } from './entities/tenant_invitation.entity';
 import { SafeTenantInvitation, SafeTenantInvitationSchema } from './tenant_invitation.types';
 import { SendInvitationInput } from './tenant_invitation.dto';
 import TenantInvitationMessages from './tenant_invitation.messages';
-import TenantMemberService from '@nb/tenant_member/server/tenant_member.service';
-import type { TenantMemberRole } from '@nb/tenant_member/server/tenant_member.enums';
-import WebhookService from '@nb/webhook/server/webhook.service';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import TenantMemberService from '@kuraykaraaslan/tenant_member/server/tenant_member.service';
+import type { TenantMemberRole } from '@kuraykaraaslan/tenant_member/server/tenant_member.enums';
+import WebhookService from '@kuraykaraaslan/webhook/server/webhook.service';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import {
   clearCache, hashToken, generateRawToken, resolveTtlMs, assertRoleAllowed, assertUsable,
 } from './tenant_invitation.helpers';

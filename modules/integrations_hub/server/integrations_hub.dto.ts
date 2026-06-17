@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { ConnectorAuthTypeEnum, ConnectedAppStatusEnum } from './integrations_hub.enums';
-import { ApiKeyScopeEnum } from '@nb/api_key/server/api_key.enums';
+import { ApiKeyScopeEnum } from '@kuraykaraaslan/api_key/server/api_key.enums';
 
 const ConnectorKey = z
   .string()

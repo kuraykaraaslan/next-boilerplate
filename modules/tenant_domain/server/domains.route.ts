@@ -1,9 +1,9 @@
 // path: app/tenant/[tenantId]/api/domains/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import TenantDomainService from "@nb/tenant_domain/server/tenant_domain.service";
-import TenantSessionNextService from "@nb/tenant_session/server/tenant_session.service.next";
-import { CreateTenantDomainDTO } from "@nb/tenant_domain/server/tenant_domain.dto";
-import Limiter from "@nb/limiter/server/limiter.service.next";
+import TenantDomainService from "@kuraykaraaslan/tenant_domain/server/tenant_domain.service";
+import TenantSessionNextService from "@kuraykaraaslan/tenant_session/server/tenant_session.service.next";
+import { CreateTenantDomainDTO } from "@kuraykaraaslan/tenant_domain/server/tenant_domain.dto";
+import Limiter from "@kuraykaraaslan/limiter/server/limiter.service.next";
 
 /**
  * GET /tenant/[tenantId]/api/domains

@@ -1,5 +1,5 @@
 'use client';
-import { Badge } from '@nb/common/ui/badge.component';
+import { Badge } from '@kuraykaraaslan/common/ui/badge.component';
 
 export type PostStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
 export type CommentStatus = 'NOT_PUBLISHED' | 'PUBLISHED' | 'SPAM';

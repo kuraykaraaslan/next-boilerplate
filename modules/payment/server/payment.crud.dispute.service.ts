@@ -1,12 +1,12 @@
 import 'reflect-metadata';
-import { getDataSource, tenantDataSourceFor } from '@nb/db';
-import AuditLogService from '@nb/audit_log/server/audit_log.service';
+import { getDataSource, tenantDataSourceFor } from '@kuraykaraaslan/db';
+import AuditLogService from '@kuraykaraaslan/audit_log/server/audit_log.service';
 import { Payment as PaymentEntity } from './entities/payment.entity';
 import { PaymentProvider, PaymentCurrency } from './payment.enums';
 import { SafePayment, PaymentTransaction } from './payment.types';
 import { RefundPaymentDTO } from './payment.dto';
 import { PAYMENT_MESSAGES } from './payment.messages';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import PaymentTransactionService from './payment.transaction.service';
 import { clearPaymentCache } from './payment.crud.helpers';
 import { getById } from './payment.crud.read.service';

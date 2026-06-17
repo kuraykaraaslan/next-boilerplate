@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, Index } from 'typeorm';
-import { DEFAULT_CURRENCY } from '@nb/common';
+import { DEFAULT_CURRENCY } from '@kuraykaraaslan/common';
 
 @Entity('shipping_rates')
 export class ShippingRate {

@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { PaymentProviderEnum, PaymentMethodEnum, PaymentCurrencyEnum } from '@nb/payment_core/server/payment_core.enums'
+import { PaymentProviderEnum, PaymentMethodEnum, PaymentCurrencyEnum } from '@kuraykaraaslan/payment_core/server/payment_core.enums'
 import { PaymentStatusEnum, TransactionTypeEnum, TransactionStatusEnum } from './payment_sell.enums'
 import { BillingAddressSchema } from './payment_sell.types'
 

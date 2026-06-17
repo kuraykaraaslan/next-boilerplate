@@ -1,6 +1,6 @@
 import 'reflect-metadata';
-import { TenantMember as TenantMemberEntity } from '@nb/tenant_member/server/entities/tenant_member.entity';
-import { User as UserEntity } from '@nb/user/server/entities/user.entity';
+import { TenantMember as TenantMemberEntity } from '@kuraykaraaslan/tenant_member/server/entities/tenant_member.entity';
+import { User as UserEntity } from '@kuraykaraaslan/user/server/entities/user.entity';
 import { type ScimUser, type ScimListResponse, type ScimPatchOperation } from './scim.types';
 import type { CreateScimUserInput, UpdateScimUserInput, ListScimUsersInput } from './scim.dto';
 import { toScimUser, parseFilter } from './scim.user.serialize';

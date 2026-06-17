@@ -2,8 +2,8 @@ import crypto from 'crypto';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 const redisSet = vi.fn();
-vi.mock('@nb/redis', () => ({ default: { set: (...a: unknown[]) => redisSet(...a) } }));
-vi.mock('@nb/observability', () => ({ default: { recordTenantUsage: vi.fn() } }));
+vi.mock('@kuraykaraaslan/redis', () => ({ default: { set: (...a: unknown[]) => redisSet(...a) } }));
+vi.mock('@kuraykaraaslan/observability', () => ({ default: { recordTenantUsage: vi.fn() } }));
 
 import { BaseSamlProvider, assertSamlNotReplayed } from '../saml.engine';
 

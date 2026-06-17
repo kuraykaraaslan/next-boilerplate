@@ -1,12 +1,12 @@
 import 'reflect-metadata';
-import { getDataSource } from '@nb/db';
-import redis, { jitter, singleFlight } from '@nb/redis';
+import { getDataSource } from '@kuraykaraaslan/db';
+import redis, { jitter, singleFlight } from '@kuraykaraaslan/redis';
 import { ApiKey as ApiKeyEntity } from './entities/api_key.entity';
 import { SafeApiKey, SafeApiKeySchema } from './api_key.types';
 import ApiKeyMessages from './api_key.messages';
 import { scopeSatisfies } from './api_key.enums';
-import { ipMatchesAllowlist } from '@nb/network';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { ipMatchesAllowlist } from '@kuraykaraaslan/network';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { hashKey } from './api_key.crypto';
 import { API_KEY_CACHE_TTL, NEG, getNegativeCacheTtl } from './api_key.cache';
 import { getTenantPolicy } from './api_key.policy';

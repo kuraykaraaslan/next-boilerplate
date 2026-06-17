@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import type { RegistrationResponseJSON, AuthenticationResponseJSON } from '@simplewebauthn/server';
-import { SafeUser } from '@nb/user/server/user.types';
+import { SafeUser } from '@kuraykaraaslan/user/server/user.types';
 import { generateRegistrationOptions, verifyRegistration } from './user_security.passkey.register.service';
 import { generateAuthenticationOptions, verifyAuthentication } from './user_security.passkey.authenticate.service';
 

@@ -18,7 +18,7 @@
  * calls per your contract; the surface (submit/cancel/status) stays.
  */
 import axios, { AxiosInstance } from 'axios';
-import Logger from '@nb/logger';
+import Logger from '@kuraykaraaslan/logger';
 
 export interface ForibaSubmitRequest {
   ublXml: string;

@@ -1,7 +1,7 @@
-import Limiter from '@nb/limiter/server/limiter.service.next';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
 import { NextRequest, NextResponse } from 'next/server';
-import IntegrationsHubService from '@nb/integrations_hub/server/integrations_hub.service';
-import { OAuthCallbackQuerySchema } from '@nb/integrations_hub/server/integrations_hub.dto';
+import IntegrationsHubService from '@kuraykaraaslan/integrations_hub/server/integrations_hub.service';
+import { OAuthCallbackQuerySchema } from '@kuraykaraaslan/integrations_hub/server/integrations_hub.dto';
 
 /**
  * GET /tenant/[tenantId]/api/integrations/oauth/callback

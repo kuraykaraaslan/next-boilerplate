@@ -1,6 +1,6 @@
-import { ROOT_TENANT_ID } from '@nb/tenant/server/tenant.constants';
+import { ROOT_TENANT_ID } from '@kuraykaraaslan/tenant/server/tenant.constants';
 import { SUBSCRIPTION_MESSAGES } from './tenant_subscription.messages';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import TenantPlanService from './tenant_subscription.plan.service';
 
 /**
@@ -10,7 +10,7 @@ import TenantPlanService from './tenant_subscription.plan.service';
  */
 export async function getDefaultPlanId(): Promise<string | null> {
   try {
-    const SettingService = (await import('@nb/setting/server/setting.service')).default;
+    const SettingService = (await import('@kuraykaraaslan/setting/server/setting.service')).default;
     const val = await SettingService.getValue(ROOT_TENANT_ID, 'defaultPlanId');
     return val && val.trim() ? val.trim() : null;
   } catch {
@@ -33,6 +33,6 @@ export async function setDefaultPlanId(planId: string | null): Promise<void> {
       throw new AppError(SUBSCRIPTION_MESSAGES.DEFAULT_PLAN_NOT_FREE, 422, ErrorCode.VALIDATION_ERROR);
     }
   }
-  const SettingService = (await import('@nb/setting/server/setting.service')).default;
+  const SettingService = (await import('@kuraykaraaslan/setting/server/setting.service')).default;
   await SettingService.updateMany(ROOT_TENANT_ID, { defaultPlanId: planId ?? '' });
 }

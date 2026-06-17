@@ -2,7 +2,7 @@
 // (auth_acs_<key>) contributing to the auth_acs:provider extension point, then
 // rewrite auth_acs providers/index to resolve purely via the extension registry.
 // Base classes (base.saml.provider, base.oidc.provider) STAY in the host —
-// satellites extend them via @nb/auth_acs/server/providers/base.*.
+// satellites extend them via @kuraykaraaslan/auth_acs/server/providers/base.*.
 import fs from 'node:fs';
 
 const HOST = 'modules/auth_acs/server/providers';
@@ -23,13 +23,13 @@ const P = {
   esia_ru: { cls: 'EsiaProvider', label: 'Госуслуги', country: 'RU' },
 };
 
-// Rewrite intra-host relative imports to absolute @nb/auth_acs/server paths so
+// Rewrite intra-host relative imports to absolute @kuraykaraaslan/auth_acs/server paths so
 // the moved provider file resolves from its new satellite location.
 const fixImports = (s) =>
   s
-    .replace(/from '\.\/base\.saml\.provider'/g, "from '@nb/auth_acs/server/providers/base.saml.provider'")
-    .replace(/from '\.\/base\.oidc\.provider'/g, "from '@nb/auth_acs/server/providers/base.oidc.provider'")
-    .replace(/from '\.\.\//g, "from '@nb/auth_acs/server/"); // ../auth_acs.X -> @nb/auth_acs/server/auth_acs.X
+    .replace(/from '\.\/base\.saml\.provider'/g, "from '@kuraykaraaslan/auth_acs/server/providers/base.saml.provider'")
+    .replace(/from '\.\/base\.oidc\.provider'/g, "from '@kuraykaraaslan/auth_acs/server/providers/base.oidc.provider'")
+    .replace(/from '\.\.\//g, "from '@kuraykaraaslan/auth_acs/server/"); // ../auth_acs.X -> @kuraykaraaslan/auth_acs/server/auth_acs.X
 
 for (const [key, meta] of Object.entries(P)) {
   const mod = `modules/auth_acs_${key}`;
@@ -42,7 +42,7 @@ for (const [key, meta] of Object.entries(P)) {
 
   fs.writeFileSync(
     `${mod}/server/${key}.extension.ts`,
-    `import type { AcsProviderContribution } from '@nb/auth_acs/server/auth_acs.provider.types';\n` +
+    `import type { AcsProviderContribution } from '@kuraykaraaslan/auth_acs/server/auth_acs.provider.types';\n` +
       `import { ${meta.cls} } from './providers/${key}.provider';\n\n` +
       `/**\n * ${meta.label} (${meta.country}) contribution for the \`auth_acs:provider\` extension\n` +
       ` * point. The host (auth_acs providers/index) discovers this via the extension\n` +
@@ -82,7 +82,7 @@ for (const [key, meta] of Object.entries(P)) {
 
   fs.writeFileSync(
     `${mod}/package.json`,
-    JSON.stringify({ name: `@nb/auth_acs_${key}`, version: '0.0.0', private: true, type: 'module', exports: {} }, null, 2) + '\n',
+    JSON.stringify({ name: `@kuraykaraaslan/auth_acs_${key}`, version: '0.0.0', private: true, type: 'module', exports: {} }, null, 2) + '\n',
   );
   console.log(`extracted ${key} -> ${mod}`);
 }
@@ -91,7 +91,7 @@ for (const [key, meta] of Object.entries(P)) {
 const IDX = `${HOST}/index.ts`;
 fs.writeFileSync(
   IDX,
-  `import { extensionRegistry } from '@nb/common/server/extension-registry';\n` +
+  `import { extensionRegistry } from '@kuraykaraaslan/common/server/extension-registry';\n` +
     `import type { AcsProvider } from '../auth_acs.enums';\n` +
     `import type { AcsProviderService } from '../auth_acs.types';\n` +
     `import type { AcsProviderContribution } from '../auth_acs.provider.types';\n\n` +

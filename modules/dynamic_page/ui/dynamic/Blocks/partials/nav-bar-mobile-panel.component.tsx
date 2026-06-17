@@ -1,6 +1,6 @@
 'use client'
 
-import { cn } from '@nb/common/server/utils/cn'
+import { cn } from '@kuraykaraaslan/common/server/utils/cn'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronDown, faArrowRight } from '@fortawesome/free-solid-svg-icons'
 import type { MegaSection, NavLink, ICON_MAP_TYPE } from '../NavBarMarketing.types'

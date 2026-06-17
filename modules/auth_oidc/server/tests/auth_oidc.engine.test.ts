@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-vi.mock('@nb/env', () => ({ env: { CSRF_SECRET: 'unit_test_csrf_secret' } }));
+vi.mock('@kuraykaraaslan/env', () => ({ env: { CSRF_SECRET: 'unit_test_csrf_secret' } }));
 vi.mock('axios', () => ({ default: { get: vi.fn(), post: vi.fn() } }));
 
 import axios from 'axios';

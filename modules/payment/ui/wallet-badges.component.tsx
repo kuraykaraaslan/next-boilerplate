@@ -1,6 +1,6 @@
 'use client';
-import { Badge } from '@nb/common/ui/badge.component';
-import type { WalletMethod } from '@nb/payment/server/payment.enums';
+import { Badge } from '@kuraykaraaslan/common/ui/badge.component';
+import type { WalletMethod } from '@kuraykaraaslan/payment/server/payment.enums';
 
 const WALLET_LABEL: Record<WalletMethod, string> = {
   CARD: 'Card',

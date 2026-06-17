@@ -1,4 +1,4 @@
-import type { InvoiceAdapterContribution } from '@nb/invoice/server/adapters/invoice.adapter.types';
+import type { InvoiceAdapterContribution } from '@kuraykaraaslan/invoice/server/adapters/invoice.adapter.types';
 import UsStandardAdapter from './adapters/us_standard.adapter';
 
 /**

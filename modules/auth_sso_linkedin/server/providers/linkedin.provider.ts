@@ -1,5 +1,5 @@
-import { BaseSSOProvider } from '@nb/auth_sso/server/providers/base.provider';
-import type { SSOProfile } from '@nb/auth_sso/server/auth_sso.types';
+import { BaseSSOProvider } from '@kuraykaraaslan/auth_sso/server/providers/base.provider';
+import type { SSOProfile } from '@kuraykaraaslan/auth_sso/server/auth_sso.types';
 
 export class LinkedInProvider extends BaseSSOProvider {
   protected override usesPkce = true;

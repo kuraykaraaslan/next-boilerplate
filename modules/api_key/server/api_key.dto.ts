@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { ApiKeyEnvEnum, AnyScopeSchema } from './api_key.enums';
 // Subnet (CIDR) validation is owned by the network module. A single host is a
 // /32 — e.g. 192.168.1.182/32.
-import { SubnetListSchema } from '@nb/network';
+import { SubnetListSchema } from '@kuraykaraaslan/network';
 
 export const CreateApiKeyDTO = z.object({
   name: z.string().min(1).max(100),

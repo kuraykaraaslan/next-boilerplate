@@ -1,7 +1,7 @@
 import axios from 'axios';
-import { BaseSSOProvider } from '@nb/auth_sso/server/providers/base.provider';
-import type { SSOProfile, SSOTokens } from '@nb/auth_sso/server/auth_sso.types';
-import SSOMessages from '@nb/auth_sso/server/auth_sso.messages';
+import { BaseSSOProvider } from '@kuraykaraaslan/auth_sso/server/providers/base.provider';
+import type { SSOProfile, SSOTokens } from '@kuraykaraaslan/auth_sso/server/auth_sso.types';
+import SSOMessages from '@kuraykaraaslan/auth_sso/server/auth_sso.messages';
 
 /**
  * Sina Weibo (China) — OAuth 2.0. The token response carries the `uid` required by

@@ -1,7 +1,7 @@
 import 'reflect-metadata';
-import { tenantDataSourceFor } from '@nb/db';
-import ApiKeyService from '@nb/api_key/server/api_key.service';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import ApiKeyService from '@kuraykaraaslan/api_key/server/api_key.service';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { ConnectedApp as ConnectedAppEntity } from './entities/connected_app.entity';
 import { INTEGRATIONS_HUB_MESSAGES as MSG } from './integrations_hub.messages';
 import IntegrationsHubConnectorService from './integrations_hub.connector.service';

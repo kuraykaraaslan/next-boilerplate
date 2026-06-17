@@ -1,11 +1,11 @@
 import crypto from 'crypto';
 import axios from 'axios';
 import jwt from 'jsonwebtoken';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
-import { signDetachedCms } from '@nb/auth_oidc/server/auth_oidc.cms';
-import { BaseOidcAcsProvider } from '@nb/auth_acs/server/providers/base.oidc.provider';
-import type { AcsProfile } from '@nb/auth_acs/server/auth_acs.types';
-import AcsMessages from '@nb/auth_acs/server/auth_acs.messages';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
+import { signDetachedCms } from '@kuraykaraaslan/auth_oidc/server/auth_oidc.cms';
+import { BaseOidcAcsProvider } from '@kuraykaraaslan/auth_acs/server/providers/base.oidc.provider';
+import type { AcsProfile } from '@kuraykaraaslan/auth_acs/server/auth_acs.types';
+import AcsMessages from '@kuraykaraaslan/auth_acs/server/auth_acs.messages';
 
 /**
  * Russia — Gosuslugi / ЕСИА (ESIA). OAuth2-based but every authorize/token request

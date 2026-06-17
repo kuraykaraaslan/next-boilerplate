@@ -1,5 +1,5 @@
 import type { FindOptionsWhere } from 'typeorm';
-import type { SeedContext } from '@nb/seed/server/seed.context';
+import type { SeedContext } from '@kuraykaraaslan/seed/server/seed.context';
 import { StoreProduct } from './entities/store_product.entity';
 import { StoreVariationType } from './entities/store_variation_type.entity';
 import { StoreVariationOption } from './entities/store_variation_option.entity';

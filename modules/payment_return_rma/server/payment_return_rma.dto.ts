@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { CurrencyCodeInput, DEFAULT_CURRENCY } from '@nb/common'
+import { CurrencyCodeInput, DEFAULT_CURRENCY } from '@kuraykaraaslan/common'
 import { ReturnTypeEnum, ReturnStatusEnum, ReturnItemConditionEnum } from './payment_return_rma.enums'
 
 // ============================================================================

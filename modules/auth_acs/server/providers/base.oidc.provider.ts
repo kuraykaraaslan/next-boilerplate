@@ -1,7 +1,7 @@
 import crypto from 'crypto';
-import { env } from '@nb/env';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
-import { BaseOidcProvider } from '@nb/auth_oidc/server/auth_oidc.engine';
+import { env } from '@kuraykaraaslan/env';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
+import { BaseOidcProvider } from '@kuraykaraaslan/auth_oidc/server/auth_oidc.engine';
 import type { AcsProvider } from '../auth_acs.enums';
 import type { AcsProfile, AcsProviderService, AcsResolvedConfig } from '../auth_acs.types';
 import AcsMessages from '../auth_acs.messages';

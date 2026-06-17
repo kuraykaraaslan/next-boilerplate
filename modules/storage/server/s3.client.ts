@@ -1,5 +1,5 @@
 import { S3Client } from '@aws-sdk/client-s3';
-import { env } from '@nb/env';
+import { env } from '@kuraykaraaslan/env';
 
 const s3 = new S3Client({
   region: env.AWS_REGION || env.AWS_S3_REGION || 'us-east-1',

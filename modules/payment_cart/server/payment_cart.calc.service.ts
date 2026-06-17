@@ -1,7 +1,7 @@
-import { tenantDataSourceFor } from '@nb/db'
-import redis from '@nb/redis'
-import Logger from '@nb/logger'
-import { CouponService } from '@nb/coupon'
+import { tenantDataSourceFor } from '@kuraykaraaslan/db'
+import redis from '@kuraykaraaslan/redis'
+import Logger from '@kuraykaraaslan/logger'
+import { CouponService } from '@kuraykaraaslan/coupon'
 import { Cart as CartEntity } from './entities/cart.entity'
 import { CartItem as CartItemEntity } from './entities/cart_item.entity'
 import {
@@ -9,7 +9,7 @@ import {
   type CartItem, type CartWithItems, type CartTotals,
 } from './payment_cart.types'
 import { PAYMENT_CART_MESSAGES } from './payment_cart.messages'
-import { AppError, ErrorCode } from '@nb/common/server/app-error'
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error'
 
 export default class PaymentCartCalcService {
 

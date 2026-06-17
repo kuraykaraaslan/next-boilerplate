@@ -4,11 +4,11 @@ import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStripe, faPaypal, faAlipay, faWeixin } from '@fortawesome/free-brands-svg-icons';
 import { faCreditCard, faStar, faMoneyBillWave } from '@fortawesome/free-solid-svg-icons';
-import { Modal } from '@nb/common/ui/modal.component';
-import { Button } from '@nb/common/ui/button.component';
-import { Input } from '@nb/common/ui/input.component';
-import { Toggle } from '@nb/common/ui/toggle.component';
-import type { SR } from '@nb/setting/ui/settings-kit.component';
+import { Modal } from '@kuraykaraaslan/common/ui/modal.component';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import { Input } from '@kuraykaraaslan/common/ui/input.component';
+import { Toggle } from '@kuraykaraaslan/common/ui/toggle.component';
+import type { SR } from '@kuraykaraaslan/setting/ui/settings-kit.component';
 
 type FieldType = 'text' | 'password' | 'toggle' | 'textarea';
 export interface ProviderField {

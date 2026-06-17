@@ -1,18 +1,18 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
-import api from '@nb/common/server/axios';
-import { Breadcrumb } from '@nb/common/ui/breadcrumb.component';
-import { PageHeader } from '@nb/common/ui/page-header.component';
-import { Card } from '@nb/common/ui/card.component';
-import { Input } from '@nb/common/ui/input.component';
-import { Select } from '@nb/common/ui/select.component';
-import { Toggle } from '@nb/common/ui/toggle.component';
-import { Button } from '@nb/common/ui/button.component';
-import { Spinner } from '@nb/common/ui/spinner.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
+import api from '@kuraykaraaslan/common/server/axios';
+import { Breadcrumb } from '@kuraykaraaslan/common/ui/breadcrumb.component';
+import { PageHeader } from '@kuraykaraaslan/common/ui/page-header.component';
+import { Card } from '@kuraykaraaslan/common/ui/card.component';
+import { Input } from '@kuraykaraaslan/common/ui/input.component';
+import { Select } from '@kuraykaraaslan/common/ui/select.component';
+import { Toggle } from '@kuraykaraaslan/common/ui/toggle.component';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import { Spinner } from '@kuraykaraaslan/common/ui/spinner.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave } from '@fortawesome/free-solid-svg-icons';
-import { SECRET_MASK, type SettingFieldDef } from '@nb/setting/server/setting-fields.types';
+import { SECRET_MASK, type SettingFieldDef } from '@kuraykaraaslan/setting/server/setting-fields.types';
 
 type ModuleSettingsPageProps = {
   tenantId: string;

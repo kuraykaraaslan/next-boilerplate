@@ -1,14 +1,14 @@
 import 'reflect-metadata';
 import { IsNull, In } from 'typeorm';
-import { tenantDataSourceFor, getDataSource } from '@nb/db';
-import { Tenant as TenantEntity } from '@nb/tenant/server/entities/tenant.entity';
-import { TenantMember as TenantMemberEntity } from '@nb/tenant_member/server/entities/tenant_member.entity';
-import redis from '@nb/redis';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
-import { SafeTenant, SafeTenantSchema } from '@nb/tenant/server/tenant.types';
-import { SafeTenantMember, SafeTenantMemberSchema } from '@nb/tenant_member/server/tenant_member.types';
+import { tenantDataSourceFor, getDataSource } from '@kuraykaraaslan/db';
+import { Tenant as TenantEntity } from '@kuraykaraaslan/tenant/server/entities/tenant.entity';
+import { TenantMember as TenantMemberEntity } from '@kuraykaraaslan/tenant_member/server/entities/tenant_member.entity';
+import redis from '@kuraykaraaslan/redis';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
+import { SafeTenant, SafeTenantSchema } from '@kuraykaraaslan/tenant/server/tenant.types';
+import { SafeTenantMember, SafeTenantMemberSchema } from '@kuraykaraaslan/tenant_member/server/tenant_member.types';
 import TenantAuthMessages from './tenant_session.messages';
-import type { TenantMemberRole } from '@nb/tenant_member/server/tenant_member.enums';
+import type { TenantMemberRole } from '@kuraykaraaslan/tenant_member/server/tenant_member.enums';
 
 const ROLE_HIERARCHY: TenantMemberRole[] = ['OWNER', 'ADMIN', 'USER'];
 

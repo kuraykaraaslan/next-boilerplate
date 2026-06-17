@@ -1,5 +1,5 @@
-import redis from '@nb/redis';
-import { env } from '@nb/env';
+import redis from '@kuraykaraaslan/redis';
+import { env } from '@kuraykaraaslan/env';
 
 export const USER_CACHE_TTL = env.SESSION_CACHE_TTL ?? (60 * 5);
 export const NEGATIVE_CACHE_TTL = Math.min(60, USER_CACHE_TTL);
@@ -37,7 +37,7 @@ export async function emitAuditLog(
   actorId?: string | null,
 ): Promise<void> {
   try {
-    const AuditLogService = (await import('@nb/audit_log/server/audit_log.service')).default;
+    const AuditLogService = (await import('@kuraykaraaslan/audit_log/server/audit_log.service')).default;
     await AuditLogService.log({
       tenantId: tenantId ?? undefined,
       actorId: actorId ?? undefined,

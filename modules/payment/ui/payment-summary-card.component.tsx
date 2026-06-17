@@ -1,6 +1,6 @@
 'use client';
 // Adapted from next_components: PaymentSummaryCard + PriceDisplay
-import { cn } from '@nb/common/server/utils/cn';
+import { cn } from '@kuraykaraaslan/common/server/utils/cn';
 import { PaymentStatusBadge, type PaymentStatus } from './payment-status-badge.component';
 
 type PaymentSummaryCardProps = {

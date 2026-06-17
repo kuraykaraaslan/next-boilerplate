@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const TEST_TENANT_ID = '00000000-0000-4000-8000-000000000000';
 
-vi.mock('@nb/env', () => ({
+vi.mock('@kuraykaraaslan/env', () => ({
   env: {
     DATABASE_URL: 'postgresql://test',
     ACCESS_TOKEN_SECRET: 'test_secret',
@@ -22,12 +22,12 @@ vi.mock('@nb/env', () => ({
   },
 }));
 
-vi.mock('@nb/db', () => ({
+vi.mock('@kuraykaraaslan/db', () => ({
   getDataSource: vi.fn(),
   tenantDataSourceFor: vi.fn(),
 }));
 
-vi.mock('@nb/redis', () => ({
+vi.mock('@kuraykaraaslan/redis', () => ({
   default: {
     get: vi.fn(async () => null),
     set: vi.fn(async () => 'OK'),
@@ -44,7 +44,7 @@ vi.mock('@nb/redis', () => ({
   jitter: (n: number) => n,
 }));
 
-vi.mock('@nb/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
+vi.mock('@kuraykaraaslan/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
 
 vi.mock('bullmq', () => ({
   Queue: class MockQueue {
@@ -58,11 +58,11 @@ vi.mock('bullmq', () => ({
   Job: class MockJob {},
 }));
 
-vi.mock('@nb/redis/server/redis.bullmq', () => ({
+vi.mock('@kuraykaraaslan/redis/server/redis.bullmq', () => ({
   getBullMQConnection: vi.fn(() => ({})),
 }));
 
-vi.mock('@nb/setting/server/setting.service', () => ({
+vi.mock('@kuraykaraaslan/setting/server/setting.service', () => ({
   default: {
     getValue: vi.fn(async () => null),
     getByKeys: vi.fn(async () => ({})),
@@ -82,11 +82,11 @@ const SMS_CONTRIBS = ['twilio', 'netgsm', 'clickatell', 'nexmo'].map((key) => ({
   id: `sms_${key}:sms:provider:${key}`, point: 'sms:provider', moduleId: `sms_${key}`, key, metadata: {},
 }));
 
-vi.mock('@nb/setting/server/module-activation.service.next', () => ({
+vi.mock('@kuraykaraaslan/setting/server/module-activation.service.next', () => ({
   getEnabledModuleIds: vi.fn(async () => new Set(SMS_CONTRIBS.map((c) => c.moduleId).concat('notification_sms'))),
 }));
 
-vi.mock('@nb/common/server/extension-registry', () => ({
+vi.mock('@kuraykaraaslan/common/server/extension-registry', () => ({
   extensionRegistry: {
     getContributions: (point: string, filter?: { enabledIds?: Set<string> }) =>
       point === 'sms:provider'
@@ -98,14 +98,14 @@ vi.mock('@nb/common/server/extension-registry', () => ({
 
 
 // Bypass feature gating in unit tests — tested separately in tenant_subscription/.
-vi.mock('@nb/tenant_subscription/server/tenant_subscription.service', () => ({
+vi.mock('@kuraykaraaslan/tenant_subscription/server/tenant_subscription.service', () => ({
   default: {
     assertFeatureAccess: vi.fn(async () => undefined),
     checkFeatureAccess: vi.fn(async () => ({ allowed: true, featureKey: '', type: 'BOOLEAN', limit: null, unlimited: null, current: null })),
   },
 }));
 import SMSService from '../notification_sms.service';
-import redis from '@nb/redis';
+import redis from '@kuraykaraaslan/redis';
 
 const mockRedis = redis as any;
 

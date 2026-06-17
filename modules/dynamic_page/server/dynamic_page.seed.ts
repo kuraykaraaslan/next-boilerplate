@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import type { FindOptionsWhere } from 'typeorm';
-import type { SeedContext } from '@nb/seed/server/seed.context';
+import type { SeedContext } from '@kuraykaraaslan/seed/server/seed.context';
 import { DynamicPage } from './entities/dynamic_page.entity';
 import { DynamicPageBlock } from './entities/dynamic_page_block.entity';
 import { DynamicPageTranslation } from './entities/dynamic_page_translation.entity';

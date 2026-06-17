@@ -1,4 +1,4 @@
-import type { TransactionRecord, VerifiedIdentity } from '@nb/e_signature/server/e_signature.types';
+import type { TransactionRecord, VerifiedIdentity } from '@kuraykaraaslan/e_signature/server/e_signature.types';
 
 /**
  * Result of completing an e-signature login/bind. Mirrors the engine's poll

@@ -1,6 +1,6 @@
 import winston from 'winston';
 import { AsyncLocalStorage } from 'node:async_hooks';
-import { env } from '@nb/env';
+import { env } from '@kuraykaraaslan/env';
 
 const { combine, timestamp, json, printf } = winston.format;
 const timestampFormat = 'MMM-DD-YYYY HH:mm:ss';

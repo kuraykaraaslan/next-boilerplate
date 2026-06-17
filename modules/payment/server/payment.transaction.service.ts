@@ -1,11 +1,11 @@
 import 'reflect-metadata';
 import { Between, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
-import { getDataSource } from '@nb/db';
-import redis, { jitter, singleFlight } from '@nb/redis';
-import { env } from '@nb/env';
+import { getDataSource } from '@kuraykaraaslan/db';
+import redis, { jitter, singleFlight } from '@kuraykaraaslan/redis';
+import { env } from '@kuraykaraaslan/env';
 import { Payment as PaymentEntity } from './entities/payment.entity';
 import { PaymentTransaction as PaymentTransactionEntity } from './entities/payment_transaction.entity';
-import Logger from '@nb/logger';
+import Logger from '@kuraykaraaslan/logger';
 import {
   PaymentTransaction,
   PaymentTransactionSchema,
@@ -16,7 +16,7 @@ import {
   GetTransactionsQuery,
 } from './payment.dto';
 import { PAYMENT_MESSAGES } from './payment.messages';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 
 const PAYMENT_CACHE_TTL = env.TENANT_CACHE_TTL ?? (60 * 5);
 

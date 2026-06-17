@@ -1,9 +1,9 @@
 import 'reflect-metadata';
 import { promises as fs } from 'node:fs';
-import { getDataSource } from '@nb/db';
-import redis from '@nb/redis';
-import { env } from '@nb/env';
-import Logger from '@nb/logger';
+import { getDataSource } from '@kuraykaraaslan/db';
+import redis from '@kuraykaraaslan/redis';
+import { env } from '@kuraykaraaslan/env';
+import Logger from '@kuraykaraaslan/logger';
 import { TrustListEntry } from './entities/trust_list_entry.entity';
 import ESignatureCryptoService from './e_signature.crypto.service';
 import ESignatureETSI_TSLService from './e_signature.etsi_tsl.service';
@@ -11,7 +11,7 @@ import {
   DEFAULT_EU_LOTL_URL,
   TRUST_LIST_CACHE_TTL_SECONDS,
 } from './e_signature.constants';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { E_SIGNATURE_MESSAGES } from './e_signature.messages';
 import type { CountryCode } from './e_signature.types';
 

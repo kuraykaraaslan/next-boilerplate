@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Limiter from '@nb/limiter/server/limiter.service.next';
-import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
-import { isRootTenant } from '@nb/tenant/server/tenant.constants';
-import { catalogForScope, groupedCatalogForScope, scopeForTenant } from '@nb/webhook/server/webhook.catalog';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
+import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next';
+import { isRootTenant } from '@kuraykaraaslan/tenant/server/tenant.constants';
+import { catalogForScope, groupedCatalogForScope, scopeForTenant } from '@kuraykaraaslan/webhook/server/webhook.catalog';
 
 /**
  * GET /tenant/[tenantId]/api/webhooks/events

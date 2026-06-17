@@ -1,7 +1,7 @@
-import StorageService from '@nb/storage/server/storage.service';
+import StorageService from '@kuraykaraaslan/storage/server/storage.service';
 import UserProfileModerationService from './user_profile.moderation.service';
 import { UserProfile } from './user_profile.types';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import UserProfileMessages from './user_profile.messages';
 import { update } from './user_profile.write.service';
 

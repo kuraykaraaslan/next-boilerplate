@@ -1,11 +1,11 @@
 import crypto from 'crypto';
 import bcrypt from 'bcrypt';
-import Logger from '@nb/logger';
-import ObservabilityService from '@nb/observability';
-import WebhookService from '@nb/webhook/server/webhook.service';
-import { ROOT_TENANT_ID } from '@nb/tenant/server/tenant.constants';
+import Logger from '@kuraykaraaslan/logger';
+import ObservabilityService from '@kuraykaraaslan/observability';
+import WebhookService from '@kuraykaraaslan/webhook/server/webhook.service';
+import { ROOT_TENANT_ID } from '@kuraykaraaslan/tenant/server/tenant.constants';
 import AuthPolicyService from './auth.policy.service';
-import type { SafeUser } from '@nb/user/server/user.types';
+import type { SafeUser } from '@kuraykaraaslan/user/server/user.types';
 
 export function generateToken(): string {
   return crypto.randomInt(100000, 1000000).toString();

@@ -1,9 +1,9 @@
 import type { ReactNode } from 'react'
-import DynamicPageService from '@nb/dynamic_page/server/dynamic_page.service'
+import DynamicPageService from '@kuraykaraaslan/dynamic_page/server/dynamic_page.service'
 import ClientBlockList from './dynamic/partials/client-block-list.component'
 import { migrateSections } from './dynamic/migrations'
 import type { BlockData, DynamicPageBlockRecord } from './dynamic/types'
-import type { DynamicPageRecord } from '@nb/dynamic_page/server/dynamic_page.types'
+import type { DynamicPageRecord } from '@kuraykaraaslan/dynamic_page/server/dynamic_page.types'
 
 interface Props {
   tenantId: string

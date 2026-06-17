@@ -4,7 +4,7 @@ import {
   CurrencyCodeEnum,
   CountryCodeInput as CustomerCountryCodeInput,
   CurrencyCodeInput,
-} from '@nb/common';
+} from '@kuraykaraaslan/common';
 import { InvoiceStatusEnum, InvoiceRegionEnum, TaxSchemeEnum, InvoiceLineSourceEnum } from './invoice.enums';
 
 export const InvoiceLineInputSchema = z.object({

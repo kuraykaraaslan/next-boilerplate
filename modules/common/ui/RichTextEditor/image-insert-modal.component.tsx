@@ -1,9 +1,9 @@
 'use client';
 import { useRef, useState } from 'react';
-import { cn } from '@nb/common/server/utils/cn';
-import { Modal } from '@nb/common/ui/modal.component';
-import { Input } from '@nb/common/ui/input.component';
-import { Button } from '@nb/common/ui/button.component';
+import { cn } from '@kuraykaraaslan/common/server/utils/cn';
+import { Modal } from '@kuraykaraaslan/common/ui/modal.component';
+import { Input } from '@kuraykaraaslan/common/ui/input.component';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFolderOpen, faXmark } from '@fortawesome/free-solid-svg-icons';
 

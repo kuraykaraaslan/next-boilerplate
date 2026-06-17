@@ -1,4 +1,4 @@
-import { BaseOidcAcsProvider } from '@nb/auth_acs/server/providers/base.oidc.provider';
+import { BaseOidcAcsProvider } from '@kuraykaraaslan/auth_acs/server/providers/base.oidc.provider';
 
 /**
  * Kazakhstan — eGov.kz. Protocol/endpoints not yet confirmed; ships disabled and

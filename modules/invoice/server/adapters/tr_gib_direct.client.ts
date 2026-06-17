@@ -38,7 +38,7 @@
  */
 import { randomUUID } from 'node:crypto';
 import axios, { AxiosInstance } from 'axios';
-import Logger from '@nb/logger';
+import Logger from '@kuraykaraaslan/logger';
 import {
   GIB_TEST_URL, GIB_PROD_URL,
   type GibPortalInvoice, type GibDirectCreateResult, type DispatchResponse,

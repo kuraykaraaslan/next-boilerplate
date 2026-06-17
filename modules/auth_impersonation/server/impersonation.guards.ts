@@ -1,11 +1,11 @@
 import bcrypt from 'bcrypt';
-import { getDataSource } from '@nb/db';
-import { User as UserEntity } from '@nb/user/server/entities/user.entity';
-import { UserSession as UserSessionEntity } from '@nb/user_session/server/entities/user_session.entity';
-import { SafeUserSchema } from '@nb/user/server/user.types';
-import TOTPService from '@nb/auth/server/auth.totp.service';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
-import { UserRoleEnum } from '@nb/user/server/user.enums';
+import { getDataSource } from '@kuraykaraaslan/db';
+import { User as UserEntity } from '@kuraykaraaslan/user/server/entities/user.entity';
+import { UserSession as UserSessionEntity } from '@kuraykaraaslan/user_session/server/entities/user_session.entity';
+import { SafeUserSchema } from '@kuraykaraaslan/user/server/user.types';
+import TOTPService from '@kuraykaraaslan/auth/server/auth.totp.service';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
+import { UserRoleEnum } from '@kuraykaraaslan/user/server/user.enums';
 import ImpersonationMessages from './impersonation.messages';
 import type { StepUpCredentialInput } from './impersonation.dto';
 import {

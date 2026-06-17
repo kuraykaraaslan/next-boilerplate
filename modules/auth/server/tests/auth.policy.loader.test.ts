@@ -1,18 +1,18 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // Env defaults used as the fallback layer for the per-tenant policies.
-vi.mock('@nb/env', () => ({
+vi.mock('@kuraykaraaslan/env', () => ({
   env: {
     OTP_LENGTH: 6, OTP_EXPIRY_SECONDS: 600, OTP_RATE_LIMIT_SECONDS: 60, OTP_MAX_ATTEMPTS: 5,
     RESET_TOKEN_EXPIRY_SECONDS: 3600, RESET_TOKEN_LENGTH: 6,
     EMAIL_VERIFY_TTL_SECONDS: 86400, EMAIL_VERIFY_RATE_LIMIT_SECONDS: 300,
   },
 }));
-vi.mock('@nb/logger', () => ({ default: { warn: vi.fn(), info: vi.fn(), error: vi.fn() } }));
+vi.mock('@kuraykaraaslan/logger', () => ({ default: { warn: vi.fn(), info: vi.fn(), error: vi.fn() } }));
 
 const getByKeys = vi.fn(async (..._args: any[]): Promise<Record<string, string>> => ({}));
-vi.mock('@nb/setting/server/setting.service', () => ({ default: { getByKeys: (...a: any[]) => getByKeys(a[0], a[1]) } }));
-vi.mock('@nb/tenant/server/tenant.constants', () => ({ ROOT_TENANT_ID: 'root' }));
+vi.mock('@kuraykaraaslan/setting/server/setting.service', () => ({ default: { getByKeys: (...a: any[]) => getByKeys(a[0], a[1]) } }));
+vi.mock('@kuraykaraaslan/tenant/server/tenant.constants', () => ({ ROOT_TENANT_ID: 'root' }));
 
 import AuthPolicyLoaderService from '../auth.policy.loader.service';
 

@@ -1,6 +1,6 @@
 import axios from 'axios';
 import crypto from 'crypto';
-import SSOMessages from '@nb/auth_sso/server/auth_sso.messages';
+import SSOMessages from '@kuraykaraaslan/auth_sso/server/auth_sso.messages';
 
 export interface AppleJwksKey {
   kty: string;

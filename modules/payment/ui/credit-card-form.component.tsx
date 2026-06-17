@@ -1,10 +1,10 @@
 'use client';
 import { useState } from 'react';
-import { Form } from '@nb/common/ui/form.component';
-import { Input } from '@nb/common/ui/input.component';
-import { Button } from '@nb/common/ui/button.component';
+import { Form } from '@kuraykaraaslan/common/ui/form.component';
+import { Input } from '@kuraykaraaslan/common/ui/input.component';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
 import { CreditCardVisual } from './credit-card-visual.component';
-import type { CreditCardInput, CardBrand } from '@nb/payment/server/payment.enums';
+import type { CreditCardInput, CardBrand } from '@kuraykaraaslan/payment/server/payment.enums';
 
 
 export function detectBrand(number: string): CardBrand {

@@ -15,8 +15,8 @@ import 'reflect-metadata';
 import 'dotenv/config';
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import type { DataSource } from 'typeorm';
-import type { SeedContext } from '@nb/seed/server/seed.context';
-import { runSeed } from '@nb/seed/server/seed.runner';
+import type { SeedContext } from '@kuraykaraaslan/seed/server/seed.context';
+import { runSeed } from '@kuraykaraaslan/seed/server/seed.runner';
 
 const ENABLED = process.env.SEED === '1';
 

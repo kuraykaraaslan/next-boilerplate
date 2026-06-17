@@ -1,5 +1,5 @@
-import Logger from '@nb/logger';
-import redis from '@nb/redis';
+import Logger from '@kuraykaraaslan/logger';
+import redis from '@kuraykaraaslan/redis';
 import type { NormalizedEvent } from './payment.webhook.types';
 import PaymentWebhookPaymentService from './payment.webhook.payment.service';
 import PaymentWebhookSubscriptionService from './payment.webhook.subscription.service';

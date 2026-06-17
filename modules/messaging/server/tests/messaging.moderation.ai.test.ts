@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
 
-vi.mock('@nb/env', () => ({ env: { NODE_ENV: 'test' } }));
-vi.mock('@nb/ai/server/ai.service', () => ({ default: { ask: vi.fn() } }));
-vi.mock('@nb/logger', () => ({ default: { warn: vi.fn(), info: vi.fn(), error: vi.fn() } }));
+vi.mock('@kuraykaraaslan/env', () => ({ env: { NODE_ENV: 'test' } }));
+vi.mock('@kuraykaraaslan/ai/server/ai.service', () => ({ default: { ask: vi.fn() } }));
+vi.mock('@kuraykaraaslan/logger', () => ({ default: { warn: vi.fn(), info: vi.fn(), error: vi.fn() } }));
 
 import { safeParse } from '../messaging.moderation.ai';
 

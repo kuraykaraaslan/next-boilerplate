@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import type { FindOptionsWhere } from 'typeorm';
-import type { SeedContext } from '@nb/seed/server/seed.context';
+import type { SeedContext } from '@kuraykaraaslan/seed/server/seed.context';
 import { StoreCategory } from './entities/store_category.entity';
 import { StoreCategorySpec } from './entities/store_category_spec.entity';
 import { StoreProduct } from './entities/store_product.entity';

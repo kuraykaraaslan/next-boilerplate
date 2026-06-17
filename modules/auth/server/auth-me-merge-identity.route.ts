@@ -1,13 +1,13 @@
 // path: app/tenant/[tenantId]/api/auth/me/merge-identity/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import UserSessionNextService from '@nb/user_session/server/user_session.service.next';
-import AuthCredentialService from '@nb/auth/server/auth.credential.service';
-import SocialIdentityMergeService from '@nb/user_social_account/server/social_identity_merge.service';
-import SSOService from '@nb/auth_sso/server/auth_sso.service';
-import UserSecurityService from '@nb/user_security/server/user_security.service';
-import UserService from '@nb/user/server/user.service';
-import Limiter from '@nb/limiter/server/limiter.service.next';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import UserSessionNextService from '@kuraykaraaslan/user_session/server/user_session.service.next';
+import AuthCredentialService from '@kuraykaraaslan/auth/server/auth.credential.service';
+import SocialIdentityMergeService from '@kuraykaraaslan/user_social_account/server/social_identity_merge.service';
+import SSOService from '@kuraykaraaslan/auth_sso/server/auth_sso.service';
+import UserSecurityService from '@kuraykaraaslan/user_security/server/user_security.service';
+import UserService from '@kuraykaraaslan/user/server/user.service';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 
 /**
  * POST /tenant/[tenantId]/api/auth/me/merge-identity

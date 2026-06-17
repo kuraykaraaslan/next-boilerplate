@@ -2,9 +2,9 @@
 import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
-import { Form } from '@nb/common/ui/form.component';
-import { Input } from '@nb/common/ui/input.component';
-import { Button } from '@nb/common/ui/button.component';
+import { Form } from '@kuraykaraaslan/common/ui/form.component';
+import { Input } from '@kuraykaraaslan/common/ui/input.component';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
 
 type FormValues = { email: string; password: string; confirmPassword: string };
 type FormErrors = Partial<Record<keyof FormValues, string>>;

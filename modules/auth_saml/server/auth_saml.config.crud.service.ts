@@ -1,12 +1,12 @@
-import { tenantDataSourceFor } from '@nb/db';
-import Logger from '@nb/logger';
-import ObservabilityService from '@nb/observability';
-import AuditLogService from '@nb/audit_log/server/audit_log.service';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import Logger from '@kuraykaraaslan/logger';
+import ObservabilityService from '@kuraykaraaslan/observability';
+import AuditLogService from '@kuraykaraaslan/audit_log/server/audit_log.service';
 import { SamlConfig } from './entities/saml_config.entity';
 import { SafeSamlConfigSchema, type SafeSamlConfig } from './auth_saml.types';
 import type { UpsertSamlConfigInput, ImportSamlMetadataInput } from './auth_saml.dto';
 import SamlMessages from './auth_saml.messages';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { SAML_NAME_ID_FORMATS } from './auth_saml.enums';
 import AuthSamlCryptoService from './auth_saml.crypto.service';
 import AuthSamlMetadataService from './auth_saml.metadata.service';

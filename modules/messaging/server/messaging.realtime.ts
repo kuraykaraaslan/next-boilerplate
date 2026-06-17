@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import redis from '@nb/redis';
+import redis from '@kuraykaraaslan/redis';
 import { SafeMessageSchema, SafeParticipantSchema } from './messaging.types';
 import { MessageModerationStatusEnum } from './messaging.enums';
 

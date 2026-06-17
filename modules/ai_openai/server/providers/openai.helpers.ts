@@ -1,5 +1,5 @@
-import type { ChatCompletionOptions } from '@nb/ai/server/ai.types';
-import { AIError, AIRateLimitError, AIAuthenticationError } from '@nb/ai/server/ai.types';
+import type { ChatCompletionOptions } from '@kuraykaraaslan/ai/server/ai.types';
+import { AIError, AIRateLimitError, AIAuthenticationError } from '@kuraykaraaslan/ai/server/ai.types';
 
 export interface OpenAIChatMessage {
   role: 'system' | 'user' | 'assistant';

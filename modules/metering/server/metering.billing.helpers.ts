@@ -1,5 +1,5 @@
-import Logger from '@nb/logger';
-import WebhookService from '@nb/webhook/server/webhook.service';
+import Logger from '@kuraykaraaslan/logger';
+import WebhookService from '@kuraykaraaslan/webhook/server/webhook.service';
 import { MeteredBillingRun as MeteredBillingRunEntity } from './entities/metered_billing_run.entity';
 import type { MeteredBillingRunLine } from './entities/metered_billing_run.entity';
 

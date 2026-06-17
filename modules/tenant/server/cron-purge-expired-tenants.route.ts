@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { env } from '@nb/env';
-import TenantDeletionService from '@nb/tenant/server/tenant.deletion.service';
-import Logger from '@nb/logger';
+import { env } from '@kuraykaraaslan/env';
+import TenantDeletionService from '@kuraykaraaslan/tenant/server/tenant.deletion.service';
+import Logger from '@kuraykaraaslan/logger';
 
 /**
  * POST /tenant/[tenantId]/api/cron/purge-expired-tenants

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { TenantMemberRoleEnum } from '@nb/tenant_member/server/tenant_member.enums';
+import { TenantMemberRoleEnum } from '@kuraykaraaslan/tenant_member/server/tenant_member.enums';
 import { TenantInvitationStatusEnum } from './tenant_invitation.enums';
 
 export const SendInvitationDTO = z.object({

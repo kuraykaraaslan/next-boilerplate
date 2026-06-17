@@ -1,4 +1,4 @@
-import redis from '@nb/redis';
+import redis from '@kuraykaraaslan/redis';
 
 const REDIS_KEY_PREFIX = 'settings:';
 const REDIS_TTL = 600;

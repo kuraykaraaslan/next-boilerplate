@@ -1,6 +1,6 @@
-import redis from '@nb/redis';
-import { env } from '@nb/env';
-import Logger from '@nb/logger';
+import redis from '@kuraykaraaslan/redis';
+import { env } from '@kuraykaraaslan/env';
+import Logger from '@kuraykaraaslan/logger';
 import type { SocialAccountProvider } from './user_social_account.enums';
 
 export const SOCIAL_ACCOUNT_CACHE_TTL = env.SESSION_CACHE_TTL ?? (60 * 5);
@@ -26,7 +26,7 @@ export async function emitLinkEvent(
   kind: 'linked' | 'unlinked', userId: string, provider: SocialAccountProvider, ctx?: SocialLinkContext,
 ): Promise<void> {
   try {
-    const { default: AuditLogService } = await import('@nb/audit_log/server/audit_log.service');
+    const { default: AuditLogService } = await import('@kuraykaraaslan/audit_log/server/audit_log.service');
     await AuditLogService.log({
       tenantId: ctx?.tenantId ?? null, actorId: userId, actorType: 'USER',
       action: `social_account.${kind}`, severity: 'medium',
@@ -34,17 +34,17 @@ export async function emitLinkEvent(
     });
   } catch (e) { Logger.warn(`[social] audit failed: ${e instanceof Error ? e.message : e}`); }
   try {
-    const { default: WebhookService } = await import('@nb/webhook/server/webhook.service');
+    const { default: WebhookService } = await import('@kuraykaraaslan/webhook/server/webhook.service');
     await WebhookService.dispatchPlatformEvent(`social_account.${kind}` as never, { userId, provider });
   } catch (e) { Logger.warn(`[social] webhook failed: ${e instanceof Error ? e.message : e}`); }
 }
 
 export async function notifyUser(userId: string, provider: SocialAccountProvider, kind: 'linked' | 'unlinked', tenantId: string): Promise<void> {
   try {
-    const { default: UserService } = await import('@nb/user/server/user.service');
+    const { default: UserService } = await import('@kuraykaraaslan/user/server/user.service');
     const user = await UserService.getById(userId).catch(() => null);
     if (!user?.email) return;
-    const { default: NotificationMailQueueService } = await import('@nb/notification_mail/server/notification_mail.queue.service');
+    const { default: NotificationMailQueueService } = await import('@kuraykaraaslan/notification_mail/server/notification_mail.queue.service');
     const verb = kind === 'linked' ? 'linked to' : 'unlinked from';
     await NotificationMailQueueService.sendMail(
       tenantId, user.email,

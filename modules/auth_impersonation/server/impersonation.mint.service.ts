@@ -1,13 +1,13 @@
 import { randomUUID } from 'crypto';
-import redis from '@nb/redis';
-import Logger from '@nb/logger';
-import UserSessionService from '@nb/user_session/server/user_session.service';
-import WebhookService from '@nb/webhook/server/webhook.service';
-import AuditLogService from '@nb/audit_log/server/audit_log.service';
-import { AuditActions } from '@nb/audit_log/server/audit_log.enums';
-import { SafeUserSchema } from '@nb/user/server/user.types';
-import type { SafeUserSession } from '@nb/user_session/server/user_session.types';
-import type { TenantMemberRole } from '@nb/tenant_member/server/tenant_member.enums';
+import redis from '@kuraykaraaslan/redis';
+import Logger from '@kuraykaraaslan/logger';
+import UserSessionService from '@kuraykaraaslan/user_session/server/user_session.service';
+import WebhookService from '@kuraykaraaslan/webhook/server/webhook.service';
+import AuditLogService from '@kuraykaraaslan/audit_log/server/audit_log.service';
+import { AuditActions } from '@kuraykaraaslan/audit_log/server/audit_log.enums';
+import { SafeUserSchema } from '@kuraykaraaslan/user/server/user.types';
+import type { SafeUserSession } from '@kuraykaraaslan/user_session/server/user_session.types';
+import type { TenantMemberRole } from '@kuraykaraaslan/tenant_member/server/tenant_member.enums';
 import {
   getAlertStartsPerHour,
   getImpersonationTtlMs,

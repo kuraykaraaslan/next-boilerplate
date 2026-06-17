@@ -1,13 +1,13 @@
 import 'reflect-metadata';
-import { getDataSource } from '@nb/db';
-import redis from '@nb/redis';
-import Logger from '@nb/logger';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
-import AuditLogService from '@nb/audit_log/server/audit_log.service';
-import SSOService from '@nb/auth_sso/server/auth_sso.service';
-import { User as UserEntity } from '@nb/user/server/entities/user.entity';
+import { getDataSource } from '@kuraykaraaslan/db';
+import redis from '@kuraykaraaslan/redis';
+import Logger from '@kuraykaraaslan/logger';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
+import AuditLogService from '@kuraykaraaslan/audit_log/server/audit_log.service';
+import SSOService from '@kuraykaraaslan/auth_sso/server/auth_sso.service';
+import { User as UserEntity } from '@kuraykaraaslan/user/server/entities/user.entity';
 import { UserSocialAccount as UserSocialAccountEntity } from './entities/user_social_account.entity';
-import { TenantMember as TenantMemberEntity } from '@nb/tenant_member/server/entities/tenant_member.entity';
+import { TenantMember as TenantMemberEntity } from '@kuraykaraaslan/tenant_member/server/entities/tenant_member.entity';
 import UserSocialAccountMessages from './user_social_account.messages';
 
 /**

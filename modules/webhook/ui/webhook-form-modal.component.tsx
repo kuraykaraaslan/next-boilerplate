@@ -1,13 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { Input } from '@nb/common/ui/input.component';
-import { Button } from '@nb/common/ui/button.component';
-import { Modal } from '@nb/common/ui/modal.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
+import { Input } from '@kuraykaraaslan/common/ui/input.component';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import { Modal } from '@kuraykaraaslan/common/ui/modal.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import type { WebhookEvent } from '@nb/webhook/server/webhook.enums';
+import type { WebhookEvent } from '@kuraykaraaslan/webhook/server/webhook.enums';
 import type { Webhook } from './webhook.types';
 
 type EventGroup = { group: string; events: { event: WebhookEvent; description: string }[] };

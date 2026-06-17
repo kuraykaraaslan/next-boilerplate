@@ -1,21 +1,21 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { randomUUID } from 'node:crypto';
 
-vi.mock('@nb/env', () => ({
+vi.mock('@kuraykaraaslan/env', () => ({
   env: { DATABASE_URL: 'postgresql://test', NODE_ENV: 'test' },
 }));
-vi.mock('@nb/redis', () => ({
+vi.mock('@kuraykaraaslan/redis', () => ({
   default: { set: vi.fn(async () => 'OK'), del: vi.fn(async () => 1) },
 }));
-vi.mock('@nb/logger', () => ({
+vi.mock('@kuraykaraaslan/logger', () => ({
   default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() },
 }));
-vi.mock('@nb/webhook/server/webhook.service', () => ({
+vi.mock('@kuraykaraaslan/webhook/server/webhook.service', () => ({
   default: { dispatchEvent: vi.fn(async () => {}) },
 }));
-vi.mock('@nb/db', () => ({ tenantDataSourceFor: vi.fn() }));
+vi.mock('@kuraykaraaslan/db', () => ({ tenantDataSourceFor: vi.fn() }));
 
-import { tenantDataSourceFor } from '@nb/db';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
 import WalletService from '../wallet.service';
 import { WALLET_MESSAGES } from '../wallet.messages';
 

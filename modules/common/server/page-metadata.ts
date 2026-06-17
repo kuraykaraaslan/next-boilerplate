@@ -3,7 +3,7 @@
 // eslint-disable-next-line no-restricted-imports
 import { cache } from 'react';
 import type { Metadata } from 'next';
-import TenantBrandingService from '@nb/tenant_branding/server/tenant_branding.service';
+import TenantBrandingService from '@kuraykaraaslan/tenant_branding/server/tenant_branding.service';
 
 /** Fallback brand name when a tenant hasn't configured one (or lookup fails). */
 export const DEFAULT_APP_NAME = 'Next Boilerplate';

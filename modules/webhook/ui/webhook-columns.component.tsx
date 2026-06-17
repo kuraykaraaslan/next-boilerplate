@@ -1,9 +1,9 @@
 'use client';
 
-import { Badge } from '@nb/common/ui/badge.component';
-import { Toggle } from '@nb/common/ui/toggle.component';
-import { RowActionsMenu } from '@nb/common/ui/row-actions-menu.component';
-import type { TableColumn } from '@nb/common/ui/server-data-table.component';
+import { Badge } from '@kuraykaraaslan/common/ui/badge.component';
+import { Toggle } from '@kuraykaraaslan/common/ui/toggle.component';
+import { RowActionsMenu } from '@kuraykaraaslan/common/ui/row-actions-menu.component';
+import type { TableColumn } from '@kuraykaraaslan/common/ui/server-data-table.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faFlask, faRotateRight, faListUl, faKey, faPen, faBolt } from '@fortawesome/free-solid-svg-icons';
 import type { Webhook } from './webhook.types';

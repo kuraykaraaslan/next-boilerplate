@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('@nb/env', () => ({
+vi.mock('@kuraykaraaslan/env', () => ({
   env: {
     DATABASE_URL: 'postgresql://test',
     ACCESS_TOKEN_SECRET: 'test_secret',
@@ -12,12 +12,12 @@ vi.mock('@nb/env', () => ({
   },
 }));
 
-vi.mock('@nb/db', () => ({
+vi.mock('@kuraykaraaslan/db', () => ({
   getDataSource: vi.fn(),
   tenantDataSourceFor: vi.fn(),
 }));
 
-vi.mock('@nb/redis', () => ({
+vi.mock('@kuraykaraaslan/redis', () => ({
   default: {
     get: vi.fn(async () => null),
     set: vi.fn(async () => 'OK'),
@@ -34,15 +34,15 @@ vi.mock('@nb/redis', () => ({
   singleFlight: async <T,>(_key: string, loader: () => Promise<T>) => loader(),
 }));
 
-vi.mock('@nb/logger', () => ({
+vi.mock('@kuraykaraaslan/logger', () => ({
   default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() },
 }));
 
 import UserSocialAccountService from '../user_social_account.service';
-import { getDataSource } from '@nb/db';
+import { getDataSource } from '@kuraykaraaslan/db';
 import UserSocialAccountMessages from '../user_social_account.messages';
 import { describeProvider } from '../user_social_account.presentation';
-import { ACS_CATALOG } from '@nb/auth_acs/server/auth_acs.config';
+import { ACS_CATALOG } from '@kuraykaraaslan/auth_acs/server/auth_acs.config';
 
 // ─── Fixtures ────────────────────────────────────────────────────────────────
 

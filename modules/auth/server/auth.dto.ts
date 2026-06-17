@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { OTPMethodEnum, OTPActionEnum } from '@nb/user_security/server/user_security.enums';
+import { OTPMethodEnum, OTPActionEnum } from '@kuraykaraaslan/user_security/server/user_security.enums';
 
 // ============================================================================
 // Authentication DTOs

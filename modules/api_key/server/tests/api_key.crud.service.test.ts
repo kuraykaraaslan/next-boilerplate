@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('@nb/env', () => ({
+vi.mock('@kuraykaraaslan/env', () => ({
   env: {
     DATABASE_URL: 'postgresql://test',
     ACCESS_TOKEN_SECRET: 'test_secret',
@@ -10,12 +10,12 @@ vi.mock('@nb/env', () => ({
   },
 }));
 
-vi.mock('@nb/db', () => ({
+vi.mock('@kuraykaraaslan/db', () => ({
   getDataSource: vi.fn(),
   tenantDataSourceFor: vi.fn(),
 }));
 
-vi.mock('@nb/redis', () => ({
+vi.mock('@kuraykaraaslan/redis', () => ({
   default: {
     get: vi.fn(async () => null),
     set: vi.fn(async () => 'OK'),
@@ -31,10 +31,10 @@ vi.mock('@nb/redis', () => ({
   singleFlight: async (_key: string, fn: () => Promise<unknown>) => fn(),
   jitter: (n: number) => n,
 }));
-vi.mock('@nb/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
+vi.mock('@kuraykaraaslan/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
 
 // Bypass feature gating in unit tests — tested separately in tenant_subscription/.
-vi.mock('@nb/tenant_subscription/server/tenant_subscription.feature.service', () => ({
+vi.mock('@kuraykaraaslan/tenant_subscription/server/tenant_subscription.feature.service', () => ({
   default: {
     assertFeatureAccess: vi.fn(async () => undefined),
     checkFeatureAccess: vi.fn(async () => ({ allowed: true, featureKey: '', type: 'BOOLEAN', limit: null, unlimited: null, current: null })),
@@ -42,14 +42,14 @@ vi.mock('@nb/tenant_subscription/server/tenant_subscription.feature.service', ()
 }));
 // Webhook dispatch, audit logging and settings reads are side-effects of the
 // service — stub them so unit tests stay focused on api_key behaviour.
-vi.mock('@nb/webhook/server/webhook.service', () => ({ default: { dispatchEvent: vi.fn(async () => {}) } }));
-vi.mock('@nb/audit_log/server/audit_log.service', () => ({ default: { log: vi.fn(async () => {}) } }));
-vi.mock('@nb/setting/server/setting.service', () => ({
+vi.mock('@kuraykaraaslan/webhook/server/webhook.service', () => ({ default: { dispatchEvent: vi.fn(async () => {}) } }));
+vi.mock('@kuraykaraaslan/audit_log/server/audit_log.service', () => ({ default: { log: vi.fn(async () => {}) } }));
+vi.mock('@kuraykaraaslan/setting/server/setting.service', () => ({
   default: { getValue: vi.fn(async () => null), getByKeys: vi.fn(async () => ({})) },
 }));
-import SettingService from '@nb/setting/server/setting.service';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
 import ApiKeyService from '../api_key.service';
-import { tenantDataSourceFor } from '@nb/db';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
 import ApiKeyMessages from '../api_key.messages';
 import { TENANT_ID, USER_ID, KEY_ID, mockApiKey, makeMockRepo, setupTenantDs } from './api_key.test-utils';
 

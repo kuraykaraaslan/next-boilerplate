@@ -1,6 +1,6 @@
 import FileScanner, { type ScanOptions } from './base.scanner'
 import type { ScanResult } from '../storage.scan.types'
-import Logger from '@nb/logger'
+import Logger from '@kuraykaraaslan/logger'
 
 const VT_BASE = 'https://www.virustotal.com/api/v3'
 const POLL_INTERVAL_MS = 3000

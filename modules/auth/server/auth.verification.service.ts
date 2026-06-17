@@ -1,18 +1,18 @@
 import 'reflect-metadata';
 import crypto from 'crypto';
-import { getDataSource } from '@nb/db';
-import { User as UserEntity } from '@nb/user/server/entities/user.entity';
-import redis from '@nb/redis';
-import Logger from '@nb/logger';
-import MailAccountTemplatesService from '@nb/notification_mail/server/notification_mail.account-templates.service';
-import { ROOT_TENANT_ID } from '@nb/tenant/server/tenant.constants';
-import AuditLogService from '@nb/audit_log/server/audit_log.service';
-import { AuditActions } from '@nb/audit_log/server/audit_log.enums';
+import { getDataSource } from '@kuraykaraaslan/db';
+import { User as UserEntity } from '@kuraykaraaslan/user/server/entities/user.entity';
+import redis from '@kuraykaraaslan/redis';
+import Logger from '@kuraykaraaslan/logger';
+import MailAccountTemplatesService from '@kuraykaraaslan/notification_mail/server/notification_mail.account-templates.service';
+import { ROOT_TENANT_ID } from '@kuraykaraaslan/tenant/server/tenant.constants';
+import AuditLogService from '@kuraykaraaslan/audit_log/server/audit_log.service';
+import { AuditActions } from '@kuraykaraaslan/audit_log/server/audit_log.enums';
 import AuthMessages from './auth.messages';
 import AuthPolicyService from './auth.policy.service';
 import { authEmailSubject } from './auth.i18n';
 import type { AuthLocale } from './dictionaries';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 
 export default class AuthVerificationService {
 

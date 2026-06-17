@@ -1,6 +1,6 @@
 'use client'
-import { cn } from '@nb/common/server/utils/cn'
-import { Badge } from '@nb/common/ui/badge.component'
+import { cn } from '@kuraykaraaslan/common/server/utils/cn'
+import { Badge } from '@kuraykaraaslan/common/ui/badge.component'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faXTwitter, faGithub, faLinkedin, faInstagram, faYoutube, faFacebook } from '@fortawesome/free-brands-svg-icons'
 import type { IconDefinition } from '@fortawesome/fontawesome-svg-core'

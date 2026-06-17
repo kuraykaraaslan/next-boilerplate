@@ -1,4 +1,4 @@
-import type { SettingFieldDef } from '@nb/setting/server/setting-fields.types';
+import type { SettingFieldDef } from '@kuraykaraaslan/setting/server/setting-fields.types';
 
 // UI metadata for the Domains settings page. Keys are already read per-tenant
 // by tenant_domain.service.ts via SettingService.getByKey(tenantId, ...).

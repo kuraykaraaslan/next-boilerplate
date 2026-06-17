@@ -11,10 +11,10 @@
  */
 
 import { useCallback, useEffect, useState } from 'react';
-import api from '@nb/common/server/axios';
-import { Spinner } from '@nb/common/ui/spinner.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
-import { TabGroup } from '@nb/common/ui/tab-group.component';
+import api from '@kuraykaraaslan/common/server/axios';
+import { Spinner } from '@kuraykaraaslan/common/ui/spinner.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
+import { TabGroup } from '@kuraykaraaslan/common/ui/tab-group.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faEnvelope, faServer, faCreditCard, faRobot,

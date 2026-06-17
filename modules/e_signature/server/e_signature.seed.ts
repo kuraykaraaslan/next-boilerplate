@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import type { FindOptionsWhere } from 'typeorm';
-import type { SeedContext } from '@nb/seed/server/seed.context';
+import type { SeedContext } from '@kuraykaraaslan/seed/server/seed.context';
 import { TrustListEntry } from './entities/trust_list_entry.entity';
 
 /**

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 
-vi.mock('@nb/env', () => ({
+vi.mock('@kuraykaraaslan/env', () => ({
   env: {
     DATABASE_URL: 'postgresql://test',
     ACCESS_TOKEN_SECRET: 'test_secret',
@@ -12,8 +12,8 @@ vi.mock('@nb/env', () => ({
     MOBIL_IMZA_AGGREGATOR_CUSTOMER_CODE: 'CUST',
   },
 }));
-vi.mock('@nb/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
-vi.mock('@nb/e_signature/server/e_signature.crypto.service', () => ({ default: { parseCertificate: vi.fn() } }));
+vi.mock('@kuraykaraaslan/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
+vi.mock('@kuraykaraaslan/e_signature/server/e_signature.crypto.service', () => ({ default: { parseCertificate: vi.fn() } }));
 
 import MobilImzaAggregatorProvider from './mobil_imza_aggregator.provider';
 

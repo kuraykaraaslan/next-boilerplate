@@ -3,7 +3,7 @@ import {
   TENANT_ID, USER_ID, MEMBER_ID, mockMember, mockUser,
   makeRepo, mockDefaultDs, mockTenantDs,
 } from './tenant_member.test-setup';
-import { getDataSource } from '@nb/db';
+import { getDataSource } from '@kuraykaraaslan/db';
 import TenantMemberService from '../tenant_member.service';
 import TenantMemberMessages from '../tenant_member.messages';
 

@@ -1,12 +1,12 @@
 import 'reflect-metadata';
-import { tenantDataSourceFor } from '@nb/db';
-import redis, { jitter, singleFlight } from '@nb/redis';
-import { env } from '@nb/env';
-import Logger from '@nb/logger';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import redis, { jitter, singleFlight } from '@kuraykaraaslan/redis';
+import { env } from '@kuraykaraaslan/env';
+import Logger from '@kuraykaraaslan/logger';
 import { SubscriptionPlan as PlanEntity } from './entities/subscription_plan.entity';
 import { PlanFeature as PlanFeatureEntity } from './entities/plan_feature.entity';
 import { Subscription as SubscriptionEntity } from './entities/subscription.entity';
-import { StoreProduct as ProductEntity } from '@nb/store/server/entities/store_product.entity';
+import { StoreProduct as ProductEntity } from '@kuraykaraaslan/store/server/entities/store_product.entity';
 import {
   SubscriptionPlanSchema, PlanFeatureSchema, PlanWithFeaturesSchema,
   PlanWithProductSchema, PlanProductSummarySchema,
@@ -15,7 +15,7 @@ import {
 } from './payment_subscription.types';
 import type { CreatePlanDTO, UpdatePlanDTO, GetPlansQuery, CreateFeatureDTO } from './payment_subscription.dto';
 import { SUBSCRIPTION_MESSAGES } from './payment_subscription.messages';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 
 export default class PaymentSubscriptionPlanService {
 

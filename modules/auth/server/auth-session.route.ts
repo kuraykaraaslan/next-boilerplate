@@ -1,9 +1,9 @@
-import Logger from '@nb/logger';
+import Logger from '@kuraykaraaslan/logger';
 // path: app/tenant/[tenantId]/api/auth/session/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import TenantSessionNextService from "@nb/tenant_session/server/tenant_session.service.next";
-import Limiter from "@nb/limiter/server/limiter.service.next";
-import AuthMessages from "@nb/auth/server/auth.messages";
+import TenantSessionNextService from "@kuraykaraaslan/tenant_session/server/tenant_session.service.next";
+import Limiter from "@kuraykaraaslan/limiter/server/limiter.service.next";
+import AuthMessages from "@kuraykaraaslan/auth/server/auth.messages";
 
 export async function GET(
   request: NextRequest,

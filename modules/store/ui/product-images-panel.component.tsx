@@ -1,12 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import api from '@nb/common/server/axios';
-import { Button } from '@nb/common/ui/button.component';
-import { Input } from '@nb/common/ui/input.component';
-import { Badge } from '@nb/common/ui/badge.component';
-import { Modal } from '@nb/common/ui/modal.component';
-import { toast } from '@nb/common/ui/toast.store';
+import api from '@kuraykaraaslan/common/server/axios';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import { Input } from '@kuraykaraaslan/common/ui/input.component';
+import { Badge } from '@kuraykaraaslan/common/ui/badge.component';
+import { Modal } from '@kuraykaraaslan/common/ui/modal.component';
+import { toast } from '@kuraykaraaslan/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faImage, faTrash } from '@fortawesome/free-solid-svg-icons';
 

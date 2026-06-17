@@ -1,8 +1,8 @@
 'use client';
 import { useState } from 'react';
-import { Modal } from '@nb/common/ui/modal.component';
-import { Input } from '@nb/common/ui/input.component';
-import { Button } from '@nb/common/ui/button.component';
+import { Modal } from '@kuraykaraaslan/common/ui/modal.component';
+import { Input } from '@kuraykaraaslan/common/ui/input.component';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
 
 const MAX_DIM = 12;
 

@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import Limiter from '@nb/limiter/server/limiter.service.next'
-import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next'
-import DynamicCollectionService from '@nb/dynamic_page/server/dynamic_collection.service'
-import { UpdateCollectionDTO } from '@nb/dynamic_page/server/dynamic_page.dto'
-import { AppError } from '@nb/common/server/app-error'
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next'
+import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next'
+import DynamicCollectionService from '@kuraykaraaslan/dynamic_page/server/dynamic_collection.service'
+import { UpdateCollectionDTO } from '@kuraykaraaslan/dynamic_page/server/dynamic_page.dto'
+import { AppError } from '@kuraykaraaslan/common/server/app-error'
 
 export async function GET(
   request: NextRequest,

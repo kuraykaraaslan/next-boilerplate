@@ -1,5 +1,5 @@
 {
-  "name": "@nb/auth_sso_google",
+  "name": "@kuraykaraaslan/auth_sso_google",
   "version": "0.0.0",
   "private": true,
   "type": "module",

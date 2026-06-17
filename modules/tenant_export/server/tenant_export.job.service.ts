@@ -1,10 +1,10 @@
 import 'reflect-metadata'
 import { createHash } from 'node:crypto'
 import { LessThan, In } from 'typeorm'
-import { tenantDataSourceFor } from '@nb/db'
-import { createQueue, createWorker } from '@nb/redis'
-import Logger from '@nb/logger'
-import { AppError, ErrorCode } from '@nb/common/server/app-error'
+import { tenantDataSourceFor } from '@kuraykaraaslan/db'
+import { createQueue, createWorker } from '@kuraykaraaslan/redis'
+import Logger from '@kuraykaraaslan/logger'
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error'
 import { TenantExportJob, type ExportFormat } from './entities/tenant_export_job.entity'
 import TenantExportService from './tenant_export.service'
 import { serializeExport } from './tenant_export.format'
@@ -78,7 +78,7 @@ export default class TenantExportJobService {
       const sha256 = createHash('sha256').update(buffer).digest('hex')
 
       // Store to S3 + presigned URL.
-      const { default: StorageService } = await import('@nb/storage/server/storage.service')
+      const { default: StorageService } = await import('@kuraykaraaslan/storage/server/storage.service')
       const uploaded = await StorageService.uploadServerBuffer(tenantId, { buffer, filename, contentType, folder: 'exports' })
       const downloadUrl = await StorageService.getPresignedUrl(tenantId, uploaded.key, SIGNED_URL_TTL).catch(() => uploaded.url)
 
@@ -103,7 +103,7 @@ export default class TenantExportJobService {
 
   private static async emailLink(tenantId: string, email: string, url: string, expiresAt: Date): Promise<void> {
     try {
-      const { default: NotificationMailQueueService } = await import('@nb/notification_mail/server/notification_mail.queue.service')
+      const { default: NotificationMailQueueService } = await import('@kuraykaraaslan/notification_mail/server/notification_mail.queue.service')
       await NotificationMailQueueService.sendMail(tenantId, email, 'Your data export is ready',
         `<p>Your tenant data export is ready.</p><p><a href="${url}">Download</a> (link expires ${expiresAt.toISOString()}).</p>`)
     } catch (e) {
@@ -128,7 +128,7 @@ export default class TenantExportJobService {
     const job = await this.getJob(tenantId, exportJobId)
     if (job.status !== 'COMPLETED' || !job.storageKey) throw new AppError('Export not available', 409, ErrorCode.CONFLICT)
     if (job.expiresAt && job.expiresAt < new Date()) throw new AppError('Export has expired', 410, ErrorCode.NOT_FOUND)
-    const { default: StorageService } = await import('@nb/storage/server/storage.service')
+    const { default: StorageService } = await import('@kuraykaraaslan/storage/server/storage.service')
     const url = await StorageService.getPresignedUrl(tenantId, job.storageKey, SIGNED_URL_TTL)
     const ds = await tenantDataSourceFor(tenantId)
     await ds.getRepository(TenantExportJob).update({ tenantId, exportJobId }, { downloadUrl: url })
@@ -146,7 +146,7 @@ export default class TenantExportJobService {
       where: { tenantId, status: In(['COMPLETED']), expiresAt: LessThan(new Date()) },
     })
     let n = 0
-    const { default: StorageService } = await import('@nb/storage/server/storage.service')
+    const { default: StorageService } = await import('@kuraykaraaslan/storage/server/storage.service')
     for (const job of expired) {
       if (job.storageKey) await StorageService.deleteFile(tenantId, { key: job.storageKey }).catch(() => {})
       job.status = 'EXPIRED'

@@ -1,5 +1,5 @@
-import { env } from '@nb/env';
-import type { AIProviderContribution, ProviderConfig, ProviderSettings } from '@nb/ai/server/ai.provider.types';
+import { env } from '@kuraykaraaslan/env';
+import type { AIProviderContribution, ProviderConfig, ProviderSettings } from '@kuraykaraaslan/ai/server/ai.provider.types';
 import GoogleProvider from './providers/google.provider';
 
 /**

@@ -1,10 +1,10 @@
 import 'reflect-metadata';
-import { env } from '@nb/env';
+import { env } from '@kuraykaraaslan/env';
 import crypto from 'crypto';
-import redis from '@nb/redis';
-import SettingService from '@nb/setting/server/setting.service';
+import redis from '@kuraykaraaslan/redis';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
 import TenantInvitationMessages from './tenant_invitation.messages';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 
 export const INVITATION_TTL_SECONDS = env.INVITATION_TTL_SECONDS ?? (60 * 60 * 24 * 7);
 export const INVITATION_CACHE_TTL = env.TENANT_CACHE_TTL ?? (60 * 5);

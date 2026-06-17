@@ -1,4 +1,4 @@
-import type { CurrencyCode } from '@nb/common'
+import type { CurrencyCode } from '@kuraykaraaslan/common'
 import type { ProrationPreview } from './payment_subscription.types'
 import type { BillingCycle } from './payment_subscription.enums'
 

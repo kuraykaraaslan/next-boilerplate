@@ -1,11 +1,11 @@
-import { env } from '@nb/env';
+import { env } from '@kuraykaraaslan/env';
 import jwt from 'jsonwebtoken';
 import axios from 'axios';
 import crypto from 'crypto';
-import { BaseSSOProvider } from '@nb/auth_sso/server/providers/base.provider';
-import type { SSOProfile, SSOTokens } from '@nb/auth_sso/server/auth_sso.types';
-import { getCallbackUrl } from '@nb/auth_sso/server/auth_sso.config';
-import SSOMessages from '@nb/auth_sso/server/auth_sso.messages';
+import { BaseSSOProvider } from '@kuraykaraaslan/auth_sso/server/providers/base.provider';
+import type { SSOProfile, SSOTokens } from '@kuraykaraaslan/auth_sso/server/auth_sso.types';
+import { getCallbackUrl } from '@kuraykaraaslan/auth_sso/server/auth_sso.config';
+import SSOMessages from '@kuraykaraaslan/auth_sso/server/auth_sso.messages';
 import { APPLE_ISSUER, getApplePublicKey, type AppleIdTokenPayload } from './apple.jwks';
 
 /**

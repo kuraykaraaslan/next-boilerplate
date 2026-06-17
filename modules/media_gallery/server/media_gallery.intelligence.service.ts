@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto'
 import axios from 'axios'
-import Logger from '@nb/logger'
-import SettingService from '@nb/setting/server/setting.service'
+import Logger from '@kuraykaraaslan/logger'
+import SettingService from '@kuraykaraaslan/setting/server/setting.service'
 
 /**
  * Media intelligence: AI alt-text generation (vision), CSAM hash-matching, and

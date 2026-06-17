@@ -1,11 +1,11 @@
 // path: app/tenant/[tenantId]/api/auth/me/social-accounts/connect/[provider]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import Logger from '@nb/logger';
-import UserSessionNextService from '@nb/user_session/server/user_session.service.next';
-import SSOService from '@nb/auth_sso/server/auth_sso.service';
-import SSOMessages from '@nb/auth_sso/server/auth_sso.messages';
-import { SSOProvider, SSOProviderEnum } from '@nb/auth_sso/server/auth_sso.enums';
-import Limiter from '@nb/limiter/server/limiter.service.next';
+import Logger from '@kuraykaraaslan/logger';
+import UserSessionNextService from '@kuraykaraaslan/user_session/server/user_session.service.next';
+import SSOService from '@kuraykaraaslan/auth_sso/server/auth_sso.service';
+import SSOMessages from '@kuraykaraaslan/auth_sso/server/auth_sso.messages';
+import { SSOProvider, SSOProviderEnum } from '@kuraykaraaslan/auth_sso/server/auth_sso.enums';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
 
 /**
  * GET /tenant/[tenantId]/api/auth/me/social-accounts/connect/[provider]

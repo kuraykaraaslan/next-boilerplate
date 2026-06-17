@@ -1,5 +1,5 @@
-import { tenantDataSourceFor } from '@nb/db';
-import SettingService from '@nb/setting/server/setting.service';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
 
 export type OnboardingStep =
   | 'dns_configured'
@@ -34,7 +34,7 @@ export default class TenantOnboardingService {
 
   private static async isDnsConfigured(tenantId: string): Promise<boolean> {
     try {
-      const { default: TenantDomainService } = await import('@nb/tenant_domain/server/tenant_domain.service');
+      const { default: TenantDomainService } = await import('@kuraykaraaslan/tenant_domain/server/tenant_domain.service');
       const result = await TenantDomainService.getByTenantId({ tenantId, page: 0, pageSize: 10 }).catch(() => ({ domains: [] }));
       return (result as any).domains?.some((d: any) => d.verifiedAt) ?? false;
     } catch {
@@ -44,7 +44,7 @@ export default class TenantOnboardingService {
 
   private static async hasMembers(tenantId: string): Promise<boolean> {
     try {
-      const { default: TenantMemberService } = await import('@nb/tenant_member/server/tenant_member.service');
+      const { default: TenantMemberService } = await import('@kuraykaraaslan/tenant_member/server/tenant_member.service');
       const result = await TenantMemberService.getByTenantId({ tenantId, page: 0, pageSize: 2, search: null, memberRole: null, memberStatus: null }).catch(() => ({ total: 0 }));
       return (result as any).total > 1;
     } catch {

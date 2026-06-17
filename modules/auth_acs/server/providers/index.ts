@@ -1,4 +1,4 @@
-import { extensionRegistry } from '@nb/common/server/extension-registry';
+import { extensionRegistry } from '@kuraykaraaslan/common/server/extension-registry';
 import type { AcsProvider } from '../auth_acs.enums';
 import type { AcsProviderService } from '../auth_acs.types';
 import type { AcsProviderContribution } from '../auth_acs.provider.types';

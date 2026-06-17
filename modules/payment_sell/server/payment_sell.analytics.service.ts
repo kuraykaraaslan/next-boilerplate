@@ -1,5 +1,5 @@
 import 'reflect-metadata'
-import { tenantDataSourceFor } from '@nb/db'
+import { tenantDataSourceFor } from '@kuraykaraaslan/db'
 import { Payment as PaymentEntity } from './entities/payment.entity'
 
 export interface PaymentAnalytics {

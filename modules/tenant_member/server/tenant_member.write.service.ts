@@ -1,14 +1,14 @@
 import 'reflect-metadata';
 import { IsNull } from 'typeorm';
-import { tenantDataSourceFor } from '@nb/db';
-import redis from '@nb/redis';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import redis from '@kuraykaraaslan/redis';
 import { TenantMember as TenantMemberEntity } from './entities/tenant_member.entity';
 import { SafeTenantMember, SafeTenantMemberSchema } from './tenant_member.types';
 import { CreateTenantMemberInput, UpdateTenantMemberInput } from './tenant_member.dto';
 import TenantMemberMessages from './tenant_member.messages';
 import type { TenantMemberRole } from './tenant_member.enums';
-import WebhookService from '@nb/webhook/server/webhook.service';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import WebhookService from '@kuraykaraaslan/webhook/server/webhook.service';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { resolveDefaultRole } from './tenant_member.helpers';
 
 export async function create(data: CreateTenantMemberInput): Promise<SafeTenantMember> {

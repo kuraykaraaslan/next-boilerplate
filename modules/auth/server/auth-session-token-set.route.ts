@@ -1,5 +1,5 @@
-import Logger from '@nb/logger';
-import { env } from '@nb/env';
+import Logger from '@kuraykaraaslan/logger';
+import { env } from '@kuraykaraaslan/env';
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {

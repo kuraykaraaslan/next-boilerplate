@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { tenantDataSourceFor } from '@nb/db';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
 import { Message as MessageEntity } from './entities/message.entity';
 import type { MessageModerationStatus } from './messaging.enums';
 import { publishRealtime } from './messaging.realtime';

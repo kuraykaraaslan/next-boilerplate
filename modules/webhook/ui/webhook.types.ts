@@ -1,4 +1,4 @@
-import type { WebhookEvent } from '@nb/webhook/server/webhook.enums';
+import type { WebhookEvent } from '@kuraykaraaslan/webhook/server/webhook.enums';
 
 export type Webhook = {
   webhookId: string;

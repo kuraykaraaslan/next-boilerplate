@@ -1,14 +1,14 @@
 // path: app/tenant/[tenantId]/api/admin-settings/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import Limiter from '@nb/limiter/server/limiter.service.next';
-import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
-import SettingService from '@nb/setting/server/setting.service';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
+import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
 import {
   UpdateSettingsDTO,
   GetSettingsResponseDTO,
   UpdateSettingsResponseDTO,
-} from '@nb/setting/server/setting.dto';
-import SettingMessages from '@nb/setting/server/setting.messages';
+} from '@kuraykaraaslan/setting/server/setting.dto';
+import SettingMessages from '@kuraykaraaslan/setting/server/setting.messages';
 
 /**
  * GET /tenant/[tenantId]/api/admin-settings

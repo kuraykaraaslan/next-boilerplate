@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { TenantMemberRoleEnum, TenantMemberStatusEnum } from './tenant_member.enums';
-import { SafeUserSchema } from '@nb/user/server/user.types';
-import { SafeTenantSchema } from '@nb/tenant/server/tenant.types';
+import { SafeUserSchema } from '@kuraykaraaslan/user/server/user.types';
+import { SafeTenantSchema } from '@kuraykaraaslan/tenant/server/tenant.types';
 
 export const TenantMemberSchema = z.object({
   tenantMemberId: z.string().uuid(),

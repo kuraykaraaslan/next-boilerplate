@@ -1,4 +1,4 @@
-import Logger from '@nb/logger';
+import Logger from '@kuraykaraaslan/logger';
 import MailService from './notification_mail.service';
 import { getBaseTemplateVars } from './notification_mail.template-vars';
 

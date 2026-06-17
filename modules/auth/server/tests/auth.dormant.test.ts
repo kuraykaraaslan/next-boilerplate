@@ -1,17 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('@nb/env', () => ({ env: { NODE_ENV: 'test' } }));
-vi.mock('@nb/logger', () => ({ default: { info: vi.fn(), warn: vi.fn(), error: vi.fn() } }));
+vi.mock('@kuraykaraaslan/env', () => ({ env: { NODE_ENV: 'test' } }));
+vi.mock('@kuraykaraaslan/logger', () => ({ default: { info: vi.fn(), warn: vi.fn(), error: vi.fn() } }));
 vi.mock('bcrypt', () => ({ default: { hash: vi.fn(async () => 'hashed') } }));
-vi.mock('@nb/observability', () => ({ default: { recordTenantUsage: vi.fn() } }));
-vi.mock('@nb/webhook/server/webhook.service', () => ({ default: { dispatchEvent: vi.fn(async () => {}) } }));
-vi.mock('@nb/tenant/server/tenant.constants', () => ({ ROOT_TENANT_ID: 'root' }));
-vi.mock('@nb/user/server/user.service', () => ({ default: { getByEmail: vi.fn(async () => null), invalidate: vi.fn(async () => {}) } }));
-vi.mock('@nb/tenant/server/tenant.service', () => ({ default: { provisionPersonal: vi.fn() } }));
-vi.mock('@nb/tenant_invitation/server/tenant_invitation.service', () => ({ default: { autoAcceptForEmail: vi.fn() } }));
-vi.mock('@nb/user_security/server/user_security.service', () => ({ default: { pushPasswordHistory: vi.fn(async () => {}) } }));
-vi.mock('@nb/audit_log/server/audit_log.service', () => ({ default: { log: vi.fn(async () => {}) } }));
-vi.mock('@nb/audit_log/server/audit_log.enums', () => ({ AuditActions: { AUTH_DORMANT_DISABLED: 'd' } }));
+vi.mock('@kuraykaraaslan/observability', () => ({ default: { recordTenantUsage: vi.fn() } }));
+vi.mock('@kuraykaraaslan/webhook/server/webhook.service', () => ({ default: { dispatchEvent: vi.fn(async () => {}) } }));
+vi.mock('@kuraykaraaslan/tenant/server/tenant.constants', () => ({ ROOT_TENANT_ID: 'root' }));
+vi.mock('@kuraykaraaslan/user/server/user.service', () => ({ default: { getByEmail: vi.fn(async () => null), invalidate: vi.fn(async () => {}) } }));
+vi.mock('@kuraykaraaslan/tenant/server/tenant.service', () => ({ default: { provisionPersonal: vi.fn() } }));
+vi.mock('@kuraykaraaslan/tenant_invitation/server/tenant_invitation.service', () => ({ default: { autoAcceptForEmail: vi.fn() } }));
+vi.mock('@kuraykaraaslan/user_security/server/user_security.service', () => ({ default: { pushPasswordHistory: vi.fn(async () => {}) } }));
+vi.mock('@kuraykaraaslan/audit_log/server/audit_log.service', () => ({ default: { log: vi.fn(async () => {}) } }));
+vi.mock('@kuraykaraaslan/audit_log/server/audit_log.enums', () => ({ AuditActions: { AUTH_DORMANT_DISABLED: 'd' } }));
 vi.mock('../auth.captcha.service', () => ({ default: {} }));
 
 const dormantPolicy = vi.fn(async () => ({ days: 90, autoDisable: true, deleteAfterDays: 0 }));
@@ -24,7 +24,7 @@ const userRepo = {
   findOne: vi.fn(async () => ({ userId: 'u', email: 'u@x.com' })),
   update: vi.fn(async () => ({})),
 };
-vi.mock('@nb/db', () => ({
+vi.mock('@kuraykaraaslan/db', () => ({
   getDataSource: vi.fn(async () => ({
     query: (...a: any[]) => queryMock(...(a as [])),
     getRepository: () => userRepo,

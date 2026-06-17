@@ -1,5 +1,5 @@
-import ESignatureWorkflowService from '@nb/e_signature/server/e_signature.workflow.service';
-import WebhookService from '@nb/webhook/server/webhook.service';
+import ESignatureWorkflowService from '@kuraykaraaslan/e_signature/server/e_signature.workflow.service';
+import WebhookService from '@kuraykaraaslan/webhook/server/webhook.service';
 import AuthESignatureCertService from './auth_e_signature.cert.service';
 import { findUserByCountryFallback } from './auth_e_signature.match';
 import type { ESignatureLoginResult } from './auth_e_signature.types';

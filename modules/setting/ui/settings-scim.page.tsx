@@ -1,8 +1,8 @@
 'use client';
 import { use } from 'react';
-import { Breadcrumb } from '@nb/common/ui/breadcrumb.component';
-import { PageHeader } from '@nb/common/ui/page-header.component';
-import { PlatformScimTab } from '@nb/setting/ui/platform-settings-tabs.component';
+import { Breadcrumb } from '@kuraykaraaslan/common/ui/breadcrumb.component';
+import { PageHeader } from '@kuraykaraaslan/common/ui/page-header.component';
+import { PlatformScimTab } from '@kuraykaraaslan/setting/ui/platform-settings-tabs.component';
 
 export default function ScimSettingsPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = use(params);

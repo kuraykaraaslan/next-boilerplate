@@ -1,5 +1,5 @@
 import type { ValueTransformer } from 'typeorm';
-import { DEFAULT_CURRENCY as COMMON_DEFAULT_CURRENCY } from '@nb/common';
+import { DEFAULT_CURRENCY as COMMON_DEFAULT_CURRENCY } from '@kuraykaraaslan/common';
 
 /**
  * Default unit of account — the platform default ISO 4217 currency (single

@@ -1,15 +1,15 @@
 import 'reflect-metadata';
 import crypto from 'crypto';
-import { getDataSource } from '@nb/db';
-import { User as UserEntity } from '@nb/user/server/entities/user.entity';
+import { getDataSource } from '@kuraykaraaslan/db';
+import { User as UserEntity } from '@kuraykaraaslan/user/server/entities/user.entity';
 import bcrypt from 'bcrypt';
-import Logger from '@nb/logger';
-import UserService from '@nb/user/server/user.service';
-import AuditLogService from '@nb/audit_log/server/audit_log.service';
-import { AuditActions } from '@nb/audit_log/server/audit_log.enums';
+import Logger from '@kuraykaraaslan/logger';
+import UserService from '@kuraykaraaslan/user/server/user.service';
+import AuditLogService from '@kuraykaraaslan/audit_log/server/audit_log.service';
+import { AuditActions } from '@kuraykaraaslan/audit_log/server/audit_log.enums';
 import AuthMessages from './auth.messages';
 import AuthPolicyService from './auth.policy.service';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 
 /**
  * GDPR Art. 17 / CCPA / KVKK right-to-erasure.

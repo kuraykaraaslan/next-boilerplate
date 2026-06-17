@@ -1,6 +1,6 @@
 'use client';
 import { use } from 'react';
-import { ModuleManagerPage } from '@nb/setting/ui/module-manager-page.component';
+import { ModuleManagerPage } from '@kuraykaraaslan/setting/ui/module-manager-page.component';
 
 export default function AdminModulesPage({
   params,

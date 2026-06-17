@@ -1,16 +1,16 @@
-import Logger from '@nb/logger';
-import { env } from '@nb/env';
+import Logger from '@kuraykaraaslan/logger';
+import { env } from '@kuraykaraaslan/env';
 // Utils
-import { SafeUserSession, SafeUserSessionSchema, type SessionMeta } from '@nb/user_session/server/user_session.types';
+import { SafeUserSession, SafeUserSessionSchema, type SessionMeta } from '@kuraykaraaslan/user_session/server/user_session.types';
 import { NextRequest } from 'next/server';
-import { SafeUser, SafeUserSchema } from '@nb/user/server/user.types';
+import { SafeUser, SafeUserSchema } from '@kuraykaraaslan/user/server/user.types';
 import crypto from "crypto";
-import UserSessionMessages from "@nb/user_session/server/user_session.messages";
-import redis from "@nb/redis";
-import { SafeUserSecurity } from '@nb/user_security/server/user_security.types';
-import UserSessionService from '@nb/user_session/server/user_session.service';
-import { getDataSource } from '@nb/db';
-import { User as UserEntity } from '@nb/user/server/entities/user.entity';
+import UserSessionMessages from "@kuraykaraaslan/user_session/server/user_session.messages";
+import redis from "@kuraykaraaslan/redis";
+import { SafeUserSecurity } from '@kuraykaraaslan/user_security/server/user_security.types';
+import UserSessionService from '@kuraykaraaslan/user_session/server/user_session.service';
+import { getDataSource } from '@kuraykaraaslan/db';
+import { User as UserEntity } from '@kuraykaraaslan/user/server/entities/user.entity';
 
 const SESSION_CACHE_TTL = env.SESSION_CACHE_TTL;
 

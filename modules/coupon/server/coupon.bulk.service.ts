@@ -1,11 +1,11 @@
 import 'reflect-metadata';
 import crypto from 'crypto';
 import { In } from 'typeorm';
-import { tenantDataSourceFor } from '@nb/db';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
 import { Coupon as CouponEntity } from './entities/coupon.entity';
-import Logger from '@nb/logger';
+import Logger from '@kuraykaraaslan/logger';
 import { COUPON_MESSAGES } from './coupon.messages';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import type { BulkCreateCouponDTO, CsvImportRow } from './coupon.dto';
 import { CsvImportRowSchema } from './coupon.dto';
 

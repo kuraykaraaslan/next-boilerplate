@@ -1,5 +1,5 @@
-import redis from '@nb/redis';
-import { env } from '@nb/env';
+import redis from '@kuraykaraaslan/redis';
+import { env } from '@kuraykaraaslan/env';
 
 export const COUPON_CACHE_TTL = env.TENANT_CACHE_TTL ?? (60 * 5);
 export const NEGATIVE_CACHE_TTL = Math.min(60, COUPON_CACHE_TTL);

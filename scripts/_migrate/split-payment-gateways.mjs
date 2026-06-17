@@ -15,8 +15,8 @@ const G = {
 const ENUM = { paypal: 'PAYPAL', iyzico: 'IYZICO', alipay: 'ALIPAY', cloudpayments: 'CLOUDPAYMENTS', wechatpay: 'WECHATPAY', yookassa: 'YOOKASSA' };
 
 const fixImports = (s) =>
-  s.replace(/from '\.\/base\.provider'/g, "from '@nb/payment/server/providers/base.provider'")
-    .replace(/from '\.\.\//g, "from '@nb/payment/server/"); // ../payment.X -> @nb/payment/server/payment.X
+  s.replace(/from '\.\/base\.provider'/g, "from '@kuraykaraaslan/payment/server/providers/base.provider'")
+    .replace(/from '\.\.\//g, "from '@kuraykaraaslan/payment/server/"); // ../payment.X -> @kuraykaraaslan/payment/server/payment.X
 
 for (const [key, meta] of Object.entries(G)) {
   const mod = `modules/payment_${key}`;
@@ -29,7 +29,7 @@ for (const [key, meta] of Object.entries(G)) {
   }
   fs.writeFileSync(
     `${mod}/server/${key}.extension.ts`,
-    `import type { PaymentGatewayContribution } from '@nb/payment/server/payment.gateway.types';\n` +
+    `import type { PaymentGatewayContribution } from '@kuraykaraaslan/payment/server/payment.gateway.types';\n` +
       `import ${meta.cls} from './providers/${key}.provider';\n\n` +
       `const contribution: PaymentGatewayContribution = {\n  key: '${key}',\n  create: () => new ${meta.cls}(),\n};\n\nexport default contribution;\n`,
   );
@@ -57,7 +57,7 @@ for (const [key, meta] of Object.entries(G)) {
   );
   fs.writeFileSync(
     `${mod}/package.json`,
-    JSON.stringify({ name: `@nb/payment_${key}`, version: '0.0.0', private: true, type: 'module', exports: {} }, null, 2) + '\n',
+    JSON.stringify({ name: `@kuraykaraaslan/payment_${key}`, version: '0.0.0', private: true, type: 'module', exports: {} }, null, 2) + '\n',
   );
   console.log(`extracted ${key} -> ${mod}`);
 }

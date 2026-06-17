@@ -1,6 +1,6 @@
-import type { Invoice } from '@nb/invoice/server/entities/invoice.entity';
-import type { InvoiceLine } from '@nb/invoice/server/entities/invoice_line.entity';
-import { xmlEscape, money, qty, pct, isoDate, readAddress } from '@nb/invoice/server/adapters/xml.util';
+import type { Invoice } from '@kuraykaraaslan/invoice/server/entities/invoice.entity';
+import type { InvoiceLine } from '@kuraykaraaslan/invoice/server/entities/invoice_line.entity';
+import { xmlEscape, money, qty, pct, isoDate, readAddress } from '@kuraykaraaslan/invoice/server/adapters/xml.util';
 
 /**
  * Italian **FatturaPA / FatturaElettronica v1.2** serialiser (the XML the SdI

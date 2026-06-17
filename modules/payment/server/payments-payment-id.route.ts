@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import PaymentService from "@nb/payment/server/payment.service";
-import TenantPlanService from "@nb/tenant_subscription/server/tenant_subscription.plan.service";
-import { UpdatePaymentRequestSchema } from "@nb/payment/server/payment.dto";
-import Limiter from "@nb/limiter/server/limiter.service.next";
+import PaymentService from "@kuraykaraaslan/payment/server/payment.service";
+import TenantPlanService from "@kuraykaraaslan/tenant_subscription/server/tenant_subscription.plan.service";
+import { UpdatePaymentRequestSchema } from "@kuraykaraaslan/payment/server/payment.dto";
+import Limiter from "@kuraykaraaslan/limiter/server/limiter.service.next";
 
-import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
+import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next';
 
 /**
  * Resolve "what is this payment for" from its metadata: a subscription (plan +

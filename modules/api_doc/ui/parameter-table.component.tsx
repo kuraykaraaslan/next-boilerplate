@@ -1,4 +1,4 @@
-import { cn } from '@nb/common/server/utils/cn';
+import { cn } from '@kuraykaraaslan/common/server/utils/cn';
 import type { Parameter } from './types';
 
 const locationStyle: Record<string, string> = {

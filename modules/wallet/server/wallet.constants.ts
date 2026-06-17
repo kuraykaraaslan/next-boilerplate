@@ -1,5 +1,5 @@
 import type { ValueTransformer } from 'typeorm';
-import { DEFAULT_CURRENCY as COMMON_DEFAULT_CURRENCY } from '@nb/common';
+import { DEFAULT_CURRENCY as COMMON_DEFAULT_CURRENCY } from '@kuraykaraaslan/common';
 import type { AccountKind } from './wallet.enums';
 
 /**

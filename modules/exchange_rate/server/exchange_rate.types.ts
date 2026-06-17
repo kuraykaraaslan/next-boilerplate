@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { CurrencyCodeEnum } from '@nb/common'
+import { CurrencyCodeEnum } from '@kuraykaraaslan/common'
 
 /**
  * A resolved multiplicative FX rate: `amountTo = amountFrom * rate`.

@@ -1,6 +1,6 @@
 import { createCipheriv, createDecipheriv, randomBytes, type CipherGCM, type DecipherGCM } from 'node:crypto';
-import { env } from '@nb/env';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { env } from '@kuraykaraaslan/env';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { E_SIGNATURE_MESSAGES } from './e_signature.messages';
 
 /**

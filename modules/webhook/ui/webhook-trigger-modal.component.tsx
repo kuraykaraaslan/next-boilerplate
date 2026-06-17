@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Button } from '@nb/common/ui/button.component';
-import { Modal } from '@nb/common/ui/modal.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
-import type { WebhookEvent } from '@nb/webhook/server/webhook.enums';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import { Modal } from '@kuraykaraaslan/common/ui/modal.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
+import type { WebhookEvent } from '@kuraykaraaslan/webhook/server/webhook.enums';
 import type { Webhook } from './webhook.types';
 
 type Props = {

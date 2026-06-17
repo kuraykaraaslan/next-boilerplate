@@ -1,11 +1,11 @@
-import { env } from '@nb/env';
-import Logger from '@nb/logger';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { env } from '@kuraykaraaslan/env';
+import Logger from '@kuraykaraaslan/logger';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { AcsProviderEnum, type AcsProvider } from './auth_acs.enums';
 import { ACS_CATALOG } from './auth_acs.config';
 import { AcsProviderMapSchema, type AcsResolvedConfig, type AcsProviderEnvEntry } from './auth_acs.types';
 import AcsMessages from './auth_acs.messages';
-import { ROOT_TENANT_ID } from '@nb/tenant/server/tenant.constants';
+import { ROOT_TENANT_ID } from '@kuraykaraaslan/tenant/server/tenant.constants';
 
 const APP_HOST = env.APPLICATION_HOST || 'http://localhost:3000';
 // ACS endpoints are served by the tenant API dispatcher under the root tenant

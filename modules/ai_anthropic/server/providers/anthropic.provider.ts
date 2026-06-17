@@ -1,13 +1,13 @@
-import BaseAIProvider from '@nb/ai/server/providers/base.provider';
-import Logger from '@nb/logger';
+import BaseAIProvider from '@kuraykaraaslan/ai/server/providers/base.provider';
+import Logger from '@kuraykaraaslan/logger';
 import type {
   ChatCompletionOptions,
   ChatCompletionResponse,
   EmbeddingOptions,
   EmbeddingResponse,
   ProviderConfig,
-} from '@nb/ai/server/ai.types';
-import { AIError, AIRateLimitError, AIAuthenticationError } from '@nb/ai/server/ai.types';
+} from '@kuraykaraaslan/ai/server/ai.types';
+import { AIError, AIRateLimitError, AIAuthenticationError } from '@kuraykaraaslan/ai/server/ai.types';
 
 // Models Anthropic serves. Mirror this list in modules/ai_anthropic/module.json
 // `extensions[].metadata.models` (the registry reads that for code-free listing).

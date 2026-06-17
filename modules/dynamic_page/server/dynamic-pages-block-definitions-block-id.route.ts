@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import Limiter from '@nb/limiter/server/limiter.service.next'
-import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next'
-import DynamicPageService from '@nb/dynamic_page/server/dynamic_page.service'
-import { UpdateBlockDTO } from '@nb/dynamic_page/server/dynamic_page.dto'
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next'
+import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next'
+import DynamicPageService from '@kuraykaraaslan/dynamic_page/server/dynamic_page.service'
+import { UpdateBlockDTO } from '@kuraykaraaslan/dynamic_page/server/dynamic_page.dto'
 
 type Ctx = { params: Promise<{ tenantId: string; blockId: string }> }
 

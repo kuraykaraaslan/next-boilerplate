@@ -1,13 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import api from '@nb/common/server/axios';
-import { Button } from '@nb/common/ui/button.component';
-import { Input } from '@nb/common/ui/input.component';
-import { Select } from '@nb/common/ui/select.component';
-import { Modal } from '@nb/common/ui/modal.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
-import { CurrencySelector } from '@nb/common/ui/currency-selector.component';
+import api from '@kuraykaraaslan/common/server/axios';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import { Input } from '@kuraykaraaslan/common/ui/input.component';
+import { Select } from '@kuraykaraaslan/common/ui/select.component';
+import { Modal } from '@kuraykaraaslan/common/ui/modal.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
+import { CurrencySelector } from '@kuraykaraaslan/common/ui/currency-selector.component';
 
 type Category = { categoryId: string; name: string };
 type CreateForm = { name: string; slug: string; categoryId: string; basePrice: string; currency: string };

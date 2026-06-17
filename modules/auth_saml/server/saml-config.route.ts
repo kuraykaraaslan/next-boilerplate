@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next';
-import SamlService from '@nb/auth_saml/server/auth_saml.service';
-import { UpsertSamlConfigDTO } from '@nb/auth_saml/server/auth_saml.dto';
+import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next';
+import SamlService from '@kuraykaraaslan/auth_saml/server/auth_saml.service';
+import { UpsertSamlConfigDTO } from '@kuraykaraaslan/auth_saml/server/auth_saml.dto';
 
 type Params = { params: Promise<{ tenantId: string }> };
 

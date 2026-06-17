@@ -1,5 +1,5 @@
-import redis from '@nb/redis';
-import Logger from '@nb/logger';
+import redis from '@kuraykaraaslan/redis';
+import Logger from '@kuraykaraaslan/logger';
 import {
   CheckoutSessionParams,
   CheckoutSessionResult,
@@ -14,10 +14,10 @@ import {
 import { PaymentProvider } from './payment.enums';
 import { GetProviderStatusDTO } from './payment.dto';
 import { PAYMENT_MESSAGES } from './payment.messages';
-import AuditLogService from '@nb/audit_log/server/audit_log.service';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import AuditLogService from '@kuraykaraaslan/audit_log/server/audit_log.service';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { getProvider, resolveEnabledProvider } from './payment.checkout.registry';
-import AgreementService from '@nb/terms_consent/server/terms_consent.agreements.service';
+import AgreementService from '@kuraykaraaslan/terms_consent/server/terms_consent.agreements.service';
 
 export async function createCustomerPortalSession(
   tenantId: string,

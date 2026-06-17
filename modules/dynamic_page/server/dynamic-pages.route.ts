@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import Limiter from '@nb/limiter/server/limiter.service.next'
-import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next'
-import DynamicPageService from '@nb/dynamic_page/server/dynamic_page.service'
-import { CreatePageDTO } from '@nb/dynamic_page/server/dynamic_page.dto'
-import { ListPagesQuerySchema } from '@nb/dynamic_page/server/dynamic_page.types'
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next'
+import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next'
+import DynamicPageService from '@kuraykaraaslan/dynamic_page/server/dynamic_page.service'
+import { CreatePageDTO } from '@kuraykaraaslan/dynamic_page/server/dynamic_page.dto'
+import { ListPagesQuerySchema } from '@kuraykaraaslan/dynamic_page/server/dynamic_page.types'
 
 export async function GET(
   request: NextRequest,

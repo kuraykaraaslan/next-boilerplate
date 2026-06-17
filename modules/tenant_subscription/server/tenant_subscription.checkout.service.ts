@@ -1,13 +1,13 @@
 import 'reflect-metadata';
-import { tenantDataSourceFor } from '@nb/db';
-import { SubscriptionPlan as SubscriptionPlanEntity } from '@nb/payment/server/entities/subscription_plan.entity';
-import Logger from '@nb/logger';
-import PaymentService from '@nb/payment/server/payment.service';
-import { ExchangeRateService } from '@nb/exchange_rate';
-import type { PaymentProvider, PaymentCurrency } from '@nb/payment/server/payment.enums';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import { SubscriptionPlan as SubscriptionPlanEntity } from '@kuraykaraaslan/payment/server/entities/subscription_plan.entity';
+import Logger from '@kuraykaraaslan/logger';
+import PaymentService from '@kuraykaraaslan/payment/server/payment.service';
+import { ExchangeRateService } from '@kuraykaraaslan/exchange_rate';
+import type { PaymentProvider, PaymentCurrency } from '@kuraykaraaslan/payment/server/payment.enums';
 import type { TenantSubscription } from './tenant_subscription.types';
 import { SUBSCRIPTION_MESSAGES } from './tenant_subscription.messages';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { fetchProductOrThrow } from './tenant_subscription.helpers';
 import TenantSubscriptionService from './tenant_subscription.service';
 

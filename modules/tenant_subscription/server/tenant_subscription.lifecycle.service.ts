@@ -1,12 +1,12 @@
 import 'reflect-metadata';
-import { tenantDataSourceFor } from '@nb/db';
-import { SubscriptionPlan as SubscriptionPlanEntity } from '@nb/payment/server/entities/subscription_plan.entity';
-import { PlanFeature as PlanFeatureEntity } from '@nb/payment/server/entities/plan_feature.entity';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import { SubscriptionPlan as SubscriptionPlanEntity } from '@kuraykaraaslan/payment/server/entities/subscription_plan.entity';
+import { PlanFeature as PlanFeatureEntity } from '@kuraykaraaslan/payment/server/entities/plan_feature.entity';
 import { TenantSubscription as TenantSubscriptionEntity } from './entities/tenant_subscription.entity';
-import { ROOT_TENANT_ID } from '@nb/tenant/server/tenant.constants';
-import Logger from '@nb/logger';
-import PaymentService from '@nb/payment/server/payment.service';
-import WebhookService from '@nb/webhook/server/webhook.service';
+import { ROOT_TENANT_ID } from '@kuraykaraaslan/tenant/server/tenant.constants';
+import Logger from '@kuraykaraaslan/logger';
+import PaymentService from '@kuraykaraaslan/payment/server/payment.service';
+import WebhookService from '@kuraykaraaslan/webhook/server/webhook.service';
 import {
   TenantSubscriptionSchema,
   TenantSubscriptionWithPlanSchema,
@@ -17,7 +17,7 @@ import type {
 } from './tenant_subscription.types';
 import type { AssignSubscriptionDTO } from './tenant_subscription.dto';
 import { SUBSCRIPTION_MESSAGES } from './tenant_subscription.messages';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { emitWebhook } from './tenant_subscription.helpers';
 import TenantFeatureGateService from './tenant_subscription.feature.service';
 

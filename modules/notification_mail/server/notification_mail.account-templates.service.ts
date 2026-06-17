@@ -1,5 +1,5 @@
-import { env } from "@nb/env";
-import Logger from "@nb/logger";
+import { env } from "@kuraykaraaslan/env";
+import Logger from "@kuraykaraaslan/logger";
 import MailService from "./notification_mail.service";
 import { getBaseTemplateVars } from "./notification_mail.template-vars";
 

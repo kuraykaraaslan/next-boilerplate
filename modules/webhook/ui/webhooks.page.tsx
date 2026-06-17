@@ -1,24 +1,24 @@
 'use client';
 import { use, useEffect, useState, useCallback } from 'react';
-import api from '@nb/common/server/axios';
-import { PageHeader } from '@nb/common/ui/page-header.component';
-import { Button } from '@nb/common/ui/button.component';
-import { Modal } from '@nb/common/ui/modal.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
-import { ServerDataTable } from '@nb/common/ui/server-data-table.component';
-import { toast } from '@nb/common/ui/toast.store';
-import { isRootTenant } from '@nb/tenant/server/tenant.constants';
+import api from '@kuraykaraaslan/common/server/axios';
+import { PageHeader } from '@kuraykaraaslan/common/ui/page-header.component';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import { Modal } from '@kuraykaraaslan/common/ui/modal.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
+import { ServerDataTable } from '@kuraykaraaslan/common/ui/server-data-table.component';
+import { toast } from '@kuraykaraaslan/common/ui/toast.store';
+import { isRootTenant } from '@kuraykaraaslan/tenant/server/tenant.constants';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGear } from '@fortawesome/free-solid-svg-icons';
-import type { WebhookEvent } from '@nb/webhook/server/webhook.enums';
-import type { WebhookMetrics } from '@nb/webhook/server/webhook.types';
-import { groupedCatalogForScope, scopeForTenant } from '@nb/webhook/server/webhook.catalog';
+import type { WebhookEvent } from '@kuraykaraaslan/webhook/server/webhook.enums';
+import type { WebhookMetrics } from '@kuraykaraaslan/webhook/server/webhook.types';
+import { groupedCatalogForScope, scopeForTenant } from '@kuraykaraaslan/webhook/server/webhook.catalog';
 
-import { type Webhook, type Delivery, extractMessage } from '@nb/webhook/ui/webhook.types';
-import { WebhookFormModal } from '@nb/webhook/ui/webhook-form-modal.component';
-import { WebhookTriggerModal } from '@nb/webhook/ui/webhook-trigger-modal.component';
-import { WebhookDeliveryModal } from '@nb/webhook/ui/webhook-delivery-modal.component';
-import { buildWebhookColumns } from '@nb/webhook/ui/webhook-columns.component';
+import { type Webhook, type Delivery, extractMessage } from '@kuraykaraaslan/webhook/ui/webhook.types';
+import { WebhookFormModal } from '@kuraykaraaslan/webhook/ui/webhook-form-modal.component';
+import { WebhookTriggerModal } from '@kuraykaraaslan/webhook/ui/webhook-trigger-modal.component';
+import { WebhookDeliveryModal } from '@kuraykaraaslan/webhook/ui/webhook-delivery-modal.component';
+import { buildWebhookColumns } from '@kuraykaraaslan/webhook/ui/webhook-columns.component';
 
 const PAGE_SIZE = 20;
 

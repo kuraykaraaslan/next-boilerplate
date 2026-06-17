@@ -6,9 +6,9 @@ import {
   faMagnifyingGlassPlus, faMagnifyingGlassMinus,
   faExpand, faCopy, faTrash, faAnglesLeft, faAnglesRight, faGripVertical,
 } from '@fortawesome/free-solid-svg-icons';
-import { cn } from '@nb/common/server/utils/cn';
-import { ContextMenu } from '@nb/common/ui/context-menu.component';
-import type { ContextMenuItem } from '@nb/common/ui/context-menu.component';
+import { cn } from '@kuraykaraaslan/common/server/utils/cn';
+import { ContextMenu } from '@kuraykaraaslan/common/ui/context-menu.component';
+import type { ContextMenuItem } from '@kuraykaraaslan/common/ui/context-menu.component';
 
 export type ImageGalleryImage = {
   src: string;

@@ -1,4 +1,4 @@
-import { Spinner } from '@nb/common/ui/spinner.component';
+import { Spinner } from '@kuraykaraaslan/common/ui/spinner.component';
 
 export default function TenantAdminLoading() {
   return (

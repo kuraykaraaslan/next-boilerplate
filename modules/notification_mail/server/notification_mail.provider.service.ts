@@ -1,8 +1,8 @@
-import { env } from '@nb/env';
-import Logger from '@nb/logger';
-import SettingService from '@nb/setting/server/setting.service';
-import { extensionRegistry } from '@nb/common/server/extension-registry';
-import { getEnabledModuleIds } from '@nb/setting/server/module-activation.service.next';
+import { env } from '@kuraykaraaslan/env';
+import Logger from '@kuraykaraaslan/logger';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
+import { extensionRegistry } from '@kuraykaraaslan/common/server/extension-registry';
+import { getEnabledModuleIds } from '@kuraykaraaslan/setting/server/module-activation.service.next';
 import ejs from 'ejs';
 import path from 'path';
 import type BaseMailProvider from './providers/base.provider';

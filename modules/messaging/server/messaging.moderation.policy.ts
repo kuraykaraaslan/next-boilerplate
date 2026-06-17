@@ -1,4 +1,4 @@
-import SettingService from '@nb/setting/server/setting.service';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
 import type { ModerationMode } from './messaging.enums';
 import {
   MESSAGING_MODERATION_KEYS,

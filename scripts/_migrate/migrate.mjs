@@ -1,4 +1,4 @@
-// One-time migration: turn each modules/<id> into an @nb/<id> workspace package
+// One-time migration: turn each modules/<id> into an @kuraykaraaslan/<id> workspace package
 // with a server/ + ui/ + hooks/ layout. Phase A moves files; Phase B writes
 // package.json. Import rewriting is a separate pass (rewrite-imports.mjs).
 //
@@ -91,7 +91,7 @@ if (APPLY) {
     const mdir = path.join('modules', id);
     const hasReact = fs.existsSync(path.join(mdir, 'ui')) || fs.existsSync(path.join(mdir, 'hooks'));
     const pkg = {
-      name: `@nb/${id}`,
+      name: `@kuraykaraaslan/${id}`,
       version: '0.0.0',
       private: true,
       type: 'module',

@@ -1,4 +1,4 @@
-import { extensionRegistry } from '@nb/common/server/extension-registry';
+import { extensionRegistry } from '@kuraykaraaslan/common/server/extension-registry';
 import type { SSOProvider } from '../auth_sso.enums';
 import type { SSOProviderService } from '../auth_sso.types';
 import type { SSOProviderContribution } from '../auth_sso.provider.types';

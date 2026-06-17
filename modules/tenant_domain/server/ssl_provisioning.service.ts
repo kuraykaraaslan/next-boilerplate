@@ -1,8 +1,8 @@
 import tls from 'node:tls';
-import { getDataSource } from '@nb/db';
+import { getDataSource } from '@kuraykaraaslan/db';
 import { TenantDomain } from './entities/tenant_domain.entity';
 import type { SslStatus } from './tenant_domain.enums';
-import Logger from '@nb/logger';
+import Logger from '@kuraykaraaslan/logger';
 
 /**
  * SSL / TLS observability for tenant custom domains.

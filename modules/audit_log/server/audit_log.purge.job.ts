@@ -1,9 +1,9 @@
 import { Queue, Worker, Job } from 'bullmq';
-import { getBullMQConnection } from '@nb/redis/server/redis.bullmq';
-import { getSystemDataSource } from '@nb/db';
-import { Tenant } from '@nb/tenant/server/entities/tenant.entity';
+import { getBullMQConnection } from '@kuraykaraaslan/redis/server/redis.bullmq';
+import { getSystemDataSource } from '@kuraykaraaslan/db';
+import { Tenant } from '@kuraykaraaslan/tenant/server/entities/tenant.entity';
 import AuditLogService from './audit_log.service';
-import Logger from '@nb/logger';
+import Logger from '@kuraykaraaslan/logger';
 
 /**
  * Automated retention purge sweep. For every tenant, runs

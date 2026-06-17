@@ -3,7 +3,7 @@ export {
   PaymentCurrencyEnum,
   type PaymentProvider,
   type PaymentCurrency,
-} from '@nb/payment_core/server/payment_core.enums'
+} from '@kuraykaraaslan/payment_core/server/payment_core.enums'
 
 import { z } from 'zod'
 
@@ -31,4 +31,4 @@ export type SubscriptionPlanStatus = z.infer<typeof SubscriptionPlanStatusEnum>
 export {
   PlanFeatureTypeEnum,
   type PlanFeatureType,
-} from '@nb/tenant_subscription/server/tenant_subscription.enums'
+} from '@kuraykaraaslan/tenant_subscription/server/tenant_subscription.enums'

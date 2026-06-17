@@ -1,7 +1,7 @@
 import { Queue, Worker, Job } from 'bullmq';
-import { getBullMQConnection } from '@nb/redis/server/redis.bullmq';
+import { getBullMQConnection } from '@kuraykaraaslan/redis/server/redis.bullmq';
 import TenantSubscriptionService from './tenant_subscription.service';
-import Logger from '@nb/logger';
+import Logger from '@kuraykaraaslan/logger';
 
 const QUEUE_NAME = 'subscription-expire';
 

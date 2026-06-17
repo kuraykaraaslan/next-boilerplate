@@ -1,14 +1,14 @@
 import { cache } from 'react'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
-import DynamicPageService from '@nb/dynamic_page/server/dynamic_page.service'
-import { SeoService } from '@nb/seo/server'
+import DynamicPageService from '@kuraykaraaslan/dynamic_page/server/dynamic_page.service'
+import { SeoService } from '@kuraykaraaslan/seo/server'
 import DynamicPageRenderer from './dynamic-page-renderer.component'
 import SiteChrome from './site-chrome.component'
 import TenantWelcome from './tenant-welcome.component'
 import type { BlockData } from './dynamic/types'
-import type { DynamicPageRecord } from '@nb/dynamic_page/server/dynamic_page.types'
-import { resolvePageLayout } from '@nb/dynamic_page/server/dynamic_page.types'
+import type { DynamicPageRecord } from '@kuraykaraaslan/dynamic_page/server/dynamic_page.types'
+import { resolvePageLayout } from '@kuraykaraaslan/dynamic_page/server/dynamic_page.types'
 
 export const MAX_SLUG_DEPTH = 4
 

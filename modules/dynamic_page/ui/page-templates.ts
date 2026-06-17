@@ -1,4 +1,4 @@
-import type { BlockData } from '@nb/dynamic_page/server/dynamic_page.types'
+import type { BlockData } from '@kuraykaraaslan/dynamic_page/server/dynamic_page.types'
 
 export interface PageTemplate {
   id: string

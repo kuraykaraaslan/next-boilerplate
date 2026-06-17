@@ -1,7 +1,7 @@
 import vm from 'vm'
-import DynamicCollectionService from '@nb/dynamic_page/server/dynamic_collection.service'
-import { AppError, ErrorCode } from '@nb/common/server/app-error'
-import DynamicPageMessages from '@nb/dynamic_page/server/dynamic_page.messages'
+import DynamicCollectionService from '@kuraykaraaslan/dynamic_page/server/dynamic_collection.service'
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error'
+import DynamicPageMessages from '@kuraykaraaslan/dynamic_page/server/dynamic_page.messages'
 
 const HANDLER_TIMEOUT_MS = 3000
 

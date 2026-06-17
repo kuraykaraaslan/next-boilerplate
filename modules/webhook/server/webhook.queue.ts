@@ -1,12 +1,12 @@
 import 'reflect-metadata';
 import { Queue, Worker, Job } from 'bullmq';
-import { getBullMQConnection } from '@nb/redis/server/redis.bullmq';
-import { tenantDataSourceFor } from '@nb/db';
+import { getBullMQConnection } from '@kuraykaraaslan/redis/server/redis.bullmq';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
 import { Webhook as WebhookEntity } from './entities/webhook.entity';
 import { WebhookDelivery as WebhookDeliveryEntity } from './entities/webhook_delivery.entity';
 import type { WebhookEvent } from './webhook.enums';
-import Logger from '@nb/logger';
-import { checkWebhookRateLimit } from '@nb/limiter/server/limiter.tenant-plan.service';
+import Logger from '@kuraykaraaslan/logger';
+import { checkWebhookRateLimit } from '@kuraykaraaslan/limiter/server/limiter.tenant-plan.service';
 import { resolveDeliveryConfig, type DeliveryJobData } from './webhook.config';
 import WebhookDeliveryService from './webhook.delivery.service';
 

@@ -1,9 +1,9 @@
 import 'reflect-metadata';
 import type { Repository } from 'typeorm';
-import redis, { jitter, singleFlight } from '@nb/redis';
-import { env } from '@nb/env';
-import { tenantDataSourceFor } from '@nb/db';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import redis, { jitter, singleFlight } from '@kuraykaraaslan/redis';
+import { env } from '@kuraykaraaslan/env';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { AnalyticsEvent as AnalyticsEventEntity } from './entities/analytics_event.entity';
 import type { TimeInterval } from './analytics.enums';
 import type { AnalyticsSummary, EventCount, TimeseriesPoint } from './analytics.types';

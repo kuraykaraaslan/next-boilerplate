@@ -1,6 +1,6 @@
 import 'reflect-metadata';
-import { tenantDataSourceFor } from '@nb/db';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { MeteredBillingRun as MeteredBillingRunEntity } from './entities/metered_billing_run.entity';
 import { MeteredBillingRunSchema, type MeteredBillingRun } from './metering.types';
 import type { ListRunsQuery } from './metering.dto';

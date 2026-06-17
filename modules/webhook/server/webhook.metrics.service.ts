@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { tenantDataSourceFor } from '@nb/db';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
 import { WebhookDelivery as WebhookDeliveryEntity } from './entities/webhook_delivery.entity';
 import { WebhookDeliverySchema } from './webhook.types';
 import type { WebhookDelivery, WebhookMetrics } from './webhook.types';

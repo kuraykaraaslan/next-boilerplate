@@ -1,9 +1,9 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Modal } from '@nb/common/ui/modal.component';
-import api from '@nb/common/server/axios';
+import { Modal } from '@kuraykaraaslan/common/ui/modal.component';
+import api from '@kuraykaraaslan/common/server/axios';
 import { CreditCardForm } from './credit-card-form.component';
-import type { CreditCardInput } from '@nb/payment/server/payment.enums';
+import type { CreditCardInput } from '@kuraykaraaslan/payment/server/payment.enums';
 
 type Plan = {
   planId: string;

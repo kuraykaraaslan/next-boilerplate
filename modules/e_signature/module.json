@@ -27,7 +27,7 @@
     ],
     "optional": [
       "storage",
-      "tenant_setting"
+      "setting"
     ]
   },
   "settings": {

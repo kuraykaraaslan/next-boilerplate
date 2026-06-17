@@ -1,15 +1,15 @@
-import { env } from '@nb/env';
-import Logger from '@nb/logger';
+import { env } from '@kuraykaraaslan/env';
+import Logger from '@kuraykaraaslan/logger';
 import { Queue, Worker, Job } from 'bullmq';
-import { getBullMQConnection } from '@nb/redis/server/redis.bullmq';
-import { TenantUsageService } from '@nb/tenant_usage/server/tenant_usage.service';
-import NotificationLogService from '@nb/notification_log/server/notification_log.service';
-import TenantFeatureGateService from '@nb/tenant_subscription/server/tenant_subscription.feature.service';
-import { FEATURE_KEYS } from '@nb/tenant_subscription/server/tenant_subscription.feature-keys';
-import { isRootTenant } from '@nb/tenant/server/tenant.constants';
+import { getBullMQConnection } from '@kuraykaraaslan/redis/server/redis.bullmq';
+import { TenantUsageService } from '@kuraykaraaslan/tenant_usage/server/tenant_usage.service';
+import NotificationLogService from '@kuraykaraaslan/notification_log/server/notification_log.service';
+import TenantFeatureGateService from '@kuraykaraaslan/tenant_subscription/server/tenant_subscription.feature.service';
+import { FEATURE_KEYS } from '@kuraykaraaslan/tenant_subscription/server/tenant_subscription.feature-keys';
+import { isRootTenant } from '@kuraykaraaslan/tenant/server/tenant.constants';
 import type { MailOptions, MailResult } from './providers/base.provider';
 import NotificationMailProviderService, { type MailProviderType } from './notification_mail.provider.service';
-import { RedisIdempotencyService } from '@nb/redis_idempotency';
+import { RedisIdempotencyService } from '@kuraykaraaslan/redis_idempotency';
 
 interface MailJobData {
   tenantId: string;

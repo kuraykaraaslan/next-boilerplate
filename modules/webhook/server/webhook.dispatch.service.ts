@@ -1,11 +1,11 @@
 import 'reflect-metadata';
-import { tenantDataSourceFor } from '@nb/db';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
 import { Webhook as WebhookEntity } from './entities/webhook.entity';
 import type { WebhookEvent } from './webhook.enums';
-import Logger from '@nb/logger';
-import TenantFeatureGateService from '@nb/tenant_subscription/server/tenant_subscription.feature.service';
-import { FEATURE_KEYS } from '@nb/tenant_subscription/server/tenant_subscription.feature-keys';
-import { isRootTenant, ROOT_TENANT_ID } from '@nb/tenant/server/tenant.constants';
+import Logger from '@kuraykaraaslan/logger';
+import TenantFeatureGateService from '@kuraykaraaslan/tenant_subscription/server/tenant_subscription.feature.service';
+import { FEATURE_KEYS } from '@kuraykaraaslan/tenant_subscription/server/tenant_subscription.feature-keys';
+import { isRootTenant, ROOT_TENANT_ID } from '@kuraykaraaslan/tenant/server/tenant.constants';
 import { passesEventFilter } from './webhook.filters';
 import { enqueueDelivery } from './webhook.queue';
 

@@ -1,4 +1,4 @@
-import type { SettingFieldDef } from '@nb/setting/server/setting-fields.types';
+import type { SettingFieldDef } from '@kuraykaraaslan/setting/server/setting-fields.types';
 
 // UI metadata for the API Docs settings page.
 export const API_DOC_SETTINGS_FIELDS: SettingFieldDef[] = [

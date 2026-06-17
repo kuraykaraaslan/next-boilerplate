@@ -1,8 +1,8 @@
 import 'reflect-metadata'
 import { ILike, In } from 'typeorm'
-import { tenantDataSourceFor } from '@nb/db'
-import redis, { singleFlight } from '@nb/redis'
-import Logger from '@nb/logger'
+import { tenantDataSourceFor } from '@kuraykaraaslan/db'
+import redis, { singleFlight } from '@kuraykaraaslan/redis'
+import Logger from '@kuraykaraaslan/logger'
 import { StoreBundle as BundleEntity } from './entities/store_bundle.entity'
 import { StoreBundleItem as BundleItemEntity } from './entities/store_bundle_item.entity'
 import { StoreProduct as ProductEntity } from './entities/store_product.entity'
@@ -14,9 +14,9 @@ import type {
   CreateBundleDTO, UpdateBundleDTO, AddBundleItemDTO, UpdateBundleItemDTO, GetBundlesQuery,
 } from './store.dto'
 import { STORE_MESSAGES } from './store.messages'
-import SettingService from '@nb/setting/server/setting.service'
-import { isCurrencyCode } from '@nb/common'
-import { AppError, ErrorCode } from '@nb/common/server/app-error'
+import SettingService from '@kuraykaraaslan/setting/server/setting.service'
+import { isCurrencyCode } from '@kuraykaraaslan/common'
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error'
 
 /** Store bundle + bundle-item CRUD (split out of `StoreService`). */
 export default class StoreBundleService {

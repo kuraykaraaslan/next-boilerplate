@@ -1,13 +1,13 @@
 'use client';
 import { useState } from 'react';
-import { Card } from '@nb/common/ui/card.component';
-import { Input } from '@nb/common/ui/input.component';
-import { Button } from '@nb/common/ui/button.component';
-import { Toggle } from '@nb/common/ui/toggle.component';
-import { AlertBanner } from '@nb/common/ui/alert-banner.component';
+import { Card } from '@kuraykaraaslan/common/ui/card.component';
+import { Input } from '@kuraykaraaslan/common/ui/input.component';
+import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import { Toggle } from '@kuraykaraaslan/common/ui/toggle.component';
+import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave, faShieldHalved } from '@fortawesome/free-solid-svg-icons';
-import type { UpsertSamlConfigInput } from '@nb/auth_saml/server/auth_saml.dto';
+import type { UpsertSamlConfigInput } from '@kuraykaraaslan/auth_saml/server/auth_saml.dto';
 
 /**
  * Subset of SafeSamlConfig that this form consumes.

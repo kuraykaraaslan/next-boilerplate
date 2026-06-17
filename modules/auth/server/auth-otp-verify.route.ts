@@ -1,15 +1,15 @@
 // path: app/tenant/[tenantId]/api/auth/otp/verify/route.ts
-import Limiter from '@nb/limiter/server/limiter.service.next';
-import Logger from '@nb/logger';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
+import Logger from '@kuraykaraaslan/logger';
 import { NextRequest, NextResponse } from "next/server";
-import UserSessionNextService from "@nb/user_session/server/user_session.service.next";
-import OTPService from "@nb/auth/server/auth.otp.service";
-import TenantMemberService from "@nb/tenant_member/server/tenant_member.service";
-import TenantService from "@nb/tenant/server/tenant.service";
-import { VerifyOTPDTO } from "@nb/auth/server/auth.dto";
-import { OTPActionEnum } from "@nb/user_security/server/user_security.enums";
-import AuthMessages from "@nb/auth/server/auth.messages";
-import UserSecurityService from "@nb/user_security/server/user_security.service";
+import UserSessionNextService from "@kuraykaraaslan/user_session/server/user_session.service.next";
+import OTPService from "@kuraykaraaslan/auth/server/auth.otp.service";
+import TenantMemberService from "@kuraykaraaslan/tenant_member/server/tenant_member.service";
+import TenantService from "@kuraykaraaslan/tenant/server/tenant.service";
+import { VerifyOTPDTO } from "@kuraykaraaslan/auth/server/auth.dto";
+import { OTPActionEnum } from "@kuraykaraaslan/user_security/server/user_security.enums";
+import AuthMessages from "@kuraykaraaslan/auth/server/auth.messages";
+import UserSecurityService from "@kuraykaraaslan/user_security/server/user_security.service";
 
 export async function POST(
   request: NextRequest,

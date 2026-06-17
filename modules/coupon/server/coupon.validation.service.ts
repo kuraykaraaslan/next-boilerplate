@@ -1,16 +1,16 @@
 import 'reflect-metadata';
-import { tenantDataSourceFor } from '@nb/db';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
 import { Coupon as CouponEntity } from './entities/coupon.entity';
 import { CouponRedemption as CouponRedemptionEntity } from './entities/coupon_redemption.entity';
-import Logger from '@nb/logger';
-import WebhookService from '@nb/webhook/server/webhook.service';
+import Logger from '@kuraykaraaslan/logger';
+import WebhookService from '@kuraykaraaslan/webhook/server/webhook.service';
 import { COUPON_MESSAGES } from './coupon.messages';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { CouponRedemptionSchema, CouponValidationResultSchema } from './coupon.types';
 import type { Coupon, CouponRedemption, CouponValidationResult } from './coupon.types';
 import type { ValidateCouponDTO, ApplyCouponDTO, CouponScope } from './coupon.dto';
 import CouponCrudService from './coupon.crud.service';
-import { RedisIdempotencyService } from '@nb/redis_idempotency';
+import { RedisIdempotencyService } from '@kuraykaraaslan/redis_idempotency';
 
 export default class CouponValidationService {
 

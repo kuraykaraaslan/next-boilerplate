@@ -23,7 +23,7 @@ export interface RuntimeExtension {
   moduleId: string;
   /** Provider key (e.g. 'openai'); null for hook contributions. */
   key: string | null;
-  /** Server export id, resolved to `@nb/<exportId>` in the generated map. */
+  /** Server export id, resolved to `@kuraykaraaslan/<exportId>` in the generated map. */
   exportId: string;
   order: number;
   scope: ModuleScope;

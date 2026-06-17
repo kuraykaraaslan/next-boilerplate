@@ -1,7 +1,7 @@
 'use client';
 import { useRef, useState, useEffect } from 'react';
-import { cn } from '@nb/common/server/utils/cn';
-import { Avatar } from '@nb/common/ui/avatar.component';
+import { cn } from '@kuraykaraaslan/common/server/utils/cn';
+import { Avatar } from '@kuraykaraaslan/common/ui/avatar.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleUser, faArrowRightFromBracket, faChevronDown } from '@fortawesome/free-solid-svg-icons';
 

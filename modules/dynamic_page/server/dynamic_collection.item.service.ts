@@ -1,7 +1,7 @@
 import 'reflect-metadata'
-import { tenantDataSourceFor } from '@nb/db'
-import Logger from '@nb/logger'
-import { AppError, ErrorCode } from '@nb/common/server/app-error'
+import { tenantDataSourceFor } from '@kuraykaraaslan/db'
+import Logger from '@kuraykaraaslan/logger'
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error'
 import { DynamicCollection as DynamicCollectionEntity } from './entities/dynamic_collection.entity'
 import { DynamicCollectionItem as DynamicCollectionItemEntity } from './entities/dynamic_collection_item.entity'
 import {

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import Logger from '@nb/logger';
-import ESignatureService from '@nb/e_signature/server/e_signature.service';
-import TenantService from '@nb/tenant/server/tenant.service';
+import Logger from '@kuraykaraaslan/logger';
+import ESignatureService from '@kuraykaraaslan/e_signature/server/e_signature.service';
+import TenantService from '@kuraykaraaslan/tenant/server/tenant.service';
 
 interface RouteContext {
   params: Promise<{ tenantId: string }>;

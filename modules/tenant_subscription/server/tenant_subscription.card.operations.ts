@@ -1,9 +1,9 @@
 import 'reflect-metadata';
-import PaymentService from '@nb/payment/server/payment.service';
-import type { PaymentProvider, PaymentCurrency, CreditCardInput } from '@nb/payment/server/payment.enums';
+import PaymentService from '@kuraykaraaslan/payment/server/payment.service';
+import type { PaymentProvider, PaymentCurrency, CreditCardInput } from '@kuraykaraaslan/payment/server/payment.enums';
 import type { TenantSubscription } from './tenant_subscription.types';
 import { SUBSCRIPTION_MESSAGES } from './tenant_subscription.messages';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import TenantSubscriptionService from './tenant_subscription.service';
 import { resolveCharge } from './tenant_subscription.card.helpers';
 

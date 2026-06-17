@@ -1,7 +1,7 @@
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import SamlMessages from './auth_saml.messages';
 import { type SamlMetadata, type SamlProfile } from './auth_saml.types';
-import UserSocialAccountService from '@nb/user_social_account/server/user_social_account.service';
+import UserSocialAccountService from '@kuraykaraaslan/user_social_account/server/user_social_account.service';
 import AuthSamlConfigService from './auth_saml.config.service';
 import { AUTH_SAML_SETTING_KEYS, AUTH_SAML_SETTING_DEFAULTS } from './auth_saml.setting.keys';
 

@@ -1,11 +1,11 @@
 import 'reflect-metadata';
-import { getDataSource, tenantDataSourceFor } from '@nb/db';
+import { getDataSource, tenantDataSourceFor } from '@kuraykaraaslan/db';
 import { Payment as PaymentEntity } from './entities/payment.entity';
-import Logger from '@nb/logger';
+import Logger from '@kuraykaraaslan/logger';
 import { SafePayment, SafePaymentSchema } from './payment.types';
 import { CreatePaymentDTO, UpdatePaymentDTO } from './payment.dto';
 import { PAYMENT_MESSAGES } from './payment.messages';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { clearPaymentCache } from './payment.crud.helpers';
 
 export async function create(data: CreatePaymentDTO): Promise<SafePayment> {

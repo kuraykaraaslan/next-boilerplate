@@ -27,7 +27,7 @@ export async function persistProfile(
     if (Object.keys(customFields).length > 0) patch.customFields = customFields;
     if (Object.keys(patch).length === 0) return;
 
-    const { default: UserProfileService } = await import('@nb/user_profile/server/user_profile.service');
+    const { default: UserProfileService } = await import('@kuraykaraaslan/user_profile/server/user_profile.service');
     await UserProfileService.upsert(userId, patch as never, tenantId);
   } catch { /* profile sync is best-effort, never blocks provisioning */ }
 }
@@ -37,7 +37,7 @@ export async function loadNames(tenantId: string, userId: string, policy: { sync
   void tenantId;
   if (!policy.syncNames) return undefined;
   try {
-    const { default: UserProfileService } = await import('@nb/user_profile/server/user_profile.service');
+    const { default: UserProfileService } = await import('@kuraykaraaslan/user_profile/server/user_profile.service');
     const p = await UserProfileService.getByUserId(userId);
     if (!p) return undefined;
     return { givenName: p.firstName ?? undefined, familyName: p.lastName ?? undefined, displayName: p.displayName ?? undefined };

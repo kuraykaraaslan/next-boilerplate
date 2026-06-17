@@ -1,4 +1,4 @@
-import { BaseOidcAcsProvider } from '@nb/auth_acs/server/providers/base.oidc.provider';
+import { BaseOidcAcsProvider } from '@kuraykaraaslan/auth_acs/server/providers/base.oidc.provider';
 
 /**
  * US — Login.gov (OIDC). Authenticates the client with `private_key_jwt`

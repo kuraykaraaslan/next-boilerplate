@@ -1,5 +1,5 @@
-import Logger from '@nb/logger';
-import type { LocalCouponDiscount, PaymentCouponAdapter } from '@nb/payment/server/payment.coupon.types';
+import Logger from '@kuraykaraaslan/logger';
+import type { LocalCouponDiscount, PaymentCouponAdapter } from '@kuraykaraaslan/payment/server/payment.coupon.types';
 
 /**
  * Iyzico coupon-checkout adapter (TR market). Iyzico has no server-side coupon

@@ -1,6 +1,6 @@
 import 'reflect-metadata'
-import { createQueue, createWorker } from '@nb/redis'
-import Logger from '@nb/logger'
+import { createQueue, createWorker } from '@kuraykaraaslan/redis'
+import Logger from '@kuraykaraaslan/logger'
 import ESignatureTrustListService from './e_signature.trust_list.service'
 
 /**

@@ -1,12 +1,12 @@
 import 'reflect-metadata';
 import { createHash } from 'node:crypto';
 import { LessThanOrEqual } from 'typeorm';
-import { tenantDataSourceFor } from '@nb/db';
-import { ROOT_TENANT_ID } from '@nb/tenant/server/tenant.constants';
+import { tenantDataSourceFor } from '@kuraykaraaslan/db';
+import { ROOT_TENANT_ID } from '@kuraykaraaslan/tenant/server/tenant.constants';
 import { AuditLog as AuditLogRow } from './entities/audit_log.entity';
-import Logger from '@nb/logger';
-import WebhookService from '@nb/webhook/server/webhook.service';
-import SettingService from '@nb/setting/server/setting.service';
+import Logger from '@kuraykaraaslan/logger';
+import WebhookService from '@kuraykaraaslan/webhook/server/webhook.service';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
 import { AuditLogSchema, type AuditArchiveExporter } from './audit_log.types';
 import {
   CreateAuditLogDTO,
@@ -19,7 +19,7 @@ import {
 import { severityForAction, HIGH_RISK_SEVERITIES, type AuditSeverity } from './audit_log.enums';
 import { AUDIT_LOG_SETTING_KEYS, RETENTION_KEEP_FOREVER } from './audit_log.setting.keys';
 import AuditLogMessages from './audit_log.messages';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { computeRowHash, scrubMetadata } from './audit_log.hash';
 import { serializeForArchive } from './audit_log.serialize';
 

@@ -1,8 +1,8 @@
 // path: app/tenant/[tenantId]/api/auth/me/social-accounts/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import UserSessionNextService from '@nb/user_session/server/user_session.service.next';
-import UserSocialAccountService from '@nb/user_social_account/server/user_social_account.service';
-import Limiter from '@nb/limiter/server/limiter.service.next';
+import UserSessionNextService from '@kuraykaraaslan/user_session/server/user_session.service.next';
+import UserSocialAccountService from '@kuraykaraaslan/user_social_account/server/user_social_account.service';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
 
 /**
  * GET /tenant/[tenantId]/api/auth/me/social-accounts

@@ -1,11 +1,11 @@
 import 'reflect-metadata';
-import { getDataSource } from '@nb/db';
-import redis from '@nb/redis';
+import { getDataSource } from '@kuraykaraaslan/db';
+import redis from '@kuraykaraaslan/redis';
 import { ApiKey as ApiKeyEntity } from './entities/api_key.entity';
-import { ROOT_TENANT_ID } from '@nb/tenant/server/tenant.constants';
-import WebhookService from '@nb/webhook/server/webhook.service';
-import AuditLogService from '@nb/audit_log/server/audit_log.service';
-import Logger from '@nb/logger';
+import { ROOT_TENANT_ID } from '@kuraykaraaslan/tenant/server/tenant.constants';
+import WebhookService from '@kuraykaraaslan/webhook/server/webhook.service';
+import AuditLogService from '@kuraykaraaslan/audit_log/server/audit_log.service';
+import Logger from '@kuraykaraaslan/logger';
 import { ANOMALY_DORMANCY_DAYS, DAY_MS } from './api_key.policy';
 
 /**

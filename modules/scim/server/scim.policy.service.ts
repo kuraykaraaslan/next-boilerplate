@@ -1,4 +1,4 @@
-import SettingService from '@nb/setting/server/setting.service'
+import SettingService from '@kuraykaraaslan/setting/server/setting.service'
 
 export interface ScimProvisioningPolicy {
   /** Default member role for SCIM-provisioned users with no group mapping. */

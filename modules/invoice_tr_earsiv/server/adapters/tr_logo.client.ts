@@ -19,7 +19,7 @@
  * up without re-reading Logo's reference docs.
  */
 import axios, { AxiosInstance } from 'axios';
-import Logger from '@nb/logger';
+import Logger from '@kuraykaraaslan/logger';
 
 export interface LogoSubmitRequest {
   ublXml: string;

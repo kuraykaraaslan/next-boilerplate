@@ -1,12 +1,12 @@
 import 'reflect-metadata';
 import { IsNull, ILike } from 'typeorm';
-import { tenantDataSourceFor, getDataSource } from '@nb/db';
-import redis, { jitter, singleFlight } from '@nb/redis';
+import { tenantDataSourceFor, getDataSource } from '@kuraykaraaslan/db';
+import redis, { jitter, singleFlight } from '@kuraykaraaslan/redis';
 import { Tenant as TenantEntity } from './entities/tenant.entity';
 import { SafeTenant, SafeTenantSchema } from './tenant.types';
 import { GetTenantsInput } from './tenant.dto';
 import TenantMessages from './tenant.messages';
-import { AppError, ErrorCode } from '@nb/common/server/app-error';
+import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { TENANT_CACHE_TTL } from './tenant.helpers';
 
 export async function getAll({ page, pageSize, search, tenantId }: GetTenantsInput): Promise<{ tenants: SafeTenant[]; total: number }> {

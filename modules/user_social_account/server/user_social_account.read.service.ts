@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { In } from 'typeorm';
-import { getDataSource } from '@nb/db';
-import redis, { jitter, singleFlight } from '@nb/redis';
+import { getDataSource } from '@kuraykaraaslan/db';
+import redis, { jitter, singleFlight } from '@kuraykaraaslan/redis';
 import { UserSocialAccount as UserSocialAccountEntity } from './entities/user_social_account.entity';
 import { SafeUserSocialAccount, SafeUserSocialAccountSchema, ConnectedAccount } from './user_social_account.types';
 import type { SocialAccountProvider } from './user_social_account.enums';
@@ -90,7 +90,7 @@ export async function findUserIdByProvider(
 export async function isProviderAllowed(tenantId: string | undefined, provider: SocialAccountProvider): Promise<boolean> {
   if (!tenantId) return true;
   try {
-    const { default: SettingService } = await import('@nb/setting/server/setting.service');
+    const { default: SettingService } = await import('@kuraykaraaslan/setting/server/setting.service');
     const raw = await SettingService.getValue(tenantId, 'socialEnabledProviders').catch(() => null);
     if (!raw) return true;
     const allowed = raw.split(',').map((p) => p.trim().toLowerCase()).filter(Boolean);
@@ -115,7 +115,7 @@ export async function availableProviders(tenantId: string | undefined, country: 
 /** Tenant-scoped listing: social accounts for every member of a tenant. */
 export async function listForTenant(tenantId: string): Promise<SafeUserSocialAccount[]> {
   const ds = await getDataSource();
-  const { TenantMember } = await import('@nb/tenant_member/server/entities/tenant_member.entity');
+  const { TenantMember } = await import('@kuraykaraaslan/tenant_member/server/entities/tenant_member.entity');
   const members = await ds.getRepository(TenantMember).find({ where: { tenantId }, select: ['userId'] });
   const userIds = [...new Set(members.map((m) => m.userId))];
   if (userIds.length === 0) return [];

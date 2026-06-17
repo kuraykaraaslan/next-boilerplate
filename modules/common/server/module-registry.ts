@@ -73,6 +73,8 @@ export interface RuntimeModule {
   enabled: boolean;
   scope?: ModuleScope;
   tier?: string;
+  /** Module ids this module depends on (manifest `dependencies.requires`). */
+  requires: string[];
 }
 
 export interface RegistryFilter {
@@ -159,6 +161,11 @@ export const moduleRegistry = {
 
   getModule(id: string): RuntimeModule | undefined {
     return MODULES.find((m) => m.id === id);
+  },
+
+  /** Module ids this module directly depends on (manifest `dependencies.requires`). */
+  getRequires(id: string): string[] {
+    return this.getModule(id)?.requires ?? [];
   },
 
   isModuleEnabled(id: string, enabledIds?: Set<string>): boolean {

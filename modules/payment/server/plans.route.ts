@@ -1,9 +1,9 @@
-import Limiter from '@nb/limiter/server/limiter.service.next';
+import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next';
 import { NextRequest, NextResponse } from 'next/server'
-import TenantPlanService from '@nb/tenant_subscription/server/tenant_subscription.plan.service'
-import { CreatePlanRequestSchema } from '@nb/tenant_subscription/server/tenant_subscription.dto'
-import { SUBSCRIPTION_MESSAGES } from '@nb/tenant_subscription/server/tenant_subscription.messages'
-import TenantSessionNextService from '@nb/tenant_session/server/tenant_session.service.next'
+import TenantPlanService from '@kuraykaraaslan/tenant_subscription/server/tenant_subscription.plan.service'
+import { CreatePlanRequestSchema } from '@kuraykaraaslan/tenant_subscription/server/tenant_subscription.dto'
+import { SUBSCRIPTION_MESSAGES } from '@kuraykaraaslan/tenant_subscription/server/tenant_subscription.messages'
+import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next'
 
 /**
  * GET /tenant/[tenantId]/api/plans

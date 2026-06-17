@@ -1,12 +1,12 @@
 import { randomUUID } from 'node:crypto';
-import SettingService from '@nb/setting/server/setting.service';
-import Logger from '@nb/logger';
-import type { InvoiceAdapterSubmitResult } from '@nb/invoice/server/adapters/base.adapter';
-import type { Invoice } from '@nb/invoice/server/entities/invoice.entity';
-import type { InvoiceLine } from '@nb/invoice/server/entities/invoice_line.entity';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
+import Logger from '@kuraykaraaslan/logger';
+import type { InvoiceAdapterSubmitResult } from '@kuraykaraaslan/invoice/server/adapters/base.adapter';
+import type { Invoice } from '@kuraykaraaslan/invoice/server/entities/invoice.entity';
+import type { InvoiceLine } from '@kuraykaraaslan/invoice/server/entities/invoice_line.entity';
 import { isValidTrTaxId } from './tr_validators';
 import { ForibaClient } from './tr_foriba.client';
-import { GibDirectClient } from '@nb/invoice/server/adapters/tr_gib_direct.client';
+import { GibDirectClient } from '@kuraykaraaslan/invoice/server/adapters/tr_gib_direct.client';
 import { LogoClient } from './tr_logo.client';
 import { loadSellerInfo } from './tr_earsiv.seller';
 import { buildGibPortalInvoice } from './tr_earsiv.portal';

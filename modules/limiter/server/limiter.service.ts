@@ -1,6 +1,6 @@
-import redis from '@nb/redis';
-import Logger from '@nb/logger';
-import ObservabilityService from '@nb/observability';
+import redis from '@kuraykaraaslan/redis';
+import Logger from '@kuraykaraaslan/logger';
+import ObservabilityService from '@kuraykaraaslan/observability';
 
 export const RATE_LIMIT_WINDOW = 60; // seconds
 
