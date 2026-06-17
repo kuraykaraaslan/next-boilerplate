@@ -114,8 +114,29 @@ export type EventHandler = (payload: Json, host: PluginHost) => Promise<void> | 
  * Plugin entrypoint. The bundle's default export is a `PluginModule`. The host
  * calls `register(host)` once (optional) then dispatches to `handlers`.
  */
+/**
+ * A provider op-set: a plugin contribution into a host extension point (e.g.
+ * 'ai:provider'), exposed as JSON-in/JSON-out ops instead of a live class. The
+ * host calls ops via the provider runtime; each op receives its input + the host.
+ */
+export type ProviderOp = (input: Json, host: PluginHost) => Promise<Json> | Json;
+export type ProviderOpSet = Record<string, ProviderOp>;
+
 export interface PluginModule {
   http?: Record<string, HttpHandler>; // key: "GET things/:id" style route
   events?: Record<string, EventHandler>;
+  /** Keyed by extension point id, e.g. providers['ai:provider'].chat(input, host). */
+  providers?: Record<string, ProviderOpSet>;
   register?: (host: PluginHost) => void | Promise<void>;
+}
+
+// ── ai:provider op-set contract (what an isolated AI provider implements) ────────
+// Inputs/outputs mirror the host's ai.types but as plain JSON.
+export interface AIProviderOps {
+  /** -> string[] of model ids. */
+  listModels: ProviderOp;
+  /** (ChatCompletionOptions) -> ChatCompletionResponse */
+  chat: ProviderOp;
+  /** (EmbeddingOptions) -> EmbeddingResponse (optional; omit if unsupported) */
+  embed?: ProviderOp;
 }

@@ -32,7 +32,9 @@
     "ws:start": "tsx modules/messaging/server/index.ts",
     "plugin-host:dev": "NODE_OPTIONS=--no-node-snapshot tsx watch modules/plugin_runtime/server/index.ts",
     "plugin-host:start": "NODE_OPTIONS=--no-node-snapshot tsx modules/plugin_runtime/server/index.ts",
-    "plugin:selftest": "NODE_OPTIONS=--no-node-snapshot tsx modules/plugin_runtime/scripts/selftest.mts"
+    "plugin:selftest": "NODE_OPTIONS=--no-node-snapshot tsx modules/plugin_runtime/scripts/selftest.mts",
+    "kimi:selftest": "NODE_OPTIONS=--no-node-snapshot tsx modules/marketplace/scripts/kimi.selftest.mts",
+    "seed:kimi": "NODE_OPTIONS=--no-node-snapshot tsx modules/marketplace/scripts/seed-kimi.mts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.971.0",

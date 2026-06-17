@@ -17,6 +17,14 @@ export async function register() {
   const { default: ObservabilityService } = await import('@kuraykaraaslan/observability');
   await ObservabilityService.init();
 
+  // Register runtime provider sources (e.g. sandboxed community AI providers) so
+  // they are discoverable on the first request. Unconditional (not job-gated).
+  try {
+    await import('@kuraykaraaslan/marketplace/server/community-ai.register');
+  } catch {
+    /* marketplace not present in this build — fine */
+  }
+
   if (process.env.ENABLE_BACKGROUND_JOBS === 'true') {
     const { default: Logger } = await import('@kuraykaraaslan/logger');
 

@@ -34,6 +34,24 @@ function requireCap(ctx: BrokerCtx, cap: Capability): void {
   if (!ctx.capabilities.includes(cap)) throw new Error(`capability not granted: ${cap}`);
 }
 
+// Signed egress: a plugin may put `{{secret:NAME}}` in an http header/body; the
+// broker substitutes the plugin's decrypted secret HOST-SIDE so the isolate never
+// sees raw credentials. Combined with the http allowlist, the secret can only ever
+// reach the approved provider host.
+const SECRET_PLACEHOLDER = /\{\{secret:([A-Za-z0-9_]+)\}\}/g;
+async function resolveSecret(ctx: BrokerCtx, name: string): Promise<string> {
+  const raw = await SettingService.getValue(ctx.tenantId, SECRET_PREFIX(ctx.pluginId) + name);
+  const dec = decryptFieldOpt(raw);
+  return typeof dec === 'string' ? dec : '';
+}
+async function substituteSecrets(ctx: BrokerCtx, value: string): Promise<string> {
+  const names = [...value.matchAll(SECRET_PLACEHOLDER)].map((m) => m[1]);
+  if (names.length === 0) return value;
+  const map = new Map<string, string>();
+  for (const n of new Set(names)) map.set(n, await resolveSecret(ctx, n));
+  return value.replace(SECRET_PLACEHOLDER, (_, n) => map.get(n) ?? '');
+}
+
 // ── data: per-(tenant,plugin) KV/document store ─────────────────────────────────
 const data = {
   async get(ctx: BrokerCtx, collection: string, key: string): Promise<Json> {
@@ -110,18 +128,22 @@ const http = {
     const timeout = Math.min(init?.timeoutMs ?? ctx.limits.httpTimeoutMs, ctx.limits.httpTimeoutMs);
     const t = setTimeout(() => controller.abort(), timeout);
     try {
+      // Inject any {{secret:NAME}} placeholders host-side (signed egress).
+      const reqHeaders: Record<string, string> = {};
+      for (const [k, v] of Object.entries(init?.headers ?? {})) reqHeaders[k] = await substituteSecrets(ctx, String(v));
+      const reqBody = init?.body != null ? await substituteSecrets(ctx, String(init.body)) : undefined;
       const res = await fetch(parsed.toString(), {
         method: init?.method ?? 'GET',
-        headers: init?.headers ?? {},
-        body: init?.body,
+        headers: reqHeaders,
+        body: reqBody,
         signal: controller.signal,
         redirect: 'manual', // do not silently follow redirects past the allowlist
       });
       const buf = Buffer.from(await res.arrayBuffer());
       if (buf.byteLength > ctx.limits.httpMaxBytes) throw new Error('response too large');
-      const headers: Record<string, string> = {};
-      res.headers.forEach((v, k) => { headers[k] = v; });
-      return { status: res.status, headers, body: buf.toString('utf8') } as Json;
+      const resHeaders: Record<string, string> = {};
+      res.headers.forEach((v, k) => { resHeaders[k] = v; });
+      return { status: res.status, headers: resHeaders, body: buf.toString('utf8') } as Json;
     } finally {
       clearTimeout(t);
     }

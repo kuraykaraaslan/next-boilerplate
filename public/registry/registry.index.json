@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-17T09:13:57.607Z",
+  "generatedAt": "2026-06-17T10:20:03.264Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -963,6 +963,7 @@
           "tenant",
           "storage",
           "plugin_runtime",
+          "ai",
           "common"
         ]
       },
@@ -1093,6 +1094,9 @@
         "./server/community-item.route",
         "./server/community-install.service.next",
         "./server/plugin-resolve",
+        "./server/community-providers",
+        "./server/community-ai.register",
+        "./server/isolated-ai-provider",
         "./server/review.route",
         "./server/review-item.route",
         "./server/publishers-item.route",
@@ -11865,6 +11869,7 @@
         "./server/ai-usage.route",
         "./server/ai.messages",
         "./server/ai.provider.service",
+        "./server/ai.external-providers",
         "./server/ai.provider.types",
         "./server/ai.seed",
         "./server/ai.service",

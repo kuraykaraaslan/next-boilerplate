@@ -12,6 +12,7 @@
     "./server/ai-usage.route": "./server/ai-usage.route.ts",
     "./server/ai.messages": "./server/ai.messages.ts",
     "./server/ai.provider.service": "./server/ai.provider.service.ts",
+    "./server/ai.external-providers": "./server/ai.external-providers.ts",
     "./server/ai.provider.types": "./server/ai.provider.types.ts",
     "./server/ai.seed": "./server/ai.seed.ts",
     "./server/ai.service": "./server/ai.service.ts",

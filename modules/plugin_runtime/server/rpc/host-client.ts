@@ -17,7 +17,7 @@ async function post(url: string, token: string, body: RunRequest): Promise<RunRe
 export interface RunOnHostArgs {
   tenantId: string;
   sandbox: SandboxConfig;
-  kind: 'http' | 'event';
+  kind: 'http' | 'event' | 'provider';
   target: string;
   payloadJson: string;
   /** Loads the approved bundle code; called only on a host cache miss. */

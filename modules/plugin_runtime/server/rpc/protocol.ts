@@ -20,8 +20,8 @@ export interface SandboxConfig {
 export interface RunRequest {
   tenantId: string;
   sandbox: SandboxConfig;
-  kind: 'http' | 'event';
-  /** http: route key e.g. "GET things/:id"; event: event name. */
+  kind: 'http' | 'event' | 'provider';
+  /** http: route key "GET path"; event: event name; provider: "<point>#<op>". */
   target: string;
   /** http: serialized PluginRequest; event: serialized payload. */
   payloadJson: string;

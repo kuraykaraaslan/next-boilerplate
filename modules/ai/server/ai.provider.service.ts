@@ -7,6 +7,7 @@ import { getEnabledModuleIds } from '@kuraykaraaslan/setting/server/module-activ
 import type BaseAIProvider from './providers/base.provider';
 import type { AIProviderContribution } from './ai.provider.types';
 import type { AIProviderType, AIModel } from './ai.types';
+import { listExternalAIProviders } from './ai.external-providers';
 import AiMessages from './ai.messages';
 
 /** The extension point satellite provider modules contribute into. */
@@ -59,7 +60,13 @@ export default class AIProviderService {
   }
 
   private static async enabledMetas(tenantId: string): Promise<ProviderMeta[]> {
-    return (await AIProviderService.enabledContributions(tenantId)).map(metaOf).filter((m) => m.key);
+    const builtIn = (await AIProviderService.enabledContributions(tenantId)).map(metaOf).filter((m) => m.key);
+    // Merge runtime-discovered providers (e.g. sandboxed community plugins).
+    const external = (await listExternalAIProviders(tenantId)).map((e) => ({
+      key: e.key, label: e.label, models: e.models, order: 1000, moduleId: 'community',
+    }));
+    const seen = new Set(builtIn.map((m) => m.key));
+    return [...builtIn, ...external.filter((m) => m.key && !seen.has(m.key))];
   }
 
   private static async resolveDefaultKey(tenantId: string, metas: ProviderMeta[]): Promise<string | undefined> {
@@ -109,6 +116,10 @@ export default class AIProviderService {
 
   /** Load the contribution implementation and instantiate it from tenant settings. */
   private static async build(tenantId: string, key: string): Promise<BaseAIProvider> {
+    // Runtime-discovered (e.g. sandboxed community) providers build via their source.
+    const external = (await listExternalAIProviders(tenantId)).find((e) => e.key === key);
+    if (external) return external.build();
+
     const contrib = (await AIProviderService.enabledContributions(tenantId)).find(
       (c) => (c.key ?? c.metadata?.key) === key,
     );

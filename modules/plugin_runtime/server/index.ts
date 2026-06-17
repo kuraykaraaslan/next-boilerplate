@@ -43,9 +43,16 @@ async function handleRun(body: RunRequest): Promise<RunResult> {
     limits: { httpTimeoutMs: sandbox.limits.httpTimeoutMs, httpMaxBytes: sandbox.limits.httpMaxBytes },
   };
   try {
-    const resultJson = body.kind === 'http'
-      ? await mgr.runHttp(sandbox.pluginVersionId, ctx, body.target, body.payloadJson)
-      : (await mgr.runEvent(sandbox.pluginVersionId, ctx, body.target, body.payloadJson), '{}');
+    let resultJson: string;
+    if (body.kind === 'http') {
+      resultJson = await mgr.runHttp(sandbox.pluginVersionId, ctx, body.target, body.payloadJson);
+    } else if (body.kind === 'provider') {
+      const [point, op] = body.target.split('#');
+      resultJson = await mgr.runProvider(sandbox.pluginVersionId, ctx, point, op, body.payloadJson);
+    } else {
+      await mgr.runEvent(sandbox.pluginVersionId, ctx, body.target, body.payloadJson);
+      resultJson = '{}';
+    }
     return { ok: true, resultJson };
   } catch (e: any) {
     return { ok: false, error: e?.message ?? 'plugin execution failed' };

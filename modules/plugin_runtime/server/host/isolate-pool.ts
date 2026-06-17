@@ -79,6 +79,13 @@ ${granted}
       if (typeof fn === 'function') await fn(JSON.parse(payloadJson), globalThis.host);
       return '{}';
     };
+    globalThis.__invokeProvider = async function (point, op, payloadJson) {
+      const mod = globalThis.__plugin;
+      const fn = mod && mod.providers && mod.providers[point] && mod.providers[point][op];
+      if (typeof fn !== 'function') throw new Error('no provider op: ' + point + '.' + op);
+      const res = await fn(JSON.parse(payloadJson), globalThis.host);
+      return JSON.stringify(res === undefined ? null : res);
+    };
   `;
 }
 
@@ -143,6 +150,20 @@ class Sandbox {
       await this.context.global.set('__call_route', routeKey);
       await this.context.global.set('__call_req', reqJson);
       const script = await this.isolate.compileScript('__invokeHttp(__call_route, __call_req)');
+      return (await script.run(this.context, { timeout: timeoutMs, promise: true, copy: true })) as string;
+    } finally {
+      this._ctx = null;
+    }
+  }
+
+  /** Run a provider op (point#op). One call at a time (caller holds the borrow lock). */
+  async runProvider(ctx: CallCtx, point: string, op: string, payloadJson: string, timeoutMs: number): Promise<string> {
+    this._ctx = ctx;
+    try {
+      await this.context.global.set('__prov_point', point);
+      await this.context.global.set('__prov_op', op);
+      await this.context.global.set('__prov_payload', payloadJson);
+      const script = await this.isolate.compileScript('__invokeProvider(__prov_point, __prov_op, __prov_payload)');
       return (await script.run(this.context, { timeout: timeoutMs, promise: true, copy: true })) as string;
     } finally {
       this._ctx = null;
@@ -249,6 +270,21 @@ export class SandboxManager {
       return await sandbox.runHttp(ctx, routeKey, reqJson, pool.limits.timeoutMs);
     } catch (e) {
       broken = true; // timeout / OOM / isolate fault → discard sandbox
+      throw e;
+    } finally {
+      this.release(pluginVersionId, sandbox, broken);
+    }
+  }
+
+  async runProvider(pluginVersionId: string, ctx: CallCtx, point: string, op: string, payloadJson: string): Promise<string> {
+    const pool = this.pools.get(pluginVersionId);
+    if (!pool) throw new Error(`plugin version not registered: ${pluginVersionId}`);
+    const sandbox = await this.borrow(pluginVersionId);
+    let broken = false;
+    try {
+      return await sandbox.runProvider(ctx, point, op, payloadJson, pool.limits.timeoutMs);
+    } catch (e) {
+      broken = true;
       throw e;
     } finally {
       this.release(pluginVersionId, sandbox, broken);

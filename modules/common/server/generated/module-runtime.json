@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-17T09:13:57.607Z",
+  "generatedAt": "2026-06-17T10:20:03.264Z",
   "menu": [
     {
       "id": "settings",
@@ -5454,6 +5454,7 @@
         "tenant",
         "storage",
         "plugin_runtime",
+        "ai",
         "common"
       ]
     },
