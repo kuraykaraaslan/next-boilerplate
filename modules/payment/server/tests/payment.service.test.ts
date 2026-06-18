@@ -50,31 +50,23 @@ vi.mock('stripe', () => ({
   })),
 }));
 
-vi.mock('@kuraykaraaslan/payment_stripe/server/providers/stripe.provider', () => ({
-  default: class MockStripeProvider {
-    async getPaymentStatus() { return { status: 'succeeded' }; }
-    async createCheckoutSession() {
-      return { sessionId: 'cs_test_123', checkoutUrl: 'https://checkout.stripe.com/pay/cs_test_123' };
-    }
-  },
-}));
-
-vi.mock('@kuraykaraaslan/payment_paypal/server/providers/paypal.provider', () => ({
-  default: class MockPaypalProvider {
-    async getPaymentStatus() { return { status: 'COMPLETED' }; }
-    async createCheckoutSession() {
-      return { sessionId: 'pp_order_123', checkoutUrl: 'https://paypal.com/pay/pp_order_123' };
-    }
-  },
-}));
-
-vi.mock('@kuraykaraaslan/payment_iyzico/server/providers/iyzico.provider', () => ({
-  default: class MockIyzicoProvider {
-    async getPaymentStatus() { return { status: 'SUCCESS' }; }
-    async createCheckoutSession() {
-      return { sessionId: 'iyzico_123', checkoutUrl: 'https://sandbox-api.iyzipay.com/pay' };
-    }
-  },
+// Gateways are now SANDBOXED community plugins resolved per-tenant. Mock the community
+// bridge so getProvider(name, tenantId) yields an IsolatedPaymentProvider whose invoke
+// returns the stubbed session/status (the isolate itself isn't exercised in unit tests).
+const SESSIONS: Record<string, { sessionId: string; checkoutUrl: string }> = {
+  stripe: { sessionId: 'cs_test_123', checkoutUrl: 'https://checkout.stripe.com/pay/cs_test_123' },
+  paypal: { sessionId: 'pp_order_123', checkoutUrl: 'https://paypal.com/pay/pp_order_123' },
+  iyzico: { sessionId: 'iyzico_123', checkoutUrl: 'https://sandbox-api.iyzipay.com/pay' },
+};
+vi.mock('@kuraykaraaslan/common/server/external-extensions', () => ({
+  listExternalContributions: vi.fn(async (_tenantId: string, point: string) => {
+    if (point !== 'payment:gateway') return [];
+    return Object.keys(SESSIONS).map((key) => ({
+      key,
+      metadata: { label: key, ops: ['createCheckoutSession', 'getPaymentStatus'] },
+      invoke: async (op: string) => (op === 'createCheckoutSession' ? SESSIONS[key] : { status: 'ok' }),
+    }));
+  }),
 }));
 
 import PaymentService from '../payment.service';
@@ -182,8 +174,8 @@ beforeEach(() => {
 });
 
 describe('PaymentService.getAvailableProviders', () => {
-  it('returns STRIPE, PAYPAL, IYZICO', () => {
-    const providers = PaymentService.getAvailableProviders();
+  it('returns the tenant-installed community gateways', async () => {
+    const providers = await PaymentService.getAvailableProviders(TENANT_ID);
     expect(providers).toContain('STRIPE');
     expect(providers).toContain('PAYPAL');
     expect(providers).toContain('IYZICO');

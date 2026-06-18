@@ -1,53 +1,43 @@
-import { describe, it, expect, vi } from 'vitest';
-
-vi.mock('@kuraykaraaslan/env', () => ({ env: { NODE_ENV: 'test', PAYMENT_DEFAULT_PROVIDER: 'STRIPE' } }));
-vi.mock('@kuraykaraaslan/db', () => ({ getDataSource: vi.fn(), tenantDataSourceFor: vi.fn() }));
-vi.mock('@kuraykaraaslan/redis', () => ({
-  default: { get: vi.fn(async () => null), set: vi.fn(async () => 'OK'), setex: vi.fn(async () => 'OK'), del: vi.fn(async () => 1) },
-  singleFlight: async (_k: string, f: () => Promise<unknown>) => f(),
-  jitter: (n: number) => n,
-}));
-vi.mock('@kuraykaraaslan/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
-vi.mock('@kuraykaraaslan/setting/server/setting.service', () => ({ default: { getValue: vi.fn(async () => null) } }));
-
-import IyzicoProvider from '@kuraykaraaslan/payment_iyzico/server/providers/iyzico.provider';
-import StripeProvider from '@kuraykaraaslan/payment_stripe/server/providers/stripe.provider';
-import PaypalProvider from '@kuraykaraaslan/payment_paypal/server/providers/paypal.provider';
-import PaymentService from '../payment.service';
+import { describe, it, expect } from 'vitest';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 import { WalletDescriptorSchema } from '../payment.enums';
 
-describe('provider supportedWallets', () => {
+// After the full migration to sandboxed plugins, wallet capability lives in each
+// @pay/<key> manifest's payment:gateway metadata (read by IsolatedPaymentProvider
+// .supportedWallets), not in a built-in provider class. This validates that source.
+const EXAMPLES = path.join(__dirname, '../../../marketplace/examples/@pay');
+
+function wallets(key: string): Array<{ method: string; delivery: string }> {
+  const manifest = JSON.parse(readFileSync(path.join(EXAMPLES, key, 'manifest.json'), 'utf8'));
+  const gateway = (manifest.extensions ?? []).find((e: { point: string }) => e.point === 'payment:gateway');
+  return (gateway?.metadata?.wallets ?? []) as Array<{ method: string; delivery: string }>;
+}
+
+describe('@pay gateway supportedWallets metadata', () => {
   it('iyzico surfaces MasterPass + BKM Express via hosted redirect', () => {
-    const wallets = new IyzicoProvider().supportedWallets;
-    const methods = wallets.map((d) => d.method);
+    const w = wallets('iyzico');
+    const methods = w.map((d) => d.method);
     expect(methods).toEqual(expect.arrayContaining(['MASTERPASS', 'BKM_EXPRESS', 'SAVED_CARD', 'INSTALLMENT']));
-    expect(wallets.find((d) => d.method === 'MASTERPASS')?.delivery).toBe('HOSTED_REDIRECT');
-    wallets.forEach((d) => expect(WalletDescriptorSchema.safeParse(d).success).toBe(true));
+    expect(w.find((d) => d.method === 'MASTERPASS')?.delivery).toBe('HOSTED_REDIRECT');
   });
 
   it('stripe surfaces Apple/Google Pay + Click to Pay via client element', () => {
-    const wallets = new StripeProvider().supportedWallets;
-    const methods = wallets.map((d) => d.method);
+    const w = wallets('stripe');
+    const methods = w.map((d) => d.method);
     expect(methods).toEqual(expect.arrayContaining(['APPLE_PAY', 'GOOGLE_PAY', 'CLICK_TO_PAY', 'LINK']));
-    expect(wallets.find((d) => d.method === 'APPLE_PAY')?.delivery).toBe('CLIENT_ELEMENT');
+    expect(w.find((d) => d.method === 'APPLE_PAY')?.delivery).toBe('CLIENT_ELEMENT');
   });
 
   it('paypal surfaces the PayPal wallet', () => {
-    expect(new PaypalProvider().supportedWallets.map((d) => d.method)).toContain('PAYPAL');
-  });
-});
-
-describe('PaymentService wallet capability', () => {
-  it('getSupportedWallets routes to the provider', async () => {
-    expect((await PaymentService.getSupportedWallets('IYZICO')).map((d) => d.method)).toContain('MASTERPASS');
-    expect((await PaymentService.getSupportedWallets('STRIPE')).map((d) => d.method)).toContain('CLICK_TO_PAY');
+    expect(wallets('paypal').map((d) => d.method)).toContain('PAYPAL');
   });
 
-  it('getWalletMatrix covers every registered provider', async () => {
-    const matrix = await PaymentService.getWalletMatrix();
-    const providers = matrix.map((row) => row.provider);
-    expect(providers).toEqual(expect.arrayContaining(['STRIPE', 'PAYPAL', 'IYZICO']));
-    const iyzico = matrix.find((row) => row.provider === 'IYZICO');
-    expect(iyzico?.wallets.map((w) => w.method)).toContain('BKM_EXPRESS');
+  it('every declared wallet descriptor is schema-valid across all gateways', () => {
+    for (const key of ['stripe', 'paypal', 'iyzico', 'alipay', 'wechatpay', 'yookassa', 'cloudpayments', 'manual']) {
+      for (const d of wallets(key)) {
+        expect(WalletDescriptorSchema.safeParse(d).success).toBe(true);
+      }
+    }
   });
 });

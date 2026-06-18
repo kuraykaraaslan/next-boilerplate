@@ -24,7 +24,7 @@ export async function GET(
       return NextResponse.json({ success: false, message: err.message }, { status: 403 });
     }
 
-    return NextResponse.json({ success: true, matrix: PaymentService.getWalletMatrix() }, { status: 200 });
+    return NextResponse.json({ success: true, matrix: await PaymentService.getWalletMatrix(tenantId) }, { status: 200 });
   } catch (error: any) {
     return NextResponse.json({ success: false, message: error.message }, { status: 500 });
   }

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-17T22:49:17.897Z",
+  "generatedAt": "2026-06-18T16:30:08.950Z",
   "menu": [
     {
       "id": "settings",
@@ -2780,149 +2780,6 @@
       }
     },
     {
-      "id": "payment_alipay:payment:gateway:alipay",
-      "point": "payment:gateway",
-      "moduleId": "payment_alipay",
-      "key": "alipay",
-      "exportId": "payment_alipay/server/alipay.extension",
-      "order": 100,
-      "scope": "both",
-      "permissions": [],
-      "metadata": {
-        "label": "Alipay"
-      }
-    },
-    {
-      "id": "payment_cloudpayments:payment:gateway:cloudpayments",
-      "point": "payment:gateway",
-      "moduleId": "payment_cloudpayments",
-      "key": "cloudpayments",
-      "exportId": "payment_cloudpayments/server/cloudpayments.extension",
-      "order": 100,
-      "scope": "both",
-      "permissions": [],
-      "metadata": {
-        "label": "CloudPayments"
-      }
-    },
-    {
-      "id": "payment_iyzico:payment:coupon:iyzico",
-      "point": "payment:coupon",
-      "moduleId": "payment_iyzico",
-      "key": "iyzico",
-      "exportId": "payment_iyzico/server/iyzico.coupon.extension",
-      "order": 100,
-      "scope": "both",
-      "permissions": [],
-      "metadata": {
-        "label": "Iyzico"
-      }
-    },
-    {
-      "id": "payment_iyzico:payment:gateway:iyzico",
-      "point": "payment:gateway",
-      "moduleId": "payment_iyzico",
-      "key": "iyzico",
-      "exportId": "payment_iyzico/server/iyzico.extension",
-      "order": 100,
-      "scope": "both",
-      "permissions": [],
-      "metadata": {
-        "label": "Iyzico"
-      }
-    },
-    {
-      "id": "payment_manual:payment:gateway:manual",
-      "point": "payment:gateway",
-      "moduleId": "payment_manual",
-      "key": "manual",
-      "exportId": "payment_manual/server/manual.extension",
-      "order": 100,
-      "scope": "both",
-      "permissions": [],
-      "metadata": {
-        "label": "Cash / Wire"
-      }
-    },
-    {
-      "id": "payment_paypal:payment:coupon:paypal",
-      "point": "payment:coupon",
-      "moduleId": "payment_paypal",
-      "key": "paypal",
-      "exportId": "payment_paypal/server/paypal.coupon.extension",
-      "order": 100,
-      "scope": "both",
-      "permissions": [],
-      "metadata": {
-        "label": "PayPal"
-      }
-    },
-    {
-      "id": "payment_paypal:payment:gateway:paypal",
-      "point": "payment:gateway",
-      "moduleId": "payment_paypal",
-      "key": "paypal",
-      "exportId": "payment_paypal/server/paypal.extension",
-      "order": 100,
-      "scope": "both",
-      "permissions": [],
-      "metadata": {
-        "label": "PayPal"
-      }
-    },
-    {
-      "id": "payment_stripe:payment:coupon:stripe",
-      "point": "payment:coupon",
-      "moduleId": "payment_stripe",
-      "key": "stripe",
-      "exportId": "payment_stripe/server/stripe.coupon.extension",
-      "order": 100,
-      "scope": "both",
-      "permissions": [],
-      "metadata": {
-        "label": "Stripe"
-      }
-    },
-    {
-      "id": "payment_stripe:payment:gateway:stripe",
-      "point": "payment:gateway",
-      "moduleId": "payment_stripe",
-      "key": "stripe",
-      "exportId": "payment_stripe/server/stripe.extension",
-      "order": 100,
-      "scope": "both",
-      "permissions": [],
-      "metadata": {
-        "label": "Stripe"
-      }
-    },
-    {
-      "id": "payment_wechatpay:payment:gateway:wechatpay",
-      "point": "payment:gateway",
-      "moduleId": "payment_wechatpay",
-      "key": "wechatpay",
-      "exportId": "payment_wechatpay/server/wechatpay.extension",
-      "order": 100,
-      "scope": "both",
-      "permissions": [],
-      "metadata": {
-        "label": "WeChat Pay"
-      }
-    },
-    {
-      "id": "payment_yookassa:payment:gateway:yookassa",
-      "point": "payment:gateway",
-      "moduleId": "payment_yookassa",
-      "key": "yookassa",
-      "exportId": "payment_yookassa/server/yookassa.extension",
-      "order": 100,
-      "scope": "both",
-      "permissions": [],
-      "metadata": {
-        "label": "YooKassa"
-      }
-    },
-    {
       "id": "sms_clickatell:sms:provider:clickatell",
       "point": "sms:provider",
       "moduleId": "sms_clickatell",
@@ -4544,30 +4401,6 @@
       ]
     },
     {
-      "id": "payment_alipay",
-      "name": "Alipay Gateway",
-      "icon": "fab fa-alipay",
-      "version": "1.0.0",
-      "description": "Alipay payment gateway, contributed into the payment:gateway extension point.",
-      "author": "Kuray Karaaslan",
-      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_alipay",
-      "license": "CC-BY-NC-ND-4.0",
-      "tags": [
-        "billing",
-        "payment",
-        "gateway"
-      ],
-      "priority": 26,
-      "enabled": true,
-      "tier": "other",
-      "requires": [
-        "payment",
-        "env",
-        "setting",
-        "common"
-      ]
-    },
-    {
       "id": "payment_cart",
       "name": "Payment Cart",
       "icon": "fas fa-cart-shopping",
@@ -4593,30 +4426,6 @@
       ]
     },
     {
-      "id": "payment_cloudpayments",
-      "name": "CloudPayments Gateway",
-      "icon": "fas fa-credit-card",
-      "version": "1.0.0",
-      "description": "CloudPayments payment gateway, contributed into the payment:gateway extension point.",
-      "author": "Kuray Karaaslan",
-      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_cloudpayments",
-      "license": "CC-BY-NC-ND-4.0",
-      "tags": [
-        "billing",
-        "payment",
-        "gateway"
-      ],
-      "priority": 26,
-      "enabled": true,
-      "tier": "other",
-      "requires": [
-        "payment",
-        "env",
-        "setting",
-        "common"
-      ]
-    },
-    {
       "id": "payment_core",
       "name": "payment_core",
       "version": "0.0.0",
@@ -4629,30 +4438,6 @@
       "enabled": true,
       "tier": "other",
       "requires": []
-    },
-    {
-      "id": "payment_iyzico",
-      "name": "Iyzico Gateway",
-      "icon": "fas fa-credit-card",
-      "version": "1.0.0",
-      "description": "Iyzico payment gateway, contributed into the payment:gateway extension point.",
-      "author": "Kuray Karaaslan",
-      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_iyzico",
-      "license": "CC-BY-NC-ND-4.0",
-      "tags": [
-        "billing",
-        "payment",
-        "gateway"
-      ],
-      "priority": 26,
-      "enabled": true,
-      "tier": "other",
-      "requires": [
-        "payment",
-        "env",
-        "setting",
-        "common"
-      ]
     },
     {
       "id": "payment_loyalty_points",
@@ -4677,55 +4462,6 @@
         "env",
         "redis",
         "logger"
-      ]
-    },
-    {
-      "id": "payment_manual",
-      "name": "Cash / Wire (Manual)",
-      "icon": "fas fa-money-bill-wave",
-      "version": "1.0.0",
-      "description": "Offline settlement gateway for cash or bank wire. Records the payment as PENDING and shows operator-authored instructions (the manualPaymentNote setting); an operator marks it paid once funds arrive. Contributed into the payment:gateway extension point.",
-      "author": "Kuray Karaaslan",
-      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_manual",
-      "license": "CC-BY-NC-ND-4.0",
-      "tags": [
-        "billing",
-        "payment",
-        "gateway",
-        "offline",
-        "manual"
-      ],
-      "priority": 26,
-      "enabled": true,
-      "tier": "other",
-      "requires": [
-        "payment",
-        "setting",
-        "common"
-      ]
-    },
-    {
-      "id": "payment_paypal",
-      "name": "PayPal Gateway",
-      "icon": "fab fa-paypal",
-      "version": "1.0.0",
-      "description": "PayPal payment gateway, contributed into the payment:gateway extension point.",
-      "author": "Kuray Karaaslan",
-      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_paypal",
-      "license": "CC-BY-NC-ND-4.0",
-      "tags": [
-        "billing",
-        "payment",
-        "gateway"
-      ],
-      "priority": 26,
-      "enabled": true,
-      "tier": "other",
-      "requires": [
-        "payment",
-        "env",
-        "setting",
-        "common"
       ]
     },
     {
@@ -4805,31 +4541,6 @@
       ]
     },
     {
-      "id": "payment_stripe",
-      "name": "Stripe Gateway",
-      "icon": "fab fa-stripe",
-      "version": "1.0.0",
-      "description": "Stripe payment gateway, contributed into the payment:gateway extension point.",
-      "author": "Kuray Karaaslan",
-      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_stripe",
-      "license": "CC-BY-NC-ND-4.0",
-      "tags": [
-        "billing",
-        "payment",
-        "gateway"
-      ],
-      "priority": 26,
-      "enabled": true,
-      "tier": "other",
-      "requires": [
-        "payment",
-        "env",
-        "setting",
-        "tenant",
-        "common"
-      ]
-    },
-    {
       "id": "payment_subscription",
       "name": "Payment Subscription",
       "icon": "fas fa-sync-alt",
@@ -4882,30 +4593,6 @@
       ]
     },
     {
-      "id": "payment_wechatpay",
-      "name": "WeChat Pay Gateway",
-      "icon": "fab fa-weixin",
-      "version": "1.0.0",
-      "description": "WeChat Pay payment gateway, contributed into the payment:gateway extension point.",
-      "author": "Kuray Karaaslan",
-      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_wechatpay",
-      "license": "CC-BY-NC-ND-4.0",
-      "tags": [
-        "billing",
-        "payment",
-        "gateway"
-      ],
-      "priority": 26,
-      "enabled": true,
-      "tier": "other",
-      "requires": [
-        "payment",
-        "env",
-        "setting",
-        "common"
-      ]
-    },
-    {
       "id": "payment_wishlist",
       "name": "Payment Wishlist",
       "icon": "fas fa-heart",
@@ -4927,30 +4614,6 @@
         "env",
         "redis",
         "logger"
-      ]
-    },
-    {
-      "id": "payment_yookassa",
-      "name": "YooKassa Gateway",
-      "icon": "fas fa-credit-card",
-      "version": "1.0.0",
-      "description": "YooKassa payment gateway, contributed into the payment:gateway extension point.",
-      "author": "Kuray Karaaslan",
-      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_yookassa",
-      "license": "CC-BY-NC-ND-4.0",
-      "tags": [
-        "billing",
-        "payment",
-        "gateway"
-      ],
-      "priority": 26,
-      "enabled": true,
-      "tier": "other",
-      "requires": [
-        "payment",
-        "env",
-        "setting",
-        "common"
       ]
     },
     {

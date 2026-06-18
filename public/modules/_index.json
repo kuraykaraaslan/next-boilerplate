@@ -535,78 +535,6 @@
     "componentCount": 10,
     "file": "coupon.md"
   },
-  "payment_alipay": {
-    "name": "Alipay Gateway",
-    "tier": "other",
-    "tags": [
-      "billing",
-      "payment",
-      "gateway"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "payment_alipay.md"
-  },
-  "payment_cloudpayments": {
-    "name": "CloudPayments Gateway",
-    "tier": "other",
-    "tags": [
-      "billing",
-      "payment",
-      "gateway"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "payment_cloudpayments.md"
-  },
-  "payment_iyzico": {
-    "name": "Iyzico Gateway",
-    "tier": "other",
-    "tags": [
-      "billing",
-      "payment",
-      "gateway"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "payment_iyzico.md"
-  },
-  "payment_manual": {
-    "name": "Cash / Wire (Manual)",
-    "tier": "other",
-    "tags": [
-      "billing",
-      "payment",
-      "gateway",
-      "offline",
-      "manual"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "payment_manual.md"
-  },
-  "payment_paypal": {
-    "name": "PayPal Gateway",
-    "tier": "other",
-    "tags": [
-      "billing",
-      "payment",
-      "gateway"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "payment_paypal.md"
-  },
   "payment_sell": {
     "name": "Payment Sell",
     "tier": "other",
@@ -620,48 +548,6 @@
     "entityCount": 2,
     "componentCount": 0,
     "file": "payment_sell.md"
-  },
-  "payment_stripe": {
-    "name": "Stripe Gateway",
-    "tier": "other",
-    "tags": [
-      "billing",
-      "payment",
-      "gateway"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "payment_stripe.md"
-  },
-  "payment_wechatpay": {
-    "name": "WeChat Pay Gateway",
-    "tier": "other",
-    "tags": [
-      "billing",
-      "payment",
-      "gateway"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "payment_wechatpay.md"
-  },
-  "payment_yookassa": {
-    "name": "YooKassa Gateway",
-    "tier": "other",
-    "tags": [
-      "billing",
-      "payment",
-      "gateway"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "payment_yookassa.md"
   },
   "exchange_rate": {
     "name": "Exchange Rate",

@@ -36,20 +36,20 @@ export default class PaymentCheckoutService {
     return getProvider(providerName);
   }
 
-  static getAvailableProviders(): PaymentProvider[] {
-    return getAvailableProviders();
+  static getAvailableProviders(tenantId?: string): Promise<PaymentProvider[]> {
+    return getAvailableProviders(tenantId);
   }
 
   static getDefaultProvider(): PaymentProvider {
     return getDefaultProvider();
   }
 
-  static getSupportedWallets(providerName?: PaymentProvider): Promise<WalletDescriptor[]> {
-    return getSupportedWallets(providerName);
+  static getSupportedWallets(providerName?: PaymentProvider, tenantId?: string): Promise<WalletDescriptor[]> {
+    return getSupportedWallets(providerName, tenantId);
   }
 
-  static getWalletMatrix(): Promise<{ provider: PaymentProvider; wallets: WalletDescriptor[] }[]> {
-    return getWalletMatrix();
+  static getWalletMatrix(tenantId?: string): Promise<{ provider: PaymentProvider; wallets: WalletDescriptor[] }[]> {
+    return getWalletMatrix(tenantId);
   }
 
   static resolveEnabledProvider(tenantId: string, providerName?: PaymentProvider): Promise<PaymentProvider> {

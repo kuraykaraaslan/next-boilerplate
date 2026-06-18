@@ -22,7 +22,7 @@ export async function GET(
       return NextResponse.json({ success: false, message: err.message }, { status: 403 });
     }
     return NextResponse.json({
-      providers: PaymentService.getAvailableProviders(),
+      providers: await PaymentService.getAvailableProviders(tenantId),
       default: PaymentService.getDefaultProvider(),
     }, { status: 200 });
   } catch (error: any) {

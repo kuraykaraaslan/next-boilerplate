@@ -64,26 +64,38 @@ export async function getProvider(providerName?: PaymentProvider, tenantId?: str
   return impl;
 }
 
-export function getAvailableProviders(): PaymentProvider[] {
+/**
+ * Available gateway keys. After full migration to sandboxed plugins the static
+ * registry is empty, so a tenant's INSTALLED community gateways are the real list
+ * (unioned with any remaining static/fallback contributions). Pass `tenantId` to
+ * include community plugins — without it, only static/fallback keys are returned.
+ */
+export async function getAvailableProviders(tenantId?: string): Promise<PaymentProvider[]> {
   const fromExtensions = extensionRegistry
     .getContributions(PAYMENT_GATEWAY_POINT)
     .flatMap((c) => (c.key ? [c.key.toUpperCase() as PaymentProvider] : []));
-  return [...new Set([...fromExtensions, ...FALLBACK.keys()])];
+  let community: PaymentProvider[] = [];
+  if (tenantId) {
+    const { listExternalContributions } = await import('@kuraykaraaslan/common/server/external-extensions');
+    community = (await listExternalContributions(tenantId, PAYMENT_GATEWAY_POINT)).map((c) => c.key.toUpperCase() as PaymentProvider);
+  }
+  return [...new Set([...fromExtensions, ...community, ...FALLBACK.keys()])];
 }
 
 export function getDefaultProvider(): PaymentProvider {
   return DEFAULT_PROVIDER;
 }
 
-export async function getSupportedWallets(providerName?: PaymentProvider): Promise<WalletDescriptor[]> {
-  return (await getProvider(providerName)).supportedWallets;
+export async function getSupportedWallets(providerName?: PaymentProvider, tenantId?: string): Promise<WalletDescriptor[]> {
+  return (await getProvider(providerName, tenantId)).supportedWallets;
 }
 
-export async function getWalletMatrix(): Promise<{ provider: PaymentProvider; wallets: WalletDescriptor[] }[]> {
+export async function getWalletMatrix(tenantId?: string): Promise<{ provider: PaymentProvider; wallets: WalletDescriptor[] }[]> {
+  const providers = await getAvailableProviders(tenantId);
   return Promise.all(
-    getAvailableProviders().map(async (provider) => ({
+    providers.map(async (provider) => ({
       provider,
-      wallets: (await getProvider(provider)).supportedWallets,
+      wallets: (await getProvider(provider, tenantId)).supportedWallets,
     })),
   );
 }
