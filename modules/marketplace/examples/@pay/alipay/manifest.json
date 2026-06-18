@@ -1,0 +1,35 @@
+{
+  "id": "alipay",
+  "name": "Alipay Gateway",
+  "version": "1.0.0",
+  "description": "Alipay payment gateway (RSA2-signed page.pay redirect), contributed into payment:gateway — sandboxed. The RSA2 signature is computed host-side (private key never enters the isolate).",
+  "icon": "fab fa-alipay",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": ["http", "settings", "crypto"],
+    "httpAllowlist": ["openapi.alipay.com", "openapi.alipaydev.com"],
+    "limits": { "memoryMb": 64, "timeoutMs": 30000, "httpTimeoutMs": 28000, "httpMaxBytes": 2000000 }
+  },
+  "config": {
+    "secrets": [
+      { "key": "alipayPrivateKey", "label": "Alipay App Private Key (PEM)", "help": "RSA private key in PEM (BEGIN/END). Used host-side for the RSA2 signature." }
+    ],
+    "settings": [
+      { "key": "alipayAppId", "label": "Alipay App ID" },
+      { "key": "alipaySandboxMode", "label": "Sandbox Mode", "help": "'true' to use openapi.alipaydev.com." }
+    ]
+  },
+  "extensions": [
+    {
+      "point": "payment:gateway",
+      "key": "alipay",
+      "metadata": {
+        "label": "Alipay",
+        "ops": ["getPaymentStatus", "createCheckoutSession"],
+        "supportsDirectCardPayment": false,
+        "supports3dsCardPayment": false,
+        "wallets": [{ "method": "ALIPAY", "delivery": "HOSTED_REDIRECT" }]
+      }
+    }
+  ]
+}

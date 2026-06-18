@@ -1,0 +1,37 @@
+{
+  "id": "wechatpay",
+  "name": "WeChat Pay Gateway",
+  "version": "1.0.0",
+  "description": "WeChat Pay v3 gateway (Native QR), contributed into payment:gateway — sandboxed. The WECHATPAY2-SHA256-RSA2048 request signature is computed host-side (merchant private key never enters the isolate). Callback (AES-GCM) decryption stays host-side.",
+  "icon": "fab fa-weixin",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": ["http", "settings", "crypto"],
+    "httpAllowlist": ["api.mch.weixin.qq.com"],
+    "limits": { "memoryMb": 64, "timeoutMs": 30000, "httpTimeoutMs": 28000, "httpMaxBytes": 2000000 }
+  },
+  "config": {
+    "secrets": [
+      { "key": "wechatPayPrivateKey", "label": "WeChat Pay Merchant Private Key (PEM)", "help": "PKCS#8 PEM. Used host-side for the v3 request signature." }
+    ],
+    "settings": [
+      { "key": "wechatPayAppId", "label": "App ID" },
+      { "key": "wechatPayMchId", "label": "Merchant ID (mchid)" },
+      { "key": "wechatPaySerialNo", "label": "Certificate Serial No" },
+      { "key": "wechatPayNotifyUrl", "label": "Notify URL" }
+    ]
+  },
+  "extensions": [
+    {
+      "point": "payment:gateway",
+      "key": "wechatpay",
+      "metadata": {
+        "label": "WeChat Pay",
+        "ops": ["getPaymentStatus", "createCheckoutSession"],
+        "supportsDirectCardPayment": false,
+        "supports3dsCardPayment": false,
+        "wallets": [{ "method": "WECHAT_PAY", "delivery": "HOSTED_REDIRECT" }]
+      }
+    }
+  ]
+}

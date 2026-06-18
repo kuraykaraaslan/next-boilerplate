@@ -1,0 +1,38 @@
+{
+  "id": "yookassa",
+  "name": "YooKassa Gateway",
+  "version": "1.0.0",
+  "description": "YooKassa payment gateway (hosted redirect; card / YooMoney / SBP), contributed into payment:gateway — sandboxed. Secret key stays host-side (Basic auth built host-side).",
+  "icon": "fas fa-ruble-sign",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": ["http", "settings"],
+    "httpAllowlist": ["api.yookassa.ru"],
+    "limits": { "memoryMb": 64, "timeoutMs": 30000, "httpTimeoutMs": 28000, "httpMaxBytes": 2000000 }
+  },
+  "config": {
+    "secrets": [
+      { "key": "yookassaSecretKey", "label": "YooKassa Secret Key", "help": "Stored encrypted; used host-side as the Basic-auth password." }
+    ],
+    "settings": [
+      { "key": "yookassaShopId", "label": "YooKassa Shop ID" }
+    ]
+  },
+  "extensions": [
+    {
+      "point": "payment:gateway",
+      "key": "yookassa",
+      "metadata": {
+        "label": "YooKassa",
+        "ops": ["getPaymentStatus", "createCheckoutSession"],
+        "supportsDirectCardPayment": false,
+        "supports3dsCardPayment": false,
+        "wallets": [
+          { "method": "CARD", "delivery": "HOSTED_REDIRECT" },
+          { "method": "YOOMONEY", "delivery": "HOSTED_REDIRECT" },
+          { "method": "SBP", "delivery": "HOSTED_REDIRECT" }
+        ]
+      }
+    }
+  ]
+}

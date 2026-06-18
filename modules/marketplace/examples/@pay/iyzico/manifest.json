@@ -1,0 +1,42 @@
+{
+  "id": "iyzico",
+  "name": "iyzico Gateway",
+  "version": "1.0.0",
+  "description": "iyzico payment gateway (hosted CheckoutForm + direct card + 3DS + BIN), contributed into payment:gateway — sandboxed. The IYZWSv2 request signature is computed host-side (secret key never enters the isolate).",
+  "icon": "fas fa-credit-card",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": ["http", "settings", "crypto"],
+    "httpAllowlist": ["api.iyzipay.com", "sandbox-api.iyzipay.com"],
+    "limits": { "memoryMb": 64, "timeoutMs": 30000, "httpTimeoutMs": 28000, "httpMaxBytes": 2000000 }
+  },
+  "config": {
+    "secrets": [
+      { "key": "iyzicoSecretKey", "label": "iyzico Secret Key", "help": "Stored encrypted; used host-side for the IYZWSv2 HMAC signature." }
+    ],
+    "settings": [
+      { "key": "iyzicoApiKey", "label": "iyzico API Key" },
+      { "key": "iyzicoSandboxMode", "label": "Sandbox Mode", "help": "'true' to use sandbox-api.iyzipay.com." },
+      { "key": "iyzicoEnabledInstallments", "label": "Enabled Installments", "help": "e.g. '1,2,3,6,9' to scope the hosted form." }
+    ]
+  },
+  "extensions": [
+    {
+      "point": "payment:gateway",
+      "key": "iyzico",
+      "metadata": {
+        "label": "iyzico",
+        "ops": ["getPaymentStatus", "createCheckoutSession", "createPayment", "create3dsPayment", "complete3dsPayment", "checkBin"],
+        "supportsDirectCardPayment": true,
+        "supports3dsCardPayment": true,
+        "wallets": [
+          { "method": "CARD", "delivery": "HOSTED_REDIRECT" },
+          { "method": "MASTERPASS", "delivery": "HOSTED_REDIRECT" },
+          { "method": "BKM_EXPRESS", "delivery": "HOSTED_REDIRECT" },
+          { "method": "SAVED_CARD", "delivery": "HOSTED_REDIRECT" },
+          { "method": "INSTALLMENT", "delivery": "HOSTED_REDIRECT" }
+        ]
+      }
+    }
+  ]
+}

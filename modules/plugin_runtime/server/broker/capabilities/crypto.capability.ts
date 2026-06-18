@@ -3,7 +3,7 @@
 // in the untrusted isolate. The isolate hands the raw token + the JWKS URI here; the
 // broker fetches the keys, verifies signature + iss/aud/exp/nonce, returns ONLY the
 // verified claims.
-import { createPublicKey, createSign, type JsonWebKey } from 'node:crypto';
+import { createPublicKey, createSign, createHmac, type JsonWebKey, type BinaryToTextEncoding } from 'node:crypto';
 import jwt from 'jsonwebtoken';
 import SettingService from '@kuraykaraaslan/setting/server/setting.service';
 import { decryptFieldOpt } from '@kuraykaraaslan/common/server/field-encryption';
@@ -43,6 +43,19 @@ export const crypto = {
     signer.update(String(data));
     signer.end();
     return signer.sign(key, 'base64') as Json;
+  },
+
+  // Keyed HMAC over arbitrary data using a plugin secret (e.g. iyzico's IYZWSv2
+  // request signature). The secret key stays host-side; the isolate passes only the
+  // non-secret payload string and gets back the digest.
+  async hmac(ctx: BrokerCtx, data: string, opts?: { secretName?: string; algorithm?: string; encoding?: string }): Promise<Json> {
+    const o = opts ?? {};
+    const raw = await SettingService.getValue(ctx.tenantId, SECRET_PREFIX(ctx.pluginId) + (o.secretName ?? 'signingKey'));
+    const key = decryptFieldOpt(raw);
+    if (typeof key !== 'string' || !key) throw new Error('hmac: key not set');
+    const h = createHmac(o.algorithm ?? 'sha256', key);
+    h.update(String(data));
+    return h.digest((o.encoding ?? 'hex') as BinaryToTextEncoding) as Json;
   },
 
   async verifyJwks(
