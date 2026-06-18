@@ -1,20 +1,17 @@
-// Universal tenant page catch-all ("ultimate dynamic"): one route serves every
-// page — admin, auth, public and the CMS — by resolving the path to a
-// module-owned page (module.json `routes`). The shell + gating are chosen by the
-// first path segment:
-//   /admin/*  -> AdminShell + ModuleEnabledProvider, gated by enabled modules
+// Universal tenant page catch-all ("ultimate dynamic"): one route serves auth,
+// public and CMS pages — by resolving the path to a module-owned page
+// (module.json `routes`). The shell + gating are chosen by the first path segment:
 //   /auth/*   -> AuthShell (public, ungated)
 //   else      -> module public page, or the CMS dynamic page as a fallback
+// /admin/* is served by its own sibling segment (admin/[[...slug]]/) so the
+// AdminShell can live in a layout and persist across navigations.
 // API stays a separate route handler (api/[...slug]/route.ts) — Next.js does not
 // allow page.tsx and route.ts on the same segment.
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { moduleRegistry } from '@kuraykaraaslan/common/server/module-registry';
-import { getEnabledModuleIds } from '@kuraykaraaslan/setting/server/module-activation.service.next';
 import { DynamicAdminPage } from '@kuraykaraaslan/common/ui/dynamic-admin-page.component';
-import { AdminShell } from '@kuraykaraaslan/common/ui/layout/admin-shell.component';
 import { AuthShell } from '@kuraykaraaslan/common/ui/auth-shell.component';
-import { ModuleEnabledProvider } from '@kuraykaraaslan/common/ui/module-enabled.context.component';
 import PublicDynamicPage, { buildPublicPageMetadata } from '@kuraykaraaslan/dynamic_page/ui/public-dynamic-page.component';
 
 type Props = {
@@ -25,7 +22,6 @@ type Props = {
 export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
   const { tenantId, slug = [] } = await params;
   const { lang } = await searchParams;
-  if (slug[0] === 'admin') return { title: 'Admin' };
   if (slug[0] === 'auth') return { title: 'Sign in' };
   const match = moduleRegistry.findPageRoute('/' + slug.join('/'));
   if (match) return { title: moduleRegistry.getModule(match.route.moduleId)?.name ?? 'Page' };
@@ -36,25 +32,6 @@ export default async function Page({ params, searchParams }: Props) {
   const { tenantId, slug = [] } = await params;
   const { lang } = await searchParams;
   const path = '/' + slug.join('/');
-
-  // ---- admin: shell + per-tenant module gating ----
-  if (slug[0] === 'admin') {
-    const enabled = await getEnabledModuleIds(tenantId);
-    const match = moduleRegistry.findPageRoute(path);
-    if (!match || !enabled.has(match.route.moduleId)) notFound();
-    return (
-      <ModuleEnabledProvider enabledIds={[...enabled]}>
-        <AdminShell tenantId={tenantId}>
-          <DynamicAdminPage
-            componentId={match.route.componentId}
-            tenantId={tenantId}
-            params={match.params}
-            slug={slug}
-          />
-        </AdminShell>
-      </ModuleEnabledProvider>
-    );
-  }
 
   // ---- auth: shared centered shell, public (ungated) ----
   if (slug[0] === 'auth') {

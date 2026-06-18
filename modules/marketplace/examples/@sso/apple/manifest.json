@@ -1,0 +1,64 @@
+{
+  "id": "apple",
+  "name": "Apple",
+  "version": "1.0.0",
+  "description": "apple social login (OAuth2/OIDC), contributed into auth_sso:provider — sandboxed.",
+  "icon": "fab fa-apple",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": [
+      "http",
+      "secrets",
+      "crypto",
+      "settings"
+    ],
+    "httpAllowlist": [
+      "appleid.apple.com"
+    ],
+    "limits": {
+      "memoryMb": 64,
+      "timeoutMs": 30000,
+      "httpTimeoutMs": 28000,
+      "httpMaxBytes": 2000000
+    }
+  },
+  "config": {
+    "secrets": [
+      {
+        "key": "signingKey",
+        "label": "Apple Signing Key (.p8)"
+      }
+    ],
+    "settings": [
+      {
+        "key": "teamId",
+        "label": "Apple Team ID"
+      },
+      {
+        "key": "keyId",
+        "label": "Apple Key ID"
+      }
+    ]
+  },
+  "extensions": [
+    {
+      "point": "auth_sso:provider",
+      "key": "apple",
+      "metadata": {
+        "label": "Apple",
+        "usesPkce": false,
+        "clientSecretJwt": {
+          "aud": "https://appleid.apple.com"
+        },
+        "idTokenVerify": {
+          "issuer": "https://appleid.apple.com",
+          "jwksUri": "https://appleid.apple.com/auth/keys"
+        },
+        "profileMap": {
+          "sub": "sub",
+          "email": "email"
+        }
+      }
+    }
+  ]
+}

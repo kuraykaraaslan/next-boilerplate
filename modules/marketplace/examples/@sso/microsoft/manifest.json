@@ -1,0 +1,53 @@
+{
+  "id": "microsoft",
+  "name": "Microsoft",
+  "version": "1.0.0",
+  "description": "microsoft social login (OAuth2/OIDC), contributed into auth_sso:provider — sandboxed.",
+  "icon": "fab fa-microsoft",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": [
+      "http",
+      "secrets"
+    ],
+    "httpAllowlist": [
+      "login.microsoftonline.com",
+      "graph.microsoft.com"
+    ],
+    "limits": {
+      "memoryMb": 64,
+      "timeoutMs": 30000,
+      "httpTimeoutMs": 28000,
+      "httpMaxBytes": 2000000
+    }
+  },
+  "config": {
+    "secrets": [
+      {
+        "key": "clientSecret",
+        "label": "OAuth Client Secret"
+      }
+    ]
+  },
+  "extensions": [
+    {
+      "point": "auth_sso:provider",
+      "key": "microsoft",
+      "metadata": {
+        "label": "Microsoft",
+        "usesPkce": true,
+        "profileMap": {
+          "sub": "id",
+          "email": [
+            "mail",
+            "userPrincipalName"
+          ],
+          "name": "displayName",
+          "firstName": "givenName",
+          "lastName": "surname",
+          "locale": "preferredLanguage"
+        }
+      }
+    }
+  ]
+}

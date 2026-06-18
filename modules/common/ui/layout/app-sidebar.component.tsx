@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 import { cn } from '@kuraykaraaslan/common/server/utils/cn';
 import { useEffect, useState } from 'react';
 import { Badge } from '@kuraykaraaslan/common/ui/badge.component';
@@ -173,7 +174,7 @@ export function AppSidebar({
                       </>
                     );
                     return item.href ? (
-                      <a
+                      <Link
                         key={item.id}
                         href={item.href}
                         aria-current={item.id === activeId ? 'page' : undefined}
@@ -181,7 +182,7 @@ export function AppSidebar({
                         className={itemClassName}
                       >
                         {itemContent}
-                      </a>
+                      </Link>
                     ) : (
                       <button
                         key={item.id}

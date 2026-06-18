@@ -1,0 +1,52 @@
+{
+  "id": "yandex",
+  "name": "Yandex",
+  "version": "1.0.0",
+  "description": "yandex social login (OAuth2/OIDC), contributed into auth_sso:provider — sandboxed.",
+  "icon": "fab fa-yandex",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": [
+      "http",
+      "secrets"
+    ],
+    "httpAllowlist": [
+      "oauth.yandex.com",
+      "login.yandex.ru"
+    ],
+    "limits": {
+      "memoryMb": 64,
+      "timeoutMs": 30000,
+      "httpTimeoutMs": 28000,
+      "httpMaxBytes": 2000000
+    }
+  },
+  "config": {
+    "secrets": [
+      {
+        "key": "clientSecret",
+        "label": "OAuth Client Secret"
+      }
+    ]
+  },
+  "extensions": [
+    {
+      "point": "auth_sso:provider",
+      "key": "yandex",
+      "metadata": {
+        "label": "Yandex",
+        "usesPkce": true,
+        "userinfoAuth": "oauth",
+        "avatarTemplate": "https://avatars.yandex.net/get-yapic/{id}/islands-200",
+        "avatarField": "default_avatar_id",
+        "profileMap": {
+          "sub": "id",
+          "email": "default_email",
+          "name": "real_name",
+          "firstName": "first_name",
+          "lastName": "last_name"
+        }
+      }
+    }
+  ]
+}

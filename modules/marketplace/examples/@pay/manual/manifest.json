@@ -1,0 +1,31 @@
+{
+  "id": "manual",
+  "name": "Cash / Wire (Manual)",
+  "version": "1.0.0",
+  "description": "Offline settlement gateway (cash / bank wire), contributed into payment:gateway — sandboxed. Records the payment PENDING and surfaces operator instructions.",
+  "icon": "fas fa-money-bill-wave",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": ["settings"],
+    "httpAllowlist": [],
+    "limits": { "memoryMb": 64, "timeoutMs": 15000, "httpTimeoutMs": 14000, "httpMaxBytes": 1000000 }
+  },
+  "config": {
+    "settings": [
+      { "key": "manualPaymentNote", "label": "Payment Instructions", "help": "Shown to the buyer (e.g. IBAN, 'pay on delivery'). Read by the sandboxed gateway." }
+    ]
+  },
+  "extensions": [
+    {
+      "point": "payment:gateway",
+      "key": "manual",
+      "metadata": {
+        "label": "Cash / Wire",
+        "ops": ["getPaymentStatus", "createCheckoutSession"],
+        "supportsDirectCardPayment": false,
+        "supports3dsCardPayment": false,
+        "wallets": []
+      }
+    }
+  ]
+}

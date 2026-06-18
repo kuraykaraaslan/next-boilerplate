@@ -4,6 +4,7 @@ import { extensionRegistry } from '@kuraykaraaslan/common/server/extension-regis
 import type BasePaymentProvider from './providers/base.provider';
 import { type WalletDescriptor } from './providers/base.provider';
 import type { PaymentGatewayContribution } from './payment.gateway.types';
+import { IsolatedPaymentProvider } from './providers/isolated.payment.provider';
 import { PaymentProvider } from './payment.enums';
 import { PAYMENT_MESSAGES } from './payment.messages';
 import SettingService from '@kuraykaraaslan/setting/server/setting.service';
@@ -24,12 +25,23 @@ export const DEFAULT_PROVIDER: PaymentProvider =
   (env.PAYMENT_DEFAULT_PROVIDER?.toUpperCase() as PaymentProvider) || 'STRIPE';
 
 /**
- * Resolve a gateway implementation. Satellite contributions (extension registry)
- * win; otherwise the in-tree fallback factory is used. Async — satellite
- * implementations are lazy-loaded — and cached per provider.
+ * Resolve a gateway implementation. A SANDBOXED community gateway installed for the
+ * tenant WINS (resolved per-call, not cached — `invoke` is tenant-bound); otherwise a
+ * satellite contribution (extension registry) is used, then the in-tree fallback.
+ * Async — satellite implementations are lazy-loaded — and the non-community path is
+ * cached per provider.
  */
-export async function getProvider(providerName?: PaymentProvider): Promise<BasePaymentProvider> {
+export async function getProvider(providerName?: PaymentProvider, tenantId?: string): Promise<BasePaymentProvider> {
   const name = providerName || DEFAULT_PROVIDER;
+
+  if (tenantId) {
+    // Lazy-load the community bridge so this module (and its callers/tests) don't pull
+    // the DB layer at import time when no tenant-scoped resolution is needed.
+    const { listExternalContributions } = await import('@kuraykaraaslan/common/server/external-extensions');
+    const ext = (await listExternalContributions(tenantId, PAYMENT_GATEWAY_POINT)).find((c) => c.key === name.toLowerCase());
+    if (ext) return new IsolatedPaymentProvider(ext.key, ext.metadata ?? {}, ext.invoke);
+  }
+
   const cached = instances.get(name);
   if (cached) return cached;
 

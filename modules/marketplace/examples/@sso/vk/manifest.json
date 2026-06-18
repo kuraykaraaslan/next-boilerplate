@@ -1,0 +1,53 @@
+{
+  "id": "vk",
+  "name": "Vk",
+  "version": "1.0.0",
+  "description": "vk social login (OAuth2/OIDC), contributed into auth_sso:provider — sandboxed.",
+  "icon": "fab fa-vk",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": [
+      "http",
+      "secrets"
+    ],
+    "httpAllowlist": [
+      "oauth.vk.com",
+      "api.vk.com"
+    ],
+    "limits": {
+      "memoryMb": 64,
+      "timeoutMs": 30000,
+      "httpTimeoutMs": 28000,
+      "httpMaxBytes": 2000000
+    }
+  },
+  "config": {
+    "secrets": [
+      {
+        "key": "clientSecret",
+        "label": "OAuth Client Secret"
+      }
+    ]
+  },
+  "extensions": [
+    {
+      "point": "auth_sso:provider",
+      "key": "vk",
+      "metadata": {
+        "label": "Vk",
+        "usesPkce": false,
+        "userinfoAuth": "query",
+        "userinfoQuery": {
+          "v": "5.131",
+          "fields": "photo_200,first_name,last_name"
+        },
+        "profileMap": {
+          "sub": "id",
+          "firstName": "first_name",
+          "lastName": "last_name",
+          "picture": "photo_200"
+        }
+      }
+    }
+  ]
+}

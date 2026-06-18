@@ -6,22 +6,6 @@ export type ExtensionModule = Record<string, unknown> & { default?: unknown };
 // dynamically imported by the extension registry
 // (modules/common/server/extension-registry.ts).
 export const moduleExtensions: Record<string, () => Promise<ExtensionModule>> = {
-  "auth_sso_alipay:auth_sso:provider:alipay": () => import("@kuraykaraaslan/auth_sso_alipay/server/alipay.extension") as Promise<ExtensionModule>,
-  "auth_sso_apple:auth_sso:provider:apple": () => import("@kuraykaraaslan/auth_sso_apple/server/apple.extension") as Promise<ExtensionModule>,
-  "auth_sso_autodesk:auth_sso:provider:autodesk": () => import("@kuraykaraaslan/auth_sso_autodesk/server/autodesk.extension") as Promise<ExtensionModule>,
-  "auth_sso_facebook:auth_sso:provider:facebook": () => import("@kuraykaraaslan/auth_sso_facebook/server/facebook.extension") as Promise<ExtensionModule>,
-  "auth_sso_github:auth_sso:provider:github": () => import("@kuraykaraaslan/auth_sso_github/server/github.extension") as Promise<ExtensionModule>,
-  "auth_sso_google:auth_sso:provider:google": () => import("@kuraykaraaslan/auth_sso_google/server/google.extension") as Promise<ExtensionModule>,
-  "auth_sso_linkedin:auth_sso:provider:linkedin": () => import("@kuraykaraaslan/auth_sso_linkedin/server/linkedin.extension") as Promise<ExtensionModule>,
-  "auth_sso_microsoft:auth_sso:provider:microsoft": () => import("@kuraykaraaslan/auth_sso_microsoft/server/microsoft.extension") as Promise<ExtensionModule>,
-  "auth_sso_qq:auth_sso:provider:qq": () => import("@kuraykaraaslan/auth_sso_qq/server/qq.extension") as Promise<ExtensionModule>,
-  "auth_sso_slack:auth_sso:provider:slack": () => import("@kuraykaraaslan/auth_sso_slack/server/slack.extension") as Promise<ExtensionModule>,
-  "auth_sso_tiktok:auth_sso:provider:tiktok": () => import("@kuraykaraaslan/auth_sso_tiktok/server/tiktok.extension") as Promise<ExtensionModule>,
-  "auth_sso_twitter:auth_sso:provider:twitter": () => import("@kuraykaraaslan/auth_sso_twitter/server/twitter.extension") as Promise<ExtensionModule>,
-  "auth_sso_vk:auth_sso:provider:vk": () => import("@kuraykaraaslan/auth_sso_vk/server/vk.extension") as Promise<ExtensionModule>,
-  "auth_sso_wechat:auth_sso:provider:wechat": () => import("@kuraykaraaslan/auth_sso_wechat/server/wechat.extension") as Promise<ExtensionModule>,
-  "auth_sso_weibo:auth_sso:provider:weibo": () => import("@kuraykaraaslan/auth_sso_weibo/server/weibo.extension") as Promise<ExtensionModule>,
-  "auth_sso_yandex:auth_sso:provider:yandex": () => import("@kuraykaraaslan/auth_sso_yandex/server/yandex.extension") as Promise<ExtensionModule>,
   "esign_bankid_se:esign:provider:bankid_se": () => import("@kuraykaraaslan/esign_bankid_se/server/esign.extension") as Promise<ExtensionModule>,
   "esign_login_gov:esign:provider:login_gov": () => import("@kuraykaraaslan/esign_login_gov/server/esign.extension") as Promise<ExtensionModule>,
   "esign_mobil_imza:esign:provider:mobil_imza_aggregator": () => import("@kuraykaraaslan/esign_mobil_imza/server/esign.extension") as Promise<ExtensionModule>,

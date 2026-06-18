@@ -3,13 +3,48 @@
 // in the untrusted isolate. The isolate hands the raw token + the JWKS URI here; the
 // broker fetches the keys, verifies signature + iss/aud/exp/nonce, returns ONLY the
 // verified claims.
-import { createPublicKey, type JsonWebKey } from 'node:crypto';
+import { createPublicKey, createSign, type JsonWebKey } from 'node:crypto';
 import jwt from 'jsonwebtoken';
+import SettingService from '@kuraykaraaslan/setting/server/setting.service';
+import { decryptFieldOpt } from '@kuraykaraaslan/common/server/field-encryption';
 import { assertSafeWebhookUrl } from '@kuraykaraaslan/webhook/server/webhook.ssrf';
 import type { Json } from '../../../sdk/types';
-import type { BrokerCtx } from '../broker.context';
+import { SECRET_PREFIX, type BrokerCtx } from '../broker.context';
 
 export const crypto = {
+  // Sign a JWT with a private key read HOST-SIDE from the plugin's encrypted secrets
+  // (e.g. Apple's `client_secret` client-assertion). The signing key never enters the
+  // isolate; the isolate only supplies the claims + signing parameters.
+  async signJwt(
+    ctx: BrokerCtx,
+    claims: Record<string, unknown>,
+    opts?: { algorithm?: string; keyid?: string; secretName?: string; expiresInSec?: number },
+  ): Promise<Json> {
+    const o = opts ?? {};
+    const raw = await SettingService.getValue(ctx.tenantId, SECRET_PREFIX(ctx.pluginId) + (o.secretName ?? 'signingKey'));
+    const key = decryptFieldOpt(raw);
+    if (typeof key !== 'string' || !key) throw new Error('signJwt: signing key not set');
+    const algorithm = (o.algorithm ?? 'ES256') as jwt.Algorithm;
+    return jwt.sign(claims as object, key, {
+      algorithm,
+      keyid: o.keyid,
+      ...(o.expiresInSec ? { expiresIn: o.expiresInSec } : {}),
+    }) as Json;
+  },
+
+  // Sign arbitrary data with a private key from the plugin's encrypted secrets
+  // (e.g. Alipay's RSA2 request signature). Key stays host-side; returns base64.
+  async signData(ctx: BrokerCtx, data: string, opts?: { algorithm?: string; secretName?: string }): Promise<Json> {
+    const o = opts ?? {};
+    const raw = await SettingService.getValue(ctx.tenantId, SECRET_PREFIX(ctx.pluginId) + (o.secretName ?? 'signingKey'));
+    const key = decryptFieldOpt(raw);
+    if (typeof key !== 'string' || !key) throw new Error('signData: signing key not set');
+    const signer = createSign(o.algorithm ?? 'RSA-SHA256');
+    signer.update(String(data));
+    signer.end();
+    return signer.sign(key, 'base64') as Json;
+  },
+
   async verifyJwks(
     ctx: BrokerCtx,
     token: string,

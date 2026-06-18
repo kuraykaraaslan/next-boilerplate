@@ -23,7 +23,7 @@ export const CAPABILITY_SURFACE = {
   secrets: ['get'],
   storage: ['put', 'getUrl', 'delete'],
   events: ['log', 'emit'],
-  crypto: ['verifyJwks'],
+  crypto: ['verifyJwks', 'signJwt', 'signData'],
   saml: ['generateAuthUrl', 'validateResponse'],
 } as const satisfies Record<string, readonly string[]>;
 

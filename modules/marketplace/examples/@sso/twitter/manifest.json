@@ -1,0 +1,49 @@
+{
+  "id": "twitter",
+  "name": "Twitter",
+  "version": "1.0.0",
+  "description": "twitter social login (OAuth2/OIDC), contributed into auth_sso:provider — sandboxed.",
+  "icon": "fab fa-x-twitter",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": [
+      "http",
+      "secrets"
+    ],
+    "httpAllowlist": [
+      "api.twitter.com"
+    ],
+    "limits": {
+      "memoryMb": 64,
+      "timeoutMs": 30000,
+      "httpTimeoutMs": 28000,
+      "httpMaxBytes": 2000000
+    }
+  },
+  "config": {
+    "secrets": [
+      {
+        "key": "clientSecret",
+        "label": "OAuth Client Secret"
+      }
+    ]
+  },
+  "extensions": [
+    {
+      "point": "auth_sso:provider",
+      "key": "twitter",
+      "metadata": {
+        "label": "Twitter",
+        "usesPkce": true,
+        "tokenAuthBasic": true,
+        "unwrapData": true,
+        "profileMap": {
+          "sub": "id",
+          "name": "name",
+          "username": "username",
+          "picture": "profile_image_url"
+        }
+      }
+    }
+  ]
+}

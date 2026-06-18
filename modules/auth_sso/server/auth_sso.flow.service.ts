@@ -60,7 +60,7 @@ export default class SSOFlowService {
     const options: SSOAuthUrlOptions = {};
     if (ctx.locale) options.uiLocales = ctx.locale;
     if (ctx.loginHint) options.loginHint = ctx.loginHint;
-    return (await getProvider(provider)).generateAuthUrl(state, options);
+    return (await getProvider(provider, ctx.tenantId)).generateAuthUrl(state, options);
   }
 
   static async handleCallback(
@@ -70,7 +70,7 @@ export default class SSOFlowService {
     const configured = await SsoConfigService.isProviderConfigured(provider, tenantId);
     if (!configured) throw new AppError(SSOMessages.PROVIDER_NOT_CONFIGURED, 400, ErrorCode.VALIDATION_ERROR);
 
-    const providerService = await getProvider(provider);
+    const providerService = await getProvider(provider, tenantId);
     const rawTokens = await providerService.getTokens(code, state);
     const rawProfile = await providerService.getUserInfo(rawTokens.accessToken, rawTokens);
 
@@ -225,7 +225,10 @@ export default class SSOFlowService {
     const { refreshToken } = await UserSocialAccountService.getRawTokens(account.userSocialAccountId);
     if (!refreshToken) return false;
 
-    const providerService = await getProvider(provider);
+    // No tenant context here, so a community (sandboxed) provider can't be resolved and
+    // built-ins for migrated providers are gone — token refresh is best-effort, skip.
+    let providerService;
+    try { providerService = await getProvider(provider); } catch { return false; }
     if (!providerService.refreshTokens) return false;
 
     const fresh = await providerService.refreshTokens(refreshToken);

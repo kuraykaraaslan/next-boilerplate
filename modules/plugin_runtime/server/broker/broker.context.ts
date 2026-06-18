@@ -30,7 +30,7 @@ export function requireCap(ctx: BrokerCtx, cap: Capability): void {
 // reach the approved provider host.
 const SECRET_PLACEHOLDER = /\{\{secret:([A-Za-z0-9_]+)\}\}/g;
 
-async function resolveSecret(ctx: BrokerCtx, name: string): Promise<string> {
+export async function resolveSecret(ctx: BrokerCtx, name: string): Promise<string> {
   const raw = await SettingService.getValue(ctx.tenantId, SECRET_PREFIX(ctx.pluginId) + name);
   const dec = decryptFieldOpt(raw);
   return typeof dec === 'string' ? dec : '';

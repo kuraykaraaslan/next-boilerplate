@@ -55,6 +55,8 @@ const CAPABILITIES: Record<Capability, Record<string, CapMethod>> = {
   },
   crypto: {
     verifyJwks: (c, a) => crypto.verifyJwks(c, a[0] as string, a[1] as string, a[2] as never),
+    signJwt: (c, a) => crypto.signJwt(c, a[0] as never, a[1] as never),
+    signData: (c, a) => crypto.signData(c, a[0] as string, a[1] as never),
   },
   saml: {
     generateAuthUrl: (c, a) => saml.generateAuthUrl(c, a[0] as string, a[1] as never),
