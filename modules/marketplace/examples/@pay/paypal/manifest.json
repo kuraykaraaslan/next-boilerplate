@@ -1,0 +1,35 @@
+{
+  "id": "paypal",
+  "name": "PayPal Gateway",
+  "version": "1.0.0",
+  "description": "PayPal payment gateway (hosted redirect checkout, Orders v2), contributed into payment:gateway — sandboxed. Client secret stays host-side.",
+  "icon": "fab fa-paypal",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": ["http", "settings"],
+    "httpAllowlist": ["api-m.paypal.com", "api-m.sandbox.paypal.com"],
+    "limits": { "memoryMb": 64, "timeoutMs": 30000, "httpTimeoutMs": 28000, "httpMaxBytes": 2000000 }
+  },
+  "config": {
+    "secrets": [
+      { "key": "paypalClientSecret", "label": "PayPal Client Secret", "help": "Stored encrypted; used host-side for the OAuth2 client-credentials token." }
+    ],
+    "settings": [
+      { "key": "paypalClientId", "label": "PayPal Client ID" },
+      { "key": "paypalSandboxMode", "label": "Sandbox Mode", "help": "'true' to use api-m.sandbox.paypal.com." }
+    ]
+  },
+  "extensions": [
+    {
+      "point": "payment:gateway",
+      "key": "paypal",
+      "metadata": {
+        "label": "PayPal",
+        "ops": ["getPaymentStatus", "createCheckoutSession"],
+        "supportsDirectCardPayment": false,
+        "supports3dsCardPayment": false,
+        "wallets": [{ "method": "PAYPAL", "delivery": "HOSTED_REDIRECT" }]
+      }
+    }
+  ]
+}

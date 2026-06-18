@@ -1,0 +1,43 @@
+{
+  "id": "stripe",
+  "name": "Stripe Gateway",
+  "version": "1.0.0",
+  "description": "Stripe payment gateway (hosted checkout + Express Checkout intents), contributed into payment:gateway — sandboxed. Secret key stays host-side.",
+  "icon": "fab fa-stripe",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": ["http", "settings"],
+    "httpAllowlist": ["api.stripe.com"],
+    "limits": { "memoryMb": 64, "timeoutMs": 30000, "httpTimeoutMs": 28000, "httpMaxBytes": 2000000 }
+  },
+  "config": {
+    "secrets": [
+      { "key": "stripeSecretKey", "label": "Stripe Secret Key", "help": "sk_live_… / sk_test_… — stored encrypted, injected host-side for every API call." }
+    ],
+    "settings": [
+      { "key": "stripePublishableKey", "label": "Stripe Publishable Key", "help": "pk_… — handed to the client SDK for Express Checkout." }
+    ]
+  },
+  "extensions": [
+    {
+      "point": "payment:gateway",
+      "key": "stripe",
+      "metadata": {
+        "label": "Stripe",
+        "ops": ["getPaymentStatus", "createCheckoutSession", "createPaymentIntent", "createCustomerPortalSession"],
+        "supportsDirectCardPayment": false,
+        "supports3dsCardPayment": false,
+        "wallets": [
+          { "method": "CARD", "delivery": "CLIENT_ELEMENT" },
+          { "method": "APPLE_PAY", "delivery": "CLIENT_ELEMENT" },
+          { "method": "GOOGLE_PAY", "delivery": "CLIENT_ELEMENT" },
+          { "method": "LINK", "delivery": "CLIENT_ELEMENT" },
+          { "method": "CLICK_TO_PAY", "delivery": "CLIENT_ELEMENT" },
+          { "method": "PAYPAL", "delivery": "CLIENT_ELEMENT" },
+          { "method": "AMAZON_PAY", "delivery": "CLIENT_ELEMENT" },
+          { "method": "CASH_APP_PAY", "delivery": "CLIENT_ELEMENT" }
+        ]
+      }
+    }
+  ]
+}
