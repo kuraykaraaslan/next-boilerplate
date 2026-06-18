@@ -67,5 +67,22 @@ globalThis.__plugin = {
         return { url: JSON.parse(sr.body).url };
       },
     },
+
+    // payment:coupon — turns a locally-validated discount into an ad-hoc one-off
+    // Stripe coupon (duration: once). Uses the plugin's own stripeSecretKey.
+    'payment:coupon': {
+      buildCheckoutParams: async ({ discount }, host) => {
+        if (!discount || (!discount.discountAmount && discount.discountType !== 'PERCENTAGE')) return {};
+        try {
+          const params = { name: 'Discount: ' + discount.code, duration: 'once' };
+          if (discount.discountType === 'PERCENTAGE') params.percent_off = discount.discountValue;
+          else { params.amount_off = Math.round(discount.discountAmount * 100); params.currency = String(discount.currency || 'USD').toLowerCase(); }
+          const res = await host.http.fetch(API + '/coupons', { method: 'POST', headers: SECRET_AUTH, body: form(params) });
+          if (res.status >= 400) return {};
+          const d = JSON.parse(res.body);
+          return d.id ? { 'discounts[0][coupon]': d.id } : {};
+        } catch (e) { return {}; }
+      },
+    },
   },
 };

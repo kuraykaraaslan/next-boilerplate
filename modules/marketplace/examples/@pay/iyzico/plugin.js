@@ -109,5 +109,18 @@ globalThis.__plugin = {
         } catch (e) { return { supported: false }; }
       },
     },
+
+    // payment:coupon — pure: express the local discount as a negative-priced VIRTUAL
+    // basket item (no API, no secret). Appended to the basket by the host.
+    'payment:coupon': {
+      buildCheckoutParams: async ({ discount }) => {
+        if (!discount || !discount.discountAmount) return {};
+        const item = {
+          id: 'coupon_' + discount.code, name: 'İndirim: ' + discount.code,
+          category1: 'Indirim', itemType: 'VIRTUAL', price: (-discount.discountAmount).toFixed(2),
+        };
+        return { iyzico_discount_item: JSON.stringify(item) };
+      },
+    },
   },
 };

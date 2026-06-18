@@ -36,6 +36,19 @@ export default class CouponCheckoutService {
     if (!discount) return {};
 
     const key = provider.toLowerCase();
+
+    // A sandboxed community plugin contributing payment:coupon for this tenant WINS
+    // (its adapter runs in the isolate). Lazy-import the bridge so this module doesn't
+    // pull the DB layer at import time when no tenant-scoped lookup is needed.
+    if (tenantId) {
+      const { listExternalContributions } = await import('@kuraykaraaslan/common/server/external-extensions');
+      const ext = (await listExternalContributions(tenantId, PAYMENT_COUPON_POINT)).find((c) => c.key === key);
+      if (ext) {
+        const res = await ext.invoke('buildCheckoutParams', { discount, tenantId });
+        return (res as Record<string, string>) ?? {};
+      }
+    }
+
     const contrib = extensionRegistry
       .getContributions(PAYMENT_COUPON_POINT)
       .find((c) => c.key === key);

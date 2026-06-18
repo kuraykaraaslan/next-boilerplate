@@ -38,6 +38,7 @@
           { "method": "CASH_APP_PAY", "delivery": "CLIENT_ELEMENT" }
         ]
       }
-    }
+    },
+    { "point": "payment:coupon", "key": "stripe", "metadata": { "label": "Stripe" } }
   ]
 }

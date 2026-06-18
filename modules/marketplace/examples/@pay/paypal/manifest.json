@@ -30,6 +30,7 @@
         "supports3dsCardPayment": false,
         "wallets": [{ "method": "PAYPAL", "delivery": "HOSTED_REDIRECT" }]
       }
-    }
+    },
+    { "point": "payment:coupon", "key": "paypal", "metadata": { "label": "PayPal" } }
   ]
 }

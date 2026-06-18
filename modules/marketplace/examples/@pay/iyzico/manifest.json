@@ -37,6 +37,7 @@
           { "method": "INSTALLMENT", "delivery": "HOSTED_REDIRECT" }
         ]
       }
-    }
+    },
+    { "point": "payment:coupon", "key": "iyzico", "metadata": { "label": "iyzico" } }
   ]
 }

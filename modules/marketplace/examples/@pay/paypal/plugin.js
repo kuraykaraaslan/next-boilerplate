@@ -50,5 +50,19 @@ globalThis.__plugin = {
         return { sessionId: d.id, checkoutUrl: approve ? approve.href : '', providerData: { orderId: d.id } };
       },
     },
+
+    // payment:coupon — pure: express the local discount as a PayPal Orders v2
+    // discount line item (no API, no secret). Merged into the order body by the host.
+    'payment:coupon': {
+      buildCheckoutParams: async ({ discount }) => {
+        if (!discount || !discount.discountAmount) return {};
+        const item = {
+          name: 'Discount: ' + discount.code, quantity: '1',
+          unit_amount: { currency_code: discount.currency || 'USD', value: Number(discount.discountAmount).toFixed(2) },
+          category: 'DIGITAL_GOODS',
+        };
+        return { paypal_discount_item: JSON.stringify(item) };
+      },
+    },
   },
 };
