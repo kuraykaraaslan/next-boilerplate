@@ -7,6 +7,7 @@ import { Select } from '@kuraykaraaslan/common/ui/select.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faServer } from '@fortawesome/free-solid-svg-icons';
 import { SaveRow, type TabProps } from './platform-tab.shared.component';
+import { CommunityProvidersCard } from '@kuraykaraaslan/common/ui/community-providers-card.component';
 
 const SMTP_ENCRYPTION_OPTIONS = [
   { value: 'none', label: 'None' },
@@ -64,6 +65,12 @@ export function PlatformEmailTab({ settings, onSave, saving }: TabProps) {
           <SaveRow loading={saving} />
         </form>
       </Card>
+
+      <CommunityProvidersCard
+        point="mail:provider"
+        title="Email Providers"
+        subtitle="Email providers (SMTP, SendGrid, Mailgun, Postmark, Resend, SES) are community plugins — install & configure them in the Marketplace"
+      />
     </div>
   );
 }

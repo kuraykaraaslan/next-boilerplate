@@ -60,6 +60,7 @@
     "./ui/button.component": "./ui/button.component.tsx",
     "./ui/card.component": "./ui/card.component.tsx",
     "./ui/color-picker.component": "./ui/color-picker.component.tsx",
+    "./ui/community-providers-card.component": "./ui/community-providers-card.component.tsx",
     "./ui/context-menu.component": "./ui/context-menu.component.tsx",
     "./ui/currency-selector.component": "./ui/currency-selector.component.tsx",
     "./ui/date-range-picker.component": "./ui/date-range-picker.component.tsx",

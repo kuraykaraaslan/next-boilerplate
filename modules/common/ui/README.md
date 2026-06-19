@@ -42,6 +42,14 @@ Shared UI component library for the Next Boilerplate project.
 - **Pagination** — Page navigation component
 - **TabGroup** — Tabbed content switcher
 - **Card** — Generic content card
+- **CommunityProvidersCard** — STANDARD panel for a provider module's settings tab. Given an
+  extension `point` (e.g. `auth_sso:provider`, `mail:provider`, `sms:provider`,
+  `storage:provider`, `ai:provider`, `payment:gateway`, `push:provider`), it lists the
+  tenant's **installed** community plugins for that point (read from the marketplace
+  community catalog, filtered by `points`), each with its Active/Inactive state and a
+  gear → Marketplace "Configure" link. Reads `tenantId` from the `/tenant/[tenantId]`
+  route. Use this — do NOT hardcode provider lists in settings tabs.
+  Usage: `<CommunityProvidersCard point="mail:provider" title="Email Providers" />`
 
 ### Navigation
 - **Breadcrumb** — Breadcrumb trail with `aria-current="page"` on last item

@@ -5,6 +5,7 @@ import { Card } from '@kuraykaraaslan/common/ui/card.component';
 import { Toggle } from '@kuraykaraaslan/common/ui/toggle.component';
 import { Select } from '@kuraykaraaslan/common/ui/select.component';
 import { b, bStr, SaveRow, type SR, type TabProps } from './platform-tab.shared.component';
+import { CommunityProvidersCard } from '@kuraykaraaslan/common/ui/community-providers-card.component';
 
 const AI_PROVIDER_OPTIONS = [
   { value: 'openai', label: 'OpenAI' },
@@ -34,15 +35,11 @@ export function PlatformAiTab({ settings, onSave, saving }: TabProps) {
           <SaveRow loading={saving} />
         </form>
       </Card>
-      {f.aiEnabled && (
-        <Card title="Providers">
-          <p className="text-sm text-text-secondary">
-            AI providers (OpenAI, Anthropic, Google, Kimi, …) are now sandboxed plugins. Install them and set
-            their API keys from <span className="font-medium">Plugins → Configure</span>. Each provider&apos;s
-            credentials are stored as encrypted plugin secrets.
-          </p>
-        </Card>
-      )}
+      <CommunityProvidersCard
+        point="ai:provider"
+        title="AI Providers"
+        subtitle="AI providers (OpenAI, Anthropic, Google, Kimi, …) are community plugins — install & configure them in the Marketplace"
+      />
     </div>
   );
 }

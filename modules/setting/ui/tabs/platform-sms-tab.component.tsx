@@ -6,6 +6,7 @@ import { Input } from '@kuraykaraaslan/common/ui/input.component';
 import { Toggle } from '@kuraykaraaslan/common/ui/toggle.component';
 import { Select } from '@kuraykaraaslan/common/ui/select.component';
 import { b, bStr, SaveRow, type TabProps } from './platform-tab.shared.component';
+import { CommunityProvidersCard } from '@kuraykaraaslan/common/ui/community-providers-card.component';
 
 const SMS_PROVIDER_OPTIONS = [
   { value: 'twilio', label: 'Twilio' },
@@ -59,6 +60,12 @@ export function PlatformSmsTab({ settings, onSave, saving }: TabProps) {
           <SaveRow loading={saving} />
         </form>
       </Card>
+
+      <CommunityProvidersCard
+        point="sms:provider"
+        title="SMS Providers"
+        subtitle="SMS providers (Twilio, Nexmo, NetGSM, Clickatell) are community plugins — install & configure them in the Marketplace"
+      />
     </div>
   );
 }

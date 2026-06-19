@@ -5,6 +5,7 @@ import { Card } from '@kuraykaraaslan/common/ui/card.component';
 import { Input } from '@kuraykaraaslan/common/ui/input.component';
 import { Toggle } from '@kuraykaraaslan/common/ui/toggle.component';
 import { b, bStr, SaveRow, type SR, type TabProps } from './platform-tab.shared.component';
+import { CommunityProvidersCard } from '@kuraykaraaslan/common/ui/community-providers-card.component';
 
 export function PlatformPaymentTab({ settings, onSave, saving }: TabProps) {
   const [f, setF] = useState({
@@ -98,6 +99,12 @@ export function PlatformPaymentTab({ settings, onSave, saving }: TabProps) {
           <SaveRow loading={saving} />
         </form>
       </Card>
+
+      <CommunityProvidersCard
+        point="payment:gateway"
+        title="Payment Gateways"
+        subtitle="Payment gateways (Stripe, PayPal, Iyzico, …) are community plugins — install & configure them in the Marketplace"
+      />
     </div>
   );
 }

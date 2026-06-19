@@ -7,6 +7,7 @@ import { Select } from '@kuraykaraaslan/common/ui/select.component';
 import { Toggle } from '@kuraykaraaslan/common/ui/toggle.component';
 import { b, bStr, SaveRow, type SR, type TabProps } from './platform-tab.shared.component';
 import { AllowedExtensionsField } from './allowed-extensions-field.component';
+import { CommunityProvidersCard } from '@kuraykaraaslan/common/ui/community-providers-card.component';
 
 const STORAGE_PROVIDER_OPTIONS = [
   { value: 'aws-s3', label: 'Amazon S3' },
@@ -139,6 +140,12 @@ export function PlatformStorageTab({ settings, onSave, saving }: TabProps) {
           <SaveRow loading={saving} />
         </form>
       </Card>
+
+      <CommunityProvidersCard
+        point="storage:provider"
+        title="Storage Providers"
+        subtitle="Storage backends (S3, MinIO, R2, Spaces) are community plugins — install & configure them in the Marketplace. (The credentials above are also used host-side for virus scanning.)"
+      />
     </div>
   );
 }

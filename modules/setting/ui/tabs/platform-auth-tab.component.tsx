@@ -4,16 +4,8 @@ import { useState } from 'react';
 import { Card } from '@kuraykaraaslan/common/ui/card.component';
 import { Input } from '@kuraykaraaslan/common/ui/input.component';
 import { Toggle } from '@kuraykaraaslan/common/ui/toggle.component';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faKey } from '@fortawesome/free-solid-svg-icons';
 import { b, bStr, SaveRow, type SR, type TabProps } from './platform-tab.shared.component';
-
-const SSO_PROVIDERS = [
-  { key: 'oauthGoogle',    label: 'Google',    idKey: 'googleClientId',    secretKey: 'googleClientSecret' },
-  { key: 'oauthGitHub',    label: 'GitHub',    idKey: 'githubClientId',    secretKey: 'githubClientSecret' },
-  { key: 'oauthApple',     label: 'Apple',     idKey: 'appleClientId',     secretKey: 'applePrivateKey' },
-  { key: 'oauthMeta',      label: 'Meta',      idKey: 'metaClientId',      secretKey: 'metaClientSecret' },
-];
+import { CommunityProvidersCard } from '@kuraykaraaslan/common/ui/community-providers-card.component';
 
 export function PlatformAuthTab({ settings, onSave, saving }: TabProps) {
   const [f, setF] = useState({
@@ -21,36 +13,17 @@ export function PlatformAuthTab({ settings, onSave, saving }: TabProps) {
     emailVerificationRequired: b(settings.emailVerificationRequired),
     sessionDuration: settings.sessionDuration ?? '7',
     maxLoginAttempts: settings.maxLoginAttempts ?? '5',
-    googleClientId: settings.googleClientId ?? '',
-    googleClientSecret: settings.googleClientSecret ?? '',
-    githubClientId: settings.githubClientId ?? '',
-    githubClientSecret: settings.githubClientSecret ?? '',
-    appleClientId: settings.appleClientId ?? '',
-    applePrivateKey: settings.applePrivateKey ?? '',
-    metaClientId: settings.metaClientId ?? '',
-    metaClientSecret: settings.metaClientSecret ?? '',
-    ...Object.fromEntries(SSO_PROVIDERS.map((p) => [p.key, b(settings[p.key])])),
   });
 
   function patch(key: string, val: string | boolean) { setF((p) => ({ ...p, [key]: val })); }
 
   function buildPatch(): SR {
-    const out: SR = {
+    return {
       allowRegistration: bStr(f.allowRegistration),
       emailVerificationRequired: bStr(f.emailVerificationRequired),
       sessionDuration: f.sessionDuration,
       maxLoginAttempts: f.maxLoginAttempts,
-      googleClientId: f.googleClientId,
-      googleClientSecret: f.googleClientSecret,
-      githubClientId: f.githubClientId,
-      githubClientSecret: f.githubClientSecret,
-      appleClientId: f.appleClientId,
-      applePrivateKey: f.applePrivateKey,
-      metaClientId: f.metaClientId,
-      metaClientSecret: f.metaClientSecret,
     };
-    SSO_PROVIDERS.forEach((p) => { out[p.key] = bStr((f as any)[p.key]); });
-    return out;
   }
 
   return (
@@ -73,29 +46,11 @@ export function PlatformAuthTab({ settings, onSave, saving }: TabProps) {
         </form>
       </Card>
 
-      <Card title="SSO Providers" subtitle="Enable OAuth providers and configure credentials">
-        <form onSubmit={(e) => { e.preventDefault(); onSave(buildPatch()); }} className="space-y-6">
-          {SSO_PROVIDERS.map((provider) => (
-            <div key={provider.key} className="space-y-3 pb-4 border-b border-border last:border-0 last:pb-0">
-              <Toggle id={provider.key} label={provider.label}
-                checked={(f as any)[provider.key]} onChange={(v) => patch(provider.key, v)} />
-              {(f as any)[provider.key] && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pl-4 border-l-2 border-primary/20">
-                  <Input id={`${provider.key}-id`} label="Client ID"
-                    value={(f as any)[provider.idKey] ?? ''}
-                    prefixIcon={<FontAwesomeIcon icon={faKey} className="w-3.5 h-3.5" />}
-                    onChange={(e) => patch(provider.idKey, e.target.value)} />
-                  <Input id={`${provider.key}-secret`} label="Client Secret" type="password"
-                    value={(f as any)[provider.secretKey] ?? ''}
-                    prefixIcon={<FontAwesomeIcon icon={faKey} className="w-3.5 h-3.5" />}
-                    onChange={(e) => patch(provider.secretKey, e.target.value)} />
-                </div>
-              )}
-            </div>
-          ))}
-          <SaveRow loading={saving} />
-        </form>
-      </Card>
+      <CommunityProvidersCard
+        point="auth_sso:provider"
+        title="SSO Providers"
+        subtitle="Social-login providers are community plugins — install & configure them in the Marketplace"
+      />
     </div>
   );
 }

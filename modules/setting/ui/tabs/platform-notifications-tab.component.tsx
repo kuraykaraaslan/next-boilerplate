@@ -5,6 +5,7 @@ import { Card } from '@kuraykaraaslan/common/ui/card.component';
 import { Input } from '@kuraykaraaslan/common/ui/input.component';
 import { Toggle } from '@kuraykaraaslan/common/ui/toggle.component';
 import { b, bStr, SaveRow, type SR, type TabProps } from './platform-tab.shared.component';
+import { CommunityProvidersCard } from '@kuraykaraaslan/common/ui/community-providers-card.component';
 
 export function PlatformNotificationsTab({ settings, onSave, saving }: TabProps) {
   const [f, setF] = useState({
@@ -69,6 +70,12 @@ export function PlatformNotificationsTab({ settings, onSave, saving }: TabProps)
           <SaveRow loading={saving} />
         </form>
       </Card>
+
+      <CommunityProvidersCard
+        point="push:provider"
+        title="Push Providers"
+        subtitle="Push delivery backends (Web Push/VAPID, …) are community plugins — install & configure them in the Marketplace. (The VAPID keys above are used host-side for Web Push.)"
+      />
     </div>
   );
 }
