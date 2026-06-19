@@ -1,0 +1,25 @@
+{
+  "id": "netgsm",
+  "name": "NetGSM SMS",
+  "version": "1.0.0",
+  "description": "NetGSM (Türkiye) SMS provider, contributed into sms:provider — sandboxed. Uses the HTTP GET send API; the password stays host-side.",
+  "icon": "fas fa-comment-sms",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": ["http", "settings"],
+    "httpAllowlist": ["api.netgsm.com.tr"],
+    "limits": { "memoryMb": 64, "timeoutMs": 20000, "httpTimeoutMs": 18000, "httpMaxBytes": 1000000 }
+  },
+  "config": {
+    "settings": [
+      { "key": "netgsmUserCode", "label": "User Code", "help": "NetGSM user code (usercode)." },
+      { "key": "netgsmPhoneNumber", "label": "Message Header", "help": "Approved sender header (msgheader)." }
+    ],
+    "secrets": [
+      { "key": "netgsmPassword", "label": "Password", "help": "NetGSM API password; injected host-side, never seen by the plugin." }
+    ]
+  },
+  "extensions": [
+    { "point": "sms:provider", "key": "netgsm", "metadata": { "label": "NetGSM" } }
+  ]
+}

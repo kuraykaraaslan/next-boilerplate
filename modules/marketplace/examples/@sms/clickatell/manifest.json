@@ -1,0 +1,21 @@
+{
+  "id": "clickatell",
+  "name": "Clickatell SMS",
+  "version": "1.0.0",
+  "description": "Clickatell SMS provider, contributed into sms:provider — sandboxed. JSON REST over Bearer; the API key stays host-side.",
+  "icon": "fas fa-comment-sms",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": ["http"],
+    "httpAllowlist": ["platform.clickatell.com"],
+    "limits": { "memoryMb": 64, "timeoutMs": 20000, "httpTimeoutMs": 18000, "httpMaxBytes": 1000000 }
+  },
+  "config": {
+    "secrets": [
+      { "key": "clickatellApiKey", "label": "API Key", "help": "Clickatell API key; injected host-side as a Bearer token, never seen by the plugin." }
+    ]
+  },
+  "extensions": [
+    { "point": "sms:provider", "key": "clickatell", "metadata": { "label": "Clickatell" } }
+  ]
+}

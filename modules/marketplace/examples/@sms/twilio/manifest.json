@@ -1,0 +1,25 @@
+{
+  "id": "twilio",
+  "name": "Twilio SMS",
+  "version": "1.0.0",
+  "description": "Twilio SMS provider, contributed into sms:provider — sandboxed. Form-encoded REST over HTTP Basic; the auth token stays host-side.",
+  "icon": "fas fa-comment-sms",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": ["http", "settings"],
+    "httpAllowlist": ["api.twilio.com"],
+    "limits": { "memoryMb": 64, "timeoutMs": 20000, "httpTimeoutMs": 18000, "httpMaxBytes": 1000000 }
+  },
+  "config": {
+    "settings": [
+      { "key": "twilioAccountSid", "label": "Account SID", "help": "Twilio Account SID (AC…) — used as the Basic-auth username and in the API path." },
+      { "key": "twilioPhoneNumber", "label": "From Number", "help": "Sender phone number in E.164 (e.g. +15551234567)." }
+    ],
+    "secrets": [
+      { "key": "twilioAuthToken", "label": "Auth Token", "help": "Twilio auth token; injected host-side as the Basic-auth password, never seen by the plugin." }
+    ]
+  },
+  "extensions": [
+    { "point": "sms:provider", "key": "twilio", "metadata": { "label": "Twilio" } }
+  ]
+}

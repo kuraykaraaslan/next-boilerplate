@@ -39,6 +39,9 @@ vi.mock('@kuraykaraaslan/redis', () => ({
     expire: vi.fn(async () => 1),
     keys: vi.fn(async () => []),
     exists: vi.fn(async () => 0),
+    sismember: vi.fn(async () => 0),
+    sadd: vi.fn(async () => 1),
+    srem: vi.fn(async () => 1),
   },
   singleFlight: async (_key: string, fn: () => Promise<unknown>) => fn(),
   jitter: (n: number) => n,
@@ -71,30 +74,17 @@ vi.mock('@kuraykaraaslan/setting/server/setting.service', () => ({
 
 // Providers now live in satellite modules discovered through the extension
 // registry (point `sms:provider`), gated by the tenant's enabled modules.
-function mockSmsProvider(key: string) {
-  return {
-    name: key,
-    async isConfigured(_tenantId: string) { return true; },
-    async sendShortMessage(_tenantId: string, _opts: { to: string; body: string }) { return { success: true }; },
-  };
-}
-const SMS_CONTRIBS = ['twilio', 'netgsm', 'clickatell', 'nexmo'].map((key) => ({
-  id: `sms_${key}:sms:provider:${key}`, point: 'sms:provider', moduleId: `sms_${key}`, key, metadata: {},
-}));
-
-vi.mock('@kuraykaraaslan/setting/server/module-activation.service.next', () => ({
-  getEnabledModuleIds: vi.fn(async () => new Set(SMS_CONTRIBS.map((c) => c.moduleId).concat('notification_sms'))),
-}));
-
-vi.mock('@kuraykaraaslan/common/server/extension-registry', () => ({
-  extensionRegistry: {
-    getContributions: (point: string, filter?: { enabledIds?: Set<string> }) =>
-      point === 'sms:provider'
-        ? SMS_CONTRIBS.filter((c) => !filter?.enabledIds || filter.enabledIds.has(c.moduleId))
-        : [],
-    load: async (ext: { key: string }) => mockSmsProvider(ext.key),
-  },
-}));
+// SMS providers are SANDBOXED community plugins resolved per-tenant via the
+// external-contributions bridge. Mock the bridge with the 4 installed providers.
+const { listExternalContributions } = vi.hoisted(() => {
+  const keys = ['twilio', 'netgsm', 'clickatell', 'nexmo'];
+  const listExternalContributions = vi.fn(async (tenantId: string, point: string) => {
+    if (!tenantId || point !== 'sms:provider') return [];
+    return keys.map((key) => ({ key, configured: true, metadata: { label: key }, invoke: vi.fn(async () => ({ success: true })) }));
+  });
+  return { listExternalContributions };
+});
+vi.mock('@kuraykaraaslan/common/server/external-extensions', () => ({ listExternalContributions }));
 
 
 // Bypass feature gating in unit tests — tested separately in tenant_subscription/.
@@ -242,7 +232,8 @@ describe('SMSService.sendShortMessage', () => {
     );
     expect(queueAddSpy).toHaveBeenCalledWith(
       'sendShortMessage',
-      expect.objectContaining({ tenantId: TEST_TENANT_ID, to: '+12025551234', body: 'Hello World' })
+      expect.objectContaining({ tenantId: TEST_TENANT_ID, to: '+12025551234', body: 'Hello World' }),
+      undefined,
     );
   });
 });
