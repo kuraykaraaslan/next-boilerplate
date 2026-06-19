@@ -16,6 +16,8 @@ import { secrets } from './capabilities/secrets.capability';
 import { http } from './capabilities/http.capability';
 import { crypto } from './capabilities/crypto.capability';
 import { saml } from './capabilities/saml.capability';
+import { smtp } from './capabilities/smtp.capability';
+import { webpush } from './capabilities/webpush.capability';
 import { storage } from './capabilities/storage.capability';
 import { events } from './capabilities/events.capability';
 
@@ -58,10 +60,19 @@ const CAPABILITIES: Record<Capability, Record<string, CapMethod>> = {
     signJwt: (c, a) => crypto.signJwt(c, a[0] as never, a[1] as never),
     signData: (c, a) => crypto.signData(c, a[0] as string, a[1] as never),
     hmac: (c, a) => crypto.hmac(c, a[0] as string, a[1] as never),
+    signXml: (c, a) => crypto.signXml(c, a[0] as string, a[1] as never),
+    hash: (c, a) => crypto.hash(c, a[0] as never, a[1] as never),
+    randomBytes: (c, a) => crypto.randomBytes(c, a[0] as number, a[1] as string),
   },
   saml: {
     generateAuthUrl: (c, a) => saml.generateAuthUrl(c, a[0] as string, a[1] as never),
     validateResponse: (c, a) => saml.validateResponse(c, a[0] as never, a[1] as never),
+  },
+  smtp: {
+    send: (c, a) => smtp.send(c, a[0] as never, a[1] as never),
+  },
+  webpush: {
+    send: (c, a) => webpush.send(c, a[0] as never, a[1] as string),
   },
 };
 

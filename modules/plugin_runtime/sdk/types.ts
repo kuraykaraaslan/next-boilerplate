@@ -23,8 +23,10 @@ export const CAPABILITY_SURFACE = {
   secrets: ['get'],
   storage: ['put', 'getUrl', 'delete'],
   events: ['log', 'emit'],
-  crypto: ['verifyJwks', 'signJwt', 'signData', 'hmac'],
+  crypto: ['verifyJwks', 'signJwt', 'signData', 'hmac', 'signXml', 'hash', 'randomBytes'],
   saml: ['generateAuthUrl', 'validateResponse'],
+  smtp: ['send'],
+  webpush: ['send'],
 } as const satisfies Record<string, readonly string[]>;
 
 /** Capabilities a plugin may request in its manifest `sandbox.capabilities`. */

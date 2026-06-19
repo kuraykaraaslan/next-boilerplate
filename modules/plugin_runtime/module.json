@@ -19,6 +19,7 @@
       "storage",
       "audit_log",
       "webhook",
+      "e_signature",
       "common"
     ]
   },

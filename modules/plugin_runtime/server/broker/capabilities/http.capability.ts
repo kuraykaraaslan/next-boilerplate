@@ -7,7 +7,7 @@ export const http = {
   async fetch(
     ctx: BrokerCtx,
     url: string,
-    init?: { method?: string; headers?: Record<string, string>; body?: string; timeoutMs?: number; basic?: { username: string; secretName: string } },
+    init?: { method?: string; headers?: Record<string, string>; body?: string; bodyBase64?: string; timeoutMs?: number; basic?: { username: string; secretName: string } },
   ): Promise<Json> {
     // Substitute {{secret:NAME}} in the URL too (e.g. WeChat's query-string client
     // secret), then re-validate the FINAL host — the allowlist + SSRF checks run on
@@ -31,7 +31,11 @@ export const http = {
         const cred = `${init.basic.username}:${await resolveSecret(ctx, init.basic.secretName)}`;
         reqHeaders['authorization'] = `Basic ${Buffer.from(cred).toString('base64')}`;
       }
-      const reqBody = init?.body != null ? await substituteSecrets(ctx, String(init.body)) : undefined;
+      // bodyBase64: raw binary request body (e.g. an S3 PutObject upload) the isolate
+      // can't carry as a string — decoded host-side, no secret substitution.
+      const reqBody = init?.bodyBase64 != null
+        ? Buffer.from(String(init.bodyBase64), 'base64')
+        : (init?.body != null ? await substituteSecrets(ctx, String(init.body)) : undefined);
       const res = await fetch(parsed.toString(), {
         method: init?.method ?? 'GET',
         headers: reqHeaders,
