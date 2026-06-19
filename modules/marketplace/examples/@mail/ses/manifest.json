@@ -1,0 +1,30 @@
+{
+  "id": "ses",
+  "name": "AWS SES Mail",
+  "version": "1.0.0",
+  "description": "AWS SES email provider, contributed into mail:provider — sandboxed. SES Query API with SigV4 signing computed via host crypto (the secret access key stays host-side).",
+  "icon": "fas fa-envelope",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": ["http", "settings", "crypto"],
+    "httpAllowlist": [
+      "email.us-east-1.amazonaws.com", "email.us-east-2.amazonaws.com", "email.us-west-1.amazonaws.com", "email.us-west-2.amazonaws.com",
+      "email.eu-west-1.amazonaws.com", "email.eu-west-2.amazonaws.com", "email.eu-west-3.amazonaws.com", "email.eu-central-1.amazonaws.com", "email.eu-north-1.amazonaws.com", "email.eu-south-1.amazonaws.com",
+      "email.ap-south-1.amazonaws.com", "email.ap-southeast-1.amazonaws.com", "email.ap-southeast-2.amazonaws.com", "email.ap-northeast-1.amazonaws.com", "email.ap-northeast-2.amazonaws.com", "email.ap-northeast-3.amazonaws.com",
+      "email.ca-central-1.amazonaws.com", "email.sa-east-1.amazonaws.com", "email.me-south-1.amazonaws.com", "email.af-south-1.amazonaws.com"
+    ],
+    "limits": { "memoryMb": 64, "timeoutMs": 20000, "httpTimeoutMs": 18000, "httpMaxBytes": 2000000 }
+  },
+  "config": {
+    "settings": [
+      { "key": "awsSesAccessKeyId", "label": "Access Key ID", "help": "AWS access key id (AKIA…)." },
+      { "key": "awsSesRegion", "label": "Region", "help": "SES region, e.g. us-east-1 (default)." }
+    ],
+    "secrets": [
+      { "key": "awsSesSecretAccessKey", "label": "Secret Access Key", "help": "AWS secret access key; used host-side in the SigV4 chain, never seen by the plugin." }
+    ]
+  },
+  "extensions": [
+    { "point": "mail:provider", "key": "ses", "metadata": { "label": "AWS SES" } }
+  ]
+}

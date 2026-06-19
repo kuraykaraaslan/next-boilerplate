@@ -1,0 +1,25 @@
+{
+  "id": "mailgun",
+  "name": "Mailgun Mail",
+  "version": "1.0.0",
+  "description": "Mailgun email provider, contributed into mail:provider — sandboxed. Form-encoded REST over HTTP Basic; the API key stays host-side. (Binary attachments require multipart and are not supported in the sandbox.)",
+  "icon": "fas fa-envelope",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": ["http", "settings"],
+    "httpAllowlist": ["api.mailgun.net", "api.eu.mailgun.net"],
+    "limits": { "memoryMb": 64, "timeoutMs": 20000, "httpTimeoutMs": 18000, "httpMaxBytes": 2000000 }
+  },
+  "config": {
+    "settings": [
+      { "key": "mailgunDomain", "label": "Domain", "help": "Your Mailgun sending domain." },
+      { "key": "mailgunRegion", "label": "Region", "help": "'us' (default) or 'eu'." }
+    ],
+    "secrets": [
+      { "key": "mailgunApiKey", "label": "API Key", "help": "Mailgun API key; injected host-side as the Basic-auth password, never seen by the plugin." }
+    ]
+  },
+  "extensions": [
+    { "point": "mail:provider", "key": "mailgun", "metadata": { "label": "Mailgun" } }
+  ]
+}

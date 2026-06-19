@@ -1,15 +1,15 @@
 import { env } from '@kuraykaraaslan/env';
 import Logger from '@kuraykaraaslan/logger';
 import SettingService from '@kuraykaraaslan/setting/server/setting.service';
-import { extensionRegistry } from '@kuraykaraaslan/common/server/extension-registry';
-import { getEnabledModuleIds } from '@kuraykaraaslan/setting/server/module-activation.service.next';
+import { listExternalContributions, type ExternalContribution } from '@kuraykaraaslan/common/server/external-extensions';
 import ejs from 'ejs';
 import path from 'path';
 import type BaseMailProvider from './providers/base.provider';
+import { IsolatedMailProvider } from './providers/isolated.provider';
 
 export type MailProviderType = 'smtp' | 'sendgrid' | 'mailgun' | 'ses' | 'postmark' | 'resend';
 
-/** Extension point satellite mail-provider modules contribute into. */
+/** Extension point mail providers contribute into (sandboxed community plugins). */
 const MAIL_PROVIDER_POINT = 'mail:provider';
 
 export default class NotificationMailProviderService {
@@ -19,10 +19,13 @@ export default class NotificationMailProviderService {
 
   static readonly TEMPLATE_PATH = path.join(__dirname, 'templates');
 
-  /** Enabled mail-provider contributions for a tenant. */
-  private static async contributions(tenantId: string) {
-    const enabledIds = await getEnabledModuleIds(tenantId);
-    return extensionRegistry.getContributions(MAIL_PROVIDER_POINT, { enabledIds });
+  /** Installed sandboxed community mail providers for a tenant. */
+  private static async contributions(tenantId: string): Promise<ExternalContribution[]> {
+    return listExternalContributions(tenantId, MAIL_PROVIDER_POINT);
+  }
+
+  private static build(c: ExternalContribution): BaseMailProvider {
+    return new IsolatedMailProvider(c.key, c.metadata ?? {}, c.invoke, c.configured);
   }
 
   /** Resolve the tenant's preferred sender identity (falls back to env MAIL_FROM). */
@@ -34,55 +37,45 @@ export default class NotificationMailProviderService {
     return env.MAIL_FROM || `${env.APPLICATION_NAME || 'Next Boilerplate'} <noreply@example.com>`;
   }
 
+  /**
+   * Resolve a provider for a tenant. Providers are SANDBOXED community plugins
+   * resolved per-tenant via the external-contributions bridge — no in-tree built-in
+   * fallback. Honours an explicit choice / the `mailProvider` setting, then falls
+   * back to the first installed+configured provider.
+   */
   static async getProvider(tenantId: string, providerName?: MailProviderType): Promise<BaseMailProvider> {
     const contribs = await NotificationMailProviderService.contributions(tenantId);
     if (contribs.length === 0) {
-      throw new Error('No mail provider module is enabled for this tenant');
+      throw new Error('No mail provider is installed for this tenant');
     }
 
-    // Per-tenant provider selection: honour the `mailProvider` setting when the
-    // caller did not pin a provider explicitly.
     let name = providerName;
     if (!name) {
       const configured = await SettingService.getValue(tenantId, 'mailProvider').catch(() => null);
       name = (configured as MailProviderType) || NotificationMailProviderService.DEFAULT_PROVIDER;
     }
 
-    const keyOf = (c: { key: string | null; metadata: Record<string, unknown> }) => c.key ?? (c.metadata?.key as string);
-    const firstConfigured = async (): Promise<BaseMailProvider | undefined> => {
-      for (const c of contribs) {
-        const p = await extensionRegistry.load<BaseMailProvider>(c);
-        if (await p.isConfigured(tenantId)) {
-          Logger.info(`NotificationMailProviderService: Using fallback provider "${p.name}"`);
-          return p;
-        }
-      }
-      return undefined;
+    const firstConfigured = (): BaseMailProvider | undefined => {
+      const c = contribs.find((x) => x.configured);
+      if (c) Logger.info(`NotificationMailProviderService: Using fallback provider "${c.key}"`);
+      return c ? NotificationMailProviderService.build(c) : undefined;
     };
 
-    const chosen = contribs.find((c) => keyOf(c) === name);
+    const chosen = contribs.find((c) => c.key === name);
     if (!chosen) {
-      Logger.warn(`NotificationMailProviderService: provider "${name}" is unknown/disabled, falling back`);
-      return (await firstConfigured()) ?? extensionRegistry.load<BaseMailProvider>(contribs[0]);
+      Logger.warn(`NotificationMailProviderService: provider "${name}" is unknown/not installed, falling back`);
+      return firstConfigured() ?? NotificationMailProviderService.build(contribs[0]);
     }
-
-    const provider = await extensionRegistry.load<BaseMailProvider>(chosen);
-    if (!(await provider.isConfigured(tenantId))) {
+    if (!chosen.configured) {
       Logger.warn(`NotificationMailProviderService: provider "${name}" not configured for tenant ${tenantId}, trying fallback`);
-      return (await firstConfigured()) ?? provider;
+      return firstConfigured() ?? NotificationMailProviderService.build(chosen);
     }
-    return provider;
+    return NotificationMailProviderService.build(chosen);
   }
 
   static async listProviders(tenantId: string): Promise<{ name: MailProviderType; configured: boolean }[]> {
-    const contribs = await NotificationMailProviderService.contributions(tenantId);
-    const result: { name: MailProviderType; configured: boolean }[] = [];
-    for (const c of contribs) {
-      const name = (c.key ?? (c.metadata?.key as string)) as MailProviderType;
-      const provider = await extensionRegistry.load<BaseMailProvider>(c);
-      result.push({ name, configured: await provider.isConfigured(tenantId) });
-    }
-    return result;
+    return (await NotificationMailProviderService.contributions(tenantId))
+      .map((c) => ({ name: c.key as MailProviderType, configured: c.configured }));
   }
 
   static async renderTemplate(templateName: string, data: Record<string, unknown>): Promise<string> {

@@ -75,33 +75,24 @@ vi.mock('ejs', () => ({
 // Providers now live in satellite modules discovered through the extension
 // registry (point `mail:provider`), gated by the tenant's enabled modules. Mock
 // both seams: smtp configured, the rest not (preserving the old expectations).
-const MAIL_CONFIGURED: Record<string, boolean> = {
-  smtp: true, sendgrid: false, mailgun: false, ses: false, postmark: false, resend: false,
-};
-function mockMailProvider(key: string) {
-  return {
-    name: key,
-    async isConfigured() { return MAIL_CONFIGURED[key]; },
-    async sendMail() { return MAIL_CONFIGURED[key] ? { success: true, messageId: 'test-id' } : { success: false }; },
-  };
-}
-const MAIL_CONTRIBS = ['smtp', 'sendgrid', 'mailgun', 'ses', 'postmark', 'resend'].map((key) => ({
-  id: `mail_${key}:mail:provider:${key}`, point: 'mail:provider', moduleId: `mail_${key}`, key, metadata: {},
-}));
-
-vi.mock('@kuraykaraaslan/setting/server/module-activation.service.next', () => ({
-  getEnabledModuleIds: vi.fn(async () => new Set(MAIL_CONTRIBS.map((c) => c.moduleId).concat('notification_mail'))),
-}));
-
-vi.mock('@kuraykaraaslan/common/server/extension-registry', () => ({
-  extensionRegistry: {
-    getContributions: (point: string, filter?: { enabledIds?: Set<string> }) =>
-      point === 'mail:provider'
-        ? MAIL_CONTRIBS.filter((c) => !filter?.enabledIds || filter.enabledIds.has(c.moduleId))
-        : [],
-    load: async (ext: { key: string }) => mockMailProvider(ext.key),
-  },
-}));
+// Mail providers are SANDBOXED community plugins resolved per-tenant via the
+// external-contributions bridge: smtp installed+configured, the rest installed but
+// unconfigured (preserving the old fallback expectations).
+const { listExternalContributions } = vi.hoisted(() => {
+  const configured: Record<string, boolean> = { smtp: true, sendgrid: false, mailgun: false, ses: false, postmark: false, resend: false };
+  const keys = ['smtp', 'sendgrid', 'mailgun', 'ses', 'postmark', 'resend'];
+  const listExternalContributions = vi.fn(async (tenantId: string, point: string) => {
+    if (!tenantId || point !== 'mail:provider') return [];
+    return keys.map((key) => ({
+      key,
+      configured: configured[key],
+      metadata: { label: key },
+      invoke: vi.fn(async () => (configured[key] ? { success: true, messageId: 'test-id' } : { success: false })),
+    }));
+  });
+  return { listExternalContributions };
+});
+vi.mock('@kuraykaraaslan/common/server/external-extensions', () => ({ listExternalContributions }));
 
 
 // Bypass feature gating in unit tests — tested separately in tenant_subscription/.

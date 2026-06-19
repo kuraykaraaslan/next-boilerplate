@@ -1,0 +1,27 @@
+{
+  "id": "smtp",
+  "name": "SMTP Mail",
+  "version": "1.0.0",
+  "description": "Generic SMTP email provider, contributed into mail:provider — sandboxed. The isolate has no TCP sockets, so it hands the (non-secret) transport config + message to the host `smtp` capability, which sends via nodemailer; the SMTP password stays host-side.",
+  "icon": "fas fa-envelope",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": ["settings", "smtp"],
+    "httpAllowlist": [],
+    "limits": { "memoryMb": 64, "timeoutMs": 30000, "httpTimeoutMs": 28000, "httpMaxBytes": 4000000 }
+  },
+  "config": {
+    "settings": [
+      { "key": "smtpHost", "label": "SMTP Host", "help": "SMTP server hostname." },
+      { "key": "smtpPort", "label": "Port", "help": "SMTP port (587 default, 465 = implicit TLS)." },
+      { "key": "smtpUsername", "label": "Username", "help": "SMTP auth username." },
+      { "key": "smtpSecure", "label": "Secure (TLS)", "help": "'true' for implicit TLS; defaults to true on port 465." }
+    ],
+    "secrets": [
+      { "key": "smtpPassword", "label": "Password", "help": "SMTP auth password; read host-side by the smtp capability, never seen by the plugin." }
+    ]
+  },
+  "extensions": [
+    { "point": "mail:provider", "key": "smtp", "metadata": { "label": "SMTP" } }
+  ]
+}

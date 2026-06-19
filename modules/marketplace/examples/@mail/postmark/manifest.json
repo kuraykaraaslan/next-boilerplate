@@ -1,0 +1,21 @@
+{
+  "id": "postmark",
+  "name": "Postmark Mail",
+  "version": "1.0.0",
+  "description": "Postmark email provider, contributed into mail:provider — sandboxed. JSON REST; the server token stays host-side.",
+  "icon": "fas fa-envelope",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": ["http"],
+    "httpAllowlist": ["api.postmarkapp.com"],
+    "limits": { "memoryMb": 64, "timeoutMs": 20000, "httpTimeoutMs": 18000, "httpMaxBytes": 4000000 }
+  },
+  "config": {
+    "secrets": [
+      { "key": "postmarkApiKey", "label": "Server Token", "help": "Postmark server token; injected host-side as X-Postmark-Server-Token, never seen by the plugin." }
+    ]
+  },
+  "extensions": [
+    { "point": "mail:provider", "key": "postmark", "metadata": { "label": "Postmark" } }
+  ]
+}

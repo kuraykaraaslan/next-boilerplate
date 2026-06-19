@@ -1,0 +1,21 @@
+{
+  "id": "sendgrid",
+  "name": "SendGrid Mail",
+  "version": "1.0.0",
+  "description": "SendGrid email provider, contributed into mail:provider — sandboxed. JSON REST over Bearer; the API key stays host-side.",
+  "icon": "fas fa-envelope",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": ["http"],
+    "httpAllowlist": ["api.sendgrid.com"],
+    "limits": { "memoryMb": 64, "timeoutMs": 20000, "httpTimeoutMs": 18000, "httpMaxBytes": 4000000 }
+  },
+  "config": {
+    "secrets": [
+      { "key": "sendgridApiKey", "label": "API Key", "help": "SendGrid API key; injected host-side as a Bearer token, never seen by the plugin." }
+    ]
+  },
+  "extensions": [
+    { "point": "mail:provider", "key": "sendgrid", "metadata": { "label": "SendGrid" } }
+  ]
+}
