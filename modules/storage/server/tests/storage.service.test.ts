@@ -69,41 +69,24 @@ const mockUploadResult = {
   size: 1024,
 };
 
-// Providers now live in satellite modules discovered through the extension
-// registry (point `storage:provider`), gated by the tenant's enabled modules.
-// Mock both seams so the factory resolves a provider without the real S3 SDK.
-const FILE_URL_BY_KEY: Record<string, (key: string) => string> = {
-  'aws-s3': (k) => `https://test-bucket.s3.us-east-1.amazonaws.com/${k}`,
-  'cloudflare-r2': (k) => `https://r2.example.com/${k}`,
-  'digitalocean-spaces': (k) => `https://spaces.example.com/${k}`,
-  'minio': (k) => `https://minio.example.com/${k}`,
-};
-function mockStorageProvider(key: string) {
-  return {
-    async uploadFile() { return mockUploadResult; },
-    async uploadFromUrl() { return mockUploadResult; },
-    async deleteFile() {},
-    getFileUrl(k: string) { return FILE_URL_BY_KEY[key](k); },
-  };
-}
-const STORAGE_CONTRIBS = (['aws-s3', 'cloudflare-r2', 'digitalocean-spaces', 'minio'] as const).map((key) => ({
-  id: `storage_${key}:storage:provider:${key}`, point: 'storage:provider',
-  moduleId: `storage_${key}`, key, metadata: {},
-}));
-
-vi.mock('@kuraykaraaslan/setting/server/module-activation.service.next', () => ({
-  getEnabledModuleIds: vi.fn(async () => new Set(STORAGE_CONTRIBS.map((c) => c.moduleId).concat('storage'))),
-}));
-
-vi.mock('@kuraykaraaslan/common/server/extension-registry', () => ({
-  extensionRegistry: {
-    getContributions: (point: string, filter?: { enabledIds?: Set<string> }) =>
-      point === 'storage:provider'
-        ? STORAGE_CONTRIBS.filter((c) => !filter?.enabledIds || filter.enabledIds.has(c.moduleId))
-        : [],
-    load: async (ext: { key: string }) => ({ key: ext.key, create: () => mockStorageProvider(ext.key) }),
-  },
-}));
+// Storage backends are SANDBOXED community plugins resolved per-tenant via the
+// external-contributions bridge. The facade does validation/key-gen/getFileUrl
+// host-side; the isolate (mocked invoke) only does getConfig + the signed PUT/DELETE.
+const { listExternalContributions } = vi.hoisted(() => {
+  const keys = ['aws-s3', 'cloudflare-r2', 'digitalocean-spaces', 'minio'];
+  const listExternalContributions = vi.fn(async (tenantId: string, point: string) => {
+    if (!tenantId || point !== 'storage:provider') return [];
+    return keys.map((key) => ({
+      key,
+      configured: true,
+      metadata: { label: key },
+      invoke: vi.fn(async (op: string) =>
+        (op === 'getConfig' ? { bucket: 'test-bucket', region: 'us-east-1', endpoint: null } : { ok: true })),
+    }));
+  });
+  return { listExternalContributions };
+});
+vi.mock('@kuraykaraaslan/common/server/external-extensions', () => ({ listExternalContributions }));
 
 
 // Bypass feature gating in unit tests — tested separately in tenant_subscription/.
@@ -155,6 +138,13 @@ const validJpeg = () =>
 
 beforeEach(() => {
   vi.clearAllMocks();
+  // uploadFromUrl fetches the source URL host-side (in the facade) before the signed
+  // PUT — stub it with a valid image response.
+  vi.stubGlobal('fetch', vi.fn(async () => ({
+    ok: true,
+    headers: { get: () => 'image/jpeg' },
+    arrayBuffer: async () => new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10]).buffer,
+  })));
   (SettingService.getByKeys as any).mockResolvedValue({
     storageProvider: 'aws-s3',
     s3Bucket: 'test-bucket',

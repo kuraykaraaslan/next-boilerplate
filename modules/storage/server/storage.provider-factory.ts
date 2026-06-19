@@ -1,9 +1,7 @@
-import Logger from '@kuraykaraaslan/logger'
 import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error'
-import { extensionRegistry } from '@kuraykaraaslan/common/server/extension-registry'
-import { getEnabledModuleIds } from '@kuraykaraaslan/setting/server/module-activation.service.next'
+import { listExternalContributions } from '@kuraykaraaslan/common/server/external-extensions'
 import type BaseStorageProvider from './providers/base.provider'
-import type { StorageProviderContribution } from './storage.provider.types'
+import { IsolatedStorageProvider, type ResolvedStorageConfig } from './providers/isolated.provider'
 import { StorageProviderType } from './storage.enums'
 import { S3Config } from './storage.types'
 import { STORAGE_MESSAGES } from './storage.messages'
@@ -55,34 +53,30 @@ export async function getValidationPolicy(tenantId: string): Promise<UploadValid
 }
 
 /**
- * Create a provider instance from config, discovered through the extension
- * registry (point `storage:provider`) and gated by the tenant's enabled-module
- * set — so a disabled provider module (e.g. `storage_minio`) is rejected here.
+ * Resolve a storage provider for a tenant. Backends are SANDBOXED community plugins
+ * (the @storage/* family) resolved per-tenant via the external-contributions bridge —
+ * no in-tree built-in fallback. The plugin's non-secret config (bucket/region/
+ * endpoint) is fetched once via its `getConfig` op so the facade can build URLs
+ * synchronously; the SigV4-signed PutObject/DeleteObject egress runs in the isolate.
  */
-export async function createProvider(
-  tenantId: string,
-  providerName: StorageProviderType,
-  config: S3Config,
-): Promise<BaseStorageProvider> {
-  const enabledIds = await getEnabledModuleIds(tenantId)
-  const contrib = extensionRegistry
-    .getContributions(STORAGE_PROVIDER_POINT, { enabledIds })
-    .find((c) => (c.key ?? c.metadata?.key) === providerName)
-  if (!contrib) {
-    Logger.error(`${STORAGE_MESSAGES.PROVIDER_NOT_FOUND}: ${providerName}`)
-    throw new AppError(`${STORAGE_MESSAGES.PROVIDER_NOT_FOUND}: ${providerName}`, 400, ErrorCode.VALIDATION_ERROR)
-  }
-  const impl = await extensionRegistry.load<StorageProviderContribution>(contrib)
-  return impl.create(config)
-}
-
-/** Get a configured provider instance for a tenant. */
 export async function getProvider(
   tenantId: string,
   providerName?: StorageProviderType,
 ): Promise<{ provider: BaseStorageProvider; resolvedName: StorageProviderType }> {
-  const { providerName: defaultName, config } = await getStorageSettings(tenantId)
-  const resolvedName = providerName || defaultName
-  const provider = await createProvider(tenantId, resolvedName, config)
-  return { provider, resolvedName }
+  const exts = await listExternalContributions(tenantId, STORAGE_PROVIDER_POINT)
+  if (exts.length === 0) {
+    throw new AppError(STORAGE_MESSAGES.PROVIDER_NOT_FOUND, 400, ErrorCode.VALIDATION_ERROR)
+  }
+  // `getStorageSettings` reads the tenant's storage settings (also used by the scan
+  // path) — it throws if settings are unavailable, which must fail the upload.
+  const { providerName: defaultName } = await getStorageSettings(tenantId)
+  const wanted = providerName || defaultName
+  // Strict: storage must NOT silently switch backends (it would write to the wrong
+  // bucket), so an unknown/not-installed provider is an error, not a fallback.
+  const ext = exts.find((c) => c.key === wanted)
+  if (!ext) {
+    throw new AppError(`${STORAGE_MESSAGES.PROVIDER_NOT_FOUND}: ${wanted}`, 400, ErrorCode.VALIDATION_ERROR)
+  }
+  const cfg = (await ext.invoke('getConfig', {})) as ResolvedStorageConfig
+  return { provider: new IsolatedStorageProvider(ext.invoke, cfg), resolvedName: ext.key as StorageProviderType }
 }

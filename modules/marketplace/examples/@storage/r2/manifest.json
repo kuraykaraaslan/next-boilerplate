@@ -1,0 +1,28 @@
+{
+  "id": "cloudflare-r2",
+  "name": "Cloudflare R2 Storage",
+  "version": "1.0.0",
+  "description": "Cloudflare R2 (S3-compatible) storage backend, contributed into storage:provider — sandboxed. Path-style SigV4 PutObject/DeleteObject via host crypto; the secret key stays host-side. Use region 'auto'.",
+  "icon": "fas fa-database",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": ["http", "settings", "crypto"],
+    "httpAllowlist": [],
+    "httpAllowlistFromSettings": ["s3Endpoint"],
+    "limits": { "memoryMb": 256, "timeoutMs": 60000, "httpTimeoutMs": 58000, "httpMaxBytes": 2000000 }
+  },
+  "config": {
+    "settings": [
+      { "key": "s3Bucket", "label": "Bucket", "help": "R2 bucket name." },
+      { "key": "s3Region", "label": "Region", "help": "Use 'auto' for R2." },
+      { "key": "s3Endpoint", "label": "Endpoint URL", "help": "https://<account-id>.r2.cloudflarestorage.com (used for egress + the allowlist)." },
+      { "key": "s3AccessKey", "label": "Access Key ID", "help": "R2 access key id." }
+    ],
+    "secrets": [
+      { "key": "s3SecretKey", "label": "Secret Access Key", "help": "R2 secret access key; used host-side in the SigV4 chain, never seen by the plugin." }
+    ]
+  },
+  "extensions": [
+    { "point": "storage:provider", "key": "cloudflare-r2", "metadata": { "label": "Cloudflare R2" } }
+  ]
+}

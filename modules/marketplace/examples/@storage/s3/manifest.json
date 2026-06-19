@@ -1,0 +1,28 @@
+{
+  "id": "aws-s3",
+  "name": "AWS S3 Storage",
+  "version": "1.0.0",
+  "description": "AWS S3 storage backend, contributed into storage:provider — sandboxed. PutObject/DeleteObject signed with SigV4 via host crypto; the secret access key stays host-side. Uploads stream as base64 (bounded by the isolate memory limit).",
+  "icon": "fas fa-database",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": ["http", "settings", "crypto"],
+    "httpAllowlist": [],
+    "httpAllowlistFromSettings": ["s3Endpoint"],
+    "limits": { "memoryMb": 256, "timeoutMs": 60000, "httpTimeoutMs": 58000, "httpMaxBytes": 2000000 }
+  },
+  "config": {
+    "settings": [
+      { "key": "s3Bucket", "label": "Bucket", "help": "S3 bucket name." },
+      { "key": "s3Region", "label": "Region", "help": "AWS region, e.g. us-east-1." },
+      { "key": "s3Endpoint", "label": "Endpoint URL", "help": "Path-style base URL, e.g. https://s3.us-east-1.amazonaws.com (used for egress + the allowlist)." },
+      { "key": "s3AccessKey", "label": "Access Key ID", "help": "AWS access key id (AKIA…)." }
+    ],
+    "secrets": [
+      { "key": "s3SecretKey", "label": "Secret Access Key", "help": "AWS secret access key; used host-side in the SigV4 chain, never seen by the plugin." }
+    ]
+  },
+  "extensions": [
+    { "point": "storage:provider", "key": "aws-s3", "metadata": { "label": "AWS S3" } }
+  ]
+}

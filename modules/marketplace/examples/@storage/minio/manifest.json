@@ -1,0 +1,28 @@
+{
+  "id": "minio",
+  "name": "MinIO Storage",
+  "version": "1.0.0",
+  "description": "MinIO (S3-compatible) storage backend, contributed into storage:provider — sandboxed. Path-style SigV4 PutObject/DeleteObject via host crypto; the secret key stays host-side.",
+  "icon": "fas fa-database",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": ["http", "settings", "crypto"],
+    "httpAllowlist": [],
+    "httpAllowlistFromSettings": ["s3Endpoint"],
+    "limits": { "memoryMb": 256, "timeoutMs": 60000, "httpTimeoutMs": 58000, "httpMaxBytes": 2000000 }
+  },
+  "config": {
+    "settings": [
+      { "key": "s3Bucket", "label": "Bucket", "help": "MinIO bucket name." },
+      { "key": "s3Region", "label": "Region", "help": "Region label (us-east-1 if unsure)." },
+      { "key": "s3Endpoint", "label": "Endpoint URL", "help": "MinIO base URL, e.g. https://minio.example.com (used for egress + the allowlist)." },
+      { "key": "s3AccessKey", "label": "Access Key", "help": "MinIO access key." }
+    ],
+    "secrets": [
+      { "key": "s3SecretKey", "label": "Secret Key", "help": "MinIO secret key; used host-side in the SigV4 chain, never seen by the plugin." }
+    ]
+  },
+  "extensions": [
+    { "point": "storage:provider", "key": "minio", "metadata": { "label": "MinIO" } }
+  ]
+}
