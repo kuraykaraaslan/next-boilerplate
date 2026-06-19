@@ -5,11 +5,22 @@
 globalThis.__plugin = {
   providers: {
     'ai:provider': {
-      listModels: async () => [
-        'claude-opus-4-20250514', 'claude-sonnet-4-20250514', 'claude-3-7-sonnet-20250219',
-        'claude-3-5-sonnet-20241022', 'claude-3-5-haiku-20241022', 'claude-3-opus-20240229',
-        'claude-3-sonnet-20240229', 'claude-3-haiku-20240307',
-      ],
+      // Live model list from GET /v1/models; falls back to the static list on any error.
+      listModels: async (_input, host) => {
+        const FALLBACK = [
+          'claude-opus-4-20250514', 'claude-sonnet-4-20250514', 'claude-3-7-sonnet-20250219',
+          'claude-3-5-sonnet-20241022', 'claude-3-5-haiku-20241022', 'claude-3-opus-20240229',
+          'claude-3-sonnet-20240229', 'claude-3-haiku-20240307',
+        ];
+        try {
+          const res = await host.http.fetch('https://api.anthropic.com/v1/models', {
+            method: 'GET', headers: { 'x-api-key': '{{secret:apiKey}}', 'anthropic-version': '2023-06-01', accept: 'application/json' },
+          });
+          if (!res || res.status >= 400) return FALLBACK;
+          const ids = (JSON.parse(res.body).data || []).map((m) => m.id).filter(Boolean);
+          return ids.length ? ids : FALLBACK;
+        } catch (e) { return FALLBACK; }
+      },
 
       chat: async (opts, host) => {
         const model = opts.model || 'claude-3-5-sonnet-20241022';

@@ -35,7 +35,7 @@ export default class AIService {
 
     let providerType = options.provider;
     if (!providerType && options.model) {
-      providerType = AIProviderService.getProviderForModel(options.model) || undefined;
+      providerType = (await AIProviderService.getProviderForModel(tenantId, options.model)) || undefined;
     }
 
     const provider = await AIProviderService.getProvider(tenantId, providerType);
@@ -58,7 +58,7 @@ export default class AIService {
 
     let providerType = options.provider;
     if (!providerType && options.model) {
-      providerType = AIProviderService.getProviderForModel(options.model) || undefined;
+      providerType = (await AIProviderService.getProviderForModel(tenantId, options.model)) || undefined;
     }
 
     const provider = await AIProviderService.getProvider(tenantId, providerType);

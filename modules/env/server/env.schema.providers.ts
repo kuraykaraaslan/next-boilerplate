@@ -93,6 +93,8 @@ export const providerFields = {
 
   // ── AI providers ────────────────────────────────────────────────────────────
   AI_DEFAULT_PROVIDER: z.string().optional(),
+  /** Seconds to cache each provider's live model list (default 21600 = 6h). */
+  AI_MODELS_CACHE_TTL: z.coerce.number().optional(),
   OPENAI_API_KEY: z.string().optional(),
   OPENAI_DEFAULT_MODEL: z.string().optional(),
   OPENAI_MAX_TOKENS: z.coerce.number().optional(),

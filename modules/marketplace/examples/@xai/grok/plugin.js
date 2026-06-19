@@ -5,7 +5,18 @@
 globalThis.__plugin = {
   providers: {
     'ai:provider': {
-      listModels: async () => ['grok-3', 'grok-3-mini', 'grok-2-1212', 'grok-2-vision-1212', 'grok-2-latest', 'grok-beta'],
+      // Live model list from GET /v1/models; falls back to the static list on any error.
+      listModels: async (_input, host) => {
+        const FALLBACK = ['grok-3', 'grok-3-mini', 'grok-2-1212', 'grok-2-vision-1212', 'grok-2-latest', 'grok-beta'];
+        try {
+          const res = await host.http.fetch('https://api.x.ai/v1/models', {
+            method: 'GET', headers: { authorization: 'Bearer {{secret:apiKey}}', accept: 'application/json' },
+          });
+          if (!res || res.status >= 400) return FALLBACK;
+          const ids = (JSON.parse(res.body).data || []).map((m) => m.id).filter(Boolean);
+          return ids.length ? ids : FALLBACK;
+        } catch (e) { return FALLBACK; }
+      },
 
       chat: async (opts, host) => {
         const model = opts.model || 'grok-2-latest';

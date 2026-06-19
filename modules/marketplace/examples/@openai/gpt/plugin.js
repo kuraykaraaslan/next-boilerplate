@@ -6,9 +6,18 @@
 globalThis.__plugin = {
   providers: {
     'ai:provider': {
-      listModels: async () => [
-        'gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'gpt-4', 'gpt-3.5-turbo', 'o1', 'o1-mini', 'o1-preview',
-      ],
+      // Live model list from GET /v1/models; falls back to the static list on any error.
+      listModels: async (_input, host) => {
+        const FALLBACK = ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'gpt-4', 'gpt-3.5-turbo', 'o1', 'o1-mini', 'o1-preview'];
+        try {
+          const res = await host.http.fetch('https://api.openai.com/v1/models', {
+            method: 'GET', headers: { authorization: 'Bearer {{secret:apiKey}}', accept: 'application/json' },
+          });
+          if (!res || res.status >= 400) return FALLBACK;
+          const ids = (JSON.parse(res.body).data || []).map((m) => m.id).filter(Boolean);
+          return ids.length ? ids : FALLBACK;
+        } catch (e) { return FALLBACK; }
+      },
 
       chat: async (opts, host) => {
         const model = opts.model || 'gpt-4o-mini';

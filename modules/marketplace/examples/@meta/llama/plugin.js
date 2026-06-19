@@ -6,10 +6,21 @@
 globalThis.__plugin = {
   providers: {
     'ai:provider': {
-      listModels: async () => [
-        'Llama-4-Maverick-17B-128E-Instruct-FP8', 'Llama-4-Scout-17B-16E-Instruct-FP8',
-        'Llama-3.3-70B-Instruct', 'Llama-3.3-8B-Instruct',
-      ],
+      // Live model list from GET /v1/models; falls back to the static list on any error.
+      listModels: async (_input, host) => {
+        const FALLBACK = [
+          'Llama-4-Maverick-17B-128E-Instruct-FP8', 'Llama-4-Scout-17B-16E-Instruct-FP8',
+          'Llama-3.3-70B-Instruct', 'Llama-3.3-8B-Instruct',
+        ];
+        try {
+          const res = await host.http.fetch('https://api.llama.com/v1/models', {
+            method: 'GET', headers: { authorization: 'Bearer {{secret:apiKey}}', accept: 'application/json' },
+          });
+          if (!res || res.status >= 400) return FALLBACK;
+          const ids = (JSON.parse(res.body).data || []).map((m) => m.id ?? m.model ?? m).filter((x) => typeof x === 'string' && x);
+          return ids.length ? ids : FALLBACK;
+        } catch (e) { return FALLBACK; }
+      },
 
       chat: async (opts, host) => {
         const model = opts.model || 'Llama-3.3-70B-Instruct';

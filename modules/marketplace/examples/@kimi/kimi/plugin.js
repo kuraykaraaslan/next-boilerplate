@@ -10,12 +10,18 @@
 globalThis.__plugin = {
   providers: {
     'ai:provider': {
-      listModels: async () => [
-        'kimi-k2-0711-preview',
-        'moonshot-v1-8k',
-        'moonshot-v1-32k',
-        'moonshot-v1-128k',
-      ],
+      // Live model list from GET /v1/models; falls back to the static list on any error.
+      listModels: async (_input, host) => {
+        const FALLBACK = ['kimi-k2-0711-preview', 'moonshot-v1-8k', 'moonshot-v1-32k', 'moonshot-v1-128k'];
+        try {
+          const res = await host.http.fetch('https://api.moonshot.ai/v1/models', {
+            method: 'GET', headers: { authorization: 'Bearer {{secret:apiKey}}', accept: 'application/json' },
+          });
+          if (!res || res.status >= 400) return FALLBACK;
+          const ids = (JSON.parse(res.body).data || []).map((m) => m.id).filter(Boolean);
+          return ids.length ? ids : FALLBACK;
+        } catch (e) { return FALLBACK; }
+      },
 
       chat: async (opts, host) => {
         const model = opts.model || 'moonshot-v1-8k';

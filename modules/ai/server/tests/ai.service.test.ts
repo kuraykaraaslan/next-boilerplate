@@ -7,23 +7,7 @@ vi.mock('@kuraykaraaslan/env', () => ({
     REFRESH_TOKEN_SECRET: 'test_refresh',
     CSRF_SECRET: 'test_csrf',
     NODE_ENV: 'test',
-    AWS_S3_BUCKET: 'test-bucket',
-    AWS_REGION: 'us-east-1',
-    STRIPE_SECRET_KEY: 'sk_test_xxx',
-    SMTP_HOST: 'localhost',
-    SMTP_PORT: '587',
-    SMTP_USER: 'test@test.com',
-    SMTP_PASS: 'test',
     AI_DEFAULT_PROVIDER: 'openai',
-    OPENAI_API_KEY: 'sk-test-openai',
-    OPENAI_DEFAULT_MODEL: 'gpt-4o-mini',
-    OPENAI_MAX_TOKENS: 4096,
-    ANTHROPIC_API_KEY: 'sk-test-anthropic',
-    ANTHROPIC_DEFAULT_MODEL: 'claude-3-5-sonnet-20241022',
-    ANTHROPIC_MAX_TOKENS: 4096,
-    GOOGLE_AI_API_KEY: 'test-google-ai-key',
-    GOOGLE_DEFAULT_MODEL: 'gemini-2.0-flash',
-    GOOGLE_MAX_TOKENS: 4096,
   },
 }));
 
@@ -56,20 +40,14 @@ vi.mock('@kuraykaraaslan/redis', () => ({
     exists: vi.fn(async () => 0),
   },
   singleFlight: async (_key: string, fn: () => Promise<unknown>) => fn(),
+  tenantKey: (tid: string, ...segs: string[]) => `tenant:${tid}:${segs.join(':')}`,
   jitter: (n: number) => n,
 }));
 
 vi.mock('@kuraykaraaslan/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
 
 vi.mock('@kuraykaraaslan/setting/server/setting.service', () => ({
-  default: {
-    getByKeys: vi.fn(async () => ({
-      openaiApiKey: 'sk-test-openai',
-      anthropicApiKey: 'sk-test-anthropic',
-      googleAiApiKey: 'test-google-ai-key',
-      aiDefaultProvider: 'openai',
-    })),
-  },
+  default: { getByKeys: vi.fn(async () => ({ aiDefaultProvider: 'openai' })) },
 }));
 
 vi.mock('@kuraykaraaslan/tenant_usage/server/tenant_usage.service', () => ({
@@ -83,7 +61,6 @@ vi.mock('@kuraykaraaslan/tenant_usage/server/tenant_usage.service', () => ({
   },
 }));
 
-// Bypass feature gating in unit tests — tested separately in tenant_subscription/.
 vi.mock('@kuraykaraaslan/tenant_subscription/server/tenant_subscription.feature.service', () => ({
   default: {
     assertFeatureAccess: vi.fn(async () => undefined),
@@ -91,72 +68,44 @@ vi.mock('@kuraykaraaslan/tenant_subscription/server/tenant_subscription.feature.
   },
 }));
 
-// ── Provider modules are now discovered through the extension registry, gated by
-// the tenant's enabled-module set. Mock both so the registry-driven service can
-// resolve providers without the build-time generated artifacts. ───────────────
-
-const MODELS: Record<string, string[]> = {
-  openai: ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'gpt-4', 'gpt-3.5-turbo', 'o1', 'o1-mini', 'o1-preview'],
-  anthropic: [
-    'claude-opus-4-20250514', 'claude-sonnet-4-20250514', 'claude-3-7-sonnet-20250219',
-    'claude-3-5-sonnet-20241022', 'claude-3-5-haiku-20241022', 'claude-3-opus-20240229',
-    'claude-3-sonnet-20240229', 'claude-3-haiku-20240307',
-  ],
-  google: ['gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-pro', 'gemini-1.5-flash', 'gemini-1.5-flash-8b'],
-};
-
-function makeProvider(key: string, configured = true) {
-  return {
-    providerType: key,
-    isConfigured: () => configured,
-    async chat() {
-      return {
-        content: 'Hello from mock AI', model: MODELS[key][0], provider: key,
-        usage: { promptTokens: 10, completionTokens: 20, totalTokens: 30 }, finishReason: 'stop',
-      };
-    },
-    async chatStream(_opts: unknown, onChunk: (c: string) => void) {
-      onChunk('Hello');
-      return {
-        content: 'Hello from mock AI', model: MODELS[key][0], provider: key,
-        usage: { promptTokens: 10, completionTokens: 20, totalTokens: 30 },
-      };
-    },
-    async embed() {
-      return { embeddings: [[0.1, 0.2, 0.3]], model: 'text-embedding-ada-002', provider: key, usage: { totalTokens: 5 } };
-    },
-    listModels: () => MODELS[key],
-    getDefaultModel: () => MODELS[key][0],
-    getMaxTokens: () => 4096,
+// ── AI providers are SANDBOXED community plugins resolved per-tenant via the
+// external-contributions bridge. Mock the bridge so the service resolves an
+// IsolatedAIProvider whose ops we drive through `invoke`. ──────────────────────
+const { MODELS, DYNAMIC, installed, listExternalContributions } = vi.hoisted(() => {
+  const MODELS: Record<string, string[]> = {
+    openai: ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'gpt-4', 'gpt-3.5-turbo', 'o1', 'o1-mini', 'o1-preview'],
+    anthropic: [
+      'claude-opus-4-20250514', 'claude-sonnet-4-20250514', 'claude-3-7-sonnet-20250219',
+      'claude-3-5-sonnet-20241022', 'claude-3-5-haiku-20241022', 'claude-3-opus-20240229',
+      'claude-3-sonnet-20240229', 'claude-3-haiku-20240307',
+    ],
+    google: ['gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-pro', 'gemini-1.5-flash', 'gemini-1.5-flash-8b'],
   };
-}
-
-const IMPLS: Record<string, any> = {
-  openai:    { key: 'openai',    settingKeys: ['openaiApiKey'],    resolveConfig: (s: any) => ({ apiKey: s.openaiApiKey || '' }),    create: () => makeProvider('openai') },
-  anthropic: { key: 'anthropic', settingKeys: ['anthropicApiKey'], resolveConfig: (s: any) => ({ apiKey: s.anthropicApiKey || '' }), create: () => makeProvider('anthropic') },
-  google:    { key: 'google',    settingKeys: ['googleAiApiKey'],  resolveConfig: (s: any) => ({ apiKey: s.googleAiApiKey || '' }),  create: () => makeProvider('google') },
-};
-
-const CONTRIBS = [
-  { id: 'ai_openai:ai:provider:openai',       point: 'ai:provider', moduleId: 'ai_openai',    key: 'openai',    exportId: '', order: 100, scope: 'both', permissions: [], metadata: { label: 'OpenAI',    models: MODELS.openai } },
-  { id: 'ai_anthropic:ai:provider:anthropic', point: 'ai:provider', moduleId: 'ai_anthropic', key: 'anthropic', exportId: '', order: 100, scope: 'both', permissions: [], metadata: { label: 'Anthropic', models: MODELS.anthropic } },
-  { id: 'ai_google:ai:provider:google',       point: 'ai:provider', moduleId: 'ai_google',    key: 'google',    exportId: '', order: 100, scope: 'both', permissions: [], metadata: { label: 'Google',    models: MODELS.google } },
-];
-
-// Mutable per-test: which provider modules are enabled for the tenant.
-let enabledModuleIds = new Set<string>(['ai', 'ai_openai', 'ai_anthropic', 'ai_google']);
-
-vi.mock('@kuraykaraaslan/setting/server/module-activation.service.next', () => ({
-  getEnabledModuleIds: vi.fn(async () => enabledModuleIds),
-}));
-
-vi.mock('@kuraykaraaslan/common/server/extension-registry', () => ({
-  extensionRegistry: {
-    getContributions: (point: string, filter?: { enabledIds?: Set<string> }) =>
-      CONTRIBS.filter((c) => c.point === point && (!filter?.enabledIds || filter.enabledIds.has(c.moduleId))),
-    load: async (ext: { key: string }) => IMPLS[ext.key],
-  },
-}));
+  // Per-provider LIVE model lists the sandboxed `listModels` op returns. A test may
+  // set DYNAMIC[key] = null to simulate a failing op (→ host falls back to manifest).
+  const DYNAMIC: Record<string, string[] | null> = {};
+  const installed = new Set<string>(['openai', 'anthropic', 'google']);
+  const invokeFor = (key: string) => async (op: string, _input: unknown) => {
+    if (op === 'listModels') {
+      const d = DYNAMIC[key];
+      if (d === null) throw new Error('listModels failed');
+      return d ?? MODELS[key];
+    }
+    if (op === 'chat') {
+      return { content: 'Hello from mock AI', model: MODELS[key][0], provider: key, usage: { promptTokens: 10, completionTokens: 20, totalTokens: 30 }, finishReason: 'stop' };
+    }
+    if (op === 'embed') {
+      return { embeddings: [[0.1, 0.2, 0.3]], model: 'text-embedding-ada-002', provider: key, usage: { totalTokens: 5 } };
+    }
+    throw new Error(`unknown op ${op}`);
+  };
+  const listExternalContributions = vi.fn(async (tenantId: string, point: string) => {
+    if (!tenantId || point !== 'ai:provider') return [];
+    return [...installed].map((key) => ({ key, configured: true, metadata: { label: key, models: MODELS[key] }, invoke: invokeFor(key) }));
+  });
+  return { MODELS, DYNAMIC, installed, listExternalContributions };
+});
+vi.mock('@kuraykaraaslan/common/server/external-extensions', () => ({ listExternalContributions }));
 
 import AIService from '../ai.service';
 import AIProviderService from '../ai.provider.service';
@@ -164,7 +113,6 @@ import redis from '@kuraykaraaslan/redis';
 import { AppError } from '@kuraykaraaslan/common/server/app-error';
 
 const TENANT_ID = '550e8400-e29b-41d4-a716-446655440000';
-
 const mockRedis = redis as any;
 
 beforeEach(() => {
@@ -173,13 +121,15 @@ beforeEach(() => {
   mockRedis.set.mockResolvedValue('OK');
   mockRedis.incrby.mockResolvedValue(30);
   mockRedis.expire.mockResolvedValue(1);
-  // All providers enabled by default; reset the per-tenant provider cache.
-  enabledModuleIds = new Set<string>(['ai', 'ai_openai', 'ai_anthropic', 'ai_google']);
+  // All providers installed by default; reset the per-tenant provider cache.
+  installed.clear();
+  ['openai', 'anthropic', 'google'].forEach((k) => installed.add(k));
+  Object.keys(DYNAMIC).forEach((k) => delete DYNAMIC[k]); // reset live-model overrides
   (AIProviderService as any)._tenantProviders?.clear?.();
 });
 
 describe('AIProviderService.listProviders (tenant-scoped)', () => {
-  it('returns every enabled provider', async () => {
+  it('returns every installed provider', async () => {
     const providers = await AIService.listProviders(TENANT_ID);
     expect(providers).toContain('openai');
     expect(providers).toContain('anthropic');
@@ -187,16 +137,16 @@ describe('AIProviderService.listProviders (tenant-scoped)', () => {
     expect(providers).toHaveLength(3);
   });
 
-  it('omits a provider whose module is disabled for the tenant', async () => {
-    enabledModuleIds = new Set<string>(['ai', 'ai_openai', 'ai_google']); // ai_anthropic off
+  it('omits a provider not installed for the tenant', async () => {
+    installed.delete('anthropic');
     const providers = await AIService.listProviders(TENANT_ID);
     expect(providers).not.toContain('anthropic');
     expect(providers).toContain('openai');
     expect(providers).toContain('google');
   });
 
-  it('returns nothing when no provider module is enabled', async () => {
-    enabledModuleIds = new Set<string>(['ai']);
+  it('returns nothing when no provider is installed', async () => {
+    installed.clear();
     expect(await AIService.listProviders(TENANT_ID)).toHaveLength(0);
   });
 });
@@ -211,51 +161,76 @@ describe('AIService.listConfiguredProviders', () => {
 });
 
 describe('AIService.isProviderConfigured', () => {
-  it('returns true for an enabled, configured provider', async () => {
+  it('returns true for an installed, configured provider', async () => {
     expect(await AIService.isProviderConfigured(TENANT_ID, 'openai')).toBe(true);
     expect(await AIService.isProviderConfigured(TENANT_ID, 'anthropic')).toBe(true);
   });
 
-  it('returns false for a disabled provider', async () => {
-    enabledModuleIds = new Set<string>(['ai', 'ai_openai']);
+  it('returns false for a provider not installed', async () => {
+    installed.delete('anthropic');
     expect(await AIService.isProviderConfigured(TENANT_ID, 'anthropic')).toBe(false);
   });
 });
 
 describe('AIService.getProviderForModel', () => {
-  it('maps GPT models to openai', () => {
-    expect(AIService.getProviderForModel('gpt-4o')).toBe('openai');
-    expect(AIService.getProviderForModel('gpt-4o-mini')).toBe('openai');
+  it('maps GPT models to openai', async () => {
+    expect(await AIService.getProviderForModel(TENANT_ID, 'gpt-4o')).toBe('openai');
+    expect(await AIService.getProviderForModel(TENANT_ID, 'gpt-4o-mini')).toBe('openai');
   });
 
-  it('maps Claude models to anthropic', () => {
-    expect(AIService.getProviderForModel('claude-3-5-sonnet-20241022')).toBe('anthropic');
-    expect(AIService.getProviderForModel('claude-3-5-haiku-20241022')).toBe('anthropic');
+  it('maps Claude models to anthropic', async () => {
+    expect(await AIService.getProviderForModel(TENANT_ID, 'claude-3-5-sonnet-20241022')).toBe('anthropic');
+    expect(await AIService.getProviderForModel(TENANT_ID, 'claude-3-5-haiku-20241022')).toBe('anthropic');
   });
 
-  it('maps Gemini models to google', () => {
-    expect(AIService.getProviderForModel('gemini-2.0-flash')).toBe('google');
-    expect(AIService.getProviderForModel('gemini-1.5-pro')).toBe('google');
+  it('maps Gemini models to google', async () => {
+    expect(await AIService.getProviderForModel(TENANT_ID, 'gemini-2.0-flash')).toBe('google');
+    expect(await AIService.getProviderForModel(TENANT_ID, 'gemini-1.5-pro')).toBe('google');
   });
 
-  it('returns null for an unknown model', () => {
-    expect(AIService.getProviderForModel('llama-3')).toBeNull();
+  it('returns null for an unknown model', async () => {
+    expect(await AIService.getProviderForModel(TENANT_ID, 'llama-3')).toBeNull();
+  });
+
+  it('resolves a model present only in a provider LIVE list (not the manifest)', async () => {
+    DYNAMIC.openai = [...MODELS.openai, 'gpt-5-preview'];
+    expect(await AIService.getProviderForModel(TENANT_ID, 'gpt-5-preview')).toBe('openai');
   });
 });
 
 describe('AIService.listAllModels (tenant-scoped)', () => {
-  it('returns model arrays keyed by enabled provider', async () => {
+  it('returns model arrays keyed by installed provider', async () => {
     const all = await AIService.listAllModels(TENANT_ID);
     expect(all.openai).toContain('gpt-4o');
     expect(all.anthropic).toContain('claude-3-5-sonnet-20241022');
     expect(all.google).toContain('gemini-2.0-flash');
   });
 
-  it('drops a disabled provider', async () => {
-    enabledModuleIds = new Set<string>(['ai', 'ai_openai']);
+  it('drops a provider not installed', async () => {
+    installed.delete('anthropic');
     const all = await AIService.listAllModels(TENANT_ID);
     expect(all.openai).toBeDefined();
     expect(all.anthropic).toBeUndefined();
+  });
+
+  it('surfaces LIVE models fetched from the provider (beyond the manifest)', async () => {
+    DYNAMIC.openai = [...MODELS.openai, 'gpt-5-preview'];
+    const all = await AIService.listAllModels(TENANT_ID);
+    expect(all.openai).toContain('gpt-5-preview');
+  });
+
+  it('falls back to manifest models when the live listModels op fails', async () => {
+    DYNAMIC.openai = null; // op throws
+    const all = await AIService.listAllModels(TENANT_ID);
+    expect(all.openai).toEqual(MODELS.openai); // manifest fallback, non-empty
+  });
+
+  it('caches the resolved list in redis with a TTL', async () => {
+    await AIService.listAllModels(TENANT_ID);
+    expect(mockRedis.set).toHaveBeenCalledWith(
+      expect.stringContaining(`tenant:${TENANT_ID}:ai:models:openai`),
+      expect.any(String), 'EX', expect.any(Number),
+    );
   });
 });
 
@@ -265,55 +240,45 @@ describe('AIService.listModels', () => {
     expect(Array.isArray(models)).toBe(true);
     expect(models.length).toBeGreaterThan(0);
   });
+
+  it('returns a cached list on hit without re-fetching', async () => {
+    mockRedis.get.mockResolvedValue(JSON.stringify(['cached-model']));
+    expect(await AIService.listModels(TENANT_ID, 'openai')).toEqual(['cached-model']);
+  });
 });
 
 describe('AIService.chat', () => {
   it('returns a ChatCompletionResponse from openai', async () => {
-    const response = await AIService.chat(TENANT_ID, {
-      messages: [{ role: 'user', content: 'Hello!' }],
-      provider: 'openai',
-    });
+    const response = await AIService.chat(TENANT_ID, { messages: [{ role: 'user', content: 'Hello!' }], provider: 'openai' });
     expect(response.content).toBe('Hello from mock AI');
     expect(response.provider).toBe('openai');
     expect(response.usage?.totalTokens).toBe(30);
   });
 
   it('auto-detects provider from model name', async () => {
-    const response = await AIService.chat(TENANT_ID, {
-      messages: [{ role: 'user', content: 'Hello!' }],
-      model: 'gpt-4o-mini',
-    });
+    const response = await AIService.chat(TENANT_ID, { messages: [{ role: 'user', content: 'Hello!' }], model: 'gpt-4o-mini' });
     expect(response.provider).toBe('openai');
   });
 
   it('auto-detects anthropic from a Claude model', async () => {
-    const response = await AIService.chat(TENANT_ID, {
-      messages: [{ role: 'user', content: 'Hello!' }],
-      model: 'claude-3-5-sonnet-20241022',
-    });
+    const response = await AIService.chat(TENANT_ID, { messages: [{ role: 'user', content: 'Hello!' }], model: 'claude-3-5-sonnet-20241022' });
     expect(response.provider).toBe('anthropic');
   });
 
   it('tracks usage in redis after a successful chat', async () => {
-    await AIService.chat(TENANT_ID, {
-      messages: [{ role: 'user', content: 'Hello!' }],
-      provider: 'openai',
-    });
-    expect(mockRedis.incrby).toHaveBeenCalledWith(
-      expect.stringContaining(`ai:usage:${TENANT_ID}:openai:`),
-      30,
-    );
+    await AIService.chat(TENANT_ID, { messages: [{ role: 'user', content: 'Hello!' }], provider: 'openai' });
+    expect(mockRedis.incrby).toHaveBeenCalledWith(expect.stringContaining(`ai:usage:${TENANT_ID}:openai:`), 30);
   });
 
-  it('rejects an explicit provider whose module is disabled', async () => {
-    enabledModuleIds = new Set<string>(['ai', 'ai_openai']); // anthropic off
+  it('rejects an explicit provider that is not installed', async () => {
+    installed.delete('anthropic');
     await expect(
       AIService.chat(TENANT_ID, { messages: [{ role: 'user', content: 'Hi' }], provider: 'anthropic' }),
     ).rejects.toThrow(AppError);
   });
 
-  it('throws when no provider module is enabled', async () => {
-    enabledModuleIds = new Set<string>(['ai']);
+  it('throws when no provider is installed', async () => {
+    installed.clear();
     await expect(
       AIService.chat(TENANT_ID, { messages: [{ role: 'user', content: 'Hi' }], provider: 'openai' }),
     ).rejects.toThrow(AppError);
@@ -328,7 +293,7 @@ describe('AIService.chatStream', () => {
       { messages: [{ role: 'user', content: 'Stream this' }], provider: 'openai' },
       (chunk: string) => chunks.push(chunk),
     );
-    expect(chunks).toContain('Hello');
+    expect(chunks).toContain('Hello from mock AI');
     expect(response.content).toBe('Hello from mock AI');
   });
 });
@@ -351,12 +316,7 @@ describe('AIService.complete', () => {
 
 describe('AIService.ask', () => {
   it('sends a question with a system prompt and returns a string', async () => {
-    const result = await AIService.ask(
-      TENANT_ID,
-      'What is the capital of France?',
-      'You are a geography expert.',
-      { provider: 'openai' },
-    );
+    const result = await AIService.ask(TENANT_ID, 'What is the capital of France?', 'You are a geography expert.', { provider: 'openai' });
     expect(typeof result).toBe('string');
   });
 });

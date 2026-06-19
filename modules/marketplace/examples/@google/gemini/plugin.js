@@ -6,9 +6,20 @@
 globalThis.__plugin = {
   providers: {
     'ai:provider': {
-      listModels: async () => [
-        'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-pro', 'gemini-1.5-flash', 'gemini-1.5-flash-8b',
-      ],
+      // Live model list from GET /v1beta/models; falls back to the static list on any error.
+      listModels: async (_input, host) => {
+        const FALLBACK = ['gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-pro', 'gemini-1.5-flash', 'gemini-1.5-flash-8b'];
+        try {
+          const res = await host.http.fetch('https://generativelanguage.googleapis.com/v1beta/models', {
+            method: 'GET', headers: { 'x-goog-api-key': '{{secret:apiKey}}', accept: 'application/json' },
+          });
+          if (!res || res.status >= 400) return FALLBACK;
+          const ids = (JSON.parse(res.body).models || [])
+            .map((m) => String(m.name || '').replace(/^models\//, ''))
+            .filter(Boolean);
+          return ids.length ? ids : FALLBACK;
+        } catch (e) { return FALLBACK; }
+      },
 
       chat: async (opts, host) => {
         const model = opts.model || 'gemini-2.0-flash';

@@ -38,7 +38,21 @@ export class IsolatedAIProvider extends BaseAIProvider {
   }
 
   listModels(): string[] {
-    return [...this.models]; // from approved manifest metadata — no round-trip
+    return [...this.models]; // manifest metadata — sync fallback/seed (no round-trip)
+  }
+
+  /**
+   * Live model list from the provider's API (the plugin's `listModels` op does the
+   * egress). Returns [] on any failure so the host can fall back to the manifest and
+   * choose the cache TTL — never throws on the models path.
+   */
+  async listModelsRemote(): Promise<string[]> {
+    try {
+      const out = await this.op<unknown>('listModels', {});
+      return Array.isArray(out) ? out.filter((m): m is string => typeof m === 'string' && m.length > 0) : [];
+    } catch {
+      return [];
+    }
   }
 
   async chat(options: ChatCompletionOptions): Promise<ChatCompletionResponse> {
