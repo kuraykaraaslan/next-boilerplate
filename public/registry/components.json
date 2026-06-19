@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-19T11:07:14.317Z",
+  "generatedAt": "2026-06-19T12:50:02.357Z",
   "components": [
     {
       "id": "ai_chat/ui/ai-chat-box.component",
@@ -1794,6 +1794,62 @@
       "baseName": "coupons.page"
     },
     {
+      "id": "drive/ui/drive-preview-modal.component",
+      "module": "drive",
+      "filePath": "modules/drive/ui/drive-preview-modal.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "DrivePreviewModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "drive-preview-modal.component"
+    },
+    {
+      "id": "drive/ui/drive-share-modal.component",
+      "module": "drive",
+      "filePath": "modules/drive/ui/drive-share-modal.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "DriveShareModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "drive-share-modal.component"
+    },
+    {
+      "id": "drive/ui/drive.page",
+      "module": "drive",
+      "filePath": "modules/drive/ui/drive.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "drive.page"
+    },
+    {
+      "id": "drive/ui/drive.types",
+      "module": "drive",
+      "filePath": "modules/drive/ui/drive.types.ts",
+      "kind": "ui",
+      "exports": [
+        "DriveRole",
+        "DriveNode",
+        "Breadcrumb",
+        "SystemFile",
+        "ShareView",
+        "PublicLinkView",
+        "PreviewKind",
+        "PreviewResponse",
+        "extractMessage",
+        "formatBytes",
+        "iconFor"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "drive.types"
+    },
+    {
       "id": "dynamic_page/ui/blocks-block-id.page",
       "module": "dynamic_page",
       "filePath": "modules/dynamic_page/ui/blocks-block-id.page.tsx",
@@ -3105,6 +3161,28 @@
       "baseName": "invoices.page"
     },
     {
+      "id": "marketplace/ui/developer-listing-detail.component",
+      "module": "marketplace",
+      "filePath": "modules/marketplace/ui/developer-listing-detail.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "DeveloperListingDetail"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "developer-listing-detail.component"
+    },
+    {
+      "id": "marketplace/ui/developer-listing-detail.page",
+      "module": "marketplace",
+      "filePath": "modules/marketplace/ui/developer-listing-detail.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "developer-listing-detail.page"
+    },
+    {
       "id": "marketplace/ui/developer-page.component",
       "module": "marketplace",
       "filePath": "modules/marketplace/ui/developer-page.component.tsx",
@@ -3115,6 +3193,33 @@
       "isClient": true,
       "isServer": false,
       "baseName": "developer-page.component"
+    },
+    {
+      "id": "marketplace/ui/developer-shared.component",
+      "module": "marketplace",
+      "filePath": "modules/marketplace/ui/developer-shared.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "Publisher",
+        "Listing",
+        "ListingStatus",
+        "ListingVersion",
+        "ListingDetail",
+        "extractMessage",
+        "inputCls",
+        "Field",
+        "StatusPill",
+        "VersionStatusBadge",
+        "LifecycleLegend",
+        "StatCard",
+        "CLIENT_SLUG_RE",
+        "CLIENT_RESERVED_SLUGS",
+        "CLIENT_SEMVER_RE",
+        "formatDate"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "developer-shared.component"
     },
     {
       "id": "marketplace/ui/developer.page",

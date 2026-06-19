@@ -9,6 +9,7 @@
     "./server/entities/publisher.entity": "./server/entities/publisher.entity.ts",
     "./server/entities/published_module.entity": "./server/entities/published_module.entity.ts",
     "./server/entities/published_module_version.entity": "./server/entities/published_module_version.entity.ts",
+    "./server/entities/community_install.entity": "./server/entities/community_install.entity.ts",
     "./server/marketplace.service.next": "./server/marketplace.service.next.ts",
     "./server/publish.service.next": "./server/publish.service.next.ts",
     "./server/marketplace.route": "./server/marketplace.route.ts",
@@ -17,6 +18,8 @@
     "./server/publisher.route": "./server/publisher.route.ts",
     "./server/listings.route": "./server/listings.route.ts",
     "./server/listings-versions.route": "./server/listings-versions.route.ts",
+    "./server/listing-detail.route": "./server/listing-detail.route.ts",
+    "./server/asset-upload.route": "./server/asset-upload.route.ts",
     "./server/community.route": "./server/community.route.ts",
     "./server/community-item.route": "./server/community-item.route.ts",
     "./server/community-config.route": "./server/community-config.route.ts",
@@ -32,6 +35,9 @@
     "./ui/marketplace-page.component": "./ui/marketplace-page.component.tsx",
     "./ui/developer.page": "./ui/developer.page.tsx",
     "./ui/developer-page.component": "./ui/developer-page.component.tsx",
+    "./ui/developer-listing-detail.page": "./ui/developer-listing-detail.page.tsx",
+    "./ui/developer-listing-detail.component": "./ui/developer-listing-detail.component.tsx",
+    "./ui/developer-shared.component": "./ui/developer-shared.component.tsx",
     "./ui/review.page": "./ui/review.page.tsx",
     "./ui/review-page.component": "./ui/review-page.component.tsx"
   }

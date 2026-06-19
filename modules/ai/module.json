@@ -38,7 +38,7 @@
       "label": "AI",
       "href": "/admin/ai",
       "icon": "fas fa-robot",
-      "group": "Developer",
+      "group": "AI",
       "workspace": "system",
       "order": 10,
       "scope": "tenant"

@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-19T11:07:14.317Z",
+  "generatedAt": "2026-06-19T12:50:02.357Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -984,6 +984,7 @@
         "providers": [],
         "jobs": [],
         "entities": [
+          "community_install.entity.ts",
           "module_install.entity.ts",
           "published_module.entity.ts",
           "published_module_version.entity.ts",
@@ -1007,8 +1008,8 @@
           "label": "Developer",
           "href": "/admin/developer",
           "icon": "fas fa-code",
-          "group": "Configuration",
-          "workspace": "system",
+          "group": "Developer",
+          "workspace": "developer",
           "order": 6,
           "scope": "tenant"
         },
@@ -1031,6 +1032,10 @@
         {
           "path": "/admin/developer",
           "component": "marketplace/ui/developer.page"
+        },
+        {
+          "path": "/admin/developer/[listingId]",
+          "component": "marketplace/ui/developer-listing-detail.page"
         },
         {
           "path": "/admin/marketplace/review",
@@ -1063,8 +1068,16 @@
           "handler": "marketplace/server/listings.route"
         },
         {
+          "path": "/api/marketplace/listings/[listingId]",
+          "handler": "marketplace/server/listing-detail.route"
+        },
+        {
           "path": "/api/marketplace/listings/[listingId]/versions",
           "handler": "marketplace/server/listings-versions.route"
+        },
+        {
+          "path": "/api/marketplace/assets",
+          "handler": "marketplace/server/asset-upload.route"
         },
         {
           "path": "/api/marketplace/review",
@@ -1105,6 +1118,7 @@
         "./server/entities/publisher.entity",
         "./server/entities/published_module.entity",
         "./server/entities/published_module_version.entity",
+        "./server/entities/community_install.entity",
         "./server/marketplace.service.next",
         "./server/publish.service.next",
         "./server/marketplace.route",
@@ -1113,6 +1127,8 @@
         "./server/publisher.route",
         "./server/listings.route",
         "./server/listings-versions.route",
+        "./server/listing-detail.route",
+        "./server/asset-upload.route",
         "./server/community.route",
         "./server/community-item.route",
         "./server/community-config.route",
@@ -1128,6 +1144,9 @@
         "./ui/marketplace-page.component",
         "./ui/developer.page",
         "./ui/developer-page.component",
+        "./ui/developer-listing-detail.page",
+        "./ui/developer-listing-detail.component",
+        "./ui/developer-shared.component",
         "./ui/review.page",
         "./ui/review-page.component"
       ],
@@ -6104,6 +6123,212 @@
       "readme": "# Media Gallery Module\n\nPolymorphic ordered image gallery attachable to any store entity (`store_product`, `store_category`, `store_bundle`, `store_variant`). Each gallery item is a thin **wrapper around a `storage.UploadedFile` row** — it carries only the gallery-side overlay (`altText`, `title`, `sortOrder`, `isPrimary`) while the photo bytes stay authoritative on the storage row.\n\n---\n\n## Entities\n\n| Entity | Table | Description |\n|---|---|---|\n| `MediaGallery` | `media_galleries` | One per `(tenantId, entityType, entityId)` triple (`@Unique`). Owns the items. |\n| `MediaGalleryItem` | `media_gallery_items` | Wrapper around an `UploadedFile`. Holds `uploadedFileId` (FK → `UploadedFile`, `onDelete: CASCADE`, same tenant DB) plus `altText`, `title`, `sortOrder`, `isPrimary`. |\n\nBoth live in the **tenant DB**. Every row carries a `tenantId` column.\n\nThe actual photo data (`url`, `key`, `mimeType`, `size`, `bucket`, `provider`) lives on `UploadedFile` and is the single source of truth. Read paths join the two and return a `MediaGalleryItemView` (`item fields … + url + mimeType`) so the client can render without a second hop to `/api/storage`.\n\n### Why a wrapper, not a copy?\n\n`UploadedFile` already carries the auditable storage truth (bucket, provider, soft-delete timestamp, billing-relevant `size`). Duplicating `url`/`mimeType` on `MediaGalleryItem` would drift the moment a CDN base changes or a file is soft-deleted. The wrapper keeps gallery-only state on the gallery row and lets the storage row stay authoritative.\n\n---\n\n## Service — `MediaGalleryService`\n\nAll methods are `static`, resolve the per-tenant DataSource via `tenantDataSourceFor(tenantId)`, and scope every read/write by `tenantId`.\n\n| Method | Responsibility |\n|---|---|\n| `getOrCreate(tenantId, entityType, entityId)` | Find or lazily create the gallery for the `(tenantId, entityType, entityId)` triple. |\n| `listItems(tenantId, entityType, entityId)` | Return the gallery with its items as `MediaGalleryItemView[]` (joined `url`/`mimeType`), ordered `isPrimary DESC, sortOrder ASC`. Wrapped in a Redis `singleFlight` on the cache key. |\n| `addItem(tenantId, entityType, entityId, dto)` | Validate the `uploadedFileId` belongs to the tenant (else `UPLOADED_FILE_NOT_FOUND`), unset any existing primary if `isPrimary`, insert the item, invalidate the cache. |\n| `updateItem(tenantId, itemId, dto)` | Patch overlay fields (`altText`/`title`/`sortOrder`/`isPrimary`); demotes the existing primary when `isPrimary` is set. Invalidates the cache. |\n| `removeItem(tenantId, itemId)` | Delete the item row (the `UploadedFile` is untouched). Invalidates the cache. |\n| `reorder(tenantId, galleryId, dto)` | Rewrite `sortOrder` from the position of each id in `orderedIds`. Invalidates the cache. |\n| `_invalidate` *(private)* | Resolve the gallery, then `redis.del` its cache key. |\n\n### Flow (UI → API)\n\n1. UI uploads the raw file → `POST /tenant/:tenantId/api/storage` (returns `uploadedFileId`).\n2. UI attaches the upload to a gallery → `POST …/media-gallery/:entityType/:entityId/items` with `{ uploadedFileId, altText?, title?, sortOrder?, isPrimary? }`.\n3. UI lists → `GET …/media-gallery/:entityType/:entityId/items` returns items with resolved `url`/`mimeType`.\n\n### Cache\n\n`gallery:<tenantId>:<entityType>:<entityId>` (Redis single-flight) — invalidated on add/update/remove/reorder.\n\n---\n\n## API Routes\n\nAll routes are tenant-scoped, rate-limited (`Limiter.checkRateLimit`), and require **tenant `ADMIN`** (`authenticateTenantByRequest`, `requiredTenantRole: 'ADMIN'`).\n\n| Method | Path | Description |\n|---|---|---|\n| GET | `/tenant/[tenantId]/api/media-gallery/[entityType]/[entityId]/items` | List the gallery + items (`MediaGalleryItemView`). |\n| POST | `/tenant/[tenantId]/api/media-gallery/[entityType]/[entityId]/items` | Add an item (`AddGalleryItemDTO`). Returns `201`. |\n| PUT | `/tenant/[tenantId]/api/media-gallery/[entityType]/[entityId]/items/reorder` | Reorder items — body merges `{ galleryId }` with `ReorderGalleryItemsDTO`. |\n| PUT | `/tenant/[tenantId]/api/media-gallery/items/[itemId]` | Update an item (`UpdateGalleryItemDTO`). |\n| DELETE | `/tenant/[tenantId]/api/media-gallery/items/[itemId]` | Remove an item. |\n\n### DTOs\n\n| DTO | Fields |\n|---|---|\n| `AddGalleryItemDTO` | `uploadedFileId` (uuid), `altText?` (≤300), `title?` (≤200), `sortOrder` (int ≥0, default 0), `isPrimary` (bool, default false) |\n| `UpdateGalleryItemDTO` | `altText?`, `title?`, `sortOrder?`, `isPrimary?` (all optional) |\n| `ReorderGalleryItemsDTO` | `orderedIds` (uuid[], min 1) |\n\n`GalleryEntityTypeEnum` (`media_gallery.enums.ts`) constrains `entityType` to `store_category`, `store_product`, `store_bundle`, `store_variant`.\n\n---\n\n## Settings\n\nThis module exposes **no per-tenant or system settings** and no provider/policy branching. All behavior is uniform across tenants; isolation is purely data-level via `tenantId`.\n\n---\n\n## Tenant Variability\n\n> What varies per tenant in this module — and what could. Audited 2026-06-03.\n\nA polymorphic ordered image-gallery module that attaches tenant-scoped galleries/items (overlay on storage UploadedFile rows) to store entities; fully per-tenant in data (every row carries tenantId and is accessed via tenantDataSourceFor) but exposes no configurable per-tenant or system settings and no provider/policy branching.\n\n### Tenant-scoped data\n\n| Entity | Table | Tenant-variable columns |\n|---|---|---|\n| `MediaGallery` | `media_galleries` | entityType, entityId |\n| `MediaGalleryItem` | `media_gallery_items` | galleryId, uploadedFileId, altText, title, sortOrder, isPrimary |\n\nAll rows isolated by `tenantId` via the per-tenant DataSource.\n\n### Per-tenant behavior\n\n- `media_gallery.service.ts` — Every method (getOrCreate/listItems/addItem/updateItem/removeItem/reorder/_invalidate) resolves the per-tenant DB via tenantDataSourceFor(tenantId) and scopes all reads/writes by tenantId, so each tenant sees and mutates only its own galleries, items, and the wrapped UploadedFile rows; the redis cache key (gallery:{tenantId}:{entityType}:{entityId}) is also namespaced per tenant. This is uniform tenant isolation, not setting-driven branching.\n\n### Candidates (global / hardcoded today → could be per-tenant)\n\n| What | Where | Why per-tenant | Suggested key |\n|---|---|---|---|\n| Allowed gallery entity types are a globally hardcoded enum (store_category, store_product, store_bundle, store_variant) with no way for a tenant to enable a different set | `media_gallery.enums.ts:GalleryEntityTypeEnum` | Which entity types a tenant can attach galleries to is a plausible per-tenant feature/policy knob; today it is a single global zod enum validated identically for all tenants. Could legitimately be global if entity types are platform-defined, but it is the only obvious variability gap. | `galleryAllowedEntityTypes` |\n| No per-gallery item-count cap; addItem appends items with no maximum enforced | `media_gallery.service.ts:addItem` | A max-images-per-gallery limit is a common per-tenant/plan policy (e.g. free vs paid tiers); the service applies no limit at all today, so all tenants get unbounded items. | `galleryMaxItemsPerGallery` |\n\n---\n\n## Dependencies\n\n`db`, `redis`, `storage` (declared in `module.json`). Items FK into `storage.UploadedFile` in the same tenant DB.\n"
     },
     {
+      "id": "drive",
+      "name": "Drive",
+      "version": "1.0.0",
+      "description": "Google Drive-like file manager over the storage module: nested folders, internal + public-link sharing, inline preview of common file types, trash bin (soft-delete + restore), a read-only view of all tenant storage objects, and drive:* extension points for community plugins (preview/action/source/lifecycle).",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/drive",
+      "dir": "modules/drive",
+      "icon": "fas fa-folder-open",
+      "tags": [
+        "content",
+        "files",
+        "storage"
+      ],
+      "priority": 38,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "storage",
+          "common",
+          "env"
+        ],
+        "optional": [
+          "marketplace"
+        ]
+      },
+      "exports": {
+        "services": [
+          "drive.access.service.ts",
+          "drive.crud.service.ts",
+          "drive.preview.service.ts",
+          "drive.share.service.ts",
+          "drive.system.service.ts",
+          "drive.upload.service.ts"
+        ],
+        "dtos": [
+          "drive.dto.ts"
+        ],
+        "enums": [
+          "drive.enums.ts"
+        ],
+        "messageKeys": [
+          "drive.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "drive_file.entity.ts",
+          "drive_public_link.entity.ts",
+          "drive_share.entity.ts"
+        ]
+      },
+      "enabled": true,
+      "menu": [
+        {
+          "id": "drive",
+          "label": "Drive",
+          "href": "/admin/drive",
+          "icon": "fas fa-folder-open",
+          "group": "Drive",
+          "workspace": "content",
+          "order": 20,
+          "scope": "tenant"
+        }
+      ],
+      "adminRoutes": [
+        {
+          "path": "/admin/drive",
+          "component": "drive/ui/drive.page"
+        }
+      ],
+      "apiRoutes": [
+        {
+          "path": "/api/drive/system/[uploadedFileId]/adopt",
+          "handler": "drive/server/drive-system-uploaded-file-id-adopt.route"
+        },
+        {
+          "path": "/api/drive/system",
+          "handler": "drive/server/drive-system.route"
+        },
+        {
+          "path": "/api/drive/sources",
+          "handler": "drive/server/drive-sources.route"
+        },
+        {
+          "path": "/api/drive/trash",
+          "handler": "drive/server/drive-trash.route"
+        },
+        {
+          "path": "/api/drive/public/[token]",
+          "handler": "drive/server/drive-public-token.route"
+        },
+        {
+          "path": "/api/drive/upload",
+          "handler": "drive/server/drive-upload.route"
+        },
+        {
+          "path": "/api/drive/[driveFileId]/actions/[actionKey]",
+          "handler": "drive/server/drive-drive-file-id-actions-action-key.route"
+        },
+        {
+          "path": "/api/drive/[driveFileId]/actions",
+          "handler": "drive/server/drive-drive-file-id-actions.route"
+        },
+        {
+          "path": "/api/drive/[driveFileId]/restore",
+          "handler": "drive/server/drive-drive-file-id-restore.route"
+        },
+        {
+          "path": "/api/drive/[driveFileId]/permanent",
+          "handler": "drive/server/drive-drive-file-id-permanent.route"
+        },
+        {
+          "path": "/api/drive/[driveFileId]/preview",
+          "handler": "drive/server/drive-drive-file-id-preview.route"
+        },
+        {
+          "path": "/api/drive/[driveFileId]/shares",
+          "handler": "drive/server/drive-drive-file-id-shares.route"
+        },
+        {
+          "path": "/api/drive/[driveFileId]/public-link",
+          "handler": "drive/server/drive-drive-file-id-public-link.route"
+        },
+        {
+          "path": "/api/drive/[driveFileId]",
+          "handler": "drive/server/drive-drive-file-id.route"
+        },
+        {
+          "path": "/api/drive",
+          "handler": "drive/server/drive.route"
+        }
+      ],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [
+        {
+          "id": "drive:preview",
+          "kind": "provider",
+          "description": "Custom previewer/renderer for specific MIME types or groups (e.g. office, CAD, 3D, markdown)."
+        },
+        {
+          "id": "drive:action",
+          "kind": "provider",
+          "description": "Custom per-file action surfaced in the context menu (e.g. OCR, convert-to-PDF, export)."
+        },
+        {
+          "id": "drive:source",
+          "kind": "provider",
+          "description": "External storage backend mounted as a virtual Drive folder (Google Drive, Dropbox, OneDrive)."
+        },
+        {
+          "id": "drive:lifecycle",
+          "kind": "hook",
+          "description": "Lifecycle hooks for upload/delete/move events (thumbnails, indexing, antivirus, …)."
+        }
+      ],
+      "extensions": [],
+      "pkgExports": [
+        "./server/entities/drive_file.entity",
+        "./server/entities/drive_share.entity",
+        "./server/entities/drive_public_link.entity",
+        "./server/drive.enums",
+        "./server/drive.messages",
+        "./server/drive.types",
+        "./server/drive.dto",
+        "./server/drive.access.service",
+        "./server/drive.preview.service",
+        "./server/drive.crud.service",
+        "./server/drive.upload.service",
+        "./server/drive.share.service",
+        "./server/drive.system.service",
+        "./server/drive.plugin-types",
+        "./server/drive.plugins",
+        "./server/drive.route-helpers",
+        "./server/drive.route",
+        "./server/drive-upload.route",
+        "./server/drive-trash.route",
+        "./server/drive-system.route",
+        "./server/drive-system-uploaded-file-id-adopt.route",
+        "./server/drive-sources.route",
+        "./server/drive-public-token.route",
+        "./server/drive-drive-file-id.route",
+        "./server/drive-drive-file-id-restore.route",
+        "./server/drive-drive-file-id-permanent.route",
+        "./server/drive-drive-file-id-preview.route",
+        "./server/drive-drive-file-id-shares.route",
+        "./server/drive-drive-file-id-public-link.route",
+        "./server/drive-drive-file-id-actions.route",
+        "./server/drive-drive-file-id-actions-action-key.route",
+        "./ui/drive.page",
+        "./ui/drive.types",
+        "./ui/drive-preview-modal.component",
+        "./ui/drive-share-modal.component",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true,
+      "readme": "# Drive\n\nA Google Drive-like file manager built **on top of the `storage` module**. Drive\ndoes not move bytes itself — it stores a lightweight overlay (`drive_files`) over\nthe storage layer's `UploadedFile` objects and adds the things a file manager\nneeds: folders, sharing, preview, and a trash bin.\n\n## Features\n\n- **Nested folders** — `drive_files` rows form a tree via `parentId`; files\n  reference a storage object (`uploadedFileId` + `storageKey`).\n- **Sharing**\n  - *Internal*: share a node with another tenant user at `viewer` / `editor` /\n    `owner` (`drive_shares`). Access inherits down the folder tree.\n  - *Public link*: an unguessable, optionally-expiring token grants anonymous\n    `viewer`/`editor` access to a single file (`drive_public_links`).\n- **Preview** — short-lived presigned URLs power inline preview of images, PDFs,\n  text, audio and video. Other types are download-only.\n- **Trash bin** — delete soft-deletes a node (and its subtree) via\n  `@DeleteDateColumn`; restore brings it back; \"permanent\" purges the rows *and*\n  the underlying storage bytes.\n- **Common / System Files** — an admin-only, read-only view of *every* storage\n  object the tenant owns (avatars, invoices, gallery, …), with an \"adopt to\n  Drive\" action.\n\n## Architecture\n\n```\nui/drive.page.tsx\n        │  fetch\n        ▼\n/api/drive/*  (route handlers)\n        │  auth (tenant_session) + drive.access.service\n        ▼\ndrive.crud / upload / share / system services\n        │\n        ├── StorageService  (upload / presign / delete bytes)\n        └── drive_files / drive_shares / drive_public_links  (overlay metadata)\n```\n\nAuthorization is centralized in `drive.access.service`: `resolveEffectiveRole`\nis a pure function (unit-tested) and `authorizeNode` walks the ancestor chain so\nownership/shares cascade. Tenant `ADMIN`/`OWNER` always resolve to `owner`.\n\n## Extension points (plugins)\n\nDrive hosts four `drive:*` extension points that community/external plugins\ncontribute into. Contributions run in the platform's sandboxed plugin isolate\nand are reached host-side through the generic `listExternalContributions`\nbridge — Drive never imports plugin code directly, and a plugin only ever\nreceives a short-lived **presigned URL**, never a storage secret.\n\n| Point            | Kind     | Purpose                                                     |\n| ---------------- | -------- | ----------------------------------------------------------- |\n| `drive:preview`  | provider | Custom viewer for a MIME type/group (office, CAD, markdown) |\n| `drive:action`   | provider | Custom per-file action (OCR, convert, export)               |\n| `drive:source`   | provider | Mount an external backend as a virtual folder               |\n| `drive:lifecycle`| hook     | React to upload/delete/move (thumbnails, indexing, AV)      |\n\nThe host-side contracts live in `server/drive.plugin-types.ts`; the wiring is in\n`server/drive.plugins.ts`. See [PLUGIN_AUTHORING.md](./PLUGIN_AUTHORING.md) for a\nworked example of writing a satellite plugin module.\n\n## Notes / out of scope\n\n- Drive inherits the storage layer's upload validation (size/extension/MIME, and\n  the installed storage provider's allowlist). Supporting more file types is a\n  storage-side concern, not a Drive change.\n- Versioning, comments, drag-and-drop, and quota indicators are intentionally\n  left for a later iteration.\n"
+    },
+    {
       "id": "api_key",
       "name": "API Key",
       "version": "1.0.0",
@@ -6160,7 +6385,7 @@
           "href": "/admin/api-keys",
           "icon": "fas fa-key",
           "group": "Developer",
-          "workspace": "system",
+          "workspace": "developer",
           "order": 10,
           "scope": "tenant"
         }
@@ -6733,8 +6958,8 @@
           "label": "Webhooks",
           "href": "/admin/webhooks",
           "icon": "fas fa-plug",
-          "group": "Security",
-          "workspace": "system",
+          "group": "Developer",
+          "workspace": "developer",
           "order": 10,
           "scope": "tenant"
         }
@@ -8355,7 +8580,7 @@
           "label": "AI",
           "href": "/admin/ai",
           "icon": "fas fa-robot",
-          "group": "Developer",
+          "group": "AI",
           "workspace": "system",
           "order": 10,
           "scope": "tenant"
@@ -8758,7 +8983,7 @@
           "label": "AI Chat",
           "href": "/admin/ai/chat",
           "icon": "fas fa-comments",
-          "group": "Developer",
+          "group": "AI",
           "workspace": "system",
           "order": 11,
           "scope": "tenant"
@@ -8871,7 +9096,7 @@
           "href": "/admin/integrations",
           "icon": "fas fa-plug",
           "group": "Developer",
-          "workspace": "system",
+          "workspace": "developer",
           "order": 10,
           "scope": "tenant"
         }
@@ -9220,7 +9445,7 @@
           "href": "/admin/api-docs",
           "icon": "fas fa-book",
           "group": "Developer",
-          "workspace": "system",
+          "workspace": "developer",
           "order": 10,
           "scope": "tenant"
         }
@@ -9728,6 +9953,23 @@
       "relations": []
     },
     {
+      "name": "CommunityInstall",
+      "filePath": "modules/marketplace/server/entities/community_install.entity.ts",
+      "module": "marketplace",
+      "schema": "system",
+      "tableName": "marketplace_community_installs",
+      "columns": [
+        "installId",
+        "listingId",
+        "tenantId",
+        "versionId",
+        "active",
+        "installedAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "ConnectedApp",
       "filePath": "modules/integrations_hub/server/entities/connected_app.entity.ts",
       "module": "integrations_hub",
@@ -9894,6 +10136,67 @@
       "relations": [
         "tenant"
       ]
+    },
+    {
+      "name": "DriveFile",
+      "filePath": "modules/drive/server/entities/drive_file.entity.ts",
+      "module": "drive",
+      "schema": "system",
+      "tableName": "drive_files",
+      "columns": [
+        "driveFileId",
+        "tenantId",
+        "ownerUserId",
+        "parentId",
+        "type",
+        "name",
+        "uploadedFileId",
+        "storageKey",
+        "mimeType",
+        "size",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "DrivePublicLink",
+      "filePath": "modules/drive/server/entities/drive_public_link.entity.ts",
+      "module": "drive",
+      "schema": "system",
+      "tableName": "drive_public_links",
+      "columns": [
+        "drivePublicLinkId",
+        "tenantId",
+        "driveFileId",
+        "token",
+        "role",
+        "expiresAt",
+        "createdByUserId",
+        "createdAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "DriveShare",
+      "filePath": "modules/drive/server/entities/drive_share.entity.ts",
+      "module": "drive",
+      "schema": "system",
+      "tableName": "drive_shares",
+      "columns": [
+        "driveShareId",
+        "tenantId",
+        "driveFileId",
+        "sharedWithUserId",
+        "role",
+        "createdByUserId",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
     },
     {
       "name": "DynamicCollection",
@@ -14046,6 +14349,62 @@
       "baseName": "coupons.page"
     },
     {
+      "id": "drive/ui/drive-preview-modal.component",
+      "module": "drive",
+      "filePath": "modules/drive/ui/drive-preview-modal.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "DrivePreviewModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "drive-preview-modal.component"
+    },
+    {
+      "id": "drive/ui/drive-share-modal.component",
+      "module": "drive",
+      "filePath": "modules/drive/ui/drive-share-modal.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "DriveShareModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "drive-share-modal.component"
+    },
+    {
+      "id": "drive/ui/drive.page",
+      "module": "drive",
+      "filePath": "modules/drive/ui/drive.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "drive.page"
+    },
+    {
+      "id": "drive/ui/drive.types",
+      "module": "drive",
+      "filePath": "modules/drive/ui/drive.types.ts",
+      "kind": "ui",
+      "exports": [
+        "DriveRole",
+        "DriveNode",
+        "Breadcrumb",
+        "SystemFile",
+        "ShareView",
+        "PublicLinkView",
+        "PreviewKind",
+        "PreviewResponse",
+        "extractMessage",
+        "formatBytes",
+        "iconFor"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "drive.types"
+    },
+    {
       "id": "dynamic_page/ui/blocks-block-id.page",
       "module": "dynamic_page",
       "filePath": "modules/dynamic_page/ui/blocks-block-id.page.tsx",
@@ -15357,6 +15716,28 @@
       "baseName": "invoices.page"
     },
     {
+      "id": "marketplace/ui/developer-listing-detail.component",
+      "module": "marketplace",
+      "filePath": "modules/marketplace/ui/developer-listing-detail.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "DeveloperListingDetail"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "developer-listing-detail.component"
+    },
+    {
+      "id": "marketplace/ui/developer-listing-detail.page",
+      "module": "marketplace",
+      "filePath": "modules/marketplace/ui/developer-listing-detail.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "developer-listing-detail.page"
+    },
+    {
       "id": "marketplace/ui/developer-page.component",
       "module": "marketplace",
       "filePath": "modules/marketplace/ui/developer-page.component.tsx",
@@ -15367,6 +15748,33 @@
       "isClient": true,
       "isServer": false,
       "baseName": "developer-page.component"
+    },
+    {
+      "id": "marketplace/ui/developer-shared.component",
+      "module": "marketplace",
+      "filePath": "modules/marketplace/ui/developer-shared.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "Publisher",
+        "Listing",
+        "ListingStatus",
+        "ListingVersion",
+        "ListingDetail",
+        "extractMessage",
+        "inputCls",
+        "Field",
+        "StatusPill",
+        "VersionStatusBadge",
+        "LifecycleLegend",
+        "StatCard",
+        "CLIENT_SLUG_RE",
+        "CLIENT_RESERVED_SLUGS",
+        "CLIENT_SEMVER_RE",
+        "formatDate"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "developer-shared.component"
     },
     {
       "id": "marketplace/ui/developer.page",

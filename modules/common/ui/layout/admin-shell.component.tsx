@@ -14,6 +14,7 @@ import { moduleRegistry } from '@kuraykaraaslan/common/server/module-registry';
 import { useModuleEnabled } from '@kuraykaraaslan/common/ui/module-enabled.context.component';
 import { resolveIcon, DEFAULT_ICON } from '@kuraykaraaslan/common/ui/icon-map';
 import { WorkspaceSwitcher } from '@kuraykaraaslan/common/ui/layout/workspace-switcher.component';
+import { useTenantBranding } from '@kuraykaraaslan/tenant_branding/ui/use-tenant-branding.hook';
 import {
   WORKSPACES,
   FALLBACK_WORKSPACE,
@@ -50,9 +51,13 @@ export function AdminShell({ children, tenantId, tenantName }: AdminShellProps) 
   // narrows it. Persisted in localStorage, scoped by root/tenant.
   const [workspaceId, setWorkspaceId] = useState<string | undefined>(undefined);
 
-  // Root tenant keeps the fixed "Platform Admin" label; every other tenant shows
-  // its own name (falling back to a generic label if the name isn't available).
-  const shellTitle = isRoot ? 'Platform Admin' : (tenantName || 'Tenant Admin');
+  // Tenant branding (name + logos) drives the shell header. The configured brand
+  // name wins for every tenant — including root, where it replaces the default
+  // "Platform Admin" label. Falls back to the prop/tenant name, then a generic
+  // label, only while branding is unloaded or unconfigured.
+  const branding = useTenantBranding(tenantId);
+  const shellTitle =
+    branding.name || (isRoot ? 'Platform Admin' : (tenantName || 'Tenant Admin'));
 
   const [userEmail, setUserEmail] = useState('');
   const [userName, setUserName]   = useState('');
@@ -148,7 +153,7 @@ export function AdminShell({ children, tenantId, tenantName }: AdminShellProps) 
   // Keep the canonical sidebar section order regardless of manifest scan order.
   const GROUP_ORDER = [
     'Overview', 'Content', 'Blog', 'Management', 'Commerce', 'Operations',
-    'Insights', 'Store', 'Security', 'Developer', 'Configuration', 'Account',
+    'Insights', 'AI', 'Store', 'Security', 'Developer', 'Configuration', 'Account',
     'Plugins', 'Platform', 'Platform System',
   ];
   navGroups.sort(
@@ -214,7 +219,17 @@ export function AdminShell({ children, tenantId, tenantName }: AdminShellProps) 
   const profileHref = `/tenant/${tenantId}/admin/me`;
   const logoutHref = `/tenant/${tenantId}/auth/logout`;
 
-  const logoIcon = (
+  // Branded logo when configured: light variant in light mode, dark variant in
+  // dark mode (either falls back to the other when only one is set). Otherwise
+  // the default shield glyph stands in until branding is loaded/configured.
+  const lightLogo = branding.logoLight || branding.logoDark;
+  const darkLogo = branding.logoDark || branding.logoLight;
+  const logoIcon = lightLogo ? (
+    <span className="flex h-7 w-7 items-center justify-center shrink-0">
+      <img src={lightLogo} alt={shellTitle} className="h-7 w-7 object-contain dark:hidden" />
+      <img src={darkLogo} alt={shellTitle} className="hidden h-7 w-7 object-contain dark:block" />
+    </span>
+  ) : (
     <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-fg text-xs font-bold shrink-0">
       <FontAwesomeIcon icon={faShieldHalved} aria-hidden />
     </span>

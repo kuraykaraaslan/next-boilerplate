@@ -46,8 +46,8 @@
       "label": "Developer",
       "href": "/admin/developer",
       "icon": "fas fa-code",
-      "group": "Configuration",
-      "workspace": "system",
+      "group": "Developer",
+      "workspace": "developer",
       "order": 6,
       "scope": "tenant"
     },
@@ -73,6 +73,10 @@
     {
       "path": "/admin/developer",
       "component": "marketplace/ui/developer.page"
+    },
+    {
+      "path": "/admin/developer/[listingId]",
+      "component": "marketplace/ui/developer-listing-detail.page"
     },
     {
       "path": "/admin/marketplace/review",
@@ -105,8 +109,16 @@
       "handler": "marketplace/server/listings.route"
     },
     {
+      "path": "/api/marketplace/listings/[listingId]",
+      "handler": "marketplace/server/listing-detail.route"
+    },
+    {
       "path": "/api/marketplace/listings/[listingId]/versions",
       "handler": "marketplace/server/listings-versions.route"
+    },
+    {
+      "path": "/api/marketplace/assets",
+      "handler": "marketplace/server/asset-upload.route"
     },
     {
       "path": "/api/marketplace/review",

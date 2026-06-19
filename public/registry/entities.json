@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-19T11:07:14.317Z",
+  "generatedAt": "2026-06-19T12:50:02.357Z",
   "entities": [
     {
       "name": "Agreement",
@@ -307,6 +307,23 @@
       "relations": []
     },
     {
+      "name": "CommunityInstall",
+      "filePath": "modules/marketplace/server/entities/community_install.entity.ts",
+      "module": "marketplace",
+      "schema": "system",
+      "tableName": "marketplace_community_installs",
+      "columns": [
+        "installId",
+        "listingId",
+        "tenantId",
+        "versionId",
+        "active",
+        "installedAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "ConnectedApp",
       "filePath": "modules/integrations_hub/server/entities/connected_app.entity.ts",
       "module": "integrations_hub",
@@ -473,6 +490,67 @@
       "relations": [
         "tenant"
       ]
+    },
+    {
+      "name": "DriveFile",
+      "filePath": "modules/drive/server/entities/drive_file.entity.ts",
+      "module": "drive",
+      "schema": "system",
+      "tableName": "drive_files",
+      "columns": [
+        "driveFileId",
+        "tenantId",
+        "ownerUserId",
+        "parentId",
+        "type",
+        "name",
+        "uploadedFileId",
+        "storageKey",
+        "mimeType",
+        "size",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "DrivePublicLink",
+      "filePath": "modules/drive/server/entities/drive_public_link.entity.ts",
+      "module": "drive",
+      "schema": "system",
+      "tableName": "drive_public_links",
+      "columns": [
+        "drivePublicLinkId",
+        "tenantId",
+        "driveFileId",
+        "token",
+        "role",
+        "expiresAt",
+        "createdByUserId",
+        "createdAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "DriveShare",
+      "filePath": "modules/drive/server/entities/drive_share.entity.ts",
+      "module": "drive",
+      "schema": "system",
+      "tableName": "drive_shares",
+      "columns": [
+        "driveShareId",
+        "tenantId",
+        "driveFileId",
+        "sharedWithUserId",
+        "role",
+        "createdByUserId",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
     },
     {
       "name": "DynamicCollection",

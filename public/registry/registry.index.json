@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-19T11:07:14.317Z",
+  "generatedAt": "2026-06-19T12:50:02.357Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -973,6 +973,7 @@
         "providers": [],
         "jobs": [],
         "entities": [
+          "community_install.entity.ts",
           "module_install.entity.ts",
           "published_module.entity.ts",
           "published_module_version.entity.ts",
@@ -996,8 +997,8 @@
           "label": "Developer",
           "href": "/admin/developer",
           "icon": "fas fa-code",
-          "group": "Configuration",
-          "workspace": "system",
+          "group": "Developer",
+          "workspace": "developer",
           "order": 6,
           "scope": "tenant"
         },
@@ -1020,6 +1021,10 @@
         {
           "path": "/admin/developer",
           "component": "marketplace/ui/developer.page"
+        },
+        {
+          "path": "/admin/developer/[listingId]",
+          "component": "marketplace/ui/developer-listing-detail.page"
         },
         {
           "path": "/admin/marketplace/review",
@@ -1052,8 +1057,16 @@
           "handler": "marketplace/server/listings.route"
         },
         {
+          "path": "/api/marketplace/listings/[listingId]",
+          "handler": "marketplace/server/listing-detail.route"
+        },
+        {
           "path": "/api/marketplace/listings/[listingId]/versions",
           "handler": "marketplace/server/listings-versions.route"
+        },
+        {
+          "path": "/api/marketplace/assets",
+          "handler": "marketplace/server/asset-upload.route"
         },
         {
           "path": "/api/marketplace/review",
@@ -1094,6 +1107,7 @@
         "./server/entities/publisher.entity",
         "./server/entities/published_module.entity",
         "./server/entities/published_module_version.entity",
+        "./server/entities/community_install.entity",
         "./server/marketplace.service.next",
         "./server/publish.service.next",
         "./server/marketplace.route",
@@ -1102,6 +1116,8 @@
         "./server/publisher.route",
         "./server/listings.route",
         "./server/listings-versions.route",
+        "./server/listing-detail.route",
+        "./server/asset-upload.route",
         "./server/community.route",
         "./server/community-item.route",
         "./server/community-config.route",
@@ -1117,6 +1133,9 @@
         "./ui/marketplace-page.component",
         "./ui/developer.page",
         "./ui/developer-page.component",
+        "./ui/developer-listing-detail.page",
+        "./ui/developer-listing-detail.component",
+        "./ui/developer-shared.component",
         "./ui/review.page",
         "./ui/review-page.component"
       ],
@@ -6046,6 +6065,211 @@
       "hasNextLayer": true
     },
     {
+      "id": "drive",
+      "name": "Drive",
+      "version": "1.0.0",
+      "description": "Google Drive-like file manager over the storage module: nested folders, internal + public-link sharing, inline preview of common file types, trash bin (soft-delete + restore), a read-only view of all tenant storage objects, and drive:* extension points for community plugins (preview/action/source/lifecycle).",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/drive",
+      "dir": "modules/drive",
+      "icon": "fas fa-folder-open",
+      "tags": [
+        "content",
+        "files",
+        "storage"
+      ],
+      "priority": 38,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "storage",
+          "common",
+          "env"
+        ],
+        "optional": [
+          "marketplace"
+        ]
+      },
+      "exports": {
+        "services": [
+          "drive.access.service.ts",
+          "drive.crud.service.ts",
+          "drive.preview.service.ts",
+          "drive.share.service.ts",
+          "drive.system.service.ts",
+          "drive.upload.service.ts"
+        ],
+        "dtos": [
+          "drive.dto.ts"
+        ],
+        "enums": [
+          "drive.enums.ts"
+        ],
+        "messageKeys": [
+          "drive.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "drive_file.entity.ts",
+          "drive_public_link.entity.ts",
+          "drive_share.entity.ts"
+        ]
+      },
+      "enabled": true,
+      "menu": [
+        {
+          "id": "drive",
+          "label": "Drive",
+          "href": "/admin/drive",
+          "icon": "fas fa-folder-open",
+          "group": "Drive",
+          "workspace": "content",
+          "order": 20,
+          "scope": "tenant"
+        }
+      ],
+      "adminRoutes": [
+        {
+          "path": "/admin/drive",
+          "component": "drive/ui/drive.page"
+        }
+      ],
+      "apiRoutes": [
+        {
+          "path": "/api/drive/system/[uploadedFileId]/adopt",
+          "handler": "drive/server/drive-system-uploaded-file-id-adopt.route"
+        },
+        {
+          "path": "/api/drive/system",
+          "handler": "drive/server/drive-system.route"
+        },
+        {
+          "path": "/api/drive/sources",
+          "handler": "drive/server/drive-sources.route"
+        },
+        {
+          "path": "/api/drive/trash",
+          "handler": "drive/server/drive-trash.route"
+        },
+        {
+          "path": "/api/drive/public/[token]",
+          "handler": "drive/server/drive-public-token.route"
+        },
+        {
+          "path": "/api/drive/upload",
+          "handler": "drive/server/drive-upload.route"
+        },
+        {
+          "path": "/api/drive/[driveFileId]/actions/[actionKey]",
+          "handler": "drive/server/drive-drive-file-id-actions-action-key.route"
+        },
+        {
+          "path": "/api/drive/[driveFileId]/actions",
+          "handler": "drive/server/drive-drive-file-id-actions.route"
+        },
+        {
+          "path": "/api/drive/[driveFileId]/restore",
+          "handler": "drive/server/drive-drive-file-id-restore.route"
+        },
+        {
+          "path": "/api/drive/[driveFileId]/permanent",
+          "handler": "drive/server/drive-drive-file-id-permanent.route"
+        },
+        {
+          "path": "/api/drive/[driveFileId]/preview",
+          "handler": "drive/server/drive-drive-file-id-preview.route"
+        },
+        {
+          "path": "/api/drive/[driveFileId]/shares",
+          "handler": "drive/server/drive-drive-file-id-shares.route"
+        },
+        {
+          "path": "/api/drive/[driveFileId]/public-link",
+          "handler": "drive/server/drive-drive-file-id-public-link.route"
+        },
+        {
+          "path": "/api/drive/[driveFileId]",
+          "handler": "drive/server/drive-drive-file-id.route"
+        },
+        {
+          "path": "/api/drive",
+          "handler": "drive/server/drive.route"
+        }
+      ],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [
+        {
+          "id": "drive:preview",
+          "kind": "provider",
+          "description": "Custom previewer/renderer for specific MIME types or groups (e.g. office, CAD, 3D, markdown)."
+        },
+        {
+          "id": "drive:action",
+          "kind": "provider",
+          "description": "Custom per-file action surfaced in the context menu (e.g. OCR, convert-to-PDF, export)."
+        },
+        {
+          "id": "drive:source",
+          "kind": "provider",
+          "description": "External storage backend mounted as a virtual Drive folder (Google Drive, Dropbox, OneDrive)."
+        },
+        {
+          "id": "drive:lifecycle",
+          "kind": "hook",
+          "description": "Lifecycle hooks for upload/delete/move events (thumbnails, indexing, antivirus, …)."
+        }
+      ],
+      "extensions": [],
+      "pkgExports": [
+        "./server/entities/drive_file.entity",
+        "./server/entities/drive_share.entity",
+        "./server/entities/drive_public_link.entity",
+        "./server/drive.enums",
+        "./server/drive.messages",
+        "./server/drive.types",
+        "./server/drive.dto",
+        "./server/drive.access.service",
+        "./server/drive.preview.service",
+        "./server/drive.crud.service",
+        "./server/drive.upload.service",
+        "./server/drive.share.service",
+        "./server/drive.system.service",
+        "./server/drive.plugin-types",
+        "./server/drive.plugins",
+        "./server/drive.route-helpers",
+        "./server/drive.route",
+        "./server/drive-upload.route",
+        "./server/drive-trash.route",
+        "./server/drive-system.route",
+        "./server/drive-system-uploaded-file-id-adopt.route",
+        "./server/drive-sources.route",
+        "./server/drive-public-token.route",
+        "./server/drive-drive-file-id.route",
+        "./server/drive-drive-file-id-restore.route",
+        "./server/drive-drive-file-id-permanent.route",
+        "./server/drive-drive-file-id-preview.route",
+        "./server/drive-drive-file-id-shares.route",
+        "./server/drive-drive-file-id-public-link.route",
+        "./server/drive-drive-file-id-actions.route",
+        "./server/drive-drive-file-id-actions-action-key.route",
+        "./ui/drive.page",
+        "./ui/drive.types",
+        "./ui/drive-preview-modal.component",
+        "./ui/drive-share-modal.component",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true
+    },
+    {
       "id": "api_key",
       "name": "API Key",
       "version": "1.0.0",
@@ -6102,7 +6326,7 @@
           "href": "/admin/api-keys",
           "icon": "fas fa-key",
           "group": "Developer",
-          "workspace": "system",
+          "workspace": "developer",
           "order": 10,
           "scope": "tenant"
         }
@@ -6672,8 +6896,8 @@
           "label": "Webhooks",
           "href": "/admin/webhooks",
           "icon": "fas fa-plug",
-          "group": "Security",
-          "workspace": "system",
+          "group": "Developer",
+          "workspace": "developer",
           "order": 10,
           "scope": "tenant"
         }
@@ -8282,7 +8506,7 @@
           "label": "AI",
           "href": "/admin/ai",
           "icon": "fas fa-robot",
-          "group": "Developer",
+          "group": "AI",
           "workspace": "system",
           "order": 10,
           "scope": "tenant"
@@ -8683,7 +8907,7 @@
           "label": "AI Chat",
           "href": "/admin/ai/chat",
           "icon": "fas fa-comments",
-          "group": "Developer",
+          "group": "AI",
           "workspace": "system",
           "order": 11,
           "scope": "tenant"
@@ -8795,7 +9019,7 @@
           "href": "/admin/integrations",
           "icon": "fas fa-plug",
           "group": "Developer",
-          "workspace": "system",
+          "workspace": "developer",
           "order": 10,
           "scope": "tenant"
         }
@@ -9141,7 +9365,7 @@
           "href": "/admin/api-docs",
           "icon": "fas fa-book",
           "group": "Developer",
-          "workspace": "system",
+          "workspace": "developer",
           "order": 10,
           "scope": "tenant"
         }
@@ -9647,6 +9871,23 @@
       "relations": []
     },
     {
+      "name": "CommunityInstall",
+      "filePath": "modules/marketplace/server/entities/community_install.entity.ts",
+      "module": "marketplace",
+      "schema": "system",
+      "tableName": "marketplace_community_installs",
+      "columns": [
+        "installId",
+        "listingId",
+        "tenantId",
+        "versionId",
+        "active",
+        "installedAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "ConnectedApp",
       "filePath": "modules/integrations_hub/server/entities/connected_app.entity.ts",
       "module": "integrations_hub",
@@ -9813,6 +10054,67 @@
       "relations": [
         "tenant"
       ]
+    },
+    {
+      "name": "DriveFile",
+      "filePath": "modules/drive/server/entities/drive_file.entity.ts",
+      "module": "drive",
+      "schema": "system",
+      "tableName": "drive_files",
+      "columns": [
+        "driveFileId",
+        "tenantId",
+        "ownerUserId",
+        "parentId",
+        "type",
+        "name",
+        "uploadedFileId",
+        "storageKey",
+        "mimeType",
+        "size",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "DrivePublicLink",
+      "filePath": "modules/drive/server/entities/drive_public_link.entity.ts",
+      "module": "drive",
+      "schema": "system",
+      "tableName": "drive_public_links",
+      "columns": [
+        "drivePublicLinkId",
+        "tenantId",
+        "driveFileId",
+        "token",
+        "role",
+        "expiresAt",
+        "createdByUserId",
+        "createdAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "DriveShare",
+      "filePath": "modules/drive/server/entities/drive_share.entity.ts",
+      "module": "drive",
+      "schema": "system",
+      "tableName": "drive_shares",
+      "columns": [
+        "driveShareId",
+        "tenantId",
+        "driveFileId",
+        "sharedWithUserId",
+        "role",
+        "createdByUserId",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
     },
     {
       "name": "DynamicCollection",
@@ -13965,6 +14267,62 @@
       "baseName": "coupons.page"
     },
     {
+      "id": "drive/ui/drive-preview-modal.component",
+      "module": "drive",
+      "filePath": "modules/drive/ui/drive-preview-modal.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "DrivePreviewModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "drive-preview-modal.component"
+    },
+    {
+      "id": "drive/ui/drive-share-modal.component",
+      "module": "drive",
+      "filePath": "modules/drive/ui/drive-share-modal.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "DriveShareModal"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "drive-share-modal.component"
+    },
+    {
+      "id": "drive/ui/drive.page",
+      "module": "drive",
+      "filePath": "modules/drive/ui/drive.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "drive.page"
+    },
+    {
+      "id": "drive/ui/drive.types",
+      "module": "drive",
+      "filePath": "modules/drive/ui/drive.types.ts",
+      "kind": "ui",
+      "exports": [
+        "DriveRole",
+        "DriveNode",
+        "Breadcrumb",
+        "SystemFile",
+        "ShareView",
+        "PublicLinkView",
+        "PreviewKind",
+        "PreviewResponse",
+        "extractMessage",
+        "formatBytes",
+        "iconFor"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "drive.types"
+    },
+    {
       "id": "dynamic_page/ui/blocks-block-id.page",
       "module": "dynamic_page",
       "filePath": "modules/dynamic_page/ui/blocks-block-id.page.tsx",
@@ -15276,6 +15634,28 @@
       "baseName": "invoices.page"
     },
     {
+      "id": "marketplace/ui/developer-listing-detail.component",
+      "module": "marketplace",
+      "filePath": "modules/marketplace/ui/developer-listing-detail.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "DeveloperListingDetail"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "developer-listing-detail.component"
+    },
+    {
+      "id": "marketplace/ui/developer-listing-detail.page",
+      "module": "marketplace",
+      "filePath": "modules/marketplace/ui/developer-listing-detail.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "developer-listing-detail.page"
+    },
+    {
       "id": "marketplace/ui/developer-page.component",
       "module": "marketplace",
       "filePath": "modules/marketplace/ui/developer-page.component.tsx",
@@ -15286,6 +15666,33 @@
       "isClient": true,
       "isServer": false,
       "baseName": "developer-page.component"
+    },
+    {
+      "id": "marketplace/ui/developer-shared.component",
+      "module": "marketplace",
+      "filePath": "modules/marketplace/ui/developer-shared.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "Publisher",
+        "Listing",
+        "ListingStatus",
+        "ListingVersion",
+        "ListingDetail",
+        "extractMessage",
+        "inputCls",
+        "Field",
+        "StatusPill",
+        "VersionStatusBadge",
+        "LifecycleLegend",
+        "StatCard",
+        "CLIENT_SLUG_RE",
+        "CLIENT_RESERVED_SLUGS",
+        "CLIENT_SEMVER_RE",
+        "formatDate"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "developer-shared.component"
     },
     {
       "id": "marketplace/ui/developer.page",

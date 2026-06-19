@@ -161,8 +161,8 @@
     ],
     "hasNextLayer": true,
     "routeCount": 0,
-    "entityCount": 4,
-    "componentCount": 7,
+    "entityCount": 5,
+    "componentCount": 10,
     "file": "marketplace.md"
   },
   "plugin_runtime": {
@@ -800,6 +800,20 @@
     "entityCount": 2,
     "componentCount": 1,
     "file": "media_gallery.md"
+  },
+  "drive": {
+    "name": "Drive",
+    "tier": "other",
+    "tags": [
+      "content",
+      "files",
+      "storage"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 0,
+    "entityCount": 3,
+    "componentCount": 4,
+    "file": "drive.md"
   },
   "api_key": {
     "name": "API Key",

@@ -24,7 +24,7 @@
       "label": "AI Chat",
       "href": "/admin/ai/chat",
       "icon": "fas fa-comments",
-      "group": "Developer",
+      "group": "AI",
       "workspace": "system",
       "order": 11,
       "scope": "tenant"

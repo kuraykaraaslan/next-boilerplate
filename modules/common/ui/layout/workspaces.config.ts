@@ -5,6 +5,7 @@ import {
   faUsers,
   faListCheck,
   faGear,
+  faCode,
   faEllipsis,
 } from '@fortawesome/free-solid-svg-icons';
 
@@ -27,6 +28,7 @@ export const WORKSPACES: WorkspaceDef[] = [
   { id: 'commerce',   label: 'Commerce',   icon: faCartShopping, order: 20 },
   { id: 'crm',        label: 'CRM',        icon: faUsers,        order: 30 },
   { id: 'operations', label: 'Operations', icon: faListCheck,    order: 40 },
+  { id: 'developer',  label: 'Developer',  icon: faCode,         order: 45 },
   { id: 'system',     label: 'System',     icon: faGear,         order: 50 },
 ];
 
@@ -45,11 +47,12 @@ export const ALWAYS_ON_GROUPS = ['Overview', 'Account'];
 // resolve a sidebar group's workspace from its label. Keep in sync with the
 // `workspace` values seeded into module.json manifests.
 export const GROUP_WORKSPACE: Record<string, string> = {
-  Content: 'content', Blog: 'content',
+  Content: 'content', Blog: 'content', Drive: 'content',
   Commerce: 'commerce', Store: 'commerce',
   Management: 'crm', Insights: 'crm',
   Operations: 'operations',
-  Security: 'system', Developer: 'system', Configuration: 'system',
+  Developer: 'developer',
+  Security: 'system', AI: 'system', Configuration: 'system',
   Platform: 'system', 'Platform System': 'system',
 };
 

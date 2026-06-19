@@ -11,6 +11,15 @@ import { PluginKv } from '@kuraykaraaslan/plugin_runtime/server/entities/plugin_
 import { communityInstallKeys } from '@kuraykaraaslan/plugin_runtime/server/broker/install-keys';
 import { PublishedModule } from './entities/published_module.entity';
 import { PublishedModuleVersion } from './entities/published_module_version.entity';
+import { CommunityInstall } from './entities/community_install.entity';
+
+/** Upsert the cross-tenant install record (analytics source of truth). */
+async function recordInstall(listingId: string, tenantId: string, versionId: string, active: boolean): Promise<void> {
+  const ds = await getDataSource();
+  const repo = ds.getRepository(CommunityInstall);
+  const existing = await repo.findOne({ where: { listingId, tenantId } });
+  await repo.save(repo.create({ ...(existing ?? {}), listingId, tenantId, versionId, active }));
+}
 
 async function loadRunnableListing(listingId: string): Promise<{ listing: PublishedModule; version: PublishedModuleVersion }> {
   const ds = await getDataSource();
@@ -30,6 +39,7 @@ export async function installCommunity(tenantId: string, listingId: string, acto
     { [communityInstallKeys.version(listingId)]: version.versionId, [communityInstallKeys.active(listingId)]: 'true' },
     actorId ? { actorId } : undefined,
   );
+  await recordInstall(listingId, tenantId, version.versionId, true);
   await AuditLogService.log({
     tenantId, actorId: actorId ?? null, action: 'marketplace.community.install',
     resourceType: 'plugin', resourceId: listingId, metadata: { versionId: version.versionId },
@@ -40,6 +50,7 @@ export async function setCommunityActive(tenantId: string, listingId: string, ac
   const current = await SettingService.getValue(tenantId, communityInstallKeys.version(listingId));
   if (!current) throw new Error('Plugin is not installed.');
   await SettingService.updateMany(tenantId, { [communityInstallKeys.active(listingId)]: String(active) }, actorId ? { actorId } : undefined);
+  await recordInstall(listingId, tenantId, current, active);
   await AuditLogService.log({
     tenantId, actorId: actorId ?? null, action: active ? 'marketplace.community.activate' : 'marketplace.community.deactivate',
     resourceType: 'plugin', resourceId: listingId,
@@ -53,6 +64,7 @@ export async function uninstallCommunity(tenantId: string, listingId: string, ac
 
   // Clear install markers.
   await SettingService.deleteByPrefix(tenantId, `plugin.community.${listingId}.`, actorId ? { actorId } : undefined);
+  await ds.getRepository(CommunityInstall).delete({ listingId, tenantId });
 
   // Purge the plugin's per-tenant data.
   let rowsPurged = 0;

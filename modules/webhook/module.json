@@ -26,8 +26,8 @@
       "label": "Webhooks",
       "href": "/admin/webhooks",
       "icon": "fas fa-plug",
-      "group": "Security",
-      "workspace": "system",
+      "group": "Developer",
+      "workspace": "developer",
       "order": 10,
       "scope": "tenant"
     }

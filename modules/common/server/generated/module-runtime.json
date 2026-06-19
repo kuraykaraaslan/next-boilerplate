@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-19T11:07:14.317Z",
+  "generatedAt": "2026-06-19T12:50:02.357Z",
   "menu": [
     {
       "id": "settings",
@@ -30,8 +30,8 @@
       "label": "Developer",
       "href": "/admin/developer",
       "icon": "fas fa-code",
-      "group": "Configuration",
-      "workspace": "system",
+      "group": "Developer",
+      "workspace": "developer",
       "order": 6,
       "scope": "tenant",
       "permissions": [],
@@ -54,7 +54,7 @@
       "label": "AI",
       "href": "/admin/ai",
       "icon": "fas fa-robot",
-      "group": "Developer",
+      "group": "AI",
       "workspace": "system",
       "order": 10,
       "scope": "tenant",
@@ -79,7 +79,7 @@
       "href": "/admin/api-docs",
       "icon": "fas fa-book",
       "group": "Developer",
-      "workspace": "system",
+      "workspace": "developer",
       "order": 10,
       "scope": "tenant",
       "permissions": [],
@@ -91,7 +91,7 @@
       "href": "/admin/api-keys",
       "icon": "fas fa-key",
       "group": "Developer",
-      "workspace": "system",
+      "workspace": "developer",
       "order": 10,
       "scope": "tenant",
       "permissions": [],
@@ -187,7 +187,7 @@
       "href": "/admin/integrations",
       "icon": "fas fa-plug",
       "group": "Developer",
-      "workspace": "system",
+      "workspace": "developer",
       "order": 10,
       "scope": "tenant",
       "permissions": [],
@@ -366,8 +366,8 @@
       "label": "Webhooks",
       "href": "/admin/webhooks",
       "icon": "fas fa-plug",
-      "group": "Security",
-      "workspace": "system",
+      "group": "Developer",
+      "workspace": "developer",
       "order": 10,
       "scope": "tenant",
       "permissions": [],
@@ -378,7 +378,7 @@
       "label": "AI Chat",
       "href": "/admin/ai/chat",
       "icon": "fas fa-comments",
-      "group": "Developer",
+      "group": "AI",
       "workspace": "system",
       "order": 11,
       "scope": "tenant",
@@ -444,6 +444,18 @@
       "scope": "tenant",
       "permissions": [],
       "moduleId": "terms_consent"
+    },
+    {
+      "id": "drive",
+      "label": "Drive",
+      "href": "/admin/drive",
+      "icon": "fas fa-folder-open",
+      "group": "Drive",
+      "workspace": "content",
+      "order": 20,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "drive"
     },
     {
       "id": "store-products",
@@ -616,6 +628,12 @@
       "moduleId": "marketplace"
     },
     {
+      "path": "/admin/developer/[listingId]",
+      "componentId": "marketplace/ui/developer-listing-detail.page",
+      "permissions": [],
+      "moduleId": "marketplace"
+    },
+    {
       "path": "/admin/domains",
       "componentId": "tenant_domain/ui/domains.page",
       "permissions": [],
@@ -626,6 +644,12 @@
       "componentId": "tenant_domain/ui/domains-settings.page",
       "permissions": [],
       "moduleId": "tenant_domain"
+    },
+    {
+      "path": "/admin/drive",
+      "componentId": "drive/ui/drive.page",
+      "permissions": [],
+      "moduleId": "drive"
     },
     {
       "path": "/admin/feature-flags",
@@ -1638,6 +1662,81 @@
       "moduleId": "tenant_domain"
     },
     {
+      "path": "/api/drive",
+      "handlerId": "drive/server/drive.route",
+      "moduleId": "drive"
+    },
+    {
+      "path": "/api/drive/[driveFileId]",
+      "handlerId": "drive/server/drive-drive-file-id.route",
+      "moduleId": "drive"
+    },
+    {
+      "path": "/api/drive/[driveFileId]/actions",
+      "handlerId": "drive/server/drive-drive-file-id-actions.route",
+      "moduleId": "drive"
+    },
+    {
+      "path": "/api/drive/[driveFileId]/actions/[actionKey]",
+      "handlerId": "drive/server/drive-drive-file-id-actions-action-key.route",
+      "moduleId": "drive"
+    },
+    {
+      "path": "/api/drive/[driveFileId]/permanent",
+      "handlerId": "drive/server/drive-drive-file-id-permanent.route",
+      "moduleId": "drive"
+    },
+    {
+      "path": "/api/drive/[driveFileId]/preview",
+      "handlerId": "drive/server/drive-drive-file-id-preview.route",
+      "moduleId": "drive"
+    },
+    {
+      "path": "/api/drive/[driveFileId]/public-link",
+      "handlerId": "drive/server/drive-drive-file-id-public-link.route",
+      "moduleId": "drive"
+    },
+    {
+      "path": "/api/drive/[driveFileId]/restore",
+      "handlerId": "drive/server/drive-drive-file-id-restore.route",
+      "moduleId": "drive"
+    },
+    {
+      "path": "/api/drive/[driveFileId]/shares",
+      "handlerId": "drive/server/drive-drive-file-id-shares.route",
+      "moduleId": "drive"
+    },
+    {
+      "path": "/api/drive/public/[token]",
+      "handlerId": "drive/server/drive-public-token.route",
+      "moduleId": "drive"
+    },
+    {
+      "path": "/api/drive/sources",
+      "handlerId": "drive/server/drive-sources.route",
+      "moduleId": "drive"
+    },
+    {
+      "path": "/api/drive/system",
+      "handlerId": "drive/server/drive-system.route",
+      "moduleId": "drive"
+    },
+    {
+      "path": "/api/drive/system/[uploadedFileId]/adopt",
+      "handlerId": "drive/server/drive-system-uploaded-file-id-adopt.route",
+      "moduleId": "drive"
+    },
+    {
+      "path": "/api/drive/trash",
+      "handlerId": "drive/server/drive-trash.route",
+      "moduleId": "drive"
+    },
+    {
+      "path": "/api/drive/upload",
+      "handlerId": "drive/server/drive-upload.route",
+      "moduleId": "drive"
+    },
+    {
       "path": "/api/dynamic-pages",
       "handlerId": "dynamic_page/server/dynamic-pages.route",
       "moduleId": "dynamic_page"
@@ -1883,6 +1982,11 @@
       "moduleId": "marketplace"
     },
     {
+      "path": "/api/marketplace/assets",
+      "handlerId": "marketplace/server/asset-upload.route",
+      "moduleId": "marketplace"
+    },
+    {
       "path": "/api/marketplace/community",
       "handlerId": "marketplace/server/community.route",
       "moduleId": "marketplace"
@@ -1895,6 +1999,11 @@
     {
       "path": "/api/marketplace/listings",
       "handlerId": "marketplace/server/listings.route",
+      "moduleId": "marketplace"
+    },
+    {
+      "path": "/api/marketplace/listings/[listingId]",
+      "handlerId": "marketplace/server/listing-detail.route",
       "moduleId": "marketplace"
     },
     {
@@ -2499,6 +2608,30 @@
       "moduleId": "auth"
     },
     {
+      "id": "drive:action",
+      "kind": "provider",
+      "description": "Custom per-file action surfaced in the context menu (e.g. OCR, convert-to-PDF, export).",
+      "moduleId": "drive"
+    },
+    {
+      "id": "drive:lifecycle",
+      "kind": "hook",
+      "description": "Lifecycle hooks for upload/delete/move events (thumbnails, indexing, antivirus, …).",
+      "moduleId": "drive"
+    },
+    {
+      "id": "drive:preview",
+      "kind": "provider",
+      "description": "Custom previewer/renderer for specific MIME types or groups (e.g. office, CAD, 3D, markdown).",
+      "moduleId": "drive"
+    },
+    {
+      "id": "drive:source",
+      "kind": "provider",
+      "description": "External storage backend mounted as a virtual Drive folder (Google Drive, Dropbox, OneDrive).",
+      "moduleId": "drive"
+    },
+    {
       "id": "esign:provider",
       "kind": "provider",
       "description": "A national e-signature / eID backend. Sandboxed community plugins (the @esign/* family, e.g. @esign/smart_id) contribute their implementation here.",
@@ -3054,6 +3187,30 @@
       "enabled": true,
       "tier": "infrastructure",
       "requires": [
+        "env"
+      ]
+    },
+    {
+      "id": "drive",
+      "name": "Drive",
+      "icon": "fas fa-folder-open",
+      "version": "1.0.0",
+      "description": "Google Drive-like file manager over the storage module: nested folders, internal + public-link sharing, inline preview of common file types, trash bin (soft-delete + restore), a read-only view of all tenant storage objects, and drive:* extension points for community plugins (preview/action/source/lifecycle).",
+      "author": "Kuray Karaaslan",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/drive",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "content",
+        "files",
+        "storage"
+      ],
+      "priority": 38,
+      "enabled": true,
+      "tier": "other",
+      "requires": [
+        "db",
+        "storage",
+        "common",
         "env"
       ]
     },

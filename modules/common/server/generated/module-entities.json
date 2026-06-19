@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-19T11:07:14.317Z",
+  "generatedAt": "2026-06-19T12:50:02.357Z",
   "modules": {
     "terms_consent": [
       {
@@ -87,6 +87,33 @@
         "hasTenantId": true
       }
     ],
+    "marketplace": [
+      {
+        "tableName": "marketplace_community_installs",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "module_installs",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "marketplace_listings",
+        "schema": "system",
+        "hasTenantId": false
+      },
+      {
+        "tableName": "marketplace_listing_versions",
+        "schema": "system",
+        "hasTenantId": false
+      },
+      {
+        "tableName": "marketplace_publishers",
+        "schema": "system",
+        "hasTenantId": false
+      }
+    ],
     "integrations_hub": [
       {
         "tableName": "connected_apps",
@@ -139,6 +166,23 @@
       },
       {
         "tableName": "coupon_redemptions",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "drive": [
+      {
+        "tableName": "drive_files",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "drive_public_links",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "drive_shares",
         "schema": "system",
         "hasTenantId": true
       }
@@ -277,28 +321,6 @@
         "tableName": "metered_usage_events",
         "schema": "system",
         "hasTenantId": true
-      }
-    ],
-    "marketplace": [
-      {
-        "tableName": "module_installs",
-        "schema": "system",
-        "hasTenantId": true
-      },
-      {
-        "tableName": "marketplace_listings",
-        "schema": "system",
-        "hasTenantId": false
-      },
-      {
-        "tableName": "marketplace_listing_versions",
-        "schema": "system",
-        "hasTenantId": false
-      },
-      {
-        "tableName": "marketplace_publishers",
-        "schema": "system",
-        "hasTenantId": false
       }
     ],
     "notification_log": [

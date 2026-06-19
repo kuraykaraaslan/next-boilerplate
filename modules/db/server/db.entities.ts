@@ -113,7 +113,11 @@ import { ModuleInstall } from '@kuraykaraaslan/marketplace/server/entities/modul
 import { Publisher } from '@kuraykaraaslan/marketplace/server/entities/publisher.entity';
 import { PublishedModule } from '@kuraykaraaslan/marketplace/server/entities/published_module.entity';
 import { PublishedModuleVersion } from '@kuraykaraaslan/marketplace/server/entities/published_module_version.entity';
+import { CommunityInstall } from '@kuraykaraaslan/marketplace/server/entities/community_install.entity';
 import { PluginKv } from '@kuraykaraaslan/plugin_runtime/server/entities/plugin_kv.entity';
+import { DriveFile } from '@kuraykaraaslan/drive/server/entities/drive_file.entity';
+import { DriveShare } from '@kuraykaraaslan/drive/server/entities/drive_share.entity';
+import { DrivePublicLink } from '@kuraykaraaslan/drive/server/entities/drive_public_link.entity';
 
 export const ENTITIES = [
   User, UserConsent, UserProfile, UserSecurity, UserPreferences, UserSession,
@@ -138,6 +142,6 @@ export const ENTITIES = [
   FeatureFlag, FeatureFlagOverride, ConsentRecord, AnalyticsEvent, SearchDocument,
   Agreement, AgreementVersion, AgreementAcceptance, GiftCard, GiftCardTransaction,
   Connector, ConnectedApp, OAuthToken, IntegrationEvent,
-  ModuleInstall, Publisher, PublishedModule, PublishedModuleVersion,
-  PluginKv,
+  ModuleInstall, Publisher, PublishedModule, PublishedModuleVersion, CommunityInstall,
+  PluginKv, DriveFile, DriveShare, DrivePublicLink,
 ];

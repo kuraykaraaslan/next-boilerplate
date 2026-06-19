@@ -16,6 +16,7 @@ Browse, install, activate, and remove tenant modules; publish your own modules t
 
 ## Entities
 
+- `community_install.entity.ts`
 - `module_install.entity.ts`
 - `published_module.entity.ts`
 - `published_module_version.entity.ts`
@@ -23,6 +24,7 @@ Browse, install, activate, and remove tenant modules; publish your own modules t
 
 ## TypeORM entities
 
+- `CommunityInstall` (system) — `modules/marketplace/server/entities/community_install.entity.ts`
 - `ModuleInstall` (system) — `modules/marketplace/server/entities/module_install.entity.ts`
 - `PublishedModule` (system) — `modules/marketplace/server/entities/published_module.entity.ts`
 - `PublishedModuleVersion` (system) — `modules/marketplace/server/entities/published_module_version.entity.ts`
@@ -30,7 +32,10 @@ Browse, install, activate, and remove tenant modules; publish your own modules t
 
 ## Next layer (modules_next/) surface
 
+- `marketplace/ui/developer-listing-detail.component` _(ui, client)_
+- `marketplace/ui/developer-listing-detail.page` _(ui, client)_
 - `marketplace/ui/developer-page.component` _(ui, client)_
+- `marketplace/ui/developer-shared.component` _(ui, client)_
 - `marketplace/ui/developer.page` _(ui, client)_
 - `marketplace/ui/marketplace-page.component` _(ui, client)_
 - `marketplace/ui/marketplace.page` _(ui, client)_

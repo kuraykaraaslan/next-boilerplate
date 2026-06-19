@@ -11,8 +11,30 @@ import { ROOT_TENANT_ID } from '@kuraykaraaslan/tenant/server/tenant.constants';
 import { Publisher, type PublisherStatus } from './entities/publisher.entity';
 import { PublishedModule, type ListingVisibility } from './entities/published_module.entity';
 import { PublishedModuleVersion } from './entities/published_module_version.entity';
+import { CommunityInstall } from './entities/community_install.entity';
 
 const SLUG_RE = /^[a-z][a-z0-9-]*$/;
+// Semver with an optional pre-release suffix (e.g. 1.2.0-beta.1).
+const SEMVER_RE = /^(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?$/;
+
+type ParsedSemver = { major: number; minor: number; patch: number; pre: string | null };
+
+function parseSemver(input: string): ParsedSemver | null {
+  const m = SEMVER_RE.exec(input.trim());
+  if (!m) return null;
+  return { major: Number(m[1]), minor: Number(m[2]), patch: Number(m[3]), pre: m[4] ?? null };
+}
+
+/** SemVer precedence: -1 if a<b, 0 if equal, 1 if a>b. A release outranks a pre-release of the same x.y.z. */
+function compareSemver(a: ParsedSemver, b: ParsedSemver): number {
+  for (const k of ['major', 'minor', 'patch'] as const) {
+    if (a[k] !== b[k]) return a[k] < b[k] ? -1 : 1;
+  }
+  if (a.pre === b.pre) return 0;
+  if (a.pre === null) return 1; // release > pre-release
+  if (b.pre === null) return -1;
+  return a.pre < b.pre ? -1 : a.pre > b.pre ? 1 : 0;
+}
 const RESERVED_SLUGS = new Set(['kuraykaraaslan', 'nb', 'system', 'admin', 'tenant', 'marketplace', 'common']);
 
 // Minimal module.json contract a submitted manifest must satisfy (mirrors
@@ -21,7 +43,7 @@ const manifestSchema = z
   .object({
     id: z.string().regex(/^[a-z][a-z0-9_]*$/, 'id must be lowercase letters/digits/underscores'),
     name: z.string().min(1),
-    version: z.string().regex(/^\d+\.\d+\.\d+$/, 'version must be semver x.y.z'),
+    version: z.string().regex(SEMVER_RE, 'version must be semver x.y.z (optional -prerelease)'),
   })
   .passthrough();
 
@@ -224,7 +246,20 @@ export async function submitVersion(
   // Validate the manifest (throws on invalid). The `sandbox` block (if present)
   // is the capability/limit grant the reviewer will approve.
   const manifest = parseManifest(input.manifestJson) as { sandbox?: unknown };
-  if (!/^\d+\.\d+\.\d+$/.test(input.version)) throw new Error('version must be semver x.y.z');
+  const parsed = parseSemver(input.version);
+  if (!parsed) throw new Error('version must be semver x.y.z (optional -prerelease)');
+
+  // Enforce a strictly increasing version: the new version must outrank every
+  // version already submitted for this listing (no re-releasing or going backwards).
+  const priorVersions = await versionRepo.find({ where: { listingId } });
+  const highest = priorVersions
+    .map((v) => parseSemver(v.version))
+    .filter((v): v is ParsedSemver => v !== null)
+    .sort(compareSemver)
+    .pop();
+  if (highest && compareSemver(parsed, highest) <= 0) {
+    throw new Error(`version must be greater than the latest submitted version (${highest.major}.${highest.minor}.${highest.patch}${highest.pre ? `-${highest.pre}` : ''}).`);
+  }
 
   // Store the runnable bundle system-side (ROOT) so the host can load it on install.
   let bundleKey: string | null = null;
@@ -266,6 +301,86 @@ export async function submitVersion(
     metadata: { listingId, version: input.version },
   });
   return version;
+}
+
+export interface ListingDetail {
+  listing: PublishedModule;
+  versions: PublishedModuleVersion[];
+  stats: { installs: number; active: number };
+}
+
+/** Full detail for a listing the caller's publisher owns: version history + install stats. */
+export async function getMyListingDetail(tenantId: string, listingId: string): Promise<ListingDetail> {
+  const publisher = await getPublisherForTenant(tenantId);
+  if (!publisher) throw new Error('No publisher account — apply first.');
+  const ds = await getDataSource();
+  const listing = await ds.getRepository(PublishedModule).findOne({ where: { listingId } });
+  if (!listing) throw new Error('Listing not found.');
+  if (listing.publisherId !== publisher.publisherId) throw new Error('Not your listing.');
+
+  const versions = await ds.getRepository(PublishedModuleVersion).find({
+    where: { listingId },
+    order: { submittedAt: 'DESC' },
+  });
+  const installRepo = ds.getRepository(CommunityInstall);
+  const installs = await installRepo.count({ where: { listingId } });
+  const active = await installRepo.count({ where: { listingId, active: true } });
+  return { listing, versions, stats: { installs, active } };
+}
+
+/** Toggle a published listing offline (unpublish) or back online (republish). Ownership-checked. */
+export async function setListingLifecycle(
+  tenantId: string,
+  listingId: string,
+  action: 'unpublish' | 'republish',
+  actorId?: string,
+): Promise<PublishedModule> {
+  const publisher = await requireVerifiedPublisher(tenantId);
+  const ds = await getDataSource();
+  const repo = ds.getRepository(PublishedModule);
+  const listing = await repo.findOne({ where: { listingId } });
+  if (!listing) throw new Error('Listing not found.');
+  if (listing.publisherId !== publisher.publisherId) throw new Error('Not your listing.');
+
+  if (action === 'unpublish') {
+    if (listing.status !== 'published') throw new Error('Only a published listing can be unpublished.');
+    listing.status = 'unpublished';
+  } else {
+    if (listing.status !== 'unpublished') throw new Error('Only an unpublished listing can be republished.');
+    if (!listing.currentVersionId) throw new Error('No approved version to republish.');
+    listing.status = 'published';
+  }
+  await repo.save(listing);
+  await AuditLogService.log({
+    tenantId,
+    actorId: actorId ?? null,
+    action: `marketplace.listing.${action}`,
+    resourceType: 'listing',
+    resourceId: listingId,
+    metadata: { scopedName: listing.scopedName },
+  });
+  return listing;
+}
+
+/** Store a listing asset (e.g. a screenshot) and return its public URL. Verified publishers only. */
+export async function uploadListingAsset(
+  tenantId: string,
+  base64: string,
+  filename: string,
+  contentType?: string,
+): Promise<{ key: string; url: string }> {
+  await requireVerifiedPublisher(tenantId);
+  const buffer = Buffer.from(base64, 'base64');
+  if (buffer.byteLength === 0) throw new Error('empty asset');
+  if (buffer.byteLength > 2_000_000) throw new Error('asset too large (max 2MB)');
+  const safe = (filename || 'asset').replace(/[^a-z0-9_.-]/gi, '_');
+  const res = await StorageService.uploadServerBuffer(ROOT_TENANT_ID, {
+    buffer,
+    filename: safe,
+    contentType: contentType || 'application/octet-stream',
+    folder: 'plugin-assets',
+  });
+  return { key: res.key, url: res.url };
 }
 
 // ── Review (super-admin) ───────────────────────────────────────────────────────
