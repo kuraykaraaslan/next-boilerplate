@@ -1,0 +1,21 @@
+{
+  "id": "hcaptcha",
+  "name": "hCaptcha",
+  "version": "1.0.0",
+  "description": "hCaptcha token verification, contributed into captcha:provider — sandboxed. Form-encoded siteverify; the secret key stays host-side.",
+  "icon": "fas fa-shield-halved",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": ["http"],
+    "httpAllowlist": ["api.hcaptcha.com"],
+    "limits": { "memoryMb": 64, "timeoutMs": 15000, "httpTimeoutMs": 14000, "httpMaxBytes": 1000000 }
+  },
+  "config": {
+    "secrets": [
+      { "key": "captchaSecret", "label": "hCaptcha Secret Key", "help": "hCaptcha server secret; injected host-side, never seen by the plugin." }
+    ]
+  },
+  "extensions": [
+    { "point": "captcha:provider", "key": "hcaptcha", "metadata": { "label": "hCaptcha" } }
+  ]
+}

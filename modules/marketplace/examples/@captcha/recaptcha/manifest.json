@@ -1,0 +1,21 @@
+{
+  "id": "recaptcha",
+  "name": "Google reCAPTCHA",
+  "version": "1.0.0",
+  "description": "Google reCAPTCHA token verification, contributed into captcha:provider — sandboxed. Form-encoded siteverify; the secret key stays host-side.",
+  "icon": "fas fa-shield-halved",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": ["http"],
+    "httpAllowlist": ["www.google.com"],
+    "limits": { "memoryMb": 64, "timeoutMs": 15000, "httpTimeoutMs": 14000, "httpMaxBytes": 1000000 }
+  },
+  "config": {
+    "secrets": [
+      { "key": "captchaSecret", "label": "reCAPTCHA Secret Key", "help": "Google reCAPTCHA server secret; injected host-side, never seen by the plugin." }
+    ]
+  },
+  "extensions": [
+    { "point": "captcha:provider", "key": "recaptcha", "metadata": { "label": "Google reCAPTCHA" } }
+  ]
+}

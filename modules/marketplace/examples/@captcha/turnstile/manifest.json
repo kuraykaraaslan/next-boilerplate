@@ -1,0 +1,21 @@
+{
+  "id": "turnstile",
+  "name": "Cloudflare Turnstile",
+  "version": "1.0.0",
+  "description": "Cloudflare Turnstile token verification, contributed into captcha:provider — sandboxed. Form-encoded siteverify; the secret key stays host-side.",
+  "icon": "fas fa-shield-halved",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": ["http"],
+    "httpAllowlist": ["challenges.cloudflare.com"],
+    "limits": { "memoryMb": 64, "timeoutMs": 15000, "httpTimeoutMs": 14000, "httpMaxBytes": 1000000 }
+  },
+  "config": {
+    "secrets": [
+      { "key": "captchaSecret", "label": "Turnstile Secret Key", "help": "Cloudflare Turnstile server secret; injected host-side, never seen by the plugin." }
+    ]
+  },
+  "extensions": [
+    { "point": "captcha:provider", "key": "turnstile", "metadata": { "label": "Cloudflare Turnstile" } }
+  ]
+}

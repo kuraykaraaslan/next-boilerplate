@@ -7,13 +7,6 @@ vi.mock('@kuraykaraaslan/env', () => ({
     REFRESH_TOKEN_SECRET: 'test_refresh',
     CSRF_SECRET: 'test_csrf',
     NODE_ENV: 'test',
-    AWS_S3_BUCKET: 'test-bucket',
-    AWS_REGION: 'us-east-1',
-    STRIPE_SECRET_KEY: 'sk_test_xxx',
-    SMTP_HOST: 'localhost',
-    SMTP_PORT: '587',
-    SMTP_USER: 'test@test.com',
-    SMTP_PASS: 'test',
     NEXT_PUBLIC_VAPID_PUBLIC_KEY: 'test-vapid-public',
     VAPID_PRIVATE_KEY: 'test-vapid-private',
     VAPID_CONTACT_EMAIL: 'admin@test.com',
@@ -44,18 +37,25 @@ vi.mock('@kuraykaraaslan/redis', () => ({
 
 vi.mock('@kuraykaraaslan/logger', () => ({ default: { info: vi.fn(), error: vi.fn(), warn: vi.fn() } }));
 
-vi.mock('web-push', () => ({
-  default: {
-    setVapidDetails: vi.fn(),
-    sendNotification: vi.fn(async () => ({ statusCode: 201 })),
-  },
+vi.mock('@kuraykaraaslan/setting/server/setting.service', () => ({
+  default: { getValue: vi.fn(async () => null), getByKeys: vi.fn(async () => ({})) },
 }));
+
+// Push backends are SANDBOXED community plugins resolved per-tenant via the
+// external-contributions bridge. The Web Push encryption/VAPID send runs host-side
+// in the `webpush` capability (here we mock the bridge `invoke`).
+const { invokeMock, listExternalContributions } = vi.hoisted(() => {
+  const invokeMock = vi.fn(async (): Promise<any> => ({ ok: true }));
+  const listExternalContributions = vi.fn(async (tenantId: string, point: string) => {
+    if (!tenantId || point !== 'push:provider') return [];
+    return [{ key: 'webpush', configured: true, metadata: { label: 'Web Push (VAPID)' }, invoke: invokeMock }];
+  });
+  return { invokeMock, listExternalContributions };
+});
+vi.mock('@kuraykaraaslan/common/server/external-extensions', () => ({ listExternalContributions }));
 
 import NotificationPushService from '../notification_push.service';
 import { tenantDataSourceFor } from '@kuraykaraaslan/db';
-import webpush from 'web-push';
-
-const mockWebPush = webpush as any;
 
 const TENANT_ID = '00000000-0000-4000-8000-000000000000';
 
@@ -72,6 +72,7 @@ function makeRepo(overrides: Partial<Record<string, any>> = {}) {
   return {
     findOne: vi.fn(async () => null),
     find: vi.fn(async () => []),
+    count: vi.fn(async () => 0),
     save: vi.fn(async (data: any) => ({ ...mockSub, ...data })),
     create: vi.fn((data: any) => ({ ...mockSub, ...data })),
     update: vi.fn(async () => ({})),
@@ -81,14 +82,13 @@ function makeRepo(overrides: Partial<Record<string, any>> = {}) {
 }
 
 function mockDataSource(repo: ReturnType<typeof makeRepo>) {
-  (tenantDataSourceFor as any).mockResolvedValue({
-    getRepository: () => repo,
-  });
+  (tenantDataSourceFor as any).mockResolvedValue({ getRepository: () => repo });
   return repo;
 }
 
 beforeEach(() => {
   vi.clearAllMocks();
+  invokeMock.mockResolvedValue({ ok: true });
 });
 
 describe('NotificationPushService.subscribe', () => {
@@ -142,18 +142,15 @@ describe('NotificationPushService.unsubscribeByEndpoint', () => {
 });
 
 describe('NotificationPushService.sendToUser', () => {
-  it('initializes VAPID and sends notifications to all user subscriptions in tenant', async () => {
+  it('dispatches to the sandboxed push provider for each user subscription', async () => {
     const repo = makeRepo({ find: vi.fn(async () => [mockSub]) });
     mockDataSource(repo);
-    mockWebPush.sendNotification.mockResolvedValue({ statusCode: 201 });
 
     await NotificationPushService.sendToUser(TENANT_ID, 'user-1', { title: 'Hi', body: 'Hello' });
 
-    expect(mockWebPush.setVapidDetails).toHaveBeenCalled();
-    expect(mockWebPush.sendNotification).toHaveBeenCalledWith(
-      { endpoint: mockSub.endpoint, keys: { p256dh: mockSub.p256dh, auth: mockSub.auth } },
-      expect.any(String)
-    );
+    expect(invokeMock).toHaveBeenCalledWith('send', expect.objectContaining({
+      subscription: { endpoint: mockSub.endpoint, p256dh: mockSub.p256dh, auth: mockSub.auth },
+    }));
   });
 
   it('does nothing when user has no subscriptions', async () => {
@@ -161,15 +158,13 @@ describe('NotificationPushService.sendToUser', () => {
     mockDataSource(repo);
 
     await NotificationPushService.sendToUser(TENANT_ID, 'user-1', { title: 'Hi', body: 'Hello' });
-    expect(mockWebPush.sendNotification).not.toHaveBeenCalled();
+    expect(invokeMock).not.toHaveBeenCalled();
   });
 
   it('removes expired subscription (410 status) without throwing', async () => {
     const repo = makeRepo({ find: vi.fn(async () => [mockSub]) });
     mockDataSource(repo);
-
-    const error = Object.assign(new Error('Gone'), { statusCode: 410 });
-    mockWebPush.sendNotification.mockRejectedValue(error);
+    invokeMock.mockResolvedValue({ ok: false, statusCode: 410, error: 'Gone' });
 
     await expect(
       NotificationPushService.sendToUser(TENANT_ID, 'user-1', { title: 'Hi', body: 'Gone' })
@@ -184,10 +179,9 @@ describe('NotificationPushService.sendToAll', () => {
     const sub2 = { ...mockSub, id: 'sub-2', userId: 'user-2', endpoint: 'https://push.example.com/sub2' };
     const repo = makeRepo({ find: vi.fn(async () => [mockSub, sub2]) });
     mockDataSource(repo);
-    mockWebPush.sendNotification.mockResolvedValue({ statusCode: 201 });
 
     await NotificationPushService.sendToAll(TENANT_ID, { title: 'Broadcast', body: 'To all' });
-    expect(mockWebPush.sendNotification).toHaveBeenCalledTimes(2);
+    expect(invokeMock).toHaveBeenCalledTimes(2);
   });
 });
 
@@ -203,13 +197,12 @@ describe('NotificationPushService.sendToAdmins', () => {
         return callCount === 1 ? memberRepo : subRepo;
       },
     });
-    mockWebPush.sendNotification.mockResolvedValue({ statusCode: 201 });
 
     await NotificationPushService.sendToAdmins(TENANT_ID, { title: 'Admin Alert', body: 'Check now' });
     expect(memberRepo.find).toHaveBeenCalledWith({
       where: { tenantId: TENANT_ID, memberRole: 'ADMIN', memberStatus: 'ACTIVE' },
       select: ['userId'],
     });
-    expect(mockWebPush.sendNotification).toHaveBeenCalled();
+    expect(invokeMock).toHaveBeenCalled();
   });
 });

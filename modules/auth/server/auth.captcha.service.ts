@@ -34,25 +34,26 @@ export default class CaptchaService {
   }
 
   /**
-   * Verify a reCAPTCHA token against the configured Google secret.
-   * Returns false when no secret is configured (fail-closed by intent —
-   * if you enable the threshold you must also configure the secret).
+   * Verify a CAPTCHA token against the configured provider. CAPTCHA providers are
+   * SANDBOXED community plugins (the @captcha/* family — reCAPTCHA / hCaptcha /
+   * Turnstile) resolved platform-wide (ROOT tenant) via the external-contributions
+   * bridge; the provider secret stays host-side. Fail-CLOSED: returns false when no
+   * provider is installed/configured or verification errors (if you enable the
+   * CAPTCHA threshold you must install + configure a provider).
    */
   static async verify(token: string): Promise<boolean> {
     if (!token) return false;
-    const secret = await SettingService.getValue(ROOT_TENANT_ID, 'recaptchaServerKey');
-    if (!secret) {
-      Logger.warn('CaptchaService.verify: recaptchaServerKey is not set; rejecting captcha token');
-      return false;
-    }
     try {
-      const resp = await fetch('https://www.google.com/recaptcha/api/siteverify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({ secret, response: token }),
-      });
-      const data = (await resp.json().catch(() => null)) as { success?: boolean } | null;
-      return !!data?.success;
+      const { listExternalContributions } = await import('@kuraykaraaslan/common/server/external-extensions');
+      const exts = await listExternalContributions(ROOT_TENANT_ID, 'captcha:provider');
+      if (exts.length === 0) {
+        Logger.warn('CaptchaService.verify: no captcha provider installed; rejecting captcha token');
+        return false;
+      }
+      const wanted = (await SettingService.getValue(ROOT_TENANT_ID, 'captchaProvider').catch(() => null)) || 'recaptcha';
+      const ext = exts.find((c) => c.key === wanted) ?? exts.find((c) => c.configured) ?? exts[0];
+      const res = (await ext.invoke('verify', { token })) as { success?: boolean } | null;
+      return !!res?.success;
     } catch (err: unknown) {
       Logger.warn(`CaptchaService.verify: request failed: ${err instanceof Error ? err.message : String(err)}`);
       return false;

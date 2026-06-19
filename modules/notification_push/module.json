@@ -18,5 +18,12 @@
   },
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/notification_push",
-  "license": "CC-BY-NC-ND-4.0"
+  "license": "CC-BY-NC-ND-4.0",
+  "extensionPoints": [
+    {
+      "id": "push:provider",
+      "kind": "provider",
+      "description": "A push-notification delivery backend (Web Push/VAPID, FCM, Expo, …). Sandboxed community plugins (the @push/* family) contribute their send op here; the Web Push payload encryption + VAPID key stay host-side via the webpush capability."
+    }
+  ]
 }

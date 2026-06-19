@@ -1,0 +1,17 @@
+{
+  "id": "webpush",
+  "name": "Web Push (VAPID)",
+  "version": "1.0.0",
+  "description": "Web Push (VAPID) delivery, contributed into push:provider — sandboxed. The isolate can't do the Web Push payload encryption/VAPID signing, so it orchestrates the host `webpush` capability (web-push library); the VAPID private key stays host-side.",
+  "icon": "fas fa-bell",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": ["webpush"],
+    "httpAllowlist": [],
+    "limits": { "memoryMb": 64, "timeoutMs": 30000, "httpTimeoutMs": 28000, "httpMaxBytes": 1000000 }
+  },
+  "config": {},
+  "extensions": [
+    { "point": "push:provider", "key": "webpush", "metadata": { "label": "Web Push (VAPID)" } }
+  ]
+}

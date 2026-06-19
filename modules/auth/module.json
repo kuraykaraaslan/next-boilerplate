@@ -40,6 +40,13 @@
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/auth",
   "license": "CC-BY-NC-ND-4.0",
+  "extensionPoints": [
+    {
+      "id": "captcha:provider",
+      "kind": "provider",
+      "description": "A CAPTCHA verification backend (reCAPTCHA / hCaptcha / Turnstile). Sandboxed community plugins (the @captcha/* family) contribute their token-verification here."
+    }
+  ],
   "routes": [
     {
       "path": "/admin/auth/settings",
