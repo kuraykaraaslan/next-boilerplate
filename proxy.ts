@@ -2,7 +2,31 @@
 import { NextRequest, NextResponse } from "next/server";
 import SettingService from "@kuraykaraaslan/setting/server/setting.service";
 import TenantDomainService from "@kuraykaraaslan/tenant_domain/server/tenant_domain.service";
+import UserSessionNextService from "@kuraykaraaslan/user_session/server/user_session.service.next";
 import { ROOT_TENANT_ID } from "@kuraykaraaslan/tenant/server/tenant.constants";
+
+// Admin *pages* (not /admin/api — that's served by route handlers with inline
+// auth). Matches the app-relative path, i.e. the part after /tenant/{id}.
+const ADMIN_PAGE_PATH = /^\/admin(?:\/|$)/;
+
+// Gate admin *page* navigations at the middleware layer so an unauthenticated
+// visitor is redirected to login *before* any admin HTML/RSC is streamed — no
+// flash of the (empty) admin shell, on initial load or soft navigation. The
+// check validates the real session (not just the JWT): an access-token JWT can
+// be unexpired while its session is idle- or absolutely-expired, which is
+// exactly the SESSION_EXPIRED case where the shell used to leak through.
+// Returns a redirect response when blocked, or null to let the request continue.
+// `appPath` is the path relative to the tenant (e.g. "/admin/users").
+async function gateAdminPage(req: NextRequest, tenantId: string, appPath: string): Promise<NextResponse | null> {
+    if (!ADMIN_PAGE_PATH.test(appPath)) return null;
+    if (await UserSessionNextService.hasUsableSession(req)) return null;
+    const url = req.nextUrl.clone();
+    url.pathname = `/tenant/${tenantId}/auth/login`;
+    url.search = "";
+    url.searchParams.set("redirect", `/tenant/${tenantId}${appPath}`);
+    log(`[auth] unauthenticated admin access → login redirect (tenant ${tenantId})`);
+    return NextResponse.redirect(url);
+}
 
 const EXCLUDED_PATHS = [
     /^\/_next\/?/,
@@ -79,13 +103,17 @@ async function handleDomainMode(req: NextRequest, host: string, pathname: string
         return NextResponse.next();
     }
 
+    // In domain mode the incoming pathname IS the app-relative path.
+    const blocked = await gateAdminPage(req, tenantId, pathname);
+    if (blocked) return blocked;
+
     const url = req.nextUrl.clone();
     url.pathname = `/tenant/${tenantId}${pathname}`;
     log(`[domain] Rewriting to tenant: ${tenantId}`);
     return NextResponse.rewrite(url);
 }
 
-function handlePathMode(req: NextRequest, pathname: string): NextResponse {
+async function handlePathMode(req: NextRequest, pathname: string): Promise<NextResponse> {
     const tenantPrefix = `/${TENANT_PATH_PREFIX}/`;
 
     if (pathname.startsWith(tenantPrefix)) {
@@ -103,13 +131,20 @@ function handlePathMode(req: NextRequest, pathname: string): NextResponse {
             return NextResponse.rewrite(url);
         }
 
+        const appPath = rest || "/";
+        const blocked = await gateAdminPage(req, tenantId, appPath);
+        if (blocked) return blocked;
+
         const url = req.nextUrl.clone();
-        url.pathname = `/tenant/${tenantId}${rest || "/"}`;
+        url.pathname = `/tenant/${tenantId}${appPath}`;
         log(`[path] Rewriting to tenant: ${tenantId}`);
         return NextResponse.rewrite(url);
     }
 
     // Tenant prefix yoksa → root tenant
+    const rootBlocked = await gateAdminPage(req, ROOT_TENANT_ID, pathname);
+    if (rootBlocked) return rootBlocked;
+
     const url = req.nextUrl.clone();
     url.pathname = `/tenant/${ROOT_TENANT_ID}${pathname}`;
     log("[path] Rewriting to root tenant");
@@ -152,8 +187,14 @@ export async function proxy(req: NextRequest) {
         return NextResponse.rewrite(url);
     }
 
-    // ❌ Zaten /tenant/ altındaysa (sonsuz döngüyü önle)
+    // ❌ Zaten /tenant/ altındaysa (sonsuz döngüyü önle) — ama admin sayfaları
+    // burada da auth ile korunmalı (uygulama linkleri doğrudan bu biçimi kullanır).
     if (pathname.startsWith("/tenant/")) {
+        const m = pathname.match(/^\/tenant\/([^/]+)(\/.*)?$/);
+        if (m) {
+            const blocked = await gateAdminPage(req, m[1], m[2] || "/");
+            if (blocked) return blocked;
+        }
         return NextResponse.next();
     }
 
@@ -162,7 +203,7 @@ export async function proxy(req: NextRequest) {
     if (maintenanceResponse) return maintenanceResponse;
 
     if (TENANCY_MODE === "path") {
-        return handlePathMode(req, pathname);
+        return await handlePathMode(req, pathname);
     }
 
     return handleDomainMode(req, host, pathname);

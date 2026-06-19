@@ -181,6 +181,7 @@ export default class UserSessionCrudService {
   }
 
   // Auth delegates
-  static getSession     = UserSessionAuthService.getSession.bind(UserSessionAuthService);
-  static refreshTokens  = UserSessionAuthService.refreshTokens.bind(UserSessionAuthService);
+  static getSession           = UserSessionAuthService.getSession.bind(UserSessionAuthService);
+  static refreshTokens        = UserSessionAuthService.refreshTokens.bind(UserSessionAuthService);
+  static isSessionRefreshable = UserSessionAuthService.isSessionRefreshable.bind(UserSessionAuthService);
 }

@@ -280,6 +280,49 @@ export default class UserSessionNextService {
     }
   }
 
+  /**
+   * Read-only "is the visitor logged in?" check for *page* / middleware auth
+   * gates — the counterpart to authenticateUserByRequest (which API routes use
+   * for the full user+session result and which logs auth failures). This rotates
+   * nothing and logs nothing; it just answers whether the admin shell should be
+   * painted.
+   *
+   * Returns true when EITHER:
+   *  - the access token still backs a live session (validated against the store,
+   *    not just the JWT — a JWT can be unexpired while its session is idle- or
+   *    absolutely-expired), OR
+   *  - the session is expired-but-refreshable, so the client-side axios
+   *    interceptor will transparently refresh it.
+   *
+   * A genuinely dead session (expired, revoked, beyond the absolute deadline)
+   * returns false so the caller redirects to login.
+   */
+  static async hasUsableSession(request: NextRequest): Promise<boolean> {
+    const accessToken = request.cookies.get("accessToken")?.value;
+    if (accessToken) {
+      try {
+        await UserSessionService.getSession({
+          accessToken,
+          deviceFingerprint: this.generateDeviceFingerprint(request),
+        });
+        return true;
+      } catch {
+        /* access token expired / session not live → fall back to refresh check */
+      }
+    }
+
+    const refreshToken = request.cookies.get("refreshToken")?.value;
+    if (refreshToken) {
+      try {
+        if (await UserSessionService.isSessionRefreshable(refreshToken)) return true;
+      } catch {
+        /* treat any lookup failure as "not usable" */
+      }
+    }
+
+    return false;
+  }
+
   static async logout({ request }: { request: NextRequest }): Promise<void> {
     const accessToken = request.cookies.get("accessToken")?.value;
     if (accessToken) {

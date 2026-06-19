@@ -12,6 +12,8 @@ import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 
 const SESSION_EXPIRY_MS = env.SESSION_EXPIRY_MS ?? (1000 * 60 * 60 * 24 * 7);
 const SESSION_CACHE_TTL = env.SESSION_CACHE_TTL;
+const REFRESH_TOKEN_GRACE_SECONDS = env.REFRESH_TOKEN_GRACE_SECONDS;
+const refreshGraceKey = (userSessionId: string) => `session:refreshgrace:${userSessionId}`;
 
 export default class UserSessionAuthService {
 
@@ -79,6 +81,44 @@ export default class UserSessionAuthService {
     return safeSession;
   }
 
+  /**
+   * Read-only counterpart to refreshTokens: would a refresh succeed *right now*?
+   *
+   * Page/middleware auth gates need to distinguish an expired access token that
+   * still backs a live, refreshable session (allow — the client will refresh)
+   * from a genuinely dead one (redirect to login). This performs the same
+   * acceptance checks as refreshTokens but rotates nothing and triggers no
+   * destructive refresh-token-reuse handling — purely a yes/no.
+   */
+  static async isSessionRefreshable(refreshToken: string): Promise<boolean> {
+    let decoded;
+    try {
+      decoded = UserSessionTokenService.verifyRefreshToken(refreshToken);
+    } catch {
+      return false; // invalid / expired / not-yet-valid (notBefore) JWT
+    }
+
+    const ds = await getDataSource();
+    const session = await ds.getRepository(UserSessionEntity).findOne({
+      where: { userSessionId: decoded.userSessionId, userId: decoded.userId },
+    });
+
+    if (!session) return false;
+    if (session.sessionExpiry < new Date()) return false;
+    if (session.sessionStatus === 'REVOKED') return false;
+    if (session.otpVerifyNeeded) return false;
+    if ((session.metadata as SessionMeta | null)?.impersonation) return false;
+    // Stale/rotated refresh cookie — refreshTokens would treat this as reuse.
+    if (session.refreshToken !== UserSessionTokenService.hashToken(refreshToken)) return false;
+
+    const sessionTenantId = (session.metadata as SessionMeta | null)?.tenantId;
+    const sessionPolicy = await AuthPolicyService.getSessionPolicy(sessionTenantId);
+    const absoluteDeadline = session.createdAt.getTime() + sessionPolicy.absoluteMaxHours * 60 * 60 * 1000;
+    if (Date.now() >= absoluteDeadline) return false;
+
+    return true;
+  }
+
   static async refreshTokens(refreshToken: string): Promise<{
     userSession: SafeUserSession;
     rawAccessToken: string;
@@ -98,9 +138,19 @@ export default class UserSessionAuthService {
     if ((session.metadata as SessionMeta | null)?.impersonation) throw new AppError(UserSessionMessages.INVALID_TOKEN, 401, ErrorCode.UNAUTHORIZED);
 
     if (session.refreshToken !== hashedRefreshToken) {
-      await repo.delete({ userId: session.userId });
-      await UserSessionCacheService.clearUserSessionCache(session.userId);
-      throw new AppError(UserSessionMessages.REFRESH_TOKEN_REUSED, 401, ErrorCode.UNAUTHORIZED);
+      // A concurrent refresh from another tab can present the just-rotated
+      // (previous) token after a sibling request already advanced the stored
+      // hash. Honour a short grace window for that previous token so the benign
+      // race isn't mistaken for token theft and doesn't nuke the user's
+      // sessions. A token older than one generation (or past the window) still
+      // trips reuse-detection.
+      const graced = await redis.get(refreshGraceKey(session.userSessionId)).catch(() => null);
+      if (graced !== hashedRefreshToken) {
+        await repo.delete({ userId: session.userId });
+        await UserSessionCacheService.clearUserSessionCache(session.userId);
+        throw new AppError(UserSessionMessages.REFRESH_TOKEN_REUSED, 401, ErrorCode.UNAUTHORIZED);
+      }
+      // else: benign in-flight duplicate — fall through and re-mint.
     }
 
     const newAccessToken = UserSessionTokenService.generateAccessToken({
@@ -129,6 +179,12 @@ export default class UserSessionAuthService {
       refreshToken: UserSessionTokenService.hashToken(newRefreshToken),
       sessionExpiry: new Date(renewedExpiryMs),
     });
+    // Remember the token we just rotated away from for a short grace window, so a
+    // concurrent refresh still holding it is treated as benign (see the
+    // reuse-detection check above) rather than as token theft.
+    await redis
+      .setex(refreshGraceKey(session.userSessionId), REFRESH_TOKEN_GRACE_SECONDS, session.refreshToken)
+      .catch(() => {});
     await UserSessionCacheService.clearUserSessionCache(session.userId);
     const updated = await repo.findOne({ where: { userSessionId: session.userSessionId } });
 

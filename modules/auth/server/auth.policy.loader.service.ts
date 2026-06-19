@@ -71,7 +71,10 @@ const PASSWORD_DEFAULTS: PasswordPolicy = {
 };
 
 const LOCKOUT_DEFAULTS: LockoutPolicy = { maxAttempts: 5, lockDurationMinutes: 15 };
-const SESSION_DEFAULTS: SessionPolicy = { absoluteMaxHours: 8, idleTimeoutMinutes: 30 };
+const SESSION_DEFAULTS: SessionPolicy = {
+  absoluteMaxHours: env.AUTH_SESSION_ABSOLUTE_MAX_HOURS,
+  idleTimeoutMinutes: env.AUTH_SESSION_IDLE_TIMEOUT_MINUTES,
+};
 const DORMANT_DEFAULTS: DormantPolicy = { days: 90, autoDisable: true, deleteAfterDays: 0 };
 const ADMIN_DEFAULTS: AdminPolicy = { ipAllowlist: [], requireMfa: true };
 const ACCESS_DEFAULTS: AccessPolicy = {

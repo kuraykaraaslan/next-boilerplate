@@ -52,6 +52,14 @@ export const coreFields = {
   // ── Session / Token TTLs ────────────────────────────────────────────────────
   SESSION_CACHE_TTL: z.coerce.number().default(1800),
   SESSION_EXPIRY_MS: z.coerce.number().optional(),
+  // Default session-policy values used when no system/tenant setting overrides them.
+  // Raise these in dev so a long coding session doesn't idle-expire the login.
+  AUTH_SESSION_IDLE_TIMEOUT_MINUTES: z.coerce.number().default(30),
+  AUTH_SESSION_ABSOLUTE_MAX_HOURS: z.coerce.number().default(8),
+  // Grace window (seconds) during which the previous, just-rotated refresh token
+  // is still accepted, so concurrent refreshes from multiple tabs don't trip
+  // reuse-detection and log the user out everywhere. Keep small.
+  REFRESH_TOKEN_GRACE_SECONDS: z.coerce.number().default(15),
   RESET_TOKEN_EXPIRY_SECONDS: z.coerce.number().optional(),
   RESET_TOKEN_LENGTH: z.coerce.number().optional(),
   EMAIL_VERIFY_TTL_SECONDS: z.coerce.number().optional(),

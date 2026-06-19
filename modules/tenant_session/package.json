@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./server/tenant_session.guard.next": "./server/tenant_session.guard.next.ts",
     "./server/tenant_session.membership": "./server/tenant_session.membership.ts",
     "./server/tenant_session.messages": "./server/tenant_session.messages.ts",
     "./server/tenant_session.policy": "./server/tenant_session.policy.ts",

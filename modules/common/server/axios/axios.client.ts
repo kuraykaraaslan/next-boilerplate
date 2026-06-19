@@ -123,10 +123,25 @@ axiosInstance.interceptors.response.use(
 
     const message = error.response?.data?.message || error.message;
 
-    // A dead session can't be refreshed — the refresh token is bound to the same
-    // session, so a refresh would just fail with SESSION_EXPIRED again. Skip the
-    // refresh round-trip and send the user straight to login.
-    if (message === UserSessionMessages.SESSION_EXPIRED) {
+    // A truly dead session can't be refreshed — a refresh would just fail again.
+    // These are terminal states (expired, revoked, deleted by reuse-detection,
+    // malformed token, fingerprint changed). Without this branch those 401s fell
+    // through unhandled and callers that swallow the rejection (e.g. the admin
+    // shell's session fetch) silently rendered a logged-out UI with no redirect.
+    // Skip the refresh round-trip and send the user straight to login.
+    //
+    // SESSION_NOT_FOUND is deliberately NOT here: it also fires when a concurrent
+    // refresh rotated the access token away, leaving this request's token
+    // orphaned. The refresh token may still be valid, so we let it fall through
+    // to the refresh path below — which redirects only if the refresh itself fails.
+    const DEAD_SESSION_MESSAGES: string[] = [
+      UserSessionMessages.SESSION_EXPIRED,
+      UserSessionMessages.SESSION_REVOKED,
+      UserSessionMessages.INVALID_TOKEN,
+      UserSessionMessages.REFRESH_TOKEN_REUSED,
+      UserSessionMessages.DEVICE_FINGERPRINT_MISMATCH,
+    ];
+    if (error.response?.status === 401 && DEAD_SESSION_MESSAGES.includes(message)) {
       if (typeof window !== 'undefined') {
         const { loginUrl } = getAuthContext(originalRequest?.url);
         window.location.href = buildLoginUrlWithRedirect(loginUrl);
@@ -136,7 +151,8 @@ axiosInstance.interceptors.response.use(
 
     const shouldRefresh =
       message === AuthMessages.TOKEN_EXPIRED ||
-      message === AuthMessages.USER_NOT_AUTHENTICATED;
+      message === AuthMessages.USER_NOT_AUTHENTICATED ||
+      message === UserSessionMessages.SESSION_NOT_FOUND;
 
     if (!shouldRefresh) {
       return Promise.reject(error);
