@@ -5,12 +5,13 @@ import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { E_SIGNATURE_MESSAGES } from './e_signature.messages';
 import type { TransactionRecord } from './e_signature.types';
 import type { InitiateLoginParams, InitiateLoginResult } from './e_signature.workflow.types';
-import { generateChallenge, resolveTenantCredentials, saveTransaction } from './e_signature.workflow.helpers';
+import { generateChallenge, saveTransaction } from './e_signature.workflow.helpers';
 
 export async function initiateLogin(params: InitiateLoginParams): Promise<InitiateLoginResult> {
   const provider = await ESignatureProviderService.resolveProvider({
     country: params.country,
     providerOverride: params.providerOverride,
+    tenantId: params.tenantId ?? undefined,
   });
 
   const validation = provider.validateIdentifier(params.identifier, params.country);
@@ -27,14 +28,13 @@ export async function initiateLogin(params: InitiateLoginParams): Promise<Initia
   const transactionId = randomUUID();
   const now = Math.floor(Date.now() / 1000);
 
-  const credentials = params.tenantId
-    ? await resolveTenantCredentials(provider.name, params.tenantId)
-    : undefined;
-
+  // Sandboxed community providers self-resolve their per-tenant config from their
+  // own plugin secrets/settings (the isolate reads them via host.*), so the host no
+  // longer pre-resolves provider credentials here.
   const providerResult = await provider.initiateLogin({
     identifier: normalizedIdentifier,
     challenge,
-    credentials,
+    country: params.country,
   });
 
   const record: TransactionRecord = {

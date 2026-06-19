@@ -1,0 +1,36 @@
+{
+  "id": "smart_id",
+  "name": "Smart-ID e-Signature",
+  "version": "1.0.0",
+  "description": "Smart-ID (Estonia, Latvia, Lithuania) national eID / e-signature provider, contributed into esign:provider — sandboxed. Talks to the SK ID Solutions RP API v2; nonce hashing + verification code run via host crypto, all certificate/signature verification stays host-side.",
+  "icon": "fas fa-signature",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": ["http", "settings", "crypto"],
+    "httpAllowlist": [],
+    "httpAllowlistFromSettings": ["smartIdBaseUrl"],
+    "limits": { "memoryMb": 64, "timeoutMs": 30000, "httpTimeoutMs": 28000, "httpMaxBytes": 2000000 }
+  },
+  "config": {
+    "settings": [
+      { "key": "smartIdBaseUrl", "label": "Smart-ID Base URL", "help": "SK RP API v2 base URL, e.g. https://rp-api.smart-id.com/v2 (or the demo host)." },
+      { "key": "smartIdRelyingPartyUuid", "label": "Relying Party UUID", "help": "Your SK-issued relying-party UUID." },
+      { "key": "smartIdRelyingPartyName", "label": "Relying Party Name", "help": "Your SK-issued relying-party name." }
+    ]
+  },
+  "extensions": [
+    {
+      "point": "esign:provider",
+      "key": "smart_id",
+      "metadata": {
+        "label": "Smart-ID",
+        "displayName": "Smart-ID",
+        "countries": ["EE", "LV", "LT"],
+        "capabilities": ["login"],
+        "loa": "high",
+        "identifierLabel": "Personal code",
+        "identifierPlaceholder": "e.g. 38001085718"
+      }
+    }
+  ]
+}

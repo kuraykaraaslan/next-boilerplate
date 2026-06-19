@@ -1,17 +1,21 @@
 import { env } from '@kuraykaraaslan/env';
-import { extensionRegistry, type RuntimeExtension } from '@kuraykaraaslan/common/server/extension-registry';
+import { listExternalContributions, type ExternalContribution } from '@kuraykaraaslan/common/server/external-extensions';
 import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import { E_SIGNATURE_MESSAGES } from './e_signature.messages';
 import type BaseESignatureProvider from './providers/base.provider';
 import type { CountryCode, CountryHint } from './e_signature.types';
+import { IsolatedESignatureProvider } from './providers/isolated.provider';
 
 /**
- * Extension point satellite e-signature / eID provider modules contribute into.
- * NOTE: the e-signature provider API is tenant-agnostic (env-keyed config, no
- * tenantId), so discovery here is platform-level — gated by each satellite's
- * manifest `enabled`, not by per-tenant module activation. (The other provider
- * hosts — ai/storage/mail/sms/payment — gate per tenant because their APIs
- * carry a tenantId.)
+ * Extension point national e-signature / eID providers contribute into. Providers
+ * are now SANDBOXED community plugins (the @esign/* family); resolution is per-tenant
+ * via the community bridge — a tenant with the matching plugin installed gets it,
+ * with no in-tree fallback (full migration to the marketplace). The descriptive
+ * properties (countries, capabilities, LoA, identifier hints) come from the manifest
+ * metadata; the runnable ops execute in the isolate via `IsolatedESignatureProvider`.
+ *
+ * NOTE: the login/sign workflow threads `tenantId` so the right per-tenant plugin +
+ * its encrypted config are used. Calls without a tenant resolve nothing.
  */
 const ESIGN_PROVIDER_POINT = 'esign:provider';
 
@@ -45,25 +49,14 @@ export default class ESignatureProviderService {
     return map;
   }
 
-  private static keyOf(c: RuntimeExtension): string {
-    return c.key ?? (c.metadata?.key as string);
+  /** Installed+approved sandboxed esign providers for a tenant (empty without one). */
+  private static async contributions(tenantId?: string): Promise<ExternalContribution[]> {
+    if (!tenantId) return [];
+    return listExternalContributions(tenantId, ESIGN_PROVIDER_POINT);
   }
 
-  private static contributions(): RuntimeExtension[] {
-    return extensionRegistry.getContributions(ESIGN_PROVIDER_POINT);
-  }
-
-  private static async loadByName(name: string): Promise<BaseESignatureProvider | undefined> {
-    const c = ESignatureProviderService.contributions().find((x) => ESignatureProviderService.keyOf(x) === name);
-    return c ? extensionRegistry.load<BaseESignatureProvider>(c) : undefined;
-  }
-
-  private static async loadAll(): Promise<BaseESignatureProvider[]> {
-    const out: BaseESignatureProvider[] = [];
-    for (const c of ESignatureProviderService.contributions()) {
-      out.push(await extensionRegistry.load<BaseESignatureProvider>(c));
-    }
-    return out;
+  private static toProvider(ext: ExternalContribution): IsolatedESignatureProvider {
+    return new IsolatedESignatureProvider(ext.key, ext.metadata ?? {}, ext.invoke, ext.configured);
   }
 
   // ──────────────────────────────────────────────
@@ -73,27 +66,31 @@ export default class ESignatureProviderService {
   static async resolveProvider({
     country,
     providerOverride,
+    tenantId,
   }: {
     country?: CountryCode;
     providerOverride?: string;
+    tenantId?: string;
   }): Promise<BaseESignatureProvider> {
     const name =
       providerOverride
       ?? (country ? ESignatureProviderService.COUNTRY_MAP.get(country) : undefined)
       ?? ESignatureProviderService.DEFAULT_PROVIDER_NAME;
-    const provider = await ESignatureProviderService.loadByName(name);
-    if (!provider) {
+    const ext = (await ESignatureProviderService.contributions(tenantId)).find((c) => c.key === name);
+    if (!ext) {
       throw new AppError(`${E_SIGNATURE_MESSAGES.PROVIDER_FOR_COUNTRY_NOT_FOUND}: ${country ?? '-'}`, 422, ErrorCode.VALIDATION_ERROR);
     }
+    const provider = ESignatureProviderService.toProvider(ext);
     if (country && provider.supportedCountries.length && !provider.supportedCountries.includes(country)) {
       throw new AppError(`${E_SIGNATURE_MESSAGES.PROVIDER_FOR_COUNTRY_NOT_FOUND}: ${country}`, 422, ErrorCode.VALIDATION_ERROR);
     }
     return provider;
   }
 
-  static async listCountryHints({ includeUnconfigured = false }: { includeUnconfigured?: boolean } = {}): Promise<CountryHint[]> {
+  static async listCountryHints({ includeUnconfigured = false, tenantId }: { includeUnconfigured?: boolean; tenantId?: string } = {}): Promise<CountryHint[]> {
     const grouped = new Map<string, CountryHint['providers']>();
-    for (const provider of await ESignatureProviderService.loadAll()) {
+    for (const ext of await ESignatureProviderService.contributions(tenantId)) {
+      const provider = ESignatureProviderService.toProvider(ext);
       if (!includeUnconfigured && !provider.isConfigured()) continue;
       for (const country of provider.supportedCountries) {
         if (!grouped.has(country)) grouped.set(country, []);
@@ -112,7 +109,7 @@ export default class ESignatureProviderService {
       .map(([country, providers]) => ({ country: country as CountryCode, providers }));
   }
 
-  static async listProvidersAdmin(): Promise<Array<{
+  static async listProvidersAdmin(tenantId?: string): Promise<Array<{
     id: string;
     displayName: string;
     countries: readonly CountryCode[];
@@ -120,21 +117,25 @@ export default class ESignatureProviderService {
     loa: string;
     configured: boolean;
   }>> {
-    return (await ESignatureProviderService.loadAll()).map((p) => ({
-      id: p.name,
-      displayName: p.displayName,
-      countries: p.supportedCountries,
-      capabilities: p.capabilities,
-      loa: p.defaultLoA,
-      configured: p.isConfigured(),
-    }));
+    return (await ESignatureProviderService.contributions(tenantId)).map((ext) => {
+      const p = ESignatureProviderService.toProvider(ext);
+      return {
+        id: p.name,
+        displayName: p.displayName,
+        countries: p.supportedCountries,
+        capabilities: p.capabilities,
+        loa: p.defaultLoA,
+        configured: p.isConfigured(),
+      };
+    });
   }
 
-  static async getProviderByName(name: string): Promise<BaseESignatureProvider | undefined> {
-    return ESignatureProviderService.loadByName(name);
+  static async getProviderByName(name: string, tenantId?: string): Promise<BaseESignatureProvider | undefined> {
+    const ext = (await ESignatureProviderService.contributions(tenantId)).find((c) => c.key === name);
+    return ext ? ESignatureProviderService.toProvider(ext) : undefined;
   }
 
-  static async listProviders(): Promise<string[]> {
-    return ESignatureProviderService.contributions().map(ESignatureProviderService.keyOf);
+  static async listProviders(tenantId?: string): Promise<string[]> {
+    return (await ESignatureProviderService.contributions(tenantId)).map((c) => c.key);
   }
 }

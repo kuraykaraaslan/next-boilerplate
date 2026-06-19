@@ -24,6 +24,9 @@ export interface InitiateLoginInput {
   identifier: Identifier;
   challenge: string;
   credentials?: ProviderCredentials;
+  /** Selected country — sandboxed providers need it to normalise the identifier
+   *  (e.g. Smart-ID's `PNO{country}-…`), since validation runs in the isolate. */
+  country?: CountryCode;
 }
 
 export interface InitiateLoginOutput {

@@ -1,0 +1,33 @@
+{
+  "id": "login_gov",
+  "name": "Login.gov e-Signature",
+  "version": "1.0.0",
+  "description": "United States Login.gov eID provider, contributed into esign:provider — sandboxed. Login.gov is an OIDC redirect flow (not QR/PIN polling), so this provider surfaces US in the picker and hands the actual login off to the auth_sso OIDC bridge.",
+  "icon": "fas fa-signature",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": ["settings"],
+    "httpAllowlist": [],
+    "limits": { "memoryMb": 64, "timeoutMs": 15000, "httpTimeoutMs": 14000, "httpMaxBytes": 1000000 }
+  },
+  "config": {
+    "settings": [
+      { "key": "loginGovClientId", "label": "Login.gov Client ID", "help": "OIDC client id registered with Login.gov." },
+      { "key": "loginGovRedirectUri", "label": "Login.gov Redirect URI", "help": "OIDC redirect URI registered with Login.gov." }
+    ]
+  },
+  "extensions": [
+    {
+      "point": "esign:provider",
+      "key": "login_gov",
+      "metadata": {
+        "label": "Login.gov",
+        "displayName": "Login.gov",
+        "countries": ["US"],
+        "capabilities": ["login"],
+        "loa": "substantial",
+        "identifierLabel": "Login.gov account"
+      }
+    }
+  ]
+}

@@ -49,7 +49,7 @@
     {
       "id": "esign:provider",
       "kind": "provider",
-      "description": "A national e-signature / eID backend. Satellite modules like esign_mobil_imza contribute their implementation here."
+      "description": "A national e-signature / eID backend. Sandboxed community plugins (the @esign/* family, e.g. @esign/smart_id) contribute their implementation here."
     }
   ]
 }

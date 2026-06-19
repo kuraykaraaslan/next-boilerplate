@@ -1,0 +1,38 @@
+{
+  "id": "mobil_imza_aggregator",
+  "name": "Mobil İmza e-Signature",
+  "version": "1.0.0",
+  "description": "Turkish Mobile Signature aggregator (E-Güven/TÜRKKEP-style) eID / e-signature provider, contributed into esign:provider — sandboxed. Routes signing to the user's GSM operator via an aggregator REST API. The aggregator API key stays host-side; certificate verification is host-side.",
+  "icon": "fas fa-signature",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": ["http", "settings", "secrets"],
+    "httpAllowlist": [],
+    "httpAllowlistFromSettings": ["mobilImzaAggregatorBaseUrl"],
+    "limits": { "memoryMb": 64, "timeoutMs": 30000, "httpTimeoutMs": 28000, "httpMaxBytes": 2000000 }
+  },
+  "config": {
+    "settings": [
+      { "key": "mobilImzaAggregatorBaseUrl", "label": "Aggregator Base URL", "help": "Mobile-signature aggregator REST API base URL." },
+      { "key": "mobilImzaAggregatorCustomerCode", "label": "Customer Code", "help": "Aggregator customer code (sent as X-Customer-Code), if your aggregator requires it." }
+    ],
+    "secrets": [
+      { "key": "mobilImzaAggregatorApiKey", "label": "Aggregator API Key", "help": "Bearer token for the aggregator API; injected host-side, never seen by the plugin." }
+    ]
+  },
+  "extensions": [
+    {
+      "point": "esign:provider",
+      "key": "mobil_imza_aggregator",
+      "metadata": {
+        "label": "Mobil İmza",
+        "displayName": "Mobil İmza",
+        "countries": ["TR"],
+        "capabilities": ["login"],
+        "loa": "high",
+        "identifierLabel": "Mobile number (Turkey)",
+        "identifierPlaceholder": "+90 5XX XXX XX XX"
+      }
+    }
+  ]
+}

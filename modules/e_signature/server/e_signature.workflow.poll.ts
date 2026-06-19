@@ -9,7 +9,7 @@ import { E_SIGNATURE_MESSAGES } from './e_signature.messages';
 import type { LoA } from './e_signature.enums';
 import type { LoginStatusResult } from './e_signature.workflow.types';
 import {
-  deleteTransaction, loadTransaction, loaRank, resolveTenantCredentials,
+  deleteTransaction, loadTransaction, loaRank,
 } from './e_signature.workflow.helpers';
 
 export async function pollStatus({
@@ -34,16 +34,13 @@ export async function pollStatus({
     return { status: 'expired', failureReason: E_SIGNATURE_MESSAGES.TRANSACTION_EXPIRED };
   }
 
-  const provider = await ESignatureProviderService.getProviderByName(record.providerName);
+  const provider = await ESignatureProviderService.getProviderByName(record.providerName, record.tenantId ?? undefined);
   if (!provider) {
     await deleteTransaction(transactionId);
     return { status: 'failed', failureReason: E_SIGNATURE_MESSAGES.PROVIDER_NOT_FOUND };
   }
 
-  const credentials = record.tenantId
-    ? await resolveTenantCredentials(provider.name, record.tenantId)
-    : undefined;
-  const poll = await provider.pollLoginResult(record.providerTxnId, credentials);
+  const poll = await provider.pollLoginResult(record.providerTxnId);
   if (poll.status === 'pending') return { status: 'pending' };
   if (poll.status === 'expired') {
     await deleteTransaction(transactionId);

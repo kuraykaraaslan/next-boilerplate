@@ -1,0 +1,34 @@
+{
+  "id": "bankid_se",
+  "name": "BankID (Sweden) e-Signature",
+  "version": "1.0.0",
+  "description": "Swedish BankID eID provider, contributed into esign:provider — sandboxed. BankID's RP API requires mutual-TLS with a client certificate, which the sandbox egress cannot perform; this provider surfaces SE in the picker but the auth/collect flow is not available in-sandbox (mirrors the built-in shell adapter).",
+  "icon": "fas fa-signature",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": ["settings"],
+    "httpAllowlist": [],
+    "httpAllowlistFromSettings": ["bankIdSeBaseUrl"],
+    "limits": { "memoryMb": 64, "timeoutMs": 15000, "httpTimeoutMs": 14000, "httpMaxBytes": 1000000 }
+  },
+  "config": {
+    "settings": [
+      { "key": "bankIdSeBaseUrl", "label": "BankID RP Base URL", "help": "BankID Relying Party API base URL (mTLS endpoint)." }
+    ]
+  },
+  "extensions": [
+    {
+      "point": "esign:provider",
+      "key": "bankid_se",
+      "metadata": {
+        "label": "BankID (Sweden)",
+        "displayName": "BankID (Sweden)",
+        "countries": ["SE"],
+        "capabilities": ["login", "sign_xades"],
+        "loa": "high",
+        "identifierLabel": "Personnummer",
+        "identifierPlaceholder": "YYYYMMDD-XXXX"
+      }
+    }
+  ]
+}
