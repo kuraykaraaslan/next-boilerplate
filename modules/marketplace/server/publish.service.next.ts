@@ -348,6 +348,8 @@ export interface CommunityListing {
   homepage: string | null;
   publisherSlug: string | null;
   version: string | null;
+  /** Host extension points this plugin's current version contributes into (e.g. 'auth_sso:provider'). */
+  points: string[];
 }
 
 /** Published + public listings for the consumer "Community" catalog section. */
@@ -365,6 +367,13 @@ export async function listPublicListings(): Promise<CommunityListing[]> {
     const version = l.currentVersionId
       ? await versionRepo.findOne({ where: { versionId: l.currentVersionId } })
       : null;
+    let points: string[] = [];
+    if (version?.manifestJson) {
+      try {
+        const m = JSON.parse(version.manifestJson) as { extensions?: Array<{ point?: string }> };
+        points = [...new Set((m.extensions ?? []).map((e) => e.point).filter((p): p is string => !!p))];
+      } catch { /* malformed manifest → no points */ }
+    }
     out.push({
       listingId: l.listingId,
       scopedName: l.scopedName,
@@ -377,6 +386,7 @@ export async function listPublicListings(): Promise<CommunityListing[]> {
       homepage: l.homepage,
       publisherSlug: publisher?.slug ?? null,
       version: version?.version ?? null,
+      points,
     });
   }
   return out;

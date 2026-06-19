@@ -1,7 +1,10 @@
 // Publishes + installs every example community plugin under examples/@<scope>/<name>
-// as a SANDBOXED AI provider, each under its own vendor scope (@google/gemini,
-// @anthropic/claude, @openai/gpt, …). Migrates each provider's existing API key
-// (legacy built-in setting or env override) into the plugin's encrypted secret.
+// as a SANDBOXED contribution, each under its own vendor scope (@anthropic/claude,
+// @sso/google, @invoice/de_zugferd, …). Tier/tags are derived from the contributed
+// extension point. Migrates each plugin's legacy config into its namespace: AI API
+// keys (legacy built-in setting or env override) into the encrypted secret, and any
+// manifest-declared settings/secrets that still live under the same legacy tenant
+// setting key (e.g. @invoice/* gateway URLs + tokens).
 //
 //   TARGET_TENANT_ID=<uuid> npm run seed:plugins
 //   (optional key overrides: OPENAI_API_KEY, ANTHROPIC_API_KEY, GOOGLE_AI_API_KEY,
@@ -62,6 +65,16 @@ function discover(): Example[] {
   return out;
 }
 
+// Derive the listing tier/tags from the contributed extension point, so each
+// family is labelled correctly (ai:provider→ai, invoice:adapter→invoice,
+// payment:gateway→payment, auth_sso:provider→auth_sso, …) instead of all-AI.
+function familyOf(manifest: any): { tier: string; tags: string[] } {
+  const point = String(manifest.extensions?.[0]?.point ?? '');
+  const [domain, kind] = point.split(':');
+  if (!domain) return { tier: 'community', tags: ['community'] };
+  return { tier: domain, tags: [domain, kind || 'plugin'] };
+}
+
 async function main() {
   const ds = await getDataSource();
   const pubRepo = ds.getRepository(Publisher);
@@ -102,6 +115,7 @@ async function main() {
     });
 
     // Published listing + approved version.
+    const family = familyOf(e.manifest);
     const listing = await listingRepo.save(listingRepo.create({
       publisherId: pub.publisherId,
       scopedName,
@@ -109,8 +123,8 @@ async function main() {
       name: e.manifest.name,
       description: e.manifest.description ?? null,
       icon: e.manifest.icon ?? null,
-      tier: 'ai',
-      tags: ['ai', 'provider'],
+      tier: family.tier,
+      tags: family.tags,
       visibility: 'public',
       status: 'published',
     }));
@@ -138,7 +152,30 @@ async function main() {
       await SettingService.updateMany(TARGET_TENANT, { [`plugin_secret:${scopedName}:apiKey`]: encryptFieldOpt(apiKey) });
       console.log(`  installed + migrated apiKey → ${scopedName}`);
     } else {
-      console.log(`  installed (no apiKey — set it in Marketplace → Configure)`);
+      console.log(`  installed (set credentials in Marketplace → Configure)`);
+    }
+
+    // Generic config migration: the manifest declares its non-secret settings and
+    // secrets; for a full migration (e.g. @invoice/* gateways) the legacy values
+    // lived under the SAME tenant setting key (zugferdGatewayUrl, cfdiPacToken, …).
+    // Copy any that exist into the plugin namespace — settings plain, secrets
+    // encrypted — so an upgrading tenant keeps its configuration.
+    const cfg = e.manifest.config ?? {};
+    const declaredSettings: Array<{ key: string }> = Array.isArray(cfg.settings) ? cfg.settings : [];
+    const declaredSecrets: Array<{ key: string }> = Array.isArray(cfg.secrets) ? cfg.secrets : [];
+    const migrated: Record<string, string> = {};
+    for (const s of declaredSettings) {
+      const v = await SettingService.getValue(TARGET_TENANT, s.key);
+      if (v != null && v !== '') migrated[`plugin:${scopedName}:${s.key}`] = v;
+    }
+    for (const s of declaredSecrets) {
+      if (s.key === 'apiKey') continue; // handled by the AI key migration above
+      const v = await SettingService.getValue(TARGET_TENANT, s.key);
+      if (v != null && v !== '') migrated[`plugin_secret:${scopedName}:${s.key}`] = encryptFieldOpt(v) as string;
+    }
+    if (Object.keys(migrated).length) {
+      await SettingService.updateMany(TARGET_TENANT, migrated);
+      console.log(`  migrated ${Object.keys(migrated).length} legacy config value(s) → ${scopedName}`);
     }
   }
 
