@@ -18,8 +18,20 @@ import type { CreatePageDTO, UpdatePageDTO, UpsertTranslationDTO } from './dynam
 import DynamicPageMessages from './dynamic_page.messages'
 
 const SLUG_TTL = 3600
+const TR_TTL = 3600
 
 const slugKey = (tenantId: string, slug: string) => `dp:slug:${tenantId}:${slug}`
+const trKey = (tenantId: string, pageId: string) => `dp:tr:${tenantId}:${pageId}`
+
+// Best-effort edge cache purge so CDN/middleware-cached public HTML for this
+// page is invalidated the moment its content (page, translation, …) changes.
+// Mirrors the `page.invalidated` webhook already dispatched on page updates.
+async function dispatchInvalidation(tenantId: string, dynamicPageId: string, slug: string): Promise<void> {
+  try {
+    const { default: WebhookService } = await import('@kuraykaraaslan/webhook/server/webhook.service')
+    await WebhookService.dispatchEvent(tenantId, 'page.invalidated', { dynamicPageId, slug })
+  } catch { /* webhook best-effort */ }
+}
 
 export default class DynamicPageCrudService {
 
@@ -147,11 +159,14 @@ export default class DynamicPageCrudService {
       await redis.del(slugKey(tenantId, saved.slug)).catch(() => {})
       if (oldSlug !== saved.slug) await redis.del(slugKey(tenantId, oldSlug)).catch(() => {})
       // CDN-friendly cache invalidation webhook so edges can purge this page.
-      try {
-        const { default: WebhookService } = await import('@kuraykaraaslan/webhook/server/webhook.service')
-        await WebhookService.dispatchEvent(tenantId, 'page.invalidated', { dynamicPageId: pageId, slug: saved.slug })
-        if (dto.status === 'PUBLISHED') await WebhookService.dispatchEvent(tenantId, 'page.published', { dynamicPageId: pageId, slug: saved.slug })
-      } catch { /* webhook best-effort */ }
+      await dispatchInvalidation(tenantId, pageId, saved.slug)
+      if (oldSlug !== saved.slug) await dispatchInvalidation(tenantId, pageId, oldSlug)
+      if (dto.status === 'PUBLISHED') {
+        try {
+          const { default: WebhookService } = await import('@kuraykaraaslan/webhook/server/webhook.service')
+          await WebhookService.dispatchEvent(tenantId, 'page.published', { dynamicPageId: pageId, slug: saved.slug })
+        } catch { /* webhook best-effort */ }
+      }
       return DynamicPageRecordSchema.parse(saved)
     } catch (error) {
       if (error instanceof AppError) throw error
@@ -167,18 +182,30 @@ export default class DynamicPageCrudService {
     if (!row) throw new AppError(DynamicPageMessages.PAGE_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     await repo.remove(row)
     await redis.del(slugKey(tenantId, row.slug)).catch(() => {})
+    await redis.del(trKey(tenantId, pageId)).catch(() => {})
+    await dispatchInvalidation(tenantId, pageId, row.slug)
     SeoService.delete(tenantId, 'dynamic_page', pageId).catch((err) =>
       Logger.warn(`[DynamicPage] SEO cleanup failed for page ${pageId}: ${err}`)
     )
   }
 
   static async getTranslations(tenantId: string, pageId: string): Promise<DynamicPageTranslationRecord[]> {
-    const ds = await tenantDataSourceFor(tenantId)
-    const rows = await ds.getRepository(DynamicPageTranslationEntity).find({
-      where: { tenantId, dynamicPageId: pageId },
-      order: { lang: 'ASC' },
+    const key = trKey(tenantId, pageId)
+    return singleFlight(key, async () => {
+      const cached = await redis.get(key).catch(() => null)
+      if (cached) {
+        try { return JSON.parse(cached) as DynamicPageTranslationRecord[] } catch { await redis.del(key).catch(() => {}) }
+      }
+
+      const ds = await tenantDataSourceFor(tenantId)
+      const rows = await ds.getRepository(DynamicPageTranslationEntity).find({
+        where: { tenantId, dynamicPageId: pageId },
+        order: { lang: 'ASC' },
+      })
+      const parsed = rows.map((r) => DynamicPageTranslationRecordSchema.parse(r))
+      await redis.setex(key, jitter(TR_TTL), JSON.stringify(parsed)).catch(() => {})
+      return parsed
     })
-    return rows.map((r) => DynamicPageTranslationRecordSchema.parse(r))
   }
 
   static async upsertTranslation(
@@ -197,6 +224,11 @@ export default class DynamicPageCrudService {
     }
     try {
       const saved = await repo.save(row)
+      await redis.del(trKey(tenantId, pageId)).catch(() => {})
+      const slug = await ds.getRepository(DynamicPageEntity)
+        .findOne({ where: { tenantId, dynamicPageId: pageId }, select: ['slug'] })
+        .then((p) => p?.slug).catch(() => undefined)
+      if (slug) await dispatchInvalidation(tenantId, pageId, slug)
       return DynamicPageTranslationRecordSchema.parse(saved)
     } catch (error) {
       if (error instanceof AppError) throw error
@@ -211,5 +243,10 @@ export default class DynamicPageCrudService {
     const row = await repo.findOne({ where: { tenantId, dynamicPageId: pageId, lang } })
     if (!row) throw new AppError(DynamicPageMessages.TRANSLATION_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     await repo.remove(row)
+    await redis.del(trKey(tenantId, pageId)).catch(() => {})
+    const slug = await ds.getRepository(DynamicPageEntity)
+      .findOne({ where: { tenantId, dynamicPageId: pageId }, select: ['slug'] })
+      .then((p) => p?.slug).catch(() => undefined)
+    if (slug) await dispatchInvalidation(tenantId, pageId, slug)
   }
 }

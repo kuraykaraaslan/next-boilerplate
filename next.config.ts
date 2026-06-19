@@ -50,6 +50,32 @@ const nextConfig: NextConfig = {
       "countries-and-timezones",
     ],
   },
+  // ── Edge / CDN caching for the public tenant site ──────────────────────────
+  // Public CMS + auth pages are anonymous (rendered from tenantId+slug+lang, no
+  // per-user state), so a shared cache can serve them. `s-maxage` lets the CDN
+  // hold the HTML; `stale-while-revalidate` serves stale instantly while the
+  // edge refetches. Editing a page fires the `page.invalidated` webhook
+  // (dynamic_page.crud.service) so edges purge immediately — the long TTL is a
+  // ceiling, not the freshness window. `max-age=0` keeps browsers revalidating
+  // so a single user never gets stuck on stale HTML.
+  // Admin (`/admin/*`) and API (`/api/*`) are explicitly no-store.
+  async headers() {
+    const PUBLIC_CACHE = 'public, max-age=0, s-maxage=3600, stale-while-revalidate=86400'
+    const PRIVATE = 'private, no-store'
+    return [
+      // Admin & API first (more specific) — never shared-cache.
+      { source: '/tenant/:tenantId/admin', headers: [{ key: 'Cache-Control', value: PRIVATE }] },
+      { source: '/tenant/:tenantId/admin/:path*', headers: [{ key: 'Cache-Control', value: PRIVATE }] },
+      { source: '/tenant/:tenantId/api/:path*', headers: [{ key: 'Cache-Control', value: PRIVATE }] },
+      // Tenant root (home).
+      { source: '/tenant/:tenantId', headers: [{ key: 'Cache-Control', value: PUBLIC_CACHE }] },
+      // Everything else under the tenant except admin/api.
+      {
+        source: '/tenant/:tenantId/:path((?!admin(?:$|/)|api(?:$|/)).*)',
+        headers: [{ key: 'Cache-Control', value: PUBLIC_CACHE }],
+      },
+    ]
+  },
   images: {
     remotePatterns: [
       {

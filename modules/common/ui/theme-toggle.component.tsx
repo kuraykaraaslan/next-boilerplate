@@ -1,19 +1,27 @@
 'use client';
+import { useEffect, useState } from 'react';
 import { useTheme } from 'next-themes';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
+  // `theme` is undefined during SSR and the first client render — next-themes
+  // resolves it only after mount. Render the default (moon) markup until then so
+  // server and client agree, otherwise the icon/aria-label hydration mismatches.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const isDark = mounted && theme === 'dark';
+
   return (
     <button
       type="button"
-      aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+      aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
       onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
       className="p-2 rounded-md text-text-secondary hover:text-text-primary hover:bg-surface-overlay
                  transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
     >
-      {theme === 'dark'
+      {isDark
         ? <FontAwesomeIcon icon={faSun} className="text-lg" aria-hidden />
         : <FontAwesomeIcon icon={faMoon} className="text-lg" aria-hidden />
       }
