@@ -2,10 +2,16 @@
 import { use } from 'react';
 import api from '@kuraykaraaslan/common/server/axios';
 import { BrandLogo } from '@kuraykaraaslan/common/ui/brand-logo.component';
+import { useTenantBranding } from '@kuraykaraaslan/tenant_branding/ui/use-tenant-branding.hook';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBuilding } from '@fortawesome/free-solid-svg-icons';
 import { ForgotPasswordForm } from '@kuraykaraaslan/auth/ui/forgot-password-form.component';
 
 export default function TenantForgotPasswordPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = use(params);
+
+  // Tenant branding — never show the raw tenantId (UUID).
+  const tenantName = useTenantBranding(tenantId).name;
 
   async function handleSubmit(email: string) {
     try {
@@ -20,7 +26,7 @@ export default function TenantForgotPasswordPage({ params }: { params: Promise<{
       <div className="rounded-2xl border border-border bg-surface-raised shadow-sm p-8 space-y-6">
         <div className="text-center space-y-1">
           <div className="flex justify-center mb-3">
-            <BrandLogo>{tenantId.charAt(0).toUpperCase()}</BrandLogo>
+            <BrandLogo>{tenantName ? tenantName.charAt(0).toUpperCase() : <FontAwesomeIcon icon={faBuilding} />}</BrandLogo>
           </div>
           <h1 className="text-2xl font-bold text-text-primary">Forgot Password</h1>
           <p className="text-sm text-text-secondary">

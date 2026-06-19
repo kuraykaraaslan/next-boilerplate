@@ -3,6 +3,9 @@ import { use, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import api from '@kuraykaraaslan/common/server/axios';
 import { BrandLogo } from '@kuraykaraaslan/common/ui/brand-logo.component';
+import { useTenantBranding } from '@kuraykaraaslan/tenant_branding/ui/use-tenant-branding.hook';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBuilding } from '@fortawesome/free-solid-svg-icons';
 import { LoginForm } from '@kuraykaraaslan/auth/ui/login-form.component';
 import { OAuthButtons, type OAuthProvider } from '@kuraykaraaslan/auth/ui/o-auth-buttons.component';
 import { ESignatureLoginPanel } from '@kuraykaraaslan/auth_e_signature/ui/e-signature-login-panel.component';
@@ -25,12 +28,13 @@ export default function TenantLoginPage({ params }: { params: Promise<{ tenantId
   const [successMsg, setSuccessMsg] = useState('');
   const [ssoProviders, setSsoProviders] = useState<OAuthProvider[]>([]);
   const [acsProviders, setAcsProviders] = useState<{ provider: string; label: string }[]>([]);
-  const [tenantName, setTenantName] = useState('');
   const searchParams = useSearchParams();
   const redirectTo = safeRedirect(searchParams.get('redirect'));
 
-  // Display the tenant's brand/display name instead of the raw tenantId (UUID).
-  const displayName = tenantName || tenantId;
+  // Tenant branding (name, logos, colors…). Never fall back to the raw tenantId
+  // (UUID): the "Sign in to …" line only renders once a real name is available.
+  const branding = useTenantBranding(tenantId);
+  const tenantName = branding.name;
 
   useEffect(() => {
     api.get(`/tenant/${tenantId}/api/auth/sso`)
@@ -40,10 +44,6 @@ export default function TenantLoginPage({ params }: { params: Promise<{ tenantId
     api.get(`/tenant/${tenantId}/api/auth/acs`)
       .then((res) => setAcsProviders((res.data?.providers ?? []) as { provider: string; label: string }[]))
       .catch(() => setAcsProviders([]));
-
-    api.get(`/tenant/${tenantId}/api/settings/public`)
-      .then((res) => setTenantName(res.data?.settings?.brandName || res.data?.tenant?.name || ''))
-      .catch(() => setTenantName(''));
   }, [tenantId]);
 
   // Shared post-login redirect. Both password and e-signature logins create a
@@ -88,10 +88,12 @@ export default function TenantLoginPage({ params }: { params: Promise<{ tenantId
       <div className="rounded-2xl border border-border bg-surface-raised shadow-sm p-8 space-y-6">
         <div className="text-center space-y-1">
           <div className="flex justify-center mb-3">
-            <BrandLogo>{displayName.charAt(0).toUpperCase()}</BrandLogo>
+            <BrandLogo>{tenantName ? tenantName.charAt(0).toUpperCase() : <FontAwesomeIcon icon={faBuilding} />}</BrandLogo>
           </div>
           <h1 className="text-2xl font-bold text-text-primary">Welcome back</h1>
-          <p className="text-sm text-text-secondary">Sign in to <span className="font-medium">{displayName}</span></p>
+          {tenantName && (
+            <p className="text-sm text-text-secondary">Sign in to <span className="font-medium">{tenantName}</span></p>
+          )}
         </div>
 
         {successMsg ? (

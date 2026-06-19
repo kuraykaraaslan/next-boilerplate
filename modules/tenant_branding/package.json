@@ -8,6 +8,7 @@
     "./server/tenant_branding.setting.keys": "./server/tenant_branding.setting.keys.ts",
     "./server/tenant_branding.types": "./server/tenant_branding.types.ts",
     "./ui/settings-branding.page": "./ui/settings-branding.page.tsx",
+    "./ui/use-tenant-branding.hook": "./ui/use-tenant-branding.hook.ts",
     "./module.json": "./module.json"
   }
 }

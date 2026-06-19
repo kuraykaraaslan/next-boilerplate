@@ -2,6 +2,9 @@
 import { use, useEffect, useState } from 'react';
 import api from '@kuraykaraaslan/common/server/axios';
 import { BrandLogo } from '@kuraykaraaslan/common/ui/brand-logo.component';
+import { useTenantBranding } from '@kuraykaraaslan/tenant_branding/ui/use-tenant-branding.hook';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBuilding } from '@fortawesome/free-solid-svg-icons';
 import { RegisterForm } from '@kuraykaraaslan/auth/ui/register-form.component';
 import { OAuthButtons, type OAuthProvider } from '@kuraykaraaslan/auth/ui/o-auth-buttons.component';
 
@@ -9,6 +12,9 @@ export default function TenantRegisterPage({ params }: { params: Promise<{ tenan
   const { tenantId } = use(params);
   const [successMsg, setSuccessMsg] = useState('');
   const [ssoProviders, setSsoProviders] = useState<OAuthProvider[]>([]);
+
+  // Tenant branding — never show the raw tenantId (UUID).
+  const tenantName = useTenantBranding(tenantId).name;
 
   useEffect(() => {
     api.get(`/tenant/${tenantId}/api/auth/sso`)
@@ -41,10 +47,12 @@ export default function TenantRegisterPage({ params }: { params: Promise<{ tenan
       <div className="rounded-2xl border border-border bg-surface-raised shadow-sm p-8 space-y-6">
         <div className="text-center space-y-1">
           <div className="flex justify-center mb-3">
-            <BrandLogo>{tenantId.charAt(0).toUpperCase()}</BrandLogo>
+            <BrandLogo>{tenantName ? tenantName.charAt(0).toUpperCase() : <FontAwesomeIcon icon={faBuilding} />}</BrandLogo>
           </div>
           <h1 className="text-2xl font-bold text-text-primary">Create Account</h1>
-          <p className="text-sm text-text-secondary">Join <span className="font-medium">{tenantId}</span></p>
+          {tenantName && (
+            <p className="text-sm text-text-secondary">Join <span className="font-medium">{tenantName}</span></p>
+          )}
         </div>
 
         {successMsg ? (
