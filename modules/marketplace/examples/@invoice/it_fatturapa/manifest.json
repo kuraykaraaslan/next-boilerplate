@@ -1,0 +1,82 @@
+{
+  "id": "it_fatturapa",
+  "name": "FatturaPA (IT) e-Invoicing",
+  "version": "1.0.0",
+  "description": "Italy FatturaPA / FatturaElettronica 1.2 (SdI) e-invoicing adapter, contributed into invoice:adapter — sandboxed. Builds the real schema-aligned XML, signs it host-side (XAdES, the SdI legally requires a signature), and — when a gateway is configured — POSTs it to the tenant's SdI intermediary.",
+  "icon": "fas fa-file-invoice",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": [
+      "http",
+      "settings",
+      "crypto"
+    ],
+    "httpAllowlist": [],
+    "httpAllowlistFromSettings": [
+      "fatturapaGatewayUrl"
+    ],
+    "limits": {
+      "memoryMb": 64,
+      "timeoutMs": 30000,
+      "httpTimeoutMs": 28000,
+      "httpMaxBytes": 4000000
+    }
+  },
+  "config": {
+    "settings": [
+      {
+        "key": "fatturapaGatewayUrl",
+        "label": "FatturaPA Gateway URL",
+        "help": "HTTP endpoint of your SdI intermediary that accepts the signed FatturaElettronica XML. Leave empty to skip transmission (returns noop)."
+      },
+      {
+        "key": "fatturapaTransmitterCountry",
+        "label": "Transmitter Country (IdPaese)",
+        "help": "IdPaese of the IdTrasmittente. Defaults to the seller country code (IT)."
+      },
+      {
+        "key": "fatturapaTransmitterCode",
+        "label": "Transmitter Code (IdCodice)",
+        "help": "IdCodice of the IdTrasmittente — usually the seller's CF/VAT. Defaults to the seller VAT number."
+      },
+      {
+        "key": "fatturapaCodiceDestinatario",
+        "label": "Codice Destinatario",
+        "help": "7-char recipient code; '0000000' when delivery is via PEC. Defaults to '0000000'."
+      },
+      {
+        "key": "fatturapaPecDestinatario",
+        "label": "PEC Destinatario",
+        "help": "Recipient PEC address, used when CodiceDestinatario is '0000000'."
+      },
+      {
+        "key": "fatturapaFormat",
+        "label": "Formato Trasmissione",
+        "help": "'FPR12' (private) or 'FPA12' (public administration). Defaults to 'FPR12'."
+      },
+      {
+        "key": "fatturapaRegimeFiscale",
+        "label": "Regime Fiscale",
+        "help": "Tax regime code, e.g. 'RF01'. Defaults to 'RF01'."
+      }
+    ],
+    "secrets": [
+      {
+        "key": "fatturapaGatewayToken",
+        "label": "Gateway Bearer Token",
+        "help": "Optional bearer token for the SdI intermediary gateway; injected host-side, never seen by the plugin."
+      }
+    ]
+  },
+  "extensions": [
+    {
+      "point": "invoice:adapter",
+      "key": "it_fatturapa",
+      "metadata": {
+        "kind": "country",
+        "code": "IT",
+        "label": "FatturaPA (IT)"
+      }
+    }
+  ]
+}

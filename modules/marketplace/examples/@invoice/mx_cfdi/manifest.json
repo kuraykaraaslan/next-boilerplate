@@ -1,0 +1,32 @@
+{
+  "id": "mx_cfdi",
+  "name": "CFDI (MX) e-Invoicing",
+  "version": "1.0.0",
+  "description": "Mexico CFDI 4.0 (Comprobante Fiscal Digital por Internet) e-invoicing adapter, contributed into invoice:adapter — sandboxed. Builds a real pre-stamp cfdi:Comprobante and POSTs it to the tenant-configured PAC (Proveedor Autorizado de Certificación), which stamps it (Timbre Fiscal Digital) and returns the SAT UUID. No PAC configured → noop; no UUID is ever fabricated.",
+  "icon": "fas fa-file-invoice",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": ["http", "settings", "secrets"],
+    "httpAllowlist": [],
+    "httpAllowlistFromSettings": ["cfdiPacUrl"],
+    "limits": { "memoryMb": 64, "timeoutMs": 30000, "httpTimeoutMs": 28000, "httpMaxBytes": 4000000 }
+  },
+  "config": {
+    "settings": [
+      { "key": "cfdiPacUrl", "label": "PAC Endpoint URL", "help": "HTTP endpoint of your PAC (Proveedor Autorizado de Certificación) that stamps the CFDI. Leave empty to skip submission (noop)." },
+      { "key": "cfdiRfcEmisor", "label": "RFC Emisor", "help": "Issuer RFC (tax ID) registered with the SAT." },
+      { "key": "cfdiRegimenFiscal", "label": "Régimen Fiscal", "help": "SAT tax regime code of the issuer, e.g. 601. Defaults to 601." },
+      { "key": "cfdiSerie", "label": "Serie", "help": "Optional document series prefix." },
+      { "key": "cfdiUsoCfdi", "label": "Uso CFDI", "help": "Receptor CFDI usage code, e.g. G03 (gastos en general). Defaults to S01." },
+      { "key": "cfdiMetodoPago", "label": "Método de Pago", "help": "SAT payment method: PUE (one-time) or PPD (instalments). Defaults to PUE." },
+      { "key": "cfdiFormaPago", "label": "Forma de Pago", "help": "SAT form of payment, e.g. 99 (por definir) or 03 (transfer). Defaults to 99." },
+      { "key": "cfdiReceptorRegimen", "label": "Régimen Fiscal Receptor", "help": "Receptor tax regime code (CFDI 4.0 requires it), e.g. 616. Defaults to 616." }
+    ],
+    "secrets": [
+      { "key": "cfdiPacToken", "label": "PAC Bearer Token", "help": "Optional bearer token for the PAC endpoint; injected host-side, never seen by the plugin." }
+    ]
+  },
+  "extensions": [
+    { "point": "invoice:adapter", "key": "mx_cfdi", "metadata": { "kind": "country", "code": "MX", "label": "CFDI (MX)" } }
+  ]
+}

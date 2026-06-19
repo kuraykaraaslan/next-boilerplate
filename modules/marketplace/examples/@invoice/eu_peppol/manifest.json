@@ -1,0 +1,27 @@
+{
+  "id": "eu_peppol",
+  "name": "Peppol BIS (EU) e-Invoicing",
+  "version": "1.0.0",
+  "description": "EU Peppol BIS Billing 3.0 (UBL 2.1 + EN 16931) e-invoicing adapter, contributed into invoice:adapter — sandboxed. Generates real UBL 2.1 invoice XML and transmits it (unsigned — the Access Point seals transport-level) to a tenant-configured Peppol Access Point. No mock fallback: noop when no Access Point is configured, error surfaced when the Access Point call fails.",
+  "icon": "fas fa-file-invoice",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": ["http", "settings", "secrets"],
+    "httpAllowlist": [],
+    "httpAllowlistFromSettings": ["peppolAccessPointUrl"],
+    "limits": { "memoryMb": 64, "timeoutMs": 30000, "httpTimeoutMs": 28000, "httpMaxBytes": 4000000 }
+  },
+  "config": {
+    "settings": [
+      { "key": "peppolAccessPointUrl", "label": "Peppol Access Point URL", "help": "HTTP endpoint of your Peppol Access Point that accepts the UBL invoice and wraps it in an AS4 envelope. Leave empty to disable transmission (submit returns noop)." },
+      { "key": "peppolEndpointId", "label": "Peppol Endpoint ID", "help": "Your Peppol participant id used as the supplier EndpointID, e.g. 0088:7300010000001. Required together with the Access Point URL for the adapter to be considered configured." },
+      { "key": "peppolDocumentTypeId", "label": "Peppol Document Type ID", "help": "Optional CustomizationID override for the UBL document type. Defaults to the Peppol BIS Billing 3.0 customization." }
+    ],
+    "secrets": [
+      { "key": "peppolAccessPointToken", "label": "Access Point Bearer Token", "help": "Optional bearer token for the Access Point; injected host-side into the Authorization header, never seen by the plugin." }
+    ]
+  },
+  "extensions": [
+    { "point": "invoice:adapter", "key": "eu_peppol", "metadata": { "kind": "region", "code": "EU", "label": "Peppol BIS (EU)" } }
+  ]
+}

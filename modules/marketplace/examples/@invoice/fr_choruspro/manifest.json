@@ -1,0 +1,57 @@
+{
+  "id": "fr_choruspro",
+  "name": "Chorus Pro (FR) e-Invoicing",
+  "version": "1.0.0",
+  "description": "France Chorus Pro / Factur-X (UN/CEFACT CII, same syntax as ZUGFeRD) e-invoicing adapter, contributed into invoice:adapter — sandboxed. Generates real EN 16931 CII (Factur-X EXTENDED profile), signs host-side (XAdES), and transmits to a tenant-configured Chorus Pro gateway.",
+  "icon": "fas fa-file-invoice",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": [
+      "http",
+      "settings",
+      "crypto"
+    ],
+    "httpAllowlist": [],
+    "httpAllowlistFromSettings": [
+      "chorusProGatewayUrl"
+    ],
+    "limits": {
+      "memoryMb": 64,
+      "timeoutMs": 30000,
+      "httpTimeoutMs": 28000,
+      "httpMaxBytes": 4000000
+    }
+  },
+  "config": {
+    "settings": [
+      {
+        "key": "chorusProGatewayUrl",
+        "label": "Chorus Pro Gateway URL",
+        "help": "HTTP endpoint that accepts the Factur-X CII XML (Chorus Pro API). Required to transmit; leave empty to only generate the document (status 'noop')."
+      },
+      {
+        "key": "chorusProProfile",
+        "label": "Factur-X Profile",
+        "help": "EXTENDED (default), EN16931, BASIC or XRECHNUNG."
+      }
+    ],
+    "secrets": [
+      {
+        "key": "chorusProToken",
+        "label": "Chorus Pro Bearer Token",
+        "help": "Optional bearer token for the Chorus Pro API; injected host-side, never seen by the plugin."
+      }
+    ]
+  },
+  "extensions": [
+    {
+      "point": "invoice:adapter",
+      "key": "fr_choruspro",
+      "metadata": {
+        "kind": "country",
+        "code": "FR",
+        "label": "Chorus Pro (FR)"
+      }
+    }
+  ]
+}

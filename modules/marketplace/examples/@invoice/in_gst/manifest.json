@@ -1,0 +1,61 @@
+{
+  "id": "in_gst",
+  "name": "GST IRP (IN) e-Invoicing",
+  "version": "1.0.0",
+  "description": "India GST e-invoice (IRP) adapter, contributed into invoice:adapter — sandboxed. Builds the real IRP JSON (schema 1.1), splits tax into CGST+SGST / IGST, and POSTs it to a tenant-configured IRP/GSP endpoint, which returns the IRN + signed QR. Ported from the built-in invoice_in_gst adapter.",
+  "icon": "fas fa-file-invoice",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": [
+      "http",
+      "settings"
+    ],
+    "httpAllowlist": [],
+    "httpAllowlistFromSettings": [
+      "gstIrpUrl"
+    ],
+    "limits": {
+      "memoryMb": 64,
+      "timeoutMs": 30000,
+      "httpTimeoutMs": 28000,
+      "httpMaxBytes": 4000000
+    }
+  },
+  "config": {
+    "settings": [
+      {
+        "key": "gstIrpUrl",
+        "label": "IRP / GSP Endpoint URL",
+        "help": "HTTP endpoint of your IRP/GSP/ASP integrator that accepts the IRP JSON and returns the IRN + signed QR. Leave empty to disable submission (the adapter returns noop)."
+      },
+      {
+        "key": "gstGstin",
+        "label": "Supplier GSTIN",
+        "help": "Your 15-digit GST Identification Number. The first 2 digits are the state code."
+      },
+      {
+        "key": "gstStateCode",
+        "label": "Supplier State Code",
+        "help": "GST state code, e.g. '29' for Karnataka. Defaults to the first 2 digits of the GSTIN when empty."
+      }
+    ],
+    "secrets": [
+      {
+        "key": "gstIrpToken",
+        "label": "IRP Bearer Token",
+        "help": "Optional bearer token for the IRP/GSP endpoint; injected host-side, never seen by the plugin."
+      }
+    ]
+  },
+  "extensions": [
+    {
+      "point": "invoice:adapter",
+      "key": "in_gst",
+      "metadata": {
+        "kind": "country",
+        "code": "IN",
+        "label": "GST IRP (IN)"
+      }
+    }
+  ]
+}

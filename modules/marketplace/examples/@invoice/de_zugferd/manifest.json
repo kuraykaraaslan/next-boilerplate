@@ -1,0 +1,57 @@
+{
+  "id": "de_zugferd",
+  "name": "ZUGFeRD (DE) e-Invoicing",
+  "version": "1.0.0",
+  "description": "Germany ZUGFeRD 2.x / XRechnung (UN/CEFACT CII) e-invoicing adapter, contributed into invoice:adapter — sandboxed. Generates real EN 16931 CII, signs host-side (XAdES), and optionally transmits to a tenant-configured gateway.",
+  "icon": "fas fa-file-invoice",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": [
+      "http",
+      "settings",
+      "crypto"
+    ],
+    "httpAllowlist": [],
+    "httpAllowlistFromSettings": [
+      "zugferdGatewayUrl"
+    ],
+    "limits": {
+      "memoryMb": 64,
+      "timeoutMs": 30000,
+      "httpTimeoutMs": 28000,
+      "httpMaxBytes": 4000000
+    }
+  },
+  "config": {
+    "settings": [
+      {
+        "key": "zugferdGatewayUrl",
+        "label": "ZUGFeRD Gateway URL",
+        "help": "Optional HTTP endpoint that accepts the CII XML. Leave empty to only generate the document (for PDF/A-3 embedding)."
+      },
+      {
+        "key": "zugferdProfile",
+        "label": "CII Profile",
+        "help": "EN16931 (default), BASIC, EXTENDED or XRECHNUNG."
+      }
+    ],
+    "secrets": [
+      {
+        "key": "zugferdGatewayToken",
+        "label": "Gateway Bearer Token",
+        "help": "Optional bearer token for the gateway; injected host-side, never seen by the plugin."
+      }
+    ]
+  },
+  "extensions": [
+    {
+      "point": "invoice:adapter",
+      "key": "de_zugferd",
+      "metadata": {
+        "kind": "country",
+        "code": "DE",
+        "label": "ZUGFeRD (DE)"
+      }
+    }
+  ]
+}

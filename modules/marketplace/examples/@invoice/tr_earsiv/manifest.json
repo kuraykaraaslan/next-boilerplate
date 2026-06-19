@@ -1,0 +1,29 @@
+{
+  "id": "tr_earsiv",
+  "name": "e-Arşiv (TR) e-Invoicing",
+  "version": "1.0.0",
+  "description": "Turkey e-Arşiv Fatura (B2C) / e-Fatura (B2B) adapter, contributed into invoice:adapter — sandboxed. Builds real UBL-TR 2.1 (TR1.2) documents from the host-serialised rows (unsigned — the legal seal is the separate host-side SMS-OTP finalisation) and submits via a tenant-configured GİB-approved integrator (Foriba / Logo). With no integrator configured it behaves like the built-in mock: synthetic accepted result + generated UBL-TR in raw.",
+  "icon": "fas fa-file-invoice",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": ["http", "settings", "secrets"],
+    "httpAllowlist": [],
+    "httpAllowlistFromSettings": ["earsivIntegratorBaseUrl"],
+    "limits": { "memoryMb": 64, "timeoutMs": 30000, "httpTimeoutMs": 28000, "httpMaxBytes": 4000000 }
+  },
+  "config": {
+    "settings": [
+      { "key": "earsivIntegrator", "label": "e-Arşiv Integrator", "help": "Which GİB-approved integrator to use: 'mock' (default — synthetic success + generated UBL-TR, no egress), 'foriba', or 'logo'. Other values fall back to mock." },
+      { "key": "earsivIntegratorBaseUrl", "label": "Integrator Base URL", "help": "The integrator's web-service endpoint (Foriba / Logo provide separate TEST and PROD URLs per customer). Required for real integrators; ignored by mock." },
+      { "key": "earsivIntegratorSandbox", "label": "Use Integrator Sandbox", "help": "'true' (default) selects the integrator's TEST endpoint, 'false' selects PROD. Only relevant when a base URL is not pinned." },
+      { "key": "earsivIntegratorUsername", "label": "Integrator Username", "help": "SOAP/REST username (or TCKN/VKN portal login) issued by the integrator. Not a secret — kept as a setting to match the original adapter." },
+      { "key": "earsivDocumentTypeOverride", "label": "Document Type Override", "help": "Force 'EARSIVFATURA' (B2C) or 'TICARIFATURA' (B2B). Defaults to EARSIVFATURA." }
+    ],
+    "secrets": [
+      { "key": "earsivIntegratorPassword", "label": "Integrator Password", "help": "The integrator API password / portal password; injected host-side into the request, never seen by the plugin." }
+    ]
+  },
+  "extensions": [
+    { "point": "invoice:adapter", "key": "tr_earsiv", "metadata": { "kind": "region", "code": "TR", "label": "e-Arşiv (TR)" } }
+  ]
+}

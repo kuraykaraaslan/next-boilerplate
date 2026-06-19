@@ -1,10 +1,10 @@
-import { extensionRegistry } from '@kuraykaraaslan/common/server/extension-registry';
+import { listExternalContributions } from '@kuraykaraaslan/common/server/external-extensions';
 import SettingService from '@kuraykaraaslan/setting/server/setting.service';
 import type { InvoiceAdapter } from './base.adapter';
-import type { InvoiceAdapterContribution, InvoiceAdapterMetadata } from './invoice.adapter.types';
+import type { InvoiceAdapterMetadata } from './invoice.adapter.types';
+import { IsolatedInvoiceAdapter } from './isolated.invoice.adapter';
 
 const INVOICE_ADAPTER_POINT = 'invoice:adapter';
-const instances = new Map<string, InvoiceAdapter>();
 
 /** Read & normalise the routing metadata off a contribution; null if malformed. */
 function adapterMeta(metadata: unknown): InvoiceAdapterMetadata | null {
@@ -14,38 +14,37 @@ function adapterMeta(metadata: unknown): InvoiceAdapterMetadata | null {
 }
 
 /**
- * Resolve an adapter by routing kind + code via the invoice:adapter extension
- * registry. Every adapter lives in its own satellite module (invoice_<key>);
- * instances are cached per kind:code (config is read per-call via SettingService,
- * so caching the instance is safe).
+ * Resolve an adapter by routing kind + code. Regional e-invoicing adapters are now
+ * SANDBOXED community plugins (the @invoice/* family) contributing into
+ * `invoice:adapter`; resolution is per-tenant + per-call (the isolate `invoke` is
+ * tenant-bound, so nothing is cached). A tenant without the matching plugin
+ * installed has no adapter for that region — there is no built-in fallback (full
+ * migration to the marketplace).
  */
-async function loadAdapter(kind: InvoiceAdapterMetadata['kind'], code: string): Promise<InvoiceAdapter | null> {
+async function loadAdapter(
+  tenantId: string,
+  kind: InvoiceAdapterMetadata['kind'],
+  code: string,
+): Promise<InvoiceAdapter | null> {
+  if (!code) return null;
   const wanted = code.toUpperCase();
-  const cacheKey = `${kind}:${wanted}`;
-  const cached = instances.get(cacheKey);
-  if (cached) return cached;
-
-  const contrib = extensionRegistry.getContributions(INVOICE_ADAPTER_POINT).find((c) => {
+  const ext = (await listExternalContributions(tenantId, INVOICE_ADAPTER_POINT)).find((c) => {
     const m = adapterMeta(c.metadata);
     return m?.kind === kind && m.code === wanted;
   });
-  if (!contrib) return null;
-
-  const impl = await extensionRegistry.load<InvoiceAdapterContribution>(contrib);
-  const inst = impl.create();
-  instances.set(cacheKey, inst);
-  return inst;
+  if (!ext) return null;
+  return new IsolatedInvoiceAdapter(ext.key, ext.metadata ?? {}, ext.invoke);
 }
 
 /** Resolve the region adapter for a tenant's billing region; null if unknown. */
-export async function getInvoiceAdapter(region: string): Promise<InvoiceAdapter | null> {
-  return loadAdapter('region', region);
+export async function getInvoiceAdapter(tenantId: string, region: string): Promise<InvoiceAdapter | null> {
+  return loadAdapter(tenantId, 'region', region);
 }
 
 /** Resolve a country-specific adapter by issuer country code; null if none. */
-export async function getCountryInvoiceAdapter(countryCode: string): Promise<InvoiceAdapter | null> {
+export async function getCountryInvoiceAdapter(tenantId: string, countryCode: string): Promise<InvoiceAdapter | null> {
   if (!countryCode) return null;
-  return loadAdapter('country', countryCode);
+  return loadAdapter(tenantId, 'country', countryCode);
 }
 
 /**
@@ -55,16 +54,16 @@ export async function getCountryInvoiceAdapter(countryCode: string): Promise<Inv
  */
 export async function resolveInvoiceAdapter(tenantId: string, region: string): Promise<InvoiceAdapter | null> {
   const issuerCountry = (await SettingService.getValue(tenantId, 'companyCountryCode')) ?? '';
-  return (await getCountryInvoiceAdapter(issuerCountry)) ?? (await getInvoiceAdapter(region));
+  return (await getCountryInvoiceAdapter(tenantId, issuerCountry)) ?? (await getInvoiceAdapter(tenantId, region));
 }
 
 export async function listInvoiceAdapters(tenantId: string): Promise<Array<{ region: string; configured: boolean }>> {
   const out: Array<{ region: string; configured: boolean }> = [];
-  for (const contrib of extensionRegistry.getContributions(INVOICE_ADAPTER_POINT)) {
-    const m = adapterMeta(contrib.metadata);
+  for (const ext of await listExternalContributions(tenantId, INVOICE_ADAPTER_POINT)) {
+    const m = adapterMeta(ext.metadata);
     if (!m) continue;
-    const impl = await extensionRegistry.load<InvoiceAdapterContribution>(contrib);
-    out.push({ region: m.code, configured: await impl.create().isConfigured(tenantId) });
+    const adapter = new IsolatedInvoiceAdapter(ext.key, ext.metadata ?? {}, ext.invoke);
+    out.push({ region: m.code, configured: await adapter.isConfigured(tenantId) });
   }
   return out;
 }

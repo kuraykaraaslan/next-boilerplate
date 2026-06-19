@@ -1,0 +1,50 @@
+{
+  "id": "us_standard",
+  "name": "US Standard (Stripe Tax) e-Invoicing",
+  "version": "1.0.0",
+  "description": "US standard invoicing adapter, contributed into invoice:adapter — sandboxed. There is no federal e-invoicing mandate, so document submission is a no-op; when Stripe Tax is enabled it creates a Stripe tax calculation (tax/calculations) for audit. The Stripe secret key stays host-side; egress is fixed to api.stripe.com. Ported from the built-in invoice_us_standard adapter.",
+  "icon": "fas fa-file-invoice",
+  "sandbox": {
+    "runtime": "isolated",
+    "capabilities": [
+      "http",
+      "settings"
+    ],
+    "httpAllowlist": [
+      "api.stripe.com"
+    ],
+    "limits": {
+      "memoryMb": 64,
+      "timeoutMs": 30000,
+      "httpTimeoutMs": 28000,
+      "httpMaxBytes": 2000000
+    }
+  },
+  "config": {
+    "settings": [
+      {
+        "key": "stripeTaxEnabled",
+        "label": "Enable Stripe Tax",
+        "help": "Set to 'true' to compute a Stripe Tax calculation per invoice and capture its id for audit. When off, submission is a no-op (sales tax is handled by the tenant's own payment_tax engine)."
+      }
+    ],
+    "secrets": [
+      {
+        "key": "stripeSecretKey",
+        "label": "Stripe Secret Key",
+        "help": "sk_live_… / sk_test_… — stored encrypted, injected host-side for the Stripe Tax API call; never seen by the plugin."
+      }
+    ]
+  },
+  "extensions": [
+    {
+      "point": "invoice:adapter",
+      "key": "us_standard",
+      "metadata": {
+        "kind": "region",
+        "code": "US",
+        "label": "US Standard (Stripe Tax)"
+      }
+    }
+  ]
+}
