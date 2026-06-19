@@ -11,7 +11,7 @@
     "hasNextLayer": true,
     "routeCount": 0,
     "entityCount": 0,
-    "componentCount": 70,
+    "componentCount": 71,
     "file": "common.md"
   },
   "env": {
@@ -672,148 +672,6 @@
     "componentCount": 0,
     "file": "notification_sms.md"
   },
-  "invoice_de_zugferd": {
-    "name": "ZUGFeRD (DE) e-Invoicing",
-    "tier": "other",
-    "tags": [
-      "invoice",
-      "billing",
-      "compliance",
-      "tax",
-      "adapter"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "invoice_de_zugferd.md"
-  },
-  "invoice_eu_peppol": {
-    "name": "Peppol BIS (EU) e-Invoicing",
-    "tier": "other",
-    "tags": [
-      "invoice",
-      "billing",
-      "compliance",
-      "tax",
-      "adapter"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "invoice_eu_peppol.md"
-  },
-  "invoice_fr_choruspro": {
-    "name": "Chorus Pro (FR) e-Invoicing",
-    "tier": "other",
-    "tags": [
-      "invoice",
-      "billing",
-      "compliance",
-      "tax",
-      "adapter"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "invoice_fr_choruspro.md"
-  },
-  "invoice_in_gst": {
-    "name": "GST IRP (IN) e-Invoicing",
-    "tier": "other",
-    "tags": [
-      "invoice",
-      "billing",
-      "compliance",
-      "tax",
-      "adapter"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "invoice_in_gst.md"
-  },
-  "invoice_it_fatturapa": {
-    "name": "FatturaPA (IT) e-Invoicing",
-    "tier": "other",
-    "tags": [
-      "invoice",
-      "billing",
-      "compliance",
-      "tax",
-      "adapter"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "invoice_it_fatturapa.md"
-  },
-  "invoice_mx_cfdi": {
-    "name": "CFDI (MX) e-Invoicing",
-    "tier": "other",
-    "tags": [
-      "invoice",
-      "billing",
-      "compliance",
-      "tax",
-      "adapter"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "invoice_mx_cfdi.md"
-  },
-  "invoice_tr_earsiv": {
-    "name": "e-Arşiv (TR) e-Invoicing",
-    "tier": "other",
-    "tags": [
-      "invoice",
-      "billing",
-      "compliance",
-      "tax",
-      "adapter"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "invoice_tr_earsiv.md"
-  },
-  "invoice_us_standard": {
-    "name": "US Standard (Stripe Tax) e-Invoicing",
-    "tier": "other",
-    "tags": [
-      "invoice",
-      "billing",
-      "compliance",
-      "tax",
-      "adapter"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "invoice_us_standard.md"
-  },
-  "mail_smtp": {
-    "name": "Mail — SMTP",
-    "tier": "other",
-    "tags": [
-      "notifications",
-      "mail",
-      "provider"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "mail_smtp.md"
-  },
   "notification_log": {
     "name": "Notification Log",
     "tier": "other",
@@ -842,20 +700,6 @@
     "componentCount": 0,
     "file": "payment_tax.md"
   },
-  "mail_sendgrid": {
-    "name": "Mail — SendGrid",
-    "tier": "other",
-    "tags": [
-      "notifications",
-      "mail",
-      "provider"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "mail_sendgrid.md"
-  },
   "payment_wishlist": {
     "name": "Payment Wishlist",
     "tier": "other",
@@ -869,20 +713,6 @@
     "entityCount": 3,
     "componentCount": 0,
     "file": "payment_wishlist.md"
-  },
-  "mail_mailgun": {
-    "name": "Mail — Mailgun",
-    "tier": "other",
-    "tags": [
-      "notifications",
-      "mail",
-      "provider"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "mail_mailgun.md"
   },
   "payment_return_rma": {
     "name": "Payment Return / RMA",
@@ -898,20 +728,6 @@
     "entityCount": 3,
     "componentCount": 0,
     "file": "payment_return_rma.md"
-  },
-  "mail_ses": {
-    "name": "Mail — Amazon SES",
-    "tier": "other",
-    "tags": [
-      "notifications",
-      "mail",
-      "provider"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "mail_ses.md"
   },
   "payment_loyalty_points": {
     "name": "Payment Loyalty Points",
@@ -943,20 +759,6 @@
     "componentCount": 1,
     "file": "e_signature.md"
   },
-  "mail_postmark": {
-    "name": "Mail — Postmark",
-    "tier": "other",
-    "tags": [
-      "notifications",
-      "mail",
-      "provider"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "mail_postmark.md"
-  },
   "seo": {
     "name": "SEO Metadata",
     "tier": "other",
@@ -984,20 +786,6 @@
     "entityCount": 1,
     "componentCount": 3,
     "file": "auth_e_signature.md"
-  },
-  "mail_resend": {
-    "name": "Mail — Resend",
-    "tier": "other",
-    "tags": [
-      "notifications",
-      "mail",
-      "provider"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "mail_resend.md"
   },
   "media_gallery": {
     "name": "Media Gallery",
@@ -1083,19 +871,6 @@
     "componentCount": 0,
     "file": "order_fulfillment.md"
   },
-  "storage_s3": {
-    "name": "Storage — AWS S3",
-    "tier": "other",
-    "tags": [
-      "storage",
-      "provider"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "storage_s3.md"
-  },
   "product_review": {
     "name": "Product Review",
     "tier": "other",
@@ -1110,32 +885,6 @@
     "entityCount": 2,
     "componentCount": 0,
     "file": "product_review.md"
-  },
-  "storage_r2": {
-    "name": "Storage — Cloudflare R2",
-    "tier": "other",
-    "tags": [
-      "storage",
-      "provider"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "storage_r2.md"
-  },
-  "storage_spaces": {
-    "name": "Storage — DigitalOcean Spaces",
-    "tier": "other",
-    "tags": [
-      "storage",
-      "provider"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "storage_spaces.md"
   },
   "blog": {
     "name": "Blog",
@@ -1152,32 +901,6 @@
     "entityCount": 3,
     "componentCount": 5,
     "file": "blog.md"
-  },
-  "storage_minio": {
-    "name": "Storage — MinIO",
-    "tier": "other",
-    "tags": [
-      "storage",
-      "provider"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "storage_minio.md"
-  },
-  "storage_local": {
-    "name": "Storage — Local Filesystem",
-    "tier": "other",
-    "tags": [
-      "storage",
-      "provider"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "storage_local.md"
   },
   "messaging": {
     "name": "Messaging",
@@ -1393,118 +1116,6 @@
     "entityCount": 1,
     "componentCount": 1,
     "file": "analytics.md"
-  },
-  "sms_twilio": {
-    "name": "SMS — Twilio",
-    "tier": "other",
-    "tags": [
-      "notifications",
-      "sms",
-      "provider"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "sms_twilio.md"
-  },
-  "sms_netgsm": {
-    "name": "SMS — NetGSM",
-    "tier": "other",
-    "tags": [
-      "notifications",
-      "sms",
-      "provider"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "sms_netgsm.md"
-  },
-  "sms_clickatell": {
-    "name": "SMS — Clickatell",
-    "tier": "other",
-    "tags": [
-      "notifications",
-      "sms",
-      "provider"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "sms_clickatell.md"
-  },
-  "sms_nexmo": {
-    "name": "SMS — Vonage (Nexmo)",
-    "tier": "other",
-    "tags": [
-      "notifications",
-      "sms",
-      "provider"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "sms_nexmo.md"
-  },
-  "esign_mobil_imza": {
-    "name": "e-Signature — Mobil İmza",
-    "tier": "other",
-    "tags": [
-      "e_signature",
-      "eid",
-      "provider"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "esign_mobil_imza.md"
-  },
-  "esign_smart_id": {
-    "name": "e-Signature — Smart-ID",
-    "tier": "other",
-    "tags": [
-      "e_signature",
-      "eid",
-      "provider"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "esign_smart_id.md"
-  },
-  "esign_bankid_se": {
-    "name": "e-Signature — BankID (SE)",
-    "tier": "other",
-    "tags": [
-      "e_signature",
-      "eid",
-      "provider"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "esign_bankid_se.md"
-  },
-  "esign_login_gov": {
-    "name": "e-Signature — Login.gov",
-    "tier": "other",
-    "tags": [
-      "e_signature",
-      "eid",
-      "provider"
-    ],
-    "hasNextLayer": false,
-    "routeCount": 0,
-    "entityCount": 0,
-    "componentCount": 0,
-    "file": "esign_login_gov.md"
   },
   "api_doc": {
     "name": "API Documentation",

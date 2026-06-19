@@ -23,6 +23,7 @@ Dependency-free leaf module loaded by every other module: AppError + ErrorCode e
 - `common/ui/button.component` _(ui, client)_
 - `common/ui/card.component` _(ui, client)_
 - `common/ui/color-picker.component` _(ui, client)_
+- `common/ui/community-providers-card.component` _(ui, client)_
 - `common/ui/context-menu.component` _(ui, client)_
 - `common/ui/currency-selector.component` _(ui, client)_
 - `common/ui/date-range-picker.component` _(ui, client)_
@@ -71,8 +72,7 @@ Dependency-free leaf module loaded by every other module: AppError + ErrorCode e
 - `common/ui/search-bar.component` _(ui, client)_
 - `common/ui/select.component` _(ui, client)_
 - `common/ui/server-data-table.component` _(ui, client)_
-- `common/ui/skeleton.component` _(ui, client)_
-- … and 10 more
+- … and 11 more
 
 ## README
 

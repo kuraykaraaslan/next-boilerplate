@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-18T16:30:08.950Z",
+  "generatedAt": "2026-06-19T09:38:01.235Z",
   "components": [
     {
       "id": "ai_chat/ui/ai-chat-box.component",
@@ -871,6 +871,18 @@
       "isClient": true,
       "isServer": false,
       "baseName": "color-picker.component"
+    },
+    {
+      "id": "common/ui/community-providers-card.component",
+      "module": "common",
+      "filePath": "modules/common/ui/community-providers-card.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "CommunityProvidersCard"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "community-providers-card.component"
     },
     {
       "id": "common/ui/context-menu.component",

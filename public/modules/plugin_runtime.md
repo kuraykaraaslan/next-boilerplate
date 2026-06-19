@@ -12,7 +12,7 @@ Sandboxed execution runtime for untrusted community plugins (V8 isolates, broker
 
 ## Dependencies
 
-- **requires:** `db`, `env`, `setting`, `storage`, `audit_log`, `webhook`, `common`
+- **requires:** `db`, `env`, `setting`, `storage`, `audit_log`, `webhook`, `e_signature`, `common`
 
 ## Entities
 
