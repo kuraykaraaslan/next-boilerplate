@@ -37,6 +37,7 @@
       "href": "/admin/saml",
       "icon": "fas fa-id-card",
       "group": "Security",
+      "workspace": "system",
       "order": 10,
       "scope": "tenant"
     }

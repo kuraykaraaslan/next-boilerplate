@@ -37,6 +37,7 @@
       "href": "/admin/integrations",
       "icon": "fas fa-plug",
       "group": "Developer",
+      "workspace": "system",
       "order": 10,
       "scope": "tenant"
     }

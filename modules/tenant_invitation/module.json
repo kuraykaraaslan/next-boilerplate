@@ -30,6 +30,7 @@
       "href": "/admin/invitations",
       "icon": "fas fa-envelope",
       "group": "Management",
+      "workspace": "crm",
       "order": 10,
       "scope": "tenant"
     }

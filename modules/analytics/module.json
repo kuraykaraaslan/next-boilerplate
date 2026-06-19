@@ -30,6 +30,7 @@
       "href": "/admin/analytics",
       "icon": "fas fa-chart-line",
       "group": "Insights",
+      "workspace": "crm",
       "order": 10,
       "scope": "tenant"
     }

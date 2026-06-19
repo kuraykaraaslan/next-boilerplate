@@ -28,6 +28,7 @@
       "href": "/admin/api-keys",
       "icon": "fas fa-key",
       "group": "Developer",
+      "workspace": "system",
       "order": 10,
       "scope": "tenant"
     }

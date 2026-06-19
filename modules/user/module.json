@@ -28,6 +28,7 @@
       "href": "/admin/users",
       "icon": "fas fa-users",
       "group": "Platform",
+      "workspace": "system",
       "order": 10,
       "scope": "system"
     }

@@ -28,6 +28,7 @@
       "href": "/admin/domains",
       "icon": "fas fa-globe",
       "group": "Management",
+      "workspace": "crm",
       "order": 10,
       "scope": "tenant"
     }

@@ -25,6 +25,7 @@
       "href": "/admin/ai/chat",
       "icon": "fas fa-comments",
       "group": "Developer",
+      "workspace": "system",
       "order": 11,
       "scope": "tenant"
     }

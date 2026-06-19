@@ -37,6 +37,7 @@
       "href": "/admin/metering",
       "icon": "fas fa-gauge-high",
       "group": "Commerce",
+      "workspace": "commerce",
       "order": 10,
       "scope": "tenant"
     }

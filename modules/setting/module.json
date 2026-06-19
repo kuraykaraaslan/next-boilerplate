@@ -23,6 +23,7 @@
       "href": "/admin/settings",
       "icon": "fas fa-gear",
       "group": "Configuration",
+      "workspace": "system",
       "order": 1,
       "scope": "tenant"
     }

@@ -30,6 +30,7 @@
       "href": "/admin/store/categories",
       "icon": "fas fa-tag",
       "group": "Store",
+      "workspace": "commerce",
       "order": 10,
       "scope": "tenant"
     },
@@ -39,6 +40,7 @@
       "href": "/admin/store/products",
       "icon": "fas fa-box-open",
       "group": "Store",
+      "workspace": "commerce",
       "order": 20,
       "scope": "tenant"
     },
@@ -48,6 +50,7 @@
       "href": "/admin/store/bundles",
       "icon": "fas fa-layer-group",
       "group": "Store",
+      "workspace": "commerce",
       "order": 30,
       "scope": "tenant"
     }

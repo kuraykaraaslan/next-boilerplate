@@ -35,6 +35,7 @@
       "href": "/admin/gift-cards",
       "icon": "fas fa-gift",
       "group": "Commerce",
+      "workspace": "commerce",
       "order": 10,
       "scope": "tenant"
     }

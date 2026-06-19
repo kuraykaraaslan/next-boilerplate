@@ -25,6 +25,7 @@
       "href": "/admin/api-docs",
       "icon": "fas fa-book",
       "group": "Developer",
+      "workspace": "system",
       "order": 10,
       "scope": "tenant"
     }

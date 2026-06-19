@@ -31,6 +31,7 @@
       "href": "/admin/plans",
       "icon": "fas fa-credit-card",
       "group": "Commerce",
+      "workspace": "commerce",
       "order": 10,
       "scope": "tenant"
     },
@@ -40,6 +41,7 @@
       "href": "/admin/payments",
       "icon": "fas fa-credit-card",
       "group": "Commerce",
+      "workspace": "commerce",
       "order": 11,
       "scope": "tenant"
     },
@@ -49,6 +51,7 @@
       "href": "/admin/invoices",
       "icon": "fas fa-file-invoice",
       "group": "Commerce",
+      "workspace": "commerce",
       "order": 12,
       "scope": "tenant"
     }

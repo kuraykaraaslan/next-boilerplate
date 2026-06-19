@@ -21,11 +21,14 @@ export type AppSidebarNavGroup = {
   defaultExpanded?: boolean;
 };
 
-export type AppSidebarFooterRenderContext = {
+export type AppSidebarSlotRenderContext = {
   collapsed: boolean;
 };
 
-type AppSidebarFooter = React.ReactNode | ((context: AppSidebarFooterRenderContext) => React.ReactNode);
+type AppSidebarSlot = React.ReactNode | ((context: AppSidebarSlotRenderContext) => React.ReactNode);
+
+// Kept as an alias for backward compatibility with existing imports.
+export type AppSidebarFooterRenderContext = AppSidebarSlotRenderContext;
 
 type AppSidebarProps = {
   navGroups?: AppSidebarNavGroup[];
@@ -35,7 +38,8 @@ type AppSidebarProps = {
   collapsed?: boolean;
   defaultCollapsed?: boolean;
   onCollapsedChange?: (collapsed: boolean) => void;
-  footer?: AppSidebarFooter;
+  header?: AppSidebarSlot;
+  footer?: AppSidebarSlot;
   className?: string;
 };
 
@@ -47,6 +51,7 @@ export function AppSidebar({
   collapsed,
   defaultCollapsed = false,
   onCollapsedChange,
+  header,
   footer,
   className,
 }: AppSidebarProps) {
@@ -79,8 +84,11 @@ export function AppSidebar({
   const effectiveCollapsed = isDesktop ? isCollapsed : false;
   const groups: AppSidebarNavGroup[] = navGroups ?? (navItems ? [{ items: navItems }] : []);
   const footerContent = typeof footer === 'function'
-    ? (footer as (context: AppSidebarFooterRenderContext) => React.ReactNode)({ collapsed: effectiveCollapsed })
+    ? (footer as (context: AppSidebarSlotRenderContext) => React.ReactNode)({ collapsed: effectiveCollapsed })
     : footer;
+  const headerContent = typeof header === 'function'
+    ? (header as (context: AppSidebarSlotRenderContext) => React.ReactNode)({ collapsed: effectiveCollapsed })
+    : header;
 
   const setCollapsed = (next: boolean) => {
     if (collapsed === undefined) setInternalCollapsed(next);
@@ -121,7 +129,20 @@ export function AppSidebar({
         </button>
       </div>
 
-      <nav className="flex-1 min-h-0 overflow-y-auto px-2 py-3 space-y-4 sidebar-scrollbar-hover" aria-label="Sidebar navigation">
+      {headerContent != null && (
+        <div className={cn('shrink-0 border-b border-border px-2 py-2', effectiveCollapsed && 'flex justify-center')}>
+          {headerContent}
+        </div>
+      )}
+
+      <nav
+        className="flex-1 min-h-0 overflow-y-auto px-2 py-3 space-y-4 sidebar-scrollbar-hover"
+        // Collapsed (icon-only) mode is too narrow to spare a reserved scrollbar
+        // gutter — `scrollbar-gutter: stable` would push the centered icons left,
+        // so drop the reservation here and keep them truly centered.
+        style={effectiveCollapsed ? { scrollbarGutter: 'auto' } : undefined}
+        aria-label="Sidebar navigation"
+      >
         {groups.map((group, gi) => {
           const groupKey = group.label ?? String(gi);
           const expanded = isGroupExpanded(group);

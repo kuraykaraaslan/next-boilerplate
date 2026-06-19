@@ -254,6 +254,10 @@
           "type": "string",
           "description": "Sidebar section label this item is grouped under (e.g. 'Content', 'Commerce')"
         },
+        "workspace": {
+          "type": "string",
+          "description": "Top-level workspace this item belongs to (e.g. 'content', 'commerce', 'crm', 'operations', 'system'). Controls which workspace tab reveals it in the sidebar."
+        },
         "children": {
           "type": "array",
           "items": { "$ref": "#/definitions/menuItem" }

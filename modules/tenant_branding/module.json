@@ -31,6 +31,7 @@
       "href": "/admin/settings/branding",
       "icon": "fas fa-shield-halved",
       "group": "Configuration",
+      "workspace": "system",
       "order": 10,
       "scope": "tenant"
     }

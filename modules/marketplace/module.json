@@ -37,6 +37,7 @@
       "href": "/admin/marketplace",
       "icon": "fas fa-store",
       "group": "Configuration",
+      "workspace": "system",
       "order": 4,
       "scope": "tenant"
     },
@@ -46,6 +47,7 @@
       "href": "/admin/developer",
       "icon": "fas fa-code",
       "group": "Configuration",
+      "workspace": "system",
       "order": 6,
       "scope": "tenant"
     },
@@ -55,6 +57,7 @@
       "href": "/admin/marketplace/review",
       "icon": "fas fa-clipboard-check",
       "group": "Platform",
+      "workspace": "system",
       "order": 30,
       "scope": "system"
     }

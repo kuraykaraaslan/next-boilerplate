@@ -54,6 +54,7 @@
       "href": "/admin/terms",
       "icon": "fas fa-file-contract",
       "group": "Configuration",
+      "workspace": "system",
       "order": 10,
       "scope": "tenant"
     },
@@ -63,6 +64,7 @@
       "href": "/admin/consent",
       "icon": "fas fa-cookie-bite",
       "group": "Configuration",
+      "workspace": "system",
       "order": 20,
       "scope": "tenant"
     }

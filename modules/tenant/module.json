@@ -34,6 +34,7 @@
       "href": "/admin/tenants",
       "icon": "fas fa-building",
       "group": "Platform",
+      "workspace": "system",
       "order": 10,
       "scope": "system"
     }

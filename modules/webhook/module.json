@@ -27,6 +27,7 @@
       "href": "/admin/webhooks",
       "icon": "fas fa-plug",
       "group": "Security",
+      "workspace": "system",
       "order": 10,
       "scope": "tenant"
     }

@@ -28,6 +28,7 @@
       "href": "/admin/coupons",
       "icon": "fas fa-key",
       "group": "Commerce",
+      "workspace": "commerce",
       "order": 10,
       "scope": "tenant"
     }

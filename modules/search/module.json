@@ -29,6 +29,7 @@
       "href": "/admin/search",
       "icon": "fas fa-magnifying-glass",
       "group": "Insights",
+      "workspace": "crm",
       "order": 10,
       "scope": "tenant"
     }

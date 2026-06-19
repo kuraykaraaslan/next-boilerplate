@@ -33,6 +33,7 @@
       "href": "/admin/audit-logs",
       "icon": "fas fa-clock-rotate-left",
       "group": "Platform",
+      "workspace": "system",
       "order": 10,
       "scope": "system"
     }

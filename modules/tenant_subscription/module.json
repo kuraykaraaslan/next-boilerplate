@@ -36,6 +36,7 @@
       "href": "/admin/subscription",
       "icon": "fas fa-credit-card",
       "group": "Management",
+      "workspace": "crm",
       "order": 10,
       "scope": "tenant"
     }

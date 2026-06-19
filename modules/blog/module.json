@@ -32,6 +32,7 @@
       "href": "/admin/blog/posts",
       "icon": "fas fa-newspaper",
       "group": "Blog",
+      "workspace": "content",
       "order": 10,
       "scope": "tenant"
     },
@@ -41,6 +42,7 @@
       "href": "/admin/blog/categories",
       "icon": "fas fa-folder-open",
       "group": "Blog",
+      "workspace": "content",
       "order": 20,
       "scope": "tenant"
     }

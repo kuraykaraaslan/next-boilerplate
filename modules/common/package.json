@@ -81,6 +81,8 @@
     "./ui/layout/app-sidebar.component": "./ui/layout/app-sidebar.component.tsx",
     "./ui/layout/app-top-bar.component": "./ui/layout/app-top-bar.component.tsx",
     "./ui/layout/font-awesome-config.component": "./ui/layout/font-awesome-config.component.tsx",
+    "./ui/layout/workspace-switcher.component": "./ui/layout/workspace-switcher.component.tsx",
+    "./ui/layout/workspaces.config": "./ui/layout/workspaces.config.ts",
     "./ui/modal.component": "./ui/modal.component.tsx",
     "./ui/module-enabled.context.component": "./ui/module-enabled.context.component.tsx",
     "./ui/notification-menu.component": "./ui/notification-menu.component.tsx",
