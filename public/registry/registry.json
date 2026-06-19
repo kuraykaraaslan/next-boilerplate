@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-19T09:38:01.235Z",
+  "generatedAt": "2026-06-19T11:07:14.317Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -126,6 +126,7 @@
         "./ui/button.component",
         "./ui/card.component",
         "./ui/color-picker.component",
+        "./ui/community-providers-card.component",
         "./ui/context-menu.component",
         "./ui/currency-selector.component",
         "./ui/date-range-picker.component",
@@ -146,6 +147,8 @@
         "./ui/layout/app-sidebar.component",
         "./ui/layout/app-top-bar.component",
         "./ui/layout/font-awesome-config.component",
+        "./ui/layout/workspace-switcher.component",
+        "./ui/layout/workspaces.config",
         "./ui/modal.component",
         "./ui/module-enabled.context.component",
         "./ui/notification-menu.component",
@@ -738,6 +741,7 @@
           "href": "/admin/settings",
           "icon": "fas fa-gear",
           "group": "Configuration",
+          "workspace": "system",
           "order": 1,
           "scope": "tenant"
         }
@@ -994,6 +998,7 @@
           "href": "/admin/marketplace",
           "icon": "fas fa-store",
           "group": "Configuration",
+          "workspace": "system",
           "order": 4,
           "scope": "tenant"
         },
@@ -1003,6 +1008,7 @@
           "href": "/admin/developer",
           "icon": "fas fa-code",
           "group": "Configuration",
+          "workspace": "system",
           "order": 6,
           "scope": "tenant"
         },
@@ -1012,6 +1018,7 @@
           "href": "/admin/marketplace/review",
           "icon": "fas fa-clipboard-check",
           "group": "Platform",
+          "workspace": "system",
           "order": 30,
           "scope": "system"
         }
@@ -1426,6 +1433,7 @@
           "href": "/admin/users",
           "icon": "fas fa-users",
           "group": "Platform",
+          "workspace": "system",
           "order": 10,
           "scope": "system"
         }
@@ -2447,6 +2455,7 @@
           "href": "/admin/saml",
           "icon": "fas fa-id-card",
           "group": "Security",
+          "workspace": "system",
           "order": 10,
           "scope": "tenant"
         }
@@ -3003,6 +3012,7 @@
           "href": "/admin/tenants",
           "icon": "fas fa-building",
           "group": "Platform",
+          "workspace": "system",
           "order": 10,
           "scope": "system"
         }
@@ -3140,6 +3150,7 @@
           "href": "/admin/members",
           "icon": "fas fa-people-group",
           "group": "Management",
+          "workspace": "crm",
           "order": 10,
           "scope": "tenant"
         }
@@ -3251,6 +3262,7 @@
           "href": "/admin/invitations",
           "icon": "fas fa-envelope",
           "group": "Management",
+          "workspace": "crm",
           "order": 10,
           "scope": "tenant"
         }
@@ -3432,6 +3444,7 @@
           "href": "/admin/settings/branding",
           "icon": "fas fa-shield-halved",
           "group": "Configuration",
+          "workspace": "system",
           "order": 10,
           "scope": "tenant"
         }
@@ -3452,6 +3465,7 @@
         "./server/tenant_branding.setting.keys",
         "./server/tenant_branding.types",
         "./ui/settings-branding.page",
+        "./ui/use-tenant-branding.hook",
         "./module.json"
       ],
       "settingsTabs": [],
@@ -3520,6 +3534,7 @@
           "href": "/admin/domains",
           "icon": "fas fa-globe",
           "group": "Management",
+          "workspace": "crm",
           "order": 10,
           "scope": "tenant"
         }
@@ -3659,6 +3674,7 @@
           "href": "/admin/subscription",
           "icon": "fas fa-credit-card",
           "group": "Management",
+          "workspace": "crm",
           "order": 10,
           "scope": "tenant"
         }
@@ -3928,6 +3944,7 @@
           "href": "/admin/plans",
           "icon": "fas fa-credit-card",
           "group": "Commerce",
+          "workspace": "commerce",
           "order": 10,
           "scope": "tenant"
         },
@@ -3937,6 +3954,7 @@
           "href": "/admin/payments",
           "icon": "fas fa-credit-card",
           "group": "Commerce",
+          "workspace": "commerce",
           "order": 11,
           "scope": "tenant"
         },
@@ -3946,6 +3964,7 @@
           "href": "/admin/invoices",
           "icon": "fas fa-file-invoice",
           "group": "Commerce",
+          "workspace": "commerce",
           "order": 12,
           "scope": "tenant"
         }
@@ -4280,6 +4299,7 @@
           "href": "/admin/coupons",
           "icon": "fas fa-key",
           "group": "Commerce",
+          "workspace": "commerce",
           "order": 10,
           "scope": "tenant"
         }
@@ -6140,6 +6160,7 @@
           "href": "/admin/api-keys",
           "icon": "fas fa-key",
           "group": "Developer",
+          "workspace": "system",
           "order": 10,
           "scope": "tenant"
         }
@@ -6283,6 +6304,7 @@
           "href": "/admin/audit-logs",
           "icon": "fas fa-clock-rotate-left",
           "group": "Platform",
+          "workspace": "system",
           "order": 10,
           "scope": "system"
         }
@@ -6434,6 +6456,7 @@
           "href": "/admin/store/categories",
           "icon": "fas fa-tag",
           "group": "Store",
+          "workspace": "commerce",
           "order": 10,
           "scope": "tenant"
         },
@@ -6443,6 +6466,7 @@
           "href": "/admin/store/products",
           "icon": "fas fa-box-open",
           "group": "Store",
+          "workspace": "commerce",
           "order": 20,
           "scope": "tenant"
         },
@@ -6452,6 +6476,7 @@
           "href": "/admin/store/bundles",
           "icon": "fas fa-layer-group",
           "group": "Store",
+          "workspace": "commerce",
           "order": 30,
           "scope": "tenant"
         }
@@ -6709,6 +6734,7 @@
           "href": "/admin/webhooks",
           "icon": "fas fa-plug",
           "group": "Security",
+          "workspace": "system",
           "order": 10,
           "scope": "tenant"
         }
@@ -7058,6 +7084,7 @@
           "href": "/admin/blog/posts",
           "icon": "fas fa-newspaper",
           "group": "Blog",
+          "workspace": "content",
           "order": 10,
           "scope": "tenant"
         },
@@ -7067,6 +7094,7 @@
           "href": "/admin/blog/categories",
           "icon": "fas fa-folder-open",
           "group": "Blog",
+          "workspace": "content",
           "order": 20,
           "scope": "tenant"
         }
@@ -7386,6 +7414,7 @@
           "href": "/admin/terms",
           "icon": "fas fa-file-contract",
           "group": "Configuration",
+          "workspace": "system",
           "order": 10,
           "scope": "tenant"
         },
@@ -7395,6 +7424,7 @@
           "href": "/admin/consent",
           "icon": "fas fa-cookie-bite",
           "group": "Configuration",
+          "workspace": "system",
           "order": 20,
           "scope": "tenant"
         }
@@ -7555,6 +7585,7 @@
           "href": "/admin/wallet",
           "icon": "fas fa-wallet",
           "group": "Commerce",
+          "workspace": "commerce",
           "order": 10,
           "scope": "tenant"
         }
@@ -7686,6 +7717,7 @@
           "href": "/admin/feature-flags",
           "icon": "fas fa-toggle-on",
           "group": "Insights",
+          "workspace": "crm",
           "order": 10,
           "scope": "tenant"
         }
@@ -7818,6 +7850,7 @@
           "href": "/admin/metering",
           "icon": "fas fa-gauge-high",
           "group": "Commerce",
+          "workspace": "commerce",
           "order": 10,
           "scope": "tenant"
         }
@@ -7953,6 +7986,7 @@
           "href": "/admin/support",
           "icon": "fas fa-life-ring",
           "group": "Operations",
+          "workspace": "operations",
           "order": 10,
           "scope": "tenant"
         }
@@ -8073,6 +8107,7 @@
           "href": "/admin/approvals",
           "icon": "fas fa-clipboard-check",
           "group": "Operations",
+          "workspace": "operations",
           "order": 10,
           "scope": "tenant"
         }
@@ -8191,6 +8226,7 @@
           "href": "/admin/gift-cards",
           "icon": "fas fa-gift",
           "group": "Commerce",
+          "workspace": "commerce",
           "order": 10,
           "scope": "tenant"
         }
@@ -8320,6 +8356,7 @@
           "href": "/admin/ai",
           "icon": "fas fa-robot",
           "group": "Developer",
+          "workspace": "system",
           "order": 10,
           "scope": "tenant"
         }
@@ -8457,6 +8494,7 @@
           "href": "/admin/pages",
           "icon": "fas fa-file-lines",
           "group": "Content",
+          "workspace": "content",
           "order": 10,
           "scope": "tenant"
         },
@@ -8466,6 +8504,7 @@
           "href": "/admin/blocks",
           "icon": "fas fa-puzzle-piece",
           "group": "Content",
+          "workspace": "content",
           "order": 20,
           "scope": "tenant"
         }
@@ -8720,6 +8759,7 @@
           "href": "/admin/ai/chat",
           "icon": "fas fa-comments",
           "group": "Developer",
+          "workspace": "system",
           "order": 11,
           "scope": "tenant"
         }
@@ -8831,6 +8871,7 @@
           "href": "/admin/integrations",
           "icon": "fas fa-plug",
           "group": "Developer",
+          "workspace": "system",
           "order": 10,
           "scope": "tenant"
         }
@@ -8979,6 +9020,7 @@
           "href": "/admin/search",
           "icon": "fas fa-magnifying-glass",
           "group": "Insights",
+          "workspace": "crm",
           "order": 10,
           "scope": "tenant"
         }
@@ -9083,6 +9125,7 @@
           "href": "/admin/analytics",
           "icon": "fas fa-chart-line",
           "group": "Insights",
+          "workspace": "crm",
           "order": 10,
           "scope": "tenant"
         }
@@ -9177,6 +9220,7 @@
           "href": "/admin/api-docs",
           "icon": "fas fa-book",
           "group": "Developer",
+          "workspace": "system",
           "order": 10,
           "scope": "tenant"
         }
@@ -13298,6 +13342,7 @@
       "exports": [
         "AppSidebarNavItem",
         "AppSidebarNavGroup",
+        "AppSidebarSlotRenderContext",
         "AppSidebarFooterRenderContext",
         "AppSidebar"
       ],
@@ -13326,6 +13371,37 @@
       "isClient": true,
       "isServer": false,
       "baseName": "font-awesome-config.component"
+    },
+    {
+      "id": "common/ui/layout/workspace-switcher.component",
+      "module": "common",
+      "filePath": "modules/common/ui/layout/workspace-switcher.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "WorkspaceOption",
+        "WorkspaceSwitcher"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "workspace-switcher.component"
+    },
+    {
+      "id": "common/ui/layout/workspaces.config",
+      "module": "common",
+      "filePath": "modules/common/ui/layout/workspaces.config.ts",
+      "kind": "ui",
+      "exports": [
+        "WorkspaceDef",
+        "WORKSPACES",
+        "FALLBACK_WORKSPACE",
+        "ALWAYS_ON_GROUPS",
+        "GROUP_WORKSPACE",
+        "resolveWorkspaceId",
+        "workspaceById"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "workspaces.config"
     },
     {
       "id": "common/ui/loading-screen.component",
@@ -16316,6 +16392,20 @@
       "isClient": true,
       "isServer": false,
       "baseName": "settings-branding.page"
+    },
+    {
+      "id": "tenant_branding/ui/use-tenant-branding.hook",
+      "module": "tenant_branding",
+      "filePath": "modules/tenant_branding/ui/use-tenant-branding.hook.ts",
+      "kind": "ui",
+      "exports": [
+        "TenantBranding",
+        "EMPTY_TENANT_BRANDING",
+        "useTenantBranding"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "use-tenant-branding.hook"
     },
     {
       "id": "tenant_domain/ui/domain-list-columns.component",

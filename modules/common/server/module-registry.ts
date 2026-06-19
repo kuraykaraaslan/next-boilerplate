@@ -18,6 +18,7 @@ export interface RuntimeMenuItem {
   order: number;
   scope: ModuleScope;
   group?: string;
+  workspace?: string;
   permissions: string[];
   badge?: { type: 'count' | 'dot' | 'text'; source: string };
   children?: RuntimeMenuItem[];

@@ -43,6 +43,8 @@ Dependency-free leaf module loaded by every other module: AppError + ErrorCode e
 - `common/ui/layout/app-sidebar.component` _(ui, client)_
 - `common/ui/layout/app-top-bar.component` _(ui, client)_
 - `common/ui/layout/font-awesome-config.component` _(ui, client)_
+- `common/ui/layout/workspace-switcher.component` _(ui, client)_
+- `common/ui/layout/workspaces.config` _(ui)_
 - `common/ui/loading-screen.component` _(ui)_
 - `common/ui/modal.component` _(ui, client)_
 - `common/ui/module-enabled.context.component` _(ui, client)_
@@ -70,9 +72,7 @@ Dependency-free leaf module loaded by every other module: AppError + ErrorCode e
 - `common/ui/RichTextEditor/useTriggerKeyboard` _(ui, client)_
 - `common/ui/row-actions-menu.component` _(ui, client)_
 - `common/ui/search-bar.component` _(ui, client)_
-- `common/ui/select.component` _(ui, client)_
-- `common/ui/server-data-table.component` _(ui, client)_
-- … and 11 more
+- … and 13 more
 
 ## README
 

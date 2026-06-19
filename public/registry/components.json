@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-19T09:38:01.235Z",
+  "generatedAt": "2026-06-19T11:07:14.317Z",
   "components": [
     {
       "id": "ai_chat/ui/ai-chat-box.component",
@@ -1090,6 +1090,7 @@
       "exports": [
         "AppSidebarNavItem",
         "AppSidebarNavGroup",
+        "AppSidebarSlotRenderContext",
         "AppSidebarFooterRenderContext",
         "AppSidebar"
       ],
@@ -1118,6 +1119,37 @@
       "isClient": true,
       "isServer": false,
       "baseName": "font-awesome-config.component"
+    },
+    {
+      "id": "common/ui/layout/workspace-switcher.component",
+      "module": "common",
+      "filePath": "modules/common/ui/layout/workspace-switcher.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "WorkspaceOption",
+        "WorkspaceSwitcher"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "workspace-switcher.component"
+    },
+    {
+      "id": "common/ui/layout/workspaces.config",
+      "module": "common",
+      "filePath": "modules/common/ui/layout/workspaces.config.ts",
+      "kind": "ui",
+      "exports": [
+        "WorkspaceDef",
+        "WORKSPACES",
+        "FALLBACK_WORKSPACE",
+        "ALWAYS_ON_GROUPS",
+        "GROUP_WORKSPACE",
+        "resolveWorkspaceId",
+        "workspaceById"
+      ],
+      "isClient": false,
+      "isServer": false,
+      "baseName": "workspaces.config"
     },
     {
       "id": "common/ui/loading-screen.component",
@@ -4108,6 +4140,20 @@
       "isClient": true,
       "isServer": false,
       "baseName": "settings-branding.page"
+    },
+    {
+      "id": "tenant_branding/ui/use-tenant-branding.hook",
+      "module": "tenant_branding",
+      "filePath": "modules/tenant_branding/ui/use-tenant-branding.hook.ts",
+      "kind": "ui",
+      "exports": [
+        "TenantBranding",
+        "EMPTY_TENANT_BRANDING",
+        "useTenantBranding"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "use-tenant-branding.hook"
     },
     {
       "id": "tenant_domain/ui/domain-list-columns.component",

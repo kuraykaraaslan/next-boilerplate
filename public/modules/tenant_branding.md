@@ -25,6 +25,7 @@ White-label branding: logo, favicon, colors, font, custom CSS — read by the pr
 ## Next layer (modules_next/) surface
 
 - `tenant_branding/ui/settings-branding.page` _(ui, client)_
+- `tenant_branding/ui/use-tenant-branding.hook` _(ui, client)_
 
 ## README
 
