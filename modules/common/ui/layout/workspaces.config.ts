@@ -6,6 +6,8 @@ import {
   faListCheck,
   faGear,
   faCode,
+  faWarehouse,
+  faUserTie,
   faEllipsis,
 } from '@fortawesome/free-solid-svg-icons';
 
@@ -27,6 +29,8 @@ export const WORKSPACES: WorkspaceDef[] = [
   { id: 'content',    label: 'Content',    icon: faNewspaper,    order: 10 },
   { id: 'commerce',   label: 'Commerce',   icon: faCartShopping, order: 20 },
   { id: 'crm',        label: 'CRM',        icon: faUsers,        order: 30 },
+  { id: 'erp',        label: 'ERP',        icon: faWarehouse,    order: 35 },
+  { id: 'hr',         label: 'HR',         icon: faUserTie,      order: 37 },
   { id: 'operations', label: 'Operations', icon: faListCheck,    order: 40 },
   { id: 'developer',  label: 'Developer',  icon: faCode,         order: 45 },
   { id: 'system',     label: 'System',     icon: faGear,         order: 50 },
@@ -48,7 +52,12 @@ export const ALWAYS_ON_GROUPS = ['Overview', 'Account'];
 // `workspace` values seeded into module.json manifests.
 export const GROUP_WORKSPACE: Record<string, string> = {
   Content: 'content', Blog: 'content', Drive: 'content',
-  Commerce: 'commerce', Store: 'commerce',
+  Media: 'content', SEO: 'content', Forms: 'content',
+  Navigation: 'content', Redirects: 'content', Search: 'content',
+  Commerce: 'commerce', Store: 'commerce', Orders: 'commerce',
+  Inventory: 'erp', Procurement: 'erp', Finance: 'erp',
+  Sales: 'erp', Catalog: 'erp',
+  Employees: 'hr', Departments: 'hr', Leave: 'hr', Payroll: 'hr',
   Management: 'crm', Insights: 'crm',
   Operations: 'operations',
   Developer: 'developer',
