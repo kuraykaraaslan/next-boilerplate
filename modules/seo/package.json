@@ -28,6 +28,7 @@
     "./ui/index": "./ui/index.ts",
     "./ui": "./ui/index.ts",
     "./ui/seo-panel.component": "./ui/seo-panel.component.tsx",
+    "./ui/seo.page": "./ui/seo.page.tsx",
     "./ui/web-vitals.client": "./ui/web-vitals.client.ts",
     ".": "./server/index.ts",
     "./module.json": "./module.json"

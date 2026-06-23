@@ -1,0 +1,30 @@
+{
+  "name": "@kuraykaraaslan/navigation",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/navigation.service": "./server/navigation.service.ts",
+    "./server/navigation.item.service": "./server/navigation.item.service.ts",
+    "./server/navigation-menus.route": "./server/navigation-menus.route.ts",
+    "./server/navigation-menus-menu-id.route": "./server/navigation-menus-menu-id.route.ts",
+    "./server/navigation-menus-menu-id-lines.route": "./server/navigation-menus-menu-id-lines.route.ts",
+    "./server/navigation-menus-menu-id-lines-item-id.route": "./server/navigation-menus-menu-id-lines-item-id.route.ts",
+    "./server/navigation.types": "./server/navigation.types.ts",
+    "./server/navigation.dto": "./server/navigation.dto.ts",
+    "./server/navigation.messages": "./server/navigation.messages.ts",
+    "./server/entities/navigation_menus.entity": "./server/entities/navigation_menus.entity.ts",
+    "./server/entities/navigation_items.entity": "./server/entities/navigation_items.entity.ts",
+    "./server/index": "./server/index.ts",
+    "./server": "./server/index.ts",
+    "./ui/navigation.page": "./ui/navigation.page.tsx",
+    "./ui/navigation-menu-id.page": "./ui/navigation-menu-id.page.tsx",
+    "./ui/navigation-items-panel.component": "./ui/navigation-items-panel.component.tsx",
+    ".": "./server/index.ts",
+    "./module.json": "./module.json"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "next": "*"
+  }
+}

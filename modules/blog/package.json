@@ -26,6 +26,7 @@
     "./server/index": "./server/index.ts",
     "./server": "./server/index.ts",
     "./ui/blog-categories.page": "./ui/blog-categories.page.tsx",
+    "./ui/blog-comments.page": "./ui/blog-comments.page.tsx",
     "./ui/blog-post-create-modal.component": "./ui/blog-post-create-modal.component.tsx",
     "./ui/blog-posts-post-id.page": "./ui/blog-posts-post-id.page.tsx",
     "./ui/blog-posts.page": "./ui/blog-posts.page.tsx",

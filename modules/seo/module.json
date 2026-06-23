@@ -19,6 +19,24 @@
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/seo",
   "license": "CC-BY-NC-ND-4.0",
+  "menu": [
+    {
+      "id": "seo-overview",
+      "label": "SEO",
+      "href": "/admin/seo",
+      "icon": "fas fa-magnifying-glass-chart",
+      "group": "SEO",
+      "workspace": "content",
+      "order": 30,
+      "scope": "tenant"
+    }
+  ],
+  "routes": [
+    {
+      "path": "/admin/seo",
+      "component": "seo/ui/seo.page"
+    }
+  ],
   "apiRoutes": [
     {
       "path": "/api/seo/[entityType]/[entityId]",

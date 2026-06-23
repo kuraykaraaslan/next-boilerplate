@@ -1,0 +1,67 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "navigation",
+  "name": "Navigation",
+  "description": "Tenant-scoped site navigation menus (header/footer) with nested menu items.",
+  "version": "1.0.0",
+  "icon": "fas fa-bars",
+  "tags": [
+    "navigation",
+    "menu",
+    "cms",
+    "content"
+  ],
+  "priority": 60,
+  "dependencies": {
+    "requires": [
+      "db",
+      "env",
+      "redis",
+      "logger",
+      "setting"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/navigation",
+  "license": "CC-BY-NC-ND-4.0",
+  "menu": [
+    {
+      "id": "navigation-menus",
+      "label": "Menus",
+      "href": "/admin/navigation",
+      "icon": "fas fa-bars",
+      "group": "Navigation",
+      "workspace": "content",
+      "order": 10,
+      "scope": "tenant"
+    }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/navigation/menus",
+      "handler": "navigation/server/navigation-menus.route"
+    },
+    {
+      "path": "/api/navigation/menus/[menuId]",
+      "handler": "navigation/server/navigation-menus-menu-id.route"
+    },
+    {
+      "path": "/api/navigation/menus/[menuId]/lines",
+      "handler": "navigation/server/navigation-menus-menu-id-lines.route"
+    },
+    {
+      "path": "/api/navigation/menus/[menuId]/lines/[itemId]",
+      "handler": "navigation/server/navigation-menus-menu-id-lines-item-id.route"
+    }
+  ],
+  "routes": [
+    {
+      "path": "/admin/navigation",
+      "component": "navigation/ui/navigation.page"
+    },
+    {
+      "path": "/admin/navigation/[menuId]",
+      "component": "navigation/ui/navigation-menu-id.page"
+    }
+  ]
+}

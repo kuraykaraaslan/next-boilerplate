@@ -1,0 +1,97 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "form_builder",
+  "name": "Form Builder",
+  "description": "Tenant-scoped form builder: custom forms, fields, and captured submissions.",
+  "version": "1.0.0",
+  "icon": "fas fa-wpforms",
+  "tags": [
+    "forms",
+    "form-builder",
+    "cms",
+    "content"
+  ],
+  "priority": 60,
+  "dependencies": {
+    "requires": [
+      "db",
+      "env",
+      "redis",
+      "logger",
+      "setting"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/form_builder",
+  "license": "CC-BY-NC-ND-4.0",
+  "menu": [
+    {
+      "id": "form-builder-forms",
+      "label": "Forms",
+      "href": "/admin/forms",
+      "icon": "fas fa-wpforms",
+      "group": "Forms",
+      "workspace": "content",
+      "order": 10,
+      "scope": "tenant"
+    },
+    {
+      "id": "form-builder-submissions",
+      "label": "Submissions",
+      "href": "/admin/forms/submissions",
+      "icon": "fas fa-inbox",
+      "group": "Forms",
+      "workspace": "content",
+      "order": 20,
+      "scope": "tenant"
+    }
+  ],
+  "routes": [
+    {
+      "path": "/admin/forms",
+      "component": "form_builder/ui/forms.page"
+    },
+    {
+      "path": "/admin/forms/submissions",
+      "component": "form_builder/ui/form-submissions.page"
+    },
+    {
+      "path": "/admin/forms/[formId]",
+      "component": "form_builder/ui/forms-form-id.page"
+    }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/forms",
+      "handler": "form_builder/server/forms.route"
+    },
+    {
+      "path": "/api/forms/[formId]",
+      "handler": "form_builder/server/forms-form-id.route"
+    },
+    {
+      "path": "/api/forms/[formId]/lines",
+      "handler": "form_builder/server/forms-form-id-lines.route"
+    },
+    {
+      "path": "/api/forms/[formId]/lines/[fieldId]",
+      "handler": "form_builder/server/forms-form-id-lines-field-id.route"
+    },
+    {
+      "path": "/api/forms/[formId]/publish",
+      "handler": "form_builder/server/forms-form-id-publish.route"
+    },
+    {
+      "path": "/api/forms/[formId]/archive",
+      "handler": "form_builder/server/forms-form-id-archive.route"
+    },
+    {
+      "path": "/api/form-submissions",
+      "handler": "form_builder/server/form-submissions.route"
+    },
+    {
+      "path": "/api/form-submissions/[submissionId]",
+      "handler": "form_builder/server/form-submissions-submission-id.route"
+    }
+  ]
+}

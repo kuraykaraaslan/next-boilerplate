@@ -32,6 +32,16 @@
       "workspace": "crm",
       "order": 10,
       "scope": "tenant"
+    },
+    {
+      "id": "search-content",
+      "label": "Search",
+      "href": "/admin/search",
+      "icon": "fas fa-magnifying-glass",
+      "group": "Search",
+      "workspace": "content",
+      "order": 60,
+      "scope": "tenant"
     }
   ],
   "routes": [

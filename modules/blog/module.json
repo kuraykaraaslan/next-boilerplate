@@ -45,9 +45,23 @@
       "workspace": "content",
       "order": 20,
       "scope": "tenant"
+    },
+    {
+      "id": "blog-comments",
+      "label": "Comments",
+      "href": "/admin/blog/comments",
+      "icon": "fas fa-comments",
+      "group": "Blog",
+      "workspace": "content",
+      "order": 30,
+      "scope": "tenant"
     }
   ],
   "routes": [
+    {
+      "path": "/admin/blog/comments",
+      "component": "blog/ui/blog-comments.page"
+    },
     {
       "path": "/admin/blog/categories",
       "component": "blog/ui/blog-categories.page"

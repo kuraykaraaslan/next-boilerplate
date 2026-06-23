@@ -1,0 +1,55 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "redirect",
+  "name": "Redirects",
+  "description": "Tenant-scoped URL redirect (301/302) rules for SEO-safe content moves.",
+  "version": "1.0.0",
+  "icon": "fas fa-arrow-right-arrow-left",
+  "tags": [
+    "redirect",
+    "seo",
+    "cms",
+    "content"
+  ],
+  "priority": 60,
+  "dependencies": {
+    "requires": [
+      "db",
+      "env",
+      "redis",
+      "logger",
+      "setting"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/redirect",
+  "license": "CC-BY-NC-ND-4.0",
+  "menu": [
+    {
+      "id": "redirect-rules",
+      "label": "Redirects",
+      "href": "/admin/redirects",
+      "icon": "fas fa-arrow-right-arrow-left",
+      "group": "Redirects",
+      "workspace": "content",
+      "order": 10,
+      "scope": "tenant"
+    }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/redirects",
+      "handler": "redirect/server/redirects.route"
+    },
+    {
+      "path": "/api/redirects/[redirectId]",
+      "handler": "redirect/server/redirects-redirect-id.route"
+    }
+  ],
+  "routes": [
+    {
+      "path": "/admin/redirects",
+      "component": "redirect/ui/redirects.page"
+    }
+  ]
+}

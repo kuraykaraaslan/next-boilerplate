@@ -24,6 +24,7 @@
     "./server/media_gallery.url": "./server/media_gallery.url.ts",
     "./server/media_gallery.view": "./server/media_gallery.view.ts",
     "./ui/gallery-panel.component": "./ui/gallery-panel.component.tsx",
+    "./ui/media-library.page": "./ui/media-library.page.tsx",
     ".": "./server/index.ts",
     "./module.json": "./module.json"
   },

@@ -21,6 +21,24 @@
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/media_gallery",
   "license": "CC-BY-NC-ND-4.0",
+  "menu": [
+    {
+      "id": "media-library",
+      "label": "Media Library",
+      "href": "/admin/media",
+      "icon": "fas fa-images",
+      "group": "Media",
+      "workspace": "content",
+      "order": 20,
+      "scope": "tenant"
+    }
+  ],
+  "routes": [
+    {
+      "path": "/admin/media",
+      "component": "media_gallery/ui/media-library.page"
+    }
+  ],
   "apiRoutes": [
     {
       "path": "/api/media-gallery/[entityType]/[entityId]/items/reorder",

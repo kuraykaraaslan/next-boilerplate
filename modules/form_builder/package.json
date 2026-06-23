@@ -1,0 +1,41 @@
+{
+  "name": "@kuraykaraaslan/form_builder",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/form_builder.service": "./server/form_builder.service.ts",
+    "./server/form_builder.form.service": "./server/form_builder.form.service.ts",
+    "./server/form_builder.field.service": "./server/form_builder.field.service.ts",
+    "./server/form_builder.submission.service": "./server/form_builder.submission.service.ts",
+    "./server/forms.route": "./server/forms.route.ts",
+    "./server/forms-form-id.route": "./server/forms-form-id.route.ts",
+    "./server/forms-form-id-lines.route": "./server/forms-form-id-lines.route.ts",
+    "./server/forms-form-id-lines-field-id.route": "./server/forms-form-id-lines-field-id.route.ts",
+    "./server/forms-form-id-publish.route": "./server/forms-form-id-publish.route.ts",
+    "./server/forms-form-id-archive.route": "./server/forms-form-id-archive.route.ts",
+    "./server/form-submissions.route": "./server/form-submissions.route.ts",
+    "./server/form-submissions-submission-id.route": "./server/form-submissions-submission-id.route.ts",
+    "./server/form_builder.types": "./server/form_builder.types.ts",
+    "./server/form_builder.dto": "./server/form_builder.dto.ts",
+    "./server/form_builder.messages": "./server/form_builder.messages.ts",
+    "./server/form_builder.enums": "./server/form_builder.enums.ts",
+    "./server/entities/forms.entity": "./server/entities/forms.entity.ts",
+    "./server/entities/form_fields.entity": "./server/entities/form_fields.entity.ts",
+    "./server/entities/form_submissions.entity": "./server/entities/form_submissions.entity.ts",
+    "./server/index": "./server/index.ts",
+    "./server": "./server/index.ts",
+    "./ui/forms.page": "./ui/forms.page.tsx",
+    "./ui/forms-form-id.page": "./ui/forms-form-id.page.tsx",
+    "./ui/form-fields-panel.component": "./ui/form-fields-panel.component.tsx",
+    "./ui/form-submissions-panel.component": "./ui/form-submissions-panel.component.tsx",
+    "./ui/form-status-badge.component": "./ui/form-status-badge.component.tsx",
+    "./ui/form-submissions.page": "./ui/form-submissions.page.tsx",
+    ".": "./server/index.ts",
+    "./module.json": "./module.json"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "next": "*"
+  }
+}
